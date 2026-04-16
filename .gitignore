@@ -1,0 +1,11 @@
+.DS_Store
+
+**/bin/
+**/obj/
+**/TestResults/
+
+frontend/node_modules/
+frontend/dist/
+
+.env.local
+.env.*.local
