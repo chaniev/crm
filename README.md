@@ -23,8 +23,11 @@ crm/
     tests/
       Crm.Tests/           smoke-тесты и backend-тесты
   docs/
+    AGENT_ROUTING.md
+    DELIVERY_CHECKLIST.md
     IMPLEMENTATION_PLAN.md
     MVP-ТЗ.md
+    MVP_SCREEN_MAP.md
     описание требований. txt
   docker-compose.yml
   frontend/
