@@ -70,3 +70,18 @@ docker compose up --build -d
 - Frontend: `http://localhost:3000`
 - Backend: `http://localhost:8080`
 - PostgreSQL: `localhost:5432`
+
+## Миграции базы данных
+
+Backend использует `EF Core` и применяет ожидающие миграции при старте приложения.
+
+Для локальной работы с миграциями используется локальный tool manifest в `backend/dotnet-tools.json`.
+
+Команды:
+
+```bash
+cd backend
+dotnet tool restore
+dotnet dotnet-ef migrations list --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj
+dotnet dotnet-ef database update --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj
+```

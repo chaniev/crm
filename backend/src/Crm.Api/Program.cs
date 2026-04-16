@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Crm.Api.Startup;
 using Crm.Application;
 using Crm.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -13,6 +14,8 @@ builder.Services
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+await app.ApplyPersistenceStartupFlowAsync();
 
 app.MapGet("/", () => Results.Ok(new
 {
