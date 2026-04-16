@@ -4,29 +4,47 @@
 
 MVP CRM-системы для спортивного зала. Проект предназначен для ведения базы клиентов, групп и тренеров, учета абонементов и оплат, отметки посещений, хранения истории изменений и разграничения доступа по ролям.
 
-## Структура исходных кодов
+## Структура проекта
 
 ```text
 crm/
+  .env.example
+  AGENTS.md
+  README.md
   backend/
+    .dockerignore
     Crm.slnx
-    src/
-      Crm.Api/             ASP.NET Core API и точка входа приложения
-      Crm.Application/     прикладной слой и конфигурация зависимостей
-      Crm.Domain/          доменная модель и общие контракты
-      Crm.Infrastructure/  инфраструктурные реализации и интеграции
-    tests/
-      Crm.Tests/           автотесты backend
     Dockerfile
-  frontend/
     src/
-      main.tsx             точка входа frontend
-      App.tsx              корневой React-компонент
+      Crm.Api/             ASP.NET Core API
+      Crm.Application/     прикладной слой
+      Crm.Domain/          доменная модель
+      Crm.Infrastructure/  инфраструктурный слой
+    tests/
+      Crm.Tests/           smoke-тесты и backend-тесты
+  docs/
+    IMPLEMENTATION_PLAN.md
+    MVP-ТЗ.md
+    описание требований. txt
+  docker-compose.yml
+  frontend/
+    .dockerignore
+    .gitignore
+    src/
+      main.tsx
+      App.tsx
       App.css
       index.css
     Dockerfile
+    eslint.config.js
+    index.html
+    package-lock.json
     package.json
-  docker-compose.yml
+    tsconfig.app.json
+    tsconfig.json
+    tsconfig.node.json
+    vite.config.ts
+  global.json
 ```
 
 ## Используемые технологии
