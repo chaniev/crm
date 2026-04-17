@@ -1,5 +1,9 @@
+using Crm.Application.Audit;
+using Crm.Application.Security;
+using Crm.Infrastructure.Audit;
 using Crm.Infrastructure.HealthChecks;
 using Crm.Infrastructure.Persistence;
+using Crm.Infrastructure.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +30,9 @@ public static class DependencyInjection
 
         services.AddDbContext<CrmDbContext>(options =>
             options.UseNpgsql(connectionString));
+
+        services.AddScoped<IPasswordHashService, PasswordHashService>();
+        services.AddScoped<IAuditLogService, AuditLogService>();
 
         services
             .AddHealthChecks()

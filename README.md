@@ -53,7 +53,7 @@ crm/
 ## Используемые технологии
 
 - Backend: `C#`, `ASP.NET Core`, `.NET 10`
-- Frontend: `React 19`, `TypeScript`, `Vite`
+- Frontend: `React 19`, `TypeScript`, `Vite`, `Mantine`, `Onest`
 - База данных: `PostgreSQL 17`
 - Тестирование: `xUnit`
 - Контейнеризация: `Docker`, `Docker Compose`
@@ -74,6 +74,14 @@ docker compose up --build -d
 - Backend: `http://localhost:8080`
 - PostgreSQL: `localhost:5432`
 
+## Первый вход
+
+- Backend автоматически создает первого пользователя с ролью `HeadCoach`.
+- По умолчанию логин первого пользователя: `headcoach`.
+- Стартовый пароль: `12345678`.
+- После первого входа система обязательно переводит пользователя на экран смены пароля и не открывает рабочий shell, пока пароль не изменен.
+- Логин bootstrap-пользователя можно переопределить через конфигурационный ключ `BootstrapUser:Login` или переменную окружения `BootstrapUser__Login`.
+
 ## Миграции базы данных
 
 Backend использует `EF Core` и применяет ожидающие миграции при старте приложения.
@@ -87,4 +95,13 @@ cd backend
 dotnet tool restore
 dotnet dotnet-ef migrations list --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj
 dotnet dotnet-ef database update --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj
+```
+
+## Проверки
+
+```bash
+dotnet test backend/Crm.slnx
+cd frontend
+npm run build
+npm run lint
 ```
