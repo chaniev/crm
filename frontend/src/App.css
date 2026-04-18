@@ -209,6 +209,13 @@
     linear-gradient(135deg, rgba(246, 244, 238, 0.74), rgba(255, 255, 255, 0.94));
 }
 
+.client-row-card,
+.client-section-card,
+.client-detail-card {
+  background:
+    linear-gradient(135deg, rgba(239, 245, 242, 0.92), rgba(255, 255, 255, 0.96));
+}
+
 .group-clients-card {
   background:
     linear-gradient(135deg, rgba(237, 245, 242, 0.92), rgba(246, 244, 238, 0.9));

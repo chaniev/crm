@@ -83,6 +83,58 @@ export type GroupTrainerSummary = {
   login?: string
 }
 
+export type ClientStatus = 'Active' | 'Archived'
+
+export type ClientContact = {
+  id?: string
+  type: string
+  fullName: string
+  phone: string
+}
+
+export type ClientGroupSummary = {
+  id: string
+  name: string
+  isActive: boolean
+  trainingStartTime?: string
+  scheduleText?: string
+}
+
+export type ClientListItem = {
+  id: string
+  fullName: string
+  lastName: string
+  firstName: string
+  middleName: string
+  phone: string
+  status: ClientStatus
+  contactCount: number
+  groupCount: number
+  groups: ClientGroupSummary[]
+  updatedAt?: string
+}
+
+export type ClientDetails = ClientListItem & {
+  createdAt?: string
+  contacts: ClientContact[]
+  groupIds: string[]
+}
+
+export type ClientContactInput = {
+  type: string
+  fullName: string
+  phone: string
+}
+
+export type UpsertClientRequest = {
+  lastName?: string
+  firstName?: string
+  middleName?: string
+  phone: string
+  contacts: ClientContactInput[]
+  groupIds: string[]
+}
+
 export type TrainerOption = {
   id: string
   fullName: string
@@ -189,6 +241,41 @@ type GroupTrainerOptionPayload = {
   login: string
 }
 
+type ClientContactPayload = {
+  id?: string
+  type?: string | null
+  fullName?: string | null
+  phone?: string | null
+}
+
+type ClientGroupPayload = {
+  id: string
+  name?: string | null
+  groupName?: string | null
+  title?: string | null
+  isActive?: boolean | null
+  trainingStartTime?: string | null
+  scheduleText?: string | null
+}
+
+type ClientResponsePayload = {
+  id: string
+  lastName?: string | null
+  firstName?: string | null
+  middleName?: string | null
+  fullName?: string | null
+  phone?: string | null
+  status?: string | null
+  contactCount?: number | null
+  groupCount?: number | null
+  contacts?: ClientContactPayload[] | Record<string, unknown>
+  groups?: ClientGroupPayload[] | Record<string, unknown>
+  clientGroups?: ClientGroupPayload[] | Record<string, unknown>
+  groupIds?: string[] | null
+  updatedAt?: string
+  createdAt?: string
+}
+
 export class ApiError extends Error {
   status: number
   fieldErrors: Record<string, string[]>
@@ -254,10 +341,63 @@ export function applyFieldErrors(
 ): Record<string, string> {
   return Object.fromEntries(
     Object.entries(fieldErrors).map(([field, messages]) => [
-      field,
+      normalizeFieldPath(field),
       messages[0] ?? 'Проверьте значение поля.',
     ]),
   )
+}
+
+export async function getClients(signal?: AbortSignal) {
+  const payload = await request<unknown>('/clients', { signal })
+
+  return extractArrayPayload<ClientResponsePayload>(payload, [
+    'items',
+    'clients',
+  ]).map(mapClientListItem)
+}
+
+export async function getClient(clientId: string, signal?: AbortSignal) {
+  const payload = await request<ClientResponsePayload>(`/clients/${clientId}`, {
+    signal,
+  })
+
+  return mapClientDetails(payload)
+}
+
+export async function createClient(payload: UpsertClientRequest) {
+  const response = await request<ClientResponsePayload | null>('/clients', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+  return response ? mapClientDetails(response) : null
+}
+
+export async function updateClient(
+  clientId: string,
+  payload: UpsertClientRequest,
+) {
+  const response = await request<ClientResponsePayload | null>(
+    `/clients/${clientId}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    },
+  )
+
+  return response ? mapClientDetails(response) : null
+}
+
+export async function archiveClient(clientId: string) {
+  return request<void>(`/clients/${clientId}/archive`, {
+    method: 'PUT',
+  })
+}
+
+export async function restoreClient(clientId: string) {
+  return request<void>(`/clients/${clientId}/restore`, {
+    method: 'PUT',
+  })
 }
 
 export async function loadSession(signal?: AbortSignal) {
@@ -478,4 +618,153 @@ function mapGroupDetails(payload: GroupResponsePayload): TrainingGroupDetails {
     updatedAt: payload.updatedAt,
     createdAt: payload.createdAt,
   }
+}
+
+function normalizeFieldPath(field: string) {
+  if (field === 'fullName') {
+    return 'lastName'
+  }
+
+  return field
+    .replace(/\[(\d+)\]/g, '.$1')
+    .split('.')
+    .map((segment) => {
+      if (!segment || /^\d+$/.test(segment)) {
+        return segment
+      }
+
+      return segment.charAt(0).toLowerCase() + segment.slice(1)
+    })
+    .join('.')
+}
+
+function extractArrayPayload<T>(payload: unknown, keys: string[]): T[] {
+  if (Array.isArray(payload)) {
+    return payload as T[]
+  }
+
+  if (!isRecord(payload)) {
+    return []
+  }
+
+  for (const key of keys) {
+    const candidate = payload[key]
+    if (Array.isArray(candidate)) {
+      return candidate as T[]
+    }
+  }
+
+  const nestedData = payload.data
+
+  if (Array.isArray(nestedData)) {
+    return nestedData as T[]
+  }
+
+  if (isRecord(nestedData)) {
+    for (const key of keys) {
+      const candidate = nestedData[key]
+      if (Array.isArray(candidate)) {
+        return candidate as T[]
+      }
+    }
+  }
+
+  return []
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
+  const contacts = mapClientContacts(payload)
+  const groups = mapClientGroups(payload)
+  const fullName = buildClientFullName(payload)
+
+  return {
+    id: payload.id,
+    fullName,
+    lastName: payload.lastName?.trim() ?? '',
+    firstName: payload.firstName?.trim() ?? '',
+    middleName: payload.middleName?.trim() ?? '',
+    phone: payload.phone?.trim() ?? '',
+    status: mapClientStatus(payload.status),
+    contactCount: payload.contactCount ?? contacts.length,
+    groupCount: payload.groupCount ?? groups.length,
+    groups,
+    updatedAt: payload.updatedAt,
+  }
+}
+
+function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
+  const listItem = mapClientListItem(payload)
+  const groupIds =
+    payload.groupIds?.filter((groupId): groupId is string => Boolean(groupId)) ??
+    listItem.groups.map((group) => group.id)
+
+  return {
+    ...listItem,
+    contacts: mapClientContacts(payload),
+    createdAt: payload.createdAt,
+    groupIds,
+  }
+}
+
+function mapClientContacts(payload: ClientResponsePayload): ClientContact[] {
+  return extractArrayPayload<ClientContactPayload>(payload.contacts, [
+    'items',
+    'contacts',
+  ]).map((contact) => ({
+    id: contact.id,
+    type: contact.type?.trim() ?? '',
+    fullName: contact.fullName?.trim() ?? '',
+    phone: contact.phone?.trim() ?? '',
+  }))
+}
+
+function mapClientGroups(payload: ClientResponsePayload): ClientGroupSummary[] {
+  const groupsPayload = extractArrayPayload<ClientGroupPayload>(payload.groups, [
+    'items',
+    'groups',
+  ])
+
+  const fallbackGroupsPayload =
+    groupsPayload.length > 0
+      ? groupsPayload
+      : extractArrayPayload<ClientGroupPayload>(payload.clientGroups, [
+          'items',
+          'groups',
+        ])
+
+  return fallbackGroupsPayload.map((group) => ({
+    id: group.id,
+    name:
+      group.name?.trim() ??
+      group.groupName?.trim() ??
+      group.title?.trim() ??
+      'Группа без названия',
+    isActive: group.isActive ?? true,
+    trainingStartTime: group.trainingStartTime ?? undefined,
+    scheduleText: group.scheduleText ?? undefined,
+  }))
+}
+
+function buildClientFullName(payload: Pick<
+  ClientResponsePayload,
+  'fullName' | 'lastName' | 'firstName' | 'middleName'
+>) {
+  const fullName = [payload.lastName, payload.firstName, payload.middleName]
+    .map((value) => value?.trim() ?? '')
+    .filter(Boolean)
+    .join(' ')
+
+  if (fullName) {
+    return fullName
+  }
+
+  return payload.fullName?.trim() || 'Без имени'
+}
+
+function mapClientStatus(status?: string | null): ClientStatus {
+  return status === 'Archived' ? 'Archived' : 'Active'
 }

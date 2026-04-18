@@ -50,6 +50,12 @@ import {
   type SessionResponse,
 } from './lib/api'
 import {
+  ClientCreateScreen,
+  ClientDetailScreen,
+  ClientEditScreen,
+  ClientsListScreen,
+} from './features/clients/ClientManagement'
+import {
   GroupCreateScreen,
   GroupEditScreen,
   GroupsListScreen,
@@ -66,6 +72,9 @@ type PasswordMode = 'forced' | 'utility'
 type AppRoute =
   | { kind: 'section'; section: AppSection }
   | { kind: 'password' }
+  | { kind: 'clientCreate' }
+  | { kind: 'clientDetails'; clientId: string }
+  | { kind: 'clientEdit'; clientId: string }
   | { kind: 'groupCreate' }
   | { kind: 'groupEdit'; groupId: string }
   | { kind: 'userCreate' }
@@ -141,6 +150,12 @@ function getRoutePath(route: AppRoute) {
       return getSectionPath(route.section)
     case 'password':
       return '/password'
+    case 'clientCreate':
+      return '/clients/new'
+    case 'clientDetails':
+      return `/clients/${encodeURIComponent(route.clientId)}`
+    case 'clientEdit':
+      return `/clients/${encodeURIComponent(route.clientId)}/edit`
     case 'groupCreate':
       return '/groups/new'
     case 'groupEdit':
@@ -159,12 +174,24 @@ function parseRoute(pathname: string): AppRoute {
     return { kind: 'password' }
   }
 
+  if (normalizedPathname === '/clients/new') {
+    return { kind: 'clientCreate' }
+  }
+
   if (normalizedPathname === '/groups/new') {
     return { kind: 'groupCreate' }
   }
 
   if (normalizedPathname === '/users/new') {
     return { kind: 'userCreate' }
+  }
+
+  const clientEditMatch = normalizedPathname.match(/^\/clients\/([^/]+)\/edit$/)
+  if (clientEditMatch) {
+    return {
+      kind: 'clientEdit',
+      clientId: decodeURIComponent(clientEditMatch[1]),
+    }
   }
 
   const groupEditMatch = normalizedPathname.match(/^\/groups\/([^/]+)\/edit$/)
@@ -180,6 +207,14 @@ function parseRoute(pathname: string): AppRoute {
     return {
       kind: 'userEdit',
       userId: decodeURIComponent(userEditMatch[1]),
+    }
+  }
+
+  const clientDetailsMatch = normalizedPathname.match(/^\/clients\/([^/]+)$/)
+  if (clientDetailsMatch) {
+    return {
+      kind: 'clientDetails',
+      clientId: decodeURIComponent(clientDetailsMatch[1]),
     }
   }
 
@@ -201,6 +236,10 @@ function getRouteSection(route: AppRoute): AppSection | null {
   switch (route.kind) {
     case 'section':
       return route.section
+    case 'clientCreate':
+    case 'clientDetails':
+    case 'clientEdit':
+      return 'Clients'
     case 'groupCreate':
     case 'groupEdit':
       return 'Groups'
@@ -273,6 +312,19 @@ function getPostPasswordPath(
 
   if (returnSection === 'Users' && !user.permissions.canManageUsers) {
     return fallbackPath
+  }
+
+  if (
+    (
+      returnRoute.kind === 'clientCreate' ||
+      returnRoute.kind === 'clientDetails' ||
+      returnRoute.kind === 'clientEdit'
+    ) &&
+    !user.permissions.canManageClients
+  ) {
+    return user.allowedSections.includes('Clients')
+      ? getSectionPath('Clients')
+      : fallbackPath
   }
 
   if (returnSection === 'Groups' && !user.permissions.canManageGroups) {
@@ -350,6 +402,19 @@ function App() {
 
     if (currentSection === 'Users' && !session.user.permissions.canManageUsers) {
       navigate(landingPath, { replace: true })
+      return
+    }
+
+    if (
+      (route.kind === 'clientCreate' || route.kind === 'clientEdit') &&
+      !session.user.permissions.canManageClients
+    ) {
+      navigate(
+        session.user.allowedSections.includes('Clients')
+          ? getSectionPath('Clients')
+          : landingPath,
+        { replace: true },
+      )
       return
     }
 
@@ -586,12 +651,16 @@ function App() {
         />
       ) : (
         <RouteViewport
+          onCreateClient={() => navigate({ kind: 'clientCreate' })}
+          onEditClient={(clientId) => navigate({ kind: 'clientEdit', clientId })}
+          onOpenClient={(clientId) => navigate({ kind: 'clientDetails', clientId })}
           onCreateGroup={() => navigate({ kind: 'groupCreate' })}
           currentUserId={authenticatedUser.id}
           onEditGroup={(groupId) => navigate({ kind: 'groupEdit', groupId })}
           onCreateUser={() => navigate({ kind: 'userCreate' })}
           onEditUser={(userId) => navigate({ kind: 'userEdit', userId })}
           onRefreshSession={refreshSessionState}
+          onReturnToClients={() => navigate({ kind: 'section', section: 'Clients' })}
           onReturnToGroups={() => navigate({ kind: 'section', section: 'Groups' })}
           onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
           route={route}
@@ -1044,9 +1113,13 @@ type RouteViewportProps = {
   currentUserId: string
   onCreateGroup: () => void
   onEditGroup: (groupId: string) => void
+  onCreateClient: () => void
+  onEditClient: (clientId: string) => void
+  onOpenClient: (clientId: string) => void
   onCreateUser: () => void
   onEditUser: (userId: string) => void
   onRefreshSession: () => Promise<unknown>
+  onReturnToClients: () => void
   onReturnToGroups: () => void
   onReturnToUsers: () => void
 }
@@ -1055,14 +1128,65 @@ function RouteViewport({
   route,
   user,
   currentUserId,
+  onCreateClient,
+  onEditClient,
+  onOpenClient,
   onCreateGroup,
   onEditGroup,
   onCreateUser,
   onEditUser,
   onRefreshSession,
+  onReturnToClients,
   onReturnToGroups,
   onReturnToUsers,
 }: RouteViewportProps) {
+  if (
+    !user.permissions.canManageClients &&
+    (route.kind === 'clientCreate' ||
+      route.kind === 'clientDetails' ||
+      route.kind === 'clientEdit' ||
+      (route.kind === 'section' && route.section === 'Clients'))
+  ) {
+    return <ClientsReadOnlyPlaceholder />
+  }
+
+  if (route.kind === 'clientCreate') {
+    return (
+      <ClientCreateScreen
+        onCancel={onReturnToClients}
+        onCreated={(clientId) => {
+          if (clientId) {
+            onOpenClient(clientId)
+            return
+          }
+
+          onReturnToClients()
+        }}
+      />
+    )
+  }
+
+  if (route.kind === 'clientDetails') {
+    return (
+      <ClientDetailScreen
+        canManage={user.permissions.canManageClients}
+        clientId={route.clientId}
+        onBack={onReturnToClients}
+        onEdit={onEditClient}
+      />
+    )
+  }
+
+  if (route.kind === 'clientEdit') {
+    return (
+      <ClientEditScreen
+        clientId={route.clientId}
+        onBack={() => onOpenClient(route.clientId)}
+        onUpdated={onOpenClient}
+      />
+    )
+  }
+
   if (route.kind === 'groupCreate') {
     return (
       <GroupCreateScreen
@@ -1102,6 +1226,16 @@ function RouteViewport({
     )
   }
 
+  if (route.section === 'Clients') {
+    return (
+      <ClientsListScreen
+        canManage={user.permissions.canManageClients}
+        onCreate={onCreateClient}
+        onOpen={onOpenClient}
+      />
+    )
+  }
+
   if (route.section === 'Users') {
     return <UsersListScreen onCreate={onCreateUser} onEdit={onEditUser} />
   }
@@ -1115,6 +1249,84 @@ function RouteViewport({
   }
 
   return <SectionPlaceholder section={route.section} user={user} />
+}
+
+function ClientsReadOnlyPlaceholder() {
+  return (
+    <Stack className="dashboard-stack" gap="xl">
+      <Paper className="dashboard-hero" radius="36px" shadow="lg">
+        <div className="dashboard-hero__glow" />
+        <Stack className="dashboard-hero__content" gap="lg">
+          <Group gap="sm">
+            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
+              Этап 6a
+            </Badge>
+            <Badge color="brand.1" radius="xl" size="lg" variant="light">
+              Клиенты для тренера
+            </Badge>
+          </Group>
+
+          <Stack gap="sm">
+            <Title c="white" className="dashboard-hero__title" order={1}>
+              Read-only клиентский scope для тренера появится следующим шагом
+            </Title>
+            <Text className="dashboard-hero__description" size="lg">
+              В текущем этапе backend уже оставляет раздел в навигации тренера,
+              но management API клиентов по-прежнему открыт только для
+              `HeadCoach` и `Administrator`.
+            </Text>
+          </Stack>
+        </Stack>
+      </Paper>
+
+      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <Stack gap="lg">
+          <Alert
+            color="blue"
+            icon={<IconAlertCircle size={18} />}
+            title="Раздел пока работает как безопасный placeholder"
+            variant="light"
+          >
+            На следующем этапе сюда будет подключен ограниченный просмотр
+            клиентов назначенных групп без CRUD-действий и без чувствительных
+            полей.
+          </Alert>
+
+          <SimpleGrid cols={{ base: 1, md: 3 }}>
+            <Paper className="hint-card" radius="24px" withBorder>
+              <Stack gap={6}>
+                <Text fw={700}>Что уже готово</Text>
+                <Text c="dimmed" size="sm">
+                  У менеджерских ролей доступен полный flow списка, карточки,
+                  создания, редактирования и архива клиентов.
+                </Text>
+              </Stack>
+            </Paper>
+
+            <Paper className="hint-card" radius="24px" withBorder>
+              <Stack gap={6}>
+                <Text fw={700}>Почему так</Text>
+                <Text c="dimmed" size="sm">
+                  Инвариант проекта сохраняется: права остаются источником истины
+                  на backend, а frontend не пытается обойти запреты доступа.
+                </Text>
+              </Stack>
+            </Paper>
+
+            <Paper className="hint-card" radius="24px" withBorder>
+              <Stack gap={6}>
+                <Text fw={700}>Следующий шаг</Text>
+                <Text c="dimmed" size="sm">
+                  Ограниченный список и карточка тренера будут добавлены вместе
+                  с ролевым представлением клиентской карточки.
+                </Text>
+              </Stack>
+            </Paper>
+          </SimpleGrid>
+        </Stack>
+      </Paper>
+    </Stack>
+  )
 }
 
 type RoleDashboardProps = {
@@ -1146,12 +1358,12 @@ function RoleDashboard({ user }: RoleDashboardProps) {
 
           <Stack gap="sm">
             <Title c="white" className="dashboard-hero__title" order={1}>
-              Shell сохраняет auth-flow и ведет users и groups как route-level сценарии
+              Shell сохраняет auth-flow и ведет клиентов, группы и пользователей как route-level сценарии
             </Title>
             <Text className="dashboard-hero__description" size="lg">
               {presentation.roleHint} После входа интерфейс остается
               backend-driven: доступные разделы и роли приходят из API, а
-              пользовательские экраны пользователей и групп живут внутри того же shell.
+              пользовательские экраны клиентов, пользователей и групп живут внутри того же shell.
             </Text>
           </Stack>
 
@@ -1238,13 +1450,13 @@ function RoleDashboard({ user }: RoleDashboardProps) {
             <div>
               <Text fw={700}>Следующий вертикальный шаг</Text>
               <Text c="dimmed" size="sm">
-                Route-level users и groups flow уже встроены в shell. Следующий
-                этап может наращивать клиентов без пересборки auth foundation.
+                Базовый clients flow теперь встроен рядом с users и groups. Следующий
+                этап может наращивать абонементы внутри той же карточки клиента.
               </Text>
             </div>
 
             <Badge color="brand.7" radius="xl" size="lg" variant="light">
-              Следующий этап: управление клиентами
+              Следующий этап: абонементы клиентов
             </Badge>
           </Group>
 
@@ -1268,7 +1480,7 @@ function RoleDashboard({ user }: RoleDashboardProps) {
 }
 
 type SectionPlaceholderProps = {
-  section: Exclude<AppSection, 'Home' | 'Users' | 'Groups'>
+  section: Exclude<AppSection, 'Home' | 'Clients' | 'Users' | 'Groups'>
   user: AuthenticatedUser
 }
 
@@ -1297,7 +1509,7 @@ function SectionPlaceholder({
               Раздел {sectionLabelMap[section]} уже встроен в навигацию shell
             </Title>
             <Text className="dashboard-hero__description" size="lg">
-              Текущий инкремент уже реализует flows пользователей и групп. Этот
+              Текущий инкремент уже реализует flows клиентов, пользователей и групп. Этот
               маршрут оставлен как безопасный placeholder до следующего этапа.
             </Text>
           </Stack>
