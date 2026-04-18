@@ -14,7 +14,7 @@
 
 ### 1.1. Текущий статус реализации
 
-Статус актуализирован на `2026-04-17` по фактическому состоянию репозитория.
+Статус актуализирован на `2026-04-18` по фактическому состоянию репозитория.
 
 Текущая сводка:
 
@@ -22,10 +22,12 @@
 - завершен `Этап 1. База данных и миграции`;
 - завершен `Этап 2. Авторизация и первый вход`;
 - завершен `Этап 3. Роли и проверка прав`;
+- завершен `Этап 4. Управление пользователями`;
 - `Инкремент 1. Технический скелет` завершен: каркас, базовый запуск, схема БД MVP и начальный миграционный цикл готовы;
 - `Инкремент 2. Базовый auth foundation` завершен: backend выдает `HttpOnly` cookie, seed-ит первого `HeadCoach`, требует смену пароля при первом входе, пишет базовый аудит и отдает CSRF-токен, а frontend имеет единый theme foundation и auth-flow на `Mantine`;
 - этап 3 добавил named policies доступа, backend-driven access scope в `session/profile`, group-scoped проверку тренера для attendance-сценариев и HTTP-интеграционные тесты матрицы прав;
-- проверка этапов 1-3 подтверждена командами `dotnet test backend/Crm.slnx`, `npm run build`, `npm run lint`, `dotnet dotnet-ef database update --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj --context CrmDbContext` и запуском `Crm.Api` с автоматическим применением миграций к чистой PostgreSQL.
+- этап 4 добавил backend API управления пользователями (`GET /users`, `GET /users/{id}`, `POST /users`, `PUT /users/{id}`) с аудитом, запретом смены логина и route-level frontend flow для списка, создания и редактирования пользователей;
+- проверка этапов 1-4 подтверждена командами `dotnet test backend/Crm.slnx`, `npm run build`, `npm run lint`, `dotnet dotnet-ef database update --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj --context CrmDbContext` и запуском `Crm.Api` с автоматическим применением миграций к чистой PostgreSQL.
 
 Статус по этапам:
 
@@ -35,7 +37,7 @@
 | Этап 1. База данных и миграции | выполнен | Подключен `EF Core` c `PostgreSQL`, добавлены доменные сущности MVP, `CrmDbContext`, конфигурации схемы, первая миграция `InitialCreate`, индексы и автоматическое применение миграций при старте backend. |
 | Этап 2. Авторизация и первый вход | выполнен | Реализованы `login/logout/change-password`, cookie-based auth, `HttpOnly` cookie, CSRF-защита, seed первого `HeadCoach`, forced смена пароля, базовый аудит auth-сценариев и frontend auth-flow на `Mantine` с общей light-theme foundation. |
 | Этап 3. Роли и проверка прав | выполнен | Реализованы роли, named policies, backend access-scope, group-scoped доступ тренера к attendance API и интеграционные тесты матрицы прав. |
-| Этап 4. Управление пользователями | не начат | Нет API и UI для управления пользователями. |
+| Этап 4. Управление пользователями | выполнен | Реализованы backend API списка/создания/редактирования пользователей, аудит create/update, запрет смены логина и route-level UI списка, создания и редактирования пользователей только для `HeadCoach`. |
 | Этап 5. Управление группами | не начат | Нет API и UI для групп и назначения тренеров. |
 | Этап 6a. Базовый CRUD клиентов, контакты и группы | не начат | Нет сущностей, API и UI карточки клиента. |
 | Этап 6b. Абонементы клиентов и версионирование | не начат | Нет логики `ClientMembership`, версионирования и сценариев оплаты. |

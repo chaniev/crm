@@ -65,6 +65,7 @@ app.UseAuthorization();
 
 app.MapAuthEndpoints();
 app.MapAccessEndpoints();
+app.MapUserEndpoints();
 
 app.MapGet("/", () => Results.Ok(new
 {

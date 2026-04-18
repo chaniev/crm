@@ -30,6 +30,7 @@ import {
   IconLockPassword,
   IconMapPin,
   IconProgressCheck,
+  IconRoute,
   IconShieldCheck,
   IconSparkles,
   IconUserCircle,
@@ -37,25 +38,39 @@ import {
 import {
   ApiError,
   applyFieldErrors,
-  type AppSection,
   changePassword,
   loadSession,
   login,
   logout,
   type AccessPermissions,
+  type AppSection,
   type AuthenticatedUser,
   type ChangePasswordRequest,
   type LoginRequest,
   type SessionResponse,
 } from './lib/api'
+import {
+  UserCreateScreen,
+  UserEditScreen,
+  UsersListScreen,
+} from './features/users/UserManagement'
 import './App.css'
 
-type ShellView = 'dashboard' | 'password'
 type PasswordMode = 'forced' | 'utility'
+
+type AppRoute =
+  | { kind: 'section'; section: AppSection }
+  | { kind: 'password' }
+  | { kind: 'userCreate' }
+  | { kind: 'userEdit'; userId: string }
 
 type RolePresentation = {
   roleLabel: string
   roleHint: string
+}
+
+type NavigateOptions = {
+  replace?: boolean
 }
 
 const sectionLabelMap: Record<AppSection, string> = {
@@ -65,6 +80,15 @@ const sectionLabelMap: Record<AppSection, string> = {
   Groups: 'Группы',
   Users: 'Пользователи',
   Audit: 'Журнал',
+}
+
+const sectionPathMap: Record<AppSection, string> = {
+  Home: '/',
+  Attendance: '/attendance',
+  Clients: '/clients',
+  Groups: '/groups',
+  Users: '/users',
+  Audit: '/audit',
 }
 
 const rolePresentationMap: Record<AuthenticatedUser['role'], RolePresentation> = {
@@ -92,14 +116,155 @@ function getAllowedPermissionLabels(permissions: AccessPermissions) {
   ].filter((value): value is string => Boolean(value))
 }
 
+function normalizePathname(pathname: string) {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1)
+  }
+
+  return pathname || '/'
+}
+
+function getSectionPath(section: AppSection) {
+  return sectionPathMap[section]
+}
+
+function getRoutePath(route: AppRoute) {
+  switch (route.kind) {
+    case 'section':
+      return getSectionPath(route.section)
+    case 'password':
+      return '/password'
+    case 'userCreate':
+      return '/users/new'
+    case 'userEdit':
+      return `/users/${encodeURIComponent(route.userId)}/edit`
+  }
+}
+
+function parseRoute(pathname: string): AppRoute {
+  const normalizedPathname = normalizePathname(pathname)
+
+  if (normalizedPathname === '/password') {
+    return { kind: 'password' }
+  }
+
+  if (normalizedPathname === '/users/new') {
+    return { kind: 'userCreate' }
+  }
+
+  const userEditMatch = normalizedPathname.match(/^\/users\/([^/]+)\/edit$/)
+  if (userEditMatch) {
+    return {
+      kind: 'userEdit',
+      userId: decodeURIComponent(userEditMatch[1]),
+    }
+  }
+
+  const sectionEntry = Object.entries(sectionPathMap).find(
+    ([, path]) => path === normalizedPathname,
+  )
+
+  if (sectionEntry) {
+    return {
+      kind: 'section',
+      section: sectionEntry[0] as AppSection,
+    }
+  }
+
+  return { kind: 'section', section: 'Home' }
+}
+
+function getRouteSection(route: AppRoute): AppSection | null {
+  switch (route.kind) {
+    case 'section':
+      return route.section
+    case 'userCreate':
+    case 'userEdit':
+      return 'Users'
+    case 'password':
+      return null
+  }
+}
+
+function useAppRoute() {
+  const [pathname, setPathname] = useState(() =>
+    normalizePathname(window.location.pathname),
+  )
+
+  useEffect(() => {
+    function handlePopState() {
+      setPathname(normalizePathname(window.location.pathname))
+    }
+
+    window.addEventListener('popstate', handlePopState)
+
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  function navigate(nextRoute: AppRoute | string, options: NavigateOptions = {}) {
+    const nextPath =
+      typeof nextRoute === 'string'
+        ? normalizePathname(nextRoute)
+        : getRoutePath(nextRoute)
+
+    if (nextPath === pathname) {
+      return
+    }
+
+    if (options.replace) {
+      window.history.replaceState(window.history.state, '', nextPath)
+    } else {
+      window.history.pushState(window.history.state, '', nextPath)
+    }
+
+    setPathname(nextPath)
+    window.scrollTo({ top: 0 })
+  }
+
+  return {
+    navigate,
+    pathname,
+    route: parseRoute(pathname),
+  }
+}
+
+function getPostPasswordPath(
+  user: AuthenticatedUser,
+  passwordReturnPath: string | null,
+) {
+  const fallbackPath = getSectionPath(user.landingScreen)
+
+  if (!passwordReturnPath) {
+    return fallbackPath
+  }
+
+  const returnRoute = parseRoute(passwordReturnPath)
+  const returnSection = getRouteSection(returnRoute)
+
+  if (!returnSection) {
+    return fallbackPath
+  }
+
+  if (returnSection === 'Users' && !user.permissions.canManageUsers) {
+    return fallbackPath
+  }
+
+  if (!user.allowedSections.includes(returnSection)) {
+    return fallbackPath
+  }
+
+  return getRoutePath(returnRoute)
+}
+
 function App() {
+  const { navigate, pathname, route } = useAppRoute()
   const [session, setSession] = useState<SessionResponse | null>(null)
   const [loadingSession, setLoadingSession] = useState(true)
   const [bootstrapError, setBootstrapError] = useState<string | null>(null)
-  const [shellView, setShellView] = useState<ShellView>('dashboard')
   const [loginPending, setLoginPending] = useState(false)
   const [passwordPending, setPasswordPending] = useState(false)
   const [logoutPending, setLogoutPending] = useState(false)
+  const [passwordReturnPath, setPasswordReturnPath] = useState<string | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -113,7 +278,6 @@ function App() {
 
         startTransition(() => {
           setSession(currentSession)
-          setShellView('dashboard')
         })
       } catch (error) {
         if (controller.signal.aborted) {
@@ -137,6 +301,33 @@ function App() {
     return () => controller.abort()
   }, [])
 
+  useEffect(() => {
+    if (!session?.isAuthenticated || !session.user || session.user.mustChangePassword) {
+      return
+    }
+
+    if (route.kind === 'password') {
+      return
+    }
+
+    const currentSection = getRouteSection(route)
+    const landingPath = getSectionPath(session.user.landingScreen)
+
+    if (!currentSection) {
+      navigate(landingPath, { replace: true })
+      return
+    }
+
+    if (currentSection === 'Users' && !session.user.permissions.canManageUsers) {
+      navigate(landingPath, { replace: true })
+      return
+    }
+
+    if (!session.user.allowedSections.includes(currentSection)) {
+      navigate(landingPath, { replace: true })
+    }
+  }, [navigate, route, session])
+
   async function retrySessionLoad() {
     setLoadingSession(true)
     setBootstrapError(null)
@@ -146,7 +337,6 @@ function App() {
 
       startTransition(() => {
         setSession(currentSession)
-        setShellView('dashboard')
       })
     } catch (error) {
       setBootstrapError(
@@ -159,6 +349,16 @@ function App() {
     }
   }
 
+  async function refreshSessionState() {
+    const currentSession = await loadSession()
+
+    startTransition(() => {
+      setSession(currentSession)
+    })
+
+    return currentSession
+  }
+
   async function handleLogin(values: LoginRequest) {
     setLoginPending(true)
 
@@ -167,8 +367,13 @@ function App() {
 
       startTransition(() => {
         setSession(currentSession)
-        setShellView('dashboard')
       })
+
+      if (currentSession.user && !currentSession.user.mustChangePassword) {
+        navigate(getSectionPath(currentSession.user.landingScreen), {
+          replace: true,
+        })
+      }
     } finally {
       setLoginPending(false)
     }
@@ -185,8 +390,15 @@ function App() {
 
       startTransition(() => {
         setSession(currentSession)
-        setShellView('dashboard')
       })
+
+      if (currentSession.user) {
+        navigate(getPostPasswordPath(currentSession.user, passwordReturnPath), {
+          replace: true,
+        })
+      }
+
+      setPasswordReturnPath(null)
 
       notifications.show({
         title: mode === 'forced' ? 'Первый вход завершен' : 'Пароль обновлен',
@@ -209,8 +421,10 @@ function App() {
 
       startTransition(() => {
         setSession(currentSession)
-        setShellView('dashboard')
       })
+
+      setPasswordReturnPath(null)
+      navigate('/', { replace: true })
 
       notifications.show({
         title: 'Сессия завершена',
@@ -231,6 +445,11 @@ function App() {
     }
   }
 
+  function openUtilityPassword() {
+    setPasswordReturnPath(route.kind === 'password' ? passwordReturnPath : pathname)
+    navigate({ kind: 'password' })
+  }
+
   if (loadingSession) {
     return <LoadingState />
   }
@@ -238,15 +457,15 @@ function App() {
   if (bootstrapError && !session) {
     return (
       <StageFrame
-        eyebrow="Stage 3"
-        title="Backend пока не отвечает"
-        description="Frontend не смог получить начальную сессию, CSRF-токен и backend-driven access-context."
         accent="Проверьте backend и перезапустите загрузку, чтобы продолжить вход и проверить матрицу ролей."
         bullets={[
           'Cookie-auth и forced first login живут на backend.',
-          'Права и доступные секции теперь приходят из API.',
-          'После восстановления соединения можно сразу проверить role-aware shell.',
+          'Права и доступные секции приходят из API.',
+          'После восстановления соединения можно открыть route-level users flow.',
         ]}
+        description="Frontend не смог получить начальную сессию, CSRF-токен и backend-driven access-context."
+        eyebrow="Stage 4"
+        title="Backend пока не отвечает"
       >
         <Paper className="stage-card" radius="32px" shadow="lg" withBorder>
           <Stack gap="lg">
@@ -259,7 +478,10 @@ function App() {
               {bootstrapError}
             </Alert>
 
-            <Button onClick={() => void retrySessionLoad()} rightSection={<IconArrowRight size={18} />}>
+            <Button
+              onClick={() => void retrySessionLoad()}
+              rightSection={<IconArrowRight size={18} />}
+            >
               Повторить загрузку
             </Button>
           </Stack>
@@ -271,15 +493,15 @@ function App() {
   if (!session?.isAuthenticated || !session.user) {
     return (
       <StageFrame
-        eyebrow="Stage 3"
-        title="Вход в CRM для спортивного зала"
-        description="Cookie-based авторизация, CSRF-защита, роли и backend-enforced access model уже связаны в единый поток."
         accent="Для bootstrap-пользователя backend создает обязательную смену пароля, а после входа выдает role-aware shell."
         bullets={[
           'Логин первого пользователя берется из конфигурации backend, по умолчанию это `headcoach`.',
           'Стартовый пароль для первого входа: `12345678`.',
           'После успешного входа frontend получает доступные секции и разрешения прямо из API.',
         ]}
+        description="Cookie-based авторизация, CSRF-защита, роли и route-aware shell уже связаны в единый поток."
+        eyebrow="Stage 4"
+        title="Вход в CRM для спортивного зала"
       >
         <LoginScreen pending={loginPending} onSubmit={handleLogin} />
       </StageFrame>
@@ -289,15 +511,15 @@ function App() {
   if (session.user.mustChangePassword) {
     return (
       <StageFrame
-        eyebrow="Forced First Login"
-        title="Смена пароля обязательна перед началом работы"
-        description="Пока флаг `MustChangePassword` активен, backend пропускает только безопасный auth-flow и не дает выйти в рабочие API."
         accent="После успешной смены пароля сессия будет перевыпущена, а интерфейс откроет роль-подходящий landing."
         bullets={[
-          'Изменение пароля проходит через тот же endpoint, который потом будет доступен из профиля.',
+          'Изменение пароля проходит через тот же endpoint, который доступен из профиля.',
           'CSRF-токен уже получен и автоматически подставляется в изменяющие запросы.',
           'Аудит пишет login, logout и password change без хранения паролей или их хешей.',
         ]}
+        description="Пока флаг `MustChangePassword` активен, backend пропускает только безопасный auth-flow и не дает выйти в рабочие API."
+        eyebrow="Forced First Login"
+        title="Смена пароля обязательна перед началом работы"
       >
         <PasswordScreen
           mode="forced"
@@ -308,24 +530,39 @@ function App() {
     )
   }
 
+  const currentSection = getRouteSection(route)
+  const authenticatedUser = session.user
+
   return (
     <AuthenticatedShell
+      currentSection={currentSection}
       logoutPending={logoutPending}
       onLogout={handleLogout}
-      onOpenPassword={() => setShellView('password')}
-      user={session.user}
+      onNavigateSection={(section) => navigate({ kind: 'section', section })}
+      onOpenPassword={openUtilityPassword}
+      user={authenticatedUser}
     >
-      {shellView === 'password' ? (
+      {route.kind === 'password' ? (
         <PasswordScreen
           mode="utility"
+          onBack={() => {
+            navigate(getPostPasswordPath(authenticatedUser, passwordReturnPath), {
+              replace: true,
+            })
+            setPasswordReturnPath(null)
+          }}
           pending={passwordPending}
-          onBack={() => setShellView('dashboard')}
           onSubmit={handleChangePassword}
         />
       ) : (
-        <RoleDashboard
-          onOpenPassword={() => setShellView('password')}
-          user={session.user}
+        <RouteViewport
+          currentUserId={authenticatedUser.id}
+          onCreateUser={() => navigate({ kind: 'userCreate' })}
+          onEditUser={(userId) => navigate({ kind: 'userEdit', userId })}
+          onRefreshSession={refreshSessionState}
+          onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
+          route={route}
+          user={authenticatedUser}
         />
       )}
     </AuthenticatedShell>
@@ -666,7 +903,9 @@ function PasswordScreen({
 
 type AuthenticatedShellProps = {
   user: AuthenticatedUser
+  currentSection: AppSection | null
   logoutPending: boolean
+  onNavigateSection: (section: AppSection) => void
   onOpenPassword: () => void
   onLogout: () => Promise<void>
   children: ReactNode
@@ -674,13 +913,18 @@ type AuthenticatedShellProps = {
 
 function AuthenticatedShell({
   user,
+  currentSection,
   logoutPending,
+  onNavigateSection,
   onOpenPassword,
   onLogout,
   children,
 }: AuthenticatedShellProps) {
   const presentation = rolePresentationMap[user.role]
   const landingLabel = sectionLabelMap[user.landingScreen]
+  const navigationSections = user.allowedSections.filter(
+    (section) => section !== 'Users' || user.permissions.canManageUsers,
+  )
 
   return (
     <AppShell
@@ -706,18 +950,21 @@ function AuthenticatedShell({
             </Stack>
 
             <Group className="app-shell__actions" gap="sm">
-              {user.allowedSections.map((section) => (
-                <Badge
-                  className="nav-badge"
-                  color={section === user.landingScreen ? 'brand' : 'sand'}
-                  key={section}
-                  radius="xl"
-                  size="lg"
-                  variant={section === user.landingScreen ? 'filled' : 'light'}
-                >
-                  {sectionLabelMap[section]}
-                </Badge>
-              ))}
+              <Group gap="xs" wrap="wrap">
+                {navigationSections.map((section) => (
+                  <Button
+                    aria-current={section === currentSection ? 'page' : undefined}
+                    className="app-shell__nav-button"
+                    key={section}
+                    onClick={() => onNavigateSection(section)}
+                    radius="xl"
+                    size="sm"
+                    variant={section === currentSection ? 'filled' : 'light'}
+                  >
+                    {sectionLabelMap[section]}
+                  </Button>
+                ))}
+              </Group>
 
               <Menu position="bottom-end" shadow="md" width={250}>
                 <Menu.Target>
@@ -758,12 +1005,61 @@ function AuthenticatedShell({
   )
 }
 
-type RoleDashboardProps = {
+type RouteViewportProps = {
+  route: Exclude<AppRoute, { kind: 'password' }>
   user: AuthenticatedUser
-  onOpenPassword: () => void
+  currentUserId: string
+  onCreateUser: () => void
+  onEditUser: (userId: string) => void
+  onRefreshSession: () => Promise<unknown>
+  onReturnToUsers: () => void
 }
 
-function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
+function RouteViewport({
+  route,
+  user,
+  currentUserId,
+  onCreateUser,
+  onEditUser,
+  onRefreshSession,
+  onReturnToUsers,
+}: RouteViewportProps) {
+  if (route.kind === 'userCreate') {
+    return (
+      <UserCreateScreen
+        onCancel={onReturnToUsers}
+        onCreated={onReturnToUsers}
+      />
+    )
+  }
+
+  if (route.kind === 'userEdit') {
+    return (
+      <UserEditScreen
+        currentUserId={currentUserId}
+        onBack={onReturnToUsers}
+        onRefreshSession={onRefreshSession}
+        userId={route.userId}
+      />
+    )
+  }
+
+  if (route.section === 'Users') {
+    return <UsersListScreen onCreate={onCreateUser} onEdit={onEditUser} />
+  }
+
+  if (route.section === 'Home') {
+    return <RoleDashboard user={user} />
+  }
+
+  return <SectionPlaceholder section={route.section} user={user} />
+}
+
+type RoleDashboardProps = {
+  user: AuthenticatedUser
+}
+
+function RoleDashboard({ user }: RoleDashboardProps) {
   const presentation = rolePresentationMap[user.role]
   const landingLabel = sectionLabelMap[user.landingScreen]
   const allowedPermissionLabels = getAllowedPermissionLabels(user.permissions)
@@ -779,7 +1075,7 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
         <Stack className="dashboard-hero__content" gap="lg">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 3 закрывает роли и права
+              Этап 4
             </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               {presentation.roleLabel}
@@ -788,26 +1084,21 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
 
           <Stack gap="sm">
             <Title c="white" className="dashboard-hero__title" order={1}>
-              Сессия активна, а backend уже выдает role-aware access scope
+              Shell сохраняет auth-flow и добавляет route-level users management
             </Title>
             <Text className="dashboard-hero__description" size="lg">
-              {presentation.roleHint} После первого входа маршрут выводит вас в
-              секцию «{landingLabel}», а shell берет доступные разделы и
-              базовые разрешения из ответа backend.
+              {presentation.roleHint} После входа интерфейс остается
+              backend-driven: доступные разделы и роли приходят из API, а
+              пользовательские экраны живут внутри того же shell.
             </Text>
           </Stack>
 
           <Group gap="md" wrap="wrap">
-            <Button
-              color="accent.5"
-              onClick={onOpenPassword}
-              rightSection={<IconLockPassword size={18} />}
-              variant="white"
-            >
-              Проверить utility-flow смены пароля
-            </Button>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               Login: {user.login}
+            </Badge>
+            <Badge color="sand" radius="xl" size="lg" variant="light">
+              Landing: {landingLabel}
             </Badge>
             <Badge color="sand" radius="xl" size="lg" variant="light">
               {coachScopeLabel}
@@ -885,13 +1176,13 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
             <div>
               <Text fw={700}>Следующий вертикальный шаг</Text>
               <Text c="dimmed" size="sm">
-                Роли и backend access model уже собраны. Следом можно
-                безопасно наращивать CRUD-экраны пользователей и групп.
+                Route-level users flow уже встроен в shell. Следующий этап может
+                наращивать группы без пересборки auth foundation.
               </Text>
             </div>
 
             <Badge color="brand.7" radius="xl" size="lg" variant="light">
-              Следующий этап: управление пользователями
+              Следующий этап: управление группами
             </Badge>
           </Group>
 
@@ -905,9 +1196,77 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
               Landing: {landingLabel}
             </Badge>
             <Badge radius="xl" size="lg" variant="light">
-              Screen foundation: Mantine + Onest
+              Route foundation: browser history + Mantine shell
             </Badge>
           </Group>
+        </Stack>
+      </Paper>
+    </Stack>
+  )
+}
+
+type SectionPlaceholderProps = {
+  section: Exclude<AppSection, 'Home' | 'Users'>
+  user: AuthenticatedUser
+}
+
+function SectionPlaceholder({
+  section,
+  user,
+}: SectionPlaceholderProps) {
+  const presentation = rolePresentationMap[user.role]
+
+  return (
+    <Stack className="dashboard-stack" gap="xl">
+      <Paper className="dashboard-hero" radius="36px" shadow="lg">
+        <div className="dashboard-hero__glow" />
+        <Stack className="dashboard-hero__content" gap="lg">
+          <Group gap="sm">
+            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
+              Route-level shell
+            </Badge>
+            <Badge color="brand.1" radius="xl" size="lg" variant="light">
+              {sectionLabelMap[section]}
+            </Badge>
+          </Group>
+
+          <Stack gap="sm">
+            <Title c="white" className="dashboard-hero__title" order={1}>
+              Раздел {sectionLabelMap[section]} уже встроен в навигацию shell
+            </Title>
+            <Text className="dashboard-hero__description" size="lg">
+              Текущий инкремент реализует только users management flow. Этот
+              маршрут оставлен как безопасный placeholder до следующего этапа.
+            </Text>
+          </Stack>
+        </Stack>
+      </Paper>
+
+      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <Stack gap="md">
+          <Group gap="xs">
+            <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+              <IconRoute size={18} />
+            </ThemeIcon>
+            <div>
+              <Text fw={700}>Почему здесь placeholder</Text>
+              <Text c="dimmed" size="sm">
+                Маршрут уже учитывает права роли {presentation.roleLabel}, но
+                прикладной экран запланирован на следующий этап плана.
+              </Text>
+            </div>
+          </Group>
+
+          <Alert
+            color="blue"
+            icon={<IconCheck size={18} />}
+            title="Навигация уже собрана"
+            variant="light"
+          >
+            Shell умеет открывать route-level экраны, а запрет на недоступные
+            секции остается backend-driven и дополнительно дублируется
+            redirect-логикой во frontend.
+          </Alert>
         </Stack>
       </Paper>
     </Stack>

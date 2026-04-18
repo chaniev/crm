@@ -140,6 +140,11 @@
   justify-content: flex-end;
 }
 
+.app-shell__nav-button {
+  text-transform: none;
+  font-weight: 600;
+}
+
 .app-shell__main {
   min-height: 100vh;
   background:
@@ -183,6 +188,20 @@
 
 .surface-card--wide {
   padding: 1.5rem;
+}
+
+.management-hero__actions {
+  align-items: center;
+}
+
+.metric-card {
+  min-height: 10.5rem;
+}
+
+.list-row-card {
+  padding: 1rem 1.1rem;
+  background: rgba(246, 244, 238, 0.55);
+  border-color: rgba(20, 90, 82, 0.08);
 }
 
 @media (max-width: 62rem) {

@@ -47,6 +47,36 @@ export type ChangePasswordRequest = {
   newPassword: string
 }
 
+export type UserRole = AuthenticatedUser['role']
+
+export type UserListItem = {
+  id: string
+  fullName: string
+  login: string
+  role: UserRole
+  mustChangePassword: boolean
+  isActive: boolean
+}
+
+export type UserDetails = UserListItem
+
+export type CreateUserRequest = {
+  fullName: string
+  login: string
+  password: string
+  role: UserRole
+  mustChangePassword: boolean
+  isActive: boolean
+}
+
+export type UpdateUserRequest = {
+  fullName: string
+  login: string
+  role: UserRole
+  mustChangePassword: boolean
+  isActive: boolean
+}
+
 type ProblemPayload = {
   title?: string
   detail?: string
@@ -145,6 +175,28 @@ export async function logout() {
 export async function changePassword(payload: ChangePasswordRequest) {
   return request<SessionResponse>('/auth/change-password', {
     method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function getUsers(signal?: AbortSignal) {
+  return request<UserListItem[]>('/users', { signal })
+}
+
+export async function getUser(userId: string, signal?: AbortSignal) {
+  return request<UserDetails>(`/users/${userId}`, { signal })
+}
+
+export async function createUser(payload: CreateUserRequest) {
+  return request<void>('/users', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function updateUser(userId: string, payload: UpdateUserRequest) {
+  return request<void>(`/users/${userId}`, {
+    method: 'PUT',
     body: JSON.stringify(payload),
   })
 }
