@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
+var secureCookiePolicy = AuthSessionDefaults.ResolveCookieSecurePolicy(builder.Environment);
 
 builder.Services.AddApplication();
 builder.Services.AddAuthorization(CrmAuthorizationPolicies.Configure);
@@ -18,10 +19,8 @@ builder.Services
         options.Cookie.Name = AuthConstants.AuthCookieName;
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
-            ? CookieSecurePolicy.SameAsRequest
-            : CookieSecurePolicy.Always;
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.Cookie.SecurePolicy = secureCookiePolicy;
+        options.ExpireTimeSpan = AuthConstants.SessionLifetime;
         options.SlidingExpiration = true;
         options.Events = new CookieAuthenticationEvents
         {
@@ -42,16 +41,17 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.Name = AuthConstants.CsrfCookieName;
     options.Cookie.HttpOnly = false;
     options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
-        ? CookieSecurePolicy.SameAsRequest
-        : CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = secureCookiePolicy;
     options.HeaderName = AuthConstants.CsrfHeaderName;
 });
 builder.Services.Configure<BootstrapUserOptions>(
     builder.Configuration.GetSection(BootstrapUserOptions.SectionName));
 builder.Services
     .AddHealthChecks()
-    .AddCheck("self", () => HealthCheckResult.Healthy("API is running."), tags: ["live"]);
+    .AddCheck(
+        ApiHostingConstants.SelfHealthCheckName,
+        () => HealthCheckResult.Healthy(ApiHostingConstants.SelfHealthCheckDescription),
+        tags: [ApiHostingConstants.LiveHealthTag]);
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
@@ -69,28 +69,21 @@ app.MapUserEndpoints();
 app.MapClientEndpoints();
 Crm.Api.Auth.GroupEndpoints.MapGroupEndpoints(app);
 
-app.MapGet("/", () => Results.Ok(new
-{
-    service = "crm-backend",
-    environment = app.Environment.EnvironmentName,
-    endpoints = new
-    {
-        live = "/health/live",
-        ready = "/health/ready"
-    }
-}));
+app.MapGet(ApiHostingConstants.RootPath, () => Results.Ok(
+    new ServiceMetadataResponse(
+        ApiHostingConstants.ServiceName,
+        app.Environment.EnvironmentName,
+        new ServiceMetadataResponse.EndpointCollectionResponse(
+            ApiHostingConstants.LiveHealthPath,
+            ApiHostingConstants.ReadyHealthPath))));
 
-app.MapHealthChecks("/health/live", new HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("live"),
-    ResponseWriter = WriteHealthResponse
-});
+app.MapHealthChecks(
+    ApiHostingConstants.LiveHealthPath,
+    CreateHealthCheckOptions(ApiHostingConstants.LiveHealthTag));
 
-app.MapHealthChecks("/health/ready", new HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("ready"),
-    ResponseWriter = WriteHealthResponse
-});
+app.MapHealthChecks(
+    ApiHostingConstants.ReadyHealthPath,
+    CreateHealthCheckOptions(ApiHostingConstants.ReadyHealthTag));
 
 app.Run();
 
@@ -100,22 +93,27 @@ static Task WriteHealthResponse(HttpContext context, HealthReport report)
 {
     context.Response.ContentType = "application/json";
 
-    var payload = new
-    {
-        status = report.Status.ToString(),
-        totalDuration = report.TotalDuration.ToString(),
-        timestamp = DateTimeOffset.UtcNow,
-        checks = report.Entries.ToDictionary(
+    var payload = new HealthReportResponse(
+        report.Status.ToString(),
+        report.TotalDuration.ToString(),
+        DateTimeOffset.UtcNow,
+        report.Entries.ToDictionary(
             entry => entry.Key,
-            entry => new
-            {
-                status = entry.Value.Status.ToString(),
-                description = entry.Value.Description,
-                duration = entry.Value.Duration.ToString()
-            })
-    };
+            entry => new HealthReportResponse.HealthCheckEntryResponse(
+                entry.Value.Status.ToString(),
+                entry.Value.Description,
+                entry.Value.Duration.ToString())));
 
     return context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+}
+
+static HealthCheckOptions CreateHealthCheckOptions(string tag)
+{
+    return new HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains(tag),
+        ResponseWriter = WriteHealthResponse
+    };
 }
 
 public partial class Program;

@@ -50,6 +50,16 @@ import {
   type SessionResponse,
 } from './lib/api'
 import {
+  APP_SECTION_LABELS,
+  getRoutePath,
+  getRouteSection,
+  getSectionPath,
+  normalizePathname,
+  parseRoute,
+  resolveAccessibleRoutePath,
+  type AppRoute,
+} from './lib/appRoutes'
+import {
   ClientCreateScreen,
   ClientDetailScreen,
   ClientEditScreen,
@@ -69,17 +79,6 @@ import './App.css'
 
 type PasswordMode = 'forced' | 'utility'
 
-type AppRoute =
-  | { kind: 'section'; section: AppSection }
-  | { kind: 'password' }
-  | { kind: 'clientCreate' }
-  | { kind: 'clientDetails'; clientId: string }
-  | { kind: 'clientEdit'; clientId: string }
-  | { kind: 'groupCreate' }
-  | { kind: 'groupEdit'; groupId: string }
-  | { kind: 'userCreate' }
-  | { kind: 'userEdit'; userId: string }
-
 type RolePresentation = {
   roleLabel: string
   roleHint: string
@@ -87,24 +86,6 @@ type RolePresentation = {
 
 type NavigateOptions = {
   replace?: boolean
-}
-
-const sectionLabelMap: Record<AppSection, string> = {
-  Home: 'Главная',
-  Attendance: 'Посещения',
-  Clients: 'Клиенты',
-  Groups: 'Группы',
-  Users: 'Пользователи',
-  Audit: 'Журнал',
-}
-
-const sectionPathMap: Record<AppSection, string> = {
-  Home: '/',
-  Attendance: '/attendance',
-  Clients: '/clients',
-  Groups: '/groups',
-  Users: '/users',
-  Audit: '/audit',
 }
 
 const rolePresentationMap: Record<AuthenticatedUser['role'], RolePresentation> = {
@@ -130,125 +111,6 @@ function getAllowedPermissionLabels(permissions: AccessPermissions) {
     permissions.canMarkAttendance ? 'Отметка посещений' : null,
     permissions.canViewAuditLog ? 'Просмотр журнала действий' : null,
   ].filter((value): value is string => Boolean(value))
-}
-
-function normalizePathname(pathname: string) {
-  if (pathname.length > 1 && pathname.endsWith('/')) {
-    return pathname.slice(0, -1)
-  }
-
-  return pathname || '/'
-}
-
-function getSectionPath(section: AppSection) {
-  return sectionPathMap[section]
-}
-
-function getRoutePath(route: AppRoute) {
-  switch (route.kind) {
-    case 'section':
-      return getSectionPath(route.section)
-    case 'password':
-      return '/password'
-    case 'clientCreate':
-      return '/clients/new'
-    case 'clientDetails':
-      return `/clients/${encodeURIComponent(route.clientId)}`
-    case 'clientEdit':
-      return `/clients/${encodeURIComponent(route.clientId)}/edit`
-    case 'groupCreate':
-      return '/groups/new'
-    case 'groupEdit':
-      return `/groups/${encodeURIComponent(route.groupId)}/edit`
-    case 'userCreate':
-      return '/users/new'
-    case 'userEdit':
-      return `/users/${encodeURIComponent(route.userId)}/edit`
-  }
-}
-
-function parseRoute(pathname: string): AppRoute {
-  const normalizedPathname = normalizePathname(pathname)
-
-  if (normalizedPathname === '/password') {
-    return { kind: 'password' }
-  }
-
-  if (normalizedPathname === '/clients/new') {
-    return { kind: 'clientCreate' }
-  }
-
-  if (normalizedPathname === '/groups/new') {
-    return { kind: 'groupCreate' }
-  }
-
-  if (normalizedPathname === '/users/new') {
-    return { kind: 'userCreate' }
-  }
-
-  const clientEditMatch = normalizedPathname.match(/^\/clients\/([^/]+)\/edit$/)
-  if (clientEditMatch) {
-    return {
-      kind: 'clientEdit',
-      clientId: decodeURIComponent(clientEditMatch[1]),
-    }
-  }
-
-  const groupEditMatch = normalizedPathname.match(/^\/groups\/([^/]+)\/edit$/)
-  if (groupEditMatch) {
-    return {
-      kind: 'groupEdit',
-      groupId: decodeURIComponent(groupEditMatch[1]),
-    }
-  }
-
-  const userEditMatch = normalizedPathname.match(/^\/users\/([^/]+)\/edit$/)
-  if (userEditMatch) {
-    return {
-      kind: 'userEdit',
-      userId: decodeURIComponent(userEditMatch[1]),
-    }
-  }
-
-  const clientDetailsMatch = normalizedPathname.match(/^\/clients\/([^/]+)$/)
-  if (clientDetailsMatch) {
-    return {
-      kind: 'clientDetails',
-      clientId: decodeURIComponent(clientDetailsMatch[1]),
-    }
-  }
-
-  const sectionEntry = Object.entries(sectionPathMap).find(
-    ([, path]) => path === normalizedPathname,
-  )
-
-  if (sectionEntry) {
-    return {
-      kind: 'section',
-      section: sectionEntry[0] as AppSection,
-    }
-  }
-
-  return { kind: 'section', section: 'Home' }
-}
-
-function getRouteSection(route: AppRoute): AppSection | null {
-  switch (route.kind) {
-    case 'section':
-      return route.section
-    case 'clientCreate':
-    case 'clientDetails':
-    case 'clientEdit':
-      return 'Clients'
-    case 'groupCreate':
-    case 'groupEdit':
-      return 'Groups'
-    case 'userCreate':
-    case 'userEdit':
-      return 'Users'
-    case 'password':
-      return null
-  }
 }
 
 function useAppRoute() {
@@ -297,45 +159,11 @@ function getPostPasswordPath(
   user: AuthenticatedUser,
   passwordReturnPath: string | null,
 ) {
-  const fallbackPath = getSectionPath(user.landingScreen)
-
   if (!passwordReturnPath) {
-    return fallbackPath
+    return getSectionPath(user.landingScreen)
   }
 
-  const returnRoute = parseRoute(passwordReturnPath)
-  const returnSection = getRouteSection(returnRoute)
-
-  if (!returnSection) {
-    return fallbackPath
-  }
-
-  if (returnSection === 'Users' && !user.permissions.canManageUsers) {
-    return fallbackPath
-  }
-
-  if (
-    (
-      returnRoute.kind === 'clientCreate' ||
-      returnRoute.kind === 'clientDetails' ||
-      returnRoute.kind === 'clientEdit'
-    ) &&
-    !user.permissions.canManageClients
-  ) {
-    return user.allowedSections.includes('Clients')
-      ? getSectionPath('Clients')
-      : fallbackPath
-  }
-
-  if (returnSection === 'Groups' && !user.permissions.canManageGroups) {
-    return fallbackPath
-  }
-
-  if (!user.allowedSections.includes(returnSection)) {
-    return fallbackPath
-  }
-
-  return getRoutePath(returnRoute)
+  return resolveAccessibleRoutePath(user, parseRoute(passwordReturnPath))
 }
 
 function App() {
@@ -388,40 +216,11 @@ function App() {
       return
     }
 
-    if (route.kind === 'password') {
-      return
+    const accessiblePath = resolveAccessibleRoutePath(session.user, route)
+    if (accessiblePath !== pathname) {
+      navigate(accessiblePath, { replace: true })
     }
-
-    const currentSection = getRouteSection(route)
-    const landingPath = getSectionPath(session.user.landingScreen)
-
-    if (!currentSection) {
-      navigate(landingPath, { replace: true })
-      return
-    }
-
-    if (currentSection === 'Users' && !session.user.permissions.canManageUsers) {
-      navigate(landingPath, { replace: true })
-      return
-    }
-
-    if (
-      (route.kind === 'clientCreate' || route.kind === 'clientEdit') &&
-      !session.user.permissions.canManageClients
-    ) {
-      navigate(
-        session.user.allowedSections.includes('Clients')
-          ? getSectionPath('Clients')
-          : landingPath,
-        { replace: true },
-      )
-      return
-    }
-
-    if (!session.user.allowedSections.includes(currentSection)) {
-      navigate(landingPath, { replace: true })
-    }
-  }, [navigate, route, session])
+  }, [navigate, pathname, route, session])
 
   async function retrySessionLoad() {
     setLoadingSession(true)
@@ -1023,7 +822,7 @@ function AuthenticatedShell({
   children,
 }: AuthenticatedShellProps) {
   const presentation = rolePresentationMap[user.role]
-  const landingLabel = sectionLabelMap[user.landingScreen]
+  const landingLabel = APP_SECTION_LABELS[user.landingScreen]
   const navigationSections = user.allowedSections.filter(
     (section) => section !== 'Users' || user.permissions.canManageUsers,
   )
@@ -1063,7 +862,7 @@ function AuthenticatedShell({
                     size="sm"
                     variant={section === currentSection ? 'filled' : 'light'}
                   >
-                    {sectionLabelMap[section]}
+                    {APP_SECTION_LABELS[section]}
                   </Button>
                 ))}
               </Group>
@@ -1335,7 +1134,7 @@ type RoleDashboardProps = {
 
 function RoleDashboard({ user }: RoleDashboardProps) {
   const presentation = rolePresentationMap[user.role]
-  const landingLabel = sectionLabelMap[user.landingScreen]
+  const landingLabel = APP_SECTION_LABELS[user.landingScreen]
   const allowedPermissionLabels = getAllowedPermissionLabels(user.permissions)
   const coachScopeLabel =
     user.role === 'Coach'
@@ -1405,7 +1204,7 @@ function RoleDashboard({ user }: RoleDashboardProps) {
               spacing="sm"
             >
               {user.allowedSections.map((section) => (
-                <List.Item key={section}>{sectionLabelMap[section]}</List.Item>
+                <List.Item key={section}>{APP_SECTION_LABELS[section]}</List.Item>
               ))}
             </List>
           </Stack>
@@ -1500,13 +1299,13 @@ function SectionPlaceholder({
               Route-level shell
             </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              {sectionLabelMap[section]}
+              {APP_SECTION_LABELS[section]}
             </Badge>
           </Group>
 
           <Stack gap="sm">
             <Title c="white" className="dashboard-hero__title" order={1}>
-              Раздел {sectionLabelMap[section]} уже встроен в навигацию shell
+              Раздел {APP_SECTION_LABELS[section]} уже встроен в навигацию shell
             </Title>
             <Text className="dashboard-hero__description" size="lg">
               Текущий инкремент уже реализует flows клиентов, пользователей и групп. Этот

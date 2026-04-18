@@ -141,10 +141,9 @@ internal static class ClientEndpoints
             UpdatedAt = now
         };
 
-        ApplyContacts(client, normalizedRequest.Contacts, dbContext);
-        ApplyGroupAssignments(client, normalizedRequest.GroupIds, dbContext);
-
         dbContext.Clients.Add(client);
+        await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
+        await ReplaceGroupAssignmentsAsync(client.Id, normalizedRequest.GroupIds, dbContext, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var createdClient = await LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
@@ -197,7 +196,8 @@ internal static class ClientEndpoints
             return TypedResults.ValidationProblem(validationErrors);
         }
 
-        var oldState = SerializeAuditState(client);
+        var oldStateSnapshot = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
+        var oldState = SerializeAuditState(oldStateSnapshot ?? client);
 
         client.LastName = normalizedRequest.LastName;
         client.FirstName = normalizedRequest.FirstName;
@@ -205,8 +205,8 @@ internal static class ClientEndpoints
         client.Phone = normalizedRequest.Phone;
         client.UpdatedAt = DateTimeOffset.UtcNow;
 
-        ApplyContacts(client, normalizedRequest.Contacts, dbContext);
-        ApplyGroupAssignments(client, normalizedRequest.GroupIds, dbContext);
+        await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
+        await ReplaceGroupAssignmentsAsync(client.Id, normalizedRequest.GroupIds, dbContext, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -341,10 +341,6 @@ internal static class ClientEndpoints
         CancellationToken cancellationToken)
     {
         return await dbContext.Clients
-            .Include(client => client.Contacts)
-            .Include(client => client.Groups)
-                .ThenInclude(clientGroup => clientGroup.Group)
-            .AsSplitQuery()
             .SingleOrDefaultAsync(client => client.Id == id, cancellationToken);
     }
 
@@ -529,24 +525,27 @@ internal static class ClientEndpoints
             .ToArray() ?? [];
     }
 
-    private static void ApplyContacts(
-        Client client,
+    private static async Task ReplaceContactsAsync(
+        Guid clientId,
         IReadOnlyList<NormalizedClientContactRequest> requestedContacts,
-        CrmDbContext dbContext)
+        CrmDbContext dbContext,
+        CancellationToken cancellationToken)
     {
-        if (client.Contacts.Count > 0)
+        var existingContacts = await dbContext.ClientContacts
+            .Where(contact => contact.ClientId == clientId)
+            .ToArrayAsync(cancellationToken);
+
+        if (existingContacts.Length > 0)
         {
-            var contactsToRemove = client.Contacts.ToArray();
-            dbContext.ClientContacts.RemoveRange(contactsToRemove);
-            client.Contacts.Clear();
+            dbContext.ClientContacts.RemoveRange(existingContacts);
         }
 
         foreach (var requestedContact in requestedContacts)
         {
-            client.Contacts.Add(new ClientContact
+            dbContext.ClientContacts.Add(new ClientContact
             {
                 Id = Guid.NewGuid(),
-                ClientId = client.Id,
+                ClientId = clientId,
                 Type = requestedContact.Type,
                 FullName = requestedContact.FullName,
                 Phone = requestedContact.Phone
@@ -554,25 +553,28 @@ internal static class ClientEndpoints
         }
     }
 
-    private static void ApplyGroupAssignments(
-        Client client,
+    private static async Task ReplaceGroupAssignmentsAsync(
+        Guid clientId,
         IReadOnlyList<Guid> requestedGroupIds,
-        CrmDbContext dbContext)
+        CrmDbContext dbContext,
+        CancellationToken cancellationToken)
     {
         var requested = requestedGroupIds.ToHashSet();
 
-        var groupsToRemove = client.Groups
+        var existingGroups = await dbContext.ClientGroups
+            .Where(clientGroup => clientGroup.ClientId == clientId)
+            .ToArrayAsync(cancellationToken);
+
+        var groupsToRemove = existingGroups
             .Where(clientGroup => !requested.Contains(clientGroup.GroupId))
             .ToArray();
 
-        dbContext.ClientGroups.RemoveRange(groupsToRemove);
-
-        foreach (var groupToRemove in groupsToRemove)
+        if (groupsToRemove.Length > 0)
         {
-            client.Groups.Remove(groupToRemove);
+            dbContext.ClientGroups.RemoveRange(groupsToRemove);
         }
 
-        var existingGroupIds = client.Groups
+        var existingGroupIds = existingGroups
             .Select(clientGroup => clientGroup.GroupId)
             .ToHashSet();
 
@@ -583,9 +585,9 @@ internal static class ClientEndpoints
                 continue;
             }
 
-            client.Groups.Add(new ClientGroup
+            dbContext.ClientGroups.Add(new ClientGroup
             {
-                ClientId = client.Id,
+                ClientId = clientId,
                 GroupId = groupId
             });
         }
@@ -629,8 +631,8 @@ internal static class ClientEndpoints
         catch (AntiforgeryValidationException)
         {
             return TypedResults.Problem(
-                title: "InvalidCsrfToken",
-                detail: "Запрос отклонен из-за некорректного CSRF-токена. Обновите страницу и повторите действие.",
+                title: AuthConstants.InvalidCsrfProblemTitle,
+                detail: AuthConstants.InvalidCsrfProblemDetail,
                 statusCode: StatusCodes.Status400BadRequest);
         }
     }

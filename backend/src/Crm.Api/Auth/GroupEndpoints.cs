@@ -543,8 +543,8 @@ internal static class GroupEndpoints
         catch (AntiforgeryValidationException)
         {
             return TypedResults.Problem(
-                title: "InvalidCsrfToken",
-                detail: "Запрос отклонен из-за некорректного CSRF-токена. Обновите страницу и повторите действие.",
+                title: AuthConstants.InvalidCsrfProblemTitle,
+                detail: AuthConstants.InvalidCsrfProblemDetail,
                 statusCode: StatusCodes.Status400BadRequest);
         }
     }

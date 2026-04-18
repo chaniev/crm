@@ -6,25 +6,30 @@ namespace Crm.Infrastructure.Persistence.Configurations;
 
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
+    private const int FullNameMaxLength = 256;
+    private const int LoginMaxLength = 128;
+    private const int PasswordHashMaxLength = 512;
+    private const int RoleMaxLength = 32;
+
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(user => user.Id);
 
         builder.Property(user => user.FullName)
-            .HasMaxLength(256)
+            .HasMaxLength(FullNameMaxLength)
             .IsRequired();
 
         builder.Property(user => user.Login)
-            .HasMaxLength(128)
+            .HasMaxLength(LoginMaxLength)
             .IsRequired();
 
         builder.Property(user => user.PasswordHash)
-            .HasMaxLength(512)
+            .HasMaxLength(PasswordHashMaxLength)
             .IsRequired();
 
         builder.Property(user => user.Role)
             .HasConversion<string>()
-            .HasMaxLength(32)
+            .HasMaxLength(RoleMaxLength)
             .IsRequired();
 
         builder.Property(user => user.CreatedAt).IsRequired();

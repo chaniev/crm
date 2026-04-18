@@ -18,13 +18,13 @@ internal static class AuthEndpoints
 
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/auth");
+        var group = endpoints.MapGroup(AuthConstants.AuthRoutePrefix);
 
-        group.MapGet("/session", GetSessionAsync);
-        group.MapGet("/profile", GetProfileAsync).RequireAuthorization();
-        group.MapPost("/login", LoginAsync);
-        group.MapPost("/logout", LogoutAsync).RequireAuthorization();
-        group.MapPost("/change-password", ChangePasswordAsync).RequireAuthorization();
+        group.MapGet(AuthConstants.SessionRoute, GetSessionAsync);
+        group.MapGet(AuthConstants.ProfileRoute, GetProfileAsync).RequireAuthorization();
+        group.MapPost(AuthConstants.LoginRoute, LoginAsync);
+        group.MapPost(AuthConstants.LogoutRoute, LogoutAsync).RequireAuthorization();
+        group.MapPost(AuthConstants.ChangePasswordRoute, ChangePasswordAsync).RequireAuthorization();
 
         return endpoints;
     }
@@ -100,7 +100,10 @@ internal static class AuthEndpoints
             cancellationToken);
 
         var principal = CreatePrincipal(user);
-        await httpContext.SignInAsync(AuthConstants.CookieScheme, principal, CreateAuthenticationProperties());
+        await httpContext.SignInAsync(
+            AuthConstants.CookieScheme,
+            principal,
+            AuthSessionDefaults.CreateAuthenticationProperties());
 
         httpContext.User = principal;
         httpContext.Items[AuthConstants.AuthenticatedUserItemKey] = user;
@@ -234,7 +237,10 @@ internal static class AuthEndpoints
             cancellationToken);
 
         var principal = CreatePrincipal(user);
-        await httpContext.SignInAsync(AuthConstants.CookieScheme, principal, CreateAuthenticationProperties(now));
+        await httpContext.SignInAsync(
+            AuthConstants.CookieScheme,
+            principal,
+            AuthSessionDefaults.CreateAuthenticationProperties(now));
 
         httpContext.User = principal;
         httpContext.Items[AuthConstants.AuthenticatedUserItemKey] = user;
@@ -259,8 +265,8 @@ internal static class AuthEndpoints
         catch (AntiforgeryValidationException)
         {
             return TypedResults.Problem(
-                title: "InvalidCsrfToken",
-                detail: "Запрос отклонен из-за некорректного CSRF-токена. Обновите страницу и повторите действие.",
+                title: AuthConstants.InvalidCsrfProblemTitle,
+                detail: AuthConstants.InvalidCsrfProblemDetail,
                 statusCode: StatusCodes.Status400BadRequest);
         }
     }
@@ -326,19 +332,6 @@ internal static class AuthEndpoints
             ClaimTypes.Role);
 
         return new ClaimsPrincipal(identity);
-    }
-
-    private static AuthenticationProperties CreateAuthenticationProperties(DateTimeOffset? issuedAt = null)
-    {
-        var now = issuedAt ?? DateTimeOffset.UtcNow;
-
-        return new AuthenticationProperties
-        {
-            AllowRefresh = true,
-            ExpiresUtc = now.AddHours(8),
-            IsPersistent = true,
-            IssuedUtc = now
-        };
     }
 
     private sealed record LoginRequest(string Login, string Password);

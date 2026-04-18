@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Security.Claims;
+using Crm.Api.Startup;
 using Crm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +11,12 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
 {
     private static readonly string[] AllowedWhenPasswordChangeRequired =
     [
-        "/",
-        "/auth/session",
-        "/auth/change-password",
-        "/auth/logout",
-        "/health/live",
-        "/health/ready"
+        ApiHostingConstants.RootPath,
+        AuthConstants.SessionPath,
+        AuthConstants.ChangePasswordPath,
+        AuthConstants.LogoutPath,
+        ApiHostingConstants.LiveHealthPath,
+        ApiHostingConstants.ReadyHealthPath
     ];
 
     public async Task InvokeAsync(HttpContext context, CrmDbContext dbContext)
@@ -62,8 +63,8 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await context.Response.WriteAsJsonAsync(new
             {
-                title = "PasswordChangeRequired",
-                detail = "Сначала смените пароль, чтобы продолжить работу."
+                title = AuthConstants.PasswordChangeRequiredProblemTitle,
+                detail = AuthConstants.PasswordChangeRequiredProblemDetail
             }, context.RequestAborted);
 
             return;

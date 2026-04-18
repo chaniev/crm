@@ -6,28 +6,36 @@ namespace Crm.Infrastructure.Persistence.Configurations;
 
 internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
 {
+    private const int NameMaxLength = 128;
+    private const int PhoneMaxLength = 32;
+    private const int PhotoPathMaxLength = 512;
+    private const int PhotoContentTypeMaxLength = 128;
+    private const int StatusMaxLength = 32;
+    private const string PhotoSizeBytesNonNegativeConstraintName = "CK_Clients_PhotoSizeBytes_NonNegative";
+    private const string PhotoSizeBytesNonNegativeConstraintSql = "\"PhotoSizeBytes\" IS NULL OR \"PhotoSizeBytes\" >= 0";
+
     public void Configure(EntityTypeBuilder<Client> builder)
     {
         builder.ToTable(table => table.HasCheckConstraint(
-            "CK_Clients_PhotoSizeBytes_NonNegative",
-            "\"PhotoSizeBytes\" IS NULL OR \"PhotoSizeBytes\" >= 0"));
+            PhotoSizeBytesNonNegativeConstraintName,
+            PhotoSizeBytesNonNegativeConstraintSql));
 
         builder.HasKey(client => client.Id);
 
-        builder.Property(client => client.LastName).HasMaxLength(128);
-        builder.Property(client => client.FirstName).HasMaxLength(128);
-        builder.Property(client => client.MiddleName).HasMaxLength(128);
+        builder.Property(client => client.LastName).HasMaxLength(NameMaxLength);
+        builder.Property(client => client.FirstName).HasMaxLength(NameMaxLength);
+        builder.Property(client => client.MiddleName).HasMaxLength(NameMaxLength);
 
         builder.Property(client => client.Phone)
-            .HasMaxLength(32)
+            .HasMaxLength(PhoneMaxLength)
             .IsRequired();
 
-        builder.Property(client => client.PhotoPath).HasMaxLength(512);
-        builder.Property(client => client.PhotoContentType).HasMaxLength(128);
+        builder.Property(client => client.PhotoPath).HasMaxLength(PhotoPathMaxLength);
+        builder.Property(client => client.PhotoContentType).HasMaxLength(PhotoContentTypeMaxLength);
 
         builder.Property(client => client.Status)
             .HasConversion<string>()
-            .HasMaxLength(32)
+            .HasMaxLength(StatusMaxLength)
             .IsRequired();
 
         builder.Property(client => client.CreatedAt).IsRequired();
@@ -57,62 +65,5 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .WithOne(attendance => attendance.Client)
             .HasForeignKey(attendance => attendance.ClientId)
             .OnDelete(DeleteBehavior.Restrict);
-    }
-}
-
-internal sealed class ClientContactConfiguration : IEntityTypeConfiguration<ClientContact>
-{
-    public void Configure(EntityTypeBuilder<ClientContact> builder)
-    {
-        builder.HasKey(contact => contact.Id);
-
-        builder.Property(contact => contact.Type)
-            .HasMaxLength(64)
-            .IsRequired();
-
-        builder.Property(contact => contact.FullName)
-            .HasMaxLength(256)
-            .IsRequired();
-
-        builder.Property(contact => contact.Phone)
-            .HasMaxLength(32)
-            .IsRequired();
-    }
-}
-
-internal sealed class ClientMembershipConfiguration : IEntityTypeConfiguration<ClientMembership>
-{
-    public void Configure(EntityTypeBuilder<ClientMembership> builder)
-    {
-        builder.ToTable(table => table.HasCheckConstraint(
-            "CK_ClientMemberships_PaymentAmount_NonNegative",
-            "\"PaymentAmount\" >= 0"));
-
-        builder.HasKey(membership => membership.Id);
-
-        builder.Property(membership => membership.MembershipType)
-            .HasConversion<string>()
-            .HasMaxLength(32)
-            .IsRequired();
-
-        builder.Property(membership => membership.PaymentAmount)
-            .HasPrecision(10, 2)
-            .IsRequired();
-
-        builder.Property(membership => membership.ChangeReason)
-            .HasConversion<string>()
-            .HasMaxLength(32)
-            .IsRequired();
-
-        builder.Property(membership => membership.ValidFrom).IsRequired();
-        builder.Property(membership => membership.CreatedAt).IsRequired();
-
-        builder.HasIndex(membership => membership.ClientId);
-        builder.HasIndex(membership => membership.ValidTo);
-        builder.HasIndex(membership => membership.ExpirationDate);
-
-        builder.HasIndex(membership => membership.ClientId)
-            .IsUnique()
-            .HasFilter("\"ValidTo\" IS NULL");
     }
 }

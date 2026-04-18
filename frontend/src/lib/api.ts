@@ -1,4 +1,49 @@
 const apiBasePath = import.meta.env.VITE_API_BASE_PATH ?? '/api'
+const API_ENDPOINTS = {
+  auth: {
+    session: '/auth/session',
+    login: '/auth/login',
+    logout: '/auth/logout',
+    changePassword: '/auth/change-password',
+  },
+  users: {
+    collection: '/users',
+    byId: (userId: string) => `/users/${userId}`,
+  },
+  clients: {
+    collection: '/clients',
+    byId: (clientId: string) => `/clients/${clientId}`,
+    archive: (clientId: string) => `/clients/${clientId}/archive`,
+    restore: (clientId: string) => `/clients/${clientId}/restore`,
+  },
+  groups: {
+    collection: '/groups',
+    byId: (groupId: string) => `/groups/${groupId}`,
+    trainerOptions: '/groups/options/trainers',
+    clients: (groupId: string) => `/groups/${groupId}/clients`,
+  },
+} as const
+const JSON_CONTENT_TYPE = 'application/json'
+const GET_METHOD = 'GET'
+const HEAD_METHOD = 'HEAD'
+const CSRF_HEADER_NAME = 'X-CSRF-TOKEN'
+const DEFAULT_REQUEST_ERROR_MESSAGE = 'Не удалось выполнить запрос.'
+const DEFAULT_FIELD_ERROR_MESSAGE = 'Проверьте значение поля.'
+const CLIENT_STATUS_ACTIVE: ClientStatus = 'Active'
+const CLIENT_STATUS_ARCHIVED: ClientStatus = 'Archived'
+const DEFAULT_CLIENT_GROUP_NAME = 'Группа без названия'
+const GROUPS_DEFAULT_PAGE = 1
+const GROUPS_DEFAULT_PAGE_SIZE = 100
+const GROUPS_QUERY_KEYS = {
+  page: 'page',
+  pageSize: 'pageSize',
+  skip: 'skip',
+  take: 'take',
+  isActive: 'isActive',
+} as const
+const CLIENT_LIST_PAYLOAD_KEYS = ['items', 'clients'] as const
+const CLIENT_CONTACT_PAYLOAD_KEYS = ['items', 'contacts'] as const
+const CLIENT_GROUP_PAYLOAD_KEYS = ['items', 'groups'] as const
 
 let csrfToken = ''
 
@@ -296,17 +341,17 @@ async function request<T>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
-  const method = (init.method ?? 'GET').toUpperCase()
+  const method = (init.method ?? GET_METHOD).toUpperCase()
   const headers = new Headers(init.headers)
 
-  headers.set('Accept', 'application/json')
+  headers.set('Accept', JSON_CONTENT_TYPE)
 
   if (init.body && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json')
+    headers.set('Content-Type', JSON_CONTENT_TYPE)
   }
 
-  if (method !== 'GET' && method !== 'HEAD' && csrfToken) {
-    headers.set('X-CSRF-TOKEN', csrfToken)
+  if (method !== GET_METHOD && method !== HEAD_METHOD && csrfToken) {
+    headers.set(CSRF_HEADER_NAME, csrfToken)
   }
 
   const response = await fetch(`${apiBasePath}${path}`, {
@@ -327,7 +372,7 @@ async function request<T>(
 
   if (!response.ok) {
     throw new ApiError(
-      payload?.detail ?? payload?.title ?? 'Не удалось выполнить запрос.',
+      payload?.detail ?? payload?.title ?? DEFAULT_REQUEST_ERROR_MESSAGE,
       response.status,
       payload?.errors ?? {},
     )
@@ -342,33 +387,37 @@ export function applyFieldErrors(
   return Object.fromEntries(
     Object.entries(fieldErrors).map(([field, messages]) => [
       normalizeFieldPath(field),
-      messages[0] ?? 'Проверьте значение поля.',
+      messages[0] ?? DEFAULT_FIELD_ERROR_MESSAGE,
     ]),
   )
 }
 
 export async function getClients(signal?: AbortSignal) {
-  const payload = await request<unknown>('/clients', { signal })
+  const payload = await request<unknown>(API_ENDPOINTS.clients.collection, { signal })
 
-  return extractArrayPayload<ClientResponsePayload>(payload, [
-    'items',
-    'clients',
-  ]).map(mapClientListItem)
+  return extractArrayPayload<ClientResponsePayload>(
+    payload,
+    CLIENT_LIST_PAYLOAD_KEYS,
+  ).map(mapClientListItem)
 }
 
 export async function getClient(clientId: string, signal?: AbortSignal) {
-  const payload = await request<ClientResponsePayload>(`/clients/${clientId}`, {
-    signal,
-  })
+  const payload = await request<ClientResponsePayload>(
+    API_ENDPOINTS.clients.byId(clientId),
+    { signal },
+  )
 
   return mapClientDetails(payload)
 }
 
 export async function createClient(payload: UpsertClientRequest) {
-  const response = await request<ClientResponsePayload | null>('/clients', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
+  const response = await request<ClientResponsePayload | null>(
+    API_ENDPOINTS.clients.collection,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    },
+  )
 
   return response ? mapClientDetails(response) : null
 }
@@ -378,7 +427,7 @@ export async function updateClient(
   payload: UpsertClientRequest,
 ) {
   const response = await request<ClientResponsePayload | null>(
-    `/clients/${clientId}`,
+    API_ENDPOINTS.clients.byId(clientId),
     {
       method: 'PUT',
       body: JSON.stringify(payload),
@@ -389,58 +438,58 @@ export async function updateClient(
 }
 
 export async function archiveClient(clientId: string) {
-  return request<void>(`/clients/${clientId}/archive`, {
+  return request<void>(API_ENDPOINTS.clients.archive(clientId), {
     method: 'PUT',
   })
 }
 
 export async function restoreClient(clientId: string) {
-  return request<void>(`/clients/${clientId}/restore`, {
+  return request<void>(API_ENDPOINTS.clients.restore(clientId), {
     method: 'PUT',
   })
 }
 
 export async function loadSession(signal?: AbortSignal) {
-  return request<SessionResponse>('/auth/session', { signal })
+  return request<SessionResponse>(API_ENDPOINTS.auth.session, { signal })
 }
 
 export async function login(payload: LoginRequest) {
-  return request<SessionResponse>('/auth/login', {
+  return request<SessionResponse>(API_ENDPOINTS.auth.login, {
     method: 'POST',
     body: JSON.stringify(payload),
   })
 }
 
 export async function logout() {
-  return request<SessionResponse>('/auth/logout', {
+  return request<SessionResponse>(API_ENDPOINTS.auth.logout, {
     method: 'POST',
   })
 }
 
 export async function changePassword(payload: ChangePasswordRequest) {
-  return request<SessionResponse>('/auth/change-password', {
+  return request<SessionResponse>(API_ENDPOINTS.auth.changePassword, {
     method: 'POST',
     body: JSON.stringify(payload),
   })
 }
 
 export async function getUsers(signal?: AbortSignal) {
-  return request<UserListItem[]>('/users', { signal })
+  return request<UserListItem[]>(API_ENDPOINTS.users.collection, { signal })
 }
 
 export async function getUser(userId: string, signal?: AbortSignal) {
-  return request<UserDetails>(`/users/${userId}`, { signal })
+  return request<UserDetails>(API_ENDPOINTS.users.byId(userId), { signal })
 }
 
 export async function createUser(payload: CreateUserRequest) {
-  return request<void>('/users', {
+  return request<void>(API_ENDPOINTS.users.collection, {
     method: 'POST',
     body: JSON.stringify(payload),
   })
 }
 
 export async function updateUser(userId: string, payload: UpdateUserRequest) {
-  return request<void>(`/users/${userId}`, {
+  return request<void>(API_ENDPOINTS.users.byId(userId), {
     method: 'PUT',
     body: JSON.stringify(payload),
   })
@@ -459,39 +508,39 @@ export async function getGroups(
   const searchParams = new URLSearchParams()
 
   if (typeof params.page === 'number') {
-    searchParams.set('page', String(params.page))
+    searchParams.set(GROUPS_QUERY_KEYS.page, String(params.page))
   } else if (typeof params.pageSize === 'number') {
-    searchParams.set('page', '1')
+    searchParams.set(GROUPS_QUERY_KEYS.page, String(GROUPS_DEFAULT_PAGE))
   }
 
   if (typeof params.pageSize === 'number') {
-    searchParams.set('pageSize', String(params.pageSize))
+    searchParams.set(GROUPS_QUERY_KEYS.pageSize, String(params.pageSize))
   }
 
   if (typeof params.skip === 'number') {
-    searchParams.set('skip', String(params.skip))
+    searchParams.set(GROUPS_QUERY_KEYS.skip, String(params.skip))
   }
 
   if (typeof params.take === 'number') {
-    searchParams.set('take', String(params.take))
+    searchParams.set(GROUPS_QUERY_KEYS.take, String(params.take))
   }
 
   if (typeof params.isActive === 'boolean') {
-    searchParams.set('isActive', String(params.isActive))
+    searchParams.set(GROUPS_QUERY_KEYS.isActive, String(params.isActive))
   }
 
   if (
-    !searchParams.has('page') &&
-    !searchParams.has('pageSize') &&
-    !searchParams.has('skip') &&
-    !searchParams.has('take')
+    !searchParams.has(GROUPS_QUERY_KEYS.page) &&
+    !searchParams.has(GROUPS_QUERY_KEYS.pageSize) &&
+    !searchParams.has(GROUPS_QUERY_KEYS.skip) &&
+    !searchParams.has(GROUPS_QUERY_KEYS.take)
   ) {
-    searchParams.set('page', '1')
-    searchParams.set('pageSize', '100')
+    searchParams.set(GROUPS_QUERY_KEYS.page, String(GROUPS_DEFAULT_PAGE))
+    searchParams.set(GROUPS_QUERY_KEYS.pageSize, String(GROUPS_DEFAULT_PAGE_SIZE))
   }
 
   const payload = await request<GroupResponsePayload[] | GroupsListEnvelopePayload>(
-    `/groups?${searchParams.toString()}`,
+    `${API_ENDPOINTS.groups.collection}?${searchParams.toString()}`,
     { signal },
   )
 
@@ -517,7 +566,7 @@ export async function getGroups(
 }
 
 export async function getGroup(groupId: string, signal?: AbortSignal) {
-  const payload = await request<GroupResponsePayload>(`/groups/${groupId}`, {
+  const payload = await request<GroupResponsePayload>(API_ENDPOINTS.groups.byId(groupId), {
     signal,
   })
 
@@ -526,7 +575,7 @@ export async function getGroup(groupId: string, signal?: AbortSignal) {
 
 export async function getTrainerOptions(signal?: AbortSignal) {
   const payload = await request<GroupTrainerOptionPayload[]>(
-    '/groups/options/trainers',
+    API_ENDPOINTS.groups.trainerOptions,
     { signal },
   )
 
@@ -539,7 +588,7 @@ export async function getTrainerOptions(signal?: AbortSignal) {
 
 export async function getGroupClients(groupId: string, signal?: AbortSignal) {
   const payload = await request<GroupClientResponsePayload[] | { clients: GroupClientResponsePayload[] }>(
-    `/groups/${groupId}/clients`,
+    API_ENDPOINTS.groups.clients(groupId),
     { signal },
   )
 
@@ -557,7 +606,7 @@ export async function getGroupClients(groupId: string, signal?: AbortSignal) {
 }
 
 export async function createGroup(payload: UpsertTrainingGroupRequest) {
-  const response = await request<GroupResponsePayload>('/groups', {
+  const response = await request<GroupResponsePayload>(API_ENDPOINTS.groups.collection, {
     method: 'POST',
     body: JSON.stringify(payload),
   })
@@ -569,34 +618,34 @@ export async function updateGroup(
   groupId: string,
   payload: UpsertTrainingGroupRequest,
 ) {
-  const response = await request<GroupResponsePayload>(`/groups/${groupId}`, {
-    method: 'PUT',
-    body: JSON.stringify(payload),
-  })
+  const response = await request<GroupResponsePayload>(
+    API_ENDPOINTS.groups.byId(groupId),
+    {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    },
+  )
 
   return mapGroupDetails(response)
 }
 
 function mapGroupListItem(payload: GroupResponsePayload): TrainingGroupListItem {
+  const trainers = payload.trainers.map(mapGroupTrainerSummary)
+
   return {
     id: payload.id,
     name: payload.name,
     trainingStartTime: payload.trainingStartTime,
     scheduleText: payload.scheduleText,
     isActive: payload.isActive,
-    trainers: payload.trainers.map((trainer) => ({
-      id: trainer.id,
-      fullName: trainer.fullName,
-      login: trainer.login,
-    })),
+    trainers,
     trainerIds:
       payload.trainerIds.length > 0
         ? payload.trainerIds
-        : payload.trainers.map((trainer) => trainer.id),
-    trainerCount: payload.trainerCount ?? payload.trainers.length,
+        : trainers.map((trainer) => trainer.id),
+    trainerCount: payload.trainerCount ?? trainers.length,
     clientCount: payload.clientCount,
-    trainerNames:
-      payload.trainerNames ?? payload.trainers.map((trainer) => trainer.fullName),
+    trainerNames: payload.trainerNames ?? trainers.map((trainer) => trainer.fullName),
     updatedAt: payload.updatedAt,
   }
 }
@@ -609,14 +658,18 @@ function mapGroupDetails(payload: GroupResponsePayload): TrainingGroupDetails {
     scheduleText: payload.scheduleText,
     isActive: payload.isActive,
     trainerIds: payload.trainerIds,
-    trainers: payload.trainers.map((trainer) => ({
-      id: trainer.id,
-      fullName: trainer.fullName,
-      login: trainer.login,
-    })),
+    trainers: payload.trainers.map(mapGroupTrainerSummary),
     clientCount: payload.clientCount,
     updatedAt: payload.updatedAt,
     createdAt: payload.createdAt,
+  }
+}
+
+function mapGroupTrainerSummary(trainer: GroupResponsePayload['trainers'][number]) {
+  return {
+    id: trainer.id,
+    fullName: trainer.fullName,
+    login: trainer.login,
   }
 }
 
@@ -638,7 +691,7 @@ function normalizeFieldPath(field: string) {
     .join('.')
 }
 
-function extractArrayPayload<T>(payload: unknown, keys: string[]): T[] {
+function extractArrayPayload<T>(payload: unknown, keys: readonly string[]): T[] {
   if (Array.isArray(payload)) {
     return payload as T[]
   }
@@ -711,10 +764,10 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
 }
 
 function mapClientContacts(payload: ClientResponsePayload): ClientContact[] {
-  return extractArrayPayload<ClientContactPayload>(payload.contacts, [
-    'items',
-    'contacts',
-  ]).map((contact) => ({
+  return extractArrayPayload<ClientContactPayload>(
+    payload.contacts,
+    CLIENT_CONTACT_PAYLOAD_KEYS,
+  ).map((contact) => ({
     id: contact.id,
     type: contact.type?.trim() ?? '',
     fullName: contact.fullName?.trim() ?? '',
@@ -723,18 +776,18 @@ function mapClientContacts(payload: ClientResponsePayload): ClientContact[] {
 }
 
 function mapClientGroups(payload: ClientResponsePayload): ClientGroupSummary[] {
-  const groupsPayload = extractArrayPayload<ClientGroupPayload>(payload.groups, [
-    'items',
-    'groups',
-  ])
+  const groupsPayload = extractArrayPayload<ClientGroupPayload>(
+    payload.groups,
+    CLIENT_GROUP_PAYLOAD_KEYS,
+  )
 
   const fallbackGroupsPayload =
     groupsPayload.length > 0
       ? groupsPayload
-      : extractArrayPayload<ClientGroupPayload>(payload.clientGroups, [
-          'items',
-          'groups',
-        ])
+      : extractArrayPayload<ClientGroupPayload>(
+          payload.clientGroups,
+          CLIENT_GROUP_PAYLOAD_KEYS,
+        )
 
   return fallbackGroupsPayload.map((group) => ({
     id: group.id,
@@ -742,7 +795,7 @@ function mapClientGroups(payload: ClientResponsePayload): ClientGroupSummary[] {
       group.name?.trim() ??
       group.groupName?.trim() ??
       group.title?.trim() ??
-      'Группа без названия',
+      DEFAULT_CLIENT_GROUP_NAME,
     isActive: group.isActive ?? true,
     trainingStartTime: group.trainingStartTime ?? undefined,
     scheduleText: group.scheduleText ?? undefined,
@@ -766,5 +819,7 @@ function buildClientFullName(payload: Pick<
 }
 
 function mapClientStatus(status?: string | null): ClientStatus {
-  return status === 'Archived' ? 'Archived' : 'Active'
+  return status === CLIENT_STATUS_ARCHIVED
+    ? CLIENT_STATUS_ARCHIVED
+    : CLIENT_STATUS_ACTIVE
 }

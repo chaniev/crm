@@ -44,6 +44,14 @@ import {
   type TrainingGroupListItem,
   type UpsertTrainingGroupRequest,
 } from '../../lib/api'
+import {
+  GROUPS_DEFAULT_NAME,
+  GROUPS_FORM_FALLBACK_VALUES,
+  GROUPS_GRID_COLUMNS,
+  GROUPS_LIST_TAKE,
+  GROUPS_STAGE_LABEL,
+  GROUPS_STATUS_LABELS,
+} from './groupManagement.constants'
 
 type GroupsListScreenProps = {
   onCreate: () => void
@@ -87,7 +95,7 @@ export function GroupsListScreen({
       setError(null)
 
       try {
-        const response = await getGroups({ take: 50 }, controller.signal)
+        const response = await getGroups({ take: GROUPS_LIST_TAKE }, controller.signal)
         setGroups(response.items)
         setTotalCount(response.totalCount)
       } catch (loadError) {
@@ -122,7 +130,7 @@ export function GroupsListScreen({
         <Stack className="dashboard-hero__content" gap="lg">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 5
+              {GROUPS_STAGE_LABEL}
             </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               Route-level groups flow
@@ -159,7 +167,7 @@ export function GroupsListScreen({
         </Stack>
       </Paper>
 
-      <SimpleGrid cols={{ base: 1, md: 3 }}>
+      <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
         <MetricCard
           description="Всего групп в management API"
           label="Группы"
@@ -246,7 +254,9 @@ export function GroupsListScreen({
                             radius="xl"
                             variant="light"
                           >
-                            {group.isActive ? 'Активна' : 'Неактивна'}
+                            {group.isActive
+                              ? GROUPS_STATUS_LABELS.active
+                              : GROUPS_STATUS_LABELS.inactive}
                           </Badge>
                           <Badge radius="xl" variant="light">
                             Старт {group.trainingStartTime}
@@ -422,7 +432,7 @@ export function GroupEditScreen({
 }: GroupEditScreenProps) {
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
   const [groupClients, setGroupClients] = useState<GroupClient[]>([])
-  const [groupName, setGroupName] = useState('Группа')
+  const [groupName, setGroupName] = useState(GROUPS_DEFAULT_NAME)
   const [clientCount, setClientCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -539,7 +549,7 @@ export function GroupEditScreen({
 
       {!loading && !loadError ? (
         <>
-          <SimpleGrid cols={{ base: 1, md: 3 }}>
+          <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
             <MetricCard
               description="Клиенты, уже привязанные к группе"
               label="Клиенты"
@@ -667,7 +677,7 @@ function GroupForm({
           </Alert>
         ) : null}
 
-        <SimpleGrid cols={{ base: 1, md: 2 }}>
+          <SimpleGrid cols={{ base: 1, md: 2 }}>
           <TextInput
             label="Название группы"
             placeholder="Например, Юниоры 18:00"
@@ -709,16 +719,21 @@ function GroupForm({
         />
 
         <Paper className="hint-card" radius="24px" withBorder>
-          <SimpleGrid cols={{ base: 1, md: 3 }}>
+          <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
             <HintStat
               icon={<IconClockHour4 size={18} />}
               label="Старт"
-              value={form.values.trainingStartTime || 'Не задан'}
+              value={
+                form.values.trainingStartTime ||
+                GROUPS_FORM_FALLBACK_VALUES.trainingStartTime
+              }
             />
             <HintStat
               icon={<IconCalendarWeek size={18} />}
               label="Расписание"
-              value={form.values.scheduleText || 'Не задано'}
+              value={
+                form.values.scheduleText || GROUPS_FORM_FALLBACK_VALUES.scheduleText
+              }
             />
             <HintStat
               icon={<IconUserStar size={18} />}
@@ -789,10 +804,10 @@ function GroupFormHero({
     <Paper className="dashboard-hero" radius="36px" shadow="lg">
       <div className="dashboard-hero__glow" />
       <Stack className="dashboard-hero__content" gap="lg">
-        <Group gap="sm">
-          <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-            Этап 5
-          </Badge>
+          <Group gap="sm">
+            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
+              {GROUPS_STAGE_LABEL}
+            </Badge>
           <Badge color="brand.1" radius="xl" size="lg" variant="light">
             {badge}
           </Badge>

@@ -316,7 +316,7 @@ internal static class UserEndpoints
         await httpContext.SignInAsync(
             AuthConstants.CookieScheme,
             principal,
-            CreateAuthenticationProperties(user.UpdatedAt));
+            AuthSessionDefaults.CreateAuthenticationProperties(user.UpdatedAt));
 
         httpContext.Items[AuthConstants.AuthenticatedUserItemKey] = user;
         httpContext.User = principal;
@@ -334,8 +334,8 @@ internal static class UserEndpoints
         catch (AntiforgeryValidationException)
         {
             return TypedResults.Problem(
-                title: "InvalidCsrfToken",
-                detail: "Запрос отклонен из-за некорректного CSRF-токена. Обновите страницу и повторите действие.",
+                title: AuthConstants.InvalidCsrfProblemTitle,
+                detail: AuthConstants.InvalidCsrfProblemDetail,
                 statusCode: StatusCodes.Status400BadRequest);
         }
     }
@@ -358,17 +358,6 @@ internal static class UserEndpoints
             ClaimTypes.Role);
 
         return new ClaimsPrincipal(identity);
-    }
-
-    private static AuthenticationProperties CreateAuthenticationProperties(DateTimeOffset issuedAt)
-    {
-        return new AuthenticationProperties
-        {
-            AllowRefresh = true,
-            ExpiresUtc = issuedAt.AddHours(8),
-            IsPersistent = true,
-            IssuedUtc = issuedAt
-        };
     }
 
     private static string SerializeAuditState(User user)
