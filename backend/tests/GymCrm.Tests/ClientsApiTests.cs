@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
@@ -436,6 +437,343 @@ public class ClientsApiTests
         {
             Assert.Equal(HttpStatusCode.Forbidden, forbiddenPhotoResponse.StatusCode);
         }
+    }
+
+    [Fact]
+    public async Task Coach_card_hides_phone_contacts_and_membership_payment_details()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var managerClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var managerSession = await LoginAsync(managerClient, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var restrictedClientId = await CreateClientForMembershipTestsAsync(
+            managerClient,
+            managerSession.CsrfToken,
+            seeded.GroupOneId);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+
+            dbContext.GroupTrainers.Add(new GroupTrainer
+            {
+                GroupId = seeded.GroupOneId,
+                TrainerId = seeded.CoachId
+            });
+
+            var restrictedClient = await dbContext.Clients
+                .SingleAsync(client => client.Id == restrictedClientId);
+            restrictedClient.Phone = "+79990001155";
+
+            await dbContext.SaveChangesAsync();
+
+            dbContext.ClientContacts.Add(new ClientContact
+            {
+                ClientId = restrictedClientId,
+                Type = "Мама",
+                FullName = "Редакция Контакта",
+                Phone = "+79990001156"
+            });
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        using (var purchaseResponse = await SendMembershipActionAsync(
+                   managerClient,
+                   "purchase",
+                   restrictedClientId,
+                   new
+                   {
+                       MembershipType = "Monthly",
+                       PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd"),
+                       PaymentAmount = 1200m,
+                       IsPaid = true,
+                       SingleVisitUsed = false
+                   },
+                   managerSession.CsrfToken))
+        {
+            Assert.True(
+                purchaseResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created,
+                $"Expected membership purchase success, got {purchaseResponse.StatusCode}.");
+        }
+
+        var coachSession = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
+        Assert.Equal("Coach", coachSession.User?.Role);
+
+        using var clientResponse = await coachClient.GetAsync($"/clients/{restrictedClientId}");
+        Assert.Equal(HttpStatusCode.OK, clientResponse.StatusCode);
+
+        var clientPayload = await ReadJsonElementAsync(clientResponse);
+        Assert.Equal(string.Empty, GetStringFromProperty(clientPayload, "phone"));
+
+        var contactsPayload = GetPropertyOrNull(clientPayload, "contacts", "Contacts");
+        Assert.Equal(0, contactsPayload.ValueKind == JsonValueKind.Array ? contactsPayload.GetArrayLength() : 0);
+
+        var currentMembershipPayload = GetPropertyOrNull(clientPayload, "currentMembership", "CurrentMembership");
+        Assert.True(
+            currentMembershipPayload.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null,
+            "Coach should not receive current membership payload.");
+
+        var membershipHistoryPayload = GetArrayPayloadOrEmpty(
+            clientPayload,
+            "membershipHistory",
+            "MembershipHistory",
+            "membershipHistoryItems",
+            "MembershipHistoryItems");
+        Assert.Empty(membershipHistoryPayload);
+
+        Assert.False(HasAnyProperty(clientPayload, "paymentAmount", "paymentDate", "paidByUserId", "paidAt"));
+        Assert.False(HasAnyProperty(
+            clientPayload,
+            "PaymentAmount",
+            "PaymentDate",
+            "PaidByUserId",
+            "PaidAt"));
+    }
+
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("Administrator")]
+    public async Task Elevated_roles_see_full_client_card_and_attendance_history(string actorRole)
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var managerClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var managerSession = await LoginAsync(managerClient, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(managerClient, managerSession.CsrfToken, seeded.GroupOneId);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+
+            dbContext.ClientGroups.Add(new ClientGroup
+            {
+                ClientId = clientId,
+                GroupId = seeded.GroupTwoId
+            });
+
+            await dbContext.SaveChangesAsync();
+
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, DateOnly.FromDateTime(DateTime.UtcNow.Date), true);
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupTwoId, seeded.HeadCoachId, DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1)), true);
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        using (var purchaseResponse = await SendMembershipActionAsync(
+                   managerClient,
+                   "purchase",
+                   clientId,
+                   new
+                   {
+                       MembershipType = "Monthly",
+                       PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2)).ToString("yyyy-MM-dd"),
+                       ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(1)).ToString("yyyy-MM-dd"),
+                       PaymentAmount = 1600m,
+                       IsPaid = true,
+                       SingleVisitUsed = false
+                   },
+                   managerSession.CsrfToken))
+        {
+            Assert.True(
+                purchaseResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created,
+                $"Expected membership purchase success, got {purchaseResponse.StatusCode}.");
+        }
+
+        var actorSession = await LoginAsync(
+            managerClient,
+            actorRole == "HeadCoach" ? seeded.HeadCoachLogin : seeded.AdministratorLogin,
+            seeded.SharedPassword);
+        Assert.Equal(actorRole, actorSession.User?.Role);
+
+        using var cardResponse = await managerClient.GetAsync($"/clients/{clientId}");
+        Assert.Equal(HttpStatusCode.OK, cardResponse.StatusCode);
+
+        var clientPayload = await ReadJsonElementAsync(cardResponse);
+        Assert.NotEqual(string.Empty, GetStringFromProperty(clientPayload, "phone"));
+
+        var membershipHistoryPayload = GetArrayPayloadOrEmpty(
+            clientPayload,
+            "membershipHistory",
+            "MembershipHistory",
+            "membershipHistoryItems",
+            "MembershipHistoryItems");
+        Assert.NotEmpty(membershipHistoryPayload);
+
+        var currentMembershipPayload = GetPropertyOrNull(clientPayload, "currentMembership", "CurrentMembership");
+        Assert.Equal(JsonValueKind.Object, currentMembershipPayload.ValueKind);
+        Assert.True(GetDecimalFromAnyCase(currentMembershipPayload, "paymentAmount", "PaymentAmount") > 0m);
+        Assert.True(GetGuidFromAnyCase(currentMembershipPayload, "paidByUserId", "PaidByUserId") != Guid.Empty);
+
+        var attendanceHistoryPayload = GetArrayPayloadOrEmpty(
+            clientPayload,
+            "attendanceHistory",
+            "AttendanceHistory",
+            "attendanceHistoryItems",
+            "AttendanceHistoryItems");
+        Assert.Equal(2, attendanceHistoryPayload.Count);
+
+        var seenGroupIds = attendanceHistoryPayload
+            .Select(TryGetAttendanceGroupId)
+            .Where(groupId => groupId.HasValue)
+            .Select(groupId => groupId!.Value)
+            .ToHashSet();
+
+        Assert.Contains(seeded.GroupOneId, seenGroupIds);
+        Assert.Contains(seeded.GroupTwoId, seenGroupIds);
+    }
+
+    [Fact]
+    public async Task Coach_sees_attendance_history_only_for_assigned_groups_in_client_card()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var managerClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var managerSession = await LoginAsync(managerClient, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(managerClient, managerSession.CsrfToken, seeded.GroupOneId);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+
+            dbContext.ClientGroups.Add(new ClientGroup
+            {
+                ClientId = clientId,
+                GroupId = seeded.GroupTwoId
+            });
+
+            dbContext.GroupTrainers.Add(new GroupTrainer
+            {
+                GroupId = seeded.GroupOneId,
+                TrainerId = seeded.CoachId
+            });
+
+            await dbContext.SaveChangesAsync();
+
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, DateOnly.FromDateTime(DateTime.UtcNow.Date), true);
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupTwoId, seeded.HeadCoachId, DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1)), true);
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        var coachSession = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
+        Assert.Equal("Coach", coachSession.User?.Role);
+
+        using var coachCardResponse = await coachClient.GetAsync($"/clients/{clientId}");
+        Assert.Equal(HttpStatusCode.OK, coachCardResponse.StatusCode);
+
+        var coachPayload = await ReadJsonElementAsync(coachCardResponse);
+        var attendanceHistoryPayload = GetArrayPayloadOrEmpty(
+            coachPayload,
+            "attendanceHistory",
+            "AttendanceHistory",
+            "attendanceHistoryItems",
+            "AttendanceHistoryItems");
+
+        Assert.Single(attendanceHistoryPayload);
+        Assert.All(
+            attendanceHistoryPayload,
+            item =>
+            {
+                Assert.Equal(seeded.GroupOneId, TryGetAttendanceGroupId(item) ?? Guid.Empty);
+
+                var propertyNames = item.EnumerateObject()
+                    .Select(property => property.Name)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                Assert.Equal(
+                    new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        "id",
+                        "trainingDate",
+                        "isPresent",
+                        "groupId",
+                        "groupName",
+                        "groupTrainingStartTime",
+                        "groupScheduleText"
+                    },
+                    propertyNames);
+            });
+    }
+
+    [Fact]
+    public async Task Client_card_attendance_history_supports_partial_loading_and_validates_paging()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, today, true);
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(-1), false);
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(-2), true);
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        using (var pagedResponse = await client.GetAsync($"/clients/{clientId}?attendanceSkip=1&attendanceTake=1"))
+        {
+            Assert.Equal(HttpStatusCode.OK, pagedResponse.StatusCode);
+
+            var pagedPayload = await ReadJsonElementAsync(pagedResponse);
+            var attendanceHistoryPayload = GetArrayPayloadOrEmpty(
+                pagedPayload,
+                "attendanceHistory",
+                "AttendanceHistory",
+                "attendanceHistoryItems",
+                "AttendanceHistoryItems");
+
+            Assert.Single(attendanceHistoryPayload);
+            Assert.Equal(1, GetLongFromAnyCase(pagedPayload, "attendanceHistorySkip", "AttendanceHistorySkip"));
+            Assert.Equal(1, GetLongFromAnyCase(pagedPayload, "attendanceHistoryTake", "AttendanceHistoryTake"));
+            Assert.Equal(3, GetLongFromAnyCase(pagedPayload, "attendanceHistoryTotalCount", "AttendanceHistoryTotalCount"));
+            Assert.True(GetBoolFromAnyCase(pagedPayload, "attendanceHistoryHasMore", "AttendanceHistoryHasMore"));
+            Assert.Equal(today.AddDays(-1).ToString("yyyy-MM-dd"), GetStringFromAnyCase(attendanceHistoryPayload[0], "trainingDate", "TrainingDate"));
+        }
+
+        using var invalidResponse = await client.GetAsync($"/clients/{clientId}?attendanceTake=0");
+        Assert.Equal(HttpStatusCode.BadRequest, invalidResponse.StatusCode);
+
+        var invalidPayload = await ReadJsonElementAsync(invalidResponse);
+        var errorsPayload = GetPropertyOrNull(invalidPayload, "errors", "Errors");
+        Assert.True(
+            GetPropertyOrNull(errorsPayload, "attendanceTake", "AttendanceTake").ValueKind == JsonValueKind.Array,
+            "Expected validation error for attendanceTake.");
     }
 
     [Fact]
@@ -1570,6 +1908,88 @@ public class ClientsApiTests
             groupOne.Id,
             groupTwo.Id,
             archivedClient.Id);
+    }
+
+    private static void SeedAttendanceEntryForClient(
+        GymCrmDbContext dbContext,
+        Guid clientId,
+        Guid groupId,
+        Guid markedByUserId,
+        DateOnly trainingDate,
+        bool isPresent)
+    {
+        var now = DateTimeOffset.UtcNow;
+        dbContext.Attendance.Add(new Attendance
+        {
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            GroupId = groupId,
+            TrainingDate = trainingDate,
+            IsPresent = isPresent,
+            MarkedByUserId = markedByUserId,
+            MarkedAt = now,
+            UpdatedAt = now
+        });
+    }
+
+    private static IReadOnlyList<JsonElement> GetArrayPayloadOrEmpty(JsonElement payload, params string[] alternativeNames)
+    {
+        var arrayPayload = GetArrayPayload(payload, alternativeNames);
+        return arrayPayload.ValueKind == JsonValueKind.Array
+            ? arrayPayload.EnumerateArray().ToArray()
+            : Array.Empty<JsonElement>();
+    }
+
+    private static bool HasAnyProperty(JsonElement payload, params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            if (GetPropertyOrNull(payload, propertyName).ValueKind != JsonValueKind.Undefined)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static decimal GetDecimalFromAnyCase(JsonElement payload, params string[] propertyNames)
+    {
+        var value = GetPropertyOrNull(payload, propertyNames);
+        return value.ValueKind switch
+        {
+            JsonValueKind.Number when value.TryGetDecimal(out var paymentAmount) => paymentAmount,
+            JsonValueKind.String when decimal.TryParse(value.GetString(), out var parsedPaymentAmount) => parsedPaymentAmount,
+            _ => 0m
+        };
+    }
+
+    private static Guid? TryGetAttendanceGroupId(JsonElement payload)
+    {
+        var direct = GetGuidFromAnyCase(payload, "groupId", "GroupId", "trainingGroupId", "TrainingGroupId");
+        if (direct != Guid.Empty)
+        {
+            return direct;
+        }
+
+        var groupPayload = GetPropertyOrNull(payload, "group", "Group", "attendanceGroup", "trainingGroup");
+        if (groupPayload.ValueKind == JsonValueKind.Object)
+        {
+            var nested = GetGuidFromAnyCase(
+                groupPayload,
+                "id",
+                "Id",
+                "groupId",
+                "GroupId",
+                "trainingGroupId",
+                "TrainingGroupId");
+            if (nested != Guid.Empty)
+            {
+                return nested;
+            }
+        }
+
+        return null;
     }
 
     private static User CreateUser(

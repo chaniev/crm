@@ -81,6 +81,24 @@ const CLIENT_MEMBERSHIP_PAYLOAD_KEYS = [
   'membershipHistoryItems',
   'MembershipHistoryItems',
 ] as const
+const CLIENT_ATTENDANCE_HISTORY_PAYLOAD_KEYS = [
+  'attendanceHistory',
+  'AttendanceHistory',
+  'visitHistory',
+  'VisitHistory',
+  'attendanceEntries',
+  'AttendanceEntries',
+] as const
+const CLIENT_ATTENDANCE_HISTORY_ITEM_PAYLOAD_KEYS = [
+  'items',
+  'Items',
+  'entries',
+  'Entries',
+  'attendance',
+  'Attendance',
+  'visits',
+  'Visits',
+] as const
 const ATTENDANCE_GROUP_PAYLOAD_KEYS = ['items', 'groups'] as const
 const ATTENDANCE_CLIENT_PAYLOAD_KEYS = ['items', 'clients'] as const
 
@@ -209,6 +227,14 @@ export type ClientMembershipChangeReason =
   | 'PaymentUpdate'
   | 'SingleVisitWriteOff'
 
+export type ClientAttendanceHistoryEntry = {
+  id: string
+  groupId?: string
+  groupName: string
+  trainingDate: string
+  isPresent: boolean
+}
+
 export type ClientListItem = {
   id: string
   fullName: string
@@ -276,6 +302,9 @@ export type ClientDetails = ClientListItem & {
   photo: ClientPhoto | null
   currentMembership: ClientMembership | null
   membershipHistory: ClientMembership[]
+  attendanceHistory: ClientAttendanceHistoryEntry[]
+  attendanceHistoryLoaded: boolean
+  attendanceHistoryTotalCount: number | null
 }
 
 export type ClientContactInput = {
@@ -506,6 +535,7 @@ type ClientResponsePayload = {
 }
 
 type ClientMembershipPayload = Record<string, unknown>
+type ClientAttendanceHistoryPayload = Record<string, unknown>
 
 export class ApiError extends Error {
   status: number
@@ -1507,6 +1537,7 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
   const groupIds =
     payload.groupIds?.filter((groupId): groupId is string => Boolean(groupId)) ??
     listItem.groups.map((group) => group.id)
+  const attendanceHistory = mapClientAttendanceHistory(payload)
 
   return {
     ...listItem,
@@ -1516,6 +1547,9 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
     photo: mapClientPhoto(payload),
     currentMembership: mapClientCurrentMembership(payload),
     membershipHistory: mapClientMembershipHistory(payload),
+    attendanceHistory: attendanceHistory.items,
+    attendanceHistoryLoaded: attendanceHistory.loaded,
+    attendanceHistoryTotalCount: attendanceHistory.totalCount,
   }
 }
 
@@ -1586,6 +1620,53 @@ function mapClientMembershipHistory(
     .filter((membership): membership is ClientMembership => membership !== null)
 }
 
+function mapClientAttendanceHistory(payload: ClientResponsePayload): {
+  items: ClientAttendanceHistoryEntry[]
+  loaded: boolean
+  totalCount: number | null
+} {
+  const sourcePayload = extractRecordPayload(
+    payload,
+    CLIENT_ATTENDANCE_HISTORY_PAYLOAD_KEYS,
+  )
+  const historyItems = (
+    sourcePayload
+      ? extractArrayPayload<ClientAttendanceHistoryPayload>(
+          sourcePayload,
+          CLIENT_ATTENDANCE_HISTORY_ITEM_PAYLOAD_KEYS,
+        )
+      : extractArrayPayload<ClientAttendanceHistoryPayload>(
+          payload,
+          CLIENT_ATTENDANCE_HISTORY_PAYLOAD_KEYS,
+        )
+  )
+    .map((entry) => mapClientAttendanceHistoryEntry(entry))
+    .filter(
+      (entry): entry is ClientAttendanceHistoryEntry => entry !== null,
+    )
+  const sourceData =
+    sourcePayload && isRecord(sourcePayload.data) ? sourcePayload.data : null
+  const loaded = hasProperty(payload, CLIENT_ATTENDANCE_HISTORY_PAYLOAD_KEYS)
+  const totalCount =
+    (sourcePayload
+      ? readNumber(sourcePayload, ['totalCount', 'TotalCount'])
+      : undefined) ??
+    (sourceData ? readNumber(sourceData, ['totalCount', 'TotalCount']) : undefined) ??
+    readNumber(payload, [
+      'attendanceHistoryTotalCount',
+      'AttendanceHistoryTotalCount',
+      'visitHistoryTotalCount',
+      'VisitHistoryTotalCount',
+    ]) ??
+    (loaded ? historyItems.length : null)
+
+  return {
+    items: historyItems,
+    loaded,
+    totalCount,
+  }
+}
+
 function mapClientContacts(payload: ClientResponsePayload): ClientContact[] {
   return extractArrayPayload<ClientContactPayload>(
     payload.contacts,
@@ -1623,6 +1704,53 @@ function mapClientGroups(payload: ClientResponsePayload): ClientGroupSummary[] {
     trainingStartTime: group.trainingStartTime ?? undefined,
     scheduleText: group.scheduleText ?? undefined,
   }))
+}
+
+function mapClientAttendanceHistoryEntry(
+  payload: unknown,
+): ClientAttendanceHistoryEntry | null {
+  if (!isRecord(payload)) {
+    return null
+  }
+
+  const groupPayload = extractRecordPayload(payload, ['group', 'Group'])
+  const trainingDate =
+    readString(payload, ['trainingDate', 'TrainingDate', 'date', 'Date']) ?? ''
+  const isPresent = readBoolean(payload, [
+    'isPresent',
+    'IsPresent',
+    'present',
+    'Present',
+  ])
+
+  if (!trainingDate || typeof isPresent !== 'boolean') {
+    return null
+  }
+
+  const groupId =
+    readString(payload, ['groupId', 'GroupId']) ??
+    (groupPayload ? readString(groupPayload, ['id', 'Id']) : undefined)
+  const groupName =
+    readString(payload, [
+      'groupName',
+      'GroupName',
+      'trainingGroupName',
+      'TrainingGroupName',
+    ]) ??
+    (groupPayload
+      ? readString(groupPayload, ['name', 'Name', 'groupName', 'GroupName'])
+      : undefined) ??
+    DEFAULT_CLIENT_GROUP_NAME
+
+  return {
+    id:
+      readString(payload, ['id', 'Id']) ??
+      `${groupId ?? groupName}-${trainingDate}-${isPresent ? 'present' : 'absent'}`,
+    groupId: groupId ?? undefined,
+    groupName,
+    trainingDate,
+    isPresent,
+  }
 }
 
 function mapClientMembership(payload: unknown): ClientMembership | null {

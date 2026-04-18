@@ -55,6 +55,7 @@ import {
   renewClientMembership,
   restoreClient,
   uploadClientPhoto,
+  type ClientAttendanceHistoryEntry,
   updateClient,
   type ClientMembership,
   type ClientMembershipChangeReason,
@@ -1179,16 +1180,15 @@ export function ClientDetailScreen({
     setActionError(null)
 
     try {
-      const updatedClient =
-        submission.kind === 'purchase'
-          ? await purchaseClientMembership(client.id, submission.payload)
-          : submission.kind === 'renew'
-            ? await renewClientMembership(client.id, submission.payload)
-            : submission.kind === 'correct'
-              ? await correctClientMembership(client.id, submission.payload)
-              : await markClientMembershipPayment(client.id, submission.payload)
+      await (submission.kind === 'purchase'
+        ? purchaseClientMembership(client.id, submission.payload)
+        : submission.kind === 'renew'
+          ? renewClientMembership(client.id, submission.payload)
+          : submission.kind === 'correct'
+            ? correctClientMembership(client.id, submission.payload)
+            : markClientMembershipPayment(client.id, submission.payload))
 
-      setClient(updatedClient ?? (await getClient(client.id)))
+      setClient(await getClient(client.id))
       setMembershipActionMode(null)
 
       const feedback =
@@ -1233,10 +1233,8 @@ export function ClientDetailScreen({
       return
     }
 
-    const updatedClient = await uploadClientPhoto(client.id, file)
-    const nextClient = updatedClient ?? (await getClient(client.id))
-
-    setClient(nextClient)
+    await uploadClientPhoto(client.id, file)
+    setClient(await getClient(client.id))
     setPhotoVersion(Date.now())
   }
 
@@ -1283,7 +1281,11 @@ export function ClientDetailScreen({
           </Group>
         }
         badge="Карточка клиента"
-        description="Карточка клиента этапа 6c объединяет базовые данные, фотографию и membership flow без отдельных вспомогательных экранов."
+        description={
+          canManage
+            ? 'Единая карточка клиента этапа 8 объединяет базовые данные, фотографию, абонемент и историю посещений без отдельных экранов.'
+            : 'Карточка клиента для тренера показывает только ФИО, фотографию, доступные группы и историю посещений по назначенным группам.'
+        }
         title={client ? client.fullName : 'Детали клиента'}
       />
 
@@ -1321,27 +1323,49 @@ export function ClientDetailScreen({
             </Alert>
           ) : null}
 
-          <SimpleGrid cols={{ base: 1, md: 3 }}>
-            <MetricCard
-              description="Контактные лица в карточке"
-              label="Контакты"
-              value={String(client.contacts.length)}
-            />
-            <MetricCard
-              description="Группы, к которым привязан клиент"
-              label="Группы"
-              value={String(client.groups.length)}
-            />
-            <MetricCard
-              description={
-                canManage
-                  ? 'Текущий статус клиента и membership flow этапа 6b'
-                  : 'Текущий lifecycle status клиента'
-              }
-              label="Статус"
-              value={statusLabelMap[client.status]}
-            />
-          </SimpleGrid>
+          {canManage ? (
+            <SimpleGrid cols={{ base: 1, md: 3 }}>
+              <MetricCard
+                description="Контактные лица в карточке"
+                label="Контакты"
+                value={String(client.contacts.length)}
+              />
+              <MetricCard
+                description="Группы, к которым привязан клиент"
+                label="Группы"
+                value={String(client.groups.length)}
+              />
+              <MetricCard
+                description="Текущий статус клиента и membership flow этапа 6b"
+                label="Статус"
+                value={statusLabelMap[client.status]}
+              />
+            </SimpleGrid>
+          ) : (
+            <SimpleGrid cols={{ base: 1, md: 2 }}>
+              <MetricCard
+                description="Группы клиента, доступные текущему тренеру."
+                label="Доступные группы"
+                value={String(client.groups.length)}
+              />
+              <MetricCard
+                description={
+                  client.attendanceHistoryLoaded
+                    ? 'История посещений по назначенным группам.'
+                    : 'Карточка ждет данные истории посещений от backend.'
+                }
+                label="История посещений"
+                value={
+                  client.attendanceHistoryLoaded
+                    ? String(
+                        client.attendanceHistoryTotalCount ??
+                          client.attendanceHistory.length,
+                      )
+                    : '...'
+                }
+              />
+            </SimpleGrid>
+          )}
 
           <Paper className="surface-card surface-card--wide client-detail-card" radius="28px" withBorder>
             <Stack gap="lg">
@@ -1349,28 +1373,32 @@ export function ClientDetailScreen({
                 <div>
                   <Text fw={700}>Основные данные</Text>
                   <Text c="dimmed" size="sm">
-                    Базовые поля клиента остаются в этой карточке, а абонемент и оплата теперь ведутся inline ниже.
+                    {canManage
+                      ? 'Базовые поля клиента остаются в этой карточке, а абонемент, оплата и история посещений ведутся inline ниже.'
+                      : 'Для тренера карточка ограничена фото и данными, разрешенными для просмотра по назначенным группам.'}
                   </Text>
                 </div>
 
-                <Badge
-                  color={client.status === 'Active' ? 'teal' : 'gray'}
-                  radius="xl"
-                  size="lg"
-                  variant="light"
-                >
-                  {statusLabelMap[client.status]}
-                </Badge>
+                {canManage ? (
+                  <Badge
+                    color={client.status === 'Active' ? 'teal' : 'gray'}
+                    radius="xl"
+                    size="lg"
+                    variant="light"
+                  >
+                    {statusLabelMap[client.status]}
+                  </Badge>
+                ) : null}
               </Group>
 
               {!canManage ? (
                 <Alert
                   color="blue"
                   icon={<IconCheck size={18} />}
-                  title="Management-действия скрыты"
+                  title="Режим тренера"
                   variant="light"
                 >
-                  Для вашей роли карточка остается в режиме просмотра без блока абонемента и оплаты. Фотография показывается только если backend разрешит доступ к клиенту.
+                  Для вашей роли карточка показывает только фотографию, ФИО, доступные группы и историю посещений. Телефон, контакты, статус, абонемент и оплата скрыты.
                 </Alert>
               ) : null}
 
@@ -1383,14 +1411,14 @@ export function ClientDetailScreen({
                 previewVersion={photoVersion ?? client.photo?.uploadedAt ?? client.updatedAt}
               />
 
-              <SimpleGrid cols={{ base: 1, md: canManage ? 2 : 3 }}>
-                <InfoItem label="Фамилия" value={client.lastName || 'Не указана'} />
-                <InfoItem label="Имя" value={client.firstName || 'Не указано'} />
-                <InfoItem label="Отчество" value={client.middleName || 'Не указано'} />
-                {canManage ? (
+              {canManage ? (
+                <SimpleGrid cols={{ base: 1, md: 2 }}>
+                  <InfoItem label="Фамилия" value={client.lastName || 'Не указана'} />
+                  <InfoItem label="Имя" value={client.firstName || 'Не указано'} />
+                  <InfoItem label="Отчество" value={client.middleName || 'Не указано'} />
                   <InfoItem label="Телефон" value={client.phone || 'Не указан'} />
-                ) : null}
-              </SimpleGrid>
+                </SimpleGrid>
+              ) : null}
             </Stack>
           </Paper>
 
@@ -1412,6 +1440,8 @@ export function ClientDetailScreen({
               onSubmit={handleMembershipAction}
             />
           ) : null}
+
+          <ClientAttendanceHistorySection canManage={canManage} client={client} />
 
           <SimpleGrid cols={{ base: 1, md: canManage ? 2 : 1 }}>
             {canManage ? (
@@ -2285,6 +2315,95 @@ function ClientMembershipSection({
   )
 }
 
+type ClientAttendanceHistorySectionProps = {
+  canManage: boolean
+  client: ClientDetails
+}
+
+function ClientAttendanceHistorySection({
+  canManage,
+  client,
+}: ClientAttendanceHistorySectionProps) {
+  const history = [...client.attendanceHistory].sort(compareAttendanceHistory)
+  const totalHistoryCount = client.attendanceHistoryTotalCount ?? history.length
+  const hasPartialHistory =
+    client.attendanceHistoryLoaded &&
+    client.attendanceHistoryTotalCount !== null &&
+    client.attendanceHistoryTotalCount > history.length
+
+  return (
+    <Paper className="surface-card surface-card--wide client-detail-card" radius="28px" withBorder>
+      <Stack gap="lg">
+        <Group justify="space-between" wrap="wrap">
+          <div>
+            <Text fw={700}>История посещений</Text>
+            <Text c="dimmed" size="sm">
+              {canManage
+                ? 'Карточка показывает дату тренировки, группу и признак посещения.'
+                : 'Тренеру доступны только дата тренировки, назначенная группа и признак посещения.'}
+            </Text>
+          </div>
+
+          <Group gap="sm" wrap="wrap">
+            <Badge color="brand.1" radius="xl" variant="light">
+              {canManage ? 'Management view' : 'Coach view'}
+            </Badge>
+            <Badge color="sand" radius="xl" variant="light">
+              Всего: {totalHistoryCount}
+            </Badge>
+          </Group>
+        </Group>
+
+        {!client.attendanceHistoryLoaded ? (
+          <Alert
+            color="blue"
+            icon={<IconCheck size={18} />}
+            title="История пока не загружена"
+            variant="light"
+          >
+            Карточка готова показать историю посещений, как только backend начнет передавать ее в ответе по клиенту.
+          </Alert>
+        ) : history.length === 0 ? (
+          <Text c="dimmed" size="sm">
+            По этому клиенту пока нет отмеченных посещений.
+          </Text>
+        ) : (
+          <Stack gap="sm">
+            {history.map((entry) => (
+              <Paper className="list-row-card" key={entry.id} radius="24px" withBorder>
+                <Stack gap={6}>
+                  <Group justify="space-between" wrap="wrap">
+                    <Group gap="sm" wrap="wrap">
+                      <Text fw={700}>{formatDateValue(entry.trainingDate)}</Text>
+                      <Badge
+                        color={entry.isPresent ? 'teal' : 'gray'}
+                        radius="xl"
+                        variant="light"
+                      >
+                        {entry.isPresent ? 'Присутствовал' : 'Отсутствовал'}
+                      </Badge>
+                    </Group>
+
+                  <Badge color="brand.1" radius="xl" variant="light">
+                    {entry.groupName}
+                  </Badge>
+                </Group>
+                </Stack>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+
+        {hasPartialHistory ? (
+          <Text c="dimmed" size="sm">
+            Показана текущая порция истории: {history.length} из {totalHistoryCount}.
+          </Text>
+        ) : null}
+      </Stack>
+    </Paper>
+  )
+}
+
 type MembershipEditPanelProps = {
   currentMembership: ClientMembership | null
   mode: 'purchase' | 'correct'
@@ -3087,6 +3206,13 @@ function compareMembershipHistory(
   const rightDate = right.validFrom ?? right.createdAt ?? right.purchaseDate
 
   return rightDate.localeCompare(leftDate)
+}
+
+function compareAttendanceHistory(
+  left: ClientAttendanceHistoryEntry,
+  right: ClientAttendanceHistoryEntry,
+) {
+  return right.trainingDate.localeCompare(left.trainingDate)
 }
 
 function formatGroupOptionLabel(group: TrainingGroupListItem) {

@@ -245,8 +245,10 @@ internal static class ClientEndpoints
         return TypedResults.Ok(response);
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ForbidHttpResult, UnauthorizedHttpResult>> GetClientAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, ValidationProblem, NotFound, ForbidHttpResult, UnauthorizedHttpResult>> GetClientAsync(
         Guid id,
+        int? attendanceSkip,
+        int? attendanceTake,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
@@ -257,6 +259,13 @@ internal static class ClientEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var attendancePagingErrors = ValidateAttendanceHistoryPaging(attendanceSkip, attendanceTake);
+        if (attendancePagingErrors.Count > 0)
+        {
+            return TypedResults.ValidationProblem(attendancePagingErrors);
+        }
+
+        var attendancePaging = ResolveAttendanceHistoryPaging(attendanceSkip, attendanceTake);
         var client = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
         if (client is null)
         {
@@ -265,7 +274,14 @@ internal static class ClientEndpoints
 
         if (currentUser.Role is UserRole.HeadCoach or UserRole.Administrator)
         {
-            return TypedResults.Ok(MapDetails(client));
+            var attendanceHistory = await LoadAttendanceHistoryAsync(
+                client.Id,
+                allowedGroupIds: null,
+                attendancePaging,
+                dbContext,
+                cancellationToken);
+
+            return TypedResults.Ok(MapDetails(client, attendanceHistory));
         }
 
         var coachGroups = client.Groups
@@ -277,7 +293,17 @@ internal static class ClientEndpoints
             return TypedResults.Forbid();
         }
 
-        return TypedResults.Ok(MapCoachDetails(client, coachGroups));
+        var coachGroupIds = coachGroups
+            .Select(clientGroup => clientGroup.GroupId)
+            .ToArray();
+        var coachAttendanceHistory = await LoadAttendanceHistoryAsync(
+            client.Id,
+            coachGroupIds,
+            attendancePaging,
+            dbContext,
+            cancellationToken);
+
+        return TypedResults.Ok(MapCoachDetails(client, coachGroups, coachAttendanceHistory));
     }
 
     private static async Task<Results<Created<ClientDetailsResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateClientAsync(
@@ -338,7 +364,7 @@ internal static class ClientEndpoints
                 NewValueJson: SerializeAuditState(createdClient)),
             cancellationToken);
 
-        return TypedResults.Created($"/clients/{client.Id}", MapDetails(createdClient));
+        return TypedResults.Created($"/clients/{client.Id}", MapDetails(createdClient, EmptyAttendanceHistoryPage()));
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateClientAsync(
@@ -403,7 +429,7 @@ internal static class ClientEndpoints
                 SerializeAuditState(updatedClient)),
             cancellationToken);
 
-        return TypedResults.Ok(MapDetails(updatedClient));
+        return TypedResults.Ok(MapDetails(updatedClient, EmptyAttendanceHistoryPage()));
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> ArchiveClientAsync(
@@ -477,7 +503,7 @@ internal static class ClientEndpoints
 
         if (client.Status == targetStatus)
         {
-            return TypedResults.Ok(MapDetails(client));
+            return TypedResults.Ok(MapDetails(client, EmptyAttendanceHistoryPage()));
         }
 
         var oldState = SerializeAuditState(client);
@@ -497,7 +523,7 @@ internal static class ClientEndpoints
                 SerializeAuditState(client)),
             cancellationToken);
 
-        return TypedResults.Ok(MapDetails(client));
+        return TypedResults.Ok(MapDetails(client, EmptyAttendanceHistoryPage()));
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> PurchaseMembershipAsync(
@@ -686,7 +712,7 @@ internal static class ClientEndpoints
                 SerializeMembershipAuditState(GetCurrentMembership(clientAfter))),
             cancellationToken);
 
-        return TypedResults.Ok(MapDetails(clientAfter));
+        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
     }
 
     private static async Task<Client?> LoadClientSnapshotAsync(
@@ -704,6 +730,47 @@ internal static class ClientEndpoints
                     .ThenInclude(group => group.Trainers)
             .AsSplitQuery()
             .SingleOrDefaultAsync(client => client.Id == id, cancellationToken);
+    }
+
+    private static async Task<ClientAttendanceHistoryPageResponse> LoadAttendanceHistoryAsync(
+        Guid clientId,
+        IReadOnlyCollection<Guid>? allowedGroupIds,
+        AttendanceHistoryPaging paging,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var query = dbContext.Attendance
+            .AsNoTracking()
+            .Where(attendance => attendance.ClientId == clientId);
+
+        if (allowedGroupIds is { Count: > 0 })
+        {
+            query = query.Where(attendance => allowedGroupIds.Contains(attendance.GroupId));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(attendance => attendance.TrainingDate)
+            .ThenByDescending(attendance => attendance.UpdatedAt)
+            .ThenByDescending(attendance => attendance.Id)
+            .Skip(paging.Skip)
+            .Take(paging.Take)
+            .Select(attendance => new ClientAttendanceHistoryEntryResponse(
+                attendance.Id,
+                attendance.TrainingDate,
+                attendance.IsPresent,
+                attendance.GroupId,
+                attendance.Group.Name,
+                attendance.Group.TrainingStartTime.ToString("HH\\:mm"),
+                attendance.Group.ScheduleText))
+            .ToArrayAsync(cancellationToken);
+
+        return new ClientAttendanceHistoryPageResponse(
+            items,
+            paging.Skip,
+            paging.Take,
+            totalCount,
+            paging.Skip + items.Length < totalCount);
     }
 
     private static async Task<Client?> LoadClientForMutationAsync(
@@ -747,6 +814,26 @@ internal static class ClientEndpoints
         return errors;
     }
 
+    private static Dictionary<string, string[]> ValidateAttendanceHistoryPaging(int? attendanceSkip, int? attendanceTake)
+    {
+        var errors = new Dictionary<string, string[]>();
+
+        if (attendanceSkip is < 0)
+        {
+            errors["attendanceSkip"] = ["Параметр attendanceSkip не может быть отрицательным."];
+        }
+
+        if (attendanceTake is <= 0 or > MaxTake)
+        {
+            if (attendanceTake.HasValue)
+            {
+                errors["attendanceTake"] = [$"Параметр attendanceTake должен быть в диапазоне от 1 до {MaxTake}."];
+            }
+        }
+
+        return errors;
+    }
+
     private static Paging ResolvePaging(int? page, int? pageSize, int? skip, int? take)
     {
         if (page.HasValue || pageSize.HasValue)
@@ -757,6 +844,16 @@ internal static class ClientEndpoints
         }
 
         return new Paging(skip ?? 0, take ?? DefaultTake);
+    }
+
+    private static AttendanceHistoryPaging ResolveAttendanceHistoryPaging(int? attendanceSkip, int? attendanceTake)
+    {
+        return new AttendanceHistoryPaging(attendanceSkip ?? 0, attendanceTake ?? DefaultTake);
+    }
+
+    private static ClientAttendanceHistoryPageResponse EmptyAttendanceHistoryPage()
+    {
+        return new ClientAttendanceHistoryPageResponse([], 0, DefaultTake, 0, false);
     }
 
     private static Dictionary<string, string[]> ValidateListFilters(
@@ -1460,7 +1557,9 @@ internal static class ClientEndpoints
             client.UpdatedAt);
     }
 
-    private static ClientDetailsResponse MapDetails(Client client)
+    private static ClientDetailsResponse MapDetails(
+        Client client,
+        ClientAttendanceHistoryPageResponse attendanceHistory)
     {
         var groups = MapGroups(client.Groups);
         var contacts = client.Contacts
@@ -1490,13 +1589,19 @@ internal static class ClientEndpoints
             GetCurrentMembership(client) is not null && !GetCurrentMembership(client)!.IsPaid,
             membershipHistory.FirstOrDefault(membership => membership.ValidTo is null),
             membershipHistory,
+            attendanceHistory.Items,
+            attendanceHistory.Skip,
+            attendanceHistory.Take,
+            attendanceHistory.TotalCount,
+            attendanceHistory.HasMore,
             client.CreatedAt,
             client.UpdatedAt);
     }
 
     private static ClientDetailsResponse MapCoachDetails(
         Client client,
-        IReadOnlyCollection<ClientGroup> coachGroups)
+        IReadOnlyCollection<ClientGroup> coachGroups,
+        ClientAttendanceHistoryPageResponse attendanceHistory)
     {
         var groups = MapGroups(coachGroups);
 
@@ -1516,6 +1621,11 @@ internal static class ClientEndpoints
             GetCurrentMembership(client) is not null && !GetCurrentMembership(client)!.IsPaid,
             null,
             [],
+            attendanceHistory.Items,
+            attendanceHistory.Skip,
+            attendanceHistory.Take,
+            attendanceHistory.TotalCount,
+            attendanceHistory.HasMore,
             client.CreatedAt,
             client.UpdatedAt);
     }
@@ -1682,6 +1792,8 @@ internal static class ClientEndpoints
 
     private sealed record Paging(int Skip, int Take);
 
+    private sealed record AttendanceHistoryPaging(int Skip, int Take);
+
     private sealed record UpsertClientRequest(
         string? LastName,
         string? FirstName,
@@ -1742,8 +1854,20 @@ internal static class ClientEndpoints
         bool HasUnpaidCurrentMembership,
         ClientMembershipResponse? CurrentMembership,
         IReadOnlyList<ClientMembershipResponse> MembershipHistory,
+        IReadOnlyList<ClientAttendanceHistoryEntryResponse> AttendanceHistory,
+        int AttendanceHistorySkip,
+        int AttendanceHistoryTake,
+        int AttendanceHistoryTotalCount,
+        bool AttendanceHistoryHasMore,
         DateTimeOffset CreatedAt,
         DateTimeOffset UpdatedAt);
+
+    private sealed record ClientAttendanceHistoryPageResponse(
+        IReadOnlyList<ClientAttendanceHistoryEntryResponse> Items,
+        int Skip,
+        int Take,
+        int TotalCount,
+        bool HasMore);
 
     private sealed record ClientGroupSummaryResponse(
         Guid Id,
@@ -1779,6 +1903,15 @@ internal static class ClientEndpoints
         DateTimeOffset ValidFrom,
         DateTimeOffset? ValidTo,
         DateTimeOffset CreatedAt);
+
+    private sealed record ClientAttendanceHistoryEntryResponse(
+        Guid Id,
+        DateOnly TrainingDate,
+        bool IsPresent,
+        Guid GroupId,
+        string GroupName,
+        string? GroupTrainingStartTime,
+        string? GroupScheduleText);
 
     private sealed record ClientAuditState(
         Guid Id,
