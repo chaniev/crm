@@ -21,36 +21,60 @@ internal static class ClientEndpoints
 
     public static IEndpointRouteBuilder MapClientEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/clients")
-            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        var group = endpoints.MapGroup("/clients");
 
-        group.MapGet("/", ListClientsAsync);
-        group.MapPost("/", CreateClientAsync);
-        group.MapPut("/{id:guid}", UpdateClientAsync);
-        group.MapPut("/{id:guid}/archive", ArchiveClientAsync);
-        group.MapPut("/{id:guid}/restore", RestoreClientAsync);
-        group.MapPost("/{id:guid}/membership/purchase", PurchaseMembershipAsync);
-        group.MapPost("/{id:guid}/membership/renew", RenewMembershipAsync);
-        group.MapPost("/{id:guid}/membership/correct", CorrectMembershipAsync);
-        group.MapPost("/{id:guid}/membership/mark-payment", MarkMembershipPaymentAsync);
-        endpoints.MapGet("/clients/{id:guid}", GetClientAsync)
+        group.MapGet("/", ListClientsAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ViewClients);
+        group.MapPost("/", CreateClientAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPut("/{id:guid}", UpdateClientAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPut("/{id:guid}/archive", ArchiveClientAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPut("/{id:guid}/restore", RestoreClientAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPost("/{id:guid}/membership/purchase", PurchaseMembershipAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPost("/{id:guid}/membership/renew", RenewMembershipAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPost("/{id:guid}/membership/correct", CorrectMembershipAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPost("/{id:guid}/membership/mark-payment", MarkMembershipPaymentAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapGet("/{id:guid}", GetClientAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ViewClients);
 
         return endpoints;
     }
 
-    private static async Task<Results<Ok<IReadOnlyList<ClientListItemResponse>>, ValidationProblem>> ListClientsAsync(
+    private static async Task<Results<Ok<IReadOnlyList<ClientListItemResponse>>, ValidationProblem, ForbidHttpResult, UnauthorizedHttpResult>> ListClientsAsync(
         int? page,
         int? pageSize,
         int? skip,
         int? take,
         string? status,
         bool? isArchived,
+        string? fullName,
+        string? phone,
+        Guid? groupId,
+        string? paymentStatus,
+        string? membershipExpiresFrom,
+        string? membershipExpiresTo,
+        bool? hasPhoto,
+        bool? hasGroup,
+        bool? hasActivePaidMembership,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
         var errors = ValidatePaging(page, pageSize, skip, take);
-        foreach (var error in ValidateListFilters(status))
+        foreach (var error in ValidateListFilters(status, paymentStatus, membershipExpiresFrom, membershipExpiresTo))
         {
             errors[error.Key] = error.Value;
         }
@@ -62,8 +86,22 @@ internal static class ClientEndpoints
 
         var paging = ResolvePaging(page, pageSize, skip, take);
         var parsedStatus = ParseStatus(status);
+        var parsedPaymentStatus = ParsePaymentStatus(paymentStatus);
+        var membershipExpirationFrom = ParseIsoDate(membershipExpiresFrom);
+        var membershipExpirationTo = ParseIsoDate(membershipExpiresTo);
+        var hasElevatedClientAccess = currentUser.Role is UserRole.HeadCoach or UserRole.Administrator;
+
+        if (!hasElevatedClientAccess && !string.IsNullOrWhiteSpace(phone))
+        {
+            return TypedResults.Forbid();
+        }
 
         var query = dbContext.Clients.AsNoTracking();
+        if (currentUser.Role == UserRole.Coach)
+        {
+            query = ApplyCoachClientScope(query, currentUser.Id, dbContext);
+        }
+
         if (parsedStatus.HasValue)
         {
             query = query.Where(client => client.Status == parsedStatus.Value);
@@ -77,22 +115,132 @@ internal static class ClientEndpoints
             query = query.Where(client => client.Status == archivedStatus);
         }
 
-        var clients = await query
+        if (!string.IsNullOrWhiteSpace(fullName))
+        {
+            query = ApplyFullNameSearch(query, fullName);
+        }
+
+        if (!string.IsNullOrWhiteSpace(phone))
+        {
+            query = ApplyPhoneSearch(query, phone);
+        }
+
+        if (groupId.HasValue)
+        {
+            query = query.Where(client => client.Groups.Any(clientGroup => clientGroup.GroupId == groupId.Value));
+        }
+
+        if (parsedPaymentStatus.HasValue)
+        {
+            query = parsedPaymentStatus.Value switch
+            {
+                ClientPaymentStatus.Paid => query.Where(client => client.Memberships.Any(
+                    membership => membership.ValidTo == null && membership.IsPaid)),
+                ClientPaymentStatus.Unpaid => query.Where(client => client.Memberships.Any(
+                    membership => membership.ValidTo == null && !membership.IsPaid)),
+                _ => query
+            };
+        }
+
+        if (hasPhoto.HasValue)
+        {
+            query = hasPhoto.Value
+                ? query.Where(client =>
+                    client.PhotoPath != null &&
+                    client.PhotoPath != string.Empty &&
+                    client.PhotoContentType != null &&
+                    client.PhotoContentType != string.Empty &&
+                    client.PhotoSizeBytes != null &&
+                    client.PhotoUploadedAt != null)
+                : query.Where(client =>
+                    client.PhotoPath == null ||
+                    client.PhotoPath == string.Empty ||
+                    client.PhotoContentType == null ||
+                    client.PhotoContentType == string.Empty ||
+                    client.PhotoSizeBytes == null ||
+                    client.PhotoUploadedAt == null);
+        }
+
+        if (hasGroup.HasValue)
+        {
+            query = hasGroup.Value
+                ? query.Where(client => client.Groups.Any())
+                : query.Where(client => !client.Groups.Any());
+        }
+
+        if (hasActivePaidMembership.HasValue)
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+            query = hasActivePaidMembership.Value
+                ? query.Where(client => client.Memberships.Any(
+                    membership =>
+                        membership.ValidTo == null &&
+                        membership.IsPaid &&
+                        (membership.ExpirationDate == null || membership.ExpirationDate >= today) &&
+                        (membership.MembershipType != MembershipType.SingleVisit || !membership.SingleVisitUsed)))
+                : query.Where(client => !client.Memberships.Any(
+                    membership =>
+                        membership.ValidTo == null &&
+                        membership.IsPaid &&
+                        (membership.ExpirationDate == null || membership.ExpirationDate >= today) &&
+                        (membership.MembershipType != MembershipType.SingleVisit || !membership.SingleVisitUsed)));
+        }
+
+        var orderedQuery = query
             .OrderBy(client => client.LastName ?? string.Empty)
             .ThenBy(client => client.FirstName ?? string.Empty)
             .ThenBy(client => client.MiddleName ?? string.Empty)
-            .ThenBy(client => client.Id)
-            .Skip(paging.Skip)
-            .Take(paging.Take)
-            .Include(client => client.Contacts)
-            .Include(client => client.Groups)
-                .ThenInclude(clientGroup => clientGroup.Group)
-            .AsSplitQuery()
-            .ToListAsync(cancellationToken);
+            .ThenBy(client => client.Id);
 
-        IReadOnlyList<ClientListItemResponse> response = clients
-            .Select(MapListItem)
-            .ToArray();
+        IReadOnlyList<ClientListItemResponse> response;
+        if (currentUser.Role == UserRole.Coach)
+        {
+            var clientsQuery = orderedQuery
+                .Include(client => client.Memberships)
+                .Include(client => client.Groups)
+                    .ThenInclude(clientGroup => clientGroup.Group)
+                        .ThenInclude(group => group.Trainers)
+                .AsSplitQuery();
+
+            var clients = membershipExpirationFrom.HasValue || membershipExpirationTo.HasValue
+                ? (await clientsQuery.ToListAsync(cancellationToken))
+                    .Where(client => MatchesMembershipExpirationRange(client, membershipExpirationFrom, membershipExpirationTo))
+                    .Skip(paging.Skip)
+                    .Take(paging.Take)
+                    .ToArray()
+                : await clientsQuery
+                    .Skip(paging.Skip)
+                    .Take(paging.Take)
+                    .ToArrayAsync(cancellationToken);
+
+            response = clients
+                .Select(client => MapListItem(client, currentUser))
+                .ToArray();
+        }
+        else
+        {
+            var clientsQuery = orderedQuery
+                .Include(client => client.Contacts)
+                .Include(client => client.Memberships)
+                .Include(client => client.Groups)
+                    .ThenInclude(clientGroup => clientGroup.Group)
+                .AsSplitQuery();
+
+            var clients = membershipExpirationFrom.HasValue || membershipExpirationTo.HasValue
+                ? (await clientsQuery.ToListAsync(cancellationToken))
+                    .Where(client => MatchesMembershipExpirationRange(client, membershipExpirationFrom, membershipExpirationTo))
+                    .Skip(paging.Skip)
+                    .Take(paging.Take)
+                    .ToArray()
+                : await clientsQuery
+                    .Skip(paging.Skip)
+                    .Take(paging.Take)
+                    .ToArrayAsync(cancellationToken);
+
+            response = clients
+                .Select(client => MapListItem(client, currentUser))
+                .ToArray();
+        }
 
         return TypedResults.Ok(response);
     }
@@ -611,13 +759,38 @@ internal static class ClientEndpoints
         return new Paging(skip ?? 0, take ?? DefaultTake);
     }
 
-    private static Dictionary<string, string[]> ValidateListFilters(string? status)
+    private static Dictionary<string, string[]> ValidateListFilters(
+        string? status,
+        string? paymentStatus,
+        string? membershipExpiresFrom,
+        string? membershipExpiresTo)
     {
         var errors = new Dictionary<string, string[]>();
 
         if (!string.IsNullOrWhiteSpace(status) && ParseStatus(status) is null)
         {
             errors["status"] = ["Укажите корректный статус клиента."];
+        }
+
+        if (!string.IsNullOrWhiteSpace(paymentStatus) && ParsePaymentStatus(paymentStatus) is null)
+        {
+            errors["paymentStatus"] = ["Укажите корректный фильтр оплаты клиента."];
+        }
+
+        var parsedMembershipExpiresFrom = ParseOptionalIsoDateFilter(
+            membershipExpiresFrom,
+            "membershipExpiresFrom",
+            errors);
+        var parsedMembershipExpiresTo = ParseOptionalIsoDateFilter(
+            membershipExpiresTo,
+            "membershipExpiresTo",
+            errors);
+
+        if (parsedMembershipExpiresFrom.HasValue &&
+            parsedMembershipExpiresTo.HasValue &&
+            parsedMembershipExpiresTo.Value < parsedMembershipExpiresFrom.Value)
+        {
+            errors["membershipExpiresTo"] = ["Дата окончания диапазона не может быть раньше начальной даты."];
         }
 
         return errors;
@@ -1118,10 +1291,100 @@ internal static class ClientEndpoints
             : value.Trim();
     }
 
+    private static IQueryable<Client> ApplyCoachClientScope(
+        IQueryable<Client> query,
+        Guid trainerId,
+        GymCrmDbContext dbContext)
+    {
+        var assignedClientIds = dbContext.ClientGroups
+            .Where(clientGroup => dbContext.GroupTrainers.Any(
+                groupTrainer =>
+                    groupTrainer.GroupId == clientGroup.GroupId &&
+                    groupTrainer.TrainerId == trainerId))
+            .Select(clientGroup => clientGroup.ClientId);
+
+        return query.Where(client => assignedClientIds.Contains(client.Id));
+    }
+
+    private static IQueryable<Client> ApplyFullNameSearch(IQueryable<Client> query, string fullName)
+    {
+        var searchTerms = fullName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(term => term.ToUpperInvariant())
+            .Where(term => term.Length > 0)
+            .ToArray();
+
+        foreach (var searchTerm in searchTerms)
+        {
+            query = query.Where(client =>
+                (client.LastName ?? string.Empty).ToUpper().Contains(searchTerm) ||
+                (client.FirstName ?? string.Empty).ToUpper().Contains(searchTerm) ||
+                (client.MiddleName ?? string.Empty).ToUpper().Contains(searchTerm));
+        }
+
+        return query;
+    }
+
+    private static IQueryable<Client> ApplyPhoneSearch(IQueryable<Client> query, string phone)
+    {
+        var normalizedPhone = NormalizePhoneSearch(phone);
+        if (string.IsNullOrWhiteSpace(normalizedPhone))
+        {
+            return query;
+        }
+
+        return query.Where(client =>
+            client.Phone != null &&
+            client.Phone
+                .Replace(" ", string.Empty)
+                .Replace("-", string.Empty)
+                .Replace("(", string.Empty)
+                .Replace(")", string.Empty)
+                .Replace("+", string.Empty)
+                .Contains(normalizedPhone));
+    }
+
+    private static string NormalizePhoneSearch(string phone)
+    {
+        return phone
+            .Trim()
+            .Replace(" ", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace("(", string.Empty)
+            .Replace(")", string.Empty)
+            .Replace("+", string.Empty);
+    }
+
+    private static DateOnly? ParseOptionalIsoDateFilter(
+        string? value,
+        string key,
+        Dictionary<string, string[]> errors)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var parsedDate = ParseIsoDate(value);
+        if (!parsedDate.HasValue)
+        {
+            errors[key] = ["Укажите корректную дату в формате yyyy-MM-dd."];
+        }
+
+        return parsedDate;
+    }
+
     private static ClientStatus? ParseStatus(string? status)
     {
         return Enum.TryParse<ClientStatus>(status?.Trim(), ignoreCase: true, out var parsedStatus)
             ? parsedStatus
+            : null;
+    }
+
+    private static ClientPaymentStatus? ParsePaymentStatus(string? paymentStatus)
+    {
+        return Enum.TryParse<ClientPaymentStatus>(paymentStatus?.Trim(), ignoreCase: true, out var parsedPaymentStatus)
+            ? parsedPaymentStatus
             : null;
     }
 
@@ -1143,9 +1406,17 @@ internal static class ClientEndpoints
         }
     }
 
-    private static ClientListItemResponse MapListItem(Client client)
+    private static ClientListItemResponse MapListItem(Client client, User currentUser)
+    {
+        return currentUser.Role == UserRole.Coach
+            ? MapCoachListItem(client, currentUser.Id)
+            : MapManagerListItem(client);
+    }
+
+    private static ClientListItemResponse MapManagerListItem(Client client)
     {
         var groups = MapGroups(client.Groups);
+        var currentMembership = GetCurrentMembership(client);
 
         return new ClientListItemResponse(
             client.Id,
@@ -1159,6 +1430,33 @@ internal static class ClientEndpoints
             groups,
             client.Contacts.Count,
             MapPhoto(client),
+            HasActivePaidMembership(currentMembership),
+            currentMembership is not null && !currentMembership.IsPaid,
+            client.UpdatedAt);
+    }
+
+    private static ClientListItemResponse MapCoachListItem(Client client, Guid coachId)
+    {
+        var coachGroups = client.Groups
+            .Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == coachId))
+            .ToArray();
+        var groups = MapGroups(coachGroups);
+        var currentMembership = GetCurrentMembership(client);
+
+        return new ClientListItemResponse(
+            client.Id,
+            client.LastName,
+            client.FirstName,
+            client.MiddleName,
+            BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
+            string.Empty,
+            client.Status.ToString(),
+            groups.Select(group => group.Id).ToArray(),
+            groups,
+            0,
+            MapPhoto(client),
+            HasActivePaidMembership(currentMembership),
+            currentMembership is not null && !currentMembership.IsPaid,
             client.UpdatedAt);
     }
 
@@ -1188,6 +1486,8 @@ internal static class ClientEndpoints
             groups,
             contacts,
             MapPhoto(client),
+            HasActivePaidMembership(GetCurrentMembership(client)),
+            GetCurrentMembership(client) is not null && !GetCurrentMembership(client)!.IsPaid,
             membershipHistory.FirstOrDefault(membership => membership.ValidTo is null),
             membershipHistory,
             client.CreatedAt,
@@ -1212,6 +1512,8 @@ internal static class ClientEndpoints
             groups,
             [],
             MapPhoto(client),
+            HasActivePaidMembership(GetCurrentMembership(client)),
+            GetCurrentMembership(client) is not null && !GetCurrentMembership(client)!.IsPaid,
             null,
             [],
             client.CreatedAt,
@@ -1283,6 +1585,34 @@ internal static class ClientEndpoints
         return client.Memberships
             .OrderByDescending(membership => membership.ValidFrom)
             .FirstOrDefault(membership => membership.ValidTo is null);
+    }
+
+    private static bool HasActivePaidMembership(ClientMembership? membership)
+    {
+        if (membership is null || !membership.IsPaid)
+        {
+            return false;
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        if (membership.ExpirationDate.HasValue && membership.ExpirationDate.Value < today)
+        {
+            return false;
+        }
+
+        return membership.MembershipType != MembershipType.SingleVisit || !membership.SingleVisitUsed;
+    }
+
+    private static bool MatchesMembershipExpirationRange(
+        Client client,
+        DateOnly? membershipExpirationFrom,
+        DateOnly? membershipExpirationTo)
+    {
+        var expirationDate = GetCurrentMembership(client)?.ExpirationDate;
+
+        return expirationDate.HasValue &&
+            (!membershipExpirationFrom.HasValue || expirationDate.Value >= membershipExpirationFrom.Value) &&
+            (!membershipExpirationTo.HasValue || expirationDate.Value <= membershipExpirationTo.Value);
     }
 
     private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)
@@ -1392,6 +1722,8 @@ internal static class ClientEndpoints
         IReadOnlyList<ClientGroupSummaryResponse> Groups,
         int ContactCount,
         ClientPhotoSummaryResponse? Photo,
+        bool HasActivePaidMembership,
+        bool HasUnpaidCurrentMembership,
         DateTimeOffset UpdatedAt);
 
     private sealed record ClientDetailsResponse(
@@ -1406,6 +1738,8 @@ internal static class ClientEndpoints
         IReadOnlyList<ClientGroupSummaryResponse> Groups,
         IReadOnlyList<ClientContactResponse> Contacts,
         ClientPhotoSummaryResponse? Photo,
+        bool HasActivePaidMembership,
+        bool HasUnpaidCurrentMembership,
         ClientMembershipResponse? CurrentMembership,
         IReadOnlyList<ClientMembershipResponse> MembershipHistory,
         DateTimeOffset CreatedAt,
@@ -1505,4 +1839,10 @@ internal static class ClientEndpoints
         DateTimeOffset ValidFrom,
         DateTimeOffset? ValidTo,
         DateTimeOffset CreatedAt);
+
+    private enum ClientPaymentStatus
+    {
+        Paid,
+        Unpaid
+    }
 }

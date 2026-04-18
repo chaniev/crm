@@ -176,7 +176,7 @@ public class ClientsApiTests
     }
 
     [Fact]
-    public async Task Coach_cannot_access_clients_management_endpoints()
+    public async Task Coach_has_read_only_list_access_and_cannot_manage_clients()
     {
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
@@ -191,7 +191,10 @@ public class ClientsApiTests
 
         using (var listResponse = await client.GetAsync("/clients"))
         {
-            Assert.Equal(HttpStatusCode.Forbidden, listResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+            var listPayload = await ReadJsonElementAsync(listResponse);
+            var clientsPayload = GetArrayPayload(listPayload, "data", "items", "clients");
+            Assert.Equal(0, clientsPayload.GetArrayLength());
         }
 
         using (var getResponse = await client.GetAsync($"/clients/{seeded.ArchivedClientId}"))
@@ -241,6 +244,19 @@ public class ClientsApiTests
                    actorSession.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.Forbidden, restoreResponse.StatusCode);
+        }
+
+        using (var searchByPhoneResponse = await client.GetAsync($"/clients?phone={Uri.EscapeDataString("+79990008888")}"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, searchByPhoneResponse.StatusCode);
+        }
+
+        using (var filterByGroupResponse = await client.GetAsync("/clients?groupId=00000000-0000-0000-0000-000000000001"))
+        {
+            Assert.Equal(HttpStatusCode.OK, filterByGroupResponse.StatusCode);
+            var filterPayload = await ReadJsonElementAsync(filterByGroupResponse);
+            var clientsPayload = GetArrayPayload(filterPayload, "data", "items", "clients");
+            Assert.Equal(0, clientsPayload.GetArrayLength());
         }
     }
 
@@ -420,6 +436,233 @@ public class ClientsApiTests
         {
             Assert.Equal(HttpStatusCode.Forbidden, forbiddenPhotoResponse.StatusCode);
         }
+    }
+
+    [Fact]
+    public async Task Coach_list_is_scoped_to_assigned_groups_and_hides_sensitive_fields()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var managerClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var managerSession = await LoginAsync(managerClient, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var allowedClientId = await CreateClientForMembershipTestsAsync(
+            managerClient,
+            managerSession.CsrfToken,
+            seeded.GroupOneId);
+        var forbiddenClientId = await CreateClientForMembershipTestsAsync(
+            managerClient,
+            managerSession.CsrfToken,
+            seeded.GroupTwoId);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            dbContext.GroupTrainers.Add(new GroupTrainer
+            {
+                GroupId = seeded.GroupOneId,
+                TrainerId = seeded.CoachId
+            });
+            await dbContext.SaveChangesAsync();
+        }
+
+        var coachSession = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
+        Assert.Equal("Coach", coachSession.User?.Role);
+
+        using (var listResponse = await coachClient.GetAsync("/clients"))
+        {
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+            var listPayload = await ReadJsonElementAsync(listResponse);
+            var clientsPayload = GetArrayPayload(listPayload, "data", "items", "clients");
+
+            Assert.Single(clientsPayload.EnumerateArray());
+
+            var clientPayload = clientsPayload[0];
+            Assert.Equal(allowedClientId, GetGuidFromProperty(clientPayload, "id"));
+            Assert.NotEqual(forbiddenClientId, GetGuidFromProperty(clientPayload, "id"));
+            Assert.Equal(string.Empty, GetStringFromProperty(clientPayload, "phone"));
+            Assert.Equal(0, clientPayload.GetProperty("contactCount").GetInt32());
+
+            var groupsPayload = GetArrayPayload(clientPayload.GetProperty("groups"));
+            Assert.Single(groupsPayload.EnumerateArray());
+            Assert.Equal(seeded.GroupOneId, GetGuidFromProperty(groupsPayload[0], "id"));
+        }
+
+        using (var filteredResponse = await coachClient.GetAsync($"/clients?groupId={seeded.GroupOneId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, filteredResponse.StatusCode);
+            var filteredPayload = await ReadJsonElementAsync(filteredResponse);
+            var clientsPayload = GetArrayPayload(filteredPayload, "data", "items", "clients");
+            Assert.Single(clientsPayload.EnumerateArray());
+            Assert.Equal(allowedClientId, GetGuidFromProperty(clientsPayload[0], "id"));
+        }
+    }
+
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("Administrator")]
+    public async Task HeadCoach_or_Administrator_can_search_and_filter_clients_for_list_queries(string actorRole)
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorSession = await LoginAsync(
+            client,
+            actorRole == "HeadCoach"
+                ? seeded.HeadCoachLogin
+                : seeded.AdministratorLogin,
+            seeded.SharedPassword);
+
+        async Task<Guid> CreateClientForFilterAsync(
+            string lastName,
+            string firstName,
+            string phone,
+            Guid[] groupIds)
+        {
+            using var createResponse = await PostJsonAsync(
+                client,
+                "/clients",
+                new
+                {
+                    LastName = lastName,
+                    FirstName = firstName,
+                    MiddleName = "Тест",
+                    Phone = phone,
+                    Contacts = Array.Empty<object>(),
+                    GroupIds = groupIds
+                },
+                actorSession.CsrfToken);
+
+            Assert.True(
+                createResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created,
+                $"Expected client create success, got {createResponse.StatusCode}.");
+
+            var createPayload = await ReadJsonElementAsync(createResponse);
+            return await ExtractClientIdFromResponseAsync(createResponse, createPayload);
+        }
+
+        async Task<Guid[]> QueryClientIdsAsync(string query)
+        {
+            using var listResponse = await client.GetAsync($"/clients{query}");
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+            var listPayload = await ReadJsonElementAsync(listResponse);
+
+            return GetArrayPayload(listPayload, "data", "items", "clients")
+                .EnumerateArray()
+                .Select(candidate => GetGuidFromProperty(candidate, "id"))
+                .Where(id => id != Guid.Empty)
+                .ToArray();
+        }
+
+        var today = DateTime.UtcNow.Date;
+
+        var paidClientId = await CreateClientForFilterAsync("Иванов", "Платный", "+79990004001", [seeded.GroupOneId]);
+        var unpaidClientId = await CreateClientForFilterAsync("Петров", "Неоплаченный", "+79990004002", [seeded.GroupTwoId]);
+        var noGroupNoPhotoClientId = await CreateClientForFilterAsync("Сидоров", "Без", "+79990004003", []);
+
+        using (var paidPhotoResponse = await PostPhotoAsync(
+                   client,
+                   paidClientId,
+                   CreateSamplePngBytes(),
+                   "paid.png",
+                   "image/png",
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, paidPhotoResponse.StatusCode);
+        }
+
+        using (var paidMembershipResponse = await SendMembershipActionAsync(
+                   client,
+                   "purchase",
+                   paidClientId,
+                   new
+                   {
+                       MembershipType = "Monthly",
+                       PurchaseDate = today.ToString("yyyy-MM-dd"),
+                       ExpirationDate = today.AddDays(5).ToString("yyyy-MM-dd"),
+                       PaymentAmount = 1000m,
+                       IsPaid = true
+                   },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, paidMembershipResponse.StatusCode);
+        }
+
+        using (var unpaidMembershipResponse = await SendMembershipActionAsync(
+                   client,
+                   "purchase",
+                   unpaidClientId,
+                   new
+                   {
+                       MembershipType = "Monthly",
+                       PurchaseDate = today.ToString("yyyy-MM-dd"),
+                       ExpirationDate = today.AddMonths(1).ToString("yyyy-MM-dd"),
+                       PaymentAmount = 500m,
+                       IsPaid = false
+                   },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, unpaidMembershipResponse.StatusCode);
+        }
+
+        var fullNameSearch = await QueryClientIdsAsync($"?fullName={Uri.EscapeDataString("Иванов")}");
+        Assert.Single(fullNameSearch);
+        Assert.Equal(paidClientId, fullNameSearch[0]);
+
+        var phoneSearch = await QueryClientIdsAsync($"?phone={Uri.EscapeDataString("+79990004002")}");
+        Assert.Single(phoneSearch);
+        Assert.Equal(unpaidClientId, phoneSearch[0]);
+
+        var activeStatus = await QueryClientIdsAsync("?status=Active");
+        Assert.Contains(paidClientId, activeStatus);
+        Assert.Contains(unpaidClientId, activeStatus);
+        Assert.Contains(noGroupNoPhotoClientId, activeStatus);
+
+        var groupOneClients = await QueryClientIdsAsync($"?groupId={seeded.GroupOneId}");
+        Assert.Single(groupOneClients);
+        Assert.Equal(paidClientId, groupOneClients[0]);
+
+        var activePaid = await QueryClientIdsAsync("?paymentStatus=Paid");
+        Assert.Single(activePaid);
+        Assert.Equal(paidClientId, activePaid[0]);
+
+        var membershipRange = await QueryClientIdsAsync(
+            $"?membershipExpiresFrom={today.AddDays(25):yyyy-MM-dd}&membershipExpiresTo={today.AddDays(35):yyyy-MM-dd}");
+        Assert.Contains(paidClientId, membershipRange);
+        Assert.Contains(unpaidClientId, membershipRange);
+        Assert.DoesNotContain(noGroupNoPhotoClientId, membershipRange);
+
+        var withPhoto = await QueryClientIdsAsync("?hasPhoto=true");
+        Assert.Single(withPhoto);
+        Assert.Equal(paidClientId, withPhoto[0]);
+
+        var withoutPhoto = await QueryClientIdsAsync("?hasPhoto=false");
+        Assert.Contains(unpaidClientId, withoutPhoto);
+        Assert.Contains(noGroupNoPhotoClientId, withoutPhoto);
+        Assert.DoesNotContain(paidClientId, withoutPhoto);
+
+        var withoutGroup = await QueryClientIdsAsync("?hasGroup=false&status=Active");
+        Assert.Single(withoutGroup);
+        Assert.Equal(noGroupNoPhotoClientId, withoutGroup[0]);
+
+        var withoutActivePaid = await QueryClientIdsAsync("?hasActivePaidMembership=false");
+        Assert.Contains(unpaidClientId, withoutActivePaid);
+        Assert.Contains(noGroupNoPhotoClientId, withoutActivePaid);
+        Assert.DoesNotContain(paidClientId, withoutActivePaid);
     }
 
     [Theory]

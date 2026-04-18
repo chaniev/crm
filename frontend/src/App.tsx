@@ -941,9 +941,7 @@ function RouteViewport({
 }: RouteViewportProps) {
   if (
     !user.permissions.canManageClients &&
-    (route.kind === 'clientCreate' ||
-      route.kind === 'clientEdit' ||
-      (route.kind === 'section' && route.section === 'Clients'))
+    (route.kind === 'clientCreate' || route.kind === 'clientEdit')
   ) {
     return <ClientsReadOnlyPlaceholder />
   }

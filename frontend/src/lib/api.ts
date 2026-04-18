@@ -49,6 +49,24 @@ const GROUPS_QUERY_KEYS = {
   take: 'take',
   isActive: 'isActive',
 } as const
+const CLIENTS_DEFAULT_PAGE = 1
+const CLIENTS_DEFAULT_PAGE_SIZE = 20
+const CLIENTS_QUERY_KEYS = {
+  page: 'page',
+  pageSize: 'pageSize',
+  skip: 'skip',
+  take: 'take',
+  fullName: 'fullName',
+  phone: 'phone',
+  groupId: 'groupId',
+  status: 'status',
+  paymentStatus: 'paymentStatus',
+  membershipExpiresFrom: 'membershipExpiresFrom',
+  membershipExpiresTo: 'membershipExpiresTo',
+  hasPhoto: 'hasPhoto',
+  hasGroup: 'hasGroup',
+  hasActivePaidMembership: 'hasActivePaidMembership',
+} as const
 const CLIENT_LIST_PAYLOAD_KEYS = ['items', 'clients'] as const
 const CLIENT_CONTACT_PAYLOAD_KEYS = ['items', 'contacts'] as const
 const CLIENT_GROUP_PAYLOAD_KEYS = ['items', 'groups'] as const
@@ -143,6 +161,7 @@ export type GroupTrainerSummary = {
 }
 
 export type ClientStatus = 'Active' | 'Archived'
+export type ClientPaymentStatus = 'Paid' | 'Unpaid'
 
 export type ClientContact = {
   id?: string
@@ -230,6 +249,33 @@ export type UpsertClientRequest = {
   phone: string
   contacts: ClientContactInput[]
   groupIds: string[]
+}
+
+export type GetClientsParams = {
+  page?: number
+  pageSize?: number
+  skip?: number
+  take?: number
+  fullName?: string
+  phone?: string
+  groupId?: string
+  status?: ClientStatus
+  paymentStatus?: ClientPaymentStatus
+  membershipExpiresFrom?: string
+  membershipExpiresTo?: string
+  hasPhoto?: boolean
+  hasGroup?: boolean
+  hasActivePaidMembership?: boolean
+}
+
+export type ClientListResponse = {
+  items: ClientListItem[]
+  totalCount: number | null
+  skip: number
+  take: number
+  page: number
+  pageSize: number
+  hasNextPage: boolean
 }
 
 export type PurchaseClientMembershipRequest = {
@@ -479,13 +525,93 @@ export function applyFieldErrors(
   )
 }
 
-export async function getClients(signal?: AbortSignal) {
-  const payload = await request<unknown>(API_ENDPOINTS.clients.collection, { signal })
+export async function getClients(
+  params: GetClientsParams = {},
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
 
-  return extractArrayPayload<ClientResponsePayload>(
+  if (typeof params.page === 'number') {
+    searchParams.set(CLIENTS_QUERY_KEYS.page, String(params.page))
+  } else if (typeof params.pageSize === 'number') {
+    searchParams.set(CLIENTS_QUERY_KEYS.page, String(CLIENTS_DEFAULT_PAGE))
+  }
+
+  if (typeof params.pageSize === 'number') {
+    searchParams.set(CLIENTS_QUERY_KEYS.pageSize, String(params.pageSize))
+  }
+
+  if (typeof params.skip === 'number') {
+    searchParams.set(CLIENTS_QUERY_KEYS.skip, String(params.skip))
+  }
+
+  if (typeof params.take === 'number') {
+    searchParams.set(CLIENTS_QUERY_KEYS.take, String(params.take))
+  }
+
+  appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.fullName, params.fullName)
+  appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.phone, params.phone)
+  appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.groupId, params.groupId)
+  appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.status, params.status)
+  appendSearchParam(
+    searchParams,
+    CLIENTS_QUERY_KEYS.paymentStatus,
+    params.paymentStatus,
+  )
+  appendSearchParam(
+    searchParams,
+    CLIENTS_QUERY_KEYS.membershipExpiresFrom,
+    params.membershipExpiresFrom,
+  )
+  appendSearchParam(
+    searchParams,
+    CLIENTS_QUERY_KEYS.membershipExpiresTo,
+    params.membershipExpiresTo,
+  )
+  appendBooleanSearchParam(searchParams, CLIENTS_QUERY_KEYS.hasPhoto, params.hasPhoto)
+  appendBooleanSearchParam(searchParams, CLIENTS_QUERY_KEYS.hasGroup, params.hasGroup)
+  appendBooleanSearchParam(
+    searchParams,
+    CLIENTS_QUERY_KEYS.hasActivePaidMembership,
+    params.hasActivePaidMembership,
+  )
+
+  if (
+    !searchParams.has(CLIENTS_QUERY_KEYS.page) &&
+    !searchParams.has(CLIENTS_QUERY_KEYS.pageSize) &&
+    !searchParams.has(CLIENTS_QUERY_KEYS.skip) &&
+    !searchParams.has(CLIENTS_QUERY_KEYS.take)
+  ) {
+    searchParams.set(CLIENTS_QUERY_KEYS.page, String(CLIENTS_DEFAULT_PAGE))
+    searchParams.set(
+      CLIENTS_QUERY_KEYS.pageSize,
+      String(CLIENTS_DEFAULT_PAGE_SIZE),
+    )
+  }
+
+  const payload = await request<unknown>(
+    `${API_ENDPOINTS.clients.collection}?${searchParams.toString()}`,
+    { signal },
+  )
+
+  const items = extractArrayPayload<ClientResponsePayload>(
     payload,
     CLIENT_LIST_PAYLOAD_KEYS,
   ).map(mapClientListItem)
+  const pagination = extractClientsPagination(payload, params, items.length)
+
+  return {
+    items,
+    totalCount: pagination.totalCount,
+    skip: pagination.skip,
+    take: pagination.take,
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    hasNextPage:
+      pagination.totalCount !== null
+        ? pagination.skip + items.length < pagination.totalCount
+        : items.length >= pagination.take,
+  } satisfies ClientListResponse
 }
 
 export async function getClient(clientId: string, signal?: AbortSignal) {
@@ -890,6 +1016,35 @@ function normalizeFieldPath(field: string) {
     .join('.')
 }
 
+function appendSearchParam(
+  searchParams: URLSearchParams,
+  key: string,
+  value?: string | null,
+) {
+  if (!value) {
+    return
+  }
+
+  const trimmedValue = value.trim()
+  if (!trimmedValue) {
+    return
+  }
+
+  searchParams.set(key, trimmedValue)
+}
+
+function appendBooleanSearchParam(
+  searchParams: URLSearchParams,
+  key: string,
+  value?: boolean,
+) {
+  if (typeof value !== 'boolean') {
+    return
+  }
+
+  searchParams.set(key, String(value))
+}
+
 function extractArrayPayload<T>(payload: unknown, keys: readonly string[]): T[] {
   if (Array.isArray(payload)) {
     return payload as T[]
@@ -971,6 +1126,68 @@ function extractRecordPayload(
   }
 
   return null
+}
+
+function extractClientsPagination(
+  payload: unknown,
+  params: GetClientsParams,
+  itemCount: number,
+) {
+  const requestedTake =
+    typeof params.take === 'number'
+      ? params.take
+      : typeof params.pageSize === 'number'
+        ? params.pageSize
+        : CLIENTS_DEFAULT_PAGE_SIZE
+  const requestedSkip =
+    typeof params.skip === 'number'
+      ? params.skip
+      : typeof params.page === 'number'
+        ? Math.max(0, (params.page - 1) * requestedTake)
+        : 0
+  const envelope = isRecord(payload) ? payload : null
+  const nestedEnvelope = envelope?.data
+  const totalCount =
+    (isRecord(envelope)
+      ? readNumber(envelope, ['totalCount', 'TotalCount'])
+      : undefined) ??
+    (isRecord(nestedEnvelope)
+      ? readNumber(nestedEnvelope, ['totalCount', 'TotalCount'])
+      : undefined)
+  const skip =
+    (isRecord(envelope) ? readNumber(envelope, ['skip', 'Skip']) : undefined) ??
+    (isRecord(nestedEnvelope)
+      ? readNumber(nestedEnvelope, ['skip', 'Skip'])
+      : undefined) ??
+    requestedSkip
+  const take =
+    (isRecord(envelope) ? readNumber(envelope, ['take', 'Take']) : undefined) ??
+    (isRecord(nestedEnvelope)
+      ? readNumber(nestedEnvelope, ['take', 'Take'])
+      : undefined) ??
+    requestedTake
+  const page =
+    (isRecord(envelope) ? readNumber(envelope, ['page', 'Page']) : undefined) ??
+    (isRecord(nestedEnvelope)
+      ? readNumber(nestedEnvelope, ['page', 'Page'])
+      : undefined) ??
+    Math.floor(skip / Math.max(take, 1)) + 1
+  const pageSize =
+    (isRecord(envelope)
+      ? readNumber(envelope, ['pageSize', 'PageSize'])
+      : undefined) ??
+    (isRecord(nestedEnvelope)
+      ? readNumber(nestedEnvelope, ['pageSize', 'PageSize'])
+      : undefined) ??
+    take
+
+  return {
+    totalCount: totalCount ?? null,
+    skip,
+    take: Math.max(take, itemCount, 1),
+    page: Math.max(page, 1),
+    pageSize: Math.max(pageSize, 1),
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

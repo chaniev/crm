@@ -27,6 +27,7 @@
 - завершен `Этап 6a. Базовый CRUD клиентов, контакты и группы`;
 - завершен `Этап 6b. Абонементы клиентов и версионирование`;
 - завершен `Этап 6c. Фотографии клиентов`;
+- завершен `Этап 6d. Поиск и фильтрация клиентов`;
 - `Инкремент 1. Технический скелет` завершен: каркас, базовый запуск, схема БД MVP и начальный миграционный цикл готовы;
 - `Инкремент 2. Базовый auth foundation` завершен: backend выдает `HttpOnly` cookie, seed-ит первого `HeadCoach`, требует смену пароля при первом входе, пишет базовый аудит и отдает CSRF-токен, а frontend имеет единый theme foundation и auth-flow на `Mantine`;
 - этап 3 добавил named policies доступа, backend-driven access scope в `session/profile`, group-scoped проверку тренера для attendance-сценариев и HTTP-интеграционные тесты матрицы прав;
@@ -35,7 +36,8 @@
 - этап 6a добавил backend API клиентов (`GET /clients`, `GET /clients/{id}`, `POST /clients`, `PUT /clients/{id}`, `PUT /clients/{id}/archive`, `PUT /clients/{id}/restore`) с аудитом, валидацией до 2 контактных лиц, привязкой к нескольким группам и route-level frontend flow списка, карточки, создания и редактирования клиентов;
 - этап 6b добавил backend API абонементов внутри карточки клиента (`POST /clients/{id}/membership/purchase`, `POST /clients/{id}/membership/renew`, `POST /clients/{id}/membership/correct`, `POST /clients/{id}/membership/mark-payment`), версионирование `ClientMembership`, расчет сроков продления, выдачу `currentMembership` и `membershipHistory` в `GET /clients/{id}`, аудит membership-действий и inline frontend flow карточки клиента без отдельных экранов;
 - этап 6c добавил backend API фотографий клиента (`POST /clients/{id}/photo`, `GET /clients/{id}/photo`), файловое хранение фото вне БД с метаданными в `Client`, конвертацию `HEIC/HEIF` в `JPEG`, Docker volume для persistent storage, photo metadata в `GET /clients/{id}` и `GET /clients`, photo block в create/edit/detail клиента и read-only detail route для `Coach` без раскрытия телефона, контактов и membership-данных;
-- проверка этапов 1-6c подтверждена командами `dotnet build backend/GymCrm.slnx`, `dotnet test backend/GymCrm.slnx` и `npm run build`.
+- этап 6d добавил server-side фильтры `GET /clients` по ФИО, телефону, группе, статусу, оплате, сроку окончания абонемента, отсутствию фото, группы и актуального оплаченного абонемента, открыл read-only список клиентов для `Coach` в рамках назначенных групп и добавил route-level frontend flow поиска, фильтров и пагинации списка клиентов;
+- проверка этапов 1-6d подтверждена командами `dotnet build backend/GymCrm.slnx`, `dotnet test backend/GymCrm.slnx` и `npm run build`.
 
 Статус по этапам:
 
@@ -50,7 +52,7 @@
 | Этап 6a. Базовый CRUD клиентов, контакты и группы | выполнен | Реализованы backend API списка/деталей/создания/редактирования/архивирования/восстановления клиентов, валидации телефона и ФИО, ограничение до 2 контактных лиц, привязка к нескольким группам и route-level UI списка, карточки, создания и редактирования клиентов для `HeadCoach` и `Administrator`. |
 | Этап 6b. Абонементы клиентов и версионирование | выполнен | Реализованы текущий `ClientMembership`, версионирование абонемента и оплаты, 4 действия внутри карточки клиента, расчет даты окончания и продления, audit membership-изменений и inline UI блока абонемента для `HeadCoach` и `Administrator`. |
 | Этап 6c. Фотографии клиентов | выполнен | Реализованы upload/read photo API, файловое хранение в Docker volume и локальном storage, метаданные фото в ответах клиента, конвертация `HEIC/HEIF` в `JPEG`, замена старого файла и backend-проверка доступа тренера по назначенным группам. |
-| Этап 6d. Поиск и фильтрация клиентов | не начат | Нет backend-фильтров и UI поиска по клиентской базе. |
+| Этап 6d. Поиск и фильтрация клиентов | выполнен | Реализованы server-side фильтры и поиск в `GET /clients`, phone-search только для `HeadCoach` и `Administrator`, read-only список клиентов для `Coach` в рамках назначенных групп и route-level UI поиска, фильтров и пагинации списка клиентов. |
 | Этап 7. Отметка посещений | не начат | Нет сценария отметки посещений и списания разового абонемента. |
 | Этап 8. История посещений клиента и ролевые ограничения карточки | не начат | Нет истории посещений и ролевого представления карточки клиента. |
 | Этап 9. Главная страница | не начат | Нет экрана с истекающими абонементами. |

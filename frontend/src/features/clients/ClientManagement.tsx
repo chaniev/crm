@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
 import {
   ActionIcon,
   Alert,
@@ -24,6 +24,8 @@ import {
   IconArchive,
   IconArrowLeft,
   IconCamera,
+  IconChevronLeft,
+  IconChevronRight,
   IconCheck,
   IconDeviceFloppy,
   IconEdit,
@@ -31,6 +33,7 @@ import {
   IconPlus,
   IconPhotoOff,
   IconRefresh,
+  IconSearch,
   IconTrash,
   IconUpload,
   IconUserHeart,
@@ -57,6 +60,7 @@ import {
   type ClientMembershipChangeReason,
   type ClientDetails,
   type ClientListItem,
+  type ClientPaymentStatus,
   type ClientPhoto,
   type ClientStatus,
   type CorrectClientMembershipRequest,
@@ -109,6 +113,19 @@ const membershipChangeReasonLabels: Record<
   PaymentUpdate: 'Оплата отмечена',
   SingleVisitWriteOff: 'Списание разового',
 }
+const clientListPageSizeOptions = [
+  { value: '20', label: '20 на странице' },
+  { value: '50', label: '50 на странице' },
+  { value: '100', label: '100 на странице' },
+] as const
+const clientStatusFilterOptions = [
+  { value: 'Active', label: 'Только активные' },
+  { value: 'Archived', label: 'Только архив' },
+] satisfies Array<{ value: ClientStatus; label: string }>
+const clientPaymentStatusFilterOptions = [
+  { value: 'Paid', label: 'Оплаченные' },
+  { value: 'Unpaid', label: 'Неоплаченные' },
+] satisfies Array<{ value: ClientPaymentStatus; label: string }>
 
 type ClientFormContact = {
   type: string
@@ -160,6 +177,25 @@ type MembershipActionSubmission =
       payload: MarkClientMembershipPaymentRequest
     }
 
+type ClientListFilterValues = {
+  fullName: string
+  phone: string
+  groupId: string | null
+  status: ClientStatus | 'all'
+  paymentStatus: ClientPaymentStatus | 'all'
+  membershipExpiresFrom: string
+  membershipExpiresTo: string
+  withoutPhoto: boolean
+  withoutGroup: boolean
+  withoutActivePaidMembership: boolean
+  pageSize: string
+}
+
+type ClientGroupFilterOption = {
+  value: string
+  label: string
+}
+
 type ClientsListScreenProps = {
   canManage: boolean
   onCreate: () => void
@@ -172,9 +208,49 @@ export function ClientsListScreen({
   onOpen,
 }: ClientsListScreenProps) {
   const [clients, setClients] = useState<ClientListItem[]>([])
+  const [groupOptions, setGroupOptions] = useState<ClientGroupFilterOption[]>([])
+  const [fallbackGroupOptions, setFallbackGroupOptions] = useState<
+    ClientGroupFilterOption[]
+  >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [page, setPage] = useState(1)
+  const [totalCount, setTotalCount] = useState<number | null>(null)
+  const [hasNextPage, setHasNextPage] = useState(false)
+  const [draftFilters, setDraftFilters] = useState<ClientListFilterValues>(
+    () => createDefaultClientListFilters(),
+  )
+  const [appliedFilters, setAppliedFilters] = useState<ClientListFilterValues>(
+    () => createDefaultClientListFilters(),
+  )
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadGroupOptions() {
+      try {
+        const response = await getGroups({ take: 100 }, controller.signal)
+
+        if (!controller.signal.aborted) {
+          setGroupOptions(
+            response.items.map((group) => ({
+              value: group.id,
+              label: group.name,
+            })),
+          )
+        }
+      } catch {
+        if (!controller.signal.aborted) {
+          setGroupOptions([])
+        }
+      }
+    }
+
+    void loadGroupOptions()
+
+    return () => controller.abort()
+  }, [])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -184,8 +260,17 @@ export function ClientsListScreen({
       setError(null)
 
       try {
-        const nextClients = await getClients(controller.signal)
-        setClients(nextClients)
+        const nextResponse = await getClients(
+          toClientListQueryParams(appliedFilters, page, canManage),
+          controller.signal,
+        )
+
+        setClients(nextResponse.items)
+        setTotalCount(nextResponse.totalCount)
+        setHasNextPage(nextResponse.hasNextPage)
+        setFallbackGroupOptions((currentOptions) =>
+          mergeClientGroupFilterOptions(currentOptions, nextResponse.items),
+        )
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
@@ -206,13 +291,45 @@ export function ClientsListScreen({
     void load()
 
     return () => controller.abort()
-  }, [reloadKey])
+  }, [appliedFilters, canManage, page, reloadKey])
 
   const activeClientsCount = clients.filter(
     (client) => client.status === 'Active',
   ).length
   const archivedClientsCount = clients.length - activeClientsCount
   const groupedClientsCount = clients.filter((client) => client.groupCount > 0).length
+  const pageSize = Number.parseInt(appliedFilters.pageSize, 10) || 20
+  const pageStart = clients.length === 0 ? 0 : (page - 1) * pageSize + 1
+  const pageEnd = pageStart === 0 ? 0 : pageStart + clients.length - 1
+  const hasAppliedFilters = hasClientListFilters(appliedFilters)
+  const activeFiltersCount = countClientListFilters(appliedFilters)
+  const availableGroupOptions = mergeStaticGroupFilterOptions(
+    groupOptions,
+    fallbackGroupOptions,
+  )
+
+  function updateFilter<Key extends keyof ClientListFilterValues>(
+    key: Key,
+    value: ClientListFilterValues[Key],
+  ) {
+    setDraftFilters((currentFilters) => ({
+      ...currentFilters,
+      [key]: value,
+    }))
+  }
+
+  function applyFilters(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault()
+    setAppliedFilters(normalizeClientListFilters(draftFilters, canManage))
+    setPage(1)
+  }
+
+  function resetFilters() {
+    const nextFilters = createDefaultClientListFilters()
+    setDraftFilters(nextFilters)
+    setAppliedFilters(nextFilters)
+    setPage(1)
+  }
 
   return (
     <Stack className="dashboard-stack" gap="xl">
@@ -239,24 +356,28 @@ export function ClientsListScreen({
           </Group>
         }
         badge="Route-level clients flow"
-        description="Список остается отдельным от посещений, а карточка клиента теперь включает inline-сценарии абонемента и оплаты этапа 6b."
-        title="Клиенты и карточка с абонементом встроены в shell"
+        description="Общий список клиентов теперь поддерживает server-side поиск и фильтры, а для тренера остается read-only без CRUD-действий."
+        title="Клиентская база со встроенным поиском и фильтрацией"
       />
 
       <SimpleGrid cols={{ base: 1, md: 3 }}>
         <MetricCard
-          description="Все клиенты из management API"
-          label="Клиенты"
-          value={String(clients.length)}
+          description={
+            totalCount === null
+              ? 'Количество записей в текущей выборке'
+              : 'Всего найдено по текущему запросу'
+          }
+          label={totalCount === null ? 'Показано' : 'Найдено'}
+          value={String(totalCount ?? clients.length)}
         />
         <MetricCard
-          description="Клиенты со статусом Active"
-          label="Активные"
+          description="Активные клиенты на текущей странице"
+          label="Активные сейчас"
           value={String(activeClientsCount)}
         />
         <MetricCard
-          description="Клиенты, уже привязанные хотя бы к одной группе"
-          label="В группах"
+          description="Клиенты на текущей странице хотя бы с одной группой"
+          label="С группой"
           value={String(groupedClientsCount)}
         />
       </SimpleGrid>
@@ -273,7 +394,7 @@ export function ClientsListScreen({
             </div>
 
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              {canManage ? 'HeadCoach и Administrator' : 'Read-only карточки'}
+              {canManage ? 'HeadCoach и Administrator' : 'Coach read-only'}
             </Badge>
           </Group>
 
@@ -284,7 +405,179 @@ export function ClientsListScreen({
             <Badge color="gray" radius="xl" variant="light">
               Архив: {archivedClientsCount}
             </Badge>
+            <Badge color="brand.1" radius="xl" variant="light">
+              Фильтров: {activeFiltersCount}
+            </Badge>
           </Group>
+
+          <Paper className="hint-card" radius="24px" withBorder>
+            <form onSubmit={applyFilters}>
+              <Stack gap="lg">
+                <Group justify="space-between" wrap="wrap">
+                  <div>
+                    <Text fw={700}>Поиск и фильтры</Text>
+                    <Text c="dimmed" size="sm">
+                      Поиск по ФИО работает для всех, поиск по телефону доступен
+                      только management-ролям.
+                    </Text>
+                  </div>
+
+                  <Badge
+                    color={activeFiltersCount > 0 ? 'accent.5' : 'gray'}
+                    radius="xl"
+                    variant={activeFiltersCount > 0 ? 'filled' : 'light'}
+                  >
+                    {activeFiltersCount > 0
+                      ? `Активно фильтров: ${activeFiltersCount}`
+                      : 'Фильтры не заданы'}
+                  </Badge>
+                </Group>
+
+                <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
+                  <TextInput
+                    label="Поиск по ФИО"
+                    onChange={(event) =>
+                      updateFilter('fullName', event.currentTarget.value)
+                    }
+                    placeholder="Например, Иванов"
+                    value={draftFilters.fullName}
+                  />
+                  {canManage ? (
+                    <TextInput
+                      label="Телефон"
+                      leftSection={<IconPhone size={16} />}
+                      onChange={(event) =>
+                        updateFilter('phone', event.currentTarget.value)
+                      }
+                      placeholder="+7 999 123-45-67"
+                      value={draftFilters.phone}
+                    />
+                  ) : null}
+                  <Select
+                    clearable
+                    data={availableGroupOptions}
+                    label="Группа"
+                    onChange={(value) => updateFilter('groupId', value)}
+                    placeholder="Все группы"
+                    searchable
+                    value={draftFilters.groupId}
+                  />
+                  <Select
+                    clearable
+                    data={clientStatusFilterOptions}
+                    label="Статус"
+                    onChange={(value) =>
+                      updateFilter(
+                        'status',
+                        (value as ClientStatus | null) ?? 'all',
+                      )
+                    }
+                    placeholder="Любой статус"
+                    value={
+                      draftFilters.status === 'all' ? null : draftFilters.status
+                    }
+                  />
+                  <Select
+                    clearable
+                    data={clientPaymentStatusFilterOptions}
+                    label="Оплата"
+                    onChange={(value) =>
+                      updateFilter(
+                        'paymentStatus',
+                        (value as ClientPaymentStatus | null) ?? 'all',
+                      )
+                    }
+                    placeholder="Любая оплата"
+                    value={
+                      draftFilters.paymentStatus === 'all'
+                        ? null
+                        : draftFilters.paymentStatus
+                    }
+                  />
+                  <Select
+                    data={clientListPageSizeOptions}
+                    label="Размер страницы"
+                    onChange={(value) => {
+                      if (value) {
+                        updateFilter('pageSize', value)
+                      }
+                    }}
+                    value={draftFilters.pageSize}
+                  />
+                  <TextInput
+                    label="Абонемент истекает с"
+                    onChange={(event) =>
+                      updateFilter(
+                        'membershipExpiresFrom',
+                        event.currentTarget.value,
+                      )
+                    }
+                    type="date"
+                    value={draftFilters.membershipExpiresFrom}
+                  />
+                  <TextInput
+                    label="Абонемент истекает по"
+                    onChange={(event) =>
+                      updateFilter(
+                        'membershipExpiresTo',
+                        event.currentTarget.value,
+                      )
+                    }
+                    type="date"
+                    value={draftFilters.membershipExpiresTo}
+                  />
+                </SimpleGrid>
+
+                <SimpleGrid cols={{ base: 1, sm: 3 }}>
+                  <Switch
+                    checked={draftFilters.withoutPhoto}
+                    label="Без фото"
+                    onChange={(event) =>
+                      updateFilter('withoutPhoto', event.currentTarget.checked)
+                    }
+                  />
+                  <Switch
+                    checked={draftFilters.withoutGroup}
+                    label="Без группы"
+                    onChange={(event) =>
+                      updateFilter('withoutGroup', event.currentTarget.checked)
+                    }
+                  />
+                  <Switch
+                    checked={draftFilters.withoutActivePaidMembership}
+                    label="Без актуального оплаченного абонемента"
+                    onChange={(event) =>
+                      updateFilter(
+                        'withoutActivePaidMembership',
+                        event.currentTarget.checked,
+                      )
+                    }
+                  />
+                </SimpleGrid>
+
+                <Group justify="space-between" wrap="wrap">
+                  <Text c="dimmed" size="sm">
+                    {canManage
+                      ? 'Фильтры применяются к общему клиентскому списку.'
+                      : 'Для тренера список остается в режиме просмотра без телефона и CRUD.'}
+                  </Text>
+
+                  <Group gap="sm" wrap="wrap">
+                    <Button
+                      leftSection={<IconSearch size={18} />}
+                      type="submit"
+                      variant="filled"
+                    >
+                      Применить
+                    </Button>
+                    <Button onClick={resetFilters} variant="light">
+                      Сбросить
+                    </Button>
+                  </Group>
+                </Group>
+              </Stack>
+            </form>
+          </Paper>
 
           {loading ? (
             <Group justify="center" py="xl">
@@ -310,17 +603,62 @@ export function ClientsListScreen({
                   <ThemeIcon color="brand.7" radius="xl" size={30} variant="light">
                     <IconUsers size={16} />
                   </ThemeIcon>
-                  <Text fw={700}>Клиенты пока не заведены</Text>
+                  <Text fw={700}>
+                    {hasAppliedFilters
+                      ? 'По текущему запросу клиенты не найдены'
+                      : 'Клиенты пока не заведены'}
+                  </Text>
                 </Group>
                 <Text c="dimmed" size="sm">
-                  Начните с базовой карточки без абонемента и без истории посещений.
+                  {hasAppliedFilters
+                    ? 'Снимите часть фильтров или проверьте диапазон дат абонемента.'
+                    : 'Начните с базовой карточки без абонемента и без истории посещений.'}
                 </Text>
+                {hasAppliedFilters ? (
+                  <Group>
+                    <Button onClick={resetFilters} variant="light">
+                      Очистить фильтры
+                    </Button>
+                  </Group>
+                ) : null}
               </Stack>
             </Paper>
           ) : null}
 
           {!loading && !error && clients.length > 0 ? (
             <Stack gap="md">
+              <Group justify="space-between" wrap="wrap">
+                <Text c="dimmed" size="sm">
+                  {totalCount === null
+                    ? `Страница ${page}, показано ${clients.length} записей`
+                    : `Показаны ${pageStart}-${pageEnd} из ${totalCount}`}
+                </Text>
+
+                <Group gap="sm" wrap="wrap">
+                  <Button
+                    disabled={loading || page <= 1}
+                    leftSection={<IconChevronLeft size={16} />}
+                    onClick={() =>
+                      setPage((currentPage) => Math.max(1, currentPage - 1))
+                    }
+                    variant="default"
+                  >
+                    Назад
+                  </Button>
+                  <Badge color="gray" radius="xl" variant="light">
+                    Страница {page}
+                  </Badge>
+                  <Button
+                    disabled={loading || !hasNextPage}
+                    onClick={() => setPage((currentPage) => currentPage + 1)}
+                    rightSection={<IconChevronRight size={16} />}
+                    variant="default"
+                  >
+                    Дальше
+                  </Button>
+                </Group>
+              </Group>
+
               {clients.map((client) => (
                 <Paper
                   className="list-row-card client-row-card"
@@ -340,14 +678,18 @@ export function ClientsListScreen({
                           >
                             {statusLabelMap[client.status]}
                           </Badge>
-                          <Badge color="sand" radius="xl" variant="light">
-                            Контактов: {client.contactCount}
-                          </Badge>
+                          {canManage ? (
+                            <Badge color="sand" radius="xl" variant="light">
+                              Контактов: {client.contactCount}
+                            </Badge>
+                          ) : null}
                         </Group>
 
-                        <Text c="dimmed" size="sm">
-                          Телефон: {client.phone || 'Не указан'}
-                        </Text>
+                        {canManage ? (
+                          <Text c="dimmed" size="sm">
+                            Телефон: {client.phone || 'Не указан'}
+                          </Text>
+                        ) : null}
 
                         <Text c="dimmed" size="sm">
                           {client.groupCount > 0
@@ -369,9 +711,15 @@ export function ClientsListScreen({
                       <Badge color="brand.1" radius="xl" variant="light">
                         Групп: {client.groupCount}
                       </Badge>
-                      <Badge color="sand" radius="xl" variant="light">
-                        Статус: {statusLabelMap[client.status]}
-                      </Badge>
+                      {canManage ? (
+                        <Badge color="sand" radius="xl" variant="light">
+                          Статус: {statusLabelMap[client.status]}
+                        </Badge>
+                      ) : (
+                        <Badge color="gray" radius="xl" variant="light">
+                          Только просмотр
+                        </Badge>
+                      )}
                     </Group>
                   </Stack>
                 </Paper>
@@ -2784,6 +3132,164 @@ function buildDraftClientName(values: ClientFormValues) {
     .join(' ')
 
   return fullName || 'нового клиента'
+}
+
+function createDefaultClientListFilters(): ClientListFilterValues {
+  return {
+    fullName: '',
+    phone: '',
+    groupId: null,
+    status: 'all',
+    paymentStatus: 'all',
+    membershipExpiresFrom: '',
+    membershipExpiresTo: '',
+    withoutPhoto: false,
+    withoutGroup: false,
+    withoutActivePaidMembership: false,
+    pageSize: clientListPageSizeOptions[0].value,
+  }
+}
+
+function normalizeClientListFilters(
+  filters: ClientListFilterValues,
+  canManage: boolean,
+): ClientListFilterValues {
+  const hasKnownPageSize = clientListPageSizeOptions.some(
+    (option) => option.value === filters.pageSize,
+  )
+
+  return {
+    fullName: filters.fullName.trim(),
+    phone: canManage ? filters.phone.trim() : '',
+    groupId: filters.groupId,
+    status: filters.status,
+    paymentStatus: filters.paymentStatus,
+    membershipExpiresFrom: filters.membershipExpiresFrom,
+    membershipExpiresTo: filters.membershipExpiresTo,
+    withoutPhoto: filters.withoutPhoto,
+    withoutGroup: filters.withoutGroup,
+    withoutActivePaidMembership: filters.withoutActivePaidMembership,
+    pageSize: hasKnownPageSize
+      ? filters.pageSize
+      : clientListPageSizeOptions[0].value,
+  }
+}
+
+function hasClientListFilters(filters: ClientListFilterValues) {
+  return countClientListFilters(filters) > 0
+}
+
+function countClientListFilters(filters: ClientListFilterValues) {
+  let count = 0
+
+  if (filters.fullName) {
+    count += 1
+  }
+
+  if (filters.phone) {
+    count += 1
+  }
+
+  if (filters.groupId) {
+    count += 1
+  }
+
+  if (filters.status !== 'all') {
+    count += 1
+  }
+
+  if (filters.paymentStatus !== 'all') {
+    count += 1
+  }
+
+  if (filters.membershipExpiresFrom) {
+    count += 1
+  }
+
+  if (filters.membershipExpiresTo) {
+    count += 1
+  }
+
+  if (filters.withoutPhoto) {
+    count += 1
+  }
+
+  if (filters.withoutGroup) {
+    count += 1
+  }
+
+  if (filters.withoutActivePaidMembership) {
+    count += 1
+  }
+
+  return count
+}
+
+function toClientListQueryParams(
+  filters: ClientListFilterValues,
+  page: number,
+  canManage: boolean,
+) {
+  const pageSize = Number.parseInt(filters.pageSize, 10) || 20
+
+  return {
+    page,
+    pageSize,
+    fullName: filters.fullName || undefined,
+    phone: canManage ? filters.phone || undefined : undefined,
+    groupId: filters.groupId ?? undefined,
+    status: filters.status === 'all' ? undefined : filters.status,
+    paymentStatus:
+      filters.paymentStatus === 'all' ? undefined : filters.paymentStatus,
+    membershipExpiresFrom: filters.membershipExpiresFrom || undefined,
+    membershipExpiresTo: filters.membershipExpiresTo || undefined,
+    hasPhoto: filters.withoutPhoto ? false : undefined,
+    hasGroup: filters.withoutGroup ? false : undefined,
+    hasActivePaidMembership: filters.withoutActivePaidMembership
+      ? false
+      : undefined,
+  }
+}
+
+function mergeClientGroupFilterOptions(
+  currentOptions: ClientGroupFilterOption[],
+  clients: ClientListItem[],
+) {
+  return mergeStaticGroupFilterOptions(
+    currentOptions,
+    clients.flatMap((client) =>
+      client.groups.map((group) => ({
+        value: group.id,
+        label: group.name,
+      })),
+    ),
+  )
+}
+
+function mergeStaticGroupFilterOptions(
+  ...optionSets: ClientGroupFilterOption[][]
+) {
+  const optionsById = new Map<string, ClientGroupFilterOption>()
+
+  for (const optionSet of optionSets) {
+    for (const option of optionSet) {
+      const value = option.value.trim()
+      const label = option.label.trim()
+
+      if (!value || !label || optionsById.has(value)) {
+        continue
+      }
+
+      optionsById.set(value, {
+        value,
+        label,
+      })
+    }
+  }
+
+  return Array.from(optionsById.values()).sort((left, right) =>
+    left.label.localeCompare(right.label, 'ru'),
+  )
 }
 
 const statusLabelMap: Record<ClientStatus, string> = {
