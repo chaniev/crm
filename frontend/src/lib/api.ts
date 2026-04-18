@@ -272,6 +272,11 @@ export type ClientListItem = {
   contactCount: number
   groupCount: number
   groups: ClientGroupSummary[]
+  photo: ClientPhoto | null
+  hasActivePaidMembership: boolean
+  hasUnpaidCurrentMembership: boolean
+  membershipWarning: boolean
+  membershipWarningMessage?: string
   currentMembership: ClientMembership | null
   updatedAt?: string
 }
@@ -1898,6 +1903,46 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
   const groups = mapClientGroups(payload)
   const fullName = buildClientFullName(payload)
   const currentMembership = mapClientCurrentMembership(payload)
+  const warningMessage =
+    readString(payload, [
+      'warning',
+      'Warning',
+      'warningMessage',
+      'WarningMessage',
+      'membershipWarningMessage',
+      'MembershipWarningMessage',
+      'membershipStatusMessage',
+      'MembershipStatusMessage',
+    ]) ?? undefined
+  const hasActivePaidMembership =
+    readBoolean(payload, [
+      'hasActivePaidMembership',
+      'HasActivePaidMembership',
+    ]) ?? deriveHasActivePaidMembership(currentMembership, new Date().toISOString())
+  const hasUnpaidCurrentMembership =
+    readBoolean(payload, [
+      'hasUnpaidCurrentMembership',
+      'HasUnpaidCurrentMembership',
+    ]) ?? (currentMembership ? !currentMembership.isPaid : false)
+  const membershipWarning =
+    readBoolean(payload, [
+      'hasWarning',
+      'HasWarning',
+      'membershipWarning',
+      'MembershipWarning',
+      'hasMembershipWarning',
+      'HasMembershipWarning',
+      'membershipWarningVisible',
+      'MembershipWarningVisible',
+      'hasMembershipIssue',
+      'HasMembershipIssue',
+    ]) ??
+    (Boolean(warningMessage) ||
+      deriveMembershipWarning(
+        currentMembership,
+        hasUnpaidCurrentMembership,
+        new Date().toISOString(),
+      ))
 
   return {
     id: payload.id,
@@ -1910,6 +1955,11 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     contactCount: payload.contactCount ?? contacts.length,
     groupCount: payload.groupCount ?? groups.length,
     groups,
+    photo: mapClientPhoto(payload),
+    hasActivePaidMembership,
+    hasUnpaidCurrentMembership,
+    membershipWarning,
+    membershipWarningMessage: warningMessage,
     currentMembership,
     updatedAt: payload.updatedAt,
   }

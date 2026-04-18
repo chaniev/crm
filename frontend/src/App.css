@@ -133,11 +133,84 @@
 .app-shell__header-inner {
   height: 100%;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
 }
 
-.app-shell__actions {
-  justify-content: flex-end;
+.app-shell__header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.app-shell__brand {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.app-shell__burger {
+  flex-shrink: 0;
+}
+
+.app-shell__brand-copy {
+  min-width: 0;
+}
+
+.app-shell__brand-title,
+.app-shell__brand-meta,
+.app-shell__profile-name,
+.app-shell__current-view {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-shell__desktop-nav {
+  min-width: 0;
+}
+
+.app-shell__profile-trigger {
+  min-width: 0;
+  max-width: min(22rem, 42vw);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: 999px;
+  color: var(--mantine-color-brand-8);
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(20, 90, 82, 0.12);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
+}
+
+.app-shell__profile-trigger:hover,
+.app-shell__profile-trigger:focus-visible {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(20, 90, 82, 0.2);
+}
+
+.app-shell__profile-trigger:focus-visible {
+  outline: 2px solid rgba(20, 90, 82, 0.24);
+  outline-offset: 2px;
+}
+
+.app-shell__profile-name {
+  font-weight: 600;
+}
+
+.app-shell__mobile-context {
+  min-width: 0;
+}
+
+.app-shell__current-view {
+  max-width: 100%;
 }
 
 .app-shell__nav-button {
@@ -145,8 +218,41 @@
   font-weight: 600;
 }
 
+.app-shell__navbar {
+  background:
+    linear-gradient(180deg, rgba(246, 244, 238, 0.98), rgba(235, 241, 237, 0.98));
+  border-inline-end: 1px solid rgba(20, 90, 82, 0.1);
+}
+
+.app-shell__mobile-nav-button {
+  text-transform: none;
+  font-weight: 600;
+}
+
+.app-shell__mobile-nav-button .mantine-Button-inner {
+  justify-content: flex-start;
+}
+
+.app-shell__mobile-nav-button .mantine-Button-label {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.app-shell__navbar-footer {
+  margin-top: auto;
+}
+
+.app-shell__navbar-divider {
+  margin-block: 1rem;
+}
+
+.app-shell__mobile-menu-hint {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 .app-shell__main {
   min-height: 100vh;
+  overflow-x: clip;
   background:
     radial-gradient(circle at top right, rgba(216, 154, 61, 0.12), transparent 22%),
     linear-gradient(180deg, rgba(246, 244, 238, 0.98), rgba(235, 241, 237, 0.98));
@@ -368,6 +474,18 @@
     monospace;
 }
 
+@media (max-width: 75rem) {
+  .app-shell__profile-trigger {
+    max-width: 3rem;
+    padding-inline: 0.75rem;
+    justify-content: center;
+  }
+
+  .app-shell__profile-name {
+    display: none;
+  }
+}
+
 @media (max-width: 62rem) {
   .auth-layout {
     grid-template-columns: 1fr;
@@ -376,10 +494,6 @@
   .story-panel__title,
   .dashboard-hero__title {
     max-width: 14ch;
-  }
-
-  .app-shell__actions {
-    justify-content: flex-start;
   }
 }
 
@@ -404,5 +518,27 @@
 
   .attendance-client-switch {
     justify-self: flex-end;
+  }
+}
+
+@media (max-width: 30rem) {
+  .gym-crm-page {
+    padding-inline: 0.75rem;
+  }
+
+  .app-shell__header-inner {
+    gap: 0.65rem;
+  }
+
+  .app-shell__header-top {
+    gap: 0.5rem;
+  }
+
+  .app-shell__brand-title {
+    font-size: 0.98rem;
+  }
+
+  .app-shell__brand-meta {
+    font-size: 0.74rem;
   }
 }

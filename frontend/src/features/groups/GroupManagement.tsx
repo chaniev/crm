@@ -52,6 +52,7 @@ import {
   GROUPS_STAGE_LABEL,
   GROUPS_STATUS_LABELS,
 } from './groupManagement.constants'
+import { ResponsiveButtonGroup } from '../shared/ux'
 
 type GroupsListScreenProps = {
   onCreate: () => void
@@ -147,7 +148,7 @@ export function GroupsListScreen({
             </Text>
           </Stack>
 
-          <Group className="management-hero__actions" gap="sm" wrap="wrap">
+          <ResponsiveButtonGroup>
             <Button
               color="accent.5"
               leftSection={<IconPlus size={18} />}
@@ -163,7 +164,7 @@ export function GroupsListScreen({
             >
               Обновить список
             </Button>
-          </Group>
+          </ResponsiveButtonGroup>
         </Stack>
       </Paper>
 
@@ -413,6 +414,7 @@ export function GroupCreateScreen({
             <GroupForm
               form={form}
               formError={formError}
+              onCancel={onCancel}
               onSubmit={submit}
               submitLabel="Создать группу"
               submitting={submitting}
@@ -571,6 +573,7 @@ export function GroupEditScreen({
             <GroupForm
               form={form}
               formError={formError}
+              onCancel={onBack}
               onSubmit={submit}
               submitLabel="Сохранить изменения"
               submitting={submitting}
@@ -649,6 +652,7 @@ export function GroupEditScreen({
 type GroupFormProps = {
   form: UseFormReturnType<GroupFormValues>
   formError: string | null
+  onCancel: () => void
   onSubmit: (values: GroupFormValues) => Promise<void>
   submitLabel: string
   submitting: boolean
@@ -658,6 +662,7 @@ type GroupFormProps = {
 function GroupForm({
   form,
   formError,
+  onCancel,
   onSubmit,
   submitLabel,
   submitting,
@@ -748,13 +753,18 @@ function GroupForm({
             После сохранения backend сразу обновит server-side scope назначенных тренеров.
           </Text>
 
-          <Button
-            leftSection={<IconDeviceFloppy size={18} />}
-            loading={submitting}
-            type="submit"
-          >
-            {submitLabel}
-          </Button>
+          <ResponsiveButtonGroup justify="flex-end">
+            <Button onClick={onCancel} type="button" variant="subtle">
+              Отменить
+            </Button>
+            <Button
+              leftSection={<IconDeviceFloppy size={18} />}
+              loading={submitting}
+              type="submit"
+            >
+              {submitLabel}
+            </Button>
+          </ResponsiveButtonGroup>
         </Group>
       </Stack>
     </form>

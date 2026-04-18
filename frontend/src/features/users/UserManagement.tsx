@@ -43,6 +43,7 @@ import {
   type UserListItem,
   type UserRole,
 } from '../../lib/api'
+import { ResponsiveButtonGroup } from '../shared/ux'
 
 const roleLabels: Record<UserRole, string> = {
   HeadCoach: 'Главный тренер',
@@ -144,7 +145,7 @@ export function UsersListScreen({
             </Text>
           </Stack>
 
-          <Group className="management-hero__actions" gap="sm" wrap="wrap">
+          <ResponsiveButtonGroup>
             <Button
               color="accent.5"
               leftSection={<IconPlus size={18} />}
@@ -160,7 +161,7 @@ export function UsersListScreen({
             >
               Обновить список
             </Button>
-          </Group>
+          </ResponsiveButtonGroup>
         </Stack>
       </Paper>
 
@@ -443,7 +444,7 @@ export function UserCreateScreen({
                 </Stack>
               </Paper>
 
-              <Group justify="space-between" wrap="wrap">
+              <ResponsiveButtonGroup justify="space-between">
                 <Button onClick={onCancel} variant="subtle">
                   Отменить
                 </Button>
@@ -454,7 +455,7 @@ export function UserCreateScreen({
                 >
                   Сохранить пользователя
                 </Button>
-              </Group>
+              </ResponsiveButtonGroup>
             </Stack>
           </form>
         </Stack>
@@ -697,7 +698,7 @@ export function UserEditScreen({
                     </Stack>
                   </Paper>
 
-                  <Group justify="space-between" wrap="wrap">
+                  <ResponsiveButtonGroup justify="space-between">
                     <Button onClick={onBack} variant="subtle">
                       К списку
                     </Button>
@@ -708,7 +709,7 @@ export function UserEditScreen({
                     >
                       Сохранить изменения
                     </Button>
-                  </Group>
+                  </ResponsiveButtonGroup>
                 </Stack>
               </form>
             </>

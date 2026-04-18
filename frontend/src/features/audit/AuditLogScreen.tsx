@@ -32,6 +32,7 @@ import {
   type AuthenticatedUser,
   type GetAuditLogParams,
 } from '../../lib/api'
+import { ResponsiveButtonGroup } from '../shared/ux'
 
 type AuditLogScreenProps = {
   user: AuthenticatedUser
@@ -232,7 +233,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             </Text>
           </Stack>
 
-          <Group className="management-hero__actions" gap="sm" wrap="wrap">
+          <ResponsiveButtonGroup>
             <Button
               leftSection={<IconRefresh size={18} />}
               onClick={() => setReloadKey((current) => current + 1)}
@@ -240,7 +241,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             >
               Обновить
             </Button>
-          </Group>
+          </ResponsiveButtonGroup>
         </Stack>
       </Paper>
 
@@ -308,14 +309,14 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
                 />
               </SimpleGrid>
 
-              <Group gap="sm" wrap="wrap">
+              <ResponsiveButtonGroup>
                 <Button leftSection={<IconFilter size={18} />} type="submit">
                   Применить фильтры
                 </Button>
                 <Button onClick={handleResetFilters} type="button" variant="default">
                   Сбросить
                 </Button>
-              </Group>
+              </ResponsiveButtonGroup>
             </Stack>
           </form>
         </Stack>

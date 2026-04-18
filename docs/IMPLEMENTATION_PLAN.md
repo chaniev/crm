@@ -32,6 +32,7 @@
 - завершен `Этап 8. История посещений клиента и ролевые ограничения карточки`;
 - завершен `Этап 9. Главная страница`;
 - завершен `Этап 10. Журнал действий`;
+- завершен `Этап 11. Адаптивный интерфейс и UX-доработки`;
 - `Инкремент 1. Технический скелет` завершен: каркас, базовый запуск, схема БД MVP и начальный миграционный цикл готовы;
 - `Инкремент 2. Базовый auth foundation` завершен: backend выдает `HttpOnly` cookie, seed-ит первого `HeadCoach`, требует смену пароля при первом входе, пишет базовый аудит и отдает CSRF-токен, а frontend имеет единый theme foundation и auth-flow на `Mantine`;
 - этап 3 добавил named policies доступа, backend-driven access scope в `session/profile`, group-scoped проверку тренера для attendance-сценариев и HTTP-интеграционные тесты матрицы прав;
@@ -45,10 +46,12 @@
 - этап 8 добавил partial-load историю посещений в `GET /clients/{id}` через `attendanceSkip/attendanceTake`, ролевое представление карточки клиента на backend, group-scoped выдачу истории для `Coach`, скрытие персональных и membership/payment-данных для тренера и inline frontend-блок истории посещений внутри существующей карточки клиента без отдельного экрана;
 - этап 9 добавил management-only endpoint `GET /clients/expiring-memberships` для активных клиентов с текущим абонементом, истекающим менее чем через 10 дней, сортировку по ближайшей дате окончания и route-level экран `Главная` со списком ФИО, типа абонемента, даты окончания, дней до окончания и признака оплаты;
 - этап 10 добавил read-only backend API журнала действий (`GET /audit-logs`, `GET /audit-logs/options`) с пагинацией, фильтрами по периоду, пользователю, типу действия и типу объекта, санацией `OldValueJson/NewValueJson` при выдаче, route-level экран `Журнал действий` для `HeadCoach` и `Administrator`, раскрытие old/new значений в UI и интеграционные тесты доступа, фильтрации и пагинации журнала;
+- этап 11 добавил responsive `AppShell` с `Burger + Navbar` для mobile/tablet, role-aware мобильную навигацию без дублирования `Смены пароля`, compact profile trigger, route-level opening карточки клиента из `Главной`, full-width mobile action groups для ключевых экранов, confirm-модалки для архивирования/восстановления клиента и отметки оплаты, а также coach-friendly client list с фото, warning по абонементу и индикатором неоплаты в рамках уже существующего backend-контракта;
 - проверка этапов 1-7 подтверждена командами `dotnet build backend/GymCrm.slnx`, `dotnet test backend/GymCrm.slnx` и `npm run build`.
 - проверка этапа 8 подтверждена командами `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~GymCrm.Tests.ClientsApiTests"` и `npm run build`.
 - проверка этапа 9 подтверждена командами `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~GymCrm.Tests.ClientsApiTests"` и `npm run build`.
 - проверка этапа 10 подтверждена командами `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~GymCrm.Tests.AuditLogApiTests"` и `npm run build`.
+- проверка этапа 11 подтверждена командами `npm run lint` и `npm run build`.
 
 Статус по этапам:
 
@@ -68,7 +71,7 @@
 | Этап 8. История посещений клиента и ролевые ограничения карточки | выполнен | `GET /clients/{id}` отдает историю посещений с partial-load и ролевым срезом данных, а frontend показывает inline history-блок внутри общей карточки клиента для management-ролей и `Coach`. |
 | Этап 9. Главная страница | выполнен | Реализованы management-only backend API клиентов с текущим абонементом, истекающим менее чем через 10 дней, и route-level экран `Главная` для `HeadCoach` и `Administrator` со списком ФИО, типа абонемента, даты окончания, дней до окончания и признака оплаты. |
 | Этап 10. Журнал действий | выполнен | Реализованы read-only backend API журнала действий с пагинацией, фильтрами и options для UI, санация `OldValueJson/NewValueJson` при выдаче, route-level экран `Журнал действий` для `HeadCoach` и `Administrator`, а также интеграционные тесты доступа, фильтрации и пагинации. |
-| Этап 11. Адаптивный интерфейс и UX-доработки | не начат | Нет прикладных экранов для финальной UX-доработки. |
+| Этап 11. Адаптивный интерфейс и UX-доработки | выполнен | Реализованы responsive shell и мобильная role-aware навигация, единые mobile action patterns, confirm-flow для важных client-действий, переход из `Главной` в карточку клиента и coach-friendly read-only список клиентов с фото и membership-индикаторами. |
 | Этап 12. Тестирование | не начат | Есть базовые smoke-тесты каркаса и интеграционные auth-тесты, полного покрытия бизнес-правил пока нет. |
 | Этап 13. Docker и подготовка к развертыванию | не начат | Базовый Docker-запуск есть, но production-like подготовка и миграционный цикл еще не реализованы. |
 

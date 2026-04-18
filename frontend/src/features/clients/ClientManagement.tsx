@@ -2,6 +2,7 @@ import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'reac
 import {
   ActionIcon,
   Alert,
+  Avatar,
   Badge,
   Button,
   Group,
@@ -72,6 +73,10 @@ import {
   type TrainingGroupListItem,
   type UpsertClientRequest,
 } from '../../lib/api'
+import {
+  ConfirmActionModal,
+  ResponsiveButtonGroup,
+} from '../shared/ux'
 
 const maxContacts = 2
 const clientPhotoMaxBytes = 10 * 1024 * 1024
@@ -127,6 +132,12 @@ const clientPaymentStatusFilterOptions = [
   { value: 'Paid', label: 'Оплаченные' },
   { value: 'Unpaid', label: 'Неоплаченные' },
 ] satisfies Array<{ value: ClientPaymentStatus; label: string }>
+
+const membershipStatusBadgeColor = {
+  clear: 'teal',
+  unpaid: 'red',
+  warning: 'orange',
+} as const
 
 type ClientFormContact = {
   type: string
@@ -195,6 +206,15 @@ type ClientListFilterValues = {
 type ClientGroupFilterOption = {
   value: string
   label: string
+}
+
+function buildClientListPhotoUrl(client: ClientListItem) {
+  return client.photo && client.id
+    ? buildClientPhotoUrl(
+        client.id,
+        client.photo.uploadedAt ?? client.photo.path ?? client.updatedAt ?? 'list',
+      )
+    : null
 }
 
 type ClientsListScreenProps = {
@@ -336,7 +356,7 @@ export function ClientsListScreen({
     <Stack className="dashboard-stack" gap="xl">
       <ClientHero
         action={
-          <Group className="management-hero__actions" gap="sm" wrap="wrap">
+          <ResponsiveButtonGroup>
             {canManage ? (
               <Button
                 color="accent.5"
@@ -352,9 +372,9 @@ export function ClientsListScreen({
               onClick={() => setReloadKey((currentKey) => currentKey + 1)}
               variant="light"
             >
-              Обновить список
-            </Button>
-          </Group>
+                Обновить список
+              </Button>
+          </ResponsiveButtonGroup>
         }
         badge="Route-level clients flow"
         description="Общий список клиентов теперь поддерживает server-side поиск и фильтры, а для тренера остается read-only без CRUD-действий."
@@ -563,7 +583,7 @@ export function ClientsListScreen({
                       : 'Для тренера список остается в режиме просмотра без телефона и CRUD.'}
                   </Text>
 
-                  <Group gap="sm" wrap="wrap">
+                  <ResponsiveButtonGroup>
                     <Button
                       leftSection={<IconSearch size={18} />}
                       type="submit"
@@ -574,7 +594,7 @@ export function ClientsListScreen({
                     <Button onClick={resetFilters} variant="light">
                       Сбросить
                     </Button>
-                  </Group>
+                  </ResponsiveButtonGroup>
                 </Group>
               </Stack>
             </form>
@@ -635,7 +655,7 @@ export function ClientsListScreen({
                     : `Показаны ${pageStart}-${pageEnd} из ${totalCount}`}
                 </Text>
 
-                <Group gap="sm" wrap="wrap">
+                <ResponsiveButtonGroup>
                   <Button
                     disabled={loading || page <= 1}
                     leftSection={<IconChevronLeft size={16} />}
@@ -657,7 +677,7 @@ export function ClientsListScreen({
                   >
                     Дальше
                   </Button>
-                </Group>
+                </ResponsiveButtonGroup>
               </Group>
 
               {clients.map((client) => (
@@ -669,35 +689,94 @@ export function ClientsListScreen({
                 >
                   <Stack gap="md">
                     <Group justify="space-between" wrap="wrap">
-                      <Stack gap={8}>
-                        <Group gap="sm" wrap="wrap">
-                          <Text fw={700}>{client.fullName}</Text>
-                          <Badge
-                            color={client.status === 'Active' ? 'teal' : 'gray'}
-                            radius="xl"
-                            variant="light"
-                          >
-                            {statusLabelMap[client.status]}
-                          </Badge>
-                          {canManage ? (
-                            <Badge color="sand" radius="xl" variant="light">
-                              Контактов: {client.contactCount}
+                      <Group align="flex-start" gap="md" wrap="nowrap">
+                        <Avatar
+                          name={client.fullName}
+                          radius="xl"
+                          size={56}
+                          src={buildClientListPhotoUrl(client)}
+                        />
+
+                        <Stack gap={8}>
+                          <Group gap="sm" wrap="wrap">
+                            <Text fw={700}>{client.fullName}</Text>
+                            <Badge
+                              color={client.status === 'Active' ? 'teal' : 'gray'}
+                              radius="xl"
+                              variant="light"
+                            >
+                              {statusLabelMap[client.status]}
                             </Badge>
+                            {canManage ? (
+                              <Badge color="sand" radius="xl" variant="light">
+                                Контактов: {client.contactCount}
+                              </Badge>
+                            ) : null}
+                          </Group>
+
+                          {canManage ? (
+                            <Text c="dimmed" size="sm">
+                              Телефон: {client.phone || 'Не указан'}
+                            </Text>
                           ) : null}
-                        </Group>
 
-                        {canManage ? (
                           <Text c="dimmed" size="sm">
-                            Телефон: {client.phone || 'Не указан'}
+                            {client.groupCount > 0
+                              ? `Группы: ${client.groups.map((group) => group.name).join(', ')}`
+                              : 'Клиент пока не привязан к группам'}
                           </Text>
-                        ) : null}
 
-                        <Text c="dimmed" size="sm">
-                          {client.groupCount > 0
-                            ? `Группы: ${client.groups.map((group) => group.name).join(', ')}`
-                            : 'Клиент пока не привязан к группам'}
-                        </Text>
-                      </Stack>
+                          <Group gap="xs" wrap="wrap">
+                            {client.membershipWarning ? (
+                              <Badge
+                                color={membershipStatusBadgeColor.warning}
+                                radius="xl"
+                                variant="light"
+                              >
+                                Проблема с абонементом
+                              </Badge>
+                            ) : client.hasActivePaidMembership ? (
+                              <Badge
+                                color={membershipStatusBadgeColor.clear}
+                                radius="xl"
+                                variant="light"
+                              >
+                                Абонемент позволяет посещение
+                              </Badge>
+                            ) : (
+                              <Badge
+                                color={membershipStatusBadgeColor.warning}
+                                radius="xl"
+                                variant="light"
+                              >
+                                Нужна проверка абонемента
+                              </Badge>
+                            )}
+
+                            {client.hasUnpaidCurrentMembership ? (
+                              <Badge
+                                color={membershipStatusBadgeColor.unpaid}
+                                radius="xl"
+                                variant="light"
+                              >
+                                Не оплачено
+                              </Badge>
+                            ) : null}
+
+                            {!canManage ? (
+                              <Badge color="gray" radius="xl" variant="light">
+                                Только просмотр
+                              </Badge>
+                            ) : null}
+                          </Group>
+
+                          {!canManage && client.membershipWarningMessage ? (
+                            <Text c="orange.8" size="sm">
+                              {client.membershipWarningMessage}
+                            </Text>
+                          ) : null}
+                        </Stack>
+                      </Group>
 
                       <Button
                         leftSection={<IconUserHeart size={18} />}
@@ -716,11 +795,7 @@ export function ClientsListScreen({
                         <Badge color="sand" radius="xl" variant="light">
                           Статус: {statusLabelMap[client.status]}
                         </Badge>
-                      ) : (
-                        <Badge color="gray" radius="xl" variant="light">
-                          Только просмотр
-                        </Badge>
-                      )}
+                      ) : null}
                     </Group>
                   </Stack>
                 </Paper>
@@ -1084,6 +1159,7 @@ export function ClientDetailScreen({
   const [loadError, setLoadError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionPending, setActionPending] = useState(false)
+  const [archiveConfirmOpened, setArchiveConfirmOpened] = useState(false)
   const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const [membershipActionMode, setMembershipActionMode] =
     useState<MembershipActionMode | null>(null)
@@ -1125,6 +1201,7 @@ export function ClientDetailScreen({
       return
     }
 
+    setArchiveConfirmOpened(false)
     setActionPending(true)
     setActionError(null)
 
@@ -1240,9 +1317,34 @@ export function ClientDetailScreen({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
+      {canManage && client ? (
+        <ConfirmActionModal
+          confirmColor={client.status === 'Active' ? 'gray' : 'teal'}
+          confirmLabel={
+            client.status === 'Active'
+              ? 'Перевести в архив'
+              : 'Вернуть в активные'
+          }
+          description={
+            client.status === 'Active'
+              ? 'Клиент исчезнет из активных выборок, но карточка и история останутся доступны.'
+              : 'Клиент снова появится в активных списках и рабочих сценариях.'
+          }
+          onClose={() => setArchiveConfirmOpened(false)}
+          onConfirm={() => void toggleArchive()}
+          opened={archiveConfirmOpened}
+          pending={actionPending}
+          title={
+            client.status === 'Active'
+              ? 'Перевести клиента в архив?'
+              : 'Вернуть клиента в активные?'
+          }
+        />
+      ) : null}
+
       <ClientHero
         action={
-          <Group className="management-hero__actions" gap="sm" wrap="wrap">
+          <ResponsiveButtonGroup>
             <Button
               leftSection={<IconArrowLeft size={18} />}
               onClick={onBack}
@@ -1269,7 +1371,7 @@ export function ClientDetailScreen({
                     )
                   }
                   loading={actionPending}
-                  onClick={() => void toggleArchive()}
+                  onClick={() => setArchiveConfirmOpened(true)}
                   variant="white"
                 >
                   {client.status === 'Active'
@@ -1278,7 +1380,7 @@ export function ClientDetailScreen({
                 </Button>
               </>
             ) : null}
-          </Group>
+          </ResponsiveButtonGroup>
         }
         badge="Карточка клиента"
         description={
@@ -1725,7 +1827,7 @@ function ClientForm({
           </SimpleGrid>
         </Paper>
 
-        <Group justify="space-between" wrap="wrap">
+        <ResponsiveButtonGroup justify="space-between">
           <Button onClick={onCancel} type="button" variant="subtle">
             Отменить
           </Button>
@@ -1736,7 +1838,7 @@ function ClientForm({
           >
             {submitLabel}
           </Button>
-        </Group>
+        </ResponsiveButtonGroup>
       </Stack>
     </form>
   )
@@ -2165,7 +2267,7 @@ function ClientMembershipSection({
           </Alert>
         )}
 
-        <Group gap="sm" wrap="wrap">
+        <ResponsiveButtonGroup>
           <Button
             color={actionMode === 'purchase' ? 'accent.5' : undefined}
             onClick={() => onActionModeChange('purchase')}
@@ -2196,7 +2298,7 @@ function ClientMembershipSection({
               Отметить оплату
             </Button>
           ) : null}
-        </Group>
+        </ResponsiveButtonGroup>
 
         {actionMode === 'purchase' ? (
           <MembershipEditPanel
@@ -2564,14 +2666,14 @@ function MembershipEditPanel({
             </Button>
           </Group>
 
-          <Group justify="space-between" wrap="wrap">
+          <ResponsiveButtonGroup justify="space-between">
             <Button onClick={onCancel} type="button" variant="subtle">
               Отменить
             </Button>
             <Button loading={pending} type="submit">
               {mode === 'purchase' ? 'Оформить абонемент' : 'Сохранить исправление'}
             </Button>
-          </Group>
+          </ResponsiveButtonGroup>
         </Stack>
       </form>
     </Paper>
@@ -2730,14 +2832,14 @@ function MembershipRenewPanel({
             </Button>
           </Group>
 
-          <Group justify="space-between" wrap="wrap">
+          <ResponsiveButtonGroup justify="space-between">
             <Button onClick={onCancel} type="button" variant="subtle">
               Отменить
             </Button>
             <Button loading={pending} type="submit">
               Продлить абонемент
             </Button>
-          </Group>
+          </ResponsiveButtonGroup>
         </Stack>
       </form>
     </Paper>
@@ -2757,8 +2859,31 @@ function MembershipMarkPaymentPanel({
   onCancel,
   onSubmit,
 }: MembershipMarkPaymentPanelProps) {
+  const [confirmOpened, setConfirmOpened] = useState(false)
+
   return (
     <Paper className="hint-card" radius="24px" withBorder>
+      <ConfirmActionModal
+        confirmColor="teal"
+        confirmLabel="Подтвердить оплату"
+        description="Будет создана новая версия текущего абонемента с отмеченной оплатой."
+        onClose={() => setConfirmOpened(false)}
+        onConfirm={() => {
+          setConfirmOpened(false)
+          void onSubmit({
+            kind: 'markPayment',
+            payload: {
+              membershipType: currentMembership.membershipType,
+              paymentAmount: currentMembership.paymentAmount,
+              isPaid: true,
+            },
+          })
+        }}
+        opened={confirmOpened}
+        pending={pending}
+        title="Подтвердить оплату по текущему абонементу?"
+      />
+
       <Stack gap="md">
         <div>
           <Text fw={700}>Подтвердить оплату</Text>
@@ -2782,28 +2907,19 @@ function MembershipMarkPaymentPanel({
           />
         </SimpleGrid>
 
-        <Group justify="space-between" wrap="wrap">
+        <ResponsiveButtonGroup justify="space-between">
           <Button onClick={onCancel} type="button" variant="subtle">
             Отменить
           </Button>
           <Button
             color="teal"
             loading={pending}
-            onClick={() =>
-              void onSubmit({
-                kind: 'markPayment',
-                payload: {
-                  membershipType: currentMembership.membershipType,
-                  paymentAmount: currentMembership.paymentAmount,
-                  isPaid: true,
-                },
-              })
-            }
+            onClick={() => setConfirmOpened(true)}
             type="button"
           >
             Подтвердить оплату
           </Button>
-        </Group>
+        </ResponsiveButtonGroup>
       </Stack>
     </Paper>
   )

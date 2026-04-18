@@ -4,7 +4,9 @@ import {
   AppShell,
   Badge,
   Button,
+  Burger,
   Container,
+  Divider,
   Group,
   List,
   Loader,
@@ -17,6 +19,7 @@ import {
   TextInput,
   ThemeIcon,
   Title,
+  UnstyledButton,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
@@ -415,7 +418,15 @@ function App() {
 
   return (
     <AuthenticatedShell
+      activePath={pathname}
       currentSection={currentSection}
+      currentViewLabel={
+        route.kind === 'password'
+          ? 'Смена пароля'
+          : currentSection
+            ? APP_SECTION_LABELS[currentSection]
+            : APP_SECTION_LABELS[authenticatedUser.landingScreen]
+      }
       logoutPending={logoutPending}
       onLogout={handleLogout}
       onNavigateSection={(section) => navigate({ kind: 'section', section })}
@@ -789,8 +800,10 @@ function PasswordScreen({
 }
 
 type AuthenticatedShellProps = {
+  activePath: string
   user: AuthenticatedUser
   currentSection: AppSection | null
+  currentViewLabel: string
   logoutPending: boolean
   onNavigateSection: (section: AppSection) => void
   onOpenPassword: () => void
@@ -799,14 +812,17 @@ type AuthenticatedShellProps = {
 }
 
 function AuthenticatedShell({
+  activePath,
   user,
   currentSection,
+  currentViewLabel,
   logoutPending,
   onNavigateSection,
   onOpenPassword,
   onLogout,
   children,
 }: AuthenticatedShellProps) {
+  const [mobileNavigationPath, setMobileNavigationPath] = useState<string | null>(null)
   const presentation = rolePresentationMap[user.role]
   const landingLabel = APP_SECTION_LABELS[user.landingScreen]
   const navigationSections = user.allowedSections.filter(
@@ -814,78 +830,162 @@ function AuthenticatedShell({
       (section !== 'Users' || user.permissions.canManageUsers) &&
       (section !== 'Audit' || user.permissions.canViewAuditLog),
   )
+  const mobileNavigationOpened = mobileNavigationPath === activePath
+
+  function handleSectionNavigation(section: AppSection) {
+    setMobileNavigationPath(null)
+    onNavigateSection(section)
+  }
+
+  function handleOpenPassword() {
+    setMobileNavigationPath(null)
+    onOpenPassword()
+  }
+
+  async function handleLogoutAction() {
+    setMobileNavigationPath(null)
+    await onLogout()
+  }
 
   return (
     <AppShell
       className="app-shell"
-      header={{ height: 88 }}
-      padding={{ base: 'md', md: 'xl' }}
+      header={{ height: { base: 116, lg: 144 } }}
+      navbar={{
+        width: 320,
+        breakpoint: 'lg',
+        collapsed: { desktop: true, mobile: !mobileNavigationOpened },
+      }}
+      padding={{ base: 'sm', sm: 'md', lg: 'xl' }}
     >
       <AppShell.Header className="app-shell__header">
         <Container className="app-shell__header-inner" size="xl">
-          <Group justify="space-between" wrap="wrap">
-            <Stack gap={2}>
-              <Group gap="sm">
-                <ThemeIcon color="brand.7" radius="xl" size={36} variant="filled">
-                  <IconProgressCheck size={20} />
-                </ThemeIcon>
-                <div>
-                  <Text fw={800}>Gym CRM MVP</Text>
-                  <Text c="dimmed" size="sm">
-                    {presentation.roleLabel} • landing: {landingLabel}
-                  </Text>
-                </div>
-              </Group>
-            </Stack>
-
-            <Group className="app-shell__actions" gap="sm">
-              <Group gap="xs" wrap="wrap">
-                {navigationSections.map((section) => (
-                  <Button
-                    aria-current={section === currentSection ? 'page' : undefined}
-                    className="app-shell__nav-button"
-                    key={section}
-                    onClick={() => onNavigateSection(section)}
-                    radius="xl"
-                    size="sm"
-                    variant={section === currentSection ? 'filled' : 'light'}
-                  >
-                    {APP_SECTION_LABELS[section]}
-                  </Button>
-                ))}
-              </Group>
-
-              <Menu position="bottom-end" shadow="md" width={250}>
-                <Menu.Target>
-                  <Button
-                    leftSection={<IconUserCircle size={18} />}
-                    variant="light"
-                  >
-                    {user.fullName}
-                  </Button>
-                </Menu.Target>
-
-                <Menu.Dropdown>
-                  <Menu.Label>{presentation.roleLabel}</Menu.Label>
-                  <Menu.Item
-                    leftSection={<IconLockPassword size={16} />}
-                    onClick={onOpenPassword}
-                  >
-                    Смена пароля
-                  </Menu.Item>
-                  <Menu.Item
-                    color="red"
-                    leftSection={<IconDoorExit size={16} />}
-                    onClick={() => void onLogout()}
-                  >
-                    {logoutPending ? 'Завершаем сессию...' : 'Выход'}
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
+          <div className="app-shell__header-top">
+            <Group className="app-shell__brand" gap="sm" wrap="nowrap">
+              <Burger
+                aria-label={
+                  mobileNavigationOpened ? 'Скрыть навигацию' : 'Показать навигацию'
+                }
+                className="app-shell__burger"
+                hiddenFrom="lg"
+                onClick={() =>
+                  setMobileNavigationPath((currentPath) =>
+                    currentPath === activePath ? null : activePath,
+                  )
+                }
+                opened={mobileNavigationOpened}
+                size="sm"
+              />
+              <ThemeIcon color="brand.7" radius="xl" size={36} variant="filled">
+                <IconProgressCheck size={20} />
+              </ThemeIcon>
+              <div className="app-shell__brand-copy">
+                <Text className="app-shell__brand-title" fw={800}>
+                  Gym CRM MVP
+                </Text>
+                <Text c="dimmed" className="app-shell__brand-meta" hiddenFrom="lg" size="sm">
+                  {presentation.roleLabel}
+                </Text>
+                <Text c="dimmed" className="app-shell__brand-meta" visibleFrom="lg" size="sm">
+                  {presentation.roleLabel} • landing: {landingLabel}
+                </Text>
+              </div>
             </Group>
+
+            <Menu position="bottom-end" shadow="md" width={250}>
+              <Menu.Target>
+                <UnstyledButton
+                  aria-label={`Открыть профильное меню пользователя ${user.fullName}`}
+                  className="app-shell__profile-trigger"
+                >
+                  <IconUserCircle size={18} />
+                  <span className="app-shell__profile-name">{user.fullName}</span>
+                </UnstyledButton>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Label>{user.fullName}</Menu.Label>
+                <Menu.Label>{presentation.roleLabel}</Menu.Label>
+                <Menu.Item
+                  leftSection={<IconLockPassword size={16} />}
+                  onClick={handleOpenPassword}
+                >
+                  Смена пароля
+                </Menu.Item>
+                <Menu.Item
+                  color="red"
+                  disabled={logoutPending}
+                  leftSection={<IconDoorExit size={16} />}
+                  onClick={() => void handleLogoutAction()}
+                >
+                  {logoutPending ? 'Завершаем сессию...' : 'Выход'}
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </div>
+
+          <Group className="app-shell__mobile-context" gap="xs" hiddenFrom="lg">
+            <Badge className="nav-badge app-shell__current-view" radius="xl" variant="light">
+              {currentViewLabel}
+            </Badge>
+          </Group>
+
+          <Group className="app-shell__desktop-nav" gap="xs" visibleFrom="lg" wrap="wrap">
+            {navigationSections.map((section) => (
+              <Button
+                aria-current={section === currentSection ? 'page' : undefined}
+                className="app-shell__nav-button"
+                key={section}
+                onClick={() => handleSectionNavigation(section)}
+                radius="xl"
+                size="sm"
+                variant={section === currentSection ? 'filled' : 'light'}
+              >
+                {APP_SECTION_LABELS[section]}
+              </Button>
+            ))}
           </Group>
         </Container>
       </AppShell.Header>
+
+      <AppShell.Navbar className="app-shell__navbar" p="md">
+        <AppShell.Section>
+          <Stack gap="xs">
+            <Text c="dimmed" fw={700} size="sm">
+              Рабочие разделы
+            </Text>
+            {navigationSections.map((section) => (
+              <Button
+                aria-current={section === currentSection ? 'page' : undefined}
+                className="app-shell__mobile-nav-button"
+                fullWidth
+                key={section}
+                onClick={() => handleSectionNavigation(section)}
+                radius="xl"
+                size="md"
+                variant={section === currentSection ? 'filled' : 'light'}
+              >
+                {APP_SECTION_LABELS[section]}
+              </Button>
+            ))}
+          </Stack>
+        </AppShell.Section>
+
+        <AppShell.Section className="app-shell__navbar-footer">
+          <Divider className="app-shell__navbar-divider" />
+          <Paper className="hint-card app-shell__mobile-menu-hint" radius="24px" withBorder>
+            <Stack gap={6}>
+              <Text fw={700}>{user.fullName}</Text>
+              <Text c="dimmed" size="sm">
+                {presentation.roleLabel}
+              </Text>
+              <Text c="dimmed" size="sm">
+                Смена пароля и выход доступны через профильное меню справа сверху.
+              </Text>
+            </Stack>
+          </Paper>
+        </AppShell.Section>
+      </AppShell.Navbar>
 
       <AppShell.Main className="app-shell__main">
         <Container size="xl">{children}</Container>
@@ -1037,7 +1137,7 @@ function RouteViewport({
   }
 
   if (route.section === 'Home') {
-    return <HomeDashboard user={user} />
+    return <HomeDashboard onOpenClient={onOpenClient} user={user} />
   }
 
   return <SectionPlaceholder section={route.section} user={user} />

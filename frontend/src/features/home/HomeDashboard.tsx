@@ -6,11 +6,12 @@ import {
   Group,
   Loader,
   Paper,
+  SimpleGrid,
   Stack,
   Text,
   Title,
 } from '@mantine/core'
-import { IconAlertCircle, IconRefresh } from '@tabler/icons-react'
+import { IconAlertCircle, IconRefresh, IconUserHeart } from '@tabler/icons-react'
 import {
   getClients,
   type AuthenticatedUser,
@@ -18,9 +19,11 @@ import {
   type ClientMembership,
   type MembershipType,
 } from '../../lib/api'
+import { ResponsiveButtonGroup } from '../shared/ux'
 
 type HomeDashboardProps = {
   user: AuthenticatedUser
+  onOpenClient?: (clientId: string) => void
 }
 
 const EXPIRING_MEMBERSHIP_DAYS = 10
@@ -37,7 +40,7 @@ type ExpiringMembershipClient = ClientListItem & {
   daysUntilExpiration: number
 }
 
-export function HomeDashboard({ user }: HomeDashboardProps) {
+export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
   const [clients, setClients] = useState<ExpiringMembershipClient[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -133,13 +136,15 @@ export function HomeDashboard({ user }: HomeDashboardProps) {
               <Badge color="brand.1" radius="xl" size="lg" variant="light">
                 HeadCoach и Administrator
               </Badge>
-              <Button
-                leftSection={<IconRefresh size={18} />}
-                onClick={() => setReloadKey((current) => current + 1)}
-                variant="light"
-              >
-                Обновить
-              </Button>
+              <ResponsiveButtonGroup justify="flex-end">
+                <Button
+                  leftSection={<IconRefresh size={18} />}
+                  onClick={() => setReloadKey((current) => current + 1)}
+                  variant="light"
+                >
+                  Обновить
+                </Button>
+              </ResponsiveButtonGroup>
             </Group>
           </Group>
 
@@ -187,7 +192,7 @@ export function HomeDashboard({ user }: HomeDashboardProps) {
                       </Text>
                     </div>
 
-                    <div className="home-client-row__fields">
+                    <SimpleGrid className="home-client-row__fields" cols={{ base: 1, xs: 2, xl: 4 }}>
                       <HomeField
                         label="Тип абонемента"
                         value={membershipTypeLabels[client.currentMembership.membershipType]}
@@ -220,7 +225,19 @@ export function HomeDashboard({ user }: HomeDashboardProps) {
                           </Badge>
                         }
                       />
-                    </div>
+                    </SimpleGrid>
+
+                    {onOpenClient ? (
+                      <ResponsiveButtonGroup justify="flex-end">
+                        <Button
+                          leftSection={<IconUserHeart size={18} />}
+                          onClick={() => onOpenClient(client.id)}
+                          variant="light"
+                        >
+                          Карточка клиента
+                        </Button>
+                      </ResponsiveButtonGroup>
+                    ) : null}
                   </div>
                 </Paper>
               ))}
