@@ -25,6 +25,8 @@ internal static class ClientEndpoints
 
         group.MapGet("/", ListClientsAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ViewClients);
+        group.MapGet("/expiring-memberships", ListExpiringMembershipsAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPost("/", CreateClientAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPut("/{id:guid}", UpdateClientAsync)
@@ -241,6 +243,56 @@ internal static class ClientEndpoints
                 .Select(client => MapListItem(client, currentUser))
                 .ToArray();
         }
+
+        return TypedResults.Ok(response);
+    }
+
+    private static async Task<Results<Ok<IReadOnlyList<ExpiringClientMembershipListItemResponse>>, UnauthorizedHttpResult>> ListExpiringMembershipsAsync(
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var expiresBefore = today.AddDays(10);
+
+        var clients = await dbContext.Clients
+            .AsNoTracking()
+            .Where(client => client.Status == ClientStatus.Active)
+            .Include(client => client.Memberships)
+            .ToArrayAsync(cancellationToken);
+
+        IReadOnlyList<ExpiringClientMembershipListItemResponse> response = clients
+            .Select(client => new
+            {
+                Client = client,
+                CurrentMembership = GetCurrentMembership(client)
+            })
+            .Where(candidate =>
+                candidate.CurrentMembership?.ExpirationDate is DateOnly expirationDate &&
+                expirationDate >= today &&
+                expirationDate < expiresBefore)
+            .OrderBy(candidate => candidate.CurrentMembership!.ExpirationDate)
+            .ThenBy(candidate => candidate.Client.LastName ?? string.Empty)
+            .ThenBy(candidate => candidate.Client.FirstName ?? string.Empty)
+            .ThenBy(candidate => candidate.Client.MiddleName ?? string.Empty)
+            .ThenBy(candidate => candidate.Client.Id)
+            .Select(candidate => new ExpiringClientMembershipListItemResponse(
+                candidate.Client.Id,
+                BuildClientFullName(
+                    candidate.Client.LastName,
+                    candidate.Client.FirstName,
+                    candidate.Client.MiddleName),
+                candidate.CurrentMembership!.MembershipType.ToString(),
+                candidate.CurrentMembership.ExpirationDate!.Value,
+                candidate.CurrentMembership.ExpirationDate.Value.DayNumber - today.DayNumber,
+                candidate.CurrentMembership.IsPaid))
+            .ToArray();
 
         return TypedResults.Ok(response);
     }
@@ -1837,6 +1889,14 @@ internal static class ClientEndpoints
         bool HasActivePaidMembership,
         bool HasUnpaidCurrentMembership,
         DateTimeOffset UpdatedAt);
+
+    private sealed record ExpiringClientMembershipListItemResponse(
+        Guid ClientId,
+        string FullName,
+        string MembershipType,
+        DateOnly ExpirationDate,
+        int DaysUntilExpiration,
+        bool IsPaid);
 
     private sealed record ClientDetailsResponse(
         Guid Id,

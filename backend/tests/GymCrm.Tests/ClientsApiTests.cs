@@ -439,6 +439,154 @@ public class ClientsApiTests
         }
     }
 
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("Administrator")]
+    public async Task HeadCoach_or_Administrator_can_list_expiring_memberships_for_home_screen(
+        string actorRole)
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorSession = await LoginAsync(
+            client,
+            actorRole == "HeadCoach"
+                ? seeded.HeadCoachLogin
+                : seeded.AdministratorLogin,
+            seeded.SharedPassword);
+
+        async Task<Guid> CreateClientWithMembershipAsync(
+            string lastName,
+            MembershipType membershipType,
+            DateOnly? expirationDate)
+        {
+            using var createResponse = await PostJsonAsync(
+                client,
+                "/clients",
+                new
+                {
+                    LastName = lastName,
+                    FirstName = "Тест",
+                    MiddleName = "А",
+                    Phone = $"+7999000{Guid.NewGuid():N}".Substring(0, 11),
+                    Contacts = Array.Empty<object>(),
+                    GroupIds = new[] { seeded.GroupOneId }
+                },
+                actorSession.CsrfToken);
+
+            Assert.True(
+                createResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created,
+                $"Expected client create success, got {createResponse.StatusCode}.");
+
+            var createPayload = await ReadJsonElementAsync(createResponse);
+            var createdClientId = await ExtractClientIdFromResponseAsync(createResponse, createPayload);
+
+            using var scope = factory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = DateTimeOffset.UtcNow;
+            var isPaid = lastName != "Zebra";
+
+            dbContext.ClientMemberships.Add(new ClientMembership
+            {
+                Id = Guid.NewGuid(),
+                ClientId = createdClientId,
+                MembershipType = membershipType,
+                PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
+                ExpirationDate = expirationDate,
+                PaymentAmount = 1200m,
+                IsPaid = isPaid,
+                SingleVisitUsed = false,
+                PaidByUserId = isPaid ? seeded.HeadCoachId : null,
+                PaidAt = isPaid ? now : null,
+                ValidFrom = now,
+                ValidTo = null,
+                ChangeReason = ClientMembershipChangeReason.NewPurchase,
+                ChangedByUserId = seeded.HeadCoachId,
+                CreatedAt = now
+            });
+
+            await dbContext.SaveChangesAsync();
+
+            return createdClientId;
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var expiringSoonClient = await CreateClientWithMembershipAsync(
+            "Zebra",
+            MembershipType.Monthly,
+            today.AddDays(2));
+        var laterExpiringClient = await CreateClientWithMembershipAsync(
+            "Aaron",
+            MembershipType.Yearly,
+            today.AddDays(8));
+        var notExpiringClient = await CreateClientWithMembershipAsync(
+            "Eta",
+            MembershipType.Monthly,
+            today.AddDays(10));
+        var noExpirationClient = await CreateClientWithMembershipAsync(
+            "Omega",
+            MembershipType.SingleVisit,
+            expirationDate: null);
+
+        using (var listResponse = await client.GetAsync("/clients/expiring-memberships"))
+        {
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+
+            var listPayload = await ReadJsonElementAsync(listResponse);
+            var clientsPayload = GetArrayPayload(listPayload, "data", "items", "clients");
+            var clientItems = clientsPayload.EnumerateArray().ToArray();
+            Assert.Equal(2, clientItems.Length);
+
+            var resultClientIds = clientItems
+                .Select(item => GetGuidFromAnyCase(item, "id", "Id", "clientId", "ClientId"))
+                .ToArray();
+            Assert.Contains(expiringSoonClient, resultClientIds);
+            Assert.Contains(laterExpiringClient, resultClientIds);
+            Assert.DoesNotContain(notExpiringClient, resultClientIds);
+            Assert.DoesNotContain(noExpirationClient, resultClientIds);
+
+            Assert.Equal(
+                [expiringSoonClient, laterExpiringClient],
+                resultClientIds);
+
+            var firstClient = clientItems[0];
+            Assert.Equal("Zebra Тест А", GetStringFromAnyCase(firstClient, "fullName", "FullName"));
+            Assert.Equal("Monthly", GetStringFromAnyCase(firstClient, "membershipType", "MembershipType"));
+            Assert.Equal(today.AddDays(2).ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
+            Assert.Equal(2L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.False(GetBoolFromAnyCase(firstClient, "isPaid", "IsPaid"));
+
+            var secondClient = clientItems[1];
+            Assert.Equal("Aaron Тест А", GetStringFromAnyCase(secondClient, "fullName", "FullName"));
+            Assert.Equal("Yearly", GetStringFromAnyCase(secondClient, "membershipType", "MembershipType"));
+            Assert.Equal(today.AddDays(8).ToString("yyyy-MM-dd"), GetStringFromAnyCase(secondClient, "expirationDate", "ExpirationDate"));
+            Assert.Equal(8L, GetLongFromAnyCase(secondClient, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.True(GetBoolFromAnyCase(secondClient, "isPaid", "IsPaid"));
+        }
+    }
+
+    [Fact]
+    public async Task Coach_is_forbidden_from_expiring_memberships_home_endpoint()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
+
+        using var listResponse = await coachClient.GetAsync("/clients/expiring-memberships");
+        Assert.Equal(HttpStatusCode.Forbidden, listResponse.StatusCode);
+    }
+
     [Fact]
     public async Task Coach_card_hides_phone_contacts_and_membership_payment_details()
     {

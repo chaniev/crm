@@ -30,6 +30,7 @@
 - завершен `Этап 6d. Поиск и фильтрация клиентов`;
 - завершен `Этап 7. Отметка посещений`;
 - завершен `Этап 8. История посещений клиента и ролевые ограничения карточки`;
+- завершен `Этап 9. Главная страница`;
 - `Инкремент 1. Технический скелет` завершен: каркас, базовый запуск, схема БД MVP и начальный миграционный цикл готовы;
 - `Инкремент 2. Базовый auth foundation` завершен: backend выдает `HttpOnly` cookie, seed-ит первого `HeadCoach`, требует смену пароля при первом входе, пишет базовый аудит и отдает CSRF-токен, а frontend имеет единый theme foundation и auth-flow на `Mantine`;
 - этап 3 добавил named policies доступа, backend-driven access scope в `session/profile`, group-scoped проверку тренера для attendance-сценариев и HTTP-интеграционные тесты матрицы прав;
@@ -41,8 +42,10 @@
 - этап 6d добавил server-side фильтры `GET /clients` по ФИО, телефону, группе, статусу, оплате, сроку окончания абонемента, отсутствию фото, группы и актуального оплаченного абонемента, открыл read-only список клиентов для `Coach` в рамках назначенных групп и добавил route-level frontend flow поиска, фильтров и пагинации списка клиентов;
 - этап 7 добавил backend API посещений (`GET /attendance/groups`, `GET /attendance/groups/{groupId}/clients`, `POST /attendance/groups/{groupId}`), application/infrastructure service сохранения attendance batch, audit действий по посещениям, автоматическое списание `SingleVisit` через versioned `ClientMembership`, mobile-first route-level frontend экран посещений для `HeadCoach` и `Coach`, warning по проблеме с абонементом, индикатор неоплаты и пустое состояние при отсутствии назначенных групп;
 - этап 8 добавил partial-load историю посещений в `GET /clients/{id}` через `attendanceSkip/attendanceTake`, ролевое представление карточки клиента на backend, group-scoped выдачу истории для `Coach`, скрытие персональных и membership/payment-данных для тренера и inline frontend-блок истории посещений внутри существующей карточки клиента без отдельного экрана;
+- этап 9 добавил management-only endpoint `GET /clients/expiring-memberships` для активных клиентов с текущим абонементом, истекающим менее чем через 10 дней, сортировку по ближайшей дате окончания и route-level экран `Главная` со списком ФИО, типа абонемента, даты окончания, дней до окончания и признака оплаты;
 - проверка этапов 1-7 подтверждена командами `dotnet build backend/GymCrm.slnx`, `dotnet test backend/GymCrm.slnx` и `npm run build`.
 - проверка этапа 8 подтверждена командами `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~GymCrm.Tests.ClientsApiTests"` и `npm run build`.
+- проверка этапа 9 подтверждена командами `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~GymCrm.Tests.ClientsApiTests"` и `npm run build`.
 
 Статус по этапам:
 
@@ -60,7 +63,7 @@
 | Этап 6d. Поиск и фильтрация клиентов | выполнен | Реализованы server-side фильтры и поиск в `GET /clients`, phone-search только для `HeadCoach` и `Administrator`, read-only список клиентов для `Coach` в рамках назначенных групп и route-level UI поиска, фильтров и пагинации списка клиентов. |
 | Этап 7. Отметка посещений | выполнен | Реализованы backend API списка групп, roster и сохранения attendance, аудит `Attendance`, автоматическое списание `SingleVisit`, mobile-first route-level экран посещений для `HeadCoach` и `Coach`, warning по абонементу и индикатор неоплаты. |
 | Этап 8. История посещений клиента и ролевые ограничения карточки | выполнен | `GET /clients/{id}` отдает историю посещений с partial-load и ролевым срезом данных, а frontend показывает inline history-блок внутри общей карточки клиента для management-ролей и `Coach`. |
-| Этап 9. Главная страница | не начат | Нет экрана с истекающими абонементами. |
+| Этап 9. Главная страница | выполнен | Реализованы management-only backend API клиентов с текущим абонементом, истекающим менее чем через 10 дней, и route-level экран `Главная` для `HeadCoach` и `Administrator` со списком ФИО, типа абонемента, даты окончания, дней до окончания и признака оплаты. |
 | Этап 10. Журнал действий | не начат | Базовые события auth уже пишутся в `AuditLog`, но полноценного API и UI просмотра журнала пока нет. |
 | Этап 11. Адаптивный интерфейс и UX-доработки | не начат | Нет прикладных экранов для финальной UX-доработки. |
 | Этап 12. Тестирование | не начат | Есть базовые smoke-тесты каркаса и интеграционные auth-тесты, полного покрытия бизнес-правил пока нет. |

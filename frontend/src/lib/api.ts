@@ -13,6 +13,7 @@ const API_ENDPOINTS = {
   clients: {
     collection: '/clients',
     byId: (clientId: string) => `/clients/${clientId}`,
+    expiringMemberships: '/clients/expiring-memberships',
     photo: (clientId: string) => `/clients/${clientId}/photo`,
     archive: (clientId: string) => `/clients/${clientId}/archive`,
     restore: (clientId: string) => `/clients/${clientId}/restore`,
@@ -99,6 +100,7 @@ const CLIENT_ATTENDANCE_HISTORY_ITEM_PAYLOAD_KEYS = [
   'visits',
   'Visits',
 ] as const
+const CLIENT_EXPIRING_MEMBERSHIP_PAYLOAD_KEYS = ['items', 'clients', 'data'] as const
 const ATTENDANCE_GROUP_PAYLOAD_KEYS = ['items', 'groups'] as const
 const ATTENDANCE_CLIENT_PAYLOAD_KEYS = ['items', 'clients'] as const
 
@@ -246,6 +248,7 @@ export type ClientListItem = {
   contactCount: number
   groupCount: number
   groups: ClientGroupSummary[]
+  currentMembership: ClientMembership | null
   updatedAt?: string
 }
 
@@ -266,6 +269,15 @@ export type ClientMembership = {
   validFrom?: string
   validTo?: string | null
   createdAt?: string
+}
+
+export type ExpiringClientMembership = {
+  clientId: string
+  fullName: string
+  membershipType: MembershipType
+  expirationDate: string
+  daysUntilExpiration: number
+  isPaid: boolean
 }
 
 export type AttendanceClient = {
@@ -530,6 +542,7 @@ type ClientResponsePayload = {
   photoSizeBytes?: number | null
   photoUploadedAt?: string | null
   hasPhoto?: boolean | null
+  currentMembership?: Record<string, unknown> | null
   updatedAt?: string
   createdAt?: string
 }
@@ -705,6 +718,21 @@ export async function getClient(clientId: string, signal?: AbortSignal) {
   )
 
   return mapClientDetails(payload)
+}
+
+export async function getExpiringClientMemberships(signal?: AbortSignal) {
+  const payload = await request<unknown>(API_ENDPOINTS.clients.expiringMemberships, {
+    signal,
+  })
+
+  return extractArrayPayload<Record<string, unknown>>(
+    payload,
+    CLIENT_EXPIRING_MEMBERSHIP_PAYLOAD_KEYS,
+  )
+    .map((membership) => mapExpiringClientMembership(membership))
+    .filter(
+      (membership): membership is ExpiringClientMembership => membership !== null,
+    )
 }
 
 export async function createClient(payload: UpsertClientRequest) {
@@ -1516,6 +1544,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
   const contacts = mapClientContacts(payload)
   const groups = mapClientGroups(payload)
   const fullName = buildClientFullName(payload)
+  const currentMembership = mapClientCurrentMembership(payload)
 
   return {
     id: payload.id,
@@ -1528,7 +1557,43 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     contactCount: payload.contactCount ?? contacts.length,
     groupCount: payload.groupCount ?? groups.length,
     groups,
+    currentMembership,
     updatedAt: payload.updatedAt,
+  }
+}
+
+function mapExpiringClientMembership(
+  payload: Record<string, unknown>,
+): ExpiringClientMembership | null {
+  const clientId =
+    readString(payload, ['clientId', 'ClientId', 'id', 'Id']) ?? ''
+  const fullName =
+    readString(payload, ['fullName', 'FullName']) ??
+    buildDisplayNameFromParts(
+      readString(payload, ['lastName', 'LastName']),
+      readString(payload, ['firstName', 'FirstName']),
+      readString(payload, ['middleName', 'MiddleName']),
+    ) ??
+    'Без имени'
+  const membershipType = mapMembershipType(
+    readString(payload, ['membershipType', 'MembershipType']),
+  )
+  const expirationDate = normalizeIsoDateValue(
+    readString(payload, ['expirationDate', 'ExpirationDate']),
+  )
+
+  if (!clientId || !membershipType || !expirationDate) {
+    return null
+  }
+
+  return {
+    clientId,
+    fullName,
+    membershipType,
+    expirationDate,
+    daysUntilExpiration:
+      readNumber(payload, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? 0,
+    isPaid: readBoolean(payload, ['isPaid', 'IsPaid']) ?? false,
   }
 }
 

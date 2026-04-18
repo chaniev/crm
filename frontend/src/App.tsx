@@ -5,7 +5,6 @@ import {
   Badge,
   Button,
   Container,
-  Divider,
   Group,
   List,
   Loader,
@@ -28,7 +27,6 @@ import {
   IconCheck,
   IconDoorExit,
   IconLockPassword,
-  IconMapPin,
   IconProgressCheck,
   IconRoute,
   IconShieldCheck,
@@ -42,7 +40,6 @@ import {
   loadSession,
   login,
   logout,
-  type AccessPermissions,
   type AppSection,
   type AuthenticatedUser,
   type ChangePasswordRequest,
@@ -66,6 +63,7 @@ import {
   ClientsListScreen,
 } from './features/clients/ClientManagement'
 import { AttendanceScreen } from './features/attendance/AttendanceScreen'
+import { HomeDashboard } from './features/home/HomeDashboard'
 import {
   GroupCreateScreen,
   GroupEditScreen,
@@ -82,7 +80,6 @@ type PasswordMode = 'forced' | 'utility'
 
 type RolePresentation = {
   roleLabel: string
-  roleHint: string
 }
 
 type NavigateOptions = {
@@ -92,26 +89,13 @@ type NavigateOptions = {
 const rolePresentationMap: Record<AuthenticatedUser['role'], RolePresentation> = {
   HeadCoach: {
     roleLabel: 'Главный тренер',
-    roleHint: 'Полный управленческий доступ к MVP Gym CRM.',
   },
   Administrator: {
     roleLabel: 'Администратор',
-    roleHint: 'Работа с клиентами, группами и операционными задачами без управления пользователями.',
   },
   Coach: {
     roleLabel: 'Тренер',
-    roleHint: 'Рабочий поток тренера стартует с посещений и видит только доступный scope.',
   },
-}
-
-function getAllowedPermissionLabels(permissions: AccessPermissions) {
-  return [
-    permissions.canManageUsers ? 'Управление пользователями' : null,
-    permissions.canManageClients ? 'Управление клиентами' : null,
-    permissions.canManageGroups ? 'Управление группами' : null,
-    permissions.canMarkAttendance ? 'Отметка посещений' : null,
-    permissions.canViewAuditLog ? 'Просмотр журнала действий' : null,
-  ].filter((value): value is string => Boolean(value))
 }
 
 function useAppRoute() {
@@ -1046,7 +1030,7 @@ function RouteViewport({
   }
 
   if (route.section === 'Home') {
-    return <RoleDashboard user={user} />
+    return <HomeDashboard user={user} />
   }
 
   return <SectionPlaceholder section={route.section} user={user} />
@@ -1125,156 +1109,6 @@ function ClientsReadOnlyPlaceholder() {
               </Stack>
             </Paper>
           </SimpleGrid>
-        </Stack>
-      </Paper>
-    </Stack>
-  )
-}
-
-type RoleDashboardProps = {
-  user: AuthenticatedUser
-}
-
-function RoleDashboard({ user }: RoleDashboardProps) {
-  const presentation = rolePresentationMap[user.role]
-  const landingLabel = APP_SECTION_LABELS[user.landingScreen]
-  const allowedPermissionLabels = getAllowedPermissionLabels(user.permissions)
-  const coachScopeLabel =
-    user.role === 'Coach'
-      ? `Назначенных групп: ${user.assignedGroupIds.length}`
-      : 'Полноролевой backend scope'
-
-  return (
-    <Stack className="dashboard-stack" gap="xl">
-      <Paper className="dashboard-hero" radius="36px" shadow="lg">
-        <div className="dashboard-hero__glow" />
-        <Stack className="dashboard-hero__content" gap="lg">
-          <Group gap="sm">
-            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 7
-            </Badge>
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              {presentation.roleLabel}
-            </Badge>
-          </Group>
-
-          <Stack gap="sm">
-            <Title c="white" className="dashboard-hero__title" order={1}>
-              Shell сохраняет auth-flow и ведет клиентов, группы, пользователей и посещения как route-level сценарии
-            </Title>
-            <Text className="dashboard-hero__description" size="lg">
-              {presentation.roleHint} После входа интерфейс остается
-              backend-driven: доступные разделы и роли приходят из API, а
-              пользовательские экраны клиентов, пользователей, групп и посещений живут внутри того же shell.
-            </Text>
-          </Stack>
-
-          <Group gap="md" wrap="wrap">
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Login: {user.login}
-            </Badge>
-            <Badge color="sand" radius="xl" size="lg" variant="light">
-              Landing: {landingLabel}
-            </Badge>
-            <Badge color="sand" radius="xl" size="lg" variant="light">
-              {coachScopeLabel}
-            </Badge>
-          </Group>
-        </Stack>
-      </Paper>
-
-      <SimpleGrid cols={{ base: 1, md: 2 }}>
-        <Paper className="surface-card" radius="28px" withBorder>
-          <Stack gap="md">
-            <Group gap="xs">
-              <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-                <IconMapPin size={18} />
-              </ThemeIcon>
-              <div>
-                <Text fw={700}>Ролевой landing</Text>
-                <Text c="dimmed" size="sm">
-                  Какие разделы backend разрешает этой роли после auth-flow
-                </Text>
-              </div>
-            </Group>
-
-            <List
-              icon={
-                <ThemeIcon color="brand.7" radius="xl" size={24} variant="light">
-                  <IconCheck size={14} />
-                </ThemeIcon>
-              }
-              spacing="sm"
-            >
-              {user.allowedSections.map((section) => (
-                <List.Item key={section}>{APP_SECTION_LABELS[section]}</List.Item>
-              ))}
-            </List>
-          </Stack>
-        </Paper>
-
-        <Paper className="surface-card" radius="28px" withBorder>
-          <Stack gap="md">
-            <Group gap="xs">
-              <ThemeIcon color="accent.5" radius="xl" size={34} variant="light">
-                <IconShieldCheck size={18} />
-              </ThemeIcon>
-              <div>
-                <Text fw={700}>Что backend разрешает этой роли</Text>
-                <Text c="dimmed" size="sm">
-                  Политики доступа и базовый scope для следующих этапов
-                </Text>
-              </div>
-            </Group>
-
-            <List
-              icon={
-                <ThemeIcon color="teal" radius="xl" size={24} variant="light">
-                  <IconCheck size={14} />
-                </ThemeIcon>
-              }
-              spacing="sm"
-            >
-              {allowedPermissionLabels.map((permission) => (
-                <List.Item key={permission}>{permission}</List.Item>
-              ))}
-              <List.Item>`HttpOnly` auth-cookie вместо JWT</List.Item>
-              <List.Item>CSRF header `X-CSRF-TOKEN` на изменяющих запросах</List.Item>
-              <List.Item>Блокировка API, пока не сброшен `MustChangePassword`</List.Item>
-            </List>
-          </Stack>
-        </Paper>
-      </SimpleGrid>
-
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
-        <Stack gap="md">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>Следующий вертикальный шаг</Text>
-              <Text c="dimmed" size="sm">
-                Отдельный экран посещений уже встроен в shell, а следующим шагом
-                карточка клиента получит историю посещений и более точные ролевые ограничения.
-              </Text>
-            </div>
-
-            <Badge color="brand.7" radius="xl" size="lg" variant="light">
-              Следующий этап: история посещений
-            </Badge>
-          </Group>
-
-          <Divider />
-
-          <Group gap="sm" wrap="wrap">
-            <Badge radius="xl" size="lg" variant="light">
-              {presentation.roleLabel}
-            </Badge>
-            <Badge radius="xl" size="lg" variant="light">
-              Landing: {landingLabel}
-            </Badge>
-            <Badge radius="xl" size="lg" variant="light">
-              Route foundation: browser history + Mantine shell
-            </Badge>
-          </Group>
         </Stack>
       </Paper>
     </Stack>
