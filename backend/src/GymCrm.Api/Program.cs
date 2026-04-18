@@ -5,12 +5,22 @@ using GymCrm.Application;
 using GymCrm.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 var secureCookiePolicy = AuthSessionDefaults.ResolveCookieSecurePolicy(builder.Environment);
+var clientPhotoOptions = builder.Configuration
+    .GetSection(ClientPhotoApiOptions.SectionName)
+    .Get<ClientPhotoApiOptions>()
+    ?? new ClientPhotoApiOptions();
 
 builder.Services.AddApplication();
+builder.Services
+    .AddOptions<ClientPhotoApiOptions>()
+    .Bind(builder.Configuration.GetSection(ClientPhotoApiOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 builder.Services.AddAuthorization(GymCrmAuthorizationPolicies.Configure);
 builder.Services
     .AddAuthentication(AuthConstants.CookieScheme)
@@ -44,6 +54,10 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SecurePolicy = secureCookiePolicy;
     options.HeaderName = AuthConstants.CsrfHeaderName;
 });
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = clientPhotoOptions.MaxUploadSizeBytes;
+});
 builder.Services.Configure<BootstrapUserOptions>(
     builder.Configuration.GetSection(BootstrapUserOptions.SectionName));
 builder.Services
@@ -67,6 +81,7 @@ app.MapAuthEndpoints();
 app.MapAccessEndpoints();
 app.MapUserEndpoints();
 app.MapClientEndpoints();
+app.MapClientPhotoEndpoints();
 GymCrm.Api.Auth.GroupEndpoints.MapGroupEndpoints(app);
 
 app.MapGet(ApiHostingConstants.RootPath, () => Results.Ok(

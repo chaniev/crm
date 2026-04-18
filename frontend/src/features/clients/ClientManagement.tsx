@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useId, useState, type ReactNode } from 'react'
 import {
   ActionIcon,
   Alert,
@@ -23,13 +23,16 @@ import {
   IconAlertCircle,
   IconArchive,
   IconArrowLeft,
+  IconCamera,
   IconCheck,
   IconDeviceFloppy,
   IconEdit,
   IconPhone,
   IconPlus,
+  IconPhotoOff,
   IconRefresh,
   IconTrash,
+  IconUpload,
   IconUserHeart,
   IconUsers,
   IconUsersGroup,
@@ -38,6 +41,7 @@ import {
   ApiError,
   applyFieldErrors,
   archiveClient,
+  buildClientPhotoUrl,
   correctClientMembership,
   createClient,
   getClient,
@@ -47,11 +51,13 @@ import {
   purchaseClientMembership,
   renewClientMembership,
   restoreClient,
+  uploadClientPhoto,
   updateClient,
   type ClientMembership,
   type ClientMembershipChangeReason,
   type ClientDetails,
   type ClientListItem,
+  type ClientPhoto,
   type ClientStatus,
   type CorrectClientMembershipRequest,
   type MarkClientMembershipPaymentRequest,
@@ -63,6 +69,26 @@ import {
 } from '../../lib/api'
 
 const maxContacts = 2
+const clientPhotoMaxBytes = 10 * 1024 * 1024
+const clientPhotoAcceptedMimeTypes = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+] as const
+const clientPhotoAcceptedExtensions = [
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.heic',
+  '.heif',
+] as const
+const clientPhotoAcceptValue = [
+  ...clientPhotoAcceptedExtensions,
+  ...clientPhotoAcceptedMimeTypes,
+].join(',')
 const membershipTypeOptions = [
   { value: 'SingleVisit', label: 'Разовое посещение' },
   { value: 'Monthly', label: 'Месячный абонемент' },
@@ -455,7 +481,7 @@ export function ClientCreateScreen({
           </Button>
         }
         badge="Новый клиент"
-        description="Форма сохраняет базовые данные клиента, а абонемент при необходимости оформляется позже прямо в карточке."
+        description="Форма сохраняет базовые данные клиента, а фотографию и абонемент можно добавить после первичного сохранения карточки."
         title="Route-level форма создания клиента"
       />
 
@@ -484,6 +510,13 @@ export function ClientCreateScreen({
               formError={formError}
               groupOptions={groupOptions}
               onCancel={onCancel}
+              photoSection={
+                <ClientPhotoSection
+                  canUpload={false}
+                  clientName={buildDraftClientName(form.values)}
+                  photo={null}
+                />
+              }
               onSubmit={submit}
               submitLabel="Сохранить клиента"
               submitting={submitting}
@@ -512,6 +545,7 @@ export function ClientEditScreen({
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const form = useClientForm()
 
   useEffect(() => {
@@ -588,6 +622,14 @@ export function ClientEditScreen({
     }
   }
 
+  async function handlePhotoUpload(file: File) {
+    const updatedClient = await uploadClientPhoto(clientId, file)
+    const nextClient = updatedClient ?? (await getClient(clientId))
+
+    setClient(nextClient)
+    setPhotoVersion(Date.now())
+  }
+
   return (
     <Stack className="dashboard-stack" gap="xl">
       <ClientHero
@@ -601,7 +643,7 @@ export function ClientEditScreen({
           </Button>
         }
         badge="Редактирование клиента"
-        description="Изменения базовых полей, контактов и групп уходят в `PUT /clients/{id}`, а абонемент и оплата живут inline в detail card."
+        description="Изменения базовых полей, контактов, групп и фотографии уходят в client API, а абонемент и оплата живут inline в detail card."
         title={client ? client.fullName : 'Карточка клиента'}
       />
 
@@ -652,6 +694,18 @@ export function ClientEditScreen({
               formError={formError}
               groupOptions={groupOptions}
               onCancel={onBack}
+              photoSection={
+                client ? (
+                  <ClientPhotoSection
+                    canUpload
+                    clientId={client.id}
+                    clientName={client.fullName}
+                    onUpload={handlePhotoUpload}
+                    photo={client.photo}
+                    previewVersion={photoVersion ?? client.photo?.uploadedAt ?? client.updatedAt}
+                  />
+                ) : null
+              }
               onSubmit={submit}
               submitLabel="Сохранить изменения"
               submitting={submitting}
@@ -681,6 +735,7 @@ export function ClientDetailScreen({
   const [loadError, setLoadError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionPending, setActionPending] = useState(false)
+  const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const [membershipActionMode, setMembershipActionMode] =
     useState<MembershipActionMode | null>(null)
 
@@ -825,6 +880,18 @@ export function ClientDetailScreen({
     }
   }
 
+  async function handlePhotoUpload(file: File) {
+    if (!client) {
+      return
+    }
+
+    const updatedClient = await uploadClientPhoto(client.id, file)
+    const nextClient = updatedClient ?? (await getClient(client.id))
+
+    setClient(nextClient)
+    setPhotoVersion(Date.now())
+  }
+
   return (
     <Stack className="dashboard-stack" gap="xl">
       <ClientHero
@@ -868,7 +935,7 @@ export function ClientDetailScreen({
           </Group>
         }
         badge="Карточка клиента"
-        description="Карточка клиента этапа 6b объединяет базовые данные, текущий абонемент, оплату и историю версий без отдельных membership-route."
+        description="Карточка клиента этапа 6c объединяет базовые данные, фотографию и membership flow без отдельных вспомогательных экранов."
         title={client ? client.fullName : 'Детали клиента'}
       />
 
@@ -955,15 +1022,26 @@ export function ClientDetailScreen({
                   title="Management-действия скрыты"
                   variant="light"
                 >
-                  Для вашей роли карточка остается в режиме просмотра без блока абонемента и оплаты.
+                  Для вашей роли карточка остается в режиме просмотра без блока абонемента и оплаты. Фотография показывается только если backend разрешит доступ к клиенту.
                 </Alert>
               ) : null}
 
-              <SimpleGrid cols={{ base: 1, md: 2 }}>
+              <ClientPhotoSection
+                canUpload={canManage}
+                clientId={client.id}
+                clientName={client.fullName}
+                onUpload={canManage ? handlePhotoUpload : undefined}
+                photo={client.photo}
+                previewVersion={photoVersion ?? client.photo?.uploadedAt ?? client.updatedAt}
+              />
+
+              <SimpleGrid cols={{ base: 1, md: canManage ? 2 : 3 }}>
                 <InfoItem label="Фамилия" value={client.lastName || 'Не указана'} />
                 <InfoItem label="Имя" value={client.firstName || 'Не указано'} />
                 <InfoItem label="Отчество" value={client.middleName || 'Не указано'} />
-                <InfoItem label="Телефон" value={client.phone || 'Не указан'} />
+                {canManage ? (
+                  <InfoItem label="Телефон" value={client.phone || 'Не указан'} />
+                ) : null}
               </SimpleGrid>
             </Stack>
           </Paper>
@@ -987,51 +1065,53 @@ export function ClientDetailScreen({
             />
           ) : null}
 
-          <SimpleGrid cols={{ base: 1, md: 2 }}>
-            <Paper className="surface-card client-section-card" radius="28px" withBorder>
-              <Stack gap="lg">
-                <Group gap="xs">
-                  <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-                    <IconUserHeart size={18} />
-                  </ThemeIcon>
-                  <div>
-                    <Text fw={700}>Контактные лица</Text>
-                    <Text c="dimmed" size="sm">
-                      Не более двух контактов по требованиям этапа 6a.
-                    </Text>
-                  </div>
-                </Group>
+          <SimpleGrid cols={{ base: 1, md: canManage ? 2 : 1 }}>
+            {canManage ? (
+              <Paper className="surface-card client-section-card" radius="28px" withBorder>
+                <Stack gap="lg">
+                  <Group gap="xs">
+                    <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+                      <IconUserHeart size={18} />
+                    </ThemeIcon>
+                    <div>
+                      <Text fw={700}>Контактные лица</Text>
+                      <Text c="dimmed" size="sm">
+                        Не более двух контактов по требованиям этапа 6a.
+                      </Text>
+                    </div>
+                  </Group>
 
-                {client.contacts.length === 0 ? (
-                  <Text c="dimmed" size="sm">
-                    Контактные лица для клиента пока не добавлены.
-                  </Text>
-                ) : (
-                  <Stack gap="sm">
-                    {client.contacts.map((contact, index) => (
-                      <Paper
-                        className="list-row-card"
-                        key={contact.id ?? `${contact.fullName}-${index}`}
-                        radius="24px"
-                        withBorder
-                      >
-                        <Stack gap={6}>
-                          <Group gap="sm" wrap="wrap">
-                            <Text fw={700}>{contact.fullName}</Text>
-                            <Badge radius="xl" variant="light">
-                              {contact.type}
-                            </Badge>
-                          </Group>
-                          <Text c="dimmed" size="sm">
-                            Телефон: {contact.phone}
-                          </Text>
-                        </Stack>
-                      </Paper>
-                    ))}
-                  </Stack>
-                )}
-              </Stack>
-            </Paper>
+                  {client.contacts.length === 0 ? (
+                    <Text c="dimmed" size="sm">
+                      Контактные лица для клиента пока не добавлены.
+                    </Text>
+                  ) : (
+                    <Stack gap="sm">
+                      {client.contacts.map((contact, index) => (
+                        <Paper
+                          className="list-row-card"
+                          key={contact.id ?? `${contact.fullName}-${index}`}
+                          radius="24px"
+                          withBorder
+                        >
+                          <Stack gap={6}>
+                            <Group gap="sm" wrap="wrap">
+                              <Text fw={700}>{contact.fullName}</Text>
+                              <Badge radius="xl" variant="light">
+                                {contact.type}
+                              </Badge>
+                            </Group>
+                            <Text c="dimmed" size="sm">
+                              Телефон: {contact.phone}
+                            </Text>
+                          </Stack>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  )}
+                </Stack>
+              </Paper>
+            ) : null}
 
             <Paper className="surface-card client-section-card" radius="28px" withBorder>
               <Stack gap="lg">
@@ -1096,6 +1176,7 @@ type ClientFormProps = {
   formError: string | null
   groupOptions: TrainingGroupListItem[]
   onCancel: () => void
+  photoSection?: ReactNode
   onSubmit: (values: ClientFormValues) => Promise<void>
   submitLabel: string
   submitting: boolean
@@ -1106,6 +1187,7 @@ function ClientForm({
   formError,
   groupOptions,
   onCancel,
+  photoSection,
   onSubmit,
   submitLabel,
   submitting,
@@ -1138,6 +1220,8 @@ function ClientForm({
             {formError}
           </Alert>
         ) : null}
+
+        {photoSection}
 
         <SimpleGrid cols={{ base: 1, md: 3 }}>
           <TextInput
@@ -1299,7 +1383,7 @@ function ClientHero({
       <Stack className="dashboard-hero__content" gap="lg">
         <Group gap="sm">
           <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-            Этап 6b
+            Этап 6c
           </Badge>
           <Badge color="brand.1" radius="xl" size="lg" variant="light">
             {badge}
@@ -1389,6 +1473,213 @@ function InfoItem({
           {label}
         </Text>
         <Text fw={700}>{value}</Text>
+      </Stack>
+    </Paper>
+  )
+}
+
+type ClientPhotoSectionProps = {
+  canUpload: boolean
+  clientId?: string
+  clientName: string
+  onUpload?: (file: File) => Promise<void>
+  photo: ClientPhoto | null
+  previewVersion?: string | number | null
+}
+
+function ClientPhotoSection({
+  canUpload,
+  clientId,
+  clientName,
+  onUpload,
+  photo,
+  previewVersion,
+}: ClientPhotoSectionProps) {
+  const inputId = useId()
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [previewStatus, setPreviewStatus] = useState<
+    'idle' | 'loading' | 'ready' | 'error'
+  >(() => (clientId && photo ? 'loading' : 'idle'))
+  const previewUrl = clientId && photo
+    ? buildClientPhotoUrl(
+        clientId,
+        previewVersion ?? photo?.uploadedAt ?? photo?.path ?? 'current',
+      )
+    : null
+
+  useEffect(() => {
+    setPreviewStatus(previewUrl ? 'loading' : 'idle')
+  }, [previewUrl])
+
+  async function handleFileChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.currentTarget.files?.[0] ?? null
+    event.currentTarget.value = ''
+
+    if (!file) {
+      return
+    }
+
+    const validationError = validateClientPhotoFile(file)
+
+    if (validationError) {
+      setUploadError(validationError)
+      return
+    }
+
+    if (!onUpload) {
+      return
+    }
+
+    setUploading(true)
+    setUploadError(null)
+
+    try {
+      await onUpload(file)
+
+      notifications.show({
+        title: 'Фотография обновлена',
+        message: 'Карточка клиента получила новую фотографию.',
+        color: 'teal',
+      })
+    } catch (error) {
+      setUploadError(
+        error instanceof Error
+          ? error.message
+          : 'Не удалось загрузить фотографию клиента.',
+      )
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <Paper className="hint-card client-photo-card" radius="24px" withBorder>
+      <Stack gap="md">
+        <Group justify="space-between" wrap="wrap">
+          <Group gap="sm" wrap="nowrap">
+            <ThemeIcon color="brand.7" radius="xl" size={38} variant="light">
+              <IconCamera size={20} />
+            </ThemeIcon>
+            <div>
+              <Text fw={700}>Фотография клиента</Text>
+              <Text c="dimmed" size="sm">
+                {canUpload
+                  ? 'Загрузка и замена фото доступны для HeadCoach и Administrator.'
+                  : clientId
+                    ? 'Карточка показывает фото только если backend разрешит доступ и файл существует.'
+                    : 'Фото можно добавить сразу после первичного сохранения карточки клиента.'}
+              </Text>
+            </div>
+          </Group>
+
+          <Badge color="brand.1" radius="xl" variant="light">
+            {canUpload ? 'Upload + preview' : 'Preview only'}
+          </Badge>
+        </Group>
+
+        <div className="client-photo-preview">
+          {previewUrl ? (
+            <>
+              {previewStatus === 'loading' ? (
+                <Group className="client-photo-placeholder" justify="center">
+                  <Loader color="brand.7" size="sm" />
+                </Group>
+              ) : null}
+
+              {previewStatus !== 'error' ? (
+                <img
+                  alt={`Фотография клиента ${clientName}`}
+                  className="client-photo-preview__image"
+                  onError={() => setPreviewStatus('error')}
+                  onLoad={() => setPreviewStatus('ready')}
+                  src={previewUrl}
+                  style={{
+                    display: previewStatus === 'ready' ? 'block' : 'none',
+                  }}
+                />
+              ) : null}
+            </>
+          ) : null}
+
+          {!previewUrl || previewStatus === 'error' ? (
+            <Stack
+              align="center"
+              className="client-photo-placeholder"
+              gap="xs"
+              justify="center"
+            >
+              <ThemeIcon color="gray" radius="xl" size={42} variant="light">
+                <IconPhotoOff size={20} />
+              </ThemeIcon>
+              <Text fw={600}>Фото пока не показано</Text>
+              <Text c="dimmed" size="sm" ta="center">
+                {clientId
+                  ? 'Либо фотография еще не загружена, либо backend не разрешил выдачу файла для этой карточки.'
+                  : 'Сначала сохраните клиента, затем вернитесь в карточку или редактирование, чтобы загрузить фотографию.'}
+              </Text>
+            </Stack>
+          ) : null}
+        </div>
+
+        {photo ? (
+          <Group gap="sm" wrap="wrap">
+            {photo.contentType ? (
+              <Badge color="sand" radius="xl" variant="light">
+                {photo.contentType}
+              </Badge>
+            ) : null}
+            {typeof photo.sizeBytes === 'number' ? (
+              <Badge color="sand" radius="xl" variant="light">
+                {formatFileSize(photo.sizeBytes)}
+              </Badge>
+            ) : null}
+            {photo.uploadedAt ? (
+              <Badge color="sand" radius="xl" variant="light">
+                Загружено: {formatDateTimeValue(photo.uploadedAt)}
+              </Badge>
+            ) : null}
+          </Group>
+        ) : null}
+
+        {uploadError ? (
+          <Alert
+            color="red"
+            icon={<IconAlertCircle size={18} />}
+            title="Фото не загружено"
+            variant="light"
+          >
+            {uploadError}
+          </Alert>
+        ) : null}
+
+        {canUpload ? (
+          <Group gap="sm" wrap="wrap">
+            <label htmlFor={inputId}>
+              <Button
+                component="span"
+                leftSection={<IconUpload size={18} />}
+                loading={uploading}
+                variant="light"
+              >
+                {photo ? 'Заменить фото' : 'Загрузить фото'}
+              </Button>
+            </label>
+            <input
+              accept={clientPhotoAcceptValue}
+              disabled={uploading}
+              id={inputId}
+              onChange={(event) => void handleFileChange(event)}
+              style={{ display: 'none' }}
+              type="file"
+            />
+            <Text c="dimmed" size="sm">
+              JPEG, PNG, WebP, HEIC, HEIF до 10 MB. Конечная проверка формата и прав доступа остается на backend.
+            </Text>
+          </Group>
+        ) : null}
       </Stack>
     </Paper>
   )
@@ -2398,6 +2689,18 @@ function formatDateTimeValue(value?: string | null) {
       }).format(date)
 }
 
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) {
+    return `${bytes} B`
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 function formatExpirationValue(
   membershipType: MembershipType,
   expirationDate?: string | null,
@@ -2450,6 +2753,37 @@ function formatGroupOptionLabel(group: TrainingGroupListItem) {
   }
 
   return parts.join(' • ')
+}
+
+function validateClientPhotoFile(file: File) {
+  if (file.size > clientPhotoMaxBytes) {
+    return 'Файл больше 10 MB. Выберите фотографию меньшего размера.'
+  }
+
+  const normalizedName = file.name.toLowerCase()
+  const hasAcceptedExtension = clientPhotoAcceptedExtensions.some((extension) =>
+    normalizedName.endsWith(extension),
+  )
+  const hasAcceptedMimeType = file.type
+    ? clientPhotoAcceptedMimeTypes.includes(
+        file.type.toLowerCase() as (typeof clientPhotoAcceptedMimeTypes)[number],
+      )
+    : false
+
+  if (!hasAcceptedExtension && !hasAcceptedMimeType) {
+    return 'Допустимы только JPEG, PNG, WebP, HEIC и HEIF.'
+  }
+
+  return null
+}
+
+function buildDraftClientName(values: ClientFormValues) {
+  const fullName = [values.lastName, values.firstName, values.middleName]
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(' ')
+
+  return fullName || 'нового клиента'
 }
 
 const statusLabelMap: Record<ClientStatus, string> = {

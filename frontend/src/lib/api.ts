@@ -13,6 +13,7 @@ const API_ENDPOINTS = {
   clients: {
     collection: '/clients',
     byId: (clientId: string) => `/clients/${clientId}`,
+    photo: (clientId: string) => `/clients/${clientId}/photo`,
     archive: (clientId: string) => `/clients/${clientId}/archive`,
     restore: (clientId: string) => `/clients/${clientId}/restore`,
     membership: {
@@ -158,6 +159,13 @@ export type ClientGroupSummary = {
   scheduleText?: string
 }
 
+export type ClientPhoto = {
+  path?: string
+  contentType?: string
+  sizeBytes?: number
+  uploadedAt?: string
+}
+
 export type MembershipType = 'SingleVisit' | 'Monthly' | 'Yearly'
 
 export type ClientMembershipChangeReason =
@@ -204,6 +212,7 @@ export type ClientDetails = ClientListItem & {
   createdAt?: string
   contacts: ClientContact[]
   groupIds: string[]
+  photo: ClientPhoto | null
   currentMembership: ClientMembership | null
   membershipHistory: ClientMembership[]
 }
@@ -386,6 +395,12 @@ type ClientResponsePayload = {
   groups?: ClientGroupPayload[] | Record<string, unknown>
   clientGroups?: ClientGroupPayload[] | Record<string, unknown>
   groupIds?: string[] | null
+  photo?: Record<string, unknown> | null
+  photoPath?: string | null
+  photoContentType?: string | null
+  photoSizeBytes?: number | null
+  photoUploadedAt?: string | null
+  hasPhoto?: boolean | null
   updatedAt?: string
   createdAt?: string
 }
@@ -414,10 +429,11 @@ async function request<T>(
 ): Promise<T> {
   const method = (init.method ?? GET_METHOD).toUpperCase()
   const headers = new Headers(init.headers)
+  const isFormDataBody = init.body instanceof FormData
 
   headers.set('Accept', JSON_CONTENT_TYPE)
 
-  if (init.body && !headers.has('Content-Type')) {
+  if (init.body && !isFormDataBody && !headers.has('Content-Type')) {
     headers.set('Content-Type', JSON_CONTENT_TYPE)
   }
 
@@ -506,6 +522,33 @@ export async function updateClient(
   )
 
   return response ? mapClientDetails(response) : null
+}
+
+export function buildClientPhotoUrl(
+  clientId: string,
+  version?: string | number | null,
+) {
+  const versionSuffix =
+    version === undefined || version === null || version === ''
+      ? ''
+      : `?v=${encodeURIComponent(String(version))}`
+
+  return `${apiBasePath}${API_ENDPOINTS.clients.photo(clientId)}${versionSuffix}`
+}
+
+export async function uploadClientPhoto(clientId: string, file: File) {
+  const payload = new FormData()
+  payload.append('photo', file)
+
+  await request<unknown>(
+    API_ENDPOINTS.clients.photo(clientId),
+    {
+      method: 'POST',
+      body: payload,
+    },
+  )
+
+  return null
 }
 
 export async function archiveClient(clientId: string) {
@@ -1021,8 +1064,54 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
     contacts: mapClientContacts(payload),
     createdAt: payload.createdAt,
     groupIds,
+    photo: mapClientPhoto(payload),
     currentMembership: mapClientCurrentMembership(payload),
     membershipHistory: mapClientMembershipHistory(payload),
+  }
+}
+
+function mapClientPhoto(payload: ClientResponsePayload): ClientPhoto | null {
+  const nestedPayload = extractRecordPayload(payload, ['photo', 'Photo'])
+  const flatPayload = payload as Record<string, unknown>
+  const sourcePayload = nestedPayload ?? flatPayload
+  const hasPhoto =
+    readBoolean(sourcePayload, ['hasPhoto', 'HasPhoto']) ??
+    readBoolean(flatPayload, ['hasPhoto', 'HasPhoto']) ??
+    false
+  const path =
+    readString(sourcePayload, ['path', 'Path', 'photoPath', 'PhotoPath']) ??
+    readString(flatPayload, ['photoPath', 'PhotoPath'])
+  const contentType =
+    readString(sourcePayload, [
+      'contentType',
+      'ContentType',
+      'photoContentType',
+      'PhotoContentType',
+    ]) ?? readString(flatPayload, ['photoContentType', 'PhotoContentType'])
+  const sizeBytes =
+    readNumber(sourcePayload, [
+      'sizeBytes',
+      'SizeBytes',
+      'photoSizeBytes',
+      'PhotoSizeBytes',
+    ]) ?? readNumber(flatPayload, ['photoSizeBytes', 'PhotoSizeBytes'])
+  const uploadedAt =
+    readString(sourcePayload, [
+      'uploadedAt',
+      'UploadedAt',
+      'photoUploadedAt',
+      'PhotoUploadedAt',
+    ]) ?? readString(flatPayload, ['photoUploadedAt', 'PhotoUploadedAt'])
+
+  if (!hasPhoto && !path && !contentType && sizeBytes === undefined && !uploadedAt) {
+    return null
+  }
+
+  return {
+    path: path ?? undefined,
+    contentType: contentType ?? undefined,
+    sizeBytes,
+    uploadedAt: uploadedAt ?? undefined,
   }
 }
 

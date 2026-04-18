@@ -942,7 +942,6 @@ function RouteViewport({
   if (
     !user.permissions.canManageClients &&
     (route.kind === 'clientCreate' ||
-      route.kind === 'clientDetails' ||
       route.kind === 'clientEdit' ||
       (route.kind === 'section' && route.section === 'Clients'))
   ) {
@@ -1067,12 +1066,12 @@ function ClientsReadOnlyPlaceholder() {
 
           <Stack gap="sm">
             <Title c="white" className="dashboard-hero__title" order={1}>
-              Read-only клиентский scope для тренера появится следующим шагом
+              Список клиентов для тренера еще закрыт, но detail route уже может открываться backend-ом
             </Title>
             <Text className="dashboard-hero__description" size="lg">
-              В текущем этапе backend уже оставляет раздел в навигации тренера,
-              но management API клиентов по-прежнему открыт только для
-              `HeadCoach` и `Administrator`.
+              В текущем этапе management API клиентов по-прежнему открыт только
+              для `HeadCoach` и `Administrator`, поэтому раздел остается
+              безопасным placeholder без списка и CRUD.
             </Text>
           </Stack>
         </Stack>
@@ -1116,8 +1115,9 @@ function ClientsReadOnlyPlaceholder() {
               <Stack gap={6}>
                 <Text fw={700}>Следующий шаг</Text>
                 <Text c="dimmed" size="sm">
-                  Ограниченный список и карточка тренера будут добавлены вместе
-                  с ролевым представлением клиентской карточки.
+                  Ограниченный список тренера будет добавлен отдельным шагом.
+                  При этом route-level карточка клиента уже может открываться из
+                  backend-driven сценариев и показывает только разрешенные данные.
                 </Text>
               </Stack>
             </Paper>

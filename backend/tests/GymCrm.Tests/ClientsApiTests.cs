@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using GymCrm.Application.Security;
@@ -243,6 +244,184 @@ public class ClientsApiTests
         }
     }
 
+    [Fact]
+    public async Task HeadCoach_can_upload_client_photo_and_details_include_photo_metadata()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+
+        using (var uploadResponse = await PostPhotoAsync(
+                   client,
+                   clientId,
+                   CreateSamplePngBytes(),
+                   "profile.png",
+                   "image/png",
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, uploadResponse.StatusCode);
+
+            var uploadPayload = await ReadJsonElementAsync(uploadResponse);
+            Assert.Equal(clientId, GetGuidFromAnyCase(uploadPayload, "clientId", "ClientId"));
+            Assert.Equal("image/png", GetStringFromAnyCase(uploadPayload, "contentType", "ContentType"));
+        }
+
+        using (var getClientResponse = await client.GetAsync($"/clients/{clientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, getClientResponse.StatusCode);
+
+            var clientPayload = await ReadJsonElementAsync(getClientResponse);
+            var photoPayload = GetPropertyOrNull(clientPayload, "photo", "Photo");
+            Assert.Equal("image/png", GetStringFromAnyCase(photoPayload, "contentType", "ContentType"));
+            Assert.True(GetLongFromAnyCase(photoPayload, "sizeBytes", "SizeBytes") > 0);
+            Assert.False(string.IsNullOrWhiteSpace(GetStringFromAnyCase(photoPayload, "path", "Path")));
+            Assert.False(string.IsNullOrWhiteSpace(GetStringFromAnyCase(photoPayload, "uploadedAt", "UploadedAt")));
+        }
+
+        using (var photoResponse = await client.GetAsync($"/clients/{clientId}/photo"))
+        {
+            Assert.Equal(HttpStatusCode.OK, photoResponse.StatusCode);
+            Assert.Equal("image/png", photoResponse.Content.Headers.ContentType?.MediaType);
+            Assert.NotEmpty(await photoResponse.Content.ReadAsByteArrayAsync());
+        }
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var persistedClient = await dbContext.Clients
+            .AsNoTracking()
+            .SingleAsync(candidate => candidate.Id == clientId);
+
+        Assert.False(string.IsNullOrWhiteSpace(persistedClient.PhotoPath));
+        Assert.Equal("image/png", persistedClient.PhotoContentType);
+        Assert.True(persistedClient.PhotoSizeBytes > 0);
+        Assert.NotNull(persistedClient.PhotoUploadedAt);
+        Assert.True(File.Exists(ResolveStoredPhotoAbsolutePath(factory, persistedClient.PhotoPath!)));
+    }
+
+    [Fact]
+    public async Task Uploading_invalid_client_photo_is_rejected()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+
+        using var uploadResponse = await PostPhotoAsync(
+            client,
+            clientId,
+            "not-an-image"u8.ToArray(),
+            "profile.txt",
+            "text/plain",
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, uploadResponse.StatusCode);
+
+        var payload = await ReadJsonElementAsync(uploadResponse);
+        var errors = GetPropertyOrNull(payload, "errors", "Errors");
+        Assert.Contains(
+            errors.EnumerateObject(),
+            property => property.NameEquals("photo") && property.Value.ValueKind == JsonValueKind.Array);
+    }
+
+    [Fact]
+    public async Task Coach_can_view_photo_only_for_clients_from_assigned_groups()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var managerClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var managerSession = await LoginAsync(managerClient, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var allowedClientId = await CreateClientForMembershipTestsAsync(
+            managerClient,
+            managerSession.CsrfToken,
+            seeded.GroupOneId);
+        var forbiddenClientId = await CreateClientForMembershipTestsAsync(
+            managerClient,
+            managerSession.CsrfToken,
+            seeded.GroupTwoId);
+
+        using (var uploadAllowedResponse = await PostPhotoAsync(
+                   managerClient,
+                   allowedClientId,
+                   CreateSamplePngBytes(),
+                   "allowed.png",
+                   "image/png",
+                   managerSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, uploadAllowedResponse.StatusCode);
+        }
+
+        using (var uploadForbiddenResponse = await PostPhotoAsync(
+                   managerClient,
+                   forbiddenClientId,
+                   CreateSamplePngBytes(),
+                   "forbidden.png",
+                   "image/png",
+                   managerSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, uploadForbiddenResponse.StatusCode);
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            dbContext.GroupTrainers.Add(new GroupTrainer
+            {
+                GroupId = seeded.GroupOneId,
+                TrainerId = seeded.CoachId
+            });
+            await dbContext.SaveChangesAsync();
+        }
+
+        var coachSession = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
+        Assert.Equal("Coach", coachSession.User?.Role);
+
+        using (var detailsResponse = await coachClient.GetAsync($"/clients/{allowedClientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, detailsResponse.StatusCode);
+
+            var detailsPayload = await ReadJsonElementAsync(detailsResponse);
+            Assert.Equal(string.Empty, GetStringFromProperty(detailsPayload, "phone"));
+            Assert.Equal(0, GetArrayPayload(detailsPayload.GetProperty("contacts")).GetArrayLength());
+            Assert.Equal(0, GetArrayPayload(detailsPayload, "membershipHistory", "MembershipHistory").GetArrayLength());
+            Assert.False(string.IsNullOrWhiteSpace(
+                GetStringFromAnyCase(GetPropertyOrNull(detailsPayload, "photo", "Photo"), "path", "Path")));
+        }
+
+        using (var allowedPhotoResponse = await coachClient.GetAsync($"/clients/{allowedClientId}/photo"))
+        {
+            Assert.Equal(HttpStatusCode.OK, allowedPhotoResponse.StatusCode);
+            Assert.Equal("image/png", allowedPhotoResponse.Content.Headers.ContentType?.MediaType);
+        }
+
+        using (var forbiddenPhotoResponse = await coachClient.GetAsync($"/clients/{forbiddenClientId}/photo"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, forbiddenPhotoResponse.StatusCode);
+        }
+    }
+
     [Theory]
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]
@@ -367,7 +546,7 @@ public class ClientsApiTests
             .Select(entry => GetGuidFromAnyCase(entry, "id", "Id"))
             .ToArray();
         Assert.Equal(4, membershipIdsFromResponse.Length);
-        Assert.All(membershipIdsFromResponse, Assert.NotEqual(Guid.Empty));
+        Assert.All(membershipIdsFromResponse, membershipId => Assert.NotEqual(Guid.Empty, membershipId));
 
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -404,11 +583,12 @@ public class ClientsApiTests
             HandleCookies = true
         });
 
-        var actorSession = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
+        var managerSession = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
         var clientId = await CreateClientForMembershipTestsAsync(
             client,
-            actorSession.CsrfToken,
+            managerSession.CsrfToken,
             seeded.GroupOneId);
+        var actorSession = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
 
         var payloads = new Dictionary<string, object>
         {
@@ -1141,6 +1321,7 @@ public class ClientsApiTests
             headCoach.Id,
             headCoach.Login,
             administrator.Login,
+            coach.Id,
             coach.Login,
             sharedPassword,
             groupOne.Id,
@@ -1229,6 +1410,25 @@ public class ClientsApiTests
         string csrfToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Put, path);
+        request.Headers.Add("X-CSRF-TOKEN", csrfToken);
+
+        return await client.SendAsync(request);
+    }
+
+    private static async Task<HttpResponseMessage> PostPhotoAsync(
+        HttpClient client,
+        Guid clientId,
+        byte[] content,
+        string fileName,
+        string contentType,
+        string csrfToken)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/clients/{clientId}/photo");
+        var multipart = new MultipartFormDataContent();
+        var fileContent = new ByteArrayContent(content);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+        multipart.Add(fileContent, "photo", fileName);
+        request.Content = multipart;
         request.Headers.Add("X-CSRF-TOKEN", csrfToken);
 
         return await client.SendAsync(request);
@@ -1399,6 +1599,17 @@ public class ClientsApiTests
         };
     }
 
+    private static long GetLongFromAnyCase(JsonElement payload, params string[] propertyNames)
+    {
+        var value = GetPropertyOrNull(payload, propertyNames);
+        return value.ValueKind switch
+        {
+            JsonValueKind.Number when value.TryGetInt64(out var parsedValue) => parsedValue,
+            JsonValueKind.String when long.TryParse(value.GetString(), out var parsedValue) => parsedValue,
+            _ => 0
+        };
+    }
+
     private static Guid GetGuidFromAnyCase(JsonElement payload, params string[] propertyNames)
     {
         var value = GetPropertyOrNull(payload, propertyNames);
@@ -1493,6 +1704,19 @@ public class ClientsApiTests
             : string.Empty;
     }
 
+    private static byte[] CreateSamplePngBytes()
+    {
+        return Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2p6QAAAABJRU5ErkJggg==");
+    }
+
+    private static string ResolveStoredPhotoAbsolutePath(ClientsAppFactory factory, string relativePath)
+    {
+        return Path.Combine(
+            factory.PhotoStorageRootPath,
+            relativePath.Replace('/', Path.DirectorySeparatorChar));
+    }
+
     private static bool ContainsPasswordFieldInJson(string jsonPayload)
     {
         try
@@ -1552,6 +1776,7 @@ public class ClientsApiTests
         Guid HeadCoachId,
         string HeadCoachLogin,
         string AdministratorLogin,
+        Guid CoachId,
         string CoachLogin,
         string SharedPassword,
         Guid GroupOneId,
@@ -1583,6 +1808,10 @@ public class ClientsApiTests
 
     private sealed class ClientsAppFactory : WebApplicationFactory<Program>
     {
+        public string PhotoStorageRootPath { get; } = Path.Combine(
+            Path.GetTempPath(),
+            $"gym-crm-client-photos-tests-{Guid.NewGuid():N}");
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Development");
@@ -1594,7 +1823,9 @@ public class ClientsApiTests
                     ["ConnectionStrings:Postgres"] = "Host=localhost;Port=5432;Database=gym_crm;Username=gym_crm;Password=gym_crm",
                     ["Persistence:ApplyMigrationsOnStartup"] = "false",
                     ["BootstrapUser:Login"] = "bootstrap-stage6a",
-                    ["BootstrapUser:FullName"] = "Bootstrap Stage 6a"
+                    ["BootstrapUser:FullName"] = "Bootstrap Stage 6a",
+                    ["ClientPhoto:StorageRootPath"] = PhotoStorageRootPath,
+                    ["ClientPhoto:MaxUploadSizeBytes"] = "10485760"
                 });
             });
 
@@ -1613,6 +1844,27 @@ public class ClientsApiTests
                         .UseInMemoryDatabase(databaseName)
                         .UseInternalServiceProvider(entityFrameworkProvider));
             });
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (!disposing || !Directory.Exists(PhotoStorageRootPath))
+            {
+                return;
+            }
+
+            try
+            {
+                Directory.Delete(PhotoStorageRootPath, recursive: true);
+            }
+            catch (IOException)
+            {
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
         }
     }
 }

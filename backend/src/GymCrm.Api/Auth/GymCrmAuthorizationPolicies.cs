@@ -7,6 +7,8 @@ internal static class GymCrmAuthorizationPolicies
 {
     public const string ManageUsers = "gym-crm.manage-users";
     public const string ManageClients = "gym-crm.manage-clients";
+    public const string ViewClients = "gym-crm.view-clients";
+    public const string ViewClientPhotos = "gym-crm.view-client-photos";
     public const string ManageGroups = "gym-crm.manage-groups";
     public const string ViewAuditLog = "gym-crm.view-audit-log";
     public const string MarkAttendance = "gym-crm.mark-attendance";
@@ -22,6 +24,20 @@ internal static class GymCrmAuthorizationPolicies
             policy => policy.RequireRole(
                 UserRole.HeadCoach.ToString(),
                 UserRole.Administrator.ToString()));
+
+        options.AddPolicy(
+            ViewClients,
+            policy => policy.RequireRole(
+                UserRole.HeadCoach.ToString(),
+                UserRole.Administrator.ToString(),
+                UserRole.Coach.ToString()));
+
+        options.AddPolicy(
+            ViewClientPhotos,
+            policy => policy.RequireRole(
+                UserRole.HeadCoach.ToString(),
+                UserRole.Administrator.ToString(),
+                UserRole.Coach.ToString()));
 
         options.AddPolicy(
             ManageGroups,

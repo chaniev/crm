@@ -25,7 +25,6 @@ internal static class ClientEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
 
         group.MapGet("/", ListClientsAsync);
-        group.MapGet("/{id:guid}", GetClientAsync);
         group.MapPost("/", CreateClientAsync);
         group.MapPut("/{id:guid}", UpdateClientAsync);
         group.MapPut("/{id:guid}/archive", ArchiveClientAsync);
@@ -34,6 +33,8 @@ internal static class ClientEndpoints
         group.MapPost("/{id:guid}/membership/renew", RenewMembershipAsync);
         group.MapPost("/{id:guid}/membership/correct", CorrectMembershipAsync);
         group.MapPost("/{id:guid}/membership/mark-payment", MarkMembershipPaymentAsync);
+        endpoints.MapGet("/clients/{id:guid}", GetClientAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ViewClients);
 
         return endpoints;
     }
@@ -96,16 +97,39 @@ internal static class ClientEndpoints
         return TypedResults.Ok(response);
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound>> GetClientAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ForbidHttpResult, UnauthorizedHttpResult>> GetClientAsync(
         Guid id,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        var client = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
 
-        return client is null
-            ? TypedResults.NotFound()
-            : TypedResults.Ok(MapDetails(client));
+        var client = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
+        if (client is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (currentUser.Role is UserRole.HeadCoach or UserRole.Administrator)
+        {
+            return TypedResults.Ok(MapDetails(client));
+        }
+
+        var coachGroups = client.Groups
+            .Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
+            .ToArray();
+
+        if (coachGroups.Length == 0)
+        {
+            return TypedResults.Forbid();
+        }
+
+        return TypedResults.Ok(MapCoachDetails(client, coachGroups));
     }
 
     private static async Task<Results<Created<ClientDetailsResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateClientAsync(
@@ -529,6 +553,7 @@ internal static class ClientEndpoints
                 .ThenInclude(membership => membership.PaidByUser)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Trainers)
             .AsSplitQuery()
             .SingleOrDefaultAsync(client => client.Id == id, cancellationToken);
     }
@@ -1133,6 +1158,7 @@ internal static class ClientEndpoints
             groups.Select(group => group.Id).ToArray(),
             groups,
             client.Contacts.Count,
+            MapPhoto(client),
             client.UpdatedAt);
     }
 
@@ -1161,13 +1187,38 @@ internal static class ClientEndpoints
             groups.Select(group => group.Id).ToArray(),
             groups,
             contacts,
+            MapPhoto(client),
             membershipHistory.FirstOrDefault(membership => membership.ValidTo is null),
             membershipHistory,
             client.CreatedAt,
             client.UpdatedAt);
     }
 
-    private static IReadOnlyList<ClientGroupSummaryResponse> MapGroups(ICollection<ClientGroup> groups)
+    private static ClientDetailsResponse MapCoachDetails(
+        Client client,
+        IReadOnlyCollection<ClientGroup> coachGroups)
+    {
+        var groups = MapGroups(coachGroups);
+
+        return new ClientDetailsResponse(
+            client.Id,
+            client.LastName,
+            client.FirstName,
+            client.MiddleName,
+            BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
+            string.Empty,
+            client.Status.ToString(),
+            groups.Select(group => group.Id).ToArray(),
+            groups,
+            [],
+            MapPhoto(client),
+            null,
+            [],
+            client.CreatedAt,
+            client.UpdatedAt);
+    }
+
+    private static IReadOnlyList<ClientGroupSummaryResponse> MapGroups(IEnumerable<ClientGroup> groups)
     {
         return groups
             .Select(clientGroup => new ClientGroupSummaryResponse(
@@ -1188,6 +1239,24 @@ internal static class ClientEndpoints
             .ThenByDescending(membership => membership.CreatedAt)
             .Select(MapMembership)
             .ToArray();
+    }
+
+    private static ClientPhotoSummaryResponse? MapPhoto(Client client)
+    {
+        if (string.IsNullOrWhiteSpace(client.PhotoPath) ||
+            string.IsNullOrWhiteSpace(client.PhotoContentType) ||
+            client.PhotoSizeBytes is null ||
+            client.PhotoUploadedAt is null)
+        {
+            return null;
+        }
+
+        return new ClientPhotoSummaryResponse(
+            client.PhotoPath,
+            client.PhotoContentType,
+            client.PhotoSizeBytes.Value,
+            client.PhotoUploadedAt.Value,
+            true);
     }
 
     private static ClientMembershipResponse MapMembership(ClientMembership membership)
@@ -1322,6 +1391,7 @@ internal static class ClientEndpoints
         IReadOnlyList<Guid> GroupIds,
         IReadOnlyList<ClientGroupSummaryResponse> Groups,
         int ContactCount,
+        ClientPhotoSummaryResponse? Photo,
         DateTimeOffset UpdatedAt);
 
     private sealed record ClientDetailsResponse(
@@ -1335,6 +1405,7 @@ internal static class ClientEndpoints
         IReadOnlyList<Guid> GroupIds,
         IReadOnlyList<ClientGroupSummaryResponse> Groups,
         IReadOnlyList<ClientContactResponse> Contacts,
+        ClientPhotoSummaryResponse? Photo,
         ClientMembershipResponse? CurrentMembership,
         IReadOnlyList<ClientMembershipResponse> MembershipHistory,
         DateTimeOffset CreatedAt,
@@ -1351,6 +1422,13 @@ internal static class ClientEndpoints
         string Type,
         string FullName,
         string Phone);
+
+    private sealed record ClientPhotoSummaryResponse(
+        string Path,
+        string ContentType,
+        long SizeBytes,
+        DateTimeOffset UploadedAt,
+        bool HasPhoto);
 
     private sealed record ClientMembershipResponse(
         Guid Id,

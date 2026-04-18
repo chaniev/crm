@@ -39,6 +39,10 @@ public static class DependencyInjection
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<IAccessScopeService, AccessScopeService>();
         services.AddScoped<IClientMembershipService, ClientMembershipService>();
+        services.Configure<ClientPhotoStorageOptions>(
+            configuration.GetSection(ClientPhotoStorageOptions.SectionName));
+        services.AddScoped<IClientPhotoImageProcessor, MagickClientPhotoImageProcessor>();
+        services.AddScoped<IClientPhotoService, ClientPhotoService>();
 
         services
             .AddHealthChecks()

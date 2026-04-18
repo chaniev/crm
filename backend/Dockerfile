@@ -14,7 +14,15 @@ RUN apt-get update \
 WORKDIR /app
 COPY --from=build /app/publish .
 
+RUN groupadd --gid 10001 app \
+    && useradd --uid 10001 --gid app --create-home --shell /bin/bash app \
+    && mkdir -p /app/uploads \
+    && chown -R app:app /app
+
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
+ENV ClientPhoto__StorageRootPath=/app/uploads/client-photos
+ENV ClientPhoto__MaxUploadSizeBytes=10485760
 
+USER app
 ENTRYPOINT ["dotnet", "GymCrm.Api.dll"]
