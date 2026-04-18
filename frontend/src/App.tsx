@@ -50,6 +50,11 @@ import {
   type SessionResponse,
 } from './lib/api'
 import {
+  GroupCreateScreen,
+  GroupEditScreen,
+  GroupsListScreen,
+} from './features/groups/GroupManagement'
+import {
   UserCreateScreen,
   UserEditScreen,
   UsersListScreen,
@@ -61,6 +66,8 @@ type PasswordMode = 'forced' | 'utility'
 type AppRoute =
   | { kind: 'section'; section: AppSection }
   | { kind: 'password' }
+  | { kind: 'groupCreate' }
+  | { kind: 'groupEdit'; groupId: string }
   | { kind: 'userCreate' }
   | { kind: 'userEdit'; userId: string }
 
@@ -134,6 +141,10 @@ function getRoutePath(route: AppRoute) {
       return getSectionPath(route.section)
     case 'password':
       return '/password'
+    case 'groupCreate':
+      return '/groups/new'
+    case 'groupEdit':
+      return `/groups/${encodeURIComponent(route.groupId)}/edit`
     case 'userCreate':
       return '/users/new'
     case 'userEdit':
@@ -148,8 +159,20 @@ function parseRoute(pathname: string): AppRoute {
     return { kind: 'password' }
   }
 
+  if (normalizedPathname === '/groups/new') {
+    return { kind: 'groupCreate' }
+  }
+
   if (normalizedPathname === '/users/new') {
     return { kind: 'userCreate' }
+  }
+
+  const groupEditMatch = normalizedPathname.match(/^\/groups\/([^/]+)\/edit$/)
+  if (groupEditMatch) {
+    return {
+      kind: 'groupEdit',
+      groupId: decodeURIComponent(groupEditMatch[1]),
+    }
   }
 
   const userEditMatch = normalizedPathname.match(/^\/users\/([^/]+)\/edit$/)
@@ -178,6 +201,9 @@ function getRouteSection(route: AppRoute): AppSection | null {
   switch (route.kind) {
     case 'section':
       return route.section
+    case 'groupCreate':
+    case 'groupEdit':
+      return 'Groups'
     case 'userCreate':
     case 'userEdit':
       return 'Users'
@@ -246,6 +272,10 @@ function getPostPasswordPath(
   }
 
   if (returnSection === 'Users' && !user.permissions.canManageUsers) {
+    return fallbackPath
+  }
+
+  if (returnSection === 'Groups' && !user.permissions.canManageGroups) {
     return fallbackPath
   }
 
@@ -556,10 +586,13 @@ function App() {
         />
       ) : (
         <RouteViewport
+          onCreateGroup={() => navigate({ kind: 'groupCreate' })}
           currentUserId={authenticatedUser.id}
+          onEditGroup={(groupId) => navigate({ kind: 'groupEdit', groupId })}
           onCreateUser={() => navigate({ kind: 'userCreate' })}
           onEditUser={(userId) => navigate({ kind: 'userEdit', userId })}
           onRefreshSession={refreshSessionState}
+          onReturnToGroups={() => navigate({ kind: 'section', section: 'Groups' })}
           onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
           route={route}
           user={authenticatedUser}
@@ -1009,9 +1042,12 @@ type RouteViewportProps = {
   route: Exclude<AppRoute, { kind: 'password' }>
   user: AuthenticatedUser
   currentUserId: string
+  onCreateGroup: () => void
+  onEditGroup: (groupId: string) => void
   onCreateUser: () => void
   onEditUser: (userId: string) => void
   onRefreshSession: () => Promise<unknown>
+  onReturnToGroups: () => void
   onReturnToUsers: () => void
 }
 
@@ -1019,11 +1055,33 @@ function RouteViewport({
   route,
   user,
   currentUserId,
+  onCreateGroup,
+  onEditGroup,
   onCreateUser,
   onEditUser,
   onRefreshSession,
+  onReturnToGroups,
   onReturnToUsers,
 }: RouteViewportProps) {
+  if (route.kind === 'groupCreate') {
+    return (
+      <GroupCreateScreen
+        onCancel={onReturnToGroups}
+        onCreated={onReturnToGroups}
+      />
+    )
+  }
+
+  if (route.kind === 'groupEdit') {
+    return (
+      <GroupEditScreen
+        groupId={route.groupId}
+        onBack={onReturnToGroups}
+        onUpdated={onReturnToGroups}
+      />
+    )
+  }
+
   if (route.kind === 'userCreate') {
     return (
       <UserCreateScreen
@@ -1046,6 +1104,10 @@ function RouteViewport({
 
   if (route.section === 'Users') {
     return <UsersListScreen onCreate={onCreateUser} onEdit={onEditUser} />
+  }
+
+  if (route.section === 'Groups') {
+    return <GroupsListScreen onCreate={onCreateGroup} onEdit={onEditGroup} />
   }
 
   if (route.section === 'Home') {
@@ -1075,7 +1137,7 @@ function RoleDashboard({ user }: RoleDashboardProps) {
         <Stack className="dashboard-hero__content" gap="lg">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 4
+              Этап 5
             </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               {presentation.roleLabel}
@@ -1084,12 +1146,12 @@ function RoleDashboard({ user }: RoleDashboardProps) {
 
           <Stack gap="sm">
             <Title c="white" className="dashboard-hero__title" order={1}>
-              Shell сохраняет auth-flow и добавляет route-level users management
+              Shell сохраняет auth-flow и ведет users и groups как route-level сценарии
             </Title>
             <Text className="dashboard-hero__description" size="lg">
               {presentation.roleHint} После входа интерфейс остается
               backend-driven: доступные разделы и роли приходят из API, а
-              пользовательские экраны живут внутри того же shell.
+              пользовательские экраны пользователей и групп живут внутри того же shell.
             </Text>
           </Stack>
 
@@ -1176,13 +1238,13 @@ function RoleDashboard({ user }: RoleDashboardProps) {
             <div>
               <Text fw={700}>Следующий вертикальный шаг</Text>
               <Text c="dimmed" size="sm">
-                Route-level users flow уже встроен в shell. Следующий этап может
-                наращивать группы без пересборки auth foundation.
+                Route-level users и groups flow уже встроены в shell. Следующий
+                этап может наращивать клиентов без пересборки auth foundation.
               </Text>
             </div>
 
             <Badge color="brand.7" radius="xl" size="lg" variant="light">
-              Следующий этап: управление группами
+              Следующий этап: управление клиентами
             </Badge>
           </Group>
 
@@ -1206,7 +1268,7 @@ function RoleDashboard({ user }: RoleDashboardProps) {
 }
 
 type SectionPlaceholderProps = {
-  section: Exclude<AppSection, 'Home' | 'Users'>
+  section: Exclude<AppSection, 'Home' | 'Users' | 'Groups'>
   user: AuthenticatedUser
 }
 
@@ -1235,7 +1297,7 @@ function SectionPlaceholder({
               Раздел {sectionLabelMap[section]} уже встроен в навигацию shell
             </Title>
             <Text className="dashboard-hero__description" size="lg">
-              Текущий инкремент реализует только users management flow. Этот
+              Текущий инкремент уже реализует flows пользователей и групп. Этот
               маршрут оставлен как безопасный placeholder до следующего этапа.
             </Text>
           </Stack>

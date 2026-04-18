@@ -23,11 +23,13 @@
 - завершен `Этап 2. Авторизация и первый вход`;
 - завершен `Этап 3. Роли и проверка прав`;
 - завершен `Этап 4. Управление пользователями`;
+- завершен `Этап 5. Управление группами`;
 - `Инкремент 1. Технический скелет` завершен: каркас, базовый запуск, схема БД MVP и начальный миграционный цикл готовы;
 - `Инкремент 2. Базовый auth foundation` завершен: backend выдает `HttpOnly` cookie, seed-ит первого `HeadCoach`, требует смену пароля при первом входе, пишет базовый аудит и отдает CSRF-токен, а frontend имеет единый theme foundation и auth-flow на `Mantine`;
 - этап 3 добавил named policies доступа, backend-driven access scope в `session/profile`, group-scoped проверку тренера для attendance-сценариев и HTTP-интеграционные тесты матрицы прав;
 - этап 4 добавил backend API управления пользователями (`GET /users`, `GET /users/{id}`, `POST /users`, `PUT /users/{id}`) с аудитом, запретом смены логина и route-level frontend flow для списка, создания и редактирования пользователей;
-- проверка этапов 1-4 подтверждена командами `dotnet test backend/Crm.slnx`, `npm run build`, `npm run lint`, `dotnet dotnet-ef database update --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj --context CrmDbContext` и запуском `Crm.Api` с автоматическим применением миграций к чистой PostgreSQL.
+- этап 5 добавил backend API управления группами (`GET /groups`, `GET /groups/{id}`, `POST /groups`, `PUT /groups/{id}`, `PUT /groups/{id}/trainers`, `GET /groups/options/trainers`, `GET /groups/{id}/clients`) с аудитом, заменой множества назначенных тренеров через diff и route-level frontend flow для списка, создания и редактирования групп;
+- проверка этапов 1-5 подтверждена командами `dotnet build backend/Crm.slnx`, `dotnet test backend/Crm.slnx --no-build` и `npm run build`.
 
 Статус по этапам:
 
@@ -38,7 +40,7 @@
 | Этап 2. Авторизация и первый вход | выполнен | Реализованы `login/logout/change-password`, cookie-based auth, `HttpOnly` cookie, CSRF-защита, seed первого `HeadCoach`, forced смена пароля, базовый аудит auth-сценариев и frontend auth-flow на `Mantine` с общей light-theme foundation. |
 | Этап 3. Роли и проверка прав | выполнен | Реализованы роли, named policies, backend access-scope, group-scoped доступ тренера к attendance API и интеграционные тесты матрицы прав. |
 | Этап 4. Управление пользователями | выполнен | Реализованы backend API списка/создания/редактирования пользователей, аудит create/update, запрет смены логина и route-level UI списка, создания и редактирования пользователей только для `HeadCoach`. |
-| Этап 5. Управление группами | не начат | Нет API и UI для групп и назначения тренеров. |
+| Этап 5. Управление группами | выполнен | Реализованы backend API списка, деталей, создания, редактирования и назначения тренеров в группу, выдача клиентов группы, аудит изменений и route-level UI списка/создания/редактирования групп для `HeadCoach` и `Administrator`. |
 | Этап 6a. Базовый CRUD клиентов, контакты и группы | не начат | Нет сущностей, API и UI карточки клиента. |
 | Этап 6b. Абонементы клиентов и версионирование | не начат | Нет логики `ClientMembership`, версионирования и сценариев оплаты. |
 | Этап 6c. Фотографии клиентов | не начат | Нет загрузки, хранения и выдачи фотографий клиентов. |

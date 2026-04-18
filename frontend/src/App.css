@@ -204,6 +204,16 @@
   border-color: rgba(20, 90, 82, 0.08);
 }
 
+.group-row-card {
+  background:
+    linear-gradient(135deg, rgba(246, 244, 238, 0.74), rgba(255, 255, 255, 0.94));
+}
+
+.group-clients-card {
+  background:
+    linear-gradient(135deg, rgba(237, 245, 242, 0.92), rgba(246, 244, 238, 0.9));
+}
+
 @media (max-width: 62rem) {
   .auth-layout {
     grid-template-columns: 1fr;

@@ -66,6 +66,7 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapAccessEndpoints();
 app.MapUserEndpoints();
+Crm.Api.Auth.GroupEndpoints.MapGroupEndpoints(app);
 
 app.MapGet("/", () => Results.Ok(new
 {

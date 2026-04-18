@@ -77,11 +77,116 @@ export type UpdateUserRequest = {
   isActive: boolean
 }
 
+export type GroupTrainerSummary = {
+  id: string
+  fullName: string
+  login?: string
+}
+
+export type TrainerOption = {
+  id: string
+  fullName: string
+  login: string
+}
+
+export type GroupClient = {
+  id: string
+  fullName: string
+  status: string
+  phone?: string
+}
+
+export type GroupClientsResponse = {
+  groupId: string
+  clients: GroupClient[]
+}
+
+export type TrainingGroupListItem = {
+  id: string
+  name: string
+  trainingStartTime: string
+  scheduleText: string
+  isActive: boolean
+  trainers: GroupTrainerSummary[]
+  trainerIds: string[]
+  trainerCount: number
+  trainerNames: string[]
+  clientCount: number
+  updatedAt?: string
+}
+
+export type TrainingGroupListResponse = {
+  items: TrainingGroupListItem[]
+  totalCount: number
+  skip: number
+  take: number
+}
+
+export type TrainingGroupDetails = {
+  id: string
+  name: string
+  trainingStartTime: string
+  scheduleText: string
+  isActive: boolean
+  trainerIds: string[]
+  trainers: GroupTrainerSummary[]
+  clientCount: number
+  updatedAt?: string
+  createdAt?: string
+}
+
+export type UpsertTrainingGroupRequest = {
+  name: string
+  trainingStartTime: string
+  scheduleText: string
+  isActive: boolean
+  trainerIds: string[]
+}
+
 type ProblemPayload = {
   title?: string
   detail?: string
   errors?: Record<string, string[]>
   csrfToken?: string
+}
+
+type GroupResponsePayload = {
+  id: string
+  name: string
+  trainingStartTime: string
+  scheduleText: string
+  isActive: boolean
+  trainers: Array<{
+    id: string
+    fullName: string
+    login: string
+  }>
+  trainerIds: string[]
+  clientCount: number
+  updatedAt?: string
+  createdAt?: string
+  trainerNames?: string[]
+  trainerCount?: number
+}
+
+type GroupsListEnvelopePayload = {
+  items: GroupResponsePayload[]
+  totalCount?: number
+  skip?: number
+  take?: number
+}
+
+type GroupClientResponsePayload = {
+  id: string
+  fullName: string
+  status: string
+  phone?: string
+}
+
+type GroupTrainerOptionPayload = {
+  id: string
+  fullName: string
+  login: string
 }
 
 export class ApiError extends Error {
@@ -199,4 +304,178 @@ export async function updateUser(userId: string, payload: UpdateUserRequest) {
     method: 'PUT',
     body: JSON.stringify(payload),
   })
+}
+
+export async function getGroups(
+  params: {
+    page?: number
+    pageSize?: number
+    skip?: number
+    take?: number
+    isActive?: boolean
+  } = {},
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+
+  if (typeof params.page === 'number') {
+    searchParams.set('page', String(params.page))
+  } else if (typeof params.pageSize === 'number') {
+    searchParams.set('page', '1')
+  }
+
+  if (typeof params.pageSize === 'number') {
+    searchParams.set('pageSize', String(params.pageSize))
+  }
+
+  if (typeof params.skip === 'number') {
+    searchParams.set('skip', String(params.skip))
+  }
+
+  if (typeof params.take === 'number') {
+    searchParams.set('take', String(params.take))
+  }
+
+  if (typeof params.isActive === 'boolean') {
+    searchParams.set('isActive', String(params.isActive))
+  }
+
+  if (
+    !searchParams.has('page') &&
+    !searchParams.has('pageSize') &&
+    !searchParams.has('skip') &&
+    !searchParams.has('take')
+  ) {
+    searchParams.set('page', '1')
+    searchParams.set('pageSize', '100')
+  }
+
+  const payload = await request<GroupResponsePayload[] | GroupsListEnvelopePayload>(
+    `/groups?${searchParams.toString()}`,
+    { signal },
+  )
+
+  if (Array.isArray(payload)) {
+    const items = payload.map(mapGroupListItem)
+
+    return {
+      items,
+      totalCount: items.length,
+      skip: 0,
+      take: items.length,
+    } satisfies TrainingGroupListResponse
+  }
+
+  const items = payload.items.map(mapGroupListItem)
+
+  return {
+    items,
+    totalCount: payload.totalCount ?? items.length,
+    skip: payload.skip ?? 0,
+    take: payload.take ?? items.length,
+  } satisfies TrainingGroupListResponse
+}
+
+export async function getGroup(groupId: string, signal?: AbortSignal) {
+  const payload = await request<GroupResponsePayload>(`/groups/${groupId}`, {
+    signal,
+  })
+
+  return mapGroupDetails(payload)
+}
+
+export async function getTrainerOptions(signal?: AbortSignal) {
+  const payload = await request<GroupTrainerOptionPayload[]>(
+    '/groups/options/trainers',
+    { signal },
+  )
+
+  return payload.map((trainer) => ({
+    id: trainer.id,
+    fullName: trainer.fullName,
+    login: trainer.login,
+  }))
+}
+
+export async function getGroupClients(groupId: string, signal?: AbortSignal) {
+  const payload = await request<GroupClientResponsePayload[] | { clients: GroupClientResponsePayload[] }>(
+    `/groups/${groupId}/clients`,
+    { signal },
+  )
+
+  const clientsPayload = Array.isArray(payload) ? payload : payload.clients
+
+  return {
+    groupId,
+    clients: clientsPayload.map((client) => ({
+      id: client.id,
+      fullName: client.fullName,
+      status: client.status,
+      phone: client.phone,
+    })),
+  } satisfies GroupClientsResponse
+}
+
+export async function createGroup(payload: UpsertTrainingGroupRequest) {
+  const response = await request<GroupResponsePayload>('/groups', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+  return mapGroupDetails(response)
+}
+
+export async function updateGroup(
+  groupId: string,
+  payload: UpsertTrainingGroupRequest,
+) {
+  const response = await request<GroupResponsePayload>(`/groups/${groupId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+
+  return mapGroupDetails(response)
+}
+
+function mapGroupListItem(payload: GroupResponsePayload): TrainingGroupListItem {
+  return {
+    id: payload.id,
+    name: payload.name,
+    trainingStartTime: payload.trainingStartTime,
+    scheduleText: payload.scheduleText,
+    isActive: payload.isActive,
+    trainers: payload.trainers.map((trainer) => ({
+      id: trainer.id,
+      fullName: trainer.fullName,
+      login: trainer.login,
+    })),
+    trainerIds:
+      payload.trainerIds.length > 0
+        ? payload.trainerIds
+        : payload.trainers.map((trainer) => trainer.id),
+    trainerCount: payload.trainerCount ?? payload.trainers.length,
+    clientCount: payload.clientCount,
+    trainerNames:
+      payload.trainerNames ?? payload.trainers.map((trainer) => trainer.fullName),
+    updatedAt: payload.updatedAt,
+  }
+}
+
+function mapGroupDetails(payload: GroupResponsePayload): TrainingGroupDetails {
+  return {
+    id: payload.id,
+    name: payload.name,
+    trainingStartTime: payload.trainingStartTime,
+    scheduleText: payload.scheduleText,
+    isActive: payload.isActive,
+    trainerIds: payload.trainerIds,
+    trainers: payload.trainers.map((trainer) => ({
+      id: trainer.id,
+      fullName: trainer.fullName,
+      login: trainer.login,
+    })),
+    clientCount: payload.clientCount,
+    updatedAt: payload.updatedAt,
+    createdAt: payload.createdAt,
+  }
 }
