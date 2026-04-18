@@ -65,6 +65,7 @@ import {
   ClientEditScreen,
   ClientsListScreen,
 } from './features/clients/ClientManagement'
+import { AttendanceScreen } from './features/attendance/AttendanceScreen'
 import {
   GroupCreateScreen,
   GroupEditScreen,
@@ -1040,6 +1041,10 @@ function RouteViewport({
     return <GroupsListScreen onCreate={onCreateGroup} onEdit={onEditGroup} />
   }
 
+  if (route.section === 'Attendance') {
+    return <AttendanceScreen user={user} />
+  }
+
   if (route.section === 'Home') {
     return <RoleDashboard user={user} />
   }
@@ -1146,7 +1151,7 @@ function RoleDashboard({ user }: RoleDashboardProps) {
         <Stack className="dashboard-hero__content" gap="lg">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 5
+              Этап 7
             </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               {presentation.roleLabel}
@@ -1155,12 +1160,12 @@ function RoleDashboard({ user }: RoleDashboardProps) {
 
           <Stack gap="sm">
             <Title c="white" className="dashboard-hero__title" order={1}>
-              Shell сохраняет auth-flow и ведет клиентов, группы и пользователей как route-level сценарии
+              Shell сохраняет auth-flow и ведет клиентов, группы, пользователей и посещения как route-level сценарии
             </Title>
             <Text className="dashboard-hero__description" size="lg">
               {presentation.roleHint} После входа интерфейс остается
               backend-driven: доступные разделы и роли приходят из API, а
-              пользовательские экраны клиентов, пользователей и групп живут внутри того же shell.
+              пользовательские экраны клиентов, пользователей, групп и посещений живут внутри того же shell.
             </Text>
           </Stack>
 
@@ -1247,13 +1252,13 @@ function RoleDashboard({ user }: RoleDashboardProps) {
             <div>
               <Text fw={700}>Следующий вертикальный шаг</Text>
               <Text c="dimmed" size="sm">
-                Базовый clients flow теперь встроен рядом с users и groups. Следующий
-                этап может наращивать абонементы внутри той же карточки клиента.
+                Отдельный экран посещений уже встроен в shell, а следующим шагом
+                карточка клиента получит историю посещений и более точные ролевые ограничения.
               </Text>
             </div>
 
             <Badge color="brand.7" radius="xl" size="lg" variant="light">
-              Следующий этап: абонементы клиентов
+              Следующий этап: история посещений
             </Badge>
           </Group>
 

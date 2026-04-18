@@ -240,6 +240,71 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             await LoadDetailsRequiredAsync(clientId, cancellationToken));
     }
 
+    public async Task<SingleVisitWriteOffResult> WriteOffSingleVisitAsync(
+        Guid clientId,
+        WriteOffSingleVisitCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (clientId == Guid.Empty ||
+            command.ChangedByUserId == Guid.Empty ||
+            command.TrainingDate == default)
+        {
+            return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.InvalidRequest);
+        }
+
+        if (!await ClientExistsAsync(clientId, cancellationToken))
+        {
+            return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.ClientMissing);
+        }
+
+        var currentMembership = await LoadCurrentMembershipAsync(clientId, cancellationToken);
+        if (currentMembership is null)
+        {
+            return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.CurrentMembershipMissing);
+        }
+
+        if (currentMembership.MembershipType != MembershipType.SingleVisit)
+        {
+            return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.MembershipNotSingleVisit);
+        }
+
+        if (currentMembership.SingleVisitUsed)
+        {
+            return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.SingleVisitAlreadyUsed);
+        }
+
+        if (currentMembership.PurchaseDate > command.TrainingDate)
+        {
+            return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.MembershipPurchasedAfterTrainingDate);
+        }
+
+        var previousMembership = MapMembershipSnapshot(currentMembership);
+        var now = DateTimeOffset.UtcNow;
+
+        await ReplaceCurrentMembershipAsync(
+            currentMembership,
+            CreateMembership(
+                clientId,
+                currentMembership.MembershipType,
+                currentMembership.PurchaseDate,
+                currentMembership.ExpirationDate,
+                currentMembership.PaymentAmount,
+                currentMembership.IsPaid,
+                true,
+                currentMembership.PaidByUserId,
+                currentMembership.PaidAt,
+                ClientMembershipChangeReason.SingleVisitWriteOff,
+                command.ChangedByUserId,
+                now),
+            now,
+            cancellationToken);
+
+        var currentMembershipSnapshot = (await LoadDetailsRequiredAsync(clientId, cancellationToken)).CurrentMembership
+            ?? throw new InvalidOperationException($"Current membership for client '{clientId}' was not found after single-visit write-off.");
+
+        return SingleVisitWriteOffResult.Success(previousMembership, currentMembershipSnapshot);
+    }
+
     private async Task<ClientMembershipDetailsResult> LoadDetailsRequiredAsync(
         Guid clientId,
         CancellationToken cancellationToken)
@@ -439,6 +504,25 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             clientId,
             history.FirstOrDefault(membership => membership.ValidTo is null),
             history);
+    }
+
+    private static ClientMembershipSnapshotResult MapMembershipSnapshot(ClientMembership membership)
+    {
+        return new ClientMembershipSnapshotResult(
+            membership.Id,
+            membership.MembershipType,
+            membership.PurchaseDate,
+            membership.ExpirationDate,
+            membership.PaymentAmount,
+            membership.IsPaid,
+            membership.SingleVisitUsed,
+            membership.PaidByUserId,
+            membership.PaidAt,
+            membership.ValidFrom,
+            membership.ValidTo,
+            membership.ChangeReason,
+            membership.ChangedByUserId,
+            membership.CreatedAt);
     }
 
     private static bool IsValidCommand(

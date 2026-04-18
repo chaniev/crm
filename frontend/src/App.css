@@ -247,6 +247,48 @@
     linear-gradient(135deg, rgba(237, 245, 242, 0.92), rgba(246, 244, 238, 0.9));
 }
 
+.attendance-hero {
+  background:
+    linear-gradient(145deg, rgba(10, 37, 34, 0.98), rgba(20, 90, 82, 0.95)),
+    radial-gradient(circle at top left, rgba(216, 154, 61, 0.34), transparent 36%);
+}
+
+.attendance-toolbar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.attendance-empty-card {
+  background:
+    linear-gradient(135deg, rgba(246, 244, 238, 0.96), rgba(239, 245, 242, 0.92));
+}
+
+.attendance-client-card {
+  background:
+    linear-gradient(135deg, rgba(239, 245, 242, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.attendance-client-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+.attendance-client-avatar {
+  flex-shrink: 0;
+  border: 1px solid rgba(20, 90, 82, 0.12);
+}
+
+.attendance-client-main {
+  min-width: 0;
+}
+
+.attendance-client-switch {
+  justify-self: flex-start;
+}
+
 @media (max-width: 62rem) {
   .auth-layout {
     grid-template-columns: 1fr;
@@ -259,5 +301,20 @@
 
   .app-shell__actions {
     justify-content: flex-start;
+  }
+}
+
+@media (min-width: 48rem) {
+  .attendance-toolbar {
+    grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 0.9fr);
+    align-items: end;
+  }
+
+  .attendance-client-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .attendance-client-switch {
+    justify-self: flex-end;
   }
 }

@@ -30,6 +30,11 @@ const API_ENDPOINTS = {
     trainerOptions: '/groups/options/trainers',
     clients: (groupId: string) => `/groups/${groupId}/clients`,
   },
+  attendance: {
+    groups: '/attendance/groups',
+    groupClients: (groupId: string) => `/attendance/groups/${groupId}/clients`,
+    groupMarks: (groupId: string) => `/attendance/groups/${groupId}`,
+  },
 } as const
 const JSON_CONTENT_TYPE = 'application/json'
 const GET_METHOD = 'GET'
@@ -76,6 +81,8 @@ const CLIENT_MEMBERSHIP_PAYLOAD_KEYS = [
   'membershipHistoryItems',
   'MembershipHistoryItems',
 ] as const
+const ATTENDANCE_GROUP_PAYLOAD_KEYS = ['items', 'groups'] as const
+const ATTENDANCE_CLIENT_PAYLOAD_KEYS = ['items', 'clients'] as const
 
 let csrfToken = ''
 
@@ -160,6 +167,14 @@ export type GroupTrainerSummary = {
   login?: string
 }
 
+export type AttendanceGroup = {
+  id: string
+  name: string
+  trainingStartTime?: string
+  scheduleText?: string
+  clientCount?: number
+}
+
 export type ClientStatus = 'Active' | 'Archived'
 export type ClientPaymentStatus = 'Paid' | 'Unpaid'
 
@@ -225,6 +240,33 @@ export type ClientMembership = {
   validFrom?: string
   validTo?: string | null
   createdAt?: string
+}
+
+export type AttendanceClient = {
+  id: string
+  fullName: string
+  groups: ClientGroupSummary[]
+  photo: ClientPhoto | null
+  isPresent: boolean
+  hasActivePaidMembership: boolean
+  hasUnpaidCurrentMembership: boolean
+  membershipWarning: boolean
+  membershipWarningMessage?: string
+  currentMembership: ClientMembership | null
+}
+
+export type AttendanceRosterResponse = {
+  groupId: string
+  trainingDate: string
+  clients: AttendanceClient[]
+}
+
+export type SaveAttendanceMarksRequest = {
+  trainingDate: string
+  attendanceMarks: Array<{
+    clientId: string
+    isPresent: boolean
+  }>
 }
 
 export type ClientDetails = ClientListItem & {
@@ -409,6 +451,18 @@ type GroupTrainerOptionPayload = {
   fullName: string
   login: string
 }
+
+type AttendanceGroupPayload = {
+  id?: string | null
+  groupId?: string | null
+  name?: string | null
+  groupName?: string | null
+  trainingStartTime?: string | null
+  scheduleText?: string | null
+  clientCount?: number | null
+}
+
+type AttendanceClientPayload = Record<string, unknown>
 
 type ClientContactPayload = {
   id?: string
@@ -930,6 +984,71 @@ export async function getGroupClients(groupId: string, signal?: AbortSignal) {
   } satisfies GroupClientsResponse
 }
 
+export async function getAttendanceGroups(signal?: AbortSignal) {
+  const payload = await request<unknown>(API_ENDPOINTS.attendance.groups, { signal })
+
+  return extractArrayPayload<AttendanceGroupPayload>(
+    payload,
+    ATTENDANCE_GROUP_PAYLOAD_KEYS,
+  )
+    .map(mapAttendanceGroup)
+    .filter((group): group is AttendanceGroup => group !== null)
+}
+
+export async function getAttendanceGroupClients(
+  groupId: string,
+  trainingDate: string,
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+  searchParams.set('trainingDate', trainingDate)
+
+  const payload = await request<unknown>(
+    `${API_ENDPOINTS.attendance.groupClients(groupId)}?${searchParams.toString()}`,
+    { signal },
+  )
+
+  const responseGroupId =
+    (isRecord(payload)
+      ? readString(payload, ['groupId', 'GroupId'])
+      : undefined) ?? groupId
+  const responseTrainingDate =
+    normalizeIsoDateValue(
+      (isRecord(payload)
+        ? readString(payload, ['trainingDate', 'TrainingDate'])
+        : undefined) ?? trainingDate,
+    ) ?? trainingDate
+
+  return {
+    groupId: responseGroupId,
+    trainingDate: responseTrainingDate,
+    clients: extractArrayPayload<AttendanceClientPayload>(
+      payload,
+      ATTENDANCE_CLIENT_PAYLOAD_KEYS,
+    )
+      .map((client) =>
+        mapAttendanceClient(client, responseTrainingDate),
+      )
+      .filter((client): client is AttendanceClient => client !== null),
+  } satisfies AttendanceRosterResponse
+}
+
+export async function saveAttendanceMarks(
+  groupId: string,
+  payload: SaveAttendanceMarksRequest,
+) {
+  await request<unknown>(API_ENDPOINTS.attendance.groupMarks(groupId), {
+    method: 'POST',
+    body: JSON.stringify({
+      TrainingDate: payload.trainingDate,
+      AttendanceMarks: payload.attendanceMarks.map((mark) => ({
+        ClientId: mark.clientId,
+        IsPresent: mark.isPresent,
+      })),
+    }),
+  })
+}
+
 export async function createGroup(payload: UpsertTrainingGroupRequest) {
   const response = await request<GroupResponsePayload>(API_ENDPOINTS.groups.collection, {
     method: 'POST',
@@ -995,6 +1114,119 @@ function mapGroupTrainerSummary(trainer: GroupResponsePayload['trainers'][number
     id: trainer.id,
     fullName: trainer.fullName,
     login: trainer.login,
+  }
+}
+
+function mapAttendanceGroup(payload: AttendanceGroupPayload): AttendanceGroup | null {
+  const id =
+    payload.id?.trim() ??
+    payload.groupId?.trim() ??
+    ''
+
+  if (!id) {
+    return null
+  }
+
+  return {
+    id,
+    name:
+      payload.name?.trim() ??
+      payload.groupName?.trim() ??
+      DEFAULT_CLIENT_GROUP_NAME,
+    trainingStartTime: payload.trainingStartTime?.trim() ?? undefined,
+    scheduleText: payload.scheduleText?.trim() ?? undefined,
+    clientCount:
+      typeof payload.clientCount === 'number' ? payload.clientCount : undefined,
+  }
+}
+
+function mapAttendanceClient(
+  payload: AttendanceClientPayload,
+  trainingDate: string,
+): AttendanceClient | null {
+  if (!isRecord(payload)) {
+    return null
+  }
+
+  const id =
+    readString(payload, ['clientId', 'ClientId', 'id', 'Id']) ?? ''
+
+  if (!id) {
+    return null
+  }
+
+  const fullName =
+    readString(payload, ['fullName', 'FullName']) ??
+    buildDisplayNameFromParts(
+      readString(payload, ['lastName', 'LastName']),
+      readString(payload, ['firstName', 'FirstName']),
+      readString(payload, ['middleName', 'MiddleName']),
+    ) ??
+    'Без имени'
+  const currentMembership = mapClientMembership(
+    extractRecordPayload(payload, [
+      'currentMembership',
+      'CurrentMembership',
+      'membership',
+      'Membership',
+      'membershipData',
+      'MembershipData',
+    ]),
+  )
+  const warningMessage =
+    readString(payload, [
+      'warning',
+      'Warning',
+      'warningMessage',
+      'WarningMessage',
+      'membershipWarningMessage',
+      'MembershipWarningMessage',
+      'membershipStatusMessage',
+      'MembershipStatusMessage',
+    ]) ?? undefined
+  const hasActivePaidMembership =
+    readBoolean(payload, [
+      'hasActivePaidMembership',
+      'HasActivePaidMembership',
+    ]) ?? deriveHasActivePaidMembership(currentMembership, trainingDate)
+  const hasUnpaidCurrentMembership =
+    readBoolean(payload, [
+      'hasUnpaidCurrentMembership',
+      'HasUnpaidCurrentMembership',
+    ]) ?? (currentMembership ? !currentMembership.isPaid : false)
+  const membershipWarning =
+    readBoolean(payload, [
+      'hasWarning',
+      'HasWarning',
+      'membershipWarning',
+      'MembershipWarning',
+      'hasMembershipWarning',
+      'HasMembershipWarning',
+      'membershipWarningVisible',
+      'MembershipWarningVisible',
+      'hasMembershipIssue',
+      'HasMembershipIssue',
+    ]) ??
+    (Boolean(warningMessage) ||
+      deriveMembershipWarning(
+        currentMembership,
+        hasUnpaidCurrentMembership,
+        trainingDate,
+      ))
+
+  return {
+    id,
+    fullName,
+    groups: mapClientGroups(payload as ClientResponsePayload),
+    photo: mapClientPhoto(payload as ClientResponsePayload),
+    isPresent:
+      readBoolean(payload, ['isPresent', 'IsPresent', 'present', 'Present']) ??
+      false,
+    hasActivePaidMembership,
+    hasUnpaidCurrentMembership,
+    membershipWarning,
+    membershipWarningMessage: warningMessage,
+    currentMembership,
   }
 }
 
@@ -1450,14 +1682,28 @@ function mapClientMembership(payload: unknown): ClientMembership | null {
   }
 }
 
+function buildDisplayNameFromParts(
+  lastName?: string,
+  firstName?: string,
+  middleName?: string,
+) {
+  const fullName = [lastName, firstName, middleName]
+    .map((value) => value?.trim() ?? '')
+    .filter(Boolean)
+    .join(' ')
+
+  return fullName || null
+}
+
 function buildClientFullName(payload: Pick<
   ClientResponsePayload,
   'fullName' | 'lastName' | 'firstName' | 'middleName'
 >) {
-  const fullName = [payload.lastName, payload.firstName, payload.middleName]
-    .map((value) => value?.trim() ?? '')
-    .filter(Boolean)
-    .join(' ')
+  const fullName = buildDisplayNameFromParts(
+    payload.lastName ?? undefined,
+    payload.firstName ?? undefined,
+    payload.middleName ?? undefined,
+  )
 
   if (fullName) {
     return fullName
@@ -1475,6 +1721,77 @@ function mapClientStatus(status?: string | null): ClientStatus {
 function mapMembershipType(type?: string | null): MembershipType | null {
   if (type === 'SingleVisit' || type === 'Monthly' || type === 'Yearly') {
     return type
+  }
+
+  return null
+}
+
+function deriveHasActivePaidMembership(
+  membership: ClientMembership | null,
+  trainingDate: string,
+) {
+  if (!membership || !membership.isPaid) {
+    return false
+  }
+
+  const effectiveDate =
+    normalizeIsoDateValue(trainingDate) ??
+    normalizeIsoDateValue(new Date().toISOString()) ??
+    trainingDate
+  const expirationDate = normalizeIsoDateValue(membership.expirationDate)
+
+  if (expirationDate && expirationDate < effectiveDate) {
+    return false
+  }
+
+  return (
+    membership.membershipType !== 'SingleVisit' || !membership.singleVisitUsed
+  )
+}
+
+function deriveMembershipWarning(
+  membership: ClientMembership | null,
+  hasUnpaidCurrentMembership: boolean,
+  trainingDate: string,
+) {
+  if (!membership) {
+    return true
+  }
+
+  if (hasUnpaidCurrentMembership) {
+    return true
+  }
+
+  const expirationDate = normalizeIsoDateValue(membership.expirationDate)
+  const effectiveDate = normalizeIsoDateValue(trainingDate)
+
+  if (expirationDate && effectiveDate && expirationDate < effectiveDate) {
+    return true
+  }
+
+  return (
+    membership.membershipType === 'SingleVisit' && membership.singleVisitUsed
+  )
+}
+
+function normalizeIsoDateValue(value?: string | null) {
+  if (!value) {
+    return null
+  }
+
+  const trimmedValue = value.trim()
+  if (!trimmedValue) {
+    return null
+  }
+
+  const directMatch = trimmedValue.match(/^\d{4}-\d{2}-\d{2}$/)
+  if (directMatch) {
+    return trimmedValue
+  }
+
+  const prefixMatch = trimmedValue.match(/^(\d{4}-\d{2}-\d{2})[T\s]/)
+  if (prefixMatch) {
+    return prefixMatch[1]
   }
 
   return null

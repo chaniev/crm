@@ -1,7 +1,9 @@
+using GymCrm.Application.Attendance;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Clients;
 using GymCrm.Application.Security;
+using GymCrm.Infrastructure.AttendanceFeatures;
 using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Audit;
 using GymCrm.Infrastructure.Clients;
@@ -38,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHashService, PasswordHashService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<IAccessScopeService, AccessScopeService>();
+        services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<IClientMembershipService, ClientMembershipService>();
         services.Configure<ClientPhotoStorageOptions>(
             configuration.GetSection(ClientPhotoStorageOptions.SectionName));

@@ -27,6 +27,11 @@ public interface IClientMembershipService
         Guid clientId,
         MarkClientMembershipPaymentCommand command,
         CancellationToken cancellationToken);
+
+    Task<SingleVisitWriteOffResult> WriteOffSingleVisitAsync(
+        Guid clientId,
+        WriteOffSingleVisitCommand command,
+        CancellationToken cancellationToken);
 }
 
 public sealed record CreateClientMembershipPurchaseCommand(
@@ -55,6 +60,10 @@ public sealed record CorrectClientMembershipCommand(
 public sealed record MarkClientMembershipPaymentCommand(
     Guid ChangedByUserId);
 
+public sealed record WriteOffSingleVisitCommand(
+    Guid ChangedByUserId,
+    DateOnly TrainingDate);
+
 public enum ClientMembershipMutationError
 {
     None = 0,
@@ -62,6 +71,17 @@ public enum ClientMembershipMutationError
     InvalidRequest = 2,
     CurrentMembershipMissing = 3,
     CurrentMembershipAlreadyPaid = 4
+}
+
+public enum SingleVisitWriteOffStatus
+{
+    Applied = 0,
+    InvalidRequest = 1,
+    ClientMissing = 2,
+    CurrentMembershipMissing = 3,
+    MembershipNotSingleVisit = 4,
+    SingleVisitAlreadyUsed = 5,
+    MembershipPurchasedAfterTrainingDate = 6
 }
 
 public sealed record ClientMembershipDetailsResult(
@@ -96,4 +116,20 @@ public readonly record struct ClientMembershipMutationResult(
 
     public static ClientMembershipMutationResult Failure(ClientMembershipMutationError error) =>
         new(error, null);
+}
+
+public readonly record struct SingleVisitWriteOffResult(
+    SingleVisitWriteOffStatus Status,
+    ClientMembershipSnapshotResult? PreviousMembership,
+    ClientMembershipSnapshotResult? CurrentMembership)
+{
+    public bool Applied => Status == SingleVisitWriteOffStatus.Applied;
+
+    public static SingleVisitWriteOffResult Success(
+        ClientMembershipSnapshotResult previousMembership,
+        ClientMembershipSnapshotResult currentMembership) =>
+        new(SingleVisitWriteOffStatus.Applied, previousMembership, currentMembership);
+
+    public static SingleVisitWriteOffResult Skip(SingleVisitWriteOffStatus status) =>
+        new(status, null, null);
 }

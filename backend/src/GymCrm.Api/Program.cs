@@ -82,6 +82,7 @@ app.MapAccessEndpoints();
 app.MapUserEndpoints();
 app.MapClientEndpoints();
 app.MapClientPhotoEndpoints();
+app.MapAttendanceEndpoints();
 GymCrm.Api.Auth.GroupEndpoints.MapGroupEndpoints(app);
 
 app.MapGet(ApiHostingConstants.RootPath, () => Results.Ok(
