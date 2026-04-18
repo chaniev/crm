@@ -225,7 +225,7 @@ export function UsersListScreen({
                 </Group>
                 <Text c="dimmed" size="sm">
                   Создайте администратора или тренера, чтобы выдать доступ к
-                  рабочим сценариям CRM.
+                  рабочим сценариям Gym CRM.
                 </Text>
               </Stack>
             </Paper>

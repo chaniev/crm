@@ -10,11 +10,11 @@ import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import App from './App.tsx'
 import './index.css'
-import { crmTheme } from './theme.ts'
+import { gymCrmTheme } from './theme.ts'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <MantineProvider defaultColorScheme="light" theme={crmTheme}>
+    <MantineProvider defaultColorScheme="light" theme={gymCrmTheme}>
       <Notifications position="top-right" />
       <App />
     </MantineProvider>

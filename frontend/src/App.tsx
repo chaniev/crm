@@ -91,7 +91,7 @@ type NavigateOptions = {
 const rolePresentationMap: Record<AuthenticatedUser['role'], RolePresentation> = {
   HeadCoach: {
     roleLabel: 'Главный тренер',
-    roleHint: 'Полный управленческий доступ к MVP CRM.',
+    roleHint: 'Полный управленческий доступ к MVP Gym CRM.',
   },
   Administrator: {
     roleLabel: 'Администратор',
@@ -322,7 +322,7 @@ function App() {
 
       notifications.show({
         title: 'Сессия завершена',
-        message: 'Вы вышли из CRM.',
+        message: 'Вы вышли из Gym CRM.',
         color: 'gray',
       })
     } catch (error) {
@@ -395,7 +395,7 @@ function App() {
         ]}
         description="Cookie-based авторизация, CSRF-защита, роли и route-aware shell уже связаны в единый поток."
         eyebrow="Stage 4"
-        title="Вход в CRM для спортивного зала"
+        title="Вход в Gym CRM для спортивного зала"
       >
         <LoginScreen pending={loginPending} onSubmit={handleLogin} />
       </StageFrame>
@@ -488,7 +488,7 @@ function StageFrame({
   children,
 }: StageFrameProps) {
   return (
-    <div className="crm-page">
+    <div className="gym-crm-page">
       <Container className="auth-layout" size="xl">
         <Paper className="story-panel" radius="36px" shadow="lg">
           <div className="story-panel__glow" />
@@ -498,7 +498,7 @@ function StageFrame({
                 {eyebrow}
               </Badge>
               <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                CRM MVP
+                Gym CRM MVP
               </Badge>
             </Group>
 
@@ -1348,7 +1348,7 @@ function SectionPlaceholder({
 
 function LoadingState() {
   return (
-    <div className="crm-page">
+    <div className="gym-crm-page">
       <Container className="loading-layout" size="sm">
         <Paper className="loading-card" radius="32px" shadow="lg" withBorder>
           <Stack align="center" gap="md">

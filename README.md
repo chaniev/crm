@@ -1,27 +1,27 @@
-# CRM для спортивного зала
+# Gym CRM для спортивного зала
 
 ## Описание проекта
 
-MVP CRM-системы для спортивного зала. Проект предназначен для ведения базы клиентов, групп и тренеров, учета абонементов и оплат, отметки посещений, хранения истории изменений и разграничения доступа по ролям.
+MVP Gym CRM-системы для спортивного зала. Проект предназначен для ведения базы клиентов, групп и тренеров, учета абонементов и оплат, отметки посещений, хранения истории изменений и разграничения доступа по ролям.
 
 ## Структура проекта
 
 ```text
-crm/
+gym-crm/
   .env.example
   AGENTS.md
   README.md
   backend/
     .dockerignore
-    Crm.slnx
+    GymCrm.slnx
     Dockerfile
     src/
-      Crm.Api/             ASP.NET Core API
-      Crm.Application/     прикладной слой
-      Crm.Domain/          доменная модель
-      Crm.Infrastructure/  инфраструктурный слой
+      GymCrm.Api/             ASP.NET Core API
+      GymCrm.Application/     прикладной слой
+      GymCrm.Domain/          доменная модель
+      GymCrm.Infrastructure/  инфраструктурный слой
     tests/
-      Crm.Tests/           smoke-тесты и backend-тесты
+      GymCrm.Tests/           smoke-тесты и backend-тесты
   docs/
     AGENT_ROUTING.md
     DELIVERY_CHECKLIST.md
@@ -93,14 +93,14 @@ Backend использует `EF Core` и применяет ожидающие 
 ```bash
 cd backend
 dotnet tool restore
-dotnet dotnet-ef migrations list --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj
-dotnet dotnet-ef database update --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj
+dotnet dotnet-ef migrations list --project src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj --startup-project src/GymCrm.Api/GymCrm.Api.csproj
+dotnet dotnet-ef database update --project src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj --startup-project src/GymCrm.Api/GymCrm.Api.csproj
 ```
 
 ## Проверки
 
 ```bash
-dotnet test backend/Crm.slnx
+dotnet test backend/GymCrm.slnx
 cd frontend
 npm run build
 npm run lint

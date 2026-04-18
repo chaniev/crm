@@ -1,6 +1,6 @@
 import { createTheme } from '@mantine/core'
 
-export const crmTheme = createTheme({
+export const gymCrmTheme = createTheme({
   primaryColor: 'brand',
   primaryShade: 6,
   fontFamily: 'Onest, ui-sans-serif, system-ui, sans-serif',

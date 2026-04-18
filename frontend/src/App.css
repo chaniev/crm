@@ -1,11 +1,11 @@
-.crm-page {
+.gym-crm-page {
   min-height: 100vh;
   padding: clamp(1rem, 3vw, 2rem);
   position: relative;
 }
 
-.crm-page::before,
-.crm-page::after {
+.gym-crm-page::before,
+.gym-crm-page::after {
   content: '';
   position: fixed;
   inset: auto;
@@ -16,7 +16,7 @@
   z-index: 0;
 }
 
-.crm-page::before {
+.gym-crm-page::before {
   width: 22rem;
   height: 22rem;
   top: 1.5rem;
@@ -24,7 +24,7 @@
   background: rgba(216, 154, 61, 0.22);
 }
 
-.crm-page::after {
+.gym-crm-page::after {
   width: 18rem;
   height: 18rem;
   left: 2rem;
