@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using GymCrm.Application.Security;
@@ -320,6 +321,101 @@ public class ClientsApiTests
         Assert.True(persistedClient.PhotoSizeBytes > 0);
         Assert.NotNull(persistedClient.PhotoUploadedAt);
         Assert.True(File.Exists(ResolveStoredPhotoAbsolutePath(factory, persistedClient.PhotoPath!)));
+    }
+
+    [Theory]
+    [InlineData("image/heic", "sample.heic")]
+    [InlineData("image/heif", "sample.heif")]
+    public async Task HeadCoach_can_upload_heic_or_heif_photo_and_it_is_converted_to_web_compatible_format(
+        string contentType,
+        string fileName)
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+
+        var photoContent = contentType == "image/heic"
+            ? CreateSampleHeicBytes()
+            : CreateSampleHeifBytes();
+
+        using (var uploadResponse = await PostPhotoAsync(
+                   client,
+                   clientId,
+                   photoContent,
+                   fileName,
+                   contentType,
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, uploadResponse.StatusCode);
+
+            var uploadPayload = await ReadJsonElementAsync(uploadResponse);
+            Assert.Equal(clientId, GetGuidFromAnyCase(uploadPayload, "clientId", "ClientId"));
+            Assert.Equal("image/jpeg", GetStringFromAnyCase(uploadPayload, "contentType", "ContentType"));
+        }
+
+        using (var getClientResponse = await client.GetAsync($"/clients/{clientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, getClientResponse.StatusCode);
+
+            var clientPayload = await ReadJsonElementAsync(getClientResponse);
+            var photoPayload = GetPropertyOrNull(clientPayload, "photo", "Photo");
+            Assert.Equal("image/jpeg", GetStringFromAnyCase(photoPayload, "contentType", "ContentType"));
+            Assert.True(GetLongFromAnyCase(photoPayload, "sizeBytes", "SizeBytes") > 0);
+        }
+
+        using (var photoResponse = await client.GetAsync($"/clients/{clientId}/photo"))
+        {
+            Assert.Equal(HttpStatusCode.OK, photoResponse.StatusCode);
+            Assert.Equal("image/jpeg", photoResponse.Content.Headers.ContentType?.MediaType);
+            Assert.NotEmpty(await photoResponse.Content.ReadAsByteArrayAsync());
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var persistedClient = await dbContext.Clients
+                .AsNoTracking()
+                .SingleAsync(candidate => candidate.Id == clientId);
+
+            Assert.NotNull(persistedClient.PhotoPath);
+            Assert.Equal("image/jpeg", persistedClient.PhotoContentType);
+            Assert.True(persistedClient.PhotoSizeBytes > 0);
+            Assert.EndsWith(".jpg", persistedClient.PhotoPath, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public async Task Uploading_too_large_client_photo_is_rejected_with_payload_too_large()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+        var oversizedPayload = new byte[10 * 1024 * 1024 + 1];
+
+        using (var uploadResponse = await PostPhotoAsync(
+                   client,
+                   clientId,
+                   oversizedPayload,
+                   "oversized.png",
+                   "image/png",
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.RequestEntityTooLarge, uploadResponse.StatusCode);
+        }
     }
 
     [Fact]
@@ -2521,6 +2617,30 @@ public class ClientsApiTests
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2p6QAAAABJRU5ErkJggg==");
     }
 
+    private static byte[] CreateSampleHeicBytes()
+    {
+        return CreateHeifContainerBytes("heic");
+    }
+
+    private static byte[] CreateSampleHeifBytes()
+    {
+        return CreateHeifContainerBytes("heif");
+    }
+
+    private static byte[] CreateHeifContainerBytes(string brand)
+    {
+        var bytes = new byte[32];
+        bytes[4] = (byte)'f';
+        bytes[5] = (byte)'t';
+        bytes[6] = (byte)'y';
+        bytes[7] = (byte)'p';
+
+        var brandBytes = System.Text.Encoding.ASCII.GetBytes(brand);
+        Array.Copy(brandBytes, 0, bytes, 8, brandBytes.Length);
+
+        return bytes;
+    }
+
     private static string ResolveStoredPhotoAbsolutePath(ClientsAppFactory factory, string relativePath)
     {
         return Path.Combine(
@@ -2581,6 +2701,71 @@ public class ClientsApiTests
         }
 
         Assert.False(ContainsPasswordFieldInJson(payload), "Audit log payload contains password fields.");
+    }
+
+    private static Func<IServiceProvider, object?>? CreateTestClientPhotoImageProcessor(IServiceProvider _)
+    {
+        var processorInterface = Type.GetType(
+            "GymCrm.Infrastructure.Clients.IClientPhotoImageProcessor, GymCrm.Infrastructure");
+        var resultType = Type.GetType(
+            "GymCrm.Infrastructure.Clients.ClientPhotoImageProcessingResult, GymCrm.Infrastructure");
+        if (processorInterface is null || resultType is null)
+        {
+            return null;
+        }
+
+        var successFactory = resultType.GetMethod(
+            "Success",
+            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static,
+            null,
+            [typeof(byte[]), typeof(string), typeof(string)],
+            null);
+
+        if (successFactory is null)
+        {
+            return null;
+        }
+
+        var conversionResult = successFactory.Invoke(
+            null,
+            [new byte[] { 0xFF, 0xD8, 0xFF, 0xD9 }, "image/jpeg", "jpg"]);
+        if (conversionResult is null)
+        {
+            return null;
+        }
+
+        var createProxyMethod = typeof(DispatchProxy)
+            .GetMethods()
+            .Single(method => method.Name == "Create" && method.IsGenericMethodDefinition);
+        var proxy = createProxyMethod
+            .MakeGenericMethod(processorInterface, typeof(TestClientPhotoImageProcessorProxy))
+            .Invoke(null, null);
+
+        if (proxy is null)
+        {
+            return null;
+        }
+
+        var conversionResultProperty = proxy.GetType().GetProperty(
+            nameof(TestClientPhotoImageProcessorProxy.ConversionResult));
+        conversionResultProperty?.SetValue(proxy, conversionResult);
+
+        return _ => proxy;
+    }
+
+    private class TestClientPhotoImageProcessorProxy : DispatchProxy
+    {
+        public object? ConversionResult { get; set; }
+
+        protected override object? Invoke(System.Reflection.MethodInfo? targetMethod, object?[]? args)
+        {
+            if (targetMethod is { Name: "ConvertHeifToJpeg" })
+            {
+                return ConversionResult;
+            }
+
+            return null;
+        }
     }
 
     private sealed record SeededClientsData(
@@ -2644,6 +2829,23 @@ public class ClientsApiTests
             {
                 services.RemoveAll<DbContextOptions<GymCrmDbContext>>();
                 services.RemoveAll<GymCrmDbContext>();
+                var clientPhotoImageProcessor = services.FirstOrDefault(
+                    service => string.Equals(
+                        service.ServiceType.FullName,
+                        "GymCrm.Infrastructure.Clients.IClientPhotoImageProcessor",
+                        StringComparison.Ordinal));
+
+                if (clientPhotoImageProcessor is not null)
+                {
+                    services.Remove(clientPhotoImageProcessor);
+                    var testProcessorFactory = CreateTestClientPhotoImageProcessor(null!);
+                    if (testProcessorFactory is not null)
+                    {
+                        services.AddTransient(
+                            clientPhotoImageProcessor.ServiceType,
+                            provider => testProcessorFactory(provider)!);
+                    }
+                }
 
                 var databaseName = $"gym-crm-clients-tests-{Guid.NewGuid():N}";
                 var entityFrameworkProvider = new ServiceCollection()
