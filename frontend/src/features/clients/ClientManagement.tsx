@@ -8,8 +8,10 @@ import {
   Loader,
   MultiSelect,
   Paper,
+  Select,
   SimpleGrid,
   Stack,
+  Switch,
   Text,
   TextInput,
   ThemeIcon,
@@ -36,20 +38,51 @@ import {
   ApiError,
   applyFieldErrors,
   archiveClient,
+  correctClientMembership,
   createClient,
   getClient,
   getClients,
   getGroups,
+  markClientMembershipPayment,
+  purchaseClientMembership,
+  renewClientMembership,
   restoreClient,
   updateClient,
+  type ClientMembership,
+  type ClientMembershipChangeReason,
   type ClientDetails,
   type ClientListItem,
   type ClientStatus,
+  type CorrectClientMembershipRequest,
+  type MarkClientMembershipPaymentRequest,
+  type MembershipType,
+  type PurchaseClientMembershipRequest,
+  type RenewClientMembershipRequest,
   type TrainingGroupListItem,
   type UpsertClientRequest,
 } from '../../lib/api'
 
 const maxContacts = 2
+const membershipTypeOptions = [
+  { value: 'SingleVisit', label: 'Разовое посещение' },
+  { value: 'Monthly', label: 'Месячный абонемент' },
+  { value: 'Yearly', label: 'Годовой абонемент' },
+] satisfies Array<{ value: MembershipType; label: string }>
+const membershipTypeLabels: Record<MembershipType, string> = {
+  SingleVisit: 'Разовое посещение',
+  Monthly: 'Месячный',
+  Yearly: 'Годовой',
+}
+const membershipChangeReasonLabels: Record<
+  ClientMembershipChangeReason,
+  string
+> = {
+  NewPurchase: 'Новая покупка',
+  Renewal: 'Продление',
+  Correction: 'Исправление',
+  PaymentUpdate: 'Оплата отмечена',
+  SingleVisitWriteOff: 'Списание разового',
+}
 
 type ClientFormContact = {
   type: string
@@ -65,6 +98,41 @@ type ClientFormValues = {
   groupIds: string[]
   contacts: ClientFormContact[]
 }
+
+type MembershipActionMode = 'purchase' | 'renew' | 'correct' | 'markPayment'
+
+type MembershipEditFormValues = {
+  membershipType: MembershipType | null
+  purchaseDate: string
+  expirationDate: string
+  paymentAmount: string
+  isPaid: boolean
+}
+
+type MembershipRenewFormValues = {
+  renewalDate: string
+  expirationDate: string
+  paymentAmount: string
+  isPaid: boolean
+}
+
+type MembershipActionSubmission =
+  | {
+      kind: 'purchase'
+      payload: PurchaseClientMembershipRequest
+    }
+  | {
+      kind: 'renew'
+      payload: RenewClientMembershipRequest
+    }
+  | {
+      kind: 'correct'
+      payload: CorrectClientMembershipRequest
+    }
+  | {
+      kind: 'markPayment'
+      payload: MarkClientMembershipPaymentRequest
+    }
 
 type ClientsListScreenProps = {
   canManage: boolean
@@ -145,8 +213,8 @@ export function ClientsListScreen({
           </Group>
         }
         badge="Route-level clients flow"
-        description="Список держит базовый поток Gym CRM отдельно от посещений: основные данные, статусы, контактные лица и привязку к группам."
-        title="Клиенты и базовая карточка встроены в shell"
+        description="Список остается отдельным от посещений, а карточка клиента теперь включает inline-сценарии абонемента и оплаты этапа 6b."
+        title="Клиенты и карточка с абонементом встроены в shell"
       />
 
       <SimpleGrid cols={{ base: 1, md: 3 }}>
@@ -387,7 +455,7 @@ export function ClientCreateScreen({
           </Button>
         }
         badge="Новый клиент"
-        description="Форма сохраняет только базовые данные клиента: ФИО, телефон, контактных лиц и привязку к группам."
+        description="Форма сохраняет базовые данные клиента, а абонемент при необходимости оформляется позже прямо в карточке."
         title="Route-level форма создания клиента"
       />
 
@@ -533,7 +601,7 @@ export function ClientEditScreen({
           </Button>
         }
         badge="Редактирование клиента"
-        description="Изменения контактов, групп и базовых полей уходят в `PUT /clients/{id}` без сценариев абонемента и посещений."
+        description="Изменения базовых полей, контактов и групп уходят в `PUT /clients/{id}`, а абонемент и оплата живут inline в detail card."
         title={client ? client.fullName : 'Карточка клиента'}
       />
 
@@ -613,6 +681,8 @@ export function ClientDetailScreen({
   const [loadError, setLoadError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionPending, setActionPending] = useState(false)
+  const [membershipActionMode, setMembershipActionMode] =
+    useState<MembershipActionMode | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -695,6 +765,66 @@ export function ClientDetailScreen({
     }
   }
 
+  async function handleMembershipAction(
+    submission: MembershipActionSubmission,
+  ) {
+    if (!client) {
+      return
+    }
+
+    setActionPending(true)
+    setActionError(null)
+
+    try {
+      const updatedClient =
+        submission.kind === 'purchase'
+          ? await purchaseClientMembership(client.id, submission.payload)
+          : submission.kind === 'renew'
+            ? await renewClientMembership(client.id, submission.payload)
+            : submission.kind === 'correct'
+              ? await correctClientMembership(client.id, submission.payload)
+              : await markClientMembershipPayment(client.id, submission.payload)
+
+      setClient(updatedClient ?? (await getClient(client.id)))
+      setMembershipActionMode(null)
+
+      const feedback =
+        submission.kind === 'purchase'
+          ? {
+              title: 'Абонемент оформлен',
+              message: 'Текущий абонемент и история клиента обновлены.',
+            }
+          : submission.kind === 'renew'
+            ? {
+                title: 'Абонемент продлен',
+                message: 'Новая версия абонемента появилась в карточке клиента.',
+              }
+            : submission.kind === 'correct'
+              ? {
+                  title: 'Данные абонемента исправлены',
+                  message: 'Карточка клиента обновлена без ручного refresh.',
+                }
+              : {
+                  title: 'Оплата отмечена',
+                  message: 'Статус оплаты обновлен в текущем абонементе.',
+                }
+
+      notifications.show({
+        title: feedback.title,
+        message: feedback.message,
+        color: 'teal',
+      })
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : 'Не удалось выполнить действие с абонементом.',
+      )
+    } finally {
+      setActionPending(false)
+    }
+  }
+
   return (
     <Stack className="dashboard-stack" gap="xl">
       <ClientHero
@@ -738,7 +868,7 @@ export function ClientDetailScreen({
           </Group>
         }
         badge="Карточка клиента"
-        description="Карточка показывает только базовые данные этапа 6a: телефон, контактных лиц, группы и текущий статус клиента."
+        description="Карточка клиента этапа 6b объединяет базовые данные, текущий абонемент, оплату и историю версий без отдельных membership-route."
         title={client ? client.fullName : 'Детали клиента'}
       />
 
@@ -788,7 +918,11 @@ export function ClientDetailScreen({
               value={String(client.groups.length)}
             />
             <MetricCard
-              description="Текущий lifecycle status"
+              description={
+                canManage
+                  ? 'Текущий статус клиента и membership flow этапа 6b'
+                  : 'Текущий lifecycle status клиента'
+              }
               label="Статус"
               value={statusLabelMap[client.status]}
             />
@@ -800,7 +934,7 @@ export function ClientDetailScreen({
                 <div>
                   <Text fw={700}>Основные данные</Text>
                   <Text c="dimmed" size="sm">
-                    Базовая карточка клиента без фото, абонементов и истории посещений.
+                    Базовые поля клиента остаются в этой карточке, а абонемент и оплата теперь ведутся inline ниже.
                   </Text>
                 </div>
 
@@ -821,7 +955,7 @@ export function ClientDetailScreen({
                   title="Management-действия скрыты"
                   variant="light"
                 >
-                  Для вашей роли карточка работает в режиме просмотра.
+                  Для вашей роли карточка остается в режиме просмотра без блока абонемента и оплаты.
                 </Alert>
               ) : null}
 
@@ -833,6 +967,25 @@ export function ClientDetailScreen({
               </SimpleGrid>
             </Stack>
           </Paper>
+
+          {canManage ? (
+            <ClientMembershipSection
+              actionMode={membershipActionMode}
+              client={client}
+              pending={actionPending}
+              onActionModeChange={(mode) => {
+                setActionError(null)
+                setMembershipActionMode((currentMode) =>
+                  currentMode === mode ? null : mode,
+                )
+              }}
+              onCancelAction={() => {
+                setActionError(null)
+                setMembershipActionMode(null)
+              }}
+              onSubmit={handleMembershipAction}
+            />
+          ) : null}
 
           <SimpleGrid cols={{ base: 1, md: 2 }}>
             <Paper className="surface-card client-section-card" radius="28px" withBorder>
@@ -1146,7 +1299,7 @@ function ClientHero({
       <Stack className="dashboard-hero__content" gap="lg">
         <Group gap="sm">
           <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-            Этап 6a
+            Этап 6b
           </Badge>
           <Badge color="brand.1" radius="xl" size="lg" variant="light">
             {badge}
@@ -1236,6 +1389,663 @@ function InfoItem({
           {label}
         </Text>
         <Text fw={700}>{value}</Text>
+      </Stack>
+    </Paper>
+  )
+}
+
+type ClientMembershipSectionProps = {
+  actionMode: MembershipActionMode | null
+  client: ClientDetails
+  pending: boolean
+  onActionModeChange: (mode: MembershipActionMode) => void
+  onCancelAction: () => void
+  onSubmit: (submission: MembershipActionSubmission) => Promise<void>
+}
+
+function ClientMembershipSection({
+  actionMode,
+  client,
+  pending,
+  onActionModeChange,
+  onCancelAction,
+  onSubmit,
+}: ClientMembershipSectionProps) {
+  const currentMembership = client.currentMembership
+  const history = [...client.membershipHistory].sort(compareMembershipHistory)
+
+  return (
+    <Paper className="surface-card surface-card--wide client-detail-card" radius="28px" withBorder>
+      <Stack gap="lg">
+        <Group justify="space-between" wrap="wrap">
+          <div>
+            <Text fw={700}>Абонемент и оплата</Text>
+            <Text c="dimmed" size="sm">
+              Inline-сценарии этапа 6b: новая покупка, продление, исправление и отметка оплаты без отдельного экрана.
+            </Text>
+          </div>
+
+          <Badge color="brand.1" radius="xl" size="lg" variant="light">
+            Только для management-ролей
+          </Badge>
+        </Group>
+
+        {currentMembership ? (
+          <>
+            <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }}>
+              <InfoItem
+                label="Тип абонемента"
+                value={membershipTypeLabels[currentMembership.membershipType]}
+              />
+              <InfoItem
+                label="Дата покупки"
+                value={formatDateValue(currentMembership.purchaseDate)}
+              />
+              <InfoItem
+                label="Дата окончания"
+                value={formatExpirationValue(
+                  currentMembership.membershipType,
+                  currentMembership.expirationDate,
+                )}
+              />
+              <InfoItem
+                label="Сумма оплаты"
+                value={formatCurrencyValue(currentMembership.paymentAmount)}
+              />
+            </SimpleGrid>
+
+            <Group gap="sm" wrap="wrap">
+              <Badge
+                color={currentMembership.isPaid ? 'teal' : 'orange'}
+                radius="xl"
+                variant="light"
+              >
+                {currentMembership.isPaid ? 'Оплачен' : 'Не оплачен'}
+              </Badge>
+              <Badge color="sand" radius="xl" variant="light">
+                {currentMembership.changeReason
+                  ? formatMembershipChangeReason(currentMembership.changeReason)
+                  : 'Текущая версия'}
+              </Badge>
+              {currentMembership.membershipType === 'SingleVisit' ? (
+                <Badge
+                  color={currentMembership.singleVisitUsed ? 'gray' : 'blue'}
+                  radius="xl"
+                  variant="light"
+                >
+                  {currentMembership.singleVisitUsed
+                    ? 'Разовое посещение использовано'
+                    : 'Разовое посещение не использовано'}
+                </Badge>
+              ) : null}
+              {currentMembership.paidAt ? (
+                <Badge color="teal" radius="xl" variant="light">
+                  Оплата: {formatDateTimeValue(currentMembership.paidAt)}
+                </Badge>
+              ) : null}
+            </Group>
+          </>
+        ) : (
+          <Alert
+            color="blue"
+            icon={<IconCheck size={18} />}
+            title="Текущий абонемент не задан"
+            variant="light"
+          >
+            Клиента можно сохранить без абонемента, а затем оформить его прямо в этой карточке.
+          </Alert>
+        )}
+
+        <Group gap="sm" wrap="wrap">
+          <Button
+            color={actionMode === 'purchase' ? 'accent.5' : undefined}
+            onClick={() => onActionModeChange('purchase')}
+            variant={actionMode === 'purchase' ? 'filled' : 'light'}
+          >
+            Новый абонемент
+          </Button>
+          <Button
+            disabled={!currentMembership}
+            onClick={() => onActionModeChange('renew')}
+            variant={actionMode === 'renew' ? 'filled' : 'light'}
+          >
+            Продлить
+          </Button>
+          <Button
+            disabled={!currentMembership}
+            onClick={() => onActionModeChange('correct')}
+            variant={actionMode === 'correct' ? 'filled' : 'light'}
+          >
+            Исправить
+          </Button>
+          {currentMembership && !currentMembership.isPaid ? (
+            <Button
+              color="teal"
+              onClick={() => onActionModeChange('markPayment')}
+              variant={actionMode === 'markPayment' ? 'filled' : 'light'}
+            >
+              Отметить оплату
+            </Button>
+          ) : null}
+        </Group>
+
+        {actionMode === 'purchase' ? (
+          <MembershipEditPanel
+            key={`purchase-${currentMembership?.id ?? 'empty'}`}
+            currentMembership={currentMembership}
+            mode="purchase"
+            pending={pending}
+            onCancel={onCancelAction}
+            onSubmit={onSubmit}
+          />
+        ) : null}
+
+        {actionMode === 'renew' && currentMembership ? (
+          <MembershipRenewPanel
+            key={`renew-${currentMembership.id}`}
+            currentMembership={currentMembership}
+            pending={pending}
+            onCancel={onCancelAction}
+            onSubmit={onSubmit}
+          />
+        ) : null}
+
+        {actionMode === 'correct' && currentMembership ? (
+          <MembershipEditPanel
+            key={`correct-${currentMembership.id}`}
+            currentMembership={currentMembership}
+            mode="correct"
+            pending={pending}
+            onCancel={onCancelAction}
+            onSubmit={onSubmit}
+          />
+        ) : null}
+
+        {actionMode === 'markPayment' && currentMembership && !currentMembership.isPaid ? (
+          <MembershipMarkPaymentPanel
+            currentMembership={currentMembership}
+            pending={pending}
+            onCancel={onCancelAction}
+            onSubmit={onSubmit}
+          />
+        ) : null}
+
+        <Stack gap="sm">
+          <Group justify="space-between" wrap="wrap">
+            <div>
+              <Text fw={700}>История версий абонемента</Text>
+              <Text c="dimmed" size="sm">
+                Компактный список показывает, как менялись срок, сумма и статус оплаты внутри `ClientMembership`.
+              </Text>
+            </div>
+
+            <Badge color="sand" radius="xl" variant="light">
+              Версий: {history.length}
+            </Badge>
+          </Group>
+
+          {history.length === 0 ? (
+            <Text c="dimmed" size="sm">
+              История абонемента появится после первого действия в карточке клиента.
+            </Text>
+          ) : (
+            <Stack gap="sm">
+              {history.map((membership) => (
+                <Paper
+                  className="list-row-card"
+                  key={membership.id}
+                  radius="24px"
+                  withBorder
+                >
+                  <Stack gap={6}>
+                    <Group justify="space-between" wrap="wrap">
+                      <Group gap="sm" wrap="wrap">
+                        <Text fw={700}>
+                          {membershipTypeLabels[membership.membershipType]}
+                        </Text>
+                        <Badge radius="xl" variant="light">
+                          {formatMembershipChangeReason(membership.changeReason)}
+                        </Badge>
+                        {membership.validTo ? null : (
+                          <Badge color="teal" radius="xl" variant="light">
+                            Текущая
+                          </Badge>
+                        )}
+                      </Group>
+
+                      <Text c="dimmed" size="sm">
+                        {membership.validFrom
+                          ? `Версия с ${formatDateTimeValue(membership.validFrom)}`
+                          : membership.createdAt
+                            ? `Создано ${formatDateTimeValue(membership.createdAt)}`
+                            : 'Версия абонемента'}
+                      </Text>
+                    </Group>
+
+                    <Text c="dimmed" size="sm">
+                      Покупка: {formatDateValue(membership.purchaseDate)}
+                      {' • '}
+                      Окончание:{' '}
+                      {formatExpirationValue(
+                        membership.membershipType,
+                        membership.expirationDate,
+                      )}
+                      {' • '}
+                      Сумма: {formatCurrencyValue(membership.paymentAmount)}
+                      {' • '}
+                      {membership.isPaid ? 'Оплачен' : 'Не оплачен'}
+                    </Text>
+                  </Stack>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+        </Stack>
+      </Stack>
+    </Paper>
+  )
+}
+
+type MembershipEditPanelProps = {
+  currentMembership: ClientMembership | null
+  mode: 'purchase' | 'correct'
+  pending: boolean
+  onCancel: () => void
+  onSubmit: (submission: MembershipActionSubmission) => Promise<void>
+}
+
+function MembershipEditPanel({
+  currentMembership,
+  mode,
+  pending,
+  onCancel,
+  onSubmit,
+}: MembershipEditPanelProps) {
+  const initialValues = createMembershipEditInitialValues(mode, currentMembership)
+  const form = useForm<MembershipEditFormValues>({
+    initialValues,
+  })
+  const [expirationManuallyChanged, setExpirationManuallyChanged] = useState(false)
+
+  const suggestedExpirationDate = suggestPurchaseExpirationDate(
+    form.values.membershipType,
+    form.values.purchaseDate,
+  )
+
+  function updateSuggestedExpiration(nextType: MembershipType | null, purchaseDate: string) {
+    if (!nextType || expirationManuallyChanged) {
+      return
+    }
+
+    form.setFieldValue(
+      'expirationDate',
+      suggestPurchaseExpirationDate(nextType, purchaseDate),
+    )
+  }
+
+  async function submit(values: MembershipEditFormValues) {
+    const validationErrors = validateMembershipEditForm(values)
+
+    if (Object.keys(validationErrors).length > 0) {
+      form.setErrors(validationErrors)
+      return
+    }
+
+    const paymentAmount = parsePaymentAmount(values.paymentAmount)
+    if (paymentAmount === null || !values.membershipType) {
+      return
+    }
+
+    await onSubmit({
+      kind: mode,
+      payload: {
+        membershipType: values.membershipType,
+        purchaseDate: values.purchaseDate,
+        expirationDate: values.expirationDate || undefined,
+        paymentAmount,
+        isPaid: values.isPaid,
+        singleVisitUsed: false,
+      },
+    })
+  }
+
+  return (
+    <Paper className="hint-card" radius="24px" withBorder>
+      <form onSubmit={form.onSubmit((values) => void submit(values))}>
+        <Stack gap="md">
+          <Group justify="space-between" wrap="wrap">
+            <div>
+              <Text fw={700}>
+                {mode === 'purchase'
+                  ? 'Оформить новый абонемент'
+                  : 'Исправить текущий абонемент'}
+              </Text>
+              <Text c="dimmed" size="sm">
+                Срок подставляется автоматически по типу и дате покупки, но его можно исправить вручную.
+              </Text>
+            </div>
+
+            <Badge color="brand.1" radius="xl" variant="light">
+              {mode === 'purchase' ? 'New purchase' : 'Correction'}
+            </Badge>
+          </Group>
+
+          <SimpleGrid cols={{ base: 1, md: 2 }}>
+            <Select
+              allowDeselect={false}
+              data={membershipTypeOptions}
+              label="Тип абонемента"
+              placeholder="Выберите тип"
+              value={form.values.membershipType}
+              onChange={(value) => {
+                const nextType = (value ?? null) as MembershipType | null
+                form.setFieldValue('membershipType', nextType)
+                updateSuggestedExpiration(nextType, form.values.purchaseDate)
+              }}
+              error={form.errors.membershipType}
+            />
+            <TextInput
+              label="Дата покупки"
+              type="date"
+              value={form.values.purchaseDate}
+              onChange={(event) => {
+                const nextPurchaseDate = event.currentTarget.value
+                form.setFieldValue('purchaseDate', nextPurchaseDate)
+                updateSuggestedExpiration(form.values.membershipType, nextPurchaseDate)
+              }}
+              error={form.errors.purchaseDate}
+            />
+            <TextInput
+              description={
+                form.values.membershipType === 'SingleVisit'
+                  ? 'Для разового посещения дату можно оставить пустой.'
+                  : 'Поле уже заполнено по правилу этапа 6b.'
+              }
+              label="Дата окончания"
+              type="date"
+              value={form.values.expirationDate}
+              onChange={(event) => {
+                setExpirationManuallyChanged(true)
+                form.setFieldValue('expirationDate', event.currentTarget.value)
+              }}
+              error={form.errors.expirationDate}
+            />
+            <TextInput
+              label="Сумма оплаты"
+              min="0"
+              placeholder="1200"
+              step="0.01"
+              type="number"
+              value={form.values.paymentAmount}
+              onChange={(event) =>
+                form.setFieldValue('paymentAmount', event.currentTarget.value)
+              }
+              error={form.errors.paymentAmount}
+            />
+          </SimpleGrid>
+
+          <Group justify="space-between" wrap="wrap">
+            <Switch
+              checked={form.values.isPaid}
+              label="Оплачен"
+              onChange={(event) =>
+                form.setFieldValue('isPaid', event.currentTarget.checked)
+              }
+            />
+
+            <Button
+              disabled={pending || suggestedExpirationDate === form.values.expirationDate}
+              onClick={() => {
+                setExpirationManuallyChanged(false)
+                form.setFieldValue('expirationDate', suggestedExpirationDate)
+              }}
+              type="button"
+              variant="subtle"
+            >
+              Подставить срок по правилу
+            </Button>
+          </Group>
+
+          <Group justify="space-between" wrap="wrap">
+            <Button onClick={onCancel} type="button" variant="subtle">
+              Отменить
+            </Button>
+            <Button loading={pending} type="submit">
+              {mode === 'purchase' ? 'Оформить абонемент' : 'Сохранить исправление'}
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Paper>
+  )
+}
+
+type MembershipRenewPanelProps = {
+  currentMembership: ClientMembership
+  pending: boolean
+  onCancel: () => void
+  onSubmit: (submission: MembershipActionSubmission) => Promise<void>
+}
+
+function MembershipRenewPanel({
+  currentMembership,
+  pending,
+  onCancel,
+  onSubmit,
+}: MembershipRenewPanelProps) {
+  const initialValues = createMembershipRenewInitialValues(currentMembership)
+  const form = useForm<MembershipRenewFormValues>({
+    initialValues,
+  })
+  const [expirationManuallyChanged, setExpirationManuallyChanged] = useState(false)
+
+  const suggestedExpirationDate = suggestRenewalExpirationDate(
+    currentMembership,
+    form.values.renewalDate,
+  )
+
+  async function submit(values: MembershipRenewFormValues) {
+    const validationErrors = validateMembershipRenewForm(
+      values,
+      currentMembership.membershipType,
+    )
+
+    if (Object.keys(validationErrors).length > 0) {
+      form.setErrors(validationErrors)
+      return
+    }
+
+    const paymentAmount = parsePaymentAmount(values.paymentAmount)
+    if (paymentAmount === null) {
+      return
+    }
+
+    await onSubmit({
+      kind: 'renew',
+      payload: {
+        membershipType: currentMembership.membershipType,
+        renewalDate: values.renewalDate,
+        paymentDate: values.renewalDate,
+        expirationDate: values.expirationDate || undefined,
+        paymentAmount,
+        isPaid: values.isPaid,
+      },
+    })
+  }
+
+  return (
+    <Paper className="hint-card" radius="24px" withBorder>
+      <form onSubmit={form.onSubmit((values) => void submit(values))}>
+        <Stack gap="md">
+          <Group justify="space-between" wrap="wrap">
+            <div>
+              <Text fw={700}>Продлить текущий абонемент</Text>
+              <Text c="dimmed" size="sm">
+                Тип берется из текущей версии. Срок предложен автоматически и при необходимости редактируется вручную.
+              </Text>
+            </div>
+
+            <Badge color="brand.1" radius="xl" variant="light">
+              {membershipTypeLabels[currentMembership.membershipType]}
+            </Badge>
+          </Group>
+
+          <SimpleGrid cols={{ base: 1, md: 2 }}>
+            <InfoItem
+              label="Текущий тип"
+              value={membershipTypeLabels[currentMembership.membershipType]}
+            />
+            <InfoItem
+              label="Текущая дата окончания"
+              value={formatExpirationValue(
+                currentMembership.membershipType,
+                currentMembership.expirationDate,
+              )}
+            />
+            <TextInput
+              label="Дата продления"
+              type="date"
+              value={form.values.renewalDate}
+              onChange={(event) => {
+                const nextRenewalDate = event.currentTarget.value
+                form.setFieldValue('renewalDate', nextRenewalDate)
+                if (!expirationManuallyChanged) {
+                  form.setFieldValue(
+                    'expirationDate',
+                    suggestRenewalExpirationDate(
+                      currentMembership,
+                      nextRenewalDate,
+                    ),
+                  )
+                }
+              }}
+              error={form.errors.renewalDate}
+            />
+            <TextInput
+              label="Сумма оплаты"
+              min="0"
+              placeholder={String(currentMembership.paymentAmount)}
+              step="0.01"
+              type="number"
+              value={form.values.paymentAmount}
+              onChange={(event) =>
+                form.setFieldValue('paymentAmount', event.currentTarget.value)
+              }
+              error={form.errors.paymentAmount}
+            />
+            <TextInput
+              description={
+                currentMembership.membershipType === 'SingleVisit'
+                  ? 'Для разового посещения дату можно оставить пустой.'
+                  : 'Если нужно, замените автоматически предложенный срок вручную.'
+              }
+              label="Новая дата окончания"
+              type="date"
+              value={form.values.expirationDate}
+              onChange={(event) => {
+                setExpirationManuallyChanged(true)
+                form.setFieldValue('expirationDate', event.currentTarget.value)
+              }}
+              error={form.errors.expirationDate}
+            />
+          </SimpleGrid>
+
+          <Group justify="space-between" wrap="wrap">
+            <Switch
+              checked={form.values.isPaid}
+              label="Оплачен"
+              onChange={(event) =>
+                form.setFieldValue('isPaid', event.currentTarget.checked)
+              }
+            />
+
+            <Button
+              disabled={pending || suggestedExpirationDate === form.values.expirationDate}
+              onClick={() => {
+                setExpirationManuallyChanged(false)
+                form.setFieldValue('expirationDate', suggestedExpirationDate)
+              }}
+              type="button"
+              variant="subtle"
+            >
+              Подставить срок по правилу
+            </Button>
+          </Group>
+
+          <Group justify="space-between" wrap="wrap">
+            <Button onClick={onCancel} type="button" variant="subtle">
+              Отменить
+            </Button>
+            <Button loading={pending} type="submit">
+              Продлить абонемент
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Paper>
+  )
+}
+
+type MembershipMarkPaymentPanelProps = {
+  currentMembership: ClientMembership
+  pending: boolean
+  onCancel: () => void
+  onSubmit: (submission: MembershipActionSubmission) => Promise<void>
+}
+
+function MembershipMarkPaymentPanel({
+  currentMembership,
+  pending,
+  onCancel,
+  onSubmit,
+}: MembershipMarkPaymentPanelProps) {
+  return (
+    <Paper className="hint-card" radius="24px" withBorder>
+      <Stack gap="md">
+        <div>
+          <Text fw={700}>Подтвердить оплату</Text>
+          <Text c="dimmed" size="sm">
+            Действие создаст новую версию текущего абонемента с признаком оплаты.
+          </Text>
+        </div>
+
+        <SimpleGrid cols={{ base: 1, md: 3 }}>
+          <InfoItem
+            label="Тип"
+            value={membershipTypeLabels[currentMembership.membershipType]}
+          />
+          <InfoItem
+            label="Сумма"
+            value={formatCurrencyValue(currentMembership.paymentAmount)}
+          />
+          <InfoItem
+            label="Текущий статус"
+            value={currentMembership.isPaid ? 'Оплачен' : 'Не оплачен'}
+          />
+        </SimpleGrid>
+
+        <Group justify="space-between" wrap="wrap">
+          <Button onClick={onCancel} type="button" variant="subtle">
+            Отменить
+          </Button>
+          <Button
+            color="teal"
+            loading={pending}
+            onClick={() =>
+              void onSubmit({
+                kind: 'markPayment',
+                payload: {
+                  membershipType: currentMembership.membershipType,
+                  paymentAmount: currentMembership.paymentAmount,
+                  isPaid: true,
+                },
+              })
+            }
+            type="button"
+          >
+            Подтвердить оплату
+          </Button>
+        </Group>
       </Stack>
     </Paper>
   )
@@ -1363,6 +2173,269 @@ function createEmptyContact(): ClientFormContact {
     fullName: '',
     phone: '',
   }
+}
+
+function createMembershipEditInitialValues(
+  mode: 'purchase' | 'correct',
+  currentMembership: ClientMembership | null,
+): MembershipEditFormValues {
+  if (mode === 'correct' && currentMembership) {
+    return {
+      membershipType: currentMembership.membershipType,
+      purchaseDate: currentMembership.purchaseDate,
+      expirationDate: currentMembership.expirationDate ?? '',
+      paymentAmount: String(currentMembership.paymentAmount),
+      isPaid: currentMembership.isPaid,
+    }
+  }
+
+  const membershipType = currentMembership?.membershipType ?? 'Monthly'
+  const purchaseDate = getTodayDateValue()
+
+  return {
+    membershipType,
+    purchaseDate,
+    expirationDate: suggestPurchaseExpirationDate(membershipType, purchaseDate),
+    paymentAmount: '',
+    isPaid: false,
+  }
+}
+
+function createMembershipRenewInitialValues(
+  currentMembership: ClientMembership,
+): MembershipRenewFormValues {
+  const renewalDate = getTodayDateValue()
+
+  return {
+    renewalDate,
+    expirationDate: suggestRenewalExpirationDate(currentMembership, renewalDate),
+    paymentAmount: String(currentMembership.paymentAmount),
+    isPaid: currentMembership.isPaid,
+  }
+}
+
+function validateMembershipEditForm(values: MembershipEditFormValues) {
+  const errors: Record<string, string> = {}
+
+  if (!values.membershipType) {
+    errors.membershipType = 'Выберите тип абонемента.'
+  }
+
+  if (!values.purchaseDate) {
+    errors.purchaseDate = 'Укажите дату покупки.'
+  }
+
+  if (values.membershipType && isExpirationRequired(values.membershipType)) {
+    if (!values.expirationDate) {
+      errors.expirationDate = 'Укажите дату окончания.'
+    }
+  }
+
+  if (parsePaymentAmount(values.paymentAmount) === null) {
+    errors.paymentAmount = 'Укажите корректную сумму оплаты.'
+  }
+
+  return errors
+}
+
+function validateMembershipRenewForm(
+  values: MembershipRenewFormValues,
+  membershipType: MembershipType,
+) {
+  const errors: Record<string, string> = {}
+
+  if (!values.renewalDate) {
+    errors.renewalDate = 'Укажите дату продления.'
+  }
+
+  if (isExpirationRequired(membershipType) && !values.expirationDate) {
+    errors.expirationDate = 'Укажите новую дату окончания.'
+  }
+
+  if (parsePaymentAmount(values.paymentAmount) === null) {
+    errors.paymentAmount = 'Укажите корректную сумму оплаты.'
+  }
+
+  return errors
+}
+
+function parsePaymentAmount(value: string) {
+  if (!value.trim()) {
+    return null
+  }
+
+  const parsed = Number.parseFloat(value)
+
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return null
+  }
+
+  return parsed
+}
+
+function isExpirationRequired(membershipType: MembershipType) {
+  return membershipType !== 'SingleVisit'
+}
+
+function suggestPurchaseExpirationDate(
+  membershipType: MembershipType | null,
+  purchaseDate: string,
+) {
+  if (!membershipType || !purchaseDate) {
+    return ''
+  }
+
+  if (membershipType === 'SingleVisit') {
+    return ''
+  }
+
+  return membershipType === 'Monthly'
+    ? addMonthsToDateValue(purchaseDate, 1)
+    : addYearsToDateValue(purchaseDate, 1)
+}
+
+function suggestRenewalExpirationDate(
+  membership: ClientMembership,
+  renewalDate: string,
+) {
+  if (!renewalDate) {
+    return ''
+  }
+
+  if (membership.membershipType === 'SingleVisit') {
+    return ''
+  }
+
+  const baseDate = membership.expirationDate || renewalDate
+
+  return membership.membershipType === 'Monthly'
+    ? addMonthsToDateValue(baseDate, 1)
+    : addYearsToDateValue(baseDate, 1)
+}
+
+function addMonthsToDateValue(value: string, months: number) {
+  const date = parseDateValue(value)
+
+  if (!date) {
+    return ''
+  }
+
+  const nextDate = new Date(date)
+  nextDate.setMonth(nextDate.getMonth() + months)
+
+  return toDateValue(nextDate)
+}
+
+function addYearsToDateValue(value: string, years: number) {
+  const date = parseDateValue(value)
+
+  if (!date) {
+    return ''
+  }
+
+  const nextDate = new Date(date)
+  nextDate.setFullYear(nextDate.getFullYear() + years)
+
+  return toDateValue(nextDate)
+}
+
+function parseDateValue(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+
+  if (!match) {
+    return null
+  }
+
+  const [, year, month, day] = match
+
+  return new Date(Number(year), Number(month) - 1, Number(day))
+}
+
+function toDateValue(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function getTodayDateValue() {
+  return toDateValue(new Date())
+}
+
+function formatDateValue(value?: string | null) {
+  if (!value) {
+    return 'Не указана'
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const date = parseDateValue(value)
+
+    return date
+      ? new Intl.DateTimeFormat('ru-RU', { dateStyle: 'medium' }).format(date)
+      : value
+  }
+
+  const date = new Date(value)
+
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat('ru-RU', { dateStyle: 'medium' }).format(date)
+}
+
+function formatDateTimeValue(value?: string | null) {
+  if (!value) {
+    return 'Не указано'
+  }
+
+  const date = new Date(value)
+
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat('ru-RU', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(date)
+}
+
+function formatExpirationValue(
+  membershipType: MembershipType,
+  expirationDate?: string | null,
+) {
+  if (membershipType === 'SingleVisit') {
+    return expirationDate ? formatDateValue(expirationDate) : 'По факту использования'
+  }
+
+  return expirationDate ? formatDateValue(expirationDate) : 'Не указана'
+}
+
+function formatCurrencyValue(value: number) {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(value)
+}
+
+function formatMembershipChangeReason(reason?: string) {
+  if (!reason) {
+    return 'Версия абонемента'
+  }
+
+  return membershipChangeReasonLabels[
+    reason as ClientMembershipChangeReason
+  ] ?? reason
+}
+
+function compareMembershipHistory(
+  left: ClientMembership,
+  right: ClientMembership,
+) {
+  const leftDate = left.validFrom ?? left.createdAt ?? left.purchaseDate
+  const rightDate = right.validFrom ?? right.createdAt ?? right.purchaseDate
+
+  return rightDate.localeCompare(leftDate)
 }
 
 function formatGroupOptionLabel(group: TrainingGroupListItem) {

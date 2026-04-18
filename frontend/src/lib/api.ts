@@ -15,6 +15,13 @@ const API_ENDPOINTS = {
     byId: (clientId: string) => `/clients/${clientId}`,
     archive: (clientId: string) => `/clients/${clientId}/archive`,
     restore: (clientId: string) => `/clients/${clientId}/restore`,
+    membership: {
+      purchase: (clientId: string) => `/clients/${clientId}/membership/purchase`,
+      renew: (clientId: string) => `/clients/${clientId}/membership/renew`,
+      correct: (clientId: string) => `/clients/${clientId}/membership/correct`,
+      markPayment: (clientId: string) =>
+        `/clients/${clientId}/membership/mark-payment`,
+    },
   },
   groups: {
     collection: '/groups',
@@ -44,6 +51,12 @@ const GROUPS_QUERY_KEYS = {
 const CLIENT_LIST_PAYLOAD_KEYS = ['items', 'clients'] as const
 const CLIENT_CONTACT_PAYLOAD_KEYS = ['items', 'contacts'] as const
 const CLIENT_GROUP_PAYLOAD_KEYS = ['items', 'groups'] as const
+const CLIENT_MEMBERSHIP_PAYLOAD_KEYS = [
+  'membershipHistory',
+  'MembershipHistory',
+  'membershipHistoryItems',
+  'MembershipHistoryItems',
+] as const
 
 let csrfToken = ''
 
@@ -145,6 +158,15 @@ export type ClientGroupSummary = {
   scheduleText?: string
 }
 
+export type MembershipType = 'SingleVisit' | 'Monthly' | 'Yearly'
+
+export type ClientMembershipChangeReason =
+  | 'NewPurchase'
+  | 'Renewal'
+  | 'Correction'
+  | 'PaymentUpdate'
+  | 'SingleVisitWriteOff'
+
 export type ClientListItem = {
   id: string
   fullName: string
@@ -159,10 +181,31 @@ export type ClientListItem = {
   updatedAt?: string
 }
 
+export type ClientMembership = {
+  id: string
+  membershipType: MembershipType
+  purchaseDate: string
+  expirationDate: string | null
+  paymentAmount: number
+  isPaid: boolean
+  singleVisitUsed: boolean
+  changeReason?: ClientMembershipChangeReason | string
+  paidAt?: string
+  paidByUserId?: string
+  paidByUserName?: string
+  changedByUserId?: string
+  changedByUserName?: string
+  validFrom?: string
+  validTo?: string | null
+  createdAt?: string
+}
+
 export type ClientDetails = ClientListItem & {
   createdAt?: string
   contacts: ClientContact[]
   groupIds: string[]
+  currentMembership: ClientMembership | null
+  membershipHistory: ClientMembership[]
 }
 
 export type ClientContactInput = {
@@ -178,6 +221,32 @@ export type UpsertClientRequest = {
   phone: string
   contacts: ClientContactInput[]
   groupIds: string[]
+}
+
+export type PurchaseClientMembershipRequest = {
+  membershipType: MembershipType
+  purchaseDate: string
+  expirationDate?: string
+  paymentAmount: number
+  isPaid: boolean
+  singleVisitUsed?: boolean
+}
+
+export type CorrectClientMembershipRequest = PurchaseClientMembershipRequest
+
+export type RenewClientMembershipRequest = {
+  membershipType: MembershipType
+  renewalDate: string
+  paymentDate?: string
+  expirationDate?: string
+  paymentAmount: number
+  isPaid: boolean
+}
+
+export type MarkClientMembershipPaymentRequest = {
+  membershipType: MembershipType
+  paymentAmount: number
+  isPaid: boolean
 }
 
 export type TrainerOption = {
@@ -321,6 +390,8 @@ type ClientResponsePayload = {
   createdAt?: string
 }
 
+type ClientMembershipPayload = Record<string, unknown>
+
 export class ApiError extends Error {
   status: number
   fieldErrors: Record<string, string[]>
@@ -447,6 +518,91 @@ export async function restoreClient(clientId: string) {
   return request<void>(API_ENDPOINTS.clients.restore(clientId), {
     method: 'PUT',
   })
+}
+
+export async function purchaseClientMembership(
+  clientId: string,
+  payload: PurchaseClientMembershipRequest,
+) {
+  const response = await request<ClientResponsePayload | null>(
+    API_ENDPOINTS.clients.membership.purchase(clientId),
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        MembershipType: payload.membershipType,
+        PurchaseDate: payload.purchaseDate,
+        ExpirationDate: payload.expirationDate,
+        PaymentAmount: payload.paymentAmount,
+        IsPaid: payload.isPaid,
+        SingleVisitUsed: payload.singleVisitUsed ?? false,
+      }),
+    },
+  )
+
+  return response ? mapClientDetails(response) : null
+}
+
+export async function renewClientMembership(
+  clientId: string,
+  payload: RenewClientMembershipRequest,
+) {
+  const response = await request<ClientResponsePayload | null>(
+    API_ENDPOINTS.clients.membership.renew(clientId),
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        MembershipType: payload.membershipType,
+        RenewalDate: payload.renewalDate,
+        PaymentDate: payload.paymentDate,
+        ExpirationDate: payload.expirationDate,
+        PaymentAmount: payload.paymentAmount,
+        IsPaid: payload.isPaid,
+      }),
+    },
+  )
+
+  return response ? mapClientDetails(response) : null
+}
+
+export async function correctClientMembership(
+  clientId: string,
+  payload: CorrectClientMembershipRequest,
+) {
+  const response = await request<ClientResponsePayload | null>(
+    API_ENDPOINTS.clients.membership.correct(clientId),
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        MembershipType: payload.membershipType,
+        PurchaseDate: payload.purchaseDate,
+        ExpirationDate: payload.expirationDate,
+        PaymentAmount: payload.paymentAmount,
+        IsPaid: payload.isPaid,
+        SingleVisitUsed: payload.singleVisitUsed ?? false,
+      }),
+    },
+  )
+
+  return response ? mapClientDetails(response) : null
+}
+
+export async function markClientMembershipPayment(
+  clientId: string,
+  payload: MarkClientMembershipPaymentRequest,
+) {
+  const response = await request<ClientResponsePayload | null>(
+    API_ENDPOINTS.clients.membership.markPayment(clientId),
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        MembershipType: payload.membershipType,
+        PaymentAmount: payload.paymentAmount,
+        IsPaid: payload.isPaid,
+      }),
+    },
+  )
+
+  return response ? mapClientDetails(response) : null
 }
 
 export async function loadSession(signal?: AbortSignal) {
@@ -725,8 +881,113 @@ function extractArrayPayload<T>(payload: unknown, keys: readonly string[]): T[] 
   return []
 }
 
+function extractRecordPayload(
+  payload: unknown,
+  keys: readonly string[],
+): Record<string, unknown> | null {
+  if (!isRecord(payload)) {
+    return null
+  }
+
+  for (const key of keys) {
+    if (!(key in payload)) {
+      continue
+    }
+
+    const candidate = payload[key]
+
+    if (isRecord(candidate)) {
+      return candidate
+    }
+
+    if (candidate === null) {
+      return null
+    }
+  }
+
+  const nestedData = payload.data
+
+  if (!isRecord(nestedData)) {
+    return null
+  }
+
+  for (const key of keys) {
+    if (!(key in nestedData)) {
+      continue
+    }
+
+    const candidate = nestedData[key]
+
+    if (isRecord(candidate)) {
+      return candidate
+    }
+
+    if (candidate === null) {
+      return null
+    }
+  }
+
+  return null
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
+}
+
+function hasProperty(record: Record<string, unknown>, keys: readonly string[]) {
+  return keys.some((key) => key in record)
+}
+
+function readString(
+  record: Record<string, unknown>,
+  keys: readonly string[],
+): string | undefined {
+  for (const key of keys) {
+    const value = record[key]
+
+    if (typeof value === 'string') {
+      return value.trim()
+    }
+  }
+
+  return undefined
+}
+
+function readBoolean(
+  record: Record<string, unknown>,
+  keys: readonly string[],
+): boolean | undefined {
+  for (const key of keys) {
+    const value = record[key]
+
+    if (typeof value === 'boolean') {
+      return value
+    }
+  }
+
+  return undefined
+}
+
+function readNumber(
+  record: Record<string, unknown>,
+  keys: readonly string[],
+): number | undefined {
+  for (const key of keys) {
+    const value = record[key]
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value
+    }
+
+    if (typeof value === 'string') {
+      const parsed = Number.parseFloat(value)
+      if (Number.isFinite(parsed)) {
+        return parsed
+      }
+    }
+  }
+
+  return undefined
 }
 
 function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
@@ -760,7 +1021,31 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
     contacts: mapClientContacts(payload),
     createdAt: payload.createdAt,
     groupIds,
+    currentMembership: mapClientCurrentMembership(payload),
+    membershipHistory: mapClientMembershipHistory(payload),
   }
+}
+
+function mapClientCurrentMembership(
+  payload: ClientResponsePayload,
+): ClientMembership | null {
+  const membershipPayload = extractRecordPayload(payload, [
+    'currentMembership',
+    'CurrentMembership',
+  ])
+
+  return mapClientMembership(membershipPayload)
+}
+
+function mapClientMembershipHistory(
+  payload: ClientResponsePayload,
+): ClientMembership[] {
+  return extractArrayPayload<ClientMembershipPayload>(
+    payload,
+    CLIENT_MEMBERSHIP_PAYLOAD_KEYS,
+  )
+    .map((membership) => mapClientMembership(membership))
+    .filter((membership): membership is ClientMembership => membership !== null)
 }
 
 function mapClientContacts(payload: ClientResponsePayload): ClientContact[] {
@@ -802,6 +1087,63 @@ function mapClientGroups(payload: ClientResponsePayload): ClientGroupSummary[] {
   }))
 }
 
+function mapClientMembership(payload: unknown): ClientMembership | null {
+  if (!isRecord(payload)) {
+    return null
+  }
+
+  const membershipType = mapMembershipType(
+    readString(payload, ['membershipType', 'MembershipType']),
+  )
+  const purchaseDate =
+    readString(payload, ['purchaseDate', 'PurchaseDate']) ?? ''
+
+  if (!membershipType || !purchaseDate) {
+    return null
+  }
+
+  return {
+    id:
+      readString(payload, ['id', 'Id']) ??
+      `${membershipType}-${purchaseDate}-${readString(payload, ['validFrom', 'ValidFrom']) ?? 'current'}`,
+    membershipType,
+    purchaseDate,
+    expirationDate:
+      readString(payload, ['expirationDate', 'ExpirationDate']) ?? null,
+    paymentAmount:
+      readNumber(payload, ['paymentAmount', 'PaymentAmount']) ?? 0,
+    isPaid: readBoolean(payload, ['isPaid', 'IsPaid']) ?? false,
+    singleVisitUsed:
+      readBoolean(payload, ['singleVisitUsed', 'SingleVisitUsed']) ?? false,
+    changeReason:
+      readString(payload, ['changeReason', 'ChangeReason']) ?? undefined,
+    paidAt: readString(payload, ['paidAt', 'PaidAt']) ?? undefined,
+    paidByUserId:
+      readString(payload, ['paidByUserId', 'PaidByUserId']) ?? undefined,
+    paidByUserName:
+      readString(payload, [
+        'paidByUserName',
+        'PaidByUserName',
+        'paidByFullName',
+        'PaidByFullName',
+      ]) ?? undefined,
+    changedByUserId:
+      readString(payload, ['changedByUserId', 'ChangedByUserId']) ?? undefined,
+    changedByUserName:
+      readString(payload, [
+        'changedByUserName',
+        'ChangedByUserName',
+        'changedByFullName',
+        'ChangedByFullName',
+      ]) ?? undefined,
+    validFrom: readString(payload, ['validFrom', 'ValidFrom']) ?? undefined,
+    validTo:
+      readString(payload, ['validTo', 'ValidTo']) ??
+      (hasProperty(payload, ['validTo', 'ValidTo']) ? null : undefined),
+    createdAt: readString(payload, ['createdAt', 'CreatedAt']) ?? undefined,
+  }
+}
+
 function buildClientFullName(payload: Pick<
   ClientResponsePayload,
   'fullName' | 'lastName' | 'firstName' | 'middleName'
@@ -822,4 +1164,12 @@ function mapClientStatus(status?: string | null): ClientStatus {
   return status === CLIENT_STATUS_ARCHIVED
     ? CLIENT_STATUS_ARCHIVED
     : CLIENT_STATUS_ACTIVE
+}
+
+function mapMembershipType(type?: string | null): MembershipType | null {
+  if (type === 'SingleVisit' || type === 'Monthly' || type === 'Yearly') {
+    return type
+  }
+
+  return null
 }

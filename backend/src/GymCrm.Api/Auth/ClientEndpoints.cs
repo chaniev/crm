@@ -1,7 +1,10 @@
+using System.Globalization;
 using System.Text.Json;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -27,6 +30,10 @@ internal static class ClientEndpoints
         group.MapPut("/{id:guid}", UpdateClientAsync);
         group.MapPut("/{id:guid}/archive", ArchiveClientAsync);
         group.MapPut("/{id:guid}/restore", RestoreClientAsync);
+        group.MapPost("/{id:guid}/membership/purchase", PurchaseMembershipAsync);
+        group.MapPost("/{id:guid}/membership/renew", RenewMembershipAsync);
+        group.MapPost("/{id:guid}/membership/correct", CorrectMembershipAsync);
+        group.MapPost("/{id:guid}/membership/mark-payment", MarkMembershipPaymentAsync);
 
         return endpoints;
     }
@@ -321,6 +328,195 @@ internal static class ClientEndpoints
         return TypedResults.Ok(MapDetails(client));
     }
 
+    private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> PurchaseMembershipAsync(
+        Guid id,
+        PurchaseClientMembershipRequest request,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IClientMembershipService membershipService,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        return ExecuteMembershipActionAsync(
+            id,
+            httpContext,
+            dbContext,
+            auditLogService,
+            antiforgery,
+            cancellationToken,
+            validateRequest: _ => ValidatePurchaseMembershipRequest(request),
+            executeAsync: currentUser =>
+                membershipService.PurchaseAsync(
+                    id,
+                    new CreateClientMembershipPurchaseCommand(
+                        currentUser.Id,
+                        ParseMembershipType(request.MembershipType)!.Value,
+                        ParseIsoDate(request.PurchaseDate)!.Value,
+                        ParseIsoDate(request.ExpirationDate),
+                        request.PaymentAmount!.Value,
+                        request.IsPaid!.Value),
+                    cancellationToken),
+            actionType: "ClientMembershipPurchased",
+            actionVerb: "purchased");
+    }
+
+    private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RenewMembershipAsync(
+        Guid id,
+        RenewClientMembershipRequest request,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IClientMembershipService membershipService,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        return ExecuteMembershipActionAsync(
+            id,
+            httpContext,
+            dbContext,
+            auditLogService,
+            antiforgery,
+            cancellationToken,
+            validateRequest: clientBefore => ValidateRenewMembershipRequest(request, clientBefore),
+            executeAsync: currentUser =>
+                membershipService.RenewAsync(
+                    id,
+                    new RenewClientMembershipCommand(
+                        currentUser.Id,
+                        ParseIsoDate(request.RenewalDate)!.Value,
+                        ParseIsoDate(request.ExpirationDate),
+                        request.PaymentAmount!.Value,
+                        request.IsPaid!.Value),
+                    cancellationToken),
+            actionType: "ClientMembershipRenewed",
+            actionVerb: "renewed");
+    }
+
+    private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CorrectMembershipAsync(
+        Guid id,
+        CorrectClientMembershipRequest request,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IClientMembershipService membershipService,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        return ExecuteMembershipActionAsync(
+            id,
+            httpContext,
+            dbContext,
+            auditLogService,
+            antiforgery,
+            cancellationToken,
+            validateRequest: clientBefore => ValidateCorrectMembershipRequest(request, clientBefore),
+            executeAsync: currentUser =>
+                membershipService.CorrectAsync(
+                    id,
+                    new CorrectClientMembershipCommand(
+                        currentUser.Id,
+                        ParseMembershipType(request.MembershipType)!.Value,
+                        ParseIsoDate(request.PurchaseDate)!.Value,
+                        ParseIsoDate(request.ExpirationDate),
+                        request.PaymentAmount!.Value,
+                        request.IsPaid!.Value),
+                    cancellationToken),
+            actionType: "ClientMembershipCorrected",
+            actionVerb: "corrected");
+    }
+
+    private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> MarkMembershipPaymentAsync(
+        Guid id,
+        MarkMembershipPaymentRequest request,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IClientMembershipService membershipService,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        return ExecuteMembershipActionAsync(
+            id,
+            httpContext,
+            dbContext,
+            auditLogService,
+            antiforgery,
+            cancellationToken,
+            validateRequest: clientBefore => ValidateMarkMembershipPaymentRequest(request, clientBefore),
+            executeAsync: currentUser =>
+                membershipService.MarkPaymentAsync(
+                    id,
+                    new MarkClientMembershipPaymentCommand(currentUser.Id),
+                    cancellationToken),
+            actionType: "ClientMembershipPaymentMarked",
+            actionVerb: "marked payment for");
+    }
+
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
+        Guid id,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken,
+        Func<Client, Dictionary<string, string[]>> validateRequest,
+        Func<User, Task<ClientMembershipMutationResult>> executeAsync,
+        string actionType,
+        string actionVerb)
+    {
+        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        if (csrfValidationResult is not null)
+        {
+            return csrfValidationResult;
+        }
+
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var clientBefore = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
+        if (clientBefore is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var validationErrors = validateRequest(clientBefore);
+        if (validationErrors.Count > 0)
+        {
+            return TypedResults.ValidationProblem(validationErrors);
+        }
+
+        var mutationResult = await executeAsync(currentUser);
+        if (!mutationResult.Succeeded)
+        {
+            if (mutationResult.Error == ClientMembershipMutationError.ClientMissing)
+            {
+                return TypedResults.NotFound();
+            }
+
+            return TypedResults.ValidationProblem(CreateMembershipOperationError(mutationResult.Error));
+        }
+
+        var clientAfter = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
+            ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership change.");
+
+        await auditLogService.WriteAsync(
+            new AuditLogEntry(
+                currentUser.Id,
+                actionType,
+                "ClientMembership",
+                clientAfter.Id.ToString(),
+                $"User '{currentUser.Login}' {actionVerb} client membership for '{BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)}'.",
+                SerializeMembershipAuditState(GetCurrentMembership(clientBefore)),
+                SerializeMembershipAuditState(GetCurrentMembership(clientAfter))),
+            cancellationToken);
+
+        return TypedResults.Ok(MapDetails(clientAfter));
+    }
+
     private static async Task<Client?> LoadClientSnapshotAsync(
         Guid id,
         GymCrmDbContext dbContext,
@@ -329,6 +525,8 @@ internal static class ClientEndpoints
         return await dbContext.Clients
             .AsNoTracking()
             .Include(client => client.Contacts)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.PaidByUser)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
             .AsSplitQuery()
@@ -593,6 +791,289 @@ internal static class ClientEndpoints
         }
     }
 
+    private static Dictionary<string, string[]> ValidatePurchaseMembershipRequest(PurchaseClientMembershipRequest request)
+    {
+        var errors = new Dictionary<string, string[]>();
+        var membershipType = ValidateRequiredMembershipType(request.MembershipType, errors);
+        var purchaseDate = ValidateRequiredDate(request.PurchaseDate, "purchaseDate", "Укажите дату покупки абонемента.", errors);
+        var expirationDate = ValidateOptionalDate(request.ExpirationDate, "expirationDate", errors);
+
+        ValidatePaymentAmount(request.PaymentAmount, errors);
+        ValidateIsPaidRequired(request.IsPaid, errors);
+        ValidateMembershipDateRange(membershipType, purchaseDate, expirationDate, errors, "expirationDate");
+
+        return errors;
+    }
+
+    private static Dictionary<string, string[]> ValidateRenewMembershipRequest(
+        RenewClientMembershipRequest request,
+        Client client)
+    {
+        var errors = new Dictionary<string, string[]>();
+        var currentMembership = GetCurrentMembership(client);
+
+        if (currentMembership is null)
+        {
+            errors["currentMembership"] = ["У клиента нет текущего абонемента для продления."];
+            return errors;
+        }
+
+        var renewalDate = ValidateRequiredDate(request.RenewalDate, "renewalDate", "Укажите дату продления абонемента.", errors);
+        var expirationDate = ValidateOptionalDate(request.ExpirationDate, "expirationDate", errors);
+        ValidateOptionalMatchingMembershipType(request.MembershipType, currentMembership.MembershipType, errors);
+        ValidatePaymentAmount(request.PaymentAmount, errors);
+        ValidateIsPaidRequired(request.IsPaid, errors);
+
+        if (currentMembership.MembershipType is not MembershipType.SingleVisit &&
+            currentMembership.ExpirationDate is null)
+        {
+            errors["currentMembership"] = ["У текущего абонемента не указана дата окончания, продление недоступно."];
+        }
+
+        if (renewalDate.HasValue &&
+            expirationDate.HasValue &&
+            expirationDate.Value < renewalDate.Value)
+        {
+            errors["expirationDate"] = ["Дата окончания не может быть раньше даты продления."];
+        }
+
+        return errors;
+    }
+
+    private static Dictionary<string, string[]> ValidateCorrectMembershipRequest(
+        CorrectClientMembershipRequest request,
+        Client client)
+    {
+        var errors = new Dictionary<string, string[]>();
+        var currentMembership = GetCurrentMembership(client);
+        if (currentMembership is null)
+        {
+            errors["currentMembership"] = ["У клиента нет текущего абонемента для исправления."];
+            return errors;
+        }
+
+        var membershipType = ValidateRequiredMembershipType(request.MembershipType, errors);
+        var purchaseDate = ValidateRequiredDate(request.PurchaseDate, "purchaseDate", "Укажите дату покупки абонемента.", errors);
+        var expirationDate = ValidateOptionalDate(request.ExpirationDate, "expirationDate", errors);
+
+        ValidatePaymentAmount(request.PaymentAmount, errors);
+        ValidateIsPaidRequired(request.IsPaid, errors);
+        ValidateMembershipDateRange(membershipType, purchaseDate, expirationDate, errors, "expirationDate");
+
+        return errors;
+    }
+
+    private static Dictionary<string, string[]> ValidateMarkMembershipPaymentRequest(
+        MarkMembershipPaymentRequest request,
+        Client client)
+    {
+        var errors = new Dictionary<string, string[]>();
+        var currentMembership = GetCurrentMembership(client);
+        if (currentMembership is null)
+        {
+            errors["currentMembership"] = ["У клиента нет текущего абонемента для отметки оплаты."];
+            return errors;
+        }
+
+        ValidateOptionalMatchingMembershipType(request.MembershipType, currentMembership.MembershipType, errors);
+        ValidateOptionalPaymentAmount(request.PaymentAmount, errors);
+
+        if (request.PaymentAmount.HasValue && request.PaymentAmount.Value != currentMembership.PaymentAmount)
+        {
+            errors["paymentAmount"] = ["Сумму оплаты можно изменить только через исправление абонемента."];
+        }
+
+        if (!request.IsPaid.HasValue)
+        {
+            errors["isPaid"] = ["Укажите признак оплаты абонемента."];
+        }
+        else if (!request.IsPaid.Value)
+        {
+            errors["isPaid"] = ["Отметка оплаты должна устанавливать значение \"оплачен\"."];
+        }
+        else if (currentMembership.IsPaid)
+        {
+            errors["isPaid"] = ["Оплата по текущему абонементу уже отмечена."];
+        }
+
+        return errors;
+    }
+
+    private static void ValidateMembershipDateRange(
+        MembershipType? membershipType,
+        DateOnly? purchaseDate,
+        DateOnly? expirationDate,
+        Dictionary<string, string[]> errors,
+        string expirationDateKey)
+    {
+        if (membershipType is MembershipType.SingleVisit || !purchaseDate.HasValue || !expirationDate.HasValue)
+        {
+            return;
+        }
+
+        if (expirationDate.Value < purchaseDate.Value)
+        {
+            errors[expirationDateKey] = ["Дата окончания не может быть раньше даты покупки."];
+        }
+    }
+
+    private static MembershipType? ValidateRequiredMembershipType(
+        string? membershipType,
+        Dictionary<string, string[]> errors)
+    {
+        if (string.IsNullOrWhiteSpace(membershipType))
+        {
+            errors["membershipType"] = ["Укажите тип абонемента."];
+            return null;
+        }
+
+        var parsedMembershipType = ParseMembershipType(membershipType);
+        if (parsedMembershipType is null)
+        {
+            errors["membershipType"] = ["Укажите корректный тип абонемента."];
+        }
+
+        return parsedMembershipType;
+    }
+
+    private static void ValidateOptionalMatchingMembershipType(
+        string? membershipType,
+        MembershipType expectedMembershipType,
+        Dictionary<string, string[]> errors)
+    {
+        if (string.IsNullOrWhiteSpace(membershipType))
+        {
+            return;
+        }
+
+        var parsedMembershipType = ParseMembershipType(membershipType);
+        if (parsedMembershipType is null)
+        {
+            errors["membershipType"] = ["Укажите корректный тип абонемента."];
+            return;
+        }
+
+        if (parsedMembershipType.Value != expectedMembershipType)
+        {
+            errors["membershipType"] = [$"Текущий абонемент клиента имеет тип '{expectedMembershipType}'."];
+        }
+    }
+
+    private static DateOnly? ValidateRequiredDate(
+        string? value,
+        string key,
+        string requiredMessage,
+        Dictionary<string, string[]> errors)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            errors[key] = [requiredMessage];
+            return null;
+        }
+
+        var parsedDate = ParseIsoDate(value);
+        if (parsedDate is null)
+        {
+            errors[key] = ["Укажите корректную дату в формате yyyy-MM-dd."];
+        }
+
+        return parsedDate;
+    }
+
+    private static DateOnly? ValidateOptionalDate(
+        string? value,
+        string key,
+        Dictionary<string, string[]> errors)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var parsedDate = ParseIsoDate(value);
+        if (parsedDate is null)
+        {
+            errors[key] = ["Укажите корректную дату в формате yyyy-MM-dd."];
+        }
+
+        return parsedDate;
+    }
+
+    private static void ValidatePaymentAmount(
+        decimal? value,
+        Dictionary<string, string[]> errors)
+    {
+        if (!value.HasValue)
+        {
+            errors["paymentAmount"] = ["Укажите сумму оплаты."];
+            return;
+        }
+
+        ValidateOptionalPaymentAmount(value, errors);
+    }
+
+    private static void ValidateOptionalPaymentAmount(
+        decimal? value,
+        Dictionary<string, string[]> errors)
+    {
+        if (value.HasValue && value.Value < 0)
+        {
+            errors["paymentAmount"] = ["Сумма оплаты не может быть отрицательной."];
+        }
+    }
+
+    private static void ValidateIsPaidRequired(
+        bool? isPaid,
+        Dictionary<string, string[]> errors)
+    {
+        if (!isPaid.HasValue)
+        {
+            errors["isPaid"] = ["Укажите признак оплаты абонемента."];
+        }
+    }
+
+    private static MembershipType? ParseMembershipType(string? membershipType)
+    {
+        return Enum.TryParse<MembershipType>(membershipType?.Trim(), ignoreCase: true, out var parsedMembershipType)
+            ? parsedMembershipType
+            : null;
+    }
+
+    private static DateOnly? ParseIsoDate(string? value)
+    {
+        return DateOnly.TryParseExact(
+            value?.Trim(),
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out var parsedDate)
+            ? parsedDate
+            : null;
+    }
+
+    private static Dictionary<string, string[]> CreateMembershipOperationError(ClientMembershipMutationError error)
+    {
+        return error switch
+        {
+            ClientMembershipMutationError.InvalidRequest => new Dictionary<string, string[]>
+            {
+                ["membership"] = ["Запрос на изменение абонемента содержит некорректные данные."]
+            },
+            ClientMembershipMutationError.CurrentMembershipMissing => new Dictionary<string, string[]>
+            {
+                ["currentMembership"] = ["У клиента нет текущего абонемента для этого действия."]
+            },
+            ClientMembershipMutationError.CurrentMembershipAlreadyPaid => new Dictionary<string, string[]>
+            {
+                ["currentMembership"] = ["Оплата по текущему абонементу уже отмечена."]
+            },
+            _ => new Dictionary<string, string[]>
+            {
+                ["membership"] = ["Не удалось изменить данные абонемента."]
+            }
+        };
+    }
+
     private static void ValidateNamePart(
         string? value,
         string key,
@@ -667,6 +1148,7 @@ internal static class ClientEndpoints
             .ThenBy(contact => contact.Type, StringComparer.CurrentCulture)
             .ThenBy(contact => contact.Phone, StringComparer.CurrentCulture)
             .ToArray();
+        var membershipHistory = MapMembershipHistory(client.Memberships);
 
         return new ClientDetailsResponse(
             client.Id,
@@ -679,6 +1161,8 @@ internal static class ClientEndpoints
             groups.Select(group => group.Id).ToArray(),
             groups,
             contacts,
+            membershipHistory.FirstOrDefault(membership => membership.ValidTo is null),
+            membershipHistory,
             client.CreatedAt,
             client.UpdatedAt);
     }
@@ -689,10 +1173,47 @@ internal static class ClientEndpoints
             .Select(clientGroup => new ClientGroupSummaryResponse(
                 clientGroup.GroupId,
                 clientGroup.Group.Name,
-                clientGroup.Group.IsActive))
+                clientGroup.Group.IsActive,
+                clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
+                clientGroup.Group.ScheduleText))
             .OrderBy(group => group.Name, StringComparer.CurrentCulture)
             .ThenBy(group => group.Id)
             .ToArray();
+    }
+
+    private static IReadOnlyList<ClientMembershipResponse> MapMembershipHistory(ICollection<ClientMembership> memberships)
+    {
+        return memberships
+            .OrderByDescending(membership => membership.ValidFrom)
+            .ThenByDescending(membership => membership.CreatedAt)
+            .Select(MapMembership)
+            .ToArray();
+    }
+
+    private static ClientMembershipResponse MapMembership(ClientMembership membership)
+    {
+        return new ClientMembershipResponse(
+            membership.Id,
+            membership.MembershipType.ToString(),
+            membership.PurchaseDate,
+            membership.ExpirationDate,
+            membership.PaymentAmount,
+            membership.IsPaid,
+            membership.SingleVisitUsed,
+            membership.PaidByUserId,
+            membership.PaidByUser?.FullName,
+            membership.PaidAt,
+            membership.ChangeReason.ToString(),
+            membership.ValidFrom,
+            membership.ValidTo,
+            membership.CreatedAt);
+    }
+
+    private static ClientMembership? GetCurrentMembership(Client client)
+    {
+        return client.Memberships
+            .OrderByDescending(membership => membership.ValidFrom)
+            .FirstOrDefault(membership => membership.ValidTo is null);
     }
 
     private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)
@@ -730,6 +1251,33 @@ internal static class ClientEndpoints
                     .ToArray(),
                 client.CreatedAt,
                 client.UpdatedAt),
+            AuditSerializerOptions);
+    }
+
+    private static string? SerializeMembershipAuditState(ClientMembership? membership)
+    {
+        if (membership is null)
+        {
+            return null;
+        }
+
+        return JsonSerializer.Serialize(
+            new ClientMembershipAuditState(
+                membership.Id,
+                membership.ClientId,
+                membership.MembershipType.ToString(),
+                membership.PurchaseDate,
+                membership.ExpirationDate,
+                membership.PaymentAmount,
+                membership.IsPaid,
+                membership.SingleVisitUsed,
+                membership.PaidByUserId,
+                membership.PaidAt,
+                membership.ChangeReason.ToString(),
+                membership.ChangedByUserId,
+                membership.ValidFrom,
+                membership.ValidTo,
+                membership.CreatedAt),
             AuditSerializerOptions);
     }
 
@@ -787,18 +1335,38 @@ internal static class ClientEndpoints
         IReadOnlyList<Guid> GroupIds,
         IReadOnlyList<ClientGroupSummaryResponse> Groups,
         IReadOnlyList<ClientContactResponse> Contacts,
+        ClientMembershipResponse? CurrentMembership,
+        IReadOnlyList<ClientMembershipResponse> MembershipHistory,
         DateTimeOffset CreatedAt,
         DateTimeOffset UpdatedAt);
 
     private sealed record ClientGroupSummaryResponse(
         Guid Id,
         string Name,
-        bool IsActive);
+        bool IsActive,
+        string? TrainingStartTime,
+        string? ScheduleText);
 
     private sealed record ClientContactResponse(
         string Type,
         string FullName,
         string Phone);
+
+    private sealed record ClientMembershipResponse(
+        Guid Id,
+        string MembershipType,
+        DateOnly PurchaseDate,
+        DateOnly? ExpirationDate,
+        decimal PaymentAmount,
+        bool IsPaid,
+        bool SingleVisitUsed,
+        Guid? PaidByUserId,
+        string? PaidByUserFullName,
+        DateTimeOffset? PaidAt,
+        string ChangeReason,
+        DateTimeOffset ValidFrom,
+        DateTimeOffset? ValidTo,
+        DateTimeOffset CreatedAt);
 
     private sealed record ClientAuditState(
         Guid Id,
@@ -816,4 +1384,47 @@ internal static class ClientEndpoints
         string Type,
         string FullName,
         string Phone);
+
+    private sealed record PurchaseClientMembershipRequest(
+        string? MembershipType,
+        string? PurchaseDate,
+        string? ExpirationDate,
+        decimal? PaymentAmount,
+        bool? IsPaid);
+
+    private sealed record RenewClientMembershipRequest(
+        string? MembershipType,
+        string? RenewalDate,
+        string? ExpirationDate,
+        decimal? PaymentAmount,
+        bool? IsPaid);
+
+    private sealed record CorrectClientMembershipRequest(
+        string? MembershipType,
+        string? PurchaseDate,
+        string? ExpirationDate,
+        decimal? PaymentAmount,
+        bool? IsPaid);
+
+    private sealed record MarkMembershipPaymentRequest(
+        string? MembershipType,
+        decimal? PaymentAmount,
+        bool? IsPaid);
+
+    private sealed record ClientMembershipAuditState(
+        Guid Id,
+        Guid ClientId,
+        string MembershipType,
+        DateOnly PurchaseDate,
+        DateOnly? ExpirationDate,
+        decimal PaymentAmount,
+        bool IsPaid,
+        bool SingleVisitUsed,
+        Guid? PaidByUserId,
+        DateTimeOffset? PaidAt,
+        string ChangeReason,
+        Guid ChangedByUserId,
+        DateTimeOffset ValidFrom,
+        DateTimeOffset? ValidTo,
+        DateTimeOffset CreatedAt);
 }
