@@ -14,8 +14,8 @@ RUN apt-get update \
 WORKDIR /app
 COPY --from=build /app/publish .
 
-RUN groupadd --gid 10001 app \
-    && useradd --uid 10001 --gid app --create-home --shell /bin/bash app \
+RUN if ! getent group app > /dev/null; then groupadd --gid 10001 app; fi \
+    && if ! id -u app > /dev/null 2>&1; then useradd --uid 10001 --gid app --create-home --shell /bin/bash app; fi \
     && mkdir -p /app/uploads \
     && chown -R app:app /app
 
