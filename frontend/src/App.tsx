@@ -37,10 +37,12 @@ import {
 import {
   ApiError,
   applyFieldErrors,
+  type AppSection,
   changePassword,
   loadSession,
   login,
   logout,
+  type AccessPermissions,
   type AuthenticatedUser,
   type ChangePasswordRequest,
   type LoginRequest,
@@ -53,30 +55,41 @@ type PasswordMode = 'forced' | 'utility'
 
 type RolePresentation = {
   roleLabel: string
-  landingLabel: string
   roleHint: string
-  sections: string[]
+}
+
+const sectionLabelMap: Record<AppSection, string> = {
+  Home: 'Главная',
+  Attendance: 'Посещения',
+  Clients: 'Клиенты',
+  Groups: 'Группы',
+  Users: 'Пользователи',
+  Audit: 'Журнал',
 }
 
 const rolePresentationMap: Record<AuthenticatedUser['role'], RolePresentation> = {
   HeadCoach: {
     roleLabel: 'Главный тренер',
-    landingLabel: 'Главная',
     roleHint: 'Полный управленческий доступ к MVP CRM.',
-    sections: ['Главная', 'Посещения', 'Клиенты', 'Группы', 'Пользователи', 'Журнал'],
   },
   Administrator: {
     roleLabel: 'Администратор',
-    landingLabel: 'Главная',
     roleHint: 'Работа с клиентами, группами и операционными задачами без управления пользователями.',
-    sections: ['Главная', 'Клиенты', 'Группы', 'Журнал'],
   },
   Coach: {
     roleLabel: 'Тренер',
-    landingLabel: 'Посещения',
     roleHint: 'Рабочий поток тренера стартует с посещений и видит только доступный scope.',
-    sections: ['Посещения', 'Клиенты'],
   },
+}
+
+function getAllowedPermissionLabels(permissions: AccessPermissions) {
+  return [
+    permissions.canManageUsers ? 'Управление пользователями' : null,
+    permissions.canManageClients ? 'Управление клиентами' : null,
+    permissions.canManageGroups ? 'Управление группами' : null,
+    permissions.canMarkAttendance ? 'Отметка посещений' : null,
+    permissions.canViewAuditLog ? 'Просмотр журнала действий' : null,
+  ].filter((value): value is string => Boolean(value))
 }
 
 function App() {
@@ -225,14 +238,14 @@ function App() {
   if (bootstrapError && !session) {
     return (
       <StageFrame
-        eyebrow="Stage 2"
+        eyebrow="Stage 3"
         title="Backend пока не отвечает"
-        description="Экран авторизации уже подготовлен, но frontend не смог получить начальную сессию и CSRF-токен."
-        accent="Проверьте backend и перезапустите загрузку, чтобы продолжить первый вход."
+        description="Frontend не смог получить начальную сессию, CSRF-токен и backend-driven access-context."
+        accent="Проверьте backend и перезапустите загрузку, чтобы продолжить вход и проверить матрицу ролей."
         bullets={[
           'Cookie-auth и forced first login живут на backend.',
-          'Frontend работает через единый light theme foundation.',
-          'После восстановления соединения можно сразу авторизоваться.',
+          'Права и доступные секции теперь приходят из API.',
+          'После восстановления соединения можно сразу проверить role-aware shell.',
         ]}
       >
         <Paper className="stage-card" radius="32px" shadow="lg" withBorder>
@@ -258,14 +271,14 @@ function App() {
   if (!session?.isAuthenticated || !session.user) {
     return (
       <StageFrame
-        eyebrow="Stage 2"
+        eyebrow="Stage 3"
         title="Вход в CRM для спортивного зала"
-        description="Cookie-based авторизация, CSRF-защита и сценарий первого входа уже связаны в единый поток."
-        accent="Для bootstrap-пользователя backend создает обязательную смену пароля до доступа к рабочим экранам."
+        description="Cookie-based авторизация, CSRF-защита, роли и backend-enforced access model уже связаны в единый поток."
+        accent="Для bootstrap-пользователя backend создает обязательную смену пароля, а после входа выдает role-aware shell."
         bullets={[
           'Логин первого пользователя берется из конфигурации backend, по умолчанию это `headcoach`.',
           'Стартовый пароль для первого входа: `12345678`.',
-          'После успешного входа forced-flow сразу переводит пользователя на смену пароля.',
+          'После успешного входа frontend получает доступные секции и разрешения прямо из API.',
         ]}
       >
         <LoginScreen pending={loginPending} onSubmit={handleLogin} />
@@ -667,6 +680,7 @@ function AuthenticatedShell({
   children,
 }: AuthenticatedShellProps) {
   const presentation = rolePresentationMap[user.role]
+  const landingLabel = sectionLabelMap[user.landingScreen]
 
   return (
     <AppShell
@@ -685,23 +699,23 @@ function AuthenticatedShell({
                 <div>
                   <Text fw={800}>Gym CRM MVP</Text>
                   <Text c="dimmed" size="sm">
-                    {presentation.roleLabel} • landing: {presentation.landingLabel}
+                    {presentation.roleLabel} • landing: {landingLabel}
                   </Text>
                 </div>
               </Group>
             </Stack>
 
             <Group className="app-shell__actions" gap="sm">
-              {presentation.sections.map((section) => (
+              {user.allowedSections.map((section) => (
                 <Badge
                   className="nav-badge"
-                  color={section === presentation.landingLabel ? 'brand' : 'sand'}
+                  color={section === user.landingScreen ? 'brand' : 'sand'}
                   key={section}
                   radius="xl"
                   size="lg"
-                  variant={section === presentation.landingLabel ? 'filled' : 'light'}
+                  variant={section === user.landingScreen ? 'filled' : 'light'}
                 >
-                  {section}
+                  {sectionLabelMap[section]}
                 </Badge>
               ))}
 
@@ -751,6 +765,12 @@ type RoleDashboardProps = {
 
 function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
   const presentation = rolePresentationMap[user.role]
+  const landingLabel = sectionLabelMap[user.landingScreen]
+  const allowedPermissionLabels = getAllowedPermissionLabels(user.permissions)
+  const coachScopeLabel =
+    user.role === 'Coach'
+      ? `Назначенных групп: ${user.assignedGroupIds.length}`
+      : 'Полноролевой backend scope'
 
   return (
     <Stack className="dashboard-stack" gap="xl">
@@ -759,7 +779,7 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
         <Stack className="dashboard-hero__content" gap="lg">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 2 закрывает вход
+              Этап 3 закрывает роли и права
             </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               {presentation.roleLabel}
@@ -768,12 +788,12 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
 
           <Stack gap="sm">
             <Title c="white" className="dashboard-hero__title" order={1}>
-              Сессия активна, роль определена, доступ к shell открыт
+              Сессия активна, а backend уже выдает role-aware access scope
             </Title>
             <Text className="dashboard-hero__description" size="lg">
               {presentation.roleHint} После первого входа маршрут выводит вас в
-              секцию «{presentation.landingLabel}», а единая смена пароля уже
-              доступна из профильного меню.
+              секцию «{landingLabel}», а shell берет доступные разделы и
+              базовые разрешения из ответа backend.
             </Text>
           </Stack>
 
@@ -789,6 +809,9 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               Login: {user.login}
             </Badge>
+            <Badge color="sand" radius="xl" size="lg" variant="light">
+              {coachScopeLabel}
+            </Badge>
           </Group>
         </Stack>
       </Paper>
@@ -803,7 +826,7 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
               <div>
                 <Text fw={700}>Ролевой landing</Text>
                 <Text c="dimmed" size="sm">
-                  Что доступно пользователю сразу после auth-flow
+                  Какие разделы backend разрешает этой роли после auth-flow
                 </Text>
               </div>
             </Group>
@@ -816,8 +839,8 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
               }
               spacing="sm"
             >
-              {presentation.sections.map((section) => (
-                <List.Item key={section}>{section}</List.Item>
+              {user.allowedSections.map((section) => (
+                <List.Item key={section}>{sectionLabelMap[section]}</List.Item>
               ))}
             </List>
           </Stack>
@@ -830,9 +853,9 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
                 <IconShieldCheck size={18} />
               </ThemeIcon>
               <div>
-                <Text fw={700}>Что уже защищено</Text>
+                <Text fw={700}>Что backend разрешает этой роли</Text>
                 <Text c="dimmed" size="sm">
-                  Базовый security и audit foundation для следующих этапов
+                  Политики доступа и базовый scope для следующих этапов
                 </Text>
               </div>
             </Group>
@@ -845,10 +868,12 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
               }
               spacing="sm"
             >
+              {allowedPermissionLabels.map((permission) => (
+                <List.Item key={permission}>{permission}</List.Item>
+              ))}
               <List.Item>`HttpOnly` auth-cookie вместо JWT</List.Item>
               <List.Item>CSRF header `X-CSRF-TOKEN` на изменяющих запросах</List.Item>
               <List.Item>Блокировка API, пока не сброшен `MustChangePassword`</List.Item>
-              <List.Item>`AuditLog` для login, logout и password change</List.Item>
             </List>
           </Stack>
         </Paper>
@@ -860,13 +885,13 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
             <div>
               <Text fw={700}>Следующий вертикальный шаг</Text>
               <Text c="dimmed" size="sm">
-                Ролевой shell уже знает landing. Следом можно закрывать политики
-                доступа и проверку прав на API.
+                Роли и backend access model уже собраны. Следом можно
+                безопасно наращивать CRUD-экраны пользователей и групп.
               </Text>
             </div>
 
             <Badge color="brand.7" radius="xl" size="lg" variant="light">
-              Следующий этап: роли и авторизация
+              Следующий этап: управление пользователями
             </Badge>
           </Group>
 
@@ -877,7 +902,7 @@ function RoleDashboard({ user, onOpenPassword }: RoleDashboardProps) {
               {presentation.roleLabel}
             </Badge>
             <Badge radius="xl" size="lg" variant="light">
-              Landing: {presentation.landingLabel}
+              Landing: {landingLabel}
             </Badge>
             <Badge radius="xl" size="lg" variant="light">
               Screen foundation: Mantine + Onest

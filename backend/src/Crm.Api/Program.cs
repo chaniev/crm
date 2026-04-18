@@ -10,7 +10,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication();
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(CrmAuthorizationPolicies.Configure);
 builder.Services
     .AddAuthentication(AuthConstants.CookieScheme)
     .AddCookie(AuthConstants.CookieScheme, options =>
@@ -64,6 +64,7 @@ app.UseMiddleware<AuthenticatedUserMiddleware>();
 app.UseAuthorization();
 
 app.MapAuthEndpoints();
+app.MapAccessEndpoints();
 
 app.MapGet("/", () => Results.Ok(new
 {

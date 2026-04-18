@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using Crm.Application.Authorization;
 using Crm.Application.Audit;
 using Crm.Application.Security;
 using Crm.Domain.Users;
@@ -28,19 +29,28 @@ internal static class AuthEndpoints
         return endpoints;
     }
 
-    private static Ok<SessionResponse> GetSessionAsync(
+    private static async Task<Ok<SessionResponse>> GetSessionAsync(
         HttpContext httpContext,
-        IAntiforgery antiforgery)
+        IAntiforgery antiforgery,
+        IAccessScopeService accessScopeService,
+        CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(CreateSessionResponse(httpContext, antiforgery));
+        return TypedResults.Ok(await CreateSessionResponseAsync(
+            httpContext,
+            antiforgery,
+            accessScopeService,
+            cancellationToken: cancellationToken));
     }
 
-    private static Results<Ok<AuthenticatedUserResponse>, UnauthorizedHttpResult> GetProfileAsync(HttpContext httpContext)
+    private static async Task<Results<Ok<AuthenticatedUserResponse>, UnauthorizedHttpResult>> GetProfileAsync(
+        HttpContext httpContext,
+        IAccessScopeService accessScopeService,
+        CancellationToken cancellationToken)
     {
         var user = httpContext.GetAuthenticatedCrmUser();
         return user is null
             ? TypedResults.Unauthorized()
-            : TypedResults.Ok(ToUserResponse(user));
+            : TypedResults.Ok(await ToUserResponseAsync(user, accessScopeService, cancellationToken));
     }
 
     private static async Task<Results<Ok<SessionResponse>, ValidationProblem, ProblemHttpResult>> LoginAsync(
@@ -50,6 +60,7 @@ internal static class AuthEndpoints
         IPasswordHashService passwordHashService,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
+        IAccessScopeService accessScopeService,
         CancellationToken cancellationToken)
     {
         var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
@@ -94,13 +105,19 @@ internal static class AuthEndpoints
         httpContext.User = principal;
         httpContext.Items[AuthConstants.AuthenticatedUserItemKey] = user;
 
-        return TypedResults.Ok(CreateSessionResponse(httpContext, antiforgery, user));
+        return TypedResults.Ok(await CreateSessionResponseAsync(
+            httpContext,
+            antiforgery,
+            accessScopeService,
+            user,
+            cancellationToken));
     }
 
     private static async Task<Results<Ok<SessionResponse>, ProblemHttpResult, UnauthorizedHttpResult>> LogoutAsync(
         HttpContext httpContext,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
+        IAccessScopeService accessScopeService,
         CancellationToken cancellationToken)
     {
         var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
@@ -128,7 +145,11 @@ internal static class AuthEndpoints
         httpContext.Items.Remove(AuthConstants.AuthenticatedUserItemKey);
         httpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
 
-        return TypedResults.Ok(CreateSessionResponse(httpContext, antiforgery));
+        return TypedResults.Ok(await CreateSessionResponseAsync(
+            httpContext,
+            antiforgery,
+            accessScopeService,
+            cancellationToken: cancellationToken));
     }
 
     private static async Task<Results<Ok<SessionResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ChangePasswordAsync(
@@ -138,6 +159,7 @@ internal static class AuthEndpoints
         IPasswordHashService passwordHashService,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
+        IAccessScopeService accessScopeService,
         CancellationToken cancellationToken)
     {
         var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
@@ -217,7 +239,12 @@ internal static class AuthEndpoints
         httpContext.User = principal;
         httpContext.Items[AuthConstants.AuthenticatedUserItemKey] = user;
 
-        return TypedResults.Ok(CreateSessionResponse(httpContext, antiforgery, user));
+        return TypedResults.Ok(await CreateSessionResponseAsync(
+            httpContext,
+            antiforgery,
+            accessScopeService,
+            user,
+            cancellationToken));
     }
 
     private static async Task<ProblemHttpResult?> ValidateAntiforgeryAsync(
@@ -238,10 +265,12 @@ internal static class AuthEndpoints
         }
     }
 
-    private static SessionResponse CreateSessionResponse(
+    private static async Task<SessionResponse> CreateSessionResponseAsync(
         HttpContext httpContext,
         IAntiforgery antiforgery,
-        User? authenticatedUser = null)
+        IAccessScopeService accessScopeService,
+        User? authenticatedUser = null,
+        CancellationToken cancellationToken = default)
     {
         var user = authenticatedUser ?? httpContext.GetAuthenticatedCrmUser();
         var tokens = antiforgery.GetAndStoreTokens(httpContext);
@@ -249,11 +278,18 @@ internal static class AuthEndpoints
         return new SessionResponse(
             user is not null,
             tokens.RequestToken ?? string.Empty,
-            user is null ? null : ToUserResponse(user));
+            user is null
+                ? null
+                : await ToUserResponseAsync(user, accessScopeService, cancellationToken));
     }
 
-    private static AuthenticatedUserResponse ToUserResponse(User user)
+    private static async Task<AuthenticatedUserResponse> ToUserResponseAsync(
+        User user,
+        IAccessScopeService accessScopeService,
+        CancellationToken cancellationToken)
     {
+        var accessScope = await accessScopeService.GetAccessScopeAsync(user, cancellationToken);
+
         return new AuthenticatedUserResponse(
             user.Id,
             user.FullName,
@@ -261,7 +297,15 @@ internal static class AuthEndpoints
             user.Role.ToString(),
             user.MustChangePassword,
             user.IsActive,
-            user.Role == UserRole.Coach ? "Attendance" : "Home");
+            accessScope.LandingScreen,
+            accessScope.AllowedSections,
+            new AccessPermissionsResponse(
+                accessScope.Permissions.CanManageUsers,
+                accessScope.Permissions.CanManageClients,
+                accessScope.Permissions.CanManageGroups,
+                accessScope.Permissions.CanMarkAttendance,
+                accessScope.Permissions.CanViewAuditLog),
+            accessScope.AssignedGroupIds);
     }
 
     private static ClaimsPrincipal CreatePrincipal(User user)
@@ -313,5 +357,15 @@ internal static class AuthEndpoints
         string Role,
         bool MustChangePassword,
         bool IsActive,
-        string LandingScreen);
+        string LandingScreen,
+        IReadOnlyList<string> AllowedSections,
+        AccessPermissionsResponse Permissions,
+        IReadOnlyList<Guid> AssignedGroupIds);
+
+    private sealed record AccessPermissionsResponse(
+        bool CanManageUsers,
+        bool CanManageClients,
+        bool CanManageGroups,
+        bool CanMarkAttendance,
+        bool CanViewAuditLog);
 }

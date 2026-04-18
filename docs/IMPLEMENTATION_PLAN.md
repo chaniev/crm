@@ -21,9 +21,11 @@
 - завершен `Этап 0. Подготовка проекта`;
 - завершен `Этап 1. База данных и миграции`;
 - завершен `Этап 2. Авторизация и первый вход`;
+- завершен `Этап 3. Роли и проверка прав`;
 - `Инкремент 1. Технический скелет` завершен: каркас, базовый запуск, схема БД MVP и начальный миграционный цикл готовы;
 - `Инкремент 2. Базовый auth foundation` завершен: backend выдает `HttpOnly` cookie, seed-ит первого `HeadCoach`, требует смену пароля при первом входе, пишет базовый аудит и отдает CSRF-токен, а frontend имеет единый theme foundation и auth-flow на `Mantine`;
-- проверка этапов 1-2 подтверждена командами `dotnet test backend/Crm.slnx`, `npm run build`, `npm run lint`, `dotnet dotnet-ef database update --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj --context CrmDbContext` и запуском `Crm.Api` с автоматическим применением миграций к чистой PostgreSQL.
+- этап 3 добавил named policies доступа, backend-driven access scope в `session/profile`, group-scoped проверку тренера для attendance-сценариев и HTTP-интеграционные тесты матрицы прав;
+- проверка этапов 1-3 подтверждена командами `dotnet test backend/Crm.slnx`, `npm run build`, `npm run lint`, `dotnet dotnet-ef database update --project src/Crm.Infrastructure/Crm.Infrastructure.csproj --startup-project src/Crm.Api/Crm.Api.csproj --context CrmDbContext` и запуском `Crm.Api` с автоматическим применением миграций к чистой PostgreSQL.
 
 Статус по этапам:
 
@@ -32,7 +34,7 @@
 | Этап 0. Подготовка проекта | выполнен | Есть каркас `backend` и `frontend`, настроены `docker-compose`, PostgreSQL, env-переменные, health-check endpoints, стартовая страница frontend и базовые smoke-тесты. |
 | Этап 1. База данных и миграции | выполнен | Подключен `EF Core` c `PostgreSQL`, добавлены доменные сущности MVP, `CrmDbContext`, конфигурации схемы, первая миграция `InitialCreate`, индексы и автоматическое применение миграций при старте backend. |
 | Этап 2. Авторизация и первый вход | выполнен | Реализованы `login/logout/change-password`, cookie-based auth, `HttpOnly` cookie, CSRF-защита, seed первого `HeadCoach`, forced смена пароля, базовый аудит auth-сценариев и frontend auth-flow на `Mantine` с общей light-theme foundation. |
-| Этап 3. Роли и проверка прав | не начат | Нет ролевой модели, политик доступа и проверок прав на API. |
+| Этап 3. Роли и проверка прав | выполнен | Реализованы роли, named policies, backend access-scope, group-scoped доступ тренера к attendance API и интеграционные тесты матрицы прав. |
 | Этап 4. Управление пользователями | не начат | Нет API и UI для управления пользователями. |
 | Этап 5. Управление группами | не начат | Нет API и UI для групп и назначения тренеров. |
 | Этап 6a. Базовый CRUD клиентов, контакты и группы | не начат | Нет сущностей, API и UI карточки клиента. |

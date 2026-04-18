@@ -2,6 +2,22 @@ const apiBasePath = import.meta.env.VITE_API_BASE_PATH ?? '/api'
 
 let csrfToken = ''
 
+export type AppSection =
+  | 'Home'
+  | 'Attendance'
+  | 'Clients'
+  | 'Groups'
+  | 'Users'
+  | 'Audit'
+
+export type AccessPermissions = {
+  canManageUsers: boolean
+  canManageClients: boolean
+  canManageGroups: boolean
+  canMarkAttendance: boolean
+  canViewAuditLog: boolean
+}
+
 export type AuthenticatedUser = {
   id: string
   fullName: string
@@ -9,7 +25,10 @@ export type AuthenticatedUser = {
   role: 'HeadCoach' | 'Administrator' | 'Coach'
   mustChangePassword: boolean
   isActive: boolean
-  landingScreen: 'Home' | 'Attendance'
+  landingScreen: AppSection
+  allowedSections: AppSection[]
+  permissions: AccessPermissions
+  assignedGroupIds: string[]
 }
 
 export type SessionResponse = {

@@ -1,5 +1,7 @@
+using Crm.Application.Authorization;
 using Crm.Application.Audit;
 using Crm.Application.Security;
+using Crm.Infrastructure.Authorization;
 using Crm.Infrastructure.Audit;
 using Crm.Infrastructure.HealthChecks;
 using Crm.Infrastructure.Persistence;
@@ -33,6 +35,7 @@ public static class DependencyInjection
 
         services.AddScoped<IPasswordHashService, PasswordHashService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IAccessScopeService, AccessScopeService>();
 
         services
             .AddHealthChecks()
