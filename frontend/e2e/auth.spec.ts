@@ -149,9 +149,7 @@ test.describe('Аутентификация', () => {
     await page.getByPlaceholder('Повторите новый пароль').fill(UPDATED_PASSWORD)
     await page.getByRole('button', { name: 'Сменить пароль и продолжить' }).click()
 
-    await expect(
-      page.getByRole('heading', { name: 'Истекающие абонементы' }),
-    ).toBeVisible()
+    await expect(page.getByTestId('home-screen')).toBeVisible()
     await expect(
       page.getByText('В ближайшие 10 дней истекающих абонементов нет.'),
     ).toBeVisible()

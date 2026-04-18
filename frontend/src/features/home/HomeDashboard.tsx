@@ -105,7 +105,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
 
   if (user.role !== 'HeadCoach' && user.role !== 'Administrator') {
     return (
-      <Stack className="dashboard-stack" gap="xl">
+      <Stack className="dashboard-stack" data-testid="home-screen" gap="xl">
         <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
           <Alert
             color="red"
@@ -121,7 +121,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
+    <Stack className="dashboard-stack" data-testid="home-screen" gap="xl">
       <Paper className="surface-card surface-card--wide home-screen-card" radius="28px" withBorder>
         <Stack gap="lg">
           <Group justify="space-between" wrap="wrap">
@@ -177,10 +177,11 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
           ) : null}
 
           {!loading && !error && clients.length > 0 ? (
-            <Stack gap="md">
+            <Stack data-testid="home-expiring-memberships-list" gap="md">
               {clients.map((client) => (
                 <Paper
                   className="list-row-card home-client-row-card"
+                  data-testid={`home-client-card-${client.id}`}
                   key={client.id}
                   radius="24px"
                   withBorder

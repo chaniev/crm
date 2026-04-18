@@ -125,7 +125,7 @@ export function GroupsListScreen({
   const staffedGroupsCount = groups.filter((group) => group.trainerCount > 0).length
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
+    <Stack className="dashboard-stack" data-testid="groups-screen" gap="xl">
       <Paper className="dashboard-hero" radius="36px" shadow="lg">
         <div className="dashboard-hero__glow" />
         <Stack className="dashboard-hero__content" gap="lg">
@@ -237,10 +237,11 @@ export function GroupsListScreen({
           ) : null}
 
           {!loading && !error && groups.length > 0 ? (
-            <Stack gap="md">
+            <Stack data-testid="groups-list" gap="md">
               {groups.map((group) => (
                 <Paper
                   className="list-row-card group-row-card"
+                  data-testid={`group-card-${group.id}`}
                   key={group.id}
                   radius="24px"
                   withBorder

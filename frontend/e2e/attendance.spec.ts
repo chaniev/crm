@@ -120,19 +120,13 @@ test.describe('Мобильный attendance flow тренера', () => {
     await page.getByRole('button', { name: 'Войти' }).click()
 
     await expect(page).toHaveURL(/\/attendance$/)
-    await expect(
-      page.getByRole('heading', {
-        name: 'Отметка посещений работает как отдельный mobile-first сценарий',
-      }),
-    ).toBeVisible()
+    await expect(page.getByTestId('attendance-screen')).toBeVisible()
 
-    const navigationToggle = page.getByRole('button', {
-      name: 'Показать навигацию',
-    })
+    const navigationToggle = page.getByTestId('app-navigation-toggle')
     await expect(navigationToggle).toBeVisible()
     await navigationToggle.click()
 
-    const mobileNavigation = page.getByRole('navigation')
+    const mobileNavigation = page.getByTestId('app-navigation')
 
     await expect(mobileNavigation.getByRole('button')).toHaveCount(2)
     await expect(

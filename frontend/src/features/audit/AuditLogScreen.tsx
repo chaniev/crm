@@ -174,7 +174,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
   if (!user.permissions.canViewAuditLog) {
     return (
-      <Stack className="dashboard-stack" gap="xl">
+      <Stack className="dashboard-stack" data-testid="audit-screen" gap="xl">
         <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
           <Alert
             color="red"
@@ -206,7 +206,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   }))
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
+    <Stack className="dashboard-stack" data-testid="audit-screen" gap="xl">
       <Paper className="dashboard-hero audit-hero" radius="36px" shadow="lg">
         <div className="dashboard-hero__glow" />
         <Stack className="dashboard-hero__content" gap="lg">
@@ -267,7 +267,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             </Group>
           </Group>
 
-          <form onSubmit={form.onSubmit(handleApplyFilters)}>
+          <form data-testid="audit-filter-form" onSubmit={form.onSubmit(handleApplyFilters)}>
             <Stack gap="md">
               <SimpleGrid cols={{ base: 1, md: 2, xl: 5 }}>
                 <Select
@@ -368,7 +368,12 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
           ) : null}
 
           {!loading && !error && entries.length > 0 ? (
-            <Accordion chevronPosition="right" className="audit-log-list" variant="separated">
+            <Accordion
+              chevronPosition="right"
+              className="audit-log-list"
+              data-testid="audit-log-list"
+              variant="separated"
+            >
               {entries.map((entry) => (
                 <Accordion.Item key={entry.id} value={entry.id}>
                   <Accordion.Control>

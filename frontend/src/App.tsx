@@ -867,6 +867,7 @@ function AuthenticatedShell({
                   mobileNavigationOpened ? 'Скрыть навигацию' : 'Показать навигацию'
                 }
                 className="app-shell__burger"
+                data-testid="app-navigation-toggle"
                 hiddenFrom="lg"
                 onClick={() =>
                   setMobileNavigationPath((currentPath) =>
@@ -948,7 +949,7 @@ function AuthenticatedShell({
         </Container>
       </AppShell.Header>
 
-      <AppShell.Navbar className="app-shell__navbar" p="md">
+      <AppShell.Navbar className="app-shell__navbar" data-testid="app-navigation" p="md">
         <AppShell.Section>
           <Stack gap="xs">
             <Text c="dimmed" fw={700} size="sm">
@@ -1032,6 +1033,32 @@ function RouteViewport({
     (route.kind === 'clientCreate' || route.kind === 'clientEdit')
   ) {
     return <ClientsReadOnlyPlaceholder />
+  }
+
+  if (
+    !user.permissions.canManageGroups &&
+    (route.kind === 'groupCreate' || route.kind === 'groupEdit')
+  ) {
+    return <RouteRedirectPlaceholder />
+  }
+
+  if (route.kind === 'section' && route.section === 'Groups' && !user.permissions.canManageGroups) {
+    return <RouteRedirectPlaceholder />
+  }
+
+  if (
+    !user.permissions.canManageUsers &&
+    (route.kind === 'userCreate' || route.kind === 'userEdit')
+  ) {
+    return <RouteRedirectPlaceholder />
+  }
+
+  if (route.kind === 'section' && route.section === 'Users' && !user.permissions.canManageUsers) {
+    return <RouteRedirectPlaceholder />
+  }
+
+  if (route.kind === 'section' && route.section === 'Audit' && !user.permissions.canViewAuditLog) {
+    return <RouteRedirectPlaceholder />
   }
 
   if (route.kind === 'clientCreate') {
@@ -1217,6 +1244,18 @@ function ClientsReadOnlyPlaceholder() {
             </Paper>
           </SimpleGrid>
         </Stack>
+      </Paper>
+    </Stack>
+  )
+}
+
+function RouteRedirectPlaceholder() {
+  return (
+    <Stack className="dashboard-stack" gap="xl">
+      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <Group justify="center" py="xl">
+          <Loader color="brand.7" />
+        </Group>
       </Paper>
     </Stack>
   )

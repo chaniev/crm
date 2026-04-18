@@ -353,7 +353,7 @@ export function ClientsListScreen({
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
+    <Stack className="dashboard-stack" data-testid="clients-screen" gap="xl">
       <ClientHero
         action={
           <ResponsiveButtonGroup>
@@ -432,7 +432,7 @@ export function ClientsListScreen({
           </Group>
 
           <Paper className="hint-card" radius="24px" withBorder>
-            <form onSubmit={applyFilters}>
+            <form data-testid="clients-filter-form" onSubmit={applyFilters}>
               <Stack gap="lg">
                 <Group justify="space-between" wrap="wrap">
                   <div>
@@ -647,7 +647,7 @@ export function ClientsListScreen({
           ) : null}
 
           {!loading && !error && clients.length > 0 ? (
-            <Stack gap="md">
+            <Stack data-testid="clients-list" gap="md">
               <Group justify="space-between" wrap="wrap">
                 <Text c="dimmed" size="sm">
                   {totalCount === null
@@ -683,6 +683,7 @@ export function ClientsListScreen({
               {clients.map((client) => (
                 <Paper
                   className="list-row-card client-row-card"
+                  data-testid={`client-card-${client.id}`}
                   key={client.id}
                   radius="24px"
                   withBorder

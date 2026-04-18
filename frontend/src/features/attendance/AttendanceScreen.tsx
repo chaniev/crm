@@ -252,7 +252,7 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
       : 'Любая доступная группа'
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
+    <Stack className="dashboard-stack" data-testid="attendance-screen" gap="xl">
       <Paper className="dashboard-hero attendance-hero" radius="36px" shadow="lg">
         <div className="dashboard-hero__glow" />
         <Stack className="dashboard-hero__content" gap="lg">
@@ -343,7 +343,7 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
           ) : null}
 
           {!groupsLoading && !groupsError && groups.length > 0 ? (
-            <div className="attendance-toolbar">
+            <div className="attendance-toolbar" data-testid="attendance-toolbar">
               <Select
                 data={groupOptions}
                 label="Группа"
@@ -437,7 +437,7 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
             ) : null}
 
             {roster ? (
-              <Stack gap="md">
+              <Stack data-testid="attendance-roster" gap="md">
                 {roster.clients.map((client) => (
                   <AttendanceClientCard
                     client={client}
@@ -482,6 +482,7 @@ function AttendanceClientCard({
   return (
     <Paper
       className="list-row-card attendance-client-card"
+      data-testid={`attendance-client-card-${client.id}`}
       radius="24px"
       withBorder
     >
