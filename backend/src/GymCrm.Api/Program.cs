@@ -80,6 +80,7 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapAccessEndpoints();
 app.MapUserEndpoints();
+app.MapAuditLogEndpoints();
 app.MapClientEndpoints();
 app.MapClientPhotoEndpoints();
 app.MapAttendanceEndpoints();

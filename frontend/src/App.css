@@ -326,6 +326,48 @@
   border-color: rgba(20, 90, 82, 0.08);
 }
 
+.audit-hero {
+  background:
+    linear-gradient(145deg, rgba(9, 36, 34, 0.98), rgba(20, 90, 82, 0.95)),
+    radial-gradient(circle at top left, rgba(216, 154, 61, 0.32), transparent 36%);
+}
+
+.audit-filter-card,
+.audit-empty-card,
+.audit-json-card {
+  background:
+    linear-gradient(135deg, rgba(239, 245, 242, 0.95), rgba(255, 255, 255, 0.97));
+}
+
+.audit-log-list .mantine-Accordion-item {
+  background:
+    linear-gradient(135deg, rgba(246, 244, 238, 0.88), rgba(255, 255, 255, 0.96));
+  border: 1px solid rgba(20, 90, 82, 0.08);
+}
+
+.audit-entry-summary {
+  min-width: 0;
+}
+
+.audit-json-card {
+  min-height: 100%;
+}
+
+.audit-json-block {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    Liberation Mono,
+    Courier New,
+    monospace;
+}
+
 @media (max-width: 62rem) {
   .auth-layout {
     grid-template-columns: 1fr;

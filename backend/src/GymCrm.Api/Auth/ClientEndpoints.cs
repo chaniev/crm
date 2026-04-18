@@ -752,16 +752,17 @@ internal static class ClientEndpoints
 
         var clientAfter = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership change.");
+        var currentMembershipAfter = GetCurrentMembership(clientAfter);
 
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 currentUser.Id,
                 actionType,
                 "ClientMembership",
-                clientAfter.Id.ToString(),
+                currentMembershipAfter?.Id.ToString() ?? clientAfter.Id.ToString(),
                 $"User '{currentUser.Login}' {actionVerb} client membership for '{BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)}'.",
                 SerializeMembershipAuditState(GetCurrentMembership(clientBefore)),
-                SerializeMembershipAuditState(GetCurrentMembership(clientAfter))),
+                SerializeMembershipAuditState(currentMembershipAfter)),
             cancellationToken);
 
         return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));

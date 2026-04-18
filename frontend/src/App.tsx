@@ -74,6 +74,7 @@ import {
   UserEditScreen,
   UsersListScreen,
 } from './features/users/UserManagement'
+import { AuditLogScreen } from './features/audit/AuditLogScreen'
 import './App.css'
 
 type PasswordMode = 'forced' | 'utility'
@@ -809,7 +810,9 @@ function AuthenticatedShell({
   const presentation = rolePresentationMap[user.role]
   const landingLabel = APP_SECTION_LABELS[user.landingScreen]
   const navigationSections = user.allowedSections.filter(
-    (section) => section !== 'Users' || user.permissions.canManageUsers,
+    (section) =>
+      (section !== 'Users' || user.permissions.canManageUsers) &&
+      (section !== 'Audit' || user.permissions.canViewAuditLog),
   )
 
   return (
@@ -1027,6 +1030,10 @@ function RouteViewport({
 
   if (route.section === 'Attendance') {
     return <AttendanceScreen user={user} />
+  }
+
+  if (route.section === 'Audit') {
+    return <AuditLogScreen user={user} />
   }
 
   if (route.section === 'Home') {

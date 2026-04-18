@@ -186,6 +186,10 @@ export function resolveAccessibleRoutePath(
     return fallbackPath
   }
 
+  if (routeSection === 'Audit' && !user.permissions.canViewAuditLog) {
+    return fallbackPath
+  }
+
   if (isClientWriteRoute(route) && !user.permissions.canManageClients) {
     return user.allowedSections.includes('Clients')
       ? getSectionPath('Clients')
