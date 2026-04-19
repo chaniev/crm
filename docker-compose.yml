@@ -1,12 +1,11 @@
 services:
   db:
     image: postgres:17-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -20,41 +19,55 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Postgres: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=true
-      ClientPhoto__StorageRootPath: ${BACKEND_CLIENT_PHOTO_STORAGE_ROOT}
-      ClientPhoto__MaxUploadSizeBytes: ${BACKEND_CLIENT_PHOTO_MAX_UPLOAD_BYTES}
+      ConnectionStrings__Postgres: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Include Error Detail=false
+      BootstrapUser__Login: ${BOOTSTRAP_USER_LOGIN:-headcoach}
+      BootstrapUser__FullName: ${BOOTSTRAP_USER_FULL_NAME:-Главный тренер}
+      Auth__CookieSecurePolicy: ${BACKEND_AUTH_COOKIE_SECURE_POLICY:-SameAsRequest}
+      ClientPhoto__StorageRootPath: ${BACKEND_CLIENT_PHOTO_STORAGE_ROOT:-/app/data/client-photos}
+      ClientPhoto__MaxUploadSizeBytes: ${BACKEND_CLIENT_PHOTO_MAX_UPLOAD_BYTES:-10485760}
+      Persistence__ApplyMigrationsOnStartup: ${BACKEND_APPLY_MIGRATIONS:-true}
+      Persistence__FailStartupOnMigrationError: ${BACKEND_FAIL_ON_MIGRATION_ERROR:-true}
+      TechnicalLogging__DirectoryPath: ${BACKEND_TECHNICAL_LOG_DIRECTORY:-/app/logs/technical}
+      TechnicalLogging__FileNamePrefix: ${BACKEND_TECHNICAL_LOG_FILE_PREFIX:-gym-crm-api}
+      TechnicalLogging__FileSizeLimitMb: ${BACKEND_TECHNICAL_LOG_FILE_SIZE_MB:-20}
+      TechnicalLogging__RetentionDays: ${BACKEND_TECHNICAL_LOG_RETENTION_DAYS:-10}
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "${BACKEND_PORT}:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/ready > /dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 10s
+    stop_grace_period: 30s
     volumes:
-      - backend_client_photos:/app/uploads
+      - backend_client_photos:/app/data/client-photos
+      - backend_logs:/app/logs
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    environment:
-      CHOKIDAR_USEPOLLING: "true"
-      VITE_API_BASE_PATH: /api
-      VITE_API_PROXY_TARGET: http://backend:8080
+      args:
+        VITE_API_BASE_PATH: ${FRONTEND_VITE_API_BASE_PATH:-/api}
+        VITE_API_PROXY_TARGET: ${FRONTEND_VITE_API_PROXY_TARGET:-http://backend:8080}
+    restart: unless-stopped
     depends_on:
       backend:
         condition: service_healthy
+    expose:
+      - "8080"
     ports:
-      - "${FRONTEND_PORT}:3000"
+      - "${FRONTEND_PORT:-3000}:8080"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000 > /dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/healthz > /dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -63,3 +76,4 @@ services:
 volumes:
   postgres_data:
   backend_client_photos:
+  backend_logs:

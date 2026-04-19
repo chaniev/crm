@@ -58,21 +58,38 @@ gym-crm/
 - Тестирование: `xUnit`
 - Контейнеризация: `Docker`, `Docker Compose`
 
-## Краткая инструкция по развертыванию
+## Docker-развертывание
 
 1. Убедиться, что установлен `Docker` с поддержкой `docker compose`.
-2. При необходимости создать файл `.env` на основе `.env.example`.
-3. Из корня проекта выполнить команду:
+2. Создать `.env` на основе `.env.example` и задать как минимум `POSTGRES_PASSWORD`.
+3. Для локального `http://localhost`-запуска оставить `BACKEND_AUTH_COOKIE_SECURE_POLICY=SameAsRequest`.
+4. Для реального HTTPS-деплоя переключить `BACKEND_AUTH_COOKIE_SECURE_POLICY=Always`.
+5. Из корня проекта выполнить:
 
 ```bash
 docker compose up --build -d
 ```
 
-После запуска сервисы будут доступны по адресам:
+Сервисы после запуска:
 
 - Frontend: `http://localhost:3000`
-- Backend: `http://localhost:8080`
-- PostgreSQL: `localhost:5432`
+- Backend API и health endpoints: `http://localhost:8080`
+- PostgreSQL не публикуется наружу по умолчанию и доступен только внутри `docker compose`-сети.
+
+Именованные Docker volumes:
+
+- `postgres_data` — данные PostgreSQL;
+- `backend_client_photos` — загруженные фотографии клиентов;
+- `backend_logs` — технические логи backend в `/app/logs/technical`.
+
+Остановка и повторный запуск:
+
+```bash
+docker compose down
+docker compose up -d
+```
+
+`docker compose down` сохраняет данные, фотографии и техлоги в volumes. Команда `docker compose down -v` удаляет volumes вместе с данными.
 
 ## Первый вход
 
@@ -82,9 +99,24 @@ docker compose up --build -d
 - После первого входа система обязательно переводит пользователя на экран смены пароля и не открывает рабочий shell, пока пароль не изменен.
 - Логин bootstrap-пользователя можно переопределить через конфигурационный ключ `BootstrapUser:Login` или переменную окружения `BootstrapUser__Login`.
 
+Дополнительно можно переопределить:
+
+- `BootstrapUser__FullName` — имя bootstrap-пользователя;
+- `BACKEND_APPLY_MIGRATIONS` — применять ли миграции при старте backend;
+- `BACKEND_FAIL_ON_MIGRATION_ERROR` — падать ли при ошибке миграций;
+- `BACKEND_TECHNICAL_LOG_*` — директорию, префикс файла, размер файла и срок хранения технических логов.
+
 ## Миграции базы данных
 
-Backend использует `EF Core` и применяет ожидающие миграции при старте приложения.
+Backend использует `EF Core` и применяет ожидающие миграции при старте приложения, если `BACKEND_APPLY_MIGRATIONS=true`.
+
+Порядок первого запуска в Docker:
+
+1. `db` поднимается и проходит `healthcheck`.
+2. `backend` подключается к `PostgreSQL` внутри Docker-сети.
+3. `backend` применяет ожидающие миграции.
+4. `backend` создаёт bootstrap `HeadCoach`, только если в базе ещё нет пользователей.
+5. `frontend` поднимается после readiness backend и проксирует `/api/*` во внутренний сервис `backend`.
 
 Для локальной работы с миграциями используется локальный tool manifest в `backend/dotnet-tools.json`.
 
@@ -104,4 +136,13 @@ dotnet test backend/GymCrm.slnx
 cd frontend
 npm run build
 npm run lint
+```
+
+Docker smoke-проверка:
+
+```bash
+docker compose up --build -d
+curl http://localhost:8080/health/ready
+curl http://localhost:3000/healthz
+curl http://localhost:3000/api/health/ready
 ```

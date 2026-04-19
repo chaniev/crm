@@ -9,7 +9,10 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
-var secureCookiePolicy = AuthSessionDefaults.ResolveCookieSecurePolicy(builder.Environment);
+builder.AddTechnicalLogging();
+var secureCookiePolicy = AuthSessionDefaults.ResolveCookieSecurePolicy(
+    builder.Environment,
+    builder.Configuration);
 var clientPhotoOptions = builder.Configuration
     .GetSection(ClientPhotoApiOptions.SectionName)
     .Get<ClientPhotoApiOptions>()
@@ -73,6 +76,7 @@ var app = builder.Build();
 await app.ApplyPersistenceStartupFlowAsync();
 await app.SeedBootstrapUserAsync();
 
+app.UseTechnicalRequestLogging();
 app.UseAuthentication();
 app.UseMiddleware<AuthenticatedUserMiddleware>();
 app.UseAuthorization();

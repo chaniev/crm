@@ -78,7 +78,7 @@
 | Этап 10. Журнал действий | выполнен | Реализованы read-only backend API журнала действий с пагинацией, фильтрами и options для UI, санация `OldValueJson/NewValueJson` при выдаче, route-level экран `Журнал действий` для `HeadCoach` и `Administrator`, а также интеграционные тесты доступа, фильтрации и пагинации. |
 | Этап 11. Адаптивный интерфейс и UX-доработки | выполнен | Реализованы responsive shell и мобильная role-aware навигация, единые mobile action patterns, confirm-flow для важных client-действий, переход из `Главной` в карточку клиента и coach-friendly read-only список клиентов с фото и membership-индикаторами. |
 | Этап 12. Тестирование | выполнен | Полный backend test project (`60/60`) и frontend `Playwright` suite (`17/17`) проходят локально: покрыты auth/`CSRF`, обязательная смена пароля, права ролей, `ClientMembership`, аудит, фото `HEIC/HEIF`, создание клиента, создание группы с назначением тренеров, mobile-first attendance flow тренера, запрет management-модуля `Groups` для `Coach`, просмотр `Главной` и `Журнала`, auto-refresh после успешного `create` CRUD и responsive/no-scroll проверки на `390 px`, `768 px` и `1440 px`. |
-| Этап 13. Docker и подготовка к развертыванию | не начат | Базовый Docker-запуск есть, но production-like подготовка и миграционный цикл еще не реализованы. |
+| Этап 13. Docker и подготовка к развертыванию | выполнен | Финализированы production-like `Dockerfile` и `docker-compose`, frontend переведен на статическую сборку с `nginx`-proxy к backend, PostgreSQL/фото/техлоги вынесены в Docker volumes, миграции и bootstrap первого пользователя подтверждены на живом compose-стеке, а backend пишет файловые техлоги с retention и одним итоговым HTTP request log. |
 
 ## 2. Целевая архитектура MVP
 
