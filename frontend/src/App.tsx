@@ -1173,9 +1173,8 @@ function RouteViewport({
 function ClientsReadOnlyPlaceholder() {
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <Paper className="dashboard-hero" radius="36px" shadow="lg">
-        <div className="dashboard-hero__glow" />
-        <Stack className="dashboard-hero__content" gap="lg">
+      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+        <Stack className="page-header-card__content" gap="md">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
               Этап 6a
@@ -1186,10 +1185,10 @@ function ClientsReadOnlyPlaceholder() {
           </Group>
 
           <Stack gap="sm">
-            <Title c="white" className="dashboard-hero__title" order={1}>
+            <Title className="page-header-card__title" order={1}>
               Список клиентов для тренера еще закрыт, но detail route уже может открываться backend-ом
             </Title>
-            <Text className="dashboard-hero__description" size="lg">
+            <Text className="page-header-card__description" size="sm">
               В текущем этапе management API клиентов по-прежнему открыт только
               для `HeadCoach` и `Administrator`, поэтому раздел остается
               безопасным placeholder без списка и CRUD.
@@ -1274,9 +1273,8 @@ function SectionPlaceholder({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <Paper className="dashboard-hero" radius="36px" shadow="lg">
-        <div className="dashboard-hero__glow" />
-        <Stack className="dashboard-hero__content" gap="lg">
+      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+        <Stack className="page-header-card__content" gap="md">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
               Route-level shell
@@ -1287,10 +1285,10 @@ function SectionPlaceholder({
           </Group>
 
           <Stack gap="sm">
-            <Title c="white" className="dashboard-hero__title" order={1}>
+            <Title className="page-header-card__title" order={1}>
               Раздел {APP_SECTION_LABELS[section]} уже встроен в навигацию shell
             </Title>
-            <Text className="dashboard-hero__description" size="lg">
+            <Text className="page-header-card__description" size="sm">
               Текущий инкремент уже реализует flows клиентов, пользователей и групп. Этот
               маршрут оставлен как безопасный placeholder до следующего этапа.
             </Text>

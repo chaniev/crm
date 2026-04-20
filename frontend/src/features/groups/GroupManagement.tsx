@@ -126,9 +126,8 @@ export function GroupsListScreen({
 
   return (
     <Stack className="dashboard-stack" data-testid="groups-screen" gap="xl">
-      <Paper className="dashboard-hero" radius="36px" shadow="lg">
-        <div className="dashboard-hero__glow" />
-        <Stack className="dashboard-hero__content" gap="lg">
+      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+        <Stack className="page-header-card__content" gap="md">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
               {GROUPS_STAGE_LABEL}
@@ -139,10 +138,10 @@ export function GroupsListScreen({
           </Group>
 
           <Stack gap="sm">
-            <Title c="white" className="dashboard-hero__title" order={1}>
+            <Title className="page-header-card__title" order={1}>
               Группы и назначение тренеров встроены в shell
             </Title>
-            <Text className="dashboard-hero__description" size="lg">
+            <Text className="page-header-card__description" size="sm">
               Список показывает расписание, время старта, состав тренеров и
               количество клиентов по каждой группе без перехода в отдельный модуль.
             </Text>
@@ -153,7 +152,6 @@ export function GroupsListScreen({
               color="accent.5"
               leftSection={<IconPlus size={18} />}
               onClick={onCreate}
-              variant="white"
             >
               Создать группу
             </Button>
@@ -382,7 +380,7 @@ export function GroupCreateScreen({
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onCancel}
-            variant="white"
+            variant="default"
           >
             К списку групп
           </Button>
@@ -519,7 +517,7 @@ export function GroupEditScreen({
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onBack}
-            variant="white"
+            variant="default"
           >
             К списку групп
           </Button>
@@ -812,23 +810,22 @@ function GroupFormHero({
   title,
 }: GroupFormHeroProps) {
   return (
-    <Paper className="dashboard-hero" radius="36px" shadow="lg">
-      <div className="dashboard-hero__glow" />
-      <Stack className="dashboard-hero__content" gap="lg">
-          <Group gap="sm">
-            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              {GROUPS_STAGE_LABEL}
-            </Badge>
+    <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+      <Stack className="page-header-card__content" gap="md">
+        <Group gap="sm">
+          <Badge color="accent.5" radius="xl" size="lg" variant="filled">
+            {GROUPS_STAGE_LABEL}
+          </Badge>
           <Badge color="brand.1" radius="xl" size="lg" variant="light">
             {badge}
           </Badge>
         </Group>
 
         <Stack gap="sm">
-          <Title c="white" className="dashboard-hero__title" order={1}>
+          <Title className="page-header-card__title" order={1}>
             {title}
           </Title>
-          <Text className="dashboard-hero__description" size="lg">
+          <Text className="page-header-card__description" size="sm">
             {description}
           </Text>
         </Stack>

@@ -123,9 +123,8 @@ export function UsersListScreen({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <Paper className="dashboard-hero" radius="36px" shadow="lg">
-        <div className="dashboard-hero__glow" />
-        <Stack className="dashboard-hero__content" gap="lg">
+      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+        <Stack className="page-header-card__content" gap="md">
           <Group gap="sm">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
               Этап 4
@@ -136,10 +135,10 @@ export function UsersListScreen({
           </Group>
 
           <Stack gap="sm">
-            <Title c="white" className="dashboard-hero__title" order={1}>
+            <Title className="page-header-card__title" order={1}>
               Пользователи и роли теперь управляются из shell
             </Title>
-            <Text className="dashboard-hero__description" size="lg">
+            <Text className="page-header-card__description" size="sm">
               Экран списка показывает состав команды, статус активности и
               пользователей, которым backend еще требует сменить пароль.
             </Text>
@@ -150,7 +149,6 @@ export function UsersListScreen({
               color="accent.5"
               leftSection={<IconPlus size={18} />}
               onClick={onCreate}
-              variant="white"
             >
               Создать пользователя
             </Button>
@@ -350,7 +348,7 @@ export function UserCreateScreen({
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onCancel}
-            variant="white"
+            variant="default"
           >
             Назад к списку
           </Button>
@@ -588,7 +586,7 @@ export function UserEditScreen({
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onBack}
-            variant="white"
+            variant="default"
           >
             Назад к списку
           </Button>
@@ -760,9 +758,8 @@ function UserFormHero({
   title,
 }: UserFormHeroProps) {
   return (
-    <Paper className="dashboard-hero" radius="36px" shadow="lg">
-      <div className="dashboard-hero__glow" />
-      <Stack className="dashboard-hero__content" gap="lg">
+    <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+      <Stack className="page-header-card__content" gap="md">
         <Group gap="sm">
           <Badge color="accent.5" radius="xl" size="lg" variant="filled">
             Этап 4
@@ -773,10 +770,10 @@ function UserFormHero({
         </Group>
 
         <Stack gap="sm">
-          <Title c="white" className="dashboard-hero__title" order={1}>
+          <Title className="page-header-card__title" order={1}>
             {title}
           </Title>
-          <Text className="dashboard-hero__description" size="lg">
+          <Text className="page-header-card__description" size="sm">
             {description}
           </Text>
         </Stack>

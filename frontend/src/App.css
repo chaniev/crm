@@ -62,22 +62,19 @@
   filter: blur(18px);
 }
 
-.story-panel__content,
-.dashboard-hero__content {
+.story-panel__content {
   position: relative;
   z-index: 1;
 }
 
-.story-panel__title,
-.dashboard-hero__title {
+.story-panel__title {
   max-width: 12ch;
   line-height: 0.98;
   font-size: clamp(2.2rem, 5vw, 4rem);
   letter-spacing: -0.04em;
 }
 
-.story-panel__description,
-.dashboard-hero__description {
+.story-panel__description {
   max-width: 42rem;
   color: rgba(246, 244, 238, 0.84);
 }
@@ -266,26 +263,6 @@
   padding: 1rem 0 2rem;
 }
 
-.dashboard-hero {
-  position: relative;
-  overflow: hidden;
-  background:
-    linear-gradient(150deg, rgba(10, 37, 34, 0.98), rgba(20, 90, 82, 0.95)),
-    radial-gradient(circle at top left, rgba(216, 154, 61, 0.28), transparent 38%);
-  color: #f6f4ee;
-  padding: clamp(1.5rem, 3vw, 2.25rem);
-}
-
-.dashboard-hero__glow {
-  position: absolute;
-  inset: auto -3rem -4rem auto;
-  width: 15rem;
-  height: 15rem;
-  border-radius: 999px;
-  background: rgba(216, 154, 61, 0.18);
-  filter: blur(20px);
-}
-
 .surface-card {
   padding: 1.4rem;
   background: rgba(255, 255, 255, 0.92);
@@ -294,6 +271,29 @@
 
 .surface-card--wide {
   padding: 1.5rem;
+}
+
+.page-header-card__content {
+  position: relative;
+  z-index: 1;
+}
+
+.page-header-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 245, 242, 0.94));
+}
+
+.page-header-card__title {
+  max-width: none;
+  line-height: 1.08;
+  font-size: clamp(1.45rem, 2.8vw, 2.2rem);
+  letter-spacing: -0.03em;
+  color: var(--mantine-color-dark-8);
+}
+
+.page-header-card__description {
+  max-width: 52rem;
+  color: var(--mantine-color-dimmed);
 }
 
 .management-hero__actions {
@@ -351,12 +351,6 @@
 .group-clients-card {
   background:
     linear-gradient(135deg, rgba(237, 245, 242, 0.92), rgba(246, 244, 238, 0.9));
-}
-
-.attendance-hero {
-  background:
-    linear-gradient(145deg, rgba(10, 37, 34, 0.98), rgba(20, 90, 82, 0.95)),
-    radial-gradient(circle at top left, rgba(216, 154, 61, 0.34), transparent 36%);
 }
 
 .attendance-toolbar {
@@ -430,12 +424,6 @@
   border-color: rgba(20, 90, 82, 0.08);
 }
 
-.audit-hero {
-  background:
-    linear-gradient(145deg, rgba(9, 36, 34, 0.98), rgba(20, 90, 82, 0.95)),
-    radial-gradient(circle at top left, rgba(216, 154, 61, 0.32), transparent 36%);
-}
-
 .audit-filter-card,
 .audit-empty-card,
 .audit-json-card {
@@ -489,8 +477,7 @@
     grid-template-columns: 1fr;
   }
 
-  .story-panel__title,
-  .dashboard-hero__title {
+  .story-panel__title {
     max-width: 14ch;
   }
 }

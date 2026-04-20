@@ -362,7 +362,6 @@ export function ClientsListScreen({
                 color="accent.5"
                 leftSection={<IconPlus size={18} />}
                 onClick={onCreate}
-                variant="white"
               >
                 Создать клиента
               </Button>
@@ -900,7 +899,7 @@ export function ClientCreateScreen({
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onCancel}
-            variant="white"
+            variant="default"
           >
             К списку клиентов
           </Button>
@@ -1062,7 +1061,7 @@ export function ClientEditScreen({
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onBack}
-            variant="white"
+            variant="default"
           >
             К карточке клиента
           </Button>
@@ -1349,7 +1348,7 @@ export function ClientDetailScreen({
             <Button
               leftSection={<IconArrowLeft size={18} />}
               onClick={onBack}
-              variant="white"
+              variant="default"
             >
               К списку клиентов
             </Button>
@@ -1358,7 +1357,7 @@ export function ClientDetailScreen({
                 <Button
                   leftSection={<IconEdit size={18} />}
                   onClick={() => onEdit(client.id)}
-                  variant="white"
+                  variant="light"
                 >
                   Редактировать
                 </Button>
@@ -1373,7 +1372,7 @@ export function ClientDetailScreen({
                   }
                   loading={actionPending}
                   onClick={() => setArchiveConfirmOpened(true)}
-                  variant="white"
+                  variant="light"
                 >
                   {client.status === 'Active'
                     ? 'В архив'
@@ -1859,9 +1858,8 @@ function ClientHero({
   title,
 }: ClientHeroProps) {
   return (
-    <Paper className="dashboard-hero" radius="36px" shadow="lg">
-      <div className="dashboard-hero__glow" />
-      <Stack className="dashboard-hero__content" gap="lg">
+    <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+      <Stack className="page-header-card__content" gap="md">
         <Group gap="sm">
           <Badge color="accent.5" radius="xl" size="lg" variant="filled">
             Этап 6c
@@ -1872,10 +1870,10 @@ function ClientHero({
         </Group>
 
         <Stack gap="sm">
-          <Title c="white" className="dashboard-hero__title" order={1}>
+          <Title className="page-header-card__title" order={1}>
             {title}
           </Title>
-          <Text className="dashboard-hero__description" size="lg">
+          <Text className="page-header-card__description" size="sm">
             {description}
           </Text>
         </Stack>

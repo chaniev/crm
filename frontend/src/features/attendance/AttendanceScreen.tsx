@@ -253,9 +253,8 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
 
   return (
     <Stack className="dashboard-stack" data-testid="attendance-screen" gap="xl">
-      <Paper className="dashboard-hero attendance-hero" radius="36px" shadow="lg">
-        <div className="dashboard-hero__glow" />
-        <Stack className="dashboard-hero__content" gap="lg">
+      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+        <Stack className="page-header-card__content" gap="md">
           <Group gap="sm" wrap="wrap">
             <Badge color="accent.5" radius="xl" size="lg" variant="filled">
               Этап 7
@@ -269,10 +268,10 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
           </Group>
 
           <Stack gap="sm">
-            <Title c="white" className="dashboard-hero__title" order={1}>
+            <Title className="page-header-card__title" order={1}>
               Отметка посещений работает как отдельный mobile-first сценарий
             </Title>
-            <Text className="dashboard-hero__description" size="lg">
+            <Text className="page-header-card__description" size="sm">
               Один экран для `HeadCoach` и `Coach`: выберите группу и дату, затем
               быстро проставьте присутствие по клиентам, не смешивая этот flow со
               списком клиентов.
