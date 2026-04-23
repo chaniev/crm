@@ -99,12 +99,23 @@ public class AuthFlowTests
 
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-        var auditActions = await dbContext.AuditLogs
+        var auditEntries = await dbContext.AuditLogs
             .OrderBy(entry => entry.CreatedAt)
-            .Select(entry => entry.ActionType)
+            .Select(entry => new
+            {
+                entry.ActionType,
+                entry.Description
+            })
             .ToListAsync();
 
-        Assert.Equal(["Login", "PasswordChanged", "Logout"], auditActions);
+        Assert.Equal(["Login", "PasswordChanged", "Logout"], auditEntries.Select(entry => entry.ActionType));
+        Assert.Equal(
+            [
+                "Пользователь 'headcoach' вошёл в систему.",
+                "Пользователь 'headcoach' изменил пароль.",
+                "Пользователь 'headcoach' вышел из системы."
+            ],
+            auditEntries.Select(entry => entry.Description));
     }
 
     [Fact]

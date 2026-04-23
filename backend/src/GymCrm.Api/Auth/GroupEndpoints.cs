@@ -154,7 +154,7 @@ internal static class GroupEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -224,7 +224,7 @@ internal static class GroupEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -288,7 +288,7 @@ internal static class GroupEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -528,24 +528,6 @@ internal static class GroupEndpoints
                 GroupId = group.Id,
                 TrainerId = trainerId
             });
-        }
-    }
-
-    private static async Task<ProblemHttpResult?> ValidateAntiforgeryAsync(
-        HttpContext httpContext,
-        IAntiforgery antiforgery)
-    {
-        try
-        {
-            await antiforgery.ValidateRequestAsync(httpContext);
-            return null;
-        }
-        catch (AntiforgeryValidationException)
-        {
-            return TypedResults.Problem(
-                title: AuthConstants.InvalidCsrfProblemTitle,
-                detail: AuthConstants.InvalidCsrfProblemDetail,
-                statusCode: StatusCodes.Status400BadRequest);
         }
     }
 

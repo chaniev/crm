@@ -14,9 +14,6 @@ namespace GymCrm.Api.Auth;
 
 internal static class ClientEndpoints
 {
-    private const int DefaultPage = 1;
-    private const int DefaultTake = 20;
-    private const int MaxTake = 100;
     private static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
 
     public static IEndpointRouteBuilder MapClientEndpoints(this IEndpointRouteBuilder endpoints)
@@ -188,6 +185,11 @@ internal static class ClientEndpoints
                         (membership.MembershipType != MembershipType.SingleVisit || !membership.SingleVisitUsed)));
         }
 
+        query = ApplyMembershipExpirationFilter(
+            query,
+            membershipExpirationFrom,
+            membershipExpirationTo);
+
         var orderedQuery = query
             .OrderBy(client => client.LastName ?? string.Empty)
             .ThenBy(client => client.FirstName ?? string.Empty)
@@ -204,16 +206,10 @@ internal static class ClientEndpoints
                         .ThenInclude(group => group.Trainers)
                 .AsSplitQuery();
 
-            var clients = membershipExpirationFrom.HasValue || membershipExpirationTo.HasValue
-                ? (await clientsQuery.ToListAsync(cancellationToken))
-                    .Where(client => MatchesMembershipExpirationRange(client, membershipExpirationFrom, membershipExpirationTo))
-                    .Skip(paging.Skip)
-                    .Take(paging.Take)
-                    .ToArray()
-                : await clientsQuery
-                    .Skip(paging.Skip)
-                    .Take(paging.Take)
-                    .ToArrayAsync(cancellationToken);
+            var clients = await clientsQuery
+                .Skip(paging.Skip)
+                .Take(paging.Take)
+                .ToArrayAsync(cancellationToken);
 
             response = clients
                 .Select(client => MapListItem(client, currentUser))
@@ -228,16 +224,10 @@ internal static class ClientEndpoints
                     .ThenInclude(clientGroup => clientGroup.Group)
                 .AsSplitQuery();
 
-            var clients = membershipExpirationFrom.HasValue || membershipExpirationTo.HasValue
-                ? (await clientsQuery.ToListAsync(cancellationToken))
-                    .Where(client => MatchesMembershipExpirationRange(client, membershipExpirationFrom, membershipExpirationTo))
-                    .Skip(paging.Skip)
-                    .Take(paging.Take)
-                    .ToArray()
-                : await clientsQuery
-                    .Skip(paging.Skip)
-                    .Take(paging.Take)
-                    .ToArrayAsync(cancellationToken);
+            var clients = await clientsQuery
+                .Skip(paging.Skip)
+                .Take(paging.Take)
+                .ToArrayAsync(cancellationToken);
 
             response = clients
                 .Select(client => MapListItem(client, currentUser))
@@ -259,40 +249,59 @@ internal static class ClientEndpoints
         }
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-        var expiresBefore = today.AddDays(10);
+        var expiresBefore = today.AddDays(ClientApiConstants.ExpiringMembershipWindowDays);
 
-        var clients = await dbContext.Clients
+        IReadOnlyList<ExpiringClientMembershipListItemResponse> response = await dbContext.Clients
             .AsNoTracking()
             .Where(client => client.Status == ClientStatus.Active)
-            .Include(client => client.Memberships)
-            .ToArrayAsync(cancellationToken);
-
-        IReadOnlyList<ExpiringClientMembershipListItemResponse> response = clients
             .Select(client => new
             {
-                Client = client,
-                CurrentMembership = GetCurrentMembership(client)
+                client.Id,
+                client.LastName,
+                client.FirstName,
+                client.MiddleName,
+                CurrentMembership = client.Memberships
+                    .Where(membership => membership.ValidTo == null)
+                    .OrderByDescending(membership => membership.ValidFrom)
+                    .Select(membership => new
+                    {
+                        membership.MembershipType,
+                        membership.ExpirationDate,
+                        membership.IsPaid
+                    })
+                    .FirstOrDefault()
             })
             .Where(candidate =>
-                candidate.CurrentMembership?.ExpirationDate is DateOnly expirationDate &&
-                expirationDate >= today &&
-                expirationDate < expiresBefore)
-            .OrderBy(candidate => candidate.CurrentMembership!.ExpirationDate)
-            .ThenBy(candidate => candidate.Client.LastName ?? string.Empty)
-            .ThenBy(candidate => candidate.Client.FirstName ?? string.Empty)
-            .ThenBy(candidate => candidate.Client.MiddleName ?? string.Empty)
-            .ThenBy(candidate => candidate.Client.Id)
+                candidate.CurrentMembership != null &&
+                candidate.CurrentMembership.ExpirationDate.HasValue &&
+                candidate.CurrentMembership.ExpirationDate.Value >= today &&
+                candidate.CurrentMembership.ExpirationDate.Value < expiresBefore)
+            .Select(candidate => new
+            {
+                candidate.Id,
+                candidate.LastName,
+                candidate.FirstName,
+                candidate.MiddleName,
+                MembershipType = candidate.CurrentMembership!.MembershipType,
+                ExpirationDate = candidate.CurrentMembership!.ExpirationDate!.Value,
+                candidate.CurrentMembership!.IsPaid
+            })
+            .OrderBy(candidate => candidate.ExpirationDate)
+            .ThenBy(candidate => candidate.LastName ?? string.Empty)
+            .ThenBy(candidate => candidate.FirstName ?? string.Empty)
+            .ThenBy(candidate => candidate.MiddleName ?? string.Empty)
+            .ThenBy(candidate => candidate.Id)
             .Select(candidate => new ExpiringClientMembershipListItemResponse(
-                candidate.Client.Id,
+                candidate.Id,
                 BuildClientFullName(
-                    candidate.Client.LastName,
-                    candidate.Client.FirstName,
-                    candidate.Client.MiddleName),
-                candidate.CurrentMembership!.MembershipType.ToString(),
-                candidate.CurrentMembership.ExpirationDate!.Value,
-                candidate.CurrentMembership.ExpirationDate.Value.DayNumber - today.DayNumber,
-                candidate.CurrentMembership.IsPaid))
-            .ToArray();
+                    candidate.LastName,
+                    candidate.FirstName,
+                    candidate.MiddleName),
+                candidate.MembershipType.ToString(),
+                candidate.ExpirationDate,
+                candidate.ExpirationDate.DayNumber - today.DayNumber,
+                candidate.IsPaid))
+            .ToArrayAsync(cancellationToken);
 
         return TypedResults.Ok(response);
     }
@@ -366,7 +375,7 @@ internal static class ClientEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -428,7 +437,7 @@ internal static class ClientEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -535,7 +544,7 @@ internal static class ClientEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -715,7 +724,7 @@ internal static class ClientEndpoints
         string actionType,
         string actionVerb)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -846,9 +855,9 @@ internal static class ClientEndpoints
                 errors["page"] = ["Номер страницы должен быть больше 0."];
             }
 
-            if (pageSize is <= 0 or > MaxTake)
+            if (pageSize is <= 0 or > ClientApiConstants.MaxTake)
             {
-                errors["pageSize"] = [$"Размер страницы должен быть в диапазоне от 1 до {MaxTake}."];
+                errors["pageSize"] = [$"Размер страницы должен быть в диапазоне от 1 до {ClientApiConstants.MaxTake}."];
             }
 
             return errors;
@@ -859,9 +868,9 @@ internal static class ClientEndpoints
             errors["skip"] = ["Параметр skip не может быть отрицательным."];
         }
 
-        if (take is <= 0 or > MaxTake)
+        if (take is <= 0 or > ClientApiConstants.MaxTake)
         {
-            errors["take"] = [$"Параметр take должен быть в диапазоне от 1 до {MaxTake}."];
+            errors["take"] = [$"Параметр take должен быть в диапазоне от 1 до {ClientApiConstants.MaxTake}."];
         }
 
         return errors;
@@ -876,11 +885,11 @@ internal static class ClientEndpoints
             errors["attendanceSkip"] = ["Параметр attendanceSkip не может быть отрицательным."];
         }
 
-        if (attendanceTake is <= 0 or > MaxTake)
+        if (attendanceTake is <= 0 or > ClientApiConstants.MaxTake)
         {
             if (attendanceTake.HasValue)
             {
-                errors["attendanceTake"] = [$"Параметр attendanceTake должен быть в диапазоне от 1 до {MaxTake}."];
+                errors["attendanceTake"] = [$"Параметр attendanceTake должен быть в диапазоне от 1 до {ClientApiConstants.MaxTake}."];
             }
         }
 
@@ -891,22 +900,22 @@ internal static class ClientEndpoints
     {
         if (page.HasValue || pageSize.HasValue)
         {
-            var resolvedPage = page ?? DefaultPage;
-            var resolvedPageSize = pageSize ?? DefaultTake;
+            var resolvedPage = page ?? ClientApiConstants.DefaultPage;
+            var resolvedPageSize = pageSize ?? ClientApiConstants.DefaultTake;
             return new Paging((resolvedPage - 1) * resolvedPageSize, resolvedPageSize);
         }
 
-        return new Paging(skip ?? 0, take ?? DefaultTake);
+        return new Paging(skip ?? 0, take ?? ClientApiConstants.DefaultTake);
     }
 
     private static AttendanceHistoryPaging ResolveAttendanceHistoryPaging(int? attendanceSkip, int? attendanceTake)
     {
-        return new AttendanceHistoryPaging(attendanceSkip ?? 0, attendanceTake ?? DefaultTake);
+        return new AttendanceHistoryPaging(attendanceSkip ?? 0, attendanceTake ?? ClientApiConstants.DefaultTake);
     }
 
     private static ClientAttendanceHistoryPageResponse EmptyAttendanceHistoryPage()
     {
-        return new ClientAttendanceHistoryPageResponse([], 0, DefaultTake, 0, false);
+        return new ClientAttendanceHistoryPageResponse([], 0, ClientApiConstants.DefaultTake, 0, false);
     }
 
     private static Dictionary<string, string[]> ValidateListFilters(
@@ -1494,6 +1503,26 @@ internal static class ClientEndpoints
                 .Contains(normalizedPhone));
     }
 
+    private static IQueryable<Client> ApplyMembershipExpirationFilter(
+        IQueryable<Client> query,
+        DateOnly? membershipExpirationFrom,
+        DateOnly? membershipExpirationTo)
+    {
+        if (!membershipExpirationFrom.HasValue && !membershipExpirationTo.HasValue)
+        {
+            return query;
+        }
+
+        return query.Where(client => client.Memberships
+            .Where(membership => membership.ValidTo == null)
+            .OrderByDescending(membership => membership.ValidFrom)
+            .Take(1)
+            .Any(membership =>
+                membership.ExpirationDate.HasValue &&
+                (!membershipExpirationFrom.HasValue || membership.ExpirationDate.Value >= membershipExpirationFrom.Value) &&
+                (!membershipExpirationTo.HasValue || membership.ExpirationDate.Value <= membershipExpirationTo.Value)));
+    }
+
     private static string NormalizePhoneSearch(string phone)
     {
         return phone
@@ -1536,24 +1565,6 @@ internal static class ClientEndpoints
         return Enum.TryParse<ClientPaymentStatus>(paymentStatus?.Trim(), ignoreCase: true, out var parsedPaymentStatus)
             ? parsedPaymentStatus
             : null;
-    }
-
-    private static async Task<ProblemHttpResult?> ValidateAntiforgeryAsync(
-        HttpContext httpContext,
-        IAntiforgery antiforgery)
-    {
-        try
-        {
-            await antiforgery.ValidateRequestAsync(httpContext);
-            return null;
-        }
-        catch (AntiforgeryValidationException)
-        {
-            return TypedResults.Problem(
-                title: AuthConstants.InvalidCsrfProblemTitle,
-                detail: AuthConstants.InvalidCsrfProblemDetail,
-                statusCode: StatusCodes.Status400BadRequest);
-        }
     }
 
     private static ClientListItemResponse MapListItem(Client client, User currentUser)
@@ -1764,18 +1775,6 @@ internal static class ClientEndpoints
         }
 
         return membership.MembershipType != MembershipType.SingleVisit || !membership.SingleVisitUsed;
-    }
-
-    private static bool MatchesMembershipExpirationRange(
-        Client client,
-        DateOnly? membershipExpirationFrom,
-        DateOnly? membershipExpirationTo)
-    {
-        var expirationDate = GetCurrentMembership(client)?.ExpirationDate;
-
-        return expirationDate.HasValue &&
-            (!membershipExpirationFrom.HasValue || expirationDate.Value >= membershipExpirationFrom.Value) &&
-            (!membershipExpirationTo.HasValue || expirationDate.Value <= membershipExpirationTo.Value);
     }
 
     private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)

@@ -13,12 +13,12 @@ import {
 } from '@mantine/core'
 import { IconAlertCircle, IconRefresh, IconUserHeart } from '@tabler/icons-react'
 import {
-  getClients,
+  getExpiringClientMemberships,
   type AuthenticatedUser,
-  type ClientListItem,
-  type ClientMembership,
+  type ExpiringClientMembership,
   type MembershipType,
 } from '../../lib/api'
+import { resources } from '../../lib/resources'
 import { ResponsiveButtonGroup } from '../shared/ux'
 
 type HomeDashboardProps = {
@@ -26,54 +26,34 @@ type HomeDashboardProps = {
   onOpenClient?: (clientId: string) => void
 }
 
-const EXPIRING_MEMBERSHIP_DAYS = 10
-const EXPIRING_MEMBERSHIP_PAGE_SIZE = 100
-
 const membershipTypeLabels: Record<MembershipType, string> = {
   SingleVisit: 'Разовое посещение',
   Monthly: 'Месячный',
   Yearly: 'Годовой',
 }
 
-type ExpiringMembershipClient = ClientListItem & {
-  currentMembership: ClientMembership
-  daysUntilExpiration: number
-}
-
 export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
-  const [clients, setClients] = useState<ExpiringMembershipClient[]>([])
+  const [clients, setClients] = useState<ExpiringClientMembership[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     const controller = new AbortController()
-    const today = getTodayIsoDate()
-    const expirationBoundary = addDays(today, EXPIRING_MEMBERSHIP_DAYS - 1)
 
     async function load() {
       setLoading(true)
       setError(null)
 
       try {
-        const response = await getClients(
-          {
-            page: 1,
-            pageSize: EXPIRING_MEMBERSHIP_PAGE_SIZE,
-            status: 'Active',
-            membershipExpiresFrom: today,
-            membershipExpiresTo: expirationBoundary,
-          },
-          controller.signal,
-        )
+        const response = await getExpiringClientMemberships(controller.signal)
 
         if (controller.signal.aborted) {
           return
         }
 
         setClients(
-          response.items
-            .flatMap((client) => toExpiringMembershipClient(client, today))
+          response
             .sort(
               (left, right) =>
                 left.daysUntilExpiration - right.daysUntilExpiration ||
@@ -128,7 +108,8 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
             <div>
               <Title order={2}>Истекающие абонементы</Title>
               <Text c="dimmed" size="sm">
-                Только клиенты, у которых абонемент закончится менее чем через 10 дней.
+                Только клиенты, у которых абонемент закончится менее чем через{' '}
+                {resources.common.membership.expiringWindowDays} дней.
               </Text>
             </div>
 
@@ -142,7 +123,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
                   onClick={() => setReloadKey((current) => current + 1)}
                   variant="light"
                 >
-                  Обновить
+                  {resources.common.actions.refresh}
                 </Button>
               </ResponsiveButtonGroup>
             </Group>
@@ -168,7 +149,10 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
           {!loading && !error && clients.length === 0 ? (
             <Paper className="list-row-card home-empty-card" radius="24px" withBorder>
               <Stack gap="sm">
-                <Text fw={700}>В ближайшие 10 дней истекающих абонементов нет.</Text>
+                <Text fw={700}>
+                  В ближайшие {resources.common.membership.expiringWindowDays} дней
+                  истекающих абонементов нет.
+                </Text>
                 <Text c="dimmed" size="sm">
                   Экран остается узким operational-списком и не показывает дополнительные виджеты.
                 </Text>
@@ -181,8 +165,8 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
               {clients.map((client) => (
                 <Paper
                   className="list-row-card home-client-row-card"
-                  data-testid={`home-client-card-${client.id}`}
-                  key={client.id}
+                  data-testid={`home-client-card-${client.clientId}`}
+                  key={client.clientId}
                   radius="24px"
                   withBorder
                 >
@@ -196,11 +180,11 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
                     <SimpleGrid className="home-client-row__fields" cols={{ base: 1, xs: 2, xl: 4 }}>
                       <HomeField
                         label="Тип абонемента"
-                        value={membershipTypeLabels[client.currentMembership.membershipType]}
+                        value={membershipTypeLabels[client.membershipType]}
                       />
                       <HomeField
                         label="Дата окончания"
-                        value={formatDateValue(client.currentMembership.expirationDate)}
+                        value={formatDateValue(client.expirationDate)}
                       />
                       <HomeField
                         label="Дней до окончания"
@@ -218,11 +202,13 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
                         label="Оплата"
                         value={
                           <Badge
-                            color={client.currentMembership.isPaid ? 'teal' : 'red'}
+                            color={client.isPaid ? 'teal' : 'red'}
                             radius="xl"
                             variant="light"
                           >
-                            {client.currentMembership.isPaid ? 'Оплачен' : 'Не оплачен'}
+                            {client.isPaid
+                              ? resources.common.statuses.paid
+                              : resources.common.statuses.unpaid}
                           </Badge>
                         }
                       />
@@ -232,7 +218,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
                       <ResponsiveButtonGroup justify="flex-end">
                         <Button
                           leftSection={<IconUserHeart size={18} />}
-                          onClick={() => onOpenClient(client.id)}
+                          onClick={() => onOpenClient(client.clientId)}
                           variant="light"
                         >
                           Карточка клиента
@@ -270,32 +256,6 @@ function HomeField({ label, value }: HomeFieldProps) {
       )}
     </div>
   )
-}
-
-function toExpiringMembershipClient(
-  client: ClientListItem,
-  today: string,
-): ExpiringMembershipClient[] {
-  const currentMembership = client.currentMembership
-  const expirationDate = currentMembership?.expirationDate
-
-  if (!currentMembership || !expirationDate) {
-    return []
-  }
-
-  const daysUntilExpiration = getDayDiff(today, expirationDate)
-
-  if (daysUntilExpiration < 0 || daysUntilExpiration >= EXPIRING_MEMBERSHIP_DAYS) {
-    return []
-  }
-
-  return [
-    {
-      ...client,
-      currentMembership,
-      daysUntilExpiration,
-    },
-  ]
 }
 
 function formatDateValue(value: string | null) {
@@ -341,31 +301,4 @@ function formatDayWord(value: number) {
   }
 
   return 'дней'
-}
-
-function getTodayIsoDate() {
-  return toIsoDate(new Date())
-}
-
-function addDays(isoDate: string, days: number) {
-  const [year, month, day] = isoDate.split('-').map(Number)
-  const date = new Date(Date.UTC(year, month - 1, day))
-  date.setUTCDate(date.getUTCDate() + days)
-
-  return toIsoDate(date)
-}
-
-function getDayDiff(startDate: string, endDate: string) {
-  const start = Date.parse(`${startDate}T00:00:00Z`)
-  const end = Date.parse(`${endDate}T00:00:00Z`)
-
-  return Math.round((end - start) / 86_400_000)
-}
-
-function toIsoDate(value: Date) {
-  const year = value.getUTCFullYear()
-  const month = String(value.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(value.getUTCDate()).padStart(2, '0')
-
-  return `${year}-${month}-${day}`
 }

@@ -2,6 +2,34 @@
 
 Дата: 2026-04-23
 
+## Статус реализации
+
+Обновлено: 2026-04-23.
+
+Выполнено в текущем срезе:
+
+- baseline и финальные проверки зафиксированы;
+- общий backend CSRF-helper подключен к auth/users/clients/groups/attendance/client photo endpoint'ам;
+- создание principal, sign-in/sign-out и self-update session sync вынесены в общий auth helper;
+- `UserEndpoints.cs` разгружен: request/response DTO, validation, audit state serialization, resources и action/entity constants вынесены в соседние файлы;
+- backend users/auth audit descriptions переведены на русский, action/entity codes сохранены стабильными;
+- users/auth resources заведены через `Auth/Resources/*.resx` и тонкие helper-классы;
+- `createUser`/`updateUser` на frontend возвращают типизированный user response;
+- `applyFieldErrors(errors, aliases?)` исправлен: users сохраняют `fullName`, clients явно алиасят `fullName -> lastName`;
+- `UserManagement.tsx` разделен на list/create/edit/shared form/constants/mappers;
+- первый frontend resource dictionary добавлен для users/common/audit текстов;
+- `HomeDashboard` переведен на `GET /clients/expiring-memberships`;
+- фильтр `membershipExpiresFrom/membershipExpiresTo` и endpoint истекающих абонементов перенесены на EF query boundary;
+- повторяемый frontend `MetricCard` вынесен в `src/features/shared/ux.tsx`;
+- добавлены точечные regression tests для self-update session sync, русских audit descriptions и paging после membership-expiration filter.
+
+Остаются дальнейшими безопасными срезами:
+
+- полное ресурсирование clients/groups/attendance текстов;
+- централизованные audit action/entity constants для client/group/attendance/membership событий;
+- постепенное разделение `frontend/src/lib/api.ts` по доменам с сохранением re-export;
+- дальнейшее разделение крупных backend endpoint DTO в client/group/attendance областях.
+
 ## 1. Цель
 
 План фиксирует технические улучшения, найденные при разборе `UserEndpoints.cs`, `UserManagement.tsx`, `HomeDashboard.tsx`, `frontend/src/lib/api.ts` и соседних backend endpoint'ов.

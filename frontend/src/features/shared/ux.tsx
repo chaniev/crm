@@ -2,8 +2,10 @@ import {
   Button,
   Group,
   Modal,
+  Paper,
   Stack,
   Text,
+  Title,
   type MantineSpacing,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
@@ -15,6 +17,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react'
+import { resources } from '../../lib/resources'
 
 type ResponsiveButtonGroupProps = {
   children: ReactNode
@@ -92,7 +95,7 @@ export function ConfirmActionModal({
 
         <ResponsiveButtonGroup justify="flex-end">
           <Button disabled={pending} onClick={onClose} variant="default">
-            Отмена
+            {resources.common.actions.cancel}
           </Button>
           <Button color={confirmColor} loading={pending} onClick={onConfirm}>
             {confirmLabel}
@@ -100,5 +103,31 @@ export function ConfirmActionModal({
         </ResponsiveButtonGroup>
       </Stack>
     </Modal>
+  )
+}
+
+type MetricCardProps = {
+  description: string
+  label: string
+  value: string
+}
+
+export function MetricCard({
+  description,
+  label,
+  value,
+}: MetricCardProps) {
+  return (
+    <Paper className="surface-card metric-card" radius="28px" withBorder>
+      <Stack gap={6}>
+        <Text c="dimmed" fw={600} size="sm">
+          {label}
+        </Text>
+        <Title order={3}>{value}</Title>
+        <Text c="dimmed" size="sm">
+          {description}
+        </Text>
+      </Stack>
+    </Paper>
   )
 }

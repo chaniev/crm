@@ -573,6 +573,8 @@ type GroupTrainerOptionPayload = {
   login: string
 }
 
+type UserResponsePayload = Record<string, unknown>
+
 type AttendanceGroupPayload = {
   id?: string | null
   groupId?: string | null
@@ -648,6 +650,8 @@ export class ApiError extends Error {
   }
 }
 
+type FieldErrorAliases = Record<string, string>
+
 async function request<T>(
   path: string,
   init: RequestInit = {},
@@ -695,10 +699,11 @@ async function request<T>(
 
 export function applyFieldErrors(
   fieldErrors: Record<string, string[]>,
+  aliases: FieldErrorAliases = {},
 ): Record<string, string> {
   return Object.fromEntries(
     Object.entries(fieldErrors).map(([field, messages]) => [
-      normalizeFieldPath(field),
+      resolveFieldPathAlias(field, aliases),
       messages[0] ?? DEFAULT_FIELD_ERROR_MESSAGE,
     ]),
   )
@@ -993,25 +998,37 @@ export async function changePassword(payload: ChangePasswordRequest) {
 }
 
 export async function getUsers(signal?: AbortSignal) {
-  return request<UserListItem[]>(API_ENDPOINTS.users.collection, { signal })
+  const payload = await request<unknown>(API_ENDPOINTS.users.collection, { signal })
+
+  return extractArrayPayload<UserResponsePayload>(payload, ['items', 'users']).map(
+    mapUserListItem,
+  )
 }
 
 export async function getUser(userId: string, signal?: AbortSignal) {
-  return request<UserDetails>(API_ENDPOINTS.users.byId(userId), { signal })
+  const payload = await request<UserResponsePayload>(API_ENDPOINTS.users.byId(userId), {
+    signal,
+  })
+
+  return mapUserDetails(payload)
 }
 
 export async function createUser(payload: CreateUserRequest) {
-  return request<void>(API_ENDPOINTS.users.collection, {
+  const response = await request<UserResponsePayload>(API_ENDPOINTS.users.collection, {
     method: 'POST',
     body: JSON.stringify(payload),
   })
+
+  return mapUserDetails(response)
 }
 
 export async function updateUser(userId: string, payload: UpdateUserRequest) {
-  return request<void>(API_ENDPOINTS.users.byId(userId), {
+  const response = await request<UserResponsePayload>(API_ENDPOINTS.users.byId(userId), {
     method: 'PUT',
     body: JSON.stringify(payload),
   })
+
+  return mapUserDetails(response)
 }
 
 export async function getGroups(
@@ -1577,11 +1594,43 @@ function mapAuditLogFilterUser(payload: Record<string, unknown>): AuditLogFilter
   }
 }
 
-function normalizeFieldPath(field: string) {
-  if (field === 'fullName') {
-    return 'lastName'
+function mapUserListItem(payload: UserResponsePayload): UserListItem {
+  if (!isRecord(payload)) {
+    return {
+      id: '',
+      fullName: '',
+      login: '',
+      role: 'Coach',
+      mustChangePassword: false,
+      isActive: false,
+    }
   }
 
+  return {
+    id: readString(payload, ['id', 'Id']) ?? '',
+    fullName: readString(payload, ['fullName', 'FullName']) ?? '',
+    login: readString(payload, ['login', 'Login']) ?? '',
+    role: mapUserRole(readString(payload, ['role', 'Role'])) ?? 'Coach',
+    mustChangePassword:
+      readBoolean(payload, ['mustChangePassword', 'MustChangePassword']) ?? false,
+    isActive: readBoolean(payload, ['isActive', 'IsActive']) ?? false,
+  }
+}
+
+function mapUserDetails(payload: UserResponsePayload): UserDetails {
+  return mapUserListItem(payload)
+}
+
+function resolveFieldPathAlias(
+  field: string,
+  aliases: FieldErrorAliases,
+) {
+  const normalizedFieldPath = normalizeFieldPath(field)
+
+  return aliases[normalizedFieldPath] ?? aliases[field] ?? normalizedFieldPath
+}
+
+function normalizeFieldPath(field: string) {
   return field
     .replace(/\[(\d+)\]/g, '.$1')
     .split('.')

@@ -180,6 +180,39 @@ public class UsersApiTests
     }
 
     [Fact]
+    public async Task HeadCoach_self_update_keeps_current_session_in_sync()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/users/{seeded.HeadCoachId}",
+                   new UserUpdateRequest("Главный тренер Stage 4 Обновлённый", seeded.HeadCoachLogin, "HeadCoach", false, true),
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+        }
+
+        var updatedSession = await GetSessionAsync(client);
+
+        Assert.True(updatedSession.IsAuthenticated);
+        Assert.NotNull(updatedSession.User);
+        Assert.Equal("Главный тренер Stage 4 Обновлённый", updatedSession.User.FullName);
+        Assert.Equal("HeadCoach", updatedSession.User.Role);
+
+        using var profileResponse = await client.GetAsync("/auth/profile");
+        Assert.Equal(HttpStatusCode.OK, profileResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task User_create_and_update_write_audit_without_password_data()
     {
         await using var factory = new UsersAppFactory();
@@ -235,6 +268,14 @@ public class UsersApiTests
                 AssertNoPasswordInAuditState(log.OldValueJson);
                 AssertNoPasswordInAuditState(log.NewValueJson);
             }
+
+            var createLog = await dbContext.AuditLogs.SingleAsync(log =>
+                log.ActionType == "UserCreated" &&
+                log.EntityId == userId.ToString());
+
+            Assert.Equal(
+                $"Пользователь '{seeded.HeadCoachLogin}' создал пользователя '{createLogin}'.",
+                createLog.Description);
         }
 
         int logsBeforeUpdate;
@@ -271,6 +312,14 @@ public class UsersApiTests
                 AssertNoPasswordInAuditState(log.OldValueJson);
                 AssertNoPasswordInAuditState(log.NewValueJson);
             }
+
+            var updateLog = await dbContext.AuditLogs.SingleAsync(log =>
+                log.ActionType == "UserUpdated" &&
+                log.EntityId == userId.ToString());
+
+            Assert.Equal(
+                $"Пользователь '{seeded.HeadCoachLogin}' изменил пользователя '{createLogin}'.",
+                updateLog.Description);
         }
     }
 

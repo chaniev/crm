@@ -1150,7 +1150,42 @@ public class ClientsApiTests
                 .ToArray();
         }
 
-        var today = DateTime.UtcNow.Date;
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+
+        async Task SeedCurrentMembershipsAsync(
+            Guid clientId,
+            params (DateOnly? ExpirationDate, int ValidFromOffsetMinutes, MembershipType MembershipType, bool IsPaid)[] memberships)
+        {
+            using var scope = factory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var baseTimestamp = DateTimeOffset.UtcNow;
+
+            foreach (var membership in memberships)
+            {
+                var validFrom = baseTimestamp.AddMinutes(membership.ValidFromOffsetMinutes);
+
+                dbContext.ClientMemberships.Add(new ClientMembership
+                {
+                    Id = Guid.NewGuid(),
+                    ClientId = clientId,
+                    MembershipType = membership.MembershipType,
+                    PurchaseDate = today,
+                    ExpirationDate = membership.ExpirationDate,
+                    PaymentAmount = 1000m,
+                    IsPaid = membership.IsPaid,
+                    SingleVisitUsed = false,
+                    PaidByUserId = membership.IsPaid ? seeded.HeadCoachId : null,
+                    PaidAt = membership.IsPaid ? validFrom : null,
+                    ValidFrom = validFrom,
+                    ValidTo = null,
+                    ChangeReason = ClientMembershipChangeReason.NewPurchase,
+                    ChangedByUserId = seeded.HeadCoachId,
+                    CreatedAt = validFrom
+                });
+            }
+
+            await dbContext.SaveChangesAsync();
+        }
 
         var paidClientId = await CreateClientForFilterAsync("Иванов", "Платный", "+79990004001", [seeded.GroupOneId]);
         var unpaidClientId = await CreateClientForFilterAsync("Петров", "Неоплаченный", "+79990004002", [seeded.GroupTwoId]);
@@ -1245,6 +1280,41 @@ public class ClientsApiTests
         Assert.Contains(unpaidClientId, withoutActivePaid);
         Assert.Contains(noGroupNoPhotoClientId, withoutActivePaid);
         Assert.DoesNotContain(paidClientId, withoutActivePaid);
+
+        var earlyAlphabetClientId = await CreateClientForFilterAsync("Аарон", "Ранний", "+79990004010", [seeded.GroupOneId]);
+        var staleCurrentMembershipClientId = await CreateClientForFilterAsync("Борисов", "Спорный", "+79990004011", [seeded.GroupOneId]);
+        var firstFilteredPageClientId = await CreateClientForFilterAsync("Викторов", "Первый", "+79990004012", [seeded.GroupOneId]);
+        var secondFilteredPageClientId = await CreateClientForFilterAsync("Громов", "Второй", "+79990004013", [seeded.GroupOneId]);
+
+        await SeedCurrentMembershipsAsync(
+            earlyAlphabetClientId,
+            (today.AddDays(5), 1, MembershipType.SingleVisit, true));
+        await SeedCurrentMembershipsAsync(
+            staleCurrentMembershipClientId,
+            (today.AddDays(28), 1, MembershipType.SingleVisit, true),
+            (today.AddDays(40), 2, MembershipType.SingleVisit, true));
+        await SeedCurrentMembershipsAsync(
+            firstFilteredPageClientId,
+            (today.AddDays(29), 1, MembershipType.SingleVisit, true));
+        await SeedCurrentMembershipsAsync(
+            secondFilteredPageClientId,
+            (today.AddDays(32), 1, MembershipType.SingleVisit, false));
+
+        var membershipFilterQuery =
+            $"?membershipExpiresFrom={today.AddDays(25):yyyy-MM-dd}&membershipExpiresTo={today.AddDays(35):yyyy-MM-dd}";
+        var filteredMembershipRange = await QueryClientIdsAsync(membershipFilterQuery);
+        Assert.Contains(firstFilteredPageClientId, filteredMembershipRange);
+        Assert.Contains(secondFilteredPageClientId, filteredMembershipRange);
+        Assert.DoesNotContain(earlyAlphabetClientId, filteredMembershipRange);
+        Assert.DoesNotContain(staleCurrentMembershipClientId, filteredMembershipRange);
+
+        var firstMembershipPage = await QueryClientIdsAsync($"{membershipFilterQuery}&page=1&pageSize=1");
+        Assert.Single(firstMembershipPage);
+        Assert.Equal(firstFilteredPageClientId, firstMembershipPage[0]);
+
+        var secondMembershipPage = await QueryClientIdsAsync($"{membershipFilterQuery}&page=2&pageSize=1");
+        Assert.Single(secondMembershipPage);
+        Assert.Equal(secondFilteredPageClientId, secondMembershipPage[0]);
     }
 
     [Theory]

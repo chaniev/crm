@@ -1,8 +1,6 @@
-using System.Globalization;
 using System.Security.Claims;
 using GymCrm.Api.Startup;
 using GymCrm.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Api.Auth;
@@ -32,7 +30,7 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
         var userIdValue = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(userIdValue, out var userId))
         {
-            await SignOutAsync(context);
+            await AuthSessionSync.SignOutAsync(context);
             await next(context);
             return;
         }
@@ -43,15 +41,15 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
 
         if (user is null || !user.IsActive)
         {
-            await SignOutAsync(context);
+            await AuthSessionSync.SignOutAsync(context);
             await next(context);
             return;
         }
 
         var userVersion = context.User.FindFirstValue(AuthConstants.UserVersionClaimType);
-        if (!string.Equals(userVersion, FormatUserVersion(user.UpdatedAt), StringComparison.Ordinal))
+        if (!string.Equals(userVersion, AuthSessionSync.FormatUserVersion(user.UpdatedAt), StringComparison.Ordinal))
         {
-            await SignOutAsync(context);
+            await AuthSessionSync.SignOutAsync(context);
             await next(context);
             return;
         }
@@ -72,12 +70,6 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
 
         await next(context);
     }
-
-    public static string FormatUserVersion(DateTimeOffset updatedAt)
-    {
-        return updatedAt.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
-    }
-
     private static bool IsAllowedWhilePasswordChangeRequired(PathString requestPath)
     {
         var path = requestPath.Value ?? string.Empty;
@@ -86,11 +78,4 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
             string.Equals(path, allowed, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static async Task SignOutAsync(HttpContext context)
-    {
-        await context.SignOutAsync(AuthConstants.CookieScheme);
-
-        context.Items.Remove(AuthConstants.AuthenticatedUserItemKey);
-        context.User = new ClaimsPrincipal(new ClaimsIdentity());
-    }
 }

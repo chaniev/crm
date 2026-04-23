@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Text.Json;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Audit;
@@ -6,7 +5,6 @@ using GymCrm.Application.Security;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -69,7 +67,7 @@ internal static class AuthEndpoints
         IOptions<BootstrapUserOptions> bootstrapUserOptions,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -99,20 +97,13 @@ internal static class AuthEndpoints
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 user.Id,
-                "Login",
-                "UserSession",
+                AuthAuditConstants.LoginAction,
+                AuthAuditConstants.UserSessionEntityType,
                 user.Id.ToString(),
-                $"User '{user.Login}' signed in."),
+                AuthAuditResources.LoginDescription(user.Login)),
             cancellationToken);
 
-        var principal = CreatePrincipal(user);
-        await httpContext.SignInAsync(
-            AuthConstants.CookieScheme,
-            principal,
-            AuthSessionDefaults.CreateAuthenticationProperties());
-
-        httpContext.User = principal;
-        httpContext.Items[AuthConstants.AuthenticatedUserItemKey] = user;
+        await AuthSessionSync.SignInAsync(httpContext, user);
 
         return TypedResults.Ok(await CreateSessionResponseAsync(
             httpContext,
@@ -133,7 +124,7 @@ internal static class AuthEndpoints
         IOptions<BootstrapUserOptions> bootstrapUserOptions,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -148,15 +139,13 @@ internal static class AuthEndpoints
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 user.Id,
-                "Logout",
-                "UserSession",
+                AuthAuditConstants.LogoutAction,
+                AuthAuditConstants.UserSessionEntityType,
                 user.Id.ToString(),
-                $"User '{user.Login}' signed out."),
+                AuthAuditResources.LogoutDescription(user.Login)),
             cancellationToken);
 
-        await httpContext.SignOutAsync(AuthConstants.CookieScheme);
-        httpContext.Items.Remove(AuthConstants.AuthenticatedUserItemKey);
-        httpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
+        await AuthSessionSync.SignOutAsync(httpContext);
 
         return TypedResults.Ok(await CreateSessionResponseAsync(
             httpContext,
@@ -178,7 +167,7 @@ internal static class AuthEndpoints
         IOptions<BootstrapUserOptions> bootstrapUserOptions,
         CancellationToken cancellationToken)
     {
-        var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
             return csrfValidationResult;
@@ -241,22 +230,15 @@ internal static class AuthEndpoints
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 user.Id,
-                "PasswordChanged",
-                "User",
+                AuthAuditConstants.PasswordChangedAction,
+                AuthAuditConstants.UserEntityType,
                 user.Id.ToString(),
-                $"User '{user.Login}' changed password.",
+                AuthAuditResources.PasswordChangedDescription(user.Login),
                 oldState,
                 newState),
             cancellationToken);
 
-        var principal = CreatePrincipal(user);
-        await httpContext.SignInAsync(
-            AuthConstants.CookieScheme,
-            principal,
-            AuthSessionDefaults.CreateAuthenticationProperties(now));
-
-        httpContext.User = principal;
-        httpContext.Items[AuthConstants.AuthenticatedUserItemKey] = user;
+        await AuthSessionSync.SignInAsync(httpContext, user, now);
 
         return TypedResults.Ok(await CreateSessionResponseAsync(
             httpContext,
@@ -266,24 +248,6 @@ internal static class AuthEndpoints
             bootstrapUserOptions,
             user,
             cancellationToken));
-    }
-
-    private static async Task<ProblemHttpResult?> ValidateAntiforgeryAsync(
-        HttpContext httpContext,
-        IAntiforgery antiforgery)
-    {
-        try
-        {
-            await antiforgery.ValidateRequestAsync(httpContext);
-            return null;
-        }
-        catch (AntiforgeryValidationException)
-        {
-            return TypedResults.Problem(
-                title: AuthConstants.InvalidCsrfProblemTitle,
-                detail: AuthConstants.InvalidCsrfProblemDetail,
-                statusCode: StatusCodes.Status400BadRequest);
-        }
     }
 
     private static async Task<SessionResponse> CreateSessionResponseAsync(
@@ -359,26 +323,6 @@ internal static class AuthEndpoints
                 accessScope.Permissions.CanMarkAttendance,
                 accessScope.Permissions.CanViewAuditLog),
             accessScope.AssignedGroupIds);
-    }
-
-    private static ClaimsPrincipal CreatePrincipal(User user)
-    {
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.FullName),
-            new(ClaimTypes.Role, user.Role.ToString()),
-            new(AuthConstants.LoginClaimType, user.Login),
-            new(AuthConstants.UserVersionClaimType, AuthenticatedUserMiddleware.FormatUserVersion(user.UpdatedAt))
-        };
-
-        var identity = new ClaimsIdentity(
-            claims,
-            AuthConstants.CookieScheme,
-            ClaimTypes.Name,
-            ClaimTypes.Role);
-
-        return new ClaimsPrincipal(identity);
     }
 
     private sealed record LoginRequest(string Login, string Password);

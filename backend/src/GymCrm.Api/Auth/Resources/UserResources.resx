@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FullNameRequired" xml:space="preserve">
+    <value>Укажите ФИО.</value>
+  </data>
+  <data name="LoginRequired" xml:space="preserve">
+    <value>Укажите логин.</value>
+  </data>
+  <data name="LoginRequiredOnUpdate" xml:space="preserve">
+    <value>Логин обязателен.</value>
+  </data>
+  <data name="PasswordRequired" xml:space="preserve">
+    <value>Укажите пароль.</value>
+  </data>
+  <data name="LoginAlreadyExists" xml:space="preserve">
+    <value>Пользователь с таким логином уже существует.</value>
+  </data>
+  <data name="InvalidRole" xml:space="preserve">
+    <value>Укажите корректную роль пользователя.</value>
+  </data>
+  <data name="HeadCoachCreationUnavailable" xml:space="preserve">
+    <value>Создание пользователя с ролью главного тренера сейчас недоступно.</value>
+  </data>
+  <data name="LoginIsImmutable" xml:space="preserve">
+    <value>Логин нельзя изменить после создания пользователя.</value>
+  </data>
+  <data name="HeadCoachRoleImmutable" xml:space="preserve">
+    <value>Роль главного тренера нельзя изменить.</value>
+  </data>
+  <data name="HeadCoachCannotBeDeactivated" xml:space="preserve">
+    <value>Главного тренера нельзя деактивировать.</value>
+  </data>
+  <data name="HeadCoachAssignmentUnavailable" xml:space="preserve">
+    <value>Назначение роли главного тренера сейчас недоступно.</value>
+  </data>
+  <data name="UserCreatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' создал пользователя '{1}'.</value>
+  </data>
+  <data name="UserUpdatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил пользователя '{1}'.</value>
+  </data>
+</root>

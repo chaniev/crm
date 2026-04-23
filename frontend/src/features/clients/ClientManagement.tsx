@@ -75,6 +75,7 @@ import {
 } from '../../lib/api'
 import {
   ConfirmActionModal,
+  MetricCard,
   ResponsiveButtonGroup,
 } from '../shared/ux'
 
@@ -137,6 +138,9 @@ const membershipStatusBadgeColor = {
   clear: 'teal',
   unpaid: 'red',
   warning: 'orange',
+} as const
+const clientFieldErrorAliases = {
+  fullName: 'lastName',
 } as const
 
 type ClientFormContact = {
@@ -881,7 +885,7 @@ export function ClientCreateScreen({
       onCreated(createdClient?.id)
     } catch (error) {
       if (error instanceof ApiError) {
-        form.setErrors(applyFieldErrors(error.fieldErrors))
+        form.setErrors(applyFieldErrors(error.fieldErrors, clientFieldErrorAliases))
         setFormError(error.message)
         return
       }
@@ -1035,7 +1039,7 @@ export function ClientEditScreen({
       onUpdated(clientId)
     } catch (error) {
       if (error instanceof ApiError) {
-        form.setErrors(applyFieldErrors(error.fieldErrors))
+        form.setErrors(applyFieldErrors(error.fieldErrors, clientFieldErrorAliases))
         setFormError(error.message)
         return
       }
@@ -1879,32 +1883,6 @@ function ClientHero({
         </Stack>
 
         {action}
-      </Stack>
-    </Paper>
-  )
-}
-
-type MetricCardProps = {
-  description: string
-  label: string
-  value: string
-}
-
-function MetricCard({
-  description,
-  label,
-  value,
-}: MetricCardProps) {
-  return (
-    <Paper className="surface-card metric-card" radius="28px" withBorder>
-      <Stack gap={6}>
-        <Text c="dimmed" fw={600} size="sm">
-          {label}
-        </Text>
-        <Title order={3}>{value}</Title>
-        <Text c="dimmed" size="sm">
-          {description}
-        </Text>
       </Stack>
     </Paper>
   )
