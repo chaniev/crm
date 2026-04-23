@@ -46,7 +46,7 @@ const assignedGroup = {
   clientCount: 1,
 }
 
-test.describe('Мобильный attendance flow тренера', () => {
+test.describe('Мобильный сценарий посещений тренера', () => {
   test.use({
     viewport: {
       width: 390,
@@ -148,7 +148,7 @@ test.describe('Мобильный attendance flow тренера', () => {
     await expect(page.getByText('Проблема с абонементом')).toBeVisible()
     await expect(page.getByText('Не оплачено')).toBeVisible()
     await expect(
-      page.getByText('Абонемент просрочен, но backend разрешает отметку посещения.'),
+      page.getByText('Абонемент просрочен, отметка посещения доступна.'),
     ).toBeVisible()
 
     const trainingDateInput = page.getByLabel('Дата тренировки')
@@ -193,7 +193,7 @@ function buildRosterPayload(trainingDate: string, isPresent: boolean) {
         hasUnpaidCurrentMembership: true,
         membershipWarning: true,
         membershipWarningMessage:
-          'Абонемент просрочен, но backend разрешает отметку посещения.',
+          'Абонемент просрочен, отметка посещения доступна.',
         groups: [
           {
             id: GROUP_ID,

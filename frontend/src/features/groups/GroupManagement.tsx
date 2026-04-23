@@ -49,7 +49,6 @@ import {
   GROUPS_FORM_FALLBACK_VALUES,
   GROUPS_GRID_COLUMNS,
   GROUPS_LIST_TAKE,
-  GROUPS_STAGE_LABEL,
   GROUPS_STATUS_LABELS,
 } from './groupManagement.constants'
 import { ResponsiveButtonGroup } from '../shared/ux'
@@ -129,17 +128,14 @@ export function GroupsListScreen({
       <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
         <Stack className="page-header-card__content" gap="md">
           <Group gap="sm">
-            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              {GROUPS_STAGE_LABEL}
-            </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Route-level groups flow
+              Группы и расписание
             </Badge>
           </Group>
 
           <Stack gap="sm">
             <Title className="page-header-card__title" order={1}>
-              Группы и назначение тренеров встроены в shell
+              Группы и назначение тренеров
             </Title>
             <Text className="page-header-card__description" size="sm">
               Список показывает расписание, время старта, состав тренеров и
@@ -168,7 +164,7 @@ export function GroupsListScreen({
 
       <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
         <MetricCard
-          description="Всего групп в management API"
+          description="Всего тренировочных групп"
           label="Группы"
           value={String(totalCount)}
         />
@@ -196,7 +192,7 @@ export function GroupsListScreen({
             </div>
 
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              HeadCoach и Administrator
+              Главный тренер и администратор
             </Badge>
           </Group>
 
@@ -387,7 +383,7 @@ export function GroupCreateScreen({
         )}
         badge="Новая группа"
         description="Создайте группу, задайте расписание и сразу назначьте нескольких тренеров."
-        title="Route-level форма создания группы"
+        title="Новая тренировочная группа"
       />
 
       <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
@@ -749,7 +745,7 @@ function GroupForm({
 
         <Group justify="space-between" wrap="wrap">
           <Text c="dimmed" size="sm">
-            После сохранения backend сразу обновит server-side scope назначенных тренеров.
+            После сохранения тренеры увидят назначенную группу в своем рабочем списке.
           </Text>
 
           <ResponsiveButtonGroup justify="flex-end">
@@ -813,9 +809,6 @@ function GroupFormHero({
     <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
       <Stack className="page-header-card__content" gap="md">
         <Group gap="sm">
-          <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-            {GROUPS_STAGE_LABEL}
-          </Badge>
           <Badge color="brand.1" radius="xl" size="lg" variant="light">
             {badge}
           </Badge>

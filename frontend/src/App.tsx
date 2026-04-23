@@ -185,7 +185,7 @@ function App() {
         setBootstrapError(
           error instanceof Error
             ? error.message
-            : 'Не удалось связаться с backend.',
+            : 'Не удалось связаться с сервером.',
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -224,7 +224,7 @@ function App() {
       setBootstrapError(
         error instanceof Error
           ? error.message
-          : 'Не удалось связаться с backend.',
+          : 'Не удалось связаться с сервером.',
       )
     } finally {
       setLoadingSession(false)
@@ -355,7 +355,7 @@ function App() {
               </Text>
               <Title order={2}>Не удалось открыть экран входа</Title>
               <Text c="dimmed">
-                Проверьте подключение к API и повторите загрузку.
+                Проверьте подключение к сервису и повторите загрузку.
               </Text>
             </Stack>
 
@@ -885,13 +885,13 @@ function AuthenticatedShell({
               </ThemeIcon>
               <div className="app-shell__brand-copy">
                 <Text className="app-shell__brand-title" fw={800}>
-                  Gym CRM MVP
+                  Gym CRM
                 </Text>
                 <Text c="dimmed" className="app-shell__brand-meta" hiddenFrom="lg" size="sm">
                   {presentation.roleLabel}
                 </Text>
                 <Text c="dimmed" className="app-shell__brand-meta" visibleFrom="lg" size="sm">
-                  {presentation.roleLabel} • landing: {landingLabel}
+                  {presentation.roleLabel} • стартовый раздел: {landingLabel}
                 </Text>
               </div>
             </Group>
@@ -1179,9 +1179,6 @@ function ClientsReadOnlyPlaceholder() {
       <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
         <Stack className="page-header-card__content" gap="md">
           <Group gap="sm">
-            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 6a
-            </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               Клиенты для тренера
             </Badge>
@@ -1189,12 +1186,11 @@ function ClientsReadOnlyPlaceholder() {
 
           <Stack gap="sm">
             <Title className="page-header-card__title" order={1}>
-              Список клиентов для тренера еще закрыт, но detail route уже может открываться backend-ом
+              Раздел клиентов для тренера готовится к запуску
             </Title>
             <Text className="page-header-card__description" size="sm">
-              В текущем этапе management API клиентов по-прежнему открыт только
-              для `HeadCoach` и `Administrator`, поэтому раздел остается
-              безопасным placeholder без списка и CRUD.
+              Сейчас полный список клиентов доступен управленческим ролям. Для
+              тренера здесь появится ограниченный просмотр клиентов назначенных групп.
             </Text>
           </Stack>
         </Stack>
@@ -1205,12 +1201,11 @@ function ClientsReadOnlyPlaceholder() {
           <Alert
             color="blue"
             icon={<IconAlertCircle size={18} />}
-            title="Раздел пока работает как безопасный placeholder"
+            title="Раздел скоро будет доступен"
             variant="light"
           >
-            На следующем этапе сюда будет подключен ограниченный просмотр
-            клиентов назначенных групп без CRUD-действий и без чувствительных
-            полей.
+            Для тренера будет показан только разрешенный список клиентов без
+            лишних персональных данных и действий управления.
           </Alert>
 
           <SimpleGrid cols={{ base: 1, md: 3 }}>
@@ -1218,8 +1213,8 @@ function ClientsReadOnlyPlaceholder() {
               <Stack gap={6}>
                 <Text fw={700}>Что уже готово</Text>
                 <Text c="dimmed" size="sm">
-                  У менеджерских ролей доступен полный flow списка, карточки,
-                  создания, редактирования и архива клиентов.
+                  Главный тренер и администратор уже могут вести список клиентов,
+                  открывать карточки, создавать, редактировать и архивировать записи.
                 </Text>
               </Stack>
             </Paper>
@@ -1228,8 +1223,8 @@ function ClientsReadOnlyPlaceholder() {
               <Stack gap={6}>
                 <Text fw={700}>Почему так</Text>
                 <Text c="dimmed" size="sm">
-                  Инвариант проекта сохраняется: права остаются источником истины
-                  на backend, а frontend не пытается обойти запреты доступа.
+                  Тренеру будут доступны только клиенты его групп, чтобы сохранить
+                  приватность данных клуба.
                 </Text>
               </Stack>
             </Paper>
@@ -1238,9 +1233,8 @@ function ClientsReadOnlyPlaceholder() {
               <Stack gap={6}>
                 <Text fw={700}>Следующий шаг</Text>
                 <Text c="dimmed" size="sm">
-                  Ограниченный список тренера будет добавлен отдельным шагом.
-                  При этом route-level карточка клиента уже может открываться из
-                  backend-driven сценариев и показывает только разрешенные данные.
+                  После подключения раздела тренер сможет быстро открывать
+                  разрешенные карточки клиентов из своих групп.
                 </Text>
               </Stack>
             </Paper>
@@ -1279,9 +1273,6 @@ function SectionPlaceholder({
       <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
         <Stack className="page-header-card__content" gap="md">
           <Group gap="sm">
-            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Route-level shell
-            </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               {APP_SECTION_LABELS[section]}
             </Badge>
@@ -1289,11 +1280,11 @@ function SectionPlaceholder({
 
           <Stack gap="sm">
             <Title className="page-header-card__title" order={1}>
-              Раздел {APP_SECTION_LABELS[section]} уже встроен в навигацию shell
+              Раздел {APP_SECTION_LABELS[section]} появится здесь
             </Title>
             <Text className="page-header-card__description" size="sm">
-              Текущий инкремент уже реализует flows клиентов, пользователей и групп. Этот
-              маршрут оставлен как безопасный placeholder до следующего этапа.
+              Клиенты, пользователи и группы уже доступны в рабочем меню. Этот
+              раздел будет подключен отдельным обновлением.
             </Text>
           </Stack>
         </Stack>
@@ -1306,10 +1297,10 @@ function SectionPlaceholder({
               <IconRoute size={18} />
             </ThemeIcon>
             <div>
-              <Text fw={700}>Почему здесь placeholder</Text>
+              <Text fw={700}>Почему раздел недоступен</Text>
               <Text c="dimmed" size="sm">
-                Маршрут уже учитывает права роли {presentation.roleLabel}, но
-                прикладной экран запланирован на следующий этап плана.
+                Для роли {presentation.roleLabel} экран пока не опубликован в
+                рабочем интерфейсе.
               </Text>
             </div>
           </Group>
@@ -1320,9 +1311,8 @@ function SectionPlaceholder({
             title="Навигация уже собрана"
             variant="light"
           >
-            Shell умеет открывать route-level экраны, а запрет на недоступные
-            секции остается backend-driven и дополнительно дублируется
-            redirect-логикой во frontend.
+            Меню уже показывает доступные разделы и скрывает то, что не входит в
+            права текущей роли.
           </Alert>
         </Stack>
       </Paper>

@@ -182,7 +182,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             title="Журнал действий недоступен"
             variant="light"
           >
-            Этот экран доступен только ролям `HeadCoach` и `Administrator`.
+            Этот экран доступен главному тренеру и администратору.
           </Alert>
         </Paper>
       </Stack>
@@ -210,25 +210,21 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
       <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
         <Stack className="page-header-card__content" gap="md">
           <Group gap="sm" wrap="wrap">
-            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 10
-            </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               Журнал действий
             </Badge>
             <Badge radius="xl" size="lg" variant="light">
-              HeadCoach и Administrator
+              Главный тренер и администратор
             </Badge>
           </Group>
 
           <Stack gap="sm">
             <Title className="page-header-card__title" order={1}>
-              Route-level журнал показывает действия, описание и старые/новые значения
+              Журнал действий показывает важные изменения в клубе
             </Title>
             <Text className="page-header-card__description" size="sm">
-              Экран остаётся read-only: фильтрует backend-аудит по пользователю,
-              типу действия, типу объекта и периоду, а изменения показывает как
-              old/new JSON.
+              Фильтруйте записи по пользователю, типу действия, объекту и
+              периоду. Для изменений отображаются предыдущие и новые значения.
             </Text>
           </Stack>
 
@@ -327,7 +323,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             <div>
               <Text fw={700}>Записи журнала</Text>
               <Text c="dimmed" size="sm">
-                Краткое описание действия раскрывается в детальный old/new diff.
+                В каждой записи можно посмотреть подробности изменения.
               </Text>
             </div>
 

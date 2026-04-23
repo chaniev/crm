@@ -256,9 +256,6 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
       <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
         <Stack className="page-header-card__content" gap="md">
           <Group gap="sm" wrap="wrap">
-            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 7
-            </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
               Экран посещений
             </Badge>
@@ -269,12 +266,11 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
 
           <Stack gap="sm">
             <Title className="page-header-card__title" order={1}>
-              Отметка посещений работает как отдельный mobile-first сценарий
+              Быстрая отметка посещений
             </Title>
             <Text className="page-header-card__description" size="sm">
-              Один экран для `HeadCoach` и `Coach`: выберите группу и дату, затем
-              быстро проставьте присутствие по клиентам, не смешивая этот flow со
-              списком клиентов.
+              Выберите группу и дату, затем отметьте присутствие клиентов прямо
+              на одном экране.
             </Text>
           </Stack>
         </Stack>
@@ -286,7 +282,7 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
             <div>
               <Text fw={700}>Фильтр посещений</Text>
               <Text c="dimmed" size="sm">
-                Выбор группы и даты определяет roster и scope разрешенной отметки.
+                Выбор группы и даты определяет список клиентов для отметки.
               </Text>
             </div>
 
@@ -332,7 +328,7 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
                     </Text>
                     <Text c="dimmed" size="sm">
                       {user.role === 'Coach'
-                        ? 'Когда backend назначит вам группу, экран посещений автоматически начнет показывать рабочий список.'
+                        ? 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'
                         : 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'}
                     </Text>
                   </div>

@@ -88,7 +88,7 @@ test.describe('Аутентификация', () => {
     ).toBeVisible({ timeout: 10_000 })
   })
 
-  test('Проводит пользователя через forced first login и отправляет CSRF при смене пароля', async ({
+  test('Проводит пользователя через первый вход и отправляет защитный токен при смене пароля', async ({
     page,
   }) => {
     await mockApi(page, async ({ pathname, method, route }) => {

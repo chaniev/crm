@@ -178,7 +178,7 @@ const SCREEN_HEADINGS = [
   },
   {
     path: '/attendance',
-    heading: 'Отметка посещений работает как отдельный mobile-first сценарий',
+    heading: 'Быстрая отметка посещений',
   },
   {
     path: '/clients',
@@ -186,15 +186,15 @@ const SCREEN_HEADINGS = [
   },
   {
     path: '/groups',
-    heading: 'Группы и назначение тренеров встроены в shell',
+    heading: 'Группы и назначение тренеров',
   },
   {
     path: '/audit',
-    heading: 'Route-level журнал показывает действия, описание и старые/новые значения',
+    heading: 'Журнал действий показывает важные изменения в клубе',
   },
 ]
 
-test.describe('Stage 12: e2e сценарии', () => {
+test.describe('Основные e2e сценарии', () => {
   test('Создание клиента: отправляет корректный payload и открывает карточку клиента', async ({
     page,
   }) => {
@@ -598,7 +598,7 @@ test.describe('Stage 12: e2e сценарии', () => {
     await page.goto('/groups')
     await expect(page).toHaveURL('/attendance')
     await expect(
-      page.getByRole('heading', { name: 'Отметка посещений работает как отдельный mobile-first сценарий' }),
+      page.getByRole('heading', { name: 'Быстрая отметка посещений' }),
     ).toBeVisible()
     await expect(page.getByRole('button', { name: 'Группы' })).toHaveCount(0)
   })
@@ -710,7 +710,7 @@ test.describe('Stage 12: e2e сценарии', () => {
       await page.goto('/audit')
       await expect(
         page.getByRole('heading', {
-          name: 'Route-level журнал показывает действия, описание и старые/новые значения',
+          name: 'Журнал действий показывает важные изменения в клубе',
         }),
       ).toBeVisible()
       await expect(page.getByText('Создан новый клиент')).toBeVisible()

@@ -375,8 +375,8 @@ export function ClientsListScreen({
               </Button>
           </ResponsiveButtonGroup>
         }
-        badge="Route-level clients flow"
-        description="Общий список клиентов теперь поддерживает server-side поиск и фильтры, а для тренера остается read-only без CRUD-действий."
+        badge="Клиентская база"
+        description="Ищите и фильтруйте клиентов. Для тренера список открыт только в режиме просмотра доступных записей."
         title="Клиентская база со встроенным поиском и фильтрацией"
       />
 
@@ -408,13 +408,13 @@ export function ClientsListScreen({
             <div>
               <Text fw={700}>Список клиентов</Text>
               <Text c="dimmed" size="sm">
-                Карточка клиента открывается отдельным route-level экраном,
-                редактирование и архивирование доступны только management-ролям.
+                Откройте карточку клиента для просмотра деталей. Редактирование
+                и архивирование доступны только управленческим ролям.
               </Text>
             </div>
 
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              {canManage ? 'HeadCoach и Administrator' : 'Coach read-only'}
+              {canManage ? 'Управление клиентами' : 'Только просмотр'}
             </Badge>
           </Group>
 
@@ -579,7 +579,7 @@ export function ClientsListScreen({
                   <Text c="dimmed" size="sm">
                     {canManage
                       ? 'Фильтры применяются к общему клиентскому списку.'
-                      : 'Для тренера список остается в режиме просмотра без телефона и CRUD.'}
+                      : 'Для тренера список остается в режиме просмотра без телефона и действий управления.'}
                   </Text>
 
                   <ResponsiveButtonGroup>
@@ -906,7 +906,7 @@ export function ClientCreateScreen({
         }
         badge="Новый клиент"
         description="Форма сохраняет базовые данные клиента, а фотографию и абонемент можно добавить после первичного сохранения карточки."
-        title="Route-level форма создания клиента"
+        title="Новый клиент"
       />
 
       <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
@@ -1067,7 +1067,7 @@ export function ClientEditScreen({
           </Button>
         }
         badge="Редактирование клиента"
-        description="Изменения базовых полей, контактов, групп и фотографии уходят в client API, а абонемент и оплата живут inline в detail card."
+        description="Обновите базовые данные, контакты, группы и фотографию клиента. Абонемент и оплату можно вести в карточке клиента."
         title={client ? client.fullName : 'Карточка клиента'}
       />
 
@@ -1385,7 +1385,7 @@ export function ClientDetailScreen({
         badge="Карточка клиента"
         description={
           canManage
-            ? 'Единая карточка клиента этапа 8 объединяет базовые данные, фотографию, абонемент и историю посещений без отдельных экранов.'
+            ? 'Единая карточка клиента объединяет базовые данные, фотографию, абонемент и историю посещений.'
             : 'Карточка клиента для тренера показывает только ФИО, фотографию, доступные группы и историю посещений по назначенным группам.'
         }
         title={client ? client.fullName : 'Детали клиента'}
@@ -1438,7 +1438,7 @@ export function ClientDetailScreen({
                 value={String(client.groups.length)}
               />
               <MetricCard
-                description="Текущий статус клиента и membership flow этапа 6b"
+                description="Текущий статус клиента"
                 label="Статус"
                 value={statusLabelMap[client.status]}
               />
@@ -1454,7 +1454,7 @@ export function ClientDetailScreen({
                 description={
                   client.attendanceHistoryLoaded
                     ? 'История посещений по назначенным группам.'
-                    : 'Карточка ждет данные истории посещений от backend.'
+                    : 'История посещений пока недоступна.'
                 }
                 label="История посещений"
                 value={
@@ -1476,7 +1476,7 @@ export function ClientDetailScreen({
                   <Text fw={700}>Основные данные</Text>
                   <Text c="dimmed" size="sm">
                     {canManage
-                      ? 'Базовые поля клиента остаются в этой карточке, а абонемент, оплата и история посещений ведутся inline ниже.'
+                      ? 'Базовые поля клиента, абонемент, оплата и история посещений собраны в одной карточке.'
                       : 'Для тренера карточка ограничена фото и данными, разрешенными для просмотра по назначенным группам.'}
                   </Text>
                 </div>
@@ -1862,7 +1862,7 @@ function ClientHero({
       <Stack className="page-header-card__content" gap="md">
         <Group gap="sm">
           <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-            Этап 6c
+            Клиенты
           </Badge>
           <Badge color="brand.1" radius="xl" size="lg" variant="light">
             {badge}
@@ -2046,16 +2046,16 @@ function ClientPhotoSection({
               <Text fw={700}>Фотография клиента</Text>
               <Text c="dimmed" size="sm">
                 {canUpload
-                  ? 'Загрузка и замена фото доступны для HeadCoach и Administrator.'
+                  ? 'Загрузка и замена фото доступны главному тренеру и администратору.'
                   : clientId
-                    ? 'Карточка показывает фото только если backend разрешит доступ и файл существует.'
+                    ? 'Фото отображается, если оно уже загружено и доступно для просмотра.'
                     : 'Фото можно добавить сразу после первичного сохранения карточки клиента.'}
               </Text>
             </div>
           </Group>
 
           <Badge color="brand.1" radius="xl" variant="light">
-            {canUpload ? 'Upload + preview' : 'Preview only'}
+            {canUpload ? 'Загрузка и просмотр' : 'Только просмотр'}
           </Badge>
         </Group>
 
@@ -2096,7 +2096,7 @@ function ClientPhotoSection({
               <Text fw={600}>Фото пока не показано</Text>
               <Text c="dimmed" size="sm" ta="center">
                 {clientId
-                  ? 'Либо фотография еще не загружена, либо backend не разрешил выдачу файла для этой карточки.'
+                  ? 'Фотография еще не загружена или недоступна для просмотра.'
                   : 'Сначала сохраните клиента, затем вернитесь в карточку или редактирование, чтобы загрузить фотографию.'}
               </Text>
             </Stack>
@@ -2155,7 +2155,7 @@ function ClientPhotoSection({
               type="file"
             />
             <Text c="dimmed" size="sm">
-              JPEG, PNG, WebP, HEIC, HEIF до 10 MB. Конечная проверка формата и прав доступа остается на backend.
+              JPEG, PNG, WebP, HEIC, HEIF до 10 MB.
             </Text>
           </Group>
         ) : null}
@@ -2447,7 +2447,7 @@ function ClientAttendanceHistorySection({
 
           <Group gap="sm" wrap="wrap">
             <Badge color="brand.1" radius="xl" variant="light">
-              {canManage ? 'Management view' : 'Coach view'}
+              {canManage ? 'Полная карточка' : 'Режим тренера'}
             </Badge>
             <Badge color="sand" radius="xl" variant="light">
               Всего: {totalHistoryCount}
@@ -2462,7 +2462,7 @@ function ClientAttendanceHistorySection({
             title="История пока не загружена"
             variant="light"
           >
-            Карточка готова показать историю посещений, как только backend начнет передавать ее в ответе по клиенту.
+            История посещений появится здесь после загрузки данных.
           </Alert>
         ) : history.length === 0 ? (
           <Text c="dimmed" size="sm">

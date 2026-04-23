@@ -126,21 +126,18 @@ export function UsersListScreen({
       <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
         <Stack className="page-header-card__content" gap="md">
           <Group gap="sm">
-            <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-              Этап 4
-            </Badge>
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Route-level users flow
+              Команда и доступ
             </Badge>
           </Group>
 
           <Stack gap="sm">
             <Title className="page-header-card__title" order={1}>
-              Пользователи и роли теперь управляются из shell
+              Пользователи и роли команды
             </Title>
             <Text className="page-header-card__description" size="sm">
               Экран списка показывает состав команды, статус активности и
-              пользователей, которым backend еще требует сменить пароль.
+              пользователей, которым нужно сменить временный пароль.
             </Text>
           </Stack>
 
@@ -176,7 +173,7 @@ export function UsersListScreen({
         />
         <MetricCard
           description="Нужна обязательная смена пароля"
-          label="MustChangePassword"
+          label="Смена пароля"
           value={String(passwordRotationCount)}
         />
       </SimpleGrid>
@@ -187,12 +184,12 @@ export function UsersListScreen({
             <div>
               <Text fw={700}>Список пользователей</Text>
               <Text c="dimmed" size="sm">
-                Редактирование открывается как отдельный route-level экран.
+                Откройте карточку пользователя, чтобы изменить роль и доступ.
               </Text>
             </div>
 
             <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Только для роли HeadCoach
+              Только для главного тренера
             </Badge>
           </Group>
 
@@ -354,7 +351,7 @@ export function UserCreateScreen({
           </Button>
         }
         badge="Создание пользователя"
-        description="Главный тренер может сразу выдать роль, активность и флаг обязательной смены пароля."
+        description="Главный тренер может сразу назначить роль, включить доступ и потребовать смену временного пароля."
         title="Новая учетная запись"
       />
 
@@ -592,7 +589,7 @@ export function UserEditScreen({
           </Button>
         }
         badge="Редактирование пользователя"
-        description="Логин остается read-only, а изменения роли, активности и `MustChangePassword` уходят в backend через `PUT /users/{id}`."
+        description="Логин нельзя изменить после создания. Роль, активность и требование смены пароля можно обновить в карточке."
         title={user ? user.fullName : 'Карточка пользователя'}
       />
 
@@ -605,7 +602,7 @@ export function UserEditScreen({
             <div>
               <Text fw={700}>Редактирование доступа</Text>
               <Text c="dimmed" size="sm">
-                Изменение логина запрещено по контракту этапа 4.
+                Логин фиксируется после создания пользователя.
               </Text>
             </div>
           </Group>
@@ -761,9 +758,6 @@ function UserFormHero({
     <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
       <Stack className="page-header-card__content" gap="md">
         <Group gap="sm">
-          <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-            Этап 4
-          </Badge>
           <Badge color="brand.1" radius="xl" size="lg" variant="light">
             {badge}
           </Badge>

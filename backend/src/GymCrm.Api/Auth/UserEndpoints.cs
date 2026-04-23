@@ -239,7 +239,7 @@ internal static class UserEndpoints
         }
         else if (parsedRole is UserRole.HeadCoach)
         {
-            errors["role"] = ["Создание пользователя с ролью HeadCoach не поддерживается в MVP."];
+            errors["role"] = ["Создание пользователя с ролью главного тренера сейчас недоступно."];
         }
 
         return errors;
@@ -279,17 +279,17 @@ internal static class UserEndpoints
         {
             if (parsedRole != UserRole.HeadCoach)
             {
-                errors["role"] = ["Роль пользователя HeadCoach нельзя изменить в MVP."];
+                errors["role"] = ["Роль главного тренера нельзя изменить."];
             }
 
             if (!isActive)
             {
-                errors["isActive"] = ["Пользователя с ролью HeadCoach нельзя деактивировать в MVP."];
+                errors["isActive"] = ["Главного тренера нельзя деактивировать."];
             }
         }
         else if (parsedRole == UserRole.HeadCoach)
         {
-            errors["role"] = ["Назначение роли HeadCoach не поддерживается в MVP."];
+            errors["role"] = ["Назначение роли главного тренера сейчас недоступно."];
         }
 
         return errors;

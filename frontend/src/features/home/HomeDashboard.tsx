@@ -113,7 +113,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
             title="Главная страница недоступна"
             variant="light"
           >
-            Этот экран предназначен только для ролей `HeadCoach` и `Administrator`.
+            Этот экран доступен главному тренеру и администратору.
           </Alert>
         </Paper>
       </Stack>
@@ -134,7 +134,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
 
             <Group gap="sm" wrap="wrap">
               <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                HeadCoach и Administrator
+                Главный тренер и администратор
               </Badge>
               <ResponsiveButtonGroup justify="flex-end">
                 <Button

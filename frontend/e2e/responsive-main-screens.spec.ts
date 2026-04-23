@@ -126,7 +126,7 @@ const ATTENDANCE_ROSTER_RESPONSE = {
       hasUnpaidCurrentMembership: true,
       membershipWarning: true,
       membershipWarningMessage:
-        'Абонемент просрочен, но backend разрешает отметку посещения.',
+        'Абонемент просрочен, отметка посещения доступна.',
       groups: [
         {
           id: 'group-1',
