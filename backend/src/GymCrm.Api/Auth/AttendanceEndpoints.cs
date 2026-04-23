@@ -97,10 +97,7 @@ internal static class AttendanceEndpoints
         var parsedTrainingDate = ParseTrainingDate(trainingDate);
         if (!parsedTrainingDate.HasValue)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["trainingDate"] = [$"Укажите корректную дату тренировки в формате {TrainingDateFormat}."]
-            });
+            return CreateTrainingDateValidationProblem();
         }
 
         var group = await dbContext.TrainingGroups
@@ -174,18 +171,12 @@ internal static class AttendanceEndpoints
         var parsedTrainingDate = ParseTrainingDate(request.TrainingDate);
         if (!parsedTrainingDate.HasValue)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["trainingDate"] = [$"Укажите корректную дату тренировки в формате {TrainingDateFormat}."]
-            });
+            return CreateTrainingDateValidationProblem();
         }
 
         if (request.AttendanceMarks is null || request.AttendanceMarks.Count == 0)
         {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["attendanceMarks"] = ["Передайте хотя бы одну отметку посещения."]
-            });
+            return CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceMarksRequired);
         }
 
         var mutationResult = await attendanceService.SaveAsync(
@@ -203,18 +194,9 @@ internal static class AttendanceEndpoints
             return mutationResult.Error switch
             {
                 AttendanceBatchMutationError.GroupMissing => TypedResults.NotFound(),
-                AttendanceBatchMutationError.InvalidRequest => TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    ["attendanceMarks"] = ["Не удалось сохранить отметки посещения. Проверьте состав клиентов и отсутствие дубликатов."]
-                }),
-                AttendanceBatchMutationError.ClientOutsideGroup => TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    ["attendanceMarks"] = ["Отмечать посещение можно только для активных клиентов выбранной группы."]
-                }),
-                _ => TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    ["attendanceMarks"] = ["Не удалось сохранить отметки посещения."]
-                })
+                AttendanceBatchMutationError.InvalidRequest => CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveInvalidRequest),
+                AttendanceBatchMutationError.ClientOutsideGroup => CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveClientOutsideGroup),
+                _ => CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveFailed)
             };
         }
 
@@ -249,13 +231,28 @@ internal static class AttendanceEndpoints
 
         foreach (var change in details.Changes)
         {
+            var actionType = change.WasCreated
+                ? AttendanceAuditConstants.AttendanceMarkedAction
+                : AttendanceAuditConstants.AttendanceUpdatedAction;
+            var description = change.WasCreated
+                ? AttendanceResources.AttendanceMarkedDescription(
+                    currentUser.Login,
+                    clientNames.GetValueOrDefault(change.ClientId, change.ClientId.ToString()),
+                    groupName,
+                    details.TrainingDate.ToString(TrainingDateFormat, CultureInfo.InvariantCulture))
+                : AttendanceResources.AttendanceUpdatedDescription(
+                    currentUser.Login,
+                    clientNames.GetValueOrDefault(change.ClientId, change.ClientId.ToString()),
+                    groupName,
+                    details.TrainingDate.ToString(TrainingDateFormat, CultureInfo.InvariantCulture));
+
             await auditLogService.WriteAsync(
                 new AuditLogEntry(
                     currentUser.Id,
-                    change.WasCreated ? "AttendanceMarked" : "AttendanceUpdated",
-                    "Attendance",
+                    actionType,
+                    AttendanceAuditConstants.AttendanceEntityType,
                     change.AttendanceId.ToString(),
-                    $"User '{currentUser.Login}' saved attendance for '{clientNames.GetValueOrDefault(change.ClientId, change.ClientId.ToString())}' in group '{groupName}' for {details.TrainingDate.ToString(TrainingDateFormat, CultureInfo.InvariantCulture)}.",
+                    description,
                     change.PreviousIsPresent.HasValue
                         ? SerializeAttendanceAuditState(change.ClientId, groupId, details.TrainingDate, change.PreviousIsPresent.Value)
                         : null,
@@ -268,10 +265,12 @@ internal static class AttendanceEndpoints
             await auditLogService.WriteAsync(
                 new AuditLogEntry(
                     currentUser.Id,
-                    "ClientMembershipSingleVisitWrittenOff",
-                    "ClientMembership",
+                    AttendanceAuditConstants.ClientMembershipSingleVisitWrittenOffAction,
+                    AttendanceAuditConstants.ClientMembershipEntityType,
                     writeOff.CurrentMembership.Id.ToString(),
-                    $"User '{currentUser.Login}' wrote off the single-visit membership for '{clientNames.GetValueOrDefault(writeOff.ClientId, writeOff.ClientId.ToString())}' after attendance marking.",
+                    AttendanceResources.ClientMembershipSingleVisitWrittenOffDescription(
+                        currentUser.Login,
+                        clientNames.GetValueOrDefault(writeOff.ClientId, writeOff.ClientId.ToString())),
                     SerializeMembershipAuditState(writeOff.ClientId, writeOff.PreviousMembership),
                     SerializeMembershipAuditState(writeOff.ClientId, writeOff.CurrentMembership)),
                 cancellationToken);
@@ -323,35 +322,51 @@ internal static class AttendanceEndpoints
         {
             return new MembershipWarningResult(
                 true,
-                "У клиента нет текущего абонемента, но отметка посещения доступна.");
+                AttendanceResources.NoCurrentMembershipWarning);
         }
 
         var messages = new List<string>();
         if (membership.PurchaseDate > trainingDate)
         {
-            messages.Add("абонемент приобретен позже выбранной даты");
+            messages.Add(AttendanceResources.MembershipPurchasedLaterWarning);
         }
 
         if (!membership.IsPaid)
         {
-            messages.Add("абонемент не оплачен");
+            messages.Add(AttendanceResources.MembershipUnpaidWarning);
         }
 
         if (membership.MembershipType == MembershipType.SingleVisit && membership.SingleVisitUsed)
         {
-            messages.Add("разовое посещение уже использовано");
+            messages.Add(AttendanceResources.SingleVisitAlreadyUsedWarning);
         }
 
         if (membership.ExpirationDate.HasValue && membership.ExpirationDate.Value < trainingDate)
         {
-            messages.Add("срок действия абонемента истек");
+            messages.Add(AttendanceResources.MembershipExpiredWarning);
         }
 
         return messages.Count == 0
             ? new MembershipWarningResult(false, null)
             : new MembershipWarningResult(
                 true,
-                $"{string.Join(", ", messages)}; отметка посещения все равно доступна.");
+                AttendanceResources.MembershipWarningWithDetails(string.Join(", ", messages)));
+    }
+
+    private static ValidationProblem CreateTrainingDateValidationProblem()
+    {
+        return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["trainingDate"] = [AttendanceResources.InvalidTrainingDate(TrainingDateFormat)]
+        });
+    }
+
+    private static ValidationProblem CreateAttendanceMarksValidationProblem(string message)
+    {
+        return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["attendanceMarks"] = [message]
+        });
     }
 
     private static bool HasActivePaidMembership(
@@ -424,7 +439,7 @@ internal static class AttendanceEndpoints
                 .Select(part => part!.Trim()));
 
         return string.IsNullOrWhiteSpace(fullName)
-            ? "Клиент без имени"
+            ? ClientResources.ClientWithoutName
             : fullName;
     }
 

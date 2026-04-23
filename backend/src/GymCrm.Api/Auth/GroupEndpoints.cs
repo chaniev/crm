@@ -15,6 +15,9 @@ internal static class GroupEndpoints
     private const int DefaultPage = 1;
     private const int DefaultTake = 20;
     private const int MaxTake = 100;
+    private const int NameMaxLength = 128;
+    private const int ScheduleTextMaxLength = 512;
+    private const string TrainingStartTimeDisplayFormat = "HH:mm";
     private static readonly string[] SupportedTimeFormats = ["HH:mm", "HH:mm:ss"];
     private static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
 
@@ -205,10 +208,10 @@ internal static class GroupEndpoints
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 currentUser.Id,
-                "TrainingGroupCreated",
-                "TrainingGroup",
+                GroupAuditConstants.TrainingGroupCreatedAction,
+                GroupAuditConstants.TrainingGroupEntityType,
                 group.Id.ToString(),
-                $"User '{currentUser.Login}' created training group '{group.Name}'.",
+                GroupResources.TrainingGroupCreatedDescription(currentUser.Login, group.Name),
                 NewValueJson: SerializeAuditState(createdGroup)),
             cancellationToken);
 
@@ -268,10 +271,10 @@ internal static class GroupEndpoints
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 currentUser.Id,
-                "TrainingGroupUpdated",
-                "TrainingGroup",
+                GroupAuditConstants.TrainingGroupUpdatedAction,
+                GroupAuditConstants.TrainingGroupEntityType,
                 group.Id.ToString(),
-                $"User '{currentUser.Login}' updated training group '{group.Name}'.",
+                GroupResources.TrainingGroupUpdatedDescription(currentUser.Login, group.Name),
                 oldState,
                 SerializeAuditState(updatedGroup)),
             cancellationToken);
@@ -326,10 +329,10 @@ internal static class GroupEndpoints
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 currentUser.Id,
-                "TrainingGroupUpdated",
-                "TrainingGroup",
+                GroupAuditConstants.TrainingGroupUpdatedAction,
+                GroupAuditConstants.TrainingGroupEntityType,
                 group.Id.ToString(),
-                $"User '{currentUser.Login}' updated trainers for training group '{group.Name}'.",
+                GroupResources.TrainingGroupTrainersUpdatedDescription(currentUser.Login, group.Name),
                 oldState,
                 SerializeAuditState(updatedGroup)),
             cancellationToken);
@@ -372,12 +375,12 @@ internal static class GroupEndpoints
         {
             if (page is <= 0)
             {
-                errors["page"] = ["Номер страницы должен быть больше 0."];
+                errors["page"] = [GroupResources.PageMustBeGreaterThanZero];
             }
 
             if (pageSize is <= 0 or > MaxTake)
             {
-                errors["pageSize"] = [$"Размер страницы должен быть в диапазоне от 1 до {MaxTake}."];
+                errors["pageSize"] = [GroupResources.PageSizeMustBeInRange(MaxTake)];
             }
 
             return errors;
@@ -385,12 +388,12 @@ internal static class GroupEndpoints
 
         if (skip is < 0)
         {
-            errors["skip"] = ["Параметр skip не может быть отрицательным."];
+            errors["skip"] = [GroupResources.SkipCannotBeNegative];
         }
 
         if (take is <= 0 or > MaxTake)
         {
-            errors["take"] = [$"Параметр take должен быть в диапазоне от 1 до {MaxTake}."];
+            errors["take"] = [GroupResources.TakeMustBeInRange(MaxTake)];
         }
 
         return errors;
@@ -417,25 +420,25 @@ internal static class GroupEndpoints
 
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            errors["name"] = ["Укажите название группы."];
+            errors["name"] = [GroupResources.NameRequired];
         }
-        else if (request.Name.Length > 128)
+        else if (request.Name.Length > NameMaxLength)
         {
-            errors["name"] = ["Название группы не должно превышать 128 символов."];
+            errors["name"] = [GroupResources.NameTooLong(NameMaxLength)];
         }
 
         if (string.IsNullOrWhiteSpace(request.ScheduleText))
         {
-            errors["scheduleText"] = ["Укажите график тренировок."];
+            errors["scheduleText"] = [GroupResources.ScheduleTextRequired];
         }
-        else if (request.ScheduleText.Length > 512)
+        else if (request.ScheduleText.Length > ScheduleTextMaxLength)
         {
-            errors["scheduleText"] = ["График тренировок не должен превышать 512 символов."];
+            errors["scheduleText"] = [GroupResources.ScheduleTextTooLong(ScheduleTextMaxLength)];
         }
 
         if (ParseTrainingStartTime(request.TrainingStartTime) is null)
         {
-            errors["trainingStartTime"] = ["Укажите корректное время начала тренировки в формате HH:mm."];
+            errors["trainingStartTime"] = [GroupResources.TrainingStartTimeInvalid(TrainingStartTimeDisplayFormat)];
         }
 
         var trainerErrors = await ValidateTrainerIdsAsync(request.RawTrainerIds, request.TrainerIds, dbContext, cancellationToken);
@@ -457,7 +460,7 @@ internal static class GroupEndpoints
 
         if (rawTrainerIds?.Any(trainerId => trainerId == Guid.Empty) == true)
         {
-            errors["trainerIds"] = ["Список тренеров содержит некорректный идентификатор."];
+            errors["trainerIds"] = [GroupResources.InvalidTrainerId];
             return errors;
         }
 
@@ -473,7 +476,7 @@ internal static class GroupEndpoints
 
         if (validTrainerCount != normalizedTrainerIds.Count)
         {
-            errors["trainerIds"] = ["Можно назначить только активных пользователей с ролью Coach."];
+            errors["trainerIds"] = [GroupResources.OnlyActiveCoachesCanBeAssigned];
         }
 
         return errors;
@@ -602,7 +605,7 @@ internal static class GroupEndpoints
                 .Select(part => part!.Trim()));
 
         return string.IsNullOrWhiteSpace(fullName)
-            ? "Клиент без имени"
+            ? ClientResources.ClientWithoutName
             : fullName;
     }
 

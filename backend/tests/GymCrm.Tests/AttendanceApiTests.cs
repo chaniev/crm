@@ -121,6 +121,25 @@ public class AttendanceApiTests
         Assert.Contains(attendanceAuditEntries, log =>
             !string.IsNullOrWhiteSpace(log.OldValueJson) &&
             !string.IsNullOrWhiteSpace(log.NewValueJson));
+
+        var markedLog = attendanceAuditEntries.Single(log => log.ActionType == "AttendanceMarked");
+        Assert.Equal(
+            $"Пользователь '{seeded.HeadCoachLogin}' отметил посещение клиента 'Разовый Клиент' в группе 'Attendance Group' на дату {trainingDateString}.",
+            markedLog.Description);
+
+        var updatedLog = attendanceAuditEntries.Single(log => log.ActionType == "AttendanceUpdated");
+        Assert.Equal(
+            $"Пользователь '{seeded.HeadCoachLogin}' изменил отметку посещения клиента 'Разовый Клиент' в группе 'Attendance Group' на дату {trainingDateString}.",
+            updatedLog.Description);
+
+        var writeOffLog = await dbContext.AuditLogs.SingleAsync(log =>
+            log.UserId == seeded.HeadCoachId &&
+            log.ActionType == "ClientMembershipSingleVisitWrittenOff" &&
+            log.EntityType == "ClientMembership" &&
+            log.CreatedAt >= operationStartedAt);
+        Assert.Equal(
+            $"Пользователь '{seeded.HeadCoachLogin}' списал разовое посещение клиента 'Разовый Клиент' после отметки посещения.",
+            writeOffLog.Description);
     }
 
     [Fact]

@@ -2005,6 +2005,23 @@ public class ClientsApiTests
             AssertNoPasswordInAuditState(log.OldValueJson);
             AssertNoPasswordInAuditState(log.NewValueJson);
         }
+
+        var membershipActionLogs = auditLogs
+            .Where(log => log.ActionType is "ClientMembershipPurchased" or "ClientMembershipRenewed" or "ClientMembershipPaymentMarked")
+            .OrderBy(log => log.CreatedAt)
+            .ToList();
+
+        Assert.Equal(
+            ["ClientMembershipPurchased", "ClientMembershipRenewed", "ClientMembershipPaymentMarked"],
+            membershipActionLogs.Select(log => log.ActionType));
+        Assert.All(membershipActionLogs, log => Assert.Equal("ClientMembership", log.EntityType));
+        Assert.Equal(
+            [
+                $"Пользователь '{seeded.HeadCoachLogin}' оформил абонемент клиента 'Membership Client Tests'.",
+                $"Пользователь '{seeded.HeadCoachLogin}' продлил абонемент клиента 'Membership Client Tests'.",
+                $"Пользователь '{seeded.HeadCoachLogin}' отметил оплату абонемента клиента 'Membership Client Tests'."
+            ],
+            membershipActionLogs.Select(log => log.Description));
     }
 
     [Fact]
@@ -2149,10 +2166,23 @@ public class ClientsApiTests
             .OrderBy(log => log.CreatedAt)
             .ToListAsync();
 
-        Assert.Contains(auditLogs, log => log.ActionType == "ClientCreated");
-        Assert.Contains(auditLogs, log => log.ActionType == "ClientUpdated");
-        Assert.Contains(auditLogs, log => log.ActionType == "ClientArchived");
-        Assert.Contains(auditLogs, log => log.ActionType == "ClientRestored");
+        var clientAuditLogs = auditLogs
+            .Where(log => log.EntityId == createdClientId.ToString())
+            .OrderBy(log => log.CreatedAt)
+            .ToList();
+
+        Assert.Equal(
+            ["ClientCreated", "ClientUpdated", "ClientArchived", "ClientRestored"],
+            clientAuditLogs.Select(log => log.ActionType));
+        Assert.All(clientAuditLogs, log => Assert.Equal("Client", log.EntityType));
+        Assert.Equal(
+            [
+                $"Пользователь '{seeded.HeadCoachLogin}' создал клиента 'Audit Client'.",
+                $"Пользователь '{seeded.HeadCoachLogin}' изменил клиента 'Audit Updated Client'.",
+                $"Пользователь '{seeded.HeadCoachLogin}' архивировал клиента 'Audit Updated Client'.",
+                $"Пользователь '{seeded.HeadCoachLogin}' восстановил клиента 'Audit Updated Client'."
+            ],
+            clientAuditLogs.Select(log => log.Description));
 
         foreach (var log in auditLogs)
         {

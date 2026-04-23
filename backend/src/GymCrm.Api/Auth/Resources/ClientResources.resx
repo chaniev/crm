@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageMustBeGreaterThanZero" xml:space="preserve">
+    <value>Номер страницы должен быть больше 0.</value>
+  </data>
+  <data name="PageSizeOutOfRange" xml:space="preserve">
+    <value>Размер страницы должен быть в диапазоне от 1 до {0}.</value>
+  </data>
+  <data name="SkipCannotBeNegative" xml:space="preserve">
+    <value>Параметр skip не может быть отрицательным.</value>
+  </data>
+  <data name="TakeOutOfRange" xml:space="preserve">
+    <value>Параметр take должен быть в диапазоне от 1 до {0}.</value>
+  </data>
+  <data name="AttendanceSkipCannotBeNegative" xml:space="preserve">
+    <value>Параметр attendanceSkip не может быть отрицательным.</value>
+  </data>
+  <data name="AttendanceTakeOutOfRange" xml:space="preserve">
+    <value>Параметр attendanceTake должен быть в диапазоне от 1 до {0}.</value>
+  </data>
+  <data name="InvalidStatus" xml:space="preserve">
+    <value>Укажите корректный статус клиента.</value>
+  </data>
+  <data name="InvalidPaymentStatus" xml:space="preserve">
+    <value>Укажите корректный фильтр оплаты клиента.</value>
+  </data>
+  <data name="MembershipExpirationRangeInvalid" xml:space="preserve">
+    <value>Дата окончания диапазона не может быть раньше начальной даты.</value>
+  </data>
+  <data name="PhoneRequired" xml:space="preserve">
+    <value>Укажите номер телефона.</value>
+  </data>
+  <data name="PhoneTooLong" xml:space="preserve">
+    <value>Номер телефона не должен превышать 32 символа.</value>
+  </data>
+  <data name="LastNameTooLong" xml:space="preserve">
+    <value>Фамилия не должна превышать 128 символов.</value>
+  </data>
+  <data name="FirstNameTooLong" xml:space="preserve">
+    <value>Имя не должно превышать 128 символов.</value>
+  </data>
+  <data name="MiddleNameTooLong" xml:space="preserve">
+    <value>Отчество не должно превышать 128 символов.</value>
+  </data>
+  <data name="FullNameRequired" xml:space="preserve">
+    <value>Укажите хотя бы одно из полей фамилии, имени или отчества.</value>
+  </data>
+  <data name="ContactsLimitExceeded" xml:space="preserve">
+    <value>У клиента может быть не более 2 контактных лиц.</value>
+  </data>
+  <data name="ContactTypeRequired" xml:space="preserve">
+    <value>Укажите тип контактного лица.</value>
+  </data>
+  <data name="ContactTypeTooLong" xml:space="preserve">
+    <value>Тип контактного лица не должен превышать 64 символа.</value>
+  </data>
+  <data name="ContactFullNameRequired" xml:space="preserve">
+    <value>Укажите ФИО контактного лица.</value>
+  </data>
+  <data name="ContactFullNameTooLong" xml:space="preserve">
+    <value>ФИО контактного лица не должно превышать 256 символов.</value>
+  </data>
+  <data name="ContactPhoneRequired" xml:space="preserve">
+    <value>Укажите телефон контактного лица.</value>
+  </data>
+  <data name="ContactPhoneTooLong" xml:space="preserve">
+    <value>Телефон контактного лица не должен превышать 32 символа.</value>
+  </data>
+  <data name="InvalidGroupId" xml:space="preserve">
+    <value>Список групп содержит некорректный идентификатор.</value>
+  </data>
+  <data name="GroupsMustExist" xml:space="preserve">
+    <value>Можно привязать клиента только к существующим группам.</value>
+  </data>
+  <data name="PurchaseDateRequired" xml:space="preserve">
+    <value>Укажите дату покупки абонемента.</value>
+  </data>
+  <data name="RenewalDateRequired" xml:space="preserve">
+    <value>Укажите дату продления абонемента.</value>
+  </data>
+  <data name="CurrentMembershipMissingForRenewal" xml:space="preserve">
+    <value>У клиента нет текущего абонемента для продления.</value>
+  </data>
+  <data name="CurrentMembershipWithoutExpirationDate" xml:space="preserve">
+    <value>У текущего абонемента не указана дата окончания, продление недоступно.</value>
+  </data>
+  <data name="ExpirationBeforeRenewalDate" xml:space="preserve">
+    <value>Дата окончания не может быть раньше даты продления.</value>
+  </data>
+  <data name="CurrentMembershipMissingForCorrection" xml:space="preserve">
+    <value>У клиента нет текущего абонемента для исправления.</value>
+  </data>
+  <data name="CurrentMembershipMissingForPaymentMark" xml:space="preserve">
+    <value>У клиента нет текущего абонемента для отметки оплаты.</value>
+  </data>
+  <data name="PaymentAmountImmutableForPaymentMark" xml:space="preserve">
+    <value>Сумму оплаты можно изменить только через исправление абонемента.</value>
+  </data>
+  <data name="IsPaidRequired" xml:space="preserve">
+    <value>Укажите признак оплаты абонемента.</value>
+  </data>
+  <data name="PaymentMarkMustSetPaid" xml:space="preserve">
+    <value>Отметка оплаты должна устанавливать значение "оплачен".</value>
+  </data>
+  <data name="CurrentMembershipAlreadyPaid" xml:space="preserve">
+    <value>Оплата по текущему абонементу уже отмечена.</value>
+  </data>
+  <data name="ExpirationBeforePurchaseDate" xml:space="preserve">
+    <value>Дата окончания не может быть раньше даты покупки.</value>
+  </data>
+  <data name="MembershipTypeRequired" xml:space="preserve">
+    <value>Укажите тип абонемента.</value>
+  </data>
+  <data name="InvalidMembershipType" xml:space="preserve">
+    <value>Укажите корректный тип абонемента.</value>
+  </data>
+  <data name="CurrentMembershipTypeMismatch" xml:space="preserve">
+    <value>Текущий абонемент клиента имеет тип '{0}'.</value>
+  </data>
+  <data name="InvalidIsoDate" xml:space="preserve">
+    <value>Укажите корректную дату в формате yyyy-MM-dd.</value>
+  </data>
+  <data name="PaymentAmountRequired" xml:space="preserve">
+    <value>Укажите сумму оплаты.</value>
+  </data>
+  <data name="PaymentAmountMustBeNonNegative" xml:space="preserve">
+    <value>Сумма оплаты не может быть отрицательной.</value>
+  </data>
+  <data name="InvalidMembershipChangeRequest" xml:space="preserve">
+    <value>Запрос на изменение абонемента содержит некорректные данные.</value>
+  </data>
+  <data name="CurrentMembershipMissingForAction" xml:space="preserve">
+    <value>У клиента нет текущего абонемента для этого действия.</value>
+  </data>
+  <data name="MembershipChangeFailed" xml:space="preserve">
+    <value>Не удалось изменить данные абонемента.</value>
+  </data>
+  <data name="ClientWithoutName" xml:space="preserve">
+    <value>Клиент без имени</value>
+  </data>
+  <data name="PhotoFormContentTypeRequired" xml:space="preserve">
+    <value>Отправьте файл как multipart/form-data в поле '{0}'.</value>
+  </data>
+  <data name="PhotoSingleFileRequired" xml:space="preserve">
+    <value>Передайте ровно один файл в поле '{0}'.</value>
+  </data>
+  <data name="PhotoEmpty" xml:space="preserve">
+    <value>Файл фотографии не должен быть пустым.</value>
+  </data>
+  <data name="PhotoInvalidRequest" xml:space="preserve">
+    <value>Передан некорректный файл фотографии.</value>
+  </data>
+  <data name="PhotoUnsupportedMediaType" xml:space="preserve">
+    <value>Допустимы только JPEG, PNG, WebP, HEIC и HEIF.</value>
+  </data>
+  <data name="PhotoInvalidImageContent" xml:space="preserve">
+    <value>Backend не смог распознать содержимое файла как изображение.</value>
+  </data>
+  <data name="PhotoConversionUnavailableTitle" xml:space="preserve">
+    <value>Не удалось конвертировать фотографию клиента.</value>
+  </data>
+  <data name="PhotoConversionUnavailableDetail" xml:space="preserve">
+    <value>Сервер не поддерживает обработку HEIC/HEIF в текущей конфигурации.</value>
+  </data>
+  <data name="PhotoUploadForbiddenTitle" xml:space="preserve">
+    <value>Недостаточно прав для загрузки фотографии клиента.</value>
+  </data>
+  <data name="PhotoUploadForbiddenDetail" xml:space="preserve">
+    <value>Загрузка фотографии доступна только management-ролям.</value>
+  </data>
+  <data name="PhotoSaveUnsupportedResultTitle" xml:space="preserve">
+    <value>Не удалось сохранить фотографию клиента.</value>
+  </data>
+  <data name="PhotoSaveUnsupportedResultDetail" xml:space="preserve">
+    <value>Сервис фотографии клиента вернул неподдерживаемый результат.</value>
+  </data>
+  <data name="PhotoReadUnsupportedResultTitle" xml:space="preserve">
+    <value>Не удалось получить фотографию клиента.</value>
+  </data>
+  <data name="PhotoReadUnsupportedResultDetail" xml:space="preserve">
+    <value>Сервис фотографии клиента вернул неподдерживаемый результат.</value>
+  </data>
+  <data name="PhotoPayloadTooLargeTitle" xml:space="preserve">
+    <value>Размер фотографии превышает допустимый лимит.</value>
+  </data>
+  <data name="PhotoPayloadTooLargeDetail" xml:space="preserve">
+    <value>Максимальный размер файла: {0} байт.</value>
+  </data>
+</root>

@@ -418,10 +418,12 @@ internal static class ClientEndpoints
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 currentUser.Id,
-                "ClientCreated",
-                "Client",
+                ClientAuditConstants.ClientCreatedAction,
+                ClientAuditConstants.ClientEntityType,
                 client.Id.ToString(),
-                $"User '{currentUser.Login}' created client '{BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)}'.",
+                ClientAuditResources.ClientCreatedDescription(
+                    currentUser.Login,
+                    BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
                 NewValueJson: SerializeAuditState(createdClient)),
             cancellationToken);
 
@@ -482,10 +484,12 @@ internal static class ClientEndpoints
         await auditLogService.WriteAsync(
             new AuditLogEntry(
                 currentUser.Id,
-                "ClientUpdated",
-                "Client",
+                ClientAuditConstants.ClientUpdatedAction,
+                ClientAuditConstants.ClientEntityType,
                 client.Id.ToString(),
-                $"User '{currentUser.Login}' updated client '{BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)}'.",
+                ClientAuditResources.ClientUpdatedDescription(
+                    currentUser.Login,
+                    BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
                 oldState,
                 SerializeAuditState(updatedClient)),
             cancellationToken);
@@ -504,8 +508,8 @@ internal static class ClientEndpoints
         return UpdateClientStatusAsync(
             id,
             ClientStatus.Archived,
-            "ClientArchived",
-            "archived",
+            ClientAuditConstants.ClientArchivedAction,
+            ClientAuditResources.ClientArchivedDescription,
             httpContext,
             dbContext,
             auditLogService,
@@ -524,8 +528,8 @@ internal static class ClientEndpoints
         return UpdateClientStatusAsync(
             id,
             ClientStatus.Active,
-            "ClientRestored",
-            "restored",
+            ClientAuditConstants.ClientRestoredAction,
+            ClientAuditResources.ClientRestoredDescription,
             httpContext,
             dbContext,
             auditLogService,
@@ -537,7 +541,7 @@ internal static class ClientEndpoints
         Guid id,
         ClientStatus targetStatus,
         string actionType,
-        string actionVerb,
+        Func<string, string, string> descriptionFactory,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAuditLogService auditLogService,
@@ -577,9 +581,11 @@ internal static class ClientEndpoints
             new AuditLogEntry(
                 currentUser.Id,
                 actionType,
-                "Client",
+                ClientAuditConstants.ClientEntityType,
                 client.Id.ToString(),
-                $"User '{currentUser.Login}' {actionVerb} client '{BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)}'.",
+                descriptionFactory(
+                    currentUser.Login,
+                    BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
                 oldState,
                 SerializeAuditState(client)),
             cancellationToken);
@@ -616,8 +622,8 @@ internal static class ClientEndpoints
                         request.PaymentAmount!.Value,
                         request.IsPaid!.Value),
                     cancellationToken),
-            actionType: "ClientMembershipPurchased",
-            actionVerb: "purchased");
+            actionType: ClientAuditConstants.MembershipPurchasedAction,
+            descriptionFactory: ClientAuditResources.MembershipPurchasedDescription);
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RenewMembershipAsync(
@@ -648,8 +654,8 @@ internal static class ClientEndpoints
                         request.PaymentAmount!.Value,
                         request.IsPaid!.Value),
                     cancellationToken),
-            actionType: "ClientMembershipRenewed",
-            actionVerb: "renewed");
+            actionType: ClientAuditConstants.MembershipRenewedAction,
+            descriptionFactory: ClientAuditResources.MembershipRenewedDescription);
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CorrectMembershipAsync(
@@ -681,8 +687,8 @@ internal static class ClientEndpoints
                         request.PaymentAmount!.Value,
                         request.IsPaid!.Value),
                     cancellationToken),
-            actionType: "ClientMembershipCorrected",
-            actionVerb: "corrected");
+            actionType: ClientAuditConstants.MembershipCorrectedAction,
+            descriptionFactory: ClientAuditResources.MembershipCorrectedDescription);
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> MarkMembershipPaymentAsync(
@@ -708,8 +714,8 @@ internal static class ClientEndpoints
                     id,
                     new MarkClientMembershipPaymentCommand(currentUser.Id),
                     cancellationToken),
-            actionType: "ClientMembershipPaymentMarked",
-            actionVerb: "marked payment for");
+            actionType: ClientAuditConstants.MembershipPaymentMarkedAction,
+            descriptionFactory: ClientAuditResources.MembershipPaymentMarkedDescription);
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
@@ -722,7 +728,7 @@ internal static class ClientEndpoints
         Func<Client, Dictionary<string, string[]>> validateRequest,
         Func<User, Task<ClientMembershipMutationResult>> executeAsync,
         string actionType,
-        string actionVerb)
+        Func<string, string, string> descriptionFactory)
     {
         var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
@@ -767,9 +773,11 @@ internal static class ClientEndpoints
             new AuditLogEntry(
                 currentUser.Id,
                 actionType,
-                "ClientMembership",
+                ClientAuditConstants.MembershipEntityType,
                 currentMembershipAfter?.Id.ToString() ?? clientAfter.Id.ToString(),
-                $"User '{currentUser.Login}' {actionVerb} client membership for '{BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)}'.",
+                descriptionFactory(
+                    currentUser.Login,
+                    BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
                 SerializeMembershipAuditState(GetCurrentMembership(clientBefore)),
                 SerializeMembershipAuditState(currentMembershipAfter)),
             cancellationToken);
@@ -852,12 +860,12 @@ internal static class ClientEndpoints
         {
             if (page is <= 0)
             {
-                errors["page"] = ["Номер страницы должен быть больше 0."];
+                errors["page"] = [ClientResources.PageMustBeGreaterThanZero];
             }
 
             if (pageSize is <= 0 or > ClientApiConstants.MaxTake)
             {
-                errors["pageSize"] = [$"Размер страницы должен быть в диапазоне от 1 до {ClientApiConstants.MaxTake}."];
+                errors["pageSize"] = [ClientResources.PageSizeOutOfRange(ClientApiConstants.MaxTake)];
             }
 
             return errors;
@@ -865,12 +873,12 @@ internal static class ClientEndpoints
 
         if (skip is < 0)
         {
-            errors["skip"] = ["Параметр skip не может быть отрицательным."];
+            errors["skip"] = [ClientResources.SkipCannotBeNegative];
         }
 
         if (take is <= 0 or > ClientApiConstants.MaxTake)
         {
-            errors["take"] = [$"Параметр take должен быть в диапазоне от 1 до {ClientApiConstants.MaxTake}."];
+            errors["take"] = [ClientResources.TakeOutOfRange(ClientApiConstants.MaxTake)];
         }
 
         return errors;
@@ -882,14 +890,14 @@ internal static class ClientEndpoints
 
         if (attendanceSkip is < 0)
         {
-            errors["attendanceSkip"] = ["Параметр attendanceSkip не может быть отрицательным."];
+            errors["attendanceSkip"] = [ClientResources.AttendanceSkipCannotBeNegative];
         }
 
         if (attendanceTake is <= 0 or > ClientApiConstants.MaxTake)
         {
             if (attendanceTake.HasValue)
             {
-                errors["attendanceTake"] = [$"Параметр attendanceTake должен быть в диапазоне от 1 до {ClientApiConstants.MaxTake}."];
+                errors["attendanceTake"] = [ClientResources.AttendanceTakeOutOfRange(ClientApiConstants.MaxTake)];
             }
         }
 
@@ -928,12 +936,12 @@ internal static class ClientEndpoints
 
         if (!string.IsNullOrWhiteSpace(status) && ParseStatus(status) is null)
         {
-            errors["status"] = ["Укажите корректный статус клиента."];
+            errors["status"] = [ClientResources.InvalidStatus];
         }
 
         if (!string.IsNullOrWhiteSpace(paymentStatus) && ParsePaymentStatus(paymentStatus) is null)
         {
-            errors["paymentStatus"] = ["Укажите корректный фильтр оплаты клиента."];
+            errors["paymentStatus"] = [ClientResources.InvalidPaymentStatus];
         }
 
         var parsedMembershipExpiresFrom = ParseOptionalIsoDateFilter(
@@ -949,7 +957,7 @@ internal static class ClientEndpoints
             parsedMembershipExpiresTo.HasValue &&
             parsedMembershipExpiresTo.Value < parsedMembershipExpiresFrom.Value)
         {
-            errors["membershipExpiresTo"] = ["Дата окончания диапазона не может быть раньше начальной даты."];
+            errors["membershipExpiresTo"] = [ClientResources.MembershipExpirationRangeInvalid];
         }
 
         return errors;
@@ -964,27 +972,27 @@ internal static class ClientEndpoints
 
         if (string.IsNullOrWhiteSpace(request.Phone))
         {
-            errors["phone"] = ["Укажите номер телефона."];
+            errors["phone"] = [ClientResources.PhoneRequired];
         }
         else if (request.Phone.Length > 32)
         {
-            errors["phone"] = ["Номер телефона не должен превышать 32 символа."];
+            errors["phone"] = [ClientResources.PhoneTooLong];
         }
 
-        ValidateNamePart(request.LastName, "lastName", "Фамилия не должна превышать 128 символов.", errors);
-        ValidateNamePart(request.FirstName, "firstName", "Имя не должно превышать 128 символов.", errors);
-        ValidateNamePart(request.MiddleName, "middleName", "Отчество не должно превышать 128 символов.", errors);
+        ValidateNamePart(request.LastName, "lastName", ClientResources.LastNameTooLong, errors);
+        ValidateNamePart(request.FirstName, "firstName", ClientResources.FirstNameTooLong, errors);
+        ValidateNamePart(request.MiddleName, "middleName", ClientResources.MiddleNameTooLong, errors);
 
         if (string.IsNullOrWhiteSpace(request.LastName) &&
             string.IsNullOrWhiteSpace(request.FirstName) &&
             string.IsNullOrWhiteSpace(request.MiddleName))
         {
-            errors["fullName"] = ["Укажите хотя бы одно из полей фамилии, имени или отчества."];
+            errors["fullName"] = [ClientResources.FullNameRequired];
         }
 
         if (request.RawContacts?.Count > 2)
         {
-            errors["contacts"] = ["У клиента может быть не более 2 контактных лиц."];
+            errors["contacts"] = [ClientResources.ContactsLimitExceeded];
         }
 
         for (var index = 0; index < request.Contacts.Count; index++)
@@ -992,35 +1000,35 @@ internal static class ClientEndpoints
             var contact = request.Contacts[index];
             if (string.IsNullOrWhiteSpace(contact.Type))
             {
-                errors[$"contacts[{index}].type"] = ["Укажите тип контактного лица."];
+                errors[$"contacts[{index}].type"] = [ClientResources.ContactTypeRequired];
             }
             else if (contact.Type.Length > 64)
             {
-                errors[$"contacts[{index}].type"] = ["Тип контактного лица не должен превышать 64 символа."];
+                errors[$"contacts[{index}].type"] = [ClientResources.ContactTypeTooLong];
             }
 
             if (string.IsNullOrWhiteSpace(contact.FullName))
             {
-                errors[$"contacts[{index}].fullName"] = ["Укажите ФИО контактного лица."];
+                errors[$"contacts[{index}].fullName"] = [ClientResources.ContactFullNameRequired];
             }
             else if (contact.FullName.Length > 256)
             {
-                errors[$"contacts[{index}].fullName"] = ["ФИО контактного лица не должно превышать 256 символов."];
+                errors[$"contacts[{index}].fullName"] = [ClientResources.ContactFullNameTooLong];
             }
 
             if (string.IsNullOrWhiteSpace(contact.Phone))
             {
-                errors[$"contacts[{index}].phone"] = ["Укажите телефон контактного лица."];
+                errors[$"contacts[{index}].phone"] = [ClientResources.ContactPhoneRequired];
             }
             else if (contact.Phone.Length > 32)
             {
-                errors[$"contacts[{index}].phone"] = ["Телефон контактного лица не должен превышать 32 символа."];
+                errors[$"contacts[{index}].phone"] = [ClientResources.ContactPhoneTooLong];
             }
         }
 
         if (request.RawGroupIds?.Any(groupId => groupId == Guid.Empty) == true)
         {
-            errors["groupIds"] = ["Список групп содержит некорректный идентификатор."];
+            errors["groupIds"] = [ClientResources.InvalidGroupId];
             return errors;
         }
 
@@ -1036,7 +1044,7 @@ internal static class ClientEndpoints
 
         if (existingGroupCount != request.GroupIds.Count)
         {
-            errors["groupIds"] = ["Можно привязать клиента только к существующим группам."];
+            errors["groupIds"] = [ClientResources.GroupsMustExist];
         }
 
         return errors;
@@ -1152,7 +1160,7 @@ internal static class ClientEndpoints
     {
         var errors = new Dictionary<string, string[]>();
         var membershipType = ValidateRequiredMembershipType(request.MembershipType, errors);
-        var purchaseDate = ValidateRequiredDate(request.PurchaseDate, "purchaseDate", "Укажите дату покупки абонемента.", errors);
+        var purchaseDate = ValidateRequiredDate(request.PurchaseDate, "purchaseDate", ClientResources.PurchaseDateRequired, errors);
         var expirationDate = ValidateOptionalDate(request.ExpirationDate, "expirationDate", errors);
 
         ValidatePaymentAmount(request.PaymentAmount, errors);
@@ -1171,11 +1179,11 @@ internal static class ClientEndpoints
 
         if (currentMembership is null)
         {
-            errors["currentMembership"] = ["У клиента нет текущего абонемента для продления."];
+            errors["currentMembership"] = [ClientResources.CurrentMembershipMissingForRenewal];
             return errors;
         }
 
-        var renewalDate = ValidateRequiredDate(request.RenewalDate, "renewalDate", "Укажите дату продления абонемента.", errors);
+        var renewalDate = ValidateRequiredDate(request.RenewalDate, "renewalDate", ClientResources.RenewalDateRequired, errors);
         var expirationDate = ValidateOptionalDate(request.ExpirationDate, "expirationDate", errors);
         ValidateOptionalMatchingMembershipType(request.MembershipType, currentMembership.MembershipType, errors);
         ValidatePaymentAmount(request.PaymentAmount, errors);
@@ -1184,14 +1192,14 @@ internal static class ClientEndpoints
         if (currentMembership.MembershipType is not MembershipType.SingleVisit &&
             currentMembership.ExpirationDate is null)
         {
-            errors["currentMembership"] = ["У текущего абонемента не указана дата окончания, продление недоступно."];
+            errors["currentMembership"] = [ClientResources.CurrentMembershipWithoutExpirationDate];
         }
 
         if (renewalDate.HasValue &&
             expirationDate.HasValue &&
             expirationDate.Value < renewalDate.Value)
         {
-            errors["expirationDate"] = ["Дата окончания не может быть раньше даты продления."];
+            errors["expirationDate"] = [ClientResources.ExpirationBeforeRenewalDate];
         }
 
         return errors;
@@ -1205,12 +1213,12 @@ internal static class ClientEndpoints
         var currentMembership = GetCurrentMembership(client);
         if (currentMembership is null)
         {
-            errors["currentMembership"] = ["У клиента нет текущего абонемента для исправления."];
+            errors["currentMembership"] = [ClientResources.CurrentMembershipMissingForCorrection];
             return errors;
         }
 
         var membershipType = ValidateRequiredMembershipType(request.MembershipType, errors);
-        var purchaseDate = ValidateRequiredDate(request.PurchaseDate, "purchaseDate", "Укажите дату покупки абонемента.", errors);
+        var purchaseDate = ValidateRequiredDate(request.PurchaseDate, "purchaseDate", ClientResources.PurchaseDateRequired, errors);
         var expirationDate = ValidateOptionalDate(request.ExpirationDate, "expirationDate", errors);
 
         ValidatePaymentAmount(request.PaymentAmount, errors);
@@ -1228,7 +1236,7 @@ internal static class ClientEndpoints
         var currentMembership = GetCurrentMembership(client);
         if (currentMembership is null)
         {
-            errors["currentMembership"] = ["У клиента нет текущего абонемента для отметки оплаты."];
+            errors["currentMembership"] = [ClientResources.CurrentMembershipMissingForPaymentMark];
             return errors;
         }
 
@@ -1237,20 +1245,20 @@ internal static class ClientEndpoints
 
         if (request.PaymentAmount.HasValue && request.PaymentAmount.Value != currentMembership.PaymentAmount)
         {
-            errors["paymentAmount"] = ["Сумму оплаты можно изменить только через исправление абонемента."];
+            errors["paymentAmount"] = [ClientResources.PaymentAmountImmutableForPaymentMark];
         }
 
         if (!request.IsPaid.HasValue)
         {
-            errors["isPaid"] = ["Укажите признак оплаты абонемента."];
+            errors["isPaid"] = [ClientResources.IsPaidRequired];
         }
         else if (!request.IsPaid.Value)
         {
-            errors["isPaid"] = ["Отметка оплаты должна устанавливать значение \"оплачен\"."];
+            errors["isPaid"] = [ClientResources.PaymentMarkMustSetPaid];
         }
         else if (currentMembership.IsPaid)
         {
-            errors["isPaid"] = ["Оплата по текущему абонементу уже отмечена."];
+            errors["isPaid"] = [ClientResources.CurrentMembershipAlreadyPaid];
         }
 
         return errors;
@@ -1270,7 +1278,7 @@ internal static class ClientEndpoints
 
         if (expirationDate.Value < purchaseDate.Value)
         {
-            errors[expirationDateKey] = ["Дата окончания не может быть раньше даты покупки."];
+            errors[expirationDateKey] = [ClientResources.ExpirationBeforePurchaseDate];
         }
     }
 
@@ -1280,14 +1288,14 @@ internal static class ClientEndpoints
     {
         if (string.IsNullOrWhiteSpace(membershipType))
         {
-            errors["membershipType"] = ["Укажите тип абонемента."];
+            errors["membershipType"] = [ClientResources.MembershipTypeRequired];
             return null;
         }
 
         var parsedMembershipType = ParseMembershipType(membershipType);
         if (parsedMembershipType is null)
         {
-            errors["membershipType"] = ["Укажите корректный тип абонемента."];
+            errors["membershipType"] = [ClientResources.InvalidMembershipType];
         }
 
         return parsedMembershipType;
@@ -1306,13 +1314,13 @@ internal static class ClientEndpoints
         var parsedMembershipType = ParseMembershipType(membershipType);
         if (parsedMembershipType is null)
         {
-            errors["membershipType"] = ["Укажите корректный тип абонемента."];
+            errors["membershipType"] = [ClientResources.InvalidMembershipType];
             return;
         }
 
         if (parsedMembershipType.Value != expectedMembershipType)
         {
-            errors["membershipType"] = [$"Текущий абонемент клиента имеет тип '{expectedMembershipType}'."];
+            errors["membershipType"] = [ClientResources.CurrentMembershipTypeMismatch(expectedMembershipType.ToString())];
         }
     }
 
@@ -1331,7 +1339,7 @@ internal static class ClientEndpoints
         var parsedDate = ParseIsoDate(value);
         if (parsedDate is null)
         {
-            errors[key] = ["Укажите корректную дату в формате yyyy-MM-dd."];
+            errors[key] = [ClientResources.InvalidIsoDate];
         }
 
         return parsedDate;
@@ -1350,7 +1358,7 @@ internal static class ClientEndpoints
         var parsedDate = ParseIsoDate(value);
         if (parsedDate is null)
         {
-            errors[key] = ["Укажите корректную дату в формате yyyy-MM-dd."];
+            errors[key] = [ClientResources.InvalidIsoDate];
         }
 
         return parsedDate;
@@ -1362,7 +1370,7 @@ internal static class ClientEndpoints
     {
         if (!value.HasValue)
         {
-            errors["paymentAmount"] = ["Укажите сумму оплаты."];
+            errors["paymentAmount"] = [ClientResources.PaymentAmountRequired];
             return;
         }
 
@@ -1375,7 +1383,7 @@ internal static class ClientEndpoints
     {
         if (value.HasValue && value.Value < 0)
         {
-            errors["paymentAmount"] = ["Сумма оплаты не может быть отрицательной."];
+            errors["paymentAmount"] = [ClientResources.PaymentAmountMustBeNonNegative];
         }
     }
 
@@ -1385,7 +1393,7 @@ internal static class ClientEndpoints
     {
         if (!isPaid.HasValue)
         {
-            errors["isPaid"] = ["Укажите признак оплаты абонемента."];
+            errors["isPaid"] = [ClientResources.IsPaidRequired];
         }
     }
 
@@ -1414,19 +1422,19 @@ internal static class ClientEndpoints
         {
             ClientMembershipMutationError.InvalidRequest => new Dictionary<string, string[]>
             {
-                ["membership"] = ["Запрос на изменение абонемента содержит некорректные данные."]
+                ["membership"] = [ClientResources.InvalidMembershipChangeRequest]
             },
             ClientMembershipMutationError.CurrentMembershipMissing => new Dictionary<string, string[]>
             {
-                ["currentMembership"] = ["У клиента нет текущего абонемента для этого действия."]
+                ["currentMembership"] = [ClientResources.CurrentMembershipMissingForAction]
             },
             ClientMembershipMutationError.CurrentMembershipAlreadyPaid => new Dictionary<string, string[]>
             {
-                ["currentMembership"] = ["Оплата по текущему абонементу уже отмечена."]
+                ["currentMembership"] = [ClientResources.CurrentMembershipAlreadyPaid]
             },
             _ => new Dictionary<string, string[]>
             {
-                ["membership"] = ["Не удалось изменить данные абонемента."]
+                ["membership"] = [ClientResources.MembershipChangeFailed]
             }
         };
     }
@@ -1547,7 +1555,7 @@ internal static class ClientEndpoints
         var parsedDate = ParseIsoDate(value);
         if (!parsedDate.HasValue)
         {
-            errors[key] = ["Укажите корректную дату в формате yyyy-MM-dd."];
+            errors[key] = [ClientResources.InvalidIsoDate];
         }
 
         return parsedDate;
@@ -1786,7 +1794,7 @@ internal static class ClientEndpoints
                 .Select(part => part!.Trim()));
 
         return string.IsNullOrWhiteSpace(fullName)
-            ? "Клиент без имени"
+            ? ClientResources.ClientWithoutName
             : fullName;
     }
 

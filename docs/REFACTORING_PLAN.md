@@ -23,12 +23,19 @@
 - повторяемый frontend `MetricCard` вынесен в `src/features/shared/ux.tsx`;
 - добавлены точечные regression tests для self-update session sync, русских audit descriptions и paging после membership-expiration filter.
 
+Дополнено следующим срезом:
+
+- client/group/attendance/membership audit action/entity constants централизованы;
+- client/group/attendance/membership audit descriptions переведены на русский через `Auth/Resources/*.resx`;
+- client/group/attendance/client-photo validation и user-facing API messages вынесены в resource helpers;
+- `frontend/src/lib/api.ts` разделен на доменные модули `src/lib/api/*`, а публичный `src/lib/api.ts` оставлен re-export'ом;
+- backend tests расширены assertions на стабильные audit action/entity codes и русские descriptions для clients/groups/attendance.
+
 Остаются дальнейшими безопасными срезами:
 
-- полное ресурсирование clients/groups/attendance текстов;
-- централизованные audit action/entity constants для client/group/attendance/membership событий;
-- постепенное разделение `frontend/src/lib/api.ts` по доменам с сохранением re-export;
 - дальнейшее разделение крупных backend endpoint DTO в client/group/attendance областях.
+- полное ресурсирование `auth`, `audit`, `access` и startup-level текстов, которые не входили в users/clients/groups/attendance срезы;
+- дальнейшее доменное разделение frontend resource dictionary при росте текстов.
 
 ## 1. Цель
 

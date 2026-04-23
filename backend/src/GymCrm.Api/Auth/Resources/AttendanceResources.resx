@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InvalidTrainingDate" xml:space="preserve">
+    <value>Укажите корректную дату тренировки в формате {0}.</value>
+  </data>
+  <data name="AttendanceMarksRequired" xml:space="preserve">
+    <value>Передайте хотя бы одну отметку посещения.</value>
+  </data>
+  <data name="AttendanceSaveInvalidRequest" xml:space="preserve">
+    <value>Не удалось сохранить отметки посещения. Проверьте состав клиентов и отсутствие дубликатов.</value>
+  </data>
+  <data name="AttendanceSaveClientOutsideGroup" xml:space="preserve">
+    <value>Отмечать посещение можно только для активных клиентов выбранной группы.</value>
+  </data>
+  <data name="AttendanceSaveFailed" xml:space="preserve">
+    <value>Не удалось сохранить отметки посещения.</value>
+  </data>
+  <data name="NoCurrentMembershipWarning" xml:space="preserve">
+    <value>У клиента нет текущего абонемента, но отметка посещения доступна.</value>
+  </data>
+  <data name="MembershipPurchasedLaterWarning" xml:space="preserve">
+    <value>абонемент приобретен позже выбранной даты</value>
+  </data>
+  <data name="MembershipUnpaidWarning" xml:space="preserve">
+    <value>абонемент не оплачен</value>
+  </data>
+  <data name="SingleVisitAlreadyUsedWarning" xml:space="preserve">
+    <value>разовое посещение уже использовано</value>
+  </data>
+  <data name="MembershipExpiredWarning" xml:space="preserve">
+    <value>срок действия абонемента истек</value>
+  </data>
+  <data name="MembershipWarningWithDetails" xml:space="preserve">
+    <value>{0}; отметка посещения все равно доступна.</value>
+  </data>
+  <data name="AttendanceMarkedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' отметил посещение клиента '{1}' в группе '{2}' на дату {3}.</value>
+  </data>
+  <data name="AttendanceUpdatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил отметку посещения клиента '{1}' в группе '{2}' на дату {3}.</value>
+  </data>
+  <data name="ClientMembershipSingleVisitWrittenOffDescription" xml:space="preserve">
+    <value>Пользователь '{0}' списал разовое посещение клиента '{1}' после отметки посещения.</value>
+  </data>
+</root>

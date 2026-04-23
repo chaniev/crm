@@ -44,7 +44,7 @@ internal static class ClientPhotoEndpoints
         if (!httpContext.Request.HasFormContentType)
         {
             return TypedResults.ValidationProblem(CreatePhotoValidationErrors(
-                $"Отправьте файл как multipart/form-data в поле '{ClientPhotoApiOptions.FormFieldName}'."));
+                ClientResources.PhotoFormContentTypeRequired(ClientPhotoApiOptions.FormFieldName)));
         }
 
         var options = optionsAccessor.Value;
@@ -67,12 +67,12 @@ internal static class ClientPhotoEndpoints
         if (photoFile is null)
         {
             return TypedResults.ValidationProblem(CreatePhotoValidationErrors(
-                $"Передайте ровно один файл в поле '{ClientPhotoApiOptions.FormFieldName}'."));
+                ClientResources.PhotoSingleFileRequired(ClientPhotoApiOptions.FormFieldName)));
         }
 
         if (photoFile.Length <= 0)
         {
-            return TypedResults.ValidationProblem(CreatePhotoValidationErrors("Файл фотографии не должен быть пустым."));
+            return TypedResults.ValidationProblem(CreatePhotoValidationErrors(ClientResources.PhotoEmpty));
         }
 
         try
@@ -101,23 +101,23 @@ internal static class ClientPhotoEndpoints
                 ClientPhotoError.ClientMissing => TypedResults.NotFound(),
                 ClientPhotoError.FileTooLarge => CreatePayloadTooLargeProblem(options.MaxUploadSizeBytes),
                 ClientPhotoError.InvalidRequest => TypedResults.ValidationProblem(
-                    CreatePhotoValidationErrors("Передан некорректный файл фотографии.")),
+                    CreatePhotoValidationErrors(ClientResources.PhotoInvalidRequest)),
                 ClientPhotoError.UnsupportedMediaType => TypedResults.ValidationProblem(
-                    CreatePhotoValidationErrors("Допустимы только JPEG, PNG, WebP, HEIC и HEIF.")),
+                    CreatePhotoValidationErrors(ClientResources.PhotoUnsupportedMediaType)),
                 ClientPhotoError.InvalidImageContent => TypedResults.ValidationProblem(
-                    CreatePhotoValidationErrors("Backend не смог распознать содержимое файла как изображение.")),
+                    CreatePhotoValidationErrors(ClientResources.PhotoInvalidImageContent)),
                 ClientPhotoError.ConversionUnavailable => TypedResults.Problem(
-                    title: "Не удалось конвертировать фотографию клиента.",
-                    detail: "Сервер не поддерживает обработку HEIC/HEIF в текущей конфигурации.",
+                    title: ClientResources.PhotoConversionUnavailableTitle,
+                    detail: ClientResources.PhotoConversionUnavailableDetail,
                     statusCode: StatusCodes.Status500InternalServerError),
                 ClientPhotoError.Forbidden => TypedResults.Problem(
-                    title: "Недостаточно прав для загрузки фотографии клиента.",
-                    detail: "Загрузка фотографии доступна только management-ролям.",
+                    title: ClientResources.PhotoUploadForbiddenTitle,
+                    detail: ClientResources.PhotoUploadForbiddenDetail,
                     statusCode: StatusCodes.Status403Forbidden),
                 ClientPhotoError.UserMissing => TypedResults.Unauthorized(),
                 _ => TypedResults.Problem(
-                    title: "Не удалось сохранить фотографию клиента.",
-                    detail: "Сервис фотографии клиента вернул неподдерживаемый результат.",
+                    title: ClientResources.PhotoSaveUnsupportedResultTitle,
+                    detail: ClientResources.PhotoSaveUnsupportedResultDetail,
                     statusCode: StatusCodes.Status500InternalServerError)
             };
         }
@@ -152,8 +152,8 @@ internal static class ClientPhotoEndpoints
             ClientPhotoError.Forbidden => TypedResults.Forbid(),
             ClientPhotoError.UserMissing => TypedResults.Unauthorized(),
             _ => TypedResults.Problem(
-                title: "Не удалось получить фотографию клиента.",
-                detail: "Сервис фотографии клиента вернул неподдерживаемый результат.",
+                title: ClientResources.PhotoReadUnsupportedResultTitle,
+                detail: ClientResources.PhotoReadUnsupportedResultDetail,
                 statusCode: StatusCodes.Status500InternalServerError)
         };
     }
@@ -192,8 +192,8 @@ internal static class ClientPhotoEndpoints
     private static ProblemHttpResult CreatePayloadTooLargeProblem(long maxUploadSizeBytes)
     {
         return TypedResults.Problem(
-            title: "Размер фотографии превышает допустимый лимит.",
-            detail: $"Максимальный размер файла: {maxUploadSizeBytes} байт.",
+            title: ClientResources.PhotoPayloadTooLargeTitle,
+            detail: ClientResources.PhotoPayloadTooLargeDetail(maxUploadSizeBytes),
             statusCode: StatusCodes.Status413PayloadTooLarge);
     }
 }

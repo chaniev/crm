@@ -246,6 +246,7 @@ public class GroupsApiTests
 
         var createPayload = await ReadJsonElementAsync(createResponse);
         var createdGroupId = await ExtractGroupIdFromResponseAsync(createResponse, createPayload);
+        var createdGroupName = GetStringFromProperty(createPayload, "name");
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -260,6 +261,15 @@ public class GroupsApiTests
                 AssertNoPasswordInAuditState(log.OldValueJson);
                 AssertNoPasswordInAuditState(log.NewValueJson);
             }
+
+            var createLog = await dbContext.AuditLogs.SingleAsync(log =>
+                log.ActionType == "TrainingGroupCreated" &&
+                log.EntityType == "TrainingGroup" &&
+                log.EntityId == createdGroupId.ToString());
+
+            Assert.Equal(
+                $"Пользователь '{seeded.HeadCoachLogin}' создал группу '{createdGroupName}'.",
+                createLog.Description);
         }
 
         using (var updateResponse = await PutJsonAsync(
@@ -292,6 +302,15 @@ public class GroupsApiTests
                 AssertNoPasswordInAuditState(log.OldValueJson);
                 AssertNoPasswordInAuditState(log.NewValueJson);
             }
+
+            var updateLog = await dbContext.AuditLogs.SingleAsync(log =>
+                log.ActionType == "TrainingGroupUpdated" &&
+                log.EntityType == "TrainingGroup" &&
+                log.EntityId == createdGroupId.ToString());
+
+            Assert.Equal(
+                $"Пользователь '{seeded.HeadCoachLogin}' изменил группу 'Audit group updated'.",
+                updateLog.Description);
         }
     }
 

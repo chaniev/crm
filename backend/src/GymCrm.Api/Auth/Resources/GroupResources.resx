@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageMustBeGreaterThanZero" xml:space="preserve">
+    <value>Номер страницы должен быть больше 0.</value>
+  </data>
+  <data name="PageSizeMustBeInRange" xml:space="preserve">
+    <value>Размер страницы должен быть в диапазоне от 1 до {0}.</value>
+  </data>
+  <data name="SkipCannotBeNegative" xml:space="preserve">
+    <value>Параметр skip не может быть отрицательным.</value>
+  </data>
+  <data name="TakeMustBeInRange" xml:space="preserve">
+    <value>Параметр take должен быть в диапазоне от 1 до {0}.</value>
+  </data>
+  <data name="NameRequired" xml:space="preserve">
+    <value>Укажите название группы.</value>
+  </data>
+  <data name="NameTooLong" xml:space="preserve">
+    <value>Название группы не должно превышать {0} символов.</value>
+  </data>
+  <data name="ScheduleTextRequired" xml:space="preserve">
+    <value>Укажите график тренировок.</value>
+  </data>
+  <data name="ScheduleTextTooLong" xml:space="preserve">
+    <value>График тренировок не должен превышать {0} символов.</value>
+  </data>
+  <data name="TrainingStartTimeInvalid" xml:space="preserve">
+    <value>Укажите корректное время начала тренировки в формате {0}.</value>
+  </data>
+  <data name="InvalidTrainerId" xml:space="preserve">
+    <value>Список тренеров содержит некорректный идентификатор.</value>
+  </data>
+  <data name="OnlyActiveCoachesCanBeAssigned" xml:space="preserve">
+    <value>Можно назначить только активных пользователей с ролью Coach.</value>
+  </data>
+  <data name="TrainingGroupCreatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' создал группу '{1}'.</value>
+  </data>
+  <data name="TrainingGroupUpdatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил группу '{1}'.</value>
+  </data>
+  <data name="TrainingGroupTrainersUpdatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил тренеров группы '{1}'.</value>
+  </data>
+</root>
