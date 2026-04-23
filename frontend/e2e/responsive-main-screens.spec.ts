@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 const MANAGEMENT_SESSION = {
   isAuthenticated: true,
   csrfToken: 'management-csrf-token',
+  bootstrapMode: false,
   user: {
     id: 'headcoach-id',
     fullName: 'Главный тренер',
@@ -26,6 +27,7 @@ const MANAGEMENT_SESSION = {
 const COACH_SESSION = {
   isAuthenticated: true,
   csrfToken: 'coach-csrf-token',
+  bootstrapMode: false,
   user: {
     id: 'coach-id',
     fullName: 'Тренер группы',

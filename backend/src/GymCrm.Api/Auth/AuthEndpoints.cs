@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace GymCrm.Api.Auth;
 
@@ -33,12 +34,16 @@ internal static class AuthEndpoints
         HttpContext httpContext,
         IAntiforgery antiforgery,
         IAccessScopeService accessScopeService,
+        GymCrmDbContext dbContext,
+        IOptions<BootstrapUserOptions> bootstrapUserOptions,
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await CreateSessionResponseAsync(
             httpContext,
             antiforgery,
             accessScopeService,
+            dbContext,
+            bootstrapUserOptions,
             cancellationToken: cancellationToken));
     }
 
@@ -61,6 +66,7 @@ internal static class AuthEndpoints
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         IAccessScopeService accessScopeService,
+        IOptions<BootstrapUserOptions> bootstrapUserOptions,
         CancellationToken cancellationToken)
     {
         var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
@@ -112,6 +118,8 @@ internal static class AuthEndpoints
             httpContext,
             antiforgery,
             accessScopeService,
+            dbContext,
+            bootstrapUserOptions,
             user,
             cancellationToken));
     }
@@ -121,6 +129,8 @@ internal static class AuthEndpoints
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         IAccessScopeService accessScopeService,
+        GymCrmDbContext dbContext,
+        IOptions<BootstrapUserOptions> bootstrapUserOptions,
         CancellationToken cancellationToken)
     {
         var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
@@ -152,6 +162,8 @@ internal static class AuthEndpoints
             httpContext,
             antiforgery,
             accessScopeService,
+            dbContext,
+            bootstrapUserOptions,
             cancellationToken: cancellationToken));
     }
 
@@ -163,6 +175,7 @@ internal static class AuthEndpoints
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         IAccessScopeService accessScopeService,
+        IOptions<BootstrapUserOptions> bootstrapUserOptions,
         CancellationToken cancellationToken)
     {
         var csrfValidationResult = await ValidateAntiforgeryAsync(httpContext, antiforgery);
@@ -249,6 +262,8 @@ internal static class AuthEndpoints
             httpContext,
             antiforgery,
             accessScopeService,
+            dbContext,
+            bootstrapUserOptions,
             user,
             cancellationToken));
     }
@@ -275,18 +290,50 @@ internal static class AuthEndpoints
         HttpContext httpContext,
         IAntiforgery antiforgery,
         IAccessScopeService accessScopeService,
+        GymCrmDbContext dbContext,
+        IOptions<BootstrapUserOptions> bootstrapUserOptions,
         User? authenticatedUser = null,
         CancellationToken cancellationToken = default)
     {
         var user = authenticatedUser ?? httpContext.GetAuthenticatedGymCrmUser();
         var tokens = antiforgery.GetAndStoreTokens(httpContext);
+        var bootstrapMode = await ResolveBootstrapModeAsync(
+            dbContext,
+            bootstrapUserOptions,
+            cancellationToken);
 
         return new SessionResponse(
             user is not null,
             tokens.RequestToken ?? string.Empty,
             user is null
                 ? null
-                : await ToUserResponseAsync(user, accessScopeService, cancellationToken));
+                : await ToUserResponseAsync(user, accessScopeService, cancellationToken),
+            bootstrapMode);
+    }
+
+    private static async Task<bool> ResolveBootstrapModeAsync(
+        GymCrmDbContext dbContext,
+        IOptions<BootstrapUserOptions> bootstrapUserOptions,
+        CancellationToken cancellationToken)
+    {
+        var configuredLogin = bootstrapUserOptions.Value.Login;
+        var login = string.IsNullOrWhiteSpace(configuredLogin)
+            ? "headcoach"
+            : configuredLogin.Trim();
+
+        var userCount = await dbContext.Users.CountAsync(cancellationToken);
+        if (userCount != 1)
+        {
+            return false;
+        }
+
+        return await dbContext.Users.AnyAsync(
+            user =>
+                user.Login == login &&
+                user.Role == UserRole.HeadCoach &&
+                user.MustChangePassword &&
+                user.IsActive,
+            cancellationToken);
     }
 
     private static async Task<AuthenticatedUserResponse> ToUserResponseAsync(
@@ -341,7 +388,8 @@ internal static class AuthEndpoints
     private sealed record SessionResponse(
         bool IsAuthenticated,
         string CsrfToken,
-        AuthenticatedUserResponse? User);
+        AuthenticatedUserResponse? User,
+        bool BootstrapMode);
 
     private sealed record AuthenticatedUserResponse(
         Guid Id,

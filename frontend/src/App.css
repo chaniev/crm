@@ -2,64 +2,31 @@
   min-height: 100vh;
   padding: clamp(1rem, 3vw, 2rem);
   position: relative;
-}
-
-.gym-crm-page::before,
-.gym-crm-page::after {
-  content: '';
-  position: fixed;
-  inset: auto;
-  pointer-events: none;
-  border-radius: 999px;
-  filter: blur(24px);
-  opacity: 0.7;
-  z-index: 0;
-}
-
-.gym-crm-page::before {
-  width: 22rem;
-  height: 22rem;
-  top: 1.5rem;
-  right: 3rem;
-  background: rgba(216, 154, 61, 0.22);
-}
-
-.gym-crm-page::after {
-  width: 18rem;
-  height: 18rem;
-  left: 2rem;
-  bottom: 2rem;
-  background: rgba(20, 90, 82, 0.16);
+  background:
+    linear-gradient(135deg, rgba(247, 243, 235, 0.98), rgba(239, 246, 242, 0.98) 52%, rgba(248, 248, 244, 0.98));
 }
 
 .auth-layout {
   min-height: calc(100vh - 2rem);
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.9fr);
+  grid-template-areas: 'story action';
+  grid-template-columns: minmax(0, 0.95fr) minmax(22rem, 0.72fr);
   gap: clamp(1rem, 3vw, 2rem);
-  align-items: stretch;
+  align-items: center;
   position: relative;
   z-index: 1;
 }
 
 .story-panel {
+  grid-area: story;
+  min-height: min(37rem, calc(100vh - 4rem));
   position: relative;
   overflow: hidden;
-  background:
-    linear-gradient(155deg, rgba(9, 36, 34, 0.97), rgba(20, 90, 82, 0.94)),
-    radial-gradient(circle at top left, rgba(216, 154, 61, 0.35), transparent 42%);
+  display: flex;
+  align-items: center;
+  background: linear-gradient(155deg, #0f3430, #145a52 62%, #1f6b62);
   color: #f6f4ee;
   padding: clamp(1.5rem, 3vw, 2.5rem);
-}
-
-.story-panel__glow {
-  position: absolute;
-  inset: auto auto -5rem -3rem;
-  width: 15rem;
-  height: 15rem;
-  border-radius: 999px;
-  background: rgba(216, 154, 61, 0.2);
-  filter: blur(18px);
 }
 
 .story-panel__content {
@@ -67,11 +34,16 @@
   z-index: 1;
 }
 
+.story-panel__kicker {
+  color: #f0c47f;
+  text-transform: uppercase;
+}
+
 .story-panel__title {
-  max-width: 12ch;
-  line-height: 0.98;
-  font-size: clamp(2.2rem, 5vw, 4rem);
-  letter-spacing: -0.04em;
+  max-width: 13ch;
+  line-height: 1.02;
+  font-size: 3.4rem;
+  letter-spacing: 0;
 }
 
 .story-panel__description {
@@ -79,13 +51,12 @@
   color: rgba(246, 244, 238, 0.84);
 }
 
-.story-panel__accent {
-  max-width: 38rem;
-  color: #ffe8c2;
+.story-panel__value-list {
+  color: rgba(246, 244, 238, 0.92);
 }
 
-.story-panel__list {
-  color: rgba(246, 244, 238, 0.92);
+.story-panel__value-item {
+  min-height: 2rem;
 }
 
 .stage-card,
@@ -103,10 +74,51 @@
   padding: clamp(1.3rem, 3vw, 2rem);
 }
 
+.auth-layout > .stage-card {
+  grid-area: action;
+  justify-self: center;
+  width: min(100%, 30rem);
+}
+
 .hint-card {
   padding: 1rem 1.1rem;
   background: rgba(246, 244, 238, 0.92);
   border-color: rgba(20, 90, 82, 0.1);
+}
+
+.setup-disclosure {
+  border: 1px solid rgba(20, 90, 82, 0.1);
+  border-radius: 1rem;
+  background: rgba(246, 244, 238, 0.74);
+}
+
+.setup-disclosure summary {
+  cursor: pointer;
+  padding: 0.9rem 1rem;
+  color: var(--mantine-color-brand-8);
+  font-weight: 700;
+}
+
+.setup-disclosure summary:focus-visible {
+  outline: 2px solid rgba(20, 90, 82, 0.24);
+  outline-offset: 2px;
+}
+
+.setup-disclosure__content {
+  padding: 0 1rem 1rem;
+}
+
+.setup-disclosure code {
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    Liberation Mono,
+    Courier New,
+    monospace;
+  color: var(--mantine-color-brand-8);
 }
 
 .loading-layout {
@@ -474,11 +486,18 @@
 
 @media (max-width: 62rem) {
   .auth-layout {
+    min-height: auto;
+    grid-template-areas: 'action';
     grid-template-columns: 1fr;
+    align-items: start;
   }
 
-  .story-panel__title {
-    max-width: 14ch;
+  .auth-layout > .stage-card {
+    width: 100%;
+  }
+
+  .story-panel {
+    display: none;
   }
 }
 
@@ -508,7 +527,18 @@
 
 @media (max-width: 30rem) {
   .gym-crm-page {
-    padding-inline: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .stage-card,
+  .utility-card,
+  .loading-card {
+    border-radius: 1.25rem !important;
+  }
+
+  .stage-card,
+  .utility-card {
+    padding: 1.1rem;
   }
 
   .app-shell__header-inner {

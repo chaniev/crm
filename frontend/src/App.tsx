@@ -8,7 +8,6 @@ import {
   Container,
   Divider,
   Group,
-  List,
   Loader,
   Menu,
   Paper,
@@ -340,22 +339,30 @@ function App() {
   if (bootstrapError && !session) {
     return (
       <StageFrame
-        accent="Проверьте backend и перезапустите загрузку, чтобы продолжить вход и проверить матрицу ролей."
-        bullets={[
-          'Cookie-auth и forced first login живут на backend.',
-          'Права и доступные секции приходят из API.',
-          'После восстановления соединения можно открыть route-level users flow.',
+        storyDescription="Работа с клиентами, расписанием и командой в одном интерфейсе."
+        storyPoints={[
+          'Клиенты и абонементы',
+          'Расписание и посещаемость',
+          'Команда и роли доступа',
         ]}
-        description="Frontend не смог получить начальную сессию, CSRF-токен и backend-driven access-context."
-        eyebrow="Stage 4"
-        title="Backend пока не отвечает"
+        storyTitle="Gym CRM для спортивного клуба"
       >
         <Paper className="stage-card" radius="32px" shadow="lg" withBorder>
           <Stack gap="lg">
+            <Stack gap={6}>
+              <Text c="dimmed" fw={600} size="sm">
+                Вход временно недоступен
+              </Text>
+              <Title order={2}>Не удалось открыть экран входа</Title>
+              <Text c="dimmed">
+                Проверьте подключение к API и повторите загрузку.
+              </Text>
+            </Stack>
+
             <Alert
               color="red"
               icon={<IconAlertCircle size={18} />}
-              title="Нет соединения с API"
+              title="Сервис недоступен"
               variant="light"
             >
               {bootstrapError}
@@ -376,17 +383,19 @@ function App() {
   if (!session?.isAuthenticated || !session.user) {
     return (
       <StageFrame
-        accent="Для bootstrap-пользователя backend создает обязательную смену пароля, а после входа выдает role-aware shell."
-        bullets={[
-          'Логин первого пользователя берется из конфигурации backend, по умолчанию это `headcoach`.',
-          'Стартовый пароль для первого входа: `12345678`.',
-          'После успешного входа frontend получает доступные секции и разрешения прямо из API.',
+        storyDescription="Работа с клиентами, расписанием и командой в одном интерфейсе."
+        storyPoints={[
+          'Клиенты и абонементы',
+          'Расписание и посещаемость',
+          'Команда и роли доступа',
         ]}
-        description="Cookie-based авторизация, CSRF-защита, роли и route-aware shell уже связаны в единый поток."
-        eyebrow="Stage 4"
-        title="Вход в Gym CRM для спортивного зала"
+        storyTitle="Gym CRM для спортивного клуба"
       >
-        <LoginScreen pending={loginPending} onSubmit={handleLogin} />
+        <LoginScreen
+          pending={loginPending}
+          showSetupHelp={Boolean(session?.bootstrapMode)}
+          onSubmit={handleLogin}
+        />
       </StageFrame>
     )
   }
@@ -394,15 +403,13 @@ function App() {
   if (session.user.mustChangePassword) {
     return (
       <StageFrame
-        accent="После успешной смены пароля сессия будет перевыпущена, а интерфейс откроет роль-подходящий landing."
-        bullets={[
-          'Изменение пароля проходит через тот же endpoint, который доступен из профиля.',
-          'CSRF-токен уже получен и автоматически подставляется в изменяющие запросы.',
-          'Аудит пишет login, logout и password change без хранения паролей или их хешей.',
+        storyDescription="После обновления пароля откроется рабочий интерфейс с доступными разделами."
+        storyPoints={[
+          'Персональный доступ для сотрудника',
+          'Понятные роли в команде',
+          'Безопасное начало работы',
         ]}
-        description="Пока флаг `MustChangePassword` активен, backend пропускает только безопасный auth-flow и не дает выйти в рабочие API."
-        eyebrow="Forced First Login"
-        title="Смена пароля обязательна перед началом работы"
+        storyTitle="Защитите учетную запись"
       >
         <PasswordScreen
           mode="forced"
@@ -468,66 +475,49 @@ function App() {
 }
 
 type StageFrameProps = {
-  eyebrow: string
-  title: string
-  description: string
-  accent: string
-  bullets: string[]
+  storyTitle: string
+  storyDescription: string
+  storyPoints: string[]
   children: ReactNode
 }
 
 function StageFrame({
-  eyebrow,
-  title,
-  description,
-  accent,
-  bullets,
+  storyTitle,
+  storyDescription,
+  storyPoints,
   children,
 }: StageFrameProps) {
   return (
     <div className="gym-crm-page">
       <Container className="auth-layout" size="xl">
-        <Paper className="story-panel" radius="36px" shadow="lg">
-          <div className="story-panel__glow" />
-          <Stack className="story-panel__content" gap="xl">
-            <Group gap="sm">
-              <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-                {eyebrow}
-              </Badge>
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                Gym CRM MVP
-              </Badge>
-            </Group>
+        {children}
 
+        <Paper className="story-panel" radius="36px" shadow="lg">
+          <Stack className="story-panel__content" gap="xl">
             <Stack gap="md">
+              <Text className="story-panel__kicker" fw={700}>
+                Gym CRM
+              </Text>
               <Title c="white" className="story-panel__title" order={1}>
-                {title}
+                {storyTitle}
               </Title>
               <Text className="story-panel__description" size="lg">
-                {description}
-              </Text>
-              <Text className="story-panel__accent" fw={600}>
-                {accent}
+                {storyDescription}
               </Text>
             </Stack>
 
-            <List
-              className="story-panel__list"
-              icon={
-                <ThemeIcon color="accent.5" radius="xl" size={26}>
-                  <IconCheck size={16} />
-                </ThemeIcon>
-              }
-              spacing="md"
-            >
-              {bullets.map((bullet) => (
-                <List.Item key={bullet}>{bullet}</List.Item>
+            <Stack className="story-panel__value-list" gap="sm">
+              {storyPoints.map((point) => (
+                <Group className="story-panel__value-item" gap="sm" key={point}>
+                  <ThemeIcon color="accent.5" radius="xl" size={26}>
+                    <IconCheck size={16} />
+                  </ThemeIcon>
+                  <Text fw={600}>{point}</Text>
+                </Group>
               ))}
-            </List>
+            </Stack>
           </Stack>
         </Paper>
-
-        {children}
       </Container>
     </div>
   )
@@ -535,10 +525,15 @@ function StageFrame({
 
 type LoginScreenProps = {
   pending: boolean
+  showSetupHelp: boolean
   onSubmit: (values: LoginRequest) => Promise<void>
 }
 
-function LoginScreen({ pending, onSubmit }: LoginScreenProps) {
+function LoginScreen({
+  pending,
+  showSetupHelp,
+  onSubmit,
+}: LoginScreenProps) {
   const [formError, setFormError] = useState<string | null>(null)
   const form = useForm<LoginRequest>({
     initialValues: {
@@ -578,10 +573,9 @@ function LoginScreen({ pending, onSubmit }: LoginScreenProps) {
           <Text c="dimmed" fw={600} size="sm">
             Авторизация
           </Text>
-          <Title order={2}>Войти в систему</Title>
+          <Title order={2}>Войти в Gym CRM</Title>
           <Text c="dimmed">
-            Backend установит `HttpOnly` cookie, а frontend продолжит работу в
-            том же origin через dev proxy.
+            Используйте логин и пароль, выданные администратором клуба.
           </Text>
         </Stack>
 
@@ -601,7 +595,7 @@ function LoginScreen({ pending, onSubmit }: LoginScreenProps) {
             <TextInput
               autoComplete="username"
               label="Логин"
-              placeholder="headcoach"
+              placeholder="Введите логин"
               {...form.getInputProps('login')}
             />
             <PasswordInput
@@ -611,21 +605,6 @@ function LoginScreen({ pending, onSubmit }: LoginScreenProps) {
               {...form.getInputProps('password')}
             />
 
-            <Paper className="hint-card" radius="24px" withBorder>
-              <Stack gap={6}>
-                <Group gap="xs">
-                  <ThemeIcon color="brand.7" radius="xl" size={28} variant="light">
-                    <IconSparkles size={16} />
-                  </ThemeIcon>
-                  <Text fw={700}>Подсказка для первого запуска</Text>
-                </Group>
-                <Text c="dimmed" size="sm">
-                  Если backend не переопределил login bootstrap-пользователя,
-                  используйте `headcoach`. Стартовый пароль: `12345678`.
-                </Text>
-              </Stack>
-            </Paper>
-
             <Button
               loading={pending}
               rightSection={<IconArrowRight size={18} />}
@@ -634,10 +613,32 @@ function LoginScreen({ pending, onSubmit }: LoginScreenProps) {
             >
               Войти
             </Button>
+
+            {showSetupHelp ? <SetupDisclosure /> : null}
           </Stack>
         </form>
       </Stack>
     </Paper>
+  )
+}
+
+function SetupDisclosure() {
+  return (
+    <details className="setup-disclosure">
+      <summary>Первый запуск системы</summary>
+      <Stack className="setup-disclosure__content" gap="xs">
+        <Group gap="xs">
+          <ThemeIcon color="brand.7" radius="xl" size={28} variant="light">
+            <IconSparkles size={16} />
+          </ThemeIcon>
+          <Text fw={700}>Стартовые данные</Text>
+        </Group>
+        <Text c="dimmed" size="sm">
+          Если логин первого пользователя не переопределен на сервере,
+          используйте <code>headcoach</code>. Стартовый пароль: <code>12345678</code>.
+        </Text>
+      </Stack>
+    </details>
   )
 }
 
@@ -705,8 +706,12 @@ function PasswordScreen({
       : 'Смена пароля из профиля'
   const description =
     mode === 'forced'
-      ? 'Текущий временный пароль нужен один раз, чтобы завершить инициализацию учетной записи.'
-      : 'После сохранения backend перевыпустит cookie и оставит вас в активной сессии.'
+      ? 'Введите текущий временный пароль и задайте новый для дальнейшей работы.'
+      : 'Обновите пароль, который будете использовать при следующих входах.'
+  const afterSaveDescription =
+    mode === 'forced'
+      ? 'После сохранения откроется рабочий интерфейс с доступными вам разделами.'
+      : 'Новый пароль начнет действовать сразу после сохранения.'
 
   return (
     <Paper
@@ -768,22 +773,6 @@ function PasswordScreen({
               {...form.getInputProps('confirmPassword')}
             />
 
-            <Paper className="hint-card" radius="24px" withBorder>
-              <Stack gap={6}>
-                <Group gap="xs">
-                  <ThemeIcon color="brand.7" radius="xl" size={28} variant="light">
-                    <IconShieldCheck size={16} />
-                  </ThemeIcon>
-                  <Text fw={700}>Что произойдет после сохранения</Text>
-                </Group>
-                <Text c="dimmed" size="sm">
-                  Backend сбросит флаг `MustChangePassword`, запишет событие в
-                  `AuditLog` и перевыпустит auth-cookie с актуальной версией
-                  пользователя.
-                </Text>
-              </Stack>
-            </Paper>
-
             <Button
               loading={pending}
               rightSection={<IconLockPassword size={18} />}
@@ -792,6 +781,20 @@ function PasswordScreen({
             >
               {mode === 'forced' ? 'Сменить пароль и продолжить' : 'Сохранить новый пароль'}
             </Button>
+
+            <Paper className="hint-card" radius="24px" withBorder>
+              <Stack gap={6}>
+                <Group gap="xs">
+                  <ThemeIcon color="brand.7" radius="xl" size={28} variant="light">
+                    <IconShieldCheck size={16} />
+                  </ThemeIcon>
+                  <Text fw={700}>Что будет дальше</Text>
+                </Group>
+                <Text c="dimmed" size="sm">
+                  {afterSaveDescription}
+                </Text>
+              </Stack>
+            </Paper>
           </Stack>
         </form>
       </Stack>
@@ -1334,10 +1337,9 @@ function LoadingState() {
         <Paper className="loading-card" radius="32px" shadow="lg" withBorder>
           <Stack align="center" gap="md">
             <Loader color="brand.7" size="lg" />
-            <Title order={3}>Подготавливаем auth-сессию</Title>
+            <Title order={3}>Открываем Gym CRM</Title>
             <Text c="dimmed" ta="center">
-              Получаем начальный CSRF-токен и проверяем, есть ли активная
-              cookie-сессия.
+              Проверяем, есть ли активный вход, и готовим экран авторизации.
             </Text>
           </Stack>
         </Paper>

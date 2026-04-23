@@ -8,11 +8,13 @@ const unauthenticatedSession = {
   isAuthenticated: false,
   csrfToken: '',
   user: null,
+  bootstrapMode: true,
 }
 
 const forcedPasswordSession = {
   isAuthenticated: true,
   csrfToken: 'csrf-login-token',
+  bootstrapMode: true,
   user: {
     id: 'bootstrap-headcoach-id',
     fullName: 'Главный тренер',
@@ -36,6 +38,7 @@ const forcedPasswordSession = {
 const authenticatedSession = {
   ...forcedPasswordSession,
   csrfToken: 'csrf-changed-password-token',
+  bootstrapMode: false,
   user: {
     ...forcedPasswordSession.user,
     mustChangePassword: false,
@@ -71,7 +74,7 @@ test.describe('Аутентификация', () => {
 
     await page.goto('/')
 
-    await expect(page.getByRole('heading', { name: 'Войти в систему' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Войти в Gym CRM' })).toBeVisible()
     await expect(page.getByLabel('Логин')).toBeVisible()
     await expect(page.getByLabel('Пароль')).toBeVisible()
 
@@ -153,6 +156,29 @@ test.describe('Аутентификация', () => {
     await expect(
       page.getByText('В ближайшие 10 дней истекающих абонементов нет.'),
     ).toBeVisible()
+  })
+
+  test('На mobile сразу показывает форму входа и основное действие', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, unauthenticatedSession)
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/')
+
+    await expect(page.getByRole('heading', { name: 'Войти в Gym CRM' })).toBeVisible()
+    await expect(page.getByLabel('Логин')).toBeInViewport()
+    await expect(page.getByLabel('Пароль')).toBeInViewport()
+    await expect(page.getByRole('button', { name: 'Войти' })).toBeInViewport()
+    await expect(page.getByText('Клиенты и абонементы')).toBeHidden()
   })
 })
 

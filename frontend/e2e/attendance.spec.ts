@@ -11,11 +11,13 @@ const unauthenticatedSession = {
   isAuthenticated: false,
   csrfToken: '',
   user: null,
+  bootstrapMode: false,
 }
 
 const coachSession = {
   isAuthenticated: true,
   csrfToken: 'coach-csrf-token',
+  bootstrapMode: false,
   user: {
     id: 'coach-id',
     fullName: 'Тренер группы',

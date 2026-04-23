@@ -5,6 +5,7 @@ const BOOTSTRAP_LOGIN = 'headcoach'
 const headCoachSession = {
   isAuthenticated: true,
   csrfToken: 'headcoach-csrf-token',
+  bootstrapMode: false,
   user: {
     id: 'headcoach-id',
     fullName: 'Главный тренер',
@@ -28,6 +29,7 @@ const headCoachSession = {
 const administratorSession = {
   isAuthenticated: true,
   csrfToken: 'administrator-csrf-token',
+  bootstrapMode: false,
   user: {
     id: 'administrator-id',
     fullName: 'Администратор',
@@ -51,6 +53,7 @@ const administratorSession = {
 const coachSession = {
   isAuthenticated: true,
   csrfToken: 'coach-csrf-token',
+  bootstrapMode: false,
   user: {
     id: 'coach-id',
     fullName: 'Назначенный тренер',

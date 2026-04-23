@@ -163,6 +163,7 @@ export type SessionResponse = {
   isAuthenticated: boolean
   csrfToken: string
   user: AuthenticatedUser | null
+  bootstrapMode: boolean
 }
 
 export type LoginRequest = {

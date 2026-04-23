@@ -27,6 +27,7 @@ public class AuthFlowTests
         Assert.False(initialSession.IsAuthenticated);
         Assert.NotEmpty(initialSession.CsrfToken);
         Assert.Null(initialSession.User);
+        Assert.True(initialSession.BootstrapMode);
 
         using var loginResponse = await PostJsonAsync(
             client,
@@ -38,6 +39,7 @@ public class AuthFlowTests
 
         Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
         Assert.True(payload.IsAuthenticated);
+        Assert.True(payload.BootstrapMode);
         Assert.NotNull(payload.User);
         Assert.True(payload.User.MustChangePassword);
         Assert.Equal("HeadCoach", payload.User.Role);
@@ -78,6 +80,7 @@ public class AuthFlowTests
 
         Assert.Equal(HttpStatusCode.OK, changePasswordResponse.StatusCode);
         Assert.True(changedSession.IsAuthenticated);
+        Assert.False(changedSession.BootstrapMode);
         Assert.NotNull(changedSession.User);
         Assert.False(changedSession.User.MustChangePassword);
 
@@ -175,7 +178,11 @@ public class AuthFlowTests
 
     private sealed record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 
-    private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);
+    private sealed record SessionPayload(
+        bool IsAuthenticated,
+        string CsrfToken,
+        UserPayload? User,
+        bool BootstrapMode);
 
     private sealed record UserPayload(
         string Id,
