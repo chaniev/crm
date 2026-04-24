@@ -5,6 +5,7 @@
 - Сначала читать этот файл.
 - Если задача в `backend/`, сразу переходить в `backend/AGENTS.md`.
 - Если задача в `frontend/`, сразу переходить в `frontend/AGENTS.md`.
+- Если задача в `bot/`, сразу переходить в `bot/AGENTS.md`.
 - Корневой `AGENTS.md` описывает только организацию работы по репозиторию и не хранит бизнес-правила проекта.
 
 ## Источники истины
@@ -21,6 +22,7 @@
 
 - `csharp-developer` — код на `C#`, прикладные сервисы, модели и persistence-слой.
 - `dotnet-core-expert` — `ASP.NET Core`, endpoint'ы, auth, `CSRF`, middleware, конфигурация.
+- `python-pro` — отдельный Python runtime-сервис `bot/`, Telegram adapter, async storage, pytest/ruff.
 - `react-specialist` — экраны, формы, маршруты, состояние, доступность.
 - `ui-designer` — implement-ready UI/UX перед заметной переработкой экрана.
 - `test-automator` — backend tests, `Playwright`, regression coverage.
@@ -30,6 +32,7 @@
 
 - Изменился `backend/` — см. `backend/AGENTS.md`.
 - Изменился `frontend/` — см. `frontend/AGENTS.md`.
+- Изменился `bot/` — проверить `cd bot && ruff check .`, `cd bot && pytest`, `docker compose build bot`.
 - Изменился контракт между слоями или runtime — проверить обе стороны.
 
 Базовый набор:
