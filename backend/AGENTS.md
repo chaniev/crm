@@ -4,13 +4,21 @@
 
 Этот файл обязателен для задач внутри `backend/`.
 
-## Структура
+## Структура исходного кода
+
+### C#
 
 - `src/GymCrm.Api/` — endpoint'ы, auth, middleware, startup, health checks.
 - `src/GymCrm.Application/` — интерфейсы и прикладные контракты.
 - `src/GymCrm.Domain/` — сущности, enum'ы и доменные типы.
 - `src/GymCrm.Infrastructure/` — `EF Core`, `DbContext`, storage, security, реализации сервисов.
 - `tests/GymCrm.Tests/` — интеграционные и smoke-тесты.
+
+### Python
+
+- Python-код внутри `backend/` держать отдельно от .NET-проектов.
+- Для Python-скриптов, утилит, генераторов, миграционных/операционных helper'ов и тестовых harness'ов использовать отдельную директорию `python/`, если в задаче не указан более конкретный путь.
+- Не класть Python-файлы внутрь `src/GymCrm.*` и `tests/GymCrm.Tests/`, если это не требуется существующей интеграцией.
 
 ## Какие агенты использовать
 
