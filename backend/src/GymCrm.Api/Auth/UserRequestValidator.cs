@@ -11,6 +11,8 @@ internal static class UserRequestValidator
         string login,
         string password,
         string role,
+        string? messengerPlatform,
+        string? messengerPlatformUserId,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
@@ -45,15 +47,27 @@ internal static class UserRequestValidator
             errors["role"] = [UserResources.HeadCoachCreationUnavailable];
         }
 
+        await ValidateMessengerIdentityAsync(
+            messengerPlatform,
+            messengerPlatformUserId,
+            userIdToExclude: null,
+            errors,
+            dbContext,
+            cancellationToken);
+
         return errors;
     }
 
-    public static Dictionary<string, string[]> ValidateUpdate(
+    public static async Task<Dictionary<string, string[]>> ValidateUpdateAsync(
         string fullName,
         string requestedLogin,
         string role,
+        string? messengerPlatform,
+        string? messengerPlatformUserId,
         bool isActive,
-        User user)
+        User user,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -95,6 +109,14 @@ internal static class UserRequestValidator
             errors["role"] = [UserResources.HeadCoachAssignmentUnavailable];
         }
 
+        await ValidateMessengerIdentityAsync(
+            messengerPlatform,
+            messengerPlatformUserId,
+            user.Id,
+            errors,
+            dbContext,
+            cancellationToken);
+
         return errors;
     }
 
@@ -103,5 +125,86 @@ internal static class UserRequestValidator
         return Enum.TryParse<UserRole>(role?.Trim(), ignoreCase: true, out var parsedRole)
             ? parsedRole
             : null;
+    }
+
+    public static (MessengerPlatform? Platform, string? PlatformUserId) NormalizeMessengerIdentity(
+        string? messengerPlatform,
+        string? messengerPlatformUserId)
+    {
+        var normalizedPlatform = string.IsNullOrWhiteSpace(messengerPlatform)
+            ? null
+            : messengerPlatform.Trim();
+        var normalizedPlatformUserId = string.IsNullOrWhiteSpace(messengerPlatformUserId)
+            ? null
+            : messengerPlatformUserId.Trim();
+
+        if (normalizedPlatform is null && normalizedPlatformUserId is null)
+        {
+            return (null, null);
+        }
+
+        if (!Enum.TryParse<MessengerPlatform>(normalizedPlatform, ignoreCase: true, out var parsedPlatform))
+        {
+            return (null, normalizedPlatformUserId);
+        }
+
+        return (parsedPlatform, normalizedPlatformUserId);
+    }
+
+    private static async Task ValidateMessengerIdentityAsync(
+        string? messengerPlatform,
+        string? messengerPlatformUserId,
+        Guid? userIdToExclude,
+        Dictionary<string, string[]> errors,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var normalizedPlatform = string.IsNullOrWhiteSpace(messengerPlatform)
+            ? null
+            : messengerPlatform.Trim();
+        var normalizedPlatformUserId = string.IsNullOrWhiteSpace(messengerPlatformUserId)
+            ? null
+            : messengerPlatformUserId.Trim();
+
+        if (normalizedPlatform is null && normalizedPlatformUserId is null)
+        {
+            return;
+        }
+
+        if (normalizedPlatform is null)
+        {
+            errors["messengerPlatform"] = [UserResources.MessengerPlatformRequired];
+            return;
+        }
+
+        if (!Enum.TryParse<MessengerPlatform>(normalizedPlatform, ignoreCase: true, out var parsedPlatform))
+        {
+            errors["messengerPlatform"] = [UserResources.InvalidMessengerPlatform];
+            return;
+        }
+
+        if (normalizedPlatformUserId is null)
+        {
+            errors["messengerPlatformUserId"] = [UserResources.MessengerPlatformUserIdRequired];
+            return;
+        }
+
+        if (normalizedPlatformUserId.Length > 128)
+        {
+            errors["messengerPlatformUserId"] = [UserResources.MessengerPlatformUserIdTooLong];
+            return;
+        }
+
+        var duplicateExists = await dbContext.Users.AnyAsync(
+            candidate =>
+                candidate.MessengerPlatform == parsedPlatform &&
+                candidate.MessengerPlatformUserId == normalizedPlatformUserId &&
+                (!userIdToExclude.HasValue || candidate.Id != userIdToExclude.Value),
+            cancellationToken);
+
+        if (duplicateExists)
+        {
+            errors["messengerPlatformUserId"] = [UserResources.MessengerPlatformUserIdAlreadyExists];
+        }
     }
 }

@@ -52,6 +52,12 @@ export async function getAuditLogEntries(
   }
 
   appendSearchParam(searchParams, AUDIT_QUERY_KEYS.userId, params.userId)
+  appendSearchParam(searchParams, AUDIT_QUERY_KEYS.source, params.source)
+  appendSearchParam(
+    searchParams,
+    AUDIT_QUERY_KEYS.messengerPlatform,
+    params.messengerPlatform,
+  )
   appendSearchParam(
     searchParams,
     AUDIT_QUERY_KEYS.actionType,
@@ -116,8 +122,19 @@ export async function getAuditLogFilterOptions(signal?: AbortSignal) {
     users: extractArrayPayload<Record<string, unknown>>(payload, ['users'])
       .map((user) => mapAuditLogFilterUser(user))
       .filter((user): user is AuditLogFilterUser => user !== null),
-    actionTypes: extractArrayPayload<string>(payload, ['actionTypes']),
-    entityTypes: extractArrayPayload<string>(payload, ['entityTypes']),
+    actionTypes: extractArrayPayload<string>(payload, [
+      'actionTypes',
+      'ActionTypes',
+    ]),
+    entityTypes: extractArrayPayload<string>(payload, [
+      'entityTypes',
+      'EntityTypes',
+    ]),
+    sources: extractArrayPayload<string>(payload, ['sources', 'Sources']),
+    messengerPlatforms: extractArrayPayload<string>(payload, [
+      'messengerPlatforms',
+      'MessengerPlatforms',
+    ]),
   } satisfies AuditLogFilterOptions
 }
 
@@ -150,6 +167,11 @@ function mapAuditLogEntry(payload: AuditLogEntryPayload): AuditLogEntry | null {
   const userRole =
     readString(payload, ['userRole', 'UserRole']) ??
     (userPayload ? readString(userPayload, ['role', 'Role']) : undefined)
+  const source = readString(payload, ['source', 'Source'])
+  const messengerPlatform = readString(payload, [
+    'messengerPlatform',
+    'MessengerPlatform',
+  ])
   const userName =
     readString(payload, [
       'userName',
@@ -182,6 +204,8 @@ function mapAuditLogEntry(payload: AuditLogEntryPayload): AuditLogEntry | null {
     userName,
     userLogin,
     userRole: mapUserRole(userRole),
+    source,
+    messengerPlatform,
     actionType,
     entityType,
     entityId,

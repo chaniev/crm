@@ -37,7 +37,7 @@ public class AuditLogApiTests
         await ReplaceAuditLogsAsync(factory, seeded);
 
         using var listResponse = await client.GetAsync(
-            $"/audit-logs?page=1&pageSize=10&dateFrom=2026-04-12&dateTo=2026-04-12&userId={seeded.Coach.Id}&actionType=AttendanceUpdated&entityType=Attendance");
+            $"/audit-logs?page=1&pageSize=10&dateFrom=2026-04-12&dateTo=2026-04-12&userId={seeded.Coach.Id}&actionType=AttendanceUpdated&entityType=Attendance&source=Bot&messengerPlatform=Telegram");
 
         Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
 
@@ -52,6 +52,8 @@ public class AuditLogApiTests
         Assert.Equal("AttendanceUpdated", item.GetProperty("actionType").GetString());
         Assert.Equal("Attendance", item.GetProperty("entityType").GetString());
         Assert.Equal("Запись посещения изменена.", item.GetProperty("description").GetString());
+        Assert.Equal("Bot", item.GetProperty("source").GetString());
+        Assert.Equal("Telegram", item.GetProperty("messengerPlatform").GetString());
 
         var user = item.GetProperty("user");
         Assert.Equal(seeded.Coach.Id.ToString(), user.GetProperty("id").GetString());
@@ -68,6 +70,8 @@ public class AuditLogApiTests
         var users = GetArrayPayload(optionsPayload, "users");
         var actionTypes = GetArrayPayload(optionsPayload, "actionTypes");
         var entityTypes = GetArrayPayload(optionsPayload, "entityTypes");
+        var sources = GetArrayPayload(optionsPayload, "sources");
+        var messengerPlatforms = GetArrayPayload(optionsPayload, "messengerPlatforms");
 
         Assert.Equal(3, users.GetArrayLength());
         Assert.Contains(
@@ -79,6 +83,12 @@ public class AuditLogApiTests
         Assert.Contains(
             entityTypes.EnumerateArray(),
             candidate => candidate.GetString() == "Attendance");
+        Assert.Contains(
+            sources.EnumerateArray(),
+            candidate => candidate.GetString() == "Bot");
+        Assert.Contains(
+            messengerPlatforms.EnumerateArray(),
+            candidate => candidate.GetString() == "Telegram");
     }
 
     [Fact]
@@ -212,6 +222,7 @@ public class AuditLogApiTests
                 EntityType = "UserSession",
                 EntityId = seeded.HeadCoach.Id.ToString(),
                 Description = "Пользователь вошёл в систему.",
+                Source = "Web",
                 OldValueJson = null,
                 NewValueJson = null,
                 CreatedAt = new DateTimeOffset(2026, 04, 10, 8, 0, 0, TimeSpan.Zero)
@@ -224,6 +235,7 @@ public class AuditLogApiTests
                 EntityType = "Client",
                 EntityId = Guid.NewGuid().ToString(),
                 Description = "Карточка клиента изменена.",
+                Source = "Web",
                 OldValueJson = "{\"phone\":\"+79990000001\"}",
                 NewValueJson = "{\"phone\":\"+79990000002\"}",
                 CreatedAt = new DateTimeOffset(2026, 04, 11, 12, 30, 0, TimeSpan.Zero)
@@ -236,6 +248,9 @@ public class AuditLogApiTests
                 EntityType = "Attendance",
                 EntityId = Guid.NewGuid().ToString(),
                 Description = "Запись посещения изменена.",
+                Source = "Bot",
+                MessengerPlatform = "Telegram",
+                MessengerPlatformUserIdHash = "hashed-telegram-user",
                 OldValueJson = "{\"isPresent\":true}",
                 NewValueJson = "{\"isPresent\":false}",
                 CreatedAt = new DateTimeOffset(2026, 04, 12, 19, 15, 0, TimeSpan.Zero)

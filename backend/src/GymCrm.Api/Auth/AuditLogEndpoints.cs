@@ -35,6 +35,8 @@ internal static class AuditLogEndpoints
         string? userId,
         string? actionType,
         string? entityType,
+        string? source,
+        string? messengerPlatform,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
@@ -45,6 +47,8 @@ internal static class AuditLogEndpoints
         var normalizedUserId = userId?.Trim();
         var normalizedActionType = actionType?.Trim();
         var normalizedEntityType = entityType?.Trim();
+        var normalizedSource = source?.Trim();
+        var normalizedMessengerPlatform = messengerPlatform?.Trim();
 
         if (!string.IsNullOrWhiteSpace(dateFrom) && !parsedDateFrom.HasValue)
         {
@@ -117,6 +121,16 @@ internal static class AuditLogEndpoints
             query = query.Where(auditLog => auditLog.EntityType == normalizedEntityType);
         }
 
+        if (!string.IsNullOrWhiteSpace(normalizedSource))
+        {
+            query = query.Where(auditLog => auditLog.Source == normalizedSource);
+        }
+
+        if (!string.IsNullOrWhiteSpace(normalizedMessengerPlatform))
+        {
+            query = query.Where(auditLog => auditLog.MessengerPlatform == normalizedMessengerPlatform);
+        }
+
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderByDescending(auditLog => auditLog.CreatedAt)
@@ -134,6 +148,8 @@ internal static class AuditLogEndpoints
                 auditLog.EntityType,
                 auditLog.EntityId,
                 auditLog.Description,
+                auditLog.Source,
+                auditLog.MessengerPlatform,
                 auditLog.OldValueJson,
                 auditLog.NewValueJson,
                 auditLog.CreatedAt))
@@ -152,6 +168,8 @@ internal static class AuditLogEndpoints
                     item.EntityType,
                     item.EntityId,
                     item.Description,
+                    item.Source,
+                    item.MessengerPlatform,
                     SanitizeAuditJson(item.OldValueJson),
                     SanitizeAuditJson(item.NewValueJson),
                     item.CreatedAt))
@@ -194,6 +212,21 @@ internal static class AuditLogEndpoints
             .OrderBy(entityType => entityType)
             .ToArrayAsync(cancellationToken);
 
+        var sources = await dbContext.AuditLogs
+            .AsNoTracking()
+            .Select(auditLog => auditLog.Source)
+            .Distinct()
+            .OrderBy(value => value)
+            .ToArrayAsync(cancellationToken);
+
+        var messengerPlatforms = await dbContext.AuditLogs
+            .AsNoTracking()
+            .Where(auditLog => auditLog.MessengerPlatform != null)
+            .Select(auditLog => auditLog.MessengerPlatform!)
+            .Distinct()
+            .OrderBy(value => value)
+            .ToArrayAsync(cancellationToken);
+
         return TypedResults.Ok(new AuditLogFilterOptionsResponse(
             users
                 .Select(user => new AuditLogUserResponse(
@@ -203,7 +236,9 @@ internal static class AuditLogEndpoints
                     user.Role.ToString()))
                 .ToArray(),
             actionTypes,
-            entityTypes));
+            entityTypes,
+            sources,
+            messengerPlatforms));
     }
 
     private static DateOnly? ParseDate(string? value)
@@ -371,6 +406,8 @@ internal static class AuditLogEndpoints
         string EntityType,
         string? EntityId,
         string Description,
+        string Source,
+        string? MessengerPlatform,
         string? OldValueJson,
         string? NewValueJson,
         DateTimeOffset CreatedAt);
@@ -382,6 +419,8 @@ internal static class AuditLogEndpoints
         string EntityType,
         string? EntityId,
         string Description,
+        string Source,
+        string? MessengerPlatform,
         string? OldValueJson,
         string? NewValueJson,
         DateTimeOffset CreatedAt);
@@ -389,7 +428,9 @@ internal static class AuditLogEndpoints
     private sealed record AuditLogFilterOptionsResponse(
         IReadOnlyList<AuditLogUserResponse> Users,
         IReadOnlyList<string> ActionTypes,
-        IReadOnlyList<string> EntityTypes);
+        IReadOnlyList<string> EntityTypes,
+        IReadOnlyList<string> Sources,
+        IReadOnlyList<string> MessengerPlatforms);
 
     private sealed record AuditLogUserResponse(
         Guid Id,

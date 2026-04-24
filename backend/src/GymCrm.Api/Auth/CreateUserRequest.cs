@@ -6,4 +6,6 @@ internal sealed record CreateUserRequest(
     string Password,
     string Role,
     bool MustChangePassword,
-    bool IsActive);
+    bool IsActive,
+    string? MessengerPlatform = null,
+    string? MessengerPlatformUserId = null);

@@ -35,6 +35,8 @@ services:
       TechnicalLogging__FileNamePrefix: ${BACKEND_TECHNICAL_LOG_FILE_PREFIX:-gym-crm-api}
       TechnicalLogging__FileSizeLimitMb: ${BACKEND_TECHNICAL_LOG_FILE_SIZE_MB:-20}
       TechnicalLogging__RetentionDays: ${BACKEND_TECHNICAL_LOG_RETENTION_DAYS:-10}
+      BotInternalApi__Token: ${BOT_INTERNAL_API_TOKEN}
+      BotInternalApi__Enabled: ${BOT_INTERNAL_API_ENABLED:-true}
     depends_on:
       db:
         condition: service_healthy
@@ -50,7 +52,6 @@ services:
     volumes:
       - backend_client_photos:/app/data/client-photos
       - backend_logs:/app/logs
-
   frontend:
     build:
       context: ./frontend
@@ -72,6 +73,32 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      BOT_MODE: ${BOT_MODE:-LongPolling}
+      BOT_ENABLED: ${BOT_ENABLED:-true}
+      BOT_TELEGRAM_TOKEN: ${BOT_TELEGRAM_TOKEN}
+      BOT_DATABASE_URL: ${BOT_DATABASE_URL:-postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}}
+      CRM_API_BASE_URL: ${CRM_API_BASE_URL:-http://backend:8080}
+      CRM_BOT_API_TOKEN: ${CRM_BOT_API_TOKEN}
+      BOT_LOG_LEVEL: ${BOT_LOG_LEVEL:-INFO}
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/live > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    stop_grace_period: 30s
 
 volumes:
   postgres_data:

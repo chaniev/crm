@@ -7,13 +7,18 @@ import {
 } from '@mantine/core'
 import type { UseFormReturnType } from '@mantine/form'
 import type { ReactNode } from 'react'
-import type { UserRole } from '../../lib/api'
+import type { MessengerPlatform, UserRole } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import type { UserRoleOption } from './UserManagement.constants'
+import {
+  messengerPlatformOptions,
+  type UserRoleOption,
+} from './UserManagement.constants'
 
 export type BaseUserFormValues = {
   fullName: string
   role: UserRole | null
+  messengerPlatform: MessengerPlatform | null
+  messengerPlatformUserId: string
   mustChangePassword: boolean
   isActive: boolean
 }
@@ -60,6 +65,23 @@ export function UserFormFields<FormValues extends BaseUserFormValues>({
       </SimpleGrid>
 
       {credentialsFields}
+
+      <SimpleGrid cols={{ base: 1, md: 2 }}>
+        <Select
+          clearable
+          data={messengerPlatformOptions}
+          description={resources.users.form.descriptions.messengerPlatform}
+          label={resources.users.form.labels.messengerPlatform}
+          placeholder={resources.users.form.placeholders.messengerPlatform}
+          {...form.getInputProps('messengerPlatform')}
+        />
+        <TextInput
+          description={resources.users.form.descriptions.messengerPlatformUserId}
+          label={resources.users.form.labels.messengerPlatformUserId}
+          placeholder={resources.users.form.placeholders.messengerPlatformUserId}
+          {...form.getInputProps('messengerPlatformUserId')}
+        />
+      </SimpleGrid>
 
       <SimpleGrid cols={{ base: 1, md: 2 }}>
         <Switch

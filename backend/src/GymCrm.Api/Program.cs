@@ -64,6 +64,11 @@ builder.Services.Configure<FormOptions>(options =>
 builder.Services.Configure<BootstrapUserOptions>(
     builder.Configuration.GetSection(BootstrapUserOptions.SectionName));
 builder.Services
+    .AddOptions<BotInternalApiOptions>()
+    .Bind(builder.Configuration.GetSection(BotInternalApiOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services
     .AddHealthChecks()
     .AddCheck(
         ApiHostingConstants.SelfHealthCheckName,
@@ -88,6 +93,7 @@ app.MapAuditLogEndpoints();
 app.MapClientEndpoints();
 app.MapClientPhotoEndpoints();
 app.MapAttendanceEndpoints();
+app.MapBotInternalEndpoints();
 GymCrm.Api.Auth.GroupEndpoints.MapGroupEndpoints(app);
 
 app.MapGet(ApiHostingConstants.RootPath, () => Results.Ok(

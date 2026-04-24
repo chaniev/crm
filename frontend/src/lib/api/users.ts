@@ -53,6 +53,8 @@ function mapUserListItem(payload: UserResponsePayload): UserListItem {
       role: 'Coach',
       mustChangePassword: false,
       isActive: false,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
     }
   }
 
@@ -64,9 +66,25 @@ function mapUserListItem(payload: UserResponsePayload): UserListItem {
     mustChangePassword:
       readBoolean(payload, ['mustChangePassword', 'MustChangePassword']) ?? false,
     isActive: readBoolean(payload, ['isActive', 'IsActive']) ?? false,
+    messengerPlatform: mapMessengerPlatform(
+      readString(payload, ['messengerPlatform', 'MessengerPlatform']),
+    ),
+    messengerPlatformUserId:
+      readString(payload, [
+        'messengerPlatformUserId',
+        'MessengerPlatformUserId',
+      ]) ?? null,
   }
 }
 
 function mapUserDetails(payload: UserResponsePayload): UserDetails {
   return mapUserListItem(payload)
+}
+
+function mapMessengerPlatform(value: string | null | undefined) {
+  if (value?.toLowerCase() === 'telegram') {
+    return 'Telegram' as const
+  }
+
+  return null
 }

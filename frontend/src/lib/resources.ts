@@ -50,6 +50,7 @@ export const resources = {
       emptyDescription:
         'Создайте администратора или тренера, чтобы выдать доступ к рабочим сценариям Gym CRM.',
       loginPrefix: 'Логин',
+      telegramIdPrefix: 'Telegram ID',
       editAction: 'Редактировать',
       passwordActual: 'Пароль актуален',
       passwordRotationRequired: 'Требуется смена пароля',
@@ -88,8 +89,13 @@ export const resources = {
       successMessage: 'Карточка пользователя обновлена.',
       permissionsHintTitle: 'Что можно менять на этом экране',
       permissionsHintDescription:
-        'Доступны ФИО, роль, активность и флаг обязательной смены пароля. Логин остается только для просмотра.',
+        'Доступны ФИО, роль, активность, Telegram ID и флаг обязательной смены пароля. При очистке Telegram ID пользователь теряет доступ к боту. Логин остается только для просмотра.',
       listAction: 'К списку',
+    },
+    messenger: {
+      platforms: {
+        Telegram: 'Telegram',
+      },
     },
     form: {
       labels: {
@@ -97,13 +103,22 @@ export const resources = {
         role: 'Роль',
         login: 'Логин',
         password: 'Стартовый пароль',
+        messengerPlatform: 'Мессенджер',
+        messengerPlatformUserId: 'Telegram ID',
         isActive: 'Пользователь активен',
         mustChangePassword: 'Требовать смену пароля при входе',
+      },
+      descriptions: {
+        messengerPlatform: 'Для MVP доступен только Telegram.',
+        messengerPlatformUserId:
+          'Попросите пользователя прислать ID из /start или /id бота. Если очистить поле, пользователь потеряет доступ к боту.',
       },
       placeholders: {
         fullName: 'Иван Петров',
         login: 'coach.petrov',
         password: 'Введите пароль',
+        messengerPlatform: 'Не подключено',
+        messengerPlatformUserId: 'Например, 123456789',
       },
       validation: {
         fullNameRequired: 'Введите ФИО пользователя.',

@@ -10,10 +10,22 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
     private const int LoginMaxLength = 128;
     private const int PasswordHashMaxLength = 512;
     private const int RoleMaxLength = 32;
+    private const int MessengerPlatformMaxLength = 32;
+    private const int MessengerPlatformUserIdMaxLength = 128;
+    private const string MessengerIdentityIndexFilter =
+        "\"MessengerPlatform\" IS NOT NULL AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> ''";
+    private const string MessengerIdentityConstraint =
+        "(\"MessengerPlatform\" IS NULL AND (\"MessengerPlatformUserId\" IS NULL OR btrim(\"MessengerPlatformUserId\") = '')) " +
+        "OR (\"MessengerPlatform\" = 'Telegram' AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> '')";
 
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.HasKey(user => user.Id);
+
+        builder.ToTable(tableBuilder =>
+            tableBuilder.HasCheckConstraint(
+                "CK_Users_MessengerIdentity_Consistency",
+                MessengerIdentityConstraint));
 
         builder.Property(user => user.FullName)
             .HasMaxLength(FullNameMaxLength)
@@ -32,10 +44,21 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(RoleMaxLength)
             .IsRequired();
 
+        builder.Property(user => user.MessengerPlatform)
+            .HasConversion<string>()
+            .HasMaxLength(MessengerPlatformMaxLength);
+
+        builder.Property(user => user.MessengerPlatformUserId)
+            .HasMaxLength(MessengerPlatformUserIdMaxLength);
+
         builder.Property(user => user.CreatedAt).IsRequired();
         builder.Property(user => user.UpdatedAt).IsRequired();
 
         builder.HasIndex(user => user.Login).IsUnique();
+
+        builder.HasIndex(user => new { user.MessengerPlatform, user.MessengerPlatformUserId })
+            .IsUnique()
+            .HasFilter(MessengerIdentityIndexFilter);
 
         builder.HasMany(user => user.AssignedGroups)
             .WithOne(groupTrainer => groupTrainer.Trainer)

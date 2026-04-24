@@ -64,6 +64,8 @@ export function UserEditScreen({
       fullName: '',
       login: '',
       role: null,
+      messengerPlatform: null,
+      messengerPlatformUserId: '',
       mustChangePassword: false,
       isActive: true,
     },

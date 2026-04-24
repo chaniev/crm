@@ -45,6 +45,7 @@ export type ChangePasswordRequest = {
 }
 
 export type UserRole = AuthenticatedUser['role']
+export type MessengerPlatform = 'Telegram'
 
 export type UserListItem = {
   id: string
@@ -53,6 +54,8 @@ export type UserListItem = {
   role: UserRole
   mustChangePassword: boolean
   isActive: boolean
+  messengerPlatform: MessengerPlatform | null
+  messengerPlatformUserId: string | null
 }
 
 export type UserDetails = UserListItem
@@ -64,6 +67,8 @@ export type CreateUserRequest = {
   role: UserRole
   mustChangePassword: boolean
   isActive: boolean
+  messengerPlatform: MessengerPlatform | null
+  messengerPlatformUserId: string | null
 }
 
 export type UpdateUserRequest = {
@@ -72,6 +77,8 @@ export type UpdateUserRequest = {
   role: UserRole
   mustChangePassword: boolean
   isActive: boolean
+  messengerPlatform: MessengerPlatform | null
+  messengerPlatformUserId: string | null
 }
 
 export type GroupTrainerSummary = {
@@ -309,6 +316,8 @@ export type AuditLogEntry = {
   userName: string
   userLogin?: string
   userRole?: UserRole
+  source?: string
+  messengerPlatform?: MessengerPlatform | string
   actionType: string
   entityType: string
   entityId?: string
@@ -324,6 +333,8 @@ export type GetAuditLogParams = {
   skip?: number
   take?: number
   userId?: string | null
+  source?: string | null
+  messengerPlatform?: string | null
   actionType?: string
   entityType?: string
   dateFrom?: string
@@ -351,6 +362,8 @@ export type AuditLogFilterOptions = {
   users: AuditLogFilterUser[]
   actionTypes: string[]
   entityTypes: string[]
+  sources: string[]
+  messengerPlatforms: string[]
 }
 
 export type TrainingGroupListItem = {

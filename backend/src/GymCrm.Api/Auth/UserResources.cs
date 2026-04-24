@@ -31,6 +31,16 @@ internal static class UserResources
 
     public static string HeadCoachAssignmentUnavailable => GetString(nameof(HeadCoachAssignmentUnavailable));
 
+    public static string InvalidMessengerPlatform => GetString(nameof(InvalidMessengerPlatform));
+
+    public static string MessengerPlatformRequired => GetString(nameof(MessengerPlatformRequired));
+
+    public static string MessengerPlatformUserIdRequired => GetString(nameof(MessengerPlatformUserIdRequired));
+
+    public static string MessengerPlatformUserIdTooLong => GetString(nameof(MessengerPlatformUserIdTooLong));
+
+    public static string MessengerPlatformUserIdAlreadyExists => GetString(nameof(MessengerPlatformUserIdAlreadyExists));
+
     public static string UserCreatedDescription(string actorLogin, string targetLogin)
     {
         return Format(nameof(UserCreatedDescription), actorLogin, targetLogin);

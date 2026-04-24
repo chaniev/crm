@@ -12,6 +12,8 @@ public class User
     public string Login { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public UserRole Role { get; set; }
+    public MessengerPlatform? MessengerPlatform { get; set; }
+    public string? MessengerPlatformUserId { get; set; }
     public bool MustChangePassword { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; }

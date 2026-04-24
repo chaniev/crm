@@ -69,7 +69,9 @@ internal sealed class AttendanceService(
         }
 
         var providerName = dbContext.Database.ProviderName ?? string.Empty;
-        var useTransaction = !providerName.Contains("InMemory", StringComparison.OrdinalIgnoreCase);
+        var useTransaction =
+            dbContext.Database.CurrentTransaction is null &&
+            !providerName.Contains("InMemory", StringComparison.OrdinalIgnoreCase);
         await using var transaction = useTransaction
             ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
             : null;

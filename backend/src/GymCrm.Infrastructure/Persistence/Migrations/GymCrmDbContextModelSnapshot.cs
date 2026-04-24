@@ -89,11 +89,26 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<string>("MessengerPlatform")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("MessengerPlatformUserIdHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<string>("NewValueJson")
                         .HasColumnType("jsonb");
 
                     b.Property<string>("OldValueJson")
                         .HasColumnType("jsonb");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("Web");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -106,9 +121,71 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("EntityType");
 
+                    b.HasIndex("MessengerPlatform");
+
+                    b.HasIndex("Source");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Bot.BotIdempotencyRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("PayloadHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("PlatformUserIdHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("ResponseJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("Platform", "PlatformUserIdHash", "IdempotencyKey", "ActionType")
+                        .IsUnique();
+
+                    b.ToTable("BotIdempotencyRecords", t =>
+                        {
+                            t.HasCheckConstraint("CK_BotIdempotencyRecords_RequiredValues", "btrim(\"Platform\") <> '' AND btrim(\"PlatformUserIdHash\") <> '' AND btrim(\"IdempotencyKey\") <> '' AND btrim(\"ActionType\") <> '' AND btrim(\"PayloadHash\") <> '' AND btrim(\"Status\") <> ''");
+                        });
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Clients.Client", b =>
@@ -366,6 +443,14 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<string>("MessengerPlatform")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("MessengerPlatformUserId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<bool>("MustChangePassword")
                         .HasColumnType("boolean");
 
@@ -387,7 +472,14 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("Login")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.HasIndex("MessengerPlatform", "MessengerPlatformUserId")
+                        .IsUnique()
+                        .HasFilter("\"MessengerPlatform\" IS NOT NULL AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> ''");
+
+                    b.ToTable("Users", t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_MessengerIdentity_Consistency", "(\"MessengerPlatform\" IS NULL AND (\"MessengerPlatformUserId\" IS NULL OR btrim(\"MessengerPlatformUserId\") = '')) OR (\"MessengerPlatform\" = 'Telegram' AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> '')");
+                        });
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Attendance.Attendance", b =>

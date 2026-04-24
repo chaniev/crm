@@ -36,6 +36,8 @@ internal static class UserEndpoints
                 user.FullName,
                 user.Login,
                 user.Role.ToString(),
+                user.MessengerPlatform != null ? user.MessengerPlatform.ToString() : null,
+                user.MessengerPlatformUserId,
                 user.MustChangePassword,
                 user.IsActive,
                 user.CreatedAt,
@@ -88,6 +90,8 @@ internal static class UserEndpoints
             login,
             request.Password,
             request.Role,
+            request.MessengerPlatform,
+            request.MessengerPlatformUserId,
             dbContext,
             cancellationToken);
 
@@ -97,6 +101,9 @@ internal static class UserEndpoints
         }
 
         var role = UserRequestValidator.ParseRole(request.Role)!;
+        var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
+            request.MessengerPlatform,
+            request.MessengerPlatformUserId);
         var now = DateTimeOffset.UtcNow;
 
         var user = new User
@@ -105,6 +112,8 @@ internal static class UserEndpoints
             FullName = fullName,
             Login = login,
             Role = role.Value,
+            MessengerPlatform = messengerIdentity.Platform,
+            MessengerPlatformUserId = messengerIdentity.PlatformUserId,
             MustChangePassword = request.MustChangePassword,
             IsActive = request.IsActive,
             CreatedAt = now,
@@ -161,18 +170,32 @@ internal static class UserEndpoints
         var fullName = request.FullName?.Trim() ?? string.Empty;
         var requestedLogin = request.Login?.Trim() ?? string.Empty;
 
-        var errors = UserRequestValidator.ValidateUpdate(fullName, requestedLogin, request.Role, request.IsActive, user);
+        var errors = await UserRequestValidator.ValidateUpdateAsync(
+            fullName,
+            requestedLogin,
+            request.Role,
+            request.MessengerPlatform,
+            request.MessengerPlatformUserId,
+            request.IsActive,
+            user,
+            dbContext,
+            cancellationToken);
         if (errors.Count > 0)
         {
             return TypedResults.ValidationProblem(errors);
         }
 
         var role = UserRequestValidator.ParseRole(request.Role)!.Value;
+        var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
+            request.MessengerPlatform,
+            request.MessengerPlatformUserId);
         var oldState = UserAuditSerializer.Serialize(user);
         var isSelfUpdate = currentUser.Id == user.Id;
 
         user.FullName = fullName;
         user.Role = role;
+        user.MessengerPlatform = messengerIdentity.Platform;
+        user.MessengerPlatformUserId = messengerIdentity.PlatformUserId;
         user.MustChangePassword = request.MustChangePassword;
         user.IsActive = request.IsActive;
         user.UpdatedAt = DateTimeOffset.UtcNow;
@@ -205,6 +228,8 @@ internal static class UserEndpoints
             user.FullName,
             user.Login,
             user.Role.ToString(),
+            user.MessengerPlatform?.ToString(),
+            user.MessengerPlatformUserId,
             user.MustChangePassword,
             user.IsActive,
             user.CreatedAt,

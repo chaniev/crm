@@ -40,6 +40,8 @@ type AuditLogScreenProps = {
 
 type AuditFilterValues = {
   userId: string | null
+  source: string | null
+  messengerPlatform: string | null
   actionType: string | null
   entityType: string | null
   dateFrom: string
@@ -49,6 +51,8 @@ type AuditFilterValues = {
 const AUDIT_PAGE_SIZE = 20
 const INITIAL_FILTER_VALUES: AuditFilterValues = {
   userId: null,
+  source: null,
+  messengerPlatform: null,
   actionType: null,
   entityType: null,
   dateFrom: '',
@@ -59,6 +63,8 @@ const EMPTY_FILTER_OPTIONS: AuditLogFilterOptions = {
   users: [],
   actionTypes: [],
   entityTypes: [],
+  sources: [],
+  messengerPlatforms: [],
 }
 
 const actionTypeLabels: Record<string, string> = {
@@ -80,6 +86,9 @@ const actionTypeLabels: Record<string, string> = {
   ClientMembershipSingleVisitWrittenOff: 'Списание разового посещения',
   AttendanceMarked: 'Отметка посещения',
   AttendanceUpdated: 'Изменение посещения',
+  BotAttendanceSaved: 'Отметка посещения из бота',
+  BotMembershipPaymentMarked: 'Отметка оплаты из бота',
+  BotAccessDenied: 'Отказ доступа в боте',
 }
 
 const entityTypeLabels: Record<string, string> = {
@@ -89,6 +98,16 @@ const entityTypeLabels: Record<string, string> = {
   TrainingGroup: 'Группа',
   ClientMembership: 'Абонемент',
   Attendance: 'Посещение',
+  BotAction: 'Действие бота',
+}
+
+const sourceLabels: Record<string, string> = {
+  Web: 'Web',
+  Bot: 'Бот',
+}
+
+const messengerPlatformLabels: Record<string, string> = {
+  Telegram: 'Telegram',
 }
 
 export function AuditLogScreen({ user }: AuditLogScreenProps) {
@@ -196,6 +215,16 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     value: auditUser.id,
     label: `${auditUser.fullName} (${auditUser.login})`,
   }))
+  const sourceOptions = filterOptions.sources.map((source) => ({
+    value: source,
+    label: formatSource(source),
+  }))
+  const messengerPlatformOptions = filterOptions.messengerPlatforms.map(
+    (messengerPlatform) => ({
+      value: messengerPlatform,
+      label: formatMessengerPlatform(messengerPlatform),
+    }),
+  )
   const actionTypeOptions = filterOptions.actionTypes.map((actionType) => ({
     value: actionType,
     label: formatActionType(actionType),
@@ -264,7 +293,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
           <form data-testid="audit-filter-form" onSubmit={form.onSubmit(handleApplyFilters)}>
             <Stack gap="md">
-              <SimpleGrid cols={{ base: 1, md: 2, xl: 5 }}>
+              <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }}>
                 <Select
                   clearable
                   data={userSelectOptions}
@@ -273,6 +302,22 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
                   placeholder="Все пользователи"
                   searchable
                   {...form.getInputProps('userId')}
+                />
+                <Select
+                  clearable
+                  data={sourceOptions}
+                  label="Источник"
+                  placeholder="Все источники"
+                  searchable
+                  {...form.getInputProps('source')}
+                />
+                <Select
+                  clearable
+                  data={messengerPlatformOptions}
+                  label="Мессенджер"
+                  placeholder="Все мессенджеры"
+                  searchable
+                  {...form.getInputProps('messengerPlatform')}
                 />
                 <Select
                   clearable
@@ -383,6 +428,16 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
                         <Badge radius="xl" variant="light">
                           {formatUserLabel(entry)}
                         </Badge>
+                        {entry.source ? (
+                          <Badge color="cyan" radius="xl" variant="light">
+                            {formatSource(entry.source)}
+                          </Badge>
+                        ) : null}
+                        {entry.messengerPlatform ? (
+                          <Badge color="teal" radius="xl" variant="light">
+                            {formatMessengerPlatform(entry.messengerPlatform)}
+                          </Badge>
+                        ) : null}
                       </Group>
 
                       <Text fw={700}>{entry.description}</Text>
@@ -463,6 +518,8 @@ function JsonPanel({ title, value, emptyLabel }: JsonPanelProps) {
 function normalizeFilterValues(values: AuditFilterValues): AuditFilterValues {
   return {
     userId: values.userId || null,
+    source: values.source?.trim() || null,
+    messengerPlatform: values.messengerPlatform?.trim() || null,
     actionType: values.actionType?.trim() || null,
     entityType: values.entityType?.trim() || null,
     dateFrom: values.dateFrom.trim(),
@@ -478,6 +535,8 @@ function buildAuditRequestParams(
     page,
     pageSize: AUDIT_PAGE_SIZE,
     userId: filters.userId || undefined,
+    source: filters.source || undefined,
+    messengerPlatform: filters.messengerPlatform || undefined,
     actionType: filters.actionType || undefined,
     entityType: filters.entityType || undefined,
     dateFrom: filters.dateFrom || undefined,
@@ -488,6 +547,8 @@ function buildAuditRequestParams(
 function countActiveFilters(filters: AuditFilterValues) {
   return [
     filters.userId,
+    filters.source,
+    filters.messengerPlatform,
     filters.actionType,
     filters.entityType,
     filters.dateFrom,
@@ -528,6 +589,14 @@ function formatActionType(actionType: string) {
 
 function formatEntityType(entityType: string) {
   return entityTypeLabels[entityType] ?? entityType
+}
+
+function formatSource(source: string) {
+  return sourceLabels[source] ?? source
+}
+
+function formatMessengerPlatform(messengerPlatform: string) {
+  return messengerPlatformLabels[messengerPlatform] ?? messengerPlatform
 }
 
 function formatUserLabel(entry: AuditLogEntry) {

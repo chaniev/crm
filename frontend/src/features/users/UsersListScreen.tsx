@@ -200,6 +200,11 @@ export function UsersListScreen({
                       <Text c="dimmed" size="sm">
                         {resources.users.list.loginPrefix}: {user.login}
                       </Text>
+                      {user.messengerPlatformUserId ? (
+                        <Text c="dimmed" size="sm">
+                          {resources.users.list.telegramIdPrefix}: {user.messengerPlatformUserId}
+                        </Text>
+                      ) : null}
                     </Stack>
 
                     <Button

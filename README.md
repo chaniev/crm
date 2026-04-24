@@ -75,12 +75,43 @@ docker compose up --build -d
 - Frontend: `http://localhost:3000`
 - Backend API и health endpoints: `http://localhost:8080`
 - PostgreSQL не публикуется наружу по умолчанию и доступен только внутри `docker compose`-сети.
+- Telegram-бот запускается в составе `docker compose` как сервис `bot` и работает в режиме long polling (`BOT_MODE=LongPolling`).
 
 Именованные Docker volumes:
 
 - `postgres_data` — данные PostgreSQL;
 - `backend_client_photos` — загруженные фотографии клиентов;
 - `backend_logs` — технические логи backend в `/app/logs/technical`.
+
+## Запуск Telegram-бота (MVP)
+
+После настройки `.env` (раздел переменных ниже) поднимите стек:
+
+```bash
+docker compose up --build -d bot
+```
+
+Сервис `bot` ждёт готовности `db` и `backend`, а также использует:
+
+- `BOT_TELEGRAM_TOKEN` — токен Telegram-бота;
+- `BOT_DATABASE_URL` — база PostgreSQL для bot-owned storage (можно использовать общую базу `gym_crm`);
+- `CRM_API_BASE_URL` — URL внутреннего backend API (`http://backend:8080` для compose);
+- `CRM_BOT_API_TOKEN` — service token для доступа бота к internal Bot API;
+- `BOT_MODE=LongPolling` — режим запуска в MVP.
+
+Значения для внутренней проверки в backend:
+
+- `BOT_INTERNAL_API_TOKEN` — общий service token для `/internal/bot` в backend;
+- `BOT_INTERNAL_API_ENABLED` — включение internal Bot API.
+
+### Как привязать Telegram ID в CRM
+
+Администратор должен заполнить у пользователя CRM поля:
+
+- `MessengerPlatform = Telegram`;
+- `MessengerPlatformUserId = <Telegram user_id пользователя>`.
+
+Пользователь бота, чей `MessengerPlatformUserId` не найден, получает подсказку с его Telegram ID и инструкцию передать его администратору для активации доступа.
 
 Остановка и повторный запуск:
 

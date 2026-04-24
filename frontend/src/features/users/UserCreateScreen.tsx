@@ -47,6 +47,8 @@ export function UserCreateScreen({
       login: '',
       password: '',
       role: 'Coach',
+      messengerPlatform: null,
+      messengerPlatformUserId: '',
       mustChangePassword: true,
       isActive: true,
     },

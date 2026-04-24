@@ -45,6 +45,21 @@
   <data name="HeadCoachAssignmentUnavailable" xml:space="preserve">
     <value>Назначение роли главного тренера сейчас недоступно.</value>
   </data>
+  <data name="InvalidMessengerPlatform" xml:space="preserve">
+    <value>Укажите корректную платформу мессенджера.</value>
+  </data>
+  <data name="MessengerPlatformRequired" xml:space="preserve">
+    <value>Укажите платформу мессенджера.</value>
+  </data>
+  <data name="MessengerPlatformUserIdRequired" xml:space="preserve">
+    <value>Укажите идентификатор пользователя мессенджера.</value>
+  </data>
+  <data name="MessengerPlatformUserIdTooLong" xml:space="preserve">
+    <value>Идентификатор пользователя мессенджера не должен превышать 128 символов.</value>
+  </data>
+  <data name="MessengerPlatformUserIdAlreadyExists" xml:space="preserve">
+    <value>Этот идентификатор мессенджера уже привязан к другому пользователю.</value>
+  </data>
   <data name="UserCreatedDescription" xml:space="preserve">
     <value>Пользователь '{0}' создал пользователя '{1}'.</value>
   </data>

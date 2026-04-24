@@ -32,6 +32,7 @@ export type {
   GroupTrainerSummary,
   LoginRequest,
   MarkClientMembershipPaymentRequest,
+  MessengerPlatform,
   MembershipType,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,

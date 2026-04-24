@@ -40,7 +40,7 @@ public class UsersApiTests
         using (var createResponse = await PostJsonAsync(
                    client,
                    "/users",
-                   new UserCreateRequest("Тестовый пользователь", createLogin, "12345Aa!", "Coach", false, true),
+                   new UserCreateRequest("Тестовый пользователь", createLogin, "12345Aa!", "Coach", false, true, "Telegram", "tg-user-001"),
                    session.CsrfToken))
         {
             Assert.True(
@@ -55,12 +55,14 @@ public class UsersApiTests
             var createdUser = await dbContext.Users.SingleAsync(user => user.Login == createLogin);
             createdUserId = createdUser.Id;
             Assert.Equal(createLogin, createdUser.Login);
+            Assert.Equal(MessengerPlatform.Telegram, createdUser.MessengerPlatform);
+            Assert.Equal("tg-user-001", createdUser.MessengerPlatformUserId);
         }
 
         using (var updateResponse = await PutJsonAsync(
                    client,
                    $"/users/{createdUserId}",
-                   new UserUpdateRequest("Обновлённый тестовый пользователь", createLogin, "Administrator", true, false),
+                   new UserUpdateRequest("Обновлённый тестовый пользователь", createLogin, "Administrator", true, false, " ", " "),
                    session.CsrfToken))
         {
             Assert.True(
@@ -78,7 +80,46 @@ public class UsersApiTests
             Assert.Equal(UserRole.Administrator, updatedUser.Role);
             Assert.True(updatedUser.MustChangePassword);
             Assert.False(updatedUser.IsActive);
+            Assert.Null(updatedUser.MessengerPlatform);
+            Assert.Null(updatedUser.MessengerPlatformUserId);
         }
+    }
+
+    [Fact]
+    public async Task HeadCoach_cannot_assign_duplicate_telegram_identity_to_another_user()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        var firstLogin = $"tg-user-{Guid.NewGuid():N}";
+        using (var firstResponse = await PostJsonAsync(
+                   client,
+                   "/users",
+                   new UserCreateRequest("Telegram One", firstLogin, "12345Aa!", "Coach", false, true, "Telegram", "duplicate-telegram-id"),
+                   session.CsrfToken))
+        {
+            Assert.True(firstResponse.IsSuccessStatusCode);
+        }
+
+        using var duplicateResponse = await PostJsonAsync(
+            client,
+            "/users",
+            new UserCreateRequest("Telegram Two", $"tg-user-{Guid.NewGuid():N}", "12345Aa!", "Coach", false, true, "Telegram", "duplicate-telegram-id"),
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, duplicateResponse.StatusCode);
+
+        var payload = await ReadJsonElementAsync(duplicateResponse);
+        Assert.Equal(
+            "Этот идентификатор мессенджера уже привязан к другому пользователю.",
+            payload.GetProperty("errors").GetProperty("messengerPlatformUserId")[0].GetString());
     }
 
     [Theory]
@@ -535,14 +576,18 @@ public class UsersApiTests
         string Password,
         string Role,
         bool MustChangePassword,
-        bool IsActive);
+        bool IsActive,
+        string? MessengerPlatform = null,
+        string? MessengerPlatformUserId = null);
 
     private sealed record UserUpdateRequest(
         string FullName,
         string Login,
         string Role,
         bool MustChangePassword,
-        bool IsActive);
+        bool IsActive,
+        string? MessengerPlatform = null,
+        string? MessengerPlatformUserId = null);
 
     private sealed class UsersAppFactory : WebApplicationFactory<Program>
     {

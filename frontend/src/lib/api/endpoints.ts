@@ -124,6 +124,8 @@ export const AUDIT_QUERY_KEYS = {
   skip: 'skip',
   take: 'take',
   userId: 'userId',
+  source: 'source',
+  messengerPlatform: 'messengerPlatform',
   actionType: 'actionType',
   entityType: 'entityType',
   dateFrom: 'dateFrom',

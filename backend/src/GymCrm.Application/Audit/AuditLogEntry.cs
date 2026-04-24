@@ -7,4 +7,7 @@ public sealed record AuditLogEntry(
     string? EntityId,
     string Description,
     string? OldValueJson = null,
-    string? NewValueJson = null);
+    string? NewValueJson = null,
+    string Source = "Web",
+    string? MessengerPlatform = null,
+    string? MessengerPlatformUserIdHash = null);

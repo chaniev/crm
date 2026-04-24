@@ -10,6 +10,9 @@ public class AuditLog
     public string EntityType { get; set; } = string.Empty;
     public string? EntityId { get; set; }
     public string Description { get; set; } = string.Empty;
+    public string Source { get; set; } = "Web";
+    public string? MessengerPlatform { get; set; }
+    public string? MessengerPlatformUserIdHash { get; set; }
     public string? OldValueJson { get; set; }
     public string? NewValueJson { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

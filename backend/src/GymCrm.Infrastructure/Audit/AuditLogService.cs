@@ -18,6 +18,9 @@ internal sealed class AuditLogService(GymCrmDbContext dbContext) : IAuditLogServ
             EntityType = entry.EntityType,
             EntityId = entry.EntityId,
             Description = entry.Description,
+            Source = entry.Source,
+            MessengerPlatform = entry.MessengerPlatform,
+            MessengerPlatformUserIdHash = entry.MessengerPlatformUserIdHash,
             OldValueJson = entry.OldValueJson,
             NewValueJson = entry.NewValueJson,
             CreatedAt = DateTimeOffset.UtcNow

@@ -1,5 +1,6 @@
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Audit;
+using GymCrm.Domain.Bot;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
@@ -18,6 +19,7 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<GroupTrainer> GroupTrainers => Set<GroupTrainer>();
     public DbSet<Attendance> Attendance => Set<Attendance>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<BotIdempotencyRecord> BotIdempotencyRecords => Set<BotIdempotencyRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
