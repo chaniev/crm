@@ -10,16 +10,16 @@
 
 Бот должен закрыть быстрые мобильные сценарии:
 
-- привязка Telegram-аккаунта к пользователю CRM;
+- административная настройка Telegram ID в карточке пользователя CRM;
 - role-aware меню;
 - отметка посещаемости;
 - поиск клиента;
 - просмотр заканчивающихся и неоплаченных абонементов;
-- отметка оплаты;
-- загрузка фотографии клиента;
-- напоминания и сводки.
+- отметка оплаты.
 
-Telegram является первой платформенной реализацией. Бизнес-сценарии внутри Python-сервиса должны быть отделены от Telegram-адаптера, чтобы позже можно было добавить адаптер `MAX`.
+Первый MVP-срез реализуется только для `Telegram` и только для личных чатов пользователя с ботом. `MAX`, загрузка фотографий, плановые напоминания, ежедневные сводки и production webhook относятся к следующим срезам.
+
+Бизнес-сценарии внутри Python-сервиса должны быть отделены от Telegram-адаптера, чтобы позже можно было добавить адаптер `MAX`.
 
 ## 2. Ключевые архитектурные решения
 
@@ -32,8 +32,8 @@ Telegram является первой платформенной реализа
 - запуск: отдельный контейнер `bot` в `docker-compose.yml`;
 - интеграция с CRM: только через backend HTTP API;
 - хранение transient-состояний бота: отдельная схема или таблицы в PostgreSQL;
-- режим локальной разработки: Telegram long polling;
-- production-режим: webhook, если есть публичный HTTPS endpoint.
+- режим локальной разработки и первого MVP: Telegram long polling;
+- production webhook: отдельный следующий срез, если есть публичный HTTPS endpoint.
 
 Предлагаемая структура:
 
@@ -68,7 +68,7 @@ bot/
 Рекомендуемый стек:
 
 - `aiogram` — Telegram adapter, handlers, callback buttons, long polling/webhook;
-- `FastAPI` + ASGI server — health endpoints и webhook endpoint;
+- `FastAPI` + ASGI server — health endpoints, а в следующем срезе webhook endpoint;
 - `httpx` — async HTTP-клиент к CRM backend;
 - `pydantic-settings` — конфигурация из env;
 - `SQLAlchemy` async + `asyncpg` — bot-owned storage в PostgreSQL;
@@ -85,15 +85,20 @@ Python-бот не должен:
 - напрямую читать или писать CRM-таблицы клиентов, групп, абонементов, посещаемости и аудита;
 - повторять EF-запросы из backend;
 - самостоятельно принимать решения по правам пользователя;
+- самостоятельно применять правила дат, ролевой срез данных или бизнес-валидацию CRM;
+- фильтровать чувствительные поля как последний рубеж защиты;
 - хранить пароль CRM или web-сессию пользователя.
 
 Все бизнес-действия бот выполняет через backend:
 
-- backend определяет CRM-пользователя по Telegram-привязке;
+- backend определяет CRM-пользователя по Telegram `user_id`, указанному в карточке пользователя CRM;
 - backend применяет роли и access scope;
-- backend возвращает role-based read model;
+- backend применяет правила доступных дат и запрет будущих дат;
+- backend возвращает готовые role-based read models для конкретного экрана или шага диалога;
 - backend сохраняет изменения;
 - backend пишет audit event с источником `Bot` и платформой `Telegram`.
+
+Python-сервис отвечает за транспорт, состояние диалога, отображение backend read model в Telegram-сообщения и кнопки, idempotency входящих Telegram events и техническую обработку ошибок.
 
 ### 2.4. Внутренний Bot API в backend
 
@@ -105,7 +110,8 @@ Bot API должен:
 - требовать service-to-service авторизацию;
 - принимать Telegram identity, а не доверять произвольному `UserId` от бота;
 - внутри backend резолвить CRM-пользователя и проверять актуальные права;
-- переиспользовать те же Application/use case'ы, что и web API.
+- переиспользовать те же Application/use case'ы, что и web API;
+- для изменяющих операций принимать `Idempotency-Key`, чтобы повторный Telegram callback не создавал повторную запись даже при повторном HTTP-вызове.
 
 Рекомендуемый способ защиты MVP:
 
@@ -113,6 +119,7 @@ Bot API должен:
 - заголовок: `Authorization: Bearer <token>`;
 - отдельная policy/auth handler в backend;
 - обязательный `X-Request-Id` для трассировки;
+- обязательный `Idempotency-Key` для изменяющих endpoints;
 - опционально HMAC-подпись payload следующим этапом.
 
 ## 3. Данные
@@ -123,50 +130,23 @@ Bot API должен:
 
 Эти таблицы создаются EF Core миграциями backend, потому что они нужны web-интерфейсу и backend-проверкам.
 
-#### `MessengerAccountLink`
+#### Поля мессенджера в `User`
 
-Назначение: связь пользователя CRM с Telegram-аккаунтом.
+В первом MVP связь Telegram и CRM задается прямо в карточке пользователя CRM.
 
-Поля:
+Добавить поля пользователя:
 
-- `Id`;
-- `UserId`;
-- `Platform` со значением `Telegram`;
-- `PlatformUserId`;
-- `ChatId`;
-- `Username`;
-- `DisplayName`;
-- `LinkedAt`;
-- `LastInteractionAt`;
-- `UnlinkedAt`;
-- `IsActive`.
+- `MessengerPlatform` со значением `Telegram`;
+- `MessengerPlatformUserId` — Telegram `user_id`.
 
-Индексы:
+Индексы и ограничения:
 
-- уникальный активный link по `Platform + PlatformUserId`;
-- индекс по `UserId`;
-- индекс по `ChatId`.
+- уникальный индекс по `MessengerPlatform + MessengerPlatformUserId`;
+- если `MessengerPlatform = Telegram`, `MessengerPlatformUserId` обязателен;
+- один Telegram `user_id` может быть указан только у одного пользователя CRM;
+- один пользователь CRM может иметь только один Telegram `user_id`.
 
-#### `MessengerLinkToken`
-
-Назначение: одноразовая привязка Telegram-аккаунта к пользователю CRM.
-
-Поля:
-
-- `Id`;
-- `UserId`;
-- `TokenHash`;
-- `CreatedAt`;
-- `ExpiresAt`;
-- `UsedAt`;
-- `IsUsed`.
-
-Требования:
-
-- исходный token не хранить в БД;
-- срок жизни задавать конфигурацией;
-- token можно использовать только один раз;
-- при создании нового token старые активные token'ы пользователя можно инвалидировать.
+Отдельные таблицы `MessengerAccountLink` и `MessengerLinkToken` в MVP не нужны. Одноразовые коды и ссылки можно рассмотреть следующим срезом, если понадобится self-service привязка.
 
 #### `BotNotificationSettings`
 
@@ -183,6 +163,32 @@ Bot API должен:
 - `LastSummarySentAt`;
 - `CreatedAt`;
 - `UpdatedAt`.
+
+`BotNotificationSettings` можно добавить в следующем срезе вместе с уведомлениями. Значение по умолчанию для напоминания о тренировке — 15 минут до начала.
+
+#### `BotIdempotencyRecord`
+
+Назначение: backend-защита изменяющих Bot API команд от повторного выполнения.
+
+Поля:
+
+- `Id`;
+- `Platform`;
+- `PlatformUserIdHash`;
+- `IdempotencyKey`;
+- `ActionType`;
+- `PayloadHash`;
+- `ResponseJson`;
+- `Status`;
+- `CreatedAt`;
+- `ExpiresAt`.
+
+Индексы:
+
+- уникальный индекс по `Platform + IdempotencyKey`;
+- индекс по `ExpiresAt` для очистки.
+
+Эта таблица принадлежит backend, потому что защищает CRM-изменения и audit от повторного выполнения даже при повторном HTTP-вызове из Python-сервиса.
 
 ### 3.2. Bot-owned данные в Python-сервисе
 
@@ -208,12 +214,12 @@ Python-сервис может писать только в bot-owned табли
 
 Сценарии:
 
-- привязка;
 - отметка посещаемости;
 - поиск клиента;
 - отметка оплаты;
-- загрузка фото;
 - настройки уведомлений.
+
+Состояния загрузки фото и плановых уведомлений добавляются в следующих срезах, когда эти сценарии включаются в реализацию.
 
 #### `bot_processed_updates`
 
@@ -254,6 +260,8 @@ Python-сервис может писать только в bot-owned табли
 - `daily-summary:2026-04-24:user-id`;
 - `training-reminder:2026-04-24:group-id:user-id`.
 
+`bot_delivery_log` нужен для среза с плановыми уведомлениями. В первом Telegram MVP его можно создать заранее или отложить до этапа напоминаний.
+
 ## 4. Конфигурация
 
 Добавить env-переменные для Python-сервиса:
@@ -269,6 +277,8 @@ Python-сервис может писать только в bot-owned табли
 - `BOT_DEFAULT_TRAINING_REMINDER_MINUTES_BEFORE`;
 - `BOT_DAILY_SUMMARY_TIME`;
 - `BOT_TIMEZONE`;
+
+Для первого MVP `BOT_MODE=LongPolling`. `Webhook`, `BOT_PUBLIC_BASE_URL` и настройки планировщика нужны для следующих срезов.
 
 Telegram:
 
@@ -288,7 +298,8 @@ CRM backend:
 
 - `BotInternalApi__Token`;
 - `BotInternalApi__Enabled`;
-- `MessengerLink__TokenLifetimeMinutes`.
+- `BotIdempotency__RetentionDays`;
+- `BotAudit__PlatformUserHashSalt`.
 
 Секреты нельзя хранить в репозитории.
 
@@ -297,6 +308,8 @@ CRM backend:
 ### 5.1. Вынос use case'ов из endpoint'ов
 
 Перед подключением Python-бота нужно убедиться, что backend-сценарии не завязаны на HTTP endpoint как единственное место бизнес-логики.
+
+Цель доработки: Python-сервис не должен знать SQL/EF, внутренние статусы CRM, правила доступа, ограничения по датам, состав чувствительных полей и правила аудита. Он должен вызывать backend-команды и показывать пользователю готовые backend read models.
 
 Кандидаты на вынос в Application-уровень:
 
@@ -308,36 +321,74 @@ CRM backend:
 - список заканчивающихся абонементов;
 - список неоплаченных абонементов;
 - отметка оплаты текущего абонемента;
-- загрузка/замена фотографии клиента;
+- загрузка/замена фотографии клиента в следующем срезе;
 - запись аудита с источником действия.
 
 Web API и Bot API должны вызывать одни и те же use case'ы.
 
-### 5.2. User-facing endpoints для web-интерфейса
+Рекомендуемые Application/use case контракты:
 
-Добавить endpoints для управления привязкой Telegram из web:
+- `ResolveBotUserContextQuery` — резолв Telegram `user_id` в CRM user context;
+- `GetBotMenuQuery` — меню, доступное пользователю с учетом роли и состояния аккаунта;
+- `ListAttendanceGroupsQuery` — группы для отметки посещаемости;
+- `GetAttendanceRosterQuery` — roster группы на дату с предупреждениями в ролевом срезе;
+- `SaveAttendanceCommand` — сохранение отметок с проверкой группы, даты, роли и idempotency;
+- `SearchBotClientsQuery` — поиск клиентов с запретом phone-search для `Coach`;
+- `GetBotClientCardQuery` — карточка клиента в ролевом срезе;
+- `ListExpiringMembershipsQuery` — абонементы, заканчивающиеся с сегодняшнего дня по 10-й календарный день включительно;
+- `ListUnpaidMembershipsQuery` — текущие неоплаченные абонементы;
+- `MarkMembershipPaymentCommand` — отметка оплаты текущего абонемента с idempotency;
+- `WriteBotAccessDeniedAuditCommand` — аудит ручной недоступной команды.
 
-- `GET /messenger-links` — список привязок текущего пользователя;
-- `POST /messenger-links/telegram/token` — создать одноразовый token привязки;
-- `DELETE /messenger-links/{id}` — отвязать аккаунт;
-- `GET /messenger-links/settings` — получить настройки уведомлений;
-- `PUT /messenger-links/settings` — изменить настройки уведомлений.
+Правила, которые должны жить в backend use case'ах:
+
+- `HeadCoach` видит все группы и может отмечать посещаемость за сегодня и любую дату в прошлом;
+- `Administrator` видит все группы и может отмечать посещаемость за сегодня и любую дату в прошлом;
+- `Coach` видит только назначенные группы и может отмечать посещаемость только за сегодня, вчера и позавчера;
+- будущие даты посещаемости запрещены всем ролям;
+- отдельное подтверждение списания разового посещения в боте не требуется;
+- `Coach` не получает телефон, контакты, сумму оплаты и полные данные абонемента;
+- заканчивающиеся абонементы считаются в окне `today..today+10 days` включительно, без просроченных абонементов;
+- все изменяющие команды пишут audit с `source = Bot` и `messengerPlatform = Telegram`.
+
+Read models для Bot API должны быть отдельными DTO, оптимизированными под короткий Telegram-сценарий. Python не должен собирать карточку клиента из нескольких web DTO и не должен удалять запрещенные поля из ответа.
+
+### 5.2. Backend idempotency для Bot API
+
+Помимо `bot_processed_updates` в Python-сервисе backend должен защищать изменяющие операции от повторного HTTP-вызова.
+
+Добавить backend-механику idempotency для Bot API:
+
+- обязательный заголовок `Idempotency-Key` для сохранения посещаемости, отметки оплаты, загрузки фото в следующем срезе и других изменяющих команд;
+- ключ должен быть связан с `platform`, `platformUserId`, action type и payload hash;
+- повтор с тем же ключом и тем же payload возвращает сохраненный результат;
+- повтор с тем же ключом и другим payload возвращает конфликт;
+- срок хранения idempotency records задается конфигурацией;
+- idempotency должна работать внутри backend transaction там, где команда меняет CRM-данные и пишет audit.
+
+### 5.3. User-facing доработки web-интерфейса
+
+Доработать существующие endpoints создания и редактирования пользователей:
+
+- принимать `MessengerPlatform`;
+- принимать `MessengerPlatformUserId`;
+- валидировать уникальность Telegram `user_id`;
+- писать audit через существующий сценарий изменения пользователя.
 
 Требования:
 
 - endpoints доступны только авторизованному пользователю CRM;
-- пользователь с `MustChangePassword = true` не может создать token;
-- token возвращается только один раз;
-- отвязка пишет audit event;
-- settings применяются при плановых уведомлениях.
+- управлять пользователями может только роль, которой это разрешено текущими backend-политиками;
+- если `MessengerPlatform = Telegram`, Telegram `user_id` обязателен;
+- Telegram `user_id` нельзя указать двум пользователям CRM;
+- очистка Telegram `user_id` отключает доступ пользователя к боту.
 
-### 5.3. Internal Bot API
+### 5.4. Internal Bot API
 
 Добавить внутренний endpoint group, например `/internal/bot`.
 
 Минимальные endpoints:
 
-- `POST /internal/bot/telegram/link/consume` — принять одноразовый token и Telegram identity, создать привязку;
 - `POST /internal/bot/telegram/session/resolve` — проверить Telegram identity и вернуть CRM user context;
 - `GET /internal/bot/menu` — вернуть доступные действия для Telegram identity;
 - `GET /internal/bot/attendance/groups` — доступные группы для посещаемости;
@@ -348,21 +399,27 @@ Web API и Bot API должны вызывать одни и те же use case'
 - `GET /internal/bot/clients/expiring-memberships` — заканчивающиеся абонементы;
 - `GET /internal/bot/clients/unpaid-memberships` — неоплаченные абонементы;
 - `POST /internal/bot/clients/{clientId}/membership/mark-payment` — отметить оплату;
+- `POST /internal/bot/audit/access-denied` — записать запрещенную попытку, если бот получил ручную недоступную команду.
+
+Следующие endpoints добавляются не в первый Telegram MVP, а в соответствующих следующих срезах:
+
 - `POST /internal/bot/clients/{clientId}/photo` — загрузить фото;
 - `GET /internal/bot/notifications/training-reminders` — данные для напоминаний;
-- `GET /internal/bot/notifications/daily-summary` — данные для сводки;
-- `POST /internal/bot/audit/access-denied` — записать запрещенную попытку, если бот получил ручную недоступную команду.
+- `GET /internal/bot/notifications/daily-summary` — данные для сводки.
 
 Каждый endpoint должен:
 
 - проверять service token;
-- резолвить CRM-пользователя по `platform + platformUserId`;
+- резолвить CRM-пользователя по `User.MessengerPlatform + User.MessengerPlatformUserId`;
 - проверять `IsActive`;
 - проверять `MustChangePassword`;
 - применять роль и group scope;
+- применять ограничения по датам;
 - возвращать только разрешенные данные.
 
-### 5.4. Аудит
+Bot API не должен принимать `crmUserId` от Python-сервиса как источник прав. Допустимы только Telegram identity, request id, idempotency key и данные конкретной команды.
+
+### 5.5. Аудит
 
 Расширить audit details источником действия:
 
@@ -370,30 +427,41 @@ Web API и Bot API должны вызывать одни и те же use case'
 - `messengerPlatform = Telegram`;
 - `platformUserIdHash` или иной безопасный технический идентификатор при необходимости.
 
+Расширить web-журнал действий:
+
+- показывать источник действия;
+- показывать платформу для действий из мессенджера;
+- добавить фильтр по `source`;
+- добавить фильтр по `messengerPlatform`;
+- не показывать raw Telegram user id и chat id без отдельной технической необходимости.
+
 Новые audit action codes:
 
-- `MessengerAccountLinked`;
-- `MessengerAccountUnlinked`;
 - `BotAttendanceSaved`;
 - `BotMembershipPaymentMarked`;
-- `BotClientPhotoUploaded`;
 - `BotAccessDenied`.
+
+Изменение Telegram `user_id` у пользователя фиксируется существующим audit-сценарием изменения пользователя.
+
+`BotClientPhotoUploaded` добавляется в срезе загрузки фото.
 
 Пользовательские описания должны быть на русском языке через resource helpers.
 
 ## 6. Frontend-доработки
 
-Добавить в профиль пользователя или настройки:
+Доработать создание и редактирование пользователя:
 
-- блок `Мессенджер-бот`;
-- статус привязки Telegram;
-- кнопку `Создать код привязки`;
-- отображение одноразового кода и срока действия;
-- кнопку `Отвязать Telegram`;
+- поле `MessengerPlatform`, в MVP доступно только `Telegram`;
+- поле `MessengerPlatformUserId`, Telegram `user_id`;
+- подсказку, что пользователь может узнать Telegram ID через `/start` или `/id` в боте;
+- отображение ошибки, если Telegram ID уже указан у другого пользователя.
+
+В следующем срезе с уведомлениями добавить настройки:
+
 - настройки уведомлений:
   - включены ли уведомления;
   - время ежедневной сводки;
-  - за сколько минут напоминать о тренировке.
+  - за сколько минут напоминать о тренировке, по умолчанию 15 минут.
 
 Frontend не должен знать Telegram token и другие bot secrets.
 
@@ -405,9 +473,10 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 - прием Telegram updates;
 - long polling runner;
-- webhook route;
+- webhook route в следующем срезе;
+- фильтрация событий не из личных чатов;
 - callback data encoding/decoding;
-- скачивание файлов;
+- скачивание файлов в срезе загрузки фото;
 - отправка сообщений и кнопок.
 
 `core/`:
@@ -419,12 +488,15 @@ Frontend не должен знать Telegram token и другие bot secrets
 - защита от устаревшего состояния;
 - общая обработка ошибок.
 
+`core/` не должен решать, какие CRM-данные доступны роли, какие даты разрешены или какие поля нужно скрыть. Эти решения приходят из backend read model или backend error code.
+
 `crm/`:
 
 - async client к backend Bot API;
 - DTO запросов и ответов;
 - retry только для безопасных read-запросов;
 - request id и техническое логирование;
+- idempotency key для изменяющих запросов;
 - нормализация backend errors.
 
 `storage/`:
@@ -442,6 +514,8 @@ Frontend не должен знать Telegram token и другие bot secrets
 - attendance missing notifications;
 - cleanup expired states/processed updates.
 
+`scheduling/` реализуется в следующем срезе после расширения или уточнения модели расписаний тренировок в backend.
+
 `resources/`:
 
 - русские тексты сообщений;
@@ -453,37 +527,39 @@ Frontend не должен знать Telegram token и другие bot secrets
 Каждый входящий Telegram update должен проходить единый pipeline:
 
 1. Прочитать update.
-2. Проверить idempotency по `update_id`.
-3. Нормализовать update во внутреннее событие.
-4. Найти или создать conversation state.
-5. Вызвать core-сценарий.
-6. Выполнить backend-запросы через `crm` client.
-7. Отправить ответ через Telegram adapter.
-8. Сохранить новое состояние.
-9. Пометить update как обработанный.
+2. Проверить, что update пришел из личного чата Telegram.
+3. Проверить idempotency по `update_id`.
+4. Нормализовать update во внутреннее событие.
+5. Найти или создать conversation state.
+6. Вызвать core-сценарий.
+7. Выполнить backend-запросы через `crm` client.
+8. Для изменяющих backend-запросов передать стабильный `Idempotency-Key`.
+9. Отправить ответ через Telegram adapter.
+10. Сохранить новое состояние.
+11. Пометить update как обработанный.
 
 Если отправка ответа упала после backend-изменения, повторный update не должен повторно выполнить изменяющее действие.
 
 ## 8. Сценарии Telegram-бота
 
-### 8.1. `/start` и привязка
+### 8.1. `/start` и `/id`
 
-Поток:
+Поток для известного Telegram ID:
 
 1. Пользователь пишет `/start`.
 2. Бот проверяет Telegram `user_id`.
-3. Если активной привязки нет, бот просит отправить одноразовый код из CRM.
-4. Пользователь отправляет код.
-5. Python-сервис вызывает `POST /internal/bot/telegram/link/consume`.
-6. Backend проверяет hash, срок жизни и признак использования token.
-7. Backend создает `MessengerAccountLink`.
-8. Бот показывает меню доступных действий.
+3. Python-сервис вызывает `POST /internal/bot/telegram/session/resolve`.
+4. Backend находит CRM-пользователя по `MessengerPlatform = Telegram` и `MessengerPlatformUserId`.
+5. Бот показывает меню доступных действий.
 
-Ошибки:
+Поток для неизвестного Telegram ID:
 
-- неверный код;
-- просроченный код;
-- код уже использован;
+1. Пользователь пишет `/start` или `/id`.
+2. Backend не находит CRM-пользователя.
+3. Бот отвечает без CRM-данных: `Ваш Telegram ID: <id>. Передайте его администратору CRM для подключения бота.`
+
+Ошибки для известного Telegram ID:
+
 - пользователь CRM неактивен;
 - пользователь должен сменить пароль в web-интерфейсе.
 
@@ -496,25 +572,21 @@ Frontend не должен знать Telegram token и другие bot secrets
 - `Посещения`;
 - `Поиск клиента`;
 - `Заканчивающиеся`;
-- `Неоплаченные`;
-- `Сводка`;
-- `Настройки`;
-- `Отвязать Telegram`.
+- `Неоплаченные`.
 
 Для `Administrator`:
 
+- `Посещения`;
 - `Поиск клиента`;
 - `Заканчивающиеся`;
-- `Неоплаченные`;
-- `Настройки`;
-- `Отвязать Telegram`.
+- `Неоплаченные`.
 
 Для `Coach`:
 
 - `Посещения`;
-- `Поиск клиента`;
-- `Настройки`;
-- `Отвязать Telegram`.
+- `Поиск клиента`.
+
+`Сводка`, `Настройки` и `Отвязать Telegram` не входят в MVP.
 
 Ручной ввод недоступной команды должен возвращать отказ без раскрытия данных и, при необходимости, писать `BotAccessDenied`.
 
@@ -523,7 +595,9 @@ Frontend не должен знать Telegram token и другие bot secrets
 Поток:
 
 1. Пользователь выбирает `Посещения`.
-2. Бот предлагает дату: `Сегодня`, `Вчера`, `Выбрать дату`.
+2. Бот предлагает дату с учетом роли:
+   - `Coach`: `Сегодня`, `Вчера`, `Позавчера`;
+   - `HeadCoach` и `Administrator`: `Сегодня`, `Вчера`, `Выбрать дату в прошлом`.
 3. Бот загружает доступные группы через backend.
 4. Пользователь выбирает группу.
 5. Бот загружает roster клиентов.
@@ -539,8 +613,12 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 - `Coach` видит только назначенные группы;
 - `HeadCoach` видит все группы;
-- `Administrator` не имеет сценария посещаемости;
+- `Administrator` видит все группы;
+- будущая дата запрещена всем ролям;
+- `Coach` может сохранять отметки только за сегодня, вчера и позавчера;
+- `HeadCoach` и `Administrator` могут сохранять отметки за сегодня и любую дату в прошлом;
 - предупреждения по абонементам возвращаются backend в ролевом срезе;
+- отдельное подтверждение списания разового посещения не требуется;
 - повторное нажатие `Сохранить` не должно создавать дубли.
 
 ### 8.4. Поиск клиента
@@ -565,7 +643,7 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 1. Пользователь выбирает `Заканчивающиеся`.
 2. Python-сервис вызывает Bot API.
-3. Backend возвращает клиентов с текущим абонементом, который заканчивается менее чем через 10 дней.
+3. Backend возвращает клиентов с текущим абонементом, который заканчивается в окне с сегодняшнего дня по 10-й календарный день включительно.
 4. Бот показывает ФИО, тип абонемента, дату окончания, количество дней и признак оплаты.
 5. Пользователь может открыть карточку клиента.
 
@@ -598,12 +676,14 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 ### 8.8. Загрузка фотографии клиента
 
+Сценарий не входит в первый Telegram MVP и реализуется следующим срезом.
+
 Поток:
 
 1. Пользователь находит клиента.
 2. Пользователь выбирает `Загрузить фото`.
 3. Бот переводит диалог в ожидание фотографии.
-4. Пользователь отправляет изображение.
+4. Пользователь отправляет изображение обычным Telegram `photo`; несжатый файл не обязателен.
 5. Python-сервис скачивает файл через Telegram API во временный файл или stream.
 6. Python-сервис передает файл в Bot API.
 7. Backend выполняет те же проверки, что и web API.
@@ -615,11 +695,14 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 ### 8.9. Напоминания и сводки
 
-Напоминания тренеру:
+Сценарий не входит в первый Telegram MVP. Перед реализацией напоминаний нужно расширить или уточнить модель расписаний тренировок в backend, потому что текстовое расписание группы недостаточно надежно для планировщика.
+
+Напоминания о тренировках:
 
 - scheduler Python-сервиса запрашивает у backend ближайшие тренировки;
-- backend возвращает только пользователей с активной Telegram-привязкой и включенными уведомлениями;
-- бот отправляет напоминание с кнопкой перехода к отметке посещаемости;
+- backend возвращает только пользователей с указанным Telegram ID и включенными уведомлениями;
+- backend возвращает только пользователей с ролями `HeadCoach` и `Administrator`;
+- бот отправляет напоминание за 15 минут до начала тренировки с кнопкой перехода к отметке посещаемости;
 - `bot_delivery_log` защищает от повторной отправки.
 
 Сводка главному тренеру:
@@ -652,8 +735,15 @@ Frontend не должен знать Telegram token и другие bot secrets
 1. Вынести нужные backend-сценарии в Application/use case'ы.
 2. Добавить service-to-service auth для `/internal/bot`.
 3. Добавить резолв Telegram identity в CRM user context.
-4. Добавить базовые DTO для Bot API.
-5. Покрыть auth и access tests.
+4. Добавить Bot API read models, которые уже содержат ролевой срез данных.
+5. Добавить backend idempotency для изменяющих Bot API команд.
+6. Добавить правила дат посещаемости:
+   - `Coach`: сегодня, вчера, позавчера;
+   - `HeadCoach` и `Administrator`: сегодня и любая дата в прошлом;
+   - будущие даты запрещены всем.
+7. Добавить доступ `Administrator` к bot-сценарию посещаемости по всем группам.
+8. Добавить окно заканчивающихся абонементов `today..today+10 days` включительно.
+9. Покрыть auth, idempotency, role-based payload и access tests.
 
 Результат: backend готов безопасно обслуживать Python-бота.
 
@@ -661,17 +751,18 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 - `dotnet test backend/GymCrm.slnx`.
 
-### Этап 2. CRM-owned данные и web-привязка
+### Этап 2. CRM-owned данные и Telegram ID в пользователе
 
-1. Добавить `MessengerAccountLink`.
-2. Добавить `MessengerLinkToken`.
-3. Добавить `BotNotificationSettings`.
+1. Добавить в пользователя `MessengerPlatform`.
+2. Добавить в пользователя `MessengerPlatformUserId`.
+3. Добавить `BotIdempotencyRecord`.
 4. Добавить EF configurations и миграцию.
-5. Добавить user-facing endpoints `/messenger-links`.
-6. Добавить frontend-блок `Мессенджер-бот`.
-7. Добавить tests на одноразовый token, отвязку и настройки.
+5. Доработать user-facing endpoints создания и редактирования пользователей.
+6. Доработать frontend-формы создания и редактирования пользователей.
+7. Добавить уникальность Telegram `user_id`.
+8. Добавить tests на создание, редактирование и дублирование Telegram `user_id`.
 
-Результат: пользователь может создать код привязки в web CRM.
+Результат: администратор может указать Telegram ID в карточке пользователя CRM.
 
 Проверки:
 
@@ -705,7 +796,7 @@ Frontend не должен знать Telegram token и другие bot secrets
 3. Создать таблицы:
    - `bot_conversation_states`;
    - `bot_processed_updates`;
-   - `bot_delivery_log`.
+   - `bot_delivery_log`, если не откладываем плановые уведомления до следующего среза.
 4. Добавить repositories.
 5. Добавить cleanup job для просроченных записей.
 
@@ -724,10 +815,13 @@ Frontend не должен знать Telegram token и другие bot secrets
 4. Добавить timeout handling.
 5. Добавить нормализацию ошибок:
    - unauthorized service token;
-   - Telegram account not linked;
+   - Telegram user is not configured in CRM;
    - CRM user inactive;
    - must change password;
    - forbidden by role;
+   - duplicate Telegram user id;
+   - invalid attendance date;
+   - idempotency conflict;
    - validation error;
    - temporary backend error.
 6. Покрыть client tests через fake HTTP transport.
@@ -738,16 +832,15 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 1. Подключить Telegram framework.
 2. Реализовать long polling runner.
-3. Реализовать webhook endpoint.
-4. Добавить webhook secret validation.
-5. Нормализовать Telegram updates во внутренние события:
+3. Отфильтровать события из групп, супергрупп и каналов без раскрытия данных CRM.
+4. Нормализовать Telegram updates во внутренние события:
    - command;
    - text message;
-   - callback button;
-   - photo/document.
-6. Реализовать отправку сообщений и inline-кнопок.
-7. Реализовать скачивание файлов.
-8. Добавить idempotency по `update_id`.
+   - callback button.
+5. Реализовать отправку сообщений и inline-кнопок.
+6. Добавить idempotency по `update_id`.
+
+Webhook endpoint, webhook secret validation, скачивание файлов и обработка photo/document реализуются в следующих срезах.
 
 Результат: бот принимает Telegram events и может отвечать простым сообщением.
 
@@ -756,17 +849,17 @@ Frontend не должен знать Telegram token и другие bot secrets
 - adapter mapping tests;
 - manual smoke через тестового Telegram-бота.
 
-### Этап 7. Привязка и меню
+### Этап 7. Resolve и меню
 
 1. Реализовать `/start`.
-2. Реализовать ввод одноразового кода.
-3. Вызвать `POST /internal/bot/telegram/link/consume`.
-4. Реализовать `/unlink`.
-5. Реализовать role-aware меню.
+2. Реализовать `/id`.
+3. Реализовать ответ с Telegram ID для неизвестного пользователя.
+4. Реализовать role-aware меню.
+5. Учесть, что `Administrator` видит `Посещения`, а `HeadCoach` не видит `Сводка` до среза сводок.
 6. Реализовать обработку недоступных команд.
 7. Покрыть fake Telegram adapter tests.
 
-Результат: пользователь может безопасно привязать Telegram и увидеть меню по роли.
+Результат: известный Telegram ID получает меню по роли, неизвестный Telegram ID получает только свой идентификатор и инструкцию.
 
 ### Этап 8. Посещаемость
 
@@ -775,11 +868,12 @@ Frontend не должен знать Telegram token и другие bot secrets
 3. Реализовать выбор группы.
 4. Реализовать roster с порционной выдачей клиентов.
 5. Реализовать черновик отметок в storage.
-6. Реализовать сохранение отметок через Bot API.
+6. Реализовать сохранение отметок через Bot API с `Idempotency-Key`.
 7. Реализовать итоговое сообщение.
-8. Покрыть `HeadCoach`, `Coach`, forbidden для `Administrator`.
+8. Покрыть `HeadCoach`, `Administrator` и `Coach`.
+9. Покрыть запрет будущих дат и ограничения дат для `Coach`.
 
-Результат: тренер может отметить посещаемость из Telegram.
+Результат: тренер, администратор и главный тренер могут отметить посещаемость из Telegram в разрешенных рамках.
 
 Проверки:
 
@@ -807,9 +901,11 @@ Frontend не должен знать Telegram token и другие bot secrets
 1. Реализовать `Заканчивающиеся`.
 2. Реализовать `Неоплаченные`.
 3. Реализовать переход к подтверждению оплаты.
-4. Реализовать mark-payment через Bot API.
+4. Реализовать mark-payment через Bot API с `Idempotency-Key`.
 5. Добавить audit source `Bot/Telegram`.
-6. Проверить идемпотентность повторного callback.
+6. Добавить отображение и фильтр источника `Bot/Telegram` в web-журнале действий.
+7. Проверить идемпотентность повторного callback.
+8. Проверить окно заканчивающихся абонементов с включением сегодняшнего дня и 10-го дня.
 
 Результат: management-роли могут смотреть долги и отмечать оплату.
 
@@ -818,7 +914,7 @@ Frontend не должен знать Telegram token и другие bot secrets
 - Python scenario tests;
 - backend audit tests.
 
-### Этап 11. Загрузка фото
+### Этап 11. Загрузка фото, следующий срез
 
 1. Реализовать ожидание фотографии после выбора клиента.
 2. Скачать файл через Telegram API.
@@ -826,6 +922,7 @@ Frontend не должен знать Telegram token и другие bot secrets
 4. Реализовать подтверждение замены существующей фотографии.
 5. Обработать ошибки размера, формата и загрузки.
 6. Добавить audit event.
+7. Принимать обычный сжатый Telegram `photo`; несжатый файл не обязателен.
 
 Результат: администратор или главный тренер может обновить фото клиента через Telegram.
 
@@ -835,14 +932,15 @@ Frontend не должен знать Telegram token и другие bot secrets
 - backend photo validation tests;
 - manual smoke.
 
-### Этап 12. Напоминания и сводки
+### Этап 12. Напоминания и сводки, следующий срез
 
-1. Реализовать scheduler в Python-сервисе.
-2. Реализовать напоминания перед тренировкой.
-3. Реализовать ежедневную сводку главному тренеру.
-4. Реализовать уведомление о неотмеченной посещаемости.
-5. Реализовать настройки включения/отключения уведомлений.
-6. Добавить `bot_delivery_log` защиту от дублей.
+1. Расширить или уточнить backend-модель расписаний тренировок.
+2. Реализовать scheduler в Python-сервисе.
+3. Реализовать напоминания за 15 минут до начала тренировки для `HeadCoach` и `Administrator`.
+4. Реализовать ежедневную сводку главному тренеру.
+5. Реализовать уведомление о неотмеченной посещаемости.
+6. Реализовать настройки включения/отключения уведомлений.
+7. Добавить `bot_delivery_log` защиту от дублей.
 
 Результат: бот становится ассистентом по операционным событиям.
 
@@ -860,15 +958,16 @@ Frontend не должен знать Telegram token и другие bot secrets
    - CRM backend URL;
    - service token;
    - database URL;
-   - mode `LongPolling`/`Webhook`.
+   - mode `LongPolling`.
 4. Обновить `.env.example`.
 5. Обновить `README.md`:
    - как создать Telegram-бота;
    - какие env-переменные нужны;
    - local `LongPolling`;
-   - production `Webhook`;
-   - как привязать аккаунт.
-6. Добавить troubleshooting.
+   - как узнать Telegram ID через бот;
+   - как указать Telegram ID в карточке пользователя CRM.
+6. Описать, что production `Webhook`, фото, напоминания и сводки реализуются следующими срезами.
+7. Добавить troubleshooting.
 
 Результат: бот можно поднять и проверить по инструкции.
 
@@ -890,16 +989,18 @@ Frontend не должен знать Telegram token и другие bot secrets
    - `cd bot && pytest`.
 4. Провести ручной smoke в Telegram:
    - `/start`;
-   - привязка;
+   - неизвестный Telegram ID получает только свой ID и инструкцию;
+   - известный Telegram ID получает меню;
+   - отказ или игнорирование группового чата без раскрытия данных;
    - меню по роли;
-   - посещаемость тренера;
+   - посещаемость тренера, администратора и главного тренера;
    - поиск клиента;
+   - заканчивающиеся абонементы;
    - неоплаченные;
    - отметка оплаты;
-   - загрузка фото;
    - отвязка.
 
-Результат: Telegram-бот на Python готов к MVP-приемке.
+Результат: первый Telegram MVP-срез бота на Python готов к приемке.
 
 ## 10. Риски и решения
 
@@ -907,7 +1008,7 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 Риск: Python-сервис начнет повторять backend-правила и EF-запросы.
 
-Решение: Python вызывает только Bot API, backend остается источником прав и бизнес-логики.
+Решение: Python вызывает только Bot API, backend остается источником прав и бизнес-логики. Backend возвращает готовые Bot read models, а Python только ведет диалог и отображает данные.
 
 ### 10.2. Утечка данных тренера
 
@@ -919,7 +1020,7 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 Риск: повторный callback повторно отметит оплату или сохранит посещаемость.
 
-Решение: `bot_processed_updates`, idempotent Bot API, подтверждения для рискованных действий.
+Решение: `bot_processed_updates`, обязательный `Idempotency-Key` для изменяющих Bot API команд, backend idempotency records, подтверждения для рискованных действий.
 
 ### 10.4. Две системы миграций в одной БД
 
@@ -931,7 +1032,7 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 Риск: webhook требует публичный HTTPS endpoint.
 
-Решение: local/dev режим `LongPolling`, production режим `Webhook`.
+Решение: первый Telegram MVP запускается в режиме `LongPolling`, production `Webhook` выносится в следующий срез.
 
 ### 10.6. Состояние диалогов устаревает
 
@@ -939,18 +1040,37 @@ Frontend не должен знать Telegram token и другие bot secrets
 
 Решение: TTL состояния, проверка актуальности сущностей перед изменением, сообщение `Сценарий устарел, начните заново`.
 
+### 10.7. Bot API станет копией web endpoint'ов
+
+Риск: backend добавит thin wrapper над текущими web endpoint'ами, и Python начнет собирать нужные ответы из нескольких web DTO.
+
+Решение: сначала выделить Application/use case'ы и отдельные Bot read models. Web API и Bot API должны вызывать общие use case'ы, но иметь свои HTTP DTO.
+
+### 10.8. Расписание тренировок неструктурировано
+
+Риск: текстовое поле расписания группы нельзя надежно использовать для напоминаний и уведомлений о неотмеченной посещаемости.
+
+Решение: не включать напоминания в первый MVP. Перед срезом уведомлений расширить или уточнить backend-модель расписаний тренировок.
+
+### 10.9. Права администратора на посещаемость расходятся с текущим backend
+
+Риск: текущие web/backend политики могут не давать `Administrator` доступ к отметке посещаемости, а бот по ТЗ должен давать.
+
+Решение: в backend use case'ах и access tests явно зафиксировать, что для bot-сценария `Administrator` может отмечать все группы за любую дату в прошлом. Если web-интерфейс должен соответствовать этому правилу, синхронно обновить web policy и UI.
+
 ## 11. MVP-срез Telegram-бота на Python
 
-Чтобы быстрее получить пользу, первый приемочный срез можно ограничить:
+Первый приемочный срез ограничивается:
 
 1. Backend Bot API foundation.
 2. Python service scaffold.
-3. Telegram long polling.
-4. Привязка аккаунта.
+3. Telegram long polling только для личных чатов.
+4. Настройка Telegram ID в карточке пользователя CRM.
 5. Role-aware меню.
-6. Отметка посещаемости.
+6. Отметка посещаемости для `HeadCoach`, `Administrator` и `Coach` с ограничениями по датам.
 7. Поиск клиента.
 8. Заканчивающиеся и неоплаченные абонементы.
 9. Отметка оплаты.
+10. Audit source `Bot/Telegram` с отображением и фильтрацией в web-журнале.
 
-Фото, напоминания, сводки и production webhook можно делать следующим срезом, если нужен более быстрый первый релиз.
+В первый срез не входят `MAX`, загрузка фото, напоминания, сводки и production webhook. Эти сценарии делаются следующими срезами.
