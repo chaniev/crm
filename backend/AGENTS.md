@@ -16,6 +16,7 @@
 
 - `csharp-developer` — `Domain`, `Application`, `Infrastructure`, модели, сервисы и persistence.
 - `dotnet-core-expert` — `Api`, auth, `CSRF`, middleware, startup, DI, конфигурация.
+- `python-pro` — Python-скрипты, утилиты, генераторы, миграционные/операционные helper'ы и тестовые harness'ы внутри `backend/`.
 - `test-automator` — тесты в `tests/GymCrm.Tests/`.
 - `docker-expert` — `backend/Dockerfile`, runtime, volumes, readiness, логирование.
 
