@@ -26,6 +26,16 @@ class Settings(BaseSettings):
     telegram_token: SecretStr = Field(
         validation_alias=AliasChoices("BOT_TELEGRAM_TOKEN", "TELEGRAM_BOT_TOKEN"),
     )
+    telegram_proxy_url: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "BOT_TELEGRAM_PROXY_URL",
+            "HTTPS_PROXY",
+            "HTTP_PROXY",
+            "https_proxy",
+            "http_proxy",
+        ),
+    )
     bot_mode: str = Field(default="LongPolling", alias="BOT_MODE")
 
     crm_base_url: str = Field(
@@ -47,6 +57,13 @@ class Settings(BaseSettings):
     @classmethod
     def normalize_crm_base_url(cls, value: str) -> str:
         return value.rstrip("/")
+
+    @field_validator("telegram_proxy_url", mode="before")
+    @classmethod
+    def normalize_optional_proxy_url(cls, value: object) -> object:
+        if isinstance(value, str) and value.strip() == "":
+            return None
+        return value
 
     @field_validator("bot_mode")
     @classmethod
