@@ -16,6 +16,7 @@
 
 - `csharp-developer` — `Domain`, `Application`, `Infrastructure`, модели, сервисы и persistence.
 - `dotnet-core-expert` — `Api`, auth, `CSRF`, middleware, startup, DI, конфигурация.
+- `refactoring-specialist` — поведенчески безопасный структурный рефакторинг backend-слоев, выделение границ, снижение дублирования и скрытой связности.
 - `test-automator` — тесты в `tests/GymCrm.Tests/`.
 - `docker-expert` — `backend/Dockerfile`, runtime, volumes, readiness, логирование.
 

@@ -25,6 +25,8 @@
 - `python-pro` — отдельный Python runtime-сервис `bot/`, Telegram adapter, async storage, pytest/ruff.
 - `react-specialist` — экраны, формы, маршруты, состояние, доступность.
 - `ui-designer` — implement-ready UI/UX перед заметной переработкой экрана.
+- `ux-researcher` — синтез UI-фидбэка, наблюдений и проблем пользователей в конкретные продуктовые и implementation-ready рекомендации.
+- `refactoring-specialist` — безопасный структурный рефакторинг без изменения поведения, снижение связности, дублирования и сложности.
 - `test-automator` — backend tests, `Playwright`, regression coverage.
 - `docker-expert` — `Dockerfile`, `docker-compose`, runtime, health checks, volumes.
 

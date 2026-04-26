@@ -36,6 +36,7 @@
 ## Какие агенты использовать
 
 - `python-pro` — Python runtime, async код, `aiogram`, `FastAPI`, `httpx`, `SQLAlchemy` async, `asyncpg`, `Alembic`, `pytest`, `ruff`.
+- `refactoring-specialist` — безопасный структурный рефакторинг Python-сервиса без изменения runtime-поведения, границ adapter/core/storage и контрактов.
 - `docker-expert` — `bot/Dockerfile`, сервис `bot` в `docker-compose.yml`, env, health checks, runtime.
 - `test-automator` — pytest, regression coverage, тестовые fixtures и idempotency-проверки.
 
