@@ -812,14 +812,14 @@ internal sealed class BotApiService(
             UserRole.HeadCoach or UserRole.Administrator =>
             [
                 new BotMenuItem("attendance", "Посещения"),
-                new BotMenuItem("client-search", "Поиск клиента"),
-                new BotMenuItem("expiring-memberships", "Заканчивающиеся"),
-                new BotMenuItem("unpaid-memberships", "Неоплаченные")
+                new BotMenuItem("client_search", "Поиск клиента"),
+                new BotMenuItem("expiring_memberships", "Заканчивающиеся"),
+                new BotMenuItem("unpaid_memberships", "Неоплаченные")
             ],
             UserRole.Coach =>
             [
                 new BotMenuItem("attendance", "Посещения"),
-                new BotMenuItem("client-search", "Поиск клиента")
+                new BotMenuItem("client_search", "Поиск клиента")
             ],
             _ => []
         };

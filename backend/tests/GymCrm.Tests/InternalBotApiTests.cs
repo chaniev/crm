@@ -97,8 +97,8 @@ public class InternalBotApiTests
             Assert.Equal(HttpStatusCode.OK, adminMenuResponse.StatusCode);
             var payload = await ReadJsonElementAsync(adminMenuResponse);
             var items = payload.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("code").GetString()).ToArray();
-            Assert.Contains("unpaid-memberships", items);
-            Assert.Contains("expiring-memberships", items);
+            Assert.Contains("unpaid_memberships", items);
+            Assert.Contains("expiring_memberships", items);
         }
 
         using (var coachMenuResponse = await SendBotRequestAsync(
@@ -110,7 +110,7 @@ public class InternalBotApiTests
             var payload = await ReadJsonElementAsync(coachMenuResponse);
             var items = payload.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("code").GetString()).ToArray();
             Assert.Equal(2, items.Length);
-            Assert.DoesNotContain("unpaid-memberships", items);
+            Assert.DoesNotContain("unpaid_memberships", items);
         }
 
         using (var adminGroupsResponse = await SendBotRequestAsync(
