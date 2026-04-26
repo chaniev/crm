@@ -74,6 +74,8 @@ export function mapClientCurrentMembership(
   const membershipPayload = extractRecordPayload(payload, [
     'currentMembership',
     'CurrentMembership',
+    'currentMembershipSummary',
+    'CurrentMembershipSummary',
   ])
 
   return mapClientMembership(membershipPayload)

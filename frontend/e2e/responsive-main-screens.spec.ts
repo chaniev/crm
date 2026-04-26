@@ -60,6 +60,9 @@ const CLIENTS_RESPONSE = {
       membershipWarning: true,
       hasActivePaidMembership: false,
       hasUnpaidCurrentMembership: true,
+      hasCurrentMembership: true,
+      membershipState: 'Unpaid',
+      lastVisitDate: '2026-04-20',
       photo: null,
       groups: [
         {
@@ -74,14 +77,34 @@ const CLIENTS_RESPONSE = {
         },
       ],
       currentMembership: {
+        id: 'membership-1',
         membershipType: 'Monthly',
-        startDate: '2026-04-01',
+        purchaseDate: '2026-04-01',
         expirationDate: '2026-04-22',
         isPaid: false,
+        paymentAmount: 3500,
+        singleVisitUsed: false,
       },
+      currentMembershipSummary: {
+        id: 'membership-1',
+        membershipType: 'Monthly',
+        purchaseDate: '2026-04-01',
+        expirationDate: '2026-04-22',
+        isPaid: false,
+        singleVisitUsed: false,
+      },
+      membershipHistory: [],
+      attendanceHistory: [],
+      attendanceHistoryTotalCount: 0,
     },
   ],
   totalCount: 1,
+  activeCount: 1,
+  archivedCount: 0,
+  skip: 0,
+  take: 20,
+  page: 1,
+  pageSize: 20,
   hasNextPage: false,
 } as const
 
@@ -250,6 +273,11 @@ async function mockApi(
 ) {
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
+    if (!requestUrl.pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
     const { pathname } = requestUrl
     const method = route.request().method()
 
@@ -260,6 +288,27 @@ async function mockApi(
 
     if (pathname === '/api/clients' && method === 'GET') {
       await fulfillJson(route, 200, CLIENTS_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/clients/client-1' && method === 'GET') {
+      await fulfillJson(route, 200, CLIENTS_RESPONSE.items[0])
+      return
+    }
+
+    if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, 200, {
+        items: [
+          {
+            clientId: 'client-1',
+            fullName: 'Александра Константинопольская-Северная',
+            membershipType: 'Monthly',
+            expirationDate: '2026-04-22',
+            daysUntilExpiration: 3,
+            isPaid: false,
+          },
+        ],
+      })
       return
     }
 

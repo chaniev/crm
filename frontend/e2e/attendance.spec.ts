@@ -219,6 +219,11 @@ async function mockApi(
 ) {
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
+    if (!requestUrl.pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
     const handled = await handler({
       method: route.request().method(),
       pathname: requestUrl.pathname,

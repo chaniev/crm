@@ -182,7 +182,7 @@ const SCREEN_HEADINGS = [
   },
   {
     path: '/clients',
-    heading: 'Клиентская база со встроенным поиском и фильтрацией',
+    heading: 'Клиенты',
   },
   {
     path: '/groups',
@@ -303,7 +303,7 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.goto('/clients')
-    await page.getByRole('button', { name: 'Создать клиента' }).click()
+    await page.getByRole('button', { name: 'Новый клиент' }).click()
 
     await page.getByLabel('Фамилия').fill('Петров')
     await page.getByLabel('Имя').fill('Пётр')
@@ -357,7 +357,7 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByRole('button', { name: 'К списку клиентов' }).click()
     await expect(page).toHaveURL('/clients')
     await expect(
-      page.getByRole('heading', { name: 'Клиентская база со встроенным поиском и фильтрацией' }),
+      page.getByRole('heading', { name: 'Клиенты' }),
     ).toBeVisible()
     await expect(page.getByText('Петров Пётр Петрович')).toBeVisible()
     expect(clientListCalls).toBeGreaterThan(1)
@@ -628,6 +628,13 @@ test.describe('Основные e2e сценарии', () => {
         return true
       }
 
+      if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+        await fulfillJson(route, 200, {
+          items: [toExpiringMembershipPayload(expiringClient)],
+        })
+        return true
+      }
+
       return false
     })
 
@@ -783,6 +790,18 @@ test.describe('Основные e2e сценарии', () => {
         return true
       }
 
+      if (pathname === '/api/clients/client-1' && method === 'GET') {
+        await fulfillJson(route, 200, toClientPayload(baseClient, baseGroups))
+        return true
+      }
+
+      if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+        await fulfillJson(route, 200, {
+          items: [toExpiringMembershipPayload(baseClient)],
+        })
+        return true
+      }
+
       if (pathname === '/api/audit-logs/options' && method === 'GET') {
         await fulfillJson(route, 200, {
           users: [],
@@ -835,6 +854,11 @@ async function mockApi(
 ) {
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
+
+    if (!requestUrl.pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
 
     const handled = await handler({
       method: route.request().method(),
@@ -904,6 +928,8 @@ function buildClientsListPayload(
   return {
     items,
     totalCount: searchParams ? items.length : clients.length,
+    activeCount: items.filter((client) => client.status === 'Active').length,
+    archivedCount: items.filter((client) => client.status === 'Archived').length,
     skip: 0,
     take: Number(searchParams?.get('pageSize') ?? 20),
     page: Number(searchParams?.get('page') ?? 1),
@@ -939,6 +965,25 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     hasActivePaidMembership: client.hasActivePaidMembership,
     hasUnpaidCurrentMembership: client.hasUnpaidCurrentMembership,
     membershipWarning: client.membershipWarning,
+    hasCurrentMembership: Boolean(membershipType),
+    membershipState: !membershipType
+      ? 'None'
+      : client.hasUnpaidCurrentMembership
+        ? 'Unpaid'
+        : client.hasActivePaidMembership
+          ? 'ActivePaid'
+          : 'Expired',
+    lastVisitDate: addIsoDays(todayIso(), -1),
+    currentMembershipSummary: membershipType
+      ? {
+          id: `${client.id}-m1`,
+          membershipType,
+          purchaseDate: addIsoDays(todayIso(), -20),
+          expirationDate: client.expirationDate,
+          isPaid: client.hasActivePaidMembership,
+          singleVisitUsed: false,
+        }
+      : null,
     currentMembership: membershipType
       ? {
           id: `${client.id}-m1`,
@@ -966,6 +1011,24 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
       : [],
     attendanceHistory: [],
     attendanceHistoryTotalCount: 0,
+  }
+}
+
+function toExpiringMembershipPayload(client: ClientState) {
+  return {
+    clientId: client.id,
+    fullName: `${client.lastName} ${client.firstName} ${client.middleName}`,
+    membershipType: client.membershipType ?? 'Monthly',
+    expirationDate: client.expirationDate,
+    daysUntilExpiration: Math.max(
+      0,
+      Math.round(
+        (new Date(`${client.expirationDate}T00:00:00.000Z`).getTime() -
+          new Date(`${todayIso()}T00:00:00.000Z`).getTime()) /
+          86_400_000,
+      ),
+    ),
+    isPaid: client.hasActivePaidMembership,
   }
 }
 

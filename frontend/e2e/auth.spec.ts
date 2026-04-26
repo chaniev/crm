@@ -128,6 +128,13 @@ test.describe('Аутентификация', () => {
         await fulfillJson(route, 200, {
           items: [],
           totalCount: 0,
+          activeCount: 0,
+          archivedCount: 0,
+          skip: 0,
+          take: 20,
+          page: 1,
+          pageSize: 20,
+          hasNextPage: false,
         })
         return true
       }
@@ -194,6 +201,11 @@ async function mockApi(
 ) {
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
+    if (!requestUrl.pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
     const handled = await handler({
       method: route.request().method(),
       pathname: requestUrl.pathname,

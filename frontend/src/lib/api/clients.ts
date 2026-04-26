@@ -82,6 +82,8 @@ export async function getClients(
   }
 
   appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.fullName, params.fullName)
+  appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.query, params.query)
+  appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.search, params.search)
   appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.phone, params.phone)
   appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.groupId, params.groupId)
   appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.status, params.status)
@@ -89,6 +91,16 @@ export async function getClients(
     searchParams,
     CLIENTS_QUERY_KEYS.paymentStatus,
     params.paymentStatus,
+  )
+  appendSearchParam(
+    searchParams,
+    CLIENTS_QUERY_KEYS.membershipState,
+    params.membershipState,
+  )
+  appendSearchParam(
+    searchParams,
+    CLIENTS_QUERY_KEYS.membershipType,
+    params.membershipType,
   )
   appendSearchParam(
     searchParams,
@@ -102,6 +114,11 @@ export async function getClients(
   )
   appendBooleanSearchParam(searchParams, CLIENTS_QUERY_KEYS.hasPhoto, params.hasPhoto)
   appendBooleanSearchParam(searchParams, CLIENTS_QUERY_KEYS.hasGroup, params.hasGroup)
+  appendBooleanSearchParam(
+    searchParams,
+    CLIENTS_QUERY_KEYS.hasCurrentMembership,
+    params.hasCurrentMembership,
+  )
   appendBooleanSearchParam(
     searchParams,
     CLIENTS_QUERY_KEYS.hasActivePaidMembership,
@@ -131,10 +148,13 @@ export async function getClients(
     CLIENT_LIST_PAYLOAD_KEYS,
   ).map(mapClientListItem)
   const pagination = extractClientsPagination(payload, params, items.length)
+  const counts = extractClientListCounts(payload)
 
   return {
     items,
     totalCount: pagination.totalCount,
+    activeCount: counts.activeCount,
+    archivedCount: counts.archivedCount,
     skip: pagination.skip,
     take: pagination.take,
     page: pagination.page,
@@ -326,6 +346,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
   const groups = mapClientGroups(payload)
   const fullName = buildClientFullName(payload)
   const currentMembership = mapClientCurrentMembership(payload)
+  const currentMembershipSummary = currentMembership
   const warningMessage =
     readString(payload, [
       'warning',
@@ -384,8 +405,79 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     membershipWarning,
     membershipWarningMessage: warningMessage,
     currentMembership,
+    currentMembershipSummary,
+    hasCurrentMembership:
+      readBoolean(payload, ['hasCurrentMembership', 'HasCurrentMembership']) ??
+      Boolean(currentMembershipSummary),
+    membershipState: mapClientMembershipState(
+      readString(payload, ['membershipState', 'MembershipState']),
+      currentMembershipSummary,
+      hasActivePaidMembership,
+      hasUnpaidCurrentMembership,
+    ),
+    lastVisitDate:
+      readString(payload, ['lastVisitDate', 'LastVisitDate']) ?? null,
     updatedAt: payload.updatedAt,
   }
+}
+
+function extractClientListCounts(payload: unknown) {
+  const envelope = isRecord(payload) ? payload : null
+  const nestedEnvelope = envelope?.data
+
+  return {
+    activeCount:
+      (envelope
+        ? readNumber(envelope, ['activeCount', 'ActiveCount'])
+        : undefined) ??
+      (isRecord(nestedEnvelope)
+        ? readNumber(nestedEnvelope, ['activeCount', 'ActiveCount'])
+        : undefined) ??
+      null,
+    archivedCount:
+      (envelope
+        ? readNumber(envelope, ['archivedCount', 'ArchivedCount'])
+        : undefined) ??
+      (isRecord(nestedEnvelope)
+        ? readNumber(nestedEnvelope, ['archivedCount', 'ArchivedCount'])
+        : undefined) ??
+      null,
+  }
+}
+
+function mapClientMembershipState(
+  state: string | undefined,
+  currentMembership: ClientMembership | null,
+  hasActivePaidMembership: boolean,
+  hasUnpaidCurrentMembership: boolean,
+) {
+  if (
+    state === 'None' ||
+    state === 'ActivePaid' ||
+    state === 'Unpaid' ||
+    state === 'Expired' ||
+    state === 'UsedSingleVisit'
+  ) {
+    return state
+  }
+
+  if (!currentMembership) {
+    return 'None'
+  }
+
+  if (hasUnpaidCurrentMembership) {
+    return 'Unpaid'
+  }
+
+  if (hasActivePaidMembership) {
+    return 'ActivePaid'
+  }
+
+  if (currentMembership.membershipType === 'SingleVisit' && currentMembership.singleVisitUsed) {
+    return 'UsedSingleVisit'
+  }
+
+  return 'Expired'
 }
 
 function mapExpiringClientMembership(

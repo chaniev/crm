@@ -79,6 +79,8 @@ import {
   ResponsiveButtonGroup,
 } from '../shared/ux'
 
+export { ClientsListScreen } from './list/ClientsListScreen'
+
 const maxContacts = 2
 const clientPhotoMaxBytes = 10 * 1024 * 1024
 const clientPhotoAcceptedMimeTypes = [
@@ -227,7 +229,7 @@ type ClientsListScreenProps = {
   onOpen: (clientId: string) => void
 }
 
-export function ClientsListScreen({
+export function LegacyClientsListScreen({
   canManage,
   onCreate,
   onOpen,

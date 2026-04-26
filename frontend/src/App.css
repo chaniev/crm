@@ -334,6 +334,106 @@
     linear-gradient(135deg, rgba(239, 245, 242, 0.92), rgba(255, 255, 255, 0.96));
 }
 
+.clients-v7-screen {
+  --clients-preview-width: 22rem;
+}
+
+.clients-v7-header {
+  gap: 1rem;
+}
+
+.clients-v7-toolbar,
+.clients-v7-preview {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(20, 90, 82, 0.1);
+}
+
+.clients-v7-toolbar__search {
+  flex: 1 1 18rem;
+}
+
+.clients-v7-toolbar__status {
+  flex: 0 0 auto;
+}
+
+.clients-v7-toolbar__group {
+  flex: 0 1 15rem;
+}
+
+.clients-v7-quick-filters {
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+}
+
+.clients-v7-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--clients-preview-width);
+  gap: 1rem;
+  align-items: start;
+}
+
+.clients-v7-table-header,
+.clients-v7-row {
+  display: grid;
+  grid-template-columns:
+    minmax(13rem, 1.25fr)
+    minmax(12rem, 1fr)
+    minmax(10rem, 0.8fr)
+    minmax(8rem, 0.7fr)
+    minmax(10rem, 0.8fr);
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.clients-v7-table-header {
+  padding: 0 0.75rem;
+  color: var(--mantine-color-dimmed);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.clients-v7-row {
+  min-height: 4.5rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(20, 90, 82, 0.1);
+  cursor: pointer;
+}
+
+.clients-v7-row[data-selected] {
+  border-color: rgba(20, 90, 82, 0.38);
+  box-shadow: inset 3px 0 0 var(--mantine-color-brand-7);
+}
+
+.clients-v7-row:focus-visible {
+  outline: 2px solid rgba(20, 90, 82, 0.34);
+  outline-offset: 2px;
+}
+
+.clients-v7-row__primary,
+.clients-v7-row__secondary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clients-v7-row-skeleton {
+  height: 4.5rem;
+}
+
+.clients-v7-preview {
+  position: sticky;
+  top: 1rem;
+}
+
+.clients-v7-preview__need {
+  padding: 0.8rem;
+  background: rgba(246, 244, 238, 0.74);
+}
+
 .client-photo-card {
   overflow: hidden;
 }
@@ -499,6 +599,24 @@
   .story-panel {
     display: none;
   }
+
+  .clients-v7-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .clients-v7-preview {
+    display: none;
+  }
+
+  .clients-v7-table-header {
+    display: none;
+  }
+
+  .clients-v7-row {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    align-items: start;
+  }
 }
 
 @media (min-width: 48rem) {
@@ -539,6 +657,21 @@
   .stage-card,
   .utility-card {
     padding: 1.1rem;
+  }
+
+  .clients-v7-header {
+    align-items: stretch;
+  }
+
+  .clients-v7-header > * {
+    width: 100%;
+  }
+
+  .clients-v7-toolbar__search,
+  .clients-v7-toolbar__status,
+  .clients-v7-toolbar__group {
+    flex-basis: 100%;
+    width: 100%;
   }
 
   .app-shell__header-inner {

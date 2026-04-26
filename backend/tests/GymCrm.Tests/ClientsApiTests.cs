@@ -1054,6 +1054,40 @@ public class ClientsApiTests
                 GroupId = seeded.GroupOneId,
                 TrainerId = seeded.CoachId
             });
+            var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+            var now = DateTimeOffset.UtcNow;
+            dbContext.ClientMemberships.Add(new ClientMembership
+            {
+                Id = Guid.NewGuid(),
+                ClientId = allowedClientId,
+                MembershipType = MembershipType.Monthly,
+                PurchaseDate = today,
+                ExpirationDate = today.AddDays(10),
+                PaymentAmount = 3500m,
+                IsPaid = true,
+                SingleVisitUsed = false,
+                PaidByUserId = seeded.HeadCoachId,
+                PaidAt = now,
+                ValidFrom = now,
+                ValidTo = null,
+                ChangeReason = ClientMembershipChangeReason.NewPurchase,
+                ChangedByUserId = seeded.HeadCoachId,
+                CreatedAt = now
+            });
+            SeedAttendanceEntryForClient(
+                dbContext,
+                allowedClientId,
+                seeded.GroupOneId,
+                seeded.HeadCoachId,
+                today.AddDays(-3),
+                true);
+            SeedAttendanceEntryForClient(
+                dbContext,
+                allowedClientId,
+                seeded.GroupTwoId,
+                seeded.HeadCoachId,
+                today.AddDays(-1),
+                true);
             await dbContext.SaveChangesAsync();
         }
 
@@ -1073,10 +1107,32 @@ public class ClientsApiTests
             Assert.NotEqual(forbiddenClientId, GetGuidFromProperty(clientPayload, "id"));
             Assert.Equal(string.Empty, GetStringFromProperty(clientPayload, "phone"));
             Assert.Equal(0, clientPayload.GetProperty("contactCount").GetInt32());
+            Assert.Equal("Monthly", GetStringFromAnyCase(
+                GetPropertyOrNull(clientPayload, "currentMembershipSummary", "CurrentMembershipSummary"),
+                "membershipType",
+                "MembershipType"));
+            Assert.False(HasAnyProperty(
+                GetPropertyOrNull(clientPayload, "currentMembershipSummary", "CurrentMembershipSummary"),
+                "paymentAmount",
+                "PaymentAmount",
+                "paidByUserId",
+                "PaidByUserId",
+                "paidAt",
+                "PaidAt"));
+            Assert.Equal(
+                DateOnly.FromDateTime(DateTime.UtcNow.Date).AddDays(-3).ToString("yyyy-MM-dd"),
+                GetStringFromAnyCase(clientPayload, "lastVisitDate", "LastVisitDate"));
 
             var groupsPayload = GetArrayPayload(clientPayload.GetProperty("groups"));
             Assert.Single(groupsPayload.EnumerateArray());
             Assert.Equal(seeded.GroupOneId, GetGuidFromProperty(groupsPayload[0], "id"));
+        }
+
+        using (var phoneQueryResponse = await coachClient.GetAsync("/clients?query=7999000"))
+        {
+            Assert.Equal(HttpStatusCode.OK, phoneQueryResponse.StatusCode);
+            var phoneQueryPayload = await ReadJsonElementAsync(phoneQueryResponse);
+            Assert.Empty(GetArrayPayload(phoneQueryPayload, "items", "clients").EnumerateArray());
         }
 
         using (var filteredResponse = await coachClient.GetAsync($"/clients?groupId={seeded.GroupOneId}"))
@@ -1244,6 +1300,63 @@ public class ClientsApiTests
         Assert.Single(phoneSearch);
         Assert.Equal(unpaidClientId, phoneSearch[0]);
 
+        var unifiedNameSearch = await QueryClientIdsAsync($"?query={Uri.EscapeDataString("Иванов")}");
+        Assert.Single(unifiedNameSearch);
+        Assert.Equal(paidClientId, unifiedNameSearch[0]);
+
+        var unifiedPhoneSearch = await QueryClientIdsAsync($"?query={Uri.EscapeDataString("+79990004002")}");
+        Assert.Single(unifiedPhoneSearch);
+        Assert.Equal(unpaidClientId, unifiedPhoneSearch[0]);
+
+        var searchAlias = await QueryClientIdsAsync($"?search={Uri.EscapeDataString("+79990004002")}");
+        Assert.Single(searchAlias);
+        Assert.Equal(unpaidClientId, searchAlias[0]);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            SeedAttendanceEntryForClient(
+                dbContext,
+                paidClientId,
+                seeded.GroupOneId,
+                seeded.HeadCoachId,
+                today,
+                false);
+            SeedAttendanceEntryForClient(
+                dbContext,
+                paidClientId,
+                seeded.GroupOneId,
+                seeded.HeadCoachId,
+                today.AddDays(-1),
+                true);
+            await dbContext.SaveChangesAsync();
+        }
+
+        using (var lastVisitResponse = await client.GetAsync($"/clients?query={Uri.EscapeDataString("+79990004001")}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, lastVisitResponse.StatusCode);
+            var lastVisitPayload = await ReadJsonElementAsync(lastVisitResponse);
+            var clientsPayload = GetArrayPayload(lastVisitPayload, "items", "clients");
+            Assert.Single(clientsPayload.EnumerateArray());
+            Assert.Equal(
+                today.AddDays(-1).ToString("yyyy-MM-dd"),
+                GetStringFromAnyCase(clientsPayload[0], "lastVisitDate", "LastVisitDate"));
+        }
+
+        using (var membershipSummaryResponse = await client.GetAsync($"/clients?query={Uri.EscapeDataString("+79990004001")}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, membershipSummaryResponse.StatusCode);
+            var membershipSummaryPayload = await ReadJsonElementAsync(membershipSummaryResponse);
+            var clientsPayload = GetArrayPayload(membershipSummaryPayload, "items", "clients");
+            var summaryPayload = GetPropertyOrNull(
+                clientsPayload[0],
+                "currentMembershipSummary",
+                "CurrentMembershipSummary");
+            Assert.Equal("Monthly", GetStringFromAnyCase(summaryPayload, "membershipType", "MembershipType"));
+            Assert.False(HasAnyProperty(summaryPayload, "paymentAmount", "PaymentAmount"));
+            Assert.True(GetBoolFromAnyCase(clientsPayload[0], "hasCurrentMembership", "HasCurrentMembership"));
+        }
+
         var activeStatus = await QueryClientIdsAsync("?status=Active");
         Assert.Contains(paidClientId, activeStatus);
         Assert.Contains(unpaidClientId, activeStatus);
@@ -1281,6 +1394,11 @@ public class ClientsApiTests
         Assert.Contains(noGroupNoPhotoClientId, withoutActivePaid);
         Assert.DoesNotContain(paidClientId, withoutActivePaid);
 
+        var withoutCurrentMembership = await QueryClientIdsAsync("?hasCurrentMembership=false");
+        Assert.Contains(noGroupNoPhotoClientId, withoutCurrentMembership);
+        Assert.DoesNotContain(paidClientId, withoutCurrentMembership);
+        Assert.DoesNotContain(unpaidClientId, withoutCurrentMembership);
+
         var earlyAlphabetClientId = await CreateClientForFilterAsync("Аарон", "Ранний", "+79990004010", [seeded.GroupOneId]);
         var staleCurrentMembershipClientId = await CreateClientForFilterAsync("Борисов", "Спорный", "+79990004011", [seeded.GroupOneId]);
         var firstFilteredPageClientId = await CreateClientForFilterAsync("Викторов", "Первый", "+79990004012", [seeded.GroupOneId]);
@@ -1315,6 +1433,38 @@ public class ClientsApiTests
         var secondMembershipPage = await QueryClientIdsAsync($"{membershipFilterQuery}&page=2&pageSize=1");
         Assert.Single(secondMembershipPage);
         Assert.Equal(secondFilteredPageClientId, secondMembershipPage[0]);
+
+        var singleVisitClients = await QueryClientIdsAsync("?membershipType=SingleVisit");
+        Assert.Contains(earlyAlphabetClientId, singleVisitClients);
+        Assert.Contains(firstFilteredPageClientId, singleVisitClients);
+        Assert.DoesNotContain(paidClientId, singleVisitClients);
+
+        var countActiveClientId = await CreateClientForFilterAsync("Счетчик", "Актив", "+79990004101", []);
+        var countArchivedClientId = await CreateClientForFilterAsync("Счетчик", "Архив", "+79990004102", []);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var archivedClient = await dbContext.Clients.SingleAsync(candidate => candidate.Id == countArchivedClientId);
+            archivedClient.Status = ClientStatus.Archived;
+            archivedClient.UpdatedAt = DateTimeOffset.UtcNow;
+            await dbContext.SaveChangesAsync();
+        }
+
+        using (var envelopeResponse = await client.GetAsync($"/clients?query={Uri.EscapeDataString("Счетчик")}&status=Active&page=1&pageSize=1"))
+        {
+            Assert.Equal(HttpStatusCode.OK, envelopeResponse.StatusCode);
+            var envelopePayload = await ReadJsonElementAsync(envelopeResponse);
+            Assert.True(GetPropertyOrNull(envelopePayload, "items", "Items").ValueKind == JsonValueKind.Array);
+            Assert.Equal(1, GetLongFromAnyCase(envelopePayload, "totalCount", "TotalCount"));
+            Assert.Equal(0, GetLongFromAnyCase(envelopePayload, "skip", "Skip"));
+            Assert.Equal(1, GetLongFromAnyCase(envelopePayload, "take", "Take"));
+            Assert.Equal(1, GetLongFromAnyCase(envelopePayload, "page", "Page"));
+            Assert.Equal(1, GetLongFromAnyCase(envelopePayload, "pageSize", "PageSize"));
+            Assert.False(GetBoolFromAnyCase(envelopePayload, "hasNextPage", "HasNextPage"));
+            Assert.Equal(1, GetLongFromAnyCase(envelopePayload, "activeCount", "ActiveCount"));
+            Assert.Equal(1, GetLongFromAnyCase(envelopePayload, "archivedCount", "ArchivedCount"));
+            Assert.Equal(countActiveClientId, GetGuidFromProperty(GetArrayPayload(envelopePayload, "items", "clients")[0], "id"));
+        }
     }
 
     [Theory]

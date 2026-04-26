@@ -97,6 +97,12 @@ export type AttendanceGroup = {
 
 export type ClientStatus = 'Active' | 'Archived'
 export type ClientPaymentStatus = 'Paid' | 'Unpaid'
+export type ClientMembershipState =
+  | 'None'
+  | 'ActivePaid'
+  | 'Unpaid'
+  | 'Expired'
+  | 'UsedSingleVisit'
 
 export type ClientContact = {
   id?: string
@@ -154,8 +160,22 @@ export type ClientListItem = {
   membershipWarning: boolean
   membershipWarningMessage?: string
   currentMembership: ClientMembership | null
+  currentMembershipSummary: ClientMembershipSummary | null
+  hasCurrentMembership: boolean
+  membershipState: ClientMembershipState
+  lastVisitDate?: string | null
   updatedAt?: string
 }
+
+export type ClientMembershipSummary = Pick<
+  ClientMembership,
+  | 'id'
+  | 'membershipType'
+  | 'purchaseDate'
+  | 'expirationDate'
+  | 'isPaid'
+  | 'singleVisitUsed'
+>
 
 export type ClientMembership = {
   id: string
@@ -244,21 +264,28 @@ export type GetClientsParams = {
   pageSize?: number
   skip?: number
   take?: number
+  query?: string
+  search?: string
   fullName?: string
   phone?: string
   groupId?: string
   status?: ClientStatus
   paymentStatus?: ClientPaymentStatus
+  membershipState?: ClientMembershipState
+  membershipType?: MembershipType
   membershipExpiresFrom?: string
   membershipExpiresTo?: string
   hasPhoto?: boolean
   hasGroup?: boolean
+  hasCurrentMembership?: boolean
   hasActivePaidMembership?: boolean
 }
 
 export type ClientListResponse = {
   items: ClientListItem[]
   totalCount: number | null
+  activeCount: number | null
+  archivedCount: number | null
   skip: number
   take: number
   page: number
@@ -501,6 +528,10 @@ export type ClientResponsePayload = {
   photoUploadedAt?: string | null
   hasPhoto?: boolean | null
   currentMembership?: Record<string, unknown> | null
+  currentMembershipSummary?: Record<string, unknown> | null
+  hasCurrentMembership?: boolean | null
+  membershipState?: string | null
+  lastVisitDate?: string | null
   updatedAt?: string
   createdAt?: string
 }

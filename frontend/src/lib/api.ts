@@ -19,6 +19,8 @@ export type {
   ClientListResponse,
   ClientMembership,
   ClientMembershipChangeReason,
+  ClientMembershipState,
+  ClientMembershipSummary,
   ClientPaymentStatus,
   ClientPhoto,
   ClientStatus,
