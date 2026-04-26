@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gym CRM - макет окна клиентов V4</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f8f5;
+        --surface: #ffffff;
+        --surface-soft: #f4f7f5;
+        --text: #17312d;
+        --muted: #687873;
+        --border: #d9e2dd;
+        --border-soft: rgba(20, 90, 82, 0.11);
+        --brand: #207b61;
+        --brand-dark: #145a52;
+        --brand-soft: #dceee7;
+        --danger: #c95345;
+        --danger-soft: #fae7e4;
+        --warning: #c7872f;
+        --warning-soft: #fff2dc;
+        --shadow: 0 10px 30px rgba(20, 90, 82, 0.06);
+        --radius: 8px;
+        font-family:
+          Onest,
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        letter-spacing: 0;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid var(--border-soft);
+        background: rgba(247, 248, 245, 0.96);
+        backdrop-filter: blur(16px);
+      }
+
+      .app-header__inner {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.8fr) minmax(520px, 1.3fr) auto;
+        gap: 18px;
+        align-items: center;
+        width: min(100%, 1880px);
+        margin: 0 auto;
+        padding: 9px 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        gap: 10px;
+      }
+
+      .brand__mark {
+        display: grid;
+        flex: 0 0 34px;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--brand-dark);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      .brand__title {
+        margin: 0;
+        overflow: hidden;
+        font-size: 18px;
+        line-height: 1.1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .brand__meta {
+        overflow: hidden;
+        margin-top: 1px;
+        color: #7a8782;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .main-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .nav-button {
+        min-height: 31px;
+        padding: 0 13px;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(20, 90, 82, 0.08);
+        color: var(--text);
+        font-weight: 750;
+        white-space: nowrap;
+      }
+
+      .nav-button[aria-current="page"] {
+        background: var(--brand);
+        color: #ffffff;
+      }
+
+      .profile-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 14px;
+        border: 1px solid rgba(20, 90, 82, 0.14);
+        border-radius: 999px;
+        background: #ffffff;
+        color: var(--brand-dark);
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .page {
+        width: min(100%, 1880px);
+        margin: 0 auto;
+        padding: 16px 24px 28px;
+      }
+
+      .page-bar {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .title-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 10px;
+      }
+
+      .page-title {
+        margin: 0;
+        font-size: clamp(26px, 2vw, 34px);
+        line-height: 1.04;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .page-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid transparent;
+        border-radius: var(--radius);
+        background: rgba(20, 90, 82, 0.08);
+        color: var(--text);
+        font-weight: 820;
+        white-space: nowrap;
+      }
+
+      .button--primary {
+        background: var(--brand);
+        color: #ffffff;
+      }
+
+      .button--outline {
+        border-color: var(--border);
+        background: #ffffff;
+      }
+
+      .button--link {
+        min-height: auto;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--brand-dark);
+      }
+
+      .button--icon {
+        width: 34px;
+        padding: 0;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(840px, 1fr) minmax(330px, 0.34fr);
+        gap: 14px;
+        align-items: start;
+      }
+
+      .panel {
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .list-panel {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: minmax(260px, 1.1fr) minmax(126px, 0.45fr) minmax(160px, 0.55fr) minmax(150px, 0.5fr) auto;
+        gap: 8px;
+        align-items: end;
+        padding: 12px;
+        border-bottom: 1px solid var(--border-soft);
+      }
+
+      .field {
+        min-width: 0;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 4px;
+        color: #71807a;
+        font-size: 11px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .input,
+      .select {
+        width: 100%;
+        min-height: 34px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: #ffffff;
+        color: var(--text);
+        padding: 0 10px;
+        outline: none;
+      }
+
+      .input:focus,
+      .select:focus,
+      .row-link:focus,
+      .button:focus {
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px rgba(32, 123, 97, 0.14);
+        outline: none;
+      }
+
+      .toolbar__actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      .filter-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--border-soft);
+      }
+
+      .filter-token {
+        display: inline-flex;
+        align-items: center;
+        min-height: 25px;
+        padding: 0 9px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: #ffffff;
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 760;
+      }
+
+      .filter-token--accent {
+        border-color: rgba(32, 123, 97, 0.28);
+        background: var(--brand-soft);
+        color: var(--brand-dark);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 1080px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 9px 12px;
+        border-top: 1px solid rgba(20, 90, 82, 0.08);
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      th {
+        border-top: 0;
+        background: var(--surface-soft);
+        color: #6f7e79;
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      tbody tr {
+        background: #ffffff;
+      }
+
+      tbody tr:hover {
+        background: rgba(237, 247, 242, 0.55);
+      }
+
+      tbody tr.is-selected {
+        background: rgba(237, 247, 242, 0.9);
+        box-shadow: inset 4px 0 0 var(--brand);
+      }
+
+      .client-cell {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr);
+        align-items: center;
+        gap: 9px;
+        min-width: 270px;
+      }
+
+      .photo-thumb,
+      .initials-thumb {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        overflow: hidden;
+        border-radius: 50%;
+      }
+
+      .photo-thumb {
+        border: 2px solid #ffffff;
+        background:
+          radial-gradient(circle at 50% 30%, #f1c4a5 0 14%, transparent 15%),
+          radial-gradient(ellipse at 50% 78%, #145a52 0 30%, transparent 31%),
+          radial-gradient(circle at 45% 24%, #2d241f 0 16%, transparent 17%),
+          linear-gradient(135deg, #e7d7bd, #b7d1c6 58%, #f5f0e5);
+        box-shadow: 0 0 0 1px rgba(20, 90, 82, 0.18);
+      }
+
+      .initials-thumb {
+        background: var(--brand-dark);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 950;
+      }
+
+      .row-link {
+        display: block;
+        overflow: hidden;
+        width: fit-content;
+        max-width: 100%;
+        border-radius: 4px;
+        color: var(--text);
+        font-weight: 850;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .main-text {
+        overflow: hidden;
+        font-weight: 850;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .sub-text {
+        overflow: hidden;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .meta-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin-top: 3px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 20px;
+        padding: 0 7px;
+        border-radius: 999px;
+        background: rgba(20, 90, 82, 0.08);
+        color: var(--brand-dark);
+        font-size: 11px;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .badge--warning {
+        background: var(--warning-soft);
+        color: #9b671d;
+      }
+
+      .badge--danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+
+      .badge--muted {
+        background: var(--surface-soft);
+        color: var(--muted);
+      }
+
+      .money-ok {
+        color: var(--brand-dark);
+        font-weight: 850;
+      }
+
+      .money-danger {
+        color: var(--danger);
+        font-weight: 850;
+      }
+
+      .row-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+      }
+
+      .row-button {
+        min-height: 30px;
+        padding: 0 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: #ffffff;
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 850;
+      }
+
+      .row-button--primary {
+        border-color: var(--brand);
+        background: var(--brand);
+        color: #ffffff;
+      }
+
+      .list-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 12px;
+        border-top: 1px solid var(--border-soft);
+      }
+
+      .pagination {
+        display: flex;
+        gap: 8px;
+      }
+
+      .preview {
+        position: sticky;
+        top: 68px;
+        overflow: hidden;
+      }
+
+      .preview__header {
+        display: grid;
+        grid-template-columns: 54px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+        padding: 14px;
+        border-bottom: 1px solid var(--border-soft);
+      }
+
+      .preview__avatar,
+      .preview__initials {
+        display: grid;
+        width: 54px;
+        height: 54px;
+        place-items: center;
+        overflow: hidden;
+        border-radius: 50%;
+      }
+
+      .preview__avatar {
+        border: 2px solid #ffffff;
+        background:
+          radial-gradient(circle at 50% 30%, #f1c4a5 0 14%, transparent 15%),
+          radial-gradient(ellipse at 50% 78%, #145a52 0 30%, transparent 31%),
+          radial-gradient(circle at 45% 24%, #2d241f 0 16%, transparent 17%),
+          linear-gradient(135deg, #e7d7bd, #b7d1c6 58%, #f5f0e5);
+        box-shadow: 0 0 0 1px rgba(20, 90, 82, 0.18);
+      }
+
+      .preview h2 {
+        overflow: hidden;
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.12;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .preview__phone {
+        overflow: hidden;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .summary-list {
+        display: grid;
+        gap: 0;
+        padding: 4px 14px;
+      }
+
+      .summary-row {
+        display: grid;
+        grid-template-columns: minmax(104px, 0.58fr) minmax(0, 1fr);
+        gap: 10px;
+        padding: 9px 0;
+        border-top: 1px solid rgba(20, 90, 82, 0.08);
+      }
+
+      .summary-row:first-child {
+        border-top: 0;
+      }
+
+      .summary-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .summary-value {
+        min-width: 0;
+        font-weight: 850;
+      }
+
+      .preview-section {
+        border-top: 1px solid var(--border-soft);
+        padding: 13px 14px;
+      }
+
+      .preview-section__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 9px;
+      }
+
+      .preview-section h3 {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .attention-box {
+        display: grid;
+        gap: 8px;
+      }
+
+      .attention-item {
+        padding: 9px 10px;
+        border: 1px solid rgba(199, 135, 47, 0.28);
+        border-radius: var(--radius);
+        background: var(--warning-soft);
+      }
+
+      .event-list {
+        display: grid;
+        gap: 0;
+      }
+
+      .event-row {
+        display: grid;
+        grid-template-columns: 54px minmax(0, 1fr);
+        gap: 10px;
+        padding: 8px 0;
+        border-top: 1px solid rgba(20, 90, 82, 0.08);
+      }
+
+      .event-row:first-child {
+        border-top: 0;
+      }
+
+      .event-date {
+        color: var(--text);
+        font-weight: 850;
+      }
+
+      .preview-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 14px;
+        border-top: 1px solid var(--border-soft);
+      }
+
+      .preview-actions .button--primary {
+        grid-column: 1 / -1;
+      }
+
+      .empty-preview {
+        display: none;
+        padding: 18px 14px;
+      }
+
+      .mobile-list {
+        display: none;
+      }
+
+      @media (max-width: 1439px) {
+        .workspace {
+          grid-template-columns: minmax(720px, 1fr) minmax(310px, 0.32fr);
+        }
+
+        .toolbar {
+          grid-template-columns: minmax(260px, 1fr) repeat(2, minmax(128px, 0.45fr)) auto;
+        }
+
+        .toolbar .field:nth-of-type(4) {
+          display: none;
+        }
+      }
+
+      @media (max-width: 1180px) {
+        .app-header__inner {
+          grid-template-columns: minmax(220px, 1fr) auto;
+        }
+
+        .main-nav {
+          grid-column: 1 / -1;
+          justify-content: flex-start;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .preview {
+          position: static;
+        }
+
+        .preview {
+          border-style: dashed;
+        }
+
+      }
+
+      @media (max-width: 780px) {
+        .app-header__inner,
+        .page {
+          padding-inline: 14px;
+        }
+
+        .profile-button {
+          display: none;
+        }
+
+        .page-bar,
+        .toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .page-actions,
+        .toolbar__actions,
+        .pagination,
+        .preview-actions {
+          width: 100%;
+        }
+
+        .button,
+        .row-button {
+          width: 100%;
+        }
+
+        .table-wrap {
+          display: none;
+        }
+
+        .mobile-list {
+          display: grid;
+          gap: 8px;
+          padding: 10px;
+        }
+
+        .mobile-card {
+          display: grid;
+          grid-template-columns: 38px minmax(0, 1fr);
+          gap: 9px;
+          padding: 10px;
+          border: 1px solid var(--border-soft);
+          border-radius: var(--radius);
+          background: #ffffff;
+        }
+
+        .mobile-card.is-selected {
+          background: rgba(237, 247, 242, 0.9);
+          box-shadow: inset 4px 0 0 var(--brand);
+        }
+
+        .list-footer {
+          align-items: stretch;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="brand">
+          <div class="brand__mark">G</div>
+          <div>
+            <h1 class="brand__title">Gym CRM</h1>
+            <div class="brand__meta">Главный тренер - Клиенты</div>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Основная навигация">
+          <button class="nav-button">Главная</button>
+          <button class="nav-button">Посещения</button>
+          <button class="nav-button" aria-current="page">Клиенты</button>
+          <button class="nav-button">Группы</button>
+          <button class="nav-button">Пользователи</button>
+          <button class="nav-button">Журнал</button>
+        </nav>
+
+        <button class="profile-button">Главный тренер</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="page-bar" aria-labelledby="clients-title">
+        <div class="title-line">
+          <h2 class="page-title" id="clients-title">Клиенты</h2>
+          <span class="count">48 найдено</span>
+        </div>
+        <div class="page-actions">
+          <button class="button button--outline">Обновить</button>
+          <button class="button button--primary">Новый клиент</button>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Раздел клиентов">
+        <div class="panel list-panel">
+          <div class="toolbar" aria-label="Фильтры списка клиентов">
+            <div class="field">
+              <label for="search">ФИО или телефон</label>
+              <input class="input" id="search" value="иван" />
+            </div>
+            <div class="field">
+              <label for="status">Статус</label>
+              <select class="select" id="status">
+                <option>Активные</option>
+                <option>Все</option>
+                <option>Архив</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="risk">Проблемы</label>
+              <select class="select" id="risk">
+                <option>Любые</option>
+                <option>Заканчивается</option>
+                <option>Есть долг</option>
+                <option>Без группы</option>
+                <option>Без абонемента</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="group">Группа</label>
+              <select class="select" id="group">
+                <option>Все группы</option>
+                <option>Утро 08:00</option>
+                <option>Вечер 19:00</option>
+              </select>
+            </div>
+            <div class="toolbar__actions">
+              <button class="button button--outline">Еще фильтры</button>
+              <button class="button button--link">Сбросить</button>
+            </div>
+          </div>
+
+          <div class="filter-line" aria-label="Примененные фильтры">
+            <span class="filter-token filter-token--accent">Активные</span>
+            <span class="filter-token">Поиск: иван</span>
+            <span class="filter-token">Фото: есть</span>
+          </div>
+
+          <div class="table-wrap">
+            <table aria-label="Список клиентов">
+              <thead>
+                <tr>
+                  <th>Клиент</th>
+                  <th>Абонемент</th>
+                  <th>Остаток</th>
+                  <th>Оплата</th>
+                  <th>Группа</th>
+                  <th>Последний визит</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="is-selected" aria-selected="true">
+                  <td>
+                    <div class="client-cell">
+                      <div class="photo-thumb" aria-label="Фото клиента Иванов Иван Иванович"></div>
+                      <div>
+                        <a class="row-link" href="#">Иванов Иван Иванович</a>
+                        <div class="meta-line">
+                          <span class="sub-text">+7 911 111-11-11</span>
+                          <span class="badge">активный</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="main-text">Месячный</div>
+                    <div class="sub-text">до 30.04</div>
+                  </td>
+                  <td>
+                    <div class="main-text">2 из 12</div>
+                    <div class="sub-text">заканчивается</div>
+                  </td>
+                  <td>
+                    <div class="money-ok">Оплачено</div>
+                    <div class="sub-text">без долга</div>
+                  </td>
+                  <td>
+                    <div class="main-text">Утро 08:00</div>
+                    <div class="sub-text">основная</div>
+                  </td>
+                  <td>
+                    <div class="main-text">25.04</div>
+                    <div class="sub-text">вчера</div>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="row-button row-button--primary">Открыть</button>
+                      <button class="row-button">Визит</button>
+                      <button class="row-button" aria-label="Еще действия для Иванов Иван Иванович">...</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <div class="initials-thumb">МС</div>
+                      <div>
+                        <a class="row-link" href="#">Миронова Светлана</a>
+                        <div class="meta-line">
+                          <span class="sub-text">+7 921 204-18-06</span>
+                          <span class="badge">активный</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="main-text">Месячный</div>
+                    <div class="sub-text">до 21.05</div>
+                  </td>
+                  <td>
+                    <div class="main-text">8 из 12</div>
+                    <div class="sub-text">норма</div>
+                  </td>
+                  <td>
+                    <div class="money-ok">Оплачено</div>
+                    <div class="sub-text">без долга</div>
+                  </td>
+                  <td>
+                    <div class="main-text">Вечер 19:00</div>
+                    <div class="sub-text">основная</div>
+                  </td>
+                  <td>
+                    <div class="main-text">22.04</div>
+                    <div class="sub-text">4 дня назад</div>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="row-button">Открыть</button>
+                      <button class="row-button">Визит</button>
+                      <button class="row-button" aria-label="Еще действия для Миронова Светлана">...</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <div class="initials-thumb">АП</div>
+                      <div>
+                        <a class="row-link" href="#">Андреев Павел</a>
+                        <div class="meta-line">
+                          <span class="sub-text">+7 900 777-33-22</span>
+                          <span class="badge badge--warning">новый</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="main-text">Нет абонемента</div>
+                    <div class="sub-text">нужна покупка</div>
+                  </td>
+                  <td>
+                    <div class="main-text">-</div>
+                    <div class="sub-text">нет лимита</div>
+                  </td>
+                  <td>
+                    <div class="money-danger">Нет счета</div>
+                    <div class="sub-text">оплата не создана</div>
+                  </td>
+                  <td>
+                    <div class="main-text">Без группы</div>
+                    <div class="sub-text">назначить</div>
+                  </td>
+                  <td>
+                    <div class="main-text">Нет визитов</div>
+                    <div class="sub-text">новый клиент</div>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="row-button">Открыть</button>
+                      <button class="row-button">Оплата</button>
+                      <button class="row-button" aria-label="Еще действия для Андреев Павел">...</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <div class="initials-thumb">КЛ</div>
+                      <div>
+                        <a class="row-link" href="#">Климова Лидия Сергеевна</a>
+                        <div class="meta-line">
+                          <span class="sub-text">+7 921 555-40-10</span>
+                          <span class="badge">активный</span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="main-text">Годовой</div>
+                    <div class="sub-text">до 14.09</div>
+                  </td>
+                  <td>
+                    <div class="main-text">37 из 96</div>
+                    <div class="sub-text">норма</div>
+                  </td>
+                  <td>
+                    <div class="money-danger">Долг 2 400 ₽</div>
+                    <div class="sub-text">частичная оплата</div>
+                  </td>
+                  <td>
+                    <div class="main-text">Утро 08:00</div>
+                    <div class="sub-text">основная</div>
+                  </td>
+                  <td>
+                    <div class="main-text">18.04</div>
+                    <div class="sub-text">8 дней назад</div>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="row-button">Открыть</button>
+                      <button class="row-button">Оплата</button>
+                      <button class="row-button" aria-label="Еще действия для Климова Лидия Сергеевна">...</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mobile-list" aria-label="Компактный список клиентов">
+            <div class="mobile-card is-selected">
+              <div class="photo-thumb"></div>
+              <div>
+                <div class="main-text">Иванов Иван Иванович</div>
+                <div class="sub-text">Месячный до 30.04 - 2 из 12</div>
+                <div class="meta-line">
+                  <span class="badge">активный</span>
+                  <span class="badge badge--warning">заканчивается</span>
+                </div>
+              </div>
+            </div>
+            <div class="mobile-card">
+              <div class="initials-thumb">МС</div>
+              <div>
+                <div class="main-text">Миронова Светлана</div>
+                <div class="sub-text">Вечер 19:00 - оплачено</div>
+              </div>
+            </div>
+            <div class="mobile-card">
+              <div class="initials-thumb">АП</div>
+              <div>
+                <div class="main-text">Андреев Павел</div>
+                <div class="sub-text">Нет абонемента - без группы</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-footer">
+            <span class="sub-text">Показано 1-20 из 48</span>
+            <div class="pagination">
+              <button class="button button--outline">Назад</button>
+              <button class="button button--outline">Вперед</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel preview" aria-label="Предпросмотр выбранного клиента">
+          <div class="preview__header">
+            <div class="preview__avatar" aria-label="Фото клиента Иванов Иван Иванович"></div>
+            <div>
+              <h2>Иванов Иван Иванович</h2>
+              <div class="preview__phone">+7 911 111-11-11</div>
+              <div class="meta-line">
+                <span class="badge">активный</span>
+                <span class="badge badge--warning">заканчивается</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-list" aria-label="Краткие данные клиента">
+            <div class="summary-row">
+              <div class="summary-label">Абонемент</div>
+              <div class="summary-value">Месячный, до 30.04</div>
+            </div>
+            <div class="summary-row">
+              <div class="summary-label">Осталось</div>
+              <div class="summary-value">2 занятия из 12</div>
+            </div>
+            <div class="summary-row">
+              <div class="summary-label">Оплата</div>
+              <div class="summary-value">Оплачено</div>
+            </div>
+            <div class="summary-row">
+              <div class="summary-label">Группа</div>
+              <div class="summary-value">Утро 08:00</div>
+            </div>
+            <div class="summary-row">
+              <div class="summary-label">Визит</div>
+              <div class="summary-value">25.04, вчера</div>
+            </div>
+          </div>
+
+          <section class="preview-section" aria-labelledby="attention-title">
+            <div class="preview-section__top">
+              <h3 id="attention-title">Требует внимания</h3>
+            </div>
+            <div class="attention-box">
+              <div class="attention-item">
+                <div class="main-text">Осталось 2 занятия</div>
+                <div class="sub-text">Предложить продление после следующего визита.</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="preview-section" aria-labelledby="events-title">
+            <div class="preview-section__top">
+              <h3 id="events-title">Последние события</h3>
+              <button class="button button--link">Все</button>
+            </div>
+            <div class="event-list">
+              <div class="event-row">
+                <div class="event-date">25.04</div>
+                <div>
+                  <div class="main-text">Утро 08:00</div>
+                  <div class="sub-text">посещение отмечено</div>
+                </div>
+              </div>
+              <div class="event-row">
+                <div class="event-date">22.04</div>
+                <div>
+                  <div class="main-text">Утро 08:00</div>
+                  <div class="sub-text">посещение отмечено</div>
+                </div>
+              </div>
+              <div class="event-row">
+                <div class="event-date">18.04</div>
+                <div>
+                  <div class="main-text">Абонемент</div>
+                  <div class="sub-text">оплата подтверждена</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="preview-actions">
+            <button class="button button--primary">Открыть карточку</button>
+            <button class="button button--outline">Визит</button>
+            <button class="button button--outline">Оплата</button>
+            <button class="button button--link">Редактировать</button>
+          </div>
+
+          <div class="empty-preview" aria-hidden="true">
+            <div class="main-text">Клиент не выбран</div>
+            <div class="sub-text">Выберите строку в списке.</div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>
