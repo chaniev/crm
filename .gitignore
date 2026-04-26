@@ -13,5 +13,6 @@ bot/.venv/
 bot/.pytest_cache/
 bot/.ruff_cache/
 
+.env
 .env.local
 .env.*.local
