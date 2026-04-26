@@ -36,6 +36,33 @@
 - `[ ]` `bot_delivery_log`, scheduler, cleanup job для просроченных bot-owned записей, плановые уведомления, ежедневные сводки, photo upload, production webhook и MAX не реализованы.
 - `[ ]` `BotNotificationSettings` не реализован.
 
+### 0.2. Дальнейшие шаги реализации
+
+Приоритет `P0` — закрыть перед приемкой текущего Telegram MVP:
+
+- `[ ]` Исправить запись `BotAccessDenied` из Python-сервиса: передавать `Idempotency-Key` в `CrmBotApiClient.audit_access_denied`, строить стабильный ключ в `BotService` и добавить regression tests на заголовок и успешную запись audit.
+- `[ ]` Довести отображение абонементов до сценариев плана: в списке заканчивающихся показывать количество дней до окончания, а в подтверждении оплаты показывать ФИО, тип абонемента, дату покупки и дату окончания.
+- `[ ]` Довести сценарий посещаемости для `HeadCoach` и `Administrator`: добавить реальный выбор произвольной даты в прошлом или явно зафиксировать продуктово упрощенный набор дат, если оставляем только быстрые кнопки.
+- `[ ]` Добавить порционную выдачу roster посещаемости, чтобы большие группы не упирались в лимиты Telegram-сообщений и callback-кнопок.
+- `[ ]` Расширить Python scenario tests: роли `HeadCoach`/`Administrator`/`Coach`, ограничения дат, forbidden responses, search pagination, membership lists, mark-payment idempotency и private-chat/idempotency pipeline.
+- `[ ]` Запустить обязательные проверки MVP: `cd bot && ruff check .`, `cd bot && pytest`, `dotnet test backend/GymCrm.slnx`, `cd frontend && npm run lint`, `cd frontend && npm run build`.
+- `[ ]` Провести ручной smoke в Telegram для неизвестного и известного Telegram ID, меню по ролям, группового чата, посещаемости, поиска, списков абонементов и отметки оплаты.
+
+Приоритет `P1` — техническое доведение после MVP-smoke, но до стабильного использования:
+
+- `[ ]` Добавить cleanup job для истекших `bot_conversation_states` и старых `bot_processed_updates`, а также env-настройку retention периода.
+- `[ ]` Обновить README: пошаговое создание Telegram-бота, настройка `.env`, запуск long polling, проверка health endpoints, типовые ошибки и troubleshooting.
+- `[ ]` Добавить команды проверки для `bot/` в README или `pyproject` scripts, чтобы локальный запуск `ruff`/`pytest` был очевидным.
+- `[ ]` Решить, оставляем ли автосоздание SQLAlchemy tables в `GymCrmBotApplication.start()` для dev или переводим runtime строго на Alembic migrations.
+
+Приоритет `P2` — следующие функциональные срезы после приемки Telegram MVP:
+
+- `[ ]` Реализовать загрузку фото клиента через Telegram: ожидание фото, скачивание файла, Bot API endpoint, подтверждение замены, audit event и tests.
+- `[ ]` Спроектировать `BotNotificationSettings`, `bot_delivery_log` и scheduler только после уточнения backend-модели расписаний тренировок.
+- `[ ]` Реализовать напоминания, ежедневные сводки и уведомления о неотмеченной посещаемости с защитой от дублей.
+- `[ ]` Реализовать production webhook: public base URL, webhook endpoint, secret validation, allowed updates и deployment-инструкцию.
+- `[ ]` После стабилизации Telegram-сценариев выделить абстракции adapter/core для будущего `MAX`.
+
 ## 1. Цель плана
 
 План описывает доработки, необходимые для реализации Telegram-бота Gym CRM как отдельного Python-сервиса.
