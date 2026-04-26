@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Button,
@@ -76,6 +76,11 @@ export function UserEditScreen({
         value ? null : resources.users.form.validation.roleRequired,
     },
   })
+  const formRef = useRef(form)
+
+  useEffect(() => {
+    formRef.current = form
+  }, [form])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -89,7 +94,7 @@ export function UserEditScreen({
         const nextUser = await getUser(userId, controller.signal)
 
         setUser(nextUser)
-        form.setValues(toEditUserFormValues(nextUser))
+        formRef.current.setValues(toEditUserFormValues(nextUser))
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -110,7 +115,7 @@ export function UserEditScreen({
     void load()
 
     return () => controller.abort()
-  }, [form, userId])
+  }, [userId])
 
   async function submit(values: EditUserFormValues) {
     setSubmitting(true)
