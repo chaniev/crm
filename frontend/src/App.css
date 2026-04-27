@@ -334,6 +334,88 @@
     linear-gradient(135deg, rgba(239, 245, 242, 0.92), rgba(255, 255, 255, 0.96));
 }
 
+.page-header-card--compact {
+  padding: 1rem 1.15rem;
+}
+
+.page-header-card--compact .page-header-card__content {
+  gap: 0.75rem;
+}
+
+.page-header-card--compact .page-header-card__title {
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+}
+
+.client-overview-card,
+.client-edit-card,
+.client-membership-card {
+  padding: 1rem;
+}
+
+.client-overview-grid,
+.client-edit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(13rem, 16rem);
+  gap: 1rem;
+  align-items: start;
+}
+
+.client-overview-main {
+  min-width: 0;
+}
+
+.client-overview-rail,
+.client-edit-rail {
+  min-width: 0;
+}
+
+.client-overview-eyebrow {
+  color: var(--mantine-color-dimmed);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.client-overview-title {
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.compact-info-item {
+  min-width: 0;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid rgba(20, 90, 82, 0.1);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.compact-info-item > * {
+  min-width: 0;
+}
+
+.compact-info-item .mantine-Text-root:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.client-membership-snapshot {
+  padding: 1rem;
+  border-color: rgba(20, 90, 82, 0.1);
+  background: rgba(246, 244, 238, 0.72);
+}
+
+.membership-history-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(20, 90, 82, 0.08);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.membership-history-table {
+  min-width: 46rem;
+}
+
 .clients-v7-screen {
   --clients-preview-width: 22rem;
 }
@@ -438,14 +520,40 @@
   overflow: hidden;
 }
 
+.client-photo-card--compact {
+  padding: 0.85rem;
+}
+
 .client-photo-preview {
   min-height: 15rem;
   border: 1px dashed rgba(20, 90, 82, 0.18);
-  border-radius: 1.25rem;
+  border-radius: 0.5rem;
   background:
     radial-gradient(circle at top left, rgba(216, 154, 61, 0.1), transparent 36%),
     linear-gradient(135deg, rgba(246, 244, 238, 0.96), rgba(239, 245, 242, 0.92));
   overflow: hidden;
+}
+
+.client-photo-card--compact .client-photo-preview {
+  min-height: 10.5rem;
+}
+
+.client-photo-preview__button {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.client-photo-preview__button:disabled {
+  cursor: default;
+}
+
+.client-photo-preview__button:focus-visible {
+  outline: 2px solid rgba(20, 90, 82, 0.34);
+  outline-offset: -2px;
 }
 
 .client-photo-preview__image {
@@ -455,9 +563,31 @@
   object-fit: cover;
 }
 
+.client-photo-card--compact .client-photo-preview__image {
+  aspect-ratio: 4 / 3;
+  max-height: 13rem;
+}
+
 .client-photo-placeholder {
   min-height: 15rem;
   padding: 1.25rem;
+}
+
+.client-photo-card--compact .client-photo-placeholder {
+  min-height: 10.5rem;
+  padding: 1rem;
+}
+
+.client-photo-meta .mantine-Badge-label {
+  white-space: normal;
+}
+
+.client-photo-modal-image {
+  display: block;
+  width: 100%;
+  max-height: min(72vh, 48rem);
+  object-fit: contain;
+  border-radius: 0.5rem;
 }
 
 .group-clients-card {
@@ -617,6 +747,16 @@
     gap: 0.65rem;
     align-items: start;
   }
+
+  .client-overview-grid,
+  .client-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .client-overview-rail,
+  .client-edit-rail {
+    max-width: 22rem;
+  }
 }
 
 @media (min-width: 48rem) {
@@ -688,5 +828,20 @@
 
   .app-shell__brand-meta {
     font-size: 0.74rem;
+  }
+
+  .page-header-card--compact .page-header-card__description {
+    display: none;
+  }
+
+  .client-overview-card,
+  .client-edit-card,
+  .client-membership-card {
+    padding: 0.85rem;
+  }
+
+  .client-overview-rail,
+  .client-edit-rail {
+    max-width: none;
   }
 }

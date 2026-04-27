@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import {
   ActionIcon,
   Alert,
@@ -7,11 +7,13 @@ import {
   Button,
   Group,
   Loader,
+  Modal,
   MultiSelect,
   Paper,
   Select,
   SimpleGrid,
   Stack,
+  Table,
   Switch,
   Text,
   TextInput,
@@ -444,7 +446,7 @@ export function LegacyClientsListScreen({
                     <Text fw={700}>Поиск и фильтры</Text>
                     <Text c="dimmed" size="sm">
                       Поиск по ФИО работает для всех, поиск по телефону доступен
-                      только management-ролям.
+                      администраторам и главным тренерам.
                     </Text>
                   </div>
 
@@ -977,6 +979,8 @@ export function ClientEditScreen({
   const [submitting, setSubmitting] = useState(false)
   const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const form = useClientForm()
+  const formRef = useRef(form)
+  formRef.current = form
 
   useEffect(() => {
     const controller = new AbortController()
@@ -993,7 +997,7 @@ export function ClientEditScreen({
 
         setClient(nextClient)
         setGroupOptions(groupsResponse.items)
-        form.setValues(toClientFormValues(nextClient))
+        formRef.current.setValues(toClientFormValues(nextClient))
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -1014,7 +1018,7 @@ export function ClientEditScreen({
     void load()
 
     return () => controller.abort()
-  }, [clientId, form])
+  }, [clientId])
 
   async function submit(values: ClientFormValues) {
     setFormError(null)
@@ -1073,7 +1077,8 @@ export function ClientEditScreen({
           </Button>
         }
         badge="Редактирование клиента"
-        description="Обновите базовые данные, контакты, группы и фотографию клиента. Абонемент и оплату можно вести в карточке клиента."
+        compact
+        description="Основные поля, группы и фото клиента."
         title={client ? client.fullName : 'Карточка клиента'}
       />
 
@@ -1100,25 +1105,7 @@ export function ClientEditScreen({
 
       {!loading && !loadError ? (
         <>
-          <SimpleGrid cols={{ base: 1, md: 3 }}>
-            <MetricCard
-              description="Контактные лица в карточке клиента"
-              label="Контакты"
-              value={String(form.values.contacts.length)}
-            />
-            <MetricCard
-              description="Группы, выбранные в карточке"
-              label="Группы"
-              value={String(form.values.groupIds.length)}
-            />
-            <MetricCard
-              description="Текущий статус клиента"
-              label="Статус"
-              value={statusLabelMap[client?.status ?? 'Active']}
-            />
-          </SimpleGrid>
-
-          <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+          <Paper className="surface-card surface-card--wide client-edit-card" radius="8px" withBorder>
             <ClientForm
               form={form}
               formError={formError}
@@ -1288,7 +1275,7 @@ export function ClientDetailScreen({
             : submission.kind === 'correct'
               ? {
                   title: 'Данные абонемента исправлены',
-                  message: 'Карточка клиента обновлена без ручного refresh.',
+                  message: 'Карточка клиента обновлена.',
                 }
               : {
                   title: 'Оплата отмечена',
@@ -1319,6 +1306,16 @@ export function ClientDetailScreen({
     await uploadClientPhoto(client.id, file)
     setClient(await getClient(client.id))
     setPhotoVersion(Date.now())
+  }
+
+  function toggleMembershipActionMode(mode: MembershipActionMode) {
+    setActionError(null)
+    setMembershipActionMode((currentMode) => (currentMode === mode ? null : mode))
+  }
+
+  function cancelMembershipAction() {
+    setActionError(null)
+    setMembershipActionMode(null)
   }
 
   return (
@@ -1389,10 +1386,11 @@ export function ClientDetailScreen({
           </ResponsiveButtonGroup>
         }
         badge="Карточка клиента"
+        compact
         description={
           canManage
-            ? 'Единая карточка клиента объединяет базовые данные, фотографию, абонемент и историю посещений.'
-            : 'Карточка клиента для тренера показывает только ФИО, фотографию, доступные группы и историю посещений по назначенным группам.'
+            ? 'Ключевые данные клиента, абонемент и ближайшие действия.'
+            : 'Фото, группы и посещения по назначенным группам.'
         }
         title={client ? client.fullName : 'Детали клиента'}
       />
@@ -1431,120 +1429,22 @@ export function ClientDetailScreen({
             </Alert>
           ) : null}
 
-          {canManage ? (
-            <SimpleGrid cols={{ base: 1, md: 3 }}>
-              <MetricCard
-                description="Контактные лица в карточке"
-                label="Контакты"
-                value={String(client.contacts.length)}
-              />
-              <MetricCard
-                description="Группы, к которым привязан клиент"
-                label="Группы"
-                value={String(client.groups.length)}
-              />
-              <MetricCard
-                description="Текущий статус клиента"
-                label="Статус"
-                value={statusLabelMap[client.status]}
-              />
-            </SimpleGrid>
-          ) : (
-            <SimpleGrid cols={{ base: 1, md: 2 }}>
-              <MetricCard
-                description="Группы клиента, доступные текущему тренеру."
-                label="Доступные группы"
-                value={String(client.groups.length)}
-              />
-              <MetricCard
-                description={
-                  client.attendanceHistoryLoaded
-                    ? 'История посещений по назначенным группам.'
-                    : 'История посещений пока недоступна.'
-                }
-                label="История посещений"
-                value={
-                  client.attendanceHistoryLoaded
-                    ? String(
-                        client.attendanceHistoryTotalCount ??
-                          client.attendanceHistory.length,
-                      )
-                    : '...'
-                }
-              />
-            </SimpleGrid>
-          )}
-
-          <Paper className="surface-card surface-card--wide client-detail-card" radius="28px" withBorder>
-            <Stack gap="lg">
-              <Group justify="space-between" wrap="wrap">
-                <div>
-                  <Text fw={700}>Основные данные</Text>
-                  <Text c="dimmed" size="sm">
-                    {canManage
-                      ? 'Базовые поля клиента, абонемент, оплата и история посещений собраны в одной карточке.'
-                      : 'Для тренера карточка ограничена фото и данными, разрешенными для просмотра по назначенным группам.'}
-                  </Text>
-                </div>
-
-                {canManage ? (
-                  <Badge
-                    color={client.status === 'Active' ? 'teal' : 'gray'}
-                    radius="xl"
-                    size="lg"
-                    variant="light"
-                  >
-                    {statusLabelMap[client.status]}
-                  </Badge>
-                ) : null}
-              </Group>
-
-              {!canManage ? (
-                <Alert
-                  color="blue"
-                  icon={<IconCheck size={18} />}
-                  title="Режим тренера"
-                  variant="light"
-                >
-                  Для вашей роли карточка показывает только фотографию, ФИО, доступные группы и историю посещений. Телефон, контакты, статус, абонемент и оплата скрыты.
-                </Alert>
-              ) : null}
-
-              <ClientPhotoSection
-                canUpload={canManage}
-                clientId={client.id}
-                clientName={client.fullName}
-                onUpload={canManage ? handlePhotoUpload : undefined}
-                photo={client.photo}
-                previewVersion={photoVersion ?? client.photo?.uploadedAt ?? client.updatedAt}
-              />
-
-              {canManage ? (
-                <SimpleGrid cols={{ base: 1, md: 2 }}>
-                  <InfoItem label="Фамилия" value={client.lastName || 'Не указана'} />
-                  <InfoItem label="Имя" value={client.firstName || 'Не указано'} />
-                  <InfoItem label="Отчество" value={client.middleName || 'Не указано'} />
-                  <InfoItem label="Телефон" value={client.phone || 'Не указан'} />
-                </SimpleGrid>
-              ) : null}
-            </Stack>
-          </Paper>
+          <ClientOverviewSection
+            canManage={canManage}
+            client={client}
+            membershipActionMode={membershipActionMode}
+            onMembershipActionModeChange={toggleMembershipActionMode}
+            onPhotoUpload={canManage ? handlePhotoUpload : undefined}
+            pending={actionPending}
+            photoVersion={photoVersion}
+          />
 
           {canManage ? (
             <ClientMembershipSection
               actionMode={membershipActionMode}
               client={client}
               pending={actionPending}
-              onActionModeChange={(mode) => {
-                setActionError(null)
-                setMembershipActionMode((currentMode) =>
-                  currentMode === mode ? null : mode,
-                )
-              }}
-              onCancelAction={() => {
-                setActionError(null)
-                setMembershipActionMode(null)
-              }}
+              onCancelAction={cancelMembershipAction}
               onSubmit={handleMembershipAction}
             />
           ) : null}
@@ -1553,7 +1453,7 @@ export function ClientDetailScreen({
 
           <SimpleGrid cols={{ base: 1, md: canManage ? 2 : 1 }}>
             {canManage ? (
-              <Paper className="surface-card client-section-card" radius="28px" withBorder>
+              <Paper className="surface-card client-section-card" radius="8px" withBorder>
                 <Stack gap="lg">
                   <Group gap="xs">
                     <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
@@ -1562,7 +1462,7 @@ export function ClientDetailScreen({
                     <div>
                       <Text fw={700}>Контактные лица</Text>
                       <Text c="dimmed" size="sm">
-                        Не более двух контактов по требованиям этапа 6a.
+                        До двух контактных лиц для экстренной связи.
                       </Text>
                     </div>
                   </Group>
@@ -1577,7 +1477,7 @@ export function ClientDetailScreen({
                         <Paper
                           className="list-row-card"
                           key={contact.id ?? `${contact.fullName}-${index}`}
-                          radius="24px"
+                          radius="8px"
                           withBorder
                         >
                           <Stack gap={6}>
@@ -1599,7 +1499,7 @@ export function ClientDetailScreen({
               </Paper>
             ) : null}
 
-            <Paper className="surface-card client-section-card" radius="28px" withBorder>
+            <Paper className="surface-card client-section-card" radius="8px" withBorder>
               <Stack gap="lg">
                 <Group justify="space-between" wrap="wrap">
                   <Group gap="xs">
@@ -1635,7 +1535,7 @@ export function ClientDetailScreen({
                       <Paper
                         className="list-row-card"
                         key={group.id}
-                        radius="24px"
+                        radius="8px"
                         withBorder
                       >
                         <Stack gap={6}>
@@ -1680,6 +1580,256 @@ type ClientFormProps = {
   submitting: boolean
 }
 
+type ClientOverviewSectionProps = {
+  canManage: boolean
+  client: ClientDetails
+  membershipActionMode: MembershipActionMode | null
+  onMembershipActionModeChange: (mode: MembershipActionMode) => void
+  onPhotoUpload?: (file: File) => Promise<void>
+  pending: boolean
+  photoVersion: number | null
+}
+
+function ClientOverviewSection({
+  canManage,
+  client,
+  membershipActionMode,
+  onMembershipActionModeChange,
+  onPhotoUpload,
+  pending,
+  photoVersion,
+}: ClientOverviewSectionProps) {
+  const groupsValue =
+    client.groups.length > 0
+      ? formatPreviewList(client.groups.map((group) => group.name), 2)
+      : canManage
+        ? 'Не выбраны'
+        : 'Нет доступных групп'
+  const contactsValue =
+    client.contacts.length > 0
+      ? formatPreviewList(client.contacts.map((contact) => contact.fullName), 2)
+      : 'Не добавлены'
+  const visitsValue = client.attendanceHistoryLoaded
+    ? `${client.attendanceHistoryTotalCount ?? client.attendanceHistory.length}`
+    : 'Загружаются'
+
+  return (
+    <Paper className="surface-card surface-card--wide client-overview-card" radius="8px" withBorder>
+      <div className="client-overview-grid">
+        <Stack className="client-overview-main" gap="md">
+          <Group justify="space-between" wrap="wrap">
+            <div>
+              <Text className="client-overview-eyebrow" size="xs">
+                {canManage ? 'Клиент' : 'Клиент тренера'}
+              </Text>
+              <Title order={2} className="client-overview-title">
+                {client.fullName}
+              </Title>
+            </div>
+
+            {canManage ? (
+              <Badge
+                color={client.status === 'Active' ? 'teal' : 'gray'}
+                radius="sm"
+                size="lg"
+                variant="light"
+              >
+                {statusLabelMap[client.status]}
+              </Badge>
+            ) : null}
+          </Group>
+
+          {!canManage ? (
+            <Alert
+              color="blue"
+              icon={<IconCheck size={18} />}
+              title="Доступ тренера"
+              variant="light"
+            >
+              Видны фото, ФИО, назначенные группы и история посещений.
+            </Alert>
+          ) : null}
+
+          <SimpleGrid cols={{ base: 1, sm: 2, xl: canManage ? 4 : 3 }}>
+            {canManage ? (
+              <>
+                <CompactInfoItem label="Телефон" value={client.phone || 'Не указан'} />
+                <CompactInfoItem label="Фамилия" value={client.lastName || 'Не указана'} />
+                <CompactInfoItem label="Имя" value={client.firstName || 'Не указано'} />
+                <CompactInfoItem label="Отчество" value={client.middleName || 'Не указано'} />
+              </>
+            ) : null}
+            <CompactInfoItem label="Группы" value={groupsValue} />
+            {canManage ? <CompactInfoItem label="Контакты" value={contactsValue} /> : null}
+            <CompactInfoItem label="Посещений" value={visitsValue} />
+            <CompactInfoItem
+              label="Последнее посещение"
+              value={formatDateValue(client.lastVisitDate)}
+            />
+          </SimpleGrid>
+
+          {canManage ? (
+            <ClientMembershipSnapshot
+              actionMode={membershipActionMode}
+              currentMembership={client.currentMembership}
+              onActionModeChange={onMembershipActionModeChange}
+              pending={pending}
+            />
+          ) : null}
+        </Stack>
+
+        <aside className="client-overview-rail">
+          <ClientPhotoSection
+            canUpload={canManage}
+            clientId={client.id}
+            clientName={client.fullName}
+            onUpload={onPhotoUpload}
+            photo={client.photo}
+            previewVersion={photoVersion ?? client.photo?.uploadedAt ?? client.updatedAt}
+            variant="compact"
+          />
+        </aside>
+      </div>
+    </Paper>
+  )
+}
+
+type ClientMembershipSnapshotProps = {
+  actionMode: MembershipActionMode | null
+  currentMembership: ClientMembership | null
+  onActionModeChange: (mode: MembershipActionMode) => void
+  pending: boolean
+}
+
+function ClientMembershipSnapshot({
+  actionMode,
+  currentMembership,
+  onActionModeChange,
+  pending,
+}: ClientMembershipSnapshotProps) {
+  if (!currentMembership) {
+    return (
+      <Paper className="client-membership-snapshot" radius="8px" withBorder>
+        <Group justify="space-between" wrap="wrap">
+          <div>
+            <Text fw={700}>Абонемент не оформлен</Text>
+            <Text c="dimmed" size="sm">
+              Создайте абонемент, когда клиент оплатит первое посещение.
+            </Text>
+          </div>
+          <Button
+            disabled={pending}
+            onClick={() => onActionModeChange('purchase')}
+            variant={actionMode === 'purchase' ? 'filled' : 'light'}
+          >
+            Новый абонемент
+          </Button>
+        </Group>
+      </Paper>
+    )
+  }
+
+  const primaryMode: MembershipActionMode = currentMembership.isPaid
+    ? 'renew'
+    : 'markPayment'
+
+  return (
+    <Paper className="client-membership-snapshot" radius="8px" withBorder>
+      <Stack gap="md">
+        <Group justify="space-between" wrap="wrap">
+          <div>
+            <Text fw={700}>Абонемент и оплата</Text>
+            <Text c="dimmed" size="sm">
+              Текущий срок, сумма и статус оплаты.
+            </Text>
+          </div>
+          <Badge
+            color={currentMembership.isPaid ? 'teal' : 'red'}
+            radius="sm"
+            variant="light"
+          >
+            {currentMembership.isPaid ? 'Оплачен' : 'Не оплачен'}
+          </Badge>
+        </Group>
+
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }}>
+          <CompactInfoItem
+            label="Тип"
+            value={membershipTypeLabels[currentMembership.membershipType]}
+          />
+          <CompactInfoItem
+            label="Действует до"
+            value={formatExpirationValue(
+              currentMembership.membershipType,
+              currentMembership.expirationDate,
+            )}
+          />
+          <CompactInfoItem
+            label="Сумма"
+            value={formatCurrencyValue(currentMembership.paymentAmount)}
+          />
+          <CompactInfoItem
+            label="Оплачено"
+            value={
+              currentMembership.paidAt
+                ? formatDateTimeValue(currentMembership.paidAt)
+                : currentMembership.isPaid
+                  ? 'Да'
+                  : 'Ожидает оплаты'
+            }
+          />
+        </SimpleGrid>
+
+        <Group gap="sm" wrap="wrap">
+          <Button
+            color={primaryMode === 'markPayment' ? 'teal' : undefined}
+            disabled={pending}
+            onClick={() => onActionModeChange(primaryMode)}
+            variant={actionMode === primaryMode ? 'filled' : 'light'}
+          >
+            {primaryMode === 'markPayment' ? 'Отметить оплату' : 'Продлить'}
+          </Button>
+          <Button
+            disabled={pending}
+            onClick={() => onActionModeChange('purchase')}
+            variant={actionMode === 'purchase' ? 'filled' : 'light'}
+          >
+            Новый абонемент
+          </Button>
+          <Button
+            disabled={pending}
+            onClick={() => onActionModeChange('correct')}
+            variant={actionMode === 'correct' ? 'filled' : 'light'}
+          >
+            Исправить
+          </Button>
+        </Group>
+      </Stack>
+    </Paper>
+  )
+}
+
+type CompactInfoItemProps = {
+  label: string
+  value: string
+}
+
+function CompactInfoItem({
+  label,
+  value,
+}: CompactInfoItemProps) {
+  return (
+    <div className="compact-info-item">
+      <Text c="dimmed" fw={600} size="xs">
+        {label}
+      </Text>
+      <Text fw={700} size="sm">
+        {value}
+      </Text>
+    </div>
+  )
+}
+
 function ClientForm({
   form,
   formError,
@@ -1719,45 +1869,50 @@ function ClientForm({
           </Alert>
         ) : null}
 
-        {photoSection}
+        <div className="client-edit-grid">
+          <Stack gap="md">
+            <SimpleGrid cols={{ base: 1, md: 3 }}>
+              <TextInput
+                label="Фамилия"
+                placeholder="Иванов"
+                {...form.getInputProps('lastName')}
+              />
+              <TextInput
+                label="Имя"
+                placeholder="Иван"
+                {...form.getInputProps('firstName')}
+              />
+              <TextInput
+                label="Отчество"
+                placeholder="Иванович"
+                {...form.getInputProps('middleName')}
+              />
+            </SimpleGrid>
 
-        <SimpleGrid cols={{ base: 1, md: 3 }}>
-          <TextInput
-            label="Фамилия"
-            placeholder="Иванов"
-            {...form.getInputProps('lastName')}
-          />
-          <TextInput
-            label="Имя"
-            placeholder="Иван"
-            {...form.getInputProps('firstName')}
-          />
-          <TextInput
-            label="Отчество"
-            placeholder="Иванович"
-            {...form.getInputProps('middleName')}
-          />
-        </SimpleGrid>
+            <SimpleGrid cols={{ base: 1, md: 2 }}>
+              <TextInput
+                label="Телефон"
+                placeholder="+7(999) 000-00-00"
+                {...form.getInputProps('phone')}
+              />
 
-        <TextInput
-          label="Телефон"
-          placeholder="+7(999) 000-00-00"
-          {...form.getInputProps('phone')}
-        />
+              <MultiSelect
+                data={groupOptions.map((group) => ({
+                  value: group.id,
+                  label: formatGroupOptionLabel(group),
+                }))}
+                label="Группы клиента"
+                placeholder="Выберите группы"
+                searchable
+                {...form.getInputProps('groupIds')}
+              />
+            </SimpleGrid>
+          </Stack>
 
-        <MultiSelect
-          data={groupOptions.map((group) => ({
-            value: group.id,
-            label: formatGroupOptionLabel(group),
-          }))}
-          description="Клиент может состоять в нескольких группах."
-          label="Группы клиента"
-          placeholder="Выберите группы"
-          searchable
-          {...form.getInputProps('groupIds')}
-        />
+          <aside className="client-edit-rail">{photoSection}</aside>
+        </div>
 
-        <Paper className="hint-card" radius="24px" withBorder>
+        <Paper className="hint-card" radius="8px" withBorder>
           <Stack gap="md">
             <Group justify="space-between" wrap="wrap">
               <div>
@@ -1785,7 +1940,7 @@ function ClientForm({
             ) : (
               <Stack gap="sm">
                 {form.values.contacts.map((_, index) => (
-                  <Paper className="list-row-card" key={index} radius="24px" withBorder>
+                  <Paper className="list-row-card" key={index} radius="8px" withBorder>
                     <Stack gap="md">
                       <Group justify="space-between" wrap="wrap">
                         <Text fw={700}>Контакт #{index + 1}</Text>
@@ -1825,26 +1980,6 @@ function ClientForm({
           </Stack>
         </Paper>
 
-        <Paper className="hint-card" radius="24px" withBorder>
-          <SimpleGrid cols={{ base: 1, md: 3 }}>
-            <HintStat
-              icon={<IconPhone size={18} />}
-              label="Телефон"
-              value={form.values.phone || 'Не указан'}
-            />
-            <HintStat
-              icon={<IconUserHeart size={18} />}
-              label="Контакты"
-              value={String(normalizeContacts(form.values.contacts).length)}
-            />
-            <HintStat
-              icon={<IconUsersGroup size={18} />}
-              label="Группы"
-              value={String(form.values.groupIds.length)}
-            />
-          </SimpleGrid>
-        </Paper>
-
         <ResponsiveButtonGroup justify="space-between">
           <Button onClick={onCancel} type="button" variant="subtle">
             Отменить
@@ -1865,6 +2000,7 @@ function ClientForm({
 type ClientHeroProps = {
   action: ReactNode
   badge: string
+  compact?: boolean
   description: string
   title: string
 }
@@ -1872,11 +2008,16 @@ type ClientHeroProps = {
 function ClientHero({
   action,
   badge,
+  compact = false,
   description,
   title,
 }: ClientHeroProps) {
   return (
-    <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
+    <Paper
+      className={`surface-card surface-card--wide page-header-card${compact ? ' page-header-card--compact' : ''}`}
+      radius={compact ? '8px' : '28px'}
+      withBorder
+    >
       <Stack className="page-header-card__content" gap="md">
         <Group gap="sm">
           <Badge color="accent.5" radius="xl" size="lg" variant="filled">
@@ -1902,32 +2043,6 @@ function ClientHero({
   )
 }
 
-type HintStatProps = {
-  icon: ReactNode
-  label: string
-  value: string
-}
-
-function HintStat({
-  icon,
-  label,
-  value,
-}: HintStatProps) {
-  return (
-    <Group gap="sm" wrap="nowrap">
-      <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-        {icon}
-      </ThemeIcon>
-      <Stack gap={2}>
-        <Text c="dimmed" fw={600} size="xs">
-          {label}
-        </Text>
-        <Text fw={700}>{value}</Text>
-      </Stack>
-    </Group>
-  )
-}
-
 type InfoItemProps = {
   label: string
   value: string
@@ -1938,7 +2053,7 @@ function InfoItem({
   value,
 }: InfoItemProps) {
   return (
-    <Paper className="hint-card" radius="24px" withBorder>
+    <Paper className="hint-card" radius="8px" withBorder>
       <Stack gap={4}>
         <Text c="dimmed" fw={600} size="xs">
           {label}
@@ -1956,6 +2071,7 @@ type ClientPhotoSectionProps = {
   onUpload?: (file: File) => Promise<void>
   photo: ClientPhoto | null
   previewVersion?: string | number | null
+  variant?: 'default' | 'compact'
 }
 
 function ClientPhotoSection({
@@ -1965,10 +2081,12 @@ function ClientPhotoSection({
   onUpload,
   photo,
   previewVersion,
+  variant = 'default',
 }: ClientPhotoSectionProps) {
   const inputId = useId()
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [previewOpened, setPreviewOpened] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<
     'idle' | 'loading' | 'ready' | 'error'
   >(() => (clientId && photo ? 'loading' : 'idle'))
@@ -2027,7 +2145,29 @@ function ClientPhotoSection({
   }
 
   return (
-    <Paper className="hint-card client-photo-card" radius="24px" withBorder>
+    <>
+      <Modal
+        centered
+        onClose={() => setPreviewOpened(false)}
+        opened={previewOpened && Boolean(previewUrl)}
+        radius="8px"
+        size="xl"
+        title={`Фотография клиента ${clientName}`}
+      >
+        {previewUrl ? (
+          <img
+            alt={`Фотография клиента ${clientName}`}
+            className="client-photo-modal-image"
+            src={previewUrl}
+          />
+        ) : null}
+      </Modal>
+
+      <Paper
+        className={`hint-card client-photo-card${variant === 'compact' ? ' client-photo-card--compact' : ''}`}
+        radius="8px"
+        withBorder
+      >
       <Stack gap="md">
         <Group justify="space-between" wrap="wrap">
           <Group gap="sm" wrap="nowrap">
@@ -2035,20 +2175,22 @@ function ClientPhotoSection({
               <IconCamera size={20} />
             </ThemeIcon>
             <div>
-              <Text fw={700}>Фотография клиента</Text>
+              <Text fw={700}>{variant === 'compact' ? 'Фото' : 'Фотография клиента'}</Text>
               <Text c="dimmed" size="sm">
                 {canUpload
-                  ? 'Загрузка и замена фото доступны главному тренеру и администратору.'
+                  ? 'Можно заменить фото клиента.'
                   : clientId
-                    ? 'Фото отображается, если оно уже загружено и доступно для просмотра.'
+                    ? 'Фото доступно для просмотра.'
                     : 'Фото можно добавить сразу после первичного сохранения карточки клиента.'}
               </Text>
             </div>
           </Group>
 
-          <Badge color="brand.1" radius="xl" variant="light">
-            {canUpload ? 'Загрузка и просмотр' : 'Только просмотр'}
-          </Badge>
+          {variant === 'default' ? (
+            <Badge color="brand.1" radius="sm" variant="light">
+              {canUpload ? 'Загрузка' : 'Просмотр'}
+            </Badge>
+          ) : null}
         </Group>
 
         <div className="client-photo-preview">
@@ -2061,16 +2203,24 @@ function ClientPhotoSection({
               ) : null}
 
               {previewStatus !== 'error' ? (
-                <img
-                  alt={`Фотография клиента ${clientName}`}
-                  className="client-photo-preview__image"
-                  onError={() => setPreviewStatus('error')}
-                  onLoad={() => setPreviewStatus('ready')}
-                  src={previewUrl}
-                  style={{
-                    display: previewStatus === 'ready' ? 'block' : 'none',
-                  }}
-                />
+                <button
+                  aria-label={`Открыть фотографию клиента ${clientName}`}
+                  className="client-photo-preview__button"
+                  disabled={previewStatus !== 'ready'}
+                  onClick={() => setPreviewOpened(true)}
+                  type="button"
+                >
+                  <img
+                    alt={`Фотография клиента ${clientName}`}
+                    className="client-photo-preview__image"
+                    onError={() => setPreviewStatus('error')}
+                    onLoad={() => setPreviewStatus('ready')}
+                    src={previewUrl}
+                    style={{
+                      display: previewStatus === 'ready' ? 'block' : 'none',
+                    }}
+                  />
+                </button>
               ) : null}
             </>
           ) : null}
@@ -2096,19 +2246,19 @@ function ClientPhotoSection({
         </div>
 
         {photo ? (
-          <Group gap="sm" wrap="wrap">
+          <Group className="client-photo-meta" gap="xs" wrap="wrap">
             {photo.contentType ? (
-              <Badge color="sand" radius="xl" variant="light">
+              <Badge color="sand" radius="sm" variant="light">
                 {photo.contentType}
               </Badge>
             ) : null}
             {typeof photo.sizeBytes === 'number' ? (
-              <Badge color="sand" radius="xl" variant="light">
+              <Badge color="sand" radius="sm" variant="light">
                 {formatFileSize(photo.sizeBytes)}
               </Badge>
             ) : null}
             {photo.uploadedAt ? (
-              <Badge color="sand" radius="xl" variant="light">
+              <Badge color="sand" radius="sm" variant="light">
                 Загружено: {formatDateTimeValue(photo.uploadedAt)}
               </Badge>
             ) : null}
@@ -2153,6 +2303,7 @@ function ClientPhotoSection({
         ) : null}
       </Stack>
     </Paper>
+    </>
   )
 }
 
@@ -2160,7 +2311,6 @@ type ClientMembershipSectionProps = {
   actionMode: MembershipActionMode | null
   client: ClientDetails
   pending: boolean
-  onActionModeChange: (mode: MembershipActionMode) => void
   onCancelAction: () => void
   onSubmit: (submission: MembershipActionSubmission) => Promise<void>
 }
@@ -2169,7 +2319,6 @@ function ClientMembershipSection({
   actionMode,
   client,
   pending,
-  onActionModeChange,
   onCancelAction,
   onSubmit,
 }: ClientMembershipSectionProps) {
@@ -2177,119 +2326,20 @@ function ClientMembershipSection({
   const history = [...client.membershipHistory].sort(compareMembershipHistory)
 
   return (
-    <Paper className="surface-card surface-card--wide client-detail-card" radius="28px" withBorder>
+    <Paper className="surface-card surface-card--wide client-detail-card client-membership-card" radius="8px" withBorder>
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <div>
-            <Text fw={700}>Абонемент и оплата</Text>
+            <Text fw={700}>История абонемента</Text>
             <Text c="dimmed" size="sm">
-              Inline-сценарии этапа 6b: новая покупка, продление, исправление и отметка оплаты без отдельного экрана.
+              Изменения срока, суммы и оплаты по клиенту.
             </Text>
           </div>
 
-          <Badge color="brand.1" radius="xl" size="lg" variant="light">
-            Только для management-ролей
+          <Badge color="sand" radius="sm" variant="light">
+            Версий: {history.length}
           </Badge>
         </Group>
-
-        {currentMembership ? (
-          <>
-            <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }}>
-              <InfoItem
-                label="Тип абонемента"
-                value={membershipTypeLabels[currentMembership.membershipType]}
-              />
-              <InfoItem
-                label="Дата покупки"
-                value={formatDateValue(currentMembership.purchaseDate)}
-              />
-              <InfoItem
-                label="Дата окончания"
-                value={formatExpirationValue(
-                  currentMembership.membershipType,
-                  currentMembership.expirationDate,
-                )}
-              />
-              <InfoItem
-                label="Сумма оплаты"
-                value={formatCurrencyValue(currentMembership.paymentAmount)}
-              />
-            </SimpleGrid>
-
-            <Group gap="sm" wrap="wrap">
-              <Badge
-                color={currentMembership.isPaid ? 'teal' : 'orange'}
-                radius="xl"
-                variant="light"
-              >
-                {currentMembership.isPaid ? 'Оплачен' : 'Не оплачен'}
-              </Badge>
-              <Badge color="sand" radius="xl" variant="light">
-                {currentMembership.changeReason
-                  ? formatMembershipChangeReason(currentMembership.changeReason)
-                  : 'Текущая версия'}
-              </Badge>
-              {currentMembership.membershipType === 'SingleVisit' ? (
-                <Badge
-                  color={currentMembership.singleVisitUsed ? 'gray' : 'blue'}
-                  radius="xl"
-                  variant="light"
-                >
-                  {currentMembership.singleVisitUsed
-                    ? 'Разовое посещение использовано'
-                    : 'Разовое посещение не использовано'}
-                </Badge>
-              ) : null}
-              {currentMembership.paidAt ? (
-                <Badge color="teal" radius="xl" variant="light">
-                  Оплата: {formatDateTimeValue(currentMembership.paidAt)}
-                </Badge>
-              ) : null}
-            </Group>
-          </>
-        ) : (
-          <Alert
-            color="blue"
-            icon={<IconCheck size={18} />}
-            title="Текущий абонемент не задан"
-            variant="light"
-          >
-            Клиента можно сохранить без абонемента, а затем оформить его прямо в этой карточке.
-          </Alert>
-        )}
-
-        <ResponsiveButtonGroup>
-          <Button
-            color={actionMode === 'purchase' ? 'accent.5' : undefined}
-            onClick={() => onActionModeChange('purchase')}
-            variant={actionMode === 'purchase' ? 'filled' : 'light'}
-          >
-            Новый абонемент
-          </Button>
-          <Button
-            disabled={!currentMembership}
-            onClick={() => onActionModeChange('renew')}
-            variant={actionMode === 'renew' ? 'filled' : 'light'}
-          >
-            Продлить
-          </Button>
-          <Button
-            disabled={!currentMembership}
-            onClick={() => onActionModeChange('correct')}
-            variant={actionMode === 'correct' ? 'filled' : 'light'}
-          >
-            Исправить
-          </Button>
-          {currentMembership && !currentMembership.isPaid ? (
-            <Button
-              color="teal"
-              onClick={() => onActionModeChange('markPayment')}
-              variant={actionMode === 'markPayment' ? 'filled' : 'light'}
-            >
-              Отметить оплату
-            </Button>
-          ) : null}
-        </ResponsiveButtonGroup>
 
         {actionMode === 'purchase' ? (
           <MembershipEditPanel
@@ -2332,77 +2382,72 @@ function ClientMembershipSection({
           />
         ) : null}
 
-        <Stack gap="sm">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>История версий абонемента</Text>
-              <Text c="dimmed" size="sm">
-                Компактный список показывает, как менялись срок, сумма и статус оплаты внутри `ClientMembership`.
-              </Text>
-            </div>
-
-            <Badge color="sand" radius="xl" variant="light">
-              Версий: {history.length}
-            </Badge>
-          </Group>
-
-          {history.length === 0 ? (
-            <Text c="dimmed" size="sm">
-              История абонемента появится после первого действия в карточке клиента.
-            </Text>
-          ) : (
-            <Stack gap="sm">
-              {history.map((membership) => (
-                <Paper
-                  className="list-row-card"
-                  key={membership.id}
-                  radius="24px"
-                  withBorder
-                >
-                  <Stack gap={6}>
-                    <Group justify="space-between" wrap="wrap">
-                      <Group gap="sm" wrap="wrap">
-                        <Text fw={700}>
+        {history.length === 0 ? (
+          <Text c="dimmed" size="sm">
+            История появится после первого действия с абонементом.
+          </Text>
+        ) : (
+          <div className="membership-history-table-wrap">
+            <Table className="membership-history-table" horizontalSpacing="md" verticalSpacing="sm">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Событие</Table.Th>
+                  <Table.Th>Период</Table.Th>
+                  <Table.Th>Сумма</Table.Th>
+                  <Table.Th>Оплата</Table.Th>
+                  <Table.Th>Дата версии</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {history.map((membership) => (
+                  <Table.Tr key={membership.id}>
+                    <Table.Td>
+                      <Group gap="xs" wrap="wrap">
+                        <Text fw={700} size="sm">
                           {membershipTypeLabels[membership.membershipType]}
                         </Text>
-                        <Badge radius="xl" variant="light">
+                        <Badge radius="sm" variant="light">
                           {formatMembershipChangeReason(membership.changeReason)}
                         </Badge>
                         {membership.validTo ? null : (
-                          <Badge color="teal" radius="xl" variant="light">
+                          <Badge color="teal" radius="sm" variant="light">
                             Текущая
                           </Badge>
                         )}
                       </Group>
-
+                    </Table.Td>
+                    <Table.Td>
                       <Text c="dimmed" size="sm">
-                        {membership.validFrom
-                          ? `Версия с ${formatDateTimeValue(membership.validFrom)}`
-                          : membership.createdAt
-                            ? `Создано ${formatDateTimeValue(membership.createdAt)}`
-                            : 'Версия абонемента'}
+                        {formatDateValue(membership.purchaseDate)} -{' '}
+                        {formatExpirationValue(
+                          membership.membershipType,
+                          membership.expirationDate,
+                        )}
                       </Text>
-                    </Group>
-
-                    <Text c="dimmed" size="sm">
-                      Покупка: {formatDateValue(membership.purchaseDate)}
-                      {' • '}
-                      Окончание:{' '}
-                      {formatExpirationValue(
-                        membership.membershipType,
-                        membership.expirationDate,
-                      )}
-                      {' • '}
-                      Сумма: {formatCurrencyValue(membership.paymentAmount)}
-                      {' • '}
-                      {membership.isPaid ? 'Оплачен' : 'Не оплачен'}
-                    </Text>
-                  </Stack>
-                </Paper>
-              ))}
-            </Stack>
-          )}
-        </Stack>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{formatCurrencyValue(membership.paymentAmount)}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge
+                        color={membership.isPaid ? 'teal' : 'red'}
+                        radius="sm"
+                        variant="light"
+                      >
+                        {membership.isPaid ? 'Оплачен' : 'Не оплачен'}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text c="dimmed" size="sm">
+                        {formatMembershipVersionDate(membership)}
+                      </Text>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </div>
+        )}
       </Stack>
     </Paper>
   )
@@ -2425,7 +2470,7 @@ function ClientAttendanceHistorySection({
     client.attendanceHistoryTotalCount > history.length
 
   return (
-    <Paper className="surface-card surface-card--wide client-detail-card" radius="28px" withBorder>
+    <Paper className="surface-card surface-card--wide client-detail-card" radius="8px" withBorder>
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <div>
@@ -2463,7 +2508,7 @@ function ClientAttendanceHistorySection({
         ) : (
           <Stack gap="sm">
             {history.map((entry) => (
-              <Paper className="list-row-card" key={entry.id} radius="24px" withBorder>
+              <Paper className="list-row-card" key={entry.id} radius="8px" withBorder>
                 <Stack gap={6}>
                   <Group justify="space-between" wrap="wrap">
                     <Group gap="sm" wrap="wrap">
@@ -2561,7 +2606,7 @@ function MembershipEditPanel({
   }
 
   return (
-    <Paper className="hint-card" radius="24px" withBorder>
+    <Paper className="hint-card" radius="8px" withBorder>
       <form onSubmit={form.onSubmit((values) => void submit(values))}>
         <Stack gap="md">
           <Group justify="space-between" wrap="wrap">
@@ -2576,8 +2621,8 @@ function MembershipEditPanel({
               </Text>
             </div>
 
-            <Badge color="brand.1" radius="xl" variant="light">
-              {mode === 'purchase' ? 'New purchase' : 'Correction'}
+            <Badge color="brand.1" radius="sm" variant="light">
+              {mode === 'purchase' ? 'Новая покупка' : 'Исправление'}
             </Badge>
           </Group>
 
@@ -2610,7 +2655,7 @@ function MembershipEditPanel({
               description={
                 form.values.membershipType === 'SingleVisit'
                   ? 'Для разового посещения дату можно оставить пустой.'
-                  : 'Поле уже заполнено по правилу этапа 6b.'
+                  : 'Дата предложена автоматически, но ее можно изменить.'
               }
               label="Дата окончания"
               type="date"
@@ -2725,7 +2770,7 @@ function MembershipRenewPanel({
   }
 
   return (
-    <Paper className="hint-card" radius="24px" withBorder>
+    <Paper className="hint-card" radius="8px" withBorder>
       <form onSubmit={form.onSubmit((values) => void submit(values))}>
         <Stack gap="md">
           <Group justify="space-between" wrap="wrap">
@@ -2736,7 +2781,7 @@ function MembershipRenewPanel({
               </Text>
             </div>
 
-            <Badge color="brand.1" radius="xl" variant="light">
+              <Badge color="brand.1" radius="sm" variant="light">
               {membershipTypeLabels[currentMembership.membershipType]}
             </Badge>
           </Group>
@@ -2853,7 +2898,7 @@ function MembershipMarkPaymentPanel({
   const [confirmOpened, setConfirmOpened] = useState(false)
 
   return (
-    <Paper className="hint-card" radius="24px" withBorder>
+    <Paper className="hint-card" radius="8px" withBorder>
       <ConfirmActionModal
         confirmColor="teal"
         confirmLabel="Подтвердить оплату"
@@ -3303,6 +3348,30 @@ function formatMembershipChangeReason(reason?: string) {
   return membershipChangeReasonLabels[
     reason as ClientMembershipChangeReason
   ] ?? reason
+}
+
+function formatMembershipVersionDate(membership: ClientMembership) {
+  if (membership.validFrom) {
+    return formatDateTimeValue(membership.validFrom)
+  }
+
+  if (membership.createdAt) {
+    return formatDateTimeValue(membership.createdAt)
+  }
+
+  return formatDateValue(membership.purchaseDate)
+}
+
+function formatPreviewList(values: string[], limit: number) {
+  const cleanValues = values.map((value) => value.trim()).filter(Boolean)
+  const visibleValues = cleanValues.slice(0, limit)
+  const hiddenCount = cleanValues.length - visibleValues.length
+
+  if (hiddenCount <= 0) {
+    return visibleValues.join(', ')
+  }
+
+  return `${visibleValues.join(', ')} +${hiddenCount}`
 }
 
 function compareMembershipHistory(
