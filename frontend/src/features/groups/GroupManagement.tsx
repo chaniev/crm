@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Alert,
   Badge,
@@ -436,6 +436,11 @@ export function GroupEditScreen({
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const form = useGroupForm()
+  const formRef = useRef(form)
+
+  useEffect(() => {
+    formRef.current = form
+  }, [form])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -455,7 +460,7 @@ export function GroupEditScreen({
         setGroupClients(clientsResponse.clients)
         setGroupName(group.name)
         setClientCount(group.clientCount)
-        form.setValues(toFormValues(group))
+        formRef.current.setValues(toFormValues(group))
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -476,7 +481,7 @@ export function GroupEditScreen({
     void load()
 
     return () => controller.abort()
-  }, [form, groupId])
+  }, [groupId])
 
   async function submit(values: GroupFormValues) {
     setSubmitting(true)

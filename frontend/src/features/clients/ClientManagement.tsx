@@ -1601,16 +1601,28 @@ export function ClientDetailScreen({
 
             <Paper className="surface-card client-section-card" radius="28px" withBorder>
               <Stack gap="lg">
-                <Group gap="xs">
-                  <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-                    <IconUsersGroup size={18} />
-                  </ThemeIcon>
-                  <div>
-                    <Text fw={700}>Группы клиента</Text>
-                    <Text c="dimmed" size="sm">
-                      Блок показывает текущую привязку клиента к тренировочным группам.
-                    </Text>
-                  </div>
+                <Group justify="space-between" wrap="wrap">
+                  <Group gap="xs">
+                    <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+                      <IconUsersGroup size={18} />
+                    </ThemeIcon>
+                    <div>
+                      <Text fw={700}>Группы клиента</Text>
+                      <Text c="dimmed" size="sm">
+                        Блок показывает текущую привязку клиента к тренировочным группам.
+                      </Text>
+                    </div>
+                  </Group>
+
+                  {canManage ? (
+                    <Button
+                      leftSection={<IconEdit size={18} />}
+                      onClick={() => onEdit(client.id)}
+                      variant="light"
+                    >
+                      Изменить группы
+                    </Button>
+                  ) : null}
                 </Group>
 
                 {client.groups.length === 0 ? (
