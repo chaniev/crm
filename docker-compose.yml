@@ -84,6 +84,11 @@ services:
       BOT_ENABLED: ${BOT_ENABLED:-true}
       BOT_TELEGRAM_TOKEN: ${BOT_TELEGRAM_TOKEN}
       BOT_TELEGRAM_PROXY_URL: ${BOT_TELEGRAM_PROXY_URL:-${HTTPS_PROXY:-${HTTP_PROXY:-}}}
+      BOT_TELEGRAM_MTPROXY_URLS: ${BOT_TELEGRAM_MTPROXY_URLS:-}
+      BOT_TELEGRAM_API_ID: ${BOT_TELEGRAM_API_ID:-}
+      BOT_TELEGRAM_API_HASH: ${BOT_TELEGRAM_API_HASH:-}
+      BOT_TELEGRAM_MTPROTO_SESSION_PATH: ${BOT_TELEGRAM_MTPROTO_SESSION_PATH:-/app/data/bot/telegram-mtproto}
+      BOT_TELEGRAM_PROXY_FAILOVER_DELAY_SECONDS: ${BOT_TELEGRAM_PROXY_FAILOVER_DELAY_SECONDS:-5}
       BOT_DATABASE_URL: ${BOT_DATABASE_URL:-postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}}
       CRM_API_BASE_URL: ${CRM_API_BASE_URL:-http://backend:8080}
       CRM_BOT_API_TOKEN: ${CRM_BOT_API_TOKEN}
@@ -100,8 +105,11 @@ services:
       retries: 10
       start_period: 10s
     stop_grace_period: 30s
+    volumes:
+      - bot_data:/app/data/bot
 
 volumes:
   postgres_data:
   backend_client_photos:
   backend_logs:
+  bot_data:

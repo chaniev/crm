@@ -13,7 +13,7 @@ from gym_crm_bot.config import Settings
 from gym_crm_bot.core.service import BotService
 from gym_crm_bot.crm.client import CrmBotApiClient
 from gym_crm_bot.storage import Base, create_engine, create_session_factory
-from gym_crm_bot.telegram.adapter import TelegramPollingAdapter
+from gym_crm_bot.telegram.factory import create_telegram_adapter
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class GymCrmBotApplication:
             crm_client=self.crm_client,
             session_factory=self.session_factory,
         )
-        self.telegram = TelegramPollingAdapter(
+        self.telegram = create_telegram_adapter(
             settings=settings,
             bot_service=self.bot_service,
             session_factory=self.session_factory,
