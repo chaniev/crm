@@ -255,8 +255,9 @@
 3. Вынести constants для `groups`, `audit-log`, `access` и явно определить контракт `Capability/GrantedBy`.
 4. Синхронизировать expiring memberships window между public API, frontend текстом и internal bot behavior.
 5. Зафиксировать `currentMembership` invariant и убрать дублирование read-семантики в public API/bot/infrastructure.
-6. Добавить недостающие backend regressions: CSRF negative cases, users validation keys, membership window boundary.
-7. Добавить недостающие frontend e2e: users `fullName` errors, clients alias behavior, audit stable filters, client filters/paging.
-8. Перенести audit/home/client/group labels в frontend resources.
-9. Декомпозировать `ClientManagement.tsx` безопасными feature-срезами.
-10. После фиксации семантики продолжить split `ClientEndpoints.cs`, затем `GroupEndpoints.cs`, `AttendanceEndpoints.cs`, `AuditLogEndpoints.cs`.
+6. Обновить `backend/AGENTS.md`, `frontend/AGENTS.md` и при необходимости корневой `AGENTS.md`, чтобы явно зафиксировать ownership CRM-логики за backend.
+7. Добавить недостающие backend regressions: CSRF negative cases, users validation keys, membership window boundary.
+8. Добавить недостающие frontend e2e: users `fullName` errors, clients alias behavior, audit stable filters, client filters/paging.
+9. Перенести audit/home/client/group labels в frontend resources.
+10. Декомпозировать `ClientManagement.tsx` безопасными feature-срезами.
+11. После фиксации семантики продолжить split `ClientEndpoints.cs`, затем `GroupEndpoints.cs`, `AttendanceEndpoints.cs`, `AuditLogEndpoints.cs`.
