@@ -1,0 +1,25 @@
+namespace GymCrm.Api.Auth;
+
+internal sealed record ClientDetailsResponse(
+    Guid Id,
+    string? LastName,
+    string? FirstName,
+    string? MiddleName,
+    string FullName,
+    string Phone,
+    string Status,
+    IReadOnlyList<Guid> GroupIds,
+    IReadOnlyList<ClientGroupSummaryResponse> Groups,
+    IReadOnlyList<ClientContactResponse> Contacts,
+    ClientPhotoSummaryResponse? Photo,
+    bool HasActivePaidMembership,
+    bool HasUnpaidCurrentMembership,
+    ClientMembershipResponse? CurrentMembership,
+    IReadOnlyList<ClientMembershipResponse> MembershipHistory,
+    IReadOnlyList<ClientAttendanceHistoryEntryResponse> AttendanceHistory,
+    int AttendanceHistorySkip,
+    int AttendanceHistoryTake,
+    int AttendanceHistoryTotalCount,
+    bool AttendanceHistoryHasMore,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt);

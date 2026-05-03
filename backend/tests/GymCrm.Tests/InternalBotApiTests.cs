@@ -214,7 +214,8 @@ public class InternalBotApiTests
             var payload = await ReadJsonElementAsync(adminExpiringResponse);
             var ids = payload.EnumerateArray().Select(item => item.GetProperty("clientId").GetString()).ToArray();
             Assert.Contains(seeded.ExpiringTodayClientId.ToString(), ids);
-            Assert.Contains(seeded.ExpiringDayTenClientId.ToString(), ids);
+            Assert.Contains(seeded.ExpiringDayNineClientId.ToString(), ids);
+            Assert.DoesNotContain(seeded.ExpiringDayTenClientId.ToString(), ids);
             Assert.DoesNotContain(seeded.ExpiringDayElevenClientId.ToString(), ids);
             Assert.DoesNotContain(seeded.ExpiredClientId.ToString(), ids);
         }
@@ -362,18 +363,20 @@ public class InternalBotApiTests
 
         var coachClient = CreateClient("Coach", "Client", "+79990000001", now);
         var expiringTodayClient = CreateClient("Expiring", "Today", "+79990000002", now);
-        var expiringDayTenClient = CreateClient("Expiring", "Ten", "+79990000003", now);
-        var expiringDayElevenClient = CreateClient("Expiring", "Eleven", "+79990000004", now);
-        var expiredClient = CreateClient("Expired", "Client", "+79990000005", now);
-        var paymentClient = CreateClient("Payment", "Client", "+79990000006", now);
+        var expiringDayNineClient = CreateClient("Expiring", "Nine", "+79990000003", now);
+        var expiringDayTenClient = CreateClient("Expiring", "Ten", "+79990000004", now);
+        var expiringDayElevenClient = CreateClient("Expiring", "Eleven", "+79990000005", now);
+        var expiredClient = CreateClient("Expired", "Client", "+79990000006", now);
+        var paymentClient = CreateClient("Payment", "Client", "+79990000007", now);
 
         dbContext.Users.AddRange(headCoach, administrator, coach, inactiveCoach, mustChangePasswordCoach);
         dbContext.TrainingGroups.AddRange(coachGroup, adminGroup);
-        dbContext.Clients.AddRange(coachClient, expiringTodayClient, expiringDayTenClient, expiringDayElevenClient, expiredClient, paymentClient);
+        dbContext.Clients.AddRange(coachClient, expiringTodayClient, expiringDayNineClient, expiringDayTenClient, expiringDayElevenClient, expiredClient, paymentClient);
         dbContext.GroupTrainers.Add(new GroupTrainer { GroupId = coachGroup.Id, TrainerId = coach.Id });
         dbContext.ClientGroups.AddRange(
             new ClientGroup { ClientId = coachClient.Id, GroupId = coachGroup.Id },
             new ClientGroup { ClientId = expiringTodayClient.Id, GroupId = adminGroup.Id },
+            new ClientGroup { ClientId = expiringDayNineClient.Id, GroupId = adminGroup.Id },
             new ClientGroup { ClientId = expiringDayTenClient.Id, GroupId = adminGroup.Id },
             new ClientGroup { ClientId = expiringDayElevenClient.Id, GroupId = adminGroup.Id },
             new ClientGroup { ClientId = expiredClient.Id, GroupId = adminGroup.Id },
@@ -382,6 +385,7 @@ public class InternalBotApiTests
         dbContext.ClientMemberships.AddRange(
             CreateMembership(coachClient.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, isPaid: false, now),
             CreateMembership(expiringTodayClient.Id, administrator.Id, today.AddDays(-10), today, 1500m, isPaid: true, now),
+            CreateMembership(expiringDayNineClient.Id, administrator.Id, today.AddDays(-10), today.AddDays(9), 1500m, isPaid: true, now),
             CreateMembership(expiringDayTenClient.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, isPaid: true, now),
             CreateMembership(expiringDayElevenClient.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, isPaid: true, now),
             CreateMembership(expiredClient.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, isPaid: true, now),
@@ -410,6 +414,7 @@ public class InternalBotApiTests
             coachGroup.Id,
             coachClient.Id,
             expiringTodayClient.Id,
+            expiringDayNineClient.Id,
             expiringDayTenClient.Id,
             expiringDayElevenClient.Id,
             expiredClient.Id,
@@ -552,6 +557,7 @@ public class InternalBotApiTests
         Guid CoachGroupId,
         Guid CoachClientId,
         Guid ExpiringTodayClientId,
+        Guid ExpiringDayNineClientId,
         Guid ExpiringDayTenClientId,
         Guid ExpiringDayElevenClientId,
         Guid ExpiredClientId,

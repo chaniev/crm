@@ -106,6 +106,7 @@ type ClientState = {
   firstName: string
   middleName: string
   phone: string
+  status?: 'Active' | 'Archived'
   groupIds: string[]
   contacts: Array<{
     type: string
@@ -348,11 +349,11 @@ test.describe('Основные e2e сценарии', () => {
 
     await expect(page).toHaveURL(`/clients/${createdClientId}`)
     await expect(
-      page.getByRole('heading', { name: 'Петров Пётр Петрович' }),
+      page.getByRole('heading', { level: 1, name: 'Петров Пётр Петрович' }),
     ).toBeVisible()
-    await expect(page.getByText('Анна Петрова')).toBeVisible()
-    await expect(page.getByText('Олег Петров')).toBeVisible()
-    await expect(page.getByText('Текущий абонемент не задан')).toBeVisible()
+    await expect(page.getByText('Анна Петрова', { exact: true })).toBeVisible()
+    await expect(page.getByText('Олег Петров', { exact: true })).toBeVisible()
+    await expect(page.getByText('Абонемент не оформлен')).toBeVisible()
 
     await page.getByRole('button', { name: 'К списку клиентов' }).click()
     await expect(page).toHaveURL('/clients')
@@ -361,6 +362,209 @@ test.describe('Основные e2e сценарии', () => {
     ).toBeVisible()
     await expect(page.getByText('Петров Пётр Петрович')).toBeVisible()
     expect(clientListCalls).toBeGreaterThan(1)
+  })
+
+  test('Создание клиента отображает backend errors.fullName под полем Фамилия', async ({
+    page,
+  }) => {
+    const serverFullNameError = 'Укажите ФИО клиента полностью.'
+    let createClientPayload: Record<string, unknown> | null = null
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/auth/login' && method === 'POST') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/groups' && method === 'GET') {
+        await fulfillJson(route, 200, buildGroupsListPayload(baseGroups))
+        return true
+      }
+
+      if (pathname === '/api/clients' && method === 'POST') {
+        createClientPayload = route.request().postDataJSON()
+
+        await fulfillJson(route, 400, {
+          title: 'Validation failed',
+          detail: 'Проверьте данные клиента.',
+          errors: {
+            fullName: [serverFullNameError],
+          },
+        })
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/clients/new')
+
+    await page.getByLabel('Имя').fill('Пётр')
+    await page.getByLabel('Телефон').fill('+79990005555')
+    await page.getByRole('button', { name: 'Сохранить клиента' }).click()
+
+    await expect.poll(() => createClientPayload).toMatchObject({
+      firstName: 'Пётр',
+      phone: '+79990005555',
+    })
+    await expect(page.getByLabel('Фамилия')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    )
+    await expect(page.getByText(serverFullNameError)).toBeVisible()
+  })
+
+  test('Фильтры списка клиентов сохраняются при переходе на следующую страницу', async ({
+    page,
+  }) => {
+    const filterGroup: GroupState = {
+      id: 'group-filter',
+      name: 'Фильтр-группа',
+      trainingStartTime: '17:00',
+      scheduleText: 'Пн, Ср',
+      isActive: true,
+      trainerIds: ['trainer-1'],
+      trainerNames: ['Ирина Тренер'],
+      clientCount: 21,
+    }
+    const groups = [...baseGroups, filterGroup]
+    const filteredClients = Array.from({ length: 21 }, (_, index) => ({
+      ...baseClient,
+      id: `client-filter-${index + 1}`,
+      lastName: `Фильтров-${index + 1}`,
+      firstName: 'Клиент',
+      middleName: 'Архивный',
+      phone: `+79990010${String(index + 1).padStart(2, '0')}`,
+      status: 'Archived' as const,
+      groupIds: [filterGroup.id],
+      hasActivePaidMembership: false,
+      hasUnpaidCurrentMembership: true,
+      membershipWarning: true,
+      expirationDate: '2026-05-20',
+    }))
+    const clientRequests: Array<Record<string, string>> = []
+
+    await mockApi(page, async ({ pathname, method, route, searchParams }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/auth/login' && method === 'POST') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/groups' && method === 'GET') {
+        await fulfillJson(route, 200, buildGroupsListPayload(groups))
+        return true
+      }
+
+      if (pathname.startsWith('/api/clients/') && method === 'GET') {
+        const clientId = pathname.slice('/api/clients/'.length)
+        const client = [baseClient, ...filteredClients].find(
+          (item) => item.id === clientId,
+        )
+
+        if (!client) {
+          await fulfillJson(route, 404, { message: 'Клиент не найден' })
+          return true
+        }
+
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      if (pathname === '/api/clients' && method === 'GET') {
+        clientRequests.push(Object.fromEntries(searchParams.entries()))
+
+        const isFilteredRequest =
+          searchParams.get('query') === 'Фильтр' &&
+          searchParams.get('groupId') === filterGroup.id &&
+          searchParams.get('status') === 'Archived'
+        const pageNumber = Number(searchParams.get('page') ?? 1)
+        const pageItems = isFilteredRequest
+          ? pageNumber === 2
+            ? filteredClients.slice(20)
+            : filteredClients.slice(0, 20)
+          : [baseClient]
+
+        await fulfillJson(
+          route,
+          200,
+          buildClientsListPayload(pageItems, groups, searchParams, {
+            totalCount: isFilteredRequest ? filteredClients.length : 1,
+          }),
+        )
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/clients')
+    await expect(page.getByTestId('clients-screen')).toBeVisible()
+
+    await page.getByLabel('Поиск по имени или телефону').fill('Фильтр')
+    await page.getByText('Архив', { exact: true }).click()
+    await page.getByRole('combobox', { name: 'Группа' }).click()
+    await page.getByRole('option', { name: 'Фильтр-группа' }).click()
+
+    await page.getByRole('button', { name: /Еще фильтры/ }).click()
+    await page.getByRole('combobox', { name: 'Оплата' }).click()
+    await page.getByRole('option', { name: 'Неоплаченные' }).click()
+    await page.getByLabel('Истекает с').fill('2026-05-01')
+    await page.getByLabel('Истекает по').fill('2026-05-31')
+    await page.getByLabel('Без фото').check()
+    await page.keyboard.press('Escape')
+
+    await expect
+      .poll(() =>
+        clientRequests.some((request) =>
+          hasRequestParams(request, {
+            page: '1',
+            pageSize: '20',
+            query: 'Фильтр',
+            groupId: filterGroup.id,
+            status: 'Archived',
+            paymentStatus: 'Unpaid',
+            membershipExpiresFrom: '2026-05-01',
+            membershipExpiresTo: '2026-05-31',
+            hasPhoto: 'false',
+          }),
+        ),
+      )
+      .toBe(true)
+    await expect(page.getByTestId('client-card-client-filter-1')).toBeVisible()
+    await expect(page.getByText('Показаны 1-20 из 21')).toBeVisible()
+
+    await expect(page.getByRole('button', { name: 'Дальше' })).toBeEnabled()
+    await page.getByRole('button', { name: 'Дальше' }).click()
+
+    await expect
+      .poll(() =>
+        clientRequests.some((request) =>
+          hasRequestParams(request, {
+            page: '2',
+            pageSize: '20',
+            query: 'Фильтр',
+            groupId: filterGroup.id,
+            status: 'Archived',
+            paymentStatus: 'Unpaid',
+            membershipExpiresFrom: '2026-05-01',
+            membershipExpiresTo: '2026-05-31',
+            hasPhoto: 'false',
+          }),
+        ),
+      )
+      .toBe(true)
+    await expect(page.getByTestId('client-card-client-filter-21')).toBeVisible()
+    await expect(page.getByText('Показаны 21-21 из 21')).toBeVisible()
   })
 
   test('Создание группы с назначением тренеров', async ({ page }) => {
@@ -730,6 +934,94 @@ test.describe('Основные e2e сценарии', () => {
     })
   }
 
+  test('Фильтры аудита отправляют stable action/entity values', async ({
+    page,
+  }) => {
+    const auditRequests: Array<Record<string, string>> = []
+
+    await mockApi(page, async ({ pathname, method, route, searchParams }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/auth/login' && method === 'POST') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/audit-logs/options' && method === 'GET') {
+        await fulfillJson(route, 200, {
+          users: [],
+          actionTypes: ['ClientCreated', 'AttendanceMarked'],
+          entityTypes: ['Client', 'Attendance'],
+          sources: [],
+          messengerPlatforms: [],
+        })
+        return true
+      }
+
+      if (pathname === '/api/audit-logs' && method === 'GET') {
+        auditRequests.push(Object.fromEntries(searchParams.entries()))
+
+        await fulfillJson(route, 200, {
+          items: [
+            {
+              id: 'audit-filtered-1',
+              userName: 'Главный тренер',
+              userLogin: BOOTSTRAP_LOGIN,
+              userRole: 'HeadCoach',
+              actionType: 'ClientCreated',
+              entityType: 'Client',
+              entityId: 'client-filtered-1',
+              description: 'Фильтр применен по stable values',
+              oldValueJson: null,
+              newValueJson: { fullName: 'Фильтр Клиент' },
+              createdAt: `${todayIso()}T11:10:10.000Z`,
+            },
+          ],
+          totalCount: 1,
+          skip: 0,
+          take: 20,
+          page: Number(searchParams.get('page') ?? 1),
+          pageSize: 20,
+          hasNextPage: false,
+        })
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/audit')
+    await expect(page.getByTestId('audit-screen')).toBeVisible()
+
+    await page.getByRole('combobox', { name: 'Тип действия' }).click()
+    await page.getByRole('option', { name: 'Создание клиента' }).click()
+    await page.getByRole('combobox', { name: 'Тип объекта' }).click()
+    await page.getByRole('option', { name: 'Клиент' }).click()
+    await page.getByRole('button', { name: 'Применить фильтры' }).click()
+
+    await expect
+      .poll(() =>
+        auditRequests.some((request) =>
+          hasRequestParams(request, {
+            actionType: 'ClientCreated',
+            entityType: 'Client',
+          }),
+        ),
+      )
+      .toBe(true)
+    expect(
+      auditRequests.some(
+        (request) =>
+          request.actionType === 'Создание клиента' ||
+          request.entityType === 'Клиент',
+      ),
+    ).toBe(false)
+    await expect(page.getByText('Фильтр применен по stable values')).toBeVisible()
+  })
+
   test('Проверяет ключевые экраны на 390, 768 и 1440 px', async ({ page }) => {
     let auditCalls = 0
     let groupsCalls = 0
@@ -922,19 +1214,24 @@ function buildClientsListPayload(
   clients: ClientState[],
   groups: GroupState[],
   searchParams?: URLSearchParams,
+  options: { totalCount?: number } = {},
 ) {
   const items = clients.map((client) => toClientPayload(client, groups))
+  const page = Number(searchParams?.get('page') ?? 1)
+  const pageSize = Number(searchParams?.get('pageSize') ?? 20)
+  const skip = (page - 1) * pageSize
+  const totalCount = options.totalCount ?? (searchParams ? items.length : clients.length)
 
   return {
     items,
-    totalCount: searchParams ? items.length : clients.length,
+    totalCount,
     activeCount: items.filter((client) => client.status === 'Active').length,
     archivedCount: items.filter((client) => client.status === 'Archived').length,
-    skip: 0,
-    take: Number(searchParams?.get('pageSize') ?? 20),
-    page: Number(searchParams?.get('page') ?? 1),
-    pageSize: Number(searchParams?.get('pageSize') ?? 20),
-    hasNextPage: false,
+    skip,
+    take: pageSize,
+    page,
+    pageSize,
+    hasNextPage: skip + items.length < totalCount,
   }
 }
 
@@ -949,7 +1246,7 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     middleName: client.middleName,
     fullName: `${client.lastName} ${client.firstName} ${client.middleName}`,
     phone: client.phone,
-    status: 'Active',
+    status: client.status ?? 'Active',
     contactCount: client.contacts.length,
     groupCount: assignedGroups.length,
     groups: assignedGroups.map((group) => ({
@@ -1030,6 +1327,15 @@ function toExpiringMembershipPayload(client: ClientState) {
     ),
     isPaid: client.hasActivePaidMembership,
   }
+}
+
+function hasRequestParams(
+  actual: Record<string, string>,
+  expected: Record<string, string>,
+) {
+  return Object.entries(expected).every(
+    ([key, value]) => actual[key] === value,
+  )
 }
 
 function resolveTrainerNames(trainerIds: string[]) {

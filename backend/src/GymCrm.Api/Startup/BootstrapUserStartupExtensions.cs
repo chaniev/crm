@@ -28,13 +28,15 @@ internal static class BootstrapUserStartupExtensions
 
         var options = scope.ServiceProvider.GetRequiredService<IOptions<BootstrapUserOptions>>().Value;
         var login = string.IsNullOrWhiteSpace(options.Login) ? "headcoach" : options.Login.Trim();
-        var fullName = string.IsNullOrWhiteSpace(options.FullName) ? "Главный тренер" : options.FullName.Trim();
+        var fullName = string.IsNullOrWhiteSpace(options.FullName)
+            ? StartupResources.BootstrapFullNameDefault
+            : options.FullName.Trim();
         var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
 
         if (await dbContext.Users.AnyAsync(user => user.Login == login, cancellationToken))
         {
             logger.LogDebug(
-                "Bootstrap user seeding skipped because login '{Login}' already exists.",
+                StartupResources.BootstrapUserLoginAlreadyExistsLog,
                 login);
 
             return;
@@ -43,7 +45,7 @@ internal static class BootstrapUserStartupExtensions
         if (await dbContext.Users.AnyAsync(cancellationToken))
         {
             logger.LogDebug(
-                "Bootstrap user seeding skipped because the database already contains users.");
+                StartupResources.BootstrapUserDatabaseAlreadyHasUsersLog);
 
             return;
         }
@@ -71,14 +73,14 @@ internal static class BootstrapUserStartupExtensions
         catch (DbUpdateException exception) when (IsBootstrapLoginConflict(exception))
         {
             logger.LogWarning(
-                "Bootstrap HeadCoach user '{Login}' already exists after a concurrent startup attempt. Skipping duplicate creation.",
+                StartupResources.BootstrapUserConcurrentCreationSkippedLog,
                 login);
 
             return;
         }
 
         logger.LogInformation(
-            "Bootstrap HeadCoach user '{Login}' has been created with a forced password change.",
+            StartupResources.BootstrapUserCreatedLog,
             login);
     }
 

@@ -26,11 +26,10 @@ type HomeDashboardProps = {
   onOpenClient?: (clientId: string) => void
 }
 
-const membershipTypeLabels: Record<MembershipType, string> = {
-  SingleVisit: 'Разовое посещение',
-  Monthly: 'Месячный',
-  Yearly: 'Годовой',
-}
+const membershipTypeLabels = resources.common.membership.typeLabels satisfies Record<
+  MembershipType,
+  string
+>
 
 export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
   const [clients, setClients] = useState<ExpiringClientMembership[]>([])
@@ -69,7 +68,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : 'Не удалось загрузить клиентов с истекающими абонементами.',
+            : resources.home.expiringMemberships.loadingErrorMessage,
         )
       } finally {
         if (!controller.signal.aborted) {
@@ -90,10 +89,10 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
-            title="Главная страница недоступна"
+            title={resources.home.accessDenied.title}
             variant="light"
           >
-            Этот экран доступен главному тренеру и администратору.
+            {resources.home.accessDenied.message}
           </Alert>
         </Paper>
       </Stack>
@@ -106,16 +105,15 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
         <Stack gap="lg">
           <Group justify="space-between" wrap="wrap">
             <div>
-              <Title order={2}>Истекающие абонементы</Title>
+              <Title order={2}>{resources.home.expiringMemberships.title}</Title>
               <Text c="dimmed" size="sm">
-                Только клиенты, у которых абонемент закончится менее чем через{' '}
-                {resources.common.membership.expiringWindowDays} дней.
+                {resources.home.expiringMemberships.description}
               </Text>
             </div>
 
             <Group gap="sm" wrap="wrap">
               <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                Главный тренер и администратор
+                {resources.home.expiringMemberships.audienceBadge}
               </Badge>
               <ResponsiveButtonGroup justify="flex-end">
                 <Button
@@ -139,7 +137,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
             <Alert
               color="red"
               icon={<IconAlertCircle size={18} />}
-              title="Список не загрузился"
+              title={resources.home.expiringMemberships.loadingErrorTitle}
               variant="light"
             >
               {error}
@@ -150,11 +148,10 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
             <Paper className="list-row-card home-empty-card" radius="24px" withBorder>
               <Stack gap="sm">
                 <Text fw={700}>
-                  В ближайшие {resources.common.membership.expiringWindowDays} дней
-                  истекающих абонементов нет.
+                  {resources.home.expiringMemberships.emptyTitle}
                 </Text>
                 <Text c="dimmed" size="sm">
-                  Экран остается узким operational-списком и не показывает дополнительные виджеты.
+                  {resources.home.expiringMemberships.emptyDescription}
                 </Text>
               </Stack>
             </Paper>
@@ -179,15 +176,15 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
 
                     <SimpleGrid className="home-client-row__fields" cols={{ base: 1, xs: 2, xl: 4 }}>
                       <HomeField
-                        label="Тип абонемента"
+                        label={resources.home.expiringMemberships.fields.membershipType}
                         value={membershipTypeLabels[client.membershipType]}
                       />
                       <HomeField
-                        label="Дата окончания"
+                        label={resources.home.expiringMemberships.fields.expirationDate}
                         value={formatDateValue(client.expirationDate)}
                       />
                       <HomeField
-                        label="Дней до окончания"
+                        label={resources.home.expiringMemberships.fields.daysUntilExpiration}
                         value={
                           <Badge
                             color={client.daysUntilExpiration <= 2 ? 'red' : 'accent.5'}
@@ -199,7 +196,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
                         }
                       />
                       <HomeField
-                        label="Оплата"
+                        label={resources.home.expiringMemberships.fields.payment}
                         value={
                           <Badge
                             color={client.isPaid ? 'teal' : 'red'}
@@ -221,7 +218,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
                           onClick={() => onOpenClient(client.clientId)}
                           variant="light"
                         >
-                          Карточка клиента
+                          {resources.home.expiringMemberships.openClientAction}
                         </Button>
                       </ResponsiveButtonGroup>
                     ) : null}
@@ -278,7 +275,7 @@ function formatDateValue(value: string | null) {
 
 function formatDaysUntilExpiration(daysUntilExpiration: number) {
   if (daysUntilExpiration === 0) {
-    return 'Сегодня'
+    return resources.home.expiringMemberships.today
   }
 
   return `${daysUntilExpiration} ${formatDayWord(daysUntilExpiration)}`

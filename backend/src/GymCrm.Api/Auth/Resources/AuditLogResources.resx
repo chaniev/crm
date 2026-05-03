@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DateMustUseFormat" xml:space="preserve">
+    <value>Укажите корректную дату в формате {0}.</value>
+  </data>
+  <data name="DateToCannotBeBeforeDateFrom" xml:space="preserve">
+    <value>Дата окончания периода не может быть раньше даты начала.</value>
+  </data>
+  <data name="UserIdInvalid" xml:space="preserve">
+    <value>Укажите корректный идентификатор пользователя.</value>
+  </data>
+  <data name="PageMustBeGreaterThanZero" xml:space="preserve">
+    <value>Номер страницы должен быть больше 0.</value>
+  </data>
+  <data name="PageSizeMustBeInRange" xml:space="preserve">
+    <value>Размер страницы должен быть в диапазоне от 1 до {0}.</value>
+  </data>
+  <data name="SkipCannotBeNegative" xml:space="preserve">
+    <value>Параметр skip не может быть отрицательным.</value>
+  </data>
+  <data name="TakeMustBeInRange" xml:space="preserve">
+    <value>Параметр take должен быть в диапазоне от 1 до {0}.</value>
+  </data>
+</root>

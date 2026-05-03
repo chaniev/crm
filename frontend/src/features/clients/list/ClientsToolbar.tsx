@@ -22,6 +22,7 @@ import {
   IconRefresh,
   IconSearch,
 } from '@tabler/icons-react'
+import { resources } from '../../../lib/resources'
 import {
   clientListPageSizeOptions,
   clientPaymentStatusFilterOptions,
@@ -38,9 +39,9 @@ type ClientsToolbarProps = {
 }
 
 const statusOptions = [
-  { value: 'Active', label: 'Активные' },
-  { value: 'all', label: 'Все' },
-  { value: 'Archived', label: 'Архив' },
+  { value: 'Active', label: resources.clients.list.statusFilters.Active },
+  { value: 'all', label: resources.clients.list.statusFilters.all },
+  { value: 'Archived', label: resources.clients.list.statusFilters.Archived },
 ] satisfies Array<{ value: ClientStatusFilter; label: string }>
 
 export function ClientsToolbar({

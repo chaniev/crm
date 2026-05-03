@@ -20,12 +20,9 @@ internal static class AuthConstants
     public const string LoginClaimType = "gym-crm:login";
     public const string UserVersionClaimType = "gym-crm:user-version";
     public const string AuthenticatedUserItemKey = "gym-crm:authenticated-user";
+    public const string InvalidCredentialsProblemTitle = "InvalidCredentials";
     public const string InvalidCsrfProblemTitle = "InvalidCsrfToken";
-    public const string InvalidCsrfProblemDetail =
-        "Запрос отклонен из-за некорректного CSRF-токена. Обновите страницу и повторите действие.";
     public const string PasswordChangeRequiredProblemTitle = "PasswordChangeRequired";
-    public const string PasswordChangeRequiredProblemDetail =
-        "Сначала смените пароль, чтобы продолжить работу.";
 
     public static readonly TimeSpan SessionLifetime = TimeSpan.FromHours(8);
 }

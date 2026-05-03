@@ -122,6 +122,133 @@ public class UsersApiTests
             payload.GetProperty("errors").GetProperty("messengerPlatformUserId")[0].GetString());
     }
 
+    [Fact]
+    public async Task Create_user_validation_reports_expected_error_keys_and_full_name_contract()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PostJsonAsync(
+            client,
+            "/users",
+            new UserCreateRequest(" ", " ", "", "InvalidRole", false, true),
+            session.CsrfToken);
+
+        var errors = await ReadValidationErrorsAsync(response);
+
+        AssertHasError(errors, "fullName");
+        AssertHasError(errors, "login");
+        AssertHasError(errors, "password");
+        AssertHasError(errors, "role");
+        AssertDoesNotHaveError(errors, "lastName");
+    }
+
+    [Fact]
+    public async Task User_validation_rejects_head_coach_creation_assignment_and_invalid_messenger_identity()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var createHeadCoachResponse = await PostJsonAsync(
+                   client,
+                   "/users",
+                   new UserCreateRequest(
+                       "Новый главный тренер",
+                       $"new-headcoach-{Guid.NewGuid():N}",
+                       "12345Aa!",
+                       "HeadCoach",
+                       false,
+                       true),
+                   session.CsrfToken))
+        {
+            var errors = await ReadValidationErrorsAsync(createHeadCoachResponse);
+            AssertHasError(errors, "role");
+        }
+
+        using (var assignHeadCoachResponse = await PutJsonAsync(
+                   client,
+                   $"/users/{seeded.CoachId}",
+                   new UserUpdateRequest(
+                       " ",
+                       seeded.CoachLogin,
+                       "HeadCoach",
+                       false,
+                       true),
+                   session.CsrfToken))
+        {
+            var errors = await ReadValidationErrorsAsync(assignHeadCoachResponse);
+            AssertHasError(errors, "fullName");
+            AssertHasError(errors, "role");
+            AssertDoesNotHaveError(errors, "lastName");
+        }
+
+        using (var missingMessengerPlatformResponse = await PostJsonAsync(
+                   client,
+                   "/users",
+                   new UserCreateRequest(
+                       "Messenger Partial",
+                       $"messenger-partial-{Guid.NewGuid():N}",
+                       "12345Aa!",
+                       "Coach",
+                       false,
+                       true,
+                       MessengerPlatformUserId: "telegram-id-without-platform"),
+                   session.CsrfToken))
+        {
+            var errors = await ReadValidationErrorsAsync(missingMessengerPlatformResponse);
+            AssertHasError(errors, "messengerPlatform");
+        }
+
+        using (var missingMessengerUserIdResponse = await PostJsonAsync(
+                   client,
+                   "/users",
+                   new UserCreateRequest(
+                       "Messenger Partial",
+                       $"messenger-partial-{Guid.NewGuid():N}",
+                       "12345Aa!",
+                       "Coach",
+                       false,
+                       true,
+                       MessengerPlatform: "Telegram"),
+                   session.CsrfToken))
+        {
+            var errors = await ReadValidationErrorsAsync(missingMessengerUserIdResponse);
+            AssertHasError(errors, "messengerPlatformUserId");
+        }
+
+        using (var tooLongMessengerUserIdResponse = await PostJsonAsync(
+                   client,
+                   "/users",
+                   new UserCreateRequest(
+                       "Messenger Too Long",
+                       $"messenger-too-long-{Guid.NewGuid():N}",
+                       "12345Aa!",
+                       "Coach",
+                       false,
+                       true,
+                       "Telegram",
+                       new string('x', 129)),
+                   session.CsrfToken))
+        {
+            var errors = await ReadValidationErrorsAsync(tooLongMessengerUserIdResponse);
+            AssertHasError(errors, "messengerPlatformUserId");
+        }
+    }
+
     [Theory]
     [InlineData("Administrator")]
     [InlineData("Coach")]
@@ -476,6 +603,40 @@ public class UsersApiTests
     {
         var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
         return payload;
+    }
+
+    private static async Task<JsonElement> ReadValidationErrorsAsync(HttpResponseMessage response)
+    {
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var payload = await ReadJsonElementAsync(response);
+        Assert.True(
+            payload.TryGetProperty("errors", out var errors),
+            "Expected validation problem payload to contain an errors object.");
+
+        return errors;
+    }
+
+    private static void AssertHasError(JsonElement errors, string propertyName)
+    {
+        Assert.True(
+            HasError(errors, propertyName),
+            $"Expected validation error for '{propertyName}'.");
+    }
+
+    private static void AssertDoesNotHaveError(JsonElement errors, string propertyName)
+    {
+        Assert.False(
+            HasError(errors, propertyName),
+            $"Did not expect validation error for '{propertyName}'.");
+    }
+
+    private static bool HasError(JsonElement errors, string propertyName)
+    {
+        return errors.ValueKind == JsonValueKind.Object &&
+            errors.TryGetProperty(propertyName, out var propertyErrors) &&
+            propertyErrors.ValueKind == JsonValueKind.Array &&
+            propertyErrors.GetArrayLength() > 0;
     }
 
     private static void AssertNoPasswordInAuditState(string? jsonPayload)

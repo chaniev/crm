@@ -62,7 +62,7 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
             await context.Response.WriteAsJsonAsync(new
             {
                 title = AuthConstants.PasswordChangeRequiredProblemTitle,
-                detail = AuthConstants.PasswordChangeRequiredProblemDetail
+                detail = AuthResources.PasswordChangeRequiredProblemDetail
             }, context.RequestAborted);
 
             return;

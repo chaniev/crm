@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Text.Json;
-using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
@@ -9,18 +8,13 @@ namespace GymCrm.Api.Auth;
 
 internal static class AuditLogEndpoints
 {
-    private const int DefaultPage = 1;
-    private const int DefaultTake = 20;
-    private const int MaxTake = 100;
-    private const string AuditDateFormat = "yyyy-MM-dd";
-
     public static IEndpointRouteBuilder MapAuditLogEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/audit-logs")
+        var group = endpoints.MapGroup(AuditLogApiConstants.RoutePrefix)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ViewAuditLog);
 
-        group.MapGet("/", ListAuditLogsAsync);
-        group.MapGet("/options", GetAuditLogOptionsAsync);
+        group.MapGet(AuditLogApiConstants.ListRoute, ListAuditLogsAsync);
+        group.MapGet(AuditLogApiConstants.OptionsRoute, GetAuditLogOptionsAsync);
 
         return endpoints;
     }
@@ -52,17 +46,17 @@ internal static class AuditLogEndpoints
 
         if (!string.IsNullOrWhiteSpace(dateFrom) && !parsedDateFrom.HasValue)
         {
-            errors["dateFrom"] = [$"Укажите корректную дату в формате {AuditDateFormat}."];
+            errors["dateFrom"] = [AuditLogResources.DateMustUseFormat(AuditLogApiConstants.DateFormat)];
         }
 
         if (!string.IsNullOrWhiteSpace(dateTo) && !parsedDateTo.HasValue)
         {
-            errors["dateTo"] = [$"Укажите корректную дату в формате {AuditDateFormat}."];
+            errors["dateTo"] = [AuditLogResources.DateMustUseFormat(AuditLogApiConstants.DateFormat)];
         }
 
         if (parsedDateFrom.HasValue && parsedDateTo.HasValue && parsedDateTo.Value < parsedDateFrom.Value)
         {
-            errors["dateTo"] = ["Дата окончания периода не может быть раньше даты начала."];
+            errors["dateTo"] = [AuditLogResources.DateToCannotBeBeforeDateFrom];
         }
 
         Guid? parsedUserId = null;
@@ -70,7 +64,7 @@ internal static class AuditLogEndpoints
         {
             if (!Guid.TryParse(normalizedUserId, out var value))
             {
-                errors["userId"] = ["Укажите корректный идентификатор пользователя."];
+                errors["userId"] = [AuditLogResources.UserIdInvalid];
             }
             else
             {
@@ -250,7 +244,7 @@ internal static class AuditLogEndpoints
 
         return DateOnly.TryParseExact(
             value.Trim(),
-            AuditDateFormat,
+            AuditLogApiConstants.DateFormat,
             CultureInfo.InvariantCulture,
             DateTimeStyles.None,
             out var parsed)
@@ -266,12 +260,12 @@ internal static class AuditLogEndpoints
         {
             if (page is <= 0)
             {
-                errors["page"] = ["Номер страницы должен быть больше 0."];
+                errors["page"] = [AuditLogResources.PageMustBeGreaterThanZero];
             }
 
-            if (pageSize is <= 0 or > MaxTake)
+            if (pageSize is <= 0 or > AuditLogApiConstants.MaxTake)
             {
-                errors["pageSize"] = [$"Размер страницы должен быть в диапазоне от 1 до {MaxTake}."];
+                errors["pageSize"] = [AuditLogResources.PageSizeMustBeInRange(AuditLogApiConstants.MaxTake)];
             }
 
             return errors;
@@ -279,12 +273,12 @@ internal static class AuditLogEndpoints
 
         if (skip is < 0)
         {
-            errors["skip"] = ["Параметр skip не может быть отрицательным."];
+            errors["skip"] = [AuditLogResources.SkipCannotBeNegative];
         }
 
-        if (take is <= 0 or > MaxTake)
+        if (take is <= 0 or > AuditLogApiConstants.MaxTake)
         {
-            errors["take"] = [$"Параметр take должен быть в диапазоне от 1 до {MaxTake}."];
+            errors["take"] = [AuditLogResources.TakeMustBeInRange(AuditLogApiConstants.MaxTake)];
         }
 
         return errors;
@@ -294,8 +288,8 @@ internal static class AuditLogEndpoints
     {
         if (page.HasValue || pageSize.HasValue)
         {
-            var resolvedPage = page.GetValueOrDefault(DefaultPage);
-            var resolvedPageSize = pageSize.GetValueOrDefault(DefaultTake);
+            var resolvedPage = page.GetValueOrDefault(AuditLogApiConstants.DefaultPage);
+            var resolvedPageSize = pageSize.GetValueOrDefault(AuditLogApiConstants.DefaultTake);
 
             return new AuditLogPaging(
                 (resolvedPage - 1) * resolvedPageSize,
@@ -304,7 +298,7 @@ internal static class AuditLogEndpoints
                 resolvedPageSize);
         }
 
-        var resolvedTake = take.GetValueOrDefault(DefaultTake);
+        var resolvedTake = take.GetValueOrDefault(AuditLogApiConstants.DefaultTake);
         var resolvedSkip = skip.GetValueOrDefault(0);
 
         return new AuditLogPaging(
@@ -388,65 +382,4 @@ internal static class AuditLogEndpoints
             || propertyName.EndsWith("hash", StringComparison.OrdinalIgnoreCase);
     }
 
-    private sealed record AuditLogPaging(int Skip, int Take, int Page, int PageSize);
-
-    private sealed record AuditLogListResponse(
-        IReadOnlyList<AuditLogListItemResponse> Items,
-        int TotalCount,
-        int Skip,
-        int Take,
-        int Page,
-        int PageSize,
-        bool HasNextPage);
-
-    private sealed record AuditLogListItemProjection(
-        Guid Id,
-        AuditLogUserProjection User,
-        string ActionType,
-        string EntityType,
-        string? EntityId,
-        string Description,
-        string Source,
-        string? MessengerPlatform,
-        string? OldValueJson,
-        string? NewValueJson,
-        DateTimeOffset CreatedAt);
-
-    private sealed record AuditLogListItemResponse(
-        Guid Id,
-        AuditLogUserResponse User,
-        string ActionType,
-        string EntityType,
-        string? EntityId,
-        string Description,
-        string Source,
-        string? MessengerPlatform,
-        string? OldValueJson,
-        string? NewValueJson,
-        DateTimeOffset CreatedAt);
-
-    private sealed record AuditLogFilterOptionsResponse(
-        IReadOnlyList<AuditLogUserResponse> Users,
-        IReadOnlyList<string> ActionTypes,
-        IReadOnlyList<string> EntityTypes,
-        IReadOnlyList<string> Sources,
-        IReadOnlyList<string> MessengerPlatforms);
-
-    private sealed record AuditLogUserResponse(
-        Guid Id,
-        string FullName,
-        string Login,
-        string Role);
-
-    private sealed record AuditLogUserProjection(
-        Guid Id,
-        string FullName,
-        string Login,
-        UserRole Role);
-
-    private sealed record AuditLogUserOptionProjection(
-        Guid Id,
-        string FullName,
-        string Login,
-        UserRole Role);
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SelfHealthCheckDescription" xml:space="preserve">
+    <value>API is running.</value>
+  </data>
+  <data name="BootstrapFullNameDefault" xml:space="preserve">
+    <value>Главный тренер</value>
+  </data>
+  <data name="BootstrapUserLoginAlreadyExistsLog" xml:space="preserve">
+    <value>Bootstrap user seeding skipped because login '{Login}' already exists.</value>
+  </data>
+  <data name="BootstrapUserDatabaseAlreadyHasUsersLog" xml:space="preserve">
+    <value>Bootstrap user seeding skipped because the database already contains users.</value>
+  </data>
+  <data name="BootstrapUserConcurrentCreationSkippedLog" xml:space="preserve">
+    <value>Bootstrap HeadCoach user '{Login}' already exists after a concurrent startup attempt. Skipping duplicate creation.</value>
+  </data>
+  <data name="BootstrapUserCreatedLog" xml:space="preserve">
+    <value>Bootstrap HeadCoach user '{Login}' has been created with a forced password change.</value>
+  </data>
+</root>

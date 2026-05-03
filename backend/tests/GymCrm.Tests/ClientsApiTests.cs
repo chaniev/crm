@@ -612,6 +612,10 @@ public class ClientsApiTests
         }
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var expiringTodayClient = await CreateClientWithMembershipAsync(
+            "Alpha",
+            MembershipType.Monthly,
+            today);
         var expiringSoonClient = await CreateClientWithMembershipAsync(
             "Zebra",
             MembershipType.Monthly,
@@ -620,6 +624,10 @@ public class ClientsApiTests
             "Aaron",
             MembershipType.Yearly,
             today.AddDays(8));
+        var expiringDayNineClient = await CreateClientWithMembershipAsync(
+            "Beta",
+            MembershipType.Monthly,
+            today.AddDays(9));
         var notExpiringClient = await CreateClientWithMembershipAsync(
             "Eta",
             MembershipType.Monthly,
@@ -636,33 +644,35 @@ public class ClientsApiTests
             var listPayload = await ReadJsonElementAsync(listResponse);
             var clientsPayload = GetArrayPayload(listPayload, "data", "items", "clients");
             var clientItems = clientsPayload.EnumerateArray().ToArray();
-            Assert.Equal(2, clientItems.Length);
+            Assert.Equal(4, clientItems.Length);
 
             var resultClientIds = clientItems
                 .Select(item => GetGuidFromAnyCase(item, "id", "Id", "clientId", "ClientId"))
                 .ToArray();
+            Assert.Contains(expiringTodayClient, resultClientIds);
             Assert.Contains(expiringSoonClient, resultClientIds);
             Assert.Contains(laterExpiringClient, resultClientIds);
+            Assert.Contains(expiringDayNineClient, resultClientIds);
             Assert.DoesNotContain(notExpiringClient, resultClientIds);
             Assert.DoesNotContain(noExpirationClient, resultClientIds);
 
             Assert.Equal(
-                [expiringSoonClient, laterExpiringClient],
+                [expiringTodayClient, expiringSoonClient, laterExpiringClient, expiringDayNineClient],
                 resultClientIds);
 
             var firstClient = clientItems[0];
-            Assert.Equal("Zebra Тест А", GetStringFromAnyCase(firstClient, "fullName", "FullName"));
+            Assert.Equal("Alpha Тест А", GetStringFromAnyCase(firstClient, "fullName", "FullName"));
             Assert.Equal("Monthly", GetStringFromAnyCase(firstClient, "membershipType", "MembershipType"));
-            Assert.Equal(today.AddDays(2).ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
-            Assert.Equal(2L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
-            Assert.False(GetBoolFromAnyCase(firstClient, "isPaid", "IsPaid"));
+            Assert.Equal(today.ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
+            Assert.Equal(0L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.True(GetBoolFromAnyCase(firstClient, "isPaid", "IsPaid"));
 
             var secondClient = clientItems[1];
-            Assert.Equal("Aaron Тест А", GetStringFromAnyCase(secondClient, "fullName", "FullName"));
-            Assert.Equal("Yearly", GetStringFromAnyCase(secondClient, "membershipType", "MembershipType"));
-            Assert.Equal(today.AddDays(8).ToString("yyyy-MM-dd"), GetStringFromAnyCase(secondClient, "expirationDate", "ExpirationDate"));
-            Assert.Equal(8L, GetLongFromAnyCase(secondClient, "daysUntilExpiration", "DaysUntilExpiration"));
-            Assert.True(GetBoolFromAnyCase(secondClient, "isPaid", "IsPaid"));
+            Assert.Equal("Zebra Тест А", GetStringFromAnyCase(secondClient, "fullName", "FullName"));
+            Assert.Equal("Monthly", GetStringFromAnyCase(secondClient, "membershipType", "MembershipType"));
+            Assert.Equal(today.AddDays(2).ToString("yyyy-MM-dd"), GetStringFromAnyCase(secondClient, "expirationDate", "ExpirationDate"));
+            Assert.Equal(2L, GetLongFromAnyCase(secondClient, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.False(GetBoolFromAnyCase(secondClient, "isPaid", "IsPaid"));
         }
     }
 

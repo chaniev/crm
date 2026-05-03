@@ -72,7 +72,7 @@ builder.Services
     .AddHealthChecks()
     .AddCheck(
         ApiHostingConstants.SelfHealthCheckName,
-        () => HealthCheckResult.Healthy(ApiHostingConstants.SelfHealthCheckDescription),
+        () => HealthCheckResult.Healthy(StartupResources.SelfHealthCheckDescription),
         tags: [ApiHostingConstants.LiveHealthTag]);
 builder.Services.AddInfrastructure(builder.Configuration);
 

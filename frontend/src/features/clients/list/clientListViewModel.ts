@@ -9,6 +9,7 @@ import {
   type ClientStatus,
   type MembershipType,
 } from '../../../lib/api'
+import { resources } from '../../../lib/resources'
 
 export type ClientNextActionTone = 'orange' | 'yellow' | 'red' | 'blue' | 'gray'
 
@@ -39,24 +40,19 @@ export type ClientPreviewViewModel = {
   events: Array<{ label: string; value: string }>
 }
 
-export const statusLabelMap: Record<ClientStatus, string> = {
-  Active: 'Активный',
-  Archived: 'Архивный',
-}
+export const statusLabelMap = resources.clients.statuses satisfies Record<
+  ClientStatus,
+  string
+>
 
-export const membershipTypeLabels: Record<MembershipType, string> = {
-  SingleVisit: 'Разовое',
-  Monthly: 'Месячный',
-  Yearly: 'Годовой',
-}
+export const membershipTypeLabels = resources.clients
+  .membershipTypeLabels satisfies Record<MembershipType, string>
 
-const membershipChangeReasonLabels: Record<ClientMembershipChangeReason, string> = {
-  NewPurchase: 'Оформлен абонемент',
-  Renewal: 'Продление',
-  Correction: 'Исправление',
-  PaymentUpdate: 'Оплата отмечена',
-  SingleVisitWriteOff: 'Разовое списано',
-}
+const membershipChangeReasonLabels = resources.clients.list
+  .membershipChangeReasonLabels satisfies Record<
+  ClientMembershipChangeReason,
+  string
+>
 
 export function buildClientRowViewModel(
   client: ClientListItem,

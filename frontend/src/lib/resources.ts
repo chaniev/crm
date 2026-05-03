@@ -2,16 +2,48 @@ export const resources = {
   common: {
     actions: {
       cancel: 'Отмена',
+      open: 'Открыть',
       refresh: 'Обновить',
+      resetFilters: 'Сбросить фильтры',
     },
     membership: {
-      expiringWindowDays: 10,
+      typeLabels: {
+        SingleVisit: 'Разовое посещение',
+        Monthly: 'Месячный',
+        Yearly: 'Годовой',
+      },
     },
     statuses: {
       active: 'Активен',
       disabled: 'Отключен',
       paid: 'Оплачен',
       unpaid: 'Не оплачен',
+    },
+  },
+  home: {
+    accessDenied: {
+      title: 'Главная страница недоступна',
+      message: 'Этот экран доступен главному тренеру и администратору.',
+    },
+    expiringMemberships: {
+      title: 'Истекающие абонементы',
+      description:
+        'Только клиенты, у которых абонемент скоро закончится.',
+      loadingErrorTitle: 'Список не загрузился',
+      loadingErrorMessage:
+        'Не удалось загрузить клиентов с истекающими абонементами.',
+      emptyTitle: 'Истекающих абонементов сейчас нет.',
+      emptyDescription:
+        'Экран остается узким operational-списком и не показывает дополнительные виджеты.',
+      audienceBadge: 'Главный тренер и администратор',
+      openClientAction: 'Карточка клиента',
+      fields: {
+        membershipType: 'Тип абонемента',
+        expirationDate: 'Дата окончания',
+        daysUntilExpiration: 'Дней до окончания',
+        payment: 'Оплата',
+      },
+      today: 'Сегодня',
     },
   },
   users: {
@@ -134,13 +166,96 @@ export const resources = {
       Logout: 'Выход из системы',
       PasswordChanged: 'Смена пароля',
       UserCreated: 'Создание пользователя',
-      UserUpdated: 'Изменение пользователя',
+      UserUpdated: 'Редактирование пользователя',
+      ClientCreated: 'Создание клиента',
+      ClientUpdated: 'Редактирование клиента',
+      ClientArchived: 'Архивирование клиента',
+      ClientRestored: 'Возврат клиента из архива',
+      TrainingGroupCreated: 'Создание группы',
+      TrainingGroupUpdated: 'Редактирование группы',
+      ClientMembershipPurchased: 'Оформление абонемента',
+      ClientMembershipRenewed: 'Продление абонемента',
+      ClientMembershipCorrected: 'Исправление абонемента',
+      ClientMembershipPaymentMarked: 'Отметка оплаты',
+      ClientMembershipSingleVisitWrittenOff: 'Списание разового посещения',
+      AttendanceMarked: 'Отметка посещения',
+      AttendanceUpdated: 'Изменение посещения',
+      BotAttendanceSaved: 'Отметка посещения из бота',
+      BotMembershipPaymentMarked: 'Отметка оплаты из бота',
+      BotAccessDenied: 'Отказ доступа в боте',
     },
     entityLabels: {
+      UserSession: 'Сессия пользователя',
       User: 'Пользователь',
       Client: 'Клиент',
-      Group: 'Группа',
-      Attendance: 'Посещаемость',
+      TrainingGroup: 'Группа',
+      ClientMembership: 'Абонемент',
+      Attendance: 'Посещение',
+      BotAction: 'Действие бота',
+    },
+    sourceLabels: {
+      Web: 'Web',
+      Bot: 'Бот',
+    },
+    messengerPlatformLabels: {
+      Telegram: 'Telegram',
+    },
+  },
+  clients: {
+    statuses: {
+      Active: 'Активный',
+      Archived: 'Архивный',
+    },
+    paymentStatuses: {
+      Paid: 'Оплаченные',
+      Unpaid: 'Неоплаченные',
+    },
+    membershipTypeLabels: {
+      SingleVisit: 'Разовое',
+      Monthly: 'Месячный',
+      Yearly: 'Годовой',
+    },
+    membershipTypeOptionLabels: {
+      SingleVisit: 'Разовое посещение',
+      Monthly: 'Месячный абонемент',
+      Yearly: 'Годовой абонемент',
+    },
+    membershipChangeReasonLabels: {
+      NewPurchase: 'Новая покупка',
+      Renewal: 'Продление',
+      Correction: 'Исправление',
+      PaymentUpdate: 'Оплата отмечена',
+      SingleVisitWriteOff: 'Списание разового',
+    },
+    list: {
+      membershipChangeReasonLabels: {
+        NewPurchase: 'Оформлен абонемент',
+        Renewal: 'Продление',
+        Correction: 'Исправление',
+        PaymentUpdate: 'Оплата отмечена',
+        SingleVisitWriteOff: 'Разовое списано',
+      },
+      quickFilters: {
+        withoutMembership: 'Без абонемента',
+        expiringSoon: 'Скоро закончится',
+        withoutGroup: 'Без группы',
+        trial: 'Пробные',
+      },
+      statusFilters: {
+        Active: 'Активные',
+        all: 'Все',
+        Archived: 'Архив',
+      },
+    },
+  },
+  groups: {
+    statuses: {
+      active: 'Активна',
+      inactive: 'Неактивна',
+    },
+    formFallbacks: {
+      trainingStartTime: 'Не задан',
+      scheduleText: 'Не задано',
     },
   },
 } as const

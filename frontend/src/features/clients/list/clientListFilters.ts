@@ -5,6 +5,7 @@ import type {
   GetClientsParams,
   MembershipType,
 } from '../../../lib/api'
+import { resources } from '../../../lib/resources'
 
 export type ClientStatusFilter = ClientStatus | 'all'
 export type ClientPaymentStatusFilter = ClientPaymentStatus | 'all'
@@ -36,8 +37,8 @@ export const clientListPageSizeOptions = [
 ] as const
 
 export const clientPaymentStatusFilterOptions = [
-  { value: 'Paid', label: 'Оплаченные' },
-  { value: 'Unpaid', label: 'Неоплаченные' },
+  { value: 'Paid', label: resources.clients.paymentStatuses.Paid },
+  { value: 'Unpaid', label: resources.clients.paymentStatuses.Unpaid },
 ] satisfies Array<{ value: ClientPaymentStatus; label: string }>
 
 export function createDefaultClientListFilters(): ClientListFilterValues {

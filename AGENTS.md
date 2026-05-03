@@ -18,6 +18,8 @@
 4. `README.md`, `docker-compose.yml`, `package.json`, `.csproj`, `Program.cs`, `playwright.config.ts`;
 5. `docs/` — только как дополнительный контекст.
 
+CRM-бизнес-логика, правила ролей, доступа, абонементов, посещаемости и аудит-контрактов принадлежат backend. `frontend/` и `bot/` отображают backend-контракты и могут держать только UI/adapter-specific состояние, не дублируя CRM-правила как второй источник истины.
+
 ## Какие агенты используются
 
 - `csharp-developer` — код на `C#`, прикладные сервисы, модели и persistence-слой.

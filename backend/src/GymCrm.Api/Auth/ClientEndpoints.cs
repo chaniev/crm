@@ -143,11 +143,15 @@ internal static class ClientEndpoints
                 ClientPaymentStatus.Paid => clientsQuery.Where(client => client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
+                    .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Take(1)
                     .Any(membership => membership.IsPaid)),
                 ClientPaymentStatus.Unpaid => clientsQuery.Where(client => client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
+                    .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Take(1)
                     .Any(membership => !membership.IsPaid)),
                 _ => clientsQuery
@@ -171,6 +175,8 @@ internal static class ClientEndpoints
             clientsQuery = clientsQuery.Where(client => client.Memberships
                 .Where(membership => membership.ValidTo == null)
                 .OrderByDescending(membership => membership.ValidFrom)
+                .ThenByDescending(membership => membership.CreatedAt)
+                .ThenByDescending(membership => membership.Id)
                 .Take(1)
                 .Any(membership => membership.MembershipType == parsedMembershipType.Value));
         }
@@ -182,6 +188,7 @@ internal static class ClientEndpoints
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
                     .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Take(1)
                     .Any(
                         membership =>
@@ -193,6 +200,7 @@ internal static class ClientEndpoints
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
                     .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Take(1)
                     .Any(
                         membership =>
@@ -304,6 +312,7 @@ internal static class ClientEndpoints
                     .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
                     .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Take(1)
                     .Any(
                         membership =>
@@ -314,12 +323,14 @@ internal static class ClientEndpoints
                     .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
                     .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Take(1)
                     .Any(membership => !membership.IsPaid),
                 dbContext.ClientMemberships
                     .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
                     .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Select(membership => new CurrentMembershipSummaryResponse(
                         membership.Id,
                         membership.MembershipType.ToString(),
@@ -333,6 +344,7 @@ internal static class ClientEndpoints
                     .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
                     .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Select(membership =>
                         !membership.IsPaid
                             ? ClientMembershipState.Unpaid.ToString()
@@ -388,7 +400,7 @@ internal static class ClientEndpoints
         }
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-        var expiresBefore = today.AddDays(ClientApiConstants.ExpiringMembershipWindowDays);
+        var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
         IReadOnlyList<ExpiringClientMembershipListItemResponse> response = await dbContext.Clients
             .AsNoTracking()
@@ -402,6 +414,8 @@ internal static class ClientEndpoints
                 CurrentMembership = client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
+                    .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Select(membership => new
                     {
                         membership.MembershipType,
@@ -1731,6 +1745,8 @@ internal static class ClientEndpoints
         return query.Where(client => client.Memberships
             .Where(membership => membership.ValidTo == null)
             .OrderByDescending(membership => membership.ValidFrom)
+            .ThenByDescending(membership => membership.CreatedAt)
+            .ThenByDescending(membership => membership.Id)
             .Take(1)
             .Any(membership =>
                 membership.ExpirationDate.HasValue &&
@@ -1761,24 +1777,28 @@ internal static class ClientEndpoints
                 .Where(membership => membership.ValidTo == null)
                 .OrderByDescending(membership => membership.ValidFrom)
                 .ThenByDescending(membership => membership.CreatedAt)
+                .ThenByDescending(membership => membership.Id)
                 .Take(1)
                 .Any(membership => !membership.IsPaid)),
             ClientMembershipState.Expired => query.Where(client => client.Memberships
                 .Where(membership => membership.ValidTo == null)
                 .OrderByDescending(membership => membership.ValidFrom)
                 .ThenByDescending(membership => membership.CreatedAt)
+                .ThenByDescending(membership => membership.Id)
                 .Take(1)
                 .Any(membership => membership.IsPaid && membership.ExpirationDate != null && membership.ExpirationDate < today)),
             ClientMembershipState.UsedSingleVisit => query.Where(client => client.Memberships
                 .Where(membership => membership.ValidTo == null)
                 .OrderByDescending(membership => membership.ValidFrom)
                 .ThenByDescending(membership => membership.CreatedAt)
+                .ThenByDescending(membership => membership.Id)
                 .Take(1)
                 .Any(membership => membership.IsPaid && membership.MembershipType == MembershipType.SingleVisit && membership.SingleVisitUsed)),
             ClientMembershipState.ActivePaid => query.Where(client => client.Memberships
                 .Where(membership => membership.ValidTo == null)
                 .OrderByDescending(membership => membership.ValidFrom)
                 .ThenByDescending(membership => membership.CreatedAt)
+                .ThenByDescending(membership => membership.Id)
                 .Take(1)
                 .Any(
                     membership =>
@@ -1860,6 +1880,7 @@ internal static class ClientEndpoints
                 group => group
                     .OrderByDescending(membership => membership.ValidFrom)
                     .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .First());
 
         var attendanceQuery = dbContext.Attendance
@@ -1988,6 +2009,7 @@ internal static class ClientEndpoints
             .ThenBy(contact => contact.Phone, StringComparer.CurrentCulture)
             .ToArray();
         var membershipHistory = MapMembershipHistory(client.Memberships);
+        var currentMembership = GetCurrentMembership(client);
 
         return new ClientDetailsResponse(
             client.Id,
@@ -2001,9 +2023,9 @@ internal static class ClientEndpoints
             groups,
             contacts,
             MapPhoto(client),
-            HasActivePaidMembership(GetCurrentMembership(client)),
-            GetCurrentMembership(client) is not null && !GetCurrentMembership(client)!.IsPaid,
-            membershipHistory.FirstOrDefault(membership => membership.ValidTo is null),
+            HasActivePaidMembership(currentMembership),
+            currentMembership is not null && !currentMembership.IsPaid,
+            currentMembership is null ? null : MapMembership(currentMembership),
             membershipHistory,
             attendanceHistory.Items,
             attendanceHistory.Skip,
@@ -2020,6 +2042,7 @@ internal static class ClientEndpoints
         ClientAttendanceHistoryPageResponse attendanceHistory)
     {
         var groups = MapGroups(coachGroups);
+        var currentMembership = GetCurrentMembership(client);
 
         return new ClientDetailsResponse(
             client.Id,
@@ -2033,8 +2056,8 @@ internal static class ClientEndpoints
             groups,
             [],
             MapPhoto(client),
-            HasActivePaidMembership(GetCurrentMembership(client)),
-            GetCurrentMembership(client) is not null && !GetCurrentMembership(client)!.IsPaid,
+            HasActivePaidMembership(currentMembership),
+            currentMembership is not null && !currentMembership.IsPaid,
             null,
             [],
             attendanceHistory.Items,
@@ -2065,6 +2088,7 @@ internal static class ClientEndpoints
         return memberships
             .OrderByDescending(membership => membership.ValidFrom)
             .ThenByDescending(membership => membership.CreatedAt)
+            .ThenByDescending(membership => membership.Id)
             .Select(MapMembership)
             .ToArray();
     }
@@ -2123,6 +2147,8 @@ internal static class ClientEndpoints
     {
         return client.Memberships
             .OrderByDescending(membership => membership.ValidFrom)
+            .ThenByDescending(membership => membership.CreatedAt)
+            .ThenByDescending(membership => membership.Id)
             .FirstOrDefault(membership => membership.ValidTo is null);
     }
 
@@ -2233,236 +2259,4 @@ internal static class ClientEndpoints
             AuditSerializerOptions);
     }
 
-    private sealed record Paging(int Skip, int Take);
-
-    private sealed record AttendanceHistoryPaging(int Skip, int Take);
-
-    private sealed record UpsertClientRequest(
-        string? LastName,
-        string? FirstName,
-        string? MiddleName,
-        string? Phone,
-        IReadOnlyList<UpsertClientContactRequest>? Contacts,
-        IReadOnlyList<Guid>? GroupIds);
-
-    private sealed record UpsertClientContactRequest(
-        string? Type,
-        string? FullName,
-        string? Phone);
-
-    private sealed record NormalizedClientRequest(
-        string? LastName,
-        string? FirstName,
-        string? MiddleName,
-        string Phone,
-        IReadOnlyList<UpsertClientContactRequest>? RawContacts,
-        IReadOnlyList<NormalizedClientContactRequest> Contacts,
-        IReadOnlyList<Guid>? RawGroupIds,
-        IReadOnlyList<Guid> GroupIds);
-
-    private sealed record NormalizedClientContactRequest(
-        string Type,
-        string FullName,
-        string Phone);
-
-    private sealed record ClientListResponse(
-        IReadOnlyList<ClientListItemResponse> Items,
-        int TotalCount,
-        int Skip,
-        int Take,
-        int Page,
-        int PageSize,
-        bool HasNextPage,
-        int ActiveCount,
-        int ArchivedCount);
-
-    private sealed record ClientListItemResponse(
-        Guid Id,
-        string? LastName,
-        string? FirstName,
-        string? MiddleName,
-        string FullName,
-        string Phone,
-        string Status,
-        IReadOnlyList<Guid> GroupIds,
-        IReadOnlyList<ClientGroupSummaryResponse> Groups,
-        int ContactCount,
-        ClientPhotoSummaryResponse? Photo,
-        bool HasActivePaidMembership,
-        bool HasUnpaidCurrentMembership,
-        CurrentMembershipSummaryResponse? CurrentMembershipSummary,
-        bool HasCurrentMembership,
-        string MembershipState,
-        DateOnly? LastVisitDate,
-        DateTimeOffset UpdatedAt);
-
-    private sealed record CurrentMembershipSummaryResponse(
-        Guid Id,
-        string MembershipType,
-        DateOnly PurchaseDate,
-        DateOnly? ExpirationDate,
-        bool IsPaid,
-        bool SingleVisitUsed);
-
-    private sealed record ExpiringClientMembershipListItemResponse(
-        Guid ClientId,
-        string FullName,
-        string MembershipType,
-        DateOnly ExpirationDate,
-        int DaysUntilExpiration,
-        bool IsPaid);
-
-    private sealed record ClientDetailsResponse(
-        Guid Id,
-        string? LastName,
-        string? FirstName,
-        string? MiddleName,
-        string FullName,
-        string Phone,
-        string Status,
-        IReadOnlyList<Guid> GroupIds,
-        IReadOnlyList<ClientGroupSummaryResponse> Groups,
-        IReadOnlyList<ClientContactResponse> Contacts,
-        ClientPhotoSummaryResponse? Photo,
-        bool HasActivePaidMembership,
-        bool HasUnpaidCurrentMembership,
-        ClientMembershipResponse? CurrentMembership,
-        IReadOnlyList<ClientMembershipResponse> MembershipHistory,
-        IReadOnlyList<ClientAttendanceHistoryEntryResponse> AttendanceHistory,
-        int AttendanceHistorySkip,
-        int AttendanceHistoryTake,
-        int AttendanceHistoryTotalCount,
-        bool AttendanceHistoryHasMore,
-        DateTimeOffset CreatedAt,
-        DateTimeOffset UpdatedAt);
-
-    private sealed record ClientAttendanceHistoryPageResponse(
-        IReadOnlyList<ClientAttendanceHistoryEntryResponse> Items,
-        int Skip,
-        int Take,
-        int TotalCount,
-        bool HasMore);
-
-    private sealed record ClientLastVisitProjection(
-        Guid ClientId,
-        DateOnly TrainingDate);
-
-    private sealed record ClientGroupSummaryResponse(
-        Guid Id,
-        string Name,
-        bool IsActive,
-        string? TrainingStartTime,
-        string? ScheduleText);
-
-    private sealed record ClientContactResponse(
-        string Type,
-        string FullName,
-        string Phone);
-
-    private sealed record ClientPhotoSummaryResponse(
-        string Path,
-        string ContentType,
-        long SizeBytes,
-        DateTimeOffset UploadedAt,
-        bool HasPhoto);
-
-    private sealed record ClientMembershipResponse(
-        Guid Id,
-        string MembershipType,
-        DateOnly PurchaseDate,
-        DateOnly? ExpirationDate,
-        decimal PaymentAmount,
-        bool IsPaid,
-        bool SingleVisitUsed,
-        Guid? PaidByUserId,
-        string? PaidByUserFullName,
-        DateTimeOffset? PaidAt,
-        string ChangeReason,
-        DateTimeOffset ValidFrom,
-        DateTimeOffset? ValidTo,
-        DateTimeOffset CreatedAt);
-
-    private sealed record ClientAttendanceHistoryEntryResponse(
-        Guid Id,
-        DateOnly TrainingDate,
-        bool IsPresent,
-        Guid GroupId,
-        string GroupName,
-        string? GroupTrainingStartTime,
-        string? GroupScheduleText);
-
-    private sealed record ClientAuditState(
-        Guid Id,
-        string? LastName,
-        string? FirstName,
-        string? MiddleName,
-        string Phone,
-        string Status,
-        IReadOnlyList<ClientContactAuditState> Contacts,
-        IReadOnlyList<Guid> GroupIds,
-        DateTimeOffset CreatedAt,
-        DateTimeOffset UpdatedAt);
-
-    private sealed record ClientContactAuditState(
-        string Type,
-        string FullName,
-        string Phone);
-
-    private sealed record PurchaseClientMembershipRequest(
-        string? MembershipType,
-        string? PurchaseDate,
-        string? ExpirationDate,
-        decimal? PaymentAmount,
-        bool? IsPaid);
-
-    private sealed record RenewClientMembershipRequest(
-        string? MembershipType,
-        string? RenewalDate,
-        string? ExpirationDate,
-        decimal? PaymentAmount,
-        bool? IsPaid);
-
-    private sealed record CorrectClientMembershipRequest(
-        string? MembershipType,
-        string? PurchaseDate,
-        string? ExpirationDate,
-        decimal? PaymentAmount,
-        bool? IsPaid);
-
-    private sealed record MarkMembershipPaymentRequest(
-        string? MembershipType,
-        decimal? PaymentAmount,
-        bool? IsPaid);
-
-    private sealed record ClientMembershipAuditState(
-        Guid Id,
-        Guid ClientId,
-        string MembershipType,
-        DateOnly PurchaseDate,
-        DateOnly? ExpirationDate,
-        decimal PaymentAmount,
-        bool IsPaid,
-        bool SingleVisitUsed,
-        Guid? PaidByUserId,
-        DateTimeOffset? PaidAt,
-        string ChangeReason,
-        Guid ChangedByUserId,
-        DateTimeOffset ValidFrom,
-        DateTimeOffset? ValidTo,
-        DateTimeOffset CreatedAt);
-
-    private enum ClientPaymentStatus
-    {
-        Paid,
-        Unpaid
-    }
-
-    private enum ClientMembershipState
-    {
-        None,
-        ActivePaid,
-        Unpaid,
-        Expired,
-        UsedSingleVisit
-    }
 }

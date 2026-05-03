@@ -25,7 +25,6 @@ internal sealed class BotApiService(
     private const int DefaultSearchTake = 20;
     private const int MaxSearchTake = 50;
     private const int ClientCardAttendanceTake = 20;
-    private const int ExpiringMembershipWindowDays = 10;
 
     public async Task<BotApiResult<BotUserContext>> ResolveUserContextAsync(
         BotIdentity identity,
@@ -425,7 +424,7 @@ internal sealed class BotApiService(
         }
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-        var expiresBeforeInclusive = today.AddDays(ExpiringMembershipWindowDays);
+        var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
         var items = await dbContext.Clients
             .AsNoTracking()
@@ -439,6 +438,8 @@ internal sealed class BotApiService(
                 CurrentMembership = client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
+                    .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Select(membership => new
                     {
                         membership.MembershipType,
@@ -451,7 +452,7 @@ internal sealed class BotApiService(
                 candidate.CurrentMembership != null &&
                 candidate.CurrentMembership.ExpirationDate.HasValue &&
                 candidate.CurrentMembership.ExpirationDate.Value >= today &&
-                candidate.CurrentMembership.ExpirationDate.Value <= expiresBeforeInclusive)
+                candidate.CurrentMembership.ExpirationDate.Value < expiresBefore)
             .OrderBy(candidate => candidate.CurrentMembership!.ExpirationDate)
             .ThenBy(candidate => candidate.LastName ?? string.Empty)
             .ThenBy(candidate => candidate.FirstName ?? string.Empty)
@@ -497,6 +498,8 @@ internal sealed class BotApiService(
                 CurrentMembership = client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
+                    .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
                     .Select(membership => new
                     {
                         membership.MembershipType,
@@ -1095,6 +1098,8 @@ internal sealed class BotApiService(
     {
         return client.Memberships
             .OrderByDescending(membership => membership.ValidFrom)
+            .ThenByDescending(membership => membership.CreatedAt)
+            .ThenByDescending(membership => membership.Id)
             .FirstOrDefault(membership => membership.ValidTo is null);
     }
 

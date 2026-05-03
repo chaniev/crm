@@ -32,6 +32,7 @@ import {
   type AuthenticatedUser,
   type GetAuditLogParams,
 } from '../../lib/api'
+import { resources } from '../../lib/resources'
 import { ResponsiveButtonGroup } from '../shared/ux'
 
 type AuditLogScreenProps = {
@@ -65,49 +66,6 @@ const EMPTY_FILTER_OPTIONS: AuditLogFilterOptions = {
   entityTypes: [],
   sources: [],
   messengerPlatforms: [],
-}
-
-const actionTypeLabels: Record<string, string> = {
-  Login: 'Вход в систему',
-  Logout: 'Выход из системы',
-  PasswordChanged: 'Смена пароля',
-  UserCreated: 'Создание пользователя',
-  UserUpdated: 'Редактирование пользователя',
-  ClientCreated: 'Создание клиента',
-  ClientUpdated: 'Редактирование клиента',
-  ClientArchived: 'Архивирование клиента',
-  ClientRestored: 'Возврат клиента из архива',
-  TrainingGroupCreated: 'Создание группы',
-  TrainingGroupUpdated: 'Редактирование группы',
-  ClientMembershipPurchased: 'Оформление абонемента',
-  ClientMembershipRenewed: 'Продление абонемента',
-  ClientMembershipCorrected: 'Исправление абонемента',
-  ClientMembershipPaymentMarked: 'Отметка оплаты',
-  ClientMembershipSingleVisitWrittenOff: 'Списание разового посещения',
-  AttendanceMarked: 'Отметка посещения',
-  AttendanceUpdated: 'Изменение посещения',
-  BotAttendanceSaved: 'Отметка посещения из бота',
-  BotMembershipPaymentMarked: 'Отметка оплаты из бота',
-  BotAccessDenied: 'Отказ доступа в боте',
-}
-
-const entityTypeLabels: Record<string, string> = {
-  UserSession: 'Сессия пользователя',
-  User: 'Пользователь',
-  Client: 'Клиент',
-  TrainingGroup: 'Группа',
-  ClientMembership: 'Абонемент',
-  Attendance: 'Посещение',
-  BotAction: 'Действие бота',
-}
-
-const sourceLabels: Record<string, string> = {
-  Web: 'Web',
-  Bot: 'Бот',
-}
-
-const messengerPlatformLabels: Record<string, string> = {
-  Telegram: 'Telegram',
 }
 
 export function AuditLogScreen({ user }: AuditLogScreenProps) {
@@ -584,19 +542,26 @@ function formatPaginationSummary(response: AuditLogListResponse | null) {
 }
 
 function formatActionType(actionType: string) {
-  return actionTypeLabels[actionType] ?? actionType
+  return getDictionaryLabel(resources.audit.actionLabels, actionType)
 }
 
 function formatEntityType(entityType: string) {
-  return entityTypeLabels[entityType] ?? entityType
+  return getDictionaryLabel(resources.audit.entityLabels, entityType)
 }
 
 function formatSource(source: string) {
-  return sourceLabels[source] ?? source
+  return getDictionaryLabel(resources.audit.sourceLabels, source)
 }
 
 function formatMessengerPlatform(messengerPlatform: string) {
-  return messengerPlatformLabels[messengerPlatform] ?? messengerPlatform
+  return getDictionaryLabel(
+    resources.audit.messengerPlatformLabels,
+    messengerPlatform,
+  )
+}
+
+function getDictionaryLabel(dictionary: Record<string, string>, value: string) {
+  return dictionary[value] ?? value
 }
 
 function formatUserLabel(entry: AuditLogEntry) {

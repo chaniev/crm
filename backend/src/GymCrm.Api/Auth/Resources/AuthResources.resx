@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LoginRequired" xml:space="preserve">
+    <value>Укажите логин.</value>
+  </data>
+  <data name="PasswordRequired" xml:space="preserve">
+    <value>Укажите пароль.</value>
+  </data>
+  <data name="InvalidCredentialsDetail" xml:space="preserve">
+    <value>Неверный логин или пароль.</value>
+  </data>
+  <data name="CurrentPasswordRequired" xml:space="preserve">
+    <value>Укажите текущий пароль.</value>
+  </data>
+  <data name="NewPasswordRequired" xml:space="preserve">
+    <value>Укажите новый пароль.</value>
+  </data>
+  <data name="NewPasswordMustDiffer" xml:space="preserve">
+    <value>Новый пароль должен отличаться от текущего.</value>
+  </data>
+  <data name="CurrentPasswordInvalid" xml:space="preserve">
+    <value>Текущий пароль указан неверно.</value>
+  </data>
+  <data name="InvalidCsrfProblemDetail" xml:space="preserve">
+    <value>Запрос отклонен из-за некорректного CSRF-токена. Обновите страницу и повторите действие.</value>
+  </data>
+  <data name="PasswordChangeRequiredProblemDetail" xml:space="preserve">
+    <value>Сначала смените пароль, чтобы продолжить работу.</value>
+  </data>
+</root>

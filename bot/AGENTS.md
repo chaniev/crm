@@ -43,7 +43,7 @@
 ## Короткие правила
 
 - Python-сервис работает как тонкий клиент к backend.
-- Не дублировать бизнес-правила CRM в Python: роли, access scope, даты посещаемости, состав групп и разрешенные поля проверяет backend.
+- Не дублировать бизнес-правила CRM в Python: роли, access scope, даты посещаемости, состав групп, абонементы, audit/error contract semantics и разрешенные поля проверяет backend.
 - Python отвечает за Telegram events, private-chat guard, состояние диалога, отображение backend read models, idempotency по `update_id` и понятные сообщения пользователю.
 - В MVP использовать Telegram long polling; production webhook не входит в MVP.
 - Секреты не хранить в репозитории: Telegram token, service token и database URL только через env.

@@ -5,6 +5,7 @@ import {
   IconUserMinus,
   IconUsersMinus,
 } from '@tabler/icons-react'
+import { resources } from '../../../lib/resources'
 import type { ClientsListState } from './useClientsListState'
 
 type ClientsQuickFiltersProps = {
@@ -14,22 +15,22 @@ type ClientsQuickFiltersProps = {
 const quickFilters = [
   {
     key: 'withoutMembership',
-    label: 'Без абонемента',
+    label: resources.clients.list.quickFilters.withoutMembership,
     icon: IconUserMinus,
   },
   {
     key: 'expiringSoon',
-    label: 'Скоро закончится',
+    label: resources.clients.list.quickFilters.expiringSoon,
     icon: IconClockHour4,
   },
   {
     key: 'withoutGroup',
-    label: 'Без группы',
+    label: resources.clients.list.quickFilters.withoutGroup,
     icon: IconUsersMinus,
   },
   {
     key: 'trial',
-    label: 'Пробные',
+    label: resources.clients.list.quickFilters.trial,
     icon: IconTicket,
   },
 ] as const

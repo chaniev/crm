@@ -25,6 +25,7 @@
 
 ## Короткие правила
 
+- CRM-бизнес-логику не дублировать во frontend: роли, access scope, membership/currentMembership semantics, audit action/entity codes и серверные validation keys приходят из backend-контракта; frontend отвечает за отображение, UX-состояние и typed client boundary.
 - Не раздувать `src/App.tsx` бизнес-логикой.
 - Новые API-контракты сначала оформлять в `src/lib/api.ts`.
 - Новые route-сценарии сначала оформлять в `src/lib/appRoutes.ts`.

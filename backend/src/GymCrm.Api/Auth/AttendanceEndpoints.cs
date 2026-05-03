@@ -97,7 +97,7 @@ internal static class AttendanceEndpoints
         var parsedTrainingDate = ParseTrainingDate(trainingDate);
         if (!parsedTrainingDate.HasValue)
         {
-            return CreateTrainingDateValidationProblem();
+            return AttendanceValidationProblems.CreateTrainingDateValidationProblem(TrainingDateFormat);
         }
 
         var group = await dbContext.TrainingGroups
@@ -171,12 +171,12 @@ internal static class AttendanceEndpoints
         var parsedTrainingDate = ParseTrainingDate(request.TrainingDate);
         if (!parsedTrainingDate.HasValue)
         {
-            return CreateTrainingDateValidationProblem();
+            return AttendanceValidationProblems.CreateTrainingDateValidationProblem(TrainingDateFormat);
         }
 
         if (request.AttendanceMarks is null || request.AttendanceMarks.Count == 0)
         {
-            return CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceMarksRequired);
+            return AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceMarksRequired);
         }
 
         var mutationResult = await attendanceService.SaveAsync(
@@ -194,9 +194,9 @@ internal static class AttendanceEndpoints
             return mutationResult.Error switch
             {
                 AttendanceBatchMutationError.GroupMissing => TypedResults.NotFound(),
-                AttendanceBatchMutationError.InvalidRequest => CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveInvalidRequest),
-                AttendanceBatchMutationError.ClientOutsideGroup => CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveClientOutsideGroup),
-                _ => CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveFailed)
+                AttendanceBatchMutationError.InvalidRequest => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveInvalidRequest),
+                AttendanceBatchMutationError.ClientOutsideGroup => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveClientOutsideGroup),
+                _ => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveFailed)
             };
         }
 
@@ -353,22 +353,6 @@ internal static class AttendanceEndpoints
                 AttendanceResources.MembershipWarningWithDetails(string.Join(", ", messages)));
     }
 
-    private static ValidationProblem CreateTrainingDateValidationProblem()
-    {
-        return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-        {
-            ["trainingDate"] = [AttendanceResources.InvalidTrainingDate(TrainingDateFormat)]
-        });
-    }
-
-    private static ValidationProblem CreateAttendanceMarksValidationProblem(string message)
-    {
-        return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-        {
-            ["attendanceMarks"] = [message]
-        });
-    }
-
     private static bool HasActivePaidMembership(
         ClientMembership? membership,
         DateOnly trainingDate)
@@ -478,86 +462,4 @@ internal static class AttendanceEndpoints
             AuditSerializerOptions);
     }
 
-    private sealed record SaveAttendanceRequest(
-        string? TrainingDate,
-        IReadOnlyList<AttendanceMarkRequest>? AttendanceMarks);
-
-    private sealed record AttendanceMarkRequest(
-        Guid ClientId,
-        bool IsPresent);
-
-    private sealed record AttendanceGroupResponse(
-        Guid Id,
-        string Name,
-        string TrainingStartTime,
-        string ScheduleText,
-        bool IsActive,
-        int ClientCount);
-
-    private sealed record AttendanceGroupClientsResponse(
-        Guid GroupId,
-        string GroupName,
-        DateOnly TrainingDate,
-        IReadOnlyList<AttendanceClientResponse> Clients);
-
-    private sealed record AttendanceClientResponse(
-        Guid Id,
-        string FullName,
-        IReadOnlyList<ClientGroupSummaryResponse> Groups,
-        ClientPhotoSummaryResponse? Photo,
-        bool IsPresent,
-        bool HasMembershipWarning,
-        string? MembershipWarning,
-        bool HasUnpaidCurrentMembership,
-        bool HasActivePaidMembership);
-
-    private sealed record AttendanceSaveResponse(
-        Guid GroupId,
-        DateOnly TrainingDate,
-        IReadOnlyList<AttendanceMarkResponse> AttendanceMarks);
-
-    private sealed record AttendanceMarkResponse(
-        Guid ClientId,
-        bool IsPresent);
-
-    private sealed record ClientGroupSummaryResponse(
-        Guid Id,
-        string Name,
-        bool IsActive,
-        string TrainingStartTime,
-        string ScheduleText);
-
-    private sealed record ClientPhotoSummaryResponse(
-        string Path,
-        string ContentType,
-        long SizeBytes,
-        DateTimeOffset UploadedAt,
-        bool HasPhoto);
-
-    private sealed record MembershipWarningResult(
-        bool HasWarning,
-        string? Message);
-
-    private sealed record AttendanceAuditState(
-        Guid ClientId,
-        Guid GroupId,
-        DateOnly TrainingDate,
-        bool IsPresent);
-
-    private sealed record ClientMembershipAuditState(
-        Guid Id,
-        Guid ClientId,
-        string MembershipType,
-        DateOnly PurchaseDate,
-        DateOnly? ExpirationDate,
-        decimal PaymentAmount,
-        bool IsPaid,
-        bool SingleVisitUsed,
-        Guid? PaidByUserId,
-        DateTimeOffset? PaidAt,
-        string ChangeReason,
-        Guid ChangedByUserId,
-        DateTimeOffset ValidFrom,
-        DateTimeOffset? ValidTo,
-        DateTimeOffset CreatedAt);
 }

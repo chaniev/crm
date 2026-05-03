@@ -75,6 +75,75 @@ test('Редактирование пользователя показывает
   expect(userDetailsCalls).toBeLessThanOrEqual(2)
 })
 
+test('Редактирование пользователя показывает серверную ошибку fullName под полем ФИО', async ({
+  page,
+}) => {
+  const fullNameError = 'ФИО должно содержать имя и фамилию.'
+  let updateUserPayload: Record<string, unknown> | null = null
+
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const method = route.request().method()
+
+    if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (
+      requestUrl.pathname === '/api/users/headcoach-id' &&
+      method === 'GET'
+    ) {
+      await fulfillJson(route, 200, {
+        id: 'headcoach-id',
+        fullName: 'Главный тренер',
+        login: 'headcoach',
+        role: 'HeadCoach',
+        mustChangePassword: false,
+        isActive: true,
+        messengerPlatform: null,
+        messengerPlatformUserId: null,
+      })
+      return
+    }
+
+    if (
+      requestUrl.pathname === '/api/users/headcoach-id' &&
+      method === 'PUT'
+    ) {
+      updateUserPayload = route.request().postDataJSON()
+
+      expect(route.request().headers()['x-csrf-token']).toBe(
+        headCoachSession.csrfToken,
+      )
+
+      await fulfillJson(route, 400, {
+        title: 'Validation failed',
+        detail: 'Проверьте данные пользователя.',
+        errors: {
+          fullName: [fullNameError],
+        },
+      })
+      return
+    }
+
+    throw new Error(
+      `Unexpected API request in users e2e: ${method} ${requestUrl.pathname}`,
+    )
+  })
+
+  await page.goto('/users/headcoach-id/edit')
+
+  await page.getByLabel('ФИО').fill('Главный')
+  await page.getByRole('button', { name: 'Сохранить изменения' }).click()
+
+  await expect.poll(() => updateUserPayload).toMatchObject({
+    fullName: 'Главный',
+  })
+  await expect(page.getByLabel('ФИО')).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByText(fullNameError)).toBeVisible()
+})
+
 async function fulfillJson(
   route: Parameters<Page['route']>[1] extends (route: infer T) => unknown
     ? T

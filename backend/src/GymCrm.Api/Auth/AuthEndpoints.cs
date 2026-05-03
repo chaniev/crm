@@ -78,8 +78,8 @@ internal static class AuthEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["login"] = ["Укажите логин."],
-                ["password"] = ["Укажите пароль."]
+                ["login"] = [AuthResources.LoginRequired],
+                ["password"] = [AuthResources.PasswordRequired]
             });
         }
 
@@ -89,8 +89,8 @@ internal static class AuthEndpoints
         if (user is null || !user.IsActive || !passwordHashService.VerifyPassword(user, request.Password))
         {
             return TypedResults.Problem(
-                title: "InvalidCredentials",
-                detail: "Неверный логин или пароль.",
+                title: AuthConstants.InvalidCredentialsProblemTitle,
+                detail: AuthResources.InvalidCredentialsDetail,
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
@@ -183,8 +183,8 @@ internal static class AuthEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["currentPassword"] = ["Укажите текущий пароль."],
-                ["newPassword"] = ["Укажите новый пароль."]
+                ["currentPassword"] = [AuthResources.CurrentPasswordRequired],
+                ["newPassword"] = [AuthResources.NewPasswordRequired]
             });
         }
 
@@ -192,7 +192,7 @@ internal static class AuthEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["newPassword"] = ["Новый пароль должен отличаться от текущего."]
+                ["newPassword"] = [AuthResources.NewPasswordMustDiffer]
             });
         }
 
@@ -208,7 +208,7 @@ internal static class AuthEndpoints
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["currentPassword"] = ["Текущий пароль указан неверно."]
+                ["currentPassword"] = [AuthResources.CurrentPasswordInvalid]
             });
         }
 

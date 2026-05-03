@@ -1,14 +1,15 @@
 # План рефакторинга Gym CRM
 
 Дата создания: 2026-04-23
-Последнее обновление: 2026-05-02
+Последнее обновление: 2026-05-03
 
 ## Статус реализации
 
-Обновлено после сверки с текущей кодовой базой 2026-05-02.
+Обновлено после выполнения текущего рекомендуемого порядка задач 2026-05-03.
 
 Выполнено:
 
+- baseline проверки повторно зафиксированы 2026-05-03: `dotnet test backend/GymCrm.slnx`, `cd frontend && npm run lint`, `cd frontend && npm run build`;
 - baseline и финальные проверки зафиксированы;
 - общий backend CSRF-helper подключен к auth/users/clients/groups/attendance/client photo endpoint'ам;
 - создание principal, sign-in/sign-out и self-update session sync вынесены в общий auth helper;
@@ -28,23 +29,35 @@
 - `frontend/src/lib/api.ts` разделен на доменные модули `src/lib/api/*`, а публичный `src/lib/api.ts` оставлен re-export'ом;
 - добавлены точечные regression tests для self-update session sync, русских audit descriptions и paging после membership-expiration filter;
 - backend tests расширены assertions на стабильные audit action/entity codes и русские descriptions для clients/groups/attendance.
+- backend resource cleanup выполнен для `AuthEndpoints`, `AuthConstants`, `AuthenticatedUserMiddleware`, `AccessEndpoints`, `AuditLogEndpoints` и startup-level видимых текстов через новые helper/resx;
+- constants для `groups`, `audit-log` и `access` вынесены рядом с областями, `AccessEndpoints.GrantedBy` привязан к policy names либо явному `AssignedCoachScope`;
+- окно истекающих абонементов синхронизировано между public API и internal bot API: общий backend constant `ClientMembershipQueryConstants.ExpiringMembershipWindowDays = 10`, граница `>= today && < today + N`;
+- `currentMembership` read-side tie-breaker унифицирован: `ValidTo == null`, затем `ValidFrom DESC`, `CreatedAt DESC`, `Id DESC`; details/list/bot paths приведены к одной детерминированной логике;
+- ownership CRM-логики закреплен за backend в корневом, backend, frontend и bot `AGENTS.md`;
+- audit resource model зафиксирован: сохраняется domain co-location, отдельные `*AuditResources` остаются только для будущего normalization-среза;
+- backend regressions добавлены для CSRF negative cases, users validation keys и membership window boundary;
+- frontend e2e добавлены для users `fullName`, client `fullName -> lastName` alias, stable audit filters и client filters/paging;
+- frontend resources расширены для audit/home/client/group labels, UI copy про число окна истечения убран;
+- `ClientManagement.tsx` дополнительно разгружен: удален legacy list, form validation и payload builders вынесены в `ClientManagement.form.ts`;
+- structural split выполнен для `ClientEndpoints.cs`, `GroupEndpoints.cs`, `AttendanceEndpoints.cs` и `AuditLogEndpoints.cs`;
+- финальные проверки 2026-05-03: `dotnet test backend/GymCrm.slnx`, `cd frontend && npm run lint`, `cd frontend && npm run build`, `cd frontend && npm run test:e2e -- e2e/users.spec.ts e2e/stage12.spec.ts`, `cd bot && uv run ruff check .`, `cd bot && uv run pytest`;
 
-Частично выполнено и требует уточнения:
+Дальнейший backlog после выполнения текущего плана:
 
-- backend resources уже заведены, но hardcoded тексты остаются в `AuthEndpoints`, `AuditLogEndpoints`, `AccessEndpoints`, `AuthConstants`, startup-level коде и `BotInternalEndpoints`;
-- audit resources сейчас смешаны: `auth/clients` используют отдельные audit helpers, а `users/groups/attendance` держат audit descriptions рядом с обычными domain resources;
+- backend resources уже заведены, но hardcoded тексты остаются в `BotInternalEndpoints` и `GymCrm.Infrastructure/Bot`, если internal Bot API включается в следующий срез;
+- audit resources намеренно co-located: `auth/clients` используют отдельные audit helpers, а `users/groups/attendance` держат audit descriptions рядом с обычными domain resources до будущего normalization-среза;
 - `frontend/src/lib/api.ts` разделен, но `src/lib/api/types.ts`, `mappers.ts`, `read-helpers.ts` и `endpoints.ts` остаются крупными shared-модулями;
-- frontend resource dictionary есть, но `AuditLogScreen`, `HomeDashboard`, clients/groups/attendance экраны используют его неполно;
+- frontend resource dictionary расширен для audit/home/client/group labels; attendance labels остаются кандидатом на следующий UI resources-срез;
 - `MetricCard` вынесен, но page header/hero паттерны еще дублируются в users/groups/clients/audit;
-- `ClientEndpoints.cs`, `ClientManagement.tsx`, `GroupManagement.tsx` и `AuditLogScreen.tsx` остаются главными монолитными участками.
+- после текущего split крупными участками остаются `GroupManagement.tsx`, `AuditLogScreen.tsx`, `AttendanceScreen.tsx`, а также read-side helpers внутри `ClientEndpoints.cs`.
 
-Новые замечания после сверки 2026-05-02:
+Закрытые замечания после сверки 2026-05-02:
 
-- семантика `currentMembership` повторяется в public API, application/infrastructure сервисах и internal bot API; перед механическим разносом файлов нужно закрепить единый read/write invariant;
-- public `GET /clients/expiring-memberships`, frontend текст "10 дней" и internal bot список истекающих абонементов расходятся по источнику и границам окна;
+- семантика `currentMembership` закреплена единым read invariant/tie-breaker и синхронизирована между public API, application/infrastructure сервисами и internal bot API;
+- frontend copy про число окна истекающих абонементов убран, backend остается source of truth;
 - `bot/` вне скоупа только пока не меняются `/internal/bot/*`, bot DTO, bot error `title/code` и membership-list semantics;
-- `AccessEndpoints` возвращает `GrantedBy` как display/pseudo-policy values; план должен явно решить, это contract field или user-facing display text;
-- дальнейший refactoring должен начинаться с незакрытых зон, а не с уже выполненных users/auth/API-split задач.
+- `AccessEndpoints.GrantedBy` привязан к policy names либо явному `AssignedCoachScope`;
+- дальнейший refactoring должен начинаться с backlog-зон выше, а не с уже выполненных users/auth/API-split задач.
 
 ## 1. Цель
 
@@ -89,13 +102,13 @@
 
 ## 5. Этап 2. Пользовательские тексты и ресурсы
 
-1. Backend: закрыть оставшиеся hardcoded user-facing тексты по конкретным областям:
-   - `AuthEndpoints`: login/change-password validation и problem details;
-   - `AuthConstants` и `AuthenticatedUserMiddleware`: forced password/CSRF/session messages;
-   - `AuditLogEndpoints`: validation messages, paging/date filter errors;
-   - `AccessEndpoints`: capability `Detail` и display-only тексты;
-   - startup-level код: `ApiHostingConstants`, `BootstrapUserStartupExtensions`, health/service metadata, если текст виден оператору или клиенту;
-   - `BotInternalEndpoints` и `GymCrm.Infrastructure/Bot` только если internal Bot API включается в текущий срез.
+1. Backend: закрытые в текущем плане hardcoded user-facing тексты по конкретным областям:
+   - `AuthEndpoints`: login/change-password validation и problem details — ✅;
+   - `AuthConstants` и `AuthenticatedUserMiddleware`: forced password/CSRF/session messages — ✅;
+   - `AuditLogEndpoints`: validation messages, paging/date filter errors — ✅;
+   - `AccessEndpoints`: capability `Detail` и display-only тексты — ✅;
+   - startup-level код: `ApiHostingConstants`, `BootstrapUserStartupExtensions`, health/service metadata, если текст виден оператору или клиенту — ✅;
+   - `BotInternalEndpoints` и `GymCrm.Infrastructure/Bot` остаются отдельным bot resources backlog, если следующий срез специально включает bot resources.
 2. Целевой backend-формат:
    - `Resources/*.resx` для локализуемых строк;
    - тонкие helper-классы для доступа к ресурсам, чтобы endpoint'ы не знали о ключах напрямую;
@@ -114,18 +127,18 @@
    - action/entity constants централизованы для auth/users/clients/groups/attendance/membership;
    - русские audit descriptions заведены для основных web-сценариев;
    - backend tests проверяют стабильные action/entity codes и русские descriptions.
-2. Оставшиеся задачи:
-   - перенести frontend audit label dictionaries из `AuditLogScreen` в `resources.audit`;
-   - сохранить фильтрацию UI по stable `actionType`/`entityType`, а не по русскому description;
-   - описать отдельный статус bot audit actions: `BotAttendanceSaved`, `BotMembershipPaymentMarked`, `BotAccessDenied`;
-   - если bot audit descriptions ресурсируются, добавить это как отдельный срез с `InternalBotApiTests`.
+2. Закрыто в текущем плане:
+   - frontend audit label dictionaries перенесены из `AuditLogScreen` в `resources.audit` — ✅;
+   - фильтрация UI сохранена по stable `actionType`/`entityType`, а не по русскому description — ✅;
+   - отдельный статус bot audit actions `BotAttendanceSaved`, `BotMembershipPaymentMarked`, `BotAccessDenied` зафиксирован в application constants/tests и frontend resources — ✅;
+   - bot audit descriptions resource normalization остается отдельным будущим срезом с `InternalBotApiTests`, если он потребуется.
 3. Не переименовывать action/entity codes без миграционного решения и обновления tests/frontend filters.
 
 ## 7. Этап 4. Магические константы и contract tokens
 
 1. Backend:
    - уже вынесены auth/client/audit constants для части областей;
-   - следующим срезом вынести paging/date/filter constants из `GroupEndpoints` и `AuditLogEndpoints`;
+   - paging/date/filter constants из `GroupEndpoints` и `AuditLogEndpoints` вынесены в соседние constants/helper-типы;
    - явно описать `AccessEndpoints.Capability/GrantedBy`: либо привязать `GrantedBy` к реальным `GymCrmAuthorizationPolicies`, либо объявить display-only полем и вынести display texts в resources;
    - не полагаться на `Enum.ToString()` как на неявный публичный контракт без теста и documented constant;
    - route fragments, header names, policy names, paging defaults, max limits и date windows держать в `*Constants` рядом с областью.
@@ -142,10 +155,10 @@
    - principal/session sync вынесен;
    - `UserEndpoints.cs` разгружен;
    - `create/update user` возвращают typed response для frontend.
-2. Оставшиеся проверки и улучшения:
-   - добавить negative CSRF regressions не только для `/auth/change-password`, но и для `/users`, `/clients`, `/groups`, `/attendance/groups/{id}`, `/clients/{id}/photo`;
-   - добавить users validation regressions на `fullName`, `login`, `password`, `role`, запрет создания/назначения `HeadCoach`, partial messenger identity и слишком длинный `messengerPlatformUserId`;
-   - зафиксировать, что backend users validation возвращает `errors.fullName`, а не `errors.lastName`;
+2. Закрытые проверки и улучшения:
+   - добавлены negative CSRF regressions не только для `/auth/change-password`, но и для `/users`, `/clients`, `/groups`, `/attendance/groups/{id}`, `/clients/{id}/photo` — ✅;
+   - добавлены users validation regressions на `fullName`, `login`, `password`, `role`, запрет создания/назначения `HeadCoach`, partial messenger identity и слишком длинный `messengerPlatformUserId` — ✅;
+   - зафиксировано, что backend users validation возвращает `errors.fullName`, а не `errors.lastName` — ✅;
    - не переносить endpoint'ы из `GymCrm.Api/Auth` в другие папки без отдельной задачи на реорганизацию области.
 
 ## 9. Этап 6. Frontend users refactoring
@@ -155,26 +168,26 @@
    - users сохраняют `fullName`, clients явно алиасят `fullName -> lastName`;
    - `createUser`/`updateUser` возвращают `UserDetails`;
    - `UserManagement.tsx` стал barrel export'ом, экраны и form pieces разделены.
-2. Оставшиеся проверки:
-   - e2e на backend `errors.fullName` под полем `ФИО` в users;
-   - e2e на сохранение client alias behavior `fullName -> lastName`;
-   - e2e на self-session sync после редактирования текущего пользователя.
+2. Закрытые проверки:
+   - e2e на backend `errors.fullName` под полем `ФИО` в users — ✅;
+   - e2e на сохранение client alias behavior `fullName -> lastName` — ✅;
+   - e2e на self-session sync после редактирования текущего пользователя — ✅.
 
 ## 10. Этап 7. Shared frontend UI patterns
 
 1. Уже выполнено:
    - повторяемый `MetricCard` вынесен в `src/features/shared/ux.tsx`.
-2. Оставшиеся задачи:
+2. Дальнейший UI backlog:
    - унифицировать page header/hero pattern для users/groups/clients/audit без вложенных card-in-card layout;
    - не делать слишком общий компонент, если различия экранов несут бизнес-смысл;
-   - следующим frontend hotspot считать `ClientManagement.tsx`, затем `AuditLogScreen.tsx` и `GroupManagement.tsx`.
+   - после выполненного `ClientManagement.tsx` среза следующими frontend hotspot считать `AuditLogScreen.tsx` и `GroupManagement.tsx`.
 
 ## 11. Этап 8. Разделение frontend API layer
 
 1. Уже выполнено:
    - `frontend/src/lib/api.ts` оставлен публичным barrel re-export'ом;
    - доменные API-модули вынесены в `src/lib/api/*`.
-2. Оставшиеся задачи:
+2. Дальнейший API layer backlog:
    - при дальнейшем росте разделить `types.ts` по доменам;
    - отделить shared mappers/read helpers от domain-specific mappers;
    - сохранить backward-compatible exports из `src/lib/api.ts` до отдельного migration-среза;
@@ -187,11 +200,11 @@
    - `HomeDashboard` получает список через `getExpiringClientMemberships`;
    - локальная фильтрация истекающих абонементов на клиенте убрана;
    - public endpoint считает список на backend.
-2. Оставшиеся задачи:
-   - устранить дублирование числа `10` между backend `ClientApiConstants`, frontend `resources.common.membership.expiringWindowDays` и internal bot service;
-   - решить границу окна единообразно: `< today + N` или `<= today + N`, и зафиксировать это тестом;
-   - либо возвращать window metadata из backend, либо убрать число из UI-текста, чтобы frontend не становился вторым источником правды;
-   - если меняется internal bot behavior, обновить `InternalBotApiTests`, `bot` models/client expectations и выполнить bot-проверки.
+2. Закрыто в текущем плане:
+   - дублирование числа `10` между backend, frontend copy и internal bot service устранено: frontend больше не показывает число, backend/bot используют общий constant — ✅;
+   - граница окна единообразна: `>= today && < today + N`, зафиксирована backend/internal bot tests — ✅;
+   - frontend не является вторым source of truth для размера окна — ✅;
+   - internal bot behavior обновлен и покрыт `InternalBotApiTests` — ✅.
 3. `bot/` вне скоупа этого плана только пока не меняются:
    - `/internal/bot/*`;
    - `GymCrm.Application/Bot/*` DTO;
@@ -203,10 +216,10 @@
 1. Уже выполнено:
    - `membershipExpiresFrom/membershipExpiresTo` перенесены в EF query;
    - regression test на фильтр истечения абонемента и paging добавлен.
-2. Оставшиеся задачи перед структурным split:
-   - закрепить единый invariant `currentMembership = membership.ValidTo == null`;
-   - описать tie-breaker для read-моделей, если в projection используется `OrderByDescending(ValidFrom).ThenByDescending(CreatedAt)`, несмотря на unique filtered index;
-   - убрать расхождения между inline EF subqueries, `GetCurrentMembership` в API и `GetCurrentMembership` в bot;
+2. Закрыто перед structural split:
+   - закреплен единый invariant `currentMembership = membership.ValidTo == null` — ✅;
+   - описан и реализован tie-breaker для read-моделей: `ValidTo == null`, затем `ValidFrom DESC`, `CreatedAt DESC`, `Id DESC` — ✅;
+   - убраны расхождения между inline EF subqueries, `GetCurrentMembership` в API и `GetCurrentMembership` в bot — ✅;
    - не менять `MembershipType`, `ClientStatus`, `ClientMembershipState` string values без contract tests и frontend update;
    - уменьшить дублирование list projection/hydration в `ClientEndpoints` перед дальнейшим DTO split.
 
@@ -250,14 +263,14 @@
 
 ## 16. Обновленный рекомендуемый порядок следующих задач
 
-1. Backend resource cleanup: `AuthEndpoints`, `AuthConstants`, `AuthenticatedUserMiddleware`, `AccessEndpoints`, `AuditLogEndpoints`, startup-level тексты.
-2. Решить модель audit resources: оставить domain co-location или отдельным normalization-срезом сделать `UserAuditResources`, `GroupAuditResources`, `AttendanceAuditResources`.
-3. Вынести constants для `groups`, `audit-log`, `access` и явно определить контракт `Capability/GrantedBy`.
-4. Синхронизировать expiring memberships window между public API, frontend текстом и internal bot behavior.
-5. Зафиксировать `currentMembership` invariant и убрать дублирование read-семантики в public API/bot/infrastructure.
-6. Обновить `backend/AGENTS.md`, `frontend/AGENTS.md` и при необходимости корневой `AGENTS.md`, чтобы явно зафиксировать ownership CRM-логики за backend.
-7. Добавить недостающие backend regressions: CSRF negative cases, users validation keys, membership window boundary.
-8. Добавить недостающие frontend e2e: users `fullName` errors, clients alias behavior, audit stable filters, client filters/paging.
-9. Перенести audit/home/client/group labels в frontend resources.
-10. Декомпозировать `ClientManagement.tsx` безопасными feature-срезами.
-11. После фиксации семантики продолжить split `ClientEndpoints.cs`, затем `GroupEndpoints.cs`, `AttendanceEndpoints.cs`, `AuditLogEndpoints.cs`.
+1. Backend resource cleanup: `AuthEndpoints`, `AuthConstants`, `AuthenticatedUserMiddleware`, `AccessEndpoints`, `AuditLogEndpoints`, startup-level тексты. ✅ Реализовано 2026-05-03.
+2. Решить модель audit resources: оставить domain co-location или отдельным normalization-срезом сделать `UserAuditResources`, `GroupAuditResources`, `AttendanceAuditResources`. ✅ Решено 2026-05-03: оставить domain co-location, normalization вынести в отдельный будущий срез.
+3. Вынести constants для `groups`, `audit-log`, `access` и явно определить контракт `Capability/GrantedBy`. ✅ Реализовано 2026-05-03.
+4. Синхронизировать expiring memberships window между public API, frontend текстом и internal bot behavior. ✅ Backend/bot реализовано 2026-05-03; frontend copy остается без второго числа-источника только до frontend resources-среза.
+5. Зафиксировать `currentMembership` invariant и убрать дублирование read-семантики в public API/bot/infrastructure. ✅ Read invariant/tie-breaker реализован 2026-05-03.
+6. Обновить `backend/AGENTS.md`, `frontend/AGENTS.md` и при необходимости корневой `AGENTS.md`, чтобы явно зафиксировать ownership CRM-логики за backend. ✅ Реализовано 2026-05-03.
+7. Добавить недостающие backend regressions: CSRF negative cases, users validation keys, membership window boundary. ✅ Реализовано 2026-05-03.
+8. Добавить недостающие frontend e2e: users `fullName` errors, clients alias behavior, audit stable filters, client filters/paging. ✅ Реализовано 2026-05-03.
+9. Перенести audit/home/client/group labels в frontend resources. ✅ Реализовано 2026-05-03.
+10. Декомпозировать `ClientManagement.tsx` безопасными feature-срезами. ✅ Реализовано 2026-05-03.
+11. После фиксации семантики продолжить split `ClientEndpoints.cs`, затем `GroupEndpoints.cs`, `AttendanceEndpoints.cs`, `AuditLogEndpoints.cs`. ✅ Реализовано 2026-05-03.

@@ -12,28 +12,21 @@ namespace GymCrm.Api.Auth;
 
 internal static class GroupEndpoints
 {
-    private const int DefaultPage = 1;
-    private const int DefaultTake = 20;
-    private const int MaxTake = 100;
-    private const int NameMaxLength = 128;
-    private const int ScheduleTextMaxLength = 512;
-    private const string TrainingStartTimeDisplayFormat = "HH:mm";
-    private static readonly string[] SupportedTimeFormats = ["HH:mm", "HH:mm:ss"];
     private static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
 
     public static IEndpointRouteBuilder MapGroupEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/groups")
+        var group = endpoints.MapGroup(GroupApiConstants.RoutePrefix)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageGroups);
 
-        group.MapGet("/", ListGroupsAsync);
-        group.MapGet("/trainers", ListTrainerOptionsAsync);
-        group.MapGet("/options/trainers", ListTrainerOptionsAsync);
-        group.MapGet("/{id:guid}", GetGroupAsync);
-        group.MapGet("/{id:guid}/clients", GetGroupClientsAsync);
-        group.MapPost("/", CreateGroupAsync);
-        group.MapPut("/{id:guid}", UpdateGroupAsync);
-        group.MapPut("/{id:guid}/trainers", UpdateGroupTrainersAsync);
+        group.MapGet(GroupApiConstants.ListRoute, ListGroupsAsync);
+        group.MapGet(GroupApiConstants.TrainerOptionsRoute, ListTrainerOptionsAsync);
+        group.MapGet(GroupApiConstants.LegacyTrainerOptionsRoute, ListTrainerOptionsAsync);
+        group.MapGet(GroupApiConstants.DetailsRoute, GetGroupAsync);
+        group.MapGet(GroupApiConstants.ClientsRoute, GetGroupClientsAsync);
+        group.MapPost(GroupApiConstants.ListRoute, CreateGroupAsync);
+        group.MapPut(GroupApiConstants.DetailsRoute, UpdateGroupAsync);
+        group.MapPut(GroupApiConstants.TrainersRoute, UpdateGroupTrainersAsync);
 
         return endpoints;
     }
@@ -47,13 +40,13 @@ internal static class GroupEndpoints
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        var errors = ValidatePaging(page, pageSize, skip, take);
+        var errors = GroupRequestValidator.ValidatePaging(page, pageSize, skip, take);
         if (errors.Count > 0)
         {
             return TypedResults.ValidationProblem(errors);
         }
 
-        var paging = ResolvePaging(page, pageSize, skip, take);
+        var paging = GroupRequestValidator.ResolvePaging(page, pageSize, skip, take);
 
         var query = dbContext.TrainingGroups.AsNoTracking();
         if (isActive.HasValue)
@@ -169,14 +162,14 @@ internal static class GroupEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var normalizedRequest = NormalizeRequest(request);
-        var validationErrors = await ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
+        var normalizedRequest = GroupRequestValidator.NormalizeRequest(request);
+        var validationErrors = await GroupRequestValidator.ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
         }
 
-        var trainingStartTime = ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
+        var trainingStartTime = GroupRequestValidator.ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
         var now = DateTimeOffset.UtcNow;
 
         var group = new TrainingGroup
@@ -215,7 +208,7 @@ internal static class GroupEndpoints
                 NewValueJson: SerializeAuditState(createdGroup)),
             cancellationToken);
 
-        return TypedResults.Created($"/groups/{group.Id}", MapDetails(createdGroup));
+        return TypedResults.Created($"{GroupApiConstants.RoutePrefix}/{group.Id}", MapDetails(createdGroup));
     }
 
     private static async Task<Results<Ok<GroupDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateGroupAsync(
@@ -245,15 +238,15 @@ internal static class GroupEndpoints
             return TypedResults.NotFound();
         }
 
-        var normalizedRequest = NormalizeRequest(request);
-        var validationErrors = await ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
+        var normalizedRequest = GroupRequestValidator.NormalizeRequest(request);
+        var validationErrors = await GroupRequestValidator.ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
         }
 
         var oldState = SerializeAuditState(group);
-        var trainingStartTime = ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
+        var trainingStartTime = GroupRequestValidator.ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
 
         group.Name = normalizedRequest.Name;
         group.TrainingStartTime = trainingStartTime.Value;
@@ -309,8 +302,8 @@ internal static class GroupEndpoints
             return TypedResults.NotFound();
         }
 
-        var normalizedTrainerIds = NormalizeTrainerIds(request.TrainerIds);
-        var validationErrors = await ValidateTrainerIdsAsync(request.TrainerIds, normalizedTrainerIds, dbContext, cancellationToken);
+        var normalizedTrainerIds = GroupRequestValidator.NormalizeTrainerIds(request.TrainerIds);
+        var validationErrors = await GroupRequestValidator.ValidateTrainerIdsAsync(request.TrainerIds, normalizedTrainerIds, dbContext, cancellationToken);
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
@@ -367,141 +360,6 @@ internal static class GroupEndpoints
             .SingleOrDefaultAsync(group => group.Id == id, cancellationToken);
     }
 
-    private static Dictionary<string, string[]> ValidatePaging(int? page, int? pageSize, int? skip, int? take)
-    {
-        var errors = new Dictionary<string, string[]>();
-
-        if (page.HasValue || pageSize.HasValue)
-        {
-            if (page is <= 0)
-            {
-                errors["page"] = [GroupResources.PageMustBeGreaterThanZero];
-            }
-
-            if (pageSize is <= 0 or > MaxTake)
-            {
-                errors["pageSize"] = [GroupResources.PageSizeMustBeInRange(MaxTake)];
-            }
-
-            return errors;
-        }
-
-        if (skip is < 0)
-        {
-            errors["skip"] = [GroupResources.SkipCannotBeNegative];
-        }
-
-        if (take is <= 0 or > MaxTake)
-        {
-            errors["take"] = [GroupResources.TakeMustBeInRange(MaxTake)];
-        }
-
-        return errors;
-    }
-
-    private static Paging ResolvePaging(int? page, int? pageSize, int? skip, int? take)
-    {
-        if (page.HasValue || pageSize.HasValue)
-        {
-            var resolvedPage = page ?? DefaultPage;
-            var resolvedPageSize = pageSize ?? DefaultTake;
-            return new Paging((resolvedPage - 1) * resolvedPageSize, resolvedPageSize);
-        }
-
-        return new Paging(skip ?? 0, take ?? DefaultTake);
-    }
-
-    private static async Task<Dictionary<string, string[]>> ValidateUpsertRequestAsync(
-        NormalizedGroupRequest request,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
-    {
-        var errors = new Dictionary<string, string[]>();
-
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            errors["name"] = [GroupResources.NameRequired];
-        }
-        else if (request.Name.Length > NameMaxLength)
-        {
-            errors["name"] = [GroupResources.NameTooLong(NameMaxLength)];
-        }
-
-        if (string.IsNullOrWhiteSpace(request.ScheduleText))
-        {
-            errors["scheduleText"] = [GroupResources.ScheduleTextRequired];
-        }
-        else if (request.ScheduleText.Length > ScheduleTextMaxLength)
-        {
-            errors["scheduleText"] = [GroupResources.ScheduleTextTooLong(ScheduleTextMaxLength)];
-        }
-
-        if (ParseTrainingStartTime(request.TrainingStartTime) is null)
-        {
-            errors["trainingStartTime"] = [GroupResources.TrainingStartTimeInvalid(TrainingStartTimeDisplayFormat)];
-        }
-
-        var trainerErrors = await ValidateTrainerIdsAsync(request.RawTrainerIds, request.TrainerIds, dbContext, cancellationToken);
-        foreach (var error in trainerErrors)
-        {
-            errors[error.Key] = error.Value;
-        }
-
-        return errors;
-    }
-
-    private static async Task<Dictionary<string, string[]>> ValidateTrainerIdsAsync(
-        IReadOnlyList<Guid>? rawTrainerIds,
-        IReadOnlyList<Guid> normalizedTrainerIds,
-        GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
-    {
-        var errors = new Dictionary<string, string[]>();
-
-        if (rawTrainerIds?.Any(trainerId => trainerId == Guid.Empty) == true)
-        {
-            errors["trainerIds"] = [GroupResources.InvalidTrainerId];
-            return errors;
-        }
-
-        if (normalizedTrainerIds.Count == 0)
-        {
-            return errors;
-        }
-
-        var validTrainerCount = await dbContext.Users
-            .AsNoTracking()
-            .Where(user => normalizedTrainerIds.Contains(user.Id) && user.IsActive && user.Role == UserRole.Coach)
-            .CountAsync(cancellationToken);
-
-        if (validTrainerCount != normalizedTrainerIds.Count)
-        {
-            errors["trainerIds"] = [GroupResources.OnlyActiveCoachesCanBeAssigned];
-        }
-
-        return errors;
-    }
-
-    private static NormalizedGroupRequest NormalizeRequest(UpsertTrainingGroupRequest request)
-    {
-        return new NormalizedGroupRequest(
-            request.Name?.Trim() ?? string.Empty,
-            request.TrainingStartTime?.Trim() ?? string.Empty,
-            request.ScheduleText?.Trim() ?? string.Empty,
-            request.IsActive,
-            request.TrainerIds,
-            NormalizeTrainerIds(request.TrainerIds));
-    }
-
-    private static IReadOnlyList<Guid> NormalizeTrainerIds(IReadOnlyList<Guid>? trainerIds)
-    {
-        return trainerIds?
-            .Where(trainerId => trainerId != Guid.Empty)
-            .Distinct()
-            .OrderBy(trainerId => trainerId)
-            .ToArray() ?? [];
-    }
-
     private static void ApplyTrainerAssignments(
         TrainingGroup group,
         IReadOnlyList<Guid> requestedTrainerIds,
@@ -532,18 +390,6 @@ internal static class GroupEndpoints
                 TrainerId = trainerId
             });
         }
-    }
-
-    private static TimeOnly? ParseTrainingStartTime(string? trainingStartTime)
-    {
-        return TimeOnly.TryParseExact(
-            trainingStartTime?.Trim(),
-            SupportedTimeFormats,
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.None,
-            out var parsedTime)
-            ? parsedTime
-            : null;
     }
 
     private static GroupListItemResponse MapListItem(TrainingGroup group)
@@ -631,79 +477,4 @@ internal static class GroupEndpoints
                 group.UpdatedAt),
             AuditSerializerOptions);
     }
-
-    private sealed record Paging(int Skip, int Take);
-
-    private sealed record UpsertTrainingGroupRequest(
-        string Name,
-        string TrainingStartTime,
-        string ScheduleText,
-        bool? IsActive,
-        IReadOnlyList<Guid>? TrainerIds);
-
-    private sealed record UpdateGroupTrainersRequest(IReadOnlyList<Guid>? TrainerIds);
-
-    private sealed record NormalizedGroupRequest(
-        string Name,
-        string TrainingStartTime,
-        string ScheduleText,
-        bool? IsActive,
-        IReadOnlyList<Guid>? RawTrainerIds,
-        IReadOnlyList<Guid> TrainerIds);
-
-    private sealed record GroupListItemResponse(
-        Guid Id,
-        string Name,
-        string TrainingStartTime,
-        string ScheduleText,
-        bool IsActive,
-        IReadOnlyList<TrainerSummaryResponse> Trainers,
-        IReadOnlyList<Guid> TrainerIds,
-        int TrainerCount,
-        IReadOnlyList<string> TrainerNames,
-        int ClientCount,
-        DateTimeOffset UpdatedAt);
-
-    private sealed record GroupDetailsResponse(
-        Guid Id,
-        string Name,
-        string TrainingStartTime,
-        string ScheduleText,
-        bool IsActive,
-        IReadOnlyList<Guid> TrainerIds,
-        IReadOnlyList<TrainerSummaryResponse> Trainers,
-        int ClientCount,
-        DateTimeOffset UpdatedAt);
-
-    private sealed record TrainerSummaryResponse(
-        Guid Id,
-        string FullName,
-        string Login);
-
-    private sealed record TrainerOptionResponse(
-        Guid Id,
-        string FullName,
-        string Login);
-
-    private sealed record GroupClientResponse(
-        Guid Id,
-        string FullName,
-        string Status);
-
-    private sealed record GroupClientProjection(
-        Guid Id,
-        string? LastName,
-        string? FirstName,
-        string? MiddleName,
-        string Status);
-
-    private sealed record TrainingGroupAuditState(
-        Guid Id,
-        string Name,
-        string TrainingStartTime,
-        string ScheduleText,
-        bool IsActive,
-        IReadOnlyList<Guid> TrainerIds,
-        int ClientCount,
-        DateTimeOffset UpdatedAt);
 }

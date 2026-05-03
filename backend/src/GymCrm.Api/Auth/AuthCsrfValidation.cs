@@ -18,7 +18,7 @@ internal static class AuthCsrfValidation
         {
             return TypedResults.Problem(
                 title: AuthConstants.InvalidCsrfProblemTitle,
-                detail: AuthConstants.InvalidCsrfProblemDetail,
+                detail: AuthResources.InvalidCsrfProblemDetail,
                 statusCode: StatusCodes.Status400BadRequest);
         }
     }
