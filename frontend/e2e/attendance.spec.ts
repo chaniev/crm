@@ -124,23 +124,18 @@ test.describe('Мобильный сценарий посещений трене
     await expect(page).toHaveURL(/\/attendance$/)
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
 
-    const navigationToggle = page.getByTestId('app-navigation-toggle')
-    await expect(navigationToggle).toBeVisible()
-    await navigationToggle.click()
+    const mobileNavigation = page.getByRole('navigation', {
+      name: 'Основная навигация',
+    })
 
-    const mobileNavigation = page.getByTestId('app-navigation')
-
+    await expect(mobileNavigation).toBeVisible()
     await expect(mobileNavigation.getByRole('button')).toHaveCount(2)
     await expect(
       mobileNavigation.getByRole('button', { name: 'Посещения' }),
-    ).toBeVisible()
+    ).toHaveAttribute('aria-current', 'page')
     await expect(
       mobileNavigation.getByRole('button', { name: 'Клиенты' }),
     ).toBeVisible()
-
-    await page
-      .getByRole('button', { name: 'Скрыть навигацию' })
-      .click()
 
     await expect(page.getByText('Назначенных групп: 1')).toBeVisible()
     await expect(page.getByText(`Клиенты группы ${assignedGroup.name}`)).toBeVisible()

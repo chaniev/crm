@@ -3,15 +3,12 @@ import {
   Alert,
   Badge,
   Button,
-  Group,
-  Loader,
   Paper,
   SimpleGrid,
   Stack,
   Text,
-  Title,
 } from '@mantine/core'
-import { IconAlertCircle, IconRefresh, IconUserHeart } from '@tabler/icons-react'
+import { IconAlertCircle, IconCalendarEvent, IconUserHeart } from '@tabler/icons-react'
 import {
   getExpiringClientMemberships,
   type AuthenticatedUser,
@@ -19,7 +16,15 @@ import {
   type MembershipType,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import { ResponsiveButtonGroup } from '../shared/ux'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageCard,
+  PageHeader,
+  RefreshButton,
+  ResponsiveButtonGroup,
+} from '../shared/ux'
 
 type HomeDashboardProps = {
   user: AuthenticatedUser
@@ -36,8 +41,17 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const canViewExpiringMemberships =
+    user.role === 'HeadCoach' || user.role === 'Administrator'
 
   useEffect(() => {
+    if (!canViewExpiringMemberships) {
+      setLoading(false)
+      setClients([])
+      setError(null)
+      return
+    }
+
     const controller = new AbortController()
 
     async function load() {
@@ -80,12 +94,12 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
     void load()
 
     return () => controller.abort()
-  }, [reloadKey])
+  }, [canViewExpiringMemberships, reloadKey])
 
-  if (user.role !== 'HeadCoach' && user.role !== 'Administrator') {
+  if (!canViewExpiringMemberships) {
     return (
       <Stack className="dashboard-stack" data-testid="home-screen" gap="xl">
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <PageCard>
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
@@ -94,67 +108,49 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
           >
             {resources.home.accessDenied.message}
           </Alert>
-        </Paper>
+        </PageCard>
       </Stack>
     )
   }
 
   return (
     <Stack className="dashboard-stack" data-testid="home-screen" gap="xl">
-      <Paper className="surface-card surface-card--wide home-screen-card" radius="28px" withBorder>
+      <PageCard className="home-screen-card">
         <Stack gap="lg">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Title order={2}>{resources.home.expiringMemberships.title}</Title>
-              <Text c="dimmed" size="sm">
-                {resources.home.expiringMemberships.description}
-              </Text>
-            </div>
-
-            <Group gap="sm" wrap="wrap">
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                {resources.home.expiringMemberships.audienceBadge}
-              </Badge>
-              <ResponsiveButtonGroup justify="flex-end">
-                <Button
-                  leftSection={<IconRefresh size={18} />}
-                  onClick={() => setReloadKey((current) => current + 1)}
-                  variant="light"
-                >
-                  {resources.common.actions.refresh}
-                </Button>
-              </ResponsiveButtonGroup>
-            </Group>
-          </Group>
+          <PageHeader
+            actions={
+              <RefreshButton
+                loading={loading}
+                onClick={() => setReloadKey((current) => current + 1)}
+              />
+            }
+            description={resources.home.expiringMemberships.description}
+            title={resources.home.expiringMemberships.title}
+          />
 
           {loading ? (
-            <Group justify="center" py="xl">
-              <Loader color="brand.7" />
-            </Group>
+            <LoadingState label="Загружаем истекающие абонементы..." />
           ) : null}
 
           {!loading && error ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
+            <ErrorState
+              action={
+                <RefreshButton
+                  label="Повторить"
+                  onClick={() => setReloadKey((current) => current + 1)}
+                />
+              }
+              message={error}
               title={resources.home.expiringMemberships.loadingErrorTitle}
-              variant="light"
-            >
-              {error}
-            </Alert>
+            />
           ) : null}
 
           {!loading && !error && clients.length === 0 ? (
-            <Paper className="list-row-card home-empty-card" radius="24px" withBorder>
-              <Stack gap="sm">
-                <Text fw={700}>
-                  {resources.home.expiringMemberships.emptyTitle}
-                </Text>
-                <Text c="dimmed" size="sm">
-                  {resources.home.expiringMemberships.emptyDescription}
-                </Text>
-              </Stack>
-            </Paper>
+            <EmptyState
+              description={resources.home.expiringMemberships.emptyDescription}
+              icon={<IconCalendarEvent size={28} />}
+              title={resources.home.expiringMemberships.emptyTitle}
+            />
           ) : null}
 
           {!loading && !error && clients.length > 0 ? (
@@ -228,7 +224,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
             </Stack>
           ) : null}
         </Stack>
-      </Paper>
+      </PageCard>
     </Stack>
   )
 }

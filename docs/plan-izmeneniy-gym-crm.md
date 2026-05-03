@@ -398,3 +398,88 @@
 
 5. При наличии инструментов визуального тестирования сделать скриншотную проверку.
 
+## 17. Статус сверки исходных кодов с планом
+
+Дата сверки: 2026-05-03.
+
+Итоговый статус: реализация завершена. Исторический TDD-порядок из разделов 2-4 нельзя ретроактивно подтвердить, потому что часть UI уже была реализована до этой сверки, но unit/e2e-регрессии добавлены и покрывают запланированное пользовательское поведение.
+
+### 17.1. Что реализовано
+
+1. Общий shell вынес из `App.tsx`:
+   - `AppLayout`;
+   - `Header`;
+   - `NavigationTabs`;
+   - единая фильтрация доступных nav-разделов через `getAccessibleNavigationSections`.
+
+2. Общий UI-слой расширен:
+   - `PageCard`;
+   - `PageHeader`;
+   - `Button`;
+   - `IconButton`;
+   - `RefreshButton`;
+   - `EmptyState`;
+   - `LoadingState`;
+   - `ErrorState`;
+   - `Skeleton`.
+
+3. Экран "Главная" закрывает все состояния данных:
+   - loading при первичной загрузке и refresh;
+   - error с retry;
+   - empty state с календарной иконкой и текстами из плана;
+   - data state со списком истекающих абонементов;
+   - роли без доступа не дергают endpoint и видят access denied.
+
+4. Соседние вкладки переведены на общие cards/header/data-state компоненты:
+   - посещения;
+   - группы;
+   - пользователи;
+   - журнал;
+   - client-list results.
+
+5. E2E-тесты обновлены под новую горизонтальную pill-навигацию без mobile drawer:
+   - `auth.spec.ts`;
+   - `attendance.spec.ts`;
+   - `home-dashboard.spec.ts`;
+   - `responsive-main-screens.spec.ts`;
+   - `stage12.spec.ts`.
+
+6. Unit-test слой добавлен:
+   - `vitest`;
+   - `@testing-library/react`;
+   - `@testing-library/jest-dom`;
+   - `jsdom`;
+   - `npm run test:unit`;
+   - тесты shared UX компонентов и `HomeDashboard`.
+
+### 17.2. Финальные проверки
+
+1. `cd frontend && npm run lint`
+   - результат: успешно.
+
+2. `cd frontend && npm run build`
+   - результат: успешно;
+   - осталось стандартное предупреждение Vite о chunk больше `500 kB` после minification.
+
+3. `cd frontend && npm run test:unit`
+   - результат: `2 passed`, `14 passed`.
+
+4. `cd frontend && env E2E_PORT=3100 npm run test:e2e -- --workers=1 e2e/home-dashboard.spec.ts e2e/auth.spec.ts e2e/responsive-main-screens.spec.ts e2e/attendance.spec.ts e2e/users.spec.ts`
+   - результат: `17 passed`.
+
+5. `cd frontend && env E2E_PORT=3100 npm run test:e2e -- --workers=1 e2e/stage12.spec.ts`
+   - результат: `11 passed`.
+
+6. Playwright screenshot-smoke главной страницы:
+   - desktop `1440x900`: `/private/tmp/gym-crm-home-desktop.png`;
+   - mobile `390x844`: `/private/tmp/gym-crm-home-mobile.png`;
+   - page-level horizontal overflow не обнаружен.
+
+7. `dotnet test backend/GymCrm.slnx`
+   - результат: `71 passed`.
+
+### 17.3. Оставшиеся замечания
+
+1. В `frontend/src/features/clients/ClientManagement.tsx` остаются специализированные карточки клиентской формы/деталей с локальными радиусами `8px`; они отражают плотный form/detail layout и не являются дублем shell/header/empty/loading/error состояния.
+
+2. Скриншотная проверка выполнена как ручной Playwright smoke, но отдельный snapshot-тест не заведен; адаптив и отсутствие page-level horizontal scroll закрыты Playwright smoke-тестами на ширинах `390`, `768`, `1440`.

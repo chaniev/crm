@@ -38,9 +38,33 @@ export const APP_SECTION_PATHS: Record<AppSection, string> = {
   Audit: '/audit',
 }
 
+export const APP_NAVIGATION_SECTIONS: AppSection[] = [
+  'Home',
+  'Attendance',
+  'Clients',
+  'Groups',
+  'Users',
+  'Audit',
+]
+
 const sectionPathEntries = Object.entries(APP_SECTION_PATHS) as Array<
   [AppSection, string]
 >
+
+function isNavigationSectionAllowed(
+  user: AuthenticatedUser,
+  section: AppSection,
+) {
+  if (section === 'Users' && !user.permissions.canManageUsers) {
+    return false
+  }
+
+  if (section === 'Audit' && !user.permissions.canViewAuditLog) {
+    return false
+  }
+
+  return user.allowedSections.includes(section)
+}
 
 function isClientWriteRoute(route: AppRoute) {
   return route.kind === 'clientCreate' || route.kind === 'clientEdit'
@@ -64,6 +88,12 @@ export function normalizePathname(pathname: string) {
 
 export function getSectionPath(section: AppSection) {
   return APP_SECTION_PATHS[section]
+}
+
+export function getAccessibleNavigationSections(user: AuthenticatedUser) {
+  return APP_NAVIGATION_SECTIONS.filter((section) =>
+    isNavigationSectionAllowed(user, section),
+  )
 }
 
 export function getRoutePath(route: AppRoute) {

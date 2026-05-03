@@ -1,22 +1,19 @@
 import {
-  Alert,
   Avatar,
   Badge,
   Button,
   Group,
   Paper,
-  Skeleton,
   Stack,
   Text,
-  ThemeIcon,
 } from '@mantine/core'
 import {
-  IconAlertCircle,
   IconChevronLeft,
   IconChevronRight,
   IconUserHeart,
   IconUsers,
 } from '@tabler/icons-react'
+import { EmptyState, ErrorState, Skeleton } from '../../shared/ux'
 import { buildClientRowViewModel } from './clientListViewModel'
 import type { ClientsListState } from './useClientsListState'
 
@@ -36,61 +33,45 @@ export function ClientsResults({
   if (state.loading) {
     return (
       <Stack data-testid="clients-list" gap="xs">
-        {Array.from({ length: 7 }).map((_, index) => (
-          <Skeleton className="clients-v7-row-skeleton" key={index} radius="md" />
-        ))}
+        <Skeleton rows={7} />
       </Stack>
     )
   }
 
   if (state.error) {
     return (
-      <Alert
-        color="red"
-        icon={<IconAlertCircle size={18} />}
+      <ErrorState
+        action={(
+          <Button onClick={state.reload} variant="light">
+            Повторить
+          </Button>
+        )}
+        message={state.error}
         title="Не удалось загрузить клиентов"
-        variant="light"
-      >
-        <Stack gap="sm">
-          <Text size="sm">{state.error}</Text>
-          <Group>
-            <Button onClick={state.reload} variant="light">
-              Повторить
-            </Button>
-          </Group>
-        </Stack>
-      </Alert>
+      />
     )
   }
 
   if (state.clients.length === 0) {
     return (
-      <Paper className="hint-card" radius="md" withBorder>
-        <Stack gap="sm">
-          <Group gap="xs">
-            <ThemeIcon color="brand.7" radius="xl" size={30} variant="light">
-              <IconUsers size={16} />
-            </ThemeIcon>
-            <Text fw={700}>
-              {state.isFirstRunEmpty ? 'Клиентов пока нет' : 'Клиенты не найдены'}
-            </Text>
-          </Group>
-          <Text c="dimmed" size="sm">
-            {state.isFirstRunEmpty
-              ? 'Создайте первую карточку клиента.'
-              : 'Попробуйте изменить поиск или сбросить фильтры.'}
-          </Text>
-          <Group>
-            {state.isFirstRunEmpty && canManage ? (
-              <Button onClick={onCreate}>Новый клиент</Button>
-            ) : (
-              <Button onClick={state.resetFilters} variant="light">
-                Сбросить фильтры
-              </Button>
-            )}
-          </Group>
-        </Stack>
-      </Paper>
+      <EmptyState
+        action={
+          state.isFirstRunEmpty && canManage ? (
+            <Button onClick={onCreate}>Новый клиент</Button>
+          ) : (
+            <Button onClick={state.resetFilters} variant="light">
+              Сбросить фильтры
+            </Button>
+          )
+        }
+        description={
+          state.isFirstRunEmpty
+            ? 'Создайте первую карточку клиента.'
+            : 'Попробуйте изменить поиск или сбросить фильтры.'
+        }
+        icon={<IconUsers size={24} />}
+        title={state.isFirstRunEmpty ? 'Клиентов пока нет' : 'Клиенты не найдены'}
+      />
     )
   }
 

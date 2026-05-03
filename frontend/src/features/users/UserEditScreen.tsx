@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  Alert,
   Button,
   Group,
-  Loader,
   Paper,
   Stack,
   Text,
@@ -11,12 +9,7 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import {
-  IconAlertCircle,
-  IconArrowLeft,
-  IconDeviceFloppy,
-  IconUserCog,
-} from '@tabler/icons-react'
+import { IconArrowLeft, IconDeviceFloppy, IconUserCog } from '@tabler/icons-react'
 import {
   ApiError,
   applyFieldErrors,
@@ -25,7 +18,12 @@ import {
   type UserDetails,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import { ResponsiveButtonGroup } from '../shared/ux'
+import {
+  ErrorState,
+  LoadingState,
+  PageCard,
+  ResponsiveButtonGroup,
+} from '../shared/ux'
 import {
   UserEditCredentialsFields,
   UserFormFields,
@@ -168,7 +166,7 @@ export function UserEditScreen({
         title={user?.fullName ?? resources.users.edit.fallbackTitle}
       />
 
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+      <PageCard>
         <Stack gap="lg">
           <Group gap="xs">
             <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
@@ -183,33 +181,23 @@ export function UserEditScreen({
           </Group>
 
           {loading ? (
-            <Group justify="center" py="xl">
-              <Loader color="brand.7" />
-            </Group>
+            <LoadingState label="Загружаем карточку пользователя..." />
           ) : null}
 
           {!loading && loadError ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
+            <ErrorState
+              message={loadError}
               title={resources.users.edit.loadingErrorTitle}
-              variant="light"
-            >
-              {loadError}
-            </Alert>
+            />
           ) : null}
 
           {!loading && !loadError ? (
             <>
               {formError ? (
-                <Alert
-                  color="red"
-                  icon={<IconAlertCircle size={18} />}
+                <ErrorState
+                  message={formError}
                   title={resources.users.edit.errorTitle}
-                  variant="light"
-                >
-                  {formError}
-                </Alert>
+                />
               ) : null}
 
               <form onSubmit={form.onSubmit((values) => void submit(values))}>
@@ -252,7 +240,7 @@ export function UserEditScreen({
             </>
           ) : null}
         </Stack>
-      </Paper>
+      </PageCard>
     </Stack>
   )
 }

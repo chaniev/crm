@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import {
-  Alert,
   Button,
   Group,
   Paper,
@@ -11,7 +10,6 @@ import {
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import {
-  IconAlertCircle,
   IconArrowLeft,
   IconCheck,
   IconDeviceFloppy,
@@ -24,7 +22,7 @@ import {
   type UserDetails,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import { ResponsiveButtonGroup } from '../shared/ux'
+import { ErrorState, PageCard, ResponsiveButtonGroup } from '../shared/ux'
 import { UserFormFields, UserCreateCredentialsFields, type CreateUserFormValues } from './UserFormFields'
 import { UserManagementHero } from './UserManagementHero'
 import { userRoleOptions } from './UserManagement.constants'
@@ -108,7 +106,7 @@ export function UserCreateScreen({
         title={resources.users.create.title}
       />
 
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+      <PageCard>
         <Stack gap="lg">
           <Group gap="xs">
             <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
@@ -123,14 +121,10 @@ export function UserCreateScreen({
           </Group>
 
           {formError ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
+            <ErrorState
+              message={formError}
               title={resources.users.create.errorTitle}
-              variant="light"
-            >
-              {formError}
-            </Alert>
+            />
           ) : null}
 
           <form onSubmit={form.onSubmit((values) => void submit(values))}>
@@ -170,7 +164,7 @@ export function UserCreateScreen({
             </Stack>
           </form>
         </Stack>
-      </Paper>
+      </PageCard>
     </Stack>
   )
 }

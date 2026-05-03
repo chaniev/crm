@@ -139,6 +139,11 @@ test.describe('Аутентификация', () => {
         return true
       }
 
+      if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+        await fulfillJson(route, 200, { items: [] })
+        return true
+      }
+
       return false
     })
 
@@ -161,7 +166,7 @@ test.describe('Аутентификация', () => {
 
     await expect(page.getByTestId('home-screen')).toBeVisible()
     await expect(
-      page.getByText('В ближайшие 10 дней истекающих абонементов нет.'),
+      page.getByText('Все абонементы активны.'),
     ).toBeVisible()
   })
 

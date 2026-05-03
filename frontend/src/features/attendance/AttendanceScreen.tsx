@@ -1,29 +1,20 @@
 import { useEffect, useState } from 'react'
 import {
-  Alert,
   Avatar,
   Badge,
-  Button,
   Group,
-  Loader,
   Paper,
   Select,
   Stack,
   Switch,
   Text,
   TextInput,
-  ThemeIcon,
-  Title,
   Tooltip,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import {
-  IconAlertCircle,
-  IconCalendarEvent,
   IconCheck,
-  IconClockHour4,
   IconCreditCardOff,
-  IconRefresh,
   IconUsers,
   IconUsersGroup,
 } from '@tabler/icons-react'
@@ -37,6 +28,14 @@ import {
   type AttendanceRosterResponse,
   type AuthenticatedUser,
 } from '../../lib/api'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageCard,
+  PageHeader,
+  RefreshButton,
+} from '../shared/ux'
 
 type AttendanceScreenProps = {
   user: AuthenticatedUser
@@ -253,88 +252,61 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
 
   return (
     <Stack className="dashboard-stack" data-testid="attendance-screen" gap="xl">
-      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
-        <Stack className="page-header-card__content" gap="md">
-          <Group gap="sm" wrap="wrap">
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Экран посещений
-            </Badge>
-            <Badge color="sand" radius="xl" size="lg" variant="light">
-              {scopeBadgeLabel}
-            </Badge>
-          </Group>
+      <PageCard className="page-header-card">
+        <PageHeader
+          description="Выберите группу и дату, затем отметьте присутствие клиентов прямо на одном экране."
+          eyebrow={(
+            <Group gap="sm" wrap="wrap">
+              <Badge color="brand.1" radius="xl" size="lg" variant="light">
+                Экран посещений
+              </Badge>
+              <Badge color="sand" radius="xl" size="lg" variant="light">
+                {scopeBadgeLabel}
+              </Badge>
+            </Group>
+          )}
+          title="Быстрая отметка посещений"
+        />
+      </PageCard>
 
-          <Stack gap="sm">
-            <Title className="page-header-card__title" order={1}>
-              Быстрая отметка посещений
-            </Title>
-            <Text className="page-header-card__description" size="sm">
-              Выберите группу и дату, затем отметьте присутствие клиентов прямо
-              на одном экране.
-            </Text>
-          </Stack>
-        </Stack>
-      </Paper>
-
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+      <PageCard>
         <Stack gap="lg">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>Фильтр посещений</Text>
-              <Text c="dimmed" size="sm">
-                Выбор группы и даты определяет список клиентов для отметки.
-              </Text>
-            </div>
-
-            <Button
-              leftSection={<IconRefresh size={18} />}
-              loading={rosterLoading && Boolean(roster)}
-              onClick={handleRefreshRoster}
-              variant="light"
-            >
-              Обновить
-            </Button>
-          </Group>
+          <PageHeader
+            actions={(
+              <RefreshButton
+                loading={rosterLoading && Boolean(roster)}
+                onClick={handleRefreshRoster}
+              />
+            )}
+            description="Выбор группы и даты определяет список клиентов для отметки."
+            title="Фильтр посещений"
+          />
 
           {groupsError ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
+            <ErrorState
+              message={groupsError}
               title="Группы для посещений не загрузились"
-              variant="light"
-            >
-              {groupsError}
-            </Alert>
+            />
           ) : null}
 
           {groupsLoading ? (
-            <Group justify="center" py="xl">
-              <Loader color="brand.7" />
-            </Group>
+            <LoadingState label="Загружаем доступные группы..." />
           ) : null}
 
           {!groupsLoading && !groupsError && groups.length === 0 ? (
-            <Paper className="hint-card attendance-empty-card" radius="24px" withBorder>
-              <Stack gap="sm">
-                <Group gap="xs" wrap="nowrap">
-                  <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-                    <IconUsersGroup size={18} />
-                  </ThemeIcon>
-                  <div>
-                    <Text fw={700}>
-                      {user.role === 'Coach'
-                        ? 'Назначенные группы отсутствуют'
-                        : 'Доступные группы пока отсутствуют'}
-                    </Text>
-                    <Text c="dimmed" size="sm">
-                      {user.role === 'Coach'
-                        ? 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'
-                        : 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'}
-                    </Text>
-                  </div>
-                </Group>
-              </Stack>
-            </Paper>
+            <EmptyState
+              description={
+                user.role === 'Coach'
+                  ? 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'
+                  : 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'
+              }
+              icon={<IconUsersGroup size={24} />}
+              title={
+                user.role === 'Coach'
+                  ? 'Назначенные группы отсутствуют'
+                  : 'Доступные группы пока отсутствуют'
+              }
+            />
           ) : null}
 
           {!groupsLoading && !groupsError && groups.length > 0 ? (
@@ -358,77 +330,38 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
             </div>
           ) : null}
         </Stack>
-      </Paper>
+      </PageCard>
 
       {!groupsLoading && !groupsError && selectedGroup ? (
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <PageCard>
           <Stack gap="lg">
-            <Group justify="space-between" wrap="wrap">
-              <Stack gap={4}>
-                <Group gap="sm" wrap="wrap">
-                  <Text fw={700}>Клиенты группы {selectedGroup.name}</Text>
-                  {selectedGroup.clientCount !== undefined ? (
-                    <Badge color="brand.1" radius="xl" variant="light">
-                      {selectedGroup.clientCount} клиентов
-                    </Badge>
-                  ) : null}
-                </Group>
-
-                <Group c="dimmed" gap="md" wrap="wrap">
-                  {selectedGroup.trainingStartTime ? (
-                    <Group gap={6} wrap="nowrap">
-                      <IconClockHour4 size={16} />
-                      <Text size="sm">{selectedGroup.trainingStartTime}</Text>
-                    </Group>
-                  ) : null}
-                  {selectedGroup.scheduleText ? (
-                    <Group gap={6} wrap="nowrap">
-                      <IconCalendarEvent size={16} />
-                      <Text size="sm">{selectedGroup.scheduleText}</Text>
-                    </Group>
-                  ) : null}
-                </Group>
-              </Stack>
-
-              <Badge color="sand" radius="xl" size="lg" variant="light">
-                Дата: {formatDateLabel(trainingDate)}
-              </Badge>
-            </Group>
+            <PageHeader
+              actions={(
+                <Badge color="sand" radius="xl" size="lg" variant="light">
+                  Дата: {formatDateLabel(trainingDate)}
+                </Badge>
+              )}
+              description={getSelectedGroupDescription(selectedGroup)}
+              title={`Клиенты группы ${selectedGroup.name}`}
+            />
 
             {rosterError ? (
-              <Alert
-                color="red"
-                icon={<IconAlertCircle size={18} />}
+              <ErrorState
+                message={rosterError}
                 title="Список клиентов не загрузился"
-                variant="light"
-              >
-                {rosterError}
-              </Alert>
+              />
             ) : null}
 
             {rosterLoading && !roster ? (
-              <Group justify="center" py="xl">
-                <Loader color="brand.7" />
-              </Group>
+              <LoadingState label="Загружаем состав группы..." />
             ) : null}
 
             {!rosterLoading && !rosterError && roster && roster.clients.length === 0 ? (
-              <Paper className="hint-card attendance-empty-card" radius="24px" withBorder>
-                <Stack gap="sm">
-                  <Group gap="xs" wrap="nowrap">
-                    <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-                      <IconUsers size={18} />
-                    </ThemeIcon>
-                    <div>
-                      <Text fw={700}>В выбранной группе пока нет клиентов</Text>
-                      <Text c="dimmed" size="sm">
-                        Состав группы на эту дату пуст. Как только клиент появится в
-                        группе, его можно будет отметить на этом экране.
-                      </Text>
-                    </div>
-                  </Group>
-                </Stack>
-              </Paper>
+              <EmptyState
+                description="Состав группы на эту дату пуст. Как только клиент появится в группе, его можно будет отметить на этом экране."
+                icon={<IconUsers size={24} />}
+                title="В выбранной группе пока нет клиентов"
+              />
             ) : null}
 
             {roster ? (
@@ -444,7 +377,7 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
               </Stack>
             ) : null}
           </Stack>
-        </Paper>
+        </PageCard>
       ) : null}
     </Stack>
   )
@@ -590,4 +523,25 @@ function formatDateLabel(value: string) {
   }
 
   return `${day}.${month}.${year}`
+}
+
+function getSelectedGroupDescription(group: AttendanceGroup) {
+  const details: string[] = []
+
+  if (group.clientCount !== undefined) {
+    details.push(`${group.clientCount} клиентов`)
+  }
+
+  if (group.trainingStartTime) {
+    details.push(`Старт ${group.trainingStartTime}`)
+  }
+
+  if (group.scheduleText) {
+    details.push(group.scheduleText)
+  }
+
+  return (
+    details.join(', ') ||
+    'Список клиентов и отметки посещения на выбранную дату.'
+  )
 }

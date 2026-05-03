@@ -1,25 +1,30 @@
 import { useEffect, useState } from 'react'
 import {
-  Alert,
   Badge,
   Button,
   Group,
-  Loader,
   Paper,
   SimpleGrid,
   Stack,
   Text,
 } from '@mantine/core'
 import {
-  IconAlertCircle,
   IconPlus,
-  IconRefresh,
   IconUserEdit,
   IconUsers,
 } from '@tabler/icons-react'
 import { getUsers, type UserListItem } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import { MetricCard, ResponsiveButtonGroup } from '../shared/ux'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  MetricCard,
+  PageCard,
+  PageHeader,
+  RefreshButton,
+  ResponsiveButtonGroup,
+} from '../shared/ux'
 import { UserManagementHero } from './UserManagementHero'
 import { userRoleLabels } from './UserManagement.constants'
 
@@ -84,13 +89,9 @@ export function UsersListScreen({
             >
               {resources.users.list.createAction}
             </Button>
-            <Button
-              leftSection={<IconRefresh size={18} />}
+            <RefreshButton
               onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-              variant="light"
-            >
-              {resources.common.actions.refresh}
-            </Button>
+            />
           </ResponsiveButtonGroup>
         }
         badge={resources.users.list.badge}
@@ -116,50 +117,35 @@ export function UsersListScreen({
         />
       </SimpleGrid>
 
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+      <PageCard>
         <Stack gap="lg">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>{resources.users.list.sectionTitle}</Text>
-              <Text c="dimmed" size="sm">
-                {resources.users.list.sectionDescription}
-              </Text>
-            </div>
-
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              {resources.users.list.headCoachOnlyBadge}
-            </Badge>
-          </Group>
+          <PageHeader
+            actions={(
+              <Badge color="brand.1" radius="xl" size="lg" variant="light">
+                {resources.users.list.headCoachOnlyBadge}
+              </Badge>
+            )}
+            description={resources.users.list.sectionDescription}
+            title={resources.users.list.sectionTitle}
+          />
 
           {loading ? (
-            <Group justify="center" py="xl">
-              <Loader color="brand.7" />
-            </Group>
+            <LoadingState label="Загружаем пользователей..." />
           ) : null}
 
           {!loading && error ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
+            <ErrorState
+              message={error}
               title={resources.users.list.loadingErrorTitle}
-              variant="light"
-            >
-              {error}
-            </Alert>
+            />
           ) : null}
 
           {!loading && !error && users.length === 0 ? (
-            <Paper className="hint-card" radius="24px" withBorder>
-              <Stack gap="sm">
-                <Group gap="xs">
-                  <ThemeIconPlaceholder />
-                  <Text fw={700}>{resources.users.list.emptyTitle}</Text>
-                </Group>
-                <Text c="dimmed" size="sm">
-                  {resources.users.list.emptyDescription}
-                </Text>
-              </Stack>
-            </Paper>
+            <EmptyState
+              description={resources.users.list.emptyDescription}
+              icon={<IconUsers size={24} />}
+              title={resources.users.list.emptyTitle}
+            />
           ) : null}
 
           {!loading && !error && users.length > 0 ? (
@@ -220,15 +206,7 @@ export function UsersListScreen({
             </Stack>
           ) : null}
         </Stack>
-      </Paper>
+      </PageCard>
     </Stack>
-  )
-}
-
-function ThemeIconPlaceholder() {
-  return (
-    <Badge color="brand.1" leftSection={<IconUsers size={14} />} radius="xl" variant="light">
-      &nbsp;
-    </Badge>
   )
 }

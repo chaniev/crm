@@ -1129,7 +1129,9 @@ test.describe('Основные e2e сценарии', () => {
         await expectNoHorizontalScroll(page)
 
         if (width === 390) {
-          await expect(page.getByRole('button', { name: 'Показать навигацию' })).toBeVisible()
+          await expect(
+            page.getByRole('navigation', { name: 'Основная навигация' }),
+          ).toBeVisible()
         }
       }
     }

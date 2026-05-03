@@ -4,7 +4,6 @@ import {
   Badge,
   Button,
   Group,
-  Loader,
   MultiSelect,
   Paper,
   SimpleGrid,
@@ -13,7 +12,6 @@ import {
   Text,
   TextInput,
   ThemeIcon,
-  Title,
 } from '@mantine/core'
 import { type UseFormReturnType, useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
@@ -24,7 +22,6 @@ import {
   IconClockHour4,
   IconDeviceFloppy,
   IconPlus,
-  IconRefresh,
   IconUserStar,
   IconUsers,
   IconUsersGroup,
@@ -51,7 +48,16 @@ import {
   GROUPS_LIST_TAKE,
   GROUPS_STATUS_LABELS,
 } from './groupManagement.constants'
-import { MetricCard, ResponsiveButtonGroup } from '../shared/ux'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  MetricCard,
+  PageCard,
+  PageHeader,
+  RefreshButton,
+  ResponsiveButtonGroup,
+} from '../shared/ux'
 
 type GroupsListScreenProps = {
   onCreate: () => void
@@ -125,42 +131,34 @@ export function GroupsListScreen({
 
   return (
     <Stack className="dashboard-stack" data-testid="groups-screen" gap="xl">
-      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
-        <Stack className="page-header-card__content" gap="md">
-          <Group gap="sm">
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Группы и расписание
-            </Badge>
-          </Group>
-
-          <Stack gap="sm">
-            <Title className="page-header-card__title" order={1}>
-              Группы и назначение тренеров
-            </Title>
-            <Text className="page-header-card__description" size="sm">
-              Список показывает расписание, время старта, состав тренеров и
-              количество клиентов по каждой группе без перехода в отдельный модуль.
-            </Text>
-          </Stack>
-
-          <ResponsiveButtonGroup>
-            <Button
-              color="accent.5"
-              leftSection={<IconPlus size={18} />}
-              onClick={onCreate}
-            >
-              Создать группу
-            </Button>
-            <Button
-              leftSection={<IconRefresh size={18} />}
-              onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-              variant="light"
-            >
-              Обновить список
-            </Button>
-          </ResponsiveButtonGroup>
-        </Stack>
-      </Paper>
+      <PageCard className="page-header-card">
+        <PageHeader
+          actions={(
+            <ResponsiveButtonGroup>
+              <Button
+                color="accent.5"
+                leftSection={<IconPlus size={18} />}
+                onClick={onCreate}
+              >
+                Создать группу
+              </Button>
+              <RefreshButton
+                label="Обновить список"
+                onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+              />
+            </ResponsiveButtonGroup>
+          )}
+          description="Список показывает расписание, время старта, состав тренеров и количество клиентов по каждой группе без перехода в отдельный модуль."
+          eyebrow={(
+            <Group gap="sm">
+              <Badge color="brand.1" radius="xl" size="lg" variant="light">
+                Группы и расписание
+              </Badge>
+            </Group>
+          )}
+          title="Группы и назначение тренеров"
+        />
+      </PageCard>
 
       <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
         <MetricCard
@@ -180,54 +178,35 @@ export function GroupsListScreen({
         />
       </SimpleGrid>
 
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+      <PageCard>
         <Stack gap="lg">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>Список групп</Text>
-              <Text c="dimmed" size="sm">
-                Показано {groups.length} из {totalCount}. Дальше этот же экран
-                сможет работать и на частичной загрузке списка.
-              </Text>
-            </div>
-
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Главный тренер и администратор
-            </Badge>
-          </Group>
+          <PageHeader
+            actions={(
+              <Badge color="brand.1" radius="xl" size="lg" variant="light">
+                Главный тренер и администратор
+              </Badge>
+            )}
+            description={`Показано ${groups.length} из ${totalCount}. Дальше этот же экран сможет работать и на частичной загрузке списка.`}
+            title="Список групп"
+          />
 
           {loading ? (
-            <Group justify="center" py="xl">
-              <Loader color="brand.7" />
-            </Group>
+            <LoadingState label="Загружаем список групп..." />
           ) : null}
 
           {!loading && error ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
+            <ErrorState
+              message={error}
               title="Список групп не загрузился"
-              variant="light"
-            >
-              {error}
-            </Alert>
+            />
           ) : null}
 
           {!loading && !error && groups.length === 0 ? (
-            <Paper className="hint-card" radius="24px" withBorder>
-              <Stack gap="sm">
-                <Group gap="xs">
-                  <ThemeIcon color="brand.7" radius="xl" size={30} variant="light">
-                    <IconUsersGroup size={16} />
-                  </ThemeIcon>
-                  <Text fw={700}>Группы пока не созданы</Text>
-                </Group>
-                <Text c="dimmed" size="sm">
-                  Создайте первую группу, чтобы закрепить тренеров и подготовить
-                  основу для сценария посещений.
-                </Text>
-              </Stack>
-            </Paper>
+            <EmptyState
+              description="Создайте первую группу, чтобы закрепить тренеров и подготовить основу для сценария посещений."
+              icon={<IconUsersGroup size={24} />}
+              title="Группы пока не созданы"
+            />
           ) : null}
 
           {!loading && !error && groups.length > 0 ? (
@@ -293,7 +272,7 @@ export function GroupsListScreen({
             </Stack>
           ) : null}
         </Stack>
-      </Paper>
+      </PageCard>
     </Stack>
   )
 }
@@ -386,23 +365,17 @@ export function GroupCreateScreen({
         title="Новая тренировочная группа"
       />
 
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+      <PageCard>
         <Stack gap="lg">
           {loadingOptions ? (
-            <Group justify="center" py="xl">
-              <Loader color="brand.7" />
-            </Group>
+            <LoadingState label="Подготавливаем форму группы..." />
           ) : null}
 
           {!loadingOptions && loadError ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
+            <ErrorState
+              message={loadError}
               title="Не удалось подготовить форму"
-              variant="light"
-            >
-              {loadError}
-            </Alert>
+            />
           ) : null}
 
           {!loadingOptions && !loadError ? (
@@ -417,7 +390,7 @@ export function GroupCreateScreen({
             />
           ) : null}
         </Stack>
-      </Paper>
+      </PageCard>
     </Stack>
   )
 }
@@ -529,24 +502,18 @@ export function GroupEditScreen({
       />
 
       {loading ? (
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
-          <Group justify="center" py="xl">
-            <Loader color="brand.7" />
-          </Group>
-        </Paper>
+        <PageCard>
+          <LoadingState label="Загружаем группу..." />
+        </PageCard>
       ) : null}
 
       {!loading && loadError ? (
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
-          <Alert
-            color="red"
-            icon={<IconAlertCircle size={18} />}
+        <PageCard>
+          <ErrorState
+            message={loadError}
             title="Экран редактирования не загрузился"
-            variant="light"
-          >
-            {loadError}
-          </Alert>
-        </Paper>
+          />
+        </PageCard>
       ) : null}
 
       {!loading && !loadError ? (
@@ -569,7 +536,7 @@ export function GroupEditScreen({
             />
           </SimpleGrid>
 
-          <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+          <PageCard>
             <GroupForm
               form={form}
               formError={formError}
@@ -579,41 +546,26 @@ export function GroupEditScreen({
               submitting={submitting}
               trainerOptions={trainerOptions}
             />
-          </Paper>
+          </PageCard>
 
-          <Paper
-            className="surface-card surface-card--wide group-clients-card"
-            radius="28px"
-            withBorder
-          >
+          <PageCard className="group-clients-card">
             <Stack gap="lg">
-              <Group justify="space-between" wrap="wrap">
-                <div>
-                  <Text fw={700}>Клиенты группы</Text>
-                  <Text c="dimmed" size="sm">
-                    Read-only список помогает сверить состав группы до этапа клиентской карточки.
-                  </Text>
-                </div>
-
-                <Badge color="brand.1" radius="xl" variant="light">
-                  Всего: {groupClients.length}
-                </Badge>
-              </Group>
+              <PageHeader
+                actions={(
+                  <Badge color="brand.1" radius="xl" variant="light">
+                    Всего: {groupClients.length}
+                  </Badge>
+                )}
+                description="Read-only список помогает сверить состав группы до этапа клиентской карточки."
+                title="Клиенты группы"
+              />
 
               {groupClients.length === 0 ? (
-                <Paper className="hint-card" radius="24px" withBorder>
-                  <Stack gap="sm">
-                    <Group gap="xs">
-                      <ThemeIcon color="brand.7" radius="xl" size={30} variant="light">
-                        <IconUsers size={16} />
-                      </ThemeIcon>
-                      <Text fw={700}>В группе пока нет клиентов</Text>
-                    </Group>
-                    <Text c="dimmed" size="sm">
-                      После этапов клиентской базы здесь будет виден фактический состав группы.
-                    </Text>
-                  </Stack>
-                </Paper>
+                <EmptyState
+                  description="После этапов клиентской базы здесь будет виден фактический состав группы."
+                  icon={<IconUsers size={24} />}
+                  title="В группе пока нет клиентов"
+                />
               ) : (
                 <Stack gap="sm">
                   {groupClients.map((client) => (
@@ -642,7 +594,7 @@ export function GroupEditScreen({
                 </Stack>
               )}
             </Stack>
-          </Paper>
+          </PageCard>
         </>
       ) : null}
     </Stack>
@@ -785,28 +737,20 @@ function GroupFormHero({
   title,
 }: GroupFormHeroProps) {
   return (
-    <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
-      <Stack className="page-header-card__content" gap="md">
-        <Group gap="sm">
-          <Badge color="brand.1" radius="xl" size="lg" variant="light">
-            {badge}
-          </Badge>
-        </Group>
-
-        <Stack gap="sm">
-          <Title className="page-header-card__title" order={1}>
-            {title}
-          </Title>
-          <Text className="page-header-card__description" size="sm">
-            {description}
-          </Text>
-        </Stack>
-
-        <Group className="management-hero__actions" gap="sm" wrap="wrap">
-          {action}
-        </Group>
-      </Stack>
-    </Paper>
+    <PageCard className="page-header-card">
+      <PageHeader
+        actions={action}
+        description={description}
+        eyebrow={(
+          <Group gap="sm">
+            <Badge color="brand.1" radius="xl" size="lg" variant="light">
+              {badge}
+            </Badge>
+          </Group>
+        )}
+        title={title}
+      />
+    </PageCard>
   )
 }
 

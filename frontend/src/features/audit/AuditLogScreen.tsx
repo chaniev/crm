@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import {
   Accordion,
-  Alert,
   Badge,
   Button,
   Group,
-  Loader,
   Pagination,
   Paper,
   Select,
@@ -13,16 +11,9 @@ import {
   Stack,
   Text,
   TextInput,
-  Title,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import {
-  IconAlertCircle,
-  IconCalendarEvent,
-  IconFilter,
-  IconRefresh,
-  IconSearch,
-} from '@tabler/icons-react'
+import { IconCalendarEvent, IconFilter, IconSearch } from '@tabler/icons-react'
 import {
   getAuditLogEntries,
   getAuditLogFilterOptions,
@@ -33,7 +24,15 @@ import {
   type GetAuditLogParams,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import { ResponsiveButtonGroup } from '../shared/ux'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageCard,
+  PageHeader,
+  RefreshButton,
+  ResponsiveButtonGroup,
+} from '../shared/ux'
 
 type AuditLogScreenProps = {
   user: AuthenticatedUser
@@ -152,16 +151,12 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   if (!user.permissions.canViewAuditLog) {
     return (
       <Stack className="dashboard-stack" data-testid="audit-screen" gap="xl">
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
-          <Alert
-            color="red"
-            icon={<IconAlertCircle size={18} />}
+        <PageCard>
+          <ErrorState
+            message="Этот экран доступен главному тренеру и администратору."
             title="Журнал действий недоступен"
-            variant="light"
-          >
-            Этот экран доступен главному тренеру и администратору.
-          </Alert>
-        </Paper>
+          />
+        </PageCard>
       </Stack>
     )
   }
@@ -194,60 +189,46 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
   return (
     <Stack className="dashboard-stack" data-testid="audit-screen" gap="xl">
-      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
-        <Stack className="page-header-card__content" gap="md">
-          <Group gap="sm" wrap="wrap">
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Журнал действий
-            </Badge>
-            <Badge radius="xl" size="lg" variant="light">
-              Главный тренер и администратор
-            </Badge>
-          </Group>
-
-          <Stack gap="sm">
-            <Title className="page-header-card__title" order={1}>
-              Журнал действий показывает важные изменения в клубе
-            </Title>
-            <Text className="page-header-card__description" size="sm">
-              Фильтруйте записи по пользователю, типу действия, объекту и
-              периоду. Для изменений отображаются предыдущие и новые значения.
-            </Text>
-          </Stack>
-
-          <ResponsiveButtonGroup>
-            <Button
-              leftSection={<IconRefresh size={18} />}
-              onClick={() => setReloadKey((current) => current + 1)}
-              variant="light"
-            >
-              Обновить
-            </Button>
-          </ResponsiveButtonGroup>
-        </Stack>
-      </Paper>
-
-      <Paper className="surface-card surface-card--wide audit-filter-card" radius="28px" withBorder>
-        <Stack gap="lg">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>Фильтры журнала</Text>
-              <Text c="dimmed" size="sm">
-                Применение фильтров перезагружает записи с первой страницы.
-              </Text>
-            </div>
-
-            <Group gap="xs" wrap="wrap">
-              <Badge color="brand.1" radius="xl" variant="light">
-                Активных фильтров: {activeFiltersCount}
+      <PageCard className="page-header-card">
+        <PageHeader
+          actions={(
+            <ResponsiveButtonGroup>
+              <RefreshButton onClick={() => setReloadKey((current) => current + 1)} />
+            </ResponsiveButtonGroup>
+          )}
+          description="Фильтруйте записи по пользователю, типу действия, объекту и периоду. Для изменений отображаются предыдущие и новые значения."
+          eyebrow={(
+            <Group gap="sm" wrap="wrap">
+              <Badge color="brand.1" radius="xl" size="lg" variant="light">
+                Журнал действий
               </Badge>
-              {response ? (
-                <Badge color="accent.5" radius="xl" variant="light">
-                  Всего записей: {response.totalCount}
-                </Badge>
-              ) : null}
+              <Badge radius="xl" size="lg" variant="light">
+                Главный тренер и администратор
+              </Badge>
             </Group>
-          </Group>
+          )}
+          title="Журнал действий показывает важные изменения в клубе"
+        />
+      </PageCard>
+
+      <PageCard className="audit-filter-card">
+        <Stack gap="lg">
+          <PageHeader
+            actions={(
+              <Group gap="xs" wrap="wrap">
+                <Badge color="brand.1" radius="xl" variant="light">
+                  Активных фильтров: {activeFiltersCount}
+                </Badge>
+                {response ? (
+                  <Badge color="accent.5" radius="xl" variant="light">
+                    Всего записей: {response.totalCount}
+                  </Badge>
+                ) : null}
+              </Group>
+            )}
+            description="Применение фильтров перезагружает записи с первой страницы."
+            title="Фильтры журнала"
+          />
 
           <form data-testid="audit-filter-form" onSubmit={form.onSubmit(handleApplyFilters)}>
             <Stack gap="md">
@@ -318,51 +299,38 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             </Stack>
           </form>
         </Stack>
-      </Paper>
+      </PageCard>
 
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+      <PageCard>
         <Stack gap="lg">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>Записи журнала</Text>
-              <Text c="dimmed" size="sm">
-                В каждой записи можно посмотреть подробности изменения.
-              </Text>
-            </div>
-
-            {response ? (
-              <Badge color="brand.1" radius="xl" variant="light">
-                Страница {response.page}
-              </Badge>
-            ) : null}
-          </Group>
+          <PageHeader
+            actions={
+              response ? (
+                <Badge color="brand.1" radius="xl" variant="light">
+                  Страница {response.page}
+                </Badge>
+              ) : null
+            }
+            description="В каждой записи можно посмотреть подробности изменения."
+            title="Записи журнала"
+          />
 
           {loading ? (
-            <Group justify="center" py="xl">
-              <Loader color="brand.7" />
-            </Group>
+            <LoadingState label="Загружаем журнал действий..." />
           ) : null}
 
           {!loading && error ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
+            <ErrorState
+              message={error}
               title="Журнал не загрузился"
-              variant="light"
-            >
-              {error}
-            </Alert>
+            />
           ) : null}
 
           {!loading && !error && entries.length === 0 ? (
-            <Paper className="hint-card audit-empty-card" radius="24px" withBorder>
-              <Stack gap="sm">
-                <Text fw={700}>Под выбранные фильтры записей нет.</Text>
-                <Text c="dimmed" size="sm">
-                  Сбросьте фильтры или обновите журнал после новых действий в системе.
-                </Text>
-              </Stack>
-            </Paper>
+            <EmptyState
+              description="Сбросьте фильтры или обновите журнал после новых действий в системе."
+              title="Под выбранные фильтры записей нет."
+            />
           ) : null}
 
           {!loading && !error && entries.length > 0 ? (
@@ -441,7 +409,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             </Group>
           ) : null}
         </Stack>
-      </Paper>
+      </PageCard>
     </Stack>
   )
 }
