@@ -69,7 +69,7 @@ crm/
   docs/
     MVP-ТЗ.md
     MVP_SCREEN_MAP.md
-    TELEGRAM_BOT_IMPLEMENTATION_PLAN.md
+    BOT-МЕССЕНДЖЕР-ТЗ.md
     ui-concept/
 ```
 

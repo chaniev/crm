@@ -1,0 +1,82 @@
+# Задачи: доведение Telegram-бота Gym CRM
+
+Дата разнесения: 2026-05-06
+
+Источник: бывшие `docs/TELEGRAM_BOT_IMPLEMENTATION_PLAN.md` и `docs/TELEGRAM_BOT_MVP_IMPLEMENTATION_PLAN.md`.
+
+## P0. Закрыть перед приемкой Telegram MVP
+
+1. Исправить запись `BotAccessDenied` из Python-сервиса:
+   - передавать `Idempotency-Key` в `CrmBotApiClient.audit_access_denied`;
+   - строить стабильный idempotency key в `BotService`;
+   - добавить regression tests на заголовок и успешную запись audit.
+
+2. Довести отображение абонементов:
+   - в списке заканчивающихся показывать количество дней до окончания;
+   - в подтверждении оплаты показывать ФИО, тип абонемента, дату покупки и дату окончания.
+
+3. Довести посещаемость для `HeadCoach` и `Administrator`:
+   - добавить реальный выбор произвольной даты в прошлом;
+   - либо явно зафиксировать продуктово упрощенный набор быстрых дат, если произвольный выбор не нужен.
+
+4. Добавить порционную выдачу roster посещаемости, чтобы большие группы не упирались в лимиты Telegram-сообщений и callback-кнопок.
+
+5. Расширить Python scenario tests:
+   - роли `HeadCoach` / `Administrator` / `Coach`;
+   - ограничения дат;
+   - forbidden responses и `BotAccessDenied`;
+   - search pagination;
+   - membership lists;
+   - mark-payment idempotency;
+   - private-chat/idempotency pipeline.
+
+6. Запустить обязательные проверки MVP:
+   - `cd bot && ruff check .`;
+   - `cd bot && pytest`;
+   - `dotnet test backend/GymCrm.slnx`;
+   - `cd frontend && npm run lint`;
+   - `cd frontend && npm run build`;
+   - при runtime/Docker изменениях `docker compose build bot`.
+
+7. Провести ручной smoke в Telegram:
+   - неизвестный и известный Telegram ID;
+   - меню по ролям;
+   - групповой чат;
+   - посещаемость;
+   - поиск;
+   - списки абонементов;
+   - отметка оплаты;
+   - повторный callback без дублей.
+
+## P1. Техническое доведение после MVP-smoke
+
+1. Добавить cleanup job для истекших `bot_conversation_states` и старых `bot_processed_updates`.
+2. Добавить env-настройку retention периода.
+3. Обновить README:
+   - пошаговое создание Telegram-бота;
+   - настройка `.env`;
+   - запуск long polling;
+   - проверка health endpoints;
+   - типовые ошибки и troubleshooting.
+4. Добавить явные команды проверки для `bot/` в README или `pyproject` scripts.
+5. Решить, оставляем ли автосоздание SQLAlchemy tables в `GymCrmBotApplication.start()` для dev или переводим runtime строго на Alembic migrations.
+6. Решить архитектурное отличие полного плана: оставлять сборку read models в `BotApiService` или выделять отдельные именованные query/use case классы.
+
+## P2. Следующие функциональные срезы
+
+1. Реализовать загрузку фото клиента через Telegram:
+   - ожидание фото;
+   - скачивание файла;
+   - Bot API endpoint;
+   - подтверждение замены;
+   - audit event;
+   - tests.
+2. Спроектировать `BotNotificationSettings`, `bot_delivery_log` и scheduler после уточнения backend-модели расписаний тренировок.
+3. Реализовать напоминания, ежедневные сводки и уведомления о неотмеченной посещаемости с защитой от дублей.
+4. Реализовать production webhook:
+   - public base URL;
+   - webhook endpoint;
+   - secret validation;
+   - allowed updates;
+   - deployment-инструкция.
+5. После стабилизации Telegram-сценариев выделить adapter/core абстракции для будущего `MAX`.
