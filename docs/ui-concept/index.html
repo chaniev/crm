@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gym CRM UI Concept</title>
+  <style>
+    :root {
+      --bg: #f3f5f1;
+      --surface: #ffffff;
+      --surface-soft: #f7faf7;
+      --surface-tint: #edf5f2;
+      --border: #dce7e1;
+      --border-strong: #c8d8d0;
+      --text: #17312d;
+      --muted: #718078;
+      --brand: #207b61;
+      --brand-dark: #145a52;
+      --brand-soft: #d4e6df;
+      --accent: #d89a3d;
+      --accent-soft: #ffe7c1;
+      --danger: #c95345;
+      --danger-soft: #ffe4df;
+      --sand: #f2eee3;
+      --shadow: 0 14px 36px rgba(23, 49, 45, 0.08), 0 2px 10px rgba(23, 49, 45, 0.04);
+      --radius-intro: 24px;
+      --radius-surface: 16px;
+      --radius-row: 12px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Onest, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.4;
+    }
+
+    .concept-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 14px 0 10px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--brand-dark);
+      font-weight: 900;
+    }
+
+    .brand-title {
+      font-weight: 850;
+      font-size: 17px;
+    }
+
+    .brand-meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .profile-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--radius-pill);
+      padding: 9px 14px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 15px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      color: var(--text);
+      background: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .nav-tab.active {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(135deg, #2f8f6b, #207b61);
+      box-shadow: 0 8px 18px rgba(32, 123, 97, 0.22);
+    }
+
+    .mock-page {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .concept-cover {
+      margin-bottom: 30px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-intro);
+      background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(237,245,242,0.95));
+      box-shadow: var(--shadow);
+    }
+
+    .concept-cover h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .concept-cover p {
+      max-width: 780px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .mock-section {
+      margin-top: 34px;
+    }
+
+    .mock-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .mock-label h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .mock-label span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: var(--bg);
+      box-shadow: var(--shadow);
+    }
+
+    .screen .topbar {
+      position: static;
+    }
+
+    .screen-body {
+      width: min(1080px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 28px 0 34px;
+    }
+
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 20px;
+      padding: 22px 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-intro);
+      background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(237,245,242,0.92));
+    }
+
+    .eyebrows {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .chip,
+    .badge,
+    .stat-pill,
+    .quick-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 28px;
+      border-radius: var(--radius-pill);
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .chip {
+      color: var(--text);
+      background: var(--brand-soft);
+    }
+
+    .chip.sand {
+      background: var(--sand);
+    }
+
+    .chip.accent {
+      background: var(--accent-soft);
+    }
+
+    .chip.danger {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .intro h3 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.12;
+    }
+
+    .intro p {
+      max-width: 650px;
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-pill);
+      padding: 0 16px;
+      background: var(--brand-soft);
+      color: var(--text);
+      font-weight: 850;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .button.primary {
+      color: #fff;
+      border-color: transparent;
+      background: var(--brand);
+    }
+
+    .button.accent {
+      color: #fff;
+      border-color: transparent;
+      background: var(--accent);
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      min-height: 76px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-surface);
+      background: rgba(255,255,255,0.88);
+    }
+
+    .stat-card .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .stat-card .value {
+      margin-top: 5px;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .stat-card .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .surface {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-surface);
+      background: rgba(255,255,255,0.92);
+      padding: 18px;
+    }
+
+    .surface + .surface {
+      margin-top: 16px;
+    }
+
+    .surface-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .surface-head h4 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .surface-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.3fr) repeat(3, minmax(150px, 0.7fr)) auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .filter-bar.audit {
+      grid-template-columns: minmax(170px, 1.1fr) minmax(160px, .9fr) minmax(160px, .9fr) minmax(190px, 1fr) auto;
+    }
+
+    .field label {
+      display: block;
+      margin: 0 0 5px;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .input {
+      display: flex;
+      align-items: center;
+      min-height: 38px;
+      width: 100%;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--muted);
+      padding: 0 12px;
+      font-size: 14px;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      min-height: 38px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+
+    .segment {
+      display: grid;
+      place-items: center;
+      padding: 0 10px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .segment.active {
+      color: var(--text);
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(23,49,45,.06);
+    }
+
+    .quick-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 14px;
+    }
+
+    .quick-chip {
+      border: 1px solid transparent;
+      background: var(--brand-soft);
+    }
+
+    .quick-chip.active {
+      color: #fff;
+      background: var(--brand);
+    }
+
+    .row-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .entity-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.2fr) minmax(160px, .8fr) minmax(160px, .8fr) auto;
+      gap: 14px;
+      align-items: center;
+      min-height: 68px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-row);
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(247,250,247,0.92));
+    }
+
+    .entity-row.roster {
+      grid-template-columns: minmax(260px, 1.4fr) minmax(210px, .85fr) minmax(160px, .7fr) auto;
+    }
+
+    .identity {
+      min-width: 0;
+    }
+
+    .title {
+      overflow: hidden;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge {
+      min-height: 24px;
+      padding: 3px 9px;
+      background: var(--brand-soft);
+    }
+
+    .badge.accent {
+      background: var(--accent-soft);
+    }
+
+    .badge.danger {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .switch {
+      width: 46px;
+      height: 26px;
+      padding: 3px;
+      border-radius: var(--radius-pill);
+      background: #d8dedb;
+    }
+
+    .switch::before {
+      display: block;
+      width: 20px;
+      height: 20px;
+      content: "";
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(23,49,45,.15);
+    }
+
+    .switch.on {
+      background: var(--brand);
+    }
+
+    .switch.on::before {
+      transform: translateX(20px);
+    }
+
+    .clients-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .preview {
+      position: sticky;
+      top: 20px;
+      min-height: 360px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-surface);
+      background: #fff;
+      padding: 18px;
+    }
+
+    .avatar-line {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .avatar {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: var(--surface-tint);
+      font-weight: 900;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .detail-card {
+      min-height: 62px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+
+    .detail-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .detail-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+
+    .audit-row {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-row);
+      background: #fff;
+      padding: 13px 14px;
+    }
+
+    .audit-row + .audit-row {
+      margin-top: 8px;
+    }
+
+    .audit-row-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .diff-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .diff-box {
+      min-height: 76px;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .topbar-inner,
+      .mock-page,
+      .screen-body {
+        width: min(100% - 24px, 720px);
+      }
+
+      .intro,
+      .surface-head {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .summary-strip,
+      .filter-bar,
+      .filter-bar.audit,
+      .clients-layout,
+      .entity-row,
+      .entity-row.roster,
+      .diff-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .preview {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="concept-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand-row">
+          <div class="brand">
+            <div class="brand-mark">G</div>
+            <div>
+              <div class="brand-title">Gym CRM</div>
+              <div class="brand-meta">Главный тренер</div>
+            </div>
+          </div>
+          <div class="profile-pill">Главный тренер v</div>
+        </div>
+        <nav class="nav-tabs" aria-label="Основная навигация">
+          <span class="nav-tab active">Главная</span>
+          <span class="nav-tab">Посещения</span>
+          <span class="nav-tab">Клиенты</span>
+          <span class="nav-tab">Группы</span>
+          <span class="nav-tab">Пользователи</span>
+          <span class="nav-tab">Журнал</span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mock-page">
+      <section class="concept-cover">
+        <h1>Единая operational-концепция Gym CRM</h1>
+        <p>Все вкладки используют один каркас: компактная шапка, быстрый контекст, фильтры и плотная рабочая поверхность. Отличаются только режимы: overview, workbench, registry и log.</p>
+      </section>
+
+      <section class="mock-section" id="home">
+        <div class="mock-label">
+          <h2>Главная</h2>
+          <span>Management inbox, не большой dashboard</span>
+        </div>
+        <div class="screen">
+          <div class="screen-body">
+            <section class="intro">
+              <div>
+                <div class="eyebrows"><span class="chip">Главная</span><span class="chip sand">Контроль абонементов</span></div>
+                <h3>Что требует внимания сегодня</h3>
+                <p>Короткий список клиентов, у которых скоро заканчивается абонемент или есть риск по оплате.</p>
+              </div>
+              <div class="actions"><span class="button">Обновить</span></div>
+            </section>
+            <div class="summary-strip">
+              <div class="stat-card"><div class="label">Сегодня</div><div class="value">2</div><div class="hint">заканчиваются</div></div>
+              <div class="stat-card"><div class="label">7 дней</div><div class="value">8</div><div class="hint">в зоне внимания</div></div>
+              <div class="stat-card"><div class="label">Не оплачено</div><div class="value">3</div><div class="hint">требует проверки</div></div>
+              <div class="stat-card"><div class="label">Без группы</div><div class="value">4</div><div class="hint">нужно назначить</div></div>
+            </div>
+            <section class="surface">
+              <div class="surface-head">
+                <div><h4>Истекающие абонементы</h4><p>Приоритетные клиенты для связи и продления.</p></div>
+                <span class="chip accent">8 клиентов</span>
+              </div>
+              <div class="row-list">
+                <div class="entity-row">
+                  <div class="identity"><div class="title">Александра Константинопольская</div><div class="meta">Группа 7: вечер · последний визит 03.05</div></div>
+                  <div class="badge-row"><span class="badge accent">2 дня</span><span class="badge">Месячный</span></div>
+                  <div class="meta">Оплачен · 5 посещений</div>
+                  <span class="button">Открыть</span>
+                </div>
+                <div class="entity-row">
+                  <div class="identity"><div class="title">Иван Иванов</div><div class="meta">Без группы · последний визит 29.04</div></div>
+                  <div class="badge-row"><span class="badge danger">Не оплачено</span><span class="badge accent">сегодня</span></div>
+                  <div class="meta">Пробное занятие</div>
+                  <span class="button">Открыть</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="mock-section" id="attendance">
+        <div class="mock-label">
+          <h2>Посещения</h2>
+          <span>Workbench: быстрый flow + явный контекст</span>
+        </div>
+        <div class="screen">
+          <div class="screen-body">
+            <section class="intro">
+              <div>
+                <div class="eyebrows"><span class="chip">Посещения</span><span class="chip sand">Любая доступная группа</span></div>
+                <h3>Быстрая отметка посещений</h3>
+                <p>Выберите контекст занятия и отмечайте клиентов без переходов между экранами.</p>
+              </div>
+              <div class="actions"><span class="button">Обновить</span></div>
+            </section>
+            <section class="surface">
+              <div class="filter-bar">
+                <div class="field"><label>Группа</label><div class="input">Группа 7: вечер</div></div>
+                <div class="field"><label>Дата</label><div class="input">04.05.2026</div></div>
+                <div class="field"><label>Статус</label><div class="input">Все клиенты</div></div>
+                <div class="field"><label>Риск</label><div class="input">Все статусы</div></div>
+                <span class="button primary">Показать</span>
+              </div>
+              <div class="summary-strip">
+                <div class="stat-card"><div class="label">Клиентов</div><div class="value">18</div><div class="hint">в группе</div></div>
+                <div class="stat-card"><div class="label">Отмечено</div><div class="value">11</div><div class="hint">на дату</div></div>
+                <div class="stat-card"><div class="label">Предупреждения</div><div class="value">2</div><div class="hint">абонементы</div></div>
+                <div class="stat-card"><div class="label">Следующее</div><div class="value">19:00</div><div class="hint">Вт, Чт</div></div>
+              </div>
+              <div class="row-list">
+                <div class="entity-row roster">
+                  <div class="identity"><div class="title">Мария Петрова</div><div class="meta">Активный абонемент · группа 7</div></div>
+                  <div class="badge-row"><span class="badge">Абонемент позволяет отметку</span></div>
+                  <div class="meta">Оплачен</div>
+                  <div class="toggle"><span class="switch on"></span>Присутствовал</div>
+                </div>
+                <div class="entity-row roster">
+                  <div class="identity"><div class="title">Алексей Смирнов</div><div class="meta">Есть предупреждение по абонементу</div></div>
+                  <div class="badge-row"><span class="badge danger">Не оплачено</span><span class="badge accent">Проверить</span></div>
+                  <div class="meta">Отметка разрешена</div>
+                  <div class="toggle"><span class="switch"></span>Отсутствовал</div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="mock-section" id="clients">
+        <div class="mock-label">
+          <h2>Клиенты</h2>
+          <span>Canonical registry: список + preview rail</span>
+        </div>
+        <div class="screen">
+          <div class="screen-body">
+            <section class="intro">
+              <div>
+                <div class="eyebrows"><span class="chip">Клиенты</span><span class="chip sand">0 активных из 0</span></div>
+                <h3>Клиентская база</h3>
+                <p>Поиск, фильтры, быстрые срезы и карточка выбранного клиента рядом со списком.</p>
+              </div>
+              <div class="actions"><span class="button">Обновить</span><span class="button accent">Новый клиент</span></div>
+            </section>
+            <section class="surface">
+              <div class="filter-bar">
+                <div class="field"><label>Поиск</label><div class="input">Имя или телефон</div></div>
+                <div class="field"><label>Статус</label><div class="segmented"><span class="segment active">Активные</span><span class="segment">Все</span><span class="segment">Архив</span></div></div>
+                <div class="field"><label>Группа</label><div class="input">Все группы</div></div>
+                <div class="field"><label>Абонемент</label><div class="input">Все</div></div>
+                <span class="button">Еще</span>
+              </div>
+              <div class="quick-row"><span class="quick-chip">Без абонемента</span><span class="quick-chip active">Скоро закончится</span><span class="quick-chip">Без группы</span><span class="quick-chip">Пробные</span></div>
+              <div class="clients-layout">
+                <div class="row-list">
+                  <div class="entity-row">
+                    <div class="identity"><div class="title">Александра Константинопольская</div><div class="meta">+7 900 000-00-00 · родитель: Наталья</div></div>
+                    <div class="badge-row"><span class="badge accent">2 дня</span><span class="badge">Группа 7</span></div>
+                    <div class="meta">Последний визит 03.05</div>
+                    <span class="button">Открыть</span>
+                  </div>
+                  <div class="entity-row">
+                    <div class="identity"><div class="title">Иван Иванов</div><div class="meta">+7 900 100-20-30</div></div>
+                    <div class="badge-row"><span class="badge danger">Без оплаты</span><span class="badge">Без группы</span></div>
+                    <div class="meta">Нет визитов</div>
+                    <span class="button">Открыть</span>
+                  </div>
+                </div>
+                <aside class="preview">
+                  <div class="avatar-line"><div class="avatar">АК</div><div><div class="title">Александра Константинопольская</div><div class="meta">Активный клиент · Группа 7</div></div></div>
+                  <div class="badge-row"><span class="badge accent">Абонемент до 06.05</span><span class="badge">Оплачен</span></div>
+                  <div class="detail-grid">
+                    <div class="detail-card"><span>Посещений</span><strong>14</strong></div>
+                    <div class="detail-card"><span>Последний визит</span><strong>03.05</strong></div>
+                    <div class="detail-card"><span>Группа</span><strong>Вечер</strong></div>
+                    <div class="detail-card"><span>Следующее</span><strong>Продлить</strong></div>
+                  </div>
+                </aside>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="mock-section" id="groups">
+        <div class="mock-label">
+          <h2>Группы</h2>
+          <span>Registry вместо вертикальных metric cards</span>
+        </div>
+        <div class="screen">
+          <div class="screen-body">
+            <section class="intro">
+              <div>
+                <div class="eyebrows"><span class="chip">Группы и расписание</span></div>
+                <h3>Группы и назначение тренеров</h3>
+                <p>Расписание, состав тренеров, загрузка группы и быстрый переход к редактированию.</p>
+              </div>
+              <div class="actions"><span class="button">Обновить</span><span class="button accent">Создать группу</span></div>
+            </section>
+            <div class="summary-strip">
+              <div class="stat-card"><div class="label">Всего</div><div class="value">12</div><div class="hint">групп</div></div>
+              <div class="stat-card"><div class="label">Активные</div><div class="value">10</div><div class="hint">в расписании</div></div>
+              <div class="stat-card"><div class="label">Без тренера</div><div class="value">1</div><div class="hint">назначить</div></div>
+              <div class="stat-card"><div class="label">Перегружены</div><div class="value">2</div><div class="hint">16+ клиентов</div></div>
+            </div>
+            <section class="surface">
+              <div class="filter-bar">
+                <div class="field"><label>Поиск</label><div class="input">Название группы</div></div>
+                <div class="field"><label>Статус</label><div class="input">Активные</div></div>
+                <div class="field"><label>Тренер</label><div class="input">Все тренеры</div></div>
+                <div class="field"><label>День</label><div class="input">Любой</div></div>
+                <span class="button">Сбросить</span>
+              </div>
+              <div class="row-list">
+                <div class="entity-row">
+                  <div class="identity"><div class="title">Группа 7: вечер</div><div class="meta">Вт, Чт · старт 19:00</div></div>
+                  <div class="badge-row"><span class="badge">Тренер группы</span><span class="badge">Старший тренер</span></div>
+                  <div class="meta">14 клиентов · активна</div>
+                  <span class="button">Редактировать</span>
+                </div>
+                <div class="entity-row">
+                  <div class="identity"><div class="title">Пробная группа</div><div class="meta">Сб · старт 12:00</div></div>
+                  <div class="badge-row"><span class="badge danger">Без тренера</span></div>
+                  <div class="meta">3 клиента · активна</div>
+                  <span class="button">Назначить</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="mock-section" id="users">
+        <div class="mock-label">
+          <h2>Пользователи</h2>
+          <span>Registry доступа и состояния аккаунтов</span>
+        </div>
+        <div class="screen">
+          <div class="screen-body">
+            <section class="intro">
+              <div>
+                <div class="eyebrows"><span class="chip">Команда и доступ</span><span class="chip sand">Только главный тренер</span></div>
+                <h3>Пользователи и роли команды</h3>
+                <p>Управление ролями, активностью, временными паролями и привязками сотрудников.</p>
+              </div>
+              <div class="actions"><span class="button">Обновить</span><span class="button accent">Создать пользователя</span></div>
+            </section>
+            <div class="summary-strip">
+              <div class="stat-card"><div class="label">Всего</div><div class="value">8</div><div class="hint">учетных записей</div></div>
+              <div class="stat-card"><div class="label">Активные</div><div class="value">7</div><div class="hint">могут войти</div></div>
+              <div class="stat-card"><div class="label">Смена пароля</div><div class="value">1</div><div class="hint">обязательная</div></div>
+              <div class="stat-card"><div class="label">Telegram</div><div class="value">5</div><div class="hint">привязаны</div></div>
+            </div>
+            <section class="surface">
+              <div class="filter-bar">
+                <div class="field"><label>Поиск</label><div class="input">ФИО или логин</div></div>
+                <div class="field"><label>Роль</label><div class="input">Все роли</div></div>
+                <div class="field"><label>Статус</label><div class="input">Активные</div></div>
+                <div class="field"><label>Пароль</label><div class="input">Все</div></div>
+                <span class="button">Сбросить</span>
+              </div>
+              <div class="row-list">
+                <div class="entity-row">
+                  <div class="identity"><div class="title">Главный тренер</div><div class="meta">login: headcoach</div></div>
+                  <div class="badge-row"><span class="badge">Главный тренер</span><span class="badge">Активен</span></div>
+                  <div class="meta">Пароль актуален</div>
+                  <span class="button">Редактировать</span>
+                </div>
+                <div class="entity-row">
+                  <div class="identity"><div class="title">Тренер группы</div><div class="meta">login: coach</div></div>
+                  <div class="badge-row"><span class="badge">Тренер</span><span class="badge accent">Смена пароля</span></div>
+                  <div class="meta">Telegram не привязан</div>
+                  <span class="button">Редактировать</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="mock-section" id="audit">
+        <div class="mock-label">
+          <h2>Журнал</h2>
+          <span>Expert log: сначала summary, детали по раскрытию</span>
+        </div>
+        <div class="screen">
+          <div class="screen-body">
+            <section class="intro">
+              <div>
+                <div class="eyebrows"><span class="chip">Журнал действий</span><span class="chip sand">Главный тренер и администратор</span></div>
+                <h3>Что изменилось в клубе</h3>
+                <p>Быстро ответить: кто сделал действие, с каким объектом и когда. Детали изменения раскрываются внутри записи.</p>
+              </div>
+              <div class="actions"><span class="button">Обновить</span></div>
+            </section>
+            <section class="surface">
+              <div class="filter-bar audit">
+                <div class="field"><label>Пользователь</label><div class="input">Все пользователи</div></div>
+                <div class="field"><label>Действие</label><div class="input">Все действия</div></div>
+                <div class="field"><label>Объект</label><div class="input">Все объекты</div></div>
+                <div class="field"><label>Период</label><div class="input">За 7 дней</div></div>
+                <span class="button primary">Применить</span>
+              </div>
+              <div class="quick-row"><span class="quick-chip active">7 записей</span><span class="quick-chip">Входы</span><span class="quick-chip">Клиенты</span><span class="quick-chip">Посещения</span><span class="quick-chip">Сбросить</span></div>
+              <div class="audit-row">
+                <div class="audit-row-main">
+                  <div>
+                    <div class="badge-row"><span class="badge">Вход в систему</span><span class="badge accent">Сессия пользователя</span><span class="badge">HeadCoach</span></div>
+                    <div class="title" style="margin-top:8px">Пользователь 'headcoach' вошел в систему.</div>
+                    <div class="meta">04.05.2026 00:30 · Web · ID: 872eb7d7</div>
+                  </div>
+                  <span class="button">Детали</span>
+                </div>
+              </div>
+              <div class="audit-row">
+                <div class="audit-row-main">
+                  <div>
+                    <div class="badge-row"><span class="badge">Клиент изменен</span><span class="badge accent">Client</span><span class="badge">Администратор</span></div>
+                    <div class="title" style="margin-top:8px">Обновлены данные клиента Александра Константинопольская.</div>
+                    <div class="meta">03.05.2026 18:42 · Web · ID клиента: 88a2</div>
+                  </div>
+                  <span class="button">Скрыть</span>
+                </div>
+                <div class="diff-panel">
+                  <div class="diff-box"><strong>Было</strong><br>Абонемент до 04.05.2026<br>Группа: не назначена</div>
+                  <div class="diff-box"><strong>Стало</strong><br>Абонемент до 04.06.2026<br>Группа: Группа 7</div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
