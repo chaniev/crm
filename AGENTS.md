@@ -56,6 +56,17 @@ If refactoring changes structure broadly:
 
 ---
 
+## Backlog capture
+
+`backlog/` stores improvement intake and follow-up work:
+- `backlog/inbox/` - входящие запросы
+- `backlog/tasks/` - задачи на доработку
+- `backlog/done/` - реализованные задачи на доработку
+
+When the user writes `зафиксируй`, create `backlog/inbox/YYYY-MM-DD.md` for the current date if it does not exist, then append everything written after the first `зафиксируй` into that file. Treat the typo `зафикчируй` as the same trigger if the user writes it.
+
+---
+
 ## Required validation
 
 Backend changes:

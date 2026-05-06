@@ -58,6 +58,11 @@ crm/
       core/                   dialog flows and idempotency
       storage/                bot-owned runtime state
     tests/
+  backlog/
+    README.md
+    inbox/                    входящие запросы
+    tasks/                    задачи на доработку
+    done/                     реализованные задачи на доработку
   deploy/
     .env.example
     docker-compose.yml
