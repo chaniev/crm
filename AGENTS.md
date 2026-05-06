@@ -1,46 +1,82 @@
-# AGENTS.md
+# Repository Agent Rules
 
-## Как работать с репозиторием
+## Routing
 
-- Сначала читать этот файл.
-- Если задача в `backend/`, сразу переходить в `backend/AGENTS.md`.
-- Если задача в `frontend/`, сразу переходить в `frontend/AGENTS.md`.
-- Если задача в `bot/`, сразу переходить в `bot/AGENTS.md`.
-- Корневой `AGENTS.md` описывает только организацию работы по репозиторию и не хранит бизнес-правила проекта.
+- Tasks in `backend/` -> read `backend/AGENTS.md`
+- Tasks in `frontend/` -> read `frontend/AGENTS.md`
+- Tasks in `bot/` -> read `bot/AGENTS.md`
 
-## Источники истины
+Root file defines repository-wide architecture and coordination rules only.
 
-Порядок приоритета:
+---
 
-1. запрос пользователя;
-2. ближайший `AGENTS.md`;
-3. исходники, типы, тесты и конфигурация;
-4. `README.md`, `docker-compose.yml`, `package.json`, `.csproj`, `Program.cs`, `playwright.config.ts`;
-5. `docs/` — только как дополнительный контекст.
+## Source of truth priority
 
-CRM-бизнес-логика, правила ролей, доступа, абонементов, посещаемости и аудит-контрактов принадлежат backend. `frontend/` и `bot/` отображают backend-контракты и могут держать только UI/adapter-specific состояние, не дублируя CRM-правила как второй источник истины.
+1. User request
+2. Nearest `AGENTS.md`
+3. Source code, types, tests, configs
+4. Runtime/build configs
+5. `docs/*` as additional context only
 
-## Какие агенты используются
+---
 
-- `csharp-developer` — код на `C#`, прикладные сервисы, модели и persistence-слой.
-- `dotnet-core-expert` — `ASP.NET Core`, endpoint'ы, auth, `CSRF`, middleware, конфигурация.
-- `python-pro` — отдельный Python runtime-сервис `bot/`, Telegram adapter, async storage, pytest/ruff.
-- `react-specialist` — экраны, формы, маршруты, состояние, доступность.
-- `ui-designer` — implement-ready UI/UX перед заметной переработкой экрана.
-- `ux-researcher` — синтез UI-фидбэка, наблюдений и проблем пользователей в конкретные продуктовые и implementation-ready рекомендации.
-- `refactoring-specialist` — безопасный структурный рефакторинг без изменения поведения, снижение связности, дублирования и сложности.
-- `test-automator` — backend tests, `Playwright`, regression coverage.
-- `docker-expert` — `Dockerfile`, `docker-compose`, runtime, health checks, volumes.
+## Architecture invariants
 
-## Проверки
+Backend owns CRM business logic:
+- roles
+- permissions
+- access scope
+- memberships
+- attendance
+- audit semantics
+- validation semantics
+- ProblemDetails contracts
 
-- Изменился `backend/` — см. `backend/AGENTS.md`.
-- Изменился `frontend/` — см. `frontend/AGENTS.md`.
-- Изменился `bot/` — проверить `cd bot && ruff check .`, `cd bot && pytest`, `docker compose build bot`.
-- Изменился контракт между слоями или runtime — проверить обе стороны.
+Frontend and bot must not duplicate domain rules.
 
-Базовый набор:
+---
 
-- `dotnet test backend/GymCrm.slnx`
-- `cd frontend && npm run lint`
-- `cd frontend && npm run build`
+## Cross-layer rules
+
+If backend contract changes:
+- update all consumers
+- validate both sides
+
+If runtime/infrastructure changes:
+- validate affected services
+
+If UX changes significantly:
+- involve `ui-designer`
+
+If workflow or usability is unclear:
+- involve `ux-researcher`
+
+If refactoring changes structure broadly:
+- involve `refactoring-specialist`
+
+---
+
+## Required validation
+
+Backend changes:
+- run backend tests
+
+Frontend changes:
+- run lint + build
+
+Bot changes:
+- run ruff + pytest
+
+Contract/runtime changes:
+- validate all affected layers
+
+---
+
+## Forbidden patterns
+
+- Duplicating CRM rules outside backend
+- Mixing transport and domain logic
+- Hidden cross-layer coupling
+- Large unstructured files
+- Bypassing validation/audit semantics
+- Adding unrelated refactoring to feature tasks

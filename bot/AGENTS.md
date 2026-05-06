@@ -1,69 +1,79 @@
-# AGENTS.md
+# Bot Agent Rules
 
-## Область
+## Scope
 
-Этот файл обязателен для задач внутри `bot/`.
+Applies to all tasks inside `bot/`.
 
-`bot/` — отдельный Python runtime-сервис Telegram-бота рядом с `backend/`. Он не является частью ASP.NET Core backend-процесса.
+Bot is a thin Telegram adapter over backend APIs.
 
-## Источники истины
+---
 
-Порядок приоритета:
+## Main areas
 
-1. запрос пользователя;
-2. этот `AGENTS.md`;
-3. исходники, типы, тесты и конфигурация в `bot/`;
-4. `pyproject.toml`, `Dockerfile`, `alembic.ini`, `docker-compose.yml`;
-5. `docs/TELEGRAM_BOT_MVP_IMPLEMENTATION_PLAN.md` и `docs/TELEGRAM_BOT_IMPLEMENTATION_PLAN.md` — как дополнительный контекст.
+- `telegram/` -> Telegram adapter
+- `crm/` -> backend API client
+- `core/` -> dialog flows
+- `storage/` -> bot-owned state
+- `tests/` -> runtime validation
 
-## Структура исходного кода
+---
 
-Ожидаемый каркас:
+## Bot responsibilities
 
-- `Dockerfile` — сборка runtime-образа бота.
-- `pyproject.toml` — зависимости, форматирование, lint, test config.
-- `alembic.ini` — конфигурация миграций bot-owned storage.
-- `src/gym_crm_bot/main.py` — точка входа.
-- `src/gym_crm_bot/app.py` — сборка приложения, health endpoints, lifecycle.
-- `src/gym_crm_bot/config.py` — env-настройки.
-- `src/gym_crm_bot/telegram/` — Telegram adapter, long polling, commands, callbacks, messages.
-- `src/gym_crm_bot/crm/` — клиент internal Bot API backend.
-- `src/gym_crm_bot/core/` — сценарии диалогов и прикладная логика бота.
-- `src/gym_crm_bot/storage/` — bot-owned storage, SQLAlchemy models, repositories, Alembic migrations.
-- `src/gym_crm_bot/resources/` — тексты, клавиатуры, callback data helpers.
-- `tests/` — unit и integration-style тесты Python-сервиса.
+Bot handles:
+- Telegram events
+- dialog state
+- idempotency
+- user interaction flow
+- backend response presentation
 
-## Какие агенты использовать
+Backend handles:
+- permissions
+- memberships
+- attendance logic
+- validation semantics
+- business rules
 
-- `python-pro` — Python runtime, async код, `aiogram`, `FastAPI`, `httpx`, `SQLAlchemy` async, `asyncpg`, `Alembic`, `pytest`, `ruff`.
-- `refactoring-specialist` — безопасный структурный рефакторинг Python-сервиса без изменения runtime-поведения, границ adapter/core/storage и контрактов.
-- `docker-expert` — `bot/Dockerfile`, сервис `bot` в `docker-compose.yml`, env, health checks, runtime.
-- `test-automator` — pytest, regression coverage, тестовые fixtures и idempotency-проверки.
+---
 
-## Короткие правила
+## Runtime rules
 
-- Python-сервис работает как тонкий клиент к backend.
-- Не дублировать бизнес-правила CRM в Python: роли, access scope, даты посещаемости, состав групп, абонементы, audit/error contract semantics и разрешенные поля проверяет backend.
-- Python отвечает за Telegram events, private-chat guard, состояние диалога, отображение backend read models, idempotency по `update_id` и понятные сообщения пользователю.
-- В MVP использовать Telegram long polling; production webhook не входит в MVP.
-- Секреты не хранить в репозитории: Telegram token, service token и database URL только через env.
-- Все вызовы internal Bot API выполнять с service token и `X-Request-Id`.
-- Для изменяющих запросов в backend передавать `Idempotency-Key`.
-- Retry использовать только для безопасных read-запросов.
-- Bot-owned storage хранит только состояние диалога и обработанные Telegram updates.
+- Use long polling in MVP
+- Store secrets in env only
+- Use service token for backend calls
+- Send `X-Request-Id`
+- Use `Idempotency-Key` for write operations
 
-## Проверки
+Retry only safe read requests.
 
-Минимум:
+---
 
-- `cd bot && ruff check .`
-- `cd bot && pytest`
+## Storage rules
 
-Если меняются `Dockerfile`, env, health endpoints или runtime:
+Bot-owned storage may contain only:
+- dialog/session state
+- processed Telegram updates
+- adapter-specific runtime data
 
-- `docker compose build bot`
+Bot storage is not a CRM source of truth.
 
-Если меняется контракт с backend:
+---
 
-- `dotnet test backend/GymCrm.slnx`
-- `cd bot && pytest`
+## Required validation
+
+Minimum:
+- `ruff check .`
+- `pytest`
+
+If runtime/docker changes:
+- validate container build/runtime
+
+## Preferred specialists
+
+Default:
+- python-pro
+
+Additional:
+- refactoring-specialist
+- docker-expert
+- test-automator

@@ -1,51 +1,93 @@
-# AGENTS.md
+# Frontend Agent Rules
 
-## Область
+## Scope
 
-Этот файл обязателен для задач внутри `frontend/`.
+Applies to all tasks inside `frontend/`.
 
-## Структура
+Frontend is responsible for UX and contract consumption.
 
-- `src/App.tsx` — session bootstrap, shell и верхнеуровневая маршрутизация.
-- `src/lib/api.ts` — HTTP-запросы и типы контрактов с backend.
-- `src/lib/appRoutes.ts` — маршруты и client-side redirect logic.
-- `src/features/*` — route-level экраны по фичам.
-- `src/features/shared/ux.tsx` — общие UX-компоненты.
-- `src/theme.ts`, `src/App.css`, `src/index.css` — тема и общие стили.
-- `e2e/*.spec.ts` — `Playwright`-регрессии.
+---
 
-## Какие агенты использовать
+## Main areas
 
-- `react-specialist` — основной агент для экранов, форм, маршрутов и состояния.
-- `ux-researcher` — когда нужно разобрать UI-фидбэк, наблюдения или проблемы сценария и превратить их в приоритетные правки.
-- `ui-designer` — перед заметной переработкой UI/UX.
-- `refactoring-specialist` — безопасный структурный рефакторинг компонентов, маршрутов, состояния и shared UI без изменения поведения.
-- `test-automator` — `Playwright` и regression coverage.
-- `dotnet-core-expert` или `csharp-developer` — если изменение упирается в backend-контракт.
+- `features/` -> route-level functionality
+- `lib/api.ts` -> backend contracts
+- `lib/appRoutes.ts` -> routing
+- `shared/` -> reusable UX/UI
+- `e2e/` -> Playwright regression tests
 
-## Короткие правила
+---
 
-- CRM-бизнес-логику не дублировать во frontend: роли, access scope, membership/currentMembership semantics, audit action/entity codes и серверные validation keys приходят из backend-контракта; frontend отвечает за отображение, UX-состояние и typed client boundary.
-- Не раздувать `src/App.tsx` бизнес-логикой.
-- Новые API-контракты сначала оформлять в `src/lib/api.ts`.
-- Новые route-сценарии сначала оформлять в `src/lib/appRoutes.ts`.
-- Экраны держать в `src/features/*`, а не складывать все в общие файлы.
-- Общие UI-паттерны выносить в `src/features/shared/ux.tsx`, если они переиспользуются.
-- При новых правках и целевом рефакторинге двигаться к принципу `один файл — одна верхнеуровневая сущность`: компонент, hook, helper-module, `type`, `interface`, `enum` или константный словарь выносить в отдельный файл с понятным именем.
-- Не добавлять новые крупные локальные типы, константы и helper-компоненты в route-level экраны; если участок уже меняется, извлекать их в соседние файлы фичи или в `src/features/shared/ux.tsx` при реальном переиспользовании.
-- Сохранять стек `Mantine + Onest`.
-- При изменении backend-контракта нужно синхронно обновлять `src/lib/api.ts` и экран-потребитель.
+## UX priorities
 
-## Проверки
+Optimize for:
+- fast workflows
+- low cognitive load
+- clear primary actions
+- scanability
+- narrow-screen usability
+- operational efficiency
 
-Минимум:
+Primary users:
+- gym admins
+- coaches
 
-- `cd frontend && npm run lint`
-- `cd frontend && npm run build`
+---
 
-Точечные e2e:
+## Contract rules
 
-- `cd frontend && npm run test:e2e -- e2e/auth.spec.ts`
-- `cd frontend && npm run test:e2e -- e2e/attendance.spec.ts`
-- `cd frontend && npm run test:e2e -- e2e/responsive-main-screens.spec.ts`
-- `cd frontend && npm run test:e2e -- e2e/stage12.spec.ts`
+Frontend must not:
+- implement CRM business logic
+- infer permissions independently
+- duplicate validation semantics
+- redefine backend contracts
+
+Backend contract changes must update:
+- `lib/api.ts`
+- affected screens/components
+
+---
+
+## Structural rules
+
+Prefer:
+- feature-oriented structure
+- reusable UX patterns
+- small focused components
+- typed API boundaries
+
+Avoid:
+- business logic inside `App.tsx`
+- oversized route components
+- duplicated UI patterns
+- global state without need
+
+---
+
+## UI stack
+
+Preserve:
+- Mantine
+- Onest
+
+---
+
+## Required validation
+
+Minimum:
+- `npm run lint`
+- `npm run build`
+
+If flows/UI changed significantly:
+- run affected Playwright tests
+
+## Preferred specialists
+
+Default:
+- react-specialist
+
+Additional:
+- ui-designer
+- ux-researcher
+- refactoring-specialist
+- test-automator

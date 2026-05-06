@@ -1,51 +1,83 @@
-# AGENTS.md
+# Backend Agent Rules
 
-## Область
+## Scope
 
-Этот файл обязателен для задач внутри `backend/`.
+Applies to all tasks inside `backend/`.
 
-## Структура исходного кода
+Backend is the source of truth for CRM domain behavior.
 
-- `src/GymCrm.Api/` — endpoint'ы, auth, middleware, startup, health checks.
-- `src/GymCrm.Application/` — интерфейсы и прикладные контракты.
-- `src/GymCrm.Domain/` — сущности, enum'ы и доменные типы.
-- `src/GymCrm.Infrastructure/` — `EF Core`, `DbContext`, storage, security, реализации сервисов.
-- `tests/GymCrm.Tests/` — интеграционные и smoke-тесты.
+---
 
-## Какие агенты использовать
+## Main areas
 
-- `csharp-developer` — `Domain`, `Application`, `Infrastructure`, модели, сервисы и persistence.
-- `dotnet-core-expert` — `Api`, auth, `CSRF`, middleware, startup, DI, конфигурация.
-- `refactoring-specialist` — поведенчески безопасный структурный рефакторинг backend-слоев, выделение границ, снижение дублирования и скрытой связности.
-- `test-automator` — тесты в `tests/GymCrm.Tests/`.
-- `docker-expert` — `backend/Dockerfile`, runtime, volumes, readiness, логирование.
+- `Api/` -> HTTP, auth, middleware
+- `Application/` -> use cases and contracts
+- `Domain/` -> entities and domain rules
+- `Infrastructure/` -> EF Core, persistence, external services
+- `tests/` -> integration and regression tests
 
-## Короткие правила
+---
 
-- Backend является владельцем CRM-бизнес-логики: роли, access scope, даты и состояние абонементов, посещаемость, аудит-контракты и `ProblemDetails` semantics фиксируются здесь и покрываются тестами при изменениях.
-- Не смешивать слои без необходимости.
-- `Domain` не должен зависеть от HTTP и UI.
-- `Api` отвечает за endpoint'ы, auth и HTTP boundary.
-- `Infrastructure` отвечает за БД, storage и реальные реализации сервисов.
-- При новых правках и целевом рефакторинге двигаться к принципу `один файл — один верхнеуровневый тип`: `class`, `record`, `interface`, `enum` и другие самостоятельные типы выносить в отдельные файлы с совпадающим именем.
-- Не добавлять новые крупные nested-типы в endpoint/service файлы; если участок уже меняется, выносить DTO, response/request records, validators и helpers в отдельные файлы в той же области ответственности.
-- Не переносить файлы из `src/GymCrm.Api/Auth/` без отдельной задачи на реорганизацию.
-- Не трогать миграции, если схема БД не меняется.
-- Если меняется API или persistence, обновлять тесты.
+## Backend owns
 
-## Проверки
+- permissions
+- membership state
+- attendance rules
+- audit semantics
+- validation semantics
+- persistence consistency
+- API contracts
 
-Минимум:
+---
 
+## Layer rules
+
+- `Domain` must not depend on HTTP/UI
+- `Api` handles transport/auth boundaries only
+- `Infrastructure` handles persistence/runtime integrations
+- Do not leak EF/storage concerns into domain logic
+
+---
+
+## Structural rules
+
+Prefer:
+- one file -> one top-level type
+- small focused services
+- explicit contracts
+- typed DTOs
+
+Avoid:
+- large endpoint files
+- nested helper types
+- hidden shared state
+- inline infrastructure logic
+
+---
+
+## Migration rules
+
+- Do not modify migrations unless schema changes
+- Contract changes require test updates
+- Persistence changes require integration validation
+
+---
+
+## Required validation
+
+Minimum:
 - `dotnet test backend/GymCrm.slnx`
 
-Точечные прогоны:
+If infrastructure/runtime changes:
+- validate docker/runtime behavior
 
-- `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~ClientsApiTests"`
-- `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~AttendanceApiTests"`
-- `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~AuthorizationFlowTests"`
+## Preferred specialists
 
-Если меняются startup, env, `Dockerfile`, volumes, readiness или логирование:
+Default:
+- csharp-developer
+- dotnet-core-expert
 
-- `docker compose up --build -d`
-- `curl http://localhost:8080/health/ready`
+Additional:
+- refactoring-specialist
+- test-automator
+- docker-expert
