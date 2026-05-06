@@ -7,7 +7,7 @@
 Использовать после чтения:
 
 1. `MVP-ТЗ.md`
-2. `IMPLEMENTATION_PLAN.md`
+2. `../backlog/done/IMPLEMENTATION_PLAN.md`
 3. `../AGENTS.md`
 
 ## Выбор агента по типу задачи

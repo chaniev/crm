@@ -1,6 +1,6 @@
 # План внедрения UI V7 для окна "Клиенты"
 
-Основание: [CLIENTS_WINDOW_TARGET_MOCKUP_V7_SPEC.md](CLIENTS_WINDOW_TARGET_MOCKUP_V7_SPEC.md) и текущая реализация в `frontend/src/features/clients/ClientManagement.tsx`.
+Основание: [CLIENTS_WINDOW_TARGET_MOCKUP_V7_SPEC.md](../../docs/CLIENTS_WINDOW_TARGET_MOCKUP_V7_SPEC.md) и текущая реализация в `frontend/src/features/clients/ClientManagement.tsx`.
 
 ## 1. Цель
 

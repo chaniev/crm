@@ -5,7 +5,7 @@
 Основание:
 - mobile-анализ стартового экрана по скриншотам `IMG_1928.PNG` и `IMG_1929.PNG`;
 - implement-ready spec для auth-экрана;
-- текущая реализация в [frontend/src/App.tsx](../frontend/src/App.tsx) и [frontend/src/App.css](../frontend/src/App.css).
+- текущая реализация в [frontend/src/App.tsx](../../frontend/src/App.tsx) и [frontend/src/App.css](../../frontend/src/App.css).
 
 ## 1. Цель
 
@@ -44,7 +44,7 @@
   - ошибки загрузки backend.
 
 Файлы:
-- [frontend/src/App.tsx](../frontend/src/App.tsx)
+- [frontend/src/App.tsx](../../frontend/src/App.tsx)
 
 Готово, когда:
 - заголовки и подписи помогают понять следующее действие;
@@ -60,8 +60,8 @@
 - на desktop оставить split-layout через `grid-template-areas`.
 
 Файлы:
-- [frontend/src/App.tsx](../frontend/src/App.tsx)
-- [frontend/src/App.css](../frontend/src/App.css)
+- [frontend/src/App.tsx](../../frontend/src/App.tsx)
+- [frontend/src/App.css](../../frontend/src/App.css)
 
 Готово, когда:
 - на mobile первым смысловым блоком и первым фокусируемым сценарием является форма;
@@ -78,7 +78,7 @@
 - сохранить текущую валидацию, loading-state и error-handling.
 
 Файлы:
-- [frontend/src/App.tsx](../frontend/src/App.tsx)
+- [frontend/src/App.tsx](../../frontend/src/App.tsx)
 
 Готово, когда:
 - CTA находится сразу под полем пароля;
@@ -94,7 +94,7 @@
 - скрыть или свернуть secondary content на mobile по умолчанию.
 
 Файлы:
-- [frontend/src/App.css](../frontend/src/App.css)
+- [frontend/src/App.css](../../frontend/src/App.css)
 
 Готово, когда:
 - при размере экрана `390x844` пользователь видит экран входа без обязательного длинного скролла через story-panel;
@@ -120,8 +120,8 @@
 - форма должна визуально читаться как главный рабочий блок, а не как вторичная колонка к hero.
 
 Файлы:
-- [frontend/src/App.tsx](../frontend/src/App.tsx)
-- [frontend/src/App.css](../frontend/src/App.css)
+- [frontend/src/App.tsx](../../frontend/src/App.tsx)
+- [frontend/src/App.css](../../frontend/src/App.css)
 
 Готово, когда:
 - desktop-экран выглядит как вход в продукт, а не как презентация внутренней архитектуры;
@@ -136,8 +136,8 @@
 - убедиться, что forced password screen на mobile не повторяет текущую проблему большого hero перед формой.
 
 Файлы:
-- [frontend/src/App.tsx](../frontend/src/App.tsx)
-- [frontend/src/App.css](../frontend/src/App.css)
+- [frontend/src/App.tsx](../../frontend/src/App.tsx)
+- [frontend/src/App.css](../../frontend/src/App.css)
 
 Готово, когда:
 - login, forced password и backend error выглядят как семейство согласованных pre-auth экранов;
@@ -171,8 +171,8 @@ setupMode: 'normal' | 'bootstrap'
 ```
 
 Файлы:
-- [frontend/src/lib/api.ts](../frontend/src/lib/api.ts) при изменении контракта;
-- [frontend/src/App.tsx](../frontend/src/App.tsx);
+- [frontend/src/lib/api.ts](../../frontend/src/lib/api.ts) при изменении контракта;
+- [frontend/src/App.tsx](../../frontend/src/App.tsx);
 - backend только если будет принято решение добавлять новый флаг.
 
 Готово, когда:
