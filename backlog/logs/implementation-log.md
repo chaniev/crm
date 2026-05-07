@@ -46,3 +46,25 @@
 - moved: 0
 - skipped: 1
 - plans created: 0
+
+# 2026-05-07 23:01
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-027-professional-client-privilege.plan.md
+- /backlog/implementation-plans/TASK-031-branches-backend-domain-contracts.plan.md
+- /backlog/implementation-plans/TASK-032-branches-frontend-settings-and-forms.plan.md
+- /backlog/implementation-plans/TASK-033-branches-bot-contract-consumer.plan.md
+
+## Skipped tasks
+- TASK-027-professional-client-privilege.md — not moved: task is in `/backlog/risky`; high-risk planning is allowed, but active implementation selection requires explicit review.
+- TASK-031-branches-backend-domain-contracts.md — not moved: task is in `/backlog/risky`; high-risk planning is allowed, but active implementation selection requires explicit review.
+- TASK-032-branches-frontend-settings-and-forms.md — not moved: task is in `/backlog/risky` and depends on TASK-031 backend contracts; plan created, active implementation blocked until backend contract is stable.
+- TASK-033-branches-bot-contract-consumer.md — not moved: task is in `/backlog/risky` and depends on TASK-031 backend contracts; plan created, active implementation blocked until backend contract is stable.
+
+## Summary
+- moved: 0
+- skipped: 4
+- plans created: 4
