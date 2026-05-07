@@ -1,7 +1,12 @@
 # TASK-024: Перенести главное меню в левую навигацию
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-07 21:28
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-024-left-side-main-menu.plan.md
 
 ## Goal
 Главное меню приложения находится слева и поддерживает привычную навигацию по разделам CRM.
