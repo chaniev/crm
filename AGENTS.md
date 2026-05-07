@@ -79,6 +79,23 @@ Rules:
 - implementation plans must explicitly mention the branch name;
 - implementation execution must stop if the current branch is unclear or dirty.
 
+
+Additional branch constraints:
+- all task branches MUST be created from the main branch;
+- do not create branches from other feature/fix/refactor branches;
+- before creating a task branch:
+  - checkout main;
+  - pull latest changes;
+  - verify clean git status.
+
+Recommended flow:
+
+```text
+git checkout main
+git pull
+git checkout -b feature/TASK-XXX-short-name
+```
+
 Recommended branch naming:
 
 ```text
