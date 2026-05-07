@@ -71,3 +71,33 @@
 - needs-clarification: 1
 - updated existing: 2
 - processed files: 1
+
+# 2026-05-07 20:05
+
+## Processed clarification
+- /backlog/done/TASK-022-branches-product-model.md
+
+## Created tasks
+- /backlog/risky/TASK-031-branches-backend-domain-contracts.md
+- /backlog/risky/TASK-032-branches-frontend-settings-and-forms.md
+- /backlog/risky/TASK-033-branches-bot-contract-consumer.md
+
+## Updated existing tasks
+- /backlog/needs-clarification/TASK-026-statistics-and-financial-reports.md
+- /backlog/needs-clarification/TASK-028-schedule-product-model.md
+- /backlog/needs-clarification/TASK-030-crm-settings-section.md
+
+## Moved tasks
+- /backlog/needs-clarification/TASK-022-branches-product-model.md -> /backlog/done/TASK-022-branches-product-model.md
+
+## Skipped duplicates
+- Reporting by branches stays in TASK-026.
+- Schedule branch/hall rules stay in TASK-028.
+- Settings branch/hall fields stay in TASK-030.
+
+## Summary
+- tasks-ready: 0
+- risky: 3
+- needs-clarification: 0
+- done: 1
+- updated existing: 3
