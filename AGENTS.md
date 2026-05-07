@@ -65,6 +65,50 @@ If refactoring changes structure broadly:
 
 When the user writes `зафиксируй`, create `backlog/inbox/YYYY-MM-DD.md` for the current date if it does not exist, then append everything written after the first `зафиксируй` into that file. Treat the typo `зафикчируй` as the same trigger if the user writes it.
 
+
+---
+
+## Git branch policy
+
+Every implementation task MUST be executed in a dedicated git branch.
+
+Rules:
+- one implementation task -> one separate branch;
+- never implement multiple unrelated tasks in the same branch;
+- branch creation is mandatory before any code changes;
+- implementation plans must explicitly mention the branch name;
+- implementation execution must stop if the current branch is unclear or dirty.
+
+Recommended branch naming:
+
+```text
+feature/TASK-XXX-short-name
+fix/TASK-XXX-short-name
+refactor/TASK-XXX-short-name
+```
+
+If multiple subtasks are implemented independently, each subtask should receive its own branch.
+
+Implementation plans should include:
+
+```md
+## Git branch
+feature/TASK-XXX-short-name
+```
+
+Before implementation starts:
+1. verify current git status;
+2. create a dedicated branch;
+3. ensure branch matches the task being implemented.
+
+Do not mix:
+- risky experiments;
+- refactoring;
+- unrelated fixes;
+- multiple backlog tasks
+
+inside one branch.
+
 ---
 
 ## Required validation
