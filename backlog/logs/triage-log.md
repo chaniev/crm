@@ -32,7 +32,7 @@
 - /backlog/tasks-ready/TASK-024-left-side-main-menu.md
 - /backlog/risky/TASK-025-trainer-membership-total-report.md
 - /backlog/needs-clarification/TASK-026-statistics-and-financial-reports.md
-- /backlog/needs-clarification/TASK-027-zero-membership-policy.md
+- /backlog/risky/TASK-027-professional-client-privilege.md
 - /backlog/needs-clarification/TASK-028-schedule-product-model.md
 
 ## Updated existing tasks
