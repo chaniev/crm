@@ -1,7 +1,12 @@
 # TASK-023: Добавить заметки в карточку клиента
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-07 21:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-023-client-card-notes.plan.md
 
 ## Goal
 Пользователь может хранить рабочие заметки по клиенту прямо в карточке клиента.

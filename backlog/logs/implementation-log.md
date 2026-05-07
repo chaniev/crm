@@ -14,3 +14,19 @@
 - moved: 1
 - skipped: 2
 - plans created: 1
+
+# 2026-05-07 21:56
+
+## Moved to implementation
+- /backlog/implementation/TASK-023-client-card-notes.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-023-client-card-notes.plan.md
+
+## Skipped tasks
+- TASK-029-rename-users-to-trainers.md — skipped: current `Users` section manages `HeadCoach`, `Administrator` and `Coach` accounts; task constraints require stopping if the section is not trainer-only.
+
+## Summary
+- moved: 1
+- skipped: 1
+- plans created: 1
