@@ -862,22 +862,43 @@ function AuthenticatedShell({
     </Menu>
   )
 
+  const mobileNavigation = (
+    <NavigationTabs
+      className="app-shell__mobile-nav"
+      currentSection={currentSection}
+      onNavigate={handleSectionNavigation}
+      sections={navigationSections}
+    />
+  )
+
+  const desktopNavigation = (
+    <div className="app-shell__navbar-inner">
+      <NavigationTabs
+        className="app-shell__side-nav"
+        currentSection={currentSection}
+        onNavigate={handleSectionNavigation}
+        orientation="vertical"
+        sections={navigationSections}
+      />
+    </div>
+  )
+
   return (
     <AppLayout
       header={(
         <Header
           brandMeta={`${presentation.roleLabel} • стартовый раздел: ${landingLabel}`}
           brandMetaCompact={presentation.roleLabel}
-          navigation={(
-            <NavigationTabs
-              currentSection={currentSection}
-              onNavigate={handleSectionNavigation}
-              sections={navigationSections}
-            />
-          )}
+          navigation={mobileNavigation}
           profileControl={profileControl}
         />
       )}
+      navbar={desktopNavigation}
+      navbarConfiguration={{
+        width: 232,
+        breakpoint: 'lg',
+        collapsed: { mobile: true },
+      }}
     >
       {children}
     </AppLayout>

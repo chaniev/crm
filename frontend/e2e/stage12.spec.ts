@@ -195,6 +195,12 @@ const SCREEN_HEADINGS = [
   },
 ]
 
+const DESKTOP_NAVIGATION_BREAKPOINT = 1200
+const DESKTOP_NAVIGATION_SELECTOR =
+  'nav.app-shell__side-nav[aria-label="Основная навигация"]'
+const MOBILE_NAVIGATION_SELECTOR =
+  'nav.app-shell__mobile-nav[aria-label="Основная навигация"]'
+
 test.describe('Основные e2e сценарии', () => {
   test('Создание клиента: отправляет корректный payload и открывает карточку клиента', async ({
     page,
@@ -1126,13 +1132,8 @@ test.describe('Основные e2e сценарии', () => {
       for (const screen of SCREEN_HEADINGS) {
         await page.goto(screen.path)
         await expect(page.getByRole('heading', { name: screen.heading })).toBeVisible()
+        await expectActiveMainNavigation(page, width, screen.path)
         await expectNoHorizontalScroll(page)
-
-        if (width === 390) {
-          await expect(
-            page.getByRole('navigation', { name: 'Основная навигация' }),
-          ).toBeVisible()
-        }
       }
     }
 
@@ -1141,6 +1142,41 @@ test.describe('Основные e2e сценарии', () => {
     expect(auditCalls).toBeGreaterThanOrEqual(1)
   })
 })
+
+async function expectActiveMainNavigation(page: Page, width: number, path: string) {
+  const isDesktopLayout = width >= DESKTOP_NAVIGATION_BREAKPOINT
+  const desktopNavigation = page.locator(DESKTOP_NAVIGATION_SELECTOR)
+  const mobileNavigation = page.locator(MOBILE_NAVIGATION_SELECTOR)
+
+  if (isDesktopLayout) {
+    await expect(desktopNavigation).toBeVisible()
+  } else {
+    await expect(mobileNavigation).toBeVisible()
+  }
+
+  const activeNavigation = isDesktopLayout ? desktopNavigation : mobileNavigation
+
+  await expect(
+    activeNavigation.getByRole('button', { name: getNavLabelByPath(path) }),
+  ).toHaveAttribute('aria-current', 'page')
+}
+
+function getNavLabelByPath(path: string) {
+  switch (path) {
+    case '/':
+      return 'Главная'
+    case '/attendance':
+      return 'Посещения'
+    case '/clients':
+      return 'Клиенты'
+    case '/groups':
+      return 'Группы'
+    case '/audit':
+      return 'Журнал'
+    default:
+      return 'Главная'
+  }
+}
 
 async function mockApi(
   page: Page,

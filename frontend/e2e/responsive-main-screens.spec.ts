@@ -195,16 +195,22 @@ const AUDIT_ENTRIES_RESPONSE = {
 } as const
 
 const MANAGEMENT_ROUTES = [
-  { path: '/', screenTestId: 'home-screen' },
-  { path: '/clients', screenTestId: 'clients-screen' },
-  { path: '/groups', screenTestId: 'groups-screen' },
-  { path: '/audit', screenTestId: 'audit-screen' },
+  { path: '/', screenTestId: 'home-screen', navLabel: 'Главная' },
+  { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты' },
+  { path: '/groups', screenTestId: 'groups-screen', navLabel: 'Группы' },
+  { path: '/audit', screenTestId: 'audit-screen', navLabel: 'Журнал' },
 ] as const
 
 const COACH_ROUTES = [
-  { path: '/attendance', screenTestId: 'attendance-screen' },
-  { path: '/clients', screenTestId: 'clients-screen' },
+  { path: '/attendance', screenTestId: 'attendance-screen', navLabel: 'Посещения' },
+  { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты' },
 ] as const
+
+const DESKTOP_NAVIGATION_BREAKPOINT = 1200
+const DESKTOP_NAVIGATION_SELECTOR =
+  'nav.app-shell__side-nav[aria-label="Основная навигация"]'
+const MOBILE_NAVIGATION_SELECTOR =
+  'nav.app-shell__mobile-nav[aria-label="Основная навигация"]'
 
 const VIEWPORTS = [
   { width: 390, height: 844 },
@@ -224,6 +230,7 @@ for (const viewport of VIEWPORTS) {
       for (const route of MANAGEMENT_ROUTES) {
         await page.goto(route.path)
         await expect(page.getByTestId(route.screenTestId)).toBeVisible()
+        await expectActiveNavigation(page, viewport.width, route.navLabel)
         await expectNoHorizontalScroll(page)
       }
     })
@@ -236,10 +243,30 @@ for (const viewport of VIEWPORTS) {
       for (const route of COACH_ROUTES) {
         await page.goto(route.path)
         await expect(page.getByTestId(route.screenTestId)).toBeVisible()
+        await expectActiveNavigation(page, viewport.width, route.navLabel)
         await expectNoHorizontalScroll(page)
       }
     })
   })
+}
+
+async function expectActiveNavigation(page: Page, width: number, navLabel: string) {
+  const isDesktopLayout = width >= DESKTOP_NAVIGATION_BREAKPOINT
+  const desktopNavigation = page.locator(DESKTOP_NAVIGATION_SELECTOR)
+  const mobileNavigation = page.locator(MOBILE_NAVIGATION_SELECTOR)
+
+  if (isDesktopLayout) {
+    await expect(desktopNavigation).toBeVisible()
+  } else {
+    await expect(mobileNavigation).toBeVisible()
+  }
+
+  const activeNavigation = isDesktopLayout ? desktopNavigation : mobileNavigation
+
+  await expect(activeNavigation.getByRole('button', { name: navLabel })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
 }
 
 async function expectNoHorizontalScroll(page: Page) {

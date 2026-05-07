@@ -30,3 +30,19 @@
 - moved: 1
 - skipped: 1
 - plans created: 1
+
+# 2026-05-07 22:21
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- none
+
+## Skipped tasks
+- TASK-029-rename-users-to-trainers.md — skipped: current frontend `users` resource covers `HeadCoach`, `Administrator` and `Coach`, while task constraints require stopping if the section manages not only trainers; information architecture must be clarified before implementation planning.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 0

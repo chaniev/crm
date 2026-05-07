@@ -16,6 +16,7 @@ type NavigationTabsProps = {
   className?: string
   currentSection: AppSection | null
   onNavigate: (section: AppSection) => void
+  orientation?: 'horizontal' | 'vertical'
   sections: readonly AppSection[]
 }
 
@@ -33,12 +34,18 @@ export function NavigationTabs({
   className,
   currentSection,
   onNavigate,
+  orientation = 'horizontal',
   sections,
 }: NavigationTabsProps) {
   return (
     <nav
       aria-label={ariaLabel}
-      className={['app-shell__desktop-nav', className].filter(Boolean).join(' ')}
+      className={[
+        'app-shell__navigation',
+        `app-shell__navigation--${orientation}`,
+        className,
+      ].filter(Boolean).join(' ')}
+      data-orientation={orientation}
       data-testid="app-navigation"
     >
       {sections.map((section) => (

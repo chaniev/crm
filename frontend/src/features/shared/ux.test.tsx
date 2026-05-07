@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { fireEvent, screen, within } from '@testing-library/react'
 import { describe, expect, test, vi } from 'vitest'
 import type { AppSection } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
@@ -84,6 +84,32 @@ describe('shared UX components', () => {
       'page',
     )
     expect(screen.getByText('Рабочая область')).toBeVisible()
+  })
+
+  test('AppLayout can render desktop navigation in navbar slot', () => {
+    renderWithProviders(
+      <AppLayout
+        header={<Header brandMeta="Главный тренер" />}
+        navbar={(
+          <NavigationTabs
+            currentSection="Home"
+            onNavigate={() => undefined}
+            orientation="vertical"
+            sections={sections}
+          />
+        )}
+      >
+        <main>Рабочая область</main>
+      </AppLayout>,
+    )
+
+    const desktopNavigation = screen.getByRole('navigation', { name: 'Основная навигация' })
+
+    expect(desktopNavigation).toBeVisible()
+    expect(within(desktopNavigation).getByRole('button', { name: 'Главная' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
   })
 
   test('PageCard renders nested content inside shared page container', () => {

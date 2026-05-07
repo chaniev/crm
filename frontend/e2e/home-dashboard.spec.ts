@@ -49,6 +49,26 @@ test.describe('Home dashboard', () => {
     await expect(page.getByText('Истекающие абонементы')).toBeVisible()
     await expect(page.getByText('Истекающих абонементов сейчас нет.')).toBeVisible()
     await expect(page.getByText('Все абонементы активны.')).toBeVisible()
+    await expectNoHorizontalScroll(page)
+  })
+
+  test('renders mobile header navigation and keeps active tab on narrow screens', async ({ page }) => {
+    await mockHomeApi(page, {
+      expiringMemberships: { items: [] },
+    })
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+
+    const mobileNavigation = page.locator(
+      'nav.app-shell__mobile-nav[aria-label="Основная навигация"]',
+    )
+
+    await expect(mobileNavigation).toBeVisible()
+    await expect(
+      mobileNavigation.getByRole('button', { name: 'Главная' }),
+    ).toHaveAttribute('aria-current', 'page')
+    await expectNoHorizontalScroll(page)
   })
 
   test('renders loading state on initial data load', async ({ page }) => {
@@ -229,4 +249,30 @@ async function fulfillJson(
     contentType: 'application/json; charset=utf-8',
     body: JSON.stringify(payload),
   })
+}
+
+async function expectNoHorizontalScroll(page: Page) {
+  await expect
+    .poll(async () =>
+      page.evaluate(() => ({
+        rootScrollWidth: document.documentElement.scrollWidth,
+        rootClientWidth: document.documentElement.clientWidth,
+        bodyScrollWidth: document.body.scrollWidth,
+      })),
+    )
+    .toMatchObject({
+      rootScrollWidth: expect.any(Number),
+      rootClientWidth: expect.any(Number),
+      bodyScrollWidth: expect.any(Number),
+    })
+
+  const dimensions = await page.evaluate(() => ({
+    rootScrollWidth: document.documentElement.scrollWidth,
+    rootClientWidth: document.documentElement.clientWidth,
+    bodyScrollWidth: document.body.scrollWidth,
+    viewportWidth: window.innerWidth,
+  }))
+
+  expect(dimensions.rootScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+  expect(dimensions.bodyScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
 }

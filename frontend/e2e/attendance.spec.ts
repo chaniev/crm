@@ -124,11 +124,15 @@ test.describe('Мобильный сценарий посещений трене
     await expect(page).toHaveURL(/\/attendance$/)
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
 
-    const mobileNavigation = page.getByRole('navigation', {
-      name: 'Основная навигация',
-    })
+    const mobileNavigation = page.locator(
+      'nav.app-shell__mobile-nav[aria-label="Основная навигация"]',
+    )
+    const desktopNavigation = page.locator(
+      'nav.app-shell__side-nav[aria-label="Основная навигация"]',
+    )
 
     await expect(mobileNavigation).toBeVisible()
+    expect(await desktopNavigation.isVisible()).toBe(false)
     await expect(mobileNavigation.getByRole('button')).toHaveCount(2)
     await expect(
       mobileNavigation.getByRole('button', { name: 'Посещения' }),

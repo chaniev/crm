@@ -191,17 +191,44 @@
   white-space: nowrap;
 }
 
-.app-shell__desktop-nav {
+.app-shell__navbar {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 247, 0.98));
+  border-color: var(--color-border);
+}
+
+.app-shell__navbar-inner {
+  min-height: 0;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  padding: 1rem 0.85rem;
+  overflow-y: auto;
+}
+
+.app-shell__navigation {
   min-width: 0;
   display: flex;
   gap: 0.5rem;
+}
+
+.app-shell__navigation--horizontal {
   overflow-x: auto;
   padding-bottom: 0.2rem;
   scrollbar-width: none;
 }
 
-.app-shell__desktop-nav::-webkit-scrollbar {
+.app-shell__navigation--horizontal::-webkit-scrollbar {
   display: none;
+}
+
+.app-shell__navigation--vertical {
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.app-shell__mobile-nav {
+  display: flex;
 }
 
 .app-shell__profile-trigger {
@@ -281,6 +308,24 @@
 
 .app-shell__nav-button[aria-current='page'] .mantine-Button-section {
   color: white;
+}
+
+.app-shell__navigation--vertical .app-shell__nav-button {
+  --button-justify: flex-start;
+  width: 100%;
+  min-height: 2.75rem;
+  justify-content: flex-start;
+  padding-inline: 0.85rem;
+  box-shadow: none;
+}
+
+.app-shell__navigation--vertical .app-shell__nav-button .mantine-Button-inner {
+  justify-content: flex-start;
+}
+
+.app-shell__navigation--vertical .app-shell__nav-button .mantine-Button-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-shell__main {
@@ -807,6 +852,20 @@
 
   .app-shell__profile-name {
     display: none;
+  }
+}
+
+@media (min-width: 75em) {
+  .app-shell__navbar-inner {
+    display: flex;
+  }
+
+  .app-shell__mobile-nav {
+    display: none;
+  }
+
+  .app-shell__header-inner {
+    gap: 0;
   }
 }
 
