@@ -18,6 +18,7 @@ export type ClientFormValues = {
   firstName: string
   middleName: string
   phone: string
+  notes: string
   groupIds: string[]
   contacts: ClientFormContact[]
 }
@@ -29,6 +30,7 @@ export function useClientForm() {
       firstName: '',
       middleName: '',
       phone: '',
+      notes: '',
       groupIds: [],
       contacts: [],
     },
@@ -96,6 +98,7 @@ export function toClientFormValues(client: ClientDetails): ClientFormValues {
     firstName: client.firstName,
     middleName: client.middleName,
     phone: client.phone,
+    notes: client.notes,
     groupIds: client.groupIds,
     contacts:
       client.contacts.length > 0
@@ -116,6 +119,7 @@ export function toUpsertClientPayload(
     firstName: values.firstName.trim() || undefined,
     middleName: values.middleName.trim() || undefined,
     phone: values.phone.trim(),
+    notes: values.notes.trim(),
     contacts: normalizeContacts(values.contacts),
     groupIds: [...values.groupIds].sort(),
   }

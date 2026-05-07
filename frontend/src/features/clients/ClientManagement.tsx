@@ -15,6 +15,7 @@ import {
   Table,
   Switch,
   Text,
+  Textarea,
   TextInput,
   ThemeIcon,
   Title,
@@ -248,7 +249,7 @@ export function ClientCreateScreen({
           </Button>
         }
         badge="Новый клиент"
-        description="Форма сохраняет базовые данные клиента, а фотографию и абонемент можно добавить после первичного сохранения карточки."
+        description="Форма сохраняет базовые данные и рабочую заметку клиента, а фотографию и абонемент можно добавить после первичного сохранения карточки."
         title="Новый клиент"
       />
 
@@ -413,7 +414,7 @@ export function ClientEditScreen({
         }
         badge="Редактирование клиента"
         compact
-        description="Основные поля, группы и фото клиента."
+        description="Основные поля, рабочая заметка, группы и фото клиента."
         title={client ? client.fullName : 'Карточка клиента'}
       />
 
@@ -724,8 +725,8 @@ export function ClientDetailScreen({
         compact
         description={
           canManage
-            ? 'Ключевые данные клиента, абонемент и ближайшие действия.'
-            : 'Фото, группы и посещения по назначенным группам.'
+            ? 'Ключевые данные клиента, заметка, абонемент и ближайшие действия.'
+            : 'Фото, рабочая заметка, группы и посещения по назначенным группам.'
         }
         title={client ? client.fullName : 'Детали клиента'}
       />
@@ -785,6 +786,32 @@ export function ClientDetailScreen({
           ) : null}
 
           <ClientAttendanceHistorySection canManage={canManage} client={client} />
+
+          <Paper className="surface-card client-section-card" radius="8px" withBorder>
+            <Stack gap="lg">
+              <Group gap="xs">
+                <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+                  <IconEdit size={18} />
+                </ThemeIcon>
+                <div>
+                  <Text fw={700}>Рабочая заметка</Text>
+                  <Text c="dimmed" size="sm">
+                    Внутренняя заметка по клиенту, которая сохраняется в карточке.
+                  </Text>
+                </div>
+              </Group>
+
+              {client.notes ? (
+                <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
+                  {client.notes}
+                </Text>
+              ) : (
+                <Text c="dimmed" size="sm">
+                  Рабочая заметка пока не добавлена.
+                </Text>
+              )}
+            </Stack>
+          </Paper>
 
           <SimpleGrid cols={{ base: 1, md: canManage ? 2 : 1 }}>
             {canManage ? (
@@ -981,7 +1008,8 @@ function ClientOverviewSection({
               title="Доступ тренера"
               variant="light"
             >
-              Видны фото, ФИО, назначенные группы и история посещений.
+              Видны фото, ФИО, рабочая заметка, назначенные группы и история
+              посещений.
             </Alert>
           ) : null}
 
@@ -1242,6 +1270,14 @@ function ClientForm({
                 {...form.getInputProps('groupIds')}
               />
             </SimpleGrid>
+
+            <Textarea
+              autosize
+              label="Рабочая заметка"
+              minRows={4}
+              placeholder="Например: предпочитает связь после 18:00, важные детали по посещениям или оплате."
+              {...form.getInputProps('notes')}
+            />
           </Stack>
 
           <aside className="client-edit-rail">{photoSection}</aside>

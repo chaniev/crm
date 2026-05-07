@@ -3,6 +3,7 @@ using System;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GymCrm.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(GymCrmDbContext))]
-    partial class GymCrmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507183000_AddClientNotes")]
+    partial class AddClientNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

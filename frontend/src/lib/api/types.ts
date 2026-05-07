@@ -236,6 +236,7 @@ export type ClientDetails = ClientListItem & {
   createdAt?: string
   contacts: ClientContact[]
   groupIds: string[]
+  notes: string
   photo: ClientPhoto | null
   currentMembership: ClientMembership | null
   membershipHistory: ClientMembership[]
@@ -255,6 +256,7 @@ export type UpsertClientRequest = {
   firstName?: string
   middleName?: string
   phone: string
+  notes?: string
   contacts: ClientContactInput[]
   groupIds: string[]
 }
@@ -514,6 +516,7 @@ export type ClientResponsePayload = {
   middleName?: string | null
   fullName?: string | null
   phone?: string | null
+  notes?: string | null
   status?: string | null
   contactCount?: number | null
   groupCount?: number | null

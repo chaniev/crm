@@ -58,6 +58,7 @@ public class ClientsApiTests
                 FirstName = "Иван",
                 MiddleName = (string?)null,
                 Phone = "+79990001122",
+                Notes = "Первичная заметка по клиенту",
                 Contacts = new[]
                 {
                     new
@@ -94,6 +95,7 @@ public class ClientsApiTests
             Assert.Equal(clientId, GetGuidFromProperty(getPayload, "id"));
             Assert.Equal("Иванов Иван", GetStringFromProperty(getPayload, "fullName"));
             Assert.Equal("+79990001122", GetStringFromProperty(getPayload, "phone"));
+            Assert.Equal("Первичная заметка по клиенту", GetStringFromProperty(getPayload, "notes"));
             var groupsPayload = GetArrayPayload(getPayload.GetProperty("groups"));
             Assert.Equal(2, groupsPayload.GetArrayLength());
         }
@@ -107,6 +109,7 @@ public class ClientsApiTests
                        FirstName = "Мария",
                        MiddleName = "Ивановна",
                        Phone = "+79990001199",
+                       Notes = "Обновленная заметка",
                        Contacts = new[]
                        {
                            new
@@ -130,7 +133,15 @@ public class ClientsApiTests
             var updatePayload = await ReadJsonElementAsync(updateResponse);
             Assert.Equal("Мария Ивановна", GetStringFromProperty(updatePayload, "fullName"));
             Assert.Equal("Active", GetStringFromProperty(updatePayload, "status"));
+            Assert.Equal("Обновленная заметка", GetStringFromProperty(updatePayload, "notes"));
             Assert.Equal(2, GetArrayPayload(updatePayload.GetProperty("contacts")).GetArrayLength());
+        }
+
+        using (var reloadResponse = await client.GetAsync($"/clients/{clientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, reloadResponse.StatusCode);
+            var reloadPayload = await ReadJsonElementAsync(reloadResponse);
+            Assert.Equal("Обновленная заметка", GetStringFromProperty(reloadPayload, "notes"));
         }
 
         using (var scope = factory.Services.CreateScope())
@@ -142,6 +153,7 @@ public class ClientsApiTests
                 .SingleAsync(candidate => candidate.Id == clientId);
 
             Assert.Equal("+79990001199", persistedClient.Phone);
+            Assert.Equal("Обновленная заметка", persistedClient.Notes);
             Assert.Equal(2, persistedClient.Contacts.Count);
             Assert.Equal(new[] { seeded.GroupTwoId }, persistedClient.Groups.Select(group => group.GroupId).ToArray());
         }
@@ -2206,6 +2218,7 @@ public class ClientsApiTests
                 FirstName = "",
                 MiddleName = "",
                 Phone = "",
+                Notes = new string('N', Client.NotesMaxLength + 1),
                 Contacts = new object[]
                 {
                     new
@@ -2237,12 +2250,79 @@ public class ClientsApiTests
         var errorsPayload = validationPayload.GetProperty("errors");
 
         Assert.True(errorsPayload.TryGetProperty("phone", out _));
+        Assert.True(errorsPayload.TryGetProperty("notes", out _));
         Assert.True(errorsPayload.TryGetProperty("fullName", out _));
         Assert.True(errorsPayload.TryGetProperty("contacts", out _));
         Assert.True(errorsPayload.TryGetProperty("contacts[0].type", out _));
         Assert.True(errorsPayload.TryGetProperty("contacts[0].fullName", out _));
         Assert.True(errorsPayload.TryGetProperty("contacts[0].phone", out _));
         Assert.True(errorsPayload.TryGetProperty("groupIds", out _));
+    }
+
+    [Fact]
+    public async Task Client_notes_are_normalized_to_null_when_request_contains_only_whitespace()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorSession = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        Guid clientId;
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/clients",
+                   new
+                   {
+                       LastName = "Нормализация",
+                       FirstName = "Заметок",
+                       Phone = "+79990001888",
+                       Notes = "Есть текст",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   actorSession.CsrfToken))
+        {
+            Assert.True(createResponse.IsSuccessStatusCode);
+            var createPayload = await ReadJsonElementAsync(createResponse);
+            clientId = await ExtractClientIdFromResponseAsync(createResponse, createPayload);
+            Assert.Equal("Есть текст", GetStringFromProperty(createPayload, "notes"));
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{clientId}",
+                   new
+                   {
+                       LastName = "Нормализация",
+                       FirstName = "Заметок",
+                       Phone = "+79990001888",
+                       Notes = "   \t  ",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+            var updatePayload = await ReadJsonElementAsync(updateResponse);
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(updatePayload, "notes").ValueKind);
+        }
+
+        using (var reloadResponse = await client.GetAsync($"/clients/{clientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, reloadResponse.StatusCode);
+            var reloadPayload = await ReadJsonElementAsync(reloadResponse);
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(reloadPayload, "notes").ValueKind);
+        }
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var persistedClient = await dbContext.Clients.SingleAsync(candidate => candidate.Id == clientId);
+        Assert.Null(persistedClient.Notes);
     }
 
     [Fact]
@@ -2268,6 +2348,7 @@ public class ClientsApiTests
                        LastName = "Audit",
                        FirstName = "Client",
                        Phone = "+79990001300",
+                       Notes = "Первая audit заметка",
                        Contacts = Array.Empty<object>(),
                        GroupIds = new[] { seeded.GroupOneId }
                    },
@@ -2287,6 +2368,7 @@ public class ClientsApiTests
                        FirstName = "Updated",
                        MiddleName = "Client",
                        Phone = "+79990001301",
+                       Notes = "Обновленная audit заметка",
                        Contacts = new[]
                        {
                            new
@@ -2343,6 +2425,13 @@ public class ClientsApiTests
                 $"Пользователь '{seeded.HeadCoachLogin}' восстановил клиента 'Audit Updated Client'."
             ],
             clientAuditLogs.Select(log => log.Description));
+
+        var createdAuditLog = clientAuditLogs.Single(log => log.ActionType == "ClientCreated");
+        AssertAuditPayloadNotes(createdAuditLog.NewValueJson, "Первая audit заметка");
+
+        var updatedAuditLog = clientAuditLogs.Single(log => log.ActionType == "ClientUpdated");
+        AssertAuditPayloadNotes(updatedAuditLog.OldValueJson, "Первая audit заметка");
+        AssertAuditPayloadNotes(updatedAuditLog.NewValueJson, "Обновленная audit заметка");
 
         foreach (var log in auditLogs)
         {
@@ -2951,6 +3040,23 @@ public class ClientsApiTests
         }
 
         return false;
+    }
+
+    private static void AssertAuditPayloadNotes(string? payload, string? expectedNotes)
+    {
+        Assert.NotNull(payload);
+
+        using var document = JsonDocument.Parse(payload!);
+        var notes = GetPropertyOrNull(document.RootElement, "notes", "Notes");
+
+        if (expectedNotes is null)
+        {
+            Assert.Equal(JsonValueKind.Null, notes.ValueKind);
+            return;
+        }
+
+        Assert.Equal(JsonValueKind.String, notes.ValueKind);
+        Assert.Equal(expectedNotes, notes.GetString());
     }
 
     private static void AssertNoPasswordInAuditState(string? payload)

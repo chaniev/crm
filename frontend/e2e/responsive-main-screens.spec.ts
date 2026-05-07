@@ -55,6 +55,7 @@ const CLIENTS_RESPONSE = {
       fullName: 'Александра Константинопольская-Северная',
       status: 'Active',
       phone: '+7 999 123-45-67',
+      notes: 'Клиент предпочитает вечерние слоты и напоминание в день занятия.',
       groupCount: 2,
       contactCount: 1,
       membershipWarning: true,

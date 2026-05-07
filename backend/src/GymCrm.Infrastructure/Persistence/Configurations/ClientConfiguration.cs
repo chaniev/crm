@@ -8,6 +8,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
 {
     private const int NameMaxLength = 128;
     private const int PhoneMaxLength = 32;
+    private const int NotesMaxLength = Client.NotesMaxLength;
     private const int PhotoPathMaxLength = 512;
     private const int PhotoContentTypeMaxLength = 128;
     private const int StatusMaxLength = 32;
@@ -30,6 +31,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .HasMaxLength(PhoneMaxLength)
             .IsRequired();
 
+        builder.Property(client => client.Notes).HasMaxLength(NotesMaxLength);
         builder.Property(client => client.PhotoPath).HasMaxLength(PhotoPathMaxLength);
         builder.Property(client => client.PhotoContentType).HasMaxLength(PhotoContentTypeMaxLength);
 

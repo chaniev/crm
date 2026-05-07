@@ -17,6 +17,7 @@ internal static class ClientResources
     public static string MembershipExpirationRangeInvalid => GetString(nameof(MembershipExpirationRangeInvalid));
     public static string PhoneRequired => GetString(nameof(PhoneRequired));
     public static string PhoneTooLong => GetString(nameof(PhoneTooLong));
+    public static string NotesTooLong => GetString(nameof(NotesTooLong));
     public static string LastNameTooLong => GetString(nameof(LastNameTooLong));
     public static string FirstNameTooLong => GetString(nameof(FirstNameTooLong));
     public static string MiddleNameTooLong => GetString(nameof(MiddleNameTooLong));

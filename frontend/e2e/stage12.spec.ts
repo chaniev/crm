@@ -106,6 +106,7 @@ type ClientState = {
   firstName: string
   middleName: string
   phone: string
+  notes: string
   status?: 'Active' | 'Archived'
   groupIds: string[]
   contacts: Array<{
@@ -163,6 +164,7 @@ const baseClient: ClientState = {
   firstName: 'Иван',
   middleName: 'Иванович',
   phone: '+79990001111',
+  notes: 'Предпочитает вечерние тренировки.',
   groupIds: ['group-1'],
   contacts: [],
   hasActivePaidMembership: true,
@@ -259,6 +261,7 @@ test.describe('Основные e2e сценарии', () => {
           firstName: 'Пётр',
           middleName: 'Петрович',
           phone: '+79990005555',
+          notes: 'Нужен звонок за день до первого занятия.',
           groupIds: ['group-1'],
           contacts: [
             {
@@ -281,6 +284,7 @@ test.describe('Основные e2e сценарии', () => {
           firstName: 'Пётр',
           middleName: 'Петрович',
           phone: '+79990005555',
+          notes: 'Нужен звонок за день до первого занятия.',
           groupIds: ['group-1'],
           contacts: [
             {
@@ -316,6 +320,9 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByLabel('Имя').fill('Пётр')
     await page.getByLabel('Отчество').fill('Петрович')
     await page.getByLabel('Телефон').fill('+79990005555')
+    await page
+      .getByLabel('Рабочая заметка')
+      .fill('Нужен звонок за день до первого занятия.')
 
     await page.getByRole('combobox', { name: 'Группы клиента' }).click()
     await page.getByRole('option', { name: 'Группа 1' }).click()
@@ -338,6 +345,7 @@ test.describe('Основные e2e сценарии', () => {
         firstName: 'Пётр',
         middleName: 'Петрович',
         phone: '+79990005555',
+        notes: 'Нужен звонок за день до первого занятия.',
         groupIds: ['group-1'],
         contacts: [
           {
@@ -359,6 +367,9 @@ test.describe('Основные e2e сценарии', () => {
     ).toBeVisible()
     await expect(page.getByText('Анна Петрова', { exact: true })).toBeVisible()
     await expect(page.getByText('Олег Петров', { exact: true })).toBeVisible()
+    await expect(
+      page.getByText('Нужен звонок за день до первого занятия.'),
+    ).toBeVisible()
     await expect(page.getByText('Абонемент не оформлен')).toBeVisible()
 
     await page.getByRole('button', { name: 'К списку клиентов' }).click()
@@ -368,6 +379,101 @@ test.describe('Основные e2e сценарии', () => {
     ).toBeVisible()
     await expect(page.getByText('Петров Пётр Петрович')).toBeVisible()
     expect(clientListCalls).toBeGreaterThan(1)
+  })
+
+  test('Редактирование клиента сохраняет заметку и показывает ее после reload', async ({
+    page,
+  }) => {
+    let updateClientPayload: Record<string, unknown> | null = null
+    const groups: GroupState[] = [...baseGroups]
+    let client: ClientState = {
+      ...baseClient,
+      notes: 'Исходная заметка клиента.',
+    }
+
+    await mockApi(page, async ({ pathname, method, route, searchParams }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/auth/login' && method === 'POST') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/groups' && method === 'GET') {
+        await fulfillJson(route, 200, buildGroupsListPayload(groups))
+        return true
+      }
+
+      if (pathname === '/api/clients' && method === 'GET') {
+        await fulfillJson(route, 200, buildClientsListPayload([client], groups, searchParams))
+        return true
+      }
+
+      if (pathname === '/api/clients/client-1' && method === 'GET') {
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      if (pathname === '/api/clients/client-1' && method === 'PUT') {
+        const payload = route.request().postDataJSON()
+        updateClientPayload = payload
+
+        expect(payload).toEqual({
+          lastName: 'Иванов',
+          firstName: 'Иван',
+          middleName: 'Иванович',
+          phone: '+79990001111',
+          notes: 'Позвонить маме после 18:00 перед продлением.',
+          groupIds: ['group-1'],
+          contacts: [],
+        })
+
+        client = {
+          ...client,
+          notes: String(payload.notes ?? ''),
+        }
+
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/clients/client-1/edit')
+
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Иванов Иван Иванович' }),
+    ).toBeVisible()
+    await page
+      .getByLabel('Рабочая заметка')
+      .fill('Позвонить маме после 18:00 перед продлением.')
+    await page.getByRole('button', { name: 'Сохранить изменения' }).click()
+
+    await expect
+      .poll(() => updateClientPayload)
+      .toEqual({
+        lastName: 'Иванов',
+        firstName: 'Иван',
+        middleName: 'Иванович',
+        phone: '+79990001111',
+        notes: 'Позвонить маме после 18:00 перед продлением.',
+        groupIds: ['group-1'],
+        contacts: [],
+      })
+
+    await expect(page).toHaveURL('/clients/client-1')
+    await expect(
+      page.getByText('Позвонить маме после 18:00 перед продлением.'),
+    ).toBeVisible()
+
+    await page.reload()
+    await expect(
+      page.getByText('Позвонить маме после 18:00 перед продлением.'),
+    ).toBeVisible()
   })
 
   test('Создание клиента отображает backend errors.fullName под полем Фамилия', async ({
@@ -1284,6 +1390,7 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     middleName: client.middleName,
     fullName: `${client.lastName} ${client.firstName} ${client.middleName}`,
     phone: client.phone,
+    notes: client.notes,
     status: client.status ?? 'Active',
     contactCount: client.contacts.length,
     groupCount: assignedGroups.length,

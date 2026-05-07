@@ -45,6 +45,9 @@
   <data name="PhoneTooLong" xml:space="preserve">
     <value>Номер телефона не должен превышать 32 символа.</value>
   </data>
+  <data name="NotesTooLong" xml:space="preserve">
+    <value>Заметка не должна превышать 2000 символов.</value>
+  </data>
   <data name="LastNameTooLong" xml:space="preserve">
     <value>Фамилия не должна превышать 128 символов.</value>
   </data>

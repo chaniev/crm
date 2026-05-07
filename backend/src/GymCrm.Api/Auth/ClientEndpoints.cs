@@ -555,6 +555,7 @@ internal static class ClientEndpoints
             FirstName = normalizedRequest.FirstName,
             MiddleName = normalizedRequest.MiddleName,
             Phone = normalizedRequest.Phone,
+            Notes = normalizedRequest.Notes,
             Status = ClientStatus.Active,
             CreatedAt = now,
             UpdatedAt = now
@@ -624,6 +625,7 @@ internal static class ClientEndpoints
         client.FirstName = normalizedRequest.FirstName;
         client.MiddleName = normalizedRequest.MiddleName;
         client.Phone = normalizedRequest.Phone;
+        client.Notes = normalizedRequest.Notes;
         client.UpdatedAt = DateTimeOffset.UtcNow;
 
         await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
@@ -1144,6 +1146,11 @@ internal static class ClientEndpoints
             errors["phone"] = [ClientResources.PhoneTooLong];
         }
 
+        if (request.Notes is not null && request.Notes.Length > ClientApiConstants.NotesMaxLength)
+        {
+            errors["notes"] = [ClientResources.NotesTooLong];
+        }
+
         ValidateNamePart(request.LastName, "lastName", ClientResources.LastNameTooLong, errors);
         ValidateNamePart(request.FirstName, "firstName", ClientResources.FirstNameTooLong, errors);
         ValidateNamePart(request.MiddleName, "middleName", ClientResources.MiddleNameTooLong, errors);
@@ -1222,6 +1229,7 @@ internal static class ClientEndpoints
             NormalizeOptionalText(request.FirstName),
             NormalizeOptionalText(request.MiddleName),
             request.Phone?.Trim() ?? string.Empty,
+            NormalizeOptionalText(request.Notes),
             request.Contacts,
             NormalizeContacts(request.Contacts),
             request.GroupIds,
@@ -2018,6 +2026,7 @@ internal static class ClientEndpoints
             client.MiddleName,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             client.Phone,
+            client.Notes,
             client.Status.ToString(),
             groups.Select(group => group.Id).ToArray(),
             groups,
@@ -2051,6 +2060,7 @@ internal static class ClientEndpoints
             client.MiddleName,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             string.Empty,
+            client.Notes,
             client.Status.ToString(),
             groups.Select(group => group.Id).ToArray(),
             groups,
@@ -2216,6 +2226,7 @@ internal static class ClientEndpoints
                 client.FirstName,
                 client.MiddleName,
                 client.Phone,
+                client.Notes,
                 client.Status.ToString(),
                 client.Contacts
                     .Select(contact => new ClientContactAuditState(contact.Type, contact.FullName, contact.Phone))

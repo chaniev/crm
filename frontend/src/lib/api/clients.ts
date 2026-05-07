@@ -527,6 +527,7 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
     contacts: mapClientContacts(payload),
     createdAt: payload.createdAt,
     groupIds,
+    notes: readString(payload, ['notes', 'Notes']) ?? '',
     photo: mapClientPhoto(payload),
     currentMembership: mapClientCurrentMembership(payload),
     membershipHistory: mapClientMembershipHistory(payload),
