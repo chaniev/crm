@@ -61,10 +61,12 @@ export function buildClientRowViewModel(
     client,
     photoUrl: buildClientListPhotoUrl(client),
     statusLabel: statusLabelMap[client.status],
-    membershipLabel: resolveMembershipLabel(
-      getCurrentMembershipSummary(client),
-      client.hasCurrentMembership,
-    ),
+    membershipLabel: client.isProfessional
+      ? 'Профессионал'
+      : resolveMembershipLabel(
+          getCurrentMembershipSummary(client),
+          client.hasCurrentMembership,
+        ),
     membershipMeta: resolveMembershipMeta(client),
     nextAction: resolveNextAction(client),
     groupLabel: resolveGroupLabel(client),
@@ -87,7 +89,12 @@ export function buildClientPreviewViewModel(
     nextAction: resolveNextAction(client),
     facts: [
       { label: 'Статус', value: statusLabelMap[client.status] },
-      { label: 'Абонемент', value: resolveMembershipLabel(membership, client.hasCurrentMembership) },
+      {
+        label: 'Абонемент',
+        value: client.isProfessional
+          ? 'Профессионал'
+          : resolveMembershipLabel(membership, client.hasCurrentMembership),
+      },
       { label: 'Группа', value: resolveGroupLabel(client) },
       { label: 'Визит', value: resolveLastVisitLabel(lastVisit ?? client.lastVisitDate) },
       { label: 'Контакты', value: canManage ? String(client.contactCount) : 'Скрыты' },
@@ -121,6 +128,14 @@ export function resolveHeaderCountsLabel(
 
 export function resolveNextAction(client: ClientListItem): ClientNextActionViewModel {
   const membership = getCurrentMembershipSummary(client)
+
+  if (client.isProfessional) {
+    return {
+      label: 'Планово',
+      tone: 'blue',
+      description: 'Льготный оплаченный статус',
+    }
+  }
 
   if (!client.hasCurrentMembership || !membership) {
     return {
@@ -215,6 +230,10 @@ function resolveMembershipLabel(
 }
 
 function resolveMembershipMeta(client: ClientListItem) {
+  if (client.isProfessional) {
+    return client.professionalComment || 'Льготный оплаченный статус'
+  }
+
   const membership = getCurrentMembershipSummary(client)
 
   if (!membership) {

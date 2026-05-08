@@ -266,6 +266,74 @@ public class AttendanceApiTests
         Assert.True(persistedAttendance.IsPresent);
     }
 
+    [Fact]
+    public async Task Professional_client_attendance_has_no_warning_and_does_not_write_off_single_visit()
+    {
+        await using var factory = new AttendanceAppFactory();
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var trainingDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var trainingDateString = trainingDate.ToString("yyyy-MM-dd");
+
+        using (var clientsResponse = await client.GetAsync(
+                   $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={trainingDateString}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, clientsResponse.StatusCode);
+            var clientsPayload = await ReadJsonElementAsync(clientsResponse);
+            var clients = GetArrayPayload(clientsPayload, "data", "items", "clients");
+            var professionalClient = FindById(clients, seeded.ProfessionalClientId);
+            Assert.False(professionalClient.ValueKind == JsonValueKind.Undefined);
+            Assert.True(GetBoolFromAnyCase(professionalClient, "isProfessional", "IsProfessional"));
+            Assert.False(HasMembershipWarning(professionalClient), "Professional client must not have membership warning.");
+            Assert.False(GetBoolFromAnyCase(professionalClient, "hasUnpaidCurrentMembership", "HasUnpaidCurrentMembership"));
+            Assert.True(GetBoolFromAnyCase(professionalClient, "hasActivePaidMembership", "HasActivePaidMembership"));
+        }
+
+        var operationStartedAt = DateTimeOffset.UtcNow;
+        using var markResponse = await PostJsonAsync(
+            client,
+            $"/attendance/groups/{seeded.AssignedGroupId}",
+            new
+            {
+                TrainingDate = trainingDateString,
+                AttendanceMarks = new[]
+                {
+                    new
+                    {
+                        ClientId = seeded.ProfessionalClientId,
+                        IsPresent = true
+                    }
+                }
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, markResponse.StatusCode);
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var attendance = await dbContext.Attendance.SingleAsync(
+            mark => mark.ClientId == seeded.ProfessionalClientId &&
+                mark.GroupId == seeded.AssignedGroupId &&
+                mark.TrainingDate == trainingDate);
+        Assert.True(attendance.IsPresent);
+
+        var membership = await dbContext.ClientMemberships.SingleAsync(
+            candidate => candidate.ClientId == seeded.ProfessionalClientId && candidate.ValidTo == null);
+        Assert.False(membership.SingleVisitUsed);
+
+        var writeOffAuditExists = await dbContext.AuditLogs.AnyAsync(log =>
+            log.ActionType == "ClientMembershipSingleVisitWrittenOff" &&
+            log.EntityType == "ClientMembership" &&
+            log.CreatedAt >= operationStartedAt);
+        Assert.False(writeOffAuditExists);
+    }
+
     private static async Task<SeededAttendanceData> SeedAttendanceDataAsync(AttendanceAppFactory factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -327,9 +395,21 @@ public class AttendanceApiTests
             UpdatedAt = now
         };
 
+        var professionalClient = new Client
+        {
+            Id = Guid.NewGuid(),
+            LastName = "Профессионал",
+            FirstName = "Клиент",
+            Phone = "+79990001112",
+            IsProfessional = true,
+            ProfessionalComment = "Льготный статус для посещаемости",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         dbContext.Users.AddRange(headCoach, administrator, coach);
         dbContext.TrainingGroups.AddRange(assignedGroup, unassignedGroup);
-        dbContext.Clients.AddRange(warningClient, singleVisitClient);
+        dbContext.Clients.AddRange(warningClient, singleVisitClient, professionalClient);
         dbContext.GroupTrainers.Add(new GroupTrainer
         {
             GroupId = assignedGroup.Id,
@@ -345,6 +425,11 @@ public class AttendanceApiTests
         dbContext.ClientGroups.Add(new ClientGroup
         {
             ClientId = singleVisitClient.Id,
+            GroupId = assignedGroup.Id
+        });
+        dbContext.ClientGroups.Add(new ClientGroup
+        {
+            ClientId = professionalClient.Id,
             GroupId = assignedGroup.Id
         });
 
@@ -372,6 +457,18 @@ public class AttendanceApiTests
             singleVisitUsed: false,
             seedBy: coach.Id);
 
+        await AddMembershipAsync(
+            dbContext,
+            professionalClient.Id,
+            coach.Id,
+            MembershipType.SingleVisit,
+            DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            null,
+            500m,
+            isPaid: true,
+            singleVisitUsed: false,
+            seedBy: coach.Id);
+
         await dbContext.SaveChangesAsync();
 
         return new SeededAttendanceData(
@@ -385,7 +482,8 @@ public class AttendanceApiTests
             assignedGroup.Id,
             unassignedGroup.Id,
             warningClient.Id,
-            singleVisitClient.Id);
+            singleVisitClient.Id,
+            professionalClient.Id);
     }
 
     private static async Task AddMembershipAsync(
@@ -669,7 +767,8 @@ public class AttendanceApiTests
         Guid AssignedGroupId,
         Guid UnassignedGroupId,
         Guid WarningClientId,
-        Guid SingleVisitClientId);
+        Guid SingleVisitClientId,
+        Guid ProfessionalClientId);
 
     private sealed class AttendanceAppFactory : WebApplicationFactory<Program>
     {

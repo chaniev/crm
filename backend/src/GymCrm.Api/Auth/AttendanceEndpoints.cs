@@ -296,7 +296,7 @@ internal static class AttendanceEndpoints
         var visibleGroups = currentUser.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
             : client.Groups.AsEnumerable();
-        var warning = EvaluateMembershipWarning(currentMembership, trainingDate);
+        var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
         var isPresent = client.AttendanceEntries.Any(attendance =>
             attendance.GroupId == groupId &&
             attendance.TrainingDate == trainingDate &&
@@ -308,17 +308,30 @@ internal static class AttendanceEndpoints
             MapGroups(visibleGroups),
             MapPhoto(client),
             isPresent,
+            client.IsProfessional,
+            client.ProfessionalComment,
             warning.HasWarning,
             warning.Message,
-            currentMembership is not null && !currentMembership.IsPaid,
-            HasActivePaidMembership(currentMembership, trainingDate));
+            ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
+            ClientMembershipSemantics.HasActivePaidMembership(
+                client.IsProfessional,
+                currentMembership,
+                trainingDate,
+                requirePurchaseDateReached: true));
     }
 
     private static MembershipWarningResult EvaluateMembershipWarning(
+        bool isProfessional,
         ClientMembership? membership,
         DateOnly trainingDate)
     {
-        if (membership is null)
+        var issues = ClientMembershipSemantics.EvaluateIssues(isProfessional, membership, trainingDate);
+        if (issues.Count == 0)
+        {
+            return new MembershipWarningResult(false, null);
+        }
+
+        if (issues.Contains(ClientMembershipIssue.NoCurrentMembership))
         {
             return new MembershipWarningResult(
                 true,
@@ -326,22 +339,22 @@ internal static class AttendanceEndpoints
         }
 
         var messages = new List<string>();
-        if (membership.PurchaseDate > trainingDate)
+        if (issues.Contains(ClientMembershipIssue.PurchasedAfterTrainingDate))
         {
             messages.Add(AttendanceResources.MembershipPurchasedLaterWarning);
         }
 
-        if (!membership.IsPaid)
+        if (issues.Contains(ClientMembershipIssue.Unpaid))
         {
             messages.Add(AttendanceResources.MembershipUnpaidWarning);
         }
 
-        if (membership.MembershipType == MembershipType.SingleVisit && membership.SingleVisitUsed)
+        if (issues.Contains(ClientMembershipIssue.SingleVisitAlreadyUsed))
         {
             messages.Add(AttendanceResources.SingleVisitAlreadyUsedWarning);
         }
 
-        if (membership.ExpirationDate.HasValue && membership.ExpirationDate.Value < trainingDate)
+        if (issues.Contains(ClientMembershipIssue.Expired))
         {
             messages.Add(AttendanceResources.MembershipExpiredWarning);
         }
@@ -351,23 +364,6 @@ internal static class AttendanceEndpoints
             : new MembershipWarningResult(
                 true,
                 AttendanceResources.MembershipWarningWithDetails(string.Join(", ", messages)));
-    }
-
-    private static bool HasActivePaidMembership(
-        ClientMembership? membership,
-        DateOnly trainingDate)
-    {
-        if (membership is null || !membership.IsPaid || membership.PurchaseDate > trainingDate)
-        {
-            return false;
-        }
-
-        if (membership.ExpirationDate.HasValue && membership.ExpirationDate.Value < trainingDate)
-        {
-            return false;
-        }
-
-        return membership.MembershipType != MembershipType.SingleVisit || !membership.SingleVisitUsed;
     }
 
     private static IReadOnlyList<ClientGroupSummaryResponse> MapGroups(IEnumerable<ClientGroup> groups)

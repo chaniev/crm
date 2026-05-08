@@ -6,6 +6,8 @@ const FIXED_TRAINING_DATE = '2026-04-18'
 const GROUP_ID = 'group-1'
 const CLIENT_ID = 'client-1'
 const CLIENT_FULL_NAME = 'Иван Иванов'
+const PROFESSIONAL_CLIENT_ID = 'client-professional'
+const PROFESSIONAL_CLIENT_FULL_NAME = 'Проф Клиент'
 
 const unauthenticatedSession = {
   isAuthenticated: false,
@@ -43,7 +45,7 @@ const assignedGroup = {
   name: 'Группа 7: вечер',
   trainingStartTime: '19:00',
   scheduleText: 'Вт, Чт',
-  clientCount: 1,
+  clientCount: 2,
 }
 
 test.describe('Мобильный сценарий посещений тренера', () => {
@@ -149,6 +151,13 @@ test.describe('Мобильный сценарий посещений трене
     await expect(
       page.getByText('Абонемент просрочен, отметка посещения доступна.'),
     ).toBeVisible()
+    const professionalCard = page.getByTestId(
+      `attendance-client-card-${PROFESSIONAL_CLIENT_ID}`,
+    )
+    await expect(professionalCard).toContainText('Льготный оплаченный статус')
+    await expect(professionalCard).toContainText('Профессионал')
+    await expect(professionalCard).not.toContainText('Не оплачено')
+    await expect(professionalCard).not.toContainText('Проблема с абонементом')
 
     const trainingDateInput = page.getByLabel('Дата тренировки')
     await trainingDateInput.fill(FIXED_TRAINING_DATE)
@@ -193,6 +202,23 @@ function buildRosterPayload(trainingDate: string, isPresent: boolean) {
         membershipWarning: true,
         membershipWarningMessage:
           'Абонемент просрочен, отметка посещения доступна.',
+        groups: [
+          {
+            id: GROUP_ID,
+            name: assignedGroup.name,
+            isActive: true,
+          },
+        ],
+      },
+      {
+        id: PROFESSIONAL_CLIENT_ID,
+        fullName: PROFESSIONAL_CLIENT_FULL_NAME,
+        isPresent: false,
+        isProfessional: true,
+        professionalComment: 'Сборная',
+        hasActivePaidMembership: true,
+        hasUnpaidCurrentMembership: false,
+        membershipWarning: false,
         groups: [
           {
             id: GROUP_ID,

@@ -48,6 +48,15 @@
   <data name="NotesTooLong" xml:space="preserve">
     <value>Заметка не должна превышать 2000 символов.</value>
   </data>
+  <data name="ProfessionalStatusRequired" xml:space="preserve">
+    <value>Укажите признак профессионала.</value>
+  </data>
+  <data name="ProfessionalCommentRequired" xml:space="preserve">
+    <value>Укажите комментарий для включения признака профессионала.</value>
+  </data>
+  <data name="ProfessionalCommentTooLong" xml:space="preserve">
+    <value>Комментарий к признаку профессионала не должен превышать 1000 символов.</value>
+  </data>
   <data name="LastNameTooLong" xml:space="preserve">
     <value>Фамилия не должна превышать 128 символов.</value>
   </data>

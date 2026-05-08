@@ -155,6 +155,8 @@ export type ClientListItem = {
   groupCount: number
   groups: ClientGroupSummary[]
   photo: ClientPhoto | null
+  isProfessional: boolean
+  professionalComment: string | null
   hasActivePaidMembership: boolean
   hasUnpaidCurrentMembership: boolean
   membershipWarning: boolean
@@ -211,6 +213,8 @@ export type AttendanceClient = {
   groups: ClientGroupSummary[]
   photo: ClientPhoto | null
   isPresent: boolean
+  isProfessional: boolean
+  professionalComment: string | null
   hasActivePaidMembership: boolean
   hasUnpaidCurrentMembership: boolean
   membershipWarning: boolean
@@ -259,6 +263,11 @@ export type UpsertClientRequest = {
   notes?: string
   contacts: ClientContactInput[]
   groupIds: string[]
+}
+
+export type UpdateClientProfessionalStatusRequest = {
+  isProfessional: boolean
+  professionalComment?: string | null
 }
 
 export type GetClientsParams = {
@@ -530,6 +539,8 @@ export type ClientResponsePayload = {
   photoSizeBytes?: number | null
   photoUploadedAt?: string | null
   hasPhoto?: boolean | null
+  isProfessional?: boolean | null
+  professionalComment?: string | null
   currentMembership?: Record<string, unknown> | null
   currentMembershipSummary?: Record<string, unknown> | null
   hasCurrentMembership?: boolean | null

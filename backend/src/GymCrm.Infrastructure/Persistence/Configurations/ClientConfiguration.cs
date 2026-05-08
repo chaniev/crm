@@ -9,6 +9,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
     private const int NameMaxLength = 128;
     private const int PhoneMaxLength = 32;
     private const int NotesMaxLength = Client.NotesMaxLength;
+    private const int ProfessionalCommentMaxLength = Client.ProfessionalCommentMaxLength;
     private const int PhotoPathMaxLength = 512;
     private const int PhotoContentTypeMaxLength = 128;
     private const int StatusMaxLength = 32;
@@ -32,6 +33,8 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .IsRequired();
 
         builder.Property(client => client.Notes).HasMaxLength(NotesMaxLength);
+        builder.Property(client => client.IsProfessional).IsRequired();
+        builder.Property(client => client.ProfessionalComment).HasMaxLength(ProfessionalCommentMaxLength);
         builder.Property(client => client.PhotoPath).HasMaxLength(PhotoPathMaxLength);
         builder.Property(client => client.PhotoContentType).HasMaxLength(PhotoContentTypeMaxLength);
 
@@ -46,6 +49,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.HasIndex(client => client.LastName);
         builder.HasIndex(client => client.FirstName);
         builder.HasIndex(client => client.Phone);
+        builder.HasIndex(client => client.IsProfessional);
         builder.HasIndex(client => client.Status);
 
         builder.HasMany(client => client.Contacts)

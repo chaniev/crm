@@ -146,7 +146,9 @@ class CrmBotApiClient:
             json_body={
                 **identity.as_payload(),
                 "trainingDate": training_date.isoformat(),
-                "attendanceMarks": [mark.model_dump(by_alias=True) for mark in marks],
+                "attendanceMarks": [
+                    mark.model_dump(by_alias=True, mode="json") for mark in marks
+                ],
             },
         )
 

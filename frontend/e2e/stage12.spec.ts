@@ -114,10 +114,13 @@ type ClientState = {
     fullName: string
     phone: string
   }>
+  isProfessional?: boolean
+  professionalComment?: string | null
   hasActivePaidMembership: boolean
   hasUnpaidCurrentMembership: boolean
   membershipWarning: boolean
   membershipType?: 'SingleVisit' | 'Monthly' | 'Yearly'
+  currentMembershipIsPaid?: boolean
   expirationDate: string
 }
 
@@ -474,6 +477,136 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page.getByText('Позвонить маме после 18:00 перед продлением.'),
     ).toBeVisible()
+  })
+
+  test('HeadCoach включает льготный статус профессионала с комментарием', async ({
+    page,
+  }) => {
+    const groups: GroupState[] = [...baseGroups]
+    let professionalPayload: Record<string, unknown> | null = null
+    let client: ClientState = {
+      ...baseClient,
+      id: 'client-professional',
+      lastName: 'Профессионалов',
+      firstName: 'Льготный',
+      middleName: 'Статус',
+      hasActivePaidMembership: false,
+      hasUnpaidCurrentMembership: true,
+      membershipWarning: true,
+      currentMembershipIsPaid: false,
+    }
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/clients/client-professional' && method === 'GET') {
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      if (
+        pathname === '/api/clients/client-professional/professional-status' &&
+        method === 'PUT'
+      ) {
+        professionalPayload = route.request().postDataJSON()
+        expect(route.request().headers()['x-csrf-token']).toBe(
+          headCoachSession.csrfToken,
+        )
+        expect(professionalPayload).toEqual({
+          IsProfessional: true,
+          ProfessionalComment: 'Кандидат сборной, льготный доступ',
+        })
+
+        client = {
+          ...client,
+          isProfessional: true,
+          professionalComment: 'Кандидат сборной, льготный доступ',
+          hasActivePaidMembership: true,
+          hasUnpaidCurrentMembership: false,
+          membershipWarning: false,
+          currentMembershipIsPaid: false,
+        }
+
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/clients/client-professional')
+
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: 'Профессионалов Льготный Статус',
+      }),
+    ).toBeVisible()
+    await page.getByRole('button', { name: 'Включить льготу' }).click()
+    await page
+      .getByLabel('Комментарий')
+      .fill('Кандидат сборной, льготный доступ')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Включить' })
+      .click()
+
+    await expect.poll(() => professionalPayload).toEqual({
+      IsProfessional: true,
+      ProfessionalComment: 'Кандидат сборной, льготный доступ',
+    })
+    await expect(
+      page.getByText('Профессионал', { exact: true }).first(),
+    ).toBeVisible()
+    await expect(
+      page
+        .getByLabel('Профессионал', { exact: true })
+        .getByText('Кандидат сборной, льготный доступ'),
+    ).toBeVisible()
+    await expect(page.getByText('Не оплачен')).toHaveCount(0)
+  })
+
+  test('Administrator не видит управление льготным статусом профессионала', async ({
+    page,
+  }) => {
+    const groups: GroupState[] = [...baseGroups]
+    const client: ClientState = {
+      ...baseClient,
+      id: 'client-admin-professional',
+      hasActivePaidMembership: false,
+      hasUnpaidCurrentMembership: true,
+      membershipWarning: true,
+      currentMembershipIsPaid: false,
+    }
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, administratorSession)
+        return true
+      }
+
+      if (pathname === '/api/clients/client-admin-professional' && method === 'GET') {
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/clients/client-admin-professional')
+
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Иванов Иван Иванович' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Включить льготу' }),
+    ).toHaveCount(0)
+    await expect(
+      page.getByRole('button', { name: 'Отключить льготу' }),
+    ).toHaveCount(0)
   })
 
   test('Создание клиента отображает backend errors.fullName под полем Фамилия', async ({
@@ -1382,6 +1515,18 @@ function buildClientsListPayload(
 function toClientPayload(client: ClientState, groups: GroupState[]) {
   const assignedGroups = groups.filter((group) => client.groupIds.includes(group.id))
   const membershipType = client.membershipType
+  const isProfessional = client.isProfessional ?? false
+  const currentMembershipIsPaid =
+    client.currentMembershipIsPaid ?? client.hasActivePaidMembership
+  const membershipState = isProfessional
+    ? 'ActivePaid'
+    : !membershipType
+      ? 'None'
+      : client.hasUnpaidCurrentMembership
+        ? 'Unpaid'
+        : client.hasActivePaidMembership
+          ? 'ActivePaid'
+          : 'Expired'
 
   return {
     id: client.id,
@@ -1404,17 +1549,13 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     contacts: client.contacts,
     groupIds: client.groupIds,
     photo: null,
+    isProfessional,
+    professionalComment: client.professionalComment ?? null,
     hasActivePaidMembership: client.hasActivePaidMembership,
     hasUnpaidCurrentMembership: client.hasUnpaidCurrentMembership,
     membershipWarning: client.membershipWarning,
     hasCurrentMembership: Boolean(membershipType),
-    membershipState: !membershipType
-      ? 'None'
-      : client.hasUnpaidCurrentMembership
-        ? 'Unpaid'
-        : client.hasActivePaidMembership
-          ? 'ActivePaid'
-          : 'Expired',
+    membershipState,
     lastVisitDate: addIsoDays(todayIso(), -1),
     currentMembershipSummary: membershipType
       ? {
@@ -1422,7 +1563,7 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
           membershipType,
           purchaseDate: addIsoDays(todayIso(), -20),
           expirationDate: client.expirationDate,
-          isPaid: client.hasActivePaidMembership,
+          isPaid: currentMembershipIsPaid,
           singleVisitUsed: false,
         }
       : null,
@@ -1433,7 +1574,7 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
           purchaseDate: addIsoDays(todayIso(), -20),
           expirationDate: client.expirationDate,
           paymentAmount: 4000,
-          isPaid: client.hasActivePaidMembership,
+          isPaid: currentMembershipIsPaid,
           singleVisitUsed: false,
           changedByUserName: 'Тест',
         }
@@ -1446,7 +1587,7 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
             purchaseDate: addIsoDays(todayIso(), -20),
             expirationDate: client.expirationDate,
             paymentAmount: 4000,
-            isPaid: client.hasActivePaidMembership,
+            isPaid: currentMembershipIsPaid,
             singleVisitUsed: false,
           },
         ]

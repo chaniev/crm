@@ -54,6 +54,7 @@ import type {
   MarkClientMembershipPaymentRequest,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
+  UpdateClientProfessionalStatusRequest,
   UpsertClientRequest,
 } from './types'
 
@@ -256,6 +257,24 @@ export async function restoreClient(clientId: string) {
   })
 }
 
+export async function updateClientProfessionalStatus(
+  clientId: string,
+  payload: UpdateClientProfessionalStatusRequest,
+) {
+  const response = await request<ClientResponsePayload | null>(
+    API_ENDPOINTS.clients.professionalStatus(clientId),
+    {
+      method: 'PUT',
+      body: JSON.stringify({
+        IsProfessional: payload.isProfessional,
+        ProfessionalComment: payload.professionalComment ?? null,
+      }),
+    },
+  )
+
+  return response ? mapClientDetails(response) : null
+}
+
 export async function purchaseClientMembership(
   clientId: string,
   payload: PurchaseClientMembershipRequest,
@@ -347,6 +366,10 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
   const fullName = buildClientFullName(payload)
   const currentMembership = mapClientCurrentMembership(payload)
   const currentMembershipSummary = currentMembership
+  const isProfessional =
+    readBoolean(payload, ['isProfessional', 'IsProfessional']) ?? false
+  const professionalComment =
+    readString(payload, ['professionalComment', 'ProfessionalComment']) ?? null
   const warningMessage =
     readString(payload, [
       'warning',
@@ -362,12 +385,24 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     readBoolean(payload, [
       'hasActivePaidMembership',
       'HasActivePaidMembership',
-    ]) ?? deriveHasActivePaidMembership(currentMembership, new Date().toISOString())
+    ]) ??
+    (isProfessional
+      ? true
+      : deriveHasActivePaidMembership(currentMembership, new Date().toISOString()))
   const hasUnpaidCurrentMembership =
     readBoolean(payload, [
       'hasUnpaidCurrentMembership',
       'HasUnpaidCurrentMembership',
-    ]) ?? (currentMembership ? !currentMembership.isPaid : false)
+    ]) ??
+    (isProfessional ? false : Boolean(currentMembership && !currentMembership.isPaid))
+  const derivedMembershipWarning =
+    !isProfessional &&
+    (Boolean(warningMessage) ||
+      deriveMembershipWarning(
+        currentMembership,
+        hasUnpaidCurrentMembership,
+        new Date().toISOString(),
+      ))
   const membershipWarning =
     readBoolean(payload, [
       'hasWarning',
@@ -380,13 +415,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
       'MembershipWarningVisible',
       'hasMembershipIssue',
       'HasMembershipIssue',
-    ]) ??
-    (Boolean(warningMessage) ||
-      deriveMembershipWarning(
-        currentMembership,
-        hasUnpaidCurrentMembership,
-        new Date().toISOString(),
-      ))
+    ]) ?? derivedMembershipWarning
 
   return {
     id: payload.id,
@@ -400,6 +429,8 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     groupCount: payload.groupCount ?? groups.length,
     groups,
     photo: mapClientPhoto(payload),
+    isProfessional,
+    professionalComment,
     hasActivePaidMembership,
     hasUnpaidCurrentMembership,
     membershipWarning,
@@ -411,6 +442,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
       Boolean(currentMembershipSummary),
     membershipState: mapClientMembershipState(
       readString(payload, ['membershipState', 'MembershipState']),
+      isProfessional,
       currentMembershipSummary,
       hasActivePaidMembership,
       hasUnpaidCurrentMembership,
@@ -447,6 +479,7 @@ function extractClientListCounts(payload: unknown) {
 
 function mapClientMembershipState(
   state: string | undefined,
+  isProfessional: boolean,
   currentMembership: ClientMembership | null,
   hasActivePaidMembership: boolean,
   hasUnpaidCurrentMembership: boolean,
@@ -459,6 +492,10 @@ function mapClientMembershipState(
     state === 'UsedSingleVisit'
   ) {
     return state
+  }
+
+  if (isProfessional) {
+    return 'ActivePaid'
   }
 
   if (!currentMembership) {

@@ -197,6 +197,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsProfessional")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("FirstName")
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
@@ -213,6 +216,10 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
+
+                    b.Property<string>("ProfessionalComment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
@@ -243,6 +250,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FirstName");
+
+                    b.HasIndex("IsProfessional");
 
                     b.HasIndex("LastName");
 

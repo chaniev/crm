@@ -13,6 +13,8 @@ internal sealed record ClientDetailsResponse(
     IReadOnlyList<ClientGroupSummaryResponse> Groups,
     IReadOnlyList<ClientContactResponse> Contacts,
     ClientPhotoSummaryResponse? Photo,
+    bool IsProfessional,
+    string? ProfessionalComment,
     bool HasActivePaidMembership,
     bool HasUnpaidCurrentMembership,
     ClientMembershipResponse? CurrentMembership,

@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+from datetime import date
+from uuid import UUID
+
 import httpx
 import pytest
 import respx
 
 from gym_crm_bot.crm.client import CrmBotApiClient
 from gym_crm_bot.crm.errors import CrmTemporaryError
-from gym_crm_bot.crm.models import TelegramIdentity
+from gym_crm_bot.crm.models import AttendanceMarkRequest, TelegramIdentity
 
 
 @pytest.mark.asyncio
@@ -105,4 +108,139 @@ async def test_crm_client_does_not_retry_mutations() -> None:
         )
 
     assert route.call_count == 1
+    await http_client.aclose()
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_crm_client_parses_professional_fields_without_local_payment_logic() -> None:
+    respx.get("http://crm.local/internal/bot/clients").mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "items": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000010",
+                        "fullName": "Проф Клиент",
+                        "isProfessional": True,
+                        "professionalComment": "Сборная",
+                        "hasActivePaidMembership": True,
+                        "hasUnpaidCurrentMembership": False,
+                    },
+                    {
+                        "id": "00000000-0000-0000-0000-000000000011",
+                        "fullName": "Обычный Клиент",
+                        "hasUnpaidCurrentMembership": True,
+                    },
+                ],
+                "skip": 0,
+                "take": 5,
+                "hasMore": False,
+            },
+        )
+    )
+    respx.get("http://crm.local/internal/bot/clients/00000000-0000-0000-0000-000000000010").mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "id": "00000000-0000-0000-0000-000000000010",
+                "fullName": "Проф Клиент",
+                "isProfessional": True,
+                "professionalComment": "Сборная",
+                "hasActivePaidMembership": True,
+                "hasUnpaidCurrentMembership": False,
+                "currentMembership": {
+                    "membershipType": "SingleVisit",
+                    "purchaseDate": "2026-05-01",
+                    "expirationDate": None,
+                    "isPaid": False,
+                },
+                "attendanceHistory": [],
+            },
+        )
+    )
+    http_client = httpx.AsyncClient(base_url="http://crm.local")
+    client = CrmBotApiClient(
+        base_url="http://crm.local",
+        service_token="service-token",
+        timeout_seconds=5,
+        http_client=http_client,
+    )
+
+    search = await client.search_clients(
+        TelegramIdentity(platform_user_id="777"),
+        query="Клиент",
+        page=1,
+        page_size=5,
+        request_id="req-prof-search",
+    )
+    card = await client.get_client_card(
+        TelegramIdentity(platform_user_id="777"),
+        client_id="00000000-0000-0000-0000-000000000010",
+        request_id="req-prof-card",
+    )
+
+    assert search.items[0].is_professional is True
+    assert search.items[0].professional_comment == "Сборная"
+    assert search.items[1].is_paid is None
+    assert card.is_professional is True
+    assert card.professional_comment == "Сборная"
+    assert card.current_membership is not None
+    assert card.current_membership.is_paid is False
+    await http_client.aclose()
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_crm_client_consumes_attendance_warnings_from_backend_only() -> None:
+    respx.post(
+        "http://crm.local/internal/bot/attendance/groups/00000000-0000-0000-0000-000000000021"
+    ).mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "groupName": "Группа",
+                "trainingDate": "2026-05-08",
+                "markedCount": 2,
+                "presentCount": 2,
+                "absentCount": 0,
+                "warnings": [
+                    {
+                        "clientId": "00000000-0000-0000-0000-000000000011",
+                        "fullName": "Обычный Клиент",
+                        "membershipWarning": "Абонемент не оплачен.",
+                        "hasUnpaidCurrentMembership": True,
+                    }
+                ],
+            },
+        )
+    )
+    http_client = httpx.AsyncClient(base_url="http://crm.local")
+    client = CrmBotApiClient(
+        base_url="http://crm.local",
+        service_token="service-token",
+        timeout_seconds=5,
+        http_client=http_client,
+    )
+
+    response = await client.save_attendance(
+        TelegramIdentity(platform_user_id="777"),
+        group_id=UUID("00000000-0000-0000-0000-000000000021"),
+        training_date=date(2026, 5, 8),
+        marks=[
+            AttendanceMarkRequest(
+                clientId=UUID("00000000-0000-0000-0000-000000000010"),
+                isPresent=True,
+            ),
+            AttendanceMarkRequest(
+                clientId=UUID("00000000-0000-0000-0000-000000000011"),
+                isPresent=True,
+            ),
+        ],
+        request_id="req-prof-attendance",
+        idempotency_key="idem-prof-attendance",
+    )
+
+    assert [warning.full_name for warning in response.warnings] == ["Обычный Клиент"]
+    assert "Проф Клиент" not in "\n".join(str(warning) for warning in response.warnings)
     await http_client.aclose()

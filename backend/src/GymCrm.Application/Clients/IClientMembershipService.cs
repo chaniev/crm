@@ -81,7 +81,8 @@ public enum SingleVisitWriteOffStatus
     CurrentMembershipMissing = 3,
     MembershipNotSingleVisit = 4,
     SingleVisitAlreadyUsed = 5,
-    MembershipPurchasedAfterTrainingDate = 6
+    MembershipPurchasedAfterTrainingDate = 6,
+    ClientIsProfessional = 7
 }
 
 public sealed record ClientMembershipDetailsResult(

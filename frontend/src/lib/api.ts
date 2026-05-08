@@ -78,6 +78,7 @@ export {
   renewClientMembership,
   restoreClient,
   updateClient,
+  updateClientProfessionalStatus,
   uploadClientPhoto,
 } from './api/clients'
 export {

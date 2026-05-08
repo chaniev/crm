@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
+from uuid import UUID
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -8,7 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from gym_crm_bot.config import Settings
 from gym_crm_bot.core.service import BotService
 from gym_crm_bot.crm.errors import CrmUserNotConfiguredError
-from gym_crm_bot.crm.models import BotUserContext, MenuItem, MenuResponse
+from gym_crm_bot.crm.models import (
+    AttendanceSaveResponse,
+    BotUserContext,
+    ClientCardMembership,
+    ClientCardResponse,
+    MenuItem,
+    MenuResponse,
+)
 from gym_crm_bot.storage.models import Base
 from gym_crm_bot.telegram.normalization import NormalizedTelegramEvent
 
@@ -31,6 +40,23 @@ class FakeCrmClient:
 
     async def audit_access_denied(self, identity, *, request_id: str, reason: str) -> None:  # noqa: ANN001
         return None
+
+
+@dataclass
+class FakeAttendanceCrmClient:
+    response: AttendanceSaveResponse
+
+    async def save_attendance(  # noqa: PLR0913
+        self,
+        identity: object,
+        *,
+        group_id: UUID,
+        training_date: date,
+        marks: list[object],
+        request_id: str,
+        idempotency_key: str,
+    ) -> AttendanceSaveResponse:
+        return self.response
 
 
 @pytest.fixture()
@@ -111,3 +137,78 @@ async def test_start_for_known_user_returns_menu(
     assert response.reply_markup is not None
     assert response.reply_markup.inline_keyboard[0][0].callback_data == "menu|attendance"
 
+
+def test_professional_client_card_uses_backend_status_label_without_unpaid_text() -> None:
+    card = ClientCardResponse(
+        id="00000000-0000-0000-0000-000000000010",
+        fullName="Проф Клиент",
+        isProfessional=True,
+        professionalComment="Сборная",
+        currentMembership=ClientCardMembership(
+            membershipType="SingleVisit",
+            purchaseDate="2026-05-01",
+            expirationDate=None,
+            isPaid=False,
+        ),
+    )
+
+    text = BotService._render_client_card(card)
+
+    assert "Профессионал: Сборная" in text
+    assert "оплачен: льгота" in text
+    assert "оплачен: нет" not in text
+
+
+@pytest.mark.asyncio
+async def test_attendance_save_omits_warning_block_when_backend_returns_no_warnings(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeAttendanceCrmClient(
+            AttendanceSaveResponse(
+                groupName="Группа",
+                trainingDate=date(2026, 5, 8),
+                markedCount=1,
+                presentCount=1,
+                absentCount=0,
+                warnings=[],
+            )
+        ),
+        session_factory=session_factory,
+    )
+    event = NormalizedTelegramEvent(
+        update_id=3,
+        event_key="callback:3",
+        chat_id=10,
+        chat_type="private",
+        platform_user_id="777",
+        kind="callback",
+        callback_data="asv",
+    )
+    await service._save_state(
+        event,
+        "attendance",
+        {
+            "step": "draft",
+            "training_date": "2026-05-08",
+            "group_id": "00000000-0000-0000-0000-000000000021",
+            "group_name": "Группа",
+            "marks": [
+                {
+                    "client_id": "00000000-0000-0000-0000-000000000010",
+                    "full_name": "Проф Клиент",
+                    "is_present": True,
+                    "warning": None,
+                    "has_unpaid_membership": False,
+                }
+            ],
+        },
+    )
+
+    response = await service._save_attendance(event)
+
+    assert "Посещения сохранены." in response.text
+    assert "Предупреждения" not in response.text
+    assert "Проф Клиент" not in response.text
