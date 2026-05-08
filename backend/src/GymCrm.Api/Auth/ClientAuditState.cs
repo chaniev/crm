@@ -7,6 +7,8 @@ internal sealed record ClientAuditState(
     string? MiddleName,
     string Phone,
     string? Notes,
+    bool IsProfessional,
+    string? ProfessionalComment,
     string Status,
     IReadOnlyList<ClientContactAuditState> Contacts,
     IReadOnlyList<Guid> GroupIds,

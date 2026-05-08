@@ -252,9 +252,19 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.InvalidRequest);
         }
 
-        if (!await ClientExistsAsync(clientId, cancellationToken))
+        var professionalStatus = await dbContext.Clients
+            .AsNoTracking()
+            .Where(client => client.Id == clientId)
+            .Select(client => new { client.IsProfessional })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (professionalStatus is null)
         {
             return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.ClientMissing);
+        }
+
+        if (professionalStatus.IsProfessional)
+        {
+            return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.ClientIsProfessional);
         }
 
         var currentMembership = await LoadCurrentMembershipAsync(clientId, cancellationToken);

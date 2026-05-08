@@ -567,7 +567,6 @@ public class ClientsApiTests
                 ? seeded.HeadCoachLogin
                 : seeded.AdministratorLogin,
             seeded.SharedPassword);
-
         async Task<Guid> CreateClientWithMembershipAsync(
             string lastName,
             MembershipType membershipType,
@@ -1186,6 +1185,12 @@ public class ClientsApiTests
                 ? seeded.HeadCoachLogin
                 : seeded.AdministratorLogin,
             seeded.SharedPassword);
+        using var headCoachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var headCoachSession = await LoginAsync(headCoachClient, seeded.HeadCoachLogin, seeded.SharedPassword);
 
         async Task<Guid> CreateClientForFilterAsync(
             string lastName,
@@ -1267,6 +1272,7 @@ public class ClientsApiTests
 
         var paidClientId = await CreateClientForFilterAsync("Иванов", "Платный", "+79990004001", [seeded.GroupOneId]);
         var unpaidClientId = await CreateClientForFilterAsync("Петров", "Неоплаченный", "+79990004002", [seeded.GroupTwoId]);
+        var professionalClientId = await CreateClientForFilterAsync("Профессионалов", "Льготный", "+79990004004", [seeded.GroupOneId]);
         var noGroupNoPhotoClientId = await CreateClientForFilterAsync("Сидоров", "Без", "+79990004003", []);
 
         using (var paidPhotoResponse = await PostPhotoAsync(
@@ -1312,6 +1318,36 @@ public class ClientsApiTests
                    actorSession.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.OK, unpaidMembershipResponse.StatusCode);
+        }
+
+        using (var professionalMembershipResponse = await SendMembershipActionAsync(
+                   client,
+                   "purchase",
+                   professionalClientId,
+                   new
+                   {
+                       MembershipType = "Monthly",
+                       PurchaseDate = today.ToString("yyyy-MM-dd"),
+                       ExpirationDate = today.AddMonths(1).ToString("yyyy-MM-dd"),
+                       PaymentAmount = 500m,
+                       IsPaid = false
+                   },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, professionalMembershipResponse.StatusCode);
+        }
+
+        using (var professionalStatusResponse = await PutJsonAsync(
+                   headCoachClient,
+                   $"/clients/{professionalClientId}/professional-status",
+                   new
+                   {
+                       IsProfessional = true,
+                       ProfessionalComment = "Фильтры должны считать клиента оплаченным"
+                   },
+                   headCoachSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, professionalStatusResponse.StatusCode);
         }
 
         var fullNameSearch = await QueryClientIdsAsync($"?fullName={Uri.EscapeDataString("Иванов")}");
@@ -1382,15 +1418,21 @@ public class ClientsApiTests
         var activeStatus = await QueryClientIdsAsync("?status=Active");
         Assert.Contains(paidClientId, activeStatus);
         Assert.Contains(unpaidClientId, activeStatus);
+        Assert.Contains(professionalClientId, activeStatus);
         Assert.Contains(noGroupNoPhotoClientId, activeStatus);
 
         var groupOneClients = await QueryClientIdsAsync($"?groupId={seeded.GroupOneId}");
-        Assert.Single(groupOneClients);
-        Assert.Equal(paidClientId, groupOneClients[0]);
+        Assert.Contains(paidClientId, groupOneClients);
+        Assert.Contains(professionalClientId, groupOneClients);
 
         var activePaid = await QueryClientIdsAsync("?paymentStatus=Paid");
-        Assert.Single(activePaid);
-        Assert.Equal(paidClientId, activePaid[0]);
+        Assert.Contains(paidClientId, activePaid);
+        Assert.Contains(professionalClientId, activePaid);
+        Assert.DoesNotContain(unpaidClientId, activePaid);
+
+        var unpaidStatus = await QueryClientIdsAsync("?paymentStatus=Unpaid");
+        Assert.Contains(unpaidClientId, unpaidStatus);
+        Assert.DoesNotContain(professionalClientId, unpaidStatus);
 
         var membershipRange = await QueryClientIdsAsync(
             $"?membershipExpiresFrom={today.AddDays(25):yyyy-MM-dd}&membershipExpiresTo={today.AddDays(35):yyyy-MM-dd}");
@@ -1415,6 +1457,15 @@ public class ClientsApiTests
         Assert.Contains(unpaidClientId, withoutActivePaid);
         Assert.Contains(noGroupNoPhotoClientId, withoutActivePaid);
         Assert.DoesNotContain(paidClientId, withoutActivePaid);
+        Assert.DoesNotContain(professionalClientId, withoutActivePaid);
+
+        var activeMembershipState = await QueryClientIdsAsync("?membershipState=ActivePaid");
+        Assert.Contains(paidClientId, activeMembershipState);
+        Assert.Contains(professionalClientId, activeMembershipState);
+
+        var unpaidMembershipState = await QueryClientIdsAsync("?membershipState=Unpaid");
+        Assert.Contains(unpaidClientId, unpaidMembershipState);
+        Assert.DoesNotContain(professionalClientId, unpaidMembershipState);
 
         var withoutCurrentMembership = await QueryClientIdsAsync("?hasCurrentMembership=false");
         Assert.Contains(noGroupNoPhotoClientId, withoutCurrentMembership);
@@ -2194,6 +2245,147 @@ public class ClientsApiTests
                 $"Пользователь '{seeded.HeadCoachLogin}' отметил оплату абонемента клиента 'Membership Client Tests'."
             ],
             membershipActionLogs.Select(log => log.Description));
+    }
+
+    [Fact]
+    public async Task HeadCoach_can_toggle_professional_status_and_client_payloads_include_audit_state()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+        var operationStartedAt = DateTimeOffset.UtcNow;
+
+        using (var invalidResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{clientId}/professional-status",
+                   new
+                   {
+                       IsProfessional = true,
+                       ProfessionalComment = "   "
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, invalidResponse.StatusCode);
+            var validationPayload = await ReadJsonElementAsync(invalidResponse);
+            Assert.True(validationPayload.GetProperty("errors").TryGetProperty("professionalComment", out _));
+        }
+
+        using (var enableResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{clientId}/professional-status",
+                   new
+                   {
+                       IsProfessional = true,
+                       ProfessionalComment = "Кандидат сборной, льготный доступ"
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, enableResponse.StatusCode);
+            var enablePayload = await ReadJsonElementAsync(enableResponse);
+            Assert.True(GetBoolFromAnyCase(enablePayload, "isProfessional", "IsProfessional"));
+            Assert.Equal(
+                "Кандидат сборной, льготный доступ",
+                GetStringFromAnyCase(enablePayload, "professionalComment", "ProfessionalComment"));
+            Assert.True(GetBoolFromAnyCase(enablePayload, "hasActivePaidMembership", "HasActivePaidMembership"));
+            Assert.False(GetBoolFromAnyCase(enablePayload, "hasUnpaidCurrentMembership", "HasUnpaidCurrentMembership"));
+        }
+
+        using (var listResponse = await client.GetAsync($"/clients?query={Uri.EscapeDataString("Membership")}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+            var listPayload = await ReadJsonElementAsync(listResponse);
+            var item = GetArrayPayload(listPayload, "items", "clients").EnumerateArray().Single();
+            Assert.True(GetBoolFromAnyCase(item, "isProfessional", "IsProfessional"));
+            Assert.Equal(
+                "Кандидат сборной, льготный доступ",
+                GetStringFromAnyCase(item, "professionalComment", "ProfessionalComment"));
+            Assert.Equal("ActivePaid", GetStringFromAnyCase(item, "membershipState", "MembershipState"));
+        }
+
+        using (var disableResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{clientId}/professional-status",
+                   new
+                   {
+                       IsProfessional = false,
+                       ProfessionalComment = (string?)null
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, disableResponse.StatusCode);
+            var disablePayload = await ReadJsonElementAsync(disableResponse);
+            Assert.False(GetBoolFromAnyCase(disablePayload, "isProfessional", "IsProfessional"));
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(disablePayload, "professionalComment", "ProfessionalComment").ValueKind);
+        }
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var logs = await dbContext.AuditLogs
+            .Where(log => log.EntityId == clientId.ToString() && log.CreatedAt >= operationStartedAt)
+            .OrderBy(log => log.CreatedAt)
+            .ToListAsync();
+
+        Assert.Equal(
+            ["ClientProfessionalStatusEnabled", "ClientProfessionalStatusDisabled"],
+            logs.Select(log => log.ActionType));
+        Assert.All(logs, log => Assert.Equal("Client", log.EntityType));
+
+        var enableLog = logs.Single(log => log.ActionType == "ClientProfessionalStatusEnabled");
+        AssertProfessionalAuditPayload(enableLog.OldValueJson, expectedIsProfessional: false, expectedComment: null);
+        AssertProfessionalAuditPayload(
+            enableLog.NewValueJson,
+            expectedIsProfessional: true,
+            expectedComment: "Кандидат сборной, льготный доступ");
+
+        var disableLog = logs.Single(log => log.ActionType == "ClientProfessionalStatusDisabled");
+        AssertProfessionalAuditPayload(disableLog.OldValueJson, expectedIsProfessional: true, expectedComment: "Кандидат сборной, льготный доступ");
+        AssertProfessionalAuditPayload(disableLog.NewValueJson, expectedIsProfessional: false, expectedComment: null);
+    }
+
+    [Theory]
+    [InlineData("Administrator")]
+    [InlineData("Coach")]
+    public async Task Only_headcoach_can_toggle_professional_status(string actorRole)
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var headCoachSession = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, headCoachSession.CsrfToken, seeded.GroupOneId);
+        var actorLogin = actorRole == "Administrator"
+            ? seeded.AdministratorLogin
+            : seeded.CoachLogin;
+        var actorSession = await LoginAsync(client, actorLogin, seeded.SharedPassword);
+
+        using var response = await PutJsonAsync(
+            client,
+            $"/clients/{clientId}/professional-status",
+            new
+            {
+                IsProfessional = true,
+                ProfessionalComment = "Недостаточно прав"
+            },
+            actorSession.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var persistedClient = await dbContext.Clients.SingleAsync(candidate => candidate.Id == clientId);
+        Assert.False(persistedClient.IsProfessional);
+        Assert.Null(persistedClient.ProfessionalComment);
     }
 
     [Fact]
@@ -3057,6 +3249,29 @@ public class ClientsApiTests
 
         Assert.Equal(JsonValueKind.String, notes.ValueKind);
         Assert.Equal(expectedNotes, notes.GetString());
+    }
+
+    private static void AssertProfessionalAuditPayload(
+        string? payload,
+        bool expectedIsProfessional,
+        string? expectedComment)
+    {
+        Assert.NotNull(payload);
+
+        using var document = JsonDocument.Parse(payload!);
+        Assert.Equal(
+            (bool?)expectedIsProfessional,
+            GetBoolFromAnyCase(document.RootElement, "isProfessional", "IsProfessional"));
+        var comment = GetPropertyOrNull(document.RootElement, "professionalComment", "ProfessionalComment");
+
+        if (expectedComment is null)
+        {
+            Assert.True(comment.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined);
+            return;
+        }
+
+        Assert.Equal(JsonValueKind.String, comment.ValueKind);
+        Assert.Equal(expectedComment, comment.GetString());
     }
 
     private static void AssertNoPasswordInAuditState(string? payload)

@@ -991,6 +991,7 @@ function RouteViewport({
     return (
       <ClientDetailScreen
         canManage={user.permissions.canManageClients}
+        canToggleProfessional={user.role === 'HeadCoach'}
         clientId={route.clientId}
         onBack={onReturnToClients}
         onEdit={onEditClient}

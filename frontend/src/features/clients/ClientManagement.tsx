@@ -52,6 +52,7 @@ import {
   renewClientMembership,
   restoreClient,
   uploadClientPhoto,
+  updateClientProfessionalStatus,
   type ClientAttendanceHistoryEntry,
   updateClient,
   type ClientMembership,
@@ -473,6 +474,7 @@ export function ClientEditScreen({
 type ClientDetailScreenProps = {
   clientId: string
   canManage: boolean
+  canToggleProfessional: boolean
   onBack: () => void
   onEdit: (clientId: string) => void
 }
@@ -480,6 +482,7 @@ type ClientDetailScreenProps = {
 export function ClientDetailScreen({
   clientId,
   canManage,
+  canToggleProfessional,
   onBack,
   onEdit,
 }: ClientDetailScreenProps) {
@@ -489,6 +492,8 @@ export function ClientDetailScreen({
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionPending, setActionPending] = useState(false)
   const [archiveConfirmOpened, setArchiveConfirmOpened] = useState(false)
+  const [professionalModalOpened, setProfessionalModalOpened] = useState(false)
+  const [professionalComment, setProfessionalComment] = useState('')
   const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const [membershipActionMode, setMembershipActionMode] =
     useState<MembershipActionMode | null>(null)
@@ -569,6 +574,54 @@ export function ClientDetailScreen({
         error instanceof Error
           ? error.message
           : 'Не удалось изменить статус клиента.',
+      )
+    } finally {
+      setActionPending(false)
+    }
+  }
+
+  function openProfessionalModal() {
+    if (!client) {
+      return
+    }
+
+    setProfessionalComment(client.professionalComment ?? '')
+    setProfessionalModalOpened(true)
+    setActionError(null)
+  }
+
+  async function submitProfessionalStatus(isProfessional: boolean) {
+    if (!client) {
+      return
+    }
+
+    setActionPending(true)
+    setActionError(null)
+
+    try {
+      const updatedClient = await updateClientProfessionalStatus(client.id, {
+        isProfessional,
+        professionalComment: isProfessional ? professionalComment : null,
+      })
+
+      setClient(updatedClient ?? (await getClient(client.id)))
+      setProfessionalModalOpened(false)
+      setMembershipActionMode(null)
+
+      notifications.show({
+        title: isProfessional
+          ? 'Признак профессионала включен'
+          : 'Признак профессионала отключен',
+        message: isProfessional
+          ? 'Клиент отображается как льготный оплаченный.'
+          : 'Карточка снова использует обычный статус абонемента.',
+        color: 'teal',
+      })
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : 'Не удалось изменить признак профессионала.',
       )
     } finally {
       setActionPending(false)
@@ -681,6 +734,42 @@ export function ClientDetailScreen({
         />
       ) : null}
 
+      {canToggleProfessional && client ? (
+        <Modal
+          centered
+          onClose={() => setProfessionalModalOpened(false)}
+          opened={professionalModalOpened}
+          radius="8px"
+          title="Признак профессионала"
+        >
+          <Stack gap="md">
+            <Textarea
+              autosize
+              label="Комментарий"
+              minRows={3}
+              onChange={(event) => setProfessionalComment(event.currentTarget.value)}
+              placeholder="Основание льготного оплаченного статуса"
+              value={professionalComment}
+            />
+            <Group justify="flex-end" wrap="wrap">
+              <Button
+                disabled={actionPending}
+                onClick={() => setProfessionalModalOpened(false)}
+                variant="subtle"
+              >
+                Отменить
+              </Button>
+              <Button
+                loading={actionPending}
+                onClick={() => void submitProfessionalStatus(true)}
+              >
+                Включить
+              </Button>
+            </Group>
+          </Stack>
+        </Modal>
+      ) : null}
+
       <ClientHero
         action={
           <ResponsiveButtonGroup>
@@ -692,32 +781,32 @@ export function ClientDetailScreen({
               К списку клиентов
             </Button>
             {canManage && client ? (
-              <>
-                <Button
-                  leftSection={<IconEdit size={18} />}
-                  onClick={() => onEdit(client.id)}
-                  variant="light"
-                >
-                  Редактировать
-                </Button>
-                <Button
-                  color={client.status === 'Active' ? 'gray' : 'teal'}
-                  leftSection={
-                    client.status === 'Active' ? (
-                      <IconArchive size={18} />
-                    ) : (
-                      <IconRefresh size={18} />
-                    )
-                  }
-                  loading={actionPending}
-                  onClick={() => setArchiveConfirmOpened(true)}
-                  variant="light"
-                >
-                  {client.status === 'Active'
-                    ? 'В архив'
-                    : 'Вернуть в активные'}
-                </Button>
-              </>
+              <Button
+                leftSection={<IconEdit size={18} />}
+                onClick={() => onEdit(client.id)}
+                variant="light"
+              >
+                Редактировать
+              </Button>
+            ) : null}
+            {canManage && client ? (
+              <Button
+                color={client.status === 'Active' ? 'gray' : 'teal'}
+                leftSection={
+                  client.status === 'Active' ? (
+                    <IconArchive size={18} />
+                  ) : (
+                    <IconRefresh size={18} />
+                  )
+                }
+                loading={actionPending}
+                onClick={() => setArchiveConfirmOpened(true)}
+                variant="light"
+              >
+                {client.status === 'Active'
+                  ? 'В архив'
+                  : 'Вернуть в активные'}
+              </Button>
             ) : null}
           </ResponsiveButtonGroup>
         }
@@ -767,10 +856,13 @@ export function ClientDetailScreen({
 
           <ClientOverviewSection
             canManage={canManage}
+            canToggleProfessional={canToggleProfessional}
             client={client}
             membershipActionMode={membershipActionMode}
             onMembershipActionModeChange={toggleMembershipActionMode}
             onPhotoUpload={canManage ? handlePhotoUpload : undefined}
+            onProfessionalDisable={() => void submitProfessionalStatus(false)}
+            onProfessionalEnable={openProfessionalModal}
             pending={actionPending}
             photoVersion={photoVersion}
           />
@@ -944,20 +1036,26 @@ type ClientFormProps = {
 
 type ClientOverviewSectionProps = {
   canManage: boolean
+  canToggleProfessional: boolean
   client: ClientDetails
   membershipActionMode: MembershipActionMode | null
   onMembershipActionModeChange: (mode: MembershipActionMode) => void
   onPhotoUpload?: (file: File) => Promise<void>
+  onProfessionalDisable: () => void
+  onProfessionalEnable: () => void
   pending: boolean
   photoVersion: number | null
 }
 
 function ClientOverviewSection({
   canManage,
+  canToggleProfessional,
   client,
   membershipActionMode,
   onMembershipActionModeChange,
   onPhotoUpload,
+  onProfessionalDisable,
+  onProfessionalEnable,
   pending,
   photoVersion,
 }: ClientOverviewSectionProps) {
@@ -989,16 +1087,39 @@ function ClientOverviewSection({
               </Title>
             </div>
 
-            {canManage ? (
-              <Badge
-                color={client.status === 'Active' ? 'teal' : 'gray'}
-                radius="sm"
-                size="lg"
-                variant="light"
-              >
-                {statusLabelMap[client.status]}
-              </Badge>
-            ) : null}
+            <Group gap="xs" justify="flex-end" wrap="wrap">
+              {canManage ? (
+                <Badge
+                  color={client.status === 'Active' ? 'teal' : 'gray'}
+                  radius="sm"
+                  size="lg"
+                  variant="light"
+                >
+                  {statusLabelMap[client.status]}
+                </Badge>
+              ) : null}
+              {client.isProfessional ? (
+                <Badge color="blue" radius="sm" size="lg" variant="light">
+                  Профессионал
+                </Badge>
+              ) : null}
+              {canToggleProfessional ? (
+                <Button
+                  color={client.isProfessional ? 'gray' : 'blue'}
+                  disabled={pending}
+                  leftSection={<IconUserHeart size={16} />}
+                  onClick={
+                    client.isProfessional
+                      ? onProfessionalDisable
+                      : onProfessionalEnable
+                  }
+                  size="xs"
+                  variant="light"
+                >
+                  {client.isProfessional ? 'Отключить льготу' : 'Включить льготу'}
+                </Button>
+              ) : null}
+            </Group>
           </Group>
 
           {!canManage ? (
@@ -1010,6 +1131,17 @@ function ClientOverviewSection({
             >
               Видны фото, ФИО, рабочая заметка, назначенные группы и история
               посещений.
+            </Alert>
+          ) : null}
+
+          {client.isProfessional ? (
+            <Alert
+              color="blue"
+              icon={<IconUserHeart size={18} />}
+              title="Профессионал"
+              variant="light"
+            >
+              {client.professionalComment || 'Льготный оплаченный статус'}
             </Alert>
           ) : null}
 
@@ -1035,8 +1167,10 @@ function ClientOverviewSection({
             <ClientMembershipSnapshot
               actionMode={membershipActionMode}
               currentMembership={client.currentMembership}
+              isProfessional={client.isProfessional}
               onActionModeChange={onMembershipActionModeChange}
               pending={pending}
+              professionalComment={client.professionalComment}
             />
           ) : null}
         </Stack>
@@ -1060,16 +1194,38 @@ function ClientOverviewSection({
 type ClientMembershipSnapshotProps = {
   actionMode: MembershipActionMode | null
   currentMembership: ClientMembership | null
+  isProfessional: boolean
   onActionModeChange: (mode: MembershipActionMode) => void
   pending: boolean
+  professionalComment: string | null
 }
 
 function ClientMembershipSnapshot({
   actionMode,
   currentMembership,
+  isProfessional,
   onActionModeChange,
   pending,
+  professionalComment,
 }: ClientMembershipSnapshotProps) {
+  if (isProfessional) {
+    return (
+      <Paper className="client-membership-snapshot" radius="8px" withBorder>
+        <Group justify="space-between" wrap="wrap">
+          <div>
+            <Text fw={700}>Льготный оплаченный статус</Text>
+            <Text c="dimmed" size="sm">
+              {professionalComment || 'Профессионал не попадает в должники.'}
+            </Text>
+          </div>
+          <Badge color="blue" radius="sm" variant="light">
+            Профессионал
+          </Badge>
+        </Group>
+      </Paper>
+    )
+  }
+
   if (!currentMembership) {
     return (
       <Paper className="client-membership-snapshot" radius="8px" withBorder>
@@ -1695,6 +1851,7 @@ function ClientMembershipSection({
 }: ClientMembershipSectionProps) {
   const currentMembership = client.currentMembership
   const history = [...client.membershipHistory].sort(compareMembershipHistory)
+  const canEditMembership = !client.isProfessional
 
   return (
     <Paper className="surface-card surface-card--wide client-detail-card client-membership-card" radius="8px" withBorder>
@@ -1712,7 +1869,7 @@ function ClientMembershipSection({
           </Badge>
         </Group>
 
-        {actionMode === 'purchase' ? (
+        {canEditMembership && actionMode === 'purchase' ? (
           <MembershipEditPanel
             key={`purchase-${currentMembership?.id ?? 'empty'}`}
             currentMembership={currentMembership}
@@ -1723,7 +1880,7 @@ function ClientMembershipSection({
           />
         ) : null}
 
-        {actionMode === 'renew' && currentMembership ? (
+        {canEditMembership && actionMode === 'renew' && currentMembership ? (
           <MembershipRenewPanel
             key={`renew-${currentMembership.id}`}
             currentMembership={currentMembership}
@@ -1733,7 +1890,7 @@ function ClientMembershipSection({
           />
         ) : null}
 
-        {actionMode === 'correct' && currentMembership ? (
+        {canEditMembership && actionMode === 'correct' && currentMembership ? (
           <MembershipEditPanel
             key={`correct-${currentMembership.id}`}
             currentMembership={currentMembership}
@@ -1744,7 +1901,7 @@ function ClientMembershipSection({
           />
         ) : null}
 
-        {actionMode === 'markPayment' && currentMembership && !currentMembership.isPaid ? (
+        {canEditMembership && actionMode === 'markPayment' && currentMembership && !currentMembership.isPaid ? (
           <MembershipMarkPaymentPanel
             currentMembership={currentMembership}
             pending={pending}
@@ -1800,13 +1957,19 @@ function ClientMembershipSection({
                       <Text size="sm">{formatCurrencyValue(membership.paymentAmount)}</Text>
                     </Table.Td>
                     <Table.Td>
-                      <Badge
-                        color={membership.isPaid ? 'teal' : 'red'}
-                        radius="sm"
-                        variant="light"
-                      >
-                        {membership.isPaid ? 'Оплачен' : 'Не оплачен'}
-                      </Badge>
+                      {client.isProfessional && !membership.validTo ? (
+                        <Badge color="blue" radius="sm" variant="light">
+                          Льгота
+                        </Badge>
+                      ) : (
+                        <Badge
+                          color={membership.isPaid ? 'teal' : 'red'}
+                          radius="sm"
+                          variant="light"
+                        >
+                          {membership.isPaid ? 'Оплачен' : 'Не оплачен'}
+                        </Badge>
+                      )}
                     </Table.Td>
                     <Table.Td>
                       <Text c="dimmed" size="sm">

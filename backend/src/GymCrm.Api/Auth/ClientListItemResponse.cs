@@ -12,6 +12,8 @@ internal sealed record ClientListItemResponse(
     IReadOnlyList<ClientGroupSummaryResponse> Groups,
     int ContactCount,
     ClientPhotoSummaryResponse? Photo,
+    bool IsProfessional,
+    string? ProfessionalComment,
     bool HasActivePaidMembership,
     bool HasUnpaidCurrentMembership,
     CurrentMembershipSummaryResponse? CurrentMembershipSummary,

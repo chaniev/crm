@@ -233,12 +233,12 @@ internal sealed class BotApiService(
             .Select(client =>
             {
                 var currentMembership = GetCurrentMembership(client);
-                var membershipWarning = EvaluateMembershipWarning(currentMembership, trainingDate);
+                var membershipWarning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
                 return new BotAttendanceClientWarning(
                     client.Id,
                     BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
                     membershipWarning.Message,
-                    currentMembership is not null && !currentMembership.IsPaid);
+                    ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership));
             })
             .Where(item => item.MembershipWarning is not null || item.HasUnpaidCurrentMembership)
             .OrderBy(item => item.FullName, StringComparer.CurrentCulture)
@@ -435,6 +435,7 @@ internal sealed class BotApiService(
                 client.LastName,
                 client.FirstName,
                 client.MiddleName,
+                client.IsProfessional,
                 CurrentMembership = client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
@@ -495,6 +496,7 @@ internal sealed class BotApiService(
                 client.LastName,
                 client.FirstName,
                 client.MiddleName,
+                client.IsProfessional,
                 CurrentMembership = client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
@@ -509,7 +511,10 @@ internal sealed class BotApiService(
                     })
                     .FirstOrDefault()
             })
-            .Where(candidate => candidate.CurrentMembership != null && !candidate.CurrentMembership.IsPaid)
+            .Where(candidate =>
+                !candidate.IsProfessional &&
+                candidate.CurrentMembership != null &&
+                !candidate.CurrentMembership.IsPaid)
             .OrderBy(candidate => candidate.LastName ?? string.Empty)
             .ThenBy(candidate => candidate.FirstName ?? string.Empty)
             .ThenBy(candidate => candidate.MiddleName ?? string.Empty)
@@ -932,7 +937,7 @@ internal sealed class BotApiService(
         var visibleGroups = currentUser.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
             : client.Groups.AsEnumerable();
-        var warning = EvaluateMembershipWarning(currentMembership, trainingDate);
+        var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
         var isPresent = client.AttendanceEntries.Any(attendance =>
             attendance.GroupId == groupId &&
             attendance.TrainingDate == trainingDate &&
@@ -944,10 +949,16 @@ internal sealed class BotApiService(
             MapGroups(visibleGroups),
             MapPhoto(client),
             isPresent,
+            client.IsProfessional,
+            client.ProfessionalComment,
             warning.HasWarning,
             warning.Message,
-            currentMembership is not null && !currentMembership.IsPaid,
-            HasActivePaidMembership(currentMembership, trainingDate));
+            ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
+            ClientMembershipSemantics.HasActivePaidMembership(
+                client.IsProfessional,
+                currentMembership,
+                trainingDate,
+                requirePurchaseDateReached: true));
     }
 
     private static BotClientListItem MapClientListItem(
@@ -956,7 +967,7 @@ internal sealed class BotApiService(
         DateOnly trainingDate)
     {
         var currentMembership = GetCurrentMembership(client);
-        var warning = EvaluateMembershipWarning(currentMembership, trainingDate);
+        var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
         var groups = user.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == user.Id))
             : client.Groups.AsEnumerable();
@@ -968,10 +979,16 @@ internal sealed class BotApiService(
             client.Status.ToString(),
             MapGroups(groups),
             MapPhoto(client),
+            client.IsProfessional,
+            client.ProfessionalComment,
             warning.HasWarning,
             warning.Message,
-            currentMembership is not null && !currentMembership.IsPaid,
-            HasActivePaidMembership(currentMembership, trainingDate));
+            ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
+            ClientMembershipSemantics.HasActivePaidMembership(
+                client.IsProfessional,
+                currentMembership,
+                trainingDate,
+                requirePurchaseDateReached: true));
     }
 
     private static BotClientCard MapClientCard(
@@ -981,7 +998,7 @@ internal sealed class BotApiService(
         IReadOnlyList<BotAttendanceHistoryItem> attendanceHistory)
     {
         var currentMembership = GetCurrentMembership(client);
-        var warning = EvaluateMembershipWarning(currentMembership, trainingDate);
+        var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
         var groups = user.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == user.Id))
             : client.Groups.AsEnumerable();
@@ -993,10 +1010,16 @@ internal sealed class BotApiService(
             client.Status.ToString(),
             MapGroups(groups),
             MapPhoto(client),
+            client.IsProfessional,
+            client.ProfessionalComment,
             warning.HasWarning,
             warning.Message,
-            currentMembership is not null && !currentMembership.IsPaid,
-            HasActivePaidMembership(currentMembership, trainingDate),
+            ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
+            ClientMembershipSemantics.HasActivePaidMembership(
+                client.IsProfessional,
+                currentMembership,
+                trainingDate,
+                requirePurchaseDateReached: true),
             user.Role == UserRole.Coach || currentMembership is null
                 ? null
                 : new BotClientMembership(
@@ -1043,31 +1066,38 @@ internal sealed class BotApiService(
     }
 
     private static MembershipWarningResult EvaluateMembershipWarning(
+        bool isProfessional,
         ClientMembership? membership,
         DateOnly trainingDate)
     {
-        if (membership is null)
+        var issues = ClientMembershipSemantics.EvaluateIssues(isProfessional, membership, trainingDate);
+        if (issues.Count == 0)
+        {
+            return new MembershipWarningResult(false, null);
+        }
+
+        if (issues.Contains(ClientMembershipIssue.NoCurrentMembership))
         {
             return new MembershipWarningResult(true, "У клиента нет текущего абонемента.");
         }
 
         var messages = new List<string>();
-        if (membership.PurchaseDate > trainingDate)
+        if (issues.Contains(ClientMembershipIssue.PurchasedAfterTrainingDate))
         {
             messages.Add("абонемент куплен позже выбранной даты");
         }
 
-        if (!membership.IsPaid)
+        if (issues.Contains(ClientMembershipIssue.Unpaid))
         {
             messages.Add("абонемент не оплачен");
         }
 
-        if (membership.MembershipType == MembershipType.SingleVisit && membership.SingleVisitUsed)
+        if (issues.Contains(ClientMembershipIssue.SingleVisitAlreadyUsed))
         {
             messages.Add("разовое посещение уже списано");
         }
 
-        if (membership.ExpirationDate.HasValue && membership.ExpirationDate.Value < trainingDate)
+        if (issues.Contains(ClientMembershipIssue.Expired))
         {
             messages.Add("абонемент истек");
         }
@@ -1075,23 +1105,6 @@ internal sealed class BotApiService(
         return messages.Count == 0
             ? new MembershipWarningResult(false, null)
             : new MembershipWarningResult(true, $"Проверьте абонемент: {string.Join(", ", messages)}.");
-    }
-
-    private static bool HasActivePaidMembership(
-        ClientMembership? membership,
-        DateOnly trainingDate)
-    {
-        if (membership is null || !membership.IsPaid || membership.PurchaseDate > trainingDate)
-        {
-            return false;
-        }
-
-        if (membership.ExpirationDate.HasValue && membership.ExpirationDate.Value < trainingDate)
-        {
-            return false;
-        }
-
-        return membership.MembershipType != MembershipType.SingleVisit || !membership.SingleVisitUsed;
     }
 
     private static ClientMembership? GetCurrentMembership(Client client)

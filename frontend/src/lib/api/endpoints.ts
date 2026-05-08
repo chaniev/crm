@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     photo: (clientId: string) => `/clients/${clientId}/photo`,
     archive: (clientId: string) => `/clients/${clientId}/archive`,
     restore: (clientId: string) => `/clients/${clientId}/restore`,
+    professionalStatus: (clientId: string) =>
+      `/clients/${clientId}/professional-status`,
     membership: {
       purchase: (clientId: string) => `/clients/${clientId}/membership/purchase`,
       renew: (clientId: string) => `/clients/${clientId}/membership/renew`,

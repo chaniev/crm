@@ -6,6 +6,8 @@ internal sealed record AttendanceClientResponse(
     IReadOnlyList<ClientGroupSummaryResponse> Groups,
     ClientPhotoSummaryResponse? Photo,
     bool IsPresent,
+    bool IsProfessional,
+    string? ProfessionalComment,
     bool HasMembershipWarning,
     string? MembershipWarning,
     bool HasUnpaidCurrentMembership,

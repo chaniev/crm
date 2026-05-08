@@ -229,6 +229,7 @@ public class InternalBotApiTests
             var payload = await ReadJsonElementAsync(adminUnpaidResponse);
             var ids = payload.EnumerateArray().Select(item => item.GetProperty("clientId").GetString()).ToArray();
             Assert.Contains(seeded.PaymentClientId.ToString(), ids);
+            Assert.DoesNotContain(seeded.ProfessionalPaymentClientId.ToString(), ids);
         }
     }
 
@@ -368,10 +369,21 @@ public class InternalBotApiTests
         var expiringDayElevenClient = CreateClient("Expiring", "Eleven", "+79990000005", now);
         var expiredClient = CreateClient("Expired", "Client", "+79990000006", now);
         var paymentClient = CreateClient("Payment", "Client", "+79990000007", now);
+        var professionalPaymentClient = CreateClient("Professional", "Payment", "+79990000008", now);
+        professionalPaymentClient.IsProfessional = true;
+        professionalPaymentClient.ProfessionalComment = "Bot unpaid list must skip professional client";
 
         dbContext.Users.AddRange(headCoach, administrator, coach, inactiveCoach, mustChangePasswordCoach);
         dbContext.TrainingGroups.AddRange(coachGroup, adminGroup);
-        dbContext.Clients.AddRange(coachClient, expiringTodayClient, expiringDayNineClient, expiringDayTenClient, expiringDayElevenClient, expiredClient, paymentClient);
+        dbContext.Clients.AddRange(
+            coachClient,
+            expiringTodayClient,
+            expiringDayNineClient,
+            expiringDayTenClient,
+            expiringDayElevenClient,
+            expiredClient,
+            paymentClient,
+            professionalPaymentClient);
         dbContext.GroupTrainers.Add(new GroupTrainer { GroupId = coachGroup.Id, TrainerId = coach.Id });
         dbContext.ClientGroups.AddRange(
             new ClientGroup { ClientId = coachClient.Id, GroupId = coachGroup.Id },
@@ -380,7 +392,8 @@ public class InternalBotApiTests
             new ClientGroup { ClientId = expiringDayTenClient.Id, GroupId = adminGroup.Id },
             new ClientGroup { ClientId = expiringDayElevenClient.Id, GroupId = adminGroup.Id },
             new ClientGroup { ClientId = expiredClient.Id, GroupId = adminGroup.Id },
-            new ClientGroup { ClientId = paymentClient.Id, GroupId = adminGroup.Id });
+            new ClientGroup { ClientId = paymentClient.Id, GroupId = adminGroup.Id },
+            new ClientGroup { ClientId = professionalPaymentClient.Id, GroupId = adminGroup.Id });
 
         dbContext.ClientMemberships.AddRange(
             CreateMembership(coachClient.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, isPaid: false, now),
@@ -389,7 +402,8 @@ public class InternalBotApiTests
             CreateMembership(expiringDayTenClient.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, isPaid: true, now),
             CreateMembership(expiringDayElevenClient.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, isPaid: true, now),
             CreateMembership(expiredClient.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, isPaid: true, now),
-            CreateMembership(paymentClient.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now));
+            CreateMembership(paymentClient.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now),
+            CreateMembership(professionalPaymentClient.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now));
 
         dbContext.Attendance.Add(new Attendance
         {
@@ -418,7 +432,8 @@ public class InternalBotApiTests
             expiringDayTenClient.Id,
             expiringDayElevenClient.Id,
             expiredClient.Id,
-            paymentClient.Id);
+            paymentClient.Id,
+            professionalPaymentClient.Id);
     }
 
     private static User CreateUser(
@@ -561,7 +576,8 @@ public class InternalBotApiTests
         Guid ExpiringDayTenClientId,
         Guid ExpiringDayElevenClientId,
         Guid ExpiredClientId,
-        Guid PaymentClientId);
+        Guid PaymentClientId,
+        Guid ProfessionalPaymentClientId);
 
     private sealed class InternalBotAppFactory : WebApplicationFactory<Program>
     {

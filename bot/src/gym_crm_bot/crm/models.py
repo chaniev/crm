@@ -83,11 +83,14 @@ class AttendanceRosterClient(ApiModel):
     id: UUID
     full_name: str = Field(alias="fullName")
     is_present: bool = Field(alias="isPresent")
+    is_professional: bool = Field(default=False, alias="isProfessional")
+    professional_comment: str | None = Field(default=None, alias="professionalComment")
     membership_warning: str | None = Field(default=None, alias="membershipWarning")
     has_unpaid_current_membership: bool = Field(
         default=False,
         alias="hasUnpaidCurrentMembership",
     )
+    has_active_paid_membership: bool = Field(default=False, alias="hasActivePaidMembership")
 
     @property
     def warning(self) -> str | None:
@@ -127,8 +130,6 @@ class AttendanceSaveWarning(ApiModel):
         details: list[str] = []
         if self.membership_warning:
             details.append(self.membership_warning)
-        if self.has_unpaid_current_membership:
-            details.append("не оплачен")
         suffix = f" ({', '.join(details)})" if details else ""
         return f"{self.full_name}{suffix}"
 
@@ -156,6 +157,8 @@ class ClientListItem(ApiModel):
     purchase_date: date | None = Field(default=None, alias="purchaseDate")
     days_until_expiration: int | None = Field(default=None, alias="daysUntilExpiration")
     is_paid: bool | None = Field(default=None, alias="isPaid")
+    is_professional: bool = Field(default=False, alias="isProfessional")
+    professional_comment: str | None = Field(default=None, alias="professionalComment")
     warning: str | None = Field(
         default=None,
         validation_alias=AliasChoices("warning", "membershipWarning"),
@@ -170,8 +173,6 @@ class ClientListItem(ApiModel):
     def fill_derived_fields(self) -> ClientListItem:
         if self.membership_label is None and self.membership_type:
             self.membership_label = self.membership_type
-        if self.is_paid is None and self.has_unpaid_current_membership:
-            self.is_paid = False
         return self
 
 
@@ -217,6 +218,13 @@ class ClientCardResponse(ApiModel):
     phone: str | None = None
     groups: list[str] = Field(default_factory=list)
     status: str | None = None
+    is_professional: bool = Field(default=False, alias="isProfessional")
+    professional_comment: str | None = Field(default=None, alias="professionalComment")
+    has_unpaid_current_membership: bool = Field(
+        default=False,
+        alias="hasUnpaidCurrentMembership",
+    )
+    has_active_paid_membership: bool = Field(default=False, alias="hasActivePaidMembership")
     warning: str | None = Field(
         default=None,
         validation_alias=AliasChoices("warning", "membershipWarning"),

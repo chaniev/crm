@@ -687,7 +687,10 @@ class BotService:
     def _render_search_results_text(query: str, items: list[Any], page: int) -> str:
         lines = [f"Результаты поиска: {query}", f"Страница: {page}", ""]
         for index, item in enumerate(items, start=1):
-            suffix = f" | {item.membership_label}" if item.membership_label else ""
+            if item.is_professional:
+                suffix = " | Профессионал"
+            else:
+                suffix = f" | {item.membership_label}" if item.membership_label else ""
             lines.append(f"{index}. {item.full_name}{suffix}")
         return "\n".join(lines)
 
@@ -700,15 +703,23 @@ class BotService:
             lines.append(f"Статус: {card.status}")
         if card.groups:
             lines.append(f"Группы: {', '.join(card.groups)}")
+        if card.is_professional:
+            comment = f": {card.professional_comment}" if card.professional_comment else ""
+            lines.append(f"Профессионал{comment}")
         if card.warning:
             lines.append(f"Предупреждение: {card.warning}")
         if card.current_membership:
             membership = card.current_membership
+            payment_label = (
+                "льгота"
+                if card.is_professional
+                else ("да" if membership.is_paid else "нет")
+            )
             lines.append(
                 "Абонемент: "
                 f"{membership.type_label}, "
                 f"покупка {membership.purchase_date.strftime('%d.%m.%Y')}, "
-                f"оплачен: {'да' if membership.is_paid else 'нет'}"
+                f"оплачен: {payment_label}"
             )
             if membership.expiration_date is not None:
                 lines.append(f"Действует до: {membership.expiration_date.strftime('%d.%m.%Y')}")

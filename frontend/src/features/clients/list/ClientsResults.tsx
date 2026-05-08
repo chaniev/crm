@@ -130,6 +130,11 @@ export function ClientsResults({
                 >
                   {row.statusLabel}
                 </Badge>
+                {client.isProfessional ? (
+                  <Badge color="blue" variant="light">
+                    Профессионал
+                  </Badge>
+                ) : null}
                 <Text className="clients-v7-row__primary" size="sm">
                   {row.membershipLabel}
                 </Text>

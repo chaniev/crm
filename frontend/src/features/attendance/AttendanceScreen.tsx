@@ -401,7 +401,9 @@ function AttendanceClientCard({
           client.photo.uploadedAt ?? client.photo.path ?? 'attendance',
         )
       : null
-  const statusLabel = client.membershipWarning
+  const statusLabel = client.isProfessional
+    ? 'Льготный оплаченный статус'
+    : client.membershipWarning
     ? 'Есть предупреждение по абонементу'
     : client.hasActivePaidMembership
       ? 'Отметка доступна на выбранную дату'
@@ -443,6 +445,12 @@ function AttendanceClientCard({
             ) : null}
 
             <Group gap="xs" wrap="wrap">
+              {client.isProfessional ? (
+                <Badge color="blue" radius="xl" variant="light">
+                  Профессионал
+                </Badge>
+              ) : null}
+
               {client.membershipWarning ? (
                 <Badge color="yellow" radius="xl" variant="light">
                   Проблема с абонементом
