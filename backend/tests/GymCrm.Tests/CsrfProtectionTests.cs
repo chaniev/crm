@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
@@ -113,9 +114,28 @@ public class CsrfProtectionTests
             sharedPassword,
             now,
             passwordHashService);
+        var branch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "CSRF Branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var hall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            Name = "CSRF Hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
         var group = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            HallId = hall.Id,
             Name = "CSRF Group",
             TrainingStartTime = new TimeOnly(9, 0),
             ScheduleText = "Пн,Ср,Пт",
@@ -126,6 +146,7 @@ public class CsrfProtectionTests
         var client = new Client
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
             LastName = "CSRF",
             FirstName = "Client",
             Phone = "+79990001234",
@@ -135,12 +156,15 @@ public class CsrfProtectionTests
         };
 
         dbContext.Users.Add(headCoach);
+        dbContext.Branches.Add(branch);
+        dbContext.Halls.Add(hall);
         dbContext.TrainingGroups.Add(group);
         dbContext.Clients.Add(client);
         dbContext.ClientGroups.Add(new ClientGroup
         {
             ClientId = client.Id,
-            GroupId = group.Id
+            GroupId = group.Id,
+            BranchId = branch.Id
         });
         await dbContext.SaveChangesAsync();
 

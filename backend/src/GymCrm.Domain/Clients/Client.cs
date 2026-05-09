@@ -1,3 +1,4 @@
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
 
@@ -9,6 +10,7 @@ public class Client
     public const int ProfessionalCommentMaxLength = 1000;
 
     public Guid Id { get; set; }
+    public Guid BranchId { get; set; }
     public string? LastName { get; set; }
     public string? FirstName { get; set; }
     public string? MiddleName { get; set; }
@@ -24,6 +26,7 @@ public class Client
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 
+    public Branch Branch { get; set; } = null!;
     public ICollection<ClientContact> Contacts { get; set; } = new List<ClientContact>();
     public ICollection<ClientMembership> Memberships { get; set; } = new List<ClientMembership>();
     public ICollection<ClientGroup> Groups { get; set; } = new List<ClientGroup>();

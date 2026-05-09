@@ -17,6 +17,11 @@ internal static class ClientResources
     public static string MembershipExpirationRangeInvalid => GetString(nameof(MembershipExpirationRangeInvalid));
     public static string PhoneRequired => GetString(nameof(PhoneRequired));
     public static string PhoneTooLong => GetString(nameof(PhoneTooLong));
+    public static string BranchRequired => GetString(nameof(BranchRequired));
+    public static string InvalidBranchId => GetString(nameof(InvalidBranchId));
+    public static string BranchMustExist => GetString(nameof(BranchMustExist));
+    public static string BranchMustBeActive => GetString(nameof(BranchMustBeActive));
+    public static string BranchTransferRequired => GetString(nameof(BranchTransferRequired));
     public static string NotesTooLong => GetString(nameof(NotesTooLong));
     public static string ProfessionalStatusRequired => GetString(nameof(ProfessionalStatusRequired));
     public static string ProfessionalCommentRequired => GetString(nameof(ProfessionalCommentRequired));
@@ -34,6 +39,8 @@ internal static class ClientResources
     public static string ContactPhoneTooLong => GetString(nameof(ContactPhoneTooLong));
     public static string InvalidGroupId => GetString(nameof(InvalidGroupId));
     public static string GroupsMustExist => GetString(nameof(GroupsMustExist));
+    public static string GroupsMustBelongToClientBranch => GetString(nameof(GroupsMustBelongToClientBranch));
+    public static string TransferGroupMustBelongToTargetBranch => GetString(nameof(TransferGroupMustBelongToTargetBranch));
     public static string PurchaseDateRequired => GetString(nameof(PurchaseDateRequired));
     public static string RenewalDateRequired => GetString(nameof(RenewalDateRequired));
     public static string CurrentMembershipMissingForRenewal => GetString(nameof(CurrentMembershipMissingForRenewal));

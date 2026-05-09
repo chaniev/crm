@@ -24,6 +24,16 @@ internal static class GroupResources
     }
 
     public static string NameRequired => GetString(nameof(NameRequired));
+    public static string BranchRequired => GetString(nameof(BranchRequired));
+    public static string InvalidBranchId => GetString(nameof(InvalidBranchId));
+    public static string BranchMustExist => GetString(nameof(BranchMustExist));
+    public static string BranchMustBeActive => GetString(nameof(BranchMustBeActive));
+    public static string HallRequired => GetString(nameof(HallRequired));
+    public static string InvalidHallId => GetString(nameof(InvalidHallId));
+    public static string HallMustExist => GetString(nameof(HallMustExist));
+    public static string HallMustBeActive => GetString(nameof(HallMustBeActive));
+    public static string HallMustBelongToBranch => GetString(nameof(HallMustBelongToBranch));
+    public static string AssignedClientsMustBelongToBranch => GetString(nameof(AssignedClientsMustBelongToBranch));
 
     public static string NameTooLong(int maxLength)
     {

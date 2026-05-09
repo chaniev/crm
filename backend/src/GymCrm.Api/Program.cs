@@ -90,6 +90,7 @@ app.MapAuthEndpoints();
 app.MapAccessEndpoints();
 app.MapUserEndpoints();
 app.MapAuditLogEndpoints();
+app.MapBranchEndpoints();
 app.MapClientEndpoints();
 app.MapClientPhotoEndpoints();
 app.MapAttendanceEndpoints();

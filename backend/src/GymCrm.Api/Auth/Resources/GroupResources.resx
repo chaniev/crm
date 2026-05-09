@@ -27,6 +27,36 @@
   <data name="NameRequired" xml:space="preserve">
     <value>Укажите название группы.</value>
   </data>
+  <data name="BranchRequired" xml:space="preserve">
+    <value>Укажите филиал группы.</value>
+  </data>
+  <data name="InvalidBranchId" xml:space="preserve">
+    <value>Идентификатор филиала группы некорректен.</value>
+  </data>
+  <data name="BranchMustExist" xml:space="preserve">
+    <value>Группу можно привязать только к существующему филиалу.</value>
+  </data>
+  <data name="BranchMustBeActive" xml:space="preserve">
+    <value>Группу нельзя привязать к архивному филиалу.</value>
+  </data>
+  <data name="HallRequired" xml:space="preserve">
+    <value>Укажите зал группы.</value>
+  </data>
+  <data name="InvalidHallId" xml:space="preserve">
+    <value>Идентификатор зала группы некорректен.</value>
+  </data>
+  <data name="HallMustExist" xml:space="preserve">
+    <value>Группу можно привязать только к существующему залу.</value>
+  </data>
+  <data name="HallMustBeActive" xml:space="preserve">
+    <value>Группу нельзя привязать к архивному залу.</value>
+  </data>
+  <data name="HallMustBelongToBranch" xml:space="preserve">
+    <value>Зал группы должен принадлежать выбранному филиалу.</value>
+  </data>
+  <data name="AssignedClientsMustBelongToBranch" xml:space="preserve">
+    <value>Нельзя перенести группу в филиал, пока в ней есть клиенты другого филиала.</value>
+  </data>
   <data name="NameTooLong" xml:space="preserve">
     <value>Название группы не должно превышать {0} символов.</value>
   </data>

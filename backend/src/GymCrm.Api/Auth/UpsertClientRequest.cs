@@ -5,6 +5,7 @@ internal sealed record UpsertClientRequest(
     string? FirstName,
     string? MiddleName,
     string? Phone,
+    Guid? BranchId,
     string? Notes,
     IReadOnlyList<UpsertClientContactRequest>? Contacts,
     IReadOnlyList<Guid>? GroupIds);

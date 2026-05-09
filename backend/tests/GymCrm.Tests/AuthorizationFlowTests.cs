@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -126,9 +127,46 @@ public class AuthorizationFlowTests
         var administrator = CreateUser("administrator-stage3", "Администратор Stage 3", UserRole.Administrator, sharedPassword, now, passwordHashService);
         var coach = CreateUser("coach-stage3", "Тренер Stage 3", UserRole.Coach, sharedPassword, now, passwordHashService);
 
+        var assignedBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Assigned Branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var foreignBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Foreign Branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var assignedHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = assignedBranch.Id,
+            Name = "Assigned Hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var foreignHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = foreignBranch.Id,
+            Name = "Foreign Hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         var assignedGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = assignedBranch.Id,
+            HallId = assignedHall.Id,
             Name = "Group A",
             ScheduleText = "Mon/Wed/Fri",
             TrainingStartTime = new TimeOnly(18, 0),
@@ -140,6 +178,8 @@ public class AuthorizationFlowTests
         var foreignGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = foreignBranch.Id,
+            HallId = foreignHall.Id,
             Name = "Group B",
             ScheduleText = "Tue/Thu",
             TrainingStartTime = new TimeOnly(19, 0),
@@ -149,6 +189,8 @@ public class AuthorizationFlowTests
         };
 
         dbContext.Users.AddRange(headCoach, administrator, coach);
+        dbContext.Branches.AddRange(assignedBranch, foreignBranch);
+        dbContext.Halls.AddRange(assignedHall, foreignHall);
         dbContext.TrainingGroups.AddRange(assignedGroup, foreignGroup);
         dbContext.GroupTrainers.Add(new GroupTrainer
         {
