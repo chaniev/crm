@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BranchNameRequired" xml:space="preserve">
+    <value>Укажите название филиала.</value>
+  </data>
+  <data name="BranchNameTooLong" xml:space="preserve">
+    <value>Название филиала не должно превышать {0} символов.</value>
+  </data>
+  <data name="BranchAddressTooLong" xml:space="preserve">
+    <value>Адрес филиала не должен превышать 256 символов.</value>
+  </data>
+  <data name="BranchDescriptionTooLong" xml:space="preserve">
+    <value>Описание филиала не должно превышать 1000 символов.</value>
+  </data>
+  <data name="BranchMustExist" xml:space="preserve">
+    <value>Укажите существующий филиал.</value>
+  </data>
+  <data name="BranchMustBeActive" xml:space="preserve">
+    <value>Нельзя использовать архивный филиал.</value>
+  </data>
+  <data name="HallBranchRequired" xml:space="preserve">
+    <value>Укажите филиал зала.</value>
+  </data>
+  <data name="HallBranchImmutable" xml:space="preserve">
+    <value>Филиал зала нельзя изменить через обновление зала.</value>
+  </data>
+  <data name="HallNameRequired" xml:space="preserve">
+    <value>Укажите название зала.</value>
+  </data>
+  <data name="HallNameTooLong" xml:space="preserve">
+    <value>Название зала не должно превышать {0} символов.</value>
+  </data>
+  <data name="HallDescriptionTooLong" xml:space="preserve">
+    <value>Описание зала не должно превышать 1000 символов.</value>
+  </data>
+  <data name="HallMustExist" xml:space="preserve">
+    <value>Укажите существующий зал.</value>
+  </data>
+  <data name="HallMustBeActive" xml:space="preserve">
+    <value>Нельзя использовать архивный зал.</value>
+  </data>
+  <data name="HallCannotBeArchivedWithGroups" xml:space="preserve">
+    <value>Нельзя архивировать зал, к которому привязаны группы.</value>
+  </data>
+  <data name="HallCannotBeDeletedWithGroups" xml:space="preserve">
+    <value>Нельзя удалить зал, к которому привязаны группы.</value>
+  </data>
+  <data name="BranchCreatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' создал филиал '{1}'.</value>
+  </data>
+  <data name="BranchUpdatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил филиал '{1}'.</value>
+  </data>
+  <data name="BranchArchivedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' архивировал филиал '{1}'.</value>
+  </data>
+  <data name="BranchRestoredDescription" xml:space="preserve">
+    <value>Пользователь '{0}' восстановил филиал '{1}'.</value>
+  </data>
+  <data name="HallCreatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' создал зал '{1}'.</value>
+  </data>
+  <data name="HallUpdatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил зал '{1}'.</value>
+  </data>
+  <data name="HallArchivedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' архивировал зал '{1}'.</value>
+  </data>
+  <data name="HallRestoredDescription" xml:space="preserve">
+    <value>Пользователь '{0}' восстановил зал '{1}'.</value>
+  </data>
+  <data name="HallDeletedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' удалил зал '{1}'.</value>
+  </data>
+</root>

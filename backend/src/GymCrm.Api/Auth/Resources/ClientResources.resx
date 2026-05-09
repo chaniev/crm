@@ -45,6 +45,21 @@
   <data name="PhoneTooLong" xml:space="preserve">
     <value>Номер телефона не должен превышать 32 символа.</value>
   </data>
+  <data name="BranchRequired" xml:space="preserve">
+    <value>Укажите филиал клиента.</value>
+  </data>
+  <data name="InvalidBranchId" xml:space="preserve">
+    <value>Идентификатор филиала клиента некорректен.</value>
+  </data>
+  <data name="BranchMustExist" xml:space="preserve">
+    <value>Клиента можно привязать только к существующему филиалу.</value>
+  </data>
+  <data name="BranchMustBeActive" xml:space="preserve">
+    <value>Клиента нельзя привязать к архивному филиалу.</value>
+  </data>
+  <data name="BranchTransferRequired" xml:space="preserve">
+    <value>Для перевода клиента в другой филиал используйте endpoint перевода.</value>
+  </data>
   <data name="NotesTooLong" xml:space="preserve">
     <value>Заметка не должна превышать 2000 символов.</value>
   </data>
@@ -95,6 +110,12 @@
   </data>
   <data name="GroupsMustExist" xml:space="preserve">
     <value>Можно привязать клиента только к существующим группам.</value>
+  </data>
+  <data name="GroupsMustBelongToClientBranch" xml:space="preserve">
+    <value>Клиента можно привязать только к группам его филиала.</value>
+  </data>
+  <data name="TransferGroupMustBelongToTargetBranch" xml:space="preserve">
+    <value>При переводе можно выбрать только группу целевого филиала.</value>
   </data>
   <data name="PurchaseDateRequired" xml:space="preserve">
     <value>Укажите дату покупки абонемента.</value>

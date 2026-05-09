@@ -28,6 +28,8 @@ internal static class ClientEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPut("/{id:guid}", UpdateClientAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPost("/{id:guid}/transfer", TransferClientBranchAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPut("/{id:guid}/archive", ArchiveClientAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPut("/{id:guid}/restore", RestoreClientAsync)
@@ -280,6 +282,8 @@ internal static class ClientEndpoints
                 client.MiddleName,
                 BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
                 hasElevatedClientAccess ? client.Phone : string.Empty,
+                client.BranchId,
+                client.Branch.Name,
                 client.Status.ToString(),
                 client.Groups
                     .Where(clientGroup =>
@@ -294,6 +298,10 @@ internal static class ClientEndpoints
                     .Select(clientGroup => new ClientGroupSummaryResponse(
                         clientGroup.GroupId,
                         clientGroup.Group.Name,
+                        clientGroup.Group.BranchId,
+                        clientGroup.Group.Branch.Name,
+                        clientGroup.Group.HallId,
+                        clientGroup.Group.Hall.Name,
                         clientGroup.Group.IsActive,
                         clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
                         clientGroup.Group.ScheduleText))
@@ -557,6 +565,7 @@ internal static class ClientEndpoints
         var client = new Client
         {
             Id = Guid.NewGuid(),
+            BranchId = normalizedRequest.BranchId!.Value,
             LastName = normalizedRequest.LastName,
             FirstName = normalizedRequest.FirstName,
             MiddleName = normalizedRequest.MiddleName,
@@ -569,7 +578,7 @@ internal static class ClientEndpoints
 
         dbContext.Clients.Add(client);
         await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
-        await ReplaceGroupAssignmentsAsync(client.Id, normalizedRequest.GroupIds, dbContext, cancellationToken);
+        await ReplaceGroupAssignmentsAsync(client.Id, normalizedRequest.BranchId!.Value, normalizedRequest.GroupIds, dbContext, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var createdClient = await LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
@@ -618,7 +627,11 @@ internal static class ClientEndpoints
         }
 
         var normalizedRequest = NormalizeRequest(request);
-        var validationErrors = await ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
+        var validationErrors = await ValidateUpsertRequestAsync(
+            normalizedRequest,
+            dbContext,
+            cancellationToken,
+            client.BranchId);
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
@@ -631,11 +644,12 @@ internal static class ClientEndpoints
         client.FirstName = normalizedRequest.FirstName;
         client.MiddleName = normalizedRequest.MiddleName;
         client.Phone = normalizedRequest.Phone;
+        client.BranchId = normalizedRequest.BranchId!.Value;
         client.Notes = normalizedRequest.Notes;
         client.UpdatedAt = DateTimeOffset.UtcNow;
 
         await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
-        await ReplaceGroupAssignmentsAsync(client.Id, normalizedRequest.GroupIds, dbContext, cancellationToken);
+        await ReplaceGroupAssignmentsAsync(client.Id, normalizedRequest.BranchId!.Value, normalizedRequest.GroupIds, dbContext, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -649,6 +663,88 @@ internal static class ClientEndpoints
                 ClientAuditConstants.ClientEntityType,
                 client.Id.ToString(),
                 ClientAuditResources.ClientUpdatedDescription(
+                    currentUser.Login,
+                    BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
+                oldState,
+                SerializeAuditState(updatedClient)),
+            cancellationToken);
+
+        return TypedResults.Ok(MapDetails(updatedClient, EmptyAttendanceHistoryPage()));
+    }
+
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> TransferClientBranchAsync(
+        Guid id,
+        TransferClientBranchRequest request,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
+        if (csrfValidationResult is not null)
+        {
+            return csrfValidationResult;
+        }
+
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var client = await dbContext.Clients
+            .Include(candidate => candidate.Groups)
+            .SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
+        if (client is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var validationErrors = await ValidateTransferRequestAsync(request, dbContext, cancellationToken);
+        if (validationErrors.Count > 0)
+        {
+            return TypedResults.ValidationProblem(validationErrors);
+        }
+
+        var oldStateSnapshot = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
+        var oldState = SerializeAuditState(oldStateSnapshot ?? client);
+        var targetBranchId = request.BranchId!.Value;
+        var targetGroupId = request.GroupId is { } groupId && groupId != Guid.Empty
+            ? groupId
+            : (Guid?)null;
+
+        if (client.Groups.Count > 0)
+        {
+            dbContext.ClientGroups.RemoveRange(client.Groups);
+            client.Groups.Clear();
+        }
+
+        client.BranchId = targetBranchId;
+        client.UpdatedAt = DateTimeOffset.UtcNow;
+
+        if (targetGroupId.HasValue)
+        {
+            dbContext.ClientGroups.Add(new ClientGroup
+            {
+                ClientId = client.Id,
+                GroupId = targetGroupId.Value,
+                BranchId = targetBranchId
+            });
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var updatedClient = await LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
+            ?? throw new InvalidOperationException($"Transferred client '{client.Id}' was not found.");
+
+        await auditLogService.WriteAsync(
+            new AuditLogEntry(
+                currentUser.Id,
+                ClientAuditConstants.ClientTransferredAction,
+                ClientAuditConstants.ClientEntityType,
+                client.Id.ToString(),
+                ClientAuditResources.ClientTransferredDescription(
                     currentUser.Login,
                     BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
                 oldState,
@@ -727,16 +823,22 @@ internal static class ClientEndpoints
             return TypedResults.NotFound();
         }
 
+        var clientBefore = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
+            ?? throw new InvalidOperationException($"Client '{id}' was not found after mutation load.");
+
         if (client.Status == targetStatus)
         {
-            return TypedResults.Ok(MapDetails(client, EmptyAttendanceHistoryPage()));
+            return TypedResults.Ok(MapDetails(clientBefore, EmptyAttendanceHistoryPage()));
         }
 
-        var oldState = SerializeAuditState(client);
+        var oldState = SerializeAuditState(clientBefore);
         client.Status = targetStatus;
         client.UpdatedAt = DateTimeOffset.UtcNow;
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        var clientAfter = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
+            ?? throw new InvalidOperationException($"Updated client '{id}' was not found after status change.");
 
         await auditLogService.WriteAsync(
             new AuditLogEntry(
@@ -748,10 +850,10 @@ internal static class ClientEndpoints
                     currentUser.Login,
                     BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
                 oldState,
-                SerializeAuditState(client)),
+                SerializeAuditState(clientAfter)),
             cancellationToken);
 
-        return TypedResults.Ok(MapDetails(client, EmptyAttendanceHistoryPage()));
+        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ForbidHttpResult, ProblemHttpResult, UnauthorizedHttpResult>> UpdateProfessionalStatusAsync(
@@ -1035,12 +1137,19 @@ internal static class ClientEndpoints
     {
         return await dbContext.Clients
             .AsNoTracking()
+            .Include(client => client.Branch)
             .Include(client => client.Contacts)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.PaidByUser)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
+            .Include(client => client.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Branch)
+            .Include(client => client.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Hall)
             .AsSplitQuery()
             .SingleOrDefaultAsync(client => client.Id == id, cancellationToken);
     }
@@ -1221,7 +1330,8 @@ internal static class ClientEndpoints
     private static async Task<Dictionary<string, string[]>> ValidateUpsertRequestAsync(
         NormalizedClientRequest request,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? currentBranchId = null)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -1249,6 +1359,8 @@ internal static class ClientEndpoints
         {
             errors["fullName"] = [ClientResources.FullNameRequired];
         }
+
+        await ValidateClientBranchAsync(request.BranchId, currentBranchId, errors, dbContext, cancellationToken);
 
         if (request.RawContacts?.Count > 2)
         {
@@ -1292,7 +1404,7 @@ internal static class ClientEndpoints
             return errors;
         }
 
-        if (request.GroupIds.Count == 0)
+        if (request.GroupIds.Count == 0 || errors.ContainsKey("branchId"))
         {
             return errors;
         }
@@ -1305,6 +1417,102 @@ internal static class ClientEndpoints
         if (existingGroupCount != request.GroupIds.Count)
         {
             errors["groupIds"] = [ClientResources.GroupsMustExist];
+            return errors;
+        }
+
+        var sameBranchGroupCount = await dbContext.TrainingGroups
+            .AsNoTracking()
+            .Where(group => request.GroupIds.Contains(group.Id) && group.BranchId == request.BranchId!.Value)
+            .CountAsync(cancellationToken);
+
+        if (sameBranchGroupCount != request.GroupIds.Count)
+        {
+            errors["groupIds"] = [ClientResources.GroupsMustBelongToClientBranch];
+        }
+
+        return errors;
+    }
+
+    private static async Task ValidateClientBranchAsync(
+        Guid? requestedBranchId,
+        Guid? currentBranchId,
+        Dictionary<string, string[]> errors,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        if (!requestedBranchId.HasValue)
+        {
+            errors["branchId"] = [ClientResources.BranchRequired];
+            return;
+        }
+
+        if (requestedBranchId.Value == Guid.Empty)
+        {
+            errors["branchId"] = [ClientResources.InvalidBranchId];
+            return;
+        }
+
+        if (currentBranchId.HasValue && requestedBranchId.Value != currentBranchId.Value)
+        {
+            errors["branchId"] = [ClientResources.BranchTransferRequired];
+            return;
+        }
+
+        var branch = await dbContext.Branches
+            .AsNoTracking()
+            .Where(candidate => candidate.Id == requestedBranchId.Value)
+            .Select(candidate => new
+            {
+                candidate.Id,
+                candidate.IsArchived
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (branch is null)
+        {
+            errors["branchId"] = [ClientResources.BranchMustExist];
+        }
+        else if (branch.IsArchived)
+        {
+            errors["branchId"] = [ClientResources.BranchMustBeActive];
+        }
+    }
+
+    private static async Task<Dictionary<string, string[]>> ValidateTransferRequestAsync(
+        TransferClientBranchRequest request,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var errors = new Dictionary<string, string[]>();
+
+        await ValidateClientBranchAsync(request.BranchId, currentBranchId: null, errors, dbContext, cancellationToken);
+        if (request.GroupId == Guid.Empty)
+        {
+            errors["groupId"] = [ClientResources.InvalidGroupId];
+        }
+
+        if (errors.Count > 0 || !request.GroupId.HasValue)
+        {
+            return errors;
+        }
+
+        var group = await dbContext.TrainingGroups
+            .AsNoTracking()
+            .Where(candidate => candidate.Id == request.GroupId.Value)
+            .Select(candidate => new
+            {
+                candidate.Id,
+                candidate.BranchId
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (group is null)
+        {
+            errors["groupId"] = [ClientResources.GroupsMustExist];
+        }
+        else if (group.BranchId != request.BranchId!.Value)
+        {
+            errors["groupId"] = [ClientResources.TransferGroupMustBelongToTargetBranch];
         }
 
         return errors;
@@ -1342,6 +1550,7 @@ internal static class ClientEndpoints
             NormalizeOptionalText(request.FirstName),
             NormalizeOptionalText(request.MiddleName),
             request.Phone?.Trim() ?? string.Empty,
+            request.BranchId,
             NormalizeOptionalText(request.Notes),
             request.Contacts,
             NormalizeContacts(request.Contacts),
@@ -1404,6 +1613,7 @@ internal static class ClientEndpoints
 
     private static async Task ReplaceGroupAssignmentsAsync(
         Guid clientId,
+        Guid branchId,
         IReadOnlyList<Guid> requestedGroupIds,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
@@ -1437,7 +1647,8 @@ internal static class ClientEndpoints
             dbContext.ClientGroups.Add(new ClientGroup
             {
                 ClientId = clientId,
-                GroupId = groupId
+                GroupId = groupId,
+                BranchId = branchId
             });
         }
     }
@@ -2062,6 +2273,8 @@ internal static class ClientEndpoints
             client.MiddleName,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             client.Phone,
+            client.BranchId,
+            client.Branch.Name,
             client.Status.ToString(),
             groups.Select(group => group.Id).ToArray(),
             groups,
@@ -2098,6 +2311,8 @@ internal static class ClientEndpoints
             client.MiddleName,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             string.Empty,
+            client.BranchId,
+            client.Branch.Name,
             client.Status.ToString(),
             groups.Select(group => group.Id).ToArray(),
             groups,
@@ -2145,6 +2360,8 @@ internal static class ClientEndpoints
             client.MiddleName,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             client.Phone,
+            client.BranchId,
+            client.Branch.Name,
             client.Notes,
             client.Status.ToString(),
             groups.Select(group => group.Id).ToArray(),
@@ -2181,6 +2398,8 @@ internal static class ClientEndpoints
             client.MiddleName,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             string.Empty,
+            client.BranchId,
+            client.Branch.Name,
             client.Notes,
             client.Status.ToString(),
             groups.Select(group => group.Id).ToArray(),
@@ -2208,6 +2427,10 @@ internal static class ClientEndpoints
             .Select(clientGroup => new ClientGroupSummaryResponse(
                 clientGroup.GroupId,
                 clientGroup.Group.Name,
+                clientGroup.Group.BranchId,
+                clientGroup.Group.Branch.Name,
+                clientGroup.Group.HallId,
+                clientGroup.Group.Hall.Name,
                 clientGroup.Group.IsActive,
                 clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
                 clientGroup.Group.ScheduleText))
@@ -2349,6 +2572,7 @@ internal static class ClientEndpoints
                 client.FirstName,
                 client.MiddleName,
                 client.Phone,
+                client.BranchId,
                 client.Notes,
                 client.IsProfessional,
                 client.ProfessionalComment,

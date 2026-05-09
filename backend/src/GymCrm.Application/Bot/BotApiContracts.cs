@@ -60,6 +60,10 @@ public sealed record BotMenuItem(string Code, string Label);
 public sealed record BotAttendanceGroup(
     Guid Id,
     string Name,
+    Guid BranchId,
+    string BranchName,
+    Guid HallId,
+    string HallName,
     string TrainingStartTime,
     string ScheduleText,
     bool IsActive,
@@ -74,6 +78,8 @@ public sealed record BotAttendanceRoster(
 public sealed record BotAttendanceClient(
     Guid Id,
     string FullName,
+    Guid BranchId,
+    string BranchName,
     IReadOnlyList<BotClientGroupSummary> Groups,
     BotClientPhoto? Photo,
     bool IsPresent,
@@ -111,6 +117,8 @@ public sealed record BotClientListItem(
     Guid Id,
     string FullName,
     string? Phone,
+    Guid BranchId,
+    string BranchName,
     string Status,
     IReadOnlyList<BotClientGroupSummary> Groups,
     BotClientPhoto? Photo,
@@ -125,6 +133,8 @@ public sealed record BotClientCard(
     Guid Id,
     string FullName,
     string? Phone,
+    Guid BranchId,
+    string BranchName,
     string Status,
     IReadOnlyList<BotClientGroupSummary> Groups,
     BotClientPhoto? Photo,
@@ -155,6 +165,10 @@ public sealed record BotAttendanceHistoryItem(
 public sealed record BotClientGroupSummary(
     Guid Id,
     string Name,
+    Guid BranchId,
+    string BranchName,
+    Guid HallId,
+    string HallName,
     bool IsActive,
     string TrainingStartTime,
     string ScheduleText);

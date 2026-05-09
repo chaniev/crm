@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
@@ -44,6 +45,8 @@ public class GroupsApiTests
             new
             {
                 Name = groupName,
+                BranchId = seeded.BranchId,
+                HallId = seeded.HallOneId,
                 TrainingStartTime = "18:00:00",
                 ScheduleText = "Вт-Чт-Пт",
                 IsActive = true
@@ -76,6 +79,8 @@ public class GroupsApiTests
         var updatePayload = new
         {
             Name = "Group Updated",
+            BranchId = seeded.BranchId,
+            HallId = seeded.HallOneId,
             TrainingStartTime = "19:00:00",
             ScheduleText = "Пн-Ср",
             IsActive = true
@@ -128,11 +133,12 @@ public class GroupsApiTests
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-            var clientEntity = await CreateClientEntityAsync(dbContext, seeded.Now);
+            var clientEntity = await CreateClientEntityAsync(dbContext, seeded.BranchId, seeded.Now);
             dbContext.ClientGroups.Add(new ClientGroup
             {
                 ClientId = clientEntity.Id,
-                GroupId = groupId
+                GroupId = groupId,
+                BranchId = seeded.BranchId
             });
             await dbContext.SaveChangesAsync();
         }
@@ -177,6 +183,8 @@ public class GroupsApiTests
                    new
                    {
                        Name = "Coach attempt",
+                       BranchId = seeded.BranchId,
+                       HallId = seeded.HallOneId,
                        TrainingStartTime = "18:00:00",
                        ScheduleText = "Вт-Чт",
                        IsActive = true
@@ -192,6 +200,8 @@ public class GroupsApiTests
                    new
                    {
                        Name = "Forbidden update",
+                       BranchId = seeded.BranchId,
+                       HallId = seeded.HallOneId,
                        TrainingStartTime = "18:30:00",
                        ScheduleText = "Пн-Пт",
                        IsActive = true
@@ -204,6 +214,87 @@ public class GroupsApiTests
         using (var clientsResponse = await client.GetAsync($"/groups/{seeded.GroupOneId}/clients"))
         {
             Assert.Equal(HttpStatusCode.Forbidden, clientsResponse.StatusCode);
+        }
+    }
+
+    [Fact]
+    public async Task Group_create_requires_branch_and_hall_from_same_branch()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var missingBranchAndHallResponse = await PostJsonAsync(
+                   client,
+                   "/groups",
+                   new
+                   {
+                       Name = "No branch hall",
+                       TrainingStartTime = "18:00:00",
+                       ScheduleText = "Пн",
+                       IsActive = true
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, missingBranchAndHallResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(missingBranchAndHallResponse);
+            var errors = payload.GetProperty("errors");
+            Assert.True(errors.TryGetProperty("branchId", out _));
+            Assert.True(errors.TryGetProperty("hallId", out _));
+        }
+
+        Guid foreignHallId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = DateTimeOffset.UtcNow;
+            var foreignBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "Groups Foreign Branch",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var foreignHall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = foreignBranch.Id,
+                Name = "Groups Foreign Hall",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            dbContext.Branches.Add(foreignBranch);
+            dbContext.Halls.Add(foreignHall);
+            await dbContext.SaveChangesAsync();
+            foreignHallId = foreignHall.Id;
+        }
+
+        using (var wrongHallResponse = await PostJsonAsync(
+                   client,
+                   "/groups",
+                   new
+                   {
+                       Name = "Wrong hall",
+                       BranchId = seeded.BranchId,
+                       HallId = foreignHallId,
+                       TrainingStartTime = "18:00:00",
+                       ScheduleText = "Пн",
+                       IsActive = true
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, wrongHallResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(wrongHallResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("hallId", out _));
         }
     }
 
@@ -236,6 +327,8 @@ public class GroupsApiTests
             new
             {
                 Name = $"Audit group {Guid.NewGuid():N}",
+                BranchId = seeded.BranchId,
+                HallId = seeded.HallOneId,
                 TrainingStartTime = "07:00:00",
                 ScheduleText = "Пн",
                 IsActive = true
@@ -278,6 +371,8 @@ public class GroupsApiTests
                    new
                    {
                        Name = "Audit group updated",
+                       BranchId = seeded.BranchId,
+                       HallId = seeded.HallOneId,
                        TrainingStartTime = "08:00:00",
                        ScheduleText = "Вт",
                        IsActive = true
@@ -334,6 +429,8 @@ public class GroupsApiTests
                    new
                    {
                        Name = "Coach Session Group",
+                       BranchId = seeded.BranchId,
+                       HallId = seeded.HallTwoId,
                        TrainingStartTime = "12:00:00",
                        ScheduleText = "Пн-Ср-Пт",
                        IsActive = true
@@ -385,9 +482,41 @@ public class GroupsApiTests
         var coachOne = CreateUser("coach-one-stage5", "Тренер 1 Stage 5", UserRole.Coach, sharedPassword, now, passwordHashService);
         var coachTwo = CreateUser("coach-two-stage5", "Тренер 2 Stage 5", UserRole.Coach, sharedPassword, now, passwordHashService);
 
+        var branch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Groups Branch",
+            Address = "Groups address",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var hallOne = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            Name = "Groups Hall One",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var hallTwo = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            Name = "Groups Hall Two",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         var groupOne = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            HallId = hallOne.Id,
             Name = "Existing coach-visible group",
             TrainingStartTime = new TimeOnly(9, 0),
             ScheduleText = "Вт,Чт",
@@ -397,6 +526,8 @@ public class GroupsApiTests
         };
 
         dbContext.Users.AddRange(headCoach, administrator, coachOne, coachTwo);
+        dbContext.Branches.Add(branch);
+        dbContext.Halls.AddRange(hallOne, hallTwo);
         dbContext.TrainingGroups.Add(groupOne);
         await dbContext.SaveChangesAsync();
 
@@ -409,15 +540,19 @@ public class GroupsApiTests
             administrator.Login,
             coachOne.Login,
             sharedPassword,
+            branch.Id,
+            hallOne.Id,
+            hallTwo.Id,
             groupOne.Id,
             now);
     }
 
-    private static async Task<Client> CreateClientEntityAsync(GymCrmDbContext dbContext, DateTimeOffset now)
+    private static async Task<Client> CreateClientEntityAsync(GymCrmDbContext dbContext, Guid branchId, DateTimeOffset now)
     {
         var client = new Client
         {
             Id = Guid.NewGuid(),
+            BranchId = branchId,
             LastName = "Фамилия",
             FirstName = "Имя",
             Phone = $"+7999000{new Random().Next(100, 999)}",
@@ -716,6 +851,9 @@ public class GroupsApiTests
         string AdministratorLogin,
         string CoachLogin,
         string SharedPassword,
+        Guid BranchId,
+        Guid HallOneId,
+        Guid HallTwoId,
         Guid GroupOneId,
         DateTimeOffset Now);
 

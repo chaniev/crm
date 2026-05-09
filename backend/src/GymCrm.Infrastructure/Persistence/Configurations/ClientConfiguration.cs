@@ -51,6 +51,12 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.HasIndex(client => client.Phone);
         builder.HasIndex(client => client.IsProfessional);
         builder.HasIndex(client => client.Status);
+        builder.HasIndex(client => client.BranchId);
+
+        builder.HasOne(client => client.Branch)
+            .WithMany(branch => branch.Clients)
+            .HasForeignKey(client => client.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(client => client.Contacts)
             .WithOne(contact => contact.Client)
@@ -60,11 +66,6 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.HasMany(client => client.Memberships)
             .WithOne(membership => membership.Client)
             .HasForeignKey(membership => membership.ClientId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(client => client.Groups)
-            .WithOne(clientGroup => clientGroup.Client)
-            .HasForeignKey(clientGroup => clientGroup.ClientId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(client => client.AttendanceEntries)

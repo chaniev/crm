@@ -12,6 +12,7 @@ internal sealed class TrainingGroupConfiguration : IEntityTypeConfiguration<Trai
     public void Configure(EntityTypeBuilder<TrainingGroup> builder)
     {
         builder.HasKey(group => group.Id);
+        builder.HasAlternateKey(group => new { group.Id, group.BranchId });
 
         builder.Property(group => group.Name)
             .HasMaxLength(NameMaxLength)
@@ -25,11 +26,19 @@ internal sealed class TrainingGroupConfiguration : IEntityTypeConfiguration<Trai
         builder.Property(group => group.UpdatedAt).IsRequired();
 
         builder.HasIndex(group => group.Name);
+        builder.HasIndex(group => group.BranchId);
+        builder.HasIndex(group => group.HallId);
 
-        builder.HasMany(group => group.Clients)
-            .WithOne(clientGroup => clientGroup.Group)
-            .HasForeignKey(clientGroup => clientGroup.GroupId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(group => group.Branch)
+            .WithMany(branch => branch.Groups)
+            .HasForeignKey(group => group.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(group => group.Hall)
+            .WithMany(hall => hall.Groups)
+            .HasForeignKey(group => new { group.HallId, group.BranchId })
+            .HasPrincipalKey(hall => new { hall.Id, hall.BranchId })
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(group => group.Trainers)
             .WithOne(groupTrainer => groupTrainer.Group)

@@ -188,10 +188,88 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Branches.Branch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsArchived");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("Branches");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Branches.Hall", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("IsArchived");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("Halls");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Clients.Client", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BranchId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -248,6 +326,10 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Id", "BranchId");
+
+                    b.HasIndex("BranchId");
 
                     b.HasIndex("FirstName");
 
@@ -371,6 +453,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("GymCrm.Domain.Groups.ClientGroup", b =>
                 {
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
 
@@ -379,7 +464,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasKey("ClientId", "GroupId");
 
-                    b.HasIndex("GroupId");
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("GroupId", "BranchId");
 
                     b.ToTable("ClientGroups");
                 });
@@ -405,8 +492,14 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("HallId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -428,6 +521,14 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("Id", "BranchId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("HallId");
+
+                    b.HasIndex("HallId", "BranchId");
 
                     b.HasIndex("Name");
 
@@ -533,6 +634,28 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Branches.Hall", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
+                        .WithMany("Halls")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Clients.Client", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
+                        .WithMany("Clients")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientContact", b =>
                 {
                     b.HasOne("GymCrm.Domain.Clients.Client", "Client")
@@ -580,13 +703,34 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
                         .WithMany("Clients")
-                        .HasForeignKey("GroupId")
+                        .HasForeignKey("GroupId", "BranchId")
+                        .HasPrincipalKey("Id", "BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Client");
 
                     b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Groups.TrainingGroup", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
+                        .WithMany("Groups")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Branches.Hall", "Hall")
+                        .WithMany("Groups")
+                        .HasForeignKey("HallId", "BranchId")
+                        .HasPrincipalKey("Id", "BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Hall");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainer", b =>
@@ -606,6 +750,20 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("Trainer");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Branches.Branch", b =>
+                {
+                    b.Navigation("Clients");
+
+                    b.Navigation("Groups");
+
+                    b.Navigation("Halls");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Branches.Hall", b =>
+                {
+                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Clients.Client", b =>

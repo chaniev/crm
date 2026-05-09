@@ -60,6 +60,8 @@ internal static class GroupEndpoints
             .ThenBy(group => group.Id)
             .Skip(paging.Skip)
             .Take(paging.Take)
+            .Include(group => group.Branch)
+            .Include(group => group.Hall)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.Clients)
@@ -175,6 +177,8 @@ internal static class GroupEndpoints
         var group = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = normalizedRequest.BranchId!.Value,
+            HallId = normalizedRequest.HallId!.Value,
             Name = normalizedRequest.Name,
             TrainingStartTime = trainingStartTime.Value,
             ScheduleText = normalizedRequest.ScheduleText,
@@ -239,7 +243,11 @@ internal static class GroupEndpoints
         }
 
         var normalizedRequest = GroupRequestValidator.NormalizeRequest(request);
-        var validationErrors = await GroupRequestValidator.ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
+        var validationErrors = await GroupRequestValidator.ValidateUpsertRequestAsync(
+            normalizedRequest,
+            dbContext,
+            cancellationToken,
+            group.Id);
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
@@ -249,6 +257,8 @@ internal static class GroupEndpoints
         var trainingStartTime = GroupRequestValidator.ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
 
         group.Name = normalizedRequest.Name;
+        group.BranchId = normalizedRequest.BranchId!.Value;
+        group.HallId = normalizedRequest.HallId!.Value;
         group.TrainingStartTime = trainingStartTime.Value;
         group.ScheduleText = normalizedRequest.ScheduleText;
         group.IsActive = normalizedRequest.IsActive ?? group.IsActive;
@@ -340,6 +350,8 @@ internal static class GroupEndpoints
     {
         return await dbContext.TrainingGroups
             .AsNoTracking()
+            .Include(group => group.Branch)
+            .Include(group => group.Hall)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.Clients)
@@ -353,6 +365,8 @@ internal static class GroupEndpoints
         CancellationToken cancellationToken)
     {
         return await dbContext.TrainingGroups
+            .Include(group => group.Branch)
+            .Include(group => group.Hall)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.Clients)
@@ -407,6 +421,10 @@ internal static class GroupEndpoints
         return new GroupListItemResponse(
             group.Id,
             group.Name,
+            group.BranchId,
+            group.Branch.Name,
+            group.HallId,
+            group.Hall.Name,
             FormatTrainingStartTime(group.TrainingStartTime),
             group.ScheduleText,
             group.IsActive,
@@ -433,6 +451,10 @@ internal static class GroupEndpoints
         return new GroupDetailsResponse(
             group.Id,
             group.Name,
+            group.BranchId,
+            group.Branch.Name,
+            group.HallId,
+            group.Hall.Name,
             FormatTrainingStartTime(group.TrainingStartTime),
             group.ScheduleText,
             group.IsActive,
@@ -466,6 +488,8 @@ internal static class GroupEndpoints
             new TrainingGroupAuditState(
                 group.Id,
                 group.Name,
+                group.BranchId,
+                group.HallId,
                 FormatTrainingStartTime(group.TrainingStartTime),
                 group.ScheduleText,
                 group.IsActive,

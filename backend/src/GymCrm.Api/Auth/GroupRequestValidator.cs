@@ -54,7 +54,8 @@ internal static class GroupRequestValidator
     public static async Task<Dictionary<string, string[]>> ValidateUpsertRequestAsync(
         NormalizedGroupRequest request,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? existingGroupId = null)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -81,6 +82,8 @@ internal static class GroupRequestValidator
             errors["trainingStartTime"] = [GroupResources.TrainingStartTimeInvalid(GroupApiConstants.TrainingStartTimeDisplayFormat)];
         }
 
+        await ValidateBranchAndHallAsync(request, existingGroupId, errors, dbContext, cancellationToken);
+
         var trainerErrors = await ValidateTrainerIdsAsync(request.RawTrainerIds, request.TrainerIds, dbContext, cancellationToken);
         foreach (var error in trainerErrors)
         {
@@ -88,6 +91,107 @@ internal static class GroupRequestValidator
         }
 
         return errors;
+    }
+
+    private static async Task ValidateBranchAndHallAsync(
+        NormalizedGroupRequest request,
+        Guid? existingGroupId,
+        Dictionary<string, string[]> errors,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        if (!request.BranchId.HasValue)
+        {
+            errors["branchId"] = [GroupResources.BranchRequired];
+        }
+        else if (request.BranchId.Value == Guid.Empty)
+        {
+            errors["branchId"] = [GroupResources.InvalidBranchId];
+        }
+
+        if (!request.HallId.HasValue)
+        {
+            errors["hallId"] = [GroupResources.HallRequired];
+        }
+        else if (request.HallId.Value == Guid.Empty)
+        {
+            errors["hallId"] = [GroupResources.InvalidHallId];
+        }
+
+        if (errors.ContainsKey("branchId") || errors.ContainsKey("hallId"))
+        {
+            return;
+        }
+
+        var branchId = request.BranchId!.Value;
+        var branch = await dbContext.Branches
+            .AsNoTracking()
+            .Where(candidate => candidate.Id == branchId)
+            .Select(candidate => new
+            {
+                candidate.Id,
+                candidate.IsArchived
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (branch is null)
+        {
+            errors["branchId"] = [GroupResources.BranchMustExist];
+            return;
+        }
+
+        if (branch.IsArchived)
+        {
+            errors["branchId"] = [GroupResources.BranchMustBeActive];
+            return;
+        }
+
+        var hallId = request.HallId!.Value;
+        var hall = await dbContext.Halls
+            .AsNoTracking()
+            .Where(candidate => candidate.Id == hallId)
+            .Select(candidate => new
+            {
+                candidate.BranchId,
+                candidate.IsArchived
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (hall is null)
+        {
+            errors["hallId"] = [GroupResources.HallMustExist];
+            return;
+        }
+
+        if (hall.IsArchived)
+        {
+            errors["hallId"] = [GroupResources.HallMustBeActive];
+            return;
+        }
+
+        if (hall.BranchId != branchId)
+        {
+            errors["hallId"] = [GroupResources.HallMustBelongToBranch];
+            return;
+        }
+
+        if (!existingGroupId.HasValue)
+        {
+            return;
+        }
+
+        var hasClientsFromAnotherBranch = await dbContext.ClientGroups
+            .AsNoTracking()
+            .AnyAsync(
+                clientGroup =>
+                    clientGroup.GroupId == existingGroupId.Value &&
+                    clientGroup.Client.BranchId != branchId,
+                cancellationToken);
+
+        if (hasClientsFromAnotherBranch)
+        {
+            errors["branchId"] = [GroupResources.AssignedClientsMustBelongToBranch];
+        }
     }
 
     public static async Task<Dictionary<string, string[]>> ValidateTrainerIdsAsync(
@@ -126,6 +230,8 @@ internal static class GroupRequestValidator
     {
         return new NormalizedGroupRequest(
             request.Name?.Trim() ?? string.Empty,
+            request.BranchId,
+            request.HallId,
             request.TrainingStartTime?.Trim() ?? string.Empty,
             request.ScheduleText?.Trim() ?? string.Empty,
             request.IsActive,

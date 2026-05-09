@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
@@ -58,6 +59,7 @@ public class ClientsApiTests
                 FirstName = "Иван",
                 MiddleName = (string?)null,
                 Phone = "+79990001122",
+                BranchId = seeded.BranchId,
                 Notes = "Первичная заметка по клиенту",
                 Contacts = new[]
                 {
@@ -109,6 +111,7 @@ public class ClientsApiTests
                        FirstName = "Мария",
                        MiddleName = "Ивановна",
                        Phone = "+79990001199",
+                       BranchId = seeded.BranchId,
                        Notes = "Обновленная заметка",
                        Contacts = new[]
                        {
@@ -223,6 +226,7 @@ public class ClientsApiTests
                    {
                        FirstName = "Forbidden",
                        Phone = "+79990008888",
+                       BranchId = seeded.BranchId,
                        GroupIds = new[] { seeded.GroupOneId }
                    },
                    actorSession.CsrfToken))
@@ -237,6 +241,7 @@ public class ClientsApiTests
                    {
                        FirstName = "Forbidden",
                        Phone = "+79990008888",
+                       BranchId = seeded.BranchId,
                        GroupIds = Array.Empty<Guid>()
                    },
                    actorSession.CsrfToken))
@@ -271,6 +276,147 @@ public class ClientsApiTests
             var filterPayload = await ReadJsonElementAsync(filterByGroupResponse);
             var clientsPayload = GetArrayPayload(filterPayload, "data", "items", "clients");
             Assert.Equal(0, clientsPayload.GetArrayLength());
+        }
+    }
+
+    [Fact]
+    public async Task Client_transfer_changes_branch_clears_groups_preserves_membership_and_validates_target_group()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+
+        Guid targetBranchId;
+        Guid targetGroupId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = DateTimeOffset.UtcNow;
+            var targetBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "Transfer Branch",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var targetHall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = targetBranch.Id,
+                Name = "Transfer Hall",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var targetGroup = new TrainingGroup
+            {
+                Id = Guid.NewGuid(),
+                BranchId = targetBranch.Id,
+                HallId = targetHall.Id,
+                Name = "Transfer Group",
+                TrainingStartTime = new TimeOnly(10, 0),
+                ScheduleText = "Вт-Чт",
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            dbContext.Branches.Add(targetBranch);
+            dbContext.Halls.Add(targetHall);
+            dbContext.TrainingGroups.Add(targetGroup);
+            dbContext.ClientMemberships.Add(new ClientMembership
+            {
+                Id = Guid.NewGuid(),
+                ClientId = clientId,
+                MembershipType = MembershipType.Monthly,
+                PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
+                ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(1)),
+                PaymentAmount = 1200m,
+                IsPaid = true,
+                SingleVisitUsed = false,
+                PaidByUserId = seeded.HeadCoachId,
+                PaidAt = now,
+                ValidFrom = now,
+                ValidTo = null,
+                ChangeReason = ClientMembershipChangeReason.NewPurchase,
+                ChangedByUserId = seeded.HeadCoachId,
+                CreatedAt = now
+            });
+            await dbContext.SaveChangesAsync();
+
+            targetBranchId = targetBranch.Id;
+            targetGroupId = targetGroup.Id;
+        }
+
+        using (var invalidTransferResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/transfer",
+                   new
+                   {
+                       BranchId = targetBranchId,
+                       GroupId = seeded.GroupOneId
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, invalidTransferResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(invalidTransferResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("groupId", out _));
+        }
+
+        using (var transferWithoutGroupResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/transfer",
+                   new
+                   {
+                       BranchId = targetBranchId,
+                       GroupId = (Guid?)null
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, transferWithoutGroupResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(transferWithoutGroupResponse);
+            Assert.Equal(targetBranchId, GetGuidFromAnyCase(payload, "branchId", "BranchId"));
+            Assert.Empty(GetArrayPayload(payload.GetProperty("groupIds")).EnumerateArray());
+        }
+
+        using (var transferWithGroupResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/transfer",
+                   new
+                   {
+                       BranchId = targetBranchId,
+                       GroupId = targetGroupId
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, transferWithGroupResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(transferWithGroupResponse);
+            var groupIds = GetArrayPayload(payload.GetProperty("groupIds"))
+                .EnumerateArray()
+                .Select(item => Guid.Parse(item.GetString()!))
+                .ToArray();
+            Assert.Equal([targetGroupId], groupIds);
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var persistedClient = await dbContext.Clients
+                .Include(candidate => candidate.Groups)
+                .Include(candidate => candidate.Memberships)
+                .SingleAsync(candidate => candidate.Id == clientId);
+
+            Assert.Equal(targetBranchId, persistedClient.BranchId);
+            Assert.Equal([targetGroupId], persistedClient.Groups.Select(group => group.GroupId).ToArray());
+            Assert.Single(persistedClient.Memberships.Where(membership => membership.ValidTo == null));
         }
     }
 
@@ -581,6 +727,7 @@ public class ClientsApiTests
                     FirstName = "Тест",
                     MiddleName = "А",
                     Phone = $"+7999000{Guid.NewGuid():N}".Substring(0, 11),
+                    BranchId = seeded.BranchId,
                     Contacts = Array.Empty<object>(),
                     GroupIds = new[] { seeded.GroupOneId }
                 },
@@ -829,7 +976,8 @@ public class ClientsApiTests
             dbContext.ClientGroups.Add(new ClientGroup
             {
                 ClientId = clientId,
-                GroupId = seeded.GroupTwoId
+                GroupId = seeded.GroupTwoId,
+                BranchId = seeded.BranchId
             });
 
             await dbContext.SaveChangesAsync();
@@ -929,7 +1077,8 @@ public class ClientsApiTests
             dbContext.ClientGroups.Add(new ClientGroup
             {
                 ClientId = clientId,
-                GroupId = seeded.GroupTwoId
+                GroupId = seeded.GroupTwoId,
+                BranchId = seeded.BranchId
             });
 
             dbContext.GroupTrainers.Add(new GroupTrainer
@@ -1207,6 +1356,7 @@ public class ClientsApiTests
                     FirstName = firstName,
                     MiddleName = "Тест",
                     Phone = phone,
+                    BranchId = seeded.BranchId,
                     Contacts = Array.Empty<object>(),
                     GroupIds = groupIds
                 },
@@ -2410,6 +2560,7 @@ public class ClientsApiTests
                 FirstName = "",
                 MiddleName = "",
                 Phone = "",
+                BranchId = seeded.BranchId,
                 Notes = new string('N', Client.NotesMaxLength + 1),
                 Contacts = new object[]
                 {
@@ -2452,6 +2603,99 @@ public class ClientsApiTests
     }
 
     [Fact]
+    public async Task Client_create_requires_branch_and_rejects_group_from_another_branch()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var missingBranchResponse = await PostJsonAsync(
+                   client,
+                   "/clients",
+                   new
+                   {
+                       LastName = "No",
+                       FirstName = "Branch",
+                       Phone = "+79990003331",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = Array.Empty<Guid>()
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, missingBranchResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(missingBranchResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("branchId", out _));
+        }
+
+        Guid foreignGroupId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = DateTimeOffset.UtcNow;
+            var foreignBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "Foreign Branch",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var foreignHall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = foreignBranch.Id,
+                Name = "Foreign Hall",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var foreignGroup = new TrainingGroup
+            {
+                Id = Guid.NewGuid(),
+                BranchId = foreignBranch.Id,
+                HallId = foreignHall.Id,
+                Name = "Foreign Group",
+                TrainingStartTime = new TimeOnly(11, 0),
+                ScheduleText = "Пн",
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            dbContext.Branches.Add(foreignBranch);
+            dbContext.Halls.Add(foreignHall);
+            dbContext.TrainingGroups.Add(foreignGroup);
+            await dbContext.SaveChangesAsync();
+            foreignGroupId = foreignGroup.Id;
+        }
+
+        using (var crossBranchResponse = await PostJsonAsync(
+                   client,
+                   "/clients",
+                   new
+                   {
+                       LastName = "Cross",
+                       FirstName = "Branch",
+                       Phone = "+79990003332",
+                       BranchId = seeded.BranchId,
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { foreignGroupId }
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, crossBranchResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(crossBranchResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("groupIds", out _));
+        }
+    }
+
+    [Fact]
     public async Task Client_notes_are_normalized_to_null_when_request_contains_only_whitespace()
     {
         await using var factory = new ClientsAppFactory();
@@ -2473,6 +2717,7 @@ public class ClientsApiTests
                        LastName = "Нормализация",
                        FirstName = "Заметок",
                        Phone = "+79990001888",
+                       BranchId = seeded.BranchId,
                        Notes = "Есть текст",
                        Contacts = Array.Empty<object>(),
                        GroupIds = new[] { seeded.GroupOneId }
@@ -2493,6 +2738,7 @@ public class ClientsApiTests
                        LastName = "Нормализация",
                        FirstName = "Заметок",
                        Phone = "+79990001888",
+                       BranchId = seeded.BranchId,
                        Notes = "   \t  ",
                        Contacts = Array.Empty<object>(),
                        GroupIds = new[] { seeded.GroupOneId }
@@ -2540,6 +2786,7 @@ public class ClientsApiTests
                        LastName = "Audit",
                        FirstName = "Client",
                        Phone = "+79990001300",
+                       BranchId = seeded.BranchId,
                        Notes = "Первая audit заметка",
                        Contacts = Array.Empty<object>(),
                        GroupIds = new[] { seeded.GroupOneId }
@@ -2560,6 +2807,7 @@ public class ClientsApiTests
                        FirstName = "Updated",
                        MiddleName = "Client",
                        Phone = "+79990001301",
+                       BranchId = seeded.BranchId,
                        Notes = "Обновленная audit заметка",
                        Contacts = new[]
                        {
@@ -2645,9 +2893,44 @@ public class ClientsApiTests
         var administrator = CreateUser("administrator-stage6a", "Администратор Stage 6a", UserRole.Administrator, sharedPassword, now, passwordHashService);
         var coach = CreateUser("coach-stage6a", "Тренер Stage 6a", UserRole.Coach, sharedPassword, now, passwordHashService);
 
+        var branch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Main Branch",
+            Address = "Main address",
+            Description = "Primary test branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var hallOne = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            Name = "Hall One",
+            Description = "First test hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var hallTwo = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            Name = "Hall Two",
+            Description = "Second test hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         var groupOne = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            HallId = hallOne.Id,
             Name = "Group One",
             TrainingStartTime = new TimeOnly(9, 0),
             ScheduleText = "Пн-Ср-Пт",
@@ -2659,6 +2942,8 @@ public class ClientsApiTests
         var groupTwo = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            HallId = hallTwo.Id,
             Name = "Group Two",
             TrainingStartTime = new TimeOnly(18, 30),
             ScheduleText = "Вт-Чт",
@@ -2670,6 +2955,7 @@ public class ClientsApiTests
         var archivedClient = new Client
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
             LastName = "Архивный",
             FirstName = "Клиент",
             Phone = "+79990001000",
@@ -2679,6 +2965,8 @@ public class ClientsApiTests
         };
 
         dbContext.Users.AddRange(headCoach, administrator, coach);
+        dbContext.Branches.Add(branch);
+        dbContext.Halls.AddRange(hallOne, hallTwo);
         dbContext.TrainingGroups.AddRange(groupOne, groupTwo);
         dbContext.Clients.Add(archivedClient);
         await dbContext.SaveChangesAsync();
@@ -2690,6 +2978,9 @@ public class ClientsApiTests
             coach.Id,
             coach.Login,
             sharedPassword,
+            branch.Id,
+            hallOne.Id,
+            hallTwo.Id,
             groupOne.Id,
             groupTwo.Id,
             archivedClient.Id);
@@ -2922,6 +3213,7 @@ public class ClientsApiTests
         string csrfToken,
         Guid groupId)
     {
+        var branchId = await ResolveGroupBranchIdAsync(client, groupId);
         using var createResponse = await PostJsonAsync(
             client,
             "/clients",
@@ -2931,6 +3223,7 @@ public class ClientsApiTests
                 FirstName = "Client",
                 MiddleName = "Tests",
                 Phone = $"+7999000{Guid.NewGuid():N}".Substring(0, 11),
+                BranchId = branchId,
                 Contacts = Array.Empty<object>(),
                 GroupIds = new[] { groupId }
             },
@@ -2942,6 +3235,17 @@ public class ClientsApiTests
 
         var createPayload = await ReadJsonElementAsync(createResponse);
         return await ExtractClientIdFromResponseAsync(createResponse, createPayload);
+    }
+
+    private static async Task<Guid> ResolveGroupBranchIdAsync(HttpClient client, Guid groupId)
+    {
+        using var groupResponse = await client.GetAsync($"/groups/{groupId}");
+        Assert.Equal(HttpStatusCode.OK, groupResponse.StatusCode);
+
+        var groupPayload = await ReadJsonElementAsync(groupResponse);
+        var branchId = GetGuidFromAnyCase(groupPayload, "branchId", "BranchId");
+        Assert.NotEqual(Guid.Empty, branchId);
+        return branchId;
     }
 
     private static async Task<HttpResponseMessage> SendMembershipActionAsync(
@@ -3356,6 +3660,9 @@ public class ClientsApiTests
         Guid CoachId,
         string CoachLogin,
         string SharedPassword,
+        Guid BranchId,
+        Guid HallOneId,
+        Guid HallTwoId,
         Guid GroupOneId,
         Guid GroupTwoId,
         Guid ArchivedClientId);

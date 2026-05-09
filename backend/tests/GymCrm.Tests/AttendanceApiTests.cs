@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
@@ -353,9 +354,38 @@ public class AttendanceApiTests
             passwordHashService);
         var coach = CreateUser("coach-stage7", "Тренер Stage 7", UserRole.Coach, sharedPassword, now, passwordHashService);
 
+        var branch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Attendance Branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var assignedHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            Name = "Attendance Hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var unassignedHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            Name = "Unassigned Hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         var assignedGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            HallId = assignedHall.Id,
             Name = "Attendance Group",
             TrainingStartTime = new TimeOnly(8, 0),
             ScheduleText = "Пн,Ср,Пт",
@@ -367,6 +397,8 @@ public class AttendanceApiTests
         var unassignedGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            HallId = unassignedHall.Id,
             Name = "Unassigned Group",
             TrainingStartTime = new TimeOnly(19, 0),
             ScheduleText = "Вт,Чт",
@@ -378,6 +410,7 @@ public class AttendanceApiTests
         var warningClient = new Client
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
             LastName = "Проблемный",
             FirstName = "Клиент",
             Phone = "+79990001110",
@@ -388,6 +421,7 @@ public class AttendanceApiTests
         var singleVisitClient = new Client
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
             LastName = "Разовый",
             FirstName = "Клиент",
             Phone = "+79990001111",
@@ -398,6 +432,7 @@ public class AttendanceApiTests
         var professionalClient = new Client
         {
             Id = Guid.NewGuid(),
+            BranchId = branch.Id,
             LastName = "Профессионал",
             FirstName = "Клиент",
             Phone = "+79990001112",
@@ -408,6 +443,8 @@ public class AttendanceApiTests
         };
 
         dbContext.Users.AddRange(headCoach, administrator, coach);
+        dbContext.Branches.Add(branch);
+        dbContext.Halls.AddRange(assignedHall, unassignedHall);
         dbContext.TrainingGroups.AddRange(assignedGroup, unassignedGroup);
         dbContext.Clients.AddRange(warningClient, singleVisitClient, professionalClient);
         dbContext.GroupTrainers.Add(new GroupTrainer
@@ -420,17 +457,20 @@ public class AttendanceApiTests
         dbContext.ClientGroups.Add(new ClientGroup
         {
             ClientId = warningClient.Id,
-            GroupId = assignedGroup.Id
+            GroupId = assignedGroup.Id,
+            BranchId = branch.Id
         });
         dbContext.ClientGroups.Add(new ClientGroup
         {
             ClientId = singleVisitClient.Id,
-            GroupId = assignedGroup.Id
+            GroupId = assignedGroup.Id,
+            BranchId = branch.Id
         });
         dbContext.ClientGroups.Add(new ClientGroup
         {
             ClientId = professionalClient.Id,
-            GroupId = assignedGroup.Id
+            GroupId = assignedGroup.Id,
+            BranchId = branch.Id
         });
 
         await AddMembershipAsync(

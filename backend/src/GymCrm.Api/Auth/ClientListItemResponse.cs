@@ -7,6 +7,8 @@ internal sealed record ClientListItemResponse(
     string? MiddleName,
     string FullName,
     string Phone,
+    Guid BranchId,
+    string BranchName,
     string Status,
     IReadOnlyList<Guid> GroupIds,
     IReadOnlyList<ClientGroupSummaryResponse> Groups,

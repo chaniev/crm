@@ -3,6 +3,8 @@ namespace GymCrm.Api.Auth;
 internal sealed record TrainingGroupAuditState(
     Guid Id,
     string Name,
+    Guid BranchId,
+    Guid HallId,
     string TrainingStartTime,
     string ScheduleText,
     bool IsActive,

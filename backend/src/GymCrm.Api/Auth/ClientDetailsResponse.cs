@@ -7,6 +7,8 @@ internal sealed record ClientDetailsResponse(
     string? MiddleName,
     string FullName,
     string Phone,
+    Guid BranchId,
+    string BranchName,
     string? Notes,
     string Status,
     IReadOnlyList<Guid> GroupIds,

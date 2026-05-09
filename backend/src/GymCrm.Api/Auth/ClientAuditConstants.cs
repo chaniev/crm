@@ -6,6 +6,7 @@ internal static class ClientAuditConstants
     public const string ClientUpdatedAction = "ClientUpdated";
     public const string ClientArchivedAction = "ClientArchived";
     public const string ClientRestoredAction = "ClientRestored";
+    public const string ClientTransferredAction = "ClientTransferred";
     public const string ClientProfessionalStatusEnabledAction = "ClientProfessionalStatusEnabled";
     public const string ClientProfessionalStatusDisabledAction = "ClientProfessionalStatusDisabled";
     public const string MembershipPurchasedAction = "ClientMembershipPurchased";

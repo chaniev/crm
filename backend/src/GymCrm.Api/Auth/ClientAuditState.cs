@@ -6,6 +6,7 @@ internal sealed record ClientAuditState(
     string? FirstName,
     string? MiddleName,
     string Phone,
+    Guid BranchId,
     string? Notes,
     bool IsProfessional,
     string? ProfessionalComment,

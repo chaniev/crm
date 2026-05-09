@@ -5,6 +5,7 @@ using System.Text.Json;
 using GymCrm.Application.Bot;
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Audit;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
@@ -120,7 +121,9 @@ public class InternalBotApiTests
         {
             Assert.Equal(HttpStatusCode.OK, adminGroupsResponse.StatusCode);
             var payload = await ReadJsonElementAsync(adminGroupsResponse);
-            Assert.Contains(payload.EnumerateArray(), item => item.GetProperty("id").GetString() == seeded.CoachGroupId.ToString());
+            var coachGroupPayload = payload.EnumerateArray().Single(item => item.GetProperty("id").GetString() == seeded.CoachGroupId.ToString());
+            Assert.NotEqual(Guid.Empty, Guid.Parse(coachGroupPayload.GetProperty("branchId").GetString()!));
+            Assert.NotEqual(Guid.Empty, Guid.Parse(coachGroupPayload.GetProperty("hallId").GetString()!));
         }
 
         using (var adminSaveResponse = await SendBotRequestAsync(
@@ -184,6 +187,7 @@ public class InternalBotApiTests
             var payload = await ReadJsonElementAsync(searchResponse);
             var item = payload.GetProperty("items")[0];
             Assert.Equal(JsonValueKind.Null, item.GetProperty("phone").ValueKind);
+            Assert.NotEqual(Guid.Empty, Guid.Parse(item.GetProperty("branchId").GetString()!));
         }
 
         using (var cardResponse = await SendBotRequestAsync(
@@ -328,6 +332,8 @@ public class InternalBotApiTests
         dbContext.GroupTrainers.RemoveRange(dbContext.GroupTrainers);
         dbContext.Attendance.RemoveRange(dbContext.Attendance);
         dbContext.AuditLogs.RemoveRange(dbContext.AuditLogs);
+        dbContext.Halls.RemoveRange(dbContext.Halls);
+        dbContext.Branches.RemoveRange(dbContext.Branches);
         await dbContext.SaveChangesAsync();
 
         var passwordHashService = scope.ServiceProvider.GetRequiredService<Application.Security.IPasswordHashService>();
@@ -341,9 +347,46 @@ public class InternalBotApiTests
         var inactiveCoach = CreateUser("bot-inactive", "Bot Inactive", UserRole.Coach, sharedPassword, passwordHashService, now, "tg-inactive", isActive: false);
         var mustChangePasswordCoach = CreateUser("bot-password", "Bot Password", UserRole.Coach, sharedPassword, passwordHashService, now, "tg-password", mustChangePassword: true);
 
+        var coachBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Bot Coach Branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var adminBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Bot Admin Branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var coachHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = coachBranch.Id,
+            Name = "Bot Coach Hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var adminHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = adminBranch.Id,
+            Name = "Bot Admin Hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         var coachGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = coachBranch.Id,
+            HallId = coachHall.Id,
             Name = "Coach Group",
             TrainingStartTime = new TimeOnly(10, 0),
             ScheduleText = "Mon/Wed/Fri",
@@ -354,6 +397,8 @@ public class InternalBotApiTests
         var adminGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
+            BranchId = adminBranch.Id,
+            HallId = adminHall.Id,
             Name = "Admin Group",
             TrainingStartTime = new TimeOnly(12, 0),
             ScheduleText = "Tue/Thu",
@@ -362,18 +407,20 @@ public class InternalBotApiTests
             UpdatedAt = now
         };
 
-        var coachClient = CreateClient("Coach", "Client", "+79990000001", now);
-        var expiringTodayClient = CreateClient("Expiring", "Today", "+79990000002", now);
-        var expiringDayNineClient = CreateClient("Expiring", "Nine", "+79990000003", now);
-        var expiringDayTenClient = CreateClient("Expiring", "Ten", "+79990000004", now);
-        var expiringDayElevenClient = CreateClient("Expiring", "Eleven", "+79990000005", now);
-        var expiredClient = CreateClient("Expired", "Client", "+79990000006", now);
-        var paymentClient = CreateClient("Payment", "Client", "+79990000007", now);
-        var professionalPaymentClient = CreateClient("Professional", "Payment", "+79990000008", now);
+        var coachClient = CreateClient("Coach", "Client", "+79990000001", coachBranch.Id, now);
+        var expiringTodayClient = CreateClient("Expiring", "Today", "+79990000002", adminBranch.Id, now);
+        var expiringDayNineClient = CreateClient("Expiring", "Nine", "+79990000003", adminBranch.Id, now);
+        var expiringDayTenClient = CreateClient("Expiring", "Ten", "+79990000004", adminBranch.Id, now);
+        var expiringDayElevenClient = CreateClient("Expiring", "Eleven", "+79990000005", adminBranch.Id, now);
+        var expiredClient = CreateClient("Expired", "Client", "+79990000006", adminBranch.Id, now);
+        var paymentClient = CreateClient("Payment", "Client", "+79990000007", adminBranch.Id, now);
+        var professionalPaymentClient = CreateClient("Professional", "Payment", "+79990000008", adminBranch.Id, now);
         professionalPaymentClient.IsProfessional = true;
         professionalPaymentClient.ProfessionalComment = "Bot unpaid list must skip professional client";
 
         dbContext.Users.AddRange(headCoach, administrator, coach, inactiveCoach, mustChangePasswordCoach);
+        dbContext.Branches.AddRange(coachBranch, adminBranch);
+        dbContext.Halls.AddRange(coachHall, adminHall);
         dbContext.TrainingGroups.AddRange(coachGroup, adminGroup);
         dbContext.Clients.AddRange(
             coachClient,
@@ -386,14 +433,14 @@ public class InternalBotApiTests
             professionalPaymentClient);
         dbContext.GroupTrainers.Add(new GroupTrainer { GroupId = coachGroup.Id, TrainerId = coach.Id });
         dbContext.ClientGroups.AddRange(
-            new ClientGroup { ClientId = coachClient.Id, GroupId = coachGroup.Id },
-            new ClientGroup { ClientId = expiringTodayClient.Id, GroupId = adminGroup.Id },
-            new ClientGroup { ClientId = expiringDayNineClient.Id, GroupId = adminGroup.Id },
-            new ClientGroup { ClientId = expiringDayTenClient.Id, GroupId = adminGroup.Id },
-            new ClientGroup { ClientId = expiringDayElevenClient.Id, GroupId = adminGroup.Id },
-            new ClientGroup { ClientId = expiredClient.Id, GroupId = adminGroup.Id },
-            new ClientGroup { ClientId = paymentClient.Id, GroupId = adminGroup.Id },
-            new ClientGroup { ClientId = professionalPaymentClient.Id, GroupId = adminGroup.Id });
+            new ClientGroup { ClientId = coachClient.Id, GroupId = coachGroup.Id, BranchId = coachBranch.Id },
+            new ClientGroup { ClientId = expiringTodayClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id },
+            new ClientGroup { ClientId = expiringDayNineClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id },
+            new ClientGroup { ClientId = expiringDayTenClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id },
+            new ClientGroup { ClientId = expiringDayElevenClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id },
+            new ClientGroup { ClientId = expiredClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id },
+            new ClientGroup { ClientId = paymentClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id },
+            new ClientGroup { ClientId = professionalPaymentClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id });
 
         dbContext.ClientMemberships.AddRange(
             CreateMembership(coachClient.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, isPaid: false, now),
@@ -465,11 +512,12 @@ public class InternalBotApiTests
         return user;
     }
 
-    private static Client CreateClient(string lastName, string firstName, string phone, DateTimeOffset now)
+    private static Client CreateClient(string lastName, string firstName, string phone, Guid branchId, DateTimeOffset now)
     {
         return new Client
         {
             Id = Guid.NewGuid(),
+            BranchId = branchId,
             LastName = lastName,
             FirstName = firstName,
             Phone = phone,

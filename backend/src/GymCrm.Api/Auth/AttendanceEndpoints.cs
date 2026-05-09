@@ -56,6 +56,10 @@ internal static class AttendanceEndpoints
             .Select(group => new AttendanceGroupResponse(
                 group.Id,
                 group.Name,
+                group.BranchId,
+                group.Branch.Name,
+                group.HallId,
+                group.Hall.Name,
                 group.TrainingStartTime.ToString("HH\\:mm"),
                 group.ScheduleText,
                 group.IsActive,
@@ -113,6 +117,12 @@ internal static class AttendanceEndpoints
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
+            .Include(client => client.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Branch)
+            .Include(client => client.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Hall)
             .Include(client => client.AttendanceEntries)
             .AsSplitQuery()
             .OrderBy(client => client.LastName ?? string.Empty)
@@ -372,6 +382,10 @@ internal static class AttendanceEndpoints
             .Select(clientGroup => new ClientGroupSummaryResponse(
                 clientGroup.GroupId,
                 clientGroup.Group.Name,
+                clientGroup.Group.BranchId,
+                clientGroup.Group.Branch.Name,
+                clientGroup.Group.HallId,
+                clientGroup.Group.Hall.Name,
                 clientGroup.Group.IsActive,
                 clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
                 clientGroup.Group.ScheduleText))

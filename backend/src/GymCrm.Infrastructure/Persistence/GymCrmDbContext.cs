@@ -1,5 +1,6 @@
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Audit;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Bot;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
@@ -11,6 +12,8 @@ namespace GymCrm.Infrastructure.Persistence;
 public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Branch> Branches => Set<Branch>();
+    public DbSet<Hall> Halls => Set<Hall>();
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<ClientContact> ClientContacts => Set<ClientContact>();
     public DbSet<ClientMembership> ClientMemberships => Set<ClientMembership>();

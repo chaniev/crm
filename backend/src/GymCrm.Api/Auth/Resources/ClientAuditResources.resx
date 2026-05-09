@@ -24,6 +24,9 @@
   <data name="ClientRestoredDescription" xml:space="preserve">
     <value>Пользователь '{0}' восстановил клиента '{1}'.</value>
   </data>
+  <data name="ClientTransferredDescription" xml:space="preserve">
+    <value>Пользователь '{0}' перевел клиента '{1}' в другой филиал.</value>
+  </data>
   <data name="ClientProfessionalStatusEnabledDescription" xml:space="preserve">
     <value>Пользователь '{0}' включил признак профессионала для клиента '{1}'.</value>
   </data>

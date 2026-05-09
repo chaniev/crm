@@ -82,6 +82,10 @@ internal sealed class BotApiService(
             .Select(group => new BotAttendanceGroup(
                 group.Id,
                 group.Name,
+                group.BranchId,
+                group.Branch.Name,
+                group.HallId,
+                group.Hall.Name,
                 group.TrainingStartTime.ToString("HH\\:mm"),
                 group.ScheduleText,
                 group.IsActive,
@@ -121,10 +125,17 @@ internal sealed class BotApiService(
             .Where(client =>
                 client.Status == ClientStatus.Active &&
                 client.Groups.Any(clientGroup => clientGroup.GroupId == groupId))
+            .Include(client => client.Branch)
             .Include(client => client.Memberships)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(currentGroup => currentGroup.Trainers)
+            .Include(client => client.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Branch)
+            .Include(client => client.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Hall)
             .Include(client => client.AttendanceEntries)
             .AsSplitQuery()
             .OrderBy(client => client.LastName ?? string.Empty)
@@ -316,10 +327,17 @@ internal sealed class BotApiService(
         }
 
         var clients = await baseQuery
+            .Include(client => client.Branch)
             .Include(client => client.Memberships)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
+            .Include(client => client.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Branch)
+            .Include(client => client.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Hall)
             .AsSplitQuery()
             .OrderBy(client => client.LastName ?? string.Empty)
             .ThenBy(client => client.FirstName ?? string.Empty)
@@ -356,10 +374,17 @@ internal sealed class BotApiService(
         var user = resolvedUser.Value!;
         var client = await dbContext.Clients
             .AsNoTracking()
+            .Include(currentClient => currentClient.Branch)
             .Include(currentClient => currentClient.Memberships)
             .Include(currentClient => currentClient.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
+            .Include(currentClient => currentClient.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Branch)
+            .Include(currentClient => currentClient.Groups)
+                .ThenInclude(clientGroup => clientGroup.Group)
+                    .ThenInclude(group => group.Hall)
             .AsSplitQuery()
             .SingleOrDefaultAsync(candidate => candidate.Id == clientId, cancellationToken);
 
@@ -946,6 +971,8 @@ internal sealed class BotApiService(
         return new BotAttendanceClient(
             client.Id,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
+            client.BranchId,
+            client.Branch.Name,
             MapGroups(visibleGroups),
             MapPhoto(client),
             isPresent,
@@ -976,6 +1003,8 @@ internal sealed class BotApiService(
             client.Id,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             user.Role == UserRole.Coach ? null : client.Phone,
+            client.BranchId,
+            client.Branch.Name,
             client.Status.ToString(),
             MapGroups(groups),
             MapPhoto(client),
@@ -1007,6 +1036,8 @@ internal sealed class BotApiService(
             client.Id,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             user.Role == UserRole.Coach ? null : client.Phone,
+            client.BranchId,
+            client.Branch.Name,
             client.Status.ToString(),
             MapGroups(groups),
             MapPhoto(client),
@@ -1039,6 +1070,10 @@ internal sealed class BotApiService(
             .Select(clientGroup => new BotClientGroupSummary(
                 clientGroup.GroupId,
                 clientGroup.Group.Name,
+                clientGroup.Group.BranchId,
+                clientGroup.Group.Branch.Name,
+                clientGroup.Group.HallId,
+                clientGroup.Group.Hall.Name,
                 clientGroup.Group.IsActive,
                 clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
                 clientGroup.Group.ScheduleText))
