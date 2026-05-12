@@ -89,8 +89,30 @@ type TrainerOption = {
   login: string
 }
 
+type BranchState = {
+  id: string
+  name: string
+  address: string
+  description: string
+  isArchived: boolean
+}
+
+type HallState = {
+  id: string
+  branchId: string
+  branchName: string
+  name: string
+  description: string
+  isArchived: boolean
+  groupCount: number
+}
+
 type GroupState = {
   id: string
+  branchId: string
+  branchName: string
+  hallId: string
+  hallName: string
   name: string
   trainingStartTime: string
   scheduleText: string
@@ -102,6 +124,8 @@ type GroupState = {
 
 type ClientState = {
   id: string
+  branchId: string
+  branchName: string
   lastName: string
   firstName: string
   middleName: string
@@ -137,8 +161,38 @@ const trainers: TrainerOption[] = [
   },
 ]
 
+const baseBranch: BranchState = {
+  id: 'branch-1',
+  name: 'Центр',
+  address: 'ул. Тестовая, 1',
+  description: 'Основной филиал',
+  isArchived: false,
+}
+
+const secondaryBranch: BranchState = {
+  id: 'branch-2',
+  name: 'Север',
+  address: 'ул. Северная, 2',
+  description: 'Второй филиал',
+  isArchived: false,
+}
+
+const baseHall: HallState = {
+  id: 'hall-1',
+  branchId: baseBranch.id,
+  branchName: baseBranch.name,
+  name: 'Основной зал',
+  description: 'Зал для групп',
+  isArchived: false,
+  groupCount: 1,
+}
+
 const assignedAttendanceGroup = {
   id: 'group-coach',
+  branchId: baseBranch.id,
+  branchName: baseBranch.name,
+  hallId: baseHall.id,
+  hallName: baseHall.name,
   name: 'Назначенная группа',
   trainingStartTime: '19:00',
   scheduleText: 'Вт, Чт',
@@ -151,6 +205,10 @@ const assignedAttendanceGroup = {
 const baseGroups: GroupState[] = [
   {
     id: 'group-1',
+    branchId: baseBranch.id,
+    branchName: baseBranch.name,
+    hallId: baseHall.id,
+    hallName: baseHall.name,
     name: 'Группа 1',
     trainingStartTime: '18:00',
     scheduleText: 'Пн, Ср, Пт',
@@ -163,6 +221,8 @@ const baseGroups: GroupState[] = [
 
 const baseClient: ClientState = {
   id: 'client-1',
+  branchId: baseBranch.id,
+  branchName: baseBranch.name,
   lastName: 'Иванов',
   firstName: 'Иван',
   middleName: 'Иванович',
@@ -197,6 +257,10 @@ const SCREEN_HEADINGS = [
   {
     path: '/audit',
     heading: 'Журнал действий показывает важные изменения в клубе',
+  },
+  {
+    path: '/settings',
+    heading: 'Филиалы и залы',
   },
 ]
 
@@ -264,6 +328,7 @@ test.describe('Основные e2e сценарии', () => {
           firstName: 'Пётр',
           middleName: 'Петрович',
           phone: '+79990005555',
+          branchId: baseBranch.id,
           notes: 'Нужен звонок за день до первого занятия.',
           groupIds: ['group-1'],
           contacts: [
@@ -348,6 +413,7 @@ test.describe('Основные e2e сценарии', () => {
         firstName: 'Пётр',
         middleName: 'Петрович',
         phone: '+79990005555',
+        branchId: baseBranch.id,
         notes: 'Нужен звонок за день до первого занятия.',
         groupIds: ['group-1'],
         contacts: [
@@ -429,6 +495,7 @@ test.describe('Основные e2e сценарии', () => {
           firstName: 'Иван',
           middleName: 'Иванович',
           phone: '+79990001111',
+          branchId: baseBranch.id,
           notes: 'Позвонить маме после 18:00 перед продлением.',
           groupIds: ['group-1'],
           contacts: [],
@@ -463,6 +530,7 @@ test.describe('Основные e2e сценарии', () => {
         firstName: 'Иван',
         middleName: 'Иванович',
         phone: '+79990001111',
+        branchId: baseBranch.id,
         notes: 'Позвонить маме после 18:00 перед продлением.',
         groupIds: ['group-1'],
         contacts: [],
@@ -609,6 +677,67 @@ test.describe('Основные e2e сценарии', () => {
     ).toHaveCount(0)
   })
 
+  test('Перевод клиента меняет филиал и может оставить клиента без группы', async ({
+    page,
+  }) => {
+    let transferPayload: Record<string, unknown> | null = null
+    const groups: GroupState[] = [...baseGroups]
+    let client: ClientState = { ...baseClient }
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/groups' && method === 'GET') {
+        await fulfillJson(route, 200, buildGroupsListPayload(groups))
+        return true
+      }
+
+      if (pathname === '/api/clients/client-1' && method === 'GET') {
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      if (pathname === '/api/clients/client-1/transfer' && method === 'POST') {
+        transferPayload = route.request().postDataJSON()
+        expect(route.request().headers()['x-csrf-token']).toBe(
+          headCoachSession.csrfToken,
+        )
+        expect(transferPayload).toEqual({
+          branchId: secondaryBranch.id,
+          groupId: null,
+        })
+
+        client = {
+          ...client,
+          branchId: secondaryBranch.id,
+          branchName: secondaryBranch.name,
+          groupIds: [],
+        }
+
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/clients/client-1')
+    await page.getByRole('button', { name: 'Перевести' }).click()
+    await page.getByRole('combobox', { name: 'Целевой филиал' }).click()
+    await page.getByRole('option', { name: /Север/ }).click()
+    await page.getByRole('button', { name: 'Перевести клиента' }).click()
+
+    await expect.poll(() => transferPayload).toEqual({
+      branchId: secondaryBranch.id,
+      groupId: null,
+    })
+    await expect(page.getByText('Север', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Клиент пока не включен ни в одну группу.')).toBeVisible()
+  })
+
   test('Создание клиента отображает backend errors.fullName под полем Фамилия', async ({
     page,
   }) => {
@@ -669,6 +798,10 @@ test.describe('Основные e2e сценарии', () => {
   }) => {
     const filterGroup: GroupState = {
       id: 'group-filter',
+      branchId: baseBranch.id,
+      branchName: baseBranch.name,
+      hallId: baseHall.id,
+      hallName: baseHall.name,
       name: 'Фильтр-группа',
       trainingStartTime: '17:00',
       scheduleText: 'Пн, Ср',
@@ -847,6 +980,8 @@ test.describe('Основные e2e сценарии', () => {
         )
         expect(payload).toEqual({
           name: 'Новая тестовая группа',
+          branchId: baseBranch.id,
+          hallId: baseHall.id,
           trainingStartTime: '19:00',
           scheduleText: 'Вт, Чт',
           isActive: true,
@@ -855,6 +990,10 @@ test.describe('Основные e2e сценарии', () => {
 
         const createdGroup: GroupState = {
           id: createdGroupId,
+          branchId: payload.branchId,
+          branchName: baseBranch.name,
+          hallId: payload.hallId,
+          hallName: baseHall.name,
           name: 'Новая тестовая группа',
           trainingStartTime: '19:00',
           scheduleText: 'Вт, Чт',
@@ -878,6 +1017,8 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByLabel('Название группы').fill('Новая тестовая группа')
     await page.getByLabel('Время начала').fill('19:00')
     await page.getByLabel('Расписание').fill('Вт, Чт')
+    await page.getByRole('combobox', { name: 'Зал' }).click()
+    await page.getByRole('option', { name: 'Основной зал' }).click()
 
     const trainerSelect = page.getByRole('combobox', { name: 'Тренеры группы' })
     await trainerSelect.click()
@@ -891,6 +1032,8 @@ test.describe('Основные e2e сценарии', () => {
       .poll(() => createGroupPayload)
       .toEqual({
         name: 'Новая тестовая группа',
+        branchId: baseBranch.id,
+        hallId: baseHall.id,
         trainingStartTime: '19:00',
         scheduleText: 'Вт, Чт',
         isActive: true,
@@ -957,6 +1100,10 @@ test.describe('Основные e2e сценарии', () => {
         const payload = route.request().postDataJSON()
         const created: GroupState = {
           id: 'group-auto-1',
+          branchId: payload.branchId,
+          branchName: baseBranch.name,
+          hallId: payload.hallId,
+          hallName: baseHall.name,
           name: payload.name,
           trainingStartTime: payload.trainingStartTime,
           scheduleText: payload.scheduleText,
@@ -980,6 +1127,8 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByLabel('Название группы').fill('Черновик для автообновления')
     await page.getByLabel('Время начала').fill('20:00')
     await page.getByLabel('Расписание').fill('Пн, Ср')
+    await page.getByRole('combobox', { name: 'Зал' }).click()
+    await page.getByRole('option', { name: 'Основной зал' }).click()
     await page.getByRole('combobox', { name: 'Тренеры группы' }).click()
     await page.getByRole('option', { name: /Ирина Тренер/ }).click()
     await page.getByRole('button', { name: 'Создать группу' }).click()
@@ -992,6 +1141,204 @@ test.describe('Основные e2e сценарии', () => {
     await expect(createdGroupCard.getByText('Черновик для автообновления')).toBeVisible()
     await expect(createdGroupCard.getByText('Тренеры: Ирина Тренер')).toBeVisible()
     expect(groupListCalls).toBeGreaterThanOrEqual(2)
+  })
+
+  test('Настройки позволяют создать и изменить филиал, зал и показывают blocked hall errors', async ({
+    page,
+  }) => {
+    let branchCreatePayload: Record<string, unknown> | null = null
+    let branchUpdatePayload: Record<string, unknown> | null = null
+    let hallCreatePayload: Record<string, unknown> | null = null
+    let hallUpdatePayload: Record<string, unknown> | null = null
+    const branches: BranchState[] = [{ ...baseBranch }]
+    const halls: HallState[] = [{ ...baseHall }]
+
+    function branchResponse(branch: BranchState) {
+      return {
+        ...toBranchPayload(branch),
+        hallCount: halls.filter((hall) => hall.branchId === branch.id).length,
+        groupCount: branch.id === baseBranch.id ? 1 : 0,
+        clientCount: branch.id === baseBranch.id ? 1 : 0,
+      }
+    }
+
+    await mockApi(page, async ({ pathname, method, route, searchParams }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/branches' && method === 'GET') {
+        await fulfillJson(route, 200, branches.map(branchResponse))
+        return true
+      }
+
+      if (pathname === '/api/halls' && method === 'GET') {
+        const branchId = searchParams.get('branchId')
+        const visibleHalls = branchId
+          ? halls.filter((hall) => hall.branchId === branchId)
+          : halls
+
+        await fulfillJson(route, 200, visibleHalls.map(toHallPayload))
+        return true
+      }
+
+      if (pathname === '/api/branches' && method === 'POST') {
+        branchCreatePayload = route.request().postDataJSON()
+        const branch: BranchState = {
+          id: 'branch-created',
+          name: String(branchCreatePayload.name),
+          address: String(branchCreatePayload.address ?? ''),
+          description: String(branchCreatePayload.description ?? ''),
+          isArchived: false,
+        }
+        branches.push(branch)
+        await fulfillJson(route, 200, branchResponse(branch))
+        return true
+      }
+
+      if (pathname === '/api/branches/branch-created' && method === 'PUT') {
+        branchUpdatePayload = route.request().postDataJSON()
+        const branch = branches.find((item) => item.id === 'branch-created')!
+        branch.name = String(branchUpdatePayload.name)
+        branch.address = String(branchUpdatePayload.address ?? '')
+        branch.description = String(branchUpdatePayload.description ?? '')
+        await fulfillJson(route, 200, branchResponse(branch))
+        return true
+      }
+
+      if (pathname === '/api/branches/branch-created/archive' && method === 'PUT') {
+        const branch = branches.find((item) => item.id === 'branch-created')!
+        branch.isArchived = true
+        await fulfillJson(route, 200, branchResponse(branch))
+        return true
+      }
+
+      if (pathname === '/api/halls' && method === 'POST') {
+        hallCreatePayload = route.request().postDataJSON()
+        const branch = branches.find(
+          (item) => item.id === String(hallCreatePayload?.branchId),
+        )!
+        const hall: HallState = {
+          id: 'hall-created',
+          branchId: branch.id,
+          branchName: branch.name,
+          name: String(hallCreatePayload.name),
+          description: String(hallCreatePayload.description ?? ''),
+          isArchived: false,
+          groupCount: 0,
+        }
+        halls.push(hall)
+        await fulfillJson(route, 200, toHallPayload(hall))
+        return true
+      }
+
+      if (pathname === '/api/halls/hall-created' && method === 'PUT') {
+        hallUpdatePayload = route.request().postDataJSON()
+        const hall = halls.find((item) => item.id === 'hall-created')!
+        hall.name = String(hallUpdatePayload.name)
+        hall.description = String(hallUpdatePayload.description ?? '')
+        await fulfillJson(route, 200, toHallPayload(hall))
+        return true
+      }
+
+      if (pathname === '/api/halls/hall-1/archive' && method === 'PUT') {
+        await fulfillJson(route, 400, {
+          title: 'Validation failed',
+          detail: 'Зал используется группами.',
+          errors: {
+            hall: ['Зал используется группами.'],
+          },
+        })
+        return true
+      }
+
+      if (pathname === '/api/halls/hall-1' && method === 'DELETE') {
+        await fulfillJson(route, 400, {
+          title: 'Validation failed',
+          detail: 'Зал нельзя удалить: он используется группами.',
+          errors: {
+            hall: ['Зал нельзя удалить: он используется группами.'],
+          },
+        })
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/settings')
+    await expect(page.getByRole('heading', { name: 'Филиалы и залы' })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Добавить филиал' }).first().click()
+    await page.getByLabel('Название филиала').fill('Юг')
+    await page.getByLabel('Адрес').fill('ул. Южная, 3')
+    await page.getByLabel('Описание').fill('Новый филиал')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Сохранить' })
+      .click()
+
+    await expect.poll(() => branchCreatePayload).toEqual({
+      name: 'Юг',
+      address: 'ул. Южная, 3',
+      description: 'Новый филиал',
+    })
+    await expect(page.getByText('Юг', { exact: true }).first()).toBeVisible()
+
+    await page.getByRole('button', { name: 'Редактировать' }).click()
+    await page.getByLabel('Название филиала').fill('Юг обновленный')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Сохранить' })
+      .click()
+
+    await expect.poll(() => branchUpdatePayload).toMatchObject({
+      name: 'Юг обновленный',
+    })
+    await expect(page.getByText('Юг обновленный', { exact: true }).first()).toBeVisible()
+
+    await page.getByRole('button', { name: 'В архив' }).click()
+    await expect(page.getByText('Архивный').first()).toBeVisible()
+
+    await page.getByRole('button', { name: /Открыть филиал Центр/ }).click()
+    await page.getByRole('button', { name: 'Добавить зал' }).first().click()
+    await page.getByLabel('Название зала').fill('Зал Б')
+    await page.getByLabel('Описание').fill('Зал для функциональных тренировок')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Сохранить' })
+      .click()
+
+    await expect.poll(() => hallCreatePayload).toEqual({
+      branchId: baseBranch.id,
+      name: 'Зал Б',
+      description: 'Зал для функциональных тренировок',
+    })
+    await expect(page.getByText('Зал Б', { exact: true })).toBeVisible()
+
+    await page.getByLabel('Редактировать зал Зал Б').click()
+    await page.getByLabel('Название зала').fill('Зал Б обновленный')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Сохранить' })
+      .click()
+
+    await expect.poll(() => hallUpdatePayload).toMatchObject({
+      branchId: baseBranch.id,
+      name: 'Зал Б обновленный',
+    })
+    await expect(page.getByText('Зал Б обновленный', { exact: true })).toBeVisible()
+
+    await page.getByLabel('Архивировать зал Основной зал').click()
+    await expect(page.getByText('Зал используется группами.')).toBeVisible()
+
+    await page.getByLabel('Удалить зал Основной зал').click()
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Удалить зал' })
+      .click()
+    await expect(page.getByText('Зал нельзя удалить: он используется группами.')).toBeVisible()
   })
 
   test('Ограничивает доступ тренера к модулю управления группами', async ({ page }) => {
@@ -1412,6 +1759,8 @@ function getNavLabelByPath(path: string) {
       return 'Группы'
     case '/audit':
       return 'Журнал'
+    case '/settings':
+      return 'Настройки'
     default:
       return 'Главная'
   }
@@ -1429,14 +1778,30 @@ async function mockApi(
       return
     }
 
+    const method = route.request().method()
+    const pathname = requestUrl.pathname
+
     const handled = await handler({
-      method: route.request().method(),
-      pathname: requestUrl.pathname,
+      method,
+      pathname,
       route,
       searchParams: requestUrl.searchParams,
     })
 
     if (!handled) {
+      if (pathname === '/api/branches' && method === 'GET') {
+        await fulfillJson(route, 200, [
+          toBranchPayload(baseBranch),
+          toBranchPayload(secondaryBranch),
+        ])
+        return
+      }
+
+      if (pathname === '/api/halls' && method === 'GET') {
+        await fulfillJson(route, 200, [toHallPayload(baseHall)])
+        return
+      }
+
       throw new Error(
         `Unexpected API request in stage 12 e2e: ${route.request().method()} ${requestUrl.pathname}`,
       )
@@ -1453,10 +1818,45 @@ function buildGroupsListPayload(groups: GroupState[]) {
   }
 }
 
+function toBranchPayload(branch: BranchState) {
+  const branchGroups = baseGroups.filter((group) => group.branchId === branch.id)
+
+  return {
+    id: branch.id,
+    name: branch.name,
+    address: branch.address,
+    description: branch.description,
+    isArchived: branch.isArchived,
+    hallCount: branch.id === baseBranch.id ? 1 : 0,
+    groupCount: branchGroups.length,
+    clientCount: branch.id === baseBranch.id ? 1 : 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+}
+
+function toHallPayload(hall: HallState) {
+  return {
+    id: hall.id,
+    branchId: hall.branchId,
+    branchName: hall.branchName,
+    name: hall.name,
+    description: hall.description,
+    isArchived: hall.isArchived,
+    groupCount: hall.groupCount,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+}
+
 function toGroupPayload(group: GroupState) {
   return {
     id: group.id,
     name: group.name,
+    branchId: group.branchId,
+    branchName: group.branchName,
+    hallId: group.hallId,
+    hallName: group.hallName,
     trainingStartTime: group.trainingStartTime,
     scheduleText: group.scheduleText,
     isActive: group.isActive,
@@ -1535,6 +1935,8 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     middleName: client.middleName,
     fullName: `${client.lastName} ${client.firstName} ${client.middleName}`,
     phone: client.phone,
+    branchId: client.branchId,
+    branchName: client.branchName,
     notes: client.notes,
     status: client.status ?? 'Active',
     contactCount: client.contacts.length,
@@ -1542,6 +1944,10 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     groups: assignedGroups.map((group) => ({
       id: group.id,
       name: group.name,
+      branchId: group.branchId,
+      branchName: group.branchName,
+      hallId: group.hallId,
+      hallName: group.hallName,
       isActive: group.isActive,
       trainingStartTime: group.trainingStartTime,
       scheduleText: group.scheduleText,

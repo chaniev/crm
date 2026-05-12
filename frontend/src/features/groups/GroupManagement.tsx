@@ -6,6 +6,7 @@ import {
   Group,
   MultiSelect,
   Paper,
+  Select,
   SimpleGrid,
   Stack,
   Switch,
@@ -30,12 +31,16 @@ import {
   ApiError,
   applyFieldErrors,
   createGroup,
+  getBranches,
   getGroup,
   getGroupClients,
   getGroups,
+  getHalls,
   getTrainerOptions,
   updateGroup,
+  type Branch,
   type GroupClient,
+  type Hall,
   type TrainerOption,
   type TrainingGroupDetails,
   type TrainingGroupListItem,
@@ -76,6 +81,8 @@ type GroupEditScreenProps = {
 }
 
 type GroupFormValues = {
+  branchId: string
+  hallId: string
   name: string
   trainingStartTime: string
   scheduleText: string
@@ -243,6 +250,10 @@ export function GroupsListScreen({
                         </Text>
 
                         <Text c="dimmed" size="sm">
+                          Филиал: {group.branchName} · Зал: {group.hallName}
+                        </Text>
+
+                        <Text c="dimmed" size="sm">
                           {group.trainerCount > 0
                             ? `Тренеры: ${group.trainerNames.join(', ')}`
                             : 'Тренеры пока не назначены'}
@@ -282,11 +293,15 @@ export function GroupCreateScreen({
   onCreated,
 }: GroupCreateScreenProps) {
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
+  const [branchOptions, setBranchOptions] = useState<Branch[]>([])
+  const [hallOptions, setHallOptions] = useState<Hall[]>([])
   const [loadingOptions, setLoadingOptions] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const form = useGroupForm()
+  const formRef = useRef(form)
+  formRef.current = form
 
   useEffect(() => {
     const controller = new AbortController()
@@ -296,8 +311,18 @@ export function GroupCreateScreen({
       setLoadError(null)
 
       try {
-        const options = await getTrainerOptions(controller.signal)
+        const [branches, halls, options] = await Promise.all([
+          getBranches({ includeArchived: true }, controller.signal),
+          getHalls({ includeArchived: true }, controller.signal),
+          getTrainerOptions(controller.signal),
+        ])
+        setBranchOptions(branches)
+        setHallOptions(halls)
         setTrainerOptions(options)
+        const firstActiveBranch = branches.find((branch) => !branch.isArchived)
+        if (firstActiveBranch && !formRef.current.values.branchId) {
+          formRef.current.setFieldValue('branchId', firstActiveBranch.id)
+        }
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -382,6 +407,8 @@ export function GroupCreateScreen({
             <GroupForm
               form={form}
               formError={formError}
+              branchOptions={branchOptions}
+              hallOptions={hallOptions}
               onCancel={onCancel}
               onSubmit={submit}
               submitLabel="Создать группу"
@@ -401,6 +428,8 @@ export function GroupEditScreen({
   onUpdated,
 }: GroupEditScreenProps) {
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
+  const [branchOptions, setBranchOptions] = useState<Branch[]>([])
+  const [hallOptions, setHallOptions] = useState<Hall[]>([])
   const [groupClients, setGroupClients] = useState<GroupClient[]>([])
   const [groupName, setGroupName] = useState(GROUPS_DEFAULT_NAME)
   const [clientCount, setClientCount] = useState(0)
@@ -423,12 +452,16 @@ export function GroupEditScreen({
       setLoadError(null)
 
       try {
-        const [group, options, clientsResponse] = await Promise.all([
+        const [group, branches, halls, options, clientsResponse] = await Promise.all([
           getGroup(groupId, controller.signal),
+          getBranches({ includeArchived: true }, controller.signal),
+          getHalls({ includeArchived: true }, controller.signal),
           getTrainerOptions(controller.signal),
           getGroupClients(groupId, controller.signal),
         ])
 
+        setBranchOptions(branches)
+        setHallOptions(halls)
         setTrainerOptions(options)
         setGroupClients(clientsResponse.clients)
         setGroupName(group.name)
@@ -540,6 +573,8 @@ export function GroupEditScreen({
             <GroupForm
               form={form}
               formError={formError}
+              branchOptions={branchOptions}
+              hallOptions={hallOptions}
               onCancel={onBack}
               onSubmit={submit}
               submitLabel="Сохранить изменения"
@@ -604,6 +639,8 @@ export function GroupEditScreen({
 type GroupFormProps = {
   form: UseFormReturnType<GroupFormValues>
   formError: string | null
+  branchOptions: Branch[]
+  hallOptions: Hall[]
   onCancel: () => void
   onSubmit: (values: GroupFormValues) => Promise<void>
   submitLabel: string
@@ -614,14 +651,45 @@ type GroupFormProps = {
 function GroupForm({
   form,
   formError,
+  branchOptions,
+  hallOptions,
   onCancel,
   onSubmit,
   submitLabel,
   submitting,
   trainerOptions,
 }: GroupFormProps) {
+  const selectedBranchId =
+    form.values.branchId ||
+    branchOptions.find((branch) => !branch.isArchived)?.id ||
+    ''
+  const filteredHallOptions = selectedBranchId
+    ? hallOptions.filter((hall) => hall.branchId === selectedBranchId)
+    : []
+
+  function updateBranch(branchId: string | null) {
+    const nextBranchId = branchId ?? ''
+    const nextAllowedHallIds = new Set(
+      hallOptions
+        .filter((hall) => hall.branchId === nextBranchId)
+        .map((hall) => hall.id),
+    )
+
+    form.setFieldValue('branchId', nextBranchId)
+    if (!nextAllowedHallIds.has(form.values.hallId)) {
+      form.setFieldValue('hallId', '')
+    }
+  }
+
   return (
-    <form onSubmit={form.onSubmit((values) => void onSubmit(values))}>
+    <form
+      onSubmit={form.onSubmit((values) =>
+        void onSubmit({
+          ...values,
+          branchId: values.branchId || selectedBranchId,
+        }),
+      )}
+    >
       <Stack gap="lg">
         {formError ? (
           <Alert
@@ -634,7 +702,39 @@ function GroupForm({
           </Alert>
         ) : null}
 
-          <SimpleGrid cols={{ base: 1, md: 2 }}>
+        <SimpleGrid cols={{ base: 1, md: 2 }}>
+          <Select
+            allowDeselect={false}
+            data={branchOptions.map((branch) => ({
+              value: branch.id,
+              label: formatBranchOptionLabel(branch),
+              disabled: branch.isArchived,
+            }))}
+            label="Филиал"
+            onChange={updateBranch}
+            placeholder="Выберите филиал"
+            searchable
+            value={selectedBranchId || null}
+            error={form.errors.branchId}
+          />
+          <Select
+            allowDeselect={false}
+            data={filteredHallOptions.map((hall) => ({
+              value: hall.id,
+              label: formatHallOptionLabel(hall),
+              disabled: hall.isArchived,
+            }))}
+            disabled={!selectedBranchId}
+            label="Зал"
+            onChange={(hallId) => form.setFieldValue('hallId', hallId ?? '')}
+            placeholder={selectedBranchId ? 'Выберите зал' : 'Сначала выберите филиал'}
+            searchable
+            value={form.values.hallId || null}
+            error={form.errors.hallId}
+          />
+        </SimpleGrid>
+
+        <SimpleGrid cols={{ base: 1, md: 2 }}>
           <TextInput
             label="Название группы"
             placeholder="Например, Юниоры 18:00"
@@ -677,6 +777,22 @@ function GroupForm({
 
         <Paper className="hint-card" radius="24px" withBorder>
           <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
+            <HintStat
+              icon={<IconUsersGroup size={18} />}
+              label="Филиал"
+              value={
+                branchOptions.find((branch) => branch.id === form.values.branchId)?.name ??
+                'Не выбран'
+              }
+            />
+            <HintStat
+              icon={<IconUsersGroup size={18} />}
+              label="Зал"
+              value={
+                hallOptions.find((hall) => hall.id === form.values.hallId)?.name ??
+                'Не выбран'
+              }
+            />
             <HintStat
               icon={<IconClockHour4 size={18} />}
               label="Старт"
@@ -780,9 +896,35 @@ function HintStat({
   )
 }
 
+function formatBranchOptionLabel(branch: Branch) {
+  const parts = [branch.name]
+
+  if (branch.address) {
+    parts.push(branch.address)
+  }
+
+  if (branch.isArchived) {
+    parts.push('архивный')
+  }
+
+  return parts.join(' · ')
+}
+
+function formatHallOptionLabel(hall: Hall) {
+  const parts = [hall.name]
+
+  if (hall.isArchived) {
+    parts.push('архивный')
+  }
+
+  return parts.join(' · ')
+}
+
 function useGroupForm() {
   return useForm<GroupFormValues>({
     initialValues: {
+      branchId: '',
+      hallId: '',
       name: '',
       trainingStartTime: '',
       scheduleText: '',
@@ -804,6 +946,8 @@ function toUpsertGroupPayload(
 ): UpsertTrainingGroupRequest {
   return {
     name: values.name.trim(),
+    branchId: values.branchId || undefined,
+    hallId: values.hallId || undefined,
     trainingStartTime: values.trainingStartTime.trim(),
     scheduleText: values.scheduleText.trim(),
     isActive: values.isActive,
@@ -813,6 +957,8 @@ function toUpsertGroupPayload(
 
 function toFormValues(group: TrainingGroupDetails): GroupFormValues {
   return {
+    branchId: group.branchId,
+    hallId: group.hallId,
     name: group.name,
     trainingStartTime: group.trainingStartTime,
     scheduleText: group.scheduleText,

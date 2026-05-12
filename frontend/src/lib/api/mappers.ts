@@ -102,6 +102,10 @@ export function mapClientGroups(payload: ClientResponsePayload): ClientGroupSumm
       group.groupName?.trim() ??
       group.title?.trim() ??
       DEFAULT_CLIENT_GROUP_NAME,
+    branchId: group.branchId ?? undefined,
+    branchName: group.branchName?.trim() || undefined,
+    hallId: group.hallId ?? undefined,
+    hallName: group.hallName?.trim() || undefined,
     isActive: group.isActive ?? true,
     trainingStartTime: group.trainingStartTime ?? undefined,
     scheduleText: group.scheduleText ?? undefined,

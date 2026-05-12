@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
     photo: (clientId: string) => `/clients/${clientId}/photo`,
     archive: (clientId: string) => `/clients/${clientId}/archive`,
     restore: (clientId: string) => `/clients/${clientId}/restore`,
+    transfer: (clientId: string) => `/clients/${clientId}/transfer`,
     professionalStatus: (clientId: string) =>
       `/clients/${clientId}/professional-status`,
     membership: {
@@ -35,6 +36,18 @@ export const API_ENDPOINTS = {
     byId: (groupId: string) => `/groups/${groupId}`,
     trainerOptions: '/groups/options/trainers',
     clients: (groupId: string) => `/groups/${groupId}/clients`,
+  },
+  branches: {
+    collection: '/branches',
+    byId: (branchId: string) => `/branches/${branchId}`,
+    archive: (branchId: string) => `/branches/${branchId}/archive`,
+    restore: (branchId: string) => `/branches/${branchId}/restore`,
+  },
+  halls: {
+    collection: '/halls',
+    byId: (hallId: string) => `/halls/${hallId}`,
+    archive: (hallId: string) => `/halls/${hallId}/archive`,
+    restore: (hallId: string) => `/halls/${hallId}/restore`,
   },
   attendance: {
     groups: '/attendance/groups',

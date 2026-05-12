@@ -30,6 +30,7 @@ import {
   IconCheck,
   IconDeviceFloppy,
   IconEdit,
+  IconGitBranch,
   IconPlus,
   IconPhotoOff,
   IconRefresh,
@@ -45,16 +46,19 @@ import {
   buildClientPhotoUrl,
   correctClientMembership,
   createClient,
+  getBranches,
   getClient,
   getGroups,
   markClientMembershipPayment,
   purchaseClientMembership,
   renewClientMembership,
   restoreClient,
+  transferClientBranch,
   uploadClientPhoto,
   updateClientProfessionalStatus,
   type ClientAttendanceHistoryEntry,
   updateClient,
+  type Branch,
   type ClientMembership,
   type ClientMembershipChangeReason,
   type ClientDetails,
@@ -163,11 +167,14 @@ export function ClientCreateScreen({
   onCreated,
 }: ClientCreateScreenProps) {
   const [groupOptions, setGroupOptions] = useState<TrainingGroupListItem[]>([])
+  const [branchOptions, setBranchOptions] = useState<Branch[]>([])
   const [loadingOptions, setLoadingOptions] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const form = useClientForm()
+  const formRef = useRef(form)
+  formRef.current = form
 
   useEffect(() => {
     const controller = new AbortController()
@@ -177,8 +184,16 @@ export function ClientCreateScreen({
       setLoadError(null)
 
       try {
-        const response = await getGroups({ take: 100 }, controller.signal)
-        setGroupOptions(response.items)
+        const [branches, groupsResponse] = await Promise.all([
+          getBranches({ includeArchived: true }, controller.signal),
+          getGroups({ take: 100 }, controller.signal),
+        ])
+        setBranchOptions(branches)
+        setGroupOptions(groupsResponse.items)
+        const firstActiveBranch = branches.find((branch) => !branch.isArchived)
+        if (!formRef.current.values.branchId && firstActiveBranch) {
+          formRef.current.setFieldValue('branchId', firstActiveBranch.id)
+        }
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -277,7 +292,9 @@ export function ClientCreateScreen({
             <ClientForm
               form={form}
               formError={formError}
+              branchOptions={branchOptions}
               groupOptions={groupOptions}
+              lockBranch={false}
               onCancel={onCancel}
               photoSection={
                 <ClientPhotoSection
@@ -310,6 +327,7 @@ export function ClientEditScreen({
 }: ClientEditScreenProps) {
   const [client, setClient] = useState<ClientDetails | null>(null)
   const [groupOptions, setGroupOptions] = useState<TrainingGroupListItem[]>([])
+  const [branchOptions, setBranchOptions] = useState<Branch[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
@@ -327,12 +345,14 @@ export function ClientEditScreen({
       setLoadError(null)
 
       try {
-        const [nextClient, groupsResponse] = await Promise.all([
+        const [nextClient, branches, groupsResponse] = await Promise.all([
           getClient(clientId, controller.signal),
+          getBranches({ includeArchived: true }, controller.signal),
           getGroups({ take: 100 }, controller.signal),
         ])
 
         setClient(nextClient)
+        setBranchOptions(branches)
         setGroupOptions(groupsResponse.items)
         formRef.current.setValues(toClientFormValues(nextClient))
       } catch (error) {
@@ -446,7 +466,9 @@ export function ClientEditScreen({
             <ClientForm
               form={form}
               formError={formError}
+              branchOptions={branchOptions}
               groupOptions={groupOptions}
+              lockBranch
               onCancel={onBack}
               photoSection={
                 client ? (
@@ -493,10 +515,22 @@ export function ClientDetailScreen({
   const [actionPending, setActionPending] = useState(false)
   const [archiveConfirmOpened, setArchiveConfirmOpened] = useState(false)
   const [professionalModalOpened, setProfessionalModalOpened] = useState(false)
+  const [transferModalOpened, setTransferModalOpened] = useState(false)
+  const [branchOptions, setBranchOptions] = useState<Branch[]>([])
+  const [groupOptions, setGroupOptions] = useState<TrainingGroupListItem[]>([])
+  const [transferOptionsLoading, setTransferOptionsLoading] = useState(false)
+  const [transferFormError, setTransferFormError] = useState<string | null>(null)
+  const [transferSubmitting, setTransferSubmitting] = useState(false)
   const [professionalComment, setProfessionalComment] = useState('')
   const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const [membershipActionMode, setMembershipActionMode] =
     useState<MembershipActionMode | null>(null)
+  const transferForm = useForm<ClientTransferFormValues>({
+    initialValues: {
+      branchId: '',
+      groupId: '',
+    },
+  })
 
   useEffect(() => {
     const controller = new AbortController()
@@ -588,6 +622,74 @@ export function ClientDetailScreen({
     setProfessionalComment(client.professionalComment ?? '')
     setProfessionalModalOpened(true)
     setActionError(null)
+  }
+
+  async function openTransferModal() {
+    if (!client) {
+      return
+    }
+
+    setTransferModalOpened(true)
+    setTransferOptionsLoading(true)
+    setTransferFormError(null)
+    transferForm.clearErrors()
+    transferForm.setValues({
+      branchId: client.branchId,
+      groupId: client.groupIds[0] ?? '',
+    })
+
+    try {
+      const [branches, groupsResponse] = await Promise.all([
+        getBranches({ includeArchived: true }),
+        getGroups({ take: 100 }),
+      ])
+      setBranchOptions(branches)
+      setGroupOptions(groupsResponse.items)
+    } catch (error) {
+      setTransferFormError(
+        error instanceof Error
+          ? error.message
+          : 'Не удалось загрузить филиалы и группы.',
+      )
+    } finally {
+      setTransferOptionsLoading(false)
+    }
+  }
+
+  async function submitTransfer(values: { branchId: string; groupId: string }) {
+    if (!client) {
+      return
+    }
+
+    setTransferSubmitting(true)
+    setTransferFormError(null)
+    transferForm.clearErrors()
+
+    try {
+      const updatedClient = await transferClientBranch(client.id, {
+        branchId: values.branchId || undefined,
+        groupId: values.groupId || null,
+      })
+
+      setClient(updatedClient ?? (await getClient(client.id)))
+      setTransferModalOpened(false)
+
+      notifications.show({
+        title: 'Клиент переведен',
+        message: 'Филиал и группа клиента обновлены.',
+        color: 'teal',
+      })
+    } catch (error) {
+      if (error instanceof ApiError) {
+        transferForm.setErrors(applyFieldErrors(error.fieldErrors))
+        setTransferFormError(error.message)
+        return
+      }
+
+      setTransferFormError('Не удалось перевести клиента.')
+    } finally {
+      setTransferSubmitting(false)
+    }
   }
 
   async function submitProfessionalStatus(isProfessional: boolean) {
@@ -770,6 +872,21 @@ export function ClientDetailScreen({
         </Modal>
       ) : null}
 
+      {canManage && client ? (
+        <ClientTransferModal
+          branchOptions={branchOptions}
+          client={client}
+          form={transferForm}
+          formError={transferFormError}
+          groupOptions={groupOptions}
+          loadingOptions={transferOptionsLoading}
+          opened={transferModalOpened}
+          submitting={transferSubmitting}
+          onClose={() => setTransferModalOpened(false)}
+          onSubmit={submitTransfer}
+        />
+      ) : null}
+
       <ClientHero
         action={
           <ResponsiveButtonGroup>
@@ -787,6 +904,16 @@ export function ClientDetailScreen({
                 variant="light"
               >
                 Редактировать
+              </Button>
+            ) : null}
+            {canManage && client ? (
+              <Button
+                leftSection={<IconGitBranch size={18} />}
+                loading={transferOptionsLoading || transferSubmitting}
+                onClick={() => void openTransferModal()}
+                variant="light"
+              >
+                Перевести
               </Button>
             ) : null}
             {canManage && client ? (
@@ -1009,6 +1136,13 @@ export function ClientDetailScreen({
                               : 'Время начала не указано'}
                             {group.scheduleText ? ` • ${group.scheduleText}` : ''}
                           </Text>
+                          {group.branchName || group.hallName ? (
+                            <Text c="dimmed" size="sm">
+                              {[group.branchName, group.hallName]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </Text>
+                          ) : null}
                         </Stack>
                       </Paper>
                     ))}
@@ -1026,7 +1160,9 @@ export function ClientDetailScreen({
 type ClientFormProps = {
   form: UseFormReturnType<ClientFormValues>
   formError: string | null
+  branchOptions: Branch[]
   groupOptions: TrainingGroupListItem[]
+  lockBranch?: boolean
   onCancel: () => void
   photoSection?: ReactNode
   onSubmit: (values: ClientFormValues) => Promise<void>
@@ -1149,6 +1285,7 @@ function ClientOverviewSection({
             {canManage ? (
               <>
                 <CompactInfoItem label="Телефон" value={client.phone || 'Не указан'} />
+                <CompactInfoItem label="Филиал" value={client.branchName || 'Не указан'} />
                 <CompactInfoItem label="Фамилия" value={client.lastName || 'Не указана'} />
                 <CompactInfoItem label="Имя" value={client.firstName || 'Не указано'} />
                 <CompactInfoItem label="Отчество" value={client.middleName || 'Не указано'} />
@@ -1352,13 +1489,23 @@ function CompactInfoItem({
 function ClientForm({
   form,
   formError,
+  branchOptions,
   groupOptions,
+  lockBranch = false,
   onCancel,
   photoSection,
   onSubmit,
   submitLabel,
   submitting,
 }: ClientFormProps) {
+  const selectedBranchId =
+    form.values.branchId ||
+    branchOptions.find((branch) => !branch.isArchived)?.id ||
+    ''
+  const filteredGroupOptions = selectedBranchId
+    ? groupOptions.filter((group) => group.branchId === selectedBranchId)
+    : []
+
   function addContact() {
     if (form.values.contacts.length >= maxContacts) {
       return
@@ -1374,8 +1521,30 @@ function ClientForm({
     )
   }
 
+  function updateBranch(branchId: string | null) {
+    const nextBranchId = branchId ?? ''
+    const nextAllowedGroupIds = new Set(
+      groupOptions
+        .filter((group) => group.branchId === nextBranchId)
+        .map((group) => group.id),
+    )
+
+    form.setFieldValue('branchId', nextBranchId)
+    form.setFieldValue(
+      'groupIds',
+      form.values.groupIds.filter((groupId) => nextAllowedGroupIds.has(groupId)),
+    )
+  }
+
   return (
-    <form onSubmit={form.onSubmit((values) => void onSubmit(values))}>
+    <form
+      onSubmit={form.onSubmit((values) =>
+        void onSubmit({
+          ...values,
+          branchId: values.branchId || selectedBranchId,
+        }),
+      )}
+    >
       <Stack gap="lg">
         {formError ? (
           <Alert
@@ -1415,13 +1584,36 @@ function ClientForm({
                 {...form.getInputProps('phone')}
               />
 
+              <Select
+                allowDeselect={false}
+                data={branchOptions.map((branch) => ({
+                  value: branch.id,
+                  label: formatBranchOptionLabel(branch),
+                  disabled: branch.isArchived,
+                }))}
+                disabled={lockBranch}
+                label="Филиал"
+                onChange={updateBranch}
+                placeholder="Выберите филиал"
+                searchable
+                value={selectedBranchId || null}
+                error={form.errors.branchId}
+              />
+            </SimpleGrid>
+
+            <SimpleGrid cols={{ base: 1, md: 2 }}>
               <MultiSelect
-                data={groupOptions.map((group) => ({
+                data={filteredGroupOptions.map((group) => ({
                   value: group.id,
                   label: formatGroupOptionLabel(group),
                 }))}
+                disabled={!selectedBranchId}
                 label="Группы клиента"
-                placeholder="Выберите группы"
+                placeholder={
+                  selectedBranchId
+                    ? 'Выберите группы'
+                    : 'Сначала выберите филиал'
+                }
                 searchable
                 {...form.getInputProps('groupIds')}
               />
@@ -1521,6 +1713,136 @@ function ClientForm({
         </ResponsiveButtonGroup>
       </Stack>
     </form>
+  )
+}
+
+type ClientTransferFormValues = {
+  branchId: string
+  groupId: string
+}
+
+type ClientTransferModalProps = {
+  branchOptions: Branch[]
+  client: ClientDetails
+  form: UseFormReturnType<ClientTransferFormValues>
+  formError: string | null
+  groupOptions: TrainingGroupListItem[]
+  loadingOptions: boolean
+  opened: boolean
+  submitting: boolean
+  onClose: () => void
+  onSubmit: (values: ClientTransferFormValues) => Promise<void>
+}
+
+function ClientTransferModal({
+  branchOptions,
+  client,
+  form,
+  formError,
+  groupOptions,
+  loadingOptions,
+  opened,
+  submitting,
+  onClose,
+  onSubmit,
+}: ClientTransferModalProps) {
+  const selectedBranchId = form.values.branchId
+  const filteredGroupOptions = selectedBranchId
+    ? groupOptions.filter((group) => group.branchId === selectedBranchId)
+    : []
+  const currentGroup = client.groups[0]
+
+  function updateBranch(branchId: string | null) {
+    form.setFieldValue('branchId', branchId ?? '')
+    form.setFieldValue('groupId', '')
+  }
+
+  return (
+    <Modal
+      centered
+      onClose={onClose}
+      opened={opened}
+      radius="8px"
+      title="Перевод клиента"
+      withCloseButton={!submitting}
+    >
+      <form onSubmit={form.onSubmit((values) => void onSubmit(values))}>
+        <Stack gap="md">
+          <Paper className="hint-card" radius="8px" withBorder>
+            <SimpleGrid cols={{ base: 1, sm: 2 }}>
+              <InfoItem
+                label="Текущий филиал"
+                value={client.branchName || 'Не указан'}
+              />
+              <InfoItem
+                label="Текущая группа"
+                value={currentGroup?.name ?? 'Без группы'}
+              />
+            </SimpleGrid>
+          </Paper>
+
+          {formError ? (
+            <Alert
+              color="red"
+              icon={<IconAlertCircle size={18} />}
+              title="Перевод не выполнен"
+              variant="light"
+            >
+              {formError}
+            </Alert>
+          ) : null}
+
+          <Select
+            allowDeselect={false}
+            data={branchOptions.map((branch) => ({
+              value: branch.id,
+              label: formatBranchOptionLabel(branch),
+              disabled: branch.isArchived,
+            }))}
+            disabled={loadingOptions}
+            label="Целевой филиал"
+            onChange={updateBranch}
+            placeholder={loadingOptions ? 'Загружаем филиалы' : 'Выберите филиал'}
+            searchable
+            value={form.values.branchId || null}
+            error={form.errors.branchId}
+          />
+
+          <Select
+            clearable
+            data={filteredGroupOptions.map((group) => ({
+              value: group.id,
+              label: formatGroupOptionLabel(group),
+              disabled: !group.isActive,
+            }))}
+            disabled={!selectedBranchId || loadingOptions}
+            label="Новая группа"
+            onChange={(groupId) => form.setFieldValue('groupId', groupId ?? '')}
+            placeholder={
+              selectedBranchId
+                ? 'Можно оставить без группы'
+                : 'Сначала выберите филиал'
+            }
+            searchable
+            value={form.values.groupId || null}
+            error={form.errors.groupId}
+          />
+
+          <ResponsiveButtonGroup justify="space-between">
+            <Button disabled={submitting} onClick={onClose} type="button" variant="subtle">
+              Отменить
+            </Button>
+            <Button
+              leftSection={<IconGitBranch size={18} />}
+              loading={submitting || loadingOptions}
+              type="submit"
+            >
+              Перевести клиента
+            </Button>
+          </ResponsiveButtonGroup>
+        </Stack>
+      </form>
+    </Modal>
   )
 }
 
@@ -2784,6 +3106,20 @@ function formatPreviewList(values: string[], limit: number) {
   return `${visibleValues.join(', ')} +${hiddenCount}`
 }
 
+function formatBranchOptionLabel(branch: Branch) {
+  const parts = [branch.name]
+
+  if (branch.address) {
+    parts.push(branch.address)
+  }
+
+  if (branch.isArchived) {
+    parts.push('архивный')
+  }
+
+  return parts.join(' · ')
+}
+
 function compareMembershipHistory(
   left: ClientMembership,
   right: ClientMembership,
@@ -2803,6 +3139,10 @@ function compareAttendanceHistory(
 
 function formatGroupOptionLabel(group: TrainingGroupListItem) {
   const parts = [group.name]
+
+  if (group.hallName) {
+    parts.push(group.hallName)
+  }
 
   if (group.trainingStartTime) {
     parts.push(group.trainingStartTime)

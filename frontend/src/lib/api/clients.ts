@@ -54,6 +54,7 @@ import type {
   MarkClientMembershipPaymentRequest,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
+  TransferClientBranchRequest,
   UpdateClientProfessionalStatusRequest,
   UpsertClientRequest,
 } from './types'
@@ -211,6 +212,21 @@ export async function updateClient(
     API_ENDPOINTS.clients.byId(clientId),
     {
       method: 'PUT',
+      body: JSON.stringify(payload),
+    },
+  )
+
+  return response ? mapClientDetails(response) : null
+}
+
+export async function transferClientBranch(
+  clientId: string,
+  payload: TransferClientBranchRequest,
+) {
+  const response = await request<ClientResponsePayload | null>(
+    API_ENDPOINTS.clients.transfer(clientId),
+    {
+      method: 'POST',
       body: JSON.stringify(payload),
     },
   )
@@ -424,6 +440,8 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     firstName: payload.firstName?.trim() ?? '',
     middleName: payload.middleName?.trim() ?? '',
     phone: payload.phone?.trim() ?? '',
+    branchId: payload.branchId ?? '',
+    branchName: payload.branchName?.trim() ?? '',
     status: mapClientStatus(payload.status),
     contactCount: payload.contactCount ?? contacts.length,
     groupCount: payload.groupCount ?? groups.length,

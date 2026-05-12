@@ -2,6 +2,7 @@ import {
   IconCalendarCheck,
   IconClipboardList,
   IconHome,
+  IconSettings,
   IconUserCog,
   IconUsers,
   IconUsersGroup,
@@ -27,6 +28,7 @@ const sectionIconMap: Record<AppSection, ReactNode> = {
   Groups: <IconUsersGroup size={17} />,
   Users: <IconUserCog size={17} />,
   Audit: <IconClipboardList size={17} />,
+  Settings: <IconSettings size={17} />,
 }
 
 export function NavigationTabs({
