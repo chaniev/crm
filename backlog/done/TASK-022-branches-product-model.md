@@ -112,7 +112,7 @@ done
 - Duplicate check: ответы закрывают оставшиеся вопросы TASK-022; implementation tasks созданы следующим шагом.
 - Clarification completed and moved to done at: 2026-05-07 20:05
 - Created implementation tasks:
-  - `backlog/risky/TASK-031-branches-backend-domain-contracts.md`
-  - `backlog/risky/TASK-032-branches-frontend-settings-and-forms.md`
+  - `backlog/done/TASK-031-branches-backend-domain-contracts.md`
+  - `backlog/done/TASK-032-branches-frontend-settings-and-forms.md`
   - `backlog/risky/TASK-033-branches-bot-contract-consumer.md`
 - Reporting follow-up remains in `backlog/needs-clarification/TASK-026-statistics-and-financial-reports.md`.

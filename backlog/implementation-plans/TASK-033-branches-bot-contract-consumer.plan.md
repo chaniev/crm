@@ -9,10 +9,10 @@ Telegram bot remains a thin consumer of backend APIs after branches/halls are in
 ## Current understanding
 Bot Python client DTOs live in `bot/src/gym_crm_bot/crm/models.py`, HTTP calls in `bot/src/gym_crm_bot/crm/client.py`, dialog/service logic in `bot/src/gym_crm_bot/core/service.py`, and message rendering in `bot/src/gym_crm_bot/resources`. Backend internal bot contracts live in `backend/src/GymCrm.Application/Bot/BotApiContracts.cs` and are implemented by `backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs`.
 
-Current bot flows ask backend for attendance groups, rosters, client search/cards and membership lists. Coach visibility is already backend-driven through assigned groups. TASK-033 should start only after TASK-031 backend branch-aware contracts are stable.
+Current bot flows ask backend for attendance groups, rosters, client search/cards and membership lists. Coach visibility is already backend-driven through assigned groups. TASK-031 backend branch-aware contracts are now in `backlog/done`, so TASK-033 can be executed after a fresh contract diff against the current internal bot payloads.
 
 ## Execution steps
-1. Wait for TASK-031 backend contract changes and compare internal bot payloads for attendance groups, rosters, client search/cards and membership lists.
+1. Compare current TASK-031 backend contract changes against internal bot payloads for attendance groups, rosters, client search/cards and membership lists.
 2. Update Pydantic DTOs in `crm/models.py` to accept optional branch/hall fields on groups and client group summaries, using aliases compatible with backend JSON.
 3. Update bot API client only if endpoint paths, query params or payloads changed. Preserve `X-Request-Id` and `Idempotency-Key` behavior for writes.
 4. Update message/keyboards rendering to include branch/hall in group labels only where it helps disambiguate groups, especially attendance group selection.
@@ -89,15 +89,15 @@ Regression barrier is a combination of backend internal bot tests for access sco
 - If backend branch fields are required but bot models are not updated, Pydantic parsing can fail in runtime flows.
 - Adding local branch filters in bot would violate the adapter boundary.
 - Branch/hall labels can make Telegram keyboards too wide; rendering may need concise formatting.
-- Backend internal bot contracts may change together with public API contracts, so this task should not start before TASK-031 stabilizes.
+- Backend internal bot contracts changed together with public API contracts, so this task should start with a current TASK-031 contract diff.
 
 ## Stop conditions
 Остановиться и не писать код, если:
-- TASK-031 backend internal bot contracts are unavailable or unstable;
+- TASK-031 backend internal bot contracts conflict with current Python bot DTO assumptions;
 - implementation requires bot-owned branch storage beyond transient dialog state;
 - bot must decide cross-branch validity locally;
 - endpoint auth/idempotency semantics change beyond existing bot adapter patterns;
 - group disambiguation text cannot fit Telegram UI without a product wording decision.
 
 ## Ready for Codex execution
-no, blocked until TASK-031 backend contract is implemented/reviewed
+yes, after explicit review of this risky plan and after the executor confirms the current TASK-031 backend internal bot contract diff.

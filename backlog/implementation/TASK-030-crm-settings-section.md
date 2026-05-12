@@ -109,6 +109,6 @@ implementation
 - Clarification completed and moved to tasks-ready at: 2026-05-12
 - `TASK-034` and `TASK-035` were not kept because they duplicated this ready task.
 - Branch/hall implementation remains covered by:
-  - `backlog/risky/TASK-031-branches-backend-domain-contracts.md`
-  - `backlog/risky/TASK-032-branches-frontend-settings-and-forms.md`
+  - `backlog/done/TASK-031-branches-backend-domain-contracts.md`
+  - `backlog/done/TASK-032-branches-frontend-settings-and-forms.md`
   - `backlog/risky/TASK-033-branches-bot-contract-consumer.md`

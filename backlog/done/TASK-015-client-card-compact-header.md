@@ -1,7 +1,7 @@
 # TASK-015: Сделать верх карточки клиента компактнее
 
 ## Status
-ready
+done
 
 ## Goal
 Карточка клиента быстрее сканируется: ключевые данные видны в компактном верхнем блоке без лишнего визуального шума.
@@ -32,10 +32,10 @@ ready
 - Для заметного UX-изменения перед implementation желательно привлечь `ui-designer`.
 
 ## Acceptance criteria
-- [ ] В верхнем блоке видны ФИО, телефон, статус, текущий абонемент, дата окончания, последнее посещение и группа.
-- [ ] Блок стал компактнее без потери читаемости.
-- [ ] На mobile данные не перекрываются и не ломают layout.
-- [ ] Existing client detail flow продолжает открываться без регрессий.
+- [x] В верхнем блоке видны ФИО, телефон, статус, текущий абонемент, дата окончания, последнее посещение и группа.
+- [x] Блок стал компактнее без потери читаемости.
+- [x] На mobile данные не перекрываются и не ломают layout.
+- [x] Existing client detail flow продолжает открываться без регрессий.
 
 ## Test checklist
 - [ ] Запустить `cd frontend && npm run lint`.
@@ -58,3 +58,6 @@ ready
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Status актуализирован и перенесен в done at: 2026-05-12.
+- Evidence: в текущем `main` карточка клиента использует компактный `ClientOverviewSection`, `ClientMembershipSnapshot`, компактное фото и responsive e2e coverage для основных экранов.
+- Validation note: текущая актуализация backlog не запускала frontend validation заново.

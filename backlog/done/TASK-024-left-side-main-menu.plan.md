@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-024 Перенести главное меню в левую навигацию
 
 ## Source task
-/backlog/implementation/TASK-024-left-side-main-menu.md
+/backlog/done/TASK-024-left-side-main-menu.md
 
 ## Goal
 Главное меню CRM отображается слева на desktop, сохраняет понятный active state и не ухудшает мобильную навигацию.

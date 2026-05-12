@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-023 Добавить заметки в карточку клиента
 
 ## Source task
-/backlog/implementation/TASK-023-client-card-notes.md
+/backlog/done/TASK-023-client-card-notes.md
 
 ## Goal
 В карточке клиента появляется сохраняемое поле рабочих заметок, которое переживает перезагрузку карточки и сохраняется через backend contract.

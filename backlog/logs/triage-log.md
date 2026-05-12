@@ -118,3 +118,33 @@
 ## Summary
 - tasks-ready: 1
 - processed clarifications: 1
+
+# 2026-05-12 status audit
+
+## Scope
+- Reviewed active backlog folders against current `main`, local merge history and source-code evidence.
+
+## Moved tasks
+- /backlog/tasks-ready/TASK-015-client-card-compact-header.md -> /backlog/done/TASK-015-client-card-compact-header.md
+- /backlog/implementation/TASK-023-client-card-notes.md -> /backlog/done/TASK-023-client-card-notes.md
+- /backlog/implementation/TASK-024-left-side-main-menu.md -> /backlog/done/TASK-024-left-side-main-menu.md
+- /backlog/risky/TASK-027-professional-client-privilege.md -> /backlog/done/TASK-027-professional-client-privilege.md
+- /backlog/risky/TASK-031-branches-backend-domain-contracts.md -> /backlog/done/TASK-031-branches-backend-domain-contracts.md
+- /backlog/risky/TASK-032-branches-frontend-settings-and-forms.md -> /backlog/done/TASK-032-branches-frontend-settings-and-forms.md
+
+## Moved implementation plans
+- /backlog/implementation-plans/TASK-023-client-card-notes.plan.md -> /backlog/done/TASK-023-client-card-notes.plan.md
+- /backlog/implementation-plans/TASK-024-left-side-main-menu.plan.md -> /backlog/done/TASK-024-left-side-main-menu.plan.md
+- /backlog/implementation-plans/TASK-027-professional-client-privilege.plan.md -> /backlog/done/TASK-027-professional-client-privilege.plan.md
+- /backlog/implementation-plans/TASK-031-branches-backend-domain-contracts.plan.md -> /backlog/done/TASK-031-branches-backend-domain-contracts.plan.md
+- /backlog/implementation-plans/TASK-032-branches-frontend-settings-and-forms.plan.md -> /backlog/done/TASK-032-branches-frontend-settings-and-forms.plan.md
+
+## Kept active
+- TASK-030 remains in implementation: current code has branch/hall settings, but not the full settings IA with group types and administrators.
+- TASK-033 remains risky: backend bot contracts include branch/hall fields, but Python bot DTO/tests do not yet consume branch-aware contract changes.
+- Other ready/risky/needs-clarification tasks were left active unless all acceptance criteria had clear source-code or merge-history evidence.
+
+## Summary
+- moved to done: 6 tasks
+- moved plans to done: 5
+- validation: backlog/source audit only; runtime test commands were not re-run

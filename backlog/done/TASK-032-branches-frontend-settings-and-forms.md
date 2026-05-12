@@ -1,7 +1,7 @@
 # TASK-032: Реализовать frontend для филиалов и залов
 
 ## Status
-risky
+done
 
 ## Goal
 Администратор управляет филиалами и залами в настройках CRM, а рабочие формы клиентов, групп и переводов клиента используют backend-контракты филиалов без дублирования доменных правил.
@@ -55,18 +55,18 @@ risky
 - Не ломать narrow-screen flows.
 
 ## Acceptance criteria
-- [ ] В настройках CRM есть список филиалов.
-- [ ] Администратор может создать и отредактировать филиал.
-- [ ] Администратор может архивировать филиал.
-- [ ] В карточке/деталях филиала есть список залов.
-- [ ] Администратор может создать и отредактировать зал.
-- [ ] UI корректно показывает backend-запрет удаления/архивирования зала с привязками.
-- [ ] В форме клиента выбирается филиал.
-- [ ] В переводе клиента между филиалами можно выбрать группу из нового филиала или оставить клиента без группы.
-- [ ] В форме группы выбираются филиал и зал из выбранного филиала.
-- [ ] Frontend не разрешает очевидно некорректный cross-branch выбор в UI, но backend остается source of truth.
-- [ ] Обновлены affected screens/components и API types.
-- [ ] Mobile/narrow layout не ломается на формах настроек, клиента и группы.
+- [x] В настройках CRM есть список филиалов.
+- [x] Администратор может создать и отредактировать филиал.
+- [x] Администратор может архивировать филиал.
+- [x] В карточке/деталях филиала есть список залов.
+- [x] Администратор может создать и отредактировать зал.
+- [x] UI корректно показывает backend-запрет удаления/архивирования зала с привязками.
+- [x] В форме клиента выбирается филиал.
+- [x] В переводе клиента между филиалами можно выбрать группу из нового филиала или оставить клиента без группы.
+- [x] В форме группы выбираются филиал и зал из выбранного филиала.
+- [x] Frontend не разрешает очевидно некорректный cross-branch выбор в UI, но backend остается source of truth.
+- [x] Обновлены affected screens/components и API types.
+- [x] Mobile/narrow layout не ломается на формах настроек, клиента и группы.
 
 ## Test checklist
 - [ ] Запустить `cd frontend && npm run lint`.
@@ -85,9 +85,12 @@ risky
 
 ## Source notes
 - Derived from: `backlog/done/TASK-022-branches-product-model.md`
-- Depends on: `backlog/risky/TASK-031-branches-backend-domain-contracts.md`
+- Depends on: `backlog/done/TASK-031-branches-backend-domain-contracts.md`
 - Related to: `backlog/tasks-ready/TASK-030-crm-settings-section.md`
 
 ## Processing notes
 - Created at: 2026-05-07 20:05
 - Created after TASK-022 clarification was completed.
+- Status актуализирован и перенесен в done at: 2026-05-12.
+- Evidence: `main` содержит merge PR #3 `feature/TASK-032-branches-frontend-settings-and-forms`, `BranchSettingsScreen`, frontend branch API layer, client/group branch fields and affected e2e coverage.
+- Validation note: текущая актуализация backlog не запускала frontend validation заново.

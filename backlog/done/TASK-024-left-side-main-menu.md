@@ -1,12 +1,12 @@
 # TASK-024: Перенести главное меню в левую навигацию
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-07 21:28
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-024-left-side-main-menu.plan.md
+- implementation_plan: /backlog/done/TASK-024-left-side-main-menu.plan.md
 
 ## Goal
 Главное меню приложения находится слева и поддерживает привычную навигацию по разделам CRM.
@@ -37,10 +37,10 @@ implementation
 - Не дублировать permission rules во frontend.
 
 ## Acceptance criteria
-- [ ] Главное меню отображается слева на desktop.
-- [ ] Active route визуально понятен.
-- [ ] Mobile navigation остается удобной и не перекрывает контент.
-- [ ] Пункты меню сохраняют текущую логику видимости.
+- [x] Главное меню отображается слева на desktop.
+- [x] Active route визуально понятен.
+- [x] Mobile navigation остается удобной и не перекрывает контент.
+- [x] Пункты меню сохраняют текущую логику видимости.
 
 ## Test checklist
 - [ ] Запустить `cd frontend && npm run lint`.
@@ -63,3 +63,6 @@ implementation
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Status актуализирован и перенесен в done at: 2026-05-12.
+- Evidence: в текущем `main` `AuthenticatedShell` передает vertical `NavigationTabs` в `AppLayout.navbar`, desktop navbar включается media query, mobile navigation остается в header.
+- Validation note: текущая актуализация backlog не запускала frontend validation заново.

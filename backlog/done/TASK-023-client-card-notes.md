@@ -1,12 +1,12 @@
 # TASK-023: Добавить заметки в карточку клиента
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-07 21:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-023-client-card-notes.plan.md
+- implementation_plan: /backlog/done/TASK-023-client-card-notes.plan.md
 
 ## Goal
 Пользователь может хранить рабочие заметки по клиенту прямо в карточке клиента.
@@ -37,10 +37,10 @@ implementation
 - Не хранить заметки только во frontend.
 
 ## Acceptance criteria
-- [ ] В карточке клиента есть блок или поле заметок.
-- [ ] Пользователь с правом редактирования может сохранить заметку.
-- [ ] Сохраненная заметка видна после перезагрузки карточки.
-- [ ] Ошибки сохранения отображаются через существующий error UX.
+- [x] В карточке клиента есть блок или поле заметок.
+- [x] Пользователь с правом редактирования может сохранить заметку.
+- [x] Сохраненная заметка видна после перезагрузки карточки.
+- [x] Ошибки сохранения отображаются через существующий error UX.
 
 ## Test checklist
 - [ ] При backend изменениях запустить `dotnet test backend/GymCrm.slnx`.
@@ -64,3 +64,6 @@ implementation
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Status актуализирован и перенесен в done at: 2026-05-12.
+- Evidence: в текущем `main` есть backend поле `Client.Notes`, contract/mapping для notes, frontend поле `Рабочая заметка` и backend regression tests на сохранение/перезагрузку заметки.
+- Validation note: текущая актуализация backlog не запускала backend/frontend validation заново.
