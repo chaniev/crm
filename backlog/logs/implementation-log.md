@@ -68,3 +68,19 @@
 - moved: 0
 - skipped: 4
 - plans created: 4
+
+# 2026-05-12 22:19
+
+## Moved to implementation
+- /backlog/implementation/TASK-030-crm-settings-section.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-030-crm-settings-section.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1

@@ -101,3 +101,20 @@
 - needs-clarification: 0
 - done: 1
 - updated existing: 3
+
+# 2026-05-12
+
+## Processed clarification
+- /backlog/tasks-ready/TASK-030-crm-settings-section.md
+
+## Moved tasks
+- /backlog/needs-clarification/TASK-030-crm-settings-section.md -> /backlog/tasks-ready/TASK-030-crm-settings-section.md
+
+## Skipped duplicates
+- Separate TASK-034 and TASK-035 were not kept because group types and administrator management belong to TASK-030.
+- Branch/hall implementation stays in TASK-031, TASK-032 and TASK-033.
+- Rename `Пользователи` -> `Тренеры` stays in TASK-029.
+
+## Summary
+- tasks-ready: 1
+- processed clarifications: 1
