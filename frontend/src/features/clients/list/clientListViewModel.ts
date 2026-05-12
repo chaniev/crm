@@ -95,6 +95,7 @@ export function buildClientPreviewViewModel(
           ? 'Профессионал'
           : resolveMembershipLabel(membership, client.hasCurrentMembership),
       },
+      { label: 'Филиал', value: client.branchName || 'Не указан' },
       { label: 'Группа', value: resolveGroupLabel(client) },
       { label: 'Визит', value: resolveLastVisitLabel(lastVisit ?? client.lastVisitDate) },
       { label: 'Контакты', value: canManage ? String(client.contactCount) : 'Скрыты' },
@@ -255,12 +256,19 @@ function resolveMembershipMeta(client: ClientListItem) {
   return `${expiration}, ${payment}`
 }
 
-function resolveGroupLabel(client: Pick<ClientListItem, 'groupCount' | 'groups'>) {
+function resolveGroupLabel(
+  client: Pick<ClientListItem, 'branchName' | 'groupCount' | 'groups'>,
+) {
+  const branchPrefix = client.branchName ? `${client.branchName} · ` : ''
+
   if (client.groupCount === 0 || client.groups.length === 0) {
-    return 'Без группы'
+    return `${branchPrefix}Без группы`
   }
 
-  return client.groups[0].name
+  const firstGroup = client.groups[0]
+  const hallSuffix = firstGroup.hallName ? ` · ${firstGroup.hallName}` : ''
+
+  return `${branchPrefix}${firstGroup.name}${hallSuffix}`
 }
 
 function resolveLastVisitLabel(value?: string | null) {

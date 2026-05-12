@@ -159,6 +159,10 @@ function mapGroupListItem(payload: GroupResponsePayload): TrainingGroupListItem 
   return {
     id: payload.id,
     name: payload.name,
+    branchId: payload.branchId,
+    branchName: payload.branchName,
+    hallId: payload.hallId,
+    hallName: payload.hallName,
     trainingStartTime: payload.trainingStartTime,
     scheduleText: payload.scheduleText,
     isActive: payload.isActive,
@@ -178,6 +182,10 @@ function mapGroupDetails(payload: GroupResponsePayload): TrainingGroupDetails {
   return {
     id: payload.id,
     name: payload.name,
+    branchId: payload.branchId,
+    branchName: payload.branchName,
+    hallId: payload.hallId,
+    hallName: payload.hallName,
     trainingStartTime: payload.trainingStartTime,
     scheduleText: payload.scheduleText,
     isActive: payload.isActive,

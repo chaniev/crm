@@ -53,6 +53,8 @@ const CLIENTS_RESPONSE = {
     {
       id: 'client-1',
       fullName: 'Александра Константинопольская-Северная',
+      branchId: 'branch-1',
+      branchName: 'Центр',
       status: 'Active',
       phone: '+7 999 123-45-67',
       notes: 'Клиент предпочитает вечерние слоты и напоминание в день занятия.',
@@ -69,11 +71,19 @@ const CLIENTS_RESPONSE = {
         {
           id: 'group-1',
           name: 'Группа 7: вечерний поток с длинным названием',
+          branchId: 'branch-1',
+          branchName: 'Центр',
+          hallId: 'hall-1',
+          hallName: 'Основной зал',
           isActive: true,
         },
         {
           id: 'group-2',
           name: 'Группа 9: субботний интенсив',
+          branchId: 'branch-1',
+          branchName: 'Центр',
+          hallId: 'hall-1',
+          hallName: 'Основной зал',
           isActive: true,
         },
       ],
@@ -114,8 +124,20 @@ const GROUPS_RESPONSE = {
     {
       id: 'group-1',
       name: 'Группа 7: вечерний поток с длинным названием',
+      branchId: 'branch-1',
+      branchName: 'Центр',
+      hallId: 'hall-1',
+      hallName: 'Основной зал',
       trainingStartTime: '19:00',
       scheduleText: 'Вт, Чт',
+      trainers: [
+        {
+          id: 'coach-id',
+          fullName: 'Тренер группы',
+          login: 'coach',
+        },
+      ],
+      trainerIds: ['coach-id'],
       trainerCount: 2,
       trainerNames: ['Тренер группы', 'Старший тренер'],
       clientCount: 12,
@@ -200,6 +222,7 @@ const MANAGEMENT_ROUTES = [
   { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты' },
   { path: '/groups', screenTestId: 'groups-screen', navLabel: 'Группы' },
   { path: '/audit', screenTestId: 'audit-screen', navLabel: 'Журнал' },
+  { path: '/settings', screenTestId: 'settings-screen', navLabel: 'Настройки' },
 ] as const
 
 const COACH_ROUTES = [
@@ -342,6 +365,41 @@ async function mockApi(
 
     if (pathname === '/api/groups' && method === 'GET') {
       await fulfillJson(route, 200, GROUPS_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/branches' && method === 'GET') {
+      await fulfillJson(route, 200, [
+        {
+          id: 'branch-1',
+          name: 'Центр',
+          address: 'ул. Тестовая, 1',
+          description: 'Основной филиал',
+          isArchived: false,
+          hallCount: 1,
+          groupCount: 1,
+          clientCount: 1,
+          createdAt: '2026-05-01T10:00:00Z',
+          updatedAt: '2026-05-01T10:00:00Z',
+        },
+      ])
+      return
+    }
+
+    if (pathname === '/api/halls' && method === 'GET') {
+      await fulfillJson(route, 200, [
+        {
+          id: 'hall-1',
+          branchId: 'branch-1',
+          branchName: 'Центр',
+          name: 'Основной зал',
+          description: 'Зал для групп',
+          isArchived: false,
+          groupCount: 1,
+          createdAt: '2026-05-01T10:00:00Z',
+          updatedAt: '2026-05-01T10:00:00Z',
+        },
+      ])
       return
     }
 

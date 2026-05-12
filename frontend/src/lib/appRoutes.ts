@@ -27,6 +27,7 @@ export const APP_SECTION_LABELS: Record<AppSection, string> = {
   Groups: 'Группы',
   Users: 'Пользователи',
   Audit: 'Журнал',
+  Settings: 'Настройки',
 }
 
 export const APP_SECTION_PATHS: Record<AppSection, string> = {
@@ -36,6 +37,7 @@ export const APP_SECTION_PATHS: Record<AppSection, string> = {
   Groups: '/groups',
   Users: '/users',
   Audit: '/audit',
+  Settings: '/settings',
 }
 
 export const APP_NAVIGATION_SECTIONS: AppSection[] = [
@@ -45,6 +47,7 @@ export const APP_NAVIGATION_SECTIONS: AppSection[] = [
   'Groups',
   'Users',
   'Audit',
+  'Settings',
 ]
 
 const sectionPathEntries = Object.entries(APP_SECTION_PATHS) as Array<
@@ -61,6 +64,10 @@ function isNavigationSectionAllowed(
 
   if (section === 'Audit' && !user.permissions.canViewAuditLog) {
     return false
+  }
+
+  if (section === 'Settings') {
+    return user.permissions.canManageGroups
   }
 
   return user.allowedSections.includes(section)
@@ -91,9 +98,15 @@ export function getSectionPath(section: AppSection) {
 }
 
 export function getAccessibleNavigationSections(user: AuthenticatedUser) {
-  return APP_NAVIGATION_SECTIONS.filter((section) =>
+  const sections: AppSection[] = APP_NAVIGATION_SECTIONS.filter((section) =>
     isNavigationSectionAllowed(user, section),
   )
+
+  if (user.permissions.canManageGroups && !sections.includes('Settings')) {
+    sections.push('Settings')
+  }
+
+  return sections
 }
 
 export function getRoutePath(route: AppRoute) {
@@ -218,6 +231,10 @@ export function resolveAccessibleRoutePath(
 
   if (routeSection === 'Audit' && !user.permissions.canViewAuditLog) {
     return fallbackPath
+  }
+
+  if (routeSection === 'Settings') {
+    return user.permissions.canManageGroups ? getRoutePath(route) : fallbackPath
   }
 
   if (isClientWriteRoute(route) && !user.permissions.canManageClients) {

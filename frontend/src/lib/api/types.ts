@@ -5,6 +5,7 @@ export type AppSection =
   | 'Groups'
   | 'Users'
   | 'Audit'
+  | 'Settings'
 
 export type AccessPermissions = {
   canManageUsers: boolean
@@ -114,6 +115,10 @@ export type ClientContact = {
 export type ClientGroupSummary = {
   id: string
   name: string
+  branchId?: string
+  branchName?: string
+  hallId?: string
+  hallName?: string
   isActive: boolean
   trainingStartTime?: string
   scheduleText?: string
@@ -150,6 +155,8 @@ export type ClientListItem = {
   firstName: string
   middleName: string
   phone: string
+  branchId: string
+  branchName: string
   status: ClientStatus
   contactCount: number
   groupCount: number
@@ -260,9 +267,52 @@ export type UpsertClientRequest = {
   firstName?: string
   middleName?: string
   phone: string
+  branchId?: string
   notes?: string
   contacts: ClientContactInput[]
   groupIds: string[]
+}
+
+export type TransferClientBranchRequest = {
+  branchId?: string
+  groupId?: string | null
+}
+
+export type Branch = {
+  id: string
+  name: string
+  address: string | null
+  description: string | null
+  isArchived: boolean
+  hallCount: number
+  groupCount: number
+  clientCount: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type Hall = {
+  id: string
+  branchId: string
+  branchName: string
+  name: string
+  description: string | null
+  isArchived: boolean
+  groupCount: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type UpsertBranchRequest = {
+  name: string
+  address?: string | null
+  description?: string | null
+}
+
+export type UpsertHallRequest = {
+  branchId?: string
+  name: string
+  description?: string | null
 }
 
 export type UpdateClientProfessionalStatusRequest = {
@@ -407,6 +457,10 @@ export type AuditLogFilterOptions = {
 export type TrainingGroupListItem = {
   id: string
   name: string
+  branchId: string
+  branchName: string
+  hallId: string
+  hallName: string
   trainingStartTime: string
   scheduleText: string
   isActive: boolean
@@ -428,6 +482,10 @@ export type TrainingGroupListResponse = {
 export type TrainingGroupDetails = {
   id: string
   name: string
+  branchId: string
+  branchName: string
+  hallId: string
+  hallName: string
   trainingStartTime: string
   scheduleText: string
   isActive: boolean
@@ -440,6 +498,8 @@ export type TrainingGroupDetails = {
 
 export type UpsertTrainingGroupRequest = {
   name: string
+  branchId?: string
+  hallId?: string
   trainingStartTime: string
   scheduleText: string
   isActive: boolean
@@ -449,6 +509,10 @@ export type UpsertTrainingGroupRequest = {
 export type GroupResponsePayload = {
   id: string
   name: string
+  branchId: string
+  branchName: string
+  hallId: string
+  hallName: string
   trainingStartTime: string
   scheduleText: string
   isActive: boolean
@@ -513,6 +577,10 @@ export type ClientGroupPayload = {
   name?: string | null
   groupName?: string | null
   title?: string | null
+  branchId?: string | null
+  branchName?: string | null
+  hallId?: string | null
+  hallName?: string | null
   isActive?: boolean | null
   trainingStartTime?: string | null
   scheduleText?: string | null
@@ -525,6 +593,8 @@ export type ClientResponsePayload = {
   middleName?: string | null
   fullName?: string | null
   phone?: string | null
+  branchId?: string | null
+  branchName?: string | null
   notes?: string | null
   status?: string | null
   contactCount?: number | null

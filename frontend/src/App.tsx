@@ -75,6 +75,7 @@ import {
   UsersListScreen,
 } from './features/users/UserManagement'
 import { AuditLogScreen } from './features/audit/AuditLogScreen'
+import { BranchSettingsScreen } from './features/settings/BranchSettingsScreen'
 import { AppLayout, Header, NavigationTabs } from './features/shared/ux'
 import './App.css'
 
@@ -971,6 +972,10 @@ function RouteViewport({
     return <RouteRedirectPlaceholder />
   }
 
+  if (route.kind === 'section' && route.section === 'Settings' && !user.permissions.canManageGroups) {
+    return <RouteRedirectPlaceholder />
+  }
+
   if (route.kind === 'clientCreate') {
     return (
       <ClientCreateScreen
@@ -1072,6 +1077,10 @@ function RouteViewport({
 
   if (route.section === 'Audit') {
     return <AuditLogScreen user={user} />
+  }
+
+  if (route.section === 'Settings') {
+    return <BranchSettingsScreen />
   }
 
   if (route.section === 'Home') {
