@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-031 Реализовать backend-модель филиалов и залов
 
 ## Source task
-/backlog/risky/TASK-031-branches-backend-domain-contracts.md
+/backlog/done/TASK-031-branches-backend-domain-contracts.md
 
 ## Goal
 Backend becomes the source of truth for branches, halls and branch-aware rules for clients, groups, trainer access and memberships.

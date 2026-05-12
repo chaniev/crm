@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-027 Реализовать признак профессионал
 
 ## Source task
-/backlog/risky/TASK-027-professional-client-privilege.md
+/backlog/done/TASK-027-professional-client-privilege.md
 
 ## Goal
 Клиент с признаком `профессионал` отображается как льготный оплаченный клиент: он не попадает в должники, не списывает лимит посещений, не увеличивает выручку и имеет понятный audit trail включения/отключения признака.

@@ -62,8 +62,9 @@ Bot должен продолжать работать с клиентами, г
 
 ## Source notes
 - Derived from: `backlog/done/TASK-022-branches-product-model.md`
-- Depends on: `backlog/risky/TASK-031-branches-backend-domain-contracts.md`
+- Depends on: `backlog/done/TASK-031-branches-backend-domain-contracts.md`
 
 ## Processing notes
 - Created at: 2026-05-07 20:05
 - Created after TASK-022 clarification was completed.
+- Dependency update at 2026-05-12: TASK-031 moved to done, so backend branch-aware contracts are available for comparison; this task remains risky because Python bot DTOs/tests still do not consume branch/hall fields.

@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-032 Реализовать frontend для филиалов и залов
 
 ## Source task
-/backlog/risky/TASK-032-branches-frontend-settings-and-forms.md
+/backlog/done/TASK-032-branches-frontend-settings-and-forms.md
 
 ## Goal
 Администратор управляет филиалами и залами в настройках CRM, а формы клиентов, групп и перевода клиента используют backend branch/hall contracts without duplicating CRM domain rules.
