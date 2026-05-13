@@ -1,7 +1,7 @@
 # TASK-035: Реализовать frontend-расписание групповых занятий
 
 ## Status
-risky
+ready
 
 ## Goal
 Frontend показывает расписание групповых занятий, автоматически собранное из графика занятий по группам, и позволяет администратору заполнять обязательные schedule-поля группы.
@@ -25,8 +25,17 @@ Backend contract уточнен в `TASK-034`:
 - `scheduleText` удаляется и заменяется на `weekdays`.
 - ProblemDetails validation fields: `durationMinutes`, `weekdays`.
 
+UX/IA уточнение от 2026-05-13:
+- Расписание должно быть отдельным разделом `Расписание`.
+- Первый вид расписания - список по дням недели, сгруппированный `Пн...Вс`.
+- Внутри каждого дня занятия сортируются по времени начала.
+- Расписание видят все пользователи CRM.
+- Нужно показывать все дни недели, включая дни без занятий.
+- Frontend показывает backend `trainingStartTime` как локальное `HH:mm` без timezone-конвертации.
+- Расписание только показывает занятия; карточка группы кликабельна и ведет в редактирование группы при наличии прав.
+
 ## User role
-администратор / тренер / владелец
+администратор / тренер / владелец / все пользователи CRM
 
 ## Problem
 Пользователю нужно видеть расписание групповых занятий без ручного ведения отдельного календаря, а форма группы должна собрать все данные, необходимые backend для такого расписания.
@@ -36,10 +45,15 @@ Backend contract уточнен в `TASK-034`:
 - Добавить или обновить поле `durationMinutes` в форме создания/редактирования группы.
 - Добавить структурированный выбор `weekdays` в форме создания/редактирования группы.
 - Убедиться, что в форме группы доступны тип группы, филиал, зал, время начала, продолжительность и дни недели.
+- Добавить отдельный раздел `Расписание`.
 - Отображать расписание групповых занятий на основе backend group schedule data.
-- Для тренера показывать расписание только по группам, доступным через backend access scope.
-- Для администратора/владельца показывать расписание по доступным группам с филиалом, залом, типом группы, тренерами, временем начала и продолжительностью.
-- Показать пустое состояние, если групповой график еще не заполнен.
+- Показывать расписание всем пользователям CRM; состав групп должен приходить из backend с учетом backend access scope.
+- Отображать расписание как список по всем дням недели `Пн...Вс`.
+- Внутри каждого дня сортировать занятия по `trainingStartTime`.
+- Показывать backend `trainingStartTime` как локальное `HH:mm` без timezone-конвертации.
+- Показывать группу, тип группы, филиал, зал, тренера/тренеров, время начала и продолжительность.
+- Показать компактное пустое состояние внутри дней без занятий.
+- Сделать карточку группы кликабельной и ведущей в редактирование группы только при наличии прав.
 
 ## Out of scope
 - Персональные тренировки.
@@ -54,8 +68,15 @@ Backend contract уточнен в `TASK-034`:
 - Branch/hall filtering must follow backend contracts from `TASK-031` and `TASK-034`.
 - Significant UX change: involve `ui-designer` before implementation.
 - Если backend contract changes affect bot or attendance consumers, create/update a separate consumer task instead of hiding the coupling in frontend work.
+- `trainingStartTime` отображается как локальное расписание `HH:mm`, не как absolute timestamp with timezone conversion.
 
 ## Acceptance criteria
+- [ ] В CRM есть отдельный раздел `Расписание`.
+- [ ] Раздел `Расписание` доступен всем пользователям CRM.
+- [ ] Расписание отображается списком по всем дням недели `Пн...Вс`.
+- [ ] Дни без занятий отображаются с компактным пустым состоянием.
+- [ ] Внутри дня занятия отсортированы по `trainingStartTime`.
+- [ ] `trainingStartTime` отображается как локальное `HH:mm` без timezone-конвертации.
 - [ ] Форма группы позволяет заполнить `durationMinutes`.
 - [ ] Форма группы не отправляет `scheduleText` или frontend-only свободный текст как источник дней недели.
 - [ ] Форма группы позволяет выбрать `weekdays`.
@@ -63,6 +84,7 @@ Backend contract уточнен в `TASK-034`:
 - [ ] Ошибки backend validation по `durationMinutes` и `weekdays` отображаются в форме.
 - [ ] Расписание групповых занятий строится из backend group schedule data, а не из frontend-only правил.
 - [ ] В расписании видны группа, тип группы, филиал, зал, тренер(ы), время начала и продолжительность.
+- [ ] Карточка группы в расписании ведет в редактирование группы только при наличии прав.
 - [ ] UI не предлагает переносы, отмены, замены тренера или conflict resolution.
 - [ ] Responsive layout не перекрывает расписание и действия.
 
@@ -73,21 +95,23 @@ Backend contract уточнен в `TASK-034`:
 - [ ] Вручную проверить desktop, tablet и mobile.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for Codex: yes
 - Risk level: high
-- Reason: frontend depends on backend schedule contract changes and touches group management plus a new schedule-facing workflow.
+- Reason: задача готова к реализации, но frontend depends on backend schedule contract changes and touches group management plus a new schedule-facing workflow.
 
 ## Clarification questions
-Не требуется.
+Не требуется. UX/IA решения закрыты: отдельный раздел `Расписание`, недельный список `Пн...Вс`, доступно всем пользователям CRM, все дни показываются, `trainingStartTime` отображается как локальное `HH:mm`, карточка группы ведет в редактирование только при наличии прав.
 
 ## Source notes
 - Derived from: `backlog/done/TASK-028-schedule-product-model.md`
 - Depends on: `backlog/tasks-ready/TASK-034-group-schedule-backend-model.md`
 - User clarification 2026-05-13 for backend contract: duration in minutes, range 1-180, structured weekdays, fresh deployment.
 - User clarification 2026-05-13 for backend contract: field names are `durationMinutes` and `weekdays`; `weekdays` is ISO `number[]` 1..7, required, deduplicated and sorted by backend; `scheduleText` is removed.
+- User clarification 2026-05-13 for frontend IA: separate `Расписание` section; list grouped by weekdays `Пн...Вс`; sort within day by start time; schedule visible to all; show all weekdays; render `trainingStartTime` as local `HH:mm`; schedule is read-only and group card opens edit only when user has permission.
 
 ## Processing notes
 - Created at: 2026-05-13
 - Created after TASK-028 clarification was completed.
 - Updated at: 2026-05-13 after TASK-034 duration and structured weekdays clarification.
 - Updated at: 2026-05-13 after final TASK-034 contract field-name clarification.
+- Moved to tasks-ready at: 2026-05-13 after schedule UI placement, visibility, grouping, sorting and navigation semantics were clarified.

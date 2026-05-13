@@ -206,3 +206,24 @@
 - moved to tasks-ready: 1
 - updated existing: 2
 - validation: backlog-only update; runtime test commands were not run
+
+# 2026-05-13 TASK-035 ready
+
+## Updated tasks
+- /backlog/tasks-ready/TASK-035-group-schedule-frontend-experience.md
+
+## Moved tasks
+- /backlog/risky/TASK-035-group-schedule-frontend-experience.md -> /backlog/tasks-ready/TASK-035-group-schedule-frontend-experience.md
+
+## Captured decisions
+- Schedule is a separate CRM section named `Расписание`.
+- First schedule view is a list grouped by weekdays `Пн...Вс`.
+- Lessons inside each day are sorted by `trainingStartTime`.
+- Schedule is visible to all CRM users.
+- All weekdays are shown, including days without lessons.
+- Frontend renders backend `trainingStartTime` as local `HH:mm` without timezone conversion.
+- Schedule is read-only; group card opens group edit only when the user has permission.
+
+## Summary
+- moved to tasks-ready: 1
+- validation: backlog-only update; runtime test commands were not run
