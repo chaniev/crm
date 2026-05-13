@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NameRequired" xml:space="preserve">
+    <value>Укажите название типа группы.</value>
+  </data>
+  <data name="NameTooLong" xml:space="preserve">
+    <value>Название типа группы не должно превышать {0} символов.</value>
+  </data>
+  <data name="DescriptionTooLong" xml:space="preserve">
+    <value>Описание типа группы не должно превышать 1000 символов.</value>
+  </data>
+  <data name="SystemIdentifierRequired" xml:space="preserve">
+    <value>Укажите системный идентификатор типа группы.</value>
+  </data>
+  <data name="SystemIdentifierTooLong" xml:space="preserve">
+    <value>Системный идентификатор типа группы не должен превышать {0} символов.</value>
+  </data>
+  <data name="NameAlreadyExists" xml:space="preserve">
+    <value>Тип группы с таким названием уже существует.</value>
+  </data>
+  <data name="SystemIdentifierAlreadyExists" xml:space="preserve">
+    <value>Тип группы с таким системным идентификатором уже существует.</value>
+  </data>
+  <data name="GroupTypeCannotBeDeletedWithGroups" xml:space="preserve">
+    <value>Нельзя удалить тип группы, который используется группами.</value>
+  </data>
+  <data name="GroupTypeCreatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' создал тип группы '{1}'.</value>
+  </data>
+  <data name="GroupTypeUpdatedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил тип группы '{1}'.</value>
+  </data>
+  <data name="GroupTypeDeletedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' удалил тип группы '{1}'.</value>
+  </data>
+</root>

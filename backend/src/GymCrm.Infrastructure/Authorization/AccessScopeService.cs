@@ -30,12 +30,14 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     AppSection.Clients,
                     AppSection.Groups,
                     AppSection.Users,
-                    AppSection.Audit
+                    AppSection.Audit,
+                    AppSection.Settings
                 ],
                 new PermissionSet(
                     CanManageUsers: true,
                     CanManageClients: true,
                     CanManageGroups: true,
+                    CanManageSettings: true,
                     CanMarkAttendance: true,
                     CanViewAuditLog: true),
                 []),
@@ -46,12 +48,14 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     AppSection.Home,
                     AppSection.Clients,
                     AppSection.Groups,
-                    AppSection.Audit
+                    AppSection.Audit,
+                    AppSection.Settings
                 ],
                 new PermissionSet(
                     CanManageUsers: false,
                     CanManageClients: true,
                     CanManageGroups: true,
+                    CanManageSettings: true,
                     CanMarkAttendance: false,
                     CanViewAuditLog: true),
                 []),
@@ -66,6 +70,7 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     CanManageUsers: false,
                     CanManageClients: false,
                     CanManageGroups: false,
+                    CanManageSettings: false,
                     CanMarkAttendance: true,
                     CanViewAuditLog: false),
                 assignedGroupIds),

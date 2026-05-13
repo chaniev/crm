@@ -47,6 +47,7 @@ public class GroupsApiTests
                 Name = groupName,
                 BranchId = seeded.BranchId,
                 HallId = seeded.HallOneId,
+                GroupTypeId = seeded.GroupTypeId,
                 TrainingStartTime = "18:00:00",
                 ScheduleText = "Вт-Чт-Пт",
                 IsActive = true
@@ -74,6 +75,8 @@ public class GroupsApiTests
             var getPayload = await ReadJsonElementAsync(getResponse);
             Assert.Equal(groupId, GetGuidFromProperty(getPayload, "id"));
             Assert.Equal(groupName, GetStringFromProperty(getPayload, "name"));
+            Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(getPayload, "groupTypeId"));
+            Assert.Equal("Groups Default Type", GetStringFromProperty(getPayload, "groupTypeName"));
         }
 
         var updatePayload = new
@@ -81,6 +84,7 @@ public class GroupsApiTests
             Name = "Group Updated",
             BranchId = seeded.BranchId,
             HallId = seeded.HallOneId,
+            GroupTypeId = seeded.GroupTypeId,
             TrainingStartTime = "19:00:00",
             ScheduleText = "Пн-Ср",
             IsActive = true
@@ -185,6 +189,7 @@ public class GroupsApiTests
                        Name = "Coach attempt",
                        BranchId = seeded.BranchId,
                        HallId = seeded.HallOneId,
+                       GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
                        ScheduleText = "Вт-Чт",
                        IsActive = true
@@ -202,6 +207,7 @@ public class GroupsApiTests
                        Name = "Forbidden update",
                        BranchId = seeded.BranchId,
                        HallId = seeded.HallOneId,
+                       GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:30:00",
                        ScheduleText = "Пн-Пт",
                        IsActive = true
@@ -236,6 +242,7 @@ public class GroupsApiTests
                    new
                    {
                        Name = "No branch hall",
+                       GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
                        ScheduleText = "Пн",
                        IsActive = true
@@ -286,6 +293,7 @@ public class GroupsApiTests
                        Name = "Wrong hall",
                        BranchId = seeded.BranchId,
                        HallId = foreignHallId,
+                       GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
                        ScheduleText = "Пн",
                        IsActive = true
@@ -295,6 +303,171 @@ public class GroupsApiTests
             Assert.Equal(HttpStatusCode.BadRequest, wrongHallResponse.StatusCode);
             var payload = await ReadJsonElementAsync(wrongHallResponse);
             Assert.True(payload.GetProperty("errors").TryGetProperty("hallId", out _));
+        }
+    }
+
+    [Fact]
+    public async Task Group_create_requires_valid_group_type()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var missingGroupTypeResponse = await PostJsonAsync(
+                   client,
+                   "/groups",
+                   new
+                   {
+                       Name = "No group type",
+                       BranchId = seeded.BranchId,
+                       HallId = seeded.HallOneId,
+                       TrainingStartTime = "18:00:00",
+                       ScheduleText = "Пн",
+                       IsActive = true
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, missingGroupTypeResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(missingGroupTypeResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("groupTypeId", out _));
+        }
+
+        using (var unknownGroupTypeResponse = await PostJsonAsync(
+                   client,
+                   "/groups",
+                   new
+                   {
+                       Name = "Unknown group type",
+                       BranchId = seeded.BranchId,
+                       HallId = seeded.HallOneId,
+                       GroupTypeId = Guid.NewGuid(),
+                       TrainingStartTime = "18:00:00",
+                       ScheduleText = "Пн",
+                       IsActive = true
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, unknownGroupTypeResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(unknownGroupTypeResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("groupTypeId", out _));
+        }
+    }
+
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("Administrator")]
+    public async Task HeadCoach_or_Administrator_can_manage_group_types(string actorRole)
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorLogin = actorRole == "HeadCoach"
+            ? seeded.HeadCoachLogin
+            : seeded.AdministratorLogin;
+        var session = await LoginAsync(client, actorLogin, seeded.SharedPassword);
+        var systemIdentifier = $"custom-{Guid.NewGuid():N}";
+
+        Guid groupTypeId;
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/group-types",
+                   new
+                   {
+                       Name = "Custom Group Type",
+                       Description = "Created from settings.",
+                       SystemIdentifier = systemIdentifier
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(createResponse);
+            groupTypeId = GetGuidFromProperty(payload, "id");
+            Assert.NotEqual(Guid.Empty, groupTypeId);
+            Assert.Equal("Custom Group Type", GetStringFromProperty(payload, "name"));
+            Assert.Equal(systemIdentifier, GetStringFromProperty(payload, "systemIdentifier"));
+        }
+
+        using (var duplicateResponse = await PostJsonAsync(
+                   client,
+                   "/group-types",
+                   new
+                   {
+                       Name = "Custom Group Type",
+                       Description = "Duplicate.",
+                       SystemIdentifier = systemIdentifier
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, duplicateResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(duplicateResponse);
+            var errors = payload.GetProperty("errors");
+            Assert.True(errors.TryGetProperty("name", out _));
+            Assert.True(errors.TryGetProperty("systemIdentifier", out _));
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/group-types/{groupTypeId}",
+                   new
+                   {
+                       Name = "Custom Group Type Updated",
+                       Description = (string?)null,
+                       SystemIdentifier = $"{systemIdentifier}-updated"
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(updateResponse);
+            Assert.Equal("Custom Group Type Updated", GetStringFromProperty(payload, "name"));
+        }
+
+        using (var deleteResponse = await DeleteAsync(client, $"/group-types/{groupTypeId}", session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        }
+    }
+
+    [Fact]
+    public async Task Coach_cannot_manage_group_types()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
+
+        using (var listResponse = await client.GetAsync("/group-types"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, listResponse.StatusCode);
+        }
+
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/group-types",
+                   new
+                   {
+                       Name = "Coach Type",
+                       Description = "",
+                       SystemIdentifier = "coach-type"
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, createResponse.StatusCode);
         }
     }
 
@@ -329,6 +502,7 @@ public class GroupsApiTests
                 Name = $"Audit group {Guid.NewGuid():N}",
                 BranchId = seeded.BranchId,
                 HallId = seeded.HallOneId,
+                GroupTypeId = seeded.GroupTypeId,
                 TrainingStartTime = "07:00:00",
                 ScheduleText = "Пн",
                 IsActive = true
@@ -373,6 +547,7 @@ public class GroupsApiTests
                        Name = "Audit group updated",
                        BranchId = seeded.BranchId,
                        HallId = seeded.HallOneId,
+                       GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "08:00:00",
                        ScheduleText = "Вт",
                        IsActive = true
@@ -431,6 +606,7 @@ public class GroupsApiTests
                        Name = "Coach Session Group",
                        BranchId = seeded.BranchId,
                        HallId = seeded.HallTwoId,
+                       GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "12:00:00",
                        ScheduleText = "Пн-Ср-Пт",
                        IsActive = true
@@ -512,11 +688,21 @@ public class GroupsApiTests
             UpdatedAt = now
         };
 
+        var groupType = new GroupType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Groups Default Type",
+            SystemIdentifier = "groups-default-type",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         var groupOne = new TrainingGroup
         {
             Id = Guid.NewGuid(),
             BranchId = branch.Id,
             HallId = hallOne.Id,
+            GroupTypeId = groupType.Id,
             Name = "Existing coach-visible group",
             TrainingStartTime = new TimeOnly(9, 0),
             ScheduleText = "Вт,Чт",
@@ -528,6 +714,7 @@ public class GroupsApiTests
         dbContext.Users.AddRange(headCoach, administrator, coachOne, coachTwo);
         dbContext.Branches.Add(branch);
         dbContext.Halls.AddRange(hallOne, hallTwo);
+        dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.Add(groupOne);
         await dbContext.SaveChangesAsync();
 
@@ -543,6 +730,7 @@ public class GroupsApiTests
             branch.Id,
             hallOne.Id,
             hallTwo.Id,
+            groupType.Id,
             groupOne.Id,
             now);
     }
@@ -663,6 +851,17 @@ public class GroupsApiTests
         string csrfToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, path);
+        request.Headers.Add("X-CSRF-TOKEN", csrfToken);
+
+        return await client.SendAsync(request);
+    }
+
+    private static async Task<HttpResponseMessage> DeleteAsync(
+        HttpClient client,
+        string path,
+        string csrfToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Delete, path);
         request.Headers.Add("X-CSRF-TOKEN", csrfToken);
 
         return await client.SendAsync(request);
@@ -854,6 +1053,7 @@ public class GroupsApiTests
         Guid BranchId,
         Guid HallOneId,
         Guid HallTwoId,
+        Guid GroupTypeId,
         Guid GroupOneId,
         DateTimeOffset Now);
 
@@ -875,6 +1075,7 @@ public class GroupsApiTests
         bool CanManageUsers,
         bool CanManageClients,
         bool CanManageGroups,
+        bool CanManageSettings,
         bool CanMarkAttendance,
         bool CanViewAuditLog);
 

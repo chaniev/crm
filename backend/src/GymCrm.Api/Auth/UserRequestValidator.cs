@@ -14,7 +14,8 @@ internal static class UserRequestValidator
         string? messengerPlatform,
         string? messengerPlatformUserId,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool allowAdministratorRole = false)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -46,6 +47,10 @@ internal static class UserRequestValidator
         {
             errors["role"] = [UserResources.HeadCoachCreationUnavailable];
         }
+        else if (parsedRole is UserRole.Administrator && !allowAdministratorRole)
+        {
+            errors["role"] = [UserResources.AdministratorCreationUnavailableOutsideSettings];
+        }
 
         await ValidateMessengerIdentityAsync(
             messengerPlatform,
@@ -67,7 +72,8 @@ internal static class UserRequestValidator
         bool isActive,
         User user,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool allowAdministratorRole = false)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -107,6 +113,10 @@ internal static class UserRequestValidator
         else if (parsedRole == UserRole.HeadCoach)
         {
             errors["role"] = [UserResources.HeadCoachAssignmentUnavailable];
+        }
+        else if (parsedRole == UserRole.Administrator && !allowAdministratorRole)
+        {
+            errors["role"] = [UserResources.AdministratorAssignmentUnavailableOutsideSettings];
         }
 
         await ValidateMessengerIdentityAsync(

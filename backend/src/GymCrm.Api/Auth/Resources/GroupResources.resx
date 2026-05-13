@@ -57,6 +57,15 @@
   <data name="AssignedClientsMustBelongToBranch" xml:space="preserve">
     <value>Нельзя перенести группу в филиал, пока в ней есть клиенты другого филиала.</value>
   </data>
+  <data name="GroupTypeRequired" xml:space="preserve">
+    <value>Укажите тип группы.</value>
+  </data>
+  <data name="InvalidGroupTypeId" xml:space="preserve">
+    <value>Идентификатор типа группы некорректен.</value>
+  </data>
+  <data name="GroupTypeMustExist" xml:space="preserve">
+    <value>Группу можно привязать только к существующему типу группы.</value>
+  </data>
   <data name="NameTooLong" xml:space="preserve">
     <value>Название группы не должно превышать {0} символов.</value>
   </data>

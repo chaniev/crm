@@ -320,6 +320,7 @@ internal static class AuthEndpoints
                 accessScope.Permissions.CanManageUsers,
                 accessScope.Permissions.CanManageClients,
                 accessScope.Permissions.CanManageGroups,
+                accessScope.Permissions.CanManageSettings,
                 accessScope.Permissions.CanMarkAttendance,
                 accessScope.Permissions.CanViewAuditLog),
             accessScope.AssignedGroupIds);
@@ -351,6 +352,7 @@ internal static class AuthEndpoints
         bool CanManageUsers,
         bool CanManageClients,
         bool CanManageGroups,
+        bool CanManageSettings,
         bool CanMarkAttendance,
         bool CanViewAuditLog);
 }

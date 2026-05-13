@@ -11,6 +11,7 @@ export type {
   AuthenticatedUser,
   Branch,
   ChangePasswordRequest,
+  CreateAdministratorRequest,
   ClientAttendanceHistoryEntry,
   ClientContact,
   ClientContactInput,
@@ -32,6 +33,7 @@ export type {
   GetClientsParams,
   GroupClient,
   GroupClientsResponse,
+  GroupType,
   GroupTrainerSummary,
   Hall,
   LoginRequest,
@@ -50,8 +52,10 @@ export type {
   UpdateUserRequest,
   UpsertBranchRequest,
   UpsertClientRequest,
+  UpsertGroupTypeRequest,
   UpsertHallRequest,
   UpsertTrainingGroupRequest,
+  UpdateAdministratorRequest,
   UserDetails,
   UserListItem,
   UserRole,
@@ -64,6 +68,12 @@ export {
   login,
   logout,
 } from './api/auth'
+export {
+  createAdministrator,
+  getAdministrator,
+  getAdministrators,
+  updateAdministrator,
+} from './api/administrators'
 export {
   createUser,
   getUser,
@@ -100,6 +110,13 @@ export {
   updateBranch,
   updateHall,
 } from './api/branches'
+export {
+  createGroupType,
+  deleteGroupType,
+  getGroupType,
+  getGroupTypes,
+  updateGroupType,
+} from './api/groupTypes'
 export {
   createGroup,
   getGroup,

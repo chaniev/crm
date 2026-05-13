@@ -12,11 +12,12 @@ const HEAD_COACH_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit'],
+    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
       canManageGroups: true,
+      canManageSettings: true,
       canMarkAttendance: true,
       canViewAuditLog: true,
     },

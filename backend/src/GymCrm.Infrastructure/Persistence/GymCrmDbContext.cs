@@ -18,6 +18,7 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<ClientContact> ClientContacts => Set<ClientContact>();
     public DbSet<ClientMembership> ClientMemberships => Set<ClientMembership>();
     public DbSet<TrainingGroup> TrainingGroups => Set<TrainingGroup>();
+    public DbSet<GroupType> GroupTypes => Set<GroupType>();
     public DbSet<ClientGroup> ClientGroups => Set<ClientGroup>();
     public DbSet<GroupTrainer> GroupTrainers => Set<GroupTrainer>();
     public DbSet<Attendance> Attendance => Set<Attendance>();

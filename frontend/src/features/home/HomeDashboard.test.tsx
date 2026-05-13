@@ -25,11 +25,12 @@ const user: AuthenticatedUser = {
   mustChangePassword: false,
   isActive: true,
   landingScreen: 'Home',
-  allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit'],
+  allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
   permissions: {
     canManageUsers: true,
     canManageClients: true,
     canManageGroups: true,
+    canManageSettings: true,
     canMarkAttendance: true,
     canViewAuditLog: true,
   },
@@ -45,6 +46,7 @@ const coachUser: AuthenticatedUser = {
     canManageUsers: false,
     canManageClients: false,
     canManageGroups: false,
+    canManageSettings: false,
     canViewAuditLog: false,
   },
 }

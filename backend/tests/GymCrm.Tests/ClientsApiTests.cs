@@ -316,11 +316,20 @@ public class ClientsApiTests
                 CreatedAt = now,
                 UpdatedAt = now
             };
+            var targetGroupType = new GroupType
+            {
+                Id = Guid.NewGuid(),
+                Name = "Transfer Group Type",
+                SystemIdentifier = "transfer-group-type",
+                CreatedAt = now,
+                UpdatedAt = now
+            };
             var targetGroup = new TrainingGroup
             {
                 Id = Guid.NewGuid(),
                 BranchId = targetBranch.Id,
                 HallId = targetHall.Id,
+                GroupTypeId = targetGroupType.Id,
                 Name = "Transfer Group",
                 TrainingStartTime = new TimeOnly(10, 0),
                 ScheduleText = "Вт-Чт",
@@ -331,6 +340,7 @@ public class ClientsApiTests
 
             dbContext.Branches.Add(targetBranch);
             dbContext.Halls.Add(targetHall);
+            dbContext.GroupTypes.Add(targetGroupType);
             dbContext.TrainingGroups.Add(targetGroup);
             dbContext.ClientMemberships.Add(new ClientMembership
             {
@@ -2655,11 +2665,20 @@ public class ClientsApiTests
                 CreatedAt = now,
                 UpdatedAt = now
             };
+            var foreignGroupType = new GroupType
+            {
+                Id = Guid.NewGuid(),
+                Name = "Foreign Group Type",
+                SystemIdentifier = "foreign-group-type",
+                CreatedAt = now,
+                UpdatedAt = now
+            };
             var foreignGroup = new TrainingGroup
             {
                 Id = Guid.NewGuid(),
                 BranchId = foreignBranch.Id,
                 HallId = foreignHall.Id,
+                GroupTypeId = foreignGroupType.Id,
                 Name = "Foreign Group",
                 TrainingStartTime = new TimeOnly(11, 0),
                 ScheduleText = "Пн",
@@ -2670,6 +2689,7 @@ public class ClientsApiTests
 
             dbContext.Branches.Add(foreignBranch);
             dbContext.Halls.Add(foreignHall);
+            dbContext.GroupTypes.Add(foreignGroupType);
             dbContext.TrainingGroups.Add(foreignGroup);
             await dbContext.SaveChangesAsync();
             foreignGroupId = foreignGroup.Id;
@@ -2925,12 +2945,21 @@ public class ClientsApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var groupType = new GroupType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Clients Default Type",
+            SystemIdentifier = "clients-default-type",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
 
         var groupOne = new TrainingGroup
         {
             Id = Guid.NewGuid(),
             BranchId = branch.Id,
             HallId = hallOne.Id,
+            GroupTypeId = groupType.Id,
             Name = "Group One",
             TrainingStartTime = new TimeOnly(9, 0),
             ScheduleText = "Пн-Ср-Пт",
@@ -2944,6 +2973,7 @@ public class ClientsApiTests
             Id = Guid.NewGuid(),
             BranchId = branch.Id,
             HallId = hallTwo.Id,
+            GroupTypeId = groupType.Id,
             Name = "Group Two",
             TrainingStartTime = new TimeOnly(18, 30),
             ScheduleText = "Вт-Чт",
@@ -2967,6 +2997,7 @@ public class ClientsApiTests
         dbContext.Users.AddRange(headCoach, administrator, coach);
         dbContext.Branches.Add(branch);
         dbContext.Halls.AddRange(hallOne, hallTwo);
+        dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.AddRange(groupOne, groupTwo);
         dbContext.Clients.Add(archivedClient);
         await dbContext.SaveChangesAsync();

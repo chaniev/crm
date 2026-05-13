@@ -117,11 +117,21 @@ public class BranchesApiTests
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var groupType = new GroupType
+            {
+                Id = Guid.NewGuid(),
+                Name = "Branch Guard Type",
+                SystemIdentifier = "branch-guard-type",
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+            dbContext.GroupTypes.Add(groupType);
             dbContext.TrainingGroups.Add(new TrainingGroup
             {
                 Id = Guid.NewGuid(),
                 BranchId = branchId,
                 HallId = hallId,
+                GroupTypeId = groupType.Id,
                 Name = "Hall Guard Group",
                 TrainingStartTime = new TimeOnly(9, 0),
                 ScheduleText = "Mon/Wed",

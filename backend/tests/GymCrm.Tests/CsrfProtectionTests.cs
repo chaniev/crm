@@ -63,6 +63,7 @@ public class CsrfProtectionTests
                 new
                 {
                     Name = $"CSRF Group {Guid.NewGuid():N}",
+                    GroupTypeId = seeded.GroupTypeId,
                     TrainingStartTime = "18:00:00",
                     ScheduleText = "Пн-Ср",
                     IsActive = true
@@ -131,11 +132,20 @@ public class CsrfProtectionTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var groupType = new GroupType
+        {
+            Id = Guid.NewGuid(),
+            Name = "CSRF Default Type",
+            SystemIdentifier = "csrf-default-type",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
         var group = new TrainingGroup
         {
             Id = Guid.NewGuid(),
             BranchId = branch.Id,
             HallId = hall.Id,
+            GroupTypeId = groupType.Id,
             Name = "CSRF Group",
             TrainingStartTime = new TimeOnly(9, 0),
             ScheduleText = "Пн,Ср,Пт",
@@ -158,6 +168,7 @@ public class CsrfProtectionTests
         dbContext.Users.Add(headCoach);
         dbContext.Branches.Add(branch);
         dbContext.Halls.Add(hall);
+        dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.Add(group);
         dbContext.Clients.Add(client);
         dbContext.ClientGroups.Add(new ClientGroup
@@ -172,6 +183,7 @@ public class CsrfProtectionTests
             headCoach.Login,
             sharedPassword,
             group.Id,
+            groupType.Id,
             client.Id);
     }
 
@@ -281,6 +293,7 @@ public class CsrfProtectionTests
         string HeadCoachLogin,
         string SharedPassword,
         Guid GroupId,
+        Guid GroupTypeId,
         Guid ClientId);
 
     private sealed record LoginRequest(string Login, string Password);

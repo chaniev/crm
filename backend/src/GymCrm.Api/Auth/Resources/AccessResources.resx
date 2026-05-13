@@ -21,6 +21,9 @@
   <data name="GroupManagementDetail" xml:space="preserve">
     <value>Backend подтверждает доступ к управлению группами.</value>
   </data>
+  <data name="SettingsManagementDetail" xml:space="preserve">
+    <value>Backend подтверждает доступ к настройкам CRM.</value>
+  </data>
   <data name="AuditLogDetail" xml:space="preserve">
     <value>Backend подтверждает доступ к журналу действий.</value>
   </data>

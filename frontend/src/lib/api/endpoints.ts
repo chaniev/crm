@@ -13,6 +13,10 @@ export const API_ENDPOINTS = {
     collection: '/users',
     byId: (userId: string) => `/users/${userId}`,
   },
+  administrators: {
+    collection: '/settings/administrators',
+    byId: (administratorId: string) => `/settings/administrators/${administratorId}`,
+  },
   clients: {
     collection: '/clients',
     byId: (clientId: string) => `/clients/${clientId}`,
@@ -36,6 +40,10 @@ export const API_ENDPOINTS = {
     byId: (groupId: string) => `/groups/${groupId}`,
     trainerOptions: '/groups/options/trainers',
     clients: (groupId: string) => `/groups/${groupId}/clients`,
+  },
+  groupTypes: {
+    collection: '/group-types',
+    byId: (groupTypeId: string) => `/group-types/${groupTypeId}`,
   },
   branches: {
     collection: '/branches',

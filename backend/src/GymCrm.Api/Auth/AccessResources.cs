@@ -15,6 +15,8 @@ internal static class AccessResources
 
     public static string GroupManagementDetail => GetString(nameof(GroupManagementDetail));
 
+    public static string SettingsManagementDetail => GetString(nameof(SettingsManagementDetail));
+
     public static string AuditLogDetail => GetString(nameof(AuditLogDetail));
 
     private static string GetString(string name)

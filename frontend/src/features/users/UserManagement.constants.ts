@@ -14,7 +14,6 @@ export type MessengerPlatformOption = {
 export const userRoleLabels: Record<UserRole, string> = resources.users.roles
 
 export const userRoleOptions: UserRoleOption[] = [
-  { value: 'Administrator', label: userRoleLabels.Administrator },
   { value: 'Coach', label: userRoleLabels.Coach },
 ]
 

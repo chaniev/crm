@@ -19,6 +19,9 @@ internal static class AccessEndpoints
         group.MapGet(AccessApiConstants.GroupManagementRoute, ProbeGroupManagement)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageGroups);
 
+        group.MapGet(AccessApiConstants.SettingsManagementRoute, ProbeSettingsManagement)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageSettings);
+
         group.MapGet(AccessApiConstants.AuditLogRoute, ProbeAuditLog)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ViewAuditLog);
 
@@ -50,6 +53,14 @@ internal static class AccessEndpoints
             AccessApiConstants.GroupManagementCapability,
             AccessResources.GroupManagementDetail,
             GymCrmAuthorizationPolicies.ManageGroups));
+    }
+
+    private static Ok<CapabilityProbeResponse> ProbeSettingsManagement()
+    {
+        return TypedResults.Ok(new CapabilityProbeResponse(
+            AccessApiConstants.SettingsManagementCapability,
+            AccessResources.SettingsManagementDetail,
+            GymCrmAuthorizationPolicies.ManageSettings));
     }
 
     private static Ok<CapabilityProbeResponse> ProbeAuditLog()
