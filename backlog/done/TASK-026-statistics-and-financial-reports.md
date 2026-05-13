@@ -1,7 +1,7 @@
 # TASK-026: Уточнить статистику и финансовые отчеты
 
 ## Status
-ready
+done
 
 ## Goal
 Сформировать понятный набор статистических и финансовых отчетов с определениями метрик, периодами и фильтрами.
@@ -34,7 +34,7 @@ ready
 владелец / администратор / главный тренер
 
 ## Problem
-Запрос на статистику и финансовые отчеты уточнен, можно разбивать на отдельные implementation tasks.
+Запрос на статистику и финансовые отчеты уточнен и разбит на отдельные implementation tasks.
 
 ## Scope
 - Зафиксировать список отчетов первого релиза: проданные абонементы по периодам с учетом филиалов и тренеров, новые клиенты с выбранной даты.
@@ -67,11 +67,12 @@ ready
 - [x] Есть список отчетов первого релиза.
 - [x] Для каждой метрики есть формула и источник данных.
 - [x] Определены периоды, фильтры и роли доступа.
-- [ ] Созданы отдельные implementation tasks.
+- [x] Созданы отдельные implementation tasks.
 
 ## Test checklist
-- [ ] После будущей реализации проверить backend report tests.
-- [ ] После frontend реализации проверить lint/build и UI на пустых данных.
+- [x] Runtime validation не требуется: задача была про уточнение backlog/product model.
+- [x] Будущая backend-валидация перенесена в `TASK-036` и `TASK-037`.
+- [x] Будущая frontend-валидация перенесена в `TASK-038`.
 
 ## AI safety
 - Safe for Codex: no
@@ -103,6 +104,10 @@ ready
 - User clarification 2026-05-13: первый релиз включает проданные абонементы по периодам с учетом филиалов и тренеров, новых клиентов с выбранной даты; продажа считается по дате покупки; возвраты имеют сумму возврата; нулевые абонементы учитываются количеством и дают `0` в сумме; быстрые периоды месяц/квартал/год плюс произвольный период; финансовые данные доступны главному тренеру.
 - User clarification 2026-05-13: отмены и заморозки на этом этапе не учитываются; возврат имеет дату возврата и считается по дате возврата; новый клиент считается по дате покупки нового абонемента; отчет по филиалам поддерживает отдельный филиал и все филиалы сразу; тренер связан с абонементами через группы, которые он ведет; отчеты размещаются в отдельной вкладке `Финансы` в главном меню.
 - User clarification 2026-05-13: в первом релизе показываются все три финансовых показателя: валовая сумма продаж, сумма возвратов и чистая сумма.
+- Implementation tasks created:
+  - `backlog/risky/TASK-036-membership-refunds-sale-semantics.md`
+  - `backlog/risky/TASK-037-financial-reports-backend-api.md`
+  - `backlog/risky/TASK-038-finance-reports-frontend.md`
 
 ## Processing notes
 - Created at: 2026-05-07 11:26
@@ -115,3 +120,4 @@ ready
 - Updated with cancellation/freeze, refund date, new-client date, branch filter, trainer group-link and menu placement clarification at: 2026-05-13
 - Updated with financial totals selection at: 2026-05-13
 - Moved to tasks-ready after all clarification questions were closed at: 2026-05-13
+- Decomposed into implementation tasks and moved to done at: 2026-05-13 20:54
