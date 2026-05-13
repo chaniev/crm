@@ -84,3 +84,19 @@
 - moved: 1
 - skipped: 0
 - plans created: 1
+
+# 2026-05-13 13:30
+
+## Moved to implementation
+- /backlog/implementation/TASK-029-rename-users-to-trainers.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-029-rename-users-to-trainers.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1

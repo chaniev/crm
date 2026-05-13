@@ -1,7 +1,13 @@
 # TASK-029: Переименовать раздел `Пользователи` в `Тренеры`
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-13 13:30
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-029-rename-users-to-trainers.plan.md
+- implementation_branch: feature/TASK-029-rename-users-to-trainers
 
 ## Goal
 В интерфейсе CRM раздел или пункт меню, который используется для работы с тренерами, называется `Тренеры`, а не `Пользователи`.
