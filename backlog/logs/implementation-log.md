@@ -133,3 +133,20 @@
 - skipped: 0
 - plans created: 1
 - note: task is marked high risk, but has clear acceptance criteria and no unresolved clarification questions; plan includes dependency, UX and regression barriers.
+
+# 2026-05-13 20:42
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-026-statistics-and-financial-reports.plan.md
+
+## Skipped tasks
+- TASK-026-statistics-and-financial-reports.md - not moved: task is marked high risk and its own scope is decomposition into separate implementation tasks, not direct financial report implementation; plan created for safe backlog-only decomposition.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: direct product-code execution is intentionally blocked until TASK-026 creates smaller backend/frontend implementation tasks with automated regression barriers.
