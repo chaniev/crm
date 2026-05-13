@@ -100,3 +100,19 @@
 - moved: 1
 - skipped: 0
 - plans created: 1
+
+# 2026-05-13 17:18
+
+## Moved to implementation
+- /backlog/implementation/TASK-034-group-schedule-backend-model.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-034-group-schedule-backend-model.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1

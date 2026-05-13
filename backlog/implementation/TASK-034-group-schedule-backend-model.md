@@ -1,7 +1,13 @@
 # TASK-034: Реализовать backend-модель графика групповых занятий
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-13 17:18
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-034-group-schedule-backend-model.plan.md
+- implementation_branch: feature/TASK-034-group-schedule-backend-model
 
 ## Goal
 Backend хранит и валидирует график занятий группы, включая тип группы, филиал, зал, время начала и продолжительность занятия, чтобы расписание CRM формировалось автоматически на основе групп.
