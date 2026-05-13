@@ -177,3 +177,54 @@
 - tasks created: 3
 - tasks closed: 1
 - note: TASK-026 was decomposed into three risky implementation tasks; direct product-code implementation remains delegated to those smaller tasks.
+
+# 2026-05-13 22:33
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-037-financial-reports-backend-api.plan.md
+
+## Skipped tasks
+- TASK-037-financial-reports-backend-api.md - not moved: task is in `/backlog/risky`, touches financial aggregates and access behavior, and depends on `TASK-036` sale/refund/period attribution contracts before product-code execution.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan created for high-risk backend report API; active implementation is conditional on completing `TASK-036` and creating a dedicated TASK-037 branch from updated `main`.
+
+# 2026-05-13 22:32
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-036-membership-refunds-sale-semantics.plan.md
+
+## Skipped tasks
+- TASK-036-membership-refunds-sale-semantics.md - not moved: task is in `/backlog/risky`; high-risk planning is allowed, but active implementation selection requires explicit review and a dedicated implementation branch.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan created for phased backend implementation of membership sale/refund semantics and historical attribution periods; source task remains in `/backlog/risky`.
+
+# 2026-05-13 22:33
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-038-finance-reports-frontend.plan.md
+
+## Skipped tasks
+- TASK-038-finance-reports-frontend.md - not moved: task is marked high risk, depends on TASK-037 backend report API, and direct frontend implementation must wait for a stable backend contract; plan created for safe implementation preparation.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: TASK-038 remains in /backlog/risky; implementation can start later in feature/TASK-038-finance-reports-frontend after TASK-037 exposes the required report and access contracts.
