@@ -116,3 +116,20 @@
 - moved: 1
 - skipped: 0
 - plans created: 1
+
+# 2026-05-13 18:01
+
+## Moved to implementation
+- /backlog/implementation/TASK-035-group-schedule-frontend-experience.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-035-group-schedule-frontend-experience.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task is marked high risk, but has clear acceptance criteria and no unresolved clarification questions; plan includes dependency, UX and regression barriers.

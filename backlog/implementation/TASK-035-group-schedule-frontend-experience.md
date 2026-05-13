@@ -1,7 +1,13 @@
 # TASK-035: Реализовать frontend-расписание групповых занятий
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-13 18:01
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-035-group-schedule-frontend-experience.plan.md
+- implementation_branch: feature/TASK-035-group-schedule-frontend-experience
 
 ## Goal
 Frontend показывает расписание групповых занятий, автоматически собранное из графика занятий по группам, и позволяет администратору заполнять обязательные schedule-поля группы.
