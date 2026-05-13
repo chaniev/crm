@@ -8,6 +8,7 @@ internal sealed record AttendanceGroupResponse(
     Guid HallId,
     string HallName,
     string TrainingStartTime,
-    string ScheduleText,
+    int DurationMinutes,
+    IReadOnlyList<int> Weekdays,
     bool IsActive,
     int ClientCount);

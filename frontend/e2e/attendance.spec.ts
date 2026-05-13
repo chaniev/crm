@@ -45,7 +45,8 @@ const assignedGroup = {
   id: GROUP_ID,
   name: 'Группа 7: вечер',
   trainingStartTime: '19:00',
-  scheduleText: 'Вт, Чт',
+  durationMinutes: 60,
+  weekdays: [2, 4],
   clientCount: 2,
 }
 

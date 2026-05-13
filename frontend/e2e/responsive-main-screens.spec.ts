@@ -134,7 +134,8 @@ const GROUPS_RESPONSE = {
       groupTypeName: 'Базовый тип',
       groupTypeSystemIdentifier: 'default',
       trainingStartTime: '19:00',
-      scheduleText: 'Вт, Чт',
+      durationMinutes: 60,
+      weekdays: [2, 4],
       trainers: [
         {
           id: 'coach-id',
@@ -159,7 +160,8 @@ const ATTENDANCE_GROUPS_RESPONSE = {
       id: 'group-1',
       name: 'Группа 7: вечерний поток с длинным названием',
       trainingStartTime: '19:00',
-      scheduleText: 'Вт, Чт',
+      durationMinutes: 60,
+      weekdays: [2, 4],
       clientCount: 1,
     },
   ],

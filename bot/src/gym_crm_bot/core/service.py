@@ -21,7 +21,13 @@ from gym_crm_bot.crm.errors import (
     CrmUserNotConfiguredError,
     CrmValidationError,
 )
-from gym_crm_bot.crm.models import AttendanceMarkRequest, ClientCardResponse, MembershipListResponse
+from gym_crm_bot.crm.models import (
+    AttendanceGroup,
+    AttendanceMarkRequest,
+    ClientCardResponse,
+    ClientGroupSummary,
+    MembershipListResponse,
+)
 from gym_crm_bot.resources.callbacks import decode_callback
 from gym_crm_bot.resources.keyboards import (
     render_attendance_dates_keyboard,
@@ -268,7 +274,7 @@ class BotService:
         )
         groups = [(item.id, item.name) for item in response.items]
         return BotResponse(
-            text=f"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите группу.",
+            text=self._render_attendance_groups_text(training_date, response.items),
             reply_markup=render_attendance_groups_keyboard(groups),
             replace_existing=True,
         )
@@ -702,7 +708,10 @@ class BotService:
         if card.status:
             lines.append(f"Статус: {card.status}")
         if card.groups:
-            lines.append(f"Группы: {', '.join(card.groups)}")
+            lines.append(
+                "Группы: "
+                + ", ".join(BotService._format_client_group(group) for group in card.groups)
+            )
         if card.is_professional:
             comment = f": {card.professional_comment}" if card.professional_comment else ""
             lines.append(f"Профессионал{comment}")
@@ -731,6 +740,58 @@ class BotService:
                     f"- {item.training_date.strftime('%d.%m.%Y')} | {item.group_name} | {marker}"
                 )
         return "\n".join(lines)
+
+    @staticmethod
+    def _render_attendance_groups_text(
+        training_date: date,
+        groups: list[AttendanceGroup],
+    ) -> str:
+        lines = [f"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите группу."]
+        for group in groups:
+            schedule = BotService._format_group_schedule(
+                group.weekdays,
+                group.duration_minutes,
+                group.training_start_time,
+            )
+            lines.append(f"{group.name}: {schedule}" if schedule else group.name)
+        return "\n".join(lines)
+
+    @staticmethod
+    def _format_client_group(group: ClientGroupSummary) -> str:
+        schedule = BotService._format_group_schedule(
+            group.weekdays,
+            group.duration_minutes,
+            group.training_start_time,
+        )
+        return f"{group.name} ({schedule})" if schedule else group.name
+
+    @staticmethod
+    def _format_group_schedule(
+        weekdays: list[int],
+        duration_minutes: int | None,
+        training_start_time: str | None,
+    ) -> str:
+        parts: list[str] = []
+        if training_start_time:
+            parts.append(f"старт {training_start_time}")
+        if weekdays:
+            parts.append(", ".join(BotService._format_weekday(weekday) for weekday in weekdays))
+        if duration_minutes is not None:
+            parts.append(f"{duration_minutes} мин")
+        return " · ".join(parts)
+
+    @staticmethod
+    def _format_weekday(weekday: int) -> str:
+        labels = {
+            1: "Пн",
+            2: "Вт",
+            3: "Ср",
+            4: "Чт",
+            5: "Пт",
+            6: "Сб",
+            7: "Вс",
+        }
+        return labels.get(weekday, str(weekday))
 
     @staticmethod
     def _render_membership_list_text(title: str, response: MembershipListResponse) -> str:

@@ -28,6 +28,7 @@ import {
   type AttendanceRosterResponse,
   type AuthenticatedUser,
 } from '../../lib/api'
+import { formatGroupSchedule } from '../../lib/groupSchedule'
 import {
   EmptyState,
   ErrorState,
@@ -544,8 +545,8 @@ function getSelectedGroupDescription(group: AttendanceGroup) {
     details.push(`Старт ${group.trainingStartTime}`)
   }
 
-  if (group.scheduleText) {
-    details.push(group.scheduleText)
+  if (group.weekdays && typeof group.durationMinutes === 'number') {
+    details.push(formatGroupSchedule(group.weekdays, group.durationMinutes))
   }
 
   return (

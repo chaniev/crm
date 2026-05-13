@@ -71,6 +71,7 @@ import {
   type RenewClientMembershipRequest,
   type TrainingGroupListItem,
 } from '../../lib/api'
+import { formatGroupSchedule } from '../../lib/groupSchedule'
 import { resources } from '../../lib/resources'
 import {
   ConfirmActionModal,
@@ -1134,7 +1135,9 @@ export function ClientDetailScreen({
                             {group.trainingStartTime
                               ? `Старт: ${group.trainingStartTime}`
                               : 'Время начала не указано'}
-                            {group.scheduleText ? ` • ${group.scheduleText}` : ''}
+                            {group.weekdays && typeof group.durationMinutes === 'number'
+                              ? ` • ${formatGroupSchedule(group.weekdays, group.durationMinutes)}`
+                              : ''}
                           </Text>
                           {group.branchName || group.hallName ? (
                             <Text c="dimmed" size="sm">

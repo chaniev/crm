@@ -49,7 +49,8 @@ public class GroupsApiTests
                 HallId = seeded.HallOneId,
                 GroupTypeId = seeded.GroupTypeId,
                 TrainingStartTime = "18:00:00",
-                ScheduleText = "Вт-Чт-Пт",
+                DurationMinutes = 75,
+                Weekdays = new[] { 5, 1, 3 },
                 IsActive = true
             },
             actorSession.CsrfToken);
@@ -59,14 +60,18 @@ public class GroupsApiTests
 
         var createPayload = await ReadJsonElementAsync(createResponse);
         var groupId = await ExtractGroupIdFromResponseAsync(createResponse, createPayload);
+        Assert.Equal(75, GetIntFromProperty(createPayload, "durationMinutes"));
+        Assert.Equal([1, 3, 5], GetIntArrayFromProperty(createPayload, "weekdays"));
 
         using (var listResponse = await client.GetAsync("/groups"))
         {
             Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
             var listPayload = await ReadJsonElementAsync(listResponse);
             var groupsPayload = GetArrayPayload(listPayload, "data", "items", "groups");
-            var hasCreatedGroup = groupsPayload.EnumerateArray().Any(item => GetGuidFromProperty(item, "id") == groupId);
-            Assert.True(hasCreatedGroup);
+            var createdListItem = groupsPayload.EnumerateArray()
+                .Single(item => GetGuidFromProperty(item, "id") == groupId);
+            Assert.Equal(75, GetIntFromProperty(createdListItem, "durationMinutes"));
+            Assert.Equal([1, 3, 5], GetIntArrayFromProperty(createdListItem, "weekdays"));
         }
 
         using (var getResponse = await client.GetAsync($"/groups/{groupId}"))
@@ -77,6 +82,8 @@ public class GroupsApiTests
             Assert.Equal(groupName, GetStringFromProperty(getPayload, "name"));
             Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(getPayload, "groupTypeId"));
             Assert.Equal("Groups Default Type", GetStringFromProperty(getPayload, "groupTypeName"));
+            Assert.Equal(75, GetIntFromProperty(getPayload, "durationMinutes"));
+            Assert.Equal([1, 3, 5], GetIntArrayFromProperty(getPayload, "weekdays"));
         }
 
         var updatePayload = new
@@ -86,7 +93,8 @@ public class GroupsApiTests
             HallId = seeded.HallOneId,
             GroupTypeId = seeded.GroupTypeId,
             TrainingStartTime = "19:00:00",
-            ScheduleText = "Пн-Ср",
+            DurationMinutes = 90,
+            Weekdays = new[] { 4, 2 },
             IsActive = true
         };
         using (var updateResponse = await PutJsonAsync(
@@ -98,6 +106,12 @@ public class GroupsApiTests
             Assert.True(
                 updateResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.NoContent,
                 $"Expected group update success, got {updateResponse.StatusCode}.");
+            if (updateResponse.StatusCode == HttpStatusCode.OK)
+            {
+                var updateResponsePayload = await ReadJsonElementAsync(updateResponse);
+                Assert.Equal(90, GetIntFromProperty(updateResponsePayload, "durationMinutes"));
+                Assert.Equal([2, 4], GetIntArrayFromProperty(updateResponsePayload, "weekdays"));
+            }
         }
 
         using (var assignResponse = await AssignTrainersToGroupAsync(
@@ -191,7 +205,8 @@ public class GroupsApiTests
                        HallId = seeded.HallOneId,
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
-                       ScheduleText = "Вт-Чт",
+                       DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    actorSession.CsrfToken))
@@ -209,7 +224,8 @@ public class GroupsApiTests
                        HallId = seeded.HallOneId,
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:30:00",
-                       ScheduleText = "Пн-Пт",
+                       DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    actorSession.CsrfToken))
@@ -244,7 +260,8 @@ public class GroupsApiTests
                        Name = "No branch hall",
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
-                       ScheduleText = "Пн",
+                       DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -295,7 +312,8 @@ public class GroupsApiTests
                        HallId = foreignHallId,
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
-                       ScheduleText = "Пн",
+                       DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -328,7 +346,8 @@ public class GroupsApiTests
                        BranchId = seeded.BranchId,
                        HallId = seeded.HallOneId,
                        TrainingStartTime = "18:00:00",
-                       ScheduleText = "Пн",
+                       DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -348,7 +367,8 @@ public class GroupsApiTests
                        HallId = seeded.HallOneId,
                        GroupTypeId = Guid.NewGuid(),
                        TrainingStartTime = "18:00:00",
-                       ScheduleText = "Пн",
+                       DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -357,6 +377,149 @@ public class GroupsApiTests
             var payload = await ReadJsonElementAsync(unknownGroupTypeResponse);
             Assert.True(payload.GetProperty("errors").TryGetProperty("groupTypeId", out _));
         }
+    }
+
+    [Fact]
+    public async Task Group_create_rejects_missing_duration_and_weekdays()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PostJsonAsync(
+            client,
+            "/groups",
+            new
+            {
+                Name = "Missing schedule fields",
+                BranchId = seeded.BranchId,
+                HallId = seeded.HallOneId,
+                GroupTypeId = seeded.GroupTypeId,
+                TrainingStartTime = "18:00:00",
+                IsActive = true
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        var errors = payload.GetProperty("errors");
+        Assert.True(errors.TryGetProperty("durationMinutes", out _));
+        Assert.True(errors.TryGetProperty("weekdays", out _));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-10)]
+    [InlineData(181)]
+    public async Task Group_create_rejects_duration_out_of_range(int durationMinutes)
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PostJsonAsync(
+            client,
+            "/groups",
+            new
+            {
+                Name = $"Invalid duration {durationMinutes}",
+                BranchId = seeded.BranchId,
+                HallId = seeded.HallOneId,
+                GroupTypeId = seeded.GroupTypeId,
+                TrainingStartTime = "18:00:00",
+                DurationMinutes = durationMinutes,
+                Weekdays = new[] { 1, 3 },
+                IsActive = true
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.True(payload.GetProperty("errors").TryGetProperty("durationMinutes", out _));
+    }
+
+    [Fact]
+    public async Task Group_create_rejects_invalid_weekdays()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PostJsonAsync(
+            client,
+            "/groups",
+            new
+            {
+                Name = "Invalid weekdays",
+                BranchId = seeded.BranchId,
+                HallId = seeded.HallOneId,
+                GroupTypeId = seeded.GroupTypeId,
+                TrainingStartTime = "18:00:00",
+                DurationMinutes = 60,
+                Weekdays = new[] { 0, 3, 3, 8 },
+                IsActive = true
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        var errors = payload.GetProperty("errors");
+        Assert.True(errors.TryGetProperty("weekdays", out var weekdaysErrors));
+        Assert.True(weekdaysErrors.GetArrayLength() >= 2);
+    }
+
+    [Fact]
+    public async Task Group_update_rejects_invalid_schedule_fields()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PutJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}",
+            new
+            {
+                Name = "Invalid update",
+                BranchId = seeded.BranchId,
+                HallId = seeded.HallOneId,
+                GroupTypeId = seeded.GroupTypeId,
+                TrainingStartTime = "18:00:00",
+                DurationMinutes = 181,
+                Weekdays = new[] { 2, 2 },
+                IsActive = true
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        var errors = payload.GetProperty("errors");
+        Assert.True(errors.TryGetProperty("durationMinutes", out _));
+        Assert.True(errors.TryGetProperty("weekdays", out _));
     }
 
     [Theory]
@@ -504,7 +667,8 @@ public class GroupsApiTests
                 HallId = seeded.HallOneId,
                 GroupTypeId = seeded.GroupTypeId,
                 TrainingStartTime = "07:00:00",
-                ScheduleText = "Пн",
+                DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                 IsActive = true
             },
             session.CsrfToken);
@@ -537,6 +701,7 @@ public class GroupsApiTests
             Assert.Equal(
                 $"Пользователь '{seeded.HeadCoachLogin}' создал группу '{createdGroupName}'.",
                 createLog.Description);
+            AssertAuditSchedule(createLog.NewValueJson, 60, [1, 3]);
         }
 
         using (var updateResponse = await PutJsonAsync(
@@ -549,7 +714,8 @@ public class GroupsApiTests
                        HallId = seeded.HallOneId,
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "08:00:00",
-                       ScheduleText = "Вт",
+                       DurationMinutes = 90,
+                       Weekdays = new[] { 4, 2 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -581,6 +747,8 @@ public class GroupsApiTests
             Assert.Equal(
                 $"Пользователь '{seeded.HeadCoachLogin}' изменил группу 'Audit group updated'.",
                 updateLog.Description);
+            AssertAuditSchedule(updateLog.OldValueJson, 60, [1, 3]);
+            AssertAuditSchedule(updateLog.NewValueJson, 90, [2, 4]);
         }
     }
 
@@ -608,7 +776,8 @@ public class GroupsApiTests
                        HallId = seeded.HallTwoId,
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "12:00:00",
-                       ScheduleText = "Пн-Ср-Пт",
+                       DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    managerSession.CsrfToken))
@@ -705,7 +874,8 @@ public class GroupsApiTests
             GroupTypeId = groupType.Id,
             Name = "Existing coach-visible group",
             TrainingStartTime = new TimeOnly(9, 0),
-            ScheduleText = "Вт,Чт",
+            DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
@@ -949,6 +1119,24 @@ public class GroupsApiTests
             : string.Empty;
     }
 
+    private static int GetIntFromProperty(JsonElement payload, string propertyName)
+    {
+        return payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty(propertyName, out var property) &&
+            property.ValueKind == JsonValueKind.Number
+            ? property.GetInt32()
+            : 0;
+    }
+
+    private static int[] GetIntArrayFromProperty(JsonElement payload, string propertyName)
+    {
+        return payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty(propertyName, out var property) &&
+            property.ValueKind == JsonValueKind.Array
+            ? property.EnumerateArray().Select(item => item.GetInt32()).ToArray()
+            : [];
+    }
+
     private static async Task<HttpResponseMessage> AssignTrainersToGroupAsync(
         HttpClient client,
         string groupEndpointBase,
@@ -1039,6 +1227,17 @@ public class GroupsApiTests
         }
 
         Assert.False(ContainsPasswordFieldInJson(payload), "Audit log payload contains password fields.");
+    }
+
+    private static void AssertAuditSchedule(
+        string? payload,
+        int expectedDurationMinutes,
+        int[] expectedWeekdays)
+    {
+        Assert.False(string.IsNullOrWhiteSpace(payload), "Audit state payload is empty.");
+        using var document = JsonDocument.Parse(payload!);
+        Assert.Equal(expectedDurationMinutes, GetIntFromProperty(document.RootElement, "durationMinutes"));
+        Assert.Equal(expectedWeekdays, GetIntArrayFromProperty(document.RootElement, "weekdays"));
     }
 
     private sealed record SeededGroupsData(

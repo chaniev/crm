@@ -108,7 +108,9 @@ export function mapClientGroups(payload: ClientResponsePayload): ClientGroupSumm
     hallName: group.hallName?.trim() || undefined,
     isActive: group.isActive ?? true,
     trainingStartTime: group.trainingStartTime ?? undefined,
-    scheduleText: group.scheduleText ?? undefined,
+    durationMinutes:
+      typeof group.durationMinutes === 'number' ? group.durationMinutes : undefined,
+    weekdays: Array.isArray(group.weekdays) ? group.weekdays : undefined,
   }))
 }
 

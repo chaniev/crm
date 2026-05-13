@@ -14,7 +14,8 @@ internal static class GroupApiConstants
     public const int DefaultTake = 20;
     public const int MaxTake = 100;
     public const int NameMaxLength = 128;
-    public const int ScheduleTextMaxLength = 512;
+    public const int MaxDurationMinutes = 180;
+    public const int MinDurationMinutes = 1;
     public const string TrainingStartTimeDisplayFormat = "HH:mm";
     public static readonly string[] SupportedTimeFormats = ["HH:mm", "HH:mm:ss"];
 }

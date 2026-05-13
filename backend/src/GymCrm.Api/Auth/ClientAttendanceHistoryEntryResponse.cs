@@ -7,4 +7,5 @@ internal sealed record ClientAttendanceHistoryEntryResponse(
     Guid GroupId,
     string GroupName,
     string? GroupTrainingStartTime,
-    string? GroupScheduleText);
+    int? GroupDurationMinutes,
+    IReadOnlyList<int>? GroupWeekdays);

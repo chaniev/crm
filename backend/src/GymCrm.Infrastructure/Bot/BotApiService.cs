@@ -87,7 +87,8 @@ internal sealed class BotApiService(
                 group.HallId,
                 group.Hall.Name,
                 group.TrainingStartTime.ToString("HH\\:mm"),
-                group.ScheduleText,
+                group.DurationMinutes,
+                group.Weekdays,
                 group.IsActive,
                 group.Clients.Count(clientGroup => clientGroup.Client.Status == ClientStatus.Active)))
             .ToArrayAsync(cancellationToken);
@@ -1076,7 +1077,8 @@ internal sealed class BotApiService(
                 clientGroup.Group.Hall.Name,
                 clientGroup.Group.IsActive,
                 clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
-                clientGroup.Group.ScheduleText))
+                clientGroup.Group.DurationMinutes,
+                clientGroup.Group.Weekdays))
             .OrderBy(group => group.Name, StringComparer.CurrentCulture)
             .ThenBy(group => group.Id)
             .ToArray();

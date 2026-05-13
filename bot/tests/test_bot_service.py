@@ -11,10 +11,12 @@ from gym_crm_bot.config import Settings
 from gym_crm_bot.core.service import BotService
 from gym_crm_bot.crm.errors import CrmUserNotConfiguredError
 from gym_crm_bot.crm.models import (
+    AttendanceGroup,
     AttendanceSaveResponse,
     BotUserContext,
     ClientCardMembership,
     ClientCardResponse,
+    ClientGroupSummary,
     MenuItem,
     MenuResponse,
 )
@@ -157,6 +159,30 @@ def test_professional_client_card_uses_backend_status_label_without_unpaid_text(
     assert "Профессионал: Сборная" in text
     assert "оплачен: льгота" in text
     assert "оплачен: нет" not in text
+
+
+def test_group_schedule_rendering_uses_backend_values_without_local_validation() -> None:
+    group = AttendanceGroup(
+        id="00000000-0000-0000-0000-000000000021",
+        name="Группа",
+        training_start_time="19:00",
+        duration_minutes=75,
+        weekdays=[5, 1, 8],
+    )
+    client_group = ClientGroupSummary(
+        id="00000000-0000-0000-0000-000000000021",
+        name="Группа",
+        training_start_time="19:00",
+        duration_minutes=75,
+        weekdays=[5, 1, 8],
+    )
+
+    text = BotService._render_attendance_groups_text(date(2026, 5, 13), [group])
+
+    assert "Группа: старт 19:00 · Пт, Пн, 8 · 75 мин" in text
+    assert BotService._format_client_group(client_group) == (
+        "Группа (старт 19:00 · Пт, Пн, 8 · 75 мин)"
+    )
 
 
 @pytest.mark.asyncio

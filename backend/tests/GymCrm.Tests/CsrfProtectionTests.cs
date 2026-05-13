@@ -65,7 +65,8 @@ public class CsrfProtectionTests
                     Name = $"CSRF Group {Guid.NewGuid():N}",
                     GroupTypeId = seeded.GroupTypeId,
                     TrainingStartTime = "18:00:00",
-                    ScheduleText = "Пн-Ср",
+                    DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                     IsActive = true
                 })),
             ("attendance", () => CreateJsonRequest(
@@ -148,7 +149,8 @@ public class CsrfProtectionTests
             GroupTypeId = groupType.Id,
             Name = "CSRF Group",
             TrainingStartTime = new TimeOnly(9, 0),
-            ScheduleText = "Пн,Ср,Пт",
+            DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

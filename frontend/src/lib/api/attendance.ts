@@ -111,7 +111,11 @@ function mapAttendanceGroup(payload: AttendanceGroupPayload): AttendanceGroup | 
       payload.groupName?.trim() ??
       DEFAULT_CLIENT_GROUP_NAME,
     trainingStartTime: payload.trainingStartTime?.trim() ?? undefined,
-    scheduleText: payload.scheduleText?.trim() ?? undefined,
+    durationMinutes:
+      typeof payload.durationMinutes === 'number'
+        ? payload.durationMinutes
+        : undefined,
+    weekdays: Array.isArray(payload.weekdays) ? payload.weekdays : undefined,
     clientCount:
       typeof payload.clientCount === 'number' ? payload.clientCount : undefined,
   }

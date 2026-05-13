@@ -93,7 +93,8 @@ export type AttendanceGroup = {
   id: string
   name: string
   trainingStartTime?: string
-  scheduleText?: string
+  durationMinutes?: number
+  weekdays?: number[]
   clientCount?: number
 }
 
@@ -122,7 +123,8 @@ export type ClientGroupSummary = {
   hallName?: string
   isActive: boolean
   trainingStartTime?: string
-  scheduleText?: string
+  durationMinutes?: number
+  weekdays?: number[]
 }
 
 export type ClientPhoto = {
@@ -501,7 +503,8 @@ export type TrainingGroupListItem = {
   groupTypeName: string
   groupTypeSystemIdentifier: string
   trainingStartTime: string
-  scheduleText: string
+  durationMinutes: number
+  weekdays: number[]
   isActive: boolean
   trainers: GroupTrainerSummary[]
   trainerIds: string[]
@@ -529,7 +532,8 @@ export type TrainingGroupDetails = {
   groupTypeName: string
   groupTypeSystemIdentifier: string
   trainingStartTime: string
-  scheduleText: string
+  durationMinutes: number
+  weekdays: number[]
   isActive: boolean
   trainerIds: string[]
   trainers: GroupTrainerSummary[]
@@ -544,7 +548,8 @@ export type UpsertTrainingGroupRequest = {
   hallId?: string
   groupTypeId?: string
   trainingStartTime: string
-  scheduleText: string
+  durationMinutes: number | null
+  weekdays: number[]
   isActive: boolean
   trainerIds: string[]
 }
@@ -560,7 +565,8 @@ export type GroupResponsePayload = {
   groupTypeName: string
   groupTypeSystemIdentifier: string
   trainingStartTime: string
-  scheduleText: string
+  durationMinutes: number
+  weekdays: number[]
   isActive: boolean
   trainers: Array<{
     id: string
@@ -603,7 +609,8 @@ export type AttendanceGroupPayload = {
   name?: string | null
   groupName?: string | null
   trainingStartTime?: string | null
-  scheduleText?: string | null
+  durationMinutes?: number | null
+  weekdays?: number[] | null
   clientCount?: number | null
 }
 
@@ -629,7 +636,8 @@ export type ClientGroupPayload = {
   hallName?: string | null
   isActive?: boolean | null
   trainingStartTime?: string | null
-  scheduleText?: string | null
+  durationMinutes?: number | null
+  weekdays?: number[] | null
 }
 
 export type ClientResponsePayload = {

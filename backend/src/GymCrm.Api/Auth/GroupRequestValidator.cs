@@ -68,14 +68,7 @@ internal static class GroupRequestValidator
             errors["name"] = [GroupResources.NameTooLong(GroupApiConstants.NameMaxLength)];
         }
 
-        if (string.IsNullOrWhiteSpace(request.ScheduleText))
-        {
-            errors["scheduleText"] = [GroupResources.ScheduleTextRequired];
-        }
-        else if (request.ScheduleText.Length > GroupApiConstants.ScheduleTextMaxLength)
-        {
-            errors["scheduleText"] = [GroupResources.ScheduleTextTooLong(GroupApiConstants.ScheduleTextMaxLength)];
-        }
+        ValidateSchedule(request, errors);
 
         if (ParseTrainingStartTime(request.TrainingStartTime) is null)
         {
@@ -263,10 +256,57 @@ internal static class GroupRequestValidator
             request.HallId,
             request.GroupTypeId,
             request.TrainingStartTime?.Trim() ?? string.Empty,
-            request.ScheduleText?.Trim() ?? string.Empty,
+            request.DurationMinutes,
+            request.Weekdays,
+            NormalizeWeekdays(request.Weekdays),
             request.IsActive,
             request.TrainerIds,
             NormalizeTrainerIds(request.TrainerIds));
+    }
+
+    private static void ValidateSchedule(
+        NormalizedGroupRequest request,
+        Dictionary<string, string[]> errors)
+    {
+        if (!request.DurationMinutes.HasValue)
+        {
+            errors["durationMinutes"] = [GroupResources.DurationMinutesRequired];
+        }
+        else if (request.DurationMinutes.Value is < GroupApiConstants.MinDurationMinutes or > GroupApiConstants.MaxDurationMinutes)
+        {
+            errors["durationMinutes"] =
+                [GroupResources.DurationMinutesOutOfRange(GroupApiConstants.MinDurationMinutes, GroupApiConstants.MaxDurationMinutes)];
+        }
+
+        if (request.RawWeekdays is null || request.RawWeekdays.Count == 0)
+        {
+            errors["weekdays"] = [GroupResources.WeekdaysRequired];
+            return;
+        }
+
+        var weekdayErrors = new List<string>();
+        if (request.RawWeekdays.Any(weekday => weekday is < 1 or > 7))
+        {
+            weekdayErrors.Add(GroupResources.WeekdaysOutOfRange);
+        }
+
+        if (request.RawWeekdays.Distinct().Count() != request.RawWeekdays.Count)
+        {
+            weekdayErrors.Add(GroupResources.WeekdaysDuplicates);
+        }
+
+        if (weekdayErrors.Count > 0)
+        {
+            errors["weekdays"] = weekdayErrors.ToArray();
+        }
+    }
+
+    private static int[] NormalizeWeekdays(IReadOnlyList<int>? weekdays)
+    {
+        return weekdays?
+            .Distinct()
+            .OrderBy(weekday => weekday)
+            .ToArray() ?? [];
     }
 
     public static IReadOnlyList<Guid> NormalizeTrainerIds(IReadOnlyList<Guid>? trainerIds)
