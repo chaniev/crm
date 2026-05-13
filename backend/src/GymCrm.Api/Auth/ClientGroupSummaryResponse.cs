@@ -9,4 +9,5 @@ internal sealed record ClientGroupSummaryResponse(
     string HallName,
     bool IsActive,
     string TrainingStartTime,
-    string ScheduleText);
+    int DurationMinutes,
+    IReadOnlyList<int> Weekdays);

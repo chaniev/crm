@@ -3,8 +3,10 @@ import {
   Alert,
   Badge,
   Button,
+  Checkbox,
   Group,
   MultiSelect,
+  NumberInput,
   Paper,
   Select,
   SimpleGrid,
@@ -49,6 +51,12 @@ import {
   type UpsertTrainingGroupRequest,
 } from '../../lib/api'
 import {
+  formatDurationMinutes,
+  formatGroupSchedule,
+  formatWeekdays,
+  WEEKDAY_OPTIONS,
+} from '../../lib/groupSchedule'
+import {
   GROUPS_DEFAULT_NAME,
   GROUPS_FORM_FALLBACK_VALUES,
   GROUPS_GRID_COLUMNS,
@@ -88,7 +96,8 @@ type GroupFormValues = {
   groupTypeId: string
   name: string
   trainingStartTime: string
-  scheduleText: string
+  durationMinutes: number | ''
+  weekdays: string[]
   isActive: boolean
   trainerIds: string[]
 }
@@ -252,7 +261,8 @@ export function GroupsListScreen({
                         </Group>
 
                         <Text c="dimmed" size="sm">
-                          Расписание: {group.scheduleText}
+                          Расписание:{' '}
+                          {formatGroupSchedule(group.weekdays, group.durationMinutes)}
                         </Text>
 
                         <Text c="dimmed" size="sm">
@@ -790,13 +800,38 @@ function GroupForm({
             type="time"
             {...form.getInputProps('trainingStartTime')}
           />
+          <NumberInput
+            allowDecimal={false}
+            label="Длительность"
+            onChange={(value) =>
+              form.setFieldValue(
+                'durationMinutes',
+                typeof value === 'number' ? value : '',
+              )
+            }
+            placeholder="60"
+            suffix=" мин"
+            value={form.values.durationMinutes}
+            error={form.errors.durationMinutes}
+          />
         </SimpleGrid>
 
-        <TextInput
-          label="Расписание"
-          placeholder="Пн-Ср-Пт"
-          {...form.getInputProps('scheduleText')}
-        />
+        <Checkbox.Group
+          label="Дни недели"
+          onChange={(weekdays) => form.setFieldValue('weekdays', weekdays)}
+          value={form.values.weekdays}
+          error={form.errors.weekdays}
+        >
+          <Group gap="xs" mt="xs">
+            {WEEKDAY_OPTIONS.map((option) => (
+              <Checkbox
+                key={option.value}
+                label={option.label}
+                value={option.value}
+              />
+            ))}
+          </Group>
+        </Checkbox.Group>
 
         <MultiSelect
           data={trainerOptions.map((trainer) => ({
@@ -856,9 +891,20 @@ function GroupForm({
             />
             <HintStat
               icon={<IconCalendarWeek size={18} />}
-              label="Расписание"
+              label="Дни"
               value={
-                form.values.scheduleText || GROUPS_FORM_FALLBACK_VALUES.scheduleText
+                form.values.weekdays.length > 0
+                  ? formatWeekdays(form.values.weekdays.map(Number))
+                  : GROUPS_FORM_FALLBACK_VALUES.weekdays
+              }
+            />
+            <HintStat
+              icon={<IconClockHour4 size={18} />}
+              label="Длительность"
+              value={
+                typeof form.values.durationMinutes === 'number'
+                  ? formatDurationMinutes(form.values.durationMinutes)
+                  : GROUPS_FORM_FALLBACK_VALUES.durationMinutes
               }
             />
             <HintStat
@@ -981,7 +1027,8 @@ function useGroupForm() {
       groupTypeId: '',
       name: '',
       trainingStartTime: '',
-      scheduleText: '',
+      durationMinutes: '',
+      weekdays: [],
       isActive: true,
       trainerIds: [],
     },
@@ -989,8 +1036,6 @@ function useGroupForm() {
       name: (value) => (value.trim() ? null : 'Введите название группы.'),
       trainingStartTime: (value) =>
         value.trim() ? null : 'Укажите время начала тренировки.',
-      scheduleText: (value) =>
-        value.trim() ? null : 'Введите расписание группы.',
       groupTypeId: (value) => (value ? null : 'Выберите тип группы.'),
     },
   })
@@ -1005,7 +1050,9 @@ function toUpsertGroupPayload(
     hallId: values.hallId || undefined,
     groupTypeId: values.groupTypeId || undefined,
     trainingStartTime: values.trainingStartTime.trim(),
-    scheduleText: values.scheduleText.trim(),
+    durationMinutes:
+      typeof values.durationMinutes === 'number' ? values.durationMinutes : null,
+    weekdays: values.weekdays.map(Number),
     isActive: values.isActive,
     trainerIds: [...values.trainerIds].sort(),
   }
@@ -1018,7 +1065,8 @@ function toFormValues(group: TrainingGroupDetails): GroupFormValues {
     groupTypeId: group.groupTypeId,
     name: group.name,
     trainingStartTime: group.trainingStartTime,
-    scheduleText: group.scheduleText,
+    durationMinutes: group.durationMinutes,
+    weekdays: group.weekdays.map(String),
     isActive: group.isActive,
     trainerIds: group.trainerIds,
   }

@@ -7,7 +7,8 @@ namespace GymCrm.Infrastructure.Persistence.Configurations;
 internal sealed class TrainingGroupConfiguration : IEntityTypeConfiguration<TrainingGroup>
 {
     private const int NameMaxLength = 128;
-    private const int ScheduleTextMaxLength = 512;
+    private const int MinDurationMinutes = 1;
+    private const int MaxDurationMinutes = 180;
 
     public void Configure(EntityTypeBuilder<TrainingGroup> builder)
     {
@@ -18,8 +19,11 @@ internal sealed class TrainingGroupConfiguration : IEntityTypeConfiguration<Trai
             .HasMaxLength(NameMaxLength)
             .IsRequired();
 
-        builder.Property(group => group.ScheduleText)
-            .HasMaxLength(ScheduleTextMaxLength)
+        builder.Property(group => group.DurationMinutes)
+            .IsRequired();
+
+        builder.Property(group => group.Weekdays)
+            .HasColumnType("integer[]")
             .IsRequired();
 
         builder.Property(group => group.CreatedAt).IsRequired();
@@ -29,6 +33,18 @@ internal sealed class TrainingGroupConfiguration : IEntityTypeConfiguration<Trai
         builder.HasIndex(group => group.BranchId);
         builder.HasIndex(group => group.HallId);
         builder.HasIndex(group => group.GroupTypeId);
+
+        builder.ToTable(table =>
+        {
+            table.HasCheckConstraint(
+                "CK_TrainingGroups_DurationMinutes_Range",
+                $"""
+                "DurationMinutes" >= {MinDurationMinutes} AND "DurationMinutes" <= {MaxDurationMinutes}
+                """);
+            table.HasCheckConstraint(
+                "CK_TrainingGroups_Weekdays_NotEmpty",
+                "cardinality(\"Weekdays\") >= 1");
+        });
 
         builder.HasOne(group => group.Branch)
             .WithMany(branch => branch.Groups)

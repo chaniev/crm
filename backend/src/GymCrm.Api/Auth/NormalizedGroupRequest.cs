@@ -6,7 +6,9 @@ internal sealed record NormalizedGroupRequest(
     Guid? HallId,
     Guid? GroupTypeId,
     string TrainingStartTime,
-    string ScheduleText,
+    int? DurationMinutes,
+    IReadOnlyList<int>? RawWeekdays,
+    int[] Weekdays,
     bool? IsActive,
     IReadOnlyList<Guid>? RawTrainerIds,
     IReadOnlyList<Guid> TrainerIds);

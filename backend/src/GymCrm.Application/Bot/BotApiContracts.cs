@@ -65,7 +65,8 @@ public sealed record BotAttendanceGroup(
     Guid HallId,
     string HallName,
     string TrainingStartTime,
-    string ScheduleText,
+    int DurationMinutes,
+    IReadOnlyList<int> Weekdays,
     bool IsActive,
     int ClientCount);
 
@@ -171,7 +172,8 @@ public sealed record BotClientGroupSummary(
     string HallName,
     bool IsActive,
     string TrainingStartTime,
-    string ScheduleText);
+    int DurationMinutes,
+    IReadOnlyList<int> Weekdays);
 
 public sealed record BotClientPhoto(
     string Path,

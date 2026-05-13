@@ -121,7 +121,8 @@ type GroupState = {
   groupTypeSystemIdentifier: string
   name: string
   trainingStartTime: string
-  scheduleText: string
+  durationMinutes: number
+  weekdays: number[]
   isActive: boolean
   trainerIds: string[]
   trainerNames: string[]
@@ -220,7 +221,8 @@ const assignedAttendanceGroup = {
   groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
   name: 'Назначенная группа',
   trainingStartTime: '19:00',
-  scheduleText: 'Вт, Чт',
+  durationMinutes: 60,
+  weekdays: [2, 4],
   isActive: true,
   trainerIds: ['coach-id'],
   trainerNames: ['Назначенный тренер'],
@@ -239,7 +241,8 @@ const baseGroups: GroupState[] = [
     groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
     name: 'Группа 1',
     trainingStartTime: '18:00',
-    scheduleText: 'Пн, Ср, Пт',
+    durationMinutes: 60,
+    weekdays: [1, 3, 5],
     isActive: true,
     trainerIds: ['trainer-1'],
     trainerNames: ['Ирина Тренер'],
@@ -835,7 +838,8 @@ test.describe('Основные e2e сценарии', () => {
       groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
       name: 'Фильтр-группа',
       trainingStartTime: '17:00',
-      scheduleText: 'Пн, Ср',
+      durationMinutes: 60,
+      weekdays: [1, 3],
       isActive: true,
       trainerIds: ['trainer-1'],
       trainerNames: ['Ирина Тренер'],
@@ -1015,7 +1019,8 @@ test.describe('Основные e2e сценарии', () => {
           hallId: baseHall.id,
           groupTypeId: baseGroupType.id,
           trainingStartTime: '19:00',
-          scheduleText: 'Вт, Чт',
+          durationMinutes: 60,
+          weekdays: [2, 4],
           isActive: true,
           trainerIds: ['trainer-1', 'trainer-2'],
         })
@@ -1031,7 +1036,8 @@ test.describe('Основные e2e сценарии', () => {
           groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
           name: 'Новая тестовая группа',
           trainingStartTime: '19:00',
-          scheduleText: 'Вт, Чт',
+          durationMinutes: 60,
+          weekdays: [2, 4],
           isActive: true,
           trainerIds: ['trainer-1', 'trainer-2'],
           trainerNames: ['Ирина Тренер', 'Артем База'],
@@ -1051,7 +1057,9 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.getByLabel('Название группы').fill('Новая тестовая группа')
     await page.getByLabel('Время начала').fill('19:00')
-    await page.getByLabel('Расписание').fill('Вт, Чт')
+    await page.getByLabel('Длительность').fill('60')
+    await page.getByRole('checkbox', { name: 'Вт' }).check()
+    await page.getByRole('checkbox', { name: 'Чт' }).check()
     await page.getByRole('combobox', { name: 'Зал' }).click()
     await page.getByRole('option', { name: 'Основной зал' }).click()
 
@@ -1071,7 +1079,8 @@ test.describe('Основные e2e сценарии', () => {
         hallId: baseHall.id,
         groupTypeId: baseGroupType.id,
         trainingStartTime: '19:00',
-        scheduleText: 'Вт, Чт',
+        durationMinutes: 60,
+        weekdays: [2, 4],
         isActive: true,
         trainerIds: ['trainer-1', 'trainer-2'],
       })
@@ -1145,7 +1154,8 @@ test.describe('Основные e2e сценарии', () => {
           groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
           name: payload.name,
           trainingStartTime: payload.trainingStartTime,
-          scheduleText: payload.scheduleText,
+          durationMinutes: payload.durationMinutes,
+          weekdays: payload.weekdays,
           isActive: payload.isActive,
           trainerIds: payload.trainerIds ?? [],
           trainerNames: resolveTrainerNames(payload.trainerIds ?? []),
@@ -1165,7 +1175,9 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByRole('button', { name: 'Создать группу' }).click()
     await page.getByLabel('Название группы').fill('Черновик для автообновления')
     await page.getByLabel('Время начала').fill('20:00')
-    await page.getByLabel('Расписание').fill('Пн, Ср')
+    await page.getByLabel('Длительность').fill('45')
+    await page.getByRole('checkbox', { name: 'Пн' }).check()
+    await page.getByRole('checkbox', { name: 'Ср' }).check()
     await page.getByRole('combobox', { name: 'Зал' }).click()
     await page.getByRole('option', { name: 'Основной зал' }).click()
     await page.getByRole('combobox', { name: 'Тренеры группы' }).click()
@@ -2003,7 +2015,8 @@ function toGroupPayload(group: GroupState) {
     groupTypeName: group.groupTypeName,
     groupTypeSystemIdentifier: group.groupTypeSystemIdentifier,
     trainingStartTime: group.trainingStartTime,
-    scheduleText: group.scheduleText,
+    durationMinutes: group.durationMinutes,
+    weekdays: group.weekdays,
     isActive: group.isActive,
     trainers: group.trainerIds.map((trainerId) => {
       const trainer = trainers.find((item) => item.id === trainerId)
@@ -2027,7 +2040,8 @@ function toAttendanceGroupPayload(group: GroupState) {
     id: group.id,
     name: group.name,
     trainingStartTime: group.trainingStartTime,
-    scheduleText: group.scheduleText,
+    durationMinutes: group.durationMinutes,
+    weekdays: group.weekdays,
     clientCount: group.clientCount,
   }
 }
@@ -2095,7 +2109,8 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
       hallName: group.hallName,
       isActive: group.isActive,
       trainingStartTime: group.trainingStartTime,
-      scheduleText: group.scheduleText,
+      durationMinutes: group.durationMinutes,
+      weekdays: group.weekdays,
     })),
     contacts: client.contacts,
     groupIds: client.groupIds,

@@ -43,12 +43,18 @@ internal static class GroupResources
         return Format(nameof(NameTooLong), maxLength);
     }
 
-    public static string ScheduleTextRequired => GetString(nameof(ScheduleTextRequired));
+    public static string DurationMinutesRequired => GetString(nameof(DurationMinutesRequired));
 
-    public static string ScheduleTextTooLong(int maxLength)
+    public static string DurationMinutesOutOfRange(int minMinutes, int maxMinutes)
     {
-        return Format(nameof(ScheduleTextTooLong), maxLength);
+        return Format(nameof(DurationMinutesOutOfRange), minMinutes, maxMinutes);
     }
+
+    public static string WeekdaysRequired => GetString(nameof(WeekdaysRequired));
+
+    public static string WeekdaysOutOfRange => GetString(nameof(WeekdaysOutOfRange));
+
+    public static string WeekdaysDuplicates => GetString(nameof(WeekdaysDuplicates));
 
     public static string TrainingStartTimeInvalid(string format)
     {

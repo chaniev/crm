@@ -11,7 +11,8 @@ public class TrainingGroup
     public Guid GroupTypeId { get; set; }
     public string Name { get; set; } = string.Empty;
     public TimeOnly TrainingStartTime { get; set; }
-    public string ScheduleText { get; set; } = string.Empty;
+    public int DurationMinutes { get; set; }
+    public int[] Weekdays { get; set; } = [];
     public bool IsActive { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

@@ -255,7 +255,8 @@ export const resources = {
     },
     formFallbacks: {
       trainingStartTime: 'Не задан',
-      scheduleText: 'Не задано',
+      durationMinutes: 'Не задана',
+      weekdays: 'Дни не заданы',
     },
   },
 } as const

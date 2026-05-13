@@ -183,7 +183,8 @@ internal static class GroupEndpoints
             GroupTypeId = normalizedRequest.GroupTypeId!.Value,
             Name = normalizedRequest.Name,
             TrainingStartTime = trainingStartTime.Value,
-            ScheduleText = normalizedRequest.ScheduleText,
+            DurationMinutes = normalizedRequest.DurationMinutes!.Value,
+            Weekdays = normalizedRequest.Weekdays,
             IsActive = normalizedRequest.IsActive ?? true,
             CreatedAt = now,
             UpdatedAt = now
@@ -263,7 +264,8 @@ internal static class GroupEndpoints
         group.HallId = normalizedRequest.HallId!.Value;
         group.GroupTypeId = normalizedRequest.GroupTypeId!.Value;
         group.TrainingStartTime = trainingStartTime.Value;
-        group.ScheduleText = normalizedRequest.ScheduleText;
+        group.DurationMinutes = normalizedRequest.DurationMinutes!.Value;
+        group.Weekdays = normalizedRequest.Weekdays;
         group.IsActive = normalizedRequest.IsActive ?? group.IsActive;
         group.UpdatedAt = DateTimeOffset.UtcNow;
 
@@ -434,7 +436,8 @@ internal static class GroupEndpoints
             group.GroupType.Name,
             group.GroupType.SystemIdentifier,
             FormatTrainingStartTime(group.TrainingStartTime),
-            group.ScheduleText,
+            group.DurationMinutes,
+            SortWeekdays(group.Weekdays),
             group.IsActive,
             trainers,
             trainers.Select(trainer => trainer.Id).ToArray(),
@@ -467,7 +470,8 @@ internal static class GroupEndpoints
             group.GroupType.Name,
             group.GroupType.SystemIdentifier,
             FormatTrainingStartTime(group.TrainingStartTime),
-            group.ScheduleText,
+            group.DurationMinutes,
+            SortWeekdays(group.Weekdays),
             group.IsActive,
             trainers.Select(trainer => trainer.Id).ToArray(),
             trainers,
@@ -503,7 +507,8 @@ internal static class GroupEndpoints
                 group.HallId,
                 group.GroupTypeId,
                 FormatTrainingStartTime(group.TrainingStartTime),
-                group.ScheduleText,
+                group.DurationMinutes,
+                SortWeekdays(group.Weekdays),
                 group.IsActive,
                 group.Trainers
                     .Select(groupTrainer => groupTrainer.TrainerId)
@@ -512,5 +517,12 @@ internal static class GroupEndpoints
                 group.Clients.Count,
                 group.UpdatedAt),
             AuditSerializerOptions);
+    }
+
+    private static int[] SortWeekdays(IEnumerable<int> weekdays)
+    {
+        return weekdays
+            .OrderBy(weekday => weekday)
+            .ToArray();
     }
 }

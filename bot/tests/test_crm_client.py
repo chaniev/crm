@@ -192,6 +192,69 @@ async def test_crm_client_parses_professional_fields_without_local_payment_logic
 
 @pytest.mark.asyncio
 @respx.mock
+async def test_crm_client_parses_group_schedule_contract_from_backend() -> None:
+    respx.get("http://crm.local/internal/bot/attendance/groups").mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "items": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000021",
+                        "name": "Группа",
+                        "trainingStartTime": "19:00",
+                        "durationMinutes": 75,
+                        "weekdays": [5, 1],
+                        "clientCount": 7,
+                    }
+                ],
+            },
+        )
+    )
+    respx.get("http://crm.local/internal/bot/clients/00000000-0000-0000-0000-000000000010").mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "id": "00000000-0000-0000-0000-000000000010",
+                "fullName": "Клиент",
+                "groups": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000021",
+                        "name": "Группа",
+                        "trainingStartTime": "19:00",
+                        "durationMinutes": 75,
+                        "weekdays": [5, 1],
+                    }
+                ],
+            },
+        )
+    )
+    http_client = httpx.AsyncClient(base_url="http://crm.local")
+    client = CrmBotApiClient(
+        base_url="http://crm.local",
+        service_token="service-token",
+        timeout_seconds=5,
+        http_client=http_client,
+    )
+
+    groups = await client.list_attendance_groups(
+        TelegramIdentity(platform_user_id="777"),
+        request_id="req-schedule-groups",
+    )
+    card = await client.get_client_card(
+        TelegramIdentity(platform_user_id="777"),
+        client_id=UUID("00000000-0000-0000-0000-000000000010"),
+        request_id="req-schedule-card",
+    )
+
+    assert groups.items[0].duration_minutes == 75
+    assert groups.items[0].weekdays == [5, 1]
+    assert card.groups[0].duration_minutes == 75
+    assert card.groups[0].weekdays == [5, 1]
+    await http_client.aclose()
+
+
+@pytest.mark.asyncio
+@respx.mock
 async def test_crm_client_consumes_attendance_warnings_from_backend_only() -> None:
     respx.post(
         "http://crm.local/internal/bot/attendance/groups/00000000-0000-0000-0000-000000000021"

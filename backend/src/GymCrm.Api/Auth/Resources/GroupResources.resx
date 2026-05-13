@@ -69,11 +69,20 @@
   <data name="NameTooLong" xml:space="preserve">
     <value>Название группы не должно превышать {0} символов.</value>
   </data>
-  <data name="ScheduleTextRequired" xml:space="preserve">
-    <value>Укажите график тренировок.</value>
+  <data name="DurationMinutesRequired" xml:space="preserve">
+    <value>Укажите длительность тренировки.</value>
   </data>
-  <data name="ScheduleTextTooLong" xml:space="preserve">
-    <value>График тренировок не должен превышать {0} символов.</value>
+  <data name="DurationMinutesOutOfRange" xml:space="preserve">
+    <value>Длительность тренировки должна быть от {0} до {1} минут.</value>
+  </data>
+  <data name="WeekdaysRequired" xml:space="preserve">
+    <value>Укажите дни недели группового расписания.</value>
+  </data>
+  <data name="WeekdaysOutOfRange" xml:space="preserve">
+    <value>Дни недели должны быть в диапазоне от 1 до 7.</value>
+  </data>
+  <data name="WeekdaysDuplicates" xml:space="preserve">
+    <value>Дни недели должны быть уникальными.</value>
   </data>
   <data name="TrainingStartTimeInvalid" xml:space="preserve">
     <value>Укажите корректное время начала тренировки в формате {0}.</value>

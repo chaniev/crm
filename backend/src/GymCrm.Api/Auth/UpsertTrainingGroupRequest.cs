@@ -6,6 +6,7 @@ internal sealed record UpsertTrainingGroupRequest(
     Guid? HallId,
     Guid? GroupTypeId,
     string TrainingStartTime,
-    string ScheduleText,
+    int? DurationMinutes,
+    int[]? Weekdays,
     bool? IsActive,
     IReadOnlyList<Guid>? TrainerIds);

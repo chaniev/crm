@@ -71,7 +71,8 @@ class AttendanceGroup(ApiModel):
     id: UUID
     name: str
     training_start_time: str | None = Field(default=None, alias="trainingStartTime")
-    schedule_text: str | None = Field(default=None, alias="scheduleText")
+    duration_minutes: int | None = Field(default=None, alias="durationMinutes")
+    weekdays: list[int] = Field(default_factory=list)
     client_count: int | None = Field(default=None, alias="clientCount")
 
 
@@ -212,11 +213,19 @@ class ClientAttendanceHistoryEntry(ApiModel):
     group_name: str = Field(alias="groupName")
 
 
+class ClientGroupSummary(ApiModel):
+    id: UUID | None = None
+    name: str
+    training_start_time: str | None = Field(default=None, alias="trainingStartTime")
+    duration_minutes: int | None = Field(default=None, alias="durationMinutes")
+    weekdays: list[int] = Field(default_factory=list)
+
+
 class ClientCardResponse(ApiModel):
     id: UUID
     full_name: str = Field(alias="fullName")
     phone: str | None = None
-    groups: list[str] = Field(default_factory=list)
+    groups: list[ClientGroupSummary] = Field(default_factory=list)
     status: str | None = None
     is_professional: bool = Field(default=False, alias="isProfessional")
     professional_comment: str | None = Field(default=None, alias="professionalComment")
@@ -238,15 +247,16 @@ class ClientCardResponse(ApiModel):
 
     @field_validator("groups", mode="before")
     @classmethod
-    def normalize_groups(cls, value: object) -> list[str]:
+    def normalize_groups(cls, value: object) -> list[dict[str, object]]:
         if not isinstance(value, list):
             return []
-        groups: list[str] = []
+
+        groups: list[dict[str, object]] = []
         for item in value:
             if isinstance(item, str):
+                groups.append({"name": item})
+            elif isinstance(item, dict):
                 groups.append(item)
-            elif isinstance(item, dict) and isinstance(item.get("name"), str):
-                groups.append(item["name"])
         return groups
 
 

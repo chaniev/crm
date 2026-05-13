@@ -38,6 +38,19 @@ public class AttendanceApiTests
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
         Assert.Equal("HeadCoach", session.User?.Role);
 
+        using (var groupsResponse = await client.GetAsync("/attendance/groups"))
+        {
+            Assert.Equal(HttpStatusCode.OK, groupsResponse.StatusCode);
+            var groupsPayload = await ReadJsonElementAsync(groupsResponse);
+            var groups = GetArrayPayload(groupsPayload, "data", "items", "groups");
+            var assignedGroup = FindById(groups, seeded.AssignedGroupId);
+            Assert.False(assignedGroup.ValueKind == JsonValueKind.Undefined);
+            Assert.Equal(60, assignedGroup.GetProperty("durationMinutes").GetInt32());
+            Assert.Equal(
+                [1, 3],
+                assignedGroup.GetProperty("weekdays").EnumerateArray().Select(weekday => weekday.GetInt32()).ToArray());
+        }
+
         var trainingDate = DateTimeOffset.UtcNow.Date;
         var trainingDateString = trainingDate.ToString("yyyy-MM-dd");
 
@@ -397,7 +410,8 @@ public class AttendanceApiTests
             GroupTypeId = groupType.Id,
             Name = "Attendance Group",
             TrainingStartTime = new TimeOnly(8, 0),
-            ScheduleText = "Пн,Ср,Пт",
+            DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
@@ -411,7 +425,8 @@ public class AttendanceApiTests
             GroupTypeId = groupType.Id,
             Name = "Unassigned Group",
             TrainingStartTime = new TimeOnly(19, 0),
-            ScheduleText = "Вт,Чт",
+            DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

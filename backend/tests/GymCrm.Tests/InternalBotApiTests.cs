@@ -124,6 +124,10 @@ public class InternalBotApiTests
             var coachGroupPayload = payload.EnumerateArray().Single(item => item.GetProperty("id").GetString() == seeded.CoachGroupId.ToString());
             Assert.NotEqual(Guid.Empty, Guid.Parse(coachGroupPayload.GetProperty("branchId").GetString()!));
             Assert.NotEqual(Guid.Empty, Guid.Parse(coachGroupPayload.GetProperty("hallId").GetString()!));
+            Assert.Equal(60, coachGroupPayload.GetProperty("durationMinutes").GetInt32());
+            Assert.Equal(
+                [1, 3],
+                coachGroupPayload.GetProperty("weekdays").EnumerateArray().Select(weekday => weekday.GetInt32()).ToArray());
         }
 
         using (var adminSaveResponse = await SendBotRequestAsync(
@@ -199,6 +203,12 @@ public class InternalBotApiTests
             var payload = await ReadJsonElementAsync(cardResponse);
             Assert.Equal(JsonValueKind.Null, payload.GetProperty("phone").ValueKind);
             Assert.Equal(JsonValueKind.Null, payload.GetProperty("currentMembership").ValueKind);
+            var groupPayload = payload.GetProperty("groups").EnumerateArray()
+                .Single(group => group.GetProperty("id").GetString() == seeded.CoachGroupId.ToString());
+            Assert.Equal(60, groupPayload.GetProperty("durationMinutes").GetInt32());
+            Assert.Equal(
+                [1, 3],
+                groupPayload.GetProperty("weekdays").EnumerateArray().Select(weekday => weekday.GetInt32()).ToArray());
         }
 
         using (var coachExpiringResponse = await SendBotRequestAsync(
@@ -398,7 +408,8 @@ public class InternalBotApiTests
             GroupTypeId = groupType.Id,
             Name = "Coach Group",
             TrainingStartTime = new TimeOnly(10, 0),
-            ScheduleText = "Mon/Wed/Fri",
+            DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
@@ -411,7 +422,8 @@ public class InternalBotApiTests
             GroupTypeId = groupType.Id,
             Name = "Admin Group",
             TrainingStartTime = new TimeOnly(12, 0),
-            ScheduleText = "Tue/Thu",
+            DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

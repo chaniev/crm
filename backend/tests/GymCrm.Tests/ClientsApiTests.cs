@@ -100,6 +100,12 @@ public class ClientsApiTests
             Assert.Equal("Первичная заметка по клиенту", GetStringFromProperty(getPayload, "notes"));
             var groupsPayload = GetArrayPayload(getPayload.GetProperty("groups"));
             Assert.Equal(2, groupsPayload.GetArrayLength());
+            var groupOnePayload = groupsPayload.EnumerateArray()
+                .Single(group => GetGuidFromProperty(group, "id") == seeded.GroupOneId);
+            Assert.Equal(60, groupOnePayload.GetProperty("durationMinutes").GetInt32());
+            Assert.Equal(
+                [1, 3],
+                groupOnePayload.GetProperty("weekdays").EnumerateArray().Select(weekday => weekday.GetInt32()).ToArray());
         }
 
         using (var updateResponse = await PutJsonAsync(
@@ -332,7 +338,8 @@ public class ClientsApiTests
                 GroupTypeId = targetGroupType.Id,
                 Name = "Transfer Group",
                 TrainingStartTime = new TimeOnly(10, 0),
-                ScheduleText = "Вт-Чт",
+                DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now
@@ -1138,7 +1145,8 @@ public class ClientsApiTests
                         "groupId",
                         "groupName",
                         "groupTrainingStartTime",
-                        "groupScheduleText"
+                        "groupDurationMinutes",
+                        "groupWeekdays"
                     },
                     propertyNames);
             });
@@ -2681,7 +2689,8 @@ public class ClientsApiTests
                 GroupTypeId = foreignGroupType.Id,
                 Name = "Foreign Group",
                 TrainingStartTime = new TimeOnly(11, 0),
-                ScheduleText = "Пн",
+                DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now
@@ -2962,7 +2971,8 @@ public class ClientsApiTests
             GroupTypeId = groupType.Id,
             Name = "Group One",
             TrainingStartTime = new TimeOnly(9, 0),
-            ScheduleText = "Пн-Ср-Пт",
+            DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
@@ -2976,7 +2986,8 @@ public class ClientsApiTests
             GroupTypeId = groupType.Id,
             Name = "Group Two",
             TrainingStartTime = new TimeOnly(18, 30),
-            ScheduleText = "Вт-Чт",
+            DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

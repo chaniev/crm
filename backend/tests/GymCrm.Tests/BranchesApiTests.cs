@@ -134,7 +134,8 @@ public class BranchesApiTests
                 GroupTypeId = groupType.Id,
                 Name = "Hall Guard Group",
                 TrainingStartTime = new TimeOnly(9, 0),
-                ScheduleText = "Mon/Wed",
+                DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
                 IsActive = true,
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow

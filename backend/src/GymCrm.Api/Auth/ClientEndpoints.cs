@@ -304,7 +304,8 @@ internal static class ClientEndpoints
                         clientGroup.Group.Hall.Name,
                         clientGroup.Group.IsActive,
                         clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
-                        clientGroup.Group.ScheduleText))
+                        clientGroup.Group.DurationMinutes,
+                        clientGroup.Group.Weekdays))
                     .ToArray(),
                 hasElevatedClientAccess ? client.Contacts.Count : 0,
                 !string.IsNullOrWhiteSpace(client.PhotoPath) &&
@@ -1184,7 +1185,8 @@ internal static class ClientEndpoints
                 attendance.GroupId,
                 attendance.Group.Name,
                 attendance.Group.TrainingStartTime.ToString("HH\\:mm"),
-                attendance.Group.ScheduleText))
+                attendance.Group.DurationMinutes,
+                attendance.Group.Weekdays))
             .ToArrayAsync(cancellationToken);
 
         return new ClientAttendanceHistoryPageResponse(
@@ -2433,7 +2435,8 @@ internal static class ClientEndpoints
                 clientGroup.Group.Hall.Name,
                 clientGroup.Group.IsActive,
                 clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
-                clientGroup.Group.ScheduleText))
+                clientGroup.Group.DurationMinutes,
+                clientGroup.Group.Weekdays))
             .OrderBy(group => group.Name, StringComparer.CurrentCulture)
             .ThenBy(group => group.Id)
             .ToArray();

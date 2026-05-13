@@ -61,7 +61,8 @@ internal static class AttendanceEndpoints
                 group.HallId,
                 group.Hall.Name,
                 group.TrainingStartTime.ToString("HH\\:mm"),
-                group.ScheduleText,
+                group.DurationMinutes,
+                group.Weekdays,
                 group.IsActive,
                 group.Clients.Count(clientGroup => clientGroup.Client.Status == ClientStatus.Active)))
             .ToListAsync(cancellationToken);
@@ -388,7 +389,8 @@ internal static class AttendanceEndpoints
                 clientGroup.Group.Hall.Name,
                 clientGroup.Group.IsActive,
                 clientGroup.Group.TrainingStartTime.ToString("HH\\:mm"),
-                clientGroup.Group.ScheduleText))
+                clientGroup.Group.DurationMinutes,
+                clientGroup.Group.Weekdays))
             .OrderBy(group => group.Name, StringComparer.CurrentCulture)
             .ThenBy(group => group.Id)
             .ToArray();
