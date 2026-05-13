@@ -556,13 +556,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int[]>("Weekdays")
+                    b.PrimitiveCollection<int[]>("Weekdays")
                         .IsRequired()
                         .HasColumnType("integer[]");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("Id", "BranchId");
 
                     b.HasIndex("BranchId");
 
@@ -576,9 +574,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.ToTable("TrainingGroups", t =>
                         {
-                            t.HasCheckConstraint("CK_TrainingGroups_DurationMinutes_Range", """
-                "DurationMinutes" >= 1 AND "DurationMinutes" <= 180
-                """);
+                            t.HasCheckConstraint("CK_TrainingGroups_DurationMinutes_Range", "\"DurationMinutes\" >= 1 AND \"DurationMinutes\" <= 180");
+
                             t.HasCheckConstraint("CK_TrainingGroups_Weekdays_NotEmpty", "cardinality(\"Weekdays\") >= 1");
                         });
                 });
