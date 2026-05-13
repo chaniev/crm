@@ -5,6 +5,7 @@ internal sealed record TrainingGroupAuditState(
     string Name,
     Guid BranchId,
     Guid HallId,
+    Guid GroupTypeId,
     string TrainingStartTime,
     string ScheduleText,
     bool IsActive,

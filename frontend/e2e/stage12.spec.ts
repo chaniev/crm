@@ -14,11 +14,12 @@ const headCoachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit'],
+    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
       canManageGroups: true,
+      canManageSettings: true,
       canMarkAttendance: true,
       canViewAuditLog: true,
     },
@@ -38,11 +39,12 @@ const administratorSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit'],
+    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Audit', 'Settings'],
     permissions: {
-      canManageUsers: true,
+      canManageUsers: false,
       canManageClients: true,
       canManageGroups: true,
+      canManageSettings: true,
       canMarkAttendance: true,
       canViewAuditLog: true,
     },
@@ -67,6 +69,7 @@ const coachSession = {
       canManageUsers: false,
       canManageClients: false,
       canManageGroups: false,
+      canManageSettings: false,
       canMarkAttendance: true,
       canViewAuditLog: false,
     },
@@ -113,6 +116,9 @@ type GroupState = {
   branchName: string
   hallId: string
   hallName: string
+  groupTypeId: string
+  groupTypeName: string
+  groupTypeSystemIdentifier: string
   name: string
   trainingStartTime: string
   scheduleText: string
@@ -120,6 +126,14 @@ type GroupState = {
   trainerIds: string[]
   trainerNames: string[]
   clientCount: number
+}
+
+type GroupTypeState = {
+  id: string
+  name: string
+  description: string | null
+  systemIdentifier: string
+  groupCount: number
 }
 
 type ClientState = {
@@ -187,12 +201,23 @@ const baseHall: HallState = {
   groupCount: 1,
 }
 
+const baseGroupType: GroupTypeState = {
+  id: 'group-type-1',
+  name: 'Базовый тип',
+  description: 'Тип для e2e',
+  systemIdentifier: 'default',
+  groupCount: 1,
+}
+
 const assignedAttendanceGroup = {
   id: 'group-coach',
   branchId: baseBranch.id,
   branchName: baseBranch.name,
   hallId: baseHall.id,
   hallName: baseHall.name,
+  groupTypeId: baseGroupType.id,
+  groupTypeName: baseGroupType.name,
+  groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
   name: 'Назначенная группа',
   trainingStartTime: '19:00',
   scheduleText: 'Вт, Чт',
@@ -209,6 +234,9 @@ const baseGroups: GroupState[] = [
     branchName: baseBranch.name,
     hallId: baseHall.id,
     hallName: baseHall.name,
+    groupTypeId: baseGroupType.id,
+    groupTypeName: baseGroupType.name,
+    groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
     name: 'Группа 1',
     trainingStartTime: '18:00',
     scheduleText: 'Пн, Ср, Пт',
@@ -260,7 +288,7 @@ const SCREEN_HEADINGS = [
   },
   {
     path: '/settings',
-    heading: 'Филиалы и залы',
+    heading: 'Настройки CRM',
   },
 ]
 
@@ -802,6 +830,9 @@ test.describe('Основные e2e сценарии', () => {
       branchName: baseBranch.name,
       hallId: baseHall.id,
       hallName: baseHall.name,
+      groupTypeId: baseGroupType.id,
+      groupTypeName: baseGroupType.name,
+      groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
       name: 'Фильтр-группа',
       trainingStartTime: '17:00',
       scheduleText: 'Пн, Ср',
@@ -982,6 +1013,7 @@ test.describe('Основные e2e сценарии', () => {
           name: 'Новая тестовая группа',
           branchId: baseBranch.id,
           hallId: baseHall.id,
+          groupTypeId: baseGroupType.id,
           trainingStartTime: '19:00',
           scheduleText: 'Вт, Чт',
           isActive: true,
@@ -994,6 +1026,9 @@ test.describe('Основные e2e сценарии', () => {
           branchName: baseBranch.name,
           hallId: payload.hallId,
           hallName: baseHall.name,
+          groupTypeId: payload.groupTypeId,
+          groupTypeName: baseGroupType.name,
+          groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
           name: 'Новая тестовая группа',
           trainingStartTime: '19:00',
           scheduleText: 'Вт, Чт',
@@ -1034,6 +1069,7 @@ test.describe('Основные e2e сценарии', () => {
         name: 'Новая тестовая группа',
         branchId: baseBranch.id,
         hallId: baseHall.id,
+        groupTypeId: baseGroupType.id,
         trainingStartTime: '19:00',
         scheduleText: 'Вт, Чт',
         isActive: true,
@@ -1104,6 +1140,9 @@ test.describe('Основные e2e сценарии', () => {
           branchName: baseBranch.name,
           hallId: payload.hallId,
           hallName: baseHall.name,
+          groupTypeId: payload.groupTypeId,
+          groupTypeName: baseGroupType.name,
+          groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
           name: payload.name,
           trainingStartTime: payload.trainingStartTime,
           scheduleText: payload.scheduleText,
@@ -1150,8 +1189,12 @@ test.describe('Основные e2e сценарии', () => {
     let branchUpdatePayload: Record<string, unknown> | null = null
     let hallCreatePayload: Record<string, unknown> | null = null
     let hallUpdatePayload: Record<string, unknown> | null = null
+    let groupTypeCreatePayload: Record<string, unknown> | null = null
+    let administratorCreatePayload: Record<string, unknown> | null = null
     const branches: BranchState[] = [{ ...baseBranch }]
     const halls: HallState[] = [{ ...baseHall }]
+    const groupTypes: GroupTypeState[] = [{ ...baseGroupType }]
+    const administrators: Array<Record<string, unknown>> = []
 
     function branchResponse(branch: BranchState) {
       return {
@@ -1264,10 +1307,53 @@ test.describe('Основные e2e сценарии', () => {
         return true
       }
 
+      if (pathname === '/api/group-types' && method === 'GET') {
+        await fulfillJson(route, 200, groupTypes.map(toGroupTypePayload))
+        return true
+      }
+
+      if (pathname === '/api/group-types' && method === 'POST') {
+        groupTypeCreatePayload = route.request().postDataJSON()
+        const groupType: GroupTypeState = {
+          id: 'group-type-created',
+          name: String(groupTypeCreatePayload.name),
+          description: String(groupTypeCreatePayload.description ?? ''),
+          systemIdentifier: String(groupTypeCreatePayload.systemIdentifier),
+          groupCount: 0,
+        }
+        groupTypes.push(groupType)
+        await fulfillJson(route, 200, toGroupTypePayload(groupType))
+        return true
+      }
+
+      if (pathname === '/api/settings/administrators' && method === 'GET') {
+        await fulfillJson(route, 200, administrators)
+        return true
+      }
+
+      if (pathname === '/api/settings/administrators' && method === 'POST') {
+        administratorCreatePayload = route.request().postDataJSON()
+        const administrator = {
+          id: 'administrator-created',
+          fullName: String(administratorCreatePayload.fullName),
+          login: String(administratorCreatePayload.login),
+          role: 'Administrator',
+          mustChangePassword: Boolean(administratorCreatePayload.mustChangePassword),
+          isActive: Boolean(administratorCreatePayload.isActive),
+          messengerPlatform: administratorCreatePayload.messengerPlatform ?? null,
+          messengerPlatformUserId:
+            administratorCreatePayload.messengerPlatformUserId ?? null,
+        }
+        administrators.push(administrator)
+        await fulfillJson(route, 200, administrator)
+        return true
+      }
+
       return false
     })
 
     await page.goto('/settings')
+    await page.getByRole('tab', { name: 'Филиалы и залы' }).click()
     await expect(page.getByRole('heading', { name: 'Филиалы и залы' })).toBeVisible()
 
     await page.getByRole('button', { name: 'Добавить филиал' }).first().click()
@@ -1339,6 +1425,40 @@ test.describe('Основные e2e сценарии', () => {
       .getByRole('button', { name: 'Удалить зал' })
       .click()
     await expect(page.getByText('Зал нельзя удалить: он используется группами.')).toBeVisible()
+
+    await page.getByRole('tab', { name: 'Типы групп' }).click()
+    await page.getByRole('button', { name: 'Добавить тип' }).click()
+    await page.getByLabel('Название').fill('Подростки')
+    await page.getByLabel('Системный идентификатор').fill('teenagers')
+    await page.getByLabel('Описание').fill('Группы для подростков')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Сохранить' })
+      .click()
+    await expect.poll(() => groupTypeCreatePayload).toEqual({
+      name: 'Подростки',
+      description: 'Группы для подростков',
+      systemIdentifier: 'teenagers',
+    })
+    await expect(page.getByTestId('group-type-card-group-type-created')).toBeVisible()
+
+    await page.getByRole('tab', { name: 'Администраторы' }).click()
+    await page.getByRole('button', { name: 'Добавить администратора' }).first().click()
+    await page.getByLabel('ФИО').fill('Администратор настроек')
+    await page.getByLabel('Логин').fill('settings-admin')
+    await page.getByLabel('Пароль').fill('12345Aa!')
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Сохранить' })
+      .click()
+    await expect.poll(() => administratorCreatePayload).toMatchObject({
+      fullName: 'Администратор настроек',
+      login: 'settings-admin',
+      password: '12345Aa!',
+      mustChangePassword: true,
+      isActive: true,
+    })
+    await expect(page.getByTestId('administrator-card-administrator-created')).toBeVisible()
   })
 
   test('Ограничивает доступ тренера к модулю управления группами', async ({ page }) => {
@@ -1802,6 +1922,16 @@ async function mockApi(
         return
       }
 
+      if (pathname === '/api/group-types' && method === 'GET') {
+        await fulfillJson(route, 200, [toGroupTypePayload(baseGroupType)])
+        return
+      }
+
+      if (pathname === '/api/settings/administrators' && method === 'GET') {
+        await fulfillJson(route, 200, [])
+        return
+      }
+
       throw new Error(
         `Unexpected API request in stage 12 e2e: ${route.request().method()} ${requestUrl.pathname}`,
       )
@@ -1849,6 +1979,18 @@ function toHallPayload(hall: HallState) {
   }
 }
 
+function toGroupTypePayload(groupType: GroupTypeState) {
+  return {
+    id: groupType.id,
+    name: groupType.name,
+    description: groupType.description,
+    systemIdentifier: groupType.systemIdentifier,
+    groupCount: groupType.groupCount,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+}
+
 function toGroupPayload(group: GroupState) {
   return {
     id: group.id,
@@ -1857,6 +1999,9 @@ function toGroupPayload(group: GroupState) {
     branchName: group.branchName,
     hallId: group.hallId,
     hallName: group.hallName,
+    groupTypeId: group.groupTypeId,
+    groupTypeName: group.groupTypeName,
+    groupTypeSystemIdentifier: group.groupTypeSystemIdentifier,
     trainingStartTime: group.trainingStartTime,
     scheduleText: group.scheduleText,
     isActive: group.isActive,

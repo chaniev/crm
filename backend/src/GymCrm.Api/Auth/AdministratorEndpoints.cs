@@ -8,28 +8,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Api.Auth;
 
-internal static class UserEndpoints
+internal static class AdministratorEndpoints
 {
-    public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder MapAdministratorEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/users")
-            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageUsers);
+        var group = endpoints.MapGroup("/settings/administrators")
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageSettings);
 
-        group.MapGet("/", ListUsersAsync);
-        group.MapGet("/{id:guid}", GetUserAsync);
-        group.MapPost("/", CreateUserAsync);
-        group.MapPut("/{id:guid}", UpdateUserAsync);
+        group.MapGet("/", ListAdministratorsAsync);
+        group.MapGet("/{id:guid}", GetAdministratorAsync);
+        group.MapPost("/", CreateAdministratorAsync);
+        group.MapPut("/{id:guid}", UpdateAdministratorAsync);
 
         return endpoints;
     }
 
-    private static async Task<Ok<IReadOnlyList<UserResponse>>> ListUsersAsync(
+    private static async Task<Ok<IReadOnlyList<UserResponse>>> ListAdministratorsAsync(
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<UserResponse> users = await dbContext.Users
+        IReadOnlyList<UserResponse> administrators = await dbContext.Users
             .AsNoTracking()
-            .Where(user => user.Role != UserRole.Administrator)
+            .Where(user => user.Role == UserRole.Administrator)
             .OrderBy(user => user.FullName)
             .ThenBy(user => user.Login)
             .Select(user => new UserResponse(
@@ -45,10 +45,10 @@ internal static class UserEndpoints
                 user.UpdatedAt))
             .ToListAsync(cancellationToken);
 
-        return TypedResults.Ok(users);
+        return TypedResults.Ok(administrators);
     }
 
-    private static async Task<Results<Ok<UserResponse>, NotFound>> GetUserAsync(
+    private static async Task<Results<Ok<UserResponse>, NotFound>> GetAdministratorAsync(
         Guid id,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
@@ -56,7 +56,7 @@ internal static class UserEndpoints
         var user = await dbContext.Users
             .AsNoTracking()
             .SingleOrDefaultAsync(
-                candidate => candidate.Id == id && candidate.Role != UserRole.Administrator,
+                candidate => candidate.Id == id && candidate.Role == UserRole.Administrator,
                 cancellationToken);
 
         return user is null
@@ -64,8 +64,8 @@ internal static class UserEndpoints
             : TypedResults.Ok(ToResponse(user));
     }
 
-    private static async Task<Results<Created<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateUserAsync(
-        CreateUserRequest request,
+    private static async Task<Results<Created<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateAdministratorAsync(
+        CreateAdministratorRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IPasswordHashService passwordHashService,
@@ -87,23 +87,24 @@ internal static class UserEndpoints
 
         var fullName = request.FullName?.Trim() ?? string.Empty;
         var login = request.Login?.Trim() ?? string.Empty;
+        var role = UserRole.Administrator.ToString();
 
         var errors = await UserRequestValidator.ValidateCreateAsync(
             fullName,
             login,
             request.Password,
-            request.Role,
+            role,
             request.MessengerPlatform,
             request.MessengerPlatformUserId,
             dbContext,
-            cancellationToken);
+            cancellationToken,
+            allowAdministratorRole: true);
 
         if (errors.Count > 0)
         {
             return TypedResults.ValidationProblem(errors);
         }
 
-        var role = UserRequestValidator.ParseRole(request.Role)!;
         var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
             request.MessengerPlatform,
             request.MessengerPlatformUserId);
@@ -114,7 +115,7 @@ internal static class UserEndpoints
             Id = Guid.NewGuid(),
             FullName = fullName,
             Login = login,
-            Role = role.Value,
+            Role = UserRole.Administrator,
             MessengerPlatform = messengerIdentity.Platform,
             MessengerPlatformUserId = messengerIdentity.PlatformUserId,
             MustChangePassword = request.MustChangePassword,
@@ -138,12 +139,12 @@ internal static class UserEndpoints
                 NewValueJson: UserAuditSerializer.Serialize(user)),
             cancellationToken);
 
-        return TypedResults.Created($"/users/{user.Id}", ToResponse(user));
+        return TypedResults.Created($"/settings/administrators/{user.Id}", ToResponse(user));
     }
 
-    private static async Task<Results<Ok<UserResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateUserAsync(
+    private static async Task<Results<Ok<UserResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateAdministratorAsync(
         Guid id,
-        UpdateUserRequest request,
+        UpdateAdministratorRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAuditLogService auditLogService,
@@ -164,7 +165,7 @@ internal static class UserEndpoints
 
         var user = await dbContext.Users
             .SingleOrDefaultAsync(
-                candidate => candidate.Id == id && candidate.Role != UserRole.Administrator,
+                candidate => candidate.Id == id && candidate.Role == UserRole.Administrator,
                 cancellationToken);
 
         if (user is null)
@@ -178,19 +179,20 @@ internal static class UserEndpoints
         var errors = await UserRequestValidator.ValidateUpdateAsync(
             fullName,
             requestedLogin,
-            request.Role,
+            UserRole.Administrator.ToString(),
             request.MessengerPlatform,
             request.MessengerPlatformUserId,
             request.IsActive,
             user,
             dbContext,
-            cancellationToken);
+            cancellationToken,
+            allowAdministratorRole: true);
+
         if (errors.Count > 0)
         {
             return TypedResults.ValidationProblem(errors);
         }
 
-        var role = UserRequestValidator.ParseRole(request.Role)!.Value;
         var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
             request.MessengerPlatform,
             request.MessengerPlatformUserId);
@@ -198,7 +200,6 @@ internal static class UserEndpoints
         var isSelfUpdate = currentUser.Id == user.Id;
 
         user.FullName = fullName;
-        user.Role = role;
         user.MessengerPlatform = messengerIdentity.Platform;
         user.MessengerPlatformUserId = messengerIdentity.PlatformUserId;
         user.MustChangePassword = request.MustChangePassword;

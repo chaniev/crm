@@ -32,17 +32,19 @@ public class AuthorizationFlowTests
         Assert.NotNull(session.User);
         Assert.Equal("HeadCoach", session.User.Role);
         Assert.Equal(
-            ["Home", "Attendance", "Clients", "Groups", "Users", "Audit"],
+            ["Home", "Attendance", "Clients", "Groups", "Users", "Audit", "Settings"],
             session.User.AllowedSections);
         Assert.True(session.User.Permissions.CanManageUsers);
         Assert.True(session.User.Permissions.CanManageClients);
         Assert.True(session.User.Permissions.CanManageGroups);
+        Assert.True(session.User.Permissions.CanManageSettings);
         Assert.True(session.User.Permissions.CanMarkAttendance);
         Assert.True(session.User.Permissions.CanViewAuditLog);
 
         await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/client-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(
             PostWithoutBodyAsync(client, $"/access/attendance/{seeded.ForeignGroupId}", session.CsrfToken),
@@ -64,16 +66,18 @@ public class AuthorizationFlowTests
 
         Assert.NotNull(session.User);
         Assert.Equal("Administrator", session.User.Role);
-        Assert.Equal(["Home", "Clients", "Groups", "Audit"], session.User.AllowedSections);
+        Assert.Equal(["Home", "Clients", "Groups", "Audit", "Settings"], session.User.AllowedSections);
         Assert.False(session.User.Permissions.CanManageUsers);
         Assert.True(session.User.Permissions.CanManageClients);
         Assert.True(session.User.Permissions.CanManageGroups);
+        Assert.True(session.User.Permissions.CanManageSettings);
         Assert.False(session.User.Permissions.CanMarkAttendance);
         Assert.True(session.User.Permissions.CanViewAuditLog);
 
         await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/client-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(
             PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken),
@@ -99,12 +103,14 @@ public class AuthorizationFlowTests
         Assert.False(session.User.Permissions.CanManageUsers);
         Assert.False(session.User.Permissions.CanManageClients);
         Assert.False(session.User.Permissions.CanManageGroups);
+        Assert.False(session.User.Permissions.CanManageSettings);
         Assert.True(session.User.Permissions.CanMarkAttendance);
         Assert.False(session.User.Permissions.CanViewAuditLog);
         Assert.Equal([seeded.AssignedCoachGroupId.ToString()], session.User.AssignedGroupIds);
 
         await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.Forbidden);
+        await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(
             PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken),
@@ -161,12 +167,21 @@ public class AuthorizationFlowTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var groupType = new GroupType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Authorization Default Type",
+            SystemIdentifier = "authorization-default-type",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
 
         var assignedGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
             BranchId = assignedBranch.Id,
             HallId = assignedHall.Id,
+            GroupTypeId = groupType.Id,
             Name = "Group A",
             ScheduleText = "Mon/Wed/Fri",
             TrainingStartTime = new TimeOnly(18, 0),
@@ -180,6 +195,7 @@ public class AuthorizationFlowTests
             Id = Guid.NewGuid(),
             BranchId = foreignBranch.Id,
             HallId = foreignHall.Id,
+            GroupTypeId = groupType.Id,
             Name = "Group B",
             ScheduleText = "Tue/Thu",
             TrainingStartTime = new TimeOnly(19, 0),
@@ -191,6 +207,7 @@ public class AuthorizationFlowTests
         dbContext.Users.AddRange(headCoach, administrator, coach);
         dbContext.Branches.AddRange(assignedBranch, foreignBranch);
         dbContext.Halls.AddRange(assignedHall, foreignHall);
+        dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.AddRange(assignedGroup, foreignGroup);
         dbContext.GroupTrainers.Add(new GroupTrainer
         {
@@ -313,6 +330,7 @@ public class AuthorizationFlowTests
         bool CanManageUsers,
         bool CanManageClients,
         bool CanManageGroups,
+        bool CanManageSettings,
         bool CanMarkAttendance,
         bool CanViewAuditLog);
 

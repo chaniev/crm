@@ -8,4 +8,5 @@ public static class AppSection
     public const string Groups = "Groups";
     public const string Users = "Users";
     public const string Audit = "Audit";
+    public const string Settings = "Settings";
 }

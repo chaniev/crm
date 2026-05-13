@@ -77,7 +77,13 @@ type HallModalState =
   | { mode: 'edit'; hall: Hall }
   | null
 
-export function BranchSettingsScreen() {
+type BranchSettingsScreenProps = {
+  embedded?: boolean
+}
+
+export function BranchSettingsScreen({
+  embedded = false,
+}: BranchSettingsScreenProps) {
   const [branches, setBranches] = useState<Branch[]>([])
   const [halls, setHalls] = useState<Hall[]>([])
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null)
@@ -380,8 +386,13 @@ export function BranchSettingsScreen() {
   }
 
   return (
-    <Stack className="dashboard-stack" data-testid="settings-screen" gap="xl">
-      <PageCard className="page-header-card">
+    <Stack
+      className={embedded ? undefined : 'dashboard-stack'}
+      data-testid={embedded ? undefined : 'settings-screen'}
+      gap="xl"
+      mt={embedded ? 'xl' : undefined}
+    >
+      <PageCard className={embedded ? undefined : 'page-header-card'}>
         <PageHeader
           actions={(
             <ResponsiveButtonGroup>
@@ -400,11 +411,15 @@ export function BranchSettingsScreen() {
             </ResponsiveButtonGroup>
           )}
           description="Управляйте филиалами и залами, которые затем выбираются в клиентах и тренировочных группах."
-          eyebrow={(
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Настройки CRM
-            </Badge>
-          )}
+          eyebrow={
+            embedded
+              ? undefined
+              : (
+                  <Badge color="brand.1" radius="xl" size="lg" variant="light">
+                    Настройки CRM
+                  </Badge>
+                )
+          }
           title="Филиалы и залы"
         />
       </PageCard>

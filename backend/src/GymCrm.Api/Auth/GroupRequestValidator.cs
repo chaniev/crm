@@ -83,6 +83,7 @@ internal static class GroupRequestValidator
         }
 
         await ValidateBranchAndHallAsync(request, existingGroupId, errors, dbContext, cancellationToken);
+        await ValidateGroupTypeAsync(request, errors, dbContext, cancellationToken);
 
         var trainerErrors = await ValidateTrainerIdsAsync(request.RawTrainerIds, request.TrainerIds, dbContext, cancellationToken);
         foreach (var error in trainerErrors)
@@ -194,6 +195,34 @@ internal static class GroupRequestValidator
         }
     }
 
+    private static async Task ValidateGroupTypeAsync(
+        NormalizedGroupRequest request,
+        Dictionary<string, string[]> errors,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        if (!request.GroupTypeId.HasValue)
+        {
+            errors["groupTypeId"] = [GroupResources.GroupTypeRequired];
+            return;
+        }
+
+        if (request.GroupTypeId.Value == Guid.Empty)
+        {
+            errors["groupTypeId"] = [GroupResources.InvalidGroupTypeId];
+            return;
+        }
+
+        var groupTypeExists = await dbContext.GroupTypes
+            .AsNoTracking()
+            .AnyAsync(groupType => groupType.Id == request.GroupTypeId.Value, cancellationToken);
+
+        if (!groupTypeExists)
+        {
+            errors["groupTypeId"] = [GroupResources.GroupTypeMustExist];
+        }
+    }
+
     public static async Task<Dictionary<string, string[]>> ValidateTrainerIdsAsync(
         IReadOnlyList<Guid>? rawTrainerIds,
         IReadOnlyList<Guid> normalizedTrainerIds,
@@ -232,6 +261,7 @@ internal static class GroupRequestValidator
             request.Name?.Trim() ?? string.Empty,
             request.BranchId,
             request.HallId,
+            request.GroupTypeId,
             request.TrainingStartTime?.Trim() ?? string.Empty,
             request.ScheduleText?.Trim() ?? string.Empty,
             request.IsActive,

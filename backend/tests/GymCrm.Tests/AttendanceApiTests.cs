@@ -380,12 +380,21 @@ public class AttendanceApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var groupType = new GroupType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Attendance Default Type",
+            SystemIdentifier = "attendance-default-type",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
 
         var assignedGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
             BranchId = branch.Id,
             HallId = assignedHall.Id,
+            GroupTypeId = groupType.Id,
             Name = "Attendance Group",
             TrainingStartTime = new TimeOnly(8, 0),
             ScheduleText = "Пн,Ср,Пт",
@@ -399,6 +408,7 @@ public class AttendanceApiTests
             Id = Guid.NewGuid(),
             BranchId = branch.Id,
             HallId = unassignedHall.Id,
+            GroupTypeId = groupType.Id,
             Name = "Unassigned Group",
             TrainingStartTime = new TimeOnly(19, 0),
             ScheduleText = "Вт,Чт",
@@ -445,6 +455,7 @@ public class AttendanceApiTests
         dbContext.Users.AddRange(headCoach, administrator, coach);
         dbContext.Branches.Add(branch);
         dbContext.Halls.AddRange(assignedHall, unassignedHall);
+        dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.AddRange(assignedGroup, unassignedGroup);
         dbContext.Clients.AddRange(warningClient, singleVisitClient, professionalClient);
         dbContext.GroupTrainers.Add(new GroupTrainer

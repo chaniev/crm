@@ -31,6 +31,10 @@ internal static class UserResources
 
     public static string HeadCoachAssignmentUnavailable => GetString(nameof(HeadCoachAssignmentUnavailable));
 
+    public static string AdministratorCreationUnavailableOutsideSettings => GetString(nameof(AdministratorCreationUnavailableOutsideSettings));
+
+    public static string AdministratorAssignmentUnavailableOutsideSettings => GetString(nameof(AdministratorAssignmentUnavailableOutsideSettings));
+
     public static string InvalidMessengerPlatform => GetString(nameof(InvalidMessengerPlatform));
 
     public static string MessengerPlatformRequired => GetString(nameof(MessengerPlatformRequired));

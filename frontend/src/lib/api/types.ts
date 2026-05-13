@@ -11,6 +11,7 @@ export type AccessPermissions = {
   canManageUsers: boolean
   canManageClients: boolean
   canManageGroups: boolean
+  canManageSettings: boolean
   canMarkAttendance: boolean
   canViewAuditLog: boolean
 }
@@ -315,6 +316,41 @@ export type UpsertHallRequest = {
   description?: string | null
 }
 
+export type GroupType = {
+  id: string
+  name: string
+  description: string | null
+  systemIdentifier: string
+  groupCount: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type UpsertGroupTypeRequest = {
+  name: string
+  description?: string | null
+  systemIdentifier: string
+}
+
+export type CreateAdministratorRequest = {
+  fullName: string
+  login: string
+  password: string
+  mustChangePassword: boolean
+  isActive: boolean
+  messengerPlatform: MessengerPlatform | null
+  messengerPlatformUserId: string | null
+}
+
+export type UpdateAdministratorRequest = {
+  fullName: string
+  login: string
+  mustChangePassword: boolean
+  isActive: boolean
+  messengerPlatform: MessengerPlatform | null
+  messengerPlatformUserId: string | null
+}
+
 export type UpdateClientProfessionalStatusRequest = {
   isProfessional: boolean
   professionalComment?: string | null
@@ -461,6 +497,9 @@ export type TrainingGroupListItem = {
   branchName: string
   hallId: string
   hallName: string
+  groupTypeId: string
+  groupTypeName: string
+  groupTypeSystemIdentifier: string
   trainingStartTime: string
   scheduleText: string
   isActive: boolean
@@ -486,6 +525,9 @@ export type TrainingGroupDetails = {
   branchName: string
   hallId: string
   hallName: string
+  groupTypeId: string
+  groupTypeName: string
+  groupTypeSystemIdentifier: string
   trainingStartTime: string
   scheduleText: string
   isActive: boolean
@@ -500,6 +542,7 @@ export type UpsertTrainingGroupRequest = {
   name: string
   branchId?: string
   hallId?: string
+  groupTypeId?: string
   trainingStartTime: string
   scheduleText: string
   isActive: boolean
@@ -513,6 +556,9 @@ export type GroupResponsePayload = {
   branchName: string
   hallId: string
   hallName: string
+  groupTypeId: string
+  groupTypeName: string
+  groupTypeSystemIdentifier: string
   trainingStartTime: string
   scheduleText: string
   isActive: boolean

@@ -45,6 +45,12 @@
   <data name="HeadCoachAssignmentUnavailable" xml:space="preserve">
     <value>Назначение роли главного тренера сейчас недоступно.</value>
   </data>
+  <data name="AdministratorCreationUnavailableOutsideSettings" xml:space="preserve">
+    <value>Создавайте администраторов в разделе настроек.</value>
+  </data>
+  <data name="AdministratorAssignmentUnavailableOutsideSettings" xml:space="preserve">
+    <value>Назначайте роль администратора в разделе настроек.</value>
+  </data>
   <data name="InvalidMessengerPlatform" xml:space="preserve">
     <value>Укажите корректную платформу мессенджера.</value>
   </data>

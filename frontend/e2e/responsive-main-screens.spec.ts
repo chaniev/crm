@@ -12,11 +12,12 @@ const MANAGEMENT_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit'],
+    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
       canManageGroups: true,
+      canManageSettings: true,
       canMarkAttendance: true,
       canViewAuditLog: true,
     },
@@ -41,6 +42,7 @@ const COACH_SESSION = {
       canManageUsers: false,
       canManageClients: false,
       canManageGroups: false,
+      canManageSettings: false,
       canMarkAttendance: true,
       canViewAuditLog: false,
     },
@@ -128,6 +130,9 @@ const GROUPS_RESPONSE = {
       branchName: 'Центр',
       hallId: 'hall-1',
       hallName: 'Основной зал',
+      groupTypeId: 'group-type-1',
+      groupTypeName: 'Базовый тип',
+      groupTypeSystemIdentifier: 'default',
       trainingStartTime: '19:00',
       scheduleText: 'Вт, Чт',
       trainers: [
@@ -400,6 +405,26 @@ async function mockApi(
           updatedAt: '2026-05-01T10:00:00Z',
         },
       ])
+      return
+    }
+
+    if (pathname === '/api/group-types' && method === 'GET') {
+      await fulfillJson(route, 200, [
+        {
+          id: 'group-type-1',
+          name: 'Базовый тип',
+          description: 'Тип для smoke',
+          systemIdentifier: 'default',
+          groupCount: 1,
+          createdAt: '2026-05-01T10:00:00Z',
+          updatedAt: '2026-05-01T10:00:00Z',
+        },
+      ])
+      return
+    }
+
+    if (pathname === '/api/settings/administrators' && method === 'GET') {
+      await fulfillJson(route, 200, [])
       return
     }
 

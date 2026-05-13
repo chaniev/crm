@@ -12,11 +12,12 @@ const headCoachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit'],
+    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
       canManageGroups: true,
+      canManageSettings: true,
       canMarkAttendance: true,
       canViewAuditLog: true,
     },
@@ -142,6 +143,28 @@ test('Редактирование пользователя показывает
   })
   await expect(page.getByLabel('ФИО')).toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByText(fullNameError)).toBeVisible()
+})
+
+test('Создание пользователя не предлагает роль администратора', async ({ page }) => {
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const method = route.request().method()
+
+    if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    throw new Error(
+      `Unexpected API request in users e2e: ${method} ${requestUrl.pathname}`,
+    )
+  })
+
+  await page.goto('/users/new')
+  await page.getByRole('combobox', { name: 'Роль' }).click()
+
+  await expect(page.getByRole('option', { name: 'Тренер' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Администратор' })).toHaveCount(0)
 })
 
 async function fulfillJson(

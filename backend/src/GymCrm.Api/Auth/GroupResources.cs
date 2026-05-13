@@ -34,6 +34,9 @@ internal static class GroupResources
     public static string HallMustBeActive => GetString(nameof(HallMustBeActive));
     public static string HallMustBelongToBranch => GetString(nameof(HallMustBelongToBranch));
     public static string AssignedClientsMustBelongToBranch => GetString(nameof(AssignedClientsMustBelongToBranch));
+    public static string GroupTypeRequired => GetString(nameof(GroupTypeRequired));
+    public static string InvalidGroupTypeId => GetString(nameof(InvalidGroupTypeId));
+    public static string GroupTypeMustExist => GetString(nameof(GroupTypeMustExist));
 
     public static string NameTooLong(int maxLength)
     {

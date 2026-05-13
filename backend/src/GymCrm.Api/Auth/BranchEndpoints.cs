@@ -15,7 +15,7 @@ internal static class BranchEndpoints
     public static IEndpointRouteBuilder MapBranchEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var branches = endpoints.MapGroup("/branches")
-            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageGroups);
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageSettings);
 
         branches.MapGet("/", ListBranchesAsync);
         branches.MapGet("/{id:guid}", GetBranchAsync);
@@ -25,7 +25,7 @@ internal static class BranchEndpoints
         branches.MapPut("/{id:guid}/restore", RestoreBranchAsync);
 
         var halls = endpoints.MapGroup("/halls")
-            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageGroups);
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageSettings);
 
         halls.MapGet("/", ListHallsAsync);
         halls.MapGet("/{id:guid}", GetHallAsync);

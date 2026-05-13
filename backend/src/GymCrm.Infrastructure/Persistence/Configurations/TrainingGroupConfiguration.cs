@@ -28,6 +28,7 @@ internal sealed class TrainingGroupConfiguration : IEntityTypeConfiguration<Trai
         builder.HasIndex(group => group.Name);
         builder.HasIndex(group => group.BranchId);
         builder.HasIndex(group => group.HallId);
+        builder.HasIndex(group => group.GroupTypeId);
 
         builder.HasOne(group => group.Branch)
             .WithMany(branch => branch.Groups)
@@ -38,6 +39,11 @@ internal sealed class TrainingGroupConfiguration : IEntityTypeConfiguration<Trai
             .WithMany(hall => hall.Groups)
             .HasForeignKey(group => new { group.HallId, group.BranchId })
             .HasPrincipalKey(hall => new { hall.Id, hall.BranchId })
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(group => group.GroupType)
+            .WithMany(groupType => groupType.Groups)
+            .HasForeignKey(group => group.GroupTypeId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(group => group.Trainers)

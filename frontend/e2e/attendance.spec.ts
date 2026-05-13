@@ -33,6 +33,7 @@ const coachSession = {
       canManageUsers: false,
       canManageClients: false,
       canManageGroups: false,
+      canManageSettings: false,
       canMarkAttendance: true,
       canViewAuditLog: false,
     },

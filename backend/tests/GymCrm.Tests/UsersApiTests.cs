@@ -62,7 +62,7 @@ public class UsersApiTests
         using (var updateResponse = await PutJsonAsync(
                    client,
                    $"/users/{createdUserId}",
-                   new UserUpdateRequest("Обновлённый тестовый пользователь", createLogin, "Administrator", true, false, " ", " "),
+                   new UserUpdateRequest("Обновлённый тестовый пользователь", createLogin, "Coach", true, false, " ", " "),
                    session.CsrfToken))
         {
             Assert.True(
@@ -77,11 +77,148 @@ public class UsersApiTests
 
             Assert.Equal(createLogin, updatedUser.Login);
             Assert.Equal("Обновлённый тестовый пользователь", updatedUser.FullName);
-            Assert.Equal(UserRole.Administrator, updatedUser.Role);
+            Assert.Equal(UserRole.Coach, updatedUser.Role);
             Assert.True(updatedUser.MustChangePassword);
             Assert.False(updatedUser.IsActive);
             Assert.Null(updatedUser.MessengerPlatform);
             Assert.Null(updatedUser.MessengerPlatformUserId);
+        }
+    }
+
+    [Fact]
+    public async Task General_users_flow_cannot_create_or_assign_administrator_role()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/users",
+                   new UserCreateRequest(
+                       "Новый администратор",
+                       $"admin-outside-settings-{Guid.NewGuid():N}",
+                       "12345Aa!",
+                       "Administrator",
+                       true,
+                       true),
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, createResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(createResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("role", out _));
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/users/{seeded.CoachId}",
+                   new UserUpdateRequest(
+                       "Тренер как администратор",
+                       seeded.CoachLogin,
+                       "Administrator",
+                       false,
+                       true),
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(updateResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("role", out _));
+        }
+    }
+
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("Administrator")]
+    public async Task Settings_administrator_flow_can_list_create_and_update_administrators(string actorRole)
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorLogin = actorRole == "HeadCoach"
+            ? seeded.HeadCoachLogin
+            : seeded.AdministratorLogin;
+        var session = await LoginAsync(client, actorLogin, seeded.SharedPassword);
+
+        using (var listResponse = await client.GetAsync("/settings/administrators"))
+        {
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(listResponse);
+            Assert.Equal(JsonValueKind.Array, payload.ValueKind);
+            Assert.All(payload.EnumerateArray(), item =>
+            {
+                Assert.Equal("Administrator", GetStringFromProperty(item, "role"));
+            });
+        }
+
+        var createLogin = $"settings-admin-{Guid.NewGuid():N}";
+        Guid administratorId;
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/settings/administrators",
+                   new
+                   {
+                       FullName = "Администратор из настроек",
+                       Login = createLogin,
+                       Password = "12345Aa!",
+                       MustChangePassword = true,
+                       IsActive = true,
+                       MessengerPlatform = "Telegram",
+                       MessengerPlatformUserId = "settings-admin-telegram"
+                   },
+                   session.CsrfToken))
+        {
+            Assert.True(
+                createResponse.StatusCode is HttpStatusCode.Created or HttpStatusCode.OK,
+                $"Expected administrator create success, got {createResponse.StatusCode}.");
+            var payload = await ReadJsonElementAsync(createResponse);
+            administratorId = GetGuidFromProperty(payload, "id");
+            Assert.NotEqual(Guid.Empty, administratorId);
+            Assert.Equal("Administrator", GetStringFromProperty(payload, "role"));
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/settings/administrators/{administratorId}",
+                   new
+                   {
+                       FullName = "Администратор из настроек v2",
+                       Login = createLogin,
+                       MustChangePassword = false,
+                       IsActive = false,
+                       MessengerPlatform = (string?)null,
+                       MessengerPlatformUserId = (string?)null
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(updateResponse);
+            Assert.Equal("Администратор из настроек v2", GetStringFromProperty(payload, "fullName"));
+            Assert.Equal("Administrator", GetStringFromProperty(payload, "role"));
+        }
+
+        if (actorRole != "HeadCoach")
+        {
+            return;
+        }
+
+        using (var usersListResponse = await client.GetAsync("/users"))
+        {
+            Assert.Equal(HttpStatusCode.OK, usersListResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(usersListResponse);
+            Assert.DoesNotContain(
+                payload.EnumerateArray(),
+                item => GetStringFromProperty(item, "login") == createLogin);
         }
     }
 
@@ -457,7 +594,7 @@ public class UsersApiTests
         using (var updateResponse = await PutJsonAsync(
                    client,
                    $"/users/{userId}",
-                   new UserUpdateRequest("Аудит пользователь v2", createLogin, "Administrator", true, false),
+                   new UserUpdateRequest("Аудит пользователь v2", createLogin, "Coach", true, false),
                    session.CsrfToken))
         {
             Assert.True(
@@ -605,6 +742,24 @@ public class UsersApiTests
         return payload;
     }
 
+    private static Guid GetGuidFromProperty(JsonElement payload, string propertyName)
+    {
+        return payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty(propertyName, out var property) &&
+            Guid.TryParse(property.GetString(), out var value)
+            ? value
+            : Guid.Empty;
+    }
+
+    private static string GetStringFromProperty(JsonElement payload, string propertyName)
+    {
+        return payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty(propertyName, out var property) &&
+            property.GetString() is { } value
+            ? value
+            : string.Empty;
+    }
+
     private static async Task<JsonElement> ReadValidationErrorsAsync(HttpResponseMessage response)
     {
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -726,6 +881,7 @@ public class UsersApiTests
         bool CanManageUsers,
         bool CanManageClients,
         bool CanManageGroups,
+        bool CanManageSettings,
         bool CanMarkAttendance,
         bool CanViewAuditLog);
 

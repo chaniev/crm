@@ -381,12 +381,21 @@ public class InternalBotApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var groupType = new GroupType
+        {
+            Id = Guid.NewGuid(),
+            Name = "Bot Default Type",
+            SystemIdentifier = "bot-default-type",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
 
         var coachGroup = new TrainingGroup
         {
             Id = Guid.NewGuid(),
             BranchId = coachBranch.Id,
             HallId = coachHall.Id,
+            GroupTypeId = groupType.Id,
             Name = "Coach Group",
             TrainingStartTime = new TimeOnly(10, 0),
             ScheduleText = "Mon/Wed/Fri",
@@ -399,6 +408,7 @@ public class InternalBotApiTests
             Id = Guid.NewGuid(),
             BranchId = adminBranch.Id,
             HallId = adminHall.Id,
+            GroupTypeId = groupType.Id,
             Name = "Admin Group",
             TrainingStartTime = new TimeOnly(12, 0),
             ScheduleText = "Tue/Thu",
@@ -421,6 +431,7 @@ public class InternalBotApiTests
         dbContext.Users.AddRange(headCoach, administrator, coach, inactiveCoach, mustChangePasswordCoach);
         dbContext.Branches.AddRange(coachBranch, adminBranch);
         dbContext.Halls.AddRange(coachHall, adminHall);
+        dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.AddRange(coachGroup, adminGroup);
         dbContext.Clients.AddRange(
             coachClient,

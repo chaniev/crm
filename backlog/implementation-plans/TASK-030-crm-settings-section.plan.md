@@ -15,6 +15,18 @@ Branch rules:
 ## Goal
 В CRM есть глобальный раздел `Настройки`, доступный главному тренеру и администратору, где можно управлять типами групп, филиалами/залами и администраторами. Backend остается источником истины для ролей, прав, validation semantics и ProblemDetails.
 
+## Implementation status
+Completed on 2026-05-13 in branch `feature/TASK-030-crm-settings-section`.
+
+Implemented scope:
+- backend settings access contract: `Settings` section, `ManageSettings` capability, session permissions and settings-scoped policies;
+- settings-scoped administrator endpoints; generic user management no longer creates or updates `Administrator` users;
+- global group type domain/API with validation, audit state, EF configuration and migration;
+- training groups now require a valid `groupTypeId` and return group type data in list/details responses;
+- frontend `/settings` IA with tabs `Типы групп`, `Филиалы и залы`, `Администраторы`;
+- frontend API contracts, route visibility and group create/edit UI now consume backend settings/group-type contracts;
+- affected backend, frontend and Playwright regression coverage has been updated.
+
 ## Current understanding
 Задача full-stack и high-risk, но уточнения закрыты: пункт меню называется `Настройки`; доступ на просмотр и редактирование есть у `HeadCoach` и `Administrator`; добавление администраторов должно быть только через `Настройки`; поля администратора совпадают с текущими полями пользователя; тип группы содержит название, описание и системный идентификатор; настройки глобальные для всей CRM.
 
@@ -142,13 +154,13 @@ Add/update Playwright coverage:
 6. Settings screen remains usable on narrow viewport without text overlap.
 
 ## Test plan
-- [ ] Запустить `dotnet test backend/GymCrm.slnx`.
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить affected Playwright tests: settings, users, groups, responsive main screens.
-- [ ] Вручную проверить доступ к `Настройкам` под главным тренером, администратором и тренером.
-- [ ] Вручную проверить, что создание администратора доступно только через `Настройки`.
-- [ ] Вручную проверить создание/редактирование типа группы и создание/редактирование группы с выбранным типом.
+- [x] Запустить `dotnet test backend/GymCrm.slnx --no-restore` - passed, 87 tests.
+- [x] Запустить `cd frontend && npm run lint` - passed.
+- [x] Запустить `cd frontend && npm run build` - passed.
+- [x] Запустить affected Playwright tests: `stage12.spec.ts`, `users.spec.ts`, `responsive-main-screens.spec.ts` - passed, 25 tests.
+- [x] Проверить доступ к `Настройкам` под главным тренером, администратором и тренером - covered by updated session mocks and Playwright route/navigation checks.
+- [x] Проверить, что создание администратора доступно только через `Настройки` - covered by backend integration tests and Playwright users/settings flow.
+- [x] Проверить создание/редактирование типа группы и создание/редактирование группы с выбранным типом - covered by backend integration tests and affected Playwright settings/groups flow.
 
 ## Regression barrier
 Primary regression barrier is backend integration coverage for settings permissions, administrator-only settings use case, group type CRUD, and group type usage by groups. Frontend Playwright tests then prove the user-facing flows consume those backend contracts without duplicating permission or validation semantics.

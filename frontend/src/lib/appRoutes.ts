@@ -67,7 +67,7 @@ function isNavigationSectionAllowed(
   }
 
   if (section === 'Settings') {
-    return user.permissions.canManageGroups
+    return user.permissions.canManageSettings && user.allowedSections.includes('Settings')
   }
 
   return user.allowedSections.includes(section)
@@ -101,10 +101,6 @@ export function getAccessibleNavigationSections(user: AuthenticatedUser) {
   const sections: AppSection[] = APP_NAVIGATION_SECTIONS.filter((section) =>
     isNavigationSectionAllowed(user, section),
   )
-
-  if (user.permissions.canManageGroups && !sections.includes('Settings')) {
-    sections.push('Settings')
-  }
 
   return sections
 }
@@ -234,7 +230,10 @@ export function resolveAccessibleRoutePath(
   }
 
   if (routeSection === 'Settings') {
-    return user.permissions.canManageGroups ? getRoutePath(route) : fallbackPath
+    return user.permissions.canManageSettings &&
+      user.allowedSections.includes('Settings')
+      ? getRoutePath(route)
+      : fallbackPath
   }
 
   if (isClientWriteRoute(route) && !user.permissions.canManageClients) {

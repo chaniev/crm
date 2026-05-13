@@ -35,10 +35,12 @@ import {
   getGroup,
   getGroupClients,
   getGroups,
+  getGroupTypes,
   getHalls,
   getTrainerOptions,
   updateGroup,
   type Branch,
+  type GroupType,
   type GroupClient,
   type Hall,
   type TrainerOption,
@@ -83,6 +85,7 @@ type GroupEditScreenProps = {
 type GroupFormValues = {
   branchId: string
   hallId: string
+  groupTypeId: string
   name: string
   trainingStartTime: string
   scheduleText: string
@@ -243,6 +246,9 @@ export function GroupsListScreen({
                           <Badge radius="xl" variant="light">
                             Старт {group.trainingStartTime}
                           </Badge>
+                          <Badge color="brand.1" radius="xl" variant="light">
+                            {group.groupTypeName}
+                          </Badge>
                         </Group>
 
                         <Text c="dimmed" size="sm">
@@ -295,6 +301,7 @@ export function GroupCreateScreen({
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
   const [branchOptions, setBranchOptions] = useState<Branch[]>([])
   const [hallOptions, setHallOptions] = useState<Hall[]>([])
+  const [groupTypeOptions, setGroupTypeOptions] = useState<GroupType[]>([])
   const [loadingOptions, setLoadingOptions] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
@@ -311,17 +318,22 @@ export function GroupCreateScreen({
       setLoadError(null)
 
       try {
-        const [branches, halls, options] = await Promise.all([
+        const [branches, halls, groupTypes, options] = await Promise.all([
           getBranches({ includeArchived: true }, controller.signal),
           getHalls({ includeArchived: true }, controller.signal),
+          getGroupTypes(controller.signal),
           getTrainerOptions(controller.signal),
         ])
         setBranchOptions(branches)
         setHallOptions(halls)
+        setGroupTypeOptions(groupTypes)
         setTrainerOptions(options)
         const firstActiveBranch = branches.find((branch) => !branch.isArchived)
         if (firstActiveBranch && !formRef.current.values.branchId) {
           formRef.current.setFieldValue('branchId', firstActiveBranch.id)
+        }
+        if (groupTypes[0] && !formRef.current.values.groupTypeId) {
+          formRef.current.setFieldValue('groupTypeId', groupTypes[0].id)
         }
       } catch (error) {
         if (controller.signal.aborted) {
@@ -404,11 +416,12 @@ export function GroupCreateScreen({
           ) : null}
 
           {!loadingOptions && !loadError ? (
-            <GroupForm
-              form={form}
-              formError={formError}
-              branchOptions={branchOptions}
-              hallOptions={hallOptions}
+          <GroupForm
+            form={form}
+            formError={formError}
+            branchOptions={branchOptions}
+            groupTypeOptions={groupTypeOptions}
+            hallOptions={hallOptions}
               onCancel={onCancel}
               onSubmit={submit}
               submitLabel="Создать группу"
@@ -430,6 +443,7 @@ export function GroupEditScreen({
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
   const [branchOptions, setBranchOptions] = useState<Branch[]>([])
   const [hallOptions, setHallOptions] = useState<Hall[]>([])
+  const [groupTypeOptions, setGroupTypeOptions] = useState<GroupType[]>([])
   const [groupClients, setGroupClients] = useState<GroupClient[]>([])
   const [groupName, setGroupName] = useState(GROUPS_DEFAULT_NAME)
   const [clientCount, setClientCount] = useState(0)
@@ -452,16 +466,25 @@ export function GroupEditScreen({
       setLoadError(null)
 
       try {
-        const [group, branches, halls, options, clientsResponse] = await Promise.all([
+        const [
+          group,
+          branches,
+          halls,
+          groupTypes,
+          options,
+          clientsResponse,
+        ] = await Promise.all([
           getGroup(groupId, controller.signal),
           getBranches({ includeArchived: true }, controller.signal),
           getHalls({ includeArchived: true }, controller.signal),
+          getGroupTypes(controller.signal),
           getTrainerOptions(controller.signal),
           getGroupClients(groupId, controller.signal),
         ])
 
         setBranchOptions(branches)
         setHallOptions(halls)
+        setGroupTypeOptions(groupTypes)
         setTrainerOptions(options)
         setGroupClients(clientsResponse.clients)
         setGroupName(group.name)
@@ -574,6 +597,7 @@ export function GroupEditScreen({
               form={form}
               formError={formError}
               branchOptions={branchOptions}
+              groupTypeOptions={groupTypeOptions}
               hallOptions={hallOptions}
               onCancel={onBack}
               onSubmit={submit}
@@ -640,6 +664,7 @@ type GroupFormProps = {
   form: UseFormReturnType<GroupFormValues>
   formError: string | null
   branchOptions: Branch[]
+  groupTypeOptions: GroupType[]
   hallOptions: Hall[]
   onCancel: () => void
   onSubmit: (values: GroupFormValues) => Promise<void>
@@ -652,6 +677,7 @@ function GroupForm({
   form,
   formError,
   branchOptions,
+  groupTypeOptions,
   hallOptions,
   onCancel,
   onSubmit,
@@ -740,6 +766,24 @@ function GroupForm({
             placeholder="Например, Юниоры 18:00"
             {...form.getInputProps('name')}
           />
+          <Select
+            allowDeselect={false}
+            data={groupTypeOptions.map((groupType) => ({
+              value: groupType.id,
+              label: `${groupType.name} (${groupType.systemIdentifier})`,
+            }))}
+            label="Тип группы"
+            onChange={(groupTypeId) =>
+              form.setFieldValue('groupTypeId', groupTypeId ?? '')
+            }
+            placeholder="Выберите тип группы"
+            searchable
+            value={form.values.groupTypeId || null}
+            error={form.errors.groupTypeId}
+          />
+        </SimpleGrid>
+
+        <SimpleGrid cols={{ base: 1, md: 2 }}>
           <TextInput
             label="Время начала"
             placeholder="18:00"
@@ -783,6 +827,15 @@ function GroupForm({
               value={
                 branchOptions.find((branch) => branch.id === form.values.branchId)?.name ??
                 'Не выбран'
+              }
+            />
+            <HintStat
+              icon={<IconUsersGroup size={18} />}
+              label="Тип"
+              value={
+                groupTypeOptions.find(
+                  (groupType) => groupType.id === form.values.groupTypeId,
+                )?.name ?? 'Не выбран'
               }
             />
             <HintStat
@@ -925,6 +978,7 @@ function useGroupForm() {
     initialValues: {
       branchId: '',
       hallId: '',
+      groupTypeId: '',
       name: '',
       trainingStartTime: '',
       scheduleText: '',
@@ -937,6 +991,7 @@ function useGroupForm() {
         value.trim() ? null : 'Укажите время начала тренировки.',
       scheduleText: (value) =>
         value.trim() ? null : 'Введите расписание группы.',
+      groupTypeId: (value) => (value ? null : 'Выберите тип группы.'),
     },
   })
 }
@@ -948,6 +1003,7 @@ function toUpsertGroupPayload(
     name: values.name.trim(),
     branchId: values.branchId || undefined,
     hallId: values.hallId || undefined,
+    groupTypeId: values.groupTypeId || undefined,
     trainingStartTime: values.trainingStartTime.trim(),
     scheduleText: values.scheduleText.trim(),
     isActive: values.isActive,
@@ -959,6 +1015,7 @@ function toFormValues(group: TrainingGroupDetails): GroupFormValues {
   return {
     branchId: group.branchId,
     hallId: group.hallId,
+    groupTypeId: group.groupTypeId,
     name: group.name,
     trainingStartTime: group.trainingStartTime,
     scheduleText: group.scheduleText,

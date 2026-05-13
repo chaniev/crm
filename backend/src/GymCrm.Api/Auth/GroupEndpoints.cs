@@ -62,6 +62,7 @@ internal static class GroupEndpoints
             .Take(paging.Take)
             .Include(group => group.Branch)
             .Include(group => group.Hall)
+            .Include(group => group.GroupType)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.Clients)
@@ -179,6 +180,7 @@ internal static class GroupEndpoints
             Id = Guid.NewGuid(),
             BranchId = normalizedRequest.BranchId!.Value,
             HallId = normalizedRequest.HallId!.Value,
+            GroupTypeId = normalizedRequest.GroupTypeId!.Value,
             Name = normalizedRequest.Name,
             TrainingStartTime = trainingStartTime.Value,
             ScheduleText = normalizedRequest.ScheduleText,
@@ -259,6 +261,7 @@ internal static class GroupEndpoints
         group.Name = normalizedRequest.Name;
         group.BranchId = normalizedRequest.BranchId!.Value;
         group.HallId = normalizedRequest.HallId!.Value;
+        group.GroupTypeId = normalizedRequest.GroupTypeId!.Value;
         group.TrainingStartTime = trainingStartTime.Value;
         group.ScheduleText = normalizedRequest.ScheduleText;
         group.IsActive = normalizedRequest.IsActive ?? group.IsActive;
@@ -352,6 +355,7 @@ internal static class GroupEndpoints
             .AsNoTracking()
             .Include(group => group.Branch)
             .Include(group => group.Hall)
+            .Include(group => group.GroupType)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.Clients)
@@ -367,6 +371,7 @@ internal static class GroupEndpoints
         return await dbContext.TrainingGroups
             .Include(group => group.Branch)
             .Include(group => group.Hall)
+            .Include(group => group.GroupType)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.Clients)
@@ -425,6 +430,9 @@ internal static class GroupEndpoints
             group.Branch.Name,
             group.HallId,
             group.Hall.Name,
+            group.GroupTypeId,
+            group.GroupType.Name,
+            group.GroupType.SystemIdentifier,
             FormatTrainingStartTime(group.TrainingStartTime),
             group.ScheduleText,
             group.IsActive,
@@ -455,6 +463,9 @@ internal static class GroupEndpoints
             group.Branch.Name,
             group.HallId,
             group.Hall.Name,
+            group.GroupTypeId,
+            group.GroupType.Name,
+            group.GroupType.SystemIdentifier,
             FormatTrainingStartTime(group.TrainingStartTime),
             group.ScheduleText,
             group.IsActive,
@@ -490,6 +501,7 @@ internal static class GroupEndpoints
                 group.Name,
                 group.BranchId,
                 group.HallId,
+                group.GroupTypeId,
                 FormatTrainingStartTime(group.TrainingStartTime),
                 group.ScheduleText,
                 group.IsActive,
