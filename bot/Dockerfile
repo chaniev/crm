@@ -23,10 +23,7 @@ RUN if [ -f pyproject.toml ]; then \
 FROM python:3.13-slim AS runtime
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --system --create-home --uid 10001 --user-group --shell /usr/sbin/nologin app
+RUN useradd --system --create-home --uid 10001 --user-group --shell /usr/sbin/nologin app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -43,6 +40,6 @@ EXPOSE 8080
 VOLUME ["/app/data/bot"]
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=8s --retries=10 \
-  CMD curl -fsS http://127.0.0.1:8080/health/live || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/live', timeout=2).read()"
 
 CMD ["python", "-m", "gym_crm_bot.main"]

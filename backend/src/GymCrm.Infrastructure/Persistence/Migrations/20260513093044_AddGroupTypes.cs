@@ -14,10 +14,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropUniqueConstraint(
-                name: "AK_Clients_Id_BranchId",
-                table: "Clients");
-
             migrationBuilder.AddColumn<Guid>(
                 name: "GroupTypeId",
                 table: "TrainingGroups",
@@ -111,11 +107,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
             migrationBuilder.DropColumn(
                 name: "GroupTypeId",
                 table: "TrainingGroups");
-
-            migrationBuilder.AddUniqueConstraint(
-                name: "AK_Clients_Id_BranchId",
-                table: "Clients",
-                columns: new[] { "Id", "BranchId" });
         }
     }
 }
