@@ -227,3 +227,36 @@
 ## Summary
 - moved to tasks-ready: 1
 - validation: backlog-only update; runtime test commands were not run
+
+# 2026-05-13 status audit
+
+## Scope
+- Reviewed active backlog folders against current `main`, merge history and source-code evidence after pulling latest changes.
+
+## Moved tasks
+- /backlog/implementation/TASK-029-rename-users-to-trainers.md -> /backlog/done/TASK-029-rename-users-to-trainers.md
+- /backlog/implementation/TASK-030-crm-settings-section.md -> /backlog/done/TASK-030-crm-settings-section.md
+- /backlog/implementation/TASK-034-group-schedule-backend-model.md -> /backlog/done/TASK-034-group-schedule-backend-model.md
+- /backlog/implementation/TASK-035-group-schedule-frontend-experience.md -> /backlog/done/TASK-035-group-schedule-frontend-experience.md
+
+## Moved implementation plans
+- /backlog/implementation-plans/TASK-029-rename-users-to-trainers.plan.md -> /backlog/done/TASK-029-rename-users-to-trainers.plan.md
+- /backlog/implementation-plans/TASK-030-crm-settings-section.plan.md -> /backlog/done/TASK-030-crm-settings-section.plan.md
+- /backlog/implementation-plans/TASK-034-group-schedule-backend-model.plan.md -> /backlog/done/TASK-034-group-schedule-backend-model.plan.md
+- /backlog/implementation-plans/TASK-035-group-schedule-frontend-experience.plan.md -> /backlog/done/TASK-035-group-schedule-frontend-experience.plan.md
+
+## Evidence
+- TASK-029 is present in merge history as `feature/TASK-029-rename-users-to-trainers`; frontend navigation and user-management copy now use `Тренеры` while technical `/users` routes remain unchanged.
+- TASK-030 is present in merge history as `feature/TASK-030-crm-settings-section`; backend has settings permissions, administrator endpoints and group type contracts; frontend has `/settings` with group type, branch/hall and administrator tabs.
+- TASK-034 is present in merge history as `feature/TASK-034-group-schedule-backend-model`; backend contracts, validation, persistence, tests and affected consumers use `durationMinutes` and `weekdays`, and `scheduleText` is absent from backend/frontend/bot source.
+- TASK-035 is present in merge history as `feature/TASK-035-group-schedule-frontend-experience`; frontend has `/schedule`, weekly grouping helpers, schedule screen, group form schedule fields and focused e2e/unit coverage.
+
+## Kept active
+- Bot roster pagination, bot validation/smoke/readme/runtime tasks and branch-aware bot consumer work remain active: source audit did not show complete acceptance-criteria coverage.
+- Client detail/list UX tasks remain active: current code has related client UI structure, but no complete evidence for state restoration, tabs, action-first empty states or the requested responsive regression coverage.
+- Reporting/statistics clarification tasks remain active because the product decisions are still not fully captured.
+
+## Summary
+- moved to done: 4 tasks
+- moved plans to done: 4
+- validation: backlog/source audit only; runtime test commands were not re-run

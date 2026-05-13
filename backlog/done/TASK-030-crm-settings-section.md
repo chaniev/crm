@@ -1,12 +1,12 @@
 # TASK-030: Реализовать раздел `Настройки` в CRM
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-12 22:19
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-030-crm-settings-section.plan.md
+- implementation_plan: /backlog/done/TASK-030-crm-settings-section.plan.md
 - implementation_branch: feature/TASK-030-crm-settings-section
 
 ## Goal
@@ -58,16 +58,16 @@ implementation
 - Пересечения с филиалами и расписанием должны быть синхронизированы с TASK-022 и TASK-028.
 
 ## Acceptance criteria
-- [ ] В главном меню есть раздел `Настройки`.
-- [ ] Раздел `Настройки` доступен главному тренеру и администратору.
-- [ ] В `Настройках` есть подразделы для типов групп, филиалов и залов, администраторов.
-- [ ] Администратора можно добавить только через `Настройки`.
-- [ ] Поля администратора совпадают с текущими полями управления пользователями.
-- [ ] В `Настройках` есть глобальный справочник типов групп.
-- [ ] Тип группы содержит название, описание и системный идентификатор.
-- [ ] Форма группы использует тип группы из backend data.
-- [ ] Настройки применяются глобально для всей CRM.
-- [ ] Backend остается source of truth для ролей, permissions, access scope и validation semantics.
+- [x] В главном меню есть раздел `Настройки`.
+- [x] Раздел `Настройки` доступен главному тренеру и администратору.
+- [x] В `Настройках` есть подразделы для типов групп, филиалов и залов, администраторов.
+- [x] Администратора можно добавить только через `Настройки`.
+- [x] Поля администратора совпадают с текущими полями управления пользователями.
+- [x] В `Настройках` есть глобальный справочник типов групп.
+- [x] Тип группы содержит название, описание и системный идентификатор.
+- [x] Форма группы использует тип группы из backend data.
+- [x] Настройки применяются глобально для всей CRM.
+- [x] Backend остается source of truth для ролей, permissions, access scope и validation semantics.
 
 ## Test checklist
 - [ ] Запустить backend tests.
@@ -107,7 +107,7 @@ implementation
 - Duplicate check: settings fields for branches/halls belong to existing TASK-030; no duplicate settings task created.
 - Updated at: 2026-05-12
 - Clarification completed and moved to tasks-ready at: 2026-05-12
-- `TASK-034` and `TASK-035` were not kept because they duplicated this ready task.
+- Schedule-specific follow-up work was later separated into `backlog/done/TASK-034-group-schedule-backend-model.md` and `backlog/done/TASK-035-group-schedule-frontend-experience.md`.
 - Branch/hall implementation remains covered by:
   - `backlog/done/TASK-031-branches-backend-domain-contracts.md`
   - `backlog/done/TASK-032-branches-frontend-settings-and-forms.md`

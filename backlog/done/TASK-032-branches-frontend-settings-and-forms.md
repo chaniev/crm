@@ -86,7 +86,7 @@ done
 ## Source notes
 - Derived from: `backlog/done/TASK-022-branches-product-model.md`
 - Depends on: `backlog/done/TASK-031-branches-backend-domain-contracts.md`
-- Related to: `backlog/tasks-ready/TASK-030-crm-settings-section.md`
+- Related to: `backlog/done/TASK-030-crm-settings-section.md`
 
 ## Processing notes
 - Created at: 2026-05-07 20:05

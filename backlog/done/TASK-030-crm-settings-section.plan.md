@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-030 Реализовать раздел `Настройки` в CRM
 
 ## Source task
-/backlog/implementation/TASK-030-crm-settings-section.md
+/backlog/done/TASK-030-crm-settings-section.md
 
 ## Implementation branch
 feature/TASK-030-crm-settings-section

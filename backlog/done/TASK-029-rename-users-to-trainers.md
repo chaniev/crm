@@ -1,12 +1,12 @@
 # TASK-029: Переименовать раздел `Пользователи` в `Тренеры`
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-13 13:30
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-029-rename-users-to-trainers.plan.md
+- implementation_plan: /backlog/done/TASK-029-rename-users-to-trainers.plan.md
 - implementation_branch: feature/TASK-029-rename-users-to-trainers
 
 ## Goal
@@ -37,9 +37,9 @@ implementation
 - Если выяснится, что раздел `Пользователи` управляет не только тренерами, задачу нужно остановить и уточнить информационную архитектуру.
 
 ## Acceptance criteria
-- [ ] В видимой навигации CRM вместо `Пользователи` отображается `Тренеры` для тренерского раздела.
-- [ ] Заголовки, breadcrumbs и пустые состояния этого раздела используют термин `Тренеры`.
-- [ ] Существующие ссылки и permissions видимости раздела не сломаны.
+- [x] В видимой навигации CRM вместо `Пользователи` отображается `Тренеры` для тренерского раздела.
+- [x] Заголовки, breadcrumbs и пустые состояния этого раздела используют термин `Тренеры`.
+- [x] Существующие ссылки и permissions видимости раздела не сломаны.
 
 ## Test checklist
 - [ ] Запустить `cd frontend && npm run lint`.

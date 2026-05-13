@@ -100,7 +100,7 @@ Add/update Playwright coverage:
 Regression barrier is frontend typed contract coverage plus Playwright flows proving that branch/hall CRUD and client/group forms consume backend data correctly. Backend remains the final barrier for illegal cross-branch actions; frontend tests should assert error display rather than reimplementing the rule.
 
 ## Risks
-- Settings section IA is clarified in `backlog/tasks-ready/TASK-030-crm-settings-section.md`; branch/hall scope should stay limited to the already agreed settings area.
+- Settings section IA is clarified in `backlog/done/TASK-030-crm-settings-section.md`; branch/hall scope should stay limited to the already agreed settings area.
 - If frontend guesses backend route names or DTO shapes before TASK-031 is merged, rework is likely.
 - Client/group forms are dense; adding branch/hall fields can degrade mobile layout.
 - Filtering halls/groups in UI can accidentally become business logic if not backed by backend validation.

@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-034 Реализовать backend-модель графика групповых занятий
 
 ## Source task
-/backlog/implementation/TASK-034-group-schedule-backend-model.md
+/backlog/done/TASK-034-group-schedule-backend-model.md
 
 ## Implementation branch
 feature/TASK-034-group-schedule-backend-model
