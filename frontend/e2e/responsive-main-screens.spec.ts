@@ -241,6 +241,7 @@ const USERS_RESPONSE = [
 
 const MANAGEMENT_ROUTES = [
   { path: '/', screenTestId: 'home-screen', navLabel: 'Главная' },
+  { path: '/schedule', screenTestId: 'schedule-screen', navLabel: 'Расписание' },
   { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты' },
   { path: '/groups', screenTestId: 'groups-screen', navLabel: 'Группы' },
   { path: '/users', screenTestId: 'users-screen', navLabel: 'Тренеры' },
@@ -249,6 +250,7 @@ const MANAGEMENT_ROUTES = [
 ] as const
 
 const COACH_ROUTES = [
+  { path: '/schedule', screenTestId: 'schedule-screen', navLabel: 'Расписание' },
   { path: '/attendance', screenTestId: 'attendance-screen', navLabel: 'Посещения' },
   { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты' },
 ] as const

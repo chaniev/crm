@@ -469,6 +469,85 @@
     linear-gradient(135deg, rgba(246, 244, 238, 0.74), rgba(255, 255, 255, 0.94));
 }
 
+.schedule-board {
+  width: min(100%, 86rem);
+  margin-inline: auto;
+  box-shadow: var(--shadow-card);
+}
+
+.schedule-week-grid {
+  align-items: stretch;
+}
+
+.schedule-day-card {
+  min-width: 0;
+  min-height: 100%;
+  padding: 1rem;
+  background:
+    linear-gradient(135deg, rgba(239, 245, 242, 0.92), rgba(255, 255, 255, 0.98));
+  border-color: rgba(20, 90, 82, 0.1);
+}
+
+.schedule-day-card__title {
+  color: var(--mantine-color-brand-9);
+  font-size: 1.1rem;
+  letter-spacing: 0;
+}
+
+.schedule-day-empty {
+  min-height: 5.25rem;
+  display: flex;
+  align-items: center;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(20, 90, 82, 0.08);
+}
+
+.schedule-class-card {
+  min-width: 0;
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(20, 90, 82, 0.1);
+}
+
+.schedule-class-card__copy,
+.schedule-class-card__meta,
+.schedule-class-card__meta .mantine-Text-root {
+  min-width: 0;
+}
+
+.schedule-class-card__time {
+  flex: 0 0 auto;
+  color: var(--mantine-color-brand-8);
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-class-card__name {
+  min-width: 0;
+  color: var(--mantine-color-dark-8);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.schedule-class-card__edit {
+  flex: 0 0 auto;
+}
+
+.schedule-class-card__meta {
+  color: var(--mantine-color-dimmed);
+}
+
+.schedule-class-card__meta svg {
+  flex: 0 0 auto;
+}
+
+.schedule-class-card__trainers {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .settings-branches-layout {
   display: grid;
   grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.2fr);

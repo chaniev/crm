@@ -64,6 +64,7 @@ import {
 } from './features/clients/ClientManagement'
 import { AttendanceScreen } from './features/attendance/AttendanceScreen'
 import { HomeDashboard } from './features/home/HomeDashboard'
+import { GroupScheduleScreen } from './features/schedule/GroupScheduleScreen'
 import {
   GroupCreateScreen,
   GroupEditScreen,
@@ -1071,6 +1072,15 @@ function RouteViewport({
     return <GroupsListScreen onCreate={onCreateGroup} onEdit={onEditGroup} />
   }
 
+  if (route.section === 'Schedule') {
+    return (
+      <GroupScheduleScreen
+        canManageGroups={user.permissions.canManageGroups}
+        onEditGroup={onEditGroup}
+      />
+    )
+  }
+
   if (route.section === 'Attendance') {
     return <AttendanceScreen user={user} />
   }
@@ -1175,7 +1185,7 @@ function RouteRedirectPlaceholder() {
 }
 
 type SectionPlaceholderProps = {
-  section: Exclude<AppSection, 'Home' | 'Clients' | 'Users' | 'Groups'>
+  section: Exclude<AppSection, 'Home' | 'Schedule' | 'Clients' | 'Users' | 'Groups'>
   user: AuthenticatedUser
 }
 
