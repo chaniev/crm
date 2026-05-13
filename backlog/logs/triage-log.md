@@ -168,3 +168,41 @@
 - risky: 2
 - done: 1
 - validation: backlog/source audit only; runtime test commands were not run
+
+# 2026-05-13 TASK-034 clarification
+
+## Updated tasks
+- /backlog/risky/TASK-034-group-schedule-backend-model.md
+- /backlog/risky/TASK-035-group-schedule-frontend-experience.md
+
+## Captured decisions
+- Group lesson duration is stored in minutes.
+- Duration validation range: integer from 1 to 180.
+- Weekdays are structured, not free text.
+- Production data migration/backfill is not needed because deployment starts from scratch.
+
+## Summary
+- updated existing: 2
+- validation: backlog-only update; runtime test commands were not run
+
+# 2026-05-13 TASK-034 ready
+
+## Updated tasks
+- /backlog/tasks-ready/TASK-034-group-schedule-backend-model.md
+- /backlog/risky/TASK-035-group-schedule-frontend-experience.md
+
+## Moved tasks
+- /backlog/risky/TASK-034-group-schedule-backend-model.md -> /backlog/tasks-ready/TASK-034-group-schedule-backend-model.md
+
+## Captured decisions
+- Duration field name is `durationMinutes`.
+- Weekday field name is `weekdays`.
+- `weekdays` uses ISO `number[]` values 1..7, where 1 = Monday and 7 = Sunday.
+- `weekdays` is required, must contain at least one day, must not contain duplicates, and backend stores/returns it sorted.
+- `scheduleText` is deleted and replaced by `weekdays`.
+- ProblemDetails validation fields are `durationMinutes` and `weekdays`.
+
+## Summary
+- moved to tasks-ready: 1
+- updated existing: 2
+- validation: backlog-only update; runtime test commands were not run

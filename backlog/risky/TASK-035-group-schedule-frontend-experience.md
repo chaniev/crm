@@ -16,6 +16,15 @@ Frontend показывает расписание групповых занят
 - У группы обязательны тип группы, филиал, зал, время начала и продолжительность занятия.
 - Переносы, отмены, замены тренера, проверки занятости зала, конфликты времени, посещаемость и уведомления не входят в текущую модель.
 
+Backend contract уточнен в `TASK-034`:
+- Продолжительность занятия хранится и передается в поле `durationMinutes`.
+- Допустимая продолжительность: целое число больше 0 и не более 180 минут.
+- Дни недели передаются в поле `weekdays`.
+- `weekdays` - ISO `number[]` 1..7, где `1 = Monday`, `7 = Sunday`.
+- `weekdays` обязателен, минимум 1 день, без дублей, backend хранит и возвращает массив отсортированным.
+- `scheduleText` удаляется и заменяется на `weekdays`.
+- ProblemDetails validation fields: `durationMinutes`, `weekdays`.
+
 ## User role
 администратор / тренер / владелец
 
@@ -24,8 +33,9 @@ Frontend показывает расписание групповых занят
 
 ## Scope
 - Обновить frontend API types после `TASK-034`.
-- Добавить или обновить поле продолжительности занятия в форме создания/редактирования группы.
-- Убедиться, что в форме группы доступны тип группы, филиал, зал, время начала, продолжительность и график занятий.
+- Добавить или обновить поле `durationMinutes` в форме создания/редактирования группы.
+- Добавить структурированный выбор `weekdays` в форме создания/редактирования группы.
+- Убедиться, что в форме группы доступны тип группы, филиал, зал, время начала, продолжительность и дни недели.
 - Отображать расписание групповых занятий на основе backend group schedule data.
 - Для тренера показывать расписание только по группам, доступным через backend access scope.
 - Для администратора/владельца показывать расписание по доступным группам с филиалом, залом, типом группы, тренерами, временем начала и продолжительностью.
@@ -46,9 +56,11 @@ Frontend показывает расписание групповых занят
 - Если backend contract changes affect bot or attendance consumers, create/update a separate consumer task instead of hiding the coupling in frontend work.
 
 ## Acceptance criteria
-- [ ] Форма группы позволяет заполнить продолжительность занятия.
+- [ ] Форма группы позволяет заполнить `durationMinutes`.
+- [ ] Форма группы не отправляет `scheduleText` или frontend-only свободный текст как источник дней недели.
+- [ ] Форма группы позволяет выбрать `weekdays`.
 - [ ] Форма группы отправляет backend все обязательные schedule-поля.
-- [ ] Ошибки backend validation по schedule-полям отображаются в форме.
+- [ ] Ошибки backend validation по `durationMinutes` и `weekdays` отображаются в форме.
 - [ ] Расписание групповых занятий строится из backend group schedule data, а не из frontend-only правил.
 - [ ] В расписании видны группа, тип группы, филиал, зал, тренер(ы), время начала и продолжительность.
 - [ ] UI не предлагает переносы, отмены, замены тренера или conflict resolution.
@@ -70,8 +82,12 @@ Frontend показывает расписание групповых занят
 
 ## Source notes
 - Derived from: `backlog/done/TASK-028-schedule-product-model.md`
-- Depends on: `backlog/risky/TASK-034-group-schedule-backend-model.md`
+- Depends on: `backlog/tasks-ready/TASK-034-group-schedule-backend-model.md`
+- User clarification 2026-05-13 for backend contract: duration in minutes, range 1-180, structured weekdays, fresh deployment.
+- User clarification 2026-05-13 for backend contract: field names are `durationMinutes` and `weekdays`; `weekdays` is ISO `number[]` 1..7, required, deduplicated and sorted by backend; `scheduleText` is removed.
 
 ## Processing notes
 - Created at: 2026-05-13
 - Created after TASK-028 clarification was completed.
+- Updated at: 2026-05-13 after TASK-034 duration and structured weekdays clarification.
+- Updated at: 2026-05-13 after final TASK-034 contract field-name clarification.
