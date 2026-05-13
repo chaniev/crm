@@ -25,81 +25,114 @@ Backend хранит возвраты по абонементам и дает о
 Финансовый отчет требует суммы и даты возврата, но backend пока не хранит возвраты как отдельные финансовые события. Без явной семантики sale/refund будущий отчет может неверно посчитать продажи, возвраты и чистую сумму.
 
 ## Planned approach
-- Не уменьшать `ClientMembership.PaymentAmount` при возврате. Это валовая сумма продажи и часть состояния абонемента.
+- Ввести отдельную стабильную сущность финансовой продажи, например `ClientMembershipSale`.
+- Минимальные поля продажи: `Id`, `ClientId`, `MembershipType`, `PurchaseDate`, `GrossAmount`, `CreatedByUserId`, `CreatedAt`.
+- `ClientMembership` должен получить ссылку на продажу, например `SaleId`.
+- `ClientMembership.PaymentAmount` не уменьшается при возврате. Финансовым источником валовой суммы для отчетов становится `ClientMembershipSale.GrossAmount`.
 - Хранить возвраты отдельными финансовыми событиями, например `ClientMembershipRefund`.
-- Минимальные поля возврата: `Id`, `ClientMembershipId`, `ClientId`, `Amount`, `RefundDate`, `CreatedByUserId`, `CreatedAt`.
+- Минимальные поля возврата: `Id`, `SaleId`, `ClientId`, `Amount`, `RefundDate`, `CreatedByUserId`, `CreatedAt`, `CanceledAt`, `CanceledByUserId`, `CancelReason`.
 - Опциональное поле возврата: `Comment`, если нужно фиксировать причину или примечание администратора.
+- Отмена возврата помечает refund как canceled, не удаляет запись из базы и обязательно аудируется.
 - Для отображения информации об абонементе отдавать или уметь строить backend-derived сводку:
-  - `PaymentAmount` - исходная валовая сумма продажи;
-  - `RefundedAmount` - сумма всех возвратов по продаже;
-  - `NetAmount` - `PaymentAmount - RefundedAmount`;
+  - `GrossAmount`/`PaymentAmount` - исходная валовая сумма продажи из `ClientMembershipSale`;
+  - `RefundedAmount` - сумма всех неотмененных возвратов по продаже;
+  - `NetAmount` - `GrossAmount - RefundedAmount`;
   - `RefundStatus` - `None`, `Partial`, `Full`;
   - `LastRefundDate`;
   - `Refunds[]` для details/history view, если потребителю нужен список возвратов.
 - Возврат сам по себе не меняет `IsPaid`, `ValidTo`, `PaymentAmount`, `SingleVisitUsed` или текущий статус доступа. Если полный возврат должен отменять доступ, это отдельное бизнес-решение вне этой задачи.
-- Зафиксировать stable sale identity или backend reporting projection:
-  - `NewPurchase` и `Renewal` создают отдельные продажи;
-  - `Correction`, `PaymentUpdate`, `SingleVisitWriteOff` являются техническими версиями существующей продажи и не создают новую продажу для отчетов.
-- По умолчанию поддержать несколько частичных возвратов по одному абонементу, но суммарный `RefundedAmount` не должен превышать `PaymentAmount`.
+- `NewPurchase` и `Renewal` создают новую `ClientMembershipSale` и новую текущую версию `ClientMembership` с этим `SaleId`.
+- `Correction`, `PaymentUpdate`, `SingleVisitWriteOff` создают технические версии `ClientMembership` с тем же `SaleId` и не создают новую продажу.
+- `Correction` обновляет `ClientMembershipSale.PurchaseDate` и/или `ClientMembershipSale.GrossAmount`, если исправляет дату покупки или сумму продажи. Такое изменение обязательно аудируется с old/new состоянием финансовой продажи.
+- По умолчанию поддержать несколько частичных возвратов по одной продаже, но суммарный `RefundedAmount` не должен превышать `ClientMembershipSale.GrossAmount`.
+- Для существующей истории не нужен legacy backfill: rollout выполняется только на чистую базу. Схема должна создаваться сразу с `ClientMembershipSale`, обязательным `SaleId` у `ClientMembership` и воспроизводимыми seed/test fixtures.
 
 ## Scope
+- Добавить backend-модель `ClientMembershipSale` или эквивалентный backend-owned financial sale contract.
+- Добавить связь `ClientMembership -> ClientMembershipSale`, например через `SaleId`.
 - Добавить backend-модель или эквивалентный backend-owned contract для возврата абонемента.
-- Зафиксировать обязательные поля возврата: абонемент, клиент, сумма возврата, дата возврата, пользователь, дата создания.
-- Не мутировать валовую сумму продажи `ClientMembership.PaymentAmount` при регистрации возврата.
+- Зафиксировать обязательные поля возврата: продажа, клиент, сумма возврата, дата возврата, пользователь, дата создания.
+- Не мутировать `ClientMembershipSale.GrossAmount` или `ClientMembership.PaymentAmount` при регистрации возврата.
 - Добавить backend-derived финансовую сводку абонемента: исходная сумма, сумма возвратов, чистая сумма, статус возврата, последняя дата возврата.
 - Добавить список возвратов в details/history contract или отдельный backend contract, если это безопаснее для текущих API.
 - Добавить backend API или use case для регистрации возврата.
+- Добавить backend API или use case для отмены возврата.
 - Валидировать сумму возврата и дату возврата через backend.
 - Валидировать накопленную сумму возвратов: несколько частичных возвратов разрешены, но суммарный возврат не может превышать валовую сумму продажи.
+- Валидировать дату возврата: она не может быть в будущем, раньше `ClientMembershipSale.PurchaseDate` или раньше даты создания продажи.
+- Исключать отмененные возвраты из `RefundedAmount`, `RefundStatus`, `LastRefundDate` и будущих финансовых отчетов.
 - Зафиксировать, какие записи истории абонементов считаются продажей для отчетов.
-- Добавить stable sale identity или явную backend reporting projection, чтобы технические версии связывались с исходной продажей.
+- Создавать новую финансовую продажу для `NewPurchase` и `Renewal`.
+- Сохранять тот же `SaleId` для технических версий `Correction`, `PaymentUpdate`, `SingleVisitWriteOff`.
+- При `Correction` обновлять финансовую продажу, если исправлены `PurchaseDate` или `PaymentAmount`/`GrossAmount`.
 - Исключить из продаж технические изменения: correction/payment update/single-visit write-off.
 - Гарантировать, что нулевой абонемент считается продажей с суммой `0`.
 - Обновить audit semantics для создания возврата.
+- Обновить audit semantics для отмены возврата.
+- Обновить audit semantics для изменения финансовой продажи через `Correction`.
 - Обновить ProblemDetails для ошибок возврата.
-- Подготовить persistence migration/schema update, если выбранная модель требует новую таблицу или поля.
+- Подготовить persistence migration/schema update для чистой базы; поддержка частично заполненной legacy-базы и backfill существующих строк не требуются.
 
 ## Out of scope
 - Агрегированный API финансовых отчетов.
 - Frontend вкладка `Финансы`.
+- Legacy/backfill миграция для частично заполненной базы.
 - Учет отмен и заморозок.
 - Интеграция с внешними платежными провайдерами.
 - Полная финансовая сверка или бухгалтерский учет.
 
 ## Constraints
 - Backend владеет financial report semantics, validation semantics и audit semantics.
-- `ClientMembership.PaymentAmount` остается валовой суммой продажи и не уменьшается возвратами.
+- `ClientMembershipSale.GrossAmount` является источником валовой суммы продажи для финансовых отчетов.
+- `ClientMembership.PaymentAmount` не уменьшается возвратами.
 - Возврат считается по дате возврата, не по дате покупки.
+- Дата возврата не может быть в будущем, раньше `ClientMembershipSale.PurchaseDate` или раньше даты создания продажи.
 - Возврат не должен уменьшать валовую сумму продаж; он влияет только на сумму возвратов и чистую сумму.
 - Возврат не должен автоматически закрывать абонемент, менять оплату, дату действия или использоваться как отмена.
 - Суммарный возврат по продаже не должен превышать валовую сумму продажи, включая сценарий нескольких частичных возвратов.
+- Отмененный возврат не учитывается в сумме возвратов и чистой сумме, но остается в истории и аудите.
+- Возврат нельзя отменить повторно.
+- `Correction` не создает новую продажу, но может исправить `ClientMembershipSale.PurchaseDate` и/или `ClientMembershipSale.GrossAmount`.
+- Любое изменение финансовой продажи через `Correction` должно аудироваться.
+- Развертывание выполняется только на чистую базу; `SaleId` можно делать обязательным сразу, без nullable-stage и legacy backfill.
 - Нельзя дублировать финансовые формулы во frontend.
 - Не ломать существующие membership flows: покупка, продление, корректировка, подтверждение оплаты, списание разового посещения.
 
 ## Acceptance criteria
+- [ ] В backend есть стабильная финансовая сущность/contract продажи абонемента, например `ClientMembershipSale`.
+- [ ] `ClientMembership` версии связаны с финансовой продажей через `SaleId` или эквивалентный backend-owned identity.
 - [ ] В backend есть явная модель или contract для возврата с суммой и датой возврата.
 - [ ] Возврат хранится отдельно от `ClientMembership.PaymentAmount`; валовая сумма продажи не мутируется при возврате.
-- [ ] Backend поддерживает несколько частичных возвратов по одному абонементу и отклоняет превышение `PaymentAmount` суммарными возвратами.
+- [ ] Возврат ссылается на финансовую продажу, а не на случайную техническую версию `ClientMembership`.
+- [ ] Backend позволяет отменить возврат без удаления записи и аудирует отмену.
+- [ ] Backend поддерживает несколько частичных возвратов по одной продаже и отклоняет превышение `ClientMembershipSale.GrossAmount` суммарными возвратами.
 - [ ] Backend валидирует сумму возврата и дату возврата.
-- [ ] В backend есть derived-сводка по абонементу: исходная сумма, сумма возвратов, чистая сумма, статус возврата и последняя дата возврата.
+- [ ] Backend отклоняет дату возврата в будущем, раньше даты покупки или раньше даты создания продажи.
+- [ ] В backend есть derived-сводка по абонементу: исходная сумма, сумма неотмененных возвратов, чистая сумма, статус возврата и последняя дата неотмененного возврата.
 - [ ] Возврат аудируется.
-- [ ] Sale semantics документированы в коде или тестах: продажа считается по purchase date, `NewPurchase` и `Renewal` создают продажи, технические версии не дают двойной учет.
-- [ ] Есть stable sale identity или явная backend reporting projection, связывающая технические версии с исходной продажей.
+- [ ] Отмененный возврат не учитывается в derived-сводке и будущих отчетах.
+- [ ] Sale semantics документированы в коде или тестах: продажа считается по `ClientMembershipSale.PurchaseDate`, `NewPurchase` и `Renewal` создают продажи, технические версии не дают двойной учет.
+- [ ] `Correction` сохраняет `SaleId` и обновляет `ClientMembershipSale.PurchaseDate`/`GrossAmount`, если исправляет дату или сумму покупки.
+- [ ] Изменение финансовой продажи через `Correction` аудируется с old/new состоянием.
 - [ ] Нулевой абонемент учитывается как продажа с суммой `0`.
 - [ ] Backend tests покрывают возвраты, нулевые абонементы и отсутствие двойного учета history rows.
-- [ ] Migration/schema update воспроизводимы на чистой базе, если схема меняется.
+- [ ] Migration/schema update воспроизводимы на чистой базе, без требований к legacy backfill частично заполненных баз.
 
 ## Test checklist
 - [ ] Запустить `dotnet test backend/GymCrm.slnx`.
 - [ ] Проверить регистрацию возврата с валидной суммой и датой.
-- [ ] Проверить отклонение отрицательной суммы и некорректной даты.
-- [ ] Проверить несколько частичных возвратов по одному абонементу.
-- [ ] Проверить отклонение возврата, если суммарная сумма возвратов превысит `PaymentAmount`.
+- [ ] Проверить отклонение отрицательной суммы, будущей даты возврата, даты раньше покупки и даты раньше создания продажи.
+- [ ] Проверить несколько частичных возвратов по одной финансовой продаже.
+- [ ] Проверить отклонение возврата, если суммарная сумма возвратов превысит `ClientMembershipSale.GrossAmount`.
+- [ ] Проверить отмену возврата, запрет повторной отмены и audit entry для отмены.
+- [ ] Проверить, что отмененный возврат не входит в `RefundedAmount`, `RefundStatus`, `LastRefundDate` и future report totals.
 - [ ] Проверить, что возврат не меняет `PaymentAmount`, `IsPaid`, `ValidTo` и current membership state.
 - [ ] Проверить derived-сводку: `RefundedAmount`, `NetAmount`, `RefundStatus`, `LastRefundDate`.
-- [ ] Проверить, что correction/payment update/single-visit write-off не создают дополнительные продажи для будущих отчетов.
+- [ ] Проверить, что `NewPurchase` и `Renewal` создают новые финансовые продажи.
+- [ ] Проверить, что correction/payment update/single-visit write-off сохраняют тот же `SaleId` и не создают дополнительные продажи для будущих отчетов.
+- [ ] Проверить, что correction даты/суммы покупки обновляет `ClientMembershipSale.PurchaseDate`/`GrossAmount` и аудируется.
 - [ ] Проверить audit entry для возврата.
-- [ ] Проверить чистую миграцию/schema setup, если добавлена новая таблица.
+- [ ] Проверить чистую миграцию/schema setup: `ClientMembershipSale`, required `SaleId`, refund cancellation fields, FK/indexes и seed/test fixtures.
 
 ## AI safety
 - Safe for Codex: no
@@ -107,7 +140,7 @@ Backend хранит возвраты по абонементам и дает о
 - Reason: задача меняет финансовую семантику, persistence и audit behavior.
 
 ## Clarification questions
-Не требуется перед планированием. Перед реализацией остановиться, если полный возврат должен автоматически отменять доступ, если нужно разрешить возврат больше суммы продажи, или если требуется исторический snapshot филиала/тренера на момент покупки.
+Не требуется перед планированием. Перед реализацией остановиться, если полный возврат должен автоматически отменять доступ, если нужно разрешить возврат больше суммы продажи, если отмена возврата должна физически удалять запись вместо cancel-state, если `Correction` не должна менять финансовую продажу, или если требуется исторический snapshot филиала/тренера на момент покупки.
 
 ## Source notes
 - Derived from: `backlog/done/TASK-026-statistics-and-financial-reports.md`
@@ -116,3 +149,5 @@ Backend хранит возвраты по абонементам и дает о
 ## Processing notes
 - Created at: 2026-05-13 20:54
 - Created by decomposing `TASK-026`.
+- Updated at: 2026-05-13 to choose explicit `ClientMembershipSale` identity and correction-updates-sale semantics.
+- Updated at: 2026-05-13 to clarify clean-database rollout, refund date validation and refund cancellation semantics.

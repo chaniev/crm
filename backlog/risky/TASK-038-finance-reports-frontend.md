@@ -10,8 +10,10 @@ risky
 Задача создана после закрытия уточнений в `TASK-026` и должна выполняться после backend report API из `TASK-037`.
 
 `TASK-036` и `TASK-037` фиксируют, что frontend не владеет sale/refund semantics:
-- `PaymentAmount` остается валовой суммой продажи и не уменьшается возвратами;
+- валовая сумма продажи хранится backend-ом в stable sale contract, например `ClientMembershipSale.GrossAmount`;
+- `ClientMembership.PaymentAmount` не уменьшается возвратами, но frontend не использует его как источник финансовых агрегатов;
 - возвраты приходят в report API как backend totals/breakdowns, рассчитанные по отдельным refund events;
+- отмененные возвраты исключаются backend-ом из financial report totals;
 - валовая сумма продаж, сумма возвратов и чистая сумма считаются backend-ом;
 - технические версии абонемента не должны отражаться в UI как дополнительные продажи.
 
@@ -43,6 +45,7 @@ risky
 - Отобразить gross sales, refund total и net total из backend response.
 - Отображать backend breakdowns без пересчета строк и без повторного применения sale/refund formulas во frontend.
 - Использовать backend labels/contract для refund-related totals; не выводить refund total из списка абонементов или локальной истории.
+- Не фильтровать отмененные возвраты локально; UI отображает уже рассчитанные backend totals.
 - Не трактовать полный возврат как удаление продажи из UI, если backend response оставляет продажу в gross sales/sold count.
 - Добавить empty/loading/error states.
 - Показать backend ProblemDetails для некорректных фильтров.
@@ -53,6 +56,7 @@ risky
 - Backend report formulas.
 - Backend permissions.
 - Реализация возвратов, membership sale semantics и sale identity.
+- UI для регистрации или отмены возврата, если это не входит в backend report contract первого релиза.
 - Локальная сборка refund total из абонементов, refund details или membership history.
 - Локальный пересчет gross/refund/net totals.
 - Bot consumer.
@@ -61,7 +65,8 @@ risky
 ## Constraints
 - Frontend должен потреблять backend totals и breakdowns как source of truth.
 - Нельзя дублировать финансовые формулы во frontend.
-- Нельзя читать `ClientMembership.PaymentAmount`, membership history или refund details и самостоятельно строить финансовые агрегаты.
+- Нельзя читать `ClientMembershipSale.GrossAmount`, `ClientMembership.PaymentAmount`, membership history или refund details и самостоятельно строить финансовые агрегаты.
+- Нельзя локально исключать/добавлять отмененные возвраты в финансовые суммы; это делает backend.
 - Нельзя исключать полностью возвращенные продажи из количества/валовой суммы на стороне frontend; UI отображает backend response.
 - Нельзя интерпретировать технические версии абонемента как отдельные продажи во frontend.
 - Нельзя самостоятельно выводить право доступа к финансовым данным вне backend session/access contract.
@@ -82,7 +87,8 @@ risky
 - [ ] Экран показывает количество проданных абонементов и новых клиентов.
 - [ ] Экран показывает валовую сумму продаж, сумму возвратов и чистую сумму.
 - [ ] Frontend не пересчитывает финансовые формулы, а отображает backend response.
-- [ ] Frontend не строит финансовые агрегаты из membership history, `PaymentAmount` или refund details.
+- [ ] Frontend не строит финансовые агрегаты из sale contract, membership history, `PaymentAmount` или refund details.
+- [ ] Отмененные возвраты отражаются только через backend totals; frontend не фильтрует их самостоятельно.
 - [ ] Полностью или частично возвращенные продажи отображаются согласно backend totals без frontend-исключений.
 - [ ] Empty/loading/error states выглядят корректно на desktop и mobile.
 - [ ] Lint/build проходят.
@@ -95,6 +101,7 @@ risky
 - [ ] Проверить отсутствие доступа для ролей без financial permission.
 - [ ] Проверить empty state на пустом отчете.
 - [ ] Проверить отображение отчета с продажей, частичным возвратом и полным возвратом по данным backend/mock API.
+- [ ] Проверить отображение отчета после отмены возврата по данным backend/mock API.
 - [ ] Проверить, что frontend не пересчитывает `net total` при изменении mock payload, а отображает значение из response.
 - [ ] Проверить отображение backend ProblemDetails для невалидных фильтров.
 - [ ] Проверить mobile/narrow-screen layout.
@@ -116,3 +123,4 @@ risky
 - Created at: 2026-05-13 20:54
 - Created by decomposing `TASK-026`.
 - Updated at: 2026-05-13 to align frontend consumer requirements with `TASK-036`/`TASK-037` sale and refund semantics.
+- Updated at: 2026-05-13 to treat refund cancellation as backend-owned report semantics.
