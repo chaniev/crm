@@ -17,6 +17,7 @@ risky
 - валовая сумма продаж, сумма возвратов и чистая сумма считаются backend-ом;
 - технические версии абонемента не должны отражаться в UI как дополнительные продажи.
 - филиал, группа и тренер для отчета определяются backend-ом по историческим периодам привязок на дату финансового события;
+- backend гарантирует, что у клиента есть минимум одна активная группа, поэтому report UI не должен создавать локальную категорию `Без группы`;
 - если клиент или тренер привязаны к нескольким группам, backend может вернуть duplicated group/trainer breakdown rows, и их сумма может отличаться от canonical totals.
 - UI должен объяснять, что строки по группам/тренерам могут дублировать одно финансовое событие и поэтому их сумма может быть больше общего итога.
 
@@ -76,6 +77,7 @@ risky
 - Нельзя интерпретировать технические версии абонемента как отдельные продажи во frontend.
 - Нельзя дедуплицировать group/trainer breakdown rows или требовать, чтобы сумма breakdown rows равнялась canonical totals.
 - Нельзя локально определять филиал/тренера по текущему состоянию клиента, группы или тренера.
+- Нельзя локально добавлять категорию `Без группы`; отсутствие group attribution является backend/data issue, а не frontend fallback.
 - Пояснение про duplicated breakdown rows должно быть видимым или доступным рядом с соответствующим breakdown, без изменения backend totals.
 - Нельзя самостоятельно выводить право доступа к финансовым данным вне backend session/access contract.
 - Preserve Mantine and Onest.
@@ -139,3 +141,4 @@ risky
 - Updated at: 2026-05-13 to treat refund cancellation as backend-owned report semantics.
 - Updated at: 2026-05-13 to display backend historical attribution and duplicated multi-group breakdown rows without frontend deduplication.
 - Updated at: 2026-05-13 to require UI explanation for duplicated group/trainer breakdown sums exceeding canonical totals.
+- Updated at: 2026-05-13 to treat client group attribution as mandatory backend data, without frontend `No group` fallback.
