@@ -106,6 +106,6 @@ done
 - Duplicate check: ответы закрывают оставшиеся вопросы TASK-028; implementation tasks созданы следующим шагом.
 - Clarification completed and moved to done at: 2026-05-13.
 - Created implementation tasks:
-  - `backlog/risky/TASK-034-group-schedule-backend-model.md`
-  - `backlog/risky/TASK-035-group-schedule-frontend-experience.md`
+  - `backlog/done/TASK-034-group-schedule-backend-model.md`
+  - `backlog/done/TASK-035-group-schedule-frontend-experience.md`
 - Bot follow-up не создан: bot notifications и связь расписания с посещаемостью исключены из текущей модели.

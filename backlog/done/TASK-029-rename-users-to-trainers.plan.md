@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-029 Переименовать раздел `Пользователи` в `Тренеры`
 
 ## Source task
-/backlog/implementation/TASK-029-rename-users-to-trainers.md
+/backlog/done/TASK-029-rename-users-to-trainers.md
 
 ## Implementation branch
 feature/TASK-029-rename-users-to-trainers

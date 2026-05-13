@@ -1,12 +1,12 @@
 # TASK-034: Реализовать backend-модель графика групповых занятий
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-13 17:18
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-034-group-schedule-backend-model.plan.md
+- implementation_plan: /backlog/done/TASK-034-group-schedule-backend-model.plan.md
 - implementation_branch: feature/TASK-034-group-schedule-backend-model
 
 ## Goal
@@ -68,19 +68,19 @@ Backend хранит и валидирует график занятий гру�
 - Production data backfill не требуется: деплой будет с нуля; seed/test data нужно обновить явно.
 
 ## Acceptance criteria
-- [ ] Группу нельзя создать или обновить без `durationMinutes`.
-- [ ] `durationMinutes` хранится и возвращается как целое количество минут.
-- [ ] Backend валидирует `durationMinutes`: целое число, больше 0, не более 180.
-- [ ] Группу нельзя создать или обновить без `weekdays`.
-- [ ] Backend валидирует `weekdays`: массив, минимум 1 день, только ISO-значения `1..7`, без дублей.
-- [ ] Backend хранит и возвращает `weekdays` отсортированным.
-- [ ] `scheduleText` удален из backend source of truth и заменен на `weekdays`.
-- [ ] Group create/update/list/details responses возвращают `durationMinutes` и `weekdays`.
-- [ ] Backend валидирует тип группы, филиал, зал, время начала, `durationMinutes` и `weekdays`.
-- [ ] Backend не проверяет занятость зала и конфликты времени в рамках этой задачи.
-- [ ] Backend не создает переносы, отмены, замены тренера, attendance records или notifications.
-- [ ] Audit log отражает изменения графика занятий группы.
-- [ ] Обновлены backend tests.
+- [x] Группу нельзя создать или обновить без `durationMinutes`.
+- [x] `durationMinutes` хранится и возвращается как целое количество минут.
+- [x] Backend валидирует `durationMinutes`: целое число, больше 0, не более 180.
+- [x] Группу нельзя создать или обновить без `weekdays`.
+- [x] Backend валидирует `weekdays`: массив, минимум 1 день, только ISO-значения `1..7`, без дублей.
+- [x] Backend хранит и возвращает `weekdays` отсортированным.
+- [x] `scheduleText` удален из backend source of truth и заменен на `weekdays`.
+- [x] Group create/update/list/details responses возвращают `durationMinutes` и `weekdays`.
+- [x] Backend валидирует тип группы, филиал, зал, время начала, `durationMinutes` и `weekdays`.
+- [x] Backend не проверяет занятость зала и конфликты времени в рамках этой задачи.
+- [x] Backend не создает переносы, отмены, замены тренера, attendance records или notifications.
+- [x] Audit log отражает изменения графика занятий группы.
+- [x] Обновлены backend tests.
 
 ## Test checklist
 - [ ] Запустить backend tests.

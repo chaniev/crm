@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-035 Реализовать frontend-расписание групповых занятий
 
 ## Source task
-/backlog/implementation/TASK-035-group-schedule-frontend-experience.md
+/backlog/done/TASK-035-group-schedule-frontend-experience.md
 
 ## Implementation branch
 feature/TASK-035-group-schedule-frontend-experience
