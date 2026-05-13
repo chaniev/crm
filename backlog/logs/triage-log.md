@@ -111,7 +111,7 @@
 - /backlog/needs-clarification/TASK-030-crm-settings-section.md -> /backlog/tasks-ready/TASK-030-crm-settings-section.md
 
 ## Skipped duplicates
-- Separate TASK-034 and TASK-035 were not kept because group types and administrator management belong to TASK-030.
+- Separate group type and administrator settings tasks were not kept because they belong to TASK-030.
 - Branch/hall implementation stays in TASK-031, TASK-032 and TASK-033.
 - Rename `Пользователи` -> `Тренеры` stays in TASK-029.
 
@@ -148,3 +148,23 @@
 - moved to done: 6 tasks
 - moved plans to done: 5
 - validation: backlog/source audit only; runtime test commands were not re-run
+
+# 2026-05-13
+
+## Processed clarification
+- /backlog/done/TASK-028-schedule-product-model.md
+
+## Created tasks
+- /backlog/risky/TASK-034-group-schedule-backend-model.md
+- /backlog/risky/TASK-035-group-schedule-frontend-experience.md
+
+## Moved tasks
+- /backlog/needs-clarification/TASK-028-schedule-product-model.md -> /backlog/done/TASK-028-schedule-product-model.md
+
+## Skipped duplicates
+- Bot task not created: bot notifications and attendance linkage are out of scope for the clarified schedule model.
+
+## Summary
+- risky: 2
+- done: 1
+- validation: backlog/source audit only; runtime test commands were not run
