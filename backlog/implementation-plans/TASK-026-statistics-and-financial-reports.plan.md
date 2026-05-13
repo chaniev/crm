@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-026 Уточнить статистику и финансовые отчеты
 
 ## Source task
-/backlog/tasks-ready/TASK-026-statistics-and-financial-reports.md
+/backlog/done/TASK-026-statistics-and-financial-reports.md
 
 ## Implementation branch
 feature/TASK-026-statistics-and-financial-reports
@@ -53,7 +53,7 @@ TASK-026 уже содержит закрытые уточнения по отч
 - `TASK-0XZ-finance-reports-frontend.md`: добавить секцию `Финансы`, route/navigation, filters, empty states, totals and breakdown UI, typed API consumer, UI/e2e regression.
 
 ## Files likely to change
-- backlog/tasks-ready/TASK-026-statistics-and-financial-reports.md
+- backlog/done/TASK-026-statistics-and-financial-reports.md
 - backlog/risky/TASK-0XX-membership-refunds-and-sale-semantics.md
 - backlog/risky/TASK-0XY-statistics-financial-reports-backend-api.md
 - backlog/risky/TASK-0XZ-finance-reports-frontend.md
@@ -170,7 +170,14 @@ For future product-code work, the main regression barrier is backend integration
 
 Do not stop planning only because backend and frontend are both involved. The correct response is phased decomposition with backend-owned contracts first.
 
+## Decomposition result
+- `backlog/risky/TASK-036-membership-refunds-sale-semantics.md`
+- `backlog/risky/TASK-037-financial-reports-backend-api.md`
+- `backlog/risky/TASK-038-finance-reports-frontend.md`
+
+`TASK-026` is closed and moved to `backlog/done`.
+
 ## Ready for Codex execution
-yes, for backlog-only decomposition into separate implementation tasks.
+completed for backlog-only decomposition into separate implementation tasks.
 
 no, for direct product-code implementation of reports from TASK-026.

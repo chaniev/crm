@@ -150,3 +150,30 @@
 - skipped: 1
 - plans created: 1
 - note: direct product-code execution is intentionally blocked until TASK-026 creates smaller backend/frontend implementation tasks with automated regression barriers.
+
+# 2026-05-13 20:54
+
+## Moved to implementation
+- none
+
+## Created implementation tasks
+- /backlog/risky/TASK-036-membership-refunds-sale-semantics.md
+- /backlog/risky/TASK-037-financial-reports-backend-api.md
+- /backlog/risky/TASK-038-finance-reports-frontend.md
+
+## Closed tasks
+- /backlog/done/TASK-026-statistics-and-financial-reports.md
+
+## Created implementation plans
+- none
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 0
+- skipped: 0
+- plans created: 0
+- tasks created: 3
+- tasks closed: 1
+- note: TASK-026 was decomposed into three risky implementation tasks; direct product-code implementation remains delegated to those smaller tasks.
