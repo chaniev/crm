@@ -20,9 +20,11 @@ risky
 - `NewPurchase` и `Renewal` создают продажи;
 - `Correction`, `PaymentUpdate`, `SingleVisitWriteOff` являются техническими версиями и не создают новые продажи;
 - `Correction` обновляет `ClientMembershipSale.PurchaseDate` и/или `ClientMembershipSale.GrossAmount`, если исправляет дату покупки или сумму продажи, и такое изменение аудируется.
+- `Correction` не может уменьшить `ClientMembershipSale.GrossAmount` ниже суммы неотмененных возвратов по продаже.
 - клиентская атрибуция к филиалу хранится периодами, клиент может быть только в одном филиале на одну дату;
 - клиентская атрибуция к группам и тренерская атрибуция к группам хранятся периодами;
 - period-модели используют `DateOnly` для границ периодов;
+- period matching использует half-open правило `ValidFrom <= date && (ValidTo == null || date < ValidTo)`;
 - перевод клиента в другой филиал автоматически закрывает предыдущий период филиала;
 - группа не может менять филиал после создания;
 - клиент и тренер могут быть привязаны к нескольким группам одновременно, и report breakdowns должны дублировать финансовое событие для каждой подходящей групповой связи.
@@ -65,6 +67,7 @@ Frontend не должен считать финансовые формулы л
   - продажа, sold membership count, gross sales и new clients count атрибутируются по `ClientMembershipSale.PurchaseDate`;
   - refund total атрибутируется по `ClientMembershipRefund.RefundDate`.
 - Attribution date является `DateOnly`, как и `ValidFrom`/`ValidTo` period-моделей.
+- Проверять попадание attribution date в период по правилу `ValidFrom <= date && (ValidTo == null || date < ValidTo)`.
 - Считать филиал через периодную привязку клиента к филиалу на attribution date.
 - Считать группу через периодную привязку клиента к группе на attribution date.
 - Считать тренера через пересечение периодной привязки клиента к группе и периодной привязки тренера к той же группе на attribution date.
@@ -95,6 +98,7 @@ Frontend не должен считать финансовые формулы л
 - Возвраты не уменьшают gross sales; они попадают только в refund total и net total.
 - Отмененные возвраты не попадают в refund total, net total и breakdowns.
 - Полный возврат не должен исключать исходную продажу из sold membership count или gross sales.
+- Report API может полагаться на инвариант `ClientMembershipSale.GrossAmount >= сумма неотмененных возвратов по продаже` после correction.
 - Report API рассчитан на чистую схему из `TASK-036`; fallback для частично заполненных legacy-данных не требуется.
 - Не добавлять прямую связь тренера с филиалом.
 - Не использовать текущее состояние клиента, группы или тренера для исторической атрибуции финансовых событий.
@@ -118,6 +122,7 @@ Frontend не должен считать финансовые формулы л
 - [ ] API поддерживает branch attribution через периодную привязку клиента к филиалу на дату финансового события.
 - [ ] API поддерживает trainer attribution через пересечение периодов client-group и group-trainer на дату финансового события.
 - [ ] Attribution использует `DateOnly` boundaries из period-моделей.
+- [ ] Attribution использует half-open `ValidTo`: `ValidFrom <= date && (ValidTo == null || date < ValidTo)`.
 - [ ] Report API не требует истории филиала группы, потому что группа не меняет филиал.
 - [ ] API возвращает sold membership count, new client count, gross sales, refund total и net total.
 - [ ] Продажи считаются по `ClientMembershipSale.PurchaseDate` или эквивалентному stable sale contract из `TASK-036`.
@@ -141,7 +146,7 @@ Frontend не должен считать финансовые формулы л
 - [ ] Проверить месяц/квартал/год и произвольный период.
 - [ ] Проверить branch filter для одного филиала и всех филиалов через client-branch periods.
 - [ ] Проверить, что смена филиала клиента влияет на отчеты только с даты новой периодной привязки.
-- [ ] Проверить DateOnly-граничные даты period attribution.
+- [ ] Проверить DateOnly-граничные даты period attribution, включая день `ValidFrom`, день перед `ValidTo` и сам день `ValidTo`.
 - [ ] Проверить trainer filter через пересечение client-group и group-trainer periods.
 - [ ] Проверить группы с одним и несколькими тренерами.
 - [ ] Проверить клиента в нескольких группах и тренера в нескольких группах: breakdown rows дублируют событие.
@@ -151,6 +156,7 @@ Frontend не должен считать финансовые формулы л
 - [ ] Проверить несколько частичных возвратов по одной продаже.
 - [ ] Проверить, что отмененный возврат не влияет на refund total, net total и breakdowns.
 - [ ] Проверить, что correction даты/суммы покупки меняет период/gross sales отчета через обновленную финансовую продажу.
+- [ ] Проверить отчет после допустимой correction, где `GrossAmount` остается не ниже суммы неотмененных возвратов.
 - [ ] Проверить возврат в периоде, когда исходная продажа была вне выбранного периода.
 - [ ] Проверить, что correction/payment update/single-visit write-off не завышают sold membership count и gross sales.
 - [ ] Проверить new clients count по первой покупке.
@@ -180,3 +186,5 @@ Frontend не должен считать финансовые формулы л
 - Updated at: 2026-05-13 to exclude canceled refunds from reports and assume clean-database rollout from `TASK-036`.
 - Updated at: 2026-05-13 to use historical client-branch, client-group and group-trainer periods and duplicated multi-group breakdown semantics.
 - Updated at: 2026-05-13 to align reporting with `DateOnly` attribution periods, immutable group branch and strict client branch non-overlap.
+- Updated at: 2026-05-13 to rely on correction gross amount not falling below non-canceled refunds.
+- Updated at: 2026-05-13 to use half-open period matching for report attribution.

@@ -49,6 +49,7 @@ Backend хранит возвраты по абонементам и дает о
 - Расширить модель исторической атрибуции для будущих отчетов:
   - хранить периоды привязки клиента к филиалу, например `ClientBranchAssignment` с `ClientId`, `BranchId`, `ValidFrom`, `ValidTo`, `CreatedByUserId`, `CreatedAt`;
   - `ValidFrom` и `ValidTo` для period-моделей используют `DateOnly`;
+  - period membership проверяется как `ValidFrom <= date && (ValidTo == null || date < ValidTo)`, то есть `ValidFrom` включительно, `ValidTo` исключительно;
   - клиент может быть привязан только к одному филиалу в один момент времени, поэтому периоды филиалов клиента не должны пересекаться;
   - при переводе клиента в другой филиал backend автоматически закрывает предыдущий период филиала и открывает новый;
   - хранить периоды привязки клиента к группам, например `ClientGroupAssignment` с `ClientId`, `GroupId`, `ValidFrom`, `ValidTo`, `CreatedByUserId`, `CreatedAt`;
@@ -82,6 +83,7 @@ Backend хранит возвраты по абонементам и дает о
 - Обновить ProblemDetails для ошибок возврата.
 - Добавить или обновить persistence-модели периодной атрибуции для отчетов: период клиента в филиале, период клиента в группе, период тренера в группе.
 - Использовать `DateOnly` для `ValidFrom`/`ValidTo` в period-моделях.
+- Использовать half-open семантику периодов: `ValidFrom <= date && (ValidTo == null || date < ValidTo)`.
 - Жестко запретить пересечение периодов `ClientBranchAssignment` для одного клиента.
 - При переводе клиента между филиалами автоматически закрывать предыдущий `ClientBranchAssignment` и создавать новый.
 - Зафиксировать, что группа не может менять филиал после создания; периодная история филиала группы не нужна.
@@ -111,10 +113,13 @@ Backend хранит возвраты по абонементам и дает о
 - Аудит отмены возврата фиксирует пользователя и время отмены; причина отмены не требуется.
 - Возврат нельзя отменить повторно.
 - `Correction` не создает новую продажу, но может исправить `ClientMembershipSale.PurchaseDate` и/или `ClientMembershipSale.GrossAmount`.
+- `Correction` не может уменьшить `ClientMembershipSale.GrossAmount` ниже суммы неотмененных возвратов по продаже.
 - Любое изменение финансовой продажи через `Correction` должно аудироваться.
 - Развертывание выполняется только на чистую базу; `SaleId` можно делать обязательным сразу, без nullable-stage и legacy backfill.
 - Историческая атрибуция отчетов должна опираться на периодные связи, а не на текущее состояние клиента, группы или тренера.
 - `ValidFrom`/`ValidTo` периодных моделей являются `DateOnly`.
+- `ValidFrom` включается в период, `ValidTo` исключается из периода.
+- Дата считается попадающей в период только по правилу `ValidFrom <= date && (ValidTo == null || date < ValidTo)`.
 - Клиент не может иметь две активные или исторически пересекающиеся филиальные привязки на одну дату.
 - Перевод клиента в другой филиал закрывает предыдущий период автоматически.
 - Группа не может менять филиал после создания.
@@ -138,12 +143,14 @@ Backend хранит возвраты по абонементам и дает о
 - [ ] Отмененный возврат не учитывается в derived-сводке и будущих отчетах.
 - [ ] Sale semantics документированы в коде или тестах: продажа считается по `ClientMembershipSale.PurchaseDate`, `NewPurchase` и `Renewal` создают продажи, технические версии не дают двойной учет.
 - [ ] `Correction` сохраняет `SaleId` и обновляет `ClientMembershipSale.PurchaseDate`/`GrossAmount`, если исправляет дату или сумму покупки.
+- [ ] Backend отклоняет `Correction`, если новый `GrossAmount` меньше суммы неотмененных возвратов по продаже.
 - [ ] Изменение финансовой продажи через `Correction` аудируется с old/new состоянием.
 - [ ] Нулевой абонемент учитывается как продажа с суммой `0`.
 - [ ] В backend есть периодная модель привязки клиента к филиалу, и клиент не может быть в двух филиалах на одну дату.
 - [ ] В backend есть периодная модель привязки клиента к группам.
 - [ ] В backend есть периодная модель привязки тренера к группам.
 - [ ] Period-модели используют `DateOnly` для `ValidFrom` и `ValidTo`.
+- [ ] Period matching использует half-open правило `ValidFrom <= date && (ValidTo == null || date < ValidTo)`.
 - [ ] Пересечения `ClientBranchAssignment` для одного клиента жестко запрещены.
 - [ ] Перевод клиента в другой филиал автоматически закрывает предыдущий период филиала.
 - [ ] Группа не может менять филиал после создания.
@@ -165,8 +172,9 @@ Backend хранит возвраты по абонементам и дает о
 - [ ] Проверить, что `NewPurchase` и `Renewal` создают новые финансовые продажи.
 - [ ] Проверить, что correction/payment update/single-visit write-off сохраняют тот же `SaleId` и не создают дополнительные продажи для будущих отчетов.
 - [ ] Проверить, что correction даты/суммы покупки обновляет `ClientMembershipSale.PurchaseDate`/`GrossAmount` и аудируется.
+- [ ] Проверить отклонение correction, если новый `GrossAmount` ниже суммы неотмененных возвратов.
 - [ ] Проверить audit entry для возврата.
-- [ ] Проверить периодные связи: `DateOnly` periods, клиент-филиал без пересечений, автоматическое закрытие филиала при переводе, клиент-группа с несколькими группами, тренер-группа с несколькими группами.
+- [ ] Проверить периодные связи: `DateOnly` periods, half-open `ValidTo`, клиент-филиал без пересечений, автоматическое закрытие филиала при переводе, клиент-группа с несколькими группами, тренер-группа с несколькими группами.
 - [ ] Проверить, что группа не может сменить филиал.
 - [ ] Проверить чистую миграцию/schema setup: `ClientMembershipSale`, required `SaleId`, refund cancellation fields without cancel reason, attribution period tables, FK/indexes и seed/test fixtures.
 
@@ -189,3 +197,5 @@ Backend хранит возвраты по абонементам и дает о
 - Updated at: 2026-05-13 to clarify clean-database rollout, refund date validation and refund cancellation semantics.
 - Updated at: 2026-05-13 to add historical client branch, client group and trainer group attribution periods for reports.
 - Updated at: 2026-05-13 to use `DateOnly` attribution periods, strict client branch non-overlap, automatic branch period closing, immutable group branch and refund-cancel audit without reason.
+- Updated at: 2026-05-13 to reject correction that would reduce gross amount below non-canceled refunds.
+- Updated at: 2026-05-13 to define half-open period matching: `ValidFrom <= date && (ValidTo == null || date < ValidTo)`.
