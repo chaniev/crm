@@ -22,6 +22,7 @@ const CLIENT_DETAILS_ROUTE_PATTERN = /^\/clients\/([^/]+)$/
 
 export const APP_SECTION_LABELS: Record<AppSection, string> = {
   Home: 'Главная',
+  Schedule: 'Расписание',
   Attendance: 'Посещения',
   Clients: 'Клиенты',
   Groups: 'Группы',
@@ -32,6 +33,7 @@ export const APP_SECTION_LABELS: Record<AppSection, string> = {
 
 export const APP_SECTION_PATHS: Record<AppSection, string> = {
   Home: '/',
+  Schedule: '/schedule',
   Attendance: '/attendance',
   Clients: '/clients',
   Groups: '/groups',
@@ -42,6 +44,7 @@ export const APP_SECTION_PATHS: Record<AppSection, string> = {
 
 export const APP_NAVIGATION_SECTIONS: AppSection[] = [
   'Home',
+  'Schedule',
   'Attendance',
   'Clients',
   'Groups',
@@ -58,6 +61,10 @@ function isNavigationSectionAllowed(
   user: AuthenticatedUser,
   section: AppSection,
 ) {
+  if (section === 'Schedule') {
+    return true
+  }
+
   if (section === 'Users' && !user.permissions.canManageUsers) {
     return false
   }
@@ -219,6 +226,10 @@ export function resolveAccessibleRoutePath(
 
   if (!routeSection) {
     return fallbackPath
+  }
+
+  if (routeSection === 'Schedule') {
+    return getRoutePath(route)
   }
 
   if (isUsersRoute(route, routeSection) && !user.permissions.canManageUsers) {

@@ -1,5 +1,6 @@
 import {
   IconCalendarCheck,
+  IconCalendarWeek,
   IconClipboardList,
   IconHome,
   IconSettings,
@@ -23,6 +24,7 @@ type NavigationTabsProps = {
 
 const sectionIconMap: Record<AppSection, ReactNode> = {
   Home: <IconHome size={17} />,
+  Schedule: <IconCalendarWeek size={17} />,
   Attendance: <IconCalendarCheck size={17} />,
   Clients: <IconUsers size={17} />,
   Groups: <IconUsersGroup size={17} />,

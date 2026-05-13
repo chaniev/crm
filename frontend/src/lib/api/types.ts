@@ -1,5 +1,6 @@
 export type AppSection =
   | 'Home'
+  | 'Schedule'
   | 'Attendance'
   | 'Clients'
   | 'Groups'

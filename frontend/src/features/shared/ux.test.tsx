@@ -19,6 +19,7 @@ import {
 
 const sections: AppSection[] = [
   'Home',
+  'Schedule',
   'Attendance',
   'Clients',
   'Groups',
@@ -43,6 +44,7 @@ describe('shared UX components', () => {
       'aria-current',
       'page',
     )
+    expect(screen.getByRole('button', { name: 'Расписание' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Посещения' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Клиенты' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Группы' })).toBeVisible()

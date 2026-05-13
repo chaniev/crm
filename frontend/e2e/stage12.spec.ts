@@ -274,6 +274,10 @@ const SCREEN_HEADINGS = [
     heading: 'Истекающие абонементы',
   },
   {
+    path: '/schedule',
+    heading: 'Расписание',
+  },
+  {
     path: '/attendance',
     heading: 'Быстрая отметка посещений',
   },
@@ -1883,6 +1887,8 @@ function getNavLabelByPath(path: string) {
   switch (path) {
     case '/':
       return 'Главная'
+    case '/schedule':
+      return 'Расписание'
     case '/attendance':
       return 'Посещения'
     case '/clients':
