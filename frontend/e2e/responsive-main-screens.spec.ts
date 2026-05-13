@@ -222,10 +222,26 @@ const AUDIT_ENTRIES_RESPONSE = {
   totalCount: 1,
 } as const
 
+const USERS_RESPONSE = [
+  {
+    id: 'coach-id',
+    fullName: 'Тренер группы',
+    login: 'coach',
+    role: 'Coach',
+    messengerPlatform: 'Telegram',
+    messengerPlatformUserId: '123456789',
+    mustChangePassword: false,
+    isActive: true,
+    createdAt: '2026-05-01T10:00:00Z',
+    updatedAt: '2026-05-01T10:00:00Z',
+  },
+] as const
+
 const MANAGEMENT_ROUTES = [
   { path: '/', screenTestId: 'home-screen', navLabel: 'Главная' },
   { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты' },
   { path: '/groups', screenTestId: 'groups-screen', navLabel: 'Группы' },
+  { path: '/users', screenTestId: 'users-screen', navLabel: 'Тренеры' },
   { path: '/audit', screenTestId: 'audit-screen', navLabel: 'Журнал' },
   { path: '/settings', screenTestId: 'settings-screen', navLabel: 'Настройки' },
 ] as const
@@ -370,6 +386,11 @@ async function mockApi(
 
     if (pathname === '/api/groups' && method === 'GET') {
       await fulfillJson(route, 200, GROUPS_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/users' && method === 'GET') {
+      await fulfillJson(route, 200, USERS_RESPONSE)
       return
     }
 
