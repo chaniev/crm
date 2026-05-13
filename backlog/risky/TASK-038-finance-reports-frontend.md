@@ -18,6 +18,7 @@ risky
 - технические версии абонемента не должны отражаться в UI как дополнительные продажи.
 - филиал, группа и тренер для отчета определяются backend-ом по историческим периодам привязок на дату финансового события;
 - если клиент или тренер привязаны к нескольким группам, backend может вернуть duplicated group/trainer breakdown rows, и их сумма может отличаться от canonical totals.
+- UI должен объяснять, что строки по группам/тренерам могут дублировать одно финансовое событие и поэтому их сумма может быть больше общего итога.
 
 Первый релиз UI должен показать:
 - количество проданных абонементов;
@@ -47,6 +48,7 @@ risky
 - Отобразить gross sales, refund total и net total из backend response.
 - Отображать backend breakdowns без пересчета строк и без повторного применения sale/refund formulas во frontend.
 - Отображать duplicated group/trainer breakdown rows из backend response без дедупликации.
+- Добавить короткое пояснение рядом с group/trainer breakdowns: сумма строк может быть больше общего итога из-за дублирования событий по нескольким группам/тренерам.
 - Использовать backend labels/contract для refund-related totals; не выводить refund total из списка абонементов или локальной истории.
 - Не фильтровать отмененные возвраты локально; UI отображает уже рассчитанные backend totals.
 - Не трактовать полный возврат как удаление продажи из UI, если backend response оставляет продажу в gross sales/sold count.
@@ -74,6 +76,7 @@ risky
 - Нельзя интерпретировать технические версии абонемента как отдельные продажи во frontend.
 - Нельзя дедуплицировать group/trainer breakdown rows или требовать, чтобы сумма breakdown rows равнялась canonical totals.
 - Нельзя локально определять филиал/тренера по текущему состоянию клиента, группы или тренера.
+- Пояснение про duplicated breakdown rows должно быть видимым или доступным рядом с соответствующим breakdown, без изменения backend totals.
 - Нельзя самостоятельно выводить право доступа к финансовым данным вне backend session/access contract.
 - Preserve Mantine and Onest.
 - Значимое UX-изменение секции отчетов должно быть согласовано с `ui-designer` на этапе реализации.
@@ -90,6 +93,7 @@ risky
 - [ ] Экран позволяет выбрать все филиалы или конкретный филиал.
 - [ ] Экран отображает данные по тренерам согласно backend response.
 - [ ] Экран отображает duplicated group/trainer breakdown rows согласно backend response без frontend-дедупликации.
+- [ ] Рядом с group/trainer breakdowns есть пояснение, что сумма строк может быть больше общего итога из-за дублирования по нескольким группам/тренерам.
 - [ ] Экран показывает количество проданных абонементов и новых клиентов.
 - [ ] Экран показывает валовую сумму продаж, сумму возвратов и чистую сумму.
 - [ ] Frontend не пересчитывает финансовые формулы, а отображает backend response.
@@ -108,6 +112,7 @@ risky
 - [ ] Проверить empty state на пустом отчете.
 - [ ] Проверить отображение duplicated group/trainer breakdown rows, когда backend/mock API возвращает несколько строк для одного финансового события.
 - [ ] Проверить, что UI не пересчитывает canonical totals как сумму breakdown rows.
+- [ ] Проверить наличие пояснения о том, что сумма строк breakdown может быть больше общего итога.
 - [ ] Проверить отображение отчета с продажей, частичным возвратом и полным возвратом по данным backend/mock API.
 - [ ] Проверить отображение отчета после отмены возврата по данным backend/mock API.
 - [ ] Проверить, что frontend не пересчитывает `net total` при изменении mock payload, а отображает значение из response.
@@ -133,3 +138,4 @@ risky
 - Updated at: 2026-05-13 to align frontend consumer requirements with `TASK-036`/`TASK-037` sale and refund semantics.
 - Updated at: 2026-05-13 to treat refund cancellation as backend-owned report semantics.
 - Updated at: 2026-05-13 to display backend historical attribution and duplicated multi-group breakdown rows without frontend deduplication.
+- Updated at: 2026-05-13 to require UI explanation for duplicated group/trainer breakdown sums exceeding canonical totals.

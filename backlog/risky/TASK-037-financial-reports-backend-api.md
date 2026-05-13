@@ -22,6 +22,9 @@ risky
 - `Correction` обновляет `ClientMembershipSale.PurchaseDate` и/или `ClientMembershipSale.GrossAmount`, если исправляет дату покупки или сумму продажи, и такое изменение аудируется.
 - клиентская атрибуция к филиалу хранится периодами, клиент может быть только в одном филиале на одну дату;
 - клиентская атрибуция к группам и тренерская атрибуция к группам хранятся периодами;
+- period-модели используют `DateOnly` для границ периодов;
+- перевод клиента в другой филиал автоматически закрывает предыдущий период филиала;
+- группа не может менять филиал после создания;
 - клиент и тренер могут быть привязаны к нескольким группам одновременно, и report breakdowns должны дублировать финансовое событие для каждой подходящей групповой связи.
 
 Первый релиз отчетов должен включать:
@@ -35,7 +38,7 @@ risky
 - быстрые периоды: месяц, квартал, год;
 - произвольный период.
 
-Филиалы и группы введены через `TASK-031`, а исторические периоды привязок для отчетов фиксируются в `TASK-036`: клиент-филиал, клиент-группа и тренер-группа. Прямой связи `тренер-филиал` нет; филиальная атрибуция финансовых событий идет через периодную привязку клиента к филиалу.
+Филиалы и группы введены через `TASK-031`, а исторические периоды привязок для отчетов фиксируются в `TASK-036`: клиент-филиал, клиент-группа и тренер-группа. Прямой связи `тренер-филиал` нет; филиальная атрибуция финансовых событий идет через периодную привязку клиента к филиалу. Группа не меняет филиал после создания, поэтому история филиала группы не нужна для отчетов.
 
 ## User role
 главный тренер
@@ -61,6 +64,7 @@ Frontend не должен считать финансовые формулы л
 - Для attribution date использовать дату финансового события:
   - продажа, sold membership count, gross sales и new clients count атрибутируются по `ClientMembershipSale.PurchaseDate`;
   - refund total атрибутируется по `ClientMembershipRefund.RefundDate`.
+- Attribution date является `DateOnly`, как и `ValidFrom`/`ValidTo` period-моделей.
 - Считать филиал через периодную привязку клиента к филиалу на attribution date.
 - Считать группу через периодную привязку клиента к группе на attribution date.
 - Считать тренера через пересечение периодной привязки клиента к группе и периодной привязки тренера к той же группе на attribution date.
@@ -95,6 +99,8 @@ Frontend не должен считать финансовые формулы л
 - Не добавлять прямую связь тренера с филиалом.
 - Не использовать текущее состояние клиента, группы или тренера для исторической атрибуции финансовых событий.
 - Один клиент может иметь только один филиал на attribution date.
+- Report API может полагаться на жесткий запрет пересечений `ClientBranchAssignment` из `TASK-036`.
+- Не добавлять историю филиалов группы: группа не может менять филиал.
 - Multi-group attribution должна дублировать breakdown rows; backend не должен дедуплицировать их в trainer/group breakdowns.
 - Canonical totals не обязаны равняться сумме duplicated group/trainer breakdown rows.
 - Не расширять роли и permissions шире `HeadCoach` без отдельного решения.
@@ -111,6 +117,8 @@ Frontend не должен считать финансовые формулы л
 - [ ] API поддерживает фильтр одного филиала и всех филиалов.
 - [ ] API поддерживает branch attribution через периодную привязку клиента к филиалу на дату финансового события.
 - [ ] API поддерживает trainer attribution через пересечение периодов client-group и group-trainer на дату финансового события.
+- [ ] Attribution использует `DateOnly` boundaries из period-моделей.
+- [ ] Report API не требует истории филиала группы, потому что группа не меняет филиал.
 - [ ] API возвращает sold membership count, new client count, gross sales, refund total и net total.
 - [ ] Продажи считаются по `ClientMembershipSale.PurchaseDate` или эквивалентному stable sale contract из `TASK-036`.
 - [ ] Gross sales считается по `ClientMembershipSale.GrossAmount`.
@@ -133,6 +141,7 @@ Frontend не должен считать финансовые формулы л
 - [ ] Проверить месяц/квартал/год и произвольный период.
 - [ ] Проверить branch filter для одного филиала и всех филиалов через client-branch periods.
 - [ ] Проверить, что смена филиала клиента влияет на отчеты только с даты новой периодной привязки.
+- [ ] Проверить DateOnly-граничные даты period attribution.
 - [ ] Проверить trainer filter через пересечение client-group и group-trainer periods.
 - [ ] Проверить группы с одним и несколькими тренерами.
 - [ ] Проверить клиента в нескольких группах и тренера в нескольких группах: breakdown rows дублируют событие.
@@ -170,3 +179,4 @@ Frontend не должен считать финансовые формулы л
 - Updated at: 2026-05-13 to align report formulas with explicit `ClientMembershipSale` and correction-updates-sale semantics.
 - Updated at: 2026-05-13 to exclude canceled refunds from reports and assume clean-database rollout from `TASK-036`.
 - Updated at: 2026-05-13 to use historical client-branch, client-group and group-trainer periods and duplicated multi-group breakdown semantics.
+- Updated at: 2026-05-13 to align reporting with `DateOnly` attribution periods, immutable group branch and strict client branch non-overlap.
