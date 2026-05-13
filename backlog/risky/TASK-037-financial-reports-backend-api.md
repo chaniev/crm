@@ -20,6 +20,9 @@ risky
 - `NewPurchase` и `Renewal` создают продажи;
 - `Correction`, `PaymentUpdate`, `SingleVisitWriteOff` являются техническими версиями и не создают новые продажи;
 - `Correction` обновляет `ClientMembershipSale.PurchaseDate` и/или `ClientMembershipSale.GrossAmount`, если исправляет дату покупки или сумму продажи, и такое изменение аудируется.
+- клиентская атрибуция к филиалу хранится периодами, клиент может быть только в одном филиале на одну дату;
+- клиентская атрибуция к группам и тренерская атрибуция к группам хранятся периодами;
+- клиент и тренер могут быть привязаны к нескольким группам одновременно, и report breakdowns должны дублировать финансовое событие для каждой подходящей групповой связи.
 
 Первый релиз отчетов должен включать:
 - количество проданных абонементов за период;
@@ -32,7 +35,7 @@ risky
 - быстрые периоды: месяц, квартал, год;
 - произвольный период.
 
-Филиалы и группы уже введены через `TASK-031`: клиент принадлежит одному филиалу, группа принадлежит одному филиалу, тренер связан с группами через `GroupTrainer`, прямой связи `тренер-филиал` нет.
+Филиалы и группы введены через `TASK-031`, а исторические периоды привязок для отчетов фиксируются в `TASK-036`: клиент-филиал, клиент-группа и тренер-группа. Прямой связи `тренер-филиал` нет; филиальная атрибуция финансовых событий идет через периодную привязку клиента к филиалу.
 
 ## User role
 главный тренер
@@ -55,8 +58,14 @@ Frontend не должен считать финансовые формулы л
 - Считать refund total как сумму неотмененных `ClientMembershipRefund.Amount`.
 - Считать net total как `gross sales - refund total` для выбранного периода.
 - Считать новых клиентов по дате первой покупки нового абонемента.
-- Считать филиал через backend branch relation клиента.
-- Считать тренера через группы, которые он ведет.
+- Для attribution date использовать дату финансового события:
+  - продажа, sold membership count, gross sales и new clients count атрибутируются по `ClientMembershipSale.PurchaseDate`;
+  - refund total атрибутируется по `ClientMembershipRefund.RefundDate`.
+- Считать филиал через периодную привязку клиента к филиалу на attribution date.
+- Считать группу через периодную привязку клиента к группе на attribution date.
+- Считать тренера через пересечение периодной привязки клиента к группе и периодной привязки тренера к той же группе на attribution date.
+- Если на attribution date клиент или тренер привязаны к нескольким подходящим группам, дублировать финансовое событие в group/trainer breakdowns для каждой подходящей связи.
+- Возвращать canonical totals отдельно от duplicated breakdown rows, если сумма breakdown rows может превышать общий total из-за multi-group attribution.
 - Добавить permission/access behavior для финансовых отчетов: доступ имеет `HeadCoach`, остальные роли получают согласованный отказ.
 - Добавить ProblemDetails для некорректных фильтров периода, филиала и тренера.
 - Обновить OpenAPI/typed contracts, если в проекте есть contract generation или typed DTO conventions.
@@ -65,6 +74,7 @@ Frontend не должен считать финансовые формулы л
 - Frontend экран `Финансы`.
 - Создание модели возвратов, `ClientMembershipSale` или membership refund summary, если они еще не выполнены в `TASK-036`.
 - Регистрация или отмена возврата, если они еще не выполнены в `TASK-036`.
+- Создание периодных моделей client-branch/client-group/group-trainer, если они еще не выполнены в `TASK-036`.
 - Legacy/backfill поддержка частично заполненной базы.
 - Изменение бизнес-правил филиалов, групп или тренерского access scope.
 - Учет отмен и заморозок.
@@ -83,6 +93,10 @@ Frontend не должен считать финансовые формулы л
 - Полный возврат не должен исключать исходную продажу из sold membership count или gross sales.
 - Report API рассчитан на чистую схему из `TASK-036`; fallback для частично заполненных legacy-данных не требуется.
 - Не добавлять прямую связь тренера с филиалом.
+- Не использовать текущее состояние клиента, группы или тренера для исторической атрибуции финансовых событий.
+- Один клиент может иметь только один филиал на attribution date.
+- Multi-group attribution должна дублировать breakdown rows; backend не должен дедуплицировать их в trainer/group breakdowns.
+- Canonical totals не обязаны равняться сумме duplicated group/trainer breakdown rows.
 - Не расширять роли и permissions шире `HeadCoach` без отдельного решения.
 - Не считать технические версии абонемента отдельными продажами.
 - Contract changes требуют обновления frontend consumer task `TASK-038`.
@@ -95,7 +109,8 @@ Frontend не должен считать финансовые формулы л
 - [ ] В backend есть endpoint или report service для финансовых отчетов первого релиза.
 - [ ] API принимает быстрые периоды месяц/квартал/год и произвольный диапазон.
 - [ ] API поддерживает фильтр одного филиала и всех филиалов.
-- [ ] API поддерживает trainer attribution через группы тренера.
+- [ ] API поддерживает branch attribution через периодную привязку клиента к филиалу на дату финансового события.
+- [ ] API поддерживает trainer attribution через пересечение периодов client-group и group-trainer на дату финансового события.
 - [ ] API возвращает sold membership count, new client count, gross sales, refund total и net total.
 - [ ] Продажи считаются по `ClientMembershipSale.PurchaseDate` или эквивалентному stable sale contract из `TASK-036`.
 - [ ] Gross sales считается по `ClientMembershipSale.GrossAmount`.
@@ -107,6 +122,8 @@ Frontend не должен считать финансовые формулы л
 - [ ] Gross sales не уменьшается возвратами, включая полный возврат.
 - [ ] Net total считается как gross sales минус refund total.
 - [ ] Нулевые абонементы учитываются в количестве и дают `0` в gross sales.
+- [ ] События с несколькими подходящими группами/тренерами дублируются в group/trainer breakdowns.
+- [ ] Canonical totals возвращаются отдельно и не пересчитываются как сумма duplicated breakdown rows.
 - [ ] HeadCoach имеет доступ к финансовым данным.
 - [ ] Неавторизованные роли не получают финансовые данные.
 - [ ] Backend integration tests покрывают формулы, фильтры и доступ.
@@ -114,8 +131,12 @@ Frontend не должен считать финансовые формулы л
 ## Test checklist
 - [ ] Запустить `dotnet test backend/GymCrm.slnx`.
 - [ ] Проверить месяц/квартал/год и произвольный период.
-- [ ] Проверить branch filter для одного филиала и всех филиалов.
-- [ ] Проверить trainer filter на группах с одним и несколькими тренерами.
+- [ ] Проверить branch filter для одного филиала и всех филиалов через client-branch periods.
+- [ ] Проверить, что смена филиала клиента влияет на отчеты только с даты новой периодной привязки.
+- [ ] Проверить trainer filter через пересечение client-group и group-trainer periods.
+- [ ] Проверить группы с одним и несколькими тренерами.
+- [ ] Проверить клиента в нескольких группах и тренера в нескольких группах: breakdown rows дублируют событие.
+- [ ] Проверить, что canonical totals не ломаются, когда сумма duplicated breakdown rows больше total.
 - [ ] Проверить gross/refund/net на продажах, возвратах и нулевых абонементах.
 - [ ] Проверить, что продажа с полным возвратом остается в sold membership count и gross sales периода покупки.
 - [ ] Проверить несколько частичных возвратов по одной продаже.
@@ -133,7 +154,7 @@ Frontend не должен считать финансовые формулы л
 - Reason: задача реализует финансовые агрегаты, права доступа и backend contracts.
 
 ## Clarification questions
-Не требуется перед планированием. Перед реализацией остановиться, если `TASK-036` не предоставил `ClientMembershipSale` или эквивалентный stable sale contract, или если product decision потребует исторический snapshot филиала/группы/тренера на момент покупки вместо текущих backend-связей.
+Не требуется перед планированием. Перед реализацией остановиться, если `TASK-036` не предоставил `ClientMembershipSale` или периодные attribution contracts, или если product decision потребует недублирующий расчет multi-group breakdowns.
 
 ## Source notes
 - Derived from: `backlog/done/TASK-026-statistics-and-financial-reports.md`
@@ -148,3 +169,4 @@ Frontend не должен считать финансовые формулы л
 - Updated at: 2026-05-13 to align with `TASK-036` sale identity and separate refund event semantics.
 - Updated at: 2026-05-13 to align report formulas with explicit `ClientMembershipSale` and correction-updates-sale semantics.
 - Updated at: 2026-05-13 to exclude canceled refunds from reports and assume clean-database rollout from `TASK-036`.
+- Updated at: 2026-05-13 to use historical client-branch, client-group and group-trainer periods and duplicated multi-group breakdown semantics.
