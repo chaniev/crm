@@ -46,12 +46,33 @@ describe('shared UX components', () => {
     expect(screen.getByRole('button', { name: 'Посещения' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Клиенты' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Группы' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Пользователи' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Тренеры' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Журнал' })).toBeVisible()
 
     fireEvent.click(screen.getByRole('button', { name: 'Клиенты' }))
 
     expect(onNavigate).toHaveBeenCalledWith('Clients')
+  })
+
+  test('NavigationTabs keeps technical Users section active under trainer label', () => {
+    const onNavigate = vi.fn()
+
+    renderWithProviders(
+      <NavigationTabs
+        currentSection="Users"
+        onNavigate={onNavigate}
+        sections={sections}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Тренеры' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Тренеры' }))
+
+    expect(onNavigate).toHaveBeenCalledWith('Users')
   })
 
   test('AppLayout and Header render brand, profile slot and navigation', () => {

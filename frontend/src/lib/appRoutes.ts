@@ -25,7 +25,7 @@ export const APP_SECTION_LABELS: Record<AppSection, string> = {
   Attendance: 'Посещения',
   Clients: 'Клиенты',
   Groups: 'Группы',
-  Users: 'Пользователи',
+  Users: 'Тренеры',
   Audit: 'Журнал',
   Settings: 'Настройки',
 }

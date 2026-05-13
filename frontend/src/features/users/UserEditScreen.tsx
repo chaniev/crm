@@ -181,7 +181,7 @@ export function UserEditScreen({
           </Group>
 
           {loading ? (
-            <LoadingState label="Загружаем карточку пользователя..." />
+            <LoadingState label="Загружаем карточку тренера..." />
           ) : null}
 
           {!loading && loadError ? (

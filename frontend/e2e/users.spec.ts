@@ -25,6 +25,48 @@ const headCoachSession = {
   },
 } as const
 
+test('Навигация открывает раздел Тренеры на маршруте /users', async ({ page }) => {
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const method = route.request().method()
+
+    if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/users' && method === 'GET') {
+      await fulfillJson(route, 200, [])
+      return
+    }
+
+    throw new Error(
+      `Unexpected API request in users e2e: ${method} ${requestUrl.pathname}`,
+    )
+  })
+
+  await page.goto('/')
+
+  const desktopNavigation = page.locator(
+    'nav.app-shell__side-nav[aria-label="Основная навигация"]',
+  )
+  const trainersNavButton = desktopNavigation.getByRole('button', { name: 'Тренеры' })
+
+  await expect(desktopNavigation).toBeVisible()
+  await trainersNavButton.click()
+
+  await expect(page).toHaveURL(/\/users$/)
+  await expect(page.getByTestId('users-screen')).toBeVisible()
+  await expect(trainersNavButton).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('heading', { name: 'Тренеры и роли команды' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
+})
+
 test('Редактирование пользователя показывает форму после загрузки', async ({ page }) => {
   let userDetailsCalls = 0
 
@@ -63,6 +105,7 @@ test('Редактирование пользователя показывает
   await page.goto('/users/headcoach-id/edit')
 
   await expect(page.getByRole('heading', { name: 'Главный тренер' })).toBeVisible()
+  await expect(page.getByText('Редактирование тренера')).toBeVisible()
   await expect(page.getByLabel('ФИО')).toHaveValue('Главный тренер')
   await expect(page.getByLabel('Логин')).toHaveValue('headcoach')
   await expect(
@@ -161,6 +204,8 @@ test('Создание пользователя не предлагает рол
   })
 
   await page.goto('/users/new')
+  await expect(page.getByRole('heading', { name: 'Новый тренер' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Сохранить тренера' })).toBeVisible()
   await page.getByRole('combobox', { name: 'Роль' }).click()
 
   await expect(page.getByRole('option', { name: 'Тренер' })).toBeVisible()

@@ -78,7 +78,7 @@ export function UsersListScreen({
   const passwordRotationCount = users.filter((user) => user.mustChangePassword).length
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
+    <Stack className="dashboard-stack" data-testid="users-screen" gap="xl">
       <UserManagementHero
         action={
           <ResponsiveButtonGroup>
@@ -130,7 +130,7 @@ export function UsersListScreen({
           />
 
           {loading ? (
-            <LoadingState label="Загружаем пользователей..." />
+            <LoadingState label="Загружаем тренеров..." />
           ) : null}
 
           {!loading && error ? (

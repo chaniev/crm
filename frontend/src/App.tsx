@@ -1200,7 +1200,7 @@ function SectionPlaceholder({
               Раздел {APP_SECTION_LABELS[section]} появится здесь
             </Title>
             <Text className="page-header-card__description" size="sm">
-              Клиенты, пользователи и группы уже доступны в рабочем меню. Этот
+              Клиенты, тренеры и группы уже доступны в рабочем меню. Этот
               раздел будет подключен отдельным обновлением.
             </Text>
           </Stack>
