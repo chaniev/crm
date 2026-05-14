@@ -246,30 +246,9 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
   }))
   const selectedGroup =
     groups.find((group) => group.id === selectedGroupId) ?? null
-  const scopeBadgeLabel =
-    user.role === 'Coach'
-      ? `Назначенных групп: ${groups.length}`
-      : 'Любая доступная группа'
 
   return (
     <Stack className="dashboard-stack" data-testid="attendance-screen" gap="xl">
-      <PageCard className="page-header-card">
-        <PageHeader
-          description="Выберите группу и дату, затем отметьте присутствие клиентов прямо на одном экране."
-          eyebrow={(
-            <Group gap="sm" wrap="wrap">
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                Экран посещений
-              </Badge>
-              <Badge color="sand" radius="xl" size="lg" variant="light">
-                {scopeBadgeLabel}
-              </Badge>
-            </Group>
-          )}
-          title="Быстрая отметка посещений"
-        />
-      </PageCard>
-
       <PageCard>
         <Stack gap="lg">
           <PageHeader
@@ -279,8 +258,6 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
                 onClick={handleRefreshRoster}
               />
             )}
-            description="Выбор группы и даты определяет список клиентов для отметки."
-            title="Фильтр посещений"
           />
 
           {groupsError ? (

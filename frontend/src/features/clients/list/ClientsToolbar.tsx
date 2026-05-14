@@ -13,7 +13,6 @@ import {
   Switch,
   Text,
   TextInput,
-  Title,
   Tooltip,
 } from '@mantine/core'
 import {
@@ -65,12 +64,9 @@ export function ClientsToolbar({
   return (
     <Stack gap="md">
       <Group align="flex-start" className="clients-v7-header" justify="space-between">
-        <div>
-          <Title order={1}>Клиенты</Title>
-          <Text aria-live="polite" c="dimmed" size="sm">
-            {countLabel}
-          </Text>
-        </div>
+        <Text aria-live="polite" c="dimmed" size="sm">
+          {countLabel}
+        </Text>
 
         <Group gap="xs" wrap="nowrap">
           <Tooltip label="Обновить список">

@@ -75,6 +75,7 @@ import { formatGroupSchedule } from '../../lib/groupSchedule'
 import { resources } from '../../lib/resources'
 import {
   ConfirmActionModal,
+  PageHeader,
   ResponsiveButtonGroup,
 } from '../shared/ux'
 import {
@@ -255,8 +256,8 @@ export function ClientCreateScreen({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <ClientHero
-        action={
+      <PageHeader
+        actions={
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onCancel}
@@ -265,9 +266,9 @@ export function ClientCreateScreen({
             К списку клиентов
           </Button>
         }
-        badge="Новый клиент"
-        description="Форма сохраняет базовые данные и рабочую заметку клиента, а фотографию и абонемент можно добавить после первичного сохранения карточки."
+        className="page-title-row"
         title="Новый клиент"
+        titleOrder={1}
       />
 
       <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
@@ -424,8 +425,8 @@ export function ClientEditScreen({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <ClientHero
-        action={
+      <PageHeader
+        actions={
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onBack}
@@ -434,10 +435,9 @@ export function ClientEditScreen({
             К карточке клиента
           </Button>
         }
-        badge="Редактирование клиента"
-        compact
-        description="Основные поля, рабочая заметка, группы и фото клиента."
+        className="page-title-row"
         title={client ? client.fullName : 'Карточка клиента'}
+        titleOrder={1}
       />
 
       {loading ? (
@@ -888,8 +888,8 @@ export function ClientDetailScreen({
         />
       ) : null}
 
-      <ClientHero
-        action={
+      <PageHeader
+        actions={
           <ResponsiveButtonGroup>
             <Button
               leftSection={<IconArrowLeft size={18} />}
@@ -938,14 +938,9 @@ export function ClientDetailScreen({
             ) : null}
           </ResponsiveButtonGroup>
         }
-        badge="Карточка клиента"
-        compact
-        description={
-          canManage
-            ? 'Ключевые данные клиента, заметка, абонемент и ближайшие действия.'
-            : 'Фото, рабочая заметка, группы и посещения по назначенным группам.'
-        }
+        className="page-title-row"
         title={client ? client.fullName : 'Детали клиента'}
+        titleOrder={1}
       />
 
       {loading ? (
@@ -1848,52 +1843,6 @@ function ClientTransferModal({
         </Stack>
       </form>
     </Modal>
-  )
-}
-
-type ClientHeroProps = {
-  action: ReactNode
-  badge: string
-  compact?: boolean
-  description: string
-  title: string
-}
-
-function ClientHero({
-  action,
-  badge,
-  compact = false,
-  description,
-  title,
-}: ClientHeroProps) {
-  return (
-    <Paper
-      className={`surface-card surface-card--wide page-header-card${compact ? ' page-header-card--compact' : ''}`}
-      radius={compact ? '8px' : '28px'}
-      withBorder
-    >
-      <Stack className="page-header-card__content" gap="md">
-        <Group gap="sm">
-          <Badge color="accent.5" radius="xl" size="lg" variant="filled">
-            Клиенты
-          </Badge>
-          <Badge color="brand.1" radius="xl" size="lg" variant="light">
-            {badge}
-          </Badge>
-        </Group>
-
-        <Stack gap="sm">
-          <Title className="page-header-card__title" order={1}>
-            {title}
-          </Title>
-          <Text className="page-header-card__description" size="sm">
-            {description}
-          </Text>
-        </Stack>
-
-        {action}
-      </Stack>
-    </Paper>
   )
 }
 

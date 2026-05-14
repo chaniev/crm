@@ -271,34 +271,34 @@ const baseClient: ClientState = {
   expirationDate: addIsoDays(todayIso(), 20),
 }
 
-const SCREEN_HEADINGS = [
+const SCREEN_CHECKS = [
   {
     path: '/',
-    heading: 'Истекающие абонементы',
+    testId: 'home-screen',
   },
   {
     path: '/schedule',
-    heading: 'Расписание',
+    testId: 'schedule-screen',
   },
   {
     path: '/attendance',
-    heading: 'Быстрая отметка посещений',
+    testId: 'attendance-screen',
   },
   {
     path: '/clients',
-    heading: 'Клиенты',
+    testId: 'clients-screen',
   },
   {
     path: '/groups',
-    heading: 'Группы и назначение тренеров',
+    testId: 'groups-screen',
   },
   {
     path: '/audit',
-    heading: 'Журнал действий показывает важные изменения в клубе',
+    testId: 'audit-screen',
   },
   {
     path: '/settings',
-    heading: 'Настройки CRM',
+    testId: 'settings-screen',
   },
 ]
 
@@ -481,9 +481,7 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.getByRole('button', { name: 'К списку клиентов' }).click()
     await expect(page).toHaveURL('/clients')
-    await expect(
-      page.getByRole('heading', { name: 'Клиенты' }),
-    ).toBeVisible()
+    await expect(page.getByTestId('clients-screen')).toBeVisible()
     await expect(page.getByText('Петров Пётр Петрович')).toBeVisible()
     expect(clientListCalls).toBeGreaterThan(1)
   })
@@ -670,7 +668,8 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page
         .getByLabel('Профессионал', { exact: true })
-        .getByText('Кандидат сборной, льготный доступ'),
+        .getByText('Кандидат сборной, льготный доступ')
+        .first(),
     ).toBeVisible()
     await expect(page.getByText('Не оплачен')).toHaveCount(0)
   })
@@ -1532,9 +1531,7 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.goto('/groups')
     await expect(page).toHaveURL('/attendance')
-    await expect(
-      page.getByRole('heading', { name: 'Быстрая отметка посещений' }),
-    ).toBeVisible()
+    await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Группы' })).toHaveCount(0)
   })
 
@@ -1654,11 +1651,7 @@ test.describe('Основные e2e сценарии', () => {
       })
 
       await page.goto('/audit')
-      await expect(
-        page.getByRole('heading', {
-          name: 'Журнал действий показывает важные изменения в клубе',
-        }),
-      ).toBeVisible()
+      await expect(page.getByTestId('audit-screen')).toBeVisible()
       const auditGrid = page.getByTestId('audit-log-grid')
       await expect(auditGrid).toBeVisible()
       await expect(auditGrid.getByTestId('audit-log-actor-cell')).toContainText(
@@ -1869,9 +1862,9 @@ test.describe('Основные e2e сценарии', () => {
     for (const width of [390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 })
 
-      for (const screen of SCREEN_HEADINGS) {
+      for (const screen of SCREEN_CHECKS) {
         await page.goto(screen.path)
-        await expect(page.getByRole('heading', { name: screen.heading })).toBeVisible()
+        await expect(page.getByTestId(screen.testId)).toBeVisible()
         await expectActiveMainNavigation(page, width, screen.path)
         await expectNoHorizontalScroll(page)
       }

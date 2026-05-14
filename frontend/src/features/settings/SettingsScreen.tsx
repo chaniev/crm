@@ -77,20 +77,6 @@ export function SettingsScreen() {
 
   return (
     <Stack className="dashboard-stack" data-testid="settings-screen" gap="xl">
-      <PageCard className="page-header-card">
-        <PageHeader
-          description="Глобальные справочники и доступы, которые влияют на работу всей CRM."
-          eyebrow={(
-            <Group gap="sm">
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                Настройки
-              </Badge>
-            </Group>
-          )}
-          title="Настройки CRM"
-        />
-      </PageCard>
-
       <Tabs defaultValue="group-types" keepMounted={false}>
         <PageCard>
           <Tabs.List grow={isMobile}>

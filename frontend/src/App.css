@@ -358,6 +358,11 @@
   box-shadow: var(--shadow-card);
 }
 
+.page-title-row {
+  width: min(100%, 65rem);
+  margin-inline: auto;
+}
+
 .page-header {
   gap: 1rem;
   align-items: flex-start;
@@ -425,33 +430,6 @@
 
 .skeleton-row {
   background: rgba(20, 90, 82, 0.08);
-}
-
-.page-header-card__content {
-  position: relative;
-  z-index: 1;
-}
-
-.page-header-card {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(239, 245, 242, 0.94));
-}
-
-.page-header-card__title {
-  max-width: none;
-  line-height: 1.08;
-  font-size: clamp(1.45rem, 2.8vw, 2.2rem);
-  letter-spacing: -0.03em;
-  color: var(--mantine-color-dark-8);
-}
-
-.page-header-card__description {
-  max-width: 52rem;
-  color: var(--mantine-color-dimmed);
-}
-
-.management-hero__actions {
-  align-items: center;
 }
 
 .metric-card {
@@ -738,18 +716,6 @@
 .client-detail-card {
   background:
     linear-gradient(135deg, rgba(239, 245, 242, 0.92), rgba(255, 255, 255, 0.96));
-}
-
-.page-header-card--compact {
-  padding: 1rem 1.15rem;
-}
-
-.page-header-card--compact .page-header-card__content {
-  gap: 0.75rem;
-}
-
-.page-header-card--compact .page-header-card__title {
-  font-size: clamp(1.35rem, 2vw, 1.85rem);
 }
 
 .client-overview-card,
@@ -1239,7 +1205,6 @@
   }
 }
 
-.finance-header-card,
 .finance-filter-card {
   background:
     linear-gradient(135deg, rgba(239, 245, 242, 0.95), rgba(255, 255, 255, 0.97));
@@ -1480,10 +1445,6 @@
 
   .app-shell__brand-meta {
     font-size: 0.74rem;
-  }
-
-  .page-header-card--compact .page-header-card__description {
-    display: none;
   }
 
   .client-overview-card,

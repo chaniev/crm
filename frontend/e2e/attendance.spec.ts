@@ -138,7 +138,10 @@ test.describe('Мобильный сценарий посещений трене
 
     await expect(mobileNavigation).toBeVisible()
     expect(await desktopNavigation.isVisible()).toBe(false)
-    await expect(mobileNavigation.getByRole('button')).toHaveCount(2)
+    await expect(mobileNavigation.getByRole('button')).toHaveCount(3)
+    await expect(
+      mobileNavigation.getByRole('button', { name: 'Расписание' }),
+    ).toBeVisible()
     await expect(
       mobileNavigation.getByRole('button', { name: 'Посещения' }),
     ).toHaveAttribute('aria-current', 'page')
@@ -146,7 +149,7 @@ test.describe('Мобильный сценарий посещений трене
       mobileNavigation.getByRole('button', { name: 'Клиенты' }),
     ).toBeVisible()
 
-    await expect(page.getByText('Назначенных групп: 1')).toBeVisible()
+    await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByText(`Клиенты группы ${assignedGroup.name}`)).toBeVisible()
     await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
     await expect(page.getByText('Проблема с абонементом')).toBeVisible()

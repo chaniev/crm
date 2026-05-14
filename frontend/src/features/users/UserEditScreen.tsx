@@ -22,6 +22,7 @@ import {
   ErrorState,
   LoadingState,
   PageCard,
+  PageHeader,
   ResponsiveButtonGroup,
 } from '../shared/ux'
 import {
@@ -29,7 +30,6 @@ import {
   UserFormFields,
   type EditUserFormValues,
 } from './UserFormFields'
-import { UserManagementHero } from './UserManagementHero'
 import {
   headCoachRoleOptions,
   userRoleOptions,
@@ -151,8 +151,8 @@ export function UserEditScreen({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <UserManagementHero
-        action={
+      <PageHeader
+        actions={
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onBack}
@@ -161,9 +161,9 @@ export function UserEditScreen({
             {resources.users.edit.backAction}
           </Button>
         }
-        badge={resources.users.edit.badge}
-        description={resources.users.edit.description}
+        className="page-title-row"
         title={user?.fullName ?? resources.users.edit.fallbackTitle}
+        titleOrder={1}
       />
 
       <PageCard>

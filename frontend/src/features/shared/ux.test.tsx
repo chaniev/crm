@@ -167,6 +167,13 @@ describe('shared UX components', () => {
     expect(screen.getByRole('heading', { name: 'Заголовок без actions' })).toBeVisible()
     expect(screen.getByText('Описание страницы')).toBeVisible()
     expect(screen.queryByRole('button', { name: 'Действие' })).not.toBeInTheDocument()
+
+    rerender(
+      <PageHeader actions={<button type="button">Только действие</button>} />,
+    )
+
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Только действие' })).toBeVisible()
   })
 
   test('Button and IconButton expose accessible controls', () => {

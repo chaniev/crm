@@ -165,33 +165,47 @@ export function PageCard({
 }
 
 type PageHeaderProps = {
-  title: string
+  title?: string
+  className?: string
   description?: string
   actions?: ReactNode
   eyebrow?: ReactNode
+  titleOrder?: 1 | 2 | 3 | 4 | 5 | 6
 }
 
 export function PageHeader({
   title,
+  className,
   description,
   actions,
   eyebrow,
+  titleOrder = 2,
 }: PageHeaderProps) {
+  const hasCopy = Boolean(title || description || eyebrow)
+
   return (
-    <Group className="page-header" justify="space-between" wrap="wrap">
-      <Stack className="page-header__copy" gap={6}>
-        {eyebrow ? (
-          <div className="page-header__eyebrow">{eyebrow}</div>
-        ) : null}
-        <Title className="page-header__title" order={2}>
-          {title}
-        </Title>
-        {description ? (
-          <Text c="dimmed" className="page-header__description" size="sm">
-            {description}
-          </Text>
-        ) : null}
-      </Stack>
+    <Group
+      className={['page-header', className].filter(Boolean).join(' ')}
+      justify={hasCopy ? 'space-between' : 'flex-end'}
+      wrap="wrap"
+    >
+      {hasCopy ? (
+        <Stack className="page-header__copy" gap={6}>
+          {eyebrow ? (
+            <div className="page-header__eyebrow">{eyebrow}</div>
+          ) : null}
+          {title ? (
+            <Title className="page-header__title" order={titleOrder}>
+              {title}
+            </Title>
+          ) : null}
+          {description ? (
+            <Text c="dimmed" className="page-header__description" size="sm">
+              {description}
+            </Text>
+          ) : null}
+        </Stack>
+      ) : null}
 
       {actions ? <Group className="page-header__actions">{actions}</Group> : null}
     </Group>

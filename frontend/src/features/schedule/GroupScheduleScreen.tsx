@@ -71,7 +71,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   void props
 
   const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
-  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -98,7 +97,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
         const response = await getAllScheduleGroups(controller.signal)
 
         setGroups(response.items)
-        setTotalCount(response.totalCount)
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
@@ -135,11 +133,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
     () => buildScheduleCalendarWeek(filteredGroups),
     [filteredGroups],
   )
-  const activeFiltersCount = useMemo(
-    () => Object.values(filters).filter(Boolean).length,
-    [filters],
-  )
-
   useEffect(() => {
     setFilters((currentFilters) => {
       const nextFilters = {
@@ -161,40 +154,19 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
 
   return (
     <Stack className="dashboard-stack schedule-screen" data-testid="schedule-screen" gap="xl">
-      <PageCard className="page-header-card">
-        <PageHeader
-          actions={(
-            <ResponsiveButtonGroup justify="flex-end">
-              <RefreshButton
-                label="Обновить"
-                loading={loading || refreshing}
-                onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-              />
-            </ResponsiveButtonGroup>
-          )}
-          description="Групповые занятия по дням, времени, филиалам и залам."
-          eyebrow={(
-            <Group gap="sm">
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                Групповые занятия
-              </Badge>
-              <Badge color="sand" radius="xl" size="lg" variant="light">
-                Показано {filteredGroups.length} из {totalCount}
-              </Badge>
-              {activeFiltersCount > 0 ? (
-                <Badge color="brand.7" radius="xl" size="lg" variant="light">
-                  Фильтры: {activeFiltersCount}
-                </Badge>
-              ) : null}
-            </Group>
-          )}
-          title="Расписание"
-        />
-      </PageCard>
-
       <PageCard className="schedule-filters-card" data-testid="schedule-filters">
         <Stack gap="lg">
-          <PageHeader title="Фильтры" />
+          <PageHeader
+            actions={(
+              <ResponsiveButtonGroup justify="flex-end">
+                <RefreshButton
+                  label="Обновить"
+                  loading={loading || refreshing}
+                  onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+                />
+              </ResponsiveButtonGroup>
+            )}
+          />
 
           <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} spacing="md">
             <Select

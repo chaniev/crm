@@ -192,7 +192,6 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   }
 
   const entries = response?.items ?? []
-  const activeFiltersCount = countActiveFilters(appliedFilters)
   const totalPages = getTotalPages(response)
   const userSelectOptions = filterOptions.users.map((auditUser) => ({
     value: auditUser.id,
@@ -219,45 +218,14 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
   return (
     <Stack className="dashboard-stack" data-testid="audit-screen" gap="xl">
-      <PageCard className="page-header-card">
-        <PageHeader
-          actions={(
-            <ResponsiveButtonGroup>
-              <RefreshButton onClick={handleRefresh} />
-            </ResponsiveButtonGroup>
-          )}
-          description="Фильтруйте записи по пользователю, типу действия, объекту и периоду. Для изменений отображаются предыдущие и новые значения."
-          eyebrow={(
-            <Group gap="sm" wrap="wrap">
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                Журнал действий
-              </Badge>
-              <Badge radius="xl" size="lg" variant="light">
-                Главный тренер и администратор
-              </Badge>
-            </Group>
-          )}
-          title="Журнал действий показывает важные изменения в клубе"
-        />
-      </PageCard>
-
       <PageCard className="audit-filter-card">
         <Stack gap="lg">
           <PageHeader
             actions={(
-              <Group gap="xs" wrap="wrap">
-                <Badge color="brand.1" radius="xl" variant="light">
-                  Активных фильтров: {activeFiltersCount}
-                </Badge>
-                {response ? (
-                  <Badge color="accent.5" radius="xl" variant="light">
-                    Всего записей: {response.totalCount}
-                  </Badge>
-                ) : null}
-              </Group>
+              <ResponsiveButtonGroup>
+                <RefreshButton onClick={handleRefresh} />
+              </ResponsiveButtonGroup>
             )}
-            description="Применение фильтров перезагружает записи с первой страницы."
-            title="Фильтры журнала"
           />
 
           <form data-testid="audit-filter-form" onSubmit={form.onSubmit(handleApplyFilters)}>
@@ -333,17 +301,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
       <PageCard>
         <Stack gap="lg">
-          <PageHeader
-            actions={
-              response ? (
-                <Badge color="brand.1" radius="xl" variant="light">
-                  Страница {response.page}
-                </Badge>
-              ) : null
-            }
-            description="В каждой записи можно посмотреть подробности изменения."
-            title="Записи журнала"
-          />
+          <PageHeader title="Записи журнала" />
 
           {loading ? (
             <LoadingState label="Загружаем журнал действий..." />
@@ -627,18 +585,6 @@ function buildAuditRequestParams(
     dateFrom: filters.dateFrom || undefined,
     dateTo: filters.dateTo || undefined,
   }
-}
-
-function countActiveFilters(filters: AuditFilterValues) {
-  return [
-    filters.userId,
-    filters.source,
-    filters.messengerPlatform,
-    filters.actionType,
-    filters.entityType,
-    filters.dateFrom,
-    filters.dateTo,
-  ].filter(Boolean).length
 }
 
 function getTotalPages(response: AuditLogListResponse | null) {

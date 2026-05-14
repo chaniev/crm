@@ -270,12 +270,10 @@ test.describe('Расписание групповых занятий', () => {
     await selectOption(page, 'Тренер', 'Ольга Север')
     await selectOption(page, 'Группа', 'Воскресный интенсив')
 
-    await expect(page.getByText('Показано 1 из 4')).toBeVisible()
     await expect(page.getByTestId('schedule-card-7-group-sunday')).toBeVisible()
     await expect(page.getByTestId('schedule-card-1-group-alpha')).toHaveCount(0)
 
     await page.getByRole('button', { name: 'Сбросить фильтры' }).click()
-    await expect(page.getByText('Показано 4 из 4')).toBeVisible()
     await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
     expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
     expect(requestStats.groupsCollectionGetCalls).toBe(0)

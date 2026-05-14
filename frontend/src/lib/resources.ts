@@ -35,7 +35,6 @@ export const resources = {
       emptyTitle: 'Истекающих абонементов сейчас нет.',
       emptyDescription:
         'Все абонементы активны.',
-      audienceBadge: 'Главный тренер и администратор',
       openClientAction: 'Карточка клиента',
       fields: {
         membershipType: 'Тип абонемента',
@@ -53,10 +52,6 @@ export const resources = {
       Coach: 'Тренер',
     },
     list: {
-      badge: 'Тренеры и доступ',
-      title: 'Тренеры и роли команды',
-      description:
-        'Экран списка показывает тренерский состав, статус активности и тренеров, которым нужно сменить временный пароль.',
       createAction: 'Создать тренера',
       metrics: {
         total: {
@@ -73,9 +68,6 @@ export const resources = {
         },
       },
       sectionTitle: 'Список тренеров',
-      sectionDescription:
-        'Откройте карточку тренера, чтобы изменить роль и доступ.',
-      headCoachOnlyBadge: 'Только для главного тренера',
       loadingErrorTitle: 'Список не загрузился',
       loadingErrorMessage: 'Не удалось загрузить список тренеров.',
       emptyTitle: 'Тренеры пока не заведены',
@@ -88,10 +80,7 @@ export const resources = {
       passwordRotationRequired: 'Требуется смена пароля',
     },
     create: {
-      badge: 'Создание тренера',
       title: 'Новый тренер',
-      description:
-        'Главный тренер может сразу включить доступ и потребовать смену временного пароля.',
       backAction: 'Назад к списку',
       sectionTitle: 'Данные тренера',
       sectionDescription: 'Логин меняется только на этапе создания.',
@@ -105,10 +94,7 @@ export const resources = {
       successMessage: 'Новая учетная запись тренера сохранена в системе.',
     },
     edit: {
-      badge: 'Редактирование тренера',
       fallbackTitle: 'Карточка тренера',
-      description:
-        'Логин нельзя изменить после создания. Роль, активность и требование смены пароля можно обновить в карточке тренера.',
       backAction: 'Назад к списку',
       sectionTitle: 'Редактирование доступа',
       sectionDescription: 'Логин фиксируется после создания тренера.',
