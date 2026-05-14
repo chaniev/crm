@@ -14,7 +14,6 @@ import {
   ThemeIcon,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import {
   IconAlertCircle,
   IconArchive,
@@ -55,6 +54,7 @@ import {
   RefreshButton,
   ResponsiveButtonGroup,
 } from '../shared/ux'
+import { showAppNotification } from '../shared/notifications'
 
 type BranchFormValues = {
   name: string
@@ -232,7 +232,8 @@ export function BranchSettingsScreen({
       setSelectedBranchId(savedBranch.id)
       setBranchModal(null)
 
-      notifications.show({
+      showAppNotification({
+        id: `settings-branch-${branchModal.mode}`,
         title:
           branchModal.mode === 'create'
             ? 'Филиал создан'
@@ -280,7 +281,8 @@ export function BranchSettingsScreen({
       setSelectedBranchId(savedHall.branchId)
       setHallModal(null)
 
-      notifications.show({
+      showAppNotification({
+        id: `settings-hall-${hallModal.mode}`,
         title: hallModal.mode === 'create' ? 'Зал создан' : 'Зал обновлен',
         message: `Зал «${savedHall.name}» сохранен.`,
         color: 'teal',
@@ -309,7 +311,8 @@ export function BranchSettingsScreen({
         : await archiveBranch(branch.id)
 
       setBranches((currentBranches) => upsertById(currentBranches, updatedBranch))
-      notifications.show({
+      showAppNotification({
+        id: `settings-branch-archive-${branch.id}`,
         title: updatedBranch.isArchived
           ? 'Филиал архивирован'
           : 'Филиал возвращен',
@@ -337,7 +340,8 @@ export function BranchSettingsScreen({
         : await archiveHall(hall.id)
 
       setHalls((currentHalls) => upsertById(currentHalls, updatedHall))
-      notifications.show({
+      showAppNotification({
+        id: `settings-hall-archive-${hall.id}`,
         title: updatedHall.isArchived ? 'Зал архивирован' : 'Зал возвращен',
         message: `Зал «${updatedHall.name}» обновлен.`,
         color: 'teal',
@@ -366,7 +370,8 @@ export function BranchSettingsScreen({
       setHalls((currentHalls) =>
         currentHalls.filter((hall) => hall.id !== hallToDelete.id),
       )
-      notifications.show({
+      showAppNotification({
+        id: `settings-hall-delete-${hallToDelete.id}`,
         title: 'Зал удален',
         message: `Зал «${hallToDelete.name}» удален из филиала.`,
         color: 'teal',

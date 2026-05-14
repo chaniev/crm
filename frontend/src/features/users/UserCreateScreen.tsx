@@ -8,7 +8,6 @@ import {
   ThemeIcon,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import {
   IconArrowLeft,
   IconCheck,
@@ -22,6 +21,7 @@ import {
   type UserDetails,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
+import { showAppNotification } from '../shared/notifications'
 import { ErrorState, PageCard, PageHeader, ResponsiveButtonGroup } from '../shared/ux'
 import { UserFormFields, UserCreateCredentialsFields, type CreateUserFormValues } from './UserFormFields'
 import { userRoleOptions } from './UserManagement.constants'
@@ -69,7 +69,8 @@ export function UserCreateScreen({
     try {
       const createdUser = await createUser(toCreateUserPayload(values))
 
-      notifications.show({
+      showAppNotification({
+        id: 'user-create-success',
         title: resources.users.create.successTitle,
         message: resources.users.create.successMessage,
         color: 'teal',

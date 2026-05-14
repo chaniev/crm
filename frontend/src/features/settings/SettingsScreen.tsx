@@ -14,7 +14,6 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
-import { notifications } from '@mantine/notifications'
 import {
   IconAlertCircle,
   IconDeviceFloppy,
@@ -51,6 +50,7 @@ import {
   RefreshButton,
   ResponsiveButtonGroup,
 } from '../shared/ux'
+import { showAppNotification } from '../shared/notifications'
 import {
   UserCreateCredentialsFields,
   UserEditCredentialsFields,
@@ -231,7 +231,8 @@ function GroupTypesSettingsPanel() {
       )
       setModalState(null)
 
-      notifications.show({
+      showAppNotification({
+        id: `settings-group-type-${modalState.mode}`,
         title: modalState.mode === 'create' ? 'Тип группы создан' : 'Тип группы обновлен',
         message: `Справочник «${savedGroupType.name}» сохранен.`,
         color: 'teal',
@@ -261,14 +262,16 @@ function GroupTypesSettingsPanel() {
       setGroupTypes((current) =>
         current.filter((groupType) => groupType.id !== groupTypeToDelete.id),
       )
-      notifications.show({
+      showAppNotification({
+        id: 'settings-group-type-delete-success',
         title: 'Тип группы удален',
         message: `Справочник «${groupTypeToDelete.name}» удален.`,
         color: 'teal',
       })
       setGroupTypeToDelete(null)
     } catch (error) {
-      notifications.show({
+      showAppNotification({
+        id: 'settings-group-type-delete-error',
         title: 'Удаление не выполнено',
         message:
           error instanceof Error
@@ -554,7 +557,8 @@ function AdministratorsSettingsPanel() {
         [...current, createdAdministrator].sort(compareUsers),
       )
       setModalState(null)
-      notifications.show({
+      showAppNotification({
+        id: 'settings-administrator-create-success',
         title: 'Администратор создан',
         message: `Пользователь «${createdAdministrator.fullName}» добавлен.`,
         color: 'teal',
@@ -607,7 +611,8 @@ function AdministratorsSettingsPanel() {
           .sort(compareUsers),
       )
       setModalState(null)
-      notifications.show({
+      showAppNotification({
+        id: `settings-administrator-edit-success-${modalState.administrator.id}`,
         title: 'Администратор обновлен',
         message: `Изменения «${updatedAdministrator.fullName}» сохранены.`,
         color: 'teal',

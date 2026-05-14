@@ -8,7 +8,6 @@ import {
   ThemeIcon,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import { IconArrowLeft, IconDeviceFloppy, IconUserCog } from '@tabler/icons-react'
 import {
   ApiError,
@@ -18,6 +17,7 @@ import {
   type UserDetails,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
+import { showAppNotification } from '../shared/notifications'
 import {
   ErrorState,
   LoadingState,
@@ -130,7 +130,8 @@ export function UserEditScreen({
       setUser(updatedUser)
       form.setValues(toEditUserFormValues(updatedUser))
 
-      notifications.show({
+      showAppNotification({
+        id: `user-edit-success-${userId}`,
         title: resources.users.edit.successTitle,
         message: resources.users.edit.successMessage,
         color: 'teal',

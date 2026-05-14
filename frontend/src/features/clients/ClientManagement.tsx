@@ -21,7 +21,6 @@ import {
   Title,
 } from '@mantine/core'
 import { type UseFormReturnType, useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import {
   IconAlertCircle,
   IconArchive,
@@ -78,6 +77,7 @@ import {
   PageHeader,
   ResponsiveButtonGroup,
 } from '../shared/ux'
+import { showAppNotification } from '../shared/notifications'
 import {
   buildDraftClientName,
   clientFieldErrorAliases,
@@ -234,7 +234,8 @@ export function ClientCreateScreen({
     try {
       const createdClient = await createClient(toUpsertClientPayload(values))
 
-      notifications.show({
+      showAppNotification({
+        id: 'client-create-success',
         title: 'Клиент создан',
         message: 'Базовая карточка клиента сохранена.',
         color: 'teal',
@@ -395,7 +396,8 @@ export function ClientEditScreen({
     try {
       await updateClient(clientId, toUpsertClientPayload(values))
 
-      notifications.show({
+      showAppNotification({
+        id: `client-edit-success-${clientId}`,
         title: 'Изменения сохранены',
         message: 'Карточка клиента обновлена.',
         color: 'teal',
@@ -593,7 +595,8 @@ export function ClientDetailScreen({
           : currentClient,
       )
 
-      notifications.show({
+      showAppNotification({
+        id: `client-archive-toggle-${client.id}`,
         title:
           nextStatus === 'Archived'
             ? 'Клиент переведен в архив'
@@ -675,7 +678,8 @@ export function ClientDetailScreen({
       setClient(updatedClient ?? (await getClient(client.id)))
       setTransferModalOpened(false)
 
-      notifications.show({
+      showAppNotification({
+        id: `client-transfer-${client.id}`,
         title: 'Клиент переведен',
         message: 'Филиал и группа клиента обновлены.',
         color: 'teal',
@@ -711,7 +715,8 @@ export function ClientDetailScreen({
       setProfessionalModalOpened(false)
       setMembershipActionMode(null)
 
-      notifications.show({
+      showAppNotification({
+        id: `client-professional-status-${client.id}`,
         title: isProfessional
           ? 'Признак профессионала включен'
           : 'Признак профессионала отключен',
@@ -774,7 +779,8 @@ export function ClientDetailScreen({
                   message: 'Статус оплаты обновлен в текущем абонементе.',
                 }
 
-      notifications.show({
+      showAppNotification({
+        id: `client-membership-${client.id}-${submission.kind}`,
         title: feedback.title,
         message: feedback.message,
         color: 'teal',
@@ -1931,7 +1937,8 @@ function ClientPhotoSection({
     try {
       await onUpload(file)
 
-      notifications.show({
+      showAppNotification({
+        id: 'client-photo-upload-success',
         title: 'Фотография обновлена',
         message: 'Карточка клиента получила новую фотографию.',
         color: 'teal',
