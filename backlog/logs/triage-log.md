@@ -325,3 +325,18 @@
 - needs-clarification: 3
 - updated existing: 0
 - processed files: 2
+
+# 2026-05-14 TASK-044 clarification
+
+## Updated tasks
+- /backlog/needs-clarification/TASK-044-hide-technical-information.md -> /backlog/tasks-ready/TASK-044-hide-technical-information.md
+
+## Evidence
+- User clarified that "technical information" means the upper CRM page areas crossed out with red X marks on the provided screenshots.
+- Scope narrowed to frontend intro/hero blocks, service badges, counters and role/access helper text on Schedule, Attendance, Groups, Trainers, Journal, Finance and Settings.
+- User then clarified that screenshots are examples only: similar service information must be removed from every CRM screen where it exists, not only from the screens shown.
+- Backend audit data, raw JSON, object IDs and ProblemDetails contracts are explicitly out of scope.
+
+## Summary
+- moved to tasks-ready: 1
+- validation: backlog-only clarification update; runtime commands were not run
