@@ -295,3 +295,33 @@
 - moved to done: 4 tasks
 - moved plans to done: 4
 - validation: backlog/source audit only; runtime test commands were not re-run
+
+# 2026-05-14 13:01
+
+## Processed inbox files
+- 2026-05-09.md
+- 2026-05-14.md
+
+## Created tasks
+- /backlog/needs-clarification/TASK-039-crm-messenger-chat-integration.md
+- /backlog/tasks-ready/TASK-040-notifications-auto-dismiss.md
+- /backlog/tasks-ready/TASK-041-professional-button-label.md
+- /backlog/tasks-ready/TASK-042-audit-log-grid-actor-full-name.md
+- /backlog/needs-clarification/TASK-043-schedule-calendar-like-view.md
+- /backlog/needs-clarification/TASK-044-hide-technical-information.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Новая заметка про `уведомления` не дублирует `TASK-012`: `TASK-012` относится к bot scheduler/delivery, а новая задача ограничена frontend in-app notifications.
+- Новая заметка про кнопку `Включить льготу` является post-implementation copy cleanup после закрытого `TASK-027`, а не активным дубликатом.
+- Новая заметка про отображение расписания пересекается с закрытым `TASK-035`, но просит новую calendar-like итерацию; создана needs-clarification задача.
+- Заметка про техническую информацию может пересекаться с `TASK-018` и `TASK-020`, но она шире и не ограничена карточкой клиента; создана needs-clarification задача.
+
+## Summary
+- tasks-ready: 3
+- risky: 0
+- needs-clarification: 3
+- updated existing: 0
+- processed files: 2
