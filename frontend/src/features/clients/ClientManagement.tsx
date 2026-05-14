@@ -843,7 +843,7 @@ export function ClientDetailScreen({
           onClose={() => setProfessionalModalOpened(false)}
           opened={professionalModalOpened}
           radius="8px"
-          title="Признак профессионала"
+          title="Профессионал"
         >
           <Stack gap="md">
             <Textarea
@@ -851,7 +851,7 @@ export function ClientDetailScreen({
               label="Комментарий"
               minRows={3}
               onChange={(event) => setProfessionalComment(event.currentTarget.value)}
-              placeholder="Основание льготного оплаченного статуса"
+              placeholder="Основание"
               value={professionalComment}
             />
             <Group justify="flex-end" wrap="wrap">
@@ -866,7 +866,7 @@ export function ClientDetailScreen({
                 loading={actionPending}
                 onClick={() => void submitProfessionalStatus(true)}
               >
-                Включить
+                Сделать профессионалом
               </Button>
             </Group>
           </Stack>
@@ -1255,7 +1255,9 @@ function ClientOverviewSection({
                   size="xs"
                   variant="light"
                 >
-                  {client.isProfessional ? 'Отключить льготу' : 'Включить льготу'}
+                  {client.isProfessional
+                    ? 'Снять статус "Профессионал"'
+                    : 'Профессионал'}
                 </Button>
               ) : null}
             </Group>

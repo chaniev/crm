@@ -651,13 +651,13 @@ test.describe('Основные e2e сценарии', () => {
         name: 'Профессионалов Льготный Статус',
       }),
     ).toBeVisible()
-    await page.getByRole('button', { name: 'Включить льготу' }).click()
+    await page.getByRole('button', { name: 'Профессионал' }).click()
     await page
       .getByLabel('Комментарий')
       .fill('Кандидат сборной, льготный доступ')
     await page
       .getByRole('dialog')
-      .getByRole('button', { name: 'Включить' })
+      .getByRole('button', { name: 'Профессионал' })
       .click()
 
     await expect.poll(() => professionalPayload).toEqual({
@@ -708,10 +708,10 @@ test.describe('Основные e2e сценарии', () => {
       page.getByRole('heading', { level: 1, name: 'Иванов Иван Иванович' }),
     ).toBeVisible()
     await expect(
-      page.getByRole('button', { name: 'Включить льготу' }),
+      page.getByRole('button', { name: 'Профессионал' }),
     ).toHaveCount(0)
     await expect(
-      page.getByRole('button', { name: 'Отключить льготу' }),
+      page.getByRole('button', { name: 'Снять статус "Профессионал"' }),
     ).toHaveCount(0)
   })
 
