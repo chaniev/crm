@@ -13,7 +13,12 @@ internal static class ClientAuditConstants
     public const string MembershipRenewedAction = "ClientMembershipRenewed";
     public const string MembershipCorrectedAction = "ClientMembershipCorrected";
     public const string MembershipPaymentMarkedAction = "ClientMembershipPaymentMarked";
+    public const string MembershipSaleCorrectedAction = "ClientMembershipSaleCorrected";
+    public const string MembershipRefundCreatedAction = "ClientMembershipRefundCreated";
+    public const string MembershipRefundCanceledAction = "ClientMembershipRefundCanceled";
 
     public const string ClientEntityType = "Client";
     public const string MembershipEntityType = "ClientMembership";
+    public const string MembershipSaleEntityType = "ClientMembershipSale";
+    public const string MembershipRefundEntityType = "ClientMembershipRefund";
 }

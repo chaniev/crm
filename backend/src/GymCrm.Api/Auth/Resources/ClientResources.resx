@@ -108,6 +108,9 @@
   <data name="InvalidGroupId" xml:space="preserve">
     <value>Список групп содержит некорректный идентификатор.</value>
   </data>
+  <data name="ClientGroupsRequired" xml:space="preserve">
+    <value>У клиента должна быть хотя бы одна активная группа.</value>
+  </data>
   <data name="GroupsMustExist" xml:space="preserve">
     <value>Можно привязать клиента только к существующим группам.</value>
   </data>
@@ -170,6 +173,45 @@
   </data>
   <data name="PaymentAmountMustBeNonNegative" xml:space="preserve">
     <value>Сумма оплаты не может быть отрицательной.</value>
+  </data>
+  <data name="RefundAmountRequired" xml:space="preserve">
+    <value>Укажите сумму возврата.</value>
+  </data>
+  <data name="RefundAmountMustBePositive" xml:space="preserve">
+    <value>Сумма возврата должна быть больше 0.</value>
+  </data>
+  <data name="RefundDateRequired" xml:space="preserve">
+    <value>Укажите дату возврата.</value>
+  </data>
+  <data name="RefundDateInFuture" xml:space="preserve">
+    <value>Дата возврата не может быть в будущем.</value>
+  </data>
+  <data name="RefundDateBeforePurchaseDate" xml:space="preserve">
+    <value>Дата возврата не может быть раньше даты покупки абонемента.</value>
+  </data>
+  <data name="RefundDateBeforeSaleCreatedDate" xml:space="preserve">
+    <value>Дата возврата не может быть раньше даты создания продажи.</value>
+  </data>
+  <data name="RefundAmountExceedsGrossAmount" xml:space="preserve">
+    <value>Суммарный возврат не может превышать сумму продажи.</value>
+  </data>
+  <data name="RefundAlreadyCanceled" xml:space="preserve">
+    <value>Этот возврат уже отменен.</value>
+  </data>
+  <data name="RefundCommentTooLong" xml:space="preserve">
+    <value>Комментарий к возврату не должен превышать 1000 символов.</value>
+  </data>
+  <data name="SaleMustExist" xml:space="preserve">
+    <value>Продажа абонемента не найдена.</value>
+  </data>
+  <data name="RefundMustExist" xml:space="preserve">
+    <value>Возврат абонемента не найден.</value>
+  </data>
+  <data name="CorrectedGrossAmountBelowRefunds" xml:space="preserve">
+    <value>Сумма продажи не может быть меньше суммы неотмененных возвратов.</value>
+  </data>
+  <data name="CorrectedPurchaseDateAfterRefund" xml:space="preserve">
+    <value>Дата покупки не может быть позже существующего неотмененного возврата.</value>
   </data>
   <data name="InvalidMembershipChangeRequest" xml:space="preserve">
     <value>Запрос на изменение абонемента содержит некорректные данные.</value>

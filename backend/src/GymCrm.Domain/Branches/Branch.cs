@@ -19,5 +19,6 @@ public class Branch
 
     public ICollection<Hall> Halls { get; set; } = new List<Hall>();
     public ICollection<Client> Clients { get; set; } = new List<Client>();
+    public ICollection<ClientBranchAssignment> ClientAssignments { get; set; } = new List<ClientBranchAssignment>();
     public ICollection<TrainingGroup> Groups { get; set; } = new List<TrainingGroup>();
 }

@@ -197,6 +197,15 @@ internal static class GroupEndpoints
                 GroupId = group.Id,
                 TrainerId = trainerId
             });
+            group.TrainerAssignments.Add(new GroupTrainerAssignment
+            {
+                Id = Guid.NewGuid(),
+                GroupId = group.Id,
+                TrainerId = trainerId,
+                ValidFrom = DateOnly.FromDateTime(now.UtcDateTime.Date),
+                CreatedByUserId = currentUser.Id,
+                CreatedAt = now
+            });
         }
 
         dbContext.TrainingGroups.Add(group);
@@ -269,7 +278,7 @@ internal static class GroupEndpoints
         group.IsActive = normalizedRequest.IsActive ?? group.IsActive;
         group.UpdatedAt = DateTimeOffset.UtcNow;
 
-        ApplyTrainerAssignments(group, normalizedRequest.TrainerIds, dbContext);
+        ApplyTrainerAssignments(group, normalizedRequest.TrainerIds, currentUser.Id, DateTimeOffset.UtcNow, dbContext);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -326,8 +335,9 @@ internal static class GroupEndpoints
 
         var oldState = SerializeAuditState(group);
 
-        ApplyTrainerAssignments(group, normalizedTrainerIds, dbContext);
-        group.UpdatedAt = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.UtcNow;
+        ApplyTrainerAssignments(group, normalizedTrainerIds, currentUser.Id, now, dbContext);
+        group.UpdatedAt = now;
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -360,6 +370,7 @@ internal static class GroupEndpoints
             .Include(group => group.GroupType)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
+            .Include(group => group.TrainerAssignments)
             .Include(group => group.Clients)
             .AsSplitQuery()
             .SingleOrDefaultAsync(group => group.Id == id, cancellationToken);
@@ -376,6 +387,7 @@ internal static class GroupEndpoints
             .Include(group => group.GroupType)
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
+            .Include(group => group.TrainerAssignments)
             .Include(group => group.Clients)
             .AsSplitQuery()
             .SingleOrDefaultAsync(group => group.Id == id, cancellationToken);
@@ -384,12 +396,18 @@ internal static class GroupEndpoints
     private static void ApplyTrainerAssignments(
         TrainingGroup group,
         IReadOnlyList<Guid> requestedTrainerIds,
+        Guid changedByUserId,
+        DateTimeOffset now,
         GymCrmDbContext dbContext)
     {
         var requested = requestedTrainerIds.ToHashSet();
+        var today = DateOnly.FromDateTime(now.UtcDateTime.Date);
 
         var trainersToRemove = group.Trainers
             .Where(groupTrainer => !requested.Contains(groupTrainer.TrainerId))
+            .ToArray();
+        var assignmentsToClose = group.TrainerAssignments
+            .Where(assignment => assignment.ValidTo == null && !requested.Contains(assignment.TrainerId))
             .ToArray();
 
         dbContext.GroupTrainers.RemoveRange(trainersToRemove);
@@ -399,8 +417,17 @@ internal static class GroupEndpoints
             group.Trainers.Remove(trainerToRemove);
         }
 
+        foreach (var assignment in assignmentsToClose)
+        {
+            CloseOrRemoveTrainerAssignment(assignment, today, dbContext.GroupTrainerAssignments);
+        }
+
         var existingTrainerIds = group.Trainers
             .Select(groupTrainer => groupTrainer.TrainerId)
+            .ToHashSet();
+        var activeAssignmentTrainerIds = group.TrainerAssignments
+            .Where(assignment => assignment.ValidTo == null && requested.Contains(assignment.TrainerId))
+            .Select(assignment => assignment.TrainerId)
             .ToHashSet();
 
         foreach (var trainerId in requested.Where(trainerId => !existingTrainerIds.Contains(trainerId)))
@@ -411,6 +438,33 @@ internal static class GroupEndpoints
                 TrainerId = trainerId
             });
         }
+
+        foreach (var trainerId in requested.Where(trainerId => !activeAssignmentTrainerIds.Contains(trainerId)))
+        {
+            dbContext.GroupTrainerAssignments.Add(new GroupTrainerAssignment
+            {
+                Id = Guid.NewGuid(),
+                GroupId = group.Id,
+                TrainerId = trainerId,
+                ValidFrom = today,
+                CreatedByUserId = changedByUserId,
+                CreatedAt = now
+            });
+        }
+    }
+
+    private static void CloseOrRemoveTrainerAssignment(
+        GroupTrainerAssignment assignment,
+        DateOnly validTo,
+        DbSet<GroupTrainerAssignment> assignments)
+    {
+        if (assignment.ValidFrom >= validTo)
+        {
+            assignments.Remove(assignment);
+            return;
+        }
+
+        assignment.ValidTo = validTo;
     }
 
     private static GroupListItemResponse MapListItem(TrainingGroup group)

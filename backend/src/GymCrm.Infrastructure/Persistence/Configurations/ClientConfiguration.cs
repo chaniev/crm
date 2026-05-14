@@ -68,6 +68,16 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .HasForeignKey(membership => membership.ClientId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(client => client.MembershipSales)
+            .WithOne(sale => sale.Client)
+            .HasForeignKey(sale => sale.ClientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(client => client.MembershipRefunds)
+            .WithOne(refund => refund.Client)
+            .HasForeignKey(refund => refund.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(client => client.AttendanceEntries)
             .WithOne(attendance => attendance.Client)
             .HasForeignKey(attendance => attendance.ClientId)

@@ -2,6 +2,7 @@ namespace GymCrm.Api.Auth;
 
 internal sealed record ClientMembershipResponse(
     Guid Id,
+    Guid SaleId,
     string MembershipType,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
@@ -14,4 +15,6 @@ internal sealed record ClientMembershipResponse(
     string ChangeReason,
     DateTimeOffset ValidFrom,
     DateTimeOffset? ValidTo,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    ClientMembershipFinancialSummaryResponse FinancialSummary,
+    IReadOnlyList<ClientMembershipRefundResponse> Refunds);

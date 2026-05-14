@@ -28,6 +28,16 @@ public interface IClientMembershipService
         MarkClientMembershipPaymentCommand command,
         CancellationToken cancellationToken);
 
+    Task<ClientMembershipRefundMutationResult> RegisterRefundAsync(
+        Guid clientId,
+        RegisterClientMembershipRefundCommand command,
+        CancellationToken cancellationToken);
+
+    Task<ClientMembershipRefundMutationResult> CancelRefundAsync(
+        Guid clientId,
+        CancelClientMembershipRefundCommand command,
+        CancellationToken cancellationToken);
+
     Task<SingleVisitWriteOffResult> WriteOffSingleVisitAsync(
         Guid clientId,
         WriteOffSingleVisitCommand command,
@@ -60,6 +70,17 @@ public sealed record CorrectClientMembershipCommand(
 public sealed record MarkClientMembershipPaymentCommand(
     Guid ChangedByUserId);
 
+public sealed record RegisterClientMembershipRefundCommand(
+    Guid ChangedByUserId,
+    Guid SaleId,
+    DateOnly RefundDate,
+    decimal Amount,
+    string? Comment);
+
+public sealed record CancelClientMembershipRefundCommand(
+    Guid ChangedByUserId,
+    Guid RefundId);
+
 public sealed record WriteOffSingleVisitCommand(
     Guid ChangedByUserId,
     DateOnly TrainingDate);
@@ -70,7 +91,23 @@ public enum ClientMembershipMutationError
     ClientMissing = 1,
     InvalidRequest = 2,
     CurrentMembershipMissing = 3,
-    CurrentMembershipAlreadyPaid = 4
+    CurrentMembershipAlreadyPaid = 4,
+    CorrectedGrossAmountBelowRefunds = 5,
+    CorrectedPurchaseDateAfterRefund = 6
+}
+
+public enum ClientMembershipRefundMutationError
+{
+    None = 0,
+    ClientMissing = 1,
+    SaleMissing = 2,
+    RefundMissing = 3,
+    InvalidRequest = 4,
+    RefundAmountExceedsGrossAmount = 5,
+    RefundDateInFuture = 6,
+    RefundDateBeforePurchaseDate = 7,
+    RefundDateBeforeSaleCreatedDate = 8,
+    RefundAlreadyCanceled = 9
 }
 
 public enum SingleVisitWriteOffStatus
@@ -104,19 +141,83 @@ public sealed record ClientMembershipSnapshotResult(
     DateTimeOffset? ValidTo,
     ClientMembershipChangeReason ChangeReason,
     Guid ChangedByUserId,
+    DateTimeOffset CreatedAt,
+    Guid SaleId,
+    ClientMembershipFinancialSummaryResult FinancialSummary,
+    IReadOnlyList<ClientMembershipRefundSnapshotResult> Refunds);
+
+public sealed record ClientMembershipFinancialSummaryResult(
+    decimal GrossAmount,
+    decimal RefundedAmount,
+    decimal NetAmount,
+    ClientMembershipRefundStatus RefundStatus,
+    DateOnly? LastRefundDate);
+
+public sealed record ClientMembershipRefundSnapshotResult(
+    Guid Id,
+    Guid SaleId,
+    Guid ClientId,
+    decimal Amount,
+    DateOnly RefundDate,
+    string? Comment,
+    Guid CreatedByUserId,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? CanceledAt,
+    Guid? CanceledByUserId);
+
+public sealed record ClientMembershipSaleSnapshotResult(
+    Guid Id,
+    Guid ClientId,
+    MembershipType MembershipType,
+    DateOnly PurchaseDate,
+    decimal GrossAmount,
+    Guid CreatedByUserId,
     DateTimeOffset CreatedAt);
+
+public sealed record ClientMembershipSaleAuditResult(
+    ClientMembershipSaleSnapshotResult OldSale,
+    ClientMembershipSaleSnapshotResult NewSale);
 
 public readonly record struct ClientMembershipMutationResult(
     ClientMembershipMutationError Error,
-    ClientMembershipDetailsResult? Details)
+    ClientMembershipDetailsResult? Details,
+    ClientMembershipSaleAuditResult? SaleAudit)
 {
     public bool Succeeded => Error == ClientMembershipMutationError.None;
 
     public static ClientMembershipMutationResult Success(ClientMembershipDetailsResult details) =>
-        new(ClientMembershipMutationError.None, details);
+        new(ClientMembershipMutationError.None, details, null);
+
+    public static ClientMembershipMutationResult Success(
+        ClientMembershipDetailsResult details,
+        ClientMembershipSaleAuditResult? saleAudit) =>
+        new(ClientMembershipMutationError.None, details, saleAudit);
 
     public static ClientMembershipMutationResult Failure(ClientMembershipMutationError error) =>
-        new(error, null);
+        new(error, null, null);
+}
+
+public readonly record struct ClientMembershipRefundMutationResult(
+    ClientMembershipRefundMutationError Error,
+    ClientMembershipDetailsResult? Details,
+    ClientMembershipRefundSnapshotResult? Refund,
+    ClientMembershipRefundSnapshotResult? PreviousRefund)
+{
+    public bool Succeeded => Error == ClientMembershipRefundMutationError.None;
+
+    public static ClientMembershipRefundMutationResult Success(
+        ClientMembershipDetailsResult details,
+        ClientMembershipRefundSnapshotResult refund) =>
+        new(ClientMembershipRefundMutationError.None, details, refund, null);
+
+    public static ClientMembershipRefundMutationResult Success(
+        ClientMembershipDetailsResult details,
+        ClientMembershipRefundSnapshotResult refund,
+        ClientMembershipRefundSnapshotResult previousRefund) =>
+        new(ClientMembershipRefundMutationError.None, details, refund, previousRefund);
+
+    public static ClientMembershipRefundMutationResult Failure(ClientMembershipRefundMutationError error) =>
+        new(error, null, null, null);
 }
 
 public readonly record struct SingleVisitWriteOffResult(

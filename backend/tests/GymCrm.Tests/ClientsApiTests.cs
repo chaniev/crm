@@ -286,7 +286,7 @@ public class ClientsApiTests
     }
 
     [Fact]
-    public async Task Client_transfer_changes_branch_clears_groups_preserves_membership_and_validates_target_group()
+    public async Task Client_transfer_changes_branch_requires_target_groups_preserves_membership_and_validates_target_group()
     {
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
@@ -349,24 +349,16 @@ public class ClientsApiTests
             dbContext.Halls.Add(targetHall);
             dbContext.GroupTypes.Add(targetGroupType);
             dbContext.TrainingGroups.Add(targetGroup);
-            dbContext.ClientMemberships.Add(new ClientMembership
-            {
-                Id = Guid.NewGuid(),
-                ClientId = clientId,
-                MembershipType = MembershipType.Monthly,
-                PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
-                ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(1)),
-                PaymentAmount = 1200m,
-                IsPaid = true,
-                SingleVisitUsed = false,
-                PaidByUserId = seeded.HeadCoachId,
-                PaidAt = now,
-                ValidFrom = now,
-                ValidTo = null,
-                ChangeReason = ClientMembershipChangeReason.NewPurchase,
-                ChangedByUserId = seeded.HeadCoachId,
-                CreatedAt = now
-            });
+            var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+            dbContext.ClientMemberships.Add(CreateMembershipWithSale(
+                clientId,
+                MembershipType.Monthly,
+                purchaseDate,
+                purchaseDate.AddMonths(1),
+                1200m,
+                isPaid: true,
+                seeded.HeadCoachId,
+                now));
             await dbContext.SaveChangesAsync();
 
             targetBranchId = targetBranch.Id;
@@ -385,7 +377,7 @@ public class ClientsApiTests
         {
             Assert.Equal(HttpStatusCode.BadRequest, invalidTransferResponse.StatusCode);
             var payload = await ReadJsonElementAsync(invalidTransferResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("groupId", out _));
+            Assert.True(payload.GetProperty("errors").TryGetProperty("groupIds", out _));
         }
 
         using (var transferWithoutGroupResponse = await PostJsonAsync(
@@ -398,10 +390,9 @@ public class ClientsApiTests
                    },
                    session.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.OK, transferWithoutGroupResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, transferWithoutGroupResponse.StatusCode);
             var payload = await ReadJsonElementAsync(transferWithoutGroupResponse);
-            Assert.Equal(targetBranchId, GetGuidFromAnyCase(payload, "branchId", "BranchId"));
-            Assert.Empty(GetArrayPayload(payload.GetProperty("groupIds")).EnumerateArray());
+            Assert.True(payload.GetProperty("errors").TryGetProperty("groupIds", out _));
         }
 
         using (var transferWithGroupResponse = await PostJsonAsync(
@@ -410,7 +401,7 @@ public class ClientsApiTests
                    new
                    {
                        BranchId = targetBranchId,
-                       GroupId = targetGroupId
+                       GroupIds = new[] { targetGroupId }
                    },
                    session.CsrfToken))
         {
@@ -430,10 +421,17 @@ public class ClientsApiTests
                 .Include(candidate => candidate.Groups)
                 .Include(candidate => candidate.Memberships)
                 .SingleAsync(candidate => candidate.Id == clientId);
+            var activeBranchAssignment = await dbContext.ClientBranchAssignments
+                .SingleAsync(assignment => assignment.ClientId == clientId && assignment.ValidTo == null);
+            var activeGroupAssignments = await dbContext.ClientGroupAssignments
+                .Where(assignment => assignment.ClientId == clientId && assignment.ValidTo == null)
+                .ToArrayAsync();
 
             Assert.Equal(targetBranchId, persistedClient.BranchId);
             Assert.Equal([targetGroupId], persistedClient.Groups.Select(group => group.GroupId).ToArray());
             Assert.Single(persistedClient.Memberships.Where(membership => membership.ValidTo == null));
+            Assert.Equal(targetBranchId, activeBranchAssignment.BranchId);
+            Assert.Equal([targetGroupId], activeGroupAssignments.Select(assignment => assignment.GroupId).ToArray());
         }
     }
 
@@ -762,24 +760,15 @@ public class ClientsApiTests
             var now = DateTimeOffset.UtcNow;
             var isPaid = lastName != "Zebra";
 
-            dbContext.ClientMemberships.Add(new ClientMembership
-            {
-                Id = Guid.NewGuid(),
-                ClientId = createdClientId,
-                MembershipType = membershipType,
-                PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
-                ExpirationDate = expirationDate,
-                PaymentAmount = 1200m,
-                IsPaid = isPaid,
-                SingleVisitUsed = false,
-                PaidByUserId = isPaid ? seeded.HeadCoachId : null,
-                PaidAt = isPaid ? now : null,
-                ValidFrom = now,
-                ValidTo = null,
-                ChangeReason = ClientMembershipChangeReason.NewPurchase,
-                ChangedByUserId = seeded.HeadCoachId,
-                CreatedAt = now
-            });
+            dbContext.ClientMemberships.Add(CreateMembershipWithSale(
+                createdClientId,
+                membershipType,
+                DateOnly.FromDateTime(DateTime.UtcNow.Date),
+                expirationDate,
+                1200m,
+                isPaid,
+                seeded.HeadCoachId,
+                now));
 
             await dbContext.SaveChangesAsync();
 
@@ -1244,24 +1233,15 @@ public class ClientsApiTests
             });
             var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
             var now = DateTimeOffset.UtcNow;
-            dbContext.ClientMemberships.Add(new ClientMembership
-            {
-                Id = Guid.NewGuid(),
-                ClientId = allowedClientId,
-                MembershipType = MembershipType.Monthly,
-                PurchaseDate = today,
-                ExpirationDate = today.AddDays(10),
-                PaymentAmount = 3500m,
-                IsPaid = true,
-                SingleVisitUsed = false,
-                PaidByUserId = seeded.HeadCoachId,
-                PaidAt = now,
-                ValidFrom = now,
-                ValidTo = null,
-                ChangeReason = ClientMembershipChangeReason.NewPurchase,
-                ChangedByUserId = seeded.HeadCoachId,
-                CreatedAt = now
-            });
+            dbContext.ClientMemberships.Add(CreateMembershipWithSale(
+                allowedClientId,
+                MembershipType.Monthly,
+                today,
+                today.AddDays(10),
+                3500m,
+                isPaid: true,
+                seeded.HeadCoachId,
+                now));
             SeedAttendanceEntryForClient(
                 dbContext,
                 allowedClientId,
@@ -1415,24 +1395,15 @@ public class ClientsApiTests
             {
                 var validFrom = baseTimestamp.AddMinutes(membership.ValidFromOffsetMinutes);
 
-                dbContext.ClientMemberships.Add(new ClientMembership
-                {
-                    Id = Guid.NewGuid(),
-                    ClientId = clientId,
-                    MembershipType = membership.MembershipType,
-                    PurchaseDate = today,
-                    ExpirationDate = membership.ExpirationDate,
-                    PaymentAmount = 1000m,
-                    IsPaid = membership.IsPaid,
-                    SingleVisitUsed = false,
-                    PaidByUserId = membership.IsPaid ? seeded.HeadCoachId : null,
-                    PaidAt = membership.IsPaid ? validFrom : null,
-                    ValidFrom = validFrom,
-                    ValidTo = null,
-                    ChangeReason = ClientMembershipChangeReason.NewPurchase,
-                    ChangedByUserId = seeded.HeadCoachId,
-                    CreatedAt = validFrom
-                });
+                dbContext.ClientMemberships.Add(CreateMembershipWithSale(
+                    clientId,
+                    membership.MembershipType,
+                    today,
+                    membership.ExpirationDate,
+                    1000m,
+                    membership.IsPaid,
+                    seeded.HeadCoachId,
+                    validFrom));
             }
 
             await dbContext.SaveChangesAsync();
@@ -1441,7 +1412,7 @@ public class ClientsApiTests
         var paidClientId = await CreateClientForFilterAsync("Иванов", "Платный", "+79990004001", [seeded.GroupOneId]);
         var unpaidClientId = await CreateClientForFilterAsync("Петров", "Неоплаченный", "+79990004002", [seeded.GroupTwoId]);
         var professionalClientId = await CreateClientForFilterAsync("Профессионалов", "Льготный", "+79990004004", [seeded.GroupOneId]);
-        var noGroupNoPhotoClientId = await CreateClientForFilterAsync("Сидоров", "Без", "+79990004003", []);
+        var noGroupNoPhotoClientId = await CreateClientForFilterAsync("Сидоров", "Без", "+79990004003", [seeded.GroupTwoId]);
 
         using (var paidPhotoResponse = await PostPhotoAsync(
                    client,
@@ -1618,8 +1589,7 @@ public class ClientsApiTests
         Assert.DoesNotContain(paidClientId, withoutPhoto);
 
         var withoutGroup = await QueryClientIdsAsync("?hasGroup=false&status=Active");
-        Assert.Single(withoutGroup);
-        Assert.Equal(noGroupNoPhotoClientId, withoutGroup[0]);
+        Assert.Empty(withoutGroup);
 
         var withoutActivePaid = await QueryClientIdsAsync("?hasActivePaidMembership=false");
         Assert.Contains(unpaidClientId, withoutActivePaid);
@@ -1680,8 +1650,8 @@ public class ClientsApiTests
         Assert.Contains(firstFilteredPageClientId, singleVisitClients);
         Assert.DoesNotContain(paidClientId, singleVisitClients);
 
-        var countActiveClientId = await CreateClientForFilterAsync("Счетчик", "Актив", "+79990004101", []);
-        var countArchivedClientId = await CreateClientForFilterAsync("Счетчик", "Архив", "+79990004102", []);
+        var countActiveClientId = await CreateClientForFilterAsync("Счетчик", "Актив", "+79990004101", [seeded.GroupOneId]);
+        var countArchivedClientId = await CreateClientForFilterAsync("Счетчик", "Архив", "+79990004102", [seeded.GroupTwoId]);
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -1843,6 +1813,19 @@ public class ClientsApiTests
 
         Assert.Equal(4, memberships.Count);
         Assert.Equal(1, memberships.Count(membership => membership.ValidTo is null));
+        var sales = await dbContext.ClientMembershipSales
+            .Where(sale => sale.ClientId == clientId)
+            .OrderBy(sale => sale.CreatedAt)
+            .ToArrayAsync();
+        Assert.Equal(2, sales.Length);
+        Assert.Equal(1200m, sales[0].GrossAmount);
+        Assert.Equal(purchaseDate, sales[0].PurchaseDate);
+        Assert.Equal(2000m, sales[1].GrossAmount);
+        Assert.Equal(correctionDate, sales[1].PurchaseDate);
+        Assert.Equal(sales[0].Id, memberships.Single(membership => membership.ChangeReason == ClientMembershipChangeReason.NewPurchase).SaleId);
+        Assert.All(
+            memberships.Where(membership => membership.ChangeReason is ClientMembershipChangeReason.Renewal or ClientMembershipChangeReason.Correction or ClientMembershipChangeReason.PaymentUpdate),
+            membership => Assert.Equal(sales[1].Id, membership.SaleId));
         var historyIds = historyPayload
             .EnumerateArray()
             .Select(entry => GetGuidFromAnyCase(entry, "id", "Id"))
@@ -1856,6 +1839,240 @@ public class ClientsApiTests
             historyIds.SequenceEqual(orderedByCreated) || historyIds.SequenceEqual(orderedByCreatedReversed),
             "Membership history must be returned in a stable order.");
         Assert.All(membershipIdsFromResponse, id => Assert.Contains(id, memberships.Select(membership => membership.Id)));
+    }
+
+    [Fact]
+    public async Task Membership_refunds_are_stored_separately_audited_and_excluded_when_canceled()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorSession = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(
+            client,
+            actorSession.CsrfToken,
+            seeded.GroupOneId);
+
+        var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        using var purchaseResponse = await SendMembershipActionAsync(
+            client,
+            "purchase",
+            clientId,
+            new
+            {
+                MembershipType = "Monthly",
+                PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
+                PaymentAmount = 1000m,
+                IsPaid = true
+            },
+            actorSession.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, purchaseResponse.StatusCode);
+        var purchasePayload = await ReadJsonElementAsync(purchaseResponse);
+        var saleId = GetGuidFromAnyCase(
+            GetPropertyOrNull(purchasePayload, "currentMembership", "CurrentMembership"),
+            "saleId",
+            "SaleId");
+        Assert.NotEqual(Guid.Empty, saleId);
+
+        using var refundResponse = await PostJsonAsync(
+            client,
+            $"/clients/{clientId}/membership/sales/{saleId}/refunds",
+            new
+            {
+                Amount = 400m,
+                RefundDate = purchaseDate.ToString("yyyy-MM-dd"),
+                Comment = "Частичный возврат"
+            },
+            actorSession.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, refundResponse.StatusCode);
+        var refundPayload = await ReadJsonElementAsync(refundResponse);
+        var currentMembership = GetPropertyOrNull(refundPayload, "currentMembership", "CurrentMembership");
+        Assert.Equal(1000m, GetDecimalFromAnyCase(currentMembership, "paymentAmount", "PaymentAmount"));
+        Assert.True(GetBoolFromAnyCase(currentMembership, "isPaid", "IsPaid"));
+
+        var summary = GetPropertyOrNull(currentMembership, "financialSummary", "FinancialSummary");
+        Assert.Equal(1000m, GetDecimalFromAnyCase(summary, "grossAmount", "GrossAmount"));
+        Assert.Equal(400m, GetDecimalFromAnyCase(summary, "refundedAmount", "RefundedAmount"));
+        Assert.Equal(600m, GetDecimalFromAnyCase(summary, "netAmount", "NetAmount"));
+        Assert.Equal("Partial", GetStringFromAnyCase(summary, "refundStatus", "RefundStatus"));
+        Assert.Equal(purchaseDate.ToString("yyyy-MM-dd"), GetStringFromAnyCase(summary, "lastRefundDate", "LastRefundDate"));
+
+        var refunds = GetArrayPayload(GetPropertyOrNull(currentMembership, "refunds", "Refunds"));
+        Assert.Single(refunds.EnumerateArray());
+        var refundId = GetGuidFromAnyCase(refunds[0], "id", "Id");
+        Assert.NotEqual(Guid.Empty, refundId);
+        Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(refunds[0], "canceledAt", "CanceledAt").ValueKind);
+
+        using (var cancelResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/refunds/{refundId}/cancel",
+                   new { },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, cancelResponse.StatusCode);
+            var cancelPayload = await ReadJsonElementAsync(cancelResponse);
+            var canceledMembership = GetPropertyOrNull(cancelPayload, "currentMembership", "CurrentMembership");
+            var canceledSummary = GetPropertyOrNull(canceledMembership, "financialSummary", "FinancialSummary");
+            Assert.Equal(0m, GetDecimalFromAnyCase(canceledSummary, "refundedAmount", "RefundedAmount"));
+            Assert.Equal(1000m, GetDecimalFromAnyCase(canceledSummary, "netAmount", "NetAmount"));
+            Assert.Equal("None", GetStringFromAnyCase(canceledSummary, "refundStatus", "RefundStatus"));
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(canceledSummary, "lastRefundDate", "LastRefundDate").ValueKind);
+        }
+
+        using (var repeatCancelResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/refunds/{refundId}/cancel",
+                   new { },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, repeatCancelResponse.StatusCode);
+        }
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var persistedRefund = await dbContext.ClientMembershipRefunds.SingleAsync(refund => refund.Id == refundId);
+        Assert.NotNull(persistedRefund.CanceledAt);
+        Assert.Equal(seeded.HeadCoachId, persistedRefund.CanceledByUserId);
+
+        var auditActions = await dbContext.AuditLogs
+            .Where(log => log.EntityId == refundId.ToString())
+            .Select(log => log.ActionType)
+            .ToArrayAsync();
+        Assert.Contains("ClientMembershipRefundCreated", auditActions);
+        Assert.Contains("ClientMembershipRefundCanceled", auditActions);
+    }
+
+    [Fact]
+    public async Task Membership_refund_and_correction_validations_protect_sale_semantics()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorSession = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(
+            client,
+            actorSession.CsrfToken,
+            seeded.GroupOneId);
+
+        var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).AddDays(-1);
+        using var purchaseResponse = await SendMembershipActionAsync(
+            client,
+            "purchase",
+            clientId,
+            new
+            {
+                MembershipType = "Monthly",
+                PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
+                PaymentAmount = 1000m,
+                IsPaid = true
+            },
+            actorSession.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, purchaseResponse.StatusCode);
+        var purchasePayload = await ReadJsonElementAsync(purchaseResponse);
+        var saleId = GetGuidFromAnyCase(
+            GetPropertyOrNull(purchasePayload, "currentMembership", "CurrentMembership"),
+            "saleId",
+            "SaleId");
+
+        using (var negativeRefundResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/sales/{saleId}/refunds",
+                   new { Amount = -1m, RefundDate = purchaseDate.ToString("yyyy-MM-dd") },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, negativeRefundResponse.StatusCode);
+        }
+
+        using (var futureRefundResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/sales/{saleId}/refunds",
+                   new { Amount = 1m, RefundDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).AddDays(1).ToString("yyyy-MM-dd") },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, futureRefundResponse.StatusCode);
+        }
+
+        using (var beforePurchaseRefundResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/sales/{saleId}/refunds",
+                   new { Amount = 1m, RefundDate = purchaseDate.AddDays(-1).ToString("yyyy-MM-dd") },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, beforePurchaseRefundResponse.StatusCode);
+        }
+
+        using (var beforeSaleCreatedRefundResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/sales/{saleId}/refunds",
+                   new { Amount = 1m, RefundDate = purchaseDate.ToString("yyyy-MM-dd") },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, beforeSaleCreatedRefundResponse.StatusCode);
+        }
+
+        var refundDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        using (var validRefundResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/sales/{saleId}/refunds",
+                   new { Amount = 700m, RefundDate = refundDate.ToString("yyyy-MM-dd") },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, validRefundResponse.StatusCode);
+        }
+
+        using (var excessiveRefundResponse = await PostJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/sales/{saleId}/refunds",
+                   new { Amount = 301m, RefundDate = refundDate.ToString("yyyy-MM-dd") },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, excessiveRefundResponse.StatusCode);
+        }
+
+        using (var lowCorrectionResponse = await SendMembershipActionAsync(
+                   client,
+                   "correct",
+                   clientId,
+                   new
+                   {
+                       MembershipType = "Monthly",
+                       PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
+                       PaymentAmount = 600m,
+                       IsPaid = true
+                   },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, lowCorrectionResponse.StatusCode);
+        }
+
+        using (var latePurchaseDateCorrectionResponse = await SendMembershipActionAsync(
+                   client,
+                   "correct",
+                   clientId,
+                   new
+                   {
+                       MembershipType = "Monthly",
+                       PurchaseDate = refundDate.AddDays(1).ToString("yyyy-MM-dd"),
+                       PaymentAmount = 1000m,
+                       IsPaid = true
+                   },
+                   actorSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, latePurchaseDateCorrectionResponse.StatusCode);
+        }
     }
 
     [Fact]
@@ -2107,24 +2324,17 @@ public class ClientsApiTests
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-            dbContext.ClientMemberships.Add(new ClientMembership
-            {
-                Id = Guid.NewGuid(),
-                ClientId = clientId,
-                MembershipType = MembershipType.Monthly,
-                PurchaseDate = currentDate.AddMonths(-3),
-                ExpirationDate = oldExpiration,
-                PaymentAmount = 700m,
-                IsPaid = true,
-                SingleVisitUsed = false,
-                PaidByUserId = seeded.HeadCoachId,
-                PaidAt = DateTimeOffset.UtcNow.AddMonths(-2),
-                ValidFrom = DateTimeOffset.UtcNow.AddMonths(-2),
-                ValidTo = null,
-                ChangeReason = ClientMembershipChangeReason.NewPurchase,
-                ChangedByUserId = seeded.HeadCoachId,
-                CreatedAt = DateTimeOffset.UtcNow.AddMonths(-2)
-            });
+            var validFrom = DateTimeOffset.UtcNow.AddMonths(-2);
+            dbContext.ClientMemberships.Add(CreateMembershipWithSale(
+                clientId,
+                MembershipType.Monthly,
+                currentDate.AddMonths(-3),
+                oldExpiration,
+                700m,
+                isPaid: true,
+                seeded.HeadCoachId,
+                validFrom,
+                paidAt: validFrom));
 
             await dbContext.SaveChangesAsync();
         }
@@ -3678,6 +3888,55 @@ public class ClientsApiTests
         conversionResultProperty?.SetValue(proxy, conversionResult);
 
         return _ => proxy;
+    }
+
+    private static ClientMembership CreateMembershipWithSale(
+        Guid clientId,
+        MembershipType membershipType,
+        DateOnly purchaseDate,
+        DateOnly? expirationDate,
+        decimal paymentAmount,
+        bool isPaid,
+        Guid changedByUserId,
+        DateTimeOffset validFrom,
+        bool singleVisitUsed = false,
+        DateTimeOffset? validTo = null,
+        DateTimeOffset? paidAt = null,
+        Guid? paidByUserId = null)
+    {
+        var saleId = Guid.NewGuid();
+        DateTimeOffset? resolvedPaidAt = isPaid ? paidAt ?? validFrom : null;
+        Guid? resolvedPaidByUserId = isPaid ? paidByUserId ?? changedByUserId : null;
+
+        return new ClientMembership
+        {
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            SaleId = saleId,
+            MembershipType = membershipType,
+            PurchaseDate = purchaseDate,
+            ExpirationDate = expirationDate,
+            PaymentAmount = paymentAmount,
+            IsPaid = isPaid,
+            SingleVisitUsed = singleVisitUsed,
+            PaidByUserId = resolvedPaidByUserId,
+            PaidAt = resolvedPaidAt,
+            ValidFrom = validFrom,
+            ValidTo = validTo,
+            ChangeReason = ClientMembershipChangeReason.NewPurchase,
+            ChangedByUserId = changedByUserId,
+            CreatedAt = validFrom,
+            Sale = new ClientMembershipSale
+            {
+                Id = saleId,
+                ClientId = clientId,
+                MembershipType = membershipType,
+                PurchaseDate = purchaseDate,
+                GrossAmount = paymentAmount,
+                CreatedByUserId = changedByUserId,
+                CreatedAt = validFrom
+            }
+        };
     }
 
     private class TestClientPhotoImageProcessorProxy : DispatchProxy

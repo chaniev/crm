@@ -565,10 +565,12 @@ public class AttendanceApiTests
         Guid seedBy)
     {
         var now = DateTimeOffset.UtcNow;
+        var saleId = Guid.NewGuid();
         dbContext.ClientMemberships.Add(new ClientMembership
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
+            SaleId = saleId,
             MembershipType = membershipType,
             PurchaseDate = purchaseDate,
             ExpirationDate = expirationDate,
@@ -580,7 +582,17 @@ public class AttendanceApiTests
             PaidAt = isPaid ? now : null,
             ChangeReason = ClientMembershipChangeReason.NewPurchase,
             ValidFrom = now,
-            CreatedAt = now
+            CreatedAt = now,
+            Sale = new ClientMembershipSale
+            {
+                Id = saleId,
+                ClientId = clientId,
+                MembershipType = membershipType,
+                PurchaseDate = purchaseDate,
+                GrossAmount = paymentAmount,
+                CreatedByUserId = changedByUserId,
+                CreatedAt = now
+            }
         });
 
         await dbContext.SaveChangesAsync();

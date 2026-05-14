@@ -6,6 +6,7 @@ public class ClientMembership
 {
     public Guid Id { get; set; }
     public Guid ClientId { get; set; }
+    public Guid SaleId { get; set; }
     public MembershipType MembershipType { get; set; }
     public DateOnly PurchaseDate { get; set; }
     public DateOnly? ExpirationDate { get; set; }
@@ -21,6 +22,7 @@ public class ClientMembership
     public DateTimeOffset CreatedAt { get; set; }
 
     public Client Client { get; set; } = null!;
+    public ClientMembershipSale Sale { get; set; } = null!;
     public User? PaidByUser { get; set; }
     public User ChangedByUser { get; set; } = null!;
 }

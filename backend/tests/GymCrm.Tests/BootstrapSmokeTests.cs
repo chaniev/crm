@@ -80,7 +80,12 @@ public class BootstrapSmokeTests
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Users.User"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Clients.Client"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Clients.ClientMembership"));
+        Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Clients.ClientMembershipSale"));
+        Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Clients.ClientMembershipRefund"));
+        Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Clients.ClientBranchAssignment"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.TrainingGroup"));
+        Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.ClientGroupAssignment"));
+        Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.GroupTrainerAssignment"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Attendance.Attendance"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Audit.AuditLog"));
     }

@@ -134,10 +134,18 @@ public class GroupsApiTests
                 .Select(gt => gt.TrainerId)
                 .OrderBy(id => id)
                 .ToListAsync();
+            var activeTrainerAssignments = await dbContext.GroupTrainerAssignments
+                .Where(assignment => assignment.GroupId == groupId && assignment.ValidTo == null)
+                .Select(assignment => assignment.TrainerId)
+                .OrderBy(id => id)
+                .ToListAsync();
 
             Assert.Equal(
                 new[] { seeded.CoachOneId, seeded.CoachTwoId }.OrderBy(id => id).ToArray(),
                 assignedGroup);
+            Assert.Equal(
+                new[] { seeded.CoachOneId, seeded.CoachTwoId }.OrderBy(id => id).ToArray(),
+                activeTrainerAssignments);
         }
 
         using (var clientsResponse = await client.GetAsync($"/groups/{groupId}/clients"))
@@ -168,6 +176,70 @@ public class GroupsApiTests
             var clientsArray = GetArrayPayload(clientsPayload, "data", "items", "clients");
             Assert.Equal(1, clientsArray.GetArrayLength());
         }
+    }
+
+    [Fact]
+    public async Task Group_update_rejects_branch_change()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        Guid foreignBranchId;
+        Guid foreignHallId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = DateTimeOffset.UtcNow;
+            var foreignBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "Immutable Foreign Branch",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var foreignHall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = foreignBranch.Id,
+                Name = "Immutable Foreign Hall",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            dbContext.Branches.Add(foreignBranch);
+            dbContext.Halls.Add(foreignHall);
+            await dbContext.SaveChangesAsync();
+            foreignBranchId = foreignBranch.Id;
+            foreignHallId = foreignHall.Id;
+        }
+
+        using var response = await PutJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}",
+            new
+            {
+                Name = "Branch Change Rejected",
+                BranchId = foreignBranchId,
+                HallId = foreignHallId,
+                GroupTypeId = seeded.GroupTypeId,
+                TrainingStartTime = "11:00:00",
+                DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
+                IsActive = true
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.True(payload.GetProperty("errors").TryGetProperty("branchId", out _));
     }
 
     [Fact]

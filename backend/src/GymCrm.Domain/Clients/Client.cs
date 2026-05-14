@@ -29,6 +29,10 @@ public class Client
     public Branch Branch { get; set; } = null!;
     public ICollection<ClientContact> Contacts { get; set; } = new List<ClientContact>();
     public ICollection<ClientMembership> Memberships { get; set; } = new List<ClientMembership>();
+    public ICollection<ClientMembershipSale> MembershipSales { get; set; } = new List<ClientMembershipSale>();
+    public ICollection<ClientMembershipRefund> MembershipRefunds { get; set; } = new List<ClientMembershipRefund>();
+    public ICollection<ClientBranchAssignment> BranchAssignments { get; set; } = new List<ClientBranchAssignment>();
+    public ICollection<ClientGroupAssignment> GroupAssignments { get; set; } = new List<ClientGroupAssignment>();
     public ICollection<ClientGroup> Groups { get; set; } = new List<ClientGroup>();
     public ICollection<AttendanceEntry> AttendanceEntries { get; set; } = new List<AttendanceEntry>();
 }
