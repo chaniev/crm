@@ -1,7 +1,7 @@
 # TASK-037: Реализовать backend API статистики и финансовых отчетов
 
 ## Status
-risky
+done
 
 ## Goal
 Главный тренер получает backend-owned API финансовых и статистических отчетов первого релиза с корректными фильтрами, периодами и агрегатами.
@@ -119,7 +119,7 @@ Frontend не должен считать финансовые формулы л
 
 ## Dependencies
 - `backlog/done/TASK-031-branches-backend-domain-contracts.md`
-- `backlog/risky/TASK-036-membership-refunds-sale-semantics.md`
+- `backlog/done/TASK-036-membership-refunds-sale-semantics.md`
 
 ## Acceptance criteria
 - [ ] В backend есть endpoint или report service для финансовых отчетов первого релиза.
@@ -183,9 +183,9 @@ Frontend не должен считать финансовые формулы л
 
 ## Source notes
 - Derived from: `backlog/done/TASK-026-statistics-and-financial-reports.md`
-- Related to: `backlog/risky/TASK-025-trainer-membership-total-report.md`
-- Depends on: `backlog/risky/TASK-036-membership-refunds-sale-semantics.md`
-- Enables: `backlog/risky/TASK-038-finance-reports-frontend.md`
+- Related to: `backlog/done/TASK-025-trainer-membership-total-report.md`
+- Depends on: `backlog/done/TASK-036-membership-refunds-sale-semantics.md`
+- Enables: `backlog/done/TASK-038-finance-reports-frontend.md`
 
 ## Processing notes
 - Created at: 2026-05-13 20:54
@@ -200,3 +200,4 @@ Frontend не должен считать финансовые формулы л
 - Updated at: 2026-05-13 to use half-open period matching for report attribution.
 - Updated at: 2026-05-13 to rely on correction purchase date not moving after existing non-canceled refunds.
 - Updated at: 2026-05-13 to assume mandatory client group attribution within the active client branch.
+- Moved to done by 2026-05-14 status audit after merge of `feature/TASK-037-financial-reports-backend-api`.

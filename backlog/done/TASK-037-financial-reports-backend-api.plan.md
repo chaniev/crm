@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-037 Реализовать backend API статистики и финансовых отчетов
 
 ## Source task
-/backlog/risky/TASK-037-financial-reports-backend-api.md
+/backlog/done/TASK-037-financial-reports-backend-api.md
 
 ## Implementation branch
 feature/TASK-037-financial-reports-backend-api

@@ -171,9 +171,9 @@ For future product-code work, the main regression barrier is backend integration
 Do not stop planning only because backend and frontend are both involved. The correct response is phased decomposition with backend-owned contracts first.
 
 ## Decomposition result
-- `backlog/risky/TASK-036-membership-refunds-sale-semantics.md`
-- `backlog/risky/TASK-037-financial-reports-backend-api.md`
-- `backlog/risky/TASK-038-finance-reports-frontend.md`
+- `backlog/done/TASK-036-membership-refunds-sale-semantics.md`
+- `backlog/done/TASK-037-financial-reports-backend-api.md`
+- `backlog/done/TASK-038-finance-reports-frontend.md`
 
 `TASK-026` is closed and moved to `backlog/done`.
 

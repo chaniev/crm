@@ -1,7 +1,7 @@
 # TASK-025: Рассчитать общую сумму абонементов по каждому тренеру
 
 ## Status
-risky
+done
 
 ## Goal
 Владелец или администратор видит общую сумму абонементов, связанную с каждым тренером, по понятным правилам расчета.
@@ -59,3 +59,4 @@ risky
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Closed by 2026-05-14 status audit: trainer membership totals are covered by `TASK-037` backend trainer breakdowns and `TASK-038` frontend finance screen.

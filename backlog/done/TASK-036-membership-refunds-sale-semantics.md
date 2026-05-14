@@ -1,7 +1,7 @@
 # TASK-036: Добавить возвраты и семантику продажи абонемента
 
 ## Status
-risky
+done
 
 ## Goal
 Backend хранит возвраты по абонементам и дает однозначный источник данных для будущих финансовых отчетов без двойного учета истории абонементов.
@@ -203,7 +203,7 @@ Backend хранит возвраты по абонементам и дает о
 
 ## Source notes
 - Derived from: `backlog/done/TASK-026-statistics-and-financial-reports.md`
-- Enables: `backlog/risky/TASK-037-financial-reports-backend-api.md`
+- Enables: `backlog/done/TASK-037-financial-reports-backend-api.md`
 
 ## Processing notes
 - Created at: 2026-05-13 20:54
@@ -216,3 +216,4 @@ Backend хранит возвраты по абонементам и дает о
 - Updated at: 2026-05-13 to define half-open period matching: `ValidFrom <= date && (ValidTo == null || date < ValidTo)`.
 - Updated at: 2026-05-13 to reject correction that would move purchase date after an existing non-canceled refund date.
 - Updated at: 2026-05-13 to require at least one active client group and keep client groups in the active client branch.
+- Moved to done by 2026-05-14 status audit after merge of `feature/TASK-036-membership-refunds-sale-semantics`.
