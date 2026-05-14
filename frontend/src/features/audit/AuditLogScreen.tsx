@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import {
-  Accordion,
   Badge,
   Button,
   Group,
+  Modal,
   Pagination,
   Paper,
   Select,
@@ -79,6 +79,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [reloadKey, setReloadKey] = useState(0)
+  const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null)
   const [appliedFilters, setAppliedFilters] =
     useState<AuditFilterValues>(INITIAL_FILTER_VALUES)
 
@@ -135,17 +136,46 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     return () => controller.abort()
   }, [appliedFilters, page, reloadKey, user.permissions.canViewAuditLog])
 
+  useEffect(() => {
+    if (!selectedEntry) {
+      return
+    }
+
+    if (!response) {
+      if (!loading) {
+        setSelectedEntry(null)
+      }
+      return
+    }
+
+    if (!response.items.some((entry) => entry.id === selectedEntry.id)) {
+      setSelectedEntry(null)
+    }
+  }, [loading, response, selectedEntry])
+
   function handleApplyFilters(values: AuditFilterValues) {
     const nextFilters = normalizeFilterValues(values)
+    setSelectedEntry(null)
     setPage(1)
     setAppliedFilters(nextFilters)
     form.setValues(nextFilters)
   }
 
   function handleResetFilters() {
+    setSelectedEntry(null)
     form.setValues(INITIAL_FILTER_VALUES)
     setPage(1)
     setAppliedFilters(INITIAL_FILTER_VALUES)
+  }
+
+  function handleRefresh() {
+    setSelectedEntry(null)
+    setReloadKey((current) => current + 1)
+  }
+
+  function handlePageChange(nextPage: number) {
+    setSelectedEntry(null)
+    setPage(nextPage)
   }
 
   if (!user.permissions.canViewAuditLog) {
@@ -193,7 +223,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
         <PageHeader
           actions={(
             <ResponsiveButtonGroup>
-              <RefreshButton onClick={() => setReloadKey((current) => current + 1)} />
+              <RefreshButton onClick={handleRefresh} />
             </ResponsiveButtonGroup>
           )}
           description="Фильтруйте записи по пользователю, типу действия, объекту и периоду. Для изменений отображаются предыдущие и новые значения."
@@ -334,70 +364,29 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
           ) : null}
 
           {!loading && !error && entries.length > 0 ? (
-            <Accordion
-              chevronPosition="right"
-              className="audit-log-list"
-              data-testid="audit-log-list"
-              variant="separated"
+            <div
+              aria-label="Записи журнала действий"
+              className="audit-log-grid audit-log-list"
+              data-testid="audit-log-grid"
+              role="table"
             >
+              <div className="audit-log-header" role="row">
+                <div role="columnheader">Дата</div>
+                <div role="columnheader">Действие</div>
+                <div role="columnheader">Объект</div>
+                <div role="columnheader">Описание</div>
+                <div role="columnheader">Автор</div>
+                <div role="columnheader">Источник</div>
+                <div role="columnheader">Детали</div>
+              </div>
               {entries.map((entry) => (
-                <Accordion.Item key={entry.id} value={entry.id}>
-                  <Accordion.Control>
-                    <Stack className="audit-entry-summary" gap="xs">
-                      <Group gap="xs" wrap="wrap">
-                        <Badge color="brand.1" radius="xl" variant="light">
-                          {formatActionType(entry.actionType)}
-                        </Badge>
-                        <Badge color="accent.5" radius="xl" variant="light">
-                          {formatEntityType(entry.entityType)}
-                        </Badge>
-                        <Badge radius="xl" variant="light">
-                          {formatUserLabel(entry)}
-                        </Badge>
-                        {entry.source ? (
-                          <Badge color="cyan" radius="xl" variant="light">
-                            {formatSource(entry.source)}
-                          </Badge>
-                        ) : null}
-                        {entry.messengerPlatform ? (
-                          <Badge color="teal" radius="xl" variant="light">
-                            {formatMessengerPlatform(entry.messengerPlatform)}
-                          </Badge>
-                        ) : null}
-                      </Group>
-
-                      <Text fw={700}>{entry.description}</Text>
-
-                      <Group gap="xs" wrap="wrap">
-                        <Text c="dimmed" size="sm">
-                          {formatDateTime(entry.createdAt)}
-                        </Text>
-                        {entry.entityId ? (
-                          <Text c="dimmed" size="sm">
-                            ID объекта: {entry.entityId}
-                          </Text>
-                        ) : null}
-                      </Group>
-                    </Stack>
-                  </Accordion.Control>
-
-                  <Accordion.Panel>
-                    <SimpleGrid cols={{ base: 1, lg: 2 }}>
-                      <JsonPanel
-                        emptyLabel="Для этой записи старые значения не переданы."
-                        title="Старые значения"
-                        value={entry.oldValueJson}
-                      />
-                      <JsonPanel
-                        emptyLabel="Для этой записи новые значения не переданы."
-                        title="Новые значения"
-                        value={entry.newValueJson}
-                      />
-                    </SimpleGrid>
-                  </Accordion.Panel>
-                </Accordion.Item>
+                <AuditLogGridRow
+                  entry={entry}
+                  key={entry.id}
+                  onOpenDetails={setSelectedEntry}
+                />
               ))}
-            </Accordion>
+            </div>
           ) : null}
 
           {!loading && !error && totalPages > 1 ? (
@@ -405,12 +394,182 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
               <Text c="dimmed" size="sm">
                 {formatPaginationSummary(response)}
               </Text>
-              <Pagination onChange={setPage} total={totalPages} value={page} />
+              <Pagination onChange={handlePageChange} total={totalPages} value={page} />
             </Group>
           ) : null}
         </Stack>
       </PageCard>
+
+      <AuditDetailsModal
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+      />
     </Stack>
+  )
+}
+
+type AuditLogGridRowProps = {
+  entry: AuditLogEntry
+  onOpenDetails: (entry: AuditLogEntry) => void
+}
+
+function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
+  const dateTimeParts = formatDateTimeParts(entry.createdAt)
+  const userLogin = getUserLoginLabel(entry)
+
+  return (
+    <div className="audit-log-row" data-testid="audit-log-row" role="row">
+      <div className="audit-log-cell audit-log-cell--date" role="cell">
+        <span className="audit-log-cell__label">Дата</span>
+        <Text fw={700} size="sm">
+          {dateTimeParts.date}
+        </Text>
+        <Text c="dimmed" size="xs">
+          {dateTimeParts.time}
+        </Text>
+      </div>
+
+      <div className="audit-log-cell audit-log-cell--action" role="cell">
+        <span className="audit-log-cell__label">Действие</span>
+        <Text fw={700} size="sm">
+          {formatActionType(entry.actionType)}
+        </Text>
+      </div>
+
+      <div className="audit-log-cell audit-log-cell--entity" role="cell">
+        <span className="audit-log-cell__label">Объект</span>
+        <Text fw={700} size="sm">
+          {formatEntityType(entry.entityType)}
+        </Text>
+        {entry.entityId ? (
+          <Text c="dimmed" size="xs">
+            ID: {entry.entityId}
+          </Text>
+        ) : null}
+      </div>
+
+      <div className="audit-log-cell audit-log-cell--description" role="cell">
+        <span className="audit-log-cell__label">Описание</span>
+        <Text className="audit-log-description" fw={700} size="sm">
+          {entry.description}
+        </Text>
+      </div>
+
+      <div
+        aria-label={`Автор: ${formatUserLabel(entry)}`}
+        className="audit-log-cell audit-log-cell--actor"
+        data-testid="audit-log-actor-cell"
+        role="cell"
+      >
+        <span className="audit-log-cell__label">Автор</span>
+        <Text fw={700} size="sm">
+          {entry.userName}
+        </Text>
+        {userLogin ? (
+          <Text c="dimmed" size="xs">
+            {userLogin}
+          </Text>
+        ) : null}
+      </div>
+
+      <div className="audit-log-cell audit-log-cell--source" role="cell">
+        <span className="audit-log-cell__label">Источник</span>
+        <Text fw={700} size="sm">
+          {entry.source ? formatSource(entry.source) : 'Не указан'}
+        </Text>
+        {entry.messengerPlatform ? (
+          <Text c="dimmed" size="xs">
+            {formatMessengerPlatform(entry.messengerPlatform)}
+          </Text>
+        ) : null}
+      </div>
+
+      <div className="audit-log-cell audit-log-cell--details" role="cell">
+        <Button
+          aria-haspopup="dialog"
+          aria-label={`Показать детали записи: ${entry.description}`}
+          data-testid="audit-log-details-action"
+          onClick={() => onOpenDetails(entry)}
+          size="xs"
+          variant="light"
+        >
+          Детали
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+type AuditDetailsModalProps = {
+  entry: AuditLogEntry | null
+  onClose: () => void
+}
+
+function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
+  const dateTimeParts = entry ? formatDateTimeParts(entry.createdAt) : null
+
+  return (
+    <Modal
+      centered
+      onClose={onClose}
+      opened={Boolean(entry)}
+      size="xl"
+      title="Подробности записи журнала"
+    >
+      {entry ? (
+        <Stack data-testid="audit-log-details-modal" gap="lg">
+          <Stack gap="sm">
+            <Group gap="xs" wrap="wrap">
+              <Badge color="brand.1" radius="xl" variant="light">
+                {formatActionType(entry.actionType)}
+              </Badge>
+              <Badge color="accent.5" radius="xl" variant="light">
+                {formatEntityType(entry.entityType)}
+              </Badge>
+              <Badge radius="xl" variant="light">
+                {formatUserLabel(entry)}
+              </Badge>
+              {entry.source ? (
+                <Badge color="cyan" radius="xl" variant="light">
+                  {formatSource(entry.source)}
+                </Badge>
+              ) : null}
+              {entry.messengerPlatform ? (
+                <Badge color="teal" radius="xl" variant="light">
+                  {formatMessengerPlatform(entry.messengerPlatform)}
+                </Badge>
+              ) : null}
+            </Group>
+
+            <Text fw={800}>{entry.description}</Text>
+
+            <Group gap="xs" wrap="wrap">
+              <Text c="dimmed" size="sm">
+                {dateTimeParts ? `${dateTimeParts.date}, ${dateTimeParts.time}` : null}
+              </Text>
+              {entry.entityId ? (
+                <Text c="dimmed" size="sm">
+                  ID объекта: {entry.entityId}
+                </Text>
+              ) : null}
+            </Group>
+          </Stack>
+
+          <SimpleGrid cols={{ base: 1, md: 2 }}>
+            <JsonPanel
+              emptyLabel="Для этой записи старые значения не переданы."
+              title="Старые значения"
+              value={entry.oldValueJson}
+            />
+            <JsonPanel
+              emptyLabel="Для этой записи новые значения не переданы."
+              title="Новые значения"
+              value={entry.newValueJson}
+            />
+          </SimpleGrid>
+        </Stack>
+      ) : null}
+    </Modal>
   )
 }
 
@@ -424,7 +583,7 @@ function JsonPanel({ title, value, emptyLabel }: JsonPanelProps) {
   const formattedValue = formatJsonForDisplay(value)
 
   return (
-    <Paper className="list-row-card audit-json-card" radius="24px" withBorder>
+    <Paper className="list-row-card audit-json-card" radius="var(--radius-inner)" withBorder>
       <Stack gap="sm">
         <Text fw={700}>{title}</Text>
         {formattedValue ? (
@@ -533,28 +692,51 @@ function getDictionaryLabel(dictionary: Record<string, string>, value: string) {
 }
 
 function formatUserLabel(entry: AuditLogEntry) {
-  if (entry.userLogin && !entry.userName.includes(entry.userLogin)) {
-    return `${entry.userName} (${entry.userLogin})`
+  const userLogin = getUserLoginLabel(entry)
+
+  if (userLogin) {
+    return `${entry.userName} (${userLogin})`
   }
 
   return entry.userName
 }
 
-function formatDateTime(value: string) {
+function getUserLoginLabel(entry: AuditLogEntry) {
+  if (entry.userLogin && !entry.userName.includes(entry.userLogin)) {
+    return entry.userLogin
+  }
+
+  return null
+}
+
+function formatDateTimeParts(value: string) {
   if (!value) {
-    return 'Дата не указана'
+    return {
+      date: 'Дата не указана',
+      time: '',
+    }
   }
 
   const date = new Date(value)
 
   if (Number.isNaN(date.getTime())) {
-    return value
+    return {
+      date: value,
+      time: '',
+    }
   }
 
-  return new Intl.DateTimeFormat('ru-RU', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date)
+  return {
+    date: new Intl.DateTimeFormat('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(date),
+    time: new Intl.DateTimeFormat('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date),
+  }
 }
 
 function formatJsonForDisplay(value: AuditLogEntry['oldValueJson']) {

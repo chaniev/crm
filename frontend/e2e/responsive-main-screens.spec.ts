@@ -205,6 +205,8 @@ const AUDIT_FILTER_OPTIONS_RESPONSE = {
   ],
   actionTypes: ['Login', 'ClientUpdated'],
   entityTypes: ['UserSession', 'Client'],
+  sources: ['Web'],
+  messengerPlatforms: ['Telegram'],
 } as const
 
 const AUDIT_ENTRIES_RESPONSE = {
@@ -213,14 +215,17 @@ const AUDIT_ENTRIES_RESPONSE = {
       id: 'audit-1',
       actionType: 'ClientUpdated',
       entityType: 'Client',
-      entityId: 'client-1',
-      description: 'Обновлены данные клиента Александра Константинопольская-Северная',
+      entityId: 'client-1-with-long-responsive-identifier',
+      description:
+        'Обновлены данные клиента Александра Константинопольская-Северная: длинное описание должно переноситься внутри grid-строки без горизонтального скролла страницы.',
       createdAt: '2026-04-18T10:00:00Z',
       oldValueJson: '{"phone":"+7 999 111-22-33"}',
       newValueJson: '{"phone":"+7 999 123-45-67"}',
       userId: 'headcoach-id',
       userLogin: 'headcoach',
       userFullName: 'Главный тренер',
+      source: 'Web',
+      messengerPlatform: 'Telegram',
     },
   ],
   page: 1,
