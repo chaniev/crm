@@ -1615,6 +1615,8 @@ test.describe('Основные e2e сценарии', () => {
             ],
             actionTypes: ['Login', 'ClientCreated', 'AttendanceMarked'],
             entityTypes: ['User', 'Client', 'Attendance'],
+            sources: ['Web'],
+            messengerPlatforms: ['Telegram'],
           })
           return true
         }
@@ -1627,6 +1629,8 @@ test.describe('Основные e2e сценарии', () => {
                 userName: 'Главный тренер',
                 userLogin: BOOTSTRAP_LOGIN,
                 userRole: 'HeadCoach',
+                source: 'Web',
+                messengerPlatform: 'Telegram',
                 actionType: 'ClientCreated',
                 entityType: 'Client',
                 entityId: 'client-1',
@@ -1655,13 +1659,19 @@ test.describe('Основные e2e сценарии', () => {
           name: 'Журнал действий показывает важные изменения в клубе',
         }),
       ).toBeVisible()
-      await expect(page.getByText('Создан новый клиент')).toBeVisible()
-      await page
-        .getByRole('button', { name: /Создан новый клиент/ })
-        .first()
-        .click()
-      await expect(page.getByText('Старые значения')).toBeVisible()
-      await expect(page.getByText('"status": "Active"')).toBeVisible()
+      const auditGrid = page.getByTestId('audit-log-grid')
+      await expect(auditGrid).toBeVisible()
+      await expect(auditGrid.getByTestId('audit-log-actor-cell')).toContainText(
+        'Главный тренер',
+      )
+      await expect(auditGrid).toContainText('Создан новый клиент')
+      await expect(auditGrid).toContainText('Web')
+
+      await auditGrid.getByTestId('audit-log-details-action').first().click()
+      const detailsModal = page.getByTestId('audit-log-details-modal')
+      await expect(detailsModal).toBeVisible()
+      await expect(detailsModal.getByText('Старые значения')).toBeVisible()
+      await expect(detailsModal.getByText('"status": "Active"')).toBeVisible()
     })
   }
 
