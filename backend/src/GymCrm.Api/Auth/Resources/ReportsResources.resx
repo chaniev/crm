@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PeriodPresetRequired" xml:space="preserve">
+    <value>Укажите период отчета.</value>
+  </data>
+  <data name="PeriodPresetInvalid" xml:space="preserve">
+    <value>Период отчета должен быть month, quarter, year или custom.</value>
+  </data>
+  <data name="AnchorDateRequired" xml:space="preserve">
+    <value>Для быстрого периода укажите опорную дату.</value>
+  </data>
+  <data name="AnchorDateNotAllowedForCustom" xml:space="preserve">
+    <value>Для произвольного периода не передавайте опорную дату.</value>
+  </data>
+  <data name="DateMustUseFormat" xml:space="preserve">
+    <value>Дата должна быть в формате {0}.</value>
+  </data>
+  <data name="FromRequiredForCustom" xml:space="preserve">
+    <value>Для произвольного периода укажите дату начала.</value>
+  </data>
+  <data name="ToRequiredForCustom" xml:space="preserve">
+    <value>Для произвольного периода укажите дату окончания.</value>
+  </data>
+  <data name="FromNotAllowedForPreset" xml:space="preserve">
+    <value>Для быстрого периода дата начала рассчитывается backend.</value>
+  </data>
+  <data name="ToNotAllowedForPreset" xml:space="preserve">
+    <value>Для быстрого периода дата окончания рассчитывается backend.</value>
+  </data>
+  <data name="ToCannotBeBeforeFrom" xml:space="preserve">
+    <value>Дата окончания не может быть раньше даты начала.</value>
+  </data>
+  <data name="BranchIdInvalid" xml:space="preserve">
+    <value>Идентификатор филиала некорректен.</value>
+  </data>
+  <data name="BranchMustExist" xml:space="preserve">
+    <value>Филиал не найден.</value>
+  </data>
+  <data name="TrainerIdInvalid" xml:space="preserve">
+    <value>Идентификатор тренера некорректен.</value>
+  </data>
+  <data name="TrainerMustExist" xml:space="preserve">
+    <value>Тренер не найден.</value>
+  </data>
+  <data name="TrainerMustBeCoach" xml:space="preserve">
+    <value>Выбранный пользователь не является тренером.</value>
+  </data>
+</root>

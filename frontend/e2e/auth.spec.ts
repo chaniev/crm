@@ -31,6 +31,7 @@ const forcedPasswordSession = {
       canManageSettings: true,
       canMarkAttendance: true,
       canViewAuditLog: true,
+      canViewFinancialReports: true,
     },
     assignedGroupIds: [],
   },

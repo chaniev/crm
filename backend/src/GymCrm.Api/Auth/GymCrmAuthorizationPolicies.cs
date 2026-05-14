@@ -12,6 +12,7 @@ internal static class GymCrmAuthorizationPolicies
     public const string ManageGroups = "gym-crm.manage-groups";
     public const string ManageSettings = "gym-crm.manage-settings";
     public const string ViewAuditLog = "gym-crm.view-audit-log";
+    public const string ViewFinancialReports = "gym-crm.view-financial-reports";
     public const string MarkAttendance = "gym-crm.mark-attendance";
 
     public static void Configure(AuthorizationOptions options)
@@ -57,6 +58,10 @@ internal static class GymCrmAuthorizationPolicies
             policy => policy.RequireRole(
                 UserRole.HeadCoach.ToString(),
                 UserRole.Administrator.ToString()));
+
+        options.AddPolicy(
+            ViewFinancialReports,
+            policy => policy.RequireRole(UserRole.HeadCoach.ToString()));
 
         options.AddPolicy(
             MarkAttendance,

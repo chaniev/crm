@@ -20,6 +20,7 @@ const HEAD_COACH_SESSION = {
       canManageSettings: true,
       canMarkAttendance: true,
       canViewAuditLog: true,
+      canViewFinancialReports: true,
     },
     assignedGroupIds: ['group-1'],
   },

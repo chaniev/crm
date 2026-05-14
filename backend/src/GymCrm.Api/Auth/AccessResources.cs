@@ -19,6 +19,8 @@ internal static class AccessResources
 
     public static string AuditLogDetail => GetString(nameof(AuditLogDetail));
 
+    public static string FinancialReportsDetail => GetString(nameof(FinancialReportsDetail));
+
     private static string GetString(string name)
     {
         return ResourceManager.GetString(name, CultureInfo.CurrentUICulture)

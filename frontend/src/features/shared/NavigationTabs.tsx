@@ -1,6 +1,7 @@
 import {
   IconCalendarCheck,
   IconCalendarWeek,
+  IconChartBar,
   IconClipboardList,
   IconHome,
   IconSettings,
@@ -30,6 +31,7 @@ const sectionIconMap: Record<AppSection, ReactNode> = {
   Groups: <IconUsersGroup size={17} />,
   Users: <IconUserCog size={17} />,
   Audit: <IconClipboardList size={17} />,
+  Finance: <IconChartBar size={17} />,
   Settings: <IconSettings size={17} />,
 }
 

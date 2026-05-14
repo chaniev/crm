@@ -31,6 +31,7 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     AppSection.Groups,
                     AppSection.Users,
                     AppSection.Audit,
+                    AppSection.Finance,
                     AppSection.Settings
                 ],
                 new PermissionSet(
@@ -39,7 +40,8 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     CanManageGroups: true,
                     CanManageSettings: true,
                     CanMarkAttendance: true,
-                    CanViewAuditLog: true),
+                    CanViewAuditLog: true,
+                    CanViewFinancialReports: true),
                 []),
             UserRole.Administrator => new AccessScope(
                 user.Role,
@@ -57,7 +59,8 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     CanManageGroups: true,
                     CanManageSettings: true,
                     CanMarkAttendance: false,
-                    CanViewAuditLog: true),
+                    CanViewAuditLog: true,
+                    CanViewFinancialReports: false),
                 []),
             UserRole.Coach => new AccessScope(
                 user.Role,
@@ -72,7 +75,8 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     CanManageGroups: false,
                     CanManageSettings: false,
                     CanMarkAttendance: true,
-                    CanViewAuditLog: false),
+                    CanViewAuditLog: false,
+                    CanViewFinancialReports: false),
                 assignedGroupIds),
             _ => throw new InvalidOperationException($"Unsupported user role '{user.Role}'.")
         };
