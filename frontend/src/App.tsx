@@ -16,7 +16,6 @@ import {
   UnstyledButton,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import {
   IconAlertCircle,
   IconArrowLeft,
@@ -76,6 +75,7 @@ import { AuditLogScreen } from './features/audit/AuditLogScreen'
 import { FinanceReportsScreen } from './features/finance/FinanceReportsScreen'
 import { SettingsScreen } from './features/settings/SettingsScreen'
 import { AppLayout, Header, NavigationTabs } from './features/shared/ux'
+import { showAppNotification } from './features/shared/notifications'
 import './App.css'
 
 type PasswordMode = 'forced' | 'utility'
@@ -281,7 +281,8 @@ function App() {
 
       setPasswordReturnPath(null)
 
-      notifications.show({
+      showAppNotification({
+        id: `auth-password-${mode}`,
         title: mode === 'forced' ? 'Первый вход завершен' : 'Пароль обновлен',
         message:
           mode === 'forced'
@@ -307,13 +308,15 @@ function App() {
       setPasswordReturnPath(null)
       navigate('/', { replace: true })
 
-      notifications.show({
+      showAppNotification({
+        id: 'auth-logout-success',
         title: 'Сессия завершена',
         message: 'Вы вышли из Gym CRM.',
         color: 'gray',
       })
     } catch (error) {
-      notifications.show({
+      showAppNotification({
+        id: 'auth-logout-error',
         title: 'Не удалось завершить сессию',
         message:
           error instanceof Error

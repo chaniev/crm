@@ -11,7 +11,6 @@ import {
   TextInput,
   Tooltip,
 } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
 import {
   IconCheck,
   IconCreditCardOff,
@@ -37,6 +36,7 @@ import {
   PageHeader,
   RefreshButton,
 } from '../shared/ux'
+import { showAppNotification } from '../shared/notifications'
 
 type AttendanceScreenProps = {
   user: AuthenticatedUser
@@ -223,7 +223,8 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
         setRosterError('Не удалось синхронизировать отметки посещения.')
       }
 
-      notifications.show({
+      showAppNotification({
+        id: `attendance-save-error-${client.id}`,
         title: 'Посещение не сохранено',
         message:
           error instanceof Error

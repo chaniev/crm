@@ -17,7 +17,6 @@ import {
   ThemeIcon,
 } from '@mantine/core'
 import { type UseFormReturnType, useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import {
   IconAlertCircle,
   IconArrowLeft,
@@ -73,6 +72,7 @@ import {
   RefreshButton,
   ResponsiveButtonGroup,
 } from '../shared/ux'
+import { showAppNotification } from '../shared/notifications'
 
 type GroupsListScreenProps = {
   onCreate: () => void
@@ -357,7 +357,8 @@ export function GroupCreateScreen({
     try {
       const createdGroup = await createGroup(toUpsertGroupPayload(values))
 
-      notifications.show({
+      showAppNotification({
+        id: 'group-create-success',
         title: 'Группа создана',
         message: `Группа «${createdGroup.name}» уже доступна в списке.`,
         color: 'teal',
@@ -512,7 +513,8 @@ export function GroupEditScreen({
     try {
       const updatedGroup = await updateGroup(groupId, toUpsertGroupPayload(values))
 
-      notifications.show({
+      showAppNotification({
+        id: `group-edit-success-${groupId}`,
         title: 'Группа обновлена',
         message: `Изменения группы «${updatedGroup.name}» сохранены.`,
         color: 'teal',
