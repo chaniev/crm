@@ -1,6 +1,8 @@
 import type { TrainingGroupListItem } from './api'
 
 export const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const
+const DEFAULT_VISIBLE_START_HOUR = 8
+const DEFAULT_VISIBLE_END_HOUR = 21
 
 export type WeekdayNumber = (typeof WEEKDAYS)[number]
 
@@ -8,6 +10,51 @@ export type GroupScheduleDay<TGroup = TrainingGroupListItem> = {
   weekday: WeekdayNumber
   label: string
   entries: TGroup[]
+}
+
+export type ScheduleFilters = {
+  branchId: string | null
+  hallId: string | null
+  trainerId: string | null
+  groupId: string | null
+}
+
+export type ScheduleFilterOption = {
+  value: string
+  label: string
+}
+
+export type ScheduleFilterOptions = {
+  branches: ScheduleFilterOption[]
+  halls: ScheduleFilterOption[]
+  trainers: ScheduleFilterOption[]
+  groups: ScheduleFilterOption[]
+}
+
+export type ScheduleVisibleHourRange = {
+  startHour: number
+  endHour: number
+}
+
+export type ScheduleCalendarEntry<TGroup = TrainingGroupListItem> = {
+  key: string
+  weekday: WeekdayNumber
+  group: TGroup
+  startMinutes: number
+  endMinutes: number
+  lane: number
+  laneCount: number
+}
+
+export type ScheduleCalendarDay<TGroup = TrainingGroupListItem> = {
+  weekday: WeekdayNumber
+  label: string
+  entries: ScheduleCalendarEntry<TGroup>[]
+}
+
+export type ScheduleCalendarWeek<TGroup = TrainingGroupListItem> = {
+  days: ScheduleCalendarDay<TGroup>[]
+  visibleHourRange: ScheduleVisibleHourRange
 }
 
 export const WEEKDAY_LABELS: Record<number, string> = {
@@ -26,6 +73,29 @@ export const WEEKDAY_OPTIONS = Object.entries(WEEKDAY_LABELS).map(
     label,
   }),
 )
+
+export const EMPTY_SCHEDULE_FILTERS: ScheduleFilters = {
+  branchId: null,
+  hallId: null,
+  trainerId: null,
+  groupId: null,
+}
+
+type ScheduleGroupLike = Pick<
+  TrainingGroupListItem,
+  | 'id'
+  | 'name'
+  | 'branchId'
+  | 'branchName'
+  | 'hallId'
+  | 'hallName'
+  | 'trainingStartTime'
+  | 'durationMinutes'
+  | 'weekdays'
+  | 'trainerIds'
+  | 'trainerNames'
+  | 'trainers'
+>
 
 export function formatWeekdays(weekdays?: readonly number[] | null) {
   if (!weekdays || weekdays.length === 0) {
@@ -46,19 +116,48 @@ export function formatDurationMinutes(durationMinutes?: number | null) {
 }
 
 export function formatTrainingStartTime(trainingStartTime?: string | null) {
+  const parsedTime = parseTrainingStartTime(trainingStartTime)
+
+  if (!parsedTime) {
+    return trainingStartTime?.trim() || 'Время не задано'
+  }
+
+  return parsedTime.label
+}
+
+export function parseTrainingStartTime(trainingStartTime?: string | null) {
   const value = trainingStartTime?.trim()
 
   if (!value) {
-    return 'Время не задано'
+    return null
   }
 
-  const match = value.match(/^(\d{1,2}):(\d{2})/)
+  const match = value.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/)
 
   if (!match) {
-    return value
+    return null
   }
 
-  return `${match[1].padStart(2, '0')}:${match[2]}`
+  const hours = Number(match[1])
+  const minutes = Number(match[2])
+
+  if (
+    Number.isNaN(hours) ||
+    Number.isNaN(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    return null
+  }
+
+  return {
+    hours,
+    minutes,
+    totalMinutes: (hours * 60) + minutes,
+    label: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
+  }
 }
 
 export function formatGroupSchedule(
@@ -66,6 +165,121 @@ export function formatGroupSchedule(
   durationMinutes?: number | null,
 ) {
   return `${formatWeekdays(weekdays)} · ${formatDurationMinutes(durationMinutes)}`
+}
+
+export function hasActiveScheduleFilters(filters: ScheduleFilters) {
+  return Object.values(filters).some(Boolean)
+}
+
+export function applyScheduleFilters<TGroup extends ScheduleGroupLike>(
+  groups: readonly TGroup[],
+  filters: ScheduleFilters,
+) {
+  return groups.filter((group) => (
+    (!filters.branchId || group.branchId === filters.branchId) &&
+    (!filters.hallId || group.hallId === filters.hallId) &&
+    (!filters.groupId || group.id === filters.groupId) &&
+    (
+      !filters.trainerId ||
+      group.trainerIds.includes(filters.trainerId) ||
+      group.trainers.some((trainer) => trainer.id === filters.trainerId) ||
+      group.trainerNames.includes(filters.trainerId)
+    )
+  ))
+}
+
+export function buildScheduleFilterOptions<TGroup extends ScheduleGroupLike>(
+  groups: readonly TGroup[],
+  filters: ScheduleFilters,
+): ScheduleFilterOptions {
+  return {
+    branches: toSortedOptions(
+      applyScheduleFilters(groups, {
+        ...filters,
+        branchId: null,
+      }).map((group) => ({
+        value: group.branchId,
+        label: group.branchName,
+      })),
+    ),
+    halls: toSortedOptions(
+      applyScheduleFilters(groups, {
+        ...filters,
+        hallId: null,
+      }).map((group) => ({
+        value: group.hallId,
+        label: `${group.hallName} · ${group.branchName}`,
+      })),
+    ),
+    trainers: toSortedOptions(
+      applyScheduleFilters(groups, {
+        ...filters,
+        trainerId: null,
+      }).flatMap((group) => {
+        if (group.trainers.length > 0) {
+          return group.trainers.map((trainer) => ({
+            value: trainer.id,
+            label: trainer.fullName,
+          }))
+        }
+
+        return group.trainerNames.map((trainerName) => ({
+          value: trainerName,
+          label: trainerName,
+        }))
+      }),
+    ),
+    groups: toSortedOptions(
+      applyScheduleFilters(groups, {
+        ...filters,
+        groupId: null,
+      }).map((group) => ({
+        value: group.id,
+        label: group.name,
+      })),
+    ),
+  }
+}
+
+export function getVisibleScheduleHourRange<TGroup = TrainingGroupListItem>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+): ScheduleVisibleHourRange {
+  if (entries.length === 0) {
+    return {
+      startHour: DEFAULT_VISIBLE_START_HOUR,
+      endHour: DEFAULT_VISIBLE_END_HOUR,
+    }
+  }
+
+  const minStartMinutes = Math.min(...entries.map((entry) => entry.startMinutes))
+  const maxEndMinutes = Math.max(...entries.map((entry) => entry.endMinutes))
+  const startHour = Math.max(0, Math.floor(minStartMinutes / 60))
+  const endHour = Math.min(24, Math.ceil(maxEndMinutes / 60))
+
+  return {
+    startHour,
+    endHour: Math.max(startHour + 1, endHour),
+  }
+}
+
+export function buildScheduleCalendarWeek<TGroup extends ScheduleGroupLike>(
+  groups: readonly TGroup[],
+): ScheduleCalendarWeek<TGroup> {
+  const days = WEEKDAYS.map((weekday) => ({
+    weekday,
+    label: WEEKDAY_LABELS[weekday],
+    entries: layoutScheduleEntries(
+      groups
+        .filter((group) => group.weekdays.includes(weekday))
+        .map((group) => toScheduleCalendarEntry(group, weekday))
+        .filter((entry): entry is ScheduleCalendarEntry<TGroup> => entry !== null),
+    ),
+  }))
+
+  return {
+    days,
+    visibleHourRange: getVisibleScheduleHourRange(days.flatMap((day) => day.entries)),
+  }
 }
 
 export function buildGroupWeekSchedule<TGroup extends Pick<
@@ -81,15 +295,148 @@ export function buildGroupWeekSchedule<TGroup extends Pick<
   }))
 }
 
+function toScheduleCalendarEntry<TGroup extends ScheduleGroupLike>(
+  group: TGroup,
+  weekday: WeekdayNumber,
+) {
+  const parsedTime = parseTrainingStartTime(group.trainingStartTime)
+
+  if (!parsedTime) {
+    return null
+  }
+
+  const durationMinutes = Math.max(1, group.durationMinutes)
+
+  return {
+    key: `${weekday}-${group.id}`,
+    weekday,
+    group,
+    startMinutes: parsedTime.totalMinutes,
+    endMinutes: parsedTime.totalMinutes + durationMinutes,
+    lane: 0,
+    laneCount: 1,
+  } satisfies ScheduleCalendarEntry<TGroup>
+}
+
+function layoutScheduleEntries<TGroup extends Pick<
+  TrainingGroupListItem,
+  'name' | 'trainingStartTime'
+>>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+) {
+  const positionedEntries = [...entries].sort(compareScheduleCalendarEntries)
+  const activeEntries: ScheduleCalendarEntry<TGroup>[] = []
+  let clusterEntries: ScheduleCalendarEntry<TGroup>[] = []
+  let clusterLaneCount = 1
+
+  for (const entry of positionedEntries) {
+    for (let index = activeEntries.length - 1; index >= 0; index -= 1) {
+      if (activeEntries[index].endMinutes <= entry.startMinutes) {
+        activeEntries.splice(index, 1)
+      }
+    }
+
+    if (activeEntries.length === 0 && clusterEntries.length > 0) {
+      finalizeCluster(clusterEntries, clusterLaneCount)
+      clusterEntries = []
+      clusterLaneCount = 1
+    }
+
+    const occupiedLanes = new Set(activeEntries.map((activeEntry) => activeEntry.lane))
+    let lane = 0
+
+    while (occupiedLanes.has(lane)) {
+      lane += 1
+    }
+
+    entry.lane = lane
+    clusterLaneCount = Math.max(clusterLaneCount, lane + 1)
+    activeEntries.push(entry)
+    clusterEntries.push(entry)
+  }
+
+  if (clusterEntries.length > 0) {
+    finalizeCluster(clusterEntries, clusterLaneCount)
+  }
+
+  return positionedEntries
+}
+
+function finalizeCluster<TGroup>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+  laneCount: number,
+) {
+  for (const entry of entries) {
+    entry.laneCount = laneCount
+  }
+}
+
+function compareScheduleCalendarEntries<TGroup extends Pick<
+  TrainingGroupListItem,
+  'name' | 'trainingStartTime'
+>>(
+  first: ScheduleCalendarEntry<TGroup>,
+  second: ScheduleCalendarEntry<TGroup>,
+) {
+  const startTimeCompare = first.startMinutes - second.startMinutes
+
+  if (startTimeCompare !== 0) {
+    return startTimeCompare
+  }
+
+  const groupCompare = compareScheduleGroups(first.group, second.group)
+
+  if (groupCompare !== 0) {
+    return groupCompare
+  }
+
+  const endTimeCompare = first.endMinutes - second.endMinutes
+
+  if (endTimeCompare !== 0) {
+    return endTimeCompare
+  }
+
+  return 0
+}
+
 function compareScheduleGroups<TGroup extends Pick<
   TrainingGroupListItem,
   'name' | 'trainingStartTime'
 >>(first: TGroup, second: TGroup) {
-  const timeCompare = first.trainingStartTime.localeCompare(second.trainingStartTime)
+  const firstTime = parseTrainingStartTime(first.trainingStartTime)
+  const secondTime = parseTrainingStartTime(second.trainingStartTime)
 
-  if (timeCompare !== 0) {
-    return timeCompare
+  if (firstTime && secondTime) {
+    const timeCompare = firstTime.totalMinutes - secondTime.totalMinutes
+
+    if (timeCompare !== 0) {
+      return timeCompare
+    }
+  } else {
+    const timeCompare = first.trainingStartTime.localeCompare(second.trainingStartTime)
+
+    if (timeCompare !== 0) {
+      return timeCompare
+    }
   }
 
   return first.name.localeCompare(second.name, 'ru')
+}
+
+function toSortedOptions(options: ScheduleFilterOption[]) {
+  const uniqueOptions = new Map<string, ScheduleFilterOption>()
+
+  for (const option of options) {
+    if (!option.value) {
+      continue
+    }
+
+    if (!uniqueOptions.has(option.value)) {
+      uniqueOptions.set(option.value, option)
+    }
+  }
+
+  return [...uniqueOptions.values()].sort((first, second) =>
+    first.label.localeCompare(second.label, 'ru'),
+  )
 }

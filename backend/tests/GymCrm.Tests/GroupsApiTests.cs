@@ -311,6 +311,145 @@ public class GroupsApiTests
         }
     }
 
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("Administrator")]
+    [InlineData("Coach")]
+    public async Task Authenticated_crm_user_can_access_schedule_groups(string actorRole)
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorLogin = actorRole switch
+        {
+            "HeadCoach" => seeded.HeadCoachLogin,
+            "Administrator" => seeded.AdministratorLogin,
+            "Coach" => seeded.CoachLogin,
+            _ => throw new InvalidOperationException($"Unsupported actor role '{actorRole}'.")
+        };
+
+        var session = await LoginAsync(client, actorLogin, seeded.SharedPassword);
+        Assert.Equal(actorRole, session.User?.Role);
+
+        using var response = await client.GetAsync("/schedule/groups");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await ReadJsonElementAsync(response);
+        Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
+        Assert.Equal(0, payload.GetProperty("skip").GetInt32());
+        Assert.Equal(20, payload.GetProperty("take").GetInt32());
+        Assert.Equal(2, GetArrayPayload(payload, "items").GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Anonymous_user_is_unauthorized_for_schedule_groups()
+    {
+        await using var factory = new GroupsAppFactory();
+        await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        using var response = await client.GetAsync("/schedule/groups");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Coach_can_view_all_seeded_schedule_groups_without_group_management_access()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
+        Assert.Equal("Coach", session.User?.Role);
+
+        using (var response = await client.GetAsync("/schedule/groups?skip=0&take=10"))
+        {
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var payload = await ReadJsonElementAsync(response);
+            var items = GetArrayPayload(payload, "items");
+
+            Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
+            Assert.Equal(0, payload.GetProperty("skip").GetInt32());
+            Assert.Equal(10, payload.GetProperty("take").GetInt32());
+            Assert.Equal(2, items.GetArrayLength());
+            Assert.Equal(
+                new[] { seeded.GroupOneId, seeded.GroupTwoId },
+                items.EnumerateArray().Select(item => GetGuidFromProperty(item, "id")).ToArray());
+
+            var firstItem = items[0];
+            Assert.Equal(seeded.GroupOneId, GetGuidFromProperty(firstItem, "id"));
+            Assert.Equal("Groups Branch", GetStringFromProperty(firstItem, "branchName"));
+            Assert.Equal(seeded.BranchId, GetGuidFromProperty(firstItem, "branchId"));
+            Assert.Equal("Groups Hall One", GetStringFromProperty(firstItem, "hallName"));
+            Assert.Equal(seeded.HallOneId, GetGuidFromProperty(firstItem, "hallId"));
+            Assert.Equal("Groups Default Type", GetStringFromProperty(firstItem, "groupTypeName"));
+            Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(firstItem, "groupTypeId"));
+            Assert.Equal("groups-default-type", GetStringFromProperty(firstItem, "groupTypeSystemIdentifier"));
+            Assert.Equal("09:00", GetStringFromProperty(firstItem, "trainingStartTime"));
+            Assert.Equal(60, GetIntFromProperty(firstItem, "durationMinutes"));
+            Assert.Equal([1, 3], GetIntArrayFromProperty(firstItem, "weekdays"));
+            Assert.True(firstItem.GetProperty("isActive").GetBoolean());
+            Assert.Equal(1, GetIntFromProperty(firstItem, "trainerCount"));
+            Assert.Equal([seeded.CoachTwoId], GetGuidArrayFromProperty(firstItem, "trainerIds"));
+            Assert.Equal(["Тренер 2 Stage 5"], GetStringArrayFromProperty(firstItem, "trainerNames"));
+            Assert.Equal(1, GetIntFromProperty(firstItem, "clientCount"));
+
+            var trainers = GetArrayPayload(firstItem, "trainers");
+            Assert.Single(trainers.EnumerateArray());
+            var trainer = trainers[0];
+            Assert.Equal(seeded.CoachTwoId, GetGuidFromProperty(trainer, "id"));
+            Assert.Equal("Тренер 2 Stage 5", GetStringFromProperty(trainer, "fullName"));
+            Assert.Equal("coach-two-stage5", GetStringFromProperty(trainer, "login"));
+        }
+
+        using var managementResponse = await client.GetAsync("/groups");
+        Assert.Equal(HttpStatusCode.Forbidden, managementResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Schedule_groups_support_page_and_pageSize_paging()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        Assert.Equal("HeadCoach", session.User?.Role);
+
+        using var response = await client.GetAsync("/schedule/groups?page=2&pageSize=1");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await ReadJsonElementAsync(response);
+        var items = GetArrayPayload(payload, "items");
+
+        Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
+        Assert.Equal(1, payload.GetProperty("skip").GetInt32());
+        Assert.Equal(1, payload.GetProperty("take").GetInt32());
+        Assert.Single(items.EnumerateArray());
+        Assert.Equal(seeded.GroupTwoId, GetGuidFromProperty(items[0], "id"));
+    }
+
     [Fact]
     public async Task Group_create_requires_branch_and_hall_from_same_branch()
     {
@@ -953,11 +1092,58 @@ public class GroupsApiTests
             UpdatedAt = now
         };
 
+        var groupTwo = new TrainingGroup
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            HallId = hallTwo.Id,
+            GroupTypeId = groupType.Id,
+            Name = "Later seeded schedule group",
+            TrainingStartTime = new TimeOnly(18, 30),
+            DurationMinutes = 90,
+            Weekdays = new[] { 2, 4, 6 },
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        var seededClient = new Client
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branch.Id,
+            LastName = "Календарев",
+            FirstName = "Клиент",
+            Phone = "+7999000111",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         dbContext.Users.AddRange(headCoach, administrator, coachOne, coachTwo);
         dbContext.Branches.Add(branch);
         dbContext.Halls.AddRange(hallOne, hallTwo);
         dbContext.GroupTypes.Add(groupType);
-        dbContext.TrainingGroups.Add(groupOne);
+        dbContext.TrainingGroups.AddRange(groupOne, groupTwo);
+        dbContext.Clients.Add(seededClient);
+        dbContext.ClientGroups.Add(new ClientGroup
+        {
+            ClientId = seededClient.Id,
+            GroupId = groupOne.Id,
+            BranchId = branch.Id
+        });
+        dbContext.GroupTrainers.Add(new GroupTrainer
+        {
+            GroupId = groupOne.Id,
+            TrainerId = coachTwo.Id
+        });
+        dbContext.GroupTrainerAssignments.Add(new GroupTrainerAssignment
+        {
+            Id = Guid.NewGuid(),
+            GroupId = groupOne.Id,
+            TrainerId = coachTwo.Id,
+            ValidFrom = DateOnly.FromDateTime(now.UtcDateTime),
+            CreatedByUserId = headCoach.Id,
+            CreatedAt = now
+        });
         await dbContext.SaveChangesAsync();
 
         return new SeededGroupsData(
@@ -974,6 +1160,7 @@ public class GroupsApiTests
             hallTwo.Id,
             groupType.Id,
             groupOne.Id,
+            groupTwo.Id,
             now);
     }
 
@@ -1209,6 +1396,28 @@ public class GroupsApiTests
             : [];
     }
 
+    private static Guid[] GetGuidArrayFromProperty(JsonElement payload, string propertyName)
+    {
+        return payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty(propertyName, out var property) &&
+            property.ValueKind == JsonValueKind.Array
+            ? property.EnumerateArray()
+                .Select(item => Guid.TryParse(item.GetString(), out var value) ? value : Guid.Empty)
+                .ToArray()
+            : [];
+    }
+
+    private static string[] GetStringArrayFromProperty(JsonElement payload, string propertyName)
+    {
+        return payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty(propertyName, out var property) &&
+            property.ValueKind == JsonValueKind.Array
+            ? property.EnumerateArray()
+                .Select(item => item.GetString() ?? string.Empty)
+                .ToArray()
+            : [];
+    }
+
     private static async Task<HttpResponseMessage> AssignTrainersToGroupAsync(
         HttpClient client,
         string groupEndpointBase,
@@ -1326,6 +1535,7 @@ public class GroupsApiTests
         Guid HallTwoId,
         Guid GroupTypeId,
         Guid GroupOneId,
+        Guid GroupTwoId,
         DateTimeOffset Now);
 
     private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);

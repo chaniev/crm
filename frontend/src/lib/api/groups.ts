@@ -153,7 +153,7 @@ export async function updateGroup(
   return mapGroupDetails(response)
 }
 
-function mapGroupListItem(payload: GroupResponsePayload): TrainingGroupListItem {
+export function mapGroupListItem(payload: GroupResponsePayload): TrainingGroupListItem {
   const trainers = payload.trainers.map(mapGroupTrainerSummary)
 
   return {

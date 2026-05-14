@@ -156,6 +156,8 @@ const GROUPS_RESPONSE = {
   hasNextPage: false,
 } as const
 
+const SCHEDULE_GROUPS_RESPONSE = GROUPS_RESPONSE
+
 const ATTENDANCE_GROUPS_RESPONSE = {
   items: [
     {
@@ -425,6 +427,11 @@ async function mockApi(
           },
         ],
       })
+      return
+    }
+
+    if (pathname === '/api/schedule/groups' && method === 'GET') {
+      await fulfillJson(route, 200, SCHEDULE_GROUPS_RESPONSE)
       return
     }
 

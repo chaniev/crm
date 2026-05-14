@@ -38,7 +38,7 @@ const coachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Attendance',
-    allowedSections: ['Attendance', 'Clients'],
+    allowedSections: ['Schedule', 'Attendance', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -60,9 +60,21 @@ type MockApiContext = {
     : never
 }
 
+type RequestStats = {
+  groupsCollectionGetCalls: number
+  scheduleGroupsGetCalls: number
+}
+
 type GroupState = {
   id: string
   name: string
+  branchId: string
+  branchName: string
+  hallId: string
+  hallName: string
+  groupTypeId: string
+  groupTypeName: string
+  groupTypeSystemIdentifier: string
   trainingStartTime: string
   durationMinutes: number
   weekdays: number[]
@@ -72,30 +84,50 @@ type GroupState = {
   clientCount: number
 }
 
-const branch = {
-  id: 'branch-1',
-  name: 'Центр',
-  address: 'ул. Тестовая, 1',
-  description: 'Основной филиал',
-  isArchived: false,
-}
+const branches = [
+  {
+    id: 'branch-1',
+    name: 'Центр',
+    address: 'ул. Тестовая, 1',
+    description: 'Основной филиал',
+    isArchived: false,
+  },
+  {
+    id: 'branch-2',
+    name: 'Север',
+    address: 'пр-т Северный, 12',
+    description: 'Филиал на севере',
+    isArchived: false,
+  },
+] as const
 
-const hall = {
-  id: 'hall-1',
-  branchId: branch.id,
-  branchName: branch.name,
-  name: 'Основной зал',
-  description: 'Зал для групп',
-  isArchived: false,
-  groupCount: 3,
-}
+const halls = [
+  {
+    id: 'hall-1',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    name: 'Основной зал',
+    description: 'Зал для групп',
+    isArchived: false,
+    groupCount: 3,
+  },
+  {
+    id: 'hall-2',
+    branchId: 'branch-2',
+    branchName: 'Север',
+    name: 'Loft',
+    description: 'Северный зал',
+    isArchived: false,
+    groupCount: 1,
+  },
+] as const
 
 const groupType = {
   id: 'group-type-1',
   name: 'Кардио',
   description: 'Групповой формат',
   systemIdentifier: 'cardio',
-  groupCount: 3,
+  groupCount: 4,
 }
 
 const trainers = [
@@ -109,12 +141,24 @@ const trainers = [
     fullName: 'Артем База',
     login: 'artem',
   },
+  {
+    id: 'trainer-3',
+    fullName: 'Ольга Север',
+    login: 'olga',
+  },
 ] as const
 
 const scheduleGroups: GroupState[] = [
   {
     id: 'group-late',
     name: 'Вечерняя группа',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Основной зал',
+    groupTypeId: groupType.id,
+    groupTypeName: groupType.name,
+    groupTypeSystemIdentifier: groupType.systemIdentifier,
     trainingStartTime: '19:00',
     durationMinutes: 60,
     weekdays: [1, 3],
@@ -126,6 +170,13 @@ const scheduleGroups: GroupState[] = [
   {
     id: 'group-early',
     name: 'Утренняя группа',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Основной зал',
+    groupTypeId: groupType.id,
+    groupTypeName: groupType.name,
+    groupTypeSystemIdentifier: groupType.systemIdentifier,
     trainingStartTime: '09:30',
     durationMinutes: 45,
     weekdays: [1, 4],
@@ -137,10 +188,17 @@ const scheduleGroups: GroupState[] = [
   {
     id: 'group-alpha',
     name: 'Альфа',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Основной зал',
+    groupTypeId: groupType.id,
+    groupTypeName: groupType.name,
+    groupTypeSystemIdentifier: groupType.systemIdentifier,
     trainingStartTime: '09:30',
     durationMinutes: 60,
     weekdays: [1],
-    isActive: true,
+    isActive: false,
     trainerIds: ['trainer-1', 'trainer-2'],
     trainerNames: ['Ирина Тренер', 'Артем База'],
     clientCount: 12,
@@ -148,77 +206,118 @@ const scheduleGroups: GroupState[] = [
   {
     id: 'group-sunday',
     name: 'Воскресный интенсив',
+    branchId: 'branch-2',
+    branchName: 'Север',
+    hallId: 'hall-2',
+    hallName: 'Loft',
+    groupTypeId: groupType.id,
+    groupTypeName: groupType.name,
+    groupTypeSystemIdentifier: groupType.systemIdentifier,
     trainingStartTime: '10:00',
     durationMinutes: 90,
     weekdays: [7],
     isActive: true,
-    trainerIds: [],
-    trainerNames: [],
+    trainerIds: ['trainer-3'],
+    trainerNames: ['Ольга Север'],
     clientCount: 3,
   },
 ]
 
 test.describe('Расписание групповых занятий', () => {
-  test('management user sees all weekdays, sorted cards and can open group edit', async ({
+  test('desktop shows weekly calendar grid, overlapping cards, combined filters and reset', async ({
     page,
   }) => {
-    await mockApi(page, headCoachSession, scheduleGroups)
+    const requestStats = createRequestStats()
 
+    await mockApi(page, headCoachSession, scheduleGroups, requestStats)
     await page.goto('/schedule')
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
+    await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Расписание' })).toHaveAttribute(
       'aria-current',
       'page',
     )
 
     for (const weekday of [1, 2, 3, 4, 5, 6, 7]) {
+      await expect(page.getByTestId(`schedule-day-header-${weekday}`)).toBeVisible()
       await expect(page.getByTestId(`schedule-day-${weekday}`)).toBeVisible()
     }
 
-    const mondayCards = page
-      .getByTestId('schedule-day-1')
-      .locator('[data-testid^="schedule-card-1-"]')
+    const mondayAlphaCard = page.getByTestId('schedule-card-1-group-alpha')
+    const mondayMorningCard = page.getByTestId('schedule-card-1-group-early')
+    const mondayEveningCard = page.getByTestId('schedule-card-1-group-late')
 
-    await expect(mondayCards).toHaveCount(3)
-    await expect(mondayCards.nth(0)).toContainText('09:30')
-    await expect(mondayCards.nth(0)).toContainText('Альфа')
-    await expect(mondayCards.nth(1)).toContainText('09:30')
-    await expect(mondayCards.nth(1)).toContainText('Утренняя группа')
-    await expect(mondayCards.nth(2)).toContainText('19:00')
-    await expect(mondayCards.nth(2)).toContainText('Вечерняя группа')
+    await expect(mondayAlphaCard).toContainText('09:30')
+    await expect(mondayAlphaCard).toContainText('Альфа')
+    await expect(mondayAlphaCard).toContainText('Кардио')
+    await expect(mondayAlphaCard).toContainText('60 мин')
+    await expect(mondayAlphaCard).toContainText('Центр · Основной зал')
+    await expect(mondayAlphaCard).toContainText('Тренеры: Ирина Тренер, Артем База')
+    await expect(mondayAlphaCard).toContainText('Неактивна')
+    await expect(page.getByRole('button', { name: /Редактировать группу/i })).toHaveCount(0)
 
-    const alphaCard = page.getByTestId('schedule-card-1-group-alpha')
-    await expect(alphaCard.getByText('Кардио')).toBeVisible()
-    await expect(alphaCard.getByText('60 мин')).toBeVisible()
-    await expect(alphaCard.getByText('Центр · Основной зал')).toBeVisible()
-    await expect(
-      alphaCard.getByText('Тренеры: Ирина Тренер, Артем База'),
-    ).toBeVisible()
+    const alphaBox = await mondayAlphaCard.boundingBox()
+    const morningBox = await mondayMorningCard.boundingBox()
 
-    await expect(page.getByTestId('schedule-day-2')).toContainText('Занятий нет')
-    await expect(page.getByTestId('schedule-day-count-2')).toHaveText('0')
+    expect(alphaBox).not.toBeNull()
+    expect(morningBox).not.toBeNull()
+    expect(alphaBox?.x).not.toBe(morningBox?.x)
+    expect(mondayEveningCard).toContainText('19:00')
 
-    await alphaCard
-      .getByRole('button', { name: 'Редактировать группу Альфа' })
-      .click()
-    await expect(page).toHaveURL('/groups/group-alpha/edit')
+    await selectOption(page, 'Филиал', 'Север')
+    await selectOption(page, 'Зал', 'Loft · Север')
+    await selectOption(page, 'Тренер', 'Ольга Север')
+    await selectOption(page, 'Группа', 'Воскресный интенсив')
+
+    await expect(page.getByText('Показано 1 из 4')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-7-group-sunday')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-1-group-alpha')).toHaveCount(0)
+
+    await page.getByRole('button', { name: 'Сбросить фильтры' }).click()
+    await expect(page.getByText('Показано 4 из 4')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
+    expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
+    expect(requestStats.groupsCollectionGetCalls).toBe(0)
   })
 
-  test('coach sees schedule navigation and read-only cards without Groups access', async ({
+  test('coach uses /api/schedule/groups and sees read-only full schedule dataset', async ({
     page,
   }) => {
-    await mockApi(page, coachSession, [scheduleGroups[1]])
+    const requestStats = createRequestStats()
 
+    await mockApi(page, coachSession, scheduleGroups, requestStats)
     await page.goto('/schedule')
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Расписание' })).toHaveAttribute(
-      'aria-current',
-      'page',
+    await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-7-group-sunday')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Редактировать группу/i })).toHaveCount(0)
+
+    expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
+    expect(requestStats.groupsCollectionGetCalls).toBe(0)
+  })
+
+  test('mobile shows selected-day list with segmented control', async ({ page }) => {
+    const requestStats = createRequestStats()
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await mockApi(page, headCoachSession, scheduleGroups, requestStats)
+    await page.goto('/schedule')
+
+    await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()
+    await expect(page.getByTestId('schedule-calendar-grid')).toHaveCount(0)
+    await expect(page.getByTestId('schedule-mobile-day-1')).toContainText('Альфа')
+    await expect(page.getByTestId('schedule-mobile-day-1')).toContainText('Утренняя группа')
+
+    await page.getByText('Вс').click()
+    await expect(page.getByTestId('schedule-mobile-day-7')).toContainText(
+      'Воскресный интенсив',
     )
-    await expect(page.getByTestId('schedule-card-1-group-early')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Редактировать группу/ })).toHaveCount(0)
+    await expect(page.getByTestId('schedule-day-count-7')).toHaveText('1')
+
+    expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
   })
 
   test('group form sends TASK-034 schedule fields and shows backend field errors', async ({
@@ -226,7 +325,7 @@ test.describe('Расписание групповых занятий', () => {
   }) => {
     let createGroupPayload: Record<string, unknown> | null = null
 
-    await mockApi(page, headCoachSession, scheduleGroups, async ({
+    await mockApi(page, headCoachSession, scheduleGroups, createRequestStats(), async ({
       pathname,
       method,
       route,
@@ -258,8 +357,8 @@ test.describe('Расписание групповых занятий', () => {
 
     await expect.poll(() => createGroupPayload).toEqual({
       name: 'Группа с ошибкой расписания',
-      branchId: branch.id,
-      hallId: hall.id,
+      branchId: 'branch-1',
+      hallId: 'hall-1',
       groupTypeId: groupType.id,
       trainingStartTime: '18:00',
       durationMinutes: null,
@@ -277,6 +376,7 @@ async function mockApi(
   page: Page,
   session: typeof headCoachSession | typeof coachSession,
   groups: GroupState[],
+  requestStats: RequestStats,
   override?: (context: MockApiContext) => Promise<boolean>,
 ) {
   await page.route('**/api/**', async (route) => {
@@ -302,7 +402,14 @@ async function mockApi(
       return
     }
 
+    if (context.pathname === '/api/schedule/groups' && context.method === 'GET') {
+      requestStats.scheduleGroupsGetCalls += 1
+      await fulfillJson(route, 200, buildGroupsListPayload(groups))
+      return
+    }
+
     if (context.pathname === '/api/groups' && context.method === 'GET') {
+      requestStats.groupsCollectionGetCalls += 1
       await fulfillJson(route, 200, buildGroupsListPayload(groups))
       return
     }
@@ -313,12 +420,12 @@ async function mockApi(
     }
 
     if (context.pathname === '/api/branches' && context.method === 'GET') {
-      await fulfillJson(route, 200, [toBranchPayload()])
+      await fulfillJson(route, 200, branches.map(toBranchPayload))
       return
     }
 
     if (context.pathname === '/api/halls' && context.method === 'GET') {
-      await fulfillJson(route, 200, [toHallPayload()])
+      await fulfillJson(route, 200, halls.map(toHallPayload))
       return
     }
 
@@ -355,6 +462,13 @@ async function mockApi(
   })
 }
 
+function createRequestStats(): RequestStats {
+  return {
+    groupsCollectionGetCalls: 0,
+    scheduleGroupsGetCalls: 0,
+  }
+}
+
 function buildGroupsListPayload(groups: GroupState[]) {
   return {
     items: groups.map(toGroupPayload),
@@ -368,13 +482,13 @@ function toGroupPayload(group: GroupState) {
   return {
     id: group.id,
     name: group.name,
-    branchId: branch.id,
-    branchName: branch.name,
-    hallId: hall.id,
-    hallName: hall.name,
-    groupTypeId: groupType.id,
-    groupTypeName: groupType.name,
-    groupTypeSystemIdentifier: groupType.systemIdentifier,
+    branchId: group.branchId,
+    branchName: group.branchName,
+    hallId: group.hallId,
+    hallName: group.hallName,
+    groupTypeId: group.groupTypeId,
+    groupTypeName: group.groupTypeName,
+    groupTypeSystemIdentifier: group.groupTypeSystemIdentifier,
     trainingStartTime: group.trainingStartTime,
     durationMinutes: group.durationMinutes,
     weekdays: group.weekdays,
@@ -397,18 +511,18 @@ function toGroupPayload(group: GroupState) {
   }
 }
 
-function toBranchPayload() {
+function toBranchPayload(branch: typeof branches[number]) {
   return {
     ...branch,
-    hallCount: 1,
-    groupCount: 3,
+    hallCount: halls.filter((hall) => hall.branchId === branch.id).length,
+    groupCount: scheduleGroups.filter((group) => group.branchId === branch.id).length,
     clientCount: 0,
     createdAt: '2026-05-13T09:00:00Z',
     updatedAt: '2026-05-13T09:00:00Z',
   }
 }
 
-function toHallPayload() {
+function toHallPayload(hall: typeof halls[number]) {
   return {
     ...hall,
     createdAt: '2026-05-13T09:00:00Z',
@@ -422,6 +536,11 @@ function toGroupTypePayload() {
     createdAt: '2026-05-13T09:00:00Z',
     updatedAt: '2026-05-13T09:00:00Z',
   }
+}
+
+async function selectOption(page: Page, label: string, optionName: string) {
+  await page.getByRole('combobox', { name: label }).click()
+  await page.getByRole('option', { name: optionName }).click()
 }
 
 async function fulfillJson(

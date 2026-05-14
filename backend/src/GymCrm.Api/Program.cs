@@ -97,6 +97,7 @@ app.MapClientEndpoints();
 app.MapClientPhotoEndpoints();
 app.MapAttendanceEndpoints();
 app.MapReportsEndpoints();
+app.MapScheduleEndpoints();
 app.MapBotInternalEndpoints();
 GymCrm.Api.Auth.GroupEndpoints.MapGroupEndpoints(app);
 
