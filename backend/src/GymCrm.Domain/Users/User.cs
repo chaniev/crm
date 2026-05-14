@@ -20,8 +20,15 @@ public class User
     public DateTimeOffset UpdatedAt { get; set; }
 
     public ICollection<GroupTrainer> AssignedGroups { get; set; } = new List<GroupTrainer>();
+    public ICollection<GroupTrainerAssignment> GroupTrainerAssignments { get; set; } = new List<GroupTrainerAssignment>();
     public ICollection<ClientMembership> MembershipPayments { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembership> MembershipChanges { get; set; } = new List<ClientMembership>();
+    public ICollection<ClientMembershipSale> CreatedMembershipSales { get; set; } = new List<ClientMembershipSale>();
+    public ICollection<ClientMembershipRefund> CreatedMembershipRefunds { get; set; } = new List<ClientMembershipRefund>();
+    public ICollection<ClientMembershipRefund> CanceledMembershipRefunds { get; set; } = new List<ClientMembershipRefund>();
+    public ICollection<ClientBranchAssignment> CreatedClientBranchAssignments { get; set; } = new List<ClientBranchAssignment>();
+    public ICollection<ClientGroupAssignment> CreatedClientGroupAssignments { get; set; } = new List<ClientGroupAssignment>();
+    public ICollection<GroupTrainerAssignment> CreatedGroupTrainerAssignments { get; set; } = new List<GroupTrainerAssignment>();
     public ICollection<AttendanceEntry> AttendanceMarks { get; set; } = new List<AttendanceEntry>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }

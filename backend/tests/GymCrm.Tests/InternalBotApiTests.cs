@@ -559,10 +559,12 @@ public class InternalBotApiTests
         bool isPaid,
         DateTimeOffset now)
     {
+        var saleId = Guid.NewGuid();
         return new ClientMembership
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
+            SaleId = saleId,
             MembershipType = MembershipType.Monthly,
             PurchaseDate = purchaseDate,
             ExpirationDate = expirationDate,
@@ -575,7 +577,17 @@ public class InternalBotApiTests
             ValidTo = null,
             ChangeReason = ClientMembershipChangeReason.NewPurchase,
             ChangedByUserId = changedByUserId,
-            CreatedAt = now
+            CreatedAt = now,
+            Sale = new ClientMembershipSale
+            {
+                Id = saleId,
+                ClientId = clientId,
+                MembershipType = MembershipType.Monthly,
+                PurchaseDate = purchaseDate,
+                GrossAmount = paymentAmount,
+                CreatedByUserId = changedByUserId,
+                CreatedAt = now
+            }
         };
     }
 

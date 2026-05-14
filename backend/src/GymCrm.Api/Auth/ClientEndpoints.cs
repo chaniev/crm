@@ -44,6 +44,10 @@ internal static class ClientEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPost("/{id:guid}/membership/mark-payment", MarkMembershipPaymentAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPost("/{id:guid}/membership/sales/{saleId:guid}/refunds", RegisterMembershipRefundAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPost("/{id:guid}/membership/refunds/{refundId:guid}/cancel", CancelMembershipRefundAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapGet("/{id:guid}", GetClientAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ViewClients);
 
@@ -579,7 +583,15 @@ internal static class ClientEndpoints
 
         dbContext.Clients.Add(client);
         await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
-        await ReplaceGroupAssignmentsAsync(client.Id, normalizedRequest.BranchId!.Value, normalizedRequest.GroupIds, dbContext, cancellationToken);
+        OpenBranchAssignment(client.Id, normalizedRequest.BranchId!.Value, currentUser.Id, now, dbContext);
+        await ReplaceGroupAssignmentsAsync(
+            client.Id,
+            normalizedRequest.BranchId!.Value,
+            normalizedRequest.GroupIds,
+            currentUser.Id,
+            now,
+            dbContext,
+            cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         var createdClient = await LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
@@ -647,10 +659,18 @@ internal static class ClientEndpoints
         client.Phone = normalizedRequest.Phone;
         client.BranchId = normalizedRequest.BranchId!.Value;
         client.Notes = normalizedRequest.Notes;
-        client.UpdatedAt = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.UtcNow;
+        client.UpdatedAt = now;
 
         await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
-        await ReplaceGroupAssignmentsAsync(client.Id, normalizedRequest.BranchId!.Value, normalizedRequest.GroupIds, dbContext, cancellationToken);
+        await ReplaceGroupAssignmentsAsync(
+            client.Id,
+            normalizedRequest.BranchId!.Value,
+            normalizedRequest.GroupIds,
+            currentUser.Id,
+            now,
+            dbContext,
+            cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -711,28 +731,22 @@ internal static class ClientEndpoints
         var oldStateSnapshot = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
         var oldState = SerializeAuditState(oldStateSnapshot ?? client);
         var targetBranchId = request.BranchId!.Value;
-        var targetGroupId = request.GroupId is { } groupId && groupId != Guid.Empty
-            ? groupId
-            : (Guid?)null;
-
-        if (client.Groups.Count > 0)
-        {
-            dbContext.ClientGroups.RemoveRange(client.Groups);
-            client.Groups.Clear();
-        }
+        var targetGroupIds = NormalizeTransferGroupIds(request);
+        var now = DateTimeOffset.UtcNow;
 
         client.BranchId = targetBranchId;
-        client.UpdatedAt = DateTimeOffset.UtcNow;
+        client.UpdatedAt = now;
+        await CloseActiveBranchAssignmentsAsync(client.Id, now, dbContext, cancellationToken);
+        OpenBranchAssignment(client.Id, targetBranchId, currentUser.Id, now, dbContext);
 
-        if (targetGroupId.HasValue)
-        {
-            dbContext.ClientGroups.Add(new ClientGroup
-            {
-                ClientId = client.Id,
-                GroupId = targetGroupId.Value,
-                BranchId = targetBranchId
-            });
-        }
+        await ReplaceGroupAssignmentsAsync(
+            client.Id,
+            targetBranchId,
+            targetGroupIds,
+            currentUser.Id,
+            now,
+            dbContext,
+            cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -1064,6 +1078,135 @@ internal static class ClientEndpoints
             descriptionFactory: ClientAuditResources.MembershipPaymentMarkedDescription);
     }
 
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RegisterMembershipRefundAsync(
+        Guid id,
+        Guid saleId,
+        CreateClientMembershipRefundRequest request,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IClientMembershipService membershipService,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
+        if (csrfValidationResult is not null)
+        {
+            return csrfValidationResult;
+        }
+
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var clientBefore = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
+        if (clientBefore is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var validationErrors = ValidateRefundRequest(request);
+        if (validationErrors.Count > 0)
+        {
+            return TypedResults.ValidationProblem(validationErrors);
+        }
+
+        var mutationResult = await membershipService.RegisterRefundAsync(
+            id,
+            new RegisterClientMembershipRefundCommand(
+                currentUser.Id,
+                saleId,
+                ParseIsoDate(request.RefundDate)!.Value,
+                request.Amount!.Value,
+                NormalizeOptionalText(request.Comment)),
+            cancellationToken);
+
+        if (!mutationResult.Succeeded)
+        {
+            return MapRefundMutationError(mutationResult.Error);
+        }
+
+        var clientAfter = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
+            ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership refund registration.");
+        var refund = mutationResult.Refund
+            ?? throw new InvalidOperationException("Membership refund mutation succeeded without a refund snapshot.");
+
+        await auditLogService.WriteAsync(
+            new AuditLogEntry(
+                currentUser.Id,
+                ClientAuditConstants.MembershipRefundCreatedAction,
+                ClientAuditConstants.MembershipRefundEntityType,
+                refund.Id.ToString(),
+                ClientAuditResources.MembershipRefundCreatedDescription(
+                    currentUser.Login,
+                    BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
+                NewValueJson: SerializeRefundAuditState(refund)),
+            cancellationToken);
+
+        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
+    }
+
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CancelMembershipRefundAsync(
+        Guid id,
+        Guid refundId,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IClientMembershipService membershipService,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
+        if (csrfValidationResult is not null)
+        {
+            return csrfValidationResult;
+        }
+
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var clientBefore = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
+        if (clientBefore is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var mutationResult = await membershipService.CancelRefundAsync(
+            id,
+            new CancelClientMembershipRefundCommand(currentUser.Id, refundId),
+            cancellationToken);
+
+        if (!mutationResult.Succeeded)
+        {
+            return MapRefundMutationError(mutationResult.Error);
+        }
+
+        var clientAfter = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
+            ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership refund cancellation.");
+        var refund = mutationResult.Refund
+            ?? throw new InvalidOperationException("Membership refund cancellation succeeded without a refund snapshot.");
+
+        await auditLogService.WriteAsync(
+            new AuditLogEntry(
+                currentUser.Id,
+                ClientAuditConstants.MembershipRefundCanceledAction,
+                ClientAuditConstants.MembershipRefundEntityType,
+                refund.Id.ToString(),
+                ClientAuditResources.MembershipRefundCanceledDescription(
+                    currentUser.Login,
+                    BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
+                mutationResult.PreviousRefund is null ? null : SerializeRefundAuditState(mutationResult.PreviousRefund),
+                SerializeRefundAuditState(refund)),
+            cancellationToken);
+
+        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
+    }
+
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
         Guid id,
         HttpContext httpContext,
@@ -1128,6 +1271,22 @@ internal static class ClientEndpoints
                 SerializeMembershipAuditState(currentMembershipAfter)),
             cancellationToken);
 
+        if (mutationResult.SaleAudit is not null)
+        {
+            await auditLogService.WriteAsync(
+                new AuditLogEntry(
+                    currentUser.Id,
+                    ClientAuditConstants.MembershipSaleCorrectedAction,
+                    ClientAuditConstants.MembershipSaleEntityType,
+                    mutationResult.SaleAudit.NewSale.Id.ToString(),
+                    ClientAuditResources.MembershipSaleCorrectedDescription(
+                        currentUser.Login,
+                        BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
+                    SerializeSaleAuditState(mutationResult.SaleAudit.OldSale),
+                    SerializeSaleAuditState(mutationResult.SaleAudit.NewSale)),
+                cancellationToken);
+        }
+
         return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
     }
 
@@ -1142,6 +1301,9 @@ internal static class ClientEndpoints
             .Include(client => client.Contacts)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.PaidByUser)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.Refunds)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
@@ -1406,6 +1568,11 @@ internal static class ClientEndpoints
             return errors;
         }
 
+        if (request.GroupIds.Count == 0)
+        {
+            errors["groupIds"] = [ClientResources.ClientGroupsRequired];
+        }
+
         if (request.GroupIds.Count == 0 || errors.ContainsKey("branchId"))
         {
             return errors;
@@ -1486,35 +1653,43 @@ internal static class ClientEndpoints
         CancellationToken cancellationToken)
     {
         var errors = new Dictionary<string, string[]>();
+        var groupIds = NormalizeTransferGroupIds(request);
 
         await ValidateClientBranchAsync(request.BranchId, currentBranchId: null, errors, dbContext, cancellationToken);
-        if (request.GroupId == Guid.Empty)
+        if (request.GroupId == Guid.Empty || request.GroupIds?.Any(groupId => groupId == Guid.Empty) == true)
         {
-            errors["groupId"] = [ClientResources.InvalidGroupId];
+            errors["groupIds"] = [ClientResources.InvalidGroupId];
         }
 
-        if (errors.Count > 0 || !request.GroupId.HasValue)
+        if (groupIds.Count == 0)
+        {
+            errors["groupIds"] = [ClientResources.ClientGroupsRequired];
+        }
+
+        if (errors.Count > 0)
         {
             return errors;
         }
 
-        var group = await dbContext.TrainingGroups
+        var existingGroupCount = await dbContext.TrainingGroups
             .AsNoTracking()
-            .Where(candidate => candidate.Id == request.GroupId.Value)
-            .Select(candidate => new
-            {
-                candidate.Id,
-                candidate.BranchId
-            })
-            .SingleOrDefaultAsync(cancellationToken);
+            .Where(candidate => groupIds.Contains(candidate.Id))
+            .CountAsync(cancellationToken);
 
-        if (group is null)
+        if (existingGroupCount != groupIds.Count)
         {
-            errors["groupId"] = [ClientResources.GroupsMustExist];
+            errors["groupIds"] = [ClientResources.GroupsMustExist];
+            return errors;
         }
-        else if (group.BranchId != request.BranchId!.Value)
+
+        var sameBranchGroupCount = await dbContext.TrainingGroups
+            .AsNoTracking()
+            .Where(candidate => groupIds.Contains(candidate.Id) && candidate.BranchId == request.BranchId!.Value)
+            .CountAsync(cancellationToken);
+
+        if (sameBranchGroupCount != groupIds.Count)
         {
-            errors["groupId"] = [ClientResources.TransferGroupMustBelongToTargetBranch];
+            errors["groupIds"] = [ClientResources.TransferGroupMustBelongToTargetBranch];
         }
 
         return errors;
@@ -1585,6 +1760,21 @@ internal static class ClientEndpoints
             .ToArray() ?? [];
     }
 
+    private static IReadOnlyList<Guid> NormalizeTransferGroupIds(TransferClientBranchRequest request)
+    {
+        var groupIds = request.GroupIds is { Count: > 0 }
+            ? request.GroupIds
+            : request.GroupId.HasValue
+                ? [request.GroupId.Value]
+                : [];
+
+        return groupIds
+            .Where(groupId => groupId != Guid.Empty)
+            .Distinct()
+            .OrderBy(groupId => groupId)
+            .ToArray();
+    }
+
     private static async Task ReplaceContactsAsync(
         Guid clientId,
         IReadOnlyList<NormalizedClientContactRequest> requestedContacts,
@@ -1617,13 +1807,19 @@ internal static class ClientEndpoints
         Guid clientId,
         Guid branchId,
         IReadOnlyList<Guid> requestedGroupIds,
+        Guid changedByUserId,
+        DateTimeOffset now,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
         var requested = requestedGroupIds.ToHashSet();
+        var today = DateOnly.FromDateTime(now.UtcDateTime.Date);
 
         var existingGroups = await dbContext.ClientGroups
             .Where(clientGroup => clientGroup.ClientId == clientId)
+            .ToArrayAsync(cancellationToken);
+        var activeAssignments = await dbContext.ClientGroupAssignments
+            .Where(assignment => assignment.ClientId == clientId && assignment.ValidTo == null)
             .ToArrayAsync(cancellationToken);
 
         var groupsToRemove = existingGroups
@@ -1635,8 +1831,17 @@ internal static class ClientEndpoints
             dbContext.ClientGroups.RemoveRange(groupsToRemove);
         }
 
+        foreach (var assignment in activeAssignments.Where(assignment => !requested.Contains(assignment.GroupId)))
+        {
+            CloseOrRemovePeriod(assignment, today, dbContext.ClientGroupAssignments);
+        }
+
         var existingGroupIds = existingGroups
             .Select(clientGroup => clientGroup.GroupId)
+            .ToHashSet();
+        var activeAssignmentGroupIds = activeAssignments
+            .Where(assignment => requested.Contains(assignment.GroupId))
+            .Select(assignment => assignment.GroupId)
             .ToHashSet();
 
         foreach (var groupId in requestedGroupIds)
@@ -1653,6 +1858,76 @@ internal static class ClientEndpoints
                 BranchId = branchId
             });
         }
+
+        foreach (var groupId in requestedGroupIds.Where(groupId => !activeAssignmentGroupIds.Contains(groupId)))
+        {
+            dbContext.ClientGroupAssignments.Add(new ClientGroupAssignment
+            {
+                Id = Guid.NewGuid(),
+                ClientId = clientId,
+                GroupId = groupId,
+                ValidFrom = today,
+                CreatedByUserId = changedByUserId,
+                CreatedAt = now
+            });
+        }
+    }
+
+    private static void OpenBranchAssignment(
+        Guid clientId,
+        Guid branchId,
+        Guid changedByUserId,
+        DateTimeOffset now,
+        GymCrmDbContext dbContext)
+    {
+        dbContext.ClientBranchAssignments.Add(new ClientBranchAssignment
+        {
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            BranchId = branchId,
+            ValidFrom = DateOnly.FromDateTime(now.UtcDateTime.Date),
+            CreatedByUserId = changedByUserId,
+            CreatedAt = now
+        });
+    }
+
+    private static async Task CloseActiveBranchAssignmentsAsync(
+        Guid clientId,
+        DateTimeOffset now,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var today = DateOnly.FromDateTime(now.UtcDateTime.Date);
+        var activeAssignments = await dbContext.ClientBranchAssignments
+            .Where(assignment => assignment.ClientId == clientId && assignment.ValidTo == null)
+            .ToArrayAsync(cancellationToken);
+
+        foreach (var assignment in activeAssignments)
+        {
+            CloseOrRemovePeriod(assignment, today, dbContext.ClientBranchAssignments);
+        }
+    }
+
+    private static void CloseOrRemovePeriod(ClientBranchAssignment assignment, DateOnly validTo, DbSet<ClientBranchAssignment> assignments)
+    {
+        if (assignment.ValidFrom >= validTo)
+        {
+            assignments.Remove(assignment);
+            return;
+        }
+
+        assignment.ValidTo = validTo;
+    }
+
+    private static void CloseOrRemovePeriod(ClientGroupAssignment assignment, DateOnly validTo, DbSet<ClientGroupAssignment> assignments)
+    {
+        if (assignment.ValidFrom >= validTo)
+        {
+            assignments.Remove(assignment);
+            return;
+        }
+
+        assignment.ValidTo = validTo;
     }
 
     private static Dictionary<string, string[]> ValidatePurchaseMembershipRequest(PurchaseClientMembershipRequest request)
@@ -1758,6 +2033,30 @@ internal static class ClientEndpoints
         else if (currentMembership.IsPaid)
         {
             errors["isPaid"] = [ClientResources.CurrentMembershipAlreadyPaid];
+        }
+
+        return errors;
+    }
+
+    private static Dictionary<string, string[]> ValidateRefundRequest(CreateClientMembershipRefundRequest request)
+    {
+        var errors = new Dictionary<string, string[]>();
+
+        if (!request.Amount.HasValue)
+        {
+            errors["amount"] = [ClientResources.RefundAmountRequired];
+        }
+        else if (request.Amount.Value <= 0)
+        {
+            errors["amount"] = [ClientResources.RefundAmountMustBePositive];
+        }
+
+        ValidateRequiredDate(request.RefundDate, "refundDate", ClientResources.RefundDateRequired, errors);
+
+        var comment = NormalizeOptionalText(request.Comment);
+        if (comment is not null && comment.Length > ClientMembershipRefund.CommentMaxLength)
+        {
+            errors["comment"] = [ClientResources.RefundCommentTooLong];
         }
 
         return errors;
@@ -1931,11 +2230,64 @@ internal static class ClientEndpoints
             {
                 ["currentMembership"] = [ClientResources.CurrentMembershipAlreadyPaid]
             },
+            ClientMembershipMutationError.CorrectedGrossAmountBelowRefunds => new Dictionary<string, string[]>
+            {
+                ["paymentAmount"] = [ClientResources.CorrectedGrossAmountBelowRefunds]
+            },
+            ClientMembershipMutationError.CorrectedPurchaseDateAfterRefund => new Dictionary<string, string[]>
+            {
+                ["purchaseDate"] = [ClientResources.CorrectedPurchaseDateAfterRefund]
+            },
             _ => new Dictionary<string, string[]>
             {
                 ["membership"] = [ClientResources.MembershipChangeFailed]
             }
         };
+    }
+
+    private static Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult> MapRefundMutationError(
+        ClientMembershipRefundMutationError error)
+    {
+        if (error == ClientMembershipRefundMutationError.ClientMissing)
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.ValidationProblem(error switch
+        {
+            ClientMembershipRefundMutationError.SaleMissing => new Dictionary<string, string[]>
+            {
+                ["saleId"] = [ClientResources.SaleMustExist]
+            },
+            ClientMembershipRefundMutationError.RefundMissing => new Dictionary<string, string[]>
+            {
+                ["refundId"] = [ClientResources.RefundMustExist]
+            },
+            ClientMembershipRefundMutationError.RefundAmountExceedsGrossAmount => new Dictionary<string, string[]>
+            {
+                ["amount"] = [ClientResources.RefundAmountExceedsGrossAmount]
+            },
+            ClientMembershipRefundMutationError.RefundDateInFuture => new Dictionary<string, string[]>
+            {
+                ["refundDate"] = [ClientResources.RefundDateInFuture]
+            },
+            ClientMembershipRefundMutationError.RefundDateBeforePurchaseDate => new Dictionary<string, string[]>
+            {
+                ["refundDate"] = [ClientResources.RefundDateBeforePurchaseDate]
+            },
+            ClientMembershipRefundMutationError.RefundDateBeforeSaleCreatedDate => new Dictionary<string, string[]>
+            {
+                ["refundDate"] = [ClientResources.RefundDateBeforeSaleCreatedDate]
+            },
+            ClientMembershipRefundMutationError.RefundAlreadyCanceled => new Dictionary<string, string[]>
+            {
+                ["refund"] = [ClientResources.RefundAlreadyCanceled]
+            },
+            _ => new Dictionary<string, string[]>
+            {
+                ["refund"] = [ClientResources.InvalidMembershipChangeRequest]
+            }
+        });
     }
 
     private static void ValidateNamePart(
@@ -2474,6 +2826,7 @@ internal static class ClientEndpoints
     {
         return new ClientMembershipResponse(
             membership.Id,
+            membership.SaleId,
             membership.MembershipType.ToString(),
             membership.PurchaseDate,
             membership.ExpirationDate,
@@ -2486,7 +2839,52 @@ internal static class ClientEndpoints
             membership.ChangeReason.ToString(),
             membership.ValidFrom,
             membership.ValidTo,
-            membership.CreatedAt);
+            membership.CreatedAt,
+            MapFinancialSummary(membership.Sale),
+            MapRefunds(membership.Sale));
+    }
+
+    private static ClientMembershipFinancialSummaryResponse MapFinancialSummary(ClientMembershipSale sale)
+    {
+        var nonCanceledRefunds = sale.Refunds
+            .Where(refund => refund.CanceledAt is null)
+            .ToArray();
+        var refundedAmount = nonCanceledRefunds.Sum(refund => refund.Amount);
+        var refundStatus = refundedAmount <= 0
+            ? ClientMembershipRefundStatus.None
+            : refundedAmount >= sale.GrossAmount
+                ? ClientMembershipRefundStatus.Full
+                : ClientMembershipRefundStatus.Partial;
+
+        return new ClientMembershipFinancialSummaryResponse(
+            sale.GrossAmount,
+            refundedAmount,
+            sale.GrossAmount - refundedAmount,
+            refundStatus.ToString(),
+            nonCanceledRefunds
+                .Select(refund => (DateOnly?)refund.RefundDate)
+                .OrderByDescending(refundDate => refundDate)
+                .FirstOrDefault());
+    }
+
+    private static IReadOnlyList<ClientMembershipRefundResponse> MapRefunds(ClientMembershipSale sale)
+    {
+        return sale.Refunds
+            .OrderByDescending(refund => refund.RefundDate)
+            .ThenByDescending(refund => refund.CreatedAt)
+            .ThenByDescending(refund => refund.Id)
+            .Select(refund => new ClientMembershipRefundResponse(
+                refund.Id,
+                refund.SaleId,
+                refund.ClientId,
+                refund.Amount,
+                refund.RefundDate,
+                refund.Comment,
+                refund.CreatedByUserId,
+                refund.CreatedAt,
+                refund.CanceledAt,
+                refund.CanceledByUserId))
+            .ToArray();
     }
 
     private static CurrentMembershipSummaryResponse? MapCurrentMembershipSummary(ClientMembership? membership)
@@ -2606,6 +3004,7 @@ internal static class ClientEndpoints
             new ClientMembershipAuditState(
                 membership.Id,
                 membership.ClientId,
+                membership.SaleId,
                 membership.MembershipType.ToString(),
                 membership.PurchaseDate,
                 membership.ExpirationDate,
@@ -2619,6 +3018,37 @@ internal static class ClientEndpoints
                 membership.ValidFrom,
                 membership.ValidTo,
                 membership.CreatedAt),
+            AuditSerializerOptions);
+    }
+
+    private static string SerializeSaleAuditState(ClientMembershipSaleSnapshotResult sale)
+    {
+        return JsonSerializer.Serialize(
+            new ClientMembershipSaleAuditState(
+                sale.Id,
+                sale.ClientId,
+                sale.MembershipType.ToString(),
+                sale.PurchaseDate,
+                sale.GrossAmount,
+                sale.CreatedByUserId,
+                sale.CreatedAt),
+            AuditSerializerOptions);
+    }
+
+    private static string SerializeRefundAuditState(ClientMembershipRefundSnapshotResult refund)
+    {
+        return JsonSerializer.Serialize(
+            new ClientMembershipRefundAuditState(
+                refund.Id,
+                refund.SaleId,
+                refund.ClientId,
+                refund.Amount,
+                refund.RefundDate,
+                refund.Comment,
+                refund.CreatedByUserId,
+                refund.CreatedAt,
+                refund.CanceledAt,
+                refund.CanceledByUserId),
             AuditSerializerOptions);
     }
 

@@ -57,6 +57,9 @@
   <data name="AssignedClientsMustBelongToBranch" xml:space="preserve">
     <value>Нельзя перенести группу в филиал, пока в ней есть клиенты другого филиала.</value>
   </data>
+  <data name="GroupBranchImmutable" xml:space="preserve">
+    <value>Филиал группы нельзя изменить после создания.</value>
+  </data>
   <data name="GroupTypeRequired" xml:space="preserve">
     <value>Укажите тип группы.</value>
   </data>

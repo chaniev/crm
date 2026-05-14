@@ -39,11 +39,17 @@ internal sealed class ClientMembershipConfiguration : IEntityTypeConfiguration<C
         builder.Property(membership => membership.CreatedAt).IsRequired();
 
         builder.HasIndex(membership => membership.ClientId);
+        builder.HasIndex(membership => membership.SaleId);
         builder.HasIndex(membership => membership.ValidTo);
         builder.HasIndex(membership => membership.ExpirationDate);
 
         builder.HasIndex(membership => membership.ClientId)
             .IsUnique()
             .HasFilter(CurrentMembershipIndexFilter);
+
+        builder.HasOne(membership => membership.Sale)
+            .WithMany(sale => sale.Memberships)
+            .HasForeignKey(membership => membership.SaleId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

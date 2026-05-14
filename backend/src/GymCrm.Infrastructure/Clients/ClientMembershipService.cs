@@ -2,6 +2,7 @@ using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GymCrm.Infrastructure.Clients;
 
@@ -50,11 +51,21 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
 
         var now = DateTimeOffset.UtcNow;
         var currentMembership = await LoadCurrentMembershipAsync(clientId, cancellationToken);
+        var sale = CreateSale(
+            clientId,
+            command.MembershipType,
+            command.PurchaseDate,
+            command.PaymentAmount,
+            command.ChangedByUserId,
+            now);
+
+        dbContext.ClientMembershipSales.Add(sale);
 
         await ReplaceCurrentMembershipAsync(
             currentMembership,
             CreateMembership(
                 clientId,
+                sale.Id,
                 command.MembershipType,
                 command.PurchaseDate,
                 ResolvePurchaseExpirationDate(command.MembershipType, command.PurchaseDate, command.ExpirationDate),
@@ -101,6 +112,16 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
         }
 
         var now = DateTimeOffset.UtcNow;
+        var sale = CreateSale(
+            clientId,
+            currentMembership.MembershipType,
+            command.RenewalDate,
+            command.PaymentAmount,
+            command.ChangedByUserId,
+            now);
+
+        dbContext.ClientMembershipSales.Add(sale);
+
         var expirationDate = await ResolveRenewalExpirationDateAsync(
             clientId,
             currentMembership,
@@ -112,6 +133,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             currentMembership,
             CreateMembership(
                 clientId,
+                sale.Id,
                 currentMembership.MembershipType,
                 command.RenewalDate,
                 expirationDate,
@@ -157,7 +179,40 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CurrentMembershipMissing);
         }
 
+        var currentSale = currentMembership.Sale;
+        var nonCanceledRefunds = await dbContext.ClientMembershipRefunds
+            .Where(refund => refund.SaleId == currentSale.Id && refund.CanceledAt == null)
+            .ToArrayAsync(cancellationToken);
+        var refundedAmount = nonCanceledRefunds.Sum(refund => refund.Amount);
+        if (command.PaymentAmount < refundedAmount)
+        {
+            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CorrectedGrossAmountBelowRefunds);
+        }
+
+        var earliestRefundDate = nonCanceledRefunds
+            .Select(refund => (DateOnly?)refund.RefundDate)
+            .OrderBy(refundDate => refundDate)
+            .FirstOrDefault();
+        if (earliestRefundDate.HasValue && command.PurchaseDate > earliestRefundDate.Value)
+        {
+            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CorrectedPurchaseDateAfterRefund);
+        }
+
         var now = DateTimeOffset.UtcNow;
+        ClientMembershipSaleAuditResult? saleAudit = null;
+        if (currentSale.MembershipType != command.MembershipType ||
+            currentSale.PurchaseDate != command.PurchaseDate ||
+            currentSale.GrossAmount != command.PaymentAmount)
+        {
+            var oldSale = MapSaleSnapshot(currentSale);
+
+            currentSale.MembershipType = command.MembershipType;
+            currentSale.PurchaseDate = command.PurchaseDate;
+            currentSale.GrossAmount = command.PaymentAmount;
+
+            saleAudit = new ClientMembershipSaleAuditResult(oldSale, MapSaleSnapshot(currentSale));
+        }
+
         Guid? paidByUserId = command.IsPaid
             ? currentMembership.IsPaid
                 ? currentMembership.PaidByUserId ?? command.ChangedByUserId
@@ -173,6 +228,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             currentMembership,
             CreateMembership(
                 clientId,
+                currentMembership.SaleId,
                 command.MembershipType,
                 command.PurchaseDate,
                 ResolveCorrectionExpirationDate(command.MembershipType, command.PurchaseDate, command.ExpirationDate),
@@ -188,7 +244,8 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             cancellationToken);
 
         return ClientMembershipMutationResult.Success(
-            await LoadDetailsRequiredAsync(clientId, cancellationToken));
+            await LoadDetailsRequiredAsync(clientId, cancellationToken),
+            saleAudit);
     }
 
     public async Task<ClientMembershipMutationResult> MarkPaymentAsync(
@@ -222,6 +279,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             currentMembership,
             CreateMembership(
                 clientId,
+                currentMembership.SaleId,
                 currentMembership.MembershipType,
                 currentMembership.PurchaseDate,
                 currentMembership.ExpirationDate,
@@ -295,6 +353,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             currentMembership,
             CreateMembership(
                 clientId,
+                currentMembership.SaleId,
                 currentMembership.MembershipType,
                 currentMembership.PurchaseDate,
                 currentMembership.ExpirationDate,
@@ -315,12 +374,170 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
         return SingleVisitWriteOffResult.Success(previousMembership, currentMembershipSnapshot);
     }
 
+    public async Task<ClientMembershipRefundMutationResult> RegisterRefundAsync(
+        Guid clientId,
+        RegisterClientMembershipRefundCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (clientId == Guid.Empty ||
+            command.ChangedByUserId == Guid.Empty ||
+            command.SaleId == Guid.Empty ||
+            command.RefundDate == default ||
+            command.Amount <= 0 ||
+            command.Comment?.Length > ClientMembershipRefund.CommentMaxLength)
+        {
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.InvalidRequest);
+        }
+
+        if (!await ClientExistsAsync(clientId, cancellationToken))
+        {
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.ClientMissing);
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        if (command.RefundDate > today)
+        {
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundDateInFuture);
+        }
+
+        await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken);
+        var sale = await dbContext.ClientMembershipSales
+            .Include(candidate => candidate.Refunds)
+            .SingleOrDefaultAsync(
+                candidate => candidate.Id == command.SaleId && candidate.ClientId == clientId,
+                cancellationToken);
+
+        if (sale is null)
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.SaleMissing);
+        }
+
+        if (command.RefundDate < sale.PurchaseDate)
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundDateBeforePurchaseDate);
+        }
+
+        var saleCreatedDate = DateOnly.FromDateTime(sale.CreatedAt.UtcDateTime.Date);
+        if (command.RefundDate < saleCreatedDate)
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundDateBeforeSaleCreatedDate);
+        }
+
+        var refundedAmount = sale.Refunds
+            .Where(refund => refund.CanceledAt is null)
+            .Sum(refund => refund.Amount);
+        if (refundedAmount + command.Amount > sale.GrossAmount)
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundAmountExceedsGrossAmount);
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var refund = new ClientMembershipRefund
+        {
+            Id = Guid.NewGuid(),
+            SaleId = sale.Id,
+            ClientId = clientId,
+            Amount = command.Amount,
+            RefundDate = command.RefundDate,
+            Comment = string.IsNullOrWhiteSpace(command.Comment) ? null : command.Comment.Trim(),
+            CreatedByUserId = command.ChangedByUserId,
+            CreatedAt = now
+        };
+
+        dbContext.ClientMembershipRefunds.Add(refund);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await CommitIfPresentAsync(transaction, cancellationToken);
+
+        return ClientMembershipRefundMutationResult.Success(
+            await LoadDetailsRequiredAsync(clientId, cancellationToken),
+            MapRefundSnapshot(refund));
+    }
+
+    public async Task<ClientMembershipRefundMutationResult> CancelRefundAsync(
+        Guid clientId,
+        CancelClientMembershipRefundCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (clientId == Guid.Empty ||
+            command.ChangedByUserId == Guid.Empty ||
+            command.RefundId == Guid.Empty)
+        {
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.InvalidRequest);
+        }
+
+        if (!await ClientExistsAsync(clientId, cancellationToken))
+        {
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.ClientMissing);
+        }
+
+        await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken);
+        var refund = await dbContext.ClientMembershipRefunds
+            .SingleOrDefaultAsync(
+                candidate => candidate.Id == command.RefundId && candidate.ClientId == clientId,
+                cancellationToken);
+
+        if (refund is null)
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundMissing);
+        }
+
+        if (refund.CanceledAt is not null)
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundAlreadyCanceled);
+        }
+
+        var previousRefund = MapRefundSnapshot(refund);
+        refund.CanceledAt = DateTimeOffset.UtcNow;
+        refund.CanceledByUserId = command.ChangedByUserId;
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await CommitIfPresentAsync(transaction, cancellationToken);
+
+        return ClientMembershipRefundMutationResult.Success(
+            await LoadDetailsRequiredAsync(clientId, cancellationToken),
+            MapRefundSnapshot(refund),
+            previousRefund);
+    }
+
     private async Task<ClientMembershipDetailsResult> LoadDetailsRequiredAsync(
         Guid clientId,
         CancellationToken cancellationToken)
     {
         return await GetAsync(clientId, cancellationToken)
             ?? throw new InvalidOperationException($"Client membership details for '{clientId}' were not found.");
+    }
+
+    private async Task<IDbContextTransaction?> BeginTransactionIfSupportedAsync(CancellationToken cancellationToken)
+    {
+        return dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory"
+            ? null
+            : await dbContext.Database.BeginTransactionAsync(cancellationToken);
+    }
+
+    private static async Task CommitIfPresentAsync(
+        IDbContextTransaction? transaction,
+        CancellationToken cancellationToken)
+    {
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
+    }
+
+    private static async Task RollbackIfPresentAsync(
+        IDbContextTransaction? transaction,
+        CancellationToken cancellationToken)
+    {
+        if (transaction is not null)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+        }
     }
 
     private async Task<bool> ClientExistsAsync(
@@ -338,6 +555,8 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
     {
         return await dbContext.ClientMemberships
             .AsNoTracking()
+            .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.Refunds)
             .Where(membership => membership.ClientId == clientId)
             .OrderByDescending(membership => membership.ValidFrom)
             .ThenByDescending(membership => membership.CreatedAt)
@@ -349,6 +568,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
         CancellationToken cancellationToken)
     {
         return await dbContext.ClientMemberships
+            .Include(membership => membership.Sale)
             .SingleOrDefaultAsync(
                 membership => membership.ClientId == clientId && membership.ValidTo == null,
                 cancellationToken);
@@ -371,6 +591,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
 
     private static ClientMembership CreateMembership(
         Guid clientId,
+        Guid saleId,
         MembershipType membershipType,
         DateOnly purchaseDate,
         DateOnly? expirationDate,
@@ -387,6 +608,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
+            SaleId = saleId,
             MembershipType = membershipType,
             PurchaseDate = purchaseDate,
             ExpirationDate = expirationDate,
@@ -398,6 +620,26 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             ChangeReason = changeReason,
             ChangedByUserId = changedByUserId,
             ValidFrom = now,
+            CreatedAt = now
+        };
+    }
+
+    private static ClientMembershipSale CreateSale(
+        Guid clientId,
+        MembershipType membershipType,
+        DateOnly purchaseDate,
+        decimal grossAmount,
+        Guid createdByUserId,
+        DateTimeOffset now)
+    {
+        return new ClientMembershipSale
+        {
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            MembershipType = membershipType,
+            PurchaseDate = purchaseDate,
+            GrossAmount = grossAmount,
+            CreatedByUserId = createdByUserId,
             CreatedAt = now
         };
     }
@@ -507,7 +749,10 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
                 membership.ValidTo,
                 membership.ChangeReason,
                 membership.ChangedByUserId,
-                membership.CreatedAt))
+                membership.CreatedAt,
+                membership.SaleId,
+                CreateFinancialSummary(membership.Sale),
+                MapRefunds(membership.Sale)))
             .ToArray();
 
         return new ClientMembershipDetailsResult(
@@ -532,7 +777,70 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             membership.ValidTo,
             membership.ChangeReason,
             membership.ChangedByUserId,
-            membership.CreatedAt);
+            membership.CreatedAt,
+            membership.SaleId,
+            CreateFinancialSummary(membership.Sale),
+            MapRefunds(membership.Sale));
+    }
+
+    private static ClientMembershipFinancialSummaryResult CreateFinancialSummary(ClientMembershipSale sale)
+    {
+        var nonCanceledRefunds = sale.Refunds
+            .Where(refund => refund.CanceledAt is null)
+            .ToArray();
+        var refundedAmount = nonCanceledRefunds.Sum(refund => refund.Amount);
+        var refundStatus = refundedAmount <= 0
+            ? ClientMembershipRefundStatus.None
+            : refundedAmount >= sale.GrossAmount
+                ? ClientMembershipRefundStatus.Full
+                : ClientMembershipRefundStatus.Partial;
+
+        return new ClientMembershipFinancialSummaryResult(
+            sale.GrossAmount,
+            refundedAmount,
+            sale.GrossAmount - refundedAmount,
+            refundStatus,
+            nonCanceledRefunds
+                .Select(refund => (DateOnly?)refund.RefundDate)
+                .OrderByDescending(refundDate => refundDate)
+                .FirstOrDefault());
+    }
+
+    private static IReadOnlyList<ClientMembershipRefundSnapshotResult> MapRefunds(ClientMembershipSale sale)
+    {
+        return sale.Refunds
+            .OrderByDescending(refund => refund.RefundDate)
+            .ThenByDescending(refund => refund.CreatedAt)
+            .ThenByDescending(refund => refund.Id)
+            .Select(MapRefundSnapshot)
+            .ToArray();
+    }
+
+    private static ClientMembershipRefundSnapshotResult MapRefundSnapshot(ClientMembershipRefund refund)
+    {
+        return new ClientMembershipRefundSnapshotResult(
+            refund.Id,
+            refund.SaleId,
+            refund.ClientId,
+            refund.Amount,
+            refund.RefundDate,
+            refund.Comment,
+            refund.CreatedByUserId,
+            refund.CreatedAt,
+            refund.CanceledAt,
+            refund.CanceledByUserId);
+    }
+
+    private static ClientMembershipSaleSnapshotResult MapSaleSnapshot(ClientMembershipSale sale)
+    {
+        return new ClientMembershipSaleSnapshotResult(
+            sale.Id,
+            sale.ClientId,
+            sale.MembershipType,
+            sale.PurchaseDate,
+            sale.GrossAmount,
+            sale.CreatedByUserId,
+            sale.CreatedAt);
     }
 
     private static bool IsValidCommand(

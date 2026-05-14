@@ -458,6 +458,7 @@ internal static class AttendanceEndpoints
             new ClientMembershipAuditState(
                 membership.Id,
                 clientId,
+                membership.SaleId,
                 membership.MembershipType.ToString(),
                 membership.PurchaseDate,
                 membership.ExpirationDate,

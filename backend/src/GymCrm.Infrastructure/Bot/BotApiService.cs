@@ -1173,6 +1173,7 @@ internal sealed class BotApiService(
             {
                 membership.Id,
                 membership.ClientId,
+                membership.SaleId,
                 MembershipType = membership.MembershipType.ToString(),
                 membership.PurchaseDate,
                 membership.ExpirationDate,

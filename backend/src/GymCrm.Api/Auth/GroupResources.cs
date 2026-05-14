@@ -34,6 +34,7 @@ internal static class GroupResources
     public static string HallMustBeActive => GetString(nameof(HallMustBeActive));
     public static string HallMustBelongToBranch => GetString(nameof(HallMustBelongToBranch));
     public static string AssignedClientsMustBelongToBranch => GetString(nameof(AssignedClientsMustBelongToBranch));
+    public static string GroupBranchImmutable => GetString(nameof(GroupBranchImmutable));
     public static string GroupTypeRequired => GetString(nameof(GroupTypeRequired));
     public static string InvalidGroupTypeId => GetString(nameof(InvalidGroupTypeId));
     public static string GroupTypeMustExist => GetString(nameof(GroupTypeMustExist));

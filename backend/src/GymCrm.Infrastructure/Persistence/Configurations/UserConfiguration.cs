@@ -65,6 +65,11 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(groupTrainer => groupTrainer.TrainerId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasMany(user => user.GroupTrainerAssignments)
+            .WithOne(assignment => assignment.Trainer)
+            .HasForeignKey(assignment => assignment.TrainerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(user => user.MembershipPayments)
             .WithOne(membership => membership.PaidByUser)
             .HasForeignKey(membership => membership.PaidByUserId)
@@ -73,6 +78,36 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasMany(user => user.MembershipChanges)
             .WithOne(membership => membership.ChangedByUser)
             .HasForeignKey(membership => membership.ChangedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(user => user.CreatedMembershipSales)
+            .WithOne(sale => sale.CreatedByUser)
+            .HasForeignKey(sale => sale.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(user => user.CreatedMembershipRefunds)
+            .WithOne(refund => refund.CreatedByUser)
+            .HasForeignKey(refund => refund.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(user => user.CanceledMembershipRefunds)
+            .WithOne(refund => refund.CanceledByUser)
+            .HasForeignKey(refund => refund.CanceledByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(user => user.CreatedClientBranchAssignments)
+            .WithOne(assignment => assignment.CreatedByUser)
+            .HasForeignKey(assignment => assignment.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(user => user.CreatedClientGroupAssignments)
+            .WithOne(assignment => assignment.CreatedByUser)
+            .HasForeignKey(assignment => assignment.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(user => user.CreatedGroupTrainerAssignments)
+            .WithOne(assignment => assignment.CreatedByUser)
+            .HasForeignKey(assignment => assignment.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(user => user.AttendanceMarks)

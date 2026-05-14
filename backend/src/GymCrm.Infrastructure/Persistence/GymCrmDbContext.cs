@@ -17,10 +17,15 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<ClientContact> ClientContacts => Set<ClientContact>();
     public DbSet<ClientMembership> ClientMemberships => Set<ClientMembership>();
+    public DbSet<ClientMembershipSale> ClientMembershipSales => Set<ClientMembershipSale>();
+    public DbSet<ClientMembershipRefund> ClientMembershipRefunds => Set<ClientMembershipRefund>();
+    public DbSet<ClientBranchAssignment> ClientBranchAssignments => Set<ClientBranchAssignment>();
     public DbSet<TrainingGroup> TrainingGroups => Set<TrainingGroup>();
     public DbSet<GroupType> GroupTypes => Set<GroupType>();
     public DbSet<ClientGroup> ClientGroups => Set<ClientGroup>();
+    public DbSet<ClientGroupAssignment> ClientGroupAssignments => Set<ClientGroupAssignment>();
     public DbSet<GroupTrainer> GroupTrainers => Set<GroupTrainer>();
+    public DbSet<GroupTrainerAssignment> GroupTrainerAssignments => Set<GroupTrainerAssignment>();
     public DbSet<Attendance> Attendance => Set<Attendance>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<BotIdempotencyRecord> BotIdempotencyRecords => Set<BotIdempotencyRecord>();

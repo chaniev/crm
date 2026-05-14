@@ -140,6 +140,21 @@ internal static class GroupRequestValidator
             return;
         }
 
+        if (existingGroupId.HasValue)
+        {
+            var existingGroupBranchId = await dbContext.TrainingGroups
+                .AsNoTracking()
+                .Where(group => group.Id == existingGroupId.Value)
+                .Select(group => (Guid?)group.BranchId)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (existingGroupBranchId.HasValue && existingGroupBranchId.Value != branchId)
+            {
+                errors["branchId"] = [GroupResources.GroupBranchImmutable];
+                return;
+            }
+        }
+
         var hallId = request.HallId!.Value;
         var hall = await dbContext.Halls
             .AsNoTracking()

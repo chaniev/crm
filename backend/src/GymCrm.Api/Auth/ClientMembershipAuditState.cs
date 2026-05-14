@@ -3,6 +3,7 @@ namespace GymCrm.Api.Auth;
 internal sealed record ClientMembershipAuditState(
     Guid Id,
     Guid ClientId,
+    Guid SaleId,
     string MembershipType,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,

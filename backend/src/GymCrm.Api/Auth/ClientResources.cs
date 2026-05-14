@@ -38,6 +38,7 @@ internal static class ClientResources
     public static string ContactPhoneRequired => GetString(nameof(ContactPhoneRequired));
     public static string ContactPhoneTooLong => GetString(nameof(ContactPhoneTooLong));
     public static string InvalidGroupId => GetString(nameof(InvalidGroupId));
+    public static string ClientGroupsRequired => GetString(nameof(ClientGroupsRequired));
     public static string GroupsMustExist => GetString(nameof(GroupsMustExist));
     public static string GroupsMustBelongToClientBranch => GetString(nameof(GroupsMustBelongToClientBranch));
     public static string TransferGroupMustBelongToTargetBranch => GetString(nameof(TransferGroupMustBelongToTargetBranch));
@@ -58,6 +59,19 @@ internal static class ClientResources
     public static string InvalidIsoDate => GetString(nameof(InvalidIsoDate));
     public static string PaymentAmountRequired => GetString(nameof(PaymentAmountRequired));
     public static string PaymentAmountMustBeNonNegative => GetString(nameof(PaymentAmountMustBeNonNegative));
+    public static string RefundAmountRequired => GetString(nameof(RefundAmountRequired));
+    public static string RefundAmountMustBePositive => GetString(nameof(RefundAmountMustBePositive));
+    public static string RefundDateRequired => GetString(nameof(RefundDateRequired));
+    public static string RefundDateInFuture => GetString(nameof(RefundDateInFuture));
+    public static string RefundDateBeforePurchaseDate => GetString(nameof(RefundDateBeforePurchaseDate));
+    public static string RefundDateBeforeSaleCreatedDate => GetString(nameof(RefundDateBeforeSaleCreatedDate));
+    public static string RefundAmountExceedsGrossAmount => GetString(nameof(RefundAmountExceedsGrossAmount));
+    public static string RefundAlreadyCanceled => GetString(nameof(RefundAlreadyCanceled));
+    public static string RefundCommentTooLong => GetString(nameof(RefundCommentTooLong));
+    public static string SaleMustExist => GetString(nameof(SaleMustExist));
+    public static string RefundMustExist => GetString(nameof(RefundMustExist));
+    public static string CorrectedGrossAmountBelowRefunds => GetString(nameof(CorrectedGrossAmountBelowRefunds));
+    public static string CorrectedPurchaseDateAfterRefund => GetString(nameof(CorrectedPurchaseDateAfterRefund));
     public static string InvalidMembershipChangeRequest => GetString(nameof(InvalidMembershipChangeRequest));
     public static string CurrentMembershipMissingForAction => GetString(nameof(CurrentMembershipMissingForAction));
     public static string MembershipChangeFailed => GetString(nameof(MembershipChangeFailed));

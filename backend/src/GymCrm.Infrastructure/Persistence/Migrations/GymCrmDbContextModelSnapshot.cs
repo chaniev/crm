@@ -345,6 +345,48 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Clients.ClientBranchAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("ValidTo")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("ClientId")
+                        .IsUnique()
+                        .HasFilter("\"ValidTo\" IS NULL");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ClientId", "ValidFrom", "ValidTo");
+
+                    b.ToTable("ClientBranchAssignments", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientBranchAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+                        });
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientContact", b =>
                 {
                     b.Property<Guid>("Id")
@@ -420,6 +462,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("PurchaseDate")
                         .HasColumnType("date");
 
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("SingleVisitUsed")
                         .HasColumnType("boolean");
 
@@ -441,11 +486,109 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PaidByUserId");
 
+                    b.HasIndex("SaleId");
+
                     b.HasIndex("ValidTo");
 
                     b.ToTable("ClientMemberships", t =>
                         {
                             t.HasCheckConstraint("CK_ClientMemberships_PaymentAmount_NonNegative", "\"PaymentAmount\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembershipRefund", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTimeOffset?>("CanceledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CanceledByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("RefundDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CanceledAt");
+
+                    b.HasIndex("CanceledByUserId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("RefundDate");
+
+                    b.HasIndex("SaleId");
+
+                    b.ToTable("ClientMembershipRefunds", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientMembershipRefunds_Amount_Positive", "\"Amount\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembershipSale", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("GrossAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("MembershipType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateOnly>("PurchaseDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("PurchaseDate");
+
+                    b.ToTable("ClientMembershipSales", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientMembershipSales_GrossAmount_NonNegative", "\"GrossAmount\" >= 0");
                         });
                 });
 
@@ -469,6 +612,50 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.ToTable("ClientGroups");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Groups.ClientGroupAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("ValidTo")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("ClientId", "GroupId")
+                        .IsUnique()
+                        .HasFilter("\"ValidTo\" IS NULL");
+
+                    b.HasIndex("ClientId", "GroupId", "ValidFrom", "ValidTo");
+
+                    b.ToTable("ClientGroupAssignments", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientGroupAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+                        });
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainer", b =>
                 {
                     b.Property<Guid>("GroupId")
@@ -482,6 +669,50 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("TrainerId");
 
                     b.ToTable("GroupTrainers");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainerAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TrainerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("ValidTo")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("TrainerId");
+
+                    b.HasIndex("TrainerId", "GroupId")
+                        .IsUnique()
+                        .HasFilter("\"ValidTo\" IS NULL");
+
+                    b.HasIndex("TrainerId", "GroupId", "ValidFrom", "ValidTo");
+
+                    b.ToTable("GroupTrainerAssignments", t =>
+                        {
+                            t.HasCheckConstraint("CK_GroupTrainerAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+                        });
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Groups.GroupType", b =>
@@ -701,6 +932,33 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Branch");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Clients.ClientBranchAssignment", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
+                        .WithMany("ClientAssignments")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
+                        .WithMany("BranchAssignments")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany("CreatedClientBranchAssignments")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("CreatedByUser");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientContact", b =>
                 {
                     b.HasOne("GymCrm.Domain.Clients.Client", "Client")
@@ -731,11 +989,72 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasForeignKey("PaidByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("GymCrm.Domain.Clients.ClientMembershipSale", "Sale")
+                        .WithMany("Memberships")
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("ChangedByUser");
 
                     b.Navigation("Client");
 
                     b.Navigation("PaidByUser");
+
+                    b.Navigation("Sale");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembershipRefund", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Users.User", "CanceledByUser")
+                        .WithMany("CanceledMembershipRefunds")
+                        .HasForeignKey("CanceledByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
+                        .WithMany("MembershipRefunds")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany("CreatedMembershipRefunds")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Clients.ClientMembershipSale", "Sale")
+                        .WithMany("Refunds")
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CanceledByUser");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Sale");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembershipSale", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
+                        .WithMany("MembershipSales")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany("CreatedMembershipSales")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Groups.ClientGroup", b =>
@@ -758,6 +1077,33 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Group");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Groups.ClientGroupAssignment", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
+                        .WithMany("GroupAssignments")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany("CreatedClientGroupAssignments")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
+                        .WithMany("ClientAssignments")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Group");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainer", b =>
                 {
                     b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
@@ -771,6 +1117,33 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TrainerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Trainer");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainerAssignment", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany("CreatedGroupTrainerAssignments")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
+                        .WithMany("TrainerAssignments")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "Trainer")
+                        .WithMany("GroupTrainerAssignments")
+                        .HasForeignKey("TrainerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Group");
 
@@ -807,6 +1180,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("GymCrm.Domain.Branches.Branch", b =>
                 {
+                    b.Navigation("ClientAssignments");
+
                     b.Navigation("Clients");
 
                     b.Navigation("Groups");
@@ -823,11 +1198,26 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("AttendanceEntries");
 
+                    b.Navigation("BranchAssignments");
+
                     b.Navigation("Contacts");
+
+                    b.Navigation("GroupAssignments");
 
                     b.Navigation("Groups");
 
+                    b.Navigation("MembershipRefunds");
+
+                    b.Navigation("MembershipSales");
+
                     b.Navigation("Memberships");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembershipSale", b =>
+                {
+                    b.Navigation("Memberships");
+
+                    b.Navigation("Refunds");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Groups.GroupType", b =>
@@ -839,7 +1229,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("AttendanceEntries");
 
+                    b.Navigation("ClientAssignments");
+
                     b.Navigation("Clients");
+
+                    b.Navigation("TrainerAssignments");
 
                     b.Navigation("Trainers");
                 });
@@ -851,6 +1245,20 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("AttendanceMarks");
 
                     b.Navigation("AuditLogs");
+
+                    b.Navigation("CanceledMembershipRefunds");
+
+                    b.Navigation("CreatedClientBranchAssignments");
+
+                    b.Navigation("CreatedClientGroupAssignments");
+
+                    b.Navigation("CreatedGroupTrainerAssignments");
+
+                    b.Navigation("CreatedMembershipRefunds");
+
+                    b.Navigation("CreatedMembershipSales");
+
+                    b.Navigation("GroupTrainerAssignments");
 
                     b.Navigation("MembershipChanges");
 

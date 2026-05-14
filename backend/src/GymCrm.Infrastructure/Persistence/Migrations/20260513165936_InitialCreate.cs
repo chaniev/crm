@@ -194,11 +194,78 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientBranchAssignments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ValidFrom = table.Column<DateOnly>(type: "date", nullable: false),
+                    ValidTo = table.Column<DateOnly>(type: "date", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientBranchAssignments", x => x.Id);
+                    table.CheckConstraint("CK_ClientBranchAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+                    table.ForeignKey(
+                        name: "FK_ClientBranchAssignments_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientBranchAssignments_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientBranchAssignments_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientMembershipSales",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MembershipType = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    GrossAmount = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMembershipSales", x => x.Id);
+                    table.CheckConstraint("CK_ClientMembershipSales_GrossAmount_NonNegative", "\"GrossAmount\" >= 0");
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipSales_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipSales_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ClientMemberships",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SaleId = table.Column<Guid>(type: "uuid", nullable: false),
                     MembershipType = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
                     ExpirationDate = table.Column<DateOnly>(type: "date", nullable: true),
@@ -224,6 +291,12 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_ClientMemberships_ClientMembershipSales_SaleId",
+                        column: x => x.SaleId,
+                        principalTable: "ClientMembershipSales",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_ClientMemberships_Users_ChangedByUserId",
                         column: x => x.ChangedByUserId,
                         principalTable: "Users",
@@ -232,6 +305,51 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_ClientMemberships_Users_PaidByUserId",
                         column: x => x.PaidByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientMembershipRefunds",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SaleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
+                    RefundDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    Comment = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CanceledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CanceledByUserId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMembershipRefunds", x => x.Id);
+                    table.CheckConstraint("CK_ClientMembershipRefunds_Amount_Positive", "\"Amount\" > 0");
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipRefunds_ClientMembershipSales_SaleId",
+                        column: x => x.SaleId,
+                        principalTable: "ClientMembershipSales",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipRefunds_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipRefunds_Users_CanceledByUserId",
+                        column: x => x.CanceledByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipRefunds_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -341,6 +459,42 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientGroupAssignments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ValidFrom = table.Column<DateOnly>(type: "date", nullable: false),
+                    ValidTo = table.Column<DateOnly>(type: "date", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientGroupAssignments", x => x.Id);
+                    table.CheckConstraint("CK_ClientGroupAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+                    table.ForeignKey(
+                        name: "FK_ClientGroupAssignments_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientGroupAssignments_TrainingGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientGroupAssignments_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GroupTrainers",
                 columns: table => new
                 {
@@ -358,6 +512,42 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_GroupTrainers_Users_TrainerId",
+                        column: x => x.TrainerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GroupTrainerAssignments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TrainerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ValidFrom = table.Column<DateOnly>(type: "date", nullable: false),
+                    ValidTo = table.Column<DateOnly>(type: "date", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GroupTrainerAssignments", x => x.Id);
+                    table.CheckConstraint("CK_GroupTrainerAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+                    table.ForeignKey(
+                        name: "FK_GroupTrainerAssignments_TrainingGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GroupTrainerAssignments_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_GroupTrainerAssignments_Users_TrainerId",
                         column: x => x.TrainerId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -437,6 +627,55 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClientBranchAssignments_BranchId",
+                table: "ClientBranchAssignments",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientBranchAssignments_ClientId",
+                table: "ClientBranchAssignments",
+                column: "ClientId",
+                unique: true,
+                filter: "\"ValidTo\" IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientBranchAssignments_ClientId_ValidFrom_ValidTo",
+                table: "ClientBranchAssignments",
+                columns: new[] { "ClientId", "ValidFrom", "ValidTo" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientBranchAssignments_CreatedByUserId",
+                table: "ClientBranchAssignments",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientGroupAssignments_ClientId",
+                table: "ClientGroupAssignments",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientGroupAssignments_ClientId_GroupId",
+                table: "ClientGroupAssignments",
+                columns: new[] { "ClientId", "GroupId" },
+                unique: true,
+                filter: "\"ValidTo\" IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientGroupAssignments_ClientId_GroupId_ValidFrom_ValidTo",
+                table: "ClientGroupAssignments",
+                columns: new[] { "ClientId", "GroupId", "ValidFrom", "ValidTo" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientGroupAssignments_CreatedByUserId",
+                table: "ClientGroupAssignments",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientGroupAssignments_GroupId",
+                table: "ClientGroupAssignments",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ClientGroups_BranchId",
                 table: "ClientGroups",
                 column: "BranchId");
@@ -469,9 +708,59 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 column: "PaidByUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClientMemberships_SaleId",
+                table: "ClientMemberships",
+                column: "SaleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ClientMemberships_ValidTo",
                 table: "ClientMemberships",
                 column: "ValidTo");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefunds_CanceledAt",
+                table: "ClientMembershipRefunds",
+                column: "CanceledAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefunds_CanceledByUserId",
+                table: "ClientMembershipRefunds",
+                column: "CanceledByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefunds_ClientId",
+                table: "ClientMembershipRefunds",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefunds_CreatedByUserId",
+                table: "ClientMembershipRefunds",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefunds_RefundDate",
+                table: "ClientMembershipRefunds",
+                column: "RefundDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefunds_SaleId",
+                table: "ClientMembershipRefunds",
+                column: "SaleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipSales_ClientId",
+                table: "ClientMembershipSales",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipSales_CreatedByUserId",
+                table: "ClientMembershipSales",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipSales_PurchaseDate",
+                table: "ClientMembershipSales",
+                column: "PurchaseDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_BranchId",
@@ -507,6 +796,33 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "IX_GroupTrainers_TrainerId",
                 table: "GroupTrainers",
                 column: "TrainerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerAssignments_CreatedByUserId",
+                table: "GroupTrainerAssignments",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerAssignments_GroupId",
+                table: "GroupTrainerAssignments",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerAssignments_TrainerId",
+                table: "GroupTrainerAssignments",
+                column: "TrainerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerAssignments_TrainerId_GroupId",
+                table: "GroupTrainerAssignments",
+                columns: new[] { "TrainerId", "GroupId" },
+                unique: true,
+                filter: "\"ValidTo\" IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerAssignments_TrainerId_GroupId_ValidFrom_ValidTo",
+                table: "GroupTrainerAssignments",
+                columns: new[] { "TrainerId", "GroupId", "ValidFrom", "ValidTo" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_GroupTypes_Name",
@@ -572,6 +888,34 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 columns: new[] { "MessengerPlatform", "MessengerPlatformUserId" },
                 unique: true,
                 filter: "\"MessengerPlatform\" IS NOT NULL AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> ''");
+
+            migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS btree_gist;");
+            migrationBuilder.Sql("""
+                ALTER TABLE "ClientBranchAssignments"
+                ADD CONSTRAINT "EX_ClientBranchAssignments_ClientId_Period_NoOverlap"
+                EXCLUDE USING gist (
+                    "ClientId" WITH =,
+                    daterange("ValidFrom", COALESCE("ValidTo", 'infinity'::date), '[)') WITH &&
+                );
+                """);
+            migrationBuilder.Sql("""
+                ALTER TABLE "ClientGroupAssignments"
+                ADD CONSTRAINT "EX_ClientGroupAssignments_ClientGroup_Period_NoOverlap"
+                EXCLUDE USING gist (
+                    "ClientId" WITH =,
+                    "GroupId" WITH =,
+                    daterange("ValidFrom", COALESCE("ValidTo", 'infinity'::date), '[)') WITH &&
+                );
+                """);
+            migrationBuilder.Sql("""
+                ALTER TABLE "GroupTrainerAssignments"
+                ADD CONSTRAINT "EX_GroupTrainerAssignments_TrainerGroup_Period_NoOverlap"
+                EXCLUDE USING gist (
+                    "TrainerId" WITH =,
+                    "GroupId" WITH =,
+                    daterange("ValidFrom", COALESCE("ValidTo", 'infinity'::date), '[)') WITH &&
+                );
+                """);
         }
 
         /// <inheritdoc />
@@ -593,10 +937,25 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "ClientGroups");
 
             migrationBuilder.DropTable(
+                name: "ClientGroupAssignments");
+
+            migrationBuilder.DropTable(
+                name: "ClientMembershipRefunds");
+
+            migrationBuilder.DropTable(
                 name: "ClientMemberships");
 
             migrationBuilder.DropTable(
+                name: "GroupTrainerAssignments");
+
+            migrationBuilder.DropTable(
                 name: "GroupTrainers");
+
+            migrationBuilder.DropTable(
+                name: "ClientBranchAssignments");
+
+            migrationBuilder.DropTable(
+                name: "ClientMembershipSales");
 
             migrationBuilder.DropTable(
                 name: "Clients");
