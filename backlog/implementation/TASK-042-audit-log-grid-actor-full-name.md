@@ -1,7 +1,13 @@
 # TASK-042: Перевести журнал событий на обычный grid с ФИО автора
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-14 21:17
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-042-audit-log-grid-actor-full-name.plan.md
+- implementation_branch: feature/TASK-042-audit-log-grid-actor-full-name
 
 ## Goal
 Журнал событий отображается как привычная таблица/grid с отдельными колонками записей, включая ФИО пользователя, который внес изменение.
