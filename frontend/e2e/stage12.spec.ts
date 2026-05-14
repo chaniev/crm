@@ -1806,6 +1806,11 @@ test.describe('Основные e2e сценарии', () => {
         return true
       }
 
+      if (pathname === '/api/schedule/groups' && method === 'GET') {
+        await fulfillJson(route, 200, buildGroupsListPayload(baseGroups))
+        return true
+      }
+
       if (pathname === '/api/clients' && method === 'GET') {
         clientsCalls += 1
         const responsePayload = buildClientsListPayload([baseClient], baseGroups, searchParams)

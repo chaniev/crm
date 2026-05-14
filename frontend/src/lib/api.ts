@@ -133,6 +133,7 @@ export {
   getTrainerOptions,
   updateGroup,
 } from './api/groups'
+export { getScheduleGroups } from './api/schedule'
 export {
   getAttendanceGroupClients,
   getAttendanceGroups,

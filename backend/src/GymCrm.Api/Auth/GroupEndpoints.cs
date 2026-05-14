@@ -47,30 +47,11 @@ internal static class GroupEndpoints
         }
 
         var paging = GroupRequestValidator.ResolvePaging(page, pageSize, skip, take);
-
-        var query = dbContext.TrainingGroups.AsNoTracking();
-        if (isActive.HasValue)
-        {
-            query = query.Where(group => group.IsActive == isActive.Value);
-        }
-
-        var groups = await query
-            .OrderBy(group => group.Name)
-            .ThenBy(group => group.TrainingStartTime)
-            .ThenBy(group => group.Id)
-            .Skip(paging.Skip)
-            .Take(paging.Take)
-            .Include(group => group.Branch)
-            .Include(group => group.Hall)
-            .Include(group => group.GroupType)
-            .Include(group => group.Trainers)
-                .ThenInclude(groupTrainer => groupTrainer.Trainer)
-            .Include(group => group.Clients)
-            .AsSplitQuery()
-            .ToListAsync(cancellationToken);
+        var query = TrainingGroupListQuery.CreateBaseQuery(dbContext, isActive);
+        var groups = await TrainingGroupListQuery.LoadPageAsync(query, paging, cancellationToken);
 
         IReadOnlyList<GroupListItemResponse> response = groups
-            .Select(MapListItem)
+            .Select(TrainingGroupListItemMapper.Map)
             .ToArray();
 
         return TypedResults.Ok(response);
@@ -465,40 +446,6 @@ internal static class GroupEndpoints
         }
 
         assignment.ValidTo = validTo;
-    }
-
-    private static GroupListItemResponse MapListItem(TrainingGroup group)
-    {
-        var trainers = group.Trainers
-            .Select(groupTrainer => groupTrainer.Trainer)
-            .OrderBy(trainer => trainer.FullName, StringComparer.CurrentCulture)
-            .ThenBy(trainer => trainer.Login, StringComparer.CurrentCulture)
-            .Select(trainer => new TrainerSummaryResponse(
-                trainer.Id,
-                trainer.FullName,
-                trainer.Login))
-            .ToArray();
-
-        return new GroupListItemResponse(
-            group.Id,
-            group.Name,
-            group.BranchId,
-            group.Branch.Name,
-            group.HallId,
-            group.Hall.Name,
-            group.GroupTypeId,
-            group.GroupType.Name,
-            group.GroupType.SystemIdentifier,
-            FormatTrainingStartTime(group.TrainingStartTime),
-            group.DurationMinutes,
-            SortWeekdays(group.Weekdays),
-            group.IsActive,
-            trainers,
-            trainers.Select(trainer => trainer.Id).ToArray(),
-            trainers.Length,
-            trainers.Select(trainer => trainer.FullName).ToArray(),
-            group.Clients.Count,
-            group.UpdatedAt);
     }
 
     private static GroupDetailsResponse MapDetails(TrainingGroup group)
