@@ -64,7 +64,7 @@ test('Навигация открывает раздел Тренеры на м�
   await expect(page).toHaveURL(/\/users$/)
   await expect(page.getByTestId('users-screen')).toBeVisible()
   await expect(trainersNavButton).toHaveAttribute('aria-current', 'page')
-  await expect(page.getByRole('heading', { name: 'Тренеры и роли команды' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Тренеры' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
 })
 
@@ -106,7 +106,7 @@ test('Редактирование пользователя показывает
   await page.goto('/users/headcoach-id/edit')
 
   await expect(page.getByRole('heading', { name: 'Главный тренер' })).toBeVisible()
-  await expect(page.getByText('Редактирование тренера')).toBeVisible()
+  await expect(page.getByText('Редактирование доступа')).toBeVisible()
   await expect(page.getByLabel('ФИО')).toHaveValue('Главный тренер')
   await expect(page.getByLabel('Логин')).toHaveValue('headcoach')
   await expect(

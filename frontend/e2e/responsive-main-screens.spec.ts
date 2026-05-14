@@ -286,20 +286,20 @@ const TRAINERS_RESPONSE = [
 ] as const
 
 const MANAGEMENT_ROUTES = [
-  { path: '/', screenTestId: 'home-screen', navLabel: 'Главная' },
-  { path: '/schedule', screenTestId: 'schedule-screen', navLabel: 'Расписание' },
-  { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты' },
-  { path: '/groups', screenTestId: 'groups-screen', navLabel: 'Группы' },
-  { path: '/users', screenTestId: 'users-screen', navLabel: 'Тренеры' },
-  { path: '/audit', screenTestId: 'audit-screen', navLabel: 'Журнал' },
-  { path: '/finance', screenTestId: 'finance-screen', navLabel: 'Финансы' },
-  { path: '/settings', screenTestId: 'settings-screen', navLabel: 'Настройки' },
+  { path: '/', screenTestId: 'home-screen', navLabel: 'Главная', expectedControls: ['Обновить'] },
+  { path: '/schedule', screenTestId: 'schedule-screen', navLabel: 'Расписание', expectedControls: ['Обновить'] },
+  { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты', expectedControls: ['Обновить список', 'Новый клиент'] },
+  { path: '/groups', screenTestId: 'groups-screen', navLabel: 'Группы', expectedControls: ['Создать группу', 'Обновить список'] },
+  { path: '/users', screenTestId: 'users-screen', navLabel: 'Тренеры', expectedControls: ['Создать тренера', 'Обновить'] },
+  { path: '/audit', screenTestId: 'audit-screen', navLabel: 'Журнал', expectedControls: ['Обновить'] },
+  { path: '/finance', screenTestId: 'finance-screen', navLabel: 'Финансы', expectedControls: ['Обновить'] },
+  { path: '/settings', screenTestId: 'settings-screen', navLabel: 'Настройки', expectedControls: ['Добавить тип', 'Обновить'] },
 ] as const
 
 const COACH_ROUTES = [
-  { path: '/schedule', screenTestId: 'schedule-screen', navLabel: 'Расписание' },
-  { path: '/attendance', screenTestId: 'attendance-screen', navLabel: 'Посещения' },
-  { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты' },
+  { path: '/schedule', screenTestId: 'schedule-screen', navLabel: 'Расписание', expectedControls: ['Обновить'] },
+  { path: '/attendance', screenTestId: 'attendance-screen', navLabel: 'Посещения', expectedControls: ['Обновить'] },
+  { path: '/clients', screenTestId: 'clients-screen', navLabel: 'Клиенты', expectedControls: [] },
 ] as const
 
 const DESKTOP_NAVIGATION_BREAKPOINT = 1200
@@ -327,6 +327,8 @@ for (const viewport of VIEWPORTS) {
         await page.goto(route.path)
         await expect(page.getByTestId(route.screenTestId)).toBeVisible()
         await expectActiveNavigation(page, viewport.width, route.navLabel)
+        await expectNoServiceIntro(page)
+        await expectPrimaryControls(page, route.expectedControls)
         await expectNoHorizontalScroll(page)
       }
     })
@@ -340,6 +342,8 @@ for (const viewport of VIEWPORTS) {
         await page.goto(route.path)
         await expect(page.getByTestId(route.screenTestId)).toBeVisible()
         await expectActiveNavigation(page, viewport.width, route.navLabel)
+        await expectNoServiceIntro(page)
+        await expectPrimaryControls(page, route.expectedControls)
         await expectNoHorizontalScroll(page)
       }
     })
@@ -363,6 +367,27 @@ async function expectActiveNavigation(page: Page, width: number, navLabel: strin
     'aria-current',
     'page',
   )
+}
+
+async function expectNoServiceIntro(page: Page) {
+  await expect(page.locator('.page-header-card')).toHaveCount(0)
+  await expect(page.locator('.finance-header-card')).toHaveCount(0)
+  await expect(page.getByText('Главный тренер и администратор')).toHaveCount(0)
+  await expect(page.getByText('Только для главного тренера')).toHaveCount(0)
+  await expect(page.getByText('Любая доступная группа')).toHaveCount(0)
+  await expect(page.getByText(/Показано\s+\d+\s+из\s+\d+/)).toHaveCount(0)
+  await expect(page.getByText(/Фильтры:\s+\d+/)).toHaveCount(0)
+}
+
+async function expectPrimaryControls(
+  page: Page,
+  expectedControls: readonly string[],
+) {
+  for (const controlName of expectedControls) {
+    await expect(
+      page.getByRole('button', { name: controlName }).first(),
+    ).toBeVisible()
+  }
 }
 
 async function expectNoHorizontalScroll(page: Page) {

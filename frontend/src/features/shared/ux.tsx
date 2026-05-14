@@ -166,24 +166,32 @@ export function PageCard({
 
 type PageHeaderProps = {
   title: string
+  className?: string
   description?: string
   actions?: ReactNode
   eyebrow?: ReactNode
+  titleOrder?: 1 | 2 | 3 | 4 | 5 | 6
 }
 
 export function PageHeader({
   title,
+  className,
   description,
   actions,
   eyebrow,
+  titleOrder = 2,
 }: PageHeaderProps) {
   return (
-    <Group className="page-header" justify="space-between" wrap="wrap">
+    <Group
+      className={['page-header', className].filter(Boolean).join(' ')}
+      justify="space-between"
+      wrap="wrap"
+    >
       <Stack className="page-header__copy" gap={6}>
         {eyebrow ? (
           <div className="page-header__eyebrow">{eyebrow}</div>
         ) : null}
-        <Title className="page-header__title" order={2}>
+        <Title className="page-header__title" order={titleOrder}>
           {title}
         </Title>
         {description ? (

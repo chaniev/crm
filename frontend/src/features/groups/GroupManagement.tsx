@@ -150,34 +150,26 @@ export function GroupsListScreen({
 
   return (
     <Stack className="dashboard-stack" data-testid="groups-screen" gap="xl">
-      <PageCard className="page-header-card">
-        <PageHeader
-          actions={(
-            <ResponsiveButtonGroup>
-              <Button
-                color="accent.5"
-                leftSection={<IconPlus size={18} />}
-                onClick={onCreate}
-              >
-                Создать группу
-              </Button>
-              <RefreshButton
-                label="Обновить список"
-                onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-              />
-            </ResponsiveButtonGroup>
-          )}
-          description="Список показывает расписание, время старта, состав тренеров и количество клиентов по каждой группе без перехода в отдельный модуль."
-          eyebrow={(
-            <Group gap="sm">
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                Группы и расписание
-              </Badge>
-            </Group>
-          )}
-          title="Группы и назначение тренеров"
-        />
-      </PageCard>
+      <PageHeader
+        actions={(
+          <ResponsiveButtonGroup>
+            <Button
+              color="accent.5"
+              leftSection={<IconPlus size={18} />}
+              onClick={onCreate}
+            >
+              Создать группу
+            </Button>
+            <RefreshButton
+              label="Обновить список"
+              onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+            />
+          </ResponsiveButtonGroup>
+        )}
+        className="page-title-row"
+        title="Группы"
+        titleOrder={1}
+      />
 
       <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
         <MetricCard
@@ -199,15 +191,7 @@ export function GroupsListScreen({
 
       <PageCard>
         <Stack gap="lg">
-          <PageHeader
-            actions={(
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                Главный тренер и администратор
-              </Badge>
-            )}
-            description={`Показано ${groups.length} из ${totalCount}. Дальше этот же экран сможет работать и на частичной загрузке списка.`}
-            title="Список групп"
-          />
+          <PageHeader title="Список групп" />
 
           {loading ? (
             <LoadingState label="Загружаем список групп..." />
@@ -397,8 +381,8 @@ export function GroupCreateScreen({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <GroupFormHero
-        action={(
+      <PageHeader
+        actions={(
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onCancel}
@@ -407,9 +391,9 @@ export function GroupCreateScreen({
             К списку групп
           </Button>
         )}
-        badge="Новая группа"
-        description="Создайте группу, задайте расписание и сразу назначьте нескольких тренеров."
-        title="Новая тренировочная группа"
+        className="page-title-row"
+        title="Новая группа"
+        titleOrder={1}
       />
 
       <PageCard>
@@ -552,8 +536,8 @@ export function GroupEditScreen({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <GroupFormHero
-        action={(
+      <PageHeader
+        actions={(
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onBack}
@@ -562,9 +546,9 @@ export function GroupEditScreen({
             К списку групп
           </Button>
         )}
-        badge="Редактирование группы"
-        description="Обновляйте расписание, активность группы и список назначенных тренеров из одного экрана."
+        className="page-title-row"
         title={`Настройка группы «${groupName}»`}
+        titleOrder={1}
       />
 
       {loading ? (
@@ -935,37 +919,6 @@ function GroupForm({
         </Group>
       </Stack>
     </form>
-  )
-}
-
-type GroupFormHeroProps = {
-  action: ReactNode
-  badge: string
-  description: string
-  title: string
-}
-
-function GroupFormHero({
-  action,
-  badge,
-  description,
-  title,
-}: GroupFormHeroProps) {
-  return (
-    <PageCard className="page-header-card">
-      <PageHeader
-        actions={action}
-        description={description}
-        eyebrow={(
-          <Group gap="sm">
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              {badge}
-            </Badge>
-          </Group>
-        )}
-        title={title}
-      />
-    </PageCard>
   )
 }
 

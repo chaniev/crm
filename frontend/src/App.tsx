@@ -1,7 +1,6 @@
 import { startTransition, useEffect, useState, type ReactNode } from 'react'
 import {
   Alert,
-  Badge,
   Button,
   Container,
   Group,
@@ -9,7 +8,6 @@ import {
   Menu,
   Paper,
   PasswordInput,
-  SimpleGrid,
   Stack,
   Text,
   TextInput,
@@ -27,7 +25,6 @@ import {
   IconCheck,
   IconDoorExit,
   IconLockPassword,
-  IconRoute,
   IconShieldCheck,
   IconSparkles,
   IconUserCircle,
@@ -1111,75 +1108,23 @@ function RouteViewport({
     return <HomeDashboard onOpenClient={onOpenClient} user={user} />
   }
 
-  return <SectionPlaceholder section={route.section} user={user} />
+  return <SectionPlaceholder section={route.section} />
 }
 
 function ClientsReadOnlyPlaceholder() {
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
-        <Stack className="page-header-card__content" gap="md">
-          <Group gap="sm">
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Клиенты для тренера
-            </Badge>
-          </Group>
-
-          <Stack gap="sm">
-            <Title className="page-header-card__title" order={1}>
-              Раздел клиентов для тренера готовится к запуску
-            </Title>
-            <Text className="page-header-card__description" size="sm">
-              Сейчас полный список клиентов доступен управленческим ролям. Для
-              тренера здесь появится ограниченный просмотр клиентов назначенных групп.
-            </Text>
-          </Stack>
-        </Stack>
-      </Paper>
-
       <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
-        <Stack gap="lg">
+        <Stack gap="md">
+          <Title order={1}>Клиенты</Title>
           <Alert
             color="blue"
             icon={<IconAlertCircle size={18} />}
             title="Раздел скоро будет доступен"
             variant="light"
           >
-            Для тренера будет показан только разрешенный список клиентов без
-            лишних персональных данных и действий управления.
+            Для тренера здесь появится рабочий список клиентов назначенных групп.
           </Alert>
-
-          <SimpleGrid cols={{ base: 1, md: 3 }}>
-            <Paper className="hint-card" radius="24px" withBorder>
-              <Stack gap={6}>
-                <Text fw={700}>Что уже готово</Text>
-                <Text c="dimmed" size="sm">
-                  Главный тренер и администратор уже могут вести список клиентов,
-                  открывать карточки, создавать, редактировать и архивировать записи.
-                </Text>
-              </Stack>
-            </Paper>
-
-            <Paper className="hint-card" radius="24px" withBorder>
-              <Stack gap={6}>
-                <Text fw={700}>Почему так</Text>
-                <Text c="dimmed" size="sm">
-                  Тренеру будут доступны только клиенты его групп, чтобы сохранить
-                  приватность данных клуба.
-                </Text>
-              </Stack>
-            </Paper>
-
-            <Paper className="hint-card" radius="24px" withBorder>
-              <Stack gap={6}>
-                <Text fw={700}>Следующий шаг</Text>
-                <Text c="dimmed" size="sm">
-                  После подключения раздела тренер сможет быстро открывать
-                  разрешенные карточки клиентов из своих групп.
-                </Text>
-              </Stack>
-            </Paper>
-          </SimpleGrid>
         </Stack>
       </Paper>
     </Stack>
@@ -1200,60 +1145,21 @@ function RouteRedirectPlaceholder() {
 
 type SectionPlaceholderProps = {
   section: Exclude<AppSection, 'Home' | 'Schedule' | 'Clients' | 'Users' | 'Groups'>
-  user: AuthenticatedUser
 }
 
-function SectionPlaceholder({
-  section,
-  user,
-}: SectionPlaceholderProps) {
-  const presentation = rolePresentationMap[user.role]
-
+function SectionPlaceholder({ section }: SectionPlaceholderProps) {
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <Paper className="surface-card surface-card--wide page-header-card" radius="28px" withBorder>
-        <Stack className="page-header-card__content" gap="md">
-          <Group gap="sm">
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              {APP_SECTION_LABELS[section]}
-            </Badge>
-          </Group>
-
-          <Stack gap="sm">
-            <Title className="page-header-card__title" order={1}>
-              Раздел {APP_SECTION_LABELS[section]} появится здесь
-            </Title>
-            <Text className="page-header-card__description" size="sm">
-              Клиенты, тренеры и группы уже доступны в рабочем меню. Этот
-              раздел будет подключен отдельным обновлением.
-            </Text>
-          </Stack>
-        </Stack>
-      </Paper>
-
       <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
         <Stack gap="md">
-          <Group gap="xs">
-            <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-              <IconRoute size={18} />
-            </ThemeIcon>
-            <div>
-              <Text fw={700}>Почему раздел недоступен</Text>
-              <Text c="dimmed" size="sm">
-                Для роли {presentation.roleLabel} экран пока не опубликован в
-                рабочем интерфейсе.
-              </Text>
-            </div>
-          </Group>
-
+          <Title order={1}>{APP_SECTION_LABELS[section]}</Title>
           <Alert
             color="blue"
             icon={<IconCheck size={18} />}
-            title="Навигация уже собрана"
+            title="Раздел пока недоступен"
             variant="light"
           >
-            Меню уже показывает доступные разделы и скрывает то, что не входит в
-            права текущей роли.
+            Экран будет подключен отдельным обновлением.
           </Alert>
         </Stack>
       </Paper>

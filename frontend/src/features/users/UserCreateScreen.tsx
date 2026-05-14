@@ -22,9 +22,8 @@ import {
   type UserDetails,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import { ErrorState, PageCard, ResponsiveButtonGroup } from '../shared/ux'
+import { ErrorState, PageCard, PageHeader, ResponsiveButtonGroup } from '../shared/ux'
 import { UserFormFields, UserCreateCredentialsFields, type CreateUserFormValues } from './UserFormFields'
-import { UserManagementHero } from './UserManagementHero'
 import { userRoleOptions } from './UserManagement.constants'
 import { toCreateUserPayload } from './UserManagement.mappers'
 
@@ -91,8 +90,8 @@ export function UserCreateScreen({
 
   return (
     <Stack className="dashboard-stack" gap="xl">
-      <UserManagementHero
-        action={
+      <PageHeader
+        actions={
           <Button
             leftSection={<IconArrowLeft size={18} />}
             onClick={onCancel}
@@ -101,9 +100,9 @@ export function UserCreateScreen({
             {resources.users.create.backAction}
           </Button>
         }
-        badge={resources.users.create.badge}
-        description={resources.users.create.description}
+        className="page-title-row"
         title={resources.users.create.title}
+        titleOrder={1}
       />
 
       <PageCard>

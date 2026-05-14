@@ -314,43 +314,20 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
   const hasReport = Boolean(report)
   const isInitialReportLoading = reportLoading && !hasReport
   const isRefreshingReport = reportLoading && hasReport
-  const selectedBranchLabel =
-    branches.find((branch) => branch.id === appliedFilters.branchId)?.name ??
-    'Все филиалы'
-  const selectedTrainerLabel =
-    trainers.find((trainer) => trainer.id === appliedFilters.trainerId)
-      ?.fullName ?? 'Все тренеры'
 
   return (
     <Stack className="dashboard-stack" data-testid="finance-screen" gap="xl">
-      <PageCard className="finance-header-card">
-        <PageHeader
-          actions={(
-            <RefreshButton
-              loading={isRefreshingReport}
-              onClick={() => setReloadKey((current) => current + 1)}
-            />
-          )}
-          description="Продажи, возвраты и новые клиенты за выбранный период."
-          eyebrow={(
-            <Badge color="brand.1" radius="xl" size="lg" variant="light">
-              Финансы
-            </Badge>
-          )}
-          title="Финансовые отчеты"
-        />
-      </PageCard>
-
       <PageCard className="finance-filter-card">
         <Stack gap="lg">
           <PageHeader
             actions={(
-              <Badge color="accent.5" radius="xl" variant="light">
-                {formatPresetLabel(form.values.periodPreset)}
-              </Badge>
+              <RefreshButton
+                loading={isRefreshingReport}
+                onClick={() => setReloadKey((current) => current + 1)}
+              />
             )}
-            description="Быстрые периоды применяются сразу. Произвольный период применяйте кнопкой."
-            title="Период и фильтры"
+            title="Финансовые отчеты"
+            titleOrder={1}
           />
 
           {optionsError ? (
@@ -487,11 +464,6 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
                   {formatPeriodRange(report.period.from, report.period.to)}
                 </Badge>
               ) : null
-            }
-            description={
-              report
-                ? `${formatPeriodRange(report.period.from, report.period.to)} · ${selectedBranchLabel} · ${selectedTrainerLabel}`
-                : 'Итоги появятся после загрузки отчета.'
             }
             title="Итоги отчета"
           />
@@ -1021,10 +993,6 @@ function toDateInputValue(date: Date) {
   const day = String(date.getDate()).padStart(2, '0')
 
   return `${year}-${month}-${day}`
-}
-
-function formatPresetLabel(preset: FinancialReportPeriodPreset) {
-  return periodOptions.find((option) => option.value === preset)?.label ?? preset
 }
 
 function formatCount(value: number) {

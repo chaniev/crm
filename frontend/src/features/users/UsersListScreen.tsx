@@ -25,7 +25,6 @@ import {
   RefreshButton,
   ResponsiveButtonGroup,
 } from '../shared/ux'
-import { UserManagementHero } from './UserManagementHero'
 import { userRoleLabels } from './UserManagement.constants'
 
 type UsersListScreenProps = {
@@ -79,8 +78,8 @@ export function UsersListScreen({
 
   return (
     <Stack className="dashboard-stack" data-testid="users-screen" gap="xl">
-      <UserManagementHero
-        action={
+      <PageHeader
+        actions={
           <ResponsiveButtonGroup>
             <Button
               color="accent.5"
@@ -94,9 +93,9 @@ export function UsersListScreen({
             />
           </ResponsiveButtonGroup>
         }
-        badge={resources.users.list.badge}
-        description={resources.users.list.description}
+        className="page-title-row"
         title={resources.users.list.title}
+        titleOrder={1}
       />
 
       <SimpleGrid cols={{ base: 1, md: 3 }}>
@@ -119,15 +118,7 @@ export function UsersListScreen({
 
       <PageCard>
         <Stack gap="lg">
-          <PageHeader
-            actions={(
-              <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                {resources.users.list.headCoachOnlyBadge}
-              </Badge>
-            )}
-            description={resources.users.list.sectionDescription}
-            title={resources.users.list.sectionTitle}
-          />
+          <PageHeader title={resources.users.list.sectionTitle} />
 
           {loading ? (
             <LoadingState label="Загружаем тренеров..." />

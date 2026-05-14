@@ -392,7 +392,7 @@ export function BranchSettingsScreen({
       gap="xl"
       mt={embedded ? 'xl' : undefined}
     >
-      <PageCard className={embedded ? undefined : 'page-header-card'}>
+      <PageCard>
         <PageHeader
           actions={(
             <ResponsiveButtonGroup>
@@ -410,17 +410,8 @@ export function BranchSettingsScreen({
               />
             </ResponsiveButtonGroup>
           )}
-          description="Управляйте филиалами и залами, которые затем выбираются в клиентах и тренировочных группах."
-          eyebrow={
-            embedded
-              ? undefined
-              : (
-                  <Badge color="brand.1" radius="xl" size="lg" variant="light">
-                    Настройки CRM
-                  </Badge>
-                )
-          }
           title="Филиалы и залы"
+          titleOrder={embedded ? 2 : 1}
         />
       </PageCard>
 

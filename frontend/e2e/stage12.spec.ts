@@ -282,7 +282,7 @@ const SCREEN_HEADINGS = [
   },
   {
     path: '/attendance',
-    heading: 'Быстрая отметка посещений',
+    heading: 'Посещения',
   },
   {
     path: '/clients',
@@ -290,15 +290,15 @@ const SCREEN_HEADINGS = [
   },
   {
     path: '/groups',
-    heading: 'Группы и назначение тренеров',
+    heading: 'Группы',
   },
   {
     path: '/audit',
-    heading: 'Журнал действий показывает важные изменения в клубе',
+    heading: 'Журнал',
   },
   {
     path: '/settings',
-    heading: 'Настройки CRM',
+    heading: 'Настройки',
   },
 ]
 
@@ -670,7 +670,8 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page
         .getByLabel('Профессионал', { exact: true })
-        .getByText('Кандидат сборной, льготный доступ'),
+        .getByText('Кандидат сборной, льготный доступ')
+        .first(),
     ).toBeVisible()
     await expect(page.getByText('Не оплачен')).toHaveCount(0)
   })
@@ -1533,7 +1534,7 @@ test.describe('Основные e2e сценарии', () => {
     await page.goto('/groups')
     await expect(page).toHaveURL('/attendance')
     await expect(
-      page.getByRole('heading', { name: 'Быстрая отметка посещений' }),
+      page.getByRole('heading', { name: 'Посещения' }),
     ).toBeVisible()
     await expect(page.getByRole('button', { name: 'Группы' })).toHaveCount(0)
   })
@@ -1656,7 +1657,8 @@ test.describe('Основные e2e сценарии', () => {
       await page.goto('/audit')
       await expect(
         page.getByRole('heading', {
-          name: 'Журнал действий показывает важные изменения в клубе',
+          exact: true,
+          name: 'Журнал',
         }),
       ).toBeVisible()
       const auditGrid = page.getByTestId('audit-log-grid')
@@ -1871,7 +1873,9 @@ test.describe('Основные e2e сценарии', () => {
 
       for (const screen of SCREEN_HEADINGS) {
         await page.goto(screen.path)
-        await expect(page.getByRole('heading', { name: screen.heading })).toBeVisible()
+        await expect(
+          page.getByRole('heading', { exact: true, name: screen.heading }),
+        ).toBeVisible()
         await expectActiveMainNavigation(page, width, screen.path)
         await expectNoHorizontalScroll(page)
       }
