@@ -66,6 +66,9 @@ export const API_ENDPOINTS = {
     collection: '/audit-logs',
     options: '/audit-logs/options',
   },
+  reports: {
+    financial: '/reports/financial',
+  },
 } as const
 
 export const JSON_CONTENT_TYPE = 'application/json'
@@ -167,3 +170,12 @@ export const AUDIT_LOG_PAYLOAD_KEYS = [
   'auditLogEntries',
   'logs',
 ] as const
+
+export const FINANCIAL_REPORT_QUERY_KEYS = {
+  periodPreset: 'periodPreset',
+  anchorDate: 'anchorDate',
+  from: 'from',
+  to: 'to',
+  branchId: 'branchId',
+  trainerId: 'trainerId',
+} as const

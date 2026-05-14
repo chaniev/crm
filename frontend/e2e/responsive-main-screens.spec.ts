@@ -12,7 +12,7 @@ const MANAGEMENT_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -226,6 +226,35 @@ const AUDIT_ENTRIES_RESPONSE = {
   totalCount: 1,
 } as const
 
+const FINANCE_REPORT_RESPONSE = {
+  period: {
+    preset: 'month',
+    anchorDate: '2026-05-14',
+    from: '2026-05-01',
+    to: '2026-05-31',
+  },
+  totals: {
+    soldMembershipCount: 1,
+    grossSales: 4_500,
+    refundTotal: 0,
+    netTotal: 4_500,
+    newClientsCount: 1,
+  },
+  branchBreakdown: [
+    {
+      branchId: 'branch-1',
+      branchName: 'Центр',
+      soldMembershipCount: 1,
+      grossSales: 4_500,
+      refundTotal: 0,
+      netTotal: 4_500,
+      newClientsCount: 1,
+    },
+  ],
+  groupBreakdown: [],
+  trainerBreakdown: [],
+} as const
+
 const USERS_RESPONSE = [
   {
     id: 'coach-id',
@@ -241,6 +270,14 @@ const USERS_RESPONSE = [
   },
 ] as const
 
+const TRAINERS_RESPONSE = [
+  {
+    id: 'coach-id',
+    fullName: 'Тренер группы',
+    login: 'coach',
+  },
+] as const
+
 const MANAGEMENT_ROUTES = [
   { path: '/', screenTestId: 'home-screen', navLabel: 'Главная' },
   { path: '/schedule', screenTestId: 'schedule-screen', navLabel: 'Расписание' },
@@ -248,6 +285,7 @@ const MANAGEMENT_ROUTES = [
   { path: '/groups', screenTestId: 'groups-screen', navLabel: 'Группы' },
   { path: '/users', screenTestId: 'users-screen', navLabel: 'Тренеры' },
   { path: '/audit', screenTestId: 'audit-screen', navLabel: 'Журнал' },
+  { path: '/finance', screenTestId: 'finance-screen', navLabel: 'Финансы' },
   { path: '/settings', screenTestId: 'settings-screen', navLabel: 'Настройки' },
 ] as const
 
@@ -395,6 +433,11 @@ async function mockApi(
       return
     }
 
+    if (pathname === '/api/groups/options/trainers' && method === 'GET') {
+      await fulfillJson(route, 200, TRAINERS_RESPONSE)
+      return
+    }
+
     if (pathname === '/api/users' && method === 'GET') {
       await fulfillJson(route, 200, USERS_RESPONSE)
       return
@@ -472,6 +515,11 @@ async function mockApi(
 
     if (pathname === '/api/audit-logs' && method === 'GET') {
       await fulfillJson(route, 200, AUDIT_ENTRIES_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/reports/financial' && method === 'GET') {
+      await fulfillJson(route, 200, FINANCE_REPORT_RESPONSE)
       return
     }
 

@@ -29,6 +29,14 @@ export type {
   CorrectClientMembershipRequest,
   CreateUserRequest,
   ExpiringClientMembership,
+  FinancialReportBranchBreakdownRow,
+  FinancialReportGroupBreakdownRow,
+  FinancialReportPeriod,
+  FinancialReportPeriodPreset,
+  FinancialReportResponse,
+  FinancialReportTotals,
+  FinancialReportTrainerBreakdownRow,
+  GetFinancialReportParams,
   GetAuditLogParams,
   GetClientsParams,
   GroupClient,
@@ -134,3 +142,7 @@ export {
   getAuditLogEntries,
   getAuditLogFilterOptions,
 } from './api/audit'
+export {
+  buildFinancialReportQueryString,
+  getFinancialReport,
+} from './api/reports'

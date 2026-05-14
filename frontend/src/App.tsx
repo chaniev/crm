@@ -76,6 +76,7 @@ import {
   UsersListScreen,
 } from './features/users/UserManagement'
 import { AuditLogScreen } from './features/audit/AuditLogScreen'
+import { FinanceReportsScreen } from './features/finance/FinanceReportsScreen'
 import { SettingsScreen } from './features/settings/SettingsScreen'
 import { AppLayout, Header, NavigationTabs } from './features/shared/ux'
 import './App.css'
@@ -973,6 +974,15 @@ function RouteViewport({
     return <RouteRedirectPlaceholder />
   }
 
+  if (
+    route.kind === 'section' &&
+    route.section === 'Finance' &&
+    (!user.permissions.canViewFinancialReports ||
+      !user.allowedSections.includes('Finance'))
+  ) {
+    return <RouteRedirectPlaceholder />
+  }
+
   if (route.kind === 'section' && route.section === 'Settings' && !user.permissions.canManageSettings) {
     return <RouteRedirectPlaceholder />
   }
@@ -1087,6 +1097,10 @@ function RouteViewport({
 
   if (route.section === 'Audit') {
     return <AuditLogScreen user={user} />
+  }
+
+  if (route.section === 'Finance') {
+    return <FinanceReportsScreen user={user} />
   }
 
   if (route.section === 'Settings') {

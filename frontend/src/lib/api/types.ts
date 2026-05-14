@@ -495,6 +495,57 @@ export type AuditLogFilterOptions = {
   messengerPlatforms: string[]
 }
 
+export type FinancialReportPeriodPreset = 'month' | 'quarter' | 'year' | 'custom'
+
+export type GetFinancialReportParams = {
+  periodPreset: FinancialReportPeriodPreset
+  anchorDate?: string
+  from?: string
+  to?: string
+  branchId?: string | null
+  trainerId?: string | null
+}
+
+export type FinancialReportPeriod = {
+  preset: FinancialReportPeriodPreset
+  anchorDate: string | null
+  from: string
+  to: string
+}
+
+export type FinancialReportTotals = {
+  soldMembershipCount: number
+  grossSales: number
+  refundTotal: number
+  netTotal: number
+  newClientsCount: number
+}
+
+export type FinancialReportBranchBreakdownRow = FinancialReportTotals & {
+  branchId: string
+  branchName: string
+}
+
+export type FinancialReportGroupBreakdownRow = FinancialReportTotals & {
+  groupId: string
+  groupName: string
+  branchId: string
+  branchName: string
+}
+
+export type FinancialReportTrainerBreakdownRow = FinancialReportTotals & {
+  trainerId: string
+  trainerName: string
+}
+
+export type FinancialReportResponse = {
+  period: FinancialReportPeriod
+  totals: FinancialReportTotals
+  branchBreakdown: FinancialReportBranchBreakdownRow[]
+  groupBreakdown: FinancialReportGroupBreakdownRow[]
+  trainerBreakdown: FinancialReportTrainerBreakdownRow[]
+}
+
 export type TrainingGroupListItem = {
   id: string
   name: string
