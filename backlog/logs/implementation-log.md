@@ -228,3 +228,20 @@
 - skipped: 1
 - plans created: 1
 - note: TASK-038 remains in /backlog/risky; implementation can start later in feature/TASK-038-finance-reports-frontend after TASK-037 exposes the required report and access contracts.
+
+# 2026-05-14 13:58
+
+## Moved to implementation
+- /backlog/implementation/TASK-043-schedule-calendar-like-view.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-043-schedule-calendar-like-view.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task is marked high risk because it touches backend contract, frontend schedule UI and access behavior, but it has closed clarification questions, clear acceptance criteria and a concrete automated regression strategy.

@@ -1,7 +1,13 @@
 # TASK-043: Календарный вид расписания
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-14 13:58
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-043-schedule-calendar-like-view.plan.md
+- implementation_branch: feature/TASK-043-schedule-calendar-like-view
 
 ## Goal
 Заменить текущий недельный список расписания на календарный вид: неделя с временной сеткой на desktop/tablet и список выбранного дня на mobile. Первая версия должна быть строго read-only и строиться из backend group schedule data.
