@@ -52,6 +52,7 @@ export const APP_NAVIGATION_SECTIONS: AppSection[] = [
   'Groups',
   'Users',
   'Audit',
+  'Finance',
   'Settings',
 ]
 
@@ -73,6 +74,13 @@ function isNavigationSectionAllowed(
 
   if (section === 'Audit' && !user.permissions.canViewAuditLog) {
     return false
+  }
+
+  if (section === 'Finance') {
+    return (
+      user.permissions.canViewFinancialReports &&
+      user.allowedSections.includes('Finance')
+    )
   }
 
   if (section === 'Settings') {
@@ -240,6 +248,13 @@ export function resolveAccessibleRoutePath(
 
   if (routeSection === 'Audit' && !user.permissions.canViewAuditLog) {
     return fallbackPath
+  }
+
+  if (routeSection === 'Finance') {
+    return user.permissions.canViewFinancialReports &&
+      user.allowedSections.includes('Finance')
+      ? getRoutePath(route)
+      : fallbackPath
   }
 
   if (routeSection === 'Settings') {
