@@ -1,7 +1,7 @@
 # TASK-038: Реализовать frontend вкладку Финансы и отчеты
 
 ## Status
-risky
+done
 
 ## Goal
 В главном меню появляется вкладка `Финансы`, где главный тренер видит отчеты первого релиза по backend-контрактам без локального пересчета финансовых формул.
@@ -85,8 +85,8 @@ risky
 - Экран должен быть рабочим интерфейсом, не landing page.
 
 ## Dependencies
-- `backlog/risky/TASK-036-membership-refunds-sale-semantics.md` через backend contracts из `TASK-037`
-- `backlog/risky/TASK-037-financial-reports-backend-api.md`
+- `backlog/done/TASK-036-membership-refunds-sale-semantics.md` через backend contracts из `TASK-037`
+- `backlog/done/TASK-037-financial-reports-backend-api.md`
 
 ## Acceptance criteria
 - [ ] В главном меню есть вкладка `Финансы` для пользователя с доступом.
@@ -131,8 +131,8 @@ risky
 
 ## Source notes
 - Derived from: `backlog/done/TASK-026-statistics-and-financial-reports.md`
-- Depends on: `backlog/risky/TASK-036-membership-refunds-sale-semantics.md` through `TASK-037` contracts
-- Depends on: `backlog/risky/TASK-037-financial-reports-backend-api.md`
+- Depends on: `backlog/done/TASK-036-membership-refunds-sale-semantics.md` through `TASK-037` contracts
+- Depends on: `backlog/done/TASK-037-financial-reports-backend-api.md`
 
 ## Processing notes
 - Created at: 2026-05-13 20:54
@@ -142,3 +142,4 @@ risky
 - Updated at: 2026-05-13 to display backend historical attribution and duplicated multi-group breakdown rows without frontend deduplication.
 - Updated at: 2026-05-13 to require UI explanation for duplicated group/trainer breakdown sums exceeding canonical totals.
 - Updated at: 2026-05-13 to treat client group attribution as mandatory backend data, without frontend `No group` fallback.
+- Moved to done by 2026-05-14 status audit after merge of `feature/TASK-038-finance-reports-frontend`.

@@ -260,3 +260,38 @@
 - moved to done: 4 tasks
 - moved plans to done: 4
 - validation: backlog/source audit only; runtime test commands were not re-run
+
+# 2026-05-14 status audit
+
+## Scope
+- Reviewed active backlog folders against current `main`, merge history and source-code evidence after pulling latest changes.
+- Audit branch: `codex/backlog-status-actualization-2026-05-14`.
+
+## Moved tasks
+- /backlog/risky/TASK-025-trainer-membership-total-report.md -> /backlog/done/TASK-025-trainer-membership-total-report.md
+- /backlog/risky/TASK-036-membership-refunds-sale-semantics.md -> /backlog/done/TASK-036-membership-refunds-sale-semantics.md
+- /backlog/risky/TASK-037-financial-reports-backend-api.md -> /backlog/done/TASK-037-financial-reports-backend-api.md
+- /backlog/risky/TASK-038-finance-reports-frontend.md -> /backlog/done/TASK-038-finance-reports-frontend.md
+
+## Moved implementation plans
+- /backlog/implementation-plans/TASK-026-statistics-and-financial-reports.plan.md -> /backlog/done/TASK-026-statistics-and-financial-reports.plan.md
+- /backlog/implementation-plans/TASK-036-membership-refunds-sale-semantics.plan.md -> /backlog/done/TASK-036-membership-refunds-sale-semantics.plan.md
+- /backlog/implementation-plans/TASK-037-financial-reports-backend-api.plan.md -> /backlog/done/TASK-037-financial-reports-backend-api.plan.md
+- /backlog/implementation-plans/TASK-038-finance-reports-frontend.plan.md -> /backlog/done/TASK-038-finance-reports-frontend.plan.md
+
+## Evidence
+- TASK-036 is present in merge history as `feature/TASK-036-membership-refunds-sale-semantics`; backend has `ClientMembershipSale`, `ClientMembershipRefund`, refund validation/cancel/audit handling, financial summaries and attribution period models/tests.
+- TASK-037 is present in merge history as `feature/TASK-037-financial-reports-backend-api`; backend maps `/reports/financial`, returns gross/refund/net/new-client totals and branch/group/trainer breakdowns, and has focused API tests for filters, access and duplicated trainer attribution.
+- TASK-038 is present in merge history as `feature/TASK-038-finance-reports-frontend`; frontend has `/finance`, navigation access checks, typed report client, finance screen, unit tests and e2e coverage.
+- TASK-025 is absorbed by TASK-037/TASK-038: backend trainer breakdowns define the trainer membership amount semantics and frontend renders the trainer report section.
+- TASK-026 plan is complete because TASK-026 is already closed and its decomposition produced TASK-036, TASK-037 and TASK-038.
+
+## Kept active
+- Bot tasks remain active unless already in `done`: source audit did not show complete acceptance-criteria coverage for runtime policy/read models, roster pagination, scenario smoke/docs, notification/webhook/photo flows or branch-aware bot consumer work.
+- Client detail/list UX tasks remain active: current code has related client UI structure, but no complete evidence for state restoration, tabs, quick actions, empty-state reasons or the requested responsive regression coverage.
+- `TASK-033` remains active because branch-aware bot consumer acceptance criteria are not proven complete by source evidence.
+
+## Summary
+- moved to done: 4 tasks
+- moved plans to done: 4
+- validation: backlog/source audit only; runtime test commands were not re-run

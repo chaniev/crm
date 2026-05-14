@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-038 Реализовать frontend вкладку Финансы и отчеты
 
 ## Source task
-/backlog/risky/TASK-038-finance-reports-frontend.md
+/backlog/done/TASK-038-finance-reports-frontend.md
 
 ## Implementation branch
 feature/TASK-038-finance-reports-frontend

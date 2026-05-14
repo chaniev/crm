@@ -105,9 +105,9 @@ done
 - User clarification 2026-05-13: отмены и заморозки на этом этапе не учитываются; возврат имеет дату возврата и считается по дате возврата; новый клиент считается по дате покупки нового абонемента; отчет по филиалам поддерживает отдельный филиал и все филиалы сразу; тренер связан с абонементами через группы, которые он ведет; отчеты размещаются в отдельной вкладке `Финансы` в главном меню.
 - User clarification 2026-05-13: в первом релизе показываются все три финансовых показателя: валовая сумма продаж, сумма возвратов и чистая сумма.
 - Implementation tasks created:
-  - `backlog/risky/TASK-036-membership-refunds-sale-semantics.md`
-  - `backlog/risky/TASK-037-financial-reports-backend-api.md`
-  - `backlog/risky/TASK-038-finance-reports-frontend.md`
+  - `backlog/done/TASK-036-membership-refunds-sale-semantics.md`
+  - `backlog/done/TASK-037-financial-reports-backend-api.md`
+  - `backlog/done/TASK-038-finance-reports-frontend.md`
 
 ## Processing notes
 - Created at: 2026-05-07 11:26

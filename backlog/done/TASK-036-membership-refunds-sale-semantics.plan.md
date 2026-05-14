@@ -1,9 +1,7 @@
 # Implementation Plan: TASK-036 Добавить возвраты и семантику продажи абонемента
 
 ## Source task
-/backlog/risky/TASK-036-membership-refunds-sale-semantics.md
-
-Note: source task remains in `/backlog/risky`. This run creates an implementation plan only; it does not move the task into active implementation.
+/backlog/done/TASK-036-membership-refunds-sale-semantics.md
 
 ## Implementation branch
 feature/TASK-036-membership-refunds-sale-semantics
