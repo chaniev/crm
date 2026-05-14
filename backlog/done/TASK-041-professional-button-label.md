@@ -1,7 +1,7 @@
 # TASK-041: Переименовать кнопку включения признака профессионала
 
 ## Status
-ready
+done
 
 ## Goal
 Кнопка включения признака клиента использует продуктовый термин "Профессионал", а не устаревшее слово "льгота".
@@ -34,17 +34,17 @@ ready
 - Учитывать существующие e2e-тесты вокруг professional client flow.
 
 ## Acceptance criteria
-- [ ] Во frontend action-кнопке больше не используется текст `Включить льготу`.
-- [ ] Текст отключения признака тоже согласован с термином `Профессионал`.
-- [ ] Пользователь понимает, что действие включает или отключает признак профессионала.
-- [ ] Обновлены тесты, которые искали старые тексты кнопок.
-- [ ] Backend contract и business rules не изменены.
+- [x] Во frontend action-кнопке больше не используется текст `Включить льготу`.
+- [x] Текст отключения признака тоже согласован с термином `Профессионал`.
+- [x] Пользователь понимает, что действие включает или отключает признак профессионала.
+- [x] Обновлены тесты, которые искали старые тексты кнопок.
+- [x] Backend contract и business rules не изменены.
 
 ## Test checklist
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить или обновить e2e-сценарий professional client flow.
-- [ ] Вручную проверить карточку клиента с правами главного тренера и без них.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить или обновить e2e-сценарий professional client flow.
+- [x] Проверить карточку клиента с правами главного тренера и без них через targeted Playwright professional flow.
 
 ## AI safety
 - Safe for Codex: yes
@@ -62,3 +62,6 @@ ready
 - Created at: 2026-05-14 13:01
 - Created by skill: codex-backlog-skill
 - Duplicate check: активной задачи-дубликата не найдено; `TASK-027` уже в `done`, а эта задача фиксирует отдельный post-implementation copy cleanup.
+- Completed at: 2026-05-14
+- Implementation branch: `feature/TASK-041-professional-button-label`
+- Validation: `npm run lint`; `npm run build`; `env E2E_PORT=3100 npm run test:e2e -- e2e/stage12.spec.ts -g 'HeadCoach включает льготный статус профессионала с комментарием|Administrator не видит управление льготным статусом профессионала'`.
