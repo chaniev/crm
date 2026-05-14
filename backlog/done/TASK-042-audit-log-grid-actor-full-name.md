@@ -1,7 +1,7 @@
 # TASK-042: Перевести журнал событий на обычный grid с ФИО автора
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-14 21:17
@@ -71,3 +71,6 @@ Accordion-список хуже подходит для быстрого про�
 - Created at: 2026-05-14 13:01
 - Created by skill: codex-backlog-skill
 - Duplicate check: активной задачи-дубликата не найдено; текущий audit screen уже существует, но задача меняет способ отображения и делает ФИО автора явной grid-колонкой.
+- Completed at: 2026-05-15 status audit after merge of `feature/TASK-042-audit-log-grid-actor-full-name`.
+- Implementation evidence: commit `63334fb` replaces audit accordion presentation with grid/table behavior, keeps details access, and updates audit screen tests plus e2e coverage.
+- Validation: implementation branch contains frontend test/e2e updates; runtime validation was not re-run during this backlog status audit.

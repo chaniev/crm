@@ -1,7 +1,7 @@
 # TASK-040: Добавить автоматическое скрытие frontend-уведомлений
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-15 00:15
@@ -66,3 +66,6 @@ implementation
 - Created at: 2026-05-14 13:01
 - Created by skill: codex-backlog-skill
 - Duplicate check: не дубликат `TASK-012-bot-notification-scheduler-design`, потому что текущая заметка относится к frontend in-app уведомлениям, а `TASK-012` - к Telegram bot scheduler and delivery correctness.
+- Completed at: 2026-05-15 status audit after merge of `feature/TASK-040-notifications-auto-dismiss`.
+- Implementation evidence: commit `2e4cda9` adds shared frontend notification helper, global Mantine notification auto-close configuration, targeted unit tests and `notifications-auto-dismiss` e2e coverage.
+- Validation: implementation branch contains frontend unit/e2e coverage; runtime validation was not re-run during this backlog status audit.

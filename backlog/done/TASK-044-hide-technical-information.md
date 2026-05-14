@@ -1,7 +1,7 @@
 # TASK-044: Убрать служебные intro-блоки со всех страниц CRM
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-14 22:33
@@ -95,3 +95,6 @@ implementation
 - Duplicate check: возможное пересечение с `TASK-018-client-detail-visual-noise` и `TASK-020-client-empty-states-action-reasons`, но новая заметка шире и не ограничена карточкой клиента; создана needs-clarification задача вместо обновления активной задачи.
 - Clarified and moved to tasks-ready at: 2026-05-14.
 - Scope expanded at: 2026-05-14 to cover all CRM screens where similar service intro/hero information exists; screenshots are examples only.
+- Completed at: 2026-05-15 status audit after merge of `feature/TASK-044-hide-technical-information`.
+- Implementation evidence: commits `55bb90b` and `ec76db7` remove service intro/hero blocks across CRM frontend routes, preserve primary actions, clean related resources/styles and update Playwright route coverage.
+- Validation: implementation branch contains frontend e2e/test updates; runtime validation was not re-run during this backlog status audit.

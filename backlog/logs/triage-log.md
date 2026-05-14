@@ -340,3 +340,37 @@
 ## Summary
 - moved to tasks-ready: 1
 - validation: backlog-only clarification update; runtime commands were not run
+
+# 2026-05-15 status audit
+
+## Scope
+- Reviewed active backlog folders against current `main`, merge history and source-code evidence after pulling latest changes.
+- Audit branch: `codex/feature/TASK-backlog-status-actualization`.
+
+## Moved tasks
+- /backlog/implementation/TASK-040-notifications-auto-dismiss.md -> /backlog/done/TASK-040-notifications-auto-dismiss.md
+- /backlog/implementation/TASK-042-audit-log-grid-actor-full-name.md -> /backlog/done/TASK-042-audit-log-grid-actor-full-name.md
+- /backlog/implementation/TASK-043-schedule-calendar-like-view.md -> /backlog/done/TASK-043-schedule-calendar-like-view.md
+- /backlog/implementation/TASK-044-hide-technical-information.md -> /backlog/done/TASK-044-hide-technical-information.md
+
+## Moved implementation plans
+- /backlog/implementation-plans/TASK-040-notifications-auto-dismiss.plan.md -> /backlog/done/TASK-040-notifications-auto-dismiss.plan.md
+- /backlog/implementation-plans/TASK-042-audit-log-grid-actor-full-name.plan.md -> /backlog/done/TASK-042-audit-log-grid-actor-full-name.plan.md
+- /backlog/implementation-plans/TASK-043-schedule-calendar-like-view.plan.md -> /backlog/done/TASK-043-schedule-calendar-like-view.plan.md
+- /backlog/implementation-plans/TASK-044-hide-technical-information.plan.md -> /backlog/done/TASK-044-hide-technical-information.plan.md
+
+## Evidence
+- TASK-040 is present in merge history as `feature/TASK-040-notifications-auto-dismiss`; frontend now has a shared notification helper, global auto-close configuration, unit coverage and `notifications-auto-dismiss` e2e coverage.
+- TASK-042 is present in merge history as `feature/TASK-042-audit-log-grid-actor-full-name`; audit UI is implemented as a grid/table with actor full name and updated tests/e2e coverage.
+- TASK-043 is present in merge history as `feature/TASK-043-schedule-calendar-like-view`; backend exposes `GET /schedule/groups`, frontend consumes it in calendar view, and backend/frontend/e2e coverage exists.
+- TASK-044 is present in merge history as `feature/TASK-044-hide-technical-information`; service intro/hero blocks were removed across frontend routes with route-level Playwright coverage.
+
+## Kept active
+- Bot tasks remain active unless already in `done`: merge history and source audit do not prove complete acceptance-criteria coverage for roster pagination, scenario smoke/docs, runtime policy/read models, notifications/webhook/photo flows or branch-aware bot consumer work.
+- Client detail/list UX tasks remain active: current code still does not provide complete evidence for state restoration, tabs, quick actions, empty-state reasons or the requested responsive regression coverage.
+- Needs-clarification tasks remain active until product/architecture questions are closed.
+
+## Summary
+- moved to done: 4 tasks
+- moved plans to done: 4
+- validation: backlog/source audit only; runtime test commands were not re-run

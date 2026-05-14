@@ -1,7 +1,7 @@
 # TASK-043: Календарный вид расписания
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-14 13:58
@@ -147,3 +147,6 @@ implementation
 - Updated at: 2026-05-14 after user clarified target calendar behavior and access requirements.
 - Moved to tasks-ready at: 2026-05-14 after clarification questions were closed.
 - Duplicate check: задача пересекается с `TASK-035`, но не дублирует его; это новая calendar-like итерация отображения расписания.
+- Completed at: 2026-05-15 status audit after merge of `feature/TASK-043-schedule-calendar-like-view`.
+- Implementation evidence: commit `22d10cb` adds backend `GET /schedule/groups`, schedule auth/contract tests, frontend schedule API consumer, weekly calendar helpers, calendar screen UI, unit tests and Playwright schedule coverage.
+- Validation: implementation branch contains backend/frontend/unit/e2e coverage; runtime validation was not re-run during this backlog status audit.
