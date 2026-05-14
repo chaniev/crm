@@ -33,6 +33,7 @@ const user: AuthenticatedUser = {
     canManageSettings: true,
     canMarkAttendance: true,
     canViewAuditLog: true,
+    canViewFinancialReports: true,
   },
   assignedGroupIds: ['group-1'],
 }
@@ -48,6 +49,7 @@ const coachUser: AuthenticatedUser = {
     canManageGroups: false,
     canManageSettings: false,
     canViewAuditLog: false,
+    canViewFinancialReports: false,
   },
 }
 

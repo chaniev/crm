@@ -27,4 +27,7 @@
   <data name="AuditLogDetail" xml:space="preserve">
     <value>Backend подтверждает доступ к журналу действий.</value>
   </data>
+  <data name="FinancialReportsDetail" xml:space="preserve">
+    <value>Backend подтверждает доступ к финансовым отчетам.</value>
+  </data>
 </root>

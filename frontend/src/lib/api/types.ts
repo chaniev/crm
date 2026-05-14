@@ -6,6 +6,7 @@ export type AppSection =
   | 'Groups'
   | 'Users'
   | 'Audit'
+  | 'Finance'
   | 'Settings'
 
 export type AccessPermissions = {
@@ -15,6 +16,7 @@ export type AccessPermissions = {
   canManageSettings: boolean
   canMarkAttendance: boolean
   canViewAuditLog: boolean
+  canViewFinancialReports: boolean
 }
 
 export type AuthenticatedUser = {

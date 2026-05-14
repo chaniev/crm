@@ -6,4 +6,5 @@ public sealed record PermissionSet(
     bool CanManageGroups,
     bool CanManageSettings,
     bool CanMarkAttendance,
-    bool CanViewAuditLog);
+    bool CanViewAuditLog,
+    bool CanViewFinancialReports);

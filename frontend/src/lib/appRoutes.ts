@@ -28,6 +28,7 @@ export const APP_SECTION_LABELS: Record<AppSection, string> = {
   Groups: 'Группы',
   Users: 'Тренеры',
   Audit: 'Журнал',
+  Finance: 'Финансы',
   Settings: 'Настройки',
 }
 
@@ -39,6 +40,7 @@ export const APP_SECTION_PATHS: Record<AppSection, string> = {
   Groups: '/groups',
   Users: '/users',
   Audit: '/audit',
+  Finance: '/finance',
   Settings: '/settings',
 }
 

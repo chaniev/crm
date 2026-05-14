@@ -25,6 +25,9 @@ internal static class AccessEndpoints
         group.MapGet(AccessApiConstants.AuditLogRoute, ProbeAuditLog)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ViewAuditLog);
 
+        group.MapGet(AccessApiConstants.FinancialReportsRoute, ProbeFinancialReports)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ViewFinancialReports);
+
         group.MapPost(AccessApiConstants.AttendanceRoute, ProbeAttendanceAccessAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.MarkAttendance);
 
@@ -69,6 +72,14 @@ internal static class AccessEndpoints
             AccessApiConstants.AuditLogCapability,
             AccessResources.AuditLogDetail,
             GymCrmAuthorizationPolicies.ViewAuditLog));
+    }
+
+    private static Ok<CapabilityProbeResponse> ProbeFinancialReports()
+    {
+        return TypedResults.Ok(new CapabilityProbeResponse(
+            AccessApiConstants.FinancialReportsCapability,
+            AccessResources.FinancialReportsDetail,
+            GymCrmAuthorizationPolicies.ViewFinancialReports));
     }
 
     private static async Task<Results<Ok<GroupAccessProbeResponse>, NotFound, ForbidHttpResult>> ProbeAttendanceAccessAsync(

@@ -36,6 +36,7 @@ const coachSession = {
       canManageSettings: false,
       canMarkAttendance: true,
       canViewAuditLog: false,
+      canViewFinancialReports: false,
     },
     assignedGroupIds: [GROUP_ID],
   },

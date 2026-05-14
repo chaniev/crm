@@ -32,7 +32,7 @@ public class AuthorizationFlowTests
         Assert.NotNull(session.User);
         Assert.Equal("HeadCoach", session.User.Role);
         Assert.Equal(
-            ["Home", "Attendance", "Clients", "Groups", "Users", "Audit", "Settings"],
+            ["Home", "Attendance", "Clients", "Groups", "Users", "Audit", "Finance", "Settings"],
             session.User.AllowedSections);
         Assert.True(session.User.Permissions.CanManageUsers);
         Assert.True(session.User.Permissions.CanManageClients);
@@ -40,12 +40,14 @@ public class AuthorizationFlowTests
         Assert.True(session.User.Permissions.CanManageSettings);
         Assert.True(session.User.Permissions.CanMarkAttendance);
         Assert.True(session.User.Permissions.CanViewAuditLog);
+        Assert.True(session.User.Permissions.CanViewFinancialReports);
 
         await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/client-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(
             PostWithoutBodyAsync(client, $"/access/attendance/{seeded.ForeignGroupId}", session.CsrfToken),
             HttpStatusCode.OK);
@@ -73,12 +75,14 @@ public class AuthorizationFlowTests
         Assert.True(session.User.Permissions.CanManageSettings);
         Assert.False(session.User.Permissions.CanMarkAttendance);
         Assert.True(session.User.Permissions.CanViewAuditLog);
+        Assert.False(session.User.Permissions.CanViewFinancialReports);
 
         await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/client-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(
             PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken),
             HttpStatusCode.Forbidden);
@@ -106,12 +110,14 @@ public class AuthorizationFlowTests
         Assert.False(session.User.Permissions.CanManageSettings);
         Assert.True(session.User.Permissions.CanMarkAttendance);
         Assert.False(session.User.Permissions.CanViewAuditLog);
+        Assert.False(session.User.Permissions.CanViewFinancialReports);
         Assert.Equal([seeded.AssignedCoachGroupId.ToString()], session.User.AssignedGroupIds);
 
         await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.Forbidden);
+        await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(
             PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken),
             HttpStatusCode.OK);
@@ -334,7 +340,8 @@ public class AuthorizationFlowTests
         bool CanManageGroups,
         bool CanManageSettings,
         bool CanMarkAttendance,
-        bool CanViewAuditLog);
+        bool CanViewAuditLog,
+        bool CanViewFinancialReports);
 
     private sealed record SeededAuthorizationData(
         string HeadCoachLogin,
