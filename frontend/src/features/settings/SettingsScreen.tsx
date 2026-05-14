@@ -77,12 +77,6 @@ export function SettingsScreen() {
 
   return (
     <Stack className="dashboard-stack" data-testid="settings-screen" gap="xl">
-      <PageHeader
-        className="page-title-row"
-        title="Настройки"
-        titleOrder={1}
-      />
-
       <Tabs defaultValue="group-types" keepMounted={false}>
         <PageCard>
           <Tabs.List grow={isMobile}>

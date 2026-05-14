@@ -52,7 +52,6 @@ export const resources = {
       Coach: 'Тренер',
     },
     list: {
-      title: 'Тренеры',
       createAction: 'Создать тренера',
       metrics: {
         total: {

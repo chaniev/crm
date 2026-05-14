@@ -326,8 +326,6 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
                 onClick={() => setReloadKey((current) => current + 1)}
               />
             )}
-            title="Финансовые отчеты"
-            titleOrder={1}
           />
 
           {optionsError ? (

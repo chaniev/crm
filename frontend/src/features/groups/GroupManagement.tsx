@@ -167,8 +167,6 @@ export function GroupsListScreen({
           </ResponsiveButtonGroup>
         )}
         className="page-title-row"
-        title="Группы"
-        titleOrder={1}
       />
 
       <SimpleGrid cols={GROUPS_GRID_COLUMNS}>

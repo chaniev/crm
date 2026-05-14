@@ -258,8 +258,6 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
                 onClick={handleRefreshRoster}
               />
             )}
-            title="Посещения"
-            titleOrder={1}
           />
 
           {groupsError ? (

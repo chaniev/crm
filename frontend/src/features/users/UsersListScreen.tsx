@@ -94,8 +94,6 @@ export function UsersListScreen({
           </ResponsiveButtonGroup>
         }
         className="page-title-row"
-        title={resources.users.list.title}
-        titleOrder={1}
       />
 
       <SimpleGrid cols={{ base: 1, md: 3 }}>

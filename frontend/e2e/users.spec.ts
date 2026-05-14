@@ -64,7 +64,6 @@ test('Навигация открывает раздел Тренеры на м�
   await expect(page).toHaveURL(/\/users$/)
   await expect(page.getByTestId('users-screen')).toBeVisible()
   await expect(trainersNavButton).toHaveAttribute('aria-current', 'page')
-  await expect(page.getByRole('heading', { name: 'Тренеры' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
 })
 

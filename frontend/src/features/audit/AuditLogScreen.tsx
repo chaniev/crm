@@ -226,8 +226,6 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
                 <RefreshButton onClick={handleRefresh} />
               </ResponsiveButtonGroup>
             )}
-            title="Журнал"
-            titleOrder={1}
           />
 
           <form data-testid="audit-filter-form" onSubmit={form.onSubmit(handleApplyFilters)}>

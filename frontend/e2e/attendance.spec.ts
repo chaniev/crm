@@ -149,7 +149,7 @@ test.describe('Мобильный сценарий посещений трене
       mobileNavigation.getByRole('button', { name: 'Клиенты' }),
     ).toBeVisible()
 
-    await expect(page.getByRole('heading', { name: 'Посещения' })).toBeVisible()
+    await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByText(`Клиенты группы ${assignedGroup.name}`)).toBeVisible()
     await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
     await expect(page.getByText('Проблема с абонементом')).toBeVisible()

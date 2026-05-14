@@ -166,8 +166,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
                 />
               </ResponsiveButtonGroup>
             )}
-            title="Расписание"
-            titleOrder={1}
           />
 
           <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} spacing="md">

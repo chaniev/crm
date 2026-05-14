@@ -1108,7 +1108,7 @@ function RouteViewport({
     return <HomeDashboard onOpenClient={onOpenClient} user={user} />
   }
 
-  return <SectionPlaceholder section={route.section} />
+  return <SectionPlaceholder />
 }
 
 function ClientsReadOnlyPlaceholder() {
@@ -1116,7 +1116,6 @@ function ClientsReadOnlyPlaceholder() {
     <Stack className="dashboard-stack" gap="xl">
       <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
         <Stack gap="md">
-          <Title order={1}>Клиенты</Title>
           <Alert
             color="blue"
             icon={<IconAlertCircle size={18} />}
@@ -1143,16 +1142,11 @@ function RouteRedirectPlaceholder() {
   )
 }
 
-type SectionPlaceholderProps = {
-  section: Exclude<AppSection, 'Home' | 'Schedule' | 'Clients' | 'Users' | 'Groups'>
-}
-
-function SectionPlaceholder({ section }: SectionPlaceholderProps) {
+function SectionPlaceholder() {
   return (
     <Stack className="dashboard-stack" gap="xl">
       <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
         <Stack gap="md">
-          <Title order={1}>{APP_SECTION_LABELS[section]}</Title>
           <Alert
             color="blue"
             icon={<IconCheck size={18} />}
