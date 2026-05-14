@@ -1,7 +1,13 @@
 # TASK-040: Добавить автоматическое скрытие frontend-уведомлений
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-15 00:15
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-040-notifications-auto-dismiss.plan.md
+- implementation_branch: feature/TASK-040-notifications-auto-dismiss
 
 ## Goal
 Уведомления в CRM автоматически скрываются через понятный общий интервал и не требуют от пользователя ручного закрытия в обычных success/error сценариях.

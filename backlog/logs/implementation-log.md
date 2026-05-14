@@ -279,3 +279,20 @@
 - skipped: 0
 - plans created: 1
 - note: task is low risk and localized to frontend route-level presentation cleanup; implementation must preserve primary actions and add a Playwright regression barrier for absence of top service intro/hero blocks.
+
+# 2026-05-15 00:15
+
+## Moved to implementation
+- /backlog/implementation/TASK-040-notifications-auto-dismiss.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-040-notifications-auto-dismiss.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task is low risk and localized to frontend in-app notification behavior; implementation should start with explicit Mantine provider `autoClose`/`limit` and add a helper only if duplicate queues still accumulate.
