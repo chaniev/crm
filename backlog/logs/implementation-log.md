@@ -262,3 +262,20 @@
 - skipped: 0
 - plans created: 1
 - note: task is medium risk and localized to frontend audit presentation; backend contract changes are out of scope unless implementation discovers missing actor full name data, in which case a backend follow-up should be created.
+
+# 2026-05-14 22:33
+
+## Moved to implementation
+- /backlog/implementation/TASK-044-hide-technical-information.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-044-hide-technical-information.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task is low risk and localized to frontend route-level presentation cleanup; implementation must preserve primary actions and add a Playwright regression barrier for absence of top service intro/hero blocks.

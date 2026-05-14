@@ -1,7 +1,13 @@
 # TASK-044: Убрать служебные intro-блоки со всех страниц CRM
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-14 22:33
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-044-hide-technical-information.plan.md
+- implementation_branch: feature/TASK-044-hide-technical-information
 
 ## Goal
 Убрать из CRM UI служебные верхние intro/hero-области на всех экранах, где они встречаются, чтобы рабочие экраны начинались с полезного содержимого без лишних технических пояснений и бейджей.
