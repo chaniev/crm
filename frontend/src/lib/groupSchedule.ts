@@ -36,6 +36,13 @@ export type ScheduleVisibleHourRange = {
   endHour: number
 }
 
+export type ScheduleTypePalette = {
+  name: string
+  color: string
+  background: string
+  border: string
+}
+
 export type ScheduleCalendarEntry<TGroup = TrainingGroupListItem> = {
   key: string
   weekday: WeekdayNumber
@@ -55,6 +62,27 @@ export type ScheduleCalendarDay<TGroup = TrainingGroupListItem> = {
 export type ScheduleCalendarWeek<TGroup = TrainingGroupListItem> = {
   days: ScheduleCalendarDay<TGroup>[]
   visibleHourRange: ScheduleVisibleHourRange
+}
+
+export type ScheduleTypeLegendItem = {
+  key: string
+  label: string
+  count: number
+  palette: ScheduleTypePalette
+}
+
+export type ScheduleHallLoadItem = {
+  key: string
+  label: string
+  count: number
+  totalMinutes: number
+}
+
+export type ScheduleTodaySummary = {
+  weekday: WeekdayNumber
+  totalEntries: number
+  typeItems: ScheduleTypeLegendItem[]
+  hallItems: ScheduleHallLoadItem[]
 }
 
 export const WEEKDAY_LABELS: Record<number, string> = {
@@ -81,7 +109,46 @@ export const EMPTY_SCHEDULE_FILTERS: ScheduleFilters = {
   groupId: null,
 }
 
-type ScheduleGroupLike = Pick<
+export const SCHEDULE_TYPE_PALETTE = [
+  {
+    name: 'emerald',
+    color: '#2f8f6b',
+    background: 'rgba(47, 143, 107, 0.11)',
+    border: 'rgba(47, 143, 107, 0.34)',
+  },
+  {
+    name: 'amber',
+    color: '#d89a3d',
+    background: 'rgba(216, 154, 61, 0.13)',
+    border: 'rgba(216, 154, 61, 0.36)',
+  },
+  {
+    name: 'blue',
+    color: '#4f7fd4',
+    background: 'rgba(79, 127, 212, 0.12)',
+    border: 'rgba(79, 127, 212, 0.34)',
+  },
+  {
+    name: 'violet',
+    color: '#8d5bd6',
+    background: 'rgba(141, 91, 214, 0.12)',
+    border: 'rgba(141, 91, 214, 0.32)',
+  },
+  {
+    name: 'rose',
+    color: '#c95370',
+    background: 'rgba(201, 83, 112, 0.1)',
+    border: 'rgba(201, 83, 112, 0.3)',
+  },
+  {
+    name: 'slate',
+    color: '#718096',
+    background: 'rgba(113, 128, 150, 0.11)',
+    border: 'rgba(113, 128, 150, 0.3)',
+  },
+] as const satisfies readonly ScheduleTypePalette[]
+
+export type ScheduleGroupLike = Pick<
   TrainingGroupListItem,
   | 'id'
   | 'name'
@@ -89,12 +156,16 @@ type ScheduleGroupLike = Pick<
   | 'branchName'
   | 'hallId'
   | 'hallName'
+  | 'groupTypeId'
+  | 'groupTypeName'
+  | 'groupTypeSystemIdentifier'
   | 'trainingStartTime'
   | 'durationMinutes'
   | 'weekdays'
   | 'trainerIds'
   | 'trainerNames'
   | 'trainers'
+  | 'clientCount'
 >
 
 export function formatWeekdays(weekdays?: readonly number[] | null) {
@@ -158,6 +229,122 @@ export function parseTrainingStartTime(trainingStartTime?: string | null) {
     totalMinutes: (hours * 60) + minutes,
     label: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
   }
+}
+
+export function getCurrentScheduleWeekday(now = new Date()): WeekdayNumber {
+  const weekday = now.getDay()
+
+  return (weekday === 0 ? 7 : weekday) as WeekdayNumber
+}
+
+export function buildScheduleDayCounts<TGroup>(
+  days: readonly ScheduleCalendarDay<TGroup>[],
+) {
+  return days.reduce<Record<WeekdayNumber, number>>((counts, day) => {
+    counts[day.weekday] = day.entries.length
+
+    return counts
+  }, {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+  })
+}
+
+export function getScheduleTypeKey(group: Pick<
+  ScheduleGroupLike,
+  'groupTypeId' | 'groupTypeSystemIdentifier'
+>) {
+  const systemIdentifier = group.groupTypeSystemIdentifier.trim()
+
+  if (systemIdentifier) {
+    return systemIdentifier
+  }
+
+  const groupTypeId = group.groupTypeId.trim()
+
+  return groupTypeId || 'unknown'
+}
+
+export function getScheduleTypeLabel(group: Pick<ScheduleGroupLike, 'groupTypeName'>) {
+  return group.groupTypeName.trim() || 'Тип не задан'
+}
+
+export function getScheduleTypePalette(groupOrKey: Pick<
+  ScheduleGroupLike,
+  'groupTypeId' | 'groupTypeSystemIdentifier'
+> | string): ScheduleTypePalette {
+  const key = typeof groupOrKey === 'string'
+    ? groupOrKey
+    : getScheduleTypeKey(groupOrKey)
+
+  return SCHEDULE_TYPE_PALETTE[getStablePaletteIndex(key)]
+}
+
+export function buildScheduleTypeLegend<TGroup extends Pick<
+  ScheduleGroupLike,
+  'groupTypeId' | 'groupTypeName' | 'groupTypeSystemIdentifier'
+>>(
+  entries: readonly Pick<ScheduleCalendarEntry<TGroup>, 'group'>[],
+): ScheduleTypeLegendItem[] {
+  const items = new Map<string, ScheduleTypeLegendItem>()
+
+  for (const entry of entries) {
+    const key = getScheduleTypeKey(entry.group)
+    const existingItem = items.get(key)
+
+    if (existingItem) {
+      existingItem.count += 1
+      continue
+    }
+
+    items.set(key, {
+      key,
+      label: getScheduleTypeLabel(entry.group),
+      count: 1,
+      palette: getScheduleTypePalette(key),
+    })
+  }
+
+  return [...items.values()].sort((first, second) => {
+    const labelCompare = first.label.localeCompare(second.label, 'ru')
+
+    return labelCompare === 0
+      ? first.key.localeCompare(second.key, 'ru')
+      : labelCompare
+  })
+}
+
+export function buildScheduleTodaySummary<TGroup extends Pick<
+  ScheduleGroupLike,
+  | 'groupTypeId'
+  | 'groupTypeName'
+  | 'groupTypeSystemIdentifier'
+  | 'hallId'
+  | 'hallName'
+>>(
+  days: readonly ScheduleCalendarDay<TGroup>[],
+  weekday: WeekdayNumber,
+): ScheduleTodaySummary {
+  const day = days.find((item) => item.weekday === weekday)
+  const entries = day?.entries ?? []
+
+  return {
+    weekday,
+    totalEntries: entries.length,
+    typeItems: buildScheduleTypeLegend(entries),
+    hallItems: buildScheduleHallLoad(entries),
+  }
+}
+
+export function formatScheduleEntryTimeRange<TGroup>(
+  entry: Pick<ScheduleCalendarEntry<TGroup>, 'startMinutes' | 'endMinutes'>,
+) {
+  return `${formatMinutesAsTime(entry.startMinutes)} - ${formatMinutesAsTime(entry.endMinutes)}`
 }
 
 export function formatGroupSchedule(
@@ -439,4 +626,58 @@ function toSortedOptions(options: ScheduleFilterOption[]) {
   return [...uniqueOptions.values()].sort((first, second) =>
     first.label.localeCompare(second.label, 'ru'),
   )
+}
+
+function buildScheduleHallLoad<TGroup extends Pick<
+  ScheduleGroupLike,
+  'hallId' | 'hallName'
+>>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+): ScheduleHallLoadItem[] {
+  const items = new Map<string, ScheduleHallLoadItem>()
+
+  for (const entry of entries) {
+    const key = entry.group.hallId.trim() || 'unknown'
+    const label = entry.group.hallName.trim() || 'Зал не задан'
+    const existingItem = items.get(key)
+
+    if (existingItem) {
+      existingItem.count += 1
+      existingItem.totalMinutes += Math.max(0, entry.endMinutes - entry.startMinutes)
+      continue
+    }
+
+    items.set(key, {
+      key,
+      label,
+      count: 1,
+      totalMinutes: Math.max(0, entry.endMinutes - entry.startMinutes),
+    })
+  }
+
+  return [...items.values()].sort((first, second) => {
+    const countCompare = second.count - first.count
+
+    return countCompare === 0
+      ? first.label.localeCompare(second.label, 'ru')
+      : countCompare
+  })
+}
+
+function formatMinutesAsTime(totalMinutes: number) {
+  const normalizedMinutes = Math.max(0, totalMinutes)
+  const hours = Math.floor(normalizedMinutes / 60)
+  const minutes = normalizedMinutes % 60
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+}
+
+function getStablePaletteIndex(key: string) {
+  let hash = 0
+
+  for (const character of key) {
+    hash = ((hash * 31) + character.charCodeAt(0)) >>> 0
+  }
+
+  return hash % SCHEDULE_TYPE_PALETTE.length
 }

@@ -117,6 +117,14 @@ implementation
 - [ ] Запустить `cd frontend && npm run build`.
 - [ ] Запустить affected Playwright specs для schedule/responsive screens.
 
+## TASK-046 handoff notes
+- Reusable neutral CSS baseline added in `frontend/src/App.css`: `filter-toolbar`, `status-pill`, `compact-summary-strip`, `compact-summary-card`, `metadata-chip`.
+- These primitives are intentionally domain-neutral and can be reused for TASK-046 filter panels, refresh/status affordances, compact metric strips and small legend/status chips.
+- Schedule-specific structure remains under `schedule-*`: weekly grid, day headers, event cards, type legend and selected-day mobile list.
+- Presentation helpers in `frontend/src/lib/groupSchedule.ts` now cover current weekday, visible day counts, stable type palette/legend, today summary and hall counts.
+- Hall load is deliberately represented as raw lesson counts from visible schedule entries only; no percentages/capacity/open-hours denominator was invented in frontend.
+- For TASK-046, spread the neutral spacing/card/control rhythm first, then decide per screen which schedule-local patterns should stay local instead of becoming a broad design-system rewrite.
+
 ## AI safety
 - Safe for Codex: yes
 - Risk level: medium
