@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
   Badge,
-  Button,
   Group,
   Paper,
   SimpleGrid,
@@ -16,6 +15,7 @@ import {
 import { getUsers, type UserListItem } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import {
+  Button,
   EmptyState,
   ErrorState,
   LoadingState,

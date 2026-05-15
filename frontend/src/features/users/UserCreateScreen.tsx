@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import {
-  Button,
   Group,
   Paper,
   Stack,
@@ -22,7 +21,7 @@ import {
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import { showAppNotification } from '../shared/notifications'
-import { ErrorState, PageCard, PageHeader, ResponsiveButtonGroup } from '../shared/ux'
+import { Button, ErrorState, PageCard, PageHeader, ResponsiveButtonGroup } from '../shared/ux'
 import { UserFormFields, UserCreateCredentialsFields, type CreateUserFormValues } from './UserFormFields'
 import { userRoleOptions } from './UserManagement.constants'
 import { toCreateUserPayload } from './UserManagement.mappers'

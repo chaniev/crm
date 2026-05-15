@@ -1,7 +1,6 @@
 import {
   Avatar,
   Badge,
-  Button,
   Group,
   Paper,
   Stack,
@@ -13,7 +12,7 @@ import {
   IconUserHeart,
   IconUsers,
 } from '@tabler/icons-react'
-import { EmptyState, ErrorState, Skeleton } from '../../shared/ux'
+import { Button, EmptyState, ErrorState, Skeleton } from '../../shared/ux'
 import { buildClientRowViewModel } from './clientListViewModel'
 import type { ClientsListState } from './useClientsListState'
 

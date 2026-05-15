@@ -1,11 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import {
-  ActionIcon,
   Badge,
-  Button,
   Drawer,
   Group,
-  Paper,
   SegmentedControl,
   Select,
   SimpleGrid,
@@ -13,7 +10,6 @@ import {
   Switch,
   Text,
   TextInput,
-  Tooltip,
 } from '@mantine/core'
 import {
   IconAdjustmentsHorizontal,
@@ -22,6 +18,7 @@ import {
   IconSearch,
 } from '@tabler/icons-react'
 import { resources } from '../../../lib/resources'
+import { Button, FilterToolbar, IconButton } from '../../shared/ux'
 import {
   clientListPageSizeOptions,
   clientPaymentStatusFilterOptions,
@@ -69,16 +66,13 @@ export function ClientsToolbar({
         </Text>
 
         <Group gap="xs" wrap="nowrap">
-          <Tooltip label="Обновить список">
-            <ActionIcon
-              aria-label="Обновить список"
-              onClick={state.reload}
-              size="lg"
-              variant="subtle"
-            >
-              <IconRefresh size={18} />
-            </ActionIcon>
-          </Tooltip>
+          <IconButton
+            icon={<IconRefresh size={18} />}
+            label="Обновить список"
+            onClick={state.reload}
+            size="lg"
+            variant="ghost"
+          />
           {canManage ? (
             <Button
               color="accent.5"
@@ -91,8 +85,24 @@ export function ClientsToolbar({
         </Group>
       </Group>
 
-      <Paper className="clients-v7-toolbar" withBorder>
-        <form onSubmit={submitSearch}>
+      <form onSubmit={submitSearch}>
+        <FilterToolbar
+          actions={
+            <Button
+              leftSection={<IconAdjustmentsHorizontal size={18} />}
+              onClick={() => setMoreFiltersOpened(true)}
+              variant={state.activeFiltersCount > 0 ? 'pill' : 'secondary'}
+            >
+              Еще фильтры
+              {state.activeFiltersCount > 0 ? (
+                <Badge color="accent.5" ml={8} size="sm" variant="filled">
+                  {state.activeFiltersCount}
+                </Badge>
+              ) : null}
+            </Button>
+          }
+          className="clients-v7-toolbar"
+        >
           <Group align="flex-end" gap="sm" wrap="wrap">
             <TextInput
               aria-label={canManage ? 'Поиск по имени или телефону' : 'Поиск по имени'}
@@ -120,21 +130,9 @@ export function ClientsToolbar({
               searchable
               value={state.filters.groupId}
             />
-            <Button
-              leftSection={<IconAdjustmentsHorizontal size={18} />}
-              onClick={() => setMoreFiltersOpened(true)}
-              variant={state.activeFiltersCount > 0 ? 'light' : 'default'}
-            >
-              Еще фильтры
-              {state.activeFiltersCount > 0 ? (
-                <Badge color="accent.5" ml={8} size="sm" variant="filled">
-                  {state.activeFiltersCount}
-                </Badge>
-              ) : null}
-            </Button>
           </Group>
-        </form>
-      </Paper>
+        </FilterToolbar>
+      </form>
 
       <Drawer
         onClose={() => setMoreFiltersOpened(false)}

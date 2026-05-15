@@ -4,7 +4,15 @@ import {
 } from '@mantine/core'
 import type { ComponentPropsWithoutRef } from 'react'
 
-export type SharedButtonVariant = 'primary' | 'secondary' | 'ghost' | 'pill'
+export type SharedButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'pill'
+  | 'filled'
+  | 'default'
+  | 'subtle'
+  | 'light'
 
 export type SharedButtonProps = Omit<MantineButtonProps, 'variant'> &
   ComponentPropsWithoutRef<'button'> & {
@@ -27,6 +35,19 @@ const sharedButtonVariantMap: Record<
     variant: 'subtle',
   },
   pill: {
+    variant: 'light',
+  },
+  filled: {
+    color: 'brand.7',
+    variant: 'filled',
+  },
+  default: {
+    variant: 'default',
+  },
+  subtle: {
+    variant: 'subtle',
+  },
+  light: {
     variant: 'light',
   },
 }

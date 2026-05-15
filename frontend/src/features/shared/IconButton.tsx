@@ -4,7 +4,15 @@ import {
 } from '@mantine/core'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 
-export type SharedIconButtonVariant = 'primary' | 'secondary' | 'ghost' | 'pill'
+export type SharedIconButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'pill'
+  | 'filled'
+  | 'default'
+  | 'subtle'
+  | 'light'
 
 export type SharedIconButtonProps = Omit<ActionIconProps, 'children' | 'variant'> &
   ComponentPropsWithoutRef<'button'> & {
@@ -29,6 +37,19 @@ const sharedIconButtonVariantMap: Record<
     variant: 'subtle',
   },
   pill: {
+    variant: 'light',
+  },
+  filled: {
+    color: 'brand.7',
+    variant: 'filled',
+  },
+  default: {
+    variant: 'default',
+  },
+  subtle: {
+    variant: 'subtle',
+  },
+  light: {
     variant: 'light',
   },
 }

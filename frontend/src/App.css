@@ -4,6 +4,8 @@
   --color-surface: #ffffff;
   --color-surface-subtle: #f6faf7;
   --color-border: #dce7e1;
+  --content-width: 65rem;
+  --content-width-wide: 92rem;
   --radius-card: 24px;
   --radius-inner: 20px;
   --radius-pill: 999px;
@@ -339,7 +341,14 @@
 }
 
 .dashboard-stack {
+  width: 100%;
+  min-width: 0;
   padding: 1rem 0 2rem;
+}
+
+.dashboard-stack > .mantine-SimpleGrid-root {
+  width: min(100%, var(--content-width));
+  margin-inline: auto;
 }
 
 .surface-card {
@@ -353,13 +362,21 @@
 }
 
 .page-card {
-  width: min(100%, 65rem);
+  width: min(100%, var(--content-width));
   margin-inline: auto;
   box-shadow: var(--shadow-card);
 }
 
+.page-card--wide {
+  width: min(100%, var(--content-width-wide));
+}
+
+.page-card--full {
+  width: 100%;
+}
+
 .page-title-row {
-  width: min(100%, 65rem);
+  width: min(100%, var(--content-width));
   margin-inline: auto;
 }
 
@@ -402,6 +419,33 @@
   border: 1px solid rgba(20, 90, 82, 0.09);
   border-radius: 0.75rem;
   background: rgba(246, 250, 247, 0.76);
+}
+
+.filter-toolbar__controls,
+.filter-toolbar__actions {
+  min-width: 0;
+}
+
+.filter-toolbar__controls > * {
+  min-width: 0;
+}
+
+.filter-toolbar__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.filter-toolbar .mantine-InputBase-label,
+.filter-toolbar .mantine-Select-label {
+  color: var(--mantine-color-brand-9);
+  font-weight: 800;
+}
+
+.filter-toolbar .mantine-Input-input,
+.filter-toolbar .mantine-Select-input,
+.filter-toolbar .mantine-MultiSelect-input,
+.filter-toolbar .mantine-SegmentedControl-root {
+  min-height: 2.5rem;
 }
 
 .status-pill {
@@ -523,6 +567,37 @@
   padding: 1rem 1.1rem;
   background: rgba(246, 244, 238, 0.55);
   border-color: rgba(20, 90, 82, 0.08);
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.list-row-card:hover {
+  border-color: rgba(32, 123, 97, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.list-row-card,
+.settings-branch-row,
+.settings-branch-details,
+.finance-breakdown-section {
+  min-width: 0;
+}
+
+.list-row-card .mantine-Text-root,
+.settings-branch-row .mantine-Text-root,
+.settings-branch-details .mantine-Text-root,
+.finance-breakdown-section .mantine-Text-root {
+  overflow-wrap: anywhere;
+}
+
+.list-row-card:focus-visible,
+.clients-v7-row:focus-visible,
+.settings-branch-row:focus-visible {
+  outline: 2px solid rgba(20, 90, 82, 0.34);
+  outline-offset: 2px;
 }
 
 .group-row-card {
@@ -872,6 +947,12 @@
     padding: 0.85rem;
   }
 
+  .filter-toolbar__actions,
+  .filter-toolbar__actions .mantine-Group-root,
+  .filter-toolbar__actions .mantine-Button-root {
+    width: 100%;
+  }
+
   .status-pill {
     width: 100%;
     border-radius: 0.75rem;
@@ -1034,6 +1115,10 @@
   flex: 1 1 18rem;
 }
 
+.clients-v7-toolbar .filter-toolbar__controls > .mantine-Group-root {
+  min-width: 0;
+}
+
 .clients-v7-toolbar__status {
   flex: 0 0 auto;
 }
@@ -1045,6 +1130,10 @@
 .clients-v7-quick-filters {
   overflow-x: auto;
   padding-bottom: 0.15rem;
+}
+
+.clients-v7-quick-filters .mantine-Button-root {
+  flex: 0 0 auto;
 }
 
 .clients-v7-layout {
@@ -1081,6 +1170,15 @@
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(20, 90, 82, 0.1);
   cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.clients-v7-row:hover {
+  border-color: rgba(32, 123, 97, 0.2);
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .clients-v7-row[data-selected] {
@@ -1098,6 +1196,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.clients-v7-row__client {
+  min-width: 0;
+}
+
+.clients-v7-row__client > div {
+  min-width: 0;
 }
 
 .clients-v7-row-skeleton {
@@ -1194,6 +1300,12 @@
 }
 
 .attendance-toolbar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.attendance-filter-toolbar .filter-toolbar__controls {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
@@ -1603,7 +1715,8 @@
 }
 
 @media (min-width: 48rem) {
-  .attendance-toolbar {
+  .attendance-toolbar,
+  .attendance-filter-toolbar .filter-toolbar__controls {
     grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 0.9fr);
     align-items: end;
   }
@@ -1619,7 +1732,7 @@
 
   .attendance-client-row {
     grid-template-columns: minmax(0, 1fr) auto;
-    }
+  }
 
   .attendance-client-switch {
     justify-self: flex-end;

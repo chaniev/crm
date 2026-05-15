@@ -7,6 +7,7 @@ import {
   Button,
   EmptyState,
   ErrorState,
+  FilterToolbar,
   Header,
   IconButton,
   LoadingState,
@@ -174,6 +175,25 @@ describe('shared UX components', () => {
 
     expect(screen.queryByRole('heading')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Только действие' })).toBeVisible()
+  })
+
+  test('FilterToolbar keeps controls and actions in shared layout', () => {
+    const { container } = renderWithProviders(
+      <FilterToolbar
+        actions={<button type="button">Сбросить</button>}
+        className="custom-toolbar"
+      >
+        <label>
+          Поиск
+          <input />
+        </label>
+      </FilterToolbar>,
+    )
+
+    expect(container.querySelector('.filter-toolbar.custom-toolbar')).toBeTruthy()
+    expect(container.querySelector('.filter-toolbar__controls')).toBeTruthy()
+    expect(container.querySelector('.filter-toolbar__actions')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Сбросить' })).toBeVisible()
   })
 
   test('Button and IconButton expose accessible controls', () => {

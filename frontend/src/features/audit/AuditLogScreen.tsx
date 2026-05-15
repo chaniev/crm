@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
   Badge,
-  Button,
   Group,
   Modal,
   Pagination,
@@ -25,8 +24,10 @@ import {
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import {
+  Button,
   EmptyState,
   ErrorState,
+  FilterToolbar,
   LoadingState,
   PageCard,
   PageHeader,
@@ -229,7 +230,19 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
           />
 
           <form data-testid="audit-filter-form" onSubmit={form.onSubmit(handleApplyFilters)}>
-            <Stack gap="md">
+            <FilterToolbar
+              actions={
+                <ResponsiveButtonGroup>
+                  <Button leftSection={<IconFilter size={18} />} type="submit">
+                    Применить фильтры
+                  </Button>
+                  <Button onClick={handleResetFilters} type="button" variant="secondary">
+                    Сбросить
+                  </Button>
+                </ResponsiveButtonGroup>
+              }
+              className="audit-filter-toolbar"
+            >
               <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }}>
                 <Select
                   clearable
@@ -285,16 +298,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
                   {...form.getInputProps('dateTo')}
                 />
               </SimpleGrid>
-
-              <ResponsiveButtonGroup>
-                <Button leftSection={<IconFilter size={18} />} type="submit">
-                  Применить фильтры
-                </Button>
-                <Button onClick={handleResetFilters} type="button" variant="default">
-                  Сбросить
-                </Button>
-              </ResponsiveButtonGroup>
-            </Stack>
+            </FilterToolbar>
           </form>
         </Stack>
       </PageCard>
