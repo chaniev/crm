@@ -135,6 +135,17 @@ docker compose --project-directory . --env-file .env -f deploy/docker-compose.ym
 docker compose --project-directory . --env-file .env -f deploy/docker-compose.yml down -v
 ```
 
+## Установка на сервер из образов
+
+Для чистой серверной установки без исходников используйте image-only compose и архив Docker-образов:
+
+```bash
+IMAGE_TAG=2026-05-15 ./deploy/build-images.sh
+IMAGE_TAG=2026-05-15 ./deploy/export-images.sh
+```
+
+Дальше перенесите `deploy/docker-compose.server.yml`, `deploy/load-images.sh`, `deploy/.env.example` и файлы из `deploy/dist/` на сервер. Подробный порядок: [deploy/SERVER_INSTALL.md](deploy/SERVER_INSTALL.md).
+
 ## Telegram-бот
 
 Бот запускается сервисом `bot` в составе compose-стека и работает только в режиме `BOT_MODE=LongPolling`.

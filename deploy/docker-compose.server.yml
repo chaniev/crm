@@ -1,3 +1,6 @@
+# Image-only compose for fresh server installs.
+# Keep service wiring aligned with deploy/docker-compose.yml.
+
 services:
   db:
     image: ${POSTGRES_IMAGE:-postgres:17-alpine}
@@ -17,9 +20,6 @@ services:
 
   backend:
     image: ${BACKEND_IMAGE:-gym-crm/backend:latest}
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
@@ -53,14 +53,9 @@ services:
     volumes:
       - backend_client_photos:/app/data/client-photos
       - backend_logs:/app/logs
+
   frontend:
     image: ${FRONTEND_IMAGE:-gym-crm/frontend:latest}
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_BASE_PATH: ${FRONTEND_VITE_API_BASE_PATH:-/api}
-        VITE_API_PROXY_TARGET: ${FRONTEND_VITE_API_PROXY_TARGET:-http://backend:8080}
     restart: unless-stopped
     depends_on:
       backend:
@@ -78,9 +73,6 @@ services:
 
   bot:
     image: ${BOT_IMAGE:-gym-crm/bot:latest}
-    build:
-      context: ./bot
-      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       BOT_MODE: ${BOT_MODE:-LongPolling}
