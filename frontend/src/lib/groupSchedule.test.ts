@@ -5,8 +5,14 @@ import {
   applyScheduleFilters,
   buildGroupWeekSchedule,
   buildScheduleCalendarWeek,
+  buildScheduleDayCounts,
   buildScheduleFilterOptions,
+  buildScheduleTodaySummary,
+  buildScheduleTypeLegend,
+  formatScheduleEntryTimeRange,
   formatTrainingStartTime,
+  getCurrentScheduleWeekday,
+  getScheduleTypePalette,
   getVisibleScheduleHourRange,
   hasActiveScheduleFilters,
   parseTrainingStartTime,
@@ -175,6 +181,36 @@ describe('groupSchedule helpers', () => {
     })
   })
 
+  test('maps local Date weekday to schedule ISO weekday without displaying dates', () => {
+    expect(getCurrentScheduleWeekday(new Date(2026, 4, 11))).toBe(1)
+    expect(getCurrentScheduleWeekday(new Date(2026, 4, 15))).toBe(5)
+    expect(getCurrentScheduleWeekday(new Date(2026, 4, 17))).toBe(7)
+  })
+
+  test('derives day counters from visible calendar entries', () => {
+    const calendarWeek = buildScheduleCalendarWeek(groups)
+
+    expect(buildScheduleDayCounts(calendarWeek.days)).toEqual({
+      1: 3,
+      2: 0,
+      3: 1,
+      4: 0,
+      5: 1,
+      6: 1,
+      7: 0,
+    })
+  })
+
+  test('formats visible entry time range from local HH:mm schedule fields', () => {
+    const calendarWeek = buildScheduleCalendarWeek(groups)
+    const morningEntry = calendarWeek.days[0].entries.find((entry) =>
+      entry.group.id === 'group-morning',
+    )
+
+    expect(morningEntry).toBeDefined()
+    expect(formatScheduleEntryTimeRange(morningEntry!)).toBe('09:30 - 10:15')
+  })
+
   test('computes visible hour range from visible entries and rounds to full hours', () => {
     const filteredGroups = applyScheduleFilters(groups, {
       ...EMPTY_SCHEDULE_FILTERS,
@@ -190,6 +226,70 @@ describe('groupSchedule helpers', () => {
       startHour: 9,
       endHour: 20,
     })
+  })
+
+  test('builds stable type legend from visible entries', () => {
+    const calendarWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'group-cardio',
+        name: 'Кардио старт',
+        groupTypeId: 'type-cardio',
+        groupTypeName: 'Кардио',
+        groupTypeSystemIdentifier: 'cardio',
+        weekdays: [1, 2],
+      }),
+      createGroup({
+        id: 'group-strength',
+        name: 'Сила',
+        groupTypeId: 'type-strength',
+        groupTypeName: 'Сила',
+        groupTypeSystemIdentifier: 'strength',
+        weekdays: [1],
+      }),
+    ])
+    const legend = buildScheduleTypeLegend(calendarWeek.days.flatMap((day) => day.entries))
+
+    expect(legend.map((item) => ({
+      key: item.key,
+      label: item.label,
+      count: item.count,
+      palette: item.palette,
+    }))).toEqual([
+      {
+        key: 'cardio',
+        label: 'Кардио',
+        count: 2,
+        palette: getScheduleTypePalette('cardio'),
+      },
+      {
+        key: 'strength',
+        label: 'Сила',
+        count: 1,
+        palette: getScheduleTypePalette('strength'),
+      },
+    ])
+  })
+
+  test('summarizes current weekday entries and hall load from visible schedule payload', () => {
+    const calendarWeek = buildScheduleCalendarWeek(groups)
+    const summary = buildScheduleTodaySummary(calendarWeek.days, 1)
+
+    expect(summary.totalEntries).toBe(3)
+    expect(summary.typeItems).toEqual([
+      expect.objectContaining({
+        key: 'cardio',
+        label: 'Кардио',
+        count: 3,
+      }),
+    ])
+    expect(summary.hallItems).toEqual([
+      {
+        key: 'hall-main',
+        label: 'Основной зал',
+        count: 3,
+        totalMinutes: 150,
+      },
+    ])
   })
 
   test('assigns side-by-side lanes for overlapping entries inside one day', () => {

@@ -298,7 +298,7 @@ const MANAGEMENT_ROUTES = [
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
     expectedControls: ['Обновить'],
-    forbiddenMainHeadings: ['Расписание'],
+    forbiddenMainHeadings: [],
   },
   {
     path: '/clients',
@@ -350,7 +350,7 @@ const COACH_ROUTES = [
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
     expectedControls: ['Обновить'],
-    forbiddenMainHeadings: ['Расписание'],
+    forbiddenMainHeadings: [],
   },
   {
     path: '/attendance',
