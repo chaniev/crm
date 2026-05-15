@@ -142,17 +142,25 @@ export function MetricCard({
 type PageCardProps = PaperProps & {
   children: ReactNode
   className?: string
+  width?: 'default' | 'wide' | 'full'
 }
 
 export function PageCard({
   children,
   className,
   radius = 'var(--radius-card)',
+  width = 'default',
   ...props
 }: PageCardProps) {
   return (
     <Paper
-      className={['surface-card', 'surface-card--wide', 'page-card', className]
+      className={[
+        'surface-card',
+        'surface-card--wide',
+        'page-card',
+        `page-card--${width}`,
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
       radius={radius}
@@ -161,6 +169,29 @@ export function PageCard({
     >
       {children}
     </Paper>
+  )
+}
+
+type FilterToolbarProps = ComponentPropsWithoutRef<'div'> & {
+  children: ReactNode
+  actions?: ReactNode
+  className?: string
+}
+
+export function FilterToolbar({
+  children,
+  actions,
+  className,
+  ...props
+}: FilterToolbarProps) {
+  return (
+    <div
+      className={['filter-toolbar', className].filter(Boolean).join(' ')}
+      {...props}
+    >
+      <div className="filter-toolbar__controls">{children}</div>
+      {actions ? <div className="filter-toolbar__actions">{actions}</div> : null}
+    </div>
   )
 }
 

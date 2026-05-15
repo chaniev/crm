@@ -31,6 +31,7 @@ import { formatGroupSchedule } from '../../lib/groupSchedule'
 import {
   EmptyState,
   ErrorState,
+  FilterToolbar,
   LoadingState,
   PageCard,
   PageHeader,
@@ -289,7 +290,10 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
           ) : null}
 
           {!groupsLoading && !groupsError && groups.length > 0 ? (
-            <div className="attendance-toolbar" data-testid="attendance-toolbar">
+            <FilterToolbar
+              className="attendance-filter-toolbar"
+              data-testid="attendance-toolbar"
+            >
               <Select
                 data={groupOptions}
                 label="Группа"
@@ -306,7 +310,7 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
                 type="date"
                 value={trainingDate}
               />
-            </div>
+            </FilterToolbar>
           ) : null}
         </Stack>
       </PageCard>

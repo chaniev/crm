@@ -59,6 +59,7 @@ import { Button } from '../shared/Button'
 import {
   EmptyState,
   ErrorState,
+  FilterToolbar,
   LoadingState,
   PageCard,
   PageHeader,
@@ -214,7 +215,21 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
             title="Расписание"
           />
 
-          <div className="filter-toolbar schedule-filter-toolbar">
+          <FilterToolbar
+            actions={
+              <ResponsiveButtonGroup justify="flex-end">
+                <Button
+                  disabled={!hasActiveFilters}
+                  leftSection={<IconFilterOff size={17} />}
+                  onClick={() => setFilters(EMPTY_SCHEDULE_FILTERS)}
+                  variant="secondary"
+                >
+                  Сбросить фильтры
+                </Button>
+              </ResponsiveButtonGroup>
+            }
+            className="schedule-filter-toolbar"
+          >
             <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} spacing="md">
               <Select
                 clearable
@@ -253,18 +268,7 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
                 value={filters.groupId}
               />
             </SimpleGrid>
-
-            <ResponsiveButtonGroup justify="flex-end">
-              <Button
-                disabled={!hasActiveFilters}
-                leftSection={<IconFilterOff size={17} />}
-                onClick={() => setFilters(EMPTY_SCHEDULE_FILTERS)}
-                variant="secondary"
-              >
-                Сбросить фильтры
-              </Button>
-            </ResponsiveButtonGroup>
-          </div>
+          </FilterToolbar>
         </Stack>
       </PageCard>
 

@@ -42,6 +42,7 @@ import {
   Button,
   EmptyState,
   ErrorState,
+  FilterToolbar,
   LoadingState,
   PageCard,
   PageHeader,
@@ -354,101 +355,106 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
             data-testid="finance-filter-form"
             onSubmit={form.onSubmit(applyFilters)}
           >
-            <Stack gap="md">
-              <SimpleGrid
-                className="finance-period-grid"
-                cols={{ base: 2, md: 4 }}
-              >
-                {periodOptions.map((option) => (
+            <FilterToolbar
+              actions={
+                <ResponsiveButtonGroup>
                   <Button
-                    aria-pressed={form.values.periodPreset === option.value}
-                    className="finance-period-button"
-                    data-active={
-                      form.values.periodPreset === option.value || undefined
-                    }
-                    key={option.value}
-                    leftSection={<IconCalendarEvent size={18} />}
-                    onClick={() => handlePresetClick(option.value)}
-                    type="button"
-                    variant={
-                      form.values.periodPreset === option.value
-                        ? 'primary'
-                        : 'pill'
-                    }
+                    leftSection={<IconFilter size={18} />}
+                    loading={isInitialReportLoading}
+                    type="submit"
                   >
-                    {option.label}
+                    Показать
                   </Button>
-                ))}
-              </SimpleGrid>
-              {form.errors.periodPreset ? (
-                <Text c="red" size="sm">
-                  {form.errors.periodPreset}
-                </Text>
-              ) : null}
-
-              <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }}>
-                {form.values.periodPreset === 'custom' ? (
-                  <>
-                    <TextInput
-                      label="С"
-                      leftSection={<IconCalendarEvent size={16} />}
-                      name="from"
-                      type="date"
-                      {...form.getInputProps('from')}
-                    />
-                    <TextInput
-                      label="По"
-                      leftSection={<IconCalendarEvent size={16} />}
-                      name="to"
-                      type="date"
-                      {...form.getInputProps('to')}
-                    />
-                  </>
-                ) : (
-                  <TextInput
-                    label="Дата в периоде"
-                    leftSection={<IconCalendarEvent size={16} />}
-                    name="anchorDate"
-                    type="date"
-                    {...form.getInputProps('anchorDate')}
-                  />
-                )}
-
-                <Select
-                  clearable
-                  data={branchOptions}
-                  disabled={optionsLoading}
-                  label="Филиал"
-                  name="branchId"
-                  placeholder="Все филиалы"
-                  searchable
-                  {...form.getInputProps('branchId')}
-                />
-                <Select
-                  clearable
-                  data={trainerOptions}
-                  disabled={optionsLoading}
-                  label="Тренер"
-                  name="trainerId"
-                  placeholder="Все тренеры"
-                  searchable
-                  {...form.getInputProps('trainerId')}
-                />
-              </SimpleGrid>
-
-              <ResponsiveButtonGroup>
-                <Button
-                  leftSection={<IconFilter size={18} />}
-                  loading={isInitialReportLoading}
-                  type="submit"
+                  <Button onClick={handleResetFilters} type="button" variant="secondary">
+                    Сбросить
+                  </Button>
+                </ResponsiveButtonGroup>
+              }
+              className="finance-report-toolbar"
+            >
+              <Stack gap="md">
+                <SimpleGrid
+                  className="finance-period-grid"
+                  cols={{ base: 2, md: 4 }}
                 >
-                  Показать
-                </Button>
-                <Button onClick={handleResetFilters} type="button" variant="secondary">
-                  Сбросить
-                </Button>
-              </ResponsiveButtonGroup>
-            </Stack>
+                  {periodOptions.map((option) => (
+                    <Button
+                      aria-pressed={form.values.periodPreset === option.value}
+                      className="finance-period-button"
+                      data-active={
+                        form.values.periodPreset === option.value || undefined
+                      }
+                      key={option.value}
+                      leftSection={<IconCalendarEvent size={18} />}
+                      onClick={() => handlePresetClick(option.value)}
+                      type="button"
+                      variant={
+                        form.values.periodPreset === option.value
+                          ? 'primary'
+                          : 'pill'
+                      }
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </SimpleGrid>
+                {form.errors.periodPreset ? (
+                  <Text c="red" size="sm">
+                    {form.errors.periodPreset}
+                  </Text>
+                ) : null}
+
+                <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }}>
+                  {form.values.periodPreset === 'custom' ? (
+                    <>
+                      <TextInput
+                        label="С"
+                        leftSection={<IconCalendarEvent size={16} />}
+                        name="from"
+                        type="date"
+                        {...form.getInputProps('from')}
+                      />
+                      <TextInput
+                        label="По"
+                        leftSection={<IconCalendarEvent size={16} />}
+                        name="to"
+                        type="date"
+                        {...form.getInputProps('to')}
+                      />
+                    </>
+                  ) : (
+                    <TextInput
+                      label="Дата в периоде"
+                      leftSection={<IconCalendarEvent size={16} />}
+                      name="anchorDate"
+                      type="date"
+                      {...form.getInputProps('anchorDate')}
+                    />
+                  )}
+
+                  <Select
+                    clearable
+                    data={branchOptions}
+                    disabled={optionsLoading}
+                    label="Филиал"
+                    name="branchId"
+                    placeholder="Все филиалы"
+                    searchable
+                    {...form.getInputProps('branchId')}
+                  />
+                  <Select
+                    clearable
+                    data={trainerOptions}
+                    disabled={optionsLoading}
+                    label="Тренер"
+                    name="trainerId"
+                    placeholder="Все тренеры"
+                    searchable
+                    {...form.getInputProps('trainerId')}
+                  />
+                </SimpleGrid>
+              </Stack>
+            </FilterToolbar>
           </form>
         </Stack>
       </PageCard>

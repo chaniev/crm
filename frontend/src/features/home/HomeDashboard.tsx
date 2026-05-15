@@ -1,14 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import {
-  Alert,
   Badge,
-  Button,
   Paper,
   SimpleGrid,
   Stack,
   Text,
 } from '@mantine/core'
-import { IconAlertCircle, IconCalendarEvent, IconUserHeart } from '@tabler/icons-react'
+import { IconCalendarEvent, IconUserHeart } from '@tabler/icons-react'
 import {
   getExpiringClientMemberships,
   type AuthenticatedUser,
@@ -20,6 +18,7 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  Button,
   PageCard,
   PageHeader,
   RefreshButton,
@@ -100,14 +99,10 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
     return (
       <Stack className="dashboard-stack" data-testid="home-screen" gap="xl">
         <PageCard>
-          <Alert
-            color="red"
-            icon={<IconAlertCircle size={18} />}
+          <ErrorState
+            message={resources.home.accessDenied.message}
             title={resources.home.accessDenied.title}
-            variant="light"
-          >
-            {resources.home.accessDenied.message}
-          </Alert>
+          />
         </PageCard>
       </Stack>
     )

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  Button,
   Group,
   Paper,
   Stack,
@@ -19,6 +18,7 @@ import {
 import { resources } from '../../lib/resources'
 import { showAppNotification } from '../shared/notifications'
 import {
+  Button,
   ErrorState,
   LoadingState,
   PageCard,

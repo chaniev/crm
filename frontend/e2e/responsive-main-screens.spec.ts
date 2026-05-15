@@ -299,6 +299,7 @@ const MANAGEMENT_ROUTES = [
     navLabel: 'Расписание',
     expectedControls: ['Обновить'],
     forbiddenMainHeadings: [],
+    expectedFilterToolbars: 1,
   },
   {
     path: '/clients',
@@ -306,6 +307,7 @@ const MANAGEMENT_ROUTES = [
     navLabel: 'Клиенты',
     expectedControls: ['Обновить список', 'Новый клиент'],
     forbiddenMainHeadings: ['Клиенты'],
+    expectedFilterToolbars: 1,
   },
   {
     path: '/groups',
@@ -327,6 +329,7 @@ const MANAGEMENT_ROUTES = [
     navLabel: 'Журнал',
     expectedControls: ['Обновить'],
     forbiddenMainHeadings: ['Журнал'],
+    expectedFilterToolbars: 1,
   },
   {
     path: '/finance',
@@ -334,6 +337,7 @@ const MANAGEMENT_ROUTES = [
     navLabel: 'Финансы',
     expectedControls: ['Обновить'],
     forbiddenMainHeadings: ['Финансы', 'Финансовые отчеты'],
+    expectedFilterToolbars: 1,
   },
   {
     path: '/settings',
@@ -351,6 +355,7 @@ const COACH_ROUTES = [
     navLabel: 'Расписание',
     expectedControls: ['Обновить'],
     forbiddenMainHeadings: [],
+    expectedFilterToolbars: 1,
   },
   {
     path: '/attendance',
@@ -358,6 +363,7 @@ const COACH_ROUTES = [
     navLabel: 'Посещения',
     expectedControls: ['Обновить'],
     forbiddenMainHeadings: ['Посещения'],
+    expectedFilterToolbars: 1,
   },
   {
     path: '/clients',
@@ -365,6 +371,7 @@ const COACH_ROUTES = [
     navLabel: 'Клиенты',
     expectedControls: [],
     forbiddenMainHeadings: ['Клиенты'],
+    expectedFilterToolbars: 1,
   },
 ] as const
 
@@ -396,6 +403,7 @@ for (const viewport of VIEWPORTS) {
         await expectNoServiceIntro(page)
         await expectNoDuplicateTabHeadings(page, route.forbiddenMainHeadings)
         await expectPrimaryControls(page, route.expectedControls)
+        await expectSharedVisualBaseline(page, route.expectedFilterToolbars ?? 0)
         await expectNoHorizontalScroll(page)
       }
     })
@@ -412,6 +420,7 @@ for (const viewport of VIEWPORTS) {
         await expectNoServiceIntro(page)
         await expectNoDuplicateTabHeadings(page, route.forbiddenMainHeadings)
         await expectPrimaryControls(page, route.expectedControls)
+        await expectSharedVisualBaseline(page, route.expectedFilterToolbars ?? 0)
         await expectNoHorizontalScroll(page)
       }
     })
@@ -471,6 +480,23 @@ async function expectPrimaryControls(
   }
 }
 
+async function expectSharedVisualBaseline(
+  page: Page,
+  expectedFilterToolbars: number,
+) {
+  const main = page.locator('main')
+
+  await expect(
+    main.locator(
+      '.page-card, .filter-toolbar, .list-row-card, .clients-v7-row, .schedule-board',
+    ).first(),
+  ).toBeVisible()
+
+  if (expectedFilterToolbars > 0) {
+    await expect(main.locator('.filter-toolbar')).toHaveCount(expectedFilterToolbars)
+  }
+}
+
 async function expectNoHorizontalScroll(page: Page) {
   await expect
     .poll(async () =>
@@ -494,6 +520,37 @@ async function expectNoHorizontalScroll(page: Page) {
 
   expect(dimensions.documentScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
   expect(dimensions.bodyScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+
+  const overflowingElements = await page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLElement>('main *'))
+      .filter((element) => {
+        const rect = element.getBoundingClientRect()
+        const style = window.getComputedStyle(element)
+
+        if (rect.width === 0 || rect.height === 0 || style.display === 'none') {
+          return false
+        }
+
+        let parent = element.parentElement
+        while (parent && parent.tagName !== 'MAIN') {
+          const parentStyle = window.getComputedStyle(parent)
+          if (['auto', 'scroll'].includes(parentStyle.overflowX)) {
+            return false
+          }
+          parent = parent.parentElement
+        }
+
+        return rect.left < -1 || rect.right > window.innerWidth + 1
+      })
+      .slice(0, 5)
+      .map((element) => ({
+        className: element.className.toString(),
+        tagName: element.tagName,
+        text: element.textContent?.trim().slice(0, 80) ?? '',
+      })),
+  )
+
+  expect(overflowingElements).toEqual([])
 }
 
 async function mockApi(
