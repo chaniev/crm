@@ -374,3 +374,88 @@
 - moved to done: 4 tasks
 - moved plans to done: 4
 - validation: backlog/source audit only; runtime test commands were not re-run
+
+# 2026-05-15 14:13
+
+## Processed inbox files
+- 2026-05-15.md
+
+## Created tasks
+- /backlog/tasks-ready/TASK-045-schedule-mockup-polish.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Новая заметка про переделку окна расписания по макету связана с закрытой `TASK-043`, но не является активным дубликатом: `TASK-043` закрыла базовую calendar-like реализацию, а новая заметка задает follow-up polish по конкретному макету.
+
+## Summary
+- tasks-ready: 1
+- risky: 0
+- needs-clarification: 0
+- updated existing: 0
+- processed files: 1
+
+# 2026-05-15 14:18
+
+## Processed inbox files
+- none
+
+## Created tasks
+- /backlog/tasks-ready/TASK-046-frontend-unified-visual-style.md
+
+## Updated existing tasks
+- /backlog/tasks-ready/TASK-045-schedule-mockup-polish.md
+
+## Skipped duplicates
+- Глобальная унификация стиля не является дубликатом `TASK-045`: `TASK-045` ограничена окном `Расписание`, а новая `TASK-046` фиксирует cross-screen visual consistency для остальных CRM-разделов.
+- Не дубликат `TASK-018` и `TASK-044`: `TASK-018` ограничена визуальным шумом карточки клиента, `TASK-044` уже закрыла удаление технической информации, а новая задача про единую visual system: отступы, типографику, контролы, таблицы, карточки и responsive polish.
+
+## Summary
+- tasks-ready: 1
+- risky: 0
+- needs-clarification: 0
+- updated existing: 1
+- processed files: 0
+
+# 2026-05-15 14:23
+
+## Processed inbox files
+- none
+
+## Created tasks
+- none
+
+## Updated existing tasks
+- /backlog/tasks-ready/TASK-045-schedule-mockup-polish.md
+
+## Skipped duplicates
+- none
+
+## Summary
+- tasks-ready: 0
+- risky: 0
+- needs-clarification: 0
+- updated existing: 1
+- processed files: 0
+
+# 2026-05-15 14:31
+
+## Processed inbox files
+- none
+
+## Created tasks
+- none
+
+## Updated existing tasks
+- /backlog/tasks-ready/TASK-045-schedule-mockup-polish.md
+
+## Skipped duplicates
+- none
+
+## Summary
+- tasks-ready: 0
+- risky: 0
+- needs-clarification: 0
+- updated existing: 1
+- processed files: 0
