@@ -1,7 +1,13 @@
 # TASK-045: Привести окно расписания к новому макету
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-15 14:39
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-045-schedule-mockup-polish.plan.md
+- implementation_branch: feature/TASK-045-schedule-mockup-polish
 
 ## Goal
 Окно `Расписание` должно визуально и функционально соответствовать новому макету и стать эталонным экраном для нового единого визуального стиля CRM: недельная сетка расписания без навигации по календарным датам, с фильтрами, подсветкой текущего дня недели, цветными занятиями, дневными счетчиками, легендой и агрегатами по загрузке залов.
@@ -13,7 +19,7 @@ ready
 
 Текущая завершенная основа расписания описана в `backlog/done/TASK-043-schedule-calendar-like-view.md`: read-only weekly calendar на базе backend schedule data. Новая заметка не дублирует `TASK-043`, а задает следующую визуальную итерацию по конкретному макету.
 
-Связанная follow-up задача для остальных экранов CRM: `backlog/tasks-ready/TASK-046-frontend-unified-visual-style.md`.
+Связанная follow-up задача для остальных экранов CRM: `backlog/implementation/TASK-046-frontend-unified-visual-style.md`.
 
 Рекомендуемый порядок реализации: сначала выполнить `TASK-045`, сформировав на расписании переиспользуемые правила spacing, typography, controls, cards, filters and compact summary blocks; затем выполнить `TASK-046`, применив эти правила к остальным окнам CRM.
 

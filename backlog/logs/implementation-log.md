@@ -296,3 +296,22 @@
 - skipped: 0
 - plans created: 1
 - note: task is low risk and localized to frontend in-app notification behavior; implementation should start with explicit Mantine provider `autoClose`/`limit` and add a helper only if duplicate queues still accumulate.
+
+# 2026-05-15 14:39
+
+## Moved to implementation
+- /backlog/implementation/TASK-045-schedule-mockup-polish.md
+- /backlog/implementation/TASK-046-frontend-unified-visual-style.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-045-schedule-mockup-polish.plan.md
+- /backlog/implementation-plans/TASK-046-frontend-unified-visual-style.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 2
+- skipped: 0
+- plans created: 2
+- note: selected explicit frontend visual batch. `TASK-045` must execute first in its own branch and produce reusable visual baseline/handoff notes; `TASK-046` must start later from updated `main` after `TASK-045` is available.

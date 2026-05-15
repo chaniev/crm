@@ -1,7 +1,13 @@
 # TASK-046: Привести остальные окна CRM к единому визуальному стилю
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-15 14:39
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-046-frontend-unified-visual-style.plan.md
+- implementation_branch: feature/TASK-046-frontend-unified-visual-style
 
 ## Goal
 Все основные окна CRM должны выглядеть как единая система: одинаковые отступы, типографика, плотность интерфейса, размеры контролов, радиусы, тени, таблицы, фильтры, заголовки и пустые состояния.
@@ -79,7 +85,7 @@ ready
 ## Source notes
 - Source file: direct user follow-up in current thread, 2026-05-15.
 - Original note: `учтено ли в требованиях что надо во всех остальных окнах сделать единый стиль? отступы, шрифты и тд`
-- Related task: `backlog/tasks-ready/TASK-045-schedule-mockup-polish.md`
+- Related task: `backlog/implementation/TASK-045-schedule-mockup-polish.md`
 - Related completed task: `backlog/done/TASK-044-hide-technical-information.md`
 
 ## Processing notes
