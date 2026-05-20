@@ -459,3 +459,24 @@
 - needs-clarification: 0
 - updated existing: 1
 - processed files: 0
+
+# 2026-05-20 19:44
+
+## Processed inbox files
+- 2026-05-20.md
+
+## Created tasks
+- /backlog/tasks-ready/TASK-047-mobile-left-side-menu.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Related completed task found: /backlog/done/TASK-024-left-side-main-menu.md. Not treated as an active duplicate because the new note specifies mobile left vertical behavior as a follow-up.
+
+## Summary
+- tasks-ready: 1
+- risky: 0
+- needs-clarification: 0
+- updated existing: 0
+- processed files: 1
