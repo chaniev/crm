@@ -17,3 +17,5 @@ bot/.ruff_cache/
 .env
 .env.local
 .env.*.local
+
+deploy/dist/
