@@ -1,7 +1,13 @@
 # TASK-047: Вертикальное левое меню на мобильном экране
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-20 19:48
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-047-mobile-left-side-menu.plan.md
+- implementation_branch: feature/TASK-047-mobile-left-side-menu
 
 ## Goal
 На мобильном телефоне главное меню CRM тоже отображается слева и вертикально, чтобы навигация была единообразной с desktop-версией.

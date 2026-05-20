@@ -315,3 +315,20 @@
 - skipped: 0
 - plans created: 2
 - note: selected explicit frontend visual batch. `TASK-045` must execute first in its own branch and produce reusable visual baseline/handoff notes; `TASK-046` must start later from updated `main` after `TASK-045` is available.
+
+# 2026-05-20 19:48
+
+## Moved to implementation
+- /backlog/implementation/TASK-047-mobile-left-side-menu.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-047-mobile-left-side-menu.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task is low risk and localized to authenticated frontend app shell; implementation must keep navigation visibility driven by existing backend-derived user permissions and add responsive Playwright regression coverage for mobile left vertical navigation.
