@@ -1,4 +1,5 @@
 import { fireEvent, screen, within } from '@testing-library/react'
+import { Tabs } from '@mantine/core'
 import { describe, expect, test, vi } from 'vitest'
 import type { AppSection } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
@@ -14,7 +15,11 @@ import {
   NavigationTabs,
   PageCard,
   PageHeader,
+  PageLayout,
+  PageSection,
+  PageTabsPanel,
   RefreshButton,
+  SectionHeader,
   Skeleton,
 } from './ux'
 
@@ -127,7 +132,84 @@ describe('shared UX components', () => {
     )
   })
 
-  test('PageCard renders nested content inside shared page container', () => {
+  test('PageLayout renders route title, description, actions and shared wrapper', () => {
+    const { container } = renderWithProviders(
+      <PageLayout
+        actions={<button type="button">Обновить</button>}
+        data-testid="layout-test"
+        description="Описание страницы"
+        title="Клиенты"
+      >
+        <p>Рабочая область</p>
+      </PageLayout>,
+    )
+
+    expect(screen.getByTestId('layout-test')).toHaveClass('page-layout')
+    expect(screen.getByRole('heading', { level: 1, name: 'Клиенты' })).toBeVisible()
+    expect(screen.getByText('Описание страницы')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Обновить' })).toBeVisible()
+    expect(screen.getByText('Рабочая область')).toBeVisible()
+    expect(container.querySelector('.page-layout__header')).toBeTruthy()
+  })
+
+  test('PageSection renders card and plain variants with density classes', () => {
+    const { container } = renderWithProviders(
+      <>
+        <PageSection data-testid="card-section" density="compact">
+          Карточка
+        </PageSection>
+        <PageSection data-testid="plain-section" variant="plain">
+          Плоская секция
+        </PageSection>
+      </>,
+    )
+
+    expect(screen.getByTestId('card-section')).toHaveClass(
+      'page-section',
+      'page-section--card',
+      'page-section--density-compact',
+      'surface-card',
+    )
+    expect(screen.getByTestId('plain-section')).toHaveClass(
+      'page-section',
+      'page-section--plain',
+    )
+    expect(container.querySelector('.page-section--card')).toBeTruthy()
+  })
+
+  test('SectionHeader renders section copy without route-level H1 semantics', () => {
+    renderWithProviders(
+      <SectionHeader
+        actions={<button type="button">Добавить</button>}
+        description="Описание секции"
+        title="Список клиентов"
+      />,
+    )
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Список клиентов' })).toBeVisible()
+    expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument()
+    expect(screen.getByText('Описание секции')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Добавить' })).toBeVisible()
+  })
+
+  test('PageTabsPanel wraps tab content in stable panel spacing container', () => {
+    const { container } = renderWithProviders(
+      <Tabs defaultValue="first">
+        <Tabs.List>
+          <Tabs.Tab value="first">Первая</Tabs.Tab>
+        </Tabs.List>
+        <PageTabsPanel value="first">
+          <p>Содержимое вкладки</p>
+        </PageTabsPanel>
+      </Tabs>,
+    )
+
+    expect(screen.getByText('Содержимое вкладки')).toBeVisible()
+    expect(container.querySelector('.page-tabs-panel')).toBeTruthy()
+    expect(container.querySelector('.page-tabs-panel__content')).toBeTruthy()
+  })
+
+  test('PageCard renders nested content through shared page section alias', () => {
     const { container } = renderWithProviders(
       <PageCard>
         <p>Контент вкладки</p>
@@ -136,6 +218,7 @@ describe('shared UX components', () => {
 
     expect(screen.getByText('Контент вкладки')).toBeVisible()
     expect(container.querySelector('.page-card')).toBeTruthy()
+    expect(container.querySelector('.page-section--card')).toBeTruthy()
   })
 
   test('PageHeader supports title, optional actions and no-action mode', () => {

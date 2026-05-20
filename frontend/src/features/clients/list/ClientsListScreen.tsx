@@ -1,4 +1,5 @@
 import { Stack } from '@mantine/core'
+import { PageLayout, PageSection } from '../../shared/ux'
 import { ClientPreviewPanel } from './ClientPreviewPanel'
 import { ClientsQuickFilters } from './ClientsQuickFilters'
 import { ClientsResults } from './ClientsResults'
@@ -19,19 +20,29 @@ export function ClientsListScreen({
   const state = useClientsListState()
 
   return (
-    <Stack className="dashboard-stack clients-v7-screen" data-testid="clients-screen" gap="md">
-      <ClientsToolbar canManage={canManage} onCreate={onCreate} state={state} />
-      <ClientsQuickFilters state={state} />
+    <PageLayout
+      className="clients-v7-screen"
+      data-testid="clients-screen"
+      title="Клиенты"
+    >
+      <PageSection>
+        <Stack gap="md">
+          <ClientsToolbar canManage={canManage} onCreate={onCreate} state={state} />
+          <ClientsQuickFilters state={state} />
+        </Stack>
+      </PageSection>
 
-      <div className="clients-v7-layout">
-        <ClientsResults
-          canManage={canManage}
-          onCreate={onCreate}
-          onOpen={onOpen}
-          state={state}
-        />
-        <ClientPreviewPanel canManage={canManage} onOpen={onOpen} state={state} />
-      </div>
-    </Stack>
+      <PageSection density="compact">
+        <div className="clients-v7-layout">
+          <ClientsResults
+            canManage={canManage}
+            onCreate={onCreate}
+            onOpen={onOpen}
+            state={state}
+          />
+          <ClientPreviewPanel canManage={canManage} onOpen={onOpen} state={state} />
+        </div>
+      </PageSection>
+    </PageLayout>
   )
 }

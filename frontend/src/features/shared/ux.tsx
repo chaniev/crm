@@ -6,6 +6,7 @@ import {
   Paper,
   Skeleton as MantineSkeleton,
   Stack,
+  Tabs,
   Text,
   ThemeIcon,
   Title,
@@ -125,7 +126,7 @@ export function MetricCard({
   value,
 }: MetricCardProps) {
   return (
-    <Paper className="surface-card metric-card" radius="28px" withBorder>
+    <Paper className="surface-card metric-card" radius="var(--page-card-radius)" withBorder>
       <Stack gap={6}>
         <Text c="dimmed" fw={600} size="sm">
           {label}
@@ -139,37 +140,96 @@ export function MetricCard({
   )
 }
 
-type PageCardProps = PaperProps & {
+type PageLayoutProps = ComponentPropsWithoutRef<'div'> & {
   children: ReactNode
   className?: string
+  description?: string
+  actions?: ReactNode
+  eyebrow?: ReactNode
+  title: string
+}
+
+export function PageLayout({
+  children,
+  className,
+  description,
+  actions,
+  eyebrow,
+  title,
+  ...props
+}: PageLayoutProps) {
+  return (
+    <Stack
+      className={['page-layout', className].filter(Boolean).join(' ')}
+      gap="var(--page-section-gap)"
+      {...props}
+    >
+      <PageHeader
+        actions={actions}
+        className="page-layout__header"
+        description={description}
+        eyebrow={eyebrow}
+        title={title}
+        titleOrder={1}
+      />
+      {children}
+    </Stack>
+  )
+}
+
+type PageSectionProps = PaperProps & {
+  children: ReactNode
+  className?: string
+  density?: 'default' | 'compact'
+  variant?: 'card' | 'plain'
+}
+
+export function PageSection({
+  children,
+  className,
+  density = 'default',
+  radius = 'var(--page-card-radius)',
+  variant = 'card',
+  ...props
+}: PageSectionProps) {
+  const classes = [
+    'page-section',
+    `page-section--${variant}`,
+    `page-section--density-${density}`,
+    variant === 'card' ? 'surface-card' : null,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  if (variant === 'plain') {
+    return (
+      <div className={classes} {...(props as ComponentPropsWithoutRef<'div'>)}>
+        {children}
+      </div>
+    )
+  }
+
+  return (
+    <Paper className={classes} radius={radius} withBorder {...props}>
+      {children}
+    </Paper>
+  )
+}
+
+type PageCardProps = Omit<PageSectionProps, 'variant'> & {
   width?: 'default' | 'wide' | 'full'
 }
 
 export function PageCard({
   children,
   className,
-  radius = 'var(--radius-card)',
-  width = 'default',
+  width: _deprecatedWidth = 'default',
   ...props
 }: PageCardProps) {
-  return (
-    <Paper
-      className={[
-        'surface-card',
-        'surface-card--wide',
-        'page-card',
-        `page-card--${width}`,
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      radius={radius}
-      withBorder
-      {...props}
-    >
-      {children}
-    </Paper>
-  )
+  void _deprecatedWidth
+
+  return <PageSection className={['page-card', className].filter(Boolean).join(' ')} {...props}>{children}</PageSection>
 }
 
 type FilterToolbarProps = ComponentPropsWithoutRef<'div'> & {
@@ -240,6 +300,50 @@ export function PageHeader({
 
       {actions ? <Group className="page-header__actions">{actions}</Group> : null}
     </Group>
+  )
+}
+
+type SectionHeaderProps = PageHeaderProps
+
+export function SectionHeader({
+  className,
+  titleOrder = 2,
+  ...props
+}: SectionHeaderProps) {
+  return (
+    <PageHeader
+      className={['section-header', className].filter(Boolean).join(' ')}
+      titleOrder={titleOrder}
+      {...props}
+    />
+  )
+}
+
+type PageTabsPanelProps = ComponentPropsWithoutRef<typeof Tabs.Panel> & {
+  children: ReactNode
+  className?: string
+  contentClassName?: string
+}
+
+export function PageTabsPanel({
+  children,
+  className,
+  contentClassName,
+  ...props
+}: PageTabsPanelProps) {
+  return (
+    <Tabs.Panel
+      className={['page-tabs-panel', className].filter(Boolean).join(' ')}
+      {...props}
+    >
+      <div
+        className={['page-tabs-panel__content', contentClassName]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        {children}
+      </div>
+    </Tabs.Panel>
   )
 }
 

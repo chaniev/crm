@@ -49,10 +49,11 @@ import {
   ErrorState,
   LoadingState,
   MetricCard,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 
@@ -390,35 +391,33 @@ export function BranchSettingsScreen({
     }
   }
 
-  return (
-    <Stack
-      className={embedded ? undefined : 'dashboard-stack'}
-      data-testid={embedded ? undefined : 'settings-screen'}
-      gap="xl"
-      mt={embedded ? 'xl' : undefined}
-    >
-      <PageCard>
-        <PageHeader
-          actions={(
-            <ResponsiveButtonGroup>
-              <Button
-                color="accent.5"
-                leftSection={<IconPlus size={18} />}
-                onClick={openCreateBranch}
-              >
-                Добавить филиал
-              </Button>
-              <RefreshButton
-                disabled={loading}
-                label="Обновить"
-                onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-              />
-            </ResponsiveButtonGroup>
-          )}
-          title="Филиалы и залы"
-          titleOrder={embedded ? 2 : 1}
-        />
-      </PageCard>
+  const headerActions = (
+    <ResponsiveButtonGroup>
+      <Button
+        color="accent.5"
+        leftSection={<IconPlus size={18} />}
+        onClick={openCreateBranch}
+      >
+        Добавить филиал
+      </Button>
+      <RefreshButton
+        disabled={loading}
+        label="Обновить"
+        onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+      />
+    </ResponsiveButtonGroup>
+  )
+
+  const content = (
+    <>
+      {embedded ? (
+        <PageSection>
+          <SectionHeader
+            actions={headerActions}
+            title="Филиалы и залы"
+          />
+        </PageSection>
+      ) : null}
 
       <SimpleGrid cols={{ base: 1, md: 3 }}>
         <MetricCard
@@ -438,7 +437,7 @@ export function BranchSettingsScreen({
         />
       </SimpleGrid>
 
-      <PageCard>
+      <PageSection>
         <Stack gap="lg">
           {actionError ? (
             <Alert
@@ -546,7 +545,7 @@ export function BranchSettingsScreen({
             </div>
           ) : null}
         </Stack>
-      </PageCard>
+      </PageSection>
 
       <BranchFormModal
         form={branchForm}
@@ -583,8 +582,22 @@ export function BranchSettingsScreen({
         pending={hallPendingId === hallToDelete?.id}
         title="Удалить зал?"
       />
-    </Stack>
+    </>
   )
+
+  if (!embedded) {
+    return (
+      <PageLayout
+        actions={headerActions}
+        data-testid="settings-screen"
+        title="Филиалы и залы"
+      >
+        {content}
+      </PageLayout>
+    )
+  }
+
+  return <Stack gap="xl">{content}</Stack>
 }
 
 type BranchDetailsPanelProps = {

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  Group,
   Paper,
   Stack,
   Text,
@@ -21,9 +20,10 @@ import {
   Button,
   ErrorState,
   LoadingState,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 import {
   UserEditCredentialsFields,
@@ -151,35 +151,29 @@ export function UserEditScreen({
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <PageHeader
-        actions={
-          <Button
-            leftSection={<IconArrowLeft size={18} />}
-            onClick={onBack}
-            variant="default"
-          >
-            {resources.users.edit.backAction}
-          </Button>
-        }
-        className="page-title-row"
-        title={user?.fullName ?? resources.users.edit.fallbackTitle}
-        titleOrder={1}
-      />
-
-      <PageCard>
+    <PageLayout
+      actions={
+        <Button
+          leftSection={<IconArrowLeft size={18} />}
+          onClick={onBack}
+          variant="default"
+        >
+          {resources.users.edit.backAction}
+        </Button>
+      }
+      title={user?.fullName ?? resources.users.edit.fallbackTitle}
+    >
+      <PageSection>
         <Stack gap="lg">
-          <Group gap="xs">
-            <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-              <IconUserCog size={18} />
-            </ThemeIcon>
-            <div>
-              <Text fw={700}>{resources.users.edit.sectionTitle}</Text>
-              <Text c="dimmed" size="sm">
-                {resources.users.edit.sectionDescription}
-              </Text>
-            </div>
-          </Group>
+          <SectionHeader
+            description={resources.users.edit.sectionDescription}
+            eyebrow={
+              <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+                <IconUserCog size={18} />
+              </ThemeIcon>
+            }
+            title={resources.users.edit.sectionTitle}
+          />
 
           {loading ? (
             <LoadingState label="Загружаем карточку тренера..." />
@@ -241,7 +235,7 @@ export function UserEditScreen({
             </>
           ) : null}
         </Stack>
-      </PageCard>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }

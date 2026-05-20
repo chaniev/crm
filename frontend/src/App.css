@@ -4,8 +4,16 @@
   --color-surface: #ffffff;
   --color-surface-subtle: #f6faf7;
   --color-border: #dce7e1;
-  --content-width: 65rem;
-  --content-width-wide: 92rem;
+  --page-max-width: 65rem;
+  --content-width: var(--page-max-width);
+  --page-section-gap: 1.5rem;
+  --page-padding-block-start: 1rem;
+  --page-padding-block-end: 2rem;
+  --page-card-padding: 1.5rem;
+  --page-card-padding-compact: 1rem;
+  --page-card-radius: 24px;
+  --dense-surface-radius: 8px;
+  --dense-surface-padding: 0.9rem 1rem;
   --radius-card: 24px;
   --radius-inner: 20px;
   --radius-pill: 999px;
@@ -383,47 +391,51 @@
   text-transform: none;
 }
 
-.dashboard-stack {
-  width: 100%;
-  min-width: 0;
-  padding: 1rem 0 2rem;
-}
-
-.dashboard-stack > .mantine-SimpleGrid-root {
-  width: min(100%, var(--content-width));
-  margin-inline: auto;
-}
-
 .surface-card {
-  padding: 1.4rem;
+  padding: var(--page-card-padding);
   background: var(--color-surface);
   border-color: var(--color-border);
 }
 
-.surface-card--wide {
-  padding: 1.5rem;
-}
-
-.page-card {
-  width: min(100%, var(--content-width));
+.page-layout {
+  width: min(100%, var(--page-max-width));
+  min-width: 0;
   margin-inline: auto;
-  box-shadow: var(--shadow-card);
+  padding-block: var(--page-padding-block-start) var(--page-padding-block-end);
 }
 
-.page-card--wide {
-  width: min(100%, var(--content-width-wide));
+.page-layout > * {
+  min-width: 0;
 }
 
-.page-card--full {
+.page-layout__header {
   width: 100%;
 }
 
-.page-title-row {
-  width: min(100%, var(--content-width));
-  margin-inline: auto;
+.page-section {
+  width: 100%;
+  min-width: 0;
 }
 
-.page-header {
+.page-section--card {
+  padding: var(--page-card-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.page-section--density-compact {
+  padding: var(--page-card-padding-compact);
+}
+
+.page-section--plain {
+  box-shadow: none;
+}
+
+.page-card {
+  width: 100%;
+}
+
+.page-header,
+.section-header {
   gap: 1rem;
   align-items: flex-start;
 }
@@ -447,6 +459,14 @@
 .page-header__actions {
   flex: 0 0 auto;
   justify-content: flex-end;
+}
+
+.page-tabs-panel__content {
+  padding-top: var(--page-section-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-section-gap);
+  min-width: 0;
 }
 
 .refresh-button {
@@ -653,7 +673,7 @@
 }
 
 .schedule-filters-card {
-  width: min(100%, 92rem);
+  width: 100%;
 }
 
 .schedule-refresh-panel {
@@ -675,14 +695,18 @@
 }
 
 .schedule-board {
-  width: min(100%, 92rem);
-  margin-inline: auto;
   overflow: hidden;
-  box-shadow: var(--shadow-card);
+}
+
+.schedule-board__viewport {
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 0.1rem;
 }
 
 .schedule-weekly-grid {
-  min-width: 0;
+  min-width: 58rem;
 }
 
 .schedule-weekly-grid__header,
@@ -986,6 +1010,12 @@
 }
 
 @media (max-width: 48em) {
+  .app-shell {
+    --page-section-gap: 1rem;
+    --page-card-padding: 1rem;
+    --page-card-padding-compact: 0.875rem;
+  }
+
   .filter-toolbar {
     padding: 0.85rem;
   }
@@ -1023,10 +1053,6 @@
 
   .compact-summary-card:first-child {
     grid-column: auto;
-  }
-
-  .schedule-board {
-    width: min(100%, 42rem);
   }
 
   .schedule-mobile-list {

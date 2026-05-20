@@ -45,10 +45,12 @@ import {
   ErrorState,
   LoadingState,
   MetricCard,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
+  PageTabsPanel,
   RefreshButton,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import {
@@ -76,9 +78,9 @@ export function SettingsScreen() {
   const isMobile = useMediaQuery('(max-width: 48em)')
 
   return (
-    <Stack className="dashboard-stack" data-testid="settings-screen" gap="xl">
+    <PageLayout data-testid="settings-screen" title="Настройки">
       <Tabs defaultValue="group-types" keepMounted={false}>
-        <PageCard>
+        <PageSection>
           <Tabs.List grow={isMobile}>
             <Tabs.Tab
               leftSection={<IconTags size={18} />}
@@ -99,21 +101,21 @@ export function SettingsScreen() {
               Администраторы
             </Tabs.Tab>
           </Tabs.List>
-        </PageCard>
+        </PageSection>
 
-        <Tabs.Panel value={'group-types' satisfies SettingsTab}>
+        <PageTabsPanel value={'group-types' satisfies SettingsTab}>
           <GroupTypesSettingsPanel />
-        </Tabs.Panel>
+        </PageTabsPanel>
 
-        <Tabs.Panel value={'branches' satisfies SettingsTab}>
+        <PageTabsPanel value={'branches' satisfies SettingsTab}>
           <BranchSettingsScreen embedded />
-        </Tabs.Panel>
+        </PageTabsPanel>
 
-        <Tabs.Panel value={'administrators' satisfies SettingsTab}>
+        <PageTabsPanel value={'administrators' satisfies SettingsTab}>
           <AdministratorsSettingsPanel />
-        </Tabs.Panel>
+        </PageTabsPanel>
       </Tabs>
-    </Stack>
+    </PageLayout>
   )
 }
 
@@ -285,10 +287,10 @@ function GroupTypesSettingsPanel() {
   }
 
   return (
-    <Stack gap="xl" mt="xl">
-      <PageCard>
+    <Stack gap="xl">
+      <PageSection>
         <Stack gap="lg">
-          <PageHeader
+          <SectionHeader
             actions={(
               <ResponsiveButtonGroup>
                 <Button
@@ -371,7 +373,7 @@ function GroupTypesSettingsPanel() {
             </Stack>
           ) : null}
         </Stack>
-      </PageCard>
+      </PageSection>
 
       <Modal
         centered
@@ -636,7 +638,7 @@ function AdministratorsSettingsPanel() {
   ).length
 
   return (
-    <Stack gap="xl" mt="xl">
+    <Stack gap="xl">
       <SimpleGrid cols={{ base: 1, md: 3 }}>
         <MetricCard
           description="Пользователи с ролью администратора"
@@ -655,9 +657,9 @@ function AdministratorsSettingsPanel() {
         />
       </SimpleGrid>
 
-      <PageCard>
+      <PageSection>
         <Stack gap="lg">
-          <PageHeader
+          <SectionHeader
             actions={(
               <ResponsiveButtonGroup>
                 <Button
@@ -742,7 +744,7 @@ function AdministratorsSettingsPanel() {
             </Stack>
           ) : null}
         </Stack>
-      </PageCard>
+      </PageSection>
 
       <Modal
         centered
