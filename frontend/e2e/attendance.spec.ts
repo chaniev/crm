@@ -129,25 +129,30 @@ test.describe('Мобильный сценарий посещений трене
     await expect(page).toHaveURL(/\/attendance$/)
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
 
-    const mobileNavigation = page.locator(
-      'nav.app-shell__mobile-nav[aria-label="Основная навигация"]',
-    )
-    const desktopNavigation = page.locator(
+    const sideNavigation = page.locator(
       'nav.app-shell__side-nav[aria-label="Основная навигация"]',
     )
+    const drawerNavigation = page.locator(
+      'nav.app-shell__drawer-nav[aria-label="Основная навигация"]',
+    )
+    const menuButton = page.getByRole('button', { name: 'Открыть основное меню' })
 
-    await expect(mobileNavigation).toBeVisible()
-    expect(await desktopNavigation.isVisible()).toBe(false)
-    await expect(mobileNavigation.getByRole('button')).toHaveCount(3)
+    await expect(sideNavigation).toBeHidden()
+    await expect(menuButton).toBeVisible()
+    await menuButton.click()
+    await expect(drawerNavigation).toBeVisible()
+    await expect(drawerNavigation).toHaveAttribute('data-orientation', 'vertical')
+    await expect(drawerNavigation.getByRole('button')).toHaveCount(3)
     await expect(
-      mobileNavigation.getByRole('button', { name: 'Расписание' }),
+      drawerNavigation.getByRole('button', { name: 'Расписание' }),
     ).toBeVisible()
     await expect(
-      mobileNavigation.getByRole('button', { name: 'Посещения' }),
+      drawerNavigation.getByRole('button', { name: 'Посещения' }),
     ).toHaveAttribute('aria-current', 'page')
     await expect(
-      mobileNavigation.getByRole('button', { name: 'Клиенты' }),
+      drawerNavigation.getByRole('button', { name: 'Клиенты' }),
     ).toBeVisible()
+    await page.keyboard.press('Escape')
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByText(`Клиенты группы ${assignedGroup.name}`)).toBeVisible()

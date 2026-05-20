@@ -176,6 +176,11 @@
   flex: 1 1 auto;
 }
 
+.app-shell__mobile-menu-trigger {
+  flex: 0 0 auto;
+  color: var(--mantine-color-brand-7);
+}
+
 .app-shell__burger {
   flex-shrink: 0;
 }
@@ -202,10 +207,13 @@
 .app-shell__navbar-inner {
   min-height: 0;
   height: 100%;
-  display: none;
+  display: flex;
   flex-direction: column;
   padding: 1rem 0.85rem;
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
 }
 
 .app-shell__navigation {
@@ -226,11 +234,8 @@
 
 .app-shell__navigation--vertical {
   flex-direction: column;
+  align-items: stretch;
   overflow-x: hidden;
-}
-
-.app-shell__mobile-nav {
-  display: flex;
 }
 
 .app-shell__profile-trigger {
@@ -285,8 +290,8 @@
   text-transform: none;
   font-weight: 700;
   color: var(--mantine-color-brand-8);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #dce7e1);
   box-shadow: 0 4px 12px rgba(23, 49, 45, 0.05);
 }
 
@@ -301,15 +306,30 @@
   outline-offset: 2px;
 }
 
-.app-shell__nav-button[aria-current='page'] {
-  color: white;
-  background: var(--nav-active);
-  border-color: transparent;
+.app-shell__navigation .app-shell__nav-button[aria-current='page'] {
+  --button-bg: var(
+    --nav-active,
+    linear-gradient(135deg, #2f8f6b 0%, #207b61 100%)
+  );
+  --button-bd: 1px solid transparent;
+  --button-color: white;
+  --button-hover: var(
+    --nav-active,
+    linear-gradient(135deg, #2f8f6b 0%, #207b61 100%)
+  );
+
+  color: white !important;
+  background: var(
+    --nav-active,
+    linear-gradient(135deg, #2f8f6b 0%, #207b61 100%)
+  ) !important;
+  border-color: transparent !important;
   box-shadow: 0 8px 20px rgba(32, 123, 97, 0.22);
 }
 
-.app-shell__nav-button[aria-current='page'] .mantine-Button-section {
-  color: white;
+.app-shell__navigation .app-shell__nav-button[aria-current='page'] .mantine-Button-label,
+.app-shell__navigation .app-shell__nav-button[aria-current='page'] .mantine-Button-section {
+  color: white !important;
 }
 
 .app-shell__navigation--vertical .app-shell__nav-button {
@@ -328,6 +348,29 @@
 .app-shell__navigation--vertical .app-shell__nav-button .mantine-Button-label {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.app-shell__mobile-menu-content {
+  --color-border: #dce7e1;
+  --color-surface: #ffffff;
+  --nav-active: linear-gradient(135deg, #2f8f6b 0%, #207b61 100%);
+
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(246, 250, 247, 0.99));
+}
+
+.app-shell__mobile-menu-body {
+  padding: 0.85rem;
+}
+
+.app-shell__drawer-nav {
+  gap: 0.55rem;
+}
+
+@media (max-width: 47.99em) {
+  .app-shell__navbar {
+    display: none;
+  }
 }
 
 .app-shell__main {
@@ -947,6 +990,17 @@
     padding: 0.85rem;
   }
 
+  .page-header__actions {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .page-header__actions > * {
+    max-width: 100%;
+  }
+
   .filter-toolbar__actions,
   .filter-toolbar__actions .mantine-Group-root,
   .filter-toolbar__actions .mantine-Button-root {
@@ -956,6 +1010,11 @@
   .status-pill {
     width: 100%;
     border-radius: 0.75rem;
+  }
+
+  .schedule-refresh-panel {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .compact-summary-strip {
@@ -1654,12 +1713,8 @@
   }
 }
 
-@media (min-width: 75em) {
-  .app-shell__navbar-inner {
-    display: flex;
-  }
-
-  .app-shell__mobile-nav {
+@media (min-width: 48em) {
+  .app-shell__mobile-menu-trigger {
     display: none;
   }
 

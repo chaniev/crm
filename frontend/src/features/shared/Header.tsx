@@ -14,6 +14,7 @@ type HeaderProps = {
   brandMetaCompact?: ReactNode
   brandTitle?: string
   containerSize?: ContainerProps['size']
+  leadingControl?: ReactNode
   navigation?: ReactNode
   profileControl?: ReactNode
 }
@@ -24,6 +25,7 @@ export function Header({
   brandMetaCompact,
   brandTitle = 'Gym CRM',
   containerSize = 'xl',
+  leadingControl,
   navigation,
   profileControl,
 }: HeaderProps) {
@@ -33,6 +35,8 @@ export function Header({
   return (
     <Container className="app-shell__header-inner" size={containerSize}>
       <div className="app-shell__header-top">
+        {leadingControl}
+
         <Group className="app-shell__brand" gap="sm" wrap="nowrap">
           {brandIcon ?? (
             <ThemeIcon color="brand.7" radius="xl" size={36} variant="filled">

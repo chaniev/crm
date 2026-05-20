@@ -302,11 +302,11 @@ const SCREEN_CHECKS = [
   },
 ]
 
-const DESKTOP_NAVIGATION_BREAKPOINT = 1200
-const DESKTOP_NAVIGATION_SELECTOR =
+const SIDE_NAVIGATION_SELECTOR =
   'nav.app-shell__side-nav[aria-label="Основная навигация"]'
-const MOBILE_NAVIGATION_SELECTOR =
-  'nav.app-shell__mobile-nav[aria-label="Основная навигация"]'
+const DRAWER_NAVIGATION_SELECTOR =
+  'nav.app-shell__drawer-nav[aria-label="Основная навигация"]'
+const MOBILE_MENU_BREAKPOINT = 768
 
 test.describe('Основные e2e сценарии', () => {
   test('Создание клиента: отправляет корректный payload и открывает карточку клиента', async ({
@@ -1877,21 +1877,44 @@ test.describe('Основные e2e сценарии', () => {
 })
 
 async function expectActiveMainNavigation(page: Page, width: number, path: string) {
-  const isDesktopLayout = width >= DESKTOP_NAVIGATION_BREAKPOINT
-  const desktopNavigation = page.locator(DESKTOP_NAVIGATION_SELECTOR)
-  const mobileNavigation = page.locator(MOBILE_NAVIGATION_SELECTOR)
+  const sideNavigation = page.locator(SIDE_NAVIGATION_SELECTOR)
+  const navLabel = getNavLabelByPath(path)
 
-  if (isDesktopLayout) {
-    await expect(desktopNavigation).toBeVisible()
-  } else {
-    await expect(mobileNavigation).toBeVisible()
+  if (width < MOBILE_MENU_BREAKPOINT) {
+    await expect(sideNavigation).toBeHidden()
+    await page.getByRole('button', { name: 'Открыть основное меню' }).click()
+
+    const drawerNavigation = page.locator(DRAWER_NAVIGATION_SELECTOR)
+
+    await expect(drawerNavigation).toBeVisible()
+    await expect(drawerNavigation).toHaveAttribute('data-orientation', 'vertical')
+    await expect(
+      drawerNavigation.getByRole('button', { name: navLabel }),
+    ).toHaveAttribute('aria-current', 'page')
+
+    await page.keyboard.press('Escape')
+    await expect(drawerNavigation).toBeHidden()
+    return
   }
 
-  const activeNavigation = isDesktopLayout ? desktopNavigation : mobileNavigation
+  await expect(sideNavigation).toBeVisible()
+  await expect(sideNavigation).toHaveAttribute('data-orientation', 'vertical')
+  await expect(
+    page.getByRole('button', { name: 'Открыть основное меню' }),
+  ).toBeHidden()
 
   await expect(
-    activeNavigation.getByRole('button', { name: getNavLabelByPath(path) }),
+    sideNavigation.getByRole('button', { name: navLabel }),
   ).toHaveAttribute('aria-current', 'page')
+
+  const navbarBox = await page.locator('.app-shell__navbar').boundingBox()
+  expect(navbarBox?.x).toBeLessThanOrEqual(1)
+
+  if (width < 1200) {
+    expect(navbarBox?.width).toBeLessThanOrEqual(230)
+  } else {
+    expect(navbarBox?.width).toBeGreaterThanOrEqual(220)
+  }
 }
 
 function getNavLabelByPath(path: string) {

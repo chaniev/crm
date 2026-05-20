@@ -19,8 +19,11 @@ type AppLayoutProps = {
 }
 
 const defaultNavbarConfiguration: AppShellProps['navbar'] = {
-  width: 232,
-  breakpoint: 'lg',
+  width: {
+    base: 216,
+    lg: 232,
+  },
+  breakpoint: '48em',
   collapsed: { mobile: true },
 }
 
@@ -29,7 +32,7 @@ export function AppLayout({
   className,
   containerSize = 'xl',
   header,
-  headerHeight = { height: { base: 106, lg: 76 } },
+  headerHeight = { height: { base: 72, '48em': 76 } },
   mainClassName,
   navbar,
   navbarConfiguration = defaultNavbarConfiguration,

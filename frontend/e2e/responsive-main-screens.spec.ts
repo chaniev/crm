@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 const MANAGEMENT_SESSION = {
   isAuthenticated: true,
@@ -375,11 +375,11 @@ const COACH_ROUTES = [
   },
 ] as const
 
-const DESKTOP_NAVIGATION_BREAKPOINT = 1200
-const DESKTOP_NAVIGATION_SELECTOR =
+const SIDE_NAVIGATION_SELECTOR =
   'nav.app-shell__side-nav[aria-label="Основная навигация"]'
-const MOBILE_NAVIGATION_SELECTOR =
-  'nav.app-shell__mobile-nav[aria-label="Основная навигация"]'
+const DRAWER_NAVIGATION_SELECTOR =
+  'nav.app-shell__drawer-nav[aria-label="Основная навигация"]'
+const MOBILE_MENU_BREAKPOINT = 768
 
 const VIEWPORTS = [
   { width: 390, height: 844 },
@@ -428,22 +428,65 @@ for (const viewport of VIEWPORTS) {
 }
 
 async function expectActiveNavigation(page: Page, width: number, navLabel: string) {
-  const isDesktopLayout = width >= DESKTOP_NAVIGATION_BREAKPOINT
-  const desktopNavigation = page.locator(DESKTOP_NAVIGATION_SELECTOR)
-  const mobileNavigation = page.locator(MOBILE_NAVIGATION_SELECTOR)
+  const sideNavigation = page.locator(SIDE_NAVIGATION_SELECTOR)
 
-  if (isDesktopLayout) {
-    await expect(desktopNavigation).toBeVisible()
-  } else {
-    await expect(mobileNavigation).toBeVisible()
+  if (width < MOBILE_MENU_BREAKPOINT) {
+    await expect(sideNavigation).toBeHidden()
+    await page.getByRole('button', { name: 'Открыть основное меню' }).click()
+
+    const drawerNavigation = page.locator(DRAWER_NAVIGATION_SELECTOR)
+
+    await expect(drawerNavigation).toBeVisible()
+    await expect(page.getByText('Меню', { exact: true })).toHaveCount(0)
+    await expect(drawerNavigation).toHaveAttribute('data-orientation', 'vertical')
+
+    const activeButton = drawerNavigation.getByRole('button', { name: navLabel })
+
+    await expect(activeButton).toHaveAttribute('aria-current', 'page')
+    await expectActiveMenuItemContrast(activeButton)
+
+    await page.keyboard.press('Escape')
+    await expect(drawerNavigation).toBeHidden()
+    return
   }
 
-  const activeNavigation = isDesktopLayout ? desktopNavigation : mobileNavigation
+  await expect(sideNavigation).toBeVisible()
+  await expect(sideNavigation).toHaveAttribute('data-orientation', 'vertical')
+  await expect(
+    page.getByRole('button', { name: 'Открыть основное меню' }),
+  ).toBeHidden()
 
-  await expect(activeNavigation.getByRole('button', { name: navLabel })).toHaveAttribute(
+  await expect(sideNavigation.getByRole('button', { name: navLabel })).toHaveAttribute(
     'aria-current',
     'page',
   )
+
+  const navbarBox = await page.locator('.app-shell__navbar').boundingBox()
+  expect(navbarBox?.x).toBeLessThanOrEqual(1)
+
+  if (width < 1200) {
+    expect(navbarBox?.width).toBeLessThanOrEqual(230)
+  } else {
+    expect(navbarBox?.width).toBeGreaterThanOrEqual(220)
+  }
+}
+
+async function expectActiveMenuItemContrast(activeButton: Locator) {
+  const activeStyle = await activeButton.evaluate((element) => {
+    const style = window.getComputedStyle(element)
+
+    return {
+      backgroundImage: style.backgroundImage,
+      color: style.color,
+    }
+  })
+  const labelColor = await activeButton.locator('.mantine-Button-label').evaluate(
+    (element) => window.getComputedStyle(element).color,
+  )
+
+  expect(activeStyle.backgroundImage).toContain('linear-gradient')
+  expect(activeStyle.color).toBe('rgb(255, 255, 255)')
+  expect(labelColor).toBe('rgb(255, 255, 255)')
 }
 
 async function expectNoServiceIntro(page: Page) {

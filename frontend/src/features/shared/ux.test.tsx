@@ -78,19 +78,12 @@ describe('shared UX components', () => {
     expect(onNavigate).toHaveBeenCalledWith('Users')
   })
 
-  test('AppLayout and Header render brand, profile slot and navigation', () => {
+  test('AppLayout and Header render brand and profile without embedded navigation', () => {
     renderWithProviders(
       <AppLayout
         header={(
           <Header
             brandMeta="Главный тренер"
-            navigation={(
-              <NavigationTabs
-                currentSection="Clients"
-                onNavigate={() => undefined}
-                sections={sections}
-              />
-            )}
             profileControl={<button type="button">Профиль</button>}
           />
         )}
@@ -103,14 +96,11 @@ describe('shared UX components', () => {
     expect(screen.getByText('Gym CRM')).toBeVisible()
     expect(screen.getAllByText('Главный тренер')).toHaveLength(2)
     expect(screen.getByRole('button', { name: 'Профиль' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Клиенты' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    )
+    expect(screen.queryByRole('navigation', { name: 'Основная навигация' })).not.toBeInTheDocument()
     expect(screen.getByText('Рабочая область')).toBeVisible()
   })
 
-  test('AppLayout can render desktop navigation in navbar slot', () => {
+  test('AppLayout can render vertical navigation in navbar slot', () => {
     renderWithProviders(
       <AppLayout
         header={<Header brandMeta="Главный тренер" />}
@@ -130,6 +120,7 @@ describe('shared UX components', () => {
     const desktopNavigation = screen.getByRole('navigation', { name: 'Основная навигация' })
 
     expect(desktopNavigation).toBeVisible()
+    expect(desktopNavigation).toHaveAttribute('data-orientation', 'vertical')
     expect(within(desktopNavigation).getByRole('button', { name: 'Главная' })).toHaveAttribute(
       'aria-current',
       'page',
