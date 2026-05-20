@@ -1,8 +1,10 @@
 import { startTransition, useEffect, useState, type ReactNode } from 'react'
 import {
   Alert,
+  Burger,
   Button,
   Container,
+  Drawer,
   Group,
   Loader,
   Menu,
@@ -815,11 +817,13 @@ function AuthenticatedShell({
   onLogout,
   children,
 }: AuthenticatedShellProps) {
+  const [mobileMenuOpened, setMobileMenuOpened] = useState(false)
   const presentation = rolePresentationMap[user.role]
   const landingLabel = APP_SECTION_LABELS[user.landingScreen]
   const navigationSections = getAccessibleNavigationSections(user)
 
   function handleSectionNavigation(section: AppSection) {
+    setMobileMenuOpened(false)
     onNavigateSection(section)
   }
 
@@ -865,16 +869,7 @@ function AuthenticatedShell({
     </Menu>
   )
 
-  const mobileNavigation = (
-    <NavigationTabs
-      className="app-shell__mobile-nav"
-      currentSection={currentSection}
-      onNavigate={handleSectionNavigation}
-      sections={navigationSections}
-    />
-  )
-
-  const desktopNavigation = (
+  const shellNavigation = (
     <div className="app-shell__navbar-inner">
       <NavigationTabs
         className="app-shell__side-nav"
@@ -886,25 +881,62 @@ function AuthenticatedShell({
     </div>
   )
 
-  return (
-    <AppLayout
-      header={(
-        <Header
-          brandMeta={`${presentation.roleLabel} • стартовый раздел: ${landingLabel}`}
-          brandMetaCompact={presentation.roleLabel}
-          navigation={mobileNavigation}
-          profileControl={profileControl}
-        />
-      )}
-      navbar={desktopNavigation}
-      navbarConfiguration={{
-        width: 232,
-        breakpoint: 'lg',
-        collapsed: { mobile: true },
+  const mobileMenuControl = (
+    <Burger
+      aria-label={
+        mobileMenuOpened ? 'Закрыть основное меню' : 'Открыть основное меню'
+      }
+      className="app-shell__mobile-menu-trigger"
+      color="var(--mantine-color-brand-7)"
+      onClick={() => setMobileMenuOpened((opened) => !opened)}
+      opened={mobileMenuOpened}
+      size="sm"
+      type="button"
+    />
+  )
+
+  const mobileMenu = (
+    <Drawer
+      aria-label="Основная навигация"
+      classNames={{
+        body: 'app-shell__mobile-menu-body',
+        content: 'app-shell__mobile-menu-content',
       }}
+      onClose={() => setMobileMenuOpened(false)}
+      opened={mobileMenuOpened}
+      overlayProps={{ backgroundOpacity: 0.18, blur: 2 }}
+      position="left"
+      size="17rem"
+      withCloseButton
     >
-      {children}
-    </AppLayout>
+      <NavigationTabs
+        className="app-shell__drawer-nav"
+        currentSection={currentSection}
+        onNavigate={handleSectionNavigation}
+        orientation="vertical"
+        sections={navigationSections}
+      />
+    </Drawer>
+  )
+
+  return (
+    <>
+      <AppLayout
+        header={(
+          <Header
+            brandMeta={`${presentation.roleLabel} • стартовый раздел: ${landingLabel}`}
+            brandMetaCompact={presentation.roleLabel}
+            leadingControl={mobileMenuControl}
+            profileControl={profileControl}
+          />
+        )}
+        navbar={shellNavigation}
+      >
+        {children}
+      </AppLayout>
+
+      {mobileMenu}
+    </>
   )
 }
 

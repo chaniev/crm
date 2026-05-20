@@ -306,8 +306,15 @@ test.describe('Finance reports', () => {
     await expect(page.getByTestId('finance-screen')).toBeVisible()
     await expect(page.getByText('За выбранный период операций нет.')).toBeVisible()
     await expect(
-      page.locator('nav.app-shell__mobile-nav[aria-label="Основная навигация"]'),
+      page.locator('nav.app-shell__side-nav[aria-label="Основная навигация"]'),
+    ).toBeHidden()
+    await page.getByRole('button', { name: 'Открыть основное меню' }).click()
+    await expect(
+      page.locator('nav.app-shell__drawer-nav[aria-label="Основная навигация"]'),
     ).toBeVisible()
+    await expect(
+      page.locator('nav.app-shell__drawer-nav[aria-label="Основная навигация"]'),
+    ).toHaveAttribute('data-orientation', 'vertical')
     await expectNoHorizontalScroll(page)
   })
 })
