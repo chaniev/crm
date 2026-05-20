@@ -21,7 +21,14 @@ import {
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import { showAppNotification } from '../shared/notifications'
-import { Button, ErrorState, PageCard, PageHeader, ResponsiveButtonGroup } from '../shared/ux'
+import {
+  Button,
+  ErrorState,
+  PageLayout,
+  PageSection,
+  ResponsiveButtonGroup,
+  SectionHeader,
+} from '../shared/ux'
 import { UserFormFields, UserCreateCredentialsFields, type CreateUserFormValues } from './UserFormFields'
 import { userRoleOptions } from './UserManagement.constants'
 import { toCreateUserPayload } from './UserManagement.mappers'
@@ -89,35 +96,29 @@ export function UserCreateScreen({
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <PageHeader
-        actions={
-          <Button
-            leftSection={<IconArrowLeft size={18} />}
-            onClick={onCancel}
-            variant="default"
-          >
-            {resources.users.create.backAction}
-          </Button>
-        }
-        className="page-title-row"
-        title={resources.users.create.title}
-        titleOrder={1}
-      />
-
-      <PageCard>
+    <PageLayout
+      actions={
+        <Button
+          leftSection={<IconArrowLeft size={18} />}
+          onClick={onCancel}
+          variant="default"
+        >
+          {resources.users.create.backAction}
+        </Button>
+      }
+      title={resources.users.create.title}
+    >
+      <PageSection>
         <Stack gap="lg">
-          <Group gap="xs">
-            <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
-              <IconUserPlus size={18} />
-            </ThemeIcon>
-            <div>
-              <Text fw={700}>{resources.users.create.sectionTitle}</Text>
-              <Text c="dimmed" size="sm">
-                {resources.users.create.sectionDescription}
-              </Text>
-            </div>
-          </Group>
+          <SectionHeader
+            description={resources.users.create.sectionDescription}
+            eyebrow={
+              <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+                <IconUserPlus size={18} />
+              </ThemeIcon>
+            }
+            title={resources.users.create.sectionTitle}
+          />
 
           {formError ? (
             <ErrorState
@@ -163,7 +164,7 @@ export function UserCreateScreen({
             </Stack>
           </form>
         </Stack>
-      </PageCard>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }

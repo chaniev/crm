@@ -44,10 +44,11 @@ import {
   ErrorState,
   FilterToolbar,
   LoadingState,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 
 type FinanceReportsScreenProps = {
@@ -301,14 +302,14 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
 
   if (!canViewFinance) {
     return (
-      <Stack className="dashboard-stack" data-testid="finance-screen" gap="xl">
-        <PageCard>
+      <PageLayout data-testid="finance-screen" title="Финансы">
+        <PageSection>
           <ErrorState
             message="Этот экран доступен только пользователям, которым backend выдал доступ к разделу финансов."
             title="Финансовые отчеты недоступны"
           />
-        </PageCard>
-      </Stack>
+        </PageSection>
+      </PageLayout>
     )
   }
 
@@ -317,17 +318,19 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
   const isRefreshingReport = reportLoading && hasReport
 
   return (
-    <Stack className="dashboard-stack" data-testid="finance-screen" gap="xl">
-      <PageCard className="finance-filter-card">
+    <PageLayout
+      actions={
+        <RefreshButton
+          loading={isRefreshingReport}
+          onClick={() => setReloadKey((current) => current + 1)}
+        />
+      }
+      data-testid="finance-screen"
+      title="Финансы"
+    >
+      <PageSection className="finance-filter-card">
         <Stack gap="lg">
-          <PageHeader
-            actions={(
-              <RefreshButton
-                loading={isRefreshingReport}
-                onClick={() => setReloadKey((current) => current + 1)}
-              />
-            )}
-          />
+          <SectionHeader title="Фильтры отчета" />
 
           {optionsError ? (
             <Alert
@@ -457,11 +460,11 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
             </FilterToolbar>
           </form>
         </Stack>
-      </PageCard>
+      </PageSection>
 
-      <PageCard>
+      <PageSection>
         <Stack gap="lg">
-          <PageHeader
+          <SectionHeader
             actions={
               report ? (
                 <Badge color="brand.1" radius="xl" variant="light">
@@ -504,8 +507,8 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
             <FinanceReportResults isMobile={isMobile} report={report} />
           ) : null}
         </Stack>
-      </PageCard>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }
 

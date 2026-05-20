@@ -29,10 +29,11 @@ import {
   ErrorState,
   FilterToolbar,
   LoadingState,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 
 type AuditLogScreenProps = {
@@ -181,14 +182,14 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
   if (!user.permissions.canViewAuditLog) {
     return (
-      <Stack className="dashboard-stack" data-testid="audit-screen" gap="xl">
-        <PageCard>
+      <PageLayout data-testid="audit-screen" title="Журнал">
+        <PageSection>
           <ErrorState
             message="Этот экран доступен главному тренеру и администратору."
             title="Журнал действий недоступен"
           />
-        </PageCard>
-      </Stack>
+        </PageSection>
+      </PageLayout>
     )
   }
 
@@ -218,16 +219,18 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   }))
 
   return (
-    <Stack className="dashboard-stack" data-testid="audit-screen" gap="xl">
-      <PageCard className="audit-filter-card">
+    <PageLayout
+      actions={(
+        <ResponsiveButtonGroup>
+          <RefreshButton onClick={handleRefresh} />
+        </ResponsiveButtonGroup>
+      )}
+      data-testid="audit-screen"
+      title="Журнал"
+    >
+      <PageSection className="audit-filter-card">
         <Stack gap="lg">
-          <PageHeader
-            actions={(
-              <ResponsiveButtonGroup>
-                <RefreshButton onClick={handleRefresh} />
-              </ResponsiveButtonGroup>
-            )}
-          />
+          <SectionHeader title="Фильтры журнала" />
 
           <form data-testid="audit-filter-form" onSubmit={form.onSubmit(handleApplyFilters)}>
             <FilterToolbar
@@ -301,11 +304,11 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             </FilterToolbar>
           </form>
         </Stack>
-      </PageCard>
+      </PageSection>
 
-      <PageCard>
+      <PageSection>
         <Stack gap="lg">
-          <PageHeader title="Записи журнала" />
+          <SectionHeader title="Записи журнала" />
 
           {loading ? (
             <LoadingState label="Загружаем журнал действий..." />
@@ -360,13 +363,13 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             </Group>
           ) : null}
         </Stack>
-      </PageCard>
+      </PageSection>
 
       <AuditDetailsModal
         entry={selectedEntry}
         onClose={() => setSelectedEntry(null)}
       />
-    </Stack>
+    </PageLayout>
   )
 }
 

@@ -76,7 +76,13 @@ import {
 import { AuditLogScreen } from './features/audit/AuditLogScreen'
 import { FinanceReportsScreen } from './features/finance/FinanceReportsScreen'
 import { SettingsScreen } from './features/settings/SettingsScreen'
-import { AppLayout, Header, NavigationTabs } from './features/shared/ux'
+import {
+  AppLayout,
+  Header,
+  NavigationTabs,
+  PageLayout,
+  PageSection,
+} from './features/shared/ux'
 import { showAppNotification } from './features/shared/notifications'
 import './App.css'
 
@@ -1148,8 +1154,8 @@ function RouteViewport({
 
 function ClientsReadOnlyPlaceholder() {
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+    <PageLayout title="Клиенты">
+      <PageSection>
         <Stack gap="md">
           <Alert
             color="blue"
@@ -1160,27 +1166,27 @@ function ClientsReadOnlyPlaceholder() {
             Для тренера здесь появится рабочий список клиентов назначенных групп.
           </Alert>
         </Stack>
-      </Paper>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }
 
 function RouteRedirectPlaceholder() {
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+    <PageLayout title="Переход">
+      <PageSection>
         <Group justify="center" py="xl">
           <Loader color="brand.7" />
         </Group>
-      </Paper>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }
 
 function SectionPlaceholder() {
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+    <PageLayout title="Раздел">
+      <PageSection>
         <Stack gap="md">
           <Alert
             color="blue"
@@ -1191,8 +1197,8 @@ function SectionPlaceholder() {
             Экран будет подключен отдельным обновлением.
           </Alert>
         </Stack>
-      </Paper>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }
 

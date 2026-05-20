@@ -67,10 +67,11 @@ import {
   ErrorState,
   LoadingState,
   MetricCard,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 
@@ -149,8 +150,7 @@ export function GroupsListScreen({
   const staffedGroupsCount = groups.filter((group) => group.trainerCount > 0).length
 
   return (
-    <Stack className="dashboard-stack" data-testid="groups-screen" gap="xl">
-      <PageHeader
+    <PageLayout
         actions={(
           <ResponsiveButtonGroup>
             <Button
@@ -166,8 +166,9 @@ export function GroupsListScreen({
             />
           </ResponsiveButtonGroup>
         )}
-        className="page-title-row"
-      />
+      data-testid="groups-screen"
+      title="Группы"
+    >
 
       <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
         <MetricCard
@@ -187,9 +188,9 @@ export function GroupsListScreen({
         />
       </SimpleGrid>
 
-      <PageCard>
+      <PageSection>
         <Stack gap="lg">
-          <PageHeader title="Список групп" />
+          <SectionHeader title="Список групп" />
 
           {loading ? (
             <LoadingState label="Загружаем список групп..." />
@@ -281,8 +282,8 @@ export function GroupsListScreen({
             </Stack>
           ) : null}
         </Stack>
-      </PageCard>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }
 
@@ -379,8 +380,7 @@ export function GroupCreateScreen({
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <PageHeader
+    <PageLayout
         actions={(
           <Button
             leftSection={<IconArrowLeft size={18} />}
@@ -390,12 +390,10 @@ export function GroupCreateScreen({
             К списку групп
           </Button>
         )}
-        className="page-title-row"
-        title="Новая группа"
-        titleOrder={1}
-      />
+      title="Новая группа"
+    >
 
-      <PageCard>
+      <PageSection>
         <Stack gap="lg">
           {loadingOptions ? (
             <LoadingState label="Подготавливаем форму группы..." />
@@ -423,8 +421,8 @@ export function GroupCreateScreen({
             />
           ) : null}
         </Stack>
-      </PageCard>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }
 
@@ -535,8 +533,7 @@ export function GroupEditScreen({
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <PageHeader
+    <PageLayout
         actions={(
           <Button
             leftSection={<IconArrowLeft size={18} />}
@@ -546,24 +543,22 @@ export function GroupEditScreen({
             К списку групп
           </Button>
         )}
-        className="page-title-row"
-        title={`Настройка группы «${groupName}»`}
-        titleOrder={1}
-      />
+      title={`Настройка группы «${groupName}»`}
+    >
 
       {loading ? (
-        <PageCard>
+        <PageSection>
           <LoadingState label="Загружаем группу..." />
-        </PageCard>
+        </PageSection>
       ) : null}
 
       {!loading && loadError ? (
-        <PageCard>
+        <PageSection>
           <ErrorState
             message={loadError}
             title="Экран редактирования не загрузился"
           />
-        </PageCard>
+        </PageSection>
       ) : null}
 
       {!loading && !loadError ? (
@@ -586,7 +581,7 @@ export function GroupEditScreen({
             />
           </SimpleGrid>
 
-          <PageCard>
+          <PageSection>
             <GroupForm
               form={form}
               formError={formError}
@@ -599,11 +594,11 @@ export function GroupEditScreen({
               submitting={submitting}
               trainerOptions={trainerOptions}
             />
-          </PageCard>
+          </PageSection>
 
-          <PageCard className="group-clients-card">
+          <PageSection className="group-clients-card">
             <Stack gap="lg">
-              <PageHeader
+              <SectionHeader
                 actions={(
                   <Badge color="brand.1" radius="xl" variant="light">
                     Всего: {groupClients.length}
@@ -647,10 +642,10 @@ export function GroupEditScreen({
                 </Stack>
               )}
             </Stack>
-          </PageCard>
+          </PageSection>
         </>
       ) : null}
-    </Stack>
+    </PageLayout>
   )
 }
 

@@ -19,10 +19,11 @@ import {
   ErrorState,
   LoadingState,
   Button,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 
 type HomeDashboardProps = {
@@ -97,28 +98,31 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
 
   if (!canViewExpiringMemberships) {
     return (
-      <Stack className="dashboard-stack" data-testid="home-screen" gap="xl">
-        <PageCard>
+      <PageLayout data-testid="home-screen" title="Главная">
+        <PageSection>
           <ErrorState
             message={resources.home.accessDenied.message}
             title={resources.home.accessDenied.title}
           />
-        </PageCard>
-      </Stack>
+        </PageSection>
+      </PageLayout>
     )
   }
 
   return (
-    <Stack className="dashboard-stack" data-testid="home-screen" gap="xl">
-      <PageCard className="home-screen-card">
+    <PageLayout
+      actions={
+        <RefreshButton
+          loading={loading}
+          onClick={() => setReloadKey((current) => current + 1)}
+        />
+      }
+      data-testid="home-screen"
+      title="Главная"
+    >
+      <PageSection className="home-screen-card">
         <Stack gap="lg">
-          <PageHeader
-            actions={
-              <RefreshButton
-                loading={loading}
-                onClick={() => setReloadKey((current) => current + 1)}
-              />
-            }
+          <SectionHeader
             description={resources.home.expiringMemberships.description}
             title={resources.home.expiringMemberships.title}
           />
@@ -219,8 +223,8 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
             </Stack>
           ) : null}
         </Stack>
-      </PageCard>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }
 

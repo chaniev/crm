@@ -290,61 +290,68 @@ const MANAGEMENT_ROUTES = [
     path: '/',
     screenTestId: 'home-screen',
     navLabel: 'Главная',
+    expectedPageTitle: 'Главная',
     expectedControls: ['Обновить'],
-    forbiddenMainHeadings: ['Главная'],
+    checkSharedEdges: true,
   },
   {
     path: '/schedule',
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
+    expectedPageTitle: 'Расписание',
     expectedControls: ['Обновить'],
-    forbiddenMainHeadings: [],
     expectedFilterToolbars: 1,
+    checkSharedEdges: true,
+    checkScheduleOverflow: true,
   },
   {
     path: '/clients',
     screenTestId: 'clients-screen',
     navLabel: 'Клиенты',
+    expectedPageTitle: 'Клиенты',
     expectedControls: ['Обновить список', 'Новый клиент'],
-    forbiddenMainHeadings: ['Клиенты'],
     expectedFilterToolbars: 1,
+    checkSharedEdges: true,
   },
   {
     path: '/groups',
     screenTestId: 'groups-screen',
     navLabel: 'Группы',
+    expectedPageTitle: 'Группы',
     expectedControls: ['Создать группу', 'Обновить список'],
-    forbiddenMainHeadings: ['Группы'],
+    checkSharedEdges: true,
   },
   {
     path: '/users',
     screenTestId: 'users-screen',
     navLabel: 'Тренеры',
+    expectedPageTitle: 'Тренеры',
     expectedControls: ['Создать тренера', 'Обновить'],
-    forbiddenMainHeadings: ['Тренеры'],
+    checkSharedEdges: true,
   },
   {
     path: '/audit',
     screenTestId: 'audit-screen',
     navLabel: 'Журнал',
+    expectedPageTitle: 'Журнал',
     expectedControls: ['Обновить'],
-    forbiddenMainHeadings: ['Журнал'],
     expectedFilterToolbars: 1,
   },
   {
     path: '/finance',
     screenTestId: 'finance-screen',
     navLabel: 'Финансы',
+    expectedPageTitle: 'Финансы',
     expectedControls: ['Обновить'],
-    forbiddenMainHeadings: ['Финансы', 'Финансовые отчеты'],
     expectedFilterToolbars: 1,
   },
   {
     path: '/settings',
     screenTestId: 'settings-screen',
     navLabel: 'Настройки',
+    expectedPageTitle: 'Настройки',
     expectedControls: ['Добавить тип', 'Обновить'],
-    forbiddenMainHeadings: ['Настройки'],
+    checkSharedEdges: true,
   },
 ] as const
 
@@ -353,24 +360,25 @@ const COACH_ROUTES = [
     path: '/schedule',
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
+    expectedPageTitle: 'Расписание',
     expectedControls: ['Обновить'],
-    forbiddenMainHeadings: [],
     expectedFilterToolbars: 1,
+    checkScheduleOverflow: true,
   },
   {
     path: '/attendance',
     screenTestId: 'attendance-screen',
     navLabel: 'Посещения',
+    expectedPageTitle: 'Посещения',
     expectedControls: ['Обновить'],
-    forbiddenMainHeadings: ['Посещения'],
     expectedFilterToolbars: 1,
   },
   {
     path: '/clients',
     screenTestId: 'clients-screen',
     navLabel: 'Клиенты',
+    expectedPageTitle: 'Клиенты',
     expectedControls: [],
-    forbiddenMainHeadings: ['Клиенты'],
     expectedFilterToolbars: 1,
   },
 ] as const
@@ -383,8 +391,13 @@ const MOBILE_MENU_BREAKPOINT = 768
 
 const VIEWPORTS = [
   { width: 390, height: 844 },
+  { width: 393, height: 852 },
+  { width: 402, height: 874 },
+  { width: 420, height: 912 },
+  { width: 440, height: 956 },
   { width: 768, height: 1024 },
   { width: 1440, height: 1200 },
+  { width: 1920, height: 1080 },
 ] as const
 
 for (const viewport of VIEWPORTS) {
@@ -395,15 +408,22 @@ for (const viewport of VIEWPORTS) {
       page,
     }) => {
       await mockApi(page, MANAGEMENT_SESSION)
+      let baselineEdges: { left: number; right: number } | null = null
 
       for (const route of MANAGEMENT_ROUTES) {
         await page.goto(route.path)
         await expect(page.getByTestId(route.screenTestId)).toBeVisible()
         await expectActiveNavigation(page, viewport.width, route.navLabel)
         await expectNoServiceIntro(page)
-        await expectNoDuplicateTabHeadings(page, route.forbiddenMainHeadings)
+        await expectRoutePageTitle(page, route.expectedPageTitle)
         await expectPrimaryControls(page, route.expectedControls)
         await expectSharedVisualBaseline(page, route.expectedFilterToolbars ?? 0)
+        if ('checkSharedEdges' in route && route.checkSharedEdges) {
+          baselineEdges = await expectSharedContentEdges(page, baselineEdges)
+        }
+        if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
+          await expectScheduleOverflowContract(page)
+        }
         await expectNoHorizontalScroll(page)
       }
     })
@@ -418,9 +438,12 @@ for (const viewport of VIEWPORTS) {
         await expect(page.getByTestId(route.screenTestId)).toBeVisible()
         await expectActiveNavigation(page, viewport.width, route.navLabel)
         await expectNoServiceIntro(page)
-        await expectNoDuplicateTabHeadings(page, route.forbiddenMainHeadings)
+        await expectRoutePageTitle(page, route.expectedPageTitle)
         await expectPrimaryControls(page, route.expectedControls)
         await expectSharedVisualBaseline(page, route.expectedFilterToolbars ?? 0)
+        if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
+          await expectScheduleOverflowContract(page)
+        }
         await expectNoHorizontalScroll(page)
       }
     })
@@ -499,17 +522,19 @@ async function expectNoServiceIntro(page: Page) {
   await expect(page.getByText(/Фильтры:\s+\d+/)).toHaveCount(0)
 }
 
-async function expectNoDuplicateTabHeadings(
-  page: Page,
-  headings: readonly string[],
-) {
+async function expectRoutePageTitle(page: Page, title: string) {
   const main = page.locator('main')
+  const heading = main.getByRole('heading', { level: 1, name: title })
 
-  for (const heading of headings) {
-    await expect(
-      main.getByRole('heading', { exact: true, name: heading }),
-    ).toHaveCount(0)
-  }
+  await expect(heading).toBeVisible()
+  await expect(main.getByRole('heading', { level: 1 })).toHaveCount(1)
+
+  const headingBox = await heading.boundingBox()
+  const firstSectionBox = await main.locator('.page-section').first().boundingBox()
+
+  expect(headingBox).not.toBeNull()
+  expect(firstSectionBox).not.toBeNull()
+  expect(headingBox!.y + headingBox!.height).toBeLessThanOrEqual(firstSectionBox!.y + 1)
 }
 
 async function expectPrimaryControls(
@@ -531,13 +556,62 @@ async function expectSharedVisualBaseline(
 
   await expect(
     main.locator(
-      '.page-card, .filter-toolbar, .list-row-card, .clients-v7-row, .schedule-board',
+      '.page-layout, .page-section, .filter-toolbar, .list-row-card, .clients-v7-row, .schedule-board',
     ).first(),
   ).toBeVisible()
 
   if (expectedFilterToolbars > 0) {
     await expect(main.locator('.filter-toolbar')).toHaveCount(expectedFilterToolbars)
   }
+}
+
+async function expectSharedContentEdges(
+  page: Page,
+  baseline: { left: number; right: number } | null,
+) {
+  const box = await page.locator('main .page-layout').first().boundingBox()
+
+  expect(box).not.toBeNull()
+
+  const edges = {
+    left: Math.round(box!.x),
+    right: Math.round(box!.x + box!.width),
+  }
+
+  if (baseline) {
+    expect(Math.abs(edges.left - baseline.left)).toBeLessThanOrEqual(2)
+    expect(Math.abs(edges.right - baseline.right)).toBeLessThanOrEqual(2)
+  }
+
+  return baseline ?? edges
+}
+
+async function expectScheduleOverflowContract(page: Page) {
+  const filtersBox = await page.getByTestId('schedule-filters').boundingBox()
+  const boardBox = await page.getByTestId('schedule-board').boundingBox()
+
+  expect(filtersBox).not.toBeNull()
+  expect(boardBox).not.toBeNull()
+  expect(Math.abs(filtersBox!.x - boardBox!.x)).toBeLessThanOrEqual(2)
+  expect(
+    Math.abs((filtersBox!.x + filtersBox!.width) - (boardBox!.x + boardBox!.width)),
+  ).toBeLessThanOrEqual(2)
+
+  const viewport = page.locator('.schedule-board__viewport')
+  const viewportCount = await viewport.count()
+
+  if (viewportCount === 0) {
+    return
+  }
+
+  await expect(viewport.first()).toHaveCSS('overflow-x', 'auto')
+
+  const overflow = await viewport.first().evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }))
+
+  expect(overflow.scrollWidth).toBeGreaterThanOrEqual(overflow.clientWidth)
 }
 
 async function expectNoHorizontalScroll(page: Page) {

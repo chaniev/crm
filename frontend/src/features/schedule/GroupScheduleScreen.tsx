@@ -10,7 +10,6 @@ import {
 import {
   Badge,
   Group,
-  Paper,
   SegmentedControl,
   Select,
   SimpleGrid,
@@ -61,11 +60,12 @@ import {
   ErrorState,
   FilterToolbar,
   LoadingState,
-  PageCard,
-  PageHeader,
   IconButton,
+  PageLayout,
+  PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 
 const SCHEDULE_GROUPS_PAGE_SIZE = 100
@@ -200,20 +200,22 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   }
 
   return (
-    <Stack className="dashboard-stack schedule-screen" data-testid="schedule-screen" gap="xl">
-      <PageCard className="schedule-filters-card" data-testid="schedule-filters">
+    <PageLayout
+      actions={(
+        <ScheduleRefreshPanel
+          lastLoadedAt={lastLoadedAt}
+          loading={loading || refreshing}
+          onRefresh={requestReload}
+        />
+      )}
+      className="schedule-screen"
+      data-testid="schedule-screen"
+      description="Недельный шаблон занятий по филиалам, залам, тренерам и группам."
+      title="Расписание"
+    >
+      <PageSection className="schedule-filters-card" data-testid="schedule-filters">
         <Stack gap="lg">
-          <PageHeader
-            description="Недельный шаблон занятий по филиалам, залам, тренерам и группам."
-            actions={(
-              <ScheduleRefreshPanel
-                lastLoadedAt={lastLoadedAt}
-                loading={loading || refreshing}
-                onRefresh={requestReload}
-              />
-            )}
-            title="Расписание"
-          />
+          <SectionHeader title="Фильтры расписания" />
 
           <FilterToolbar
             actions={
@@ -270,16 +272,16 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
             </SimpleGrid>
           </FilterToolbar>
         </Stack>
-      </PageCard>
+      </PageSection>
 
       {isInitialLoading ? (
-        <PageCard>
+        <PageSection>
           <LoadingState label="Загружаем расписание..." />
-        </PageCard>
+        </PageSection>
       ) : null}
 
       {!isInitialLoading && error ? (
-        <PageCard>
+        <PageSection>
             <ErrorState
               action={(
                 <RefreshButton
@@ -296,15 +298,14 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
                 : 'Расписание не загрузилось'
             }
           />
-        </PageCard>
+        </PageSection>
       ) : null}
 
       {!isInitialLoading && (!error || hasStaleSchedule) ? (
-        <Paper
-          className="surface-card surface-card--wide schedule-board"
+        <PageSection
+          className="schedule-board"
           data-testid="schedule-board"
-          radius="var(--radius-card)"
-          withBorder
+          density="compact"
         >
           {groups.length === 0 ? (
             <EmptyState
@@ -334,20 +335,22 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
                   setSelectedWeekday={setSelectedWeekday}
                 />
               ) : (
-                <ScheduleDesktopGrid
-                  currentWeekday={currentWeekday}
-                  dayCounts={dayCounts}
-                  days={calendarWeek.days}
-                  visibleHourRange={calendarWeek.visibleHourRange}
-                />
+                <div className="schedule-board__viewport">
+                  <ScheduleDesktopGrid
+                    currentWeekday={currentWeekday}
+                    dayCounts={dayCounts}
+                    days={calendarWeek.days}
+                    visibleHourRange={calendarWeek.visibleHourRange}
+                  />
+                </div>
               )}
 
               <ScheduleTypeLegend legend={typeLegend} />
             </Stack>
           )}
-        </Paper>
+        </PageSection>
       ) : null}
-    </Stack>
+    </PageLayout>
   )
 }
 

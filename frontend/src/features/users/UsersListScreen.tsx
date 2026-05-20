@@ -20,10 +20,11 @@ import {
   ErrorState,
   LoadingState,
   MetricCard,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
+  SectionHeader,
 } from '../shared/ux'
 import { userRoleLabels } from './UserManagement.constants'
 
@@ -77,8 +78,7 @@ export function UsersListScreen({
   const passwordRotationCount = users.filter((user) => user.mustChangePassword).length
 
   return (
-    <Stack className="dashboard-stack" data-testid="users-screen" gap="xl">
-      <PageHeader
+    <PageLayout
         actions={
           <ResponsiveButtonGroup>
             <Button
@@ -93,8 +93,9 @@ export function UsersListScreen({
             />
           </ResponsiveButtonGroup>
         }
-        className="page-title-row"
-      />
+      data-testid="users-screen"
+      title="Тренеры"
+    >
 
       <SimpleGrid cols={{ base: 1, md: 3 }}>
         <MetricCard
@@ -114,9 +115,9 @@ export function UsersListScreen({
         />
       </SimpleGrid>
 
-      <PageCard>
+      <PageSection>
         <Stack gap="lg">
-          <PageHeader title={resources.users.list.sectionTitle} />
+          <SectionHeader title={resources.users.list.sectionTitle} />
 
           {loading ? (
             <LoadingState label="Загружаем тренеров..." />
@@ -195,7 +196,7 @@ export function UsersListScreen({
             </Stack>
           ) : null}
         </Stack>
-      </PageCard>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }

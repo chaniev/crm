@@ -74,7 +74,8 @@ import { formatGroupSchedule } from '../../lib/groupSchedule'
 import { resources } from '../../lib/resources'
 import {
   ConfirmActionModal,
-  PageHeader,
+  PageLayout,
+  PageSection,
   ResponsiveButtonGroup,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
@@ -256,23 +257,19 @@ export function ClientCreateScreen({
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <PageHeader
-        actions={
-          <Button
-            leftSection={<IconArrowLeft size={18} />}
-            onClick={onCancel}
-            variant="default"
-          >
-            К списку клиентов
-          </Button>
-        }
-        className="page-title-row"
-        title="Новый клиент"
-        titleOrder={1}
-      />
-
-      <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+    <PageLayout
+      actions={
+        <Button
+          leftSection={<IconArrowLeft size={18} />}
+          onClick={onCancel}
+          variant="default"
+        >
+          К списку клиентов
+        </Button>
+      }
+      title="Новый клиент"
+    >
+      <PageSection>
         <Stack gap="lg">
           {loadingOptions ? (
             <Group justify="center" py="xl">
@@ -312,8 +309,8 @@ export function ClientCreateScreen({
             />
           ) : null}
         </Stack>
-      </Paper>
-    </Stack>
+      </PageSection>
+    </PageLayout>
   )
 }
 
@@ -426,32 +423,29 @@ export function ClientEditScreen({
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
-      <PageHeader
-        actions={
-          <Button
-            leftSection={<IconArrowLeft size={18} />}
-            onClick={onBack}
-            variant="default"
-          >
-            К карточке клиента
-          </Button>
-        }
-        className="page-title-row"
-        title={client ? client.fullName : 'Карточка клиента'}
-        titleOrder={1}
-      />
+    <PageLayout
+      actions={
+        <Button
+          leftSection={<IconArrowLeft size={18} />}
+          onClick={onBack}
+          variant="default"
+        >
+          К карточке клиента
+        </Button>
+      }
+      title={client ? client.fullName : 'Карточка клиента'}
+    >
 
       {loading ? (
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <PageSection>
           <Group justify="center" py="xl">
             <Loader color="brand.7" />
           </Group>
-        </Paper>
+        </PageSection>
       ) : null}
 
       {!loading && loadError ? (
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <PageSection>
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
@@ -460,12 +454,12 @@ export function ClientEditScreen({
           >
             {loadError}
           </Alert>
-        </Paper>
+        </PageSection>
       ) : null}
 
       {!loading && !loadError ? (
         <>
-          <Paper className="surface-card surface-card--wide client-edit-card" radius="8px" withBorder>
+          <PageSection className="client-edit-card">
             <ClientForm
               form={form}
               formError={formError}
@@ -489,10 +483,10 @@ export function ClientEditScreen({
               submitLabel="Сохранить изменения"
               submitting={submitting}
             />
-          </Paper>
+          </PageSection>
         </>
       ) : null}
-    </Stack>
+    </PageLayout>
   )
 }
 
@@ -817,7 +811,58 @@ export function ClientDetailScreen({
   }
 
   return (
-    <Stack className="dashboard-stack" gap="xl">
+    <PageLayout
+      actions={
+        <ResponsiveButtonGroup>
+          <Button
+            leftSection={<IconArrowLeft size={18} />}
+            onClick={onBack}
+            variant="default"
+          >
+            К списку клиентов
+          </Button>
+          {canManage && client ? (
+            <Button
+              leftSection={<IconEdit size={18} />}
+              onClick={() => onEdit(client.id)}
+              variant="light"
+            >
+              Редактировать
+            </Button>
+          ) : null}
+          {canManage && client ? (
+            <Button
+              leftSection={<IconGitBranch size={18} />}
+              loading={transferOptionsLoading || transferSubmitting}
+              onClick={() => void openTransferModal()}
+              variant="light"
+            >
+              Перевести
+            </Button>
+          ) : null}
+          {canManage && client ? (
+            <Button
+              color={client.status === 'Active' ? 'gray' : 'teal'}
+              leftSection={
+                client.status === 'Active' ? (
+                  <IconArchive size={18} />
+                ) : (
+                  <IconRefresh size={18} />
+                )
+              }
+              loading={actionPending}
+              onClick={() => setArchiveConfirmOpened(true)}
+              variant="light"
+            >
+              {client.status === 'Active'
+                ? 'В архив'
+                : 'Вернуть в активные'}
+            </Button>
+          ) : null}
+        </ResponsiveButtonGroup>
+      }
+      title={client ? client.fullName : 'Детали клиента'}
+    >
       {canManage && client ? (
         <ConfirmActionModal
           confirmColor={client.status === 'Active' ? 'gray' : 'teal'}
@@ -894,71 +939,16 @@ export function ClientDetailScreen({
         />
       ) : null}
 
-      <PageHeader
-        actions={
-          <ResponsiveButtonGroup>
-            <Button
-              leftSection={<IconArrowLeft size={18} />}
-              onClick={onBack}
-              variant="default"
-            >
-              К списку клиентов
-            </Button>
-            {canManage && client ? (
-              <Button
-                leftSection={<IconEdit size={18} />}
-                onClick={() => onEdit(client.id)}
-                variant="light"
-              >
-                Редактировать
-              </Button>
-            ) : null}
-            {canManage && client ? (
-              <Button
-                leftSection={<IconGitBranch size={18} />}
-                loading={transferOptionsLoading || transferSubmitting}
-                onClick={() => void openTransferModal()}
-                variant="light"
-              >
-                Перевести
-              </Button>
-            ) : null}
-            {canManage && client ? (
-              <Button
-                color={client.status === 'Active' ? 'gray' : 'teal'}
-                leftSection={
-                  client.status === 'Active' ? (
-                    <IconArchive size={18} />
-                  ) : (
-                    <IconRefresh size={18} />
-                  )
-                }
-                loading={actionPending}
-                onClick={() => setArchiveConfirmOpened(true)}
-                variant="light"
-              >
-                {client.status === 'Active'
-                  ? 'В архив'
-                  : 'Вернуть в активные'}
-              </Button>
-            ) : null}
-          </ResponsiveButtonGroup>
-        }
-        className="page-title-row"
-        title={client ? client.fullName : 'Детали клиента'}
-        titleOrder={1}
-      />
-
       {loading ? (
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <PageSection>
           <Group justify="center" py="xl">
             <Loader color="brand.7" />
           </Group>
-        </Paper>
+        </PageSection>
       ) : null}
 
       {!loading && loadError ? (
-        <Paper className="surface-card surface-card--wide" radius="28px" withBorder>
+        <PageSection>
           <Alert
             color="red"
             icon={<IconAlertCircle size={18} />}
@@ -967,7 +957,7 @@ export function ClientDetailScreen({
           >
             {loadError}
           </Alert>
-        </Paper>
+        </PageSection>
       ) : null}
 
       {!loading && !loadError && client ? (
@@ -1008,7 +998,7 @@ export function ClientDetailScreen({
 
           <ClientAttendanceHistorySection canManage={canManage} client={client} />
 
-          <Paper className="surface-card client-section-card" radius="8px" withBorder>
+          <PageSection className="client-section-card">
             <Stack gap="lg">
               <Group gap="xs">
                 <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
@@ -1032,11 +1022,11 @@ export function ClientDetailScreen({
                 </Text>
               )}
             </Stack>
-          </Paper>
+          </PageSection>
 
           <SimpleGrid cols={{ base: 1, md: canManage ? 2 : 1 }}>
             {canManage ? (
-              <Paper className="surface-card client-section-card" radius="8px" withBorder>
+              <PageSection className="client-section-card">
                 <Stack gap="lg">
                   <Group gap="xs">
                     <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
@@ -1079,10 +1069,10 @@ export function ClientDetailScreen({
                     </Stack>
                   )}
                 </Stack>
-              </Paper>
+              </PageSection>
             ) : null}
 
-            <Paper className="surface-card client-section-card" radius="8px" withBorder>
+            <PageSection className="client-section-card">
               <Stack gap="lg">
                 <Group justify="space-between" wrap="wrap">
                   <Group gap="xs">
@@ -1153,11 +1143,11 @@ export function ClientDetailScreen({
                   </Stack>
                 )}
               </Stack>
-            </Paper>
+            </PageSection>
           </SimpleGrid>
         </>
       ) : null}
-    </Stack>
+    </PageLayout>
   )
 }
 
@@ -1214,7 +1204,7 @@ function ClientOverviewSection({
     : 'Загружаются'
 
   return (
-    <Paper className="surface-card surface-card--wide client-overview-card" radius="8px" withBorder>
+    <PageSection className="client-overview-card">
       <div className="client-overview-grid">
         <Stack className="client-overview-main" gap="md">
           <Group justify="space-between" wrap="wrap">
@@ -1330,7 +1320,7 @@ function ClientOverviewSection({
           />
         </aside>
       </div>
-    </Paper>
+    </PageSection>
   )
 }
 
@@ -2137,7 +2127,7 @@ function ClientMembershipSection({
   const canEditMembership = !client.isProfessional
 
   return (
-    <Paper className="surface-card surface-card--wide client-detail-card client-membership-card" radius="8px" withBorder>
+    <PageSection className="client-detail-card client-membership-card">
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <div>
@@ -2266,7 +2256,7 @@ function ClientMembershipSection({
           </div>
         )}
       </Stack>
-    </Paper>
+    </PageSection>
   )
 }
 
@@ -2287,7 +2277,7 @@ function ClientAttendanceHistorySection({
     client.attendanceHistoryTotalCount > history.length
 
   return (
-    <Paper className="surface-card surface-card--wide client-detail-card" radius="8px" withBorder>
+    <PageSection className="client-detail-card">
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <div>
@@ -2355,7 +2345,7 @@ function ClientAttendanceHistorySection({
           </Text>
         ) : null}
       </Stack>
-    </Paper>
+    </PageSection>
   )
 }
 

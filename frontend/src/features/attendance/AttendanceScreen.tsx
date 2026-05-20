@@ -33,9 +33,10 @@ import {
   ErrorState,
   FilterToolbar,
   LoadingState,
-  PageCard,
-  PageHeader,
+  PageLayout,
+  PageSection,
   RefreshButton,
+  SectionHeader,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 
@@ -250,17 +251,19 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
     groups.find((group) => group.id === selectedGroupId) ?? null
 
   return (
-    <Stack className="dashboard-stack" data-testid="attendance-screen" gap="xl">
-      <PageCard>
+    <PageLayout
+      actions={(
+        <RefreshButton
+          loading={rosterLoading && Boolean(roster)}
+          onClick={handleRefreshRoster}
+        />
+      )}
+      data-testid="attendance-screen"
+      title="Посещения"
+    >
+      <PageSection>
         <Stack gap="lg">
-          <PageHeader
-            actions={(
-              <RefreshButton
-                loading={rosterLoading && Boolean(roster)}
-                onClick={handleRefreshRoster}
-              />
-            )}
-          />
+          <SectionHeader title="Фильтры посещений" />
 
           {groupsError ? (
             <ErrorState
@@ -313,12 +316,12 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
             </FilterToolbar>
           ) : null}
         </Stack>
-      </PageCard>
+      </PageSection>
 
       {!groupsLoading && !groupsError && selectedGroup ? (
-        <PageCard>
+        <PageSection>
           <Stack gap="lg">
-            <PageHeader
+            <SectionHeader
               actions={(
                 <Badge color="sand" radius="xl" size="lg" variant="light">
                   Дата: {formatDateLabel(trainingDate)}
@@ -360,9 +363,9 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
               </Stack>
             ) : null}
           </Stack>
-        </PageCard>
+        </PageSection>
       ) : null}
-    </Stack>
+    </PageLayout>
   )
 }
 
