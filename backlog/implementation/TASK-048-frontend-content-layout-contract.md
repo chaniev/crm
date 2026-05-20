@@ -1,7 +1,13 @@
 # TASK-048: Унифицировать content-layout контракт для всех разделов CRM
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-20 23:53
+- moved_from: /backlog/needs-clarification
+- implementation_plan: /backlog/implementation-plans/TASK-048-frontend-content-layout-contract.plan.md
+- implementation_branch: feature/TASK-048-frontend-content-layout-contract
 
 ## Goal
 Сформировать единый content-layout контракт для всех авторизованных вкладок CRM и устранить различия между ними по базовой геометрии: ширине, внешним и внутренним отступам, gap, radius, shadow, alignment и responsive-поведению.

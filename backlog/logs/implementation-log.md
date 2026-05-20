@@ -332,3 +332,20 @@
 - skipped: 0
 - plans created: 1
 - note: task is low risk and localized to authenticated frontend app shell; implementation must keep navigation visibility driven by existing backend-derived user permissions and add responsive Playwright regression coverage for mobile left vertical navigation.
+
+# 2026-05-20 23:53
+
+## Moved to implementation
+- /backlog/implementation/TASK-048-frontend-content-layout-contract.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-048-frontend-content-layout-contract.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: source task was explicitly selected from `/backlog/needs-clarification` but already had `Status: ready`; implementation is frontend-only, high-regression due to shared route layout, and must start with a `ui-designer` checkpoint before code migration.
