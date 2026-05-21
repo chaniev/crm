@@ -30,13 +30,13 @@ const defaultNavbarConfiguration: AppShellProps['navbar'] = {
 export function AppLayout({
   children,
   className,
-  containerSize = 'xl',
+  containerSize = '100%',
   header,
   headerHeight = { height: { base: 72, '48em': 76 } },
   mainClassName,
   navbar,
   navbarConfiguration = defaultNavbarConfiguration,
-  padding = { base: 'sm', sm: 'md', lg: 'xl' },
+  padding = 'md',
 }: AppLayoutProps) {
   return (
     <AppShell
@@ -54,7 +54,7 @@ export function AppLayout({
       ) : null}
 
       <AppShell.Main className={['app-shell__main', mainClassName].filter(Boolean).join(' ')}>
-        <Container size={containerSize}>{children}</Container>
+        <Container px={0} size={containerSize}>{children}</Container>
       </AppShell.Main>
     </AppShell>
   )
