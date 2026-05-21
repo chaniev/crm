@@ -480,3 +480,24 @@
 - needs-clarification: 0
 - updated existing: 0
 - processed files: 1
+
+# 2026-05-22 00:33
+
+## Processed inbox files
+- 2026-05-21.md
+
+## Created tasks
+- /backlog/risky/TASK-049-deploy-club-name-branding.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Related completed settings task found: /backlog/done/TASK-030-crm-settings-section.md. Not treated as a duplicate because the new note is about deploy/runtime club name branding, not CRM settings dictionaries, administrators, branches or halls.
+
+## Summary
+- tasks-ready: 0
+- risky: 1
+- needs-clarification: 0
+- updated existing: 0
+- processed files: 1
