@@ -20,7 +20,7 @@ namespace GymCrm.Tests;
 public class ClientMessengerApiTests
 {
     [Fact]
-    public async Task Administrator_can_create_link_and_read_capabilities_while_other_roles_are_limited()
+    public async Task HeadCoach_and_administrator_can_create_link_while_only_administrator_can_reply()
     {
         await using var factory = new ClientMessengerAppFactory();
         var seeded = await SeedAsync(factory);
@@ -65,6 +65,7 @@ public class ClientMessengerApiTests
             var summary = await ReadJsonElementAsync(headCoachSummaryResponse);
             Assert.True(summary.GetProperty("capabilities").GetProperty("canRead").GetBoolean());
             Assert.False(summary.GetProperty("capabilities").GetProperty("canReply").GetBoolean());
+            Assert.True(summary.GetProperty("capabilities").GetProperty("canCreateLink").GetBoolean());
         }
 
         using (var headCoachLinkResponse = await PostWithoutBodyAsync(
@@ -72,7 +73,18 @@ public class ClientMessengerApiTests
                    $"/clients/{seeded.ClientId}/messenger/telegram/link-token",
                    headCoachSession.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.Forbidden, headCoachLinkResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, headCoachLinkResponse.StatusCode);
+            var linkPayload = await ReadJsonElementAsync(headCoachLinkResponse);
+            Assert.Contains("https://t.me/gym_client_bot?start=", linkPayload.GetProperty("deepLinkUrl").GetString());
+        }
+
+        using (var headCoachSendResponse = await PostJsonAsync(
+                   headCoachClient,
+                   $"/clients/{seeded.ClientId}/messenger/telegram/messages",
+                   new { Text = "Напоминание" },
+                   headCoachSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, headCoachSendResponse.StatusCode);
         }
 
         using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions

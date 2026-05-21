@@ -92,7 +92,7 @@ internal sealed class ClientMessengerService(
         User currentUser,
         CancellationToken cancellationToken = default)
     {
-        if (!CanReply(currentUser))
+        if (!CanCreateLink(currentUser))
         {
             return ClientMessengerResult<ClientMessengerLinkTokenInfo>.Failure(ClientMessengerError.Forbidden);
         }
@@ -652,12 +652,13 @@ internal sealed class ClientMessengerService(
     {
         var canRead = CanRead(currentUser);
         var canReply = CanReply(currentUser);
+        var canCreateLink = CanCreateLink(currentUser);
         return new ClientMessengerCapabilities(
             canRead,
             canRead,
             canReply,
-            canReply,
-            canReply);
+            canCreateLink,
+            canCreateLink);
     }
 
     private static bool CanRead(User currentUser)
@@ -668,6 +669,11 @@ internal sealed class ClientMessengerService(
     private static bool CanReply(User currentUser)
     {
         return currentUser.Role == UserRole.Administrator;
+    }
+
+    private static bool CanCreateLink(User currentUser)
+    {
+        return currentUser.Role is UserRole.HeadCoach or UserRole.Administrator;
     }
 
     private static Dictionary<string, string[]> ValidatePaging(int? skip, int? take)

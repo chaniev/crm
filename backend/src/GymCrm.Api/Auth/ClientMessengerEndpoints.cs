@@ -14,7 +14,7 @@ internal static class ClientMessengerEndpoints
         group.MapGet("/messages", ListMessagesAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ViewClientMessenger);
         group.MapPost("/link-token", CreateLinkTokenAsync)
-            .RequireAuthorization(GymCrmAuthorizationPolicies.ReplyClientMessenger);
+            .RequireAuthorization(GymCrmAuthorizationPolicies.CreateClientMessengerLink);
         group.MapPost("/messages", SendMessageAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ReplyClientMessenger);
         group.MapPost("/read", MarkReadAsync)

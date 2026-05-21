@@ -15,6 +15,7 @@ internal static class GymCrmAuthorizationPolicies
     public const string ViewFinancialReports = "gym-crm.view-financial-reports";
     public const string MarkAttendance = "gym-crm.mark-attendance";
     public const string ViewClientMessenger = "gym-crm.view-client-messenger";
+    public const string CreateClientMessengerLink = "gym-crm.create-client-messenger-link";
     public const string ReplyClientMessenger = "gym-crm.reply-client-messenger";
 
     public static void Configure(AuthorizationOptions options)
@@ -73,6 +74,12 @@ internal static class GymCrmAuthorizationPolicies
 
         options.AddPolicy(
             ViewClientMessenger,
+            policy => policy.RequireRole(
+                UserRole.HeadCoach.ToString(),
+                UserRole.Administrator.ToString()));
+
+        options.AddPolicy(
+            CreateClientMessengerLink,
             policy => policy.RequireRole(
                 UserRole.HeadCoach.ToString(),
                 UserRole.Administrator.ToString()));
