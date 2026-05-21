@@ -3,6 +3,7 @@ using GymCrm.Application.Authorization;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Bot;
 using GymCrm.Application.Clients;
+using GymCrm.Application.Messenger;
 using GymCrm.Application.Reports;
 using GymCrm.Application.Security;
 using GymCrm.Infrastructure.AttendanceFeatures;
@@ -11,6 +12,7 @@ using GymCrm.Infrastructure.Audit;
 using GymCrm.Infrastructure.Bot;
 using GymCrm.Infrastructure.Clients;
 using GymCrm.Infrastructure.HealthChecks;
+using GymCrm.Infrastructure.Messenger;
 using GymCrm.Infrastructure.Persistence;
 using GymCrm.Infrastructure.Reports;
 using GymCrm.Infrastructure.Security;
@@ -47,6 +49,14 @@ public static class DependencyInjection
         services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<IClientMembershipService, ClientMembershipService>();
         services.AddScoped<IFinancialReportService, FinancialReportService>();
+        services.Configure<ClientTelegramOptions>(
+            configuration.GetSection(ClientTelegramOptions.SectionName));
+        services.AddScoped<IClientMessengerService, ClientMessengerService>();
+        services.AddHttpClient<IClientTelegramTransport, ClientTelegramBotApiTransport>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.telegram.org/");
+        });
+        services.AddHostedService<ClientTelegramPollingWorker>();
         services.Configure<BotIdempotencyOptions>(
             configuration.GetSection(BotIdempotencyOptions.SectionName));
         services.AddScoped<BotIdempotencyService>();

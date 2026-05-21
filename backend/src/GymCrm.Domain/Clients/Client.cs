@@ -1,5 +1,6 @@
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Messenger;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
 
 namespace GymCrm.Domain.Clients;
@@ -35,4 +36,8 @@ public class Client
     public ICollection<ClientGroupAssignment> GroupAssignments { get; set; } = new List<ClientGroupAssignment>();
     public ICollection<ClientGroup> Groups { get; set; } = new List<ClientGroup>();
     public ICollection<AttendanceEntry> AttendanceEntries { get; set; } = new List<AttendanceEntry>();
+    public ICollection<ClientMessengerAccount> MessengerAccounts { get; set; } = new List<ClientMessengerAccount>();
+    public ICollection<ClientMessengerLinkToken> MessengerLinkTokens { get; set; } = new List<ClientMessengerLinkToken>();
+    public ICollection<ClientMessengerMessage> MessengerMessages { get; set; } = new List<ClientMessengerMessage>();
+    public ICollection<ClientMessengerReadState> MessengerReadStates { get; set; } = new List<ClientMessengerReadState>();
 }

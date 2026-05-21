@@ -110,6 +110,91 @@ export type ClientMembershipState =
   | 'Expired'
   | 'UsedSingleVisit'
 
+export type ClientMessengerConnectionStatus =
+  | 'NotConnected'
+  | 'PendingLink'
+  | 'Connected'
+
+export type ClientMessengerMessageDirection = 'Inbound' | 'Outbound'
+export type ClientMessengerMessageStatus =
+  | 'Received'
+  | 'Queued'
+  | 'Sending'
+  | 'SentToTelegram'
+  | 'Failed'
+
+export type ClientMessengerCapabilities = {
+  visible: boolean
+  canRead: boolean
+  canReply: boolean
+  canCreateLink: boolean
+  canShowQr: boolean
+}
+
+export type ClientMessengerConnection = {
+  status: ClientMessengerConnectionStatus
+  linkedAt: string | null
+  telegramUsername: string | null
+  telegramDisplayName: string | null
+  pendingLinkExpiresAt: string | null
+}
+
+export type ClientMessengerLatestMessage = {
+  id: string
+  direction: ClientMessengerMessageDirection
+  status: ClientMessengerMessageStatus
+  text: string
+  createdAt: string
+}
+
+export type ClientMessengerSummary = {
+  platform: MessengerPlatform
+  capabilities: ClientMessengerCapabilities
+  connection: ClientMessengerConnection
+  unreadCount: number
+  totalMessageCount: number
+  latestMessageAt: string | null
+  latestMessage: ClientMessengerLatestMessage | null
+}
+
+export type ClientMessengerMessage = {
+  id: string
+  direction: ClientMessengerMessageDirection
+  status: ClientMessengerMessageStatus
+  text: string
+  createdAt: string
+  updatedAt: string
+  sentAt: string | null
+  failedAt: string | null
+  failureReason: string | null
+  createdByUserName: string | null
+  telegramUsername: string | null
+  telegramDisplayName: string | null
+}
+
+export type ClientMessengerMessagePage = {
+  platform: MessengerPlatform
+  items: ClientMessengerMessage[]
+  skip: number
+  take: number
+  totalCount: number
+  hasMore: boolean
+}
+
+export type ClientMessengerLinkToken = {
+  platform: MessengerPlatform
+  deepLinkUrl: string
+  qrCodeSvg: string
+  expiresAt: string
+  connection: ClientMessengerConnection
+}
+
+export type ClientMessengerReadState = {
+  platform: MessengerPlatform
+  lastReadAt: string
+  unreadCount: number
+}
+
 export type ClientContact = {
   id?: string
   type: string

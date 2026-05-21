@@ -94,6 +94,7 @@ app.MapAuditLogEndpoints();
 app.MapBranchEndpoints();
 app.MapGroupTypeEndpoints();
 app.MapClientEndpoints();
+app.MapClientMessengerEndpoints();
 app.MapClientPhotoEndpoints();
 app.MapAttendanceEndpoints();
 app.MapReportsEndpoints();

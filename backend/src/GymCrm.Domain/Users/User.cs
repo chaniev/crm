@@ -1,6 +1,7 @@
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Messenger;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
 
 namespace GymCrm.Domain.Users;
@@ -31,4 +32,7 @@ public class User
     public ICollection<GroupTrainerAssignment> CreatedGroupTrainerAssignments { get; set; } = new List<GroupTrainerAssignment>();
     public ICollection<AttendanceEntry> AttendanceMarks { get; set; } = new List<AttendanceEntry>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+    public ICollection<ClientMessengerLinkToken> CreatedMessengerLinkTokens { get; set; } = new List<ClientMessengerLinkToken>();
+    public ICollection<ClientMessengerMessage> CreatedMessengerMessages { get; set; } = new List<ClientMessengerMessage>();
+    public ICollection<ClientMessengerReadState> ClientMessengerReadStates { get; set; } = new List<ClientMessengerReadState>();
 }

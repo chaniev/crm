@@ -90,6 +90,7 @@ import {
   useClientForm,
   validateClientForm,
 } from './ClientManagement.form'
+import { ClientMessengerChatSection } from './ClientMessengerChatSection'
 
 export { ClientsListScreen } from './list/ClientsListScreen'
 
@@ -1023,6 +1024,8 @@ export function ClientDetailScreen({
               )}
             </Stack>
           </PageSection>
+
+          <ClientMessengerChatSection clientId={client.id} />
 
           <SimpleGrid cols={{ base: 1, md: canManage ? 2 : 1 }}>
             {canManage ? (

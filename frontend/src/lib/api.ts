@@ -19,6 +19,17 @@ export type {
   ClientGroupSummary,
   ClientListItem,
   ClientListResponse,
+  ClientMessengerCapabilities,
+  ClientMessengerConnection,
+  ClientMessengerConnectionStatus,
+  ClientMessengerLatestMessage,
+  ClientMessengerLinkToken,
+  ClientMessengerMessage,
+  ClientMessengerMessageDirection,
+  ClientMessengerMessagePage,
+  ClientMessengerMessageStatus,
+  ClientMessengerReadState,
+  ClientMessengerSummary,
   ClientMembership,
   ClientMembershipChangeReason,
   ClientMembershipState,
@@ -105,6 +116,13 @@ export {
   updateClientProfessionalStatus,
   uploadClientPhoto,
 } from './api/clients'
+export {
+  createClientMessengerTelegramLinkToken,
+  getClientMessengerMessages,
+  getClientMessengerSummary,
+  markClientMessengerRead,
+  sendClientMessengerMessage,
+} from './api/clientMessenger'
 export {
   archiveBranch,
   archiveHall,
