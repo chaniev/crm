@@ -349,3 +349,20 @@
 - skipped: 0
 - plans created: 1
 - note: source task was explicitly selected from `/backlog/needs-clarification` but already had `Status: ready`; implementation is frontend-only, high-regression due to shared route layout, and must start with a `ui-designer` checkpoint before code migration.
+
+# 2026-05-21 22:13
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-039-crm-messenger-chat-integration.plan.md
+
+## Skipped tasks
+- TASK-039-crm-messenger-chat-integration.md - not moved: source task remains in `/backlog/needs-clarification`, is marked high risk, and should be reviewed/decomposed before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan created for Telegram client chat integration. Direct execution is conditional on accepting the Telegram status limitations and choosing phased single-branch implementation or separate backend/frontend/runtime subtasks.
