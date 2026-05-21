@@ -27,6 +27,16 @@ export const API_ENDPOINTS = {
     transfer: (clientId: string) => `/clients/${clientId}/transfer`,
     professionalStatus: (clientId: string) =>
       `/clients/${clientId}/professional-status`,
+    messenger: {
+      telegram: {
+        summary: (clientId: string) => `/clients/${clientId}/messenger/telegram`,
+        messages: (clientId: string) =>
+          `/clients/${clientId}/messenger/telegram/messages`,
+        linkToken: (clientId: string) =>
+          `/clients/${clientId}/messenger/telegram/link-token`,
+        read: (clientId: string) => `/clients/${clientId}/messenger/telegram/read`,
+      },
+    },
     membership: {
       purchase: (clientId: string) => `/clients/${clientId}/membership/purchase`,
       renew: (clientId: string) => `/clients/${clientId}/membership/renew`,

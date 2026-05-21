@@ -36,6 +36,14 @@ services:
       TechnicalLogging__FileNamePrefix: ${BACKEND_TECHNICAL_LOG_FILE_PREFIX:-gym-crm-api}
       TechnicalLogging__FileSizeLimitMb: ${BACKEND_TECHNICAL_LOG_FILE_SIZE_MB:-20}
       TechnicalLogging__RetentionDays: ${BACKEND_TECHNICAL_LOG_RETENTION_DAYS:-10}
+      ClientTelegram__Enabled: ${ClientTelegram__Enabled:-false}
+      ClientTelegram__BotToken: ${ClientTelegram__BotToken}
+      ClientTelegram__BotUsername: ${ClientTelegram__BotUsername:-}
+      ClientTelegram__LinkTokenTtlMinutes: ${ClientTelegram__LinkTokenTtlMinutes:-30}
+      ClientTelegram__PollingIntervalSeconds: ${ClientTelegram__PollingIntervalSeconds:-2}
+      ClientTelegram__PollingTimeoutSeconds: ${ClientTelegram__PollingTimeoutSeconds:-20}
+      ClientTelegram__BackoffSeconds: ${ClientTelegram__BackoffSeconds:-10}
+      ClientTelegram__MaxUpdatesPerPoll: ${ClientTelegram__MaxUpdatesPerPoll:-50}
       BotInternalApi__Token: ${BOT_INTERNAL_API_TOKEN}
       BotInternalApi__Enabled: ${BOT_INTERNAL_API_ENABLED:-true}
     depends_on:

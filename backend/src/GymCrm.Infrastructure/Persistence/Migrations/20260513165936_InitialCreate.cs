@@ -194,6 +194,158 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientMessengerAccounts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Platform = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    PlatformUserId = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    PlatformUserIdHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Username = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    DisplayName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    LinkedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UnlinkedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMessengerAccounts", x => x.Id);
+                    table.CheckConstraint("CK_ClientMessengerAccounts_RequiredValues", "btrim(\"PlatformUserId\") <> '' AND btrim(\"PlatformUserIdHash\") <> ''");
+                    table.ForeignKey(
+                        name: "FK_ClientMessengerAccounts_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientMessengerLinkTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Platform = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    TokenHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UsedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    UsedByPlatformUserIdHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMessengerLinkTokens", x => x.Id);
+                    table.CheckConstraint("CK_ClientMessengerLinkTokens_RequiredValues", "btrim(\"TokenHash\") <> ''");
+                    table.ForeignKey(
+                        name: "FK_ClientMessengerLinkTokens_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientMessengerLinkTokens_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientMessengerReadStates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Platform = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LastReadAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMessengerReadStates", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClientMessengerReadStates_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientMessengerReadStates_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientTelegramPollStates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BotName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    NextUpdateOffset = table.Column<long>(type: "bigint", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientTelegramPollStates", x => x.Id);
+                    table.CheckConstraint("CK_ClientTelegramPollStates_BotName_Required", "btrim(\"BotName\") <> ''");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientMessengerMessages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AccountId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Platform = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    Direction = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    Status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    Text = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    TelegramUpdateId = table.Column<long>(type: "bigint", nullable: true),
+                    TelegramMessageId = table.Column<long>(type: "bigint", nullable: true),
+                    TelegramChatId = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    TelegramUserIdHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    IdempotencyKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    IdempotencyPayloadHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    FailureReason = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    SentAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    FailedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMessengerMessages", x => x.Id);
+                    table.CheckConstraint("CK_ClientMessengerMessages_Text_Required", "btrim(\"Text\") <> ''");
+                    table.ForeignKey(
+                        name: "FK_ClientMessengerMessages_ClientMessengerAccounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "ClientMessengerAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_ClientMessengerMessages_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientMessengerMessages_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ClientBranchAssignments",
                 columns: table => new
                 {
@@ -627,6 +779,104 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerAccounts_ClientId_Platform",
+                table: "ClientMessengerAccounts",
+                columns: new[] { "ClientId", "Platform" },
+                unique: true,
+                filter: "\"UnlinkedAt\" IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerAccounts_Platform_PlatformUserId",
+                table: "ClientMessengerAccounts",
+                columns: new[] { "Platform", "PlatformUserId" },
+                unique: true,
+                filter: "\"UnlinkedAt\" IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerAccounts_PlatformUserIdHash",
+                table: "ClientMessengerAccounts",
+                column: "PlatformUserIdHash");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerLinkTokens_ClientId_Platform_ExpiresAt",
+                table: "ClientMessengerLinkTokens",
+                columns: new[] { "ClientId", "Platform", "ExpiresAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerLinkTokens_CreatedByUserId",
+                table: "ClientMessengerLinkTokens",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerLinkTokens_Platform_UsedAt",
+                table: "ClientMessengerLinkTokens",
+                columns: new[] { "Platform", "UsedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerLinkTokens_TokenHash",
+                table: "ClientMessengerLinkTokens",
+                column: "TokenHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerMessages_AccountId",
+                table: "ClientMessengerMessages",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerMessages_ClientId_Platform_CreatedAt",
+                table: "ClientMessengerMessages",
+                columns: new[] { "ClientId", "Platform", "CreatedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerMessages_ClientId_Platform_Direction_Cr~",
+                table: "ClientMessengerMessages",
+                columns: new[] { "ClientId", "Platform", "Direction", "CreatedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerMessages_ClientId_Platform_IdempotencyKey",
+                table: "ClientMessengerMessages",
+                columns: new[] { "ClientId", "Platform", "IdempotencyKey" },
+                unique: true,
+                filter: "\"IdempotencyKey\" IS NOT NULL AND btrim(\"IdempotencyKey\") <> ''");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerMessages_CreatedByUserId",
+                table: "ClientMessengerMessages",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerMessages_Platform_TelegramChatId_Telegra~",
+                table: "ClientMessengerMessages",
+                columns: new[] { "Platform", "TelegramChatId", "TelegramMessageId" },
+                unique: true,
+                filter: "\"TelegramMessageId\" IS NOT NULL AND \"TelegramChatId\" IS NOT NULL AND btrim(\"TelegramChatId\") <> ''");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerMessages_Platform_TelegramUpdateId",
+                table: "ClientMessengerMessages",
+                columns: new[] { "Platform", "TelegramUpdateId" },
+                unique: true,
+                filter: "\"TelegramUpdateId\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerReadStates_ClientId_Platform_UserId",
+                table: "ClientMessengerReadStates",
+                columns: new[] { "ClientId", "Platform", "UserId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMessengerReadStates_UserId",
+                table: "ClientMessengerReadStates",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientTelegramPollStates_BotName",
+                table: "ClientTelegramPollStates",
+                column: "BotName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ClientBranchAssignments_BranchId",
                 table: "ClientBranchAssignments",
                 column: "BranchId");
@@ -934,6 +1184,18 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "ClientContacts");
 
             migrationBuilder.DropTable(
+                name: "ClientMessengerLinkTokens");
+
+            migrationBuilder.DropTable(
+                name: "ClientMessengerMessages");
+
+            migrationBuilder.DropTable(
+                name: "ClientMessengerReadStates");
+
+            migrationBuilder.DropTable(
+                name: "ClientTelegramPollStates");
+
+            migrationBuilder.DropTable(
                 name: "ClientGroups");
 
             migrationBuilder.DropTable(
@@ -956,6 +1218,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "ClientMembershipSales");
+
+            migrationBuilder.DropTable(
+                name: "ClientMessengerAccounts");
 
             migrationBuilder.DropTable(
                 name: "Clients");

@@ -43,7 +43,7 @@ export async function request<T>(
   })
 
   const contentType = response.headers.get('content-type') ?? ''
-  const payload = contentType.includes('application/json')
+  const payload = isJsonContentType(contentType)
     ? ((await response.json()) as ProblemPayload & T)
     : null
 
@@ -60,4 +60,16 @@ export async function request<T>(
   }
 
   return payload as T
+}
+
+function isJsonContentType(contentType: string) {
+  const normalizedContentType = contentType
+    .split(';', 1)[0]
+    ?.trim()
+    .toLowerCase()
+
+  return (
+    normalizedContentType === JSON_CONTENT_TYPE ||
+    normalizedContentType?.endsWith('+json') === true
+  )
 }
