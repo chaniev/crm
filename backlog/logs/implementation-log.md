@@ -366,3 +366,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan created for Telegram client chat integration. Direct execution is conditional on accepting the Telegram status limitations and choosing phased single-branch implementation or separate backend/frontend/runtime subtasks.
+
+# 2026-05-21 22:50
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- none
+
+## Skipped tasks
+- TASK-039-crm-messenger-chat-integration.md - not moved: plan updated only. MVP decision is now fixed as separate official Telegram bot with one-time QR/deep-link onboarding.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 0
+- note: updated TASK-039 source notes and implementation plan to remove Telegram Business/user-account alternatives from MVP and to keep Telegram-level delivered/read receipts out of MVP.

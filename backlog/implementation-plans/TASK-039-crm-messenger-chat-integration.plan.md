@@ -15,13 +15,15 @@ Branch rules:
 - confirm the branch is active before making backend, frontend or runtime changes.
 
 ## Goal
-CRM should let an administrator link a client's Telegram account to the CRM client card, read and send text messages from that client card, show in-app indicators for new client messages, and let the head coach read the conversation without reply permissions. Backend remains the source of truth for access, storage, validation, audit and retention.
+CRM should let an administrator connect a client's Telegram account to the CRM client card through a one-time Telegram bot link or QR code, read and send text messages from that client card through the official club Telegram bot, show in-app indicators for new client messages, and let the head coach read the conversation without reply permissions. Backend remains the source of truth for access, storage, validation, audit and retention.
 
 ## Current understanding
 - MVP messenger is Telegram only.
+- MVP channel is a separate official Telegram bot for client chats. Do not use a personal administrator account, an ordinary Telegram user account for the club, Telegram Business, or the existing staff Telegram bot.
 - MVP supports two-way text chat only.
 - Chat is shown inside the client card.
-- A client links Telegram through a one-time CRM-generated code or deep link.
+- A client links Telegram through a one-time CRM-generated Telegram deep link and an equivalent QR code shown in CRM. The expected link format is `https://t.me/<client_bot_username>?start=<short-token>`.
+- The administrator can copy the link or show/send the QR code. The client opens it, presses Start in Telegram, and the backend links the Telegram user to the selected CRM client by the one-time token.
 - Administrators and head coach can read client conversations.
 - Only administrators can reply from CRM.
 - Coach access, branch scope, group scope and assigned-trainer scope are out of scope for MVP.
@@ -29,25 +31,25 @@ CRM should let an administrator link a client's Telegram account to the CRM clie
 - Existing backend already has `MessengerPlatform.Telegram`, audit entries can store messenger platform metadata, and client details are role-shaped in `ClientEndpoints`.
 - Existing `ManageClients` policy includes both head coach and administrator, so reply permissions need a separate policy or explicit role check. Reusing `ManageClients` would incorrectly allow the head coach to reply.
 - Telegram Bot API supports incoming updates through mutually exclusive `getUpdates` long polling or webhook delivery. For MVP, prefer long polling unless production deployment explicitly requires webhook, because the existing deployment is single-instance and this avoids a public webhook endpoint.
-- Telegram Bot API `sendMessage` returns a sent `Message` on success. It does not provide ordinary bot-to-user delivered/read receipts through update types. For MVP, CRM should expose local statuses such as `Queued`, `Sending`, `SentToTelegram`, `Failed`, and internal CRM read/unread state. Telegram-level `delivered` and `read` must be marked unsupported unless a separate Telegram Business/Secretary Bot design is explicitly selected.
-- Telegram deep links can pass a start parameter to the bot, so the preferred link flow is `https://t.me/<client_bot_username>?start=<short-token>`.
+- Telegram Bot API `sendMessage` returns a sent `Message` on success. It does not provide ordinary bot-to-user delivered/read receipts through update types. For MVP, CRM should expose local statuses such as `Queued`, `Sending`, `SentToTelegram`, `Failed`, and internal CRM read/unread state. Telegram-level `delivered` and `read` are out of scope for the Telegram bot MVP.
 
 ## Execution steps
 1. Prepare the implementation branch from clean updated `main`: checkout `main`, pull, verify clean status, create or switch to `feature/TASK-039-crm-messenger-chat-integration`.
 2. Run a short design checkpoint before code:
    - confirm long polling vs webhook for production;
-   - confirm that Telegram read/delivery receipts are not part of MVP;
+   - confirm that Telegram-level read/delivery receipts are not part of MVP and only local CRM statuses will be shown;
+   - confirm that MVP uses only the separate official Telegram bot plus QR/deep-link onboarding, without Telegram Business or ordinary user-account automation;
    - confirm whether one implementation branch is acceptable or whether this plan should be split into backend, frontend and runtime subtasks.
 3. Define backend contract first:
    - conversation summary for a client;
    - message list pagination;
-   - one-time Telegram link creation;
+   - one-time Telegram link creation that returns a QR-ready URL, expiration and current connection state;
    - text message send command;
    - mark/read-on-view behavior;
    - unread indicators for the current authenticated CRM user.
 4. Add backend domain/storage model:
    - `ClientMessengerAccount` for active client-to-platform binding;
-   - `ClientMessengerLinkToken` for one-time link/code flow with hash, TTL and used timestamp;
+   - `ClientMessengerLinkToken` for one-time Telegram bot link/QR flow with hash, TTL and used timestamp;
    - `ClientMessengerMessage` for inbound/outbound text messages and local send status;
    - `ClientMessengerReadState` for per-CRM-user internal unread indicators;
    - uniqueness constraints for one active Telegram account per client and one active client per Telegram account.
@@ -58,7 +60,7 @@ CRM should let an administrator link a client's Telegram account to the CRM clie
    - no automatic deletion on archive unless product requirements change.
 6. Add backend service layer:
    - validate client existence and role permissions;
-   - create short one-time tokens/deep links and store only token hashes;
+   - create short one-time tokens/deep links, return the QR-ready URL to CRM, and store only token hashes;
    - link Telegram update `/start <token>` to a CRM client;
    - ingest inbound text messages idempotently;
    - create outbound message records with idempotency keys;
@@ -77,7 +79,7 @@ CRM should let an administrator link a client's Telegram account to the CRM clie
    - inbound Telegram message received if useful for compliance;
    - include messenger platform and hashed Telegram user id where applicable.
 9. Add Telegram runtime inside backend infrastructure for MVP:
-   - separate `ClientTelegram` options/token/bot username/runtime enabled flag;
+   - separate `ClientTelegram` options/token/bot username/runtime enabled flag for the official client chat bot;
    - `HttpClient` integration with Bot API methods needed for `getUpdates` and `sendMessage`;
    - background polling worker with stored offset, cancellation, backoff and idempotent update handling;
    - outbound send worker or transactional outbox-style processor if send is not performed synchronously;
@@ -91,10 +93,11 @@ CRM should let an administrator link a client's Telegram account to the CRM clie
    - `frontend/src/lib/api/endpoints.ts`;
    - `frontend/src/lib/api/types.ts`;
    - a focused `frontend/src/lib/api/clientMessenger.ts` or existing clients API module extension;
-   - mapper tests for message statuses, unread counts and optional connection state.
+   - mapper tests for message statuses, unread counts, link expiration and optional connection state.
 12. Add client-card chat UI:
    - a `ClientMessengerChatSection` inside `ClientDetailScreen`;
-   - connection state with generated Telegram link/code for administrators;
+   - connection state with generated Telegram deep link, QR code and copy-link action for administrators;
+   - clear unconnected state explaining that the client must open the QR/link and press Start once;
    - read-only conversation for head coach;
    - composer enabled only for administrators;
    - stable loading/error/empty states;
@@ -121,6 +124,7 @@ CRM should let an administrator link a client's Telegram account to the CRM clie
 4. Keep runtime local and reversible: feature flag disabled by default until token/config is present.
 5. Integrate frontend incrementally after backend contracts and mocks are stable.
 6. Keep delivery/read wording conservative: expose only states that backend can prove.
+7. Treat Telegram Business, WhatsApp, MAX and ordinary Telegram user-account automation as follow-up channel/product decisions, not MVP scope.
 
 Recommended decomposition if this is too large for one Codex execution:
 1. `TASK-039A` backend storage, API contracts, authorization and audit.
@@ -162,6 +166,8 @@ If implementation chooses a separate adapter service instead of a backend hosted
 - Backend owns CRM access rules, validation semantics, storage, audit and retention.
 - Frontend must not infer or duplicate chat permissions beyond rendering backend-provided capabilities.
 - Existing staff Telegram bot must stay separate from client chat runtime and token.
+- MVP must use a separate official Telegram bot for the club/client chat.
+- MVP onboarding must support a one-time Telegram deep link and a QR code derived from the same link.
 - MVP supports only Telegram and only text messages.
 - Do not import historical Telegram history.
 - Do not add attachments, voice, video, stickers as first-class message types.
@@ -175,6 +181,8 @@ If implementation chooses a separate adapter service instead of a backend hosted
 - Marketing campaigns or automated broadcasts.
 - Mixing this feature into the current employee Telegram bot.
 - Telegram Business/Secretary Bot mode.
+- Ordinary Telegram user-account automation through MTProto or shared club-account sessions.
+- WhatsApp, MAX or other messengers.
 - Multi-messenger abstraction beyond data model choices that keep future platforms possible.
 - Global CRM inbox.
 - Full realtime websocket infrastructure unless already available and cheap to reuse.
@@ -198,11 +206,12 @@ Add or update frontend unit tests for:
 - chat section rendering connected/unconnected/empty/error/loading states;
 - composer enabled only when backend capability says the user can reply;
 - failed outbound message status display;
-- link/code creation state for administrators only.
+- QR/deep-link creation state for administrators only;
+- copy-link behavior and token expiration rendering.
 
 ### Integration tests
 Add backend integration tests for:
-- `POST /clients/{id}/messenger/telegram/link-token` creates a link for administrator and rejects head coach/coach if creation is admin-only;
+- `POST /clients/{id}/messenger/telegram/link-token` creates a QR-ready Telegram bot deep link for administrator and rejects head coach/coach if creation is admin-only;
 - `GET /clients/{id}/messenger/telegram/messages` returns messages for administrator/head coach and logs conversation view;
 - `POST /clients/{id}/messenger/telegram/messages` allows administrator, rejects head coach/coach and records audit;
 - inbound `/start <token>` links the Telegram account once and rejects expired/reused tokens;
@@ -214,7 +223,8 @@ Add backend integration tests for:
 ### UI tests
 Add Playwright coverage for:
 - administrator opens a connected client card, sees chat history, sends a text message and sees local sent/failed status;
-- administrator opens an unconnected client card and can generate a Telegram link/code;
+- administrator opens an unconnected client card and can generate a Telegram link plus QR code;
+- administrator can copy the Telegram link from the unconnected state;
 - head coach can read messages but cannot see an enabled composer;
 - coach does not see the chat section or receives a forbidden state if navigated directly;
 - unread indicator clears after opening the conversation;
@@ -226,6 +236,7 @@ Add fake Telegram transport tests for:
 - duplicate updates;
 - ignored non-text updates;
 - `/start <token>` linking flow;
+- QR/deep-link token resolves to the same `/start <token>` linking flow;
 - outbound `sendMessage` success mapping to Telegram message id;
 - outbound `sendMessage` failure mapping to local failed status without leaking token or full Telegram payload.
 
@@ -234,6 +245,7 @@ Add fake Telegram transport tests for:
 - Frontend unit/e2e tests cover role-specific UI behavior and unread indicator behavior.
 - Runtime tests use fake Telegram responses; no automated test should require a real Telegram token.
 - Manual QA covers real Telegram link/send only in a configured non-production environment.
+- Manual QA must include both opening the copied link and scanning the QR code with Telegram.
 
 ## Test plan
 - [ ] `dotnet test backend/GymCrm.slnx`
@@ -242,7 +254,7 @@ Add fake Telegram transport tests for:
 - [ ] `cd frontend && npm run build`
 - [ ] `cd frontend && npm run test:e2e -- clients-messenger-chat.spec.ts`
 - [ ] `docker compose --env-file deploy/.env.example -f deploy/docker-compose.yml config` or equivalent deployment config validation after env/compose changes.
-- [ ] Manual non-production smoke test with a dedicated Telegram test bot: generate link, open link as client, send client text, reply as administrator, verify head coach read-only view, verify coach cannot access chat.
+- [ ] Manual non-production smoke test with a dedicated Telegram test bot: generate link/QR, open copied link as client, scan QR as client, send client text, reply as administrator, verify head coach read-only view, verify coach cannot access chat.
 
 ## Regression barrier
 Primary barrier: backend integration tests must lock role access, audit logging, one-time link semantics, idempotent inbound ingestion, local message status transitions and the absence of chat data in coach client responses.
@@ -253,6 +265,7 @@ Runtime barrier: fake Telegram transport tests must prove polling/send behavior 
 
 ## Risks
 - Telegram Bot API does not expose ordinary delivered/read receipts for bot-to-client messages; promising these in the UI would create a false state.
+- The first connection still requires a one-time client action: open the Telegram bot link or scan the QR code and press Start.
 - Long polling inside the backend process is unsafe if backend is later scaled horizontally without a single-worker lock or separate adapter service.
 - Telegram chat/user ids are personal data; raw ids are needed to send messages, so storage, logs and audit must be minimized.
 - Retrying outbound sends can duplicate Telegram messages unless the local outbox and status transitions are carefully designed.
@@ -266,6 +279,7 @@ Runtime barrier: fake Telegram transport tests must prove polling/send behavior 
 Остановиться и не писать код, если:
 - product insists on Telegram delivered/read receipts for ordinary bot chats despite API limitations;
 - implementation requires reusing the existing employee Telegram bot token or dialog/storage flow;
+- implementation switches MVP to a personal admin account, ordinary club user account, Telegram Business, WhatsApp or MAX without a new task decision;
 - production requires multiple backend replicas before a single-worker or webhook design is agreed;
 - chat access must use branch/group/assigned-trainer scope in MVP;
 - attachments, voice, video, stickers or old-history import become required;
