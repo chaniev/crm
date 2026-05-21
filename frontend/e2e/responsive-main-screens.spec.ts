@@ -530,10 +530,15 @@ async function expectRoutePageTitle(page: Page, title: string) {
   await expect(main.getByRole('heading', { level: 1 })).toHaveCount(1)
 
   const headingBox = await heading.boundingBox()
+  const headerBox = await page.locator('.app-shell__header').boundingBox()
+  const layoutBox = await main.locator('.page-layout').first().boundingBox()
   const firstSectionBox = await main.locator('.page-section').first().boundingBox()
 
   expect(headingBox).not.toBeNull()
+  expect(headerBox).not.toBeNull()
+  expect(layoutBox).not.toBeNull()
   expect(firstSectionBox).not.toBeNull()
+  expect(Math.round(layoutBox!.y - (headerBox!.y + headerBox!.height))).toBeLessThanOrEqual(16)
   expect(headingBox!.y + headingBox!.height).toBeLessThanOrEqual(firstSectionBox!.y + 1)
 }
 
@@ -570,6 +575,8 @@ async function expectSharedContentEdges(
   baseline: { left: number; right: number } | null,
 ) {
   const box = await page.locator('main .page-layout').first().boundingBox()
+  const navbarBox = await page.locator('.app-shell__navbar').boundingBox()
+  const viewportWidth = await page.evaluate(() => window.innerWidth)
 
   expect(box).not.toBeNull()
 
@@ -577,6 +584,12 @@ async function expectSharedContentEdges(
     left: Math.round(box!.x),
     right: Math.round(box!.x + box!.width),
   }
+  const navbarRight = navbarBox ? navbarBox.x + navbarBox.width : 0
+  const expectedLeft = Math.round(navbarRight + 16)
+  const expectedRightGap = 16
+
+  expect(Math.abs(edges.left - expectedLeft)).toBeLessThanOrEqual(2)
+  expect(Math.abs(viewportWidth - edges.right - expectedRightGap)).toBeLessThanOrEqual(2)
 
   if (baseline) {
     expect(Math.abs(edges.left - baseline.left)).toBeLessThanOrEqual(2)
