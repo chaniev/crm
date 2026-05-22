@@ -501,3 +501,24 @@
 - needs-clarification: 0
 - updated existing: 0
 - processed files: 1
+
+# 2026-05-22 16:55
+
+## Processed clarification
+- /backlog/risky/TASK-049-deploy-club-name-branding.md
+
+## Updated existing tasks
+- /backlog/risky/TASK-049-deploy-club-name-branding.md
+
+## Captured decisions
+- Club name is provided by env at deployment time.
+- Updating the value may require backend and frontend restart.
+- Backend config contract for frontend consumption must be implemented.
+- Missing or empty env falls back to `Gym CRM`.
+- Deployment administrator sets the value; editing it inside CRM UI is out of scope.
+- Long UI names are truncated with `...`.
+- Historical backlog/docs mentions of `Gym CRM` are ignored.
+
+## Summary
+- updated existing: 1
+- validation: backlog-only update; runtime test commands were not run
