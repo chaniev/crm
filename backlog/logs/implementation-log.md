@@ -383,3 +383,20 @@
 - skipped: 1
 - plans created: 0
 - note: updated TASK-039 source notes and implementation plan to remove Telegram Business/user-account alternatives from MVP and to keep Telegram-level delivered/read receipts out of MVP.
+
+# 2026-05-22 17:02
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-049-deploy-club-name-branding.plan.md
+
+## Skipped tasks
+- TASK-049-deploy-club-name-branding.md - not moved: source task remains in `/backlog/risky`, is medium risk due to backend/frontend/deploy runtime configuration, and should be executed only from its dedicated branch after plan review.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan created for deploy-time club name branding. Implementation should be contract-first via backend-normalized config, frontend consumption without separate env logic, deployment env examples, backend contract tests, frontend bootstrap/e2e coverage and compose validation.
