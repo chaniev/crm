@@ -23,71 +23,50 @@
 
 .gym-crm-page {
   min-height: 100vh;
-  padding: clamp(1rem, 3vw, 2rem);
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #07100f;
+}
+
+.gym-crm-page--auth {
+  --auth-accent: #f26a21;
+  --auth-accent-hover: #d95c1f;
+  --auth-accent-active: #bf4d17;
+  --auth-text: #171d27;
+  --auth-muted: #687083;
+  --auth-border: #d7dee7;
+
+  display: grid;
+  align-items: center;
+  padding: clamp(1.25rem, 5vw, 5.4rem);
+  background-image:
+    linear-gradient(90deg, rgba(3, 8, 10, 0.92) 0%, rgba(3, 8, 10, 0.7) 36%, rgba(3, 8, 10, 0.18) 100%),
+    url('./assets/auth/k4pro-login-bg.png');
+  background-position: center right;
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+}
+
+.gym-crm-page--auth::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background:
-    linear-gradient(135deg, rgba(247, 243, 235, 0.98), rgba(239, 246, 242, 0.98) 52%, rgba(248, 248, 244, 0.98));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 20%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.22), transparent 52%);
+  pointer-events: none;
 }
 
 .auth-layout {
-  min-height: calc(100vh - 2rem);
+  width: 100%;
+  min-height: calc(100vh - clamp(2.5rem, 10vw, 10.8rem));
   display: grid;
-  grid-template-areas: 'story action';
-  grid-template-columns: minmax(0, 0.95fr) minmax(22rem, 0.72fr);
-  gap: clamp(1rem, 3vw, 2rem);
+  grid-template-columns: minmax(0, 31rem) minmax(0, 1fr);
   align-items: center;
   position: relative;
   z-index: 1;
-}
-
-.story-panel {
-  grid-area: story;
-  min-height: min(37rem, calc(100vh - 4rem));
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  background: linear-gradient(155deg, #0f3430, #145a52 62%, #1f6b62);
-  color: #f6f4ee;
-  padding: clamp(1.5rem, 3vw, 2.5rem);
-}
-
-.story-panel__content {
-  position: relative;
-  z-index: 1;
-}
-
-.story-panel__kicker {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #f0c47f;
-  text-transform: uppercase;
-}
-
-.story-panel__title {
-  max-width: 13ch;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-height: 1.02;
-  font-size: 3.4rem;
-  letter-spacing: 0;
-}
-
-.story-panel__description {
-  max-width: 42rem;
-  color: rgba(246, 244, 238, 0.84);
-}
-
-.story-panel__value-list {
-  color: rgba(246, 244, 238, 0.92);
-}
-
-.story-panel__value-item {
-  min-height: 2rem;
 }
 
 .stage-card,
@@ -95,20 +74,129 @@
 .loading-card {
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.92);
+}
+
+.stage-card {
+  width: min(100%, 30rem);
+  padding: clamp(2rem, 4vw, 3rem);
+  color: var(--auth-text);
+  background: #ffffff;
+  border-color: rgba(255, 255, 255, 0.72);
+  box-shadow: none;
+}
+
+.stage-card--login,
+.stage-card--error {
+  justify-self: start;
+}
+
+.utility-card,
+.loading-card {
+  background: rgba(255, 255, 255, 0.94);
   border-color: rgba(20, 90, 82, 0.12);
   backdrop-filter: blur(18px);
 }
 
-.stage-card,
 .utility-card {
   padding: clamp(1.3rem, 3vw, 2rem);
 }
 
-.auth-layout > .stage-card {
-  grid-area: action;
-  justify-self: center;
-  width: min(100%, 30rem);
+.loading-card {
+  padding: 2rem;
+  box-shadow: none;
+}
+
+.login-card__brand {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--auth-accent);
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+
+.login-card__title {
+  color: var(--auth-text);
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.login-card__description {
+  max-width: 24rem;
+  color: var(--auth-muted);
+}
+
+.login-form {
+  min-width: 0;
+}
+
+.stage-card .mantine-TextInput-label,
+.stage-card .mantine-PasswordInput-label {
+  margin-bottom: 0.55rem;
+  color: var(--auth-text);
+  font-size: 0.94rem;
+  font-weight: 800;
+}
+
+.stage-card :where(.mantine-Input-input) {
+  min-height: 3.5rem;
+  border-color: var(--auth-border);
+  border-radius: 0.9rem;
+  color: var(--auth-text);
+  background: #ffffff;
+  font-size: 1rem;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background-color 140ms ease;
+}
+
+.stage-card :where(.mantine-Input-input:hover) {
+  border-color: #b8c2ce;
+}
+
+.stage-card :where(.mantine-Input-input:focus, .mantine-Input-input:focus-within) {
+  border-color: var(--auth-accent-hover);
+  box-shadow: 0 0 0 3px rgba(217, 92, 31, 0.18);
+}
+
+.stage-card :where(.mantine-Input-input:disabled) {
+  color: #8a93a2;
+  background: #f3f4f6;
+}
+
+.stage-card :where(.mantine-Input-section) {
+  color: #62708a;
+}
+
+.stage-card .auth-submit-button,
+.stage-card button[type='submit'] {
+  min-height: 3.5rem;
+  margin-top: 0.35rem;
+  border: 0;
+  border-radius: 1rem;
+  color: #ffffff;
+  background: var(--auth-accent) !important;
+  box-shadow: none;
+}
+
+.stage-card .auth-submit-button:hover,
+.stage-card button[type='submit']:hover {
+  background: var(--auth-accent-hover) !important;
+}
+
+.stage-card .auth-submit-button:active,
+.stage-card button[type='submit']:active {
+  background: var(--auth-accent-active) !important;
+}
+
+.stage-card .auth-submit-button:focus-visible,
+.stage-card button[type='submit']:focus-visible {
+  outline: 3px solid rgba(217, 92, 31, 0.24);
+  outline-offset: 2px;
 }
 
 .hint-card {
@@ -118,15 +206,15 @@
 }
 
 .setup-disclosure {
-  border: 1px solid rgba(20, 90, 82, 0.1);
+  border: 1px solid rgba(215, 222, 231, 0.92);
   border-radius: 1rem;
-  background: rgba(246, 244, 238, 0.74);
+  background: #f7f8fa;
 }
 
 .setup-disclosure summary {
   cursor: pointer;
   padding: 0.9rem 1rem;
-  color: var(--mantine-color-brand-8);
+  color: var(--auth-accent-active, var(--mantine-color-brand-8));
   font-weight: 700;
 }
 
@@ -153,15 +241,11 @@
 }
 
 .loading-layout {
-  min-height: calc(100vh - 2rem);
+  min-height: calc(100vh - clamp(2.5rem, 10vw, 10.8rem));
   display: grid;
   place-items: center;
   position: relative;
   z-index: 1;
-}
-
-.loading-card {
-  padding: 2rem;
 }
 
 .brand-heading {
@@ -1814,19 +1898,23 @@
 }
 
 @media (max-width: 62rem) {
+  .gym-crm-page--auth {
+    padding: clamp(1rem, 4vw, 2rem);
+    background-image:
+      linear-gradient(90deg, rgba(3, 8, 10, 0.74) 0%, rgba(3, 8, 10, 0.5) 52%, rgba(3, 8, 10, 0.28) 100%),
+      url('./assets/auth/k4pro-login-bg.png');
+    background-position: center right 28%;
+  }
+
   .auth-layout {
-    min-height: auto;
-    grid-template-areas: 'action';
+    min-height: calc(100vh - clamp(2rem, 8vw, 4rem));
     grid-template-columns: 1fr;
-    align-items: start;
+    place-items: center;
   }
 
   .auth-layout > .stage-card {
-    width: 100%;
-  }
-
-  .story-panel {
-    display: none;
+    width: min(100%, 30rem);
+    justify-self: center;
   }
 
   .clients-v7-layout {
@@ -1856,6 +1944,52 @@
   .client-overview-rail,
   .client-edit-rail {
     max-width: 22rem;
+  }
+}
+
+@media (max-width: 48rem) {
+  .gym-crm-page--auth {
+    align-items: start;
+    min-height: 100svh;
+    padding: 1rem;
+    background-image:
+      linear-gradient(180deg, rgba(3, 8, 10, 0.62) 0%, rgba(3, 8, 10, 0.84) 100%),
+      url('./assets/auth/k4pro-login-bg.png');
+    background-position: center top;
+  }
+
+  .auth-layout {
+    min-height: auto;
+    padding-top: clamp(0.5rem, 4vh, 2rem);
+    align-items: start;
+  }
+
+  .stage-card {
+    padding: 1.5rem;
+    border-radius: 1.5rem !important;
+    box-shadow: none;
+  }
+
+  .login-card__body {
+    gap: 1.25rem;
+  }
+
+  .login-card__header {
+    gap: 0.75rem;
+  }
+
+  .login-card__brand {
+    font-size: 2rem;
+  }
+
+  .login-card__title {
+    font-size: 1.7rem;
+  }
+
+  .stage-card :where(.mantine-Input-input),
+  .stage-card .auth-submit-button,
+  .stage-card button[type='submit'] {
+    min-height: 3.25rem;
   }
 }
 
