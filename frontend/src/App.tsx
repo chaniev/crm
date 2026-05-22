@@ -420,17 +420,8 @@ function App() {
 
   if (bootstrapError && !session) {
     return (
-      <StageFrame
-        clubName={displayedClubName}
-        storyDescription="Работа с клиентами, расписанием и командой в одном интерфейсе."
-        storyPoints={[
-          'Клиенты и абонементы',
-          'Расписание и посещаемость',
-          'Команда и роли доступа',
-        ]}
-        storyTitle={`${displayedClubName} для спортивного клуба`}
-      >
-        <Paper className="stage-card" radius="32px" shadow="lg" withBorder>
+      <StageFrame>
+        <Paper className="stage-card stage-card--error" radius="32px" shadow="lg" withBorder>
           <Stack gap="lg">
             <Stack gap={6}>
               <Text c="dimmed" fw={600} size="sm">
@@ -465,16 +456,7 @@ function App() {
 
   if (!session?.isAuthenticated || !session.user) {
     return (
-      <StageFrame
-        clubName={displayedClubName}
-        storyDescription="Работа с клиентами, расписанием и командой в одном интерфейсе."
-        storyPoints={[
-          'Клиенты и абонементы',
-          'Расписание и посещаемость',
-          'Команда и роли доступа',
-        ]}
-        storyTitle={`${displayedClubName} для спортивного клуба`}
-      >
+      <StageFrame>
         <LoginScreen
           clubName={displayedClubName}
           pending={loginPending}
@@ -487,16 +469,7 @@ function App() {
 
   if (session.user.mustChangePassword) {
     return (
-      <StageFrame
-        clubName={displayedClubName}
-        storyDescription="После обновления пароля откроется рабочий интерфейс с доступными разделами."
-        storyPoints={[
-          'Персональный доступ для сотрудника',
-          'Понятные роли в команде',
-          'Безопасное начало работы',
-        ]}
-        storyTitle="Защитите учетную запись"
-      >
+      <StageFrame>
         <PasswordScreen
           mode="forced"
           pending={passwordPending}
@@ -554,52 +527,13 @@ function App() {
 }
 
 type StageFrameProps = {
-  clubName: string
-  storyTitle: string
-  storyDescription: string
-  storyPoints: string[]
   children: ReactNode
 }
 
-function StageFrame({
-  clubName,
-  storyTitle,
-  storyDescription,
-  storyPoints,
-  children,
-}: StageFrameProps) {
+function StageFrame({ children }: StageFrameProps) {
   return (
-    <div className="gym-crm-page">
-      <Container className="auth-layout" size="xl">
-        {children}
-
-        <Paper className="story-panel" radius="36px" shadow="lg">
-          <Stack className="story-panel__content" gap="xl">
-            <Stack gap="md">
-              <Text className="story-panel__kicker" fw={700} title={clubName}>
-                {clubName}
-              </Text>
-              <Title c="white" className="story-panel__title" order={1} title={storyTitle}>
-                {storyTitle}
-              </Title>
-              <Text className="story-panel__description" size="lg">
-                {storyDescription}
-              </Text>
-            </Stack>
-
-            <Stack className="story-panel__value-list" gap="sm">
-              {storyPoints.map((point) => (
-                <Group className="story-panel__value-item" gap="sm" key={point}>
-                  <ThemeIcon color="accent.5" radius="xl" size={26}>
-                    <IconCheck size={16} />
-                  </ThemeIcon>
-                  <Text fw={600}>{point}</Text>
-                </Group>
-              ))}
-            </Stack>
-          </Stack>
-        </Paper>
-      </Container>
+    <div className="gym-crm-page gym-crm-page--auth">
+      <main className="auth-layout">{children}</main>
     </div>
   )
 }
@@ -650,18 +584,15 @@ function LoginScreen({
   }
 
   return (
-    <Paper className="stage-card" radius="32px" shadow="lg" withBorder>
-      <Stack gap="lg">
-        <Stack gap={6}>
-          <Text c="dimmed" fw={600} size="sm">
-            Авторизация
+    <Paper className="stage-card stage-card--login" radius="32px" shadow="lg" withBorder>
+      <Stack className="login-card__body" gap="xl">
+        <Stack className="login-card__header" gap="md">
+          <Text className="login-card__brand" fw={800} title={clubName}>
+            {clubName}
           </Text>
-          <Title className="brand-heading" order={2} title={`Войти в ${clubName}`}>
-            Войти в {clubName}
+          <Title className="login-card__title" order={1}>
+            Добро пожаловать!
           </Title>
-          <Text c="dimmed">
-            Используйте логин и пароль, выданные администратором клуба.
-          </Text>
         </Stack>
 
         {formError ? (
@@ -675,22 +606,28 @@ function LoginScreen({
           </Alert>
         ) : null}
 
-        <form onSubmit={form.onSubmit((values) => void submit(values))}>
+        <form className="login-form" onSubmit={form.onSubmit((values) => void submit(values))}>
           <Stack gap="md">
             <TextInput
               autoComplete="username"
+              disabled={pending}
               label="Логин"
+              leftSection={<IconUserCircle size={20} />}
               placeholder="Введите логин"
               {...form.getInputProps('login')}
             />
             <PasswordInput
               autoComplete="current-password"
+              disabled={pending}
               label="Пароль"
+              leftSection={<IconLockPassword size={20} />}
               placeholder="Введите пароль"
               {...form.getInputProps('password')}
             />
 
             <Button
+              className="auth-submit-button"
+              fullWidth
               loading={pending}
               rightSection={<IconArrowRight size={18} />}
               size="md"
@@ -1296,7 +1233,7 @@ function LoadingState({ clubName }: LoadingStateProps) {
   const title = clubName ? `Открываем ${clubName}` : 'Открываем CRM'
 
   return (
-    <div className="gym-crm-page">
+    <div className="gym-crm-page gym-crm-page--auth">
       <Container className="loading-layout" size="sm">
         <Paper className="loading-card" radius="32px" shadow="lg" withBorder>
           <Stack align="center" gap="md">
