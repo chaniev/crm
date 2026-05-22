@@ -10,6 +10,7 @@ internal sealed class AuthenticatedUserMiddleware(RequestDelegate next)
     private static readonly string[] AllowedWhenPasswordChangeRequired =
     [
         ApiHostingConstants.RootPath,
+        ApiHostingConstants.ConfigPath,
         AuthConstants.SessionPath,
         AuthConstants.ChangePasswordPath,
         AuthConstants.LogoutPath,

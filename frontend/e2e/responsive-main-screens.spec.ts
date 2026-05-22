@@ -1,5 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
+const LONG_CLUB_NAME =
+  'Северный центр функциональной подготовки и спортивной реабилитации'
+const APP_CONFIG = { clubName: LONG_CLUB_NAME } as const
+
 const MANAGEMENT_SESSION = {
   isAuthenticated: true,
   csrfToken: 'management-csrf-token',
@@ -413,6 +417,7 @@ for (const viewport of VIEWPORTS) {
       for (const route of MANAGEMENT_ROUTES) {
         await page.goto(route.path)
         await expect(page.getByTestId(route.screenTestId)).toBeVisible()
+        await expectLongBrandHeader(page)
         await expectActiveNavigation(page, viewport.width, route.navLabel)
         await expectNoServiceIntro(page)
         await expectRoutePageTitle(page, route.expectedPageTitle)
@@ -436,6 +441,7 @@ for (const viewport of VIEWPORTS) {
       for (const route of COACH_ROUTES) {
         await page.goto(route.path)
         await expect(page.getByTestId(route.screenTestId)).toBeVisible()
+        await expectLongBrandHeader(page)
         await expectActiveNavigation(page, viewport.width, route.navLabel)
         await expectNoServiceIntro(page)
         await expectRoutePageTitle(page, route.expectedPageTitle)
@@ -448,6 +454,13 @@ for (const viewport of VIEWPORTS) {
       }
     })
   })
+}
+
+async function expectLongBrandHeader(page: Page) {
+  const brandTitle = page.locator('.app-shell__brand-title')
+
+  await expect(brandTitle).toHaveText(LONG_CLUB_NAME)
+  await expect(brandTitle).toHaveAttribute('title', LONG_CLUB_NAME)
 }
 
 async function expectActiveNavigation(page: Page, width: number, navLabel: string) {
@@ -699,6 +712,11 @@ async function mockApi(
 
     if (pathname === '/api/auth/session' && method === 'GET') {
       await fulfillJson(route, 200, session)
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 

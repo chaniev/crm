@@ -63,6 +63,8 @@ builder.Services.Configure<FormOptions>(options =>
 });
 builder.Services.Configure<BootstrapUserOptions>(
     builder.Configuration.GetSection(BootstrapUserOptions.SectionName));
+builder.Services.Configure<BrandingOptions>(
+    builder.Configuration.GetSection(BrandingOptions.SectionName));
 builder.Services
     .AddOptions<BotInternalApiOptions>()
     .Bind(builder.Configuration.GetSection(BotInternalApiOptions.SectionName))
@@ -86,6 +88,7 @@ app.UseAuthentication();
 app.UseMiddleware<AuthenticatedUserMiddleware>();
 app.UseAuthorization();
 
+app.MapAppConfigEndpoints();
 app.MapAuthEndpoints();
 app.MapAccessEndpoints();
 app.MapAdministratorEndpoints();

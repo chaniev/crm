@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 
+const APP_CONFIG = { clubName: 'Iron Club' } as const
 const COACH_LOGIN = 'coach'
 const COACH_PASSWORD = 'coach-password'
 const FIXED_TRAINING_DATE = '2026-04-18'
@@ -257,6 +258,11 @@ async function mockApi(
     const requestUrl = new URL(route.request().url())
     if (!requestUrl.pathname.startsWith('/api/')) {
       await route.continue()
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && route.request().method() === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 

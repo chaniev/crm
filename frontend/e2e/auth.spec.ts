@@ -3,6 +3,8 @@ import { expect, test, type Page } from '@playwright/test'
 const BOOTSTRAP_LOGIN = 'headcoach'
 const BOOTSTRAP_PASSWORD = '12345678'
 const UPDATED_PASSWORD = 'gym-crm-e2e-password'
+const CUSTOM_APP_CONFIG = { clubName: 'Iron Club' } as const
+const FALLBACK_APP_CONFIG = { clubName: 'Gym CRM' } as const
 
 const unauthenticatedSession = {
   isAuthenticated: false,
@@ -76,7 +78,7 @@ test.describe('Аутентификация', () => {
 
     await page.goto('/')
 
-    await expect(page.getByRole('heading', { name: 'Войти в Gym CRM' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Войти в Iron Club' })).toBeVisible()
     await expect(page.getByLabel('Логин')).toBeVisible()
     await expect(page.getByLabel('Пароль')).toBeVisible()
 
@@ -184,7 +186,7 @@ test.describe('Аутентификация', () => {
       }
 
       return false
-    })
+    }, FALLBACK_APP_CONFIG)
 
     await page.goto('/')
 
@@ -205,11 +207,17 @@ type MockApiContext = {
 async function mockApi(
   page: Page,
   handler: (context: MockApiContext) => Promise<boolean>,
+  appConfig: { clubName: string } = CUSTOM_APP_CONFIG,
 ) {
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
     if (!requestUrl.pathname.startsWith('/api/')) {
       await route.continue()
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && route.request().method() === 'GET') {
+      await fulfillJson(route, 200, appConfig)
       return
     }
 

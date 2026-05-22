@@ -44,7 +44,7 @@ export function Header({
             </ThemeIcon>
           )}
           <div className="app-shell__brand-copy">
-            <Text className="app-shell__brand-title" fw={800}>
+            <Text className="app-shell__brand-title" fw={800} title={brandTitle}>
               {brandTitle}
             </Text>
             {compactMeta ? (

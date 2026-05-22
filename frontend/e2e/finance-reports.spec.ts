@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
+const APP_CONFIG = { clubName: 'Iron Club' } as const
+
 const FINANCE_SESSION = {
   isAuthenticated: true,
   csrfToken: 'finance-csrf-token',
@@ -348,6 +350,11 @@ async function mockFinanceApi(
 
     if (pathname === '/api/auth/session' && method === 'GET') {
       await fulfillJson(route, 200, session)
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 

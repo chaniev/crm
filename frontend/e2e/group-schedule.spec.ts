@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
+const APP_CONFIG = { clubName: 'Iron Club' } as const
+
 const headCoachSession = {
   isAuthenticated: true,
   csrfToken: 'headcoach-schedule-csrf',
@@ -504,6 +506,11 @@ async function mockApi(
 
     if (context.pathname === '/api/auth/session' && context.method === 'GET') {
       await fulfillJson(route, 200, session)
+      return
+    }
+
+    if (context.pathname === '/api/config' && context.method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 

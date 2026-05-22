@@ -1,5 +1,6 @@
 export type {
   AccessPermissions,
+  AppConfigResponse,
   AppSection,
   AttendanceClient,
   AttendanceGroup,
@@ -81,6 +82,7 @@ export type {
 } from './api/types'
 
 export { ApiError, applyFieldErrors } from './api/errors'
+export { loadAppConfig } from './api/config'
 export {
   changePassword,
   loadSession,

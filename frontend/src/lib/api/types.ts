@@ -39,6 +39,10 @@ export type SessionResponse = {
   bootstrapMode: boolean
 }
 
+export type AppConfigResponse = {
+  clubName: string
+}
+
 export type LoginRequest = {
   login: string
   password: string

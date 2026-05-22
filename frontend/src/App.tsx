@@ -34,9 +34,11 @@ import {
   ApiError,
   applyFieldErrors,
   changePassword,
+  loadAppConfig,
   loadSession,
   login,
   logout,
+  type AppConfigResponse,
   type AppSection,
   type AuthenticatedUser,
   type ChangePasswordRequest,
@@ -161,8 +163,58 @@ function getPostPasswordPath(
   return resolveAccessibleRoutePath(user, parseRoute(passwordReturnPath))
 }
 
+function getRouteDocumentTitle(route: AppRoute) {
+  switch (route.kind) {
+    case 'section':
+      return APP_SECTION_LABELS[route.section]
+    case 'password':
+      return 'Смена пароля'
+    case 'clientCreate':
+      return 'Новый клиент'
+    case 'clientDetails':
+      return 'Карточка клиента'
+    case 'clientEdit':
+      return 'Редактирование клиента'
+    case 'groupCreate':
+      return 'Новая группа'
+    case 'groupEdit':
+      return 'Редактирование группы'
+    case 'userCreate':
+      return 'Новый тренер'
+    case 'userEdit':
+      return 'Редактирование тренера'
+  }
+}
+
+function getAppDocumentTitle(
+  clubName: string,
+  route: AppRoute,
+  session: SessionResponse | null,
+  loadingSession: boolean,
+  bootstrapError: string | null,
+) {
+  if (loadingSession) {
+    return `Открываем ${clubName}`
+  }
+
+  if (bootstrapError && !session) {
+    return `Вход недоступен • ${clubName}`
+  }
+
+  if (!session?.isAuthenticated || !session.user) {
+    return `Войти в ${clubName}`
+  }
+
+  if (session.user.mustChangePassword || route.kind === 'password') {
+    return `Смена пароля • ${clubName}`
+  }
+
+  return `${getRouteDocumentTitle(route)} • ${clubName}`
+}
+
 function App() {
   const { navigate, pathname, route } = useAppRoute()
+  const [appConfig, setAppConfig] = useState<AppConfigResponse | null>(null)
   const [session, setSession] = useState<SessionResponse | null>(null)
   const [loadingSession, setLoadingSession] = useState(true)
   const [bootstrapError, setBootstrapError] = useState<string | null>(null)
@@ -170,6 +222,8 @@ function App() {
   const [passwordPending, setPasswordPending] = useState(false)
   const [logoutPending, setLogoutPending] = useState(false)
   const [passwordReturnPath, setPasswordReturnPath] = useState<string | null>(null)
+  const clubName = appConfig?.clubName
+  const displayedClubName = clubName ?? 'CRM'
 
   useEffect(() => {
     const controller = new AbortController()
@@ -179,9 +233,13 @@ function App() {
       setBootstrapError(null)
 
       try {
-        const currentSession = await loadSession(controller.signal)
+        const [currentConfig, currentSession] = await Promise.all([
+          loadAppConfig(controller.signal),
+          loadSession(controller.signal),
+        ])
 
         startTransition(() => {
+          setAppConfig(currentConfig)
           setSession(currentSession)
         })
       } catch (error) {
@@ -207,6 +265,16 @@ function App() {
   }, [])
 
   useEffect(() => {
+    document.title = getAppDocumentTitle(
+      displayedClubName,
+      route,
+      session,
+      loadingSession,
+      bootstrapError,
+    )
+  }, [bootstrapError, displayedClubName, loadingSession, route, session])
+
+  useEffect(() => {
     if (!session?.isAuthenticated || !session.user || session.user.mustChangePassword) {
       return
     }
@@ -222,9 +290,13 @@ function App() {
     setBootstrapError(null)
 
     try {
-      const currentSession = await loadSession()
+      const [currentConfig, currentSession] = await Promise.all([
+        loadAppConfig(),
+        loadSession(),
+      ])
 
       startTransition(() => {
+        setAppConfig(currentConfig)
         setSession(currentSession)
       })
     } catch (error) {
@@ -319,7 +391,7 @@ function App() {
       showAppNotification({
         id: 'auth-logout-success',
         title: 'Сессия завершена',
-        message: 'Вы вышли из Gym CRM.',
+        message: `Вы вышли из ${displayedClubName}.`,
         color: 'gray',
       })
     } catch (error) {
@@ -343,19 +415,20 @@ function App() {
   }
 
   if (loadingSession) {
-    return <LoadingState />
+    return <LoadingState clubName={clubName} />
   }
 
   if (bootstrapError && !session) {
     return (
       <StageFrame
+        clubName={displayedClubName}
         storyDescription="Работа с клиентами, расписанием и командой в одном интерфейсе."
         storyPoints={[
           'Клиенты и абонементы',
           'Расписание и посещаемость',
           'Команда и роли доступа',
         ]}
-        storyTitle="Gym CRM для спортивного клуба"
+        storyTitle={`${displayedClubName} для спортивного клуба`}
       >
         <Paper className="stage-card" radius="32px" shadow="lg" withBorder>
           <Stack gap="lg">
@@ -393,15 +466,17 @@ function App() {
   if (!session?.isAuthenticated || !session.user) {
     return (
       <StageFrame
+        clubName={displayedClubName}
         storyDescription="Работа с клиентами, расписанием и командой в одном интерфейсе."
         storyPoints={[
           'Клиенты и абонементы',
           'Расписание и посещаемость',
           'Команда и роли доступа',
         ]}
-        storyTitle="Gym CRM для спортивного клуба"
+        storyTitle={`${displayedClubName} для спортивного клуба`}
       >
         <LoginScreen
+          clubName={displayedClubName}
           pending={loginPending}
           showSetupHelp={Boolean(session?.bootstrapMode)}
           onSubmit={handleLogin}
@@ -413,6 +488,7 @@ function App() {
   if (session.user.mustChangePassword) {
     return (
       <StageFrame
+        clubName={displayedClubName}
         storyDescription="После обновления пароля откроется рабочий интерфейс с доступными разделами."
         storyPoints={[
           'Персональный доступ для сотрудника',
@@ -435,6 +511,7 @@ function App() {
 
   return (
     <AuthenticatedShell
+      clubName={displayedClubName}
       currentSection={currentSection}
       logoutPending={logoutPending}
       onLogout={handleLogout}
@@ -477,6 +554,7 @@ function App() {
 }
 
 type StageFrameProps = {
+  clubName: string
   storyTitle: string
   storyDescription: string
   storyPoints: string[]
@@ -484,6 +562,7 @@ type StageFrameProps = {
 }
 
 function StageFrame({
+  clubName,
   storyTitle,
   storyDescription,
   storyPoints,
@@ -497,10 +576,10 @@ function StageFrame({
         <Paper className="story-panel" radius="36px" shadow="lg">
           <Stack className="story-panel__content" gap="xl">
             <Stack gap="md">
-              <Text className="story-panel__kicker" fw={700}>
-                Gym CRM
+              <Text className="story-panel__kicker" fw={700} title={clubName}>
+                {clubName}
               </Text>
-              <Title c="white" className="story-panel__title" order={1}>
+              <Title c="white" className="story-panel__title" order={1} title={storyTitle}>
                 {storyTitle}
               </Title>
               <Text className="story-panel__description" size="lg">
@@ -526,12 +605,14 @@ function StageFrame({
 }
 
 type LoginScreenProps = {
+  clubName: string
   pending: boolean
   showSetupHelp: boolean
   onSubmit: (values: LoginRequest) => Promise<void>
 }
 
 function LoginScreen({
+  clubName,
   pending,
   showSetupHelp,
   onSubmit,
@@ -575,7 +656,9 @@ function LoginScreen({
           <Text c="dimmed" fw={600} size="sm">
             Авторизация
           </Text>
-          <Title order={2}>Войти в Gym CRM</Title>
+          <Title className="brand-heading" order={2} title={`Войти в ${clubName}`}>
+            Войти в {clubName}
+          </Title>
           <Text c="dimmed">
             Используйте логин и пароль, выданные администратором клуба.
           </Text>
@@ -805,6 +888,7 @@ function PasswordScreen({
 }
 
 type AuthenticatedShellProps = {
+  clubName: string
   user: AuthenticatedUser
   currentSection: AppSection | null
   logoutPending: boolean
@@ -815,6 +899,7 @@ type AuthenticatedShellProps = {
 }
 
 function AuthenticatedShell({
+  clubName,
   user,
   currentSection,
   logoutPending,
@@ -930,6 +1015,7 @@ function AuthenticatedShell({
       <AppLayout
         header={(
           <Header
+            brandTitle={clubName}
             brandMeta={`${presentation.roleLabel} • стартовый раздел: ${landingLabel}`}
             brandMetaCompact={presentation.roleLabel}
             leadingControl={mobileMenuControl}
@@ -1202,14 +1288,22 @@ function SectionPlaceholder() {
   )
 }
 
-function LoadingState() {
+type LoadingStateProps = {
+  clubName?: string
+}
+
+function LoadingState({ clubName }: LoadingStateProps) {
+  const title = clubName ? `Открываем ${clubName}` : 'Открываем CRM'
+
   return (
     <div className="gym-crm-page">
       <Container className="loading-layout" size="sm">
         <Paper className="loading-card" radius="32px" shadow="lg" withBorder>
           <Stack align="center" gap="md">
             <Loader color="brand.7" size="lg" />
-            <Title order={3}>Открываем Gym CRM</Title>
+            <Title className="brand-heading" order={3} title={title}>
+              {title}
+            </Title>
             <Text c="dimmed" ta="center">
               Проверяем, есть ли активный вход, и готовим экран авторизации.
             </Text>

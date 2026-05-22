@@ -72,7 +72,7 @@ export const resources = {
       loadingErrorMessage: 'Не удалось загрузить список тренеров.',
       emptyTitle: 'Тренеры пока не заведены',
       emptyDescription:
-        'Создайте тренера, чтобы выдать доступ к рабочим сценариям Gym CRM.',
+        'Создайте тренера, чтобы выдать доступ к рабочим сценариям системы.',
       loginPrefix: 'Логин',
       telegramIdPrefix: 'Telegram ID',
       editAction: 'Редактировать',
