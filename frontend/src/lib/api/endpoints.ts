@@ -3,6 +3,9 @@ import type { ClientStatus } from './types'
 export const apiBasePath = import.meta.env.VITE_API_BASE_PATH ?? '/api'
 
 export const API_ENDPOINTS = {
+  config: {
+    current: '/config',
+  },
   auth: {
     session: '/auth/session',
     login: '/auth/login',

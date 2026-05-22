@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
+const APP_CONFIG = { clubName: 'Iron Club' } as const
+
 const HEAD_COACH_SESSION = {
   isAuthenticated: true,
   csrfToken: 'home-csrf-token',
@@ -39,7 +41,7 @@ test.describe('Home dashboard', () => {
 
     await expect(page.getByTestId('home-screen')).toBeVisible()
     await expect(shellHeader).toBeVisible()
-    await expect(shellHeader.getByText('Gym CRM')).toBeVisible()
+    await expect(shellHeader.getByText('Iron Club')).toBeVisible()
     await expect(
       shellHeader.getByRole('button', { name: /Главный тренер/ }),
     ).toBeVisible()
@@ -228,6 +230,11 @@ async function mockHomeApi(page: Page, options: MockHomeApiOptions) {
 
     if ((pathname === '/api/auth/session' || pathname === '/auth/session') && method === 'GET') {
       await fulfillJson(route, 200, HEAD_COACH_SESSION)
+      return
+    }
+
+    if ((pathname === '/api/config' || pathname === '/config') && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 

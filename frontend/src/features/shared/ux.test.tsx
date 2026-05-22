@@ -88,6 +88,7 @@ describe('shared UX components', () => {
       <AppLayout
         header={(
           <Header
+            brandTitle="Iron Club"
             brandMeta="Главный тренер"
             profileControl={<button type="button">Профиль</button>}
           />
@@ -98,7 +99,7 @@ describe('shared UX components', () => {
     )
 
     expect(screen.getByRole('banner')).toBeVisible()
-    expect(screen.getByText('Gym CRM')).toBeVisible()
+    expect(screen.getByText('Iron Club')).toBeVisible()
     expect(screen.getAllByText('Главный тренер')).toHaveLength(2)
     expect(screen.getByRole('button', { name: 'Профиль' })).toBeVisible()
     expect(screen.queryByRole('navigation', { name: 'Основная навигация' })).not.toBeInTheDocument()

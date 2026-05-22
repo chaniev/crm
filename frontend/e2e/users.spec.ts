@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
+const APP_CONFIG = { clubName: 'Iron Club' } as const
+
 const headCoachSession = {
   isAuthenticated: true,
   csrfToken: 'headcoach-csrf-token',
@@ -33,6 +35,11 @@ test('Навигация открывает раздел Тренеры на м�
 
     if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
       await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 
@@ -76,6 +83,11 @@ test('Редактирование пользователя показывает
 
     if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
       await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 
@@ -131,6 +143,11 @@ test('Редактирование пользователя показывает
 
     if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
       await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 
@@ -195,6 +212,11 @@ test('Создание пользователя не предлагает рол
 
     if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
       await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 

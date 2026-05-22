@@ -58,12 +58,20 @@
 }
 
 .story-panel__kicker {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: #f0c47f;
   text-transform: uppercase;
 }
 
 .story-panel__title {
   max-width: 13ch;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   line-height: 1.02;
   font-size: 3.4rem;
   letter-spacing: 0;
@@ -156,6 +164,13 @@
   padding: 2rem;
 }
 
+.brand-heading {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .app-shell__header {
   background: var(--color-header-bg);
   border-bottom: 1px solid var(--color-border);
@@ -194,6 +209,7 @@
 }
 
 .app-shell__brand-copy {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -201,6 +217,7 @@
 .app-shell__brand-meta,
 .app-shell__profile-name,
 .app-shell__current-view {
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

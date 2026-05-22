@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 const APP_NOTIFICATION_AUTO_CLOSE_MS = 10_000
 const NOTIFICATION_TRANSITION_MS = 250
+const APP_CONFIG = { clubName: 'Iron Club' } as const
 
 const HEAD_COACH_SESSION = {
   isAuthenticated: true,
@@ -146,6 +147,11 @@ async function mockSettingsApi(page: Page) {
 
     if (pathname === '/api/auth/session' && method === 'GET') {
       await fulfillJson(route, 200, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
       return
     }
 
