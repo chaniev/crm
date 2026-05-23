@@ -56,7 +56,7 @@ test.describe('Home dashboard', () => {
     await expectNoHorizontalScroll(page)
   })
 
-  test('keeps mobile navigation hidden behind menu button on narrow screens', async ({ page }) => {
+  test('shows mobile bottom navigation on narrow screens', async ({ page }) => {
     await mockHomeApi(page, {
       expiringMemberships: { items: [] },
     })
@@ -67,19 +67,24 @@ test.describe('Home dashboard', () => {
     const sideNavigation = page.locator(
       'nav.app-shell__side-nav[aria-label="Основная навигация"]',
     )
-    const drawerNavigation = page.locator(
-      'nav.app-shell__drawer-nav[aria-label="Основная навигация"]',
-    )
-    const menuButton = page.getByRole('button', { name: 'Открыть основное меню' })
+    const bottomNavigation = page.getByRole('navigation', {
+      name: 'Мобильная навигация',
+    })
 
     await expect(sideNavigation).toBeHidden()
-    await expect(menuButton).toBeVisible()
-    await menuButton.click()
-    await expect(drawerNavigation).toBeVisible()
-    await expect(drawerNavigation).toHaveAttribute('data-orientation', 'vertical')
     await expect(
-      drawerNavigation.getByRole('button', { name: 'Главная' }),
+      page.getByRole('button', { name: 'Открыть основное меню' }),
+    ).toHaveCount(0)
+    await expect(bottomNavigation).toBeVisible()
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Главная' }),
     ).toHaveAttribute('aria-current', 'page')
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Уведомления' }),
+    ).toHaveCount(0)
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Открыть остальные разделы' }),
+    ).toBeVisible()
     await expectNoHorizontalScroll(page)
   })
 

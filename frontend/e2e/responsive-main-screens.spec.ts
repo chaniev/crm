@@ -389,8 +389,8 @@ const COACH_ROUTES = [
 
 const SIDE_NAVIGATION_SELECTOR =
   'nav.app-shell__side-nav[aria-label="Основная навигация"]'
-const DRAWER_NAVIGATION_SELECTOR =
-  'nav.app-shell__drawer-nav[aria-label="Основная навигация"]'
+const MOBILE_BOTTOM_NAVIGATION_SELECTOR =
+  'nav.mobile-bottom-nav[aria-label="Мобильная навигация"]'
 const MOBILE_MENU_BREAKPOINT = 768
 
 const VIEWPORTS = [
@@ -462,6 +462,43 @@ for (const viewport of VIEWPORTS) {
   })
 }
 
+test.describe('Mobile bottom navigation interactions', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('navigates direct and overflow sections without fake notifications', async ({
+    page,
+  }) => {
+    await mockApi(page, MANAGEMENT_SESSION)
+    await page.goto('/')
+
+    const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
+
+    await expect(bottomNavigation).toBeVisible()
+    await bottomNavigation.getByRole('button', { name: 'Расписание' }).click()
+    await expect(page).toHaveURL(/\/schedule$/)
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Расписание' }),
+    ).toHaveAttribute('aria-current', 'page')
+
+    await bottomNavigation
+      .getByRole('button', { name: 'Открыть остальные разделы' })
+      .click()
+
+    const overflowList = page.locator('.mobile-bottom-nav__overflow-list')
+
+    await expect(overflowList).toBeVisible()
+    await expect(
+      overflowList.getByRole('button', { name: 'Уведомления' }),
+    ).toHaveCount(0)
+    await overflowList.getByRole('button', { name: 'Финансы' }).click()
+    await expect(page).toHaveURL(/\/finance$/)
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Открыть остальные разделы' }),
+    ).toHaveAttribute('aria-current', 'page')
+    await expect(overflowList).toBeHidden()
+  })
+})
+
 async function expectLongBrandHeader(page: Page) {
   const brandTitle = page.locator('.app-shell__brand-title')
 
@@ -474,21 +511,45 @@ async function expectActiveNavigation(page: Page, width: number, navLabel: strin
 
   if (width < MOBILE_MENU_BREAKPOINT) {
     await expect(sideNavigation).toBeHidden()
-    await page.getByRole('button', { name: 'Открыть основное меню' }).click()
+    await expect(
+      page.getByRole('button', { name: 'Открыть основное меню' }),
+    ).toHaveCount(0)
 
-    const drawerNavigation = page.locator(DRAWER_NAVIGATION_SELECTOR)
+    const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
+    const directButton = bottomNavigation.getByRole('button', { name: navLabel })
 
-    await expect(drawerNavigation).toBeVisible()
-    await expect(page.getByText('Меню', { exact: true })).toHaveCount(0)
-    await expect(drawerNavigation).toHaveAttribute('data-orientation', 'vertical')
+    await expect(bottomNavigation).toBeVisible()
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Уведомления' }),
+    ).toHaveCount(0)
 
-    const activeButton = drawerNavigation.getByRole('button', { name: navLabel })
+    if ((await directButton.count()) > 0) {
+      await expect(directButton).toHaveAttribute('aria-current', 'page')
+      await expectActiveMenuItemContrast(directButton)
+      return
+    }
 
-    await expect(activeButton).toHaveAttribute('aria-current', 'page')
-    await expectActiveMenuItemContrast(activeButton)
+    const overflowButton = bottomNavigation.getByRole('button', {
+      name: 'Открыть остальные разделы',
+    })
+
+    await expect(overflowButton).toBeVisible()
+    await expect(overflowButton).toHaveAttribute('aria-current', 'page')
+    await expectActiveMenuItemContrast(overflowButton)
+    await overflowButton.click()
+
+    const overflowList = page.locator('.mobile-bottom-nav__overflow-list')
+    const activeOverflowButton = overflowList.getByRole('button', { name: navLabel })
+
+    await expect(overflowList).toBeVisible()
+    await expect(activeOverflowButton).toHaveAttribute('aria-current', 'page')
+    await expectActiveMenuItemContrast(activeOverflowButton)
+    await expect(
+      overflowList.getByRole('button', { name: 'Уведомления' }),
+    ).toHaveCount(0)
 
     await page.keyboard.press('Escape')
-    await expect(drawerNavigation).toBeHidden()
+    await expect(overflowList).toBeHidden()
     return
   }
 
@@ -496,7 +557,8 @@ async function expectActiveNavigation(page: Page, width: number, navLabel: strin
   await expect(sideNavigation).toHaveAttribute('data-orientation', 'vertical')
   await expect(
     page.getByRole('button', { name: 'Открыть основное меню' }),
-  ).toBeHidden()
+  ).toHaveCount(0)
+  await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeHidden()
 
   await expect(sideNavigation.getByRole('button', { name: navLabel })).toHaveAttribute(
     'aria-current',
@@ -522,13 +584,17 @@ async function expectActiveMenuItemContrast(activeButton: Locator) {
       color: style.color,
     }
   })
-  const labelColor = await activeButton.locator('.mantine-Button-label').evaluate(
-    (element) => window.getComputedStyle(element).color,
-  )
 
   expect(activeStyle.backgroundImage).toContain('linear-gradient')
   expect(activeStyle.color).toBe('rgb(255, 255, 255)')
-  expect(labelColor).toBe('rgb(255, 255, 255)')
+
+  const mantineLabel = activeButton.locator('.mantine-Button-label')
+  if ((await mantineLabel.count()) > 0) {
+    const labelColor = await mantineLabel.evaluate(
+      (element) => window.getComputedStyle(element).color,
+    )
+    expect(labelColor).toBe('rgb(255, 255, 255)')
+  }
 }
 
 async function expectNoServiceIntro(page: Page) {

@@ -305,8 +305,8 @@ const SCREEN_CHECKS = [
 
 const SIDE_NAVIGATION_SELECTOR =
   'nav.app-shell__side-nav[aria-label="Основная навигация"]'
-const DRAWER_NAVIGATION_SELECTOR =
-  'nav.app-shell__drawer-nav[aria-label="Основная навигация"]'
+const MOBILE_BOTTOM_NAVIGATION_SELECTOR =
+  'nav.mobile-bottom-nav[aria-label="Мобильная навигация"]'
 const MOBILE_MENU_BREAKPOINT = 768
 
 test.describe('Основные e2e сценарии', () => {
@@ -1883,18 +1883,42 @@ async function expectActiveMainNavigation(page: Page, width: number, path: strin
 
   if (width < MOBILE_MENU_BREAKPOINT) {
     await expect(sideNavigation).toBeHidden()
-    await page.getByRole('button', { name: 'Открыть основное меню' }).click()
-
-    const drawerNavigation = page.locator(DRAWER_NAVIGATION_SELECTOR)
-
-    await expect(drawerNavigation).toBeVisible()
-    await expect(drawerNavigation).toHaveAttribute('data-orientation', 'vertical')
     await expect(
-      drawerNavigation.getByRole('button', { name: navLabel }),
+      page.getByRole('button', { name: 'Открыть основное меню' }),
+    ).toHaveCount(0)
+
+    const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
+    const directButton = bottomNavigation.getByRole('button', { name: navLabel })
+
+    await expect(bottomNavigation).toBeVisible()
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Уведомления' }),
+    ).toHaveCount(0)
+
+    if ((await directButton.count()) > 0) {
+      await expect(directButton).toHaveAttribute('aria-current', 'page')
+      return
+    }
+
+    const overflowButton = bottomNavigation.getByRole('button', {
+      name: 'Открыть остальные разделы',
+    })
+
+    await expect(overflowButton).toHaveAttribute('aria-current', 'page')
+    await overflowButton.click()
+
+    const overflowList = page.locator('.mobile-bottom-nav__overflow-list')
+
+    await expect(overflowList).toBeVisible()
+    await expect(
+      overflowList.getByRole('button', { name: navLabel }),
     ).toHaveAttribute('aria-current', 'page')
+    await expect(
+      overflowList.getByRole('button', { name: 'Уведомления' }),
+    ).toHaveCount(0)
 
     await page.keyboard.press('Escape')
-    await expect(drawerNavigation).toBeHidden()
+    await expect(overflowList).toBeHidden()
     return
   }
 
@@ -1902,7 +1926,8 @@ async function expectActiveMainNavigation(page: Page, width: number, path: strin
   await expect(sideNavigation).toHaveAttribute('data-orientation', 'vertical')
   await expect(
     page.getByRole('button', { name: 'Открыть основное меню' }),
-  ).toBeHidden()
+  ).toHaveCount(0)
+  await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeHidden()
 
   await expect(
     sideNavigation.getByRole('button', { name: navLabel }),
@@ -1987,6 +2012,34 @@ async function mockApi(
 
       if (pathname === '/api/settings/administrators' && method === 'GET') {
         await fulfillJson(route, 200, [])
+        return
+      }
+
+      if (
+        /^\/api\/clients\/[^/]+\/messenger\/telegram$/.test(pathname) &&
+        method === 'GET'
+      ) {
+        await fulfillJson(route, 200, {
+          platform: 'Telegram',
+          capabilities: {
+            visible: false,
+            canRead: false,
+            canReply: false,
+            canCreateLink: false,
+            canShowQr: false,
+          },
+          connection: {
+            status: 'NotConnected',
+            linkedAt: null,
+            telegramUsername: null,
+            telegramDisplayName: null,
+            pendingLinkExpiresAt: null,
+          },
+          unreadCount: 0,
+          totalMessageCount: 0,
+          latestMessageAt: null,
+          latestMessage: null,
+        })
         return
       }
 

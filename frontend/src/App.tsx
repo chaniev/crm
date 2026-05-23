@@ -1,10 +1,8 @@
 import { startTransition, useEffect, useState, type ReactNode } from 'react'
 import {
   Alert,
-  Burger,
   Button,
   Container,
-  Drawer,
   Group,
   Loader,
   Menu,
@@ -81,6 +79,7 @@ import { SettingsScreen } from './features/settings/SettingsScreen'
 import {
   AppLayout,
   Header,
+  MobileBottomNavigation,
   NavigationTabs,
   PageLayout,
   PageSection,
@@ -845,13 +844,11 @@ function AuthenticatedShell({
   onLogout,
   children,
 }: AuthenticatedShellProps) {
-  const [mobileMenuOpened, setMobileMenuOpened] = useState(false)
   const presentation = rolePresentationMap[user.role]
   const landingLabel = APP_SECTION_LABELS[user.landingScreen]
   const navigationSections = getAccessibleNavigationSections(user)
 
   function handleSectionNavigation(section: AppSection) {
-    setMobileMenuOpened(false)
     onNavigateSection(section)
   }
 
@@ -909,44 +906,6 @@ function AuthenticatedShell({
     </div>
   )
 
-  const mobileMenuControl = (
-    <Burger
-      aria-label={
-        mobileMenuOpened ? 'Закрыть основное меню' : 'Открыть основное меню'
-      }
-      className="app-shell__mobile-menu-trigger"
-      color="var(--mantine-color-brand-7)"
-      onClick={() => setMobileMenuOpened((opened) => !opened)}
-      opened={mobileMenuOpened}
-      size="sm"
-      type="button"
-    />
-  )
-
-  const mobileMenu = (
-    <Drawer
-      aria-label="Основная навигация"
-      classNames={{
-        body: 'app-shell__mobile-menu-body',
-        content: 'app-shell__mobile-menu-content',
-      }}
-      onClose={() => setMobileMenuOpened(false)}
-      opened={mobileMenuOpened}
-      overlayProps={{ backgroundOpacity: 0.18, blur: 2 }}
-      position="left"
-      size="17rem"
-      withCloseButton
-    >
-      <NavigationTabs
-        className="app-shell__drawer-nav"
-        currentSection={currentSection}
-        onNavigate={handleSectionNavigation}
-        orientation="vertical"
-        sections={navigationSections}
-      />
-    </Drawer>
-  )
-
   return (
     <>
       <AppLayout
@@ -955,7 +914,6 @@ function AuthenticatedShell({
             brandTitle={clubName}
             brandMeta={`${presentation.roleLabel} • стартовый раздел: ${landingLabel}`}
             brandMetaCompact={presentation.roleLabel}
-            leadingControl={mobileMenuControl}
             profileControl={profileControl}
           />
         )}
@@ -964,7 +922,11 @@ function AuthenticatedShell({
         {children}
       </AppLayout>
 
-      {mobileMenu}
+      <MobileBottomNavigation
+        currentSection={currentSection}
+        onNavigate={handleSectionNavigation}
+        sections={navigationSections}
+      />
     </>
   )
 }
