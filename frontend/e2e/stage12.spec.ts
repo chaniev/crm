@@ -932,10 +932,9 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.getByLabel('Поиск по имени или телефону').fill('Фильтр')
     await page.getByText('Архив', { exact: true }).click()
+    await page.getByRole('button', { name: /Фильтры/ }).click()
     await page.getByRole('combobox', { name: 'Группа' }).click()
     await page.getByRole('option', { name: 'Фильтр-группа' }).click()
-
-    await page.getByRole('button', { name: /Еще фильтры/ }).click()
     await page.getByRole('combobox', { name: 'Оплата' }).click()
     await page.getByRole('option', { name: 'Неоплаченные' }).click()
     await page.getByLabel('Истекает с').fill('2026-05-01')

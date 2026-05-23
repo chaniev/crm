@@ -47,6 +47,7 @@ import type {
   ClientListResponse,
   ClientMembership,
   ClientMembershipPayload,
+  ClientQuickFilterCounts,
   ClientResponsePayload,
   CorrectClientMembershipRequest,
   ExpiringClientMembership,
@@ -126,6 +127,9 @@ export async function getClients(
     CLIENTS_QUERY_KEYS.hasActivePaidMembership,
     params.hasActivePaidMembership,
   )
+  if (params.quickFilters?.length) {
+    searchParams.set(CLIENTS_QUERY_KEYS.quickFilters, params.quickFilters.join(','))
+  }
 
   if (
     !searchParams.has(CLIENTS_QUERY_KEYS.page) &&
@@ -157,6 +161,7 @@ export async function getClients(
     totalCount: pagination.totalCount,
     activeCount: counts.activeCount,
     archivedCount: counts.archivedCount,
+    quickFilterCounts: counts.quickFilterCounts,
     skip: pagination.skip,
     take: pagination.take,
     page: pagination.page,
@@ -465,6 +470,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
       hasActivePaidMembership,
       hasUnpaidCurrentMembership,
     ),
+    actionHints: mapClientActionHints(payload),
     lastVisitDate:
       readString(payload, ['lastVisitDate', 'LastVisitDate']) ?? null,
     updatedAt: payload.updatedAt,
@@ -474,6 +480,9 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
 function extractClientListCounts(payload: unknown) {
   const envelope = isRecord(payload) ? payload : null
   const nestedEnvelope = envelope?.data
+  const quickFilterCountsPayload =
+    (envelope ? extractClientQuickFilterCounts(envelope) : null) ??
+    (isRecord(nestedEnvelope) ? extractClientQuickFilterCounts(nestedEnvelope) : null)
 
   return {
     activeCount:
@@ -492,6 +501,27 @@ function extractClientListCounts(payload: unknown) {
         ? readNumber(nestedEnvelope, ['archivedCount', 'ArchivedCount'])
         : undefined) ??
       null,
+    quickFilterCounts: quickFilterCountsPayload,
+  }
+}
+
+function extractClientQuickFilterCounts(
+  payload: Record<string, unknown>,
+): ClientQuickFilterCounts | null {
+  const countsPayload = payload.quickFilterCounts ?? payload.QuickFilterCounts
+
+  if (!isRecord(countsPayload)) {
+    return null
+  }
+
+  return {
+    withoutMembership:
+      readNumber(countsPayload, ['withoutMembership', 'WithoutMembership']) ?? 0,
+    expiringSoon:
+      readNumber(countsPayload, ['expiringSoon', 'ExpiringSoon']) ?? 0,
+    withoutGroup:
+      readNumber(countsPayload, ['withoutGroup', 'WithoutGroup']) ?? 0,
+    trial: readNumber(countsPayload, ['trial', 'Trial']) ?? 0,
   }
 }
 
@@ -590,6 +620,23 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
     attendanceHistoryLoaded: attendanceHistory.loaded,
     attendanceHistoryTotalCount: attendanceHistory.totalCount,
   }
+}
+
+function mapClientActionHints(payload: ClientResponsePayload) {
+  return extractArrayPayload<Record<string, unknown>>(
+    payload,
+    ['actionHints', 'ActionHints'],
+  ).map((hint) => ({
+    title:
+      readString(hint, ['title', 'Title']) ??
+      readString(hint, ['label', 'Label']) ??
+      'Планово',
+    description: readString(hint, ['description', 'Description']) ?? '',
+    tone: readString(hint, ['tone', 'Tone']) ?? 'gray',
+    iconKey: readString(hint, ['iconKey', 'IconKey']) ?? '',
+    daysUntilExpiration:
+      readNumber(hint, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? null,
+  }))
 }
 
 function mapClientMembershipHistory(

@@ -3,6 +3,8 @@ import type { AuthenticatedUser } from './api'
 import {
   getAccessibleNavigationSections,
   getMobileNavigationSections,
+  getRoutePath,
+  parseRoute,
   resolveAccessibleRoutePath,
 } from './appRoutes'
 
@@ -83,6 +85,27 @@ describe('finance routes', () => {
         },
       ),
     ).toBe('/')
+  })
+})
+
+describe('client preview route', () => {
+  test('parses and serializes /clients/:id/preview before details route', () => {
+    const route = parseRoute('/clients/client-1/preview')
+
+    expect(route).toEqual({
+      kind: 'clientPreview',
+      clientId: 'client-1',
+    })
+    expect(getRoutePath(route)).toBe('/clients/client-1/preview')
+  })
+
+  test('keeps preview route accessible when Clients section is granted', () => {
+    expect(
+      resolveAccessibleRoutePath(financeUser, {
+        kind: 'clientPreview',
+        clientId: 'client-1',
+      }),
+    ).toBe('/clients/client-1/preview')
   })
 })
 

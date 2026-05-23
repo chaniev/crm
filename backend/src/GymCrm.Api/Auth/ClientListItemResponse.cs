@@ -22,4 +22,5 @@ internal sealed record ClientListItemResponse(
     bool HasCurrentMembership,
     string MembershipState,
     DateOnly? LastVisitDate,
+    IReadOnlyList<ClientActionHintResponse> ActionHints,
     DateTimeOffset UpdatedAt);

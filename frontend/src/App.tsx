@@ -170,6 +170,8 @@ function getRouteDocumentTitle(route: AppRoute) {
       return 'Смена пароля'
     case 'clientCreate':
       return 'Новый клиент'
+    case 'clientPreview':
+      return 'Краткая карточка клиента'
     case 'clientDetails':
       return 'Карточка клиента'
     case 'clientEdit':
@@ -508,6 +510,7 @@ function App() {
           onCreateClient={() => navigate({ kind: 'clientCreate' })}
           onEditClient={(clientId) => navigate({ kind: 'clientEdit', clientId })}
           onOpenClient={(clientId) => navigate({ kind: 'clientDetails', clientId })}
+          onPreviewClient={(clientId) => navigate({ kind: 'clientPreview', clientId })}
           onCreateGroup={() => navigate({ kind: 'groupCreate' })}
           currentUserId={authenticatedUser.id}
           onEditGroup={(groupId) => navigate({ kind: 'groupEdit', groupId })}
@@ -940,6 +943,7 @@ type RouteViewportProps = {
   onCreateClient: () => void
   onEditClient: (clientId: string) => void
   onOpenClient: (clientId: string) => void
+  onPreviewClient: (clientId: string) => void
   onCreateUser: () => void
   onEditUser: (userId: string) => void
   onRefreshSession: () => Promise<unknown>
@@ -955,6 +959,7 @@ function RouteViewport({
   onCreateClient,
   onEditClient,
   onOpenClient,
+  onPreviewClient,
   onCreateGroup,
   onEditGroup,
   onCreateUser,
@@ -1038,6 +1043,21 @@ function RouteViewport({
     )
   }
 
+  if (route.kind === 'clientPreview') {
+    return (
+      <ClientsListScreen
+        canManage={user.permissions.canManageClients}
+        canSeeWithoutGroupQuickFilter={
+          user.role === 'HeadCoach' || user.role === 'Administrator'
+        }
+        onCreate={onCreateClient}
+        onOpen={onOpenClient}
+        onPreview={onPreviewClient}
+        previewClientId={route.clientId}
+      />
+    )
+  }
+
   if (route.kind === 'clientEdit') {
     return (
       <ClientEditScreen
@@ -1091,8 +1111,12 @@ function RouteViewport({
     return (
       <ClientsListScreen
         canManage={user.permissions.canManageClients}
+        canSeeWithoutGroupQuickFilter={
+          user.role === 'HeadCoach' || user.role === 'Administrator'
+        }
         onCreate={onCreateClient}
         onOpen={onOpenClient}
+        onPreview={onPreviewClient}
       />
     )
   }

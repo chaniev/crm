@@ -20,6 +20,7 @@ internal sealed record ClientDetailsResponse(
     bool HasActivePaidMembership,
     bool HasUnpaidCurrentMembership,
     ClientMembershipResponse? CurrentMembership,
+    IReadOnlyList<ClientActionHintResponse> ActionHints,
     IReadOnlyList<ClientMembershipResponse> MembershipHistory,
     IReadOnlyList<ClientAttendanceHistoryEntryResponse> AttendanceHistory,
     int AttendanceHistorySkip,

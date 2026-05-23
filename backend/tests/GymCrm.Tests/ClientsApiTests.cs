@@ -1678,6 +1678,247 @@ public class ClientsApiTests
         }
     }
 
+    [Fact]
+    public async Task Client_list_returns_quick_filter_counts_and_backend_ordered_action_hints()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+
+        async Task<Guid> CreateClientForQuickFilterAsync(
+            string lastName,
+            string firstName,
+            string phone,
+            Guid[] groupIds)
+        {
+            using var createResponse = await PostJsonAsync(
+                client,
+                "/clients",
+                new
+                {
+                    LastName = lastName,
+                    FirstName = firstName,
+                    Phone = phone,
+                    BranchId = seeded.BranchId,
+                    Contacts = Array.Empty<object>(),
+                    GroupIds = groupIds
+                },
+                session.CsrfToken);
+
+            Assert.True(
+                createResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created,
+                $"Expected client create success, got {createResponse.StatusCode}.");
+
+            var createPayload = await ReadJsonElementAsync(createResponse);
+            return await ExtractClientIdFromResponseAsync(createResponse, createPayload);
+        }
+
+        var withoutMembershipNoGroupClientId = await CreateClientForQuickFilterAsync(
+            "QuickFilter",
+            "WithoutMembership NoGroup",
+            "+79990005001",
+            [seeded.GroupOneId]);
+        var withoutMembershipClientId = await CreateClientForQuickFilterAsync(
+            "QuickFilter",
+            "WithoutMembership Grouped",
+            "+79990005002",
+            [seeded.GroupOneId]);
+        var expiringClientId = await CreateClientForQuickFilterAsync(
+            "QuickFilter",
+            "Expiring",
+            "+79990005003",
+            [seeded.GroupOneId]);
+        var expiredTrialClientId = await CreateClientForQuickFilterAsync(
+            "QuickFilter",
+            "Trial",
+            "+79990005004",
+            [seeded.GroupOneId]);
+        var unpaidClientId = await CreateClientForQuickFilterAsync(
+            "QuickFilter",
+            "Unpaid",
+            "+79990005005",
+            [seeded.GroupOneId]);
+        var normalClientId = await CreateClientForQuickFilterAsync(
+            "QuickFilter",
+            "Normal",
+            "+79990005006",
+            [seeded.GroupOneId]);
+        var professionalClientId = await CreateClientForQuickFilterAsync(
+            "QuickFilter",
+            "Professional",
+            "+79990005007",
+            [seeded.GroupOneId]);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = DateTimeOffset.UtcNow;
+            var noGroupAssignments = await dbContext.ClientGroups
+                .Where(clientGroup => clientGroup.ClientId == withoutMembershipNoGroupClientId)
+                .ToArrayAsync();
+            var noGroupAssignmentHistory = await dbContext.ClientGroupAssignments
+                .Where(clientGroup => clientGroup.ClientId == withoutMembershipNoGroupClientId)
+                .ToArrayAsync();
+
+            dbContext.ClientGroups.RemoveRange(noGroupAssignments);
+            dbContext.ClientGroupAssignments.RemoveRange(noGroupAssignmentHistory);
+
+            dbContext.ClientMemberships.AddRange(
+                CreateMembershipWithSale(
+                    expiringClientId,
+                    MembershipType.Monthly,
+                    today,
+                    today.AddDays(2),
+                    1000m,
+                    isPaid: true,
+                    seeded.HeadCoachId,
+                    now),
+                CreateMembershipWithSale(
+                    expiredTrialClientId,
+                    MembershipType.SingleVisit,
+                    today.AddDays(-20),
+                    today.AddDays(-1),
+                    500m,
+                    isPaid: true,
+                    seeded.HeadCoachId,
+                    now.AddMinutes(1),
+                    singleVisitUsed: true),
+                CreateMembershipWithSale(
+                    unpaidClientId,
+                    MembershipType.Monthly,
+                    today,
+                    today.AddDays(30),
+                    1000m,
+                    isPaid: false,
+                    seeded.HeadCoachId,
+                    now.AddMinutes(2)),
+                CreateMembershipWithSale(
+                    normalClientId,
+                    MembershipType.Monthly,
+                    today,
+                    today.AddDays(40),
+                    1000m,
+                    isPaid: true,
+                    seeded.HeadCoachId,
+                    now.AddMinutes(3)));
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        using (var professionalResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{professionalClientId}/professional-status",
+                   new
+                   {
+                       IsProfessional = true,
+                       ProfessionalComment = "Льготный клиент"
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, professionalResponse.StatusCode);
+        }
+
+        using (var listResponse = await client.GetAsync("/clients?status=Active&page=1&pageSize=20"))
+        {
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+            var listPayload = await ReadJsonElementAsync(listResponse);
+            var quickFilterCounts = GetPropertyOrNull(listPayload, "quickFilterCounts", "QuickFilterCounts");
+
+            Assert.Equal(2, GetLongFromAnyCase(quickFilterCounts, "withoutMembership", "WithoutMembership"));
+            Assert.Equal(2, GetLongFromAnyCase(quickFilterCounts, "expiringSoon", "ExpiringSoon"));
+            Assert.Equal(1, GetLongFromAnyCase(quickFilterCounts, "withoutGroup", "WithoutGroup"));
+            Assert.Equal(1, GetLongFromAnyCase(quickFilterCounts, "trial", "Trial"));
+
+            var clientsPayload = GetArrayPayload(listPayload, "items", "clients");
+            var withoutMembershipClient = clientsPayload.EnumerateArray()
+                .Single(candidate => GetGuidFromProperty(candidate, "id") == withoutMembershipNoGroupClientId);
+            var withoutMembershipHints = GetArrayPayload(
+                GetPropertyOrNull(withoutMembershipClient, "actionHints", "ActionHints"));
+            Assert.Equal("Оформить абонемент", GetStringFromAnyCase(withoutMembershipHints[0], "title", "Title"));
+            Assert.Equal("Нет текущего абонемента", GetStringFromAnyCase(withoutMembershipHints[0], "description", "Description"));
+            Assert.Equal("orange", GetStringFromAnyCase(withoutMembershipHints[0], "tone", "Tone"));
+            Assert.Equal("Назначить группу", GetStringFromAnyCase(withoutMembershipHints[1], "title", "Title"));
+
+            var unpaidClient = clientsPayload.EnumerateArray()
+                .Single(candidate => GetGuidFromProperty(candidate, "id") == unpaidClientId);
+            var unpaidHints = GetArrayPayload(
+                GetPropertyOrNull(unpaidClient, "actionHints", "ActionHints"));
+            Assert.Equal("Проверить оплату", GetStringFromAnyCase(unpaidHints[0], "title", "Title"));
+            Assert.Equal("red", GetStringFromAnyCase(unpaidHints[0], "tone", "Tone"));
+
+            var expiredTrialClient = clientsPayload.EnumerateArray()
+                .Single(candidate => GetGuidFromProperty(candidate, "id") == expiredTrialClientId);
+            var expiredTrialHints = GetArrayPayload(
+                GetPropertyOrNull(expiredTrialClient, "actionHints", "ActionHints"));
+            Assert.Equal("Продлить абонемент", GetStringFromAnyCase(expiredTrialHints[0], "title", "Title"));
+            Assert.True(GetLongFromAnyCase(expiredTrialHints[0], "daysUntilExpiration", "DaysUntilExpiration") < 0);
+            Assert.Equal("Оформить абонемент", GetStringFromAnyCase(expiredTrialHints[1], "title", "Title"));
+        }
+
+        using (var filteredResponse = await client.GetAsync("/clients?status=Active&quickFilters=WithoutMembership,Trial"))
+        {
+            Assert.Equal(HttpStatusCode.OK, filteredResponse.StatusCode);
+            var filteredPayload = await ReadJsonElementAsync(filteredResponse);
+            var filteredIds = GetArrayPayload(filteredPayload, "items", "clients")
+                .EnumerateArray()
+                .Select(candidate => GetGuidFromProperty(candidate, "id"))
+                .ToArray();
+
+            Assert.Contains(withoutMembershipNoGroupClientId, filteredIds);
+            Assert.Contains(withoutMembershipClientId, filteredIds);
+            Assert.Contains(expiredTrialClientId, filteredIds);
+            Assert.DoesNotContain(expiringClientId, filteredIds);
+            Assert.DoesNotContain(unpaidClientId, filteredIds);
+            Assert.DoesNotContain(normalClientId, filteredIds);
+            Assert.DoesNotContain(professionalClientId, filteredIds);
+
+            var quickFilterCounts = GetPropertyOrNull(filteredPayload, "quickFilterCounts", "QuickFilterCounts");
+            Assert.Equal(2, GetLongFromAnyCase(quickFilterCounts, "withoutMembership", "WithoutMembership"));
+            Assert.Equal(1, GetLongFromAnyCase(quickFilterCounts, "trial", "Trial"));
+        }
+
+        using (var searchCountsResponse = await client.GetAsync($"/clients?status=Active&query={Uri.EscapeDataString("WithoutMembership")}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, searchCountsResponse.StatusCode);
+            var searchCountsPayload = await ReadJsonElementAsync(searchCountsResponse);
+            var quickFilterCounts = GetPropertyOrNull(searchCountsPayload, "quickFilterCounts", "QuickFilterCounts");
+
+            Assert.Equal(2, GetLongFromAnyCase(quickFilterCounts, "withoutMembership", "WithoutMembership"));
+            Assert.Equal(0, GetLongFromAnyCase(quickFilterCounts, "expiringSoon", "ExpiringSoon"));
+            Assert.Equal(1, GetLongFromAnyCase(quickFilterCounts, "withoutGroup", "WithoutGroup"));
+            Assert.Equal(0, GetLongFromAnyCase(quickFilterCounts, "trial", "Trial"));
+        }
+
+        using (var professionalDetailsResponse = await client.GetAsync($"/clients/{professionalClientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, professionalDetailsResponse.StatusCode);
+            var professionalDetailsPayload = await ReadJsonElementAsync(professionalDetailsResponse);
+            var actionHints = GetArrayPayload(
+                GetPropertyOrNull(professionalDetailsPayload, "actionHints", "ActionHints"));
+
+            Assert.Equal("Плановое сопровождение", GetStringFromAnyCase(actionHints[0], "title", "Title"));
+            Assert.Equal("Льготный клиент", GetStringFromAnyCase(actionHints[0], "description", "Description"));
+        }
+
+        using (var invalidQuickFilterResponse = await client.GetAsync("/clients?quickFilters=Unknown"))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, invalidQuickFilterResponse.StatusCode);
+            var invalidPayload = await ReadJsonElementAsync(invalidQuickFilterResponse);
+            var errors = GetPropertyOrNull(invalidPayload, "errors", "Errors");
+
+            Assert.NotEqual(
+                JsonValueKind.Undefined,
+                GetPropertyOrNull(errors, "quickFilters", "QuickFilters").ValueKind);
+        }
+    }
+
     [Theory]
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]

@@ -75,6 +75,7 @@ internal static class ClientEndpoints
         bool? hasGroup,
         bool? hasCurrentMembership,
         bool? hasActivePaidMembership,
+        string? quickFilters,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
@@ -96,6 +97,8 @@ internal static class ClientEndpoints
         {
             errors[error.Key] = error.Value;
         }
+
+        var parsedQuickFilters = ParseQuickFilters(quickFilters, errors);
 
         if (errors.Count > 0)
         {
@@ -262,7 +265,24 @@ internal static class ClientEndpoints
             clientsQuery = clientsQuery.Where(client => client.Status == archivedStatus);
         }
 
+        var quickFilterCountBaseQuery = clientsQuery;
+        if (parsedQuickFilters.Count > 0)
+        {
+            clientsQuery = ApplyQuickFilters(
+                clientsQuery,
+                parsedQuickFilters,
+                hasElevatedClientAccess,
+                currentUser.Id,
+                today);
+        }
+
         var totalCount = await clientsQuery.CountAsync(cancellationToken);
+        var quickFilterCounts = await BuildQuickFilterCountsAsync(
+            quickFilterCountBaseQuery,
+            hasElevatedClientAccess,
+            currentUser.Id,
+            today,
+            cancellationToken);
         var activeCount = await statuslessQuery.CountAsync(
             client => client.Status == ClientStatus.Active,
             cancellationToken);
@@ -386,6 +406,7 @@ internal static class ClientEndpoints
                     .ThenByDescending(attendance => attendance.Id)
                     .Select(attendance => (DateOnly?)attendance.TrainingDate)
                     .FirstOrDefault(),
+                Array.Empty<ClientActionHintResponse>(),
                 client.UpdatedAt))
             .ToArrayAsync(cancellationToken);
         var responseItems = await HydrateClientListItemsAsync(
@@ -404,7 +425,8 @@ internal static class ClientEndpoints
             paging.Take,
             paging.Skip + responseItems.Count < totalCount,
             activeCount,
-            archivedCount));
+            archivedCount,
+            quickFilterCounts));
     }
 
     private static async Task<Results<Ok<IReadOnlyList<ExpiringClientMembershipListItemResponse>>, UnauthorizedHttpResult>> ListExpiringMembershipsAsync(
@@ -1489,6 +1511,134 @@ internal static class ClientEndpoints
         }
 
         return errors;
+    }
+
+    private static IReadOnlyList<ClientQuickFilter> ParseQuickFilters(
+        string? quickFilters,
+        Dictionary<string, string[]> errors)
+    {
+        if (string.IsNullOrWhiteSpace(quickFilters))
+        {
+            return [];
+        }
+
+        var parsedFilters = new List<ClientQuickFilter>();
+        var invalidFilters = new List<string>();
+
+        foreach (var rawFilter in quickFilters.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (Enum.TryParse<ClientQuickFilter>(rawFilter, ignoreCase: true, out var parsedFilter))
+            {
+                if (!parsedFilters.Contains(parsedFilter))
+                {
+                    parsedFilters.Add(parsedFilter);
+                }
+
+                continue;
+            }
+
+            invalidFilters.Add(rawFilter);
+        }
+
+        if (invalidFilters.Count > 0)
+        {
+            errors["quickFilters"] =
+            [
+                $"Неизвестные быстрые фильтры: {string.Join(", ", invalidFilters)}."
+            ];
+        }
+
+        return parsedFilters;
+    }
+
+    private static async Task<ClientQuickFilterCountsResponse> BuildQuickFilterCountsAsync(
+        IQueryable<Client> baseQuery,
+        bool hasElevatedClientAccess,
+        Guid currentUserId,
+        DateOnly today,
+        CancellationToken cancellationToken)
+    {
+        var withoutMembershipCount = await ApplyQuickFilters(
+                baseQuery,
+                [ClientQuickFilter.WithoutMembership],
+                hasElevatedClientAccess,
+                currentUserId,
+                today)
+            .CountAsync(cancellationToken);
+        var expiringSoonCount = await ApplyQuickFilters(
+                baseQuery,
+                [ClientQuickFilter.ExpiringSoon],
+                hasElevatedClientAccess,
+                currentUserId,
+                today)
+            .CountAsync(cancellationToken);
+        var withoutGroupCount = await ApplyQuickFilters(
+                baseQuery,
+                [ClientQuickFilter.WithoutGroup],
+                hasElevatedClientAccess,
+                currentUserId,
+                today)
+            .CountAsync(cancellationToken);
+        var trialCount = await ApplyQuickFilters(
+                baseQuery,
+                [ClientQuickFilter.Trial],
+                hasElevatedClientAccess,
+                currentUserId,
+                today)
+            .CountAsync(cancellationToken);
+
+        return new ClientQuickFilterCountsResponse(
+            withoutMembershipCount,
+            expiringSoonCount,
+            withoutGroupCount,
+            trialCount);
+    }
+
+    private static IQueryable<Client> ApplyQuickFilters(
+        IQueryable<Client> query,
+        IReadOnlyCollection<ClientQuickFilter> quickFilters,
+        bool hasElevatedClientAccess,
+        Guid currentUserId,
+        DateOnly today)
+    {
+        var withoutMembership = quickFilters.Contains(ClientQuickFilter.WithoutMembership);
+        var expiringSoon = quickFilters.Contains(ClientQuickFilter.ExpiringSoon);
+        var withoutGroup = quickFilters.Contains(ClientQuickFilter.WithoutGroup);
+        var trial = quickFilters.Contains(ClientQuickFilter.Trial);
+
+        if (!withoutMembership && !expiringSoon && !withoutGroup && !trial)
+        {
+            return query;
+        }
+
+        var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
+
+        return query.Where(client =>
+            (withoutMembership &&
+             !client.IsProfessional &&
+             !client.Memberships.Any(membership => membership.ValidTo == null)) ||
+            (expiringSoon &&
+             client.Memberships
+                .Where(membership => membership.ValidTo == null)
+                .OrderByDescending(membership => membership.ValidFrom)
+                .ThenByDescending(membership => membership.CreatedAt)
+                .ThenByDescending(membership => membership.Id)
+                .Take(1)
+                .Any(membership =>
+                    membership.ExpirationDate.HasValue &&
+                    membership.ExpirationDate.Value < expiresBefore)) ||
+            (withoutGroup &&
+             !client.Groups.Any(clientGroup =>
+                 hasElevatedClientAccess ||
+                 clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUserId))) ||
+            (trial &&
+             client.Memberships
+                .Where(membership => membership.ValidTo == null)
+                .OrderByDescending(membership => membership.ValidFrom)
+                .ThenByDescending(membership => membership.CreatedAt)
+                .ThenByDescending(membership => membership.Id)
+                .Take(1)
+                .Any(membership => membership.MembershipType == MembershipType.SingleVisit)));
     }
 
     private static async Task<Dictionary<string, string[]>> ValidateUpsertRequestAsync(
@@ -2609,7 +2759,12 @@ internal static class ClientEndpoints
                     CurrentMembershipSummary = MapCurrentMembershipSummary(currentMembership),
                     HasCurrentMembership = currentMembership is not null,
                     MembershipState = GetMembershipState(item.IsProfessional, currentMembership).ToString(),
-                    LastVisitDate = lastVisitDate
+                    LastVisitDate = lastVisitDate,
+                    ActionHints = BuildActionHints(
+                        item.IsProfessional,
+                        item.ProfessionalComment,
+                        currentMembership,
+                        item.Groups.Count)
                 };
             })
             .ToArray();
@@ -2647,6 +2802,7 @@ internal static class ClientEndpoints
                 .ThenByDescending(attendance => attendance.UpdatedAt)
                 .Select(attendance => (DateOnly?)attendance.TrainingDate)
                 .FirstOrDefault(),
+            BuildActionHints(client.IsProfessional, client.ProfessionalComment, currentMembership, groups.Count),
             client.UpdatedAt);
     }
 
@@ -2687,6 +2843,7 @@ internal static class ClientEndpoints
                 .ThenByDescending(attendance => attendance.UpdatedAt)
                 .Select(attendance => (DateOnly?)attendance.TrainingDate)
                 .FirstOrDefault(),
+            BuildActionHints(client.IsProfessional, client.ProfessionalComment, currentMembership, groups.Count),
             client.UpdatedAt);
     }
 
@@ -2727,6 +2884,7 @@ internal static class ClientEndpoints
             HasActivePaidMembership(client.IsProfessional, currentMembership),
             HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
             currentMembership is null ? null : MapMembership(currentMembership),
+            BuildActionHints(client.IsProfessional, client.ProfessionalComment, currentMembership, groups.Count),
             membershipHistory,
             attendanceHistory.Items,
             attendanceHistory.Skip,
@@ -2765,6 +2923,7 @@ internal static class ClientEndpoints
             HasActivePaidMembership(client.IsProfessional, currentMembership),
             HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
             null,
+            BuildActionHints(client.IsProfessional, client.ProfessionalComment, currentMembership, groups.Count),
             [],
             attendanceHistory.Items,
             attendanceHistory.Skip,
@@ -2949,6 +3108,120 @@ internal static class ClientEndpoints
         }
 
         return ClientMembershipState.ActivePaid;
+    }
+
+    private static IReadOnlyList<ClientActionHintResponse> BuildActionHints(
+        bool isProfessional,
+        string? professionalComment,
+        ClientMembership? currentMembership,
+        int visibleGroupCount)
+    {
+        var hints = new List<ClientActionHintResponse>();
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+
+        if (isProfessional)
+        {
+            hints.Add(new ClientActionHintResponse(
+                "Плановое сопровождение",
+                string.IsNullOrWhiteSpace(professionalComment)
+                    ? "Льготный оплаченный статус"
+                    : professionalComment,
+                "blue",
+                "info",
+                null));
+
+            if (visibleGroupCount == 0)
+            {
+                hints.Add(new ClientActionHintResponse(
+                    "Назначить группу",
+                    "Клиент пока без группы",
+                    "blue",
+                    "group",
+                    null));
+            }
+
+            return hints;
+        }
+
+        if (currentMembership is null)
+        {
+            hints.Add(new ClientActionHintResponse(
+                "Оформить абонемент",
+                "Нет текущего абонемента",
+                "orange",
+                "membership",
+                null));
+        }
+        else
+        {
+            if (!currentMembership.IsPaid)
+            {
+                hints.Add(new ClientActionHintResponse(
+                    "Проверить оплату",
+                    "Текущий абонемент не оплачен",
+                    "red",
+                    "payment",
+                    null));
+            }
+
+            if (currentMembership.ExpirationDate.HasValue)
+            {
+                var daysUntilExpiration = currentMembership.ExpirationDate.Value.DayNumber - today.DayNumber;
+
+                if (daysUntilExpiration < 0)
+                {
+                    hints.Add(new ClientActionHintResponse(
+                        "Продлить абонемент",
+                        "Абонемент просрочен",
+                        "orange",
+                        "membership",
+                        daysUntilExpiration));
+                }
+                else if (daysUntilExpiration < ClientMembershipQueryConstants.ExpiringMembershipWindowDays)
+                {
+                    hints.Add(new ClientActionHintResponse(
+                        "Продлить абонемент",
+                        daysUntilExpiration == 0
+                            ? "Абонемент заканчивается сегодня"
+                            : $"Осталось {daysUntilExpiration} дн.",
+                        "yellow",
+                        "membership",
+                        daysUntilExpiration));
+                }
+            }
+
+            if (currentMembership is { MembershipType: MembershipType.SingleVisit, SingleVisitUsed: true })
+            {
+                hints.Add(new ClientActionHintResponse(
+                    "Оформить абонемент",
+                    "Пробное посещение уже использовано",
+                    "orange",
+                    "membership",
+                    null));
+            }
+        }
+
+        if (visibleGroupCount == 0)
+        {
+            hints.Add(new ClientActionHintResponse(
+                "Назначить группу",
+                "Клиент пока без группы",
+                "blue",
+                "group",
+                null));
+        }
+
+        if (hints.Count == 0)
+        {
+            hints.Add(new ClientActionHintResponse(
+                "Планово",
+                "Срочных действий нет",
+                "gray",
+                "check",
+                null));
+        }
+
+        return hints;
     }
 
     private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)

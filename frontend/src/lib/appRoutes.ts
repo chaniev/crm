@@ -4,6 +4,7 @@ export type AppRoute =
   | { kind: 'section'; section: AppSection }
   | { kind: 'password' }
   | { kind: 'clientCreate' }
+  | { kind: 'clientPreview'; clientId: string }
   | { kind: 'clientDetails'; clientId: string }
   | { kind: 'clientEdit'; clientId: string }
   | { kind: 'groupCreate' }
@@ -16,6 +17,7 @@ const CLIENT_CREATE_PATH = '/clients/new'
 const GROUP_CREATE_PATH = '/groups/new'
 const USER_CREATE_PATH = '/users/new'
 const CLIENT_EDIT_ROUTE_PATTERN = /^\/clients\/([^/]+)\/edit$/
+const CLIENT_PREVIEW_ROUTE_PATTERN = /^\/clients\/([^/]+)\/preview$/
 const GROUP_EDIT_ROUTE_PATTERN = /^\/groups\/([^/]+)\/edit$/
 const USER_EDIT_ROUTE_PATTERN = /^\/users\/([^/]+)\/edit$/
 const CLIENT_DETAILS_ROUTE_PATTERN = /^\/clients\/([^/]+)$/
@@ -173,6 +175,8 @@ export function getRoutePath(route: AppRoute) {
       return PASSWORD_PATH
     case 'clientCreate':
       return CLIENT_CREATE_PATH
+    case 'clientPreview':
+      return `/clients/${encodeURIComponent(route.clientId)}/preview`
     case 'clientDetails':
       return `/clients/${encodeURIComponent(route.clientId)}`
     case 'clientEdit':
@@ -212,6 +216,14 @@ export function parseRoute(pathname: string): AppRoute {
     return {
       kind: 'clientEdit',
       clientId: decodeURIComponent(clientEditMatch[1]),
+    }
+  }
+
+  const clientPreviewMatch = normalizedPathname.match(CLIENT_PREVIEW_ROUTE_PATTERN)
+  if (clientPreviewMatch) {
+    return {
+      kind: 'clientPreview',
+      clientId: decodeURIComponent(clientPreviewMatch[1]),
     }
   }
 
@@ -256,6 +268,7 @@ export function getRouteSection(route: AppRoute): AppSection | null {
     case 'section':
       return route.section
     case 'clientCreate':
+    case 'clientPreview':
     case 'clientDetails':
     case 'clientEdit':
       return 'Clients'

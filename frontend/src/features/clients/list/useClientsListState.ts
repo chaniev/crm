@@ -5,6 +5,7 @@ import {
   getGroups,
   type ClientDetails,
   type ClientListItem,
+  type ClientQuickFilterCounts,
 } from '../../../lib/api'
 import {
   createDefaultClientListFilters,
@@ -21,7 +22,13 @@ import {
 
 export type ClientsListState = ReturnType<typeof useClientsListState>
 
-export function useClientsListState() {
+type UseClientsListStateOptions = {
+  previewClientId?: string | null
+}
+
+export function useClientsListState({
+  previewClientId = null,
+}: UseClientsListStateOptions = {}) {
   const [clients, setClients] = useState<ClientListItem[]>([])
   const [groupOptions, setGroupOptions] = useState<ClientGroupFilterOption[]>([])
   const [fallbackGroupOptions, setFallbackGroupOptions] = useState<
@@ -38,8 +45,12 @@ export function useClientsListState() {
   const [totalCount, setTotalCount] = useState<number | null>(null)
   const [activeCount, setActiveCount] = useState<number | null>(null)
   const [archivedCount, setArchivedCount] = useState<number | null>(null)
+  const [quickFilterCounts, setQuickFilterCounts] =
+    useState<ClientQuickFilterCounts | null>(null)
   const [hasNextPage, setHasNextPage] = useState(false)
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(
+    previewClientId,
+  )
   const [previewCache, setPreviewCache] = useState<Record<string, ClientDetails>>({})
   const [previewLoading, setPreviewLoading] = useState(false)
   const [previewError, setPreviewError] = useState<string | null>(null)
@@ -64,6 +75,14 @@ export function useClientsListState() {
     !hasAppliedFilters &&
     clients.length === 0 &&
     (activeCount ?? 0) + (archivedCount ?? 0) === 0
+
+  useEffect(() => {
+    if (!previewClientId) {
+      return
+    }
+
+    setSelectedClientId(previewClientId)
+  }, [previewClientId])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -121,16 +140,21 @@ export function useClientsListState() {
         setTotalCount(nextResponse.totalCount)
         setActiveCount(nextResponse.activeCount)
         setArchivedCount(nextResponse.archivedCount)
+        setQuickFilterCounts(nextResponse.quickFilterCounts)
         setHasNextPage(nextResponse.hasNextPage)
         setFallbackGroupOptions((currentOptions) =>
           mergeClientGroupFilterOptions(currentOptions, nextResponse.items),
         )
-        setSelectedClientId((currentClientId) =>
-          currentClientId &&
-          nextResponse.items.some((client) => client.id === currentClientId)
+        setSelectedClientId((currentClientId) => {
+          if (previewClientId) {
+            return previewClientId
+          }
+
+          return currentClientId &&
+            nextResponse.items.some((client) => client.id === currentClientId)
             ? currentClientId
-            : nextResponse.items[0]?.id ?? null,
-        )
+            : nextResponse.items[0]?.id ?? null
+        })
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
@@ -151,7 +175,7 @@ export function useClientsListState() {
     void load()
 
     return () => controller.abort()
-  }, [filters, page, reloadKey])
+  }, [filters, page, previewClientId, reloadKey])
 
   useEffect(() => {
     if (!selectedClientId || previewCache[selectedClientId]) {
@@ -236,6 +260,7 @@ export function useClientsListState() {
     totalCount,
     activeCount,
     archivedCount,
+    quickFilterCounts,
     hasNextPage,
     hasAppliedFilters,
     activeFiltersCount,
