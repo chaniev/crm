@@ -417,3 +417,20 @@
 - skipped: 0
 - plans created: 1
 - note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is a frontend-only prerequisite gate for `TASK-050` and must reconcile the `TASK-048` shared content-layout baseline with the clients mockups before unblocking clients-specific implementation.
+
+# 2026-05-23 13:20
+
+## Moved to implementation
+- /backlog/implementation/TASK-051-mobile-bottom-navigation.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-051-mobile-bottom-navigation.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is a frontend-only all-screen mobile shell task that must derive bottom navigation from existing backend/session section access, keep desktop navigation unchanged and avoid fake notifications routes.

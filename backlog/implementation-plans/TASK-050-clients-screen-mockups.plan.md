@@ -91,7 +91,7 @@ If shared `PageLayout`, `PageSection`, `FilterToolbar`, `AppLayout`, header spac
 ### Mobile shell note
 The mobile mockup shows bottom navigation and an `Уведомления` tab. The current app uses a mobile drawer and does not have a notifications section route. Literal bottom navigation belongs to the separate task:
 
-- `/backlog/tasks-ready/TASK-051-mobile-bottom-navigation.md`;
+- `/backlog/implementation/TASK-051-mobile-bottom-navigation.md`;
 - branch: `feature/TASK-051-mobile-bottom-navigation`.
 
 That task must cover every mobile screen and routing/permissions behavior. TASK-050 should not create fake notification navigation or silently replace the app shell.

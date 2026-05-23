@@ -1,7 +1,13 @@
 # TASK-051: Mobile bottom navigation
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-23 13:20
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-051-mobile-bottom-navigation.plan.md
+- implementation_branch: feature/TASK-051-mobile-bottom-navigation
 
 ## Goal
 Спроектировать и реализовать нижнюю мобильную навигацию для CRM как отдельную all-screen задачу, а не как часть экрана `Клиенты`.
