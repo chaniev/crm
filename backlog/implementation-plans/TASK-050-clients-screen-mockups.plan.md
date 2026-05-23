@@ -14,7 +14,7 @@ The implementation must compare the finished `/clients` and `/clients/:id/previe
 
 ## Implementation status
 Unblocked by completed `TASK-052` on 2026-05-23:
-- `/backlog/implementation/TASK-052-frontend-content-layout-before-clients-mockups.md`.
+- `/backlog/done/TASK-052-frontend-content-layout-before-clients-mockups.md`.
 
 `TASK-050` may start after rebasing from updated `main`, but must preserve the `TASK-052` shared content-layout boundary. The clients mockup fit must not change shared page width, spacing, shell padding, route-level header behavior, shared section geometry or `FilterToolbar` container defaults as clients-only work.
 
@@ -71,7 +71,7 @@ If implementation proves that shared page width, shell padding, page title typog
 Global content-layout work already exists as:
 - `/backlog/done/TASK-048-frontend-content-layout-contract.md`;
 - `/backlog/done/TASK-048-frontend-content-layout-contract.plan.md`.
-- `/backlog/implementation/TASK-052-frontend-content-layout-before-clients-mockups.md`.
+- `/backlog/done/TASK-052-frontend-content-layout-before-clients-mockups.md`.
 
 `TASK-052` confirmed the needed global layout baseline through the completed `TASK-048` implementation and strengthened the responsive regression gate. `TASK-050` must not silently make all-screen layout changes.
 
@@ -91,15 +91,15 @@ If shared `PageLayout`, `PageSection`, `FilterToolbar`, `AppLayout`, header spac
 ### Mobile shell note
 The mobile mockup shows bottom navigation and an `Уведомления` tab. The current app uses a mobile drawer and does not have a notifications section route. Literal bottom navigation belongs to the separate task:
 
-- `/backlog/implementation/TASK-051-mobile-bottom-navigation.md`;
+- `/backlog/done/TASK-051-mobile-bottom-navigation.md`;
 - branch: `feature/TASK-051-mobile-bottom-navigation`.
 
 That task must cover every mobile screen and routing/permissions behavior. TASK-050 should not create fake notification navigation or silently replace the app shell.
 
 ## Execution steps
 1. Verify blocker status:
-   - confirm `TASK-052` is completed or explicitly cancelled;
-   - if `TASK-052` is still active, stop and do not implement `TASK-050`.
+   - confirm `TASK-052` is completed in `/backlog/done`;
+   - preserve the accepted shared layout boundary from `TASK-052`.
 2. Prepare branch:
    - checkout `main`;
    - pull latest changes;
@@ -321,10 +321,9 @@ Backend barrier:
 ## Stop conditions
 Stop before implementation if:
 - branch is not created from clean updated `main`;
-- `TASK-052` is still active;
 - implementation requires changing global `content-layout` without coordinating all screens listed above;
 - implementation requires adding real notifications navigation;
 - implementation requires backend role/permission/access-scope changes.
 
 ## Ready for Codex execution
-no, blocked by `TASK-052`
+yes

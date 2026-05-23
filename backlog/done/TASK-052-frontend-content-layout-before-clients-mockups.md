@@ -1,7 +1,7 @@
 # TASK-052: Content-layout prerequisite before clients mockups
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - created_at: 2026-05-23

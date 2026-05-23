@@ -1,7 +1,7 @@
 # TASK-051: Mobile bottom navigation
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-23 13:20
