@@ -21,7 +21,7 @@ Before `TASK-050` starts, make the shared authenticated content-layout boundary 
 - This is a frontend-only prerequisite/gate for `TASK-050`.
 - Backend contracts, roles, permissions, validation, membership logic, attendance logic and audit semantics are out of scope.
 - Nearest frontend rules are in `frontend/AGENTS.md`; preserve Mantine and Onest.
-- `TASK-048` already defines the shared layout direction and is the related all-screen task.
+- `TASK-048` already defines the shared layout direction and is the related all-screen task; its completed source and plan now live in `backlog/done/`.
 - Current source already contains shared primitives in `frontend/src/features/shared/ux.tsx`: `PageLayout`, `PageSection`, `PageCard` as compatibility alias, `FilterToolbar` and `PageTabsPanel`.
 - Current global layout tokens live in `frontend/src/App.css`, including `--page-max-width`, `--page-section-gap`, `--page-card-padding`, `--page-card-radius`, `--dense-surface-radius` and shared `filter-toolbar` classes.
 - Shared content width decision is fixed: use `--page-max-width: 100%` as the all-screen authenticated content-layout baseline.
@@ -36,8 +36,8 @@ Before `TASK-050` starts, make the shared authenticated content-layout boundary 
 ## Execution steps
 1. Prepare the implementation branch from updated `main`: checkout `main`, pull, verify clean status, then create or switch to `feature/TASK-052-content-layout-before-clients`.
 2. Re-read:
-   - `/backlog/implementation/TASK-048-frontend-content-layout-contract.md`;
-   - `/backlog/implementation-plans/TASK-048-frontend-content-layout-contract.plan.md`;
+   - `/backlog/done/TASK-048-frontend-content-layout-contract.md`;
+   - `/backlog/done/TASK-048-frontend-content-layout-contract.plan.md`;
    - `/backlog/implementation-plans/TASK-050-clients-screen-mockups.plan.md`;
    - `frontend/AGENTS.md`.
 3. Review the desktop and mobile `TASK-050` mockups in `docs/mockups/task-050/` and extract only shared-layout pressures:
@@ -111,7 +111,7 @@ Avoid:
 Backlog and planning:
 - `backlog/implementation/TASK-052-frontend-content-layout-before-clients-mockups.md`
 - `backlog/implementation-plans/TASK-050-clients-screen-mockups.plan.md`
-- `backlog/implementation-plans/TASK-048-frontend-content-layout-contract.plan.md` if the documented baseline conflicts with implementation
+- `backlog/done/TASK-048-frontend-content-layout-contract.plan.md` if the documented baseline conflicts with implementation
 
 Frontend, only if audit finds missing shared baseline work:
 - `frontend/src/features/shared/ux.tsx`
@@ -225,3 +225,16 @@ Stop before product-code changes if:
 
 ## Ready for Codex execution
 yes
+
+## Implementation result
+- Completed on 2026-05-23 in `feature/TASK-052-content-layout-before-clients`.
+- Product baseline audit found no missing all-screen page-layout implementation from `TASK-048`.
+- Removed the clients-only `FilterToolbar` container visual override so shared toolbar padding/radius/background/border remain all-screen defaults.
+- Strengthened `frontend/e2e/responsive-main-screens.spec.ts` to lock route H1 outside card surfaces, clients `PageLayout`/`PageSection` edge alignment, absence of clients inline page-width overrides, and schedule viewport containment inside the shared section.
+- Recorded the all-screen vs `clients-*` CSS boundary in the TASK-052 source task and unblocked `TASK-050` with explicit constraints.
+
+Validation:
+- Passed: `cd frontend && npm run lint`.
+- Passed: `cd frontend && npm run build`.
+- Passed: `cd frontend && env E2E_PORT=3100 npm run test:e2e -- responsive-main-screens.spec.ts`.
+- In-app browser smoke check passed for `/clients` through a temporary mock API, with the exact required viewport matrix covered by the responsive e2e browser run.

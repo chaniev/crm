@@ -13,10 +13,10 @@ Use the desktop and mobile mockups from:
 The implementation must compare the finished `/clients` and `/clients/:id/preview` screens against these files during the manual/browser visual check.
 
 ## Implementation status
-Blocked by:
+Unblocked by completed `TASK-052` on 2026-05-23:
 - `/backlog/implementation/TASK-052-frontend-content-layout-before-clients-mockups.md`.
 
-Do not start the implementation branch for this plan until `TASK-052` is completed or explicitly cancelled. `TASK-050` depends on the all-screen content-layout decision because fitting the clients mockups may otherwise change shared page width, spacing, shell padding, route-level header behavior or shared section geometry.
+`TASK-050` may start after rebasing from updated `main`, but must preserve the `TASK-052` shared content-layout boundary. The clients mockup fit must not change shared page width, spacing, shell padding, route-level header behavior, shared section geometry or `FilterToolbar` container defaults as clients-only work.
 
 ## Implementation branch
 feature/TASK-050-clients-screen-mockups
@@ -69,11 +69,11 @@ If implementation proves that shared page width, shell padding, page title typog
 
 ### Existing related task
 Global content-layout work already exists as:
-- `/backlog/implementation/TASK-048-frontend-content-layout-contract.md`;
-- `/backlog/implementation-plans/TASK-048-frontend-content-layout-contract.plan.md`.
+- `/backlog/done/TASK-048-frontend-content-layout-contract.md`;
+- `/backlog/done/TASK-048-frontend-content-layout-contract.plan.md`.
 - `/backlog/implementation/TASK-052-frontend-content-layout-before-clients-mockups.md`.
 
-`TASK-052` is the explicit blocker for this plan. It should either complete the needed global layout baseline directly or resolve it through `TASK-048`; `TASK-050` must not silently make all-screen layout changes.
+`TASK-052` confirmed the needed global layout baseline through the completed `TASK-048` implementation and strengthened the responsive regression gate. `TASK-050` must not silently make all-screen layout changes.
 
 ### Screens affected by any shared content-layout change
 If shared `PageLayout`, `PageSection`, `FilterToolbar`, `AppLayout`, header spacing, content width, text scale or route-level padding changes, the plan must cover and validate:
@@ -181,6 +181,7 @@ That task must cover every mobile screen and routing/permissions behavior. TASK-
 17. Update CSS in `App.css`:
     - keep new selectors scoped to `clients-*`;
     - keep shared/all-screen content-layout CSS out of `TASK-050`;
+    - do not override the shared `FilterToolbar` container padding/radius/background/border from `clients-*`; only inner controls/list/preview/mobile details are clients-scoped;
     - use `TASK-052`/`TASK-048` for all-screen layout tokens and shared primitives;
     - ensure no page-level horizontal scroll at required responsive widths.
 18. Update tests and run validation.

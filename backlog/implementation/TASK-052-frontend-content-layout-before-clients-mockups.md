@@ -10,8 +10,8 @@ implementation
 - implementation_plan: /backlog/implementation-plans/TASK-052-frontend-content-layout-before-clients-mockups.plan.md
 - implementation_branch: feature/TASK-052-content-layout-before-clients
 - blocks: `/backlog/implementation-plans/TASK-050-clients-screen-mockups.plan.md`
-- related_task: `/backlog/implementation/TASK-048-frontend-content-layout-contract.md`
-- related_plan: `/backlog/implementation-plans/TASK-048-frontend-content-layout-contract.plan.md`
+- related_task: `/backlog/done/TASK-048-frontend-content-layout-contract.md`
+- related_plan: `/backlog/done/TASK-048-frontend-content-layout-contract.plan.md`
 - recommended_branch: `feature/TASK-052-content-layout-before-clients`
 
 ## Goal
@@ -44,8 +44,30 @@ Preferred CSS boundary:
 - Responsive checks cover mobile, tablet and desktop viewports from the `TASK-048`/`TASK-050` plans.
 - No fake bottom navigation or notifications route is introduced here; that belongs to `TASK-051`.
 
+## Resolution
+- Date: 2026-05-23.
+- Branch: `feature/TASK-052-content-layout-before-clients`.
+- `TASK-048` is already completed in `/backlog/done/` and its current implementation satisfies the page-level baseline required before `TASK-050`.
+- No backend, database or migration change is required for this task. The user instruction to prefer the initial deployment point over a DB migration is therefore not applicable here.
+
+### Accepted shared baseline
+- All authenticated route-level screens keep `PageLayout` as the shared owner of content width, route-level H1/header, outer rhythm and page actions.
+- `--page-max-width: 100%` remains the all-screen authenticated content width baseline. Do not reintroduce the older `65rem` max-width proposal.
+- `PageSection` owns shared section/card geometry, including shared padding, radius, border and shadow tokens.
+- `FilterToolbar` defaults are accepted as shared all-screen behavior. Screen-specific CSS must not override the toolbar container's page-level padding, radius, background or border as a clients-only mockup fit.
+- `PageTabsPanel` remains the shared wrapper for settings tab content.
+- Schedule horizontal overflow must stay inside `.schedule-board__viewport`; it must not widen the page shell.
+
+### TASK-050 CSS boundary
+- `TASK-050` may change clients-specific row/card/preview/mobile-list geometry under scoped `clients-*` selectors.
+- The desktop clients preview is a feature-specific inner layout inside the shared clients page section, not a new shared layout primitive.
+- `/clients` must continue to use the shared `PageLayout` and `PageSection` boundaries. Do not add clients-only page width, shell padding, route title or section geometry overrides.
+- If clients mockup work needs different shared page width, shell padding, route header typography, shared section radius or shared `FilterToolbar` defaults, stop `TASK-050` and create a separate all-screen layout task.
+- Bottom navigation and a real notifications route remain out of scope and belong to `TASK-051`.
+
 ## Validation
-- `cd frontend && npm run lint`
-- `cd frontend && npm run build`
-- `cd frontend && npm run test:e2e -- responsive-main-screens.spec.ts`
-- Manual/browser visual check at `390x844`, `393x852`, `402x874`, `420x912`, `440x956`, `768x1024`, `1440x1200`, `1920x1080`.
+- Passed: `cd frontend && npm run lint`.
+- Passed: `cd frontend && npm run build`.
+- Passed: `cd frontend && env E2E_PORT=3100 npm run test:e2e -- responsive-main-screens.spec.ts`.
+- Responsive browser coverage passed at `390x844`, `393x852`, `402x874`, `420x912`, `440x956`, `768x1024`, `1440x1200`, `1920x1080` through `responsive-main-screens.spec.ts`.
+- In-app browser smoke check passed for `/clients` with temporary mock API: route-level H1 stayed outside sections, the two clients `PageSection` edges matched the `PageLayout`, desktop preview stayed inside the shared section, and there was no page-level horizontal scroll.
