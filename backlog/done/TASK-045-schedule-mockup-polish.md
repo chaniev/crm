@@ -1,7 +1,7 @@
 # TASK-045: Привести окно расписания к новому макету
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-15 14:39

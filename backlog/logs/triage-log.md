@@ -522,3 +522,49 @@
 ## Summary
 - updated existing: 1
 - validation: backlog-only update; runtime test commands were not run
+
+# 2026-05-23 status audit
+
+## Scope
+- Reviewed active backlog folders against current `main`, merge history and source-code evidence after pulling latest changes.
+- Audit branch: `feature/backlog-actualize-statuses`.
+
+## Moved tasks
+- /backlog/needs-clarification/TASK-039-crm-messenger-chat-integration.md -> /backlog/done/TASK-039-crm-messenger-chat-integration.md
+- /backlog/implementation/TASK-045-schedule-mockup-polish.md -> /backlog/done/TASK-045-schedule-mockup-polish.md
+- /backlog/implementation/TASK-046-frontend-unified-visual-style.md -> /backlog/done/TASK-046-frontend-unified-visual-style.md
+- /backlog/implementation/TASK-047-mobile-left-side-menu.md -> /backlog/done/TASK-047-mobile-left-side-menu.md
+- /backlog/implementation/TASK-048-frontend-content-layout-contract.md -> /backlog/done/TASK-048-frontend-content-layout-contract.md
+- /backlog/risky/TASK-049-deploy-club-name-branding.md -> /backlog/done/TASK-049-deploy-club-name-branding.md
+
+## Moved implementation plans
+- /backlog/implementation-plans/TASK-039-crm-messenger-chat-integration.plan.md -> /backlog/done/TASK-039-crm-messenger-chat-integration.plan.md
+- /backlog/implementation-plans/TASK-045-schedule-mockup-polish.plan.md -> /backlog/done/TASK-045-schedule-mockup-polish.plan.md
+- /backlog/implementation-plans/TASK-046-frontend-unified-visual-style.plan.md -> /backlog/done/TASK-046-frontend-unified-visual-style.plan.md
+- /backlog/implementation-plans/TASK-047-mobile-left-side-menu.plan.md -> /backlog/done/TASK-047-mobile-left-side-menu.plan.md
+- /backlog/implementation-plans/TASK-048-frontend-content-layout-contract.plan.md -> /backlog/done/TASK-048-frontend-content-layout-contract.plan.md
+- /backlog/implementation-plans/TASK-049-deploy-club-name-branding.plan.md -> /backlog/done/TASK-049-deploy-club-name-branding.plan.md
+
+## Updated existing tasks
+- /backlog/tasks-ready/TASK-051-mobile-bottom-navigation.md: normalized `Status` from `tasks-ready` to `ready` to match the active folder convention.
+
+## Evidence
+- TASK-039 is present in merge history as `feature/TASK-039-crm-messenger-chat-integration`; backend has client messenger domain/service/endpoints/tests, frontend has typed messenger API and client chat section, and deploy config includes separate client Telegram runtime variables.
+- TASK-045 is present in merge history as `feature/TASK-045-schedule-mockup-polish`; the schedule screen has the weekly board, filters, type legend, day counters, overview summaries and responsive e2e coverage.
+- TASK-046 is present in merge history as `feature/TASK-046-frontend-unified-visual-style`; frontend shared visual styling was applied after TASK-045 as a cross-screen polish pass.
+- TASK-047 is present in merge history as `feature/TASK-047-mobile-left-side-menu`; mobile shell tests assert vertical drawer navigation and no page-level overflow.
+- TASK-048 is present in merge history as `feature/TASK-048-frontend-content-layout-contract`; frontend has shared `PageLayout`/`PageSection` primitives and responsive route-level coverage.
+- TASK-049 is present in merge history as `feature/TASK-049-deploy-club-name-branding`; backend exposes normalized `/config`, frontend consumes `clubName`, and compose files map `CRM_CLUB_NAME`.
+
+## Kept active
+- Bot tasks TASK-001..TASK-014 and TASK-033 remain active unless already closed: source audit still shows missing acceptance coverage such as bot-side `BotAccessDenied` idempotency key, attendance roster pagination and branch/hall DTO consumption.
+- Client detail/list UX tasks TASK-016..TASK-021 remain active: source audit does not prove full tabs, return-state restoration, quick actions, action-first empty states and dedicated responsive coverage.
+- TASK-050 plan remains active and blocked by TASK-052.
+- TASK-052 remains in implementation: current history only shows backlog planning/move work, not a completed implementation branch.
+- TASK-051 remains ready: no implementation branch or all-screen bottom navigation evidence was found.
+
+## Summary
+- moved to done: 6 tasks
+- moved plans to done: 6
+- updated active statuses: 1
+- validation: backlog/source audit only; runtime test commands were not re-run

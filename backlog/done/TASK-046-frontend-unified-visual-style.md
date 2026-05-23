@@ -1,7 +1,7 @@
 # TASK-046: Привести остальные окна CRM к единому визуальному стилю
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-15 14:39

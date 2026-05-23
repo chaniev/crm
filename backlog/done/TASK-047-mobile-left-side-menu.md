@@ -1,7 +1,7 @@
 # TASK-047: Вертикальное левое меню на мобильном экране
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-20 19:48
