@@ -310,13 +310,27 @@ test.describe('Finance reports', () => {
     await expect(
       page.locator('nav.app-shell__side-nav[aria-label="Основная навигация"]'),
     ).toBeHidden()
-    await page.getByRole('button', { name: 'Открыть основное меню' }).click()
+    const bottomNavigation = page.getByRole('navigation', {
+      name: 'Мобильная навигация',
+    })
+    const overflowButton = bottomNavigation.getByRole('button', {
+      name: 'Открыть остальные разделы',
+    })
+
+    await expect(bottomNavigation).toBeVisible()
+    await expect(overflowButton).toHaveAttribute('aria-current', 'page')
+    await overflowButton.click()
     await expect(
-      page.locator('nav.app-shell__drawer-nav[aria-label="Основная навигация"]'),
+      page.locator('.mobile-bottom-nav__overflow-list'),
     ).toBeVisible()
     await expect(
-      page.locator('nav.app-shell__drawer-nav[aria-label="Основная навигация"]'),
-    ).toHaveAttribute('data-orientation', 'vertical')
+      page.locator('.mobile-bottom-nav__overflow-list').getByRole('button', {
+        name: 'Финансы',
+      }),
+    ).toHaveAttribute('aria-current', 'page')
+    await expect(
+      page.getByRole('button', { name: 'Уведомления' }),
+    ).toHaveCount(0)
     await expectNoHorizontalScroll(page)
   })
 })

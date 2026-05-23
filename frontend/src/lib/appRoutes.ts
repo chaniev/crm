@@ -56,6 +56,14 @@ export const APP_NAVIGATION_SECTIONS: AppSection[] = [
   'Settings',
 ]
 
+const MOBILE_PRIMARY_NAVIGATION_CANDIDATES: AppSection[] = [
+  'Home',
+  'Schedule',
+  'Attendance',
+  'Clients',
+]
+const MOBILE_PRIMARY_NAVIGATION_LIMIT = 4
+
 const sectionPathEntries = Object.entries(APP_SECTION_PATHS) as Array<
   [AppSection, string]
 >
@@ -120,6 +128,41 @@ export function getAccessibleNavigationSections(user: AuthenticatedUser) {
   )
 
   return sections
+}
+
+export function getMobileNavigationSections(
+  accessibleSections: readonly AppSection[],
+) {
+  const primarySections: AppSection[] = []
+
+  for (const section of MOBILE_PRIMARY_NAVIGATION_CANDIDATES) {
+    if (
+      accessibleSections.includes(section) &&
+      primarySections.length < MOBILE_PRIMARY_NAVIGATION_LIMIT
+    ) {
+      primarySections.push(section)
+    }
+  }
+
+  for (const section of accessibleSections) {
+    if (primarySections.length >= MOBILE_PRIMARY_NAVIGATION_LIMIT) {
+      break
+    }
+
+    if (!primarySections.includes(section)) {
+      primarySections.push(section)
+    }
+  }
+
+  const primarySectionSet = new Set(primarySections)
+  const overflowSections = accessibleSections.filter(
+    (section) => !primarySectionSet.has(section),
+  )
+
+  return {
+    primarySections,
+    overflowSections,
+  }
 }
 
 export function getRoutePath(route: AppRoute) {

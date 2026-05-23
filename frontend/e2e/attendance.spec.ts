@@ -133,27 +133,28 @@ test.describe('Мобильный сценарий посещений трене
     const sideNavigation = page.locator(
       'nav.app-shell__side-nav[aria-label="Основная навигация"]',
     )
-    const drawerNavigation = page.locator(
-      'nav.app-shell__drawer-nav[aria-label="Основная навигация"]',
-    )
-    const menuButton = page.getByRole('button', { name: 'Открыть основное меню' })
+    const bottomNavigation = page.getByRole('navigation', {
+      name: 'Мобильная навигация',
+    })
 
     await expect(sideNavigation).toBeHidden()
-    await expect(menuButton).toBeVisible()
-    await menuButton.click()
-    await expect(drawerNavigation).toBeVisible()
-    await expect(drawerNavigation).toHaveAttribute('data-orientation', 'vertical')
-    await expect(drawerNavigation.getByRole('button')).toHaveCount(3)
     await expect(
-      drawerNavigation.getByRole('button', { name: 'Расписание' }),
+      page.getByRole('button', { name: 'Открыть основное меню' }),
+    ).toHaveCount(0)
+    await expect(bottomNavigation).toBeVisible()
+    await expect(bottomNavigation.getByRole('button')).toHaveCount(3)
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Расписание' }),
     ).toBeVisible()
     await expect(
-      drawerNavigation.getByRole('button', { name: 'Посещения' }),
+      bottomNavigation.getByRole('button', { name: 'Посещения' }),
     ).toHaveAttribute('aria-current', 'page')
     await expect(
-      drawerNavigation.getByRole('button', { name: 'Клиенты' }),
+      bottomNavigation.getByRole('button', { name: 'Клиенты' }),
     ).toBeVisible()
-    await page.keyboard.press('Escape')
+    await expect(
+      page.getByRole('button', { name: 'Открыть остальные разделы' }),
+    ).toHaveCount(0)
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByText(`Клиенты группы ${assignedGroup.name}`)).toBeVisible()
