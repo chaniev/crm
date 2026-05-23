@@ -600,3 +600,25 @@
 - moved plans to done: 2
 - updated active plans: 1
 - validation: backlog/source audit only; runtime test commands were not re-run
+
+# 2026-05-23 19:09
+
+## Processed inbox files
+- 2026-05-23.md
+
+## Created tasks
+- /backlog/risky/TASK-053-hide-group-type-system-identifier.md
+- /backlog/risky/TASK-054-auto-role-for-staff-forms.md
+
+## Updated existing tasks
+- /backlog/done/TASK-040-notifications-auto-dismiss.md
+
+## Skipped duplicates
+- `уведомления должны скрываться автоматически` matched completed `/backlog/done/TASK-040-notifications-auto-dismiss.md`; no new task created.
+
+## Summary
+- tasks-ready: 0
+- risky: 2
+- needs-clarification: 0
+- updated existing: 1
+- processed files: 1

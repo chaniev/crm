@@ -61,6 +61,8 @@ done
 ## Source notes
 - Source file: `backlog/inbox/2026-05-14.md`
 - Original note: `автоматичское скрытие уведомлений`
+- Source file: `backlog/inbox/2026-05-23.md`
+- Original note: `уведомления должны скрываться автоматически`
 
 ## Processing notes
 - Created at: 2026-05-14 13:01
@@ -69,3 +71,4 @@ done
 - Completed at: 2026-05-15 status audit after merge of `feature/TASK-040-notifications-auto-dismiss`.
 - Implementation evidence: commit `2e4cda9` adds shared frontend notification helper, global Mantine notification auto-close configuration, targeted unit tests and `notifications-auto-dismiss` e2e coverage.
 - Validation: implementation branch contains frontend unit/e2e coverage; runtime validation was not re-run during this backlog status audit.
+- Duplicate note received at: 2026-05-23 19:09; matched completed `TASK-040-notifications-auto-dismiss`, so no new task was created.
