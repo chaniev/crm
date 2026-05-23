@@ -11,12 +11,12 @@ import {
 } from '../../../lib/api'
 import { resources } from '../../../lib/resources'
 
-export type ClientNextActionTone = 'orange' | 'yellow' | 'red' | 'blue' | 'gray'
-
 export type ClientNextActionViewModel = {
-  label: 'Оформить' | 'Продлить' | 'Предложить' | 'В группу' | 'Планово'
-  tone: ClientNextActionTone
+  label: string
+  tone: string
   description: string
+  iconKey: string
+  daysUntilExpiration: number | null
 }
 
 export type ClientRowViewModel = {
@@ -128,60 +128,24 @@ export function resolveHeaderCountsLabel(
 }
 
 export function resolveNextAction(client: ClientListItem): ClientNextActionViewModel {
-  const membership = getCurrentMembershipSummary(client)
+  const [hint] = client.actionHints
 
-  if (client.isProfessional) {
+  if (hint) {
     return {
-      label: 'Планово',
-      tone: 'blue',
-      description: 'Льготный оплаченный статус',
-    }
-  }
-
-  if (!client.hasCurrentMembership || !membership) {
-    return {
-      label: 'Оформить',
-      tone: 'orange',
-      description: 'Нет текущего абонемента',
-    }
-  }
-
-  if (client.membershipState === 'Expired' || client.membershipState === 'UsedSingleVisit') {
-    return {
-      label: 'Продлить',
-      tone: 'orange',
-      description: 'Абонемент больше не дает проход',
-    }
-  }
-
-  if (isMembershipExpiringSoon(membership)) {
-    return {
-      label: 'Продлить',
-      tone: 'yellow',
-      description: 'Окончание в ближайшие 7 дней',
-    }
-  }
-
-  if (client.hasUnpaidCurrentMembership) {
-    return {
-      label: 'Предложить',
-      tone: 'red',
-      description: 'Текущий абонемент не оплачен',
-    }
-  }
-
-  if (client.groupCount === 0) {
-    return {
-      label: 'В группу',
-      tone: 'blue',
-      description: 'Клиент пока без группы',
+      label: hint.title,
+      tone: hint.tone || 'gray',
+      description: hint.description,
+      iconKey: hint.iconKey,
+      daysUntilExpiration: hint.daysUntilExpiration,
     }
   }
 
   return {
     label: 'Планово',
     tone: 'gray',
-    description: 'Ничего срочного',
+    description: 'Нет подсказок от сервера',
+    iconKey: '',
+    daysUntilExpiration: null,
   }
 }
 
@@ -277,22 +241,6 @@ function resolveLastVisitLabel(value?: string | null) {
 
 function getCurrentMembershipSummary(client: ClientListItem) {
   return client.currentMembershipSummary ?? client.currentMembership
-}
-
-function isMembershipExpiringSoon(
-  membership: ClientMembershipSummary | ClientMembership,
-) {
-  if (!membership.expirationDate) {
-    return false
-  }
-
-  const expirationDate = parseDateValue(membership.expirationDate)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const threshold = new Date(today)
-  threshold.setDate(threshold.getDate() + 7)
-
-  return expirationDate >= today && expirationDate <= threshold
 }
 
 function buildPreviewEvents(client: ClientDetails) {

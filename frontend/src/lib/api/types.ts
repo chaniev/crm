@@ -113,6 +113,26 @@ export type ClientMembershipState =
   | 'Unpaid'
   | 'Expired'
   | 'UsedSingleVisit'
+export type ClientQuickFilter =
+  | 'WithoutMembership'
+  | 'ExpiringSoon'
+  | 'WithoutGroup'
+  | 'Trial'
+
+export type ClientQuickFilterCounts = {
+  withoutMembership: number
+  expiringSoon: number
+  withoutGroup: number
+  trial: number
+}
+
+export type ClientActionHint = {
+  title: string
+  description: string
+  tone: string
+  iconKey: string
+  daysUntilExpiration: number | null
+}
 
 export type ClientMessengerConnectionStatus =
   | 'NotConnected'
@@ -267,6 +287,7 @@ export type ClientListItem = {
   currentMembershipSummary: ClientMembershipSummary | null
   hasCurrentMembership: boolean
   membershipState: ClientMembershipState
+  actionHints: ClientActionHint[]
   lastVisitDate?: string | null
   updatedAt?: string
 }
@@ -470,6 +491,7 @@ export type GetClientsParams = {
   hasGroup?: boolean
   hasCurrentMembership?: boolean
   hasActivePaidMembership?: boolean
+  quickFilters?: ClientQuickFilter[]
 }
 
 export type ClientListResponse = {
@@ -477,6 +499,7 @@ export type ClientListResponse = {
   totalCount: number | null
   activeCount: number | null
   archivedCount: number | null
+  quickFilterCounts: ClientQuickFilterCounts | null
   skip: number
   take: number
   page: number
@@ -812,6 +835,7 @@ export type ClientResponsePayload = {
   currentMembershipSummary?: Record<string, unknown> | null
   hasCurrentMembership?: boolean | null
   membershipState?: string | null
+  actionHints?: unknown[] | Record<string, unknown>
   lastVisitDate?: string | null
   updatedAt?: string
   createdAt?: string

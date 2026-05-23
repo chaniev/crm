@@ -13,7 +13,9 @@ import {
 import {
   IconAlertCircle,
   IconCalendarCheck,
-  IconEdit,
+  IconCreditCard,
+  IconExternalLink,
+  IconMessage,
   IconUserHeart,
 } from '@tabler/icons-react'
 import { buildClientPreviewViewModel } from './clientListViewModel'
@@ -34,7 +36,7 @@ export function ClientPreviewPanel({
 
   if (!selectedClientId) {
     return (
-      <Paper className="clients-v7-preview" withBorder>
+      <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
         <Text c="dimmed" size="sm">
           Выберите клиента в списке.
         </Text>
@@ -44,7 +46,7 @@ export function ClientPreviewPanel({
 
   if (state.previewLoading && !state.selectedPreview) {
     return (
-      <Paper className="clients-v7-preview" withBorder>
+      <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
         <Stack gap="sm">
           <Skeleton circle height={56} />
           <Skeleton height={18} />
@@ -60,7 +62,7 @@ export function ClientPreviewPanel({
 
   if (state.previewError && !state.selectedPreview) {
     return (
-      <Paper className="clients-v7-preview" withBorder>
+      <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
         <Alert
           color="red"
           icon={<IconAlertCircle size={18} />}
@@ -75,7 +77,7 @@ export function ClientPreviewPanel({
 
   if (!state.selectedPreview) {
     return (
-      <Paper className="clients-v7-preview" withBorder>
+      <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
         <Text c="dimmed" size="sm">
           Загружаем краткую карточку.
         </Text>
@@ -86,7 +88,7 @@ export function ClientPreviewPanel({
   const preview = buildClientPreviewViewModel(state.selectedPreview, canManage)
 
   return (
-    <Paper className="clients-v7-preview" withBorder>
+    <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
       <Stack gap="md">
         <Group align="flex-start" gap="sm" wrap="nowrap">
           <Avatar
@@ -120,7 +122,9 @@ export function ClientPreviewPanel({
             <Badge color={preview.nextAction.tone} variant="filled">
               {preview.nextAction.label}
             </Badge>
-            <Text size="sm">{preview.nextAction.description}</Text>
+            {preview.nextAction.description ? (
+              <Text size="sm">{preview.nextAction.description}</Text>
+            ) : null}
           </Group>
         </Paper>
 
@@ -159,33 +163,40 @@ export function ClientPreviewPanel({
           )}
         </Stack>
 
-        <Group grow>
-          <Button
-            leftSection={<IconUserHeart size={16} />}
-            onClick={() => onOpen(selectedClientId)}
-            variant="light"
-          >
-            Открыть
-          </Button>
-          <Button
-            component="a"
-            href="/attendance"
-            leftSection={<IconCalendarCheck size={16} />}
-            variant="default"
-          >
-            Визит
-          </Button>
+        <div className="clients-v7-preview__actions">
           {canManage ? (
-            <Button
-              component="a"
-              href={`/clients/${encodeURIComponent(selectedClientId)}/edit`}
-              leftSection={<IconEdit size={16} />}
-              variant="default"
-            >
-              Редактировать
-            </Button>
+            <>
+              <Button
+                leftSection={<IconCreditCard size={16} />}
+                onClick={() => onOpen(selectedClientId)}
+                variant="default"
+              >
+                Оформить абонемент
+              </Button>
+              <Button
+                leftSection={<IconMessage size={16} />}
+                onClick={() => onOpen(selectedClientId)}
+                variant="default"
+              >
+                Сообщение
+              </Button>
+              <Button
+                leftSection={<IconCalendarCheck size={16} />}
+                onClick={() => onOpen(selectedClientId)}
+                variant="default"
+              >
+                Посещение
+              </Button>
+            </>
           ) : null}
-        </Group>
+          <Button
+            leftSection={canManage ? <IconExternalLink size={16} /> : <IconUserHeart size={16} />}
+            onClick={() => onOpen(selectedClientId)}
+            variant={canManage ? 'default' : 'light'}
+          >
+            Открыть карточку
+          </Button>
+        </div>
       </Stack>
     </Paper>
   )

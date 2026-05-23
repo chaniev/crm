@@ -130,6 +130,7 @@ export const CLIENTS_QUERY_KEYS = {
   hasGroup: 'hasGroup',
   hasCurrentMembership: 'hasCurrentMembership',
   hasActivePaidMembership: 'hasActivePaidMembership',
+  quickFilters: 'quickFilters',
 } as const
 
 export const CLIENT_LIST_PAYLOAD_KEYS = ['items', 'clients'] as const

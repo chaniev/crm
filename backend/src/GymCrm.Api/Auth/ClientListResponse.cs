@@ -9,4 +9,5 @@ internal sealed record ClientListResponse(
     int PageSize,
     bool HasNextPage,
     int ActiveCount,
-    int ArchivedCount);
+    int ArchivedCount,
+    ClientQuickFilterCountsResponse QuickFilterCounts);

@@ -1,9 +1,9 @@
 import type {
   ClientListItem,
   ClientPaymentStatus,
+  ClientQuickFilter,
   ClientStatus,
   GetClientsParams,
-  MembershipType,
 } from '../../../lib/api'
 import { resources } from '../../../lib/resources'
 
@@ -143,10 +143,23 @@ export function toClientListQueryParams(
 ) {
   const normalizedFilters = normalizeClientListFilters(filters)
   const pageSize = Number.parseInt(normalizedFilters.pageSize, 10) || 20
-  const membershipExpiresTo =
-    normalizedFilters.expiringSoon && !normalizedFilters.membershipExpiresTo
-      ? getDateValueAfterDays(7)
-      : normalizedFilters.membershipExpiresTo
+  const quickFilters: ClientQuickFilter[] = []
+
+  if (normalizedFilters.withoutMembership) {
+    quickFilters.push('WithoutMembership')
+  }
+
+  if (normalizedFilters.expiringSoon) {
+    quickFilters.push('ExpiringSoon')
+  }
+
+  if (normalizedFilters.withoutGroup) {
+    quickFilters.push('WithoutGroup')
+  }
+
+  if (normalizedFilters.trial) {
+    quickFilters.push('Trial')
+  }
 
   return {
     page,
@@ -156,22 +169,16 @@ export function toClientListQueryParams(
     status:
       normalizedFilters.status === 'all'
         ? undefined
-        : normalizedFilters.expiringSoon
-          ? 'Active'
-          : normalizedFilters.status,
+        : normalizedFilters.status,
     paymentStatus:
       normalizedFilters.paymentStatus === 'all'
         ? undefined
         : normalizedFilters.paymentStatus,
-    membershipState: normalizedFilters.withoutMembership ? 'None' : undefined,
-    membershipType: normalizedFilters.trial
-      ? ('SingleVisit' satisfies MembershipType)
-      : undefined,
     membershipExpiresFrom:
       normalizedFilters.membershipExpiresFrom || undefined,
-    membershipExpiresTo: membershipExpiresTo || undefined,
+    membershipExpiresTo: normalizedFilters.membershipExpiresTo || undefined,
     hasPhoto: normalizedFilters.withoutPhoto ? false : undefined,
-    hasGroup: normalizedFilters.withoutGroup ? false : undefined,
+    quickFilters: quickFilters.length > 0 ? quickFilters : undefined,
   } satisfies GetClientsParams
 }
 
@@ -214,15 +221,4 @@ export function mergeStaticGroupFilterOptions(
   return Array.from(optionsById.values()).sort((left, right) =>
     left.label.localeCompare(right.label, 'ru'),
   )
-}
-
-function getDateValueAfterDays(days: number) {
-  const date = new Date()
-  date.setDate(date.getDate() + days)
-
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-
-  return `${year}-${month}-${day}`
 }

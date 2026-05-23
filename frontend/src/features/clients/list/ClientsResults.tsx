@@ -1,8 +1,10 @@
+import { useSyncExternalStore } from 'react'
 import {
   Avatar,
   Badge,
   Group,
   Paper,
+  Select,
   Stack,
   Text,
 } from '@mantine/core'
@@ -13,6 +15,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react'
 import { Button, EmptyState, ErrorState, Skeleton } from '../../shared/ux'
+import { clientListPageSizeOptions } from './clientListFilters'
 import { buildClientRowViewModel } from './clientListViewModel'
 import type { ClientsListState } from './useClientsListState'
 
@@ -21,6 +24,7 @@ type ClientsResultsProps = {
   state: ClientsListState
   onCreate: () => void
   onOpen: (clientId: string) => void
+  onPreview: (clientId: string) => void
 }
 
 export function ClientsResults({
@@ -28,7 +32,19 @@ export function ClientsResults({
   state,
   onCreate,
   onOpen,
+  onPreview,
 }: ClientsResultsProps) {
+  const isCompactLayout = useIsClientsCompactLayout()
+
+  function selectClient(clientId: string) {
+    if (isCompactLayout) {
+      onPreview(clientId)
+      return
+    }
+
+    state.setSelectedClientId(clientId)
+  }
+
   if (state.loading) {
     return (
       <Stack data-testid="clients-list" gap="xs">
@@ -96,11 +112,11 @@ export function ClientsResults({
             data-selected={selected || undefined}
             data-testid={`client-card-${client.id}`}
             key={client.id}
-            onClick={() => state.setSelectedClientId(client.id)}
+            onClick={() => selectClient(client.id)}
             onKeyDown={(event) => {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault()
-                state.setSelectedClientId(client.id)
+                selectClient(client.id)
               }
             }}
             role="button"
@@ -147,9 +163,11 @@ export function ClientsResults({
               <Badge color={row.nextAction.tone} variant="light">
                 {row.nextAction.label}
               </Badge>
-              <Text c="dimmed" className="clients-v7-row__secondary" size="sm">
-                {row.nextAction.description}
-              </Text>
+              {row.nextAction.description ? (
+                <Text c="dimmed" className="clients-v7-row__secondary" size="sm">
+                  {row.nextAction.description}
+                </Text>
+              ) : null}
             </div>
 
             <Text className="clients-v7-row__primary" size="sm">
@@ -183,7 +201,7 @@ export function ClientsResults({
             : `Показаны ${state.pageStart}-${state.pageEnd} из ${state.totalCount}`}
         </Text>
 
-        <Group gap="xs">
+        <Group className="clients-v7-pagination" gap="xs">
           <Button
             disabled={state.loading || state.page <= 1}
             leftSection={<IconChevronLeft size={16} />}
@@ -205,8 +223,51 @@ export function ClientsResults({
           >
             Дальше
           </Button>
+          <Select
+            aria-label="Размер страницы"
+            className="clients-v7-page-size"
+            data={clientListPageSizeOptions}
+            onChange={(value) => {
+              if (value) {
+                state.updateFilters({ pageSize: value })
+              }
+            }}
+            value={state.filters.pageSize}
+          />
         </Group>
       </Group>
     </Stack>
   )
+}
+
+const clientsCompactLayoutQuery = '(max-width: 62rem)'
+
+function useIsClientsCompactLayout() {
+  return useSyncExternalStore(
+    subscribeClientsCompactLayout,
+    getClientsCompactLayoutSnapshot,
+    getClientsCompactLayoutServerSnapshot,
+  )
+}
+
+function subscribeClientsCompactLayout(onStoreChange: () => void) {
+  if (typeof window === 'undefined') {
+    return () => undefined
+  }
+
+  const mediaQuery = window.matchMedia(clientsCompactLayoutQuery)
+
+  mediaQuery.addEventListener('change', onStoreChange)
+
+  return () => mediaQuery.removeEventListener('change', onStoreChange)
+}
+
+function getClientsCompactLayoutSnapshot() {
+  return typeof window === 'undefined'
+    ? false
+    : window.matchMedia(clientsCompactLayoutQuery).matches
+}
+
+function getClientsCompactLayoutServerSnapshot() {
+  return false
 }
