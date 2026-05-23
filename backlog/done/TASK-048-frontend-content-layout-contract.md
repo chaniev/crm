@@ -1,7 +1,7 @@
 # TASK-048: Унифицировать content-layout контракт для всех разделов CRM
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-20 23:53

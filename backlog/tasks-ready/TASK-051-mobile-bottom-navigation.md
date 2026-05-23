@@ -1,7 +1,7 @@
 # TASK-051: Mobile bottom navigation
 
 ## Status
-tasks-ready
+ready
 
 ## Goal
 Спроектировать и реализовать нижнюю мобильную навигацию для CRM как отдельную all-screen задачу, а не как часть экрана `Клиенты`.
