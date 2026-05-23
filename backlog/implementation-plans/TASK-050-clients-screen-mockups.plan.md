@@ -6,9 +6,9 @@ User request in Codex thread, 2026-05-23.
 No source backlog task file was moved into `/backlog/implementation`.
 
 ## Mockups
-Use the desktop and mobile mockups from:
-- `docs/mockups/task-050/ChatGPT Image 23 мая 2026 г., 12_09_07.png`;
-- `docs/mockups/task-050/ChatGPT Image 23 мая 2026 г., 12_11_10.png`.
+Use these mockups:
+- desktop `/clients`: `docs/mockups/task-050/ChatGPT Image 23 мая 2026 г., 12_11_10.png`;
+- mobile `/clients` and mobile `/clients/:id/preview`: `docs/mockups/task-050/ChatGPT Image 23 мая 2026 г., 12_09_07.png`.
 
 The implementation must compare the finished `/clients` and `/clients/:id/preview` screens against these files during the manual/browser visual check.
 
@@ -16,7 +16,7 @@ The implementation must compare the finished `/clients` and `/clients/:id/previe
 Unblocked by completed `TASK-052` on 2026-05-23:
 - `/backlog/done/TASK-052-frontend-content-layout-before-clients-mockups.md`.
 
-`TASK-050` may start after rebasing from updated `main`, but must preserve the `TASK-052` shared content-layout boundary. The clients mockup fit must not change shared page width, spacing, shell padding, route-level header behavior, shared section geometry or `FilterToolbar` container defaults as clients-only work.
+`TASK-050` may start after rebasing from updated `main`. The `TASK-052` shared content-layout baseline is already in `main`; this task may adjust shared layout when required for the clients mockup fit, but any shared `content-layout` change must be deliberate, covered across the affected screens listed below and validated as part of this task.
 
 ## Implementation branch
 feature/TASK-050-clients-screen-mockups
@@ -33,7 +33,7 @@ Branch rules:
 Bring the `Клиенты` screen close to the provided desktop and mobile mockups:
 - desktop: page title, search/filter row, client table/list, selected row, right preview panel with short information and action tiles;
 - mobile list: compact top bar, search, status chips, quick filter cards, client cards, pagination and page-size control;
-- mobile client preview: compact profile header, required action block, action tiles, short information, recent history, full-card CTA.
+- mobile client preview: compact profile header, required action block, action tiles, short information based on existing client data, full-card CTA.
 
 ## Current understanding
 - Nearest frontend rules are in `/frontend/AGENTS.md`; preserve Mantine and Onest.
@@ -50,22 +50,39 @@ Bring the `Клиенты` screen close to the provided desktop and mobile mocku
 - Routes already support `/clients`, `/clients/new`, `/clients/:id`, `/clients/:id/edit`.
 - Current backend list response already exposes total/active/archive counts, list items, current membership summary, membership state, groups and last visit date.
 - Quick filter count badges must be backend-provided through `quickFilterCounts`; frontend must not compute global counts from the visible page.
-- Required action / urgency semantics must be backend-owned through action hint fields; frontend may map backend semantic codes to labels, icons and colors, but must not decide CRM action priority.
+- Required action / urgency semantics must be backend-owned through an ordered action-hints list; frontend may map backend semantic codes to labels, icons and colors, but must not decide CRM action priority.
+
+## Clarified product decisions
+- Backend contracts are allowed to change in `TASK-050`.
+- Shared layout is allowed to change in `TASK-050` when needed, but affected screens must be covered and validated.
+- The title count badge shows the active clients total.
+- Quick filters filter the list with `OR` semantics.
+- Quick filter counts use a faceted approach: counts respect search, active/archive status, group, payment and access-scope filters, but are computed without applying the currently selected quick filters.
+- Unknown `quickFilters` values must return `400 ProblemDetails`.
+- Action hints are returned as a backend-ordered list of semantic codes and non-localized data; frontend localizes labels, icons, tones and descriptions.
+- The `/clients/:id/preview` route is a mobile-only presentation route. Desktop `/clients/:id` behavior remains unchanged.
+- Mobile client cards open `/clients/:id/preview`; the preview CTA opens the full `/clients/:id` card.
+- Desktop row clicks select the client in the right preview panel; opening the full card happens through an explicit CTA/action tile.
+- Action tiles in this task navigate to `/clients/:id`; do not add new deep-link or messenger/attendance intents.
+- `TASK-051` mobile bottom navigation is already in `main`; `TASK-050` must adapt to the current shell and must not create fake notifications navigation.
+- Full recent-history/domain timeline is out of scope. The preview may show only already available client facts such as last visit, current membership and group state.
+- Filter UI model:
+  - status chips: `Активные`, `Архив`;
+  - quick filters: `Без абонемента`, `Скоро закончится`, `Без группы`, `Пробный`;
+  - filter button: remaining structural filters such as group, payment and other existing list filters.
 
 ## Content-layout impact
 The user explicitly requested that any `content-layout` changes be planned across all screens, not only `Клиенты`.
 
 ### Preferred boundary for TASK-050
-Keep global content-layout changes out of this task.
-
-Implement the mockup fit mostly through `clients-*` feature classes and existing shared components:
+Start with `clients-*` feature classes and existing shared components:
 - `PageLayout`;
 - `PageSection`;
 - `FilterToolbar`;
 - shared buttons/icons;
 - client-specific desktop/mobile layout classes.
 
-If implementation proves that shared page width, shell padding, page title typography, route-level card radius, filter toolbar defaults or responsive page spacing must change, stop `TASK-050` and finish the blocking all-screen layout task first.
+If shared page width, shell padding, page title typography, route-level card radius, filter toolbar defaults or responsive page spacing must change, make the change intentionally in shared layout code and validate every affected screen listed below. Do not make hidden all-screen layout changes as a clients-only CSS side effect.
 
 ### Existing related task
 Global content-layout work already exists as:
@@ -73,7 +90,7 @@ Global content-layout work already exists as:
 - `/backlog/done/TASK-048-frontend-content-layout-contract.plan.md`.
 - `/backlog/done/TASK-052-frontend-content-layout-before-clients-mockups.md`.
 
-`TASK-052` confirmed the needed global layout baseline through the completed `TASK-048` implementation and strengthened the responsive regression gate. `TASK-050` must not silently make all-screen layout changes.
+`TASK-052` confirmed the current global layout baseline through the completed `TASK-048` implementation and strengthened the responsive regression gate. `TASK-050` may evolve that baseline only with explicit all-screen coverage.
 
 ### Screens affected by any shared content-layout change
 If shared `PageLayout`, `PageSection`, `FilterToolbar`, `AppLayout`, header spacing, content width, text scale or route-level padding changes, the plan must cover and validate:
@@ -89,17 +106,17 @@ If shared `PageLayout`, `PageSection`, `FilterToolbar`, `AppLayout`, header spac
 - route placeholders in `App.tsx`.
 
 ### Mobile shell note
-The mobile mockup shows bottom navigation and an `Уведомления` tab. The current app uses a mobile drawer and does not have a notifications section route. Literal bottom navigation belongs to the separate task:
+The mobile mockup shows bottom navigation and an `Уведомления` tab. `TASK-051` mobile bottom navigation is already in `main`; `TASK-050` must adapt to the current shell instead of recreating shell behavior.
 
 - `/backlog/done/TASK-051-mobile-bottom-navigation.md`;
 - branch: `feature/TASK-051-mobile-bottom-navigation`.
 
-That task must cover every mobile screen and routing/permissions behavior. TASK-050 should not create fake notification navigation or silently replace the app shell.
+Do not add a fake `Уведомления` route or new notifications section in `TASK-050`.
 
 ## Execution steps
 1. Verify blocker status:
    - confirm `TASK-052` is completed in `/backlog/done`;
-   - preserve the accepted shared layout boundary from `TASK-052`.
+   - use the accepted shared layout baseline from `TASK-052` as the starting point.
 2. Prepare branch:
    - checkout `main`;
    - pull latest changes;
@@ -110,28 +127,31 @@ That task must cover every mobile screen and routing/permissions behavior. TASK-
    - desktop `/clients`;
    - mobile `/clients`;
    - mobile `/clients/:id/preview`.
-5. Keep bottom navigation out of `TASK-050`:
+5. Adapt to the current `TASK-051` mobile shell:
    - do not add a fake `Уведомления` route;
-   - do not replace the mobile drawer/app shell;
-   - leave the work to `TASK-051`.
+   - do not replace the app shell;
+   - fit the clients screen into the shell that is already in `main`.
 6. Update backend list contract for quick filters:
    - add `ClientQuickFilterCountsResponse`;
    - extend `ClientListResponse` with `QuickFilterCounts`;
    - add backend parsing for a comma-separated `quickFilters` query parameter;
    - support these quick filter keys: `WithoutMembership`, `ExpiringSoon`, `WithoutGroup`, `Trial`;
-   - compute counts from the same access-scoped base query, excluding pagination and excluding the currently selected quick filters from the count base;
+   - apply selected quick filters to the list with `OR` semantics;
+   - reject unknown quick filter values with `400 ProblemDetails`;
+   - compute counts from the same access-scoped base query, excluding pagination and excluding all currently selected quick filters from the count base;
    - make counts respect search, status/archive, group, payment and access-scope filters;
    - keep membership/group/attendance semantics in backend.
 7. Define backend quick filter semantics:
    - `WithoutMembership`: non-professional clients with no current membership;
-   - `ExpiringSoon`: clients whose current membership expiration is inside `ClientMembershipQueryConstants.ExpiringMembershipWindowDays`;
-   - `WithoutGroup`: clients without active group assignments visible in the current user's access scope;
-   - `Trial`: clients whose current membership type is `SingleVisit`.
+   - `ExpiringSoon`: clients whose current membership is expired or whose expiration is inside `ClientMembershipQueryConstants.ExpiringMembershipWindowDays`;
+   - `WithoutGroup`: clients without active group assignments visible in the current user's access scope; this quick filter is available only to administrators and head coaches;
+   - `Trial`: clients whose current membership type is `SingleVisit`, including used or expired single-visit memberships.
 8. Move required action / urgency semantics to backend:
    - add `ClientActionHintResponse`;
-   - return it in both `ClientListItemResponse` and `ClientDetailsResponse`;
-   - include semantic fields `Kind`, `Urgency`, `Reason` and nullable `DaysUntilExpiration`;
-   - compute priority in backend from membership, payment, group and professional status;
+   - return an ordered `ActionHints` list in both `ClientListItemResponse` and `ClientDetailsResponse`;
+   - include semantic fields such as `Kind`, `Urgency` and nullable `DaysUntilExpiration`;
+   - do not return localized labels/reasons from backend;
+   - compute hint priority/order in backend from membership, payment, group and professional status;
    - keep frontend responsible only for mapping semantic codes to text, icons and colors.
 9. Update frontend API types/mappers for the backend contract:
    - `frontend/src/lib/api/types.ts`;
@@ -146,13 +166,16 @@ That task must cover every mobile screen and routing/permissions behavior. TASK-
    - remove frontend-owned CRM priority decisions from `resolveNextAction`;
    - map backend action hint codes to mockup-specific labels, icons, tones and short descriptions;
    - build row facts: status, membership, next step, group, visit;
-   - build preview facts and short history;
+   - build preview facts and short information from existing client fields;
+   - do not introduce a new recent-history domain model in this task;
    - avoid frontend-only domain decisions beyond rendering backend data.
 12. Rework desktop layout:
-   - title `Клиенты` with total count badge;
+   - title `Клиенты` with active total count badge;
    - top-right `Новый клиент` action for managers;
    - search and filters in one row;
-   - status chips: `Активные`, `Архив`, `Без абонемента`, `Скоро закончится`, `Без группы`, filter button;
+   - status chips: `Активные`, `Архив`;
+   - quick filter chips: `Без абонемента`, `Скоро закончится`, `Без группы`, `Пробный`;
+   - filter button for remaining structural filters;
    - table-like client rows matching the mockup columns;
    - selected row border state;
    - right preview panel with profile header, required action block, short information and action tiles.
@@ -164,10 +187,13 @@ That task must cover every mobile screen and routing/permissions behavior. TASK-
     - client cards with avatar initials, phone, status, urgency, membership/group state and open affordance;
     - pagination and page-size select.
 14. Add mobile quick-preview route:
-    - add route `/clients/:id/preview`;
-    - keep existing `/clients/:id` as the full card;
-    - wire list-card tap/open behavior deliberately for mobile vs desktop;
-    - CTA `Открыть полную карточку` navigates to `/clients/:id`.
+   - add route `/clients/:id/preview`;
+   - treat it as a mobile-only presentation route;
+   - keep existing `/clients/:id` as the full card;
+   - on mobile list-card tap navigates to `/clients/:id/preview`;
+   - on desktop row click selects the row and updates the right preview panel;
+   - do not introduce a separate desktop presentation for `/clients/:id/preview`;
+   - CTA `Открыть полную карточку` navigates to `/clients/:id`.
 15. Wire action tiles as simple full-card transitions:
     - `Оформить абонемент` navigates to `/clients/:id`;
     - `Сообщение` navigates to `/clients/:id`;
@@ -179,17 +205,18 @@ That task must cover every mobile screen and routing/permissions behavior. TASK-
     - create/edit/manage actions are hidden when `canManageClients` is false;
     - no frontend permission inference beyond session permissions and backend response.
 17. Update CSS in `App.css`:
-    - keep new selectors scoped to `clients-*`;
-    - keep shared/all-screen content-layout CSS out of `TASK-050`;
-    - do not override the shared `FilterToolbar` container padding/radius/background/border from `clients-*`; only inner controls/list/preview/mobile details are clients-scoped;
-    - use `TASK-052`/`TASK-048` for all-screen layout tokens and shared primitives;
-    - ensure no page-level horizontal scroll at required responsive widths.
+   - keep new selectors scoped to `clients-*`;
+   - keep client-only visual work in clients-scoped selectors;
+   - if shared/all-screen content-layout CSS must change, update shared selectors/primitives deliberately and validate the affected screens listed in this plan;
+   - do not override shared `FilterToolbar` container padding/radius/background/border from `clients-*` as a hidden workaround;
+   - use `TASK-052`/`TASK-048` as the current baseline for all-screen layout tokens and shared primitives;
+   - ensure no page-level horizontal scroll at required responsive widths.
 18. Update tests and run validation.
 
 ## Preferred implementation strategy
 1. Backend-contract first for `quickFilterCounts`, selected quick filters and backend-owned action hints.
 2. Frontend-first only for visual structure that renders backend-owned data.
-3. Keep shell/global layout unchanged in TASK-050; all-screen layout work belongs to `TASK-052`/`TASK-048`.
+3. Prefer clients-scoped visual work first; make shared layout changes only when required and validate affected screens.
 4. Preserve current domain behavior and routes; add `/clients/:id/preview` only as a presentation/navigation layer.
 5. Use small components:
    - desktop table/list;
@@ -198,7 +225,7 @@ That task must cover every mobile screen and routing/permissions behavior. TASK-
    - required-action card;
    - action tiles;
    - info facts;
-   - short history.
+   - short information from existing client data.
 
 ## Files likely to change
 Frontend:
@@ -219,6 +246,7 @@ Frontend:
 - `frontend/src/lib/api/clients.ts`
 - `frontend/src/lib/api/endpoints.ts`
 - `frontend/src/lib/resources.ts`
+- shared layout/component files if coordinated content-layout changes are required
 
 Backend:
 - `backend/src/GymCrm.Api/Auth/ClientListResponse.cs`
@@ -239,7 +267,8 @@ Tests:
 - Do not duplicate CRM business rules in frontend.
 - Do not compute global quick filter counts from only the visible page.
 - Do not compute required action priority, urgency, expiring-soon windows or membership issue semantics in frontend.
-- Do not change backend validation, audit, roles, permissions or access scope unless a separate backend task is created.
+- Do not change unrelated backend validation, audit, roles, permissions or access scope unless a separate backend task is created.
+- Return `400 ProblemDetails` for unknown `quickFilters` values.
 - Preserve Mantine and Onest.
 - Preserve existing client CRUD and membership workflows.
 - Keep manager and coach behavior distinct according to backend contracts and session permissions.
@@ -249,9 +278,10 @@ Tests:
 ## Out of scope
 - Full redesign of `ClientDetailScreen` beyond navigation/CTA integration.
 - New notifications feature.
-- Global mobile bottom navigation.
-- Global content-layout unification already covered by TASK-048.
+- New mobile shell or bottom navigation work beyond adapting to the current `TASK-051` shell.
+- Unrelated global content-layout redesign beyond changes needed to fit the clients mockups and validate affected screens.
 - New backend membership semantics.
+- New full recent-history/timeline backend feature.
 - New attendance workflow.
 - New messenger backend features.
 
@@ -259,17 +289,21 @@ Tests:
 
 ### Unit tests
 Add or update if implementation changes pure logic:
-- `clientListViewModel` tests for rendering backend action hint labels/tones, membership labels, group labels, history/fact mapping;
+- `clientListViewModel` tests for rendering backend action hint labels/tones, membership labels, group labels and preview fact mapping;
 - `clientListFilters` tests for selected quick filter query behavior;
 - API mapper tests for `quickFilterCounts` and action hint mapping.
 
 ### Backend integration tests
 - list response includes quick filter counts;
-- list and details responses include action hint fields;
+- list and details responses include ordered action hint lists;
 - counts respect status/search/group/payment filters and exclude selected quick filters from the count base;
+- selected quick filters filter the list with `OR` semantics;
+- unknown quick filter values return `400 ProblemDetails`;
 - selected quick filters apply the backend-owned semantics for `WithoutMembership`, `ExpiringSoon`, `WithoutGroup` and `Trial`;
-- `ExpiringSoon` uses `ClientMembershipQueryConstants.ExpiringMembershipWindowDays`;
-- action hint priority is computed by backend and covers professional, no membership, unpaid, expired, used single visit, expiring soon, no group and normal cases;
+- `ExpiringSoon` includes expired memberships and uses `ClientMembershipQueryConstants.ExpiringMembershipWindowDays` for the soon-expiring window;
+- `Trial` includes used or expired `SingleVisit` memberships;
+- `WithoutGroup` availability is limited to administrators and head coaches;
+- action hint priority/order is computed by backend and covers professional, no membership, unpaid, expired, used single visit, expiring soon, no group and normal cases;
 - counts respect coach access scope;
 - counts do not expose phone/manager-only data to coach users;
 - existing pagination and active/archive counts remain intact.
@@ -278,7 +312,8 @@ Add or update if implementation changes pure logic:
 Update or add:
 - desktop `/clients` renders title, count, create action, filters, selected row and preview panel;
 - mobile `/clients` renders search, chips, quick filter cards, client cards and pagination without horizontal scroll;
-- selecting/opening a client reaches preview/full card as designed;
+- desktop row selection updates the right preview and full-card CTA opens `/clients/:id`;
+- mobile card tap opens `/clients/:id/preview` and preview CTA opens `/clients/:id`;
 - manager sees create/manage actions;
 - coach does not see manager-only actions;
 - filter requests still include expected query params;
@@ -304,6 +339,7 @@ Update or add:
 ## Regression barrier
 Primary barrier:
 - Playwright responsive coverage for `/clients` on mobile/tablet/desktop with no page-level horizontal scroll and visible key controls.
+- If shared layout is changed, responsive coverage must include every affected screen listed in the content-layout section.
 
 Secondary barrier:
 - `stage12.spec.ts` protects filtering, pagination and client navigation behavior.
@@ -313,17 +349,17 @@ Backend barrier:
 
 ## Risks
 - Quick filter counts can be wrong if implemented in frontend; keep them backend-owned.
-- Mobile bottom navigation in the mockup overlaps with a broader app-shell decision.
-- Desktop right preview may fight the shared content width from TASK-048; keep it feature-scoped unless shared layout task is active.
+- Mobile bottom navigation in the mockup must be reconciled with the already-merged `TASK-051` shell, not recreated.
+- Desktop right preview may require shared content width/layout adjustments; validate affected screens if shared layout changes.
 - Existing `ClientDetailScreen` is large; avoid opportunistic redesign while adding preview CTA.
 - Coach read-only behavior can regress if action tiles are not permission-gated.
 
 ## Stop conditions
 Stop before implementation if:
 - branch is not created from clean updated `main`;
-- implementation requires changing global `content-layout` without coordinating all screens listed above;
+- implementation requires unplanned global `content-layout` changes without coordinating all screens listed above;
 - implementation requires adding real notifications navigation;
-- implementation requires backend role/permission/access-scope changes.
+- implementation requires backend role/permission/access-scope changes beyond the confirmed `WithoutGroup` quick-filter availability rule.
 
 ## Ready for Codex execution
 yes
