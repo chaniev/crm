@@ -568,3 +568,35 @@
 - moved plans to done: 6
 - updated active statuses: 1
 - validation: backlog/source audit only; runtime test commands were not re-run
+
+# 2026-05-23 status audit 2
+
+## Scope
+- Reviewed active backlog folders against current `main`, merge history and source-code evidence after pulling latest changes.
+- Audit branch: `feature/backlog-actualize-statuses-2`.
+
+## Moved tasks
+- /backlog/implementation/TASK-051-mobile-bottom-navigation.md -> /backlog/done/TASK-051-mobile-bottom-navigation.md
+- /backlog/implementation/TASK-052-frontend-content-layout-before-clients-mockups.md -> /backlog/done/TASK-052-frontend-content-layout-before-clients-mockups.md
+
+## Moved implementation plans
+- /backlog/implementation-plans/TASK-051-mobile-bottom-navigation.plan.md -> /backlog/done/TASK-051-mobile-bottom-navigation.plan.md
+- /backlog/implementation-plans/TASK-052-frontend-content-layout-before-clients-mockups.plan.md -> /backlog/done/TASK-052-frontend-content-layout-before-clients-mockups.plan.md
+
+## Updated existing tasks
+- /backlog/implementation-plans/TASK-050-clients-screen-mockups.plan.md: replaced active TASK-051/TASK-052 references with done-path references and marked the plan ready for execution now that the TASK-052 blocker is closed.
+
+## Evidence
+- TASK-051 is present in merge history as `feature/TASK-051-mobile-bottom-navigation`; frontend has `MobileBottomNavigation`, mobile bottom-nav CSS, route/navigation integration and e2e coverage in home, attendance, finance and responsive suites.
+- TASK-052 is present in merge history as `feature/TASK-052-content-layout-before-clients`; source task records the accepted shared layout baseline and passed frontend lint/build/responsive e2e/browser checks, and TASK-050 was updated as unblocked by the completed prerequisite.
+
+## Kept active
+- Bot tasks TASK-001..TASK-014 and TASK-033 remain active unless already closed: source audit still does not prove all acceptance criteria.
+- Client detail/list UX tasks TASK-016..TASK-021 remain active: source audit still does not prove full tabs, return-state restoration, quick actions, action-first empty states and dedicated responsive coverage.
+- TASK-050 remains an active implementation plan only; no source backlog task file was moved into implementation and no completed clients mockup branch was found.
+
+## Summary
+- moved to done: 2 tasks
+- moved plans to done: 2
+- updated active plans: 1
+- validation: backlog/source audit only; runtime test commands were not re-run
