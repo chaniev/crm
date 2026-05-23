@@ -426,6 +426,9 @@ for (const viewport of VIEWPORTS) {
         if ('checkSharedEdges' in route && route.checkSharedEdges) {
           baselineEdges = await expectSharedContentEdges(page, baselineEdges)
         }
+        if (route.screenTestId === 'clients-screen') {
+          await expectClientsSharedLayoutContract(page)
+        }
         if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
           await expectScheduleOverflowContract(page)
         }
@@ -447,6 +450,9 @@ for (const viewport of VIEWPORTS) {
         await expectRoutePageTitle(page, route.expectedPageTitle)
         await expectPrimaryControls(page, route.expectedControls)
         await expectSharedVisualBaseline(page, route.expectedFilterToolbars ?? 0)
+        if (route.screenTestId === 'clients-screen') {
+          await expectClientsSharedLayoutContract(page)
+        }
         if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
           await expectScheduleOverflowContract(page)
         }
@@ -546,11 +552,19 @@ async function expectRoutePageTitle(page: Page, title: string) {
   const headerBox = await page.locator('.app-shell__header').boundingBox()
   const layoutBox = await main.locator('.page-layout').first().boundingBox()
   const firstSectionBox = await main.locator('.page-section').first().boundingBox()
+  const headingContext = await heading.evaluate((element) => ({
+    insideCard: Boolean(
+      element.closest(
+        '.page-section, .page-card, .surface-card, .filter-toolbar, .list-row-card, .clients-v7-row, .clients-v7-preview, .schedule-board',
+      ),
+    ),
+  }))
 
   expect(headingBox).not.toBeNull()
   expect(headerBox).not.toBeNull()
   expect(layoutBox).not.toBeNull()
   expect(firstSectionBox).not.toBeNull()
+  expect(headingContext.insideCard).toBe(false)
   expect(Math.round(layoutBox!.y - (headerBox!.y + headerBox!.height))).toBeLessThanOrEqual(16)
   expect(headingBox!.y + headingBox!.height).toBeLessThanOrEqual(firstSectionBox!.y + 1)
 }
@@ -587,11 +601,15 @@ async function expectSharedContentEdges(
   page: Page,
   baseline: { left: number; right: number } | null,
 ) {
-  const box = await page.locator('main .page-layout').first().boundingBox()
+  const layout = page.locator('main .page-layout').first()
+  const firstSection = layout.locator('.page-section').first()
+  const box = await layout.boundingBox()
+  const firstSectionBox = await firstSection.boundingBox()
   const navbarBox = await page.locator('.app-shell__navbar').boundingBox()
   const viewportWidth = await page.evaluate(() => window.innerWidth)
 
   expect(box).not.toBeNull()
+  expect(firstSectionBox).not.toBeNull()
 
   const edges = {
     left: Math.round(box!.x),
@@ -603,6 +621,10 @@ async function expectSharedContentEdges(
 
   expect(Math.abs(edges.left - expectedLeft)).toBeLessThanOrEqual(2)
   expect(Math.abs(viewportWidth - edges.right - expectedRightGap)).toBeLessThanOrEqual(2)
+  expect(Math.abs(edges.left - Math.round(firstSectionBox!.x))).toBeLessThanOrEqual(2)
+  expect(
+    Math.abs(edges.right - Math.round(firstSectionBox!.x + firstSectionBox!.width)),
+  ).toBeLessThanOrEqual(2)
 
   if (baseline) {
     expect(Math.abs(edges.left - baseline.left)).toBeLessThanOrEqual(2)
@@ -610,6 +632,60 @@ async function expectSharedContentEdges(
   }
 
   return baseline ?? edges
+}
+
+async function expectClientsSharedLayoutContract(page: Page) {
+  const clientsLayout = page.locator('main [data-testid="clients-screen"].page-layout')
+
+  await expect(clientsLayout).toHaveCount(1)
+  expect(await clientsLayout.locator(':scope > .page-section').count()).toBeGreaterThanOrEqual(2)
+
+  const inlineLayoutOverrides = await clientsLayout.evaluate((element) => ({
+    maxWidth: element.style.maxWidth,
+    padding: element.style.padding,
+    paddingInline: element.style.paddingInline,
+    width: element.style.width,
+  }))
+
+  expect(inlineLayoutOverrides).toEqual({
+    maxWidth: '',
+    padding: '',
+    paddingInline: '',
+    width: '',
+  })
+
+  const geometry = await clientsLayout.evaluate((element) => {
+    const layoutRect = element.getBoundingClientRect()
+    const sectionRects = Array.from(
+      element.querySelectorAll<HTMLElement>(':scope > .page-section'),
+      (section) => {
+        const rect = section.getBoundingClientRect()
+
+        return {
+          left: rect.left,
+          right: rect.right,
+          width: rect.width,
+        }
+      },
+    )
+
+    return {
+      layout: {
+        left: layoutRect.left,
+        right: layoutRect.right,
+        width: layoutRect.width,
+      },
+      sections: sectionRects,
+    }
+  })
+
+  expect(geometry.sections.length).toBeGreaterThanOrEqual(2)
+
+  for (const section of geometry.sections) {
+    expect(Math.abs(section.left - geometry.layout.left)).toBeLessThanOrEqual(2)
+    expect(Math.abs(section.right - geometry.layout.right)).toBeLessThanOrEqual(2)
+    expect(section.width).toBeLessThanOrEqual(geometry.layout.width + 2)
+  }
 }
 
 async function expectScheduleOverflowContract(page: Page) {
@@ -631,6 +707,36 @@ async function expectScheduleOverflowContract(page: Page) {
   }
 
   await expect(viewport.first()).toHaveCSS('overflow-x', 'auto')
+
+  const containment = await page.getByTestId('schedule-board').evaluate((board) => {
+    const section = board.closest<HTMLElement>('.page-section')
+    const viewport = board.querySelector<HTMLElement>('.schedule-board__viewport')
+
+    if (!section || !viewport) {
+      return null
+    }
+
+    const sectionRect = section.getBoundingClientRect()
+    const viewportRect = viewport.getBoundingClientRect()
+
+    return {
+      section: {
+        left: sectionRect.left,
+        right: sectionRect.right,
+        width: sectionRect.width,
+      },
+      viewport: {
+        left: viewportRect.left,
+        right: viewportRect.right,
+        width: viewportRect.width,
+      },
+    }
+  })
+
+  expect(containment).not.toBeNull()
+  expect(containment!.viewport.left).toBeGreaterThanOrEqual(containment!.section.left - 2)
+  expect(containment!.viewport.right).toBeLessThanOrEqual(containment!.section.right + 2)
+  expect(containment!.viewport.width).toBeLessThanOrEqual(containment!.section.width + 2)
 
   const overflow = await viewport.first().evaluate((element) => ({
     clientWidth: element.clientWidth,
