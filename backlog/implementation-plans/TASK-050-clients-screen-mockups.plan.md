@@ -10,7 +10,7 @@ Use these mockups:
 - desktop `/clients`: `docs/mockups/task-050/ChatGPT Image 23 мая 2026 г., 12_11_10.png`;
 - mobile `/clients` and mobile `/clients/:id/preview`: `docs/mockups/task-050/ChatGPT Image 23 мая 2026 г., 12_09_07.png`.
 
-The implementation must compare the finished `/clients` and `/clients/:id/preview` screens against these files during the manual/browser visual check.
+The implementation must compare the finished `/clients` and `/clients/:id/preview` screens against these files during the manual/browser visual check. Visual acceptance targets pixel-level closeness to the mockups, while still preserving the current application shell and already accepted shared layout constraints.
 
 ## Implementation status
 Unblocked by completed `TASK-052` on 2026-05-23:
@@ -50,20 +50,22 @@ Bring the `Клиенты` screen close to the provided desktop and mobile mocku
 - Routes already support `/clients`, `/clients/new`, `/clients/:id`, `/clients/:id/edit`.
 - Current backend list response already exposes total/active/archive counts, list items, current membership summary, membership state, groups and last visit date.
 - Quick filter count badges must be backend-provided through `quickFilterCounts`; frontend must not compute global counts from the visible page.
-- Required action / urgency semantics must be backend-owned through an ordered action-hints list; frontend may map backend semantic codes to labels, icons and colors, but must not decide CRM action priority.
+- Required action / urgency semantics must be backend-owned through an ordered action-hints list; backend returns a ready-to-render action result, and frontend must not decide CRM action priority, labels, descriptions or urgency.
 
 ## Clarified product decisions
 - Backend contracts are allowed to change in `TASK-050`.
 - Shared layout is allowed to change in `TASK-050` when needed, but affected screens must be covered and validated.
-- The title count badge shows the active clients total.
+- The title count badge shows the active clients total across the user's accessible client base.
 - Quick filters filter the list with `OR` semantics.
-- Quick filter counts use a faceted approach: counts respect search, active/archive status, group, payment and access-scope filters, but are computed without applying the currently selected quick filters.
+- Quick filter counts use a faceted approach: each badge shows the count for its own quick filter, counts respect search, active/archive status, group, payment and access-scope filters, but are computed without applying the currently selected quick filters.
 - Unknown `quickFilters` values must return `400 ProblemDetails`.
-- Action hints are returned as a backend-ordered list of semantic codes and non-localized data; frontend localizes labels, icons, tones and descriptions.
-- The `/clients/:id/preview` route is a mobile-only presentation route. Desktop `/clients/:id` behavior remains unchanged.
+- Action hints are returned as a backend-ordered list of ready-to-render results: backend provides final labels, descriptions, urgency/tone and any lightweight UI keys/data required for rendering.
+- The `/clients/:id/preview` route is a mobile-focused presentation route. Desktop `/clients/:id` behavior remains unchanged, and direct desktop navigation to `/clients/:id/preview` renders the same preview presentation rather than redirecting or showing a separate desktop screen.
 - Mobile client cards open `/clients/:id/preview`; the preview CTA opens the full `/clients/:id` card.
 - Desktop row clicks select the client in the right preview panel; opening the full card happens through an explicit CTA/action tile.
+- Selected-client behavior remains as it works in the current implementation.
 - Action tiles in this task navigate to `/clients/:id`; do not add new deep-link or messenger/attendance intents.
+- For coach/read-only users, preview actions show only general client information / full-card access; manager-only action tiles such as membership, message or attendance actions are hidden.
 - `TASK-051` mobile bottom navigation is already in `main`; `TASK-050` must adapt to the current shell and must not create fake notifications navigation.
 - Full recent-history/domain timeline is out of scope. The preview may show only already available client facts such as last visit, current membership and group state.
 - Filter UI model:
@@ -144,15 +146,15 @@ Do not add a fake `Уведомления` route or new notifications section in
 7. Define backend quick filter semantics:
    - `WithoutMembership`: non-professional clients with no current membership;
    - `ExpiringSoon`: clients whose current membership is expired or whose expiration is inside `ClientMembershipQueryConstants.ExpiringMembershipWindowDays`;
-   - `WithoutGroup`: clients without active group assignments visible in the current user's access scope; this quick filter is available only to administrators and head coaches;
+   - `WithoutGroup`: clients without active group assignments visible in the current user's access scope; frontend hides this quick filter for roles other than administrators and head coaches;
    - `Trial`: clients whose current membership type is `SingleVisit`, including used or expired single-visit memberships.
 8. Move required action / urgency semantics to backend:
    - add `ClientActionHintResponse`;
    - return an ordered `ActionHints` list in both `ClientListItemResponse` and `ClientDetailsResponse`;
-   - include semantic fields such as `Kind`, `Urgency` and nullable `DaysUntilExpiration`;
-   - do not return localized labels/reasons from backend;
+   - include ready-to-render fields such as `Title`, `Description`, `Tone`, `IconKey` and nullable `DaysUntilExpiration` where useful;
+   - return final Russian labels/reasons/descriptions from backend;
    - compute hint priority/order in backend from membership, payment, group and professional status;
-   - keep frontend responsible only for mapping semantic codes to text, icons and colors.
+   - keep frontend responsible only for rendering backend-provided action hint fields and binding local icon components to backend-provided `IconKey` values if needed.
 9. Update frontend API types/mappers for the backend contract:
    - `frontend/src/lib/api/types.ts`;
    - `frontend/src/lib/api/clients.ts`;
@@ -164,7 +166,7 @@ Do not add a fake `Уведомления` route or new notifications section in
    - preserve pagination, debounced search, role-limited phone visibility and coach scope behavior.
 11. Update view models:
    - remove frontend-owned CRM priority decisions from `resolveNextAction`;
-   - map backend action hint codes to mockup-specific labels, icons, tones and short descriptions;
+   - render backend-provided action hint titles, descriptions, tones and icon keys without recomputing labels or urgency;
    - build row facts: status, membership, next step, group, visit;
    - build preview facts and short information from existing client fields;
    - do not introduce a new recent-history domain model in this task;
@@ -188,11 +190,12 @@ Do not add a fake `Уведомления` route or new notifications section in
     - pagination and page-size select.
 14. Add mobile quick-preview route:
    - add route `/clients/:id/preview`;
-   - treat it as a mobile-only presentation route;
+   - treat it as a mobile-focused presentation route;
+   - direct desktop navigation to `/clients/:id/preview` renders the same preview presentation;
    - keep existing `/clients/:id` as the full card;
    - on mobile list-card tap navigates to `/clients/:id/preview`;
    - on desktop row click selects the row and updates the right preview panel;
-   - do not introduce a separate desktop presentation for `/clients/:id/preview`;
+   - do not introduce a separate desktop-specific presentation for `/clients/:id/preview`;
    - CTA `Открыть полную карточку` navigates to `/clients/:id`.
 15. Wire action tiles as simple full-card transitions:
     - `Оформить абонемент` navigates to `/clients/:id`;
@@ -203,6 +206,8 @@ Do not add a fake `Уведомления` route or new notifications section in
 16. Preserve read-only coach behavior:
     - phone remains hidden if backend hides it;
     - create/edit/manage actions are hidden when `canManageClients` is false;
+    - coach/read-only preview actions show only general client information / full-card access;
+    - membership, message and attendance action tiles are hidden when they would imply manager-only operations;
     - no frontend permission inference beyond session permissions and backend response.
 17. Update CSS in `App.css`:
    - keep new selectors scoped to `clients-*`;
@@ -266,7 +271,7 @@ Tests:
 ## Constraints
 - Do not duplicate CRM business rules in frontend.
 - Do not compute global quick filter counts from only the visible page.
-- Do not compute required action priority, urgency, expiring-soon windows or membership issue semantics in frontend.
+- Do not compute required action priority, urgency, labels/descriptions, expiring-soon windows or membership issue semantics in frontend.
 - Do not change unrelated backend validation, audit, roles, permissions or access scope unless a separate backend task is created.
 - Return `400 ProblemDetails` for unknown `quickFilters` values.
 - Preserve Mantine and Onest.
@@ -289,9 +294,9 @@ Tests:
 
 ### Unit tests
 Add or update if implementation changes pure logic:
-- `clientListViewModel` tests for rendering backend action hint labels/tones, membership labels, group labels and preview fact mapping;
+- `clientListViewModel` tests for rendering backend-provided action hint labels/tones, membership labels, group labels and preview fact mapping;
 - `clientListFilters` tests for selected quick filter query behavior;
-- API mapper tests for `quickFilterCounts` and action hint mapping.
+- API mapper tests for `quickFilterCounts` and action hint ready-result fields.
 
 ### Backend integration tests
 - list response includes quick filter counts;
@@ -302,7 +307,7 @@ Add or update if implementation changes pure logic:
 - selected quick filters apply the backend-owned semantics for `WithoutMembership`, `ExpiringSoon`, `WithoutGroup` and `Trial`;
 - `ExpiringSoon` includes expired memberships and uses `ClientMembershipQueryConstants.ExpiringMembershipWindowDays` for the soon-expiring window;
 - `Trial` includes used or expired `SingleVisit` memberships;
-- `WithoutGroup` availability is limited to administrators and head coaches;
+- `WithoutGroup` semantics respects the current user's access scope when the filter is available;
 - action hint priority/order is computed by backend and covers professional, no membership, unpaid, expired, used single visit, expiring soon, no group and normal cases;
 - counts respect coach access scope;
 - counts do not expose phone/manager-only data to coach users;
@@ -314,8 +319,10 @@ Update or add:
 - mobile `/clients` renders search, chips, quick filter cards, client cards and pagination without horizontal scroll;
 - desktop row selection updates the right preview and full-card CTA opens `/clients/:id`;
 - mobile card tap opens `/clients/:id/preview` and preview CTA opens `/clients/:id`;
+- direct desktop navigation to `/clients/:id/preview` renders the same preview presentation;
 - manager sees create/manage actions;
 - coach does not see manager-only actions;
+- roles other than administrators and head coaches do not see the `Без группы` quick filter;
 - filter requests still include expected query params;
 - pagination still works after filtering.
 
@@ -345,7 +352,7 @@ Secondary barrier:
 - `stage12.spec.ts` protects filtering, pagination and client navigation behavior.
 
 Backend barrier:
-- `ClientsApiTests` must lock quick count semantics, action hint semantics and access scope.
+- `ClientsApiTests` must lock quick count semantics, ready action hint result semantics and access scope.
 
 ## Risks
 - Quick filter counts can be wrong if implemented in frontend; keep them backend-owned.
@@ -359,7 +366,7 @@ Stop before implementation if:
 - branch is not created from clean updated `main`;
 - implementation requires unplanned global `content-layout` changes without coordinating all screens listed above;
 - implementation requires adding real notifications navigation;
-- implementation requires backend role/permission/access-scope changes beyond the confirmed `WithoutGroup` quick-filter availability rule.
+- implementation requires backend role/permission/access-scope changes beyond hiding `WithoutGroup` on the frontend for unsupported roles and preserving backend access-scope semantics.
 
 ## Ready for Codex execution
 yes
