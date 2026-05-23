@@ -24,7 +24,7 @@ All authenticated CRM route screens must use one shared frontend content-layout 
 - Current shared UX primitives live in `frontend/src/features/shared/ux.tsx`.
 - Current global content styles live mainly in `frontend/src/App.css`.
 - `PageCard` currently accepts `width="default" | "wide" | "full"` and always includes both `surface-card--wide` and `page-card--${width}` classes.
-- `App.css` currently defines `--content-width: 65rem`, `--content-width-wide: 92rem`, `.page-card--wide`, `.page-card--full`, `.page-title-row`, `.dashboard-stack > .mantine-SimpleGrid-root`, and schedule-specific `92rem` overrides.
+- Earlier `App.css` defined `--content-width: 65rem`, `--content-width-wide: 92rem`, `.page-card--wide`, `.page-card--full`, `.page-title-row`, `.dashboard-stack > .mantine-SimpleGrid-root`, and schedule-specific `92rem` overrides; the accepted shared baseline is now `--page-max-width: 100%`.
 - `HomeDashboard`, `AttendanceScreen`, `AuditLogScreen`, `FinanceReportsScreen`, `UsersListScreen`, `UserCreateScreen`, `UserEditScreen`, `GroupManagement`, `SettingsScreen`, and `GroupScheduleScreen` mostly use `dashboard-stack` plus `PageCard`/`PageHeader`, but page title semantics differ by screen.
 - `GroupScheduleScreen` uses local `92rem` width for filters and board. It must move to the shared default column; any overflow must be inside the board widget.
 - `ClientsListScreen` uses a custom top-level layout with `ClientsToolbar`, `ClientsQuickFilters`, and `.clients-v7-layout` instead of shared page wrappers.
@@ -43,7 +43,7 @@ All authenticated CRM route screens must use one shared frontend content-layout 
    - `TabContent` or `PageTabsPanel` for settings tab panel content;
    - keep `PageCard` as a temporary compatibility alias over `PageSection variant="card"`.
 5. Centralize content-layout tokens in `frontend/src/App.css`:
-   - `--page-max-width: 65rem`;
+   - `--page-max-width: 100%`;
    - page gaps, section gaps, card padding, compact padding;
    - `--page-card-radius: 24px`;
    - shared shadow, background, border and semantic text variables.

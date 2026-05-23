@@ -128,7 +128,7 @@ implementation
 - `PageCard` как временный compatibility alias для `PageSection variant="card"`.
 
 ### Geometry tokens
-- Зафиксировать текущую default-ширину как базу: `--page-max-width: 65rem`.
+- Зафиксировать текущую default-ширину как базу: `--page-max-width: 100%`.
 - Убрать page-level `wide` / `full` из authenticated content-layout contract.
 - Не расширять `Schedule` и `Clients` через локальные width-исключения; если экрану нужна плотность, уменьшать внутренние gaps/padding конкретного content widget, а не ширину страницы.
 - Рекомендуемые токены:
@@ -201,7 +201,7 @@ implementation
    - direct-child width rule для `.dashboard-stack > .mantine-SimpleGrid-root`.
 
 ### Risks
-- `65rem` для `Schedule` и `Clients` может оказаться плотным на `1440x1200` и `768x1024`; компенсировать это внутренней плотностью widgets, а не `wide` шириной страницы.
+- `--page-max-width: 100%` для `Schedule` и `Clients` может потребовать более аккуратной внутренней сетки на широких desktop viewport; компенсировать это внутренней плотностью widgets, а не clients-only шириной страницы.
 - Буквальное применение `24px` ко всем nested `Paper` может перегрузить плотные utility/list/table containers; нужны явные границы между `layout surfaces` и `content items`.
 - Замена `c="dimmed"` на semantic muted может визуально изменить много текста; нужен отдельный visual regression pass.
 - `ClientManagement` самый рискованный по radius/padding из-за смеси `28px`, `24px`, `8px`.

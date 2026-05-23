@@ -400,3 +400,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan created for deploy-time club name branding. Implementation should be contract-first via backend-normalized config, frontend consumption without separate env logic, deployment env examples, backend contract tests, frontend bootstrap/e2e coverage and compose validation.
+
+# 2026-05-23 12:57
+
+## Moved to implementation
+- /backlog/implementation/TASK-052-frontend-content-layout-before-clients-mockups.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-052-frontend-content-layout-before-clients-mockups.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is a frontend-only prerequisite gate for `TASK-050` and must reconcile the `TASK-048` shared content-layout baseline with the clients mockups before unblocking clients-specific implementation.

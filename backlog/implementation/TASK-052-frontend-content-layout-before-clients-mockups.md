@@ -5,6 +5,10 @@ implementation
 
 ## Implementation lifecycle
 - created_at: 2026-05-23
+- moved_to_implementation_at: 2026-05-23 12:57
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-052-frontend-content-layout-before-clients-mockups.plan.md
+- implementation_branch: feature/TASK-052-content-layout-before-clients
 - blocks: `/backlog/implementation-plans/TASK-050-clients-screen-mockups.plan.md`
 - related_task: `/backlog/implementation/TASK-048-frontend-content-layout-contract.md`
 - related_plan: `/backlog/implementation-plans/TASK-048-frontend-content-layout-contract.plan.md`
@@ -24,6 +28,11 @@ Before implementing `TASK-050`, resolve the shared content-layout baseline for a
 - Define which parts of the clients mockups are screen-specific and may remain under `clients-*` selectors.
 
 ## Required decision
+Shared content width:
+- use `--page-max-width: 100%` as the all-screen authenticated content-layout baseline;
+- do not return to the earlier `65rem` max-width proposal for this baseline;
+- any clients mockup fit must work inside this shared `100%` page baseline, not through a clients-only page-width override.
+
 Preferred CSS boundary:
 - all-screen width, shell/content padding, route header typography, shared card geometry, section rhythm and filter toolbar defaults must be changed in the all-screen content-layout task;
 - clients-only row/card/preview/mobile-list styling stays in `App.css` under scoped `clients-*` selectors for `TASK-050`;
