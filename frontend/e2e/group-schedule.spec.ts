@@ -282,9 +282,8 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
     await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Расписание' })).toBeVisible()
-    await expect(page.getByTestId('schedule-auto-refresh-status')).toContainText(
-      'Обновлено автоматически',
-    )
+    await expect(page.getByText('Обновлено автоматически')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
     await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Расписание' })).toHaveAttribute(
       'aria-current',
