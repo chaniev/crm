@@ -304,7 +304,7 @@ const MANAGEMENT_ROUTES = [
     navLabel: 'Расписание',
     expectedPageTitle: 'Расписание',
     expectedControls: ['Обновить'],
-    expectedFilterToolbars: 1,
+    expectedFilterToolbars: 0,
     checkSharedEdges: true,
     checkScheduleOverflow: true,
   },
@@ -366,7 +366,7 @@ const COACH_ROUTES = [
     navLabel: 'Расписание',
     expectedPageTitle: 'Расписание',
     expectedControls: ['Обновить'],
-    expectedFilterToolbars: 1,
+    expectedFilterToolbars: 0,
     checkScheduleOverflow: true,
   },
   {
@@ -755,15 +755,10 @@ async function expectClientsSharedLayoutContract(page: Page) {
 }
 
 async function expectScheduleOverflowContract(page: Page) {
-  const filtersBox = await page.getByTestId('schedule-filters').boundingBox()
+  await expect(page.getByTestId('schedule-filters')).toBeVisible()
   const boardBox = await page.getByTestId('schedule-board').boundingBox()
 
-  expect(filtersBox).not.toBeNull()
   expect(boardBox).not.toBeNull()
-  expect(Math.abs(filtersBox!.x - boardBox!.x)).toBeLessThanOrEqual(2)
-  expect(
-    Math.abs((filtersBox!.x + filtersBox!.width) - (boardBox!.x + boardBox!.width)),
-  ).toBeLessThanOrEqual(2)
 
   const viewport = page.locator('.schedule-board__viewport')
   const viewportCount = await viewport.count()

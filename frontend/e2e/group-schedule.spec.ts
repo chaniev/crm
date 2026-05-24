@@ -283,8 +283,9 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Расписание' })).toBeVisible()
     await expect(page.getByTestId('schedule-auto-refresh-status')).toContainText(
-      'Обновляется автоматически',
+      'Обновлено автоматически',
     )
+    await expect(page.getByTestId('schedule-filter-panel')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Расписание' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -298,6 +299,9 @@ test.describe('Расписание групповых занятий', () => {
       await expect(page.getByTestId(`schedule-day-header-${weekday}`)).toBeVisible()
       await expect(page.getByTestId(`schedule-day-${weekday}`)).toBeVisible()
     }
+    await expect(page.getByTestId('schedule-day-header-1')).toContainText('Пн')
+    await expect(page.getByTestId('schedule-day-header-1')).toContainText('11.05')
+    await expect(page.getByTestId('schedule-day-header-7')).toContainText('17.05')
     await expect(page.getByTestId('schedule-day-header-1')).toHaveAttribute(
       'data-current',
       'true',
@@ -309,12 +313,6 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-day-count-1')).toHaveText('3 занятия')
     await expect(page.getByTestId('schedule-day-count-7')).toHaveText('1 занятие')
 
-    await expect(page.getByTestId('schedule-overview')).toBeVisible()
-    await expect(page.getByTestId('schedule-today-summary')).toContainText('3')
-    await expect(page.getByTestId('schedule-today-type-summary')).toContainText('Кардио')
-    await expect(page.getByTestId('schedule-today-type-summary')).toContainText('База')
-    await expect(page.getByTestId('schedule-hall-load')).toContainText('Основной зал')
-    await expect(page.getByTestId('schedule-hall-load')).toContainText('3 занятия')
     await expect(page.getByTestId('schedule-type-legend')).toContainText('Кардио')
     await expect(page.getByTestId('schedule-type-legend')).toContainText('База')
     await expect(page.getByTestId('schedule-type-legend')).toContainText('Интенсив')
@@ -340,6 +338,8 @@ test.describe('Расписание групповых занятий', () => {
     expect(alphaBox?.x).not.toBe(morningBox?.x)
     await expect(mondayEveningCard).toContainText('19:00 - 20:00')
 
+    await page.getByRole('button', { name: 'Фильтры', exact: true }).click()
+    await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
     await selectOption(page, 'Филиал', 'Север')
     await selectOption(page, 'Зал', 'Loft · Север')
     await selectOption(page, 'Тренер', 'Ольга Север')
@@ -396,7 +396,7 @@ test.describe('Расписание групповых занятий', () => {
     expect(requestStats.groupsCollectionGetCalls).toBe(0)
   })
 
-  test('mobile shows selected-day list with segmented control', async ({ page }) => {
+  test('mobile shows selected-day time grid with date strip', async ({ page }) => {
     const requestStats = createRequestStats()
 
     await installScheduleClock(page)
@@ -405,13 +405,23 @@ test.describe('Расписание групповых занятий', () => {
     await page.goto('/schedule')
 
     await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()
+    await expect(page.getByTestId('schedule-mobile-day-strip')).toBeVisible()
     await expect(page.getByTestId('schedule-calendar-grid')).toHaveCount(0)
+    await expect(page.getByTestId('schedule-mobile-day-tab-1')).toContainText('11.05')
+    await expect(page.getByTestId('schedule-mobile-day-tab-1')).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
     await expect(page.getByTestId('schedule-mobile-day-1')).toContainText('Альфа')
     await expect(page.getByTestId('schedule-mobile-day-1')).toContainText('Утренняя группа')
 
-    await page.getByText('Вс').click()
+    await page.getByTestId('schedule-mobile-day-tab-7').click()
     await expect(page.getByTestId('schedule-mobile-day-7')).toContainText(
       'Воскресный интенсив',
+    )
+    await expect(page.getByTestId('schedule-mobile-day-tab-7')).toHaveAttribute(
+      'aria-selected',
+      'true',
     )
     await expect(page.getByTestId('schedule-day-count-7')).toHaveText('1 занятие')
 

@@ -36,6 +36,12 @@ export type ScheduleVisibleHourRange = {
   endHour: number
 }
 
+export type ScheduleWeekdayLabel = {
+  weekday: WeekdayNumber
+  label: string
+  dateLabel: string
+}
+
 export type ScheduleTypePalette = {
   name: string
   color: string
@@ -83,6 +89,13 @@ export type ScheduleTodaySummary = {
   totalEntries: number
   typeItems: ScheduleTypeLegendItem[]
   hallItems: ScheduleHallLoadItem[]
+}
+
+export type ScheduleEntryGridMetrics = {
+  topPercent: number
+  heightPercent: number
+  laneLeftPercent: number
+  laneWidthPercent: number
 }
 
 export const WEEKDAY_LABELS: Record<number, string> = {
@@ -147,6 +160,15 @@ export const SCHEDULE_TYPE_PALETTE = [
     border: 'rgba(113, 128, 150, 0.3)',
   },
 ] as const satisfies readonly ScheduleTypePalette[]
+
+const SCHEDULE_TYPE_PALETTE_OVERRIDES: Record<string, ScheduleTypePalette> = {
+  cardio: SCHEDULE_TYPE_PALETTE[0],
+  yoga: SCHEDULE_TYPE_PALETTE[0],
+  intensive: SCHEDULE_TYPE_PALETTE[1],
+  mma: SCHEDULE_TYPE_PALETTE[1],
+  functional: SCHEDULE_TYPE_PALETTE[2],
+  basics: SCHEDULE_TYPE_PALETTE[2],
+}
 
 export type ScheduleGroupLike = Pick<
   TrainingGroupListItem,
@@ -237,6 +259,53 @@ export function getCurrentScheduleWeekday(now = new Date()): WeekdayNumber {
   return (weekday === 0 ? 7 : weekday) as WeekdayNumber
 }
 
+export function buildScheduleWeekdayLabels(now = new Date()): ScheduleWeekdayLabel[] {
+  const weekStart = getLocalScheduleWeekStart(now)
+
+  return WEEKDAYS.map((weekday, index) => {
+    const date = new Date(weekStart)
+
+    date.setDate(weekStart.getDate() + index)
+
+    return {
+      weekday,
+      label: WEEKDAY_LABELS[weekday],
+      dateLabel: formatScheduleDateLabel(date),
+    }
+  })
+}
+
+export function buildScheduleHourMarks(visibleHourRange: ScheduleVisibleHourRange) {
+  const totalHours = visibleHourRange.endHour - visibleHourRange.startHour
+
+  return Array.from(
+    { length: totalHours + 1 },
+    (_, index) => visibleHourRange.startHour + index,
+  )
+}
+
+export function getScheduleEntryGridMetrics<TGroup>(
+  entry: Pick<
+    ScheduleCalendarEntry<TGroup>,
+    'startMinutes' | 'endMinutes' | 'lane' | 'laneCount'
+  >,
+  visibleHourRange: ScheduleVisibleHourRange,
+): ScheduleEntryGridMetrics {
+  const rangeMinutes = Math.max(
+    1,
+    (visibleHourRange.endHour - visibleHourRange.startHour) * 60,
+  )
+  const laneCount = Math.max(1, entry.laneCount)
+  const laneWidthPercent = 100 / laneCount
+
+  return {
+    topPercent: ((entry.startMinutes - (visibleHourRange.startHour * 60)) / rangeMinutes) * 100,
+    heightPercent: ((entry.endMinutes - entry.startMinutes) / rangeMinutes) * 100,
+    laneLeftPercent: entry.lane * laneWidthPercent,
+    laneWidthPercent,
+  }
+}
+
 export function buildScheduleDayCounts<TGroup>(
   days: readonly ScheduleCalendarDay<TGroup>[],
 ) {
@@ -281,6 +350,11 @@ export function getScheduleTypePalette(groupOrKey: Pick<
   const key = typeof groupOrKey === 'string'
     ? groupOrKey
     : getScheduleTypeKey(groupOrKey)
+  const paletteOverride = SCHEDULE_TYPE_PALETTE_OVERRIDES[key.trim().toLowerCase()]
+
+  if (paletteOverride) {
+    return paletteOverride
+  }
 
   return SCHEDULE_TYPE_PALETTE[getStablePaletteIndex(key)]
 }
@@ -670,6 +744,26 @@ function formatMinutesAsTime(totalMinutes: number) {
   const minutes = normalizedMinutes % 60
 
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+}
+
+function getLocalScheduleWeekStart(now: Date) {
+  const weekStart = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  )
+  const weekday = getCurrentScheduleWeekday(now)
+
+  weekStart.setDate(weekStart.getDate() - (weekday - 1))
+
+  return weekStart
+}
+
+function formatScheduleDateLabel(date: Date) {
+  return [
+    String(date.getDate()).padStart(2, '0'),
+    String(date.getMonth() + 1).padStart(2, '0'),
+  ].join('.')
 }
 
 function getStablePaletteIndex(key: string) {
