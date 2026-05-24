@@ -87,7 +87,7 @@ public class ClientMessengerApiTests
     }
 
     [Fact]
-    public async Task HeadCoach_and_administrator_can_create_link_while_only_administrator_can_reply()
+    public async Task HeadCoach_and_administrator_can_create_link_and_reply()
     {
         await using var factory = new ClientMessengerAppFactory();
         var seeded = await SeedAsync(factory);
@@ -131,10 +131,11 @@ public class ClientMessengerApiTests
             Assert.Equal(HttpStatusCode.OK, headCoachSummaryResponse.StatusCode);
             var summary = await ReadJsonElementAsync(headCoachSummaryResponse);
             Assert.True(summary.GetProperty("capabilities").GetProperty("canRead").GetBoolean());
-            Assert.False(summary.GetProperty("capabilities").GetProperty("canReply").GetBoolean());
+            Assert.True(summary.GetProperty("capabilities").GetProperty("canReply").GetBoolean());
             Assert.True(summary.GetProperty("capabilities").GetProperty("canCreateLink").GetBoolean());
         }
 
+        string headCoachLinkToken;
         using (var headCoachLinkResponse = await PostWithoutBodyAsync(
                    headCoachClient,
                    $"/clients/{seeded.ClientId}/messenger/telegram/link-token",
@@ -142,7 +143,26 @@ public class ClientMessengerApiTests
         {
             Assert.Equal(HttpStatusCode.OK, headCoachLinkResponse.StatusCode);
             var linkPayload = await ReadJsonElementAsync(headCoachLinkResponse);
-            Assert.Contains("https://t.me/gym_client_bot?start=", linkPayload.GetProperty("deepLinkUrl").GetString());
+            var deepLinkUrl = linkPayload.GetProperty("deepLinkUrl").GetString()
+                ?? throw new InvalidOperationException("Deep link URL is missing.");
+            Assert.Contains("https://t.me/gym_client_bot?start=", deepLinkUrl);
+            headCoachLinkToken = deepLinkUrl.Split("start=", 2)[1];
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var messengerService = scope.ServiceProvider.GetRequiredService<IClientMessengerService>();
+            var linked = await messengerService.HandleTelegramUpdateAsync(new ClientTelegramIncomingUpdate(
+                100,
+                10,
+                "777001",
+                "777001",
+                "client_telegram",
+                "Telegram",
+                "Client",
+                $"/start {headCoachLinkToken}",
+                DateTimeOffset.UtcNow));
+            Assert.Equal(ClientTelegramUpdateHandleStatus.AccountLinked, linked.Status);
         }
 
         using (var headCoachSendResponse = await PostJsonAsync(
@@ -151,7 +171,9 @@ public class ClientMessengerApiTests
                    new { Text = "Напоминание" },
                    headCoachSession.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.Forbidden, headCoachSendResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, headCoachSendResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(headCoachSendResponse);
+            Assert.Equal("SentToTelegram", payload.GetProperty("status").GetString());
         }
 
         using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions

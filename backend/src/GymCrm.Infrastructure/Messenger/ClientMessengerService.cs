@@ -699,7 +699,7 @@ internal sealed class ClientMessengerService(
 
     private static bool CanReply(User currentUser)
     {
-        return currentUser.Role == UserRole.Administrator;
+        return currentUser.Role is UserRole.HeadCoach or UserRole.Administrator;
     }
 
     private static bool CanCreateLink(User currentUser)
