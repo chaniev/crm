@@ -3,7 +3,6 @@ import {
   Alert,
   Badge,
   Button,
-  CopyButton,
   Group,
   Loader,
   Modal,
@@ -34,6 +33,7 @@ import {
   type ClientMessengerMessage,
   type ClientMessengerSummary,
 } from '../../lib/api'
+import { copyTextToClipboard } from '../shared/clipboard'
 import { PageSection } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 
@@ -76,8 +76,12 @@ export function ClientMessengerChatSection({
   const [linkError, setLinkError] = useState<string | null>(null)
   const [linkToken, setLinkToken] = useState<ClientMessengerLinkToken | null>(null)
   const [linkModalOpened, setLinkModalOpened] = useState(false)
+  const [linkCopying, setLinkCopying] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+  const [linkCopyError, setLinkCopyError] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const linkCopiedTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -158,6 +162,13 @@ export function ClientMessengerChatSection({
     })
   }, [messages.length])
 
+  useEffect(
+    () => () => {
+      clearLinkCopiedTimeout()
+    },
+    [],
+  )
+
   if (hidden) {
     return null
   }
@@ -235,6 +246,7 @@ export function ClientMessengerChatSection({
   async function createLinkToken() {
     setLinkCreating(true)
     setLinkError(null)
+    resetLinkCopyState()
 
     try {
       const nextLinkToken = await createClientMessengerTelegramLinkToken(clientId)
@@ -257,6 +269,53 @@ export function ClientMessengerChatSection({
     } finally {
       setLinkCreating(false)
     }
+  }
+
+  function clearLinkCopiedTimeout() {
+    if (linkCopiedTimeoutRef.current !== null) {
+      window.clearTimeout(linkCopiedTimeoutRef.current)
+      linkCopiedTimeoutRef.current = null
+    }
+  }
+
+  function resetLinkCopyState() {
+    clearLinkCopiedTimeout()
+    setLinkCopying(false)
+    setLinkCopied(false)
+    setLinkCopyError(null)
+  }
+
+  function closeLinkModal() {
+    setLinkModalOpened(false)
+    resetLinkCopyState()
+  }
+
+  async function copyLink() {
+    if (!linkToken?.deepLinkUrl || linkCopying) {
+      return
+    }
+
+    setLinkCopying(true)
+    setLinkCopyError(null)
+
+    const copied = await copyTextToClipboard(linkToken.deepLinkUrl)
+
+    setLinkCopying(false)
+
+    if (!copied) {
+      setLinkCopied(false)
+      setLinkCopyError(
+        'Не удалось скопировать автоматически. Выделите ссылку и скопируйте вручную.',
+      )
+      return
+    }
+
+    setLinkCopied(true)
+    clearLinkCopiedTimeout()
+    linkCopiedTimeoutRef.current = window.setTimeout(() => {
+      setLinkCopied(false)
+      linkCopiedTimeoutRef.current = null
+    }, 2_000)
   }
 
   async function sendMessage() {
@@ -512,7 +571,7 @@ export function ClientMessengerChatSection({
 
       <Modal
         centered
-        onClose={() => setLinkModalOpened(false)}
+        onClose={closeLinkModal}
         opened={linkModalOpened}
         radius="8px"
         size="lg"
@@ -535,18 +594,20 @@ export function ClientMessengerChatSection({
                 <Text c="dimmed" size="sm">
                   Действует до {formatDateTime(linkToken.expiresAt)}
                 </Text>
-                <CopyButton value={linkToken.deepLinkUrl}>
-                  {({ copied, copy }) => (
-                    <Button
-                      color={copied ? 'teal' : 'brand'}
-                      leftSection={<IconCopy size={18} />}
-                      onClick={copy}
-                      variant="light"
-                    >
-                      {copied ? 'Скопировано' : 'Скопировать ссылку'}
-                    </Button>
-                  )}
-                </CopyButton>
+                <Button
+                  color={linkCopied ? 'teal' : 'brand'}
+                  leftSection={<IconCopy size={18} />}
+                  loading={linkCopying}
+                  onClick={() => void copyLink()}
+                  variant="light"
+                >
+                  {linkCopied ? 'Скопировано' : 'Скопировать ссылку'}
+                </Button>
+                {linkCopyError ? (
+                  <Text c="red" size="sm">
+                    {linkCopyError}
+                  </Text>
+                ) : null}
               </Stack>
             </Group>
           </Stack>
