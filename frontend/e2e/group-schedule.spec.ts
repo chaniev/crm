@@ -285,7 +285,7 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-auto-refresh-status')).toContainText(
       'Обновлено автоматически',
     )
-    await expect(page.getByTestId('schedule-filter-panel')).toHaveCount(0)
+    await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Расписание' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -338,8 +338,6 @@ test.describe('Расписание групповых занятий', () => {
     expect(alphaBox?.x).not.toBe(morningBox?.x)
     await expect(mondayEveningCard).toContainText('19:00 - 20:00')
 
-    await page.getByRole('button', { name: 'Фильтры', exact: true }).click()
-    await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
     await selectOption(page, 'Филиал', 'Север')
     await selectOption(page, 'Зал', 'Loft · Север')
     await selectOption(page, 'Тренер', 'Ольга Север')

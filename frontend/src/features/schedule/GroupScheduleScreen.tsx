@@ -21,12 +21,15 @@ import {
 import { useMediaQuery } from '@mantine/hooks'
 import {
   IconAdjustmentsHorizontal,
+  IconBuilding,
   IconCalendarWeek,
   IconClockHour4,
+  IconDoor,
   IconFilter,
   IconFilterOff,
   IconMapPin,
   IconRefresh,
+  IconUser,
   IconUsers,
 } from '@tabler/icons-react'
 import {
@@ -228,15 +231,17 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
 
       <div className="schedule-screen__filter-row" data-testid="schedule-filters">
         <h1 className="schedule-screen__title">Расписание</h1>
-        <ScheduleFilterActions
-          activeFilterCount={activeFilterCount}
-          filterPanelId={filterPanelId}
-          filtersExpanded={filtersExpanded}
-          onToggleFilters={() => setFiltersExpanded((isExpanded) => !isExpanded)}
-        />
+        {isMobile ? (
+          <ScheduleFilterActions
+            activeFilterCount={activeFilterCount}
+            filterPanelId={filterPanelId}
+            filtersExpanded={filtersExpanded}
+            onToggleFilters={() => setFiltersExpanded((isExpanded) => !isExpanded)}
+          />
+        ) : null}
       </div>
 
-      {filtersExpanded ? (
+      {!isMobile || filtersExpanded ? (
         <PageSection
           className="schedule-filters-panel"
           data-testid="schedule-filter-panel"
@@ -244,6 +249,7 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
         >
           <div id={filterPanelId}>
             <ScheduleFiltersToolbar
+              desktopPresentation={!isMobile}
               filterOptions={filterOptions}
               filters={filters}
               hasActiveFilters={hasActiveFilters}
@@ -424,6 +430,7 @@ function ScheduleFilterActions({
 }
 
 type ScheduleFiltersToolbarProps = {
+  desktopPresentation: boolean
   filterOptions: ScheduleFilterOptions
   filters: ScheduleFilters
   hasActiveFilters: boolean
@@ -431,6 +438,7 @@ type ScheduleFiltersToolbarProps = {
 }
 
 function ScheduleFiltersToolbar({
+  desktopPresentation,
   filterOptions,
   filters,
   hasActiveFilters,
@@ -451,42 +459,51 @@ function ScheduleFiltersToolbar({
         </ResponsiveButtonGroup>
       }
       className="schedule-filter-toolbar"
+      data-active-filters={hasActiveFilters ? 'true' : undefined}
     >
-      <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} spacing="md">
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
         <Select
           clearable
           data={filterOptions.branches}
           label="Филиал"
+          leftSection={desktopPresentation ? <IconBuilding size={22} /> : undefined}
           onChange={(value) => updateFilter(setFilters, 'branchId', value)}
           placeholder="Все филиалы"
           searchable
+          className={desktopPresentation ? 'schedule-filter-select' : undefined}
           value={filters.branchId}
         />
         <Select
           clearable
           data={filterOptions.halls}
           label="Зал"
+          leftSection={desktopPresentation ? <IconDoor size={22} /> : undefined}
           onChange={(value) => updateFilter(setFilters, 'hallId', value)}
           placeholder="Все залы"
           searchable
+          className={desktopPresentation ? 'schedule-filter-select' : undefined}
           value={filters.hallId}
         />
         <Select
           clearable
           data={filterOptions.trainers}
           label="Тренер"
+          leftSection={desktopPresentation ? <IconUser size={22} /> : undefined}
           onChange={(value) => updateFilter(setFilters, 'trainerId', value)}
           placeholder="Все тренеры"
           searchable
+          className={desktopPresentation ? 'schedule-filter-select' : undefined}
           value={filters.trainerId}
         />
         <Select
           clearable
           data={filterOptions.groups}
           label="Группа"
+          leftSection={desktopPresentation ? <IconUsers size={22} /> : undefined}
           onChange={(value) => updateFilter(setFilters, 'groupId', value)}
           placeholder="Все группы"
           searchable
+          className={desktopPresentation ? 'schedule-filter-select' : undefined}
           value={filters.groupId}
         />
       </SimpleGrid>
