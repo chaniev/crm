@@ -17,10 +17,12 @@ import {
   IconAlertCircle,
   IconBrandTelegram,
   IconCopy,
+  IconExternalLink,
   IconMessageCircle,
   IconQrcode,
   IconRefresh,
   IconSend,
+  IconShare2,
 } from '@tabler/icons-react'
 import {
   ApiError,
@@ -59,6 +61,9 @@ const messageStatusColors: Record<ClientMessengerMessage['status'], string> = {
   Failed: 'red',
 }
 
+const telegramShareText =
+  'Откройте ссылку, чтобы подключить Telegram-чат к CRM.'
+
 export function ClientMessengerChatSection({
   clientId,
 }: ClientMessengerChatSectionProps) {
@@ -79,6 +84,7 @@ export function ClientMessengerChatSection({
   const [linkCopying, setLinkCopying] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
   const [linkCopyError, setLinkCopyError] = useState<string | null>(null)
+  const [linkShareError, setLinkShareError] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const linkCopiedTimeoutRef = useRef<number | null>(null)
@@ -179,6 +185,7 @@ export function ClientMessengerChatSection({
   const pendingLink = summary?.connection.status === 'PendingLink'
   const hasMessages = messages.length > 0
   const hasOlderMessages = messageSkip > 0
+  const canUseNativeShare = typeof navigator.share === 'function'
 
   async function refresh() {
     setLoading(true)
@@ -283,6 +290,7 @@ export function ClientMessengerChatSection({
     setLinkCopying(false)
     setLinkCopied(false)
     setLinkCopyError(null)
+    setLinkShareError(null)
   }
 
   function closeLinkModal() {
@@ -316,6 +324,46 @@ export function ClientMessengerChatSection({
       setLinkCopied(false)
       linkCopiedTimeoutRef.current = null
     }, 2_000)
+  }
+
+  function openTelegramLink() {
+    if (!linkToken?.deepLinkUrl) {
+      return
+    }
+
+    openExternalUrl(linkToken.deepLinkUrl)
+  }
+
+  function openTelegramShare() {
+    if (!linkToken?.deepLinkUrl) {
+      return
+    }
+
+    openExternalUrl(buildTelegramShareUrl(linkToken.deepLinkUrl))
+  }
+
+  async function shareLink() {
+    if (!linkToken?.deepLinkUrl || typeof navigator.share !== 'function') {
+      return
+    }
+
+    setLinkShareError(null)
+
+    try {
+      await navigator.share({
+        title: 'Подключение Telegram',
+        text: telegramShareText,
+        url: linkToken.deepLinkUrl,
+      })
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return
+      }
+
+      setLinkShareError(
+        'Не удалось открыть системное меню. Отправьте ссылку в Telegram или скопируйте ее.',
+      )
+    }
   }
 
   async function sendMessage() {
@@ -595,7 +643,33 @@ export function ClientMessengerChatSection({
                   Действует до {formatDateTime(linkToken.expiresAt)}
                 </Text>
                 <Button
+                  fullWidth
+                  leftSection={<IconBrandTelegram size={18} />}
+                  onClick={openTelegramShare}
+                >
+                  Отправить в Telegram
+                </Button>
+                {canUseNativeShare ? (
+                  <Button
+                    fullWidth
+                    leftSection={<IconShare2 size={18} />}
+                    onClick={() => void shareLink()}
+                    variant="light"
+                  >
+                    Поделиться
+                  </Button>
+                ) : null}
+                <Button
+                  fullWidth
+                  leftSection={<IconExternalLink size={18} />}
+                  onClick={openTelegramLink}
+                  variant="light"
+                >
+                  Открыть Telegram
+                </Button>
+                <Button
                   color={linkCopied ? 'teal' : 'brand'}
+                  fullWidth
                   leftSection={<IconCopy size={18} />}
                   loading={linkCopying}
                   onClick={() => void copyLink()}
@@ -606,6 +680,11 @@ export function ClientMessengerChatSection({
                 {linkCopyError ? (
                   <Text c="red" size="sm">
                     {linkCopyError}
+                  </Text>
+                ) : null}
+                {linkShareError ? (
+                  <Text c="red" size="sm">
+                    {linkShareError}
                   </Text>
                 ) : null}
               </Stack>
@@ -700,4 +779,17 @@ function formatDateTime(value?: string | null) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)
+}
+
+function buildTelegramShareUrl(deepLinkUrl: string) {
+  const searchParams = new URLSearchParams({
+    url: deepLinkUrl,
+    text: telegramShareText,
+  })
+
+  return `https://t.me/share/url?${searchParams.toString()}`
+}
+
+function openExternalUrl(url: string) {
+  window.open(url, '_blank', 'noopener,noreferrer')
 }
