@@ -86,6 +86,8 @@ internal static class GymCrmAuthorizationPolicies
 
         options.AddPolicy(
             ReplyClientMessenger,
-            policy => policy.RequireRole(UserRole.Administrator.ToString()));
+            policy => policy.RequireRole(
+                UserRole.HeadCoach.ToString(),
+                UserRole.Administrator.ToString()));
     }
 }
