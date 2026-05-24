@@ -103,12 +103,18 @@ internal sealed class ClientMessengerService(
         }
 
         var options = telegramOptions.CurrentValue;
-        var botUsername = options.NormalizedBotUsername;
+        var configuredBotUsername = options.NormalizedBotUsername;
+        var botUsername = await ResolveBotUsernameAsync(configuredBotUsername, cancellationToken);
         if (botUsername is null)
         {
             return ClientMessengerResult<ClientMessengerLinkTokenInfo>.Validation(new Dictionary<string, string[]>
             {
-                ["botUsername"] = ["Имя клиентского Telegram-бота не настроено."]
+                ["botUsername"] =
+                [
+                    "Имя клиентского Telegram-бота не настроено. " +
+                    "Укажите ClientTelegram__BotUsername в формате gym_client_bot " +
+                    "или настройте ClientTelegram__BotToken."
+                ]
             });
         }
 
@@ -626,6 +632,31 @@ internal sealed class ClientMessengerService(
                     message.Direction == ClientMessengerMessageDirection.Inbound &&
                     (!lastReadAt.HasValue || message.CreatedAt > lastReadAt.Value),
                 cancellationToken);
+    }
+
+    private async Task<string?> ResolveBotUsernameAsync(
+        string? configuredBotUsername,
+        CancellationToken cancellationToken)
+    {
+        if (!telegramTransport.IsConfigured)
+        {
+            return configuredBotUsername;
+        }
+
+        try
+        {
+            var identity = await telegramTransport.GetBotIdentityAsync(cancellationToken);
+            var actualBotUsername = ClientTelegramOptions.NormalizeBotUsername(identity?.Username);
+            return actualBotUsername ?? configuredBotUsername;
+        }
+        catch (HttpRequestException)
+        {
+            return configuredBotUsername;
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return configuredBotUsername;
+        }
     }
 
     private async Task<ClientMessengerAccount?> GetActiveAccountAsync(

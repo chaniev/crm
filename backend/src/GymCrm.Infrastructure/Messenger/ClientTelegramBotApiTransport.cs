@@ -12,6 +12,42 @@ internal sealed class ClientTelegramBotApiTransport(
 {
     public bool IsConfigured => options.CurrentValue.HasBotToken;
 
+    public async Task<ClientTelegramBotIdentity?> GetBotIdentityAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var token = GetBotToken();
+        if (token is null)
+        {
+            return null;
+        }
+
+        using var response = await httpClient.GetAsync($"/bot{token}/getMe", cancellationToken);
+        using var payloadStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        try
+        {
+            using var document = await JsonDocument.ParseAsync(payloadStream, cancellationToken: cancellationToken);
+            if (!document.RootElement.TryGetProperty("ok", out var okElement) ||
+                !okElement.GetBoolean() ||
+                !document.RootElement.TryGetProperty("result", out var resultElement))
+            {
+                return null;
+            }
+
+            var username = ClientTelegramOptions.NormalizeBotUsername(ReadString(resultElement, "username"));
+            return username is null ? null : new ClientTelegramBotIdentity(username);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
     public async Task<IReadOnlyList<ClientTelegramIncomingUpdate>> GetUpdatesAsync(
         long? offset,
         int limit,
@@ -37,7 +73,7 @@ internal sealed class ClientTelegramBotApiTransport(
         }
 
         using var response = await httpClient.GetAsync(
-            $"bot{token}/getUpdates?{string.Join('&', query)}",
+            $"/bot{token}/getUpdates?{string.Join('&', query)}",
             cancellationToken);
         using var payloadStream = await response.Content.ReadAsStreamAsync(cancellationToken);
 
@@ -122,7 +158,7 @@ internal sealed class ClientTelegramBotApiTransport(
         }
 
         using var response = await httpClient.PostAsJsonAsync(
-            $"bot{token}/sendMessage",
+            $"/bot{token}/sendMessage",
             new
             {
                 chat_id = telegramUserId,

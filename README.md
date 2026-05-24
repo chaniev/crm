@@ -168,6 +168,12 @@ IMAGE_TAG=2026-05-15 ./deploy/export-images.sh
 
 Если пользователь не привязан, бот показывает его Telegram ID и просит передать ID администратору.
 
+## Клиентский Telegram-чат
+
+Клиентский чат CRM использует отдельного Telegram-бота и настраивается в backend через `ClientTelegram__*`.
+Для ссылок подключения нужен username клиентского бота: укажите `ClientTelegram__BotUsername` в формате `gym_client_bot` или `@gym_client_bot`.
+Если настроен `ClientTelegram__BotToken`, backend дополнительно проверяет реальный username через Telegram Bot API и использует его при формировании ссылки `https://t.me/<bot_username>?start=<token>`.
+
 ## Первый вход
 
 При старте backend применяет миграции, если `BACKEND_APPLY_MIGRATIONS=true`, и создает bootstrap-пользователя, если база пользователей пуста.
