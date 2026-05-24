@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
+  ApiError,
   createClientMessengerTelegramLinkToken,
   getClientMessengerMessages,
   getClientMessengerSummary,
@@ -110,6 +111,29 @@ describe('ClientMessengerChatSection', () => {
       '_blank',
       'noopener,noreferrer',
     )
+  })
+
+  test('shows backend link-token validation details', async () => {
+    createLinkTokenMock.mockRejectedValue(
+      new ApiError('Не удалось выполнить запрос.', 400, {
+        botUsername: [
+          'Укажите ClientTelegram__BotUsername в формате gym_client_bot.',
+        ],
+      }),
+    )
+
+    renderWithProviders(<ClientMessengerChatSection clientId="client-1" />)
+
+    const linkButtons = await screen.findAllByRole('button', {
+      name: 'Ссылка и QR',
+    })
+    fireEvent.click(linkButtons[0])
+
+    expect(
+      await screen.findByText(
+        'Укажите ClientTelegram__BotUsername в формате gym_client_bot.',
+      ),
+    ).toBeInTheDocument()
   })
 
   test('uses native share when the browser supports it', async () => {

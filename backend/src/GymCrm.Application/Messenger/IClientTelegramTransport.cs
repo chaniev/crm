@@ -4,6 +4,9 @@ public interface IClientTelegramTransport
 {
     bool IsConfigured { get; }
 
+    Task<ClientTelegramBotIdentity?> GetBotIdentityAsync(
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<ClientTelegramIncomingUpdate>> GetUpdatesAsync(
         long? offset,
         int limit,

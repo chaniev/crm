@@ -134,6 +134,8 @@ public sealed record ClientTelegramIncomingUpdate(
     string? Text,
     DateTimeOffset? SentAt);
 
+public sealed record ClientTelegramBotIdentity(string Username);
+
 public sealed record ClientTelegramUpdateHandleResult(
     ClientTelegramUpdateHandleStatus Status,
     Guid? ClientId = null,

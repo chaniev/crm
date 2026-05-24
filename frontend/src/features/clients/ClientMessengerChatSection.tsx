@@ -269,9 +269,7 @@ export function ClientMessengerChatSection({
       )
     } catch (error) {
       setLinkError(
-        error instanceof Error
-          ? error.message
-          : 'Не удалось создать ссылку подключения.',
+        getApiErrorMessage(error, 'Не удалось создать ссылку подключения.'),
       )
     } finally {
       setLinkCreating(false)
@@ -792,4 +790,15 @@ function buildTelegramShareUrl(deepLinkUrl: string) {
 
 function openExternalUrl(url: string) {
   window.open(url, '_blank', 'noopener,noreferrer')
+}
+
+function getApiErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof ApiError) {
+    const fieldMessage = Object.values(error.fieldErrors)
+      .flat()
+      .find((message) => message)
+    return fieldMessage ?? error.message
+  }
+
+  return error instanceof Error ? error.message : fallback
 }

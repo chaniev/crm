@@ -7,6 +7,7 @@ using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Messenger;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -14,11 +15,77 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace GymCrm.Tests;
 
 public class ClientMessengerApiTests
 {
+    [Theory]
+    [InlineData("gym_client_bot", "gym_client_bot")]
+    [InlineData("@gym_client_bot", "gym_client_bot")]
+    [InlineData("https://t.me/gym_client_bot", "gym_client_bot")]
+    [InlineData("t.me/gym_client_bot?start=legacy-token", "gym_client_bot")]
+    [InlineData("telegram.me/gym_client_bot", "gym_client_bot")]
+    [InlineData("k4pro_admin", null)]
+    [InlineData("gym-client-bot", null)]
+    [InlineData("bot", null)]
+    [InlineData(null, null)]
+    public void Client_telegram_options_normalize_only_valid_bot_usernames(
+        string? value,
+        string? expected)
+    {
+        Assert.Equal(expected, ClientTelegramOptions.NormalizeBotUsername(value));
+    }
+
+    [Fact]
+    public async Task Client_telegram_transport_uses_https_paths_when_token_contains_colon()
+    {
+        var handler = new RecordingTelegramHandler();
+        using var httpClient = new HttpClient(handler)
+        {
+            BaseAddress = new Uri("https://api.telegram.org/")
+        };
+        var transport = new ClientTelegramBotApiTransport(
+            httpClient,
+            new OptionsMonitorStub<ClientTelegramOptions>(new ClientTelegramOptions
+            {
+                BotToken = "123456:ABC"
+            }));
+
+        var identity = await transport.GetBotIdentityAsync();
+        var updates = await transport.GetUpdatesAsync(
+            10,
+            50,
+            TimeSpan.FromSeconds(20));
+        var sendResult = await transport.SendTextMessageAsync("777001", "Здравствуйте!");
+
+        Assert.Equal("actual_client_bot", identity?.Username);
+        Assert.Empty(updates);
+        Assert.True(sendResult.Succeeded);
+        Assert.Collection(
+            handler.RequestUris,
+            uri =>
+            {
+                Assert.Equal("https", uri.Scheme);
+                Assert.Equal("api.telegram.org", uri.Host);
+                Assert.Equal("/bot123456:ABC/getMe", uri.AbsolutePath);
+            },
+            uri =>
+            {
+                Assert.Equal("https", uri.Scheme);
+                Assert.Equal("api.telegram.org", uri.Host);
+                Assert.Equal("/bot123456:ABC/getUpdates", uri.AbsolutePath);
+                Assert.Contains("offset=10", uri.Query);
+            },
+            uri =>
+            {
+                Assert.Equal("https", uri.Scheme);
+                Assert.Equal("api.telegram.org", uri.Host);
+                Assert.Equal("/bot123456:ABC/sendMessage", uri.AbsolutePath);
+            });
+    }
+
     [Fact]
     public async Task HeadCoach_and_administrator_can_create_link_while_only_administrator_can_reply()
     {
@@ -96,6 +163,61 @@ public class ClientMessengerApiTests
 
         using var coachSummaryResponse = await coachClient.GetAsync($"/clients/{seeded.ClientId}/messenger/telegram");
         Assert.Equal(HttpStatusCode.Forbidden, coachSummaryResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Telegram_link_uses_username_reported_by_bot_token()
+    {
+        await using var factory = new ClientMessengerAppFactory(
+            configuredBotUsername: "wrong_client_bot",
+            telegramBotUsername: "actual_client_bot");
+        var seeded = await SeedAsync(factory);
+
+        using var adminClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var adminSession = await LoginAsync(adminClient, seeded.AdministratorLogin, seeded.SharedPassword);
+
+        using var linkResponse = await PostWithoutBodyAsync(
+            adminClient,
+            $"/clients/{seeded.ClientId}/messenger/telegram/link-token",
+            adminSession.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, linkResponse.StatusCode);
+
+        var linkPayload = await ReadJsonElementAsync(linkResponse);
+        var deepLinkUrl = linkPayload.GetProperty("deepLinkUrl").GetString();
+        Assert.Contains("https://t.me/actual_client_bot?start=", deepLinkUrl);
+        Assert.DoesNotContain("wrong_client_bot", deepLinkUrl);
+    }
+
+    [Fact]
+    public async Task Telegram_link_falls_back_to_configured_username_when_bot_api_is_unavailable()
+    {
+        await using var factory = new ClientMessengerAppFactory(
+            configuredBotUsername: "configured_client_bot",
+            configuredBotToken: string.Empty,
+            telegramBotUsername: null);
+        var seeded = await SeedAsync(factory);
+
+        using var adminClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var adminSession = await LoginAsync(adminClient, seeded.AdministratorLogin, seeded.SharedPassword);
+
+        using var linkResponse = await PostWithoutBodyAsync(
+            adminClient,
+            $"/clients/{seeded.ClientId}/messenger/telegram/link-token",
+            adminSession.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, linkResponse.StatusCode);
+
+        var linkPayload = await ReadJsonElementAsync(linkResponse);
+        Assert.Contains(
+            "https://t.me/configured_client_bot?start=",
+            linkPayload.GetProperty("deepLinkUrl").GetString());
     }
 
     [Fact]
@@ -376,7 +498,17 @@ public class ClientMessengerApiTests
     public sealed class FakeClientTelegramTransport : IClientTelegramTransport
     {
         public bool IsConfigured { get; set; } = true;
+        public string? BotUsername { get; set; } = "gym_client_bot";
         public int SendCount { get; private set; }
+
+        public Task<ClientTelegramBotIdentity?> GetBotIdentityAsync(
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(
+                IsConfigured && BotUsername is not null
+                    ? new ClientTelegramBotIdentity(BotUsername)
+                    : null);
+        }
 
         public Task<IReadOnlyList<ClientTelegramIncomingUpdate>> GetUpdatesAsync(
             long? offset,
@@ -402,7 +534,24 @@ public class ClientMessengerApiTests
 
     private sealed class ClientMessengerAppFactory : WebApplicationFactory<Program>
     {
-        public FakeClientTelegramTransport TelegramTransport { get; } = new();
+        private readonly string configuredBotUsername;
+        private readonly string configuredBotToken;
+
+        public ClientMessengerAppFactory(
+            string configuredBotUsername = "gym_client_bot",
+            string configuredBotToken = "test-client-telegram-token",
+            string? telegramBotUsername = "gym_client_bot")
+        {
+            this.configuredBotUsername = configuredBotUsername;
+            this.configuredBotToken = configuredBotToken;
+            TelegramTransport = new FakeClientTelegramTransport
+            {
+                IsConfigured = !string.IsNullOrWhiteSpace(configuredBotToken),
+                BotUsername = telegramBotUsername
+            };
+        }
+
+        public FakeClientTelegramTransport TelegramTransport { get; }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -415,8 +564,8 @@ public class ClientMessengerApiTests
                     ["ConnectionStrings:Postgres"] = "Host=localhost;Port=5432;Database=gym_crm;Username=gym_crm;Password=gym_crm",
                     ["Persistence:ApplyMigrationsOnStartup"] = "false",
                     ["ClientTelegram:Enabled"] = "false",
-                    ["ClientTelegram:BotUsername"] = "gym_client_bot",
-                    ["ClientTelegram:BotToken"] = "test-client-telegram-token",
+                    ["ClientTelegram:BotUsername"] = configuredBotUsername,
+                    ["ClientTelegram:BotToken"] = configuredBotToken,
                     ["BootstrapUser:Login"] = "bootstrap-messenger"
                 });
             });
@@ -439,5 +588,66 @@ public class ClientMessengerApiTests
                 services.AddSingleton<IClientTelegramTransport>(TelegramTransport);
             });
         }
+    }
+
+    private sealed class RecordingTelegramHandler : HttpMessageHandler
+    {
+        public List<Uri> RequestUris { get; } = [];
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            var requestUri = request.RequestUri ?? throw new InvalidOperationException("Request URI is missing.");
+            RequestUris.Add(requestUri);
+
+            object payload = requestUri.AbsolutePath switch
+            {
+                var path when path.EndsWith("/getMe", StringComparison.Ordinal) => new
+                {
+                    ok = true,
+                    result = new
+                    {
+                        username = "actual_client_bot"
+                    }
+                },
+                var path when path.EndsWith("/getUpdates", StringComparison.Ordinal) => new
+                {
+                    ok = true,
+                    result = Array.Empty<object>()
+                },
+                var path when path.EndsWith("/sendMessage", StringComparison.Ordinal) => new
+                {
+                    ok = true,
+                    result = new
+                    {
+                        message_id = 9001,
+                        chat = new
+                        {
+                            id = 777001
+                        }
+                    }
+                },
+                _ => new
+                {
+                    ok = false,
+                    description = "Unexpected Telegram API path."
+                }
+            };
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = JsonContent.Create(payload)
+            });
+        }
+    }
+
+    private sealed class OptionsMonitorStub<T>(T value) : IOptionsMonitor<T>
+    {
+        public T CurrentValue => value;
+
+        public T Get(string? name) => value;
+
+        public IDisposable? OnChange(Action<T, string?> listener) => null;
     }
 }
