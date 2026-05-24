@@ -434,3 +434,20 @@
 - skipped: 0
 - plans created: 1
 - note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is a frontend-only all-screen mobile shell task that must derive bottom navigation from existing backend/session section access, keep desktop navigation unchanged and avoid fake notifications routes.
+
+# 2026-05-24 12:33
+
+## Moved to implementation
+- /backlog/implementation/TASK-055-schedule-screen-mockups.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-055-schedule-screen-mockups.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is medium risk and localized to frontend schedule UI, with backend contract changes, schedule business rules and dated event semantics explicitly blocked unless a separate contract task is created.

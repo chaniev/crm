@@ -1,7 +1,13 @@
 # TASK-055: Обновить окно расписания по макетам из docs/mockups
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-24 12:33
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-055-schedule-screen-mockups.plan.md
+- implementation_branch: feature/TASK-055-schedule-screen-mockups
 
 ## Goal
 Экран `Расписание` визуально соответствует новым desktop и mobile макетам из `docs/mockups/расписание`, сохраняя существующие backend-owned правила расписания.
