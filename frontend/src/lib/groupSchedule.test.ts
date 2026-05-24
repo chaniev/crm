@@ -7,11 +7,14 @@ import {
   buildScheduleCalendarWeek,
   buildScheduleDayCounts,
   buildScheduleFilterOptions,
+  buildScheduleHourMarks,
   buildScheduleTodaySummary,
   buildScheduleTypeLegend,
+  buildScheduleWeekdayLabels,
   formatScheduleEntryTimeRange,
   formatTrainingStartTime,
   getCurrentScheduleWeekday,
+  getScheduleEntryGridMetrics,
   getScheduleTypePalette,
   getVisibleScheduleHourRange,
   hasActiveScheduleFilters,
@@ -181,10 +184,27 @@ describe('groupSchedule helpers', () => {
     })
   })
 
-  test('maps local Date weekday to schedule ISO weekday without displaying dates', () => {
+  test('maps local Date weekday to schedule ISO weekday', () => {
     expect(getCurrentScheduleWeekday(new Date(2026, 4, 11))).toBe(1)
     expect(getCurrentScheduleWeekday(new Date(2026, 4, 15))).toBe(5)
     expect(getCurrentScheduleWeekday(new Date(2026, 4, 17))).toBe(7)
+  })
+
+  test('builds presentation-only weekday date labels for the current local week', () => {
+    expect(buildScheduleWeekdayLabels(new Date(2026, 4, 13, 10, 30))).toEqual([
+      { weekday: 1, label: 'Пн', dateLabel: '11.05' },
+      { weekday: 2, label: 'Вт', dateLabel: '12.05' },
+      { weekday: 3, label: 'Ср', dateLabel: '13.05' },
+      { weekday: 4, label: 'Чт', dateLabel: '14.05' },
+      { weekday: 5, label: 'Пт', dateLabel: '15.05' },
+      { weekday: 6, label: 'Сб', dateLabel: '16.05' },
+      { weekday: 7, label: 'Вс', dateLabel: '17.05' },
+    ])
+    expect(buildScheduleWeekdayLabels(new Date(2026, 4, 17))[0]).toEqual({
+      weekday: 1,
+      label: 'Пн',
+      dateLabel: '11.05',
+    })
   })
 
   test('derives day counters from visible calendar entries', () => {
@@ -226,6 +246,9 @@ describe('groupSchedule helpers', () => {
       startHour: 9,
       endHour: 20,
     })
+    expect(buildScheduleHourMarks(calendarWeek.visibleHourRange)).toEqual([
+      9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    ])
   })
 
   test('builds stable type legend from visible entries', () => {
@@ -326,6 +349,36 @@ describe('groupSchedule helpers', () => {
       { id: 'second', lane: 1, laneCount: 2 },
       { id: 'third', lane: 0, laneCount: 2 },
     ])
+  })
+
+  test('derives constrained grid metrics for mobile lane positioning', () => {
+    const overlappingWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'first',
+        name: 'Первая',
+        trainingStartTime: '10:00',
+        durationMinutes: 60,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'second',
+        name: 'Вторая',
+        trainingStartTime: '10:30',
+        durationMinutes: 60,
+        weekdays: [1],
+      }),
+    ])
+    const secondEntry = overlappingWeek.days[0].entries[1]
+
+    expect(getScheduleEntryGridMetrics(secondEntry, {
+      startHour: 10,
+      endHour: 12,
+    })).toEqual({
+      topPercent: 25,
+      heightPercent: 50,
+      laneLeftPercent: 50,
+      laneWidthPercent: 50,
+    })
   })
 
   test('combines branch, hall, trainer and group filters and can reset to full dataset', () => {

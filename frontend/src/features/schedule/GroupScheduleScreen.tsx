@@ -1,16 +1,17 @@
 import {
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
   type Dispatch,
+  type KeyboardEvent,
   type SetStateAction,
 } from 'react'
 import {
   Badge,
   Group,
-  SegmentedControl,
   Select,
   SimpleGrid,
   Stack,
@@ -19,11 +20,16 @@ import {
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import {
+  IconAdjustmentsHorizontal,
+  IconBuilding,
   IconCalendarWeek,
   IconClockHour4,
+  IconDoor,
+  IconFilter,
   IconFilterOff,
   IconMapPin,
   IconRefresh,
+  IconUser,
   IconUsers,
 } from '@tabler/icons-react'
 import {
@@ -32,26 +38,27 @@ import {
 } from '../../lib/api'
 import {
   EMPTY_SCHEDULE_FILTERS,
-  WEEKDAY_OPTIONS,
   applyScheduleFilters,
   buildScheduleCalendarWeek,
   buildScheduleDayCounts,
   buildScheduleFilterOptions,
-  buildScheduleTodaySummary,
+  buildScheduleHourMarks,
   buildScheduleTypeLegend,
+  buildScheduleWeekdayLabels,
   formatScheduleEntryTimeRange,
   getCurrentScheduleWeekday,
+  getScheduleEntryGridMetrics,
   getScheduleTypeKey,
   getScheduleTypePalette,
   hasActiveScheduleFilters,
   type ScheduleCalendarDay,
   type ScheduleCalendarEntry,
+  type ScheduleFilterOptions,
   type ScheduleFilters,
-  type ScheduleHallLoadItem,
-  type ScheduleTodaySummary,
   type ScheduleTypeLegendItem,
   type ScheduleTypePalette,
   type ScheduleVisibleHourRange,
+  type ScheduleWeekdayLabel,
   type WeekdayNumber,
 } from '../../lib/groupSchedule'
 import { Button } from '../shared/Button'
@@ -61,18 +68,27 @@ import {
   FilterToolbar,
   LoadingState,
   IconButton,
-  PageLayout,
   PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
-  SectionHeader,
 } from '../shared/ux'
 
 const SCHEDULE_GROUPS_PAGE_SIZE = 100
 const MOBILE_BREAKPOINT = '(max-width: 47.99em)'
-const SCHEDULE_HOUR_HEIGHT_PX = 80
+const SCHEDULE_DESKTOP_HOUR_HEIGHT_PX = 76
+const SCHEDULE_MOBILE_HOUR_HEIGHT_PX = 96
 const SCHEDULE_LANE_GAP_PX = 8
 const SCHEDULE_AUTO_REFRESH_MS = 60_000
+const WEEKDAY_BY_INDEX = [1, 2, 3, 4, 5, 6, 7] as const satisfies readonly WeekdayNumber[]
+const WEEKDAY_INDEX_BY_NUMBER: Record<WeekdayNumber, number> = {
+  1: 0,
+  2: 1,
+  3: 2,
+  4: 3,
+  5: 4,
+  6: 5,
+  7: 6,
+}
 
 type GroupScheduleScreenProps = {
   canManageGroups: boolean
@@ -88,11 +104,13 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [filters, setFilters] = useState<ScheduleFilters>(EMPTY_SCHEDULE_FILTERS)
+  const [filtersExpanded, setFiltersExpanded] = useState(false)
   const [now, setNow] = useState(() => new Date())
   const [lastLoadedAt, setLastLoadedAt] = useState<Date | null>(null)
   const [selectedWeekday, setSelectedWeekday] = useState<WeekdayNumber>(() =>
     getCurrentScheduleWeekday(),
   )
+  const filterPanelId = useId()
   const firstLoadRef = useRef(true)
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
 
@@ -160,6 +178,7 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
     [filteredGroups],
   )
   const currentWeekday = useMemo(() => getCurrentScheduleWeekday(now), [now])
+  const dayLabels = useMemo(() => buildScheduleWeekdayLabels(now), [now])
   const dayCounts = useMemo(
     () => buildScheduleDayCounts(calendarWeek.days),
     [calendarWeek.days],
@@ -171,10 +190,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   const typeLegend = useMemo(
     () => buildScheduleTypeLegend(visibleEntries),
     [visibleEntries],
-  )
-  const todaySummary = useMemo(
-    () => buildScheduleTodaySummary(calendarWeek.days, currentWeekday),
-    [calendarWeek.days, currentWeekday],
   )
   useEffect(() => {
     setFilters((currentFilters) => {
@@ -194,85 +209,55 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   const isInitialLoading = loading && groups.length === 0
   const hasStaleSchedule = groups.length > 0
   const hasActiveFilters = hasActiveScheduleFilters(filters)
+  const activeFilterCount = countActiveScheduleFilters(filters)
   const requestReload = () => {
     setNow(new Date())
     setReloadKey((currentKey) => currentKey + 1)
   }
 
   return (
-    <PageLayout
-      actions={(
+    <Stack
+      className="page-layout schedule-screen"
+      data-testid="schedule-screen"
+      gap="var(--page-section-gap)"
+    >
+      <div className="schedule-screen__status-row">
         <ScheduleRefreshPanel
           lastLoadedAt={lastLoadedAt}
           loading={loading || refreshing}
           onRefresh={requestReload}
         />
-      )}
-      className="schedule-screen"
-      data-testid="schedule-screen"
-      description="Недельный шаблон занятий по филиалам, залам, тренерам и группам."
-      title="Расписание"
-    >
-      <PageSection className="schedule-filters-card" data-testid="schedule-filters">
-        <Stack gap="lg">
-          <SectionHeader title="Фильтры расписания" />
+      </div>
 
-          <FilterToolbar
-            actions={
-              <ResponsiveButtonGroup justify="flex-end">
-                <Button
-                  disabled={!hasActiveFilters}
-                  leftSection={<IconFilterOff size={17} />}
-                  onClick={() => setFilters(EMPTY_SCHEDULE_FILTERS)}
-                  variant="secondary"
-                >
-                  Сбросить фильтры
-                </Button>
-              </ResponsiveButtonGroup>
-            }
-            className="schedule-filter-toolbar"
-          >
-            <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} spacing="md">
-              <Select
-                clearable
-                data={filterOptions.branches}
-                label="Филиал"
-                onChange={(value) => updateFilter(setFilters, 'branchId', value)}
-                placeholder="Все филиалы"
-                searchable
-                value={filters.branchId}
-              />
-              <Select
-                clearable
-                data={filterOptions.halls}
-                label="Зал"
-                onChange={(value) => updateFilter(setFilters, 'hallId', value)}
-                placeholder="Все залы"
-                searchable
-                value={filters.hallId}
-              />
-              <Select
-                clearable
-                data={filterOptions.trainers}
-                label="Тренер"
-                onChange={(value) => updateFilter(setFilters, 'trainerId', value)}
-                placeholder="Все тренеры"
-                searchable
-                value={filters.trainerId}
-              />
-              <Select
-                clearable
-                data={filterOptions.groups}
-                label="Группа"
-                onChange={(value) => updateFilter(setFilters, 'groupId', value)}
-                placeholder="Все группы"
-                searchable
-                value={filters.groupId}
-              />
-            </SimpleGrid>
-          </FilterToolbar>
-        </Stack>
-      </PageSection>
+      <div className="schedule-screen__filter-row" data-testid="schedule-filters">
+        <h1 className="schedule-screen__title">Расписание</h1>
+        {isMobile ? (
+          <ScheduleFilterActions
+            activeFilterCount={activeFilterCount}
+            filterPanelId={filterPanelId}
+            filtersExpanded={filtersExpanded}
+            onToggleFilters={() => setFiltersExpanded((isExpanded) => !isExpanded)}
+          />
+        ) : null}
+      </div>
+
+      {!isMobile || filtersExpanded ? (
+        <PageSection
+          className="schedule-filters-panel"
+          data-testid="schedule-filter-panel"
+          density="compact"
+        >
+          <div id={filterPanelId}>
+            <ScheduleFiltersToolbar
+              desktopPresentation={!isMobile}
+              filterOptions={filterOptions}
+              filters={filters}
+              hasActiveFilters={hasActiveFilters}
+              setFilters={setFilters}
+            />
+          </div>
+        </PageSection>
+      ) : null}
 
       {isInitialLoading ? (
         <PageSection>
@@ -282,15 +267,15 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
 
       {!isInitialLoading && error ? (
         <PageSection>
-            <ErrorState
-              action={(
-                <RefreshButton
-                  label="Повторить"
-                  loading={refreshing}
-                  onClick={requestReload}
-                  variant="secondary"
-                />
-              )}
+          <ErrorState
+            action={(
+              <RefreshButton
+                label="Повторить"
+                loading={refreshing}
+                onClick={requestReload}
+                variant="secondary"
+              />
+            )}
             message={error}
             title={
               hasStaleSchedule
@@ -321,24 +306,22 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
             />
           ) : (
             <Stack gap="md">
-              <ScheduleOverviewStrip
-                summary={todaySummary}
-                totalVisibleEntries={visibleEntries.length}
-              />
-
               {isMobile ? (
                 <ScheduleMobileList
                   currentWeekday={currentWeekday}
                   dayCounts={dayCounts}
+                  dayLabels={dayLabels}
                   days={calendarWeek.days}
                   selectedWeekday={selectedWeekday}
                   setSelectedWeekday={setSelectedWeekday}
+                  visibleHourRange={calendarWeek.visibleHourRange}
                 />
               ) : (
                 <div className="schedule-board__viewport">
                   <ScheduleDesktopGrid
                     currentWeekday={currentWeekday}
                     dayCounts={dayCounts}
+                    dayLabels={dayLabels}
                     days={calendarWeek.days}
                     visibleHourRange={calendarWeek.visibleHourRange}
                   />
@@ -350,7 +333,7 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
           )}
         </PageSection>
       ) : null}
-    </PageLayout>
+    </Stack>
   )
 }
 
@@ -366,7 +349,12 @@ function ScheduleRefreshPanel({
   onRefresh,
 }: ScheduleRefreshPanelProps) {
   return (
-    <Group className="schedule-refresh-panel" gap="sm" justify="flex-end" wrap="wrap">
+    <Group
+      className="schedule-refresh-panel"
+      gap="sm"
+      justify="flex-end"
+      wrap="wrap"
+    >
       <Group
         className="status-pill schedule-refresh-status"
         data-testid="schedule-auto-refresh-status"
@@ -374,16 +362,11 @@ function ScheduleRefreshPanel({
         wrap="nowrap"
       >
         <span aria-hidden="true" className="status-pill__dot" />
-        <Stack gap={0}>
-          <Text fw={800} size="sm">
-            Обновляется автоматически
-          </Text>
-          <Text c="dimmed" size="xs">
-            {lastLoadedAt
-              ? `последнее обновление ${formatClockTime(lastLoadedAt)}`
-              : 'каждую минуту'}
-          </Text>
-        </Stack>
+        <Text fw={800} size="sm">
+          {lastLoadedAt
+            ? `Обновлено автоматически ${formatClockTime(lastLoadedAt)}`
+            : 'Обновляется автоматически'}
+        </Text>
       </Group>
 
       <IconButton
@@ -397,48 +380,134 @@ function ScheduleRefreshPanel({
   )
 }
 
-type ScheduleOverviewStripProps = {
-  summary: ScheduleTodaySummary
-  totalVisibleEntries: number
+type ScheduleFilterActionsProps = {
+  activeFilterCount: number
+  filterPanelId: string
+  filtersExpanded: boolean
+  onToggleFilters: () => void
 }
 
-function ScheduleOverviewStrip({
-  summary,
-  totalVisibleEntries,
-}: ScheduleOverviewStripProps) {
+function ScheduleFilterActions({
+  activeFilterCount,
+  filterPanelId,
+  filtersExpanded,
+  onToggleFilters,
+}: ScheduleFilterActionsProps) {
   return (
-    <div className="compact-summary-strip schedule-overview" data-testid="schedule-overview">
-      <section className="compact-summary-card" data-testid="schedule-today-summary">
-        <Text c="dimmed" fw={700} size="xs">
-          Сегодня
-        </Text>
-        <Group align="baseline" gap={6} wrap="nowrap">
-          <Text className="compact-summary-card__value" fw={900}>
-            {summary.totalEntries}
-          </Text>
-          <Text c="dimmed" fw={700} size="sm">
-            {formatLessonWord(summary.totalEntries)}
-          </Text>
-        </Group>
-        <Text c="dimmed" size="xs">
-          из {formatEntryCount(totalVisibleEntries)} в видимой неделе
-        </Text>
-      </section>
+    <Group
+      className="schedule-header-actions"
+      gap="sm"
+      justify="flex-end"
+      wrap="nowrap"
+    >
+      <Button
+        aria-controls={filterPanelId}
+        aria-expanded={filtersExpanded}
+        className="schedule-filter-toggle"
+        leftSection={<IconFilter size={18} />}
+        onClick={onToggleFilters}
+        variant={filtersExpanded || activeFilterCount > 0 ? 'primary' : 'secondary'}
+      >
+        <span>Фильтры</span>
+        {activeFilterCount > 0 ? (
+          <span aria-hidden="true" className="schedule-filter-toggle__count">
+            {activeFilterCount}
+          </span>
+        ) : null}
+      </Button>
 
-      <section className="compact-summary-card" data-testid="schedule-today-type-summary">
-        <Text c="dimmed" fw={700} size="xs">
-          Типы сегодня
-        </Text>
-        <ScheduleTypeTokenList emptyLabel="Нет занятий" items={summary.typeItems} />
-      </section>
+      <IconButton
+        aria-controls={filterPanelId}
+        aria-expanded={filtersExpanded}
+        className="schedule-filter-settings-button"
+        icon={<IconAdjustmentsHorizontal size={18} />}
+        label="Настроить фильтры"
+        onClick={onToggleFilters}
+        size={42}
+      />
+    </Group>
+  )
+}
 
-      <section className="compact-summary-card" data-testid="schedule-hall-load">
-        <Text c="dimmed" fw={700} size="xs">
-          Залы сегодня
-        </Text>
-        <ScheduleHallLoadList items={summary.hallItems} />
-      </section>
-    </div>
+type ScheduleFiltersToolbarProps = {
+  desktopPresentation: boolean
+  filterOptions: ScheduleFilterOptions
+  filters: ScheduleFilters
+  hasActiveFilters: boolean
+  setFilters: Dispatch<SetStateAction<ScheduleFilters>>
+}
+
+function ScheduleFiltersToolbar({
+  desktopPresentation,
+  filterOptions,
+  filters,
+  hasActiveFilters,
+  setFilters,
+}: ScheduleFiltersToolbarProps) {
+  return (
+    <FilterToolbar
+      actions={
+        <ResponsiveButtonGroup justify="flex-end">
+          <Button
+            disabled={!hasActiveFilters}
+            leftSection={<IconFilterOff size={17} />}
+            onClick={() => setFilters(EMPTY_SCHEDULE_FILTERS)}
+            variant="secondary"
+          >
+            Сбросить фильтры
+          </Button>
+        </ResponsiveButtonGroup>
+      }
+      className="schedule-filter-toolbar"
+      data-active-filters={hasActiveFilters ? 'true' : undefined}
+    >
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
+        <Select
+          clearable
+          data={filterOptions.branches}
+          label="Филиал"
+          leftSection={desktopPresentation ? <IconBuilding size={22} /> : undefined}
+          onChange={(value) => updateFilter(setFilters, 'branchId', value)}
+          placeholder="Все филиалы"
+          searchable
+          className={desktopPresentation ? 'schedule-filter-select' : undefined}
+          value={filters.branchId}
+        />
+        <Select
+          clearable
+          data={filterOptions.halls}
+          label="Зал"
+          leftSection={desktopPresentation ? <IconDoor size={22} /> : undefined}
+          onChange={(value) => updateFilter(setFilters, 'hallId', value)}
+          placeholder="Все залы"
+          searchable
+          className={desktopPresentation ? 'schedule-filter-select' : undefined}
+          value={filters.hallId}
+        />
+        <Select
+          clearable
+          data={filterOptions.trainers}
+          label="Тренер"
+          leftSection={desktopPresentation ? <IconUser size={22} /> : undefined}
+          onChange={(value) => updateFilter(setFilters, 'trainerId', value)}
+          placeholder="Все тренеры"
+          searchable
+          className={desktopPresentation ? 'schedule-filter-select' : undefined}
+          value={filters.trainerId}
+        />
+        <Select
+          clearable
+          data={filterOptions.groups}
+          label="Группа"
+          leftSection={desktopPresentation ? <IconUsers size={22} /> : undefined}
+          onChange={(value) => updateFilter(setFilters, 'groupId', value)}
+          placeholder="Все группы"
+          searchable
+          className={desktopPresentation ? 'schedule-filter-select' : undefined}
+          value={filters.groupId}
+        />
+      </SimpleGrid>
+    </FilterToolbar>
   )
 }
 
@@ -494,38 +563,10 @@ function ScheduleTypeTokenList({
   )
 }
 
-function ScheduleHallLoadList({
-  items,
-}: {
-  items: ScheduleHallLoadItem[]
-}) {
-  if (items.length === 0) {
-    return (
-      <Text c="dimmed" size="sm">
-        Нет занятий
-      </Text>
-    )
-  }
-
-  return (
-    <Stack gap={5}>
-      {items.map((item) => (
-        <Group className="schedule-hall-load-item" gap="xs" key={item.key} wrap="nowrap">
-          <Text className="schedule-hall-load-item__label" fw={800} size="sm">
-            {item.label}
-          </Text>
-          <Text c="dimmed" size="sm">
-            {formatEntryCount(item.count)}
-          </Text>
-        </Group>
-      ))}
-    </Stack>
-  )
-}
-
 type ScheduleDesktopGridProps = {
   currentWeekday: WeekdayNumber
   dayCounts: Record<WeekdayNumber, number>
+  dayLabels: ScheduleWeekdayLabel[]
   days: ScheduleCalendarDay<TrainingGroupListItem>[]
   visibleHourRange: ScheduleVisibleHourRange
 }
@@ -533,12 +574,14 @@ type ScheduleDesktopGridProps = {
 function ScheduleDesktopGrid({
   currentWeekday,
   dayCounts,
+  dayLabels,
   days,
   visibleHourRange,
 }: ScheduleDesktopGridProps) {
-  const hourMarks = buildHourMarks(visibleHourRange)
+  const hourMarks = buildScheduleHourMarks(visibleHourRange)
   const gridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
-    SCHEDULE_HOUR_HEIGHT_PX
+    SCHEDULE_DESKTOP_HOUR_HEIGHT_PX
+  const labelByWeekday = buildDayLabelMap(dayLabels)
 
   return (
     <div className="schedule-weekly-grid" data-testid="schedule-calendar-grid">
@@ -548,9 +591,10 @@ function ScheduleDesktopGrid({
           <ScheduleDayHeader
             className="schedule-weekly-grid__day-header"
             count={dayCounts[day.weekday]}
+            dateLabel={labelByWeekday.get(day.weekday)?.dateLabel ?? ''}
             isCurrent={day.weekday === currentWeekday}
             key={day.weekday}
-            label={day.label}
+            label={labelByWeekday.get(day.weekday)?.label ?? day.label}
             testId={`schedule-day-header-${day.weekday}`}
             weekday={day.weekday}
           />
@@ -566,7 +610,7 @@ function ScheduleDesktopGrid({
             <div
               className="schedule-weekly-grid__time-slot"
               key={hour}
-              style={{ top: `${index * SCHEDULE_HOUR_HEIGHT_PX}px` }}
+              style={{ top: `${index * SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}px` }}
             >
               {formatHourMark(hour)}
             </div>
@@ -585,7 +629,7 @@ function ScheduleDesktopGrid({
               <div
                 className="schedule-weekly-grid__hour-line"
                 key={`${day.weekday}-${hour}`}
-                style={{ top: `${index * SCHEDULE_HOUR_HEIGHT_PX}px` }}
+                style={{ top: `${index * SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}px` }}
               />
             ))}
 
@@ -598,6 +642,7 @@ function ScheduleDesktopGrid({
             {day.entries.map((entry) => (
               <ScheduleCalendarCard
                 entry={entry}
+                hourHeight={SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}
                 key={entry.key}
                 mode="calendar"
                 visibleHourRange={visibleHourRange}
@@ -613,50 +658,106 @@ function ScheduleDesktopGrid({
 type ScheduleMobileListProps = {
   currentWeekday: WeekdayNumber
   dayCounts: Record<WeekdayNumber, number>
+  dayLabels: ScheduleWeekdayLabel[]
   days: ScheduleCalendarDay<TrainingGroupListItem>[]
   selectedWeekday: WeekdayNumber
   setSelectedWeekday: (weekday: WeekdayNumber) => void
+  visibleHourRange: ScheduleVisibleHourRange
 }
 
 function ScheduleMobileList({
   currentWeekday,
   dayCounts,
+  dayLabels,
   days,
   selectedWeekday,
   setSelectedWeekday,
+  visibleHourRange,
 }: ScheduleMobileListProps) {
   const selectedDay = days.find((day) => day.weekday === selectedWeekday) ?? days[0]
+  const hourMarks = buildScheduleHourMarks(visibleHourRange)
+  const gridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
+    SCHEDULE_MOBILE_HOUR_HEIGHT_PX
+  const selectWeekday = (weekday: WeekdayNumber) => setSelectedWeekday(weekday)
 
   return (
-    <Stack className="schedule-mobile-list" data-testid="schedule-mobile-day-list" gap="lg">
-      <SegmentedControl
+    <Stack className="schedule-mobile-list" data-testid="schedule-mobile-day-list" gap="md">
+      <div
         aria-label="День недели"
-        className="schedule-mobile-list__switcher"
-        data={WEEKDAY_OPTIONS}
-        fullWidth
-        onChange={(value) => setSelectedWeekday(Number(value) as WeekdayNumber)}
-        value={String(selectedDay.weekday)}
-      />
+        className="schedule-mobile-day-strip"
+        data-testid="schedule-mobile-day-strip"
+        role="tablist"
+      >
+        {dayLabels.map((day) => (
+          <button
+            aria-selected={day.weekday === selectedDay.weekday}
+            className="schedule-mobile-day-strip__button"
+            data-current={day.weekday === currentWeekday ? 'true' : undefined}
+            data-testid={`schedule-mobile-day-tab-${day.weekday}`}
+            key={day.weekday}
+            onClick={() => selectWeekday(day.weekday)}
+            onKeyDown={(event) => handleScheduleDayStripKeyDown(
+              event,
+              day.weekday,
+              selectWeekday,
+            )}
+            role="tab"
+            type="button"
+          >
+            <span className="schedule-mobile-day-strip__weekday">{day.label}</span>
+            <span className="schedule-mobile-day-strip__date">{day.dateLabel}</span>
+            <span
+              className="schedule-day-header__count"
+              data-testid={`schedule-day-count-${day.weekday}`}
+            >
+              {formatEntryCount(dayCounts[day.weekday])}
+            </span>
+          </button>
+        ))}
+      </div>
 
-      <ScheduleDayHeader
-        className="schedule-mobile-list__day-header"
-        count={dayCounts[selectedDay.weekday]}
-        isCurrent={selectedDay.weekday === currentWeekday}
-        label={selectedDay.label}
-        testId={`schedule-mobile-day-header-${selectedDay.weekday}`}
-        weekday={selectedDay.weekday}
-      />
-
-      <div data-testid={`schedule-mobile-day-${selectedDay.weekday}`}>
-        {selectedDay.entries.length === 0 ? (
-          <ScheduleDayEmpty />
-        ) : (
-          <Stack gap="sm">
-            {selectedDay.entries.map((entry) => (
-              <ScheduleCalendarCard entry={entry} key={entry.key} mode="list" />
+      <div
+        className="schedule-mobile-time-grid"
+        data-testid={`schedule-mobile-day-${selectedDay.weekday}`}
+        style={{ '--schedule-grid-height': `${gridHeight}px` } as CSSProperties}
+      >
+        <div className="schedule-mobile-time-grid__body">
+          <div className="schedule-mobile-time-grid__time-axis">
+            {hourMarks.map((hour, index) => (
+              <div
+                className="schedule-mobile-time-grid__time-slot"
+                key={hour}
+                style={{ top: `${index * SCHEDULE_MOBILE_HOUR_HEIGHT_PX}px` }}
+              >
+                {formatHourMark(hour)}
+              </div>
             ))}
-          </Stack>
-        )}
+          </div>
+
+          <div className="schedule-mobile-time-grid__events">
+            {hourMarks.slice(0, -1).map((hour, index) => (
+              <div
+                className="schedule-mobile-time-grid__hour-line"
+                key={`${selectedDay.weekday}-${hour}`}
+                style={{ top: `${index * SCHEDULE_MOBILE_HOUR_HEIGHT_PX}px` }}
+              />
+            ))}
+
+            {selectedDay.entries.length === 0 ? (
+              <ScheduleDayEmpty />
+            ) : null}
+
+            {selectedDay.entries.map((entry) => (
+              <ScheduleCalendarCard
+                entry={entry}
+                hourHeight={SCHEDULE_MOBILE_HOUR_HEIGHT_PX}
+                key={entry.key}
+                mode="mobile-grid"
+                visibleHourRange={visibleHourRange}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </Stack>
   )
@@ -665,6 +766,7 @@ function ScheduleMobileList({
 type ScheduleDayHeaderProps = {
   className?: string
   count: number
+  dateLabel: string
   isCurrent: boolean
   label: string
   testId: string
@@ -674,6 +776,7 @@ type ScheduleDayHeaderProps = {
 function ScheduleDayHeader({
   className,
   count,
+  dateLabel,
   isCurrent,
   label,
   testId,
@@ -681,39 +784,37 @@ function ScheduleDayHeader({
 }: ScheduleDayHeaderProps) {
   return (
     <div
-      aria-label={`${label}: ${formatEntryCount(count)}${isCurrent ? ', текущий день недели' : ''}`}
+      aria-label={`${label} ${dateLabel}: ${formatEntryCount(count)}${isCurrent ? ', текущий день недели' : ''}`}
       className={['schedule-day-header', className].filter(Boolean).join(' ')}
       data-current={isCurrent ? 'true' : undefined}
       data-testid={testId}
     >
-      <Group gap="xs" justify="space-between" wrap="nowrap">
-        <Group gap={7} wrap="nowrap">
-          {isCurrent ? <span aria-hidden="true" className="schedule-day-header__dot" /> : null}
-          <Text fw={800} size="sm">
-            {label}
-          </Text>
-        </Group>
-        <Badge
-          data-testid={`schedule-day-count-${weekday}`}
-          radius="xl"
-          size="sm"
-          variant="light"
-        >
-          {formatEntryCount(count)}
-        </Badge>
-      </Group>
+      <Text className="schedule-day-header__weekday" fw={900}>
+        {label}
+      </Text>
+      <Text className="schedule-day-header__date" fw={800}>
+        {dateLabel}
+      </Text>
+      <span
+        className="schedule-day-header__count"
+        data-testid={`schedule-day-count-${weekday}`}
+      >
+        {formatEntryCount(count)}
+      </span>
     </div>
   )
 }
 
 type ScheduleCalendarCardProps = {
   entry: ScheduleCalendarEntry<TrainingGroupListItem>
-  mode: 'calendar' | 'list'
+  hourHeight: number
+  mode: 'calendar' | 'mobile-grid'
   visibleHourRange?: ScheduleVisibleHourRange
 }
 
 function ScheduleCalendarCard({
   entry,
+  hourHeight,
   mode,
   visibleHourRange,
 }: ScheduleCalendarCardProps) {
@@ -724,8 +825,8 @@ function ScheduleCalendarCard({
     ? timeRange.split(' - ')[0]
     : timeRange
   const style = {
-    ...(mode === 'calendar' && visibleHourRange
-      ? buildCalendarEntryStyle(entry, visibleHourRange)
+    ...(visibleHourRange
+      ? buildCalendarEntryStyle(entry, visibleHourRange, hourHeight)
       : {}),
     ...buildScheduleTypeStyle(typePalette),
   } satisfies ScheduleEventCardStyle
@@ -736,14 +837,14 @@ function ScheduleCalendarCard({
         'schedule-event-card',
         mode === 'calendar'
           ? 'schedule-event-card--calendar'
-          : 'schedule-event-card--list',
+          : 'schedule-event-card--mobile-grid',
       ].join(' ')}
       data-compact={mode === 'calendar' && entry.laneCount > 1 ? 'true' : undefined}
       data-schedule-type={getScheduleTypeKey(group)}
       data-testid={`schedule-card-${entry.weekday}-${group.id}`}
       style={style}
     >
-      <Stack gap="xs">
+      <Stack gap={mode === 'mobile-grid' ? 'xs' : 4}>
         <Group align="flex-start" justify="space-between" wrap="nowrap">
           <Stack className="schedule-event-card__copy" gap={3}>
             <Text className="schedule-event-card__time" fw={800}>
@@ -769,15 +870,14 @@ function ScheduleCalendarCard({
         <Group className="schedule-event-card__meta" gap="xs" wrap="nowrap">
           <IconMapPin size={14} />
           <Text size="xs">
-            {group.hallName}
+            {group.hallName} · {formatTrainerNamesInline(group)}
           </Text>
         </Group>
 
-        <Group className="schedule-event-card__meta" gap="xs" wrap="nowrap">
+        <Group className="schedule-event-card__meta schedule-event-card__participants" gap="xs" wrap="nowrap">
           <IconUsers size={14} />
           <Text className="schedule-event-card__trainers" size="xs" title={formatTrainerNames(group)}>
             {formatScheduleClientCount(group.clientCount)}
-            {mode === 'list' ? ` · ${formatTrainerNames(group)}` : ''}
           </Text>
         </Group>
       </Stack>
@@ -867,15 +967,6 @@ function areScheduleFiltersEqual(
   )
 }
 
-function buildHourMarks(visibleHourRange: ScheduleVisibleHourRange) {
-  const totalHours = visibleHourRange.endHour - visibleHourRange.startHour
-
-  return Array.from(
-    { length: totalHours + 1 },
-    (_, index) => visibleHourRange.startHour + index,
-  )
-}
-
 function formatHourMark(hour: number) {
   return `${String(hour).padStart(2, '0')}:00`
 }
@@ -903,34 +994,50 @@ function buildScheduleTypeStyle(palette: ScheduleTypePalette): ScheduleEventCard
 function buildCalendarEntryStyle(
   entry: ScheduleCalendarEntry<TrainingGroupListItem>,
   visibleHourRange: ScheduleVisibleHourRange,
+  hourHeight: number,
 ) {
-  const top = ((entry.startMinutes - (visibleHourRange.startHour * 60)) / 60) *
-    SCHEDULE_HOUR_HEIGHT_PX
-  const height = ((entry.endMinutes - entry.startMinutes) / 60) * SCHEDULE_HOUR_HEIGHT_PX
-
-  if (entry.laneCount > 1) {
-    const leftOffset = entry.lane * SCHEDULE_LANE_GAP_PX
-    const topOffset = entry.lane * 52
-
-    return {
-      top: `${top + topOffset}px`,
-      height: `${Math.max(48, Math.min(height, 52))}px`,
-      left: `${leftOffset}px`,
-      width: `calc(100% - ${leftOffset}px)`,
-      zIndex: entry.lane + 1,
-    } satisfies CSSProperties
-  }
-
-  const widthPercent = 100 / entry.laneCount
-  const widthGapOffset = ((entry.laneCount - 1) * SCHEDULE_LANE_GAP_PX) / entry.laneCount
-  const leftGapOffset = (entry.lane * SCHEDULE_LANE_GAP_PX) / entry.laneCount
+  const metrics = getScheduleEntryGridMetrics(entry, visibleHourRange)
+  const totalGridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
+    hourHeight
+  const top = (metrics.topPercent / 100) * totalGridHeight
+  const height = (metrics.heightPercent / 100) * totalGridHeight
+  const laneCount = Math.max(1, entry.laneCount)
+  const widthGapOffset = ((laneCount - 1) * SCHEDULE_LANE_GAP_PX) / laneCount
+  const leftGapOffset = (entry.lane * SCHEDULE_LANE_GAP_PX) / laneCount
 
   return {
     top: `${top}px`,
-    height: `${height}px`,
-    left: `calc(${entry.lane * widthPercent}% + ${leftGapOffset}px)`,
-    width: `calc(${widthPercent}% - ${widthGapOffset}px)`,
+    height: `${Math.max(54, height)}px`,
+    left: `calc(${metrics.laneLeftPercent}% + ${leftGapOffset}px)`,
+    width: `calc(${metrics.laneWidthPercent}% - ${widthGapOffset}px)`,
+    zIndex: entry.lane + 1,
   } satisfies CSSProperties
+}
+
+function buildDayLabelMap(dayLabels: ScheduleWeekdayLabel[]) {
+  return new Map(dayLabels.map((day) => [day.weekday, day]))
+}
+
+function handleScheduleDayStripKeyDown(
+  event: KeyboardEvent<HTMLButtonElement>,
+  weekday: WeekdayNumber,
+  selectWeekday: (weekday: WeekdayNumber) => void,
+) {
+  if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
+    return
+  }
+
+  event.preventDefault()
+
+  const direction = event.key === 'ArrowRight' ? 1 : -1
+  const nextIndex = (WEEKDAY_INDEX_BY_NUMBER[weekday] + direction + 7) % 7
+  const nextWeekday = WEEKDAY_BY_INDEX[nextIndex] ?? weekday
+
+  selectWeekday(nextWeekday)
+}
+
+function countActiveScheduleFilters(filters: ScheduleFilters) {
+  return Object.values(filters).filter(Boolean).length
 }
 
 function formatClockTime(date: Date) {
@@ -988,4 +1095,16 @@ function formatTrainerNames(group: TrainingGroupListItem) {
   }
 
   return 'Тренеры пока не назначены'
+}
+
+function formatTrainerNamesInline(group: TrainingGroupListItem) {
+  if (group.trainerNames.length > 0) {
+    return group.trainerNames.join(', ')
+  }
+
+  if (group.trainers.length > 0) {
+    return group.trainers.map((trainer) => trainer.fullName).join(', ')
+  }
+
+  return 'тренер не назначен'
 }
