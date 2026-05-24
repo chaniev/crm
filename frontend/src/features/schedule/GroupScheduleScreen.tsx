@@ -106,7 +106,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   const [filters, setFilters] = useState<ScheduleFilters>(EMPTY_SCHEDULE_FILTERS)
   const [filtersExpanded, setFiltersExpanded] = useState(false)
   const [now, setNow] = useState(() => new Date())
-  const [lastLoadedAt, setLastLoadedAt] = useState<Date | null>(null)
   const [selectedWeekday, setSelectedWeekday] = useState<WeekdayNumber>(() =>
     getCurrentScheduleWeekday(),
   )
@@ -131,7 +130,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
         const response = await getAllScheduleGroups(controller.signal)
 
         setGroups(response.items)
-        setLastLoadedAt(new Date())
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
@@ -221,24 +219,31 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
       data-testid="schedule-screen"
       gap="var(--page-section-gap)"
     >
-      <div className="schedule-screen__status-row">
-        <ScheduleRefreshPanel
-          lastLoadedAt={lastLoadedAt}
-          loading={loading || refreshing}
-          onRefresh={requestReload}
-        />
-      </div>
-
       <div className="schedule-screen__filter-row" data-testid="schedule-filters">
         <h1 className="schedule-screen__title">Расписание</h1>
-        {isMobile ? (
-          <ScheduleFilterActions
-            activeFilterCount={activeFilterCount}
-            filterPanelId={filterPanelId}
-            filtersExpanded={filtersExpanded}
-            onToggleFilters={() => setFiltersExpanded((isExpanded) => !isExpanded)}
+        <Group
+          className="schedule-screen__header-actions"
+          gap="sm"
+          justify="flex-end"
+          wrap="nowrap"
+        >
+          <IconButton
+            className="schedule-refresh-button"
+            disabled={loading || refreshing}
+            icon={<IconRefresh size={18} />}
+            label="Обновить"
+            onClick={requestReload}
+            size={42}
           />
-        ) : null}
+          {isMobile ? (
+            <ScheduleFilterActions
+              activeFilterCount={activeFilterCount}
+              filterPanelId={filterPanelId}
+              filtersExpanded={filtersExpanded}
+              onToggleFilters={() => setFiltersExpanded((isExpanded) => !isExpanded)}
+            />
+          ) : null}
+        </Group>
       </div>
 
       {!isMobile || filtersExpanded ? (
@@ -334,49 +339,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
         </PageSection>
       ) : null}
     </Stack>
-  )
-}
-
-type ScheduleRefreshPanelProps = {
-  lastLoadedAt: Date | null
-  loading: boolean
-  onRefresh: () => void
-}
-
-function ScheduleRefreshPanel({
-  lastLoadedAt,
-  loading,
-  onRefresh,
-}: ScheduleRefreshPanelProps) {
-  return (
-    <Group
-      className="schedule-refresh-panel"
-      gap="sm"
-      justify="flex-end"
-      wrap="wrap"
-    >
-      <Group
-        className="status-pill schedule-refresh-status"
-        data-testid="schedule-auto-refresh-status"
-        gap={7}
-        wrap="nowrap"
-      >
-        <span aria-hidden="true" className="status-pill__dot" />
-        <Text fw={800} size="sm">
-          {lastLoadedAt
-            ? `Обновлено автоматически ${formatClockTime(lastLoadedAt)}`
-            : 'Обновляется автоматически'}
-        </Text>
-      </Group>
-
-      <IconButton
-        icon={<IconRefresh size={18} />}
-        label="Обновить"
-        disabled={loading}
-        onClick={onRefresh}
-        size={42}
-      />
-    </Group>
   )
 }
 
@@ -1038,10 +1000,6 @@ function handleScheduleDayStripKeyDown(
 
 function countActiveScheduleFilters(filters: ScheduleFilters) {
   return Object.values(filters).filter(Boolean).length
-}
-
-function formatClockTime(date: Date) {
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
 function formatEntryCount(count: number) {
