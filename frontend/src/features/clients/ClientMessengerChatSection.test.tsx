@@ -24,6 +24,7 @@ vi.mock('../../lib/api', async (importOriginal) => {
 
 const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
 const originalExecCommand = Object.getOwnPropertyDescriptor(document, 'execCommand')
+const originalShare = Object.getOwnPropertyDescriptor(navigator, 'share')
 
 const createLinkTokenMock = vi.mocked(createClientMessengerTelegramLinkToken)
 const getMessagesMock = vi.mocked(getClientMessengerMessages)
@@ -39,8 +40,10 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  vi.restoreAllMocks()
   restoreProperty(navigator, 'clipboard', originalClipboard)
   restoreProperty(document, 'execCommand', originalExecCommand)
+  restoreProperty(navigator, 'share', originalShare)
 })
 
 describe('ClientMessengerChatSection', () => {
@@ -58,10 +61,7 @@ describe('ClientMessengerChatSection', () => {
 
     renderWithProviders(<ClientMessengerChatSection clientId="client-1" />)
 
-    const linkButtons = await screen.findAllByRole('button', {
-      name: 'Ссылка и QR',
-    })
-    fireEvent.click(linkButtons[0])
+    await openLinkModal()
 
     const copyButton = await screen.findByRole('button', {
       name: 'Скопировать ссылку',
@@ -72,7 +72,79 @@ describe('ClientMessengerChatSection', () => {
     expect(createLinkTokenMock).toHaveBeenCalledWith('client-1')
     expect(copyButton).toHaveTextContent('Скопировано')
   })
+
+  test('opens Telegram share dialog with the generated deep link', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+
+    renderWithProviders(<ClientMessengerChatSection clientId="client-1" />)
+
+    await openLinkModal()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Отправить в Telegram' }))
+
+    expect(open).toHaveBeenCalledWith(
+      expect.stringContaining('https://t.me/share/url?'),
+      '_blank',
+      'noopener,noreferrer',
+    )
+
+    const shareUrl = new URL(String(open.mock.calls[0]?.[0]))
+    expect(`${shareUrl.origin}${shareUrl.pathname}`).toBe('https://t.me/share/url')
+    expect(shareUrl.searchParams.get('url')).toBe(
+      'https://t.me/k4pro_admin?start=client-token',
+    )
+    expect(shareUrl.searchParams.get('text')).toContain('Telegram-чат')
+  })
+
+  test('opens the generated deep link directly', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+
+    renderWithProviders(<ClientMessengerChatSection clientId="client-1" />)
+
+    await openLinkModal()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Открыть Telegram' }))
+
+    expect(open).toHaveBeenCalledWith(
+      'https://t.me/k4pro_admin?start=client-token',
+      '_blank',
+      'noopener,noreferrer',
+    )
+  })
+
+  test('uses native share when the browser supports it', async () => {
+    const share = vi.fn().mockResolvedValue(undefined)
+
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: share,
+    })
+
+    renderWithProviders(<ClientMessengerChatSection clientId="client-1" />)
+
+    await openLinkModal()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Поделиться' }))
+
+    await waitFor(() =>
+      expect(share).toHaveBeenCalledWith({
+        title: 'Подключение Telegram',
+        text: expect.stringContaining('Telegram-чат'),
+        url: 'https://t.me/k4pro_admin?start=client-token',
+      }),
+    )
+  })
 })
+
+async function openLinkModal() {
+  const linkButtons = await screen.findAllByRole('button', {
+    name: 'Ссылка и QR',
+  })
+
+  fireEvent.click(linkButtons[0])
+
+  return screen.findByText('https://t.me/k4pro_admin?start=client-token')
+}
 
 function buildSummary(
   overrides: Partial<ClientMessengerSummary> = {},
