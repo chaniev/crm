@@ -65,7 +65,6 @@ import {
   FilterToolbar,
   LoadingState,
   IconButton,
-  PageLayout,
   PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
@@ -214,22 +213,29 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   }
 
   return (
-    <PageLayout
-      actions={(
-        <ScheduleHeaderActions
+    <Stack
+      className="page-layout schedule-screen"
+      data-testid="schedule-screen"
+      gap="var(--page-section-gap)"
+    >
+      <div className="schedule-screen__status-row">
+        <ScheduleRefreshPanel
+          lastLoadedAt={lastLoadedAt}
+          loading={loading || refreshing}
+          onRefresh={requestReload}
+        />
+      </div>
+
+      <div className="schedule-screen__filter-row" data-testid="schedule-filters">
+        <h1 className="schedule-screen__title">Расписание</h1>
+        <ScheduleFilterActions
           activeFilterCount={activeFilterCount}
           filterPanelId={filterPanelId}
           filtersExpanded={filtersExpanded}
-          lastLoadedAt={lastLoadedAt}
-          loading={loading || refreshing}
           onToggleFilters={() => setFiltersExpanded((isExpanded) => !isExpanded)}
-          onRefresh={requestReload}
         />
-      )}
-      className="schedule-screen"
-      data-testid="schedule-screen"
-      title="Расписание"
-    >
+      </div>
+
       {filtersExpanded ? (
         <PageSection
           className="schedule-filters-panel"
@@ -321,33 +327,24 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
           )}
         </PageSection>
       ) : null}
-    </PageLayout>
+    </Stack>
   )
 }
 
-type ScheduleHeaderActionsProps = {
-  activeFilterCount: number
-  filterPanelId: string
-  filtersExpanded: boolean
+type ScheduleRefreshPanelProps = {
   lastLoadedAt: Date | null
   loading: boolean
-  onToggleFilters: () => void
   onRefresh: () => void
 }
 
-function ScheduleHeaderActions({
-  activeFilterCount,
-  filterPanelId,
-  filtersExpanded,
+function ScheduleRefreshPanel({
   lastLoadedAt,
   loading,
-  onToggleFilters,
   onRefresh,
-}: ScheduleHeaderActionsProps) {
+}: ScheduleRefreshPanelProps) {
   return (
     <Group
-      className="schedule-header-actions"
-      data-testid="schedule-filters"
+      className="schedule-refresh-panel"
       gap="sm"
       justify="flex-end"
       wrap="wrap"
@@ -373,7 +370,30 @@ function ScheduleHeaderActions({
         onClick={onRefresh}
         size={42}
       />
+    </Group>
+  )
+}
 
+type ScheduleFilterActionsProps = {
+  activeFilterCount: number
+  filterPanelId: string
+  filtersExpanded: boolean
+  onToggleFilters: () => void
+}
+
+function ScheduleFilterActions({
+  activeFilterCount,
+  filterPanelId,
+  filtersExpanded,
+  onToggleFilters,
+}: ScheduleFilterActionsProps) {
+  return (
+    <Group
+      className="schedule-header-actions"
+      gap="sm"
+      justify="flex-end"
+      wrap="nowrap"
+    >
       <Button
         aria-controls={filterPanelId}
         aria-expanded={filtersExpanded}

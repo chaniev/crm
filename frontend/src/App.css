@@ -927,6 +927,31 @@
   overflow-x: clip;
 }
 
+.schedule-screen__status-row {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.schedule-screen__filter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.schedule-screen__title {
+  margin: 0;
+  min-width: 0;
+  color: var(--mantine-color-dark-9);
+  font-size: clamp(1.55rem, 2.4vw, 2rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.schedule-refresh-panel,
 .schedule-header-actions {
   min-width: 0;
 }
@@ -936,6 +961,7 @@
   white-space: nowrap;
 }
 
+.schedule-refresh-panel .shared-icon-button,
 .schedule-header-actions .shared-icon-button,
 .schedule-filter-toggle {
   flex: 0 0 auto;
@@ -972,7 +998,10 @@
 
 .schedule-board {
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.94);
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
 }
 
 .schedule-board__viewport {
@@ -1205,7 +1234,7 @@
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
   text-align: right;
-  transform: translateY(-0.55em);
+  transform: translateY(0.05rem);
 }
 
 .schedule-mobile-time-grid__hour-line {
@@ -1231,7 +1260,7 @@
   border: 1px solid var(--schedule-type-border, rgba(20, 90, 82, 0.12));
   border-radius: 0.5rem;
   background:
-    linear-gradient(135deg, var(--schedule-type-bg, rgba(239, 245, 242, 0.88)), rgba(255, 255, 255, 0.86));
+    linear-gradient(135deg, var(--schedule-type-bg, rgba(239, 245, 242, 0.9)), rgba(255, 255, 255, 0.78));
   box-shadow: 0 7px 16px rgba(23, 49, 45, 0.055);
 }
 
@@ -1384,7 +1413,7 @@
 
 @media (max-width: 90em) {
   .schedule-board {
-    padding: 1.15rem;
+    padding: 0;
   }
 }
 
@@ -1398,7 +1427,7 @@
   }
 
   .schedule-board {
-    padding: 1rem;
+    padding: 0;
   }
 
   .schedule-weekly-grid__header,
@@ -1437,6 +1466,36 @@
     max-width: 100%;
   }
 
+  .schedule-screen__status-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.625rem;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .schedule-refresh-panel {
+    display: contents;
+  }
+
+  .schedule-screen__filter-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 8.25rem 2.625rem;
+    gap: 0.65rem 0.5rem;
+    align-items: center;
+  }
+
+  .schedule-screen__title {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 1.58rem;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+
+  .schedule-screen .schedule-header-actions {
+    display: contents;
+  }
+
   .filter-toolbar__actions,
   .filter-toolbar__actions .mantine-Group-root,
   .filter-toolbar__actions .mantine-Button-root {
@@ -1448,18 +1507,23 @@
     border-radius: 0.75rem;
   }
 
-  .schedule-header-actions {
-    width: 100%;
-    justify-content: flex-start;
+  .schedule-refresh-panel .schedule-refresh-status {
+    grid-column: 1;
+    width: auto;
+    min-width: 0;
   }
 
-  .schedule-header-actions .schedule-refresh-status {
-    width: auto;
-    flex: 1 1 12.5rem;
+  .schedule-refresh-panel > .shared-icon-button[aria-label='Обновить'] {
+    grid-column: 2;
   }
 
   .schedule-filter-toggle {
-    flex: 1 1 9.5rem;
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    min-height: 3.55rem;
+    justify-content: center;
+    padding-inline: 0.65rem;
   }
 
   .compact-summary-strip {
@@ -1475,11 +1539,19 @@
   }
 
   .schedule-board {
-    padding: 0.85rem;
+    padding: 0;
   }
 
   .schedule-mobile-time-grid__body {
     grid-template-columns: 4.25rem minmax(0, 1fr);
+  }
+
+  .schedule-filter-settings-button {
+    grid-column: 3;
+    grid-row: 1;
+    width: 2.625rem;
+    height: 3.55rem;
+    border-radius: 0.75rem;
   }
 
   .schedule-event-card--mobile-grid {

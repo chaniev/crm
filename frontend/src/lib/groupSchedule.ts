@@ -125,21 +125,21 @@ export const EMPTY_SCHEDULE_FILTERS: ScheduleFilters = {
 export const SCHEDULE_TYPE_PALETTE = [
   {
     name: 'emerald',
-    color: '#2f8f6b',
-    background: 'rgba(47, 143, 107, 0.11)',
-    border: 'rgba(47, 143, 107, 0.34)',
+    color: '#069760',
+    background: 'rgba(6, 151, 96, 0.12)',
+    border: 'rgba(6, 151, 96, 0.24)',
   },
   {
     name: 'amber',
-    color: '#d89a3d',
-    background: 'rgba(216, 154, 61, 0.13)',
-    border: 'rgba(216, 154, 61, 0.36)',
+    color: '#ea580c',
+    background: 'rgba(234, 88, 12, 0.1)',
+    border: 'rgba(234, 88, 12, 0.24)',
   },
   {
     name: 'blue',
-    color: '#4f7fd4',
-    background: 'rgba(79, 127, 212, 0.12)',
-    border: 'rgba(79, 127, 212, 0.34)',
+    color: '#2563eb',
+    background: 'rgba(37, 99, 235, 0.1)',
+    border: 'rgba(37, 99, 235, 0.24)',
   },
   {
     name: 'violet',
