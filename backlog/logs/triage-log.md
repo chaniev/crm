@@ -622,3 +622,24 @@
 - needs-clarification: 0
 - updated existing: 1
 - processed files: 1
+
+# 2026-05-24 12:23
+
+## Processed inbox files
+- 2026-05-24.md
+
+## Created tasks
+- /backlog/tasks-ready/TASK-055-schedule-screen-mockups.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Related completed schedule tasks found: `/backlog/done/TASK-043-schedule-calendar-like-view.md` and `/backlog/done/TASK-045-schedule-mockup-polish.md`. Not treated as duplicates because the new inbox note points to fresh mockups in `docs/mockups/расписание`.
+
+## Summary
+- tasks-ready: 1
+- risky: 0
+- needs-clarification: 0
+- updated existing: 0
+- processed files: 1
