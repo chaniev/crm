@@ -13,7 +13,7 @@ Branch rules:
 - required preflight: `git checkout main`, `git pull`, `git status --short --branch`, `git checkout -b feature/TASK-056-filter-panel-requirements`.
 
 ## Goal
-Все экраны CRM с фильтрами должны получить компактную единую панель фильтров вверху области основного контента: одна строка на desktop/tablet, secondary-фильтры в `Ещё фильтры`, при нехватке ширины фильтры уходят в `Ещё фильтры` справа налево, на mobile все фильтры открываются только в fullscreen bottom sheet без inline filter controls, автоматическое применение без submit/reload. Панель без заголовка секции, без card wrapper, без shadow, без nested cards, высота на desktop/tablet <=64 px.
+Все экраны CRM с фильтрами должны получить компактную единую панель фильтров непосредственно над таблицей, доской, календарной доской или ростером основного контента: одна строка на desktop/tablet, secondary-фильтры в `Ещё фильтры`, при нехватке ширины фильтры уходят в `Ещё фильтры` справа налево только на экранах с secondary-фильтрами, на mobile все фильтры открываются только в fullscreen bottom sheet без inline filter controls, автоматическое применение без submit/reload. Панель без заголовка секции, без card wrapper, без shadow, без nested cards, высота на desktop/tablet <=64 px.
 
 ## Current understanding
 Требование frontend-only. Backend contracts, роли, permissions, validation semantics и CRM-домен не меняются.
@@ -47,7 +47,11 @@ Screens explicitly excluded because they do not have a filter area:
 ## Current filters and priority
 Primary/secondary filter assignments are fixed by this section. Do not choose or re-rank primary filters during implementation.
 
-If the desktop/tablet primary row does not fit, move controls to `Ещё фильтры` from right to left, starting with the rightmost filter in the current row order. On mobile, all filters for the screen are available only inside the fullscreen bottom sheet.
+Desktop/tablet fit is determined from the real rendered width of the full panel after layout, including primary controls, the `Ещё фильтры` action when present, `Сбросить`, gaps and paddings. On screens with secondary filters, if the primary row does not fit, move primary controls to `Ещё фильтры` from right to left, starting with the rightmost filter in the current row order. Inside `Ещё фильтры`, overflowed primary filters must render before fixed secondary filters. On screens where `Secondary filters: none`, do not render `Ещё фильтры`; the implementation must keep the primary row fitting through compact widths, ellipsis and responsive constraints.
+
+Desktop/tablet right action order is fixed: `Ещё фильтры` first when it exists, then `Сбросить`. Do not render a visible active-count area or badge for the number of set filters.
+
+Mobile behavior is fixed: render only a compact filter launcher above the table/board/roster, with no inline filter controls, no inline reset control and no active-count area. The launcher opens a Mantine fullscreen bottom `Drawer`/sheet (`position="bottom"` with fullscreen sizing) that contains all filters for the screen, a close icon in the header and `Сбросить` inside the sheet. Filter changes still auto-apply; there is no submit/apply button.
 
 ### `/audit`
 Current filters:
@@ -80,15 +84,14 @@ Current filters:
 - `trainerId` Тренер
 
 Primary filters:
-- `periodPreset` Месяц/Квартал/Год
+- `periodPreset` Быстрый период: Месяц/Квартал/Год/Период
 - `branchId` Филиал
 - `trainerId` Тренер
 
 Secondary filters:
-- custom period mode `Период`
 - `anchorDate` Дата в периоде
-- `from` С
-- `to` По
+- `from` С, shown/enabled for quick period `Период`
+- `to` По, shown/enabled for quick period `Период`
 
 ### `/clients`
 Current filters:
@@ -106,19 +109,19 @@ Current filters:
 - `pageSize` Размер страницы
 
 Primary filters:
+- `query` Поиск
 - `groupId` Группа
 - `paymentStatus` Оплата
 - `membershipExpiresFrom` Истекает с
 - `withoutMembership` Без абонемента
-
-Secondary filters:
-- `query` Поиск
-- `status` Статус
-- `membershipExpiresTo` Истекает по
-- `withoutPhoto` Без фото
 - `expiringSoon` Скоро закончится
 - `withoutGroup` Без группы
 - `trial` Пробные
+
+Secondary filters:
+- `status` Статус
+- `membershipExpiresTo` Истекает по
+- `withoutPhoto` Без фото
 - `pageSize` Размер страницы
 
 ### `/schedule`
@@ -157,12 +160,14 @@ Secondary filters:
 
 2. Create the shared compact filter API
    - Replace or extend `FilterToolbar` with a reusable compact filter panel in `frontend/src/features/shared/ux.tsx` or a focused sibling module under `frontend/src/features/shared/`.
-   - Support primary controls, secondary controls, right-side `Сбросить`, `Ещё фильтры`, active count, accessible labels and controlled open state when needed.
-   - `Сбросить` always resets all filters on the screen to their default state.
+   - Support primary controls, secondary controls, right-side actions in the fixed order `Ещё фильтры` then `Сбросить`, accessible labels and controlled open state when needed.
+   - Do not render an active-count area/badge for the number of set filters.
+   - `Сбросить` always clears all filters on the screen on every migrated route, rather than restoring previously selected defaults.
    - Render desktop/tablet secondary filters through Mantine `Popover`/dropdown with 320 px target width, acceptable test range 300-340 px, and max 480 px height.
-   - Render mobile filters through fullscreen bottom sheet, preferably Mantine `Drawer` configured as a bottom/fullscreen sheet; no filter controls should remain inline on the mobile page, only the launcher/action to open the sheet.
+   - Render mobile filters through a fullscreen bottom sheet using Mantine `Drawer` configured as bottom/fullscreen; no filter controls, reset control or active-count area should remain inline on the mobile page, only the launcher/action to open the sheet.
    - Keep a single-row desktop/tablet layout with CSS grid/flex constraints, no wrap, text ellipsis and stable 36 px controls.
-   - If the desktop/tablet primary row does not fit, move controls to `Ещё фильтры` from right to left.
+   - If the desktop/tablet primary row does not fit on screens with secondary filters, move controls to `Ещё фильтры` from right to left, based on real rendered width after including actions and gaps.
+   - Do not render `Ещё фильтры` on screens whose fixed secondary filter list is empty.
 
 3. Migrate `/audit`
    - Use the fixed primary/secondary filters from `Current filters and priority`.
@@ -171,7 +176,7 @@ Secondary filters:
    - Keep existing ProblemDetails/error display behavior.
 
 4. Migrate `/finance`
-   - Convert period selection to a compact one-row control.
+   - Convert period selection to the same shared compact control pattern used by other screens; `periodPreset` is a primary quick-period filter with Месяц/Квартал/Год/Период options, not a large bespoke period grid.
    - Use the fixed primary/secondary filters from `Current filters and priority`.
    - Remove `Показать`; apply select/date/period changes immediately and preserve backend field-error display.
    - Do not change report API params or financial semantics.
@@ -181,7 +186,8 @@ Secondary filters:
    - Use the fixed primary/secondary filters from `Current filters and priority`.
    - Search/query changes apply after a debounce <=300 ms; select/switch/date/button changes apply immediately.
    - Replace the current right Drawer on desktop/tablet with the shared popover and use fullscreen bottom sheet on mobile.
-   - Remove/merge `ClientsQuickFilters` if it becomes a second filter level.
+   - Move `query` into the primary filter set.
+   - Merge all existing quick filters from `ClientsQuickFilters` into the primary filter set; do not keep them as a separate second filter level.
 
 6. Migrate `/schedule`
    - Keep existing local schedule filtering only; do not change schedule API or calendar grouping rules.
@@ -247,9 +253,11 @@ If the shared component is split out, add a focused file such as:
 - Do not add saved filter behavior, saved filter templates, or a saved-filter panel.
 - Desktop/tablet filter panels must not wrap to a second row.
 - Filter panel must have no section header, no card wrapper, no shadow, no nested cards, and desktop/tablet height <=64 px.
-- If the desktop/tablet primary row does not fit, controls move to `Ещё фильтры` from right to left.
-- On mobile, all filters must be inside the fullscreen bottom sheet; no filter controls remain inline on the page.
-- `Сбросить` resets all filters on the screen to their default state.
+- On screens with secondary filters, if the desktop/tablet primary row does not fit by real rendered width, controls move to `Ещё фильтры` from right to left and render before secondary filters inside the popover.
+- On screens with `Secondary filters: none`, do not render the `Ещё фильтры` button.
+- Desktop/tablet right action order is `Ещё фильтры`, then `Сбросить`; no active-count area/badge is rendered.
+- On mobile, all filters must be inside the fullscreen bottom sheet; no filter controls, reset control or active-count area remain inline on the page.
+- `Сбросить` clears all filters on the screen.
 - Text inside controls must use nowrap, overflow hidden and ellipsis.
 - No service text like `Фильтры применяются автоматически`.
 
@@ -264,9 +272,10 @@ If the shared component is split out, add a focused file such as:
 
 ### Unit tests
 Add/update tests for the shared filter panel:
-- renders primary controls, secondary trigger and actions accessibly;
-- hides secondary content by default and opens it through `Ещё фильтры`;
-- exposes reset labels/accessibility and verifies reset triggers an all-filters reset callback;
+- renders primary controls, secondary trigger when applicable and actions accessibly;
+- hides secondary/overflow content by default and opens it through `Ещё фильтры`;
+- does not render `Ещё фильтры` when fixed secondary filters are empty and no overflow popover is allowed for that screen;
+- exposes reset labels/accessibility and verifies reset triggers an all-filters clear callback;
 - respects mobile/desktop branching if the component has behavior beyond CSS.
 
 Update screen-level tests only where local filtering helpers change.
@@ -285,10 +294,11 @@ Frontend integration/e2e network assertions are required for:
 Add or update Playwright coverage for:
 - required routes: `/audit`, `/finance`, `/clients`, `/schedule`, `/attendance`;
 - required viewports for each route: desktop 1440 px, tablet 768 px, mobile 390 px;
-- desktop >=1280 px: each filter panel height <=64 px, one row, max five primary filters, `Сбросить` right aligned, no horizontal page scroll;
-- tablet 768-1279 px: no wrapping; secondary controls are reachable through `Ещё фильтры`;
+- desktop >=1280 px: each filter panel height <=64 px, one row, max five visible primary controls before overflow, `Сбросить` after `Ещё фильтры` when both exist, no horizontal page scroll;
+- tablet 768-1279 px: no wrapping; secondary controls and overflowed primary controls are reachable through `Ещё фильтры` only on screens with secondary filters;
 - desktop/tablet: no section header, no card wrapper, no shadow, no nested cards in filter panels;
-- mobile <=767 px: no inline filter controls are visible on the page and all filters open in fullscreen bottom sheet;
+- desktop/tablet: screens with `Secondary filters: none` do not render `Ещё фильтры`;
+- mobile <=767 px: no inline filter controls, inline reset control or active-count area are visible on the page and all filters open in fullscreen bottom sheet;
 - popup dimensions: target width 320 px, acceptable test range 300-340 px, max height <=480 px;
 - no visible `Фильтры применяются автоматически`;
 - filter changes update results without page reload.
@@ -311,7 +321,7 @@ Manual visual QA is still required because the task is visual:
 - [ ] Manually inspect `/audit`, `/finance`, `/clients`, `/schedule`, `/attendance` at 1440, 768 and 390 px.
 
 ## Regression barrier
-The main regression barrier is automated Playwright geometry and behavior coverage around the shared filter panel plus route-specific request assertions. A task implementation is not complete until tests prove: one-row desktop/tablet panels, no section header/card wrapper/shadow/nested cards, mobile fullscreen bottom sheet with no inline filter controls, no page reload on filter changes, no visible auto-apply helper text, reset resets all filters, and unchanged backend request semantics for audit/finance/clients.
+The main regression barrier is automated Playwright geometry and behavior coverage around the shared filter panel plus route-specific request assertions. A task implementation is not complete until tests prove: one-row desktop/tablet panels, no section header/card wrapper/shadow/nested cards, mobile fullscreen bottom sheet with no inline filter controls/reset/active count, no page reload on filter changes, no visible auto-apply helper text, reset clears all filters, screens with empty secondary filters do not render `Ещё фильтры`, and unchanged backend request semantics for audit/finance/clients.
 
 ## Risk notes
 - Medium risk due to broad frontend surface and existing screen-specific CSS.
