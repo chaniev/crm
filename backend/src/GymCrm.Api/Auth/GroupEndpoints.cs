@@ -469,7 +469,6 @@ internal static class GroupEndpoints
             group.Hall.Name,
             group.GroupTypeId,
             group.GroupType.Name,
-            group.GroupType.SystemIdentifier,
             FormatTrainingStartTime(group.TrainingStartTime),
             group.DurationMinutes,
             SortWeekdays(group.Weekdays),

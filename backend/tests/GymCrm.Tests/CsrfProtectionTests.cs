@@ -137,7 +137,6 @@ public class CsrfProtectionTests
         {
             Id = Guid.NewGuid(),
             Name = "CSRF Default Type",
-            SystemIdentifier = "csrf-default-type",
             CreatedAt = now,
             UpdatedAt = now
         };

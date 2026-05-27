@@ -121,7 +121,6 @@ public class BranchesApiTests
             {
                 Id = Guid.NewGuid(),
                 Name = "Branch Guard Type",
-                SystemIdentifier = "branch-guard-type",
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             };

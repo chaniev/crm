@@ -122,7 +122,6 @@ export function SettingsScreen() {
 type GroupTypeFormValues = {
   name: string
   description: string
-  systemIdentifier: string
 }
 
 type GroupTypeModalState =
@@ -144,12 +143,9 @@ function GroupTypesSettingsPanel() {
     initialValues: {
       name: '',
       description: '',
-      systemIdentifier: '',
     },
     validate: {
       name: (value) => (value.trim() ? null : 'Введите название типа.'),
-      systemIdentifier: (value) =>
-        value.trim() ? null : 'Введите системный идентификатор.',
     },
   })
 
@@ -185,7 +181,7 @@ function GroupTypesSettingsPanel() {
   }, [reloadKey])
 
   function openCreateModal() {
-    form.setValues({ name: '', description: '', systemIdentifier: '' })
+    form.setValues({ name: '', description: '' })
     form.clearErrors()
     setFormError(null)
     setModalState({ mode: 'create' })
@@ -195,7 +191,6 @@ function GroupTypesSettingsPanel() {
     form.setValues({
       name: groupType.name,
       description: groupType.description ?? '',
-      systemIdentifier: groupType.systemIdentifier,
     })
     form.clearErrors()
     setFormError(null)
@@ -215,7 +210,6 @@ function GroupTypesSettingsPanel() {
       const payload = {
         name: values.name.trim(),
         description: values.description.trim() || null,
-        systemIdentifier: values.systemIdentifier.trim(),
       }
       const savedGroupType =
         modalState.mode === 'create'
@@ -335,9 +329,6 @@ function GroupTypesSettingsPanel() {
                     <Stack gap={8}>
                       <Group gap="sm" wrap="wrap">
                         <Text fw={700}>{groupType.name}</Text>
-                        <Badge radius="xl" variant="light">
-                          {groupType.systemIdentifier}
-                        </Badge>
                         <Badge color="brand.1" radius="xl" variant="light">
                           Групп: {groupType.groupCount}
                         </Badge>
@@ -398,11 +389,6 @@ function GroupTypesSettingsPanel() {
               label="Название"
               placeholder="Например, Детская группа"
               {...form.getInputProps('name')}
-            />
-            <TextInput
-              label="Системный идентификатор"
-              placeholder="children"
-              {...form.getInputProps('systemIdentifier')}
             />
             <Textarea
               autosize

@@ -177,7 +177,6 @@ public class AuthorizationFlowTests
         {
             Id = Guid.NewGuid(),
             Name = "Authorization Default Type",
-            SystemIdentifier = "authorization-default-type",
             CreatedAt = now,
             UpdatedAt = now
         };

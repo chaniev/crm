@@ -161,15 +161,6 @@ export const SCHEDULE_TYPE_PALETTE = [
   },
 ] as const satisfies readonly ScheduleTypePalette[]
 
-const SCHEDULE_TYPE_PALETTE_OVERRIDES: Record<string, ScheduleTypePalette> = {
-  cardio: SCHEDULE_TYPE_PALETTE[0],
-  yoga: SCHEDULE_TYPE_PALETTE[0],
-  intensive: SCHEDULE_TYPE_PALETTE[1],
-  mma: SCHEDULE_TYPE_PALETTE[1],
-  functional: SCHEDULE_TYPE_PALETTE[2],
-  basics: SCHEDULE_TYPE_PALETTE[2],
-}
-
 export type ScheduleGroupLike = Pick<
   TrainingGroupListItem,
   | 'id'
@@ -180,7 +171,6 @@ export type ScheduleGroupLike = Pick<
   | 'hallName'
   | 'groupTypeId'
   | 'groupTypeName'
-  | 'groupTypeSystemIdentifier'
   | 'trainingStartTime'
   | 'durationMinutes'
   | 'weekdays'
@@ -324,16 +314,7 @@ export function buildScheduleDayCounts<TGroup>(
   })
 }
 
-export function getScheduleTypeKey(group: Pick<
-  ScheduleGroupLike,
-  'groupTypeId' | 'groupTypeSystemIdentifier'
->) {
-  const systemIdentifier = group.groupTypeSystemIdentifier.trim()
-
-  if (systemIdentifier) {
-    return systemIdentifier
-  }
-
+export function getScheduleTypeKey(group: Pick<ScheduleGroupLike, 'groupTypeId'>) {
   const groupTypeId = group.groupTypeId.trim()
 
   return groupTypeId || 'unknown'
@@ -345,23 +326,18 @@ export function getScheduleTypeLabel(group: Pick<ScheduleGroupLike, 'groupTypeNa
 
 export function getScheduleTypePalette(groupOrKey: Pick<
   ScheduleGroupLike,
-  'groupTypeId' | 'groupTypeSystemIdentifier'
+  'groupTypeId'
 > | string): ScheduleTypePalette {
   const key = typeof groupOrKey === 'string'
     ? groupOrKey
     : getScheduleTypeKey(groupOrKey)
-  const paletteOverride = SCHEDULE_TYPE_PALETTE_OVERRIDES[key.trim().toLowerCase()]
-
-  if (paletteOverride) {
-    return paletteOverride
-  }
 
   return SCHEDULE_TYPE_PALETTE[getStablePaletteIndex(key)]
 }
 
 export function buildScheduleTypeLegend<TGroup extends Pick<
   ScheduleGroupLike,
-  'groupTypeId' | 'groupTypeName' | 'groupTypeSystemIdentifier'
+  'groupTypeId' | 'groupTypeName'
 >>(
   entries: readonly Pick<ScheduleCalendarEntry<TGroup>, 'group'>[],
 ): ScheduleTypeLegendItem[] {
@@ -397,7 +373,6 @@ export function buildScheduleTodaySummary<TGroup extends Pick<
   ScheduleGroupLike,
   | 'groupTypeId'
   | 'groupTypeName'
-  | 'groupTypeSystemIdentifier'
   | 'hallId'
   | 'hallName'
 >>(

@@ -293,7 +293,6 @@ public class FinancialReportsApiTests
         {
             Id = Guid.NewGuid(),
             Name = "Reports Group Type",
-            SystemIdentifier = "reports-group-type",
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -386,7 +385,6 @@ public class FinancialReportsApiTests
         {
             Id = Guid.NewGuid(),
             Name = "Dup Group Type",
-            SystemIdentifier = "dup-group-type",
             CreatedAt = now,
             UpdatedAt = now
         };

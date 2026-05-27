@@ -11,19 +11,12 @@ internal static class GroupTypeResources
 
     public static string NameRequired => GetString(nameof(NameRequired));
     public static string DescriptionTooLong => GetString(nameof(DescriptionTooLong));
-    public static string SystemIdentifierRequired => GetString(nameof(SystemIdentifierRequired));
     public static string NameAlreadyExists => GetString(nameof(NameAlreadyExists));
-    public static string SystemIdentifierAlreadyExists => GetString(nameof(SystemIdentifierAlreadyExists));
     public static string GroupTypeCannotBeDeletedWithGroups => GetString(nameof(GroupTypeCannotBeDeletedWithGroups));
 
     public static string NameTooLong(int maxLength)
     {
         return Format(nameof(NameTooLong), maxLength);
-    }
-
-    public static string SystemIdentifierTooLong(int maxLength)
-    {
-        return Format(nameof(SystemIdentifierTooLong), maxLength);
     }
 
     public static string GroupTypeCreatedDescription(string actorLogin, string groupTypeName)

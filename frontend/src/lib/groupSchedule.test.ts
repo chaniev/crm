@@ -258,7 +258,6 @@ describe('groupSchedule helpers', () => {
         name: 'Кардио старт',
         groupTypeId: 'type-cardio',
         groupTypeName: 'Кардио',
-        groupTypeSystemIdentifier: 'cardio',
         weekdays: [1, 2],
       }),
       createGroup({
@@ -266,7 +265,6 @@ describe('groupSchedule helpers', () => {
         name: 'Сила',
         groupTypeId: 'type-strength',
         groupTypeName: 'Сила',
-        groupTypeSystemIdentifier: 'strength',
         weekdays: [1],
       }),
     ])
@@ -279,16 +277,16 @@ describe('groupSchedule helpers', () => {
       palette: item.palette,
     }))).toEqual([
       {
-        key: 'cardio',
+        key: 'type-cardio',
         label: 'Кардио',
         count: 2,
-        palette: getScheduleTypePalette('cardio'),
+        palette: getScheduleTypePalette('type-cardio'),
       },
       {
-        key: 'strength',
+        key: 'type-strength',
         label: 'Сила',
         count: 1,
-        palette: getScheduleTypePalette('strength'),
+        palette: getScheduleTypePalette('type-strength'),
       },
     ])
   })
@@ -300,7 +298,7 @@ describe('groupSchedule helpers', () => {
     expect(summary.totalEntries).toBe(3)
     expect(summary.typeItems).toEqual([
       expect.objectContaining({
-        key: 'cardio',
+        key: 'group-type',
         label: 'Кардио',
         count: 3,
       }),
@@ -436,7 +434,6 @@ function createGroup(
     hallName: overrides.hallName ?? 'Основной зал',
     groupTypeId: overrides.groupTypeId ?? 'group-type',
     groupTypeName: overrides.groupTypeName ?? 'Кардио',
-    groupTypeSystemIdentifier: overrides.groupTypeSystemIdentifier ?? 'cardio',
     trainingStartTime: overrides.trainingStartTime ?? '09:00',
     durationMinutes: overrides.durationMinutes ?? 60,
     weekdays: overrides.weekdays ?? [1],

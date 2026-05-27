@@ -17,17 +17,10 @@ internal sealed class GroupTypeConfiguration : IEntityTypeConfiguration<GroupTyp
         builder.Property(groupType => groupType.Description)
             .HasMaxLength(GroupType.DescriptionMaxLength);
 
-        builder.Property(groupType => groupType.SystemIdentifier)
-            .HasMaxLength(GroupType.SystemIdentifierMaxLength)
-            .IsRequired();
-
         builder.Property(groupType => groupType.CreatedAt).IsRequired();
         builder.Property(groupType => groupType.UpdatedAt).IsRequired();
 
         builder.HasIndex(groupType => groupType.Name)
-            .IsUnique();
-
-        builder.HasIndex(groupType => groupType.SystemIdentifier)
             .IsUnique();
 
         builder.HasMany(groupType => groupType.Groups)

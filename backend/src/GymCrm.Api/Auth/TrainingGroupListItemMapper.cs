@@ -26,7 +26,6 @@ internal static class TrainingGroupListItemMapper
             group.Hall.Name,
             group.GroupTypeId,
             group.GroupType.Name,
-            group.GroupType.SystemIdentifier,
             group.TrainingStartTime.ToString("HH':'mm", CultureInfo.InvariantCulture),
             group.DurationMinutes,
             group.Weekdays.OrderBy(weekday => weekday).ToArray(),

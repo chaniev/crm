@@ -34,7 +34,6 @@ internal static class GroupTypeEndpoints
             .AsNoTracking()
             .Include(groupType => groupType.Groups)
             .OrderBy(groupType => groupType.Name)
-            .ThenBy(groupType => groupType.SystemIdentifier)
             .ToListAsync(cancellationToken);
 
         return TypedResults.Ok<IReadOnlyList<GroupTypeResponse>>(
@@ -89,7 +88,6 @@ internal static class GroupTypeEndpoints
             Id = Guid.NewGuid(),
             Name = normalizedRequest.Name,
             Description = normalizedRequest.Description,
-            SystemIdentifier = normalizedRequest.SystemIdentifier,
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -157,7 +155,6 @@ internal static class GroupTypeEndpoints
 
         groupType.Name = normalizedRequest.Name;
         groupType.Description = normalizedRequest.Description;
-        groupType.SystemIdentifier = normalizedRequest.SystemIdentifier;
         groupType.UpdatedAt = DateTimeOffset.UtcNow;
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -249,7 +246,6 @@ internal static class GroupTypeEndpoints
             groupType.Id,
             groupType.Name,
             groupType.Description,
-            groupType.SystemIdentifier,
             groupType.Groups.Count,
             groupType.CreatedAt,
             groupType.UpdatedAt);
@@ -263,8 +259,7 @@ internal static class GroupTypeEndpoints
 
         return new NormalizedGroupTypeRequest(
             request.Name?.Trim() ?? string.Empty,
-            description,
-            request.SystemIdentifier?.Trim() ?? string.Empty);
+            description);
     }
 
     private static async Task<Dictionary<string, string[]>> ValidateRequestAsync(
@@ -289,20 +284,6 @@ internal static class GroupTypeEndpoints
             errors["description"] = [GroupTypeResources.DescriptionTooLong];
         }
 
-        if (string.IsNullOrWhiteSpace(request.SystemIdentifier))
-        {
-            errors["systemIdentifier"] = [GroupTypeResources.SystemIdentifierRequired];
-        }
-        else if (request.SystemIdentifier.Length > GroupType.SystemIdentifierMaxLength)
-        {
-            errors["systemIdentifier"] = [GroupTypeResources.SystemIdentifierTooLong(GroupType.SystemIdentifierMaxLength)];
-        }
-
-        if (errors.ContainsKey("name") && errors.ContainsKey("systemIdentifier"))
-        {
-            return errors;
-        }
-
         if (!errors.ContainsKey("name"))
         {
             var duplicateNameExists = await dbContext.GroupTypes
@@ -318,21 +299,6 @@ internal static class GroupTypeEndpoints
             }
         }
 
-        if (!errors.ContainsKey("systemIdentifier"))
-        {
-            var duplicateIdentifierExists = await dbContext.GroupTypes
-                .AsNoTracking()
-                .AnyAsync(
-                    candidate =>
-                        candidate.SystemIdentifier == request.SystemIdentifier &&
-                        (!existingGroupTypeId.HasValue || candidate.Id != existingGroupTypeId.Value),
-                    cancellationToken);
-            if (duplicateIdentifierExists)
-            {
-                errors["systemIdentifier"] = [GroupTypeResources.SystemIdentifierAlreadyExists];
-            }
-        }
-
         return errors;
     }
 
@@ -343,7 +309,6 @@ internal static class GroupTypeEndpoints
                 groupType.Id,
                 groupType.Name,
                 groupType.Description,
-                groupType.SystemIdentifier,
                 groupType.Groups.Count,
                 groupType.CreatedAt,
                 groupType.UpdatedAt),
@@ -352,6 +317,5 @@ internal static class GroupTypeEndpoints
 
     private sealed record NormalizedGroupTypeRequest(
         string Name,
-        string? Description,
-        string SystemIdentifier);
+        string? Description);
 }

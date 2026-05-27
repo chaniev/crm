@@ -397,7 +397,6 @@ public class AttendanceApiTests
         {
             Id = Guid.NewGuid(),
             Name = "Attendance Default Type",
-            SystemIdentifier = "attendance-default-type",
             CreatedAt = now,
             UpdatedAt = now
         };

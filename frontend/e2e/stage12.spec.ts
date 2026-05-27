@@ -122,7 +122,6 @@ type GroupState = {
   hallName: string
   groupTypeId: string
   groupTypeName: string
-  groupTypeSystemIdentifier: string
   name: string
   trainingStartTime: string
   durationMinutes: number
@@ -137,7 +136,6 @@ type GroupTypeState = {
   id: string
   name: string
   description: string | null
-  systemIdentifier: string
   groupCount: number
 }
 
@@ -210,7 +208,6 @@ const baseGroupType: GroupTypeState = {
   id: 'group-type-1',
   name: 'Базовый тип',
   description: 'Тип для e2e',
-  systemIdentifier: 'default',
   groupCount: 1,
 }
 
@@ -222,7 +219,6 @@ const assignedAttendanceGroup = {
   hallName: baseHall.name,
   groupTypeId: baseGroupType.id,
   groupTypeName: baseGroupType.name,
-  groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
   name: 'Назначенная группа',
   trainingStartTime: '19:00',
   durationMinutes: 60,
@@ -242,7 +238,6 @@ const baseGroups: GroupState[] = [
     hallName: baseHall.name,
     groupTypeId: baseGroupType.id,
     groupTypeName: baseGroupType.name,
-    groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
     name: 'Группа 1',
     trainingStartTime: '18:00',
     durationMinutes: 60,
@@ -842,7 +837,6 @@ test.describe('Основные e2e сценарии', () => {
       hallName: baseHall.name,
       groupTypeId: baseGroupType.id,
       groupTypeName: baseGroupType.name,
-      groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
       name: 'Фильтр-группа',
       trainingStartTime: '17:00',
       durationMinutes: 60,
@@ -1039,7 +1033,6 @@ test.describe('Основные e2e сценарии', () => {
           hallName: baseHall.name,
           groupTypeId: payload.groupTypeId,
           groupTypeName: baseGroupType.name,
-          groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
           name: 'Новая тестовая группа',
           trainingStartTime: '19:00',
           durationMinutes: 60,
@@ -1157,7 +1150,6 @@ test.describe('Основные e2e сценарии', () => {
           hallName: baseHall.name,
           groupTypeId: payload.groupTypeId,
           groupTypeName: baseGroupType.name,
-          groupTypeSystemIdentifier: baseGroupType.systemIdentifier,
           name: payload.name,
           trainingStartTime: payload.trainingStartTime,
           durationMinutes: payload.durationMinutes,
@@ -1336,7 +1328,6 @@ test.describe('Основные e2e сценарии', () => {
           id: 'group-type-created',
           name: String(groupTypeCreatePayload.name),
           description: String(groupTypeCreatePayload.description ?? ''),
-          systemIdentifier: String(groupTypeCreatePayload.systemIdentifier),
           groupCount: 0,
         }
         groupTypes.push(groupType)
@@ -1447,7 +1438,6 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByRole('tab', { name: 'Типы групп' }).click()
     await page.getByRole('button', { name: 'Добавить тип' }).click()
     await page.getByLabel('Название').fill('Подростки')
-    await page.getByLabel('Системный идентификатор').fill('teenagers')
     await page.getByLabel('Описание').fill('Группы для подростков')
     await page
       .getByRole('dialog')
@@ -1456,7 +1446,6 @@ test.describe('Основные e2e сценарии', () => {
     await expect.poll(() => groupTypeCreatePayload).toEqual({
       name: 'Подростки',
       description: 'Группы для подростков',
-      systemIdentifier: 'teenagers',
     })
     await expect(page.getByTestId('group-type-card-group-type-created')).toBeVisible()
 
@@ -2094,7 +2083,6 @@ function toGroupTypePayload(groupType: GroupTypeState) {
     id: groupType.id,
     name: groupType.name,
     description: groupType.description,
-    systemIdentifier: groupType.systemIdentifier,
     groupCount: groupType.groupCount,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -2111,7 +2099,6 @@ function toGroupPayload(group: GroupState) {
     hallName: group.hallName,
     groupTypeId: group.groupTypeId,
     groupTypeName: group.groupTypeName,
-    groupTypeSystemIdentifier: group.groupTypeSystemIdentifier,
     trainingStartTime: group.trainingStartTime,
     durationMinutes: group.durationMinutes,
     weekdays: group.weekdays,

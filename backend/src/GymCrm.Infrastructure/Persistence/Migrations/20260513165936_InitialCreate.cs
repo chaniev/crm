@@ -56,7 +56,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    SystemIdentifier = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
@@ -1078,12 +1077,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "IX_GroupTypes_Name",
                 table: "GroupTypes",
                 column: "Name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GroupTypes_SystemIdentifier",
-                table: "GroupTypes",
-                column: "SystemIdentifier",
                 unique: true);
 
             migrationBuilder.CreateIndex(
