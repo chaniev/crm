@@ -752,6 +752,7 @@ function AdministratorsSettingsPanel() {
                 form={createForm}
                 roleDisabled
                 roleOptions={administratorRoleOptions}
+                showRoleField={false}
               />
               <SettingsFormActions
                 onCancel={() => setModalState(null)}

@@ -38,6 +38,7 @@ type UserFormFieldsProps<FormValues extends BaseUserFormValues> = {
   isActiveDisabled?: boolean
   roleDisabled?: boolean
   roleOptions: UserRoleOption[]
+  showRoleField?: boolean
 }
 
 export function UserFormFields<FormValues extends BaseUserFormValues>({
@@ -46,23 +47,32 @@ export function UserFormFields<FormValues extends BaseUserFormValues>({
   isActiveDisabled = false,
   roleDisabled = false,
   roleOptions,
+  showRoleField = true,
 }: UserFormFieldsProps<FormValues>) {
   return (
     <>
-      <SimpleGrid cols={{ base: 1, md: 2 }}>
+      {showRoleField ? (
+        <SimpleGrid cols={{ base: 1, md: 2 }}>
+          <TextInput
+            label={resources.users.form.labels.fullName}
+            placeholder={resources.users.form.placeholders.fullName}
+            {...form.getInputProps('fullName')}
+          />
+          <Select
+            allowDeselect={false}
+            data={roleOptions}
+            disabled={roleDisabled}
+            label={resources.users.form.labels.role}
+            {...form.getInputProps('role')}
+          />
+        </SimpleGrid>
+      ) : (
         <TextInput
           label={resources.users.form.labels.fullName}
           placeholder={resources.users.form.placeholders.fullName}
           {...form.getInputProps('fullName')}
         />
-        <Select
-          allowDeselect={false}
-          data={roleOptions}
-          disabled={roleDisabled}
-          label={resources.users.form.labels.role}
-          {...form.getInputProps('role')}
-        />
-      </SimpleGrid>
+      )}
 
       {credentialsFields}
 

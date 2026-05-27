@@ -1451,6 +1451,7 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.getByRole('tab', { name: 'Администраторы' }).click()
     await page.getByRole('button', { name: 'Добавить администратора' }).first().click()
+    await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
     await page.getByLabel('ФИО').fill('Администратор настроек')
     await page.getByLabel('Логин').fill('settings-admin')
     await page.getByLabel('Пароль').fill('12345Aa!')
@@ -1465,6 +1466,7 @@ test.describe('Основные e2e сценарии', () => {
       mustChangePassword: true,
       isActive: true,
     })
+    await expect.poll(() => administratorCreatePayload?.role).toBeUndefined()
     await expect(page.getByTestId('administrator-card-administrator-created')).toBeVisible()
   })
 
