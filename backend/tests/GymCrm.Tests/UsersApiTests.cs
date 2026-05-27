@@ -223,6 +223,46 @@ public class UsersApiTests
     }
 
     [Fact]
+    public async Task Settings_administrator_create_ignores_role_payload_and_persists_administrator()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var createLogin = $"settings-admin-overpost-{Guid.NewGuid():N}";
+
+        using var createResponse = await PostJsonAsync(
+            client,
+            "/settings/administrators",
+            new
+            {
+                FullName = "Администратор с лишней ролью",
+                Login = createLogin,
+                Password = "12345Aa!",
+                Role = "Coach",
+                MustChangePassword = true,
+                IsActive = true
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+        var payload = await ReadJsonElementAsync(createResponse);
+        Assert.Equal("Administrator", GetStringFromProperty(payload, "role"));
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var createdUser = await dbContext.Users.SingleAsync(user => user.Login == createLogin);
+
+        Assert.Equal(UserRole.Administrator, createdUser.Role);
+    }
+
+    [Fact]
     public async Task HeadCoach_cannot_assign_duplicate_telegram_identity_to_another_user()
     {
         await using var factory = new UsersAppFactory();

@@ -133,6 +133,7 @@ export function UserCreateScreen({
                 credentialsFields={<UserCreateCredentialsFields form={form} />}
                 form={form}
                 roleOptions={userRoleOptions}
+                showRoleField={false}
               />
 
               <Paper className="hint-card" radius="24px" withBorder>

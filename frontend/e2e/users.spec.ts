@@ -205,7 +205,11 @@ test('Редактирование пользователя показывает
   await expect(page.getByText(fullNameError)).toBeVisible()
 })
 
-test('Создание пользователя не предлагает роль администратора', async ({ page }) => {
+test('Создание тренера скрывает выбор роли и отправляет фиксированную роль Coach', async ({
+  page,
+}) => {
+  let createUserPayload: Record<string, unknown> | null = null
+
   await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
     const requestUrl = new URL(route.request().url())
     const method = route.request().method()
@@ -220,6 +224,26 @@ test('Создание пользователя не предлагает рол
       return
     }
 
+    if (requestUrl.pathname === '/api/users' && method === 'POST') {
+      createUserPayload = route.request().postDataJSON()
+      await fulfillJson(route, 200, {
+        id: 'coach-created',
+        fullName: String(createUserPayload.fullName),
+        login: String(createUserPayload.login),
+        role: 'Coach',
+        mustChangePassword: Boolean(createUserPayload.mustChangePassword),
+        isActive: Boolean(createUserPayload.isActive),
+        messengerPlatform: createUserPayload.messengerPlatform ?? null,
+        messengerPlatformUserId: createUserPayload.messengerPlatformUserId ?? null,
+      })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/users' && method === 'GET') {
+      await fulfillJson(route, 200, [])
+      return
+    }
+
     throw new Error(
       `Unexpected API request in users e2e: ${method} ${requestUrl.pathname}`,
     )
@@ -228,10 +252,21 @@ test('Создание пользователя не предлагает рол
   await page.goto('/users/new')
   await expect(page.getByRole('heading', { name: 'Новый тренер' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Сохранить тренера' })).toBeVisible()
-  await page.getByRole('combobox', { name: 'Роль' }).click()
+  await expect(page.getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
 
-  await expect(page.getByRole('option', { name: 'Тренер' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'Администратор' })).toHaveCount(0)
+  await page.getByLabel('ФИО').fill('Новый Тренер')
+  await page.getByLabel('Логин').fill('new-coach')
+  await page.getByLabel('Пароль').fill('12345Aa!')
+  await page.getByRole('button', { name: 'Сохранить тренера' }).click()
+
+  await expect.poll(() => createUserPayload).toMatchObject({
+    fullName: 'Новый Тренер',
+    login: 'new-coach',
+    password: '12345Aa!',
+    role: 'Coach',
+    mustChangePassword: true,
+    isActive: true,
+  })
 })
 
 async function fulfillJson(
