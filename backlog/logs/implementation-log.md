@@ -451,3 +451,20 @@
 - skipped: 0
 - plans created: 1
 - note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is medium risk and localized to frontend schedule UI, with backend contract changes, schedule business rules and dated event semantics explicitly blocked unless a separate contract task is created.
+
+# 2026-05-27 19:14
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-053-hide-group-type-system-identifier.plan.md
+
+## Skipped tasks
+- TASK-053-hide-group-type-system-identifier.md - not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; plan created for explicit review before any active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan created for full removal of group type `SystemIdentifier` from backend domain/schema/API/audit state and frontend consumers. Implementation must be contract-first in `feature/TASK-053-hide-group-type-system-identifier`, with backend tests, frontend lint/build/e2e, and final source search as regression barriers.
