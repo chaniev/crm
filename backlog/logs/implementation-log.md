@@ -468,3 +468,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan created for full removal of group type `SystemIdentifier` from backend domain/schema/API/audit state and frontend consumers. Implementation must be contract-first in `feature/TASK-053-hide-group-type-system-identifier`, with backend tests, frontend lint/build/e2e, and final source search as regression barriers.
+
+# 2026-05-27 23:25
+
+## Moved to implementation
+- /backlog/implementation/TASK-056-filter-panel-requirements.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-056-filter-panel-requirements.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is frontend-only, medium risk, and must use `feature/TASK-056-filter-panel-requirements` with `ui-designer` visual validation, `react-specialist` React structure ownership, Mantine/Onest preserved, and Playwright responsive regression coverage for all current filter screens.

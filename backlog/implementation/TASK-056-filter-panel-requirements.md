@@ -1,7 +1,13 @@
 # TASK-056: Привести области фильтров к единому компактному виду
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-27 23:25
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-056-filter-panel-requirements.plan.md
+- implementation_branch: feature/TASK-056-filter-panel-requirements
 
 ## Goal
 Все frontend-экраны с фильтрами используют компактную, второстепенную по визуальному весу область фильтров, соответствующую требованиям из `docs/mockups/требования к области фильтра/filter_requirements.docx` и примеру `docs/mockups/требования к области фильтра/фильтры в журналах.png`.
