@@ -82,6 +82,7 @@ public class GroupsApiTests
             Assert.Equal(groupName, GetStringFromProperty(getPayload, "name"));
             Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(getPayload, "groupTypeId"));
             Assert.Equal("Groups Default Type", GetStringFromProperty(getPayload, "groupTypeName"));
+            Assert.False(getPayload.TryGetProperty("groupType" + "System" + "Identifier", out _));
             Assert.Equal(75, GetIntFromProperty(getPayload, "durationMinutes"));
             Assert.Equal([1, 3, 5], GetIntArrayFromProperty(getPayload, "weekdays"));
         }
@@ -400,7 +401,7 @@ public class GroupsApiTests
             Assert.Equal(seeded.HallOneId, GetGuidFromProperty(firstItem, "hallId"));
             Assert.Equal("Groups Default Type", GetStringFromProperty(firstItem, "groupTypeName"));
             Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(firstItem, "groupTypeId"));
-            Assert.Equal("groups-default-type", GetStringFromProperty(firstItem, "groupTypeSystemIdentifier"));
+            Assert.False(firstItem.TryGetProperty("groupType" + "System" + "Identifier", out _));
             Assert.Equal("09:00", GetStringFromProperty(firstItem, "trainingStartTime"));
             Assert.Equal(60, GetIntFromProperty(firstItem, "durationMinutes"));
             Assert.Equal([1, 3], GetIntArrayFromProperty(firstItem, "weekdays"));
@@ -750,7 +751,6 @@ public class GroupsApiTests
             ? seeded.HeadCoachLogin
             : seeded.AdministratorLogin;
         var session = await LoginAsync(client, actorLogin, seeded.SharedPassword);
-        var systemIdentifier = $"custom-{Guid.NewGuid():N}";
 
         Guid groupTypeId;
         using (var createResponse = await PostJsonAsync(
@@ -759,8 +759,7 @@ public class GroupsApiTests
                    new
                    {
                        Name = "Custom Group Type",
-                       Description = "Created from settings.",
-                       SystemIdentifier = systemIdentifier
+                       Description = "Created from settings."
                    },
                    session.CsrfToken))
         {
@@ -769,7 +768,7 @@ public class GroupsApiTests
             groupTypeId = GetGuidFromProperty(payload, "id");
             Assert.NotEqual(Guid.Empty, groupTypeId);
             Assert.Equal("Custom Group Type", GetStringFromProperty(payload, "name"));
-            Assert.Equal(systemIdentifier, GetStringFromProperty(payload, "systemIdentifier"));
+            Assert.False(payload.TryGetProperty("system" + "Identifier", out _));
         }
 
         using (var duplicateResponse = await PostJsonAsync(
@@ -778,8 +777,7 @@ public class GroupsApiTests
                    new
                    {
                        Name = "Custom Group Type",
-                       Description = "Duplicate.",
-                       SystemIdentifier = systemIdentifier
+                       Description = "Duplicate."
                    },
                    session.CsrfToken))
         {
@@ -787,7 +785,7 @@ public class GroupsApiTests
             var payload = await ReadJsonElementAsync(duplicateResponse);
             var errors = payload.GetProperty("errors");
             Assert.True(errors.TryGetProperty("name", out _));
-            Assert.True(errors.TryGetProperty("systemIdentifier", out _));
+            Assert.False(errors.TryGetProperty("system" + "Identifier", out _));
         }
 
         using (var updateResponse = await PutJsonAsync(
@@ -796,8 +794,7 @@ public class GroupsApiTests
                    new
                    {
                        Name = "Custom Group Type Updated",
-                       Description = (string?)null,
-                       SystemIdentifier = $"{systemIdentifier}-updated"
+                       Description = (string?)null
                    },
                    session.CsrfToken))
         {
@@ -836,8 +833,7 @@ public class GroupsApiTests
                    new
                    {
                        Name = "Coach Type",
-                       Description = "",
-                       SystemIdentifier = "coach-type"
+                       Description = ""
                    },
                    session.CsrfToken))
         {
@@ -1072,7 +1068,6 @@ public class GroupsApiTests
         {
             Id = Guid.NewGuid(),
             Name = "Groups Default Type",
-            SystemIdentifier = "groups-default-type",
             CreatedAt = now,
             UpdatedAt = now
         };

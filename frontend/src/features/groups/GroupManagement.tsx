@@ -759,7 +759,7 @@ function GroupForm({
             allowDeselect={false}
             data={groupTypeOptions.map((groupType) => ({
               value: groupType.id,
-              label: `${groupType.name} (${groupType.systemIdentifier})`,
+              label: groupType.name,
             }))}
             label="Тип группы"
             onChange={(groupTypeId) =>

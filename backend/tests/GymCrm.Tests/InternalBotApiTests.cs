@@ -395,7 +395,6 @@ public class InternalBotApiTests
         {
             Id = Guid.NewGuid(),
             Name = "Bot Default Type",
-            SystemIdentifier = "bot-default-type",
             CreatedAt = now,
             UpdatedAt = now
         };

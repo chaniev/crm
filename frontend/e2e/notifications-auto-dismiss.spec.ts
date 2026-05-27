@@ -44,7 +44,6 @@ type GroupTypePayload = {
   id: string
   name: string
   description: string | null
-  systemIdentifier: string
   groupCount: number
 }
 
@@ -61,13 +60,13 @@ test.describe('Уведомления', () => {
 
     const groupTypeNotifications = getGroupTypeCreatedNotifications(page)
 
-    await createGroupType(page, 'Тип 1', 'type-1')
+    await createGroupType(page, 'Тип 1')
     await expect(groupTypeNotifications.first()).toBeVisible()
     await page.clock.runFor(APP_NOTIFICATION_AUTO_CLOSE_MS + NOTIFICATION_TRANSITION_MS + 100)
     await expect(groupTypeNotifications).toHaveCount(0)
 
     for (let index = 2; index <= 7; index += 1) {
-      await createGroupType(page, `Тип ${index}`, `type-${index}`)
+      await createGroupType(page, `Тип ${index}`)
     }
 
     await expect.poll(async () => groupTypeNotifications.count()).toBeLessThanOrEqual(5)
@@ -88,7 +87,7 @@ test.describe('Уведомления', () => {
     await expect(addTypeButton).toBeInViewport()
 
     const groupTypeNotifications = getGroupTypeCreatedNotifications(page)
-    await createGroupType(page, 'Мобильный тип', 'mobile-type')
+    await createGroupType(page, 'Мобильный тип')
 
     await expect(groupTypeNotifications.first()).toBeVisible()
     await page.clock.runFor(APP_NOTIFICATION_AUTO_CLOSE_MS + NOTIFICATION_TRANSITION_MS + 100)
@@ -104,17 +103,12 @@ function getGroupTypeCreatedNotifications(page: Page) {
     .filter({ hasText: /Тип группы создан/ })
 }
 
-async function createGroupType(
-  page: Page,
-  name: string,
-  systemIdentifier: string,
-) {
+async function createGroupType(page: Page, name: string) {
   await page.getByRole('button', { name: 'Добавить тип' }).click()
 
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
   await dialog.getByLabel('Название').fill(name)
-  await dialog.getByLabel('Системный идентификатор').fill(systemIdentifier)
   await dialog.getByLabel('Описание').fill(`Автотестовый тип ${name}`)
 
   await dialog.getByRole('button', { name: 'Сохранить' }).click()
@@ -127,7 +121,6 @@ async function mockSettingsApi(page: Page) {
       id: 'group-type-existing',
       name: 'Базовый тип',
       description: 'Стартовый тип для e2e.',
-      systemIdentifier: 'base',
       groupCount: 0,
     },
   ]
@@ -170,14 +163,12 @@ async function mockSettingsApi(page: Page) {
       const payload = route.request().postDataJSON() as {
         name: string
         description: string | null
-        systemIdentifier: string
       }
 
       const createdGroupType = {
         id: `group-type-${apiState.createGroupTypeCalls}`,
         name: payload.name,
         description: payload.description,
-        systemIdentifier: payload.systemIdentifier,
         groupCount: 0,
       }
 

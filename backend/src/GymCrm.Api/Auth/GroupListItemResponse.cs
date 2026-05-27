@@ -9,7 +9,6 @@ internal sealed record GroupListItemResponse(
     string HallName,
     Guid GroupTypeId,
     string GroupTypeName,
-    string GroupTypeSystemIdentifier,
     string TrainingStartTime,
     int DurationMinutes,
     IReadOnlyList<int> Weekdays,

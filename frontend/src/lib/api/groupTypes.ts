@@ -9,7 +9,6 @@ type GroupTypeResponsePayload = {
   id: string
   name: string
   description?: string | null
-  systemIdentifier: string
   groupCount?: number | null
   createdAt?: string
   updatedAt?: string
@@ -71,7 +70,6 @@ function mapGroupType(payload: GroupTypeResponsePayload): GroupType {
     id: payload.id,
     name: payload.name,
     description: payload.description?.trim() || null,
-    systemIdentifier: payload.systemIdentifier,
     groupCount: payload.groupCount ?? 0,
     createdAt: payload.createdAt,
     updatedAt: payload.updatedAt,

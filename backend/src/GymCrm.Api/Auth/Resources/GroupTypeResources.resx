@@ -21,17 +21,8 @@
   <data name="DescriptionTooLong" xml:space="preserve">
     <value>Описание типа группы не должно превышать 1000 символов.</value>
   </data>
-  <data name="SystemIdentifierRequired" xml:space="preserve">
-    <value>Укажите системный идентификатор типа группы.</value>
-  </data>
-  <data name="SystemIdentifierTooLong" xml:space="preserve">
-    <value>Системный идентификатор типа группы не должен превышать {0} символов.</value>
-  </data>
   <data name="NameAlreadyExists" xml:space="preserve">
     <value>Тип группы с таким названием уже существует.</value>
-  </data>
-  <data name="SystemIdentifierAlreadyExists" xml:space="preserve">
-    <value>Тип группы с таким системным идентификатором уже существует.</value>
   </data>
   <data name="GroupTypeCannotBeDeletedWithGroups" xml:space="preserve">
     <value>Нельзя удалить тип группы, который используется группами.</value>

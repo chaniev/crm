@@ -326,7 +326,6 @@ public class ClientsApiTests
             {
                 Id = Guid.NewGuid(),
                 Name = "Transfer Group Type",
-                SystemIdentifier = "transfer-group-type",
                 CreatedAt = now,
                 UpdatedAt = now
             };
@@ -3128,7 +3127,6 @@ public class ClientsApiTests
             {
                 Id = Guid.NewGuid(),
                 Name = "Foreign Group Type",
-                SystemIdentifier = "foreign-group-type",
                 CreatedAt = now,
                 UpdatedAt = now
             };
@@ -3409,7 +3407,6 @@ public class ClientsApiTests
         {
             Id = Guid.NewGuid(),
             Name = "Clients Default Type",
-            SystemIdentifier = "clients-default-type",
             CreatedAt = now,
             UpdatedAt = now
         };

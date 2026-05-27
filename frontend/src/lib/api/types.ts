@@ -435,7 +435,6 @@ export type GroupType = {
   id: string
   name: string
   description: string | null
-  systemIdentifier: string
   groupCount: number
   createdAt?: string
   updatedAt?: string
@@ -444,7 +443,6 @@ export type GroupType = {
 export type UpsertGroupTypeRequest = {
   name: string
   description?: string | null
-  systemIdentifier: string
 }
 
 export type CreateAdministratorRequest = {
@@ -667,7 +665,6 @@ export type TrainingGroupListItem = {
   hallName: string
   groupTypeId: string
   groupTypeName: string
-  groupTypeSystemIdentifier: string
   trainingStartTime: string
   durationMinutes: number
   weekdays: number[]
@@ -696,7 +693,6 @@ export type TrainingGroupDetails = {
   hallName: string
   groupTypeId: string
   groupTypeName: string
-  groupTypeSystemIdentifier: string
   trainingStartTime: string
   durationMinutes: number
   weekdays: number[]
@@ -729,7 +725,6 @@ export type GroupResponsePayload = {
   hallName: string
   groupTypeId: string
   groupTypeName: string
-  groupTypeSystemIdentifier: string
   trainingStartTime: string
   durationMinutes: number
   weekdays: number[]
