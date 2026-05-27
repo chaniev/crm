@@ -13,10 +13,16 @@ Use these mockups:
 The implementation must compare the finished `/clients` and `/clients/:id/preview` screens against these files during the manual/browser visual check. Visual acceptance targets pixel-level closeness to the mockups, while still preserving the current application shell and already accepted shared layout constraints.
 
 ## Implementation status
+Done as of the 2026-05-27 status audit. Implementation is present in `main`
+via `feature/TASK-050-clients-screen-mockups`.
+
 Unblocked by completed `TASK-052` on 2026-05-23:
 - `/backlog/done/TASK-052-frontend-content-layout-before-clients-mockups.md`.
 
-`TASK-050` may start after rebasing from updated `main`. The `TASK-052` shared content-layout baseline is already in `main`; this task may adjust shared layout when required for the clients mockup fit, but any shared `content-layout` change must be deliberate, covered across the affected screens listed below and validated as part of this task.
+The `TASK-052` shared content-layout baseline was already in `main` before
+implementation. TASK-050 then adjusted the clients list/preview experience and
+backend list contract in its dedicated branch; broader client-detail follow-ups
+remain tracked separately by TASK-016..TASK-021 where applicable.
 
 ## Implementation branch
 feature/TASK-050-clients-screen-mockups
