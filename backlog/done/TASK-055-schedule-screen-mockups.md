@@ -1,7 +1,7 @@
 # TASK-055: Обновить окно расписания по макетам из docs/mockups
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-24 12:33

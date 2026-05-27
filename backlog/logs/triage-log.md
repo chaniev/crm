@@ -643,3 +643,34 @@
 - needs-clarification: 0
 - updated existing: 0
 - processed files: 1
+
+# 2026-05-27 status audit
+
+## Scope
+- Reviewed active backlog folders against current `main`, merge history and source-code evidence after pulling latest changes.
+- Audit branch: `codex/update-backlog-status`.
+
+## Moved tasks
+- /backlog/risky/TASK-053-hide-group-type-system-identifier.md -> /backlog/done/TASK-053-hide-group-type-system-identifier.md
+- /backlog/risky/TASK-054-auto-role-for-staff-forms.md -> /backlog/done/TASK-054-auto-role-for-staff-forms.md
+- /backlog/implementation/TASK-055-schedule-screen-mockups.md -> /backlog/done/TASK-055-schedule-screen-mockups.md
+
+## Moved implementation plans
+- /backlog/implementation-plans/TASK-050-clients-screen-mockups.plan.md -> /backlog/done/TASK-050-clients-screen-mockups.plan.md
+- /backlog/implementation-plans/TASK-053-hide-group-type-system-identifier.plan.md -> /backlog/done/TASK-053-hide-group-type-system-identifier.plan.md
+- /backlog/implementation-plans/TASK-055-schedule-screen-mockups.plan.md -> /backlog/done/TASK-055-schedule-screen-mockups.plan.md
+
+## Evidence
+- TASK-050 is present in merge history as `feature/TASK-050-clients-screen-mockups`; backend exposes `quickFilterCounts` and backend-owned `actionHints`, frontend has the `clients-v7` list/preview implementation and `/clients/:id/preview` route coverage. There was no source backlog task file for TASK-050, so only the implementation plan was moved.
+- TASK-053 is present in merge history as `feature/TASK-053-hide-group-type-system-identifier`; source search over `backend/src`, `backend/tests`, `frontend/src` and `frontend/e2e` shows no remaining `SystemIdentifier`, `systemIdentifier` or `groupTypeSystemIdentifier` usage.
+- TASK-054 is present in merge history as `codex/feature/TASK-054-auto-role-for-staff-forms`; trainer create uses fixed `role: "Coach"` with the role field hidden, administrator create submits `/settings/administrators` payload without `role`, and backend/frontend regression coverage exists.
+- TASK-055 is present in merge history as `feature/TASK-055-schedule-screen-mockups`; frontend schedule screen has desktop date headers, filter actions, weekly time grid, mobile day strip/time grid and updated Playwright coverage for read-only `/schedule`.
+
+## Kept active
+- Bot tasks TASK-001..TASK-014 and TASK-033 remain active unless already closed: current merge history and source audit do not prove complete acceptance coverage for bot audit idempotency, membership display, roster pagination, scenario smoke/docs, runtime/read-model architecture, photo/webhook/notification flows or branch-aware bot consumer work.
+- Client detail/card tasks TASK-016..TASK-021 remain active: TASK-050 implemented the clients list/mockup preview, but source audit does not prove full client-detail tabs, all requested quick actions, return-state restoration, action-first empty states with disabled reasons, or the dedicated responsive regression coverage requested by those tasks.
+
+## Summary
+- moved to done: 3 tasks
+- moved plans to done: 3
+- validation: backlog/source audit only; runtime test commands were not re-run
