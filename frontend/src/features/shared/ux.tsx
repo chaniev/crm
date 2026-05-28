@@ -1,9 +1,11 @@
 import {
   Alert,
+  Drawer,
   Group,
   Loader,
   Modal,
   Paper,
+  Popover,
   Skeleton as MantineSkeleton,
   Stack,
   Tabs,
@@ -14,11 +16,23 @@ import {
   type PaperProps,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconAlertCircle, IconRefresh } from '@tabler/icons-react'
+import {
+  IconAdjustmentsHorizontal,
+  IconAlertCircle,
+  IconFilter,
+  IconFilterOff,
+  IconRefresh,
+} from '@tabler/icons-react'
 import {
   Children,
   cloneElement,
   isValidElement,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
   type ComponentPropsWithoutRef,
   type MouseEventHandler,
   type ReactElement,
@@ -253,6 +267,321 @@ export function FilterToolbar({
       {actions ? <div className="filter-toolbar__actions">{actions}</div> : null}
     </div>
   )
+}
+
+export type CompactFilterPlacement = 'inline' | 'popover' | 'sheet'
+
+export type CompactFilterItem = {
+  key: string
+  label: string
+  render: (placement: CompactFilterPlacement) => ReactNode
+}
+
+type CompactFilterPanelProps = ComponentPropsWithoutRef<'div'> & {
+  primary: CompactFilterItem[]
+  secondary?: CompactFilterItem[]
+  className?: string
+  mobileLabel?: string
+  moreLabel?: string
+  onReset: () => void
+  resetLabel?: string
+  sheetTitle?: string
+}
+
+const compactFilterGapPx = 8
+const compactFilterMobileQuery = '(max-width: 47.99em)'
+
+export function CompactFilterPanel({
+  primary,
+  secondary = [],
+  className,
+  mobileLabel = 'Фильтры',
+  moreLabel = 'Ещё фильтры',
+  onReset,
+  resetLabel = 'Сбросить',
+  sheetTitle = 'Фильтры',
+  ...props
+}: CompactFilterPanelProps) {
+  const isMobile = useMediaQuery(compactFilterMobileQuery)
+  const [moreOpened, setMoreOpened] = useState(false)
+  const [sheetOpened, setSheetOpened] = useState(false)
+  const [visiblePrimaryCount, setVisiblePrimaryCount] = useState(primary.length)
+  const rowRef = useRef<HTMLDivElement | null>(null)
+  const widthCacheRef = useRef<{
+    filters: Map<string, number>
+    more: number
+    reset: number
+  }>({
+    filters: new Map(),
+    more: 0,
+    reset: 0,
+  })
+  const hasSecondaryFilters = secondary.length > 0
+  const hasMoreAction = hasSecondaryFilters
+  const canOverflowPrimary = hasSecondaryFilters
+
+  const measureLayout = useCallback(() => {
+    if (!canOverflowPrimary || isMobile) {
+      setVisiblePrimaryCount(primary.length)
+      return
+    }
+
+    const row = rowRef.current
+
+    if (!row) {
+      setVisiblePrimaryCount(primary.length)
+      return
+    }
+
+    const availableWidth = row.clientWidth
+
+    if (availableWidth <= 0) {
+      setVisiblePrimaryCount(primary.length)
+      return
+    }
+
+    row.querySelectorAll<HTMLElement>('[data-filter-key]').forEach((node) => {
+      const key = node.dataset.filterKey
+
+      if (key && node.offsetWidth > 0) {
+        widthCacheRef.current.filters.set(key, node.offsetWidth)
+      }
+    })
+
+    const moreNode = row.querySelector<HTMLElement>('.compact-filter-panel__more')
+    const resetNode = row.querySelector<HTMLElement>('.compact-filter-panel__reset')
+
+    if (moreNode && moreNode.offsetWidth > 0) {
+      widthCacheRef.current.more = moreNode.offsetWidth
+    }
+
+    if (resetNode && resetNode.offsetWidth > 0) {
+      widthCacheRef.current.reset = resetNode.offsetWidth
+    }
+
+    const primaryWidths = primary.map((item) =>
+      widthCacheRef.current.filters.get(item.key) ??
+      getEstimatedCompactFilterWidth(item.label),
+    )
+    const moreWidth = widthCacheRef.current.more ||
+      getEstimatedCompactActionWidth(moreLabel)
+    const resetWidth = widthCacheRef.current.reset ||
+      getEstimatedCompactActionWidth(resetLabel)
+
+    const actionCount = hasMoreAction ? 2 : 1
+    const actionWidth =
+      moreWidth + resetWidth + (actionCount - 1) * compactFilterGapPx
+
+    let nextVisibleCount = primary.length
+
+    while (nextVisibleCount > 0) {
+      const primaryWidth = primaryWidths
+        .slice(0, nextVisibleCount)
+        .reduce((sum, width) => sum + width, 0)
+      const primaryGapWidth = Math.max(0, nextVisibleCount - 1) *
+        compactFilterGapPx
+      const rowGapWidth = nextVisibleCount > 0 ? compactFilterGapPx : 0
+      const requiredWidth =
+        primaryWidth + primaryGapWidth + rowGapWidth + actionWidth
+
+      if (requiredWidth <= availableWidth) {
+        break
+      }
+
+      nextVisibleCount -= 1
+    }
+
+    setVisiblePrimaryCount(nextVisibleCount)
+  }, [canOverflowPrimary, hasMoreAction, isMobile, moreLabel, primary, resetLabel])
+
+  useLayoutEffect(() => {
+    const frameId = window.requestAnimationFrame(measureLayout)
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [measureLayout])
+
+  useEffect(() => {
+    const row = rowRef.current
+
+    if (!row || typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measureLayout)
+      return () => window.removeEventListener('resize', measureLayout)
+    }
+
+    const observer = new ResizeObserver(measureLayout)
+    observer.observe(row)
+
+    return () => observer.disconnect()
+  }, [measureLayout])
+
+  const [visiblePrimary, overflowedPrimary] = useMemo(() => {
+    if (!canOverflowPrimary) {
+      return [primary, []] as const
+    }
+
+    return [
+      primary.slice(0, visiblePrimaryCount),
+      primary.slice(visiblePrimaryCount),
+    ] as const
+  }, [canOverflowPrimary, primary, visiblePrimaryCount])
+  const moreFilters = useMemo(
+    () => [...overflowedPrimary, ...secondary],
+    [overflowedPrimary, secondary],
+  )
+  const allFilters = useMemo(
+    () => [...primary, ...secondary],
+    [primary, secondary],
+  )
+
+  function handleReset() {
+    onReset()
+  }
+
+  function renderFilterItem(
+    item: CompactFilterItem,
+    placement: CompactFilterPlacement,
+  ) {
+    return (
+      <div
+        className={[
+          'compact-filter-panel__item',
+          `compact-filter-panel__item--${placement}`,
+        ].join(' ')}
+        data-filter-key={item.key}
+        key={item.key}
+      >
+        {item.render(placement)}
+      </div>
+    )
+  }
+
+  const resetButton = (
+    <Button
+      className="compact-filter-panel__action compact-filter-panel__reset"
+      leftSection={<IconFilterOff size={16} />}
+      onClick={handleReset}
+      type="button"
+      variant="secondary"
+    >
+      {resetLabel}
+    </Button>
+  )
+
+  const moreButton = (
+    <Button
+      className="compact-filter-panel__action compact-filter-panel__more"
+      leftSection={<IconAdjustmentsHorizontal size={16} />}
+      type="button"
+      variant="secondary"
+    >
+      {moreLabel}
+    </Button>
+  )
+
+  if (isMobile) {
+    return (
+      <div
+        className={[
+          'filter-toolbar',
+          'compact-filter-panel',
+          'compact-filter-panel--mobile',
+          className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        {...props}
+      >
+        <Button
+          className="compact-filter-panel__mobile-launcher"
+          fullWidth
+          leftSection={<IconFilter size={16} />}
+          onClick={() => setSheetOpened(true)}
+          type="button"
+          variant="secondary"
+        >
+          {mobileLabel}
+        </Button>
+        <Drawer
+          classNames={{
+            body: 'compact-filter-panel__sheet-body',
+            content: 'compact-filter-panel__sheet-content',
+            header: 'compact-filter-panel__sheet-header',
+          }}
+          onClose={() => setSheetOpened(false)}
+          opened={sheetOpened}
+          position="bottom"
+          size="100%"
+          title={sheetTitle}
+          withCloseButton
+        >
+          <Stack gap="md">
+            {allFilters.map((item) => renderFilterItem(item, 'sheet'))}
+            <Button
+              leftSection={<IconFilterOff size={16} />}
+              onClick={handleReset}
+              type="button"
+              variant="secondary"
+            >
+              {resetLabel}
+            </Button>
+          </Stack>
+        </Drawer>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={[
+        'filter-toolbar',
+        'compact-filter-panel',
+        'compact-filter-panel--desktop',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      {...props}
+    >
+      <div className="compact-filter-panel__desktop-row" ref={rowRef}>
+        <div className="compact-filter-panel__primary-row">
+          {visiblePrimary.map((item) => renderFilterItem(item, 'inline'))}
+        </div>
+        <div className="compact-filter-panel__actions">
+          {hasMoreAction ? (
+            <Popover
+              onChange={setMoreOpened}
+              opened={moreOpened}
+              position="bottom-end"
+              shadow="none"
+              trapFocus
+              width={320}
+              withinPortal
+            >
+              <Popover.Target>
+                {cloneElement(moreButton, {
+                  onClick: () => setMoreOpened((opened) => !opened),
+                } as Partial<SharedButtonProps>)}
+              </Popover.Target>
+              <Popover.Dropdown className="compact-filter-panel__popover">
+                <Stack gap="sm">
+                  {moreFilters.map((item) => renderFilterItem(item, 'popover'))}
+                </Stack>
+              </Popover.Dropdown>
+            </Popover>
+          ) : null}
+          {resetButton}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function getEstimatedCompactFilterWidth(label: string) {
+  return Math.min(220, Math.max(140, label.length * 8 + 56))
+}
+
+function getEstimatedCompactActionWidth(label: string) {
+  return Math.min(180, Math.max(112, label.length * 8 + 48))
 }
 
 type PageHeaderProps = {

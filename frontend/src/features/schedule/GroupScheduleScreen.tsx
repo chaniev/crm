@@ -1,6 +1,5 @@
 import {
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
@@ -13,20 +12,16 @@ import {
   Badge,
   Group,
   Select,
-  SimpleGrid,
   Stack,
   Text,
   ThemeIcon,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import {
-  IconAdjustmentsHorizontal,
   IconBuilding,
   IconCalendarWeek,
   IconClockHour4,
   IconDoor,
-  IconFilter,
-  IconFilterOff,
   IconMapPin,
   IconRefresh,
   IconUser,
@@ -50,7 +45,6 @@ import {
   getScheduleEntryGridMetrics,
   getScheduleTypeKey,
   getScheduleTypePalette,
-  hasActiveScheduleFilters,
   type ScheduleCalendarDay,
   type ScheduleCalendarEntry,
   type ScheduleFilterOptions,
@@ -61,16 +55,15 @@ import {
   type ScheduleWeekdayLabel,
   type WeekdayNumber,
 } from '../../lib/groupSchedule'
-import { Button } from '../shared/Button'
 import {
+  CompactFilterPanel,
   EmptyState,
   ErrorState,
-  FilterToolbar,
   LoadingState,
   IconButton,
   PageSection,
   RefreshButton,
-  ResponsiveButtonGroup,
+  type CompactFilterItem,
 } from '../shared/ux'
 
 const SCHEDULE_GROUPS_PAGE_SIZE = 100
@@ -104,14 +97,11 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [filters, setFilters] = useState<ScheduleFilters>(EMPTY_SCHEDULE_FILTERS)
-  const [filtersExpanded, setFiltersExpanded] = useState(false)
   const [now, setNow] = useState(() => new Date())
   const [selectedWeekday, setSelectedWeekday] = useState<WeekdayNumber>(() =>
     getCurrentScheduleWeekday(),
   )
-  const filterPanelId = useId()
   const firstLoadRef = useRef(true)
-  const isMobile = useMediaQuery(MOBILE_BREAKPOINT)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -206,8 +196,6 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
 
   const isInitialLoading = loading && groups.length === 0
   const hasStaleSchedule = groups.length > 0
-  const hasActiveFilters = hasActiveScheduleFilters(filters)
-  const activeFilterCount = countActiveScheduleFilters(filters)
   const requestReload = () => {
     setNow(new Date())
     setReloadKey((currentKey) => currentKey + 1)
@@ -235,34 +223,14 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
             onClick={requestReload}
             size={42}
           />
-          {isMobile ? (
-            <ScheduleFilterActions
-              activeFilterCount={activeFilterCount}
-              filterPanelId={filterPanelId}
-              filtersExpanded={filtersExpanded}
-              onToggleFilters={() => setFiltersExpanded((isExpanded) => !isExpanded)}
-            />
-          ) : null}
         </Group>
       </div>
 
-      {!isMobile || filtersExpanded ? (
-        <PageSection
-          className="schedule-filters-panel"
-          data-testid="schedule-filter-panel"
-          density="compact"
-        >
-          <div id={filterPanelId}>
-            <ScheduleFiltersToolbar
-              desktopPresentation={!isMobile}
-              filterOptions={filterOptions}
-              filters={filters}
-              hasActiveFilters={hasActiveFilters}
-              setFilters={setFilters}
-            />
-          </div>
-        </PageSection>
-      ) : null}
+      <ScheduleFiltersToolbar
+        filterOptions={filterOptions}
+        filters={filters}
+        setFilters={setFilters}
+      />
 
       {isInitialLoading ? (
         <PageSection>
@@ -311,27 +279,15 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
             />
           ) : (
             <Stack gap="md">
-              {isMobile ? (
-                <ScheduleMobileList
-                  currentWeekday={currentWeekday}
-                  dayCounts={dayCounts}
-                  dayLabels={dayLabels}
-                  days={calendarWeek.days}
-                  selectedWeekday={selectedWeekday}
-                  setSelectedWeekday={setSelectedWeekday}
-                  visibleHourRange={calendarWeek.visibleHourRange}
-                />
-              ) : (
-                <div className="schedule-board__viewport">
-                  <ScheduleDesktopGrid
-                    currentWeekday={currentWeekday}
-                    dayCounts={dayCounts}
-                    dayLabels={dayLabels}
-                    days={calendarWeek.days}
-                    visibleHourRange={calendarWeek.visibleHourRange}
-                  />
-                </div>
-              )}
+              <ResponsiveScheduleContent
+                currentWeekday={currentWeekday}
+                dayCounts={dayCounts}
+                dayLabels={dayLabels}
+                days={calendarWeek.days}
+                selectedWeekday={selectedWeekday}
+                setSelectedWeekday={setSelectedWeekday}
+                visibleHourRange={calendarWeek.visibleHourRange}
+              />
 
               <ScheduleTypeLegend legend={typeLegend} />
             </Stack>
@@ -342,135 +298,145 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   )
 }
 
-type ScheduleFilterActionsProps = {
-  activeFilterCount: number
-  filterPanelId: string
-  filtersExpanded: boolean
-  onToggleFilters: () => void
-}
-
-function ScheduleFilterActions({
-  activeFilterCount,
-  filterPanelId,
-  filtersExpanded,
-  onToggleFilters,
-}: ScheduleFilterActionsProps) {
-  return (
-    <Group
-      className="schedule-header-actions"
-      gap="sm"
-      justify="flex-end"
-      wrap="nowrap"
-    >
-      <Button
-        aria-controls={filterPanelId}
-        aria-expanded={filtersExpanded}
-        className="schedule-filter-toggle"
-        leftSection={<IconFilter size={18} />}
-        onClick={onToggleFilters}
-        variant={filtersExpanded || activeFilterCount > 0 ? 'primary' : 'secondary'}
-      >
-        <span>Фильтры</span>
-        {activeFilterCount > 0 ? (
-          <span aria-hidden="true" className="schedule-filter-toggle__count">
-            {activeFilterCount}
-          </span>
-        ) : null}
-      </Button>
-
-      <IconButton
-        aria-controls={filterPanelId}
-        aria-expanded={filtersExpanded}
-        className="schedule-filter-settings-button"
-        icon={<IconAdjustmentsHorizontal size={18} />}
-        label="Настроить фильтры"
-        onClick={onToggleFilters}
-        size={42}
-      />
-    </Group>
-  )
-}
-
 type ScheduleFiltersToolbarProps = {
-  desktopPresentation: boolean
   filterOptions: ScheduleFilterOptions
   filters: ScheduleFilters
-  hasActiveFilters: boolean
   setFilters: Dispatch<SetStateAction<ScheduleFilters>>
 }
 
 function ScheduleFiltersToolbar({
-  desktopPresentation,
   filterOptions,
   filters,
-  hasActiveFilters,
   setFilters,
 }: ScheduleFiltersToolbarProps) {
-  return (
-    <FilterToolbar
-      actions={
-        <ResponsiveButtonGroup justify="flex-end">
-          <Button
-            disabled={!hasActiveFilters}
-            leftSection={<IconFilterOff size={17} />}
-            onClick={() => setFilters(EMPTY_SCHEDULE_FILTERS)}
-            variant="secondary"
-          >
-            Сбросить фильтры
-          </Button>
-        </ResponsiveButtonGroup>
-      }
-      className="schedule-filter-toolbar"
-      data-active-filters={hasActiveFilters ? 'true' : undefined}
-    >
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
+  const filterItems = [
+    {
+      key: 'branchId',
+      label: 'Филиал',
+      render: () => (
         <Select
           clearable
           data={filterOptions.branches}
           label="Филиал"
-          leftSection={desktopPresentation ? <IconBuilding size={22} /> : undefined}
+          leftSection={<IconBuilding size={16} />}
           onChange={(value) => updateFilter(setFilters, 'branchId', value)}
           placeholder="Все филиалы"
           searchable
-          className={desktopPresentation ? 'schedule-filter-select' : undefined}
           value={filters.branchId}
         />
+      ),
+    },
+    {
+      key: 'hallId',
+      label: 'Зал',
+      render: () => (
         <Select
           clearable
           data={filterOptions.halls}
           label="Зал"
-          leftSection={desktopPresentation ? <IconDoor size={22} /> : undefined}
+          leftSection={<IconDoor size={16} />}
           onChange={(value) => updateFilter(setFilters, 'hallId', value)}
           placeholder="Все залы"
           searchable
-          className={desktopPresentation ? 'schedule-filter-select' : undefined}
           value={filters.hallId}
         />
+      ),
+    },
+    {
+      key: 'trainerId',
+      label: 'Тренер',
+      render: () => (
         <Select
           clearable
           data={filterOptions.trainers}
           label="Тренер"
-          leftSection={desktopPresentation ? <IconUser size={22} /> : undefined}
+          leftSection={<IconUser size={16} />}
           onChange={(value) => updateFilter(setFilters, 'trainerId', value)}
           placeholder="Все тренеры"
           searchable
-          className={desktopPresentation ? 'schedule-filter-select' : undefined}
           value={filters.trainerId}
         />
+      ),
+    },
+    {
+      key: 'groupId',
+      label: 'Группа',
+      render: () => (
         <Select
           clearable
           data={filterOptions.groups}
           label="Группа"
-          leftSection={desktopPresentation ? <IconUsers size={22} /> : undefined}
+          leftSection={<IconUsers size={16} />}
           onChange={(value) => updateFilter(setFilters, 'groupId', value)}
           placeholder="Все группы"
           searchable
-          className={desktopPresentation ? 'schedule-filter-select' : undefined}
           value={filters.groupId}
         />
-      </SimpleGrid>
-    </FilterToolbar>
+      ),
+    },
+  ] satisfies CompactFilterItem[]
+
+  return (
+    <CompactFilterPanel
+      className="schedule-filter-toolbar"
+      data-testid="schedule-filter-panel"
+      onReset={() => setFilters(EMPTY_SCHEDULE_FILTERS)}
+      primary={filterItems}
+      resetLabel="Сбросить"
+    />
   )
+}
+
+type ResponsiveScheduleContentProps = {
+  currentWeekday: WeekdayNumber
+  dayCounts: Record<WeekdayNumber, number>
+  dayLabels: ScheduleWeekdayLabel[]
+  days: ScheduleCalendarDay<TrainingGroupListItem>[]
+  selectedWeekday: WeekdayNumber
+  setSelectedWeekday: (weekday: WeekdayNumber) => void
+  visibleHourRange: ScheduleVisibleHourRange
+}
+
+function ResponsiveScheduleContent({
+  currentWeekday,
+  dayCounts,
+  dayLabels,
+  days,
+  selectedWeekday,
+  setSelectedWeekday,
+  visibleHourRange,
+}: ResponsiveScheduleContentProps) {
+  const isMobile = useScheduleMobileViewport()
+
+  if (isMobile) {
+    return (
+      <ScheduleMobileList
+        currentWeekday={currentWeekday}
+        dayCounts={dayCounts}
+        dayLabels={dayLabels}
+        days={days}
+        selectedWeekday={selectedWeekday}
+        setSelectedWeekday={setSelectedWeekday}
+        visibleHourRange={visibleHourRange}
+      />
+    )
+  }
+
+  return (
+    <div className="schedule-board__viewport">
+      <ScheduleDesktopGrid
+        currentWeekday={currentWeekday}
+        dayCounts={dayCounts}
+        dayLabels={dayLabels}
+        days={days}
+        visibleHourRange={visibleHourRange}
+      />
+    </div>
+  )
+}
+
+function useScheduleMobileViewport() {
+  return useMediaQuery(MOBILE_BREAKPOINT)
 }
 
 function ScheduleTypeLegend({
@@ -996,10 +962,6 @@ function handleScheduleDayStripKeyDown(
   const nextWeekday = WEEKDAY_BY_INDEX[nextIndex] ?? weekday
 
   selectWeekday(nextWeekday)
-}
-
-function countActiveScheduleFilters(filters: ScheduleFilters) {
-  return Object.values(filters).filter(Boolean).length
 }
 
 function formatEntryCount(count: number) {

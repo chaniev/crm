@@ -114,7 +114,7 @@ export function useClientsListState({
   useEffect(() => {
     const debounceId = window.setTimeout(() => {
       updateFilters({ query: searchDraft })
-    }, 350)
+    }, 250)
 
     return () => window.clearTimeout(debounceId)
   }, [searchDraft])
@@ -237,7 +237,10 @@ export function useClientsListState({
   }
 
   function resetFilters() {
-    const nextFilters = createDefaultClientListFilters()
+    const nextFilters = {
+      ...createDefaultClientListFilters(),
+      status: 'all' as const,
+    }
 
     setSearchDraft('')
     setFilters(nextFilters)

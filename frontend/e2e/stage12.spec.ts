@@ -925,15 +925,16 @@ test.describe('Основные e2e сценарии', () => {
     await expect(page.getByTestId('clients-screen')).toBeVisible()
 
     await page.getByLabel('Поиск по имени или телефону').fill('Фильтр')
-    await page.getByText('Архив', { exact: true }).click()
-    await page.getByRole('button', { name: /Фильтры/ }).click()
     await page.getByRole('combobox', { name: 'Группа' }).click()
     await page.getByRole('option', { name: 'Фильтр-группа' }).click()
     await page.getByRole('combobox', { name: 'Оплата' }).click()
     await page.getByRole('option', { name: 'Неоплаченные' }).click()
+    await page.getByRole('button', { name: /Ещё фильтры/ }).click()
     await page.getByLabel('Истекает с').fill('2026-05-01')
+    await page.getByRole('combobox', { name: 'Статус' }).click()
+    await page.getByRole('option', { name: 'Архив' }).click()
     await page.getByLabel('Истекает по').fill('2026-05-31')
-    await page.getByLabel('Без фото').check()
+    await page.getByLabel('Без фото').click()
     await page.keyboard.press('Escape')
 
     await expect
@@ -1723,9 +1724,9 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.getByRole('combobox', { name: 'Тип действия' }).click()
     await page.getByRole('option', { name: 'Создание клиента' }).click()
+    await page.getByRole('button', { name: /Ещё фильтры/ }).click()
     await page.getByRole('combobox', { name: 'Тип объекта' }).click()
     await page.getByRole('option', { name: 'Клиент' }).click()
-    await page.getByRole('button', { name: 'Применить фильтры' }).click()
 
     await expect
       .poll(() =>
