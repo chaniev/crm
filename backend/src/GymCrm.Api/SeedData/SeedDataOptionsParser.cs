@@ -6,7 +6,7 @@ internal static class SeedDataOptionsParser
 {
     public const string Usage = """
         Usage:
-          dotnet run --project backend/src/GymCrm.Api/GymCrm.Api.csproj -- --seed-test-data [options]
+          dotnet run --no-launch-profile --project backend/src/GymCrm.Api/GymCrm.Api.csproj -- --seed-test-data [options]
 
         Options:
           --connection <value>   PostgreSQL connection string.

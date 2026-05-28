@@ -127,12 +127,12 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
 
         var now = DateTimeOffset.UtcNow;
         var validFrom = DateOnly.FromDateTime(now.UtcDateTime.Date.AddDays(-30));
-        var groupTypes = CreateGroupTypes(now);
+        var groupTypeData = await ResolveGroupTypesAsync(now, cancellationToken);
         var branches = CreateBranches(now);
         var halls = CreateHalls(now);
         var administrators = CreateAdministrators(now);
         var coaches = CreateCoaches(now);
-        var groups = CreateTrainingGroups(groupTypes, branches, halls, now);
+        var groups = CreateTrainingGroups(groupTypeData.UsedGroupTypes, branches, halls, now);
         var trainerLinks = CreateTrainerLinks(groups, coaches, administrators[0].Id, validFrom, now);
         var clientData = await CreateClientsAsync(
             groups,
@@ -141,7 +141,7 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
             now,
             cancellationToken);
 
-        dbContext.GroupTypes.AddRange(groupTypes);
+        dbContext.GroupTypes.AddRange(groupTypeData.CreatedGroupTypes);
         dbContext.Branches.AddRange(branches);
         dbContext.Halls.AddRange(halls);
         dbContext.Users.AddRange(administrators);
@@ -157,7 +157,7 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return new SeedDataSummary(
-            groupTypes.Count,
+            groupTypeData.UsedGroupTypes.Count,
             branches.Count,
             halls.Count,
             coaches.Count,
@@ -300,17 +300,42 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
         return new GymCrmDbContext(optionsBuilder.Options);
     }
 
-    private static List<GroupType> CreateGroupTypes(DateTimeOffset now) =>
-        GroupTypeNames
-            .Select((name, index) => new GroupType
+    private async Task<GroupTypeSeedData> ResolveGroupTypesAsync(
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var existingGroupTypes = await dbContext.GroupTypes
+            .AsNoTracking()
+            .Where(groupType => GroupTypeNames.Contains(groupType.Name))
+            .ToDictionaryAsync(groupType => groupType.Name, cancellationToken);
+
+        var usedGroupTypes = new List<GroupType>(GroupTypeNames.Length);
+        var createdGroupTypes = new List<GroupType>(GroupTypeNames.Length);
+
+        for (var index = 0; index < GroupTypeNames.Length; index++)
+        {
+            var name = GroupTypeNames[index];
+            if (existingGroupTypes.TryGetValue(name, out var existingGroupType))
+            {
+                usedGroupTypes.Add(existingGroupType);
+                continue;
+            }
+
+            var createdGroupType = new GroupType
             {
                 Id = SeedIds.GroupType(index + 1),
                 Name = name,
                 Description = $"Тестовый тип групп: {name}.",
                 CreatedAt = now,
                 UpdatedAt = now
-            })
-            .ToList();
+            };
+
+            usedGroupTypes.Add(createdGroupType);
+            createdGroupTypes.Add(createdGroupType);
+        }
+
+        return new GroupTypeSeedData(usedGroupTypes, createdGroupTypes);
+    }
 
     private static List<Branch> CreateBranches(DateTimeOffset now) =>
         BranchNames
