@@ -338,7 +338,7 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-card-1-group-alpha')).toHaveCount(0)
     await expect(page.getByTestId('schedule-type-legend')).toContainText('Интенсив')
 
-    await page.getByRole('button', { name: 'Сбросить фильтры' }).click()
+    await page.getByRole('button', { name: 'Сбросить' }).click()
     await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
     expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
     expect(requestStats.groupsCollectionGetCalls).toBe(0)
@@ -392,6 +392,11 @@ test.describe('Расписание групповых занятий', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     await mockApi(page, headCoachSession, scheduleGroups, requestStats)
     await page.goto('/schedule')
+
+    await expect(page.getByTestId('schedule-filter-panel').getByLabel('Филиал')).toHaveCount(0)
+    await page.getByTestId('schedule-filter-panel').getByRole('button', { name: 'Фильтры' }).click()
+    await expect(page.getByRole('combobox', { name: 'Филиал' })).toBeVisible()
+    await page.keyboard.press('Escape')
 
     await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()
     await expect(page.getByTestId('schedule-mobile-day-strip')).toBeVisible()

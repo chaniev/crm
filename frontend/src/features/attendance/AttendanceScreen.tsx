@@ -31,12 +31,13 @@ import { formatGroupSchedule } from '../../lib/groupSchedule'
 import {
   EmptyState,
   ErrorState,
-  FilterToolbar,
+  CompactFilterPanel,
   LoadingState,
   PageLayout,
   PageSection,
   RefreshButton,
   SectionHeader,
+  type CompactFilterItem,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 
@@ -243,12 +244,45 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
     }
   }
 
+  function handleResetFilters() {
+    setSelectedGroupId(groups[0]?.id ?? null)
+    setTrainingDate(formatDateInputValue())
+  }
+
   const groupOptions = groups.map((group) => ({
     value: group.id,
     label: group.name,
   }))
   const selectedGroup =
     groups.find((group) => group.id === selectedGroupId) ?? null
+  const filterItems = [
+    {
+      key: 'selectedGroupId',
+      label: 'Группа',
+      render: () => (
+        <Select
+          data={groupOptions}
+          label="Группа"
+          onChange={setSelectedGroupId}
+          placeholder="Выберите группу"
+          searchable
+          value={selectedGroupId}
+        />
+      ),
+    },
+    {
+      key: 'trainingDate',
+      label: 'Дата тренировки',
+      render: () => (
+        <TextInput
+          label="Дата тренировки"
+          onChange={(event) => setTrainingDate(event.currentTarget.value)}
+          type="date"
+          value={trainingDate}
+        />
+      ),
+    },
+  ] satisfies CompactFilterItem[]
 
   return (
     <PageLayout
@@ -261,62 +295,47 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
       data-testid="attendance-screen"
       title="Посещения"
     >
-      <PageSection>
-        <Stack gap="lg">
-          <SectionHeader title="Фильтры посещений" />
+      {groupsError ? (
+        <PageSection>
+          <ErrorState
+            message={groupsError}
+            title="Группы для посещений не загрузились"
+          />
+        </PageSection>
+      ) : null}
 
-          {groupsError ? (
-            <ErrorState
-              message={groupsError}
-              title="Группы для посещений не загрузились"
-            />
-          ) : null}
+      {groupsLoading ? (
+        <PageSection>
+          <LoadingState label="Загружаем доступные группы..." />
+        </PageSection>
+      ) : null}
 
-          {groupsLoading ? (
-            <LoadingState label="Загружаем доступные группы..." />
-          ) : null}
+      {!groupsLoading && !groupsError && groups.length === 0 ? (
+        <PageSection>
+          <EmptyState
+            description={
+              user.role === 'Coach'
+                ? 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'
+                : 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'
+            }
+            icon={<IconUsersGroup size={24} />}
+            title={
+              user.role === 'Coach'
+                ? 'Назначенные группы отсутствуют'
+                : 'Доступные группы пока отсутствуют'
+            }
+          />
+        </PageSection>
+      ) : null}
 
-          {!groupsLoading && !groupsError && groups.length === 0 ? (
-            <EmptyState
-              description={
-                user.role === 'Coach'
-                  ? 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'
-                  : 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'
-              }
-              icon={<IconUsersGroup size={24} />}
-              title={
-                user.role === 'Coach'
-                  ? 'Назначенные группы отсутствуют'
-                  : 'Доступные группы пока отсутствуют'
-              }
-            />
-          ) : null}
-
-          {!groupsLoading && !groupsError && groups.length > 0 ? (
-            <FilterToolbar
-              className="attendance-filter-toolbar"
-              data-testid="attendance-toolbar"
-            >
-              <Select
-                data={groupOptions}
-                label="Группа"
-                onChange={setSelectedGroupId}
-                placeholder="Выберите группу"
-                radius="xl"
-                searchable
-                value={selectedGroupId}
-              />
-              <TextInput
-                label="Дата тренировки"
-                onChange={(event) => setTrainingDate(event.currentTarget.value)}
-                radius="xl"
-                type="date"
-                value={trainingDate}
-              />
-            </FilterToolbar>
-          ) : null}
-        </Stack>
-      </PageSection>
+      {!groupsLoading && !groupsError && groups.length > 0 ? (
+        <CompactFilterPanel
+          className="attendance-filter-toolbar"
+          data-testid="attendance-toolbar"
+          onReset={handleResetFilters}
+          primary={filterItems}
+        />
+      ) : null}
 
       {!groupsLoading && !groupsError && selectedGroup ? (
         <PageSection>

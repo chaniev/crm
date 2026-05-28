@@ -5,6 +5,7 @@ import {
   Badge,
   Group,
   Paper,
+  SegmentedControl,
   Select,
   SimpleGrid,
   Stack,
@@ -18,7 +19,6 @@ import {
   IconAlertCircle,
   IconCalendarEvent,
   IconChartBar,
-  IconFilter,
   IconReportMoney,
 } from '@tabler/icons-react'
 import {
@@ -39,16 +39,16 @@ import {
   type TrainerOption,
 } from '../../lib/api'
 import {
-  Button,
+  CompactFilterPanel,
   EmptyState,
   ErrorState,
-  FilterToolbar,
   LoadingState,
   PageLayout,
   PageSection,
   RefreshButton,
-  ResponsiveButtonGroup,
   SectionHeader,
+  type CompactFilterItem,
+  type CompactFilterPlacement,
 } from '../shared/ux'
 
 type FinanceReportsScreenProps = {
@@ -278,21 +278,17 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
     setAppliedFilters(nextFilters)
   }
 
-  function handlePresetClick(preset: FinancialReportPeriodPreset) {
+  function updateFilters(nextFilters: Partial<FinanceFilterValues>) {
     const nextValues = normalizeFilterValues({
       ...form.values,
-      periodPreset: preset,
+      ...nextFilters,
     })
 
-    form.setValues(nextValues)
-
-    if (preset !== 'custom') {
-      applyFilters(nextValues)
-    }
+    applyFilters(nextValues)
   }
 
   function handleResetFilters() {
-    const nextFilters = createInitialFilterValues()
+    const nextFilters = createClearedFilterValues()
 
     form.setValues(nextFilters)
     form.clearErrors()
@@ -316,6 +312,117 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
   const hasReport = Boolean(report)
   const isInitialReportLoading = reportLoading && !hasReport
   const isRefreshingReport = reportLoading && hasReport
+  const filterErrorMessages = Object.values(form.errors).filter(
+    (message): message is string => typeof message === 'string' && message.length > 0,
+  )
+  const primaryFilters = [
+    {
+      key: 'periodPreset',
+      label: 'Быстрый период',
+      render: (placement) => (
+        <CompactFilterField label="Быстрый период" placement={placement}>
+          <SegmentedControl
+            aria-label="Быстрый период"
+            data={periodOptions}
+            onChange={(value) =>
+              updateFilters({
+                periodPreset: value as FinancialReportPeriodPreset,
+              })
+            }
+            value={form.values.periodPreset}
+          />
+        </CompactFilterField>
+      ),
+    },
+    {
+      key: 'branchId',
+      label: 'Филиал',
+      render: () => (
+        <Select
+          clearable
+          data={branchOptions}
+          disabled={optionsLoading}
+          label="Филиал"
+          name="branchId"
+          onChange={(value) => updateFilters({ branchId: value })}
+          placeholder="Все филиалы"
+          searchable
+          value={form.values.branchId}
+        />
+      ),
+    },
+    {
+      key: 'trainerId',
+      label: 'Тренер',
+      render: () => (
+        <Select
+          clearable
+          data={trainerOptions}
+          disabled={optionsLoading}
+          label="Тренер"
+          name="trainerId"
+          onChange={(value) => updateFilters({ trainerId: value })}
+          placeholder="Все тренеры"
+          searchable
+          value={form.values.trainerId}
+        />
+      ),
+    },
+  ] satisfies CompactFilterItem[]
+  const secondaryFilters = [
+    ...(form.values.periodPreset === 'custom'
+      ? [
+          {
+            key: 'from',
+            label: 'С',
+            render: (placement: CompactFilterPlacement) => (
+              <TextInput
+                error={placement === 'inline' ? undefined : form.errors.from}
+                label="С"
+                leftSection={<IconCalendarEvent size={16} />}
+                name="from"
+                onChange={(event) => updateFilters({ from: event.currentTarget.value })}
+                type="date"
+                value={form.values.from}
+              />
+            ),
+          },
+          {
+            key: 'to',
+            label: 'По',
+            render: (placement: CompactFilterPlacement) => (
+              <TextInput
+                error={placement === 'inline' ? undefined : form.errors.to}
+                label="По"
+                leftSection={<IconCalendarEvent size={16} />}
+                name="to"
+                onChange={(event) => updateFilters({ to: event.currentTarget.value })}
+                type="date"
+                value={form.values.to}
+              />
+            ),
+          },
+        ]
+      : [
+          {
+            key: 'anchorDate',
+            label: 'Дата в периоде',
+            render: (placement: CompactFilterPlacement) => (
+              <TextInput
+                error={placement === 'inline' ? undefined : form.errors.anchorDate}
+                label="Дата в периоде"
+                leftSection={<IconCalendarEvent size={16} />}
+                name="anchorDate"
+                onChange={(event) =>
+                  updateFilters({ anchorDate: event.currentTarget.value })
+                }
+                type="date"
+                value={form.values.anchorDate}
+              />
+            ),
+          },
+        ]),
+  ] satisfies CompactFilterItem[]
 
   return (
     <PageLayout
@@ -328,139 +435,42 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
       data-testid="finance-screen"
       title="Финансы"
     >
-      <PageSection className="finance-filter-card">
-        <Stack gap="lg">
-          <SectionHeader title="Фильтры отчета" />
-
-          {optionsError ? (
-            <Alert
-              color="yellow"
-              icon={<IconAlertCircle size={18} />}
-              title="Списки фильтров не загрузились"
-              variant="light"
-            >
-              {optionsError}
-            </Alert>
-          ) : null}
-
-          {filterError ? (
-            <Alert
-              color="red"
-              icon={<IconAlertCircle size={18} />}
-              title="Проверьте фильтры"
-              variant="light"
-            >
-              {filterError}
-            </Alert>
-          ) : null}
-
-          <form
-            data-testid="finance-filter-form"
-            onSubmit={form.onSubmit(applyFilters)}
+      <Stack gap="sm">
+        {optionsError ? (
+          <Alert
+            color="yellow"
+            icon={<IconAlertCircle size={18} />}
+            title="Списки фильтров не загрузились"
+            variant="light"
           >
-            <FilterToolbar
-              actions={
-                <ResponsiveButtonGroup>
-                  <Button
-                    leftSection={<IconFilter size={18} />}
-                    loading={isInitialReportLoading}
-                    type="submit"
-                  >
-                    Показать
-                  </Button>
-                  <Button onClick={handleResetFilters} type="button" variant="secondary">
-                    Сбросить
-                  </Button>
-                </ResponsiveButtonGroup>
-              }
-              className="finance-report-toolbar"
-            >
-              <Stack gap="md">
-                <SimpleGrid
-                  className="finance-period-grid"
-                  cols={{ base: 2, md: 4 }}
-                >
-                  {periodOptions.map((option) => (
-                    <Button
-                      aria-pressed={form.values.periodPreset === option.value}
-                      className="finance-period-button"
-                      data-active={
-                        form.values.periodPreset === option.value || undefined
-                      }
-                      key={option.value}
-                      leftSection={<IconCalendarEvent size={18} />}
-                      onClick={() => handlePresetClick(option.value)}
-                      type="button"
-                      variant={
-                        form.values.periodPreset === option.value
-                          ? 'primary'
-                          : 'pill'
-                      }
-                    >
-                      {option.label}
-                    </Button>
-                  ))}
-                </SimpleGrid>
-                {form.errors.periodPreset ? (
-                  <Text c="red" size="sm">
-                    {form.errors.periodPreset}
-                  </Text>
-                ) : null}
+            {optionsError}
+          </Alert>
+        ) : null}
 
-                <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }}>
-                  {form.values.periodPreset === 'custom' ? (
-                    <>
-                      <TextInput
-                        label="С"
-                        leftSection={<IconCalendarEvent size={16} />}
-                        name="from"
-                        type="date"
-                        {...form.getInputProps('from')}
-                      />
-                      <TextInput
-                        label="По"
-                        leftSection={<IconCalendarEvent size={16} />}
-                        name="to"
-                        type="date"
-                        {...form.getInputProps('to')}
-                      />
-                    </>
-                  ) : (
-                    <TextInput
-                      label="Дата в периоде"
-                      leftSection={<IconCalendarEvent size={16} />}
-                      name="anchorDate"
-                      type="date"
-                      {...form.getInputProps('anchorDate')}
-                    />
-                  )}
+        {filterError ? (
+          <Alert
+            color="red"
+            icon={<IconAlertCircle size={18} />}
+            title="Проверьте фильтры"
+            variant="light"
+          >
+            <Stack gap={4}>
+              <Text>{filterError}</Text>
+              {filterErrorMessages.map((message) => (
+                <Text key={message}>{message}</Text>
+              ))}
+            </Stack>
+          </Alert>
+        ) : null}
 
-                  <Select
-                    clearable
-                    data={branchOptions}
-                    disabled={optionsLoading}
-                    label="Филиал"
-                    name="branchId"
-                    placeholder="Все филиалы"
-                    searchable
-                    {...form.getInputProps('branchId')}
-                  />
-                  <Select
-                    clearable
-                    data={trainerOptions}
-                    disabled={optionsLoading}
-                    label="Тренер"
-                    name="trainerId"
-                    placeholder="Все тренеры"
-                    searchable
-                    {...form.getInputProps('trainerId')}
-                  />
-                </SimpleGrid>
-              </Stack>
-            </FilterToolbar>
-          </form>
-        </Stack>
-      </PageSection>
+        <CompactFilterPanel
+          className="finance-report-toolbar"
+          data-testid="finance-filter-panel"
+          onReset={handleResetFilters}
+          primary={primaryFilters}
+          secondary={secondaryFilters}
+        />
+      </Stack>
 
       <PageSection>
         <Stack gap="lg">
@@ -573,6 +583,22 @@ type FinanceMetricProps = {
   label: string
   value: string
   description: string
+}
+
+function CompactFilterField({
+  children,
+  label,
+}: {
+  children: ReactNode
+  label: string
+  placement: CompactFilterPlacement
+}) {
+  return (
+    <Stack className="compact-filter-field" gap={4}>
+      <Text className="compact-filter-field__label">{label}</Text>
+      {children}
+    </Stack>
+  )
 }
 
 function FinanceMetric({ label, value, description }: FinanceMetricProps) {
@@ -940,6 +966,17 @@ function createInitialFilterValues(): FinanceFilterValues {
     anchorDate: toDateInputValue(today),
     from: toDateInputValue(firstDayOfMonth),
     to: toDateInputValue(today),
+    branchId: null,
+    trainerId: null,
+  }
+}
+
+function createClearedFilterValues(): FinanceFilterValues {
+  return {
+    periodPreset: 'month',
+    anchorDate: '',
+    from: '',
+    to: '',
     branchId: null,
     trainerId: null,
   }

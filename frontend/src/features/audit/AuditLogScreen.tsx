@@ -11,8 +11,7 @@ import {
   Text,
   TextInput,
 } from '@mantine/core'
-import { useForm } from '@mantine/form'
-import { IconCalendarEvent, IconFilter, IconSearch } from '@tabler/icons-react'
+import { IconCalendarEvent, IconSearch } from '@tabler/icons-react'
 import {
   getAuditLogEntries,
   getAuditLogFilterOptions,
@@ -25,15 +24,16 @@ import {
 import { resources } from '../../lib/resources'
 import {
   Button,
+  CompactFilterPanel,
   EmptyState,
   ErrorState,
-  FilterToolbar,
   LoadingState,
   PageLayout,
   PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
   SectionHeader,
+  type CompactFilterItem,
 } from '../shared/ux'
 
 type AuditLogScreenProps = {
@@ -70,9 +70,6 @@ const EMPTY_FILTER_OPTIONS: AuditLogFilterOptions = {
 }
 
 export function AuditLogScreen({ user }: AuditLogScreenProps) {
-  const form = useForm<AuditFilterValues>({
-    initialValues: INITIAL_FILTER_VALUES,
-  })
   const [response, setResponse] = useState<AuditLogListResponse | null>(null)
   const [filterOptions, setFilterOptions] = useState<AuditLogFilterOptions>(
     EMPTY_FILTER_OPTIONS,
@@ -82,8 +79,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   const [page, setPage] = useState(1)
   const [reloadKey, setReloadKey] = useState(0)
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null)
-  const [appliedFilters, setAppliedFilters] =
-    useState<AuditFilterValues>(INITIAL_FILTER_VALUES)
+  const [filters, setFilters] = useState<AuditFilterValues>(INITIAL_FILTER_VALUES)
 
   useEffect(() => {
     if (!user.permissions.canViewAuditLog) {
@@ -104,7 +100,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
         const [nextOptions, nextResponse] = await Promise.all([
           getAuditLogFilterOptions(controller.signal),
           getAuditLogEntries(
-            buildAuditRequestParams(appliedFilters, page),
+            buildAuditRequestParams(filters, page),
             controller.signal,
           ),
         ])
@@ -136,7 +132,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     void load()
 
     return () => controller.abort()
-  }, [appliedFilters, page, reloadKey, user.permissions.canViewAuditLog])
+  }, [filters, page, reloadKey, user.permissions.canViewAuditLog])
 
   useEffect(() => {
     if (!selectedEntry) {
@@ -155,19 +151,21 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     }
   }, [loading, response, selectedEntry])
 
-  function handleApplyFilters(values: AuditFilterValues) {
-    const nextFilters = normalizeFilterValues(values)
+  function updateFilters(nextFilters: Partial<AuditFilterValues>) {
     setSelectedEntry(null)
     setPage(1)
-    setAppliedFilters(nextFilters)
-    form.setValues(nextFilters)
+    setFilters((currentFilters) =>
+      normalizeFilterValues({
+        ...currentFilters,
+        ...nextFilters,
+      }),
+    )
   }
 
   function handleResetFilters() {
     setSelectedEntry(null)
-    form.setValues(INITIAL_FILTER_VALUES)
     setPage(1)
-    setAppliedFilters(INITIAL_FILTER_VALUES)
+    setFilters(INITIAL_FILTER_VALUES)
   }
 
   function handleRefresh() {
@@ -217,6 +215,112 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     value: entityType,
     label: formatEntityType(entityType),
   }))
+  const primaryFilters = [
+    {
+      key: 'userId',
+      label: 'Пользователь',
+      render: () => (
+        <Select
+          clearable
+          data={userSelectOptions}
+          label="Пользователь"
+          leftSection={<IconSearch size={16} />}
+          onChange={(value) => updateFilters({ userId: value })}
+          placeholder="Все пользователи"
+          searchable
+          value={filters.userId}
+        />
+      ),
+    },
+    {
+      key: 'actionType',
+      label: 'Тип действия',
+      render: () => (
+        <Select
+          clearable
+          data={actionTypeOptions}
+          label="Тип действия"
+          onChange={(value) => updateFilters({ actionType: value })}
+          placeholder="Все действия"
+          searchable
+          value={filters.actionType}
+        />
+      ),
+    },
+    {
+      key: 'dateFrom',
+      label: 'Период с',
+      render: () => (
+        <TextInput
+          label="Период с"
+          leftSection={<IconCalendarEvent size={16} />}
+          onChange={(event) => updateFilters({ dateFrom: event.currentTarget.value })}
+          type="date"
+          value={filters.dateFrom}
+        />
+      ),
+    },
+    {
+      key: 'dateTo',
+      label: 'Период по',
+      render: () => (
+        <TextInput
+          label="Период по"
+          leftSection={<IconCalendarEvent size={16} />}
+          onChange={(event) => updateFilters({ dateTo: event.currentTarget.value })}
+          type="date"
+          value={filters.dateTo}
+        />
+      ),
+    },
+  ] satisfies CompactFilterItem[]
+  const secondaryFilters = [
+    {
+      key: 'source',
+      label: 'Источник',
+      render: () => (
+        <Select
+          clearable
+          data={sourceOptions}
+          label="Источник"
+          onChange={(value) => updateFilters({ source: value })}
+          placeholder="Все источники"
+          searchable
+          value={filters.source}
+        />
+      ),
+    },
+    {
+      key: 'messengerPlatform',
+      label: 'Мессенджер',
+      render: () => (
+        <Select
+          clearable
+          data={messengerPlatformOptions}
+          label="Мессенджер"
+          onChange={(value) => updateFilters({ messengerPlatform: value })}
+          placeholder="Все мессенджеры"
+          searchable
+          value={filters.messengerPlatform}
+        />
+      ),
+    },
+    {
+      key: 'entityType',
+      label: 'Тип объекта',
+      render: () => (
+        <Select
+          clearable
+          data={entityTypeOptions}
+          label="Тип объекта"
+          onChange={(value) => updateFilters({ entityType: value })}
+          placeholder="Все объекты"
+          searchable
+          value={filters.entityType}
+        />
+      ),
+    },
+  ] satisfies CompactFilterItem[]
 
   return (
     <PageLayout
@@ -228,83 +332,13 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
       data-testid="audit-screen"
       title="Журнал"
     >
-      <PageSection className="audit-filter-card">
-        <Stack gap="lg">
-          <SectionHeader title="Фильтры журнала" />
-
-          <form data-testid="audit-filter-form" onSubmit={form.onSubmit(handleApplyFilters)}>
-            <FilterToolbar
-              actions={
-                <ResponsiveButtonGroup>
-                  <Button leftSection={<IconFilter size={18} />} type="submit">
-                    Применить фильтры
-                  </Button>
-                  <Button onClick={handleResetFilters} type="button" variant="secondary">
-                    Сбросить
-                  </Button>
-                </ResponsiveButtonGroup>
-              }
-              className="audit-filter-toolbar"
-            >
-              <SimpleGrid cols={{ base: 1, md: 2, xl: 4 }}>
-                <Select
-                  clearable
-                  data={userSelectOptions}
-                  label="Пользователь"
-                  leftSection={<IconSearch size={16} />}
-                  placeholder="Все пользователи"
-                  searchable
-                  {...form.getInputProps('userId')}
-                />
-                <Select
-                  clearable
-                  data={sourceOptions}
-                  label="Источник"
-                  placeholder="Все источники"
-                  searchable
-                  {...form.getInputProps('source')}
-                />
-                <Select
-                  clearable
-                  data={messengerPlatformOptions}
-                  label="Мессенджер"
-                  placeholder="Все мессенджеры"
-                  searchable
-                  {...form.getInputProps('messengerPlatform')}
-                />
-                <Select
-                  clearable
-                  data={actionTypeOptions}
-                  label="Тип действия"
-                  placeholder="Все действия"
-                  searchable
-                  {...form.getInputProps('actionType')}
-                />
-                <Select
-                  clearable
-                  data={entityTypeOptions}
-                  label="Тип объекта"
-                  placeholder="Все объекты"
-                  searchable
-                  {...form.getInputProps('entityType')}
-                />
-                <TextInput
-                  label="Период с"
-                  leftSection={<IconCalendarEvent size={16} />}
-                  type="date"
-                  {...form.getInputProps('dateFrom')}
-                />
-                <TextInput
-                  label="Период по"
-                  leftSection={<IconCalendarEvent size={16} />}
-                  type="date"
-                  {...form.getInputProps('dateTo')}
-                />
-              </SimpleGrid>
-            </FilterToolbar>
-          </form>
-        </Stack>
-      </PageSection>
+      <CompactFilterPanel
+        className="audit-filter-toolbar"
+        data-testid="audit-filter-panel"
+        onReset={handleResetFilters}
+        primary={primaryFilters}
+        secondary={secondaryFilters}
+      />
 
       <PageSection>
         <Stack gap="lg">

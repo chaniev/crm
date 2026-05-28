@@ -147,14 +147,22 @@ describe('FinanceReportsScreen', () => {
 
     await screen.findByTestId('finance-totals')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Период' }))
-    fireEvent.change(screen.getByLabelText('С'), {
+    fireEvent.click(screen.getByRole('radio', { name: 'Период' }))
+    await waitFor(() =>
+      expect(getFinancialReportMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          periodPreset: 'custom',
+        }),
+        expect.anything(),
+      ),
+    )
+    fireEvent.click(screen.getByRole('button', { name: /Ещё фильтры/i }))
+    fireEvent.change(await screen.findByLabelText('С'), {
       target: { value: '2026-05-10' },
     })
     fireEvent.change(screen.getByLabelText('По'), {
       target: { value: '2026-05-15' },
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Показать' }))
 
     await waitFor(() =>
       expect(getFinancialReportMock).toHaveBeenLastCalledWith(
