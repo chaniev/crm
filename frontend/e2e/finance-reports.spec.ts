@@ -217,24 +217,27 @@ test.describe('Finance reports', () => {
     await page.goto('/finance')
     await expect(page.getByTestId('finance-screen')).toBeVisible()
 
-    await page.getByRole('button', { name: 'Квартал' }).click()
+    await expectCompactFilterPanel(page, 'finance-filter-panel')
+    await expect(page.getByText('Показать')).toHaveCount(0)
+
+    await selectPeriodPreset(page, 'Квартал')
     await expect
       .poll(() => reportRequests.at(-1)?.get('periodPreset'))
       .toBe('quarter')
 
-    await page.getByRole('button', { name: 'Год' }).click()
+    await selectPeriodPreset(page, 'Год')
     await expect
       .poll(() => reportRequests.at(-1)?.get('periodPreset'))
       .toBe('year')
 
-    await page.getByRole('button', { name: 'Период' }).click()
+    await selectPeriodPreset(page, 'Период')
+    await page.getByRole('button', { name: /Ещё фильтры/ }).click()
     await page.locator('input[name="from"]').fill('2026-05-10')
     await page.locator('input[name="to"]').fill('2026-05-15')
     await page.getByRole('combobox', { name: 'Филиал' }).click()
     await page.getByRole('option', { name: 'Центр' }).click()
     await page.getByRole('combobox', { name: 'Тренер' }).click()
     await page.getByRole('option', { name: 'Ирина Тренер (irina)' }).click()
-    await page.getByRole('button', { name: 'Показать' }).click()
 
     await expect
       .poll(() => reportRequests.at(-1)?.toString())
@@ -284,14 +287,16 @@ test.describe('Finance reports', () => {
     await page.goto('/finance')
     await expect(page.getByTestId('finance-screen')).toBeVisible()
 
-    await page.getByRole('button', { name: 'Период' }).click()
+    await selectPeriodPreset(page, 'Период')
+    await page.getByRole('button', { name: /Ещё фильтры/ }).click()
     await page.locator('input[name="from"]').fill('2026-06-01')
     await page.locator('input[name="to"]').fill('2026-05-01')
-    await page.getByRole('button', { name: 'Показать' }).click()
 
     await expect(page.getByText('Проверьте фильтры')).toBeVisible()
     await expect(
-      page.getByText('Дата окончания не может быть раньше даты начала.'),
+      page.getByTestId('finance-screen').getByText(
+        'Дата окончания не может быть раньше даты начала.',
+      ).first(),
     ).toBeVisible()
   })
 
@@ -306,6 +311,9 @@ test.describe('Finance reports', () => {
     await page.goto('/finance')
 
     await expect(page.getByTestId('finance-screen')).toBeVisible()
+    await expect(page.getByTestId('finance-filter-panel').getByLabel('Дата в периоде')).toHaveCount(0)
+    await page.getByTestId('finance-filter-panel').getByRole('button', { name: 'Фильтры' }).click()
+    await expect(page.getByLabel('Дата в периоде')).toBeVisible()
     await expect(page.getByText('За выбранный период операций нет.')).toBeVisible()
     await expect(
       page.locator('nav.app-shell__side-nav[aria-label="Основная навигация"]'),
@@ -442,4 +450,21 @@ async function expectNoHorizontalScroll(page: Page) {
     dimensions.viewportWidth + 1,
   )
   expect(dimensions.bodyScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+}
+
+async function expectCompactFilterPanel(page: Page, testId: string) {
+  const panel = page.getByTestId(testId)
+
+  await expect(panel).toBeVisible()
+
+  const box = await panel.boundingBox()
+
+  expect(box?.height ?? 0).toBeLessThanOrEqual(64)
+}
+
+async function selectPeriodPreset(page: Page, label: string) {
+  await page
+    .locator('.mantine-SegmentedControl-label')
+    .filter({ hasText: new RegExp(`^${label}$`) })
+    .click()
 }

@@ -172,8 +172,12 @@ test.describe('Мобильный сценарий посещений трене
     await expect(professionalCard).not.toContainText('Не оплачено')
     await expect(professionalCard).not.toContainText('Проблема с абонементом')
 
+    await expect(page.getByTestId('attendance-toolbar').getByLabel('Дата тренировки')).toHaveCount(0)
+    await page.getByTestId('attendance-toolbar').getByRole('button', { name: 'Фильтры' }).click()
+
     const trainingDateInput = page.getByLabel('Дата тренировки')
     await trainingDateInput.fill(FIXED_TRAINING_DATE)
+    await page.keyboard.press('Escape')
 
     await expect(page.getByText('Дата: 18.04.2026')).toBeVisible()
 

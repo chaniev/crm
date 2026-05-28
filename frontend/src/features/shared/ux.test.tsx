@@ -6,6 +6,7 @@ import { renderWithProviders } from '../../test/render'
 import {
   AppLayout,
   Button,
+  CompactFilterPanel,
   EmptyState,
   ErrorState,
   FilterToolbar,
@@ -269,6 +270,100 @@ describe('shared UX components', () => {
     expect(container.querySelector('.filter-toolbar__controls')).toBeTruthy()
     expect(container.querySelector('.filter-toolbar__actions')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Сбросить' })).toBeVisible()
+  })
+
+  test('CompactFilterPanel renders inline filters with more filters and reset actions', () => {
+    const onReset = vi.fn()
+
+    renderWithProviders(
+      <CompactFilterPanel
+        onReset={onReset}
+        primary={[
+          {
+            key: 'query',
+            label: 'Поиск',
+            render: () => (
+              <label>
+                Поиск
+                <input />
+              </label>
+            ),
+          },
+        ]}
+        secondary={[
+          {
+            key: 'status',
+            label: 'Статус',
+            render: () => (
+              <label>
+                Статус
+                <input />
+              </label>
+            ),
+          },
+        ]}
+      />,
+    )
+
+    expect(screen.getAllByLabelText('Поиск')[0]).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Ещё фильтры/i })).toBeVisible()
+    expect(screen.getByRole('button', { name: /Сбросить/i })).toBeVisible()
+    expect(screen.queryByText(/\d+\s*фильтр/i)).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Сбросить/i }))
+
+    expect(onReset).toHaveBeenCalledTimes(1)
+  })
+
+  test('CompactFilterPanel keeps mobile page free of inline filter controls until sheet opens', async () => {
+    const originalMatchMedia = window.matchMedia
+
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: query.includes('max-width'),
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      }),
+    })
+
+    try {
+      renderWithProviders(
+        <CompactFilterPanel
+          onReset={() => undefined}
+          primary={[
+            {
+              key: 'query',
+              label: 'Поиск',
+              render: () => (
+                <label>
+                  Поиск
+                  <input />
+                </label>
+              ),
+            },
+          ]}
+        />,
+      )
+
+      expect(screen.getByRole('button', { name: 'Фильтры' })).toBeVisible()
+      expect(screen.queryByLabelText('Поиск')).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Фильтры' }))
+
+      expect(await screen.findByLabelText('Поиск')).toBeInTheDocument()
+      expect(await screen.findByRole('button', { name: /Сбросить/i })).toBeInTheDocument()
+    } finally {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: originalMatchMedia,
+      })
+    }
   })
 
   test('Button and IconButton expose accessible controls', () => {

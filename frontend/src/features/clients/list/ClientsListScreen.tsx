@@ -1,7 +1,6 @@
 import { IconPlus, IconRefresh } from '@tabler/icons-react'
 import { Button, IconButton, PageLayout, PageSection } from '../../shared/ux'
 import { ClientPreviewPanel } from './ClientPreviewPanel'
-import { ClientsQuickFilters } from './ClientsQuickFilters'
 import { ClientsResults } from './ClientsResults'
 import { ClientsToolbar } from './ClientsToolbar'
 import { useClientsListState } from './useClientsListState'
@@ -63,10 +62,6 @@ export function ClientsListScreen({
       <PageSection className="clients-v7-controls-section" variant="plain">
         <ClientsToolbar
           canManage={canManage}
-          canSeeWithoutGroup={canSeeWithoutGroupQuickFilter}
-          state={state}
-        />
-        <ClientsQuickFilters
           canSeeWithoutGroup={canSeeWithoutGroupQuickFilter}
           state={state}
         />
