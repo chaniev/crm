@@ -214,6 +214,24 @@ pip install -e '.[dev]'
 python -m gym_crm_bot.main
 ```
 
+## Тестовые данные
+
+Для заполнения локальной PostgreSQL базы демонстрационным набором данных выполните из корня репозитория:
+
+```bash
+./backend/scripts/seed-test-data.sh
+```
+
+Скрипт применяет миграции, затем пересоздает только свои детерминированные тестовые записи: 4 типа групп (если типы с такими именами уже есть, они переиспользуются), 4 филиала по 3 зала, 10 тренеров, 5 администраторов, 30 групп и 300 клиентов с файлами фотографий. Пароль всех seed-пользователей: `Test1234!`.
+
+Опции:
+
+```bash
+./backend/scripts/seed-test-data.sh --connection "Host=localhost;Port=5432;Database=gym_crm;Username=gym_crm;Password=gym_crm"
+./backend/scripts/seed-test-data.sh --photo-root uploads/client-photos
+./backend/scripts/seed-test-data.sh --skip-migrations
+```
+
 ## Миграции
 
 Для локальной работы с миграциями используется tool manifest в `backend/dotnet-tools.json`.

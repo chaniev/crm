@@ -1,5 +1,6 @@
 using System.Text.Json;
 using GymCrm.Api.Auth;
+using GymCrm.Api.SeedData;
 using GymCrm.Api.Startup;
 using GymCrm.Application;
 using GymCrm.Infrastructure;
@@ -7,6 +8,48 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+
+if (args.Contains("--seed-test-data", StringComparer.Ordinal))
+{
+    var seedArgs = args
+        .Where(argument => !string.Equals(argument, "--seed-test-data", StringComparison.Ordinal))
+        .ToArray();
+
+    try
+    {
+        var options = SeedDataOptionsParser.Parse(seedArgs);
+
+        if (options.ShowHelp)
+        {
+            Console.WriteLine(SeedDataOptionsParser.Usage);
+            return;
+        }
+
+        await using var seeder = new TestDataSeeder(options);
+        var summary = await seeder.SeedAsync(CancellationToken.None);
+
+        Console.WriteLine("Gym CRM test data seed completed.");
+        Console.WriteLine($"Group types: {summary.GroupTypeCount}");
+        Console.WriteLine($"Branches: {summary.BranchCount}");
+        Console.WriteLine($"Halls: {summary.HallCount}");
+        Console.WriteLine($"Coaches: {summary.CoachCount}");
+        Console.WriteLine($"Administrators: {summary.AdministratorCount}");
+        Console.WriteLine($"Training groups: {summary.GroupCount}");
+        Console.WriteLine($"Clients: {summary.ClientCount}");
+        Console.WriteLine($"Client photos: {summary.ClientPhotoCount}");
+        Console.WriteLine($"Photo storage: {summary.PhotoStorageRootPath}");
+        Console.WriteLine($"Seed user password: {summary.DefaultUserPassword}");
+        return;
+    }
+    catch (SeedDataOptionsException exception)
+    {
+        Console.Error.WriteLine(exception.Message);
+        Console.Error.WriteLine();
+        Console.Error.WriteLine(SeedDataOptionsParser.Usage);
+        Environment.ExitCode = 2;
+        return;
+    }
+}
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddTechnicalLogging();
