@@ -695,3 +695,26 @@
 - needs-clarification: 0
 - updated existing: 0
 - processed files: 1
+
+# 2026-05-28 20:21
+
+## Processed inbox files
+- 2026-05-28.md
+
+## Created tasks
+- /backlog/tasks-ready/TASK-057-audit-log-remove-object-column.md
+- /backlog/needs-clarification/TASK-058-pop-out-sections-second-monitor.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Связанные закрытые задачи `/backlog/done/TASK-042-audit-log-grid-actor-full-name.md` и `/backlog/done/TASK-044-hide-technical-information.md` не считаются дубликатами новой задачи про cleanup журнала.
+- Связанные закрытые задачи по `Расписание` и `Финансы` не считаются дубликатами, потому что новая заметка описывает отдельный multi-window/second-monitor UX.
+
+## Summary
+- tasks-ready: 1
+- risky: 0
+- needs-clarification: 1
+- updated existing: 0
+- processed files: 1
