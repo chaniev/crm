@@ -32,7 +32,6 @@ import {
   PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
-  SectionHeader,
   type CompactFilterItem,
 } from '../shared/ux'
 
@@ -342,8 +341,6 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
       <PageSection>
         <Stack gap="lg">
-          <SectionHeader title="Записи журнала" />
-
           {loading ? (
             <LoadingState label="Загружаем журнал действий..." />
           ) : null}
@@ -364,7 +361,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
           {!loading && !error && entries.length > 0 ? (
             <div
-              aria-label="Записи журнала действий"
+              aria-label="Журнал действий"
               className="audit-log-grid audit-log-list"
               data-testid="audit-log-grid"
               role="table"
@@ -372,10 +369,8 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
               <div className="audit-log-header" role="row">
                 <div role="columnheader">Дата</div>
                 <div role="columnheader">Действие</div>
-                <div role="columnheader">Объект</div>
                 <div role="columnheader">Описание</div>
-                <div role="columnheader">Автор</div>
-                <div role="columnheader">Источник</div>
+                <div role="columnheader">Пользователь</div>
                 <div role="columnheader">Детали</div>
               </div>
               {entries.map((entry) => (
@@ -435,18 +430,6 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
         </Text>
       </div>
 
-      <div className="audit-log-cell audit-log-cell--entity" role="cell">
-        <span className="audit-log-cell__label">Объект</span>
-        <Text fw={700} size="sm">
-          {formatEntityType(entry.entityType)}
-        </Text>
-        {entry.entityId ? (
-          <Text c="dimmed" size="xs">
-            ID: {entry.entityId}
-          </Text>
-        ) : null}
-      </div>
-
       <div className="audit-log-cell audit-log-cell--description" role="cell">
         <span className="audit-log-cell__label">Описание</span>
         <Text className="audit-log-description" fw={700} size="sm">
@@ -467,18 +450,6 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
         {userLogin ? (
           <Text c="dimmed" size="xs">
             {userLogin}
-          </Text>
-        ) : null}
-      </div>
-
-      <div className="audit-log-cell audit-log-cell--source" role="cell">
-        <span className="audit-log-cell__label">Источник</span>
-        <Text fw={700} size="sm">
-          {entry.source ? formatSource(entry.source) : 'Не указан'}
-        </Text>
-        {entry.messengerPlatform ? (
-          <Text c="dimmed" size="xs">
-            {formatMessengerPlatform(entry.messengerPlatform)}
           </Text>
         ) : null}
       </div>
