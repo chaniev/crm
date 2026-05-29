@@ -485,3 +485,20 @@
 - skipped: 0
 - plans created: 1
 - note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is frontend-only, medium risk, and must use `feature/TASK-056-filter-panel-requirements` with `ui-designer` visual validation, `react-specialist` React structure ownership, Mantine/Onest preserved, and Playwright responsive regression coverage for all current filter screens.
+
+# 2026-05-29 16:49
+
+## Moved to implementation
+- /backlog/implementation/TASK-057-audit-log-remove-object-column.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-057-audit-log-remove-object-column.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is low-risk and localized to the frontend audit log display. Implementation must use `feature/TASK-057-audit-log-remove-object-column`, keep backend audit contracts and details data unchanged, and add automated regression coverage for the removed visible title and `Объект` grid column.

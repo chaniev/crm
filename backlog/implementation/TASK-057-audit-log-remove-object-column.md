@@ -1,7 +1,13 @@
 # TASK-057: Убрать лишний заголовок и колонку Объект из журнала
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-05-29 16:49
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-057-audit-log-remove-object-column.plan.md
+- implementation_branch: feature/TASK-057-audit-log-remove-object-column
 
 ## Goal
 Журнал действий выглядит чище: пользователь не видит лишний текст `Записи журнала` и техническую колонку `Объект`, где отображается сессия пользователя.
