@@ -63,16 +63,30 @@ beforeEach(() => {
 })
 
 describe('AuditLogScreen', () => {
-  test('renders audit log grid with actor full name in a dedicated cell', async () => {
+  test('renders audit log grid without removed title and object column', async () => {
     renderWithProviders(<AuditLogScreen user={auditUser} />)
 
     const grid = await screen.findByTestId('audit-log-grid')
     const actorCell = within(grid).getByTestId('audit-log-actor-cell')
 
     expect(grid).toBeVisible()
+    expect(
+      screen.queryByRole('heading', { name: 'Записи журнала' }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(grid).queryByRole('columnheader', { name: 'Объект' }),
+    ).not.toBeInTheDocument()
+    expect(within(grid).queryByText('Объект')).not.toBeInTheDocument()
+    expect(within(grid).queryByText('Клиент')).not.toBeInTheDocument()
     expect(within(grid).getByText('Создан новый клиент')).toBeVisible()
     expect(actorCell).toHaveTextContent('Мария Иванова')
     expect(actorCell).toHaveTextContent('m.ivanova')
+    expect(within(grid).getByText('Web')).toBeVisible()
+    expect(
+      within(grid).getByRole('button', {
+        name: 'Показать детали записи: Создан новый клиент',
+      }),
+    ).toBeVisible()
   })
 
   test('opens old and new JSON values from row details action', async () => {
@@ -85,6 +99,8 @@ describe('AuditLogScreen', () => {
 
     expect(within(modal).getByText('Старые значения')).toBeInTheDocument()
     expect(within(modal).getByText('Новые значения')).toBeInTheDocument()
+    expect(modal).toHaveTextContent('Клиент')
+    expect(modal).toHaveTextContent('ID объекта: client-1')
     expect(modal).toHaveTextContent('"status": "Draft"')
     expect(modal).toHaveTextContent('"status": "Active"')
   })

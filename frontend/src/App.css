@@ -2458,8 +2458,7 @@
   grid-template-columns:
     6rem
     7.25rem
-    7rem
-    minmax(10rem, 1fr)
+    minmax(12rem, 1fr)
     8.75rem
     6.25rem
     4.75rem;
@@ -2542,9 +2541,9 @@
   .audit-log-row {
     grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 1fr) auto;
     grid-template-areas:
-      "date action entity details"
+      "date action source details"
       "description description description description"
-      "actor actor source source";
+      "actor actor actor actor";
     gap: 0.7rem 0.85rem;
   }
 
@@ -2560,20 +2559,12 @@
     grid-area: action;
   }
 
-  .audit-log-cell--entity {
-    grid-area: entity;
-  }
-
   .audit-log-cell--description {
     grid-area: description;
   }
 
   .audit-log-cell--actor {
     grid-area: actor;
-  }
-
-  .audit-log-cell--source {
-    grid-area: source;
   }
 
   .audit-log-cell--details {
@@ -2586,7 +2577,7 @@
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "date details"
-      "action entity"
+      "action action"
       "description description"
       "actor source";
   }
@@ -2598,7 +2589,6 @@
     grid-template-areas:
       "date details"
       "action action"
-      "entity entity"
       "description description"
       "actor actor"
       "source source";

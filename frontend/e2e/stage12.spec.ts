@@ -1646,6 +1646,10 @@ test.describe('Основные e2e сценарии', () => {
       await expect(page.getByTestId('audit-screen')).toBeVisible()
       const auditGrid = page.getByTestId('audit-log-grid')
       await expect(auditGrid).toBeVisible()
+      await expect(
+        auditGrid.getByRole('columnheader', { name: 'Объект' }),
+      ).toHaveCount(0)
+      await expect(auditGrid.getByText('Объект', { exact: true })).toHaveCount(0)
       await expect(auditGrid.getByTestId('audit-log-actor-cell')).toContainText(
         'Главный тренер',
       )
@@ -1656,6 +1660,7 @@ test.describe('Основные e2e сценарии', () => {
       const detailsModal = page.getByTestId('audit-log-details-modal')
       await expect(detailsModal).toBeVisible()
       await expect(detailsModal.getByText('Старые значения')).toBeVisible()
+      await expect(detailsModal.getByText('ID объекта: client-1')).toBeVisible()
       await expect(detailsModal.getByText('"status": "Active"')).toBeVisible()
     })
   }
