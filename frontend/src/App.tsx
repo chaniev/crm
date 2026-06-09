@@ -60,7 +60,6 @@ import {
   ClientEditScreen,
   ClientsListScreen,
 } from './features/clients/ClientManagement'
-import { AttendanceScreen } from './features/attendance/AttendanceScreen'
 import { HomeDashboard } from './features/home/HomeDashboard'
 import { GroupScheduleScreen } from './features/schedule/GroupScheduleScreen'
 import {
@@ -1136,10 +1135,6 @@ function RouteViewport({
         onEditGroup={onEditGroup}
       />
     )
-  }
-
-  if (route.section === 'Attendance') {
-    return <AttendanceScreen user={user} />
   }
 
   if (route.section === 'Audit') {

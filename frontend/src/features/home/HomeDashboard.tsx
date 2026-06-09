@@ -25,6 +25,7 @@ import {
   ResponsiveButtonGroup,
   SectionHeader,
 } from '../shared/ux'
+import { AttendanceWorkspace } from '../attendance/AttendanceScreen'
 
 type HomeDashboardProps = {
   user: AuthenticatedUser
@@ -43,6 +44,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
   const [reloadKey, setReloadKey] = useState(0)
   const canViewExpiringMemberships =
     user.role === 'HeadCoach' || user.role === 'Administrator'
+  const canWorkWithAttendance = user.permissions.canMarkAttendance
 
   useEffect(() => {
     if (!canViewExpiringMemberships) {
@@ -96,7 +98,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
     return () => controller.abort()
   }, [canViewExpiringMemberships, reloadKey])
 
-  if (!canViewExpiringMemberships) {
+  if (!canViewExpiringMemberships && !canWorkWithAttendance) {
     return (
       <PageLayout data-testid="home-screen" title="Главная">
         <PageSection>
@@ -111,119 +113,137 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
 
   return (
     <PageLayout
-      actions={
+      actions={canViewExpiringMemberships ? (
         <RefreshButton
           loading={loading}
           onClick={() => setReloadKey((current) => current + 1)}
         />
-      }
+      ) : null}
       data-testid="home-screen"
       title="Главная"
     >
-      <PageSection className="home-screen-card">
-        <Stack gap="lg">
-          <SectionHeader
-            description={resources.home.expiringMemberships.description}
-            title={resources.home.expiringMemberships.title}
-          />
-
-          {loading ? (
-            <LoadingState label="Загружаем истекающие абонементы..." />
-          ) : null}
-
-          {!loading && error ? (
-            <ErrorState
-              action={
-                <RefreshButton
-                  label="Повторить"
-                  onClick={() => setReloadKey((current) => current + 1)}
-                />
-              }
-              message={error}
-              title={resources.home.expiringMemberships.loadingErrorTitle}
+      {canViewExpiringMemberships ? (
+        <PageSection className="home-screen-card">
+          <Stack gap="lg">
+            <SectionHeader
+              description={resources.home.expiringMemberships.description}
+              title={resources.home.expiringMemberships.title}
             />
-          ) : null}
 
-          {!loading && !error && clients.length === 0 ? (
-            <EmptyState
-              description={resources.home.expiringMemberships.emptyDescription}
-              icon={<IconCalendarEvent size={28} />}
-              title={resources.home.expiringMemberships.emptyTitle}
-            />
-          ) : null}
+            {loading ? (
+              <LoadingState label="Загружаем истекающие абонементы..." />
+            ) : null}
 
-          {!loading && !error && clients.length > 0 ? (
-            <Stack data-testid="home-expiring-memberships-list" gap="md">
-              {clients.map((client) => (
-                <Paper
-                  className="list-row-card home-client-row-card"
-                  data-testid={`home-client-card-${client.clientId}`}
-                  key={client.clientId}
-                  radius="24px"
-                  withBorder
-                >
-                  <div className="home-client-row">
-                    <div className="home-client-row__identity">
-                      <Text fw={700} size="lg">
-                        {client.fullName}
-                      </Text>
+            {!loading && error ? (
+              <ErrorState
+                action={
+                  <RefreshButton
+                    label="Повторить"
+                    onClick={() => setReloadKey((current) => current + 1)}
+                  />
+                }
+                message={error}
+                title={resources.home.expiringMemberships.loadingErrorTitle}
+              />
+            ) : null}
+
+            {!loading && !error && clients.length === 0 ? (
+              <EmptyState
+                description={resources.home.expiringMemberships.emptyDescription}
+                icon={<IconCalendarEvent size={28} />}
+                title={resources.home.expiringMemberships.emptyTitle}
+              />
+            ) : null}
+
+            {!loading && !error && clients.length > 0 ? (
+              <Stack data-testid="home-expiring-memberships-list" gap="md">
+                {clients.map((client) => (
+                  <Paper
+                    className="list-row-card home-client-row-card"
+                    data-testid={`home-client-card-${client.clientId}`}
+                    key={client.clientId}
+                    radius="24px"
+                    withBorder
+                  >
+                    <div className="home-client-row">
+                      <div className="home-client-row__identity">
+                        <Text fw={700} size="lg">
+                          {client.fullName}
+                        </Text>
+                      </div>
+
+                      <SimpleGrid className="home-client-row__fields" cols={{ base: 1, xs: 2, xl: 4 }}>
+                        <HomeField
+                          label={resources.home.expiringMemberships.fields.membershipType}
+                          value={membershipTypeLabels[client.membershipType]}
+                        />
+                        <HomeField
+                          label={resources.home.expiringMemberships.fields.expirationDate}
+                          value={formatDateValue(client.expirationDate)}
+                        />
+                        <HomeField
+                          label={resources.home.expiringMemberships.fields.daysUntilExpiration}
+                          value={
+                            <Badge
+                              color={client.daysUntilExpiration <= 2 ? 'red' : 'accent.5'}
+                              radius="xl"
+                              variant="light"
+                            >
+                              {formatDaysUntilExpiration(client.daysUntilExpiration)}
+                            </Badge>
+                          }
+                        />
+                        <HomeField
+                          label={resources.home.expiringMemberships.fields.payment}
+                          value={
+                            <Badge
+                              color={client.isPaid ? 'teal' : 'red'}
+                              radius="xl"
+                              variant="light"
+                            >
+                              {client.isPaid
+                                ? resources.common.statuses.paid
+                                : resources.common.statuses.unpaid}
+                            </Badge>
+                          }
+                        />
+                      </SimpleGrid>
+
+                      {onOpenClient ? (
+                        <ResponsiveButtonGroup justify="flex-end">
+                          <Button
+                            leftSection={<IconUserHeart size={18} />}
+                            onClick={() => onOpenClient(client.clientId)}
+                            variant="light"
+                          >
+                            {resources.home.expiringMemberships.openClientAction}
+                          </Button>
+                        </ResponsiveButtonGroup>
+                      ) : null}
                     </div>
+                  </Paper>
+                ))}
+              </Stack>
+            ) : null}
+          </Stack>
+        </PageSection>
+      ) : null}
 
-                    <SimpleGrid className="home-client-row__fields" cols={{ base: 1, xs: 2, xl: 4 }}>
-                      <HomeField
-                        label={resources.home.expiringMemberships.fields.membershipType}
-                        value={membershipTypeLabels[client.membershipType]}
-                      />
-                      <HomeField
-                        label={resources.home.expiringMemberships.fields.expirationDate}
-                        value={formatDateValue(client.expirationDate)}
-                      />
-                      <HomeField
-                        label={resources.home.expiringMemberships.fields.daysUntilExpiration}
-                        value={
-                          <Badge
-                            color={client.daysUntilExpiration <= 2 ? 'red' : 'accent.5'}
-                            radius="xl"
-                            variant="light"
-                          >
-                            {formatDaysUntilExpiration(client.daysUntilExpiration)}
-                          </Badge>
-                        }
-                      />
-                      <HomeField
-                        label={resources.home.expiringMemberships.fields.payment}
-                        value={
-                          <Badge
-                            color={client.isPaid ? 'teal' : 'red'}
-                            radius="xl"
-                            variant="light"
-                          >
-                            {client.isPaid
-                              ? resources.common.statuses.paid
-                              : resources.common.statuses.unpaid}
-                          </Badge>
-                        }
-                      />
-                    </SimpleGrid>
-
-                    {onOpenClient ? (
-                      <ResponsiveButtonGroup justify="flex-end">
-                        <Button
-                          leftSection={<IconUserHeart size={18} />}
-                          onClick={() => onOpenClient(client.clientId)}
-                          variant="light"
-                        >
-                          {resources.home.expiringMemberships.openClientAction}
-                        </Button>
-                      </ResponsiveButtonGroup>
-                    ) : null}
-                  </div>
-                </Paper>
-              ))}
-            </Stack>
-          ) : null}
-        </Stack>
-      </PageSection>
+      {canWorkWithAttendance ? (
+        <PageSection
+          className="home-attendance-section"
+          data-testid="attendance-screen"
+          variant="plain"
+        >
+          <Stack gap="lg">
+            <SectionHeader
+              description="Рабочий список групп и клиентов для отметки посещений."
+              title="Посещения"
+            />
+            <AttendanceWorkspace user={user} />
+          </Stack>
+        </PageSection>
+      ) : null}
     </PageLayout>
   )
 }

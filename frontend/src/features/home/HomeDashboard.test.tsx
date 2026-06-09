@@ -1,6 +1,8 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
+  getAttendanceGroupClients,
+  getAttendanceGroups,
   getExpiringClientMemberships,
   type AuthenticatedUser,
   type ExpiringClientMembership,
@@ -13,6 +15,8 @@ vi.mock('../../lib/api', async (importOriginal) => {
 
   return {
     ...actual,
+    getAttendanceGroupClients: vi.fn(),
+    getAttendanceGroups: vi.fn(),
     getExpiringClientMemberships: vi.fn(),
   }
 })
@@ -25,7 +29,7 @@ const user: AuthenticatedUser = {
   mustChangePassword: false,
   isActive: true,
   landingScreen: 'Home',
-  allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+  allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
   permissions: {
     canManageUsers: true,
     canManageClients: true,
@@ -42,6 +46,7 @@ const coachUser: AuthenticatedUser = {
   ...user,
   id: 'coach-id',
   role: 'Coach',
+  allowedSections: ['Home', 'Clients'],
   permissions: {
     ...user.permissions,
     canManageUsers: false,
@@ -53,10 +58,15 @@ const coachUser: AuthenticatedUser = {
   },
 }
 
+const getAttendanceGroupClientsMock = vi.mocked(getAttendanceGroupClients)
+const getAttendanceGroupsMock = vi.mocked(getAttendanceGroups)
 const getExpiringMock = vi.mocked(getExpiringClientMemberships)
 
 beforeEach(() => {
+  getAttendanceGroupClientsMock.mockReset()
+  getAttendanceGroupsMock.mockReset()
   getExpiringMock.mockReset()
+  getAttendanceGroupsMock.mockResolvedValue([])
 })
 
 describe('HomeDashboard', () => {
@@ -119,6 +129,8 @@ describe('HomeDashboard', () => {
 
     expect(await screen.findByText('Список не загрузился')).toBeVisible()
     expect(screen.getByText('CRM API временно недоступен')).toBeVisible()
+    expect(await screen.findByRole('heading', { name: 'Посещения' })).toBeVisible()
+    expect(await screen.findByText('Доступные группы пока отсутствуют')).toBeVisible()
 
     fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
 
@@ -148,11 +160,48 @@ describe('HomeDashboard', () => {
     expect(screen.getByText('Анна Петрова')).toBeVisible()
   })
 
-  test('shows access denied for roles outside home audience', () => {
+  test('keeps expiring memberships visible when attendance groups fail', async () => {
+    getExpiringMock.mockResolvedValueOnce([])
+    getAttendanceGroupsMock.mockRejectedValueOnce(
+      new Error('Группы посещений недоступны'),
+    )
+
+    renderWithProviders(<HomeDashboard user={user} />)
+
+    expect(await screen.findByText('Все абонементы активны.')).toBeVisible()
+    expect(await screen.findByText('Группы для посещений не загрузились')).toBeVisible()
+    expect(screen.getByText('Группы посещений недоступны')).toBeVisible()
+  })
+
+  test('shows attendance only for coach with attendance permission', async () => {
     renderWithProviders(<HomeDashboard user={coachUser} />)
+
+    expect(screen.getByTestId('home-screen')).toBeVisible()
+    expect(await screen.findByRole('heading', { name: 'Посещения' })).toBeVisible()
+    expect(await screen.findByText('Назначенные группы отсутствуют')).toBeVisible()
+    expect(
+      screen.queryByRole('heading', { name: 'Истекающие абонементы' }),
+    ).not.toBeInTheDocument()
+    expect(getExpiringMock).not.toHaveBeenCalled()
+    expect(getAttendanceGroupsMock).toHaveBeenCalledTimes(1)
+  })
+
+  test('shows access denied when no home section is available', () => {
+    renderWithProviders(
+      <HomeDashboard
+        user={{
+          ...coachUser,
+          permissions: {
+            ...coachUser.permissions,
+            canMarkAttendance: false,
+          },
+        }}
+      />,
+    )
 
     expect(screen.getByText('Главная страница недоступна')).toBeVisible()
     expect(getExpiringMock).not.toHaveBeenCalled()
+    expect(getAttendanceGroupsMock).not.toHaveBeenCalled()
   })
 })
 

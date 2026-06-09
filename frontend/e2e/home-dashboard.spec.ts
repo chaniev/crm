@@ -14,7 +14,7 @@ const HEAD_COACH_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -50,7 +50,11 @@ test.describe('Home dashboard', () => {
       'aria-current',
       'page',
     )
+    await expect(
+      shellNavigation.getByRole('button', { name: 'Посещения' }),
+    ).toHaveCount(0)
     await expect(page.getByText('Истекающие абонементы')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Посещения' })).toBeVisible()
     await expect(page.getByText('Истекающих абонементов сейчас нет.')).toBeVisible()
     await expect(page.getByText('Все абонементы активны.')).toBeVisible()
     await expectNoHorizontalScroll(page)
@@ -83,6 +87,9 @@ test.describe('Home dashboard', () => {
       bottomNavigation.getByRole('button', { name: 'Уведомления' }),
     ).toHaveCount(0)
     await expect(
+      bottomNavigation.getByRole('button', { name: 'Посещения' }),
+    ).toHaveCount(0)
+    await expect(
       bottomNavigation.getByRole('button', { name: 'Открыть остальные разделы' }),
     ).toBeVisible()
     await expectNoHorizontalScroll(page)
@@ -103,7 +110,7 @@ test.describe('Home dashboard', () => {
     await page.goto('/')
 
     const loading = page.getByText('Загружаем истекающие абонементы...')
-    const refresh = page.getByRole('button', { name: 'Обновить' })
+    const refresh = page.getByRole('button', { name: 'Обновить', exact: true })
 
     await expect(loading).toBeVisible()
     await expect(refresh).toBeDisabled()
@@ -144,7 +151,9 @@ test.describe('Home dashboard', () => {
     await expect(page.getByTestId('home-client-card-client-2')).toBeVisible()
     await expect(page.getByText('Иван Иванов')).toBeVisible()
     await expect(page.getByText('Ольга Смирнова')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Обновить' })).toBeEnabled()
+    await expect(
+      page.getByRole('button', { name: 'Обновить', exact: true }),
+    ).toBeEnabled()
   })
 
   test('keeps refresh action accessible while request is loading', async ({ page }) => {
@@ -175,7 +184,7 @@ test.describe('Home dashboard', () => {
     })
 
     await page.goto('/')
-    const refresh = page.getByRole('button', { name: 'Обновить' })
+    const refresh = page.getByRole('button', { name: 'Обновить', exact: true })
 
     await expect(refresh).toBeEnabled()
 
@@ -254,6 +263,11 @@ async function mockHomeApi(page: Page, options: MockHomeApiOptions) {
       }
 
       await fulfillJson(route, 200, options.expiringMemberships ?? { items: [] })
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
       return
     }
 

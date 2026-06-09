@@ -19,7 +19,6 @@ const HEAD_COACH_SESSION = {
     allowedSections: [
       'Home',
       'Schedule',
-      'Attendance',
       'Clients',
       'Groups',
       'Users',

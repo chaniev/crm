@@ -32,7 +32,6 @@ const financeUser: AuthenticatedUser = {
   landingScreen: 'Home',
   allowedSections: [
     'Home',
-    'Attendance',
     'Clients',
     'Groups',
     'Users',

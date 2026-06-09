@@ -25,7 +25,7 @@ const forcedPasswordSession = {
     mustChangePassword: true,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -145,6 +145,11 @@ test.describe('Аутентификация', () => {
       }
 
       if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+        await fulfillJson(route, 200, { items: [] })
+        return true
+      }
+
+      if (pathname === '/api/attendance/groups' && method === 'GET') {
         await fulfillJson(route, 200, { items: [] })
         return true
       }

@@ -31,8 +31,9 @@ public class AuthorizationFlowTests
 
         Assert.NotNull(session.User);
         Assert.Equal("HeadCoach", session.User.Role);
+        Assert.Equal("Home", session.User.LandingScreen);
         Assert.Equal(
-            ["Home", "Attendance", "Clients", "Groups", "Users", "Audit", "Finance", "Settings"],
+            ["Home", "Clients", "Groups", "Users", "Audit", "Finance", "Settings"],
             session.User.AllowedSections);
         Assert.True(session.User.Permissions.CanManageUsers);
         Assert.True(session.User.Permissions.CanManageClients);
@@ -68,6 +69,7 @@ public class AuthorizationFlowTests
 
         Assert.NotNull(session.User);
         Assert.Equal("Administrator", session.User.Role);
+        Assert.Equal("Home", session.User.LandingScreen);
         Assert.Equal(["Home", "Clients", "Groups", "Audit", "Settings"], session.User.AllowedSections);
         Assert.False(session.User.Permissions.CanManageUsers);
         Assert.True(session.User.Permissions.CanManageClients);
@@ -103,7 +105,8 @@ public class AuthorizationFlowTests
 
         Assert.NotNull(session.User);
         Assert.Equal("Coach", session.User.Role);
-        Assert.Equal(["Attendance", "Clients"], session.User.AllowedSections);
+        Assert.Equal("Home", session.User.LandingScreen);
+        Assert.Equal(["Home", "Clients"], session.User.AllowedSections);
         Assert.False(session.User.Permissions.CanManageUsers);
         Assert.False(session.User.Permissions.CanManageClients);
         Assert.False(session.User.Permissions.CanManageGroups);

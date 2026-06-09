@@ -14,7 +14,7 @@ const headCoachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -44,6 +44,11 @@ test('Навигация открывает раздел Тренеры на м�
     }
 
     if (requestUrl.pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/attendance/groups' && method === 'GET') {
       await fulfillJson(route, 200, { items: [] })
       return
     }
