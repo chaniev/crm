@@ -188,10 +188,10 @@ public class ClientMessengerApiTests
     }
 
     [Fact]
-    public async Task Telegram_link_uses_username_reported_by_bot_token()
+    public async Task Telegram_link_uses_username_reported_by_bot_token_when_username_is_not_configured()
     {
         await using var factory = new ClientMessengerAppFactory(
-            configuredBotUsername: "wrong_client_bot",
+            configuredBotUsername: string.Empty,
             telegramBotUsername: "actual_client_bot");
         var seeded = await SeedAsync(factory);
 
@@ -211,7 +211,35 @@ public class ClientMessengerApiTests
         var linkPayload = await ReadJsonElementAsync(linkResponse);
         var deepLinkUrl = linkPayload.GetProperty("deepLinkUrl").GetString();
         Assert.Contains("https://t.me/actual_client_bot?start=", deepLinkUrl);
-        Assert.DoesNotContain("wrong_client_bot", deepLinkUrl);
+        Assert.Equal(1, factory.TelegramTransport.GetIdentityCount);
+    }
+
+    [Fact]
+    public async Task Telegram_link_uses_configured_username_without_bot_api_lookup()
+    {
+        await using var factory = new ClientMessengerAppFactory(
+            configuredBotUsername: "configured_client_bot",
+            telegramBotUsername: "actual_client_bot");
+        var seeded = await SeedAsync(factory);
+
+        using var adminClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var adminSession = await LoginAsync(adminClient, seeded.AdministratorLogin, seeded.SharedPassword);
+
+        using var linkResponse = await PostWithoutBodyAsync(
+            adminClient,
+            $"/clients/{seeded.ClientId}/messenger/telegram/link-token",
+            adminSession.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, linkResponse.StatusCode);
+
+        var linkPayload = await ReadJsonElementAsync(linkResponse);
+        var deepLinkUrl = linkPayload.GetProperty("deepLinkUrl").GetString();
+        Assert.Contains("https://t.me/configured_client_bot?start=", deepLinkUrl);
+        Assert.DoesNotContain("actual_client_bot", deepLinkUrl);
+        Assert.Equal(0, factory.TelegramTransport.GetIdentityCount);
     }
 
     [Fact]
@@ -521,11 +549,13 @@ public class ClientMessengerApiTests
     {
         public bool IsConfigured { get; set; } = true;
         public string? BotUsername { get; set; } = "gym_client_bot";
+        public int GetIdentityCount { get; private set; }
         public int SendCount { get; private set; }
 
         public Task<ClientTelegramBotIdentity?> GetBotIdentityAsync(
             CancellationToken cancellationToken = default)
         {
+            GetIdentityCount++;
             return Task.FromResult(
                 IsConfigured && BotUsername is not null
                     ? new ClientTelegramBotIdentity(BotUsername)

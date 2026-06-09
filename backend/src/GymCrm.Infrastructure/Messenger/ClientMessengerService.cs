@@ -638,24 +638,29 @@ internal sealed class ClientMessengerService(
         string? configuredBotUsername,
         CancellationToken cancellationToken)
     {
-        if (!telegramTransport.IsConfigured)
+        if (configuredBotUsername is not null)
         {
             return configuredBotUsername;
+        }
+
+        if (!telegramTransport.IsConfigured)
+        {
+            return null;
         }
 
         try
         {
             var identity = await telegramTransport.GetBotIdentityAsync(cancellationToken);
             var actualBotUsername = ClientTelegramOptions.NormalizeBotUsername(identity?.Username);
-            return actualBotUsername ?? configuredBotUsername;
+            return actualBotUsername;
         }
         catch (HttpRequestException)
         {
-            return configuredBotUsername;
+            return null;
         }
         catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            return configuredBotUsername;
+            return null;
         }
     }
 
