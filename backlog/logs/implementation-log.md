@@ -1,3 +1,20 @@
+# 2026-06-09 20:12
+
+## Moved to implementation
+- /backlog/implementation/TASK-059-merge-home-attendance.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-059-merge-home-attendance.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: full-stack backend/frontend task selected because clarification is complete, scope is localized to access scope, routing, navigation and the merged home/attendance screen, and the plan includes automated regression barriers.
+
 # 2026-05-07 21:28
 
 ## Moved to implementation
