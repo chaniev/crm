@@ -18,7 +18,6 @@ const financeUser: AuthenticatedUser = {
   landingScreen: 'Home',
   allowedSections: [
     'Home',
-    'Attendance',
     'Clients',
     'Groups',
     'Users',
@@ -86,6 +85,13 @@ describe('finance routes', () => {
       ),
     ).toBe('/')
   })
+
+  test('normalizes removed Attendance route to Home', () => {
+    const route = parseRoute('/attendance')
+
+    expect(route).toEqual({ kind: 'section', section: 'Home' })
+    expect(resolveAccessibleRoutePath(financeUser, route)).toBe('/')
+  })
 })
 
 describe('client preview route', () => {
@@ -114,8 +120,8 @@ describe('mobile navigation sections', () => {
     const accessibleSections = getAccessibleNavigationSections(financeUser)
 
     expect(getMobileNavigationSections(accessibleSections)).toEqual({
-      primarySections: ['Home', 'Schedule', 'Attendance', 'Clients'],
-      overflowSections: ['Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+      primarySections: ['Home', 'Schedule', 'Clients', 'Groups'],
+      overflowSections: ['Users', 'Audit', 'Finance', 'Settings'],
     })
   })
 
@@ -123,8 +129,8 @@ describe('mobile navigation sections', () => {
     const accessibleSections = getAccessibleNavigationSections({
       ...financeUser,
       role: 'Coach',
-      landingScreen: 'Attendance',
-      allowedSections: ['Attendance', 'Clients'],
+      landingScreen: 'Home',
+      allowedSections: ['Home', 'Clients'],
       permissions: {
         canManageUsers: false,
         canManageClients: false,
@@ -137,7 +143,7 @@ describe('mobile navigation sections', () => {
     })
 
     expect(getMobileNavigationSections(accessibleSections)).toEqual({
-      primarySections: ['Schedule', 'Attendance', 'Clients'],
+      primarySections: ['Home', 'Schedule', 'Clients'],
       overflowSections: [],
     })
   })
@@ -163,7 +169,7 @@ describe('mobile navigation sections', () => {
   test('does not produce fake or unauthorized overflow sections', () => {
     const accessibleSections = getAccessibleNavigationSections({
       ...financeUser,
-      allowedSections: ['Home', 'Attendance', 'Clients', 'Finance', 'Settings'],
+      allowedSections: ['Home', 'Clients', 'Finance', 'Settings'],
       permissions: {
         ...financeUser.permissions,
         canViewFinancialReports: false,

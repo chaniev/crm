@@ -15,7 +15,7 @@ const headCoachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -41,13 +41,13 @@ const administratorSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Clients', 'Groups', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: false,
       canManageClients: true,
       canManageGroups: true,
       canManageSettings: true,
-      canMarkAttendance: true,
+      canMarkAttendance: false,
       canViewAuditLog: true,
       canViewFinancialReports: false,
     },
@@ -66,8 +66,8 @@ const coachSession = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Attendance',
-    allowedSections: ['Attendance', 'Clients'],
+    landingScreen: 'Home',
+    allowedSections: ['Home', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -275,10 +275,6 @@ const SCREEN_CHECKS = [
   {
     path: '/schedule',
     testId: 'schedule-screen',
-  },
-  {
-    path: '/attendance',
-    testId: 'attendance-screen',
   },
   {
     path: '/clients',
@@ -1522,7 +1518,7 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.goto('/groups')
-    await expect(page).toHaveURL('/attendance')
+    await expect(page).toHaveURL('/')
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Группы' })).toHaveCount(0)
   })
@@ -1654,11 +1650,11 @@ test.describe('Основные e2e сценарии', () => {
         'Главный тренер',
       )
       await expect(auditGrid).toContainText('Создан новый клиент')
-      await expect(auditGrid).toContainText('Web')
 
       await auditGrid.getByTestId('audit-log-details-action').first().click()
       const detailsModal = page.getByTestId('audit-log-details-modal')
       await expect(detailsModal).toBeVisible()
+      await expect(detailsModal).toContainText('Web')
       await expect(detailsModal.getByText('Старые значения')).toBeVisible()
       await expect(detailsModal.getByText('ID объекта: client-1')).toBeVisible()
       await expect(detailsModal.getByText('"status": "Active"')).toBeVisible()
@@ -1861,7 +1857,13 @@ test.describe('Основные e2e сценарии', () => {
 
       for (const screen of SCREEN_CHECKS) {
         await page.goto(screen.path)
-        await expect(page.getByTestId(screen.testId)).toBeVisible()
+        if (screen.testId === 'home-screen') {
+          await expect(
+            page.getByRole('heading', { name: 'Главная' }),
+          ).toBeVisible()
+        } else {
+          await expect(page.getByTestId(screen.testId)).toBeVisible()
+        }
         await expectActiveMainNavigation(page, width, screen.path)
         await expectNoHorizontalScroll(page)
       }
@@ -1945,8 +1947,6 @@ function getNavLabelByPath(path: string) {
       return 'Главная'
     case '/schedule':
       return 'Расписание'
-    case '/attendance':
-      return 'Посещения'
     case '/clients':
       return 'Клиенты'
     case '/groups':

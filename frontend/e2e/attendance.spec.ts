@@ -28,8 +28,8 @@ const coachSession = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Attendance',
-    allowedSections: ['Attendance', 'Clients'],
+    landingScreen: 'Home',
+    allowedSections: ['Home', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -127,7 +127,7 @@ test.describe('Мобильный сценарий посещений трене
     await page.getByLabel('Пароль').fill(COACH_PASSWORD)
     await page.getByRole('button', { name: 'Войти' }).click()
 
-    await expect(page).toHaveURL(/\/attendance$/)
+    await expect(page).toHaveURL('/')
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
 
     const sideNavigation = page.locator(
@@ -144,11 +144,14 @@ test.describe('Мобильный сценарий посещений трене
     await expect(bottomNavigation).toBeVisible()
     await expect(bottomNavigation.getByRole('button')).toHaveCount(3)
     await expect(
+      bottomNavigation.getByRole('button', { name: 'Главная' }),
+    ).toHaveAttribute('aria-current', 'page')
+    await expect(
       bottomNavigation.getByRole('button', { name: 'Расписание' }),
     ).toBeVisible()
     await expect(
       bottomNavigation.getByRole('button', { name: 'Посещения' }),
-    ).toHaveAttribute('aria-current', 'page')
+    ).toHaveCount(0)
     await expect(
       bottomNavigation.getByRole('button', { name: 'Клиенты' }),
     ).toBeVisible()

@@ -81,7 +81,6 @@ describe('AuditLogScreen', () => {
     expect(within(grid).getByText('Создан новый клиент')).toBeVisible()
     expect(actorCell).toHaveTextContent('Мария Иванова')
     expect(actorCell).toHaveTextContent('m.ivanova')
-    expect(within(grid).getByText('Web')).toBeVisible()
     expect(
       within(grid).getByRole('button', {
         name: 'Показать детали записи: Создан новый клиент',
@@ -100,6 +99,7 @@ describe('AuditLogScreen', () => {
     expect(within(modal).getByText('Старые значения')).toBeInTheDocument()
     expect(within(modal).getByText('Новые значения')).toBeInTheDocument()
     expect(modal).toHaveTextContent('Клиент')
+    expect(modal).toHaveTextContent('Web')
     expect(modal).toHaveTextContent('ID объекта: client-1')
     expect(modal).toHaveTextContent('"status": "Draft"')
     expect(modal).toHaveTextContent('"status": "Active"')

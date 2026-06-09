@@ -1,5 +1,4 @@
 import {
-  IconCalendarCheck,
   IconCalendarWeek,
   IconChartBar,
   IconClipboardList,
@@ -17,8 +16,6 @@ export function getAppSectionIcon(section: AppSection, size = 17) {
       return <IconHome size={size} />
     case 'Schedule':
       return <IconCalendarWeek size={size} />
-    case 'Attendance':
-      return <IconCalendarCheck size={size} />
     case 'Clients':
       return <IconUsers size={size} />
     case 'Groups':

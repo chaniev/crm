@@ -16,7 +16,6 @@ const FINANCE_SESSION = {
     landingScreen: 'Home',
     allowedSections: [
       'Home',
-      'Attendance',
       'Clients',
       'Groups',
       'Users',
@@ -381,6 +380,11 @@ async function mockFinanceApi(
     }
 
     if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
       await fulfillJson(route, 200, { items: [] })
       return
     }

@@ -26,7 +26,6 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                 AppSection.Home,
                 [
                     AppSection.Home,
-                    AppSection.Attendance,
                     AppSection.Clients,
                     AppSection.Groups,
                     AppSection.Users,
@@ -64,9 +63,9 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                 []),
             UserRole.Coach => new AccessScope(
                 user.Role,
-                AppSection.Attendance,
+                AppSection.Home,
                 [
-                    AppSection.Attendance,
+                    AppSection.Home,
                     AppSection.Clients
                 ],
                 new PermissionSet(

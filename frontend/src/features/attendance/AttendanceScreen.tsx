@@ -45,6 +45,18 @@ type AttendanceScreenProps = {
   user: AuthenticatedUser
 }
 export function AttendanceScreen({ user }: AttendanceScreenProps) {
+  return (
+    <PageLayout data-testid="attendance-screen" title="Посещения">
+      <AttendanceWorkspace user={user} />
+    </PageLayout>
+  )
+}
+
+type AttendanceWorkspaceProps = {
+  user: AuthenticatedUser
+}
+
+export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
   const [groups, setGroups] = useState<AttendanceGroup[]>([])
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [groupsError, setGroupsError] = useState<string | null>(null)
@@ -285,16 +297,15 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
   ] satisfies CompactFilterItem[]
 
   return (
-    <PageLayout
-      actions={(
+    <Stack data-testid="attendance-workspace" gap="var(--page-section-gap)">
+      <Group justify="flex-end">
         <RefreshButton
+          label="Обновить посещения"
           loading={rosterLoading && Boolean(roster)}
           onClick={handleRefreshRoster}
         />
-      )}
-      data-testid="attendance-screen"
-      title="Посещения"
-    >
+      </Group>
+
       {groupsError ? (
         <PageSection>
           <ErrorState
@@ -384,7 +395,7 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
           </Stack>
         </PageSection>
       ) : null}
-    </PageLayout>
+    </Stack>
   )
 }
 

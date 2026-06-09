@@ -16,7 +16,7 @@ const MANAGEMENT_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Attendance', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -41,8 +41,8 @@ const COACH_SESSION = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Attendance',
-    allowedSections: ['Attendance', 'Clients'],
+    landingScreen: 'Home',
+    allowedSections: ['Home', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -369,11 +369,11 @@ const COACH_ROUTES = [
     checkScheduleOverflow: true,
   },
   {
-    path: '/attendance',
-    screenTestId: 'attendance-screen',
-    navLabel: 'Посещения',
-    expectedPageTitle: 'Посещения',
-    expectedControls: ['Обновить'],
+    path: '/',
+    screenTestId: 'home-screen',
+    navLabel: 'Главная',
+    expectedPageTitle: 'Главная',
+    expectedControls: ['Обновить посещения'],
     expectedFilterToolbars: 1,
   },
   {

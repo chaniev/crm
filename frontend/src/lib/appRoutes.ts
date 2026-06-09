@@ -25,7 +25,6 @@ const CLIENT_DETAILS_ROUTE_PATTERN = /^\/clients\/([^/]+)$/
 export const APP_SECTION_LABELS: Record<AppSection, string> = {
   Home: 'Главная',
   Schedule: 'Расписание',
-  Attendance: 'Посещения',
   Clients: 'Клиенты',
   Groups: 'Группы',
   Users: 'Тренеры',
@@ -37,7 +36,6 @@ export const APP_SECTION_LABELS: Record<AppSection, string> = {
 export const APP_SECTION_PATHS: Record<AppSection, string> = {
   Home: '/',
   Schedule: '/schedule',
-  Attendance: '/attendance',
   Clients: '/clients',
   Groups: '/groups',
   Users: '/users',
@@ -49,7 +47,6 @@ export const APP_SECTION_PATHS: Record<AppSection, string> = {
 export const APP_NAVIGATION_SECTIONS: AppSection[] = [
   'Home',
   'Schedule',
-  'Attendance',
   'Clients',
   'Groups',
   'Users',
@@ -61,7 +58,6 @@ export const APP_NAVIGATION_SECTIONS: AppSection[] = [
 const MOBILE_PRIMARY_NAVIGATION_CANDIDATES: AppSection[] = [
   'Home',
   'Schedule',
-  'Attendance',
   'Clients',
 ]
 const MOBILE_PRIMARY_NAVIGATION_LIMIT = 4
