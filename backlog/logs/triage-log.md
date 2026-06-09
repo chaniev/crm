@@ -718,3 +718,25 @@
 - needs-clarification: 1
 - updated existing: 0
 - processed files: 1
+
+# 2026-06-09 19:12
+
+## Processed inbox files
+- 2026-06-09.md
+
+## Created tasks
+- /backlog/needs-clarification/TASK-059-merge-home-attendance.md
+- /backlog/risky/TASK-060-expired-memberships-access.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- none
+
+## Summary
+- tasks-ready: 0
+- risky: 1
+- needs-clarification: 1
+- updated existing: 0
+- processed files: 1
