@@ -1,3 +1,20 @@
+# 2026-06-12 14:06
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-060-expired-memberships-access.plan.md
+
+## Skipped tasks
+- TASK-060-expired-memberships-access.md - not moved: task is in `/backlog/risky` and touches roles, permissions and membership semantics; implementation plan created, active code execution requires explicit review and dedicated branch `feature/TASK-060-expired-memberships-access`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: risky task planning is allowed by the skill; source task remains in `/backlog/risky`, with regression barriers and stop conditions captured in the plan.
+
 # 2026-06-09 20:12
 
 ## Moved to implementation
