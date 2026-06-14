@@ -1560,10 +1560,10 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.goto('/')
     await expect(
-      page.getByRole('heading', { name: 'Истекающие абонементы' }),
+      page.getByRole('heading', { name: 'Абонементы требуют внимания' }),
     ).toBeVisible()
     await expect(page.getByText('Иванов Иван Иванович')).toBeVisible()
-    await expect(page.getByText('3 дня')).toBeVisible()
+    await expect(page.getByText('Осталось 3 дня')).toBeVisible()
   })
 
   for (const profile of [
@@ -2271,6 +2271,7 @@ function toExpiringMembershipPayload(client: ClientState) {
       ),
     ),
     isPaid: client.hasActivePaidMembership,
+    state: 'ExpiringSoon',
   }
 }
 

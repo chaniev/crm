@@ -320,14 +320,23 @@ export type ClientMembership = {
   createdAt?: string
 }
 
-export type ExpiringClientMembership = {
+export type MembershipAttentionState =
+  | 'Expired'
+  | 'ExpiringSoon'
+  | 'Unpaid'
+  | 'Unknown'
+
+export type MembershipAttentionItem = {
   clientId: string
   fullName: string
   membershipType: MembershipType
-  expirationDate: string
-  daysUntilExpiration: number
+  expirationDate: string | null
+  daysUntilExpiration: number | null
   isPaid: boolean
+  state: MembershipAttentionState
 }
+
+export type ExpiringClientMembership = MembershipAttentionItem
 
 export type AttendanceClient = {
   id: string

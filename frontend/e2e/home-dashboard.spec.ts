@@ -53,10 +53,12 @@ test.describe('Home dashboard', () => {
     await expect(
       shellNavigation.getByRole('button', { name: 'Посещения' }),
     ).toHaveCount(0)
-    await expect(page.getByText('Истекающие абонементы')).toBeVisible()
+    await expect(page.getByText('Абонементы требуют внимания')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Посещения' })).toBeVisible()
-    await expect(page.getByText('Истекающих абонементов сейчас нет.')).toBeVisible()
-    await expect(page.getByText('Все абонементы активны.')).toBeVisible()
+    await expect(page.getByText('Абонементы не требуют внимания.')).toBeVisible()
+    await expect(
+      page.getByText('Нет истекших, скоро истекающих или неоплаченных абонементов.'),
+    ).toBeVisible()
     await expectNoHorizontalScroll(page)
   })
 
@@ -109,7 +111,7 @@ test.describe('Home dashboard', () => {
 
     await page.goto('/')
 
-    const loading = page.getByText('Загружаем истекающие абонементы...')
+    const loading = page.getByText('Загружаем абонементы...')
     const refresh = page.getByRole('button', { name: 'Обновить', exact: true })
 
     await expect(loading).toBeVisible()
@@ -117,7 +119,7 @@ test.describe('Home dashboard', () => {
 
     continueLoad?.()
     await expect(loading).toBeHidden()
-    await expect(page.getByText('Истекающих абонементов сейчас нет.')).toBeVisible()
+    await expect(page.getByText('Абонементы не требуют внимания.')).toBeVisible()
   })
 
   test('renders data state and keeps refresh button available', async ({ page }) => {
@@ -126,19 +128,30 @@ test.describe('Home dashboard', () => {
         items: [
           {
             clientId: 'client-1',
-            fullName: 'Иван Иванов',
+            fullName: 'Анна Петрова',
             membershipType: 'Monthly',
-            expirationDate: '2026-05-06',
-            daysUntilExpiration: 3,
-            isPaid: true,
+            expirationDate: '2026-05-03',
+            daysUntilExpiration: -3,
+            isPaid: false,
+            state: 'Expired',
           },
           {
             clientId: 'client-2',
-            fullName: 'Ольга Смирнова',
+            fullName: 'Иван Иванов',
             membershipType: 'Monthly',
             expirationDate: '2026-05-08',
-            daysUntilExpiration: 5,
+            daysUntilExpiration: 2,
+            isPaid: true,
+            state: 'ExpiringSoon',
+          },
+          {
+            clientId: 'client-3',
+            fullName: 'Ольга Смирнова',
+            membershipType: 'Monthly',
+            expirationDate: null,
+            daysUntilExpiration: null,
             isPaid: false,
+            state: 'Unpaid',
           },
         ],
       },
@@ -149,8 +162,14 @@ test.describe('Home dashboard', () => {
     await expect(page.getByTestId('home-expiring-memberships-list')).toBeVisible()
     await expect(page.getByTestId('home-client-card-client-1')).toBeVisible()
     await expect(page.getByTestId('home-client-card-client-2')).toBeVisible()
+    await expect(page.getByTestId('home-client-card-client-3')).toBeVisible()
+    await expect(page.getByText('Анна Петрова')).toBeVisible()
     await expect(page.getByText('Иван Иванов')).toBeVisible()
     await expect(page.getByText('Ольга Смирнова')).toBeVisible()
+    await expect(page.getByText('Истек 3 дня назад')).toBeVisible()
+    await expect(page.getByText('Осталось 2 дня')).toBeVisible()
+    await expect(page.getByText('Требует оплаты')).toBeVisible()
+    await expect(page.getByText('Ожидается оплата')).toBeVisible()
     await expect(
       page.getByRole('button', { name: 'Обновить', exact: true }),
     ).toBeEnabled()
@@ -177,6 +196,7 @@ test.describe('Home dashboard', () => {
               expirationDate: '2026-05-06',
               daysUntilExpiration: 3,
               isPaid: true,
+              state: 'ExpiringSoon',
             },
           ],
         })
@@ -218,7 +238,7 @@ test.describe('Home dashboard', () => {
     shouldFail = false
     await page.getByRole('button', { name: 'Повторить' }).click()
 
-    await expect(page.getByText('Все абонементы активны.')).toBeVisible()
+    await expect(page.getByText('Абонементы не требуют внимания.')).toBeVisible()
   })
 })
 

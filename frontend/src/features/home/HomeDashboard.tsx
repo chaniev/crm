@@ -8,9 +8,10 @@ import {
 } from '@mantine/core'
 import { IconCalendarEvent, IconUserHeart } from '@tabler/icons-react'
 import {
-  getExpiringClientMemberships,
+  getMembershipAttentionItems,
   type AuthenticatedUser,
-  type ExpiringClientMembership,
+  type MembershipAttentionItem,
+  type MembershipAttentionState,
   type MembershipType,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
@@ -38,16 +39,15 @@ const membershipTypeLabels = resources.common.membership.typeLabels satisfies Re
 >
 
 export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
-  const [clients, setClients] = useState<ExpiringClientMembership[]>([])
+  const [clients, setClients] = useState<MembershipAttentionItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
-  const canViewExpiringMemberships =
-    user.role === 'HeadCoach' || user.role === 'Administrator'
+  const canViewMembershipAttention = user.permissions.canManageClients
   const canWorkWithAttendance = user.permissions.canMarkAttendance
 
   useEffect(() => {
-    if (!canViewExpiringMemberships) {
+    if (!canViewMembershipAttention) {
       setLoading(false)
       setClients([])
       setError(null)
@@ -61,20 +61,13 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
       setError(null)
 
       try {
-        const response = await getExpiringClientMemberships(controller.signal)
+        const response = await getMembershipAttentionItems(controller.signal)
 
         if (controller.signal.aborted) {
           return
         }
 
-        setClients(
-          response
-            .sort(
-              (left, right) =>
-                left.daysUntilExpiration - right.daysUntilExpiration ||
-                left.fullName.localeCompare(right.fullName, 'ru'),
-            ),
-        )
+        setClients(response)
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
@@ -96,9 +89,9 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
     void load()
 
     return () => controller.abort()
-  }, [canViewExpiringMemberships, reloadKey])
+  }, [canViewMembershipAttention, reloadKey])
 
-  if (!canViewExpiringMemberships && !canWorkWithAttendance) {
+  if (!canViewMembershipAttention && !canWorkWithAttendance) {
     return (
       <PageLayout data-testid="home-screen" title="Главная">
         <PageSection>
@@ -113,7 +106,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
 
   return (
     <PageLayout
-      actions={canViewExpiringMemberships ? (
+      actions={canViewMembershipAttention ? (
         <RefreshButton
           loading={loading}
           onClick={() => setReloadKey((current) => current + 1)}
@@ -122,7 +115,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
       data-testid="home-screen"
       title="Главная"
     >
-      {canViewExpiringMemberships ? (
+      {canViewMembershipAttention ? (
         <PageSection className="home-screen-card">
           <Stack gap="lg">
             <SectionHeader
@@ -131,7 +124,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
             />
 
             {loading ? (
-              <LoadingState label="Загружаем истекающие абонементы..." />
+              <LoadingState label="Загружаем абонементы..." />
             ) : null}
 
             {!loading && error ? (
@@ -182,16 +175,8 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
                           value={formatDateValue(client.expirationDate)}
                         />
                         <HomeField
-                          label={resources.home.expiringMemberships.fields.daysUntilExpiration}
-                          value={
-                            <Badge
-                              color={client.daysUntilExpiration <= 2 ? 'red' : 'accent.5'}
-                              radius="xl"
-                              variant="light"
-                            >
-                              {formatDaysUntilExpiration(client.daysUntilExpiration)}
-                            </Badge>
-                          }
+                          label={resources.home.expiringMemberships.fields.state}
+                          value={<MembershipAttentionStateView client={client} />}
                         />
                         <HomeField
                           label={resources.home.expiringMemberships.fields.payment}
@@ -270,6 +255,27 @@ function HomeField({ label, value }: HomeFieldProps) {
   )
 }
 
+function MembershipAttentionStateView({
+  client,
+}: {
+  client: MembershipAttentionItem
+}) {
+  return (
+    <Stack gap={4}>
+      <Badge
+        color={getMembershipAttentionStateColor(client.state)}
+        radius="xl"
+        variant="light"
+      >
+        {resources.home.expiringMemberships.stateLabels[client.state]}
+      </Badge>
+      <Text fw={600} size="sm">
+        {formatMembershipAttentionStateText(client)}
+      </Text>
+    </Stack>
+  )
+}
+
 function formatDateValue(value: string | null) {
   if (!value) {
     return 'Не указана'
@@ -288,12 +294,56 @@ function formatDateValue(value: string | null) {
   }).format(new Date(Date.UTC(year, month - 1, day)))
 }
 
-function formatDaysUntilExpiration(daysUntilExpiration: number) {
+function formatMembershipAttentionStateText(client: MembershipAttentionItem) {
+  switch (client.state) {
+    case 'Expired':
+      return formatExpiredText(client.daysUntilExpiration)
+    case 'ExpiringSoon':
+      return formatExpiringSoonText(client.daysUntilExpiration)
+    case 'Unpaid':
+      return 'Ожидается оплата'
+    case 'Unknown':
+      return 'Неизвестно'
+  }
+}
+
+function getMembershipAttentionStateColor(state: MembershipAttentionState) {
+  switch (state) {
+    case 'Expired':
+      return 'red'
+    case 'ExpiringSoon':
+      return 'orange'
+    case 'Unpaid':
+      return 'yellow'
+    case 'Unknown':
+      return 'gray'
+  }
+}
+
+function formatExpiredText(daysUntilExpiration: number | null) {
+  if (daysUntilExpiration === null) {
+    return 'Истек'
+  }
+
+  const overdueDays = Math.abs(daysUntilExpiration)
+
+  if (overdueDays === 0) {
+    return 'Истек сегодня'
+  }
+
+  return `Истек ${overdueDays} ${formatDayWord(overdueDays)} назад`
+}
+
+function formatExpiringSoonText(daysUntilExpiration: number | null) {
+  if (daysUntilExpiration === null) {
+    return 'Скоро истечет'
+  }
+
   if (daysUntilExpiration === 0) {
     return resources.home.expiringMemberships.today
   }
 
-  return `${daysUntilExpiration} ${formatDayWord(daysUntilExpiration)}`
+  return `Осталось ${daysUntilExpiration} ${formatDayWord(daysUntilExpiration)}`
 }
 
 function formatDayWord(value: number) {
