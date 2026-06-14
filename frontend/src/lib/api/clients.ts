@@ -50,9 +50,10 @@ import type {
   ClientQuickFilterCounts,
   ClientResponsePayload,
   CorrectClientMembershipRequest,
-  ExpiringClientMembership,
   GetClientsParams,
   MarkClientMembershipPaymentRequest,
+  MembershipAttentionItem,
+  MembershipAttentionState,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
   TransferClientBranchRequest,
@@ -182,7 +183,7 @@ export async function getClient(clientId: string, signal?: AbortSignal) {
   return mapClientDetails(payload)
 }
 
-export async function getExpiringClientMemberships(signal?: AbortSignal) {
+export async function getMembershipAttentionItems(signal?: AbortSignal) {
   const payload = await request<unknown>(API_ENDPOINTS.clients.expiringMemberships, {
     signal,
   })
@@ -191,10 +192,14 @@ export async function getExpiringClientMemberships(signal?: AbortSignal) {
     payload,
     CLIENT_EXPIRING_MEMBERSHIP_PAYLOAD_KEYS,
   )
-    .map((membership) => mapExpiringClientMembership(membership))
+    .map((membership) => mapMembershipAttentionItem(membership))
     .filter(
-      (membership): membership is ExpiringClientMembership => membership !== null,
+      (membership): membership is MembershipAttentionItem => membership !== null,
     )
+}
+
+export async function getExpiringClientMemberships(signal?: AbortSignal) {
+  return getMembershipAttentionItems(signal)
 }
 
 export async function createClient(payload: UpsertClientRequest) {
@@ -565,9 +570,9 @@ function mapClientMembershipState(
   return 'Expired'
 }
 
-function mapExpiringClientMembership(
+function mapMembershipAttentionItem(
   payload: Record<string, unknown>,
-): ExpiringClientMembership | null {
+): MembershipAttentionItem | null {
   const clientId =
     readString(payload, ['clientId', 'ClientId', 'id', 'Id']) ?? ''
   const fullName =
@@ -584,8 +589,12 @@ function mapExpiringClientMembership(
   const expirationDate = normalizeIsoDateValue(
     readString(payload, ['expirationDate', 'ExpirationDate']),
   )
+  const daysUntilExpiration = readNumber(payload, [
+    'daysUntilExpiration',
+    'DaysUntilExpiration',
+  ])
 
-  if (!clientId || !membershipType || !expirationDate) {
+  if (!clientId || !membershipType) {
     return null
   }
 
@@ -594,10 +603,22 @@ function mapExpiringClientMembership(
     fullName,
     membershipType,
     expirationDate,
-    daysUntilExpiration:
-      readNumber(payload, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? 0,
+    daysUntilExpiration: daysUntilExpiration ?? null,
     isPaid: readBoolean(payload, ['isPaid', 'IsPaid']) ?? false,
+    state: mapMembershipAttentionState(
+      readString(payload, ['state', 'State']),
+    ),
   }
+}
+
+function mapMembershipAttentionState(
+  state: string | null | undefined,
+): MembershipAttentionState {
+  if (state === 'Expired' || state === 'ExpiringSoon' || state === 'Unpaid') {
+    return state
+  }
+
+  return 'Unknown'
 }
 
 function mapClientDetails(payload: ClientResponsePayload): ClientDetails {

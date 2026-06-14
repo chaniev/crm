@@ -176,7 +176,7 @@ test.describe('Аутентификация', () => {
 
     await expect(page.getByTestId('home-screen')).toBeVisible()
     await expect(
-      page.getByText('Все абонементы активны.'),
+      page.getByText('Абонементы не требуют внимания.'),
     ).toBeVisible()
   })
 

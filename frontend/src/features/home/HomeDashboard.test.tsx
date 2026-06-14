@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   getAttendanceGroupClients,
   getAttendanceGroups,
-  getExpiringClientMemberships,
+  getMembershipAttentionItems,
   type AuthenticatedUser,
-  type ExpiringClientMembership,
+  type MembershipAttentionItem,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { HomeDashboard } from './HomeDashboard'
@@ -17,7 +17,7 @@ vi.mock('../../lib/api', async (importOriginal) => {
     ...actual,
     getAttendanceGroupClients: vi.fn(),
     getAttendanceGroups: vi.fn(),
-    getExpiringClientMemberships: vi.fn(),
+    getMembershipAttentionItems: vi.fn(),
   }
 })
 
@@ -60,41 +60,55 @@ const coachUser: AuthenticatedUser = {
 
 const getAttendanceGroupClientsMock = vi.mocked(getAttendanceGroupClients)
 const getAttendanceGroupsMock = vi.mocked(getAttendanceGroups)
-const getExpiringMock = vi.mocked(getExpiringClientMemberships)
+const getAttentionMock = vi.mocked(getMembershipAttentionItems)
 
 beforeEach(() => {
   getAttendanceGroupClientsMock.mockReset()
   getAttendanceGroupsMock.mockReset()
-  getExpiringMock.mockReset()
+  getAttentionMock.mockReset()
   getAttendanceGroupsMock.mockResolvedValue([])
 })
 
 describe('HomeDashboard', () => {
-  test('shows empty state when there are no expiring memberships', async () => {
-    getExpiringMock.mockResolvedValueOnce([])
+  test('shows empty state when no memberships require attention', async () => {
+    getAttentionMock.mockResolvedValueOnce([])
 
     renderWithProviders(<HomeDashboard user={user} />)
 
     expect(
-      await screen.findByRole('heading', { name: 'Истекающие абонементы' }),
+      await screen.findByRole('heading', {
+        name: 'Абонементы требуют внимания',
+      }),
     ).toBeVisible()
-    expect(await screen.findByText('Истекающих абонементов сейчас нет.')).toBeVisible()
-    expect(screen.getByText('Все абонементы активны.')).toBeVisible()
+    expect(await screen.findByText('Абонементы не требуют внимания.')).toBeVisible()
+    expect(
+      screen.getByText('Нет истекших, скоро истекающих или неоплаченных абонементов.'),
+    ).toBeVisible()
   })
 
-  test('shows sorted expiring membership list when data exists', async () => {
-    getExpiringMock.mockResolvedValueOnce([
+  test('shows membership attention states and preserves backend order', async () => {
+    getAttentionMock.mockResolvedValueOnce([
       buildMembership({
-        clientId: 'client-2',
+        clientId: 'client-unpaid',
         fullName: 'Ольга Смирнова',
-        daysUntilExpiration: 5,
+        daysUntilExpiration: 20,
+        state: 'Unpaid',
         isPaid: false,
       }),
       buildMembership({
-        clientId: 'client-1',
+        clientId: 'client-expiring',
         fullName: 'Иван Иванов',
-        daysUntilExpiration: 3,
+        daysUntilExpiration: 2,
+        state: 'ExpiringSoon',
         isPaid: true,
+      }),
+      buildMembership({
+        clientId: 'client-expired',
+        fullName: 'Анна Петрова',
+        expirationDate: '2026-05-03',
+        daysUntilExpiration: -3,
+        state: 'Expired',
+        isPaid: false,
       }),
     ])
 
@@ -104,24 +118,49 @@ describe('HomeDashboard', () => {
 
     expect(list).toHaveTextContent('Иван Иванов')
     expect(list).toHaveTextContent('Ольга Смирнова')
-    expect(list.textContent?.indexOf('Иван Иванов')).toBeLessThan(
-      list.textContent?.indexOf('Ольга Смирнова') ?? Number.POSITIVE_INFINITY,
+    expect(list).toHaveTextContent('Анна Петрова')
+    expect(list.textContent?.indexOf('Ольга Смирнова')).toBeLessThan(
+      list.textContent?.indexOf('Иван Иванов') ?? Number.POSITIVE_INFINITY,
     )
+    expect(list.textContent?.indexOf('Иван Иванов')).toBeLessThan(
+      list.textContent?.indexOf('Анна Петрова') ?? Number.POSITIVE_INFINITY,
+    )
+    expect(screen.getByText('Требует оплаты')).toBeVisible()
+    expect(screen.getByText('Ожидается оплата')).toBeVisible()
+    expect(screen.getByText('Скоро истечет')).toBeVisible()
+    expect(screen.getByText('Осталось 2 дня')).toBeVisible()
+    expect(screen.getByText('Истек')).toBeVisible()
+    expect(screen.getByText('Истек 3 дня назад')).toBeVisible()
     expect(screen.getByText('Оплачен')).toBeVisible()
-    expect(screen.getByText('Не оплачен')).toBeVisible()
+    expect(screen.getAllByText('Не оплачен')).toHaveLength(2)
   })
 
-  test('shows loading state and disables refresh while loading', () => {
-    getExpiringMock.mockReturnValueOnce(new Promise(() => undefined))
+  test('shows unknown membership attention state safely', async () => {
+    getAttentionMock.mockResolvedValueOnce([
+      buildMembership({
+        daysUntilExpiration: null,
+        expirationDate: null,
+        state: 'Unknown',
+      }),
+    ])
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    expect(screen.getByText('Загружаем истекающие абонементы...')).toBeVisible()
+    expect(await screen.findAllByText('Неизвестно')).toHaveLength(2)
+    expect(screen.getByText('Не указана')).toBeVisible()
+  })
+
+  test('shows loading state and disables refresh while loading', () => {
+    getAttentionMock.mockReturnValueOnce(new Promise(() => undefined))
+
+    renderWithProviders(<HomeDashboard user={user} />)
+
+    expect(screen.getByText('Загружаем абонементы...')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Обновить' })).toBeDisabled()
   })
 
   test('shows error state and retries loading', async () => {
-    getExpiringMock
+    getAttentionMock
       .mockRejectedValueOnce(new Error('CRM API временно недоступен'))
       .mockResolvedValueOnce([])
 
@@ -134,14 +173,14 @@ describe('HomeDashboard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
 
-    expect(await screen.findByText('Все абонементы активны.')).toBeVisible()
-    expect(getExpiringMock).toHaveBeenCalledTimes(2)
+    expect(await screen.findByText('Абонементы не требуют внимания.')).toBeVisible()
+    expect(getAttentionMock).toHaveBeenCalledTimes(2)
   })
 
   test('keeps refresh action disabled only during refresh request', async () => {
-    const refreshDeferred = createDeferred<ExpiringClientMembership[]>()
+    const refreshDeferred = createDeferred<MembershipAttentionItem[]>()
 
-    getExpiringMock
+    getAttentionMock
       .mockResolvedValueOnce([buildMembership()])
       .mockReturnValueOnce(refreshDeferred.promise)
 
@@ -161,14 +200,14 @@ describe('HomeDashboard', () => {
   })
 
   test('keeps expiring memberships visible when attendance groups fail', async () => {
-    getExpiringMock.mockResolvedValueOnce([])
+    getAttentionMock.mockResolvedValueOnce([])
     getAttendanceGroupsMock.mockRejectedValueOnce(
       new Error('Группы посещений недоступны'),
     )
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    expect(await screen.findByText('Все абонементы активны.')).toBeVisible()
+    expect(await screen.findByText('Абонементы не требуют внимания.')).toBeVisible()
     expect(await screen.findByText('Группы для посещений не загрузились')).toBeVisible()
     expect(screen.getByText('Группы посещений недоступны')).toBeVisible()
   })
@@ -180,9 +219,9 @@ describe('HomeDashboard', () => {
     expect(await screen.findByRole('heading', { name: 'Посещения' })).toBeVisible()
     expect(await screen.findByText('Назначенные группы отсутствуют')).toBeVisible()
     expect(
-      screen.queryByRole('heading', { name: 'Истекающие абонементы' }),
+      screen.queryByRole('heading', { name: 'Абонементы требуют внимания' }),
     ).not.toBeInTheDocument()
-    expect(getExpiringMock).not.toHaveBeenCalled()
+    expect(getAttentionMock).not.toHaveBeenCalled()
     expect(getAttendanceGroupsMock).toHaveBeenCalledTimes(1)
   })
 
@@ -200,14 +239,14 @@ describe('HomeDashboard', () => {
     )
 
     expect(screen.getByText('Главная страница недоступна')).toBeVisible()
-    expect(getExpiringMock).not.toHaveBeenCalled()
+    expect(getAttentionMock).not.toHaveBeenCalled()
     expect(getAttendanceGroupsMock).not.toHaveBeenCalled()
   })
 })
 
 function buildMembership(
-  overrides: Partial<ExpiringClientMembership> = {},
-): ExpiringClientMembership {
+  overrides: Partial<MembershipAttentionItem> = {},
+): MembershipAttentionItem {
   return {
     clientId: 'client-1',
     fullName: 'Иван Иванов',
@@ -215,6 +254,7 @@ function buildMembership(
     expirationDate: '2026-05-06',
     daysUntilExpiration: 3,
     isPaid: true,
+    state: 'ExpiringSoon',
     ...overrides,
   }
 }

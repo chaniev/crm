@@ -710,7 +710,7 @@ public class ClientsApiTests
     [Theory]
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]
-    public async Task HeadCoach_or_Administrator_can_list_expiring_memberships_for_home_screen(
+    public async Task HeadCoach_or_Administrator_can_list_membership_attention_items_for_home_screen(
         string actorRole)
     {
         await using var factory = new ClientsAppFactory();
@@ -727,10 +727,15 @@ public class ClientsApiTests
                 ? seeded.HeadCoachLogin
                 : seeded.AdministratorLogin,
             seeded.SharedPassword);
+
         async Task<Guid> CreateClientWithMembershipAsync(
             string lastName,
             MembershipType membershipType,
-            DateOnly? expirationDate)
+            DateOnly? expirationDate,
+            bool isPaid = true,
+            bool isProfessional = false,
+            ClientStatus status = ClientStatus.Active,
+            bool addCurrentMembership = true)
         {
             using var createResponse = await PostJsonAsync(
                 client,
@@ -757,17 +762,23 @@ public class ClientsApiTests
             using var scope = factory.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             var now = DateTimeOffset.UtcNow;
-            var isPaid = lastName != "Zebra";
+            var createdClient = await dbContext.Clients.SingleAsync(candidate => candidate.Id == createdClientId);
+            createdClient.IsProfessional = isProfessional;
+            createdClient.Status = status;
+            createdClient.UpdatedAt = now;
 
-            dbContext.ClientMemberships.Add(CreateMembershipWithSale(
-                createdClientId,
-                membershipType,
-                DateOnly.FromDateTime(DateTime.UtcNow.Date),
-                expirationDate,
-                1200m,
-                isPaid,
-                seeded.HeadCoachId,
-                now));
+            if (addCurrentMembership)
+            {
+                dbContext.ClientMemberships.Add(CreateMembershipWithSale(
+                    createdClientId,
+                    membershipType,
+                    DateOnly.FromDateTime(DateTime.UtcNow.Date),
+                    expirationDate,
+                    1200m,
+                    isPaid,
+                    seeded.HeadCoachId,
+                    now));
+            }
 
             await dbContext.SaveChangesAsync();
 
@@ -775,30 +786,66 @@ public class ClientsApiTests
         }
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-        var expiringTodayClient = await CreateClientWithMembershipAsync(
+        var recentlyExpiredUnpaidClient = await CreateClientWithMembershipAsync(
             "Alpha",
+            MembershipType.Monthly,
+            today.AddDays(-1),
+            isPaid: false);
+        var recentlyExpiredPaidClient = await CreateClientWithMembershipAsync(
+            "Bravo",
+            MembershipType.Monthly,
+            today.AddDays(-3));
+        var oldExpiredPaidClient = await CreateClientWithMembershipAsync(
+            "Charlie",
+            MembershipType.Yearly,
+            today.AddDays(-40));
+        var expiringTodayClient = await CreateClientWithMembershipAsync(
+            "Delta",
             MembershipType.Monthly,
             today);
         var expiringSoonClient = await CreateClientWithMembershipAsync(
-            "Zebra",
+            "Echo",
             MembershipType.Monthly,
             today.AddDays(2));
         var laterExpiringClient = await CreateClientWithMembershipAsync(
-            "Aaron",
+            "Foxtrot",
             MembershipType.Yearly,
-            today.AddDays(8));
-        var expiringDayNineClient = await CreateClientWithMembershipAsync(
-            "Beta",
-            MembershipType.Monthly,
             today.AddDays(9));
-        var notExpiringClient = await CreateClientWithMembershipAsync(
+        var unpaidOutsideWindowClient = await CreateClientWithMembershipAsync(
+            "Golf",
+            MembershipType.Monthly,
+            today.AddDays(20),
+            isPaid: false);
+        var unpaidNoExpirationClient = await CreateClientWithMembershipAsync(
+            "Hotel",
+            MembershipType.SingleVisit,
+            expirationDate: null,
+            isPaid: false);
+        var paidOutsideWindowClient = await CreateClientWithMembershipAsync(
             "Eta",
             MembershipType.Monthly,
             today.AddDays(10));
-        var noExpirationClient = await CreateClientWithMembershipAsync(
+        var paidNoExpirationClient = await CreateClientWithMembershipAsync(
             "Omega",
             MembershipType.SingleVisit,
             expirationDate: null);
+        var professionalClient = await CreateClientWithMembershipAsync(
+            "Professional",
+            MembershipType.Monthly,
+            today.AddDays(-2),
+            isPaid: false,
+            isProfessional: true);
+        var archivedClient = await CreateClientWithMembershipAsync(
+            "Archived",
+            MembershipType.Monthly,
+            today.AddDays(-2),
+            isPaid: false,
+            status: ClientStatus.Archived);
+        var noMembershipClient = await CreateClientWithMembershipAsync(
+            "NoMembership",
+            MembershipType.Monthly,
+            today.AddDays(-2),
+            addCurrentMembership: false);
 
         using (var listResponse = await client.GetAsync("/clients/expiring-memberships"))
         {
@@ -807,35 +854,66 @@ public class ClientsApiTests
             var listPayload = await ReadJsonElementAsync(listResponse);
             var clientsPayload = GetArrayPayload(listPayload, "data", "items", "clients");
             var clientItems = clientsPayload.EnumerateArray().ToArray();
-            Assert.Equal(4, clientItems.Length);
+            Assert.Equal(8, clientItems.Length);
 
             var resultClientIds = clientItems
                 .Select(item => GetGuidFromAnyCase(item, "id", "Id", "clientId", "ClientId"))
                 .ToArray();
+            Assert.Contains(recentlyExpiredUnpaidClient, resultClientIds);
+            Assert.Contains(recentlyExpiredPaidClient, resultClientIds);
+            Assert.Contains(oldExpiredPaidClient, resultClientIds);
             Assert.Contains(expiringTodayClient, resultClientIds);
             Assert.Contains(expiringSoonClient, resultClientIds);
             Assert.Contains(laterExpiringClient, resultClientIds);
-            Assert.Contains(expiringDayNineClient, resultClientIds);
-            Assert.DoesNotContain(notExpiringClient, resultClientIds);
-            Assert.DoesNotContain(noExpirationClient, resultClientIds);
+            Assert.Contains(unpaidOutsideWindowClient, resultClientIds);
+            Assert.Contains(unpaidNoExpirationClient, resultClientIds);
+            Assert.DoesNotContain(paidOutsideWindowClient, resultClientIds);
+            Assert.DoesNotContain(paidNoExpirationClient, resultClientIds);
+            Assert.DoesNotContain(professionalClient, resultClientIds);
+            Assert.DoesNotContain(archivedClient, resultClientIds);
+            Assert.DoesNotContain(noMembershipClient, resultClientIds);
 
             Assert.Equal(
-                [expiringTodayClient, expiringSoonClient, laterExpiringClient, expiringDayNineClient],
+                [
+                    recentlyExpiredUnpaidClient,
+                    recentlyExpiredPaidClient,
+                    oldExpiredPaidClient,
+                    expiringTodayClient,
+                    expiringSoonClient,
+                    laterExpiringClient,
+                    unpaidOutsideWindowClient,
+                    unpaidNoExpirationClient
+                ],
                 resultClientIds);
 
             var firstClient = clientItems[0];
             Assert.Equal("Alpha Тест А", GetStringFromAnyCase(firstClient, "fullName", "FullName"));
             Assert.Equal("Monthly", GetStringFromAnyCase(firstClient, "membershipType", "MembershipType"));
-            Assert.Equal(today.ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
-            Assert.Equal(0L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
-            Assert.True(GetBoolFromAnyCase(firstClient, "isPaid", "IsPaid"));
+            Assert.Equal(today.AddDays(-1).ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
+            Assert.Equal(-1L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.False(GetBoolFromAnyCase(firstClient, "isPaid", "IsPaid"));
+            Assert.Equal("Expired", GetStringFromAnyCase(firstClient, "state", "State"));
 
-            var secondClient = clientItems[1];
-            Assert.Equal("Zebra Тест А", GetStringFromAnyCase(secondClient, "fullName", "FullName"));
-            Assert.Equal("Monthly", GetStringFromAnyCase(secondClient, "membershipType", "MembershipType"));
-            Assert.Equal(today.AddDays(2).ToString("yyyy-MM-dd"), GetStringFromAnyCase(secondClient, "expirationDate", "ExpirationDate"));
-            Assert.Equal(2L, GetLongFromAnyCase(secondClient, "daysUntilExpiration", "DaysUntilExpiration"));
-            Assert.False(GetBoolFromAnyCase(secondClient, "isPaid", "IsPaid"));
+            var expiringClient = clientItems[3];
+            Assert.Equal("Delta Тест А", GetStringFromAnyCase(expiringClient, "fullName", "FullName"));
+            Assert.Equal(today.ToString("yyyy-MM-dd"), GetStringFromAnyCase(expiringClient, "expirationDate", "ExpirationDate"));
+            Assert.Equal(0L, GetLongFromAnyCase(expiringClient, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.True(GetBoolFromAnyCase(expiringClient, "isPaid", "IsPaid"));
+            Assert.Equal("ExpiringSoon", GetStringFromAnyCase(expiringClient, "state", "State"));
+
+            var unpaidOutsideWindow = clientItems[6];
+            Assert.Equal("Golf Тест А", GetStringFromAnyCase(unpaidOutsideWindow, "fullName", "FullName"));
+            Assert.Equal(today.AddDays(20).ToString("yyyy-MM-dd"), GetStringFromAnyCase(unpaidOutsideWindow, "expirationDate", "ExpirationDate"));
+            Assert.Equal(20L, GetLongFromAnyCase(unpaidOutsideWindow, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.False(GetBoolFromAnyCase(unpaidOutsideWindow, "isPaid", "IsPaid"));
+            Assert.Equal("Unpaid", GetStringFromAnyCase(unpaidOutsideWindow, "state", "State"));
+
+            var unpaidWithoutDate = clientItems[7];
+            Assert.Equal("Hotel Тест А", GetStringFromAnyCase(unpaidWithoutDate, "fullName", "FullName"));
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(unpaidWithoutDate, "expirationDate", "ExpirationDate").ValueKind);
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(unpaidWithoutDate, "daysUntilExpiration", "DaysUntilExpiration").ValueKind);
+            Assert.False(GetBoolFromAnyCase(unpaidWithoutDate, "isPaid", "IsPaid"));
+            Assert.Equal("Unpaid", GetStringFromAnyCase(unpaidWithoutDate, "state", "State"));
         }
     }
 

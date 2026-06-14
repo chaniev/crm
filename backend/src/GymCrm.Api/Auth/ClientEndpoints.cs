@@ -429,7 +429,7 @@ internal static class ClientEndpoints
             quickFilterCounts));
     }
 
-    private static async Task<Results<Ok<IReadOnlyList<ExpiringClientMembershipListItemResponse>>, UnauthorizedHttpResult>> ListExpiringMembershipsAsync(
+    private static async Task<Results<Ok<IReadOnlyList<MembershipAttentionListItemResponse>>, UnauthorizedHttpResult>> ListExpiringMembershipsAsync(
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
@@ -443,9 +443,9 @@ internal static class ClientEndpoints
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
         var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
-        IReadOnlyList<ExpiringClientMembershipListItemResponse> response = await dbContext.Clients
+        var candidates = await dbContext.Clients
             .AsNoTracking()
-            .Where(client => client.Status == ClientStatus.Active)
+            .Where(client => client.Status == ClientStatus.Active && !client.IsProfessional)
             .Select(client => new
             {
                 client.Id,
@@ -467,9 +467,9 @@ internal static class ClientEndpoints
             })
             .Where(candidate =>
                 candidate.CurrentMembership != null &&
-                candidate.CurrentMembership.ExpirationDate.HasValue &&
-                candidate.CurrentMembership.ExpirationDate.Value >= today &&
-                candidate.CurrentMembership.ExpirationDate.Value < expiresBefore)
+                (!candidate.CurrentMembership.IsPaid ||
+                 candidate.CurrentMembership.ExpirationDate.HasValue &&
+                 candidate.CurrentMembership.ExpirationDate.Value < expiresBefore))
             .Select(candidate => new
             {
                 candidate.Id,
@@ -477,15 +477,35 @@ internal static class ClientEndpoints
                 candidate.FirstName,
                 candidate.MiddleName,
                 MembershipType = candidate.CurrentMembership!.MembershipType,
-                ExpirationDate = candidate.CurrentMembership!.ExpirationDate!.Value,
+                ExpirationDate = candidate.CurrentMembership!.ExpirationDate,
                 candidate.CurrentMembership!.IsPaid
             })
-            .OrderBy(candidate => candidate.ExpirationDate)
+            .ToArrayAsync(cancellationToken);
+
+        IReadOnlyList<MembershipAttentionListItemResponse> response = candidates
+            .Select(candidate => new
+            {
+                candidate.Id,
+                candidate.ExpirationDate,
+                candidate.FirstName,
+                candidate.LastName,
+                candidate.MiddleName,
+                candidate.MembershipType,
+                candidate.IsPaid,
+                State = ResolveMembershipAttentionState(
+                    candidate.ExpirationDate,
+                    candidate.IsPaid,
+                    today,
+                    expiresBefore)
+            })
+            .Where(candidate => candidate.State is not null)
+            .OrderBy(candidate => GetMembershipAttentionSortGroup(candidate.State!))
+            .ThenBy(candidate => GetMembershipAttentionDateSortValue(candidate.State!, candidate.ExpirationDate, today))
             .ThenBy(candidate => candidate.LastName ?? string.Empty)
             .ThenBy(candidate => candidate.FirstName ?? string.Empty)
             .ThenBy(candidate => candidate.MiddleName ?? string.Empty)
             .ThenBy(candidate => candidate.Id)
-            .Select(candidate => new ExpiringClientMembershipListItemResponse(
+            .Select(candidate => new MembershipAttentionListItemResponse(
                 candidate.Id,
                 BuildClientFullName(
                     candidate.LastName,
@@ -493,11 +513,59 @@ internal static class ClientEndpoints
                     candidate.MiddleName),
                 candidate.MembershipType.ToString(),
                 candidate.ExpirationDate,
-                candidate.ExpirationDate.DayNumber - today.DayNumber,
-                candidate.IsPaid))
-            .ToArrayAsync(cancellationToken);
+                candidate.ExpirationDate.HasValue
+                    ? candidate.ExpirationDate.Value.DayNumber - today.DayNumber
+                    : null,
+                candidate.IsPaid,
+                candidate.State!))
+            .ToArray();
 
         return TypedResults.Ok(response);
+    }
+
+    private static string? ResolveMembershipAttentionState(
+        DateOnly? expirationDate,
+        bool isPaid,
+        DateOnly today,
+        DateOnly expiresBefore)
+    {
+        if (expirationDate.HasValue && expirationDate.Value < today)
+        {
+            return MembershipAttentionState.Expired;
+        }
+
+        if (expirationDate.HasValue && expirationDate.Value < expiresBefore)
+        {
+            return MembershipAttentionState.ExpiringSoon;
+        }
+
+        return isPaid ? null : MembershipAttentionState.Unpaid;
+    }
+
+    private static int GetMembershipAttentionSortGroup(string state)
+    {
+        return state switch
+        {
+            MembershipAttentionState.Expired => 0,
+            MembershipAttentionState.ExpiringSoon => 1,
+            MembershipAttentionState.Unpaid => 2,
+            _ => 3
+        };
+    }
+
+    private static int GetMembershipAttentionDateSortValue(
+        string state,
+        DateOnly? expirationDate,
+        DateOnly today)
+    {
+        if (!expirationDate.HasValue)
+        {
+            return int.MaxValue;
+        }
+
+        return state == MembershipAttentionState.Expired
+            ? today.DayNumber - expirationDate.Value.DayNumber
+            : expirationDate.Value.DayNumber - today.DayNumber;
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, ValidationProblem, NotFound, ForbidHttpResult, UnauthorizedHttpResult>> GetClientAsync(

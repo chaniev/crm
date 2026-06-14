@@ -906,6 +906,7 @@ async function mockApi(
             expirationDate: '2026-04-22',
             daysUntilExpiration: 3,
             isPaid: false,
+            state: 'ExpiringSoon',
           },
         ],
       })
