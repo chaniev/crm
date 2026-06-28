@@ -2553,6 +2553,69 @@ public class ClientsApiTests
     }
 
     [Fact]
+    public async Task Membership_purchase_uses_inclusive_default_expiration_date()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorSession = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(
+            client,
+            actorSession.CsrfToken,
+            seeded.GroupOneId);
+
+        var purchaseDate = new DateOnly(2026, 6, 10);
+        var expectedExpirationDate = new DateOnly(2026, 7, 9);
+
+        using (var suggestionResponse = await client.GetAsync(
+                   $"/clients/membership/expiration-suggestion?membershipType=Monthly&startDate={purchaseDate:yyyy-MM-dd}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, suggestionResponse.StatusCode);
+            var suggestionPayload = await ReadJsonElementAsync(suggestionResponse);
+            Assert.Equal("Monthly", GetStringFromAnyCase(suggestionPayload, "membershipType", "MembershipType"));
+            Assert.Equal(
+                expectedExpirationDate.ToString("yyyy-MM-dd"),
+                GetStringFromAnyCase(suggestionPayload, "expirationDate", "ExpirationDate"));
+        }
+
+        using (var purchaseResponse = await SendMembershipActionAsync(
+                   client,
+                   "purchase",
+                   clientId,
+                   new
+                   {
+                       MembershipType = "Monthly",
+                       PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
+                       PaymentAmount = 1200m,
+                       IsPaid = true
+                   },
+                   actorSession.CsrfToken))
+        {
+            Assert.True(
+                purchaseResponse.StatusCode is HttpStatusCode.OK or HttpStatusCode.Created,
+                $"Expected purchase success, got {purchaseResponse.StatusCode}.");
+
+            var purchasePayload = await ReadJsonElementAsync(purchaseResponse);
+            var currentMembershipPayload = GetPropertyOrNull(purchasePayload, "currentMembership", "CurrentMembership");
+            Assert.Equal(
+                expectedExpirationDate.ToString("yyyy-MM-dd"),
+                GetStringFromAnyCase(currentMembershipPayload, "expirationDate", "ExpirationDate"));
+        }
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var currentMembership = await dbContext.ClientMemberships.SingleAsync(
+            membership => membership.ClientId == clientId && membership.ValidTo == null);
+
+        Assert.Equal(expectedExpirationDate, currentMembership.ExpirationDate);
+    }
+
+    [Fact]
     public async Task Membership_renewal_uses_previous_expiration_by_default()
     {
         await using var factory = new ClientsAppFactory();
@@ -2570,7 +2633,7 @@ public class ClientsApiTests
             seeded.GroupOneId);
 
         var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-        var firstExpirationDate = purchaseDate.AddMonths(1);
+        var firstExpirationDate = purchaseDate.AddMonths(1).AddDays(-1);
         var renewalDate = purchaseDate.AddDays(10);
 
         using (var purchaseResponse = await SendMembershipActionAsync(
@@ -2684,7 +2747,7 @@ public class ClientsApiTests
 
         Assert.Equal(2, memberships.Count);
         var current = memberships.Single(membership => membership.ValidTo is null);
-        Assert.Equal(renewalDate.AddMonths(1), current.ExpirationDate);
+        Assert.Equal(renewalDate.AddMonths(1).AddDays(-1), current.ExpirationDate);
     }
 
     [Fact]

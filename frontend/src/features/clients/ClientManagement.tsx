@@ -1,4 +1,11 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import {
   ActionIcon,
   Alert,
@@ -48,6 +55,7 @@ import {
   getBranches,
   getClient,
   getGroups,
+  getMembershipExpirationSuggestion,
   markClientMembershipPayment,
   purchaseClientMembership,
   renewClientMembership,
@@ -2371,22 +2379,83 @@ function MembershipEditPanel({
   const form = useForm<MembershipEditFormValues>({
     initialValues,
   })
+  const formRef = useRef(form)
+  formRef.current = form
   const [expirationManuallyChanged, setExpirationManuallyChanged] = useState(false)
+  const [expirationSuggestionLoading, setExpirationSuggestionLoading] =
+    useState(false)
+  const [expirationSuggestionError, setExpirationSuggestionError] = useState<
+    string | null
+  >(null)
+  const expirationSuggestionRequestIdRef = useRef(0)
 
-  const suggestedExpirationDate = suggestPurchaseExpirationDate(
-    form.values.membershipType,
-    form.values.purchaseDate,
+  const applySuggestedExpiration = useCallback(
+    async (membershipType: MembershipType | null, purchaseDate: string) => {
+      const requestId = expirationSuggestionRequestIdRef.current + 1
+      expirationSuggestionRequestIdRef.current = requestId
+      setExpirationSuggestionError(null)
+
+      if (!membershipType || !purchaseDate || membershipType === 'SingleVisit') {
+        setExpirationSuggestionLoading(false)
+        formRef.current.setFieldValue('expirationDate', '')
+        return
+      }
+
+      setExpirationSuggestionLoading(true)
+
+      try {
+        const suggestion = await getMembershipExpirationSuggestion(
+          membershipType,
+          purchaseDate,
+        )
+
+        if (expirationSuggestionRequestIdRef.current !== requestId) {
+          return
+        }
+
+        formRef.current.setFieldValue(
+          'expirationDate',
+          suggestion.expirationDate ?? '',
+        )
+      } catch (error) {
+        if (expirationSuggestionRequestIdRef.current !== requestId) {
+          return
+        }
+
+        setExpirationSuggestionError(
+          error instanceof Error
+            ? error.message
+            : 'Не удалось рассчитать срок абонемента.',
+        )
+      } finally {
+        if (expirationSuggestionRequestIdRef.current === requestId) {
+          setExpirationSuggestionLoading(false)
+        }
+      }
+    },
+    [],
   )
 
-  function updateSuggestedExpiration(nextType: MembershipType | null, purchaseDate: string) {
-    if (!nextType || expirationManuallyChanged) {
+  useEffect(() => {
+    if (mode !== 'purchase' || expirationManuallyChanged) {
       return
     }
 
-    form.setFieldValue(
-      'expirationDate',
-      suggestPurchaseExpirationDate(nextType, purchaseDate),
+    void applySuggestedExpiration(
+      formRef.current.values.membershipType,
+      formRef.current.values.purchaseDate,
     )
+  }, [applySuggestedExpiration, expirationManuallyChanged, mode])
+
+  function updateSuggestedExpiration(
+    nextType: MembershipType | null,
+    purchaseDate: string,
+  ) {
+    if (expirationManuallyChanged) {
+      return
+    }
+
+    void applySuggestedExpiration(nextType, purchaseDate)
   }
 
   async function submit(values: MembershipEditFormValues) {
@@ -2427,7 +2496,8 @@ function MembershipEditPanel({
                   : 'Исправить текущий абонемент'}
               </Text>
               <Text c="dimmed" size="sm">
-                Срок подставляется автоматически по типу и дате покупки, но его можно исправить вручную.
+                Срок рассчитывается автоматически по типу и дате покупки, но его
+                можно исправить вручную.
               </Text>
             </div>
 
@@ -2457,7 +2527,10 @@ function MembershipEditPanel({
               onChange={(event) => {
                 const nextPurchaseDate = event.currentTarget.value
                 form.setFieldValue('purchaseDate', nextPurchaseDate)
-                updateSuggestedExpiration(form.values.membershipType, nextPurchaseDate)
+                updateSuggestedExpiration(
+                  form.values.membershipType,
+                  nextPurchaseDate,
+                )
               }}
               error={form.errors.purchaseDate}
             />
@@ -2465,7 +2538,10 @@ function MembershipEditPanel({
               description={
                 form.values.membershipType === 'SingleVisit'
                   ? 'Для разового посещения дату можно оставить пустой.'
-                  : 'Дата предложена автоматически, но ее можно изменить.'
+                  : expirationSuggestionLoading
+                    ? 'Рассчитываем дату окончания...'
+                    : expirationSuggestionError ??
+                      'Дата предложена автоматически, но ее можно изменить.'
               }
               label="Дата окончания"
               type="date"
@@ -2500,10 +2576,14 @@ function MembershipEditPanel({
             />
 
             <Button
-              disabled={pending || suggestedExpirationDate === form.values.expirationDate}
+              disabled={pending || expirationSuggestionLoading}
+              loading={expirationSuggestionLoading}
               onClick={() => {
                 setExpirationManuallyChanged(false)
-                form.setFieldValue('expirationDate', suggestedExpirationDate)
+                void applySuggestedExpiration(
+                  form.values.membershipType,
+                  form.values.purchaseDate,
+                )
               }}
               type="button"
               variant="subtle"
@@ -2791,7 +2871,7 @@ function createMembershipEditInitialValues(
   return {
     membershipType,
     purchaseDate,
-    expirationDate: suggestPurchaseExpirationDate(membershipType, purchaseDate),
+    expirationDate: '',
     paymentAmount: '',
     isPaid: false,
   }
@@ -2871,23 +2951,6 @@ function parsePaymentAmount(value: string) {
 
 function isExpirationRequired(membershipType: MembershipType) {
   return membershipType !== 'SingleVisit'
-}
-
-function suggestPurchaseExpirationDate(
-  membershipType: MembershipType | null,
-  purchaseDate: string,
-) {
-  if (!membershipType || !purchaseDate) {
-    return ''
-  }
-
-  if (membershipType === 'SingleVisit') {
-    return ''
-  }
-
-  return membershipType === 'Monthly'
-    ? addMonthsToDateValue(purchaseDate, 1)
-    : addYearsToDateValue(purchaseDate, 1)
 }
 
 function suggestRenewalExpirationDate(

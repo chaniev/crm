@@ -43,6 +43,7 @@ internal static class ClientResources
     public static string GroupsMustBelongToClientBranch => GetString(nameof(GroupsMustBelongToClientBranch));
     public static string TransferGroupMustBelongToTargetBranch => GetString(nameof(TransferGroupMustBelongToTargetBranch));
     public static string PurchaseDateRequired => GetString(nameof(PurchaseDateRequired));
+    public static string MembershipStartDateRequired => GetString(nameof(MembershipStartDateRequired));
     public static string RenewalDateRequired => GetString(nameof(RenewalDateRequired));
     public static string CurrentMembershipMissingForRenewal => GetString(nameof(CurrentMembershipMissingForRenewal));
     public static string CurrentMembershipWithoutExpirationDate => GetString(nameof(CurrentMembershipWithoutExpirationDate));

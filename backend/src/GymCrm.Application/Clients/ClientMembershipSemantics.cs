@@ -4,6 +4,28 @@ namespace GymCrm.Application.Clients;
 
 public static class ClientMembershipSemantics
 {
+    public static DateOnly? CalculateDefaultExpirationDate(MembershipType membershipType, DateOnly startDate)
+    {
+        return membershipType switch
+        {
+            MembershipType.SingleVisit => null,
+            MembershipType.Monthly => startDate.AddMonths(1).AddDays(-1),
+            MembershipType.Yearly => startDate.AddYears(1).AddDays(-1),
+            _ => null
+        };
+    }
+
+    public static DateOnly? ExtendExpirationDate(MembershipType membershipType, DateOnly currentExpirationDate)
+    {
+        return membershipType switch
+        {
+            MembershipType.SingleVisit => null,
+            MembershipType.Monthly => currentExpirationDate.AddMonths(1),
+            MembershipType.Yearly => currentExpirationDate.AddYears(1),
+            _ => null
+        };
+    }
+
     public static bool HasActivePaidMembership(
         bool isProfessional,
         ClientMembership? membership,
