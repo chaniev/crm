@@ -740,3 +740,28 @@
 - needs-clarification: 1
 - updated existing: 0
 - processed files: 1
+
+# 2026-06-28 22:55
+
+## Processed inbox files
+- 2026-06-28.md
+
+## Created tasks
+- /backlog/risky/TASK-061-membership-validity-end-date.md
+- /backlog/tasks-ready/TASK-062-admin-active-label.md
+- /backlog/risky/TASK-063-head-coach-group-assignment.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Related completed membership/home tasks were checked and not treated as duplicates of the new membership validity-date task.
+- Related completed administrator form task `TASK-054` was checked and not treated as a duplicate of the new administrator activity-label copy fix.
+- Related completed group/branch tasks `TASK-031` and `TASK-036` were checked and not treated as duplicates of the new HeadCoach group-assignment allowance.
+
+## Summary
+- tasks-ready: 1
+- risky: 2
+- needs-clarification: 0
+- updated existing: 0
+- processed files: 1
