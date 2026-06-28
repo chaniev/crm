@@ -1,3 +1,20 @@
+# 2026-06-29 00:00
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-061-membership-validity-end-date.plan.md
+
+## Skipped tasks
+- TASK-061-membership-validity-end-date.md - not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; plan created for explicit review before active implementation in branch `fix/TASK-061-membership-validity-end-date`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: risky membership-semantics bugfix planned with backend-owned inclusive expiration calculation, frontend suggestion alignment, automated regression coverage for `2026-06-10 -> 2026-07-09`, and stop conditions for data migration or broader contract changes.
+
 # 2026-06-28 23:08
 
 ## Moved to implementation
