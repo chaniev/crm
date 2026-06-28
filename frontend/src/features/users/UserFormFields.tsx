@@ -36,6 +36,7 @@ type UserFormFieldsProps<FormValues extends BaseUserFormValues> = {
   credentialsFields: ReactNode
   form: UseFormReturnType<FormValues>
   isActiveDisabled?: boolean
+  isActiveLabel?: string
   roleDisabled?: boolean
   roleOptions: UserRoleOption[]
   showRoleField?: boolean
@@ -45,6 +46,7 @@ export function UserFormFields<FormValues extends BaseUserFormValues>({
   credentialsFields,
   form,
   isActiveDisabled = false,
+  isActiveLabel = resources.users.form.labels.isActive,
   roleDisabled = false,
   roleOptions,
   showRoleField = true,
@@ -96,7 +98,7 @@ export function UserFormFields<FormValues extends BaseUserFormValues>({
       <SimpleGrid cols={{ base: 1, md: 2 }}>
         <Switch
           disabled={isActiveDisabled}
-          label={resources.users.form.labels.isActive}
+          label={isActiveLabel}
           {...form.getInputProps('isActive', { type: 'checkbox' })}
         />
         <Switch
