@@ -1,3 +1,20 @@
+# 2026-06-28 23:08
+
+## Moved to implementation
+- /backlog/implementation/TASK-062-admin-active-label.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-062-admin-active-label.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: low-risk frontend UI-copy bugfix selected explicitly by user; plan keeps backend role semantics unchanged and defines automated regression coverage for administrator and trainer labels.
+
 # 2026-06-12 14:06
 
 ## Moved to implementation
