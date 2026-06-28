@@ -218,6 +218,34 @@ public class FinancialReportsApiTests
     }
 
     [Fact]
+    public async Task HeadCoach_trainer_filter_is_accepted_when_headcoach_has_group_attribution()
+    {
+        await using var factory = new FinancialReportsAppFactory();
+        var seeded = await SeedReportDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await client.GetAsync($"/reports/financial?periodPreset=month&anchorDate=2026-05-14&trainerId={seeded.HeadCoachId}");
+        var payload = await ReadJsonElementAsync(response);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        AssertTotals(payload.GetProperty("totals"), 4, 590m, 170m, 420m, 4);
+
+        var group = Assert.Single(payload.GetProperty("groupBreakdown").EnumerateArray());
+        Assert.Equal(seeded.GroupAId.ToString(), group.GetProperty("groupId").GetString());
+        AssertTotals(group, 4, 590m, 170m, 420m, 4);
+
+        var trainer = Assert.Single(payload.GetProperty("trainerBreakdown").EnumerateArray());
+        Assert.Equal(seeded.HeadCoachId.ToString(), trainer.GetProperty("trainerId").GetString());
+        AssertTotals(trainer, 4, 590m, 170m, 420m, 4);
+    }
+
+    [Fact]
     public async Task Administrator_and_coach_are_forbidden_from_financial_reports()
     {
         await using var factory = new FinancialReportsAppFactory();
@@ -329,6 +357,7 @@ public class FinancialReportsApiTests
         AddClientGroupPeriod(dbContext, clientE.Id, groupA.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
         AddClientGroupPeriod(dbContext, clientF.Id, groupA.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
 
+        AddGroupTrainerPeriod(dbContext, groupA.Id, headCoach.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
         AddGroupTrainerPeriod(dbContext, groupA.Id, coachOne.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
         AddGroupTrainerPeriod(dbContext, groupB.Id, coachTwo.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
 
@@ -358,6 +387,7 @@ public class FinancialReportsApiTests
             administrator.Login,
             coachOne.Login,
             sharedPassword,
+            headCoach.Id,
             administrator.Id,
             coachOne.Id,
             coachTwo.Id,
@@ -756,6 +786,7 @@ public class FinancialReportsApiTests
         string AdministratorLogin,
         string CoachOneLogin,
         string SharedPassword,
+        Guid HeadCoachId,
         Guid AdministratorId,
         Guid CoachOneId,
         Guid CoachTwoId,

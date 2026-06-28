@@ -167,6 +167,11 @@ type ClientState = {
 
 const trainers: TrainerOption[] = [
   {
+    id: 'headcoach-id',
+    fullName: 'Главный тренер',
+    login: 'headcoach',
+  },
+  {
     id: 'trainer-1',
     fullName: 'Ирина Тренер',
     login: 'irina',
@@ -1019,9 +1024,10 @@ test.describe('Основные e2e сценарии', () => {
           durationMinutes: 60,
           weekdays: [2, 4],
           isActive: true,
-          trainerIds: ['trainer-1', 'trainer-2'],
+          trainerIds: ['headcoach-id', 'trainer-1', 'trainer-2'],
         })
 
+        const assignedTrainerIds = payload.trainerIds ?? []
         const createdGroup: GroupState = {
           id: createdGroupId,
           branchId: payload.branchId,
@@ -1035,8 +1041,8 @@ test.describe('Основные e2e сценарии', () => {
           durationMinutes: 60,
           weekdays: [2, 4],
           isActive: true,
-          trainerIds: ['trainer-1', 'trainer-2'],
-          trainerNames: ['Ирина Тренер', 'Артем База'],
+          trainerIds: assignedTrainerIds,
+          trainerNames: resolveTrainerNames(assignedTrainerIds),
           clientCount: 0,
         }
 
@@ -1063,6 +1069,8 @@ test.describe('Основные e2e сценарии', () => {
     await trainerSelect.click()
     await page.getByRole('option', { name: /Ирина Тренер/ }).click()
     await trainerSelect.click()
+    await page.getByRole('option', { name: /Главный тренер/ }).click()
+    await trainerSelect.click()
     await page.getByRole('option', { name: /Артем База/ }).click()
 
     await page.getByRole('button', { name: 'Создать группу' }).click()
@@ -1078,14 +1086,14 @@ test.describe('Основные e2e сценарии', () => {
         durationMinutes: 60,
         weekdays: [2, 4],
         isActive: true,
-        trainerIds: ['trainer-1', 'trainer-2'],
+        trainerIds: ['headcoach-id', 'trainer-1', 'trainer-2'],
       })
 
     await expect(page).toHaveURL('/groups')
     const createdGroupCard = page.getByTestId(`group-card-${createdGroupId}`)
     await expect(createdGroupCard).toBeVisible()
     await expect(createdGroupCard.getByText('Новая тестовая группа')).toBeVisible()
-    await expect(createdGroupCard.getByText('Тренеры: Ирина Тренер, Артем База')).toBeVisible()
+    await expect(createdGroupCard.getByText('Тренеры: Главный тренер, Ирина Тренер, Артем База')).toBeVisible()
   })
 
   test('Проверяет auto-refresh после создания группы и обновляет список без ручного перезагрузки', async ({

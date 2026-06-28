@@ -252,7 +252,10 @@ internal static class GroupRequestValidator
 
         var validTrainerCount = await dbContext.Users
             .AsNoTracking()
-            .Where(user => normalizedTrainerIds.Contains(user.Id) && user.IsActive && user.Role == UserRole.Coach)
+            .Where(user =>
+                normalizedTrainerIds.Contains(user.Id) &&
+                user.IsActive &&
+                GroupTrainerEligibility.AssignableRoles.Contains(user.Role))
             .CountAsync(cancellationToken);
 
         if (validTrainerCount != normalizedTrainerIds.Count)

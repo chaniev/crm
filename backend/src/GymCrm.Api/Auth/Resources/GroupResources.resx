@@ -94,7 +94,7 @@
     <value>Список тренеров содержит некорректный идентификатор.</value>
   </data>
   <data name="OnlyActiveCoachesCanBeAssigned" xml:space="preserve">
-    <value>Можно назначить только активных пользователей с ролью Coach.</value>
+    <value>Можно назначить только активных тренеров или главного тренера.</value>
   </data>
   <data name="TrainingGroupCreatedDescription" xml:space="preserve">
     <value>Пользователь '{0}' создал группу '{1}'.</value>

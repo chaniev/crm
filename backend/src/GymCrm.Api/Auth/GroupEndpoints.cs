@@ -63,7 +63,7 @@ internal static class GroupEndpoints
     {
         IReadOnlyList<TrainerOptionResponse> trainers = await dbContext.Users
             .AsNoTracking()
-            .Where(user => user.IsActive && user.Role == UserRole.Coach)
+            .Where(user => user.IsActive && GroupTrainerEligibility.AssignableRoles.Contains(user.Role))
             .OrderBy(user => user.FullName)
             .ThenBy(user => user.Login)
             .Select(user => new TrainerOptionResponse(
