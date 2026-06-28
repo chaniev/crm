@@ -24,6 +24,8 @@ internal static class ClientEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.ViewClients);
         group.MapGet("/expiring-memberships", ListExpiringMembershipsAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapGet("/membership/expiration-suggestion", SuggestMembershipExpirationAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPost("/", CreateClientAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPut("/{id:guid}", UpdateClientAsync)
@@ -427,6 +429,29 @@ internal static class ClientEndpoints
             activeCount,
             archivedCount,
             quickFilterCounts));
+    }
+
+    private static Results<Ok<ClientMembershipExpirationSuggestionResponse>, ValidationProblem> SuggestMembershipExpirationAsync(
+        string? membershipType,
+        string? startDate)
+    {
+        var errors = new Dictionary<string, string[]>();
+        var parsedMembershipType = ValidateRequiredMembershipType(membershipType, errors);
+        var parsedStartDate = ValidateRequiredDate(
+            startDate,
+            "startDate",
+            ClientResources.MembershipStartDateRequired,
+            errors);
+
+        if (errors.Count > 0)
+        {
+            return TypedResults.ValidationProblem(errors);
+        }
+
+        return TypedResults.Ok(new ClientMembershipExpirationSuggestionResponse(
+            parsedMembershipType!.Value.ToString(),
+            parsedStartDate!.Value,
+            ClientMembershipSemantics.CalculateDefaultExpirationDate(parsedMembershipType.Value, parsedStartDate.Value)));
     }
 
     private static async Task<Results<Ok<IReadOnlyList<MembershipAttentionListItemResponse>>, UnauthorizedHttpResult>> ListExpiringMembershipsAsync(

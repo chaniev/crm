@@ -524,6 +524,12 @@ export type PurchaseClientMembershipRequest = {
 
 export type CorrectClientMembershipRequest = PurchaseClientMembershipRequest
 
+export type MembershipExpirationSuggestion = {
+  membershipType: MembershipType
+  startDate: string
+  expirationDate: string | null
+}
+
 export type RenewClientMembershipRequest = {
   membershipType: MembershipType
   renewalDate: string

@@ -54,6 +54,8 @@ import type {
   MarkClientMembershipPaymentRequest,
   MembershipAttentionItem,
   MembershipAttentionState,
+  MembershipExpirationSuggestion,
+  MembershipType,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
   TransferClientBranchRequest,
@@ -200,6 +202,23 @@ export async function getMembershipAttentionItems(signal?: AbortSignal) {
 
 export async function getExpiringClientMemberships(signal?: AbortSignal) {
   return getMembershipAttentionItems(signal)
+}
+
+export async function getMembershipExpirationSuggestion(
+  membershipType: MembershipType,
+  startDate: string,
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+  searchParams.set('membershipType', membershipType)
+  searchParams.set('startDate', startDate)
+
+  const payload = await request<unknown>(
+    `${API_ENDPOINTS.clients.membership.expirationSuggestion}?${searchParams.toString()}`,
+    { signal },
+  )
+
+  return mapMembershipExpirationSuggestion(payload)
 }
 
 export async function createClient(payload: UpsertClientRequest) {
@@ -619,6 +638,33 @@ function mapMembershipAttentionState(
   }
 
   return 'Unknown'
+}
+
+function mapMembershipExpirationSuggestion(
+  payload: unknown,
+): MembershipExpirationSuggestion {
+  if (!isRecord(payload)) {
+    throw new Error('Invalid membership expiration suggestion payload.')
+  }
+
+  const membershipType = mapMembershipType(
+    readString(payload, ['membershipType', 'MembershipType']),
+  )
+  const startDate = normalizeIsoDateValue(
+    readString(payload, ['startDate', 'StartDate']),
+  )
+
+  if (!membershipType || !startDate) {
+    throw new Error('Invalid membership expiration suggestion payload.')
+  }
+
+  return {
+    membershipType,
+    startDate,
+    expirationDate: normalizeIsoDateValue(
+      readString(payload, ['expirationDate', 'ExpirationDate']),
+    ),
+  }
 }
 
 function mapClientDetails(payload: ClientResponsePayload): ClientDetails {

@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
       },
     },
     membership: {
+      expirationSuggestion: '/clients/membership/expiration-suggestion',
       purchase: (clientId: string) => `/clients/${clientId}/membership/purchase`,
       renew: (clientId: string) => `/clients/${clientId}/membership/renew`,
       correct: (clientId: string) => `/clients/${clientId}/membership/correct`,

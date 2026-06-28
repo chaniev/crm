@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
-import { getMembershipAttentionItems } from './clients'
+import {
+  getMembershipAttentionItems,
+  getMembershipExpirationSuggestion,
+} from './clients'
 
 describe('getMembershipAttentionItems', () => {
   afterEach(() => {
@@ -79,6 +82,44 @@ describe('getMembershipAttentionItems', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/clients/expiring-memberships',
+      expect.any(Object),
+    )
+  })
+})
+
+describe('getMembershipExpirationSuggestion', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  test('requests backend-owned inclusive expiration suggestion', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          membershipType: 'Monthly',
+          startDate: '2026-06-10',
+          expirationDate: '2026-07-09',
+        }),
+        {
+          headers: {
+            'content-type': 'application/json; charset=utf-8',
+          },
+          status: 200,
+        },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(
+      getMembershipExpirationSuggestion('Monthly', '2026-06-10'),
+    ).resolves.toEqual({
+      membershipType: 'Monthly',
+      startDate: '2026-06-10',
+      expirationDate: '2026-07-09',
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/clients/membership/expiration-suggestion?membershipType=Monthly&startDate=2026-06-10',
       expect.any(Object),
     )
   })

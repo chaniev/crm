@@ -123,6 +123,9 @@
   <data name="PurchaseDateRequired" xml:space="preserve">
     <value>Укажите дату покупки абонемента.</value>
   </data>
+  <data name="MembershipStartDateRequired" xml:space="preserve">
+    <value>Укажите дату начала абонемента.</value>
+  </data>
   <data name="RenewalDateRequired" xml:space="preserve">
     <value>Укажите дату продления абонемента.</value>
   </data>

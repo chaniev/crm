@@ -652,8 +652,8 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
         return membershipType switch
         {
             MembershipType.SingleVisit => requestedExpirationDate,
-            MembershipType.Monthly => purchaseDate.AddMonths(1),
-            MembershipType.Yearly => purchaseDate.AddYears(1),
+            MembershipType.Monthly or MembershipType.Yearly =>
+                ClientMembershipSemantics.CalculateDefaultExpirationDate(membershipType, purchaseDate),
             _ => requestedExpirationDate
         };
     }
@@ -666,8 +666,8 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
         return membershipType switch
         {
             MembershipType.SingleVisit => requestedExpirationDate,
-            MembershipType.Monthly => requestedExpirationDate ?? purchaseDate.AddMonths(1),
-            MembershipType.Yearly => requestedExpirationDate ?? purchaseDate.AddYears(1),
+            MembershipType.Monthly or MembershipType.Yearly =>
+                requestedExpirationDate ?? ClientMembershipSemantics.CalculateDefaultExpirationDate(membershipType, purchaseDate),
             _ => requestedExpirationDate
         };
     }
@@ -690,10 +690,21 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
             renewalDate,
             cancellationToken);
 
+        var shouldExtendCurrentExpiration =
+            currentMembership.ExpirationDate.HasValue &&
+            calculationBaseDate == currentMembership.ExpirationDate.Value;
+
+        if (shouldExtendCurrentExpiration)
+        {
+            return ClientMembershipSemantics.ExtendExpirationDate(
+                currentMembership.MembershipType,
+                calculationBaseDate);
+        }
+
         return currentMembership.MembershipType switch
         {
-            MembershipType.Monthly => calculationBaseDate.AddMonths(1),
-            MembershipType.Yearly => calculationBaseDate.AddYears(1),
+            MembershipType.Monthly or MembershipType.Yearly =>
+                ClientMembershipSemantics.CalculateDefaultExpirationDate(currentMembership.MembershipType, calculationBaseDate),
             _ => requestedExpirationDate
         };
     }
