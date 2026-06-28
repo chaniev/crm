@@ -275,7 +275,7 @@ internal static class ReportsEndpoints
             {
                 errors["trainerId"] = [ReportsResources.TrainerMustExist];
             }
-            else if (trainer.Role != UserRole.Coach)
+            else if (!GroupTrainerEligibility.IsAssignableTrainerRole(trainer.Role))
             {
                 errors["trainerId"] = [ReportsResources.TrainerMustBeCoach];
             }

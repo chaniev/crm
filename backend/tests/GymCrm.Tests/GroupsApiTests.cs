@@ -115,11 +115,12 @@ public class GroupsApiTests
             }
         }
 
+        var assignedTrainerIds = new[] { seeded.CoachOneId, seeded.HeadCoachId, seeded.CoachTwoId };
         using (var assignResponse = await AssignTrainersToGroupAsync(
                    client,
                    $"/groups/{groupId}",
                    groupId,
-                   new[] { seeded.CoachOneId, seeded.CoachTwoId },
+                   assignedTrainerIds,
                    actorSession.CsrfToken))
         {
             Assert.True(
@@ -142,10 +143,10 @@ public class GroupsApiTests
                 .ToListAsync();
 
             Assert.Equal(
-                new[] { seeded.CoachOneId, seeded.CoachTwoId }.OrderBy(id => id).ToArray(),
+                assignedTrainerIds.OrderBy(id => id).ToArray(),
                 assignedGroup);
             Assert.Equal(
-                new[] { seeded.CoachOneId, seeded.CoachTwoId }.OrderBy(id => id).ToArray(),
+                assignedTrainerIds.OrderBy(id => id).ToArray(),
                 activeTrainerAssignments);
         }
 
@@ -176,6 +177,113 @@ public class GroupsApiTests
             var clientsPayload = await ReadJsonElementAsync(clientsResponse);
             var clientsArray = GetArrayPayload(clientsPayload, "data", "items", "clients");
             Assert.Equal(1, clientsArray.GetArrayLength());
+        }
+    }
+
+    [Fact]
+    public async Task Trainer_options_include_active_coaches_and_headcoach_only()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+
+        Guid inactiveCoachId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+            var inactiveCoach = CreateUser(
+                "inactive-coach-stage5",
+                "Неактивный тренер Stage 5",
+                UserRole.Coach,
+                seeded.SharedPassword,
+                seeded.Now,
+                passwordHashService);
+            inactiveCoach.IsActive = false;
+            inactiveCoachId = inactiveCoach.Id;
+            dbContext.Users.Add(inactiveCoach);
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await client.GetAsync("/groups/options/trainers");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await ReadJsonElementAsync(response);
+        var options = GetArrayPayload(payload, "data", "items", "trainers");
+        var optionIds = options
+            .EnumerateArray()
+            .Select(option => GetGuidFromProperty(option, "id"))
+            .ToArray();
+
+        Assert.Contains(seeded.HeadCoachId, optionIds);
+        Assert.Contains(seeded.CoachOneId, optionIds);
+        Assert.Contains(seeded.CoachTwoId, optionIds);
+        Assert.DoesNotContain(seeded.AdministratorId, optionIds);
+        Assert.DoesNotContain(inactiveCoachId, optionIds);
+    }
+
+    [Fact]
+    public async Task Group_trainer_assignment_rejects_administrator_and_inactive_users()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+
+        Guid inactiveHeadCoachId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+            var inactiveHeadCoach = CreateUser(
+                "inactive-headcoach-stage5",
+                "Неактивный главный тренер Stage 5",
+                UserRole.HeadCoach,
+                seeded.SharedPassword,
+                seeded.Now,
+                passwordHashService);
+            inactiveHeadCoach.IsActive = false;
+            inactiveHeadCoachId = inactiveHeadCoach.Id;
+            dbContext.Users.Add(inactiveHeadCoach);
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var administratorResponse = await AssignTrainersToGroupAsync(
+                   client,
+                   $"/groups/{seeded.GroupOneId}",
+                   seeded.GroupOneId,
+                   new[] { seeded.AdministratorId },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, administratorResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(administratorResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("trainerIds", out _));
+        }
+
+        using (var inactiveResponse = await AssignTrainersToGroupAsync(
+                   client,
+                   $"/groups/{seeded.GroupOneId}",
+                   seeded.GroupOneId,
+                   new[] { inactiveHeadCoachId },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, inactiveResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(inactiveResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("trainerIds", out _));
         }
     }
 
