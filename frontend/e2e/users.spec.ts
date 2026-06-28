@@ -258,6 +258,7 @@ test('Создание тренера скрывает выбор роли и о
   await expect(page.getByRole('heading', { name: 'Новый тренер' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Сохранить тренера' })).toBeVisible()
   await expect(page.getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
+  await expect(page.getByText('Тренер активен', { exact: true })).toBeVisible()
 
   await page.getByLabel('ФИО').fill('Новый Тренер')
   await page.getByLabel('Логин').fill('new-coach')

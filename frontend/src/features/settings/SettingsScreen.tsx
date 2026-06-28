@@ -74,6 +74,8 @@ const administratorRoleOptions = [
   { value: 'Administrator' as const, label: userRoleLabels.Administrator },
 ]
 
+const administratorIsActiveLabel = 'Администратор активен'
+
 export function SettingsScreen() {
   const isMobile = useMediaQuery('(max-width: 48em)')
 
@@ -750,6 +752,7 @@ function AdministratorsSettingsPanel() {
               <UserFormFields
                 credentialsFields={<UserCreateCredentialsFields form={createForm} />}
                 form={createForm}
+                isActiveLabel={administratorIsActiveLabel}
                 roleDisabled
                 roleOptions={administratorRoleOptions}
                 showRoleField={false}
@@ -769,6 +772,7 @@ function AdministratorsSettingsPanel() {
               <UserFormFields
                 credentialsFields={<UserEditCredentialsFields form={editForm} />}
                 form={editForm}
+                isActiveLabel={administratorIsActiveLabel}
                 roleDisabled
                 roleOptions={administratorRoleOptions}
               />

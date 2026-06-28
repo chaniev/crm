@@ -1448,7 +1448,14 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.getByRole('tab', { name: 'Администраторы' }).click()
     await page.getByRole('button', { name: 'Добавить администратора' }).first().click()
-    await expect(page.getByRole('dialog').getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
+    const administratorDialog = page.getByRole('dialog')
+    await expect(
+      administratorDialog.getByText('Администратор активен', { exact: true }),
+    ).toBeVisible()
+    await expect(
+      administratorDialog.getByText('Тренер активен', { exact: true }),
+    ).toHaveCount(0)
+    await expect(administratorDialog.getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
     await page.getByLabel('ФИО').fill('Администратор настроек')
     await page.getByLabel('Логин').fill('settings-admin')
     await page.getByLabel('Пароль').fill('12345Aa!')
