@@ -570,3 +570,20 @@
 - skipped: 0
 - plans created: 1
 - note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is low-risk and localized to the frontend audit log display. Implementation must use `feature/TASK-057-audit-log-remove-object-column`, keep backend audit contracts and details data unchanged, and add automated regression coverage for the removed visible title and `Объект` grid column.
+
+# 2026-06-29 01:05
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-063-head-coach-group-assignment.plan.md
+
+## Skipped tasks
+- TASK-063-head-coach-group-assignment.md - not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; implementation plan created for explicit review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan created for allowing HeadCoach to be assigned as a group trainer through backend-owned options and validation, with report consumer compatibility, frontend group-form regression coverage, and explicit permission/access-scope regression barriers.
