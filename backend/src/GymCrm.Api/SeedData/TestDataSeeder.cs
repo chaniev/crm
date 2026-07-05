@@ -10,7 +10,8 @@ namespace GymCrm.Api.SeedData;
 
 internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
 {
-    private const string DefaultPassword = "Test1234!";
+    private const string DefaultPassword = "1";
+    private const bool SeedUserMustChangePassword = false;
     private const int RandomSeed = 20260527;
 
     private static readonly string[] GroupTypeNames =
@@ -58,58 +59,6 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
         new(16, 0),
         new(18, 30),
         new(20, 0)
-    ];
-
-    private static readonly string[] LastNames =
-    [
-        "Иванов",
-        "Петров",
-        "Сидоров",
-        "Смирнов",
-        "Кузнецов",
-        "Попов",
-        "Васильев",
-        "Новиков",
-        "Федоров",
-        "Морозов",
-        "Волков",
-        "Алексеев",
-        "Лебедев",
-        "Семенов",
-        "Егоров"
-    ];
-
-    private static readonly string[] FirstNames =
-    [
-        "Алексей",
-        "Дмитрий",
-        "Илья",
-        "Максим",
-        "Никита",
-        "Роман",
-        "Сергей",
-        "Андрей",
-        "Павел",
-        "Кирилл",
-        "Анна",
-        "Мария",
-        "Екатерина",
-        "Ольга",
-        "Дарья"
-    ];
-
-    private static readonly string[] MiddleNames =
-    [
-        "Александрович",
-        "Дмитриевич",
-        "Ильич",
-        "Максимович",
-        "Сергеевич",
-        "Андреевич",
-        "Павлович",
-        "Александровна",
-        "Дмитриевна",
-        "Сергеевна"
     ];
 
     private readonly GymCrmDbContext dbContext = CreateDbContext(options.ConnectionString);
@@ -387,7 +336,7 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
                 FullName = $"Администратор {number:00}",
                 Login = $"seed.admin{number:00}",
                 Role = UserRole.Administrator,
-                MustChangePassword = false,
+                MustChangePassword = SeedUserMustChangePassword,
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now
@@ -411,7 +360,7 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
                 FullName = $"Тренер {number:00}",
                 Login = $"seed.coach{number:00}",
                 Role = UserRole.Coach,
-                MustChangePassword = false,
+                MustChangePassword = SeedUserMustChangePassword,
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now
@@ -521,6 +470,28 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
         var random = new Random(RandomSeed);
         var initialGroupOrder = Enumerable.Range(0, groups.Count).ToArray();
         Shuffle(initialGroupOrder, random);
+        var existingClientUniqueValues = await dbContext.Clients
+            .AsNoTracking()
+            .Select(client => new
+            {
+                client.LastName,
+                client.FirstName,
+                client.MiddleName,
+                client.Phone
+            })
+            .ToListAsync(cancellationToken);
+        var usedFullNameKeys = existingClientUniqueValues
+            .Select(client => SeedClientIdentityGenerator.CreateFullNameKey(
+                client.LastName,
+                client.FirstName,
+                client.MiddleName))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var usedPhoneKeys = existingClientUniqueValues
+            .Select(client => SeedClientIdentityGenerator.CreatePhoneKey(client.Phone))
+            .Where(phoneKey => !string.IsNullOrWhiteSpace(phoneKey))
+            .ToHashSet(StringComparer.Ordinal);
+        var nextFullNameNumber = 1;
+        var nextPhoneNumber = 1;
 
         var clients = new List<Client>(SeedIds.ClientCount);
         var branchAssignments = new List<ClientBranchAssignment>(SeedIds.ClientCount);
@@ -534,7 +505,11 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
                 : random.Next(groups.Count);
             var group = groups[groupIndex];
             var photo = await photoWriter.WritePhotoAsync(clientNumber, cancellationToken);
-            var client = CreateClient(clientNumber, group.BranchId, photo, now);
+            var fullName = SeedClientIdentityGenerator.TakeNextUniqueFullName(
+                usedFullNameKeys,
+                ref nextFullNameNumber);
+            var phone = SeedClientIdentityGenerator.TakeNextUniquePhone(usedPhoneKeys, ref nextPhoneNumber);
+            var client = CreateClient(clientNumber, group.BranchId, fullName, phone, photo, now);
 
             clients.Add(client);
             branchAssignments.Add(new ClientBranchAssignment
@@ -569,22 +544,21 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
     private static Client CreateClient(
         int clientNumber,
         Guid branchId,
+        (string LastName, string FirstName, string MiddleName) fullName,
+        string phone,
         ClientPhotoSeedInfo photo,
         DateTimeOffset now)
     {
-        var lastName = LastNames[(clientNumber - 1) % LastNames.Length];
-        var firstName = FirstNames[(clientNumber * 7) % FirstNames.Length];
-        var middleName = MiddleNames[(clientNumber * 5) % MiddleNames.Length];
         var isProfessional = clientNumber % 12 == 0;
 
         return new Client
         {
             Id = SeedIds.Client(clientNumber),
             BranchId = branchId,
-            LastName = lastName,
-            FirstName = firstName,
-            MiddleName = middleName,
-            Phone = $"+7900{clientNumber:0000000}",
+            LastName = fullName.LastName,
+            FirstName = fullName.FirstName,
+            MiddleName = fullName.MiddleName,
+            Phone = phone,
             Notes = $"Тестовый клиент #{clientNumber:000}.",
             IsProfessional = isProfessional,
             ProfessionalComment = isProfessional
