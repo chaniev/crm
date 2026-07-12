@@ -74,8 +74,7 @@ If infrastructure/runtime changes:
 ## Preferred specialists
 
 Default:
-- csharp-developer
-- dotnet-core-expert
+- dotnet-backend-specialist
 
 Additional:
 - refactoring-specialist
