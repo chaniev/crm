@@ -24,7 +24,7 @@ export function Header({
   brandMeta,
   brandMetaCompact,
   brandTitle = 'Gym CRM',
-  containerSize = 'xl',
+  containerSize = '100%',
   leadingControl,
   navigation,
   profileControl,
