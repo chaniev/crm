@@ -587,3 +587,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan created for allowing HeadCoach to be assigned as a group trainer through backend-owned options and validation, with report consumer compatibility, frontend group-form regression coverage, and explicit permission/access-scope regression barriers.
+
+# 2026-07-12 19:33
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-064-home-attendance-membership-tabs.plan.md
+
+## Skipped tasks
+- TASK-064-home-attendance-membership-tabs.md - not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; implementation plan created for explicit review before active implementation selection in branch `feature/TASK-064-home-attendance-membership-tabs`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan localizes tri-state attendance, exact single-visit restoration provenance, atomic attendance/membership audit, shared internal bot compatibility, permission-aware tabs, row-level retry, state preservation and six-width responsive regression coverage.
