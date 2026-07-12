@@ -59,6 +59,15 @@ test.describe('Home dashboard', () => {
       'aria-current',
       'page',
     )
+    const brandTitleLeft = await shellHeader.getByText('Iron Club').evaluate(
+      (element) => element.getBoundingClientRect().left,
+    )
+    const activeNavigationLabelLeft = await shellNavigation
+      .getByRole('button', { name: 'Главная' })
+      .locator('.mantine-Button-label')
+      .evaluate((element) => element.getBoundingClientRect().left)
+
+    expect(Math.abs(brandTitleLeft - activeNavigationLabelLeft)).toBeLessThanOrEqual(0.1)
     await expect(
       shellNavigation.getByRole('button', { name: 'Посещения' }),
     ).toHaveCount(0)
