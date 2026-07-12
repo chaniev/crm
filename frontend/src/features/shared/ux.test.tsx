@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { Tabs } from '@mantine/core'
 import { describe, expect, test, vi } from 'vitest'
 import type { AppSection } from '../../lib/api'
@@ -369,6 +369,13 @@ describe('shared UX components', () => {
 
       expect(await screen.findByLabelText('Поиск')).toBeInTheDocument()
       expect(await screen.findByRole('button', { name: /Сбросить/i })).toBeInTheDocument()
+      const applyButton = await screen.findByRole('button', { name: 'Применить' })
+
+      fireEvent.click(applyButton)
+
+      await waitFor(() => {
+        expect(screen.queryByLabelText('Поиск')).not.toBeInTheDocument()
+      })
     } finally {
       Object.defineProperty(window, 'matchMedia', {
         writable: true,

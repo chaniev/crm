@@ -469,6 +469,45 @@ for (const viewport of VIEWPORTS) {
   })
 }
 
+test.describe('Mobile filter drawer actions', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('clients, audit and finance filters expose a reachable apply action', async ({
+    page,
+  }) => {
+    await mockApi(page, MANAGEMENT_SESSION)
+
+    const filterScreens = [
+      { path: '/clients', panelTestId: 'clients-filter-panel' },
+      { path: '/audit', panelTestId: 'audit-filter-panel' },
+      { path: '/finance', panelTestId: 'finance-filter-panel' },
+    ] as const
+
+    for (const screen of filterScreens) {
+      await page.goto(screen.path)
+
+      const panel = page.getByTestId(screen.panelTestId)
+
+      await expect(panel).toBeVisible()
+      await panel.getByRole('button', { name: 'Фильтры' }).click()
+
+      const applyButton = page.getByRole('button', { name: 'Применить' })
+      const actions = page.locator('.compact-filter-panel__sheet-actions')
+
+      await expect(actions).toBeVisible()
+      await expect(applyButton).toBeVisible()
+
+      const actionsBox = await actions.boundingBox()
+
+      expect(actionsBox).not.toBeNull()
+      expect(actionsBox!.y + actionsBox!.height).toBeLessThanOrEqual(844)
+
+      await applyButton.click()
+      await expect(applyButton).toHaveCount(0)
+    }
+  })
+})
+
 test.describe('Mobile bottom navigation interactions', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 

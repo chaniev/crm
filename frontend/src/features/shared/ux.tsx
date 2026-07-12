@@ -283,6 +283,7 @@ export type CompactFilterItem = {
 
 type CompactFilterPanelProps = ComponentPropsWithoutRef<'div'> & {
   actions?: ReactNode
+  applyLabel?: string
   primary: CompactFilterItem[]
   secondary?: CompactFilterItem[]
   className?: string
@@ -298,6 +299,7 @@ const compactFilterMobileQuery = '(max-width: 47.99em)'
 
 export function CompactFilterPanel({
   actions,
+  applyLabel = 'Применить',
   primary,
   secondary = [],
   className,
@@ -523,10 +525,14 @@ export function CompactFilterPanel({
           position="bottom"
           size="100%"
           title={sheetTitle}
+          transitionProps={{ duration: 0 }}
           withCloseButton
+          zIndex={300}
         >
-          <Stack gap="md">
+          <div className="compact-filter-panel__sheet-fields">
             {allFilters.map((item) => renderFilterItem(item, 'sheet'))}
+          </div>
+          <div className="compact-filter-panel__sheet-actions">
             <Button
               leftSection={<IconFilterOff size={16} />}
               onClick={handleReset}
@@ -535,7 +541,13 @@ export function CompactFilterPanel({
             >
               {resetLabel}
             </Button>
-          </Stack>
+            <Button
+              onClick={() => setSheetOpened(false)}
+              type="button"
+            >
+              {applyLabel}
+            </Button>
+          </div>
         </Drawer>
       </div>
     )
