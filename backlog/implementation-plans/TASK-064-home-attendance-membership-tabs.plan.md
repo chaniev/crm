@@ -31,6 +31,7 @@ Branch rules:
 - У attendance сейчас нет ссылки на конкретное разовое списание. Восстанавливать произвольный текущий `SingleVisitUsed = true` небезопасно: он мог быть списан другой отметкой или изменён позднее.
 - Внутренний bot вызывает тот же `IAttendanceService` с boolean marks. Изменения shared service и error enum затронут `BotApiService`, даже если публичный Python bot contract останется boolean и не получит reset UX.
 - Backend web attendance save пока не запрещает будущую дату. Bot имеет отдельный date guard, но правило должно находиться в общей backend attendance semantics.
+- Backend пока не имеет единой business timezone configuration/date provider; прямое использование UTC-date в bot не соответствует согласованной календарной зоне клуба около полуночи.
 - По текущим backend permissions: `canMarkAttendance` даёт вкладку посещений, `canManageClients` — вкладку абонементов. Frontend не должен выводить это из `role`.
 - Уточнённая TASK является источником истины поверх раннего макета/source note: массового `Отметить всех` и перехода на будущую дату в целевой композиции нет.
 - Reference mockup остаётся ориентиром композиции; обязательные текстовые требования полностью сохранены в TASK/source note и имеют приоритет при расхождении.
@@ -42,16 +43,23 @@ Branch rules:
    - `Present` — строка существует и `IsPresent = true`;
    - `Absent` — строка существует и `IsPresent = false`;
    - сохранение `Unmarked` удаляет существующую строку, но формирует change result для аудита до удаления.
-3. Не восстанавливать разовый абонемент только по признаку `SingleVisitUsed`. Добавить nullable provenance-связь от attendance к конкретной membership sale/version lineage, например `SingleVisitMembershipSaleId`:
-   - заполнять её только когда именно эта attendance mutation успешно списала разовое посещение;
-   - при `Present -> Absent/Unmarked` восстанавливать только текущий single-visit той же sale lineage и только один раз;
+3. Не восстанавливать разовый абонемент только по признаку `SingleVisitUsed`. Хранить на attendance обе nullable provenance-ссылки:
+   - `SingleVisitMembershipSaleId` — stable sale lineage;
+   - `SingleVisitWriteOffMembershipId` — конкретная membership-version, созданная именно этим списанием;
+   - заполнять их только когда именно эта attendance mutation успешно списала разовое посещение;
+   - при `Present -> Absent/Unmarked` восстанавливать только exact write-off version в той же sale lineage и только если текущая membership lineage доказуемо продолжает именно это списание без конфликтующей correction/renewal/re-write-off;
    - очищать связь после восстановления; для `Unmarked` затем удалять attendance-строку;
    - legacy/seed attendance без provenance не должна восстанавливать произвольный абонемент.
 4. Добавить отдельную membership operation/reason для восстановления, например `SingleVisitRestore`, а не маскировать восстановление как `Correction`.
 5. Выполнять attendance mutation, write-off/restore и обе domain audit-записи в одной database transaction. Локализовать orchestration в общем backend use case/coordinator, используемом web endpoint и internal bot; не оставлять обязательный audit после уже committed mutation.
 6. Оставить coarse `BotAttendanceSaved` audit, если он нужен bot idempotency, но дополнительно гарантировать те же domain attendance и membership audit entries, что и для web mutation.
-7. Проверять будущую дату в общем backend attendance use case с тестируемым clock/`TimeProvider`; web должен вернуть стабильный ProblemDetails field `trainingDate`, internal bot — существующую domain-ошибку. Frontend date helper должен использовать ту же UTC date convention и всё равно показывать backend error как authoritative.
-8. Сохранить текущий уникальный индекс. Schema change нужна только для provenance-поля/связи; nullable `IsPresent` не вводить.
+7. Ввести единую настраиваемую business timezone на backend и backend-owned business date provider поверх `TimeProvider`:
+   - timezone задаётся конфигурацией приложения и валидируется при старте; начальное значение для текущего окружения — `Europe/Moscow`;
+   - `today` вычисляется преобразованием `TimeProvider.GetUtcNow()` в настроенную timezone, а не через прямой `DateTime.UtcNow.Date`;
+   - общий attendance use case использует этот provider для запрета будущей даты;
+   - backend возвращает authoritative business `today`/`maxTrainingDate` в attendance contract, frontend использует его для initial date и navigation limits и не дублирует timezone rule;
+   - web возвращает стабильный ProblemDetails field `trainingDate`, internal bot — существующую domain-ошибку.
+8. Сохранить текущий уникальный индекс. Schema change нужна только для двух provenance-полей/связей; nullable `IsPresent` не вводить.
 
 ## Execution steps
 
@@ -78,18 +86,18 @@ Branch rules:
    - `Present/Absent -> Unmarked` удаляет строку;
    - same-state request idempotent: не меняет timestamp, membership и audit;
    - change result хранит nullable previous/current states и стабильный attendance id для audit reset.
-9. Добавить общий `TrainingDateInFuture` mutation error и guard до любых persistence/audit effects. Использовать injected `TimeProvider` или эквивалентный тестируемый clock.
+9. Добавить общий `TrainingDateInFuture` mutation error и guard до любых persistence/audit effects. Использовать injected backend business date provider с фиксируемыми в тестах `TimeProvider` и timezone.
 
 ### Phase 2 — safe single-visit provenance, restore and atomic audit
-10. Добавить nullable provenance field/relation в `Attendance` и EF configuration. Предпочтительный key — stable `ClientMembershipSale.Id`, потому что membership correction/write-off создаёт версии, а sale lineage сохраняется.
-11. Обновить воспроизводимую начальную схему (`InitialCreate`, designer/model snapshot) согласно текущей early-stage repository policy. Если окружение нельзя пересоздать и нужно сохранить production data, остановиться и согласовать отдельную forward migration/backfill strategy; не угадывать provenance существующих записей.
+10. Добавить обе nullable provenance relation в `Attendance` и EF configuration: stable `ClientMembershipSale.Id` и конкретный `ClientMembership.Id`, созданный `SingleVisitWriteOff`. Настроить явные FK delete behaviors и индексы; восстановление обязано проверять пару sale/version и отсутствие конфликтующей membership lineage после списания.
+11. Обновить воспроизводимую начальную схему (`InitialCreate`, designer/model snapshot) согласно текущей early-stage repository policy. Текущую БД и production data сохранять не требуется: deployment выполняется с нуля на чистой базе. Forward migration и provenance backfill не входят в TASK.
 12. Расширить `IClientMembershipService` локальными операциями:
-   - write-off возвращает применённую sale lineage и before/after snapshots;
-   - restore принимает ожидаемую sale lineage, проверяет current membership/type/used state и создаёт новую membership version с `SingleVisitRestore`;
-   - повторный restore, другая sale, professional/client missing или уже restored не меняют данные.
-13. При переходе в `Present` сохранять provenance только если write-off действительно применён этой mutation. Не присваивать существующее ранее списание новой attendance-записи.
-14. При `Present -> Absent` и `Present -> Unmarked` вызывать restore только по сохранённому provenance. После успешного restore очищать provenance/удалять attendance соответственно.
-15. Определить безопасное поведение для legacy attendance без provenance: attendance state можно исправить, но unrelated single visit не восстанавливается. Если acceptance требует backfill старых связей, остановиться и вынести это в отдельную data task.
+   - write-off возвращает применённую sale lineage, ID созданной write-off membership-version и before/after snapshots;
+   - restore принимает ожидаемые sale ID и write-off membership-version ID, проверяет current membership/type/used state и непрерывность допустимой lineage, затем создаёт новую membership version с `SingleVisitRestore`;
+   - отсутствие provenance означает, что восстанавливать нечего; наличие provenance при несовпадении sale/version или невозможности доказать exact restore возвращает стабильную domain-ошибку `SingleVisitRestoreConflict` (точное имя зафиксировать в contract) и не считается успешным no-op.
+13. При переходе в `Present` сохранять обе provenance-ссылки только если write-off действительно применён этой mutation. Не присваивать существующее ранее списание новой attendance-записи.
+14. При `Present -> Absent` и `Present -> Unmarked` вызывать restore только по сохранённой паре provenance. Если provenance есть, но exact restore невозможен, откатывать attendance, membership и audit целиком и возвращать стабильную domain-ошибку. Только после успешного restore очищать provenance/удалять attendance соответственно.
+15. Для legacy/seed attendance без provenance state можно исправить, но unrelated single visit не восстанавливается. Backfill не выполняется; deployment использует чистую БД, а это поведение остаётся защитой для явно созданных seed/test rows без provenance.
 16. Добавить audit state с явным `State`, включая `Unmarked` как new state для reset, и отдельные constants/resources/action type для `ClientMembershipSingleVisitRestored`.
 17. Перенести orchestration mutation + audit в один transaction boundary:
    - attendance audit для create/update/reset;
@@ -99,6 +107,8 @@ Branch rules:
 18. Обновить internal `BotApiService` adapter:
    - bot boolean `true/false` map-ится в `Present/Absent`;
    - shared future-date error корректно map-ится в bot error;
+   - bot использует тот же backend business date provider и настроенную timezone, что и web use case;
+   - shared restore-conflict error корректно map-ится в стабильную bot domain-ошибку без частичного сохранения;
    - shared mutation не теряет domain attendance/membership audit;
    - Python bot reset/tri-state UI не добавляется без отдельного product scope.
 
@@ -146,8 +156,8 @@ Branch rules:
 32. Убрать group/date из `CompactFilterPanel` drawer для этой feature:
    - desktop/tablet: компактный bounded context cluster;
    - mobile: группа видима постоянно, date navigation доступна одной рукой;
-   - previous / `Сегодня` / next; next disabled на текущей дате;
-   - если остаётся native date input, поставить `max=today`.
+   - previous / `Сегодня` / next; next disabled на authoritative backend business `today`;
+   - если остаётся native date input, поставить `max` из backend-provided `maxTrainingDate`.
 33. На desktop держать иерархию `tabs -> context -> group/session -> progress -> roster`; не растягивать связанные controls по краям 1440/1920 px.
 34. На mobile переносить client actions под identity; на 320–390 px `Не отмечено` может занимать первую строку, а `Был`/`Не был` — вторую. Все touch targets минимум 44 px, имя и secondary membership warning переносятся без page overflow.
 35. Добавить compact `aria-live="polite"` save status и visible progressbar semantics. Disabled future action получает понятное accessible name/reason.
@@ -174,6 +184,7 @@ Branch rules:
 ### Backend domain/application/infrastructure
 - `backend/src/GymCrm.Application/Attendance/IAttendanceService.cs`
 - likely new `backend/src/GymCrm.Application/Attendance/AttendanceState.cs`
+- new backend business timezone/date contracts and implementation, exact configuration path to be discovered before editing
 - `backend/src/GymCrm.Application/Clients/IClientMembershipService.cs`
 - `backend/src/GymCrm.Domain/Attendance/Attendance.cs`
 - `backend/src/GymCrm.Domain/Clients/ClientMembershipChangeReason.cs`
@@ -232,7 +243,10 @@ Branch rules:
 - `Unmarked` remains an intentional target state, not a visual alias for `Absent`.
 - Never restore a single visit without persisted provenance tying it to the attendance mutation.
 - Attendance, membership and mandatory audit effects must commit or roll back together.
-- Future attendance save is rejected by backend even if frontend controls are bypassed.
+- Future attendance save is rejected by backend even if frontend controls are bypassed; `today` is calculated only from the configured backend business timezone.
+- Frontend consumes backend-provided business `today`/`maxTrainingDate` and must not independently reproduce the club timezone rule.
+- Attendance with provenance may be corrected away from `Present` only when the exact sale ID + write-off membership-version ID can be restored; restore conflict rolls back the entire mutation.
+- Deployment recreates the database from the updated initial schema; preserving or backfilling the current database is not required.
 - Do not reintroduce `/attendance`, a navigation section, bulk marking, or page-level horizontal scroll.
 - Preserve Mantine and Onest.
 - Do not mix unrelated navigation/layout refactoring or other membership payment/validity changes.
@@ -253,7 +267,10 @@ Branch rules:
 ### Backend unit/service tests
 - State transition table: all meaningful transitions among `Unmarked`, `Present`, `Absent`, including same-state idempotency.
 - Future-date guard with a fixed clock; no persistence/audit side effects.
+- Business-date boundary tests around UTC midnight for configured `Europe/Moscow`, plus configuration validation for an unknown timezone.
 - Restore service applies only to the expected sale lineage and is idempotent.
+- Restore validates both sale ID and exact write-off membership-version ID.
+- Existing provenance plus a correction, renewal, type change or conflicting re-write-off returns the stable restore-conflict error and rolls back attendance/membership/audit effects.
 - Different/current unrelated single visit is never restored.
 - Professional client still does not receive write-off/restore.
 - Transaction rollback when mandatory audit or membership persistence fails, if practical with the repository test harness.
@@ -268,6 +285,8 @@ Branch rules:
 - `Absent -> Unmarked` deletes attendance and audits reset without membership restore.
 - Repeated same-state save creates no duplicate attendance, write-off, restore or audit.
 - Future date returns validation and leaves attendance/membership/audit unchanged.
+- Attendance contract returns authoritative backend business `today`/`maxTrainingDate`; frontend date limits use it.
+- Restore conflict returns the stable web ProblemDetails/domain mapping and leaves attendance, membership, provenance and audit unchanged.
 - Existing permission/access-scope/client-outside-group/CSRF behavior remains green.
 - Unique `(ClientId, GroupId, TrainingDate)` protection remains green.
 - Internal bot `Present/Absent` path still works, maps future-date error, and receives shared domain audit semantics.
@@ -312,6 +331,7 @@ Branch rules:
 - [ ] `cd frontend && npm run test:e2e -- attendance.spec.ts home-dashboard.spec.ts responsive-main-screens.spec.ts` adjusted to actual files/config
 - [ ] If Python bot files change: run repository-configured `ruff` and `pytest` commands from `bot/`.
 - [ ] Recreate/validate a clean database from the updated initial schema if provenance changes schema.
+- [ ] Validate backend startup and attendance date boundaries with configured business timezone `Europe/Moscow`.
 - [ ] Manually verify desktop/mobile visual composition and keyboard navigation.
 - [ ] Run final source search for stale boolean attendance consumers and forbidden bulk action.
 
@@ -319,8 +339,9 @@ Branch rules:
 No implementation is complete until automated tests prove all of the following together:
 - API and UI distinguish absence of row (`Unmarked`) from explicit false (`Absent`) and true (`Present`);
 - `Present -> Absent/Unmarked` restores only the exact linked single visit, never an unrelated current membership;
+- provenance identifies both the sale lineage and the concrete write-off membership-version, and restore conflict rolls back the complete operation;
 - attendance mutation, membership mutation and both required audits share one transaction/rollback boundary;
-- future-date save cannot create attendance through web or shared internal bot service;
+- future-date save cannot create attendance through web or shared internal bot service and uses the configured backend business timezone;
 - permission combinations render only backend-authorized areas, with attendance default when both exist;
 - switching tabs does not reset group/date/local state or refetch needlessly;
 - a failed client save remains visible and retryable without corrupting other rows;
@@ -331,12 +352,12 @@ No implementation is complete until automated tests prove all of the following t
 - Audit currently sits outside the service transaction. Leaving that structure unchanged can satisfy happy-path tests while violating mandatory audit on partial failure.
 - Deleting the attendance row for `Unmarked` removes the entity from normal history; audit must retain the reset transition and stable entity id.
 - Existing attendance rows cannot be safely linked to historical write-offs without explicit data provenance; an inferred backfill is unsafe.
-- Membership versioning can change row ids after write-off/correction, so linking only a version id may break restore; a stable sale lineage is preferred.
+- Sale ID alone is insufficient because correction mutates the sale lineage and membership versioning can create another write-off for the same sale; provenance must retain both the stable sale ID and the concrete write-off membership-version ID.
 - Shared `IAttendanceService` changes can silently break internal bot error mapping or audit behavior even if the Python payload stays boolean.
 - Optimistic saves plus full-roster refetch can race and overwrite newer selections.
 - Unmounting Mantine panels would reset attendance state and cause repeat requests.
 - Membership badge may briefly show false `0` if loading is not represented separately.
-- Frontend local date and backend UTC boundary can disagree near midnight; tests and authoritative ProblemDetails must make the convention explicit.
+- Invalid or inconsistently deployed business timezone configuration can shift the future-date boundary; validate configuration at startup and cover UTC-midnight boundaries in tests.
 - Three state controls can overflow or fall below 44 px at 320 px.
 - The mockup contains obsolete bulk/future interactions; blindly copying it would violate the clarified TASK.
 
@@ -344,10 +365,10 @@ No implementation is complete until automated tests prove all of the following t
 Остановиться и не писать/не продолжать project code, если:
 - невозможно доказуемо связать восстанавливаемое разовое списание с конкретной attendance mutation;
 - реализация предлагает восстанавливать любой текущий `SingleVisitUsed = true` без provenance;
-- production data must be preserved but the only available plan requires guessing/backfilling old attendance-to-membership links;
+- implementation introduces a forward migration/backfill requirement instead of recreating the clean deployment database from the updated initial schema;
 - attendance, membership and mandatory audit cannot быть объединены в безопасный transaction boundary без system-wide redesign;
 - API contract не удаётся определить однозначно без одновременной поддержки конфликтующих boolean/tri-state значений;
-- `current date` должен означать club-local timezone, но backend не имеет согласованной timezone configuration;
+- backend business timezone/date provider cannot be applied consistently to web and internal bot attendance paths;
 - change requires global RBAC/auth redesign rather than existing backend permissions;
 - scope expands into general membership/payment/history redesign, offline sync, or unrelated layout/navigation refactoring;
 - reference mockup and clarified acceptance criteria conflict in a way not already resolved by the TASK text.
