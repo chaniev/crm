@@ -765,3 +765,24 @@
 - needs-clarification: 0
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-12 19:13
+
+## Processed inbox files
+- 2026-07-12.md
+
+## Created tasks
+- /backlog/needs-clarification/TASK-064-home-attendance-membership-tabs.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Possible overlap with `/backlog/implementation/TASK-059-merge-home-attendance.md` was reviewed. A separate clarification task was created because the new note changes the planned composition to tabs and introduces an unresolved attendance-domain decision explicitly excluded from TASK-059.
+
+## Summary
+- tasks-ready: 0
+- risky: 0
+- needs-clarification: 1
+- updated existing: 0
+- processed files: 1
