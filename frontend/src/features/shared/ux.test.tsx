@@ -286,6 +286,7 @@ describe('shared UX components', () => {
 
     renderWithProviders(
       <CompactFilterPanel
+        actions={<button type="button">Обновить</button>}
         onReset={onReset}
         primary={[
           {
@@ -316,6 +317,7 @@ describe('shared UX components', () => {
 
     expect(screen.getAllByLabelText('Поиск')[0]).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Ещё фильтры/i })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Обновить' })).toBeVisible()
     expect(screen.getByRole('button', { name: /Сбросить/i })).toBeVisible()
     expect(screen.queryByText(/\d+\s*фильтр/i)).not.toBeInTheDocument()
 

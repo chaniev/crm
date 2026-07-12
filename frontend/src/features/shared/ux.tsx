@@ -282,6 +282,7 @@ export type CompactFilterItem = {
 }
 
 type CompactFilterPanelProps = ComponentPropsWithoutRef<'div'> & {
+  actions?: ReactNode
   primary: CompactFilterItem[]
   secondary?: CompactFilterItem[]
   className?: string
@@ -296,6 +297,7 @@ const compactFilterGapPx = 8
 const compactFilterMobileQuery = '(max-width: 47.99em)'
 
 export function CompactFilterPanel({
+  actions,
   primary,
   secondary = [],
   className,
@@ -495,16 +497,21 @@ export function CompactFilterPanel({
           .join(' ')}
         {...props}
       >
-        <Button
-          className="compact-filter-panel__mobile-launcher"
-          fullWidth
-          leftSection={<IconFilter size={16} />}
-          onClick={() => setSheetOpened(true)}
-          type="button"
-          variant="secondary"
-        >
-          {mobileLabel}
-        </Button>
+        <div className="compact-filter-panel__mobile-row">
+          <Button
+            className="compact-filter-panel__mobile-launcher"
+            fullWidth
+            leftSection={<IconFilter size={16} />}
+            onClick={() => setSheetOpened(true)}
+            type="button"
+            variant="secondary"
+          >
+            {mobileLabel}
+          </Button>
+          {actions ? (
+            <div className="compact-filter-panel__custom-actions">{actions}</div>
+          ) : null}
+        </div>
         <Drawer
           classNames={{
             body: 'compact-filter-panel__sheet-body',
@@ -572,6 +579,9 @@ export function CompactFilterPanel({
                 </Stack>
               </Popover.Dropdown>
             </Popover>
+          ) : null}
+          {actions ? (
+            <div className="compact-filter-panel__custom-actions">{actions}</div>
           ) : null}
           {resetButton}
         </div>
