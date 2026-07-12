@@ -19,4 +19,12 @@ internal static class AttendanceValidationProblems
             ["attendanceMarks"] = [message]
         });
     }
+
+    public static ValidationProblem CreateTrainingDateInFutureValidationProblem()
+    {
+        return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["trainingDate"] = [AttendanceResources.TrainingDateInFuture]
+        });
+    }
 }

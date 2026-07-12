@@ -28,6 +28,7 @@ services:
       BootstrapUser__Login: ${BOOTSTRAP_USER_LOGIN:-headcoach}
       BootstrapUser__FullName: ${BOOTSTRAP_USER_FULL_NAME:-Главный тренер}
       Branding__ClubName: ${CRM_CLUB_NAME:-Gym CRM}
+      BusinessTime__TimeZoneId: ${BACKEND_BUSINESS_TIME_ZONE_ID:-Europe/Moscow}
       Auth__CookieSecurePolicy: ${BACKEND_AUTH_COOKIE_SECURE_POLICY:-SameAsRequest}
       ClientPhoto__StorageRootPath: ${BACKEND_CLIENT_PHOTO_STORAGE_ROOT:-/app/data/client-photos}
       ClientPhoto__MaxUploadSizeBytes: ${BACKEND_CLIENT_PHOTO_MAX_UPLOAD_BYTES:-10485760}

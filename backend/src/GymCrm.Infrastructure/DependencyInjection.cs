@@ -46,6 +46,15 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHashService, PasswordHashService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<IAccessScopeService, AccessScopeService>();
+        services.AddSingleton(TimeProvider.System);
+        services
+            .AddOptions<BusinessTimeOptions>()
+            .Bind(configuration.GetSection(BusinessTimeOptions.SectionName))
+            .Validate(
+                options => IsValidTimeZone(options.TimeZoneId),
+                "BusinessTime:TimeZoneId must identify a system time zone.")
+            .ValidateOnStart();
+        services.AddSingleton<IBusinessDateProvider, BusinessDateProvider>();
         services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<IClientMembershipService, ClientMembershipService>();
         services.AddScoped<IFinancialReportService, FinancialReportService>();
@@ -73,5 +82,27 @@ public static class DependencyInjection
                 tags: ["ready"]);
 
         return services;
+    }
+
+    private static bool IsValidTimeZone(string? timeZoneId)
+    {
+        if (string.IsNullOrWhiteSpace(timeZoneId))
+        {
+            return false;
+        }
+
+        try
+        {
+            _ = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            return true;
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            return false;
+        }
+        catch (InvalidTimeZoneException)
+        {
+            return false;
+        }
     }
 }

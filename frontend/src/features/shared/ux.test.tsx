@@ -152,6 +152,17 @@ describe('shared UX components', () => {
     expect(container.querySelector('.page-layout__header')).toBeTruthy()
   })
 
+  test('PageLayout can keep its semantic title without rendering a page header', () => {
+    renderWithProviders(
+      <PageLayout showHeader={false} title="Главная">
+        <div>Рабочая область</div>
+      </PageLayout>,
+    )
+
+    expect(screen.getByText('Рабочая область')).toBeVisible()
+    expect(screen.queryByRole('heading', { name: 'Главная' })).not.toBeInTheDocument()
+  })
+
   test('PageSection renders card and plain variants with density classes', () => {
     const { container } = renderWithProviders(
       <>

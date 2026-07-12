@@ -5,7 +5,7 @@ internal sealed record AttendanceClientResponse(
     string FullName,
     IReadOnlyList<ClientGroupSummaryResponse> Groups,
     ClientPhotoSummaryResponse? Photo,
-    bool IsPresent,
+    string State,
     bool IsProfessional,
     string? ProfessionalComment,
     bool HasMembershipWarning,

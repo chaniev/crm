@@ -21,6 +21,9 @@ internal static class AttendanceResources
     public static string AttendanceSaveClientOutsideGroup => GetString(nameof(AttendanceSaveClientOutsideGroup));
 
     public static string AttendanceSaveFailed => GetString(nameof(AttendanceSaveFailed));
+    public static string AttendanceStateInvalid => GetString(nameof(AttendanceStateInvalid));
+    public static string TrainingDateInFuture => GetString(nameof(TrainingDateInFuture));
+    public static string SingleVisitRestoreConflict => GetString(nameof(SingleVisitRestoreConflict));
 
     public static string NoCurrentMembershipWarning => GetString(nameof(NoCurrentMembershipWarning));
 
@@ -35,21 +38,6 @@ internal static class AttendanceResources
     public static string MembershipWarningWithDetails(string details)
     {
         return Format(nameof(MembershipWarningWithDetails), details);
-    }
-
-    public static string AttendanceMarkedDescription(string actorLogin, string clientName, string groupName, string trainingDate)
-    {
-        return Format(nameof(AttendanceMarkedDescription), actorLogin, clientName, groupName, trainingDate);
-    }
-
-    public static string AttendanceUpdatedDescription(string actorLogin, string clientName, string groupName, string trainingDate)
-    {
-        return Format(nameof(AttendanceUpdatedDescription), actorLogin, clientName, groupName, trainingDate);
-    }
-
-    public static string ClientMembershipSingleVisitWrittenOffDescription(string actorLogin, string clientName)
-    {
-        return Format(nameof(ClientMembershipSingleVisitWrittenOffDescription), actorLogin, clientName);
     }
 
     private static string Format(string name, params object[] args)

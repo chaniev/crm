@@ -160,6 +160,7 @@ type PageLayoutProps = ComponentPropsWithoutRef<'div'> & {
   description?: string
   actions?: ReactNode
   eyebrow?: ReactNode
+  showHeader?: boolean
   title: string
 }
 
@@ -169,6 +170,7 @@ export function PageLayout({
   description,
   actions,
   eyebrow,
+  showHeader = true,
   title,
   ...props
 }: PageLayoutProps) {
@@ -178,14 +180,16 @@ export function PageLayout({
       gap="var(--page-section-gap)"
       {...props}
     >
-      <PageHeader
-        actions={actions}
-        className="page-layout__header"
-        description={description}
-        eyebrow={eyebrow}
-        title={title}
-        titleOrder={1}
-      />
+      {showHeader ? (
+        <PageHeader
+          actions={actions}
+          className="page-layout__header"
+          description={description}
+          eyebrow={eyebrow}
+          title={title}
+          titleOrder={1}
+        />
+      ) : null}
       {children}
     </Stack>
   )

@@ -104,6 +104,14 @@ export type AttendanceGroup = {
   clientCount?: number
 }
 
+export type AttendanceState = 'Unmarked' | 'Present' | 'Absent'
+
+export type AttendanceGroupsResponse = {
+  groups: AttendanceGroup[]
+  today: string
+  maxTrainingDate: string
+}
+
 export type ClientStatus = 'Active' | 'Archived'
 export type ClientPaymentStatus = 'Paid' | 'Unpaid'
 export type ClientMembershipState =
@@ -343,7 +351,7 @@ export type AttendanceClient = {
   fullName: string
   groups: ClientGroupSummary[]
   photo: ClientPhoto | null
-  isPresent: boolean
+  state: AttendanceState
   isProfessional: boolean
   professionalComment: string | null
   hasActivePaidMembership: boolean
@@ -356,6 +364,8 @@ export type AttendanceClient = {
 export type AttendanceRosterResponse = {
   groupId: string
   trainingDate: string
+  today: string
+  maxTrainingDate: string
   clients: AttendanceClient[]
 }
 
@@ -363,7 +373,18 @@ export type SaveAttendanceMarksRequest = {
   trainingDate: string
   attendanceMarks: Array<{
     clientId: string
-    isPresent: boolean
+    state: AttendanceState
+  }>
+}
+
+export type SaveAttendanceMarksResponse = {
+  groupId: string
+  trainingDate: string
+  today: string
+  maxTrainingDate: string
+  attendanceMarks: Array<{
+    clientId: string
+    state: AttendanceState
   }>
 }
 

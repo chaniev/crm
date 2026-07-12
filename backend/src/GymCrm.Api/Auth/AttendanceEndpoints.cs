@@ -1,7 +1,5 @@
 using System.Globalization;
-using System.Text.Json;
 using GymCrm.Application.Attendance;
-using GymCrm.Application.Audit;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
@@ -16,7 +14,6 @@ namespace GymCrm.Api.Auth;
 
 internal static class AttendanceEndpoints
 {
-    private static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
     private const string TrainingDateFormat = "yyyy-MM-dd";
 
     public static IEndpointRouteBuilder MapAttendanceEndpoints(this IEndpointRouteBuilder endpoints)
@@ -31,9 +28,10 @@ internal static class AttendanceEndpoints
         return endpoints;
     }
 
-    private static async Task<Results<Ok<IReadOnlyList<AttendanceGroupResponse>>, UnauthorizedHttpResult>> ListGroupsAsync(
+    private static async Task<Results<Ok<AttendanceGroupsResponse>, UnauthorizedHttpResult>> ListGroupsAsync(
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -48,7 +46,7 @@ internal static class AttendanceEndpoints
             query = query.Where(group => group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id));
         }
 
-        IReadOnlyList<AttendanceGroupResponse> response = await query
+        IReadOnlyList<AttendanceGroupResponse> groups = await query
             .OrderBy(group => group.IsActive ? 0 : 1)
             .ThenBy(group => group.Name)
             .ThenBy(group => group.TrainingStartTime)
@@ -67,7 +65,8 @@ internal static class AttendanceEndpoints
                 group.Clients.Count(clientGroup => clientGroup.Client.Status == ClientStatus.Active)))
             .ToListAsync(cancellationToken);
 
-        return TypedResults.Ok(response);
+        var today = businessDateProvider.Today;
+        return TypedResults.Ok(new AttendanceGroupsResponse(groups, today, today));
     }
 
     private static async Task<Results<Ok<AttendanceGroupClientsResponse>, ValidationProblem, NotFound, ForbidHttpResult, UnauthorizedHttpResult>> GetGroupClientsAsync(
@@ -76,6 +75,7 @@ internal static class AttendanceEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
+        IBusinessDateProvider businessDateProvider,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -136,6 +136,8 @@ internal static class AttendanceEndpoints
             group.Id,
             group.Name,
             parsedTrainingDate.Value,
+            businessDateProvider.Today,
+            businessDateProvider.Today,
             clients
                 .Select(client => MapAttendanceClient(client, currentUser, groupId, parsedTrainingDate.Value))
                 .ToArray()));
@@ -145,10 +147,9 @@ internal static class AttendanceEndpoints
         Guid groupId,
         SaveAttendanceRequest request,
         HttpContext httpContext,
-        GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
         IAttendanceService attendanceService,
-        IAuditLogService auditLogService,
+        IBusinessDateProvider businessDateProvider,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -190,14 +191,32 @@ internal static class AttendanceEndpoints
             return AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceMarksRequired);
         }
 
+        var parsedMarks = new List<AttendanceMarkCommand>(request.AttendanceMarks.Count);
+        foreach (var mark in request.AttendanceMarks)
+        {
+            var state = mark.State switch
+            {
+                nameof(AttendanceState.Unmarked) => AttendanceState.Unmarked,
+                nameof(AttendanceState.Present) => AttendanceState.Present,
+                nameof(AttendanceState.Absent) => AttendanceState.Absent,
+                _ => (AttendanceState?)null
+            };
+            if (!state.HasValue)
+            {
+                return AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceStateInvalid);
+            }
+
+            parsedMarks.Add(new AttendanceMarkCommand(mark.ClientId, state.Value));
+        }
+
         var mutationResult = await attendanceService.SaveAsync(
             new SaveAttendanceCommand(
                 groupId,
                 parsedTrainingDate.Value,
                 currentUser.Id,
-                request.AttendanceMarks
-                    .Select(mark => new AttendanceMarkCommand(mark.ClientId, mark.IsPresent))
-                    .ToArray()),
+                currentUser.Login,
+                new AttendanceAuditContext(),
+                parsedMarks),
             cancellationToken);
 
         if (!mutationResult.Succeeded)
@@ -207,91 +226,21 @@ internal static class AttendanceEndpoints
                 AttendanceBatchMutationError.GroupMissing => TypedResults.NotFound(),
                 AttendanceBatchMutationError.InvalidRequest => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveInvalidRequest),
                 AttendanceBatchMutationError.ClientOutsideGroup => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveClientOutsideGroup),
+                AttendanceBatchMutationError.TrainingDateInFuture => AttendanceValidationProblems.CreateTrainingDateInFutureValidationProblem(),
+                AttendanceBatchMutationError.SingleVisitRestoreConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.SingleVisitRestoreConflict),
                 _ => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveFailed)
             };
         }
 
         var details = mutationResult.Details!;
-        var changedClientIds = details.Changes
-            .Select(change => change.ClientId)
-            .Distinct()
-            .ToArray();
-
-        var clientNames = changedClientIds.Length == 0
-            ? new Dictionary<Guid, string>()
-            : await dbContext.Clients
-                .AsNoTracking()
-                .Where(client => changedClientIds.Contains(client.Id))
-                .Select(client => new
-                {
-                    client.Id,
-                    client.LastName,
-                    client.FirstName,
-                    client.MiddleName
-                })
-                .ToDictionaryAsync(
-                    client => client.Id,
-                    client => BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
-                    cancellationToken);
-
-        var groupName = await dbContext.TrainingGroups
-            .AsNoTracking()
-            .Where(group => group.Id == groupId)
-            .Select(group => group.Name)
-            .SingleAsync(cancellationToken);
-
-        foreach (var change in details.Changes)
-        {
-            var actionType = change.WasCreated
-                ? AttendanceAuditConstants.AttendanceMarkedAction
-                : AttendanceAuditConstants.AttendanceUpdatedAction;
-            var description = change.WasCreated
-                ? AttendanceResources.AttendanceMarkedDescription(
-                    currentUser.Login,
-                    clientNames.GetValueOrDefault(change.ClientId, change.ClientId.ToString()),
-                    groupName,
-                    details.TrainingDate.ToString(TrainingDateFormat, CultureInfo.InvariantCulture))
-                : AttendanceResources.AttendanceUpdatedDescription(
-                    currentUser.Login,
-                    clientNames.GetValueOrDefault(change.ClientId, change.ClientId.ToString()),
-                    groupName,
-                    details.TrainingDate.ToString(TrainingDateFormat, CultureInfo.InvariantCulture));
-
-            await auditLogService.WriteAsync(
-                new AuditLogEntry(
-                    currentUser.Id,
-                    actionType,
-                    AttendanceAuditConstants.AttendanceEntityType,
-                    change.AttendanceId.ToString(),
-                    description,
-                    change.PreviousIsPresent.HasValue
-                        ? SerializeAttendanceAuditState(change.ClientId, groupId, details.TrainingDate, change.PreviousIsPresent.Value)
-                        : null,
-                    SerializeAttendanceAuditState(change.ClientId, groupId, details.TrainingDate, change.CurrentIsPresent)),
-                cancellationToken);
-        }
-
-        foreach (var writeOff in details.SingleVisitWriteOffs)
-        {
-            await auditLogService.WriteAsync(
-                new AuditLogEntry(
-                    currentUser.Id,
-                    AttendanceAuditConstants.ClientMembershipSingleVisitWrittenOffAction,
-                    AttendanceAuditConstants.ClientMembershipEntityType,
-                    writeOff.CurrentMembership.Id.ToString(),
-                    AttendanceResources.ClientMembershipSingleVisitWrittenOffDescription(
-                        currentUser.Login,
-                        clientNames.GetValueOrDefault(writeOff.ClientId, writeOff.ClientId.ToString())),
-                    SerializeMembershipAuditState(writeOff.ClientId, writeOff.PreviousMembership),
-                    SerializeMembershipAuditState(writeOff.ClientId, writeOff.CurrentMembership)),
-                cancellationToken);
-        }
-
+        var today = businessDateProvider.Today;
         return TypedResults.Ok(new AttendanceSaveResponse(
             details.GroupId,
             details.TrainingDate,
-            details.Changes
-                .Select(change => new AttendanceMarkResponse(change.ClientId, change.CurrentIsPresent))
+            today,
+            today,
+            parsedMarks
+                .Select(mark => new AttendanceMarkResponse(mark.ClientId, mark.State.ToString()))
                 .ToArray()));
     }
 
@@ -308,17 +257,21 @@ internal static class AttendanceEndpoints
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
             : client.Groups.AsEnumerable();
         var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
-        var isPresent = client.AttendanceEntries.Any(attendance =>
+        var attendance = client.AttendanceEntries.SingleOrDefault(attendance =>
             attendance.GroupId == groupId &&
-            attendance.TrainingDate == trainingDate &&
-            attendance.IsPresent);
+            attendance.TrainingDate == trainingDate);
+        var state = attendance is null
+            ? AttendanceState.Unmarked
+            : attendance.IsPresent
+                ? AttendanceState.Present
+                : AttendanceState.Absent;
 
         return new AttendanceClientResponse(
             client.Id,
             BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
             MapGroups(visibleGroups),
             MapPhoto(client),
-            isPresent,
+            state.ToString(),
             client.IsProfessional,
             client.ProfessionalComment,
             warning.HasWarning,
@@ -437,42 +390,6 @@ internal static class AttendanceEndpoints
         return string.IsNullOrWhiteSpace(fullName)
             ? ClientResources.ClientWithoutName
             : fullName;
-    }
-
-    private static string SerializeAttendanceAuditState(
-        Guid clientId,
-        Guid groupId,
-        DateOnly trainingDate,
-        bool isPresent)
-    {
-        return JsonSerializer.Serialize(
-            new AttendanceAuditState(clientId, groupId, trainingDate, isPresent),
-            AuditSerializerOptions);
-    }
-
-    private static string SerializeMembershipAuditState(
-        Guid clientId,
-        ClientMembershipSnapshotResult membership)
-    {
-        return JsonSerializer.Serialize(
-            new ClientMembershipAuditState(
-                membership.Id,
-                clientId,
-                membership.SaleId,
-                membership.MembershipType.ToString(),
-                membership.PurchaseDate,
-                membership.ExpirationDate,
-                membership.PaymentAmount,
-                membership.IsPaid,
-                membership.SingleVisitUsed,
-                membership.PaidByUserId,
-                membership.PaidAt,
-                membership.ChangeReason.ToString(),
-                membership.ChangedByUserId,
-                membership.ValidFrom,
-                membership.ValidTo,
-                membership.CreatedAt),
-            AuditSerializerOptions);
     }
 
 }

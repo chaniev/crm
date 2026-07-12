@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Bot;
+using GymCrm.Application.Attendance;
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Branches;
@@ -88,7 +89,7 @@ public class InternalBotApiTests
         await using var factory = new InternalBotAppFactory();
         var seeded = await SeedDataAsync(factory);
         using var client = factory.CreateClient();
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
 
         using (var adminMenuResponse = await SendBotRequestAsync(
                    client,
@@ -130,6 +131,21 @@ public class InternalBotApiTests
                 coachGroupPayload.GetProperty("weekdays").EnumerateArray().Select(weekday => weekday.GetInt32()).ToArray());
         }
 
+        await using (var membershipScope = factory.Services.CreateAsyncScope())
+        {
+            var db = membershipScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var membership = await db.ClientMemberships
+                .Include(candidate => candidate.Sale)
+                .SingleAsync(candidate => candidate.ClientId == seeded.CoachClientId && candidate.ValidTo == null);
+            membership.MembershipType = MembershipType.SingleVisit;
+            membership.Sale.MembershipType = MembershipType.SingleVisit;
+            membership.PurchaseDate = today.AddDays(-10);
+            membership.Sale.PurchaseDate = today.AddDays(-10);
+            membership.ExpirationDate = null;
+            membership.SingleVisitUsed = false;
+            await db.SaveChangesAsync();
+        }
+
         using (var adminSaveResponse = await SendBotRequestAsync(
                    client,
                    HttpMethod.Post,
@@ -142,6 +158,19 @@ public class InternalBotApiTests
                    idempotencyKey: "attendance-admin-old-date"))
         {
             Assert.Equal(HttpStatusCode.OK, adminSaveResponse.StatusCode);
+        }
+
+        await using (var auditScope = factory.Services.CreateAsyncScope())
+        {
+            var db = auditScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.Contains(await db.AuditLogs.ToListAsync(), log =>
+                log.ActionType == AttendanceAuditContract.AttendanceMarkedAction &&
+                log.Source == "Bot" &&
+                log.MessengerPlatform == "Telegram");
+            Assert.Contains(await db.AuditLogs.ToListAsync(), log =>
+                log.ActionType == AttendanceAuditContract.SingleVisitWrittenOffAction &&
+                log.Source == "Bot" &&
+                log.MessengerPlatform == "Telegram");
         }
 
         using (var coachOldDateResponse = await SendBotRequestAsync(
@@ -329,6 +358,34 @@ public class InternalBotApiTests
         Assert.Equal(1, accessDeniedAuditCount);
     }
 
+    [Fact]
+    public async Task Attendance_exception_releases_pending_idempotency_reservation()
+    {
+        await using var factory = new InternalBotAppFactory(throwAttendance: true);
+        var seeded = await SeedDataAsync(factory);
+        using var client = factory.CreateClient();
+        var request = new BotSaveAttendanceRequest(
+            "Telegram",
+            seeded.AdminTelegramId,
+            GetBusinessToday().ToString("yyyy-MM-dd"),
+            [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]);
+
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            using var response = await SendBotRequestAsync(
+                client,
+                HttpMethod.Post,
+                $"/internal/bot/attendance/groups/{seeded.CoachGroupId}",
+                request,
+                idempotencyKey: "attendance-exception-release");
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+            await using var scope = factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.False(await db.BotIdempotencyRecords.AnyAsync());
+        }
+    }
+
     private static async Task<SeededBotData> SeedDataAsync(InternalBotAppFactory factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -348,7 +405,7 @@ public class InternalBotApiTests
 
         var passwordHashService = scope.ServiceProvider.GetRequiredService<Application.Security.IPasswordHashService>();
         var now = DateTimeOffset.UtcNow;
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
         var sharedPassword = "internal-bot-password";
 
         var headCoach = CreateUser("bot-headcoach", "Bot HeadCoach", UserRole.HeadCoach, sharedPassword, passwordHashService, now, "tg-headcoach");
@@ -627,6 +684,12 @@ public class InternalBotApiTests
         return document.RootElement.Clone();
     }
 
+    private static DateOnly GetBusinessToday()
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
+        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timeZone).DateTime);
+    }
+
     private sealed record TelegramIdentityRequest(string Platform, string PlatformUserId);
 
     private sealed record BotAttendanceMarkRequest(Guid ClientId, bool IsPresent);
@@ -661,7 +724,7 @@ public class InternalBotApiTests
         Guid PaymentClientId,
         Guid ProfessionalPaymentClientId);
 
-    private sealed class InternalBotAppFactory : WebApplicationFactory<Program>
+    private sealed class InternalBotAppFactory(bool throwAttendance = false) : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -695,7 +758,21 @@ public class InternalBotApiTests
                     options
                         .UseInMemoryDatabase(databaseName)
                         .UseInternalServiceProvider(entityFrameworkProvider));
+
+                if (throwAttendance)
+                {
+                    services.RemoveAll<IAttendanceService>();
+                    services.AddScoped<IAttendanceService, ThrowingAttendanceService>();
+                }
             });
         }
+    }
+
+    private sealed class ThrowingAttendanceService : IAttendanceService
+    {
+        public Task<AttendanceBatchMutationResult> SaveAsync(
+            SaveAttendanceCommand command,
+            CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("Attendance mutation failed for idempotency test.");
     }
 }

@@ -14,6 +14,18 @@ internal sealed class AttendanceConfiguration : IEntityTypeConfiguration<Attenda
         builder.Property(attendance => attendance.UpdatedAt).IsRequired();
 
         builder.HasIndex(attendance => new { attendance.GroupId, attendance.TrainingDate });
+        builder.HasIndex(attendance => attendance.SingleVisitMembershipSaleId);
+        builder.HasIndex(attendance => attendance.SingleVisitWriteOffMembershipId);
+
+        builder.HasOne(attendance => attendance.SingleVisitMembershipSale)
+            .WithMany()
+            .HasForeignKey(attendance => attendance.SingleVisitMembershipSaleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(attendance => attendance.SingleVisitWriteOffMembership)
+            .WithMany()
+            .HasForeignKey(attendance => attendance.SingleVisitWriteOffMembershipId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(attendance => new
             {

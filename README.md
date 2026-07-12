@@ -187,6 +187,7 @@ IMAGE_TAG=2026-05-15 ./deploy/export-images.sh
 
 - `BOOTSTRAP_USER_LOGIN`;
 - `BOOTSTRAP_USER_FULL_NAME`.
+- `BACKEND_BUSINESS_TIME_ZONE_ID` — IANA-идентификатор календарной зоны клуба, по умолчанию `Europe/Moscow`.
 
 ## Локальная разработка
 

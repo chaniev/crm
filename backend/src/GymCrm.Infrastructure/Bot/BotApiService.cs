@@ -18,7 +18,8 @@ internal sealed class BotApiService(
     IAttendanceService attendanceService,
     IClientMembershipService membershipService,
     IAuditLogService auditLogService,
-    BotIdempotencyService idempotencyService) : IBotApiService
+    BotIdempotencyService idempotencyService,
+    IBusinessDateProvider businessDateProvider) : IBotApiService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private const string DateFormat = "yyyy-MM-dd";
@@ -208,78 +209,95 @@ internal sealed class BotApiService(
         }
 
         var recordId = reservation.RecordId!.Value;
-        var mutationResult = await attendanceService.SaveAsync(
-            new SaveAttendanceCommand(
-                groupId,
-                trainingDate,
-                user.Id,
-                marks.Select(mark => new AttendanceMarkCommand(mark.ClientId, mark.IsPresent)).ToArray()),
-            cancellationToken);
-
-        if (!mutationResult.Succeeded)
+        try
         {
-            await idempotencyService.ReleaseAsync(recordId, cancellationToken);
+            var mutationResult = await attendanceService.SaveAsync(
+                new SaveAttendanceCommand(
+                    groupId,
+                    trainingDate,
+                    user.Id,
+                    user.Login,
+                    new AttendanceAuditContext(
+                        "Bot",
+                        identity.Platform,
+                        BotHashing.ComputeSha256(identity.PlatformUserId)),
+                    marks.Select(mark => new AttendanceMarkCommand(
+                        mark.ClientId,
+                        mark.IsPresent ? AttendanceState.Present : AttendanceState.Absent)).ToArray()),
+                cancellationToken);
 
-            return mutationResult.Error switch
+            if (!mutationResult.Succeeded)
             {
-                AttendanceBatchMutationError.GroupMissing => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound),
-                AttendanceBatchMutationError.ClientOutsideGroup => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
+                await idempotencyService.ReleaseAsync(recordId, cancellationToken);
+
+                return mutationResult.Error switch
                 {
-                    ["attendanceMarks"] = ["Часть клиентов не принадлежит выбранной группе."]
-                }),
-                _ => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
+                    AttendanceBatchMutationError.GroupMissing => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound),
+                    AttendanceBatchMutationError.ClientOutsideGroup => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
+                    {
+                        ["attendanceMarks"] = ["Часть клиентов не принадлежит выбранной группе."]
+                    }),
+                    AttendanceBatchMutationError.TrainingDateInFuture => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
+                    AttendanceBatchMutationError.SingleVisitRestoreConflict => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.SingleVisitRestoreConflict),
+                    _ => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
+                    {
+                        ["attendanceMarks"] = ["Не удалось сохранить посещаемость из-за некорректных данных."]
+                    })
+                };
+            }
+
+            var details = mutationResult.Details!;
+            var warningClients = await dbContext.Clients
+                .AsNoTracking()
+                .Where(client => marks.Select(mark => mark.ClientId).Contains(client.Id))
+                .Include(client => client.Memberships)
+                .ToArrayAsync(cancellationToken);
+
+            var warnings = warningClients
+                .Select(client =>
                 {
-                    ["attendanceMarks"] = ["Не удалось сохранить посещаемость из-за некорректных данных."]
+                    var currentMembership = GetCurrentMembership(client);
+                    var membershipWarning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
+                    return new BotAttendanceClientWarning(
+                        client.Id,
+                        BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
+                        membershipWarning.Message,
+                        ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership));
                 })
-            };
+                .Where(item => item.MembershipWarning is not null || item.HasUnpaidCurrentMembership)
+                .OrderBy(item => item.FullName, StringComparer.CurrentCulture)
+                .ThenBy(item => item.ClientId)
+                .ToArray();
+
+            var response = new BotAttendanceSaveResponse(
+                group.Id,
+                group.Name,
+                trainingDate,
+                marks.Count,
+                marks.Count(mark => mark.IsPresent),
+                marks.Count(mark => !mark.IsPresent),
+                warnings);
+
+            await WriteBotAuditAsync(
+                user,
+                identity,
+                BotAuditConstants.BotAttendanceSavedAction,
+                "Attendance",
+                groupId.ToString(),
+                $"Пользователь '{user.Login}' сохранил посещаемость через бота для группы '{group.Name}' за {trainingDate.ToString(DateFormat, CultureInfo.InvariantCulture)}.",
+                null,
+                JsonSerializer.Serialize(response, SerializerOptions),
+                cancellationToken);
+
+            await idempotencyService.CompleteAsync(recordId, response, cancellationToken);
+
+            return BotApiResult<BotAttendanceSaveResponse>.Success(response);
         }
-
-        var details = mutationResult.Details!;
-        var warningClients = await dbContext.Clients
-            .AsNoTracking()
-            .Where(client => marks.Select(mark => mark.ClientId).Contains(client.Id))
-            .Include(client => client.Memberships)
-            .ToArrayAsync(cancellationToken);
-
-        var warnings = warningClients
-            .Select(client =>
-            {
-                var currentMembership = GetCurrentMembership(client);
-                var membershipWarning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
-                return new BotAttendanceClientWarning(
-                    client.Id,
-                    BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
-                    membershipWarning.Message,
-                    ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership));
-            })
-            .Where(item => item.MembershipWarning is not null || item.HasUnpaidCurrentMembership)
-            .OrderBy(item => item.FullName, StringComparer.CurrentCulture)
-            .ThenBy(item => item.ClientId)
-            .ToArray();
-
-        var response = new BotAttendanceSaveResponse(
-            group.Id,
-            group.Name,
-            trainingDate,
-            marks.Count,
-            marks.Count(mark => mark.IsPresent),
-            marks.Count(mark => !mark.IsPresent),
-            warnings);
-
-        await WriteBotAuditAsync(
-            user,
-            identity,
-            BotAuditConstants.BotAttendanceSavedAction,
-            "Attendance",
-            groupId.ToString(),
-            $"Пользователь '{user.Login}' сохранил посещаемость через бота для группы '{group.Name}' за {trainingDate.ToString(DateFormat, CultureInfo.InvariantCulture)}.",
-            null,
-            JsonSerializer.Serialize(response, SerializerOptions),
-            cancellationToken);
-
-        await idempotencyService.CompleteAsync(recordId, response, cancellationToken);
-
-        return BotApiResult<BotAttendanceSaveResponse>.Success(response);
+        catch
+        {
+            await idempotencyService.ReleaseAsync(recordId, CancellationToken.None);
+            throw;
+        }
     }
 
     public async Task<BotApiResult<BotClientSearchResponse>> SearchClientsAsync(
@@ -881,9 +899,9 @@ internal sealed class BotApiService(
             errors.Count == 0 ? null : errors);
     }
 
-    private static bool IsAttendanceDateAllowed(UserRole role, DateOnly trainingDate)
+    private bool IsAttendanceDateAllowed(UserRole role, DateOnly trainingDate)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = businessDateProvider.Today;
         if (trainingDate > today)
         {
             return false;

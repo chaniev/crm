@@ -26,20 +26,33 @@ import type {
   AttendanceClientPayload,
   AttendanceGroup,
   AttendanceGroupPayload,
+  AttendanceGroupsResponse,
   AttendanceRosterResponse,
+  AttendanceState,
   ClientResponsePayload,
   SaveAttendanceMarksRequest,
+  SaveAttendanceMarksResponse,
 } from './types'
 
 export async function getAttendanceGroups(signal?: AbortSignal) {
   const payload = await request<unknown>(API_ENDPOINTS.attendance.groups, { signal })
+  const envelope = requireRecord(payload, 'Некорректный ответ списка групп посещений.')
+  const today = requireIsoDate(envelope, ['today', 'Today'])
+  const maxTrainingDate = requireIsoDate(envelope, [
+    'maxTrainingDate',
+    'MaxTrainingDate',
+  ])
 
-  return extractArrayPayload<AttendanceGroupPayload>(
-    payload,
-    ATTENDANCE_GROUP_PAYLOAD_KEYS,
-  )
-    .map(mapAttendanceGroup)
-    .filter((group): group is AttendanceGroup => group !== null)
+  return {
+    groups: extractArrayPayload<AttendanceGroupPayload>(
+      payload,
+      ATTENDANCE_GROUP_PAYLOAD_KEYS,
+    )
+      .map(mapAttendanceGroup)
+      .filter((group): group is AttendanceGroup => group !== null),
+    today,
+    maxTrainingDate,
+  } satisfies AttendanceGroupsResponse
 }
 
 export async function getAttendanceGroupClients(
@@ -65,10 +78,16 @@ export async function getAttendanceGroupClients(
         ? readString(payload, ['trainingDate', 'TrainingDate'])
         : undefined) ?? trainingDate,
     ) ?? trainingDate
+  const envelope = requireRecord(payload, 'Некорректный ответ состава группы.')
 
   return {
     groupId: responseGroupId,
     trainingDate: responseTrainingDate,
+    today: requireIsoDate(envelope, ['today', 'Today']),
+    maxTrainingDate: requireIsoDate(envelope, [
+      'maxTrainingDate',
+      'MaxTrainingDate',
+    ]),
     clients: extractArrayPayload<AttendanceClientPayload>(
       payload,
       ATTENDANCE_CLIENT_PAYLOAD_KEYS,
@@ -82,16 +101,53 @@ export async function saveAttendanceMarks(
   groupId: string,
   payload: SaveAttendanceMarksRequest,
 ) {
-  await request<unknown>(API_ENDPOINTS.attendance.groupMarks(groupId), {
+  const response = await request<unknown>(API_ENDPOINTS.attendance.groupMarks(groupId), {
     method: 'POST',
     body: JSON.stringify({
       TrainingDate: payload.trainingDate,
       AttendanceMarks: payload.attendanceMarks.map((mark) => ({
         ClientId: mark.clientId,
-        IsPresent: mark.isPresent,
+        State: mark.state,
       })),
     }),
   })
+
+  return mapSaveAttendanceResponse(response)
+}
+
+function mapSaveAttendanceResponse(payload: unknown): SaveAttendanceMarksResponse {
+  const envelope = requireRecord(payload, 'Некорректный ответ сохранения посещения.')
+  const groupId = readString(envelope, ['groupId', 'GroupId'])
+  const trainingDate = requireIsoDate(envelope, ['trainingDate', 'TrainingDate'])
+
+  if (!groupId) {
+    throw new Error('Ответ сохранения посещения не содержит группу.')
+  }
+
+  const attendanceMarks = extractArrayPayload<Record<string, unknown>>(
+    payload,
+    ['attendanceMarks', 'AttendanceMarks'],
+  ).map((mark) => {
+    const clientId = readString(mark, ['clientId', 'ClientId'])
+    const state = readAttendanceState(mark)
+
+    if (!clientId || !state) {
+      throw new Error('Ответ сохранения посещения содержит некорректную отметку.')
+    }
+
+    return { clientId, state }
+  })
+
+  return {
+    groupId,
+    trainingDate,
+    today: requireIsoDate(envelope, ['today', 'Today']),
+    maxTrainingDate: requireIsoDate(envelope, [
+      'maxTrainingDate',
+      'MaxTrainingDate',
+    ]),
+    attendanceMarks,
+  }
 }
 
 function mapAttendanceGroup(payload: AttendanceGroupPayload): AttendanceGroup | null {
@@ -134,6 +190,11 @@ function mapAttendanceClient(
 
   if (!id) {
     return null
+  }
+
+  const state = readAttendanceState(payload)
+  if (!state) {
+    throw new Error('Ответ состава группы содержит некорректное состояние посещения.')
   }
 
   const fullName =
@@ -210,9 +271,7 @@ function mapAttendanceClient(
     fullName,
     groups: mapClientGroups(payload as ClientResponsePayload),
     photo: mapClientPhoto(payload as ClientResponsePayload),
-    isPresent:
-      readBoolean(payload, ['isPresent', 'IsPresent', 'present', 'Present']) ??
-      false,
+    state,
     isProfessional,
     professionalComment,
     hasActivePaidMembership,
@@ -221,4 +280,33 @@ function mapAttendanceClient(
     membershipWarningMessage: warningMessage,
     currentMembership,
   }
+}
+
+function readAttendanceState(payload: Record<string, unknown>): AttendanceState | undefined {
+  const state = readString(payload, ['state', 'State'])
+
+  return state === 'Unmarked' || state === 'Present' || state === 'Absent'
+    ? state
+    : undefined
+}
+
+function requireRecord(payload: unknown, message: string) {
+  if (!isRecord(payload)) {
+    throw new Error(message)
+  }
+
+  return payload
+}
+
+function requireIsoDate(
+  payload: Record<string, unknown>,
+  keys: readonly string[],
+) {
+  const value = normalizeIsoDateValue(readString(payload, keys) ?? '')
+
+  if (!value) {
+    throw new Error('Ответ посещений не содержит календарную дату клуба.')
+  }
+
+  return value
 }

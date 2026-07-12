@@ -11,6 +11,8 @@ public class Attendance
     public Guid GroupId { get; set; }
     public DateOnly TrainingDate { get; set; }
     public bool IsPresent { get; set; }
+    public Guid? SingleVisitMembershipSaleId { get; set; }
+    public Guid? SingleVisitWriteOffMembershipId { get; set; }
     public Guid MarkedByUserId { get; set; }
     public DateTimeOffset MarkedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
@@ -18,4 +20,6 @@ public class Attendance
     public Client Client { get; set; } = null!;
     public TrainingGroup Group { get; set; } = null!;
     public User MarkedByUser { get; set; } = null!;
+    public ClientMembershipSale? SingleVisitMembershipSale { get; set; }
+    public ClientMembership? SingleVisitWriteOffMembership { get; set; }
 }

@@ -42,7 +42,17 @@ public interface IClientMembershipService
         Guid clientId,
         WriteOffSingleVisitCommand command,
         CancellationToken cancellationToken);
+
+    Task<SingleVisitRestoreResult> RestoreSingleVisitAsync(
+        Guid clientId,
+        RestoreSingleVisitCommand command,
+        CancellationToken cancellationToken);
 }
+
+public sealed record RestoreSingleVisitCommand(
+    Guid ChangedByUserId,
+    Guid ExpectedSaleId,
+    Guid ExpectedWriteOffMembershipId);
 
 public sealed record CreateClientMembershipPurchaseCommand(
     Guid ChangedByUserId,
@@ -120,6 +130,13 @@ public enum SingleVisitWriteOffStatus
     SingleVisitAlreadyUsed = 5,
     MembershipPurchasedAfterTrainingDate = 6,
     ClientIsProfessional = 7
+}
+
+public enum SingleVisitRestoreStatus
+{
+    Applied = 0,
+    InvalidRequest = 1,
+    Conflict = 2
 }
 
 public sealed record ClientMembershipDetailsResult(
@@ -233,5 +250,21 @@ public readonly record struct SingleVisitWriteOffResult(
         new(SingleVisitWriteOffStatus.Applied, previousMembership, currentMembership);
 
     public static SingleVisitWriteOffResult Skip(SingleVisitWriteOffStatus status) =>
+        new(status, null, null);
+}
+
+public readonly record struct SingleVisitRestoreResult(
+    SingleVisitRestoreStatus Status,
+    ClientMembershipSnapshotResult? PreviousMembership,
+    ClientMembershipSnapshotResult? CurrentMembership)
+{
+    public bool Applied => Status == SingleVisitRestoreStatus.Applied;
+
+    public static SingleVisitRestoreResult Success(
+        ClientMembershipSnapshotResult previousMembership,
+        ClientMembershipSnapshotResult currentMembership) =>
+        new(SingleVisitRestoreStatus.Applied, previousMembership, currentMembership);
+
+    public static SingleVisitRestoreResult Failure(SingleVisitRestoreStatus status) =>
         new(status, null, null);
 }
