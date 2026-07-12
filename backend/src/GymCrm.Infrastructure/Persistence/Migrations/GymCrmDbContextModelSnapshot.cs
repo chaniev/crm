@@ -43,6 +43,12 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("MarkedByUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("SingleVisitMembershipSaleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SingleVisitWriteOffMembershipId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateOnly>("TrainingDate")
                         .HasColumnType("date");
 
@@ -52,6 +58,10 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MarkedByUserId");
+
+                    b.HasIndex("SingleVisitMembershipSaleId");
+
+                    b.HasIndex("SingleVisitWriteOffMembershipId");
 
                     b.HasIndex("GroupId", "TrainingDate");
 
@@ -1163,11 +1173,25 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GymCrm.Domain.Clients.ClientMembershipSale", "SingleVisitMembershipSale")
+                        .WithMany()
+                        .HasForeignKey("SingleVisitMembershipSaleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GymCrm.Domain.Clients.ClientMembership", "SingleVisitWriteOffMembership")
+                        .WithMany()
+                        .HasForeignKey("SingleVisitWriteOffMembershipId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Client");
 
                     b.Navigation("Group");
 
                     b.Navigation("MarkedByUser");
+
+                    b.Navigation("SingleVisitMembershipSale");
+
+                    b.Navigation("SingleVisitWriteOffMembership");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Audit.AuditLog", b =>

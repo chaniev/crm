@@ -27,6 +27,15 @@
   <data name="AttendanceSaveFailed" xml:space="preserve">
     <value>Не удалось сохранить отметки посещения.</value>
   </data>
+  <data name="AttendanceStateInvalid" xml:space="preserve">
+    <value>Состояние посещения должно быть одним из: Unmarked, Present, Absent.</value>
+  </data>
+  <data name="TrainingDateInFuture" xml:space="preserve">
+    <value>Нельзя сохранять посещаемость на будущую дату.</value>
+  </data>
+  <data name="SingleVisitRestoreConflict" xml:space="preserve">
+    <value>Разовое посещение не восстановлено: абонемент был изменён после списания. Отметки не сохранены.</value>
+  </data>
   <data name="NoCurrentMembershipWarning" xml:space="preserve">
     <value>У клиента нет текущего абонемента, но отметка посещения доступна.</value>
   </data>
@@ -44,14 +53,5 @@
   </data>
   <data name="MembershipWarningWithDetails" xml:space="preserve">
     <value>{0}; отметка посещения все равно доступна.</value>
-  </data>
-  <data name="AttendanceMarkedDescription" xml:space="preserve">
-    <value>Пользователь '{0}' отметил посещение клиента '{1}' в группе '{2}' на дату {3}.</value>
-  </data>
-  <data name="AttendanceUpdatedDescription" xml:space="preserve">
-    <value>Пользователь '{0}' изменил отметку посещения клиента '{1}' в группе '{2}' на дату {3}.</value>
-  </data>
-  <data name="ClientMembershipSingleVisitWrittenOffDescription" xml:space="preserve">
-    <value>Пользователь '{0}' списал разовое посещение клиента '{1}' после отметки посещения.</value>
   </data>
 </root>

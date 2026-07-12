@@ -1495,7 +1495,11 @@ test.describe('Основные e2e сценарии', () => {
       }
 
       if (pathname === '/api/attendance/groups' && method === 'GET') {
-        await fulfillJson(route, 200, [toAttendanceGroupPayload(assignedAttendanceGroup)])
+        await fulfillJson(route, 200, {
+          groups: [toAttendanceGroupPayload(assignedAttendanceGroup)],
+          today: todayIso(),
+          maxTrainingDate: todayIso(),
+        })
         return true
       }
 
@@ -1503,11 +1507,13 @@ test.describe('Основные e2e сценарии', () => {
         await fulfillJson(route, 200, {
           groupId: 'group-coach',
           trainingDate: todayIso(),
-          items: [
+          today: todayIso(),
+          maxTrainingDate: todayIso(),
+          clients: [
             {
               id: 'client-attendance-1',
               fullName: 'Тренируемый Клиент',
-              isPresent: false,
+              state: 'Unmarked',
               hasActivePaidMembership: false,
               hasUnpaidCurrentMembership: true,
               membershipWarning: false,
@@ -1781,7 +1787,11 @@ test.describe('Основные e2e сценарии', () => {
       }
 
       if (pathname === '/api/attendance/groups' && method === 'GET') {
-        await fulfillJson(route, 200, [toAttendanceGroupPayload(baseGroups[0])])
+        await fulfillJson(route, 200, {
+          groups: [toAttendanceGroupPayload(baseGroups[0])],
+          today: todayIso(),
+          maxTrainingDate: todayIso(),
+        })
         return true
       }
 
@@ -1790,11 +1800,13 @@ test.describe('Основные e2e сценарии', () => {
         await fulfillJson(route, 200, {
           groupId,
           trainingDate: todayIso(),
-          items: [
+          today: todayIso(),
+          maxTrainingDate: todayIso(),
+          clients: [
             {
               id: 'client-attendance-1',
               fullName: 'Текущий клиент',
-              isPresent: false,
+              state: 'Unmarked',
               hasActivePaidMembership: true,
               hasUnpaidCurrentMembership: false,
               membershipWarning: false,
@@ -1873,9 +1885,10 @@ test.describe('Основные e2e сценарии', () => {
       for (const screen of SCREEN_CHECKS) {
         await page.goto(screen.path)
         if (screen.testId === 'home-screen') {
+          await expect(page.getByTestId('home-screen')).toBeVisible()
           await expect(
             page.getByRole('heading', { name: 'Главная' }),
-          ).toBeVisible()
+          ).toHaveCount(0)
         } else {
           await expect(page.getByTestId(screen.testId)).toBeVisible()
         }

@@ -310,6 +310,10 @@ internal static class BotInternalEndpoints
             {
                 ["currentMembership"] = ["Текущий абонемент уже оплачен."]
             }),
+            BotApiError.SingleVisitRestoreConflict => Results.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["attendanceMarks"] = ["Разовое посещение не восстановлено из-за последующих изменений абонемента."]
+            }),
             _ => Results.Problem(
                 title: "TemporaryBackendError",
                 detail: "Temporary backend error.",

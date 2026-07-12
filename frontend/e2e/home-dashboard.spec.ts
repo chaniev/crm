@@ -30,8 +30,17 @@ const HEAD_COACH_SESSION = {
 
 test.describe('Home dashboard', () => {
   test('renders shared shell, active navigation and empty state', async ({ page }) => {
+    let attendanceGroupsCalls = 0
     await mockHomeApi(page, {
       expiringMemberships: { items: [] },
+      async onAttendanceGroups(route) {
+        attendanceGroupsCalls += 1
+        await fulfillJson(route, 200, {
+          groups: [],
+          today: '2026-07-12',
+          maxTrainingDate: '2026-07-12',
+        })
+      },
     })
 
     await page.goto('/')
@@ -53,12 +62,18 @@ test.describe('Home dashboard', () => {
     await expect(
       shellNavigation.getByRole('button', { name: 'Посещения' }),
     ).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Главная' })).toHaveCount(0)
+    await expect(page.getByRole('tab', { name: 'Посещения' })).toHaveAttribute('aria-selected', 'true')
+    await expect.poll(() => attendanceGroupsCalls).toBeGreaterThan(0)
+    const groupsCallsBeforeSwitch = attendanceGroupsCalls
+    await page.getByRole('tab', { name: /Абонементы/ }).click()
     await expect(page.getByText('Абонементы требуют внимания')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Посещения' })).toBeVisible()
-    await expect(page.getByText('Абонементы не требуют внимания.')).toBeVisible()
+    await expect(page.getByText('С абонементами всё в порядке')).toBeVisible()
     await expect(
       page.getByText('Нет истекших, скоро истекающих или неоплаченных абонементов.'),
     ).toBeVisible()
+    await page.getByRole('tab', { name: 'Посещения' }).click()
+    await expect.poll(() => attendanceGroupsCalls).toBe(groupsCallsBeforeSwitch)
     await expectNoHorizontalScroll(page)
   })
 
@@ -69,6 +84,8 @@ test.describe('Home dashboard', () => {
 
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
+
+    await page.getByRole('tab', { name: /Абонементы/ }).click()
 
     const sideNavigation = page.locator(
       'nav.app-shell__side-nav[aria-label="Основная навигация"]',
@@ -111,6 +128,8 @@ test.describe('Home dashboard', () => {
 
     await page.goto('/')
 
+    await page.getByRole('tab', { name: /Абонементы/ }).click()
+
     const loading = page.getByText('Загружаем абонементы...')
     const refresh = page.getByRole('button', { name: 'Обновить', exact: true })
 
@@ -119,7 +138,7 @@ test.describe('Home dashboard', () => {
 
     continueLoad?.()
     await expect(loading).toBeHidden()
-    await expect(page.getByText('Абонементы не требуют внимания.')).toBeVisible()
+    await expect(page.getByText('С абонементами всё в порядке')).toBeVisible()
   })
 
   test('renders data state and keeps refresh button available', async ({ page }) => {
@@ -158,6 +177,7 @@ test.describe('Home dashboard', () => {
     })
 
     await page.goto('/')
+    await page.getByRole('tab', { name: /Абонементы/ }).click()
 
     await expect(page.getByTestId('home-expiring-memberships-list')).toBeVisible()
     await expect(page.getByTestId('home-client-card-client-1')).toBeVisible()
@@ -204,6 +224,7 @@ test.describe('Home dashboard', () => {
     })
 
     await page.goto('/')
+    await page.getByRole('tab', { name: /Абонементы/ }).click()
     const refresh = page.getByRole('button', { name: 'Обновить', exact: true })
 
     await expect(refresh).toBeEnabled()
@@ -231,6 +252,7 @@ test.describe('Home dashboard', () => {
     })
 
     await page.goto('/')
+    await page.getByRole('tab', { name: /Абонементы/ }).click()
 
     await expect(page.getByText('Список не загрузился')).toBeVisible()
     await expect(page.getByText(/CRM API временно недоступен/)).toBeVisible()
@@ -238,13 +260,18 @@ test.describe('Home dashboard', () => {
     shouldFail = false
     await page.getByRole('button', { name: 'Повторить' }).click()
 
-    await expect(page.getByText('Абонементы не требуют внимания.')).toBeVisible()
+    await expect(page.getByText('С абонементами всё в порядке')).toBeVisible()
   })
 })
 
 type MockHomeApiOptions = {
   expiringMemberships?: unknown
   onExpiringMemberships?: (
+    route: Parameters<Page['route']>[1] extends (route: infer T) => unknown
+      ? T
+      : never,
+  ) => Promise<void>
+  onAttendanceGroups?: (
     route: Parameters<Page['route']>[1] extends (route: infer T) => unknown
       ? T
       : never,
@@ -287,7 +314,15 @@ async function mockHomeApi(page: Page, options: MockHomeApiOptions) {
     }
 
     if (pathname === '/api/attendance/groups' && method === 'GET') {
-      await fulfillJson(route, 200, { items: [] })
+      if (options.onAttendanceGroups) {
+        await options.onAttendanceGroups(route)
+        return
+      }
+      await fulfillJson(route, 200, {
+        groups: [],
+        today: '2026-07-12',
+        maxTrainingDate: '2026-07-12',
+      })
       return
     }
 

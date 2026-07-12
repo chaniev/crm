@@ -13,28 +13,42 @@ public sealed record SaveAttendanceCommand(
     Guid GroupId,
     DateOnly TrainingDate,
     Guid MarkedByUserId,
+    string ActorLogin,
+    AttendanceAuditContext AuditContext,
     IReadOnlyList<AttendanceMarkCommand> Marks);
+
+public sealed record AttendanceAuditContext(
+    string Source = "Web",
+    string? MessengerPlatform = null,
+    string? MessengerPlatformUserIdHash = null);
 
 public sealed record AttendanceMarkCommand(
     Guid ClientId,
-    bool IsPresent);
+    AttendanceState State);
 
 public enum AttendanceBatchMutationError
 {
     None = 0,
     GroupMissing = 1,
     InvalidRequest = 2,
-    ClientOutsideGroup = 3
+    ClientOutsideGroup = 3,
+    TrainingDateInFuture = 4,
+    SingleVisitRestoreConflict = 5
 }
 
 public sealed record AttendanceEntryChangeResult(
     Guid AttendanceId,
     Guid ClientId,
-    bool? PreviousIsPresent,
-    bool CurrentIsPresent,
+    AttendanceState PreviousState,
+    AttendanceState CurrentState,
     bool WasCreated);
 
 public sealed record AttendanceSingleVisitWriteOffResult(
+    Guid ClientId,
+    ClientMembershipSnapshotResult PreviousMembership,
+    ClientMembershipSnapshotResult CurrentMembership);
+
+public sealed record AttendanceSingleVisitRestoreResult(
     Guid ClientId,
     ClientMembershipSnapshotResult PreviousMembership,
     ClientMembershipSnapshotResult CurrentMembership);
@@ -44,6 +58,7 @@ public sealed record AttendanceBatchSaveResult(
     DateOnly TrainingDate,
     IReadOnlyList<AttendanceEntryChangeResult> Changes,
     IReadOnlyList<AttendanceSingleVisitWriteOffResult> SingleVisitWriteOffs,
+    IReadOnlyList<AttendanceSingleVisitRestoreResult> SingleVisitRestores,
     IReadOnlyList<Guid> InvalidClientIds);
 
 public readonly record struct AttendanceBatchMutationResult(

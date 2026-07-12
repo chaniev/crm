@@ -374,6 +374,57 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
         return SingleVisitWriteOffResult.Success(previousMembership, currentMembershipSnapshot);
     }
 
+    public async Task<SingleVisitRestoreResult> RestoreSingleVisitAsync(
+        Guid clientId,
+        RestoreSingleVisitCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (clientId == Guid.Empty ||
+            command.ChangedByUserId == Guid.Empty ||
+            command.ExpectedSaleId == Guid.Empty ||
+            command.ExpectedWriteOffMembershipId == Guid.Empty)
+        {
+            return SingleVisitRestoreResult.Failure(SingleVisitRestoreStatus.InvalidRequest);
+        }
+
+        var currentMembership = await LoadCurrentMembershipAsync(clientId, cancellationToken);
+        if (currentMembership is null ||
+            currentMembership.Id != command.ExpectedWriteOffMembershipId ||
+            currentMembership.SaleId != command.ExpectedSaleId ||
+            currentMembership.MembershipType != MembershipType.SingleVisit ||
+            !currentMembership.SingleVisitUsed ||
+            currentMembership.ChangeReason != ClientMembershipChangeReason.SingleVisitWriteOff)
+        {
+            return SingleVisitRestoreResult.Failure(SingleVisitRestoreStatus.Conflict);
+        }
+
+        var previousMembership = MapMembershipSnapshot(currentMembership);
+        var now = DateTimeOffset.UtcNow;
+        await ReplaceCurrentMembershipAsync(
+            currentMembership,
+            CreateMembership(
+                clientId,
+                currentMembership.SaleId,
+                currentMembership.MembershipType,
+                currentMembership.PurchaseDate,
+                currentMembership.ExpirationDate,
+                currentMembership.PaymentAmount,
+                currentMembership.IsPaid,
+                false,
+                currentMembership.PaidByUserId,
+                currentMembership.PaidAt,
+                ClientMembershipChangeReason.SingleVisitRestore,
+                command.ChangedByUserId,
+                now),
+            now,
+            cancellationToken);
+
+        var restoredMembership = (await LoadDetailsRequiredAsync(clientId, cancellationToken)).CurrentMembership
+            ?? throw new InvalidOperationException($"Current membership for client '{clientId}' was not found after single-visit restore.");
+
+        return SingleVisitRestoreResult.Success(previousMembership, restoredMembership);
+    }
+
     public async Task<ClientMembershipRefundMutationResult> RegisterRefundAsync(
         Guid clientId,
         RegisterClientMembershipRefundCommand command,
@@ -553,14 +604,17 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext) : IClie
         Guid clientId,
         CancellationToken cancellationToken)
     {
-        return await dbContext.ClientMemberships
+        var memberships = await dbContext.ClientMemberships
             .AsNoTracking()
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.Refunds)
             .Where(membership => membership.ClientId == clientId)
+            .ToListAsync(cancellationToken);
+
+        return memberships
             .OrderByDescending(membership => membership.ValidFrom)
             .ThenByDescending(membership => membership.CreatedAt)
-            .ToListAsync(cancellationToken);
+            .ToList();
     }
 
     private async Task<ClientMembership?> LoadCurrentMembershipAsync(

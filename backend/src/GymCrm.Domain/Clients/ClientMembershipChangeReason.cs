@@ -6,5 +6,6 @@ public enum ClientMembershipChangeReason
     Renewal = 2,
     Correction = 3,
     PaymentUpdate = 4,
-    SingleVisitWriteOff = 5
+    SingleVisitWriteOff = 5,
+    SingleVisitRestore = 6
 }

@@ -1,49 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Badge, Group, Stack } from '@mantine/core'
+import { IconUsers, IconUsersGroup } from '@tabler/icons-react'
 import {
-  Avatar,
-  Badge,
-  Group,
-  Paper,
-  Select,
-  Stack,
-  Switch,
-  Text,
-  TextInput,
-  Tooltip,
-} from '@mantine/core'
-import {
-  IconCheck,
-  IconCreditCardOff,
-  IconUsers,
-  IconUsersGroup,
-} from '@tabler/icons-react'
-import {
-  buildClientPhotoUrl,
   getAttendanceGroupClients,
   getAttendanceGroups,
   saveAttendanceMarks,
   type AttendanceClient,
   type AttendanceGroup,
-  type AttendanceRosterResponse,
+  type AttendanceState,
   type AuthenticatedUser,
 } from '../../lib/api'
 import { formatGroupSchedule } from '../../lib/groupSchedule'
 import {
   EmptyState,
   ErrorState,
-  CompactFilterPanel,
   LoadingState,
   PageLayout,
   PageSection,
   RefreshButton,
   SectionHeader,
-  type CompactFilterItem,
 } from '../shared/ux'
-import { showAppNotification } from '../shared/notifications'
+import { AttendanceClientRow } from './AttendanceClientRow'
+import { AttendanceContextControls } from './AttendanceContextControls'
+import { AttendanceProgress } from './AttendanceProgress'
+import type { AttendanceClientRowState } from './types'
 
-type AttendanceScreenProps = {
-  user: AuthenticatedUser
-}
+type AttendanceScreenProps = { user: AuthenticatedUser }
+
 export function AttendanceScreen({ user }: AttendanceScreenProps) {
   return (
     <PageLayout data-testid="attendance-screen" title="Посещения">
@@ -52,22 +35,24 @@ export function AttendanceScreen({ user }: AttendanceScreenProps) {
   )
 }
 
-type AttendanceWorkspaceProps = {
-  user: AuthenticatedUser
-}
+type AttendanceWorkspaceProps = { user: AuthenticatedUser }
 
 export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
   const [groups, setGroups] = useState<AttendanceGroup[]>([])
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [groupsError, setGroupsError] = useState<string | null>(null)
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
-  const [trainingDate, setTrainingDate] = useState(() => formatDateInputValue())
-  const [roster, setRoster] = useState<AttendanceRosterResponse | null>(null)
+  const [trainingDate, setTrainingDate] = useState('')
+  const [today, setToday] = useState('')
+  const [maxTrainingDate, setMaxTrainingDate] = useState('')
+  const [rows, setRows] = useState<Record<string, AttendanceClientRowState>>({})
   const [rosterLoading, setRosterLoading] = useState(false)
+  const [rosterLoaded, setRosterLoaded] = useState(false)
   const [rosterError, setRosterError] = useState<string | null>(null)
-  const [pendingClientIds, setPendingClientIds] = useState<Record<string, boolean>>(
-    {},
-  )
+  const [refreshVersion, setRefreshVersion] = useState(0)
+  const contextVersionRef = useRef(0)
+  const actionVersionsRef = useRef<Record<string, number>>({})
+  const contextKeyRef = useRef('')
 
   useEffect(() => {
     const controller = new AbortController()
@@ -75,319 +60,216 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
     async function loadGroups() {
       setGroupsLoading(true)
       setGroupsError(null)
-
       try {
         const response = await getAttendanceGroups(controller.signal)
-
-        if (controller.signal.aborted) {
-          return
-        }
-
-        setGroups(response)
-        setSelectedGroupId((currentGroupId) => {
-          if (currentGroupId && response.some((group) => group.id === currentGroupId)) {
-            return currentGroupId
-          }
-
-          return response[0]?.id ?? null
-        })
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return
-        }
-
-        setGroups([])
-        setGroupsError(
-          error instanceof Error
-            ? error.message
-            : 'Не удалось загрузить доступные группы для посещений.',
+        if (controller.signal.aborted) return
+        setGroups(response.groups)
+        setTrainingDate((current) => current || response.today)
+        setToday(response.today)
+        setMaxTrainingDate(response.maxTrainingDate)
+        setSelectedGroupId((current) =>
+          current && response.groups.some((group) => group.id === current)
+            ? current
+            : response.groups[0]?.id ?? null,
         )
+      } catch (error) {
+        if (controller.signal.aborted) return
+        setGroups([])
+        setGroupsError(error instanceof Error ? error.message : 'Не удалось загрузить доступные группы для посещений.')
       } finally {
-        if (!controller.signal.aborted) {
-          setGroupsLoading(false)
-        }
+        if (!controller.signal.aborted) setGroupsLoading(false)
       }
     }
 
     void loadGroups()
-
     return () => controller.abort()
   }, [])
 
   useEffect(() => {
-    if (!selectedGroupId) {
-      setRoster(null)
+    if (!selectedGroupId || !trainingDate) {
+      setRows({})
+      setRosterLoaded(false)
       setRosterError(null)
-      setRosterLoading(false)
       return
     }
 
-    const rosterGroupId = selectedGroupId
     const controller = new AbortController()
+    const contextVersion = ++contextVersionRef.current
+    const contextKey = `${selectedGroupId}:${trainingDate}`
+    const isContextChange = contextKeyRef.current !== contextKey
+    contextKeyRef.current = contextKey
+    if (isContextChange) {
+      actionVersionsRef.current = {}
+      setRows({})
+      setRosterLoaded(false)
+    }
 
     async function loadRoster() {
       setRosterLoading(true)
       setRosterError(null)
-
       try {
         const response = await getAttendanceGroupClients(
-          rosterGroupId,
+          selectedGroupId!,
           trainingDate,
           controller.signal,
         )
-
-        if (controller.signal.aborted) {
-          return
-        }
-
-        setRoster(response)
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return
-        }
-
-        setRoster(null)
-        setRosterError(
-          error instanceof Error
-            ? error.message
-            : 'Не удалось загрузить клиентов группы на выбранную дату.',
+        if (controller.signal.aborted || contextVersion !== contextVersionRef.current) return
+        setTrainingDate(response.trainingDate)
+        setToday(response.today)
+        setMaxTrainingDate(response.maxTrainingDate)
+        setRows((current) =>
+          isContextChange
+            ? buildRowState(response.clients)
+            : mergeManualRefresh(current, response.clients),
         )
+        setRosterLoaded(true)
+      } catch (error) {
+        if (controller.signal.aborted || contextVersion !== contextVersionRef.current) return
+        setRows({})
+        setRosterLoaded(false)
+        setRosterError(error instanceof Error ? error.message : 'Не удалось загрузить клиентов группы на выбранную дату.')
       } finally {
-        if (!controller.signal.aborted) {
-          setRosterLoading(false)
-        }
+        if (!controller.signal.aborted && contextVersion === contextVersionRef.current) setRosterLoading(false)
       }
     }
 
     void loadRoster()
-
     return () => controller.abort()
-  }, [selectedGroupId, trainingDate])
+  }, [selectedGroupId, trainingDate, refreshVersion])
 
-  async function handleRefreshRoster() {
-    if (!selectedGroupId) {
-      return
-    }
+  async function saveClientState(clientId: string, attemptedState: AttendanceState) {
+    if (!selectedGroupId || !trainingDate) return
+    const contextKey = `${selectedGroupId}:${trainingDate}`
+    const actionVersion = (actionVersionsRef.current[clientId] ?? 0) + 1
+    actionVersionsRef.current[clientId] = actionVersion
 
-    setRosterLoading(true)
-    setRosterError(null)
-
-    try {
-      const response = await getAttendanceGroupClients(selectedGroupId, trainingDate)
-      setRoster(response)
-    } catch (error) {
-      setRosterError(
-        error instanceof Error
-          ? error.message
-          : 'Не удалось обновить список клиентов группы.',
-      )
-    } finally {
-      setRosterLoading(false)
-    }
-  }
-
-  async function handleToggleAttendance(client: AttendanceClient, isPresent: boolean) {
-    if (!selectedGroupId) {
-      return
-    }
-
-    setPendingClientIds((current) => ({
-      ...current,
-      [client.id]: true,
-    }))
-    setRoster((currentRoster) =>
-      currentRoster
-        ? {
-            ...currentRoster,
-            clients: currentRoster.clients.map((item) =>
-              item.id === client.id
-                ? {
-                    ...item,
-                    isPresent,
-                  }
-                : item,
-            ),
-          }
-        : currentRoster,
-    )
+    setRows((current) => updateRow(current, clientId, (row) => ({
+      ...row,
+      displayedState: attemptedState,
+      saveState: 'pending',
+      attemptedState,
+      errorMessage: null,
+    })))
 
     try {
-      await saveAttendanceMarks(selectedGroupId, {
+      const response = await saveAttendanceMarks(selectedGroupId, {
         trainingDate,
-        attendanceMarks: [
-          {
-            clientId: client.id,
-            isPresent,
-          },
-        ],
+        attendanceMarks: [{ clientId, state: attemptedState }],
       })
-
-      const refreshedRoster = await getAttendanceGroupClients(
-        selectedGroupId,
-        trainingDate,
-      )
-      setRoster(refreshedRoster)
+      if (contextKeyRef.current !== contextKey || actionVersionsRef.current[clientId] !== actionVersion) return
+      const authoritativeState = response.attendanceMarks.find((mark) => mark.clientId === clientId)?.state
+      if (!authoritativeState) throw new Error('Сервер не вернул сохраненное состояние.')
+      setMaxTrainingDate(response.maxTrainingDate)
+      setToday(response.today)
+      setRows((current) => updateRow(current, clientId, (row) => ({
+        ...row,
+        displayedState: authoritativeState,
+        persistedState: authoritativeState,
+        saveState: 'saved',
+        attemptedState: null,
+        errorMessage: null,
+      })))
+      void refreshRosterAfterSave(selectedGroupId, trainingDate, contextKey)
     } catch (error) {
-      try {
-        const refreshedRoster = await getAttendanceGroupClients(
-          selectedGroupId,
-          trainingDate,
-        )
-        setRoster(refreshedRoster)
-      } catch {
-        setRosterError('Не удалось синхронизировать отметки посещения.')
-      }
-
-      showAppNotification({
-        id: `attendance-save-error-${client.id}`,
-        title: 'Посещение не сохранено',
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Не удалось сохранить отметку посещения.',
-        color: 'red',
-      })
-    } finally {
-      setPendingClientIds((current) => {
-        const nextState = { ...current }
-        delete nextState[client.id]
-        return nextState
-      })
+      if (contextKeyRef.current !== contextKey || actionVersionsRef.current[clientId] !== actionVersion) return
+      setRows((current) => updateRow(current, clientId, (row) => ({
+        ...row,
+        saveState: 'failed',
+        attemptedState,
+        errorMessage: error instanceof Error ? error.message : 'Не удалось сохранить отметку.',
+      })))
     }
   }
 
-  function handleResetFilters() {
-    setSelectedGroupId(groups[0]?.id ?? null)
-    setTrainingDate(formatDateInputValue())
+  async function refreshRosterAfterSave(groupId: string, date: string, contextKey: string) {
+    try {
+      const response = await getAttendanceGroupClients(groupId, date)
+      if (contextKeyRef.current !== contextKey) return
+      setRows((current) => mergeRefreshedRows(current, response.clients))
+      setMaxTrainingDate(response.maxTrainingDate)
+      setToday(response.today)
+    } catch {
+      // The saved state remains authoritative; a later manual refresh can retry derived fields.
+    }
   }
 
-  const groupOptions = groups.map((group) => ({
-    value: group.id,
-    label: group.name,
-  }))
-  const selectedGroup =
-    groups.find((group) => group.id === selectedGroupId) ?? null
-  const filterItems = [
-    {
-      key: 'selectedGroupId',
-      label: 'Группа',
-      render: () => (
-        <Select
-          data={groupOptions}
-          label="Группа"
-          onChange={setSelectedGroupId}
-          placeholder="Выберите группу"
-          searchable
-          value={selectedGroupId}
-        />
-      ),
-    },
-    {
-      key: 'trainingDate',
-      label: 'Дата тренировки',
-      render: () => (
-        <TextInput
-          label="Дата тренировки"
-          onChange={(event) => setTrainingDate(event.currentTarget.value)}
-          type="date"
-          value={trainingDate}
-        />
-      ),
-    },
-  ] satisfies CompactFilterItem[]
+  function changeContext(nextGroupId: string | null, nextDate: string) {
+    const nextKey = nextGroupId && nextDate ? `${nextGroupId}:${nextDate}` : ''
+    if (nextKey !== contextKeyRef.current) {
+      contextKeyRef.current = nextKey
+      contextVersionRef.current += 1
+      actionVersionsRef.current = {}
+      setRows({})
+      setRosterLoaded(false)
+      setRosterError(null)
+    }
+    setSelectedGroupId(nextGroupId)
+    setTrainingDate(nextDate)
+  }
+
+  const selectedGroup = groups.find((group) => group.id === selectedGroupId) ?? null
+  const rowList = Object.values(rows)
+  const markedCount = rowList.filter((row) => row.displayedState !== 'Unmarked').length
+  const hasPendingSave = rowList.some((row) => row.saveState === 'pending')
 
   return (
     <Stack data-testid="attendance-workspace" gap="var(--page-section-gap)">
-      <Group justify="flex-end">
-        <RefreshButton
-          label="Обновить посещения"
-          loading={rosterLoading && Boolean(roster)}
-          onClick={handleRefreshRoster}
-        />
-      </Group>
-
-      {groupsError ? (
-        <PageSection>
-          <ErrorState
-            message={groupsError}
-            title="Группы для посещений не загрузились"
-          />
-        </PageSection>
-      ) : null}
-
-      {groupsLoading ? (
-        <PageSection>
-          <LoadingState label="Загружаем доступные группы..." />
-        </PageSection>
-      ) : null}
-
+      {groupsError ? <PageSection><ErrorState message={groupsError} title="Группы для посещений не загрузились" /></PageSection> : null}
+      {groupsLoading ? <PageSection><LoadingState label="Загружаем доступные группы..." /></PageSection> : null}
       {!groupsLoading && !groupsError && groups.length === 0 ? (
         <PageSection>
           <EmptyState
-            description={
-              user.role === 'Coach'
-                ? 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'
-                : 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'
-            }
+            description={user.role === 'Coach' ? 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.' : 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'}
             icon={<IconUsersGroup size={24} />}
-            title={
-              user.role === 'Coach'
-                ? 'Назначенные группы отсутствуют'
-                : 'Доступные группы пока отсутствуют'
-            }
+            title={user.role === 'Coach' ? 'Назначенные группы отсутствуют' : 'Доступные группы пока отсутствуют'}
           />
         </PageSection>
       ) : null}
 
       {!groupsLoading && !groupsError && groups.length > 0 ? (
-        <CompactFilterPanel
-          className="attendance-filter-toolbar"
-          data-testid="attendance-toolbar"
-          onReset={handleResetFilters}
-          primary={filterItems}
+        <AttendanceContextControls
+          groups={groups}
+          maxTrainingDate={maxTrainingDate}
+          onGroupChange={(groupId) => changeContext(groupId, trainingDate)}
+          onTrainingDateChange={(value) => {
+            if (!value || value <= maxTrainingDate) changeContext(selectedGroupId, value)
+          }}
+          selectedGroupId={selectedGroupId}
+          trainingDate={trainingDate}
+          today={today}
         />
       ) : null}
 
       {!groupsLoading && !groupsError && selectedGroup ? (
-        <PageSection>
+        <PageSection className="attendance-roster-section">
           <Stack gap="lg">
             <SectionHeader
-              actions={(
-                <Badge color="sand" radius="xl" size="lg" variant="light">
-                  Дата: {formatDateLabel(trainingDate)}
-                </Badge>
-              )}
+              actions={<Badge color="sand" radius="xl" variant="light">{formatDateLabel(trainingDate)}</Badge>}
               description={getSelectedGroupDescription(selectedGroup)}
-              title={`Клиенты группы ${selectedGroup.name}`}
+              title={selectedGroup.name}
             />
-
-            {rosterError ? (
-              <ErrorState
-                message={rosterError}
-                title="Список клиентов не загрузился"
+            <Group justify="space-between" wrap="wrap">
+              <AttendanceProgress marked={markedCount} total={rowList.length} />
+              <RefreshButton
+                disabled={hasPendingSave}
+                label="Обновить список"
+                loading={rosterLoading && rosterLoaded}
+                onClick={() => setRefreshVersion((current) => current + 1)}
               />
+            </Group>
+            {rosterError ? <ErrorState message={rosterError} title="Список клиентов не загрузился" /> : null}
+            {rosterLoading && !rosterLoaded ? <LoadingState label="Загружаем состав группы..." /> : null}
+            {!rosterLoading && !rosterError && rosterLoaded && rowList.length === 0 ? (
+              <EmptyState description="Состав группы на эту дату пуст." icon={<IconUsers size={24} />} title="В выбранной группе пока нет клиентов" />
             ) : null}
-
-            {rosterLoading && !roster ? (
-              <LoadingState label="Загружаем состав группы..." />
-            ) : null}
-
-            {!rosterLoading && !rosterError && roster && roster.clients.length === 0 ? (
-              <EmptyState
-                description="Состав группы на эту дату пуст. Как только клиент появится в группе, его можно будет отметить на этом экране."
-                icon={<IconUsers size={24} />}
-                title="В выбранной группе пока нет клиентов"
-              />
-            ) : null}
-
-            {roster ? (
-              <Stack data-testid="attendance-roster" gap="md">
-                {roster.clients.map((client) => (
-                  <AttendanceClientCard
-                    client={client}
-                    key={client.id}
-                    onToggle={handleToggleAttendance}
-                    pending={Boolean(pendingClientIds[client.id])}
+            {rosterLoaded ? (
+              <Stack data-testid="attendance-roster" gap="sm">
+                {rowList.map((row) => (
+                  <AttendanceClientRow
+                    key={row.client.id}
+                    onChange={(state) => void saveClientState(row.client.id, state)}
+                    onRetry={() => row.attemptedState && void saveClientState(row.client.id, row.attemptedState)}
+                    row={row}
                   />
                 ))}
               </Stack>
@@ -399,173 +281,63 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
   )
 }
 
-type AttendanceClientCardProps = {
-  client: AttendanceClient
-  pending: boolean
-  onToggle: (client: AttendanceClient, isPresent: boolean) => Promise<void>
+function buildRowState(clients: AttendanceClient[]): Record<string, AttendanceClientRowState> {
+  return Object.fromEntries(clients.map((client) => [client.id, {
+    client,
+    displayedState: client.state,
+    persistedState: client.state,
+    saveState: 'idle' as const,
+    attemptedState: null,
+    errorMessage: null,
+  }]))
 }
 
-function AttendanceClientCard({
-  client,
-  pending,
-  onToggle,
-}: AttendanceClientCardProps) {
-  const photoUrl =
-    client.photo && client.id
-      ? buildClientPhotoUrl(
-          client.id,
-          client.photo.uploadedAt ?? client.photo.path ?? 'attendance',
-        )
-      : null
-  const statusLabel = client.isProfessional
-    ? 'Льготный оплаченный статус'
-    : client.membershipWarning
-    ? 'Есть предупреждение по абонементу'
-    : client.hasActivePaidMembership
-      ? 'Отметка доступна на выбранную дату'
-      : 'Нужна проверка статуса абонемента'
-
-  return (
-    <Paper
-      className="list-row-card attendance-client-card"
-      data-testid={`attendance-client-card-${client.id}`}
-      radius="24px"
-      withBorder
-    >
-      <div className="attendance-client-row">
-        <Group align="flex-start" gap="md" wrap="nowrap">
-          <Avatar
-            className="attendance-client-avatar"
-            name={client.fullName}
-            radius="xl"
-            size={56}
-            src={photoUrl}
-          />
-
-          <Stack className="attendance-client-main" gap={10}>
-            <div>
-              <Text fw={700}>{client.fullName}</Text>
-              <Text c="dimmed" size="sm">
-                {statusLabel}
-              </Text>
-            </div>
-
-            {client.groups.length > 0 ? (
-              <Group gap="xs" wrap="wrap">
-                {client.groups.map((group) => (
-                  <Badge color="brand.1" key={group.id} radius="xl" variant="light">
-                    {group.name}
-                  </Badge>
-                ))}
-              </Group>
-            ) : null}
-
-            <Group gap="xs" wrap="wrap">
-              {client.isProfessional ? (
-                <Badge color="blue" radius="xl" variant="light">
-                  Профессионал
-                </Badge>
-              ) : null}
-
-              {client.membershipWarning ? (
-                <Badge color="yellow" radius="xl" variant="light">
-                  Проблема с абонементом
-                </Badge>
-              ) : (
-                <Badge color="teal" radius="xl" variant="light">
-                  Абонемент позволяет отметку
-                </Badge>
-              )}
-
-              {client.hasUnpaidCurrentMembership ? (
-                <Tooltip
-                  label="Текущий абонемент не оплачен, но отметка посещения разрешена."
-                  multiline
-                  withArrow
-                >
-                  <Badge
-                    color="red"
-                    leftSection={<IconCreditCardOff size={14} />}
-                    radius="xl"
-                    variant="light"
-                  >
-                    Не оплачено
-                  </Badge>
-                </Tooltip>
-              ) : null}
-
-              {!client.hasActivePaidMembership && !client.hasUnpaidCurrentMembership ? (
-                <Badge color="orange" radius="xl" variant="light">
-                  Нужна проверка абонемента
-                </Badge>
-              ) : null}
-            </Group>
-
-            {client.membershipWarningMessage ? (
-              <Text c="yellow.8" size="sm">
-                {client.membershipWarningMessage}
-              </Text>
-            ) : null}
-          </Stack>
-        </Group>
-
-        <Switch
-          aria-label={`Отметка посещения для клиента ${client.fullName}`}
-          checked={client.isPresent}
-          className="attendance-client-switch"
-          disabled={pending}
-          label={client.isPresent ? 'Присутствовал' : 'Отсутствовал'}
-          onChange={(event) =>
-            void onToggle(client, event.currentTarget.checked)
-          }
-          size="lg"
-          thumbIcon={
-            client.isPresent ? <IconCheck size={12} stroke={3} /> : undefined
-          }
-        />
-      </div>
-    </Paper>
-  )
+function updateRow(
+  rows: Record<string, AttendanceClientRowState>,
+  clientId: string,
+  update: (row: AttendanceClientRowState) => AttendanceClientRowState,
+) {
+  const row = rows[clientId]
+  return row ? { ...rows, [clientId]: update(row) } : rows
 }
 
-function formatDateInputValue(date = new Date()) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+function mergeRefreshedRows(
+  rows: Record<string, AttendanceClientRowState>,
+  clients: AttendanceClient[],
+) {
+  const refreshed = new Map(clients.map((client) => [client.id, client]))
+  return Object.fromEntries(Object.entries(rows).map(([clientId, row]) => {
+    const client = refreshed.get(clientId)
+    if (!client) return [clientId, row]
+    return [clientId, { ...row, client: { ...client, state: row.persistedState } }]
+  }))
+}
 
-  return `${year}-${month}-${day}`
+function mergeManualRefresh(
+  rows: Record<string, AttendanceClientRowState>,
+  clients: AttendanceClient[],
+) {
+  const next = buildRowState(clients)
+  for (const [clientId, row] of Object.entries(rows)) {
+    if (row.saveState === 'pending' || row.saveState === 'failed') {
+      const refreshedClient = next[clientId]?.client
+      next[clientId] = refreshedClient
+        ? { ...row, client: { ...refreshedClient, state: row.persistedState } }
+        : row
+    }
+  }
+  return next
 }
 
 function formatDateLabel(value: string) {
-  if (!value) {
-    return 'Дата не выбрана'
-  }
-
   const [year, month, day] = value.split('-')
-  if (!year || !month || !day) {
-    return value
-  }
-
-  return `${day}.${month}.${year}`
+  return year && month && day ? `${day}.${month}.${year}` : value
 }
 
 function getSelectedGroupDescription(group: AttendanceGroup) {
   const details: string[] = []
-
-  if (group.clientCount !== undefined) {
-    details.push(`${group.clientCount} клиентов`)
-  }
-
-  if (group.trainingStartTime) {
-    details.push(`Старт ${group.trainingStartTime}`)
-  }
-
-  if (group.weekdays && typeof group.durationMinutes === 'number') {
-    details.push(formatGroupSchedule(group.weekdays, group.durationMinutes))
-  }
-
-  return (
-    details.join(', ') ||
-    'Список клиентов и отметки посещения на выбранную дату.'
-  )
+  if (group.clientCount !== undefined) details.push(`${group.clientCount} клиентов`)
+  if (group.trainingStartTime) details.push(`Старт ${group.trainingStartTime}`)
+  if (group.weekdays && typeof group.durationMinutes === 'number') details.push(formatGroupSchedule(group.weekdays, group.durationMinutes))
+  return details.join(', ') || 'Список клиентов и отметки посещения на выбранную дату.'
 }

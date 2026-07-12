@@ -63,7 +63,7 @@ test.describe('Мобильный сценарий посещений трене
   test('Coach попадает на экран посещений и отмечает клиента в назначенной группе', async ({
     page,
   }) => {
-    let attendanceMarked = false
+    let attendanceState = 'Unmarked'
     let savedAttendancePayload: Record<string, unknown> | null = null
 
     await mockApi(page, async ({ method, pathname, route, searchParams }) => {
@@ -86,7 +86,9 @@ test.describe('Мобильный сценарий посещений трене
 
       if (pathname === '/api/attendance/groups' && method === 'GET') {
         await fulfillJson(route, 200, {
-          items: [assignedGroup],
+          groups: [assignedGroup],
+          today: FIXED_TRAINING_DATE,
+          maxTrainingDate: FIXED_TRAINING_DATE,
         })
         return true
       }
@@ -98,7 +100,7 @@ test.describe('Мобильный сценарий посещений трене
         const requestedTrainingDate =
           searchParams.get('trainingDate') ?? FIXED_TRAINING_DATE
 
-        await fulfillJson(route, 200, buildRosterPayload(requestedTrainingDate, attendanceMarked))
+        await fulfillJson(route, 200, buildRosterPayload(requestedTrainingDate, attendanceState))
         return true
       }
 
@@ -112,9 +114,18 @@ test.describe('Мобильный сценарий посещений трене
 
         savedAttendancePayload =
           route.request().postDataJSON() as Record<string, unknown>
-        attendanceMarked = true
+        const requestPayload = savedAttendancePayload as {
+          AttendanceMarks?: Array<{ State?: string }>
+        }
+        attendanceState = requestPayload.AttendanceMarks?.[0]?.State ?? attendanceState
 
-        await fulfillJson(route, 200, {})
+        await fulfillJson(route, 200, {
+          groupId: GROUP_ID,
+          trainingDate: FIXED_TRAINING_DATE,
+          today: FIXED_TRAINING_DATE,
+          maxTrainingDate: FIXED_TRAINING_DATE,
+          attendanceMarks: [{ clientId: CLIENT_ID, state: attendanceState }],
+        })
         return true
       }
 
@@ -160,7 +171,7 @@ test.describe('Мобильный сценарий посещений трене
     ).toHaveCount(0)
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
-    await expect(page.getByText(`Клиенты группы ${assignedGroup.name}`)).toBeVisible()
+    await expect(page.getByRole('heading', { name: assignedGroup.name })).toBeVisible()
     await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
     await expect(page.getByText('Проблема с абонементом')).toBeVisible()
     await expect(page.getByText('Не оплачено')).toBeVisible()
@@ -175,21 +186,14 @@ test.describe('Мобильный сценарий посещений трене
     await expect(professionalCard).not.toContainText('Не оплачено')
     await expect(professionalCard).not.toContainText('Проблема с абонементом')
 
-    await expect(page.getByTestId('attendance-toolbar').getByLabel('Дата тренировки')).toHaveCount(0)
-    await page.getByTestId('attendance-toolbar').getByRole('button', { name: 'Фильтры' }).click()
-
     const trainingDateInput = page.getByLabel('Дата тренировки')
+    await expect(trainingDateInput).toBeVisible()
     await trainingDateInput.fill(FIXED_TRAINING_DATE)
-    await page.keyboard.press('Escape')
 
-    await expect(page.getByText('Дата: 18.04.2026')).toBeVisible()
+    await expect(page.getByText('18.04.2026', { exact: true })).toBeVisible()
 
-    const attendanceToggle = page.getByLabel(
-      `Отметка посещения для клиента ${CLIENT_FULL_NAME}`,
-    )
-
-    await expect(attendanceToggle).not.toBeChecked()
-    await attendanceToggle.click()
+    const clientCard = page.getByTestId(`attendance-client-card-${CLIENT_ID}`)
+    await clientCard.getByText('Был', { exact: true }).click()
 
     await expect
       .poll(() => savedAttendancePayload)
@@ -198,25 +202,42 @@ test.describe('Мобильный сценарий посещений трене
         AttendanceMarks: [
           {
             ClientId: CLIENT_ID,
-            IsPresent: true,
+            State: 'Present',
           },
         ],
       })
 
-    await expect(attendanceToggle).toBeChecked()
-    await expect(page.getByText('Присутствовал')).toBeVisible()
+    await expect(clientCard.getByText('Сохранено')).toBeVisible()
+    await expect(page.getByText('Отмечено 1 из 2')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Следующая дата' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Следующая дата' })).toHaveAttribute('title', 'Будущие даты недоступны')
+
+    await clientCard.getByText('Не был', { exact: true }).click()
+    await expect.poll(() => savedAttendancePayload).toMatchObject({
+      AttendanceMarks: [{ ClientId: CLIENT_ID, State: 'Absent' }],
+    })
+    await expect(clientCard.getByRole('radio', { name: 'Не был' })).toBeChecked()
+
+    await clientCard.getByText('Не отмечено', { exact: true }).click()
+    await expect.poll(() => savedAttendancePayload).toMatchObject({
+      AttendanceMarks: [{ ClientId: CLIENT_ID, State: 'Unmarked' }],
+    })
+    await expect(clientCard.getByRole('radio', { name: 'Не отмечено' })).toBeChecked()
+    await expect(page.getByText('Отмечено 0 из 2')).toBeVisible()
   })
 })
 
-function buildRosterPayload(trainingDate: string, isPresent: boolean) {
+function buildRosterPayload(trainingDate: string, state: string) {
   return {
     groupId: GROUP_ID,
     trainingDate,
-    items: [
+    today: FIXED_TRAINING_DATE,
+    maxTrainingDate: FIXED_TRAINING_DATE,
+    clients: [
       {
         id: CLIENT_ID,
         fullName: CLIENT_FULL_NAME,
-        isPresent,
+        state,
         hasActivePaidMembership: false,
         hasUnpaidCurrentMembership: true,
         membershipWarning: true,
@@ -233,7 +254,7 @@ function buildRosterPayload(trainingDate: string, isPresent: boolean) {
       {
         id: PROFESSIONAL_CLIENT_ID,
         fullName: PROFESSIONAL_CLIENT_FULL_NAME,
-        isPresent: false,
+        state: 'Unmarked',
         isProfessional: true,
         professionalComment: 'Сборная',
         hasActivePaidMembership: true,

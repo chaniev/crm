@@ -162,7 +162,7 @@ const GROUPS_RESPONSE = {
 const SCHEDULE_GROUPS_RESPONSE = GROUPS_RESPONSE
 
 const ATTENDANCE_GROUPS_RESPONSE = {
-  items: [
+  groups: [
     {
       id: 'group-1',
       name: 'Группа 7: вечерний поток с длинным названием',
@@ -172,16 +172,20 @@ const ATTENDANCE_GROUPS_RESPONSE = {
       clientCount: 1,
     },
   ],
+  today: '2026-04-18',
+  maxTrainingDate: '2026-04-18',
 } as const
 
 const ATTENDANCE_ROSTER_RESPONSE = {
   groupId: 'group-1',
   trainingDate: '2026-04-18',
-  items: [
+  today: '2026-04-18',
+  maxTrainingDate: '2026-04-18',
+  clients: [
     {
       id: 'client-1',
       fullName: 'Александра Константинопольская-Северная',
-      isPresent: false,
+      state: 'Unmarked',
       hasActivePaidMembership: false,
       hasUnpaidCurrentMembership: true,
       membershipWarning: true,
@@ -293,8 +297,8 @@ const MANAGEMENT_ROUTES = [
     path: '/',
     screenTestId: 'home-screen',
     navLabel: 'Главная',
-    expectedPageTitle: 'Главная',
-    expectedControls: ['Обновить'],
+    expectedPageTitle: null,
+    expectedControls: ['Обновить список'],
     checkSharedEdges: true,
   },
   {
@@ -372,9 +376,9 @@ const COACH_ROUTES = [
     path: '/',
     screenTestId: 'home-screen',
     navLabel: 'Главная',
-    expectedPageTitle: 'Главная',
-    expectedControls: ['Обновить посещения'],
-    expectedFilterToolbars: 1,
+    expectedPageTitle: null,
+    expectedControls: ['Обновить список'],
+    expectedFilterToolbars: 0,
   },
   {
     path: '/clients',
@@ -393,6 +397,7 @@ const MOBILE_BOTTOM_NAVIGATION_SELECTOR =
 const MOBILE_MENU_BREAKPOINT = 768
 
 const VIEWPORTS = [
+  { width: 320, height: 780 },
   { width: 390, height: 844 },
   { width: 393, height: 852 },
   { width: 402, height: 874 },
@@ -430,6 +435,9 @@ for (const viewport of VIEWPORTS) {
         }
         if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
           await expectScheduleOverflowContract(page)
+        }
+        if (viewport.width === 320 && route.path === '/') {
+          await expectAttendance320Contract(page)
         }
         await expectNoHorizontalScroll(page)
       }
@@ -606,8 +614,13 @@ async function expectNoServiceIntro(page: Page) {
   await expect(page.getByText(/Фильтры:\s+\d+/)).toHaveCount(0)
 }
 
-async function expectRoutePageTitle(page: Page, title: string) {
+async function expectRoutePageTitle(page: Page, title: string | null) {
   const main = page.locator('main')
+
+  if (title === null) {
+    await expect(main.getByRole('heading', { level: 1 })).toHaveCount(0)
+    return
+  }
   const heading = main.getByRole('heading', { level: 1, name: title })
 
   await expect(heading).toBeVisible()
@@ -860,6 +873,38 @@ async function expectNoHorizontalScroll(page: Page) {
   )
 
   expect(overflowingElements).toEqual([])
+}
+
+async function expectAttendance320Contract(page: Page) {
+  const group = page.getByTestId('attendance-group-select')
+  const date = page.getByTestId('attendance-date-input')
+  const today = page.getByRole('button', { name: 'Сегодня' })
+  for (const control of [group, date, today]) {
+    const box = await control.boundingBox()
+    expect(box?.height).toBeGreaterThanOrEqual(44)
+  }
+
+  const card = page.getByTestId('attendance-client-card-client-1')
+  const radios = card.getByRole('radio')
+  await expect(radios).toHaveCount(3)
+  const boxes = await Promise.all([0, 1, 2].map((index) => radios.nth(index).boundingBox()))
+  for (const box of boxes) expect(box?.height).toBeGreaterThanOrEqual(44)
+  expect(boxes[0]!.width).toBeGreaterThan(boxes[1]!.width)
+  expect(Math.abs(boxes[1]!.y - boxes[2]!.y)).toBeLessThanOrEqual(1)
+  expect(boxes[0]!.y + boxes[0]!.height).toBeLessThanOrEqual(boxes[1]!.y + 1)
+  for (const label of ['Не отмечено', 'Был', 'Не был']) {
+    const option = card.getByRole('radio', { name: label, exact: true })
+    const clipping = await option.evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+    }))
+    expect(clipping.scrollWidth).toBeLessThanOrEqual(clipping.clientWidth)
+  }
+
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+  const cardBox = await card.boundingBox()
+  const navBox = await page.getByRole('navigation', { name: 'Мобильная навигация' }).boundingBox()
+  expect(cardBox!.y + cardBox!.height).toBeLessThanOrEqual(navBox!.y + 1)
 }
 
 async function mockApi(

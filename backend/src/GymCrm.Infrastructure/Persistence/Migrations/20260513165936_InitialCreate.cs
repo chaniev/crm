@@ -557,6 +557,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     GroupId = table.Column<Guid>(type: "uuid", nullable: false),
                     TrainingDate = table.Column<DateOnly>(type: "date", nullable: false),
                     IsPresent = table.Column<bool>(type: "boolean", nullable: false),
+                    SingleVisitMembershipSaleId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SingleVisitWriteOffMembershipId = table.Column<Guid>(type: "uuid", nullable: true),
                     MarkedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
                     MarkedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
@@ -564,6 +566,18 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Attendance", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Attendance_ClientMembershipSales_SingleVisitMembershipSaleId",
+                        column: x => x.SingleVisitMembershipSaleId,
+                        principalTable: "ClientMembershipSales",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Attendance_ClientMemberships_SingleVisitWriteOffMembershipId",
+                        column: x => x.SingleVisitWriteOffMembershipId,
+                        principalTable: "ClientMemberships",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Attendance_Clients_ClientId",
                         column: x => x.ClientId,
@@ -720,6 +734,16 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "IX_Attendance_MarkedByUserId",
                 table: "Attendance",
                 column: "MarkedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Attendance_SingleVisitMembershipSaleId",
+                table: "Attendance",
+                column: "SingleVisitMembershipSaleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Attendance_SingleVisitWriteOffMembershipId",
+                table: "Attendance",
+                column: "SingleVisitWriteOffMembershipId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuditLogs_ActionType",

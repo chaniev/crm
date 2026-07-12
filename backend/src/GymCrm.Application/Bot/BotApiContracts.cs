@@ -25,7 +25,8 @@ public enum BotApiError
     IdempotencyConflict = 8,
     CurrentMembershipMissing = 9,
     CurrentMembershipAlreadyPaid = 10,
-    TemporaryFailure = 11
+    TemporaryFailure = 11,
+    SingleVisitRestoreConflict = 12
 }
 
 public sealed record BotApiResult<T>(

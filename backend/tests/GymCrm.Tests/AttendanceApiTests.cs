@@ -2,14 +2,19 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Security;
+using GymCrm.Application.Audit;
+using GymCrm.Application.Attendance;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
+using GymCrm.Infrastructure.Audit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -22,7 +27,7 @@ public class AttendanceApiTests
     // 1) Список доступных групп для отметки: GET /attendance/groups
     // 2) Список клиентов на дату: GET /attendance/groups/{groupId}/clients?trainingDate=yyyy-MM-dd
     // 3) Сохранение/редактирование отметок: POST /attendance/groups/{groupId}
-    // 4) Тело отправки: { trainingDate, attendanceMarks: [{ clientId, isPresent }] }
+    // 4) Тело отправки: { trainingDate, attendanceMarks: [{ clientId, state }] }
 
     [Fact]
     public async Task HeadCoach_can_mark_attendance_edit_it_and_trigger_single_visit_write_off()
@@ -51,7 +56,7 @@ public class AttendanceApiTests
                 assignedGroup.GetProperty("weekdays").EnumerateArray().Select(weekday => weekday.GetInt32()).ToArray());
         }
 
-        var trainingDate = DateTimeOffset.UtcNow.Date;
+        var trainingDate = GetBusinessToday().ToDateTime(TimeOnly.MinValue);
         var trainingDateString = trainingDate.ToString("yyyy-MM-dd");
 
         using var clientsResponse = await client.GetAsync(
@@ -77,7 +82,7 @@ public class AttendanceApiTests
                     new
                     {
                         ClientId = seeded.SingleVisitClientId,
-                        IsPresent = false
+                        State = "Absent"
                     }
                 }
             },
@@ -95,7 +100,7 @@ public class AttendanceApiTests
                     new
                     {
                         ClientId = seeded.SingleVisitClientId,
-                        IsPresent = true
+                        State = "Present"
                     }
                 }
             },
@@ -138,12 +143,12 @@ public class AttendanceApiTests
 
         var markedLog = attendanceAuditEntries.Single(log => log.ActionType == "AttendanceMarked");
         Assert.Equal(
-            $"Пользователь '{seeded.HeadCoachLogin}' отметил посещение клиента 'Разовый Клиент' в группе 'Attendance Group' на дату {trainingDateString}.",
+            $"Пользователь '{seeded.HeadCoachLogin}' изменил посещаемость клиента 'Разовый Клиент' в группе 'Attendance Group' за {trainingDateString}.",
             markedLog.Description);
 
         var updatedLog = attendanceAuditEntries.Single(log => log.ActionType == "AttendanceUpdated");
         Assert.Equal(
-            $"Пользователь '{seeded.HeadCoachLogin}' изменил отметку посещения клиента 'Разовый Клиент' в группе 'Attendance Group' на дату {trainingDateString}.",
+            $"Пользователь '{seeded.HeadCoachLogin}' изменил посещаемость клиента 'Разовый Клиент' в группе 'Attendance Group' за {trainingDateString}.",
             updatedLog.Description);
 
         var writeOffLog = await dbContext.AuditLogs.SingleAsync(log =>
@@ -152,7 +157,7 @@ public class AttendanceApiTests
             log.EntityType == "ClientMembership" &&
             log.CreatedAt >= operationStartedAt);
         Assert.Equal(
-            $"Пользователь '{seeded.HeadCoachLogin}' списал разовое посещение клиента 'Разовый Клиент' после отметки посещения.",
+            $"Пользователь '{seeded.HeadCoachLogin}' списал разовое посещение клиента 'Разовый Клиент'.",
             writeOffLog.Description);
     }
 
@@ -178,7 +183,7 @@ public class AttendanceApiTests
             $"/attendance/groups/{seeded.AssignedGroupId}",
             new
             {
-                TrainingDate = DateTimeOffset.UtcNow.Date.ToString("yyyy-MM-dd"),
+                TrainingDate = GetBusinessToday().ToString("yyyy-MM-dd"),
                 AttendanceMarks = Array.Empty<object>()
             },
             adminSession.CsrfToken);
@@ -193,7 +198,7 @@ public class AttendanceApiTests
         Assert.Equal("Coach", coachSession.User?.Role);
 
         using var forbiddenCoachGroupClients = await coachClient.GetAsync(
-            $"/attendance/groups/{seeded.UnassignedGroupId}/clients?trainingDate={DateTimeOffset.UtcNow.Date:yyyy-MM-dd}");
+            $"/attendance/groups/{seeded.UnassignedGroupId}/clients?trainingDate={GetBusinessToday():yyyy-MM-dd}");
         Assert.Equal(HttpStatusCode.Forbidden, forbiddenCoachGroupClients.StatusCode);
 
         using var forbiddenCoachSave = await PostJsonAsync(
@@ -201,13 +206,13 @@ public class AttendanceApiTests
             $"/attendance/groups/{seeded.UnassignedGroupId}",
             new
             {
-                TrainingDate = DateTimeOffset.UtcNow.Date.ToString("yyyy-MM-dd"),
+                TrainingDate = GetBusinessToday().ToString("yyyy-MM-dd"),
                 AttendanceMarks = new[]
                 {
                     new
                     {
                         ClientId = seeded.SingleVisitClientId,
-                        IsPresent = true
+                        State = "Present"
                     }
                 }
             },
@@ -229,7 +234,7 @@ public class AttendanceApiTests
         var coachSession = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
         Assert.Equal("Coach", coachSession.User?.Role);
 
-        var pastTrainingDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2));
+        var pastTrainingDate = GetBusinessToday().AddDays(-2);
         var pastTrainingDateString = pastTrainingDate.ToString("yyyy-MM-dd");
 
         using var clientsResponse = await client.GetAsync(
@@ -256,7 +261,7 @@ public class AttendanceApiTests
                     new
                     {
                         ClientId = seeded.WarningClientId,
-                        IsPresent = true
+                        State = "Present"
                     }
                 }
             },
@@ -292,7 +297,7 @@ public class AttendanceApiTests
         });
 
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
-        var trainingDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var trainingDate = GetBusinessToday();
         var trainingDateString = trainingDate.ToString("yyyy-MM-dd");
 
         using (var clientsResponse = await client.GetAsync(
@@ -321,7 +326,7 @@ public class AttendanceApiTests
                     new
                     {
                         ClientId = seeded.ProfessionalClientId,
-                        IsPresent = true
+                        State = "Present"
                     }
                 }
             },
@@ -348,11 +353,292 @@ public class AttendanceApiTests
         Assert.False(writeOffAuditExists);
     }
 
+    [Fact]
+    public async Task Tri_state_restore_and_reset_preserve_exact_single_visit_lineage_and_audit()
+    {
+        await using var factory = new AttendanceAppFactory();
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var date = GetBusinessToday();
+        var dateText = date.ToString("yyyy-MM-dd");
+
+        using (var rosterResponse = await client.GetAsync(
+                   $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={dateText}"))
+        {
+            var roster = await ReadJsonElementAsync(rosterResponse);
+            Assert.Equal(dateText, roster.GetProperty("today").GetString());
+            Assert.Equal("Unmarked", FindById(roster.GetProperty("clients"), seeded.SingleVisitClientId).GetProperty("state").GetString());
+        }
+
+        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Present", session.CsrfToken);
+
+        Guid writtenOffMembershipId;
+        Guid saleId;
+        DateTimeOffset markedAt;
+        int membershipVersionCount;
+        int auditCount;
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var attendance = await db.Attendance.SingleAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId);
+            Assert.NotNull(attendance.SingleVisitMembershipSaleId);
+            Assert.NotNull(attendance.SingleVisitWriteOffMembershipId);
+            writtenOffMembershipId = attendance.SingleVisitWriteOffMembershipId!.Value;
+            saleId = attendance.SingleVisitMembershipSaleId!.Value;
+            markedAt = attendance.MarkedAt;
+            membershipVersionCount = await db.ClientMemberships.CountAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId);
+            auditCount = await db.AuditLogs.CountAsync();
+        }
+
+        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Present", session.CsrfToken);
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var unchanged = await db.Attendance.SingleAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId);
+            Assert.Equal(markedAt, unchanged.MarkedAt);
+            Assert.Equal(membershipVersionCount, await db.ClientMemberships.CountAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId));
+            Assert.Equal(auditCount, await db.AuditLogs.CountAsync());
+        }
+
+        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Absent", session.CsrfToken);
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var attendance = await db.Attendance.SingleAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId);
+            Assert.False(attendance.IsPresent);
+            Assert.Null(attendance.SingleVisitMembershipSaleId);
+            Assert.Null(attendance.SingleVisitWriteOffMembershipId);
+
+            var writtenOff = await db.ClientMemberships.SingleAsync(candidate => candidate.Id == writtenOffMembershipId);
+            Assert.Equal(saleId, writtenOff.SaleId);
+            Assert.NotNull(writtenOff.ValidTo);
+            var restored = await db.ClientMemberships.SingleAsync(candidate =>
+                candidate.ClientId == seeded.SingleVisitClientId && candidate.ValidTo == null);
+            Assert.Equal(saleId, restored.SaleId);
+            Assert.False(restored.SingleVisitUsed);
+            Assert.Equal(ClientMembershipChangeReason.SingleVisitRestore, restored.ChangeReason);
+            Assert.Contains(await db.AuditLogs.ToListAsync(), log => log.ActionType == "ClientMembershipSingleVisitRestored");
+        }
+
+        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Unmarked", session.CsrfToken);
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.False(await db.Attendance.AnyAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId));
+            var resetAudit = (await db.AuditLogs.Where(log => log.ActionType == "AttendanceUpdated").ToListAsync()).Last();
+            Assert.Contains("\"state\":\"Unmarked\"", resetAudit.NewValueJson);
+        }
+    }
+
+    [Fact]
+    public async Task Invalid_or_future_state_is_rejected_without_side_effects()
+    {
+        await using var factory = new AttendanceAppFactory();
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var today = GetBusinessToday();
+
+        foreach (var invalidState in new[] { "present", "0", "1", "2", "3" })
+        {
+            using var invalid = await PostStateAsync(
+                client, seeded.AssignedGroupId, seeded.SingleVisitClientId, today.ToString("yyyy-MM-dd"), invalidState, session.CsrfToken);
+            Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
+            var invalidProblem = await ReadJsonElementAsync(invalid);
+            Assert.True(invalidProblem.GetProperty("errors").TryGetProperty("attendanceMarks", out _));
+        }
+
+        using var future = await PostStateAsync(
+            client, seeded.AssignedGroupId, seeded.SingleVisitClientId, today.AddDays(1).ToString("yyyy-MM-dd"), "Present", session.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, future.StatusCode);
+        var futureProblem = await ReadJsonElementAsync(future);
+        Assert.True(futureProblem.GetProperty("errors").TryGetProperty("trainingDate", out _));
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.False(await db.Attendance.AnyAsync());
+        Assert.False(await db.AuditLogs.AnyAsync(log => log.EntityType == "Attendance"));
+    }
+
+    [Fact]
+    public async Task Mandatory_audit_failure_rolls_back_attendance_and_membership_on_relational_provider()
+    {
+        await using var factory = new AttendanceAppFactory(useSqlite: true, throwAudit: true);
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PostStateAsync(
+            client,
+            seeded.AssignedGroupId,
+            seeded.SingleVisitClientId,
+            GetBusinessToday().ToString("yyyy-MM-dd"),
+            "Present",
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.False(await db.Attendance.AnyAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId));
+        var memberships = await db.ClientMemberships
+            .Where(candidate => candidate.ClientId == seeded.SingleVisitClientId)
+            .ToListAsync();
+        var membership = Assert.Single(memberships);
+        Assert.False(membership.SingleVisitUsed);
+        Assert.Null(membership.ValidTo);
+        Assert.False(await db.AuditLogs.AnyAsync(log =>
+            log.EntityType == AttendanceAuditContract.AttendanceEntityType ||
+            log.EntityType == AttendanceAuditContract.MembershipEntityType));
+    }
+
+    [Fact]
+    public async Task Restore_conflict_rolls_back_entire_relational_batch()
+    {
+        await using var factory = new AttendanceAppFactory(useSqlite: true);
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var date = GetBusinessToday().ToString("yyyy-MM-dd");
+        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, date, "Present", session.CsrfToken);
+
+        Guid provenanceSaleId;
+        Guid provenanceMembershipId;
+        Guid conflictingMembershipId;
+        int auditCount;
+        await using (var mutationScope = factory.Services.CreateAsyncScope())
+        {
+            var db = mutationScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var attendance = await db.Attendance.SingleAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId);
+            provenanceSaleId = attendance.SingleVisitMembershipSaleId!.Value;
+            provenanceMembershipId = attendance.SingleVisitWriteOffMembershipId!.Value;
+            var writtenOff = await db.ClientMemberships.SingleAsync(candidate => candidate.Id == provenanceMembershipId);
+            var now = DateTimeOffset.UtcNow;
+            writtenOff.ValidTo = now;
+            conflictingMembershipId = Guid.NewGuid();
+            db.ClientMemberships.Add(new ClientMembership
+            {
+                Id = conflictingMembershipId,
+                ClientId = writtenOff.ClientId,
+                SaleId = writtenOff.SaleId,
+                MembershipType = writtenOff.MembershipType,
+                PurchaseDate = writtenOff.PurchaseDate,
+                ExpirationDate = writtenOff.ExpirationDate,
+                PaymentAmount = writtenOff.PaymentAmount,
+                IsPaid = writtenOff.IsPaid,
+                SingleVisitUsed = writtenOff.SingleVisitUsed,
+                PaidByUserId = writtenOff.PaidByUserId,
+                PaidAt = writtenOff.PaidAt,
+                ChangeReason = ClientMembershipChangeReason.Correction,
+                ChangedByUserId = seeded.HeadCoachId,
+                ValidFrom = now,
+                CreatedAt = now
+            });
+            await db.SaveChangesAsync();
+            auditCount = await db.AuditLogs.CountAsync();
+        }
+
+        using var conflict = await PostJsonAsync(
+            client,
+            $"/attendance/groups/{seeded.AssignedGroupId}",
+            new
+            {
+                TrainingDate = date,
+                AttendanceMarks = new object[]
+                {
+                    new { ClientId = seeded.ProfessionalClientId, State = "Present" },
+                    new { ClientId = seeded.SingleVisitClientId, State = "Absent" }
+                }
+            },
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, conflict.StatusCode);
+
+        await using var verificationScope = factory.Services.CreateAsyncScope();
+        var verificationDb = verificationScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.False(await verificationDb.Attendance.AnyAsync(candidate => candidate.ClientId == seeded.ProfessionalClientId));
+        var unchangedAttendance = await verificationDb.Attendance.SingleAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId);
+        Assert.True(unchangedAttendance.IsPresent);
+        Assert.Equal(provenanceSaleId, unchangedAttendance.SingleVisitMembershipSaleId);
+        Assert.Equal(provenanceMembershipId, unchangedAttendance.SingleVisitWriteOffMembershipId);
+        var currentMembership = await verificationDb.ClientMemberships.SingleAsync(candidate =>
+            candidate.ClientId == seeded.SingleVisitClientId && candidate.ValidTo == null);
+        Assert.Equal(conflictingMembershipId, currentMembership.Id);
+        Assert.Equal(auditCount, await verificationDb.AuditLogs.CountAsync());
+    }
+
+    [Fact]
+    public async Task Attendance_service_rejects_ambient_relational_transaction()
+    {
+        await using var factory = new AttendanceAppFactory(useSqlite: true);
+        var seeded = await SeedAttendanceDataAsync(factory);
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var service = scope.ServiceProvider.GetRequiredService<IAttendanceService>();
+        await using var transaction = await db.Database.BeginTransactionAsync();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveAsync(
+            new SaveAttendanceCommand(
+                seeded.AssignedGroupId,
+                GetBusinessToday(),
+                seeded.HeadCoachId,
+                seeded.HeadCoachLogin,
+                new AttendanceAuditContext(),
+                [new AttendanceMarkCommand(seeded.SingleVisitClientId, AttendanceState.Present)]),
+            CancellationToken.None));
+
+        Assert.Contains("ambient database transaction", exception.Message);
+        Assert.False(await db.Attendance.AnyAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId));
+    }
+
+    private static async Task SaveStateAsync(
+        HttpClient client,
+        Guid groupId,
+        Guid clientId,
+        string date,
+        string state,
+        string csrfToken)
+    {
+        using var response = await PostStateAsync(client, groupId, clientId, date, state, csrfToken);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.IsSuccessStatusCode, $"Expected success, got {response.StatusCode}. Body: {body}");
+    }
+
+    private static Task<HttpResponseMessage> PostStateAsync(
+        HttpClient client,
+        Guid groupId,
+        Guid clientId,
+        string date,
+        string state,
+        string csrfToken) =>
+        PostJsonAsync(client, $"/attendance/groups/{groupId}", new
+        {
+            TrainingDate = date,
+            AttendanceMarks = new[] { new { ClientId = clientId, State = state } }
+        }, csrfToken);
+
     private static async Task<SeededAttendanceData> SeedAttendanceDataAsync(AttendanceAppFactory factory)
     {
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
         var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+        await dbContext.Database.EnsureCreatedAsync();
 
         var now = DateTimeOffset.UtcNow;
         var sharedPassword = "stage7-password";
@@ -503,8 +789,8 @@ public class AttendanceApiTests
             warningClient.Id,
             coach.Id,
             MembershipType.Monthly,
-            DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-2).Date),
-            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1).Date),
+            GetBusinessToday().AddMonths(-2),
+            GetBusinessToday().AddDays(-1),
             1200m,
             isPaid: false,
             singleVisitUsed: false,
@@ -515,7 +801,7 @@ public class AttendanceApiTests
             singleVisitClient.Id,
             coach.Id,
             MembershipType.SingleVisit,
-            DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            GetBusinessToday(),
             null,
             500m,
             isPaid: true,
@@ -527,7 +813,7 @@ public class AttendanceApiTests
             professionalClient.Id,
             coach.Id,
             MembershipType.SingleVisit,
-            DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            GetBusinessToday(),
             null,
             500m,
             isPaid: true,
@@ -817,7 +1103,7 @@ public class AttendanceApiTests
                 "membershipExpirationDate");
             if (DateOnly.TryParse(expirationDate, out var parsedExpirationDate))
             {
-                if (parsedExpirationDate < DateOnly.FromDateTime(DateTime.UtcNow.Date))
+                if (parsedExpirationDate < GetBusinessToday())
                 {
                     return true;
                 }
@@ -825,6 +1111,12 @@ public class AttendanceApiTests
         }
 
         return false;
+    }
+
+    private static DateOnly GetBusinessToday()
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
+        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timeZone).DateTime);
     }
 
     private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);
@@ -847,7 +1139,7 @@ public class AttendanceApiTests
         Guid SingleVisitClientId,
         Guid ProfessionalClientId);
 
-    private sealed class AttendanceAppFactory : WebApplicationFactory<Program>
+    private sealed class AttendanceAppFactory(bool useSqlite = false, bool throwAudit = false) : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -868,17 +1160,64 @@ public class AttendanceApiTests
             {
                 services.RemoveAll<DbContextOptions<GymCrmDbContext>>();
                 services.RemoveAll<GymCrmDbContext>();
+                services.RemoveAll<IDbContextOptionsConfiguration<GymCrmDbContext>>();
+                if (useSqlite)
+                {
+                    var sqliteProvider = new ServiceCollection()
+                        .AddEntityFrameworkSqlite()
+                        .BuildServiceProvider();
+                    var connection = new SqliteConnection("Data Source=:memory:");
+                    connection.Open();
+                    connection.CreateFunction<string?, string?>("btrim", value => value?.Trim(), isDeterministic: true);
+                    connection.CreateFunction<string?, int>("cardinality", value =>
+                        string.IsNullOrWhiteSpace(value)
+                            ? 0
+                            : JsonDocument.Parse(value).RootElement.GetArrayLength(),
+                        isDeterministic: true);
+                    var bootstrapOptions = new DbContextOptionsBuilder<GymCrmDbContext>()
+                        .UseSqlite(connection)
+                        .UseInternalServiceProvider(sqliteProvider)
+                        .Options;
+                    using (var bootstrapContext = new GymCrmDbContext(bootstrapOptions))
+                    {
+                        bootstrapContext.Database.EnsureCreated();
+                    }
 
-                var databaseName = $"gym-crm-attendance-tests-{Guid.NewGuid():N}";
-                var entityFrameworkProvider = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .BuildServiceProvider();
+                    services.AddSingleton(connection);
+                    services.AddDbContext<GymCrmDbContext>((serviceProvider, options) =>
+                        options
+                            .UseSqlite(serviceProvider.GetRequiredService<SqliteConnection>())
+                            .UseInternalServiceProvider(sqliteProvider));
+                }
+                else
+                {
+                    var databaseName = $"gym-crm-attendance-tests-{Guid.NewGuid():N}";
+                    var entityFrameworkProvider = new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .BuildServiceProvider();
 
-                services.AddDbContext<GymCrmDbContext>(options =>
-                    options
-                        .UseInMemoryDatabase(databaseName)
-                        .UseInternalServiceProvider(entityFrameworkProvider));
+                    services.AddDbContext<GymCrmDbContext>(options =>
+                        options
+                            .UseInMemoryDatabase(databaseName)
+                            .UseInternalServiceProvider(entityFrameworkProvider));
+                }
+
+                if (throwAudit)
+                {
+                    services.RemoveAll<IAuditLogService>();
+                    services.AddScoped<IAuditLogService, ThrowingAuditLogService>();
+                }
             });
         }
+    }
+
+    private sealed class ThrowingAuditLogService(GymCrmDbContext dbContext) : IAuditLogService
+    {
+        private readonly AuditLogService inner = new(dbContext);
+
+        public Task WriteAsync(AuditLogEntry entry, CancellationToken cancellationToken = default) =>
+            entry.EntityType is "Attendance" or "ClientMembership"
+                ? throw new InvalidOperationException("Mandatory attendance audit failed for test.")
+                : inner.WriteAsync(entry, cancellationToken);
     }
 }
