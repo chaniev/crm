@@ -305,7 +305,7 @@ const MANAGEMENT_ROUTES = [
     path: '/schedule',
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
-    expectedPageTitle: 'Расписание',
+    expectedPageTitle: null,
     expectedControls: ['Обновить'],
     expectedFilterToolbars: 0,
     checkSharedEdges: true,
@@ -367,7 +367,7 @@ const COACH_ROUTES = [
     path: '/schedule',
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
-    expectedPageTitle: 'Расписание',
+    expectedPageTitle: null,
     expectedControls: ['Обновить'],
     expectedFilterToolbars: 0,
     checkScheduleOverflow: true,
@@ -767,7 +767,7 @@ async function expectClientsSharedLayoutContract(page: Page) {
 }
 
 async function expectScheduleOverflowContract(page: Page) {
-  await expect(page.getByTestId('schedule-filters')).toBeVisible()
+  await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
   const boardBox = await page.getByTestId('schedule-board').boundingBox()
 
   expect(boardBox).not.toBeNull()

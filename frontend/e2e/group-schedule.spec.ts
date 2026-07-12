@@ -273,10 +273,17 @@ test.describe('Расписание групповых занятий', () => {
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
     await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Расписание' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Расписание' })).toHaveCount(0)
     await expect(page.getByText('Обновлено автоматически')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
     await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
+    const filterActions = page
+      .getByTestId('schedule-filter-panel')
+      .locator('.compact-filter-panel__actions')
+      .getByRole('button')
+    await expect(filterActions).toHaveCount(2)
+    await expect(filterActions.nth(0)).toHaveAccessibleName('Обновить')
+    await expect(filterActions.nth(1)).toHaveAccessibleName('Сбросить')
     await expect(page.getByRole('button', { name: 'Расписание' })).toHaveAttribute(
       'aria-current',
       'page',

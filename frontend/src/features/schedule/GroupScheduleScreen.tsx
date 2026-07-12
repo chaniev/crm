@@ -207,28 +207,11 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
       data-testid="schedule-screen"
       gap="var(--page-section-gap)"
     >
-      <div className="schedule-screen__filter-row" data-testid="schedule-filters">
-        <h1 className="schedule-screen__title">Расписание</h1>
-        <Group
-          className="schedule-screen__header-actions"
-          gap="sm"
-          justify="flex-end"
-          wrap="nowrap"
-        >
-          <IconButton
-            className="schedule-refresh-button"
-            disabled={loading || refreshing}
-            icon={<IconRefresh size={18} />}
-            label="Обновить"
-            onClick={requestReload}
-            size={42}
-          />
-        </Group>
-      </div>
-
       <ScheduleFiltersToolbar
         filterOptions={filterOptions}
         filters={filters}
+        onRefresh={requestReload}
+        refreshDisabled={loading || refreshing}
         setFilters={setFilters}
       />
 
@@ -301,12 +284,16 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
 type ScheduleFiltersToolbarProps = {
   filterOptions: ScheduleFilterOptions
   filters: ScheduleFilters
+  onRefresh: () => void
+  refreshDisabled: boolean
   setFilters: Dispatch<SetStateAction<ScheduleFilters>>
 }
 
 function ScheduleFiltersToolbar({
   filterOptions,
   filters,
+  onRefresh,
+  refreshDisabled,
   setFilters,
 }: ScheduleFiltersToolbarProps) {
   const filterItems = [
@@ -378,6 +365,16 @@ function ScheduleFiltersToolbar({
 
   return (
     <CompactFilterPanel
+      actions={(
+        <IconButton
+          className="schedule-refresh-button"
+          disabled={refreshDisabled}
+          icon={<IconRefresh size={18} />}
+          label="Обновить"
+          onClick={onRefresh}
+          size={42}
+        />
+      )}
       className="schedule-filter-toolbar"
       data-testid="schedule-filter-panel"
       onReset={() => setFilters(EMPTY_SCHEDULE_FILTERS)}
