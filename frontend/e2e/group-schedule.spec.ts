@@ -403,7 +403,10 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-filter-panel').getByLabel('Филиал')).toHaveCount(0)
     await page.getByTestId('schedule-filter-panel').getByRole('button', { name: 'Фильтры' }).click()
     await expect(page.getByRole('combobox', { name: 'Филиал' })).toBeVisible()
+    await selectOption(page, 'Филиал', 'Север')
+    await expect(page.getByRole('button', { name: 'Сбросить' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Применить' })).toBeVisible()
+    await page.getByRole('button', { name: 'Сбросить' }).click()
     await page.getByRole('button', { name: 'Применить' }).click()
     await expect(page.getByRole('combobox', { name: 'Филиал' })).toHaveCount(0)
 
