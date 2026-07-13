@@ -370,6 +370,15 @@ describe('shared UX components', () => {
       expect(await screen.findByLabelText('Поиск')).toBeInTheDocument()
       expect(await screen.findByRole('button', { name: /Сбросить/i })).toBeInTheDocument()
       const applyButton = await screen.findByRole('button', { name: 'Применить' })
+      const sheetActions = document.querySelector<HTMLElement>(
+        '.compact-filter-panel__sheet-actions',
+      )
+
+      expect(sheetActions).not.toBeNull()
+      expect(within(sheetActions!).getAllByRole('button').map((button) => button.textContent)).toEqual([
+        'Применить',
+        'Сбросить',
+      ])
 
       fireEvent.click(applyButton)
 

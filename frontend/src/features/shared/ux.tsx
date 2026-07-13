@@ -534,18 +534,18 @@ export function CompactFilterPanel({
           </div>
           <div className="compact-filter-panel__sheet-actions">
             <Button
+              onClick={() => setSheetOpened(false)}
+              type="button"
+            >
+              {applyLabel}
+            </Button>
+            <Button
               leftSection={<IconFilterOff size={16} />}
               onClick={handleReset}
               type="button"
               variant="secondary"
             >
               {resetLabel}
-            </Button>
-            <Button
-              onClick={() => setSheetOpened(false)}
-              type="button"
-            >
-              {applyLabel}
             </Button>
           </div>
         </Drawer>
