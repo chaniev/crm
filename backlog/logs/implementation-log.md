@@ -604,3 +604,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan localizes tri-state attendance, exact single-visit restoration provenance, atomic attendance/membership audit, shared internal bot compatibility, permission-aware tabs, row-level retry, state preservation and six-width responsive regression coverage.
+
+# 2026-07-13 20:22
+
+## Moved to implementation
+- /backlog/implementation/TASK-065-groups-overview-compact.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-065-groups-overview-compact.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is a low-risk additive full-stack task prepared for `feature/TASK-065-groups-overview-compact`, with a separate backend summary contract, independent frontend loading/error states, UI-designer responsive/accessibility review, automated >50-row aggregation protection and Playwright geometry barriers.

@@ -1,7 +1,13 @@
 # TASK-065: Сделать обзор групп и шапку экрана компактными
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-13 20:22
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-065-groups-overview-compact.plan.md
+- implementation_branch: feature/TASK-065-groups-overview-compact
 
 ## Goal
 На desktop и mobile экран `Группы` быстро подводит пользователя к списку групп: ключевые показатели собраны в компактный обзор, главное действие заметно, а заголовок и элементы управления не перекрываются навигацией.
