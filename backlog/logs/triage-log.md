@@ -786,3 +786,24 @@
 - needs-clarification: 1
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-13 20:14
+
+## Processed inbox files
+- 2026-07-13.md
+
+## Created tasks
+- /backlog/tasks-ready/TASK-065-groups-overview-compact.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Связанные закрытые `TASK-044`, `TASK-046`, `TASK-048` и активная `TASK-056` проверены и не считаются дубликатами: они покрывают общие cleanup/style/layout/filter patterns, но не компактный обзор и корректные агрегаты экрана `Группы`.
+
+## Summary
+- tasks-ready: 1
+- risky: 0
+- needs-clarification: 0
+- updated existing: 0
+- processed files: 1
