@@ -22,7 +22,6 @@ import {
   IconCalendarWeek,
   IconClockHour4,
   IconDeviceFloppy,
-  IconPlus,
   IconUserStar,
   IconUsers,
   IconUsersGroup,
@@ -35,6 +34,7 @@ import {
   getGroup,
   getGroupClients,
   getGroups,
+  getGroupSummary,
   getGroupTypes,
   getHalls,
   getTrainerOptions,
@@ -46,6 +46,7 @@ import {
   type TrainerOption,
   type TrainingGroupDetails,
   type TrainingGroupListItem,
+  type TrainingGroupSummary,
   type UpsertTrainingGroupRequest,
 } from '../../lib/api'
 import {
@@ -69,11 +70,11 @@ import {
   MetricCard,
   PageLayout,
   PageSection,
-  RefreshButton,
   ResponsiveButtonGroup,
   SectionHeader,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
+import { GroupsSummaryBar } from './GroupsSummaryBar'
 
 type GroupsListScreenProps = {
   onCreate: () => void
@@ -108,9 +109,11 @@ export function GroupsListScreen({
   onEdit,
 }: GroupsListScreenProps) {
   const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
-  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [summary, setSummary] = useState<TrainingGroupSummary | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(true)
+  const [summaryError, setSummaryError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
@@ -123,7 +126,6 @@ export function GroupsListScreen({
       try {
         const response = await getGroups({ take: GROUPS_LIST_TAKE }, controller.signal)
         setGroups(response.items)
-        setTotalCount(response.totalCount)
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
@@ -146,52 +148,48 @@ export function GroupsListScreen({
     return () => controller.abort()
   }, [reloadKey])
 
-  const activeGroupsCount = groups.filter((group) => group.isActive).length
-  const staffedGroupsCount = groups.filter((group) => group.trainerCount > 0).length
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadSummary() {
+      setSummaryLoading(true)
+      setSummaryError(null)
+
+      try {
+        setSummary(await getGroupSummary(controller.signal))
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          setSummaryError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить сводку.')
+        }
+      } finally {
+        if (!controller.signal.aborted) setSummaryLoading(false)
+      }
+    }
+
+    void loadSummary()
+    return () => controller.abort()
+  }, [reloadKey])
 
   return (
     <PageLayout
-        actions={(
-          <ResponsiveButtonGroup>
-            <Button
-              color="accent.5"
-              leftSection={<IconPlus size={18} />}
-              onClick={onCreate}
-            >
-              Создать группу
-            </Button>
-            <RefreshButton
-              label="Обновить список"
-              onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-            />
-          </ResponsiveButtonGroup>
-        )}
+      className="groups-screen"
       data-testid="groups-screen"
+      showHeader={false}
       title="Группы"
     >
+      <h1 className="groups-screen__visually-hidden">Группы</h1>
+      <GroupsSummaryBar
+        error={summaryError}
+        loading={summaryLoading}
+        onCreate={onCreate}
+        onRefresh={() => setReloadKey((currentKey) => currentKey + 1)}
+        summary={summary}
+      />
 
-      <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
-        <MetricCard
-          description="Всего тренировочных групп"
-          label="Группы"
-          value={String(totalCount)}
-        />
-        <MetricCard
-          description="Активные тренировочные группы"
-          label="Активные"
-          value={String(activeGroupsCount)}
-        />
-        <MetricCard
-          description="Группы, где уже назначен хотя бы один тренер"
-          label="С тренерами"
-          value={String(staffedGroupsCount)}
-        />
-      </SimpleGrid>
-
-      <PageSection>
-        <Stack gap="lg">
-          <SectionHeader title="Список групп" />
-
+      <section aria-labelledby="groups-list-title" className="groups-list-section">
+        <h2 className="groups-screen__visually-hidden" id="groups-list-title">Список групп</h2>
+        <PageSection variant="plain">
+          <Stack gap="lg">
           {loading ? (
             <LoadingState label="Загружаем список групп..." />
           ) : null}
@@ -281,8 +279,9 @@ export function GroupsListScreen({
               ))}
             </Stack>
           ) : null}
-        </Stack>
-      </PageSection>
+          </Stack>
+        </PageSection>
+      </section>
     </PageLayout>
   )
 }

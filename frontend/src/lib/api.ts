@@ -78,6 +78,7 @@ export type {
   TrainingGroupDetails,
   TrainingGroupListItem,
   TrainingGroupListResponse,
+  TrainingGroupSummary,
   UpdateUserRequest,
   UpsertBranchRequest,
   UpsertClientRequest,
@@ -161,6 +162,7 @@ export {
   getGroup,
   getGroupClients,
   getGroups,
+  getGroupSummary,
   getTrainerOptions,
   updateGroup,
 } from './api/groups'

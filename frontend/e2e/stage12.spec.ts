@@ -1055,7 +1055,7 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.goto('/groups')
-    await page.getByRole('button', { name: 'Создать группу' }).click()
+    await page.getByRole('button', { name: 'Создать', exact: true }).click()
 
     await page.getByLabel('Название группы').fill('Новая тестовая группа')
     await page.getByLabel('Время начала').fill('19:00')
@@ -1175,7 +1175,7 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.goto('/groups')
-    await page.getByRole('button', { name: 'Создать группу' }).click()
+    await page.getByRole('button', { name: 'Создать', exact: true }).click()
     await page.getByLabel('Название группы').fill('Черновик для автообновления')
     await page.getByLabel('Время начала').fill('20:00')
     await page.getByLabel('Длительность').fill('45')
@@ -2005,6 +2005,14 @@ async function mockApi(
 
     if (pathname === '/api/config' && method === 'GET') {
       await fulfillJson(route, 200, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/groups/summary' && method === 'GET') {
+      await fulfillJson(route, 200, {
+        totalCount: 100,
+        activeWithoutTrainerCount: 4,
+      })
       return
     }
 

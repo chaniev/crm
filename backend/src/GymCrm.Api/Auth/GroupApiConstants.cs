@@ -4,6 +4,7 @@ internal static class GroupApiConstants
 {
     public const string RoutePrefix = "/groups";
     public const string ListRoute = "/";
+    public const string SummaryRoute = "/summary";
     public const string TrainerOptionsRoute = "/trainers";
     public const string LegacyTrainerOptionsRoute = "/options/trainers";
     public const string DetailsRoute = "/{id:guid}";

@@ -21,6 +21,124 @@ public class GroupsApiTests
     [Theory]
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]
+    public async Task Group_summary_has_exact_contract_and_is_available_to_manage_groups_roles(string actorRole)
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorLogin = actorRole == "HeadCoach"
+            ? seeded.HeadCoachLogin
+            : seeded.AdministratorLogin;
+        _ = await LoginAsync(client, actorLogin, seeded.SharedPassword);
+
+        using var response = await client.GetAsync("/groups/summary");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(
+            "{\"totalCount\":2,\"activeWithoutTrainerCount\":1}",
+            await response.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task Group_summary_counts_full_dataset_independently_of_list_paging()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var additionalGroups = Enumerable.Range(0, 55)
+                .Select(index => new TrainingGroup
+                {
+                    Id = Guid.NewGuid(),
+                    BranchId = seeded.BranchId,
+                    HallId = seeded.HallOneId,
+                    GroupTypeId = seeded.GroupTypeId,
+                    Name = $"Summary paging group {index:D2}",
+                    TrainingStartTime = new TimeOnly(12, 0),
+                    DurationMinutes = 60,
+                    Weekdays = [1],
+                    IsActive = true,
+                    CreatedAt = seeded.Now.AddMinutes(index + 1),
+                    UpdatedAt = seeded.Now.AddMinutes(index + 1)
+                })
+                .ToArray();
+            dbContext.TrainingGroups.AddRange(additionalGroups);
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var listResponse = await client.GetAsync("/groups?skip=0&take=50");
+        using var summaryResponse = await client.GetAsync("/groups/summary");
+
+        Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+        Assert.Equal(50, (await ReadJsonElementAsync(listResponse)).GetArrayLength());
+        Assert.Equal(HttpStatusCode.OK, summaryResponse.StatusCode);
+        var summary = await ReadJsonElementAsync(summaryResponse);
+        Assert.Equal(57, summary.GetProperty("totalCount").GetInt32());
+        Assert.Equal(56, summary.GetProperty("activeWithoutTrainerCount").GetInt32());
+    }
+
+    [Fact]
+    public async Task Group_summary_counts_only_active_groups_without_trainers_and_returns_zero_for_empty_dataset()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var inactiveWithoutTrainer = await dbContext.TrainingGroups.SingleAsync(group => group.Id == seeded.GroupTwoId);
+            inactiveWithoutTrainer.IsActive = false;
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var semanticResponse = await client.GetAsync("/groups/summary"))
+        {
+            Assert.Equal(HttpStatusCode.OK, semanticResponse.StatusCode);
+            var summary = await ReadJsonElementAsync(semanticResponse);
+            Assert.Equal(2, summary.GetProperty("totalCount").GetInt32());
+            Assert.Equal(0, summary.GetProperty("activeWithoutTrainerCount").GetInt32());
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            dbContext.ClientGroups.RemoveRange(dbContext.ClientGroups);
+            dbContext.GroupTrainers.RemoveRange(dbContext.GroupTrainers);
+            dbContext.TrainingGroups.RemoveRange(dbContext.TrainingGroups);
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var emptyResponse = await client.GetAsync("/groups/summary");
+        Assert.Equal(HttpStatusCode.OK, emptyResponse.StatusCode);
+        Assert.Equal(
+            "{\"totalCount\":0,\"activeWithoutTrainerCount\":0}",
+            await emptyResponse.Content.ReadAsStringAsync());
+    }
+
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("Administrator")]
     public async Task HeadCoach_or_Administrator_can_manage_group_and_assign_trainers(string actorRole)
     {
         await using var factory = new GroupsAppFactory();
@@ -369,6 +487,11 @@ public class GroupsApiTests
         using (var listResponse = await client.GetAsync("/groups"))
         {
             Assert.Equal(HttpStatusCode.Forbidden, listResponse.StatusCode);
+        }
+
+        using (var summaryResponse = await client.GetAsync("/groups/summary"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, summaryResponse.StatusCode);
         }
 
         using (var getResponse = await client.GetAsync($"/groups/{seeded.GroupOneId}"))
