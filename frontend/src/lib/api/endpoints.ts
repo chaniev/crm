@@ -51,6 +51,7 @@ export const API_ENDPOINTS = {
   },
   groups: {
     collection: '/groups',
+    summary: '/groups/summary',
     byId: (groupId: string) => `/groups/${groupId}`,
     trainerOptions: '/groups/options/trainers',
     clients: (groupId: string) => `/groups/${groupId}/clients`,

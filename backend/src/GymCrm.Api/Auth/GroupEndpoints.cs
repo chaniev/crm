@@ -20,6 +20,7 @@ internal static class GroupEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageGroups);
 
         group.MapGet(GroupApiConstants.ListRoute, ListGroupsAsync);
+        group.MapGet(GroupApiConstants.SummaryRoute, GetGroupSummaryAsync);
         group.MapGet(GroupApiConstants.TrainerOptionsRoute, ListTrainerOptionsAsync);
         group.MapGet(GroupApiConstants.LegacyTrainerOptionsRoute, ListTrainerOptionsAsync);
         group.MapGet(GroupApiConstants.DetailsRoute, GetGroupAsync);
@@ -55,6 +56,18 @@ internal static class GroupEndpoints
             .ToArray();
 
         return TypedResults.Ok(response);
+    }
+
+    private static async Task<Ok<GroupSummaryResponse>> GetGroupSummaryAsync(
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var query = dbContext.TrainingGroups.AsNoTracking();
+        var totalCount = await query.CountAsync(cancellationToken);
+        var activeWithoutTrainerCount = await query
+            .CountAsync(trainingGroup => trainingGroup.IsActive && !trainingGroup.Trainers.Any(), cancellationToken);
+
+        return TypedResults.Ok(new GroupSummaryResponse(totalCount, activeWithoutTrainerCount));
     }
 
     private static async Task<Ok<IReadOnlyList<TrainerOptionResponse>>> ListTrainerOptionsAsync(

@@ -14,7 +14,7 @@ Branch rules:
 - stop before code changes if `main` is dirty, the current branch is unclear, or the task branch already exists but does not belong to TASK-065.
 
 ## Goal
-Экран управления группами должен сразу начинаться с одной компактной горизонтальной строки `Всего 128 · Без тренера 4 · Создать группу · Обновить`, после которой без промежуточного заголовка идут строки групп. Видимые заголовки `Группы`, `Обзор групп`, `Список групп` и показатель `Активные` удаляются на desktop и mobile.
+Экран управления группами должен сразу начинаться с одной компактной горизонтальной строки `Всего 100 · Без тренера 4 · Создать · Обновить`, после которой без промежуточного заголовка идут строки групп. Видимые заголовки `Группы`, `Обзор групп`, `Список групп` и показатель `Активные` удаляются на desktop и mobile.
 
 ## Current understanding
 Задача локальная full-stack и имеет низкий риск. Backend сохраняет существующие правила доступа и становится источником достоверных агрегатов; frontend отвечает только за типизированное потребление двух значений и максимально компактный responsive UX. Domain rules, permissions, CRUD групп и назначение тренеров не меняются.
@@ -36,11 +36,12 @@ Branch rules:
 
 ## Final UI decision
 Последние согласованные desktop/mobile макеты имеют приоритет над конфликтующим wording исходной task-карточки:
+- заказчик повторно подтвердил это решение 2026-07-14: финальный вариант содержит только две метрики и не должен возвращать `Активные`, процент или `Всё назначено`;
 - не показывать H1/видимый page title `Группы` в main content; название route остаётся в desktop/mobile navigation;
 - не показывать `Обзор групп`;
 - не показывать `Список групп`;
 - не показывать `Активные`, процент активных или третью метрику;
-- первая строка main content объединяет `Всего`, `Без тренера`, primary action `Создать группу` и icon-refresh `Обновить список`;
+- первая строка main content объединяет `Всего`, `Без тренера`, primary action `Создать` и icon-refresh `Обновить список`;
 - непосредственно после этой строки, без промежуточного заголовка, начинается существующий список групп;
 - desktop и mobile используют одну и ту же информационную иерархию.
 
@@ -56,6 +57,7 @@ UI-review рекомендует вынести сфокусированный p
    - В `GroupApiConstants` добавить локальный маршрут `/summary` до параметризованного `/{id:guid}`.
    - Создать отдельный typed response `GroupSummaryResponse` только с `TotalCount` и `ActiveWithoutTrainerCount`.
    - В `GroupEndpoints` зарегистрировать `GET /groups/summary` внутри существующей группы с `ManageGroups`; не добавлять новую permission или обход авторизации.
+   - Summary считает все группы системы для любого пользователя с `ManageGroups`; дополнительная фильтрация по филиалу, тренеру или membership не применяется, что соответствует текущему scope `GET /groups`.
    - Выполнить агрегирование на полном `TrainingGroups.AsNoTracking()` без `Skip/Take`. Считать `activeWithoutTrainerCount` условием `IsActive && !Trainers.Any()` на стороне БД.
    - Не загружать коллекцию групп в память и не переиспользовать paged `LoadPageAsync` для summary; использовать count/projection запросы, корректно возвращающие нули при пустом наборе.
    - Не менять `GET /groups`, write endpoints, domain entities, schema или migrations.
@@ -78,7 +80,7 @@ UI-review рекомендует вынести сфокусированный p
    - Разметить контейнер как `<section aria-labelledby="groups-summary-title">`, где `groups-summary-title` — реальный visually hidden H2 `Сводка и действия групп`; показатели — один `<dl>` ровно с двумя парами `<dt>/<dd>`: `Всего` и `Без тренера`.
    - Не добавлять видимый heading, card wrapper, shadow, описание, процент, `Активные`, `Всё назначено` или третий показатель.
    - Для `Без тренера` добавить доступное скрытое уточнение `среди активных`, не расширяя видимый текст согласованного макета.
-   - Разместить primary `Создать группу` и icon-refresh в той же строке, что и две метрики, внутри отдельной семантической группы действий.
+   - Разместить primary `Создать` и icon-refresh в той же строке, что и две метрики, внутри отдельной семантической группы действий.
    - Не добавлять `cursor: pointer`, `tabIndex`, `role="button"`, click handlers или фильтрацию по метрикам.
    - Loading/error не должны создавать отдельную вертикальную панель: использовать `—` для недоступных значений и компактный `aria-live` status; список и actions всегда остаются доступны.
 
@@ -93,11 +95,11 @@ UI-review рекомендует вынести сфокусированный p
    - Не менять list rows, empty state, CRUD callbacks или navigation.
 
 7. Встроить actions в summary-строку только на экране групп
-   - Оставить `Создать группу` текстовой primary-кнопкой с текущим accent styling на всех проверяемых ширинах, включая 320 px.
+   - Использовать `Создать` как текстовую primary-кнопку с текущим accent styling на всех проверяемых ширинах, включая 320 px.
    - Удалить actions из `PageLayout` header и заменить высокий mobile `ResponsiveButtonGroup` локальной actions-группой внутри `GroupsSummaryBar`.
    - Реализовать refresh как Mantine `ActionIcon`/эквивалент размером не меньше 44x44 px, с `aria-label="Обновить список"`, `Tooltip` и видимыми hover/focus/disabled/loading states.
-   - Сохранить keyboard order `Создать группу` → `Обновить список`; не обрезать focus ring.
-   - На 320 px убрать декоративный plus-icon из create-action, использовать `nowrap`, `min-width: 0` и компактный horizontal padding; не сокращать и не скрывать видимый label `Создать группу`.
+   - Сохранить keyboard order `Создать` → `Обновить список`; не обрезать focus ring.
+   - На 320 px убрать декоративный plus-icon из create-action, использовать `nowrap`, `min-width: 0` и компактный horizontal padding; не сокращать и не скрывать видимый label `Создать`.
    - Не менять глобальный `RefreshButton` или `ResponsiveButtonGroup`, если локального решения достаточно.
 
 8. Добавить локальные responsive styles
@@ -106,7 +108,8 @@ UI-review рекомендует вынести сфокусированный p
    - Для 320 px использовать grid `max-content max-content minmax(0, 1fr) 44px`, horizontal padding 4–6 px и gap 4 px; с 390 px gap 6–8 px.
    - Summary не является карточкой: без background card, radius и shadow; допустим один нейтральный нижний divider как в согласованном макете.
    - Между нижней границей summary-строки и первой строкой/контейнером списка оставить 8–12 px; отдельный видимый заголовочный уровень не резервировать.
-   - Для 320 px использовать `min-width: 0`, компактные gap/divider и `font-variant-numeric: tabular-nums`; create-action имеет полный `Создать группу`, высоту 44 px, `nowrap`, без plus-icon и с компактным padding, refresh — строго 44x44 px.
+   - Для 320 px использовать `min-width: 0`, компактные gap/divider и `font-variant-numeric: tabular-nums`; create-action имеет полный `Создать`, высоту 44 px, `nowrap`, без plus-icon и с компактным padding, refresh — строго 44x44 px.
+   - Продуктово ожидается не более 100 групп; responsive layout и геометрические тесты должны поддерживать значения summary от `0` до `100` без сокращения и переполнения. Backend не вводит искусственный лимит на агрегат.
    - Не переиспользовать `.compact-summary-strip`: его mobile rules могут переводить содержимое в колонку.
    - Видимый текст метрик должен сохранять контраст не ниже 4.5:1; focus/icon states — не ниже 3:1.
    - Не добавлять отрицательные margin/top offsets и не менять глобальные AppShell/PageLayout offsets скрыто.
@@ -124,8 +127,8 @@ UI-review рекомендует вынести сфокусированный p
    - Геометрически проверить общую горизонтальную полосу: все четыре элемента целиком находятся внутри одного `summaryBox`, разница их вертикальных центров не превышает 3 px, X-порядок строгий `total < withoutTrainer < create < refresh`.
    - Проверить `firstRowTop >= summaryBottom` и gap в диапазоне 8–12 px; между ними нет видимого heading.
    - Добавить negative assertions для main content: нет видимых `Группы`, `Обзор групп`, `Список групп`, `Активные`, процентов и legacy metric cards; navigation label `Группы` остаётся, а accessibility tree содержит скрытые H1/H2 и labelled regions.
-   - Проверить primary/refresh ordering, обе touch targets >=44x44, accessible names, tooltips, keyboard focus ring и длинные 5–7-значные значения.
-   - На всех ширинах, включая 320 px, проверить полный видимый label `Создать группу`; на 320 px plus-icon отсутствует.
+   - Проверить primary/refresh ordering, обе touch targets >=44x44, accessible names, tooltips, keyboard focus ring и граничное ожидаемое значение `100`.
+   - На всех ширинах, включая 320 px, проверить полный видимый label `Создать`; на 320 px plus-icon отсутствует.
    - Проверить, что после прокрутки список не перекрывается mobile bottom navigation.
 
 11. Финальная cross-layer validation
@@ -172,7 +175,8 @@ UI-review рекомендует вынести сфокусированный p
 - Summary is a semantic noninteractive data region combined with a distinct actions group; видимые headings отсутствуют, но реальные visually hidden H1/H2 и `aria-labelledby` обязательны.
 - Visible metric text contrast >=4.5:1; focus/icon state contrast >=3:1; both action touch targets >=44x44 px.
 - No page horizontal scroll, focus-ring clipping or overlap with top/bottom navigation.
-- Normal UI exposes only `Всего`, `Без тренера`, `Создать группу` and refresh before list rows; no other summary label is added.
+- Normal UI exposes only `Всего`, `Без тренера`, `Создать` and refresh before list rows; no other summary label is added.
+- Summary охватывает все группы системы для пользователя с `ManageGroups`, без дополнительного branch/trainer/membership scope.
 - Keep changes local to the groups screen and additive API contract.
 
 ## Out of scope
@@ -213,17 +217,17 @@ UI-review рекомендует вынести сфокусированный p
 - [ ] `cd frontend && npm run test:e2e -- responsive-main-screens.spec.ts`
 - [ ] `cd frontend && npm run test:e2e -- stage12.spec.ts`
 - [ ] Run `group-schedule.spec.ts` if its mocks or `/groups` flow change.
-- [ ] Manual desktop and 320/390/440 px review for empty, populated, large-number, loading and error states.
+- [ ] Manual desktop and 320/390/440 px review for empty, populated, boundary value `100`, loading and error states.
 
 ## Regression barrier
-TASK-065 is not complete until automated tests jointly prove that backend summary counts the complete dataset (including >50 rows), frontend never derives summary from the loaded page, unassigned semantics exclude inactive groups, summary failure does not block list/actions, and Playwright confirms one <=60 px row containing only `Всего`, `Без тренера` and both actions before titleless list rows. Tests must fail if visible `Группы`, `Обзор групп`, `Список групп`, `Активные`, a percentage, wrapping, horizontal overflow, gap outside 8–12 px, hidden heading semantics loss, a sub-44px action or shortening of `Создать группу` returns.
+TASK-065 is not complete until automated tests jointly prove that backend summary counts the complete system dataset available under `ManageGroups` (including >50 rows), frontend never derives summary from the loaded page, unassigned semantics exclude inactive groups, summary failure does not block list/actions, and Playwright confirms one <=60 px row containing only `Всего`, `Без тренера` and both actions before titleless list rows. Tests must fail if visible `Группы`, `Обзор групп`, `Список групп`, `Активные`, a percentage, wrapping, horizontal overflow, gap outside 8–12 px, hidden heading semantics loss, a sub-44px action or shortening of `Создать` returns.
 
 ## Risks
 - Route ordering: `/groups/summary` must not be captured by `/{id:guid}`; registering the constant endpoint explicitly avoids ambiguity.
 - EF translation/count semantics for `!group.Trainers.Any()` must be integration-tested against the real test provider.
 - Existing e2e route mocks may treat the new request as unexpected; update every spec that mounts `/groups`.
 - `PageLayout showHeader={false}` may remove the visible H1 expected by generic responsive tests; update only groups-specific expectations while preserving the navigation label and accessible main name.
-- Long values plus two actions can overflow at 320 px; enforce the compact four-column grid, remove the decorative plus-icon and reduce button padding instead of wrapping or shortening `Создать группу`.
+- Значения до ожидаемого максимума `100` плюс две actions могут быть тесными на 320 px; использовать компактную четырёхколоночную сетку, убрать декоративный plus-icon и уменьшить padding, не перенося и не сокращая `Создать`.
 - Removing visible headings must not leave unnamed regions; use `aria-label`/hidden semantics and automated accessibility assertions.
 - Shared shell overlap may be the true cause rather than local groups layout.
 

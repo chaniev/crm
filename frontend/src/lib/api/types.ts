@@ -719,6 +719,16 @@ export type TrainingGroupListResponse = {
   take: number
 }
 
+export type TrainingGroupSummary = {
+  totalCount: number
+  activeWithoutTrainerCount: number
+}
+
+export type GroupSummaryResponsePayload = {
+  totalCount: number
+  activeWithoutTrainerCount: number
+}
+
 export type TrainingGroupDetails = {
   id: string
   name: string

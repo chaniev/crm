@@ -9,14 +9,28 @@ import type {
   GroupClientResponsePayload,
   GroupClientsResponse,
   GroupResponsePayload,
+  GroupSummaryResponsePayload,
   GroupTrainerOptionPayload,
   GroupsListEnvelopePayload,
   TrainerOption,
   TrainingGroupDetails,
   TrainingGroupListItem,
   TrainingGroupListResponse,
+  TrainingGroupSummary,
   UpsertTrainingGroupRequest,
 } from './types'
+
+export async function getGroupSummary(signal?: AbortSignal) {
+  const payload = await request<GroupSummaryResponsePayload>(
+    API_ENDPOINTS.groups.summary,
+    { signal },
+  )
+
+  return {
+    totalCount: payload.totalCount,
+    activeWithoutTrainerCount: payload.activeWithoutTrainerCount,
+  } satisfies TrainingGroupSummary
+}
 
 export async function getGroups(
   params: {

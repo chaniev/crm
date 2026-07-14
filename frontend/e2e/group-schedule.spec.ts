@@ -542,6 +542,16 @@ async function mockApi(
       return
     }
 
+    if (context.pathname === '/api/groups/summary' && context.method === 'GET') {
+      await fulfillJson(route, 200, {
+        totalCount: groups.length,
+        activeWithoutTrainerCount: groups.filter(
+          (group) => group.isActive && group.trainerIds.length === 0,
+        ).length,
+      })
+      return
+    }
+
     if (context.pathname === '/api/groups/options/trainers' && context.method === 'GET') {
       await fulfillJson(route, 200, trainers)
       return
