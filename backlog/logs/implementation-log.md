@@ -621,3 +621,21 @@
 - skipped: 0
 - plans created: 1
 - note: task was explicitly selected by the user from `/backlog/tasks-ready`; it is a low-risk additive full-stack task prepared for `feature/TASK-065-groups-overview-compact`, with a separate backend summary contract, independent frontend loading/error states, UI-designer responsive/accessibility review, automated >50-row aggregation protection and Playwright geometry barriers.
+
+# 2026-07-13 20:52
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- none
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 0
+- skipped: 0
+- plans created: 0
+- plans updated: 1 (`TASK-065-groups-overview-compact.plan.md`)
+- note: plan aligned with the latest approved desktop/mobile mockups and ui-designer review: no visible `Группы`, `Обзор групп`, `Список групп` or `Активные`; the additive backend summary contains only total and active-without-trainer counts; metrics and both actions share one <=60 px row with full `Создать группу` at 320 px, immediately before titleless list rows; visually hidden H1/H2 preserve accessibility.
