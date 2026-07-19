@@ -639,3 +639,20 @@
 - plans created: 0
 - plans updated: 1 (`TASK-065-groups-overview-compact.plan.md`)
 - note: plan aligned with the latest approved desktop/mobile mockups and ui-designer review: no visible `Группы`, `Обзор групп`, `Список групп` or `Активные`; the additive backend summary contains only total and active-without-trainer counts; metrics and both actions share one <=60 px row with full `Создать группу` at 320 px, immediately before titleless list rows; visually hidden H1/H2 preserve accessibility.
+
+# 2026-07-19 12:29
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-066-attendance-unmarked-default-filter.plan.md
+
+## Skipped tasks
+- TASK-066-attendance-unmarked-default-filter.md - not moved: source task remains in `/backlog/risky`, is medium risk and `Safe for Codex: no`; implementation plan created for explicit review before active implementation selection in branch `feature/TASK-066-attendance-unmarked-default-filter`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan localizes the change to a frontend derived view over the complete backend roster, removes rows only after confirmed save, preserves failed rows and retry, keeps a full-list view, and requires component, Playwright and backend attendance regression barriers.
