@@ -862,3 +862,29 @@
 - needs-clarification: 0
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-19 14:05
+
+## Processed inbox files
+- 2026-07-19.md (archived as `2026-07-19-2.md` because the original processed filename already existed)
+
+## Created tasks
+- /backlog/needs-clarification/TASK-067-missed-training-follow-up.md
+- /backlog/risky/TASK-068-client-comment-audit.md
+- /backlog/risky/TASK-069-membership-comment-audit.md
+- /backlog/risky/TASK-070-membership-catalog.md
+- /backlog/risky/TASK-071-trial-conversion-statistics.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Existing TASK-023 already implements a client note, so the new task is limited to author/time metadata and audit semantics.
+- Existing TASK-026/TASK-037/TASK-038 already implement membership sales statistics by period, trainer and branch; only the new paid-trial and conversion metrics were captured.
+
+## Summary
+- tasks-ready: 0
+- risky: 4
+- needs-clarification: 1
+- updated existing: 0
+- processed files: 1
