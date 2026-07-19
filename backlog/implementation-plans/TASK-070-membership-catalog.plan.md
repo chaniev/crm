@@ -26,21 +26,27 @@ Branch rules:
 - Текущая выдача профессионального статуса ограничена HeadCoach. Это security boundary сохраняется: только HeadCoach создаёт/изменяет и назначает варианты вида `Professional`; Administrator не получает это право через catalog management, purchase или transfer.
 - Перевод клиента сейчас меняет филиал и группы, но не оформляет абонемент. Новый контракт должен включать обязательный `membershipCatalogItemId` и данные индивидуального срока/оплаты, необходимые для атомарной продажи в целевом филиале.
 - Окружение пересоздаётся с нуля. Изменяется начальная схема БД и snapshot, без цепочки миграций для сохранения существующих данных.
+- Согласованы системные behavior kinds: `SingleVisit`, `Term`, `Professional`; прежние `Monthly` и `Yearly` отображаются в `Term`, а индивидуальный срок остаётся данными назначения.
+- Продление всегда создаёт новую продажу через доступный вариант актуального каталога и фиксирует его цену. Коррекция не меняет `MembershipCatalogItemId`, историческую цену или behavior kind; redesign correction вынесен из TASK-070.
+- Перевод принимает catalog item, индивидуальный период, статус оплаты и дату оплаты, деактивирует прежний абонемент и атомарно создаёт новую продажу и единственный текущий абонемент целевого филиала. Для оплаченной продажи дата оплаты обязательна, для неоплаченной отсутствует.
+- Обязательный `ProfessionalComment` переносится в metadata конкретной продажи/назначения `Professional` и не участвует в вычислении привилегий.
+- У администратора ровно один обязательный активный филиал, назначаемый только HeadCoach; смена влияет на текущий access scope и не переписывает историю.
+- В initial seed автоматически создаётся только `Professional` для каждого филиала. Нулевая цена допустима только для `Professional`; `SingleVisit` и `Term` требуют положительную цену.
 - Нужен PostgreSQL DB-level запрет пересекающихся включительных периодов для одинаковых `(BranchId, NormalizedName, Price)`. Предпочтительная реализация — `daterange(AvailableFrom, AvailableTo, '[]')` и exclusion constraint `EXCLUDE USING gist`, с `btree_gist`; точный SQL должен быть проверен на реальном PostgreSQL, не только EF InMemory.
 
-## Architecture decision gate
-До написания тестов зафиксировать contract decision в task/ADR или непосредственно в implementation PR:
+## Architecture decisions — approved
+1. Каталог хранит immutable behavior kind `SingleVisit`, `Term` или `Professional`; `Monthly` и `Yearly` объединяются в `Term`. Behavior snapshot сохраняется в membership/sale и никогда не выводится из отображаемого имени.
+2. Продление является новой продажей через доступный вариант актуального каталога. Коррекция сохраняет исходные catalog item, историческую цену и behavior kind; её redesign не входит в TASK-070.
+3. Transfer command принимает вариант целевого филиала, индивидуальные даты действия, payment status и payment date. Он деактивирует прежний абонемент и в одной backend transaction меняет филиал/группы, создаёт sale и единственный current membership.
+4. `Paid` требует payment date; `Unpaid` требует отсутствия payment date. Цена всегда берётся из каталога.
+5. Обязательный professional comment хранится как metadata конкретного назначения/продажи `Professional`, не как поле клиента и не как privilege switch.
+6. HeadCoach видит `Professional` в общем eligible list с меткой «Профессиональный»; Administrator не получает его в ответе и не может назначить crafted request.
+7. Stable ProblemDetails type/code выбираются при реализации для перечисленных ошибок и фиксируются контрактными тестами.
 
-1. Как каталожный вариант сохраняет существующую поведенческую категорию (`SingleVisit`, сроковой абонемент, `Professional`). Без этого нельзя безопасно заменить фиксированный selector: название не может определять domain behavior.
-2. Сохраняется ли расширенный `MembershipType`/отдельный immutable behavior kind как поле каталога и исторический snapshot в membership/sale (предпочтительный compatibility path). Вид `Professional` обязателен и не зависит от отображаемого имени.
-3. Какие поля новая операция перевода использует для индивидуального срока и оплаты. Предпочтительно переиспользовать purchase-поля и выполнить transfer + sale + current membership в одной backend transaction.
-4. Применяется ли каталог к renewal/correction. Минимальный scope: purchase и transfer используют catalog item; correction сохраняет исторические возможности без смены catalog item/цены, renewal требует явного решения, если создаёт новую продажу.
-5. Куда переносится существующий обязательный `ProfessionalComment`. Предпочтительно не сохранять независимый professional-status write flow: если комментарий всё ещё нужен продукту, сделать его metadata конкретного назначения/продажи `Professional`, а не полем, управляющим привилегией. Отсутствие решения по комментарию не должно возвращать checkbox или `IsProfessional` как источник истины.
-
-Не выводить ответы из UI или названия варианта. Если решения не подтверждены текущими контрактами/владельцем продукта, остановить implementation, но не расширять TASK скрытым redesign membership model.
+Architecture decision gate закрыт; открытых продуктовых блокеров перед test-first реализацией нет.
 
 ## Execution steps
-1. Выполнить architecture decision gate и зафиксировать итоговые DTO/ProblemDetails codes, transaction boundary и compatibility mapping старого `MembershipType`.
+1. Перенести утверждённые architecture decisions в итоговые DTO, выбрать и покрыть контрактными тестами stable ProblemDetails codes, transaction boundary и compatibility mapping старого `MembershipType`.
 2. На актуальном `main` создать `feature/TASK-070-membership-catalog`; провести impact inventory по membership, attendance, finance, bot/internal contracts, audit и administrator scope.
 3. **До production-кода** добавить domain/unit-тесты нормализации имени, включительных периодов, открытого конца, допустимости update-полей, mapping behavior kind и derived professional state по индивидуальному периоду текущего абонемента.
 4. **До production-кода** добавить PostgreSQL integration-тесты каталога/API: CRUD без delete, роли/branch scope, ProblemDetails, exclusion constraint и audit old/new state.
@@ -49,8 +55,8 @@ Branch rules:
 7. Запустить новые тесты до реализации и сохранить ожидаемые падения именно из-за отсутствующего catalog contract/schema/UI, а не из-за дефектной fixture/setup.
 8. Реализовать backend domain и initial persistence schema: каталог с immutable behavior kind включая `Professional`, user-branch association, sale/catalog relationship, indexes/checks/exclusion constraint и seed data; удалить независимый professional flag как источник истины из чистой начальной модели.
 9. Реализовать application/API catalog contracts и backend-owned authorization/validation; endpoints не принимают price/branch при update и не публикуют delete.
-10. Перевести purchase на `membershipCatalogItemId`: в одной transaction загрузить client + item, проверить branch/availability по серверной дате, взять цену только из item и записать её snapshot в sale.
-11. Расширить transfer contract и transaction: проверить item целевого филиала и доступность, закрыть/open branch assignments, заменить группы и создать новую sale/current membership атомарно; любой отказ откатывает всё.
+10. Перевести purchase и renewal на `membershipCatalogItemId`: в одной transaction загрузить client + item, проверить branch/availability по серверной дате, взять цену только из item и записать её snapshot в новую sale.
+11. Расширить transfer contract и transaction: принять item, индивидуальный период, payment status/payment date; проверить item целевого филиала и доступность, деактивировать прежний membership, закрыть/open branch assignments, заменить группы и создать новую sale/единственный current membership атомарно; любой отказ откатывает всё.
 12. Заменить professional-status write flow: удалить checkbox и отдельный endpoint, вычислять read-only professional state из текущего действующего membership с behavior kind `Professional`; сохранить существующие attendance/payment-warning/single-visit privileges и HeadCoach-only assignment boundary.
 13. Добавить audit events создания/изменения catalog item и назначения профессионального абонемента с actor, timestamp, branch и сериализованными old/new state; rejected attempts не аудитировать.
 14. Обновить frontend API types/mappers/endpoints, settings catalog panel, purchase и transfer forms. UI показывает только server-returned eligible items, не показывает professional checkbox и отображает backend-derived badge/state и ProblemDetails без локального дублирования правил.
@@ -105,21 +111,25 @@ Exact generated migration artifacts and UI component split must be discovered be
 - Update: only `name`, `availableFrom`, `availableTo`; price, branch and behavior kind are absent from the DTO. Unknown extra immutable fields must produce the agreed ProblemDetails rather than be silently applied.
 - List: HeadCoach may filter/select branches; Administrator receives only own branch. Eligibility for sales comes from a dedicated server-filtered query or explicit `availableOn` parameter using server-owned date semantics.
 - Purchase: replace client-supplied type/amount authority with `membershipCatalogItemId`; backend derives price and behavior. Individual membership dates/payment status remain explicit according to the accepted contract.
-- Transfer: include target `branchId`, target groups, `membershipCatalogItemId` and accepted individual membership fields; the endpoint is one transactional command.
+- Transfer: include target `branchId`, target groups, `membershipCatalogItemId`, individual membership dates, payment status and payment date; `Paid` requires a date and `Unpaid` forbids one. The endpoint deactivates the prior membership and creates the sale/current membership as one transactional command.
+- Renewal: always creates a new sale through an item eligible on the backend date and copies the catalog price. Correction cannot replace the catalog item, historical price or behavior kind.
 - Professional authorization: HeadCoach-only catalog mutation and assignment for behavior kind `Professional`; Administrator eligible-option responses exclude it and crafted writes return the agreed forbidden ProblemDetails.
+- Professional presentation: HeadCoach receives `Professional` in the ordinary eligible list with explicit behavior data for a visible «Профессиональный» badge; UI must not compare names.
 - Client/attendance/bot read models may retain `isProfessional` for compatibility only as a backend-derived projection of the membership effective on the evaluated date; no write DTO accepts that flag.
-- Remove the separate professional-status mutation endpoint and frontend checkbox. If an approved professional comment remains, store it on the professional membership assignment/sale metadata without making it a privilege switch.
+- Remove the separate professional-status mutation endpoint and frontend checkbox. Require `ProfessionalComment` for every `Professional` assignment and store it on the membership assignment/sale metadata without making it a privilege switch.
 - No DELETE route. Referential deletes from branch/user/sale to catalog use `Restrict`.
 - Errors use stable ProblemDetails type/code plus field errors where appropriate: forbidden branch scope, item missing, branch mismatch, unavailable item, immutable field, period invalid and catalog overlap.
 
 ## Persistence and atomicity
-- Catalog row: immutable `BranchId`, `Price`, behavior kind (`Professional` included); mutable display name and inclusive availability range; store `NormalizedName` using the project-agreed deterministic trim/case normalization.
-- Checks: nonblank name, nonnegative/positive price per existing money policy, `AvailableTo IS NULL OR AvailableTo >= AvailableFrom`.
+- Catalog row: immutable `BranchId`, `Price`, behavior kind (`Professional` included); mutable display name and inclusive availability range; store `NormalizedName` using the approved normalization.
+- Normalize name by trimming edges, collapsing any whitespace run to one space, applying invariant case normalization and mapping `ё` to `е`; application logic and persisted DB value/constraint must be equivalent.
+- Checks: nonblank name, zero price only for `Professional`, positive price for `SingleVisit`/`Term`, `AvailableTo IS NULL OR AvailableTo >= AvailableFrom`.
 - DB overlap barrier: GiST exclusion for branch + normalized name + price equality and inclusive date-range overlap. Add the required extension deterministically in initial schema and verify actual generated SQL.
 - Sale keeps `GrossAmount` and behavior snapshot; add required `MembershipCatalogItemId` FK for the clean initial database. Catalog rename affects history display; price updates are impossible.
 - Purchase and transfer execute database reads, validation and writes in one transaction. Map constraint/serialization conflicts to deterministic ProblemDetails; do not rely on prior list filtering.
 - Inject/use a time provider so inclusive-date tests do not depend on wall-clock timing.
 - Professional privilege is true only when the current membership snapshot is behavior kind `Professional` and its individual validity covers the evaluated date; catalog availability alone never grants or revokes an already assigned privilege.
+- Enforce at most one effective client membership for an evaluated date, including concurrent writes; transfer/renewal must not leave overlapping current memberships.
 
 ## Constraints
 - Backend owns permission, branch scope, availability, price, membership and ProblemDetails semantics.
@@ -133,6 +143,8 @@ Exact generated migration artifacts and UI component split must be discovered be
 - Preserve financial attribution by client branch assignment on event date unless the approved contract explicitly changes it.
 - Do not infer professional status from catalog name. Renaming a `Professional` item must not change behavior.
 - Preserve HeadCoach-only authority for issuing professional privileges; ordinary administrator catalog rights do not include `Professional` mutation or assignment.
+- Administrator has exactly one required active branch assigned only by HeadCoach; changing it affects current authorization scope without rewriting historical branch attribution.
+- Initial seed creates only the per-branch `Professional` catalog item; ordinary catalog variants are user-managed.
 
 ## Out of scope
 - Existing-data migration or backfill; the database is recreated from the new initial schema.
@@ -150,8 +162,10 @@ Unit and integration tests are written/updated before functional code. The execu
 
 ### Unit tests
 - Name normalization is deterministic for trimming/case and matches the database expression/storage strategy.
+- Name normalization collapses whitespace and treats `ё`/`е` as equivalent.
 - Inclusive availability returns true on both bounds, false before/after and supports `AvailableTo = null`.
 - Invalid reversed range and invalid price are rejected.
+- Zero price is accepted only for `Professional`.
 - Update command exposes/applies only name and dates; immutable values remain unchanged.
 - Catalog behavior kind maps to existing single-visit/term membership semantics without name inference.
 - `Professional` behavior is independent of display name and is active only within the individual membership validity interval.
@@ -166,6 +180,8 @@ Unit and integration tests are written/updated before functional code. The execu
 - Purchase accepts only an available item in the client's current branch, uses catalog price, rejects future/expired/cross-branch items and rolls back on failure.
 - Boundary availability uses the backend date and is checked inside the write transaction.
 - Transfer requires an item in the target branch and atomically changes branch/groups plus creates the sale/membership; every validation or constraint failure leaves branch, assignments, membership and sale unchanged.
+- Transfer validates `Paid` with a required payment date and `Unpaid` with no payment date, deactivates the prior membership and prevents overlapping effective memberships.
+- Renewal requires an eligible current catalog item and creates a new sale using its price; correction cannot change catalog item, stored price or behavior kind.
 - Catalog rename/end-date change leaves historical sale gross amount unchanged; history resolves the current item name and remains visible after catalog expiry.
 - Creation and successful update write one audit event with actor/branch/time/old/new; failed attempts write none.
 - Administrator branch assignment create/update contracts validate existing active branch and do not broaden unrelated permissions.
@@ -173,6 +189,7 @@ Unit and integration tests are written/updated before functional code. The execu
 - Attendance single-visit write-off/restore and membership filters continue to use explicit behavior semantics.
 - HeadCoach can create/update/assign `Professional`; Administrator and Coach cannot do so through list options or crafted requests.
 - Professional catalog availability controls new assignment, while individual validity controls client privileges; rename does not affect behavior.
+- Every `Professional` assignment requires a comment stored with that assignment/sale; missing comment is rejected without changing professional state.
 - Legacy professional write endpoint is absent, client write DTOs contain no `isProfessional`, and clean schema has no independent professional flag as authority.
 - Client list/payment filters, attendance, audit and internal bot projections use the same backend-derived professional state.
 - Clean PostgreSQL database creation from initial schema succeeds and contains extension, FK/check/exclusion constraints.
@@ -217,15 +234,15 @@ Unit and integration tests are written/updated before functional code. The execu
 The mandatory barrier is the combination of real-PostgreSQL overlap/clean-schema tests, backend API transaction/authorization tests, financial and attendance suites, frontend component tests, bot contract tests and Playwright purchase/transfer/settings flows. EF InMemory-only or manual-only verification is insufficient. Completion requires proof that failed purchase/transfer writes leave no partial branch, assignment, sale or membership changes, stored `GrossAmount` never follows later catalog changes, and professional privileges have exactly one backend source of truth: an effective membership with behavior kind `Professional`.
 
 ## Risks
-- Catalog shape lacks an explicit replacement for current behavior-bearing `MembershipType`; guessing from the name would break single-visit and expiration semantics.
+- Mapping the legacy `MembershipType` to approved `SingleVisit`/`Term`/`Professional` remains a compatibility risk; implementation must never infer behavior from the name.
 - Legacy `IsProfessional` is deeply consumed by client queries, attendance, frontend and bot; partial replacement could leave contradictory privilege sources.
 - Allowing Administrator to issue `Professional` through ordinary catalog flows would be a privilege escalation relative to the current HeadCoach-only endpoint.
-- The semantics/location of existing `ProfessionalComment` require an explicit compatibility decision, but must not preserve a second status switch.
+- Moving required `ProfessionalComment` from the client to assignment/sale metadata touches history and projections and must not preserve a second status switch.
 - Adding administrator branch scope affects user persistence, seed data, settings contracts and authorization expectations beyond the catalog screen.
 - PostgreSQL exclusion constraints are provider-specific and may not be expressible completely through standard EF fluent APIs.
 - Transfer becomes a cross-aggregate financial transaction; incorrect boundaries can leave client branch and membership inconsistent.
-- Current correction flow can alter sale type/amount, conflicting with catalog immutability unless its compatibility behavior is explicitly constrained.
-- Renewal creates a new sale using current membership data; omitting it from the contract decision can bypass catalog price/availability.
+- Current correction flow may alter sale type/amount and must be constrained so it cannot change catalog item, stored price or behavior kind.
+- Renewal must be routed through the current eligible catalog item and price so it cannot bypass catalog validation.
 - Catalog rename intentionally changes historical display, while financial exports must continue to use the stored amount.
 - Large existing `ClientEndpoints.cs` and `ClientManagement.tsx` make unstructured inline expansion risky; use focused services/components.
 
@@ -243,10 +260,8 @@ Do not deploy a phase that lets callers bypass backend catalog validation for ne
 
 ## Stop conditions
 Остановиться и не писать production-код, если:
-- architecture decision gate не определил behavior kind и renewal/correction semantics;
 - implementation оставляет одновременно независимый `IsProfessional` и membership-derived professional state;
 - HeadCoach-only границу назначения `Professional` невозможно сохранить в backend write path;
-- не определено место `ProfessionalComment`, если продукт требует сохранить этот комментарий;
 - agreed API contract для transfer не позволяет атомарно создать обязательный абонемент;
 - DB overlap rule cannot be enforced and tested on the actual PostgreSQL provider;
 - administrator branch binding requires a global RBAC redesign rather than a localized scope check;
@@ -258,4 +273,4 @@ Do not deploy a phase that lets callers bypass backend catalog validation for ne
 Do not stop only because backend and frontend, shared client/settings modules, prices or permissions are involved; stop only at the concrete unsafe boundaries above.
 
 ## Ready for Codex execution
-no — detailed plan is ready, but this high-risk task requires explicit review and resolution of the architecture decision gate before it can move from `/backlog/risky` to active implementation.
+no — architecture decision gate закрыт и продуктовых блокеров нет, но high-risk задача остаётся в `/backlog/risky` до отдельного явного review и перевода в implementation.
