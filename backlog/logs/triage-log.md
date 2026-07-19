@@ -920,3 +920,29 @@
 - User clarified that every branch has its own membership set; membership products are not scoped per hall.
 - `TASK-070` now owns the per-branch catalog requirement and cross-branch sale validation.
 - `TASK-072` clarification is resolved and moved to done; no separate hall-link implementation task remains.
+
+# 2026-07-19 status audit after TASK-066 merge
+
+## Scope
+- Reviewed every task in `tasks-ready`, `risky` and `needs-clarification` against current `main`, merge history, source code and available automated coverage.
+- Audit branch: `codex/backlog-actuality-audit-2026-07-19`.
+
+## Moved tasks to done
+- `TASK-066-attendance-unmarked-default-filter` — implementation commit `8d4eb15` was merged in PR #71 (`ae3e6b1`). Frontend source and tests contain the default `Не отмечено` view, the complete roster view, confirmed-save removal, error retention, reset behavior and the updated attendance e2e scenario.
+
+## Status updates
+- Moved the TASK-066 card and implementation plan to `/backlog/done`.
+- Changed the task status to `done`, added implementation lifecycle metadata and updated the plan source link.
+- Moved `TASK-067-missed-training-follow-up` from `/backlog/needs-clarification` to `/backlog/tasks-ready`: its product semantics are fully captured and the card already has status `ready`.
+
+## Kept active
+- Bot tasks `TASK-001..TASK-014` and `TASK-033` remain relevant: roster pagination is absent, the requested scenario matrix and manual MVP smoke are not recorded as complete, the runbook is absent, and the remaining runtime, audit, photo, notification, webhook and branch-consumer criteria lack complete source/test evidence.
+- Client tasks `TASK-016..TASK-021` remain relevant: current client screens contain related list/detail functionality, but do not prove the full quick-action set, return-state restoration including scroll, the specified six-tab card, action-first empty states, visual cleanup and responsive Playwright matrix.
+- `TASK-058` remains in `needs-clarification`: the multi-window/second-monitor workflow still has no resolved product contract.
+- `TASK-067..TASK-071` remain relevant: they were added after the previous audit and current source does not implement repeated-absence follow-up, comment author/time metadata, membership comments, a per-branch membership catalog, or paid-trial conversion reporting. `TASK-067` is ready for planning; `TASK-068..TASK-071` remain risky.
+
+## Summary
+- moved to done: 1 task
+- moved plans to done: 1
+- active tasks after audit: 27 (`tasks-ready`: 9, `risky`: 14, `needs-clarification`: 4); one prepared implementation plan remains for active `TASK-033`
+- validation: repository history, source and test-coverage audit only; runtime test suites were not rerun because only backlog metadata changed

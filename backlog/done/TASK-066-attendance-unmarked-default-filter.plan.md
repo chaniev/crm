@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-066 Показывать по умолчанию клиентов без отметки посещения
 
 ## Source task
-/backlog/risky/TASK-066-attendance-unmarked-default-filter.md
+/backlog/done/TASK-066-attendance-unmarked-default-filter.md
 
-Source task remains in `/backlog/risky`, but explicit risky-task implementation approval was received from the user on 2026-07-19.
+Source task was moved to `/backlog/done` after the approved implementation was merged into `main`.
 
 ## Implementation branch
 feature/TASK-066-attendance-unmarked-default-filter
