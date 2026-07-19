@@ -946,3 +946,25 @@
 - moved plans to done: 1
 - active tasks after audit: 27 (`tasks-ready`: 9, `risky`: 14, `needs-clarification`: 4); one prepared implementation plan remains for active `TASK-033`
 - validation: repository history, source and test-coverage audit only; runtime test suites were not rerun because only backlog metadata changed
+
+# 2026-07-19 20:07
+
+## Processed inbox files
+- 2026-07-19.md (archived as `2026-07-19-4.md` because earlier processed files use the original name and suffixes `-2` and `-3`)
+
+## Created tasks
+- /backlog/risky/TASK-073-temporary-group-trainer-substitution.md
+
+## Updated existing tasks
+- /backlog/tasks-ready/TASK-067-missed-training-follow-up.md
+
+## Skipped duplicates
+- Заметка о подсветке клиента за три дня до окончания абонемента объединена с TASK-067: задача уже формирует единый backend-owned список клиентов, требующих внимания, и объединяет membership-причины с follow-up-сценарием. Завершённая TASK-060 покрывает базовую видимость истекающих абонементов, но не заменяет это уточнение.
+- TASK-036 и TASK-063 проверены: они описывают периодные связи тренер-группа и назначение HeadCoach, но не временное замещение с автоматическим предоставлением и отзывом access scope.
+
+## Summary
+- tasks-ready: 0
+- risky: 1
+- needs-clarification: 0
+- updated existing: 1
+- processed files: 1
