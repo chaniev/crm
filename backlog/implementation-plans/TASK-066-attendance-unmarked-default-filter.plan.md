@@ -3,7 +3,7 @@
 ## Source task
 /backlog/risky/TASK-066-attendance-unmarked-default-filter.md
 
-Source task remains in `/backlog/risky` until explicit risky-task implementation review/selection.
+Source task remains in `/backlog/risky`, but explicit risky-task implementation approval was received from the user on 2026-07-19.
 
 ## Implementation branch
 feature/TASK-066-attendance-unmarked-default-filter
@@ -39,12 +39,17 @@ Branch rules:
    - roster пуст: существующее `В выбранной группе пока нет клиентов`;
    - roster не пуст, но default subset пуст: `Все клиенты отмечены` с возможностью перейти в `Все`;
    - loading/error не маскировать фильтром.
-7. Переключатель не должен сбрасывать локальные failed/pending states, группу, дату, scroll-контекст или создавать API-запросы. Во время pending переход в `Все` допустим; pending строка остаётся disabled и видима в полном составе.
+7. Переключатель не должен сбрасывать локальные failed/pending states, группу, дату или создавать API-запросы. Не добавлять принудительное управление прокруткой: браузер сохраняет текущую позицию насколько позволяет изменившаяся высота списка. Во время pending переход в `Все` допустим; pending строка остаётся disabled и видима в полном составе.
+
+## Confirmed implementation clarifications
+- Пользователь явно разрешил выполнение medium-risk задачи 2026-07-19; дополнительное подтверждение перед созданием task-ветки не требуется.
+- Для администратора, главного тренера и тренера достаточно существующего покрытия permissions. Новые отдельные role-specific e2e-сценарии в рамках TASK-066 не требуются; существующие проверки должны остаться зелёными.
+- Позиция прокрутки остаётся под естественным управлением браузера. Реализация не должна вручную восстанавливать, сбрасывать или корректировать scroll position при переключении представления.
 
 ## Execution steps
 
 ### Phase 0 — execution gate and baseline
-1. Получить явное разрешение на выполнение risky-задачи и создать `feature/TASK-066-attendance-unmarked-default-filter` от актуального чистого `main`.
+1. Использовать полученное 2026-07-19 явное разрешение на выполнение risky-задачи и создать `feature/TASK-066-attendance-unmarked-default-filter` от актуального чистого `main`.
 2. Перечитать root/frontend `AGENTS.md`, source TASK, этот план и актуальные attendance component/e2e tests.
 3. До изменений запустить focused baseline `cd frontend && npm run test:unit -- AttendanceScreen` и убедиться, что текущие tri-state save/error/reset сценарии проходят.
 4. Проверить consumers `AttendanceWorkspace`, `AttendanceClientRowState`, `AttendanceProgress` и e2e mocks. Если полный roster перестал быть доступен либо backend больше не возвращает все три состояния, остановиться и пересмотреть contract-first scope.
@@ -86,6 +91,7 @@ Branch rules:
 20. Добавить tests для двух empty states: действительно пустая группа и `Все клиенты отмечены`; completion action открывает полный roster.
 21. Обновить `frontend/e2e/attendance.spec.ts`: mock roster содержит unmarked/present/absent; проверить default subset, success disappearance, full roster/status, reset и повторное появление в default view.
 22. Добавить e2e failure response для одного save либо component-level failure оставить основной regression barrier, если Playwright mock failure существенно раздувает сценарий. В любом случае automated component test ошибки обязателен.
+    - Не добавлять отдельную role matrix для этой задачи: достаточно существующего automated coverage permissions для администратора, главного тренера и тренера.
 
 ### Phase 4 — validation and review
 23. Запустить `cd frontend && npm run test:unit`.
@@ -126,7 +132,7 @@ Files to inspect but not expected to change:
 - View switching must not save data, refresh data, change group/date or create attendance records.
 - Preserve the three existing state meanings and reset behavior.
 - Preserve Mantine and Onest and avoid unrelated attendance/home refactoring.
-- Source task remains in `/backlog/risky` until explicit implementation selection.
+- Source task remains in `/backlog/risky` согласно backlog workflow; явное разрешение на реализацию уже получено 2026-07-19.
 
 ## Out of scope
 - Backend/API filtering parameter or separate endpoint for unmarked clients.
@@ -188,4 +194,4 @@ Stop and do not write project code if:
 Do not stop merely because the attendance screen is shared by several permission-bearing roles or because both component and e2e tests must change.
 
 ## Ready for Codex execution
-no — the implementation plan is complete, but the source task remains medium-risk with `Safe for Codex: no` in `/backlog/risky`; explicit risky-task review/selection is required before branch creation and project code changes.
+yes — the implementation plan is complete, and the user explicitly approved execution of the medium-risk task on 2026-07-19. Branch creation and project code changes may proceed subject to the clean-current-`main` execution gate.
