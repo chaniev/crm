@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Badge, Group, Stack } from '@mantine/core'
-import { IconUsers, IconUsersGroup } from '@tabler/icons-react'
+import { Badge, Button, Stack } from '@mantine/core'
+import { IconCircleCheck, IconUsers, IconUsersGroup } from '@tabler/icons-react'
 import {
   getAttendanceGroupClients,
   getAttendanceGroups,
@@ -23,6 +23,10 @@ import {
 import { AttendanceClientRow } from './AttendanceClientRow'
 import { AttendanceContextControls } from './AttendanceContextControls'
 import { AttendanceProgress } from './AttendanceProgress'
+import {
+  AttendanceRosterViewControl,
+  type AttendanceRosterView,
+} from './AttendanceRosterViewControl'
 import type { AttendanceClientRowState } from './types'
 
 type AttendanceScreenProps = { user: AuthenticatedUser }
@@ -50,6 +54,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
   const [rosterLoaded, setRosterLoaded] = useState(false)
   const [rosterError, setRosterError] = useState<string | null>(null)
   const [refreshVersion, setRefreshVersion] = useState(0)
+  const [rosterView, setRosterView] = useState<AttendanceRosterView>('unmarked')
   const contextVersionRef = useRef(0)
   const actionVersionsRef = useRef<Record<string, number>>({})
   const contextKeyRef = useRef('')
@@ -202,15 +207,19 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       setRows({})
       setRosterLoaded(false)
       setRosterError(null)
+      setRosterView('unmarked')
     }
     setSelectedGroupId(nextGroupId)
     setTrainingDate(nextDate)
   }
 
   const selectedGroup = groups.find((group) => group.id === selectedGroupId) ?? null
-  const rowList = Object.values(rows)
-  const markedCount = rowList.filter((row) => row.displayedState !== 'Unmarked').length
-  const hasPendingSave = rowList.some((row) => row.saveState === 'pending')
+  const allRows = Object.values(rows)
+  const visibleRows = rosterView === 'all'
+    ? allRows
+    : allRows.filter((row) => row.persistedState === 'Unmarked')
+  const markedCount = allRows.filter((row) => row.persistedState !== 'Unmarked').length
+  const hasPendingSave = allRows.some((row) => row.saveState === 'pending')
 
   return (
     <Stack data-testid="attendance-workspace" gap="var(--page-section-gap)">
@@ -248,23 +257,36 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
               description={getSelectedGroupDescription(selectedGroup)}
               title={selectedGroup.name}
             />
-            <Group justify="space-between" wrap="wrap">
-              <AttendanceProgress marked={markedCount} total={rowList.length} />
-              <RefreshButton
-                disabled={hasPendingSave}
-                label="Обновить список"
-                loading={rosterLoading && rosterLoaded}
-                onClick={() => setRefreshVersion((current) => current + 1)}
-              />
-            </Group>
+            <div className="attendance-roster-toolbar">
+              <AttendanceProgress marked={markedCount} total={allRows.length} />
+              <AttendanceRosterViewControl onChange={setRosterView} value={rosterView} />
+              <div className="attendance-roster-refresh">
+                <RefreshButton
+                  disabled={hasPendingSave}
+                  label="Обновить список"
+                  loading={rosterLoading && rosterLoaded}
+                  onClick={() => setRefreshVersion((current) => current + 1)}
+                />
+              </div>
+            </div>
             {rosterError ? <ErrorState message={rosterError} title="Список клиентов не загрузился" /> : null}
             {rosterLoading && !rosterLoaded ? <LoadingState label="Загружаем состав группы..." /> : null}
-            {!rosterLoading && !rosterError && rosterLoaded && rowList.length === 0 ? (
+            {!rosterLoading && !rosterError && rosterLoaded && allRows.length === 0 ? (
               <EmptyState description="Состав группы на эту дату пуст." icon={<IconUsers size={24} />} title="В выбранной группе пока нет клиентов" />
             ) : null}
-            {rosterLoaded ? (
+            {!rosterLoading && !rosterError && rosterLoaded && allRows.length > 0 && visibleRows.length === 0 && rosterView === 'unmarked' ? (
+              <div aria-live="polite">
+                <EmptyState
+                  action={<Button onClick={() => setRosterView('all')} variant="light">Показать всех</Button>}
+                  description="Можно проверить сохраненные отметки или изменить их в полном списке."
+                  icon={<IconCircleCheck size={24} />}
+                  title="Все клиенты отмечены"
+                />
+              </div>
+            ) : null}
+            {rosterLoaded && visibleRows.length > 0 ? (
               <Stack data-testid="attendance-roster" gap="sm">
-                {rowList.map((row) => (
+                {visibleRows.map((row) => (
                   <AttendanceClientRow
                     key={row.client.id}
                     onChange={(state) => void saveClientState(row.client.id, state)}
