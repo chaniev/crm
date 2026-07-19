@@ -1,12 +1,12 @@
 # TASK-056: Привести области фильтров к единому компактному виду
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-05-27 23:25
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-056-filter-panel-requirements.plan.md
+- implementation_plan: /backlog/done/TASK-056-filter-panel-requirements.plan.md
 - implementation_branch: feature/TASK-056-filter-panel-requirements
 
 ## Goal

@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-059 Объединить Главную и Посещения
 
 ## Source task
-/backlog/implementation/TASK-059-merge-home-attendance.md
+/backlog/done/TASK-059-merge-home-attendance.md
 
 ## Implementation branch
 feature/TASK-059-merge-home-attendance

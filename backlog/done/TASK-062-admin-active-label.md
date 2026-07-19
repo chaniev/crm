@@ -1,12 +1,12 @@
 # TASK-062: Исправить текст активности в форме администратора
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-06-28 23:08
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-062-admin-active-label.plan.md
+- implementation_plan: /backlog/done/TASK-062-admin-active-label.plan.md
 - implementation_branch: fix/TASK-062-admin-active-label
 
 ## Goal

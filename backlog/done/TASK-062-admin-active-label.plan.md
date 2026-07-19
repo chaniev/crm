@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-062 Исправить текст активности в форме администратора
 
 ## Source task
-/backlog/implementation/TASK-062-admin-active-label.md
+/backlog/done/TASK-062-admin-active-label.md
 
 ## Implementation branch
 fix/TASK-062-admin-active-label

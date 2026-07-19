@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-065 Сделать обзор групп и шапку экрана компактными
 
 ## Source task
-/backlog/implementation/TASK-065-groups-overview-compact.md
+/backlog/done/TASK-065-groups-overview-compact.md
 
 ## Implementation branch
 feature/TASK-065-groups-overview-compact

@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-057 Убрать лишний заголовок и колонку Объект из журнала
 
 ## Source task
-/backlog/implementation/TASK-057-audit-log-remove-object-column.md
+/backlog/done/TASK-057-audit-log-remove-object-column.md
 
 ## Implementation branch
 feature/TASK-057-audit-log-remove-object-column

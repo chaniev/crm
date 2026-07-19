@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-056 Привести области фильтров к единому компактному виду
 
 ## Source task
-/backlog/implementation/TASK-056-filter-panel-requirements.md
+/backlog/done/TASK-056-filter-panel-requirements.md
 
 ## Implementation branch
 feature/TASK-056-filter-panel-requirements
