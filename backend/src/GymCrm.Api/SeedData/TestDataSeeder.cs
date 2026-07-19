@@ -549,8 +549,6 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
         ClientPhotoSeedInfo photo,
         DateTimeOffset now)
     {
-        var isProfessional = clientNumber % 12 == 0;
-
         return new Client
         {
             Id = SeedIds.Client(clientNumber),
@@ -560,10 +558,6 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
             MiddleName = fullName.MiddleName,
             Phone = phone,
             Notes = $"Тестовый клиент #{clientNumber:000}.",
-            IsProfessional = isProfessional,
-            ProfessionalComment = isProfessional
-                ? "Профессиональный спортсмен из тестового набора."
-                : null,
             PhotoPath = photo.RelativePath,
             PhotoContentType = photo.ContentType,
             PhotoSizeBytes = photo.SizeBytes,

@@ -55,6 +55,8 @@ function mapUserListItem(payload: UserResponsePayload): UserListItem {
       isActive: false,
       messengerPlatform: null,
       messengerPlatformUserId: null,
+      branchId: null,
+      branchName: null,
     }
   }
 
@@ -74,6 +76,8 @@ function mapUserListItem(payload: UserResponsePayload): UserListItem {
         'messengerPlatformUserId',
         'MessengerPlatformUserId',
       ]) ?? null,
+    branchId: readString(payload, ['branchId', 'BranchId']) ?? null,
+    branchName: readString(payload, ['branchName', 'BranchName']) ?? null,
   }
 }
 

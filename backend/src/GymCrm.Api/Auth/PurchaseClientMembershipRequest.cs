@@ -1,8 +1,9 @@
 namespace GymCrm.Api.Auth;
 
 internal sealed record PurchaseClientMembershipRequest(
-    string? MembershipType,
-    string? PurchaseDate,
-    string? ExpirationDate,
-    decimal? PaymentAmount,
-    bool? IsPaid);
+    Guid? MembershipCatalogItemId,
+    string? ValidFrom,
+    string? ValidTo,
+    string? PaymentStatus,
+    string? PaymentDate,
+    string? ProfessionalComment);

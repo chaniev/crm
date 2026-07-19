@@ -2,6 +2,7 @@ using GymCrm.Domain.Audit;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Messenger;
+using GymCrm.Domain.Branches;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
 
 namespace GymCrm.Domain.Users;
@@ -19,6 +20,8 @@ public class User
     public bool IsActive { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
+    public Guid? BranchId { get; set; }
+    public Branch? Branch { get; set; }
 
     public ICollection<GroupTrainer> AssignedGroups { get; set; } = new List<GroupTrainer>();
     public ICollection<GroupTrainerAssignment> GroupTrainerAssignments { get; set; } = new List<GroupTrainerAssignment>();

@@ -27,12 +27,6 @@
   <data name="ClientTransferredDescription" xml:space="preserve">
     <value>Пользователь '{0}' перевел клиента '{1}' в другой филиал.</value>
   </data>
-  <data name="ClientProfessionalStatusEnabledDescription" xml:space="preserve">
-    <value>Пользователь '{0}' включил признак профессионала для клиента '{1}'.</value>
-  </data>
-  <data name="ClientProfessionalStatusDisabledDescription" xml:space="preserve">
-    <value>Пользователь '{0}' отключил признак профессионала для клиента '{1}'.</value>
-  </data>
   <data name="MembershipPurchasedDescription" xml:space="preserve">
     <value>Пользователь '{0}' оформил абонемент клиента '{1}'.</value>
   </data>

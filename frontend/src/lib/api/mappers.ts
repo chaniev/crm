@@ -19,7 +19,7 @@ import type {
   ClientPhoto,
   ClientResponsePayload,
   ClientStatus,
-  MembershipType,
+  MembershipBehaviorKind,
   UserRole,
 } from './types'
 
@@ -119,21 +119,25 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
     return null
   }
 
-  const membershipType = mapMembershipType(
-    readString(payload, ['membershipType', 'MembershipType']),
+  const behaviorKind = mapMembershipBehaviorKind(
+    readString(payload, ['behaviorKind', 'MembershipBehaviorKind']),
   )
   const purchaseDate =
     readString(payload, ['purchaseDate', 'PurchaseDate']) ?? ''
 
-  if (!membershipType || !purchaseDate) {
+  if (!behaviorKind || !purchaseDate) {
     return null
   }
 
   return {
     id:
       readString(payload, ['id', 'Id']) ??
-      `${membershipType}-${purchaseDate}-${readString(payload, ['validFrom', 'ValidFrom']) ?? 'current'}`,
-    membershipType,
+      `${behaviorKind}-${purchaseDate}-${readString(payload, ['validFrom', 'ValidFrom']) ?? 'current'}`,
+    behaviorKind,
+    membershipCatalogItemId:
+      readString(payload, ['membershipCatalogItemId', 'MembershipCatalogItemId']) ?? '',
+    membershipName:
+      readString(payload, ['membershipName', 'MembershipName']) ?? 'Абонемент',
     purchaseDate,
     expirationDate:
       readString(payload, ['expirationDate', 'ExpirationDate']) ?? null,
@@ -168,6 +172,8 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
       readString(payload, ['validTo', 'ValidTo']) ??
       (hasProperty(payload, ['validTo', 'ValidTo']) ? null : undefined),
     createdAt: readString(payload, ['createdAt', 'CreatedAt']) ?? undefined,
+    professionalComment:
+      readString(payload, ['professionalComment', 'ProfessionalComment']) ?? null,
   }
 }
 
@@ -207,8 +213,8 @@ export function mapClientStatus(status?: string | null): ClientStatus {
     : CLIENT_STATUS_ACTIVE
 }
 
-export function mapMembershipType(type?: string | null): MembershipType | null {
-  if (type === 'SingleVisit' || type === 'Monthly' || type === 'Yearly') {
+export function mapMembershipBehaviorKind(type?: string | null): MembershipBehaviorKind | null {
+  if (type === 'SingleVisit' || type === 'Term' || type === 'Professional') {
     return type
   }
 
@@ -286,7 +292,7 @@ export function deriveHasActivePaidMembership(
   }
 
   return (
-    membership.membershipType !== 'SingleVisit' || !membership.singleVisitUsed
+    membership.behaviorKind !== 'SingleVisit' || !membership.singleVisitUsed
   )
 }
 
@@ -311,7 +317,7 @@ export function deriveMembershipWarning(
   }
 
   return (
-    membership.membershipType === 'SingleVisit' && membership.singleVisitUsed
+    membership.behaviorKind === 'SingleVisit' && membership.singleVisitUsed
   )
 }
 

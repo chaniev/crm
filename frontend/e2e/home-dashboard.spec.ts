@@ -157,7 +157,7 @@ test.describe('Home dashboard', () => {
           {
             clientId: 'client-1',
             fullName: 'Анна Петрова',
-            membershipType: 'Monthly',
+            behaviorKind: 'Term',
             expirationDate: '2026-05-03',
             daysUntilExpiration: -3,
             isPaid: false,
@@ -166,7 +166,7 @@ test.describe('Home dashboard', () => {
           {
             clientId: 'client-2',
             fullName: 'Иван Иванов',
-            membershipType: 'Monthly',
+            behaviorKind: 'Term',
             expirationDate: '2026-05-08',
             daysUntilExpiration: 2,
             isPaid: true,
@@ -175,7 +175,7 @@ test.describe('Home dashboard', () => {
           {
             clientId: 'client-3',
             fullName: 'Ольга Смирнова',
-            membershipType: 'Monthly',
+            behaviorKind: 'Term',
             expirationDate: null,
             daysUntilExpiration: null,
             isPaid: false,
@@ -221,7 +221,7 @@ test.describe('Home dashboard', () => {
             {
               clientId: 'client-1',
               fullName: 'Иван Иванов',
-              membershipType: 'Monthly',
+              behaviorKind: 'Term',
               expirationDate: '2026-05-06',
               daysUntilExpiration: 3,
               isPaid: true,

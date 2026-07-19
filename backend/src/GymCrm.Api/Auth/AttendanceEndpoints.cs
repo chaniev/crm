@@ -4,6 +4,7 @@ using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
@@ -139,7 +140,12 @@ internal static class AttendanceEndpoints
             businessDateProvider.Today,
             businessDateProvider.Today,
             clients
-                .Select(client => MapAttendanceClient(client, currentUser, groupId, parsedTrainingDate.Value))
+                .Select(client => MapAttendanceClient(
+                    client,
+                    currentUser,
+                    groupId,
+                    parsedTrainingDate.Value,
+                    businessDateProvider.Today))
                 .ToArray()));
     }
 
@@ -248,7 +254,8 @@ internal static class AttendanceEndpoints
         Client client,
         User currentUser,
         Guid groupId,
-        DateOnly trainingDate)
+        DateOnly trainingDate,
+        DateOnly businessDate)
     {
         var currentMembership = client.Memberships
             .OrderByDescending(membership => membership.ValidFrom)
@@ -256,7 +263,8 @@ internal static class AttendanceEndpoints
         var visibleGroups = currentUser.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
             : client.Groups.AsEnumerable();
-        var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
+        var isProfessional = IsProfessional(currentMembership, businessDate);
+        var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
         var attendance = client.AttendanceEntries.SingleOrDefault(attendance =>
             attendance.GroupId == groupId &&
             attendance.TrainingDate == trainingDate);
@@ -272,17 +280,22 @@ internal static class AttendanceEndpoints
             MapGroups(visibleGroups),
             MapPhoto(client),
             state.ToString(),
-            client.IsProfessional,
-            client.ProfessionalComment,
+            isProfessional,
+            isProfessional ? currentMembership!.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
+            ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership),
             ClientMembershipSemantics.HasActivePaidMembership(
-                client.IsProfessional,
+                isProfessional,
                 currentMembership,
                 trainingDate,
                 requirePurchaseDateReached: true));
     }
+
+    private static bool IsProfessional(ClientMembership? membership, DateOnly businessDate) =>
+        membership?.BehaviorKind == MembershipBehaviorKind.Professional &&
+        membership.IndividualValidFrom <= businessDate &&
+        (membership.IndividualValidTo is null || membership.IndividualValidTo >= businessDate);
 
     private static MembershipWarningResult EvaluateMembershipWarning(
         bool isProfessional,

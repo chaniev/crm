@@ -147,7 +147,8 @@ def test_professional_client_card_uses_backend_status_label_without_unpaid_text(
         isProfessional=True,
         professionalComment="Сборная",
         currentMembership=ClientCardMembership(
-            membershipType="SingleVisit",
+            behaviorKind="Professional",
+            membershipLabel="Профессиональный",
             purchaseDate="2026-05-01",
             expirationDate=None,
             isPaid=False,

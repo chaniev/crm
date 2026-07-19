@@ -4,6 +4,7 @@ using System.Text.Json;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -543,7 +544,7 @@ public class FinancialReportsApiTests
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
-            MembershipType = MembershipType.Monthly,
+            BehaviorKind = MembershipBehaviorKind.Term,
             PurchaseDate = purchaseDate,
             GrossAmount = grossAmount,
             CreatedByUserId = createdByUserId,
@@ -591,8 +592,8 @@ public class FinancialReportsApiTests
                 Id = Guid.NewGuid(),
                 ClientId = clientId,
                 SaleId = saleId,
-                MembershipType = MembershipType.Monthly,
-                PurchaseDate = new DateOnly(2026, 5, 10),
+                BehaviorKind = MembershipBehaviorKind.Term,
+                IndividualValidFrom = new DateOnly(2026, 5, 10),
                 PaymentAmount = 100m,
                 IsPaid = false,
                 SingleVisitUsed = false,
@@ -607,8 +608,8 @@ public class FinancialReportsApiTests
                 Id = Guid.NewGuid(),
                 ClientId = clientId,
                 SaleId = saleId,
-                MembershipType = MembershipType.Monthly,
-                PurchaseDate = new DateOnly(2026, 5, 10),
+                BehaviorKind = MembershipBehaviorKind.Term,
+                IndividualValidFrom = new DateOnly(2026, 5, 10),
                 PaymentAmount = 100m,
                 IsPaid = true,
                 SingleVisitUsed = false,

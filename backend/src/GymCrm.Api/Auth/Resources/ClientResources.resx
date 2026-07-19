@@ -159,13 +159,13 @@
   <data name="ExpirationBeforePurchaseDate" xml:space="preserve">
     <value>Дата окончания не может быть раньше даты покупки.</value>
   </data>
-  <data name="MembershipTypeRequired" xml:space="preserve">
+  <data name="BehaviorKindRequired" xml:space="preserve">
     <value>Укажите тип абонемента.</value>
   </data>
-  <data name="InvalidMembershipType" xml:space="preserve">
+  <data name="InvalidBehaviorKind" xml:space="preserve">
     <value>Укажите корректный тип абонемента.</value>
   </data>
-  <data name="CurrentMembershipTypeMismatch" xml:space="preserve">
+  <data name="CurrentBehaviorKindMismatch" xml:space="preserve">
     <value>Текущий абонемент клиента имеет тип '{0}'.</value>
   </data>
   <data name="InvalidIsoDate" xml:space="preserve">

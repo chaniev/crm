@@ -23,9 +23,14 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(user => user.Id);
 
         builder.ToTable(tableBuilder =>
+        {
             tableBuilder.HasCheckConstraint(
                 "CK_Users_MessengerIdentity_Consistency",
-                MessengerIdentityConstraint));
+                MessengerIdentityConstraint);
+            tableBuilder.HasCheckConstraint(
+                "CK_Users_AdministratorBranch",
+                "(\"Role\" = 'Administrator' AND \"BranchId\" IS NOT NULL) OR (\"Role\" <> 'Administrator' AND \"BranchId\" IS NULL)");
+        });
 
         builder.Property(user => user.FullName)
             .HasMaxLength(FullNameMaxLength)
@@ -55,6 +60,12 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.UpdatedAt).IsRequired();
 
         builder.HasIndex(user => user.Login).IsUnique();
+        builder.HasIndex(user => user.BranchId);
+
+        builder.HasOne(user => user.Branch)
+            .WithMany()
+            .HasForeignKey(user => user.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(user => new { user.MessengerPlatform, user.MessengerPlatformUserId })
             .IsUnique()

@@ -2,7 +2,9 @@ namespace GymCrm.Api.Auth;
 
 internal sealed record CurrentMembershipSummaryResponse(
     Guid Id,
-    string MembershipType,
+    Guid MembershipCatalogItemId,
+    string MembershipName,
+    string BehaviorKind,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
     bool IsPaid,

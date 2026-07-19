@@ -18,6 +18,72 @@ namespace GymCrm.Tests;
 public class BranchesApiTests
 {
     [Fact]
+    public async Task Membership_catalog_supports_scoped_crud_eligible_and_rejects_immutable_update_and_delete()
+    {
+        await using var factory = new BranchesAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        Guid branchId;
+        using (var branchResponse = await PostJsonAsync(client, "/branches",
+                   new { Name = "Catalog branch", Address = "", Description = "" }, session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, branchResponse.StatusCode);
+            branchId = GetGuidFromProperty(await ReadJsonElementAsync(branchResponse), "id");
+        }
+
+        Guid itemId;
+        using (var response = await PostJsonAsync(client, "/settings/membership-catalog",
+                   new
+                   {
+                       BranchId = branchId,
+                       Name = "  Дневной   абонемент ",
+                       Price = 1500m,
+                       BehaviorKind = "Term",
+                       AvailableFrom = new DateOnly(2020, 1, 1),
+                       AvailableTo = (DateOnly?)null
+                   }, session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            var payload = await ReadJsonElementAsync(response);
+            itemId = GetGuidFromProperty(payload, "id");
+            Assert.Equal(1500m, payload.GetProperty("price").GetDecimal());
+            Assert.Equal("Term", payload.GetProperty("behaviorKind").GetString());
+        }
+
+        using (var response = await client.GetAsync($"/settings/membership-catalog?branchId={branchId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var payload = await ReadJsonElementAsync(response);
+            Assert.Contains(payload.EnumerateArray(), item => GetGuidFromProperty(item, "id") == itemId);
+        }
+
+        using (var response = await client.GetAsync($"/membership-catalog/eligible?branchId={branchId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var payload = await ReadJsonElementAsync(response);
+            Assert.Contains(payload.EnumerateArray(), item => GetGuidFromProperty(item, "id") == itemId);
+        }
+
+        using (var response = await PutJsonAsync(client, $"/settings/membership-catalog/{itemId}",
+                   new { Name = "Новое имя", AvailableFrom = new DateOnly(2020, 1, 1), AvailableTo = (DateOnly?)null, Price = 1m },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var payload = await ReadJsonElementAsync(response);
+            Assert.Equal("membership_catalog_immutable", payload.GetProperty("code").GetString());
+        }
+
+        using var deleteResponse = await DeleteAsync(client, $"/settings/membership-catalog/{itemId}", session.CsrfToken);
+        Assert.Equal(HttpStatusCode.MethodNotAllowed, deleteResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task Branch_and_hall_admin_flow_validates_archive_and_delete_guards()
     {
         await using var factory = new BranchesAppFactory();

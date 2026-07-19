@@ -18,7 +18,7 @@ internal sealed class ClientMembershipSaleConfiguration : IEntityTypeConfigurati
 
         builder.HasKey(sale => sale.Id);
 
-        builder.Property(sale => sale.MembershipType)
+        builder.Property(sale => sale.BehaviorKind)
             .HasConversion<string>()
             .HasMaxLength(EnumMaxLength)
             .IsRequired();
@@ -33,6 +33,7 @@ internal sealed class ClientMembershipSaleConfiguration : IEntityTypeConfigurati
         builder.HasIndex(sale => sale.ClientId);
         builder.HasIndex(sale => sale.PurchaseDate);
         builder.HasIndex(sale => sale.CreatedByUserId);
+        builder.HasIndex(sale => sale.MembershipCatalogItemId);
 
         builder.HasOne(sale => sale.Client)
             .WithMany(client => client.MembershipSales)
@@ -42,6 +43,11 @@ internal sealed class ClientMembershipSaleConfiguration : IEntityTypeConfigurati
         builder.HasOne(sale => sale.CreatedByUser)
             .WithMany(user => user.CreatedMembershipSales)
             .HasForeignKey(sale => sale.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(sale => sale.MembershipCatalogItem)
+            .WithMany()
+            .HasForeignKey(sale => sale.MembershipCatalogItemId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

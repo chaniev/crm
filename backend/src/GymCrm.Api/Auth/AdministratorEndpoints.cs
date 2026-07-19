@@ -42,7 +42,9 @@ internal static class AdministratorEndpoints
                 user.MustChangePassword,
                 user.IsActive,
                 user.CreatedAt,
-                user.UpdatedAt))
+                user.UpdatedAt,
+                user.BranchId,
+                user.Branch != null ? user.Branch.Name : null))
             .ToListAsync(cancellationToken);
 
         return TypedResults.Ok(administrators);
@@ -105,6 +107,11 @@ internal static class AdministratorEndpoints
             return TypedResults.ValidationProblem(errors);
         }
 
+        if (!await dbContext.Branches.AnyAsync(branch => branch.Id == request.BranchId && !branch.IsArchived, cancellationToken))
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["branchId"] = ["Active branch is required."] });
+        }
+
         var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
             request.MessengerPlatform,
             request.MessengerPlatformUserId);
@@ -120,6 +127,7 @@ internal static class AdministratorEndpoints
             MessengerPlatformUserId = messengerIdentity.PlatformUserId,
             MustChangePassword = request.MustChangePassword,
             IsActive = request.IsActive,
+            BranchId = request.BranchId,
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -193,6 +201,11 @@ internal static class AdministratorEndpoints
             return TypedResults.ValidationProblem(errors);
         }
 
+        if (!await dbContext.Branches.AnyAsync(branch => branch.Id == request.BranchId && !branch.IsArchived, cancellationToken))
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["branchId"] = ["Active branch is required."] });
+        }
+
         var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
             request.MessengerPlatform,
             request.MessengerPlatformUserId);
@@ -204,6 +217,7 @@ internal static class AdministratorEndpoints
         user.MessengerPlatformUserId = messengerIdentity.PlatformUserId;
         user.MustChangePassword = request.MustChangePassword;
         user.IsActive = request.IsActive;
+        user.BranchId = request.BranchId;
         user.UpdatedAt = DateTimeOffset.UtcNow;
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -239,6 +253,8 @@ internal static class AdministratorEndpoints
             user.MustChangePassword,
             user.IsActive,
             user.CreatedAt,
-            user.UpdatedAt);
+            user.UpdatedAt,
+            user.BranchId,
+            user.Branch?.Name);
     }
 }

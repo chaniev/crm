@@ -97,7 +97,7 @@ const CLIENTS_RESPONSE = {
       ],
       currentMembership: {
         id: 'membership-1',
-        membershipType: 'Monthly',
+        behaviorKind: 'Term',
         purchaseDate: '2026-04-01',
         expirationDate: '2026-04-22',
         isPaid: false,
@@ -106,7 +106,7 @@ const CLIENTS_RESPONSE = {
       },
       currentMembershipSummary: {
         id: 'membership-1',
-        membershipType: 'Monthly',
+        behaviorKind: 'Term',
         purchaseDate: '2026-04-01',
         expirationDate: '2026-04-22',
         isPaid: false,
@@ -1120,7 +1120,7 @@ async function mockApi(
           {
             clientId: 'client-1',
             fullName: 'Александра Константинопольская-Северная',
-            membershipType: 'Monthly',
+            behaviorKind: 'Term',
             expirationDate: '2026-04-22',
             daysUntilExpiration: 3,
             isPaid: false,

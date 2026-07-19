@@ -135,6 +135,7 @@ app.MapAppConfigEndpoints();
 app.MapAuthEndpoints();
 app.MapAccessEndpoints();
 app.MapAdministratorEndpoints();
+app.MapMembershipCatalogEndpoints();
 app.MapUserEndpoints();
 app.MapAuditLogEndpoints();
 app.MapBranchEndpoints();

@@ -8,7 +8,6 @@ namespace GymCrm.Domain.Clients;
 public class Client
 {
     public const int NotesMaxLength = 2000;
-    public const int ProfessionalCommentMaxLength = 1000;
 
     public Guid Id { get; set; }
     public Guid BranchId { get; set; }
@@ -17,8 +16,6 @@ public class Client
     public string? MiddleName { get; set; }
     public string Phone { get; set; } = string.Empty;
     public string? Notes { get; set; }
-    public bool IsProfessional { get; set; }
-    public string? ProfessionalComment { get; set; }
     public string? PhotoPath { get; set; }
     public string? PhotoContentType { get; set; }
     public long? PhotoSizeBytes { get; set; }
@@ -26,6 +23,7 @@ public class Client
     public ClientStatus Status { get; set; } = ClientStatus.Active;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
+
 
     public Branch Branch { get; set; } = null!;
     public ICollection<ClientContact> Contacts { get; set; } = new List<ClientContact>();

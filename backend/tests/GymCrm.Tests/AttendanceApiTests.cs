@@ -6,6 +6,7 @@ using GymCrm.Application.Audit;
 using GymCrm.Application.Attendance;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -538,9 +539,10 @@ public class AttendanceApiTests
                 Id = conflictingMembershipId,
                 ClientId = writtenOff.ClientId,
                 SaleId = writtenOff.SaleId,
-                MembershipType = writtenOff.MembershipType,
-                PurchaseDate = writtenOff.PurchaseDate,
-                ExpirationDate = writtenOff.ExpirationDate,
+                MembershipCatalogItemId = writtenOff.MembershipCatalogItemId,
+                BehaviorKind = writtenOff.BehaviorKind,
+                IndividualValidFrom = writtenOff.IndividualValidFrom,
+                IndividualValidTo = writtenOff.IndividualValidTo,
                 PaymentAmount = writtenOff.PaymentAmount,
                 IsPaid = writtenOff.IsPaid,
                 SingleVisitUsed = writtenOff.SingleVisitUsed,
@@ -661,6 +663,7 @@ public class AttendanceApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        administrator.BranchId = branch.Id;
         var assignedHall = new Hall
         {
             Id = Guid.NewGuid(),
@@ -746,8 +749,6 @@ public class AttendanceApiTests
             LastName = "Профессионал",
             FirstName = "Клиент",
             Phone = "+79990001112",
-            IsProfessional = true,
-            ProfessionalComment = "Льготный статус для посещаемости",
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -788,7 +789,7 @@ public class AttendanceApiTests
             dbContext,
             warningClient.Id,
             coach.Id,
-            MembershipType.Monthly,
+            MembershipBehaviorKind.Term,
             GetBusinessToday().AddMonths(-2),
             GetBusinessToday().AddDays(-1),
             1200m,
@@ -800,7 +801,7 @@ public class AttendanceApiTests
             dbContext,
             singleVisitClient.Id,
             coach.Id,
-            MembershipType.SingleVisit,
+            MembershipBehaviorKind.SingleVisit,
             GetBusinessToday(),
             null,
             500m,
@@ -812,7 +813,7 @@ public class AttendanceApiTests
             dbContext,
             professionalClient.Id,
             coach.Id,
-            MembershipType.SingleVisit,
+            MembershipBehaviorKind.Professional,
             GetBusinessToday(),
             null,
             500m,
@@ -841,7 +842,7 @@ public class AttendanceApiTests
         GymCrmDbContext dbContext,
         Guid clientId,
         Guid changedByUserId,
-        MembershipType membershipType,
+        MembershipBehaviorKind behaviorKind,
         DateOnly purchaseDate,
         DateOnly? expirationDate,
         decimal paymentAmount,
@@ -851,14 +852,43 @@ public class AttendanceApiTests
     {
         var now = DateTimeOffset.UtcNow;
         var saleId = Guid.NewGuid();
+        var branchId = await dbContext.Clients
+            .Where(client => client.Id == clientId)
+            .Select(client => client.BranchId)
+            .SingleAsync();
+        var catalogItem = await dbContext.MembershipCatalogItems.FirstOrDefaultAsync(item =>
+            item.BehaviorKind == behaviorKind &&
+            (behaviorKind == MembershipBehaviorKind.Professional || item.BranchId == branchId));
+        if (catalogItem is null)
+        {
+            catalogItem = behaviorKind == MembershipBehaviorKind.Professional
+                ? MembershipCatalogItem.CreateProfessional(
+                    "Профессиональный",
+                    purchaseDate,
+                    null,
+                    now)
+                : MembershipCatalogItem.CreateBranchOwned(
+                    branchId,
+                    $"Attendance {behaviorKind}",
+                    paymentAmount,
+                    behaviorKind,
+                    purchaseDate,
+                    null,
+                    now);
+            dbContext.MembershipCatalogItems.Add(catalogItem);
+        }
         dbContext.ClientMemberships.Add(new ClientMembership
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
             SaleId = saleId,
-            MembershipType = membershipType,
-            PurchaseDate = purchaseDate,
-            ExpirationDate = expirationDate,
+            MembershipCatalogItemId = catalogItem.Id,
+            BehaviorKind = behaviorKind,
+            IndividualValidFrom = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : purchaseDate,
+            IndividualValidTo = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : expirationDate,
+            ProfessionalComment = behaviorKind == MembershipBehaviorKind.Professional
+                ? "Льготный статус для посещаемости"
+                : null,
             PaymentAmount = paymentAmount,
             IsPaid = isPaid,
             SingleVisitUsed = singleVisitUsed,
@@ -872,7 +902,8 @@ public class AttendanceApiTests
             {
                 Id = saleId,
                 ClientId = clientId,
-                MembershipType = membershipType,
+                MembershipCatalogItemId = catalogItem.Id,
+                BehaviorKind = behaviorKind,
                 PurchaseDate = purchaseDate,
                 GrossAmount = paymentAmount,
                 CreatedByUserId = changedByUserId,
@@ -1091,7 +1122,7 @@ public class AttendanceApiTests
                 membershipPayload,
                 "singleVisitUsed",
                 "singleVisitHasBeenUsed");
-            if (singleVisitUsed is true && GetStringFromAnyCase(membershipPayload, "membershipType", "type") == "SingleVisit")
+            if (singleVisitUsed is true && GetStringFromAnyCase(membershipPayload, "behaviorKind", "type") == "SingleVisit")
             {
                 return true;
             }

@@ -64,10 +64,13 @@ export type {
   LoginRequest,
   MarkClientMembershipPaymentRequest,
   MembershipAttentionItem,
+  MembershipBehaviorKind,
+  MembershipCatalogItem,
   MembershipAttentionState,
   MembershipExpirationSuggestion,
   MessengerPlatform,
-  MembershipType,
+  CreateMembershipCatalogItemRequest,
+  UpdateMembershipCatalogItemRequest,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
   SaveAttendanceMarksRequest,
@@ -90,6 +93,13 @@ export type {
   UserListItem,
   UserRole,
 } from './api/types'
+
+export {
+  createMembershipCatalogItem,
+  getEligibleMembershipCatalogItems,
+  getMembershipCatalogItems,
+  updateMembershipCatalogItem,
+} from './api/membershipCatalog'
 
 export { ApiError, applyFieldErrors } from './api/errors'
 export { loadAppConfig } from './api/config'
@@ -127,7 +137,6 @@ export {
   restoreClient,
   transferClientBranch,
   updateClient,
-  updateClientProfessionalStatus,
   uploadClientPhoto,
 } from './api/clients'
 export {

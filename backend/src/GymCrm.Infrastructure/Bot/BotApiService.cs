@@ -7,6 +7,7 @@ using GymCrm.Application.Clients;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -129,6 +130,9 @@ internal sealed class BotApiService(
                 client.Groups.Any(clientGroup => clientGroup.GroupId == groupId))
             .Include(client => client.Branch)
             .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.MembershipCatalogItem)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.Sale)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(currentGroup => currentGroup.Trainers)
@@ -151,7 +155,12 @@ internal sealed class BotApiService(
             group.Name,
             trainingDate,
             clients
-                .Select(client => MapAttendanceClient(client, user, groupId, trainingDate))
+                .Select(client => MapAttendanceClient(
+                    client,
+                    user,
+                    groupId,
+                    trainingDate,
+                    businessDateProvider.Today))
                 .ToArray()));
     }
 
@@ -257,12 +266,13 @@ internal sealed class BotApiService(
                 .Select(client =>
                 {
                     var currentMembership = GetCurrentMembership(client);
-                    var membershipWarning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
+                    var isProfessional = IsProfessional(currentMembership, businessDateProvider.Today);
+                    var membershipWarning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
                     return new BotAttendanceClientWarning(
                         client.Id,
                         BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
                         membershipWarning.Message,
-                        ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership));
+                        ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership));
                 })
                 .Where(item => item.MembershipWarning is not null || item.HasUnpaidCurrentMembership)
                 .OrderBy(item => item.FullName, StringComparer.CurrentCulture)
@@ -348,6 +358,9 @@ internal sealed class BotApiService(
         var clients = await baseQuery
             .Include(client => client.Branch)
             .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.MembershipCatalogItem)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.Sale)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
@@ -368,7 +381,7 @@ internal sealed class BotApiService(
 
         var hasMore = clients.Length > take;
         var pageItems = hasMore ? clients.Take(take).ToArray() : clients;
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = businessDateProvider.Today;
 
         return BotApiResult<BotClientSearchResponse>.Success(new BotClientSearchResponse(
             pageItems
@@ -395,6 +408,9 @@ internal sealed class BotApiService(
             .AsNoTracking()
             .Include(currentClient => currentClient.Branch)
             .Include(currentClient => currentClient.Memberships)
+                .ThenInclude(membership => membership.MembershipCatalogItem)
+            .Include(currentClient => currentClient.Memberships)
+                .ThenInclude(membership => membership.Sale)
             .Include(currentClient => currentClient.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
@@ -447,7 +463,7 @@ internal sealed class BotApiService(
                 attendance.Group.Name))
             .ToArrayAsync(cancellationToken);
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = businessDateProvider.Today;
         return BotApiResult<BotClientCard>.Success(MapClientCard(client, user, today, attendanceHistory));
     }
 
@@ -467,7 +483,7 @@ internal sealed class BotApiService(
             return BotApiResult<IReadOnlyList<BotExpiringMembershipListItem>>.Failure(BotApiError.Forbidden);
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = businessDateProvider.Today;
         var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
         var items = await dbContext.Clients
@@ -479,7 +495,6 @@ internal sealed class BotApiService(
                 client.LastName,
                 client.FirstName,
                 client.MiddleName,
-                client.IsProfessional,
                 CurrentMembership = client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
@@ -487,8 +502,9 @@ internal sealed class BotApiService(
                     .ThenByDescending(membership => membership.Id)
                     .Select(membership => new
                     {
-                        membership.MembershipType,
-                        membership.ExpirationDate,
+                        membership.BehaviorKind,
+                        MembershipLabel = membership.MembershipCatalogItem.Name,
+                        ExpirationDate = membership.IndividualValidTo,
                         membership.IsPaid
                     })
                     .FirstOrDefault()
@@ -506,7 +522,8 @@ internal sealed class BotApiService(
             .Select(candidate => new BotExpiringMembershipListItem(
                 candidate.Id,
                 BuildClientFullName(candidate.LastName, candidate.FirstName, candidate.MiddleName),
-                candidate.CurrentMembership!.MembershipType.ToString(),
+                candidate.CurrentMembership!.BehaviorKind.ToString(),
+                candidate.CurrentMembership.MembershipLabel,
                 candidate.CurrentMembership.ExpirationDate!.Value,
                 candidate.CurrentMembership.ExpirationDate.Value.DayNumber - today.DayNumber,
                 candidate.CurrentMembership.IsPaid))
@@ -540,7 +557,6 @@ internal sealed class BotApiService(
                 client.LastName,
                 client.FirstName,
                 client.MiddleName,
-                client.IsProfessional,
                 CurrentMembership = client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
@@ -548,16 +564,17 @@ internal sealed class BotApiService(
                     .ThenByDescending(membership => membership.Id)
                     .Select(membership => new
                     {
-                        membership.MembershipType,
-                        membership.PurchaseDate,
-                        membership.ExpirationDate,
+                        membership.BehaviorKind,
+                        MembershipLabel = membership.MembershipCatalogItem.Name,
+                        PurchaseDate = membership.Sale.PurchaseDate,
+                        ExpirationDate = membership.IndividualValidTo,
                         membership.IsPaid
                     })
                     .FirstOrDefault()
             })
             .Where(candidate =>
-                !candidate.IsProfessional &&
                 candidate.CurrentMembership != null &&
+                candidate.CurrentMembership.BehaviorKind != MembershipBehaviorKind.Professional &&
                 !candidate.CurrentMembership.IsPaid)
             .OrderBy(candidate => candidate.LastName ?? string.Empty)
             .ThenBy(candidate => candidate.FirstName ?? string.Empty)
@@ -566,7 +583,8 @@ internal sealed class BotApiService(
             .Select(candidate => new BotUnpaidMembershipListItem(
                 candidate.Id,
                 BuildClientFullName(candidate.LastName, candidate.FirstName, candidate.MiddleName),
-                candidate.CurrentMembership!.MembershipType.ToString(),
+                candidate.CurrentMembership!.BehaviorKind.ToString(),
+                candidate.CurrentMembership.MembershipLabel,
                 candidate.CurrentMembership.PurchaseDate,
                 candidate.CurrentMembership.ExpirationDate,
                 candidate.CurrentMembership.IsPaid))
@@ -615,6 +633,9 @@ internal sealed class BotApiService(
         var clientBefore = await dbContext.Clients
             .AsNoTracking()
             .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.MembershipCatalogItem)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.Sale)
             .SingleOrDefaultAsync(client => client.Id == clientId, cancellationToken);
 
         if (clientBefore is null)
@@ -635,9 +656,10 @@ internal sealed class BotApiService(
             var alreadyPaidResponse = new BotMembershipPaymentResponse(
                 clientBefore.Id,
                 BuildClientFullName(clientBefore.LastName, clientBefore.FirstName, clientBefore.MiddleName),
-                currentMembershipBefore.MembershipType.ToString(),
-                currentMembershipBefore.PurchaseDate,
-                currentMembershipBefore.ExpirationDate,
+                currentMembershipBefore.BehaviorKind.ToString(),
+                currentMembershipBefore.MembershipCatalogItem.Name,
+                currentMembershipBefore.Sale.PurchaseDate,
+                currentMembershipBefore.IndividualValidTo,
                 true,
                 true);
 
@@ -664,6 +686,9 @@ internal sealed class BotApiService(
         var clientAfter = await dbContext.Clients
             .AsNoTracking()
             .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.MembershipCatalogItem)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.Sale)
             .SingleAsync(client => client.Id == clientId, cancellationToken);
         var currentMembershipAfter = GetCurrentMembership(clientAfter)
             ?? throw new InvalidOperationException($"Client '{clientId}' has no current membership after payment mark.");
@@ -671,9 +696,10 @@ internal sealed class BotApiService(
         var response = new BotMembershipPaymentResponse(
             clientAfter.Id,
             BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName),
-            currentMembershipAfter.MembershipType.ToString(),
-            currentMembershipAfter.PurchaseDate,
-            currentMembershipAfter.ExpirationDate,
+            currentMembershipAfter.BehaviorKind.ToString(),
+            currentMembershipAfter.MembershipCatalogItem.Name,
+            currentMembershipAfter.Sale.PurchaseDate,
+            currentMembershipAfter.IndividualValidTo,
             currentMembershipAfter.IsPaid,
             false);
 
@@ -975,13 +1001,15 @@ internal sealed class BotApiService(
         Client client,
         User currentUser,
         Guid groupId,
-        DateOnly trainingDate)
+        DateOnly trainingDate,
+        DateOnly businessDate)
     {
         var currentMembership = GetCurrentMembership(client);
         var visibleGroups = currentUser.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
             : client.Groups.AsEnumerable();
-        var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
+        var isProfessional = IsProfessional(currentMembership, businessDate);
+        var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
         var isPresent = client.AttendanceEntries.Any(attendance =>
             attendance.GroupId == groupId &&
             attendance.TrainingDate == trainingDate &&
@@ -995,13 +1023,13 @@ internal sealed class BotApiService(
             MapGroups(visibleGroups),
             MapPhoto(client),
             isPresent,
-            client.IsProfessional,
-            client.ProfessionalComment,
+            isProfessional,
+            isProfessional ? currentMembership!.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
+            ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership),
             ClientMembershipSemantics.HasActivePaidMembership(
-                client.IsProfessional,
+                isProfessional,
                 currentMembership,
                 trainingDate,
                 requirePurchaseDateReached: true));
@@ -1013,7 +1041,8 @@ internal sealed class BotApiService(
         DateOnly trainingDate)
     {
         var currentMembership = GetCurrentMembership(client);
-        var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
+        var isProfessional = IsProfessional(currentMembership, trainingDate);
+        var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
         var groups = user.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == user.Id))
             : client.Groups.AsEnumerable();
@@ -1027,16 +1056,18 @@ internal sealed class BotApiService(
             client.Status.ToString(),
             MapGroups(groups),
             MapPhoto(client),
-            client.IsProfessional,
-            client.ProfessionalComment,
+            isProfessional,
+            isProfessional ? currentMembership!.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
+            ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership),
             ClientMembershipSemantics.HasActivePaidMembership(
-                client.IsProfessional,
+                isProfessional,
                 currentMembership,
                 trainingDate,
-                requirePurchaseDateReached: true));
+                requirePurchaseDateReached: true),
+            currentMembership?.BehaviorKind.ToString(),
+            currentMembership?.MembershipCatalogItem.Name);
     }
 
     private static BotClientCard MapClientCard(
@@ -1046,7 +1077,8 @@ internal sealed class BotApiService(
         IReadOnlyList<BotAttendanceHistoryItem> attendanceHistory)
     {
         var currentMembership = GetCurrentMembership(client);
-        var warning = EvaluateMembershipWarning(client.IsProfessional, currentMembership, trainingDate);
+        var isProfessional = IsProfessional(currentMembership, trainingDate);
+        var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
         var groups = user.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == user.Id))
             : client.Groups.AsEnumerable();
@@ -1060,13 +1092,13 @@ internal sealed class BotApiService(
             client.Status.ToString(),
             MapGroups(groups),
             MapPhoto(client),
-            client.IsProfessional,
-            client.ProfessionalComment,
+            isProfessional,
+            isProfessional ? currentMembership!.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasUnpaidCurrentMembership(client.IsProfessional, currentMembership),
+            ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership),
             ClientMembershipSemantics.HasActivePaidMembership(
-                client.IsProfessional,
+                isProfessional,
                 currentMembership,
                 trainingDate,
                 requirePurchaseDateReached: true),
@@ -1074,9 +1106,10 @@ internal sealed class BotApiService(
                 ? null
                 : new BotClientMembership(
                     currentMembership.Id,
-                    currentMembership.MembershipType.ToString(),
-                    currentMembership.PurchaseDate,
-                    currentMembership.ExpirationDate,
+                    currentMembership.BehaviorKind.ToString(),
+                    currentMembership.MembershipCatalogItem.Name,
+                    currentMembership.Sale.PurchaseDate,
+                    currentMembership.IndividualValidTo,
                     currentMembership.PaymentAmount,
                     currentMembership.IsPaid,
                     currentMembership.SingleVisitUsed),
@@ -1171,6 +1204,11 @@ internal sealed class BotApiService(
             .FirstOrDefault(membership => membership.ValidTo is null);
     }
 
+    private static bool IsProfessional(ClientMembership? membership, DateOnly businessDate) =>
+        membership?.BehaviorKind == MembershipBehaviorKind.Professional &&
+        membership.IndividualValidFrom <= businessDate &&
+        (membership.IndividualValidTo is null || membership.IndividualValidTo >= businessDate);
+
     private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)
     {
         var fullName = string.Join(
@@ -1192,9 +1230,14 @@ internal sealed class BotApiService(
                 membership.Id,
                 membership.ClientId,
                 membership.SaleId,
-                MembershipType = membership.MembershipType.ToString(),
-                membership.PurchaseDate,
-                membership.ExpirationDate,
+                membership.MembershipCatalogItemId,
+                MembershipLabel = membership.MembershipCatalogItem.Name,
+                BehaviorKind = membership.BehaviorKind.ToString(),
+                membership.IndividualValidFrom,
+                membership.IndividualValidTo,
+                membership.ProfessionalComment,
+                PurchaseDate = membership.Sale.PurchaseDate,
+                ExpirationDate = membership.IndividualValidTo,
                 membership.PaymentAmount,
                 membership.IsPaid,
                 membership.SingleVisitUsed,

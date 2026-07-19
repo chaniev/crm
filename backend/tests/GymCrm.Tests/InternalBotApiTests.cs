@@ -8,9 +8,11 @@ using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
+using GymCrm.Infrastructure.Persistence.Configurations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -137,11 +139,10 @@ public class InternalBotApiTests
             var membership = await db.ClientMemberships
                 .Include(candidate => candidate.Sale)
                 .SingleAsync(candidate => candidate.ClientId == seeded.CoachClientId && candidate.ValidTo == null);
-            membership.MembershipType = MembershipType.SingleVisit;
-            membership.Sale.MembershipType = MembershipType.SingleVisit;
-            membership.PurchaseDate = today.AddDays(-10);
+            membership.BehaviorKind = MembershipBehaviorKind.SingleVisit;
+            membership.Sale.BehaviorKind = MembershipBehaviorKind.SingleVisit;
             membership.Sale.PurchaseDate = today.AddDays(-10);
-            membership.ExpirationDate = null;
+            membership.IndividualValidTo = null;
             membership.SingleVisitUsed = false;
             await db.SaveChangesAsync();
         }
@@ -493,8 +494,6 @@ public class InternalBotApiTests
         var expiredClient = CreateClient("Expired", "Client", "+79990000006", adminBranch.Id, now);
         var paymentClient = CreateClient("Payment", "Client", "+79990000007", adminBranch.Id, now);
         var professionalPaymentClient = CreateClient("Professional", "Payment", "+79990000008", adminBranch.Id, now);
-        professionalPaymentClient.IsProfessional = true;
-        professionalPaymentClient.ProfessionalComment = "Bot unpaid list must skip professional client";
 
         dbContext.Users.AddRange(headCoach, administrator, coach, inactiveCoach, mustChangePasswordCoach);
         dbContext.Branches.AddRange(coachBranch, adminBranch);
@@ -522,14 +521,14 @@ public class InternalBotApiTests
             new ClientGroup { ClientId = professionalPaymentClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id });
 
         dbContext.ClientMemberships.AddRange(
-            CreateMembership(coachClient.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, isPaid: false, now),
-            CreateMembership(expiringTodayClient.Id, administrator.Id, today.AddDays(-10), today, 1500m, isPaid: true, now),
-            CreateMembership(expiringDayNineClient.Id, administrator.Id, today.AddDays(-10), today.AddDays(9), 1500m, isPaid: true, now),
-            CreateMembership(expiringDayTenClient.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, isPaid: true, now),
-            CreateMembership(expiringDayElevenClient.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, isPaid: true, now),
-            CreateMembership(expiredClient.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, isPaid: true, now),
-            CreateMembership(paymentClient.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now),
-            CreateMembership(professionalPaymentClient.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now));
+            CreateMembership(coachClient.Id, coachBranch.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, isPaid: false, now),
+            CreateMembership(expiringTodayClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today, 1500m, isPaid: true, now),
+            CreateMembership(expiringDayNineClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(9), 1500m, isPaid: true, now),
+            CreateMembership(expiringDayTenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, isPaid: true, now),
+            CreateMembership(expiringDayElevenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, isPaid: true, now),
+            CreateMembership(expiredClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, isPaid: true, now),
+            CreateMembership(paymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now),
+            CreateMembership(professionalPaymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), null, 0m, isPaid: true, now, MembershipBehaviorKind.Professional));
 
         dbContext.Attendance.Add(new Attendance
         {
@@ -608,22 +607,37 @@ public class InternalBotApiTests
 
     private static ClientMembership CreateMembership(
         Guid clientId,
+        Guid branchId,
         Guid changedByUserId,
         DateOnly purchaseDate,
         DateOnly? expirationDate,
         decimal paymentAmount,
         bool isPaid,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        MembershipBehaviorKind behaviorKind = MembershipBehaviorKind.Term)
     {
         var saleId = Guid.NewGuid();
+        var catalogItem = behaviorKind == MembershipBehaviorKind.Professional
+            ? null
+            : MembershipCatalogItem.CreateBranchOwned(
+                branchId,
+                $"Bot {behaviorKind} {clientId:N}",
+                paymentAmount,
+                behaviorKind,
+                purchaseDate,
+                null,
+                now);
+        var catalogItemId = catalogItem?.Id ?? MembershipCatalogItemConfiguration.ProfessionalCatalogItemId;
         return new ClientMembership
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
             SaleId = saleId,
-            MembershipType = MembershipType.Monthly,
-            PurchaseDate = purchaseDate,
-            ExpirationDate = expirationDate,
+            MembershipCatalogItemId = catalogItemId,
+            BehaviorKind = behaviorKind,
+            IndividualValidFrom = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : purchaseDate,
+            IndividualValidTo = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : expirationDate,
+            ProfessionalComment = behaviorKind == MembershipBehaviorKind.Professional ? "Bot professional" : null,
             PaymentAmount = paymentAmount,
             IsPaid = isPaid,
             SingleVisitUsed = false,
@@ -638,12 +652,15 @@ public class InternalBotApiTests
             {
                 Id = saleId,
                 ClientId = clientId,
-                MembershipType = MembershipType.Monthly,
+                MembershipCatalogItemId = catalogItemId,
+                BehaviorKind = behaviorKind,
                 PurchaseDate = purchaseDate,
                 GrossAmount = paymentAmount,
                 CreatedByUserId = changedByUserId,
-                CreatedAt = now
-            }
+                CreatedAt = now,
+                MembershipCatalogItem = catalogItem!
+            },
+            MembershipCatalogItem = catalogItem!
         };
     }
 

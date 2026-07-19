@@ -1034,7 +1034,6 @@ function RouteViewport({
     return (
       <ClientDetailScreen
         canManage={user.permissions.canManageClients}
-        canToggleProfessional={user.role === 'HeadCoach'}
         clientId={route.clientId}
         onBack={onReturnToClients}
         onEdit={onEditClient}
@@ -1146,7 +1145,7 @@ function RouteViewport({
   }
 
   if (route.section === 'Settings') {
-    return <SettingsScreen />
+    return <SettingsScreen user={user} />
   }
 
   if (route.section === 'Home') {

@@ -1,5 +1,6 @@
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 
 namespace GymCrm.Domain.Branches;
 
@@ -21,4 +22,5 @@ public class Branch
     public ICollection<Client> Clients { get; set; } = new List<Client>();
     public ICollection<ClientBranchAssignment> ClientAssignments { get; set; } = new List<ClientBranchAssignment>();
     public ICollection<TrainingGroup> Groups { get; set; } = new List<TrainingGroup>();
+    public ICollection<MembershipCatalogItem> MembershipCatalogItems { get; set; } = new List<MembershipCatalogItem>();
 }

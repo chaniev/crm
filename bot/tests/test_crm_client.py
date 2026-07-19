@@ -57,7 +57,8 @@ async def test_crm_client_sends_idempotency_key_only_for_mutations() -> None:
             json={
                 "clientId": "00000000-0000-0000-0000-000000000001",
                 "fullName": "Иван Петров",
-                "membershipLabel": "Monthly",
+                "behaviorKind": "Term",
+                "membershipLabel": "Месячный",
                 "status": "Paid",
             },
         )
@@ -122,6 +123,8 @@ async def test_crm_client_parses_professional_fields_without_local_payment_logic
                     {
                         "id": "00000000-0000-0000-0000-000000000010",
                         "fullName": "Проф Клиент",
+                        "behaviorKind": "Professional",
+                        "membershipLabel": "Профессиональный",
                         "isProfessional": True,
                         "professionalComment": "Сборная",
                         "hasActivePaidMembership": True,
@@ -150,7 +153,8 @@ async def test_crm_client_parses_professional_fields_without_local_payment_logic
                 "hasActivePaidMembership": True,
                 "hasUnpaidCurrentMembership": False,
                 "currentMembership": {
-                    "membershipType": "SingleVisit",
+                    "behaviorKind": "Professional",
+                    "membershipLabel": "Профессиональный",
                     "purchaseDate": "2026-05-01",
                     "expirationDate": None,
                     "isPaid": False,
@@ -181,11 +185,15 @@ async def test_crm_client_parses_professional_fields_without_local_payment_logic
     )
 
     assert search.items[0].is_professional is True
+    assert search.items[0].behavior_kind == "Professional"
+    assert search.items[0].membership_label == "Профессиональный"
     assert search.items[0].professional_comment == "Сборная"
     assert search.items[1].is_paid is None
     assert card.is_professional is True
     assert card.professional_comment == "Сборная"
     assert card.current_membership is not None
+    assert card.current_membership.behavior_kind == "Professional"
+    assert card.current_membership.type_label == "Профессиональный"
     assert card.current_membership.is_paid is False
     await http_client.aclose()
 

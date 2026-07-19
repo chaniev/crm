@@ -1,10 +1,9 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   getClient,
-  getMembershipExpirationSuggestion,
+  getEligibleMembershipCatalogItems,
   type ClientDetails,
-  type MembershipType,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { ClientDetailScreen } from './ClientManagement'
@@ -15,38 +14,26 @@ vi.mock('../../lib/api', async (importOriginal) => {
   return {
     ...actual,
     getClient: vi.fn(),
-    getMembershipExpirationSuggestion: vi.fn(),
+    getEligibleMembershipCatalogItems: vi.fn(),
   }
 })
 
 const getClientMock = vi.mocked(getClient)
-const getMembershipExpirationSuggestionMock = vi.mocked(
-  getMembershipExpirationSuggestion,
-)
+const getEligibleItemsMock = vi.mocked(getEligibleMembershipCatalogItems)
 
 beforeEach(() => {
   getClientMock.mockReset()
-  getMembershipExpirationSuggestionMock.mockReset()
+  getEligibleItemsMock.mockReset()
 })
 
 describe('ClientDetailScreen membership purchase form', () => {
-  test('uses backend expiration suggestion for monthly purchase default date', async () => {
+  test('loads eligible catalog options for a purchase', async () => {
     getClientMock.mockResolvedValue(buildClientDetails())
-    getMembershipExpirationSuggestionMock.mockImplementation(
-      async (membershipType: MembershipType, startDate: string) => ({
-        membershipType,
-        startDate,
-        expirationDate:
-          membershipType === 'Monthly' && startDate === '2026-06-10'
-            ? '2026-07-09'
-            : null,
-      }),
-    )
+    getEligibleItemsMock.mockResolvedValue([{ id: 'catalog-1', branchId: 'branch-1', name: 'Месяц', price: 3000, behaviorKind: 'Term', availableFrom: '2026-01-01', availableTo: null, isSystemOwned: false }])
 
     renderWithProviders(
       <ClientDetailScreen
         canManage
-        canToggleProfessional
         clientId="client-1"
         onBack={() => undefined}
         onEdit={() => undefined}
@@ -55,16 +42,8 @@ describe('ClientDetailScreen membership purchase form', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
 
-    const purchaseDateInput = screen.getByLabelText('Дата покупки')
-    fireEvent.change(purchaseDateInput, { target: { value: '2026-06-10' } })
-
-    await waitFor(() => {
-      expect(screen.getByLabelText('Дата окончания')).toHaveValue('2026-07-09')
-    })
-    expect(getMembershipExpirationSuggestionMock).toHaveBeenLastCalledWith(
-      'Monthly',
-      '2026-06-10',
-    )
+    expect(await screen.findByRole('combobox', { name: 'Абонемент' })).toBeInTheDocument()
+    expect(getEligibleItemsMock).toHaveBeenCalledWith('branch-1', expect.any(AbortSignal))
   })
 })
 

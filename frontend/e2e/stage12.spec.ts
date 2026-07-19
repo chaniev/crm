@@ -160,7 +160,7 @@ type ClientState = {
   hasActivePaidMembership: boolean
   hasUnpaidCurrentMembership: boolean
   membershipWarning: boolean
-  membershipType?: 'SingleVisit' | 'Monthly' | 'Yearly'
+  behaviorKind?: 'SingleVisit' | 'Term' | 'Professional'
   currentMembershipIsPaid?: boolean
   expirationDate: string
 }
@@ -268,7 +268,7 @@ const baseClient: ClientState = {
   hasActivePaidMembership: true,
   hasUnpaidCurrentMembership: false,
   membershipWarning: false,
-  membershipType: 'Monthly',
+  behaviorKind: 'Term',
   expirationDate: addIsoDays(todayIso(), 20),
 }
 
@@ -404,7 +404,7 @@ test.describe('Основные e2e сценарии', () => {
           hasActivePaidMembership: false,
           hasUnpaidCurrentMembership: false,
           membershipWarning: false,
-          membershipType: undefined,
+          behaviorKind: undefined,
           expirationDate: '',
         }
 
@@ -580,97 +580,6 @@ test.describe('Основные e2e сценарии', () => {
     ).toBeVisible()
   })
 
-  test('HeadCoach включает льготный статус профессионала с комментарием', async ({
-    page,
-  }) => {
-    const groups: GroupState[] = [...baseGroups]
-    let professionalPayload: Record<string, unknown> | null = null
-    let client: ClientState = {
-      ...baseClient,
-      id: 'client-professional',
-      lastName: 'Профессионалов',
-      firstName: 'Льготный',
-      middleName: 'Статус',
-      hasActivePaidMembership: false,
-      hasUnpaidCurrentMembership: true,
-      membershipWarning: true,
-      currentMembershipIsPaid: false,
-    }
-
-    await mockApi(page, async ({ pathname, method, route }) => {
-      if (pathname === '/api/auth/session' && method === 'GET') {
-        await fulfillJson(route, 200, headCoachSession)
-        return true
-      }
-
-      if (pathname === '/api/clients/client-professional' && method === 'GET') {
-        await fulfillJson(route, 200, toClientPayload(client, groups))
-        return true
-      }
-
-      if (
-        pathname === '/api/clients/client-professional/professional-status' &&
-        method === 'PUT'
-      ) {
-        professionalPayload = route.request().postDataJSON()
-        expect(route.request().headers()['x-csrf-token']).toBe(
-          headCoachSession.csrfToken,
-        )
-        expect(professionalPayload).toEqual({
-          IsProfessional: true,
-          ProfessionalComment: 'Кандидат сборной, льготный доступ',
-        })
-
-        client = {
-          ...client,
-          isProfessional: true,
-          professionalComment: 'Кандидат сборной, льготный доступ',
-          hasActivePaidMembership: true,
-          hasUnpaidCurrentMembership: false,
-          membershipWarning: false,
-          currentMembershipIsPaid: false,
-        }
-
-        await fulfillJson(route, 200, toClientPayload(client, groups))
-        return true
-      }
-
-      return false
-    })
-
-    await page.goto('/clients/client-professional')
-
-    await expect(
-      page.getByRole('heading', {
-        level: 1,
-        name: 'Профессионалов Льготный Статус',
-      }),
-    ).toBeVisible()
-    await page.getByRole('button', { name: 'Профессионал' }).click()
-    await page
-      .getByLabel('Комментарий')
-      .fill('Кандидат сборной, льготный доступ')
-    await page
-      .getByRole('dialog')
-      .getByRole('button', { name: 'Профессионал' })
-      .click()
-
-    await expect.poll(() => professionalPayload).toEqual({
-      IsProfessional: true,
-      ProfessionalComment: 'Кандидат сборной, льготный доступ',
-    })
-    await expect(
-      page.getByText('Профессионал', { exact: true }).first(),
-    ).toBeVisible()
-    await expect(
-      page
-        .getByLabel('Профессионал', { exact: true })
-        .getByText('Кандидат сборной, льготный доступ')
-        .first(),
-    ).toBeVisible()
-    await expect(page.getByText('Не оплачен')).toHaveCount(0)
-  })
-
   test('Administrator не видит управление льготным статусом профессионала', async ({
     page,
   }) => {
@@ -740,8 +649,8 @@ test.describe('Основные e2e сценарии', () => {
           headCoachSession.csrfToken,
         )
         expect(transferPayload).toEqual({
-          branchId: secondaryBranch.id,
-          groupId: null,
+          targetBranchId: secondaryBranch.id,
+          targetGroupIds: [],
         })
 
         client = {
@@ -765,8 +674,8 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByRole('button', { name: 'Перевести клиента' }).click()
 
     await expect.poll(() => transferPayload).toEqual({
-      branchId: secondaryBranch.id,
-      groupId: null,
+      targetBranchId: secondaryBranch.id,
+      targetGroupIds: [],
     })
     await expect(page.getByText('Север', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Клиент пока не включен ни в одну группу.')).toBeVisible()
@@ -2048,6 +1957,27 @@ async function mockApi(
       }
 
       if (
+        (pathname === '/api/settings/membership-catalog' ||
+          pathname === '/api/membership-catalog/eligible') &&
+        method === 'GET'
+      ) {
+        const branchId = requestUrl.searchParams.get('branchId') ?? baseBranch.id
+        await fulfillJson(route, 200, {
+          items: [{
+            id: `catalog-term-${branchId}`,
+            branchId,
+            name: 'Месячный',
+            price: 3000,
+            behaviorKind: 'Term',
+            availableFrom: '2026-01-01',
+            availableTo: null,
+            isSystemOwned: false,
+          }],
+        })
+        return
+      }
+
+      if (
         /^\/api\/clients\/[^/]+\/messenger\/telegram$/.test(pathname) &&
         method === 'GET'
       ) {
@@ -2202,13 +2132,13 @@ function buildClientsListPayload(
 
 function toClientPayload(client: ClientState, groups: GroupState[]) {
   const assignedGroups = groups.filter((group) => client.groupIds.includes(group.id))
-  const membershipType = client.membershipType
+  const behaviorKind = client.behaviorKind
   const isProfessional = client.isProfessional ?? false
   const currentMembershipIsPaid =
     client.currentMembershipIsPaid ?? client.hasActivePaidMembership
   const membershipState = isProfessional
     ? 'ActivePaid'
-    : !membershipType
+    : !behaviorKind
       ? 'None'
       : client.hasUnpaidCurrentMembership
         ? 'Unpaid'
@@ -2249,23 +2179,23 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     hasActivePaidMembership: client.hasActivePaidMembership,
     hasUnpaidCurrentMembership: client.hasUnpaidCurrentMembership,
     membershipWarning: client.membershipWarning,
-    hasCurrentMembership: Boolean(membershipType),
+    hasCurrentMembership: Boolean(behaviorKind),
     membershipState,
     lastVisitDate: addIsoDays(todayIso(), -1),
-    currentMembershipSummary: membershipType
+    currentMembershipSummary: behaviorKind
       ? {
           id: `${client.id}-m1`,
-          membershipType,
+          behaviorKind,
           purchaseDate: addIsoDays(todayIso(), -20),
           expirationDate: client.expirationDate,
           isPaid: currentMembershipIsPaid,
           singleVisitUsed: false,
         }
       : null,
-    currentMembership: membershipType
+    currentMembership: behaviorKind
       ? {
           id: `${client.id}-m1`,
-          membershipType,
+          behaviorKind,
           purchaseDate: addIsoDays(todayIso(), -20),
           expirationDate: client.expirationDate,
           paymentAmount: 4000,
@@ -2274,11 +2204,11 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
           changedByUserName: 'Тест',
         }
       : null,
-    membershipHistory: membershipType
+    membershipHistory: behaviorKind
       ? [
           {
             id: `${client.id}-m1`,
-            membershipType,
+            behaviorKind,
             purchaseDate: addIsoDays(todayIso(), -20),
             expirationDate: client.expirationDate,
             paymentAmount: 4000,
@@ -2296,7 +2226,7 @@ function toExpiringMembershipPayload(client: ClientState) {
   return {
     clientId: client.id,
     fullName: `${client.lastName} ${client.firstName} ${client.middleName}`,
-    membershipType: client.membershipType ?? 'Monthly',
+    behaviorKind: client.behaviorKind ?? 'Term',
     expirationDate: client.expirationDate,
     daysUntilExpiration: Math.max(
       0,
