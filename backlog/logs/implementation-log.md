@@ -673,3 +673,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-070-membership-catalog`, test-first PostgreSQL/API/UI coverage, immutable sale-price and atomic purchase/transfer barriers, administrator branch scope and audit. Updated requirement adds explicit catalog behavior kind `Professional`, removes the independent professional checkbox/write flow, derives privileges from the effective membership, preserves HeadCoach-only assignment and adds backend/frontend/bot regression coverage.
+
+# 2026-07-19 20:15
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-067-missed-training-follow-up.plan.md
+
+## Skipped tasks
+- TASK-067-missed-training-follow-up.md — not moved: source task remains in `/backlog/tasks-ready`; risk is high and the current backend model has no canonical membership-freeze interval, while the acceptance criteria require freeze to break the missed-training sequence. Planning and safe decomposition completed pending prerequisite confirmation.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-067-missed-training-follow-up`, test-first streak and unified-attention coverage, backend-owned unique-client aggregation, an audited acknowledgement boundary, role/scope barriers, frontend/Telegram follow-up behavior, and an explicit prerequisite for freeze and lesson-occurrence semantics.
