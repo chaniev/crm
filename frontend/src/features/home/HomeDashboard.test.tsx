@@ -382,7 +382,7 @@ function buildMembership(
   return {
     clientId: 'client-1',
     fullName: 'Иван Иванов',
-    membershipType: 'Monthly',
+    behaviorKind: 'Term',
     expirationDate: '2026-05-06',
     daysUntilExpiration: 3,
     isPaid: true,

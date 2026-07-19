@@ -5,6 +5,7 @@ using GymCrm.Domain.Bot;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Messenger;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +36,7 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<ClientMessengerMessage> ClientMessengerMessages => Set<ClientMessengerMessage>();
     public DbSet<ClientMessengerReadState> ClientMessengerReadStates => Set<ClientMessengerReadState>();
     public DbSet<ClientTelegramPollState> ClientTelegramPollStates => Set<ClientTelegramPollState>();
+    public DbSet<MembershipCatalogItem> MembershipCatalogItems => Set<MembershipCatalogItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

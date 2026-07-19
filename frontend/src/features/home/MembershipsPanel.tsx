@@ -5,7 +5,7 @@ import {
   getMembershipAttentionItems,
   type MembershipAttentionItem,
   type MembershipAttentionState,
-  type MembershipType,
+  type MembershipBehaviorKind,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import {
@@ -24,7 +24,7 @@ type MembershipsPanelProps = {
   onOpenClient?: (clientId: string) => void
 }
 
-const membershipTypeLabels = resources.common.membership.typeLabels satisfies Record<MembershipType, string>
+const behaviorKindLabels = resources.common.membership.typeLabels satisfies Record<MembershipBehaviorKind, string>
 
 export function MembershipsPanel({ onCountChange, onOpenClient }: MembershipsPanelProps) {
   const [clients, setClients] = useState<MembershipAttentionItem[]>([])
@@ -93,7 +93,7 @@ export function MembershipsPanel({ onCountChange, onOpenClient }: MembershipsPan
                 <div className="home-client-row">
                   <Text fw={700} size="lg">{client.fullName}</Text>
                   <SimpleGrid className="home-client-row__fields" cols={{ base: 1, xs: 2, xl: 4 }}>
-                    <HomeField label={resources.home.expiringMemberships.fields.membershipType} value={membershipTypeLabels[client.membershipType]} />
+                    <HomeField label={resources.home.expiringMemberships.fields.behaviorKind} value={behaviorKindLabels[client.behaviorKind]} />
                     <HomeField label={resources.home.expiringMemberships.fields.expirationDate} value={formatDateValue(client.expirationDate)} />
                     <HomeField label={resources.home.expiringMemberships.fields.state} value={<MembershipAttentionStateView client={client} />} />
                     <HomeField label={resources.home.expiringMemberships.fields.payment} value={<Badge color={client.isPaid ? 'teal' : 'red'} variant="light">{client.isPaid ? resources.common.statuses.paid : resources.common.statuses.unpaid}</Badge>} />

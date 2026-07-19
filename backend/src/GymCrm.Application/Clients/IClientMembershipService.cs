@@ -1,4 +1,5 @@
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Memberships;
 
 namespace GymCrm.Application.Clients;
 
@@ -56,25 +57,24 @@ public sealed record RestoreSingleVisitCommand(
 
 public sealed record CreateClientMembershipPurchaseCommand(
     Guid ChangedByUserId,
-    MembershipType MembershipType,
-    DateOnly PurchaseDate,
-    DateOnly? ExpirationDate,
-    decimal PaymentAmount,
-    bool IsPaid);
+    Guid MembershipCatalogItemId,
+    DateOnly? ValidFrom,
+    DateOnly? ValidTo,
+    bool IsPaid,
+    DateOnly? PaymentDate,
+    string? ProfessionalComment);
 
 public sealed record RenewClientMembershipCommand(
     Guid ChangedByUserId,
-    DateOnly RenewalDate,
-    DateOnly? ExpirationDate,
-    decimal PaymentAmount,
-    bool IsPaid);
+    Guid MembershipCatalogItemId,
+    bool IsPaid,
+    DateOnly? PaymentDate,
+    string? ProfessionalComment);
 
 public sealed record CorrectClientMembershipCommand(
     Guid ChangedByUserId,
-    MembershipType MembershipType,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
-    decimal PaymentAmount,
     bool IsPaid);
 
 public sealed record MarkClientMembershipPaymentCommand(
@@ -103,7 +103,14 @@ public enum ClientMembershipMutationError
     CurrentMembershipMissing = 3,
     CurrentMembershipAlreadyPaid = 4,
     CorrectedGrossAmountBelowRefunds = 5,
-    CorrectedPurchaseDateAfterRefund = 6
+    CorrectedPurchaseDateAfterRefund = 6,
+    CatalogItemMissing = 7,
+    CatalogItemBranchMismatch = 8,
+    CatalogItemUnavailable = 9,
+    MembershipValidityInvalid = 10,
+    ActiveMembershipExists = 11,
+    RenewalNotAllowed = 12,
+    MembershipOverlap = 13
 }
 
 public enum ClientMembershipRefundMutationError
@@ -129,7 +136,7 @@ public enum SingleVisitWriteOffStatus
     MembershipNotSingleVisit = 4,
     SingleVisitAlreadyUsed = 5,
     MembershipPurchasedAfterTrainingDate = 6,
-    ClientIsProfessional = 7
+    ProfessionalPrivilegeActive = 7
 }
 
 public enum SingleVisitRestoreStatus
@@ -146,9 +153,14 @@ public sealed record ClientMembershipDetailsResult(
 
 public sealed record ClientMembershipSnapshotResult(
     Guid Id,
-    MembershipType MembershipType,
+    Guid MembershipCatalogItemId,
+    string MembershipName,
+    MembershipBehaviorKind BehaviorKind,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
+    DateOnly? IndividualValidFrom,
+    DateOnly? IndividualValidTo,
+    string? ProfessionalComment,
     decimal PaymentAmount,
     bool IsPaid,
     bool SingleVisitUsed,
@@ -185,7 +197,8 @@ public sealed record ClientMembershipRefundSnapshotResult(
 public sealed record ClientMembershipSaleSnapshotResult(
     Guid Id,
     Guid ClientId,
-    MembershipType MembershipType,
+    Guid MembershipCatalogItemId,
+    MembershipBehaviorKind BehaviorKind,
     DateOnly PurchaseDate,
     decimal GrossAmount,
     Guid CreatedByUserId,

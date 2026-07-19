@@ -6,4 +6,5 @@ internal sealed record UpdateAdministratorRequest(
     bool MustChangePassword,
     bool IsActive,
     string? MessengerPlatform = null,
-    string? MessengerPlatformUserId = null);
+    string? MessengerPlatformUserId = null,
+    Guid BranchId = default);

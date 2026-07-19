@@ -7,7 +7,7 @@ import {
   type ClientMembershipChangeReason,
   type ClientMembershipSummary,
   type ClientStatus,
-  type MembershipType,
+  type MembershipBehaviorKind,
 } from '../../../lib/api'
 import { resources } from '../../../lib/resources'
 
@@ -45,8 +45,8 @@ export const statusLabelMap = resources.clients.statuses satisfies Record<
   string
 >
 
-export const membershipTypeLabels = resources.clients
-  .membershipTypeLabels satisfies Record<MembershipType, string>
+export const behaviorKindLabels = resources.clients
+  .behaviorKindLabels satisfies Record<MembershipBehaviorKind, string>
 
 const membershipChangeReasonLabels = resources.clients.list
   .membershipChangeReasonLabels satisfies Record<
@@ -164,10 +164,10 @@ export function formatDateValue(value?: string | null) {
 }
 
 export function formatExpirationValue(
-  membershipType: MembershipType,
+  behaviorKind: MembershipBehaviorKind,
   expirationDate?: string | null,
 ) {
-  if (membershipType === 'SingleVisit') {
+  if (behaviorKind === 'SingleVisit') {
     return expirationDate ? formatDateValue(expirationDate) : 'По факту'
   }
 
@@ -191,7 +191,7 @@ function resolveMembershipLabel(
     return 'Без абонемента'
   }
 
-  return membershipTypeLabels[membership.membershipType]
+  return behaviorKindLabels[membership.behaviorKind]
 }
 
 function resolveMembershipMeta(client: ClientListItem) {
@@ -206,12 +206,12 @@ function resolveMembershipMeta(client: ClientListItem) {
   }
 
   const expiration = formatExpirationValue(
-    membership.membershipType,
+    membership.behaviorKind,
     membership.expirationDate,
   )
   const payment = membership.isPaid ? 'оплачен' : 'не оплачен'
 
-  if (membership.membershipType === 'SingleVisit') {
+  if (membership.behaviorKind === 'SingleVisit') {
     return membership.singleVisitUsed
       ? `${expiration}, использован`
       : `${expiration}, ${payment}`

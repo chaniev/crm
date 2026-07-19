@@ -20,6 +20,11 @@ export const API_ENDPOINTS = {
     collection: '/settings/administrators',
     byId: (administratorId: string) => `/settings/administrators/${administratorId}`,
   },
+  membershipCatalog: {
+    collection: '/settings/membership-catalog',
+    byId: (itemId: string) => `/settings/membership-catalog/${itemId}`,
+    eligible: '/membership-catalog/eligible',
+  },
   clients: {
     collection: '/clients',
     byId: (clientId: string) => `/clients/${clientId}`,
@@ -28,8 +33,6 @@ export const API_ENDPOINTS = {
     archive: (clientId: string) => `/clients/${clientId}/archive`,
     restore: (clientId: string) => `/clients/${clientId}/restore`,
     transfer: (clientId: string) => `/clients/${clientId}/transfer`,
-    professionalStatus: (clientId: string) =>
-      `/clients/${clientId}/professional-status`,
     messenger: {
       telegram: {
         summary: (clientId: string) => `/clients/${clientId}/messenger/telegram`,
@@ -125,7 +128,7 @@ export const CLIENTS_QUERY_KEYS = {
   status: 'status',
   paymentStatus: 'paymentStatus',
   membershipState: 'membershipState',
-  membershipType: 'membershipType',
+  behaviorKind: 'behaviorKind',
   membershipExpiresFrom: 'membershipExpiresFrom',
   membershipExpiresTo: 'membershipExpiresTo',
   hasPhoto: 'hasPhoto',

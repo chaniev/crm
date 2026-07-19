@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -174,7 +175,8 @@ public class UsersApiTests
                        MustChangePassword = true,
                        IsActive = true,
                        MessengerPlatform = "Telegram",
-                       MessengerPlatformUserId = "settings-admin-telegram"
+                       MessengerPlatformUserId = "settings-admin-telegram",
+                       BranchId = seeded.BranchId
                    },
                    session.CsrfToken))
         {
@@ -197,7 +199,8 @@ public class UsersApiTests
                        MustChangePassword = false,
                        IsActive = false,
                        MessengerPlatform = (string?)null,
-                       MessengerPlatformUserId = (string?)null
+                       MessengerPlatformUserId = (string?)null,
+                       BranchId = seeded.BranchId
                    },
                    session.CsrfToken))
         {
@@ -246,7 +249,8 @@ public class UsersApiTests
                 Password = "12345Aa!",
                 Role = "Coach",
                 MustChangePassword = true,
-                IsActive = true
+                IsActive = true,
+                BranchId = seeded.BranchId
             },
             session.CsrfToken);
 
@@ -681,7 +685,19 @@ public class UsersApiTests
         var administrator = CreateUser("administrator-stage4", "Администратор Stage 4", UserRole.Administrator, sharedPassword, now, passwordHashService);
         var coach = CreateUser("coach-stage4", "Тренер Stage 4", UserRole.Coach, sharedPassword, now, passwordHashService);
 
+        var branch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Users API Branch",
+            Address = "Users API address",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        administrator.BranchId = branch.Id;
+
         dbContext.Users.AddRange(headCoach, administrator, coach);
+        dbContext.Branches.Add(branch);
         await dbContext.SaveChangesAsync();
 
         return new SeededUsersData(
@@ -691,7 +707,8 @@ public class UsersApiTests
             headCoach.Login,
             administrator.Login,
             coach.Login,
-            sharedPassword);
+            sharedPassword,
+            branch.Id);
     }
 
     private static User CreateUser(
@@ -901,7 +918,8 @@ public class UsersApiTests
         string HeadCoachLogin,
         string AdministratorLogin,
         string CoachLogin,
-        string SharedPassword);
+        string SharedPassword,
+        Guid BranchId);
 
     private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);
 

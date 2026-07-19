@@ -55,8 +55,8 @@ internal static class ClientResources
     public static string PaymentMarkMustSetPaid => GetString(nameof(PaymentMarkMustSetPaid));
     public static string CurrentMembershipAlreadyPaid => GetString(nameof(CurrentMembershipAlreadyPaid));
     public static string ExpirationBeforePurchaseDate => GetString(nameof(ExpirationBeforePurchaseDate));
-    public static string MembershipTypeRequired => GetString(nameof(MembershipTypeRequired));
-    public static string InvalidMembershipType => GetString(nameof(InvalidMembershipType));
+    public static string BehaviorKindRequired => GetString(nameof(BehaviorKindRequired));
+    public static string InvalidBehaviorKind => GetString(nameof(InvalidBehaviorKind));
     public static string InvalidIsoDate => GetString(nameof(InvalidIsoDate));
     public static string PaymentAmountRequired => GetString(nameof(PaymentAmountRequired));
     public static string PaymentAmountMustBeNonNegative => GetString(nameof(PaymentAmountMustBeNonNegative));
@@ -106,9 +106,9 @@ internal static class ClientResources
         return Format(nameof(AttendanceTakeOutOfRange), maxTake);
     }
 
-    public static string CurrentMembershipTypeMismatch(string expectedMembershipType)
+    public static string CurrentBehaviorKindMismatch(string expectedBehaviorKind)
     {
-        return Format(nameof(CurrentMembershipTypeMismatch), expectedMembershipType);
+        return Format(nameof(CurrentBehaviorKindMismatch), expectedBehaviorKind);
     }
 
     public static string PhotoFormContentTypeRequired(string formFieldName)

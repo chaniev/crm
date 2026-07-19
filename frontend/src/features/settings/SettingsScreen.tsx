@@ -5,6 +5,7 @@ import {
   Group,
   Modal,
   Paper,
+  Select,
   SimpleGrid,
   Stack,
   Tabs,
@@ -21,6 +22,7 @@ import {
   IconRefresh,
   IconSettings,
   IconTags,
+  IconIdBadge2,
   IconTrash,
   IconUserCog,
   IconUserPlus,
@@ -32,11 +34,14 @@ import {
   createGroupType,
   deleteGroupType,
   getAdministrators,
+  getBranches,
   getGroupTypes,
   updateAdministrator,
   updateGroupType,
   type GroupType,
   type UserListItem,
+  type AuthenticatedUser,
+  type Branch,
 } from '../../lib/api'
 import {
   Button,
@@ -67,8 +72,9 @@ import {
   toUpdateUserPayload,
 } from '../users/UserManagement.mappers'
 import { BranchSettingsScreen } from './BranchSettingsScreen'
+import { MembershipCatalogSettings } from './MembershipCatalogSettings'
 
-type SettingsTab = 'group-types' | 'branches' | 'administrators'
+type SettingsTab = 'catalog' | 'group-types' | 'branches' | 'administrators'
 
 const administratorRoleOptions = [
   { value: 'Administrator' as const, label: userRoleLabels.Administrator },
@@ -76,14 +82,19 @@ const administratorRoleOptions = [
 
 const administratorIsActiveLabel = 'Администратор активен'
 
-export function SettingsScreen() {
+export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const isHeadCoach = user.role === 'HeadCoach'
 
   return (
     <PageLayout data-testid="settings-screen" title="Настройки">
-      <Tabs defaultValue="group-types" keepMounted={false}>
+      <Tabs defaultValue="catalog" keepMounted={false}>
         <PageSection>
           <Tabs.List grow={isMobile}>
+            <Tabs.Tab leftSection={<IconIdBadge2 size={18} />} value={'catalog' satisfies SettingsTab}>
+              Абонементы
+            </Tabs.Tab>
+            {isHeadCoach ? <>
             <Tabs.Tab
               leftSection={<IconTags size={18} />}
               value={'group-types' satisfies SettingsTab}
@@ -102,10 +113,15 @@ export function SettingsScreen() {
             >
               Администраторы
             </Tabs.Tab>
+            </> : null}
           </Tabs.List>
         </PageSection>
 
-        <PageTabsPanel value={'group-types' satisfies SettingsTab}>
+        <PageTabsPanel value={'catalog' satisfies SettingsTab}>
+          <MembershipCatalogSettings role={user.role} assignedBranchId={user.branchId} />
+        </PageTabsPanel>
+
+        {isHeadCoach ? <><PageTabsPanel value={'group-types' satisfies SettingsTab}>
           <GroupTypesSettingsPanel />
         </PageTabsPanel>
 
@@ -116,6 +132,7 @@ export function SettingsScreen() {
         <PageTabsPanel value={'administrators' satisfies SettingsTab}>
           <AdministratorsSettingsPanel />
         </PageTabsPanel>
+        </> : null}
       </Tabs>
     </PageLayout>
   )
@@ -437,6 +454,9 @@ type AdministratorModalState =
 
 function AdministratorsSettingsPanel() {
   const [administrators, setAdministrators] = useState<UserListItem[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [createBranchId, setCreateBranchId] = useState('')
+  const [editBranchId, setEditBranchId] = useState('')
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
@@ -475,7 +495,12 @@ function AdministratorsSettingsPanel() {
       setLoadError(null)
 
       try {
-        setAdministrators(await getAdministrators(controller.signal))
+        const [nextAdministrators, nextBranches] = await Promise.all([
+          getAdministrators(controller.signal),
+          getBranches({}, controller.signal),
+        ])
+        setAdministrators(nextAdministrators)
+        setBranches(nextBranches.filter((branch) => !branch.isArchived))
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -499,6 +524,7 @@ function AdministratorsSettingsPanel() {
   }, [reloadKey])
 
   function openCreateModal() {
+    setCreateBranchId(branches[0]?.id ?? '')
     createForm.setValues({
       fullName: '',
       login: '',
@@ -515,6 +541,7 @@ function AdministratorsSettingsPanel() {
   }
 
   function openEditModal(administrator: UserListItem) {
+    setEditBranchId(administrator.branchId ?? branches[0]?.id ?? '')
     editForm.setValues({
       ...toEditUserFormValues(administrator),
       role: 'Administrator',
@@ -542,6 +569,7 @@ function AdministratorsSettingsPanel() {
         isActive: payload.isActive,
         messengerPlatform: payload.messengerPlatform,
         messengerPlatformUserId: payload.messengerPlatformUserId,
+        branchId: createBranchId,
       })
       setAdministrators((current) =>
         [...current, createdAdministrator].sort(compareUsers),
@@ -589,6 +617,7 @@ function AdministratorsSettingsPanel() {
           isActive: payload.isActive,
           messengerPlatform: payload.messengerPlatform,
           messengerPlatformUserId: payload.messengerPlatformUserId,
+          branchId: editBranchId,
         },
       )
       setAdministrators((current) =>
@@ -712,6 +741,9 @@ function AdministratorsSettingsPanel() {
                       <Text c="dimmed" size="sm">
                         Логин: {administrator.login}
                       </Text>
+                      <Text c="dimmed" size="sm">
+                        Филиал: {administrator.branchName ?? 'не назначен'}
+                      </Text>
                       {administrator.messengerPlatformUserId ? (
                         <Text c="dimmed" size="sm">
                           Telegram ID: {administrator.messengerPlatformUserId}
@@ -757,6 +789,14 @@ function AdministratorsSettingsPanel() {
                 roleOptions={administratorRoleOptions}
                 showRoleField={false}
               />
+              <Select
+                allowDeselect={false}
+                data={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+                error={!createBranchId ? 'Выберите филиал.' : undefined}
+                label="Филиал администратора"
+                onChange={(value) => setCreateBranchId(value ?? '')}
+                value={createBranchId || null}
+              />
               <SettingsFormActions
                 onCancel={() => setModalState(null)}
                 submitting={submitting}
@@ -775,6 +815,14 @@ function AdministratorsSettingsPanel() {
                 isActiveLabel={administratorIsActiveLabel}
                 roleDisabled
                 roleOptions={administratorRoleOptions}
+              />
+              <Select
+                allowDeselect={false}
+                data={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+                error={!editBranchId ? 'Выберите филиал.' : undefined}
+                label="Филиал администратора"
+                onChange={(value) => setEditBranchId(value ?? '')}
+                value={editBranchId || null}
               />
               <SettingsFormActions
                 onCancel={() => setModalState(null)}

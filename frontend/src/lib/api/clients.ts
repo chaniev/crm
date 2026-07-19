@@ -21,7 +21,7 @@ import {
   mapClientMembership,
   mapClientPhoto,
   mapClientStatus,
-  mapMembershipType,
+  mapMembershipBehaviorKind,
   normalizeIsoDateValue,
 } from './mappers'
 import {
@@ -55,11 +55,10 @@ import type {
   MembershipAttentionItem,
   MembershipAttentionState,
   MembershipExpirationSuggestion,
-  MembershipType,
+  MembershipBehaviorKind,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
   TransferClientBranchRequest,
-  UpdateClientProfessionalStatusRequest,
   UpsertClientRequest,
 } from './types'
 
@@ -105,8 +104,8 @@ export async function getClients(
   )
   appendSearchParam(
     searchParams,
-    CLIENTS_QUERY_KEYS.membershipType,
-    params.membershipType,
+    CLIENTS_QUERY_KEYS.behaviorKind,
+    params.behaviorKind,
   )
   appendSearchParam(
     searchParams,
@@ -205,12 +204,12 @@ export async function getExpiringClientMemberships(signal?: AbortSignal) {
 }
 
 export async function getMembershipExpirationSuggestion(
-  membershipType: MembershipType,
+  behaviorKind: MembershipBehaviorKind,
   startDate: string,
   signal?: AbortSignal,
 ) {
   const searchParams = new URLSearchParams()
-  searchParams.set('membershipType', membershipType)
+  searchParams.set('behaviorKind', behaviorKind)
   searchParams.set('startDate', startDate)
 
   const payload = await request<unknown>(
@@ -302,24 +301,6 @@ export async function restoreClient(clientId: string) {
   })
 }
 
-export async function updateClientProfessionalStatus(
-  clientId: string,
-  payload: UpdateClientProfessionalStatusRequest,
-) {
-  const response = await request<ClientResponsePayload | null>(
-    API_ENDPOINTS.clients.professionalStatus(clientId),
-    {
-      method: 'PUT',
-      body: JSON.stringify({
-        IsProfessional: payload.isProfessional,
-        ProfessionalComment: payload.professionalComment ?? null,
-      }),
-    },
-  )
-
-  return response ? mapClientDetails(response) : null
-}
-
 export async function purchaseClientMembership(
   clientId: string,
   payload: PurchaseClientMembershipRequest,
@@ -329,12 +310,12 @@ export async function purchaseClientMembership(
     {
       method: 'POST',
       body: JSON.stringify({
-        MembershipType: payload.membershipType,
-        PurchaseDate: payload.purchaseDate,
-        ExpirationDate: payload.expirationDate,
-        PaymentAmount: payload.paymentAmount,
-        IsPaid: payload.isPaid,
-        SingleVisitUsed: payload.singleVisitUsed ?? false,
+        MembershipCatalogItemId: payload.membershipCatalogItemId,
+        ValidFrom: payload.validFrom,
+        ValidTo: payload.validTo,
+        PaymentStatus: payload.paymentStatus,
+        PaymentDate: payload.paymentDate,
+        ProfessionalComment: payload.professionalComment,
       }),
     },
   )
@@ -351,12 +332,10 @@ export async function renewClientMembership(
     {
       method: 'POST',
       body: JSON.stringify({
-        MembershipType: payload.membershipType,
-        RenewalDate: payload.renewalDate,
+        MembershipCatalogItemId: payload.membershipCatalogItemId,
+        PaymentStatus: payload.paymentStatus,
         PaymentDate: payload.paymentDate,
-        ExpirationDate: payload.expirationDate,
-        PaymentAmount: payload.paymentAmount,
-        IsPaid: payload.isPaid,
+        ProfessionalComment: payload.professionalComment,
       }),
     },
   )
@@ -373,7 +352,6 @@ export async function correctClientMembership(
     {
       method: 'POST',
       body: JSON.stringify({
-        MembershipType: payload.membershipType,
         PurchaseDate: payload.purchaseDate,
         ExpirationDate: payload.expirationDate,
         PaymentAmount: payload.paymentAmount,
@@ -395,7 +373,6 @@ export async function markClientMembershipPayment(
     {
       method: 'POST',
       body: JSON.stringify({
-        MembershipType: payload.membershipType,
         PaymentAmount: payload.paymentAmount,
         IsPaid: payload.isPaid,
       }),
@@ -582,7 +559,7 @@ function mapClientMembershipState(
     return 'ActivePaid'
   }
 
-  if (currentMembership.membershipType === 'SingleVisit' && currentMembership.singleVisitUsed) {
+  if (currentMembership.behaviorKind === 'SingleVisit' && currentMembership.singleVisitUsed) {
     return 'UsedSingleVisit'
   }
 
@@ -602,8 +579,8 @@ function mapMembershipAttentionItem(
       readString(payload, ['middleName', 'MiddleName']),
     ) ??
     'Без имени'
-  const membershipType = mapMembershipType(
-    readString(payload, ['membershipType', 'MembershipType']),
+  const behaviorKind = mapMembershipBehaviorKind(
+    readString(payload, ['behaviorKind', 'MembershipBehaviorKind']),
   )
   const expirationDate = normalizeIsoDateValue(
     readString(payload, ['expirationDate', 'ExpirationDate']),
@@ -613,14 +590,14 @@ function mapMembershipAttentionItem(
     'DaysUntilExpiration',
   ])
 
-  if (!clientId || !membershipType) {
+  if (!clientId || !behaviorKind) {
     return null
   }
 
   return {
     clientId,
     fullName,
-    membershipType,
+    behaviorKind,
     expirationDate,
     daysUntilExpiration: daysUntilExpiration ?? null,
     isPaid: readBoolean(payload, ['isPaid', 'IsPaid']) ?? false,
@@ -647,19 +624,19 @@ function mapMembershipExpirationSuggestion(
     throw new Error('Invalid membership expiration suggestion payload.')
   }
 
-  const membershipType = mapMembershipType(
-    readString(payload, ['membershipType', 'MembershipType']),
+  const behaviorKind = mapMembershipBehaviorKind(
+    readString(payload, ['behaviorKind', 'MembershipBehaviorKind']),
   )
   const startDate = normalizeIsoDateValue(
     readString(payload, ['startDate', 'StartDate']),
   )
 
-  if (!membershipType || !startDate) {
+  if (!behaviorKind || !startDate) {
     throw new Error('Invalid membership expiration suggestion payload.')
   }
 
   return {
-    membershipType,
+    behaviorKind,
     startDate,
     expirationDate: normalizeIsoDateValue(
       readString(payload, ['expirationDate', 'ExpirationDate']),

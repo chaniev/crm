@@ -14,6 +14,7 @@ from pydantic import (
 )
 
 BotRole = Literal["HeadCoach", "Administrator", "Coach"]
+MembershipBehaviorKind = Literal["SingleVisit", "Term", "Professional"]
 MenuCode = Literal["attendance", "client_search", "expiring_memberships", "unpaid_memberships"]
 
 
@@ -149,7 +150,7 @@ class ClientListItem(ApiModel):
     full_name: str = Field(alias="fullName")
     phone: str | None = None
     status: str | None = None
-    membership_type: str | None = Field(default=None, alias="membershipType")
+    behavior_kind: MembershipBehaviorKind | None = Field(default=None, alias="behaviorKind")
     membership_label: str | None = Field(default=None, alias="membershipLabel")
     membership_expires_at: date | None = Field(
         default=None,
@@ -169,13 +170,6 @@ class ClientListItem(ApiModel):
         alias="hasUnpaidCurrentMembership",
     )
     has_active_paid_membership: bool = Field(default=False, alias="hasActivePaidMembership")
-
-    @model_validator(mode="after")
-    def fill_derived_fields(self) -> ClientListItem:
-        if self.membership_label is None and self.membership_type:
-            self.membership_label = self.membership_type
-        return self
-
 
 class ClientSearchResponse(ApiModel):
     items: list[ClientListItem]
@@ -197,14 +191,15 @@ class ClientSearchResponse(ApiModel):
 
 
 class ClientCardMembership(ApiModel):
-    membership_type: str = Field(alias="membershipType")
+    behavior_kind: MembershipBehaviorKind = Field(alias="behaviorKind")
+    membership_label: str = Field(alias="membershipLabel")
     purchase_date: date = Field(alias="purchaseDate")
     expiration_date: date | None = Field(default=None, alias="expirationDate")
     is_paid: bool = Field(alias="isPaid")
 
     @property
     def type_label(self) -> str:
-        return self.membership_type
+        return self.membership_label
 
 
 class ClientAttendanceHistoryEntry(ApiModel):
@@ -270,9 +265,8 @@ class MembershipListResponse(ApiModel):
 class MembershipPaymentResult(ApiModel):
     client_id: UUID = Field(alias="clientId")
     full_name: str = Field(alias="fullName")
-    membership_type: str = Field(
-        validation_alias=AliasChoices("membershipType", "membershipLabel")
-    )
+    behavior_kind: MembershipBehaviorKind = Field(alias="behaviorKind")
+    membership_label: str = Field(alias="membershipLabel")
     is_paid: bool | None = Field(default=None, alias="isPaid")
     raw_status: str | None = Field(default=None, alias="status")
     was_already_paid: bool = Field(default=False, alias="wasAlreadyPaid")
@@ -285,10 +279,6 @@ class MembershipPaymentResult(ApiModel):
             else:
                 self.is_paid = not self.was_already_paid
         return self
-
-    @property
-    def membership_label(self) -> str:
-        return self.membership_type
 
     @property
     def status(self) -> str:

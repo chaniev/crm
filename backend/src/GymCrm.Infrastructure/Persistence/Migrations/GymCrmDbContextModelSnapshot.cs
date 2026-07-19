@@ -289,9 +289,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
-                    b.Property<bool>("IsProfessional")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("LastName")
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
@@ -323,10 +320,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("PhotoUploadedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ProfessionalComment")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -340,8 +333,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("BranchId");
 
                     b.HasIndex("FirstName");
-
-                    b.HasIndex("IsProfessional");
 
                     b.HasIndex("LastName");
 
@@ -428,285 +419,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.ToTable("ClientContacts");
                 });
 
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerAccount", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DisplayName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<DateTimeOffset>("LinkedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Platform")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<string>("PlatformUserId")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("PlatformUserIdHash")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<DateTimeOffset?>("UnlinkedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Username")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlatformUserIdHash");
-
-                    b.HasIndex("ClientId", "Platform")
-                        .IsUnique()
-                        .HasFilter("\"UnlinkedAt\" IS NULL");
-
-                    b.HasIndex("Platform", "PlatformUserId")
-                        .IsUnique()
-                        .HasFilter("\"UnlinkedAt\" IS NULL");
-
-                    b.ToTable("ClientMessengerAccounts", t =>
-                        {
-                            t.HasCheckConstraint("CK_ClientMessengerAccounts_RequiredValues", "btrim(\"PlatformUserId\") <> '' AND btrim(\"PlatformUserIdHash\") <> ''");
-                        });
-                });
-
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerLinkToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Platform")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<DateTimeOffset?>("UsedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UsedByPlatformUserIdHash")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("TokenHash")
-                        .IsUnique();
-
-                    b.HasIndex("ClientId", "Platform", "ExpiresAt");
-
-                    b.HasIndex("Platform", "UsedAt");
-
-                    b.ToTable("ClientMessengerLinkTokens", t =>
-                        {
-                            t.HasCheckConstraint("CK_ClientMessengerLinkTokens_RequiredValues", "btrim(\"TokenHash\") <> ''");
-                        });
-                });
-
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CreatedByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Direction")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<DateTimeOffset?>("FailedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("FailureReason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("IdempotencyKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("IdempotencyPayloadHash")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("Platform")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<DateTimeOffset?>("SentAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<string>("TelegramChatId")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<long?>("TelegramMessageId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("TelegramUpdateId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("TelegramUserIdHash")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("ClientId", "Platform", "CreatedAt");
-
-                    b.HasIndex("ClientId", "Platform", "Direction", "CreatedAt");
-
-                    b.HasIndex("ClientId", "Platform", "IdempotencyKey")
-                        .IsUnique()
-                        .HasFilter("\"IdempotencyKey\" IS NOT NULL AND btrim(\"IdempotencyKey\") <> ''");
-
-                    b.HasIndex("Platform", "TelegramUpdateId")
-                        .IsUnique()
-                        .HasFilter("\"TelegramUpdateId\" IS NOT NULL");
-
-                    b.HasIndex("Platform", "TelegramChatId", "TelegramMessageId")
-                        .IsUnique()
-                        .HasFilter("\"TelegramMessageId\" IS NOT NULL AND \"TelegramChatId\" IS NOT NULL AND btrim(\"TelegramChatId\") <> ''");
-
-                    b.ToTable("ClientMessengerMessages", t =>
-                        {
-                            t.HasCheckConstraint("CK_ClientMessengerMessages_Text_Required", "btrim(\"Text\") <> ''");
-                        });
-                });
-
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerReadState", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("LastReadAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Platform")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("ClientId", "Platform", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("ClientMessengerReadStates");
-                });
-
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientTelegramPollState", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("BotName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("NextUpdateOffset")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BotName")
-                        .IsUnique();
-
-                    b.ToTable("ClientTelegramPollStates", t =>
-                        {
-                            t.HasCheckConstraint("CK_ClientTelegramPollStates_BotName_Required", "btrim(\"BotName\") <> ''");
-                        });
-                });
-
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembership", b =>
                 {
                     b.Property<Guid>("Id")
@@ -727,16 +439,22 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateOnly?>("ExpirationDate")
-                        .HasColumnType("date");
+                    b.Property<string>("BehaviorKind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
                     b.Property<bool>("IsPaid")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("MembershipType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                    b.Property<DateOnly?>("IndividualValidFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("IndividualValidTo")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("MembershipCatalogItemId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("PaidAt")
                         .HasColumnType("timestamp with time zone");
@@ -748,8 +466,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
-                    b.Property<DateOnly>("PurchaseDate")
-                        .HasColumnType("date");
+                    b.Property<string>("ProfessionalComment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<Guid>("SaleId")
                         .HasColumnType("uuid");
@@ -771,7 +490,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("\"ValidTo\" IS NULL");
 
-                    b.HasIndex("ExpirationDate");
+                    b.HasIndex("MembershipCatalogItemId");
 
                     b.HasIndex("PaidByUserId");
 
@@ -859,10 +578,13 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
-                    b.Property<string>("MembershipType")
+                    b.Property<string>("BehaviorKind")
                         .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("MembershipCatalogItemId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateOnly>("PurchaseDate")
                         .HasColumnType("date");
@@ -872,6 +594,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("ClientId");
 
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("MembershipCatalogItemId");
 
                     b.HasIndex("PurchaseDate");
 
@@ -1092,10 +816,371 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Memberships.MembershipCatalogItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("AvailableFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("AvailableTo")
+                        .HasColumnType("date");
+
+                    b.Property<string>("BehaviorKind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsSystemOwned")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BehaviorKind")
+                        .IsUnique()
+                        .HasFilter("\"BehaviorKind\" = 'Professional'");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("BranchId", "NormalizedName", "Price");
+
+                    b.ToTable("MembershipCatalogItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MembershipCatalogItems_Availability", "\"AvailableTo\" IS NULL OR \"AvailableTo\" >= \"AvailableFrom\"");
+
+                            t.HasCheckConstraint("CK_MembershipCatalogItems_Name_NotBlank", "btrim(\"Name\") <> '' AND btrim(\"NormalizedName\") <> ''");
+
+                            t.HasCheckConstraint("CK_MembershipCatalogItems_Ownership", "(\"BehaviorKind\" = 'Professional' AND \"BranchId\" IS NULL AND \"IsSystemOwned\") OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND \"BranchId\" IS NOT NULL AND NOT \"IsSystemOwned\")");
+
+                            t.HasCheckConstraint("CK_MembershipCatalogItems_Price", "(\"BehaviorKind\" = 'Professional' AND CAST(\"Price\" AS NUMERIC) = 0) OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND CAST(\"Price\" AS NUMERIC) > 0)");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-4111-8111-111111111070"),
+                            AvailableFrom = new DateOnly(2020, 1, 1),
+                            BehaviorKind = "Professional",
+                            CreatedAt = new DateTimeOffset(new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsSystemOwned = true,
+                            Name = "Профессиональный",
+                            NormalizedName = "ПРОФЕССИОНАЛЬНЫЙ",
+                            Price = 0m,
+                            UpdatedAt = new DateTimeOffset(new DateTime(2020, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset>("LinkedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("PlatformUserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("PlatformUserIdHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset?>("UnlinkedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Username")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlatformUserIdHash");
+
+                    b.HasIndex("ClientId", "Platform")
+                        .IsUnique()
+                        .HasFilter("\"UnlinkedAt\" IS NULL");
+
+                    b.HasIndex("Platform", "PlatformUserId")
+                        .IsUnique()
+                        .HasFilter("\"UnlinkedAt\" IS NULL");
+
+                    b.ToTable("ClientMessengerAccounts", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientMessengerAccounts_RequiredValues", "btrim(\"PlatformUserId\") <> '' AND btrim(\"PlatformUserIdHash\") <> ''");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerLinkToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UsedByPlatformUserIdHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("Platform", "UsedAt");
+
+                    b.HasIndex("ClientId", "Platform", "ExpiresAt");
+
+                    b.ToTable("ClientMessengerLinkTokens", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientMessengerLinkTokens_RequiredValues", "btrim(\"TokenHash\") <> ''");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset?>("FailedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("IdempotencyPayloadHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("TelegramChatId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<long?>("TelegramMessageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("TelegramUpdateId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TelegramUserIdHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("Platform", "TelegramUpdateId")
+                        .IsUnique()
+                        .HasFilter("\"TelegramUpdateId\" IS NOT NULL");
+
+                    b.HasIndex("ClientId", "Platform", "CreatedAt");
+
+                    b.HasIndex("ClientId", "Platform", "IdempotencyKey")
+                        .IsUnique()
+                        .HasFilter("\"IdempotencyKey\" IS NOT NULL AND btrim(\"IdempotencyKey\") <> ''");
+
+                    b.HasIndex("Platform", "TelegramChatId", "TelegramMessageId")
+                        .IsUnique()
+                        .HasFilter("\"TelegramMessageId\" IS NOT NULL AND \"TelegramChatId\" IS NOT NULL AND btrim(\"TelegramChatId\") <> ''");
+
+                    b.HasIndex("ClientId", "Platform", "Direction", "CreatedAt");
+
+                    b.ToTable("ClientMessengerMessages", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientMessengerMessages_Text_Required", "btrim(\"Text\") <> ''");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerReadState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("LastReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ClientId", "Platform", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("ClientMessengerReadStates");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientTelegramPollState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BotName")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("NextUpdateOffset")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BotName")
+                        .IsUnique();
+
+                    b.ToTable("ClientTelegramPollStates", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientTelegramPollStates_BotName_Required", "btrim(\"BotName\") <> ''");
+                        });
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BranchId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -1140,6 +1225,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BranchId");
+
                     b.HasIndex("Login")
                         .IsUnique();
 
@@ -1149,6 +1236,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Users", t =>
                         {
+                            t.HasCheckConstraint("CK_Users_AdministratorBranch", "(\"Role\" = 'Administrator' AND \"BranchId\" IS NOT NULL) OR (\"Role\" <> 'Administrator' AND \"BranchId\" IS NULL)");
+
                             t.HasCheckConstraint("CK_Users_MessengerIdentity_Consistency", "(\"MessengerPlatform\" IS NULL AND (\"MessengerPlatformUserId\" IS NULL OR btrim(\"MessengerPlatformUserId\") = '')) OR (\"MessengerPlatform\" = 'Telegram' AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> '')");
                         });
                 });
@@ -1252,6 +1341,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("CreatedByUser");
+
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientContact", b =>
@@ -1263,80 +1353,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerAccount", b =>
-                {
-                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
-                        .WithMany("MessengerAccounts")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerLinkToken", b =>
-                {
-                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
-                        .WithMany("MessengerLinkTokens")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
-                        .WithMany("CreatedMessengerLinkTokens")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerMessage", b =>
-                {
-                    b.HasOne("GymCrm.Domain.Messenger.ClientMessengerAccount", "Account")
-                        .WithMany("Messages")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
-                        .WithMany("MessengerMessages")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
-                        .WithMany("CreatedMessengerMessages")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Account");
-
-                    b.Navigation("Client");
-
-                    b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerReadState", b =>
-                {
-                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
-                        .WithMany("MessengerReadStates")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GymCrm.Domain.Users.User", "User")
-                        .WithMany("ClientMessengerReadStates")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembership", b =>
@@ -1358,6 +1374,12 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasForeignKey("PaidByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("GymCrm.Domain.Memberships.MembershipCatalogItem", "MembershipCatalogItem")
+                        .WithMany()
+                        .HasForeignKey("MembershipCatalogItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("GymCrm.Domain.Clients.ClientMembershipSale", "Sale")
                         .WithMany("Memberships")
                         .HasForeignKey("SaleId")
@@ -1367,6 +1389,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("ChangedByUser");
 
                     b.Navigation("Client");
+
+                    b.Navigation("MembershipCatalogItem");
 
                     b.Navigation("PaidByUser");
 
@@ -1421,9 +1445,17 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GymCrm.Domain.Memberships.MembershipCatalogItem", "MembershipCatalogItem")
+                        .WithMany()
+                        .HasForeignKey("MembershipCatalogItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Client");
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("MembershipCatalogItem");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Groups.ClientGroup", b =>
@@ -1547,6 +1579,100 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Hall");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Memberships.MembershipCatalogItem", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
+                        .WithMany("MembershipCatalogItems")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerAccount", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
+                        .WithMany("MessengerAccounts")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerLinkToken", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
+                        .WithMany("MessengerLinkTokens")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany("CreatedMessengerLinkTokens")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("CreatedByUser");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerMessage", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Messenger.ClientMessengerAccount", "Account")
+                        .WithMany("Messages")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
+                        .WithMany("MessengerMessages")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany("CreatedMessengerMessages")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("CreatedByUser");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerReadState", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Clients.Client", "Client")
+                        .WithMany("MessengerReadStates")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "User")
+                        .WithMany("ClientMessengerReadStates")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Users.User", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Branches.Branch", b =>
                 {
                     b.Navigation("ClientAssignments");
@@ -1556,6 +1682,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Groups");
 
                     b.Navigation("Halls");
+
+                    b.Navigation("MembershipCatalogItems");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Branches.Hall", b =>
@@ -1602,11 +1730,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Groups");
                 });
 
-            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerAccount", b =>
-                {
-                    b.Navigation("Messages");
-                });
-
             modelBuilder.Entity("GymCrm.Domain.Groups.TrainingGroup", b =>
                 {
                     b.Navigation("AttendanceEntries");
@@ -1620,6 +1743,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Trainers");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerAccount", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Users.User", b =>
                 {
                     b.Navigation("AssignedGroups");
@@ -1629,6 +1757,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("AuditLogs");
 
                     b.Navigation("CanceledMembershipRefunds");
+
+                    b.Navigation("ClientMessengerReadStates");
 
                     b.Navigation("CreatedClientBranchAssignments");
 
@@ -1645,8 +1775,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("CreatedMessengerMessages");
 
                     b.Navigation("GroupTrainerAssignments");
-
-                    b.Navigation("ClientMessengerReadStates");
 
                     b.Navigation("MembershipChanges");
 

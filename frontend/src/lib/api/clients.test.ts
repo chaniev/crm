@@ -16,7 +16,7 @@ describe('getMembershipAttentionItems', () => {
           {
             clientId: 'client-expired',
             fullName: 'Анна Петрова',
-            membershipType: 'Monthly',
+            behaviorKind: 'Term',
             expirationDate: '2026-05-03',
             daysUntilExpiration: -3,
             isPaid: false,
@@ -25,7 +25,7 @@ describe('getMembershipAttentionItems', () => {
           {
             clientId: 'client-unknown',
             fullName: 'Ольга Смирнова',
-            membershipType: 'SingleVisit',
+            behaviorKind: 'SingleVisit',
             expirationDate: null,
             daysUntilExpiration: null,
             isPaid: false,
@@ -34,7 +34,7 @@ describe('getMembershipAttentionItems', () => {
           {
             clientId: 'client-missing-state',
             fullName: 'Иван Иванов',
-            membershipType: 'Yearly',
+            behaviorKind: 'Professional',
             expirationDate: null,
             daysUntilExpiration: null,
             isPaid: false,
@@ -54,7 +54,7 @@ describe('getMembershipAttentionItems', () => {
       {
         clientId: 'client-expired',
         fullName: 'Анна Петрова',
-        membershipType: 'Monthly',
+        behaviorKind: 'Term',
         expirationDate: '2026-05-03',
         daysUntilExpiration: -3,
         isPaid: false,
@@ -63,7 +63,7 @@ describe('getMembershipAttentionItems', () => {
       {
         clientId: 'client-unknown',
         fullName: 'Ольга Смирнова',
-        membershipType: 'SingleVisit',
+        behaviorKind: 'SingleVisit',
         expirationDate: null,
         daysUntilExpiration: null,
         isPaid: false,
@@ -72,7 +72,7 @@ describe('getMembershipAttentionItems', () => {
       {
         clientId: 'client-missing-state',
         fullName: 'Иван Иванов',
-        membershipType: 'Yearly',
+        behaviorKind: 'Professional',
         expirationDate: null,
         daysUntilExpiration: null,
         isPaid: false,
@@ -96,7 +96,7 @@ describe('getMembershipExpirationSuggestion', () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(
         JSON.stringify({
-          membershipType: 'Monthly',
+          behaviorKind: 'Term',
           startDate: '2026-06-10',
           expirationDate: '2026-07-09',
         }),
@@ -111,15 +111,15 @@ describe('getMembershipExpirationSuggestion', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     await expect(
-      getMembershipExpirationSuggestion('Monthly', '2026-06-10'),
+      getMembershipExpirationSuggestion('Term', '2026-06-10'),
     ).resolves.toEqual({
-      membershipType: 'Monthly',
+      behaviorKind: 'Term',
       startDate: '2026-06-10',
       expirationDate: '2026-07-09',
     })
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/clients/membership/expiration-suggestion?membershipType=Monthly&startDate=2026-06-10',
+      '/api/clients/membership/expiration-suggestion?behaviorKind=Term&startDate=2026-06-10',
       expect.any(Object),
     )
   })

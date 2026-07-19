@@ -10,4 +10,6 @@ internal sealed record UserResponse(
     bool MustChangePassword,
     bool IsActive,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    Guid? BranchId = null,
+    string? BranchName = null);

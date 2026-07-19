@@ -1,6 +1,6 @@
 namespace GymCrm.Api.Auth;
 
 internal sealed record ClientMembershipExpirationSuggestionResponse(
-    string MembershipType,
+    string BehaviorKind,
     DateOnly StartDate,
     DateOnly? ExpirationDate);

@@ -3,7 +3,8 @@ namespace GymCrm.Api.Auth;
 internal sealed record MembershipAttentionListItemResponse(
     Guid ClientId,
     string FullName,
-    string MembershipType,
+    string BehaviorKind,
+    string MembershipName,
     DateOnly? ExpirationDate,
     int? DaysUntilExpiration,
     bool IsPaid,

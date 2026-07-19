@@ -129,7 +129,9 @@ public sealed record BotClientListItem(
     bool HasMembershipWarning,
     string? MembershipWarning,
     bool HasUnpaidCurrentMembership,
-    bool HasActivePaidMembership);
+    bool HasActivePaidMembership,
+    string? BehaviorKind = null,
+    string? MembershipLabel = null);
 
 public sealed record BotClientCard(
     Guid Id,
@@ -151,7 +153,8 @@ public sealed record BotClientCard(
 
 public sealed record BotClientMembership(
     Guid Id,
-    string MembershipType,
+    string BehaviorKind,
+    string MembershipLabel,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
     decimal? PaymentAmount,
@@ -186,7 +189,8 @@ public sealed record BotClientPhoto(
 public sealed record BotExpiringMembershipListItem(
     Guid ClientId,
     string FullName,
-    string MembershipType,
+    string BehaviorKind,
+    string MembershipLabel,
     DateOnly ExpirationDate,
     int DaysUntilExpiration,
     bool IsPaid);
@@ -194,7 +198,8 @@ public sealed record BotExpiringMembershipListItem(
 public sealed record BotUnpaidMembershipListItem(
     Guid ClientId,
     string FullName,
-    string MembershipType,
+    string BehaviorKind,
+    string MembershipLabel,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
     bool IsPaid);
@@ -202,7 +207,8 @@ public sealed record BotUnpaidMembershipListItem(
 public sealed record BotMembershipPaymentResponse(
     Guid ClientId,
     string FullName,
-    string MembershipType,
+    string BehaviorKind,
+    string MembershipLabel,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
     bool IsPaid,

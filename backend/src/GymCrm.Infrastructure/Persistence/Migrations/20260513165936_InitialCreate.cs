@@ -65,10 +65,37 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MembershipCatalogItems",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    NormalizedName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    BehaviorKind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    AvailableFrom = table.Column<DateOnly>(type: "date", nullable: false),
+                    AvailableTo = table.Column<DateOnly>(type: "date", nullable: true),
+                    IsSystemOwned = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MembershipCatalogItems", x => x.Id);
+                    table.CheckConstraint("CK_MembershipCatalogItems_Availability", "\"AvailableTo\" IS NULL OR \"AvailableTo\" >= \"AvailableFrom\"");
+                    table.CheckConstraint("CK_MembershipCatalogItems_Name_NotBlank", "btrim(\"Name\") <> '' AND btrim(\"NormalizedName\") <> ''");
+                    table.CheckConstraint("CK_MembershipCatalogItems_Ownership", "(\"BehaviorKind\" = 'Professional' AND \"BranchId\" IS NULL AND \"IsSystemOwned\") OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND \"BranchId\" IS NOT NULL AND NOT \"IsSystemOwned\")");
+                    table.CheckConstraint("CK_MembershipCatalogItems_Price", "(\"BehaviorKind\" = 'Professional' AND CAST(\"Price\" AS NUMERIC) = 0) OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND CAST(\"Price\" AS NUMERIC) > 0)");
+                    table.ForeignKey(name: "FK_MembershipCatalogItems_Branches_BranchId", column: x => x.BranchId, principalTable: "Branches", principalColumn: "Id", onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uuid", nullable: true),
                     FullName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     Login = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     PasswordHash = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
@@ -83,7 +110,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                    table.CheckConstraint("CK_Users_AdministratorBranch", "(\"Role\" = 'Administrator' AND \"BranchId\" IS NOT NULL) OR (\"Role\" <> 'Administrator' AND \"BranchId\" IS NULL)");
                     table.CheckConstraint("CK_Users_MessengerIdentity_Consistency", "(\"MessengerPlatform\" IS NULL AND (\"MessengerPlatformUserId\" IS NULL OR btrim(\"MessengerPlatformUserId\") = '')) OR (\"MessengerPlatform\" = 'Telegram' AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> '')");
+                    table.ForeignKey(name: "FK_Users_Branches_BranchId", column: x => x.BranchId, principalTable: "Branches", principalColumn: "Id", onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -97,8 +126,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     MiddleName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     Phone = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     Notes = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
-                    IsProfessional = table.Column<bool>(type: "boolean", nullable: false),
-                    ProfessionalComment = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     PhotoPath = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     PhotoContentType = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     PhotoSizeBytes = table.Column<long>(type: "bigint", nullable: true),
@@ -386,7 +413,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
-                    MembershipType = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    MembershipCatalogItemId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BehaviorKind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
                     GrossAmount = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -403,6 +431,12 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_ClientMembershipSales_MembershipCatalogItems_MembershipCatalogItemId",
+                        column: x => x.MembershipCatalogItemId,
+                        principalTable: "MembershipCatalogItems",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_ClientMembershipSales_Users_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "Users",
@@ -417,9 +451,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
                     SaleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    MembershipType = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ExpirationDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    MembershipCatalogItemId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BehaviorKind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    IndividualValidFrom = table.Column<DateOnly>(type: "date", nullable: true),
+                    IndividualValidTo = table.Column<DateOnly>(type: "date", nullable: true),
+                    ProfessionalComment = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     PaymentAmount = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     IsPaid = table.Column<bool>(type: "boolean", nullable: false),
                     SingleVisitUsed = table.Column<bool>(type: "boolean", nullable: false),
@@ -445,6 +481,12 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         name: "FK_ClientMemberships_ClientMembershipSales_SaleId",
                         column: x => x.SaleId,
                         principalTable: "ClientMembershipSales",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMemberships_MembershipCatalogItems_MembershipCatalogItemId",
+                        column: x => x.MembershipCatalogItemId,
+                        principalTable: "MembershipCatalogItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -970,10 +1012,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 unique: true,
                 filter: "\"ValidTo\" IS NULL");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ClientMemberships_ExpirationDate",
-                table: "ClientMemberships",
-                column: "ExpirationDate");
+            migrationBuilder.CreateIndex(name: "IX_ClientMemberships_MembershipCatalogItemId", table: "ClientMemberships", column: "MembershipCatalogItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientMemberships_PaidByUserId",
@@ -1035,6 +1074,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 table: "ClientMembershipSales",
                 column: "PurchaseDate");
 
+            migrationBuilder.CreateIndex(name: "IX_ClientMembershipSales_MembershipCatalogItemId", table: "ClientMembershipSales", column: "MembershipCatalogItemId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_BranchId",
                 table: "Clients",
@@ -1044,11 +1085,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "IX_Clients_FirstName",
                 table: "Clients",
                 column: "FirstName");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Clients_IsProfessional",
-                table: "Clients",
-                column: "IsProfessional");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_LastName",
@@ -1108,6 +1144,10 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 table: "Halls",
                 column: "BranchId");
 
+            migrationBuilder.CreateIndex(name: "IX_MembershipCatalogItems_BehaviorKind", table: "MembershipCatalogItems", column: "BehaviorKind", unique: true, filter: "\"BehaviorKind\" = 'Professional'");
+            migrationBuilder.CreateIndex(name: "IX_MembershipCatalogItems_BranchId", table: "MembershipCatalogItems", column: "BranchId");
+            migrationBuilder.CreateIndex(name: "IX_MembershipCatalogItems_BranchId_NormalizedName_Price", table: "MembershipCatalogItems", columns: new[] { "BranchId", "NormalizedName", "Price" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Halls_IsArchived",
                 table: "Halls",
@@ -1149,6 +1189,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 column: "Login",
                 unique: true);
 
+            migrationBuilder.CreateIndex(name: "IX_Users_BranchId", table: "Users", column: "BranchId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Users_MessengerPlatform_MessengerPlatformUserId",
                 table: "Users",
@@ -1156,7 +1198,30 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 unique: true,
                 filter: "\"MessengerPlatform\" IS NOT NULL AND \"MessengerPlatformUserId\" IS NOT NULL AND btrim(\"MessengerPlatformUserId\") <> ''");
 
+            migrationBuilder.InsertData(
+                table: "MembershipCatalogItems",
+                columns: new[] { "Id", "AvailableFrom", "AvailableTo", "BehaviorKind", "BranchId", "CreatedAt", "IsSystemOwned", "Name", "NormalizedName", "Price", "UpdatedAt" },
+                values: new object[] { new Guid("11111111-1111-4111-8111-111111111070"), new DateOnly(2020, 1, 1), null, "Professional", null, new DateTimeOffset(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Unspecified), TimeSpan.Zero), true, "Профессиональный", "ПРОФЕССИОНАЛЬНЫЙ", 0m, new DateTimeOffset(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Unspecified), TimeSpan.Zero) });
+
             migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS btree_gist;");
+            migrationBuilder.Sql("""
+                ALTER TABLE "MembershipCatalogItems"
+                ADD CONSTRAINT "EX_MembershipCatalogItems_BranchNamePrice_Availability_NoOverlap"
+                EXCLUDE USING gist (
+                    "BranchId" WITH =,
+                    "NormalizedName" WITH =,
+                    "Price" WITH =,
+                    daterange("AvailableFrom", COALESCE("AvailableTo", 'infinity'::date), '[]') WITH &&
+                ) WHERE ("BehaviorKind" IN ('SingleVisit', 'Term'));
+                """);
+            migrationBuilder.Sql("""
+                ALTER TABLE "ClientMemberships"
+                ADD CONSTRAINT "EX_ClientMemberships_ClientId_Period_NoOverlap"
+                EXCLUDE USING gist (
+                    "ClientId" WITH =,
+                    daterange("IndividualValidFrom", COALESCE("IndividualValidTo", 'infinity'::date), '[]') WITH &&
+                ) WHERE ("BehaviorKind" IN ('Term', 'Professional'));
+                """);
             migrationBuilder.Sql("""
                 ALTER TABLE "ClientBranchAssignments"
                 ADD CONSTRAINT "EX_ClientBranchAssignments_ClientId_Period_NoOverlap"
@@ -1241,6 +1306,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Clients");
+
+            migrationBuilder.DropTable(
+                name: "MembershipCatalogItems");
 
             migrationBuilder.DropTable(
                 name: "TrainingGroups");

@@ -1,27 +1,26 @@
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Memberships;
 
 namespace GymCrm.Application.Clients;
 
 public static class ClientMembershipSemantics
 {
-    public static DateOnly? CalculateDefaultExpirationDate(MembershipType membershipType, DateOnly startDate)
+    public static DateOnly? CalculateDefaultExpirationDate(MembershipBehaviorKind behaviorKind, DateOnly startDate)
     {
-        return membershipType switch
+        return behaviorKind switch
         {
-            MembershipType.SingleVisit => null,
-            MembershipType.Monthly => startDate.AddMonths(1).AddDays(-1),
-            MembershipType.Yearly => startDate.AddYears(1).AddDays(-1),
+            MembershipBehaviorKind.SingleVisit => null,
+            MembershipBehaviorKind.Term => startDate.AddMonths(1).AddDays(-1),
             _ => null
         };
     }
 
-    public static DateOnly? ExtendExpirationDate(MembershipType membershipType, DateOnly currentExpirationDate)
+    public static DateOnly? ExtendExpirationDate(MembershipBehaviorKind behaviorKind, DateOnly currentExpirationDate)
     {
-        return membershipType switch
+        return behaviorKind switch
         {
-            MembershipType.SingleVisit => null,
-            MembershipType.Monthly => currentExpirationDate.AddMonths(1),
-            MembershipType.Yearly => currentExpirationDate.AddYears(1),
+            MembershipBehaviorKind.SingleVisit => null,
+            MembershipBehaviorKind.Term => currentExpirationDate.AddMonths(1),
             _ => null
         };
     }
@@ -32,7 +31,7 @@ public static class ClientMembershipSemantics
         DateOnly referenceDate,
         bool requirePurchaseDateReached = false)
     {
-        if (isProfessional)
+        if (membership?.BehaviorKind == MembershipBehaviorKind.Professional && IsEffective(membership, referenceDate))
         {
             return true;
         }
@@ -42,24 +41,24 @@ public static class ClientMembershipSemantics
             return false;
         }
 
-        if (requirePurchaseDateReached && membership.PurchaseDate > referenceDate)
+        if (requirePurchaseDateReached && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value > referenceDate)
         {
             return false;
         }
 
-        if (membership.ExpirationDate.HasValue && membership.ExpirationDate.Value < referenceDate)
+        if (membership.IndividualValidTo.HasValue && membership.IndividualValidTo.Value < referenceDate)
         {
             return false;
         }
 
-        return membership.MembershipType != MembershipType.SingleVisit || !membership.SingleVisitUsed;
+        return membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed;
     }
 
     public static bool HasUnpaidCurrentMembership(
         bool isProfessional,
         ClientMembership? membership)
     {
-        return !isProfessional && membership is not null && !membership.IsPaid;
+        return membership is not null && membership.BehaviorKind != MembershipBehaviorKind.Professional && !membership.IsPaid;
     }
 
     public static IReadOnlyList<ClientMembershipIssue> EvaluateIssues(
@@ -67,7 +66,7 @@ public static class ClientMembershipSemantics
         ClientMembership? membership,
         DateOnly trainingDate)
     {
-        if (isProfessional)
+        if (membership?.BehaviorKind == MembershipBehaviorKind.Professional && IsEffective(membership, trainingDate))
         {
             return [];
         }
@@ -78,7 +77,7 @@ public static class ClientMembershipSemantics
         }
 
         var issues = new List<ClientMembershipIssue>();
-        if (membership.PurchaseDate > trainingDate)
+        if (membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value > trainingDate)
         {
             issues.Add(ClientMembershipIssue.PurchasedAfterTrainingDate);
         }
@@ -88,18 +87,22 @@ public static class ClientMembershipSemantics
             issues.Add(ClientMembershipIssue.Unpaid);
         }
 
-        if (membership.MembershipType == MembershipType.SingleVisit && membership.SingleVisitUsed)
+        if (membership.BehaviorKind == MembershipBehaviorKind.SingleVisit && membership.SingleVisitUsed)
         {
             issues.Add(ClientMembershipIssue.SingleVisitAlreadyUsed);
         }
 
-        if (membership.ExpirationDate.HasValue && membership.ExpirationDate.Value < trainingDate)
+        if (membership.IndividualValidTo.HasValue && membership.IndividualValidTo.Value < trainingDate)
         {
             issues.Add(ClientMembershipIssue.Expired);
         }
 
         return issues;
     }
+
+    private static bool IsEffective(ClientMembership membership, DateOnly date) =>
+        membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= date &&
+        (membership.IndividualValidTo is null || membership.IndividualValidTo >= date);
 }
 
 public enum ClientMembershipIssue

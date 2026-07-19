@@ -9,8 +9,8 @@ export const resources = {
     membership: {
       typeLabels: {
         SingleVisit: 'Разовое посещение',
-        Monthly: 'Месячный',
-        Yearly: 'Годовой',
+        Term: 'На срок',
+        Professional: 'Профессиональный',
       },
     },
     statuses: {
@@ -37,7 +37,7 @@ export const resources = {
         'Нет истекших, скоро истекающих или неоплаченных абонементов.',
       openClientAction: 'Карточка клиента',
       fields: {
-        membershipType: 'Тип абонемента',
+        behaviorKind: 'Тип абонемента',
         expirationDate: 'Дата окончания',
         state: 'Состояние',
         payment: 'Оплата',
@@ -202,15 +202,15 @@ export const resources = {
       Paid: 'Оплаченные',
       Unpaid: 'Неоплаченные',
     },
-    membershipTypeLabels: {
+    behaviorKindLabels: {
       SingleVisit: 'Разовое',
-      Monthly: 'Месячный',
-      Yearly: 'Годовой',
+      Term: 'На срок',
+      Professional: 'Профессиональный',
     },
-    membershipTypeOptionLabels: {
+    behaviorKindOptionLabels: {
       SingleVisit: 'Разовое посещение',
-      Monthly: 'Месячный абонемент',
-      Yearly: 'Годовой абонемент',
+      Term: 'Абонемент на срок',
+      Professional: 'Профессиональный',
     },
     membershipChangeReasonLabels: {
       NewPurchase: 'Новая покупка',

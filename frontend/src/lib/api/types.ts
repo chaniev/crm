@@ -29,6 +29,7 @@ export type AuthenticatedUser = {
   allowedSections: AppSection[]
   permissions: AccessPermissions
   assignedGroupIds: string[]
+  branchId?: string | null
 }
 
 export type SessionResponse = {
@@ -64,6 +65,8 @@ export type UserListItem = {
   isActive: boolean
   messengerPlatform: MessengerPlatform | null
   messengerPlatformUserId: string | null
+  branchId: string | null
+  branchName: string | null
 }
 
 export type UserDetails = UserListItem
@@ -253,7 +256,32 @@ export type ClientPhoto = {
   uploadedAt?: string
 }
 
-export type MembershipType = 'SingleVisit' | 'Monthly' | 'Yearly'
+export type MembershipBehaviorKind = 'SingleVisit' | 'Term' | 'Professional'
+
+export type MembershipCatalogItem = {
+  id: string
+  branchId: string | null
+  name: string
+  price: number
+  behaviorKind: MembershipBehaviorKind
+  availableFrom: string
+  availableTo: string | null
+  isSystemOwned: boolean
+}
+
+export type CreateMembershipCatalogItemRequest = {
+  branchId: string
+  name: string
+  price: number
+  behaviorKind: Exclude<MembershipBehaviorKind, 'Professional'>
+  availableFrom: string
+  availableTo: string | null
+}
+
+export type UpdateMembershipCatalogItemRequest = Pick<
+  MembershipCatalogItem,
+  'name' | 'availableFrom' | 'availableTo'
+>
 
 export type ClientMembershipChangeReason =
   | 'NewPurchase'
@@ -302,7 +330,7 @@ export type ClientListItem = {
 export type ClientMembershipSummary = Pick<
   ClientMembership,
   | 'id'
-  | 'membershipType'
+  | 'behaviorKind'
   | 'purchaseDate'
   | 'expirationDate'
   | 'isPaid'
@@ -311,7 +339,9 @@ export type ClientMembershipSummary = Pick<
 
 export type ClientMembership = {
   id: string
-  membershipType: MembershipType
+  membershipCatalogItemId: string
+  membershipName: string
+  behaviorKind: MembershipBehaviorKind
   purchaseDate: string
   expirationDate: string | null
   paymentAmount: number
@@ -326,6 +356,7 @@ export type ClientMembership = {
   validFrom?: string
   validTo?: string | null
   createdAt?: string
+  professionalComment?: string | null
 }
 
 export type MembershipAttentionState =
@@ -337,7 +368,7 @@ export type MembershipAttentionState =
 export type MembershipAttentionItem = {
   clientId: string
   fullName: string
-  membershipType: MembershipType
+  behaviorKind: MembershipBehaviorKind
   expirationDate: string | null
   daysUntilExpiration: number | null
   isPaid: boolean
@@ -419,8 +450,14 @@ export type UpsertClientRequest = {
 }
 
 export type TransferClientBranchRequest = {
-  branchId?: string
-  groupId?: string | null
+  targetBranchId: string
+  targetGroupIds: string[]
+  membershipCatalogItemId?: string
+  validFrom?: string
+  validTo?: string
+  paymentStatus?: 'Paid' | 'Unpaid'
+  paymentDate?: string
+  professionalComment?: string
 }
 
 export type Branch = {
@@ -482,6 +519,7 @@ export type CreateAdministratorRequest = {
   isActive: boolean
   messengerPlatform: MessengerPlatform | null
   messengerPlatformUserId: string | null
+  branchId: string
 }
 
 export type UpdateAdministratorRequest = {
@@ -491,11 +529,7 @@ export type UpdateAdministratorRequest = {
   isActive: boolean
   messengerPlatform: MessengerPlatform | null
   messengerPlatformUserId: string | null
-}
-
-export type UpdateClientProfessionalStatusRequest = {
-  isProfessional: boolean
-  professionalComment?: string | null
+  branchId: string
 }
 
 export type GetClientsParams = {
@@ -511,7 +545,7 @@ export type GetClientsParams = {
   status?: ClientStatus
   paymentStatus?: ClientPaymentStatus
   membershipState?: ClientMembershipState
-  membershipType?: MembershipType
+  behaviorKind?: MembershipBehaviorKind
   membershipExpiresFrom?: string
   membershipExpiresTo?: string
   hasPhoto?: boolean
@@ -535,7 +569,15 @@ export type ClientListResponse = {
 }
 
 export type PurchaseClientMembershipRequest = {
-  membershipType: MembershipType
+  membershipCatalogItemId: string
+  validFrom?: string
+  validTo?: string
+  paymentStatus: 'Paid' | 'Unpaid'
+  paymentDate?: string
+  professionalComment?: string
+}
+
+export type CorrectClientMembershipRequest = {
   purchaseDate: string
   expirationDate?: string
   paymentAmount: number
@@ -543,25 +585,20 @@ export type PurchaseClientMembershipRequest = {
   singleVisitUsed?: boolean
 }
 
-export type CorrectClientMembershipRequest = PurchaseClientMembershipRequest
-
 export type MembershipExpirationSuggestion = {
-  membershipType: MembershipType
+  behaviorKind: MembershipBehaviorKind
   startDate: string
   expirationDate: string | null
 }
 
 export type RenewClientMembershipRequest = {
-  membershipType: MembershipType
-  renewalDate: string
+  membershipCatalogItemId: string
+  paymentStatus: 'Paid' | 'Unpaid'
   paymentDate?: string
-  expirationDate?: string
-  paymentAmount: number
-  isPaid: boolean
+  professionalComment?: string
 }
 
 export type MarkClientMembershipPaymentRequest = {
-  membershipType: MembershipType
   paymentAmount: number
   isPaid: boolean
 }
