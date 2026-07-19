@@ -19,9 +19,23 @@ Branch rules:
 - Доступ к endpoint уже ограничен политикой `ManageClients`; frontend показывает панель по `canManageClients`. Нужно регрессионно подтвердить точные роли Administrator/HeadCoach и запрет остальным ролям.
 - Явные отметки хранятся в `Attendance`: `IsPresent = false` соответствует `Absent`; отсутствие записи соответствует `Unmarked` и не является пропуском.
 - Последовательность считается глобально по клиенту и хронологии занятий, а не по одной группе или одному абонементу. Смена группы и окончание абонемента её не разрывают.
-- Текущий membership attention window равен 10 дням. Для отдельной причины обязательного follow-up нужен backend-owned порог `0–3` календарных дня включительно; существующие причины нельзя потерять.
-- Текущее хранилище не содержит канонической модели заморозки абонемента. До реализации следует определить или отдельно добавить backend-owned freeze interval; вычислять заморозку из UI/косвенных признаков запрещено.
+- Membership attention window задаётся backend startup configuration. Значение по умолчанию — `3` календарных дня; изменение применяется после перезапуска сервиса.
+- Отдельная модель заморозки исключена из TASK-067. Временная приостановка обслуживается изменением даты окончания абонемента и сама по себе не разрывает streak.
 - Для `Связались` требуется сохраняемая backend-owned граница обработанной последовательности с аудитом и защитой от повторной/параллельной команды.
+- По умолчанию занятие по расписанию считается состоявшимся. Для пары `group + training date` должна сохраняться возможность явно отметить, что занятие не проводилось.
+- Если для группы и даты нет ни одной сохранённой отметки `Present`/`Absent`, занятие автоматически считается не проводившимся и разрывает streak.
+- Administrator видит только клиентов и группы доступных ему филиалов; list и action обязаны применять backend-owned branch scope.
+- Telegram-ссылка формируется только для активной Telegram-привязки с сохранённым `Username`.
+- Если у клиента несколько занятий в один день, они упорядочиваются по времени начала; при совпадении времени используется устойчивый occurrence ID. Более поздний `Present`/`Unmarked` разрывает streak после более раннего `Absent`.
+
+## Accepted clarifications
+- Добавить backend-owned состояние занятия для пары `group + training date` с явным признаком отмены/непроведения; значение по умолчанию — занятие проводится.
+- Эффективное состояние `not held` возникает при явной отмене либо автоматически, если для занятия нет ни одной сохранённой отметки `Present`/`Absent`.
+- Новый `GET /clients/attention` используется unified UI. Старый `/clients/expiring-memberships` временно сохраняет membership-only контракт для bot и других consumers.
+- Порог скорого окончания берётся из backend startup configuration, по умолчанию равен `3`, валидируется при старте и не перечитывается без перезапуска.
+- Branch scope обязателен для чтения attention list и команды `Связались`.
+- TASK-061 остаётся обязательной семантикой: `IndividualValidTo` — включительная последняя дата действия; для месячного Term при старте 10 июня дата окончания остаётся 9 июля. Attention использует сохранённую дату без повторного расчёта.
+- Telegram deep link возвращается только при наличии нормализованного сохранённого `Username`; platform user id, chat id и display name для публичной ссылки не используются.
 
 ## Preferred implementation strategy
 1. Contract-first и test-first: сначала зафиксировать DTO единого списка, типы причин и команду закрытия причины тестами.
@@ -34,15 +48,15 @@ Branch rules:
 
 ## Execution steps
 1. Проверить чистую актуальную `main`, создать и активировать `feature/TASK-067-missed-training-follow-up`.
-2. Выполнить prerequisite discovery без production-изменений: определить источник факта состоявшегося занятия и канонический freeze interval. Если freeze semantics отсутствует, сначала локально декомпозировать/реализовать backend-owned модель заморозки с отдельными acceptance criteria; не подменять её датами абонемента или frontend-флагом.
-3. До production-кода написать unit-тесты сервиса расчёта streak: границы 2/3, `Present`, `Absent`, `Unmarked`, пропуск ожидаемого занятия, freeze interval, смена группы, пересечение/окончание абонемента, корректировка отметки и граница acknowledgement.
-4. До production-кода написать backend integration-тесты единого endpoint и action `Связались`: роли, branch/access scope, причины `0–3` и `4` дня, unpaid/expired compatibility, один клиент с несколькими причинами, отсутствие дублей, поля контакта/комментария/Telegram, идемпотентность и audit.
+2. Реализовать prerequisite-модель occurrence для пары `group + training date`: занятие можно явно отметить как не проводившееся; отсутствие любых сохранённых `Present`/`Absent` даёт эффективное состояние `not held`.
+3. До production-кода написать unit-тесты сервиса расчёта streak: границы 2/3, `Present`, `Absent`, `Unmarked`, пропуск ожидаемого занятия, несколько занятий одного дня, смена группы, пересечение/окончание абонемента, корректировка отметки и граница acknowledgement.
+4. До production-кода написать backend integration-тесты единого endpoint и action `Связались`: роли, branch/access scope чтения и команды, configured attention window и его граница, unpaid/expired compatibility, один клиент с несколькими причинами, отсутствие дублей, поля контакта/комментария/Telegram, идемпотентность и audit.
 5. До production-кода обновить frontend API mapper/component tests и Playwright-сценарии так, чтобы они описывали новое название вкладки, уникальный счётчик клиентов, все причины, поля, Telegram, `Связались`, частичное удаление причины, loading/error/empty и узкие экраны.
 6. Запустить новые выборочные unit/integration/frontend-тесты и подтвердить ожидаемое падение именно из-за отсутствующего unified attention contract, streak calculation и acknowledgement endpoint. Не продолжать при падении setup/fixture по посторонней причине.
 7. Реализовать минимальную backend-модель: типизированные причины внимания, projection единого клиента, сервис streak и сохраняемую acknowledgement boundary. При добавлении таблицы обновить воспроизводимое начальное состояние схемы и конфигурации EF; не создавать миграцию, если принятый для текущего проекта implementation flow требует обновления initial schema.
-8. Эволюционировать `GET /clients/expiring-memberships` в явно именованный unified endpoint (предпочтительно `GET /clients/attention`) с временной совместимостью старого route, если он нужен существующим потребителям. Backend возвращает уникального клиента, `reasons[]`, missed count, phone, notes, membership summary и Telegram username/link data.
+8. Добавить `GET /clients/attention` для unified UI. Сохранить `/clients/expiring-memberships` с прежним membership-only контрактом для bot и других существующих consumers. Backend возвращает уникального клиента, `reasons[]`, missed count, phone, notes, membership summary и Telegram username/link data.
 9. Реализовать `POST /clients/{clientId}/attention/missed-training/contacted` (или эквивалентный typed route): закрывать только текущую missed-training причину, сохранять boundary атомарно, писать audit и возвращать актуализированный результат/статус для безопасного UI refresh.
-10. Обеспечить повторный расчёт из актуальных attendance/freeze данных: исправление отметки или freeze interval не должно оставлять stale derived flag; после acknowledgement учитываются только занятия новой последовательности.
+10. Обеспечить повторный расчёт из актуальных attendance данных: исправление отметки не должно оставлять stale derived flag; после acknowledgement учитываются только занятия новой последовательности.
 11. Обновить frontend `lib/api` и панель Home: название `Клиенты, требующие внимания`, карточка одного клиента со всеми badges/reasons, ФИО, телефон, membership status, notes, missed count, внешний Telegram link и локально блокируемое действие `Связались` с повторной загрузкой.
 12. Сохранить клиента после `Связались`, если остаются membership-причины; удалить карточку и уменьшить уникальный счётчик только при отсутствии остальных причин. Ошибка команды не должна оптимистично скрывать причину.
 13. Запустить новые тесты до зелёного состояния, затем `dotnet test backend/GymCrm.slnx`, frontend unit tests, `npm run lint`, `npm run build` и затронутые Playwright tests.
@@ -53,9 +67,10 @@ Branch rules:
 - `backend/src/GymCrm.Api/Auth/MembershipAttentionListItemResponse.cs` (заменить/расширить типизированным unified contract)
 - `backend/src/GymCrm.Application/Attendance/` (новый focused streak service/contract)
 - `backend/src/GymCrm.Domain/Attendance/Attendance.cs`
-- `backend/src/GymCrm.Domain/Clients/` (новая acknowledgement entity и, при согласованном prerequisite, freeze model)
+- `backend/src/GymCrm.Domain/Clients/` (новая acknowledgement entity)
 - `backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs`
 - `backend/src/GymCrm.Infrastructure/Persistence/Configurations/` (новые конфигурации/индексы)
+- backend typed startup options и соответствующие appsettings/deploy overrides для attention window
 - `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260513165936_InitialCreate.cs` и snapshot — только если принят flow обновления initial schema
 - `backend/tests/GymCrm.Tests/ClientsApiTests.cs`
 - новый focused backend unit-test файл для streak calculator
@@ -71,13 +86,15 @@ Branch rules:
 - при необходимости `frontend/e2e/responsive-main-screens.spec.ts`, `frontend/e2e/auth.spec.ts` и mock routes старого endpoint
 
 ## Constraints
-- Attendance, freeze, membership reason, access scope, acknowledgement и дедупликация принадлежат backend.
+- Attendance, lesson occurrence, membership reason, access scope, acknowledgement и дедупликация принадлежат backend.
 - Frontend не вычисляет streak, трёхдневный порог, роли или объединение причин.
 - Только явно сохранённый `Absent` считается пропуском; `Unmarked` не считается `Absent`.
-- Смена группы и окончание абонемента не разрывают streak; отсутствие занятия и freeze interval разрывают.
+- Явно отменённое занятие и занятие без единой сохранённой отметки `Present`/`Absent` считаются не проводившимися и разрывают streak.
+- Смена группы, окончание абонемента и изменение его даты окончания не разрывают streak; непроведённое занятие разрывает.
 - `Связались` закрывает только missed-training reason и не изменяет attendance/membership.
 - Не менять правила списания посещений, автоматическую коммуникацию или CRM-воронку.
 - Не ломать существующие membership attention причины и внешних потребителей без явной compatibility strategy.
+- Сохранить включительную семантику `IndividualValidTo` из TASK-061; attention window сравнивается с этой датой без дополнительного `+1/-1`.
 
 ## Out of scope
 - Автоматическая отправка Telegram/других сообщений.
@@ -91,20 +108,23 @@ Branch rules:
 ### Unit tests — написать до functional code
 - streak = 0/1/2 не создаёт reason; 3 и 4 создают reason с точным count;
 - `Present` разрывает streak, `Unmarked` не превращается в `Absent`;
-- пропущенное/несостоявшееся ожидаемое занятие и freeze interval разрывают streak;
+- непроведённое ожидаемое занятие разрывает streak;
+- несколько занятий одного дня упорядочиваются по времени начала; более поздний `Present`/`Unmarked` разрывает streak после раннего `Absent`;
 - смена группы и дата окончания membership не разрывают streak;
 - три `Absent` после окончания membership создают reason;
-- исправление `Absent` на `Present`/`Unmarked` и изменение freeze пересчитывают результат;
+- исправление `Absent` на `Present`/`Unmarked` пересчитывает результат;
 - acknowledgement закрывает текущую sequence; только три новых последовательных `Absent` после boundary возвращают reason;
 - membership reasons и missed reason агрегируются в один client result без потери причин.
 
 ### Integration tests — написать до functional code
 - Administrator и HeadCoach получают endpoint/выполняют action; Coach и прочие роли запрещены;
-- branch/access scope не раскрывает чужих клиентов;
-- `0,1,2,3` дня создают backend reason скорого окончания, `4` дня — нет;
+- branch/access scope не раскрывает чужих клиентов и не позволяет закрыть их missed-training reason прямой командой;
+- при configured window `3`: `0,1,2,3` дня создают backend reason скорого окончания, `4` дня — нет; отдельный test host подтверждает другое сконфигурированное значение;
 - существующие Expired/Unpaid причины сохраняются;
 - один клиент с membership + missed reason возвращается один раз с двумя reasons;
 - DTO содержит ФИО, телефон, notes, membership status, missed count и опциональный Telegram;
+- Telegram link отсутствует без сохранённого `Username`, даже если Telegram account связан по platform user id;
+- дата окончания из TASK-061 трактуется включительно: в `IndividualValidTo` остаётся `0` дней, следующий день даёт `Expired`;
 - `Связались` атомарно и идемпотентно закрывает только missed reason, сохраняет другие reasons и создаёт audit;
 - после трёх новых пропусков reason появляется снова;
 - concurrency/double-click не создаёт противоречивых acknowledgement rows;
@@ -133,8 +153,8 @@ Branch rules:
 ## Test plan
 - [ ] Unit и integration tests добавлены до functional code и ожидаемо упали.
 - [ ] Границы 2/3 пропуска и `0–3`/`4` дня покрыты автоматически.
-- [ ] `Present`, `Absent`, `Unmarked`, gap/no-lesson, freeze, group change и membership expiry покрыты.
-- [ ] Acknowledgement, повторное появление, исправление attendance/freeze, идемпотентность и audit покрыты.
+- [ ] `Present`, `Absent`, `Unmarked`, gap/no-lesson, несколько занятий одного дня, group change и membership expiry покрыты.
+- [ ] Acknowledgement, повторное появление, исправление attendance, идемпотентность и audit покрыты.
 - [ ] Дедупликация и несколько reasons одного клиента проверены API и UI тестами.
 - [ ] Роли и branch scope проверены integration/e2e тестами.
 - [ ] Telegram/отсутствие Telegram и все обязательные поля проверены frontend тестами.
@@ -146,15 +166,14 @@ Branch rules:
 Обязательный барьер — backend parameterized unit suite для streak state machine плюс API integration suite, которая на одной fixture одновременно доказывает unique-client aggregation, несколько reasons, role/scope, acknowledgement boundary и повторное появление. Frontend component/Playwright suite должна использовать только backend-shaped `reasons[]` и доказывать, что действие не скрывает оставшиеся причины. Эти тесты входят в стандартные backend/frontend проверки; manual QA их не заменяет.
 
 ## Risks
-- В текущей модели нет freeze interval; реализация без prerequisite нарушит acceptance criteria.
 - Историческое расписание/назначения групп могут быть недостаточны для точного определения «занятие состоялось/не состоялось»; это нужно доказать discovery и тестовыми fixtures.
-- Сохранение только даты acknowledgement может быть неоднозначно при нескольких группах/занятиях в день; boundary должна опираться на устойчивую идентичность/упорядоченный sequence token.
-- Изменения прошлых attendance/freeze данных могут инвалидировать acknowledgement semantics; алгоритм должен быть детерминирован и покрыт correction tests.
+- Сохранение только даты acknowledgement неоднозначно при нескольких занятиях в день; boundary должна опираться на occurrence, упорядоченный по дате, времени начала и устойчивому ID.
+- Изменения прошлых attendance данных могут инвалидировать acknowledgement semantics; алгоритм должен быть детерминирован и покрыт correction tests.
 - Старый endpoint используется Home и e2e mocks, возможно internal bot; route/contract migration требует поиска всех consumers и compatibility решения.
-- Порог 10 дней существующей `ExpiringSoon` причины и новый обязательный outreach порог 3 дня нельзя неявно смешать: причины должны быть явно типизированы.
+- Невалидное значение startup configuration для attention window должно приводить к явной ошибке запуска, а не к скрытому fallback.
 
 ## Decomposition for safe execution
-1. Prerequisite: канонический lesson occurrence/gap и membership freeze contract с тестами, если их нельзя вывести из текущей модели без неоднозначности.
+1. Prerequisite: lesson occurrence/cancellation contract и правило auto-not-held при отсутствии всех отметок.
 2. Backend streak calculator + acknowledgement persistence/audit.
 3. Unified client attention API с compatibility layer и role/scope tests.
 4. Frontend contract/UI/Telegram/action с responsive review.
@@ -162,7 +181,6 @@ Branch rules:
 
 ## Stop conditions
 Остановиться и не писать functional code, если:
-- не найден backend-owned источник freeze intervals или факта состоявшегося занятия;
 - историческое расписание не позволяет однозначно упорядочить занятия клиента при смене группы;
 - API contract требует frontend-side дедупликации/вычисления причин;
 - acknowledgement нельзя сделать атомарным и устойчивым к исправлению attendance;
@@ -172,4 +190,4 @@ Branch rules:
 Не останавливаться только из-за одновременных backend/frontend изменений или необходимости локального schema change.
 
 ## Ready for Codex execution
-no — план готов, но до переноса задачи в активную implementation необходимо закрыть prerequisite по канонической модели заморозки и подтвердить источник lesson occurrence/gap. После этого план допускает phased execution в указанной отдельной ветке.
+yes — lesson occurrence, порядок нескольких занятий одного дня, configurable attention window, compatibility, TASK-061 regression, Telegram и branch scope уточнены; заморозка исключена из scope.
