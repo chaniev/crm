@@ -23,25 +23,28 @@ Branch rules:
 - У продажи должна появиться ссылка на вариант каталога, но `GrossAmount` остаётся обязательным историческим snapshot цены. Историческое название читается из текущего варианта, как разрешено задачей.
 - У пользователя сейчас нет привязки администратора к филиалу. Её нужно добавить в backend domain/schema, administrator API/forms и access checks; для HeadCoach branch scope отсутствует.
 - Сейчас `Client.IsProfessional`, `ProfessionalComment` и отдельный `/professional-status` write flow являются независимым источником привилегий. Их нужно заменить профессиональным видом каталога и derived read model, обновив client queries, attendance, membership warnings, frontend и internal bot consumers.
-- Текущая выдача профессионального статуса ограничена HeadCoach. Это security boundary сохраняется: только HeadCoach создаёт/изменяет и назначает варианты вида `Professional`; Administrator не получает это право через catalog management, purchase или transfer.
+- Текущая выдача профессионального статуса ограничена HeadCoach. Это security boundary сохраняется: единственный глобальный `Professional` создаётся системой, только HeadCoach изменяет его общие название/период и назначает его; Administrator не получает это право через catalog management, purchase или transfer.
 - Перевод клиента сейчас меняет филиал и группы, но не оформляет абонемент. Новый контракт должен включать обязательный `membershipCatalogItemId` и данные индивидуального срока/оплаты, необходимые для атомарной продажи в целевом филиале.
 - Окружение пересоздаётся с нуля. Изменяется начальная схема БД и snapshot, без цепочки миграций для сохранения существующих данных.
 - Согласованы системные behavior kinds: `SingleVisit`, `Term`, `Professional`; прежние `Monthly` и `Yearly` отображаются в `Term`, а индивидуальный срок остаётся данными назначения.
-- Продление всегда создаёт новую продажу через доступный вариант актуального каталога и фиксирует его цену. Коррекция не меняет `MembershipCatalogItemId`, историческую цену или behavior kind; redesign correction вынесен из TASK-070.
-- Перевод принимает catalog item, индивидуальный период, статус оплаты и дату оплаты, деактивирует прежний абонемент и атомарно создаёт новую продажу и единственный текущий абонемент целевого филиала. Для оплаченной продажи дата оплаты обязательна, для неоплаченной отсутствует.
-- Обязательный `ProfessionalComment` переносится в metadata конкретной продажи/назначения `Professional` и не участвует в вычислении привилегий.
+- Продление можно создать заранее: оно создаёт новую продажу через доступный вариант актуального каталога, фиксирует его цену и автоматически начинает новое назначение в календарный день после включительной даты окончания текущего. Последовательные будущие назначения разрешены, пересекающиеся запрещены. Коррекция не меняет `MembershipCatalogItemId`, историческую цену или behavior kind; redesign correction вынесен из TASK-070.
+- Перевод принимает catalog item, индивидуальный период, статус оплаты и дату оплаты, прекращает действие прежнего абонемента с даты начала нового и атомарно создаёт новую продажу и единственный действующий на эту дату абонемент целевого филиала. При включительных датах последняя действующая дата старого назначения — день перед началом нового. Для оплаченной продажи дата оплаты обязательна, для неоплаченной отсутствует.
+- Обязательный `ProfessionalComment` переносится только в metadata конкретного membership assignment `Professional` и не участвует в вычислении привилегий.
 - У администратора ровно один обязательный активный филиал, назначаемый только HeadCoach; смена влияет на текущий access scope и не переписывает историю.
-- В initial seed автоматически создаётся только `Professional` для каждого филиала. Нулевая цена допустима только для `Professional`; `SingleVisit` и `Term` требуют положительную цену.
+- В initial seed автоматически создаётся ровно один глобальный системный `Professional` с общими названием и периодом доступности для всех филиалов. Он автоматически применим к существующим и новым филиалам, второй создать нельзя. Нулевая цена допустима только для `Professional`; `SingleVisit` и `Term` требуют положительную цену.
+- Все calendar-date решения принимаются через единый backend `TimeProvider`; frontend date и прямые wall-clock вызовы не являются источником истины.
 - Нужен PostgreSQL DB-level запрет пересекающихся включительных периодов для одинаковых `(BranchId, NormalizedName, Price)`. Предпочтительная реализация — `daterange(AvailableFrom, AvailableTo, '[]')` и exclusion constraint `EXCLUDE USING gist`, с `btree_gist`; точный SQL должен быть проверен на реальном PostgreSQL, не только EF InMemory.
 
 ## Architecture decisions — approved
 1. Каталог хранит immutable behavior kind `SingleVisit`, `Term` или `Professional`; `Monthly` и `Yearly` объединяются в `Term`. Behavior snapshot сохраняется в membership/sale и никогда не выводится из отображаемого имени.
-2. Продление является новой продажей через доступный вариант актуального каталога. Коррекция сохраняет исходные catalog item, историческую цену и behavior kind; её redesign не входит в TASK-070.
-3. Transfer command принимает вариант целевого филиала, индивидуальные даты действия, payment status и payment date. Он деактивирует прежний абонемент и в одной backend transaction меняет филиал/группы, создаёт sale и единственный current membership.
+2. Продление можно создать заранее через доступный вариант актуального каталога; новое назначение начинается автоматически на следующий календарный день после включительного окончания текущего, последовательные будущие периоды разрешены без пересечений. Коррекция сохраняет исходные catalog item, историческую цену и behavior kind; её redesign не входит в TASK-070.
+3. Transfer command принимает вариант целевого филиала либо глобальный `Professional`, индивидуальные даты действия, payment status и payment date. Он прекращает прежний абонемент с даты начала нового (`old.ValidTo = new.ValidFrom - 1 day` для включительных date-only периодов) и в одной backend transaction меняет филиал/группы, создаёт sale и единственный действующий membership.
 4. `Paid` требует payment date; `Unpaid` требует отсутствия payment date. Цена всегда берётся из каталога.
-5. Обязательный professional comment хранится как metadata конкретного назначения/продажи `Professional`, не как поле клиента и не как privilege switch.
+5. Обязательный professional comment хранится только как metadata конкретного membership assignment `Professional`, не как поле клиента/продажи и не как privilege switch.
 6. HeadCoach видит `Professional` в общем eligible list с меткой «Профессиональный»; Administrator не получает его в ответе и не может назначить crafted request.
 7. Stable ProblemDetails type/code выбираются при реализации для перечисленных ошибок и фиксируются контрактными тестами.
+8. Обычные `SingleVisit`/`Term` принадлежат одному филиалу; `Professional` — единственная глобальная системная запись с общими названием и периодом для всех филиалов и автоматической применимостью к новым филиалам.
+9. Строгое отклонение неизвестных/immutable полей применяется локально к catalog update, не меняя JSON-совместимость остальных endpoint.
 
 Architecture decision gate закрыт; открытых продуктовых блокеров перед test-first реализацией нет.
 
@@ -50,17 +53,17 @@ Architecture decision gate закрыт; открытых продуктовых
 2. На актуальном `main` создать `feature/TASK-070-membership-catalog`; провести impact inventory по membership, attendance, finance, bot/internal contracts, audit и administrator scope.
 3. **До production-кода** добавить domain/unit-тесты нормализации имени, включительных периодов, открытого конца, допустимости update-полей, mapping behavior kind и derived professional state по индивидуальному периоду текущего абонемента.
 4. **До production-кода** добавить PostgreSQL integration-тесты каталога/API: CRUD без delete, роли/branch scope, ProblemDetails, exclusion constraint и audit old/new state.
-5. **До production-кода** добавить integration-тесты purchase/transfer transaction: branch match, availability at backend current date, historical gross amount, rollback всей операции при ошибке, конкурентный конфликт и HeadCoach-only назначение `Professional`.
+5. **До production-кода** добавить integration-тесты purchase/transfer/renewal transaction: branch/global scope, availability по единому backend `TimeProvider`, historical gross amount, rollback всей операции при ошибке, конкурентный конфликт, последовательные будущие назначения и HeadCoach-only назначение `Professional`.
 6. **До production-кода** обновить frontend unit/component и Playwright tests для settings, purchase и transfer flows; тесты должны описывать загрузку, пустые/error states и серверные field errors.
 7. Запустить новые тесты до реализации и сохранить ожидаемые падения именно из-за отсутствующего catalog contract/schema/UI, а не из-за дефектной fixture/setup.
-8. Реализовать backend domain и initial persistence schema: каталог с immutable behavior kind включая `Professional`, user-branch association, sale/catalog relationship, indexes/checks/exclusion constraint и seed data; удалить независимый professional flag как источник истины из чистой начальной модели.
+8. Реализовать backend domain и initial persistence schema: branch-owned каталог `SingleVisit`/`Term`, единственный глобальный system-owned `Professional`, user-branch association, sale/catalog relationship, indexes/checks/exclusion/uniqueness constraints и seed data; удалить независимый professional flag как источник истины из чистой начальной модели.
 9. Реализовать application/API catalog contracts и backend-owned authorization/validation; endpoints не принимают price/branch при update и не публикуют delete.
-10. Перевести purchase и renewal на `membershipCatalogItemId`: в одной transaction загрузить client + item, проверить branch/availability по серверной дате, взять цену только из item и записать её snapshot в новую sale.
-11. Расширить transfer contract и transaction: принять item, индивидуальный период, payment status/payment date; проверить item целевого филиала и доступность, деактивировать прежний membership, закрыть/open branch assignments, заменить группы и создать новую sale/единственный current membership атомарно; любой отказ откатывает всё.
+10. Перевести purchase и renewal на `membershipCatalogItemId`: в одной transaction загрузить client + item, через backend `TimeProvider` проверить branch/global scope и availability, взять цену только из item и записать её snapshot в новую sale; для заранее созданного renewal вычислить начало как следующий день после включительного окончания текущего назначения и разрешить только непересекающуюся последовательность.
+11. Расширить transfer contract и transaction: принять item, индивидуальный период, payment status/payment date; проверить обычный item целевого филиала либо глобальный `Professional` и доступность, прекратить старый membership с даты начала нового (`old.ValidTo = new.ValidFrom - 1 day` для включительных date-only периодов), закрыть/open branch assignments, заменить группы и создать новую sale/единственный действующий membership атомарно; любой отказ откатывает всё.
 12. Заменить professional-status write flow: удалить checkbox и отдельный endpoint, вычислять read-only professional state из текущего действующего membership с behavior kind `Professional`; сохранить существующие attendance/payment-warning/single-visit privileges и HeadCoach-only assignment boundary.
-13. Добавить audit events создания/изменения catalog item и назначения профессионального абонемента с actor, timestamp, branch и сериализованными old/new state; rejected attempts не аудитировать.
+13. Добавить audit events создания/изменения catalog item и назначения профессионального абонемента с actor, timestamp, branch/global scope и сериализованными old/new state; для глобального `Professional` использовать явный global scope без `branchId`, rejected attempts не аудитировать.
 14. Обновить frontend API types/mappers/endpoints, settings catalog panel, purchase и transfer forms. UI показывает только server-returned eligible items, не показывает professional checkbox и отображает backend-derived badge/state и ProblemDetails без локального дублирования правил.
-15. Обновить administrator settings: HeadCoach назначает филиал администратору; administrator не может выбирать/подменять branch scope каталога и не может создавать/изменять/назначать `Professional`.
+15. Обновить administrator settings: HeadCoach назначает филиал администратору; administrator не может выбирать/подменять branch scope каталога и не может изменять/назначать глобальный `Professional`; создать второй `Professional` не может ни одна роль.
 16. Проверить downstream consumers: attendance/single-visit, client filters/history, refund/correction/renewal, financial report и internal bot. Bot/frontend получают derived `isProfessional` только как read-only backend projection и не сравнивают название каталога.
 17. Запустить focused tests, полный backend suite, frontend lint/build, bot ruff/pytest при изменении bot contracts и affected Playwright; поднять чистый PostgreSQL runtime и проверить воспроизводимость initial schema.
 
@@ -106,30 +109,30 @@ Architecture decision gate закрыт; открытых продуктовых
 Exact generated migration artifacts and UI component split must be discovered before editing; preserve one top-level backend type per file and avoid growing existing large endpoint/screen files further.
 
 ## Contract outline
-- Catalog read model: `id`, `branchId`, `branchName`, `name`, `price`, `availableFrom`, `availableTo`, explicit immutable behavior kind including `Professional`, timestamps.
-- Create: HeadCoach supplies branch; Administrator branch is derived/validated from authenticated user. Required name, price, start, optional end, behavior kind.
-- Update: only `name`, `availableFrom`, `availableTo`; price, branch and behavior kind are absent from the DTO. Unknown extra immutable fields must produce the agreed ProblemDetails rather than be silently applied.
+- Catalog read model: `id`, nullable scope fields `branchId`/`branchName` for ordinary branch-owned items, `name`, `price`, `availableFrom`, `availableTo`, explicit immutable behavior kind including global system-owned `Professional`, timestamps. `Professional` has no mutable per-branch copy or per-branch dates.
+- Create: создаёт только обычные `SingleVisit`/`Term`; HeadCoach supplies branch, Administrator branch is derived/validated from authenticated user. Required name, positive price, start, optional end and ordinary behavior kind. Попытка создать `Professional` отклоняется для любой роли, поскольку он существует только как единственная system-owned seed-запись.
+- Update: only `name`, `availableFrom`, `availableTo`; price, branch and behavior kind are absent from the DTO. Unknown extra immutable fields are rejected locally by this contract with the agreed ProblemDetails rather than silently ignored; global JSON behavior for unrelated endpoints remains unchanged.
 - List: HeadCoach may filter/select branches; Administrator receives only own branch. Eligibility for sales comes from a dedicated server-filtered query or explicit `availableOn` parameter using server-owned date semantics.
 - Purchase: replace client-supplied type/amount authority with `membershipCatalogItemId`; backend derives price and behavior. Individual membership dates/payment status remain explicit according to the accepted contract.
-- Transfer: include target `branchId`, target groups, `membershipCatalogItemId`, individual membership dates, payment status and payment date; `Paid` requires a date and `Unpaid` forbids one. The endpoint deactivates the prior membership and creates the sale/current membership as one transactional command.
-- Renewal: always creates a new sale through an item eligible on the backend date and copies the catalog price. Correction cannot replace the catalog item, historical price or behavior kind.
-- Professional authorization: HeadCoach-only catalog mutation and assignment for behavior kind `Professional`; Administrator eligible-option responses exclude it and crafted writes return the agreed forbidden ProblemDetails.
+- Transfer: include target `branchId`, target groups, `membershipCatalogItemId`, individual membership dates, payment status and payment date; `Paid` requires a date and `Unpaid` forbids one. The endpoint ends the prior inclusive membership on the day before the new start and creates the sale/new membership as one transactional command.
+- Renewal: may be created in advance, always creates a new sale through an item eligible on the backend `TimeProvider` date and copies the catalog price. Its assignment starts automatically one calendar day after the inclusive end of the current assignment; sequential future assignments are allowed and overlaps are rejected. Correction cannot replace the catalog item, historical price or behavior kind.
+- Professional authorization: `Professional` is seeded once globally and cannot be created through catalog CRUD. Its common name/availability mutation and assignment are HeadCoach-only; Administrator eligible-option responses exclude it and crafted writes return the agreed forbidden ProblemDetails.
 - Professional presentation: HeadCoach receives `Professional` in the ordinary eligible list with explicit behavior data for a visible «Профессиональный» badge; UI must not compare names.
 - Client/attendance/bot read models may retain `isProfessional` for compatibility only as a backend-derived projection of the membership effective on the evaluated date; no write DTO accepts that flag.
-- Remove the separate professional-status mutation endpoint and frontend checkbox. Require `ProfessionalComment` for every `Professional` assignment and store it on the membership assignment/sale metadata without making it a privilege switch.
+- Remove the separate professional-status mutation endpoint and frontend checkbox. Require `ProfessionalComment` for every `Professional` assignment and store it only on the membership assignment without making it a privilege switch.
 - No DELETE route. Referential deletes from branch/user/sale to catalog use `Restrict`.
 - Errors use stable ProblemDetails type/code plus field errors where appropriate: forbidden branch scope, item missing, branch mismatch, unavailable item, immutable field, period invalid and catalog overlap.
 
 ## Persistence and atomicity
-- Catalog row: immutable `BranchId`, `Price`, behavior kind (`Professional` included); mutable display name and inclusive availability range; store `NormalizedName` using the approved normalization.
+- Ordinary catalog row: required immutable `BranchId`, `Price` and behavior kind (`SingleVisit`/`Term`); mutable display name and inclusive availability range; store `NormalizedName` using the approved normalization. `Professional` is one global system-owned row without branch-specific copies; its name and availability are common to all branches.
 - Normalize name by trimming edges, collapsing any whitespace run to one space, applying invariant case normalization and mapping `ё` to `е`; application logic and persisted DB value/constraint must be equivalent.
 - Checks: nonblank name, zero price only for `Professional`, positive price for `SingleVisit`/`Term`, `AvailableTo IS NULL OR AvailableTo >= AvailableFrom`.
-- DB overlap barrier: GiST exclusion for branch + normalized name + price equality and inclusive date-range overlap. Add the required extension deterministically in initial schema and verify actual generated SQL.
+- DB overlap barrier: GiST exclusion for ordinary branch-owned items by branch + normalized name + price equality and inclusive date-range overlap. Add a separate DB-level invariant that permits exactly one `Professional` row globally and prevents ordinary CRUD from creating another. Add the required extension deterministically in initial schema and verify actual generated SQL.
 - Sale keeps `GrossAmount` and behavior snapshot; add required `MembershipCatalogItemId` FK for the clean initial database. Catalog rename affects history display; price updates are impossible.
 - Purchase and transfer execute database reads, validation and writes in one transaction. Map constraint/serialization conflicts to deterministic ProblemDetails; do not rely on prior list filtering.
-- Inject/use a time provider so inclusive-date tests do not depend on wall-clock timing.
+- Inject/use one backend `TimeProvider` for availability, transfer, renewal and derived-state calendar decisions so tests and production semantics do not depend on direct wall-clock calls.
 - Professional privilege is true only when the current membership snapshot is behavior kind `Professional` and its individual validity covers the evaluated date; catalog availability alone never grants or revokes an already assigned privilege.
-- Enforce at most one effective client membership for an evaluated date, including concurrent writes; transfer/renewal must not leave overlapping current memberships.
+- Enforce at most one effective client membership for an evaluated date, including concurrent writes. Sequential future assignments are allowed; transfer closes the old inclusive period on the day before the new start and renewal starts automatically on the day after current inclusive expiry.
 
 ## Constraints
 - Backend owns permission, branch scope, availability, price, membership and ProblemDetails semantics.
@@ -144,7 +147,7 @@ Exact generated migration artifacts and UI component split must be discovered be
 - Do not infer professional status from catalog name. Renaming a `Professional` item must not change behavior.
 - Preserve HeadCoach-only authority for issuing professional privileges; ordinary administrator catalog rights do not include `Professional` mutation or assignment.
 - Administrator has exactly one required active branch assigned only by HeadCoach; changing it affects current authorization scope without rewriting historical branch attribution.
-- Initial seed creates only the per-branch `Professional` catalog item; ordinary catalog variants are user-managed.
+- Initial seed creates exactly one global system-owned `Professional`, automatically applicable to all existing and future branches; ordinary branch-owned catalog variants are user-managed.
 
 ## Out of scope
 - Existing-data migration or backfill; the database is recreated from the new initial schema.
@@ -179,17 +182,18 @@ Unit and integration tests are written/updated before functional code. The execu
 - PostgreSQL permits same normalized name/price in different branches and non-overlapping periods, but rejects all overlapping inclusive/open-ended variants in one branch, including concurrent inserts.
 - Purchase accepts only an available item in the client's current branch, uses catalog price, rejects future/expired/cross-branch items and rolls back on failure.
 - Boundary availability uses the backend date and is checked inside the write transaction.
-- Transfer requires an item in the target branch and atomically changes branch/groups plus creates the sale/membership; every validation or constraint failure leaves branch, assignments, membership and sale unchanged.
-- Transfer validates `Paid` with a required payment date and `Unpaid` with no payment date, deactivates the prior membership and prevents overlapping effective memberships.
+- Transfer requires an ordinary item in the target branch or the global `Professional` for HeadCoach and atomically changes branch/groups plus creates the sale/membership; every validation or constraint failure leaves branch, assignments, membership and sale unchanged.
+- Transfer validates `Paid` with a required payment date and `Unpaid` with no payment date, ends the prior inclusive membership on the day before the new start and prevents overlapping effective memberships.
 - Renewal requires an eligible current catalog item and creates a new sale using its price; correction cannot change catalog item, stored price or behavior kind.
 - Catalog rename/end-date change leaves historical sale gross amount unchanged; history resolves the current item name and remains visible after catalog expiry.
-- Creation and successful update write one audit event with actor/branch/time/old/new; failed attempts write none.
+- Renewal can be created in advance, starts automatically on the calendar day after current inclusive expiry, permits sequential future assignments and rejects overlaps, including concurrent writes.
+- Creation and successful update write one audit event with actor, branch/global scope, time and old/new; global `Professional` update has explicit global scope without `branchId`, failed attempts write none.
 - Administrator branch assignment create/update contracts validate existing active branch and do not broaden unrelated permissions.
 - Financial report totals, refunds and branch attribution remain unchanged for equivalent sales.
 - Attendance single-visit write-off/restore and membership filters continue to use explicit behavior semantics.
-- HeadCoach can create/update/assign `Professional`; Administrator and Coach cannot do so through list options or crafted requests.
+- Clean schema contains exactly one global seeded `Professional`; HeadCoach can update its common name/availability and assign it but cannot create a second, while Administrator and Coach cannot mutate or assign it through list options or crafted requests.
 - Professional catalog availability controls new assignment, while individual validity controls client privileges; rename does not affect behavior.
-- Every `Professional` assignment requires a comment stored with that assignment/sale; missing comment is rejected without changing professional state.
+- Every `Professional` assignment requires a comment stored only with that membership assignment; missing comment is rejected without changing professional state.
 - Legacy professional write endpoint is absent, client write DTOs contain no `isProfessional`, and clean schema has no independent professional flag as authority.
 - Client list/payment filters, attendance, audit and internal bot projections use the same backend-derived professional state.
 - Clean PostgreSQL database creation from initial schema succeeds and contains extension, FK/check/exclusion constraints.
@@ -237,7 +241,7 @@ The mandatory barrier is the combination of real-PostgreSQL overlap/clean-schema
 - Mapping the legacy `MembershipType` to approved `SingleVisit`/`Term`/`Professional` remains a compatibility risk; implementation must never infer behavior from the name.
 - Legacy `IsProfessional` is deeply consumed by client queries, attendance, frontend and bot; partial replacement could leave contradictory privilege sources.
 - Allowing Administrator to issue `Professional` through ordinary catalog flows would be a privilege escalation relative to the current HeadCoach-only endpoint.
-- Moving required `ProfessionalComment` from the client to assignment/sale metadata touches history and projections and must not preserve a second status switch.
+- Moving required `ProfessionalComment` from the client to membership-assignment metadata touches history and projections and must not preserve a second status switch or duplicate the comment on the sale.
 - Adding administrator branch scope affects user persistence, seed data, settings contracts and authorization expectations beyond the catalog screen.
 - PostgreSQL exclusion constraints are provider-specific and may not be expressible completely through standard EF fluent APIs.
 - Transfer becomes a cross-aggregate financial transaction; incorrect boundaries can leave client branch and membership inconsistent.
