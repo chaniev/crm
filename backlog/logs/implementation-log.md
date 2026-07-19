@@ -656,3 +656,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan localizes the change to a frontend derived view over the complete backend roster, removes rows only after confirmed save, preserves failed rows and retry, keeps a full-list view, and requires component, Playwright and backend attendance regression barriers.
+
+# 2026-07-19 16:19
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-070-membership-catalog.plan.md
+
+## Skipped tasks
+- TASK-070-membership-catalog.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; implementation plan created for explicit review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-070-membership-catalog`, test-first PostgreSQL/API/UI coverage, immutable sale-price and atomic purchase/transfer barriers, administrator branch scope and audit. Updated requirement adds explicit catalog behavior kind `Professional`, removes the independent professional checkbox/write flow, derives privileges from the effective membership, preserves HeadCoach-only assignment and adds backend/frontend/bot regression coverage.
