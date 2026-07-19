@@ -1,7 +1,13 @@
 # TASK-066: Показывать по умолчанию клиентов без отметки посещения
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-19
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-066-attendance-unmarked-default-filter.plan.md
+- implementation_branch: feature/TASK-066-attendance-unmarked-default-filter
 
 ## Goal
 Ускорить отметку посещений: после выбора группы по умолчанию показывать только клиентов со статусом `Не отмечено`, убирать клиента из этого списка после успешного сохранения отметки и сохранять возможность просмотреть полный состав группы со всеми статусами.
