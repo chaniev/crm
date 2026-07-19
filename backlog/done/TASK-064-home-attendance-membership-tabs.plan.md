@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-064 Разделить главную на вкладки «Посещения» и «Абонементы»
 
 ## Source task
-/backlog/risky/TASK-064-home-attendance-membership-tabs.md
+/backlog/done/TASK-064-home-attendance-membership-tabs.md
 
 Source task remains in `/backlog/risky` until explicit risky-task implementation review/selection.
 

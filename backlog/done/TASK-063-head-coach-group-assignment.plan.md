@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-063 Разрешить назначать главного тренера на любую группу
 
 ## Source task
-/backlog/risky/TASK-063-head-coach-group-assignment.md
+/backlog/done/TASK-063-head-coach-group-assignment.md
 
 Source task remains in `/backlog/risky` until explicit risky-task implementation review/selection.
 

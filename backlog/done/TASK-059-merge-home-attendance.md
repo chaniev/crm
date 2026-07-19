@@ -1,12 +1,12 @@
 # TASK-059: Объединить Главную и Посещения
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-06-09 20:12
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-059-merge-home-attendance.plan.md
+- implementation_plan: /backlog/done/TASK-059-merge-home-attendance.plan.md
 - implementation_branch: feature/TASK-059-merge-home-attendance
 
 ## Goal

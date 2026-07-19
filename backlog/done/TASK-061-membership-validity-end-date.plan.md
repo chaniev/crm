@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-061 Исправить дату окончания абонемента при оформлении
 
 ## Source task
-/backlog/risky/TASK-061-membership-validity-end-date.md
+/backlog/done/TASK-061-membership-validity-end-date.md
 
 Source task remains in `/backlog/risky` until explicit risky-task implementation review/selection.
 

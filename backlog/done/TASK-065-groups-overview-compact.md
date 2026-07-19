@@ -1,12 +1,12 @@
 # TASK-065: Сделать обзор групп и шапку экрана компактными
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-13 20:22
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-065-groups-overview-compact.plan.md
+- implementation_plan: /backlog/done/TASK-065-groups-overview-compact.plan.md
 - implementation_branch: feature/TASK-065-groups-overview-compact
 
 ## Goal

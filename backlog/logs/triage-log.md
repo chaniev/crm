@@ -807,3 +807,37 @@
 - needs-clarification: 0
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-19 status audit
+
+## Scope
+- Reviewed all active backlog folders against current `main`, merge history and source changes.
+- Audit branch: `codex/backlog-status-audit-2026-07-19`.
+
+## Moved tasks to done
+- `TASK-056-filter-panel-requirements` — merged in PR #54.
+- `TASK-057-audit-log-remove-object-column` — merged in PR #55.
+- `TASK-059-merge-home-attendance` — merged in PR #57.
+- `TASK-060-expired-memberships-access` — merged in PR #58.
+- `TASK-062-admin-active-label` — merged in PR #60.
+- `TASK-061-membership-validity-end-date` — merged in PR #61.
+- `TASK-063-head-coach-group-assignment` — merged in PR #62.
+- `TASK-064-home-attendance-membership-tabs` — merged in PR #64.
+- `TASK-065-groups-overview-compact` — merged in PR #69.
+
+## Status updates
+- Moved 9 task cards and their 9 implementation plans to `/backlog/done`.
+- Changed each moved task status to `done` and updated its plan links to the new location.
+- No active implementation tasks remain after reconciliation.
+
+## Kept active
+- Bot tasks `TASK-001..TASK-014` and `TASK-033` remain active: merge/source evidence does not prove full acceptance completion.
+- Client card/detail tasks `TASK-016..TASK-021` remain active: the completed clients-list work does not prove their dedicated acceptance criteria.
+- `TASK-058-pop-out-sections-second-monitor` remains in clarification because the target multi-window UX is still unresolved.
+- The unprocessed inbox note dated 2026-07-19 remains relevant as a follow-up to `TASK-064`: tri-state attendance exists, but the requested default `Не отмечено` list filtering and disappearance-after-save behavior are not proven by current source/tests.
+
+## Summary
+- moved to done: 9 tasks
+- moved plans to done: 9
+- active tasks after audit: 22 (`tasks-ready`: 8, `risky`: 10, `needs-clarification`: 4, `implementation`: 0)
+- validation: repository history and source audit only; runtime test suites were not rerun because this change only reconciles backlog metadata

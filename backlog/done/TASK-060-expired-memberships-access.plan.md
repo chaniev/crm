@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-060 Расширить блок абонементов на главной истекшими абонементами
 
 ## Source task
-/backlog/risky/TASK-060-expired-memberships-access.md
+/backlog/done/TASK-060-expired-memberships-access.md
 
 Source task remains in `/backlog/risky` until explicit implementation review/selection.
 
