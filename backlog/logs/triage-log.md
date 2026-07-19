@@ -888,3 +888,35 @@
 - needs-clarification: 1
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-19 14:16
+
+## Processed inbox files
+- 2026-07-19.md (archived as `2026-07-19-3.md` because processed files with the original name and `-2` suffix already existed)
+
+## Created tasks
+- /backlog/needs-clarification/TASK-072-membership-hall-link.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- `TASK-022` and `TASK-031` define membership-to-branch semantics but not membership-to-hall semantics; `TASK-070` covers the membership catalog and immutable pricing. The new note remains ambiguous, so a separate clarification task was created rather than changing either existing task.
+
+## Summary
+- tasks-ready: 0
+- risky: 0
+- needs-clarification: 1
+- updated existing: 0
+- processed files: 1
+
+# 2026-07-19 14:19 clarification
+
+## Updated existing tasks
+- /backlog/risky/TASK-070-membership-catalog.md
+- /backlog/done/TASK-072-membership-hall-link.md
+
+## Summary
+- User clarified that every branch has its own membership set; membership products are not scoped per hall.
+- `TASK-070` now owns the per-branch catalog requirement and cross-branch sale validation.
+- `TASK-072` clarification is resolved and moved to done; no separate hall-link implementation task remains.
