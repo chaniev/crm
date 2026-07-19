@@ -377,6 +377,42 @@ export type MembershipAttentionItem = {
 
 export type ExpiringClientMembership = MembershipAttentionItem
 
+export type ClientAttentionMembershipReason = {
+  type: 'expiredMembership' | 'expiringMembership'
+  expirationDate: string | null
+  daysUntilExpiration: number | null
+}
+
+export type ClientAttentionUnpaidMembershipReason = { type: 'unpaidMembership' }
+
+export type ClientAttentionMissedTrainingReason = {
+  type: 'missedTraining'
+  missedCount: number
+}
+
+export type ClientAttentionReason =
+  | ClientAttentionMembershipReason
+  | ClientAttentionUnpaidMembershipReason
+  | ClientAttentionMissedTrainingReason
+
+export type ClientAttentionMembershipSummary = {
+  behaviorKind: MembershipBehaviorKind
+  membershipName: string
+  expirationDate: string | null
+  daysUntilExpiration: number | null
+  isPaid: boolean
+}
+
+export type ClientAttentionItem = {
+  clientId: string
+  fullName: string
+  phone: string | null
+  notes: string | null
+  membership: ClientAttentionMembershipSummary | null
+  telegramLink: string | null
+  reasons: ClientAttentionReason[]
+}
+
 export type AttendanceClient = {
   id: string
   fullName: string

@@ -3,6 +3,7 @@ using GymCrm.Api.Auth;
 using GymCrm.Api.SeedData;
 using GymCrm.Api.Startup;
 using GymCrm.Application;
+using GymCrm.Application.Attendance;
 using GymCrm.Infrastructure;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -67,6 +68,12 @@ builder.Services
     .Bind(builder.Configuration.GetSection(ClientPhotoApiOptions.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+builder.Services
+    .AddOptions<ClientAttentionOptions>()
+    .Bind(builder.Configuration.GetSection(ClientAttentionOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddSingleton<MissedTrainingStreakCalculator>();
 builder.Services.AddAuthorization(GymCrmAuthorizationPolicies.Configure);
 builder.Services
     .AddAuthentication(AuthConstants.CookieScheme)
@@ -141,6 +148,7 @@ app.MapAuditLogEndpoints();
 app.MapBranchEndpoints();
 app.MapGroupTypeEndpoints();
 app.MapClientEndpoints();
+app.MapClientAttentionEndpoints();
 app.MapClientMessengerEndpoints();
 app.MapClientPhotoEndpoints();
 app.MapAttendanceEndpoints();

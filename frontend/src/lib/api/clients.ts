@@ -39,6 +39,8 @@ import {
 import { request } from './transport'
 import type {
   ClientAttendanceHistoryEntry,
+  ClientAttentionItem,
+  ClientAttentionReason,
   ClientAttendanceHistoryPayload,
   ClientContact,
   ClientContactPayload,
@@ -197,6 +199,70 @@ export async function getMembershipAttentionItems(signal?: AbortSignal) {
     .filter(
       (membership): membership is MembershipAttentionItem => membership !== null,
     )
+}
+
+export async function getClientAttentionItems(signal?: AbortSignal) {
+  const payload = await request<unknown>(API_ENDPOINTS.clients.attention, { signal })
+  return extractArrayPayload<Record<string, unknown>>(payload, ['items', 'Items'])
+    .map(mapClientAttentionItem)
+    .filter((item): item is ClientAttentionItem => item !== null)
+}
+
+export async function markMissedTrainingContacted(clientId: string) {
+  const payload = await request<unknown>(
+    API_ENDPOINTS.clients.missedTrainingContacted(clientId),
+    { method: 'POST' },
+  )
+  if (payload === null || payload === undefined) return null
+  return isRecord(payload) ? mapClientAttentionItem(payload) : null
+}
+
+export function mapClientAttentionItem(payload: Record<string, unknown>): ClientAttentionItem | null {
+  const clientId = readString(payload, ['clientId', 'ClientId'])
+  const fullName = readString(payload, ['fullName', 'FullName'])
+  if (!clientId || !fullName) return null
+  const rawReasons = extractArrayPayload<Record<string, unknown>>(payload, ['reasons', 'Reasons'])
+  const reasons = rawReasons.map(mapClientAttentionReason).filter((reason): reason is ClientAttentionReason => reason !== null)
+  return {
+    clientId,
+    fullName,
+    phone: readString(payload, ['phone', 'Phone']) ?? null,
+    notes: readString(payload, ['notes', 'Notes']) ?? null,
+    membership: mapClientAttentionMembership(payload),
+    telegramLink: readString(payload, ['telegramLink', 'TelegramLink']) ?? null,
+    reasons,
+  }
+}
+
+function mapClientAttentionReason(payload: Record<string, unknown>): ClientAttentionReason | null {
+  const type = readString(payload, ['type', 'Type', 'kind', 'Kind'])
+  if (type === 'missedTraining' || type === 'MissedTraining') {
+    const missedCount = readNumber(payload, ['missedCount', 'MissedCount'])
+    return missedCount === undefined ? null : { type: 'missedTraining', missedCount }
+  }
+  if (type === 'unpaidMembership' || type === 'UnpaidMembership') return { type: 'unpaidMembership' }
+  if (type === 'expiredMembership' || type === 'ExpiredMembership' || type === 'expiringMembership' || type === 'ExpiringMembership') {
+    return {
+      type: type.toLowerCase().startsWith('expired') ? 'expiredMembership' : 'expiringMembership',
+      expirationDate: normalizeIsoDateValue(readString(payload, ['expirationDate', 'ExpirationDate'])),
+      daysUntilExpiration: readNumber(payload, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? null,
+    }
+  }
+  return null
+}
+
+function mapClientAttentionMembership(payload: Record<string, unknown>) {
+  const value = payload.membership ?? payload.Membership
+  if (!isRecord(value)) return null
+  const behaviorKind = mapMembershipBehaviorKind(readString(value, ['behaviorKind', 'BehaviorKind']))
+  if (!behaviorKind) return null
+  return {
+    behaviorKind,
+    membershipName: readString(value, ['membershipName', 'MembershipName']) ?? '',
+    expirationDate: normalizeIsoDateValue(readString(value, ['expirationDate', 'ExpirationDate'])),
+    daysUntilExpiration: readNumber(value, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? null,
+    isPaid: readBoolean(value, ['isPaid', 'IsPaid']) ?? false,
+  }
 }
 
 export async function getExpiringClientMemberships(signal?: AbortSignal) {

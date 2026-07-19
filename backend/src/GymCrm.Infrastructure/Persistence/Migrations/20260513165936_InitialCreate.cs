@@ -666,6 +666,41 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientMissedTrainingAcknowledgements",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LastAttendanceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LastTrainingDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    LastTrainingStartTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    AcknowledgedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    AcknowledgedByUserId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMissedTrainingAcknowledgements", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClientMissedTrainingAcknowledgements_Attendance_LastAttenda~",
+                        column: x => x.LastAttendanceId,
+                        principalTable: "Attendance",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMissedTrainingAcknowledgements_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientMissedTrainingAcknowledgements_Users_AcknowledgedByUs~",
+                        column: x => x.AcknowledgedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ClientGroupAssignments",
                 columns: table => new
                 {
@@ -786,6 +821,22 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "IX_Attendance_SingleVisitWriteOffMembershipId",
                 table: "Attendance",
                 column: "SingleVisitWriteOffMembershipId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMissedTrainingAcknowledgements_AcknowledgedByUserId",
+                table: "ClientMissedTrainingAcknowledgements",
+                column: "AcknowledgedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMissedTrainingAcknowledgements_ClientId",
+                table: "ClientMissedTrainingAcknowledgements",
+                column: "ClientId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMissedTrainingAcknowledgements_LastAttendanceId",
+                table: "ClientMissedTrainingAcknowledgements",
+                column: "LastAttendanceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuditLogs_ActionType",
@@ -1253,6 +1304,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ClientMissedTrainingAcknowledgements");
+
             migrationBuilder.DropTable(
                 name: "Attendance");
 

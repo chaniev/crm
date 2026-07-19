@@ -1,8 +1,21 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
+  getClientAttentionItems,
   getMembershipAttentionItems,
   getMembershipExpirationSuggestion,
 } from './clients'
+
+describe('getClientAttentionItems', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  test('maps typed backend reasons and nullable contacts without deriving semantics', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2, isPaid: false }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'unpaidMembership' }] }]), { status: 200, headers: { 'content-type': 'application/json' } }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(getClientAttentionItems()).resolves.toEqual([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2, isPaid: false }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'unpaidMembership' }] }])
+    expect(fetchMock).toHaveBeenCalledWith('/api/clients/attention', expect.any(Object))
+  })
+})
 
 describe('getMembershipAttentionItems', () => {
   afterEach(() => {

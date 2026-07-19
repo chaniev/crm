@@ -29,6 +29,9 @@ export const API_ENDPOINTS = {
     collection: '/clients',
     byId: (clientId: string) => `/clients/${clientId}`,
     expiringMemberships: '/clients/expiring-memberships',
+    attention: '/clients/attention',
+    missedTrainingContacted: (clientId: string) =>
+      `/clients/${clientId}/attention/missed-training/contacted`,
     photo: (clientId: string) => `/clients/${clientId}/photo`,
     archive: (clientId: string) => `/clients/${clientId}/archive`,
     restore: (clientId: string) => `/clients/${clientId}/restore`,

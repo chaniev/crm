@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
 
 namespace GymCrm.Tests;
@@ -87,6 +89,7 @@ public class BootstrapSmokeTests
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.ClientGroupAssignment"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.GroupTrainerAssignment"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Attendance.Attendance"));
+        Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Clients.ClientMissedTrainingAcknowledgement"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Audit.AuditLog"));
     }
 
@@ -108,5 +111,22 @@ public class BootstrapSmokeTests
 
         Assert.NotNull(dbContext);
         Assert.Contains(dbContext.Database.GetMigrations(), migration => migration.EndsWith("_InitialCreate", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Initial_migration_creates_missed_training_acknowledgement_schema()
+    {
+        var options = new DbContextOptionsBuilder<GymCrmDbContext>()
+            .UseNpgsql("Host=localhost;Database=gym_crm;Username=gym_crm;Password=gym_crm")
+            .Options;
+        using var dbContext = new GymCrmDbContext(options);
+        var migration = Assert.Single(
+            dbContext.Database.GetMigrations(),
+            candidate => candidate.EndsWith("_InitialCreate", StringComparison.Ordinal));
+
+        var script = dbContext.GetService<IMigrator>().GenerateScript(null, migration);
+
+        Assert.Contains("CREATE TABLE \"ClientMissedTrainingAcknowledgements\"", script);
+        Assert.Contains("IX_ClientMissedTrainingAcknowledgements_ClientId", script);
     }
 }

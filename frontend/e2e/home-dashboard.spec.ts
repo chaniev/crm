@@ -75,11 +75,11 @@ test.describe('Home dashboard', () => {
     await expect(page.getByRole('tab', { name: 'Посещения' })).toHaveAttribute('aria-selected', 'true')
     await expect.poll(() => attendanceGroupsCalls).toBeGreaterThan(0)
     const groupsCallsBeforeSwitch = attendanceGroupsCalls
-    await page.getByRole('tab', { name: /Абонементы/ }).click()
-    await expect(page.getByText('Абонементы требуют внимания')).toBeVisible()
-    await expect(page.getByText('С абонементами всё в порядке')).toBeVisible()
+    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
+    await expect(page.getByText('Клиенты, требующие внимания')).toBeVisible()
+    await expect(page.getByText('Никому не требуется внимание')).toBeVisible()
     await expect(
-      page.getByText('Нет истекших, скоро истекающих или неоплаченных абонементов.'),
+      page.getByText('Нет клиентов с повторными пропусками или вопросами по абонементам.'),
     ).toBeVisible()
     await page.getByRole('tab', { name: 'Посещения' }).click()
     await expect.poll(() => attendanceGroupsCalls).toBe(groupsCallsBeforeSwitch)
@@ -94,7 +94,7 @@ test.describe('Home dashboard', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
 
-    await page.getByRole('tab', { name: /Абонементы/ }).click()
+    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
 
     const sideNavigation = page.locator(
       'nav.app-shell__side-nav[aria-label="Основная навигация"]',
@@ -137,9 +137,9 @@ test.describe('Home dashboard', () => {
 
     await page.goto('/')
 
-    await page.getByRole('tab', { name: /Абонементы/ }).click()
+    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
 
-    const loading = page.getByText('Загружаем абонементы...')
+    const loading = page.getByText('Загружаем клиентов...')
     const refresh = page.getByRole('button', { name: 'Обновить', exact: true })
 
     await expect(loading).toBeVisible()
@@ -147,7 +147,7 @@ test.describe('Home dashboard', () => {
 
     continueLoad?.()
     await expect(loading).toBeHidden()
-    await expect(page.getByText('С абонементами всё в порядке')).toBeVisible()
+    await expect(page.getByText('Никому не требуется внимание')).toBeVisible()
   })
 
   test('renders data state and keeps refresh button available', async ({ page }) => {
@@ -186,9 +186,9 @@ test.describe('Home dashboard', () => {
     })
 
     await page.goto('/')
-    await page.getByRole('tab', { name: /Абонементы/ }).click()
+    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
 
-    await expect(page.getByTestId('home-expiring-memberships-list')).toBeVisible()
+    await expect(page.getByTestId('home-attention-list')).toBeVisible()
     await expect(page.getByTestId('home-client-card-client-1')).toBeVisible()
     await expect(page.getByTestId('home-client-card-client-2')).toBeVisible()
     await expect(page.getByTestId('home-client-card-client-3')).toBeVisible()
@@ -233,7 +233,7 @@ test.describe('Home dashboard', () => {
     })
 
     await page.goto('/')
-    await page.getByRole('tab', { name: /Абонементы/ }).click()
+    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
     const refresh = page.getByRole('button', { name: 'Обновить', exact: true })
 
     await expect(refresh).toBeEnabled()
@@ -261,7 +261,7 @@ test.describe('Home dashboard', () => {
     })
 
     await page.goto('/')
-    await page.getByRole('tab', { name: /Абонементы/ }).click()
+    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
 
     await expect(page.getByText('Список не загрузился')).toBeVisible()
     await expect(page.getByText(/CRM API временно недоступен/)).toBeVisible()
@@ -269,7 +269,34 @@ test.describe('Home dashboard', () => {
     shouldFail = false
     await page.getByRole('button', { name: 'Повторить' }).click()
 
-    await expect(page.getByText('С абонементами всё в порядке')).toBeVisible()
+    await expect(page.getByText('Никому не требуется внимание')).toBeVisible()
+  })
+
+  test('supports combined reasons, Telegram and contacted on a narrow screen', async ({ page }) => {
+    const card = { clientId: 'client-1', fullName: 'Иван Иванов', phone: '+79990000000', notes: 'Позвонить вечером', telegramLink: 'https://t.me/ivan', membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-21', daysUntilExpiration: 1, isPaid: false }, reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'unpaidMembership' }] }
+    await mockHomeApi(page, { expiringMemberships: [card] })
+    let calls = 0
+    await page.route('**/clients/client-1/attention/missed-training/contacted', async (route) => {
+      calls += 1
+      if (calls === 1) { await fulfillJson(route, 500, { title: 'Временная ошибка' }); return }
+      await fulfillJson(route, 200, { ...card, reasons: [{ type: 'unpaidMembership' }] })
+    })
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
+    await expect(page.getByRole('heading', { name: 'Клиенты, требующие внимания' })).toBeVisible()
+    await expect(page.getByLabel('1 клиентов требуют внимания')).toBeVisible()
+    await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
+    await expect(page.getByText('Требует оплаты')).toBeVisible()
+    await expect(page.getByRole('link', { name: /Telegram/ })).toHaveAttribute('target', '_blank')
+    const action = page.getByRole('button', { name: 'Связались с Иван Иванов' })
+    await action.click()
+    await expect(page.getByText(/Временная ошибка/)).toBeVisible()
+    await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
+    await action.click()
+    await expect(page.getByText('Пропущено подряд: 4')).toBeHidden()
+    await expect(page.getByText('Требует оплаты')).toBeVisible()
+    await expectNoHorizontalScroll(page)
   })
 })
 
@@ -309,8 +336,8 @@ async function mockHomeApi(page: Page, options: MockHomeApiOptions) {
     }
 
     if (
-      (pathname === '/api/clients/expiring-memberships' ||
-        pathname === '/clients/expiring-memberships') &&
+      (pathname === '/api/clients/attention' ||
+        pathname === '/clients/attention') &&
       method === 'GET'
     ) {
       if (options.onExpiringMemberships) {
@@ -318,7 +345,9 @@ async function mockHomeApi(page: Page, options: MockHomeApiOptions) {
         return
       }
 
-      await fulfillJson(route, 200, options.expiringMemberships ?? { items: [] })
+      const source = options.expiringMemberships ?? { items: [] }
+      const items = Array.isArray(source) ? source : (source as { items?: unknown[] }).items ?? []
+      await fulfillJson(route, 200, items.map((item) => toAttentionPayload(item as Record<string, unknown>)))
       return
     }
 
@@ -337,6 +366,13 @@ async function mockHomeApi(page: Page, options: MockHomeApiOptions) {
 
     throw new Error(`Unexpected API request in home dashboard test: ${method} ${pathname}`)
   })
+}
+
+function toAttentionPayload(item: Record<string, unknown>) {
+  if (Array.isArray(item.reasons)) return item
+  const state = item.state
+  const reason = state === 'Expired' ? { type: 'expiredMembership', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration } : state === 'Unpaid' ? { type: 'unpaidMembership' } : { type: 'expiringMembership', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration }
+  return { clientId: item.clientId, fullName: item.fullName, phone: null, notes: null, telegramLink: null, membership: { behaviorKind: item.behaviorKind, membershipName: '', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration, isPaid: item.isPaid }, reasons: [reason] }
 }
 
 async function fulfillJson(

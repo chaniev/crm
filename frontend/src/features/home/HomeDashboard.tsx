@@ -4,7 +4,7 @@ import type { AuthenticatedUser } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import { AttendanceWorkspace } from '../attendance/AttendanceScreen'
 import { ErrorState, PageLayout, PageSection } from '../shared/ux'
-import { MembershipsPanel } from './MembershipsPanel'
+import { AttentionPanel } from './AttentionPanel'
 
 type HomeDashboardProps = {
   user: AuthenticatedUser
@@ -43,7 +43,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
   ) : null
   const membershipsPanel = canViewMemberships ? (
     <div aria-labelledby={canWorkWithAttendance ? 'home-tabs-tab-memberships' : undefined} className="home-tab-panel" data-testid="memberships-panel" id="home-tabs-panel-memberships" role={canWorkWithAttendance ? 'tabpanel' : undefined}>
-      <MembershipsPanel onCountChange={handleMembershipCount} onOpenClient={onOpenClient} />
+      <AttentionPanel onCountChange={handleMembershipCount} onOpenClient={onOpenClient} />
     </div>
   ) : null
 
@@ -53,7 +53,7 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
         <Tabs className="home-tabs" data-testid="home-tabs" id="home-tabs" onChange={(value) => value && setActiveTab(value as HomeTab)} value={activeTab}>
           <Tabs.List aria-label="Разделы главной">
             <Tabs.Tab onKeyDown={handleTabBoundaryKey} value="attendance">Посещения</Tabs.Tab>
-            <Tabs.Tab onKeyDown={handleTabBoundaryKey} rightSection={<Badge aria-label={membershipCount === null ? 'Счетчик загружается' : `${membershipCount} проблемных абонементов`} circle color={membershipCount ? 'red' : 'gray'}>{membershipCount ?? '…'}</Badge>} value="memberships">Абонементы</Tabs.Tab>
+            <Tabs.Tab onKeyDown={handleTabBoundaryKey} rightSection={<Badge aria-label={membershipCount === null ? 'Счетчик загружается' : `${membershipCount} клиентов требуют внимания`} circle color={membershipCount ? 'red' : 'gray'}>{membershipCount ?? '…'}</Badge>} value="memberships">Требуют внимания</Tabs.Tab>
           </Tabs.List>
           <div hidden={activeTab !== 'attendance'}>{attendancePanel}</div>
           <div hidden={activeTab !== 'memberships'}>{membershipsPanel}</div>
