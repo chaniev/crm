@@ -146,6 +146,8 @@ describe('HomeDashboard', () => {
 
     await screen.findByLabelText('Посещение: Иван Иванов')
     fireEvent.click(screen.getByText('Был'))
+    await screen.findByText('Все клиенты отмечены')
+    fireEvent.click(screen.getByRole('button', { name: 'Показать всех' }))
     await screen.findByText('Сохранено')
     const rosterCalls = getAttendanceGroupClientsMock.mock.calls.length
     fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))

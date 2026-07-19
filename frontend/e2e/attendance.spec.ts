@@ -9,6 +9,8 @@ const CLIENT_ID = 'client-1'
 const CLIENT_FULL_NAME = 'Иван Иванов'
 const PROFESSIONAL_CLIENT_ID = 'client-professional'
 const PROFESSIONAL_CLIENT_FULL_NAME = 'Проф Клиент'
+const ABSENT_CLIENT_ID = 'client-absent'
+const ABSENT_CLIENT_FULL_NAME = 'Отсутствующий Клиент'
 
 const unauthenticatedSession = {
   isAuthenticated: false,
@@ -49,7 +51,7 @@ const assignedGroup = {
   trainingStartTime: '19:00',
   durationMinutes: 60,
   weekdays: [2, 4],
-  clientCount: 2,
+  clientCount: 3,
 }
 
 test.describe('Мобильный сценарий посещений тренера', () => {
@@ -172,7 +174,9 @@ test.describe('Мобильный сценарий посещений трене
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByRole('heading', { name: assignedGroup.name })).toBeVisible()
+    await expect(page.getByText('Показывать клиентов')).toBeVisible()
     await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
+    await expect(page.getByText(ABSENT_CLIENT_FULL_NAME)).toHaveCount(0)
     await expect(page.getByText('Проблема с абонементом')).toBeVisible()
     await expect(page.getByText('Не оплачено')).toBeVisible()
     await expect(
@@ -207,23 +211,33 @@ test.describe('Мобильный сценарий посещений трене
         ],
       })
 
-    await expect(clientCard.getByText('Сохранено')).toBeVisible()
-    await expect(page.getByText('Отмечено 1 из 2')).toBeVisible()
+    await expect(clientCard).toHaveCount(0)
+    await expect(page.getByText('Отмечено 2 из 3')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Следующая дата' })).toBeDisabled()
     await expect(page.getByRole('button', { name: 'Следующая дата' })).toHaveAttribute('title', 'Будущие даты недоступны')
 
-    await clientCard.getByText('Не был', { exact: true }).click()
+    const rosterViewControl = page.getByTestId('attendance-roster-view-control')
+    await rosterViewControl.getByRole('radio', { name: 'Все' }).click()
+    const savedClientCard = page.getByTestId(`attendance-client-card-${CLIENT_ID}`)
+    const absentClientCard = page.getByTestId(`attendance-client-card-${ABSENT_CLIENT_ID}`)
+    await expect(savedClientCard.getByRole('radio', { name: 'Был' })).toBeChecked()
+    await expect(absentClientCard.getByRole('radio', { name: 'Не был' })).toBeChecked()
+
+    await savedClientCard.getByText('Не был', { exact: true }).click()
     await expect.poll(() => savedAttendancePayload).toMatchObject({
       AttendanceMarks: [{ ClientId: CLIENT_ID, State: 'Absent' }],
     })
-    await expect(clientCard.getByRole('radio', { name: 'Не был' })).toBeChecked()
+    await expect(savedClientCard.getByRole('radio', { name: 'Не был' })).toBeChecked()
 
-    await clientCard.getByText('Не отмечено', { exact: true }).click()
+    await savedClientCard.getByText('Не отмечено', { exact: true }).click()
     await expect.poll(() => savedAttendancePayload).toMatchObject({
       AttendanceMarks: [{ ClientId: CLIENT_ID, State: 'Unmarked' }],
     })
-    await expect(clientCard.getByRole('radio', { name: 'Не отмечено' })).toBeChecked()
-    await expect(page.getByText('Отмечено 0 из 2')).toBeVisible()
+    await expect(savedClientCard.getByRole('radio', { name: 'Не отмечено' })).toBeChecked()
+    await expect(page.getByText('Отмечено 1 из 3')).toBeVisible()
+    await rosterViewControl.getByRole('radio', { name: 'Не отмечено', exact: true }).click()
+    await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
+    await expect(page.getByText(ABSENT_CLIENT_FULL_NAME)).toHaveCount(0)
   })
 })
 
@@ -257,6 +271,21 @@ function buildRosterPayload(trainingDate: string, state: string) {
         state: 'Unmarked',
         isProfessional: true,
         professionalComment: 'Сборная',
+        hasActivePaidMembership: true,
+        hasUnpaidCurrentMembership: false,
+        membershipWarning: false,
+        groups: [
+          {
+            id: GROUP_ID,
+            name: assignedGroup.name,
+            isActive: true,
+          },
+        ],
+      },
+      {
+        id: ABSENT_CLIENT_ID,
+        fullName: ABSENT_CLIENT_FULL_NAME,
+        state: 'Absent',
         hasActivePaidMembership: true,
         hasUnpaidCurrentMembership: false,
         membershipWarning: false,
