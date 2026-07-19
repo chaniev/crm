@@ -841,3 +841,24 @@
 - moved plans to done: 9
 - active tasks after audit: 22 (`tasks-ready`: 8, `risky`: 10, `needs-clarification`: 4, `implementation`: 0)
 - validation: repository history and source audit only; runtime test suites were not rerun because this change only reconciles backlog metadata
+
+# 2026-07-19 12:22
+
+## Processed inbox files
+- 2026-07-19.md
+
+## Created tasks
+- /backlog/risky/TASK-066-attendance-unmarked-default-filter.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Завершённые `TASK-059` и `TASK-064` проверены: новая заметка не дублирует объединение главной или трёхсостояний attendance-модель, а задаёт отдельное поведение default-фильтра и обновления списка после сохранения.
+
+## Summary
+- tasks-ready: 0
+- risky: 1
+- needs-clarification: 0
+- updated existing: 0
+- processed files: 1
