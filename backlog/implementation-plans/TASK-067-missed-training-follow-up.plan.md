@@ -27,14 +27,19 @@ feature/TASK-067-missed-training-follow-up
 - TASK-061 остаётся обязательной семантикой: `IndividualValidTo` — включительная последняя дата действия.
 - Administrator видит только клиентов текущего branch scope; чтение и `Связались` проверяют текущий `Client.BranchId` на backend.
 - Telegram-ссылка возвращается только для активной Telegram-привязки с нормализованным сохранённым `Username`.
+- Номер телефона не используется для построения Telegram-ссылки.
 - `missedCount` находится внутри typed missed-training reason.
 - Идемпотентный action возвращает актуальную карточку при оставшихся причинах либо `204 No Content`.
+- Первый и повторный вызовы `Связались` имеют одинаковый ответ: актуальная карточка при оставшихся причинах либо `204 No Content`; повторный вызов не создаёт новое acknowledgement state или новую audit-запись.
 - Membership-причины не получают отдельного acknowledgement action.
+- Единый список сортируется сначала по наличию `missedTraining`, затем по срочности окончания абонемента, затем по ФИО.
 
 ## Ordering and acknowledgement boundary
 - Attendance-события упорядочиваются по `TrainingDate`, текущему `TrainingGroup.TrainingStartTime` и устойчивому `Attendance.Id`.
 - Изменение времени группы может изменить исторический порядок нескольких отметок одного клиента в один день; этот остаточный риск принят для рекомендательной функции без `LessonOccurrence`.
 - Boundary должна сохранять достаточный immutable cutoff для выбранного порядка, а не только дату.
+- Acknowledgement boundary сохраняет идентификатор последней обработанной attendance-записи и snapshot ключа порядка: `TrainingDate`, время группы на момент `Связались`, `Attendance.Id`.
+- После acknowledgement в новую последовательность входят только события после сохранённой immutable boundary; последующее изменение времени группы не изменяет сохранённый cutoff.
 - Исправление старой записи в `Unmarked` не должно переносить boundary; повторно созданная задним числом отметка до cutoff не должна считаться новой последовательностью.
 
 ## Preferred implementation strategy
@@ -116,10 +121,13 @@ feature/TASK-067-missed-training-follow-up
 - один клиент с membership + missed reason возвращается один раз;
 - DTO содержит ФИО, телефон, notes, membership status, missed count и optional Telegram;
 - Telegram link отсутствует без сохранённого Username;
+- Telegram link возвращается только для активной Telegram-привязки с нормализованным Username и не строится из телефона;
 - `IndividualValidTo` трактуется включительно;
 - `Связались` атомарно и идемпотентно закрывает только missed reason, сохраняет другие reasons и создаёт audit;
 - после трёх новых пропусков reason появляется снова;
 - double-click/concurrency не создаёт противоречивое acknowledgement state;
+- повторный `Связались` возвращает то же актуальное представление, не создавая новое acknowledgement state или audit-запись;
+- сортировка списка: `missedTraining`, затем срочность окончания абонемента, затем ФИО;
 - clean database schema воспроизводимо содержит новую acknowledgement table/indexes.
 
 ### Frontend tests — до functional code
