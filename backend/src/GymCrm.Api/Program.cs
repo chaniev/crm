@@ -9,6 +9,42 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
+if (args.Contains("--seed-leninsky-test-data", StringComparer.Ordinal))
+{
+    var seedArgs = args
+        .Where(argument => !string.Equals(argument, "--seed-leninsky-test-data", StringComparison.Ordinal))
+        .ToArray();
+
+    try
+    {
+        var options = SeedDataOptionsParser.Parse(seedArgs);
+
+        if (options.ShowHelp)
+        {
+            Console.WriteLine(SeedDataOptionsParser.LeninskyUsage);
+            return;
+        }
+
+        await using var seeder = new LeninskyTestDataSeeder(options);
+        var summary = await seeder.SeedAsync(CancellationToken.None);
+
+        Console.WriteLine("Leninsky test data seed completed.");
+        Console.WriteLine($"Branch: {summary.BranchName}");
+        Console.WriteLine($"Administrators: {summary.AdministratorCount}");
+        Console.WriteLine($"Memberships: {summary.MembershipCount}");
+        Console.WriteLine($"Administrator password: {summary.DefaultUserPassword}");
+        return;
+    }
+    catch (SeedDataOptionsException exception)
+    {
+        Console.Error.WriteLine(exception.Message);
+        Console.Error.WriteLine();
+        Console.Error.WriteLine(SeedDataOptionsParser.LeninskyUsage);
+        Environment.ExitCode = 2;
+        return;
+    }
+}
+
 if (args.Contains("--seed-test-data", StringComparer.Ordinal))
 {
     var seedArgs = args
