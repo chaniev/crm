@@ -968,3 +968,30 @@
 - needs-clarification: 0
 - updated existing: 1
 - processed files: 1
+
+# 2026-07-21 status audit
+
+## Scope
+- Reviewed every active backlog task against current `main`, merge history, source changes and available implementation branches.
+- Audit branch: `feature/backlog-status-audit-2026-07-21`.
+
+## Moved tasks to done
+- `TASK-070-membership-catalog` — implementation commit `43edfaa` was merged into `main` via PR #74 (`bbfb022`). The merged changes cover backend catalog/domain contracts, branch-scoped administration, purchase and transfer semantics, derived professional status, frontend catalog settings, bot contract updates and automated coverage.
+
+## Status updates
+- Moved `TASK-070-membership-catalog` and its implementation plan from `/backlog/implementation` and `/backlog/implementation-plans` to `/backlog/done`; changed the task status to `done` and recorded merge evidence.
+- Moved `TASK-067-missed-training-follow-up` from `/backlog/tasks-ready` to `/backlog/implementation`; implementation commit `a5c4b1a` exists on `feature/TASK-067-missed-training-follow-up`, but the branch is not merged into `main`, so the task is not marked `done`.
+
+## Kept active
+- Bot tasks `TASK-001..TASK-014` and `TASK-033` remain relevant: current `main` does not prove all dedicated acceptance criteria, manual smoke evidence or runtime decisions.
+- Client card/detail tasks `TASK-016..TASK-021` remain relevant: related client UI exists, but the requested quick actions, return-state restoration, tab structure, empty-state reasons, visual cleanup and responsive regression matrix are not fully evidenced.
+- `TASK-058` remains in clarification because the multi-window/second-monitor product contract is unresolved.
+- `TASK-068`, `TASK-069`, `TASK-071`, `TASK-073`, `TASK-074` and `TASK-075` remain relevant: no merged implementation evidence covers their dedicated audit, reporting, substitution, freeze or lesson-state semantics.
+- The inbox note `В журнале фильтр по пользователям` remains unprocessed and has no implementation evidence; it is not treated as completion of an existing task.
+
+## Summary
+- moved to done: 1 task
+- moved to implementation: 1 task
+- moved plans to done: 1
+- active tasks after audit: 29 (`tasks-ready`: 8, `implementation`: 1, `risky`: 16, `needs-clarification`: 4)
+- validation: repository history, source and branch audit only; runtime test suites were not rerun because this change only reconciles backlog metadata

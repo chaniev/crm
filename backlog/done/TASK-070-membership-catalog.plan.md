@@ -1,9 +1,11 @@
 # Implementation Plan: TASK-070 Создать управляемый справочник абонементов
 
 ## Source task
-/backlog/implementation/TASK-070-membership-catalog.md
+/backlog/done/TASK-070-membership-catalog.md
 
-High-risk review выполнен 2026-07-19: пользователь явно разрешил реализацию. Задача переведена в `/backlog/implementation`, `Safe for Codex: yes`, risk level остаётся `high`.
+Source task was moved to `/backlog/done` after implementation commit `43edfaa` was merged into `main` via PR #74 (`bbfb022`).
+
+High-risk review выполнен 2026-07-19: пользователь явно разрешил реализацию. Перед выполнением задача была переведена в `/backlog/implementation`, `Safe for Codex: yes`, risk level остаётся `high`.
 
 ## Implementation branch
 feature/TASK-070-membership-catalog
