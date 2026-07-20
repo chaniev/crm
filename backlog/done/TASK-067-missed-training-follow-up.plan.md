@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-067 Выявлять клиентов с повторными пропусками тренировок
 
 ## Source task
-/backlog/implementation/TASK-067-missed-training-follow-up.md
+/backlog/done/TASK-067-missed-training-follow-up.md
 
-Source task was moved to `/backlog/implementation` after implementation commit `a5c4b1a` appeared on branch `feature/TASK-067-missed-training-follow-up`. The branch is not merged into `main` as of 2026-07-21.
+Source task and this plan were moved to `/backlog/done` after implementation commit `a5c4b1a` was merged into `main` via merge commit `4770a09` (PR #77) on 2026-07-21.
 
 ## Git branch
 feature/TASK-067-missed-training-follow-up
