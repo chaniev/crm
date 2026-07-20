@@ -995,3 +995,24 @@
 - moved plans to done: 1
 - active tasks after audit: 29 (`tasks-ready`: 8, `implementation`: 1, `risky`: 16, `needs-clarification`: 4)
 - validation: repository history, source and branch audit only; runtime test suites were not rerun because this change only reconciles backlog metadata
+
+# 2026-07-21 01:24
+
+## Processed inbox files
+- 2026-07-21.md
+
+## Created tasks
+- /backlog/needs-clarification/TASK-076-audit-user-filter.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- Текущий экран журнала уже содержит searchable-фильтр `Пользователь` по `userId`, а backend отдает варианты пользователей с audit-записями. Заметка не описывает требуемое отличие, поэтому вместо дублирования существующей функции создана clarification-задача.
+
+## Summary
+- tasks-ready: 0
+- risky: 0
+- needs-clarification: 1
+- updated existing: 0
+- processed files: 1
