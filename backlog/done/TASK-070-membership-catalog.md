@@ -1,7 +1,16 @@
 # TASK-070: Создать управляемый справочник абонементов
 
 ## Status
-implementation
+done
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-19
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-070-membership-catalog.plan.md
+- implementation_branch: feature/TASK-070-membership-catalog
+- implementation_commit: 43edfaa
+- merged_to_main_via: PR #74 (`bbfb022`)
+- moved_to_done_at: 2026-07-21
 
 ## Goal
 Администратор может вести отдельный набор вариантов абонементов своего филиала, а главный тренер — каталоги всех филиалов. Доступность варианта для выбора определяется заданным периодом. Специальный абонемент «Профессионал» заменяет отдельный checkbox профессионального статуса клиента.

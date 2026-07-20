@@ -1,7 +1,15 @@
 # TASK-067: Выявлять клиентов с повторными пропусками тренировок
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-20
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-067-missed-training-follow-up.plan.md
+- implementation_branch: feature/TASK-067-missed-training-follow-up
+- implementation_commit: a5c4b1a
+- merge_status: not merged into main as of 2026-07-21
 
 ## Goal
 Администратор или главный тренер видит единый список клиентов, требующих внимания, понимает все причины попадания каждого клиента в список и может связаться с клиентом после трёх и более пропусков подряд.
