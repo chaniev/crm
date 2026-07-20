@@ -4,6 +4,19 @@ namespace GymCrm.Api.SeedData;
 
 internal static class SeedDataOptionsParser
 {
+    public const string LeninskyUsage = """
+        Usage:
+          backend/scripts/seed-leninsky-test-data.sh [options]
+
+        Creates or updates the Leninsky branch, five administrators (password: 1),
+        and the branch membership catalog. The command is safe to run repeatedly.
+
+        Options:
+          --connection <value>   PostgreSQL connection string.
+          --skip-migrations      Do not apply EF Core migrations before seeding.
+          -h, --help             Show help.
+        """;
+
     public const string Usage = """
         Usage:
           dotnet run --no-launch-profile --project backend/src/GymCrm.Api/GymCrm.Api.csproj -- --seed-test-data [options]
