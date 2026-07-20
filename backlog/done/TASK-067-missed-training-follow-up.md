@@ -1,15 +1,16 @@
 # TASK-067: Выявлять клиентов с повторными пропусками тренировок
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-20
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-067-missed-training-follow-up.plan.md
+- implementation_plan: /backlog/done/TASK-067-missed-training-follow-up.plan.md
 - implementation_branch: feature/TASK-067-missed-training-follow-up
 - implementation_commit: a5c4b1a
-- merge_status: not merged into main as of 2026-07-21
+- merged_to_main_at: 2026-07-21
+- merge_commit: 4770a09
 
 ## Goal
 Администратор или главный тренер видит единый список клиентов, требующих внимания, понимает все причины попадания каждого клиента в список и может связаться с клиентом после трёх и более пропусков подряд.
@@ -135,3 +136,4 @@ implementation
 - Superseded decision at: 2026-07-19; ранее непроведённое занятие и полностью `Unmarked` ведомость рассматривались как разрыв streak, но это решение отменено следующим уточнением.
 - Updated at: 2026-07-19; решение об auto-`not held` отменено. TASK-067 не моделирует непроведённые занятия: streak строится только по `Present`/`Absent`, а отдельная функциональность вынесена в TASK-075. Допустимо раннее попадание клиента в рекомендательный список при неполных отметках сотрудников.
 - Duplicate check: новая заметка объединена с TASK-067, поскольку задача уже владеет единым списком клиентов, требующих внимания, и membership-причинами; TASK-060 завершена и описывает базовое отображение истекающих абонементов, но не единый outreach-сценарий.
+- Completed at: 2026-07-21; implementation commit `a5c4b1a` merged into `main` via merge commit `4770a09` (PR #77), task and implementation plan moved to `/backlog/done`.
