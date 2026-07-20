@@ -10,6 +10,7 @@ using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -3422,6 +3423,208 @@ public class ClientsApiTests
         }
     }
 
+    [Fact]
+    public async Task Attention_unifies_reasons_and_contacted_is_idempotent_and_audited()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        var clientId = Guid.NewGuid();
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.Clients.Add(new Client
+            {
+                Id = clientId,
+                BranchId = seeded.BranchId,
+                LastName = "Внимание",
+                FirstName = "Клиент",
+                Phone = "+79991234567",
+                Notes = "Позвонить после обеда",
+                Status = ClientStatus.Active,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            });
+            db.ClientMemberships.Add(CreateMembershipWithSale(
+                clientId,
+                MembershipBehaviorKind.Term,
+                today.AddMonths(-1),
+                today.AddDays(3),
+                1200m,
+                false,
+                seeded.HeadCoachId,
+                DateTimeOffset.UtcNow));
+            for (var offset = 3; offset >= 1; offset--)
+            {
+                SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(-offset), false);
+            }
+
+            await db.SaveChangesAsync();
+        }
+
+        using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        var session = await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
+        using (var response = await http.GetAsync("/clients/attention"))
+        {
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var payload = await ReadJsonElementAsync(response);
+            var card = Assert.Single(payload.EnumerateArray(), item => item.GetProperty("clientId").GetGuid() == clientId);
+            var reasonTypes = card.GetProperty("reasons").EnumerateArray()
+                .Select(reason => reason.GetProperty("type").GetString())
+                .ToArray();
+            Assert.Contains("missedTraining", reasonTypes);
+            Assert.Contains("expiringMembership", reasonTypes);
+            Assert.Contains("unpaidMembership", reasonTypes);
+            Assert.Equal(3, card.GetProperty("reasons").EnumerateArray()
+                .Single(reason => reason.GetProperty("type").GetString() == "missedTraining")
+                .GetProperty("missedCount").GetInt32());
+        }
+
+        for (var attempt = 0; attempt < 2; attempt++)
+        {
+            using var response = await PostJsonAsync(
+                http,
+                $"/clients/{clientId}/attention/missed-training/contacted",
+                new { },
+                session.CsrfToken);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var card = await ReadJsonElementAsync(response);
+            Assert.DoesNotContain(
+                card.GetProperty("reasons").EnumerateArray(),
+                reason => reason.GetProperty("type").GetString() == "missedTraining");
+        }
+
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(1, await verifyDb.ClientMissedTrainingAcknowledgements.CountAsync(item => item.ClientId == clientId));
+        Assert.Equal(1, await verifyDb.AuditLogs.CountAsync(item => item.ActionType == "ClientMissedTrainingContacted"));
+    }
+
+    [Fact]
+    public async Task Attention_is_forbidden_for_coach_and_legacy_membership_endpoint_remains_available()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        await LoginAsync(http, seeded.CoachLogin, seeded.SharedPassword);
+        using (var forbidden = await http.GetAsync("/clients/attention"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
+        }
+
+        await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
+        using var legacy = await http.GetAsync("/clients/expiring-memberships");
+        Assert.Equal(HttpStatusCode.OK, legacy.StatusCode);
+    }
+
+    [Fact]
+    public void Invalid_attention_window_fails_application_startup()
+    {
+        using var factory = new ClientsAppFactory(new Dictionary<string, string?>
+        {
+            ["ClientAttention:MembershipWindowDays"] = "-1"
+        });
+
+        Assert.ThrowsAny<Exception>(() => factory.CreateClient());
+    }
+
+    [Fact]
+    public async Task Attention_honors_window_override_branch_scope_telegram_and_ordering()
+    {
+        await using var factory = new ClientsAppFactory(new Dictionary<string, string?>
+        {
+            ["ClientAttention:MembershipWindowDays"] = "1"
+        });
+        var seeded = await SeedClientsDataAsync(factory);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var visibleMissedId = Guid.NewGuid();
+        var visibleMembershipId = Guid.NewGuid();
+        var outsideId = Guid.NewGuid();
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var outsideBranch = new Branch
+            {
+                Id = Guid.NewGuid(), Name = "Outside", Address = "Outside", IsArchived = false,
+                CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+            };
+            db.Branches.Add(outsideBranch);
+            db.Clients.AddRange(
+                NewAttentionClient(visibleMissedId, seeded.BranchId, "Альфа"),
+                NewAttentionClient(visibleMembershipId, seeded.BranchId, "Бета"),
+                NewAttentionClient(outsideId, outsideBranch.Id, "Чужой"));
+            db.ClientMemberships.AddRange(
+                CreateMembershipWithSale(visibleMembershipId, MembershipBehaviorKind.Term, today, today.AddDays(1), 1000m, true, seeded.HeadCoachId, DateTimeOffset.UtcNow),
+                CreateMembershipWithSale(outsideId, MembershipBehaviorKind.Term, today, today.AddDays(1), 1000m, false, seeded.HeadCoachId, DateTimeOffset.UtcNow));
+            for (var offset = 3; offset >= 1; offset--)
+            {
+                SeedAttendanceEntryForClient(db, visibleMissedId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(-offset), false);
+            }
+            db.ClientMessengerAccounts.AddRange(
+                NewTelegramAccount(visibleMissedId, "valid_user"),
+                NewTelegramAccount(visibleMembershipId, "bad name"));
+            await db.SaveChangesAsync();
+        }
+
+        using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        var admin = await LoginAsync(http, seeded.AdministratorLogin, seeded.SharedPassword);
+        using (var response = await http.GetAsync("/clients/attention"))
+        {
+            var cards = (await ReadJsonElementAsync(response)).EnumerateArray().ToArray();
+            Assert.Equal([visibleMissedId, visibleMembershipId], cards.Select(card => card.GetProperty("clientId").GetGuid()));
+            Assert.Equal("https://t.me/valid_user", cards[0].GetProperty("telegramLink").GetString());
+            Assert.Equal(JsonValueKind.Null, cards[1].GetProperty("telegramLink").ValueKind);
+            Assert.DoesNotContain(cards, card => card.GetProperty("clientId").GetGuid() == outsideId);
+        }
+        using var outsideAction = await PostJsonAsync(http, $"/clients/{outsideId}/attention/missed-training/contacted", new { }, admin.CsrfToken);
+        Assert.Equal(HttpStatusCode.NotFound, outsideAction.StatusCode);
+    }
+
+    [Fact]
+    public async Task Missed_reason_returns_after_three_new_absences_after_contacted_boundary()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        var clientId = Guid.NewGuid();
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.Clients.Add(NewAttentionClient(clientId, seeded.BranchId, "Повторный"));
+            for (var offset = 3; offset >= 1; offset--)
+                SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(-offset), false);
+            await db.SaveChangesAsync();
+        }
+        using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        var session = await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
+        using (var contacted = await PostJsonAsync(http, $"/clients/{clientId}/attention/missed-training/contacted", new { }, session.CsrfToken))
+            Assert.Equal(HttpStatusCode.NoContent, contacted.StatusCode);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            for (var offset = 0; offset < 3; offset++)
+                SeedAttendanceEntryForClient(db, clientId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(offset), false);
+            await db.SaveChangesAsync();
+        }
+        using var response = await http.GetAsync("/clients/attention");
+        var card = Assert.Single((await ReadJsonElementAsync(response)).EnumerateArray(), item => item.GetProperty("clientId").GetGuid() == clientId);
+        Assert.Equal(3, card.GetProperty("reasons")[0].GetProperty("missedCount").GetInt32());
+    }
+
+    private static Client NewAttentionClient(Guid id, Guid branchId, string lastName) => new()
+    {
+        Id = id, BranchId = branchId, LastName = lastName, FirstName = "Клиент", Phone = "+79990000000",
+        Status = ClientStatus.Active, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+    };
+
+    private static ClientMessengerAccount NewTelegramAccount(Guid clientId, string username) => new()
+    {
+        Id = Guid.NewGuid(), ClientId = clientId, Platform = MessengerPlatform.Telegram,
+        PlatformUserId = Guid.NewGuid().ToString("N"), PlatformUserIdHash = Guid.NewGuid().ToString("N"),
+        Username = username, LinkedAt = DateTimeOffset.UtcNow, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+    };
+
     private static async Task<SeededClientsData> SeedClientsDataAsync(ClientsAppFactory factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -4402,7 +4605,7 @@ public class ClientsApiTests
 
     private sealed record LoginRequest(string Login, string Password);
 
-    private sealed class ClientsAppFactory : WebApplicationFactory<Program>
+    private sealed class ClientsAppFactory(IReadOnlyDictionary<string, string?>? configurationOverrides = null) : WebApplicationFactory<Program>
     {
         public string PhotoStorageRootPath { get; } = Path.Combine(
             Path.GetTempPath(),
@@ -4414,7 +4617,7 @@ public class ClientsApiTests
 
             builder.ConfigureAppConfiguration((_, configurationBuilder) =>
             {
-                configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+                var settings = new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:Postgres"] = "Host=localhost;Port=5432;Database=gym_crm;Username=gym_crm;Password=gym_crm",
                     ["Persistence:ApplyMigrationsOnStartup"] = "false",
@@ -4422,7 +4625,10 @@ public class ClientsApiTests
                     ["BootstrapUser:FullName"] = "Bootstrap Stage 6a",
                     ["ClientPhoto:StorageRootPath"] = PhotoStorageRootPath,
                     ["ClientPhoto:MaxUploadSizeBytes"] = "10485760"
-                });
+                };
+                if (configurationOverrides is not null)
+                    foreach (var setting in configurationOverrides) settings[setting.Key] = setting.Value;
+                configurationBuilder.AddInMemoryCollection(settings);
             });
 
             builder.ConfigureServices(services =>

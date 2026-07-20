@@ -34,6 +34,7 @@ public class Client
     public ICollection<ClientGroupAssignment> GroupAssignments { get; set; } = new List<ClientGroupAssignment>();
     public ICollection<ClientGroup> Groups { get; set; } = new List<ClientGroup>();
     public ICollection<AttendanceEntry> AttendanceEntries { get; set; } = new List<AttendanceEntry>();
+    public ICollection<ClientMissedTrainingAcknowledgement> MissedTrainingAcknowledgements { get; set; } = new List<ClientMissedTrainingAcknowledgement>();
     public ICollection<ClientMessengerAccount> MessengerAccounts { get; set; } = new List<ClientMessengerAccount>();
     public ICollection<ClientMessengerLinkToken> MessengerLinkTokens { get; set; } = new List<ClientMessengerLinkToken>();
     public ICollection<ClientMessengerMessage> MessengerMessages { get; set; } = new List<ClientMessengerMessage>();

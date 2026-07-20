@@ -3,10 +3,11 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   getAttendanceGroupClients,
   getAttendanceGroups,
-  getMembershipAttentionItems,
+  getClientAttentionItems,
+  markMissedTrainingContacted,
   saveAttendanceMarks,
   type AuthenticatedUser,
-  type MembershipAttentionItem,
+  type ClientAttentionItem,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { HomeDashboard } from './HomeDashboard'
@@ -18,7 +19,8 @@ vi.mock('../../lib/api', async (importOriginal) => {
     ...actual,
     getAttendanceGroupClients: vi.fn(),
     getAttendanceGroups: vi.fn(),
-    getMembershipAttentionItems: vi.fn(),
+    getClientAttentionItems: vi.fn(),
+    markMissedTrainingContacted: vi.fn(),
     saveAttendanceMarks: vi.fn(),
   }
 })
@@ -62,13 +64,15 @@ const coachUser: AuthenticatedUser = {
 
 const getAttendanceGroupClientsMock = vi.mocked(getAttendanceGroupClients)
 const getAttendanceGroupsMock = vi.mocked(getAttendanceGroups)
-const getAttentionMock = vi.mocked(getMembershipAttentionItems)
+const getAttentionMock = vi.mocked(getClientAttentionItems)
+const contactedMock = vi.mocked(markMissedTrainingContacted)
 const saveAttendanceMarksMock = vi.mocked(saveAttendanceMarks)
 
 beforeEach(() => {
   getAttendanceGroupClientsMock.mockReset()
   getAttendanceGroupsMock.mockReset()
   getAttentionMock.mockReset()
+  contactedMock.mockReset()
   saveAttendanceMarksMock.mockReset()
   getAttendanceGroupsMock.mockResolvedValue({
     groups: [],
@@ -78,6 +82,41 @@ beforeEach(() => {
 })
 
 describe('HomeDashboard', () => {
+  test('shows all unified reasons and contacts, then keeps membership reasons after contacted', async () => {
+    const attention: ClientAttentionItem = {
+      clientId: 'client-1', fullName: 'Иван Иванов', phone: '+79990000000', notes: 'Позвонить вечером', telegramLink: 'https://t.me/ivan',
+      membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-20', daysUntilExpiration: 0, isPaid: false },
+      reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'unpaidMembership' }],
+    }
+    getAttentionMock.mockResolvedValueOnce([attention])
+    contactedMock.mockResolvedValueOnce({ ...attention, reasons: [{ type: 'unpaidMembership' }] })
+    renderWithProviders(<HomeDashboard user={user} />)
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
+
+    expect(await screen.findByText('Пропущено подряд: 4')).toBeVisible()
+    expect(screen.getByText('Требует оплаты')).toBeVisible()
+    expect(screen.getByRole('link', { name: /Telegram/ })).toHaveAttribute('target', '_blank')
+    expect(screen.getByRole('link', { name: /Telegram/ })).toHaveAttribute('rel', 'noopener noreferrer')
+    fireEvent.click(screen.getByRole('button', { name: 'Связались с Иван Иванов' }))
+    await waitFor(() => expect(screen.queryByText('Пропущено подряд: 4')).not.toBeInTheDocument())
+    expect(screen.getByText('Требует оплаты')).toBeVisible()
+    expect(screen.getByLabelText('1 клиентов требуют внимания')).toBeVisible()
+  })
+
+  test('keeps missed reason after action error and allows retry that removes the card', async () => {
+    const attention: ClientAttentionItem = { clientId: 'client-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: null, telegramLink: null, reasons: [{ type: 'missedTraining', missedCount: 3 }] }
+    getAttentionMock.mockResolvedValueOnce([attention])
+    contactedMock.mockRejectedValueOnce(new Error('Сеть недоступна')).mockResolvedValueOnce(null)
+    renderWithProviders(<HomeDashboard user={user} />)
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
+    const action = await screen.findByRole('button', { name: 'Связались с Иван Иванов' })
+    fireEvent.click(action)
+    expect(await screen.findByText(/Сеть недоступна/)).toBeVisible()
+    expect(screen.getByText('Пропущено подряд: 3')).toBeVisible()
+    fireEvent.click(action)
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
+  })
+
   test('defaults to attendance, hides page heading and keeps both tab workspaces mounted', async () => {
     getAttentionMock.mockResolvedValueOnce([buildMembership(), buildMembership({ clientId: 'client-2' })])
     getAttendanceGroupsMock.mockResolvedValueOnce({
@@ -98,9 +137,9 @@ describe('HomeDashboard', () => {
     expect(screen.queryByRole('heading', { name: 'Главная' })).not.toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Посещения' })).toHaveAttribute('aria-selected', 'true')
     await waitFor(() => expect(getAttendanceGroupClientsMock).toHaveBeenCalledTimes(1))
-    await waitFor(() => expect(screen.getByLabelText('2 проблемных абонементов')).toBeVisible())
+    await waitFor(() => expect(screen.getByLabelText('2 клиентов требуют внимания')).toBeVisible())
 
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
     fireEvent.click(screen.getByRole('tab', { name: 'Посещения' }))
 
     expect(getAttendanceGroupsMock).toHaveBeenCalledTimes(1)
@@ -111,7 +150,7 @@ describe('HomeDashboard', () => {
     getAttentionMock.mockResolvedValue([])
     renderWithProviders(<HomeDashboard user={user} />)
     const attendanceTab = screen.getByRole('tab', { name: 'Посещения' })
-    const membershipsTab = screen.getByRole('tab', { name: /Абонементы/ })
+    const membershipsTab = screen.getByRole('tab', { name: /Требуют внимания/ })
 
     fireEvent.keyDown(attendanceTab, { key: 'ArrowRight' })
     expect(membershipsTab).toHaveAttribute('aria-selected', 'true')
@@ -150,7 +189,7 @@ describe('HomeDashboard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Показать всех' }))
     await screen.findByText('Сохранено')
     const rosterCalls = getAttendanceGroupClientsMock.mock.calls.length
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
     fireEvent.click(screen.getByRole('tab', { name: 'Посещения' }))
 
     expect(screen.getByTestId('attendance-group-select')).toHaveValue('Вечерняя')
@@ -165,24 +204,24 @@ describe('HomeDashboard', () => {
       .mockResolvedValueOnce([buildMembership({ fullName: 'Сохраненный клиент' })])
       .mockRejectedValueOnce(new Error('Обновление недоступно'))
     renderWithProviders(<HomeDashboard user={user} />)
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
     expect(await screen.findByText('Сохраненный клиент')).toBeVisible()
     expect(screen.getByTestId('memberships-last-check')).toBeVisible()
-    expect(screen.getByLabelText('1 проблемных абонементов')).toBeVisible()
+    expect(screen.getByLabelText('1 клиентов требуют внимания')).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
 
     expect(await screen.findByText('Обновление недоступно')).toBeVisible()
     expect(screen.getByText('Сохраненный клиент')).toBeVisible()
     expect(screen.getByTestId('memberships-last-check')).toBeVisible()
-    expect(screen.getByLabelText('1 проблемных абонементов')).toBeVisible()
+    expect(screen.getByLabelText('1 клиентов требуют внимания')).toBeVisible()
   })
 
   test('renders memberships directly without a false tablist when it is the only permitted area', async () => {
     getAttentionMock.mockResolvedValueOnce([])
     renderWithProviders(<HomeDashboard user={{ ...user, permissions: { ...user.permissions, canMarkAttendance: false } }} />)
 
-    expect(await screen.findByText('С абонементами всё в порядке')).toBeVisible()
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
     expect(getAttendanceGroupsMock).not.toHaveBeenCalled()
   })
@@ -192,16 +231,16 @@ describe('HomeDashboard', () => {
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
     expect(
       await screen.findByRole('heading', {
-        name: 'Абонементы требуют внимания',
+        name: 'Клиенты, требующие внимания',
       }),
     ).toBeVisible()
-    expect(await screen.findByText('С абонементами всё в порядке')).toBeVisible()
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
     expect(
-      screen.getByText('Нет истекших, скоро истекающих или неоплаченных абонементов.'),
+      screen.getByText('Нет клиентов с повторными пропусками или вопросами по абонементам.'),
     ).toBeVisible()
   })
 
@@ -233,9 +272,9 @@ describe('HomeDashboard', () => {
 
     renderWithProviders(<HomeDashboard onOpenClient={() => undefined} user={user} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
-    const list = await screen.findByTestId('home-expiring-memberships-list')
+    const list = await screen.findByTestId('home-attention-list')
 
     expect(list).toHaveTextContent('Иван Иванов')
     expect(list).toHaveTextContent('Ольга Смирнова')
@@ -252,8 +291,6 @@ describe('HomeDashboard', () => {
     expect(screen.getByText('Осталось 2 дня')).toBeVisible()
     expect(screen.getByText('Истек')).toBeVisible()
     expect(screen.getByText('Истек 3 дня назад')).toBeVisible()
-    expect(screen.getByText('Оплачен')).toBeVisible()
-    expect(screen.getAllByText('Не оплачен')).toHaveLength(2)
   })
 
   test('shows unknown membership attention state safely', async () => {
@@ -267,10 +304,9 @@ describe('HomeDashboard', () => {
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
-    expect(await screen.findAllByText('Неизвестно')).toHaveLength(2)
-    expect(screen.getByText('Не указана')).toBeVisible()
+    expect(await screen.findByText('Нет данных')).toBeVisible()
   })
 
   test('shows loading state and disables refresh while loading', () => {
@@ -278,9 +314,9 @@ describe('HomeDashboard', () => {
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
-    expect(screen.getByText('Загружаем абонементы...')).toBeVisible()
+    expect(screen.getByText('Загружаем клиентов...')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Обновить' })).toBeDisabled()
   })
 
@@ -291,22 +327,22 @@ describe('HomeDashboard', () => {
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
     expect(await screen.findByText('Список не загрузился')).toBeVisible()
     expect(screen.getByText('CRM API временно недоступен')).toBeVisible()
     fireEvent.click(screen.getByRole('tab', { name: 'Посещения' }))
     expect(await screen.findByText('Доступные группы пока отсутствуют')).toBeVisible()
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
     fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
 
-    expect(await screen.findByText('С абонементами всё в порядке')).toBeVisible()
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
     expect(getAttentionMock).toHaveBeenCalledTimes(2)
   })
 
   test('keeps refresh action disabled only during refresh request', async () => {
-    const refreshDeferred = createDeferred<MembershipAttentionItem[]>()
+    const refreshDeferred = createDeferred<ClientAttentionItem[]>()
 
     getAttentionMock
       .mockResolvedValueOnce([buildMembership()])
@@ -314,7 +350,7 @@ describe('HomeDashboard', () => {
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
     const refreshButton = await screen.findByRole('button', { name: 'Обновить' })
     expect(refreshButton).toBeEnabled()
@@ -337,9 +373,9 @@ describe('HomeDashboard', () => {
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: /Абонементы/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
-    expect(await screen.findByText('С абонементами всё в порядке')).toBeVisible()
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
     fireEvent.click(screen.getByRole('tab', { name: 'Посещения' }))
     expect(await screen.findByText('Группы для посещений не загрузились')).toBeVisible()
     expect(screen.getByText('Группы посещений недоступны')).toBeVisible()
@@ -351,7 +387,7 @@ describe('HomeDashboard', () => {
     expect(screen.getByTestId('home-screen')).toBeVisible()
     expect(await screen.findByText('Назначенные группы отсутствуют')).toBeVisible()
     expect(
-      screen.queryByRole('heading', { name: 'Абонементы требуют внимания' }),
+      screen.queryByRole('heading', { name: 'Клиенты, требующие внимания' }),
     ).not.toBeInTheDocument()
     expect(getAttentionMock).not.toHaveBeenCalled()
     expect(getAttendanceGroupsMock).toHaveBeenCalledTimes(1)
@@ -377,17 +413,20 @@ describe('HomeDashboard', () => {
 })
 
 function buildMembership(
-  overrides: Partial<MembershipAttentionItem> = {},
-): MembershipAttentionItem {
+  overrides: Partial<{ clientId: string; fullName: string; behaviorKind: 'SingleVisit' | 'Term' | 'Professional'; expirationDate: string | null; daysUntilExpiration: number | null; isPaid: boolean; state: 'Expired' | 'ExpiringSoon' | 'Unpaid' | 'Unknown' }> = {},
+): ClientAttentionItem {
+  const state = overrides.state ?? 'ExpiringSoon'
+  const reasons: ClientAttentionItem['reasons'] = state === 'Unknown' ? [] : state === 'Unpaid'
+    ? [{ type: 'unpaidMembership' }]
+    : [{ type: state === 'Expired' ? 'expiredMembership' : 'expiringMembership', expirationDate: overrides.expirationDate ?? '2026-05-06', daysUntilExpiration: overrides.daysUntilExpiration ?? 3 }]
   return {
     clientId: 'client-1',
     fullName: 'Иван Иванов',
-    behaviorKind: 'Term',
-    expirationDate: '2026-05-06',
-    daysUntilExpiration: 3,
-    isPaid: true,
-    state: 'ExpiringSoon',
-    ...overrides,
+    phone: null, notes: null, telegramLink: null,
+    membership: state === 'Unknown' ? null : { behaviorKind: overrides.behaviorKind ?? 'Term', membershipName: '', expirationDate: overrides.expirationDate ?? '2026-05-06', daysUntilExpiration: overrides.daysUntilExpiration ?? 3, isPaid: overrides.isPaid ?? true },
+    reasons,
+    ...(overrides.clientId ? { clientId: overrides.clientId } : {}),
+    ...(overrides.fullName ? { fullName: overrides.fullName } : {}),
   }
 }
 
