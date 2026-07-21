@@ -426,12 +426,21 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
                     GrossAmount = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Comment = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    CommentChangedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CommentChangedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ClientMembershipSales", x => x.Id);
                     table.CheckConstraint("CK_ClientMembershipSales_GrossAmount_NonNegative", "\"GrossAmount\" >= 0");
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipSales_Users_CommentChangedByUserId",
+                        column: x => x.CommentChangedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ClientMembershipSales_Clients_ClientId",
                         column: x => x.ClientId,
@@ -1127,6 +1136,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "IX_ClientMembershipSales_CreatedByUserId",
                 table: "ClientMembershipSales",
                 column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipSales_CommentChangedByUserId",
+                table: "ClientMembershipSales",
+                column: "CommentChangedByUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientMembershipSales_PurchaseDate",

@@ -124,8 +124,9 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
   )
   const purchaseDate =
     readString(payload, ['purchaseDate', 'PurchaseDate']) ?? ''
+  const saleId = readString(payload, ['saleId', 'SaleId'])
 
-  if (!behaviorKind || !purchaseDate) {
+  if (!behaviorKind || !purchaseDate || !saleId) {
     return null
   }
 
@@ -133,6 +134,7 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
     id:
       readString(payload, ['id', 'Id']) ??
       `${behaviorKind}-${purchaseDate}-${readString(payload, ['validFrom', 'ValidFrom']) ?? 'current'}`,
+    saleId,
     behaviorKind,
     membershipCatalogItemId:
       readString(payload, ['membershipCatalogItemId', 'MembershipCatalogItemId']) ?? '',
@@ -174,7 +176,24 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
     createdAt: readString(payload, ['createdAt', 'CreatedAt']) ?? undefined,
     professionalComment:
       readString(payload, ['professionalComment', 'ProfessionalComment']) ?? null,
+    comment: readString(payload, ['comment', 'Comment']) ?? null,
+    ...mapMembershipCommentAttribution(payload),
   }
+}
+
+function mapMembershipCommentAttribution(payload: Record<string, unknown>) {
+  const commentLastChangedByName = readString(payload, [
+    'commentLastChangedByName',
+    'CommentLastChangedByName',
+  ])
+  const commentLastChangedAt = readString(payload, [
+    'commentLastChangedAt',
+    'CommentLastChangedAt',
+  ])
+
+  return commentLastChangedByName && commentLastChangedAt
+    ? { commentLastChangedByName, commentLastChangedAt }
+    : { commentLastChangedByName: null, commentLastChangedAt: null }
 }
 
 export function buildDisplayNameFromParts(

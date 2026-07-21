@@ -4,7 +4,21 @@ import {
   getClientAttentionItems,
   getMembershipAttentionItems,
   getMembershipExpirationSuggestion,
+  updateClientMembershipComment,
 } from './clients'
+
+describe('updateClientMembershipComment', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  test('sends only the comment to the client and stable sale URL', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'c-1', fullName: 'Иван Иванов' }), { status: 200, headers: { 'content-type': 'application/json' } }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await updateClientMembershipComment('c-1', 'sale-1', '  Важный комментарий  ')
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/clients/c-1/membership/sales/sale-1/comment', expect.objectContaining({ method: 'PUT', body: JSON.stringify({ comment: '  Важный комментарий  ' }) }))
+  })
+})
 
 describe('getClient note attribution', () => {
   afterEach(() => vi.unstubAllGlobals())

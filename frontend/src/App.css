@@ -1943,6 +1943,26 @@
   background: rgba(246, 244, 238, 0.72);
 }
 
+.membership-sale-card {
+  min-width: 0;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.membership-sale-comment {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(20, 90, 82, 0.1);
+}
+
+.membership-sale-comment__text {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.membership-sale-comment__attribution {
+  overflow-wrap: anywhere;
+}
+
 .client-messenger-section {
   min-width: 0;
 }

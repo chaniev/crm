@@ -448,6 +448,19 @@ export async function markClientMembershipPayment(
   return response ? mapClientDetails(response) : null
 }
 
+export async function updateClientMembershipComment(
+  clientId: string,
+  saleId: string,
+  comment: string | null,
+) {
+  const response = await request<ClientResponsePayload>(
+    API_ENDPOINTS.clients.membership.comment(clientId, saleId),
+    { method: 'PUT', body: JSON.stringify({ comment }) },
+  )
+
+  return mapClientDetails(response)
+}
+
 function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
   const contacts = mapClientContacts(payload)
   const groups = mapClientGroups(payload)

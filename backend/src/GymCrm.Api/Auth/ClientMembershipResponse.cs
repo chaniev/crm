@@ -21,5 +21,8 @@ internal sealed record ClientMembershipResponse(
     DateTimeOffset ValidFrom,
     DateTimeOffset? ValidTo,
     DateTimeOffset CreatedAt,
+    string? Comment,
+    string? CommentLastChangedByName,
+    DateTimeOffset? CommentLastChangedAt,
     ClientMembershipFinancialSummaryResponse FinancialSummary,
     IReadOnlyList<ClientMembershipRefundResponse> Refunds);

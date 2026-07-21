@@ -146,6 +146,7 @@ export {
   transferClientBranch,
   updateClient,
   uploadClientPhoto,
+  updateClientMembershipComment,
 } from './api/clients'
 export {
   createClientMessengerTelegramLinkToken,

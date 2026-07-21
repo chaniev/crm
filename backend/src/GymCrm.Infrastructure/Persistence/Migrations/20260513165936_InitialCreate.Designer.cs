@@ -584,6 +584,16 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Comment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset?>("CommentChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CommentChangedByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -603,6 +613,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("CommentChangedByUserId");
 
                     b.HasIndex("CreatedByUserId");
 
@@ -1499,6 +1511,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GymCrm.Domain.Users.User", "CommentChangedByUser")
+                        .WithMany("MembershipSalesWithCommentChanged")
+                        .HasForeignKey("CommentChangedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("GymCrm.Domain.Memberships.MembershipCatalogItem", "MembershipCatalogItem")
                         .WithMany()
                         .HasForeignKey("MembershipCatalogItemId")
@@ -1506,6 +1523,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Client");
+
+                    b.Navigation("CommentChangedByUser");
 
                     b.Navigation("CreatedByUser");
 
@@ -1854,6 +1873,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("CreatedMembershipRefunds");
 
                     b.Navigation("CreatedMembershipSales");
+
+                    b.Navigation("MembershipSalesWithCommentChanged");
 
                     b.Navigation("CreatedMessengerLinkTokens");
 

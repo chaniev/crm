@@ -74,6 +74,11 @@ internal static class ClientAuditResources
         return Format(nameof(MembershipRefundCanceledDescription), actorLogin, clientFullName);
     }
 
+    public static string MembershipCommentChangedDescription(string actorLogin)
+    {
+        return Format(nameof(MembershipCommentChangedDescription), actorLogin);
+    }
+
     private static string Format(string name, params object[] args)
     {
         return string.Format(CultureInfo.CurrentCulture, GetString(name), args);

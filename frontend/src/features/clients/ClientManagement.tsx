@@ -63,6 +63,7 @@ import {
   restoreClient,
   transferClientBranch,
   uploadClientPhoto,
+  updateClientMembershipComment,
   type ClientAttendanceHistoryEntry,
   updateClient,
   type Branch,
@@ -920,6 +921,7 @@ export function ClientDetailScreen({
               pending={actionPending}
               onCancelAction={cancelMembershipAction}
               onSubmit={handleMembershipAction}
+              onClientChange={setClient}
             />
           ) : null}
 
@@ -2065,6 +2067,7 @@ type ClientMembershipSectionProps = {
   pending: boolean
   onCancelAction: () => void
   onSubmit: (submission: MembershipActionSubmission) => Promise<void>
+  onClientChange: (client: ClientDetails) => void
 }
 
 function ClientMembershipSection({
@@ -2073,10 +2076,12 @@ function ClientMembershipSection({
   pending,
   onCancelAction,
   onSubmit,
+  onClientChange,
 }: ClientMembershipSectionProps) {
   const currentMembership = client.currentMembership
   const history = [...client.membershipHistory].sort(compareMembershipHistory)
   const canEditMembership = !client.isProfessional
+  const sales = groupMembershipVersionsBySale(history)
 
   return (
     <PageSection className="client-detail-card client-membership-card">
@@ -2139,8 +2144,16 @@ function ClientMembershipSection({
             История появится после первого действия с абонементом.
           </Text>
         ) : (
-          <div className="membership-history-table-wrap">
-            <Table className="membership-history-table" horizontalSpacing="md" verticalSpacing="sm">
+          <Stack gap="md">
+            {sales.map(({ saleId, versions }) => (
+              <Paper className="membership-sale-card" key={saleId} radius="md" withBorder>
+                <MembershipSaleComment
+                  clientId={client.id}
+                  membership={versions[0]}
+                  onClientChange={onClientChange}
+                />
+                <div className="membership-history-table-wrap">
+                  <Table className="membership-history-table" horizontalSpacing="md" verticalSpacing="sm">
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Событие</Table.Th>
@@ -2151,7 +2164,7 @@ function ClientMembershipSection({
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {history.map((membership) => (
+                {versions.map((membership) => (
                   <Table.Tr key={membership.id}>
                     <Table.Td>
                       <Group gap="xs" wrap="wrap">
@@ -2203,11 +2216,87 @@ function ClientMembershipSection({
                   </Table.Tr>
                 ))}
               </Table.Tbody>
-            </Table>
-          </div>
+                  </Table>
+                </div>
+              </Paper>
+            ))}
+          </Stack>
         )}
       </Stack>
     </PageSection>
+  )
+}
+
+function groupMembershipVersionsBySale(history: ClientMembership[]) {
+  const sales = new Map<string, ClientMembership[]>()
+  for (const membership of history) {
+    const versions = sales.get(membership.saleId) ?? []
+    versions.push(membership)
+    sales.set(membership.saleId, versions)
+  }
+  return [...sales].map(([saleId, versions]) => ({ saleId, versions }))
+}
+
+function MembershipSaleComment({ clientId, membership, onClientChange }: {
+  clientId: string
+  membership: ClientMembership
+  onClientChange: (client: ClientDetails) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [comment, setComment] = useState(membership.comment ?? '')
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const attribution = membership.commentLastChangedByName && membership.commentLastChangedAt
+    ? formatNoteAttributionDate(membership.commentLastChangedAt)
+    : null
+
+  useEffect(() => {
+    if (!editing) setComment(membership.comment ?? '')
+  }, [editing, membership.comment])
+
+  function toggleEditing() {
+    if (pending) return
+    if (editing) {
+      setComment(membership.comment ?? '')
+      setError(null)
+    }
+    setEditing((value) => !value)
+  }
+
+  async function save() {
+    setPending(true)
+    setError(null)
+    try {
+      onClientChange(await updateClientMembershipComment(clientId, membership.saleId, comment))
+      setEditing(false)
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : 'Не удалось сохранить комментарий.')
+    } finally {
+      setPending(false)
+    }
+  }
+
+  return (
+    <Stack className="membership-sale-comment" data-testid={`membership-sale-comment-${membership.saleId}`} gap="xs">
+      <Group justify="space-between" wrap="wrap">
+        <Text fw={700} size="sm">Комментарий к покупке</Text>
+        <Button aria-label={`${editing ? 'Отменить редактирование' : 'Редактировать комментарий'} к покупке от ${formatDateValue(membership.purchaseDate)}`} disabled={pending} onClick={toggleEditing} size="compact-sm" variant="subtle">
+          {editing ? 'Отмена' : 'Редактировать'}
+        </Button>
+      </Group>
+      {editing ? (
+        <Stack gap="xs">
+          <Textarea aria-label="Комментарий к покупке" disabled={pending} maxLength={2000} minRows={3} onChange={(event) => setComment(event.currentTarget.value)} value={comment} />
+          {error ? <Alert color="red" variant="light">{error}</Alert> : null}
+          <Group justify="flex-end"><Button loading={pending} onClick={() => void save()} size="sm">Сохранить</Button></Group>
+        </Stack>
+      ) : (
+        <Stack gap={4}>
+          {membership.comment ? <Text className="membership-sale-comment__text" size="sm">{membership.comment}</Text> : <Text c="dimmed" size="sm">Комментарий пока не добавлен.</Text>}
+          {attribution ? <Text className="membership-sale-comment__attribution" c="dimmed" size="xs">{membership.commentLastChangedByName} · {attribution}</Text> : null}
+        </Stack>
+      )}
+    </Stack>
   )
 }
 

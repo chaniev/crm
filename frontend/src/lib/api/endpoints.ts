@@ -53,6 +53,8 @@ export const API_ENDPOINTS = {
       correct: (clientId: string) => `/clients/${clientId}/membership/correct`,
       markPayment: (clientId: string) =>
         `/clients/${clientId}/membership/mark-payment`,
+      comment: (clientId: string, saleId: string) =>
+        `/clients/${clientId}/membership/sales/${saleId}/comment`,
     },
   },
   groups: {

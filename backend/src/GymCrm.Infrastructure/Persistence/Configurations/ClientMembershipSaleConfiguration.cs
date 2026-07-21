@@ -9,6 +9,7 @@ internal sealed class ClientMembershipSaleConfiguration : IEntityTypeConfigurati
     private const int EnumMaxLength = 32;
     private const int MoneyPrecision = 10;
     private const int MoneyScale = 2;
+    private const int CommentMaxLength = 2000;
 
     public void Configure(EntityTypeBuilder<ClientMembershipSale> builder)
     {
@@ -29,11 +30,13 @@ internal sealed class ClientMembershipSaleConfiguration : IEntityTypeConfigurati
 
         builder.Property(sale => sale.PurchaseDate).IsRequired();
         builder.Property(sale => sale.CreatedAt).IsRequired();
+        builder.Property(sale => sale.Comment).HasMaxLength(CommentMaxLength);
 
         builder.HasIndex(sale => sale.ClientId);
         builder.HasIndex(sale => sale.PurchaseDate);
         builder.HasIndex(sale => sale.CreatedByUserId);
         builder.HasIndex(sale => sale.MembershipCatalogItemId);
+        builder.HasIndex(sale => sale.CommentChangedByUserId);
 
         builder.HasOne(sale => sale.Client)
             .WithMany(client => client.MembershipSales)
@@ -43,6 +46,11 @@ internal sealed class ClientMembershipSaleConfiguration : IEntityTypeConfigurati
         builder.HasOne(sale => sale.CreatedByUser)
             .WithMany(user => user.CreatedMembershipSales)
             .HasForeignKey(sale => sale.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(sale => sale.CommentChangedByUser)
+            .WithMany(user => user.MembershipSalesWithCommentChanged)
+            .HasForeignKey(sale => sale.CommentChangedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(sale => sale.MembershipCatalogItem)

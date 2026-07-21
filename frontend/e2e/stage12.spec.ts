@@ -367,6 +367,95 @@ test.describe('Основные e2e сценарии', () => {
     await expect(page.getByText(/· \d{2}\.\d{2}\.\d{4}/)).toHaveCount(0)
   })
 
+  test('Комментарий устойчиво привязан к покупке с несколькими версиями', async ({ page }) => {
+    const changedAt = '2026-07-21T12:34:56Z'
+    let comment = 'Исходный комментарий'
+    let updateBody: Record<string, unknown> | null = null
+    let detailsLoads = 0
+    const buildDetails = () => {
+      const details = toClientPayload({ ...baseClient, behaviorKind: 'Term' }, baseGroups)
+      const version = (id: string, saleId: string, purchaseDate: string, value: string | null) => ({
+        id, saleId, membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term',
+        purchaseDate, expirationDate: '2026-08-31', paymentAmount: 4000, isPaid: true,
+        singleVisitUsed: false, comment: value, commentLastChangedByName: 'Главный тренер',
+        commentLastChangedAt: changedAt,
+      })
+      const saleOneLatest = version('version-2', 'sale-1', '2026-07-01', comment)
+      return {
+        ...details,
+        currentMembership: saleOneLatest,
+        currentMembershipSummary: saleOneLatest,
+        membershipHistory: [
+          saleOneLatest,
+          { ...version('version-1', 'sale-1', '2026-07-01', comment), changeReason: 'NewPurchase' },
+          version('version-3', 'sale-2', '2026-06-01', 'Другая покупка'),
+        ],
+      }
+    }
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+      if (pathname === '/api/clients/client-1' && method === 'GET') {
+        detailsLoads += 1
+        await fulfillJson(route, 200, buildDetails())
+        return true
+      }
+      if (pathname === '/api/clients/client-1/membership/sales/sale-1/comment' && method === 'PUT') {
+        updateBody = route.request().postDataJSON() as Record<string, unknown>
+        comment = String(updateBody.comment)
+        await fulfillJson(route, 200, buildDetails())
+        return true
+      }
+      return false
+    })
+
+    await page.setViewportSize({ width: 390, height: 900 })
+    await page.goto('/clients/client-1')
+    await expect(page.getByText('Комментарий к покупке')).toHaveCount(2)
+    const targetSale = page.getByTestId('membership-sale-comment-sale-1')
+    await targetSale.getByRole('button', { name: /Редактировать комментарий/ }).click()
+    await targetSale.getByRole('textbox', { name: 'Комментарий к покупке' }).fill('Обновленный комментарий')
+    await targetSale.getByRole('button', { name: 'Сохранить' }).click()
+    await expect(targetSale.getByText('Обновленный комментарий')).toBeVisible()
+    await expect(targetSale.getByText(/^Главный тренер · \d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}$/)).toBeVisible()
+    expect(updateBody).toEqual({ comment: 'Обновленный комментарий' })
+    await page.reload()
+    await expect(page.getByTestId('membership-sale-comment-sale-1').getByText('Обновленный комментарий')).toBeVisible()
+    await expect(page.getByText('Комментарий к покупке')).toHaveCount(2)
+    expect(detailsLoads).toBeGreaterThanOrEqual(2)
+    await expectNoHorizontalScroll(page)
+  })
+
+  test('Coach получает denied response при прямой mutation комментария', async ({ page }) => {
+    let mutationCalls = 0
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, coachSession)
+        return true
+      }
+      if (pathname === '/api/clients/client-1' && method === 'GET') {
+        await fulfillJson(route, 200, toClientPayload(baseClient, baseGroups))
+        return true
+      }
+      if (pathname === '/api/clients/client-1/membership/sales/sale-1/comment' && method === 'PUT') {
+        mutationCalls += 1
+        await fulfillJson(route, 403, { title: 'Недостаточно прав.' })
+        return true
+      }
+      return false
+    })
+    await page.goto('/clients/client-1')
+    await expect(page.getByText('Комментарий к покупке')).toHaveCount(0)
+    const status = await page.evaluate(async () => (await fetch('/api/clients/client-1/membership/sales/sale-1/comment', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ comment: 'Запрещено' }),
+    })).status)
+    expect(status).toBe(403)
+    expect(mutationCalls).toBe(1)
+  })
+
   test('Создание клиента: отправляет корректный payload и открывает карточку клиента', async ({
     page,
   }) => {

@@ -65,6 +65,18 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             await LoadDetailsRequiredAsync(clientId, cancellationToken));
     }
 
+    public async Task<ClientMembershipCommentMutationResult> UpdateCommentAsync(
+        Guid clientId, Guid saleId, UpdateClientMembershipCommentCommand command, CancellationToken cancellationToken)
+    {
+        var sale = await dbContext.ClientMembershipSales
+            .SingleOrDefaultAsync(candidate => candidate.Id == saleId && candidate.ClientId == clientId, cancellationToken);
+        if (sale is null) return ClientMembershipCommentMutationResult.Missing();
+
+        var transition = ClientMembershipCommentPolicy.Apply(sale, command.Comment, command.ChangedByUserId, timeProvider.GetUtcNow());
+        if (transition is not null) await dbContext.SaveChangesAsync(cancellationToken);
+        return ClientMembershipCommentMutationResult.Success(transition, await LoadDetailsRequiredAsync(clientId, cancellationToken));
+    }
+
     public async Task<ClientMembershipMutationResult> RenewAsync(
         Guid clientId,
         RenewClientMembershipCommand command,
@@ -539,6 +551,8 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             .Include(membership => membership.MembershipCatalogItem)
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.Refunds)
+            .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.CommentChangedByUser)
             .Where(membership => membership.ClientId == clientId)
             .ToListAsync(cancellationToken);
 
@@ -664,6 +678,9 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
                 membership.ChangedByUserId,
                 membership.CreatedAt,
                 membership.SaleId,
+                membership.Sale.Comment,
+                ResolveCommentAuthorName(membership.Sale),
+                ResolveCommentChangedAt(membership.Sale),
                 CreateFinancialSummary(membership.Sale),
                 MapRefunds(membership.Sale)))
             .ToArray();
@@ -697,9 +714,20 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             membership.ChangedByUserId,
             membership.CreatedAt,
             membership.SaleId,
+            membership.Sale.Comment,
+            ResolveCommentAuthorName(membership.Sale),
+            ResolveCommentChangedAt(membership.Sale),
             CreateFinancialSummary(membership.Sale),
             MapRefunds(membership.Sale));
     }
+
+    private static string? ResolveCommentAuthorName(ClientMembershipSale sale) =>
+        sale.CommentChangedByUserId.HasValue && sale.CommentChangedAt.HasValue && sale.CommentChangedByUser is not null
+            ? sale.CommentChangedByUser.FullName : null;
+
+    private static DateTimeOffset? ResolveCommentChangedAt(ClientMembershipSale sale) =>
+        sale.CommentChangedByUserId.HasValue && sale.CommentChangedAt.HasValue && sale.CommentChangedByUser is not null
+            ? sale.CommentChangedAt : null;
 
     private static ClientMembershipFinancialSummaryResult CreateFinancialSummary(ClientMembershipSale sale)
     {
