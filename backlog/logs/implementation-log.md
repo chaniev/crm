@@ -724,3 +724,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-068-client-comment-audit`, test-first nullable attribution and timestamp persistence, normalized note-transition semantics, safe current-name contract, exact note-audit cardinality, PII-free failure logging, role/scope access barriers and frontend localized rendering coverage.
+
+# 2026-07-21 23:37
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-073-temporary-group-trainer-substitution.plan.md
+
+## Skipped tasks
+- TASK-073-temporary-group-trainer-substitution.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; implementation plan created for explicit security/architecture review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-073-temporary-group-trainer-substitution`, a separate substitution model, inclusive club-date semantics, concurrency-safe overlap protection, one backend-owned effective assignment service across web/attendance/photo/internal bot consumers, atomic audit, financial non-attribution and test-first fixed-date/backend/frontend regression barriers.
