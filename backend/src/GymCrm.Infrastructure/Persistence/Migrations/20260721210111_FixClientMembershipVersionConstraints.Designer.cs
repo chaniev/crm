@@ -3,6 +3,7 @@ using System;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GymCrm.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(GymCrmDbContext))]
-    partial class GymCrmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260721210111_FixClientMembershipVersionConstraints")]
+    partial class FixClientMembershipVersionConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1502,16 +1505,16 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GymCrm.Domain.Users.User", "CommentChangedByUser")
+                        .WithMany("MembershipSalesWithCommentChanged")
+                        .HasForeignKey("CommentChangedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
                         .WithMany("CreatedMembershipSales")
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("GymCrm.Domain.Users.User", "CommentChangedByUser")
-                        .WithMany("MembershipSalesWithCommentChanged")
-                        .HasForeignKey("CommentChangedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("GymCrm.Domain.Memberships.MembershipCatalogItem", "MembershipCatalogItem")
                         .WithMany()
@@ -1871,8 +1874,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.Navigation("CreatedMembershipSales");
 
-                    b.Navigation("MembershipSalesWithCommentChanged");
-
                     b.Navigation("CreatedMessengerLinkTokens");
 
                     b.Navigation("CreatedMessengerMessages");
@@ -1882,6 +1883,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("MembershipChanges");
 
                     b.Navigation("MembershipPayments");
+
+                    b.Navigation("MembershipSalesWithCommentChanged");
                 });
 #pragma warning restore 612, 618
         }

@@ -125,11 +125,6 @@ const clientPhotoAcceptValue = [
   ...clientPhotoAcceptedExtensions,
   ...clientPhotoAcceptedMimeTypes,
 ].join(',')
-const behaviorKindOptions = [
-  { value: 'SingleVisit', label: resources.clients.behaviorKindOptionLabels.SingleVisit },
-  { value: 'Term', label: resources.clients.behaviorKindOptionLabels.Term },
-  { value: 'Professional', label: resources.clients.behaviorKindOptionLabels.Professional },
-] satisfies Array<{ value: MembershipBehaviorKind; label: string }>
 const behaviorKindLabels = resources.common.membership
   .typeLabels satisfies Record<MembershipBehaviorKind, string>
 const membershipChangeReasonLabels = resources.clients
@@ -139,11 +134,9 @@ const membershipChangeReasonLabels = resources.clients
 >
 type MembershipActionMode = 'purchase' | 'renew' | 'correct' | 'markPayment'
 
-type MembershipEditFormValues = {
-  behaviorKind: MembershipBehaviorKind | null
+type MembershipCorrectionFormValues = {
   purchaseDate: string
   expirationDate: string
-  paymentAmount: string
   isPaid: boolean
 }
 
@@ -2123,7 +2116,6 @@ function ClientMembershipSection({
           <MembershipEditPanel
             key={`correct-${currentMembership.id}`}
             currentMembership={currentMembership}
-            mode="correct"
             pending={pending}
             onCancel={onCancelAction}
             onSubmit={onSubmit}
@@ -2390,8 +2382,7 @@ function ClientAttendanceHistorySection({
 }
 
 type MembershipEditPanelProps = {
-  currentMembership: ClientMembership | null
-  mode: 'purchase' | 'correct'
+  currentMembership: ClientMembership
   pending: boolean
   onCancel: () => void
   onSubmit: (submission: MembershipActionSubmission) => Promise<void>
@@ -2399,13 +2390,12 @@ type MembershipEditPanelProps = {
 
 function MembershipEditPanel({
   currentMembership,
-  mode,
   pending,
   onCancel,
   onSubmit,
 }: MembershipEditPanelProps) {
-  const initialValues = createMembershipEditInitialValues(mode, currentMembership)
-  const form = useForm<MembershipEditFormValues>({
+  const initialValues = createMembershipCorrectionInitialValues(currentMembership)
+  const form = useForm<MembershipCorrectionFormValues>({
     initialValues,
   })
   const formRef = useRef(form)
@@ -2465,50 +2455,31 @@ function MembershipEditPanel({
     [],
   )
 
-  useEffect(() => {
-    if (mode !== 'purchase' || expirationManuallyChanged) {
-      return
-    }
-
-    void applySuggestedExpiration(
-      formRef.current.values.behaviorKind,
-      formRef.current.values.purchaseDate,
-    )
-  }, [applySuggestedExpiration, expirationManuallyChanged, mode])
-
-  function updateSuggestedExpiration(
-    nextType: MembershipBehaviorKind | null,
-    purchaseDate: string,
-  ) {
+  function updateSuggestedExpiration(purchaseDate: string) {
     if (expirationManuallyChanged) {
       return
     }
 
-    void applySuggestedExpiration(nextType, purchaseDate)
+    void applySuggestedExpiration(currentMembership.behaviorKind, purchaseDate)
   }
 
-  async function submit(values: MembershipEditFormValues) {
-    const validationErrors = validateMembershipEditForm(values)
+  async function submit(values: MembershipCorrectionFormValues) {
+    const validationErrors = validateMembershipCorrectionForm(
+      values,
+      currentMembership.behaviorKind,
+    )
 
     if (Object.keys(validationErrors).length > 0) {
       form.setErrors(validationErrors)
       return
     }
 
-    const paymentAmount = parsePaymentAmount(values.paymentAmount)
-    if (paymentAmount === null || !values.behaviorKind) {
-      return
-    }
-
-    if (mode !== 'correct') return
     await onSubmit({
       kind: 'correct',
       payload: {
         purchaseDate: values.purchaseDate,
         expirationDate: values.expirationDate || undefined,
-        paymentAmount,
         isPaid: values.isPaid,
-        singleVisitUsed: false,
       },
     })
   }
@@ -2519,35 +2490,25 @@ function MembershipEditPanel({
         <Stack gap="md">
           <Group justify="space-between" wrap="wrap">
             <div>
-              <Text fw={700}>
-                {mode === 'purchase'
-                  ? 'Оформить новый абонемент'
-                  : 'Исправить текущий абонемент'}
-              </Text>
+              <Text fw={700}>Исправить текущий абонемент</Text>
               <Text c="dimmed" size="sm">
-                Срок рассчитывается автоматически по типу и дате покупки, но его
-                можно исправить вручную.
+                Тип и цена зафиксированы в продаже и не меняются при исправлении.
               </Text>
             </div>
 
             <Badge color="brand.1" radius="sm" variant="light">
-              {mode === 'purchase' ? 'Новая покупка' : 'Исправление'}
+              Исправление
             </Badge>
           </Group>
 
           <SimpleGrid cols={{ base: 1, md: 2 }}>
-            <Select
-              allowDeselect={false}
-              data={behaviorKindOptions}
-              label="Тип абонемента"
-              placeholder="Выберите тип"
-              value={form.values.behaviorKind}
-              onChange={(value) => {
-                const nextType = (value ?? null) as MembershipBehaviorKind | null
-                form.setFieldValue('behaviorKind', nextType)
-                updateSuggestedExpiration(nextType, form.values.purchaseDate)
-              }}
-              error={form.errors.behaviorKind}
+            <InfoItem
+              label="Абонемент"
+              value={currentMembership.membershipName}
+            />
+            <InfoItem
+              label="Сумма продажи"
+              value={formatCurrencyValue(currentMembership.paymentAmount)}
             />
             <TextInput
               label="Дата покупки"
@@ -2556,16 +2517,13 @@ function MembershipEditPanel({
               onChange={(event) => {
                 const nextPurchaseDate = event.currentTarget.value
                 form.setFieldValue('purchaseDate', nextPurchaseDate)
-                updateSuggestedExpiration(
-                  form.values.behaviorKind,
-                  nextPurchaseDate,
-                )
+                updateSuggestedExpiration(nextPurchaseDate)
               }}
               error={form.errors.purchaseDate}
             />
             <TextInput
               description={
-                form.values.behaviorKind === 'SingleVisit'
+                currentMembership.behaviorKind === 'SingleVisit'
                   ? 'Для разового посещения дату можно оставить пустой.'
                   : expirationSuggestionLoading
                     ? 'Рассчитываем дату окончания...'
@@ -2580,18 +2538,6 @@ function MembershipEditPanel({
                 form.setFieldValue('expirationDate', event.currentTarget.value)
               }}
               error={form.errors.expirationDate}
-            />
-            <TextInput
-              label="Сумма оплаты"
-              min="0"
-              placeholder="1200"
-              step="0.01"
-              type="number"
-              value={form.values.paymentAmount}
-              onChange={(event) =>
-                form.setFieldValue('paymentAmount', event.currentTarget.value)
-              }
-              error={form.errors.paymentAmount}
             />
           </SimpleGrid>
 
@@ -2610,7 +2556,7 @@ function MembershipEditPanel({
               onClick={() => {
                 setExpirationManuallyChanged(false)
                 void applySuggestedExpiration(
-                  form.values.behaviorKind,
+                  currentMembership.behaviorKind,
                   form.values.purchaseDate,
                 )
               }}
@@ -2626,7 +2572,7 @@ function MembershipEditPanel({
               Отменить
             </Button>
             <Button loading={pending} type="submit">
-              {mode === 'purchase' ? 'Оформить абонемент' : 'Сохранить исправление'}
+              Сохранить исправление
             </Button>
           </ResponsiveButtonGroup>
         </Stack>
@@ -2925,29 +2871,13 @@ function MembershipMarkPaymentPanel({
   )
 }
 
-function createMembershipEditInitialValues(
-  mode: 'purchase' | 'correct',
-  currentMembership: ClientMembership | null,
-): MembershipEditFormValues {
-  if (mode === 'correct' && currentMembership) {
-    return {
-      behaviorKind: currentMembership.behaviorKind,
-      purchaseDate: currentMembership.purchaseDate,
-      expirationDate: currentMembership.expirationDate ?? '',
-      paymentAmount: String(currentMembership.paymentAmount),
-      isPaid: currentMembership.isPaid,
-    }
-  }
-
-  const behaviorKind = currentMembership?.behaviorKind ?? 'Term'
-  const purchaseDate = getTodayDateValue()
-
+function createMembershipCorrectionInitialValues(
+  currentMembership: ClientMembership,
+): MembershipCorrectionFormValues {
   return {
-    behaviorKind,
-    purchaseDate,
-    expirationDate: '',
-    paymentAmount: '',
-    isPaid: false,
+    purchaseDate: currentMembership.purchaseDate,
+    expirationDate: currentMembership.expirationDate ?? '',
+    isPaid: currentMembership.isPaid,
   }
 }
 
@@ -2964,25 +2894,20 @@ function createMembershipRenewInitialValues(
   }
 }
 
-function validateMembershipEditForm(values: MembershipEditFormValues) {
+function validateMembershipCorrectionForm(
+  values: MembershipCorrectionFormValues,
+  behaviorKind: MembershipBehaviorKind,
+) {
   const errors: Record<string, string> = {}
-
-  if (!values.behaviorKind) {
-    errors.behaviorKind = 'Выберите тип абонемента.'
-  }
 
   if (!values.purchaseDate) {
     errors.purchaseDate = 'Укажите дату покупки.'
   }
 
-  if (values.behaviorKind && isExpirationRequired(values.behaviorKind)) {
+  if (isExpirationRequired(behaviorKind)) {
     if (!values.expirationDate) {
       errors.expirationDate = 'Укажите дату окончания.'
     }
-  }
-
-  if (parsePaymentAmount(values.paymentAmount) === null) {
-    errors.paymentAmount = 'Укажите корректную сумму оплаты.'
   }
 
   return errors

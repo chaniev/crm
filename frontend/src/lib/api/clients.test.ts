@@ -1,11 +1,47 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
+  correctClientMembership,
   getClient,
   getClientAttentionItems,
   getMembershipAttentionItems,
   getMembershipExpirationSuggestion,
   updateClientMembershipComment,
 } from './clients'
+
+describe('correctClientMembership', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  test('sends only fields supported by the correction contract', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ id: 'c-1', fullName: 'Иван Иванов' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    const legacyFormPayload = {
+      purchaseDate: '2026-07-21',
+      expirationDate: '2026-08-20',
+      paymentAmount: 6000,
+      isPaid: true,
+      singleVisitUsed: false,
+    }
+
+    await correctClientMembership('c-1', legacyFormPayload)
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/clients/c-1/membership/correct',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          PurchaseDate: '2026-07-21',
+          ExpirationDate: '2026-08-20',
+          IsPaid: true,
+        }),
+      }),
+    )
+  })
+})
 
 describe('updateClientMembershipComment', () => {
   afterEach(() => vi.unstubAllGlobals())

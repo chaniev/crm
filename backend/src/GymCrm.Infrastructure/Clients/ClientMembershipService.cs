@@ -643,13 +643,25 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
-        if (currentMembership is not null)
-        {
-            currentMembership.ValidTo = now;
-        }
+        await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken);
 
-        dbContext.ClientMemberships.Add(nextMembership);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            if (currentMembership is not null)
+            {
+                currentMembership.ValidTo = now;
+                await dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            dbContext.ClientMemberships.Add(nextMembership);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await CommitIfPresentAsync(transaction, cancellationToken);
+        }
+        catch
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            throw;
+        }
     }
 
     private static ClientMembershipDetailsResult CreateDetails(

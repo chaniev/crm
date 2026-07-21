@@ -420,9 +420,7 @@ export async function correctClientMembership(
       body: JSON.stringify({
         PurchaseDate: payload.purchaseDate,
         ExpirationDate: payload.expirationDate,
-        PaymentAmount: payload.paymentAmount,
         IsPaid: payload.isPaid,
-        SingleVisitUsed: payload.singleVisitUsed ?? false,
       }),
     },
   )
