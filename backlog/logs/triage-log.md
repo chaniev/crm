@@ -1043,3 +1043,24 @@
 - active tasks after audit: 26 (`tasks-ready`: 8, `risky`: 14, `needs-clarification`: 4)
 - active implementation plans after audit: 2 (`TASK-033`, `TASK-073`)
 - validation: repository history, source and test-coverage audit only; runtime test suites were not rerun because this change only reconciles backlog metadata
+
+# 2026-07-22 00:21
+
+## Processed inbox files
+- 2026-07-21.md (archived as `2026-07-21-2.md`, because `backlog/processed/2026-07-21.md` already exists)
+
+## Created tasks
+- /backlog/risky/TASK-077-membership-sale-amount-override.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- TASK-036, TASK-037 and TASK-070 were checked. The new note intentionally extends the implemented catalog-price contract with per-sale override and no-catalog-item scenarios; no duplicate task was created.
+
+## Summary
+- tasks-ready: 0
+- risky: 1
+- needs-clarification: 0
+- updated existing: 0
+- processed files: 1
