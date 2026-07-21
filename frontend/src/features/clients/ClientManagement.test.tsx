@@ -105,6 +105,40 @@ describe('ClientDetailScreen membership purchase form', () => {
   })
 })
 
+describe('ClientDetailScreen membership correction form', () => {
+  test('keeps catalog type and sale amount read-only', async () => {
+    const currentMembership = buildMembership()
+    getClientMock.mockResolvedValue({
+      ...buildClientDetails(),
+      currentMembership,
+      currentMembershipSummary: currentMembership,
+      hasCurrentMembership: true,
+      membershipHistory: [currentMembership],
+    })
+
+    renderWithProviders(
+      <ClientDetailScreen
+        canManage
+        clientId="client-1"
+        onBack={() => undefined}
+        onEdit={() => undefined}
+      />,
+    )
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Исправить' }))
+
+    expect(
+      await screen.findByText(
+        'Тип и цена зафиксированы в продаже и не меняются при исправлении.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: 'Тип абонемента' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('spinbutton', { name: 'Сумма оплаты' })).not.toBeInTheDocument()
+    expect(screen.getAllByText('Месяц')).not.toHaveLength(0)
+    expect(screen.getAllByText('3 000 ₽')).not.toHaveLength(0)
+  })
+})
+
 describe('ClientDetailScreen note attribution', () => {
   test('shows the author and local minute-precision timestamp for complete metadata', async () => {
     getClientMock.mockResolvedValue({
@@ -185,5 +219,23 @@ function buildClientWithMemberships(): ClientDetails {
       { ...common, id: 'version-1', saleId: 'sale-1', changeReason: 'NewPurchase', comment: 'Комментарий первой покупки' },
       { ...common, id: 'version-3', saleId: 'sale-2', purchaseDate: '2026-08-01', comment: 'Комментарий второй покупки' },
     ],
+  }
+}
+
+function buildMembership() {
+  return {
+    id: 'version-current',
+    saleId: 'sale-current',
+    membershipCatalogItemId: 'catalog-1',
+    membershipName: 'Месяц',
+    behaviorKind: 'Term' as const,
+    purchaseDate: '2026-07-21',
+    expirationDate: '2026-08-20',
+    paymentAmount: 3000,
+    isPaid: true,
+    singleVisitUsed: false,
+    comment: null,
+    commentLastChangedByName: null,
+    commentLastChangedAt: null,
   }
 }

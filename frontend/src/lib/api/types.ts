@@ -622,9 +622,7 @@ export type PurchaseClientMembershipRequest = {
 export type CorrectClientMembershipRequest = {
   purchaseDate: string
   expirationDate?: string
-  paymentAmount: number
   isPaid: boolean
-  singleVisitUsed?: boolean
 }
 
 export type MembershipExpirationSuggestion = {

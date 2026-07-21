@@ -44,13 +44,11 @@ internal sealed class ClientMembershipConfiguration : IEntityTypeConfiguration<C
         builder.Property(membership => membership.CreatedAt).IsRequired();
 
         builder.HasIndex(membership => membership.ClientId);
-        builder.HasIndex(membership => membership.SaleId);
-        builder.HasIndex(membership => membership.MembershipCatalogItemId);
-        builder.HasIndex(membership => membership.ValidTo);
-
-        builder.HasIndex(membership => membership.ClientId)
+        builder.HasIndex(membership => membership.SaleId)
             .IsUnique()
             .HasFilter(CurrentMembershipIndexFilter);
+        builder.HasIndex(membership => membership.MembershipCatalogItemId);
+        builder.HasIndex(membership => membership.ValidTo);
 
         builder.HasOne(membership => membership.Sale)
             .WithMany(sale => sale.Memberships)
