@@ -1,7 +1,14 @@
 # TASK-069: Добавить комментарий к абонементу с автором и датой
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- implementation_branch: feature/TASK-069-membership-comment-audit
+- implementation_commit: a4f083e
+- merged_to_main_at: 2026-07-21
+- merge_commit: b0de5f6
+- implementation_plan: /backlog/done/TASK-069-membership-comment-audit.plan.md
 
 ## Goal
 Пользователь может сохранить комментарий к конкретному абонементу клиента и видеть автора и дату последнего изменения.

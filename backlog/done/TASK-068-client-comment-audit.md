@@ -1,7 +1,14 @@
 # TASK-068: Показывать автора и дату изменения комментария клиента
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- implementation_branch: feature/TASK-068-client-comment-audit
+- implementation_commit: 43cc488
+- merged_to_main_at: 2026-07-21
+- merge_commit: 6766951
+- implementation_plan: /backlog/done/TASK-068-client-comment-audit.plan.md
 
 ## Goal
 В карточке клиента видно рабочий комментарий, а также кто и когда изменил его последним.

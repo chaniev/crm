@@ -1016,3 +1016,30 @@
 - needs-clarification: 1
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-22 status audit
+
+## Scope
+- Reviewed every active backlog task against updated `main`, merge history, source code and available automated coverage.
+- Audit branch: `feature/backlog-status-audit`.
+
+## Moved tasks to done
+- `TASK-068-client-comment-audit` — implementation commit `43cc488` was merged into `main` via PR #79 (`6766951`). Backend persistence, API, authorization and audit semantics, frontend attribution UI and focused automated coverage are present in the merged changes.
+- `TASK-069-membership-comment-audit` — implementation commit `a4f083e` was merged into `main` via PR #80 (`b0de5f6`). Stable sale-level comments, authorization/audit handling, frontend editing and attribution, and focused automated coverage are present in the merged changes.
+
+## Status updates
+- Moved TASK-068 and TASK-069 cards from `/backlog/risky` to `/backlog/done`; changed their status to `done` and recorded implementation/merge evidence.
+- Moved both implementation plans from `/backlog/implementation-plans` to `/backlog/done` and updated their source links.
+
+## Kept active
+- Bot tasks `TASK-001..TASK-014` and `TASK-033` remain relevant: attendance roster pagination and a complete runbook are absent, while the remaining audit, validation, runtime, notification, photo, webhook and branch-consumer acceptance criteria lack complete evidence.
+- Client UX tasks `TASK-016..TASK-021` remain relevant: current UI and responsive tests cover related behavior, but do not fully prove the requested quick actions, list return-state restoration, six-tab detail structure, action-first empty states, visual cleanup and dedicated responsive regression matrix.
+- `TASK-058` remains in clarification because the multi-window/second-monitor workflow is unresolved.
+- `TASK-071`, `TASK-073`, `TASK-074` and `TASK-075` remain relevant: current `main` does not implement their paid-trial conversion, temporary substitution, freeze-aware streak or lesson-state semantics. TASK-073 has an implementation plan but no implementation commit.
+
+## Summary
+- moved to done: 2 tasks
+- moved plans to done: 2
+- active tasks after audit: 26 (`tasks-ready`: 8, `risky`: 14, `needs-clarification`: 4)
+- active implementation plans after audit: 2 (`TASK-033`, `TASK-073`)
+- validation: repository history, source and test-coverage audit only; runtime test suites were not rerun because this change only reconciles backlog metadata

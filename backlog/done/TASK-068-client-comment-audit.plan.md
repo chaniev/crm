@@ -1,7 +1,9 @@
 # Implementation Plan: TASK-068 Показывать автора и дату изменения комментария клиента
 
 ## Source task
-/backlog/risky/TASK-068-client-comment-audit.md
+/backlog/done/TASK-068-client-comment-audit.md
+
+Source task and this plan were moved to `/backlog/done` after implementation commit `43cc488` was merged into `main` via merge commit `6766951` (PR #79) on 2026-07-21.
 
 Source status remains `risky`: this plan prepares the task for explicit review and later selection; it does not move the task into active implementation.
 

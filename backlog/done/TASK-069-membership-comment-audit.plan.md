@@ -1,7 +1,9 @@
 # Implementation Plan: TASK-069 Добавить комментарий к абонементу с автором и датой
 
 ## Source task
-/backlog/risky/TASK-069-membership-comment-audit.md
+/backlog/done/TASK-069-membership-comment-audit.md
+
+Source task and this plan were moved to `/backlog/done` after implementation commit `a4f083e` was merged into `main` via merge commit `b0de5f6` (PR #80) on 2026-07-21.
 
 Source status remains `risky`: this plan prepares the task for explicit review and later selection; it does not move the task into active implementation.
 
