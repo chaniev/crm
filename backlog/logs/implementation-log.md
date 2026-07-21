@@ -1,3 +1,20 @@
+# 2026-07-21 22:06
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-069-membership-comment-audit.plan.md
+
+## Skipped tasks
+- TASK-069-membership-comment-audit.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; plan created for explicit review before active implementation in branch `feature/TASK-069-membership-comment-audit`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: stable membership identity was confirmed as `ClientMembershipSale.Id`/`saleId`; the plan keeps comment metadata on the sale, requires test-first authorization/audit/isolation coverage and blocks completion on any financial, validity, refund, write-off or versioning side effect.
+
 # 2026-06-29 00:00
 
 ## Moved to implementation
