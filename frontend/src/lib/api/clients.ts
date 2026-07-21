@@ -716,6 +716,17 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
     payload.groupIds?.filter((groupId): groupId is string => Boolean(groupId)) ??
     listItem.groups.map((group) => group.id)
   const attendanceHistory = mapClientAttendanceHistory(payload)
+  const notesLastChangedByName = readString(payload, [
+    'notesLastChangedByName',
+    'NotesLastChangedByName',
+  ])
+  const notesLastChangedAt = readString(payload, [
+    'notesLastChangedAt',
+    'NotesLastChangedAt',
+  ])
+  const hasCompleteNoteAttribution = Boolean(
+    notesLastChangedByName && notesLastChangedAt,
+  )
 
   return {
     ...listItem,
@@ -723,6 +734,10 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
     createdAt: payload.createdAt,
     groupIds,
     notes: readString(payload, ['notes', 'Notes']) ?? '',
+    notesLastChangedByName: hasCompleteNoteAttribution
+      ? notesLastChangedByName!
+      : null,
+    notesLastChangedAt: hasCompleteNoteAttribution ? notesLastChangedAt! : null,
     photo: mapClientPhoto(payload),
     currentMembership: mapClientCurrentMembership(payload),
     membershipHistory: mapClientMembershipHistory(payload),

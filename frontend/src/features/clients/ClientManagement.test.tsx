@@ -7,6 +7,7 @@ import {
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { ClientDetailScreen } from './ClientManagement'
+import { formatNoteAttributionDate } from './noteAttribution'
 
 vi.mock('../../lib/api', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/api')>()
@@ -47,6 +48,39 @@ describe('ClientDetailScreen membership purchase form', () => {
   })
 })
 
+describe('ClientDetailScreen note attribution', () => {
+  test('shows the author and local minute-precision timestamp for complete metadata', async () => {
+    getClientMock.mockResolvedValue({
+      ...buildClientDetails(),
+      notes: 'Позвонить вечером',
+      notesLastChangedByName: 'Анна Петрова',
+      notesLastChangedAt: '2026-07-21T12:34:56Z',
+    })
+
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+
+    expect(await screen.findByText('Позвонить вечером')).toBeInTheDocument()
+    expect(screen.getByText(new RegExp(`^Анна Петрова · ${formatNoteAttributionDate('2026-07-21T12:34:56Z')}$`))).toBeInTheDocument()
+  })
+
+  test('keeps legacy notes unattributed and preserves the existing empty state', async () => {
+    getClientMock.mockResolvedValue({ ...buildClientDetails(), notes: 'Старая заметка' })
+    const view = renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+    expect(await screen.findByText('Старая заметка')).toBeInTheDocument()
+    expect(screen.queryByText(/· \d{2}\.\d{2}\.\d{4}/)).not.toBeInTheDocument()
+
+    view.unmount()
+    getClientMock.mockResolvedValue(buildClientDetails())
+    renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
+    expect(await screen.findByText('Рабочая заметка пока не добавлена.')).toBeInTheDocument()
+  })
+
+  test('formats UTC in a fixed local timezone without seconds', () => {
+    expect(formatNoteAttributionDate('2026-07-21T12:34:56Z', 'Europe/Moscow')).toBe('21.07.2026, 15:34')
+    expect(formatNoteAttributionDate('not-a-date', 'Europe/Moscow')).toBeNull()
+  })
+})
+
 function buildClientDetails(): ClientDetails {
   return {
     id: 'client-1',
@@ -64,6 +98,8 @@ function buildClientDetails(): ClientDetails {
     groupIds: [],
     contacts: [],
     notes: '',
+    notesLastChangedByName: null,
+    notesLastChangedAt: null,
     photo: null,
     isProfessional: false,
     professionalComment: null,

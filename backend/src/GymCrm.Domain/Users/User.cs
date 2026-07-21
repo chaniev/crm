@@ -35,6 +35,7 @@ public class User
     public ICollection<GroupTrainerAssignment> CreatedGroupTrainerAssignments { get; set; } = new List<GroupTrainerAssignment>();
     public ICollection<AttendanceEntry> AttendanceMarks { get; set; } = new List<AttendanceEntry>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+    public ICollection<Client> ClientsWithNotesChanged { get; set; } = new List<Client>();
     public ICollection<ClientMessengerLinkToken> CreatedMessengerLinkTokens { get; set; } = new List<ClientMessengerLinkToken>();
     public ICollection<ClientMessengerMessage> CreatedMessengerMessages { get; set; } = new List<ClientMessengerMessage>();
     public ICollection<ClientMessengerReadState> ClientMessengerReadStates { get; set; } = new List<ClientMessengerReadState>();

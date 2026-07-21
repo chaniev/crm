@@ -4,6 +4,7 @@ using GymCrm.Application.Audit;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Audit;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
@@ -602,6 +603,7 @@ internal static class ClientEndpoints
         int? attendanceTake,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        ILoggerFactory loggerFactory,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -632,7 +634,7 @@ internal static class ClientEndpoints
                 dbContext,
                 cancellationToken);
 
-            return TypedResults.Ok(MapDetails(client, attendanceHistory));
+            return TypedResults.Ok(MapDetails(client, attendanceHistory, loggerFactory.CreateLogger("ClientNotesMetadata")));
         }
 
         var coachGroups = client.Groups
@@ -654,7 +656,7 @@ internal static class ClientEndpoints
             dbContext,
             cancellationToken);
 
-        return TypedResults.Ok(MapCoachDetails(client, coachGroups, coachAttendanceHistory));
+        return TypedResults.Ok(MapCoachDetails(client, coachGroups, coachAttendanceHistory, loggerFactory.CreateLogger("ClientNotesMetadata")));
     }
 
     private static async Task<Results<Created<ClientDetailsResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateClientAsync(
@@ -662,6 +664,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAuditLogService auditLogService,
+        ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -693,11 +696,11 @@ internal static class ClientEndpoints
             FirstName = normalizedRequest.FirstName,
             MiddleName = normalizedRequest.MiddleName,
             Phone = normalizedRequest.Phone,
-            Notes = normalizedRequest.Notes,
             Status = ClientStatus.Active,
             CreatedAt = now,
             UpdatedAt = now
         };
+        var noteTransition = ClientNotesMetadataPolicy.Apply(client, normalizedRequest.Notes, currentUser.Id, now);
 
         dbContext.Clients.Add(client);
         await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
@@ -715,7 +718,7 @@ internal static class ClientEndpoints
         var createdClient = await LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Created client '{client.Id}' was not found.");
 
-        await auditLogService.WriteAsync(
+        await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
             new AuditLogEntry(
                 currentUser.Id,
                 ClientAuditConstants.ClientCreatedAction,
@@ -724,8 +727,13 @@ internal static class ClientEndpoints
                 ClientAuditResources.ClientCreatedDescription(
                     currentUser.Login,
                     BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
-                NewValueJson: SerializeAuditState(createdClient)),
-            cancellationToken);
+                NewValueJson: SerializeAuditState(createdClient)), cancellationToken);
+
+        if (noteTransition is not null)
+        {
+            await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
+                BuildNoteAuditEntry(currentUser.Id, client, currentUser.Login, noteTransition), cancellationToken);
+        }
 
         return TypedResults.Created($"/clients/{client.Id}", MapDetails(createdClient, EmptyAttendanceHistoryPage()));
     }
@@ -736,6 +744,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAuditLogService auditLogService,
+        ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -776,8 +785,8 @@ internal static class ClientEndpoints
         client.MiddleName = normalizedRequest.MiddleName;
         client.Phone = normalizedRequest.Phone;
         client.BranchId = normalizedRequest.BranchId!.Value;
-        client.Notes = normalizedRequest.Notes;
         var now = DateTimeOffset.UtcNow;
+        var noteTransition = ClientNotesMetadataPolicy.Apply(client, normalizedRequest.Notes, currentUser.Id, now);
         client.UpdatedAt = now;
 
         await ReplaceContactsAsync(client.Id, normalizedRequest.Contacts, dbContext, cancellationToken);
@@ -795,7 +804,7 @@ internal static class ClientEndpoints
         var updatedClient = await LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated client '{client.Id}' was not found.");
 
-        await auditLogService.WriteAsync(
+        await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
             new AuditLogEntry(
                 currentUser.Id,
                 ClientAuditConstants.ClientUpdatedAction,
@@ -805,8 +814,13 @@ internal static class ClientEndpoints
                     currentUser.Login,
                     BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
                 oldState,
-                SerializeAuditState(updatedClient)),
-            cancellationToken);
+                SerializeAuditState(updatedClient)), cancellationToken);
+
+        if (noteTransition is not null)
+        {
+            await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, client.Id,
+                BuildNoteAuditEntry(currentUser.Id, client, currentUser.Login, noteTransition), cancellationToken);
+        }
 
         return TypedResults.Ok(MapDetails(updatedClient, EmptyAttendanceHistoryPage()));
     }
@@ -1427,6 +1441,7 @@ internal static class ClientEndpoints
         return await dbContext.Clients
             .AsNoTracking()
             .Include(client => client.Branch)
+            .Include(client => client.NotesChangedByUser)
             .Include(client => client.Contacts)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.PaidByUser)
@@ -2913,7 +2928,8 @@ internal static class ClientEndpoints
 
     private static ClientDetailsResponse MapDetails(
         Client client,
-        ClientAttendanceHistoryPageResponse attendanceHistory)
+        ClientAttendanceHistoryPageResponse attendanceHistory,
+        ILogger? logger = null)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var groups = MapGroups(client.Groups);
@@ -2928,6 +2944,7 @@ internal static class ClientEndpoints
             .ToArray();
         var membershipHistory = MapMembershipHistory(client.Memberships);
         var currentMembership = GetCurrentMembership(client);
+        var notesMetadata = ResolveNotesMetadata(client, logger);
 
         return new ClientDetailsResponse(
             client.Id,
@@ -2939,6 +2956,8 @@ internal static class ClientEndpoints
             client.BranchId,
             client.Branch.Name,
             client.Notes,
+            notesMetadata.Name,
+            notesMetadata.ChangedAt,
             client.Status.ToString(),
             groups.Select(group => group.Id).ToArray(),
             groups,
@@ -2963,11 +2982,13 @@ internal static class ClientEndpoints
     private static ClientDetailsResponse MapCoachDetails(
         Client client,
         IReadOnlyCollection<ClientGroup> coachGroups,
-        ClientAttendanceHistoryPageResponse attendanceHistory)
+        ClientAttendanceHistoryPageResponse attendanceHistory,
+        ILogger? logger = null)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var groups = MapGroups(coachGroups);
         var currentMembership = GetCurrentMembership(client);
+        var notesMetadata = ResolveNotesMetadata(client, logger);
 
         return new ClientDetailsResponse(
             client.Id,
@@ -2979,6 +3000,8 @@ internal static class ClientEndpoints
             client.BranchId,
             client.Branch.Name,
             client.Notes,
+            notesMetadata.Name,
+            notesMetadata.ChangedAt,
             client.Status.ToString(),
             groups.Select(group => group.Id).ToArray(),
             groups,
@@ -3335,6 +3358,72 @@ internal static class ClientEndpoints
                 client.CreatedAt,
                 client.UpdatedAt),
             AuditSerializerOptions);
+    }
+
+    private static (string? Name, DateTimeOffset? ChangedAt) ResolveNotesMetadata(Client client, ILogger? logger)
+    {
+        if (client.NotesChangedByUserId.HasValue &&
+            client.NotesChangedAt.HasValue &&
+            client.NotesChangedByUser is not null)
+        {
+            return (client.NotesChangedByUser.FullName, client.NotesChangedAt);
+        }
+
+        if (client.NotesChangedByUserId.HasValue || client.NotesChangedAt.HasValue)
+        {
+            logger?.LogWarning(
+                "Client note metadata is incomplete or its author cannot be resolved. ClientId={ClientId}",
+                client.Id);
+        }
+
+        return (null, null);
+    }
+
+    private static AuditLogEntry BuildNoteAuditEntry(
+        Guid actorId,
+        Client client,
+        string actorLogin,
+        string transition)
+    {
+        return new AuditLogEntry(
+            actorId,
+            ClientAuditConstants.ClientNoteChangedAction,
+            ClientAuditConstants.ClientEntityType,
+            client.Id.ToString(),
+            ClientAuditResources.ClientNoteChangedDescription(
+                actorLogin,
+                BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
+            NewValueJson: JsonSerializer.Serialize(new { transition }, AuditSerializerOptions));
+    }
+
+    private static async Task TryWriteClientAuditAsync(
+        IAuditLogService auditLogService,
+        GymCrmDbContext dbContext,
+        ILoggerFactory loggerFactory,
+        Guid actorId,
+        Guid clientId,
+        AuditLogEntry entry,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await auditLogService.WriteAsync(entry, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            foreach (var trackedAudit in dbContext.ChangeTracker.Entries<AuditLog>()
+                         .Where(tracked => tracked.State == EntityState.Added))
+            {
+                trackedAudit.State = EntityState.Detached;
+            }
+
+            loggerFactory.CreateLogger("ClientAudit").LogError(
+                exception,
+                "Client audit write failed. ActionType={ActionType} ClientId={ClientId} ActorId={ActorId}",
+                entry.ActionType,
+                clientId,
+                actorId);
+        }
     }
 
     private static string? SerializeMembershipAuditState(ClientMembership? membership)

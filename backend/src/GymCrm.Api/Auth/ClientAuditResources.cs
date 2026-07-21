@@ -19,6 +19,11 @@ internal static class ClientAuditResources
         return Format(nameof(ClientUpdatedDescription), actorLogin, clientFullName);
     }
 
+    public static string ClientNoteChangedDescription(string actorLogin, string clientFullName)
+    {
+        return Format(nameof(ClientNoteChangedDescription), actorLogin, clientFullName);
+    }
+
     public static string ClientArchivedDescription(string actorLogin, string clientFullName)
     {
         return Format(nameof(ClientArchivedDescription), actorLogin, clientFullName);

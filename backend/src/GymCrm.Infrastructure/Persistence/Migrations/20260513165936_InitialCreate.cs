@@ -126,6 +126,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     MiddleName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     Phone = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     Notes = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    NotesChangedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    NotesChangedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     PhotoPath = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     PhotoContentType = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     PhotoSizeBytes = table.Column<long>(type: "bigint", nullable: true),
@@ -142,6 +144,12 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         name: "FK_Clients_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_Users_NotesChangedByUserId",
+                        column: x => x.NotesChangedByUserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -1141,6 +1149,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "IX_Clients_LastName",
                 table: "Clients",
                 column: "LastName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_NotesChangedByUserId",
+                table: "Clients",
+                column: "NotesChangedByUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_Phone",

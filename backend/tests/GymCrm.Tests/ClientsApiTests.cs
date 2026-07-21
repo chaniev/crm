@@ -103,6 +103,12 @@ public class ClientsApiTests
             Assert.Equal("Иванов Иван", GetStringFromProperty(getPayload, "fullName"));
             Assert.Equal("+79990001122", GetStringFromProperty(getPayload, "phone"));
             Assert.Equal("Первичная заметка по клиенту", GetStringFromProperty(getPayload, "notes"));
+            Assert.Equal(actorSession.User?.FullName, GetStringFromProperty(getPayload, "notesLastChangedByName"));
+            var notesChangedAt = getPayload.GetProperty("notesLastChangedAt").GetDateTimeOffset();
+            Assert.Equal(TimeSpan.Zero, notesChangedAt.Offset);
+            Assert.Equal(0, notesChangedAt.Millisecond);
+            Assert.Equal(JsonValueKind.Undefined, GetPropertyOrNull(getPayload, "notesChangedByUserId").ValueKind);
+            Assert.DoesNotContain("login", getPayload.EnumerateObject().Select(property => property.Name), StringComparer.OrdinalIgnoreCase);
             var groupsPayload = GetArrayPayload(getPayload.GetProperty("groups"));
             Assert.Equal(2, groupsPayload.GetArrayLength());
             var groupOnePayload = groupsPayload.EnumerateArray()
@@ -3397,13 +3403,15 @@ public class ClientsApiTests
             .ToList();
 
         Assert.Equal(
-            ["ClientCreated", "ClientUpdated", "ClientArchived", "ClientRestored"],
+            ["ClientCreated", "ClientNoteChanged", "ClientUpdated", "ClientNoteChanged", "ClientArchived", "ClientRestored"],
             clientAuditLogs.Select(log => log.ActionType));
         Assert.All(clientAuditLogs, log => Assert.Equal("Client", log.EntityType));
         Assert.Equal(
             [
                 $"Пользователь '{seeded.HeadCoachLogin}' создал клиента 'Audit Client'.",
+                $"Пользователь '{seeded.HeadCoachLogin}' изменил рабочую заметку клиента 'Audit Client'.",
                 $"Пользователь '{seeded.HeadCoachLogin}' изменил клиента 'Audit Updated Client'.",
+                $"Пользователь '{seeded.HeadCoachLogin}' изменил рабочую заметку клиента 'Audit Updated Client'.",
                 $"Пользователь '{seeded.HeadCoachLogin}' архивировал клиента 'Audit Updated Client'.",
                 $"Пользователь '{seeded.HeadCoachLogin}' восстановил клиента 'Audit Updated Client'."
             ],
@@ -3415,6 +3423,16 @@ public class ClientsApiTests
         var updatedAuditLog = clientAuditLogs.Single(log => log.ActionType == "ClientUpdated");
         AssertAuditPayloadNotes(updatedAuditLog.OldValueJson, "Первая audit заметка");
         AssertAuditPayloadNotes(updatedAuditLog.NewValueJson, "Обновленная audit заметка");
+
+        var noteAuditLogs = clientAuditLogs.Where(log => log.ActionType == "ClientNoteChanged").ToArray();
+        Assert.Equal(2, noteAuditLogs.Length);
+        Assert.Equal("set", JsonDocument.Parse(noteAuditLogs[0].NewValueJson!).RootElement.GetProperty("transition").GetString());
+        Assert.Equal("changed", JsonDocument.Parse(noteAuditLogs[1].NewValueJson!).RootElement.GetProperty("transition").GetString());
+        Assert.All(noteAuditLogs, log =>
+        {
+            Assert.DoesNotContain("заметка", log.NewValueJson!, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(seeded.HeadCoachLogin, log.NewValueJson!, StringComparison.OrdinalIgnoreCase);
+        });
 
         foreach (var log in auditLogs)
         {

@@ -148,6 +148,8 @@ type ClientState = {
   middleName: string
   phone: string
   notes: string
+  notesLastChangedByName?: string | null
+  notesLastChangedAt?: string | null
   status?: 'Active' | 'Archived'
   groupIds: string[]
   contacts: Array<{
@@ -263,6 +265,8 @@ const baseClient: ClientState = {
   middleName: 'Иванович',
   phone: '+79990001111',
   notes: 'Предпочитает вечерние тренировки.',
+  notesLastChangedByName: 'Анна Администратор',
+  notesLastChangedAt: '2026-07-21T12:34:56Z',
   groupIds: ['group-1'],
   contacts: [],
   hasActivePaidMembership: true,
@@ -306,6 +310,63 @@ const MOBILE_BOTTOM_NAVIGATION_SELECTOR =
 const MOBILE_MENU_BREAKPOINT = 768
 
 test.describe('Основные e2e сценарии', () => {
+  test('Карточка показывает автора и время заметки', async ({ page }) => {
+    const attributedClient = {
+      ...baseClient,
+      notesLastChangedByName:
+        'Анна Администратор Северного Филиала с длинным именем',
+    }
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/clients/client-1' && method === 'GET') {
+        await fulfillJson(route, 200, toClientPayload(attributedClient, baseGroups))
+        return true
+      }
+
+      return false
+    })
+
+    await page.setViewportSize({ width: 390, height: 900 })
+    await page.goto('/clients/client-1')
+
+    await expect(page.getByText(attributedClient.notes)).toBeVisible()
+    await expect(page.getByText(new RegExp(`^${attributedClient.notesLastChangedByName} · \\d{2}\\.\\d{2}\\.\\d{4}, \\d{2}:\\d{2}$`))).toBeVisible()
+    await expectNoHorizontalScroll(page)
+  })
+
+  test('Карточка legacy-клиента не выдумывает атрибуцию заметки', async ({ page }) => {
+    const legacyClient = {
+      ...baseClient,
+      notes: 'Старая заметка без метаданных.',
+      notesLastChangedByName: null,
+      notesLastChangedAt: null,
+    }
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/clients/client-1' && method === 'GET') {
+        await fulfillJson(route, 200, toClientPayload(legacyClient, baseGroups))
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/clients/client-1')
+
+    await expect(page.getByText(legacyClient.notes)).toBeVisible()
+    await expect(page.getByText(/· \d{2}\.\d{2}\.\d{4}/)).toHaveCount(0)
+  })
+
   test('Создание клиента: отправляет корректный payload и открывает карточку клиента', async ({
     page,
   }) => {
@@ -2156,6 +2217,8 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     branchId: client.branchId,
     branchName: client.branchName,
     notes: client.notes,
+    notesLastChangedByName: client.notesLastChangedByName ?? null,
+    notesLastChangedAt: client.notesLastChangedAt ?? null,
     status: client.status ?? 'Active',
     contactCount: client.contacts.length,
     groupCount: assignedGroups.length,

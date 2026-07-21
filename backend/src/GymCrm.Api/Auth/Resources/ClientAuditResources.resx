@@ -18,6 +18,9 @@
   <data name="ClientUpdatedDescription" xml:space="preserve">
     <value>Пользователь '{0}' изменил клиента '{1}'.</value>
   </data>
+  <data name="ClientNoteChangedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил рабочую заметку клиента '{1}'.</value>
+  </data>
   <data name="ClientArchivedDescription" xml:space="preserve">
     <value>Пользователь '{0}' архивировал клиента '{1}'.</value>
   </data>
