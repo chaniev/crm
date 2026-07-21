@@ -690,3 +690,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-067-missed-training-follow-up`, test-first streak and unified-attention coverage, backend-owned unique-client aggregation, an audited acknowledgement boundary, role/scope barriers, frontend/Telegram follow-up behavior, and an explicit prerequisite for freeze and lesson-occurrence semantics.
+
+# 2026-07-21 09:18
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-068-client-comment-audit.plan.md
+
+## Skipped tasks
+- TASK-068-client-comment-audit.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; implementation plan created for explicit review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-068-client-comment-audit`, test-first nullable attribution and timestamp persistence, normalized note-transition semantics, safe current-name contract, exact note-audit cardinality, PII-free failure logging, role/scope access barriers and frontend localized rendering coverage.
