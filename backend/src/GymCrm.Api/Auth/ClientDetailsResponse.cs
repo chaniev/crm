@@ -10,6 +10,8 @@ internal sealed record ClientDetailsResponse(
     Guid BranchId,
     string BranchName,
     string? Notes,
+    string? NotesLastChangedByName,
+    DateTimeOffset? NotesLastChangedAt,
     string Status,
     IReadOnlyList<Guid> GroupIds,
     IReadOnlyList<ClientGroupSummaryResponse> Groups,

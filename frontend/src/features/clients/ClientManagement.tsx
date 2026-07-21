@@ -79,6 +79,7 @@ import {
   type RenewClientMembershipRequest,
   type TrainingGroupListItem,
 } from '../../lib/api'
+import { formatNoteAttributionDate } from './noteAttribution'
 import { formatGroupSchedule } from '../../lib/groupSchedule'
 import { resources } from '../../lib/resources'
 import {
@@ -939,9 +940,17 @@ export function ClientDetailScreen({
               </Group>
 
               {client.notes ? (
-                <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                  {client.notes}
-                </Text>
+                <Stack gap={4}>
+                  <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
+                    {client.notes}
+                  </Text>
+                  {client.notesLastChangedByName && client.notesLastChangedAt ? (
+                    <NoteAttribution
+                      authorName={client.notesLastChangedByName}
+                      changedAt={client.notesLastChangedAt}
+                    />
+                  ) : null}
+                </Stack>
               ) : (
                 <Text c="dimmed" size="sm">
                   Рабочая заметка пока не добавлена.
@@ -1077,6 +1086,16 @@ export function ClientDetailScreen({
       ) : null}
     </PageLayout>
   )
+}
+
+function NoteAttribution({ authorName, changedAt }: { authorName: string; changedAt: string }) {
+  const formattedDate = formatNoteAttributionDate(changedAt)
+
+  return formattedDate ? (
+    <Text c="dimmed" size="xs" style={{ overflowWrap: 'anywhere' }}>
+      {authorName} · {formattedDate}
+    </Text>
+  ) : null
 }
 
 type ClientFormProps = {

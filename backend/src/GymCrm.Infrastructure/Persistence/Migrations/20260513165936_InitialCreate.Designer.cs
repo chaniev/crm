@@ -304,6 +304,12 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<DateTimeOffset?>("NotesChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("NotesChangedByUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -338,6 +344,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("FirstName");
 
                     b.HasIndex("LastName");
+
+                    b.HasIndex("NotesChangedByUserId");
 
                     b.HasIndex("Phone");
 
@@ -1353,7 +1361,14 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GymCrm.Domain.Users.User", "NotesChangedByUser")
+                        .WithMany("ClientsWithNotesChanged")
+                        .HasForeignKey("NotesChangedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Branch");
+
+                    b.Navigation("NotesChangedByUser");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientBranchAssignment", b =>
@@ -1825,6 +1840,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("AuditLogs");
 
                     b.Navigation("CanceledMembershipRefunds");
+
+                    b.Navigation("ClientsWithNotesChanged");
 
                     b.Navigation("ClientMessengerReadStates");
 

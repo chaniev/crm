@@ -1,6 +1,7 @@
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Messenger;
+using GymCrm.Domain.Users;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
 
 namespace GymCrm.Domain.Clients;
@@ -16,6 +17,8 @@ public class Client
     public string? MiddleName { get; set; }
     public string Phone { get; set; } = string.Empty;
     public string? Notes { get; set; }
+    public Guid? NotesChangedByUserId { get; set; }
+    public DateTimeOffset? NotesChangedAt { get; set; }
     public string? PhotoPath { get; set; }
     public string? PhotoContentType { get; set; }
     public long? PhotoSizeBytes { get; set; }
@@ -26,6 +29,7 @@ public class Client
 
 
     public Branch Branch { get; set; } = null!;
+    public User? NotesChangedByUser { get; set; }
     public ICollection<ClientContact> Contacts { get; set; } = new List<ClientContact>();
     public ICollection<ClientMembership> Memberships { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembershipSale> MembershipSales { get; set; } = new List<ClientMembershipSale>();

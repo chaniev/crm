@@ -460,6 +460,8 @@ export type ClientDetails = ClientListItem & {
   contacts: ClientContact[]
   groupIds: string[]
   notes: string
+  notesLastChangedByName: string | null
+  notesLastChangedAt: string | null
   photo: ClientPhoto | null
   currentMembership: ClientMembership | null
   membershipHistory: ClientMembership[]
@@ -929,6 +931,8 @@ export type ClientResponsePayload = {
   branchId?: string | null
   branchName?: string | null
   notes?: string | null
+  notesLastChangedByName?: string | null
+  notesLastChangedAt?: string | null
   status?: string | null
   contactCount?: number | null
   groupCount?: number | null

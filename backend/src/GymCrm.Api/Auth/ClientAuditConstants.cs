@@ -4,6 +4,7 @@ internal static class ClientAuditConstants
 {
     public const string ClientCreatedAction = "ClientCreated";
     public const string ClientUpdatedAction = "ClientUpdated";
+    public const string ClientNoteChangedAction = "ClientNoteChanged";
     public const string ClientArchivedAction = "ClientArchived";
     public const string ClientRestoredAction = "ClientRestored";
     public const string ClientTransferredAction = "ClientTransferred";

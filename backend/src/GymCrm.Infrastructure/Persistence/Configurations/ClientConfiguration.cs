@@ -32,6 +32,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .IsRequired();
 
         builder.Property(client => client.Notes).HasMaxLength(NotesMaxLength);
+        builder.Property(client => client.NotesChangedAt);
         builder.Property(client => client.PhotoPath).HasMaxLength(PhotoPathMaxLength);
         builder.Property(client => client.PhotoContentType).HasMaxLength(PhotoContentTypeMaxLength);
 
@@ -48,10 +49,16 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.HasIndex(client => client.Phone);
         builder.HasIndex(client => client.Status);
         builder.HasIndex(client => client.BranchId);
+        builder.HasIndex(client => client.NotesChangedByUserId);
 
         builder.HasOne(client => client.Branch)
             .WithMany(branch => branch.Clients)
             .HasForeignKey(client => client.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(client => client.NotesChangedByUser)
+            .WithMany(user => user.ClientsWithNotesChanged)
+            .HasForeignKey(client => client.NotesChangedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(client => client.Contacts)

@@ -1,9 +1,47 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
+  getClient,
   getClientAttentionItems,
   getMembershipAttentionItems,
   getMembershipExpirationSuggestion,
 } from './clients'
+
+describe('getClient note attribution', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  test('maps the public author name and timestamp without looking for technical identity', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      id: 'c-1',
+      fullName: 'Иван Иванов',
+      notes: 'Позвонить вечером',
+      notesLastChangedByName: 'Анна Петрова',
+      notesLastChangedAt: '2026-07-21T12:34:56Z',
+      notesChangedByUserId: 'must-not-be-consumed',
+      notesChangedByLogin: 'must-not-be-consumed',
+    }), { status: 200, headers: { 'content-type': 'application/json' } }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const client = await getClient('c-1')
+
+    expect(client.notesLastChangedByName).toBe('Анна Петрова')
+    expect(client.notesLastChangedAt).toBe('2026-07-21T12:34:56Z')
+    expect(client).not.toHaveProperty('notesChangedByUserId')
+    expect(client).not.toHaveProperty('notesChangedByLogin')
+  })
+
+  test.each([
+    [{ notesLastChangedByName: 'Анна Петрова' }],
+    [{ notesLastChangedAt: '2026-07-21T12:34:56Z' }],
+    [{}],
+  ])('normalizes absent or partial attribution to a null pair', async (metadata) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      id: 'c-legacy', fullName: 'Легаси Клиент', notes: 'Старая заметка', ...metadata,
+    }), { status: 200, headers: { 'content-type': 'application/json' } })))
+
+    const client = await getClient('c-legacy')
+    expect([client.notesLastChangedByName, client.notesLastChangedAt]).toEqual([null, null])
+  })
+})
 
 describe('getClientAttentionItems', () => {
   afterEach(() => vi.unstubAllGlobals())
