@@ -1,3 +1,20 @@
+# 2026-07-22 00:30
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-077-membership-sale-amount-override.plan.md
+
+## Skipped tasks
+- TASK-077-membership-sale-amount-override.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; plan created for product/architecture review before active implementation in branch `feature/TASK-077-membership-sale-amount-override`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan makes `ClientMembershipSale.GrossAmount` the only monetary source, removes the duplicated membership amount, introduces explicit pricing provenance and nullable catalog support, and blocks execution until amount-only behavior, zero-amount policy and the sale-producing operation matrix are approved.
+
 # 2026-07-21 22:06
 
 ## Moved to implementation
