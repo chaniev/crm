@@ -339,6 +339,7 @@ export type ClientMembershipSummary = Pick<
 
 export type ClientMembership = {
   id: string
+  saleId: string
   membershipCatalogItemId: string
   membershipName: string
   behaviorKind: MembershipBehaviorKind
@@ -357,6 +358,9 @@ export type ClientMembership = {
   validTo?: string | null
   createdAt?: string
   professionalComment?: string | null
+  comment: string | null
+  commentLastChangedByName: string | null
+  commentLastChangedAt: string | null
 }
 
 export type MembershipAttentionState =

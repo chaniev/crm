@@ -15,6 +15,7 @@ internal static class ClientAuditConstants
     public const string MembershipSaleCorrectedAction = "ClientMembershipSaleCorrected";
     public const string MembershipRefundCreatedAction = "ClientMembershipRefundCreated";
     public const string MembershipRefundCanceledAction = "ClientMembershipRefundCanceled";
+    public const string MembershipCommentChangedAction = "ClientMembershipCommentChanged";
 
     public const string ClientEntityType = "Client";
     public const string MembershipEntityType = "ClientMembership";

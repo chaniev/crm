@@ -3643,6 +3643,140 @@ public class ClientsApiTests
         Username = username, LinkedAt = DateTimeOffset.UtcNow, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
     };
 
+    [Fact]
+    public async Task Membership_comment_enforces_sale_identity_permissions_metadata_and_safe_audit()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var manager = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var headCoach = await LoginAsync(manager, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(manager, headCoach.CsrfToken, seeded.GroupOneId);
+        var otherClientId = await CreateClientForMembershipTestsAsync(manager, headCoach.CsrfToken, seeded.GroupOneId);
+        var now = DateTimeOffset.UtcNow;
+        ClientMembership first;
+        ClientMembership second;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            first = CreateMembershipWithSale(clientId, MembershipBehaviorKind.Term, DateOnly.FromDateTime(now.Date),
+                DateOnly.FromDateTime(now.Date).AddMonths(1), 1200m, false, seeded.HeadCoachId, now);
+            second = CreateMembershipWithSale(clientId, MembershipBehaviorKind.SingleVisit, DateOnly.FromDateTime(now.Date),
+                null, 500m, true, seeded.HeadCoachId, now.AddSeconds(-1), validTo: now);
+            db.ClientMemberships.AddRange(first, second);
+            db.GroupTrainers.Add(new GroupTrainer { GroupId = seeded.GroupOneId, TrainerId = seeded.CoachId });
+            await db.SaveChangesAsync();
+        }
+
+        var path = $"/clients/{clientId}/membership/sales/{first.SaleId}/comment";
+        using (var response = await PutJsonAsync(manager, path, new { comment = "  first secret  " }, headCoach.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var json = await ReadJsonElementAsync(response);
+            var membership = GetArrayPayload(json.GetProperty("membershipHistory")).EnumerateArray()
+                .Single(item => GetGuidFromProperty(item, "saleId") == first.SaleId);
+            Assert.Equal("first secret", membership.GetProperty("comment").GetString());
+            Assert.Equal(headCoach.User!.FullName, membership.GetProperty("commentLastChangedByName").GetString());
+            Assert.Equal(JsonValueKind.Undefined, GetPropertyOrNull(membership, "commentChangedByUserId").ValueKind);
+            Assert.DoesNotContain("login", membership.EnumerateObject().Select(property => property.Name), StringComparer.OrdinalIgnoreCase);
+        }
+
+        Guid actorId;
+        DateTimeOffset changedAt;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var sale = await db.ClientMembershipSales.SingleAsync(item => item.Id == first.SaleId);
+            actorId = sale.CommentChangedByUserId!.Value;
+            changedAt = sale.CommentChangedAt!.Value;
+        }
+        using (var noop = await PutJsonAsync(manager, path, new { comment = " first secret " }, headCoach.CsrfToken))
+            Assert.Equal(HttpStatusCode.OK, noop.StatusCode);
+
+        using var adminClient = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var admin = await LoginAsync(adminClient, seeded.AdministratorLogin, seeded.SharedPassword);
+        using (var changed = await PutJsonAsync(adminClient, path, new { comment = "changed secret" }, admin.CsrfToken))
+            Assert.Equal(HttpStatusCode.OK, changed.StatusCode);
+        using (var cleared = await PutJsonAsync(adminClient, path, new { comment = "  " }, admin.CsrfToken))
+            Assert.Equal(HttpStatusCode.OK, cleared.StatusCode);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var sale = await db.ClientMembershipSales.SingleAsync(item => item.Id == first.SaleId);
+            Assert.Null(sale.Comment);
+            Assert.NotEqual(actorId, sale.CommentChangedByUserId);
+            Assert.True(sale.CommentChangedAt >= changedAt);
+            var untouched = await db.ClientMembershipSales.SingleAsync(item => item.Id == second.SaleId);
+            Assert.Null(untouched.Comment);
+            Assert.Equal(1200m, sale.GrossAmount);
+            Assert.Equal(2, await db.ClientMemberships.CountAsync(item => item.ClientId == clientId));
+            Assert.Equal(first.Id, (await db.ClientMemberships.SingleAsync(item => item.ClientId == clientId && item.ValidTo == null)).Id);
+
+            var logs = await db.AuditLogs.Where(item => item.ActionType == "ClientMembershipCommentChanged").OrderBy(item => item.CreatedAt).ToArrayAsync();
+            Assert.Equal(3, logs.Length);
+            Assert.Equal(new string?[] { "set", "changed", "cleared" }, logs.Select(log => JsonDocument.Parse(log.NewValueJson!).RootElement.GetProperty("transition").GetString()).ToArray());
+            Assert.All(logs, log =>
+            {
+                var payload = JsonDocument.Parse(log.NewValueJson!).RootElement;
+                Assert.Equal(["clientId", "saleId", "transition"], payload.EnumerateObject().Select(p => p.Name).Order().ToArray());
+                Assert.DoesNotContain("secret", log.NewValueJson!, StringComparison.OrdinalIgnoreCase);
+                Assert.Equal("ClientMembershipSale", log.EntityType);
+                Assert.Equal(first.SaleId.ToString(), log.EntityId);
+            });
+        }
+
+        using (var tooLong = await PutJsonAsync(adminClient, path, new { comment = new string('x', 2001) }, admin.CsrfToken))
+            Assert.Equal(HttpStatusCode.BadRequest, tooLong.StatusCode);
+        using (var crossClient = await PutJsonAsync(adminClient, $"/clients/{otherClientId}/membership/sales/{first.SaleId}/comment", new { comment = "x" }, admin.CsrfToken))
+            Assert.Equal(HttpStatusCode.NotFound, crossClient.StatusCode);
+        using (var missing = await PutJsonAsync(adminClient, $"/clients/{clientId}/membership/sales/{Guid.NewGuid()}/comment", new { comment = "x" }, admin.CsrfToken))
+            Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+        using (var versionId = await PutJsonAsync(adminClient, $"/clients/{clientId}/membership/sales/{first.Id}/comment", new { comment = "x" }, admin.CsrfToken))
+            Assert.Equal(HttpStatusCode.NotFound, versionId.StatusCode);
+
+        using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var coach = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
+        using (var read = await coachClient.GetAsync($"/clients/{clientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, read.StatusCode);
+            var raw = await read.Content.ReadAsStringAsync();
+            Assert.DoesNotContain("commentLastChanged", raw, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("first secret", raw, StringComparison.OrdinalIgnoreCase);
+        }
+        using (var forbidden = await PutJsonAsync(coachClient, path, new { comment = "x" }, coach.CsrfToken))
+            Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
+
+        using var anonymous = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var anonymousSession = await GetSessionAsync(anonymous);
+        using var unauthorized = await PutJsonAsync(anonymous, path, new { comment = "x" }, anonymousSession.CsrfToken);
+        Assert.Equal(HttpStatusCode.Unauthorized, unauthorized.StatusCode);
+    }
+
+    [Fact]
+    public async Task Membership_comment_partial_or_unresolved_metadata_returns_null_pair()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        var session = await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(http, session.CsrfToken, seeded.GroupOneId);
+        var membership = CreateMembershipWithSale(clientId, MembershipBehaviorKind.SingleVisit, DateOnly.FromDateTime(DateTime.UtcNow), null, 500m, false, seeded.HeadCoachId, DateTimeOffset.UtcNow);
+        membership.Sale.Comment = "legacy";
+        membership.Sale.CommentChangedByUserId = seeded.HeadCoachId;
+        membership.Sale.CommentChangedAt = null;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.ClientMemberships.Add(membership);
+            await db.SaveChangesAsync();
+        }
+        using var response = await http.GetAsync($"/clients/{clientId}");
+        var json = await ReadJsonElementAsync(response);
+        var item = GetArrayPayload(json.GetProperty("membershipHistory"))[0];
+        Assert.Equal(JsonValueKind.Null, item.GetProperty("commentLastChangedByName").ValueKind);
+        Assert.Equal(JsonValueKind.Null, item.GetProperty("commentLastChangedAt").ValueKind);
+    }
+
     private static async Task<SeededClientsData> SeedClientsDataAsync(ClientsAppFactory factory)
     {
         using var scope = factory.Services.CreateScope();

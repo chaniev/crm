@@ -51,4 +51,7 @@
   <data name="MembershipRefundCanceledDescription" xml:space="preserve">
     <value>Пользователь '{0}' отменил возврат по абонементу клиента '{1}'.</value>
   </data>
+  <data name="MembershipCommentChangedDescription" xml:space="preserve">
+    <value>Пользователь '{0}' изменил комментарий к абонементу.</value>
+  </data>
 </root>

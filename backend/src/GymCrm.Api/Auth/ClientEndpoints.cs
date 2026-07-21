@@ -49,6 +49,8 @@ internal static class ClientEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPost("/{id:guid}/membership/sales/{saleId:guid}/refunds", RegisterMembershipRefundAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
+        group.MapPut("/{id:guid}/membership/sales/{saleId:guid}/comment", UpdateMembershipCommentAsync)
+            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapPost("/{id:guid}/membership/refunds/{refundId:guid}/cancel", CancelMembershipRefundAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
         group.MapGet("/{id:guid}", GetClientAsync)
@@ -1131,6 +1133,40 @@ internal static class ClientEndpoints
             descriptionFactory: ClientAuditResources.MembershipPurchasedDescription);
     }
 
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateMembershipCommentAsync(
+        Guid id, Guid saleId, UpdateClientMembershipCommentRequest request, HttpContext httpContext,
+        GymCrmDbContext dbContext, IClientMembershipService membershipService, IAuditLogService auditLogService,
+        ILoggerFactory loggerFactory, IAntiforgery antiforgery, CancellationToken cancellationToken)
+    {
+        var csrf = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
+        if (csrf is not null) return csrf;
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null) return TypedResults.Unauthorized();
+        string? normalized;
+        try { normalized = ClientMembershipCommentPolicy.Normalize(request.Comment); }
+        catch (ArgumentException)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["comment"] = ["Comment must not exceed 2000 characters."] });
+        }
+
+        var mutation = await membershipService.UpdateCommentAsync(id, saleId,
+            new UpdateClientMembershipCommentCommand(currentUser.Id, normalized), cancellationToken);
+        if (!mutation.Found) return TypedResults.NotFound();
+
+        if (mutation.Transition is not null)
+        {
+            var entry = new AuditLogEntry(currentUser.Id, ClientAuditConstants.MembershipCommentChangedAction,
+                ClientAuditConstants.MembershipSaleEntityType, saleId.ToString(),
+                ClientAuditResources.MembershipCommentChangedDescription(currentUser.Login),
+                NewValueJson: JsonSerializer.Serialize(new { clientId = id, saleId, transition = mutation.Transition }, AuditSerializerOptions));
+            await TryWriteClientAuditAsync(auditLogService, dbContext, loggerFactory, currentUser.Id, id, entry, cancellationToken);
+        }
+
+        var client = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
+            ?? throw new InvalidOperationException($"Updated client '{id}' was not found.");
+        return TypedResults.Ok(MapDetails(client, EmptyAttendanceHistoryPage(), loggerFactory.CreateLogger("ClientMembershipCommentMetadata")));
+    }
+
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RenewMembershipAsync(
         Guid id,
         RenewClientMembershipRequest request,
@@ -1450,6 +1486,9 @@ internal static class ClientEndpoints
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
                     .ThenInclude(sale => sale.Refunds)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.CommentChangedByUser)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
@@ -2942,7 +2981,7 @@ internal static class ClientEndpoints
             .ThenBy(contact => contact.Type, StringComparer.CurrentCulture)
             .ThenBy(contact => contact.Phone, StringComparer.CurrentCulture)
             .ToArray();
-        var membershipHistory = MapMembershipHistory(client.Memberships);
+        var membershipHistory = MapMembershipHistory(client.Memberships, logger);
         var currentMembership = GetCurrentMembership(client);
         var notesMetadata = ResolveNotesMetadata(client, logger);
 
@@ -2967,7 +3006,7 @@ internal static class ClientEndpoints
             client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
             HasActivePaidMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
             HasUnpaidCurrentMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            currentMembership is null ? null : MapMembership(currentMembership),
+            currentMembership is null ? null : MapMembership(currentMembership, logger),
             BuildActionHints(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(), currentMembership, groups.Count),
             membershipHistory,
             attendanceHistory.Items,
@@ -3042,13 +3081,13 @@ internal static class ClientEndpoints
             .ToArray();
     }
 
-    private static IReadOnlyList<ClientMembershipResponse> MapMembershipHistory(ICollection<ClientMembership> memberships)
+    private static IReadOnlyList<ClientMembershipResponse> MapMembershipHistory(ICollection<ClientMembership> memberships, ILogger? logger = null)
     {
         return memberships
             .OrderByDescending(membership => membership.ValidFrom)
             .ThenByDescending(membership => membership.CreatedAt)
             .ThenByDescending(membership => membership.Id)
-            .Select(MapMembership)
+            .Select(membership => MapMembership(membership, logger))
             .ToArray();
     }
 
@@ -3070,8 +3109,9 @@ internal static class ClientEndpoints
             true);
     }
 
-    private static ClientMembershipResponse MapMembership(ClientMembership membership)
+    private static ClientMembershipResponse MapMembership(ClientMembership membership, ILogger? logger = null)
     {
+        var commentMetadata = ResolveMembershipCommentMetadata(membership.Sale, logger);
         return new ClientMembershipResponse(
             membership.Id,
             membership.SaleId,
@@ -3093,8 +3133,28 @@ internal static class ClientEndpoints
             membership.ValidFrom,
             membership.ValidTo,
             membership.CreatedAt,
+            membership.Sale.Comment,
+            commentMetadata.Name,
+            commentMetadata.ChangedAt,
             MapFinancialSummary(membership.Sale),
             MapRefunds(membership.Sale));
+    }
+
+    private static (string? Name, DateTimeOffset? ChangedAt) ResolveMembershipCommentMetadata(ClientMembershipSale sale, ILogger? logger)
+    {
+        if (sale.CommentChangedByUserId.HasValue && sale.CommentChangedAt.HasValue && sale.CommentChangedByUser is not null)
+            return (sale.CommentChangedByUser.FullName, sale.CommentChangedAt);
+
+        if (sale.CommentChangedByUserId.HasValue || sale.CommentChangedAt.HasValue)
+        {
+            logger?.LogWarning(
+                "Membership comment metadata is incomplete or its author cannot be resolved. SaleId={SaleId} HasActorId={HasActorId} HasChangedAt={HasChangedAt} HasResolvedActor={HasResolvedActor}",
+                sale.Id,
+                sale.CommentChangedByUserId.HasValue,
+                sale.CommentChangedAt.HasValue,
+                sale.CommentChangedByUser is not null);
+        }
+        return (null, null);
     }
 
     private static ClientMembershipFinancialSummaryResponse MapFinancialSummary(ClientMembershipSale sale)

@@ -19,6 +19,9 @@ public interface IClientMembershipService
         RenewClientMembershipCommand command,
         CancellationToken cancellationToken);
 
+    Task<ClientMembershipCommentMutationResult> UpdateCommentAsync(
+        Guid clientId, Guid saleId, UpdateClientMembershipCommentCommand command, CancellationToken cancellationToken);
+
     Task<ClientMembershipMutationResult> CorrectAsync(
         Guid clientId,
         CorrectClientMembershipCommand command,
@@ -48,6 +51,16 @@ public interface IClientMembershipService
         Guid clientId,
         RestoreSingleVisitCommand command,
         CancellationToken cancellationToken);
+}
+
+public sealed record UpdateClientMembershipCommentCommand(Guid ChangedByUserId, string? Comment);
+
+public readonly record struct ClientMembershipCommentMutationResult(
+    bool Found, string? Transition, ClientMembershipDetailsResult? Details)
+{
+    public static ClientMembershipCommentMutationResult Missing() => new(false, null, null);
+    public static ClientMembershipCommentMutationResult Success(string? transition, ClientMembershipDetailsResult details) =>
+        new(true, transition, details);
 }
 
 public sealed record RestoreSingleVisitCommand(
@@ -172,6 +185,9 @@ public sealed record ClientMembershipSnapshotResult(
     Guid ChangedByUserId,
     DateTimeOffset CreatedAt,
     Guid SaleId,
+    string? Comment,
+    string? CommentLastChangedByName,
+    DateTimeOffset? CommentLastChangedAt,
     ClientMembershipFinancialSummaryResult FinancialSummary,
     IReadOnlyList<ClientMembershipRefundSnapshotResult> Refunds);
 

@@ -28,6 +28,7 @@ public class User
     public ICollection<ClientMembership> MembershipPayments { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembership> MembershipChanges { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembershipSale> CreatedMembershipSales { get; set; } = new List<ClientMembershipSale>();
+    public ICollection<ClientMembershipSale> MembershipSalesWithCommentChanged { get; set; } = new List<ClientMembershipSale>();
     public ICollection<ClientMembershipRefund> CreatedMembershipRefunds { get; set; } = new List<ClientMembershipRefund>();
     public ICollection<ClientMembershipRefund> CanceledMembershipRefunds { get; set; } = new List<ClientMembershipRefund>();
     public ICollection<ClientBranchAssignment> CreatedClientBranchAssignments { get; set; } = new List<ClientBranchAssignment>();
