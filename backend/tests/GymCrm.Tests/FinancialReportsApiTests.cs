@@ -163,6 +163,39 @@ public class FinancialReportsApiTests
         AssertTotals(payload.GetProperty("totals"), 7, 920m, 170m, 750m, 6);
     }
 
+    [Fact]
+    public async Task Amount_only_sale_without_catalog_uses_canonical_gross_in_report()
+    {
+        await using var factory = new FinancialReportsAppFactory();
+        var seeded = await SeedReportDataAsync(factory);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var amountOnlySale = await dbContext.ClientMembershipSales
+                .SingleAsync(sale => sale.GrossAmount == 200m);
+            amountOnlySale.MembershipCatalogItemId = null;
+            amountOnlySale.MembershipCatalogItem = null;
+            amountOnlySale.PricingMode = ClientMembershipSalePricingMode.AmountOnly;
+            amountOnlySale.PurchaseDate = new DateOnly(2026, 5, 2);
+            amountOnlySale.GrossAmount = 333m;
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await client.GetAsync("/reports/financial?periodPreset=month&anchorDate=2026-05-14");
+        var payload = await ReadJsonElementAsync(response);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        AssertTotals(payload.GetProperty("totals"), 7, 1003m, 170m, 833m, 6);
+    }
+
     [Theory]
     [InlineData("/reports/financial", "periodPreset")]
     [InlineData("/reports/financial?periodPreset=week&anchorDate=2026-05-14", "periodPreset")]
@@ -594,7 +627,6 @@ public class FinancialReportsApiTests
                 SaleId = saleId,
                 BehaviorKind = MembershipBehaviorKind.Term,
                 IndividualValidFrom = new DateOnly(2026, 5, 10),
-                PaymentAmount = 100m,
                 IsPaid = false,
                 SingleVisitUsed = false,
                 ValidFrom = now.AddMinutes(-10),
@@ -610,7 +642,6 @@ public class FinancialReportsApiTests
                 SaleId = saleId,
                 BehaviorKind = MembershipBehaviorKind.Term,
                 IndividualValidFrom = new DateOnly(2026, 5, 10),
-                PaymentAmount = 100m,
                 IsPaid = true,
                 SingleVisitUsed = false,
                 PaidByUserId = changedByUserId,

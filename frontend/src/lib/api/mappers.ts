@@ -20,6 +20,7 @@ import type {
   ClientResponsePayload,
   ClientStatus,
   MembershipBehaviorKind,
+  MembershipSalePricingMode,
   UserRole,
 } from './types'
 
@@ -125,8 +126,20 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
   const purchaseDate =
     readString(payload, ['purchaseDate', 'PurchaseDate']) ?? ''
   const saleId = readString(payload, ['saleId', 'SaleId'])
+  const pricingMode = mapMembershipSalePricingMode(
+    readString(payload, ['pricingMode', 'PricingMode']),
+  )
+  const grossAmount = readNumber(payload, ['grossAmount', 'GrossAmount'])
+  const membershipName = readString(payload, ['membershipName', 'MembershipName'])
 
-  if (!behaviorKind || !purchaseDate || !saleId) {
+  if (
+    !behaviorKind ||
+    !purchaseDate ||
+    !saleId ||
+    !pricingMode ||
+    grossAmount === undefined ||
+    !membershipName
+  ) {
     return null
   }
 
@@ -137,14 +150,15 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
     saleId,
     behaviorKind,
     membershipCatalogItemId:
-      readString(payload, ['membershipCatalogItemId', 'MembershipCatalogItemId']) ?? '',
-    membershipName:
-      readString(payload, ['membershipName', 'MembershipName']) ?? 'Абонемент',
+      readString(payload, ['membershipCatalogItemId', 'MembershipCatalogItemId']) ?? null,
+    membershipName,
     purchaseDate,
     expirationDate:
       readString(payload, ['expirationDate', 'ExpirationDate']) ?? null,
-    paymentAmount:
-      readNumber(payload, ['paymentAmount', 'PaymentAmount']) ?? 0,
+    pricingMode,
+    grossAmount,
+    catalogPrice:
+      readNumber(payload, ['catalogPrice', 'CatalogPrice']) ?? null,
     isPaid: readBoolean(payload, ['isPaid', 'IsPaid']) ?? false,
     singleVisitUsed:
       readBoolean(payload, ['singleVisitUsed', 'SingleVisitUsed']) ?? false,
@@ -235,6 +249,20 @@ export function mapClientStatus(status?: string | null): ClientStatus {
 export function mapMembershipBehaviorKind(type?: string | null): MembershipBehaviorKind | null {
   if (type === 'SingleVisit' || type === 'Term' || type === 'Professional') {
     return type
+  }
+
+  return null
+}
+
+export function mapMembershipSalePricingMode(
+  mode?: string | null,
+): MembershipSalePricingMode | null {
+  if (
+    mode === 'Catalog' ||
+    mode === 'CatalogOverride' ||
+    mode === 'AmountOnly'
+  ) {
+    return mode
   }
 
   return null

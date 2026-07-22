@@ -102,6 +102,17 @@ import {
   validateClientForm,
 } from './ClientManagement.form'
 import { ClientMessengerChatSection } from './ClientMessengerChatSection'
+import {
+  MembershipSalePricingFields,
+} from './MembershipSalePricingFields'
+import {
+  buildMembershipSalePricingPayload,
+  createEmptyMembershipSalePricingValues,
+  membershipSalePricingModeLabels,
+  validateMembershipSalePricing,
+  type MembershipSalePricingFieldErrors,
+  type MembershipSalePricingValues,
+} from './MembershipSalePricing'
 
 export { ClientsListScreen } from './list/ClientsListScreen'
 
@@ -141,11 +152,10 @@ type MembershipCorrectionFormValues = {
 }
 
 type MembershipRenewFormValues = {
-  renewalDate: string
-  expirationDate: string
-  paymentAmount: string
-  isPaid: boolean
-}
+  paymentStatus: 'Paid' | 'Unpaid'
+  paymentDate: string
+  professionalComment: string
+} & MembershipSalePricingValues
 
 type MembershipActionSubmission =
   | {
@@ -527,7 +537,12 @@ export function ClientDetailScreen({
     initialValues: {
       branchId: '',
       groupId: '',
-      membershipCatalogItemId: '', validFrom: '', validTo: '', paymentStatus: 'Unpaid', paymentDate: '', professionalComment: '',
+      ...createEmptyMembershipSalePricingValues(),
+      validFrom: '',
+      validTo: '',
+      paymentStatus: 'Unpaid',
+      paymentDate: '',
+      professionalComment: '',
     },
   })
 
@@ -626,7 +641,12 @@ export function ClientDetailScreen({
     transferForm.setValues({
       branchId: client.branchId,
       groupId: client.groupIds[0] ?? '',
-      membershipCatalogItemId: '', validFrom: '', validTo: '', paymentStatus: 'Unpaid', paymentDate: '', professionalComment: '',
+      ...createEmptyMembershipSalePricingValues(),
+      validFrom: '',
+      validTo: '',
+      paymentStatus: 'Unpaid',
+      paymentDate: '',
+      professionalComment: '',
     })
 
     try {
@@ -657,16 +677,40 @@ export function ClientDetailScreen({
     transferForm.clearErrors()
 
     try {
-      const updatedClient = await transferClientBranch(client.id, {
-        targetBranchId: values.branchId,
-        targetGroupIds: values.groupId ? [values.groupId] : [],
-        membershipCatalogItemId: values.membershipCatalogItemId || undefined,
-        validFrom: values.validFrom || undefined,
-        validTo: values.validTo || undefined,
-        paymentStatus: values.membershipCatalogItemId ? values.paymentStatus : undefined,
-        paymentDate: values.paymentStatus === 'Paid' ? values.paymentDate || undefined : undefined,
-        professionalComment: values.professionalComment.trim() || undefined,
-      })
+      const movesUnusedSingleVisit =
+        client.currentMembership?.behaviorKind === 'SingleVisit' &&
+        !client.currentMembership.singleVisitUsed
+      const pricingErrors = movesUnusedSingleVisit
+        ? {}
+        : validateMembershipSalePricing(values)
+
+      if (Object.keys(pricingErrors).length > 0) {
+        transferForm.setErrors(pricingErrors)
+        setTransferFormError('Выберите способ расчёта и проверьте сумму продажи.')
+        return
+      }
+
+      const updatedClient = await transferClientBranch(
+        client.id,
+        movesUnusedSingleVisit
+          ? {
+              targetBranchId: values.branchId,
+              targetGroupIds: values.groupId ? [values.groupId] : [],
+            }
+          : {
+              targetBranchId: values.branchId,
+              targetGroupIds: values.groupId ? [values.groupId] : [],
+              ...buildMembershipSalePricingPayload(values),
+              validFrom: values.validFrom || undefined,
+              validTo: values.validTo || undefined,
+              paymentStatus: values.paymentStatus,
+              paymentDate:
+                values.paymentStatus === 'Paid'
+                  ? values.paymentDate || undefined
+                  : undefined,
+              professionalComment: values.professionalComment.trim() || undefined,
+            },
+      )
 
       setClient(updatedClient ?? (await getClient(client.id)))
       setTransferModalOpened(false)
@@ -745,6 +789,7 @@ export function ClientDetailScreen({
           ? error.message
           : 'Не удалось выполнить действие с абонементом.',
       )
+      throw error
     } finally {
       setActionPending(false)
     }
@@ -1260,19 +1305,37 @@ function ClientMembershipSnapshot({
   professionalComment,
 }: ClientMembershipSnapshotProps) {
   if (isProfessional) {
+    const canRenewFiniteProfessional =
+      currentMembership?.behaviorKind === 'Professional' &&
+      currentMembership.expirationDate !== null
+
     return (
       <Paper className="client-membership-snapshot" radius="8px" withBorder>
-        <Group justify="space-between" wrap="wrap">
-          <div>
-            <Text fw={700}>Льготный оплаченный статус</Text>
-            <Text c="dimmed" size="sm">
-              {professionalComment || 'Профессионал не попадает в должники.'}
-            </Text>
-          </div>
-          <Badge color="blue" radius="sm" variant="light">
-            Профессионал
-          </Badge>
-        </Group>
+        <Stack gap="md">
+          <Group justify="space-between" wrap="wrap">
+            <div>
+              <Text fw={700}>Льготный оплаченный статус</Text>
+              <Text c="dimmed" size="sm">
+                {professionalComment || 'Профессионал не попадает в должники.'}
+              </Text>
+            </div>
+            <Badge color="blue" radius="sm" variant="light">
+              Профессионал
+            </Badge>
+          </Group>
+
+          {canRenewFiniteProfessional ? (
+            <Group>
+              <Button
+                disabled={pending}
+                onClick={() => onActionModeChange('renew')}
+                variant={actionMode === 'renew' ? 'filled' : 'light'}
+              >
+                Продлить
+              </Button>
+            </Group>
+          ) : null}
+        </Stack>
       </Paper>
     )
   }
@@ -1336,7 +1399,11 @@ function ClientMembershipSnapshot({
           />
           <CompactInfoItem
             label="Сумма"
-            value={formatCurrencyValue(currentMembership.paymentAmount)}
+            value={formatCurrencyValue(currentMembership.grossAmount)}
+          />
+          <CompactInfoItem
+            label="Расчёт"
+            value={formatMembershipPricingProvenance(currentMembership)}
           />
           <CompactInfoItem
             label="Оплачено"
@@ -1630,10 +1697,9 @@ function ClientForm({
   )
 }
 
-type ClientTransferFormValues = {
+type ClientTransferFormValues = MembershipSalePricingValues & {
   branchId: string
   groupId: string
-  membershipCatalogItemId: string
   validFrom: string
   validTo: string
   paymentStatus: 'Paid' | 'Unpaid'
@@ -1668,6 +1734,7 @@ function ClientTransferModal({
 }: ClientTransferModalProps) {
   const [catalogItems, setCatalogItems] = useState<MembershipCatalogItem[]>([])
   const [catalogLoading, setCatalogLoading] = useState(false)
+  const [confirmationOpened, setConfirmationOpened] = useState(false)
   const selectedBranchId = form.values.branchId
   const filteredGroupOptions = selectedBranchId
     ? groupOptions.filter((group) => group.branchId === selectedBranchId)
@@ -1689,7 +1756,29 @@ function ClientTransferModal({
   function updateBranch(branchId: string | null) {
     form.setFieldValue('branchId', branchId ?? '')
     form.setFieldValue('groupId', '')
-    form.setFieldValue('membershipCatalogItemId', '')
+    form.setValues({
+      ...form.values,
+      branchId: branchId ?? '',
+      groupId: '',
+      ...createEmptyMembershipSalePricingValues(),
+    })
+    setCatalogItems([])
+    setCatalogLoading(Boolean(branchId))
+  }
+
+  function requestConfirmation(values: ClientTransferFormValues) {
+    if (movesUnusedSingleVisit) {
+      void onSubmit(values)
+      return
+    }
+
+    const pricingErrors = validateMembershipSalePricing(values)
+    if (Object.keys(pricingErrors).length > 0) {
+      form.setErrors(pricingErrors)
+      return
+    }
+
+    setConfirmationOpened(true)
   }
 
   return (
@@ -1701,7 +1790,19 @@ function ClientTransferModal({
       title="Перевод клиента"
       withCloseButton={!submitting}
     >
-      <form onSubmit={form.onSubmit((values) => void onSubmit(values))}>
+      <MembershipSaleConfirmationModal
+        catalogItem={selectedCatalogItem}
+        onClose={() => setConfirmationOpened(false)}
+        onConfirm={() => {
+          setConfirmationOpened(false)
+          void onSubmit(form.values)
+        }}
+        opened={confirmationOpened}
+        pending={submitting}
+        values={form.values}
+      />
+
+      <form onSubmit={form.onSubmit(requestConfirmation)}>
         <Stack gap="md">
           <Paper className="hint-card" radius="8px" withBorder>
             <SimpleGrid cols={{ base: 1, sm: 2 }}>
@@ -1764,8 +1865,22 @@ function ClientTransferModal({
           />
 
           {movesUnusedSingleVisit ? <Alert color="blue">Разовое посещение ещё не использовано. Оно будет перенесено без новой продажи.</Alert> : <>
-            <Select allowDeselect={false} data={catalogItems.map((item) => ({ value: item.id, label: `${item.name} • ${formatCurrencyValue(item.price)}` }))} disabled={catalogLoading || !selectedBranchId} label="Новый абонемент" onChange={(value) => form.setFieldValue('membershipCatalogItemId', value ?? '')} value={form.values.membershipCatalogItemId || null} error={form.errors.membershipCatalogItemId}/>
-            {selectedCatalogItem?.behaviorKind !== 'SingleVisit' ? <SimpleGrid cols={2}><TextInput label="Действует с" type="date" {...form.getInputProps('validFrom')}/><TextInput label="Действует по" type="date" {...form.getInputProps('validTo')}/></SimpleGrid> : null}
+            <MembershipSalePricingFields
+              catalogItems={catalogItems}
+              disabled={!selectedBranchId}
+              errors={pickPricingFieldErrors(form.errors)}
+              loading={catalogLoading}
+              onChange={(pricingValues) => {
+                form.setValues({ ...form.values, ...pricingValues })
+                form.clearFieldError('pricingMode')
+                form.clearFieldError('membershipCatalogItemId')
+                form.clearFieldError('manualSaleAmount')
+              }}
+              values={form.values}
+            />
+            {form.values.pricingMode === 'AmountOnly' ||
+            (selectedCatalogItem !== undefined &&
+              selectedCatalogItem.behaviorKind !== 'SingleVisit') ? <SimpleGrid cols={{ base: 1, sm: 2 }}><TextInput label="Действует с" type="date" {...form.getInputProps('validFrom')}/><TextInput label="Действует по" type="date" {...form.getInputProps('validTo')}/></SimpleGrid> : null}
             {selectedCatalogItem?.behaviorKind === 'Professional' ? <Textarea label="Комментарий" {...form.getInputProps('professionalComment')}/> : null}
             <Select allowDeselect={false} data={[{ value: 'Unpaid', label: 'Не оплачен' }, { value: 'Paid', label: 'Оплачен' }]} label="Статус оплаты" {...form.getInputProps('paymentStatus')}/>
             {form.values.paymentStatus === 'Paid' ? <TextInput label="Дата оплаты" type="date" {...form.getInputProps('paymentDate')}/> : null}
@@ -1807,6 +1922,73 @@ function InfoItem({
         <Text fw={700}>{value}</Text>
       </Stack>
     </Paper>
+  )
+}
+
+type MembershipSaleConfirmationModalProps = {
+  catalogItem?: MembershipCatalogItem
+  opened: boolean
+  pending: boolean
+  values: MembershipSalePricingValues
+  onClose: () => void
+  onConfirm: () => void
+}
+
+function MembershipSaleConfirmationModal({
+  catalogItem,
+  opened,
+  pending,
+  values,
+  onClose,
+  onConfirm,
+}: MembershipSaleConfirmationModalProps) {
+  const actualAmount =
+    values.pricingMode === 'Catalog'
+      ? catalogItem?.price
+      : Number(values.manualSaleAmount)
+
+  return (
+    <Modal
+      centered
+      onClose={onClose}
+      opened={opened}
+      radius="24px"
+      title="Подтвердить новую продажу?"
+      withCloseButton={!pending}
+    >
+      <Stack gap="lg">
+        <Text c="dimmed" size="sm">
+          Проверьте способ расчёта и фактическую сумму. Эти данные сохранятся
+          в истории продажи.
+        </Text>
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          <InfoItem
+            label="Способ расчёта"
+            value={
+              values.pricingMode
+                ? membershipSalePricingModeLabels[values.pricingMode]
+                : 'Не выбран'
+            }
+          />
+          <InfoItem
+            label="Фактическая сумма"
+            value={
+              typeof actualAmount === 'number' && Number.isFinite(actualAmount)
+                ? formatCurrencyValue(actualAmount)
+                : 'Не указана'
+            }
+          />
+        </SimpleGrid>
+        <ResponsiveButtonGroup justify="flex-end">
+          <Button disabled={pending} onClick={onClose} variant="subtle">
+            Отменить
+          </Button>
+          <Button loading={pending} onClick={onConfirm}>
+            Подтвердить продажу
+          </Button>
+        </ResponsiveButtonGroup>
+      </Stack>
+    </Modal>
   )
 }
 
@@ -2074,6 +2256,10 @@ function ClientMembershipSection({
   const currentMembership = client.currentMembership
   const history = [...client.membershipHistory].sort(compareMembershipHistory)
   const canEditMembership = !client.isProfessional
+  const canRenewFiniteProfessional =
+    client.isProfessional &&
+    currentMembership?.behaviorKind === 'Professional' &&
+    currentMembership.expirationDate !== null
   const sales = groupMembershipVersionsBySale(history)
 
   return (
@@ -2102,9 +2288,12 @@ function ClientMembershipSection({
           />
         ) : null}
 
-        {canEditMembership && actionMode === 'renew' && currentMembership ? (
+        {(canEditMembership || canRenewFiniteProfessional) &&
+        actionMode === 'renew' &&
+        currentMembership ? (
           <MembershipRenewPanel
             key={`renew-${currentMembership.id}`}
+            branchId={client.branchId}
             currentMembership={currentMembership}
             pending={pending}
             onCancel={onCancelAction}
@@ -2183,7 +2372,12 @@ function ClientMembershipSection({
                       </Text>
                     </Table.Td>
                     <Table.Td>
-                      <Text size="sm">{formatCurrencyValue(membership.paymentAmount)}</Text>
+                      <Stack gap={2}>
+                        <Text size="sm">{formatCurrencyValue(membership.grossAmount)}</Text>
+                        <Text c="dimmed" size="xs">
+                          {formatMembershipPricingProvenance(membership)}
+                        </Text>
+                      </Stack>
                     </Table.Td>
                     <Table.Td>
                       {client.isProfessional && !membership.validTo ? (
@@ -2474,14 +2668,20 @@ function MembershipEditPanel({
       return
     }
 
-    await onSubmit({
-      kind: 'correct',
-      payload: {
-        purchaseDate: values.purchaseDate,
-        expirationDate: values.expirationDate || undefined,
-        isPaid: values.isPaid,
-      },
-    })
+    try {
+      await onSubmit({
+        kind: 'correct',
+        payload: {
+          purchaseDate: values.purchaseDate,
+          expirationDate: values.expirationDate || undefined,
+          isPaid: values.isPaid,
+        },
+      })
+    } catch (error) {
+      if (error instanceof ApiError) {
+        form.setErrors(applyFieldErrors(error.fieldErrors))
+      }
+    }
   }
 
   return (
@@ -2508,7 +2708,7 @@ function MembershipEditPanel({
             />
             <InfoItem
               label="Сумма продажи"
-              value={formatCurrencyValue(currentMembership.paymentAmount)}
+              value={formatCurrencyValue(currentMembership.grossAmount)}
             />
             <TextInput
               label="Дата покупки"
@@ -2592,7 +2792,18 @@ function CatalogPurchasePanel({ branchId, pending, onCancel, onSubmit }: Catalog
   const [items, setItems] = useState<MembershipCatalogItem[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const form = useForm({ initialValues: { membershipCatalogItemId: '', validFrom: '', validTo: '', paymentStatus: 'Unpaid' as 'Paid' | 'Unpaid', paymentDate: '', professionalComment: '' } })
+  const [formError, setFormError] = useState<string | null>(null)
+  const [confirmationOpened, setConfirmationOpened] = useState(false)
+  const form = useForm<MembershipPurchaseFormValues>({
+    initialValues: {
+      ...createEmptyMembershipSalePricingValues(),
+      validFrom: '',
+      validTo: '',
+      paymentStatus: 'Unpaid',
+      paymentDate: '',
+      professionalComment: '',
+    },
+  })
   const selected = items.find((item) => item.id === form.values.membershipCatalogItemId)
 
   useEffect(() => {
@@ -2604,30 +2815,101 @@ function CatalogPurchasePanel({ branchId, pending, onCancel, onSubmit }: Catalog
     return () => controller.abort()
   }, [branchId])
 
-  async function submit() {
-    const errors: Record<string, string> = {}
-    if (!selected) errors.membershipCatalogItemId = 'Выберите абонемент.'
-    if (selected?.behaviorKind !== 'SingleVisit' && !form.values.validFrom) errors.validFrom = 'Укажите начало срока.'
-    if (selected?.behaviorKind === 'Term' && !form.values.validTo) errors.validTo = 'Укажите окончание срока.'
-    if (selected?.behaviorKind === 'Professional' && !form.values.professionalComment.trim()) errors.professionalComment = 'Укажите комментарий.'
-    if (form.values.paymentStatus === 'Paid' && !form.values.paymentDate) errors.paymentDate = 'Укажите дату оплаты.'
-    if (Object.keys(errors).length) { form.setErrors(errors); return }
-    await onSubmit({ kind: 'purchase', payload: {
-      membershipCatalogItemId: form.values.membershipCatalogItemId,
-      validFrom: selected?.behaviorKind === 'SingleVisit' ? undefined : form.values.validFrom,
-      validTo: selected?.behaviorKind === 'SingleVisit' ? undefined : form.values.validTo || undefined,
-      paymentStatus: form.values.paymentStatus,
-      paymentDate: form.values.paymentStatus === 'Paid' ? form.values.paymentDate : undefined,
-      professionalComment: selected?.behaviorKind === 'Professional' ? form.values.professionalComment.trim() : undefined,
-    } })
+  function requestConfirmation() {
+    setFormError(null)
+    const errors: Record<string, string> = {
+      ...validateMembershipSalePricing(form.values),
+    }
+    const needsValidity =
+      form.values.pricingMode === 'AmountOnly' ||
+      (selected !== undefined && selected.behaviorKind !== 'SingleVisit')
+
+    if (needsValidity && !form.values.validFrom) {
+      errors.validFrom = 'Укажите начало срока.'
+    }
+    if (needsValidity && !form.values.validTo) {
+      errors.validTo = 'Укажите окончание срока.'
+    }
+    if (selected?.behaviorKind === 'Professional' && !form.values.professionalComment.trim()) {
+      errors.professionalComment = 'Укажите комментарий.'
+    }
+    if (form.values.paymentStatus === 'Paid' && !form.values.paymentDate) {
+      errors.paymentDate = 'Укажите дату оплаты.'
+    }
+    if (Object.keys(errors).length > 0) {
+      form.setErrors(errors)
+      return
+    }
+
+    setConfirmationOpened(true)
   }
 
-  return <Paper className="hint-card" radius="8px" withBorder><form onSubmit={form.onSubmit(() => void submit())}><Stack gap="md">
-    <div><Text fw={700}>Оформить новый абонемент</Text><Text c="dimmed" size="sm">Цена загружается из каталога и не редактируется.</Text></div>
+  async function confirmPurchase() {
+    setConfirmationOpened(false)
+    setFormError(null)
+
+    try {
+      await onSubmit({
+        kind: 'purchase',
+        payload: {
+          ...buildMembershipSalePricingPayload(form.values),
+          validFrom:
+            selected?.behaviorKind === 'SingleVisit'
+              ? undefined
+              : form.values.validFrom || undefined,
+          validTo:
+            selected?.behaviorKind === 'SingleVisit'
+              ? undefined
+              : form.values.validTo || undefined,
+          paymentStatus: form.values.paymentStatus,
+          paymentDate:
+            form.values.paymentStatus === 'Paid'
+              ? form.values.paymentDate
+              : undefined,
+          professionalComment:
+            selected?.behaviorKind === 'Professional'
+              ? form.values.professionalComment.trim()
+              : undefined,
+        },
+      })
+    } catch (error) {
+      if (error instanceof ApiError) {
+        form.setErrors(applyFieldErrors(error.fieldErrors))
+        setFormError(error.message)
+      }
+    }
+  }
+
+  const needsValidity =
+    form.values.pricingMode === 'AmountOnly' ||
+    (selected !== undefined && selected.behaviorKind !== 'SingleVisit')
+
+  return <Paper className="hint-card" radius="8px" withBorder>
+    <MembershipSaleConfirmationModal
+      catalogItem={selected}
+      onClose={() => setConfirmationOpened(false)}
+      onConfirm={() => void confirmPurchase()}
+      opened={confirmationOpened}
+      pending={pending}
+      values={form.values}
+    />
+    <form onSubmit={form.onSubmit(requestConfirmation)}><Stack gap="md">
+    <div><Text fw={700}>Оформить новый абонемент</Text><Text c="dimmed" size="sm">Выберите способ расчёта и подтвердите фактическую сумму этой продажи.</Text></div>
     {loadError ? <Alert color="red">{loadError}</Alert> : null}
-    <Select allowDeselect={false} data={items.map((item) => ({ value: item.id, label: `${item.name} • ${formatCurrencyValue(item.price)}${item.behaviorKind === 'Professional' ? ' • Профессиональный' : ''}` }))} disabled={loading} label="Абонемент" placeholder={loading ? 'Загружаем...' : 'Выберите вариант'} {...form.getInputProps('membershipCatalogItemId')}/>
-    {selected ? <Paper p="sm" withBorder><Text fw={700}>{formatCurrencyValue(selected.price)}</Text><Text c="dimmed" size="sm">{behaviorKindLabels[selected.behaviorKind]}</Text></Paper> : null}
-    {selected && selected.behaviorKind !== 'SingleVisit' ? <SimpleGrid cols={{ base: 1, md: 2 }}><TextInput label="Действует с" type="date" {...form.getInputProps('validFrom')}/><TextInput label="Действует по" type="date" {...form.getInputProps('validTo')}/></SimpleGrid> : null}
+    {formError ? <Alert color="red">{formError}</Alert> : null}
+    <MembershipSalePricingFields
+      catalogItems={items}
+      errors={pickPricingFieldErrors(form.errors)}
+      loading={loading}
+      onChange={(pricingValues) => {
+        form.setValues({ ...form.values, ...pricingValues })
+        form.clearFieldError('pricingMode')
+        form.clearFieldError('membershipCatalogItemId')
+        form.clearFieldError('manualSaleAmount')
+      }}
+      values={form.values}
+    />
+    {needsValidity ? <SimpleGrid cols={{ base: 1, md: 2 }}><TextInput label="Действует с" type="date" {...form.getInputProps('validFrom')}/><TextInput label="Действует по" type="date" {...form.getInputProps('validTo')}/></SimpleGrid> : null}
     {selected?.behaviorKind === 'Professional' ? <Textarea label="Комментарий к профессиональному абонементу" {...form.getInputProps('professionalComment')}/> : null}
     <Select allowDeselect={false} data={[{ value: 'Unpaid', label: 'Не оплачен' }, { value: 'Paid', label: 'Оплачен' }]} label="Статус оплаты" {...form.getInputProps('paymentStatus')}/>
     {form.values.paymentStatus === 'Paid' ? <TextInput label="Дата оплаты" type="date" {...form.getInputProps('paymentDate')}/> : null}
@@ -2635,7 +2917,16 @@ function CatalogPurchasePanel({ branchId, pending, onCancel, onSubmit }: Catalog
   </Stack></form></Paper>
 }
 
+type MembershipPurchaseFormValues = MembershipSalePricingValues & {
+  validFrom: string
+  validTo: string
+  paymentStatus: 'Paid' | 'Unpaid'
+  paymentDate: string
+  professionalComment: string
+}
+
 type MembershipRenewPanelProps = {
+  branchId: string
   currentMembership: ClientMembership
   pending: boolean
   onCancel: () => void
@@ -2643,141 +2934,164 @@ type MembershipRenewPanelProps = {
 }
 
 function MembershipRenewPanel({
+  branchId,
   currentMembership,
   pending,
   onCancel,
   onSubmit,
 }: MembershipRenewPanelProps) {
-  const initialValues = createMembershipRenewInitialValues(currentMembership)
   const form = useForm<MembershipRenewFormValues>({
-    initialValues,
+    initialValues: createMembershipRenewInitialValues(),
   })
-  const [expirationManuallyChanged, setExpirationManuallyChanged] = useState(false)
-
-  const suggestedExpirationDate = suggestRenewalExpirationDate(
-    currentMembership,
-    form.values.renewalDate,
+  const [catalogItems, setCatalogItems] = useState<MembershipCatalogItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [confirmationOpened, setConfirmationOpened] = useState(false)
+  const selected = catalogItems.find(
+    (item) => item.id === form.values.membershipCatalogItemId,
   )
 
-  async function submit(values: MembershipRenewFormValues) {
-    const validationErrors = validateMembershipRenewForm(
-      values,
-      currentMembership.behaviorKind,
-    )
+  useEffect(() => {
+    const controller = new AbortController()
+    void getEligibleMembershipCatalogItems(branchId, controller.signal)
+      .then(setCatalogItems)
+      .catch((error) =>
+        setLoadError(
+          error instanceof Error
+            ? error.message
+            : 'Не удалось загрузить абонементы.',
+        ),
+      )
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false)
+      })
+    return () => controller.abort()
+  }, [branchId])
 
-    if (Object.keys(validationErrors).length > 0) {
-      form.setErrors(validationErrors)
+  function requestConfirmation(values: MembershipRenewFormValues) {
+    const errors: Record<string, string> = {
+      ...validateMembershipSalePricing(values),
+    }
+    if (values.paymentStatus === 'Paid' && !values.paymentDate) {
+      errors.paymentDate = 'Укажите дату оплаты.'
+    }
+    if (Object.keys(errors).length > 0) {
+      form.setErrors(errors)
       return
     }
+    setConfirmationOpened(true)
+  }
 
-    await onSubmit({
-      kind: 'renew',
-      payload: {
-        membershipCatalogItemId: currentMembership.membershipCatalogItemId,
-        paymentStatus: values.isPaid ? 'Paid' : 'Unpaid',
-        paymentDate: values.isPaid ? values.renewalDate : undefined,
-      },
-    })
+  async function confirmRenewal() {
+    setConfirmationOpened(false)
+    setFormError(null)
+    try {
+      await onSubmit({
+        kind: 'renew',
+        payload: {
+          ...buildMembershipSalePricingPayload(form.values),
+          paymentStatus: form.values.paymentStatus,
+          paymentDate:
+            form.values.paymentStatus === 'Paid'
+              ? form.values.paymentDate
+              : undefined,
+          professionalComment:
+            selected?.behaviorKind === 'Professional'
+              ? form.values.professionalComment.trim() || undefined
+              : undefined,
+        },
+      })
+    } catch (error) {
+      if (error instanceof ApiError) {
+        form.setErrors(applyFieldErrors(error.fieldErrors))
+        setFormError(error.message)
+      }
+    }
   }
 
   return (
     <Paper className="hint-card" radius="8px" withBorder>
-      <form onSubmit={form.onSubmit((values) => void submit(values))}>
+      <MembershipSaleConfirmationModal
+        catalogItem={selected}
+        onClose={() => setConfirmationOpened(false)}
+        onConfirm={() => void confirmRenewal()}
+        opened={confirmationOpened}
+        pending={pending}
+        values={form.values}
+      />
+      <form onSubmit={form.onSubmit(requestConfirmation)}>
         <Stack gap="md">
           <Group justify="space-between" wrap="wrap">
             <div>
               <Text fw={700}>Продлить текущий абонемент</Text>
               <Text c="dimmed" size="sm">
-                Тип берется из текущей версии. Срок предложен автоматически и при необходимости редактируется вручную.
+                Предыдущая продажа показана только для контекста. Выберите способ расчёта заново.
               </Text>
             </div>
 
               <Badge color="brand.1" radius="sm" variant="light">
-              {behaviorKindLabels[currentMembership.behaviorKind]}
+              Новая продажа
             </Badge>
           </Group>
 
-          <SimpleGrid cols={{ base: 1, md: 2 }}>
+          {loadError ? <Alert color="red">{loadError}</Alert> : null}
+          {formError ? <Alert color="red">{formError}</Alert> : null}
+
+          <SimpleGrid cols={{ base: 1, md: 3 }}>
             <InfoItem
-              label="Текущий тип"
-              value={behaviorKindLabels[currentMembership.behaviorKind]}
+              label="Предыдущая продажа"
+              value={`${currentMembership.membershipName} • ${formatCurrencyValue(currentMembership.grossAmount)}`}
             />
             <InfoItem
-              label="Текущая дата окончания"
+              label="Предыдущий расчёт"
+              value={formatMembershipPricingProvenance(currentMembership)}
+            />
+            <InfoItem
+              label="Предыдущий период"
               value={formatExpirationValue(
                 currentMembership.behaviorKind,
                 currentMembership.expirationDate,
               )}
             />
-            <TextInput
-              label="Дата продления"
-              type="date"
-              value={form.values.renewalDate}
-              onChange={(event) => {
-                const nextRenewalDate = event.currentTarget.value
-                form.setFieldValue('renewalDate', nextRenewalDate)
-                if (!expirationManuallyChanged) {
-                  form.setFieldValue(
-                    'expirationDate',
-                    suggestRenewalExpirationDate(
-                      currentMembership,
-                      nextRenewalDate,
-                    ),
-                  )
-                }
-              }}
-              error={form.errors.renewalDate}
-            />
-            <TextInput
-              label="Сумма оплаты"
-              min="0"
-              placeholder={String(currentMembership.paymentAmount)}
-              step="0.01"
-              type="number"
-              value={form.values.paymentAmount}
-              onChange={(event) =>
-                form.setFieldValue('paymentAmount', event.currentTarget.value)
-              }
-              error={form.errors.paymentAmount}
-            />
-            <TextInput
-              description={
-                currentMembership.behaviorKind === 'SingleVisit'
-                  ? 'Для разового посещения дату можно оставить пустой.'
-                  : 'Если нужно, замените автоматически предложенный срок вручную.'
-              }
-              label="Новая дата окончания"
-              type="date"
-              value={form.values.expirationDate}
-              onChange={(event) => {
-                setExpirationManuallyChanged(true)
-                form.setFieldValue('expirationDate', event.currentTarget.value)
-              }}
-              error={form.errors.expirationDate}
-            />
           </SimpleGrid>
 
-          <Group justify="space-between" wrap="wrap">
-            <Switch
-              checked={form.values.isPaid}
-              label="Оплачен"
-              onChange={(event) =>
-                form.setFieldValue('isPaid', event.currentTarget.checked)
-              }
-            />
+          <MembershipSalePricingFields
+            catalogItems={catalogItems}
+            errors={pickPricingFieldErrors(form.errors)}
+            loading={loading}
+            onChange={(pricingValues) => {
+              form.setValues({ ...form.values, ...pricingValues })
+              form.clearFieldError('pricingMode')
+              form.clearFieldError('membershipCatalogItemId')
+              form.clearFieldError('manualSaleAmount')
+            }}
+            values={form.values}
+          />
 
-            <Button
-              disabled={pending || suggestedExpirationDate === form.values.expirationDate}
-              onClick={() => {
-                setExpirationManuallyChanged(false)
-                form.setFieldValue('expirationDate', suggestedExpirationDate)
-              }}
-              type="button"
-              variant="subtle"
-            >
-              Подставить срок по правилу
-            </Button>
-          </Group>
+          {selected?.behaviorKind === 'Professional' ? (
+            <Textarea
+              label="Комментарий к профессиональному абонементу"
+              {...form.getInputProps('professionalComment')}
+            />
+          ) : null}
+
+          <Select
+            allowDeselect={false}
+            data={[
+              { value: 'Unpaid', label: 'Не оплачен' },
+              { value: 'Paid', label: 'Оплачен' },
+            ]}
+            label="Статус оплаты"
+            {...form.getInputProps('paymentStatus')}
+          />
+          {form.values.paymentStatus === 'Paid' ? (
+            <TextInput
+              label="Дата оплаты"
+              type="date"
+              {...form.getInputProps('paymentDate')}
+            />
+          ) : null}
 
           <ResponsiveButtonGroup justify="space-between">
             <Button onClick={onCancel} type="button" variant="subtle">
@@ -2819,11 +3133,8 @@ function MembershipMarkPaymentPanel({
           setConfirmOpened(false)
           void onSubmit({
             kind: 'markPayment',
-            payload: {
-              paymentAmount: currentMembership.paymentAmount,
-              isPaid: true,
-            },
-          })
+            payload: {},
+          }).catch(() => undefined)
         }}
         opened={confirmOpened}
         pending={pending}
@@ -2845,7 +3156,7 @@ function MembershipMarkPaymentPanel({
           />
           <InfoItem
             label="Сумма"
-            value={formatCurrencyValue(currentMembership.paymentAmount)}
+            value={formatCurrencyValue(currentMembership.grossAmount)}
           />
           <InfoItem
             label="Текущий статус"
@@ -2881,16 +3192,12 @@ function createMembershipCorrectionInitialValues(
   }
 }
 
-function createMembershipRenewInitialValues(
-  currentMembership: ClientMembership,
-): MembershipRenewFormValues {
-  const renewalDate = getTodayDateValue()
-
+function createMembershipRenewInitialValues(): MembershipRenewFormValues {
   return {
-    renewalDate,
-    expirationDate: suggestRenewalExpirationDate(currentMembership, renewalDate),
-    paymentAmount: String(currentMembership.paymentAmount),
-    isPaid: currentMembership.isPaid,
+    ...createEmptyMembershipSalePricingValues(),
+    paymentStatus: 'Unpaid',
+    paymentDate: '',
+    professionalComment: '',
   }
 }
 
@@ -2913,88 +3220,8 @@ function validateMembershipCorrectionForm(
   return errors
 }
 
-function validateMembershipRenewForm(
-  values: MembershipRenewFormValues,
-  behaviorKind: MembershipBehaviorKind,
-) {
-  const errors: Record<string, string> = {}
-
-  if (!values.renewalDate) {
-    errors.renewalDate = 'Укажите дату продления.'
-  }
-
-  if (isExpirationRequired(behaviorKind) && !values.expirationDate) {
-    errors.expirationDate = 'Укажите новую дату окончания.'
-  }
-
-  if (parsePaymentAmount(values.paymentAmount) === null) {
-    errors.paymentAmount = 'Укажите корректную сумму оплаты.'
-  }
-
-  return errors
-}
-
-function parsePaymentAmount(value: string) {
-  if (!value.trim()) {
-    return null
-  }
-
-  const parsed = Number.parseFloat(value)
-
-  if (!Number.isFinite(parsed) || parsed < 0) {
-    return null
-  }
-
-  return parsed
-}
-
 function isExpirationRequired(behaviorKind: MembershipBehaviorKind) {
   return behaviorKind !== 'SingleVisit'
-}
-
-function suggestRenewalExpirationDate(
-  membership: ClientMembership,
-  renewalDate: string,
-) {
-  if (!renewalDate) {
-    return ''
-  }
-
-  if (membership.behaviorKind === 'SingleVisit') {
-    return ''
-  }
-
-  const baseDate = membership.expirationDate || renewalDate
-
-  return membership.behaviorKind === 'Term'
-    ? addMonthsToDateValue(baseDate, 1)
-    : addYearsToDateValue(baseDate, 1)
-}
-
-function addMonthsToDateValue(value: string, months: number) {
-  const date = parseDateValue(value)
-
-  if (!date) {
-    return ''
-  }
-
-  const nextDate = new Date(date)
-  nextDate.setMonth(nextDate.getMonth() + months)
-
-  return toDateValue(nextDate)
-}
-
-function addYearsToDateValue(value: string, years: number) {
-  const date = parseDateValue(value)
-
-  if (!date) {
-    return ''
-  }
-
-  const nextDate = new Date(date)
-  nextDate.setFullYear(nextDate.getFullYear() + years)
-
-  return toDateValue(nextDate)
 }
 
 function parseDateValue(value: string) {
@@ -3007,18 +3234,6 @@ function parseDateValue(value: string) {
   const [, year, month, day] = match
 
   return new Date(Number(year), Number(month) - 1, Number(day))
-}
-
-function toDateValue(date: Date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-
-  return `${year}-${month}-${day}`
-}
-
-function getTodayDateValue() {
-  return toDateValue(new Date())
 }
 
 function formatDateValue(value?: string | null) {
@@ -3096,6 +3311,35 @@ function formatMembershipChangeReason(reason?: string) {
   return membershipChangeReasonLabels[
     reason as ClientMembershipChangeReason
   ] ?? reason
+}
+
+function formatMembershipPricingProvenance(membership: ClientMembership) {
+  if (membership.pricingMode === 'AmountOnly') {
+    return 'Без варианта каталога'
+  }
+
+  if (membership.pricingMode === 'CatalogOverride') {
+    return 'Индивидуальная сумма'
+  }
+
+  return 'Каталожная цена'
+}
+
+function pickPricingFieldErrors(
+  errors: Record<string, ReactNode>,
+): MembershipSalePricingFieldErrors {
+  return {
+    pricingMode:
+      typeof errors.pricingMode === 'string' ? errors.pricingMode : undefined,
+    membershipCatalogItemId:
+      typeof errors.membershipCatalogItemId === 'string'
+        ? errors.membershipCatalogItemId
+        : undefined,
+    manualSaleAmount:
+      typeof errors.manualSaleAmount === 'string'
+        ? errors.manualSaleAmount
+        : undefined,
+  }
 }
 
 function formatMembershipVersionDate(membership: ClientMembership) {

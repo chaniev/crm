@@ -18,7 +18,7 @@ internal sealed class MembershipCatalogItemConfiguration : IEntityTypeConfigurat
         builder.Property(item => item.NormalizedName)
             .HasMaxLength(MembershipCatalogItem.NameMaxLength)
             .IsRequired();
-        builder.Property(item => item.Price).HasPrecision(18, 2).IsRequired();
+        builder.Property(item => item.Price).HasPrecision(10, 2).IsRequired();
         builder.Property(item => item.BehaviorKind)
             .HasConversion<string>()
             .HasMaxLength(32)
@@ -45,6 +45,7 @@ internal sealed class MembershipCatalogItemConfiguration : IEntityTypeConfigurat
             table.HasCheckConstraint("CK_MembershipCatalogItems_Availability", "\"AvailableTo\" IS NULL OR \"AvailableTo\" >= \"AvailableFrom\"");
             table.HasCheckConstraint("CK_MembershipCatalogItems_Ownership", "(\"BehaviorKind\" = 'Professional' AND \"BranchId\" IS NULL AND \"IsSystemOwned\") OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND \"BranchId\" IS NOT NULL AND NOT \"IsSystemOwned\")");
             table.HasCheckConstraint("CK_MembershipCatalogItems_Price", "(\"BehaviorKind\" = 'Professional' AND CAST(\"Price\" AS NUMERIC) = 0) OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND CAST(\"Price\" AS NUMERIC) > 0)");
+            table.HasCheckConstraint("CK_MembershipCatalogItems_Price_WholeRub", "\"Price\" = trunc(\"Price\")");
         });
 
         builder.HasData(new MembershipCatalogItem

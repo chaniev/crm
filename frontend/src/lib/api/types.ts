@@ -257,6 +257,10 @@ export type ClientPhoto = {
 }
 
 export type MembershipBehaviorKind = 'SingleVisit' | 'Term' | 'Professional'
+export type MembershipSalePricingMode =
+  | 'Catalog'
+  | 'CatalogOverride'
+  | 'AmountOnly'
 
 export type MembershipCatalogItem = {
   id: string
@@ -340,12 +344,14 @@ export type ClientMembershipSummary = Pick<
 export type ClientMembership = {
   id: string
   saleId: string
-  membershipCatalogItemId: string
+  membershipCatalogItemId: string | null
   membershipName: string
   behaviorKind: MembershipBehaviorKind
   purchaseDate: string
   expirationDate: string | null
-  paymentAmount: number
+  pricingMode: MembershipSalePricingMode
+  grossAmount: number
+  catalogPrice: number | null
   isPaid: boolean
   singleVisitUsed: boolean
   changeReason?: ClientMembershipChangeReason | string
@@ -494,7 +500,8 @@ export type UpsertClientRequest = {
 export type TransferClientBranchRequest = {
   targetBranchId: string
   targetGroupIds: string[]
-  membershipCatalogItemId?: string
+  membershipCatalogItemId?: string | null
+  manualSaleAmount?: number | null
   validFrom?: string
   validTo?: string
   paymentStatus?: 'Paid' | 'Unpaid'
@@ -611,7 +618,8 @@ export type ClientListResponse = {
 }
 
 export type PurchaseClientMembershipRequest = {
-  membershipCatalogItemId: string
+  membershipCatalogItemId?: string | null
+  manualSaleAmount?: number | null
   validFrom?: string
   validTo?: string
   paymentStatus: 'Paid' | 'Unpaid'
@@ -632,16 +640,14 @@ export type MembershipExpirationSuggestion = {
 }
 
 export type RenewClientMembershipRequest = {
-  membershipCatalogItemId: string
+  membershipCatalogItemId?: string | null
+  manualSaleAmount?: number | null
   paymentStatus: 'Paid' | 'Unpaid'
   paymentDate?: string
   professionalComment?: string
 }
 
-export type MarkClientMembershipPaymentRequest = {
-  paymentAmount: number
-  isPaid: boolean
-}
+export type MarkClientMembershipPaymentRequest = Record<string, never>
 
 export type TrainerOption = {
   id: string

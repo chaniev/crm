@@ -464,18 +464,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPaid")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("MembershipCatalogItemId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTimeOffset?>("PaidAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("PaidByUserId")
                         .HasColumnType("uuid");
-
-                    b.Property<decimal>("PaymentAmount")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
 
                     b.Property<string>("ProfessionalComment")
                         .HasMaxLength(1000)
@@ -499,8 +492,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.HasIndex("MembershipCatalogItemId");
-
                     b.HasIndex("PaidByUserId");
 
                     b.HasIndex("SaleId")
@@ -509,10 +500,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ValidTo");
 
-                    b.ToTable("ClientMemberships", t =>
-                        {
-                            t.HasCheckConstraint("CK_ClientMemberships_PaymentAmount_NonNegative", "\"PaymentAmount\" >= 0");
-                        });
+                    b.ToTable("ClientMemberships");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembershipRefund", b =>
@@ -567,6 +555,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.ToTable("ClientMembershipRefunds", t =>
                         {
                             t.HasCheckConstraint("CK_ClientMembershipRefunds_Amount_Positive", "\"Amount\" > 0");
+
+                            t.HasCheckConstraint("CK_ClientMembershipRefunds_Amount_WholeRub", "\"Amount\" = trunc(\"Amount\")");
                         });
                 });
 
@@ -604,8 +594,13 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
-                    b.Property<Guid>("MembershipCatalogItemId")
+                    b.Property<Guid?>("MembershipCatalogItemId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("PricingMode")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
                     b.Property<DateOnly>("PurchaseDate")
                         .HasColumnType("date");
@@ -624,7 +619,13 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.ToTable("ClientMembershipSales", t =>
                         {
+                            t.HasCheckConstraint("CK_ClientMembershipSales_Behavior_Pricing", "(\"BehaviorKind\" = 'Professional' AND \"PricingMode\" = 'Catalog' AND CAST(\"GrossAmount\" AS NUMERIC) = 0) OR (\"BehaviorKind\" = 'SingleVisit' AND \"PricingMode\" IN ('Catalog', 'CatalogOverride') AND CAST(\"GrossAmount\" AS NUMERIC) > 0) OR (\"BehaviorKind\" = 'Term' AND \"PricingMode\" IN ('Catalog', 'CatalogOverride', 'AmountOnly') AND CAST(\"GrossAmount\" AS NUMERIC) > 0)");
+
                             t.HasCheckConstraint("CK_ClientMembershipSales_GrossAmount_NonNegative", "\"GrossAmount\" >= 0");
+
+                            t.HasCheckConstraint("CK_ClientMembershipSales_GrossAmount_WholeRub", "\"GrossAmount\" = trunc(\"GrossAmount\")");
+
+                            t.HasCheckConstraint("CK_ClientMembershipSales_PricingMode_Catalog", "(\"PricingMode\" IN ('Catalog', 'CatalogOverride') AND \"MembershipCatalogItemId\" IS NOT NULL) OR (\"PricingMode\" = 'AmountOnly' AND \"MembershipCatalogItemId\" IS NULL)");
                         });
                 });
 
@@ -913,8 +914,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(128)");
 
                     b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -938,6 +939,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_MembershipCatalogItems_Ownership", "(\"BehaviorKind\" = 'Professional' AND \"BranchId\" IS NULL AND \"IsSystemOwned\") OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND \"BranchId\" IS NOT NULL AND NOT \"IsSystemOwned\")");
 
                             t.HasCheckConstraint("CK_MembershipCatalogItems_Price", "(\"BehaviorKind\" = 'Professional' AND CAST(\"Price\" AS NUMERIC) = 0) OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND CAST(\"Price\" AS NUMERIC) > 0)");
+
+                            t.HasCheckConstraint("CK_MembershipCatalogItems_Price_WholeRub", "\"Price\" = trunc(\"Price\")");
                         });
 
                     b.HasData(
@@ -1435,12 +1438,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GymCrm.Domain.Memberships.MembershipCatalogItem", "MembershipCatalogItem")
-                        .WithMany()
-                        .HasForeignKey("MembershipCatalogItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("GymCrm.Domain.Users.User", "PaidByUser")
                         .WithMany("MembershipPayments")
                         .HasForeignKey("PaidByUserId")
@@ -1455,8 +1452,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("ChangedByUser");
 
                     b.Navigation("Client");
-
-                    b.Navigation("MembershipCatalogItem");
 
                     b.Navigation("PaidByUser");
 
@@ -1519,8 +1514,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasOne("GymCrm.Domain.Memberships.MembershipCatalogItem", "MembershipCatalogItem")
                         .WithMany()
                         .HasForeignKey("MembershipCatalogItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Client");
 

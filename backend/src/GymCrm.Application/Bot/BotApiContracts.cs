@@ -153,11 +153,14 @@ public sealed record BotClientCard(
 
 public sealed record BotClientMembership(
     Guid Id,
+    Guid? MembershipCatalogItemId,
     string BehaviorKind,
     string MembershipLabel,
+    string PricingMode,
+    decimal GrossAmount,
+    decimal? CatalogPrice,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
-    decimal? PaymentAmount,
     bool IsPaid,
     bool SingleVisitUsed);
 

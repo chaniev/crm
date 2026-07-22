@@ -238,7 +238,8 @@ internal static class ClientAttentionEndpoints
 
         var clients = await clientsQuery
             .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.MembershipCatalogItem)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.AttendanceEntries)
                 .ThenInclude(attendance => attendance.Group)
             .Include(client => client.MissedTrainingAcknowledgements)
@@ -326,7 +327,7 @@ internal static class ClientAttentionEndpoints
                     ? null
                     : new ClientAttentionMembershipResponse(
                         currentMembership.BehaviorKind.ToString(),
-                        currentMembership.MembershipCatalogItem.Name,
+                        ClientMembershipSaleDisplay.GetMembershipName(currentMembership.Sale),
                         currentMembership.IndividualValidTo,
                         currentMembership.IndividualValidTo?.DayNumber - today.DayNumber,
                         currentMembership.IsPaid),

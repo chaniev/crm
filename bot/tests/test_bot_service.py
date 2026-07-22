@@ -148,9 +148,13 @@ def test_professional_client_card_uses_backend_status_label_without_unpaid_text(
         professionalComment="Сборная",
         currentMembership=ClientCardMembership(
             behaviorKind="Professional",
+            membershipCatalogItemId="00000000-0000-0000-0000-000000000099",
             membershipLabel="Профессиональный",
             purchaseDate="2026-05-01",
             expirationDate=None,
+            pricingMode="Catalog",
+            grossAmount=0,
+            catalogPrice=0,
             isPaid=False,
         ),
     )
@@ -160,6 +164,29 @@ def test_professional_client_card_uses_backend_status_label_without_unpaid_text(
     assert "Профессионал: Сборная" in text
     assert "оплачен: льгота" in text
     assert "оплачен: нет" not in text
+
+
+def test_amount_only_client_card_renders_backend_membership_label() -> None:
+    card = ClientCardResponse(
+        id="00000000-0000-0000-0000-000000000012",
+        fullName="Клиент без варианта",
+        currentMembership=ClientCardMembership(
+            behaviorKind="Term",
+            membershipCatalogItemId=None,
+            membershipLabel="Без варианта каталога",
+            purchaseDate="2026-07-22",
+            expirationDate="2026-08-21",
+            pricingMode="AmountOnly",
+            grossAmount=1750,
+            catalogPrice=None,
+            isPaid=False,
+        ),
+    )
+
+    text = BotService._render_client_card(card)
+
+    assert "Абонемент: Без варианта каталога" in text
+    assert "оплачен: нет" in text
 
 
 def test_group_schedule_rendering_uses_backend_values_without_local_validation() -> None:

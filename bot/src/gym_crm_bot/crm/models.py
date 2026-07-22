@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from decimal import Decimal
 from typing import Literal
 from uuid import UUID
 
@@ -15,6 +16,7 @@ from pydantic import (
 
 BotRole = Literal["HeadCoach", "Administrator", "Coach"]
 MembershipBehaviorKind = Literal["SingleVisit", "Term", "Professional"]
+MembershipSalePricingMode = Literal["Catalog", "CatalogOverride", "AmountOnly"]
 MenuCode = Literal["attendance", "client_search", "expiring_memberships", "unpaid_memberships"]
 
 
@@ -192,9 +194,13 @@ class ClientSearchResponse(ApiModel):
 
 class ClientCardMembership(ApiModel):
     behavior_kind: MembershipBehaviorKind = Field(alias="behaviorKind")
+    membership_catalog_item_id: UUID | None = Field(alias="membershipCatalogItemId")
     membership_label: str = Field(alias="membershipLabel")
     purchase_date: date = Field(alias="purchaseDate")
     expiration_date: date | None = Field(default=None, alias="expirationDate")
+    pricing_mode: MembershipSalePricingMode = Field(alias="pricingMode")
+    gross_amount: Decimal = Field(alias="grossAmount")
+    catalog_price: Decimal | None = Field(alias="catalogPrice")
     is_paid: bool = Field(alias="isPaid")
 
     @property

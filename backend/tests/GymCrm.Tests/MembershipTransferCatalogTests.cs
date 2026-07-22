@@ -45,6 +45,67 @@ public sealed class MembershipTransferCatalogTests
         var after = await fixture.CountsAsync();
         Assert.Equal(before.Memberships + 1, after.Memberships);
         Assert.Equal(before.Sales + 1, after.Sales);
+        var sale = await fixture.LatestSaleAsync();
+        Assert.Equal(ClientMembershipSalePricingMode.Catalog, sale.PricingMode);
+        Assert.Equal(1500m, sale.GrossAmount);
+        Assert.Equal(fixture.TargetTermCatalogItemId, sale.MembershipCatalogItemId);
+    }
+
+    [Fact]
+    public async Task Term_transfer_supports_catalog_override()
+    {
+        await using var fixture = await TransferFixture.CreateAsync(MembershipBehaviorKind.Term);
+
+        using var response = await fixture.TransferAsync(new
+        {
+            TargetBranchId = fixture.TargetBranchId,
+            TargetGroupIds = new[] { fixture.TargetGroupId },
+            MembershipCatalogItemId = fixture.TargetTermCatalogItemId,
+            ManualSaleAmount = 1750m,
+            ValidFrom = fixture.Today.ToString("yyyy-MM-dd"),
+            ValidTo = fixture.Today.AddDays(29).ToString("yyyy-MM-dd"),
+            PaymentStatus = "Unpaid",
+            PaymentDate = (string?)null
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var sale = await fixture.LatestSaleAsync();
+        Assert.Equal(ClientMembershipSalePricingMode.CatalogOverride, sale.PricingMode);
+        Assert.Equal(1750m, sale.GrossAmount);
+        Assert.Equal(fixture.TargetTermCatalogItemId, sale.MembershipCatalogItemId);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Amount_only_transfer_works_without_current_membership_and_replaces_professional(bool replaceProfessional)
+    {
+        await using var fixture = await TransferFixture.CreateAsync(
+            replaceProfessional ? MembershipBehaviorKind.Professional : null);
+
+        using var response = await fixture.TransferAsync(new
+        {
+            TargetBranchId = fixture.TargetBranchId,
+            TargetGroupIds = new[] { fixture.TargetGroupId },
+            MembershipCatalogItemId = (Guid?)null,
+            ManualSaleAmount = 1800m,
+            ValidFrom = fixture.Today.ToString("yyyy-MM-dd"),
+            ValidTo = fixture.Today.AddDays(29).ToString("yyyy-MM-dd"),
+            PaymentStatus = "Paid",
+            PaymentDate = fixture.Today.ToString("yyyy-MM-dd")
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await fixture.AssertAssignmentAsync(fixture.TargetBranchId, fixture.TargetGroupId);
+        var sale = await fixture.LatestSaleAsync();
+        Assert.Equal(ClientMembershipSalePricingMode.AmountOnly, sale.PricingMode);
+        Assert.Equal(MembershipBehaviorKind.Term, sale.BehaviorKind);
+        Assert.Equal(1800m, sale.GrossAmount);
+        Assert.Null(sale.MembershipCatalogItemId);
+        var membership = await fixture.LatestMembershipAsync();
+        Assert.Equal(MembershipBehaviorKind.Term, membership.BehaviorKind);
+        Assert.Equal(fixture.Today, membership.IndividualValidFrom);
+        Assert.Equal(fixture.Today.AddDays(29), membership.IndividualValidTo);
     }
 
     [Fact]
@@ -88,6 +149,27 @@ public sealed class MembershipTransferCatalogTests
         Assert.Equal(original, await fixture.CurrentMembershipIdsAsync());
     }
 
+    [Fact]
+    public async Task Unused_single_visit_transfer_rejects_explicit_null_sale_fields_without_changes()
+    {
+        await using var fixture = await TransferFixture.CreateAsync(MembershipBehaviorKind.SingleVisit);
+        var before = await fixture.CountsAsync();
+        var original = await fixture.CurrentMembershipIdsAsync();
+
+        using var response = await fixture.TransferAsync(new
+        {
+            TargetBranchId = fixture.TargetBranchId,
+            TargetGroupIds = new[] { fixture.TargetGroupId },
+            MembershipCatalogItemId = (Guid?)null,
+            ManualSaleAmount = (decimal?)null
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await fixture.AssertAssignmentAsync(fixture.SourceBranchId, groupId: null);
+        Assert.Equal(before, await fixture.CountsAsync());
+        Assert.Equal(original, await fixture.CurrentMembershipIdsAsync());
+    }
+
     private sealed class TransferFixture : IAsyncDisposable
     {
         private const string Password = "transfer-catalog-password";
@@ -127,7 +209,7 @@ public sealed class MembershipTransferCatalogTests
         public Guid SourceOnlyCatalogItemId { get; }
         public DateOnly Today { get; }
 
-        public static async Task<TransferFixture> CreateAsync(MembershipBehaviorKind initialBehavior)
+        public static async Task<TransferFixture> CreateAsync(MembershipBehaviorKind? initialBehavior)
         {
             var factory = new TransferAppFactory();
             var client = factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -175,34 +257,47 @@ public sealed class MembershipTransferCatalogTests
                     target.Id, "Target Term", 1500m, MembershipBehaviorKind.Term, today.AddDays(-1), null, now);
                 var sourceTerm = MembershipCatalogItem.CreateBranchOwned(
                     source.Id, "Source Term", 1100m, MembershipBehaviorKind.Term, today.AddDays(-1), null, now);
-                var initialCatalog = initialBehavior == MembershipBehaviorKind.SingleVisit
-                    ? MembershipCatalogItem.CreateBranchOwned(source.Id, "Source Visit", 400m, initialBehavior, today.AddDays(-1), null, now)
-                    : sourceTerm;
+                var initialCatalog = initialBehavior switch
+                {
+                    MembershipBehaviorKind.SingleVisit => MembershipCatalogItem.CreateBranchOwned(
+                        source.Id, "Source Visit", 400m, MembershipBehaviorKind.SingleVisit, today.AddDays(-1), null, now),
+                    MembershipBehaviorKind.Term => sourceTerm,
+                    MembershipBehaviorKind.Professional => db.MembershipCatalogItems
+                        .Single(item => item.BehaviorKind == MembershipBehaviorKind.Professional),
+                    null => null,
+                    _ => throw new ArgumentOutOfRangeException(nameof(initialBehavior))
+                };
                 var crmClient = new Client
                 {
                     Id = Guid.NewGuid(), BranchId = source.Id, LastName = "Transfer", FirstName = "Client",
                     Phone = "+79990009999", Status = ClientStatus.Active, CreatedAt = now, UpdatedAt = now
                 };
-                var sale = new ClientMembershipSale
+                db.AddRange(coach, source, target, hall, groupType, group, targetTerm, sourceTerm, crmClient);
+                if (initialCatalog is not null && initialCatalog != sourceTerm &&
+                    initialBehavior != MembershipBehaviorKind.Professional)
+                    db.Add(initialCatalog);
+                if (initialBehavior.HasValue && initialCatalog is not null)
                 {
-                    Id = Guid.NewGuid(), ClientId = crmClient.Id, MembershipCatalogItemId = initialCatalog.Id,
-                    BehaviorKind = initialBehavior, PurchaseDate = today, GrossAmount = initialCatalog.Price,
-                    CreatedByUserId = coach.Id, CreatedAt = now
-                };
-                var membership = new ClientMembership
-                {
-                    Id = Guid.NewGuid(), ClientId = crmClient.Id, SaleId = sale.Id,
-                    MembershipCatalogItemId = initialCatalog.Id, BehaviorKind = initialBehavior,
-                    IndividualValidFrom = initialBehavior == MembershipBehaviorKind.Term ? today : null,
-                    IndividualValidTo = initialBehavior == MembershipBehaviorKind.Term ? today.AddMonths(1) : null,
-                    PaymentAmount = initialCatalog.Price, IsPaid = true, SingleVisitUsed = false,
-                    PaidByUserId = coach.Id, PaidAt = now, ValidFrom = now,
-                    ChangeReason = ClientMembershipChangeReason.NewPurchase, ChangedByUserId = coach.Id, CreatedAt = now
-                };
-
-                db.AddRange(coach, source, target, hall, groupType, group, targetTerm);
-                if (initialCatalog != sourceTerm) db.Add(sourceTerm);
-                db.AddRange(initialCatalog, crmClient, sale, membership);
+                    var sale = new ClientMembershipSale
+                    {
+                        Id = Guid.NewGuid(), ClientId = crmClient.Id, MembershipCatalogItemId = initialCatalog.Id,
+                        MembershipCatalogItem = initialCatalog, BehaviorKind = initialBehavior.Value,
+                        PricingMode = ClientMembershipSalePricingMode.Catalog,
+                        PurchaseDate = today, GrossAmount = initialCatalog.Price,
+                        CreatedByUserId = coach.Id, CreatedAt = now
+                    };
+                    var membership = new ClientMembership
+                    {
+                        Id = Guid.NewGuid(), ClientId = crmClient.Id, SaleId = sale.Id,
+                        BehaviorKind = initialBehavior.Value,
+                        IndividualValidFrom = initialBehavior == MembershipBehaviorKind.SingleVisit ? null : today,
+                        IndividualValidTo = initialBehavior == MembershipBehaviorKind.Term ? today.AddMonths(1) : null,
+                        IsPaid = true, SingleVisitUsed = false,
+                        PaidByUserId = coach.Id, PaidAt = now, ValidFrom = now,
+                        ChangeReason = ClientMembershipChangeReason.NewPurchase, ChangedByUserId = coach.Id, CreatedAt = now
+                    };
+                    db.AddRange(sale, membership);
+                }
                 await db.SaveChangesAsync();
 
                 clientId = crmClient.Id;
@@ -253,6 +348,24 @@ public sealed class MembershipTransferCatalogTests
             var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             return await db.ClientMemberships.Where(x => x.ClientId == ClientId && x.ValidTo == null)
                 .Select(x => new ValueTuple<Guid, Guid>(x.Id, x.SaleId)).SingleAsync();
+        }
+
+        public async Task<ClientMembershipSale> LatestSaleAsync()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var sales = await scope.ServiceProvider.GetRequiredService<GymCrmDbContext>()
+                .ClientMembershipSales.AsNoTracking().Where(sale => sale.ClientId == ClientId)
+                .ToArrayAsync();
+            return sales.OrderByDescending(sale => sale.CreatedAt).First();
+        }
+
+        public async Task<ClientMembership> LatestMembershipAsync()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var memberships = await scope.ServiceProvider.GetRequiredService<GymCrmDbContext>()
+                .ClientMemberships.AsNoTracking().Where(membership => membership.ClientId == ClientId)
+                .ToArrayAsync();
+            return memberships.OrderByDescending(membership => membership.CreatedAt).First();
         }
 
         public async Task AssertAssignmentAsync(Guid branchId, Guid? groupId)

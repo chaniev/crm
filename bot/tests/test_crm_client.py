@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from datetime import date
+from decimal import Decimal
 from uuid import UUID
 
 import httpx
 import pytest
 import respx
+from pydantic import ValidationError
 
 from gym_crm_bot.crm.client import CrmBotApiClient
 from gym_crm_bot.crm.errors import CrmTemporaryError
-from gym_crm_bot.crm.models import AttendanceMarkRequest, TelegramIdentity
+from gym_crm_bot.crm.models import AttendanceMarkRequest, ClientCardMembership, TelegramIdentity
 
 
 @pytest.mark.asyncio
@@ -154,9 +156,13 @@ async def test_crm_client_parses_professional_fields_without_local_payment_logic
                 "hasUnpaidCurrentMembership": False,
                 "currentMembership": {
                     "behaviorKind": "Professional",
+                    "membershipCatalogItemId": "00000000-0000-0000-0000-000000000099",
                     "membershipLabel": "Профессиональный",
                     "purchaseDate": "2026-05-01",
                     "expirationDate": None,
+                    "pricingMode": "Catalog",
+                    "grossAmount": 0,
+                    "catalogPrice": 0,
                     "isPaid": False,
                 },
                 "attendanceHistory": [],
@@ -259,6 +265,74 @@ async def test_crm_client_parses_group_schedule_contract_from_backend() -> None:
     assert card.groups[0].duration_minutes == 75
     assert card.groups[0].weekdays == [5, 1]
     await http_client.aclose()
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_crm_client_parses_amount_only_membership_sale_contract_from_backend() -> None:
+    respx.get(
+        "http://crm.local/internal/bot/clients/00000000-0000-0000-0000-000000000012"
+    ).mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "id": "00000000-0000-0000-0000-000000000012",
+                "fullName": "Клиент без варианта",
+                "currentMembership": {
+                    "behaviorKind": "Term",
+                    "membershipCatalogItemId": None,
+                    "membershipLabel": "Без варианта каталога",
+                    "purchaseDate": "2026-07-22",
+                    "expirationDate": "2026-08-21",
+                    "pricingMode": "AmountOnly",
+                    "grossAmount": 1750,
+                    "catalogPrice": None,
+                    "isPaid": False,
+                },
+                "attendanceHistory": [],
+            },
+        )
+    )
+    http_client = httpx.AsyncClient(base_url="http://crm.local")
+    client = CrmBotApiClient(
+        base_url="http://crm.local",
+        service_token="service-token",
+        timeout_seconds=5,
+        http_client=http_client,
+    )
+
+    card = await client.get_client_card(
+        TelegramIdentity(platform_user_id="777"),
+        client_id=UUID("00000000-0000-0000-0000-000000000012"),
+        request_id="req-amount-only-card",
+    )
+
+    assert card.current_membership is not None
+    assert card.current_membership.behavior_kind == "Term"
+    assert card.current_membership.membership_catalog_item_id is None
+    assert card.current_membership.membership_label == "Без варианта каталога"
+    assert card.current_membership.pricing_mode == "AmountOnly"
+    assert card.current_membership.gross_amount == Decimal("1750")
+    assert card.current_membership.catalog_price is None
+    assert "payment_amount" not in type(card.current_membership).model_fields
+    await http_client.aclose()
+
+
+def test_client_card_membership_does_not_accept_payment_amount_as_gross_amount() -> None:
+    with pytest.raises(ValidationError, match="grossAmount"):
+        ClientCardMembership.model_validate(
+            {
+                "behaviorKind": "Term",
+                "membershipCatalogItemId": None,
+                "membershipLabel": "Без варианта каталога",
+                "purchaseDate": "2026-07-22",
+                "expirationDate": "2026-08-21",
+                "pricingMode": "AmountOnly",
+                "paymentAmount": 1750,
+                "catalogPrice": None,
+                "isPaid": False,
+            }
+        )
 
 
 @pytest.mark.asyncio

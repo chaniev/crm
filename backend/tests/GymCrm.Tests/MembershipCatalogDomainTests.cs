@@ -34,6 +34,14 @@ public sealed class MembershipCatalogDomainTests
         Assert.Throws<ArgumentException>(() => MembershipCatalogItem.CreateBranchOwned(
             Guid.NewGuid(), "Абонемент", 0m, MembershipBehaviorKind.SingleVisit,
             new DateOnly(2026, 7, 1), null, DateTimeOffset.UtcNow));
+
+        Assert.Throws<ArgumentException>(() => MembershipCatalogItem.CreateBranchOwned(
+            Guid.NewGuid(), "Абонемент", 100.50m, MembershipBehaviorKind.Term,
+            new DateOnly(2026, 7, 1), null, DateTimeOffset.UtcNow));
+
+        Assert.Throws<ArgumentException>(() => MembershipCatalogItem.CreateBranchOwned(
+            Guid.NewGuid(), "Абонемент", 100_000_000m, MembershipBehaviorKind.Term,
+            new DateOnly(2026, 7, 1), null, DateTimeOffset.UtcNow));
     }
 
     [Fact]

@@ -376,7 +376,8 @@ test.describe('Основные e2e сценарии', () => {
       const details = toClientPayload({ ...baseClient, behaviorKind: 'Term' }, baseGroups)
       const version = (id: string, saleId: string, purchaseDate: string, value: string | null) => ({
         id, saleId, membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term',
-        purchaseDate, expirationDate: '2026-08-31', paymentAmount: 4000, isPaid: true,
+        purchaseDate, expirationDate: '2026-08-31', pricingMode: 'Catalog', grossAmount: 4000,
+        catalogPrice: 4000, isPaid: true,
         singleVisitUsed: false, comment: value, commentLastChangedByName: 'Главный тренер',
         commentLastChangedAt: changedAt,
       })
@@ -801,6 +802,10 @@ test.describe('Основные e2e сценарии', () => {
         expect(transferPayload).toEqual({
           targetBranchId: secondaryBranch.id,
           targetGroupIds: [],
+          manualSaleAmount: 6200,
+          validFrom: '2026-07-22',
+          validTo: '2026-08-20',
+          paymentStatus: 'Unpaid',
         })
 
         client = {
@@ -821,11 +826,28 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByRole('button', { name: 'Перевести' }).click()
     await page.getByRole('combobox', { name: 'Целевой филиал' }).click()
     await page.getByRole('option', { name: /Север/ }).click()
+    const transferDialog = page.getByRole('dialog', { name: 'Перевод клиента' })
+    await transferDialog
+      .getByRole('radio', { name: 'Без варианта каталога' })
+      .check()
+    await transferDialog
+      .getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
+      .fill('6200')
+    await transferDialog.getByLabel('Действует с').fill('2026-07-22')
+    await transferDialog.getByLabel('Действует по').fill('2026-08-20')
     await page.getByRole('button', { name: 'Перевести клиента' }).click()
+    await page
+      .getByRole('dialog', { name: 'Подтвердить новую продажу?' })
+      .getByRole('button', { name: 'Подтвердить продажу' })
+      .click()
 
     await expect.poll(() => transferPayload).toEqual({
       targetBranchId: secondaryBranch.id,
       targetGroupIds: [],
+      manualSaleAmount: 6200,
+      validFrom: '2026-07-22',
+      validTo: '2026-08-20',
+      paymentStatus: 'Unpaid',
     })
     await expect(page.getByText('Север', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Клиент пока не включен ни в одну группу.')).toBeVisible()
@@ -2337,9 +2359,15 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     currentMembershipSummary: behaviorKind
       ? {
           id: `${client.id}-m1`,
+          saleId: `${client.id}-sale-1`,
+          membershipCatalogItemId: 'catalog-1',
+          membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
           behaviorKind,
           purchaseDate: addIsoDays(todayIso(), -20),
           expirationDate: client.expirationDate,
+          pricingMode: 'Catalog',
+          grossAmount: 4000,
+          catalogPrice: 4000,
           isPaid: currentMembershipIsPaid,
           singleVisitUsed: false,
         }
@@ -2347,10 +2375,15 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     currentMembership: behaviorKind
       ? {
           id: `${client.id}-m1`,
+          saleId: `${client.id}-sale-1`,
+          membershipCatalogItemId: 'catalog-1',
+          membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
           behaviorKind,
           purchaseDate: addIsoDays(todayIso(), -20),
           expirationDate: client.expirationDate,
-          paymentAmount: 4000,
+          pricingMode: 'Catalog',
+          grossAmount: 4000,
+          catalogPrice: 4000,
           isPaid: currentMembershipIsPaid,
           singleVisitUsed: false,
           changedByUserName: 'Тест',
@@ -2360,10 +2393,15 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
       ? [
           {
             id: `${client.id}-m1`,
+            saleId: `${client.id}-sale-1`,
+            membershipCatalogItemId: 'catalog-1',
+            membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
             behaviorKind,
             purchaseDate: addIsoDays(todayIso(), -20),
             expirationDate: client.expirationDate,
-            paymentAmount: 4000,
+            pricingMode: 'Catalog',
+            grossAmount: 4000,
+            catalogPrice: 4000,
             isPaid: currentMembershipIsPaid,
             singleVisitUsed: false,
           },

@@ -1139,7 +1139,7 @@ public class ClientsApiTests
 
         var currentMembershipPayload = GetPropertyOrNull(clientPayload, "currentMembership", "CurrentMembership");
         Assert.Equal(JsonValueKind.Object, currentMembershipPayload.ValueKind);
-        Assert.True(GetDecimalFromAnyCase(currentMembershipPayload, "paymentAmount", "PaymentAmount") > 0m);
+        Assert.True(GetDecimalFromAnyCase(currentMembershipPayload, "grossAmount", "GrossAmount") > 0m);
         Assert.True(GetGuidFromAnyCase(currentMembershipPayload, "paidByUserId", "PaidByUserId") != Guid.Empty);
 
         var attendanceHistoryPayload = GetArrayPayloadOrEmpty(
@@ -2076,12 +2076,9 @@ public class ClientsApiTests
                    clientId,
                    new
                    {
-                       BehaviorKind = "Term",
                        PurchaseDate = correctionDate.ToString("yyyy-MM-dd"),
                        ExpirationDate = correctionDate.AddYears(1).ToString("yyyy-MM-dd"),
-                       PaymentAmount = 2000m,
-                       IsPaid = false,
-                       SingleVisitUsed = false
+                       IsPaid = false
                    },
                    actorSession.CsrfToken))
         {
@@ -2092,12 +2089,7 @@ public class ClientsApiTests
                    client,
                    "mark-payment",
                    clientId,
-                   new
-                   {
-                       BehaviorKind = "Term",
-                       PaymentAmount = 2000m,
-                       IsPaid = true
-                   },
+                   new { },
                    actorSession.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.OK, paymentResponse.StatusCode);
@@ -2220,7 +2212,7 @@ public class ClientsApiTests
         Assert.Equal(HttpStatusCode.OK, refundResponse.StatusCode);
         var refundPayload = await ReadJsonElementAsync(refundResponse);
         var currentMembership = GetPropertyOrNull(refundPayload, "currentMembership", "CurrentMembership");
-        Assert.Equal(1200m, GetDecimalFromAnyCase(currentMembership, "paymentAmount", "PaymentAmount"));
+        Assert.Equal(1200m, GetDecimalFromAnyCase(currentMembership, "grossAmount", "GrossAmount"));
         Assert.True(GetBoolFromAnyCase(currentMembership, "isPaid", "IsPaid"));
 
         var summary = GetPropertyOrNull(currentMembership, "financialSummary", "FinancialSummary");
@@ -2374,9 +2366,7 @@ public class ClientsApiTests
                    clientId,
                    new
                    {
-                       BehaviorKind = "Term",
                        PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
-                       PaymentAmount = 600m,
                        IsPaid = true
                    },
                    actorSession.CsrfToken))
@@ -2390,9 +2380,7 @@ public class ClientsApiTests
                    clientId,
                    new
                    {
-                       BehaviorKind = "Term",
                        PurchaseDate = refundDate.AddDays(1).ToString("yyyy-MM-dd"),
-                       PaymentAmount = 1000m,
                        IsPaid = true
                    },
                    actorSession.CsrfToken))
@@ -2522,10 +2510,8 @@ public class ClientsApiTests
                    clientId,
                    new
                    {
-                       BehaviorKind = "Term",
                        PurchaseDate = now.ToString("yyyy-MM-dd"),
                        ExpirationDate = now.AddMonths(2).ToString("yyyy-MM-dd"),
-                       PaymentAmount = 1000m,
                        IsPaid = true
                    },
                    actorSession.CsrfToken))
@@ -2816,11 +2802,8 @@ public class ClientsApiTests
                    clientId,
                    new
                    {
-                       BehaviorKind = "SingleVisit",
                        PurchaseDate = now.ToString("yyyy-MM-dd"),
-                       PaymentAmount = 600m,
-                       IsPaid = true,
-                       SingleVisitUsed = true
+                       IsPaid = true
                    },
                    actorSession.CsrfToken))
         {
@@ -2879,12 +2862,7 @@ public class ClientsApiTests
                    client,
                    "mark-payment",
                    clientId,
-                   new
-                   {
-                       BehaviorKind = "Term",
-                       PaymentAmount = 1500m,
-                       IsPaid = true
-                   },
+                   new { },
                    actorSession.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.OK, paymentResponse.StatusCode);
@@ -2966,12 +2944,7 @@ public class ClientsApiTests
                    client,
                    "mark-payment",
                    clientId,
-                   new
-                   {
-                       BehaviorKind = "Term",
-                       PaymentAmount = 1300m,
-                       IsPaid = true
-                   },
+                   new { },
                    actorSession.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.OK, markPaymentResponse.StatusCode);
@@ -4676,11 +4649,9 @@ public class ClientsApiTests
             Id = Guid.NewGuid(),
             ClientId = clientId,
             SaleId = saleId,
-            MembershipCatalogItemId = catalogItemId,
             BehaviorKind = behaviorKind,
             IndividualValidFrom = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : purchaseDate,
             IndividualValidTo = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : expirationDate,
-            PaymentAmount = paymentAmount,
             IsPaid = isPaid,
             SingleVisitUsed = singleVisitUsed,
             ProfessionalComment = professionalComment,
@@ -4697,6 +4668,7 @@ public class ClientsApiTests
                 ClientId = clientId,
                 MembershipCatalogItemId = catalogItemId,
                 BehaviorKind = behaviorKind,
+                PricingMode = ClientMembershipSalePricingMode.Catalog,
                 PurchaseDate = purchaseDate,
                 GrossAmount = paymentAmount,
                 CreatedByUserId = changedByUserId,
