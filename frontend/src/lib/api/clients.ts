@@ -321,7 +321,17 @@ export async function transferClientBranch(
     API_ENDPOINTS.clients.transfer(clientId),
     {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        targetBranchId: payload.targetBranchId,
+        targetGroupIds: payload.targetGroupIds,
+        membershipCatalogItemId: payload.membershipCatalogItemId,
+        manualSaleAmount: payload.manualSaleAmount,
+        validFrom: payload.validFrom,
+        validTo: payload.validTo,
+        paymentStatus: payload.paymentStatus,
+        paymentDate: payload.paymentDate,
+        professionalComment: payload.professionalComment,
+      }),
     },
   )
 
@@ -377,6 +387,7 @@ export async function purchaseClientMembership(
       method: 'POST',
       body: JSON.stringify({
         MembershipCatalogItemId: payload.membershipCatalogItemId,
+        ManualSaleAmount: payload.manualSaleAmount,
         ValidFrom: payload.validFrom,
         ValidTo: payload.validTo,
         PaymentStatus: payload.paymentStatus,
@@ -399,6 +410,7 @@ export async function renewClientMembership(
       method: 'POST',
       body: JSON.stringify({
         MembershipCatalogItemId: payload.membershipCatalogItemId,
+        ManualSaleAmount: payload.manualSaleAmount,
         PaymentStatus: payload.paymentStatus,
         PaymentDate: payload.paymentDate,
         ProfessionalComment: payload.professionalComment,
@@ -430,16 +442,14 @@ export async function correctClientMembership(
 
 export async function markClientMembershipPayment(
   clientId: string,
-  payload: MarkClientMembershipPaymentRequest,
+  _payload: MarkClientMembershipPaymentRequest,
 ) {
+  void _payload
   const response = await request<ClientResponsePayload | null>(
     API_ENDPOINTS.clients.membership.markPayment(clientId),
     {
       method: 'POST',
-      body: JSON.stringify({
-        PaymentAmount: payload.paymentAmount,
-        IsPaid: payload.isPaid,
-      }),
+      body: JSON.stringify({}),
     },
   )
 

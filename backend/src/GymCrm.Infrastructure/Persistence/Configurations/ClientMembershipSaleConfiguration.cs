@@ -13,13 +13,30 @@ internal sealed class ClientMembershipSaleConfiguration : IEntityTypeConfigurati
 
     public void Configure(EntityTypeBuilder<ClientMembershipSale> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            "CK_ClientMembershipSales_GrossAmount_NonNegative",
-            "\"GrossAmount\" >= 0"));
+        builder.ToTable(table =>
+        {
+            table.HasCheckConstraint(
+                "CK_ClientMembershipSales_GrossAmount_NonNegative",
+                "\"GrossAmount\" >= 0");
+            table.HasCheckConstraint(
+                "CK_ClientMembershipSales_GrossAmount_WholeRub",
+                "\"GrossAmount\" = trunc(\"GrossAmount\")");
+            table.HasCheckConstraint(
+                "CK_ClientMembershipSales_PricingMode_Catalog",
+                "(\"PricingMode\" IN ('Catalog', 'CatalogOverride') AND \"MembershipCatalogItemId\" IS NOT NULL) OR (\"PricingMode\" = 'AmountOnly' AND \"MembershipCatalogItemId\" IS NULL)");
+            table.HasCheckConstraint(
+                "CK_ClientMembershipSales_Behavior_Pricing",
+                "(\"BehaviorKind\" = 'Professional' AND \"PricingMode\" = 'Catalog' AND CAST(\"GrossAmount\" AS NUMERIC) = 0) OR (\"BehaviorKind\" = 'SingleVisit' AND \"PricingMode\" IN ('Catalog', 'CatalogOverride') AND CAST(\"GrossAmount\" AS NUMERIC) > 0) OR (\"BehaviorKind\" = 'Term' AND \"PricingMode\" IN ('Catalog', 'CatalogOverride', 'AmountOnly') AND CAST(\"GrossAmount\" AS NUMERIC) > 0)");
+        });
 
         builder.HasKey(sale => sale.Id);
 
         builder.Property(sale => sale.BehaviorKind)
+            .HasConversion<string>()
+            .HasMaxLength(EnumMaxLength)
+            .IsRequired();
+
+        builder.Property(sale => sale.PricingMode)
             .HasConversion<string>()
             .HasMaxLength(EnumMaxLength)
             .IsRequired();

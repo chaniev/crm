@@ -70,19 +70,21 @@ public sealed record RestoreSingleVisitCommand(
 
 public sealed record CreateClientMembershipPurchaseCommand(
     Guid ChangedByUserId,
-    Guid MembershipCatalogItemId,
+    Guid? MembershipCatalogItemId,
     DateOnly? ValidFrom,
     DateOnly? ValidTo,
     bool IsPaid,
     DateOnly? PaymentDate,
-    string? ProfessionalComment);
+    string? ProfessionalComment,
+    decimal? ManualSaleAmount = null);
 
 public sealed record RenewClientMembershipCommand(
     Guid ChangedByUserId,
-    Guid MembershipCatalogItemId,
+    Guid? MembershipCatalogItemId,
     bool IsPaid,
     DateOnly? PaymentDate,
-    string? ProfessionalComment);
+    string? ProfessionalComment,
+    decimal? ManualSaleAmount = null);
 
 public sealed record CorrectClientMembershipCommand(
     Guid ChangedByUserId,
@@ -115,7 +117,6 @@ public enum ClientMembershipMutationError
     InvalidRequest = 2,
     CurrentMembershipMissing = 3,
     CurrentMembershipAlreadyPaid = 4,
-    CorrectedGrossAmountBelowRefunds = 5,
     CorrectedPurchaseDateAfterRefund = 6,
     CatalogItemMissing = 7,
     CatalogItemBranchMismatch = 8,
@@ -123,7 +124,11 @@ public enum ClientMembershipMutationError
     MembershipValidityInvalid = 10,
     ActiveMembershipExists = 11,
     RenewalNotAllowed = 12,
-    MembershipOverlap = 13
+    MembershipOverlap = 13,
+    PricingSelectionMissing = 14,
+    ManualSaleAmountInvalid = 15,
+    ProfessionalOverrideNotAllowed = 16,
+    ProfessionalPermissionDenied = 17
 }
 
 public enum ClientMembershipRefundMutationError
@@ -166,15 +171,17 @@ public sealed record ClientMembershipDetailsResult(
 
 public sealed record ClientMembershipSnapshotResult(
     Guid Id,
-    Guid MembershipCatalogItemId,
+    Guid? MembershipCatalogItemId,
     string MembershipName,
     MembershipBehaviorKind BehaviorKind,
+    ClientMembershipSalePricingMode PricingMode,
+    decimal GrossAmount,
+    decimal? CatalogPrice,
     DateOnly PurchaseDate,
     DateOnly? ExpirationDate,
     DateOnly? IndividualValidFrom,
     DateOnly? IndividualValidTo,
     string? ProfessionalComment,
-    decimal PaymentAmount,
     bool IsPaid,
     bool SingleVisitUsed,
     Guid? PaidByUserId,
@@ -213,10 +220,13 @@ public sealed record ClientMembershipRefundSnapshotResult(
 public sealed record ClientMembershipSaleSnapshotResult(
     Guid Id,
     Guid ClientId,
-    Guid MembershipCatalogItemId,
+    Guid? MembershipCatalogItemId,
+    string MembershipName,
     MembershipBehaviorKind BehaviorKind,
+    ClientMembershipSalePricingMode PricingMode,
     DateOnly PurchaseDate,
     decimal GrossAmount,
+    decimal? CatalogPrice,
     Guid CreatedByUserId,
     DateTimeOffset CreatedAt);
 

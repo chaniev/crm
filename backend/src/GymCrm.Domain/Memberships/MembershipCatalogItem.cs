@@ -1,5 +1,6 @@
 using System.Text;
 using GymCrm.Domain.Branches;
+using GymCrm.Domain.Clients;
 
 namespace GymCrm.Domain.Memberships;
 
@@ -75,7 +76,10 @@ public class MembershipCatalogItem
         if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > NameMaxLength)
             throw new ArgumentException("Catalog name is required.", nameof(name));
         if (availableTo < availableFrom) throw new ArgumentException("Availability range is reversed.");
-        if (behaviorKind == MembershipBehaviorKind.Professional ? price != 0 : price <= 0)
+        if (!RubMoneyPolicy.IsWholeAmount(
+                price,
+                allowZero: behaviorKind == MembershipBehaviorKind.Professional) ||
+            (behaviorKind == MembershipBehaviorKind.Professional && price != 0m))
             throw new ArgumentException("Invalid catalog price.", nameof(price));
     }
 }

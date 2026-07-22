@@ -1,8 +1,15 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
+  ApiError,
+  getBranches,
   getClient,
   getEligibleMembershipCatalogItems,
+  getGroups,
+  markClientMembershipPayment,
+  purchaseClientMembership,
+  renewClientMembership,
+  transferClientBranch,
   updateClientMembershipComment,
   type ClientDetails,
 } from '../../lib/api'
@@ -15,19 +22,37 @@ vi.mock('../../lib/api', async (importOriginal) => {
 
   return {
     ...actual,
+    getBranches: vi.fn(),
     getClient: vi.fn(),
     getEligibleMembershipCatalogItems: vi.fn(),
+    getGroups: vi.fn(),
+    markClientMembershipPayment: vi.fn(),
+    purchaseClientMembership: vi.fn(),
+    renewClientMembership: vi.fn(),
+    transferClientBranch: vi.fn(),
     updateClientMembershipComment: vi.fn(),
   }
 })
 
+const getBranchesMock = vi.mocked(getBranches)
 const getClientMock = vi.mocked(getClient)
 const getEligibleItemsMock = vi.mocked(getEligibleMembershipCatalogItems)
+const getGroupsMock = vi.mocked(getGroups)
+const markPaymentMock = vi.mocked(markClientMembershipPayment)
+const purchaseMembershipMock = vi.mocked(purchaseClientMembership)
+const renewMembershipMock = vi.mocked(renewClientMembership)
+const transferClientMock = vi.mocked(transferClientBranch)
 const updateCommentMock = vi.mocked(updateClientMembershipComment)
 
 beforeEach(() => {
+  getBranchesMock.mockReset()
   getClientMock.mockReset()
   getEligibleItemsMock.mockReset()
+  getGroupsMock.mockReset()
+  markPaymentMock.mockReset()
+  purchaseMembershipMock.mockReset()
+  renewMembershipMock.mockReset()
+  transferClientMock.mockReset()
   updateCommentMock.mockReset()
 })
 
@@ -99,9 +124,296 @@ describe('ClientDetailScreen membership purchase form', () => {
     )
 
     fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'По каталожной цене' }))
 
-    expect(await screen.findByRole('combobox', { name: 'Абонемент' })).toBeInTheDocument()
+    expect(await screen.findByRole('combobox', { name: 'Вариант абонемента' })).toBeInTheDocument()
     expect(getEligibleItemsMock).toHaveBeenCalledWith('branch-1', expect.any(AbortSignal))
+  })
+
+  test('offers three mutually exclusive pricing modes for every new purchase', async () => {
+    getClientMock.mockResolvedValue(buildClientDetails())
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+
+    expect(await screen.findByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
+  })
+
+  test('uses a whole-ruble input and keeps catalog price as read-only context for override', async () => {
+    getClientMock.mockResolvedValue(buildClientDetails())
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'Индивидуальная сумма' }))
+    await selectCatalogOption('Вариант абонемента')
+
+    const amount = screen.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
+    expect(amount).toHaveAttribute('step', '1')
+    expect(amount).toHaveAttribute('min', '1')
+    expect(screen.getByText('Каталожная цена')).toBeInTheDocument()
+    expect(screen.getByText('3 000 ₽')).toBeInTheDocument()
+  })
+
+  test('clears stale catalog and manual values when switching to amount-only', async () => {
+    const client = buildClientDetails()
+    getClientMock.mockResolvedValue(client)
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+    purchaseMembershipMock.mockResolvedValue(client)
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'Индивидуальная сумма' }))
+    await selectCatalogOption('Вариант абонемента')
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }), {
+      target: { value: '4100' },
+    })
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Без варианта каталога' }))
+    const amountOnlyInput = screen.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
+    expect(amountOnlyInput).toHaveValue(null)
+    expect(screen.queryByRole('combobox', { name: 'Вариант абонемента' })).not.toBeInTheDocument()
+
+    fireEvent.change(amountOnlyInput, { target: { value: '4200' } })
+    fireEvent.change(screen.getByLabelText('Действует с'), { target: { value: '2026-07-22' } })
+    fireEvent.change(screen.getByLabelText('Действует по'), { target: { value: '2026-08-20' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
+
+    const confirmation = await screen.findByRole('dialog', { name: /Подтвердить.*продажу/i })
+    expect(within(confirmation).getByText('Без варианта каталога')).toBeInTheDocument()
+    expect(within(confirmation).getByText('4 200 ₽')).toBeInTheDocument()
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Подтвердить продажу' }))
+
+    await waitFor(() =>
+      expect(purchaseMembershipMock).toHaveBeenCalledWith('client-1', {
+        manualSaleAmount: 4200,
+        validFrom: '2026-07-22',
+        validTo: '2026-08-20',
+        paymentStatus: 'Unpaid',
+      }),
+    )
+  })
+
+  test('keeps a backend manual-amount field error beside the input without losing the draft', async () => {
+    getClientMock.mockResolvedValue(buildClientDetails())
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+    purchaseMembershipMock.mockRejectedValue(
+      new ApiError('Проверьте сумму продажи.', 400, {
+        ManualSaleAmount: ['Сумма должна быть указана целыми рублями.'],
+      }),
+    )
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
+    const amount = screen.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
+    fireEvent.change(amount, { target: { value: '100' } })
+    fireEvent.change(screen.getByLabelText('Действует с'), { target: { value: '2026-07-22' } })
+    fireEvent.change(screen.getByLabelText('Действует по'), { target: { value: '2026-08-20' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
+
+    const confirmation = await screen.findByRole('dialog', { name: /Подтвердить.*продажу/i })
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Подтвердить продажу' }))
+
+    expect(await screen.findByText('Сумма должна быть указана целыми рублями.')).toBeInTheDocument()
+    expect(amount).toHaveValue(100)
+  })
+
+  test('does not submit a fractional manual amount', async () => {
+    getClientMock.mockResolvedValue(buildClientDetails())
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
+    const amount = screen.getByRole('spinbutton', {
+      name: 'Фактическая сумма продажи, ₽',
+    })
+    fireEvent.change(
+      amount,
+      { target: { value: '100.5' } },
+    )
+    fireEvent.change(screen.getByLabelText('Действует с'), {
+      target: { value: '2026-07-22' },
+    })
+    fireEvent.change(screen.getByLabelText('Действует по'), {
+      target: { value: '2026-08-20' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
+
+    expect(amount).toHaveValue(100.5)
+    expect(
+      screen.queryByRole('dialog', { name: /Подтвердить.*продажу/i }),
+    ).not.toBeInTheDocument()
+    expect(purchaseMembershipMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('ClientDetailScreen membership renewal pricing', () => {
+  test('requires a fresh mode confirmation and does not inherit the previous override', async () => {
+    const previous = {
+      ...buildMembership(),
+      pricingMode: 'CatalogOverride',
+      grossAmount: 4100,
+      catalogPrice: 3000,
+    } as unknown as ReturnType<typeof buildMembership>
+    getClientMock.mockResolvedValue({
+      ...buildClientDetails(),
+      currentMembership: previous,
+      currentMembershipSummary: previous,
+      hasCurrentMembership: true,
+      membershipHistory: [previous],
+    })
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+    renewMembershipMock.mockResolvedValue(buildClientDetails())
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Продлить' }))
+
+    expect(await screen.findByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
+    expect(screen.getByText('Предыдущая продажа')).toBeInTheDocument()
+    expect(screen.getByText(/Месяц.*4 100 ₽/)).toBeInTheDocument()
+    expect(screen.queryByDisplayValue('4100')).not.toBeInTheDocument()
+  })
+
+  test('allows a finite Professional membership to start a fresh renewal choice', async () => {
+    const professionalMembership = {
+      ...buildMembership(),
+      membershipCatalogItemId: 'catalog-professional',
+      membershipName: 'Профессионал',
+      behaviorKind: 'Professional' as const,
+      expirationDate: '2026-08-20',
+      grossAmount: 0,
+      catalogPrice: 0,
+    }
+    getClientMock.mockResolvedValue({
+      ...buildClientDetails(),
+      isProfessional: true,
+      professionalComment: 'Льготный статус до конца сезона.',
+      currentMembership: professionalMembership,
+      currentMembershipSummary: professionalMembership,
+      hasCurrentMembership: true,
+      membershipHistory: [professionalMembership],
+    })
+    getEligibleItemsMock.mockResolvedValue([
+      {
+        ...buildCatalogItem(),
+        id: 'catalog-professional',
+        name: 'Профессионал',
+        price: 0,
+        behaviorKind: 'Professional',
+        isSystemOwned: true,
+      },
+    ])
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Продлить' }))
+
+    expect(
+      await screen.findByRole('radio', { name: 'По каталожной цене' }),
+    ).not.toBeChecked()
+    expect(
+      screen.getByRole('radio', { name: 'Индивидуальная сумма' }),
+    ).not.toBeChecked()
+    expect(
+      screen.getByRole('radio', { name: 'Без варианта каталога' }),
+    ).not.toBeChecked()
+    expect(getEligibleItemsMock).toHaveBeenCalledWith(
+      'branch-1',
+      expect.any(AbortSignal),
+    )
+  })
+})
+
+describe('ClientDetailScreen immutable sale actions', () => {
+  test('mark-payment keeps the amount read-only and submits an empty object', async () => {
+    const membership = { ...buildMembership(), isPaid: false }
+    const client = {
+      ...buildClientDetails(),
+      currentMembership: membership,
+      currentMembershipSummary: membership,
+      hasCurrentMembership: true,
+      membershipHistory: [membership],
+    }
+    getClientMock.mockResolvedValue(client)
+    markPaymentMock.mockResolvedValue(client)
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Отметить оплату' }))
+
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Подтвердить оплату' }))
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Подтвердить оплату по текущему абонементу?',
+    })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Подтвердить оплату' }))
+
+    await waitFor(() => expect(markPaymentMock).toHaveBeenCalledWith('client-1', {}))
+  })
+})
+
+describe('ClientDetailScreen sale-producing transfer pricing', () => {
+  test('offers all three pricing modes for a transfer that creates a sale', async () => {
+    getClientMock.mockResolvedValue(buildClientDetails())
+    setupTransferOptions()
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
+    expect(within(dialog).getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
+    expect(within(dialog).getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
+    expect(within(dialog).getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
+  })
+
+  test('preserves active unused SingleVisit without rendering new-sale pricing controls', async () => {
+    const membership = {
+      ...buildMembership(),
+      behaviorKind: 'SingleVisit' as const,
+      expirationDate: null,
+      singleVisitUsed: false,
+    }
+    getClientMock.mockResolvedValue({
+      ...buildClientDetails(),
+      currentMembership: membership,
+      currentMembershipSummary: membership,
+      hasCurrentMembership: true,
+      membershipHistory: [membership],
+    })
+    setupTransferOptions()
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
+    expect(within(dialog).getByText(/перенесено без новой продажи/i)).toBeInTheDocument()
+    expect(within(dialog).queryByText('По каталожной цене')).not.toBeInTheDocument()
+    expect(within(dialog).queryByText('Индивидуальная сумма')).not.toBeInTheDocument()
+    expect(within(dialog).queryByText('Без варианта каталога')).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('combobox', { name: 'Вариант абонемента' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })).not.toBeInTheDocument()
+  })
+})
+
+describe('ClientDetailScreen membership history pricing provenance', () => {
+  test('renders actual gross amount and all backend pricing origins', async () => {
+    getClientMock.mockResolvedValue(buildClientWithPricingHistory())
+
+    renderClientDetails()
+
+    expect(await screen.findByText('Каталожная цена')).toBeInTheDocument()
+    expect(screen.getByText('Индивидуальная сумма')).toBeInTheDocument()
+    expect(screen.getAllByText('Без варианта каталога')).not.toHaveLength(0)
+    expect(screen.getByText('3 000 ₽')).toBeInTheDocument()
+    expect(screen.getByText('4 100 ₽')).toBeInTheDocument()
+    expect(screen.getByText('4 200 ₽')).toBeInTheDocument()
   })
 })
 
@@ -211,7 +523,7 @@ function buildClientDetails(): ClientDetails {
 
 function buildClientWithMemberships(): ClientDetails {
   const client = buildClientDetails()
-  const common = { membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term' as const, purchaseDate: '2026-07-01', expirationDate: '2026-08-01', paymentAmount: 3000, isPaid: true, singleVisitUsed: false, commentLastChangedByName: 'Анна Петрова', commentLastChangedAt: '2026-07-21T12:34:56Z' }
+  const common = { membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term' as const, purchaseDate: '2026-07-01', expirationDate: '2026-08-01', pricingMode: 'Catalog' as const, grossAmount: 3000, catalogPrice: 3000, isPaid: true, singleVisitUsed: false, commentLastChangedByName: 'Анна Петрова', commentLastChangedAt: '2026-07-21T12:34:56Z' }
   return {
     ...client,
     membershipHistory: [
@@ -231,11 +543,123 @@ function buildMembership() {
     behaviorKind: 'Term' as const,
     purchaseDate: '2026-07-21',
     expirationDate: '2026-08-20',
-    paymentAmount: 3000,
+    pricingMode: 'Catalog' as const,
+    grossAmount: 3000,
+    catalogPrice: 3000,
     isPaid: true,
     singleVisitUsed: false,
     comment: null,
     commentLastChangedByName: null,
     commentLastChangedAt: null,
   }
+}
+
+function renderClientDetails() {
+  return renderWithProviders(
+    <ClientDetailScreen
+      canManage
+      clientId="client-1"
+      onBack={() => undefined}
+      onEdit={() => undefined}
+    />,
+  )
+}
+
+function buildCatalogItem() {
+  return {
+    id: 'catalog-1',
+    branchId: 'branch-1',
+    name: 'Месяц',
+    price: 3000,
+    behaviorKind: 'Term' as const,
+    availableFrom: '2026-01-01',
+    availableTo: null,
+    isSystemOwned: false,
+  }
+}
+
+async function selectCatalogOption(label: string) {
+  fireEvent.click(screen.getByRole('combobox', { name: label }))
+  fireEvent.click(await screen.findByRole('option', { name: /Месяц/ }))
+}
+
+function setupTransferOptions() {
+  getBranchesMock.mockResolvedValue([
+    {
+      id: 'branch-1',
+      name: 'Основной',
+      address: null,
+      description: null,
+      isArchived: false,
+      hallCount: 1,
+      groupCount: 1,
+      clientCount: 1,
+    },
+    {
+      id: 'branch-2',
+      name: 'Северный',
+      address: null,
+      description: null,
+      isArchived: false,
+      hallCount: 1,
+      groupCount: 1,
+      clientCount: 0,
+    },
+  ])
+  getGroupsMock.mockResolvedValue({
+    items: [],
+    totalCount: 0,
+    skip: 0,
+    take: 0,
+  })
+}
+
+function buildClientWithPricingHistory(): ClientDetails {
+  const base = buildClientDetails()
+  const common = {
+    behaviorKind: 'Term',
+    purchaseDate: '2026-07-22',
+    expirationDate: '2026-08-20',
+    isPaid: true,
+    singleVisitUsed: false,
+    comment: null,
+    commentLastChangedByName: null,
+    commentLastChangedAt: null,
+  }
+
+  return {
+    ...base,
+    membershipHistory: [
+      {
+        ...common,
+        id: 'version-catalog',
+        saleId: 'sale-catalog',
+        membershipCatalogItemId: 'catalog-1',
+        membershipName: 'Месяц',
+        pricingMode: 'Catalog',
+        grossAmount: 3000,
+        catalogPrice: 3000,
+      },
+      {
+        ...common,
+        id: 'version-override',
+        saleId: 'sale-override',
+        membershipCatalogItemId: 'catalog-1',
+        membershipName: 'Месяц',
+        pricingMode: 'CatalogOverride',
+        grossAmount: 4100,
+        catalogPrice: 3000,
+      },
+      {
+        ...common,
+        id: 'version-amount-only',
+        saleId: 'sale-amount-only',
+        membershipCatalogItemId: null,
+        membershipName: 'Без варианта каталога',
+        pricingMode: 'AmountOnly',
+        grossAmount: 4200,
+        catalogPrice: null,
+      },
+    ],
+  } as unknown as ClientDetails
 }
