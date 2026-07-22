@@ -1,3 +1,21 @@
+# 2026-07-22 08:31
+
+## Moved to implementation
+- /backlog/implementation/TASK-077-membership-sale-amount-override.md
+
+## Created implementation plans
+- none — existing `/backlog/implementation-plans/TASK-077-membership-sale-amount-override.plan.md` was updated after product/architecture approval.
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 0
+- plans updated: 1
+- note: user approved active implementation status, whole-RUB-only catalog/sale/refund values, explicit confirmation of each new individual sale amount, nullable request semantics, strict preserve-SingleVisit inputs, canonical sale-owned behavior and executable assertion-based red/green testing. Project code was not changed; implementation remains isolated to `feature/TASK-077-membership-sale-amount-override`.
+
 # 2026-07-22 00:30
 
 ## Moved to implementation
