@@ -147,6 +147,9 @@ Branch rules:
    - unavailable/cross-branch item и crafted Professional request не обходятся через manual amount;
    - Coach/anonymous/CSRF behavior остаётся прежним;
    - failed validation не создаёт sale, membership version или audit event.
+   - тесты успешного создания проходят через реальный purchase HTTP endpoint/application flow, а не через прямую вставку `ClientMembership`/`ClientMembershipSale` в fixture; напрямую разрешено создавать только prerequisites (client, branch, group, catalog item, user/session);
+   - каждый успешный сценарий после нового запроса к БД подтверждает создание ровно одной `ClientMembershipSale`, одной согласованной current membership version и одного purchase audit event, их связь с тем же client/branch/actor, а также exact `GrossAmount`, `PricingMode`, nullable catalog identity, behavior, validity и payment state;
+   - выделить focused test class `ClientMembershipCreationPricingApiTests` (или эквивалентный класс с устойчивым filter name), чтобы creation matrix можно было запускать отдельно от полного backend suite.
 6. **До production-кода** добавить integration tests для sale-producing смежных flows по утверждённой матрице:
    - renewal конечного `Term` покрывает переходы catalog -> amount-only, amount-only -> catalog, amount-only -> override и amount-only -> amount-only, не меняя предыдущую sale;
    - renewal наследует exact inclusive duration последней membership version; `Professional` покрыт только в zero-price `Catalog`;
@@ -181,7 +184,7 @@ Branch rules:
     - history/card различают `Каталожная цена`, `Индивидуальная сумма` и `Без варианта каталога`, всегда показывая фактический gross amount;
     - correction остаётся amount-read-only, mark-payment не предлагает изменить сумму.
 11. **До production-кода** добавить focused Playwright flow: оформить все три режима, проверить request/response rendering, server rejection, reload/history и responsive layout на существующих desktop/mobile breakpoints.
-12. Запустить новые targeted backend/frontend/bot tests и подтвердить красную фазу именно из-за отсутствующих policy/schema/contract/UI. Ошибки fixture, test environment или baseline regression не считаются ожидаемым падением.
+12. Запустить новые targeted backend/frontend/bot tests и подтвердить красную фазу именно из-за отсутствующих policy/schema/contract/UI. Отдельно выполнить focused backend-прогон создания абонементов командой `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~ClientMembershipCreationPricingApiTests"` (имя фильтра синхронизировать с фактически созданным классом) и зафиксировать, какие assertions ожидаемо красные для `Catalog`, `CatalogOverride`, `AmountOnly` и invalid/no-write сценариев. Ошибки fixture, test environment или baseline regression не считаются ожидаемым падением.
 13. Реализовать минимальную domain/application pricing policy и enum. Один resolver получает catalog item/nullable manual amount/operation context, валидирует деньги и возвращает `PricingMode`, `GrossAmount`, behavior и catalog identity.
 14. Обновить persistence model:
     - добавить `PricingMode` в `ClientMembershipSale`;
@@ -196,7 +199,7 @@ Branch rules:
 18. Сохранить `FinancialReportService` и refund calculation на `sale.GrossAmount`; менять production code там только если source audit обнаружит чтение catalog/member amount. Добавленные tests должны быть основным regression barrier.
 19. Реализовать frontend typed contract и форму тремя явными режимами. Использовать Mantine/Onest, server-owned behavior/validation, фактическую сумму и pricing provenance; не воспроизводить backend money/permission rules в UI.
 20. Если internal bot response изменился, обновить `bot/src/gym_crm_bot/crm/models.py` и contract tests без добавления write flow или локальных финансовых правил. Если shape совместим, production Python files не менять.
-21. Выполнить focused и full regression suites, затем финальный `rg` по `PaymentAmount`, `GrossAmount`, `MembershipCatalogItem.Price`, `MembershipCatalogItem.Name` и required catalog ids. Каждый оставшийся monetary read классифицировать как catalog management/display либо canonical sale calculation.
+21. После реализации повторно выполнить тот же focused backend-прогон создания абонементов до полностью зелёного результата, затем focused frontend unit/Playwright creation flow и полный `dotnet test backend/GymCrm.slnx`. Только после зелёной creation matrix выполнить остальные full regression suites и финальный `rg` по `PaymentAmount`, `GrossAmount`, `MembershipCatalogItem.Price`, `MembershipCatalogItem.Name` и required catalog ids. Каждый оставшийся monetary read классифицировать как catalog management/display либо canonical sale calculation.
 
 ## Preferred implementation strategy
 1. Approved decision record and test-first contract.
@@ -316,6 +319,16 @@ Backend, frontend и bot должны поставляться согласов�
 - Attendance/client attention/internal bot projections work with no catalog and use backend label/canonical amount.
 - Existing catalog-only sales retain current behavior and financial totals.
 
+### Обязательные тесты создания абонемента и порядок их прогона
+- До изменения production-кода создать focused backend integration suite для purchase/create flow: `Catalog`, `CatalogOverride` с отличающейся суммой, `CatalogOverride` с суммой, равной каталожной, `AmountOnly`, допустимый zero-price `Professional`, а также representative invalid/no-write cases.
+- Успешные тесты обязаны вызывать публичный HTTP/API flow создания абонемента. Прямая вставка sale/membership в БД не засчитывается как проверка creation flow и допускается только в тестах read/report/refund consumers, где создание не является предметом проверки.
+- После каждого успешного API-вызова перечитать данные новым `DbContext` и проверить согласованность sale, current membership version и audit event; response-only assertions недостаточны.
+- До реализации запустить только focused creation suite и подтвердить ожидаемую red-фазу из-за отсутствующей pricing/schema/contract functionality. Падение из-за неработающего test host, fixture/setup, compile error вне нового contract или существующей baseline-регрессии не засчитывается.
+- После реализации повторить идентичный focused-прогон без ослабления assertions и добиться green-фазы; запрещено заменять integration assertions mocks или прямым seed готового membership.
+- После зелёного focused backend-прогона запустить frontend component/API tests создания, focused Playwright flow оформления трёх режимов и затем полный backend regression suite.
+- Обязательная focused-команда: `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~ClientMembershipCreationPricingApiTests"`; если выбран другой class name, обновить команду в плане одновременно с тестом, сохранив отдельный стабильный filter.
+- Результаты red и green прогонов должны быть отражены в implementation handoff: команда, число выполненных/упавших тестов и ожидаемая причина initial failure.
+
 ### UI/e2e tests
 - Three explicit modes, keyboard-accessible controls and deterministic value clearing.
 - Exact request for each mode; stale hidden fields are absent.
@@ -350,6 +363,8 @@ Backend, frontend и bot должны поставляться согласов�
 ## Test plan
 - [x] Product decisions and operation matrix are recorded before branch implementation begins.
 - [ ] Unit/integration/component tests are written before production code and fail for the intended missing behavior.
+- [ ] Focused API tests создают абонементы через production purchase flow во всех разрешённых pricing modes и проверяют persisted sale + current membership version + audit после reload.
+- [ ] Focused creation suite запущен до реализации в red-фазе и после реализации в green-фазе одной и той же filter-командой; оба результата записаны в handoff.
 - [ ] All three purchase scenarios persist exact `GrossAmount` and correct `PricingMode`.
 - [ ] Renewal/transfer follow the approved matrix; failed transfer rolls back all layers.
 - [ ] Missing/invalid amount combinations return stable ProblemDetails without writes/audit.
@@ -366,7 +381,7 @@ Backend, frontend и bot должны поставляться согласов�
 - [ ] Clean PostgreSQL database creation and final monetary/catalog source audit pass.
 
 ## Regression barrier
-Completion is blocked unless automated integration tests create all three sale modes and prove that the exact stored `ClientMembershipSale.GrossAmount` is the same value used by client history, audit, refund ceiling, correction preservation, financial report totals and internal bot projection after reload. The barrier also requires a clean-schema test for nullable sale-level catalog/pricing consistency, absence of membership-level catalog identity, atomic transfer rollback coverage and frontend component/Playwright tests showing correct provenance without caller-controlled backend behavior. Any remaining `ClientMembership.PaymentAmount`, `ClientMembership.MembershipCatalogItemId`/navigation or financial calculation from `MembershipCatalogItem.Price` after sale creation fails the barrier.
+Completion is blocked unless the same focused integration suite is run in an expected red phase before production code and in a green phase after implementation, creates memberships through the real purchase HTTP/application flow for all three sale modes, and proves after a fresh database read that sale, current membership version and audit were created atomically. These tests must also prove that the exact stored `ClientMembershipSale.GrossAmount` is the same value used by client history, audit, refund ceiling, correction preservation, financial report totals and internal bot projection after reload. The barrier also requires invalid/no-write creation coverage, a clean-schema test for nullable sale-level catalog/pricing consistency, absence of membership-level catalog identity, atomic transfer rollback coverage and frontend component/Playwright tests showing correct provenance without caller-controlled backend behavior. Directly seeding a ready sale/membership cannot satisfy the creation barrier. Any remaining `ClientMembership.PaymentAmount`, `ClientMembership.MembershipCatalogItemId`/navigation or financial calculation from `MembershipCatalogItem.Price` after sale creation fails the barrier.
 
 ## Risks
 - **Split-brain amount:** leaving `ClientMembership.PaymentAmount` or a UI-derived fallback creates inconsistent reports/cards/refunds. Remove the duplicate source and audit all reads.
