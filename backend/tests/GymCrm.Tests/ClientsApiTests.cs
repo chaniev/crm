@@ -2139,7 +2139,7 @@ public class ClientsApiTests
         Assert.Equal(1200m, sales[0].GrossAmount);
         Assert.Equal(purchaseDate, sales[0].PurchaseDate);
         Assert.Equal(1200m, sales[1].GrossAmount);
-        Assert.Equal(correctionDate, sales[1].PurchaseDate);
+        Assert.Equal(purchaseDate, sales[1].PurchaseDate);
         Assert.Equal(sales[0].Id, memberships.Single(membership => membership.ChangeReason == ClientMembershipChangeReason.NewPurchase).SaleId);
         Assert.All(
             memberships.Where(membership => membership.ChangeReason is ClientMembershipChangeReason.Renewal or ClientMembershipChangeReason.Correction or ClientMembershipChangeReason.PaymentUpdate),
@@ -2367,6 +2367,7 @@ public class ClientsApiTests
                    new
                    {
                        PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
+                       ExpirationDate = purchaseDate.AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
                        IsPaid = true
                    },
                    actorSession.CsrfToken))
@@ -2510,8 +2511,8 @@ public class ClientsApiTests
                    clientId,
                    new
                    {
-                       PurchaseDate = now.ToString("yyyy-MM-dd"),
-                       ExpirationDate = now.AddMonths(2).ToString("yyyy-MM-dd"),
+                       PurchaseDate = now.AddMonths(1).ToString("yyyy-MM-dd"),
+                       ExpirationDate = now.AddMonths(2).AddDays(-1).ToString("yyyy-MM-dd"),
                        IsPaid = true
                    },
                    actorSession.CsrfToken))
@@ -4156,12 +4157,13 @@ public class ClientsApiTests
         }
 
         payload = await NormalizeMembershipActionPayloadAsync(client, action, clientId, payload);
+        var idempotencyKey = $"clients-api-{action}-{Guid.NewGuid():N}";
 
         HttpResponseMessage response;
         foreach (var template in candidatePaths)
         {
             var path = string.Format(template, clientId);
-            response = await PostJsonAsync(client, path, payload, csrfToken);
+            response = await PostMembershipJsonAsync(client, path, payload, csrfToken, idempotencyKey);
             if (response.StatusCode is not HttpStatusCode.NotFound and not HttpStatusCode.MethodNotAllowed)
             {
                 return response;
@@ -4171,17 +4173,23 @@ public class ClientsApiTests
         }
 
         var fallbackPayload = AddMembershipAction(payload, action);
-        response = await PostJsonAsync(
+        response = await PostMembershipJsonAsync(
             client,
             $"/clients/{clientId}/membership",
             fallbackPayload,
-            csrfToken);
+            csrfToken,
+            idempotencyKey);
         return response;
     }
 
     private static async Task<object> NormalizeMembershipActionPayloadAsync(
         HttpClient client, string action, Guid clientId, object payload)
     {
+        if (action is "correct" or "mark-payment")
+        {
+            return await NormalizeAddressedMembershipActionPayloadAsync(client, action, clientId, payload);
+        }
+
         if (action is not ("purchase" or "renew")) return payload;
 
         var legacy = JsonSerializer.SerializeToElement(payload);
@@ -4261,6 +4269,66 @@ public class ClientsApiTests
             PaymentDate = paymentDate,
             ProfessionalComment = GetStringFromAnyCase(legacy, "professionalComment", "ProfessionalComment")
         };
+    }
+
+    private static async Task<object> NormalizeAddressedMembershipActionPayloadAsync(
+        HttpClient client,
+        string action,
+        Guid clientId,
+        object payload)
+    {
+        var legacy = JsonSerializer.SerializeToElement(payload);
+        var explicitSaleId = GetGuidFromAnyCase(legacy, "saleId", "SaleId");
+        var explicitMembershipId = GetGuidFromAnyCase(legacy, "expectedMembershipId", "ExpectedMembershipId");
+        if (explicitSaleId != Guid.Empty && explicitMembershipId != Guid.Empty)
+        {
+            return payload;
+        }
+
+        using var clientResponse = await client.GetAsync($"/clients/{clientId}");
+        if (!clientResponse.IsSuccessStatusCode)
+        {
+            return payload;
+        }
+
+        var clientPayload = await ReadJsonElementAsync(clientResponse);
+        var currentMembership = GetPropertyOrNull(clientPayload, "currentMembership", "CurrentMembership");
+        var saleId = GetGuidFromAnyCase(currentMembership, "saleId", "SaleId");
+        var membershipId = GetGuidFromAnyCase(currentMembership, "id", "Id");
+        if (saleId == Guid.Empty || membershipId == Guid.Empty)
+        {
+            return payload;
+        }
+
+        if (action == "mark-payment")
+        {
+            return new { SaleId = saleId, ExpectedMembershipId = membershipId };
+        }
+
+        return new
+        {
+            SaleId = saleId,
+            ExpectedMembershipId = membershipId,
+            ValidFrom = GetStringFromAnyCase(legacy, "validFrom", "ValidFrom", "purchaseDate", "PurchaseDate"),
+            ValidTo = GetStringFromAnyCase(legacy, "validTo", "ValidTo", "expirationDate", "ExpirationDate")
+        };
+    }
+
+    private static async Task<HttpResponseMessage> PostMembershipJsonAsync<TPayload>(
+        HttpClient client,
+        string path,
+        TPayload payload,
+        string csrfToken,
+        string idempotencyKey)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, path)
+        {
+            Content = JsonContent.Create(payload)
+        };
+        request.Headers.Add("X-CSRF-TOKEN", csrfToken);
+        request.Headers.Add("Idempotency-Key", idempotencyKey);
+
+        return await client.SendAsync(request);
     }
 
     private static object AddMembershipAction(object payload, string action)

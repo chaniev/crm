@@ -50,6 +50,29 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientMembershipIdempotencyRecords",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ActorUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IdempotencyKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ActionType = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    PayloadHash = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ResultMembershipId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ResultSaleId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMembershipIdempotencyRecords", x => x.Id);
+                    table.CheckConstraint("CK_ClientMembershipIdempotencyRecords_RequiredValues", "btrim(\"IdempotencyKey\") <> '' AND btrim(\"ActionType\") <> '' AND btrim(\"PayloadHash\") <> '' AND btrim(\"Status\") <> ''");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GroupTypes",
                 columns: table => new
                 {
@@ -909,6 +932,17 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
+                name: "UX_ClientMembershipIdempotency_Actor_Key",
+                table: "ClientMembershipIdempotencyRecords",
+                columns: new[] { "ActorUserId", "IdempotencyKey" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipIdempotencyRecords_ExpiresAt",
+                table: "ClientMembershipIdempotencyRecords",
+                column: "ExpiresAt");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ClientMessengerAccounts_ClientId_Platform",
                 table: "ClientMessengerAccounts",
                 columns: new[] { "ClientId", "Platform" },
@@ -1337,6 +1371,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "BotIdempotencyRecords");
+
+            migrationBuilder.DropTable(
+                name: "ClientMembershipIdempotencyRecords");
 
             migrationBuilder.DropTable(
                 name: "ClientContacts");

@@ -88,12 +88,15 @@ public sealed record RenewClientMembershipCommand(
 
 public sealed record CorrectClientMembershipCommand(
     Guid ChangedByUserId,
-    DateOnly PurchaseDate,
-    DateOnly? ExpirationDate,
-    bool IsPaid);
+    Guid SaleId,
+    Guid ExpectedMembershipId,
+    DateOnly? ValidFrom,
+    DateOnly? ValidTo);
 
 public sealed record MarkClientMembershipPaymentCommand(
-    Guid ChangedByUserId);
+    Guid ChangedByUserId,
+    Guid SaleId,
+    Guid ExpectedMembershipId);
 
 public sealed record RegisterClientMembershipRefundCommand(
     Guid ChangedByUserId,
@@ -128,7 +131,9 @@ public enum ClientMembershipMutationError
     PricingSelectionMissing = 14,
     ManualSaleAmountInvalid = 15,
     ProfessionalOverrideNotAllowed = 16,
-    ProfessionalPermissionDenied = 17
+    ProfessionalPermissionDenied = 17,
+    MembershipTargetMissing = 18,
+    MembershipTargetConflict = 19
 }
 
 public enum ClientMembershipRefundMutationError

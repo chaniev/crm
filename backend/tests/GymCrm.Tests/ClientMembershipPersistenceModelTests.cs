@@ -85,6 +85,59 @@ public sealed class ClientMembershipPersistenceModelTests
         Assert.DoesNotContain("ClientMemberships_PaymentAmount", script, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Membership_idempotency_is_actor_scoped_in_the_model()
+    {
+        using var dbContext = CreateDbContext();
+        var record = dbContext.Model.FindEntityType(typeof(ClientMembershipIdempotencyRecord));
+
+        Assert.NotNull(record);
+        var actorKeyIndex = Assert.Single(
+            record.GetIndexes(),
+            index =>
+                index.IsUnique &&
+                index.Properties.Select(property => property.Name).SequenceEqual(
+                    [
+                        nameof(ClientMembershipIdempotencyRecord.ActorUserId),
+                        nameof(ClientMembershipIdempotencyRecord.IdempotencyKey)
+                    ]));
+
+        Assert.Null(actorKeyIndex.GetFilter());
+        Assert.Equal(
+            GymCrmDbContext.ClientMembershipIdempotencyActorKeyIndexName,
+            actorKeyIndex.GetDatabaseName());
+        Assert.Contains(
+            record.GetIndexes(),
+            index =>
+                !index.IsUnique &&
+                index.Properties.Select(property => property.Name).SequenceEqual(
+                    [nameof(ClientMembershipIdempotencyRecord.ExpiresAt)]));
+    }
+
+    [Fact]
+    public void Reproducible_initial_schema_contains_membership_idempotency_storage()
+    {
+        using var dbContext = CreateDbContext();
+        var initialMigration = Assert.Single(
+            dbContext.Database.GetMigrations(),
+            candidate => candidate.EndsWith("_InitialCreate", StringComparison.Ordinal));
+        var script = dbContext.GetService<IMigrator>().GenerateScript(null, initialMigration);
+
+        Assert.Contains("CREATE TABLE \"ClientMembershipIdempotencyRecords\"", script, StringComparison.Ordinal);
+        Assert.Contains(
+            "CK_ClientMembershipIdempotencyRecords_RequiredValues",
+            script,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            GymCrmDbContext.ClientMembershipIdempotencyActorKeyIndexName,
+            script,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "IX_ClientMembershipIdempotencyRecords_ExpiresAt",
+            script,
+            StringComparison.Ordinal);
+    }
+
     private static GymCrmDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<GymCrmDbContext>()
