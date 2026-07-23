@@ -8,7 +8,10 @@ done
 - moved_from: /backlog/risky
 - implementation_plan: /backlog/done/TASK-078-membership-write-regressions.plan.md
 - implementation_branch: fix/TASK-078-membership-write-regressions
+- implementation_commit: cbfcda1
 - completed_at: 2026-07-23 21:22 +0300
+- merged_to_main_at: 2026-07-24
+- merge_commit: 9e70135
 
 ## Goal
 Разрешённые операции создания, коррекции, продления и оплаты абонемента успешно сохраняются, а пользователь получает понятную причину, если операция запрещена действующими правилами.

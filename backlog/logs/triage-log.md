@@ -1117,3 +1117,33 @@
 - active tasks after audit: 29 (`tasks-ready`: 8, `risky`: 16, `needs-clarification`: 5)
 - active implementation plans after audit: 3 (`TASK-033`, `TASK-073`, `TASK-078`)
 - validation: repository history, source and test-coverage audit only; runtime test suites were not rerun because this change only reconciles backlog metadata
+
+# 2026-07-24 post-merge status audit
+
+## Scope
+- Reconciled every active backlog folder with the current `main` after the TASK-078 and TASK-079 pull requests were merged.
+- Reviewed merge ancestry, task lifecycle metadata, current source evidence and the three new unprocessed inbox notes from `2026-07-24`.
+- Audit branch: `feature/backlog-status-audit-2026-07-24-post-merge`.
+
+## Confirmed delivered on current main
+- `TASK-078-membership-write-regressions` — implementation commit `cbfcda1` is now an ancestor of `main` through merge commit `9e70135` (PR #84). The task card and implementation plan had already been moved to `/backlog/done` by the implementation commit; merge evidence was added to the lifecycle metadata.
+- `TASK-079-client-birth-date-profile` — implementation commit `6885570` is an ancestor of `main` through merge commit `d7ea1fb` (PR #85). The task card and implementation plan were already in `/backlog/done`; merge evidence was added to the lifecycle metadata.
+
+## Kept active
+- Bot tasks `TASK-001..TASK-014` and `TASK-033` remain relevant: the outstanding UI, scenario coverage, runtime-policy, notification, photo, webhook and branch-consumer criteria are not fully implemented or evidenced.
+- Client UX tasks `TASK-016..TASK-021` remain relevant: the current client screens do not fully satisfy their dedicated quick-action, return-state, visual cleanup, six-tab, empty-state and responsive-regression criteria.
+- `TASK-058` remains in clarification because the multi-window/second-monitor product contract is unresolved.
+- `TASK-071`, `TASK-073`, `TASK-074` and `TASK-075` remain relevant because their reporting, temporary substitution, freeze-aware streak and lesson-state semantics are absent from `main`.
+- `TASK-080` remains in clarification until the new inbox requirements are triaged into an explicit administrator attendance permission model.
+- `TASK-081` remains relevant: backend group-type access includes Administrator, but `SettingsScreen` still exposes the `Типы групп` tab and panel only to HeadCoach.
+
+## Unprocessed inbox
+- The three notes in `backlog/inbox/2026-07-24.md` are not implemented and were not marked done.
+- They introduce a SuperAdministrator role, scoped Administrator attendance permissions and a changed membership payment model; each requires separate triage because the requests affect roles, access scope, attendance and financial semantics.
+
+## Summary
+- confirmed delivered on current `main`: 2 tasks (`TASK-078`, `TASK-079`)
+- task files moved during this audit: 0 (both cards and plans were already under `/backlog/done`)
+- active tasks after reconciliation: 28 (`tasks-ready`: 8, `risky`: 15, `needs-clarification`: 5, `implementation`: 0)
+- active implementation plans: 2 (`TASK-033`, `TASK-073`)
+- validation: repository history, merge ancestry, source and backlog-consistency audit only; runtime test suites were not rerun because project code was not changed
