@@ -7,6 +7,7 @@ internal sealed record ClientAuditState(
     string? MiddleName,
     string Phone,
     Guid BranchId,
+    DateOnly? BirthDate,
     string? Notes,
     string Status,
     IReadOnlyList<ClientContactAuditState> Contacts,
