@@ -1,12 +1,12 @@
 # TASK-077: Поддержать индивидуальную сумму продажи абонемента
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-22 08:31
 - moved_from: /backlog/risky
-- implementation_plan: /backlog/implementation-plans/TASK-077-membership-sale-amount-override.plan.md
+- implementation_plan: /backlog/done/TASK-077-membership-sale-amount-override.plan.md
 - implementation_branch: feature/TASK-077-membership-sale-amount-override
 
 ## Goal
@@ -103,3 +103,5 @@ implementation
 - Created at: 2026-07-22 00:21
 - Created by skill: `codex-backlog-skill`
 - Duplicate check: TASK-036, TASK-037 and TASK-070 проверены; новая заметка расширяет их финансовые и каталожные контракты, но не дублирует существующую задачу.
+- Completed at: 2026-07-23; implementation commit `b00d22c` merged into `main` via merge commit `51720d3` (PR #83).
+- Completion evidence: merged changes cover backend pricing/persistence/contracts, frontend purchase/renew/transfer flows, internal bot compatibility, automated backend/frontend/bot suites and focused Playwright scenarios documented in the implementation handoff.

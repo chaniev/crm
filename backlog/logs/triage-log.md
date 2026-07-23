@@ -1090,3 +1090,30 @@
 - needs-clarification: 2
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-24 status audit
+
+## Scope
+- Reviewed every active backlog task against updated `main`, merge history, source code and available automated coverage.
+- Audit branch: `feature/backlog-status-audit-2026-07-24`.
+
+## Moved tasks to done
+- `TASK-077-membership-sale-amount-override` — implementation commit `b00d22c` was merged into `main` via PR #83 (`51720d3`). Backend pricing and persistence contracts, frontend purchase/renew/transfer flows, internal bot compatibility and focused automated coverage are present in the merged changes.
+
+## Status updates
+- Moved TASK-077 card from `/backlog/implementation` to `/backlog/done`, changed its status to `done` and recorded implementation/merge evidence.
+- Moved its implementation plan from `/backlog/implementation-plans` to `/backlog/done` and updated the source link.
+
+## Kept active
+- Bot tasks `TASK-001..TASK-014` and `TASK-033` remain relevant: their outstanding acceptance criteria still lack complete evidence in `main`.
+- Client UX tasks `TASK-016..TASK-021` remain relevant: current UI and tests do not fully prove their requested behavior.
+- `TASK-058` and `TASK-080` remain in clarification because their workflow and permission semantics are unresolved.
+- `TASK-071`, `TASK-073`, `TASK-074`, `TASK-075` and `TASK-081` remain relevant because their target domain behavior is not implemented in `main`.
+- `TASK-078` remains active: implementation commit `cbfcda1` exists on `fix/TASK-078-membership-write-regressions`, but is not an ancestor of `main` and therefore is not considered delivered.
+
+## Summary
+- moved to done: 1 task
+- moved plans to done: 1
+- active tasks after audit: 29 (`tasks-ready`: 8, `risky`: 16, `needs-clarification`: 5)
+- active implementation plans after audit: 3 (`TASK-033`, `TASK-073`, `TASK-078`)
+- validation: repository history, source and test-coverage audit only; runtime test suites were not rerun because this change only reconciles backlog metadata

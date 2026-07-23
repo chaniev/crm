@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-077 Поддержать индивидуальную сумму продажи абонемента
 
 ## Source task
-/backlog/implementation/TASK-077-membership-sale-amount-override.md
+/backlog/done/TASK-077-membership-sale-amount-override.md
 
-Source status is `implementation`: пользователь 2026-07-22 явно подтвердил перевод TASK из `risky` после закрытия product/architecture review. Project-код этим переводом не изменён; реализация выполняется позднее только в указанной task branch по test-first порядку этого плана.
+Source status is `done`: implementation commit `b00d22c` merged into `main` via merge commit `51720d3` (PR #83).
 
 ## Git branch
 feature/TASK-077-membership-sale-amount-override
