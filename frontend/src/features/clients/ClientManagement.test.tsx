@@ -113,6 +113,51 @@ describe('ClientDetailScreen membership sale comments', () => {
   })
 })
 
+describe('ClientDetailScreen birth date', () => {
+  test('shows Russian birth date and full age for a manager', async () => {
+    getClientMock.mockResolvedValue(
+      buildClientDetails({ birthDate: '2004-02-29', businessDate: '2026-03-01' }),
+    )
+
+    renderClientDetails()
+
+    expect(await screen.findByText('Дата рождения')).toBeInTheDocument()
+    expect(screen.getByText('29 февраля 2004 г.')).toBeInTheDocument()
+    expect(screen.getByText('Возраст')).toBeInTheDocument()
+    expect(screen.getByText('22 года')).toBeInTheDocument()
+  })
+
+  test('shows birth date to a scoped coach but omits age when birth date is empty', async () => {
+    getClientMock.mockResolvedValue(
+      buildClientDetails({ birthDate: null, businessDate: '2026-07-23' }),
+    )
+
+    renderWithProviders(
+      <ClientDetailScreen
+        canManage={false}
+        clientId="client-1"
+        onBack={() => undefined}
+        onEdit={() => undefined}
+      />,
+    )
+
+    expect(await screen.findByText('Дата рождения')).toBeInTheDocument()
+    expect(screen.getAllByText('Не указана').length).toBeGreaterThanOrEqual(1)
+    expect(screen.queryByText('Возраст')).not.toBeInTheDocument()
+  })
+
+  test('shows future birth date without a negative age', async () => {
+    getClientMock.mockResolvedValue(
+      buildClientDetails({ birthDate: '2030-01-01', businessDate: '2026-07-23' }),
+    )
+
+    renderClientDetails()
+
+    expect(await screen.findByText('1 января 2030 г.')).toBeInTheDocument()
+    expect(screen.getByText('Не вычисляется')).toBeInTheDocument()
+  })
+})
+
 describe('ClientDetailScreen membership purchase form', () => {
   test('loads eligible catalog options for a purchase', async () => {
     getClientMock.mockResolvedValue(buildClientDetails())
@@ -692,7 +737,7 @@ describe('ClientDetailScreen note attribution', () => {
   })
 })
 
-function buildClientDetails(): ClientDetails {
+function buildClientDetails(overrides: Partial<ClientDetails> = {}): ClientDetails {
   return {
     id: 'client-1',
     fullName: 'Иван Иванов',
@@ -712,6 +757,8 @@ function buildClientDetails(): ClientDetails {
     notesLastChangedByName: null,
     notesLastChangedAt: null,
     photo: null,
+    birthDate: null,
+    businessDate: '2026-07-23',
     isProfessional: false,
     professionalComment: null,
     hasActivePaidMembership: false,
@@ -726,6 +773,7 @@ function buildClientDetails(): ClientDetails {
     attendanceHistory: [],
     attendanceHistoryLoaded: false,
     attendanceHistoryTotalCount: null,
+    ...overrides,
   }
 }
 

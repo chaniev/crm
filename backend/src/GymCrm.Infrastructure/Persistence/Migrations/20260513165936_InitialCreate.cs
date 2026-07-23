@@ -149,6 +149,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     FirstName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     MiddleName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
                     Phone = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    BirthDate = table.Column<DateOnly>(type: "date", nullable: true),
                     Notes = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     NotesChangedByUserId = table.Column<Guid>(type: "uuid", nullable: true),
                     NotesChangedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),

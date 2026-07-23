@@ -9,6 +9,8 @@ internal sealed record ClientDetailsResponse(
     string Phone,
     Guid BranchId,
     string BranchName,
+    DateOnly? BirthDate,
+    DateOnly BusinessDate,
     string? Notes,
     string? NotesLastChangedByName,
     DateTimeOffset? NotesLastChangedAt,

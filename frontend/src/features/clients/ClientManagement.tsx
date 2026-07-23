@@ -80,6 +80,10 @@ import {
   type TrainingGroupListItem,
 } from '../../lib/api'
 import { formatNoteAttributionDate } from './noteAttribution'
+import {
+  formatClientBirthDate,
+  getClientAgeDisplayValue,
+} from './clientBirthDate'
 import { formatGroupSchedule } from '../../lib/groupSchedule'
 import { resources } from '../../lib/resources'
 import {
@@ -1189,6 +1193,10 @@ function ClientOverviewSection({
   const visitsValue = client.attendanceHistoryLoaded
     ? `${client.attendanceHistoryTotalCount ?? client.attendanceHistory.length}`
     : 'Загружаются'
+  const birthDateValue = formatClientBirthDate(client.birthDate) ?? 'Не указана'
+  const ageValue = client.birthDate
+    ? getClientAgeDisplayValue(client.birthDate, client.businessDate)
+    : null
 
   return (
     <PageSection className="client-overview-card">
@@ -1256,6 +1264,8 @@ function ClientOverviewSection({
                 <CompactInfoItem label="Отчество" value={client.middleName || 'Не указано'} />
               </>
             ) : null}
+            <CompactInfoItem label="Дата рождения" value={birthDateValue} />
+            {ageValue ? <CompactInfoItem label="Возраст" value={ageValue} /> : null}
             <CompactInfoItem label="Группы" value={groupsValue} />
             {canManage ? <CompactInfoItem label="Контакты" value={contactsValue} /> : null}
             <CompactInfoItem label="Посещений" value={visitsValue} />
@@ -1603,6 +1613,11 @@ function ClientForm({
                 }
                 searchable
                 {...form.getInputProps('groupIds')}
+              />
+              <TextInput
+                label="Дата рождения"
+                type="date"
+                {...form.getInputProps('birthDate')}
               />
             </SimpleGrid>
 

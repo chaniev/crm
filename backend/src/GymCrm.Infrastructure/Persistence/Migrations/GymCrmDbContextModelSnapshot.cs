@@ -340,6 +340,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
                     b.Property<Guid>("BranchId")
                         .HasColumnType("uuid");
 

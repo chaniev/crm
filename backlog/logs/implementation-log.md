@@ -827,3 +827,19 @@
 - TASK-078 implemented on `fix/TASK-078-membership-write-regressions`.
 - No new migration was created; membership idempotency storage and its explicit PostgreSQL-safe unique index were added to `InitialCreate` and the model snapshot.
 - No production data repair was performed.
+# 2026-07-23 23:00
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-079-client-birth-date-profile.plan.md
+
+## Skipped tasks
+- TASK-079-client-birth-date-profile.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; detailed test-first plan created for explicit privacy/contract review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-079-client-birth-date-profile`, nullable PostgreSQL `date` storage with no backfill, exact create/update/details date-only contract, existing permissions and client-audit snapshots, explicit clear semantics, frontend full-year/leap-day calculation and API/component/Playwright regression barriers.

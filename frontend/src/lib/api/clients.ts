@@ -766,9 +766,15 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
   const hasCompleteNoteAttribution = Boolean(
     notesLastChangedByName && notesLastChangedAt,
   )
+  const birthDate = hasProperty(payload, ['birthDate', 'BirthDate'])
+    ? readString(payload, ['birthDate', 'BirthDate']) ?? null
+    : null
 
   return {
     ...listItem,
+    birthDate,
+    businessDate:
+      readString(payload, ['businessDate', 'BusinessDate']) ?? '',
     contacts: mapClientContacts(payload),
     createdAt: payload.createdAt,
     groupIds,
