@@ -20,25 +20,37 @@ describe('correctClientMembership', () => {
     )
     vi.stubGlobal('fetch', fetchMock)
     const legacyFormPayload = {
-      purchaseDate: '2026-07-21',
-      expirationDate: '2026-08-20',
+      saleId: 'sale-1',
+      expectedMembershipId: 'membership-1',
+      validFrom: '2026-07-21',
+      validTo: '2026-08-20',
       paymentAmount: 6000,
+      purchaseDate: '2026-07-01',
       isPaid: true,
       singleVisitUsed: false,
     }
 
-    await correctClientMembership('c-1', legacyFormPayload)
+    await correctClientMembership(
+      'c-1',
+      legacyFormPayload,
+      { idempotencyKey: 'membership-key-correction' },
+    )
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/clients/c-1/membership/correct',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
-          PurchaseDate: '2026-07-21',
-          ExpirationDate: '2026-08-20',
-          IsPaid: true,
+          SaleId: 'sale-1',
+          ExpectedMembershipId: 'membership-1',
+          ValidFrom: '2026-07-21',
+          ValidTo: '2026-08-20',
         }),
       }),
+    )
+    const init = fetchMock.mock.calls.at(-1)?.[1] as RequestInit
+    expect(new Headers(init.headers).get('Idempotency-Key')).toBe(
+      'membership-key-correction',
     )
   })
 })

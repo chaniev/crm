@@ -58,6 +58,7 @@ import type {
   MembershipAttentionState,
   MembershipExpirationSuggestion,
   MembershipBehaviorKind,
+  MembershipWriteRequestOptions,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
   TransferClientBranchRequest,
@@ -380,11 +381,13 @@ export async function restoreClient(clientId: string) {
 export async function purchaseClientMembership(
   clientId: string,
   payload: PurchaseClientMembershipRequest,
+  options: MembershipWriteRequestOptions,
 ) {
   const response = await request<ClientResponsePayload | null>(
     API_ENDPOINTS.clients.membership.purchase(clientId),
     {
       method: 'POST',
+      headers: membershipWriteHeaders(options),
       body: JSON.stringify({
         MembershipCatalogItemId: payload.membershipCatalogItemId,
         ManualSaleAmount: payload.manualSaleAmount,
@@ -403,11 +406,13 @@ export async function purchaseClientMembership(
 export async function renewClientMembership(
   clientId: string,
   payload: RenewClientMembershipRequest,
+  options: MembershipWriteRequestOptions,
 ) {
   const response = await request<ClientResponsePayload | null>(
     API_ENDPOINTS.clients.membership.renew(clientId),
     {
       method: 'POST',
+      headers: membershipWriteHeaders(options),
       body: JSON.stringify({
         MembershipCatalogItemId: payload.membershipCatalogItemId,
         ManualSaleAmount: payload.manualSaleAmount,
@@ -424,15 +429,18 @@ export async function renewClientMembership(
 export async function correctClientMembership(
   clientId: string,
   payload: CorrectClientMembershipRequest,
+  options: MembershipWriteRequestOptions,
 ) {
   const response = await request<ClientResponsePayload | null>(
     API_ENDPOINTS.clients.membership.correct(clientId),
     {
       method: 'POST',
+      headers: membershipWriteHeaders(options),
       body: JSON.stringify({
-        PurchaseDate: payload.purchaseDate,
-        ExpirationDate: payload.expirationDate,
-        IsPaid: payload.isPaid,
+        SaleId: payload.saleId,
+        ExpectedMembershipId: payload.expectedMembershipId,
+        ValidFrom: payload.validFrom,
+        ValidTo: payload.validTo,
       }),
     },
   )
@@ -442,18 +450,28 @@ export async function correctClientMembership(
 
 export async function markClientMembershipPayment(
   clientId: string,
-  _payload: MarkClientMembershipPaymentRequest,
+  payload: MarkClientMembershipPaymentRequest,
+  options: MembershipWriteRequestOptions,
 ) {
-  void _payload
   const response = await request<ClientResponsePayload | null>(
     API_ENDPOINTS.clients.membership.markPayment(clientId),
     {
       method: 'POST',
-      body: JSON.stringify({}),
+      headers: membershipWriteHeaders(options),
+      body: JSON.stringify({
+        SaleId: payload.saleId,
+        ExpectedMembershipId: payload.expectedMembershipId,
+      }),
     },
   )
 
   return response ? mapClientDetails(response) : null
+}
+
+function membershipWriteHeaders(options: MembershipWriteRequestOptions) {
+  return {
+    'Idempotency-Key': options.idempotencyKey,
+  }
 }
 
 export async function updateClientMembershipComment(

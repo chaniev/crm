@@ -86,9 +86,13 @@ describe('membership sale pricing API contract', () => {
     await purchaseClientMembership(
       'client-1',
       payload as unknown as Parameters<typeof purchaseClientMembership>[1],
+      { idempotencyKey: 'membership-key-1' },
     )
 
     expect(readRequestBody(fetchMock)).toEqual(expectedBody)
+    expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
+      'membership-key-1',
+    )
     expect(readRequestBody(fetchMock)).not.toHaveProperty('PricingMode')
     expect(readRequestBody(fetchMock)).not.toHaveProperty('GrossAmount')
     expect(readRequestBody(fetchMock)).not.toHaveProperty('CatalogPrice')
@@ -142,9 +146,13 @@ describe('membership sale pricing API contract', () => {
     await renewClientMembership(
       'client-1',
       payload as unknown as Parameters<typeof renewClientMembership>[1],
+      { idempotencyKey: 'membership-key-2' },
     )
 
     expect(readRequestBody(fetchMock)).toEqual(expectedBody)
+    expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
+      'membership-key-2',
+    )
   })
 
   test.each([
@@ -213,7 +221,10 @@ describe('membership sale pricing API contract', () => {
       await (invoke as (
         clientId: string,
         request: unknown,
-      ) => Promise<unknown>)('client-1', payload)
+        options?: unknown,
+      ) => Promise<unknown>)('client-1', payload, {
+        idempotencyKey: `membership-key-${operation}`,
+      })
 
       const body = readRequestBody(fetchMock)
       expect(body).not.toHaveProperty('pricingMode')
@@ -232,6 +243,10 @@ describe('membership sale pricing API contract', () => {
   test('correction never forwards pricing or catalog identity from a stale form object', async () => {
     const fetchMock = stubSuccessfulFetch()
     const staleForm = {
+      saleId: 'sale-current',
+      expectedMembershipId: 'version-current',
+      validFrom: '2026-07-22',
+      validTo: '2026-08-20',
       purchaseDate: '2026-07-22',
       expirationDate: '2026-08-20',
       isPaid: true,
@@ -244,24 +259,42 @@ describe('membership sale pricing API contract', () => {
       paymentAmount: 1,
     }
 
-    await correctClientMembership('client-1', staleForm)
+    await correctClientMembership(
+      'client-1',
+      staleForm as unknown as Parameters<typeof correctClientMembership>[1],
+      { idempotencyKey: 'membership-key-3' },
+    )
 
     expect(readRequestBody(fetchMock)).toEqual({
-      PurchaseDate: '2026-07-22',
-      ExpirationDate: '2026-08-20',
-      IsPaid: true,
+      SaleId: 'sale-current',
+      ExpectedMembershipId: 'version-current',
+      ValidFrom: '2026-07-22',
+      ValidTo: '2026-08-20',
     })
+    expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
+      'membership-key-3',
+    )
   })
 
-  test('mark-payment sends a strict empty JSON object', async () => {
+  test('mark-payment sends only addressed target identifiers', async () => {
     const fetchMock = stubSuccessfulFetch()
 
     await markClientMembershipPayment(
       'client-1',
-      {} as Parameters<typeof markClientMembershipPayment>[1],
+      {
+        saleId: 'sale-current',
+        expectedMembershipId: 'version-current',
+      } as Parameters<typeof markClientMembershipPayment>[1],
+      { idempotencyKey: 'membership-key-4' },
     )
 
-    expect(readRequestBody(fetchMock)).toEqual({})
+    expect(readRequestBody(fetchMock)).toEqual({
+      SaleId: 'sale-current',
+      ExpectedMembershipId: 'version-current',
+    })
+    expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
+      'membership-key-4',
+    )
   })
 
   test('preserves ProblemDetails errors for both pricing controls', async () => {
@@ -289,6 +322,7 @@ describe('membership sale pricing API contract', () => {
         manualSaleAmount: null,
         paymentStatus: 'Unpaid',
       } as unknown as Parameters<typeof purchaseClientMembership>[1],
+      { idempotencyKey: 'membership-key-validation' },
     )
 
     await expect(request).rejects.toMatchObject({
@@ -315,4 +349,9 @@ function stubSuccessfulFetch() {
 function readRequestBody(fetchMock: ReturnType<typeof vi.fn>) {
   const init = fetchMock.mock.calls.at(-1)?.[1] as RequestInit | undefined
   return JSON.parse(String(init?.body)) as Record<string, unknown>
+}
+
+function readRequestHeaders(fetchMock: ReturnType<typeof vi.fn>) {
+  const init = fetchMock.mock.calls.at(-1)?.[1] as RequestInit | undefined
+  return new Headers(init?.headers)
 }

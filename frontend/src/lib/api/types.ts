@@ -631,9 +631,14 @@ export type PurchaseClientMembershipRequest = {
 }
 
 export type CorrectClientMembershipRequest = {
-  purchaseDate: string
-  expirationDate?: string
-  isPaid: boolean
+  saleId: string
+  expectedMembershipId: string
+  validFrom: string
+  validTo?: string
+}
+
+export type MembershipWriteRequestOptions = {
+  idempotencyKey: string
 }
 
 export type MembershipExpirationSuggestion = {
@@ -650,7 +655,10 @@ export type RenewClientMembershipRequest = {
   professionalComment?: string
 }
 
-export type MarkClientMembershipPaymentRequest = Record<string, never>
+export type MarkClientMembershipPaymentRequest = {
+  saleId: string
+  expectedMembershipId: string
+}
 
 export type TrainerOption = {
   id: string

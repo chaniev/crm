@@ -677,7 +677,10 @@ internal sealed class BotApiService(
 
         var mutationResult = await membershipService.MarkPaymentAsync(
             clientId,
-            new MarkClientMembershipPaymentCommand(user.Id),
+            new MarkClientMembershipPaymentCommand(
+                user.Id,
+                currentMembershipBefore.SaleId,
+                currentMembershipBefore.Id),
             cancellationToken);
 
         if (!mutationResult.Succeeded)

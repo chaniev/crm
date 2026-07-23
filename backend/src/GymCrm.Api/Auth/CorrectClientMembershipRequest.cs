@@ -5,9 +5,10 @@ namespace GymCrm.Api.Auth;
 
 internal sealed class CorrectClientMembershipRequest
 {
-    public string? PurchaseDate { get; init; }
-    public string? ExpirationDate { get; init; }
-    public bool? IsPaid { get; init; }
+    public Guid? SaleId { get; init; }
+    public Guid? ExpectedMembershipId { get; init; }
+    public string? ValidFrom { get; init; }
+    public string? ValidTo { get; init; }
 
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? AdditionalFields { get; init; }

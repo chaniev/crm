@@ -338,7 +338,21 @@ public class ClientMembershipCreationPricingApiTests
             await AssertValidationFieldAsync(invalidMarkResponse, "paymentAmount");
         }
 
-        using (var validMarkResponse = await context.MarkPaymentAsync("{}"))
+        Guid targetSaleId;
+        Guid targetMembershipId;
+        await using (var targetScope = context.Factory.Services.CreateAsyncScope())
+        {
+            var target = await targetScope.ServiceProvider.GetRequiredService<GymCrmDbContext>()
+                .ClientMemberships.AsNoTracking()
+                .Where(membership => membership.ClientId == context.ClientId && membership.ValidTo == null)
+                .Select(membership => new { membership.SaleId, membership.Id })
+                .SingleAsync();
+            targetSaleId = target.SaleId;
+            targetMembershipId = target.Id;
+        }
+
+        using (var validMarkResponse = await context.MarkPaymentAsync(
+                   $$"""{"saleId":"{{targetSaleId}}","expectedMembershipId":"{{targetMembershipId}}"}"""))
         {
             Assert.Equal(HttpStatusCode.OK, validMarkResponse.StatusCode);
         }
@@ -803,6 +817,13 @@ public class ClientMembershipCreationPricingApiTests
             Content = new StringContent(rawJson, Encoding.UTF8, "application/json")
         };
         request.Headers.Add("X-CSRF-TOKEN", csrfToken);
+        if (path.Contains("/membership/purchase", StringComparison.Ordinal) ||
+            path.Contains("/membership/renew", StringComparison.Ordinal) ||
+            path.Contains("/membership/correct", StringComparison.Ordinal) ||
+            path.Contains("/membership/mark-payment", StringComparison.Ordinal))
+        {
+            request.Headers.Add("Idempotency-Key", $"pricing-test-{Guid.NewGuid():N}");
+        }
         return await httpClient.SendAsync(request);
     }
 

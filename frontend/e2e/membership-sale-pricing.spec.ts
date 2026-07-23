@@ -291,11 +291,314 @@ test.describe('TASK-077 membership sale pricing', () => {
   })
 })
 
+test.describe('TASK-078 membership write regressions', () => {
+  test('correction sends addressed validity-only payload and keeps ProblemDetails draft', async ({ page }) => {
+    let requestBody: Record<string, unknown> | null = null
+    let idempotencyKey: string | null = null
+    await mockMembershipPricingApi(
+      page,
+      buildClient({ behaviorKind: 'Term', isPaid: false }),
+      async ({ pathname, method, route }) => {
+        if (
+          pathname === '/api/clients/client-1/membership/correct' &&
+          method === 'POST'
+        ) {
+          requestBody = route.request().postDataJSON() as Record<string, unknown>
+          idempotencyKey = route.request().headers()['idempotency-key'] ?? null
+          await route.fulfill({
+            status: 409,
+            contentType: 'application/problem+json',
+            body: JSON.stringify({
+              detail: 'Срок пересекается с другим абонементом.',
+              errors: {
+                ValidFrom: ['Начало срока пересекается с другой продажей.'],
+              },
+            }),
+          })
+          return true
+        }
+        return false
+      },
+    )
+
+    await page.goto('/clients/client-1')
+    await page.getByRole('button', { name: 'Исправить' }).click()
+    await expect(page.getByText('Дата покупки', { exact: true })).toBeVisible()
+    await expect(page.getByText(/22.*июн.*2026|22\.06\.2026/).first()).toBeVisible()
+    await expect(page.getByRole('switch', { name: 'Оплачен' })).toHaveCount(0)
+
+    const validFrom = page.getByLabel('Действует с')
+    const validTo = page.getByLabel('Действует по')
+    await validFrom.fill('2026-07-05')
+    await validTo.fill('2026-08-04')
+    await page.getByRole('button', { name: 'Сохранить исправление' }).click()
+
+    await expect.poll(() => requestBody).toEqual({
+      SaleId: 'sale-1',
+      ExpectedMembershipId: 'membership-1',
+      ValidFrom: '2026-07-05',
+      ValidTo: '2026-08-04',
+    })
+    await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
+    await expect(page.getByText('Срок пересекается с другим абонементом.')).toBeVisible()
+    await expect(page.getByText('Начало срока пересекается с другой продажей.')).toBeVisible()
+    await expect(validFrom).toHaveValue('2026-07-05')
+    await expect(validTo).toHaveValue('2026-08-04')
+  })
+
+  test('direct overlapping purchase shows stable reason and keeps the draft on desktop and mobile', async ({ page }) => {
+    for (const viewport of [
+      { width: 1280, height: 900 },
+      { width: 390, height: 844 },
+    ]) {
+      let requestBody: Record<string, unknown> | null = null
+      await page.unroute('**/*').catch(() => undefined)
+      await mockMembershipPricingApi(
+        page,
+        buildClient({ behaviorKind: 'Term', isPaid: true }),
+        async ({ pathname, method, route }) => {
+          if (
+            pathname === '/api/clients/client-1/membership/purchase' &&
+            method === 'POST'
+          ) {
+            requestBody = route.request().postDataJSON() as Record<string, unknown>
+            await route.fulfill({
+              status: 409,
+              contentType: 'application/problem+json',
+              body: JSON.stringify({
+                detail: 'Срок пересекается с действующим абонементом.',
+                errors: {
+                  membership: ['Оформите продление вместо новой покупки.'],
+                },
+              }),
+            })
+            return true
+          }
+          return false
+        },
+      )
+
+      await page.setViewportSize(viewport)
+      await page.goto('/clients/client-1')
+      await page.getByRole('button', { name: 'Новый абонемент' }).click()
+      await page.getByRole('radio', { name: 'Без варианта каталога' }).check()
+      const amount = page.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
+      await amount.fill('4200')
+      await page.getByLabel('Действует с').fill('2026-06-25')
+      await page.getByLabel('Действует по').fill('2026-07-25')
+      await page.getByRole('button', { name: 'Оформить абонемент' }).click()
+      await page.getByRole('dialog', { name: 'Подтвердить новую продажу?' })
+        .getByRole('button', { name: 'Подтвердить продажу' }).click()
+
+      await expect.poll(() => requestBody).toMatchObject({
+        ManualSaleAmount: 4200,
+        ValidFrom: '2026-06-25',
+        ValidTo: '2026-07-25',
+        PaymentStatus: 'Unpaid',
+      })
+      await expect(page.getByText('Срок пересекается с действующим абонементом.').first()).toBeVisible()
+      await expect(amount).toHaveValue('4200')
+      await expectNoHorizontalScroll(page)
+    }
+  })
+
+  test('allowed renewal saves through idempotent request and reloads the new sale', async ({ page }) => {
+    let client = buildClient({ behaviorKind: 'Term', isPaid: true })
+    let requestBody: Record<string, unknown> | null = null
+    let idempotencyKey: string | null = null
+    await mockMembershipPricingApi(page, () => client, async ({ pathname, method, route }) => {
+      if (pathname === '/api/clients/client-1/membership/renew' && method === 'POST') {
+        requestBody = route.request().postDataJSON() as Record<string, unknown>
+        idempotencyKey = route.request().headers()['idempotency-key'] ?? null
+        client = buildClient({
+          id: 'membership-renewed',
+          saleId: 'sale-renewed',
+          behaviorKind: 'Term',
+          pricingMode: 'Catalog',
+          isPaid: false,
+          purchaseDate: '2026-07-22',
+          validFrom: '2026-07-22',
+          expirationDate: '2026-08-20',
+        })
+        await fulfillJson(route, client)
+        return true
+      }
+      return false
+    })
+
+    await page.goto('/clients/client-1')
+    await page.getByRole('button', { name: 'Продлить' }).click()
+    await page.getByRole('radio', { name: 'По каталожной цене' }).check()
+    await selectOption(page, 'Вариант абонемента', /Месяц/)
+    await page.getByRole('button', { name: 'Продлить абонемент' }).click()
+    await page.getByRole('dialog', { name: 'Подтвердить новую продажу?' })
+      .getByRole('button', { name: 'Подтвердить продажу' }).click()
+
+    await expect.poll(() => requestBody).toEqual({
+      MembershipCatalogItemId: 'catalog-1',
+      PaymentStatus: 'Unpaid',
+    })
+    await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
+    await expect(page.getByText('Ожидает оплаты')).toBeVisible()
+    await expect(page.getByText(/20.*авг.*2026|20\.08\.2026/).first()).toBeVisible()
+  })
+
+  test('unpaid correction reloads a fresh version before mark-payment', async ({ page }) => {
+    let client = buildClient({
+      id: 'membership-before-correction',
+      saleId: 'sale-1',
+      behaviorKind: 'Term',
+      isPaid: false,
+      purchaseDate: '2026-06-22',
+      validFrom: '2026-06-22',
+      expirationDate: '2026-07-21',
+    })
+    let correctionBody: Record<string, unknown> | null = null
+    let paymentBody: Record<string, unknown> | null = null
+    await mockMembershipPricingApi(page, () => client, async ({ pathname, method, route }) => {
+      if (pathname === '/api/clients/client-1/membership/correct' && method === 'POST') {
+        correctionBody = route.request().postDataJSON() as Record<string, unknown>
+        client = buildClient({
+          id: 'membership-after-correction',
+          saleId: 'sale-1',
+          behaviorKind: 'Term',
+          isPaid: false,
+          purchaseDate: '2026-06-22',
+          validFrom: '2026-07-05',
+          expirationDate: '2026-08-04',
+        })
+        await fulfillJson(route, client)
+        return true
+      }
+      if (pathname === '/api/clients/client-1/membership/mark-payment' && method === 'POST') {
+        paymentBody = route.request().postDataJSON() as Record<string, unknown>
+        client = buildClient({
+          id: 'membership-paid',
+          saleId: 'sale-1',
+          behaviorKind: 'Term',
+          isPaid: true,
+          purchaseDate: '2026-06-22',
+          validFrom: '2026-07-05',
+          expirationDate: '2026-08-04',
+        })
+        await fulfillJson(route, client)
+        return true
+      }
+      return false
+    })
+
+    await page.goto('/clients/client-1')
+    await page.getByRole('button', { name: 'Исправить' }).click()
+    await page.getByLabel('Действует с').fill('2026-07-05')
+    await page.getByLabel('Действует по').fill('2026-08-04')
+    await page.getByRole('button', { name: 'Сохранить исправление' }).click()
+    await expect.poll(() => correctionBody).toEqual({
+      SaleId: 'sale-1',
+      ExpectedMembershipId: 'membership-before-correction',
+      ValidFrom: '2026-07-05',
+      ValidTo: '2026-08-04',
+    })
+
+    await page.getByRole('button', { name: 'Отметить оплату' }).click()
+    await page.getByRole('button', { name: 'Подтвердить оплату' }).click()
+    await page.getByRole('dialog', { name: 'Подтвердить оплату по текущему абонементу?' })
+      .getByRole('button', { name: 'Подтвердить оплату' }).click()
+
+    await expect.poll(() => paymentBody).toEqual({
+      SaleId: 'sale-1',
+      ExpectedMembershipId: 'membership-after-correction',
+    })
+    await expect(page.getByText('Оплачен').first()).toBeVisible()
+  })
+
+  test('stale target conflict stays on the form without changing another membership', async ({ page }) => {
+    let requestBody: Record<string, unknown> | null = null
+    await mockMembershipPricingApi(
+      page,
+      buildClient({ behaviorKind: 'Term', isPaid: true }),
+      async ({ pathname, method, route }) => {
+        if (
+          pathname === '/api/clients/client-1/membership/correct' &&
+          method === 'POST'
+        ) {
+          requestBody = route.request().postDataJSON() as Record<string, unknown>
+          await route.fulfill({
+            status: 409,
+            contentType: 'application/problem+json',
+            body: JSON.stringify({
+              detail: 'Абонемент уже изменен. Обновите карточку.',
+              errors: {
+                ExpectedMembershipId: ['Версия абонемента устарела.'],
+              },
+            }),
+          })
+          return true
+        }
+        return false
+      },
+    )
+
+    await page.goto('/clients/client-1')
+    await page.getByRole('button', { name: 'Исправить' }).click()
+    await page.getByLabel('Действует с').fill('2026-07-05')
+    await page.getByLabel('Действует по').fill('2026-08-04')
+    await page.getByRole('button', { name: 'Сохранить исправление' }).click()
+
+    await expect.poll(() => requestBody).toMatchObject({
+      ExpectedMembershipId: 'membership-1',
+    })
+    await expect(page.getByText('Абонемент уже изменен. Обновите карточку.')).toBeVisible()
+    await expect(page.getByLabel('Действует с')).toHaveValue('2026-07-05')
+  })
+
+  test('slow mark-payment double-click creates one logical operation', async ({ page }) => {
+    let client = buildClient({
+      id: 'membership-unpaid',
+      saleId: 'sale-1',
+      behaviorKind: 'Term',
+      isPaid: false,
+    })
+    let paymentCount = 0
+    await mockMembershipPricingApi(page, () => client, async ({ pathname, method, route }) => {
+      if (pathname === '/api/clients/client-1/membership/mark-payment' && method === 'POST') {
+        paymentCount += 1
+        await new Promise((resolve) => setTimeout(resolve, 200))
+        client = buildClient({
+          id: 'membership-paid',
+          saleId: 'sale-1',
+          behaviorKind: 'Term',
+          isPaid: true,
+        })
+        await fulfillJson(route, client)
+        return true
+      }
+      return false
+    })
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/clients/client-1')
+    await page.getByRole('button', { name: 'Отметить оплату' }).click()
+    await page.getByRole('button', { name: 'Подтвердить оплату' }).click()
+    const dialog = page.getByRole('dialog', {
+      name: 'Подтвердить оплату по текущему абонементу?',
+    })
+    await dialog.getByRole('button', { name: 'Подтвердить оплату' }).dblclick()
+
+    await expect.poll(() => paymentCount).toBe(1)
+    await expect(page.getByText('Оплачен').first()).toBeVisible()
+    await expectNoHorizontalScroll(page)
+  })
+})
+
 type MembershipOverrides = {
+  id?: string
+  saleId?: string
   behaviorKind?: 'Term' | 'SingleVisit'
   pricingMode?: 'Catalog' | 'CatalogOverride' | 'AmountOnly'
   grossAmount?: number
   catalogPrice?: number | null
+  purchaseDate?: string
+  validFrom?: string
   expirationDate?: string | null
   isPaid?: boolean
   singleVisitUsed?: boolean
@@ -304,8 +607,8 @@ type MembershipOverrides = {
 function buildClient(membership?: MembershipOverrides) {
   const currentMembership = membership
     ? {
-        id: 'membership-1',
-        saleId: 'sale-1',
+        id: membership.id ?? 'membership-1',
+        saleId: membership.saleId ?? 'sale-1',
         membershipCatalogItemId:
           membership.pricingMode === 'AmountOnly' ? null : 'catalog-1',
         membershipName:
@@ -313,7 +616,8 @@ function buildClient(membership?: MembershipOverrides) {
             ? 'Без варианта каталога'
             : 'Месяц',
         behaviorKind: membership.behaviorKind ?? 'Term',
-        purchaseDate: '2026-06-22',
+        purchaseDate: membership.purchaseDate ?? '2026-06-22',
+        validFrom: membership.validFrom ?? membership.purchaseDate ?? '2026-06-22',
         expirationDate:
           membership.expirationDate === undefined
             ? '2026-07-21'
@@ -355,7 +659,11 @@ function buildClient(membership?: MembershipOverrides) {
     currentMembership,
     currentMembershipSummary: currentMembership,
     hasCurrentMembership: Boolean(currentMembership),
-    membershipState: currentMembership ? 'ActivePaid' : 'None',
+    membershipState: currentMembership
+      ? currentMembership.isPaid
+        ? 'ActivePaid'
+        : 'Unpaid'
+      : 'None',
     actionHints: [],
     membershipHistory: currentMembership ? [currentMembership] : [],
     attendanceHistory: [],

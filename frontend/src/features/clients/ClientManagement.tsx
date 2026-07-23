@@ -20,7 +20,6 @@ import {
   SimpleGrid,
   Stack,
   Table,
-  Switch,
   Text,
   Textarea,
   TextInput,
@@ -150,9 +149,8 @@ const membershipChangeReasonLabels = resources.clients
 type MembershipActionMode = 'purchase' | 'renew' | 'correct' | 'markPayment'
 
 type MembershipCorrectionFormValues = {
-  purchaseDate: string
-  expirationDate: string
-  isPaid: boolean
+  validFrom: string
+  validTo: string
 }
 
 type MembershipRenewFormValues = {
@@ -165,18 +163,22 @@ type MembershipActionSubmission =
   | {
       kind: 'purchase'
       payload: PurchaseClientMembershipRequest
+      idempotencyKey: string
     }
   | {
       kind: 'renew'
       payload: RenewClientMembershipRequest
+      idempotencyKey: string
     }
   | {
       kind: 'correct'
       payload: CorrectClientMembershipRequest
+      idempotencyKey: string
     }
   | {
       kind: 'markPayment'
       payload: MarkClientMembershipPaymentRequest
+      idempotencyKey: string
     }
 
 type ClientCreateScreenProps = {
@@ -537,6 +539,7 @@ export function ClientDetailScreen({
   const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const [membershipActionMode, setMembershipActionMode] =
     useState<MembershipActionMode | null>(null)
+  const actionPendingRef = useRef(false)
   const transferForm = useForm<ClientTransferFormValues>({
     initialValues: {
       branchId: '',
@@ -741,21 +744,23 @@ export function ClientDetailScreen({
   async function handleMembershipAction(
     submission: MembershipActionSubmission,
   ) {
-    if (!client) {
+    if (!client || actionPendingRef.current) {
       return
     }
 
+    actionPendingRef.current = true
     setActionPending(true)
     setActionError(null)
 
     try {
+      const options = { idempotencyKey: submission.idempotencyKey }
       await (submission.kind === 'purchase'
-        ? purchaseClientMembership(client.id, submission.payload)
+        ? purchaseClientMembership(client.id, submission.payload, options)
         : submission.kind === 'renew'
-          ? renewClientMembership(client.id, submission.payload)
+          ? renewClientMembership(client.id, submission.payload, options)
           : submission.kind === 'correct'
-            ? correctClientMembership(client.id, submission.payload)
-            : markClientMembershipPayment(client.id, submission.payload))
+            ? correctClientMembership(client.id, submission.payload, options)
+            : markClientMembershipPayment(client.id, submission.payload, options))
 
       setClient(await getClient(client.id))
       setMembershipActionMode(null)
@@ -795,6 +800,7 @@ export function ClientDetailScreen({
       )
       throw error
     } finally {
+      actionPendingRef.current = false
       setActionPending(false)
     }
   }
@@ -2597,6 +2603,30 @@ type MembershipEditPanelProps = {
   onSubmit: (submission: MembershipActionSubmission) => Promise<void>
 }
 
+function useMembershipSubmissionKey() {
+  const submissionRef = useRef<{ fingerprint: string; key: string } | null>(null)
+
+  return useCallback((kind: MembershipActionMode, payload: unknown) => {
+    const fingerprint = JSON.stringify({ kind, payload })
+    if (submissionRef.current?.fingerprint !== fingerprint) {
+      submissionRef.current = {
+        fingerprint,
+        key: createIdempotencyKey(),
+      }
+    }
+
+    return submissionRef.current.key
+  }, [])
+}
+
+function createIdempotencyKey() {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID()
+  }
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+}
+
 function MembershipEditPanel({
   currentMembership,
   pending,
@@ -2609,6 +2639,7 @@ function MembershipEditPanel({
   })
   const formRef = useRef(form)
   formRef.current = form
+  const getSubmissionKey = useMembershipSubmissionKey()
   const [expirationManuallyChanged, setExpirationManuallyChanged] = useState(false)
   const [expirationSuggestionLoading, setExpirationSuggestionLoading] =
     useState(false)
@@ -2618,14 +2649,14 @@ function MembershipEditPanel({
   const expirationSuggestionRequestIdRef = useRef(0)
 
   const applySuggestedExpiration = useCallback(
-    async (behaviorKind: MembershipBehaviorKind | null, purchaseDate: string) => {
+    async (behaviorKind: MembershipBehaviorKind | null, validFrom: string) => {
       const requestId = expirationSuggestionRequestIdRef.current + 1
       expirationSuggestionRequestIdRef.current = requestId
       setExpirationSuggestionError(null)
 
-      if (!behaviorKind || !purchaseDate || behaviorKind === 'SingleVisit') {
+      if (!behaviorKind || !validFrom || behaviorKind === 'SingleVisit') {
         setExpirationSuggestionLoading(false)
-        formRef.current.setFieldValue('expirationDate', '')
+        formRef.current.setFieldValue('validTo', '')
         return
       }
 
@@ -2634,7 +2665,7 @@ function MembershipEditPanel({
       try {
         const suggestion = await getMembershipExpirationSuggestion(
           behaviorKind,
-          purchaseDate,
+          validFrom,
         )
 
         if (expirationSuggestionRequestIdRef.current !== requestId) {
@@ -2642,7 +2673,7 @@ function MembershipEditPanel({
         }
 
         formRef.current.setFieldValue(
-          'expirationDate',
+          'validTo',
           suggestion.expirationDate ?? '',
         )
       } catch (error) {
@@ -2664,12 +2695,12 @@ function MembershipEditPanel({
     [],
   )
 
-  function updateSuggestedExpiration(purchaseDate: string) {
+  function updateSuggestedExpiration(validFrom: string) {
     if (expirationManuallyChanged) {
       return
     }
 
-    void applySuggestedExpiration(currentMembership.behaviorKind, purchaseDate)
+    void applySuggestedExpiration(currentMembership.behaviorKind, validFrom)
   }
 
   async function submit(values: MembershipCorrectionFormValues) {
@@ -2684,13 +2715,16 @@ function MembershipEditPanel({
     }
 
     try {
+      const payload = {
+        saleId: currentMembership.saleId,
+        expectedMembershipId: currentMembership.id,
+        validFrom: values.validFrom,
+        validTo: values.validTo || undefined,
+      }
       await onSubmit({
         kind: 'correct',
-        payload: {
-          purchaseDate: values.purchaseDate,
-          expirationDate: values.expirationDate || undefined,
-          isPaid: values.isPaid,
-        },
+        payload,
+        idempotencyKey: getSubmissionKey('correct', payload),
       })
     } catch (error) {
       if (error instanceof ApiError) {
@@ -2725,16 +2759,20 @@ function MembershipEditPanel({
               label="Сумма продажи"
               value={formatCurrencyValue(currentMembership.grossAmount)}
             />
-            <TextInput
+            <InfoItem
               label="Дата покупки"
+              value={formatDateValue(currentMembership.purchaseDate)}
+            />
+            <TextInput
+              label="Действует с"
               type="date"
-              value={form.values.purchaseDate}
+              value={form.values.validFrom}
               onChange={(event) => {
-                const nextPurchaseDate = event.currentTarget.value
-                form.setFieldValue('purchaseDate', nextPurchaseDate)
-                updateSuggestedExpiration(nextPurchaseDate)
+                const nextValidFrom = event.currentTarget.value
+                form.setFieldValue('validFrom', nextValidFrom)
+                updateSuggestedExpiration(nextValidFrom)
               }}
-              error={form.errors.purchaseDate}
+              error={form.errors.validFrom}
             />
             <TextInput
               description={
@@ -2745,24 +2783,21 @@ function MembershipEditPanel({
                     : expirationSuggestionError ??
                       'Дата предложена автоматически, но ее можно изменить.'
               }
-              label="Дата окончания"
+              label="Действует по"
               type="date"
-              value={form.values.expirationDate}
+              value={form.values.validTo}
               onChange={(event) => {
                 setExpirationManuallyChanged(true)
-                form.setFieldValue('expirationDate', event.currentTarget.value)
+                form.setFieldValue('validTo', event.currentTarget.value)
               }}
-              error={form.errors.expirationDate}
+              error={form.errors.validTo}
             />
           </SimpleGrid>
 
           <Group justify="space-between" wrap="wrap">
-            <Switch
-              checked={form.values.isPaid}
-              label="Оплачен"
-              onChange={(event) =>
-                form.setFieldValue('isPaid', event.currentTarget.checked)
-              }
+            <InfoItem
+              label="Оплата"
+              value={currentMembership.isPaid ? 'Оплачен' : 'Не оплачен'}
             />
 
             <Button
@@ -2772,7 +2807,7 @@ function MembershipEditPanel({
                 setExpirationManuallyChanged(false)
                 void applySuggestedExpiration(
                   currentMembership.behaviorKind,
-                  form.values.purchaseDate,
+                  form.values.validFrom,
                 )
               }}
               type="button"
@@ -2809,6 +2844,7 @@ function CatalogPurchasePanel({ branchId, pending, onCancel, onSubmit }: Catalog
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [confirmationOpened, setConfirmationOpened] = useState(false)
+  const getSubmissionKey = useMembershipSubmissionKey()
   const form = useForm<MembershipPurchaseFormValues>({
     initialValues: {
       ...createEmptyMembershipSalePricingValues(),
@@ -2864,28 +2900,30 @@ function CatalogPurchasePanel({ branchId, pending, onCancel, onSubmit }: Catalog
     setFormError(null)
 
     try {
+      const payload = {
+        ...buildMembershipSalePricingPayload(form.values),
+        validFrom:
+          selected?.behaviorKind === 'SingleVisit'
+            ? undefined
+            : form.values.validFrom || undefined,
+        validTo:
+          selected?.behaviorKind === 'SingleVisit'
+            ? undefined
+            : form.values.validTo || undefined,
+        paymentStatus: form.values.paymentStatus,
+        ...(form.values.paymentStatus === 'Paid'
+          ? { paymentDate: form.values.paymentDate }
+          : {}),
+        ...(
+          selected?.behaviorKind === 'Professional'
+            ? { professionalComment: form.values.professionalComment.trim() }
+            : {}
+        ),
+      }
       await onSubmit({
         kind: 'purchase',
-        payload: {
-          ...buildMembershipSalePricingPayload(form.values),
-          validFrom:
-            selected?.behaviorKind === 'SingleVisit'
-              ? undefined
-              : form.values.validFrom || undefined,
-          validTo:
-            selected?.behaviorKind === 'SingleVisit'
-              ? undefined
-              : form.values.validTo || undefined,
-          paymentStatus: form.values.paymentStatus,
-          paymentDate:
-            form.values.paymentStatus === 'Paid'
-              ? form.values.paymentDate
-              : undefined,
-          professionalComment:
-            selected?.behaviorKind === 'Professional'
-              ? form.values.professionalComment.trim()
-              : undefined,
-        },
+        payload,
+        idempotencyKey: getSubmissionKey('purchase', payload),
       })
     } catch (error) {
       if (error instanceof ApiError) {
@@ -2963,6 +3001,7 @@ function MembershipRenewPanel({
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [confirmationOpened, setConfirmationOpened] = useState(false)
+  const getSubmissionKey = useMembershipSubmissionKey()
   const selected = catalogItems.find(
     (item) => item.id === form.values.membershipCatalogItemId,
   )
@@ -3002,20 +3041,25 @@ function MembershipRenewPanel({
     setConfirmationOpened(false)
     setFormError(null)
     try {
+      const payload = {
+        ...buildMembershipSalePricingPayload(form.values),
+        paymentStatus: form.values.paymentStatus,
+        ...(form.values.paymentStatus === 'Paid'
+          ? { paymentDate: form.values.paymentDate }
+          : {}),
+        ...(
+          selected?.behaviorKind === 'Professional'
+            ? {
+                professionalComment:
+                  form.values.professionalComment.trim() || undefined,
+              }
+            : {}
+        ),
+      }
       await onSubmit({
         kind: 'renew',
-        payload: {
-          ...buildMembershipSalePricingPayload(form.values),
-          paymentStatus: form.values.paymentStatus,
-          paymentDate:
-            form.values.paymentStatus === 'Paid'
-              ? form.values.paymentDate
-              : undefined,
-          professionalComment:
-            selected?.behaviorKind === 'Professional'
-              ? form.values.professionalComment.trim() || undefined
-              : undefined,
-        },
+        payload,
+        idempotencyKey: getSubmissionKey('renew', payload),
       })
     } catch (error) {
       if (error instanceof ApiError) {
@@ -3136,6 +3180,7 @@ function MembershipMarkPaymentPanel({
   onSubmit,
 }: MembershipMarkPaymentPanelProps) {
   const [confirmOpened, setConfirmOpened] = useState(false)
+  const getSubmissionKey = useMembershipSubmissionKey()
 
   return (
     <Paper className="hint-card" radius="8px" withBorder>
@@ -3146,9 +3191,14 @@ function MembershipMarkPaymentPanel({
         onClose={() => setConfirmOpened(false)}
         onConfirm={() => {
           setConfirmOpened(false)
+          const payload = {
+            saleId: currentMembership.saleId,
+            expectedMembershipId: currentMembership.id,
+          }
           void onSubmit({
             kind: 'markPayment',
-            payload: {},
+            payload,
+            idempotencyKey: getSubmissionKey('markPayment', payload),
           }).catch(() => undefined)
         }}
         opened={confirmOpened}
@@ -3201,9 +3251,8 @@ function createMembershipCorrectionInitialValues(
   currentMembership: ClientMembership,
 ): MembershipCorrectionFormValues {
   return {
-    purchaseDate: currentMembership.purchaseDate,
-    expirationDate: currentMembership.expirationDate ?? '',
-    isPaid: currentMembership.isPaid,
+    validFrom: currentMembership.validFrom ?? currentMembership.purchaseDate,
+    validTo: currentMembership.expirationDate ?? '',
   }
 }
 
@@ -3222,13 +3271,13 @@ function validateMembershipCorrectionForm(
 ) {
   const errors: Record<string, string> = {}
 
-  if (!values.purchaseDate) {
-    errors.purchaseDate = 'Укажите дату покупки.'
+  if (!values.validFrom) {
+    errors.validFrom = 'Укажите начало срока.'
   }
 
   if (isExpirationRequired(behaviorKind)) {
-    if (!values.expirationDate) {
-      errors.expirationDate = 'Укажите дату окончания.'
+    if (!values.validTo) {
+      errors.validTo = 'Укажите дату окончания.'
     }
   }
 

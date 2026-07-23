@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-078 Исправить ошибки сохранения операций с абонементом
 
 ## Source task
-/backlog/risky/TASK-078-membership-write-regressions.md
+/backlog/done/TASK-078-membership-write-regressions.md
 
-Source status remains `risky`: задача имеет `Risk level: high` и `Safe for Codex: no`, поэтому этим planning-run она не перемещается в `/backlog/implementation`. План разрешает диагностику, test-first локализацию и human review, но не разрешает автоматически начинать production-код.
+Source status is `done`: пользователь явно одобрил execution 2026-07-23; реализация и проверки завершены 2026-07-23. `Risk level: high` был ограничен test-first выполнением в отдельной ветке, real-PostgreSQL regression barrier и отсутствием production data repair.
 
 ## Git branch
 fix/TASK-078-membership-write-regressions
@@ -267,21 +267,21 @@ Manual QA is supplementary and cannot replace automated PostgreSQL/API/component
 - Do not weaken assertions or switch the PostgreSQL tests to InMemory to obtain green.
 
 ## Test plan
-- [ ] All five source symptoms have exact reproducible fixtures and expected results.
-- [ ] Administrator and HeadCoach allowed paths pass; Coach and branch-scope violations remain denied.
-- [ ] Active, expired, future, unpaid, `Term`, `SingleVisit` and `Professional` states are covered.
-- [ ] Sequential future assignments pass and inclusive overlaps fail with stable ProblemDetails.
-- [ ] Correction targets the selected card, persists individual dates, preserves payment fields and leaves purchase date/other immutable sale fields unchanged after reload.
-- [ ] Renewal persists sale/version/audit after reload and does not duplicate under retry.
-- [ ] Unpaid correction then mark-payment keeps payment date/status/actor consistent in current state and history.
-- [ ] Missing key, pending request, same-key replay, different-payload conflict and seven-day retention semantics are concurrency-safe.
-- [ ] Failure injection proves transaction rollback across sale/version/audit/idempotency state.
-- [ ] Real PostgreSQL clean-schema and constraint checks pass.
-- [ ] Frontend shows backend ProblemDetails, keeps draft values and reloads the client after success.
-- [ ] `dotnet test backend/GymCrm.slnx` passes.
-- [ ] Frontend unit/component tests, `npm run lint` and `npm run build` pass.
-- [ ] Focused Playwright membership write scenarios pass on desktop and mobile.
-- [ ] Local `deploy/docker-compose.yml` stack passes purchase/renew/correct/mark-payment smoke checks.
+- [x] All five source symptoms have exact reproducible fixtures and expected results.
+- [x] Administrator and HeadCoach allowed paths pass; Coach and branch-scope violations remain denied.
+- [x] Active, expired, future, unpaid, `Term`, `SingleVisit` and `Professional` states are covered.
+- [x] Sequential future assignments pass and inclusive overlaps fail with stable ProblemDetails.
+- [x] Correction targets the selected card, persists individual dates, preserves payment fields and leaves purchase date/other immutable sale fields unchanged after reload.
+- [x] Renewal persists sale/version/audit after reload and does not duplicate under retry.
+- [x] Unpaid correction then mark-payment keeps payment date/status/actor consistent in current state and history.
+- [x] Missing key, pending request, same-key replay, different-payload conflict and seven-day retention semantics are concurrency-safe.
+- [x] Failure injection proves transaction rollback across sale/version/audit/idempotency state.
+- [x] Real PostgreSQL clean-schema and constraint checks pass.
+- [x] Frontend shows backend ProblemDetails, keeps draft values and reloads the client after success.
+- [x] `dotnet test backend/GymCrm.slnx` passes.
+- [x] Frontend unit/component tests, `npm run lint` and `npm run build` pass.
+- [x] Focused Playwright membership write scenarios pass on desktop and mobile.
+- [x] Local `deploy/docker-compose.yml` stack passes purchase/renew/correct/mark-payment smoke checks.
 
 ## Regression barrier
 TASK-078 is not complete unless one focused automated suite creates membership state through real HTTP/application flows on real PostgreSQL and proves, after fresh database scopes, the five symptom scenarios, inclusive overlap behavior, exact version/sale/audit cardinality, atomic rollback and idempotent replay/concurrency. This suite must run in addition to the fast InMemory tests. The frontend barrier must prove exact payload/header generation, preserved ProblemDetails, one request per submission and visible reloaded state. A response-only assertion, mocked persistence, InMemory-only suite or manual browser check does not satisfy the barrier.
@@ -310,6 +310,6 @@ TASK-078 is not complete unless one focused automated suite creates membership s
 Не останавливаться только из-за одновременных backend/frontend изменений, PostgreSQL schema test, shared client card или payment metadata: они допустимы при локальном contract-first выполнении.
 
 ## Ready for Codex execution
-no
+yes
 
-Причина: product/contract decisions прошли human review 2026-07-23, detailed implementation plan и regression strategy готовы, но source task остаётся high-risk в `/backlog/risky` с `Safe for Codex: no`. Нужны отдельное явное approval на execution, перевод source task в implementation, создание task branch и reviewed red phase на real PostgreSQL. После этих gates план может исполняться test-first без изменения продуктовых правил TASK-070/TASK-077.
+Причина: product/contract decisions прошли human review 2026-07-23, пользователь явно одобрил execution, source task переведена в `/backlog/implementation`, а `fix/TASK-078-membership-write-regressions` создана от актуальной чистой `main`. Реализация выполняется test-first без изменения продуктовых правил TASK-070/TASK-077.

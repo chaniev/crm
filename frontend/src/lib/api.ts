@@ -75,6 +75,7 @@ export type {
   MembershipSalePricingMode,
   MembershipAttentionState,
   MembershipExpirationSuggestion,
+  MembershipWriteRequestOptions,
   MessengerPlatform,
   CreateMembershipCatalogItemRequest,
   UpdateMembershipCatalogItemRequest,

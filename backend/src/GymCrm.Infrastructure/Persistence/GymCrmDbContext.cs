@@ -13,12 +13,16 @@ namespace GymCrm.Infrastructure.Persistence;
 
 public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) : DbContext(options)
 {
+    public const string ClientMembershipIdempotencyActorKeyIndexName =
+        "UX_ClientMembershipIdempotency_Actor_Key";
+
     public DbSet<User> Users => Set<User>();
     public DbSet<Branch> Branches => Set<Branch>();
     public DbSet<Hall> Halls => Set<Hall>();
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<ClientContact> ClientContacts => Set<ClientContact>();
     public DbSet<ClientMembership> ClientMemberships => Set<ClientMembership>();
+    public DbSet<ClientMembershipIdempotencyRecord> ClientMembershipIdempotencyRecords => Set<ClientMembershipIdempotencyRecord>();
     public DbSet<ClientMembershipSale> ClientMembershipSales => Set<ClientMembershipSale>();
     public DbSet<ClientMembershipRefund> ClientMembershipRefunds => Set<ClientMembershipRefund>();
     public DbSet<ClientBranchAssignment> ClientBranchAssignments => Set<ClientBranchAssignment>();

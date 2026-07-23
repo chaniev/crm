@@ -5,6 +5,7 @@ using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql;
 
 namespace GymCrm.Infrastructure.Clients;
 
@@ -66,6 +67,14 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ProfessionalPermissionDenied);
         if (!ValidateValidity(resolution.BehaviorKind, command.ValidFrom, command.ValidTo, command.ProfessionalComment))
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.MembershipValidityInvalid);
+        if (await HasConflictingMembershipAsync(
+                clientId,
+                resolution.BehaviorKind,
+                command.ValidFrom,
+                command.ValidTo,
+                exceptMembershipId: null,
+                cancellationToken))
+            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.MembershipOverlap);
         if (await HasActiveMembershipAsync(clientId, today, cancellationToken))
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ActiveMembershipExists);
 
@@ -76,8 +85,16 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
         dbContext.ClientMemberships.Add(CreateMembership(clientId, sale, command.ValidFrom, command.ValidTo,
             command.IsPaid, command.PaymentDate, false, command.ProfessionalComment, ClientMembershipChangeReason.NewPurchase,
             command.ChangedByUserId, now));
-        await dbContext.SaveChangesAsync(cancellationToken);
-        await CommitIfPresentAsync(transaction, cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await CommitIfPresentAsync(transaction, cancellationToken);
+        }
+        catch (DbUpdateException exception) when (IsMembershipOverlapException(exception))
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.MembershipOverlap);
+        }
 
         return ClientMembershipMutationResult.Success(
             await LoadDetailsRequiredAsync(clientId, cancellationToken));
@@ -109,7 +126,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
         }
 
         var today = GetToday();
-        var currentMembership = await LoadLatestMembershipAsync(clientId, cancellationToken);
+        var currentMembership = await LoadCurrentMembershipAsync(clientId, cancellationToken);
         if (currentMembership is null)
         {
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CurrentMembershipMissing);
@@ -150,10 +167,29 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
         var validTo = validFrom.AddDays(duration);
         var now = timeProvider.GetUtcNow();
         var sale = CreateSale(clientId, item, resolution, today, command.ChangedByUserId, now);
+        if (await HasConflictingMembershipAsync(
+                clientId,
+                resolution.BehaviorKind,
+                validFrom,
+                validTo,
+                exceptMembershipId: null,
+                cancellationToken))
+            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.MembershipOverlap);
+
+        await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken);
         dbContext.ClientMembershipSales.Add(sale);
         dbContext.ClientMemberships.Add(CreateMembership(clientId, sale, validFrom, validTo, command.IsPaid,
             command.PaymentDate, false, command.ProfessionalComment, ClientMembershipChangeReason.Renewal, command.ChangedByUserId, now));
-        await dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await CommitIfPresentAsync(transaction, cancellationToken);
+        }
+        catch (DbUpdateException exception) when (IsMembershipOverlapException(exception))
+        {
+            await RollbackIfPresentAsync(transaction, cancellationToken);
+            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.MembershipOverlap);
+        }
 
         return ClientMembershipMutationResult.Success(
             await LoadDetailsRequiredAsync(clientId, cancellationToken));
@@ -164,13 +200,17 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
         CorrectClientMembershipCommand command,
         CancellationToken cancellationToken)
     {
-        if (clientId == Guid.Empty || command.ChangedByUserId == Guid.Empty || command.PurchaseDate == default)
+        if (clientId == Guid.Empty ||
+            command.ChangedByUserId == Guid.Empty ||
+            command.SaleId == Guid.Empty ||
+            command.ExpectedMembershipId == Guid.Empty)
         {
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.InvalidRequest);
         }
 
-        if (command.ExpirationDate.HasValue &&
-            command.ExpirationDate.Value < command.PurchaseDate)
+        if (command.ValidFrom.HasValue &&
+            command.ValidTo.HasValue &&
+            command.ValidTo.Value < command.ValidFrom.Value)
         {
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.InvalidRequest);
         }
@@ -180,57 +220,52 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ClientMissing);
         }
 
-        var currentMembership = await LoadCurrentMembershipAsync(clientId, cancellationToken);
-        if (currentMembership is null)
+        var target = await LoadAddressedMembershipAsync(
+            clientId,
+            command.SaleId,
+            command.ExpectedMembershipId,
+            cancellationToken);
+        if (target.Status != AddressedMembershipStatus.Found)
         {
-            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CurrentMembershipMissing);
+            return ClientMembershipMutationResult.Failure(MapAddressedMembershipStatus(target.Status));
         }
 
+        var currentMembership = target.Membership!;
         var currentSale = currentMembership.Sale;
-        var nonCanceledRefunds = await dbContext.ClientMembershipRefunds
-            .Where(refund => refund.SaleId == currentSale.Id && refund.CanceledAt == null)
-            .ToArrayAsync(cancellationToken);
-        var earliestRefundDate = nonCanceledRefunds
-            .Select(refund => (DateOnly?)refund.RefundDate)
-            .OrderBy(refundDate => refundDate)
-            .FirstOrDefault();
-        if (earliestRefundDate.HasValue && command.PurchaseDate > earliestRefundDate.Value)
-        {
-            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CorrectedPurchaseDateAfterRefund);
-        }
-
         var now = timeProvider.GetUtcNow();
-        ClientMembershipSaleAuditResult? saleAudit = null;
-        if (currentSale.PurchaseDate != command.PurchaseDate)
+
+        var nextValidFrom = currentMembership.BehaviorKind == MembershipBehaviorKind.SingleVisit ? null : command.ValidFrom;
+        var nextValidTo = currentMembership.BehaviorKind == MembershipBehaviorKind.SingleVisit ? null : command.ValidTo;
+        if (!ValidateValidity(currentMembership.BehaviorKind, nextValidFrom, nextValidTo, currentMembership.ProfessionalComment))
         {
-            var oldSale = MapSaleSnapshot(currentSale);
-
-            currentSale.PurchaseDate = command.PurchaseDate;
-
-            saleAudit = new ClientMembershipSaleAuditResult(oldSale, MapSaleSnapshot(currentSale));
+            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.MembershipValidityInvalid);
         }
 
-        Guid? paidByUserId = command.IsPaid
-            ? currentMembership.IsPaid
-                ? currentMembership.PaidByUserId ?? command.ChangedByUserId
-                : command.ChangedByUserId
-            : null;
-        DateTimeOffset? paidAt = command.IsPaid
-            ? currentMembership.IsPaid
-                ? currentMembership.PaidAt ?? now
-                : now
-            : null;
+        if (await HasConflictingMembershipAsync(
+                clientId,
+                currentMembership.BehaviorKind,
+                nextValidFrom,
+                nextValidTo,
+                currentMembership.Id,
+                cancellationToken))
+            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.MembershipOverlap);
 
-        await ReplaceCurrentMembershipAsync(currentMembership,
-            CreateMembership(clientId, currentSale,
-                currentMembership.BehaviorKind == MembershipBehaviorKind.SingleVisit ? null : command.PurchaseDate,
-                currentMembership.BehaviorKind == MembershipBehaviorKind.SingleVisit ? null : command.ExpirationDate,
-                command.IsPaid, command.IsPaid ? command.PurchaseDate : null, false, currentMembership.ProfessionalComment,
-                ClientMembershipChangeReason.Correction, command.ChangedByUserId, now), now, cancellationToken);
+        var correctedMembership = CreateMembership(clientId, currentSale,
+            nextValidFrom,
+            nextValidTo,
+            currentMembership.IsPaid,
+            currentMembership.IsPaid ? currentSale.PurchaseDate : null,
+            currentMembership.SingleVisitUsed,
+            currentMembership.ProfessionalComment,
+            ClientMembershipChangeReason.Correction, command.ChangedByUserId, now);
+        correctedMembership.IsPaid = currentMembership.IsPaid;
+        correctedMembership.PaidByUserId = currentMembership.PaidByUserId;
+        correctedMembership.PaidAt = currentMembership.PaidAt;
+
+        await ReplaceCurrentMembershipAsync(currentMembership, correctedMembership, now, cancellationToken);
 
         return ClientMembershipMutationResult.Success(
-            await LoadDetailsRequiredAsync(clientId, cancellationToken),
-            saleAudit);
+            await LoadDetailsRequiredAsync(clientId, cancellationToken));
     }
 
     public async Task<ClientMembershipMutationResult> MarkPaymentAsync(
@@ -238,7 +273,10 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
         MarkClientMembershipPaymentCommand command,
         CancellationToken cancellationToken)
     {
-        if (clientId == Guid.Empty || command.ChangedByUserId == Guid.Empty)
+        if (clientId == Guid.Empty ||
+            command.ChangedByUserId == Guid.Empty ||
+            command.SaleId == Guid.Empty ||
+            command.ExpectedMembershipId == Guid.Empty)
         {
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.InvalidRequest);
         }
@@ -248,12 +286,17 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ClientMissing);
         }
 
-        var currentMembership = await LoadCurrentMembershipAsync(clientId, cancellationToken);
-        if (currentMembership is null)
+        var target = await LoadAddressedMembershipAsync(
+            clientId,
+            command.SaleId,
+            command.ExpectedMembershipId,
+            cancellationToken);
+        if (target.Status != AddressedMembershipStatus.Found)
         {
-            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CurrentMembershipMissing);
+            return ClientMembershipMutationResult.Failure(MapAddressedMembershipStatus(target.Status));
         }
 
+        var currentMembership = target.Membership!;
         if (currentMembership.IsPaid)
         {
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CurrentMembershipAlreadyPaid);
@@ -595,14 +638,18 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
         Guid clientId,
         CancellationToken cancellationToken)
     {
-        return await dbContext.ClientMemberships
+        var openMemberships = await dbContext.ClientMemberships
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.MembershipCatalogItem)
             .Where(membership => membership.ClientId == clientId && membership.ValidTo == null)
+            .ToListAsync(cancellationToken);
+
+        return openMemberships
             .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
             .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
+            .ThenByDescending(membership => membership.CreatedAt)
             .ThenByDescending(membership => membership.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefault();
     }
 
     private async Task<ClientMembership?> LoadLatestMembershipAsync(Guid clientId, CancellationToken cancellationToken) =>
@@ -748,7 +795,13 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
 
         return new ClientMembershipDetailsResult(
             clientId,
-            history.FirstOrDefault(membership => membership.ValidTo is null),
+            history
+                .Where(membership => membership.ValidTo is null)
+                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
+                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
+                .ThenByDescending(membership => membership.CreatedAt)
+                .ThenByDescending(membership => membership.Id)
+                .FirstOrDefault(),
             history);
     }
 
@@ -866,5 +919,108 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             changedByUserId != Guid.Empty &&
             amount >= 0 &&
             date != default;
+    }
+
+    private async Task<AddressedMembershipLookup> LoadAddressedMembershipAsync(
+        Guid clientId,
+        Guid saleId,
+        Guid expectedMembershipId,
+        CancellationToken cancellationToken)
+    {
+        var saleExists = await dbContext.ClientMembershipSales
+            .AsNoTracking()
+            .AnyAsync(sale => sale.Id == saleId && sale.ClientId == clientId, cancellationToken);
+        if (!saleExists)
+        {
+            return new AddressedMembershipLookup(AddressedMembershipStatus.Missing, null);
+        }
+
+        var expectedExists = await dbContext.ClientMemberships
+            .AsNoTracking()
+            .AnyAsync(membership => membership.Id == expectedMembershipId && membership.ClientId == clientId, cancellationToken);
+        if (!expectedExists)
+        {
+            return new AddressedMembershipLookup(AddressedMembershipStatus.Missing, null);
+        }
+
+        var membership = await dbContext.ClientMemberships
+            .Include(candidate => candidate.Sale)
+                .ThenInclude(sale => sale.MembershipCatalogItem)
+            .SingleOrDefaultAsync(
+                candidate =>
+                    candidate.Id == expectedMembershipId &&
+                    candidate.SaleId == saleId &&
+                    candidate.ClientId == clientId &&
+                    candidate.ValidTo == null,
+                cancellationToken);
+
+        return membership is null
+            ? new AddressedMembershipLookup(AddressedMembershipStatus.Conflict, null)
+            : new AddressedMembershipLookup(AddressedMembershipStatus.Found, membership);
+    }
+
+    private static ClientMembershipMutationError MapAddressedMembershipStatus(AddressedMembershipStatus status) => status switch
+    {
+        AddressedMembershipStatus.Missing => ClientMembershipMutationError.MembershipTargetMissing,
+        AddressedMembershipStatus.Conflict => ClientMembershipMutationError.MembershipTargetConflict,
+        _ => ClientMembershipMutationError.InvalidRequest
+    };
+
+    private async Task<bool> HasConflictingMembershipAsync(
+        Guid clientId,
+        MembershipBehaviorKind behaviorKind,
+        DateOnly? validFrom,
+        DateOnly? validTo,
+        Guid? exceptMembershipId,
+        CancellationToken cancellationToken)
+    {
+        if (behaviorKind is not (MembershipBehaviorKind.Term or MembershipBehaviorKind.Professional))
+        {
+            return false;
+        }
+
+        if (!validFrom.HasValue)
+        {
+            return false;
+        }
+
+        var query = dbContext.ClientMemberships.AsNoTracking()
+            .Where(membership =>
+                membership.ClientId == clientId &&
+                membership.ValidTo == null &&
+                membership.BehaviorKind != MembershipBehaviorKind.SingleVisit);
+        if (exceptMembershipId.HasValue)
+        {
+            query = query.Where(membership => membership.Id != exceptMembershipId.Value);
+        }
+
+        var requestedFrom = validFrom.Value;
+        var requestedTo = validTo;
+        return await query.AnyAsync(
+            membership =>
+                membership.IndividualValidFrom.HasValue &&
+                membership.IndividualValidFrom.Value <= (requestedTo ?? DateOnly.MaxValue) &&
+                (membership.IndividualValidTo ?? DateOnly.MaxValue) >= requestedFrom,
+            cancellationToken);
+    }
+
+    private static bool IsMembershipOverlapException(DbUpdateException exception)
+    {
+        return exception.InnerException is PostgresException
+        {
+            SqlState: PostgresErrorCodes.ExclusionViolation,
+            ConstraintName: "EX_ClientMemberships_ClientId_Period_NoOverlap"
+        };
+    }
+
+    private readonly record struct AddressedMembershipLookup(
+        AddressedMembershipStatus Status,
+        ClientMembership? Membership);
+
+    private enum AddressedMembershipStatus
+    {
+        Found = 0,
+        Missing = 1,
+        Conflict = 2
     }
 }

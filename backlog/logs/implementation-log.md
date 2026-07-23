@@ -794,6 +794,39 @@
 - plans created: 1
 - note: plan defines `fix/TASK-078-membership-write-regressions`, separates the five write symptoms, requires a real-PostgreSQL red/green barrier beyond existing EF InMemory API tests, preserves TASK-070/TASK-077 lifecycle and immutable sale semantics, and covers atomic sale/version/audit writes, stable ProblemDetails, deterministic target selection, payment attribution, membership-scoped idempotency and frontend reload/error regression.
 
+# 2026-07-23 19:55
+
+## Moved to implementation
+- /backlog/implementation/TASK-078-membership-write-regressions.md
+
+## Created implementation plans
+- none
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 0
+- note: user explicitly approved execution of the reviewed TASK-078 plan in `fix/TASK-078-membership-write-regressions`; high-risk safeguards remain test-first real-PostgreSQL coverage, atomic audit/idempotency, exact card targeting and no production data repair.
+
+# 2026-07-23 21:22
+
+## Completed
+- /backlog/done/TASK-078-membership-write-regressions.md
+- /backlog/done/TASK-078-membership-write-regressions.plan.md
+
+## Validation
+- Backend: focused real-PostgreSQL/idempotency/model tests and full `GymCrm.slnx` suite passed.
+- Frontend: 47 unit/component tests, lint, build and 6 focused Playwright scenarios passed.
+- Bot: ruff and 36 pytest cases passed.
+- Local stand: recreated twice from empty volumes; all four services healthy; purchase, correction, mark-payment, renewal and fresh reload smoke passed.
+
+## Summary
+- TASK-078 implemented on `fix/TASK-078-membership-write-regressions`.
+- No new migration was created; membership idempotency storage and its explicit PostgreSQL-safe unique index were added to `InitialCreate` and the model snapshot.
+- No production data repair was performed.
 # 2026-07-23 23:00
 
 ## Moved to implementation
