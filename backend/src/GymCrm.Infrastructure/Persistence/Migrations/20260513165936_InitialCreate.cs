@@ -72,7 +72,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     BranchId = table.Column<Guid>(type: "uuid", nullable: true),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     NormalizedName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     BehaviorKind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     AvailableFrom = table.Column<DateOnly>(type: "date", nullable: false),
                     AvailableTo = table.Column<DateOnly>(type: "date", nullable: true),
@@ -87,6 +87,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     table.CheckConstraint("CK_MembershipCatalogItems_Name_NotBlank", "btrim(\"Name\") <> '' AND btrim(\"NormalizedName\") <> ''");
                     table.CheckConstraint("CK_MembershipCatalogItems_Ownership", "(\"BehaviorKind\" = 'Professional' AND \"BranchId\" IS NULL AND \"IsSystemOwned\") OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND \"BranchId\" IS NOT NULL AND NOT \"IsSystemOwned\")");
                     table.CheckConstraint("CK_MembershipCatalogItems_Price", "(\"BehaviorKind\" = 'Professional' AND CAST(\"Price\" AS NUMERIC) = 0) OR (\"BehaviorKind\" IN ('SingleVisit', 'Term') AND CAST(\"Price\" AS NUMERIC) > 0)");
+                    table.CheckConstraint("CK_MembershipCatalogItems_Price_WholeRub", "\"Price\" = trunc(\"Price\")");
                     table.ForeignKey(name: "FK_MembershipCatalogItems_Branches_BranchId", column: x => x.BranchId, principalTable: "Branches", principalColumn: "Id", onDelete: ReferentialAction.Restrict);
                 });
 
@@ -421,8 +422,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
-                    MembershipCatalogItemId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MembershipCatalogItemId = table.Column<Guid>(type: "uuid", nullable: true),
                     BehaviorKind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    PricingMode = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
                     GrossAmount = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -434,7 +436,10 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ClientMembershipSales", x => x.Id);
+                    table.CheckConstraint("CK_ClientMembershipSales_Behavior_Pricing", "(\"BehaviorKind\" = 'Professional' AND \"PricingMode\" = 'Catalog' AND CAST(\"GrossAmount\" AS NUMERIC) = 0) OR (\"BehaviorKind\" = 'SingleVisit' AND \"PricingMode\" IN ('Catalog', 'CatalogOverride') AND CAST(\"GrossAmount\" AS NUMERIC) > 0) OR (\"BehaviorKind\" = 'Term' AND \"PricingMode\" IN ('Catalog', 'CatalogOverride', 'AmountOnly') AND CAST(\"GrossAmount\" AS NUMERIC) > 0)");
                     table.CheckConstraint("CK_ClientMembershipSales_GrossAmount_NonNegative", "\"GrossAmount\" >= 0");
+                    table.CheckConstraint("CK_ClientMembershipSales_GrossAmount_WholeRub", "\"GrossAmount\" = trunc(\"GrossAmount\")");
+                    table.CheckConstraint("CK_ClientMembershipSales_PricingMode_Catalog", "(\"PricingMode\" IN ('Catalog', 'CatalogOverride') AND \"MembershipCatalogItemId\" IS NOT NULL) OR (\"PricingMode\" = 'AmountOnly' AND \"MembershipCatalogItemId\" IS NULL)");
                     table.ForeignKey(
                         name: "FK_ClientMembershipSales_Users_CommentChangedByUserId",
                         column: x => x.CommentChangedByUserId,
@@ -468,12 +473,10 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
                     SaleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    MembershipCatalogItemId = table.Column<Guid>(type: "uuid", nullable: false),
                     BehaviorKind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     IndividualValidFrom = table.Column<DateOnly>(type: "date", nullable: true),
                     IndividualValidTo = table.Column<DateOnly>(type: "date", nullable: true),
                     ProfessionalComment = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    PaymentAmount = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     IsPaid = table.Column<bool>(type: "boolean", nullable: false),
                     SingleVisitUsed = table.Column<bool>(type: "boolean", nullable: false),
                     PaidByUserId = table.Column<Guid>(type: "uuid", nullable: true),
@@ -487,7 +490,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ClientMemberships", x => x.Id);
-                    table.CheckConstraint("CK_ClientMemberships_PaymentAmount_NonNegative", "\"PaymentAmount\" >= 0");
                     table.ForeignKey(
                         name: "FK_ClientMemberships_Clients_ClientId",
                         column: x => x.ClientId,
@@ -498,12 +500,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         name: "FK_ClientMemberships_ClientMembershipSales_SaleId",
                         column: x => x.SaleId,
                         principalTable: "ClientMembershipSales",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ClientMemberships_MembershipCatalogItems_MembershipCatalogItemId",
-                        column: x => x.MembershipCatalogItemId,
-                        principalTable: "MembershipCatalogItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -539,6 +535,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_ClientMembershipRefunds", x => x.Id);
                     table.CheckConstraint("CK_ClientMembershipRefunds_Amount_Positive", "\"Amount\" > 0");
+                    table.CheckConstraint("CK_ClientMembershipRefunds_Amount_WholeRub", "\"Amount\" = trunc(\"Amount\")");
                     table.ForeignKey(
                         name: "FK_ClientMembershipRefunds_ClientMembershipSales_SaleId",
                         column: x => x.SaleId,
@@ -1079,8 +1076,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 column: "ClientId",
                 unique: true,
                 filter: "\"ValidTo\" IS NULL");
-
-            migrationBuilder.CreateIndex(name: "IX_ClientMemberships_MembershipCatalogItemId", table: "ClientMemberships", column: "MembershipCatalogItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientMemberships_PaidByUserId",

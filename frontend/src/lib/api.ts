@@ -72,6 +72,7 @@ export type {
   MembershipAttentionItem,
   MembershipBehaviorKind,
   MembershipCatalogItem,
+  MembershipSalePricingMode,
   MembershipAttentionState,
   MembershipExpirationSuggestion,
   MessengerPlatform,

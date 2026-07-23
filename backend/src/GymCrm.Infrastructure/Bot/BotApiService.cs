@@ -130,7 +130,8 @@ internal sealed class BotApiService(
                 client.Groups.Any(clientGroup => clientGroup.GroupId == groupId))
             .Include(client => client.Branch)
             .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.MembershipCatalogItem)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
             .Include(client => client.Groups)
@@ -358,7 +359,8 @@ internal sealed class BotApiService(
         var clients = await baseQuery
             .Include(client => client.Branch)
             .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.MembershipCatalogItem)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
             .Include(client => client.Groups)
@@ -408,7 +410,8 @@ internal sealed class BotApiService(
             .AsNoTracking()
             .Include(currentClient => currentClient.Branch)
             .Include(currentClient => currentClient.Memberships)
-                .ThenInclude(membership => membership.MembershipCatalogItem)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(currentClient => currentClient.Memberships)
                 .ThenInclude(membership => membership.Sale)
             .Include(currentClient => currentClient.Groups)
@@ -503,7 +506,9 @@ internal sealed class BotApiService(
                     .Select(membership => new
                     {
                         membership.BehaviorKind,
-                        MembershipLabel = membership.MembershipCatalogItem.Name,
+                        MembershipLabel = membership.Sale.MembershipCatalogItem != null
+                            ? membership.Sale.MembershipCatalogItem.Name
+                            : ClientMembershipSaleDisplay.AmountOnlyLabel,
                         ExpirationDate = membership.IndividualValidTo,
                         membership.IsPaid
                     })
@@ -565,7 +570,9 @@ internal sealed class BotApiService(
                     .Select(membership => new
                     {
                         membership.BehaviorKind,
-                        MembershipLabel = membership.MembershipCatalogItem.Name,
+                        MembershipLabel = membership.Sale.MembershipCatalogItem != null
+                            ? membership.Sale.MembershipCatalogItem.Name
+                            : ClientMembershipSaleDisplay.AmountOnlyLabel,
                         PurchaseDate = membership.Sale.PurchaseDate,
                         ExpirationDate = membership.IndividualValidTo,
                         membership.IsPaid
@@ -633,7 +640,8 @@ internal sealed class BotApiService(
         var clientBefore = await dbContext.Clients
             .AsNoTracking()
             .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.MembershipCatalogItem)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
             .SingleOrDefaultAsync(client => client.Id == clientId, cancellationToken);
@@ -657,7 +665,7 @@ internal sealed class BotApiService(
                 clientBefore.Id,
                 BuildClientFullName(clientBefore.LastName, clientBefore.FirstName, clientBefore.MiddleName),
                 currentMembershipBefore.BehaviorKind.ToString(),
-                currentMembershipBefore.MembershipCatalogItem.Name,
+                ClientMembershipSaleDisplay.GetMembershipName(currentMembershipBefore.Sale),
                 currentMembershipBefore.Sale.PurchaseDate,
                 currentMembershipBefore.IndividualValidTo,
                 true,
@@ -686,7 +694,8 @@ internal sealed class BotApiService(
         var clientAfter = await dbContext.Clients
             .AsNoTracking()
             .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.MembershipCatalogItem)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
             .SingleAsync(client => client.Id == clientId, cancellationToken);
@@ -697,7 +706,7 @@ internal sealed class BotApiService(
             clientAfter.Id,
             BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName),
             currentMembershipAfter.BehaviorKind.ToString(),
-            currentMembershipAfter.MembershipCatalogItem.Name,
+            ClientMembershipSaleDisplay.GetMembershipName(currentMembershipAfter.Sale),
             currentMembershipAfter.Sale.PurchaseDate,
             currentMembershipAfter.IndividualValidTo,
             currentMembershipAfter.IsPaid,
@@ -1067,7 +1076,9 @@ internal sealed class BotApiService(
                 trainingDate,
                 requirePurchaseDateReached: true),
             currentMembership?.BehaviorKind.ToString(),
-            currentMembership?.MembershipCatalogItem.Name);
+            currentMembership is null
+                ? null
+                : ClientMembershipSaleDisplay.GetMembershipName(currentMembership.Sale));
     }
 
     private static BotClientCard MapClientCard(
@@ -1106,11 +1117,14 @@ internal sealed class BotApiService(
                 ? null
                 : new BotClientMembership(
                     currentMembership.Id,
+                    currentMembership.Sale.MembershipCatalogItemId,
                     currentMembership.BehaviorKind.ToString(),
-                    currentMembership.MembershipCatalogItem.Name,
+                    ClientMembershipSaleDisplay.GetMembershipName(currentMembership.Sale),
+                    currentMembership.Sale.PricingMode.ToString(),
+                    currentMembership.Sale.GrossAmount,
+                    ClientMembershipSaleDisplay.GetCatalogPrice(currentMembership.Sale),
                     currentMembership.Sale.PurchaseDate,
                     currentMembership.IndividualValidTo,
-                    currentMembership.PaymentAmount,
                     currentMembership.IsPaid,
                     currentMembership.SingleVisitUsed),
             attendanceHistory);
@@ -1230,15 +1244,17 @@ internal sealed class BotApiService(
                 membership.Id,
                 membership.ClientId,
                 membership.SaleId,
-                membership.MembershipCatalogItemId,
-                MembershipLabel = membership.MembershipCatalogItem.Name,
+                membership.Sale.MembershipCatalogItemId,
+                MembershipLabel = ClientMembershipSaleDisplay.GetMembershipName(membership.Sale),
                 BehaviorKind = membership.BehaviorKind.ToString(),
+                PricingMode = membership.Sale.PricingMode.ToString(),
+                membership.Sale.GrossAmount,
+                CatalogPrice = ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
                 membership.IndividualValidFrom,
                 membership.IndividualValidTo,
                 membership.ProfessionalComment,
                 PurchaseDate = membership.Sale.PurchaseDate,
                 ExpirationDate = membership.IndividualValidTo,
-                membership.PaymentAmount,
                 membership.IsPaid,
                 membership.SingleVisitUsed,
                 membership.PaidByUserId,

@@ -7,19 +7,11 @@ namespace GymCrm.Infrastructure.Persistence.Configurations;
 internal sealed class ClientMembershipConfiguration : IEntityTypeConfiguration<ClientMembership>
 {
     private const int EnumMaxLength = 32;
-    private const int PaymentAmountPrecision = 10;
-    private const int PaymentAmountScale = 2;
-    private const string PaymentAmountNonNegativeConstraintName = "CK_ClientMemberships_PaymentAmount_NonNegative";
-    private const string PaymentAmountNonNegativeConstraintSql = "\"PaymentAmount\" >= 0";
     private const string CurrentMembershipIndexFilter = "\"ValidTo\" IS NULL";
     private const int ProfessionalCommentMaxLength = 1000;
 
     public void Configure(EntityTypeBuilder<ClientMembership> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            PaymentAmountNonNegativeConstraintName,
-            PaymentAmountNonNegativeConstraintSql));
-
         builder.HasKey(membership => membership.Id);
 
         builder.Property(membership => membership.BehaviorKind)
@@ -30,10 +22,6 @@ internal sealed class ClientMembershipConfiguration : IEntityTypeConfiguration<C
         builder.Property(membership => membership.IndividualValidTo);
         builder.Property(membership => membership.ProfessionalComment)
             .HasMaxLength(ProfessionalCommentMaxLength);
-
-        builder.Property(membership => membership.PaymentAmount)
-            .HasPrecision(PaymentAmountPrecision, PaymentAmountScale)
-            .IsRequired();
 
         builder.Property(membership => membership.ChangeReason)
             .HasConversion<string>()
@@ -47,7 +35,6 @@ internal sealed class ClientMembershipConfiguration : IEntityTypeConfiguration<C
         builder.HasIndex(membership => membership.SaleId)
             .IsUnique()
             .HasFilter(CurrentMembershipIndexFilter);
-        builder.HasIndex(membership => membership.MembershipCatalogItemId);
         builder.HasIndex(membership => membership.ValidTo);
 
         builder.HasOne(membership => membership.Sale)
@@ -55,9 +42,5 @@ internal sealed class ClientMembershipConfiguration : IEntityTypeConfiguration<C
             .HasForeignKey(membership => membership.SaleId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(membership => membership.MembershipCatalogItem)
-            .WithMany()
-            .HasForeignKey(membership => membership.MembershipCatalogItemId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

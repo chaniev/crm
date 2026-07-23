@@ -8,12 +8,10 @@ public class ClientMembership
     public Guid Id { get; set; }
     public Guid ClientId { get; set; }
     public Guid SaleId { get; set; }
-    public Guid MembershipCatalogItemId { get; set; }
     public MembershipBehaviorKind BehaviorKind { get; set; }
     public DateOnly? IndividualValidFrom { get; set; }
     public DateOnly? IndividualValidTo { get; set; }
     public string? ProfessionalComment { get; set; }
-    public decimal PaymentAmount { get; set; }
     public bool IsPaid { get; set; }
     public bool SingleVisitUsed { get; set; }
     public Guid? PaidByUserId { get; set; }
@@ -26,7 +24,6 @@ public class ClientMembership
 
     public Client Client { get; set; } = null!;
     public ClientMembershipSale Sale { get; set; } = null!;
-    public MembershipCatalogItem MembershipCatalogItem { get; set; } = null!;
     public User? PaidByUser { get; set; }
     public User ChangedByUser { get; set; } = null!;
 }

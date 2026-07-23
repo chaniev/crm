@@ -11,9 +11,15 @@ internal sealed class ClientMembershipRefundConfiguration : IEntityTypeConfigura
 
     public void Configure(EntityTypeBuilder<ClientMembershipRefund> builder)
     {
-        builder.ToTable(table => table.HasCheckConstraint(
-            "CK_ClientMembershipRefunds_Amount_Positive",
-            "\"Amount\" > 0"));
+        builder.ToTable(table =>
+        {
+            table.HasCheckConstraint(
+                "CK_ClientMembershipRefunds_Amount_Positive",
+                "\"Amount\" > 0");
+            table.HasCheckConstraint(
+                "CK_ClientMembershipRefunds_Amount_WholeRub",
+                "\"Amount\" = trunc(\"Amount\")");
+        });
 
         builder.HasKey(refund => refund.Id);
 

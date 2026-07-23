@@ -7,8 +7,9 @@ public class ClientMembershipSale
 {
     public Guid Id { get; set; }
     public Guid ClientId { get; set; }
-    public Guid MembershipCatalogItemId { get; set; }
+    public Guid? MembershipCatalogItemId { get; set; }
     public MembershipBehaviorKind BehaviorKind { get; set; }
+    public ClientMembershipSalePricingMode PricingMode { get; set; }
     public DateOnly PurchaseDate { get; set; }
     public decimal GrossAmount { get; set; }
     public Guid CreatedByUserId { get; set; }
@@ -20,7 +21,7 @@ public class ClientMembershipSale
     public Client Client { get; set; } = null!;
     public User CreatedByUser { get; set; } = null!;
     public User? CommentChangedByUser { get; set; }
-    public MembershipCatalogItem MembershipCatalogItem { get; set; } = null!;
+    public MembershipCatalogItem? MembershipCatalogItem { get; set; }
     public ICollection<ClientMembership> Memberships { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembershipRefund> Refunds { get; set; } = new List<ClientMembershipRefund>();
 }

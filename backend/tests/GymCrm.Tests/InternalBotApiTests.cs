@@ -274,6 +274,24 @@ public class InternalBotApiTests
             var ids = payload.EnumerateArray().Select(item => item.GetProperty("clientId").GetString()).ToArray();
             Assert.Contains(seeded.PaymentClientId.ToString(), ids);
             Assert.DoesNotContain(seeded.ProfessionalPaymentClientId.ToString(), ids);
+            var amountOnly = payload.EnumerateArray()
+                .Single(item => item.GetProperty("clientId").GetString() == seeded.PaymentClientId.ToString());
+            Assert.Equal("Без варианта каталога", amountOnly.GetProperty("membershipLabel").GetString());
+        }
+
+        using (var amountOnlyCardResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/clients/{seeded.PaymentClientId}?platform=Telegram&platformUserId={seeded.AdminTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, amountOnlyCardResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(amountOnlyCardResponse);
+            var membership = payload.GetProperty("currentMembership");
+            Assert.Equal(JsonValueKind.Null, membership.GetProperty("membershipCatalogItemId").ValueKind);
+            Assert.Equal("Без варианта каталога", membership.GetProperty("membershipLabel").GetString());
+            Assert.Equal("AmountOnly", membership.GetProperty("pricingMode").GetString());
+            Assert.Equal(1800m, membership.GetProperty("grossAmount").GetDecimal());
+            Assert.Equal(JsonValueKind.Null, membership.GetProperty("catalogPrice").ValueKind);
         }
     }
 
@@ -527,7 +545,7 @@ public class InternalBotApiTests
             CreateMembership(expiringDayTenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, isPaid: true, now),
             CreateMembership(expiringDayElevenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, isPaid: true, now),
             CreateMembership(expiredClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, isPaid: true, now),
-            CreateMembership(paymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now),
+            CreateMembership(paymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now, amountOnly: true),
             CreateMembership(professionalPaymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), null, 0m, isPaid: true, now, MembershipBehaviorKind.Professional));
 
         dbContext.Attendance.Add(new Attendance
@@ -611,34 +629,35 @@ public class InternalBotApiTests
         Guid changedByUserId,
         DateOnly purchaseDate,
         DateOnly? expirationDate,
-        decimal paymentAmount,
+        decimal grossAmount,
         bool isPaid,
         DateTimeOffset now,
-        MembershipBehaviorKind behaviorKind = MembershipBehaviorKind.Term)
+        MembershipBehaviorKind behaviorKind = MembershipBehaviorKind.Term,
+        bool amountOnly = false)
     {
         var saleId = Guid.NewGuid();
-        var catalogItem = behaviorKind == MembershipBehaviorKind.Professional
+        var catalogItem = behaviorKind == MembershipBehaviorKind.Professional || amountOnly
             ? null
             : MembershipCatalogItem.CreateBranchOwned(
                 branchId,
                 $"Bot {behaviorKind} {clientId:N}",
-                paymentAmount,
+                grossAmount,
                 behaviorKind,
                 purchaseDate,
                 null,
                 now);
-        var catalogItemId = catalogItem?.Id ?? MembershipCatalogItemConfiguration.ProfessionalCatalogItemId;
+        var catalogItemId = amountOnly
+            ? (Guid?)null
+            : catalogItem?.Id ?? MembershipCatalogItemConfiguration.ProfessionalCatalogItemId;
         return new ClientMembership
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
             SaleId = saleId,
-            MembershipCatalogItemId = catalogItemId,
             BehaviorKind = behaviorKind,
             IndividualValidFrom = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : purchaseDate,
             IndividualValidTo = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : expirationDate,
             ProfessionalComment = behaviorKind == MembershipBehaviorKind.Professional ? "Bot professional" : null,
-            PaymentAmount = paymentAmount,
             IsPaid = isPaid,
             SingleVisitUsed = false,
             PaidByUserId = isPaid ? changedByUserId : null,
@@ -654,13 +673,15 @@ public class InternalBotApiTests
                 ClientId = clientId,
                 MembershipCatalogItemId = catalogItemId,
                 BehaviorKind = behaviorKind,
+                PricingMode = amountOnly
+                    ? ClientMembershipSalePricingMode.AmountOnly
+                    : ClientMembershipSalePricingMode.Catalog,
                 PurchaseDate = purchaseDate,
-                GrossAmount = paymentAmount,
+                GrossAmount = grossAmount,
                 CreatedByUserId = changedByUserId,
                 CreatedAt = now,
-                MembershipCatalogItem = catalogItem!
-            },
-            MembershipCatalogItem = catalogItem!
+                MembershipCatalogItem = catalogItem
+            }
         };
     }
 

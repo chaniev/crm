@@ -144,9 +144,6 @@
   <data name="CurrentMembershipMissingForPaymentMark" xml:space="preserve">
     <value>У клиента нет текущего абонемента для отметки оплаты.</value>
   </data>
-  <data name="PaymentAmountImmutableForPaymentMark" xml:space="preserve">
-    <value>Сумму оплаты можно изменить только через исправление абонемента.</value>
-  </data>
   <data name="IsPaidRequired" xml:space="preserve">
     <value>Укажите признак оплаты абонемента.</value>
   </data>
@@ -170,12 +167,6 @@
   </data>
   <data name="InvalidIsoDate" xml:space="preserve">
     <value>Укажите корректную дату в формате yyyy-MM-dd.</value>
-  </data>
-  <data name="PaymentAmountRequired" xml:space="preserve">
-    <value>Укажите сумму оплаты.</value>
-  </data>
-  <data name="PaymentAmountMustBeNonNegative" xml:space="preserve">
-    <value>Сумма оплаты не может быть отрицательной.</value>
   </data>
   <data name="RefundAmountRequired" xml:space="preserve">
     <value>Укажите сумму возврата.</value>
@@ -209,9 +200,6 @@
   </data>
   <data name="RefundMustExist" xml:space="preserve">
     <value>Возврат абонемента не найден.</value>
-  </data>
-  <data name="CorrectedGrossAmountBelowRefunds" xml:space="preserve">
-    <value>Сумма продажи не может быть меньше суммы неотмененных возвратов.</value>
   </data>
   <data name="CorrectedPurchaseDateAfterRefund" xml:space="preserve">
     <value>Дата покупки не может быть позже существующего неотмененного возврата.</value>

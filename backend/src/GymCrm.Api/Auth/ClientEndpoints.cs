@@ -375,9 +375,16 @@ internal static class ClientEndpoints
                     .ThenByDescending(membership => membership.Id)
                     .Select(membership => new CurrentMembershipSummaryResponse(
                         membership.Id,
-                        membership.MembershipCatalogItemId,
-                        membership.MembershipCatalogItem.Name,
+                        membership.Sale.MembershipCatalogItemId,
+                        membership.Sale.MembershipCatalogItem != null
+                            ? membership.Sale.MembershipCatalogItem.Name
+                            : ClientMembershipSaleDisplay.AmountOnlyLabel,
                         membership.BehaviorKind.ToString(),
+                        membership.Sale.PricingMode.ToString(),
+                        membership.Sale.GrossAmount,
+                        membership.Sale.MembershipCatalogItem != null
+                            ? membership.Sale.MembershipCatalogItem.Price
+                            : null,
                         membership.Sale.PurchaseDate,
                         membership.IndividualValidTo,
                         membership.IsPaid,
@@ -878,30 +885,39 @@ internal static class ClientEndpoints
 
         if (preserveSingleVisit)
         {
-            if (request.MembershipCatalogItemId.HasValue || request.PaymentStatus is not null ||
-                request.PaymentDate is not null || request.ValidFrom is not null || request.ValidTo is not null)
+            if (request.PresentSaleFields.Count > 0)
             {
                 return TypedResults.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["membershipCatalogItemId"] = ["Active unused SingleVisit is transferred without a new membership or financial event."]
+                    [request.PresentSaleFields.Order(StringComparer.Ordinal).First()] =
+                        ["Active unused SingleVisit is transferred without a new membership or financial event."]
                 });
             }
         }
-        else if (!request.MembershipCatalogItemId.HasValue)
+        else if (!request.MembershipCatalogItemId.HasValue && !request.ManualSaleAmount.HasValue)
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>
             {
-                ["membershipCatalogItemId"] = ["Membership catalog item is required for transfer."]
+                ["membershipCatalogItemId"] = ["Choose a catalog item or provide a manual sale amount."],
+                ["manualSaleAmount"] = ["Choose a catalog item or provide a manual sale amount."]
             });
         }
 
         MembershipBehaviorKind? transferBehavior = null;
         if (!preserveSingleVisit)
         {
-            transferBehavior = await dbContext.MembershipCatalogItems
-                .Where(item => item.Id == request.MembershipCatalogItemId)
-                .Select(item => (MembershipBehaviorKind?)item.BehaviorKind)
-                .SingleOrDefaultAsync(cancellationToken);
+            var pricingErrors = new Dictionary<string, string[]>();
+            ValidatePricingSelection(request.MembershipCatalogItemId, request.ManualSaleAmount, pricingErrors);
+            ValidateCatalogPayment(request.PaymentStatus, request.PaymentDate, pricingErrors);
+            if (pricingErrors.Count > 0)
+                return TypedResults.ValidationProblem(pricingErrors);
+
+            transferBehavior = request.MembershipCatalogItemId.HasValue
+                ? await dbContext.MembershipCatalogItems
+                    .Where(item => item.Id == request.MembershipCatalogItemId.Value)
+                    .Select(item => (MembershipBehaviorKind?)item.BehaviorKind)
+                    .SingleOrDefaultAsync(cancellationToken)
+                : MembershipBehaviorKind.Term;
             if (transferBehavior == MembershipBehaviorKind.Professional && currentUser.Role != UserRole.HeadCoach)
             {
                 return TypedResults.ValidationProblem(new Dictionary<string, string[]>
@@ -953,12 +969,13 @@ internal static class ClientEndpoints
                 client.Id,
                 new CreateClientMembershipPurchaseCommand(
                     currentUser.Id,
-                    request.MembershipCatalogItemId!.Value,
+                    request.MembershipCatalogItemId,
                     ParseIsoDate(request.ValidFrom),
                     ParseIsoDate(request.ValidTo),
                     isPaid,
                     ParseIsoDate(request.PaymentDate),
-                    request.ProfessionalComment),
+                    request.ProfessionalComment,
+                    request.ManualSaleAmount),
                 cancellationToken);
             if (!mutation.Succeeded)
             {
@@ -1122,12 +1139,13 @@ internal static class ClientEndpoints
                     id,
                     new CreateClientMembershipPurchaseCommand(
                         currentUser.Id,
-                        request.MembershipCatalogItemId!.Value,
+                        request.MembershipCatalogItemId,
                         ParseIsoDate(request.ValidFrom),
                         ParseIsoDate(request.ValidTo),
                         string.Equals(request.PaymentStatus, "Paid", StringComparison.OrdinalIgnoreCase),
                         ParseIsoDate(request.PaymentDate),
-                        request.ProfessionalComment),
+                        request.ProfessionalComment,
+                        request.ManualSaleAmount),
                     cancellationToken),
             actionType: ClientAuditConstants.MembershipPurchasedAction,
             descriptionFactory: ClientAuditResources.MembershipPurchasedDescription);
@@ -1190,10 +1208,11 @@ internal static class ClientEndpoints
                     id,
                     new RenewClientMembershipCommand(
                         currentUser.Id,
-                        request.MembershipCatalogItemId!.Value,
+                        request.MembershipCatalogItemId,
                         string.Equals(request.PaymentStatus, "Paid", StringComparison.OrdinalIgnoreCase),
                         ParseIsoDate(request.PaymentDate),
-                        request.ProfessionalComment),
+                        request.ProfessionalComment,
+                        request.ManualSaleAmount),
                     cancellationToken),
             actionType: ClientAuditConstants.MembershipRenewedAction,
             descriptionFactory: ClientAuditResources.MembershipRenewedDescription);
@@ -1482,7 +1501,8 @@ internal static class ClientEndpoints
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.PaidByUser)
             .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.MembershipCatalogItem)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
                     .ThenInclude(sale => sale.Refunds)
@@ -1966,6 +1986,7 @@ internal static class ClientEndpoints
         CancellationToken cancellationToken)
     {
         var errors = new Dictionary<string, string[]>();
+        ValidateAdditionalFields(request.AdditionalFields, errors);
         var groupIds = NormalizeTransferGroupIds(request);
 
         var targetBranchId = request.TargetBranchId ?? request.BranchId;
@@ -2225,8 +2246,8 @@ internal static class ClientEndpoints
     private static Dictionary<string, string[]> ValidatePurchaseMembershipRequest(PurchaseClientMembershipRequest request)
     {
         var errors = new Dictionary<string, string[]>();
-        if (!request.MembershipCatalogItemId.HasValue || request.MembershipCatalogItemId == Guid.Empty)
-            errors["membershipCatalogItemId"] = ["Membership catalog item is required."];
+        ValidateAdditionalFields(request.AdditionalFields, errors);
+        ValidatePricingSelection(request.MembershipCatalogItemId, request.ManualSaleAmount, errors);
         _ = ValidateOptionalDate(request.ValidFrom, "validFrom", errors);
         _ = ValidateOptionalDate(request.ValidTo, "validTo", errors);
         ValidateCatalogPayment(request.PaymentStatus, request.PaymentDate, errors);
@@ -2239,14 +2260,14 @@ internal static class ClientEndpoints
         Client client)
     {
         var errors = new Dictionary<string, string[]>();
+        ValidateAdditionalFields(request.AdditionalFields, errors);
         if (GetCurrentMembership(client) is null)
         {
             errors["currentMembership"] = [ClientResources.CurrentMembershipMissingForRenewal];
             return errors;
         }
 
-        if (!request.MembershipCatalogItemId.HasValue || request.MembershipCatalogItemId == Guid.Empty)
-            errors["membershipCatalogItemId"] = ["Membership catalog item is required."];
+        ValidatePricingSelection(request.MembershipCatalogItemId, request.ManualSaleAmount, errors);
         ValidateCatalogPayment(request.PaymentStatus, request.PaymentDate, errors);
 
         return errors;
@@ -2261,11 +2282,53 @@ internal static class ClientEndpoints
         if (status == "Unpaid" && date.HasValue) errors["paymentDate"] = ["Payment date must be absent for unpaid membership."];
     }
 
+    private static void ValidatePricingSelection(
+        Guid? membershipCatalogItemId,
+        decimal? manualSaleAmount,
+        Dictionary<string, string[]> errors)
+    {
+        if (membershipCatalogItemId == Guid.Empty)
+        {
+            errors["membershipCatalogItemId"] = ["Membership catalog item id is invalid."];
+        }
+
+        if (!membershipCatalogItemId.HasValue && !manualSaleAmount.HasValue)
+        {
+            const string message = "Choose a catalog item or provide a manual sale amount.";
+            errors["membershipCatalogItemId"] = [message];
+            errors["manualSaleAmount"] = [message];
+            return;
+        }
+
+        if (manualSaleAmount.HasValue &&
+            !RubMoneyPolicy.IsWholeAmount(manualSaleAmount.Value, allowZero: false))
+        {
+            errors["manualSaleAmount"] =
+                ["Manual sale amount must be a positive whole number of RUB within the supported range."];
+        }
+    }
+
+    private static void ValidateAdditionalFields(
+        IDictionary<string, JsonElement>? additionalFields,
+        Dictionary<string, string[]> errors)
+    {
+        if (additionalFields is null)
+        {
+            return;
+        }
+
+        foreach (var field in additionalFields.Keys)
+        {
+            errors[field] = [$"Field '{field}' is not allowed for this operation."];
+        }
+    }
+
     private static Dictionary<string, string[]> ValidateCorrectMembershipRequest(
         CorrectClientMembershipRequest request,
         Client client)
     {
         var errors = new Dictionary<string, string[]>();
+        ValidateAdditionalFields(request.AdditionalFields, errors);
         var currentMembership = GetCurrentMembership(client);
         if (currentMembership is null)
         {
@@ -2287,6 +2350,7 @@ internal static class ClientEndpoints
         Client client)
     {
         var errors = new Dictionary<string, string[]>();
+        ValidateAdditionalFields(request.AdditionalFields, errors);
         var currentMembership = GetCurrentMembership(client);
         if (currentMembership is null)
         {
@@ -2310,9 +2374,9 @@ internal static class ClientEndpoints
         {
             errors["amount"] = [ClientResources.RefundAmountRequired];
         }
-        else if (request.Amount.Value <= 0)
+        else if (!RubMoneyPolicy.IsWholeAmount(request.Amount.Value, allowZero: false))
         {
-            errors["amount"] = [ClientResources.RefundAmountMustBePositive];
+            errors["amount"] = ["Refund amount must be a positive whole number of RUB within the supported range."];
         }
 
         ValidateRequiredDate(request.RefundDate, "refundDate", ClientResources.RefundDateRequired, errors);
@@ -2426,29 +2490,6 @@ internal static class ClientEndpoints
         return parsedDate;
     }
 
-    private static void ValidatePaymentAmount(
-        decimal? value,
-        Dictionary<string, string[]> errors)
-    {
-        if (!value.HasValue)
-        {
-            errors["paymentAmount"] = [ClientResources.PaymentAmountRequired];
-            return;
-        }
-
-        ValidateOptionalPaymentAmount(value, errors);
-    }
-
-    private static void ValidateOptionalPaymentAmount(
-        decimal? value,
-        Dictionary<string, string[]> errors)
-    {
-        if (value.HasValue && value.Value < 0)
-        {
-            errors["paymentAmount"] = [ClientResources.PaymentAmountMustBeNonNegative];
-        }
-    }
-
     private static void ValidateIsPaidRequired(
         bool? isPaid,
         Dictionary<string, string[]> errors)
@@ -2494,13 +2535,32 @@ internal static class ClientEndpoints
             {
                 ["currentMembership"] = [ClientResources.CurrentMembershipAlreadyPaid]
             },
-            ClientMembershipMutationError.CorrectedGrossAmountBelowRefunds => new Dictionary<string, string[]>
-            {
-                ["paymentAmount"] = [ClientResources.CorrectedGrossAmountBelowRefunds]
-            },
             ClientMembershipMutationError.CorrectedPurchaseDateAfterRefund => new Dictionary<string, string[]>
             {
                 ["purchaseDate"] = [ClientResources.CorrectedPurchaseDateAfterRefund]
+            },
+            ClientMembershipMutationError.PricingSelectionMissing => new Dictionary<string, string[]>
+            {
+                ["membershipCatalogItemId"] = ["Choose a catalog item or provide a manual sale amount."],
+                ["manualSaleAmount"] = ["Choose a catalog item or provide a manual sale amount."]
+            },
+            ClientMembershipMutationError.ManualSaleAmountInvalid => new Dictionary<string, string[]>
+            {
+                ["manualSaleAmount"] = ["Manual sale amount must be a positive whole number of RUB within the supported range."]
+            },
+            ClientMembershipMutationError.ProfessionalOverrideNotAllowed => new Dictionary<string, string[]>
+            {
+                ["manualSaleAmount"] = ["Professional membership can only use its zero catalog price."]
+            },
+            ClientMembershipMutationError.ProfessionalPermissionDenied => new Dictionary<string, string[]>
+            {
+                ["membershipCatalogItemId"] = ["Only HeadCoach can assign Professional membership."]
+            },
+            ClientMembershipMutationError.CatalogItemMissing or
+            ClientMembershipMutationError.CatalogItemBranchMismatch or
+            ClientMembershipMutationError.CatalogItemUnavailable => new Dictionary<string, string[]>
+            {
+                ["membershipCatalogItemId"] = ["Selected membership catalog item is not available for this client."]
             },
             _ => new Dictionary<string, string[]>
             {
@@ -2823,8 +2883,8 @@ internal static class ClientEndpoints
         var clientIds = items.Select(item => item.Id).ToArray();
         var currentMemberships = await dbContext.ClientMemberships
             .AsNoTracking()
-            .Include(membership => membership.MembershipCatalogItem)
             .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.MembershipCatalogItem)
             .Where(membership => clientIds.Contains(membership.ClientId) && membership.ValidTo == null)
             .ToArrayAsync(cancellationToken);
         var currentMembershipByClientId = currentMemberships
@@ -3115,15 +3175,17 @@ internal static class ClientEndpoints
         return new ClientMembershipResponse(
             membership.Id,
             membership.SaleId,
-            membership.MembershipCatalogItemId,
-            membership.MembershipCatalogItem.Name,
+            membership.Sale.MembershipCatalogItemId,
+            ClientMembershipSaleDisplay.GetMembershipName(membership.Sale),
             membership.BehaviorKind.ToString(),
+            membership.Sale.PricingMode.ToString(),
+            membership.Sale.GrossAmount,
+            ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
             membership.Sale.PurchaseDate,
             membership.IndividualValidTo,
             membership.IndividualValidFrom,
             membership.IndividualValidTo,
             membership.ProfessionalComment,
-            membership.PaymentAmount,
             membership.IsPaid,
             membership.SingleVisitUsed,
             membership.PaidByUserId,
@@ -3206,9 +3268,12 @@ internal static class ClientEndpoints
             ? null
             : new CurrentMembershipSummaryResponse(
                 membership.Id,
-                membership.MembershipCatalogItemId,
-                membership.MembershipCatalogItem.Name,
+                membership.Sale.MembershipCatalogItemId,
+                ClientMembershipSaleDisplay.GetMembershipName(membership.Sale),
                 membership.BehaviorKind.ToString(),
+                membership.Sale.PricingMode.ToString(),
+                membership.Sale.GrossAmount,
+                ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
                 membership.Sale.PurchaseDate,
                 membership.IndividualValidTo,
                 membership.IsPaid,
@@ -3498,15 +3563,17 @@ internal static class ClientEndpoints
                 membership.Id,
                 membership.ClientId,
                 membership.SaleId,
-                membership.MembershipCatalogItemId,
-                membership.MembershipCatalogItem.Name,
+                membership.Sale.MembershipCatalogItemId,
+                ClientMembershipSaleDisplay.GetMembershipName(membership.Sale),
                 membership.BehaviorKind.ToString(),
+                membership.Sale.PricingMode.ToString(),
+                membership.Sale.GrossAmount,
+                ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
                 membership.Sale.PurchaseDate,
                 membership.IndividualValidTo,
                 membership.IndividualValidFrom,
                 membership.IndividualValidTo,
                 membership.ProfessionalComment,
-                membership.PaymentAmount,
                 membership.IsPaid,
                 membership.SingleVisitUsed,
                 membership.PaidByUserId,
@@ -3526,9 +3593,12 @@ internal static class ClientEndpoints
                 sale.Id,
                 sale.ClientId,
                 sale.MembershipCatalogItemId,
+                sale.MembershipName,
                 sale.BehaviorKind.ToString(),
+                sale.PricingMode.ToString(),
                 sale.PurchaseDate,
                 sale.GrossAmount,
+                sale.CatalogPrice,
                 sale.CreatedByUserId,
                 sale.CreatedAt),
             AuditSerializerOptions);

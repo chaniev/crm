@@ -1,7 +1,16 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace GymCrm.Api.Auth;
 
-internal sealed record RenewClientMembershipRequest(
-    Guid? MembershipCatalogItemId,
-    string? PaymentStatus,
-    string? PaymentDate,
-    string? ProfessionalComment);
+internal sealed class RenewClientMembershipRequest
+{
+    public Guid? MembershipCatalogItemId { get; init; }
+    public string? PaymentStatus { get; init; }
+    public string? PaymentDate { get; init; }
+    public string? ProfessionalComment { get; init; }
+    public decimal? ManualSaleAmount { get; init; }
+
+    [JsonExtensionData]
+    public IDictionary<string, JsonElement>? AdditionalFields { get; init; }
+}

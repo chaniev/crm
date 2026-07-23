@@ -395,24 +395,32 @@ Focused raw-JSON HTTP integration suite пишется первым и обяз�
 ## Test plan
 - [x] Product decisions and operation matrix are recorded before branch implementation begins.
 - [x] Source TASK is formally moved to `/backlog/implementation` with `Safe for Codex: yes` and a dedicated branch recorded.
-- [ ] Raw-JSON HTTP suite gives an executable assertion-based red phase before behavioral production code; remaining unit/integration/component tests are added after compile-only scaffold and fail for intended missing behavior.
-- [ ] Focused API tests создают абонементы через production purchase flow во всех разрешённых pricing modes и проверяют persisted sale + current membership version + audit после reload.
-- [ ] Focused creation suite запущен до реализации в red-фазе и после реализации в green-фазе одной и той же filter-командой; оба результата записаны в handoff.
-- [ ] All three purchase scenarios persist exact `GrossAmount` and correct `PricingMode`.
-- [ ] Renewal/transfer follow the approved matrix, require explicit pricing confirmation, and failed transfer rolls back all layers.
-- [ ] Missing/invalid amount combinations return stable ProblemDetails without writes/audit.
-- [ ] Catalog, sale and refund accept only whole RUB in the aligned range; fractional values never round or persist.
-- [ ] Override cannot bypass catalog availability, branch scope or Professional permission.
-- [ ] Refunds, corrections and payment mark use/preserve the immutable sale amount.
-- [ ] Financial totals and breakdowns use exact override/amount-only values after reload.
-- [ ] Catalog-only historical rows remain unchanged and never reprice dynamically.
-- [ ] Web, attendance, attention and internal bot handle null catalog and consistent backend label.
-- [ ] Frontend purchase/renew/transfer display actual amount and origin for all modes, require per-sale confirmation and send no inherited/hidden stale values.
-- [ ] `dotnet test backend/GymCrm.slnx` passes.
-- [ ] `cd frontend && npm run test:unit`, `npm run lint`, `npm run build` pass.
-- [ ] Focused Playwright membership sale-pricing and responsive specs pass.
-- [ ] `cd bot && ruff check . && pytest` pass.
-- [ ] Clean PostgreSQL database creation and final monetary/catalog source audit pass.
+- [x] Raw-JSON HTTP suite gives an executable assertion-based red phase before behavioral production code; remaining unit/integration/component tests are added after compile-only scaffold and fail for intended missing behavior.
+- [x] Focused API tests создают абонементы через production purchase flow во всех разрешённых pricing modes и проверяют persisted sale + current membership version + audit после reload.
+- [x] Focused creation suite запущен до реализации в red-фазе и после реализации в green-фазе одной и той же filter-командой; оба результата записаны в handoff.
+- [x] All three purchase scenarios persist exact `GrossAmount` and correct `PricingMode`.
+- [x] Renewal/transfer follow the approved matrix, require explicit pricing confirmation, and failed transfer rolls back all layers.
+- [x] Missing/invalid amount combinations return stable ProblemDetails without writes/audit.
+- [x] Catalog, sale and refund accept only whole RUB in the aligned range; fractional values never round or persist.
+- [x] Override cannot bypass catalog availability, branch scope or Professional permission.
+- [x] Refunds, corrections and payment mark use/preserve the immutable sale amount.
+- [x] Financial totals and breakdowns use exact override/amount-only values after reload.
+- [x] Catalog-only historical rows remain unchanged and never reprice dynamically.
+- [x] Web, attendance, attention and internal bot handle null catalog and consistent backend label.
+- [x] Frontend purchase/renew/transfer display actual amount and origin for all modes, require per-sale confirmation and send no inherited/hidden stale values.
+- [x] `dotnet test backend/GymCrm.slnx` passes.
+- [x] `cd frontend && npm run test:unit`, `npm run lint`, `npm run build` pass.
+- [x] Focused Playwright membership sale-pricing and responsive specs pass.
+- [x] `cd bot && ruff check . && pytest` pass.
+- [x] Clean PostgreSQL database creation and final monetary/catalog source audit pass.
+
+## Implementation handoff
+- Branch: `feature/TASK-077-membership-sale-amount-override` from updated `main`.
+- Backend red: `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~ClientMembershipCreationPricingApiTests"` executed 7 tests and failed 7 assertions because override/amount-only pricing and provenance were not implemented; the host, fixture and compilation were green.
+- Backend green: the same filter command now executes 12 tests and passes 12; the suite was expanded without weakening the original assertions.
+- Additional red barriers: pricing/catalog/persistence executed 25 tests (20 expected failures, 5 baseline passes); frontend focused unit executed 37 tests (16 expected failures); bot typed-contract suite executed 7 tests (1 expected failure).
+- Final automated checks: backend 231/231; frontend 160/160 plus lint/build; focused Playwright pricing 9/9 and transfer 1/1; bot 36/36 plus ruff.
+- Database: no new migration was added. The existing initial migration, its designer, the existing follow-up designer and the model snapshot were updated. A fresh `gym-crm_postgres_data` deployment applied the two existing migrations and passed schema, constraint, seed, health and restart checks.
 
 ## Regression barrier
 Completion is blocked unless the same raw-JSON focused integration suite compiles, executes and fails by assertions in the expected red phase before behavioral production code, then passes in a green phase after implementation. It creates memberships through the real purchase HTTP/application flow for all three sale modes and proves after a fresh database read that sale, current membership version and audit were created atomically. Tests must prove that the exact whole-RUB `ClientMembershipSale.GrossAmount` is the value used by client history, audit, refund ceiling, correction preservation, financial report totals and internal bot projection after reload; fractional catalog/manual/refund values must fail without rounding or writes. The barrier also requires invalid/no-write creation coverage, clean-schema tests for nullable sale-level catalog/pricing consistency, canonical sale/membership behavior equality, aligned catalog/sale/refund money constraints, absence of membership-level catalog identity, strict-empty mark-payment, complete new-sale-field rejection for preserve-SingleVisit transfer, atomic transfer rollback and frontend component/Playwright tests for explicit pricing confirmation in purchase/renew/transfer. Directly seeding a ready sale/membership cannot satisfy the creation barrier. Any remaining `ClientMembership.PaymentAmount`, `ClientMembership.MembershipCatalogItemId`/navigation or financial calculation from `MembershipCatalogItem.Price` after sale creation fails the barrier.

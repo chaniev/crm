@@ -4,8 +4,13 @@ import { mapClientMembership } from './mappers'
 const baseMembership = {
   id: 'version-1',
   saleId: 'sale-1',
+  membershipCatalogItemId: 'catalog-1',
+  membershipName: 'Месяц',
   behaviorKind: 'Term',
   purchaseDate: '2026-07-01',
+  pricingMode: 'Catalog',
+  grossAmount: 4000,
+  catalogPrice: 4000,
 }
 
 describe('mapClientMembership sale comment contract', () => {
