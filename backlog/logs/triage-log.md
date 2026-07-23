@@ -1064,3 +1064,29 @@
 - needs-clarification: 0
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-23 17:57
+
+## Processed inbox files
+- 2026-07-23.md
+
+## Created tasks
+- /backlog/risky/TASK-078-membership-write-regressions.md
+- /backlog/needs-clarification/TASK-079-client-birth-date-profile.md
+- /backlog/needs-clarification/TASK-080-administrator-group-marking.md
+- /backlog/risky/TASK-081-administrator-group-type-settings.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- TASK-077 проверена: она меняет pricing mode и индивидуальную сумму продажи, но не покрывает ошибки существующих purchase/renewal/correction/mark-payment сценариев.
+- TASK-075 проверена: она описывает состояние занятия `Held`/`NotHeld`; заметка «отметить группу» оставлена на уточнение, потому что может означать attendance или другой групповой сценарий.
+- TASK-030 и TASK-053 проверены: целевой доступ Administrator к типам групп уже был реализован, поэтому создана отдельная regression-задача, а завершённые карточки не переоткрывались.
+
+## Summary
+- tasks-ready: 0
+- risky: 2
+- needs-clarification: 2
+- updated existing: 0
+- processed files: 1
