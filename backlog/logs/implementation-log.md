@@ -793,3 +793,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `fix/TASK-078-membership-write-regressions`, separates the five write symptoms, requires a real-PostgreSQL red/green barrier beyond existing EF InMemory API tests, preserves TASK-070/TASK-077 lifecycle and immutable sale semantics, and covers atomic sale/version/audit writes, stable ProblemDetails, deterministic target selection, payment attribution, membership-scoped idempotency and frontend reload/error regression.
+
+# 2026-07-23 23:00
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-079-client-birth-date-profile.plan.md
+
+## Skipped tasks
+- TASK-079-client-birth-date-profile.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; detailed test-first plan created for explicit privacy/contract review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-079-client-birth-date-profile`, nullable PostgreSQL `date` storage with no backfill, exact create/update/details date-only contract, existing permissions and client-audit snapshots, explicit clear semantics, frontend full-year/leap-day calculation and API/component/Playwright regression barriers.
