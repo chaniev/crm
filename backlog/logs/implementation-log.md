@@ -776,3 +776,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-073-temporary-group-trainer-substitution`, a separate substitution model, inclusive club-date semantics, concurrency-safe overlap protection, one backend-owned effective assignment service across web/attendance/photo/internal bot consumers, atomic audit, financial non-attribution and test-first fixed-date/backend/frontend regression barriers.
+
+# 2026-07-23 18:08
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-078-membership-write-regressions.plan.md
+
+## Skipped tasks
+- TASK-078-membership-write-regressions.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; detailed test-first plan created for explicit review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `fix/TASK-078-membership-write-regressions`, separates the five write symptoms, requires a real-PostgreSQL red/green barrier beyond existing EF InMemory API tests, preserves TASK-070/TASK-077 lifecycle and immutable sale semantics, and covers atomic sale/version/audit writes, stable ProblemDetails, deterministic target selection, payment attribution, membership-scoped idempotency and frontend reload/error regression.
