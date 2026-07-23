@@ -8,7 +8,10 @@ done
 - moved_from: /backlog/risky
 - implementation_plan: /backlog/done/TASK-079-client-birth-date-profile.plan.md
 - implementation_branch: feature/TASK-079-client-birth-date-profile
+- implementation_commit: 6885570
 - moved_to_done_at: 2026-07-23
+- merged_to_main_at: 2026-07-24
+- merge_commit: d7ea1fb
 
 ## Goal
 Пользователь с доступом к карточке клиента может указать дату рождения при создании клиента, изменить её в профиле и увидеть дату рождения и вычисленный возраст в карточке клиента.
