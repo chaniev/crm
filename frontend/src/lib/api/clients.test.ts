@@ -93,6 +93,38 @@ describe('getClient note attribution', () => {
   })
 })
 
+describe('getClient birth date contract', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  test.each([
+    ['2000-02-29', '2026-07-23'],
+    [null, '0001-01-01'],
+  ])(
+    'maps exact nullable birthDate and required businessDate: %s / %s',
+    async (birthDate, businessDate) => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue(
+          new Response(
+            JSON.stringify({
+              id: 'c-1',
+              fullName: 'Иван Иванов',
+              birthDate,
+              businessDate,
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        ),
+      )
+
+      const client = await getClient('c-1')
+
+      expect(client.birthDate).toBe(birthDate)
+      expect(client.businessDate).toBe(businessDate)
+    },
+  )
+})
+
 describe('getClientAttentionItems', () => {
   afterEach(() => vi.unstubAllGlobals())
 

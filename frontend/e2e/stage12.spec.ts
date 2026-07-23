@@ -147,6 +147,7 @@ type ClientState = {
   firstName: string
   middleName: string
   phone: string
+  birthDate?: string | null
   notes: string
   notesLastChangedByName?: string | null
   notesLastChangedAt?: string | null
@@ -514,6 +515,7 @@ test.describe('Основные e2e сценарии', () => {
           firstName: 'Пётр',
           middleName: 'Петрович',
           phone: '+79990005555',
+          birthDate: '2000-02-29',
           branchId: baseBranch.id,
           notes: 'Нужен звонок за день до первого занятия.',
           groupIds: ['group-1'],
@@ -538,6 +540,7 @@ test.describe('Основные e2e сценарии', () => {
           firstName: 'Пётр',
           middleName: 'Петрович',
           phone: '+79990005555',
+          birthDate: '2000-02-29',
           notes: 'Нужен звонок за день до первого занятия.',
           groupIds: ['group-1'],
           contacts: [
@@ -574,6 +577,7 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByLabel('Имя').fill('Пётр')
     await page.getByLabel('Отчество').fill('Петрович')
     await page.getByLabel('Телефон').fill('+79990005555')
+    await page.getByLabel('Дата рождения').fill('2000-02-29')
     await page
       .getByLabel('Рабочая заметка')
       .fill('Нужен звонок за день до первого занятия.')
@@ -599,6 +603,7 @@ test.describe('Основные e2e сценарии', () => {
         firstName: 'Пётр',
         middleName: 'Петрович',
         phone: '+79990005555',
+        birthDate: '2000-02-29',
         branchId: baseBranch.id,
         notes: 'Нужен звонок за день до первого занятия.',
         groupIds: ['group-1'],
@@ -625,6 +630,8 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page.getByText('Нужен звонок за день до первого занятия.'),
     ).toBeVisible()
+    await expect(page.getByText('29 февраля 2000 г.')).toBeVisible()
+    await expect(page.getByText('26 лет')).toBeVisible()
     await expect(page.getByText('Абонемент не оформлен')).toBeVisible()
 
     await page.getByRole('button', { name: 'К списку клиентов' }).click()
@@ -641,6 +648,7 @@ test.describe('Основные e2e сценарии', () => {
     const groups: GroupState[] = [...baseGroups]
     let client: ClientState = {
       ...baseClient,
+      birthDate: '2000-02-29',
       notes: 'Исходная заметка клиента.',
     }
 
@@ -674,7 +682,7 @@ test.describe('Основные e2e сценарии', () => {
         const payload = route.request().postDataJSON()
         updateClientPayload = payload
 
-        expect(payload).toEqual({
+        expect(payload).toMatchObject({
           lastName: 'Иванов',
           firstName: 'Иван',
           middleName: 'Иванович',
@@ -684,9 +692,11 @@ test.describe('Основные e2e сценарии', () => {
           groupIds: ['group-1'],
           contacts: [],
         })
+        expect(['2001-03-15', null]).toContain(payload.birthDate)
 
         client = {
           ...client,
+          birthDate: payload.birthDate as string | null,
           notes: String(payload.notes ?? ''),
         }
 
@@ -702,6 +712,7 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Иванов Иван Иванович' }),
     ).toBeVisible()
+    await page.getByLabel('Дата рождения').fill('2001-03-15')
     await page
       .getByLabel('Рабочая заметка')
       .fill('Позвонить маме после 18:00 перед продлением.')
@@ -714,6 +725,7 @@ test.describe('Основные e2e сценарии', () => {
         firstName: 'Иван',
         middleName: 'Иванович',
         phone: '+79990001111',
+        birthDate: '2001-03-15',
         branchId: baseBranch.id,
         notes: 'Позвонить маме после 18:00 перед продлением.',
         groupIds: ['group-1'],
@@ -724,11 +736,35 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page.getByText('Позвонить маме после 18:00 перед продлением.'),
     ).toBeVisible()
+    await expect(page.getByText('15 марта 2001 г.')).toBeVisible()
 
     await page.reload()
     await expect(
       page.getByText('Позвонить маме после 18:00 перед продлением.'),
     ).toBeVisible()
+    await expect(page.getByText('15 марта 2001 г.')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Редактировать', exact: true }).click()
+    await expect(page.getByLabel('Дата рождения')).toHaveValue('2001-03-15')
+    await page.getByLabel('Дата рождения').fill('')
+    await page.getByRole('button', { name: 'Сохранить изменения' }).click()
+
+    await expect.poll(() => updateClientPayload?.birthDate).toBeNull()
+    await expect(page.getByText('Не указана')).toBeVisible()
+    await expect(page.getByText('Возраст')).toHaveCount(0)
+
+    await page.reload()
+    await expect(page.getByText('Не указана')).toBeVisible()
+    await expect(page.getByText('Возраст')).toHaveCount(0)
+
+    await page.setViewportSize({ width: 390, height: 900 })
+    await page.getByRole('button', { name: 'Редактировать', exact: true }).click()
+    await expect(page.getByLabel('Дата рождения')).toBeVisible()
+    await page.keyboard.press('Tab')
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    )
+    expect(overflow).toBe(false)
   })
 
   test('Administrator не видит управление льготным статусом профессионала', async ({
@@ -2325,6 +2361,8 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     middleName: client.middleName,
     fullName: `${client.lastName} ${client.firstName} ${client.middleName}`,
     phone: client.phone,
+    birthDate: client.birthDate ?? null,
+    businessDate: '2026-07-23',
     branchId: client.branchId,
     branchName: client.branchName,
     notes: client.notes,

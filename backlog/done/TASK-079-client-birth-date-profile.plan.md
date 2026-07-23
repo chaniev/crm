@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-079 Добавить дату рождения и возраст в профиль клиента
 
 ## Source task
-/backlog/risky/TASK-079-client-birth-date-profile.md
+/backlog/done/TASK-079-client-birth-date-profile.md
 
-Source status remains `risky`: задача имеет `Risk level: high` и `Safe for Codex: no`, поэтому этим planning-run она не перемещается в `/backlog/implementation`. План разрешает review и test-first подготовку, но production-код можно менять только после явного перевода задачи в implementation.
+Source status is `done`: задача явно одобрена пользователем 2026-07-23, переведена из `/backlog/risky` перед началом production-изменений и завершена 2026-07-23 после прохождения всех обязательных проверок.
 
 ## Git branch
 feature/TASK-079-client-birth-date-profile
@@ -24,7 +24,7 @@ Branch rules:
 - `POST /clients` и `PUT /clients/{id}` уже защищены `ManageClients`; `GET /clients/{id}` использует `ViewClients` и дополнительно ограничивает Coach назначенными ему группами. Новых permissions и frontend role rules не требуется.
 - Дату рождения следует добавить только в create/update/details contract. Details response также возвращает `businessDate` из существующего `IBusinessDateProvider.Today`, чтобы frontend вычислял возраст по календарной дате клуба. Списки клиентов, attendance, attention, reports, bot и фильтры не расширяются.
 - Backend contract использует nullable `DateOnly`, а PostgreSQL — nullable колонку `date`. Невалидная JSON-дата отклоняется стандартным ASP.NET Core binding/ProblemDetails; отдельные минимальные, максимальные и future-date validators не добавляются.
-- Обновление с `birthDate: null` очищает значение. На create отсутствие поля и явный `null` эквивалентны. Существующие строки после additive migration получают `NULL`; backfill и default value запрещены.
+- Обновление с `birthDate: null` очищает значение. На create отсутствие поля и явный `null` эквивалентны. При чистом разворачивании начальная схема создаёт nullable-колонку; seed/fixture-клиенты без значения получают `NULL`, backfill и default value запрещены.
 - API возвращает `birthDate` и `businessDate` как `YYYY-MM-DD` без времени и offset. `businessDate` берётся из существующего backend-owned `IBusinessDateProvider.Today`. Поле `age` в API не добавляется и в БД не хранится: возраст является presentation-derived значением карточки.
 - Frontend хранит дату формы как ISO date-only string, отправляет непустое значение либо явный `null`, а mapper сохраняет `birthDate` и `businessDate` только как `YYYY-MM-DD`. Запрещено разбирать bare ISO date через `new Date("YYYY-MM-DD")`.
 - Возраст вычисляется чистой frontend-функцией от `birthDate` и явно переданной backend business date. Для `birthDate <= businessDate` разность годов уменьшается на один, если день рождения в текущем году ещё не наступил. Для 29 февраля в невисокосный год возраст увеличивается 1 марта. Результат не хранится и пересчитывается при новом details response/render.
@@ -33,7 +33,7 @@ Branch rules:
 - Существующие `ClientCreated`/`ClientUpdated` audit snapshots уже содержат old/new state. Добавление `BirthDate` в `ClientAuditState` обеспечивает требуемую audit-семантику без нового action type; дата не должна попадать в audit description или технические error logs.
 
 ## Safe decomposition
-1. **Persistence and API contract:** nullable `DateOnly`, additive migration, create/update/details round-trip и стандартная validation.
+1. **Persistence and API contract:** nullable `DateOnly`, обновлённая начальная схема, create/update/details round-trip и стандартная validation.
 2. **Permissions and audit:** оба details mapper, прежняя role/scope матрица и old/new audit snapshots.
 3. **Frontend contract and form:** typed nullable field, create/edit/clear payload и отсутствие timezone conversion.
 4. **Derived presentation:** backend business date, изолированные format/age helpers, пустое/future состояние, русский формат, leap-day и calendar-boundary tests.
@@ -51,12 +51,12 @@ Branch rules:
    - `age` не является API/persistence field.
 3. **До production-кода** добавить backend persistence/model tests:
    - `Client.BirthDate` существует, nullable и имеет PostgreSQL column type `date`;
-   - migration script добавляет nullable колонку без default/backfill;
-   - clean schema/migration chain содержит колонку и остаётся воспроизводимой.
+   - начальная migration/schema создаёт nullable колонку без default/backfill;
+   - clean schema chain содержит колонку и остаётся воспроизводимой.
 4. **До production-кода** расширить `ClientsApiTests`:
    - create с датой и без неё, точный create/details/reload JSON, backend-provided `businessDate` и persisted `DateOnly?`;
    - update: установить, изменить и очистить ранее заданное значение;
-   - omitted/`null` create оставляет значение пустым, legacy client после migration остаётся валидным;
+   - omitted/`null` create оставляет значение пустым, seed/fixture client без даты остаётся валидным;
    - malformed/impossible date возвращает стандартный `400 application/problem+json` и не изменяет persisted client;
    - future date принимается без product-range error;
    - date-only round-trip для `2000-02-29` и календарных границ не добавляет время/offset и не меняет день;
@@ -85,7 +85,7 @@ Branch rules:
 9. Реализовать минимальный persistence slice:
    - добавить `DateOnly? BirthDate` в `Client`;
    - настроить property как nullable PostgreSQL `date`;
-   - создать новую additive EF migration и обновить model snapshot;
+   - не создавать новую migration; обновить начальную EF migration и model snapshot;
    - не задавать default, check constraint, backfill, index или timezone conversion.
 10. Реализовать backend contract/mutation:
     - добавить `BirthDate` в `UpsertClientRequest` и `NormalizedClientRequest` без дополнительной range validation;
@@ -106,7 +106,7 @@ Branch rules:
     - `dotnet test backend/GymCrm.slnx`;
     - `npm run test:unit`, `npm run lint`, `npm run build` в `frontend`;
     - affected Playwright client scenarios;
-    - generated migration script/clean-database smoke.
+    - initial migration script/clean-database smoke.
 14. Провести privacy/contract review и ручную проверку desktop/390 px: дата не появляется в list/bot/report responses, русский формат не сдвигается при смене timezone браузера, возраст считается по backend business date, очистка очевидна, future date показывает `Не вычисляется` без скрытой validation. Manual QA дополняет, но не заменяет automated barriers.
 
 ## Preferred implementation strategy
@@ -126,8 +126,8 @@ Branch rules:
 ### Backend production after red phase
 - `backend/src/GymCrm.Domain/Clients/Client.cs`
 - `backend/src/GymCrm.Infrastructure/Persistence/Configurations/ClientConfiguration.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/<timestamp>_AddClientBirthDate.cs` (new)
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/<timestamp>_AddClientBirthDate.Designer.cs` (generated)
+- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260513165936_InitialCreate.cs`
+- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260513165936_InitialCreate.Designer.cs`
 - `backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs`
 - `backend/src/GymCrm.Api/Auth/UpsertClientRequest.cs`
 - `backend/src/GymCrm.Api/Auth/NormalizedClientRequest.cs`
@@ -148,7 +148,7 @@ Branch rules:
 - `frontend/src/features/clients/clientBirthDate.ts` (new)
 - `frontend/src/features/clients/ClientManagement.tsx`
 
-Exact generated migration filenames must be determined by the implementation timestamp. No project file may be edited before the corresponding red tests exist.
+Новая migration не создаётся: пользователь требует обновить начальную точку, поскольку комплекс будет развёрнут с нуля. No project file may be edited before the corresponding red tests exist.
 
 ## Constraints
 - Backend remains the sole owner of permissions, access scope, validation and audit.
@@ -159,7 +159,7 @@ Exact generated migration filenames must be determined by the implementation tim
 - Do not add product range validation, HTML `min`/`max`, future-date rejection or implicit date correction.
 - Future date remains valid and visible, while its age presentation is `Не вычисляется`.
 - Clear must be explicit and durable: empty UI value sends `null`.
-- Existing clients require no backfill and must remain valid after migration.
+- Seed/fixture clients without the field remain valid; no backfill or default is introduced.
 - Reuse existing general client audit semantics; do not create a separate birthday audit event or change audit atomicity/cardinality.
 - Make birth date visible in details to every backend-authorized viewer, including scoped Coach, but do not expand list, search, filter, report, attention, attendance or bot contracts.
 - Preserve Mantine/Onest and the current compact client overview/form layout.
@@ -190,7 +190,7 @@ All new or updated unit and integration tests MUST be written before functional 
 Backend domain unit tests are not required if `BirthDate` remains a passive nullable value with no domain policy. Backend mapping, binding, persistence, permissions and audit behavior must instead be covered by API/persistence integration tests; manual QA is not a substitute.
 
 ### Integration tests
-- EF model/migration column is nullable PostgreSQL `date`, with no default/backfill.
+- EF model/initial migration column is nullable PostgreSQL `date`, with no default/backfill.
 - Create/get/update/change/clear persistence and exact JSON round-trip.
 - Existing/null clients remain valid.
 - Invalid format/impossible date returns standard ProblemDetails and leaves state/audit unchanged.
@@ -216,7 +216,7 @@ Backend domain unit tests are not required if `BirthDate` remains a passive null
 - Existing CRUD/audit assertions in `ClientsApiTests.cs` without weakening phone, note, contact, group, role or audit guarantees.
 
 ### Expected initial failure
-- Backend tests fail because `Client`, migration, request/details and audit state lack `BirthDate`, and details do not expose `BusinessDate`.
+- Backend tests fail because `Client`, initial schema, request/details and audit state lack `BirthDate`, and details do not expose `BusinessDate`.
 - Frontend tests fail because types, mapper, form payload and card do not consume/render `birthDate`/`businessDate` and no age helper exists.
 - Infrastructure startup failures, invalid fixtures, locale leakage or unrelated baseline regressions do not count as the required red behavior.
 
@@ -226,26 +226,38 @@ Backend domain unit tests are not required if `BirthDate` remains a passive null
 - Privacy review of actual client details/audit JSON and technical logs.
 
 ## Test plan
-- [ ] Backend persistence/API/audit tests are written first and fail for the intended missing behavior.
-- [ ] Frontend helper/mapper/component/e2e tests are written first and fail for the intended missing behavior.
-- [ ] Create accepts exact date or `null`; update sets, changes and clears it.
-- [ ] Invalid/impossible date returns standard `400` without mutation/audit side effects.
-- [ ] Future date is accepted without range validation or silent correction.
-- [ ] PostgreSQL stores nullable `date`; existing rows remain `NULL`.
-- [ ] JSON uses exact date-only `birthDate`/`businessDate` values and does not shift across timezones.
-- [ ] `businessDate` comes from the configured club business date provider; browser timezone does not change age.
-- [ ] Administrator/HeadCoach write and scoped Coach read behavior remains protected by existing backend policies.
-- [ ] General client audit old/new state contains birth date for create/change/clear with unchanged action cardinality.
-- [ ] Full-year, year-boundary and 29-February cases pass against fixed calendar dates.
-- [ ] Empty date renders no age; set non-future date renders Russian-formatted date and computed age for manager and Coach details.
-- [ ] Future date renders in Russian format and shows `Не вычисляется` instead of a negative age.
-- [ ] Create/edit/clear survive navigation and reload in Playwright.
-- [ ] `dotnet test backend/GymCrm.slnx` passes.
-- [ ] `npm run test:unit`, `npm run lint` and `npm run build` pass in `frontend`.
-- [ ] Affected Playwright tests and clean migration/schema checks pass.
+- [x] Backend persistence/API/audit tests are written first and fail for the intended missing behavior.
+- [x] Frontend helper/mapper/component/e2e tests are written first and fail for the intended missing behavior.
+- [x] Create accepts exact date or `null`; update sets, changes and clears it.
+- [x] Invalid/impossible date returns standard `400` without mutation/audit side effects.
+- [x] Future date is accepted without range validation or silent correction.
+- [x] PostgreSQL stores nullable `date`; existing rows remain `NULL`.
+- [x] JSON uses exact date-only `birthDate`/`businessDate` values and does not shift across timezones.
+- [x] `businessDate` comes from the configured club business date provider; browser timezone does not change age.
+- [x] Administrator/HeadCoach write and scoped Coach read behavior remains protected by existing backend policies.
+- [x] General client audit old/new state contains birth date for create/change/clear with unchanged action cardinality.
+- [x] Full-year, year-boundary and 29-February cases pass against fixed calendar dates.
+- [x] Empty date renders no age; set non-future date renders Russian-formatted date and computed age for manager and Coach details.
+- [x] Future date renders in Russian format and shows `Не вычисляется` instead of a negative age.
+- [x] Create/edit/clear survive navigation and reload in Playwright.
+- [x] `dotnet test backend/GymCrm.slnx` passes.
+- [x] `npm run test:unit`, `npm run lint` and `npm run build` pass in `frontend`.
+- [x] Affected Playwright tests and clean initial-schema checks pass.
+
+## Execution notes
+- Branch preparation: актуальный чистый `main` подтверждён, выполнен `git pull --ff-only`, создана ветка `feature/TASK-079-client-birth-date-profile`.
+- Agents: backend slice реализован `dotnet-backend-specialist`, frontend slice — `react-specialist`; `ui-designer` подготовил implementation-ready UI guidance, `test-automator` выполнил независимое покрытие/контрактное ревью, `docker-expert` проверил clean-bootstrap сценарий.
+- Backend red: persistence/API tests сначала падали из-за отсутствующих `Client.BirthDate`, nullable PostgreSQL `date`, details/business-date и audit projections. Дополнительный malformed-update тест выявил, что стандартный minimal-API binder не давал локально гарантировать требуемый ProblemDetails contract без глобального изменения остальных endpoint.
+- Frontend red: mapper/form/component tests падали из-за отсутствующих `birthDate`/`businessDate`, explicit-null payload, чистого date-only helper и UI-полей; Playwright не находил поле и новые отображаемые значения.
+- Backend green: `dotnet test backend/GymCrm.slnx` — 240/240; invalid/impossible create/update возвращают локальный `400 application/problem+json` без mutation/audit, а binding других endpoint не был глобально изменён.
+- Frontend green: `npm run test:unit` — 27 файлов и 181 тест; `npm run lint` и `npm run build` прошли. Affected Playwright run — 3/3.
+- Full `stage12.spec.ts` exploratory run: 17 сценариев прошли; два существующих home-dashboard сценария не дошли до предметных assertions из-за отсутствующего `/api/clients/attention` mock и не относятся к TASK-079. Затронутые create/edit/change/clear/reload/390 px сценарии прошли отдельно.
+- Initial schema: новая migration не создана. `BirthDate date NULL` добавлена в `InitialCreate`, синхронизированы оба designer и model snapshot; `dotnet-ef migrations has-pending-model-changes` сообщает отсутствие drift.
+- Clean bootstrap: локальные volumes точечно удалены после резервной копии `/tmp/crm-task079-pre-reset.U2QiE4/gym_crm.sql`; комплекс заново собран и поднят с нуля. В PostgreSQL подтверждены `date`, nullable, отсутствие default/index/check и только две исходные migration history записи. Backend, frontend, frontend proxy, bot и DB healthy.
+- Manual QA: desktop create/edit/reopen показывает `29 февраля 2000 г.` и `26 лет`; future date показывает `Не вычисляется`; на ширине 390 px форма доступна по label и горизонтального overflow нет. Очистка и reload дополнительно закреплены Playwright-тестом.
 
 ## Regression barrier
-The primary barrier is a backend CRUD/permission/audit matrix in `ClientsApiTests` paired with an EF migration-model assertion that proves nullable PostgreSQL `date`, exact date-only serialization, backend-owned `businessDate`, set/change/clear semantics, standard invalid-date ProblemDetails and unchanged access/audit policies. Frontend pure-helper tests protect Russian formatting, business-date calendar calculation, the 1 March leap-day rule and the future-date `Не вычисляется` state, while mapper/component tests and a Playwright create/edit/clear/reload flow protect the consumer contract. Completion is blocked if tests can pass while shifting the date by timezone, deriving age from browser time, showing a negative future age, storing age, omitting `null` clear, hiding the value from an authorized Coach, accepting a malformed date, adding an unrequested range restriction or losing the date from audit old/new state.
+The primary barrier is a backend CRUD/permission/audit matrix in `ClientsApiTests` paired with an EF initial-schema/model assertion that proves nullable PostgreSQL `date`, exact date-only serialization, backend-owned `businessDate`, set/change/clear semantics, standard invalid-date ProblemDetails and unchanged access/audit policies. Frontend pure-helper tests protect Russian formatting, business-date calendar calculation, the 1 March leap-day rule and the future-date `Не вычисляется` state, while mapper/component tests and a Playwright create/edit/clear/reload flow protect the consumer contract. Completion is blocked if tests can pass while shifting the date by timezone, deriving age from browser time, showing a negative future age, storing age, omitting `null` clear, hiding the value from an authorized Coach, accepting a malformed date, adding an unrequested range restriction or losing the date from audit old/new state.
 
 ## Risks
 - Bare ISO strings parsed as JavaScript UTC dates can display the previous/next day; component-based parsing and multi-timezone tests are mandatory.
@@ -255,7 +267,7 @@ The primary barrier is a backend CRUD/permission/audit matrix in `ClientsApiTest
 - Adding the field only to `MapDetails` would leak inconsistent visibility to Coach; both details paths need the same date contract.
 - Omitting `birthDate` on update can accidentally clear or preserve it depending on serializer semantics; frontend must send explicit string/`null` and API tests must pin full-replacement behavior.
 - Audit snapshots intentionally contain personal data. Reuse current access and retention semantics, avoid adding the date to descriptions/logs, and do not broaden audit exposure.
-- A nullable migration is low-risk but generated migration/snapshot drift can break clean bootstrap; verify the generated script and full backend suite.
+- Изменение initial migration/model snapshot может дать drift и сломать clean bootstrap; проверить initial script и полный backend suite.
 - Shared `ClientDetails`/Playwright fixtures are strict and can hide contract regressions if defaults are fabricated; update fixtures explicitly and keep mapper assertions.
 
 ## Stop conditions
@@ -273,6 +285,6 @@ The primary barrier is a backend CRUD/permission/audit matrix in `ClientsApiTest
 Backend + frontend scope, shared client card, nullable schema change и персональное поле сами по себе не являются stop condition.
 
 ## Ready for Codex execution
-no
+completed
 
-Причина: source task остаётся high-risk (`Safe for Codex: no`) из-за персональных данных, schema/API, permissions и audit. План готов к review; после явного перевода задачи в implementation исполнение допустимо только в `feature/TASK-079-client-birth-date-profile` и строго через test-first этапы.
+Основание: пользователь явно одобрил реализацию; source task завершена. Исполнение выполнено только в `feature/TASK-079-client-birth-date-profile` через test-first этапы и обязательные regression/clean-bootstrap проверки.

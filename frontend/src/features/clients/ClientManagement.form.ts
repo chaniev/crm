@@ -5,6 +5,7 @@ export const maxContacts = 2
 
 export const clientFieldErrorAliases = {
   fullName: 'lastName',
+  birthDate: 'birthDate',
 } as const
 
 export type ClientFormContact = {
@@ -18,6 +19,7 @@ export type ClientFormValues = {
   firstName: string
   middleName: string
   phone: string
+  birthDate: string
   branchId: string
   notes: string
   groupIds: string[]
@@ -31,6 +33,7 @@ export function useClientForm() {
       firstName: '',
       middleName: '',
       phone: '',
+      birthDate: '',
       branchId: '',
       notes: '',
       groupIds: [],
@@ -100,6 +103,7 @@ export function toClientFormValues(client: ClientDetails): ClientFormValues {
     firstName: client.firstName,
     middleName: client.middleName,
     phone: client.phone,
+    birthDate: client.birthDate ?? '',
     branchId: client.branchId,
     notes: client.notes,
     groupIds: client.groupIds,
@@ -122,6 +126,7 @@ export function toUpsertClientPayload(
     firstName: values.firstName.trim() || undefined,
     middleName: values.middleName.trim() || undefined,
     phone: values.phone.trim(),
+    birthDate: values.birthDate || null,
     branchId: values.branchId || undefined,
     notes: values.notes.trim(),
     contacts: normalizeContacts(values.contacts),

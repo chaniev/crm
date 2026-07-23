@@ -6,6 +6,7 @@ internal sealed record NormalizedClientRequest(
     string? MiddleName,
     string Phone,
     Guid? BranchId,
+    DateOnly? BirthDate,
     string? Notes,
     IReadOnlyList<UpsertClientContactRequest>? RawContacts,
     IReadOnlyList<NormalizedClientContactRequest> Contacts,

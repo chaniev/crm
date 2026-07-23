@@ -612,6 +612,7 @@ internal static class ClientEndpoints
         int? attendanceTake,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         ILoggerFactory loggerFactory,
         CancellationToken cancellationToken)
     {
@@ -643,7 +644,7 @@ internal static class ClientEndpoints
                 dbContext,
                 cancellationToken);
 
-            return TypedResults.Ok(MapDetails(client, attendanceHistory, loggerFactory.CreateLogger("ClientNotesMetadata")));
+            return TypedResults.Ok(MapDetails(client, attendanceHistory, businessDateProvider.Today, loggerFactory.CreateLogger("ClientNotesMetadata")));
         }
 
         var coachGroups = client.Groups
@@ -665,18 +666,26 @@ internal static class ClientEndpoints
             dbContext,
             cancellationToken);
 
-        return TypedResults.Ok(MapCoachDetails(client, coachGroups, coachAttendanceHistory, loggerFactory.CreateLogger("ClientNotesMetadata")));
+        return TypedResults.Ok(MapCoachDetails(client, coachGroups, coachAttendanceHistory, businessDateProvider.Today, loggerFactory.CreateLogger("ClientNotesMetadata")));
     }
 
     private static async Task<Results<Created<ClientDetailsResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateClientAsync(
-        UpsertClientRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
+        var (request, bindingProblem) = await ReadUpsertClientRequestAsync(
+            httpContext.Request,
+            cancellationToken);
+        if (bindingProblem is not null)
+        {
+            return bindingProblem;
+        }
+
         var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
@@ -689,7 +698,7 @@ internal static class ClientEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var normalizedRequest = NormalizeRequest(request);
+        var normalizedRequest = NormalizeRequest(request!);
         var validationErrors = await ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
         if (validationErrors.Count > 0)
         {
@@ -705,6 +714,7 @@ internal static class ClientEndpoints
             FirstName = normalizedRequest.FirstName,
             MiddleName = normalizedRequest.MiddleName,
             Phone = normalizedRequest.Phone,
+            BirthDate = normalizedRequest.BirthDate,
             Status = ClientStatus.Active,
             CreatedAt = now,
             UpdatedAt = now
@@ -744,19 +754,27 @@ internal static class ClientEndpoints
                 BuildNoteAuditEntry(currentUser.Id, client, currentUser.Login, noteTransition), cancellationToken);
         }
 
-        return TypedResults.Created($"/clients/{client.Id}", MapDetails(createdClient, EmptyAttendanceHistoryPage()));
+        return TypedResults.Created($"/clients/{client.Id}", MapDetails(createdClient, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateClientAsync(
         Guid id,
-        UpsertClientRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
+        var (request, bindingProblem) = await ReadUpsertClientRequestAsync(
+            httpContext.Request,
+            cancellationToken);
+        if (bindingProblem is not null)
+        {
+            return bindingProblem;
+        }
+
         var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
         {
@@ -775,7 +793,7 @@ internal static class ClientEndpoints
             return TypedResults.NotFound();
         }
 
-        var normalizedRequest = NormalizeRequest(request);
+        var normalizedRequest = NormalizeRequest(request!);
         var validationErrors = await ValidateUpsertRequestAsync(
             normalizedRequest,
             dbContext,
@@ -794,6 +812,7 @@ internal static class ClientEndpoints
         client.MiddleName = normalizedRequest.MiddleName;
         client.Phone = normalizedRequest.Phone;
         client.BranchId = normalizedRequest.BranchId!.Value;
+        client.BirthDate = normalizedRequest.BirthDate;
         var now = DateTimeOffset.UtcNow;
         var noteTransition = ClientNotesMetadataPolicy.Apply(client, normalizedRequest.Notes, currentUser.Id, now);
         client.UpdatedAt = now;
@@ -831,7 +850,7 @@ internal static class ClientEndpoints
                 BuildNoteAuditEntry(currentUser.Id, client, currentUser.Login, noteTransition), cancellationToken);
         }
 
-        return TypedResults.Ok(MapDetails(updatedClient, EmptyAttendanceHistoryPage()));
+        return TypedResults.Ok(MapDetails(updatedClient, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> TransferClientBranchAsync(
@@ -1011,13 +1030,14 @@ internal static class ClientEndpoints
                 SerializeAuditState(updatedClient)),
             cancellationToken);
 
-        return TypedResults.Ok(MapDetails(updatedClient, EmptyAttendanceHistoryPage()));
+        return TypedResults.Ok(MapDetails(updatedClient, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> ArchiveClientAsync(
         Guid id,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1029,6 +1049,7 @@ internal static class ClientEndpoints
             ClientAuditResources.ClientArchivedDescription,
             httpContext,
             dbContext,
+            businessDateProvider,
             auditLogService,
             antiforgery,
             cancellationToken);
@@ -1038,6 +1059,7 @@ internal static class ClientEndpoints
         Guid id,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1049,6 +1071,7 @@ internal static class ClientEndpoints
             ClientAuditResources.ClientRestoredDescription,
             httpContext,
             dbContext,
+            businessDateProvider,
             auditLogService,
             antiforgery,
             cancellationToken);
@@ -1061,6 +1084,7 @@ internal static class ClientEndpoints
         Func<string, string, string> descriptionFactory,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1088,7 +1112,7 @@ internal static class ClientEndpoints
 
         if (client.Status == targetStatus)
         {
-            return TypedResults.Ok(MapDetails(clientBefore, EmptyAttendanceHistoryPage()));
+            return TypedResults.Ok(MapDetails(clientBefore, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
         }
 
         var oldState = SerializeAuditState(clientBefore);
@@ -1113,7 +1137,7 @@ internal static class ClientEndpoints
                 SerializeAuditState(clientAfter)),
             cancellationToken);
 
-        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
+        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> PurchaseMembershipAsync(
@@ -1122,6 +1146,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IClientMembershipService membershipService,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1130,6 +1155,7 @@ internal static class ClientEndpoints
             id,
             httpContext,
             dbContext,
+            businessDateProvider,
             auditLogService,
             antiforgery,
             cancellationToken,
@@ -1154,7 +1180,7 @@ internal static class ClientEndpoints
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateMembershipCommentAsync(
         Guid id, Guid saleId, UpdateClientMembershipCommentRequest request, HttpContext httpContext,
         GymCrmDbContext dbContext, IClientMembershipService membershipService, IAuditLogService auditLogService,
-        ILoggerFactory loggerFactory, IAntiforgery antiforgery, CancellationToken cancellationToken)
+        IBusinessDateProvider businessDateProvider, ILoggerFactory loggerFactory, IAntiforgery antiforgery, CancellationToken cancellationToken)
     {
         var csrf = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrf is not null) return csrf;
@@ -1182,7 +1208,7 @@ internal static class ClientEndpoints
 
         var client = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated client '{id}' was not found.");
-        return TypedResults.Ok(MapDetails(client, EmptyAttendanceHistoryPage(), loggerFactory.CreateLogger("ClientMembershipCommentMetadata")));
+        return TypedResults.Ok(MapDetails(client, EmptyAttendanceHistoryPage(), businessDateProvider.Today, loggerFactory.CreateLogger("ClientMembershipCommentMetadata")));
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RenewMembershipAsync(
@@ -1191,6 +1217,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IClientMembershipService membershipService,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1199,6 +1226,7 @@ internal static class ClientEndpoints
             id,
             httpContext,
             dbContext,
+            businessDateProvider,
             auditLogService,
             antiforgery,
             cancellationToken,
@@ -1224,6 +1252,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IClientMembershipService membershipService,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1232,6 +1261,7 @@ internal static class ClientEndpoints
             id,
             httpContext,
             dbContext,
+            businessDateProvider,
             auditLogService,
             antiforgery,
             cancellationToken,
@@ -1255,6 +1285,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IClientMembershipService membershipService,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1263,6 +1294,7 @@ internal static class ClientEndpoints
             id,
             httpContext,
             dbContext,
+            businessDateProvider,
             auditLogService,
             antiforgery,
             cancellationToken,
@@ -1283,6 +1315,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IClientMembershipService membershipService,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1343,7 +1376,7 @@ internal static class ClientEndpoints
                 NewValueJson: SerializeRefundAuditState(refund)),
             cancellationToken);
 
-        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
+        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CancelMembershipRefundAsync(
@@ -1352,6 +1385,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IClientMembershipService membershipService,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
@@ -1402,13 +1436,14 @@ internal static class ClientEndpoints
                 SerializeRefundAuditState(refund)),
             cancellationToken);
 
-        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
+        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
         Guid id,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken,
@@ -1485,7 +1520,7 @@ internal static class ClientEndpoints
                 cancellationToken);
         }
 
-        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
+        return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
     private static async Task<Client?> LoadClientSnapshotAsync(
@@ -2031,6 +2066,31 @@ internal static class ClientEndpoints
         return errors;
     }
 
+    private static async Task<(UpsertClientRequest? Request, ProblemHttpResult? Problem)> ReadUpsertClientRequestAsync(
+        HttpRequest httpRequest,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var request = await httpRequest.ReadFromJsonAsync<UpsertClientRequest>(
+                cancellationToken);
+
+            return request is null
+                ? (null, CreateInvalidUpsertJsonProblem())
+                : (request, null);
+        }
+        catch (JsonException)
+        {
+            return (null, CreateInvalidUpsertJsonProblem());
+        }
+    }
+
+    private static ProblemHttpResult CreateInvalidUpsertJsonProblem() =>
+        TypedResults.Problem(
+            title: "Bad Request",
+            type: "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+            statusCode: StatusCodes.Status400BadRequest);
+
     private static NormalizedClientRequest NormalizeRequest(UpsertClientRequest request)
     {
         return new NormalizedClientRequest(
@@ -2039,6 +2099,7 @@ internal static class ClientEndpoints
             NormalizeOptionalText(request.MiddleName),
             request.Phone?.Trim() ?? string.Empty,
             request.BranchId,
+            request.BirthDate,
             NormalizeOptionalText(request.Notes),
             request.Contacts,
             NormalizeContacts(request.Contacts),
@@ -3028,9 +3089,10 @@ internal static class ClientEndpoints
     private static ClientDetailsResponse MapDetails(
         Client client,
         ClientAttendanceHistoryPageResponse attendanceHistory,
+        DateOnly businessDate,
         ILogger? logger = null)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = businessDate;
         var groups = MapGroups(client.Groups);
         var contacts = client.Contacts
             .Select(contact => new ClientContactResponse(
@@ -3054,6 +3116,8 @@ internal static class ClientEndpoints
             client.Phone,
             client.BranchId,
             client.Branch.Name,
+            client.BirthDate,
+            businessDate,
             client.Notes,
             notesMetadata.Name,
             notesMetadata.ChangedAt,
@@ -3082,9 +3146,10 @@ internal static class ClientEndpoints
         Client client,
         IReadOnlyCollection<ClientGroup> coachGroups,
         ClientAttendanceHistoryPageResponse attendanceHistory,
+        DateOnly businessDate,
         ILogger? logger = null)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = businessDate;
         var groups = MapGroups(coachGroups);
         var currentMembership = GetCurrentMembership(client);
         var notesMetadata = ResolveNotesMetadata(client, logger);
@@ -3098,6 +3163,8 @@ internal static class ClientEndpoints
             string.Empty,
             client.BranchId,
             client.Branch.Name,
+            client.BirthDate,
+            businessDate,
             client.Notes,
             notesMetadata.Name,
             notesMetadata.ChangedAt,
@@ -3468,6 +3535,7 @@ internal static class ClientEndpoints
                 client.MiddleName,
                 client.Phone,
                 client.BranchId,
+                client.BirthDate,
                 client.Notes,
                 client.Status.ToString(),
                 client.Contacts

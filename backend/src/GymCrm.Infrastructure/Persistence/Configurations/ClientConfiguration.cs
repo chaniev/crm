@@ -31,6 +31,7 @@ internal sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
             .HasMaxLength(PhoneMaxLength)
             .IsRequired();
 
+        builder.Property(client => client.BirthDate).HasColumnType("date");
         builder.Property(client => client.Notes).HasMaxLength(NotesMaxLength);
         builder.Property(client => client.NotesChangedAt);
         builder.Property(client => client.PhotoPath).HasMaxLength(PhotoPathMaxLength);

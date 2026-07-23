@@ -2,8 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using GymCrm.Api.Auth;
+using GymCrm.Application.Attendance;
+using GymCrm.Application.Bot;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Attendance;
@@ -206,6 +210,460 @@ public class ClientsApiTests
             Assert.Equal(HttpStatusCode.OK, restoreResponse.StatusCode);
             var restorePayload = await ReadJsonElementAsync(restoreResponse);
             Assert.Equal("Active", GetStringFromProperty(restorePayload, "status"));
+        }
+    }
+
+    [Fact]
+    public async Task Client_birth_date_round_trips_through_create_update_clear_details_and_business_date()
+    {
+        var businessDate = new DateOnly(2026, 3, 1);
+        await using var factory = new ClientsAppFactory(businessDate: businessDate);
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        Guid clientId;
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/clients",
+                   new
+                   {
+                       LastName = "Birth",
+                       FirstName = "Date",
+                       Phone = "+79990007701",
+                       BranchId = seeded.BranchId,
+                       BirthDate = "2000-02-29",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            var createPayload = await ReadJsonElementAsync(createResponse);
+            clientId = await ExtractClientIdFromResponseAsync(createResponse, createPayload);
+            Assert.Equal("2000-02-29", GetDateOnlyString(createPayload, "birthDate"));
+            Assert.Equal("2026-03-01", GetDateOnlyString(createPayload, "businessDate"));
+            Assert.Equal(JsonValueKind.Undefined, GetPropertyOrNull(createPayload, "age").ValueKind);
+        }
+
+        using (var getResponse = await client.GetAsync($"/clients/{clientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            var getPayload = await ReadJsonElementAsync(getResponse);
+            Assert.Equal("2000-02-29", GetDateOnlyString(getPayload, "birthDate"));
+            Assert.Equal("2026-03-01", GetDateOnlyString(getPayload, "businessDate"));
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{clientId}",
+                   new
+                   {
+                       LastName = "Birth",
+                       FirstName = "Date",
+                       Phone = "+79990007701",
+                       BranchId = seeded.BranchId,
+                       BirthDate = "2010-12-31",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+            var updatePayload = await ReadJsonElementAsync(updateResponse);
+            Assert.Equal("2010-12-31", GetDateOnlyString(updatePayload, "birthDate"));
+            Assert.Equal("2026-03-01", GetDateOnlyString(updatePayload, "businessDate"));
+        }
+
+        using (var clearResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{clientId}",
+                   new
+                   {
+                       LastName = "Birth",
+                       FirstName = "Date",
+                       Phone = "+79990007701",
+                       BranchId = seeded.BranchId,
+                       BirthDate = (string?)null,
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, clearResponse.StatusCode);
+            var clearPayload = await ReadJsonElementAsync(clearResponse);
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(clearPayload, "birthDate").ValueKind);
+            Assert.Equal("2026-03-01", GetDateOnlyString(clearPayload, "businessDate"));
+        }
+
+        using (var reloadResponse = await client.GetAsync($"/clients/{clientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, reloadResponse.StatusCode);
+            var reloadPayload = await ReadJsonElementAsync(reloadResponse);
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(reloadPayload, "birthDate").ValueKind);
+        }
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var persistedBirthDate = await dbContext.Clients
+            .Where(candidate => candidate.Id == clientId)
+            .Select(candidate => EF.Property<DateOnly?>(candidate, "BirthDate"))
+            .SingleAsync();
+
+        Assert.Null(persistedBirthDate);
+    }
+
+    [Fact]
+    public async Task Client_birth_date_omitted_and_explicit_null_both_create_nullable_values()
+    {
+        var businessDate = new DateOnly(2026, 7, 23);
+        await using var factory = new ClientsAppFactory(businessDate: businessDate);
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        foreach (var (phone, payload) in new[]
+                 {
+                     (
+                         "+79990007706",
+                         new
+                         {
+                             LastName = "Birth",
+                             FirstName = "Omitted",
+                             Phone = "+79990007706",
+                             BranchId = seeded.BranchId,
+                             BirthDate = (string?)null,
+                             Contacts = Array.Empty<object>(),
+                             GroupIds = new[] { seeded.GroupOneId }
+                         }),
+                     (
+                         "+79990007707",
+                         new
+                         {
+                             LastName = "Birth",
+                             FirstName = "Null",
+                             Phone = "+79990007707",
+                             BranchId = seeded.BranchId,
+                             BirthDate = (string?)null,
+                             Contacts = Array.Empty<object>(),
+                             GroupIds = new[] { seeded.GroupOneId }
+                         })
+                 })
+        {
+            JsonObject requestPayload = JsonSerializer.SerializeToNode(payload)!.AsObject();
+            if (phone == "+79990007706")
+            {
+                requestPayload.Remove("birthDate");
+                requestPayload.Remove("BirthDate");
+            }
+
+            using var createResponse = await PostRawJsonAsync(
+                client,
+                "/clients",
+                requestPayload.ToJsonString(),
+                session.CsrfToken);
+
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            var responsePayload = await ReadJsonElementAsync(createResponse);
+            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(responsePayload, "birthDate").ValueKind);
+            Assert.Equal("2026-07-23", GetDateOnlyString(responsePayload, "businessDate"));
+
+            var clientId = await ExtractClientIdFromResponseAsync(createResponse, responsePayload);
+            using var scope = factory.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var persistedBirthDate = await dbContext.Clients
+                .Where(candidate => candidate.Id == clientId)
+                .Select(candidate => EF.Property<DateOnly?>(candidate, "BirthDate"))
+                .SingleAsync();
+            Assert.Null(persistedBirthDate);
+        }
+    }
+
+    [Fact]
+    public async Task Client_birth_date_accepts_future_dates_and_scoped_coach_can_read_but_not_write()
+    {
+        var businessDate = new DateOnly(2026, 7, 23);
+        await using var factory = new ClientsAppFactory(businessDate: businessDate);
+        var seeded = await SeedClientsDataAsync(factory);
+        using var managerClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var managerSession = await LoginAsync(managerClient, seeded.HeadCoachLogin, seeded.SharedPassword);
+        Guid allowedClientId;
+        Guid forbiddenClientId;
+        using (var allowedCreateResponse = await PostJsonAsync(
+                   managerClient,
+                   "/clients",
+                   new
+                   {
+                       LastName = "Future",
+                       FirstName = "Allowed",
+                       Phone = "+79990007702",
+                       BranchId = seeded.BranchId,
+                       BirthDate = "2999-01-01",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   managerSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, allowedCreateResponse.StatusCode);
+            var createPayload = await ReadJsonElementAsync(allowedCreateResponse);
+            allowedClientId = await ExtractClientIdFromResponseAsync(allowedCreateResponse, createPayload);
+            Assert.Equal("2999-01-01", GetDateOnlyString(createPayload, "birthDate"));
+        }
+
+        using (var forbiddenCreateResponse = await PostJsonAsync(
+                   managerClient,
+                   "/clients",
+                   new
+                   {
+                       LastName = "Future",
+                       FirstName = "Forbidden",
+                       Phone = "+79990007703",
+                       BranchId = seeded.BranchId,
+                       BirthDate = "2999-01-01",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupTwoId }
+                   },
+                   managerSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, forbiddenCreateResponse.StatusCode);
+            var createPayload = await ReadJsonElementAsync(forbiddenCreateResponse);
+            forbiddenClientId = await ExtractClientIdFromResponseAsync(forbiddenCreateResponse, createPayload);
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            dbContext.GroupTrainers.Add(new GroupTrainer
+            {
+                GroupId = seeded.GroupOneId,
+                TrainerId = seeded.CoachId
+            });
+            await dbContext.SaveChangesAsync();
+        }
+
+        var coachSession = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
+        Assert.Equal("Coach", coachSession.User?.Role);
+
+        using (var detailsResponse = await coachClient.GetAsync($"/clients/{allowedClientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, detailsResponse.StatusCode);
+            var detailsPayload = await ReadJsonElementAsync(detailsResponse);
+            Assert.Equal("2999-01-01", GetDateOnlyString(detailsPayload, "birthDate"));
+            Assert.Equal("2026-07-23", GetDateOnlyString(detailsPayload, "businessDate"));
+            Assert.Equal(string.Empty, GetStringFromProperty(detailsPayload, "phone"));
+        }
+
+        using (var unassignedResponse = await coachClient.GetAsync($"/clients/{forbiddenClientId}"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, unassignedResponse.StatusCode);
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   coachClient,
+                   $"/clients/{allowedClientId}",
+                   new
+                   {
+                       LastName = "Future",
+                       FirstName = "Denied",
+                       Phone = "+79990007704",
+                       BranchId = seeded.BranchId,
+                       BirthDate = "2001-01-01",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   coachSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, updateResponse.StatusCode);
+        }
+    }
+
+    [Fact]
+    public async Task Malformed_client_birth_date_returns_standard_problem_details_and_does_not_mutate_state()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        int clientCountBefore;
+        int auditCountBefore;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            clientCountBefore = await dbContext.Clients.CountAsync();
+            auditCountBefore = await dbContext.AuditLogs.CountAsync();
+        }
+
+        var json = $$"""
+        {
+          "lastName": "Invalid",
+          "firstName": "BirthDate",
+          "phone": "+79990007705",
+          "branchId": "{{seeded.BranchId}}",
+          "birthDate": "2026-02-30",
+          "contacts": [],
+          "groupIds": ["{{seeded.GroupOneId}}"]
+        }
+        """;
+
+        using (var response = await PostRawJsonAsync(client, "/clients", json, session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+            var payload = await ReadJsonElementAsync(response);
+            Assert.Equal("https://tools.ietf.org/html/rfc9110#section-15.5.1", GetStringFromProperty(payload, "type"));
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.Equal(clientCountBefore, await dbContext.Clients.CountAsync());
+            Assert.Equal(auditCountBefore, await dbContext.AuditLogs.CountAsync());
+        }
+    }
+
+    [Fact]
+    public async Task Malformed_client_birth_date_update_returns_problem_details_without_mutation_or_audit()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        Guid clientId;
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/clients",
+                   new
+                   {
+                       LastName = "Birth",
+                       FirstName = "UpdateInvalid",
+                       Phone = "+79990007708",
+                       BranchId = seeded.BranchId,
+                       BirthDate = "2000-02-29",
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            var createPayload = await ReadJsonElementAsync(createResponse);
+            clientId = await ExtractClientIdFromResponseAsync(createResponse, createPayload);
+        }
+
+        int auditCountBefore;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            auditCountBefore = await dbContext.AuditLogs.CountAsync();
+        }
+
+        var json = $$"""
+        {
+          "lastName": "Mutated",
+          "firstName": "UpdateInvalid",
+          "phone": "+79990007709",
+          "branchId": "{{seeded.BranchId}}",
+          "birthDate": "not-a-date",
+          "contacts": [],
+          "groupIds": ["{{seeded.GroupOneId}}"]
+        }
+        """;
+
+        using (var response = await PutRawJsonAsync(
+                   client,
+                   $"/clients/{clientId}",
+                   json,
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        }
+
+        using (var getResponse = await client.GetAsync($"/clients/{clientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(getResponse);
+            Assert.Equal("Birth", GetStringFromProperty(payload, "lastName"));
+            Assert.Equal("+79990007708", GetStringFromProperty(payload, "phone"));
+            Assert.Equal("2000-02-29", GetDateOnlyString(payload, "birthDate"));
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.Equal(auditCountBefore, await dbContext.AuditLogs.CountAsync());
+        }
+    }
+
+    [Fact]
+    public async Task Non_upsert_binding_errors_are_not_translated_to_client_upsert_problem_details()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await client.GetAsync("/clients?page=not-a-number");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.NotEqual(
+            "application/problem+json",
+            response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public void Birth_date_and_age_are_absent_from_list_bot_and_report_contracts()
+    {
+        Assert.NotNull(typeof(ClientDetailsResponse).GetProperty("BirthDate"));
+        Assert.NotNull(typeof(ClientDetailsResponse).GetProperty("BusinessDate"));
+        Assert.Null(typeof(ClientDetailsResponse).GetProperty("Age"));
+
+        foreach (var contract in new[]
+                 {
+                     typeof(ClientListItemResponse),
+                     typeof(BotClientListItem),
+                     typeof(BotClientCard),
+                     typeof(FinancialReportResponse)
+                 })
+        {
+            Assert.Null(contract.GetProperty("BirthDate"));
+            Assert.Null(contract.GetProperty("BusinessDate"));
+            Assert.Null(contract.GetProperty("Age"));
         }
     }
 
@@ -3309,6 +3767,7 @@ public class ClientsApiTests
                        FirstName = "Client",
                        Phone = "+79990001300",
                        BranchId = seeded.BranchId,
+                       BirthDate = "2001-01-02",
                        Notes = "Первая audit заметка",
                        Contacts = Array.Empty<object>(),
                        GroupIds = new[] { seeded.GroupOneId }
@@ -3330,6 +3789,7 @@ public class ClientsApiTests
                        MiddleName = "Client",
                        Phone = "+79990001301",
                        BranchId = seeded.BranchId,
+                       BirthDate = (string?)null,
                        Notes = "Обновленная audit заметка",
                        Contacts = new[]
                        {
@@ -3392,10 +3852,15 @@ public class ClientsApiTests
 
         var createdAuditLog = clientAuditLogs.Single(log => log.ActionType == "ClientCreated");
         AssertAuditPayloadNotes(createdAuditLog.NewValueJson, "Первая audit заметка");
+        AssertAuditPayloadBirthDate(createdAuditLog.NewValueJson, "2001-01-02");
+        Assert.DoesNotContain("2001-01-02", createdAuditLog.Description, StringComparison.Ordinal);
 
         var updatedAuditLog = clientAuditLogs.Single(log => log.ActionType == "ClientUpdated");
         AssertAuditPayloadNotes(updatedAuditLog.OldValueJson, "Первая audit заметка");
         AssertAuditPayloadNotes(updatedAuditLog.NewValueJson, "Обновленная audit заметка");
+        AssertAuditPayloadBirthDate(updatedAuditLog.OldValueJson, "2001-01-02");
+        AssertAuditPayloadBirthDate(updatedAuditLog.NewValueJson, null);
+        Assert.DoesNotContain("2001-01-02", updatedAuditLog.Description, StringComparison.Ordinal);
 
         var noteAuditLogs = clientAuditLogs.Where(log => log.ActionType == "ClientNoteChanged").ToArray();
         Assert.Equal(2, noteAuditLogs.Length);
@@ -4038,6 +4503,36 @@ public class ClientsApiTests
         return await client.SendAsync(request);
     }
 
+    private static async Task<HttpResponseMessage> PostRawJsonAsync(
+        HttpClient client,
+        string path,
+        string json,
+        string csrfToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, path)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("X-CSRF-TOKEN", csrfToken);
+
+        return await client.SendAsync(request);
+    }
+
+    private static async Task<HttpResponseMessage> PutRawJsonAsync(
+        HttpClient client,
+        string path,
+        string json,
+        string csrfToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Put, path)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("X-CSRF-TOKEN", csrfToken);
+
+        return await client.SendAsync(request);
+    }
+
     private static async Task<HttpResponseMessage> PutWithoutBodyAsync(
         HttpClient client,
         string path,
@@ -4320,6 +4815,16 @@ public class ClientsApiTests
         return null;
     }
 
+    private static string? GetDateOnlyString(JsonElement payload, string propertyName)
+    {
+        var value = GetPropertyOrNull(payload, propertyName);
+        Assert.True(
+            value.ValueKind is JsonValueKind.String or JsonValueKind.Null,
+            $"Expected {propertyName} to be a JSON date string or null, got {value.ValueKind}.");
+
+        return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+    }
+
     private static bool? GetBoolFromAnyCase(JsonElement payload, params string[] propertyNames)
     {
         var value = GetPropertyOrNull(payload, propertyNames);
@@ -4536,6 +5041,23 @@ public class ClientsApiTests
         Assert.Equal(expectedNotes, notes.GetString());
     }
 
+    private static void AssertAuditPayloadBirthDate(string? payload, string? expectedBirthDate)
+    {
+        Assert.NotNull(payload);
+
+        using var document = JsonDocument.Parse(payload!);
+        var birthDate = GetPropertyOrNull(document.RootElement, "birthDate", "BirthDate");
+
+        if (expectedBirthDate is null)
+        {
+            Assert.Equal(JsonValueKind.Null, birthDate.ValueKind);
+            return;
+        }
+
+        Assert.Equal(JsonValueKind.String, birthDate.ValueKind);
+        Assert.Equal(expectedBirthDate, birthDate.GetString());
+    }
+
     private static void AssertProfessionalAuditPayload(
         string? payload,
         bool expectedIsProfessional,
@@ -4729,7 +5251,9 @@ public class ClientsApiTests
 
     private sealed record LoginRequest(string Login, string Password);
 
-    private sealed class ClientsAppFactory(IReadOnlyDictionary<string, string?>? configurationOverrides = null) : WebApplicationFactory<Program>
+    private sealed class ClientsAppFactory(
+        IReadOnlyDictionary<string, string?>? configurationOverrides = null,
+        DateOnly? businessDate = null) : WebApplicationFactory<Program>
     {
         public string PhotoStorageRootPath { get; } = Path.Combine(
             Path.GetTempPath(),
@@ -4786,6 +5310,12 @@ public class ClientsApiTests
                     options
                         .UseInMemoryDatabase(databaseName)
                         .UseInternalServiceProvider(entityFrameworkProvider));
+
+                if (businessDate.HasValue)
+                {
+                    services.RemoveAll<IBusinessDateProvider>();
+                    services.AddSingleton<IBusinessDateProvider>(new FixedBusinessDateProvider(businessDate.Value));
+                }
             });
         }
 
@@ -4809,5 +5339,10 @@ public class ClientsApiTests
             {
             }
         }
+    }
+
+    private sealed class FixedBusinessDateProvider(DateOnly today) : IBusinessDateProvider
+    {
+        public DateOnly Today { get; } = today;
     }
 }

@@ -16,6 +16,7 @@ public class Client
     public string? FirstName { get; set; }
     public string? MiddleName { get; set; }
     public string Phone { get; set; } = string.Empty;
+    public DateOnly? BirthDate { get; set; }
     public string? Notes { get; set; }
     public Guid? NotesChangedByUserId { get; set; }
     public DateTimeOffset? NotesChangedAt { get; set; }

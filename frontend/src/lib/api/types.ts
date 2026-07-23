@@ -467,6 +467,8 @@ export type SaveAttendanceMarksResponse = {
 
 export type ClientDetails = ClientListItem & {
   createdAt?: string
+  birthDate: string | null
+  businessDate: string
   contacts: ClientContact[]
   groupIds: string[]
   notes: string
@@ -491,6 +493,7 @@ export type UpsertClientRequest = {
   firstName?: string
   middleName?: string
   phone: string
+  birthDate: string | null
   branchId?: string
   notes?: string
   contacts: ClientContactInput[]
@@ -939,6 +942,8 @@ export type ClientResponsePayload = {
   branchId?: string | null
   branchName?: string | null
   notes?: string | null
+  birthDate?: string | null
+  businessDate?: string | null
   notesLastChangedByName?: string | null
   notesLastChangedAt?: string | null
   status?: string | null
