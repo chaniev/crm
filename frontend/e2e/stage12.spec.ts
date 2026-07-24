@@ -160,11 +160,9 @@ type ClientState = {
   }>
   isProfessional?: boolean
   professionalComment?: string | null
-  hasActivePaidMembership: boolean
-  hasUnpaidCurrentMembership: boolean
+  hasActiveMembership: boolean
   membershipWarning: boolean
   behaviorKind?: 'SingleVisit' | 'Term' | 'Professional'
-  currentMembershipIsPaid?: boolean
   expirationDate: string
 }
 
@@ -270,8 +268,7 @@ const baseClient: ClientState = {
   notesLastChangedAt: '2026-07-21T12:34:56Z',
   groupIds: ['group-1'],
   contacts: [],
-  hasActivePaidMembership: true,
-  hasUnpaidCurrentMembership: false,
+  hasActiveMembership: true,
   membershipWarning: false,
   behaviorKind: 'Term',
   expirationDate: addIsoDays(todayIso(), 20),
@@ -377,8 +374,10 @@ test.describe('Основные e2e сценарии', () => {
       const details = toClientPayload({ ...baseClient, behaviorKind: 'Term' }, baseGroups)
       const version = (id: string, saleId: string, purchaseDate: string, value: string | null) => ({
         id, saleId, membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term',
-        purchaseDate, expirationDate: '2026-08-31', pricingMode: 'Catalog', grossAmount: 4000,
-        catalogPrice: 4000, isPaid: true,
+        purchaseDate, paymentDate: purchaseDate, paymentRecordedAt: changedAt,
+        paymentRecordedByUserId: 'headcoach-id', paymentRecordedByUserName: 'Главный тренер',
+        expirationDate: '2026-08-31', pricingMode: 'Catalog', grossAmount: 4000,
+        catalogPrice: 4000,
         singleVisitUsed: false, comment: value, commentLastChangedByName: 'Главный тренер',
         commentLastChangedAt: changedAt,
       })
@@ -555,8 +554,7 @@ test.describe('Основные e2e сценарии', () => {
               phone: '+79990005502',
             },
           ],
-          hasActivePaidMembership: false,
-          hasUnpaidCurrentMembership: false,
+          hasActiveMembership: false,
           membershipWarning: false,
           behaviorKind: undefined,
           expirationDate: '',
@@ -774,10 +772,8 @@ test.describe('Основные e2e сценарии', () => {
     const client: ClientState = {
       ...baseClient,
       id: 'client-admin-professional',
-      hasActivePaidMembership: false,
-      hasUnpaidCurrentMembership: true,
+      hasActiveMembership: false,
       membershipWarning: true,
-      currentMembershipIsPaid: false,
     }
 
     await mockApi(page, async ({ pathname, method, route }) => {
@@ -835,13 +831,17 @@ test.describe('Основные e2e сценарии', () => {
         expect(route.request().headers()['x-csrf-token']).toBe(
           headCoachSession.csrfToken,
         )
+        expect(route.request().headers()['idempotency-key']).toEqual(
+          expect.any(String),
+        )
         expect(transferPayload).toEqual({
           targetBranchId: secondaryBranch.id,
           targetGroupIds: [],
+          membershipCatalogItemId: null,
           manualSaleAmount: 6200,
           validFrom: '2026-07-22',
           validTo: '2026-08-20',
-          paymentStatus: 'Unpaid',
+          paymentDate: '2026-07-23',
         })
 
         client = {
@@ -880,10 +880,11 @@ test.describe('Основные e2e сценарии', () => {
     await expect.poll(() => transferPayload).toEqual({
       targetBranchId: secondaryBranch.id,
       targetGroupIds: [],
+      membershipCatalogItemId: null,
       manualSaleAmount: 6200,
       validFrom: '2026-07-22',
       validTo: '2026-08-20',
-      paymentStatus: 'Unpaid',
+      paymentDate: '2026-07-23',
     })
     await expect(page.getByText('Север', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Клиент пока не включен ни в одну группу.')).toBeVisible()
@@ -974,8 +975,7 @@ test.describe('Основные e2e сценарии', () => {
       phone: `+79990010${String(index + 1).padStart(2, '0')}`,
       status: 'Archived' as const,
       groupIds: [filterGroup.id],
-      hasActivePaidMembership: false,
-      hasUnpaidCurrentMembership: true,
+      hasActiveMembership: false,
       membershipWarning: true,
       expirationDate: '2026-05-20',
     }))
@@ -1045,8 +1045,6 @@ test.describe('Основные e2e сценарии', () => {
     await page.getByLabel('Поиск по имени или телефону').fill('Фильтр')
     await page.getByRole('combobox', { name: 'Группа' }).click()
     await page.getByRole('option', { name: 'Фильтр-группа' }).click()
-    await page.getByRole('combobox', { name: 'Оплата' }).click()
-    await page.getByRole('option', { name: 'Неоплаченные' }).click()
     await page.getByRole('button', { name: /Ещё фильтры/ }).click()
     await page.getByLabel('Истекает с').fill('2026-05-01')
     await page.getByRole('combobox', { name: 'Статус' }).click()
@@ -1064,7 +1062,6 @@ test.describe('Основные e2e сценарии', () => {
             query: 'Фильтр',
             groupId: filterGroup.id,
             status: 'Archived',
-            paymentStatus: 'Unpaid',
             membershipExpiresFrom: '2026-05-01',
             membershipExpiresTo: '2026-05-31',
             hasPhoto: 'false',
@@ -1087,7 +1084,6 @@ test.describe('Основные e2e сценарии', () => {
             query: 'Фильтр',
             groupId: filterGroup.id,
             status: 'Archived',
-            paymentStatus: 'Unpaid',
             membershipExpiresFrom: '2026-05-01',
             membershipExpiresTo: '2026-05-31',
             hasPhoto: 'false',
@@ -1631,8 +1627,7 @@ test.describe('Основные e2e сценарии', () => {
               id: 'client-attendance-1',
               fullName: 'Тренируемый Клиент',
               state: 'Unmarked',
-              hasActivePaidMembership: false,
-              hasUnpaidCurrentMembership: true,
+              hasActiveMembership: false,
               membershipWarning: false,
               groups: [
                 {
@@ -1665,8 +1660,7 @@ test.describe('Основные e2e сценарии', () => {
     const expiringClient: ClientState = {
       ...baseClient,
       expirationDate: addIsoDays(todayIso(), 3),
-      hasActivePaidMembership: true,
-      hasUnpaidCurrentMembership: false,
+      hasActiveMembership: true,
       membershipWarning: false,
     }
 
@@ -1705,7 +1699,6 @@ test.describe('Основные e2e сценарии', () => {
                 membershipName: 'Месяц',
                 behaviorKind: 'Term',
                 expirationDate: expiringClient.expirationDate,
-                isPaid: expiringClient.hasActivePaidMembership,
               },
               telegramLink: null,
               reasons: [{ type: 'expiringMembership', daysUntilExpiration: 3 }],
@@ -1946,8 +1939,7 @@ test.describe('Основные e2e сценарии', () => {
               id: 'client-attendance-1',
               fullName: 'Текущий клиент',
               state: 'Unmarked',
-              hasActivePaidMembership: true,
-              hasUnpaidCurrentMembership: false,
+              hasActiveMembership: true,
               membershipWarning: false,
               groups: [
                 {
@@ -2369,17 +2361,14 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
   const assignedGroups = groups.filter((group) => client.groupIds.includes(group.id))
   const behaviorKind = client.behaviorKind
   const isProfessional = client.isProfessional ?? false
-  const currentMembershipIsPaid =
-    client.currentMembershipIsPaid ?? client.hasActivePaidMembership
   const membershipState = isProfessional
-    ? 'ActivePaid'
+    ? 'Active'
     : !behaviorKind
       ? 'None'
-      : client.hasUnpaidCurrentMembership
-        ? 'Unpaid'
-        : client.hasActivePaidMembership
-          ? 'ActivePaid'
-          : 'Expired'
+      : client.hasActiveMembership
+        ? 'Active'
+        : 'Expired'
+  const purchaseDate = addIsoDays(todayIso(), -20)
 
   return {
     id: client.id,
@@ -2415,8 +2404,7 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     photo: null,
     isProfessional,
     professionalComment: client.professionalComment ?? null,
-    hasActivePaidMembership: client.hasActivePaidMembership,
-    hasUnpaidCurrentMembership: client.hasUnpaidCurrentMembership,
+    hasActiveMembership: client.hasActiveMembership,
     membershipWarning: client.membershipWarning,
     hasCurrentMembership: Boolean(behaviorKind),
     membershipState,
@@ -2428,12 +2416,15 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
           membershipCatalogItemId: 'catalog-1',
           membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
           behaviorKind,
-          purchaseDate: addIsoDays(todayIso(), -20),
+          purchaseDate,
+          paymentDate: purchaseDate,
+          paymentRecordedAt: `${purchaseDate}T09:00:00Z`,
+          paymentRecordedByUserId: 'headcoach-id',
+          paymentRecordedByUserName: 'Главный тренер',
           expirationDate: client.expirationDate,
           pricingMode: 'Catalog',
           grossAmount: 4000,
           catalogPrice: 4000,
-          isPaid: currentMembershipIsPaid,
           singleVisitUsed: false,
         }
       : null,
@@ -2444,12 +2435,15 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
           membershipCatalogItemId: 'catalog-1',
           membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
           behaviorKind,
-          purchaseDate: addIsoDays(todayIso(), -20),
+          purchaseDate,
+          paymentDate: purchaseDate,
+          paymentRecordedAt: `${purchaseDate}T09:00:00Z`,
+          paymentRecordedByUserId: 'headcoach-id',
+          paymentRecordedByUserName: 'Главный тренер',
           expirationDate: client.expirationDate,
           pricingMode: 'Catalog',
           grossAmount: 4000,
           catalogPrice: 4000,
-          isPaid: currentMembershipIsPaid,
           singleVisitUsed: false,
           changedByUserName: 'Тест',
         }
@@ -2462,12 +2456,15 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
             membershipCatalogItemId: 'catalog-1',
             membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
             behaviorKind,
-            purchaseDate: addIsoDays(todayIso(), -20),
+            purchaseDate,
+            paymentDate: purchaseDate,
+            paymentRecordedAt: `${purchaseDate}T09:00:00Z`,
+            paymentRecordedByUserId: 'headcoach-id',
+            paymentRecordedByUserName: 'Главный тренер',
             expirationDate: client.expirationDate,
             pricingMode: 'Catalog',
             grossAmount: 4000,
             catalogPrice: 4000,
-            isPaid: currentMembershipIsPaid,
             singleVisitUsed: false,
           },
         ]
@@ -2491,7 +2488,6 @@ function toExpiringMembershipPayload(client: ClientState) {
           86_400_000,
       ),
     ),
-    isPaid: client.hasActivePaidMembership,
     state: 'ExpiringSoon',
   }
 }

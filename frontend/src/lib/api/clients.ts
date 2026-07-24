@@ -14,7 +14,7 @@ import {
 import {
   buildClientFullName,
   buildDisplayNameFromParts,
-  deriveHasActivePaidMembership,
+  deriveHasActiveMembership,
   deriveMembershipWarning,
   mapClientCurrentMembership,
   mapClientGroups,
@@ -53,7 +53,6 @@ import type {
   ClientResponsePayload,
   CorrectClientMembershipRequest,
   GetClientsParams,
-  MarkClientMembershipPaymentRequest,
   MembershipAttentionItem,
   MembershipAttentionState,
   MembershipExpirationSuggestion,
@@ -95,16 +94,13 @@ export async function getClients(
   appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.phone, params.phone)
   appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.groupId, params.groupId)
   appendSearchParam(searchParams, CLIENTS_QUERY_KEYS.status, params.status)
-  appendSearchParam(
-    searchParams,
-    CLIENTS_QUERY_KEYS.paymentStatus,
-    params.paymentStatus,
-  )
-  appendSearchParam(
-    searchParams,
-    CLIENTS_QUERY_KEYS.membershipState,
-    params.membershipState,
-  )
+  if (isSupportedClientMembershipState(params.membershipState)) {
+    appendSearchParam(
+      searchParams,
+      CLIENTS_QUERY_KEYS.membershipState,
+      params.membershipState,
+    )
+  }
   appendSearchParam(
     searchParams,
     CLIENTS_QUERY_KEYS.behaviorKind,
@@ -126,11 +122,6 @@ export async function getClients(
     searchParams,
     CLIENTS_QUERY_KEYS.hasCurrentMembership,
     params.hasCurrentMembership,
-  )
-  appendBooleanSearchParam(
-    searchParams,
-    CLIENTS_QUERY_KEYS.hasActivePaidMembership,
-    params.hasActivePaidMembership,
   )
   if (params.quickFilters?.length) {
     searchParams.set(CLIENTS_QUERY_KEYS.quickFilters, params.quickFilters.join(','))
@@ -241,7 +232,6 @@ function mapClientAttentionReason(payload: Record<string, unknown>): ClientAtten
     const missedCount = readNumber(payload, ['missedCount', 'MissedCount'])
     return missedCount === undefined ? null : { type: 'missedTraining', missedCount }
   }
-  if (type === 'unpaidMembership' || type === 'UnpaidMembership') return { type: 'unpaidMembership' }
   if (type === 'expiredMembership' || type === 'ExpiredMembership' || type === 'expiringMembership' || type === 'ExpiringMembership') {
     return {
       type: type.toLowerCase().startsWith('expired') ? 'expiredMembership' : 'expiringMembership',
@@ -262,7 +252,6 @@ function mapClientAttentionMembership(payload: Record<string, unknown>) {
     membershipName: readString(value, ['membershipName', 'MembershipName']) ?? '',
     expirationDate: normalizeIsoDateValue(readString(value, ['expirationDate', 'ExpirationDate'])),
     daysUntilExpiration: readNumber(value, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? null,
-    isPaid: readBoolean(value, ['isPaid', 'IsPaid']) ?? false,
   }
 }
 
@@ -317,11 +306,13 @@ export async function updateClient(
 export async function transferClientBranch(
   clientId: string,
   payload: TransferClientBranchRequest,
+  options: MembershipWriteRequestOptions,
 ) {
   const response = await request<ClientResponsePayload | null>(
     API_ENDPOINTS.clients.transfer(clientId),
     {
       method: 'POST',
+      headers: membershipWriteHeaders(options),
       body: JSON.stringify({
         targetBranchId: payload.targetBranchId,
         targetGroupIds: payload.targetGroupIds,
@@ -329,7 +320,6 @@ export async function transferClientBranch(
         manualSaleAmount: payload.manualSaleAmount,
         validFrom: payload.validFrom,
         validTo: payload.validTo,
-        paymentStatus: payload.paymentStatus,
         paymentDate: payload.paymentDate,
         professionalComment: payload.professionalComment,
       }),
@@ -337,6 +327,17 @@ export async function transferClientBranch(
   )
 
   return response ? mapClientDetails(response) : null
+}
+
+function isSupportedClientMembershipState(
+  value: unknown,
+): value is GetClientsParams['membershipState'] {
+  return (
+    value === 'None' ||
+    value === 'Active' ||
+    value === 'Expired' ||
+    value === 'UsedSingleVisit'
+  )
 }
 
 export function buildClientPhotoUrl(
@@ -393,7 +394,6 @@ export async function purchaseClientMembership(
         ManualSaleAmount: payload.manualSaleAmount,
         ValidFrom: payload.validFrom,
         ValidTo: payload.validTo,
-        PaymentStatus: payload.paymentStatus,
         PaymentDate: payload.paymentDate,
         ProfessionalComment: payload.professionalComment,
       }),
@@ -416,7 +416,6 @@ export async function renewClientMembership(
       body: JSON.stringify({
         MembershipCatalogItemId: payload.membershipCatalogItemId,
         ManualSaleAmount: payload.manualSaleAmount,
-        PaymentStatus: payload.paymentStatus,
         PaymentDate: payload.paymentDate,
         ProfessionalComment: payload.professionalComment,
       }),
@@ -441,26 +440,7 @@ export async function correctClientMembership(
         ExpectedMembershipId: payload.expectedMembershipId,
         ValidFrom: payload.validFrom,
         ValidTo: payload.validTo,
-      }),
-    },
-  )
-
-  return response ? mapClientDetails(response) : null
-}
-
-export async function markClientMembershipPayment(
-  clientId: string,
-  payload: MarkClientMembershipPaymentRequest,
-  options: MembershipWriteRequestOptions,
-) {
-  const response = await request<ClientResponsePayload | null>(
-    API_ENDPOINTS.clients.membership.markPayment(clientId),
-    {
-      method: 'POST',
-      headers: membershipWriteHeaders(options),
-      body: JSON.stringify({
-        SaleId: payload.saleId,
-        ExpectedMembershipId: payload.expectedMembershipId,
+        PaymentDate: payload.paymentDate,
       }),
     },
   )
@@ -508,26 +488,19 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
       'membershipStatusMessage',
       'MembershipStatusMessage',
     ]) ?? undefined
-  const hasActivePaidMembership =
+  const hasActiveMembership =
     readBoolean(payload, [
-      'hasActivePaidMembership',
-      'HasActivePaidMembership',
+      'hasActiveMembership',
+      'HasActiveMembership',
     ]) ??
     (isProfessional
       ? true
-      : deriveHasActivePaidMembership(currentMembership, new Date().toISOString()))
-  const hasUnpaidCurrentMembership =
-    readBoolean(payload, [
-      'hasUnpaidCurrentMembership',
-      'HasUnpaidCurrentMembership',
-    ]) ??
-    (isProfessional ? false : Boolean(currentMembership && !currentMembership.isPaid))
+      : deriveHasActiveMembership(currentMembership, new Date().toISOString()))
   const derivedMembershipWarning =
     !isProfessional &&
     (Boolean(warningMessage) ||
       deriveMembershipWarning(
         currentMembership,
-        hasUnpaidCurrentMembership,
         new Date().toISOString(),
       ))
   const membershipWarning =
@@ -560,8 +533,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     photo: mapClientPhoto(payload),
     isProfessional,
     professionalComment,
-    hasActivePaidMembership,
-    hasUnpaidCurrentMembership,
+    hasActiveMembership,
     membershipWarning,
     membershipWarningMessage: warningMessage,
     currentMembership,
@@ -573,8 +545,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
       readString(payload, ['membershipState', 'MembershipState']),
       isProfessional,
       currentMembershipSummary,
-      hasActivePaidMembership,
-      hasUnpaidCurrentMembership,
+      hasActiveMembership,
     ),
     actionHints: mapClientActionHints(payload),
     lastVisitDate:
@@ -635,13 +606,11 @@ function mapClientMembershipState(
   state: string | undefined,
   isProfessional: boolean,
   currentMembership: ClientMembership | null,
-  hasActivePaidMembership: boolean,
-  hasUnpaidCurrentMembership: boolean,
+  hasActiveMembership: boolean,
 ) {
   if (
     state === 'None' ||
-    state === 'ActivePaid' ||
-    state === 'Unpaid' ||
+    state === 'Active' ||
     state === 'Expired' ||
     state === 'UsedSingleVisit'
   ) {
@@ -649,19 +618,15 @@ function mapClientMembershipState(
   }
 
   if (isProfessional) {
-    return 'ActivePaid'
+    return 'Active'
   }
 
   if (!currentMembership) {
     return 'None'
   }
 
-  if (hasUnpaidCurrentMembership) {
-    return 'Unpaid'
-  }
-
-  if (hasActivePaidMembership) {
-    return 'ActivePaid'
+  if (hasActiveMembership) {
+    return 'Active'
   }
 
   if (currentMembership.behaviorKind === 'SingleVisit' && currentMembership.singleVisitUsed) {
@@ -705,7 +670,6 @@ function mapMembershipAttentionItem(
     behaviorKind,
     expirationDate,
     daysUntilExpiration: daysUntilExpiration ?? null,
-    isPaid: readBoolean(payload, ['isPaid', 'IsPaid']) ?? false,
     state: mapMembershipAttentionState(
       readString(payload, ['state', 'State']),
     ),
@@ -715,7 +679,7 @@ function mapMembershipAttentionItem(
 function mapMembershipAttentionState(
   state: string | null | undefined,
 ): MembershipAttentionState {
-  if (state === 'Expired' || state === 'ExpiringSoon' || state === 'Unpaid') {
+  if (state === 'Expired' || state === 'ExpiringSoon') {
     return state
   }
 

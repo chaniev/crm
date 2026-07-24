@@ -67,7 +67,7 @@ export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelPr
             <Text fw={700} size="lg">{client.fullName}</Text>
             <Stack aria-label="Причины" gap="xs" role="list">{client.reasons.map((reason, index) => <ReasonRow client={client} error={actionErrors[client.clientId]} key={`${reason.type}-${index}`} onContacted={() => void contacted(client)} pending={pendingClientId === client.clientId} reason={reason} />)}</Stack>
             <SimpleGrid cols={{ base: 1, sm: 3 }}>
-              <HomeField label="Абонемент" value={client.membership ? `${client.membership.membershipName || resources.common.membership.typeLabels[client.membership.behaviorKind]} · ${client.membership.isPaid ? 'оплачен' : 'не оплачен'}` : 'Нет данных'} />
+              <HomeField label="Абонемент" value={client.membership ? (client.membership.membershipName || resources.common.membership.typeLabels[client.membership.behaviorKind]) : 'Нет данных'} />
               <HomeField label="Контакты" value={<Stack gap={2}>{client.phone ? <Anchor href={`tel:${client.phone}`}>{client.phone}</Anchor> : <Text size="sm">Телефон не указан</Text>}{client.telegramLink ? <Anchor aria-label="Открыть Telegram в новой вкладке" href={client.telegramLink} rel="noopener noreferrer" target="_blank"><IconBrandTelegram size={16} /> Telegram</Anchor> : null}</Stack>} />
               <HomeField label="Заметки" value={client.notes || 'Нет заметок'} />
             </SimpleGrid>
@@ -81,10 +81,19 @@ export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelPr
 
 function ReasonRow({ client, error, onContacted, pending, reason }: { client: ClientAttentionItem; error?: string; onContacted: () => void; pending: boolean; reason: ClientAttentionReason }) {
   if (reason.type === 'missedTraining') return <Paper bg="var(--mantine-color-orange-light)" p="sm" role="listitem" withBorder><Group align="center" justify="space-between" wrap="wrap"><Stack gap={4}><Badge color="orange">Пропущено подряд: {reason.missedCount}</Badge><Text size="sm">Пора связаться с клиентом</Text></Stack><Button aria-label={pending ? `Сохраняем связь с ${client.fullName}` : `Связались с ${client.fullName}`} leftSection={<IconCheck size={18} />} loading={pending} onClick={onContacted}>{pending ? 'Сохраняем…' : 'Связались'}</Button></Group>{error ? <Text aria-live="polite" c="red" mt="xs" size="sm">{error}. Нажмите «Связались», чтобы повторить.</Text> : null}</Paper>
-  if (reason.type === 'unpaidMembership') return <Group role="listitem"><Badge color="yellow" variant="light">Требует оплаты</Badge><Text size="sm">Ожидается оплата</Text></Group>
   const expired = reason.type === 'expiredMembership'
   const days = reason.daysUntilExpiration === null ? null : Math.abs(reason.daysUntilExpiration)
-  const detail = days === null ? (expired ? 'Дата окончания прошла' : 'Срок окончания приближается') : expired ? `Истек ${days} ${dayWord(days)} назад` : `Осталось ${days} ${dayWord(days)}`
+  const detail = days === null
+    ? expired
+      ? 'Дата окончания прошла'
+      : 'Срок окончания приближается'
+    : days === 0
+      ? expired
+        ? 'Истек сегодня'
+        : 'Истекает сегодня'
+      : expired
+        ? `Истек ${days} ${dayWord(days)} назад`
+        : `Осталось ${days} ${dayWord(days)}`
   return <Group role="listitem"><Badge color={expired ? 'red' : 'orange'} variant="light">{expired ? 'Истек' : 'Скоро истечет'}</Badge><Text size="sm">{detail}</Text></Group>
 }
 

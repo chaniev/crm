@@ -52,6 +52,29 @@ public sealed class ClientMembershipPersistenceModelTests
     }
 
     [Fact]
+    public void Sale_is_the_only_payment_owner_for_membership_versions()
+    {
+        using var dbContext = CreateDbContext();
+        var membership = dbContext.Model.FindEntityType(typeof(ClientMembership));
+        var sale = dbContext.Model.FindEntityType(typeof(ClientMembershipSale));
+        var user = dbContext.Model.FindEntityType(typeof(GymCrm.Domain.Users.User));
+
+        Assert.NotNull(membership);
+        Assert.NotNull(sale);
+        Assert.NotNull(user);
+        Assert.Null(membership.FindProperty("IsPaid"));
+        Assert.Null(membership.FindProperty("PaidByUserId"));
+        Assert.Null(membership.FindProperty("PaidAt"));
+        Assert.Null(membership.FindNavigation("PaidByUser"));
+        Assert.Null(user.FindNavigation("MembershipPayments"));
+
+        var paymentDate = sale.FindProperty("PaymentDate");
+        Assert.NotNull(paymentDate);
+        Assert.False(paymentDate.IsNullable);
+        Assert.Equal("date", paymentDate.GetColumnType());
+    }
+
+    [Fact]
     public void Catalog_sale_and_refund_share_numeric_10_2_storage()
     {
         using var dbContext = CreateDbContext();
@@ -83,6 +106,19 @@ public sealed class ClientMembershipPersistenceModelTests
         Assert.Contains("CK_ClientMembershipRefunds_Amount_WholeRub", script, StringComparison.Ordinal);
         Assert.Contains("CK_MembershipCatalogItems_Price_WholeRub", script, StringComparison.Ordinal);
         Assert.DoesNotContain("ClientMemberships_PaymentAmount", script, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Initial_schema_contains_required_sale_payment_date_and_no_membership_payment_status_columns()
+    {
+        using var dbContext = CreateDbContext();
+        var script = dbContext.GetService<IMigrator>().GenerateScript();
+
+        Assert.Contains("\"PaymentDate\" date NOT NULL", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"ClientMemberships\".\"IsPaid\"", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"IsPaid\" boolean", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"PaidByUserId\" uuid", script, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"PaidAt\" timestamp with time zone", script, StringComparison.Ordinal);
     }
 
     [Fact]

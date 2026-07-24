@@ -16,8 +16,6 @@ export const resources = {
     statuses: {
       active: 'Активен',
       disabled: 'Отключен',
-      paid: 'Оплачен',
-      unpaid: 'Не оплачен',
     },
   },
   home: {
@@ -37,24 +35,22 @@ export const resources = {
     expiringMemberships: {
       title: 'Абонементы требуют внимания',
       description:
-        'Клиенты с истекшими, скоро истекающими или неоплаченными абонементами.',
+        'Клиенты с истекшими или скоро истекающими абонементами.',
       loadingErrorTitle: 'Список не загрузился',
       loadingErrorMessage:
         'Не удалось загрузить абонементы, требующие внимания.',
       emptyTitle: 'Абонементы не требуют внимания.',
       emptyDescription:
-        'Нет истекших, скоро истекающих или неоплаченных абонементов.',
+        'Нет истекших или скоро истекающих абонементов.',
       openClientAction: 'Карточка клиента',
       fields: {
         behaviorKind: 'Тип абонемента',
         expirationDate: 'Дата окончания',
         state: 'Состояние',
-        payment: 'Оплата',
       },
       stateLabels: {
         Expired: 'Истек',
         ExpiringSoon: 'Скоро истечет',
-        Unpaid: 'Требует оплаты',
         Unknown: 'Неизвестно',
       },
       today: 'Сегодня',
@@ -209,10 +205,6 @@ export const resources = {
       Active: 'Активный',
       Archived: 'Архивный',
     },
-    paymentStatuses: {
-      Paid: 'Оплаченные',
-      Unpaid: 'Неоплаченные',
-    },
     behaviorKindLabels: {
       SingleVisit: 'Разовое',
       Term: 'На срок',
@@ -227,7 +219,6 @@ export const resources = {
       NewPurchase: 'Новая покупка',
       Renewal: 'Продление',
       Correction: 'Исправление',
-      PaymentUpdate: 'Оплата отмечена',
       SingleVisitWriteOff: 'Списание разового',
     },
     list: {
@@ -235,7 +226,6 @@ export const resources = {
         NewPurchase: 'Оформлен абонемент',
         Renewal: 'Продление',
         Correction: 'Исправление',
-        PaymentUpdate: 'Оплата отмечена',
         SingleVisitWriteOff: 'Разовое списано',
       },
       quickFilters: {

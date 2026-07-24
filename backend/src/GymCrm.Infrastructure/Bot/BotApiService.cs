@@ -17,7 +17,6 @@ namespace GymCrm.Infrastructure.Bot;
 internal sealed class BotApiService(
     GymCrmDbContext dbContext,
     IAttendanceService attendanceService,
-    IClientMembershipService membershipService,
     IAuditLogService auditLogService,
     BotIdempotencyService idempotencyService,
     IBusinessDateProvider businessDateProvider) : IBotApiService
@@ -272,10 +271,9 @@ internal sealed class BotApiService(
                     return new BotAttendanceClientWarning(
                         client.Id,
                         BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
-                        membershipWarning.Message,
-                        ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership));
+                        membershipWarning.Message);
                 })
-                .Where(item => item.MembershipWarning is not null || item.HasUnpaidCurrentMembership)
+                .Where(item => item.MembershipWarning is not null)
                 .OrderBy(item => item.FullName, StringComparer.CurrentCulture)
                 .ThenBy(item => item.ClientId)
                 .ToArray();
@@ -509,8 +507,7 @@ internal sealed class BotApiService(
                         MembershipLabel = membership.Sale.MembershipCatalogItem != null
                             ? membership.Sale.MembershipCatalogItem.Name
                             : ClientMembershipSaleDisplay.AmountOnlyLabel,
-                        ExpirationDate = membership.IndividualValidTo,
-                        membership.IsPaid
+                        ExpirationDate = membership.IndividualValidTo
                     })
                     .FirstOrDefault()
             })
@@ -530,204 +527,10 @@ internal sealed class BotApiService(
                 candidate.CurrentMembership!.BehaviorKind.ToString(),
                 candidate.CurrentMembership.MembershipLabel,
                 candidate.CurrentMembership.ExpirationDate!.Value,
-                candidate.CurrentMembership.ExpirationDate.Value.DayNumber - today.DayNumber,
-                candidate.CurrentMembership.IsPaid))
+                candidate.CurrentMembership.ExpirationDate.Value.DayNumber - today.DayNumber))
             .ToArrayAsync(cancellationToken);
 
         return BotApiResult<IReadOnlyList<BotExpiringMembershipListItem>>.Success(items);
-    }
-
-    public async Task<BotApiResult<IReadOnlyList<BotUnpaidMembershipListItem>>> ListUnpaidMembershipsAsync(
-        BotIdentity identity,
-        CancellationToken cancellationToken)
-    {
-        var resolvedUser = await ResolveUserAsync(identity, cancellationToken);
-        if (!resolvedUser.Succeeded)
-        {
-            return BotApiResult<IReadOnlyList<BotUnpaidMembershipListItem>>.Failure(resolvedUser.Error);
-        }
-
-        var user = resolvedUser.Value!;
-        if (user.Role is not (UserRole.HeadCoach or UserRole.Administrator))
-        {
-            return BotApiResult<IReadOnlyList<BotUnpaidMembershipListItem>>.Failure(BotApiError.Forbidden);
-        }
-
-        var items = await dbContext.Clients
-            .AsNoTracking()
-            .Where(client => client.Status == ClientStatus.Active)
-            .Select(client => new
-            {
-                client.Id,
-                client.LastName,
-                client.FirstName,
-                client.MiddleName,
-                CurrentMembership = client.Memberships
-                    .Where(membership => membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.ValidFrom)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Select(membership => new
-                    {
-                        membership.BehaviorKind,
-                        MembershipLabel = membership.Sale.MembershipCatalogItem != null
-                            ? membership.Sale.MembershipCatalogItem.Name
-                            : ClientMembershipSaleDisplay.AmountOnlyLabel,
-                        PurchaseDate = membership.Sale.PurchaseDate,
-                        ExpirationDate = membership.IndividualValidTo,
-                        membership.IsPaid
-                    })
-                    .FirstOrDefault()
-            })
-            .Where(candidate =>
-                candidate.CurrentMembership != null &&
-                candidate.CurrentMembership.BehaviorKind != MembershipBehaviorKind.Professional &&
-                !candidate.CurrentMembership.IsPaid)
-            .OrderBy(candidate => candidate.LastName ?? string.Empty)
-            .ThenBy(candidate => candidate.FirstName ?? string.Empty)
-            .ThenBy(candidate => candidate.MiddleName ?? string.Empty)
-            .ThenBy(candidate => candidate.Id)
-            .Select(candidate => new BotUnpaidMembershipListItem(
-                candidate.Id,
-                BuildClientFullName(candidate.LastName, candidate.FirstName, candidate.MiddleName),
-                candidate.CurrentMembership!.BehaviorKind.ToString(),
-                candidate.CurrentMembership.MembershipLabel,
-                candidate.CurrentMembership.PurchaseDate,
-                candidate.CurrentMembership.ExpirationDate,
-                candidate.CurrentMembership.IsPaid))
-            .ToArrayAsync(cancellationToken);
-
-        return BotApiResult<IReadOnlyList<BotUnpaidMembershipListItem>>.Success(items);
-    }
-
-    public async Task<BotApiResult<BotMembershipPaymentResponse>> MarkMembershipPaymentAsync(
-        BotIdentity identity,
-        Guid clientId,
-        string idempotencyKey,
-        string payloadJson,
-        CancellationToken cancellationToken)
-    {
-        var resolvedUser = await ResolveUserAsync(identity, cancellationToken);
-        if (!resolvedUser.Succeeded)
-        {
-            return BotApiResult<BotMembershipPaymentResponse>.Failure(resolvedUser.Error);
-        }
-
-        var user = resolvedUser.Value!;
-        if (user.Role is not (UserRole.HeadCoach or UserRole.Administrator))
-        {
-            return BotApiResult<BotMembershipPaymentResponse>.Failure(BotApiError.Forbidden);
-        }
-
-        var reservation = await idempotencyService.ReserveAsync<BotMembershipPaymentResponse>(
-            identity,
-            BotAuditConstants.BotMembershipPaymentMarkedAction,
-            idempotencyKey,
-            payloadJson,
-            cancellationToken);
-
-        if (reservation.State == BotIdempotencyService.ReservationState.Replay)
-        {
-            return BotApiResult<BotMembershipPaymentResponse>.Success(reservation.Response!);
-        }
-
-        if (reservation.State == BotIdempotencyService.ReservationState.Conflict)
-        {
-            return BotApiResult<BotMembershipPaymentResponse>.Failure(BotApiError.IdempotencyConflict);
-        }
-
-        var recordId = reservation.RecordId!.Value;
-        var clientBefore = await dbContext.Clients
-            .AsNoTracking()
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.Sale)
-                    .ThenInclude(sale => sale.MembershipCatalogItem)
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.Sale)
-            .SingleOrDefaultAsync(client => client.Id == clientId, cancellationToken);
-
-        if (clientBefore is null)
-        {
-            await idempotencyService.ReleaseAsync(recordId, cancellationToken);
-            return BotApiResult<BotMembershipPaymentResponse>.Failure(BotApiError.NotFound);
-        }
-
-        var currentMembershipBefore = GetCurrentMembership(clientBefore);
-        if (currentMembershipBefore is null)
-        {
-            await idempotencyService.ReleaseAsync(recordId, cancellationToken);
-            return BotApiResult<BotMembershipPaymentResponse>.Failure(BotApiError.CurrentMembershipMissing);
-        }
-
-        if (currentMembershipBefore.IsPaid)
-        {
-            var alreadyPaidResponse = new BotMembershipPaymentResponse(
-                clientBefore.Id,
-                BuildClientFullName(clientBefore.LastName, clientBefore.FirstName, clientBefore.MiddleName),
-                currentMembershipBefore.BehaviorKind.ToString(),
-                ClientMembershipSaleDisplay.GetMembershipName(currentMembershipBefore.Sale),
-                currentMembershipBefore.Sale.PurchaseDate,
-                currentMembershipBefore.IndividualValidTo,
-                true,
-                true);
-
-            await idempotencyService.CompleteAsync(recordId, alreadyPaidResponse, cancellationToken);
-            return BotApiResult<BotMembershipPaymentResponse>.Success(alreadyPaidResponse);
-        }
-
-        var mutationResult = await membershipService.MarkPaymentAsync(
-            clientId,
-            new MarkClientMembershipPaymentCommand(
-                user.Id,
-                currentMembershipBefore.SaleId,
-                currentMembershipBefore.Id),
-            cancellationToken);
-
-        if (!mutationResult.Succeeded)
-        {
-            await idempotencyService.ReleaseAsync(recordId, cancellationToken);
-            return mutationResult.Error switch
-            {
-                ClientMembershipMutationError.ClientMissing => BotApiResult<BotMembershipPaymentResponse>.Failure(BotApiError.NotFound),
-                ClientMembershipMutationError.CurrentMembershipMissing => BotApiResult<BotMembershipPaymentResponse>.Failure(BotApiError.CurrentMembershipMissing),
-                _ => BotApiResult<BotMembershipPaymentResponse>.Failure(BotApiError.Validation)
-            };
-        }
-
-        var clientAfter = await dbContext.Clients
-            .AsNoTracking()
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.Sale)
-                    .ThenInclude(sale => sale.MembershipCatalogItem)
-            .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.Sale)
-            .SingleAsync(client => client.Id == clientId, cancellationToken);
-        var currentMembershipAfter = GetCurrentMembership(clientAfter)
-            ?? throw new InvalidOperationException($"Client '{clientId}' has no current membership after payment mark.");
-
-        var response = new BotMembershipPaymentResponse(
-            clientAfter.Id,
-            BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName),
-            currentMembershipAfter.BehaviorKind.ToString(),
-            ClientMembershipSaleDisplay.GetMembershipName(currentMembershipAfter.Sale),
-            currentMembershipAfter.Sale.PurchaseDate,
-            currentMembershipAfter.IndividualValidTo,
-            currentMembershipAfter.IsPaid,
-            false);
-
-        await WriteBotAuditAsync(
-            user,
-            identity,
-            BotAuditConstants.BotMembershipPaymentMarkedAction,
-            "ClientMembership",
-            currentMembershipAfter.Id.ToString(),
-            $"Пользователь '{user.Login}' отметил оплату абонемента через бота для клиента '{response.FullName}'.",
-            SerializeMembershipAuditState(currentMembershipBefore),
-            SerializeMembershipAuditState(currentMembershipAfter),
-            cancellationToken);
-
-        await idempotencyService.CompleteAsync(recordId, response, cancellationToken);
-        return BotApiResult<BotMembershipPaymentResponse>.Success(response);
     }
 
     public async Task<BotApiResult<BotAccessDeniedAuditResponse>> WriteAccessDeniedAuditAsync(
@@ -903,8 +706,7 @@ internal sealed class BotApiService(
             [
                 new BotMenuItem("attendance", "Посещения"),
                 new BotMenuItem("client_search", "Поиск клиента"),
-                new BotMenuItem("expiring_memberships", "Заканчивающиеся"),
-                new BotMenuItem("unpaid_memberships", "Неоплаченные")
+                new BotMenuItem("expiring_memberships", "Заканчивающиеся")
             ],
             UserRole.Coach =>
             [
@@ -1039,8 +841,7 @@ internal sealed class BotApiService(
             isProfessional ? currentMembership!.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership),
-            ClientMembershipSemantics.HasActivePaidMembership(
+            ClientMembershipSemantics.HasActiveMembership(
                 isProfessional,
                 currentMembership,
                 trainingDate,
@@ -1072,8 +873,7 @@ internal sealed class BotApiService(
             isProfessional ? currentMembership!.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership),
-            ClientMembershipSemantics.HasActivePaidMembership(
+            ClientMembershipSemantics.HasActiveMembership(
                 isProfessional,
                 currentMembership,
                 trainingDate,
@@ -1110,8 +910,7 @@ internal sealed class BotApiService(
             isProfessional ? currentMembership!.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership),
-            ClientMembershipSemantics.HasActivePaidMembership(
+            ClientMembershipSemantics.HasActiveMembership(
                 isProfessional,
                 currentMembership,
                 trainingDate,
@@ -1127,8 +926,8 @@ internal sealed class BotApiService(
                     currentMembership.Sale.GrossAmount,
                     ClientMembershipSaleDisplay.GetCatalogPrice(currentMembership.Sale),
                     currentMembership.Sale.PurchaseDate,
+                    currentMembership.Sale.PaymentDate,
                     currentMembership.IndividualValidTo,
-                    currentMembership.IsPaid,
                     currentMembership.SingleVisitUsed),
             attendanceHistory);
     }
@@ -1192,11 +991,6 @@ internal sealed class BotApiService(
             messages.Add("абонемент куплен позже выбранной даты");
         }
 
-        if (issues.Contains(ClientMembershipIssue.Unpaid))
-        {
-            messages.Add("абонемент не оплачен");
-        }
-
         if (issues.Contains(ClientMembershipIssue.SingleVisitAlreadyUsed))
         {
             messages.Add("разовое посещение уже списано");
@@ -1257,11 +1051,11 @@ internal sealed class BotApiService(
                 membership.IndividualValidTo,
                 membership.ProfessionalComment,
                 PurchaseDate = membership.Sale.PurchaseDate,
+                PaymentDate = membership.Sale.PaymentDate,
                 ExpirationDate = membership.IndividualValidTo,
-                membership.IsPaid,
                 membership.SingleVisitUsed,
-                membership.PaidByUserId,
-                membership.PaidAt,
+                PaymentRecordedByUserId = membership.Sale.CreatedByUserId,
+                PaymentRecordedAt = membership.Sale.CreatedAt,
                 ChangeReason = membership.ChangeReason.ToString(),
                 membership.ChangedByUserId,
                 membership.ValidFrom,

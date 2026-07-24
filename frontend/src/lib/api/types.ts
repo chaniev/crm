@@ -116,11 +116,9 @@ export type AttendanceGroupsResponse = {
 }
 
 export type ClientStatus = 'Active' | 'Archived'
-export type ClientPaymentStatus = 'Paid' | 'Unpaid'
 export type ClientMembershipState =
   | 'None'
-  | 'ActivePaid'
-  | 'Unpaid'
+  | 'Active'
   | 'Expired'
   | 'UsedSingleVisit'
 export type ClientQuickFilter =
@@ -291,7 +289,6 @@ export type ClientMembershipChangeReason =
   | 'NewPurchase'
   | 'Renewal'
   | 'Correction'
-  | 'PaymentUpdate'
   | 'SingleVisitWriteOff'
 
 export type ClientAttendanceHistoryEntry = {
@@ -318,8 +315,7 @@ export type ClientListItem = {
   photo: ClientPhoto | null
   isProfessional: boolean
   professionalComment: string | null
-  hasActivePaidMembership: boolean
-  hasUnpaidCurrentMembership: boolean
+  hasActiveMembership: boolean
   membershipWarning: boolean
   membershipWarningMessage?: string
   currentMembership: ClientMembership | null
@@ -336,8 +332,8 @@ export type ClientMembershipSummary = Pick<
   | 'id'
   | 'behaviorKind'
   | 'purchaseDate'
+  | 'paymentDate'
   | 'expirationDate'
-  | 'isPaid'
   | 'singleVisitUsed'
 >
 
@@ -348,16 +344,16 @@ export type ClientMembership = {
   membershipName: string
   behaviorKind: MembershipBehaviorKind
   purchaseDate: string
+  paymentDate: string
   expirationDate: string | null
   pricingMode: MembershipSalePricingMode
   grossAmount: number
   catalogPrice: number | null
-  isPaid: boolean
   singleVisitUsed: boolean
   changeReason?: ClientMembershipChangeReason | string
-  paidAt?: string
-  paidByUserId?: string
-  paidByUserName?: string
+  paymentRecordedAt: string
+  paymentRecordedByUserId: string
+  paymentRecordedByUserName: string
   changedByUserId?: string
   changedByUserName?: string
   validFrom?: string
@@ -372,7 +368,6 @@ export type ClientMembership = {
 export type MembershipAttentionState =
   | 'Expired'
   | 'ExpiringSoon'
-  | 'Unpaid'
   | 'Unknown'
 
 export type MembershipAttentionItem = {
@@ -381,7 +376,6 @@ export type MembershipAttentionItem = {
   behaviorKind: MembershipBehaviorKind
   expirationDate: string | null
   daysUntilExpiration: number | null
-  isPaid: boolean
   state: MembershipAttentionState
 }
 
@@ -393,8 +387,6 @@ export type ClientAttentionMembershipReason = {
   daysUntilExpiration: number | null
 }
 
-export type ClientAttentionUnpaidMembershipReason = { type: 'unpaidMembership' }
-
 export type ClientAttentionMissedTrainingReason = {
   type: 'missedTraining'
   missedCount: number
@@ -402,7 +394,6 @@ export type ClientAttentionMissedTrainingReason = {
 
 export type ClientAttentionReason =
   | ClientAttentionMembershipReason
-  | ClientAttentionUnpaidMembershipReason
   | ClientAttentionMissedTrainingReason
 
 export type ClientAttentionMembershipSummary = {
@@ -410,7 +401,6 @@ export type ClientAttentionMembershipSummary = {
   membershipName: string
   expirationDate: string | null
   daysUntilExpiration: number | null
-  isPaid: boolean
 }
 
 export type ClientAttentionItem = {
@@ -431,8 +421,7 @@ export type AttendanceClient = {
   state: AttendanceState
   isProfessional: boolean
   professionalComment: string | null
-  hasActivePaidMembership: boolean
-  hasUnpaidCurrentMembership: boolean
+  hasActiveMembership: boolean
   membershipWarning: boolean
   membershipWarningMessage?: string
   currentMembership: ClientMembership | null
@@ -507,7 +496,6 @@ export type TransferClientBranchRequest = {
   manualSaleAmount?: number | null
   validFrom?: string
   validTo?: string
-  paymentStatus?: 'Paid' | 'Unpaid'
   paymentDate?: string
   professionalComment?: string
 }
@@ -595,7 +583,6 @@ export type GetClientsParams = {
   phone?: string
   groupId?: string
   status?: ClientStatus
-  paymentStatus?: ClientPaymentStatus
   membershipState?: ClientMembershipState
   behaviorKind?: MembershipBehaviorKind
   membershipExpiresFrom?: string
@@ -603,7 +590,6 @@ export type GetClientsParams = {
   hasPhoto?: boolean
   hasGroup?: boolean
   hasCurrentMembership?: boolean
-  hasActivePaidMembership?: boolean
   quickFilters?: ClientQuickFilter[]
 }
 
@@ -625,8 +611,7 @@ export type PurchaseClientMembershipRequest = {
   manualSaleAmount?: number | null
   validFrom?: string
   validTo?: string
-  paymentStatus: 'Paid' | 'Unpaid'
-  paymentDate?: string
+  paymentDate: string
   professionalComment?: string
 }
 
@@ -635,6 +620,7 @@ export type CorrectClientMembershipRequest = {
   expectedMembershipId: string
   validFrom: string
   validTo?: string
+  paymentDate: string
 }
 
 export type MembershipWriteRequestOptions = {
@@ -650,14 +636,8 @@ export type MembershipExpirationSuggestion = {
 export type RenewClientMembershipRequest = {
   membershipCatalogItemId?: string | null
   manualSaleAmount?: number | null
-  paymentStatus: 'Paid' | 'Unpaid'
-  paymentDate?: string
+  paymentDate: string
   professionalComment?: string
-}
-
-export type MarkClientMembershipPaymentRequest = {
-  saleId: string
-  expectedMembershipId: string
 }
 
 export type TrainerOption = {

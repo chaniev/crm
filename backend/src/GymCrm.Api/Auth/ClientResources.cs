@@ -50,7 +50,6 @@ internal static class ClientResources
     public static string ExpirationBeforeRenewalDate => GetString(nameof(ExpirationBeforeRenewalDate));
     public static string CurrentMembershipMissingForCorrection => GetString(nameof(CurrentMembershipMissingForCorrection));
     public static string CurrentMembershipMissingForPaymentMark => GetString(nameof(CurrentMembershipMissingForPaymentMark));
-    public static string IsPaidRequired => GetString(nameof(IsPaidRequired));
     public static string PaymentMarkMustSetPaid => GetString(nameof(PaymentMarkMustSetPaid));
     public static string CurrentMembershipAlreadyPaid => GetString(nameof(CurrentMembershipAlreadyPaid));
     public static string ExpirationBeforePurchaseDate => GetString(nameof(ExpirationBeforePurchaseDate));

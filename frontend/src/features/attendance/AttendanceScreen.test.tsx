@@ -46,8 +46,7 @@ beforeEach(() => {
       photo: null,
       isProfessional: false,
       professionalComment: null,
-      hasActivePaidMembership: true,
-      hasUnpaidCurrentMembership: false,
+      hasActiveMembership: true,
       membershipWarning: false,
       currentMembership: null,
     }],
@@ -114,6 +113,33 @@ describe('AttendanceWorkspace', () => {
       attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
     })
     await waitFor(() => expect(screen.getByRole('button', { name: 'Обновить список' })).toBeEnabled())
+  })
+
+  test('renders status-free active membership without paid/unpaid attendance badges', async () => {
+    getRoster.mockResolvedValue({
+      groupId: 'group-1',
+      trainingDate: '2026-07-12',
+      today: '2026-07-12',
+      maxTrainingDate: '2026-07-12',
+      clients: [{
+        id: 'client-1',
+        fullName: 'Иван Иванов',
+        state: 'Unmarked',
+        groups: [],
+        photo: null,
+        isProfessional: false,
+        professionalComment: null,
+        hasActiveMembership: true,
+        membershipWarning: false,
+        currentMembership: null,
+      } as unknown as Awaited<ReturnType<typeof getAttendanceGroupClients>>['clients'][number]],
+    })
+
+    renderWithProviders(<AttendanceWorkspace user={user} />)
+
+    expect(await screen.findByText('Отметка доступна на выбранную дату')).toBeVisible()
+    expect(screen.queryByText('Не оплачено')).not.toBeInTheDocument()
+    expect(screen.queryByText('Проблема с абонементом')).not.toBeInTheDocument()
   })
 
   test('a failed row does not block saving another client', async () => {
@@ -277,8 +303,7 @@ describe('AttendanceWorkspace', () => {
 function buildClient(id: string, fullName: string, state: 'Unmarked' | 'Present' | 'Absent') {
   return {
     id, fullName, state, groups: [], photo: null, isProfessional: false,
-    professionalComment: null, hasActivePaidMembership: true,
-    hasUnpaidCurrentMembership: false, membershipWarning: false, currentMembership: null,
+    professionalComment: null, hasActiveMembership: true, membershipWarning: false, currentMembership: null,
   }
 }
 

@@ -82,24 +82,26 @@ beforeEach(() => {
 })
 
 describe('HomeDashboard', () => {
-  test('shows all unified reasons and contacts, then keeps membership reasons after contacted', async () => {
-    const attention: ClientAttentionItem = {
+  test('shows status-free reasons and contacts, then keeps membership expiration after contacted', async () => {
+    const attention = {
       clientId: 'client-1', fullName: 'Иван Иванов', phone: '+79990000000', notes: 'Позвонить вечером', telegramLink: 'https://t.me/ivan',
-      membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-20', daysUntilExpiration: 0, isPaid: false },
-      reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'unpaidMembership' }],
-    }
+      membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-20', daysUntilExpiration: 0 },
+      reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'expiringMembership', expirationDate: '2026-07-20', daysUntilExpiration: 0 }],
+    } as unknown as ClientAttentionItem
     getAttentionMock.mockResolvedValueOnce([attention])
-    contactedMock.mockResolvedValueOnce({ ...attention, reasons: [{ type: 'unpaidMembership' }] })
+    contactedMock.mockResolvedValueOnce({ ...attention, reasons: [{ type: 'expiringMembership', expirationDate: '2026-07-20', daysUntilExpiration: 0 }] })
     renderWithProviders(<HomeDashboard user={user} />)
     fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
     expect(await screen.findByText('Пропущено подряд: 4')).toBeVisible()
-    expect(screen.getByText('Требует оплаты')).toBeVisible()
+    expect(screen.getByText('Истекает сегодня')).toBeVisible()
+    expect(screen.queryByText('Требует оплаты')).not.toBeInTheDocument()
+    expect(screen.queryByText(/не оплачен/i)).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Telegram/ })).toHaveAttribute('target', '_blank')
     expect(screen.getByRole('link', { name: /Telegram/ })).toHaveAttribute('rel', 'noopener noreferrer')
     fireEvent.click(screen.getByRole('button', { name: 'Связались с Иван Иванов' }))
     await waitFor(() => expect(screen.queryByText('Пропущено подряд: 4')).not.toBeInTheDocument())
-    expect(screen.getByText('Требует оплаты')).toBeVisible()
+    expect(screen.getByText('Истекает сегодня')).toBeVisible()
     expect(screen.getByLabelText('1 клиентов требуют внимания')).toBeVisible()
   })
 
@@ -173,8 +175,7 @@ describe('HomeDashboard', () => {
       groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
       clients: [{
         id: 'client-1', fullName: 'Иван Иванов', state: 'Unmarked', groups: [], photo: null,
-        isProfessional: false, professionalComment: null, hasActivePaidMembership: true,
-        hasUnpaidCurrentMembership: false, membershipWarning: false, currentMembership: null,
+        isProfessional: false, professionalComment: null, hasActiveMembership: true, membershipWarning: false, currentMembership: null,
       }],
     })
     saveAttendanceMarksMock.mockResolvedValue({
@@ -247,18 +248,10 @@ describe('HomeDashboard', () => {
   test('shows membership attention states and preserves backend order', async () => {
     getAttentionMock.mockResolvedValueOnce([
       buildMembership({
-        clientId: 'client-unpaid',
-        fullName: 'Ольга Смирнова',
-        daysUntilExpiration: 20,
-        state: 'Unpaid',
-        isPaid: false,
-      }),
-      buildMembership({
         clientId: 'client-expiring',
         fullName: 'Иван Иванов',
         daysUntilExpiration: 2,
         state: 'ExpiringSoon',
-        isPaid: true,
       }),
       buildMembership({
         clientId: 'client-expired',
@@ -266,7 +259,6 @@ describe('HomeDashboard', () => {
         expirationDate: '2026-05-03',
         daysUntilExpiration: -3,
         state: 'Expired',
-        isPaid: false,
       }),
     ])
 
@@ -277,16 +269,12 @@ describe('HomeDashboard', () => {
     const list = await screen.findByTestId('home-attention-list')
 
     expect(list).toHaveTextContent('Иван Иванов')
-    expect(list).toHaveTextContent('Ольга Смирнова')
     expect(list).toHaveTextContent('Анна Петрова')
-    expect(list.textContent?.indexOf('Ольга Смирнова')).toBeLessThan(
-      list.textContent?.indexOf('Иван Иванов') ?? Number.POSITIVE_INFINITY,
-    )
     expect(list.textContent?.indexOf('Иван Иванов')).toBeLessThan(
       list.textContent?.indexOf('Анна Петрова') ?? Number.POSITIVE_INFINITY,
     )
-    expect(screen.getByText('Требует оплаты')).toBeVisible()
-    expect(screen.getByText('Ожидается оплата')).toBeVisible()
+    expect(screen.queryByText('Требует оплаты')).not.toBeInTheDocument()
+    expect(screen.queryByText('Ожидается оплата')).not.toBeInTheDocument()
     expect(screen.getByText('Скоро истечет')).toBeVisible()
     expect(screen.getByText('Осталось 2 дня')).toBeVisible()
     expect(screen.getByText('Истек')).toBeVisible()
@@ -413,17 +401,17 @@ describe('HomeDashboard', () => {
 })
 
 function buildMembership(
-  overrides: Partial<{ clientId: string; fullName: string; behaviorKind: 'SingleVisit' | 'Term' | 'Professional'; expirationDate: string | null; daysUntilExpiration: number | null; isPaid: boolean; state: 'Expired' | 'ExpiringSoon' | 'Unpaid' | 'Unknown' }> = {},
+  overrides: Partial<{ clientId: string; fullName: string; behaviorKind: 'SingleVisit' | 'Term' | 'Professional'; expirationDate: string | null; daysUntilExpiration: number | null; state: 'Expired' | 'ExpiringSoon' | 'Unknown' }> = {},
 ): ClientAttentionItem {
   const state = overrides.state ?? 'ExpiringSoon'
-  const reasons: ClientAttentionItem['reasons'] = state === 'Unknown' ? [] : state === 'Unpaid'
-    ? [{ type: 'unpaidMembership' }]
+  const reasons: ClientAttentionItem['reasons'] = state === 'Unknown'
+    ? []
     : [{ type: state === 'Expired' ? 'expiredMembership' : 'expiringMembership', expirationDate: overrides.expirationDate ?? '2026-05-06', daysUntilExpiration: overrides.daysUntilExpiration ?? 3 }]
   return {
     clientId: 'client-1',
     fullName: 'Иван Иванов',
     phone: null, notes: null, telegramLink: null,
-    membership: state === 'Unknown' ? null : { behaviorKind: overrides.behaviorKind ?? 'Term', membershipName: '', expirationDate: overrides.expirationDate ?? '2026-05-06', daysUntilExpiration: overrides.daysUntilExpiration ?? 3, isPaid: overrides.isPaid ?? true },
+    membership: state === 'Unknown' ? null : { behaviorKind: overrides.behaviorKind ?? 'Term', membershipName: '', expirationDate: overrides.expirationDate ?? '2026-05-06', daysUntilExpiration: overrides.daysUntilExpiration ?? 3 } as unknown as ClientAttentionItem['membership'],
     reasons,
     ...(overrides.clientId ? { clientId: overrides.clientId } : {}),
     ...(overrides.fullName ? { fullName: overrides.fullName } : {}),

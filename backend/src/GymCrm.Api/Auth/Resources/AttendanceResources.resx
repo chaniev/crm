@@ -42,9 +42,6 @@
   <data name="MembershipPurchasedLaterWarning" xml:space="preserve">
     <value>абонемент приобретен позже выбранной даты</value>
   </data>
-  <data name="MembershipUnpaidWarning" xml:space="preserve">
-    <value>абонемент не оплачен</value>
-  </data>
   <data name="SingleVisitAlreadyUsedWarning" xml:space="preserve">
     <value>разовое посещение уже использовано</value>
   </data>

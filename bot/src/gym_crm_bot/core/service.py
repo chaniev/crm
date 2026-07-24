@@ -35,7 +35,6 @@ from gym_crm_bot.resources.keyboards import (
     render_attendance_roster_keyboard,
     render_membership_list_keyboard,
     render_menu_keyboard,
-    render_payment_confirmation_keyboard,
     render_search_results_keyboard,
 )
 from gym_crm_bot.resources.messages import (
@@ -46,10 +45,8 @@ from gym_crm_bot.resources.messages import (
     INACTIVE_USER_MESSAGE,
     MUST_CHANGE_PASSWORD_MESSAGE,
     NO_ASSIGNED_GROUPS_MESSAGE,
-    PAYMENT_CONFIRM_MESSAGE,
     SEARCH_PROMPT_MESSAGE,
     TEMPORARY_ERROR_MESSAGE,
-    UNPAID_EMPTY_MESSAGE,
     VALIDATION_ERROR_PREFIX,
     known_user_id_message,
     unknown_user_message,
@@ -141,10 +138,6 @@ class BotService:
                 page=int(payload.parts[1]),
                 replace_existing=True,
             )
-        if action == "mpc" and payload.parts:
-            return await self._confirm_payment(event, UUID(payload.parts[0]))
-        if action == "mpy" and payload.parts:
-            return await self._mark_payment(event, UUID(payload.parts[0]))
         return BotResponse(text="Команда не поддерживается.", replace_existing=True)
 
     async def _handle_menu_callback(
@@ -159,13 +152,6 @@ class BotService:
         if menu_code == "client_search":
             return await self._start_search(event)
         if menu_code == "expiring_memberships":
-            return await self._show_memberships(
-                event,
-                list_code=menu_code,
-                page=1,
-                replace_existing=True,
-            )
-        if menu_code == "unpaid_memberships":
             return await self._show_memberships(
                 event,
                 list_code=menu_code,
@@ -306,7 +292,6 @@ class BotService:
                 "full_name": client.full_name,
                 "is_present": client.is_present,
                 "warning": client.warning,
-                "has_unpaid_membership": client.has_unpaid_membership,
             }
             for client in roster.clients
         ]
@@ -479,13 +464,11 @@ class BotService:
         page: int,
         replace_existing: bool,
     ) -> BotResponse:
-        loader = (
-            self._crm_client.list_expiring_memberships
-            if list_code == "expiring_memberships"
-            else self._crm_client.list_unpaid_memberships
-        )
+        if list_code != "expiring_memberships":
+            return BotResponse(text="Команда не поддерживается.", replace_existing=True)
+
         try:
-            response = await loader(
+            response = await self._crm_client.list_expiring_memberships(
                 event.identity,
                 page=page,
                 page_size=PAGE_SIZE,
@@ -501,79 +484,17 @@ class BotService:
         )
 
         if not response.items:
-            empty_text = (
-                EXPIRING_EMPTY_MESSAGE
-                if list_code == "expiring_memberships"
-                else UNPAID_EMPTY_MESSAGE
-            )
-            return BotResponse(text=empty_text, replace_existing=replace_existing)
+            return BotResponse(text=EXPIRING_EMPTY_MESSAGE, replace_existing=replace_existing)
 
-        title = (
-            "Заканчивающиеся абонементы"
-            if list_code == "expiring_memberships"
-            else "Неоплаченные абонементы"
-        )
-        allow_mark_payment = list_code == "unpaid_memberships"
         return BotResponse(
-            text=self._render_membership_list_text(title, response),
+            text=self._render_membership_list_text("Заканчивающиеся абонементы", response),
             reply_markup=render_membership_list_keyboard(
                 response.items,
                 page=response.page,
                 has_next_page=response.has_next_page,
-                allow_mark_payment=allow_mark_payment,
                 list_code=list_code,
             ),
             replace_existing=replace_existing,
-        )
-
-    async def _confirm_payment(
-        self,
-        event: NormalizedTelegramEvent,
-        client_id: UUID,
-    ) -> BotResponse:
-        try:
-            card = await self._crm_client.get_client_card(
-                event.identity,
-                client_id=client_id,
-                request_id=build_request_id(),
-            )
-        except CrmClientError as exc:
-            return await self._map_crm_error(exc, event, audit_reason="payment_confirm")
-
-        membership = card.current_membership
-        membership_label = membership.type_label if membership is not None else "текущий абонемент"
-        text = PAYMENT_CONFIRM_MESSAGE.format(full_name=card.full_name)
-        text += f"\nАбонемент: {membership_label}"
-        return BotResponse(
-            text=text,
-            reply_markup=render_payment_confirmation_keyboard(client_id),
-            replace_existing=True,
-        )
-
-    async def _mark_payment(self, event: NormalizedTelegramEvent, client_id: UUID) -> BotResponse:
-        try:
-            result = await self._crm_client.mark_membership_payment(
-                event.identity,
-                client_id=client_id,
-                request_id=build_request_id(),
-                idempotency_key=build_mutation_idempotency_key(
-                    action="mark_payment",
-                    platform_user_id=event.platform_user_id,
-                    update_id=event.update_id,
-                    target=str(client_id),
-                ),
-            )
-        except CrmClientError as exc:
-            return await self._map_crm_error(exc, event, audit_reason="mark_payment")
-
-        return BotResponse(
-            text=(
-                f"Оплата отмечена.\n"
-                f"Клиент: {result.full_name}\n"
-                f"Абонемент: {result.membership_label}\n"
-                f"Статус: {result.status}"
-            ),
-            replace_existing=True,
         )
 
     async def _map_crm_error(
@@ -588,6 +509,12 @@ class BotService:
                 await self._crm_client.audit_access_denied(
                     event.identity,
                     request_id=build_request_id(),
+                    idempotency_key=build_mutation_idempotency_key(
+                        action="audit_access_denied",
+                        platform_user_id=event.platform_user_id,
+                        update_id=event.update_id,
+                        target=audit_reason,
+                    ),
                     reason=audit_reason,
                 )
             except CrmClientError:
@@ -719,16 +646,11 @@ class BotService:
             lines.append(f"Предупреждение: {card.warning}")
         if card.current_membership:
             membership = card.current_membership
-            payment_label = (
-                "льгота"
-                if card.is_professional
-                else ("да" if membership.is_paid else "нет")
-            )
             lines.append(
                 "Абонемент: "
                 f"{membership.type_label}, "
                 f"покупка {membership.purchase_date.strftime('%d.%m.%Y')}, "
-                f"оплачен: {payment_label}"
+                f"оплата {membership.payment_date.strftime('%d.%m.%Y')}"
             )
             if membership.expiration_date is not None:
                 lines.append(f"Действует до: {membership.expiration_date.strftime('%d.%m.%Y')}")
@@ -802,8 +724,6 @@ class BotService:
                 details.append(item.membership_label)
             if item.membership_expires_at:
                 details.append(item.membership_expires_at.strftime("%d.%m.%Y"))
-            if item.is_paid is not None:
-                details.append("оплачен" if item.is_paid else "не оплачен")
             suffix = f" | {' | '.join(details)}" if details else ""
             lines.append(f"{index}. {item.full_name}{suffix}")
         return "\n".join(lines)

@@ -17,8 +17,6 @@ NO_ASSIGNED_GROUPS_MESSAGE = "Назначенные группы отсутст
 SEARCH_PROMPT_MESSAGE = "Введите ФИО или телефон клиента."
 EMPTY_SEARCH_RESULTS_MESSAGE = "Клиенты не найдены."
 EXPIRING_EMPTY_MESSAGE = "Заканчивающихся абонементов сейчас нет."
-UNPAID_EMPTY_MESSAGE = "Неоплаченных абонементов сейчас нет."
-PAYMENT_CONFIRM_MESSAGE = "Подтвердите отметку оплаты для клиента {full_name}."
 
 
 def unknown_user_message(telegram_id: str) -> str:

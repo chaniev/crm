@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-083 Убрать неоплаченный статус клиентского абонемента
 
 ## Source task
-/backlog/risky/TASK-083-membership-payment-status-simplification.md
+/backlog/done/TASK-083-membership-payment-status-simplification.md
 
-Source task remains `risky` and is not moved to `/backlog/implementation`: `Risk level: high`, `Safe for Codex: no`. Product/architecture review was completed on 2026-07-24, and the approved decisions are recorded below. Moving the source task and starting code execution remain separate explicit actions.
+Source status is `done`: пользователь явно одобрил high-risk execution 2026-07-24; задача была переведена из `/backlog/risky` до production-кода и завершена 2026-07-24 после test-first реализации, clean PostgreSQL deployment и полного cross-layer validation.
 
 ## Git branch
 feature/TASK-083-membership-payment-status-simplification
@@ -326,17 +326,17 @@ Unit и integration tests MUST быть написаны или обновлен
 - Оставшиеся writes сохраняют `X-Request-Id`/`Idempotency-Key` semantics.
 
 ## Test plan
-- [ ] Unit red/green: required/correctable payment date, legacy compatibility, status-free semantics, financial accounting/attribution projection.
-- [ ] Real PostgreSQL red/green: purchase, renewal, transfer, payment-date correction, atomicity, idempotency, audit, schema.
-- [ ] Backend contract red/green: client/attention/attendance/reports/internal bot/tombstones.
-- [ ] Frontend API/component red/green: payload, default/max date, errors, reload, removed status UI.
-- [ ] Focused Playwright: today/backdated purchase, renewal, transfer, payment-date correction, home/attendance and 320 px layout.
-- [ ] Bot red/green: menu, models, client calls, callbacks.
-- [ ] `dotnet test backend/GymCrm.slnx`.
-- [ ] `npm run lint` и `npm run build` в `frontend`, плюс затронутые frontend tests/Playwright.
-- [ ] `ruff check .` и `pytest` в `bot`.
-- [ ] Clean PostgreSQL migration/seed/model-drift validation и local stand smoke.
-- [ ] Финальный repository search не находит активной legacy unpaid семантики вне approved compatibility/tombstone и historical backlog.
+- [x] Unit red/green: required/correctable payment date, legacy compatibility, status-free semantics, financial accounting/attribution projection.
+- [x] Real PostgreSQL red/green: purchase, renewal, transfer, payment-date correction, atomicity, idempotency, audit, schema.
+- [x] Backend contract red/green: client/attention/attendance/reports/internal bot/tombstones.
+- [x] Frontend API/component red/green: payload, default/max date, errors, reload, removed status UI.
+- [x] Focused Playwright: today/backdated purchase, renewal, transfer, payment-date correction, home/attendance and 320 px layout.
+- [x] Bot red/green: menu, models, client calls, callbacks.
+- [x] `dotnet test backend/GymCrm.slnx`.
+- [x] `npm run lint` и `npm run build` в `frontend`, плюс затронутые frontend tests/Playwright.
+- [x] `ruff check .` и `pytest` в `bot`.
+- [x] Clean PostgreSQL migration/seed/model-drift validation и local stand smoke.
+- [x] Финальный repository search не находит активной legacy unpaid семантики вне approved compatibility/tombstone и historical backlog.
 
 ## Regression barrier
 Основной barrier — real-PostgreSQL API suite, который на фиксированном backend business date создаёт today/backdated purchase, renewal и transfer, выполняет payment-date correction, проверяет fresh reload, audit, idempotency и row cardinality, затем доказывает ноль writes для future/unpaid payload. Дополнительный financial test обязан показать sale в периоде `PaymentDate`, но branch/group/trainer attribution на `PurchaseDate`, refund accounting/attribution на `RefundDate` и перенос sale между периодами после audited correction. Frontend component/Playwright и bot contract suites защищают consumers от возврата status selector, debt list или mark-payment action.

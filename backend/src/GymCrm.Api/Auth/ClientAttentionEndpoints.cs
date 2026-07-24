@@ -17,7 +17,6 @@ internal static class ClientAttentionEndpoints
     private const string MissedTraining = "missedTraining";
     private const string ExpiredMembership = "expiredMembership";
     private const string ExpiringMembership = "expiringMembership";
-    private const string UnpaidMembership = "unpaidMembership";
     private const string ContactedAction = "ClientMissedTrainingContacted";
 
     public static IEndpointRouteBuilder MapClientAttentionEndpoints(this IEndpointRouteBuilder endpoints)
@@ -277,10 +276,6 @@ internal static class ClientAttentionEndpoints
                     reasons.Add(new ClientAttentionReasonResponse(ExpiringMembership, null, expirationDate, days));
                 }
 
-                if (!currentMembership.IsPaid)
-                {
-                    reasons.Add(new ClientAttentionReasonResponse(UnpaidMembership));
-                }
             }
 
             var acknowledgement = client.MissedTrainingAcknowledgements.SingleOrDefault();
@@ -329,8 +324,7 @@ internal static class ClientAttentionEndpoints
                         currentMembership.BehaviorKind.ToString(),
                         ClientMembershipSaleDisplay.GetMembershipName(currentMembership.Sale),
                         currentMembership.IndividualValidTo,
-                        currentMembership.IndividualValidTo?.DayNumber - today.DayNumber,
-                        currentMembership.IsPaid),
+                        currentMembership.IndividualValidTo?.DayNumber - today.DayNumber),
                 telegramUsername is null ? null : $"https://t.me/{telegramUsername}",
                 reasons));
         }

@@ -29,8 +29,6 @@ internal static class AttendanceResources
 
     public static string MembershipPurchasedLaterWarning => GetString(nameof(MembershipPurchasedLaterWarning));
 
-    public static string MembershipUnpaidWarning => GetString(nameof(MembershipUnpaidWarning));
-
     public static string SingleVisitAlreadyUsedWarning => GetString(nameof(SingleVisitAlreadyUsedWarning));
 
     public static string MembershipExpiredWarning => GetString(nameof(MembershipExpiredWarning));

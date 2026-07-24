@@ -9,6 +9,7 @@ internal sealed class PurchaseClientMembershipRequest
     public string? ValidFrom { get; init; }
     public string? ValidTo { get; init; }
     public string? PaymentStatus { get; init; }
+    public bool? IsPaid { get; init; }
     public string? PaymentDate { get; init; }
     public string? ProfessionalComment { get; init; }
     public decimal? ManualSaleAmount { get; init; }

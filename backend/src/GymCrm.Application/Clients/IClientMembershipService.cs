@@ -27,11 +27,6 @@ public interface IClientMembershipService
         CorrectClientMembershipCommand command,
         CancellationToken cancellationToken);
 
-    Task<ClientMembershipMutationResult> MarkPaymentAsync(
-        Guid clientId,
-        MarkClientMembershipPaymentCommand command,
-        CancellationToken cancellationToken);
-
     Task<ClientMembershipRefundMutationResult> RegisterRefundAsync(
         Guid clientId,
         RegisterClientMembershipRefundCommand command,
@@ -73,16 +68,14 @@ public sealed record CreateClientMembershipPurchaseCommand(
     Guid? MembershipCatalogItemId,
     DateOnly? ValidFrom,
     DateOnly? ValidTo,
-    bool IsPaid,
-    DateOnly? PaymentDate,
+    DateOnly PaymentDate,
     string? ProfessionalComment,
     decimal? ManualSaleAmount = null);
 
 public sealed record RenewClientMembershipCommand(
     Guid ChangedByUserId,
     Guid? MembershipCatalogItemId,
-    bool IsPaid,
-    DateOnly? PaymentDate,
+    DateOnly PaymentDate,
     string? ProfessionalComment,
     decimal? ManualSaleAmount = null);
 
@@ -91,12 +84,8 @@ public sealed record CorrectClientMembershipCommand(
     Guid SaleId,
     Guid ExpectedMembershipId,
     DateOnly? ValidFrom,
-    DateOnly? ValidTo);
-
-public sealed record MarkClientMembershipPaymentCommand(
-    Guid ChangedByUserId,
-    Guid SaleId,
-    Guid ExpectedMembershipId);
+    DateOnly? ValidTo,
+    DateOnly PaymentDate);
 
 public sealed record RegisterClientMembershipRefundCommand(
     Guid ChangedByUserId,
@@ -183,14 +172,14 @@ public sealed record ClientMembershipSnapshotResult(
     decimal GrossAmount,
     decimal? CatalogPrice,
     DateOnly PurchaseDate,
+    DateOnly PaymentDate,
     DateOnly? ExpirationDate,
     DateOnly? IndividualValidFrom,
     DateOnly? IndividualValidTo,
     string? ProfessionalComment,
-    bool IsPaid,
     bool SingleVisitUsed,
-    Guid? PaidByUserId,
-    DateTimeOffset? PaidAt,
+    Guid PaymentRecordedByUserId,
+    DateTimeOffset PaymentRecordedAt,
     DateTimeOffset ValidFrom,
     DateTimeOffset? ValidTo,
     ClientMembershipChangeReason ChangeReason,
@@ -230,6 +219,7 @@ public sealed record ClientMembershipSaleSnapshotResult(
     MembershipBehaviorKind BehaviorKind,
     ClientMembershipSalePricingMode PricingMode,
     DateOnly PurchaseDate,
+    DateOnly PaymentDate,
     decimal GrossAmount,
     decimal? CatalogPrice,
     Guid CreatedByUserId,

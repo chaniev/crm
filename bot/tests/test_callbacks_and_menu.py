@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
 
 from gym_crm_bot.core.idempotency import build_mutation_idempotency_key
-from gym_crm_bot.crm.models import MenuItem, MenuResponse
+from gym_crm_bot.crm.models import ClientListItem, MenuItem, MenuResponse
 from gym_crm_bot.resources.callbacks import decode_callback, encode_callback
-from gym_crm_bot.resources.keyboards import render_menu_keyboard
+from gym_crm_bot.resources.keyboards import render_membership_list_keyboard, render_menu_keyboard
 
 
 def test_callback_roundtrip_and_length_guard() -> None:
@@ -46,3 +47,31 @@ def test_render_menu_keyboard_contains_role_aware_actions() -> None:
     assert keyboard.inline_keyboard[1][0].text == "Поиск клиента"
     assert keyboard.inline_keyboard[1][0].callback_data == "menu|client_search"
 
+
+def test_menu_model_rejects_removed_unpaid_membership_action() -> None:
+    with pytest.raises(ValidationError):
+        MenuItem(code="unpaid_memberships", title="Неоплаченные")
+
+
+def test_membership_list_keyboard_never_renders_removed_mark_payment_action() -> None:
+    keyboard = render_membership_list_keyboard(
+        [
+            ClientListItem(
+                id="00000000-0000-0000-0000-000000000010",
+                fullName="Иван Петров",
+                membershipLabel="Месячный",
+                membershipExpiresAt="2026-05-10",
+            )
+        ],
+        page=1,
+        has_next_page=False,
+        list_code="expiring_memberships",
+    )
+
+    callback_data = [
+        button.callback_data
+        for row in keyboard.inline_keyboard
+        for button in row
+    ]
+
+    assert all(value is None or not value.startswith(("mpc", "mpy")) for value in callback_data)

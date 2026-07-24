@@ -104,7 +104,6 @@ def render_membership_list_keyboard(
     *,
     page: int,
     has_next_page: bool,
-    allow_mark_payment: bool,
     list_code: str,
 ) -> InlineKeyboardMarkup:
     rows: list[list[InlineKeyboardButton]] = []
@@ -117,15 +116,6 @@ def render_membership_list_keyboard(
                 )
             ]
         )
-        if allow_mark_payment:
-            rows.append(
-                [
-                    InlineKeyboardButton(
-                        text="Отметить оплату",
-                        callback_data=encode_callback("mpc", str(item.id)),
-                    )
-                ]
-            )
 
     pagination_row: list[InlineKeyboardButton] = []
     if page > 1:
@@ -147,17 +137,3 @@ def render_membership_list_keyboard(
 
     rows.append([InlineKeyboardButton(text="Меню", callback_data=encode_callback("menu", "root"))])
     return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def render_payment_confirmation_keyboard(client_id: UUID) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="Подтвердить оплату",
-                    callback_data=encode_callback("mpy", str(client_id)),
-                )
-            ],
-            [InlineKeyboardButton(text="Меню", callback_data=encode_callback("menu", "root"))],
-        ]
-    )

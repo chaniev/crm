@@ -196,7 +196,7 @@ function resolveMembershipLabel(
 
 function resolveMembershipMeta(client: ClientListItem) {
   if (client.isProfessional) {
-    return client.professionalComment || 'Льготный оплаченный статус'
+    return client.professionalComment || 'Профессиональный статус'
   }
 
   const membership = getCurrentMembershipSummary(client)
@@ -209,15 +209,13 @@ function resolveMembershipMeta(client: ClientListItem) {
     membership.behaviorKind,
     membership.expirationDate,
   )
-  const payment = membership.isPaid ? 'оплачен' : 'не оплачен'
-
   if (membership.behaviorKind === 'SingleVisit') {
     return membership.singleVisitUsed
       ? `${expiration}, использован`
-      : `${expiration}, ${payment}`
+      : expiration
   }
 
-  return `${expiration}, ${payment}`
+  return expiration
 }
 
 function resolveGroupLabel(

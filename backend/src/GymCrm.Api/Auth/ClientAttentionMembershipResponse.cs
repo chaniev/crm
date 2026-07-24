@@ -4,5 +4,4 @@ internal sealed record ClientAttentionMembershipResponse(
     string BehaviorKind,
     string MembershipName,
     DateOnly? ExpirationDate,
-    int? DaysUntilExpiration,
-    bool IsPaid);
+    int? DaysUntilExpiration);

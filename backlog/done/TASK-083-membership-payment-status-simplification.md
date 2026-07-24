@@ -1,7 +1,14 @@
 # TASK-083: Убрать неоплаченный статус клиентского абонемента
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-24
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-083-membership-payment-status-simplification.plan.md
+- implementation_branch: feature/TASK-083-membership-payment-status-simplification
+- moved_to_done_at: 2026-07-24
 
 ## Goal
 Добавление абонемента клиенту всегда означает состоявшуюся оплату, пользователь больше не выбирает статус «оплачен/не оплачен» и при оформлении может указать фактическую дату оплаты задним числом.
@@ -43,24 +50,24 @@ risky
 - Завершённые TASK-070 и TASK-078 не переоткрываются; TASK-083 явно заменяет их прежнюю paid/unpaid семантику новым продуктовым решением.
 
 ## Acceptance criteria
-- [ ] Во всех сценариях добавления абонемента отсутствует выбор статуса «оплачен/не оплачен».
-- [ ] Backend не принимает создание нового неоплаченного абонемента даже при вручную сформированном старом payload.
-- [ ] Пользователь может выбрать сегодняшнюю или прошедшую допустимую дату оплаты; будущая дата отклоняется стабильным ProblemDetails.
-- [ ] Новая продажа и текущая версия абонемента после reload согласованно отражают факт и дату оплаты.
-- [ ] Отдельная команда последующей отметки оплаты недоступна или имеет документированную backward-compatible судьбу.
-- [ ] Unpaid warnings, debt lists, attendance checks, bot contracts и финансовые отчёты не содержат противоречивой legacy-семантики.
-- [ ] Влияние даты оплаты на отчётный период явно закреплено и покрыто тестами.
-- [ ] Audit и история сохраняют actor, фактическую дату оплаты и время внесения записи.
-- [ ] Purchase, renewal, transfer, correction, refund и professional membership не регрессируют.
+- [x] Во всех сценариях добавления абонемента отсутствует выбор статуса «оплачен/не оплачен».
+- [x] Backend не принимает создание нового неоплаченного абонемента даже при вручную сформированном старом payload.
+- [x] Пользователь может выбрать сегодняшнюю или прошедшую допустимую дату оплаты; будущая дата отклоняется стабильным ProblemDetails.
+- [x] Новая продажа и текущая версия абонемента после reload согласованно отражают факт и дату оплаты.
+- [x] Отдельная команда последующей отметки оплаты недоступна или имеет документированную backward-compatible судьбу.
+- [x] Unpaid warnings, debt lists, attendance checks, bot contracts и финансовые отчёты не содержат противоречивой legacy-семантики.
+- [x] Влияние даты оплаты на отчётный период явно закреплено и покрыто тестами.
+- [x] Audit и история сохраняют actor, фактическую дату оплаты и время внесения записи.
+- [x] Purchase, renewal, transfer, correction, refund и professional membership не регрессируют.
 
 ## Test checklist
-- [ ] Добавить backend integration tests для purchase, renewal и transfer с сегодняшней и прошлой датой оплаты.
-- [ ] Проверить будущую и недопустимую относительно утверждённых границ дату без частичных записей.
-- [ ] Проверить старый payload с `isPaid=false` и удалённый/изменённый mark-payment endpoint.
-- [ ] Проверить attendance eligibility, client issues, должников, bot responses и финансовые периоды.
-- [ ] Проверить correction/refund/history/audit и идемпотентные повторные запросы.
-- [ ] Обновить frontend form, mapper и e2e tests.
-- [ ] Запустить backend tests, frontend lint + build, bot ruff + pytest.
+- [x] Добавить backend integration tests для purchase, renewal и transfer с сегодняшней и прошлой датой оплаты.
+- [x] Проверить будущую и недопустимую относительно утверждённых границ дату без частичных записей.
+- [x] Проверить старый payload с `isPaid=false` и удалённый/изменённый mark-payment endpoint.
+- [x] Проверить attendance eligibility, client issues, должников, bot responses и финансовые периоды.
+- [x] Проверить correction/refund/history/audit и идемпотентные повторные запросы.
+- [x] Обновить frontend form, mapper и e2e tests.
+- [x] Запустить backend tests, frontend lint + build, bot ruff + pytest.
 
 ## AI safety
 - Safe for Codex: no

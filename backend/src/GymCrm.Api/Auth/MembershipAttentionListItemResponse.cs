@@ -7,5 +7,4 @@ internal sealed record MembershipAttentionListItemResponse(
     string MembershipName,
     DateOnly? ExpirationDate,
     int? DaysUntilExpiration,
-    bool IsPaid,
     string State);

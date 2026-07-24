@@ -7,6 +7,7 @@ internal sealed class RenewClientMembershipRequest
 {
     public Guid? MembershipCatalogItemId { get; init; }
     public string? PaymentStatus { get; init; }
+    public bool? IsPaid { get; init; }
     public string? PaymentDate { get; init; }
     public string? ProfessionalComment { get; init; }
     public decimal? ManualSaleAmount { get; init; }

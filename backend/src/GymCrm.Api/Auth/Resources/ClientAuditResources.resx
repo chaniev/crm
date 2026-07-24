@@ -39,9 +39,6 @@
   <data name="MembershipCorrectedDescription" xml:space="preserve">
     <value>Пользователь '{0}' исправил абонемент клиента '{1}'.</value>
   </data>
-  <data name="MembershipPaymentMarkedDescription" xml:space="preserve">
-    <value>Пользователь '{0}' отметил оплату абонемента клиента '{1}'.</value>
-  </data>
   <data name="MembershipSaleCorrectedDescription" xml:space="preserve">
     <value>Пользователь '{0}' исправил финансовую продажу абонемента клиента '{1}'.</value>
   </data>

@@ -81,11 +81,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(assignment => assignment.TrainerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(user => user.MembershipPayments)
-            .WithOne(membership => membership.PaidByUser)
-            .HasForeignKey(membership => membership.PaidByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.HasMany(user => user.MembershipChanges)
             .WithOne(membership => membership.ChangedByUser)
             .HasForeignKey(membership => membership.ChangedByUserId)

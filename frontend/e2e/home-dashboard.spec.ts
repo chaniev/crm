@@ -160,7 +160,6 @@ test.describe('Home dashboard', () => {
             behaviorKind: 'Term',
             expirationDate: '2026-05-03',
             daysUntilExpiration: -3,
-            isPaid: false,
             state: 'Expired',
           },
           {
@@ -169,7 +168,6 @@ test.describe('Home dashboard', () => {
             behaviorKind: 'Term',
             expirationDate: '2026-05-08',
             daysUntilExpiration: 2,
-            isPaid: true,
             state: 'ExpiringSoon',
           },
           {
@@ -178,8 +176,7 @@ test.describe('Home dashboard', () => {
             behaviorKind: 'Term',
             expirationDate: null,
             daysUntilExpiration: null,
-            isPaid: false,
-            state: 'Unpaid',
+            state: 'Unknown',
           },
         ],
       },
@@ -197,8 +194,9 @@ test.describe('Home dashboard', () => {
     await expect(page.getByText('Ольга Смирнова')).toBeVisible()
     await expect(page.getByText('Истек 3 дня назад')).toBeVisible()
     await expect(page.getByText('Осталось 2 дня')).toBeVisible()
-    await expect(page.getByText('Требует оплаты')).toBeVisible()
-    await expect(page.getByText('Ожидается оплата')).toBeVisible()
+    await expect(page.getByText('Срок окончания приближается')).toBeVisible()
+    await expect(page.getByText('Требует оплаты')).toHaveCount(0)
+    await expect(page.getByText('Ожидается оплата')).toHaveCount(0)
     await expect(
       page.getByRole('button', { name: 'Обновить', exact: true }),
     ).toBeEnabled()
@@ -224,7 +222,6 @@ test.describe('Home dashboard', () => {
               behaviorKind: 'Term',
               expirationDate: '2026-05-06',
               daysUntilExpiration: 3,
-              isPaid: true,
               state: 'ExpiringSoon',
             },
           ],
@@ -273,13 +270,13 @@ test.describe('Home dashboard', () => {
   })
 
   test('supports combined reasons, Telegram and contacted on a narrow screen', async ({ page }) => {
-    const card = { clientId: 'client-1', fullName: 'Иван Иванов', phone: '+79990000000', notes: 'Позвонить вечером', telegramLink: 'https://t.me/ivan', membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-21', daysUntilExpiration: 1, isPaid: false }, reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'unpaidMembership' }] }
+    const card = { clientId: 'client-1', fullName: 'Иван Иванов', phone: '+79990000000', notes: 'Позвонить вечером', telegramLink: 'https://t.me/ivan', membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-21', daysUntilExpiration: 1 }, reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'expiringMembership', expirationDate: '2026-07-21', daysUntilExpiration: 1 }] }
     await mockHomeApi(page, { expiringMemberships: [card] })
     let calls = 0
     await page.route('**/clients/client-1/attention/missed-training/contacted', async (route) => {
       calls += 1
       if (calls === 1) { await fulfillJson(route, 500, { title: 'Временная ошибка' }); return }
-      await fulfillJson(route, 200, { ...card, reasons: [{ type: 'unpaidMembership' }] })
+      await fulfillJson(route, 200, { ...card, reasons: [{ type: 'expiringMembership', expirationDate: '2026-07-21', daysUntilExpiration: 1 }] })
     })
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
@@ -287,7 +284,7 @@ test.describe('Home dashboard', () => {
     await expect(page.getByRole('heading', { name: 'Клиенты, требующие внимания' })).toBeVisible()
     await expect(page.getByLabel('1 клиентов требуют внимания')).toBeVisible()
     await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
-    await expect(page.getByText('Требует оплаты')).toBeVisible()
+    await expect(page.getByText('Осталось 1 день')).toBeVisible()
     await expect(page.getByRole('link', { name: /Telegram/ })).toHaveAttribute('target', '_blank')
     const action = page.getByRole('button', { name: 'Связались с Иван Иванов' })
     await action.click()
@@ -295,7 +292,7 @@ test.describe('Home dashboard', () => {
     await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
     await action.click()
     await expect(page.getByText('Пропущено подряд: 4')).toBeHidden()
-    await expect(page.getByText('Требует оплаты')).toBeVisible()
+    await expect(page.getByText('Осталось 1 день')).toBeVisible()
     await expectNoHorizontalScroll(page)
   })
 })
@@ -371,8 +368,8 @@ async function mockHomeApi(page: Page, options: MockHomeApiOptions) {
 function toAttentionPayload(item: Record<string, unknown>) {
   if (Array.isArray(item.reasons)) return item
   const state = item.state
-  const reason = state === 'Expired' ? { type: 'expiredMembership', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration } : state === 'Unpaid' ? { type: 'unpaidMembership' } : { type: 'expiringMembership', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration }
-  return { clientId: item.clientId, fullName: item.fullName, phone: null, notes: null, telegramLink: null, membership: { behaviorKind: item.behaviorKind, membershipName: '', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration, isPaid: item.isPaid }, reasons: [reason] }
+  const reason = state === 'Expired' ? { type: 'expiredMembership', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration } : { type: 'expiringMembership', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration }
+  return { clientId: item.clientId, fullName: item.fullName, phone: null, notes: null, telegramLink: null, membership: { behaviorKind: item.behaviorKind, membershipName: '', expirationDate: item.expirationDate, daysUntilExpiration: item.daysUntilExpiration }, reasons: [reason] }
 }
 
 async function fulfillJson(

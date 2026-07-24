@@ -28,7 +28,6 @@ from gym_crm_bot.crm.models import (
     ClientCardResponse,
     ClientSearchResponse,
     MembershipListResponse,
-    MembershipPaymentResult,
     MenuResponse,
     TelegramIdentity,
 )
@@ -216,59 +215,19 @@ class CrmBotApiClient:
             hasNextPage=False,
         )
 
-    async def list_unpaid_memberships(
-        self,
-        identity: TelegramIdentity,
-        *,
-        page: int,
-        page_size: int,
-        request_id: str,
-    ) -> MembershipListResponse:
-        payload = await self._request_json(
-            "GET",
-            "/internal/bot/clients/unpaid-memberships",
-            request_id=request_id,
-            params={
-                **identity.as_query_params(),
-            },
-            safe_read=True,
-        )
-        items = payload if isinstance(payload, list) else payload.get("items", [])
-        return MembershipListResponse(
-            items=items,
-            page=page,
-            pageSize=page_size,
-            hasNextPage=False,
-        )
-
-    async def mark_membership_payment(
-        self,
-        identity: TelegramIdentity,
-        *,
-        client_id: UUID,
-        request_id: str,
-        idempotency_key: str,
-    ) -> MembershipPaymentResult:
-        return await self._request_model(
-            "POST",
-            f"/internal/bot/clients/{client_id}/membership/mark-payment",
-            MembershipPaymentResult,
-            request_id=request_id,
-            idempotency_key=idempotency_key,
-            json_body=identity.as_payload(),
-        )
-
     async def audit_access_denied(
         self,
         identity: TelegramIdentity,
         *,
         request_id: str,
+        idempotency_key: str,
         reason: str,
     ) -> None:
         await self._request_json(
             "POST",
             "/internal/bot/audit/access-denied",
             request_id=request_id,
+            idempotency_key=idempotency_key,
             json_body={
                 **identity.as_payload(),
                 "actionCode": reason,

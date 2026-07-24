@@ -11,13 +11,12 @@ from pydantic import (
     ConfigDict,
     Field,
     field_validator,
-    model_validator,
 )
 
 BotRole = Literal["HeadCoach", "Administrator", "Coach"]
 MembershipBehaviorKind = Literal["SingleVisit", "Term", "Professional"]
 MembershipSalePricingMode = Literal["Catalog", "CatalogOverride", "AmountOnly"]
-MenuCode = Literal["attendance", "client_search", "expiring_memberships", "unpaid_memberships"]
+MenuCode = Literal["attendance", "client_search", "expiring_memberships"]
 
 
 class ApiModel(BaseModel):
@@ -90,19 +89,11 @@ class AttendanceRosterClient(ApiModel):
     is_professional: bool = Field(default=False, alias="isProfessional")
     professional_comment: str | None = Field(default=None, alias="professionalComment")
     membership_warning: str | None = Field(default=None, alias="membershipWarning")
-    has_unpaid_current_membership: bool = Field(
-        default=False,
-        alias="hasUnpaidCurrentMembership",
-    )
-    has_active_paid_membership: bool = Field(default=False, alias="hasActivePaidMembership")
+    has_active_membership: bool = Field(default=False, alias="hasActiveMembership")
 
     @property
     def warning(self) -> str | None:
         return self.membership_warning
-
-    @property
-    def has_unpaid_membership(self) -> bool:
-        return self.has_unpaid_current_membership
 
 
 class AttendanceRosterResponse(ApiModel):
@@ -125,10 +116,6 @@ class AttendanceSaveWarning(ApiModel):
     client_id: UUID = Field(alias="clientId")
     full_name: str = Field(alias="fullName")
     membership_warning: str | None = Field(default=None, alias="membershipWarning")
-    has_unpaid_current_membership: bool = Field(
-        default=False,
-        alias="hasUnpaidCurrentMembership",
-    )
 
     def __str__(self) -> str:
         details: list[str] = []
@@ -160,18 +147,13 @@ class ClientListItem(ApiModel):
     )
     purchase_date: date | None = Field(default=None, alias="purchaseDate")
     days_until_expiration: int | None = Field(default=None, alias="daysUntilExpiration")
-    is_paid: bool | None = Field(default=None, alias="isPaid")
     is_professional: bool = Field(default=False, alias="isProfessional")
     professional_comment: str | None = Field(default=None, alias="professionalComment")
     warning: str | None = Field(
         default=None,
         validation_alias=AliasChoices("warning", "membershipWarning"),
     )
-    has_unpaid_current_membership: bool = Field(
-        default=False,
-        alias="hasUnpaidCurrentMembership",
-    )
-    has_active_paid_membership: bool = Field(default=False, alias="hasActivePaidMembership")
+    has_active_membership: bool = Field(default=False, alias="hasActiveMembership")
 
 class ClientSearchResponse(ApiModel):
     items: list[ClientListItem]
@@ -193,15 +175,16 @@ class ClientSearchResponse(ApiModel):
 
 
 class ClientCardMembership(ApiModel):
+    id: UUID
     behavior_kind: MembershipBehaviorKind = Field(alias="behaviorKind")
     membership_catalog_item_id: UUID | None = Field(alias="membershipCatalogItemId")
     membership_label: str = Field(alias="membershipLabel")
     purchase_date: date = Field(alias="purchaseDate")
+    payment_date: date = Field(alias="paymentDate")
     expiration_date: date | None = Field(default=None, alias="expirationDate")
     pricing_mode: MembershipSalePricingMode = Field(alias="pricingMode")
     gross_amount: Decimal = Field(alias="grossAmount")
     catalog_price: Decimal | None = Field(alias="catalogPrice")
-    is_paid: bool = Field(alias="isPaid")
 
     @property
     def type_label(self) -> str:
@@ -230,11 +213,7 @@ class ClientCardResponse(ApiModel):
     status: str | None = None
     is_professional: bool = Field(default=False, alias="isProfessional")
     professional_comment: str | None = Field(default=None, alias="professionalComment")
-    has_unpaid_current_membership: bool = Field(
-        default=False,
-        alias="hasUnpaidCurrentMembership",
-    )
-    has_active_paid_membership: bool = Field(default=False, alias="hasActivePaidMembership")
+    has_active_membership: bool = Field(default=False, alias="hasActiveMembership")
     warning: str | None = Field(
         default=None,
         validation_alias=AliasChoices("warning", "membershipWarning"),
@@ -266,30 +245,3 @@ class MembershipListResponse(ApiModel):
     page: int = 1
     page_size: int = Field(default=5, alias="pageSize")
     has_next_page: bool = Field(default=False, alias="hasNextPage")
-
-
-class MembershipPaymentResult(ApiModel):
-    client_id: UUID = Field(alias="clientId")
-    full_name: str = Field(alias="fullName")
-    behavior_kind: MembershipBehaviorKind = Field(alias="behaviorKind")
-    membership_label: str = Field(alias="membershipLabel")
-    is_paid: bool | None = Field(default=None, alias="isPaid")
-    raw_status: str | None = Field(default=None, alias="status")
-    was_already_paid: bool = Field(default=False, alias="wasAlreadyPaid")
-
-    @model_validator(mode="after")
-    def normalize_status(self) -> MembershipPaymentResult:
-        if self.is_paid is None:
-            if self.raw_status is not None:
-                self.is_paid = self.raw_status.lower() in {"paid", "оплачен", "already_paid"}
-            else:
-                self.is_paid = not self.was_already_paid
-        return self
-
-    @property
-    def status(self) -> str:
-        if self.raw_status:
-            return self.raw_status
-        if self.was_already_paid:
-            return "уже оплачен"
-        return "оплачен" if self.is_paid else "не оплачен"

@@ -522,15 +522,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly?>("IndividualValidTo")
                         .HasColumnType("date");
 
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("PaidAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("PaidByUserId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("ProfessionalComment")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -552,8 +543,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("ChangedByUserId");
 
                     b.HasIndex("ClientId");
-
-                    b.HasIndex("PaidByUserId");
 
                     b.HasIndex("SaleId")
                         .IsUnique()
@@ -666,6 +655,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("PurchaseDate")
                         .HasColumnType("date");
 
+                    b.Property<DateOnly>("PaymentDate")
+                        .HasColumnType("date");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
@@ -677,6 +669,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("MembershipCatalogItemId");
 
                     b.HasIndex("PurchaseDate");
+
+                    b.HasIndex("PaymentDate");
 
                     b.ToTable("ClientMembershipSales", t =>
                         {
@@ -1499,11 +1493,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GymCrm.Domain.Users.User", "PaidByUser")
-                        .WithMany("MembershipPayments")
-                        .HasForeignKey("PaidByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("GymCrm.Domain.Clients.ClientMembershipSale", "Sale")
                         .WithMany("Memberships")
                         .HasForeignKey("SaleId")
@@ -1513,8 +1502,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("ChangedByUser");
 
                     b.Navigation("Client");
-
-                    b.Navigation("PaidByUser");
 
                     b.Navigation("Sale");
                 });
@@ -1939,7 +1926,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.Navigation("MembershipChanges");
 
-                    b.Navigation("MembershipPayments");
                 });
 #pragma warning restore 612, 618
         }

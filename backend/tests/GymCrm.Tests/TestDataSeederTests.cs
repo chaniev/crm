@@ -78,6 +78,7 @@ public sealed class TestDataSeederTests
                 BehaviorKind = GymCrm.Domain.Memberships.MembershipBehaviorKind.Term,
                 PricingMode = ClientMembershipSalePricingMode.AmountOnly,
                 PurchaseDate = DateOnly.FromDateTime(now.UtcDateTime.Date),
+                PaymentDate = DateOnly.FromDateTime(now.UtcDateTime.Date),
                 GrossAmount = 1000m,
                 CreatedByUserId = externalUser.Id,
                 CreatedAt = now,

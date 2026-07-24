@@ -45,17 +45,6 @@ public interface IBotApiService
         BotIdentity identity,
         CancellationToken cancellationToken);
 
-    Task<BotApiResult<IReadOnlyList<BotUnpaidMembershipListItem>>> ListUnpaidMembershipsAsync(
-        BotIdentity identity,
-        CancellationToken cancellationToken);
-
-    Task<BotApiResult<BotMembershipPaymentResponse>> MarkMembershipPaymentAsync(
-        BotIdentity identity,
-        Guid clientId,
-        string idempotencyKey,
-        string payloadJson,
-        CancellationToken cancellationToken);
-
     Task<BotApiResult<BotAccessDeniedAuditResponse>> WriteAccessDeniedAuditAsync(
         BotIdentity identity,
         BotAccessDeniedAuditRequest request,

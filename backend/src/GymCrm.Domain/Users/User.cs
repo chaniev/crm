@@ -25,7 +25,6 @@ public class User
 
     public ICollection<GroupTrainer> AssignedGroups { get; set; } = new List<GroupTrainer>();
     public ICollection<GroupTrainerAssignment> GroupTrainerAssignments { get; set; } = new List<GroupTrainerAssignment>();
-    public ICollection<ClientMembership> MembershipPayments { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembership> MembershipChanges { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembershipSale> CreatedMembershipSales { get; set; } = new List<ClientMembershipSale>();
     public ICollection<ClientMembershipSale> MembershipSalesWithCommentChanged { get; set; } = new List<ClientMembershipSale>();

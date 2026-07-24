@@ -1,20 +1,16 @@
 import type {
   ClientListItem,
-  ClientPaymentStatus,
   ClientQuickFilter,
   ClientStatus,
   GetClientsParams,
 } from '../../../lib/api'
-import { resources } from '../../../lib/resources'
 
 export type ClientStatusFilter = ClientStatus | 'all'
-export type ClientPaymentStatusFilter = ClientPaymentStatus | 'all'
 
 export type ClientListFilterValues = {
   query: string
   groupId: string | null
   status: ClientStatusFilter
-  paymentStatus: ClientPaymentStatusFilter
   membershipExpiresFrom: string
   membershipExpiresTo: string
   withoutPhoto: boolean
@@ -36,17 +32,11 @@ export const clientListPageSizeOptions = [
   { value: '100', label: '100 на странице' },
 ] as const
 
-export const clientPaymentStatusFilterOptions = [
-  { value: 'Paid', label: resources.clients.paymentStatuses.Paid },
-  { value: 'Unpaid', label: resources.clients.paymentStatuses.Unpaid },
-] satisfies Array<{ value: ClientPaymentStatus; label: string }>
-
 export function createDefaultClientListFilters(): ClientListFilterValues {
   return {
     query: '',
     groupId: null,
     status: 'Active',
-    paymentStatus: 'all',
     membershipExpiresFrom: '',
     membershipExpiresTo: '',
     withoutPhoto: false,
@@ -69,7 +59,6 @@ export function normalizeClientListFilters(
     query: filters.query.trim(),
     groupId: filters.groupId,
     status: filters.status,
-    paymentStatus: filters.paymentStatus,
     membershipExpiresFrom: filters.membershipExpiresFrom,
     membershipExpiresTo: filters.membershipExpiresTo,
     withoutPhoto: filters.withoutPhoto,
@@ -99,10 +88,6 @@ export function countClientListFilters(filters: ClientListFilterValues) {
   }
 
   if (filters.status !== 'Active') {
-    count += 1
-  }
-
-  if (filters.paymentStatus !== 'all') {
     count += 1
   }
 
@@ -170,10 +155,6 @@ export function toClientListQueryParams(
       normalizedFilters.status === 'all'
         ? undefined
         : normalizedFilters.status,
-    paymentStatus:
-      normalizedFilters.paymentStatus === 'all'
-        ? undefined
-        : normalizedFilters.paymentStatus,
     membershipExpiresFrom:
       normalizedFilters.membershipExpiresFrom || undefined,
     membershipExpiresTo: normalizedFilters.membershipExpiresTo || undefined,

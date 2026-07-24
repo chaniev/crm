@@ -25,7 +25,7 @@ public static class ClientMembershipSemantics
         };
     }
 
-    public static bool HasActivePaidMembership(
+    public static bool HasActiveMembership(
         bool isProfessional,
         ClientMembership? membership,
         DateOnly referenceDate,
@@ -36,7 +36,7 @@ public static class ClientMembershipSemantics
             return true;
         }
 
-        if (membership is null || !membership.IsPaid)
+        if (membership is null)
         {
             return false;
         }
@@ -52,13 +52,6 @@ public static class ClientMembershipSemantics
         }
 
         return membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed;
-    }
-
-    public static bool HasUnpaidCurrentMembership(
-        bool isProfessional,
-        ClientMembership? membership)
-    {
-        return membership is not null && membership.BehaviorKind != MembershipBehaviorKind.Professional && !membership.IsPaid;
     }
 
     public static IReadOnlyList<ClientMembershipIssue> EvaluateIssues(
@@ -80,11 +73,6 @@ public static class ClientMembershipSemantics
         if (membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value > trainingDate)
         {
             issues.Add(ClientMembershipIssue.PurchasedAfterTrainingDate);
-        }
-
-        if (!membership.IsPaid)
-        {
-            issues.Add(ClientMembershipIssue.Unpaid);
         }
 
         if (membership.BehaviorKind == MembershipBehaviorKind.SingleVisit && membership.SingleVisitUsed)
@@ -109,7 +97,6 @@ public enum ClientMembershipIssue
 {
     NoCurrentMembership = 0,
     PurchasedAfterTrainingDate = 1,
-    Unpaid = 2,
-    SingleVisitAlreadyUsed = 3,
-    Expired = 4
+    SingleVisitAlreadyUsed = 2,
+    Expired = 3
 }

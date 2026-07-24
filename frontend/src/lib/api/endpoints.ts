@@ -51,8 +51,6 @@ export const API_ENDPOINTS = {
       purchase: (clientId: string) => `/clients/${clientId}/membership/purchase`,
       renew: (clientId: string) => `/clients/${clientId}/membership/renew`,
       correct: (clientId: string) => `/clients/${clientId}/membership/correct`,
-      markPayment: (clientId: string) =>
-        `/clients/${clientId}/membership/mark-payment`,
       comment: (clientId: string, saleId: string) =>
         `/clients/${clientId}/membership/sales/${saleId}/comment`,
     },
@@ -131,7 +129,6 @@ export const CLIENTS_QUERY_KEYS = {
   phone: 'phone',
   groupId: 'groupId',
   status: 'status',
-  paymentStatus: 'paymentStatus',
   membershipState: 'membershipState',
   behaviorKind: 'behaviorKind',
   membershipExpiresFrom: 'membershipExpiresFrom',
@@ -139,7 +136,6 @@ export const CLIENTS_QUERY_KEYS = {
   hasPhoto: 'hasPhoto',
   hasGroup: 'hasGroup',
   hasCurrentMembership: 'hasCurrentMembership',
-  hasActivePaidMembership: 'hasActivePaidMembership',
   quickFilters: 'quickFilters',
 } as const
 

@@ -178,14 +178,14 @@ test.describe('Мобильный сценарий посещений трене
     await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
     await expect(page.getByText(ABSENT_CLIENT_FULL_NAME)).toHaveCount(0)
     await expect(page.getByText('Проблема с абонементом')).toBeVisible()
-    await expect(page.getByText('Не оплачено')).toBeVisible()
+    await expect(page.getByText('Не оплачено')).toHaveCount(0)
     await expect(
       page.getByText('Абонемент просрочен, отметка посещения доступна.'),
     ).toBeVisible()
     const professionalCard = page.getByTestId(
       `attendance-client-card-${PROFESSIONAL_CLIENT_ID}`,
     )
-    await expect(professionalCard).toContainText('Льготный оплаченный статус')
+    await expect(professionalCard).toContainText('Профессиональный статус')
     await expect(professionalCard).toContainText('Профессионал')
     await expect(professionalCard).not.toContainText('Не оплачено')
     await expect(professionalCard).not.toContainText('Проблема с абонементом')
@@ -252,8 +252,7 @@ function buildRosterPayload(trainingDate: string, state: string) {
         id: CLIENT_ID,
         fullName: CLIENT_FULL_NAME,
         state,
-        hasActivePaidMembership: false,
-        hasUnpaidCurrentMembership: true,
+        hasActiveMembership: false,
         membershipWarning: true,
         membershipWarningMessage:
           'Абонемент просрочен, отметка посещения доступна.',
@@ -271,8 +270,7 @@ function buildRosterPayload(trainingDate: string, state: string) {
         state: 'Unmarked',
         isProfessional: true,
         professionalComment: 'Сборная',
-        hasActivePaidMembership: true,
-        hasUnpaidCurrentMembership: false,
+        hasActiveMembership: true,
         membershipWarning: false,
         groups: [
           {
@@ -286,8 +284,7 @@ function buildRosterPayload(trainingDate: string, state: string) {
         id: ABSENT_CLIENT_ID,
         fullName: ABSENT_CLIENT_FULL_NAME,
         state: 'Absent',
-        hasActivePaidMembership: true,
-        hasUnpaidCurrentMembership: false,
+        hasActiveMembership: true,
         membershipWarning: false,
         groups: [
           {
