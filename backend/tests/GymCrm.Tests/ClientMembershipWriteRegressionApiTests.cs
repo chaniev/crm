@@ -8,6 +8,7 @@ using GymCrm.Application.Security;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -28,6 +29,414 @@ public sealed class ClientMembershipWriteRegressionApiTests
     private static readonly JsonSerializerOptions IdempotencyJsonOptions = new(JsonSerializerDefaults.Web);
 
     [Fact]
+    public void Task083_payment_date_policy_accepts_today_and_past_and_rejects_missing_and_future()
+    {
+        var businessDate = new DateOnly(2026, 7, 24);
+
+        Assert.Equal(
+            ClientMembershipPaymentDateValidationResult.Missing,
+            ClientMembershipPaymentDatePolicy.Validate(null, businessDate));
+        Assert.Equal(
+            ClientMembershipPaymentDateValidationResult.Valid,
+            ClientMembershipPaymentDatePolicy.Validate(businessDate, businessDate));
+        Assert.Equal(
+            ClientMembershipPaymentDateValidationResult.Valid,
+            ClientMembershipPaymentDatePolicy.Validate(businessDate.AddYears(-20), businessDate));
+        Assert.Equal(
+            ClientMembershipPaymentDateValidationResult.Future,
+            ClientMembershipPaymentDatePolicy.Validate(businessDate.AddDays(1), businessDate));
+    }
+
+    [Fact]
+    public async Task Task083_PostgreSql_purchase_is_status_free_and_persists_sale_owned_payment_metadata()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var paymentDate = context.Today.AddDays(-20);
+
+        using var response = await context.PurchaseAsync(
+            $$"""
+            {
+              "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+              "validFrom": "{{context.Today:yyyy-MM-dd}}",
+              "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+              "paymentDate": "{{paymentDate:yyyy-MM-dd}}",
+              "professionalComment": null
+            }
+            """,
+            "task083-purchase-backdated");
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, body);
+
+        using var document = JsonDocument.Parse(body);
+        var currentMembership = GetRequiredProperty(document.RootElement, "currentMembership");
+        Assert.Equal(paymentDate.ToString("yyyy-MM-dd"), GetRequiredProperty(currentMembership, "paymentDate").GetString());
+        Assert.Equal(context.ActorId, GetRequiredProperty(currentMembership, "paymentRecordedByUserId").GetGuid());
+        Assert.Equal("TASK-078 Head Coach", GetRequiredProperty(currentMembership, "paymentRecordedByUserName").GetString());
+        Assert.Equal(JsonValueKind.String, GetRequiredProperty(currentMembership, "paymentRecordedAt").ValueKind);
+        Assert.False(currentMembership.TryGetProperty("isPaid", out _));
+        Assert.False(currentMembership.TryGetProperty("paidAt", out _));
+
+        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 1, expectedMembershipAudits: 1);
+        await context.AssertSingleSalePaymentDateAsync(paymentDate);
+    }
+
+    [Theory]
+    [InlineData(null, "paymentDate")]
+    [InlineData("not-a-date", "paymentDate")]
+    public async Task Task083_PostgreSql_purchase_rejects_missing_or_malformed_payment_date_before_writes(
+        string? paymentDate,
+        string expectedField)
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var paymentDateJson = paymentDate is null ? "null" : $"\"{paymentDate}\"";
+
+        using var response = await context.PurchaseAsync(
+            $$"""
+            {
+              "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+              "validFrom": "{{context.Today:yyyy-MM-dd}}",
+              "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+              "paymentDate": {{paymentDateJson}},
+              "professionalComment": null
+            }
+            """,
+            $"task083-invalid-payment-date-{expectedField}-{Guid.NewGuid():N}");
+
+        await AssertValidationProblemAsync(response, HttpStatusCode.BadRequest, expectedField);
+        await context.AssertCountsAsync(expectedSales: 0, expectedMemberships: 0, expectedMembershipAudits: 0);
+        await context.AssertIdempotencyCountAsync(0);
+    }
+
+    [Fact]
+    public async Task Task083_PostgreSql_purchase_rejects_future_and_negative_legacy_markers_before_reservation()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+
+        using (var future = await context.PurchaseAsync(
+                   $$"""
+                   {
+                     "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today.AddDays(1):yyyy-MM-dd}}",
+                     "professionalComment": null
+                   }
+                   """,
+                   "task083-future-payment-date"))
+        {
+            await AssertValidationProblemAsync(future, HttpStatusCode.BadRequest, "paymentDate");
+        }
+
+        using (var unpaidStatus = await context.PurchaseAsync(
+                   $$"""
+                   {
+                     "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentStatus": "Unpaid",
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
+                     "professionalComment": null
+                   }
+                   """,
+                   "task083-legacy-unpaid-status"))
+        {
+            await AssertProblemAsync(unpaidStatus, HttpStatusCode.BadRequest, "membership-payment-status-removed");
+        }
+
+        using (var unpaidBoolean = await context.PurchaseAsync(
+                   $$"""
+                   {
+                     "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "isPaid": false,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
+                     "professionalComment": null
+                   }
+                   """,
+                   "task083-legacy-ispaid-false"))
+        {
+            await AssertProblemAsync(unpaidBoolean, HttpStatusCode.BadRequest, "membership-payment-status-removed");
+        }
+
+        await context.AssertCountsAsync(expectedSales: 0, expectedMemberships: 0, expectedMembershipAudits: 0);
+        await context.AssertIdempotencyCountAsync(0);
+    }
+
+    [Fact]
+    public async Task Task083_PostgreSql_harmless_paid_marker_is_semantic_replay_of_status_free_purchase()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var paymentDate = context.Today;
+        const string idempotencyKey = "task083-harmless-paid-replay";
+
+        using (var first = await context.PurchaseAsync(
+                   $$"""
+                   {
+                     "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentDate": "{{paymentDate:yyyy-MM-dd}}",
+                     "professionalComment": null
+                   }
+                   """,
+                   idempotencyKey))
+        {
+            Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        }
+
+        using (var replay = await context.PurchaseAsync(
+                   $$"""
+                   {
+                     "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentStatus": "Paid",
+                     "isPaid": true,
+                     "paymentDate": "{{paymentDate:yyyy-MM-dd}}",
+                     "professionalComment": null
+                   }
+                   """,
+                   idempotencyKey))
+        {
+            Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+        }
+
+        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 1, expectedMembershipAudits: 1);
+        await context.AssertIdempotencyCountAsync(1);
+    }
+
+    [Fact]
+    public async Task Task083_PostgreSql_renewal_requires_status_free_payment_date_and_uses_new_sale()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        await context.SeedOpenMembershipVersionAsync(context.Today.AddDays(-30), context.Today.AddDays(-1), -20);
+        var paymentDate = context.Today.AddDays(-7);
+
+        using var response = await context.RenewAsync(
+            $$"""
+            {
+              "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+              "paymentDate": "{{paymentDate:yyyy-MM-dd}}",
+              "professionalComment": null
+            }
+            """,
+            "task083-renew-backdated");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await context.AssertCountsAsync(expectedSales: 2, expectedMemberships: 2, expectedMembershipAudits: 1);
+        await context.AssertLatestSalePaymentDateAsync(paymentDate);
+    }
+
+    [Fact]
+    public async Task Task083_PostgreSql_correction_updates_sale_owned_payment_date_with_audit_and_replay()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        using (var purchase = await context.PurchaseAsync(
+                   $$"""
+                   {
+                     "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
+                     "professionalComment": null
+                   }
+                   """,
+                   "task083-correction-purchase"))
+        {
+            Assert.Equal(HttpStatusCode.OK, purchase.StatusCode);
+        }
+
+        var target = await context.LoadCurrentTargetAsync();
+        var correctedPaymentDate = context.Today.AddDays(-14);
+        var correctionPayload = $$"""
+        {
+          "saleId": "{{target.SaleId}}",
+          "expectedMembershipId": "{{target.MembershipId}}",
+          "validFrom": "{{context.Today:yyyy-MM-dd}}",
+          "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+          "paymentDate": "{{correctedPaymentDate:yyyy-MM-dd}}"
+        }
+        """;
+
+        using (var correction = await context.CorrectAsync(correctionPayload, "task083-payment-date-correction"))
+        {
+            Assert.Equal(HttpStatusCode.OK, correction.StatusCode);
+        }
+
+        using (var replay = await context.CorrectAsync(correctionPayload, "task083-payment-date-correction"))
+        {
+            Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+        }
+
+        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 2, expectedMembershipAudits: 2);
+        await context.AssertSingleSalePaymentDateAsync(correctedPaymentDate);
+        await context.AssertMembershipSaleAuditContainsPaymentDateTransitionAsync(
+            target.SaleId,
+            context.Today,
+            correctedPaymentDate);
+    }
+
+    [Fact]
+    public async Task Task083_PostgreSql_correction_rejects_missing_malformed_and_future_payment_date_before_writes()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        using (var purchase = await context.PurchaseAsync(
+                   $$"""
+                   {
+                     "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
+                     "professionalComment": null
+                   }
+                   """,
+                   "task083-invalid-correction-purchase"))
+        {
+            Assert.Equal(HttpStatusCode.OK, purchase.StatusCode);
+        }
+
+        var target = await context.LoadCurrentTargetAsync();
+        using (var missing = await context.CorrectAsync(
+                   $$"""
+                   {
+                     "saleId": "{{target.SaleId}}",
+                     "expectedMembershipId": "{{target.MembershipId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}"
+                   }
+                   """,
+                   "task083-correction-payment-date-missing"))
+        {
+            await AssertValidationProblemAsync(missing, HttpStatusCode.BadRequest, "paymentDate");
+        }
+
+        using (var malformed = await context.CorrectAsync(
+                   $$"""
+                   {
+                     "saleId": "{{target.SaleId}}",
+                     "expectedMembershipId": "{{target.MembershipId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentDate": "not-a-date"
+                   }
+                   """,
+                   "task083-correction-payment-date-malformed"))
+        {
+            await AssertValidationProblemAsync(malformed, HttpStatusCode.BadRequest, "paymentDate");
+        }
+
+        using (var future = await context.CorrectAsync(
+                   $$"""
+                   {
+                     "saleId": "{{target.SaleId}}",
+                     "expectedMembershipId": "{{target.MembershipId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today.AddDays(1):yyyy-MM-dd}}"
+                   }
+                   """,
+                   "task083-correction-payment-date-future"))
+        {
+            await AssertValidationProblemAsync(future, HttpStatusCode.BadRequest, "paymentDate");
+        }
+
+        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 1, expectedMembershipAudits: 1);
+        await context.AssertSingleSalePaymentDateAsync(context.Today);
+        await context.AssertMembershipSaleAuditCountAsync(0);
+        await context.AssertIdempotencyCountAsync(1);
+    }
+
+    [Fact]
+    public async Task Task083_PostgreSql_sale_creating_transfer_requires_idempotency_and_rolls_back_payment_validation()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+
+        using (var missingKey = await context.TransferAsync(
+                   $$"""
+                   {
+                     "targetBranchId": "{{context.TargetBranchId}}",
+                     "targetGroupIds": ["{{context.TargetGroupId}}"],
+                     "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}"
+                   }
+                   """,
+                   idempotencyKey: null))
+        {
+            await AssertValidationProblemAsync(missingKey, HttpStatusCode.BadRequest, "idempotencyKey");
+        }
+
+        using (var futurePayment = await context.TransferAsync(
+                   $$"""
+                   {
+                     "targetBranchId": "{{context.TargetBranchId}}",
+                     "targetGroupIds": ["{{context.TargetGroupId}}"],
+                     "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today.AddDays(1):yyyy-MM-dd}}"
+                   }
+                   """,
+                   "task083-transfer-future-payment"))
+        {
+            await AssertValidationProblemAsync(futurePayment, HttpStatusCode.BadRequest, "paymentDate");
+        }
+
+        await context.AssertCountsAsync(expectedSales: 0, expectedMemberships: 0, expectedMembershipAudits: 0);
+        await context.AssertIdempotencyCountAsync(0);
+        await context.AssertClientStillInSourceBranchAsync();
+    }
+
+    [Fact]
+    public async Task Task083_PostgreSql_sale_creating_transfer_replay_and_conflict_do_not_duplicate_writes()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        const string idempotencyKey = "task083-transfer-replay";
+        var payload = $$"""
+        {
+          "targetBranchId": "{{context.TargetBranchId}}",
+          "targetGroupIds": ["{{context.TargetGroupId}}"],
+          "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
+          "validFrom": "{{context.Today:yyyy-MM-dd}}",
+          "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+          "paymentDate": "{{context.Today:yyyy-MM-dd}}"
+        }
+        """;
+
+        using (var first = await context.TransferAsync(payload, idempotencyKey))
+        {
+            Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        }
+
+        using (var replay = await context.TransferAsync(payload, idempotencyKey))
+        {
+            Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+        }
+
+        using (var conflict = await context.TransferAsync(
+                   $$"""
+                   {
+                     "targetBranchId": "{{context.TargetBranchId}}",
+                     "targetGroupIds": ["{{context.TargetGroupId}}"],
+                     "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
+                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
+                     "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}"
+                   }
+                   """,
+                   idempotencyKey))
+        {
+            await AssertProblemAsync(conflict, HttpStatusCode.Conflict, "idempotency-conflict");
+        }
+
+        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 1, expectedMembershipAudits: 0);
+        await context.AssertIdempotencyCountAsync(1);
+    }
+
+    [Fact]
     public async Task Membership_purchase_requires_idempotency_key_before_any_write()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: false);
@@ -38,8 +447,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
               "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """,
@@ -60,8 +468,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
                      "validFrom": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(59):yyyy-MM-dd}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
                    """,
@@ -81,7 +488,8 @@ public sealed class ClientMembershipWriteRegressionApiTests
               "saleId": "{{target.SaleId}}",
               "expectedMembershipId": "{{target.MembershipId}}",
               "validFrom": "{{editedFrom:yyyy-MM-dd}}",
-              "validTo": "{{editedTo:yyyy-MM-dd}}"
+              "validTo": "{{editedTo:yyyy-MM-dd}}",
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}"
             }
             """,
             "correction-target-preserve-payment");
@@ -101,14 +509,12 @@ public sealed class ClientMembershipWriteRegressionApiTests
             .ToArrayAsync();
 
         Assert.Equal(originalPurchaseDate, sale.PurchaseDate);
+        Assert.Equal(context.Today, sale.PaymentDate);
         Assert.Equal(2, versions.Length);
         Assert.Equal(target.MembershipId, versions[0].Id);
         Assert.NotNull(versions[0].ValidTo);
         Assert.Equal(editedFrom, versions[1].IndividualValidFrom);
         Assert.Equal(editedTo, versions[1].IndividualValidTo);
-        Assert.False(versions[1].IsPaid);
-        Assert.Null(versions[1].PaidAt);
-        Assert.Null(versions[1].PaidByUserId);
     }
 
     [Fact]
@@ -121,8 +527,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
           "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
           "validFrom": "{{context.Today:yyyy-MM-dd}}",
           "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-          "paymentStatus": "Unpaid",
-          "paymentDate": null,
+          "paymentDate": "{{context.Today:yyyy-MM-dd}}",
           "professionalComment": null
         }
         """;
@@ -152,8 +557,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
                      "validFrom": " {{context.Today:yyyy-MM-dd}} ",
                      "validTo": " {{context.Today.AddDays(29):yyyy-MM-dd}} ",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": " {{context.Today:yyyy-MM-dd}} ",
                      "professionalComment": null
                    }
                    """,
@@ -168,8 +572,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
                      "validFrom": "{{context.Today:yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
                    """,
@@ -183,7 +586,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
     }
 
     [Fact]
-    public async Task Unpaid_correction_then_addressed_mark_payment_replay_preserves_counts_and_payment_actor()
+    public async Task Status_free_correction_then_mark_payment_tombstone_preserves_counts_and_idempotency()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: false);
 
@@ -193,12 +596,11 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
                      "validFrom": "{{context.Today:yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
                    """,
-                   "purchase-unpaid-correct-pay"))
+                   "purchase-before-correct-and-tombstone"))
         {
             Assert.Equal(HttpStatusCode.OK, purchase.StatusCode);
         }
@@ -210,10 +612,11 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "saleId": "{{original.SaleId}}",
                      "expectedMembershipId": "{{original.MembershipId}}",
                      "validFrom": "{{context.Today.AddDays(1):yyyy-MM-dd}}",
-                     "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}"
+                     "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}"
                    }
                    """,
-                   "correct-unpaid-before-pay"))
+                   "correct-before-payment-tombstone"))
         {
             Assert.Equal(HttpStatusCode.OK, correction.StatusCode);
         }
@@ -223,22 +626,16 @@ public sealed class ClientMembershipWriteRegressionApiTests
         var paymentPayload = $$"""{"saleId":"{{corrected.SaleId}}","expectedMembershipId":"{{corrected.MembershipId}}"}""";
         using (var payment = await context.MarkPaymentAsync(paymentPayload, paymentKey))
         {
-            Assert.Equal(HttpStatusCode.OK, payment.StatusCode);
+            await AssertProblemAsync(payment, HttpStatusCode.Gone, "membership-payment-action-removed");
         }
 
         using (var replay = await context.MarkPaymentAsync(paymentPayload, paymentKey))
         {
-            Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+            await AssertProblemAsync(replay, HttpStatusCode.Gone, "membership-payment-action-removed");
         }
 
-        await using var scope = context.Factory.Services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-        var current = await db.ClientMemberships.AsNoTracking()
-            .SingleAsync(membership => membership.ClientId == context.ClientId && membership.ValidTo == null);
-        Assert.True(current.IsPaid);
-        Assert.Equal(context.ActorId, current.PaidByUserId);
-        Assert.NotNull(current.PaidAt);
-        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 3, expectedMembershipAudits: 3);
+        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 2, expectedMembershipAudits: 2);
+        await context.AssertIdempotencyCountAsync(2);
     }
 
     [Fact]
@@ -252,8 +649,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
                      "validFrom": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(59):yyyy-MM-dd}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
                    """,
@@ -268,8 +664,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
               "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
               "validFrom": "{{context.Today.AddDays(40):yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(69):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """,
@@ -292,8 +687,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
               "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
               "validFrom": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(59):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """;
@@ -303,8 +697,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
               "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
               "validFrom": "{{context.Today.AddDays(40):yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(69):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """;
@@ -357,8 +750,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
               "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """,
@@ -370,7 +762,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
     }
 
     [Fact]
-    public async Task Paid_correction_preserves_exact_paid_actor_and_timestamp()
+    public async Task Correction_preserves_sale_payment_date_when_it_is_unchanged()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: false);
 
@@ -380,7 +772,6 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
                      "validFrom": "{{context.Today:yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-                     "paymentStatus": "Paid",
                      "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
@@ -391,9 +782,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
         }
 
         var paidBefore = await context.LoadCurrentMembershipAsync();
-        Assert.True(paidBefore.IsPaid);
-        Assert.Equal(context.ActorId, paidBefore.PaidByUserId);
-        Assert.NotNull(paidBefore.PaidAt);
+        Assert.Equal(context.Today, paidBefore.PaymentDate);
 
         using (var correction = await context.CorrectAsync(
                    $$"""
@@ -401,7 +790,8 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "saleId": "{{paidBefore.SaleId}}",
                      "expectedMembershipId": "{{paidBefore.MembershipId}}",
                      "validFrom": "{{context.Today.AddDays(1):yyyy-MM-dd}}",
-                     "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}"
+                     "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}"
                    }
                    """,
                    "correct-paid-preserve-exact"))
@@ -410,9 +800,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
         }
 
         var paidAfter = await context.LoadCurrentMembershipAsync();
-        Assert.True(paidAfter.IsPaid);
-        Assert.Equal(paidBefore.PaidByUserId, paidAfter.PaidByUserId);
-        Assert.Equal(paidBefore.PaidAt, paidAfter.PaidAt);
+        Assert.Equal(paidBefore.PaymentDate, paidAfter.PaymentDate);
     }
 
     [Fact]
@@ -426,8 +814,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
                      "validFrom": "{{context.Today:yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
                    """,
@@ -443,7 +830,8 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "saleId": "{{original.SaleId}}",
                      "expectedMembershipId": "{{original.MembershipId}}",
                      "validFrom": "{{context.Today.AddDays(1):yyyy-MM-dd}}",
-                     "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}"
+                     "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}"
                    }
                    """,
                    "correct-stale-first"))
@@ -457,7 +845,8 @@ public sealed class ClientMembershipWriteRegressionApiTests
               "saleId": "{{original.SaleId}}",
               "expectedMembershipId": "{{original.MembershipId}}",
               "validFrom": "{{context.Today.AddDays(2):yyyy-MM-dd}}",
-              "validTo": "{{context.Today.AddDays(31):yyyy-MM-dd}}"
+              "validTo": "{{context.Today.AddDays(31):yyyy-MM-dd}}",
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}"
             }
             """,
             "correct-stale-second");
@@ -466,7 +855,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
     }
 
     [Fact]
-    public async Task Same_idempotency_key_with_different_payload_or_action_returns_conflict()
+    public async Task Same_idempotency_key_with_different_payload_conflicts_while_payment_tombstone_does_not_write()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: false);
         const string idempotencyKey = "idempotency-conflict-key";
@@ -475,8 +864,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
           "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
           "validFrom": "{{context.Today:yyyy-MM-dd}}",
           "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-          "paymentStatus": "Unpaid",
-          "paymentDate": null,
+          "paymentDate": "{{context.Today:yyyy-MM-dd}}",
           "professionalComment": null
         }
         """;
@@ -492,8 +880,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
                      "validFrom": "{{context.Today:yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
                    """,
@@ -507,8 +894,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
             $$"""{"saleId":"{{current.SaleId}}","expectedMembershipId":"{{current.MembershipId}}"}""",
             idempotencyKey);
 
-        await AssertProblemAsync(differentAction, HttpStatusCode.Conflict, "idempotency-conflict");
+        await AssertProblemAsync(differentAction, HttpStatusCode.Gone, "membership-payment-action-removed");
         await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 1, expectedMembershipAudits: 1);
+        await context.AssertIdempotencyCountAsync(1);
     }
 
     [Fact]
@@ -521,8 +909,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
           "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
           "validFrom": "{{context.Today:yyyy-MM-dd}}",
           "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-          "paymentStatus": "Unpaid",
-          "paymentDate": null,
+          "paymentDate": "{{context.Today:yyyy-MM-dd}}",
           "professionalComment": null
         }
         """;
@@ -553,8 +940,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
           "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
           "validFrom": "{{context.Today:yyyy-MM-dd}}",
           "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-          "paymentStatus": "Unpaid",
-          "paymentDate": null,
+          "paymentDate": "{{context.Today:yyyy-MM-dd}}",
           "professionalComment": null
         }
         """;
@@ -586,8 +972,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
           "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
           "validFrom": "{{context.Today:yyyy-MM-dd}}",
           "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-          "paymentStatus": "Unpaid",
-          "paymentDate": null,
+          "paymentDate": "{{context.Today:yyyy-MM-dd}}",
           "professionalComment": null
         }
         """;
@@ -619,8 +1004,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
           "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
           "validFrom": "{{context.Today:yyyy-MM-dd}}",
           "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-          "paymentStatus": "Unpaid",
-          "paymentDate": null,
+          "paymentDate": "{{context.Today:yyyy-MM-dd}}",
           "professionalComment": null
         }
         """;
@@ -691,8 +1075,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                    $$"""
                    {
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}"
                    }
                    """,
                    "renew-selected-current"))
@@ -766,8 +1149,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             MembershipCatalogItemId = catalogItemId,
             ValidFrom = validFrom.ToString("yyyy-MM-dd"),
             ValidTo = validTo?.ToString("yyyy-MM-dd"),
-            PaymentStatus = "Unpaid",
-            PaymentDate = (string?)null,
+            PaymentDate = validFrom.ToString("yyyy-MM-dd"),
             ProfessionalComment = (string?)null,
             ManualSaleAmount = (decimal?)null
         };
@@ -789,6 +1171,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
             Guid actorId,
             Guid clientId,
             Guid termCatalogItemId,
+            Guid targetBranchId,
+            Guid targetGroupId,
+            Guid targetTermCatalogItemId,
             DateOnly today,
             string csrfToken,
             MembershipAuditBlocker? auditBlocker,
@@ -800,6 +1185,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
             ActorId = actorId;
             ClientId = clientId;
             TermCatalogItemId = termCatalogItemId;
+            TargetBranchId = targetBranchId;
+            TargetGroupId = targetGroupId;
+            TargetTermCatalogItemId = targetTermCatalogItemId;
             Today = today;
             CsrfToken = csrfToken;
             this.auditBlocker = auditBlocker;
@@ -815,6 +1203,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
         public Guid ActorId { get; }
         public Guid ClientId { get; }
         public Guid TermCatalogItemId { get; }
+        public Guid TargetBranchId { get; }
+        public Guid TargetGroupId { get; }
+        public Guid TargetTermCatalogItemId { get; }
         public DateOnly Today { get; }
         private string CsrfToken { get; }
 
@@ -860,6 +1251,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     seeded.ActorId,
                     seeded.ClientId,
                     seeded.TermCatalogItemId,
+                    seeded.TargetBranchId,
+                    seeded.TargetGroupId,
+                    seeded.TargetTermCatalogItemId,
                     seeded.Today,
                     csrfToken,
                     auditBlocker,
@@ -889,6 +1283,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
 
         public Task<HttpResponseMessage> MarkPaymentAsync(string rawJson, string? idempotencyKey) =>
             SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/mark-payment", rawJson, CsrfToken, idempotencyKey);
+
+        public Task<HttpResponseMessage> TransferAsync(string rawJson, string? idempotencyKey) =>
+            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/transfer", rawJson, CsrfToken, idempotencyKey);
 
         public Task<HttpResponseMessage> GetClientAsync() =>
             HttpClient.GetAsync($"/clients/{ClientId}");
@@ -928,9 +1325,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     membership.Id,
                     membership.SaleId,
                     membership.Sale.PurchaseDate,
-                    membership.IsPaid,
-                    membership.PaidByUserId,
-                    membership.PaidAt))
+                    membership.Sale.PaymentDate))
                 .FirstAsync();
         }
 
@@ -1024,6 +1419,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 BehaviorKind = MembershipBehaviorKind.Term,
                 PricingMode = ClientMembershipSalePricingMode.Catalog,
                 PurchaseDate = validFrom,
+                PaymentDate = validFrom,
                 GrossAmount = 1500m,
                 CreatedByUserId = ActorId,
                 CreatedAt = now
@@ -1036,9 +1432,6 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 BehaviorKind = MembershipBehaviorKind.Term,
                 IndividualValidFrom = validFrom,
                 IndividualValidTo = validTo,
-                IsPaid = true,
-                PaidByUserId = ActorId,
-                PaidAt = now,
                 SingleVisitUsed = false,
                 ValidFrom = now,
                 ValidTo = null,
@@ -1073,6 +1466,71 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 await db.ClientMembershipIdempotencyRecords.CountAsync(record => record.ActorUserId == ActorId));
         }
 
+        public async Task AssertSingleSalePaymentDateAsync(DateOnly expectedPaymentDate)
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var paymentDate = await db.ClientMembershipSales
+                .AsNoTracking()
+                .Where(sale => sale.ClientId == ClientId)
+                .Select(sale => EF.Property<DateOnly>(sale, "PaymentDate"))
+                .SingleAsync();
+            Assert.Equal(expectedPaymentDate, paymentDate);
+        }
+
+        public async Task AssertLatestSalePaymentDateAsync(DateOnly expectedPaymentDate)
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var paymentDate = await db.ClientMembershipSales
+                .AsNoTracking()
+                .Where(sale => sale.ClientId == ClientId)
+                .OrderByDescending(sale => sale.CreatedAt)
+                .Select(sale => EF.Property<DateOnly>(sale, "PaymentDate"))
+                .FirstAsync();
+            Assert.Equal(expectedPaymentDate, paymentDate);
+        }
+
+        public async Task AssertMembershipSaleAuditContainsPaymentDateTransitionAsync(
+            Guid saleId,
+            DateOnly oldPaymentDate,
+            DateOnly newPaymentDate)
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var audit = await db.AuditLogs
+                .AsNoTracking()
+                .SingleAsync(log =>
+                    log.EntityType == "ClientMembershipSale" &&
+                    log.EntityId == saleId.ToString() &&
+                    log.ActionType == "ClientMembershipSaleCorrected");
+
+            Assert.Contains(oldPaymentDate.ToString("yyyy-MM-dd"), audit.OldValueJson, StringComparison.Ordinal);
+            Assert.Contains(newPaymentDate.ToString("yyyy-MM-dd"), audit.NewValueJson, StringComparison.Ordinal);
+            Assert.Contains("paymentDate", audit.NewValueJson, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public async Task AssertMembershipSaleAuditCountAsync(int expected)
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.Equal(
+                expected,
+                await db.AuditLogs.CountAsync(log => log.EntityType == "ClientMembershipSale"));
+        }
+
+        public async Task AssertClientStillInSourceBranchAsync()
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var branchId = await db.Clients
+                .AsNoTracking()
+                .Where(client => client.Id == ClientId)
+                .Select(client => client.BranchId)
+                .SingleAsync();
+            Assert.NotEqual(TargetBranchId, branchId);
+        }
+
         public async ValueTask DisposeAsync()
         {
             HttpClient.Dispose();
@@ -1101,6 +1559,44 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 Id = Guid.NewGuid(),
                 Name = "TASK-078 branch",
                 IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var targetBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "TASK-083 target branch",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var targetHall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = targetBranch.Id,
+                Name = "TASK-083 target hall",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var targetGroupType = new GroupType
+            {
+                Id = Guid.NewGuid(),
+                Name = "TASK-083 target group type",
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var targetGroup = new TrainingGroup
+            {
+                Id = Guid.NewGuid(),
+                BranchId = targetBranch.Id,
+                HallId = targetHall.Id,
+                GroupTypeId = targetGroupType.Id,
+                Name = "TASK-083 target group",
+                TrainingStartTime = new TimeOnly(10, 0),
+                DurationMinutes = 60,
+                Weekdays = [1, 3],
+                IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now
             };
@@ -1135,14 +1631,34 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 today.AddYears(-1),
                 null,
                 now);
+            var targetTermCatalogItem = MembershipCatalogItem.CreateBranchOwned(
+                targetBranch.Id,
+                "TASK-083 Target Term",
+                1700m,
+                MembershipBehaviorKind.Term,
+                today.AddYears(-1),
+                null,
+                now);
 
-            db.Branches.Add(branch);
+            db.Branches.AddRange(branch, targetBranch);
+            db.Halls.Add(targetHall);
+            db.GroupTypes.Add(targetGroupType);
+            db.TrainingGroups.Add(targetGroup);
             db.Users.Add(actor);
             db.Clients.Add(client);
-            db.MembershipCatalogItems.Add(termCatalogItem);
+            db.MembershipCatalogItems.AddRange(termCatalogItem, targetTermCatalogItem);
             await db.SaveChangesAsync();
 
-            return new SeededData(actor.Id, actor.Login, password, client.Id, termCatalogItem.Id, today);
+            return new SeededData(
+                actor.Id,
+                actor.Login,
+                password,
+                client.Id,
+                termCatalogItem.Id,
+                targetBranch.Id,
+                targetGroup.Id,
+                targetTermCatalogItem.Id,
+                today);
         }
 
         private static async Task<string> LoginAsync(HttpClient httpClient, string login, string password)
@@ -1173,6 +1689,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
             string Password,
             Guid ClientId,
             Guid TermCatalogItemId,
+            Guid TargetBranchId,
+            Guid TargetGroupId,
+            Guid TargetTermCatalogItemId,
             DateOnly Today);
     }
 
@@ -1203,9 +1722,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
         Guid MembershipId,
         Guid SaleId,
         DateOnly PurchaseDate,
-        bool IsPaid,
-        Guid? PaidByUserId,
-        DateTimeOffset? PaidAt);
+        DateOnly PaymentDate);
 
     private sealed class MembershipWriteAppFactory(
         string? postgresConnectionString,

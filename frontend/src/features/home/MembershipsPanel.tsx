@@ -92,11 +92,10 @@ export function MembershipsPanel({ onCountChange, onOpenClient }: MembershipsPan
               <Paper className="home-client-row-card" data-testid={`home-client-card-${client.clientId}`} key={client.clientId} radius="lg" withBorder>
                 <div className="home-client-row">
                   <Text fw={700} size="lg">{client.fullName}</Text>
-                  <SimpleGrid className="home-client-row__fields" cols={{ base: 1, xs: 2, xl: 4 }}>
+                  <SimpleGrid className="home-client-row__fields" cols={{ base: 1, xs: 2, xl: 3 }}>
                     <HomeField label={resources.home.expiringMemberships.fields.behaviorKind} value={behaviorKindLabels[client.behaviorKind]} />
                     <HomeField label={resources.home.expiringMemberships.fields.expirationDate} value={formatDateValue(client.expirationDate)} />
                     <HomeField label={resources.home.expiringMemberships.fields.state} value={<MembershipAttentionStateView client={client} />} />
-                    <HomeField label={resources.home.expiringMemberships.fields.payment} value={<Badge color={client.isPaid ? 'teal' : 'red'} variant="light">{client.isPaid ? resources.common.statuses.paid : resources.common.statuses.unpaid}</Badge>} />
                   </SimpleGrid>
                   {onOpenClient ? <ResponsiveButtonGroup justify="flex-end"><Button leftSection={<IconUserHeart size={18} />} onClick={() => onOpenClient(client.clientId)} variant="light">{resources.home.expiringMemberships.openClientAction}</Button></ResponsiveButtonGroup> : null}
                 </div>
@@ -128,7 +127,6 @@ function formatMembershipAttentionStateText(client: MembershipAttentionItem) {
   switch (client.state) {
     case 'Expired': return formatExpiredText(client.daysUntilExpiration)
     case 'ExpiringSoon': return formatExpiringSoonText(client.daysUntilExpiration)
-    case 'Unpaid': return 'Ожидается оплата'
     case 'Unknown': return 'Неизвестно'
   }
 }
@@ -137,7 +135,6 @@ function getMembershipAttentionStateColor(state: MembershipAttentionState) {
   switch (state) {
     case 'Expired': return 'red'
     case 'ExpiringSoon': return 'orange'
-    case 'Unpaid': return 'yellow'
     case 'Unknown': return 'gray'
   }
 }

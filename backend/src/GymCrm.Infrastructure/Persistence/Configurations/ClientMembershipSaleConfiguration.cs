@@ -46,11 +46,13 @@ internal sealed class ClientMembershipSaleConfiguration : IEntityTypeConfigurati
             .IsRequired();
 
         builder.Property(sale => sale.PurchaseDate).IsRequired();
+        builder.Property(sale => sale.PaymentDate).IsRequired();
         builder.Property(sale => sale.CreatedAt).IsRequired();
         builder.Property(sale => sale.Comment).HasMaxLength(CommentMaxLength);
 
         builder.HasIndex(sale => sale.ClientId);
         builder.HasIndex(sale => sale.PurchaseDate);
+        builder.HasIndex(sale => sale.PaymentDate);
         builder.HasIndex(sale => sale.CreatedByUserId);
         builder.HasIndex(sale => sale.MembershipCatalogItemId);
         builder.HasIndex(sale => sale.CommentChangedByUserId);

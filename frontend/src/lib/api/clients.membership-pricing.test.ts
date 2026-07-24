@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
   correctClientMembership,
-  markClientMembershipPayment,
   purchaseClientMembership,
   renewClientMembership,
   transferClientBranch,
@@ -12,8 +11,7 @@ type SaleRequestDraft = {
   manualSaleAmount?: number | null
   validFrom?: string
   validTo?: string
-  paymentStatus: 'Paid' | 'Unpaid'
-  paymentDate?: string
+  paymentDate: string
   professionalComment?: string
 }
 
@@ -35,13 +33,13 @@ describe('membership sale pricing API contract', () => {
         membershipCatalogItemId: 'catalog-1',
         validFrom: '2026-07-22',
         validTo: '2026-08-20',
-        paymentStatus: 'Unpaid',
+        paymentDate: '2026-07-23',
       } satisfies SaleRequestDraft,
       expectedBody: {
         MembershipCatalogItemId: 'catalog-1',
         ValidFrom: '2026-07-22',
         ValidTo: '2026-08-20',
-        PaymentStatus: 'Unpaid',
+        PaymentDate: '2026-07-23',
       },
     },
     {
@@ -51,16 +49,14 @@ describe('membership sale pricing API contract', () => {
         manualSaleAmount: 4100,
         validFrom: '2026-07-22',
         validTo: '2026-08-20',
-        paymentStatus: 'Paid',
-        paymentDate: '2026-07-22',
+        paymentDate: '2026-07-01',
       } satisfies SaleRequestDraft,
       expectedBody: {
         MembershipCatalogItemId: 'catalog-1',
         ManualSaleAmount: 4100,
         ValidFrom: '2026-07-22',
         ValidTo: '2026-08-20',
-        PaymentStatus: 'Paid',
-        PaymentDate: '2026-07-22',
+        PaymentDate: '2026-07-01',
       },
     },
     {
@@ -70,14 +66,14 @@ describe('membership sale pricing API contract', () => {
         manualSaleAmount: 4200,
         validFrom: '2026-07-22',
         validTo: '2026-08-20',
-        paymentStatus: 'Unpaid',
+        paymentDate: '2026-06-15',
       } satisfies SaleRequestDraft,
       expectedBody: {
         MembershipCatalogItemId: null,
         ManualSaleAmount: 4200,
         ValidFrom: '2026-07-22',
         ValidTo: '2026-08-20',
-        PaymentStatus: 'Unpaid',
+        PaymentDate: '2026-06-15',
       },
     },
   ])('purchase sends the exact $mode payload', async ({ payload, expectedBody }) => {
@@ -98,6 +94,8 @@ describe('membership sale pricing API contract', () => {
     expect(readRequestBody(fetchMock)).not.toHaveProperty('CatalogPrice')
     expect(readRequestBody(fetchMock)).not.toHaveProperty('BehaviorKind')
     expect(readRequestBody(fetchMock)).not.toHaveProperty('PaymentAmount')
+    expect(readRequestBody(fetchMock)).not.toHaveProperty('PaymentStatus')
+    expect(readRequestBody(fetchMock)).not.toHaveProperty('IsPaid')
   })
 
   test.each([
@@ -105,11 +103,11 @@ describe('membership sale pricing API contract', () => {
       mode: 'Catalog',
       payload: {
         membershipCatalogItemId: 'catalog-term',
-        paymentStatus: 'Unpaid',
+        paymentDate: '2026-07-23',
       } satisfies SaleRequestDraft,
       expectedBody: {
         MembershipCatalogItemId: 'catalog-term',
-        PaymentStatus: 'Unpaid',
+        PaymentDate: '2026-07-23',
       },
     },
     {
@@ -117,14 +115,12 @@ describe('membership sale pricing API contract', () => {
       payload: {
         membershipCatalogItemId: 'catalog-term',
         manualSaleAmount: 5100,
-        paymentStatus: 'Paid',
-        paymentDate: '2026-08-21',
+        paymentDate: '2026-07-20',
       } satisfies SaleRequestDraft,
       expectedBody: {
         MembershipCatalogItemId: 'catalog-term',
         ManualSaleAmount: 5100,
-        PaymentStatus: 'Paid',
-        PaymentDate: '2026-08-21',
+        PaymentDate: '2026-07-20',
       },
     },
     {
@@ -132,12 +128,12 @@ describe('membership sale pricing API contract', () => {
       payload: {
         membershipCatalogItemId: null,
         manualSaleAmount: 5200,
-        paymentStatus: 'Unpaid',
+        paymentDate: '2026-07-01',
       } satisfies SaleRequestDraft,
       expectedBody: {
         MembershipCatalogItemId: null,
         ManualSaleAmount: 5200,
-        PaymentStatus: 'Unpaid',
+        PaymentDate: '2026-07-01',
       },
     },
   ])('renewal sends the exact $mode payload', async ({ payload, expectedBody }) => {
@@ -153,6 +149,8 @@ describe('membership sale pricing API contract', () => {
     expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
       'membership-key-2',
     )
+    expect(readRequestBody(fetchMock)).not.toHaveProperty('PaymentStatus')
+    expect(readRequestBody(fetchMock)).not.toHaveProperty('IsPaid')
   })
 
   test.each([
@@ -182,15 +180,33 @@ describe('membership sale pricing API contract', () => {
       ...pricing,
       validFrom: '2026-07-22',
       validTo: '2026-08-20',
-      paymentStatus: 'Unpaid',
+      paymentDate: '2026-07-10',
     }
 
-    await transferClientBranch(
-      'client-1',
-      payload as unknown as Parameters<typeof transferClientBranch>[1],
-    )
+    await (transferClientBranch as unknown as (
+      clientId: string,
+      payload: unknown,
+      options: unknown,
+    ) => Promise<unknown>)('client-1', payload, {
+      idempotencyKey: 'membership-key-transfer',
+    })
 
-    expect(readRequestBody(fetchMock)).toEqual(payload)
+    expect(readRequestBody(fetchMock)).toEqual({
+      targetBranchId: 'branch-2',
+      targetGroupIds: ['group-2'],
+      membershipCatalogItemId: pricing.membershipCatalogItemId,
+      ...('manualSaleAmount' in pricing
+        ? { manualSaleAmount: pricing.manualSaleAmount }
+        : {}),
+      validFrom: '2026-07-22',
+      validTo: '2026-08-20',
+      paymentDate: '2026-07-10',
+    })
+    expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
+      'membership-key-transfer',
+    )
+    expect(readRequestBody(fetchMock)).not.toHaveProperty('paymentStatus')
+    expect(readRequestBody(fetchMock)).not.toHaveProperty('isPaid')
   })
 
   test.each([
@@ -207,7 +223,7 @@ describe('membership sale pricing API contract', () => {
       } = {
         membershipCatalogItemId: 'catalog-1',
         manualSaleAmount: 4000,
-        paymentStatus: 'Unpaid',
+        paymentDate: '2026-07-23',
         pricingMode: 'AmountOnly',
         grossAmount: 1,
         catalogPrice: 1,
@@ -237,16 +253,21 @@ describe('membership sale pricing API contract', () => {
       expect(body).not.toHaveProperty('CatalogPrice')
       expect(body).not.toHaveProperty('BehaviorKind')
       expect(body).not.toHaveProperty('PaymentAmount')
+      expect(body).not.toHaveProperty('paymentStatus')
+      expect(body).not.toHaveProperty('PaymentStatus')
+      expect(body).not.toHaveProperty('isPaid')
+      expect(body).not.toHaveProperty('IsPaid')
     },
   )
 
-  test('correction never forwards pricing or catalog identity from a stale form object', async () => {
+  test('correction sends addressed validity and payment date without sale pricing fields', async () => {
     const fetchMock = stubSuccessfulFetch()
     const staleForm = {
       saleId: 'sale-current',
       expectedMembershipId: 'version-current',
       validFrom: '2026-07-22',
       validTo: '2026-08-20',
+      paymentDate: '2026-07-10',
       purchaseDate: '2026-07-22',
       expirationDate: '2026-08-20',
       isPaid: true,
@@ -270,31 +291,13 @@ describe('membership sale pricing API contract', () => {
       ExpectedMembershipId: 'version-current',
       ValidFrom: '2026-07-22',
       ValidTo: '2026-08-20',
+      PaymentDate: '2026-07-10',
     })
     expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
       'membership-key-3',
     )
-  })
-
-  test('mark-payment sends only addressed target identifiers', async () => {
-    const fetchMock = stubSuccessfulFetch()
-
-    await markClientMembershipPayment(
-      'client-1',
-      {
-        saleId: 'sale-current',
-        expectedMembershipId: 'version-current',
-      } as Parameters<typeof markClientMembershipPayment>[1],
-      { idempotencyKey: 'membership-key-4' },
-    )
-
-    expect(readRequestBody(fetchMock)).toEqual({
-      SaleId: 'sale-current',
-      ExpectedMembershipId: 'version-current',
-    })
-    expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
-      'membership-key-4',
-    )
+    expect(readRequestBody(fetchMock)).not.toHaveProperty('PaymentStatus')
+    expect(readRequestBody(fetchMock)).not.toHaveProperty('IsPaid')
   })
 
   test('preserves ProblemDetails errors for both pricing controls', async () => {
@@ -320,7 +323,7 @@ describe('membership sale pricing API contract', () => {
       {
         membershipCatalogItemId: null,
         manualSaleAmount: null,
-        paymentStatus: 'Unpaid',
+        paymentDate: '2026-07-23',
       } as unknown as Parameters<typeof purchaseClientMembership>[1],
       { idempotencyKey: 'membership-key-validation' },
     )

@@ -3,6 +3,7 @@ import {
   correctClientMembership,
   getClient,
   getClientAttentionItems,
+  getClients,
   getMembershipAttentionItems,
   getMembershipExpirationSuggestion,
   updateClientMembershipComment,
@@ -24,6 +25,7 @@ describe('correctClientMembership', () => {
       expectedMembershipId: 'membership-1',
       validFrom: '2026-07-21',
       validTo: '2026-08-20',
+      paymentDate: '2026-07-10',
       paymentAmount: 6000,
       purchaseDate: '2026-07-01',
       isPaid: true,
@@ -45,6 +47,7 @@ describe('correctClientMembership', () => {
           ExpectedMembershipId: 'membership-1',
           ValidFrom: '2026-07-21',
           ValidTo: '2026-08-20',
+          PaymentDate: '2026-07-10',
         }),
       }),
     )
@@ -137,14 +140,98 @@ describe('getClient birth date contract', () => {
   )
 })
 
+describe('status-free membership read contract', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  test('maps client details from active membership fields without deriving paid state', async () => {
+    const membership = {
+      id: 'version-1',
+      saleId: 'sale-1',
+      membershipCatalogItemId: 'catalog-1',
+      membershipName: 'Месяц',
+      behaviorKind: 'Term',
+      purchaseDate: '2026-07-23',
+      paymentDate: '2026-07-10',
+      paymentRecordedByUserId: 'user-1',
+      paymentRecordedByUserName: 'Анна Петрова',
+      paymentRecordedAt: '2026-07-23T09:30:00Z',
+      expirationDate: '2026-08-22',
+      pricingMode: 'Catalog',
+      grossAmount: 3000,
+      catalogPrice: 3000,
+      singleVisitUsed: false,
+    }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            id: 'c-1',
+            fullName: 'Иван Иванов',
+            branchId: 'branch-1',
+            branchName: 'Основной',
+            status: 'Active',
+            businessDate: '2026-07-23',
+            hasActiveMembership: true,
+            hasCurrentMembership: true,
+            membershipState: 'Active',
+            currentMembership: membership,
+            membershipHistory: [membership],
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        ),
+      ),
+    )
+
+    const client = await getClient('c-1')
+    const currentMembership = client.currentMembership as unknown as Record<string, unknown>
+
+    expect(client).toMatchObject({
+      hasActiveMembership: true,
+      membershipState: 'Active',
+    })
+    expect(client).not.toHaveProperty('hasActivePaidMembership')
+    expect(client).not.toHaveProperty('hasUnpaidCurrentMembership')
+    expect(currentMembership).toMatchObject({
+      paymentDate: '2026-07-10',
+      paymentRecordedByUserId: 'user-1',
+      paymentRecordedByUserName: 'Анна Петрова',
+      paymentRecordedAt: '2026-07-23T09:30:00Z',
+    })
+    expect(currentMembership).not.toHaveProperty('isPaid')
+    expect(currentMembership).not.toHaveProperty('paidAt')
+  })
+
+  test('does not send removed paid/unpaid filters when querying clients', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ items: [], totalCount: 0 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await getClients({
+      paymentStatus: 'Paid',
+      hasActivePaidMembership: true,
+      membershipState: 'Unpaid',
+    } as unknown as Parameters<typeof getClients>[0])
+
+    const requestedUrl = String(fetchMock.mock.calls[0]?.[0])
+    expect(requestedUrl).not.toContain('paymentStatus')
+    expect(requestedUrl).not.toContain('hasActivePaidMembership')
+    expect(requestedUrl).not.toContain('Unpaid')
+  })
+})
+
 describe('getClientAttentionItems', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  test('maps typed backend reasons and nullable contacts without deriving semantics', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2, isPaid: false }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'unpaidMembership' }] }]), { status: 200, headers: { 'content-type': 'application/json' } }))
+  test('maps status-free backend reasons and nullable contacts without deriving payment semantics', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2 }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }] }]), { status: 200, headers: { 'content-type': 'application/json' } }))
     vi.stubGlobal('fetch', fetchMock)
 
-    await expect(getClientAttentionItems()).resolves.toEqual([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2, isPaid: false }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }, { type: 'unpaidMembership' }] }])
+    await expect(getClientAttentionItems()).resolves.toEqual([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2 }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }] }])
     expect(fetchMock).toHaveBeenCalledWith('/api/clients/attention', expect.any(Object))
   })
 })
@@ -164,7 +251,6 @@ describe('getMembershipAttentionItems', () => {
             behaviorKind: 'Term',
             expirationDate: '2026-05-03',
             daysUntilExpiration: -3,
-            isPaid: false,
             state: 'Expired',
           },
           {
@@ -173,7 +259,6 @@ describe('getMembershipAttentionItems', () => {
             behaviorKind: 'SingleVisit',
             expirationDate: null,
             daysUntilExpiration: null,
-            isPaid: false,
             state: 'Paused',
           },
           {
@@ -182,7 +267,6 @@ describe('getMembershipAttentionItems', () => {
             behaviorKind: 'Professional',
             expirationDate: null,
             daysUntilExpiration: null,
-            isPaid: false,
           },
         ]),
         {
@@ -202,7 +286,6 @@ describe('getMembershipAttentionItems', () => {
         behaviorKind: 'Term',
         expirationDate: '2026-05-03',
         daysUntilExpiration: -3,
-        isPaid: false,
         state: 'Expired',
       },
       {
@@ -211,7 +294,6 @@ describe('getMembershipAttentionItems', () => {
         behaviorKind: 'SingleVisit',
         expirationDate: null,
         daysUntilExpiration: null,
-        isPaid: false,
         state: 'Unknown',
       },
       {
@@ -220,7 +302,6 @@ describe('getMembershipAttentionItems', () => {
         behaviorKind: 'Professional',
         expirationDate: null,
         daysUntilExpiration: null,
-        isPaid: false,
         state: 'Unknown',
       },
     ])

@@ -6,7 +6,7 @@ import {
 } from './endpoints'
 import {
   buildDisplayNameFromParts,
-  deriveHasActivePaidMembership,
+  deriveHasActiveMembership,
   deriveMembershipWarning,
   mapClientGroups,
   mapClientMembership,
@@ -230,26 +230,19 @@ function mapAttendanceClient(
       'membershipStatusMessage',
       'MembershipStatusMessage',
     ]) ?? undefined
-  const hasActivePaidMembership =
+  const hasActiveMembership =
     readBoolean(payload, [
-      'hasActivePaidMembership',
-      'HasActivePaidMembership',
+      'hasActiveMembership',
+      'HasActiveMembership',
     ]) ??
     (isProfessional
       ? true
-      : deriveHasActivePaidMembership(currentMembership, trainingDate))
-  const hasUnpaidCurrentMembership =
-    readBoolean(payload, [
-      'hasUnpaidCurrentMembership',
-      'HasUnpaidCurrentMembership',
-    ]) ??
-    (isProfessional ? false : Boolean(currentMembership && !currentMembership.isPaid))
+      : deriveHasActiveMembership(currentMembership, trainingDate))
   const derivedMembershipWarning =
     !isProfessional &&
     (Boolean(warningMessage) ||
       deriveMembershipWarning(
         currentMembership,
-        hasUnpaidCurrentMembership,
         trainingDate,
       ))
   const membershipWarning =
@@ -274,8 +267,7 @@ function mapAttendanceClient(
     state,
     isProfessional,
     professionalComment,
-    hasActivePaidMembership,
-    hasUnpaidCurrentMembership,
+    hasActiveMembership,
     membershipWarning,
     membershipWarningMessage: warningMessage,
     currentMembership,

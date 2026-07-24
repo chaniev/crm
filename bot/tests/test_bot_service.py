@@ -20,6 +20,7 @@ from gym_crm_bot.crm.models import (
     MenuItem,
     MenuResponse,
 )
+from gym_crm_bot.resources import keyboards
 from gym_crm_bot.storage.models import Base
 from gym_crm_bot.telegram.normalization import NormalizedTelegramEvent
 
@@ -40,7 +41,14 @@ class FakeCrmClient:
     async def get_menu(self, identity, *, request_id: str):  # noqa: ANN001
         return MenuResponse(items=[MenuItem(code="attendance", title="Посещения")])
 
-    async def audit_access_denied(self, identity, *, request_id: str, reason: str) -> None:  # noqa: ANN001
+    async def audit_access_denied(  # noqa: ANN001
+        self,
+        identity,
+        *,
+        request_id: str,
+        idempotency_key: str,
+        reason: str,
+    ) -> None:
         return None
 
 
@@ -140,53 +148,65 @@ async def test_start_for_known_user_returns_menu(
     assert response.reply_markup.inline_keyboard[0][0].callback_data == "menu|attendance"
 
 
-def test_professional_client_card_uses_backend_status_label_without_unpaid_text() -> None:
+def test_professional_client_card_renders_status_free_membership_contract() -> None:
     card = ClientCardResponse(
         id="00000000-0000-0000-0000-000000000010",
         fullName="Проф Клиент",
         isProfessional=True,
         professionalComment="Сборная",
         currentMembership=ClientCardMembership(
+            id="00000000-0000-0000-0000-000000000098",
             behaviorKind="Professional",
             membershipCatalogItemId="00000000-0000-0000-0000-000000000099",
             membershipLabel="Профессиональный",
             purchaseDate="2026-05-01",
+            paymentDate="2026-04-28",
             expirationDate=None,
             pricingMode="Catalog",
             grossAmount=0,
             catalogPrice=0,
-            isPaid=False,
         ),
     )
 
     text = BotService._render_client_card(card)
 
     assert "Профессионал: Сборная" in text
-    assert "оплачен: льгота" in text
-    assert "оплачен: нет" not in text
+    assert (
+        "Абонемент: Профессиональный, покупка 01.05.2026, оплата 28.04.2026"
+        in text
+    )
+    assert "оплачен" not in text.lower()
 
 
-def test_amount_only_client_card_renders_backend_membership_label() -> None:
+def test_amount_only_client_card_renders_backend_membership_label_without_payment_state() -> None:
     card = ClientCardResponse(
         id="00000000-0000-0000-0000-000000000012",
         fullName="Клиент без варианта",
         currentMembership=ClientCardMembership(
+            id="00000000-0000-0000-0000-000000000013",
             behaviorKind="Term",
             membershipCatalogItemId=None,
             membershipLabel="Без варианта каталога",
             purchaseDate="2026-07-22",
+            paymentDate="2026-07-20",
             expirationDate="2026-08-21",
             pricingMode="AmountOnly",
             grossAmount=1750,
             catalogPrice=None,
-            isPaid=False,
         ),
     )
 
     text = BotService._render_client_card(card)
 
     assert "Абонемент: Без варианта каталога" in text
-    assert "оплачен: нет" in text
+    assert "оплачен" not in text.lower()
+
+
+def test_bot_service_no_longer_routes_removed_unpaid_payment_callbacks() -> None:
+    assert "unpaid_memberships" not in MenuItem.model_fields["code"].annotation.__args__
+    assert not hasattr(BotService, "_confirm_payment")
+    assert not hasattr(BotService, "_mark_payment")
+    assert not hasattr(keyboards, "render_payment_confirmation_keyboard")
 
 
 def test_group_schedule_rendering_uses_backend_values_without_local_validation() -> None:
@@ -255,7 +275,6 @@ async def test_attendance_save_omits_warning_block_when_backend_returns_no_warni
                     "full_name": "Проф Клиент",
                     "is_present": True,
                     "warning": None,
-                    "has_unpaid_membership": False,
                 }
             ],
         },

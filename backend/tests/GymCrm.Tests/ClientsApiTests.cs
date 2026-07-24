@@ -26,8 +26,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GymCrm.Tests;
 
-public class ClientsApiTests
-{
+    public class ClientsApiTests
+    {
     private static readonly Guid TermCatalogItemId = Guid.Parse("20000000-0000-4000-8000-000000000001");
     private static readonly Guid SingleVisitCatalogItemId = Guid.Parse("20000000-0000-4000-8000-000000000002");
     private static readonly Guid ProfessionalCatalogItemId = Guid.Parse("20000000-0000-4000-8000-000000000003");
@@ -834,7 +834,7 @@ public class ClientsApiTests
                 purchaseDate,
                 purchaseDate.AddMonths(1),
                 1200m,
-                isPaid: true,
+                paymentDate: GetBusinessToday(),
                 seeded.HeadCoachId,
                 now));
             await dbContext.SaveChangesAsync();
@@ -844,37 +844,47 @@ public class ClientsApiTests
             targetCatalogItemId = targetCatalogItem.Id;
         }
 
-        using (var invalidTransferResponse = await PostJsonAsync(
+        using (var invalidTransferResponse = await PostMembershipJsonAsync(
                    client,
                    $"/clients/{clientId}/transfer",
                    new
                    {
                        BranchId = targetBranchId,
-                       GroupId = seeded.GroupOneId
+                       GroupId = seeded.GroupOneId,
+                       MembershipCatalogItemId = targetCatalogItemId,
+                       ValidFrom = GetBusinessToday(),
+                       ValidTo = GetBusinessToday().AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
+                       PaymentDate = GetBusinessToday()
                    },
-                   session.CsrfToken))
+                   session.CsrfToken,
+                   $"clients-api-transfer-invalid-group-{Guid.NewGuid():N}"))
         {
             Assert.Equal(HttpStatusCode.BadRequest, invalidTransferResponse.StatusCode);
             var payload = await ReadJsonElementAsync(invalidTransferResponse);
             Assert.True(payload.GetProperty("errors").TryGetProperty("groupIds", out _));
         }
 
-        using (var transferWithoutGroupResponse = await PostJsonAsync(
+        using (var transferWithoutGroupResponse = await PostMembershipJsonAsync(
                    client,
                    $"/clients/{clientId}/transfer",
                    new
                    {
                        BranchId = targetBranchId,
-                       GroupId = (Guid?)null
+                       GroupId = (Guid?)null,
+                       MembershipCatalogItemId = targetCatalogItemId,
+                       ValidFrom = GetBusinessToday(),
+                       ValidTo = GetBusinessToday().AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
+                       PaymentDate = GetBusinessToday()
                    },
-                   session.CsrfToken))
+                   session.CsrfToken,
+                   $"clients-api-transfer-missing-group-{Guid.NewGuid():N}"))
         {
             Assert.Equal(HttpStatusCode.BadRequest, transferWithoutGroupResponse.StatusCode);
             var payload = await ReadJsonElementAsync(transferWithoutGroupResponse);
             Assert.True(payload.GetProperty("errors").TryGetProperty("groupIds", out _));
         }
 
-        using (var transferWithGroupResponse = await PostJsonAsync(
+        using (var transferWithGroupResponse = await PostMembershipJsonAsync(
                    client,
                    $"/clients/{clientId}/transfer",
                    new
@@ -882,12 +892,12 @@ public class ClientsApiTests
                        BranchId = targetBranchId,
                        GroupIds = new[] { targetGroupId },
                        MembershipCatalogItemId = targetCatalogItemId,
-                       ValidFrom = GetBusinessToday().ToString("yyyy-MM-dd"),
+                       ValidFrom = GetBusinessToday(),
                        ValidTo = GetBusinessToday().AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
-                       PaymentStatus = "Paid",
-                       PaymentDate = GetBusinessToday().ToString("yyyy-MM-dd")
+                       PaymentDate = GetBusinessToday()
                    },
-                   session.CsrfToken))
+                   session.CsrfToken,
+                   $"clients-api-transfer-valid-{Guid.NewGuid():N}"))
         {
             Assert.Equal(HttpStatusCode.OK, transferWithGroupResponse.StatusCode);
             var payload = await ReadJsonElementAsync(transferWithGroupResponse);
@@ -913,7 +923,7 @@ public class ClientsApiTests
 
             Assert.Equal(targetBranchId, persistedClient.BranchId);
             Assert.Equal([targetGroupId], persistedClient.Groups.Select(group => group.GroupId).ToArray());
-            Assert.Single(persistedClient.Memberships.Where(membership => membership.ValidTo == null));
+            Assert.Single(persistedClient.Memberships, membership => membership.ValidTo == null);
             Assert.Equal(targetBranchId, activeBranchAssignment.BranchId);
             Assert.Equal([targetGroupId], activeGroupAssignments.Select(assignment => assignment.GroupId).ToArray());
         }
@@ -1217,7 +1227,7 @@ public class ClientsApiTests
             string lastName,
             MembershipBehaviorKind behaviorKind,
             DateOnly? expirationDate,
-            bool isPaid = true,
+            DateOnly? paymentDate = null,
             bool isProfessional = false,
             ClientStatus status = ClientStatus.Active,
             bool addCurrentMembership = true)
@@ -1259,7 +1269,7 @@ public class ClientsApiTests
                     GetBusinessToday(),
                     expirationDate,
                     1200m,
-                    isPaid,
+                    paymentDate ?? GetBusinessToday(),
                     seeded.HeadCoachId,
                     now));
             }
@@ -1270,11 +1280,11 @@ public class ClientsApiTests
         }
 
         var today = GetBusinessToday();
-        var recentlyExpiredUnpaidClient = await CreateClientWithMembershipAsync(
+        var recentlyExpiredClient = await CreateClientWithMembershipAsync(
             "Alpha",
             MembershipBehaviorKind.Term,
             today.AddDays(-1),
-            isPaid: false);
+            paymentDate: GetBusinessToday());
         var recentlyExpiredPaidClient = await CreateClientWithMembershipAsync(
             "Bravo",
             MembershipBehaviorKind.Term,
@@ -1295,16 +1305,16 @@ public class ClientsApiTests
             "Foxtrot",
             MembershipBehaviorKind.Term,
             today.AddDays(9));
-        var unpaidOutsideWindowClient = await CreateClientWithMembershipAsync(
+        var outsideWindowClient = await CreateClientWithMembershipAsync(
             "Golf",
             MembershipBehaviorKind.Term,
             today.AddDays(20),
-            isPaid: false);
-        var unpaidNoExpirationClient = await CreateClientWithMembershipAsync(
+            paymentDate: GetBusinessToday());
+        var noExpirationClient = await CreateClientWithMembershipAsync(
             "Hotel",
             MembershipBehaviorKind.SingleVisit,
             expirationDate: null,
-            isPaid: false);
+            paymentDate: GetBusinessToday());
         var paidOutsideWindowClient = await CreateClientWithMembershipAsync(
             "Eta",
             MembershipBehaviorKind.Term,
@@ -1317,13 +1327,13 @@ public class ClientsApiTests
             "Professional",
             MembershipBehaviorKind.Professional,
             expirationDate: null,
-            isPaid: true,
+            paymentDate: GetBusinessToday(),
             isProfessional: true);
         var archivedClient = await CreateClientWithMembershipAsync(
             "Archived",
             MembershipBehaviorKind.Term,
             today.AddDays(-2),
-            isPaid: false,
+            paymentDate: GetBusinessToday(),
             status: ClientStatus.Archived);
         var noMembershipClient = await CreateClientWithMembershipAsync(
             "NoMembership",
@@ -1338,19 +1348,19 @@ public class ClientsApiTests
             var listPayload = await ReadJsonElementAsync(listResponse);
             var clientsPayload = GetArrayPayload(listPayload, "data", "items", "clients");
             var clientItems = clientsPayload.EnumerateArray().ToArray();
-            Assert.Equal(8, clientItems.Length);
+            Assert.Equal(6, clientItems.Length);
 
             var resultClientIds = clientItems
                 .Select(item => GetGuidFromAnyCase(item, "id", "Id", "clientId", "ClientId"))
                 .ToArray();
-            Assert.Contains(recentlyExpiredUnpaidClient, resultClientIds);
+            Assert.Contains(recentlyExpiredClient, resultClientIds);
             Assert.Contains(recentlyExpiredPaidClient, resultClientIds);
             Assert.Contains(oldExpiredPaidClient, resultClientIds);
             Assert.Contains(expiringTodayClient, resultClientIds);
             Assert.Contains(expiringSoonClient, resultClientIds);
             Assert.Contains(laterExpiringClient, resultClientIds);
-            Assert.Contains(unpaidOutsideWindowClient, resultClientIds);
-            Assert.Contains(unpaidNoExpirationClient, resultClientIds);
+            Assert.DoesNotContain(outsideWindowClient, resultClientIds);
+            Assert.DoesNotContain(noExpirationClient, resultClientIds);
             Assert.DoesNotContain(paidOutsideWindowClient, resultClientIds);
             Assert.DoesNotContain(paidNoExpirationClient, resultClientIds);
             Assert.DoesNotContain(professionalClient, resultClientIds);
@@ -1359,45 +1369,27 @@ public class ClientsApiTests
 
             Assert.Equal(
                 [
-                    recentlyExpiredUnpaidClient,
+                    recentlyExpiredClient,
                     recentlyExpiredPaidClient,
                     oldExpiredPaidClient,
                     expiringTodayClient,
                     expiringSoonClient,
-                    laterExpiringClient,
-                    unpaidOutsideWindowClient,
-                    unpaidNoExpirationClient
+                    laterExpiringClient
                 ],
                 resultClientIds);
 
-            var firstClient = clientItems[0];
-            Assert.Equal("Alpha Тест А", GetStringFromAnyCase(firstClient, "fullName", "FullName"));
-            Assert.Equal("Term", GetStringFromAnyCase(firstClient, "behaviorKind", "MembershipBehaviorKind"));
-            Assert.Equal(today.AddDays(-1).ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
-            Assert.Equal(-1L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
-            Assert.False(GetBoolFromAnyCase(firstClient, "isPaid", "IsPaid"));
-            Assert.Equal("Expired", GetStringFromAnyCase(firstClient, "state", "State"));
+        var firstClient = clientItems[0];
+        Assert.Equal("Alpha Тест А", GetStringFromAnyCase(firstClient, "fullName", "FullName"));
+        Assert.Equal("Term", GetStringFromAnyCase(firstClient, "behaviorKind", "MembershipBehaviorKind"));
+        Assert.Equal(today.AddDays(-1).ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
+        Assert.Equal(-1L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
+        Assert.Equal("Expired", GetStringFromAnyCase(firstClient, "state", "State"));
 
-            var expiringClient = clientItems[3];
-            Assert.Equal("Delta Тест А", GetStringFromAnyCase(expiringClient, "fullName", "FullName"));
-            Assert.Equal(today.ToString("yyyy-MM-dd"), GetStringFromAnyCase(expiringClient, "expirationDate", "ExpirationDate"));
-            Assert.Equal(0L, GetLongFromAnyCase(expiringClient, "daysUntilExpiration", "DaysUntilExpiration"));
-            Assert.True(GetBoolFromAnyCase(expiringClient, "isPaid", "IsPaid"));
-            Assert.Equal("ExpiringSoon", GetStringFromAnyCase(expiringClient, "state", "State"));
-
-            var unpaidOutsideWindow = clientItems[6];
-            Assert.Equal("Golf Тест А", GetStringFromAnyCase(unpaidOutsideWindow, "fullName", "FullName"));
-            Assert.Equal(today.AddDays(20).ToString("yyyy-MM-dd"), GetStringFromAnyCase(unpaidOutsideWindow, "expirationDate", "ExpirationDate"));
-            Assert.Equal(20L, GetLongFromAnyCase(unpaidOutsideWindow, "daysUntilExpiration", "DaysUntilExpiration"));
-            Assert.False(GetBoolFromAnyCase(unpaidOutsideWindow, "isPaid", "IsPaid"));
-            Assert.Equal("Unpaid", GetStringFromAnyCase(unpaidOutsideWindow, "state", "State"));
-
-            var unpaidWithoutDate = clientItems[7];
-            Assert.Equal("Hotel Тест А", GetStringFromAnyCase(unpaidWithoutDate, "fullName", "FullName"));
-            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(unpaidWithoutDate, "expirationDate", "ExpirationDate").ValueKind);
-            Assert.Equal(JsonValueKind.Null, GetPropertyOrNull(unpaidWithoutDate, "daysUntilExpiration", "DaysUntilExpiration").ValueKind);
-            Assert.False(GetBoolFromAnyCase(unpaidWithoutDate, "isPaid", "IsPaid"));
-            Assert.Equal("Unpaid", GetStringFromAnyCase(unpaidWithoutDate, "state", "State"));
+        var expiringClient = clientItems[3];
+        Assert.Equal("Delta Тест А", GetStringFromAnyCase(expiringClient, "fullName", "FullName"));
+        Assert.Equal(today.ToString("yyyy-MM-dd"), GetStringFromAnyCase(expiringClient, "expirationDate", "ExpirationDate"));
+        Assert.Equal(0L, GetLongFromAnyCase(expiringClient, "daysUntilExpiration", "DaysUntilExpiration"));
+        Assert.Equal("ExpiringSoon", GetStringFromAnyCase(expiringClient, "state", "State"));
         }
     }
 
@@ -1474,9 +1466,9 @@ public class ClientsApiTests
                    new
                    {
                        BehaviorKind = "Term",
-                       PurchaseDate = GetBusinessToday().ToString("yyyy-MM-dd"),
+                       PurchaseDate = GetBusinessToday(),
                        PaymentAmount = 1200m,
-                       IsPaid = true,
+                       PaymentDate = GetBusinessToday(),
                        SingleVisitUsed = false
                    },
                    managerSession.CsrfToken))
@@ -1511,13 +1503,13 @@ public class ClientsApiTests
             "MembershipHistoryItems");
         Assert.Empty(membershipHistoryPayload);
 
-        Assert.False(HasAnyProperty(clientPayload, "paymentAmount", "paymentDate", "paidByUserId", "paidAt"));
+        Assert.False(HasAnyProperty(clientPayload, "paymentAmount", "paymentDate", "paymentRecordedByUserId", "paymentRecordedAt"));
         Assert.False(HasAnyProperty(
             clientPayload,
             "PaymentAmount",
             "PaymentDate",
-            "PaidByUserId",
-            "PaidAt"));
+            "PaymentRecordedByUserId",
+            "PaymentRecordedAt"));
     }
 
     [Theory]
@@ -1565,7 +1557,7 @@ public class ClientsApiTests
                        PurchaseDate = GetBusinessToday().AddDays(-2).ToString("yyyy-MM-dd"),
                        ExpirationDate = GetBusinessToday().AddMonths(1).ToString("yyyy-MM-dd"),
                        PaymentAmount = 1600m,
-                       IsPaid = true,
+                       PaymentDate = GetBusinessToday(),
                        SingleVisitUsed = false
                    },
                    managerSession.CsrfToken))
@@ -1598,7 +1590,7 @@ public class ClientsApiTests
         var currentMembershipPayload = GetPropertyOrNull(clientPayload, "currentMembership", "CurrentMembership");
         Assert.Equal(JsonValueKind.Object, currentMembershipPayload.ValueKind);
         Assert.True(GetDecimalFromAnyCase(currentMembershipPayload, "grossAmount", "GrossAmount") > 0m);
-        Assert.True(GetGuidFromAnyCase(currentMembershipPayload, "paidByUserId", "PaidByUserId") != Guid.Empty);
+        Assert.True(GetGuidFromAnyCase(currentMembershipPayload, "paymentRecordedByUserId", "PaymentRecordedByUserId") != Guid.Empty);
 
         var attendanceHistoryPayload = GetArrayPayloadOrEmpty(
             clientPayload,
@@ -1800,7 +1792,7 @@ public class ClientsApiTests
                 today,
                 today.AddDays(10),
                 3500m,
-                isPaid: true,
+                paymentDate: GetBusinessToday(),
                 seeded.HeadCoachId,
                 now));
             SeedAttendanceEntryForClient(
@@ -1844,10 +1836,10 @@ public class ClientsApiTests
                 GetPropertyOrNull(clientPayload, "currentMembershipSummary", "CurrentMembershipSummary"),
                 "paymentAmount",
                 "PaymentAmount",
-                "paidByUserId",
-                "PaidByUserId",
-                "paidAt",
-                "PaidAt"));
+                "paymentRecordedByUserId",
+                "PaymentRecordedByUserId",
+                "paymentRecordedAt",
+                "PaymentRecordedAt"));
             Assert.Equal(
                 GetBusinessToday().AddDays(-3).ToString("yyyy-MM-dd"),
                 GetStringFromAnyCase(clientPayload, "lastVisitDate", "LastVisitDate"));
@@ -1946,7 +1938,7 @@ public class ClientsApiTests
 
         async Task SeedCurrentMembershipsAsync(
             Guid clientId,
-            params (DateOnly? IndividualValidTo, int ValidFromOffsetMinutes, MembershipBehaviorKind BehaviorKind, bool IsPaid)[] memberships)
+            params (DateOnly? IndividualValidTo, int ValidFromOffsetMinutes, MembershipBehaviorKind BehaviorKind)[] memberships)
         {
             using var scope = factory.Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -1962,7 +1954,7 @@ public class ClientsApiTests
                     today,
                     membership.IndividualValidTo,
                     1000m,
-                    membership.IsPaid,
+                    paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
                     validFrom));
             }
@@ -1971,7 +1963,7 @@ public class ClientsApiTests
         }
 
         var paidClientId = await CreateClientForFilterAsync("Иванов", "Платный", "+79990004001", [seeded.GroupOneId]);
-        var unpaidClientId = await CreateClientForFilterAsync("Петров", "Неоплаченный", "+79990004002", [seeded.GroupTwoId]);
+        var longTermMembershipClientId = await CreateClientForFilterAsync("Петров", "Неоплаченный", "+79990004002", [seeded.GroupTwoId]);
         var professionalClientId = await CreateClientForFilterAsync("Профессионалов", "Льготный", "+79990004004", [seeded.GroupOneId]);
         var noGroupNoPhotoClientId = await CreateClientForFilterAsync("Сидоров", "Без", "+79990004003", [seeded.GroupTwoId]);
 
@@ -1996,7 +1988,7 @@ public class ClientsApiTests
                        PurchaseDate = today.ToString("yyyy-MM-dd"),
                        ExpirationDate = today.AddDays(5).ToString("yyyy-MM-dd"),
                        PaymentAmount = 1000m,
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -2006,14 +1998,14 @@ public class ClientsApiTests
         using (var unpaidMembershipResponse = await SendMembershipActionAsync(
                    client,
                    "purchase",
-                   unpaidClientId,
+                   longTermMembershipClientId,
                    new
                    {
                        BehaviorKind = "Term",
                        PurchaseDate = today.ToString("yyyy-MM-dd"),
                        ExpirationDate = today.AddMonths(1).ToString("yyyy-MM-dd"),
                        PaymentAmount = 500m,
-                       IsPaid = false
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -2029,7 +2021,7 @@ public class ClientsApiTests
                 today,
                 null,
                 0m,
-                isPaid: true,
+                paymentDate: GetBusinessToday(),
                 seeded.HeadCoachId,
                 DateTimeOffset.UtcNow,
                 professionalComment: "Фильтры должны считать клиента оплаченным"));
@@ -2042,7 +2034,7 @@ public class ClientsApiTests
 
         var phoneSearch = await QueryClientIdsAsync($"?phone={Uri.EscapeDataString("+79990004002")}");
         Assert.Single(phoneSearch);
-        Assert.Equal(unpaidClientId, phoneSearch[0]);
+        Assert.Equal(longTermMembershipClientId, phoneSearch[0]);
 
         var unifiedNameSearch = await QueryClientIdsAsync($"?query={Uri.EscapeDataString("Иванов")}");
         Assert.Single(unifiedNameSearch);
@@ -2050,11 +2042,11 @@ public class ClientsApiTests
 
         var unifiedPhoneSearch = await QueryClientIdsAsync($"?query={Uri.EscapeDataString("+79990004002")}");
         Assert.Single(unifiedPhoneSearch);
-        Assert.Equal(unpaidClientId, unifiedPhoneSearch[0]);
+        Assert.Equal(longTermMembershipClientId, unifiedPhoneSearch[0]);
 
         var searchAlias = await QueryClientIdsAsync($"?search={Uri.EscapeDataString("+79990004002")}");
         Assert.Single(searchAlias);
-        Assert.Equal(unpaidClientId, searchAlias[0]);
+        Assert.Equal(longTermMembershipClientId, searchAlias[0]);
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -2103,7 +2095,7 @@ public class ClientsApiTests
 
         var activeStatus = await QueryClientIdsAsync("?status=Active");
         Assert.Contains(paidClientId, activeStatus);
-        Assert.Contains(unpaidClientId, activeStatus);
+        Assert.Contains(longTermMembershipClientId, activeStatus);
         Assert.Contains(professionalClientId, activeStatus);
         Assert.Contains(noGroupNoPhotoClientId, activeStatus);
 
@@ -2111,19 +2103,22 @@ public class ClientsApiTests
         Assert.Contains(paidClientId, groupOneClients);
         Assert.Contains(professionalClientId, groupOneClients);
 
-        var activePaid = await QueryClientIdsAsync("?paymentStatus=Paid");
-        Assert.Contains(paidClientId, activePaid);
-        Assert.Contains(professionalClientId, activePaid);
-        Assert.DoesNotContain(unpaidClientId, activePaid);
+        async Task AssertRemovedFilterAsync(string query)
+        {
+            using var response = await client.GetAsync($"/clients{query}");
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+            var payload = await ReadJsonElementAsync(response);
+            Assert.Equal("membership-payment-filter-removed", GetStringFromAnyCase(payload, "type", "Type"));
+        }
 
-        var unpaidStatus = await QueryClientIdsAsync("?paymentStatus=Unpaid");
-        Assert.Contains(unpaidClientId, unpaidStatus);
-        Assert.DoesNotContain(professionalClientId, unpaidStatus);
+        await AssertRemovedFilterAsync("?paymentStatus=Paid");
+        await AssertRemovedFilterAsync("?paymentStatus=Unpaid");
 
         var membershipRange = await QueryClientIdsAsync(
             $"?membershipExpiresFrom={today.AddDays(25):yyyy-MM-dd}&membershipExpiresTo={today.AddDays(35):yyyy-MM-dd}");
         Assert.DoesNotContain(paidClientId, membershipRange);
-        Assert.Contains(unpaidClientId, membershipRange);
+        Assert.Contains(longTermMembershipClientId, membershipRange);
         Assert.DoesNotContain(noGroupNoPhotoClientId, membershipRange);
 
         var withPhoto = await QueryClientIdsAsync("?hasPhoto=true");
@@ -2131,31 +2126,33 @@ public class ClientsApiTests
         Assert.Equal(paidClientId, withPhoto[0]);
 
         var withoutPhoto = await QueryClientIdsAsync("?hasPhoto=false");
-        Assert.Contains(unpaidClientId, withoutPhoto);
+        Assert.Contains(longTermMembershipClientId, withoutPhoto);
         Assert.Contains(noGroupNoPhotoClientId, withoutPhoto);
         Assert.DoesNotContain(paidClientId, withoutPhoto);
 
         var withoutGroup = await QueryClientIdsAsync("?hasGroup=false&status=Active");
         Assert.Empty(withoutGroup);
 
-        var withoutActivePaid = await QueryClientIdsAsync("?hasActivePaidMembership=false");
-        Assert.Contains(unpaidClientId, withoutActivePaid);
-        Assert.Contains(noGroupNoPhotoClientId, withoutActivePaid);
-        Assert.DoesNotContain(paidClientId, withoutActivePaid);
-        Assert.DoesNotContain(professionalClientId, withoutActivePaid);
+        await AssertRemovedFilterAsync("?hasActivePaidMembership=false");
 
-        var activeMembershipState = await QueryClientIdsAsync("?membershipState=ActivePaid");
-        Assert.Contains(paidClientId, activeMembershipState);
-        Assert.Contains(professionalClientId, activeMembershipState);
+        var withActiveMembership = await QueryClientIdsAsync("?hasActiveMembership=true");
+        Assert.Contains(paidClientId, withActiveMembership);
+        Assert.Contains(longTermMembershipClientId, withActiveMembership);
+        Assert.Contains(professionalClientId, withActiveMembership);
 
-        var unpaidMembershipState = await QueryClientIdsAsync("?membershipState=Unpaid");
-        Assert.Contains(unpaidClientId, unpaidMembershipState);
-        Assert.DoesNotContain(professionalClientId, unpaidMembershipState);
+        var withoutActiveMembership = await QueryClientIdsAsync("?hasActiveMembership=false");
+        Assert.Contains(noGroupNoPhotoClientId, withoutActiveMembership);
+        Assert.DoesNotContain(paidClientId, withoutActiveMembership);
+        Assert.DoesNotContain(longTermMembershipClientId, withoutActiveMembership);
+        Assert.DoesNotContain(professionalClientId, withoutActiveMembership);
+
+        await AssertRemovedFilterAsync("?membershipState=ActivePaid");
+        await AssertRemovedFilterAsync("?membershipState=Unpaid");
 
         var withoutCurrentMembership = await QueryClientIdsAsync("?hasCurrentMembership=false");
         Assert.Contains(noGroupNoPhotoClientId, withoutCurrentMembership);
         Assert.DoesNotContain(paidClientId, withoutCurrentMembership);
-        Assert.DoesNotContain(unpaidClientId, withoutCurrentMembership);
+        Assert.DoesNotContain(longTermMembershipClientId, withoutCurrentMembership);
 
         var earlyAlphabetClientId = await CreateClientForFilterAsync("Аарон", "Ранний", "+79990004010", [seeded.GroupOneId]);
         var staleCurrentMembershipClientId = await CreateClientForFilterAsync("Борисов", "Спорный", "+79990004011", [seeded.GroupOneId]);
@@ -2164,17 +2161,17 @@ public class ClientsApiTests
 
         await SeedCurrentMembershipsAsync(
             earlyAlphabetClientId,
-            (today.AddDays(5), 1, MembershipBehaviorKind.SingleVisit, true));
+            (today.AddDays(5), 1, MembershipBehaviorKind.SingleVisit));
         await SeedCurrentMembershipsAsync(
             staleCurrentMembershipClientId,
-            (today.AddDays(28), 1, MembershipBehaviorKind.SingleVisit, true),
-            (today.AddDays(40), 2, MembershipBehaviorKind.SingleVisit, true));
+            (today.AddDays(28), 1, MembershipBehaviorKind.SingleVisit),
+            (today.AddDays(40), 2, MembershipBehaviorKind.SingleVisit));
         await SeedCurrentMembershipsAsync(
             firstFilteredPageClientId,
-            (today.AddDays(29), 1, MembershipBehaviorKind.Term, true));
+            (today.AddDays(29), 1, MembershipBehaviorKind.Term));
         await SeedCurrentMembershipsAsync(
             secondFilteredPageClientId,
-            (today.AddDays(32), 1, MembershipBehaviorKind.Term, false));
+            (today.AddDays(32), 1, MembershipBehaviorKind.Term));
 
         var membershipFilterQuery =
             $"?membershipExpiresFrom={today.AddDays(25):yyyy-MM-dd}&membershipExpiresTo={today.AddDays(35):yyyy-MM-dd}";
@@ -2287,7 +2284,7 @@ public class ClientsApiTests
             "Trial",
             "+79990005004",
             [seeded.GroupOneId]);
-        var unpaidClientId = await CreateClientForQuickFilterAsync(
+        var longTermMembershipClientId = await CreateClientForQuickFilterAsync(
             "QuickFilter",
             "Unpaid",
             "+79990005005",
@@ -2324,7 +2321,7 @@ public class ClientsApiTests
                     today,
                     today.AddDays(2),
                     1000m,
-                    isPaid: true,
+                    paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
                     now),
                 CreateMembershipWithSale(
@@ -2333,17 +2330,17 @@ public class ClientsApiTests
                     today.AddDays(-20),
                     today.AddDays(-1),
                     500m,
-                    isPaid: true,
+                    paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
                     now.AddMinutes(1),
                     singleVisitUsed: true),
                 CreateMembershipWithSale(
-                    unpaidClientId,
+                    longTermMembershipClientId,
                     MembershipBehaviorKind.Term,
                     today,
                     today.AddDays(30),
                     1000m,
-                    isPaid: false,
+                    paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
                     now.AddMinutes(2)),
                 CreateMembershipWithSale(
@@ -2352,7 +2349,7 @@ public class ClientsApiTests
                     today,
                     today.AddDays(40),
                     1000m,
-                    isPaid: true,
+                    paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
                     now.AddMinutes(3)),
                 CreateMembershipWithSale(
@@ -2361,7 +2358,7 @@ public class ClientsApiTests
                     today,
                     null,
                     0m,
-                    isPaid: true,
+                    paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
                     now.AddMinutes(4),
                     professionalComment: "Льготный клиент"));
@@ -2390,13 +2387,6 @@ public class ClientsApiTests
             Assert.Equal("orange", GetStringFromAnyCase(withoutMembershipHints[0], "tone", "Tone"));
             Assert.Equal("Назначить группу", GetStringFromAnyCase(withoutMembershipHints[1], "title", "Title"));
 
-            var unpaidClient = clientsPayload.EnumerateArray()
-                .Single(candidate => GetGuidFromProperty(candidate, "id") == unpaidClientId);
-            var unpaidHints = GetArrayPayload(
-                GetPropertyOrNull(unpaidClient, "actionHints", "ActionHints"));
-            Assert.Equal("Проверить оплату", GetStringFromAnyCase(unpaidHints[0], "title", "Title"));
-            Assert.Equal("red", GetStringFromAnyCase(unpaidHints[0], "tone", "Tone"));
-
             var expiredTrialClient = clientsPayload.EnumerateArray()
                 .Single(candidate => GetGuidFromProperty(candidate, "id") == expiredTrialClientId);
             var expiredTrialHints = GetArrayPayload(
@@ -2418,7 +2408,7 @@ public class ClientsApiTests
             Assert.Contains(withoutMembershipClientId, filteredIds);
             Assert.Contains(expiredTrialClientId, filteredIds);
             Assert.DoesNotContain(expiringClientId, filteredIds);
-            Assert.DoesNotContain(unpaidClientId, filteredIds);
+            Assert.DoesNotContain(longTermMembershipClientId, filteredIds);
             Assert.DoesNotContain(normalClientId, filteredIds);
             Assert.DoesNotContain(professionalClientId, filteredIds);
 
@@ -2502,7 +2492,7 @@ public class ClientsApiTests
                        PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
                        ExpirationDate = purchaseDate.AddMonths(1).ToString("yyyy-MM-dd"),
                        PaymentAmount = 1200m,
-                       IsPaid = false,
+                       PaymentDate = GetBusinessToday(),
                        SingleVisitUsed = false
                    },
                    actorSession.CsrfToken))
@@ -2521,7 +2511,7 @@ public class ClientsApiTests
                        BehaviorKind = "Term",
                        RenewalDate = renewalDate.ToString("yyyy-MM-dd"),
                        PaymentAmount = 1300m,
-                       IsPaid = false
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -2536,7 +2526,7 @@ public class ClientsApiTests
                    {
                        PurchaseDate = correctionDate.ToString("yyyy-MM-dd"),
                        ExpirationDate = correctionDate.AddYears(1).ToString("yyyy-MM-dd"),
-                       IsPaid = false
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -2550,7 +2540,10 @@ public class ClientsApiTests
                    new { },
                    actorSession.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.OK, paymentResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Gone, paymentResponse.StatusCode);
+            Assert.Equal("application/problem+json", paymentResponse.Content.Headers.ContentType?.MediaType);
+            var problem = await ReadJsonElementAsync(paymentResponse);
+            Assert.Equal("membership-payment-action-removed", GetStringFromAnyCase(problem, "type", "Type"));
         }
 
         using var getResponse = await client.GetAsync($"/clients/{clientId}");
@@ -2563,7 +2556,7 @@ public class ClientsApiTests
             "CurrentMembership");
         Assert.False(currentMembership.ValueKind == JsonValueKind.Undefined);
         Assert.Equal("Term", GetStringFromAnyCase(currentMembership, "behaviorKind", "MembershipBehaviorKind"));
-        Assert.True(GetBoolFromAnyCase(currentMembership, "isPaid", "IsPaid") == true);
+        Assert.False(string.IsNullOrWhiteSpace(GetStringFromAnyCase(currentMembership, "paymentDate", "PaymentDate")));
 
         var historyPayload = GetArrayPayload(
             getPayload,
@@ -2571,13 +2564,13 @@ public class ClientsApiTests
             "MembershipHistory",
             "membershipHistoryItems",
             "MembershipHistoryItems");
-        Assert.Equal(4, historyPayload.GetArrayLength());
+        Assert.Equal(3, historyPayload.GetArrayLength());
 
         var membershipIdsFromResponse = historyPayload
             .EnumerateArray()
             .Select(entry => GetGuidFromAnyCase(entry, "id", "Id"))
             .ToArray();
-        Assert.Equal(4, membershipIdsFromResponse.Length);
+        Assert.Equal(3, membershipIdsFromResponse.Length);
         Assert.All(membershipIdsFromResponse, membershipId => Assert.NotEqual(Guid.Empty, membershipId));
 
         using var scope = factory.Services.CreateScope();
@@ -2587,7 +2580,7 @@ public class ClientsApiTests
             .OrderBy(membership => membership.ValidFrom)
             .ToListAsync();
 
-        Assert.Equal(4, memberships.Count);
+        Assert.Equal(3, memberships.Count);
         Assert.Equal(2, memberships.Count(membership => membership.ValidTo is null));
         var sales = await dbContext.ClientMembershipSales
             .Where(sale => sale.ClientId == clientId)
@@ -2600,7 +2593,7 @@ public class ClientsApiTests
         Assert.Equal(purchaseDate, sales[1].PurchaseDate);
         Assert.Equal(sales[0].Id, memberships.Single(membership => membership.ChangeReason == ClientMembershipChangeReason.NewPurchase).SaleId);
         Assert.All(
-            memberships.Where(membership => membership.ChangeReason is ClientMembershipChangeReason.Renewal or ClientMembershipChangeReason.Correction or ClientMembershipChangeReason.PaymentUpdate),
+            memberships.Where(membership => membership.ChangeReason is ClientMembershipChangeReason.Renewal or ClientMembershipChangeReason.Correction),
             membership => Assert.Equal(sales[1].Id, membership.SaleId));
         var historyIds = historyPayload
             .EnumerateArray()
@@ -2644,7 +2637,7 @@ public class ClientsApiTests
                 BehaviorKind = "Term",
                 PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
                 PaymentAmount = 1000m,
-                IsPaid = true
+                PaymentDate = GetBusinessToday()
             },
             actorSession.CsrfToken);
 
@@ -2671,7 +2664,7 @@ public class ClientsApiTests
         var refundPayload = await ReadJsonElementAsync(refundResponse);
         var currentMembership = GetPropertyOrNull(refundPayload, "currentMembership", "CurrentMembership");
         Assert.Equal(1200m, GetDecimalFromAnyCase(currentMembership, "grossAmount", "GrossAmount"));
-        Assert.True(GetBoolFromAnyCase(currentMembership, "isPaid", "IsPaid"));
+        Assert.False(string.IsNullOrWhiteSpace(GetStringFromAnyCase(currentMembership, "paymentDate", "PaymentDate")));
 
         var summary = GetPropertyOrNull(currentMembership, "financialSummary", "FinancialSummary");
         Assert.Equal(1200m, GetDecimalFromAnyCase(summary, "grossAmount", "GrossAmount"));
@@ -2752,7 +2745,7 @@ public class ClientsApiTests
                 BehaviorKind = "Term",
                 PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
                 PaymentAmount = 1000m,
-                IsPaid = true
+                PaymentDate = GetBusinessToday()
             },
             actorSession.CsrfToken);
 
@@ -2826,7 +2819,7 @@ public class ClientsApiTests
                    {
                        PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
                        ExpirationDate = purchaseDate.AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -2840,7 +2833,7 @@ public class ClientsApiTests
                    new
                    {
                        PurchaseDate = refundDate.AddDays(1).ToString("yyyy-MM-dd"),
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -2871,30 +2864,30 @@ public class ClientsApiTests
             ["purchase"] = new
             {
                 BehaviorKind = "Term",
-                PurchaseDate = GetBusinessToday().ToString("yyyy-MM-dd"),
+                PurchaseDate = GetBusinessToday(),
                 PaymentAmount = 1000m,
-                IsPaid = false,
+                PaymentDate = GetBusinessToday(),
                 SingleVisitUsed = false
             },
             ["renew"] = new
             {
                 BehaviorKind = "Term",
-                RenewalDate = GetBusinessToday().ToString("yyyy-MM-dd"),
+                RenewalDate = GetBusinessToday(),
                 PaymentAmount = 1000m,
-                IsPaid = false
+                PaymentDate = GetBusinessToday()
             },
             ["correct"] = new
             {
                 BehaviorKind = "Term",
-                PurchaseDate = GetBusinessToday().ToString("yyyy-MM-dd"),
+                PurchaseDate = GetBusinessToday(),
                 ExpirationDate = GetBusinessToday().AddMonths(1).ToString("yyyy-MM-dd"),
                 PaymentAmount = 1000m,
-                IsPaid = false,
+                PaymentDate = GetBusinessToday(),
                 SingleVisitUsed = false
             },
             ["mark-payment"] = new
             {
-                IsPaid = true,
+                PaymentDate = GetBusinessToday(),
                 BehaviorKind = "Term"
             }
         };
@@ -2938,7 +2931,7 @@ public class ClientsApiTests
                        BehaviorKind = "Term",
                        PurchaseDate = now.ToString("yyyy-MM-dd"),
                        PaymentAmount = 900m,
-                       IsPaid = false
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -2956,7 +2949,7 @@ public class ClientsApiTests
                        BehaviorKind = "Term",
                        RenewalDate = now.AddMonths(1).ToString("yyyy-MM-dd"),
                        PaymentAmount = 1100m,
-                       IsPaid = false
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -2971,7 +2964,7 @@ public class ClientsApiTests
                    {
                        PurchaseDate = now.AddMonths(1).ToString("yyyy-MM-dd"),
                        ExpirationDate = now.AddMonths(2).AddDays(-1).ToString("yyyy-MM-dd"),
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -3045,7 +3038,7 @@ public class ClientsApiTests
                        BehaviorKind = "Term",
                        PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
                        PaymentAmount = 1200m,
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -3098,7 +3091,7 @@ public class ClientsApiTests
                        BehaviorKind = "Term",
                        PurchaseDate = purchaseDate.ToString("yyyy-MM-dd"),
                        PaymentAmount = 1000m,
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -3116,7 +3109,7 @@ public class ClientsApiTests
                        BehaviorKind = "Term",
                        RenewalDate = renewalDate.ToString("yyyy-MM-dd"),
                        PaymentAmount = 1000m,
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -3168,10 +3161,9 @@ public class ClientsApiTests
                 currentDate.AddMonths(-3),
                 oldExpiration,
                 700m,
-                isPaid: true,
+                paymentDate: GetBusinessToday(),
                 seeded.HeadCoachId,
-                validFrom,
-                paidAt: validFrom));
+                validFrom));
 
             await dbContext.SaveChangesAsync();
         }
@@ -3182,12 +3174,11 @@ public class ClientsApiTests
                    "renew",
                    clientId,
                    new
-                   {
+               {
                        BehaviorKind = "Term",
                        RenewalDate = renewalDate.ToString("yyyy-MM-dd"),
-                       PaymentDate = renewalDate.ToString("yyyy-MM-dd"),
                        PaymentAmount = 700m,
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -3236,7 +3227,7 @@ public class ClientsApiTests
                        BehaviorKind = "SingleVisit",
                        PurchaseDate = now.ToString("yyyy-MM-dd"),
                        PaymentAmount = 500m,
-                       IsPaid = true,
+                       PaymentDate = GetBusinessToday(),
                        SingleVisitUsed = true
                    },
                    actorSession.CsrfToken))
@@ -3262,7 +3253,7 @@ public class ClientsApiTests
                    new
                    {
                        PurchaseDate = now.ToString("yyyy-MM-dd"),
-                       IsPaid = true
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -3281,7 +3272,7 @@ public class ClientsApiTests
     }
 
     [Fact]
-    public async Task Mark_payment_records_audit_data_and_creates_new_membership_version()
+    public async Task Removed_mark_payment_returns_tombstone_without_creating_membership_version()
     {
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
@@ -3292,7 +3283,6 @@ public class ClientsApiTests
         });
 
         var actorSession = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
-        var payerId = Guid.Parse(actorSession.User?.Id ?? throw new InvalidOperationException("Missing session user id."));
         var clientId = await CreateClientForMembershipTestsAsync(
             client,
             actorSession.CsrfToken,
@@ -3307,8 +3297,8 @@ public class ClientsApiTests
                    {
                        BehaviorKind = "Term",
                        PurchaseDate = membershipDate.ToString("yyyy-MM-dd"),
-                       PaymentAmount = 1500m,
-                       IsPaid = false
+                       PaymentDate = membershipDate.ToString("yyyy-MM-dd"),
+                       PaymentAmount = 1500m
                    },
                    actorSession.CsrfToken))
         {
@@ -3324,23 +3314,24 @@ public class ClientsApiTests
                    new { },
                    actorSession.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.OK, paymentResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Gone, paymentResponse.StatusCode);
+            Assert.Equal("application/problem+json", paymentResponse.Content.Headers.ContentType?.MediaType);
+            var problem = await ReadJsonElementAsync(paymentResponse);
+            Assert.Equal("membership-payment-action-removed", GetStringFromAnyCase(problem, "type", "Type"));
         }
 
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             var memberships = await dbContext.ClientMemberships
+                .Include(membership => membership.Sale)
                 .Where(membership => membership.ClientId == clientId)
                 .OrderBy(membership => membership.CreatedAt)
                 .ToListAsync();
 
-            Assert.Equal(2, memberships.Count);
+            Assert.Single(memberships);
             var current = memberships.Single(membership => membership.ValidTo is null);
-            Assert.True(current.IsPaid);
-            Assert.Equal(payerId, current.PaidByUserId);
-            Assert.NotNull(current.PaidAt);
-            Assert.Equal(membershipDate, DateOnly.FromDateTime(current.PaidAt!.Value.UtcDateTime));
+            Assert.Equal(membershipDate, current.Sale.PaymentDate);
         }
     }
 
@@ -3374,7 +3365,7 @@ public class ClientsApiTests
                        BehaviorKind = "Term",
                        PurchaseDate = now.ToString("yyyy-MM-dd"),
                        PaymentAmount = 1200m,
-                       IsPaid = false
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -3392,7 +3383,7 @@ public class ClientsApiTests
                        BehaviorKind = "Term",
                        RenewalDate = now.AddMonths(1).ToString("yyyy-MM-dd"),
                        PaymentAmount = 1300m,
-                       IsPaid = false
+                       PaymentDate = GetBusinessToday()
                    },
                    actorSession.CsrfToken))
         {
@@ -3406,7 +3397,10 @@ public class ClientsApiTests
                    new { },
                    actorSession.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.OK, markPaymentResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Gone, markPaymentResponse.StatusCode);
+            Assert.Equal("application/problem+json", markPaymentResponse.Content.Headers.ContentType?.MediaType);
+            var markPaymentProblem = await ReadJsonElementAsync(markPaymentResponse);
+            Assert.Equal("membership-payment-action-removed", GetStringFromAnyCase(markPaymentProblem, "type", "Type"));
         }
 
         using var scope = factory.Services.CreateScope();
@@ -3433,19 +3427,18 @@ public class ClientsApiTests
         }
 
         var membershipActionLogs = auditLogs
-            .Where(log => log.ActionType is "ClientMembershipPurchased" or "ClientMembershipRenewed" or "ClientMembershipPaymentMarked")
+            .Where(log => log.ActionType is "ClientMembershipPurchased" or "ClientMembershipRenewed")
             .OrderBy(log => log.CreatedAt)
             .ToList();
 
         Assert.Equal(
-            ["ClientMembershipPurchased", "ClientMembershipRenewed", "ClientMembershipPaymentMarked"],
+            ["ClientMembershipPurchased", "ClientMembershipRenewed"],
             membershipActionLogs.Select(log => log.ActionType));
         Assert.All(membershipActionLogs, log => Assert.Equal("ClientMembership", log.EntityType));
         Assert.Equal(
             [
                 $"Пользователь '{seeded.HeadCoachLogin}' оформил абонемент клиента 'Membership Client Tests'.",
-                $"Пользователь '{seeded.HeadCoachLogin}' продлил абонемент клиента 'Membership Client Tests'.",
-                $"Пользователь '{seeded.HeadCoachLogin}' отметил оплату абонемента клиента 'Membership Client Tests'."
+                $"Пользователь '{seeded.HeadCoachLogin}' продлил абонемент клиента 'Membership Client Tests'."
             ],
             membershipActionLogs.Select(log => log.Description));
     }
@@ -3908,7 +3901,7 @@ public class ClientsApiTests
                 today.AddMonths(-1),
                 today.AddDays(3),
                 1200m,
-                false,
+                paymentDate: GetBusinessToday(),
                 seeded.HeadCoachId,
                 DateTimeOffset.UtcNow));
             for (var offset = 3; offset >= 1; offset--)
@@ -3931,7 +3924,6 @@ public class ClientsApiTests
                 .ToArray();
             Assert.Contains("missedTraining", reasonTypes);
             Assert.Contains("expiringMembership", reasonTypes);
-            Assert.Contains("unpaidMembership", reasonTypes);
             Assert.Equal(3, card.GetProperty("reasons").EnumerateArray()
                 .Single(reason => reason.GetProperty("type").GetString() == "missedTraining")
                 .GetProperty("missedCount").GetInt32());
@@ -4011,8 +4003,8 @@ public class ClientsApiTests
                 NewAttentionClient(visibleMembershipId, seeded.BranchId, "Бета"),
                 NewAttentionClient(outsideId, outsideBranch.Id, "Чужой"));
             db.ClientMemberships.AddRange(
-                CreateMembershipWithSale(visibleMembershipId, MembershipBehaviorKind.Term, today, today.AddDays(1), 1000m, true, seeded.HeadCoachId, DateTimeOffset.UtcNow),
-                CreateMembershipWithSale(outsideId, MembershipBehaviorKind.Term, today, today.AddDays(1), 1000m, false, seeded.HeadCoachId, DateTimeOffset.UtcNow));
+                CreateMembershipWithSale(visibleMembershipId, MembershipBehaviorKind.Term, today, today.AddDays(1), 1000m, paymentDate: GetBusinessToday(), seeded.HeadCoachId, DateTimeOffset.UtcNow),
+                CreateMembershipWithSale(outsideId, MembershipBehaviorKind.Term, today, today.AddDays(1), 1000m, paymentDate: GetBusinessToday(), seeded.HeadCoachId, DateTimeOffset.UtcNow));
             for (var offset = 3; offset >= 1; offset--)
             {
                 SeedAttendanceEntryForClient(db, visibleMissedId, seeded.GroupOneId, seeded.HeadCoachId, today.AddDays(-offset), false);
@@ -4098,9 +4090,9 @@ public class ClientsApiTests
         {
             var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             first = CreateMembershipWithSale(clientId, MembershipBehaviorKind.Term, DateOnly.FromDateTime(now.Date),
-                DateOnly.FromDateTime(now.Date).AddMonths(1), 1200m, false, seeded.HeadCoachId, now);
+                DateOnly.FromDateTime(now.Date).AddMonths(1), 1200m, paymentDate: GetBusinessToday(), seeded.HeadCoachId, now);
             second = CreateMembershipWithSale(clientId, MembershipBehaviorKind.SingleVisit, DateOnly.FromDateTime(now.Date),
-                null, 500m, true, seeded.HeadCoachId, now.AddSeconds(-1), validTo: now);
+                null, 500m, paymentDate: GetBusinessToday(), seeded.HeadCoachId, now.AddSeconds(-1), validTo: now);
             db.ClientMemberships.AddRange(first, second);
             db.GroupTrainers.Add(new GroupTrainer { GroupId = seeded.GroupOneId, TrainerId = seeded.CoachId });
             await db.SaveChangesAsync();
@@ -4199,7 +4191,7 @@ public class ClientsApiTests
         using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
         var session = await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
         var clientId = await CreateClientForMembershipTestsAsync(http, session.CsrfToken, seeded.GroupOneId);
-        var membership = CreateMembershipWithSale(clientId, MembershipBehaviorKind.SingleVisit, DateOnly.FromDateTime(DateTime.UtcNow), null, 500m, false, seeded.HeadCoachId, DateTimeOffset.UtcNow);
+        var membership = CreateMembershipWithSale(clientId, MembershipBehaviorKind.SingleVisit, DateOnly.FromDateTime(DateTime.UtcNow), null, 500m, paymentDate: GetBusinessToday(), seeded.HeadCoachId, DateTimeOffset.UtcNow);
         membership.Sale.Comment = "legacy";
         membership.Sale.CommentChangedByUserId = seeded.HeadCoachId;
         membership.Sale.CommentChangedAt = null;
@@ -4723,11 +4715,14 @@ public class ClientsApiTests
             return payload;
         }
         var catalogItemId = GetGuidFromAnyCase(item, "id", "Id");
-        var isPaid = GetBoolFromAnyCase(legacy, "isPaid", "IsPaid") ?? false;
-        var paymentDate = isPaid ? GetBusinessToday().ToString("yyyy-MM-dd") : null;
+        var paymentDate = GetStringFromAnyCase(legacy, "paymentDate", "PaymentDate");
 
         if (action == "renew")
-            return new { MembershipCatalogItemId = catalogItemId, PaymentStatus = isPaid ? "Paid" : "Unpaid", PaymentDate = paymentDate };
+            return new
+            {
+                MembershipCatalogItemId = catalogItemId,
+                PaymentDate = paymentDate
+            };
 
         var validFrom = GetStringFromAnyCase(legacy, "validFrom", "ValidFrom", "purchaseDate", "PurchaseDate");
         var validTo = GetStringFromAnyCase(legacy, "validTo", "ValidTo", "expirationDate", "ExpirationDate");
@@ -4760,7 +4755,6 @@ public class ClientsApiTests
             MembershipCatalogItemId = catalogItemId,
             ValidFrom = string.IsNullOrWhiteSpace(validFrom) ? null : validFrom,
             ValidTo = string.IsNullOrWhiteSpace(validTo) ? null : validTo,
-            PaymentStatus = isPaid ? "Paid" : "Unpaid",
             PaymentDate = paymentDate,
             ProfessionalComment = GetStringFromAnyCase(legacy, "professionalComment", "ProfessionalComment")
         };
@@ -4805,7 +4799,8 @@ public class ClientsApiTests
             SaleId = saleId,
             ExpectedMembershipId = membershipId,
             ValidFrom = GetStringFromAnyCase(legacy, "validFrom", "ValidFrom", "purchaseDate", "PurchaseDate"),
-            ValidTo = GetStringFromAnyCase(legacy, "validTo", "ValidTo", "expirationDate", "ExpirationDate")
+            ValidTo = GetStringFromAnyCase(legacy, "validTo", "ValidTo", "expirationDate", "ExpirationDate"),
+            PaymentDate = GetStringFromAnyCase(legacy, "paymentDate", "PaymentDate")
         };
     }
 
@@ -4956,7 +4951,9 @@ public class ClientsApiTests
                 if (property.Name.Equals("behaviorKind", StringComparison.OrdinalIgnoreCase) ||
                     property.Name.Equals("expirationDate", StringComparison.OrdinalIgnoreCase) ||
                     property.Name.Equals("paymentAmount", StringComparison.OrdinalIgnoreCase) ||
-                    property.Name.Equals("isPaid", StringComparison.OrdinalIgnoreCase) ||
+                    property.Name.Equals("paymentDate", StringComparison.OrdinalIgnoreCase) ||
+                    property.Name.Equals("paymentRecordedByUserId", StringComparison.OrdinalIgnoreCase) ||
+                    property.Name.Equals("paymentRecordedAt", StringComparison.OrdinalIgnoreCase) ||
                     property.Name.Equals("singleVisitUsed", StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
@@ -5215,13 +5212,11 @@ public class ClientsApiTests
         DateOnly purchaseDate,
         DateOnly? expirationDate,
         decimal paymentAmount,
-        bool isPaid,
+        DateOnly paymentDate,
         Guid changedByUserId,
         DateTimeOffset validFrom,
         bool singleVisitUsed = false,
         DateTimeOffset? validTo = null,
-        DateTimeOffset? paidAt = null,
-        Guid? paidByUserId = null,
         string? professionalComment = null)
     {
         var saleId = Guid.NewGuid();
@@ -5231,9 +5226,6 @@ public class ClientsApiTests
             MembershipBehaviorKind.Professional => ProfessionalCatalogItemId,
             _ => TermCatalogItemId
         };
-        DateTimeOffset? resolvedPaidAt = isPaid ? paidAt ?? validFrom : null;
-        Guid? resolvedPaidByUserId = isPaid ? paidByUserId ?? changedByUserId : null;
-
         return new ClientMembership
         {
             Id = Guid.NewGuid(),
@@ -5242,11 +5234,8 @@ public class ClientsApiTests
             BehaviorKind = behaviorKind,
             IndividualValidFrom = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : purchaseDate,
             IndividualValidTo = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : expirationDate,
-            IsPaid = isPaid,
             SingleVisitUsed = singleVisitUsed,
             ProfessionalComment = professionalComment,
-            PaidByUserId = resolvedPaidByUserId,
-            PaidAt = resolvedPaidAt,
             ValidFrom = validFrom,
             ValidTo = validTo,
             ChangeReason = ClientMembershipChangeReason.NewPurchase,
@@ -5260,6 +5249,7 @@ public class ClientsApiTests
                 BehaviorKind = behaviorKind,
                 PricingMode = ClientMembershipSalePricingMode.Catalog,
                 PurchaseDate = purchaseDate,
+                PaymentDate = paymentDate,
                 GrossAmount = paymentAmount,
                 CreatedByUserId = changedByUserId,
                 CreatedAt = validFrom

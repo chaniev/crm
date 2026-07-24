@@ -198,8 +198,7 @@ internal sealed class TestDataSeeder : IAsyncDisposable
         await dbContext.ClientMemberships
             .Where(membership =>
                 clientIds.Contains(membership.ClientId) ||
-                userIds.Contains(membership.ChangedByUserId) ||
-                (membership.PaidByUserId.HasValue && userIds.Contains(membership.PaidByUserId.Value)))
+                userIds.Contains(membership.ChangedByUserId))
             .ExecuteDeleteAsync(cancellationToken);
 
         await dbContext.ClientMembershipSales

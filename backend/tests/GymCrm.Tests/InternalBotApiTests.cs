@@ -101,7 +101,7 @@ public class InternalBotApiTests
             Assert.Equal(HttpStatusCode.OK, adminMenuResponse.StatusCode);
             var payload = await ReadJsonElementAsync(adminMenuResponse);
             var items = payload.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("code").GetString()).ToArray();
-            Assert.Contains("unpaid_memberships", items);
+            Assert.DoesNotContain("unpaid_memberships", items);
             Assert.Contains("expiring_memberships", items);
         }
 
@@ -142,6 +142,7 @@ public class InternalBotApiTests
             membership.BehaviorKind = MembershipBehaviorKind.SingleVisit;
             membership.Sale.BehaviorKind = MembershipBehaviorKind.SingleVisit;
             membership.Sale.PurchaseDate = today.AddDays(-10);
+            membership.Sale.PaymentDate = today.AddDays(-10);
             membership.IndividualValidTo = null;
             membership.SingleVisitUsed = false;
             await db.SaveChangesAsync();
@@ -269,14 +270,9 @@ public class InternalBotApiTests
                    HttpMethod.Get,
                    $"/internal/bot/clients/unpaid-memberships?platform=Telegram&platformUserId={seeded.AdminTelegramId}"))
         {
-            Assert.Equal(HttpStatusCode.OK, adminUnpaidResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Gone, adminUnpaidResponse.StatusCode);
             var payload = await ReadJsonElementAsync(adminUnpaidResponse);
-            var ids = payload.EnumerateArray().Select(item => item.GetProperty("clientId").GetString()).ToArray();
-            Assert.Contains(seeded.PaymentClientId.ToString(), ids);
-            Assert.DoesNotContain(seeded.ProfessionalPaymentClientId.ToString(), ids);
-            var amountOnly = payload.EnumerateArray()
-                .Single(item => item.GetProperty("clientId").GetString() == seeded.PaymentClientId.ToString());
-            Assert.Equal("Без варианта каталога", amountOnly.GetProperty("membershipLabel").GetString());
+            Assert.Equal("membership-unpaid-list-removed", payload.GetProperty("type").GetString());
         }
 
         using (var amountOnlyCardResponse = await SendBotRequestAsync(
@@ -296,7 +292,7 @@ public class InternalBotApiTests
     }
 
     [Fact]
-    public async Task Mark_payment_and_access_denied_are_idempotent_and_write_bot_audit()
+    public async Task Removed_mark_payment_is_tombstone_and_access_denied_is_idempotent()
     {
         await using var factory = new InternalBotAppFactory();
         var seeded = await SeedDataAsync(factory);
@@ -307,11 +303,11 @@ public class InternalBotApiTests
                    HttpMethod.Post,
                    $"/internal/bot/clients/{seeded.PaymentClientId}/membership/mark-payment",
                    new TelegramIdentityRequest("Telegram", seeded.AdminTelegramId),
-                   idempotencyKey: "payment-idempotent"))
+                   includeIdempotencyHeader: false))
         {
-            Assert.Equal(HttpStatusCode.OK, firstMarkPayment.StatusCode);
+            Assert.Equal(HttpStatusCode.Gone, firstMarkPayment.StatusCode);
             var payload = await ReadJsonElementAsync(firstMarkPayment);
-            Assert.False(payload.GetProperty("wasAlreadyPaid").GetBoolean());
+            Assert.Equal("membership-payment-action-removed", payload.GetProperty("type").GetString());
         }
 
         using (var secondMarkPayment = await SendBotRequestAsync(
@@ -321,9 +317,9 @@ public class InternalBotApiTests
                    new TelegramIdentityRequest("Telegram", seeded.AdminTelegramId),
                    idempotencyKey: "payment-idempotent"))
         {
-            Assert.Equal(HttpStatusCode.OK, secondMarkPayment.StatusCode);
+            Assert.Equal(HttpStatusCode.Gone, secondMarkPayment.StatusCode);
             var payload = await ReadJsonElementAsync(secondMarkPayment);
-            Assert.False(payload.GetProperty("wasAlreadyPaid").GetBoolean());
+            Assert.Equal("membership-payment-action-removed", payload.GetProperty("type").GetString());
         }
 
         using (var missingAccessDeniedIdempotency = await SendBotRequestAsync(
@@ -358,17 +354,6 @@ public class InternalBotApiTests
 
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-
-        var paymentClientMembership = await dbContext.ClientMemberships.SingleAsync(membership =>
-            membership.ClientId == seeded.PaymentClientId &&
-            membership.ValidTo == null);
-        Assert.True(paymentClientMembership.IsPaid);
-
-        var paymentAuditCount = await dbContext.AuditLogs.CountAsync(log =>
-            log.ActionType == BotAuditConstants.BotMembershipPaymentMarkedAction &&
-            log.Source == "Bot" &&
-            log.MessengerPlatform == "Telegram");
-        Assert.Equal(1, paymentAuditCount);
 
         var accessDeniedAuditCount = await dbContext.AuditLogs.CountAsync(log =>
             log.ActionType == BotAuditConstants.BotAccessDeniedAction &&
@@ -539,14 +524,14 @@ public class InternalBotApiTests
             new ClientGroup { ClientId = professionalPaymentClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id });
 
         dbContext.ClientMemberships.AddRange(
-            CreateMembership(coachClient.Id, coachBranch.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, isPaid: false, now),
-            CreateMembership(expiringTodayClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today, 1500m, isPaid: true, now),
-            CreateMembership(expiringDayNineClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(9), 1500m, isPaid: true, now),
-            CreateMembership(expiringDayTenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, isPaid: true, now),
-            CreateMembership(expiringDayElevenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, isPaid: true, now),
-            CreateMembership(expiredClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, isPaid: true, now),
-            CreateMembership(paymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, isPaid: false, now, amountOnly: true),
-            CreateMembership(professionalPaymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), null, 0m, isPaid: true, now, MembershipBehaviorKind.Professional));
+            CreateMembership(coachClient.Id, coachBranch.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, now),
+            CreateMembership(expiringTodayClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today, 1500m, now),
+            CreateMembership(expiringDayNineClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(9), 1500m, now),
+            CreateMembership(expiringDayTenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, now),
+            CreateMembership(expiringDayElevenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, now),
+            CreateMembership(expiredClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, now),
+            CreateMembership(paymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, now, amountOnly: true),
+            CreateMembership(professionalPaymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), null, 0m, now, MembershipBehaviorKind.Professional));
 
         dbContext.Attendance.Add(new Attendance
         {
@@ -630,7 +615,6 @@ public class InternalBotApiTests
         DateOnly purchaseDate,
         DateOnly? expirationDate,
         decimal grossAmount,
-        bool isPaid,
         DateTimeOffset now,
         MembershipBehaviorKind behaviorKind = MembershipBehaviorKind.Term,
         bool amountOnly = false)
@@ -658,10 +642,7 @@ public class InternalBotApiTests
             IndividualValidFrom = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : purchaseDate,
             IndividualValidTo = behaviorKind == MembershipBehaviorKind.SingleVisit ? null : expirationDate,
             ProfessionalComment = behaviorKind == MembershipBehaviorKind.Professional ? "Bot professional" : null,
-            IsPaid = isPaid,
             SingleVisitUsed = false,
-            PaidByUserId = isPaid ? changedByUserId : null,
-            PaidAt = isPaid ? now : null,
             ValidFrom = now,
             ValidTo = null,
             ChangeReason = ClientMembershipChangeReason.NewPurchase,
@@ -677,6 +658,7 @@ public class InternalBotApiTests
                     ? ClientMembershipSalePricingMode.AmountOnly
                     : ClientMembershipSalePricingMode.Catalog,
                 PurchaseDate = purchaseDate,
+                PaymentDate = purchaseDate,
                 GrossAmount = grossAmount,
                 CreatedByUserId = changedByUserId,
                 CreatedAt = now,

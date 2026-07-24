@@ -80,6 +80,53 @@ public class FinancialReportsApiTests
         Assert.Equal(seeded.BranchAId.ToString(), payload.GetProperty("branchBreakdown")[0].GetProperty("branchId").GetString());
     }
 
+    [Fact]
+    public async Task Backdated_sale_uses_payment_date_for_period_and_purchase_date_for_attribution()
+    {
+        await using var factory = new FinancialReportsAppFactory();
+        var seeded = await SeedReportDataAsync(factory);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = new DateTimeOffset(2026, 5, 14, 12, 0, 0, TimeSpan.Zero);
+            var client = CreateClient(seeded.BranchAId, "Backdated", now);
+            dbContext.Clients.Add(client);
+            AddClientBranchPeriod(
+                dbContext,
+                client.Id,
+                seeded.BranchAId,
+                new DateOnly(2026, 5, 14),
+                null,
+                seeded.HeadCoachId,
+                now);
+            var sale = AddSale(
+                dbContext,
+                client.Id,
+                new DateOnly(2026, 5, 14),
+                999m,
+                seeded.HeadCoachId,
+                now);
+            sale.PaymentDate = new DateOnly(2026, 4, 30);
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var clientHttp = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(clientHttp, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await clientHttp.GetAsync("/reports/financial?periodPreset=custom&from=2026-04-30&to=2026-04-30");
+        var payload = await ReadJsonElementAsync(response);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        AssertTotals(payload.GetProperty("totals"), 1, 999m, 0m, 999m, 1);
+        var branch = FindRow(payload.GetProperty("branchBreakdown"), "branchId", seeded.BranchAId);
+        AssertTotals(branch, 1, 999m, 0m, 999m, 1);
+    }
+
     [Theory]
     [InlineData("quarter", "2026-04-01", "2026-06-30", 7, 870, 170, 700, 6)]
     [InlineData("year", "2026-01-01", "2026-12-31", 7, 870, 170, 700, 6)]
@@ -143,7 +190,7 @@ public class FinancialReportsApiTests
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             var correctedSale = await dbContext.ClientMembershipSales
                 .SingleAsync(sale => sale.GrossAmount == 200m);
-            correctedSale.PurchaseDate = new DateOnly(2026, 5, 2);
+            correctedSale.PaymentDate = new DateOnly(2026, 5, 2);
             correctedSale.GrossAmount = 250m;
             await dbContext.SaveChangesAsync();
         }
@@ -177,7 +224,7 @@ public class FinancialReportsApiTests
             amountOnlySale.MembershipCatalogItemId = null;
             amountOnlySale.MembershipCatalogItem = null;
             amountOnlySale.PricingMode = ClientMembershipSalePricingMode.AmountOnly;
-            amountOnlySale.PurchaseDate = new DateOnly(2026, 5, 2);
+            amountOnlySale.PaymentDate = new DateOnly(2026, 5, 2);
             amountOnlySale.GrossAmount = 333m;
             await dbContext.SaveChangesAsync();
         }
@@ -579,6 +626,7 @@ public class FinancialReportsApiTests
             ClientId = clientId,
             BehaviorKind = MembershipBehaviorKind.Term,
             PurchaseDate = purchaseDate,
+            PaymentDate = purchaseDate,
             GrossAmount = grossAmount,
             CreatedByUserId = createdByUserId,
             CreatedAt = createdAt
@@ -627,7 +675,6 @@ public class FinancialReportsApiTests
                 SaleId = saleId,
                 BehaviorKind = MembershipBehaviorKind.Term,
                 IndividualValidFrom = new DateOnly(2026, 5, 10),
-                IsPaid = false,
                 SingleVisitUsed = false,
                 ValidFrom = now.AddMinutes(-10),
                 ValidTo = now.AddMinutes(-5),
@@ -642,13 +689,10 @@ public class FinancialReportsApiTests
                 SaleId = saleId,
                 BehaviorKind = MembershipBehaviorKind.Term,
                 IndividualValidFrom = new DateOnly(2026, 5, 10),
-                IsPaid = true,
                 SingleVisitUsed = false,
-                PaidByUserId = changedByUserId,
-                PaidAt = now.AddMinutes(-4),
                 ValidFrom = now.AddMinutes(-5),
                 ValidTo = null,
-                ChangeReason = ClientMembershipChangeReason.PaymentUpdate,
+                ChangeReason = ClientMembershipChangeReason.Correction,
                 ChangedByUserId = changedByUserId,
                 CreatedAt = now.AddMinutes(-5)
             });

@@ -125,6 +125,8 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
   )
   const purchaseDate =
     readString(payload, ['purchaseDate', 'PurchaseDate']) ?? ''
+  const paymentDate =
+    readString(payload, ['paymentDate', 'PaymentDate']) ?? ''
   const saleId = readString(payload, ['saleId', 'SaleId'])
   const pricingMode = mapMembershipSalePricingMode(
     readString(payload, ['pricingMode', 'PricingMode']),
@@ -135,6 +137,7 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
   if (
     !behaviorKind ||
     !purchaseDate ||
+    !paymentDate ||
     !saleId ||
     !pricingMode ||
     grossAmount === undefined ||
@@ -153,27 +156,26 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
       readString(payload, ['membershipCatalogItemId', 'MembershipCatalogItemId']) ?? null,
     membershipName,
     purchaseDate,
+    paymentDate,
     expirationDate:
       readString(payload, ['expirationDate', 'ExpirationDate']) ?? null,
     pricingMode,
     grossAmount,
     catalogPrice:
       readNumber(payload, ['catalogPrice', 'CatalogPrice']) ?? null,
-    isPaid: readBoolean(payload, ['isPaid', 'IsPaid']) ?? false,
     singleVisitUsed:
       readBoolean(payload, ['singleVisitUsed', 'SingleVisitUsed']) ?? false,
     changeReason:
       readString(payload, ['changeReason', 'ChangeReason']) ?? undefined,
-    paidAt: readString(payload, ['paidAt', 'PaidAt']) ?? undefined,
-    paidByUserId:
-      readString(payload, ['paidByUserId', 'PaidByUserId']) ?? undefined,
-    paidByUserName:
+    paymentRecordedAt:
+      readString(payload, ['paymentRecordedAt', 'PaymentRecordedAt']) ?? '',
+    paymentRecordedByUserId:
+      readString(payload, ['paymentRecordedByUserId', 'PaymentRecordedByUserId']) ?? '',
+    paymentRecordedByUserName:
       readString(payload, [
-        'paidByUserName',
-        'PaidByUserName',
-        'paidByFullName',
-        'PaidByFullName',
-      ]) ?? undefined,
+        'paymentRecordedByUserName',
+        'PaymentRecordedByUserName',
+      ]) ?? '',
     changedByUserId:
       readString(payload, ['changedByUserId', 'ChangedByUserId']) ?? undefined,
     changedByUserName:
@@ -320,11 +322,11 @@ export function buildFallbackAuditDescription(
   return parts.join(' ')
 }
 
-export function deriveHasActivePaidMembership(
+export function deriveHasActiveMembership(
   membership: ClientMembership | null,
   trainingDate: string,
 ) {
-  if (!membership || !membership.isPaid) {
+  if (!membership) {
     return false
   }
 
@@ -345,14 +347,9 @@ export function deriveHasActivePaidMembership(
 
 export function deriveMembershipWarning(
   membership: ClientMembership | null,
-  hasUnpaidCurrentMembership: boolean,
   trainingDate: string,
 ) {
   if (!membership) {
-    return true
-  }
-
-  if (hasUnpaidCurrentMembership) {
     return true
   }
 

@@ -12,10 +12,7 @@ public class ClientMembership
     public DateOnly? IndividualValidFrom { get; set; }
     public DateOnly? IndividualValidTo { get; set; }
     public string? ProfessionalComment { get; set; }
-    public bool IsPaid { get; set; }
     public bool SingleVisitUsed { get; set; }
-    public Guid? PaidByUserId { get; set; }
-    public DateTimeOffset? PaidAt { get; set; }
     public DateTimeOffset ValidFrom { get; set; }
     public DateTimeOffset? ValidTo { get; set; }
     public ClientMembershipChangeReason ChangeReason { get; set; }
@@ -24,6 +21,5 @@ public class ClientMembership
 
     public Client Client { get; set; } = null!;
     public ClientMembershipSale Sale { get; set; } = null!;
-    public User? PaidByUser { get; set; }
     public User ChangedByUser { get; set; } = null!;
 }

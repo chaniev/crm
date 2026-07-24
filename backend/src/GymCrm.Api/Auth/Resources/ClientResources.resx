@@ -144,9 +144,6 @@
   <data name="CurrentMembershipMissingForPaymentMark" xml:space="preserve">
     <value>У клиента нет текущего абонемента для отметки оплаты.</value>
   </data>
-  <data name="IsPaidRequired" xml:space="preserve">
-    <value>Укажите признак оплаты абонемента.</value>
-  </data>
   <data name="PaymentMarkMustSetPaid" xml:space="preserve">
     <value>Отметка оплаты должна устанавливать значение "оплачен".</value>
   </data>

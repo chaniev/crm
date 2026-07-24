@@ -11,6 +11,7 @@ public class ClientMembershipSale
     public MembershipBehaviorKind BehaviorKind { get; set; }
     public ClientMembershipSalePricingMode PricingMode { get; set; }
     public DateOnly PurchaseDate { get; set; }
+    public DateOnly PaymentDate { get; set; }
     public decimal GrossAmount { get; set; }
     public Guid CreatedByUserId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

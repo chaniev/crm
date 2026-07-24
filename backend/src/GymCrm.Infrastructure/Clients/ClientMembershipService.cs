@@ -39,7 +39,8 @@ internal sealed class ClientMembershipService(
         CreateClientMembershipPurchaseCommand command,
         CancellationToken cancellationToken)
     {
-        if (!IsValidSaleCommand(clientId, command.ChangedByUserId, command.IsPaid, command.PaymentDate))
+        var today = GetToday();
+        if (!IsValidSaleCommand(clientId, command.ChangedByUserId, command.PaymentDate, today))
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.InvalidRequest);
 
         var client = await dbContext.Clients.AsNoTracking().SingleOrDefaultAsync(candidate => candidate.Id == clientId, cancellationToken);
@@ -48,7 +49,6 @@ internal sealed class ClientMembershipService(
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ClientMissing);
         }
 
-        var today = GetToday();
         MembershipCatalogItem? item = null;
         if (command.MembershipCatalogItemId.HasValue)
         {
@@ -84,10 +84,10 @@ internal sealed class ClientMembershipService(
 
         await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken);
         var now = timeProvider.GetUtcNow();
-        var sale = CreateSale(clientId, item, resolution, today, command.ChangedByUserId, now);
+        var sale = CreateSale(clientId, item, resolution, today, command.PaymentDate, command.ChangedByUserId, now);
         dbContext.ClientMembershipSales.Add(sale);
         dbContext.ClientMemberships.Add(CreateMembership(clientId, sale, command.ValidFrom, command.ValidTo,
-            command.IsPaid, command.PaymentDate, false, command.ProfessionalComment, ClientMembershipChangeReason.NewPurchase,
+            false, command.ProfessionalComment, ClientMembershipChangeReason.NewPurchase,
             command.ChangedByUserId, now));
         try
         {
@@ -121,7 +121,8 @@ internal sealed class ClientMembershipService(
         RenewClientMembershipCommand command,
         CancellationToken cancellationToken)
     {
-        if (!IsValidSaleCommand(clientId, command.ChangedByUserId, command.IsPaid, command.PaymentDate))
+        var today = GetToday();
+        if (!IsValidSaleCommand(clientId, command.ChangedByUserId, command.PaymentDate, today))
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.InvalidRequest);
 
         if (!await ClientExistsAsync(clientId, cancellationToken))
@@ -129,7 +130,6 @@ internal sealed class ClientMembershipService(
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ClientMissing);
         }
 
-        var today = GetToday();
         var currentMembership = await LoadCurrentMembershipAsync(clientId, cancellationToken);
         if (currentMembership is null)
         {
@@ -170,7 +170,7 @@ internal sealed class ClientMembershipService(
         var duration = currentMembership.IndividualValidTo.Value.DayNumber - currentMembership.IndividualValidFrom!.Value.DayNumber;
         var validTo = validFrom.AddDays(duration);
         var now = timeProvider.GetUtcNow();
-        var sale = CreateSale(clientId, item, resolution, today, command.ChangedByUserId, now);
+        var sale = CreateSale(clientId, item, resolution, today, command.PaymentDate, command.ChangedByUserId, now);
         if (await HasConflictingMembershipAsync(
                 clientId,
                 resolution.BehaviorKind,
@@ -182,8 +182,8 @@ internal sealed class ClientMembershipService(
 
         await using var transaction = await BeginTransactionIfSupportedAsync(cancellationToken);
         dbContext.ClientMembershipSales.Add(sale);
-        dbContext.ClientMemberships.Add(CreateMembership(clientId, sale, validFrom, validTo, command.IsPaid,
-            command.PaymentDate, false, command.ProfessionalComment, ClientMembershipChangeReason.Renewal, command.ChangedByUserId, now));
+        dbContext.ClientMemberships.Add(CreateMembership(clientId, sale, validFrom, validTo,
+            false, command.ProfessionalComment, ClientMembershipChangeReason.Renewal, command.ChangedByUserId, now));
         try
         {
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -204,10 +204,13 @@ internal sealed class ClientMembershipService(
         CorrectClientMembershipCommand command,
         CancellationToken cancellationToken)
     {
+        var today = GetToday();
         if (clientId == Guid.Empty ||
             command.ChangedByUserId == Guid.Empty ||
             command.SaleId == Guid.Empty ||
-            command.ExpectedMembershipId == Guid.Empty)
+            command.ExpectedMembershipId == Guid.Empty ||
+            ClientMembershipPaymentDatePolicy.Validate(command.PaymentDate, today) !=
+            ClientMembershipPaymentDateValidationResult.Valid)
         {
             return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.InvalidRequest);
         }
@@ -236,6 +239,7 @@ internal sealed class ClientMembershipService(
 
         var currentMembership = target.Membership!;
         var currentSale = currentMembership.Sale;
+        var oldSale = MapSaleSnapshot(currentSale);
         var now = timeProvider.GetUtcNow();
 
         var nextValidFrom = currentMembership.BehaviorKind == MembershipBehaviorKind.SingleVisit ? null : command.ValidFrom;
@@ -257,75 +261,21 @@ internal sealed class ClientMembershipService(
         var correctedMembership = CreateMembership(clientId, currentSale,
             nextValidFrom,
             nextValidTo,
-            currentMembership.IsPaid,
-            currentMembership.IsPaid ? currentSale.PurchaseDate : null,
             currentMembership.SingleVisitUsed,
             currentMembership.ProfessionalComment,
             ClientMembershipChangeReason.Correction, command.ChangedByUserId, now);
-        correctedMembership.IsPaid = currentMembership.IsPaid;
-        correctedMembership.PaidByUserId = currentMembership.PaidByUserId;
-        correctedMembership.PaidAt = currentMembership.PaidAt;
+        currentSale.PaymentDate = command.PaymentDate;
 
         await ReplaceCurrentMembershipAsync(currentMembership, correctedMembership, now, cancellationToken);
 
-        return ClientMembershipMutationResult.Success(
-            await LoadDetailsRequiredAsync(clientId, cancellationToken));
-    }
-
-    public async Task<ClientMembershipMutationResult> MarkPaymentAsync(
-        Guid clientId,
-        MarkClientMembershipPaymentCommand command,
-        CancellationToken cancellationToken)
-    {
-        if (clientId == Guid.Empty ||
-            command.ChangedByUserId == Guid.Empty ||
-            command.SaleId == Guid.Empty ||
-            command.ExpectedMembershipId == Guid.Empty)
-        {
-            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.InvalidRequest);
-        }
-
-        if (!await ClientExistsAsync(clientId, cancellationToken))
-        {
-            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ClientMissing);
-        }
-
-        var target = await LoadAddressedMembershipAsync(
-            clientId,
-            command.SaleId,
-            command.ExpectedMembershipId,
-            cancellationToken);
-        if (target.Status != AddressedMembershipStatus.Found)
-        {
-            return ClientMembershipMutationResult.Failure(MapAddressedMembershipStatus(target.Status));
-        }
-
-        var currentMembership = target.Membership!;
-        if (currentMembership.IsPaid)
-        {
-            return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.CurrentMembershipAlreadyPaid);
-        }
-
-        var now = timeProvider.GetUtcNow();
-        await ReplaceCurrentMembershipAsync(
-            currentMembership,
-            CreateMembership(
-                clientId,
-                currentMembership.Sale,
-                currentMembership.IndividualValidFrom,
-                currentMembership.IndividualValidTo,
-                true,
-                GetToday(),
-                currentMembership.SingleVisitUsed,
-                currentMembership.ProfessionalComment,
-                ClientMembershipChangeReason.PaymentUpdate,
-                command.ChangedByUserId,
-                now),
-            now,
-            cancellationToken);
+        var newSale = MapSaleSnapshot(currentSale);
+        var saleAudit = oldSale.PaymentDate == newSale.PaymentDate
+            ? null
+            : new ClientMembershipSaleAuditResult(oldSale, newSale);
 
         return ClientMembershipMutationResult.Success(
-            await LoadDetailsRequiredAsync(clientId, cancellationToken));
+            await LoadDetailsRequiredAsync(clientId, cancellationToken),
+            saleAudit);
     }
 
     public async Task<SingleVisitWriteOffResult> WriteOffSingleVisitAsync(
@@ -376,8 +326,6 @@ internal sealed class ClientMembershipService(
                 currentMembership.Sale,
                 currentMembership.IndividualValidFrom,
                 currentMembership.IndividualValidTo,
-                currentMembership.IsPaid,
-                currentMembership.IsPaid ? DateOnly.FromDateTime(currentMembership.PaidAt!.Value.UtcDateTime) : null,
                 true,
                 currentMembership.ProfessionalComment,
                 ClientMembershipChangeReason.SingleVisitWriteOff,
@@ -425,8 +373,6 @@ internal sealed class ClientMembershipService(
                 currentMembership.Sale,
                 currentMembership.IndividualValidFrom,
                 currentMembership.IndividualValidTo,
-                currentMembership.IsPaid,
-                currentMembership.IsPaid ? DateOnly.FromDateTime(currentMembership.PaidAt!.Value.UtcDateTime) : null,
                 false,
                 currentMembership.ProfessionalComment,
                 ClientMembershipChangeReason.SingleVisitRestore,
@@ -626,6 +572,8 @@ internal sealed class ClientMembershipService(
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.CreatedByUser)
+            .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.Refunds)
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.CommentChangedByUser)
@@ -645,6 +593,8 @@ internal sealed class ClientMembershipService(
         var openMemberships = await dbContext.ClientMemberships
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.MembershipCatalogItem)
+            .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.CreatedByUser)
             .Where(membership => membership.ClientId == clientId && membership.ValidTo == null)
             .ToListAsync(cancellationToken);
 
@@ -670,9 +620,11 @@ internal sealed class ClientMembershipService(
 
     private DateOnly GetToday() => businessDateProvider.Today;
 
-    private static bool IsValidSaleCommand(Guid clientId, Guid actorId, bool isPaid, DateOnly? paymentDate) =>
-        clientId != Guid.Empty && actorId != Guid.Empty &&
-        (isPaid ? paymentDate.HasValue : !paymentDate.HasValue);
+    private static bool IsValidSaleCommand(Guid clientId, Guid actorId, DateOnly paymentDate, DateOnly today) =>
+        clientId != Guid.Empty &&
+        actorId != Guid.Empty &&
+        ClientMembershipPaymentDatePolicy.Validate(paymentDate, today) ==
+        ClientMembershipPaymentDateValidationResult.Valid;
 
     private async Task<bool> ActorHasRoleAsync(Guid actorId, UserRole role, CancellationToken cancellationToken) =>
         await dbContext.Users.AnyAsync(user => user.Id == actorId && user.Role == role, cancellationToken);
@@ -703,7 +655,7 @@ internal sealed class ClientMembershipService(
         };
 
     private static ClientMembership CreateMembership(Guid clientId, ClientMembershipSale sale,
-        DateOnly? validFrom, DateOnly? validTo, bool isPaid, DateOnly? paymentDate,
+        DateOnly? validFrom, DateOnly? validTo,
         bool singleVisitUsed, string? professionalComment, ClientMembershipChangeReason reason, Guid actorId, DateTimeOffset now)
     {
         return new ClientMembership
@@ -711,9 +663,7 @@ internal sealed class ClientMembershipService(
             Id = Guid.NewGuid(), ClientId = clientId, SaleId = sale.Id,
             BehaviorKind = sale.BehaviorKind, IndividualValidFrom = validFrom, IndividualValidTo = validTo,
             ProfessionalComment = string.IsNullOrWhiteSpace(professionalComment) ? null : professionalComment.Trim(),
-            IsPaid = isPaid, SingleVisitUsed = singleVisitUsed,
-            PaidByUserId = isPaid ? actorId : null,
-            PaidAt = isPaid && paymentDate.HasValue ? new DateTimeOffset(paymentDate.Value.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero) : null,
+            SingleVisitUsed = singleVisitUsed,
             ChangeReason = reason, ChangedByUserId = actorId, ValidFrom = now, CreatedAt = now
         };
     }
@@ -723,6 +673,7 @@ internal sealed class ClientMembershipService(
         MembershipCatalogItem? item,
         ClientMembershipSalePricingResolution pricing,
         DateOnly purchaseDate,
+        DateOnly paymentDate,
         Guid actorId,
         DateTimeOffset now)
     {
@@ -730,7 +681,7 @@ internal sealed class ClientMembershipService(
         {
             Id = Guid.NewGuid(), ClientId = clientId, MembershipCatalogItemId = pricing.MembershipCatalogItemId,
             MembershipCatalogItem = item, BehaviorKind = pricing.BehaviorKind, PricingMode = pricing.PricingMode,
-            PurchaseDate = purchaseDate, GrossAmount = pricing.GrossAmount,
+            PurchaseDate = purchaseDate, PaymentDate = paymentDate, GrossAmount = pricing.GrossAmount,
             CreatedByUserId = actorId, CreatedAt = now
         };
     }
@@ -776,14 +727,14 @@ internal sealed class ClientMembershipService(
                 membership.Sale.GrossAmount,
                 ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
                 membership.Sale.PurchaseDate,
+                membership.Sale.PaymentDate,
                 membership.IndividualValidTo,
                 membership.IndividualValidFrom,
                 membership.IndividualValidTo,
                 membership.ProfessionalComment,
-                membership.IsPaid,
                 membership.SingleVisitUsed,
-                membership.PaidByUserId,
-                membership.PaidAt,
+                membership.Sale.CreatedByUserId,
+                membership.Sale.CreatedAt,
                 membership.ValidFrom,
                 membership.ValidTo,
                 membership.ChangeReason,
@@ -820,14 +771,14 @@ internal sealed class ClientMembershipService(
             membership.Sale.GrossAmount,
             ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
             membership.Sale.PurchaseDate,
+            membership.Sale.PaymentDate,
             membership.IndividualValidTo,
             membership.IndividualValidFrom,
             membership.IndividualValidTo,
             membership.ProfessionalComment,
-            membership.IsPaid,
             membership.SingleVisitUsed,
-            membership.PaidByUserId,
-            membership.PaidAt,
+            membership.Sale.CreatedByUserId,
+            membership.Sale.CreatedAt,
             membership.ValidFrom,
             membership.ValidTo,
             membership.ChangeReason,
@@ -907,6 +858,7 @@ internal sealed class ClientMembershipService(
             sale.BehaviorKind,
             sale.PricingMode,
             sale.PurchaseDate,
+            sale.PaymentDate,
             sale.GrossAmount,
             ClientMembershipSaleDisplay.GetCatalogPrice(sale),
             sale.CreatedByUserId,

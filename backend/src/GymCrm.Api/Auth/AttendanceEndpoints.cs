@@ -284,8 +284,7 @@ internal static class AttendanceEndpoints
             isProfessional ? currentMembership!.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, currentMembership),
-            ClientMembershipSemantics.HasActivePaidMembership(
+            ClientMembershipSemantics.HasActiveMembership(
                 isProfessional,
                 currentMembership,
                 trainingDate,
@@ -319,11 +318,6 @@ internal static class AttendanceEndpoints
         if (issues.Contains(ClientMembershipIssue.PurchasedAfterTrainingDate))
         {
             messages.Add(AttendanceResources.MembershipPurchasedLaterWarning);
-        }
-
-        if (issues.Contains(ClientMembershipIssue.Unpaid))
-        {
-            messages.Add(AttendanceResources.MembershipUnpaidWarning);
         }
 
         if (issues.Contains(ClientMembershipIssue.SingleVisitAlreadyUsed))

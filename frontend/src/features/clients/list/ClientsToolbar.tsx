@@ -14,8 +14,6 @@ import {
 } from '../../shared/ux'
 import {
   clientListPageSizeOptions,
-  clientPaymentStatusFilterOptions,
-  type ClientPaymentStatusFilter,
   type ClientStatusFilter,
 } from './clientListFilters'
 import type { ClientsListState } from './useClientsListState'
@@ -126,28 +124,6 @@ export function ClientsToolbar({
           placeholder="Все группы"
           searchable
           value={state.filters.groupId}
-        />
-      ),
-    },
-    {
-      key: 'paymentStatus',
-      label: 'Оплата',
-      render: () => (
-        <Select
-          clearable
-          data={clientPaymentStatusFilterOptions}
-          label="Оплата"
-          onChange={(value) =>
-            state.updateFilters({
-              paymentStatus: (value as ClientPaymentStatusFilter | null) ?? 'all',
-            })
-          }
-          placeholder="Любая оплата"
-          value={
-            state.filters.paymentStatus === 'all'
-              ? null
-              : state.filters.paymentStatus
-          }
         />
       ),
     },

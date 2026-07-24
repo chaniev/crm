@@ -20,6 +20,97 @@ namespace GymCrm.Tests;
 public class ClientMembershipCreationPricingApiTests
 {
     [Fact]
+    public async Task Purchase_requires_payment_date_and_rejects_legacy_unpaid_without_writes()
+    {
+        await using var context = await PricingApiContext.CreateAsync();
+
+        using var missingPaymentDate = await context.PurchaseAsync(
+            $$"""
+            {
+              "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+              "manualSaleAmount": null,
+              "validFrom": "{{context.Today:yyyy-MM-dd}}",
+              "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+              "professionalComment": null
+            }
+            """);
+
+        await AssertRejectedWithoutWritesAsync(context, missingPaymentDate, "paymentDate");
+
+        using var legacyUnpaid = await context.PurchaseAsync(
+            $$"""
+            {
+              "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+              "manualSaleAmount": null,
+              "validFrom": "{{context.Today:yyyy-MM-dd}}",
+              "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+              "paymentStatus": "Unpaid",
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
+              "professionalComment": null
+            }
+            """);
+
+        await AssertProblemWithoutWritesAsync(
+            context,
+            legacyUnpaid,
+            HttpStatusCode.BadRequest,
+            "membership-payment-status-removed",
+            "paymentStatus");
+    }
+
+    [Fact]
+    public async Task Purchase_with_backdated_payment_projects_sale_owned_payment_metadata_without_is_paid()
+    {
+        await using var context = await PricingApiContext.CreateAsync();
+        var paymentDate = context.Today.AddDays(-45);
+
+        using var response = await context.PurchaseAsync(
+            $$"""
+            {
+              "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+              "manualSaleAmount": null,
+              "validFrom": "{{context.Today:yyyy-MM-dd}}",
+              "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+              "paymentDate": "{{paymentDate:yyyy-MM-dd}}",
+              "professionalComment": null
+            }
+            """);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var currentMembership = GetRequiredProperty(document.RootElement, "currentMembership");
+
+        Assert.Equal(paymentDate.ToString("yyyy-MM-dd"), GetRequiredProperty(currentMembership, "paymentDate").GetString());
+        Assert.Equal(context.ActorId, GetRequiredProperty(currentMembership, "paymentRecordedByUserId").GetGuid());
+        Assert.Equal("Pricing API Head Coach", GetRequiredProperty(currentMembership, "paymentRecordedByUserName").GetString());
+        Assert.Equal(JsonValueKind.String, GetRequiredProperty(currentMembership, "paymentRecordedAt").ValueKind);
+        Assert.False(currentMembership.TryGetProperty("isPaid", out _));
+        Assert.False(currentMembership.TryGetProperty("paidByUserId", out _));
+        Assert.False(currentMembership.TryGetProperty("paidAt", out _));
+    }
+
+    [Fact]
+    public async Task Mark_payment_endpoint_is_authorized_tombstone_without_writes()
+    {
+        await using var context = await PricingApiContext.CreateAsync();
+
+        using var response = await context.MarkPaymentAsync(
+            """
+            {
+              "saleId": "11111111-1111-1111-1111-111111111111",
+              "expectedMembershipId": "22222222-2222-2222-2222-222222222222"
+            }
+            """);
+
+        await AssertProblemWithoutWritesAsync(
+            context,
+            response,
+            HttpStatusCode.Gone,
+            "membership-payment-action-removed",
+            "membership");
+    }
+
+    [Fact]
     public async Task Purchase_with_catalog_uses_catalog_amount_and_persists_catalog_provenance()
     {
         await using var context = await PricingApiContext.CreateAsync();
@@ -30,8 +121,7 @@ public class ClientMembershipCreationPricingApiTests
               "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """);
@@ -60,8 +150,7 @@ public class ClientMembershipCreationPricingApiTests
               "manualSaleAmount": {{manualAmount}},
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """);
@@ -89,8 +178,7 @@ public class ClientMembershipCreationPricingApiTests
               "manualSaleAmount": {{PricingApiContext.TermCatalogPrice}},
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """);
@@ -119,8 +207,7 @@ public class ClientMembershipCreationPricingApiTests
               "manualSaleAmount": {{manualAmount}},
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """);
@@ -135,14 +222,12 @@ public class ClientMembershipCreationPricingApiTests
             expectedCatalogPrice: null,
             expectedBehaviorKind: "Term");
 
-        using var attentionResponse = await context.AttentionAsync();
-        Assert.Equal(HttpStatusCode.OK, attentionResponse.StatusCode);
-        using var attentionDocument = JsonDocument.Parse(await attentionResponse.Content.ReadAsStringAsync());
-        var card = attentionDocument.RootElement.EnumerateArray()
-            .Single(item => GetRequiredProperty(item, "clientId").GetGuid() == context.ClientId);
-        var membership = GetRequiredProperty(card, "membership");
-        Assert.Equal("Без варианта каталога", GetRequiredProperty(membership, "membershipName").GetString());
-        Assert.Equal("Term", GetRequiredProperty(membership, "behaviorKind").GetString());
+        await using var scope = context.Factory.Services.CreateAsyncScope();
+        var sale = await scope.ServiceProvider.GetRequiredService<GymCrmDbContext>()
+            .ClientMembershipSales.AsNoTracking()
+            .SingleAsync(candidate => candidate.ClientId == context.ClientId);
+        Assert.Equal(ClientMembershipSalePricingMode.AmountOnly, sale.PricingMode);
+        Assert.Null(sale.MembershipCatalogItemId);
     }
 
     [Fact]
@@ -185,8 +270,7 @@ public class ClientMembershipCreationPricingApiTests
               "manualSaleAmount": 1750.50,
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """);
@@ -206,8 +290,7 @@ public class ClientMembershipCreationPricingApiTests
               "manualSaleAmount": null,
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """);
@@ -231,8 +314,7 @@ public class ClientMembershipCreationPricingApiTests
               "pricingMode": null,
               "validFrom": "{{context.Today:yyyy-MM-dd}}",
               "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """);
@@ -252,8 +334,7 @@ public class ClientMembershipCreationPricingApiTests
                      "manualSaleAmount": 1750,
                      "validFrom": "{{context.Today:yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(9):yyyy-MM-dd}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
                    """))
@@ -262,12 +343,11 @@ public class ClientMembershipCreationPricingApiTests
         }
 
         using var renewResponse = await context.RenewAsync(
-            """
+            $$"""
             {
               "membershipCatalogItemId": null,
               "manualSaleAmount": 1900,
-              "paymentStatus": "Unpaid",
-              "paymentDate": null,
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}",
               "professionalComment": null
             }
             """);
@@ -312,8 +392,7 @@ public class ClientMembershipCreationPricingApiTests
                      "manualSaleAmount": 1750,
                      "validFrom": "{{context.Today:yyyy-MM-dd}}",
                      "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-                     "paymentStatus": "Unpaid",
-                     "paymentDate": null,
+                     "paymentDate": "{{context.Today:yyyy-MM-dd}}",
                      "professionalComment": null
                    }
                    """))
@@ -326,7 +405,6 @@ public class ClientMembershipCreationPricingApiTests
                    {
                      "purchaseDate": "{{context.Today:yyyy-MM-dd}}",
                      "expirationDate": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-                     "isPaid": false,
                      "grossAmount": null
                    }
                    """))
@@ -336,7 +414,11 @@ public class ClientMembershipCreationPricingApiTests
 
         using (var invalidMarkResponse = await context.MarkPaymentAsync("""{"paymentAmount":null}"""))
         {
-            await AssertValidationFieldAsync(invalidMarkResponse, "paymentAmount");
+            await AssertProblemAsync(
+                invalidMarkResponse,
+                HttpStatusCode.Gone,
+                "membership-payment-action-removed",
+                "membership");
         }
 
         Guid targetSaleId;
@@ -355,7 +437,11 @@ public class ClientMembershipCreationPricingApiTests
         using (var validMarkResponse = await context.MarkPaymentAsync(
                    $$"""{"saleId":"{{targetSaleId}}","expectedMembershipId":"{{targetMembershipId}}"}"""))
         {
-            Assert.Equal(HttpStatusCode.OK, validMarkResponse.StatusCode);
+            await AssertProblemAsync(
+                validMarkResponse,
+                HttpStatusCode.Gone,
+                "membership-payment-action-removed",
+                "membership");
         }
 
         await using var scope = context.Factory.Services.CreateAsyncScope();
@@ -365,7 +451,7 @@ public class ClientMembershipCreationPricingApiTests
         Assert.Equal(ClientMembershipSalePricingMode.CatalogOverride, sale.PricingMode);
         Assert.Equal(1750m, sale.GrossAmount);
         Assert.Equal(context.TermCatalogItemId, sale.MembershipCatalogItemId);
-        Assert.Equal(2, await dbContext.ClientMemberships.CountAsync(candidate => candidate.ClientId == context.ClientId));
+        Assert.Equal(1, await dbContext.ClientMemberships.CountAsync(candidate => candidate.ClientId == context.ClientId));
     }
 
     [Theory]
@@ -546,6 +632,72 @@ public class ClientMembershipCreationPricingApiTests
             Assert.True(
                 errors.TryGetProperty(expectedField, out var messages),
                 $"Expected validation error for '{expectedField}'. Body: {responseBody}");
+            Assert.Equal(JsonValueKind.Array, messages.ValueKind);
+            Assert.NotEmpty(messages.EnumerateArray());
+        }
+    }
+
+    private static async Task AssertProblemWithoutWritesAsync(
+        PricingApiContext context,
+        HttpResponseMessage response,
+        HttpStatusCode expectedStatusCode,
+        string expectedType,
+        params string[] expectedErrorFields)
+    {
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.Empty(await dbContext.ClientMembershipSales
+                .AsNoTracking()
+                .Where(sale => sale.ClientId == context.ClientId)
+                .ToArrayAsync());
+            Assert.Empty(await dbContext.ClientMemberships
+                .AsNoTracking()
+                .Where(membership => membership.ClientId == context.ClientId)
+                .ToArrayAsync());
+            Assert.Empty(await dbContext.AuditLogs
+                .AsNoTracking()
+                .Where(log => log.EntityId == context.ClientId.ToString() || log.ActionType.Contains("Membership"))
+                .ToArrayAsync());
+        }
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        Assert.Equal(expectedStatusCode, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+        using var responseDocument = JsonDocument.Parse(responseBody);
+        Assert.Equal(expectedType, GetRequiredProperty(responseDocument.RootElement, "type").GetString());
+        var errors = GetRequiredProperty(responseDocument.RootElement, "errors");
+        Assert.Equal(JsonValueKind.Object, errors.ValueKind);
+        foreach (var expectedField in expectedErrorFields)
+        {
+            Assert.True(
+                errors.TryGetProperty(expectedField, out var messages),
+                $"Expected validation error for '{expectedField}'. Body: {responseBody}");
+            Assert.Equal(JsonValueKind.Array, messages.ValueKind);
+            Assert.NotEmpty(messages.EnumerateArray());
+        }
+    }
+
+    private static async Task AssertProblemAsync(
+        HttpResponseMessage response,
+        HttpStatusCode expectedStatusCode,
+        string expectedType,
+        params string[] expectedErrorFields)
+    {
+        var responseBody = await response.Content.ReadAsStringAsync();
+        Assert.Equal(expectedStatusCode, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+        using var responseDocument = JsonDocument.Parse(responseBody);
+        Assert.Equal(expectedType, GetRequiredProperty(responseDocument.RootElement, "type").GetString());
+        var errors = GetRequiredProperty(responseDocument.RootElement, "errors");
+        Assert.Equal(JsonValueKind.Object, errors.ValueKind);
+        foreach (var expectedField in expectedErrorFields)
+        {
+            Assert.True(
+                errors.TryGetProperty(expectedField, out var messages),
+                $"Expected validation field '{expectedField}' in {responseBody}");
             Assert.Equal(JsonValueKind.Array, messages.ValueKind);
             Assert.NotEmpty(messages.EnumerateArray());
         }

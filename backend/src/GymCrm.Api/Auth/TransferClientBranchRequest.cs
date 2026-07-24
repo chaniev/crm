@@ -9,6 +9,7 @@ internal sealed class TransferClientBranchRequest
     private string? validFrom;
     private string? validTo;
     private string? paymentStatus;
+    private bool? isPaid;
     private string? paymentDate;
     private string? professionalComment;
     private decimal? manualSaleAmount;
@@ -56,6 +57,16 @@ internal sealed class TransferClientBranchRequest
         {
             paymentStatus = value;
             PresentSaleFields.Add("paymentStatus");
+        }
+    }
+
+    public bool? IsPaid
+    {
+        get => isPaid;
+        init
+        {
+            isPaid = value;
+            PresentSaleFields.Add("isPaid");
         }
     }
 

@@ -450,6 +450,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     BehaviorKind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     PricingMode = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
                     PurchaseDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    PaymentDate = table.Column<DateOnly>(type: "date", nullable: false),
                     GrossAmount = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -501,10 +502,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     IndividualValidFrom = table.Column<DateOnly>(type: "date", nullable: true),
                     IndividualValidTo = table.Column<DateOnly>(type: "date", nullable: true),
                     ProfessionalComment = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    IsPaid = table.Column<bool>(type: "boolean", nullable: false),
                     SingleVisitUsed = table.Column<bool>(type: "boolean", nullable: false),
-                    PaidByUserId = table.Column<Guid>(type: "uuid", nullable: true),
-                    PaidAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     ValidFrom = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     ValidTo = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     ChangeReason = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
@@ -529,12 +527,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_ClientMemberships_Users_ChangedByUserId",
                         column: x => x.ChangedByUserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ClientMemberships_Users_PaidByUserId",
-                        column: x => x.PaidByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -1113,11 +1105,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 filter: "\"ValidTo\" IS NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClientMemberships_PaidByUserId",
-                table: "ClientMemberships",
-                column: "PaidByUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ClientMemberships_SaleId",
                 table: "ClientMemberships",
                 column: "SaleId");
@@ -1176,6 +1163,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "IX_ClientMembershipSales_PurchaseDate",
                 table: "ClientMembershipSales",
                 column: "PurchaseDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipSales_PaymentDate",
+                table: "ClientMembershipSales",
+                column: "PaymentDate");
 
             migrationBuilder.CreateIndex(name: "IX_ClientMembershipSales_MembershipCatalogItemId", table: "ClientMembershipSales", column: "MembershipCatalogItemId");
 

@@ -37,6 +37,46 @@ describe('attendance API', () => {
     ])
   })
 
+  test('maps status-free active membership eligibility without paid/unpaid fallback flags', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      groupId: 'group-1',
+      trainingDate: '2026-07-11',
+      today: '2026-07-12',
+      maxTrainingDate: '2026-07-12',
+      clients: [
+        {
+          id: 'client-1',
+          fullName: 'Иван Иванов',
+          state: 'Unmarked',
+          hasActiveMembership: true,
+          membershipWarning: false,
+          currentMembership: {
+            id: 'membership-1',
+            saleId: 'sale-1',
+            membershipName: 'Месяц',
+            behaviorKind: 'Term',
+            purchaseDate: '2026-07-12',
+            paymentDate: '2026-07-10',
+            expirationDate: '2026-08-11',
+            pricingMode: 'Catalog',
+            grossAmount: 3000,
+            catalogPrice: 3000,
+            singleVisitUsed: false,
+          },
+        },
+      ],
+    })))
+
+    const response = await getAttendanceGroupClients('group-1', '2026-07-11')
+    const client = response.clients[0] as unknown as Record<string, unknown>
+
+    expect(client.hasActiveMembership).toBe(true)
+    expect(client.membershipWarning).toBe(false)
+    expect(client).not.toHaveProperty('hasActivePaidMembership')
+    expect(client).not.toHaveProperty('hasUnpaidCurrentMembership')
+    expect(client.currentMembership as Record<string, unknown>).not.toHaveProperty('isPaid')
+  })
+
   test('maps groups envelope with backend-owned calendar bounds', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
       groups: [{ id: 'group-1', name: 'Вечерняя' }],

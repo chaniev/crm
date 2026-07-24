@@ -11,7 +11,14 @@ from pydantic import ValidationError
 
 from gym_crm_bot.crm.client import CrmBotApiClient
 from gym_crm_bot.crm.errors import CrmTemporaryError
-from gym_crm_bot.crm.models import AttendanceMarkRequest, ClientCardMembership, TelegramIdentity
+from gym_crm_bot.crm.models import (
+    AttendanceMarkRequest,
+    AttendanceRosterResponse,
+    AttendanceSaveResponse,
+    ClientCardMembership,
+    MembershipListResponse,
+    TelegramIdentity,
+)
 
 
 @pytest.mark.asyncio
@@ -50,18 +57,24 @@ async def test_crm_client_sets_headers_and_retries_safe_reads() -> None:
     await http_client.aclose()
 
 
+def test_crm_client_does_not_expose_removed_payment_write_boundary() -> None:
+    assert not hasattr(CrmBotApiClient, "list_unpaid_memberships")
+    assert not hasattr(CrmBotApiClient, "mark_membership_payment")
+
+
 @pytest.mark.asyncio
 @respx.mock
-async def test_crm_client_sends_idempotency_key_only_for_mutations() -> None:
-    route = respx.post("http://crm.local/internal/bot/clients/00000000-0000-0000-0000-000000000001/membership/mark-payment").mock(
+async def test_crm_client_sends_idempotency_key_for_remaining_attendance_write() -> None:
+    route = respx.post("http://crm.local/internal/bot/attendance/groups/00000000-0000-0000-0000-000000000021").mock(
         return_value=httpx.Response(
             status_code=200,
             json={
-                "clientId": "00000000-0000-0000-0000-000000000001",
-                "fullName": "Иван Петров",
-                "behaviorKind": "Term",
-                "membershipLabel": "Месячный",
-                "status": "Paid",
+                "groupName": "Группа",
+                "trainingDate": "2026-05-08",
+                "markedCount": 1,
+                "presentCount": 1,
+                "absentCount": 0,
+                "warnings": [],
             },
         )
     )
@@ -73,9 +86,16 @@ async def test_crm_client_sends_idempotency_key_only_for_mutations() -> None:
         http_client=http_client,
     )
 
-    await client.mark_membership_payment(
+    await client.save_attendance(
         TelegramIdentity(platform_user_id="777"),
-        client_id="00000000-0000-0000-0000-000000000001",
+        group_id=UUID("00000000-0000-0000-0000-000000000021"),
+        training_date=date(2026, 5, 8),
+        marks=[
+            AttendanceMarkRequest(
+                clientId=UUID("00000000-0000-0000-0000-000000000010"),
+                isPresent=True,
+            )
+        ],
         request_id="req-2",
         idempotency_key="idem-1",
     )
@@ -107,16 +127,20 @@ async def test_crm_client_does_not_retry_mutations() -> None:
         await client.audit_access_denied(
             TelegramIdentity(platform_user_id="777"),
             request_id="req-3",
+            idempotency_key="idem-audit-1",
             reason="forbidden",
         )
 
     assert route.call_count == 1
+    request = route.calls.last.request
+    assert request.headers["X-Request-Id"] == "req-3"
+    assert request.headers["Idempotency-Key"] == "idem-audit-1"
     await http_client.aclose()
 
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_crm_client_parses_professional_fields_without_local_payment_logic() -> None:
+async def test_crm_client_parses_status_free_search_and_card_contracts() -> None:
     respx.get("http://crm.local/internal/bot/clients").mock(
         return_value=httpx.Response(
             status_code=200,
@@ -129,13 +153,12 @@ async def test_crm_client_parses_professional_fields_without_local_payment_logic
                         "membershipLabel": "Профессиональный",
                         "isProfessional": True,
                         "professionalComment": "Сборная",
-                        "hasActivePaidMembership": True,
-                        "hasUnpaidCurrentMembership": False,
+                        "hasActiveMembership": True,
                     },
                     {
                         "id": "00000000-0000-0000-0000-000000000011",
                         "fullName": "Обычный Клиент",
-                        "hasUnpaidCurrentMembership": True,
+                        "hasActiveMembership": True,
                     },
                 ],
                 "skip": 0,
@@ -152,18 +175,18 @@ async def test_crm_client_parses_professional_fields_without_local_payment_logic
                 "fullName": "Проф Клиент",
                 "isProfessional": True,
                 "professionalComment": "Сборная",
-                "hasActivePaidMembership": True,
-                "hasUnpaidCurrentMembership": False,
+                "hasActiveMembership": True,
                 "currentMembership": {
+                    "id": "00000000-0000-0000-0000-000000000098",
                     "behaviorKind": "Professional",
                     "membershipCatalogItemId": "00000000-0000-0000-0000-000000000099",
                     "membershipLabel": "Профессиональный",
                     "purchaseDate": "2026-05-01",
+                    "paymentDate": "2026-04-28",
                     "expirationDate": None,
                     "pricingMode": "Catalog",
                     "grossAmount": 0,
                     "catalogPrice": 0,
-                    "isPaid": False,
                 },
                 "attendanceHistory": [],
             },
@@ -194,13 +217,21 @@ async def test_crm_client_parses_professional_fields_without_local_payment_logic
     assert search.items[0].behavior_kind == "Professional"
     assert search.items[0].membership_label == "Профессиональный"
     assert search.items[0].professional_comment == "Сборная"
-    assert search.items[1].is_paid is None
     assert card.is_professional is True
     assert card.professional_comment == "Сборная"
     assert card.current_membership is not None
+    assert card.current_membership.id == UUID(
+        "00000000-0000-0000-0000-000000000098"
+    )
     assert card.current_membership.behavior_kind == "Professional"
     assert card.current_membership.type_label == "Профессиональный"
-    assert card.current_membership.is_paid is False
+    assert card.current_membership.payment_date == date(2026, 4, 28)
+    assert "is_paid" not in type(search.items[0]).model_fields
+    assert "has_unpaid_current_membership" not in type(search.items[0]).model_fields
+    assert "has_active_paid_membership" not in type(search.items[0]).model_fields
+    assert "is_paid" not in type(card.current_membership).model_fields
+    assert "has_unpaid_current_membership" not in type(card).model_fields
+    assert "has_active_paid_membership" not in type(card).model_fields
     await http_client.aclose()
 
 
@@ -279,15 +310,16 @@ async def test_crm_client_parses_amount_only_membership_sale_contract_from_backe
                 "id": "00000000-0000-0000-0000-000000000012",
                 "fullName": "Клиент без варианта",
                 "currentMembership": {
+                    "id": "00000000-0000-0000-0000-000000000013",
                     "behaviorKind": "Term",
                     "membershipCatalogItemId": None,
                     "membershipLabel": "Без варианта каталога",
                     "purchaseDate": "2026-07-22",
+                    "paymentDate": "2026-07-20",
                     "expirationDate": "2026-08-21",
                     "pricingMode": "AmountOnly",
                     "grossAmount": 1750,
                     "catalogPrice": None,
-                    "isPaid": False,
                 },
                 "attendanceHistory": [],
             },
@@ -315,6 +347,7 @@ async def test_crm_client_parses_amount_only_membership_sale_contract_from_backe
     assert card.current_membership.gross_amount == Decimal("1750")
     assert card.current_membership.catalog_price is None
     assert "payment_amount" not in type(card.current_membership).model_fields
+    assert "is_paid" not in type(card.current_membership).model_fields
     await http_client.aclose()
 
 
@@ -322,70 +355,72 @@ def test_client_card_membership_does_not_accept_payment_amount_as_gross_amount()
     with pytest.raises(ValidationError, match="grossAmount"):
         ClientCardMembership.model_validate(
             {
+                "id": "00000000-0000-0000-0000-000000000013",
                 "behaviorKind": "Term",
                 "membershipCatalogItemId": None,
                 "membershipLabel": "Без варианта каталога",
                 "purchaseDate": "2026-07-22",
+                "paymentDate": "2026-07-20",
                 "expirationDate": "2026-08-21",
                 "pricingMode": "AmountOnly",
                 "paymentAmount": 1750,
                 "catalogPrice": None,
-                "isPaid": False,
             }
         )
 
 
-@pytest.mark.asyncio
-@respx.mock
-async def test_crm_client_consumes_attendance_warnings_from_backend_only() -> None:
-    respx.post(
-        "http://crm.local/internal/bot/attendance/groups/00000000-0000-0000-0000-000000000021"
-    ).mock(
-        return_value=httpx.Response(
-            status_code=200,
-            json={
-                "groupName": "Группа",
-                "trainingDate": "2026-05-08",
-                "markedCount": 2,
-                "presentCount": 2,
-                "absentCount": 0,
-                "warnings": [
-                    {
-                        "clientId": "00000000-0000-0000-0000-000000000011",
-                        "fullName": "Обычный Клиент",
-                        "membershipWarning": "Абонемент не оплачен.",
-                        "hasUnpaidCurrentMembership": True,
-                    }
-                ],
-            },
-        )
+def test_crm_models_accept_status_free_attendance_and_expiring_contracts() -> None:
+    roster = AttendanceRosterResponse.model_validate(
+        {
+            "groupId": "00000000-0000-0000-0000-000000000021",
+            "groupName": "Группа",
+            "trainingDate": "2026-05-08",
+            "clients": [
+                {
+                    "id": "00000000-0000-0000-0000-000000000011",
+                    "fullName": "Обычный Клиент",
+                    "isPresent": True,
+                    "membershipWarning": None,
+                }
+            ],
+        }
     )
-    http_client = httpx.AsyncClient(base_url="http://crm.local")
-    client = CrmBotApiClient(
-        base_url="http://crm.local",
-        service_token="service-token",
-        timeout_seconds=5,
-        http_client=http_client,
+    saved = AttendanceSaveResponse.model_validate(
+        {
+            "groupName": "Группа",
+            "trainingDate": "2026-05-08",
+            "markedCount": 1,
+            "presentCount": 1,
+            "absentCount": 0,
+            "warnings": [
+                {
+                    "clientId": "00000000-0000-0000-0000-000000000011",
+                    "fullName": "Обычный Клиент",
+                    "membershipWarning": "Истекает 10.05.2026",
+                }
+            ],
+        }
     )
-
-    response = await client.save_attendance(
-        TelegramIdentity(platform_user_id="777"),
-        group_id=UUID("00000000-0000-0000-0000-000000000021"),
-        training_date=date(2026, 5, 8),
-        marks=[
-            AttendanceMarkRequest(
-                clientId=UUID("00000000-0000-0000-0000-000000000010"),
-                isPresent=True,
-            ),
-            AttendanceMarkRequest(
-                clientId=UUID("00000000-0000-0000-0000-000000000011"),
-                isPresent=True,
-            ),
-        ],
-        request_id="req-prof-attendance",
-        idempotency_key="idem-prof-attendance",
+    expiring = MembershipListResponse.model_validate(
+        {
+            "items": [
+                {
+                    "id": "00000000-0000-0000-0000-000000000011",
+                    "fullName": "Обычный Клиент",
+                    "membershipLabel": "Месячный",
+                    "membershipExpiresAt": "2026-05-10",
+                }
+            ],
+            "page": 1,
+            "pageSize": 5,
+            "hasNextPage": False,
+        }
     )
 
-    assert [warning.full_name for warning in response.warnings] == ["Обычный Клиент"]
-    assert "Проф Клиент" not in "\n".join(str(warning) for warning in response.warnings)
-    await http_client.aclose()
+    assert roster.clients[0].warning is None
+    assert saved.warnings[0].membership_warning == "Истекает 10.05.2026"
+    assert expiring.items[0].membership_label == "Месячный"
+    assert "has_unpaid_current_membership" not in type(roster.clients[0]).model_fields
+    assert "has_unpaid_current_membership" not in type(saved.warnings[0]).model_fields
+    assert "is_paid" not in type(expiring.items[0]).model_fields
+    assert "has_unpaid_current_membership" not in type(expiring.items[0]).model_fields

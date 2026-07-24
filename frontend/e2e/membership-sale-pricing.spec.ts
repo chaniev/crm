@@ -44,7 +44,7 @@ test.describe('TASK-077 membership sale pricing', () => {
 
     for (const viewport of [
       { width: 1280, height: 900 },
-      { width: 390, height: 844 },
+      { width: 320, height: 844 },
     ]) {
       await page.setViewportSize(viewport)
       await page.goto('/clients/client-1')
@@ -53,6 +53,9 @@ test.describe('TASK-077 membership sale pricing', () => {
       await expect(page.getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
       await expect(page.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
       await expect(page.getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
+      await expect(page.getByLabel('Дата оплаты')).toHaveValue('2026-07-23')
+      await expect(page.getByLabel('Дата оплаты')).toHaveAttribute('max', '2026-07-23')
+      await expect(page.getByRole('combobox', { name: 'Статус оплаты' })).toHaveCount(0)
       await expectNoHorizontalScroll(page)
     }
   })
@@ -65,7 +68,6 @@ test.describe('TASK-077 membership sale pricing', () => {
         pricingMode: 'CatalogOverride',
         grossAmount: 4100,
         catalogPrice: 3000,
-        isPaid: true,
       }),
     )
 
@@ -93,14 +95,28 @@ test.describe('TASK-077 membership sale pricing', () => {
   })
 
   test('preserved unused SingleVisit transfer has no new-sale pricing controls', async ({ page }) => {
+    let requestBody: Record<string, unknown> | null = null
+    let idempotencyKey: string | null = null
     await mockMembershipPricingApi(
       page,
       buildClient({
         behaviorKind: 'SingleVisit',
         expirationDate: null,
-        isPaid: true,
         singleVisitUsed: false,
       }),
+      async ({ pathname, method, route }) => {
+        if (pathname === '/api/clients/client-1/transfer' && method === 'POST') {
+          requestBody = route.request().postDataJSON() as Record<string, unknown>
+          idempotencyKey = route.request().headers()['idempotency-key'] ?? null
+          await fulfillJson(route, buildClient({
+            behaviorKind: 'SingleVisit',
+            expirationDate: null,
+            singleVisitUsed: false,
+          }))
+          return true
+        }
+        return false
+      },
     )
 
     await page.goto('/clients/client-1')
@@ -113,6 +129,14 @@ test.describe('TASK-077 membership sale pricing', () => {
     await expect(dialog.getByText('Без варианта каталога')).toHaveCount(0)
     await expect(dialog.getByRole('combobox', { name: 'Вариант абонемента' })).toHaveCount(0)
     await expect(dialog.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })).toHaveCount(0)
+    await expect(dialog.getByLabel('Дата оплаты')).toHaveCount(0)
+    await dialog.getByRole('button', { name: 'Перевести клиента' }).click()
+    await expect.poll(() => requestBody).toEqual({
+      targetBranchId: 'branch-1',
+      targetGroupIds: [],
+    })
+    expect(requestBody).not.toHaveProperty('paymentDate')
+    await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
   })
 
   test('confirms a Catalog purchase and sends only the exact caller-owned request', async ({ page }) => {
@@ -132,19 +156,23 @@ test.describe('TASK-077 membership sale pricing', () => {
     await selectOption(page, 'Вариант абонемента', /Месяц/)
     await page.getByLabel('Действует с').fill('2026-07-22')
     await page.getByLabel('Действует по').fill('2026-08-20')
+    await page.getByLabel('Дата оплаты').fill('2026-07-10')
     await page.getByRole('button', { name: 'Оформить абонемент' }).click()
 
     const confirmation = page.getByRole('dialog', { name: 'Подтвердить новую продажу?' })
     await expect(confirmation.getByText('По каталожной цене')).toBeVisible()
     await expect(confirmation.getByText('3 000 ₽')).toBeVisible()
+    await expect(confirmation.getByText(/10.*июл.*2026|10\.07\.2026/)).toBeVisible()
     await confirmation.getByRole('button', { name: 'Подтвердить продажу' }).click()
 
     await expect.poll(() => requestBody).toEqual({
       MembershipCatalogItemId: 'catalog-1',
       ValidFrom: '2026-07-22',
       ValidTo: '2026-08-20',
-      PaymentStatus: 'Unpaid',
+      PaymentDate: '2026-07-10',
     })
+    expect(requestBody).not.toHaveProperty('PaymentStatus')
+    expect(requestBody).not.toHaveProperty('IsPaid')
   })
 
   test('confirms a CatalogOverride renewal without inheriting its previous amount', async ({ page }) => {
@@ -154,7 +182,6 @@ test.describe('TASK-077 membership sale pricing', () => {
       pricingMode: 'CatalogOverride',
       grossAmount: 4100,
       catalogPrice: 3000,
-      isPaid: true,
     })
     await mockMembershipPricingApi(page, client, async ({ pathname, method, route }) => {
       if (pathname === '/api/clients/client-1/membership/renew' && method === 'POST') {
@@ -171,25 +198,30 @@ test.describe('TASK-077 membership sale pricing', () => {
     await page.getByRole('radio', { name: 'Индивидуальная сумма' }).check()
     await selectOption(page, 'Вариант абонемента', /Месяц/)
     await page.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }).fill('5100')
+    await page.getByLabel('Дата оплаты').fill('2026-07-05')
     await page.getByRole('button', { name: 'Продлить абонемент' }).click()
 
     const confirmation = page.getByRole('dialog', { name: 'Подтвердить новую продажу?' })
     await expect(confirmation.getByText('Индивидуальная сумма')).toBeVisible()
     await expect(confirmation.getByText('5 100 ₽')).toBeVisible()
+    await expect(confirmation.getByText(/5.*июл.*2026|05\.07\.2026/)).toBeVisible()
     await confirmation.getByRole('button', { name: 'Подтвердить продажу' }).click()
 
     await expect.poll(() => requestBody).toEqual({
       MembershipCatalogItemId: 'catalog-1',
       ManualSaleAmount: 5100,
-      PaymentStatus: 'Unpaid',
+      PaymentDate: '2026-07-05',
     })
+    expect(requestBody).not.toHaveProperty('PaymentStatus')
   })
 
   test('confirms an AmountOnly transfer and sends no stale catalog identity', async ({ page }) => {
     let requestBody: Record<string, unknown> | null = null
+    let idempotencyKey: string | null = null
     await mockMembershipPricingApi(page, buildClient(), async ({ pathname, method, route }) => {
       if (pathname === '/api/clients/client-1/transfer' && method === 'POST') {
         requestBody = route.request().postDataJSON() as Record<string, unknown>
+        idempotencyKey = route.request().headers()['idempotency-key'] ?? null
         await fulfillJson(route, buildClient())
         return true
       }
@@ -203,21 +235,26 @@ test.describe('TASK-077 membership sale pricing', () => {
     await transferDialog.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }).fill('6200')
     await transferDialog.getByLabel('Действует с').fill('2026-07-22')
     await transferDialog.getByLabel('Действует по').fill('2026-08-20')
+    await transferDialog.getByLabel('Дата оплаты').fill('2026-07-01')
     await transferDialog.getByRole('button', { name: 'Перевести клиента' }).click()
 
     const confirmation = page.getByRole('dialog', { name: 'Подтвердить новую продажу?' })
     await expect(confirmation.getByText('Без варианта каталога')).toBeVisible()
     await expect(confirmation.getByText('6 200 ₽')).toBeVisible()
+    await expect(confirmation.getByText(/1.*июл.*2026|01\.07\.2026/)).toBeVisible()
     await confirmation.getByRole('button', { name: 'Подтвердить продажу' }).click()
 
     await expect.poll(() => requestBody).toEqual({
       targetBranchId: 'branch-1',
       targetGroupIds: [],
+      membershipCatalogItemId: null,
       manualSaleAmount: 6200,
       validFrom: '2026-07-22',
       validTo: '2026-08-20',
-      paymentStatus: 'Unpaid',
+      paymentDate: '2026-07-01',
     })
+    await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
+    expect(requestBody).not.toHaveProperty('paymentStatus')
   })
 
   test('keeps the manual draft and server field error visible after a 400 response', async ({ page }) => {
@@ -265,7 +302,6 @@ test.describe('TASK-077 membership sale pricing', () => {
           pricingMode: 'AmountOnly',
           grossAmount: 4200,
           catalogPrice: null,
-          isPaid: false,
         })
         await fulfillJson(route, client)
         return true
@@ -292,12 +328,12 @@ test.describe('TASK-077 membership sale pricing', () => {
 })
 
 test.describe('TASK-078 membership write regressions', () => {
-  test('correction sends addressed validity-only payload and keeps ProblemDetails draft', async ({ page }) => {
+  test('correction sends addressed payment date and keeps ProblemDetails draft', async ({ page }) => {
     let requestBody: Record<string, unknown> | null = null
     let idempotencyKey: string | null = null
     await mockMembershipPricingApi(
       page,
-      buildClient({ behaviorKind: 'Term', isPaid: false }),
+      buildClient({ behaviorKind: 'Term' }),
       async ({ pathname, method, route }) => {
         if (
           pathname === '/api/clients/client-1/membership/correct' &&
@@ -312,6 +348,7 @@ test.describe('TASK-078 membership write regressions', () => {
               detail: 'Срок пересекается с другим абонементом.',
               errors: {
                 ValidFrom: ['Начало срока пересекается с другой продажей.'],
+                PaymentDate: ['Дата оплаты не может быть позже текущей даты.'],
               },
             }),
           })
@@ -326,11 +363,16 @@ test.describe('TASK-078 membership write regressions', () => {
     await expect(page.getByText('Дата покупки', { exact: true })).toBeVisible()
     await expect(page.getByText(/22.*июн.*2026|22\.06\.2026/).first()).toBeVisible()
     await expect(page.getByRole('switch', { name: 'Оплачен' })).toHaveCount(0)
+    await expect(page.getByText('Не оплачен')).toHaveCount(0)
 
     const validFrom = page.getByLabel('Действует с')
     const validTo = page.getByLabel('Действует по')
+    const paymentDate = page.getByLabel('Дата оплаты')
+    await expect(paymentDate).toHaveValue('2026-06-22')
+    await expect(paymentDate).toHaveAttribute('max', '2026-07-23')
     await validFrom.fill('2026-07-05')
     await validTo.fill('2026-08-04')
+    await paymentDate.fill('2026-07-24')
     await page.getByRole('button', { name: 'Сохранить исправление' }).click()
 
     await expect.poll(() => requestBody).toEqual({
@@ -338,24 +380,27 @@ test.describe('TASK-078 membership write regressions', () => {
       ExpectedMembershipId: 'membership-1',
       ValidFrom: '2026-07-05',
       ValidTo: '2026-08-04',
+      PaymentDate: '2026-07-24',
     })
     await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
     await expect(page.getByText('Срок пересекается с другим абонементом.')).toBeVisible()
     await expect(page.getByText('Начало срока пересекается с другой продажей.')).toBeVisible()
+    await expect(page.getByText('Дата оплаты не может быть позже текущей даты.')).toBeVisible()
     await expect(validFrom).toHaveValue('2026-07-05')
     await expect(validTo).toHaveValue('2026-08-04')
+    await expect(paymentDate).toHaveValue('2026-07-24')
   })
 
   test('direct overlapping purchase shows stable reason and keeps the draft on desktop and mobile', async ({ page }) => {
     for (const viewport of [
       { width: 1280, height: 900 },
-      { width: 390, height: 844 },
+      { width: 320, height: 844 },
     ]) {
       let requestBody: Record<string, unknown> | null = null
       await page.unroute('**/*').catch(() => undefined)
       await mockMembershipPricingApi(
         page,
-        buildClient({ behaviorKind: 'Term', isPaid: true }),
+        buildClient({ behaviorKind: 'Term' }),
         async ({ pathname, method, route }) => {
           if (
             pathname === '/api/clients/client-1/membership/purchase' &&
@@ -394,8 +439,9 @@ test.describe('TASK-078 membership write regressions', () => {
         ManualSaleAmount: 4200,
         ValidFrom: '2026-06-25',
         ValidTo: '2026-07-25',
-        PaymentStatus: 'Unpaid',
+        PaymentDate: '2026-07-23',
       })
+      expect(requestBody).not.toHaveProperty('PaymentStatus')
       await expect(page.getByText('Срок пересекается с действующим абонементом.').first()).toBeVisible()
       await expect(amount).toHaveValue('4200')
       await expectNoHorizontalScroll(page)
@@ -403,7 +449,7 @@ test.describe('TASK-078 membership write regressions', () => {
   })
 
   test('allowed renewal saves through idempotent request and reloads the new sale', async ({ page }) => {
-    let client = buildClient({ behaviorKind: 'Term', isPaid: true })
+    let client = buildClient({ behaviorKind: 'Term' })
     let requestBody: Record<string, unknown> | null = null
     let idempotencyKey: string | null = null
     await mockMembershipPricingApi(page, () => client, async ({ pathname, method, route }) => {
@@ -415,8 +461,8 @@ test.describe('TASK-078 membership write regressions', () => {
           saleId: 'sale-renewed',
           behaviorKind: 'Term',
           pricingMode: 'Catalog',
-          isPaid: false,
           purchaseDate: '2026-07-22',
+          paymentDate: '2026-07-23',
           validFrom: '2026-07-22',
           expirationDate: '2026-08-20',
         })
@@ -436,25 +482,26 @@ test.describe('TASK-078 membership write regressions', () => {
 
     await expect.poll(() => requestBody).toEqual({
       MembershipCatalogItemId: 'catalog-1',
-      PaymentStatus: 'Unpaid',
+      PaymentDate: '2026-07-23',
     })
     await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
-    await expect(page.getByText('Ожидает оплаты')).toBeVisible()
+    await expect(page.getByText('Ожидает оплаты')).toHaveCount(0)
+    await expect(page.getByText('Оплачен')).toHaveCount(0)
+    await expect(page.getByText('Не оплачен')).toHaveCount(0)
     await expect(page.getByText(/20.*авг.*2026|20\.08\.2026/).first()).toBeVisible()
   })
 
-  test('unpaid correction reloads a fresh version before mark-payment', async ({ page }) => {
+  test('payment-date correction reloads a fresh version and keeps mark-payment removed', async ({ page }) => {
     let client = buildClient({
       id: 'membership-before-correction',
       saleId: 'sale-1',
       behaviorKind: 'Term',
-      isPaid: false,
       purchaseDate: '2026-06-22',
+      paymentDate: '2026-06-22',
       validFrom: '2026-06-22',
       expirationDate: '2026-07-21',
     })
     let correctionBody: Record<string, unknown> | null = null
-    let paymentBody: Record<string, unknown> | null = null
     await mockMembershipPricingApi(page, () => client, async ({ pathname, method, route }) => {
       if (pathname === '/api/clients/client-1/membership/correct' && method === 'POST') {
         correctionBody = route.request().postDataJSON() as Record<string, unknown>
@@ -462,22 +509,8 @@ test.describe('TASK-078 membership write regressions', () => {
           id: 'membership-after-correction',
           saleId: 'sale-1',
           behaviorKind: 'Term',
-          isPaid: false,
           purchaseDate: '2026-06-22',
-          validFrom: '2026-07-05',
-          expirationDate: '2026-08-04',
-        })
-        await fulfillJson(route, client)
-        return true
-      }
-      if (pathname === '/api/clients/client-1/membership/mark-payment' && method === 'POST') {
-        paymentBody = route.request().postDataJSON() as Record<string, unknown>
-        client = buildClient({
-          id: 'membership-paid',
-          saleId: 'sale-1',
-          behaviorKind: 'Term',
-          isPaid: true,
-          purchaseDate: '2026-06-22',
+          paymentDate: '2026-07-05',
           validFrom: '2026-07-05',
           expirationDate: '2026-08-04',
         })
@@ -491,31 +524,26 @@ test.describe('TASK-078 membership write regressions', () => {
     await page.getByRole('button', { name: 'Исправить' }).click()
     await page.getByLabel('Действует с').fill('2026-07-05')
     await page.getByLabel('Действует по').fill('2026-08-04')
+    await page.getByLabel('Дата оплаты').fill('2026-07-05')
     await page.getByRole('button', { name: 'Сохранить исправление' }).click()
     await expect.poll(() => correctionBody).toEqual({
       SaleId: 'sale-1',
       ExpectedMembershipId: 'membership-before-correction',
       ValidFrom: '2026-07-05',
       ValidTo: '2026-08-04',
+      PaymentDate: '2026-07-05',
     })
 
-    await page.getByRole('button', { name: 'Отметить оплату' }).click()
-    await page.getByRole('button', { name: 'Подтвердить оплату' }).click()
-    await page.getByRole('dialog', { name: 'Подтвердить оплату по текущему абонементу?' })
-      .getByRole('button', { name: 'Подтвердить оплату' }).click()
-
-    await expect.poll(() => paymentBody).toEqual({
-      SaleId: 'sale-1',
-      ExpectedMembershipId: 'membership-after-correction',
-    })
-    await expect(page.getByText('Оплачен').first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Отметить оплату' })).toHaveCount(0)
+    await expect(page.getByText('Оплачен')).toHaveCount(0)
+    await expect(page.getByText('Не оплачен')).toHaveCount(0)
   })
 
   test('stale target conflict stays on the form without changing another membership', async ({ page }) => {
     let requestBody: Record<string, unknown> | null = null
     await mockMembershipPricingApi(
       page,
-      buildClient({ behaviorKind: 'Term', isPaid: true }),
+      buildClient({ behaviorKind: 'Term' }),
       async ({ pathname, method, route }) => {
         if (
           pathname === '/api/clients/client-1/membership/correct' &&
@@ -551,41 +579,20 @@ test.describe('TASK-078 membership write regressions', () => {
     await expect(page.getByLabel('Действует с')).toHaveValue('2026-07-05')
   })
 
-  test('slow mark-payment double-click creates one logical operation', async ({ page }) => {
-    let client = buildClient({
-      id: 'membership-unpaid',
+  test('status-free current membership stays usable at 320px', async ({ page }) => {
+    await mockMembershipPricingApi(page, buildClient({
+      id: 'membership-current',
       saleId: 'sale-1',
       behaviorKind: 'Term',
-      isPaid: false,
-    })
-    let paymentCount = 0
-    await mockMembershipPricingApi(page, () => client, async ({ pathname, method, route }) => {
-      if (pathname === '/api/clients/client-1/membership/mark-payment' && method === 'POST') {
-        paymentCount += 1
-        await new Promise((resolve) => setTimeout(resolve, 200))
-        client = buildClient({
-          id: 'membership-paid',
-          saleId: 'sale-1',
-          behaviorKind: 'Term',
-          isPaid: true,
-        })
-        await fulfillJson(route, client)
-        return true
-      }
-      return false
-    })
+    }))
 
-    await page.setViewportSize({ width: 390, height: 844 })
+    await page.setViewportSize({ width: 320, height: 844 })
     await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Отметить оплату' }).click()
-    await page.getByRole('button', { name: 'Подтвердить оплату' }).click()
-    const dialog = page.getByRole('dialog', {
-      name: 'Подтвердить оплату по текущему абонементу?',
-    })
-    await dialog.getByRole('button', { name: 'Подтвердить оплату' }).dblclick()
-
-    await expect.poll(() => paymentCount).toBe(1)
-    await expect(page.getByText('Оплачен').first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Отметить оплату' })).toHaveCount(0)
+    await expect(page.getByText('Оплачен')).toHaveCount(0)
+    await expect(page.getByText('Не оплачен')).toHaveCount(0)
+    await expect(page.getByText('Дата оплаты', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('Главный тренер', { exact: true }).first()).toBeVisible()
     await expectNoHorizontalScroll(page)
   })
 })
@@ -598,9 +605,9 @@ type MembershipOverrides = {
   grossAmount?: number
   catalogPrice?: number | null
   purchaseDate?: string
+  paymentDate?: string
   validFrom?: string
   expirationDate?: string | null
-  isPaid?: boolean
   singleVisitUsed?: boolean
 }
 
@@ -617,6 +624,10 @@ function buildClient(membership?: MembershipOverrides) {
             : 'Месяц',
         behaviorKind: membership.behaviorKind ?? 'Term',
         purchaseDate: membership.purchaseDate ?? '2026-06-22',
+        paymentDate: membership.paymentDate ?? membership.purchaseDate ?? '2026-06-22',
+        paymentRecordedByUserId: 'head-coach-1',
+        paymentRecordedByUserName: 'Главный тренер',
+        paymentRecordedAt: '2026-07-23T09:30:00Z',
         validFrom: membership.validFrom ?? membership.purchaseDate ?? '2026-06-22',
         expirationDate:
           membership.expirationDate === undefined
@@ -626,7 +637,6 @@ function buildClient(membership?: MembershipOverrides) {
         grossAmount: membership.grossAmount ?? 3000,
         catalogPrice:
           membership.catalogPrice === undefined ? 3000 : membership.catalogPrice,
-        isPaid: membership.isPaid ?? true,
         singleVisitUsed: membership.singleVisitUsed ?? false,
         comment: null,
         commentLastChangedByName: null,
@@ -651,19 +661,15 @@ function buildClient(membership?: MembershipOverrides) {
     notesLastChangedByName: null,
     notesLastChangedAt: null,
     photo: null,
+    businessDate: '2026-07-23',
     isProfessional: false,
     professionalComment: null,
-    hasActivePaidMembership: Boolean(currentMembership?.isPaid),
-    hasUnpaidCurrentMembership: Boolean(currentMembership && !currentMembership.isPaid),
+    hasActiveMembership: Boolean(currentMembership),
     membershipWarning: false,
     currentMembership,
     currentMembershipSummary: currentMembership,
     hasCurrentMembership: Boolean(currentMembership),
-    membershipState: currentMembership
-      ? currentMembership.isPaid
-        ? 'ActivePaid'
-        : 'Unpaid'
-      : 'None',
+    membershipState: currentMembership ? 'Active' : 'None',
     actionHints: [],
     membershipHistory: currentMembership ? [currentMembership] : [],
     attendanceHistory: [],

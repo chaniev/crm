@@ -15,7 +15,10 @@ describe('membership sale pricing response mapping', () => {
       pricingMode: 'AmountOnly',
       grossAmount: 4200,
       catalogPrice: null,
-      isPaid: false,
+      paymentDate: '2026-07-10',
+      paymentRecordedByUserId: 'user-1',
+      paymentRecordedByUserName: 'Анна Петрова',
+      paymentRecordedAt: '2026-07-22T10:15:00Z',
       singleVisitUsed: false,
     })
 
@@ -26,8 +29,15 @@ describe('membership sale pricing response mapping', () => {
       pricingMode: 'AmountOnly',
       grossAmount: 4200,
       catalogPrice: null,
+      paymentDate: '2026-07-10',
+      paymentRecordedByUserId: 'user-1',
+      paymentRecordedByUserName: 'Анна Петрова',
+      paymentRecordedAt: '2026-07-22T10:15:00Z',
     })
     expect(membership).not.toHaveProperty('paymentAmount')
+    expect(membership).not.toHaveProperty('isPaid')
+    expect(membership).not.toHaveProperty('paidAt')
+    expect(membership).not.toHaveProperty('paidByUserId')
   })
 
   test('keeps catalog context separate from an equal explicit override', () => {
@@ -38,11 +48,14 @@ describe('membership sale pricing response mapping', () => {
       membershipName: 'Месяц',
       behaviorKind: 'Term',
       purchaseDate: '2026-07-22',
+      paymentDate: '2026-07-22',
+      paymentRecordedAt: '2026-07-22T10:15:00Z',
+      paymentRecordedByUserId: 'user-1',
+      paymentRecordedByUserName: 'Анна Петрова',
       expirationDate: '2026-08-20',
       pricingMode: 'CatalogOverride',
       grossAmount: 3000,
       catalogPrice: 3000,
-      isPaid: true,
       singleVisitUsed: false,
     })
 
@@ -67,7 +80,10 @@ describe('membership sale pricing response mapping', () => {
       PricingMode: 'Catalog',
       GrossAmount: 3000,
       CatalogPrice: 3000,
-      isPaid: true,
+      paymentDate: '2026-07-22',
+      paymentRecordedByUserId: 'user-1',
+      paymentRecordedByUserName: 'Анна Петрова',
+      paymentRecordedAt: '2026-07-22T10:15:00Z',
       singleVisitUsed: false,
     })
 
@@ -83,10 +99,12 @@ describe('membership sale pricing response mapping', () => {
       applyFieldErrors({
         MembershipCatalogItemId: ['Выберите вариант каталога.'],
         ManualSaleAmount: ['Введите целое количество рублей.'],
+        PaymentDate: ['Дата оплаты не может быть позже текущей даты.'],
       }),
     ).toEqual({
       membershipCatalogItemId: 'Выберите вариант каталога.',
       manualSaleAmount: 'Введите целое количество рублей.',
+      paymentDate: 'Дата оплаты не может быть позже текущей даты.',
     })
   })
 })

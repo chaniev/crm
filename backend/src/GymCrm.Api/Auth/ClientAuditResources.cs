@@ -54,11 +54,6 @@ internal static class ClientAuditResources
         return Format(nameof(MembershipCorrectedDescription), actorLogin, clientFullName);
     }
 
-    public static string MembershipPaymentMarkedDescription(string actorLogin, string clientFullName)
-    {
-        return Format(nameof(MembershipPaymentMarkedDescription), actorLogin, clientFullName);
-    }
-
     public static string MembershipSaleCorrectedDescription(string actorLogin, string clientFullName)
     {
         return Format(nameof(MembershipSaleCorrectedDescription), actorLogin, clientFullName);

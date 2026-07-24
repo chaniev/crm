@@ -10,5 +10,4 @@ internal sealed record AttendanceClientResponse(
     string? ProfessionalComment,
     bool HasMembershipWarning,
     string? MembershipWarning,
-    bool HasUnpaidCurrentMembership,
-    bool HasActivePaidMembership);
+    bool HasActiveMembership);

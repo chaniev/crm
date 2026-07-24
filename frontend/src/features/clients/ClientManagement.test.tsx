@@ -7,7 +7,6 @@ import {
   getClient,
   getEligibleMembershipCatalogItems,
   getGroups,
-  markClientMembershipPayment,
   purchaseClientMembership,
   renewClientMembership,
   transferClientBranch,
@@ -28,7 +27,6 @@ vi.mock('../../lib/api', async (importOriginal) => {
     getEligibleMembershipCatalogItems: vi.fn(),
     getGroups: vi.fn(),
     correctClientMembership: vi.fn(),
-    markClientMembershipPayment: vi.fn(),
     purchaseClientMembership: vi.fn(),
     renewClientMembership: vi.fn(),
     transferClientBranch: vi.fn(),
@@ -41,7 +39,6 @@ const correctMembershipMock = vi.mocked(correctClientMembership)
 const getClientMock = vi.mocked(getClient)
 const getEligibleItemsMock = vi.mocked(getEligibleMembershipCatalogItems)
 const getGroupsMock = vi.mocked(getGroups)
-const markPaymentMock = vi.mocked(markClientMembershipPayment)
 const purchaseMembershipMock = vi.mocked(purchaseClientMembership)
 const renewMembershipMock = vi.mocked(renewClientMembership)
 const transferClientMock = vi.mocked(transferClientBranch)
@@ -53,7 +50,6 @@ beforeEach(() => {
   getClientMock.mockReset()
   getEligibleItemsMock.mockReset()
   getGroupsMock.mockReset()
-  markPaymentMock.mockReset()
   purchaseMembershipMock.mockReset()
   renewMembershipMock.mockReset()
   transferClientMock.mockReset()
@@ -191,6 +187,22 @@ describe('ClientDetailScreen membership purchase form', () => {
     expect(screen.getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
   })
 
+  test('opens purchase with required backend business-date payment field and no status selector', async () => {
+    getClientMock.mockResolvedValue(buildClientDetails({ businessDate: '2026-07-23' }))
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+
+    const paymentDate = await screen.findByLabelText('Дата оплаты')
+    expect(paymentDate).toBeRequired()
+    expect(paymentDate).toHaveAttribute('type', 'date')
+    expect(paymentDate).toHaveAttribute('max', '2026-07-23')
+    expect(paymentDate).toHaveValue('2026-07-23')
+    expect(screen.queryByRole('combobox', { name: 'Статус оплаты' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Не оплачен')).not.toBeInTheDocument()
+  })
+
   test('uses a whole-ruble input and keeps catalog price as read-only context for override', async () => {
     getClientMock.mockResolvedValue(buildClientDetails())
     getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
@@ -229,6 +241,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     fireEvent.change(amountOnlyInput, { target: { value: '4200' } })
     fireEvent.change(screen.getByLabelText('Действует с'), { target: { value: '2026-07-22' } })
     fireEvent.change(screen.getByLabelText('Действует по'), { target: { value: '2026-08-20' } })
+    fireEvent.change(await screen.findByLabelText('Дата оплаты'), { target: { value: '2026-07-10' } })
     fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
 
     const confirmation = await screen.findByRole('dialog', { name: /Подтвердить.*продажу/i })
@@ -241,7 +254,7 @@ describe('ClientDetailScreen membership purchase form', () => {
         manualSaleAmount: 4200,
         validFrom: '2026-07-22',
         validTo: '2026-08-20',
-        paymentStatus: 'Unpaid',
+        paymentDate: '2026-07-10',
       }, { idempotencyKey: expect.any(String) }),
     )
   })
@@ -252,6 +265,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     purchaseMembershipMock.mockRejectedValue(
       new ApiError('Проверьте сумму продажи.', 400, {
         ManualSaleAmount: ['Сумма должна быть указана целыми рублями.'],
+        PaymentDate: ['Дата оплаты не может быть позже текущей даты.'],
       }),
     )
 
@@ -262,13 +276,16 @@ describe('ClientDetailScreen membership purchase form', () => {
     fireEvent.change(amount, { target: { value: '100' } })
     fireEvent.change(screen.getByLabelText('Действует с'), { target: { value: '2026-07-22' } })
     fireEvent.change(screen.getByLabelText('Действует по'), { target: { value: '2026-08-20' } })
+    fireEvent.change(await screen.findByLabelText('Дата оплаты'), { target: { value: '2026-07-24' } })
     fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
 
     const confirmation = await screen.findByRole('dialog', { name: /Подтвердить.*продажу/i })
     fireEvent.click(within(confirmation).getByRole('button', { name: 'Подтвердить продажу' }))
 
     expect(await screen.findByText('Сумма должна быть указана целыми рублями.')).toBeInTheDocument()
+    expect(screen.getByText('Дата оплаты не может быть позже текущей даты.')).toBeInTheDocument()
     expect(amount).toHaveValue(100)
+    expect(screen.getByLabelText('Дата оплаты')).toHaveValue('2026-07-24')
   })
 
   test('does not submit a fractional manual amount', async () => {
@@ -378,67 +395,46 @@ describe('ClientDetailScreen membership renewal pricing', () => {
       expect.any(AbortSignal),
     )
   })
+
+  test('renewal submits a backdated payment date without payment status', async () => {
+    const currentMembership = buildMembership()
+    const client = {
+      ...buildClientDetails({ businessDate: '2026-07-23' }),
+      currentMembership,
+      currentMembershipSummary: currentMembership,
+      hasCurrentMembership: true,
+      membershipHistory: [currentMembership],
+    }
+    getClientMock.mockResolvedValue(client)
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+    renewMembershipMock.mockResolvedValue(client)
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Продлить' }))
+    const paymentDate = await screen.findByLabelText('Дата оплаты')
+    expect(paymentDate).toHaveAttribute('max', '2026-07-23')
+    expect(paymentDate).toHaveValue('2026-07-23')
+    fireEvent.click(screen.getByRole('radio', { name: 'По каталожной цене' }))
+    await selectCatalogOption('Вариант абонемента')
+    fireEvent.change(paymentDate, { target: { value: '2026-07-05' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Продлить абонемент' }))
+    const confirmation = await screen.findByRole('dialog', { name: /Подтвердить.*продажу/i })
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Подтвердить продажу' }))
+
+    await waitFor(() =>
+      expect(renewMembershipMock).toHaveBeenCalledWith('client-1', {
+        membershipCatalogItemId: 'catalog-1',
+        paymentDate: '2026-07-05',
+      }, { idempotencyKey: expect.any(String) }),
+    )
+    expect(renewMembershipMock.mock.calls[0]?.[1]).not.toHaveProperty('paymentStatus')
+    expect(screen.queryByRole('combobox', { name: 'Статус оплаты' })).not.toBeInTheDocument()
+  })
 })
 
 describe('ClientDetailScreen immutable sale actions', () => {
-  test('mark-payment keeps the amount read-only and submits only the addressed target before reloading', async () => {
-    const membership = { ...buildMembership(), isPaid: false }
-    const client = {
-      ...buildClientDetails(),
-      currentMembership: membership,
-      currentMembershipSummary: membership,
-      hasCurrentMembership: true,
-      membershipHistory: [membership],
-    }
-    const reloadedMembership = {
-      ...membership,
-      id: 'version-paid',
-      isPaid: true,
-      paidAt: '2026-07-23T12:00:00Z',
-    }
-    const reloadedClient = {
-      ...client,
-      currentMembership: reloadedMembership,
-      currentMembershipSummary: reloadedMembership,
-      hasActivePaidMembership: true,
-      hasUnpaidCurrentMembership: false,
-      membershipHistory: [reloadedMembership, membership],
-    }
-    getClientMock
-      .mockResolvedValueOnce(client)
-      .mockResolvedValueOnce(reloadedClient)
-    markPaymentMock.mockResolvedValue({
-      ...client,
-      currentMembership: { ...membership, id: 'version-stale-response' },
-      currentMembershipSummary: { ...membership, id: 'version-stale-response' },
-    })
-
-    renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Отметить оплату' }))
-
-    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Подтвердить оплату' }))
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Подтвердить оплату по текущему абонементу?',
-    })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Подтвердить оплату' }))
-
-    await waitFor(() =>
-      expect(markPaymentMock).toHaveBeenCalledWith(
-        'client-1',
-        {
-          saleId: 'sale-current',
-          expectedMembershipId: 'version-current',
-        },
-        { idempotencyKey: expect.any(String) },
-      ),
-    )
-    await waitFor(() => expect(getClientMock).toHaveBeenCalledTimes(2))
-    expect(screen.getAllByText('Оплачен')).not.toHaveLength(0)
-  })
-
-  test('slow mark-payment double click starts one addressed submission', async () => {
-    const membership = { ...buildMembership(), isPaid: false }
+  test('does not render mark-payment action or paid/unpaid badge for current memberships', async () => {
+    const membership = buildMembership()
     const client = {
       ...buildClientDetails(),
       currentMembership: membership,
@@ -447,37 +443,13 @@ describe('ClientDetailScreen immutable sale actions', () => {
       membershipHistory: [membership],
     }
     getClientMock.mockResolvedValue(client)
-    let resolvePayment: (value: ClientDetails) => void = () => undefined
-    markPaymentMock.mockReturnValue(
-      new Promise<ClientDetails>((resolve) => {
-        resolvePayment = resolve
-      }),
-    )
 
     renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Отметить оплату' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Подтвердить оплату' }))
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Подтвердить оплату по текущему абонементу?',
-    })
-    const confirmButton = within(dialog).getByRole('button', {
-      name: 'Подтвердить оплату',
-    })
 
-    fireEvent.click(confirmButton)
-    fireEvent.click(confirmButton)
-
-    expect(markPaymentMock).toHaveBeenCalledTimes(1)
-    expect(markPaymentMock).toHaveBeenCalledWith(
-      'client-1',
-      {
-        saleId: 'sale-current',
-        expectedMembershipId: 'version-current',
-      },
-      { idempotencyKey: expect.any(String) },
-    )
-
-    resolvePayment(client)
+    expect(await screen.findByText('Абонемент и оплата')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Отметить оплату' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Не оплачен')).not.toBeInTheDocument()
+    expect(screen.queryByText('Оплачен')).not.toBeInTheDocument()
   })
 })
 
@@ -494,6 +466,55 @@ describe('ClientDetailScreen sale-producing transfer pricing', () => {
     expect(within(dialog).getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
     expect(within(dialog).getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
     expect(within(dialog).getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
+  })
+
+  test('sale-producing transfer requires payment date from business date and sends it once', async () => {
+    const client = buildClientDetails({ businessDate: '2026-07-23' })
+    getClientMock.mockResolvedValue(client)
+    setupTransferOptions()
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+    transferClientMock.mockResolvedValue(client)
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
+    const paymentDate = await within(dialog).findByLabelText('Дата оплаты')
+    expect(paymentDate).toBeRequired()
+    expect(paymentDate).toHaveAttribute('max', '2026-07-23')
+    expect(paymentDate).toHaveValue('2026-07-23')
+    expect(within(dialog).queryByRole('combobox', { name: 'Статус оплаты' })).not.toBeInTheDocument()
+
+    fireEvent.click(within(dialog).getByRole('radio', { name: 'Без варианта каталога' }))
+    fireEvent.change(within(dialog).getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }), {
+      target: { value: '4200' },
+    })
+    fireEvent.change(within(dialog).getByLabelText('Действует с'), { target: { value: '2026-07-22' } })
+    fireEvent.change(within(dialog).getByLabelText('Действует по'), { target: { value: '2026-08-20' } })
+    fireEvent.change(paymentDate, { target: { value: '2026-07-01' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Перевести клиента' }))
+    const confirmation = await screen.findByRole('dialog', {
+      name: /Подтвердить.*продажу/i,
+    })
+    fireEvent.click(
+      within(confirmation).getByRole('button', {
+        name: 'Подтвердить продажу',
+      }),
+    )
+
+    await waitFor(() =>
+      expect(transferClientMock).toHaveBeenCalledWith('client-1', {
+        targetBranchId: 'branch-1',
+        targetGroupIds: [],
+        membershipCatalogItemId: null,
+        manualSaleAmount: 4200,
+        validFrom: '2026-07-22',
+        validTo: '2026-08-20',
+        paymentDate: '2026-07-01',
+      }, { idempotencyKey: expect.any(String) }),
+    )
+    expect(transferClientMock).toHaveBeenCalledTimes(1)
+    expect(transferClientMock.mock.calls[0]?.[1]).not.toHaveProperty('paymentStatus')
   })
 
   test('preserves active unused SingleVisit without rendering new-sale pricing controls', async () => {
@@ -573,13 +594,13 @@ describe('ClientDetailScreen membership correction form', () => {
     expect(screen.getAllByText('3 000 ₽')).not.toHaveLength(0)
   })
 
-  test('sends validity-only addressed correction and preserves draft ProblemDetails errors', async () => {
+  test('sends addressed correction with payment date and preserves draft ProblemDetails errors', async () => {
     const currentMembership = {
       ...buildMembership(),
       purchaseDate: '2026-07-01',
+      paymentDate: '2026-07-01',
       validFrom: '2026-07-01',
       expirationDate: '2026-07-31',
-      isPaid: false,
     }
     getClientMock.mockResolvedValue({
       ...buildClientDetails(),
@@ -589,8 +610,9 @@ describe('ClientDetailScreen membership correction form', () => {
       membershipHistory: [currentMembership],
     })
     correctMembershipMock.mockRejectedValue(
-      new ApiError('Срок пересекается с другим абонементом.', 409, {
+      new ApiError('Проверьте исправление абонемента.', 400, {
         ValidFrom: ['Начало срока пересекается с другой продажей.'],
+        PaymentDate: ['Дата оплаты не может быть позже текущей даты.'],
       }),
     )
 
@@ -600,11 +622,16 @@ describe('ClientDetailScreen membership correction form', () => {
     expect(screen.getByText('Дата покупки')).toBeInTheDocument()
     expect(screen.getAllByText(/июл.*2026|01\.07\.2026/)).not.toHaveLength(0)
     expect(screen.queryByRole('switch', { name: 'Оплачен' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Не оплачен')).not.toBeInTheDocument()
 
     const validFrom = await screen.findByLabelText('Действует с')
     const validTo = screen.getByLabelText('Действует по')
+    const paymentDate = await screen.findByLabelText('Дата оплаты')
+    expect(paymentDate).toHaveValue('2026-07-01')
+    expect(paymentDate).toHaveAttribute('max', '2026-07-23')
     fireEvent.change(validFrom, { target: { value: '2026-07-05' } })
     fireEvent.change(validTo, { target: { value: '2026-08-04' } })
+    fireEvent.change(paymentDate, { target: { value: '2026-07-24' } })
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить исправление' }))
 
     await waitFor(() =>
@@ -615,34 +642,30 @@ describe('ClientDetailScreen membership correction form', () => {
           expectedMembershipId: 'version-current',
           validFrom: '2026-07-05',
           validTo: '2026-08-04',
+          paymentDate: '2026-07-24',
         },
         { idempotencyKey: expect.any(String) },
       ),
     )
-    expect(await screen.findByText('Срок пересекается с другим абонементом.')).toBeInTheDocument()
+    expect(await screen.findByText('Проверьте исправление абонемента.')).toBeInTheDocument()
     expect(screen.getByText('Начало срока пересекается с другой продажей.')).toBeInTheDocument()
+    expect(screen.getByText('Дата оплаты не может быть позже текущей даты.')).toBeInTheDocument()
     expect(validFrom).toHaveValue('2026-07-05')
     expect(validTo).toHaveValue('2026-08-04')
+    expect(paymentDate).toHaveValue('2026-07-24')
   })
 
-  test('reloads after correction and uses the reloaded version for mark-payment', async () => {
+  test('reloads after payment-date correction without exposing mark-payment', async () => {
     const initialMembership = {
       ...buildMembership(),
-      isPaid: false,
       validFrom: '2026-07-01',
       expirationDate: '2026-07-31',
+      paymentDate: '2026-07-01',
     }
     const correctedMembership = {
       ...initialMembership,
       id: 'version-after-correction',
-      validFrom: '2026-07-05',
-      expirationDate: '2026-08-04',
-    }
-    const paidMembership = {
-      ...correctedMembership,
-      id: 'version-paid',
-      isPaid: true,
-      paidAt: '2026-07-23T12:00:00Z',
+      paymentDate: '2026-07-05',
     }
     const initialClient = {
       ...buildClientDetails(),
@@ -657,50 +680,27 @@ describe('ClientDetailScreen membership correction form', () => {
       currentMembershipSummary: correctedMembership,
       membershipHistory: [correctedMembership, initialMembership],
     }
-    const paidClient = {
-      ...correctedClient,
-      currentMembership: paidMembership,
-      currentMembershipSummary: paidMembership,
-      hasActivePaidMembership: true,
-      hasUnpaidCurrentMembership: false,
-      membershipHistory: [paidMembership, correctedMembership, initialMembership],
-    }
     getClientMock
       .mockResolvedValueOnce(initialClient)
       .mockResolvedValueOnce(correctedClient)
-      .mockResolvedValueOnce(paidClient)
     correctMembershipMock.mockResolvedValue(initialClient)
-    markPaymentMock.mockResolvedValue(correctedClient)
 
     renderClientDetails()
     fireEvent.click(await screen.findByRole('button', { name: 'Исправить' }))
-    fireEvent.change(await screen.findByLabelText('Действует с'), {
+    fireEvent.change(await screen.findByLabelText('Дата оплаты'), {
       target: { value: '2026-07-05' },
-    })
-    fireEvent.change(screen.getByLabelText('Действует по'), {
-      target: { value: '2026-08-04' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить исправление' }))
 
     await waitFor(() => expect(getClientMock).toHaveBeenCalledTimes(2))
-    fireEvent.click(screen.getByRole('button', { name: 'Отметить оплату' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Подтвердить оплату' }))
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Подтвердить оплату по текущему абонементу?',
-    })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Подтвердить оплату' }))
-
-    await waitFor(() =>
-      expect(markPaymentMock).toHaveBeenCalledWith(
-        'client-1',
-        {
-          saleId: 'sale-current',
-          expectedMembershipId: 'version-after-correction',
-        },
-        { idempotencyKey: expect.any(String) },
-      ),
-    )
-    await waitFor(() => expect(getClientMock).toHaveBeenCalledTimes(3))
+    expect(correctMembershipMock).toHaveBeenCalledWith('client-1', {
+      saleId: 'sale-current',
+      expectedMembershipId: 'version-current',
+      validFrom: '2026-07-01',
+      validTo: '2026-07-31',
+      paymentDate: '2026-07-05',
+    }, { idempotencyKey: expect.any(String) })
+    expect(screen.queryByRole('button', { name: 'Отметить оплату' })).not.toBeInTheDocument()
   })
 })
 
@@ -761,8 +761,7 @@ function buildClientDetails(overrides: Partial<ClientDetails> = {}): ClientDetai
     businessDate: '2026-07-23',
     isProfessional: false,
     professionalComment: null,
-    hasActivePaidMembership: false,
-    hasUnpaidCurrentMembership: false,
+    hasActiveMembership: false,
     membershipWarning: false,
     currentMembership: null,
     currentMembershipSummary: null,
@@ -779,11 +778,11 @@ function buildClientDetails(overrides: Partial<ClientDetails> = {}): ClientDetai
 
 function buildClientWithMemberships(): ClientDetails {
   const client = buildClientDetails()
-  const common = { membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term' as const, purchaseDate: '2026-07-01', expirationDate: '2026-08-01', pricingMode: 'Catalog' as const, grossAmount: 3000, catalogPrice: 3000, isPaid: true, singleVisitUsed: false, commentLastChangedByName: 'Анна Петрова', commentLastChangedAt: '2026-07-21T12:34:56Z' }
+  const common = { membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term' as const, purchaseDate: '2026-07-01', paymentDate: '2026-07-01', paymentRecordedAt: '2026-07-01T08:00:00Z', paymentRecordedByUserId: 'user-1', paymentRecordedByUserName: 'Анна Петрова', expirationDate: '2026-08-01', pricingMode: 'Catalog' as const, grossAmount: 3000, catalogPrice: 3000, singleVisitUsed: false, commentLastChangedByName: 'Анна Петрова', commentLastChangedAt: '2026-07-21T12:34:56Z' }
   return {
     ...client,
     membershipHistory: [
-      { ...common, id: 'version-2', saleId: 'sale-1', changeReason: 'PaymentUpdate', comment: 'Комментарий первой покупки' },
+      { ...common, id: 'version-2', saleId: 'sale-1', changeReason: 'Correction', comment: 'Комментарий первой покупки' },
       { ...common, id: 'version-1', saleId: 'sale-1', changeReason: 'NewPurchase', comment: 'Комментарий первой покупки' },
       { ...common, id: 'version-3', saleId: 'sale-2', purchaseDate: '2026-08-01', comment: 'Комментарий второй покупки' },
     ],
@@ -798,11 +797,14 @@ function buildMembership() {
     membershipName: 'Месяц',
     behaviorKind: 'Term' as const,
     purchaseDate: '2026-07-21',
+    paymentDate: '2026-07-21',
+    paymentRecordedAt: '2026-07-21T08:00:00Z',
+    paymentRecordedByUserId: 'user-1',
+    paymentRecordedByUserName: 'Анна Петрова',
     expirationDate: '2026-08-20',
     pricingMode: 'Catalog' as const,
     grossAmount: 3000,
     catalogPrice: 3000,
-    isPaid: true,
     singleVisitUsed: false,
     comment: null,
     commentLastChangedByName: null,
@@ -875,8 +877,11 @@ function buildClientWithPricingHistory(): ClientDetails {
   const common = {
     behaviorKind: 'Term',
     purchaseDate: '2026-07-22',
+    paymentDate: '2026-07-22',
+    paymentRecordedAt: '2026-07-22T08:00:00Z',
+    paymentRecordedByUserId: 'user-1',
+    paymentRecordedByUserName: 'Анна Петрова',
     expirationDate: '2026-08-20',
-    isPaid: true,
     singleVisitUsed: false,
     comment: null,
     commentLastChangedByName: null,

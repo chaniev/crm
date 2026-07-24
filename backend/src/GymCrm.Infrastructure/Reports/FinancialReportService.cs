@@ -22,21 +22,22 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             .ToArray();
 
         var firstSales = await LoadFirstSalesAsync(clientIds, cancellationToken);
-        var branchAssignments = await LoadBranchAssignmentsAsync(clientIds, query, cancellationToken);
+        var attributionRange = GetAttributionRange(events);
+        var branchAssignments = await LoadBranchAssignmentsAsync(clientIds, attributionRange.From, attributionRange.To, cancellationToken);
         var branchIds = branchAssignments
             .Select(assignment => assignment.BranchId)
             .Distinct()
             .ToArray();
         var branchesById = await LoadBranchesAsync(branchIds, cancellationToken);
 
-        var groupAssignments = await LoadGroupAssignmentsAsync(clientIds, query, cancellationToken);
+        var groupAssignments = await LoadGroupAssignmentsAsync(clientIds, attributionRange.From, attributionRange.To, cancellationToken);
         var groupIds = groupAssignments
             .Select(assignment => assignment.GroupId)
             .Distinct()
             .ToArray();
         var groupsById = await LoadGroupsAsync(groupIds, cancellationToken);
 
-        var trainerAssignments = await LoadTrainerAssignmentsAsync(groupIds, query, cancellationToken);
+        var trainerAssignments = await LoadTrainerAssignmentsAsync(groupIds, attributionRange.From, attributionRange.To, cancellationToken);
         var trainerIds = trainerAssignments
             .Select(assignment => assignment.TrainerId)
             .Distinct()
@@ -72,10 +73,11 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
     {
         var sales = await dbContext.ClientMembershipSales
             .AsNoTracking()
-            .Where(sale => sale.PurchaseDate >= query.From && sale.PurchaseDate <= query.To)
+            .Where(sale => sale.PaymentDate >= query.From && sale.PaymentDate <= query.To)
             .Select(sale => new FinancialEventProjection(
                 sale.Id,
                 sale.ClientId,
+                sale.PaymentDate,
                 sale.PurchaseDate,
                 FinancialEventKind.Sale,
                 sale.GrossAmount,
@@ -92,6 +94,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
                 refund.Id,
                 refund.ClientId,
                 refund.RefundDate,
+                refund.RefundDate,
                 FinancialEventKind.Refund,
                 0m,
                 refund.Amount))
@@ -99,7 +102,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
 
         return sales
             .Concat(refunds)
-            .OrderBy(financialEvent => financialEvent.EventDate)
+            .OrderBy(financialEvent => financialEvent.AccountingDate)
             .ThenBy(financialEvent => financialEvent.Kind)
             .ThenBy(financialEvent => financialEvent.Id)
             .ToArray();
@@ -121,7 +124,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             {
                 sale.Id,
                 sale.ClientId,
-                sale.PurchaseDate,
+                sale.PaymentDate,
                 sale.CreatedAt
             })
             .ToArrayAsync(cancellationToken);
@@ -133,18 +136,19 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
                 group =>
                 {
                     var firstSale = group
-                        .OrderBy(sale => sale.PurchaseDate)
+                        .OrderBy(sale => sale.PaymentDate)
                         .ThenBy(sale => sale.CreatedAt)
                         .ThenBy(sale => sale.Id)
                         .First();
 
-                    return new FirstSaleProjection(firstSale.Id, firstSale.PurchaseDate);
+                    return new FirstSaleProjection(firstSale.Id, firstSale.PaymentDate);
                 });
     }
 
     private async Task<BranchAssignmentProjection[]> LoadBranchAssignmentsAsync(
         IReadOnlyCollection<Guid> clientIds,
-        FinancialReportQuery query,
+        DateOnly from,
+        DateOnly to,
         CancellationToken cancellationToken)
     {
         if (clientIds.Count == 0)
@@ -156,8 +160,8 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             .AsNoTracking()
             .Where(assignment =>
                 clientIds.Contains(assignment.ClientId) &&
-                assignment.ValidFrom <= query.To &&
-                (assignment.ValidTo == null || assignment.ValidTo > query.From))
+                assignment.ValidFrom <= to &&
+                (assignment.ValidTo == null || assignment.ValidTo > from))
             .Select(assignment => new BranchAssignmentProjection(
                 assignment.Id,
                 assignment.ClientId,
@@ -185,7 +189,8 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
 
     private async Task<GroupAssignmentProjection[]> LoadGroupAssignmentsAsync(
         IReadOnlyCollection<Guid> clientIds,
-        FinancialReportQuery query,
+        DateOnly from,
+        DateOnly to,
         CancellationToken cancellationToken)
     {
         if (clientIds.Count == 0)
@@ -197,8 +202,8 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             .AsNoTracking()
             .Where(assignment =>
                 clientIds.Contains(assignment.ClientId) &&
-                assignment.ValidFrom <= query.To &&
-                (assignment.ValidTo == null || assignment.ValidTo > query.From))
+                assignment.ValidFrom <= to &&
+                (assignment.ValidTo == null || assignment.ValidTo > from))
             .Select(assignment => new GroupAssignmentProjection(
                 assignment.Id,
                 assignment.ClientId,
@@ -231,7 +236,8 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
 
     private async Task<TrainerAssignmentProjection[]> LoadTrainerAssignmentsAsync(
         IReadOnlyCollection<Guid> groupIds,
-        FinancialReportQuery query,
+        DateOnly from,
+        DateOnly to,
         CancellationToken cancellationToken)
     {
         if (groupIds.Count == 0)
@@ -243,8 +249,8 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             .AsNoTracking()
             .Where(assignment =>
                 groupIds.Contains(assignment.GroupId) &&
-                assignment.ValidFrom <= query.To &&
-                (assignment.ValidTo == null || assignment.ValidTo > query.From))
+                assignment.ValidFrom <= to &&
+                (assignment.ValidTo == null || assignment.ValidTo > from))
             .Select(assignment => new TrainerAssignmentProjection(
                 assignment.Id,
                 assignment.GroupId,
@@ -288,7 +294,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             var branchAssignment = ResolveBranchAssignment(
                 branchAssignments,
                 financialEvent.ClientId,
-                financialEvent.EventDate);
+                financialEvent.AttributionDate);
             if (branchAssignment is null ||
                 !branchesById.TryGetValue(branchAssignment.BranchId, out var branch))
             {
@@ -304,13 +310,13 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
                 groupAssignments,
                 groupsById,
                 financialEvent.ClientId,
-                financialEvent.EventDate,
+                financialEvent.AttributionDate,
                 branch.Id);
             var trainerAttributions = ResolveTrainerAttributions(
                 trainerAssignments,
                 trainersById,
                 groupAttributions,
-                financialEvent.EventDate);
+                financialEvent.AttributionDate);
 
             if (query.TrainerId.HasValue &&
                 trainerAttributions.All(attribution => attribution.TrainerId != query.TrainerId.Value))
@@ -532,6 +538,13 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
         return validFrom <= eventDate && (validTo is null || eventDate < validTo.Value);
     }
 
+    private static AttributionDateRange GetAttributionRange(IReadOnlyCollection<FinancialEventProjection> events)
+    {
+        return new AttributionDateRange(
+            events.Min(financialEvent => financialEvent.AttributionDate),
+            events.Max(financialEvent => financialEvent.AttributionDate));
+    }
+
     private static FinancialReportResult EmptyResult()
     {
         return new FinancialReportResult(
@@ -550,10 +563,13 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
     private sealed record FinancialEventProjection(
         Guid Id,
         Guid ClientId,
-        DateOnly EventDate,
+        DateOnly AccountingDate,
+        DateOnly AttributionDate,
         FinancialEventKind Kind,
         decimal GrossSales,
         decimal RefundTotal);
+
+    private sealed record AttributionDateRange(DateOnly From, DateOnly To);
 
     private sealed record BranchAssignmentProjection(
         Guid Id,
@@ -586,7 +602,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
 
     private sealed record TrainerProjection(Guid Id, string FullName);
 
-    private sealed record FirstSaleProjection(Guid Id, DateOnly PurchaseDate);
+    private sealed record FirstSaleProjection(Guid Id, DateOnly PaymentDate);
 
     private sealed record GroupAttribution(
         Guid GroupId,

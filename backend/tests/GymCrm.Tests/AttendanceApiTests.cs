@@ -222,7 +222,7 @@ public class AttendanceApiTests
     }
 
     [Fact]
-    public async Task Attendance_warning_does_not_block_marking_and_is_stored_for_training_date()
+    public async Task Status_free_membership_does_not_warn_and_marking_is_stored_for_training_date()
     {
         await using var factory = new AttendanceAppFactory();
         var seeded = await SeedAttendanceDataAsync(factory);
@@ -249,7 +249,14 @@ public class AttendanceApiTests
         var clients = GetArrayPayload(clientsPayload, "data", "items", "clients");
         var warningClient = FindById(clients, seeded.WarningClientId);
         Assert.False(warningClient.ValueKind == JsonValueKind.Undefined);
-        Assert.True(HasMembershipWarning(warningClient), "Expected warning signal in client payload.");
+        Assert.False(HasMembershipWarning(warningClient), "Payment status must not create attendance warnings.");
+        Assert.Equal(
+            JsonValueKind.Undefined,
+            GetPropertyOrNull(warningClient, "hasUnpaidCurrentMembership", "HasUnpaidCurrentMembership").ValueKind);
+        Assert.Equal(
+            JsonValueKind.Undefined,
+            GetPropertyOrNull(warningClient, "hasActivePaidMembership", "HasActivePaidMembership").ValueKind);
+        Assert.True(GetBoolFromAnyCase(warningClient, "hasActiveMembership", "HasActiveMembership"));
 
         using var markResponse = await PostJsonAsync(
             client,
@@ -311,8 +318,7 @@ public class AttendanceApiTests
             Assert.False(professionalClient.ValueKind == JsonValueKind.Undefined);
             Assert.True(GetBoolFromAnyCase(professionalClient, "isProfessional", "IsProfessional"));
             Assert.False(HasMembershipWarning(professionalClient), "Professional client must not have membership warning.");
-            Assert.False(GetBoolFromAnyCase(professionalClient, "hasUnpaidCurrentMembership", "HasUnpaidCurrentMembership"));
-            Assert.True(GetBoolFromAnyCase(professionalClient, "hasActivePaidMembership", "HasActivePaidMembership"));
+            Assert.True(GetBoolFromAnyCase(professionalClient, "hasActiveMembership", "HasActiveMembership"));
         }
 
         var operationStartedAt = DateTimeOffset.UtcNow;
@@ -542,10 +548,7 @@ public class AttendanceApiTests
                 BehaviorKind = writtenOff.BehaviorKind,
                 IndividualValidFrom = writtenOff.IndividualValidFrom,
                 IndividualValidTo = writtenOff.IndividualValidTo,
-                IsPaid = writtenOff.IsPaid,
                 SingleVisitUsed = writtenOff.SingleVisitUsed,
-                PaidByUserId = writtenOff.PaidByUserId,
-                PaidAt = writtenOff.PaidAt,
                 ChangeReason = ClientMembershipChangeReason.Correction,
                 ChangedByUserId = seeded.HeadCoachId,
                 ValidFrom = now,
@@ -791,9 +794,7 @@ public class AttendanceApiTests
             GetBusinessToday().AddMonths(-2),
             GetBusinessToday().AddDays(-1),
             1200m,
-            isPaid: false,
-            singleVisitUsed: false,
-            seedBy: coach.Id);
+            singleVisitUsed: false);
 
         await AddMembershipAsync(
             dbContext,
@@ -803,9 +804,7 @@ public class AttendanceApiTests
             GetBusinessToday(),
             null,
             500m,
-            isPaid: true,
-            singleVisitUsed: false,
-            seedBy: coach.Id);
+            singleVisitUsed: false);
 
         await AddMembershipAsync(
             dbContext,
@@ -815,9 +814,7 @@ public class AttendanceApiTests
             GetBusinessToday(),
             null,
             0m,
-            isPaid: true,
-            singleVisitUsed: false,
-            seedBy: coach.Id);
+            singleVisitUsed: false);
 
         await dbContext.SaveChangesAsync();
 
@@ -844,9 +841,7 @@ public class AttendanceApiTests
         DateOnly purchaseDate,
         DateOnly? expirationDate,
         decimal paymentAmount,
-        bool isPaid,
-        bool singleVisitUsed,
-        Guid seedBy)
+        bool singleVisitUsed)
     {
         var now = DateTimeOffset.UtcNow;
         var saleId = Guid.NewGuid();
@@ -886,11 +881,8 @@ public class AttendanceApiTests
             ProfessionalComment = behaviorKind == MembershipBehaviorKind.Professional
                 ? "Льготный статус для посещаемости"
                 : null,
-            IsPaid = isPaid,
             SingleVisitUsed = singleVisitUsed,
             ChangedByUserId = changedByUserId,
-            PaidByUserId = isPaid ? seedBy : null,
-            PaidAt = isPaid ? now : null,
             ChangeReason = ClientMembershipChangeReason.NewPurchase,
             ValidFrom = now,
             CreatedAt = now,
@@ -903,6 +895,7 @@ public class AttendanceApiTests
                 BehaviorKind = behaviorKind,
                 PricingMode = ClientMembershipSalePricingMode.Catalog,
                 PurchaseDate = purchaseDate,
+                PaymentDate = purchaseDate,
                 GrossAmount = paymentAmount,
                 CreatedByUserId = changedByUserId,
                 CreatedAt = now
@@ -1097,25 +1090,9 @@ public class AttendanceApiTests
             return true;
         }
 
-        var isPaid = GetBoolFromAnyCase(clientPayload, "isPaid", "paid");
-        if (isPaid is false)
-        {
-            return true;
-        }
-
         var membershipPayload = GetPropertyOrNull(clientPayload, "currentMembership", "membership", "membershipData");
         if (membershipPayload.ValueKind == JsonValueKind.Object)
         {
-            var membershipIsPaid = GetBoolFromAnyCase(
-                membershipPayload,
-                "isPaid",
-                "paid",
-                "isActive");
-            if (membershipIsPaid is false)
-            {
-                return true;
-            }
-
             var singleVisitUsed = GetBoolFromAnyCase(
                 membershipPayload,
                 "singleVisitUsed",

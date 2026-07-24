@@ -67,7 +67,7 @@ internal static class ClientEndpoints
         return endpoints;
     }
 
-    private static async Task<Results<Ok<ClientListResponse>, ValidationProblem, ForbidHttpResult, UnauthorizedHttpResult>> ListClientsAsync(
+    private static async Task<Results<Ok<ClientListResponse>, ValidationProblem, ProblemHttpResult, ForbidHttpResult, UnauthorizedHttpResult>> ListClientsAsync(
         int? page,
         int? pageSize,
         int? skip,
@@ -88,6 +88,7 @@ internal static class ClientEndpoints
         bool? hasGroup,
         bool? hasCurrentMembership,
         bool? hasActivePaidMembership,
+        bool? hasActiveMembership,
         string? quickFilters,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
@@ -97,6 +98,19 @@ internal static class ClientEndpoints
         if (currentUser is null)
         {
             return TypedResults.Unauthorized();
+        }
+
+        if (!string.IsNullOrWhiteSpace(paymentStatus) ||
+            string.Equals(membershipState, "Unpaid", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(membershipState, "Paid", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(membershipState, "ActivePaid", StringComparison.OrdinalIgnoreCase) ||
+            hasActivePaidMembership.HasValue)
+        {
+            return CreateProblem(
+                StatusCodes.Status400BadRequest,
+                "membership-payment-filter-removed",
+                "Membership payment filters were removed.",
+                new Dictionary<string, string[]> { ["membership"] = ["Membership payment filters were removed."] });
         }
 
         var errors = ValidatePaging(page, pageSize, skip, take);
@@ -120,7 +134,6 @@ internal static class ClientEndpoints
 
         var paging = ResolvePaging(page, pageSize, skip, take);
         var parsedStatus = ParseStatus(status);
-        var parsedPaymentStatus = ParsePaymentStatus(paymentStatus);
         var parsedMembershipState = ParseMembershipState(membershipState);
         var parsedBehaviorKind = ParseBehaviorKind(behaviorKind);
         var membershipExpirationFrom = ParseIsoDate(membershipExpiresFrom);
@@ -160,30 +173,6 @@ internal static class ClientEndpoints
             clientsQuery = clientsQuery.Where(client => client.Groups.Any(clientGroup => clientGroup.GroupId == groupId.Value));
         }
 
-        if (parsedPaymentStatus.HasValue)
-        {
-            clientsQuery = parsedPaymentStatus.Value switch
-            {
-                ClientPaymentStatus.Paid => clientsQuery.Where(client => client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) || client.Memberships
-                    .Where(membership => membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Take(1)
-                    .Any(membership => membership.IsPaid)),
-                ClientPaymentStatus.Unpaid => clientsQuery.Where(client => !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) && client.Memberships
-                    .Where(membership => membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Take(1)
-                    .Any(membership => !membership.IsPaid)),
-                _ => clientsQuery
-            };
-        }
-
         if (hasCurrentMembership.HasValue)
         {
             clientsQuery = hasCurrentMembership.Value
@@ -208,9 +197,9 @@ internal static class ClientEndpoints
                 .Any(membership => membership.BehaviorKind == parsedBehaviorKind.Value));
         }
 
-        if (hasActivePaidMembership.HasValue)
+        if (hasActiveMembership.HasValue)
         {
-            clientsQuery = hasActivePaidMembership.Value
+            clientsQuery = hasActiveMembership.Value
                 ? clientsQuery.Where(client => client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) || client.Memberships
                     .Where(membership => membership.ValidTo == null)
                     .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
@@ -220,7 +209,6 @@ internal static class ClientEndpoints
                     .Take(1)
                     .Any(
                         membership =>
-                            membership.IsPaid &&
                             (membership.IndividualValidTo == null || membership.IndividualValidTo >= today) &&
                             (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed))
                     )
@@ -233,7 +221,6 @@ internal static class ClientEndpoints
                     .Take(1)
                     .Any(
                         membership =>
-                            membership.IsPaid &&
                             (membership.IndividualValidTo == null || membership.IndividualValidTo >= today) &&
                             (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed)));
         }
@@ -371,16 +358,8 @@ internal static class ClientEndpoints
                     .Take(1)
                     .Any(
                         membership =>
-                            membership.IsPaid &&
                             (membership.IndividualValidTo == null || membership.IndividualValidTo >= today) &&
                             (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed)),
-                !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) && dbContext.ClientMemberships
-                    .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.ValidFrom)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Take(1)
-                    .Any(membership => !membership.IsPaid),
                 dbContext.ClientMemberships
                     .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
@@ -399,26 +378,24 @@ internal static class ClientEndpoints
                             ? membership.Sale.MembershipCatalogItem.Price
                             : null,
                         membership.Sale.PurchaseDate,
+                        membership.Sale.PaymentDate,
                         membership.IndividualValidTo,
-                        membership.IsPaid,
                         membership.SingleVisitUsed))
                     .FirstOrDefault(),
                 dbContext.ClientMemberships.Any(membership => membership.ClientId == client.Id && membership.ValidTo == null),
                 client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today))
-                    ? ClientMembershipState.ActivePaid.ToString()
+                    ? ClientMembershipState.Active.ToString()
                     : (dbContext.ClientMemberships
                     .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
                     .OrderByDescending(membership => membership.ValidFrom)
                     .ThenByDescending(membership => membership.CreatedAt)
                     .ThenByDescending(membership => membership.Id)
                     .Select(membership =>
-                        !membership.IsPaid
-                            ? ClientMembershipState.Unpaid.ToString()
-                            : membership.IndividualValidTo != null && membership.IndividualValidTo < today
+                        membership.IndividualValidTo != null && membership.IndividualValidTo < today
                                 ? ClientMembershipState.Expired.ToString()
                                 : membership.BehaviorKind == MembershipBehaviorKind.SingleVisit && membership.SingleVisitUsed
                                     ? ClientMembershipState.UsedSingleVisit.ToString()
-                                    : ClientMembershipState.ActivePaid.ToString())
+                                    : ClientMembershipState.Active.ToString())
                     .FirstOrDefault() ?? ClientMembershipState.None.ToString()),
                 dbContext.Attendance
                     .Where(attendance =>
@@ -512,16 +489,14 @@ internal static class ClientEndpoints
                     .Select(membership => new
                     {
                         membership.BehaviorKind,
-                        membership.IndividualValidTo,
-                        membership.IsPaid
+                        membership.IndividualValidTo
                     })
                     .FirstOrDefault()
             })
             .Where(candidate =>
                 candidate.CurrentMembership != null &&
-                (!candidate.CurrentMembership.IsPaid ||
-                 candidate.CurrentMembership.IndividualValidTo.HasValue &&
-                 candidate.CurrentMembership.IndividualValidTo.Value < expiresBefore))
+                candidate.CurrentMembership.IndividualValidTo.HasValue &&
+                candidate.CurrentMembership.IndividualValidTo.Value < expiresBefore)
             .Select(candidate => new
             {
                 candidate.Id,
@@ -529,8 +504,7 @@ internal static class ClientEndpoints
                 candidate.FirstName,
                 candidate.MiddleName,
                 BehaviorKind = candidate.CurrentMembership!.BehaviorKind,
-                IndividualValidTo = candidate.CurrentMembership!.IndividualValidTo,
-                candidate.CurrentMembership!.IsPaid
+                IndividualValidTo = candidate.CurrentMembership!.IndividualValidTo
             })
             .ToArrayAsync(cancellationToken);
 
@@ -543,10 +517,8 @@ internal static class ClientEndpoints
                 candidate.LastName,
                 candidate.MiddleName,
                 candidate.BehaviorKind,
-                candidate.IsPaid,
                 State = ResolveMembershipAttentionState(
                     candidate.IndividualValidTo,
-                    candidate.IsPaid,
                     today,
                     expiresBefore)
             })
@@ -569,7 +541,6 @@ internal static class ClientEndpoints
                 candidate.IndividualValidTo.HasValue
                     ? candidate.IndividualValidTo.Value.DayNumber - today.DayNumber
                     : null,
-                candidate.IsPaid,
                 candidate.State!))
             .ToArray();
 
@@ -578,7 +549,6 @@ internal static class ClientEndpoints
 
     private static string? ResolveMembershipAttentionState(
         DateOnly? expirationDate,
-        bool isPaid,
         DateOnly today,
         DateOnly expiresBefore)
     {
@@ -592,7 +562,7 @@ internal static class ClientEndpoints
             return MembershipAttentionState.ExpiringSoon;
         }
 
-        return isPaid ? null : MembershipAttentionState.Unpaid;
+        return null;
     }
 
     private static int GetMembershipAttentionSortGroup(string state)
@@ -601,7 +571,6 @@ internal static class ClientEndpoints
         {
             MembershipAttentionState.Expired => 0,
             MembershipAttentionState.ExpiringSoon => 1,
-            MembershipAttentionState.Unpaid => 2,
             _ => 3
         };
     }
@@ -876,6 +845,8 @@ internal static class ClientEndpoints
         IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
+        IServiceScopeFactory serviceScopeFactory,
+        ILoggerFactory loggerFactory,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -891,11 +862,22 @@ internal static class ClientEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var client = await dbContext.Clients
-            .Include(candidate => candidate.Groups)
-            .Include(candidate => candidate.Memberships)
-                .ThenInclude(membership => membership.Sale)
-            .SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
+        var removedPaymentMarker = CreateRemovedPaymentMarkerProblem(request.PaymentStatus, request.IsPaid);
+        if (removedPaymentMarker is not null)
+        {
+            return removedPaymentMarker;
+        }
+
+        var transferIdempotencyKey = GetMembershipIdempotencyKey(httpContext.Request);
+        if (transferIdempotencyKey is null)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["idempotencyKey"] = ["Idempotency-Key header is required for this membership operation."]
+            });
+        }
+
+        var client = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
         if (client is null)
         {
             return TypedResults.NotFound();
@@ -907,11 +889,8 @@ internal static class ClientEndpoints
             return TypedResults.ValidationProblem(validationErrors);
         }
 
-        var oldStateSnapshot = await LoadClientSnapshotAsync(id, dbContext, cancellationToken);
-        var oldState = SerializeAuditState(oldStateSnapshot ?? client);
         var targetBranchId = (request.TargetBranchId ?? request.BranchId)!.Value;
         var targetGroupIds = NormalizeTransferGroupIds(request);
-        var now = DateTimeOffset.UtcNow;
         var today = businessDateProvider.Today;
         var currentMembership = GetCurrentMembership(client);
         var preserveSingleVisit = currentMembership is
@@ -942,7 +921,7 @@ internal static class ClientEndpoints
         {
             var pricingErrors = new Dictionary<string, string[]>();
             ValidatePricingSelection(request.MembershipCatalogItemId, request.ManualSaleAmount, pricingErrors);
-            ValidateCatalogPayment(request.PaymentStatus, request.PaymentDate, pricingErrors);
+            ValidateCatalogPayment(request.PaymentStatus, request.IsPaid, request.PaymentDate, today, pricingErrors);
             if (pricingErrors.Count > 0)
                 return TypedResults.ValidationProblem(pricingErrors);
 
@@ -969,83 +948,101 @@ internal static class ClientEndpoints
             }
         }
 
-        await using var transaction = dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory"
-            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
-            : null;
-
-        if (!preserveSingleVisit && currentMembership is not null)
-        {
-            currentMembership.ValidTo = now;
-            if (currentMembership.BehaviorKind is MembershipBehaviorKind.Term or MembershipBehaviorKind.Professional)
-                currentMembership.IndividualValidTo = today.AddDays(-1);
-        }
-
-        client.BranchId = targetBranchId;
-        client.UpdatedAt = now;
-        await CloseActiveBranchAssignmentsAsync(client.Id, now, dbContext, cancellationToken);
-        OpenBranchAssignment(client.Id, targetBranchId, currentUser.Id, now, dbContext);
-
-        await ReplaceGroupAssignmentsAsync(
-            client.Id,
-            targetBranchId,
-            targetGroupIds,
-            currentUser.Id,
-            now,
+        return await ExecuteMembershipActionAsync(
+            id,
+            httpContext,
             dbContext,
-            cancellationToken);
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        if (!preserveSingleVisit)
-        {
-            var isPaid = string.Equals(request.PaymentStatus, "Paid", StringComparison.OrdinalIgnoreCase);
-            var mutation = await membershipService.PurchaseAsync(
-                client.Id,
-                new CreateClientMembershipPurchaseCommand(
-                    currentUser.Id,
-                    request.MembershipCatalogItemId,
-                    ParseIsoDate(request.ValidFrom),
-                    ParseIsoDate(request.ValidTo),
-                    isPaid,
-                    ParseIsoDate(request.PaymentDate),
-                    request.ProfessionalComment,
-                    request.ManualSaleAmount),
-                cancellationToken);
-            if (!mutation.Succeeded)
+            businessDateProvider,
+            auditLogService,
+            serviceScopeFactory,
+            loggerFactory,
+            antiforgery,
+            cancellationToken,
+            validateRequest: _ => [],
+            executeAsync: async actor =>
             {
-                if (transaction is not null)
+                var clientForMutation = await dbContext.Clients
+                    .Include(candidate => candidate.Groups)
+                    .Include(candidate => candidate.Memberships)
+                        .ThenInclude(membership => membership.Sale)
+                    .SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
+                if (clientForMutation is null)
                 {
-                    await transaction.RollbackAsync(cancellationToken);
+                    return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ClientMissing);
                 }
-                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+
+                var now = DateTimeOffset.UtcNow;
+                var currentMembershipForMutation = GetCurrentMembership(clientForMutation);
+                if (!preserveSingleVisit && currentMembershipForMutation is not null)
                 {
-                    ["membershipCatalogItemId"] = [$"Transfer membership failed: {mutation.Error}."]
-                });
-            }
-        }
+                    currentMembershipForMutation.ValidTo = now;
+                    if (currentMembershipForMutation.BehaviorKind is MembershipBehaviorKind.Term or MembershipBehaviorKind.Professional)
+                    {
+                        currentMembershipForMutation.IndividualValidTo = today.AddDays(-1);
+                    }
+                }
 
-        if (transaction is not null)
-        {
-            await transaction.CommitAsync(cancellationToken);
-        }
+                clientForMutation.BranchId = targetBranchId;
+                clientForMutation.UpdatedAt = now;
+                await CloseActiveBranchAssignmentsAsync(clientForMutation.Id, now, dbContext, cancellationToken);
+                OpenBranchAssignment(clientForMutation.Id, targetBranchId, actor.Id, now, dbContext);
 
-        var updatedClient = await LoadClientSnapshotAsync(client.Id, dbContext, cancellationToken)
-            ?? throw new InvalidOperationException($"Transferred client '{client.Id}' was not found.");
+                await ReplaceGroupAssignmentsAsync(
+                    clientForMutation.Id,
+                    targetBranchId,
+                    targetGroupIds,
+                    actor.Id,
+                    now,
+                    dbContext,
+                    cancellationToken);
 
-        await auditLogService.WriteAsync(
-            new AuditLogEntry(
-                currentUser.Id,
-                ClientAuditConstants.ClientTransferredAction,
-                ClientAuditConstants.ClientEntityType,
-                client.Id.ToString(),
-                ClientAuditResources.ClientTransferredDescription(
-                    currentUser.Login,
-                    BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
-                oldState,
-                SerializeAuditState(updatedClient)),
-            cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
 
-        return TypedResults.Ok(MapDetails(updatedClient, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
+                if (!preserveSingleVisit)
+                {
+                    return await membershipService.PurchaseAsync(
+                        clientForMutation.Id,
+                        new CreateClientMembershipPurchaseCommand(
+                            actor.Id,
+                            request.MembershipCatalogItemId,
+                            ParseIsoDate(request.ValidFrom),
+                            ParseIsoDate(request.ValidTo),
+                            ParseIsoDate(request.PaymentDate)!.Value,
+                            request.ProfessionalComment,
+                            request.ManualSaleAmount),
+                        cancellationToken);
+                }
+
+                return ClientMembershipMutationResult.Success(new ClientMembershipDetailsResult(id, null, []));
+            },
+            idempotencyPayload: new
+            {
+                ClientId = id,
+                Action = ClientAuditConstants.ClientTransferredAction,
+                TargetBranchId = targetBranchId,
+                GroupIds = targetGroupIds.Order().ToArray(),
+                PreserveSingleVisit = preserveSingleVisit,
+                request.MembershipCatalogItemId,
+                ValidFrom = NormalizeIsoDateForIdempotency(request.ValidFrom),
+                ValidTo = NormalizeIsoDateForIdempotency(request.ValidTo),
+                PaymentDate = NormalizeIsoDateForIdempotency(request.PaymentDate),
+                ProfessionalComment = NormalizeOptionalText(request.ProfessionalComment),
+                request.ManualSaleAmount
+            },
+            actionType: ClientAuditConstants.ClientTransferredAction,
+            descriptionFactory: ClientAuditResources.ClientTransferredDescription,
+            writeAuditAsync: (actor, clientBefore, clientAfter, _) => auditLogService.WriteAsync(
+                new AuditLogEntry(
+                    actor.Id,
+                    ClientAuditConstants.ClientTransferredAction,
+                    ClientAuditConstants.ClientEntityType,
+                    clientAfter.Id.ToString(),
+                    ClientAuditResources.ClientTransferredDescription(
+                        actor.Login,
+                        BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
+                    SerializeAuditState(clientBefore),
+                    SerializeAuditState(clientAfter)),
+                cancellationToken));
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> ArchiveClientAsync(
@@ -1155,7 +1152,7 @@ internal static class ClientEndpoints
         return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
-    private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> PurchaseMembershipAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> PurchaseMembershipAsync(
         Guid id,
         PurchaseClientMembershipRequest request,
         HttpContext httpContext,
@@ -1168,7 +1165,13 @@ internal static class ClientEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        return ExecuteMembershipActionAsync(
+        var removedPaymentMarker = CreateRemovedPaymentMarkerProblem(request.PaymentStatus, request.IsPaid);
+        if (removedPaymentMarker is not null)
+        {
+            return removedPaymentMarker;
+        }
+
+        return await ExecuteMembershipActionAsync(
             id,
             httpContext,
             dbContext,
@@ -1178,7 +1181,7 @@ internal static class ClientEndpoints
             loggerFactory,
             antiforgery,
             cancellationToken,
-            validateRequest: _ => ValidatePurchaseMembershipRequest(request),
+            validateRequest: _ => ValidatePurchaseMembershipRequest(request, businessDateProvider.Today),
             executeAsync: currentUser =>
                 membershipService.PurchaseAsync(
                     id,
@@ -1187,8 +1190,7 @@ internal static class ClientEndpoints
                         request.MembershipCatalogItemId,
                         ParseIsoDate(request.ValidFrom),
                         ParseIsoDate(request.ValidTo),
-                        string.Equals(request.PaymentStatus, "Paid", StringComparison.OrdinalIgnoreCase),
-                        ParseIsoDate(request.PaymentDate),
+                        ParseIsoDate(request.PaymentDate)!.Value,
                         request.ProfessionalComment,
                         request.ManualSaleAmount),
                     cancellationToken),
@@ -1199,7 +1201,6 @@ internal static class ClientEndpoints
                 request.MembershipCatalogItemId,
                 ValidFrom = NormalizeIsoDateForIdempotency(request.ValidFrom),
                 ValidTo = NormalizeIsoDateForIdempotency(request.ValidTo),
-                PaymentStatus = request.PaymentStatus?.Trim(),
                 PaymentDate = NormalizeIsoDateForIdempotency(request.PaymentDate),
                 ProfessionalComment = NormalizeOptionalText(request.ProfessionalComment),
                 request.ManualSaleAmount
@@ -1242,7 +1243,7 @@ internal static class ClientEndpoints
         return TypedResults.Ok(MapDetails(client, EmptyAttendanceHistoryPage(), businessDateProvider.Today, loggerFactory.CreateLogger("ClientMembershipCommentMetadata")));
     }
 
-    private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RenewMembershipAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RenewMembershipAsync(
         Guid id,
         RenewClientMembershipRequest request,
         HttpContext httpContext,
@@ -1255,7 +1256,13 @@ internal static class ClientEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        return ExecuteMembershipActionAsync(
+        var removedPaymentMarker = CreateRemovedPaymentMarkerProblem(request.PaymentStatus, request.IsPaid);
+        if (removedPaymentMarker is not null)
+        {
+            return removedPaymentMarker;
+        }
+
+        return await ExecuteMembershipActionAsync(
             id,
             httpContext,
             dbContext,
@@ -1265,15 +1272,14 @@ internal static class ClientEndpoints
             loggerFactory,
             antiforgery,
             cancellationToken,
-            validateRequest: clientBefore => ValidateRenewMembershipRequest(request, clientBefore),
+            validateRequest: clientBefore => ValidateRenewMembershipRequest(request, clientBefore, businessDateProvider.Today),
             executeAsync: currentUser =>
                 membershipService.RenewAsync(
                     id,
                     new RenewClientMembershipCommand(
                         currentUser.Id,
                         request.MembershipCatalogItemId,
-                        string.Equals(request.PaymentStatus, "Paid", StringComparison.OrdinalIgnoreCase),
-                        ParseIsoDate(request.PaymentDate),
+                        ParseIsoDate(request.PaymentDate)!.Value,
                         request.ProfessionalComment,
                         request.ManualSaleAmount),
                     cancellationToken),
@@ -1282,7 +1288,6 @@ internal static class ClientEndpoints
                 ClientId = id,
                 Action = ClientAuditConstants.MembershipRenewedAction,
                 request.MembershipCatalogItemId,
-                PaymentStatus = request.PaymentStatus?.Trim(),
                 PaymentDate = NormalizeIsoDateForIdempotency(request.PaymentDate),
                 ProfessionalComment = NormalizeOptionalText(request.ProfessionalComment),
                 request.ManualSaleAmount
@@ -1314,7 +1319,8 @@ internal static class ClientEndpoints
             loggerFactory,
             antiforgery,
             cancellationToken,
-            validateRequest: clientBefore => ValidateCorrectMembershipRequest(request, clientBefore),
+            validateRequest: clientBefore =>
+                ValidateCorrectMembershipRequest(request, clientBefore, businessDateProvider.Today),
             executeAsync: currentUser =>
                 membershipService.CorrectAsync(
                     id,
@@ -1323,7 +1329,8 @@ internal static class ClientEndpoints
                         request.SaleId!.Value,
                         request.ExpectedMembershipId!.Value,
                         ParseIsoDate(request.ValidFrom),
-                        ParseIsoDate(request.ValidTo)),
+                        ParseIsoDate(request.ValidTo),
+                        ParseIsoDate(request.PaymentDate)!.Value),
                     cancellationToken),
             idempotencyPayload: new
             {
@@ -1332,13 +1339,14 @@ internal static class ClientEndpoints
                 request.SaleId,
                 request.ExpectedMembershipId,
                 ValidFrom = NormalizeIsoDateForIdempotency(request.ValidFrom),
-                ValidTo = NormalizeIsoDateForIdempotency(request.ValidTo)
+                ValidTo = NormalizeIsoDateForIdempotency(request.ValidTo),
+                PaymentDate = NormalizeIsoDateForIdempotency(request.PaymentDate)
             },
             actionType: ClientAuditConstants.MembershipCorrectedAction,
             descriptionFactory: ClientAuditResources.MembershipCorrectedDescription);
     }
 
-    private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> MarkMembershipPaymentAsync(
+    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> MarkMembershipPaymentAsync(
         Guid id,
         MarkMembershipPaymentRequest request,
         HttpContext httpContext,
@@ -1351,34 +1359,22 @@ internal static class ClientEndpoints
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
-        return ExecuteMembershipActionAsync(
-            id,
-            httpContext,
-            dbContext,
-            businessDateProvider,
-            auditLogService,
-            serviceScopeFactory,
-            loggerFactory,
-            antiforgery,
-            cancellationToken,
-            validateRequest: clientBefore => ValidateMarkMembershipPaymentRequest(request, clientBefore),
-            executeAsync: currentUser =>
-                membershipService.MarkPaymentAsync(
-                    id,
-                    new MarkClientMembershipPaymentCommand(
-                        currentUser.Id,
-                        request.SaleId!.Value,
-                        request.ExpectedMembershipId!.Value),
-                    cancellationToken),
-            idempotencyPayload: new
-            {
-                ClientId = id,
-                Action = ClientAuditConstants.MembershipPaymentMarkedAction,
-                request.SaleId,
-                request.ExpectedMembershipId
-            },
-            actionType: ClientAuditConstants.MembershipPaymentMarkedAction,
-            descriptionFactory: ClientAuditResources.MembershipPaymentMarkedDescription);
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
+        if (csrfValidationResult is not null)
+        {
+            return csrfValidationResult;
+        }
+
+        if (httpContext.GetAuthenticatedGymCrmUser() is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        return CreateProblem(
+            StatusCodes.Status410Gone,
+            "membership-payment-action-removed",
+            "Membership payment action was removed.",
+            new Dictionary<string, string[]> { ["membership"] = ["Membership payment action was removed."] });
     }
 
     private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> RegisterMembershipRefundAsync(
@@ -1526,7 +1522,8 @@ internal static class ClientEndpoints
         Func<User, Task<ClientMembershipMutationResult>> executeAsync,
         object idempotencyPayload,
         string actionType,
-        Func<string, string, string> descriptionFactory)
+        Func<string, string, string> descriptionFactory,
+        Func<User, Client, Client, ClientMembershipMutationResult, Task>? writeAuditAsync = null)
     {
         var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
@@ -1707,18 +1704,25 @@ internal static class ClientEndpoints
                 ?? throw new InvalidOperationException($"Updated client '{id}' was not found after membership change.");
             var currentMembershipAfter = GetCurrentMembership(clientAfter);
 
-            await auditLogService.WriteAsync(
-                new AuditLogEntry(
-                    currentUser.Id,
-                    actionType,
-                    ClientAuditConstants.MembershipEntityType,
-                    currentMembershipAfter?.Id.ToString() ?? clientAfter.Id.ToString(),
-                    descriptionFactory(
-                        currentUser.Login,
-                        BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
-                    SerializeMembershipAuditState(GetCurrentMembership(clientBefore)),
-                    SerializeMembershipAuditState(currentMembershipAfter)),
-                cancellationToken);
+            if (writeAuditAsync is not null)
+            {
+                await writeAuditAsync(currentUser, clientBefore, clientAfter, mutationResult);
+            }
+            else
+            {
+                await auditLogService.WriteAsync(
+                    new AuditLogEntry(
+                        currentUser.Id,
+                        actionType,
+                        ClientAuditConstants.MembershipEntityType,
+                        currentMembershipAfter?.Id.ToString() ?? clientAfter.Id.ToString(),
+                        descriptionFactory(
+                            currentUser.Login,
+                            BuildClientFullName(clientAfter.LastName, clientAfter.FirstName, clientAfter.MiddleName)),
+                        SerializeMembershipAuditState(GetCurrentMembership(clientBefore)),
+                        SerializeMembershipAuditState(currentMembershipAfter)),
+                    cancellationToken);
+            }
 
             if (mutationResult.SaleAudit is not null)
             {
@@ -1896,8 +1900,6 @@ internal static class ClientEndpoints
             .Include(client => client.NotesChangedByUser)
             .Include(client => client.Contacts)
             .Include(client => client.Memberships)
-                .ThenInclude(membership => membership.PaidByUser)
-            .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
                     .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
@@ -1906,6 +1908,9 @@ internal static class ClientEndpoints
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
                     .ThenInclude(sale => sale.CommentChangedByUser)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.Sale)
+                    .ThenInclude(sale => sale.CreatedByUser)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
@@ -2057,11 +2062,6 @@ internal static class ClientEndpoints
         if (!string.IsNullOrWhiteSpace(status) && ParseStatus(status) is null)
         {
             errors["status"] = [ClientResources.InvalidStatus];
-        }
-
-        if (!string.IsNullOrWhiteSpace(paymentStatus) && ParsePaymentStatus(paymentStatus) is null)
-        {
-            errors["paymentStatus"] = [ClientResources.InvalidPaymentStatus];
         }
 
         if (!string.IsNullOrWhiteSpace(membershipState) && ParseMembershipState(membershipState) is null)
@@ -2668,37 +2668,65 @@ internal static class ClientEndpoints
         assignment.ValidTo = validTo;
     }
 
-    private static Dictionary<string, string[]> ValidatePurchaseMembershipRequest(PurchaseClientMembershipRequest request)
+    private static Dictionary<string, string[]> ValidatePurchaseMembershipRequest(PurchaseClientMembershipRequest request, DateOnly businessDate)
     {
         var errors = new Dictionary<string, string[]>();
         ValidateAdditionalFields(request.AdditionalFields, errors);
         ValidatePricingSelection(request.MembershipCatalogItemId, request.ManualSaleAmount, errors);
         _ = ValidateOptionalDate(request.ValidFrom, "validFrom", errors);
         _ = ValidateOptionalDate(request.ValidTo, "validTo", errors);
-        ValidateCatalogPayment(request.PaymentStatus, request.PaymentDate, errors);
+        ValidateCatalogPayment(request.PaymentStatus, request.IsPaid, request.PaymentDate, businessDate, errors);
 
         return errors;
     }
 
     private static Dictionary<string, string[]> ValidateRenewMembershipRequest(
         RenewClientMembershipRequest request,
-        Client client)
+        Client client,
+        DateOnly businessDate)
     {
         var errors = new Dictionary<string, string[]>();
         ValidateAdditionalFields(request.AdditionalFields, errors);
         ValidatePricingSelection(request.MembershipCatalogItemId, request.ManualSaleAmount, errors);
-        ValidateCatalogPayment(request.PaymentStatus, request.PaymentDate, errors);
+        ValidateCatalogPayment(request.PaymentStatus, request.IsPaid, request.PaymentDate, businessDate, errors);
 
         return errors;
     }
 
-    private static void ValidateCatalogPayment(string? status, string? paymentDate, Dictionary<string, string[]> errors)
+    private static void ValidateCatalogPayment(
+        string? status,
+        bool? isPaid,
+        string? paymentDate,
+        DateOnly businessDate,
+        Dictionary<string, string[]> errors)
     {
-        if (status is not ("Paid" or "Unpaid"))
-            errors["paymentStatus"] = ["Payment status must be Paid or Unpaid."];
-        var date = ValidateOptionalDate(paymentDate, "paymentDate", errors);
-        if (status == "Paid" && !date.HasValue) errors["paymentDate"] = ["Payment date is required for paid membership."];
-        if (status == "Unpaid" && date.HasValue) errors["paymentDate"] = ["Payment date must be absent for unpaid membership."];
+        if (!string.IsNullOrWhiteSpace(status) &&
+            !string.Equals(status.Trim(), "Paid", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(status.Trim(), "Unpaid", StringComparison.OrdinalIgnoreCase))
+        {
+            errors["paymentStatus"] = ["Payment status is no longer accepted. Remove paymentStatus and send paymentDate."];
+        }
+
+        if (string.Equals(status?.Trim(), "Unpaid", StringComparison.OrdinalIgnoreCase) || isPaid == false)
+        {
+            errors["paymentStatus"] = ["Unpaid membership status was removed."];
+        }
+
+        ValidateRequiredPaymentDate(paymentDate, businessDate, errors);
+    }
+
+    private static ProblemHttpResult? CreateRemovedPaymentMarkerProblem(string? paymentStatus, bool? isPaid)
+    {
+        if (string.Equals(paymentStatus?.Trim(), "Unpaid", StringComparison.OrdinalIgnoreCase) || isPaid == false)
+        {
+            return CreateProblem(
+                StatusCodes.Status400BadRequest,
+                "membership-payment-status-removed",
+                "Unpaid membership status was removed.",
+                new Dictionary<string, string[]> { ["paymentStatus"] = ["Unpaid membership status was removed."] });
+        }
+
+        return null;
     }
 
     private static void ValidatePricingSelection(
@@ -2744,7 +2772,8 @@ internal static class ClientEndpoints
 
     private static Dictionary<string, string[]> ValidateCorrectMembershipRequest(
         CorrectClientMembershipRequest request,
-        Client client)
+        Client client,
+        DateOnly businessDate)
     {
         var errors = new Dictionary<string, string[]>();
         ValidateAdditionalFields(request.AdditionalFields, errors);
@@ -2752,22 +2781,33 @@ internal static class ClientEndpoints
         ValidateRequiredGuid(request.ExpectedMembershipId, "expectedMembershipId", errors);
         var validFrom = ValidateRequiredDate(request.ValidFrom, "validFrom", ClientResources.PurchaseDateRequired, errors);
         var validTo = ValidateOptionalDate(request.ValidTo, "validTo", errors);
+        ValidateRequiredPaymentDate(request.PaymentDate, businessDate, errors);
         if (validFrom.HasValue && validTo.HasValue && validTo < validFrom)
             errors["validTo"] = [ClientResources.ExpirationBeforePurchaseDate];
 
         return errors;
     }
 
-    private static Dictionary<string, string[]> ValidateMarkMembershipPaymentRequest(
-        MarkMembershipPaymentRequest request,
-        Client client)
+    private static void ValidateRequiredPaymentDate(
+        string? paymentDate,
+        DateOnly businessDate,
+        Dictionary<string, string[]> errors)
     {
-        var errors = new Dictionary<string, string[]>();
-        ValidateAdditionalFields(request.AdditionalFields, errors);
-        ValidateRequiredGuid(request.SaleId, "saleId", errors);
-        ValidateRequiredGuid(request.ExpectedMembershipId, "expectedMembershipId", errors);
+        var parsedPaymentDate = ValidateOptionalDate(paymentDate, "paymentDate", errors);
+        if (errors.ContainsKey("paymentDate"))
+        {
+            return;
+        }
 
-        return errors;
+        switch (ClientMembershipPaymentDatePolicy.Validate(parsedPaymentDate, businessDate))
+        {
+            case ClientMembershipPaymentDateValidationResult.Missing:
+                errors["paymentDate"] = ["Payment date is required."];
+                break;
+            case ClientMembershipPaymentDateValidationResult.Future:
+                errors["paymentDate"] = ["Payment date cannot be in the future."];
+                break;
+        }
     }
 
     private static Dictionary<string, string[]> ValidateRefundRequest(CreateClientMembershipRefundRequest request)
@@ -2892,16 +2932,6 @@ internal static class ClientEndpoints
         }
 
         return parsedDate;
-    }
-
-    private static void ValidateIsPaidRequired(
-        bool? isPaid,
-        Dictionary<string, string[]> errors)
-    {
-        if (!isPaid.HasValue)
-        {
-            errors["isPaid"] = [ClientResources.IsPaidRequired];
-        }
     }
 
     private static void ValidateRequiredGuid(
@@ -3201,14 +3231,6 @@ internal static class ClientEndpoints
             ClientMembershipState.None => query.Where(client =>
                 !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) &&
                 !client.Memberships.Any(membership => membership.ValidTo == null)),
-            ClientMembershipState.Unpaid => query.Where(client => !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) && client.Memberships
-                .Where(membership => membership.ValidTo == null)
-                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .Take(1)
-                .Any(membership => !membership.IsPaid)),
             ClientMembershipState.Expired => query.Where(client => !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) && client.Memberships
                 .Where(membership => membership.ValidTo == null)
                 .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
@@ -3216,7 +3238,7 @@ internal static class ClientEndpoints
                 .ThenByDescending(membership => membership.CreatedAt)
                 .ThenByDescending(membership => membership.Id)
                 .Take(1)
-                .Any(membership => membership.IsPaid && membership.IndividualValidTo != null && membership.IndividualValidTo < today)),
+                .Any(membership => membership.IndividualValidTo != null && membership.IndividualValidTo < today)),
             ClientMembershipState.UsedSingleVisit => query.Where(client => !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) && client.Memberships
                 .Where(membership => membership.ValidTo == null)
                 .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
@@ -3224,8 +3246,8 @@ internal static class ClientEndpoints
                 .ThenByDescending(membership => membership.CreatedAt)
                 .ThenByDescending(membership => membership.Id)
                 .Take(1)
-                .Any(membership => membership.IsPaid && membership.BehaviorKind == MembershipBehaviorKind.SingleVisit && membership.SingleVisitUsed)),
-            ClientMembershipState.ActivePaid => query.Where(client => client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) || client.Memberships
+                .Any(membership => membership.BehaviorKind == MembershipBehaviorKind.SingleVisit && membership.SingleVisitUsed)),
+            ClientMembershipState.Active => query.Where(client => client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) || client.Memberships
                 .Where(membership => membership.ValidTo == null)
                 .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
                 .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
@@ -3234,7 +3256,6 @@ internal static class ClientEndpoints
                 .Take(1)
                 .Any(
                     membership =>
-                        membership.IsPaid &&
                         (membership.IndividualValidTo == null || membership.IndividualValidTo >= today) &&
                         (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed))),
             _ => query
@@ -3264,13 +3285,6 @@ internal static class ClientEndpoints
     {
         return Enum.TryParse<ClientStatus>(status?.Trim(), ignoreCase: true, out var parsedStatus)
             ? parsedStatus
-            : null;
-    }
-
-    private static ClientPaymentStatus? ParsePaymentStatus(string? paymentStatus)
-    {
-        return Enum.TryParse<ClientPaymentStatus>(paymentStatus?.Trim(), ignoreCase: true, out var parsedPaymentStatus)
-            ? parsedPaymentStatus
             : null;
     }
 
@@ -3350,8 +3364,7 @@ internal static class ClientEndpoints
 
                 return item with
                 {
-                    HasActivePaidMembership = HasActivePaidMembership(item.IsProfessional, currentMembership),
-                    HasUnpaidCurrentMembership = HasUnpaidCurrentMembership(item.IsProfessional, currentMembership),
+                    HasActiveMembership = HasActiveMembership(item.IsProfessional, currentMembership),
                     CurrentMembershipSummary = MapCurrentMembershipSummary(currentMembership),
                     HasCurrentMembership = currentMembership is not null,
                     MembershipState = GetMembershipState(item.IsProfessional, currentMembership).ToString(),
@@ -3388,8 +3401,7 @@ internal static class ClientEndpoints
             MapPhoto(client),
             client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
             client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-            HasActivePaidMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            HasUnpaidCurrentMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
+            HasActiveMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
             MapCurrentMembershipSummary(currentMembership),
             currentMembership is not null,
             GetMembershipState(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership).ToString(),
@@ -3428,8 +3440,7 @@ internal static class ClientEndpoints
             MapPhoto(client),
             client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
             client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-            HasActivePaidMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            HasUnpaidCurrentMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
+            HasActiveMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
             MapCurrentMembershipSummary(currentMembership),
             currentMembership is not null,
             GetMembershipState(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership).ToString(),
@@ -3487,8 +3498,7 @@ internal static class ClientEndpoints
             MapPhoto(client),
             client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
             client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-            HasActivePaidMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            HasUnpaidCurrentMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
+            HasActiveMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
             currentMembership is null ? null : MapMembership(currentMembership, logger),
             BuildActionHints(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(), currentMembership, groups.Count),
             membershipHistory,
@@ -3534,8 +3544,7 @@ internal static class ClientEndpoints
             MapPhoto(client),
             client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
             client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-            HasActivePaidMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            HasUnpaidCurrentMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
+            HasActiveMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
             null,
             BuildActionHints(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(), currentMembership, groups.Count),
             [],
@@ -3608,15 +3617,15 @@ internal static class ClientEndpoints
             membership.Sale.GrossAmount,
             ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
             membership.Sale.PurchaseDate,
+            membership.Sale.PaymentDate,
             membership.IndividualValidTo,
             membership.IndividualValidFrom,
             membership.IndividualValidTo,
             membership.ProfessionalComment,
-            membership.IsPaid,
             membership.SingleVisitUsed,
-            membership.PaidByUserId,
-            membership.PaidByUser?.FullName,
-            membership.PaidAt,
+            membership.Sale.CreatedByUserId,
+            membership.Sale.CreatedByUser.FullName,
+            membership.Sale.CreatedAt,
             membership.ChangeReason.ToString(),
             membership.ValidFrom,
             membership.ValidTo,
@@ -3701,8 +3710,8 @@ internal static class ClientEndpoints
                 membership.Sale.GrossAmount,
                 ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
                 membership.Sale.PurchaseDate,
+                membership.Sale.PaymentDate,
                 membership.IndividualValidTo,
-                membership.IsPaid,
                 membership.SingleVisitUsed);
     }
 
@@ -3717,32 +3726,22 @@ internal static class ClientEndpoints
             .FirstOrDefault();
     }
 
-    private static bool HasActivePaidMembership(bool isProfessional, ClientMembership? membership)
+    private static bool HasActiveMembership(bool isProfessional, ClientMembership? membership)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-        return ClientMembershipSemantics.HasActivePaidMembership(isProfessional, membership, today);
-    }
-
-    private static bool HasUnpaidCurrentMembership(bool isProfessional, ClientMembership? membership)
-    {
-        return ClientMembershipSemantics.HasUnpaidCurrentMembership(isProfessional, membership);
+        return ClientMembershipSemantics.HasActiveMembership(isProfessional, membership, today);
     }
 
     private static ClientMembershipState GetMembershipState(bool isProfessional, ClientMembership? membership)
     {
         if (isProfessional)
         {
-            return ClientMembershipState.ActivePaid;
+            return ClientMembershipState.Active;
         }
 
         if (membership is null)
         {
             return ClientMembershipState.None;
-        }
-
-        if (!membership.IsPaid)
-        {
-            return ClientMembershipState.Unpaid;
         }
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
@@ -3756,7 +3755,7 @@ internal static class ClientEndpoints
             return ClientMembershipState.UsedSingleVisit;
         }
 
-        return ClientMembershipState.ActivePaid;
+        return ClientMembershipState.Active;
     }
 
     private static IReadOnlyList<ClientActionHintResponse> BuildActionHints(
@@ -3803,16 +3802,6 @@ internal static class ClientEndpoints
         }
         else
         {
-            if (!currentMembership.IsPaid)
-            {
-                hints.Add(new ClientActionHintResponse(
-                    "Проверить оплату",
-                    "Текущий абонемент не оплачен",
-                    "red",
-                    "payment",
-                    null));
-            }
-
             if (currentMembership.IndividualValidTo.HasValue)
             {
                 var daysUntilExpiration = currentMembership.IndividualValidTo.Value.DayNumber - today.DayNumber;
@@ -3999,14 +3988,14 @@ internal static class ClientEndpoints
                 membership.Sale.GrossAmount,
                 ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
                 membership.Sale.PurchaseDate,
+                membership.Sale.PaymentDate,
                 membership.IndividualValidTo,
                 membership.IndividualValidFrom,
                 membership.IndividualValidTo,
                 membership.ProfessionalComment,
-                membership.IsPaid,
                 membership.SingleVisitUsed,
-                membership.PaidByUserId,
-                membership.PaidAt,
+                membership.Sale.CreatedByUserId,
+                membership.Sale.CreatedAt,
                 membership.ChangeReason.ToString(),
                 membership.ChangedByUserId,
                 membership.ValidFrom,
@@ -4026,6 +4015,7 @@ internal static class ClientEndpoints
                 sale.BehaviorKind.ToString(),
                 sale.PricingMode.ToString(),
                 sale.PurchaseDate,
+                sale.PaymentDate,
                 sale.GrossAmount,
                 sale.CatalogPrice,
                 sale.CreatedByUserId,

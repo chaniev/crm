@@ -1,5 +1,4 @@
-import { Avatar, Badge, Group, Paper, Stack, Text, Tooltip } from '@mantine/core'
-import { IconCreditCardOff } from '@tabler/icons-react'
+import { Avatar, Badge, Group, Paper, Stack, Text } from '@mantine/core'
 import { buildClientPhotoUrl, type AttendanceState } from '../../lib/api'
 import { AttendanceSaveStatus } from './AttendanceSaveStatus'
 import { AttendanceStateControl } from './AttendanceStateControl'
@@ -20,10 +19,10 @@ export function AttendanceClientRow({ row, onChange, onRetry }: AttendanceClient
       )
     : null
   const statusLabel = client.isProfessional
-    ? 'Льготный оплаченный статус'
+    ? 'Профессиональный статус'
     : client.membershipWarning
       ? 'Есть предупреждение по абонементу'
-      : client.hasActivePaidMembership
+      : client.hasActiveMembership
         ? 'Отметка доступна на выбранную дату'
         : 'Нужна проверка статуса абонемента'
 
@@ -52,11 +51,6 @@ export function AttendanceClientRow({ row, onChange, onRetry }: AttendanceClient
               {client.isProfessional ? <Badge color="blue" variant="light">Профессионал</Badge> : null}
               {client.membershipWarning ? (
                 <Badge color="yellow" variant="light">Проблема с абонементом</Badge>
-              ) : null}
-              {client.hasUnpaidCurrentMembership ? (
-                <Tooltip label="Текущий абонемент не оплачен, но отметка посещения разрешена." multiline withArrow>
-                  <Badge color="red" leftSection={<IconCreditCardOff size={14} />} variant="light">Не оплачено</Badge>
-                </Tooltip>
               ) : null}
             </Group>
             {client.membershipWarningMessage ? (

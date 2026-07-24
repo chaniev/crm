@@ -64,8 +64,7 @@ public sealed class MembershipTransferCatalogTests
             ManualSaleAmount = 1750m,
             ValidFrom = fixture.Today.ToString("yyyy-MM-dd"),
             ValidTo = fixture.Today.AddDays(29).ToString("yyyy-MM-dd"),
-            PaymentStatus = "Unpaid",
-            PaymentDate = (string?)null
+            PaymentDate = fixture.Today.ToString("yyyy-MM-dd")
         });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -283,7 +282,7 @@ public sealed class MembershipTransferCatalogTests
                         Id = Guid.NewGuid(), ClientId = crmClient.Id, MembershipCatalogItemId = initialCatalog.Id,
                         MembershipCatalogItem = initialCatalog, BehaviorKind = initialBehavior.Value,
                         PricingMode = ClientMembershipSalePricingMode.Catalog,
-                        PurchaseDate = today, GrossAmount = initialCatalog.Price,
+                        PurchaseDate = today, PaymentDate = today, GrossAmount = initialCatalog.Price,
                         CreatedByUserId = coach.Id, CreatedAt = now
                     };
                     var membership = new ClientMembership
@@ -292,8 +291,8 @@ public sealed class MembershipTransferCatalogTests
                         BehaviorKind = initialBehavior.Value,
                         IndividualValidFrom = initialBehavior == MembershipBehaviorKind.SingleVisit ? null : today,
                         IndividualValidTo = initialBehavior == MembershipBehaviorKind.Term ? today.AddMonths(1) : null,
-                        IsPaid = true, SingleVisitUsed = false,
-                        PaidByUserId = coach.Id, PaidAt = now, ValidFrom = now,
+                        SingleVisitUsed = false,
+                        ValidFrom = now,
                         ChangeReason = ClientMembershipChangeReason.NewPurchase, ChangedByUserId = coach.Id, CreatedAt = now
                     };
                     db.AddRange(sale, membership);
@@ -331,6 +330,7 @@ public sealed class MembershipTransferCatalogTests
                 Content = JsonContent.Create(payload)
             };
             request.Headers.Add("X-CSRF-TOKEN", _csrfToken);
+            request.Headers.Add("Idempotency-Key", $"transfer-{Guid.NewGuid():N}");
             return await _client.SendAsync(request);
         }
 

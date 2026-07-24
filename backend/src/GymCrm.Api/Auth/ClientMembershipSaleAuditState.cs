@@ -8,6 +8,7 @@ internal sealed record ClientMembershipSaleAuditState(
     string BehaviorKind,
     string PricingMode,
     DateOnly PurchaseDate,
+    DateOnly PaymentDate,
     decimal GrossAmount,
     decimal? CatalogPrice,
     Guid CreatedByUserId,

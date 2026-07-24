@@ -205,36 +205,26 @@ internal static class BotInternalEndpoints
     private static async Task<IResult> ListUnpaidMembershipsAsync(
         string? platform,
         string? platformUserId,
-        IBotApiService botApiService,
         CancellationToken cancellationToken)
     {
-        return ToHttpResult(await botApiService.ListUnpaidMembershipsAsync(
-            ToIdentity(platform, platformUserId),
-            cancellationToken));
+        await Task.CompletedTask.WaitAsync(cancellationToken);
+        _ = ToIdentity(platform, platformUserId);
+        return RemovedProblem(
+            "membership-unpaid-list-removed",
+            "Membership unpaid list has been removed.");
     }
 
-    private static async Task<IResult> MarkMembershipPaymentAsync(
+    private static IResult MarkMembershipPaymentAsync(
         Guid clientId,
         TelegramIdentityRequest request,
-        HttpContext httpContext,
-        IBotApiService botApiService,
         CancellationToken cancellationToken)
     {
-        var idempotencyKey = ReadIdempotencyKey(httpContext);
-        if (string.IsNullOrWhiteSpace(idempotencyKey))
-        {
-            return Results.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["idempotencyKey"] = ["Для изменяющего действия нужен Idempotency-Key."]
-            });
-        }
-
-        return ToHttpResult(await botApiService.MarkMembershipPaymentAsync(
-            ToIdentity(request),
-            clientId,
-            idempotencyKey,
-            JsonSerializer.Serialize(request, JsonOptions),
-            cancellationToken));
+        cancellationToken.ThrowIfCancellationRequested();
+        _ = clientId;
+        _ = ToIdentity(request);
+        return RemovedProblem(
+            "membership-payment-action-removed",
+            "Membership payment marking has been removed.");
     }
 
     private static async Task<IResult> WriteAccessDeniedAuditAsync(
@@ -306,10 +296,6 @@ internal static class BotInternalEndpoints
             {
                 ["currentMembership"] = ["У клиента нет текущего абонемента."]
             }),
-            BotApiError.CurrentMembershipAlreadyPaid => Results.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["currentMembership"] = ["Текущий абонемент уже оплачен."]
-            }),
             BotApiError.SingleVisitRestoreConflict => Results.ValidationProblem(new Dictionary<string, string[]>
             {
                 ["attendanceMarks"] = ["Разовое посещение не восстановлено из-за последующих изменений абонемента."]
@@ -319,6 +305,15 @@ internal static class BotInternalEndpoints
                 detail: "Temporary backend error.",
                 statusCode: StatusCodes.Status503ServiceUnavailable)
         };
+    }
+
+    private static IResult RemovedProblem(string type, string detail)
+    {
+        return Results.Problem(
+            type: type,
+            title: type,
+            detail: detail,
+            statusCode: StatusCodes.Status410Gone);
     }
 
     private static BotIdentity ToIdentity(BotIdentityHttpRequest request)

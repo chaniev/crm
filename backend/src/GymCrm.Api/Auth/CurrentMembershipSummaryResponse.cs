@@ -9,6 +9,6 @@ internal sealed record CurrentMembershipSummaryResponse(
     decimal GrossAmount,
     decimal? CatalogPrice,
     DateOnly PurchaseDate,
+    DateOnly PaymentDate,
     DateOnly? ExpirationDate,
-    bool IsPaid,
     bool SingleVisitUsed);

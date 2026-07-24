@@ -5,7 +5,6 @@ namespace GymCrm.Application.Bot;
 public static class BotAuditConstants
 {
     public const string BotAttendanceSavedAction = "BotAttendanceSaved";
-    public const string BotMembershipPaymentMarkedAction = "BotMembershipPaymentMarked";
     public const string BotAccessDeniedAction = "BotAccessDenied";
     public const string TelegramPlatform = "Telegram";
 }
@@ -24,7 +23,6 @@ public enum BotApiError
     Validation = 7,
     IdempotencyConflict = 8,
     CurrentMembershipMissing = 9,
-    CurrentMembershipAlreadyPaid = 10,
     TemporaryFailure = 11,
     SingleVisitRestoreConflict = 12
 }
@@ -89,8 +87,7 @@ public sealed record BotAttendanceClient(
     string? ProfessionalComment,
     bool HasMembershipWarning,
     string? MembershipWarning,
-    bool HasUnpaidCurrentMembership,
-    bool HasActivePaidMembership);
+    bool HasActiveMembership);
 
 public sealed record BotAttendanceMarkInput(Guid ClientId, bool IsPresent);
 
@@ -106,8 +103,7 @@ public sealed record BotAttendanceSaveResponse(
 public sealed record BotAttendanceClientWarning(
     Guid ClientId,
     string FullName,
-    string? MembershipWarning,
-    bool HasUnpaidCurrentMembership);
+    string? MembershipWarning);
 
 public sealed record BotClientSearchResponse(
     IReadOnlyList<BotClientListItem> Items,
@@ -128,8 +124,7 @@ public sealed record BotClientListItem(
     string? ProfessionalComment,
     bool HasMembershipWarning,
     string? MembershipWarning,
-    bool HasUnpaidCurrentMembership,
-    bool HasActivePaidMembership,
+    bool HasActiveMembership,
     string? BehaviorKind = null,
     string? MembershipLabel = null);
 
@@ -146,8 +141,7 @@ public sealed record BotClientCard(
     string? ProfessionalComment,
     bool HasMembershipWarning,
     string? MembershipWarning,
-    bool HasUnpaidCurrentMembership,
-    bool HasActivePaidMembership,
+    bool HasActiveMembership,
     BotClientMembership? CurrentMembership,
     IReadOnlyList<BotAttendanceHistoryItem> AttendanceHistory);
 
@@ -160,8 +154,8 @@ public sealed record BotClientMembership(
     decimal GrossAmount,
     decimal? CatalogPrice,
     DateOnly PurchaseDate,
+    DateOnly PaymentDate,
     DateOnly? ExpirationDate,
-    bool IsPaid,
     bool SingleVisitUsed);
 
 public sealed record BotAttendanceHistoryItem(
@@ -195,27 +189,7 @@ public sealed record BotExpiringMembershipListItem(
     string BehaviorKind,
     string MembershipLabel,
     DateOnly ExpirationDate,
-    int DaysUntilExpiration,
-    bool IsPaid);
-
-public sealed record BotUnpaidMembershipListItem(
-    Guid ClientId,
-    string FullName,
-    string BehaviorKind,
-    string MembershipLabel,
-    DateOnly PurchaseDate,
-    DateOnly? ExpirationDate,
-    bool IsPaid);
-
-public sealed record BotMembershipPaymentResponse(
-    Guid ClientId,
-    string FullName,
-    string BehaviorKind,
-    string MembershipLabel,
-    DateOnly PurchaseDate,
-    DateOnly? ExpirationDate,
-    bool IsPaid,
-    bool WasAlreadyPaid);
+    int DaysUntilExpiration);
 
 public sealed record BotAccessDeniedAuditRequest(
     string ActionCode,
