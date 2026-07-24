@@ -894,3 +894,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `fix/TASK-081-administrator-group-type-settings`, separates group-type visibility from staff `createRoleOptions` and neighboring settings tabs, preserves the backend `ManageSettings` role matrix, and requires frontend red/green role/edit coverage plus backend API, CSRF, linked-group and exact audit regression barriers.
+
+# 2026-07-25 01:20
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-080-administrator-authorized-group-attendance.plan.md
+
+## Skipped tasks
+- TASK-080-administrator-authorized-group-attendance.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; detailed test-first plan created for explicit security/architecture review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-080-administrator-authorized-group-attendance`, a dedicated audited grant model, explicit session attendance scope, compare-and-swap manager updates, branch/role/group lifecycle barriers, in-transaction save reauthorization against revoke races, shared web/internal-bot filtering and frontend desktop/390 px management/recovery coverage.
