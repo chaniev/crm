@@ -312,6 +312,7 @@ internal static class AuthEndpoints
             user.FullName,
             user.Login,
             user.Role.ToString(),
+            user.BranchId,
             user.MustChangePassword,
             user.IsActive,
             accessScope.LandingScreen,
@@ -324,7 +325,8 @@ internal static class AuthEndpoints
                 accessScope.Permissions.CanMarkAttendance,
                 accessScope.Permissions.CanViewAuditLog,
                 accessScope.Permissions.CanViewFinancialReports),
-            accessScope.AssignedGroupIds);
+            accessScope.AssignedGroupIds,
+            StaffManagementBoundary.GetCreateRoleOptions(user));
     }
 
     private sealed record LoginRequest(string Login, string Password);
@@ -342,12 +344,14 @@ internal static class AuthEndpoints
         string FullName,
         string Login,
         string Role,
+        Guid? BranchId,
         bool MustChangePassword,
         bool IsActive,
         string LandingScreen,
         IReadOnlyList<string> AllowedSections,
         AccessPermissionsResponse Permissions,
-        IReadOnlyList<Guid> AssignedGroupIds);
+        IReadOnlyList<Guid> AssignedGroupIds,
+        IReadOnlyList<string> CreateRoleOptions);
 
     private sealed record AccessPermissionsResponse(
         bool CanManageUsers,

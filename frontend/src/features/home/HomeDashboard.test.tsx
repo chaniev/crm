@@ -44,6 +44,7 @@ const user: AuthenticatedUser = {
     canViewFinancialReports: true,
   },
   assignedGroupIds: ['group-1'],
+  branchId: null,
 }
 
 const coachUser: AuthenticatedUser = {

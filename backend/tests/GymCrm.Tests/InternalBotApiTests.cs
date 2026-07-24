@@ -53,6 +53,20 @@ public class InternalBotApiTests
             Assert.Equal(seeded.HeadCoachTelegramId, payload.GetProperty("platformUserId").GetString());
         }
 
+        using (var resolveSuperAdministrator = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Post,
+                   "/internal/bot/telegram/session/resolve",
+                   new TelegramIdentityRequest("Telegram", seeded.SuperAdministratorTelegramId)))
+        {
+            Assert.Equal(HttpStatusCode.OK, resolveSuperAdministrator.StatusCode);
+            var payload = await ReadJsonElementAsync(resolveSuperAdministrator);
+            Assert.Equal("SuperAdministrator", payload.GetProperty("role").GetString());
+            Assert.Equal(
+                seeded.SuperAdministratorTelegramId,
+                payload.GetProperty("platformUserId").GetString());
+        }
+
         using (var resolveUnknown = await SendBotRequestAsync(
                    client,
                    HttpMethod.Post,
@@ -101,8 +115,25 @@ public class InternalBotApiTests
             Assert.Equal(HttpStatusCode.OK, adminMenuResponse.StatusCode);
             var payload = await ReadJsonElementAsync(adminMenuResponse);
             var items = payload.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("code").GetString()).ToArray();
+            Assert.DoesNotContain("attendance", items);
             Assert.DoesNotContain("unpaid_memberships", items);
             Assert.Contains("expiring_memberships", items);
+        }
+
+        using (var superAdministratorMenuResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/menu?platform=Telegram&platformUserId={seeded.SuperAdministratorTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, superAdministratorMenuResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(superAdministratorMenuResponse);
+            var items = payload.GetProperty("items")
+                .EnumerateArray()
+                .Select(item => item.GetProperty("code").GetString()!)
+                .ToArray();
+            Assert.Equal(
+                ["attendance", "client_search", "expiring_memberships"],
+                items);
         }
 
         using (var coachMenuResponse = await SendBotRequestAsync(
@@ -122,8 +153,30 @@ public class InternalBotApiTests
                    HttpMethod.Get,
                    $"/internal/bot/attendance/groups?platform=Telegram&platformUserId={seeded.AdminTelegramId}"))
         {
-            Assert.Equal(HttpStatusCode.OK, adminGroupsResponse.StatusCode);
-            var payload = await ReadJsonElementAsync(adminGroupsResponse);
+            Assert.Equal(HttpStatusCode.Forbidden, adminGroupsResponse.StatusCode);
+        }
+
+        using (var superAdministratorGroupsResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/attendance/groups?platform=Telegram&platformUserId={seeded.SuperAdministratorTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, superAdministratorGroupsResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(superAdministratorGroupsResponse);
+            var groupIds = payload.EnumerateArray()
+                .Select(item => Guid.Parse(item.GetProperty("id").GetString()!))
+                .ToArray();
+            Assert.Contains(seeded.CoachGroupId, groupIds);
+            Assert.Contains(seeded.AdminGroupId, groupIds);
+        }
+
+        using (var headCoachGroupsResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/attendance/groups?platform=Telegram&platformUserId={seeded.HeadCoachTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, headCoachGroupsResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(headCoachGroupsResponse);
             var coachGroupPayload = payload.EnumerateArray().Single(item => item.GetProperty("id").GetString() == seeded.CoachGroupId.ToString());
             Assert.NotEqual(Guid.Empty, Guid.Parse(coachGroupPayload.GetProperty("branchId").GetString()!));
             Assert.NotEqual(Guid.Empty, Guid.Parse(coachGroupPayload.GetProperty("hallId").GetString()!));
@@ -131,6 +184,48 @@ public class InternalBotApiTests
             Assert.Equal(
                 [1, 3],
                 coachGroupPayload.GetProperty("weekdays").EnumerateArray().Select(weekday => weekday.GetInt32()).ToArray());
+        }
+
+        foreach (var (groupId, clientId, idempotencyKey) in new[]
+                 {
+                     (seeded.CoachGroupId, seeded.CoachClientId, "attendance-sa-coach-branch"),
+                     (seeded.AdminGroupId, seeded.ExpiringTodayClientId, "attendance-sa-admin-branch")
+                 })
+        {
+            using (var rosterResponse = await SendBotRequestAsync(
+                       client,
+                       HttpMethod.Get,
+                       $"/internal/bot/attendance/groups/{groupId}/clients" +
+                       $"?platform=Telegram&platformUserId={seeded.SuperAdministratorTelegramId}" +
+                       $"&trainingDate={today:yyyy-MM-dd}"))
+            {
+                Assert.Equal(HttpStatusCode.OK, rosterResponse.StatusCode);
+            }
+
+            using var saveResponse = await SendBotRequestAsync(
+                client,
+                HttpMethod.Post,
+                $"/internal/bot/attendance/groups/{groupId}",
+                new BotSaveAttendanceRequest(
+                    "Telegram",
+                    seeded.SuperAdministratorTelegramId,
+                    today.ToString("yyyy-MM-dd"),
+                    [new BotAttendanceMarkRequest(clientId, false)]),
+                idempotencyKey: idempotencyKey);
+            Assert.Equal(HttpStatusCode.OK, saveResponse.StatusCode);
+        }
+
+        await using (var superAdministratorScope = factory.Services.CreateAsyncScope())
+        {
+            var db = superAdministratorScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var markedGroups = await db.Attendance
+                .Where(attendance =>
+                    attendance.MarkedByUserId == seeded.SuperAdministratorId &&
+                    attendance.TrainingDate == today)
+                .Select(attendance => attendance.GroupId)
+                .ToListAsync();
+            Assert.Contains(seeded.CoachGroupId, markedGroups);
+            Assert.Contains(seeded.AdminGroupId, markedGroups);
         }
 
         await using (var membershipScope = factory.Services.CreateAsyncScope())
@@ -159,7 +254,21 @@ public class InternalBotApiTests
                        [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]),
                    idempotencyKey: "attendance-admin-old-date"))
         {
-            Assert.Equal(HttpStatusCode.OK, adminSaveResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, adminSaveResponse.StatusCode);
+        }
+
+        using (var headCoachSaveResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Post,
+                   $"/internal/bot/attendance/groups/{seeded.CoachGroupId}",
+                   new BotSaveAttendanceRequest(
+                       "Telegram",
+                       seeded.HeadCoachTelegramId,
+                       today.AddDays(-5).ToString("yyyy-MM-dd"),
+                       [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]),
+                   idempotencyKey: "attendance-headcoach-old-date"))
+        {
+            Assert.Equal(HttpStatusCode.OK, headCoachSaveResponse.StatusCode);
         }
 
         await using (var auditScope = factory.Services.CreateAsyncScope())
@@ -197,7 +306,7 @@ public class InternalBotApiTests
                    $"/internal/bot/attendance/groups/{seeded.CoachGroupId}",
                    new BotSaveAttendanceRequest(
                        "Telegram",
-                       seeded.AdminTelegramId,
+                       seeded.HeadCoachTelegramId,
                        today.AddDays(1).ToString("yyyy-MM-dd"),
                        [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]),
                    idempotencyKey: "attendance-future-date"))
@@ -248,6 +357,47 @@ public class InternalBotApiTests
                    $"/internal/bot/clients/expiring-memberships?platform=Telegram&platformUserId={seeded.CoachTelegramId}"))
         {
             Assert.Equal(HttpStatusCode.Forbidden, coachExpiringResponse.StatusCode);
+        }
+
+        using (var superAdministratorPhoneSearchResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   "/internal/bot/clients?q=%2B79990000002" +
+                   $"&platform=Telegram&platformUserId={seeded.SuperAdministratorTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, superAdministratorPhoneSearchResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(superAdministratorPhoneSearchResponse);
+            var item = payload.GetProperty("items").EnumerateArray()
+                .Single(candidate =>
+                    candidate.GetProperty("id").GetString() == seeded.ExpiringTodayClientId.ToString());
+            Assert.Equal("+79990000002", item.GetProperty("phone").GetString());
+        }
+
+        using (var superAdministratorNameSearchResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/clients?q=Coach&platform=Telegram&platformUserId={seeded.SuperAdministratorTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, superAdministratorNameSearchResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(superAdministratorNameSearchResponse);
+            Assert.Contains(
+                payload.GetProperty("items").EnumerateArray(),
+                item => item.GetProperty("id").GetString() == seeded.CoachClientId.ToString());
+        }
+
+        using (var superAdministratorExpiringResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/clients/expiring-memberships?platform=Telegram&platformUserId={seeded.SuperAdministratorTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, superAdministratorExpiringResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(superAdministratorExpiringResponse);
+            var ids = payload.EnumerateArray()
+                .Select(item => item.GetProperty("clientId").GetString())
+                .ToArray();
+            Assert.Contains(seeded.CoachClientId.ToString(), ids);
+            Assert.Contains(seeded.ExpiringTodayClientId.ToString(), ids);
+            Assert.Contains(seeded.ExpiringDayNineClientId.ToString(), ids);
         }
 
         using (var adminExpiringResponse = await SendBotRequestAsync(
@@ -370,7 +520,7 @@ public class InternalBotApiTests
         using var client = factory.CreateClient();
         var request = new BotSaveAttendanceRequest(
             "Telegram",
-            seeded.AdminTelegramId,
+            seeded.HeadCoachTelegramId,
             GetBusinessToday().ToString("yyyy-MM-dd"),
             [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]);
 
@@ -413,6 +563,14 @@ public class InternalBotApiTests
         var sharedPassword = "internal-bot-password";
 
         var headCoach = CreateUser("bot-headcoach", "Bot HeadCoach", UserRole.HeadCoach, sharedPassword, passwordHashService, now, "tg-headcoach");
+        var superAdministrator = CreateUser(
+            "bot-superadministrator",
+            "Bot SuperAdministrator",
+            UserRole.SuperAdministrator,
+            sharedPassword,
+            passwordHashService,
+            now,
+            "tg-superadministrator");
         var administrator = CreateUser("bot-admin", "Bot Administrator", UserRole.Administrator, sharedPassword, passwordHashService, now, "tg-admin");
         var coach = CreateUser("bot-coach", "Bot Coach", UserRole.Coach, sharedPassword, passwordHashService, now, "tg-coach");
         var inactiveCoach = CreateUser("bot-inactive", "Bot Inactive", UserRole.Coach, sharedPassword, passwordHashService, now, "tg-inactive", isActive: false);
@@ -498,7 +656,13 @@ public class InternalBotApiTests
         var paymentClient = CreateClient("Payment", "Client", "+79990000007", adminBranch.Id, now);
         var professionalPaymentClient = CreateClient("Professional", "Payment", "+79990000008", adminBranch.Id, now);
 
-        dbContext.Users.AddRange(headCoach, administrator, coach, inactiveCoach, mustChangePasswordCoach);
+        dbContext.Users.AddRange(
+            headCoach,
+            superAdministrator,
+            administrator,
+            coach,
+            inactiveCoach,
+            mustChangePasswordCoach);
         dbContext.Branches.AddRange(coachBranch, adminBranch);
         dbContext.Halls.AddRange(coachHall, adminHall);
         dbContext.GroupTypes.Add(groupType);
@@ -549,11 +713,14 @@ public class InternalBotApiTests
 
         return new SeededBotData(
             headCoach.MessengerPlatformUserId!,
+            superAdministrator.Id,
+            superAdministrator.MessengerPlatformUserId!,
             administrator.MessengerPlatformUserId!,
             coach.MessengerPlatformUserId!,
             inactiveCoach.MessengerPlatformUserId!,
             mustChangePasswordCoach.MessengerPlatformUserId!,
             coachGroup.Id,
+            adminGroup.Id,
             coachClient.Id,
             expiringTodayClient.Id,
             expiringDayNineClient.Id,
@@ -730,11 +897,14 @@ public class InternalBotApiTests
 
     private sealed record SeededBotData(
         string HeadCoachTelegramId,
+        Guid SuperAdministratorId,
+        string SuperAdministratorTelegramId,
         string AdminTelegramId,
         string CoachTelegramId,
         string InactiveTelegramId,
         string MustChangePasswordTelegramId,
         Guid CoachGroupId,
+        Guid AdminGroupId,
         Guid CoachClientId,
         Guid ExpiringTodayClientId,
         Guid ExpiringDayNineClientId,

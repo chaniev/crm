@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Clients;
@@ -138,7 +139,7 @@ internal static class ClientEndpoints
         var parsedBehaviorKind = ParseBehaviorKind(behaviorKind);
         var membershipExpirationFrom = ParseIsoDate(membershipExpiresFrom);
         var membershipExpirationTo = ParseIsoDate(membershipExpiresTo);
-        var hasElevatedClientAccess = currentUser.Role is UserRole.HeadCoach or UserRole.Administrator;
+        var hasElevatedClientAccess = UserRoleAuthorizationPolicy.GetOperationalScopeKind(currentUser.Role) != AccessScopeKind.AssignedGroups;
         var unifiedSearch = !string.IsNullOrWhiteSpace(query) ? query : search;
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
 
@@ -619,7 +620,7 @@ internal static class ClientEndpoints
             return TypedResults.NotFound();
         }
 
-        if (currentUser.Role is UserRole.HeadCoach or UserRole.Administrator)
+        if (UserRoleAuthorizationPolicy.GetOperationalScopeKind(currentUser.Role) != AccessScopeKind.AssignedGroups)
         {
             var attendanceHistory = await LoadAttendanceHistoryAsync(
                 client.Id,

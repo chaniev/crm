@@ -59,6 +59,7 @@ export const resources = {
   users: {
     roles: {
       HeadCoach: 'Главный тренер',
+      SuperAdministrator: 'Суперадминистратор',
       Administrator: 'Администратор',
       Coach: 'Тренер',
     },
@@ -89,6 +90,7 @@ export const resources = {
       editAction: 'Редактировать',
       passwordActual: 'Пароль актуален',
       passwordRotationRequired: 'Требуется смена пароля',
+      readOnlyTarget: 'Только просмотр',
     },
     create: {
       title: 'Новый тренер',

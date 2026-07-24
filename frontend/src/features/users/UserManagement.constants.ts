@@ -21,6 +21,13 @@ export const headCoachRoleOptions: UserRoleOption[] = [
   { value: 'HeadCoach', label: userRoleLabels.HeadCoach },
 ]
 
+export function toUserRoleOptions(roles: readonly UserRole[]): UserRoleOption[] {
+  return roles.map((role) => ({
+    value: role,
+    label: userRoleLabels[role],
+  }))
+}
+
 export const messengerPlatformOptions: MessengerPlatformOption[] = [
   {
     value: 'Telegram',

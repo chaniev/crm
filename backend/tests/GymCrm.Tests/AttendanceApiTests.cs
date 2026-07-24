@@ -222,6 +222,77 @@ public class AttendanceApiTests
     }
 
     [Fact]
+    public async Task SuperAdministrator_can_list_read_and_save_attendance_in_two_branches()
+    {
+        await using var factory = new AttendanceAppFactory();
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+        Assert.Equal("SuperAdministrator", session.User?.Role);
+
+        using (var groupsResponse = await client.GetAsync("/attendance/groups"))
+        {
+            Assert.Equal(HttpStatusCode.OK, groupsResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(groupsResponse);
+            var groups = GetArrayPayload(payload, "data", "items", "groups");
+            Assert.False(FindById(groups, seeded.AssignedGroupId).ValueKind == JsonValueKind.Undefined);
+            Assert.False(FindById(groups, seeded.ForeignBranchGroupId).ValueKind == JsonValueKind.Undefined);
+        }
+
+        var trainingDate = GetBusinessToday().ToString("yyyy-MM-dd");
+        foreach (var (groupId, clientId) in new[]
+                 {
+                     (seeded.AssignedGroupId, seeded.WarningClientId),
+                     (seeded.ForeignBranchGroupId, seeded.ForeignBranchClientId)
+                 })
+        {
+            using (var rosterResponse = await client.GetAsync(
+                       $"/attendance/groups/{groupId}/clients?trainingDate={trainingDate}"))
+            {
+                Assert.Equal(HttpStatusCode.OK, rosterResponse.StatusCode);
+                var payload = await ReadJsonElementAsync(rosterResponse);
+                var clients = GetArrayPayload(payload, "data", "items", "clients");
+                Assert.False(FindById(clients, clientId).ValueKind == JsonValueKind.Undefined);
+            }
+
+            using var saveResponse = await PostJsonAsync(
+                client,
+                $"/attendance/groups/{groupId}",
+                new
+                {
+                    TrainingDate = trainingDate,
+                    AttendanceMarks = new[]
+                    {
+                        new
+                        {
+                            ClientId = clientId,
+                            State = "Absent"
+                        }
+                    }
+                },
+                session.CsrfToken);
+            Assert.Equal(HttpStatusCode.OK, saveResponse.StatusCode);
+        }
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var markedGroups = await dbContext.Attendance
+            .Where(attendance =>
+                attendance.MarkedByUserId == seeded.SuperAdministratorId &&
+                attendance.TrainingDate == GetBusinessToday())
+            .Select(attendance => attendance.GroupId)
+            .ToListAsync();
+
+        Assert.Contains(seeded.AssignedGroupId, markedGroups);
+        Assert.Contains(seeded.ForeignBranchGroupId, markedGroups);
+    }
+
+    [Fact]
     public async Task Status_free_membership_does_not_warn_and_marking_is_stored_for_training_date()
     {
         await using var factory = new AttendanceAppFactory();
@@ -647,6 +718,13 @@ public class AttendanceApiTests
         var sharedPassword = "stage7-password";
 
         var headCoach = CreateUser("headcoach-stage7", "Главный тренер Stage 7", UserRole.HeadCoach, sharedPassword, now, passwordHashService);
+        var superAdministrator = CreateUser(
+            "superadministrator-stage7",
+            "Суперадминистратор Stage 7",
+            UserRole.SuperAdministrator,
+            sharedPassword,
+            now,
+            passwordHashService);
         var administrator = CreateUser(
             "administrator-stage7",
             "Администратор Stage 7",
@@ -660,6 +738,14 @@ public class AttendanceApiTests
         {
             Id = Guid.NewGuid(),
             Name = "Attendance Branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var foreignBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Attendance Foreign Branch",
             IsArchived = false,
             CreatedAt = now,
             UpdatedAt = now
@@ -679,6 +765,15 @@ public class AttendanceApiTests
             Id = Guid.NewGuid(),
             BranchId = branch.Id,
             Name = "Unassigned Hall",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var foreignHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = foreignBranch.Id,
+            Name = "Foreign Attendance Hall",
             IsArchived = false,
             CreatedAt = now,
             UpdatedAt = now
@@ -720,6 +815,20 @@ public class AttendanceApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var foreignGroup = new TrainingGroup
+        {
+            Id = Guid.NewGuid(),
+            BranchId = foreignBranch.Id,
+            HallId = foreignHall.Id,
+            GroupTypeId = groupType.Id,
+            Name = "Foreign Attendance Group",
+            TrainingStartTime = new TimeOnly(20, 0),
+            DurationMinutes = 60,
+            Weekdays = new[] { 2, 4 },
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
 
         var warningClient = new Client
         {
@@ -753,13 +862,23 @@ public class AttendanceApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var foreignClient = new Client
+        {
+            Id = Guid.NewGuid(),
+            BranchId = foreignBranch.Id,
+            LastName = "Иностранный",
+            FirstName = "Филиал",
+            Phone = "+79990001113",
+            CreatedAt = now,
+            UpdatedAt = now
+        };
 
-        dbContext.Users.AddRange(headCoach, administrator, coach);
-        dbContext.Branches.Add(branch);
-        dbContext.Halls.AddRange(assignedHall, unassignedHall);
+        dbContext.Users.AddRange(headCoach, superAdministrator, administrator, coach);
+        dbContext.Branches.AddRange(branch, foreignBranch);
+        dbContext.Halls.AddRange(assignedHall, unassignedHall, foreignHall);
         dbContext.GroupTypes.Add(groupType);
-        dbContext.TrainingGroups.AddRange(assignedGroup, unassignedGroup);
-        dbContext.Clients.AddRange(warningClient, singleVisitClient, professionalClient);
+        dbContext.TrainingGroups.AddRange(assignedGroup, unassignedGroup, foreignGroup);
+        dbContext.Clients.AddRange(warningClient, singleVisitClient, professionalClient, foreignClient);
         dbContext.GroupTrainers.Add(new GroupTrainer
         {
             GroupId = assignedGroup.Id,
@@ -784,6 +903,12 @@ public class AttendanceApiTests
             ClientId = professionalClient.Id,
             GroupId = assignedGroup.Id,
             BranchId = branch.Id
+        });
+        dbContext.ClientGroups.Add(new ClientGroup
+        {
+            ClientId = foreignClient.Id,
+            GroupId = foreignGroup.Id,
+            BranchId = foreignBranch.Id
         });
 
         await AddMembershipAsync(
@@ -815,22 +940,35 @@ public class AttendanceApiTests
             null,
             0m,
             singleVisitUsed: false);
+        await AddMembershipAsync(
+            dbContext,
+            foreignClient.Id,
+            superAdministrator.Id,
+            MembershipBehaviorKind.Term,
+            GetBusinessToday().AddDays(-1),
+            GetBusinessToday().AddMonths(1),
+            1800m,
+            singleVisitUsed: false);
 
         await dbContext.SaveChangesAsync();
 
         return new SeededAttendanceData(
             headCoach.Id,
+            superAdministrator.Id,
             administrator.Id,
             coach.Id,
             headCoach.Login,
+            superAdministrator.Login,
             administrator.Login,
             coach.Login,
             sharedPassword,
             assignedGroup.Id,
             unassignedGroup.Id,
+            foreignGroup.Id,
             warningClient.Id,
             singleVisitClient.Id,
-            professionalClient.Id);
+            professionalClient.Id,
+            foreignClient.Id);
     }
 
     private static async Task AddMembershipAsync(
@@ -1133,17 +1271,21 @@ public class AttendanceApiTests
 
     private sealed record SeededAttendanceData(
         Guid HeadCoachId,
+        Guid SuperAdministratorId,
         Guid AdministratorId,
         Guid CoachId,
         string HeadCoachLogin,
+        string SuperAdministratorLogin,
         string AdministratorLogin,
         string CoachLogin,
         string SharedPassword,
         Guid AssignedGroupId,
         Guid UnassignedGroupId,
+        Guid ForeignBranchGroupId,
         Guid WarningClientId,
         Guid SingleVisitClientId,
-        Guid ProfessionalClientId);
+        Guid ProfessionalClientId,
+        Guid ForeignBranchClientId);
 
     private sealed class AttendanceAppFactory(bool useSqlite = false, bool throwAudit = false) : WebApplicationFactory<Program>
     {

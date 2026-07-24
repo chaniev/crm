@@ -13,7 +13,7 @@ from pydantic import (
     field_validator,
 )
 
-BotRole = Literal["HeadCoach", "Administrator", "Coach"]
+BotRole = Literal["HeadCoach", "SuperAdministrator", "Administrator", "Coach"]
 MembershipBehaviorKind = Literal["SingleVisit", "Term", "Professional"]
 MembershipSalePricingMode = Literal["Catalog", "CatalogOverride", "AmountOnly"]
 MenuCode = Literal["attendance", "client_search", "expiring_memberships"]

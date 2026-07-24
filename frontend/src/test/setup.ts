@@ -38,3 +38,5 @@ Object.defineProperty(window, 'ResizeObserver', {
   writable: true,
   value: ResizeObserverMock,
 })
+
+Element.prototype.scrollIntoView = Element.prototype.scrollIntoView ?? (() => undefined)

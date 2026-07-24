@@ -12,6 +12,7 @@ from gym_crm_bot.core.service import BotService
 from gym_crm_bot.crm.errors import CrmUserNotConfiguredError
 from gym_crm_bot.crm.models import (
     AttendanceGroup,
+    AttendanceGroupsResponse,
     AttendanceSaveResponse,
     BotUserContext,
     ClientCardMembership,
@@ -28,6 +29,9 @@ from gym_crm_bot.telegram.normalization import NormalizedTelegramEvent
 @dataclass
 class FakeCrmClient:
     known_user: bool = True
+    role: str = "Coach"
+    menu_items: tuple[MenuItem, ...] = (MenuItem(code="attendance", title="Посещения"),)
+    attendance_groups: tuple[AttendanceGroup, ...] = ()
 
     async def resolve_session(self, identity, *, request_id: str):  # noqa: ANN001
         if not self.known_user:
@@ -35,11 +39,14 @@ class FakeCrmClient:
         return BotUserContext(
             crm_user_id="00000000-0000-0000-0000-000000000001",
             display_name="Иван",
-            role="Coach",
+            role=self.role,
         )
 
     async def get_menu(self, identity, *, request_id: str):  # noqa: ANN001
-        return MenuResponse(items=[MenuItem(code="attendance", title="Посещения")])
+        return MenuResponse(items=list(self.menu_items))
+
+    async def list_attendance_groups(self, identity, *, request_id: str):  # noqa: ANN001
+        return AttendanceGroupsResponse(items=list(self.attendance_groups))
 
     async def audit_access_denied(  # noqa: ANN001
         self,
@@ -146,6 +153,103 @@ async def test_start_for_known_user_returns_menu(
     assert response.text == "Иван, выберите действие."
     assert response.reply_markup is not None
     assert response.reply_markup.inline_keyboard[0][0].callback_data == "menu|attendance"
+
+
+@pytest.mark.asyncio
+async def test_super_administrator_menu_renders_backend_actions_only(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeCrmClient(
+            role="SuperAdministrator",
+            menu_items=(
+                MenuItem(code="client_search", title="Поиск клиента"),
+                MenuItem(code="attendance", title="Посещения"),
+            ),
+        ),
+        session_factory=session_factory,
+    )
+
+    response = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=82,
+            event_key="message:82",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="888",
+            kind="command",
+            command="start",
+            text="/start",
+        )
+    )
+
+    assert response.text == "Иван, выберите действие."
+    assert response.reply_markup is not None
+    rendered_callbacks = [
+        button.callback_data
+        for row in response.reply_markup.inline_keyboard
+        for button in row
+    ]
+    assert rendered_callbacks == ["menu|client_search", "menu|attendance"]
+
+
+@pytest.mark.asyncio
+async def test_super_administrator_attendance_groups_render_backend_data(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeCrmClient(
+            role="SuperAdministrator",
+            attendance_groups=(
+                AttendanceGroup(
+                    id="00000000-0000-0000-0000-000000000021",
+                    name="Филиал A",
+                    trainingStartTime="10:00",
+                    weekdays=[1],
+                ),
+                AttendanceGroup(
+                    id="00000000-0000-0000-0000-000000000022",
+                    name="Филиал B",
+                    trainingStartTime="18:30",
+                    weekdays=[5],
+                ),
+            ),
+        ),
+        session_factory=session_factory,
+    )
+    event = NormalizedTelegramEvent(
+        update_id=83,
+        event_key="callback:83",
+        chat_id=10,
+        chat_type="private",
+        platform_user_id="888",
+        kind="callback",
+        callback_data="adt|2026-05-13",
+    )
+    await service._save_state(
+        event,
+        "attendance",
+        {"step": "select_date", "role": "SuperAdministrator"},
+    )
+
+    response = await service._select_attendance_date(event, "2026-05-13")
+
+    assert "Филиал A: старт 10:00 · Пн" in response.text
+    assert "Филиал B: старт 18:30 · Пт" in response.text
+    assert response.reply_markup is not None
+    rendered_callbacks = [
+        button.callback_data
+        for row in response.reply_markup.inline_keyboard
+        for button in row
+    ]
+    assert rendered_callbacks == [
+        "agr|00000000-0000-0000-0000-000000000021",
+        "agr|00000000-0000-0000-0000-000000000022",
+    ]
 
 
 def test_professional_client_card_renders_status_free_membership_contract() -> None:

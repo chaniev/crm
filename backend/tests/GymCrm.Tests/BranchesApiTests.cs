@@ -84,6 +84,145 @@ public class BranchesApiTests
     }
 
     [Fact]
+    public async Task Membership_catalog_branch_scope_denials_use_shared_problem_details()
+    {
+        await using var factory = new BranchesAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        Guid foreignBranchId;
+        var administratorLogin = $"catalog-admin-{Guid.NewGuid():N}";
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+            var now = DateTimeOffset.UtcNow;
+            var ownBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "Catalog Own Branch",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var foreignBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "Catalog Foreign Branch",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var administrator = CreateUser(
+                administratorLogin,
+                "Catalog scoped administrator",
+                UserRole.Administrator,
+                seeded.SharedPassword,
+                now,
+                passwordHashService);
+            administrator.BranchId = ownBranch.Id;
+
+            dbContext.Branches.AddRange(ownBranch, foreignBranch);
+            dbContext.Users.Add(administrator);
+            await dbContext.SaveChangesAsync();
+            foreignBranchId = foreignBranch.Id;
+        }
+
+        var session = await LoginAsync(client, administratorLogin, seeded.SharedPassword);
+
+        using (var listResponse = await client.GetAsync($"/settings/membership-catalog?branchId={foreignBranchId}"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, listResponse.StatusCode);
+            await AssertProblemDetailsAsync(
+                listResponse,
+                "/problems/branch-scope-forbidden",
+                "branch_scope_forbidden");
+        }
+
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/settings/membership-catalog",
+                   new
+                   {
+                       BranchId = foreignBranchId,
+                       Name = "Чужой абонемент",
+                       Price = 1200m,
+                       BehaviorKind = "Term",
+                       AvailableFrom = new DateOnly(2020, 1, 1),
+                       AvailableTo = (DateOnly?)null
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, createResponse.StatusCode);
+            await AssertProblemDetailsAsync(
+                createResponse,
+                "/problems/branch-scope-forbidden",
+                "branch_scope_forbidden");
+        }
+    }
+
+    [Fact]
+    public async Task SuperAdministrator_can_manage_membership_catalog_in_two_branches()
+    {
+        await using var factory = new BranchesAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+        var createdItems = new List<(Guid BranchId, Guid ItemId)>();
+
+        foreach (var suffix in new[] { "A", "B" })
+        {
+            Guid branchId;
+            using (var branchResponse = await PostJsonAsync(
+                       client,
+                       "/branches",
+                       new { Name = $"SA Catalog Branch {suffix}", Address = "", Description = "" },
+                       session.CsrfToken))
+            {
+                Assert.Equal(HttpStatusCode.Created, branchResponse.StatusCode);
+                branchId = GetGuidFromProperty(await ReadJsonElementAsync(branchResponse), "id");
+            }
+
+            using var itemResponse = await PostJsonAsync(
+                client,
+                "/settings/membership-catalog",
+                new
+                {
+                    BranchId = branchId,
+                    Name = $"SA Catalog Item {suffix}",
+                    Price = 1000m,
+                    BehaviorKind = "Term",
+                    AvailableFrom = new DateOnly(2020, 1, 1),
+                    AvailableTo = (DateOnly?)null
+                },
+                session.CsrfToken);
+            Assert.Equal(HttpStatusCode.Created, itemResponse.StatusCode);
+            createdItems.Add((
+                branchId,
+                GetGuidFromProperty(await ReadJsonElementAsync(itemResponse), "id")));
+        }
+
+        foreach (var created in createdItems)
+        {
+            using var response = await client.GetAsync(
+                $"/settings/membership-catalog?branchId={created.BranchId}");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var payload = await ReadJsonElementAsync(response);
+            Assert.Contains(
+                payload.EnumerateArray(),
+                item => GetGuidFromProperty(item, "id") == created.ItemId);
+        }
+    }
+
+    [Fact]
     public async Task Branch_and_hall_admin_flow_validates_archive_and_delete_guards()
     {
         await using var factory = new BranchesAppFactory();
@@ -232,10 +371,17 @@ public class BranchesApiTests
         var now = DateTimeOffset.UtcNow;
         var sharedPassword = "branches-password";
         var headCoach = CreateUser("headcoach-branches", "HeadCoach Branches", UserRole.HeadCoach, sharedPassword, now, passwordHashService);
-        dbContext.Users.Add(headCoach);
+        var superAdministrator = CreateUser(
+            "superadministrator-branches",
+            "SuperAdministrator Branches",
+            UserRole.SuperAdministrator,
+            sharedPassword,
+            now,
+            passwordHashService);
+        dbContext.Users.AddRange(headCoach, superAdministrator);
         await dbContext.SaveChangesAsync();
 
-        return new SeededBranchData(headCoach.Login, sharedPassword);
+        return new SeededBranchData(headCoach.Login, superAdministrator.Login, sharedPassword);
     }
 
     private static User CreateUser(
@@ -344,6 +490,17 @@ public class BranchesApiTests
         return payload ?? throw new InvalidOperationException("Response JSON payload was empty.");
     }
 
+    private static async Task AssertProblemDetailsAsync(
+        HttpResponseMessage response,
+        string expectedType,
+        string expectedCode)
+    {
+        var payload = await ReadJsonElementAsync(response);
+
+        Assert.Equal(expectedType, payload.GetProperty("type").GetString());
+        Assert.Equal(expectedCode, payload.GetProperty("code").GetString());
+    }
+
     private static Guid GetGuidFromProperty(JsonElement payload, string propertyName)
     {
         return payload.ValueKind == JsonValueKind.Object &&
@@ -353,7 +510,10 @@ public class BranchesApiTests
             : Guid.Empty;
     }
 
-    private sealed record SeededBranchData(string HeadCoachLogin, string SharedPassword);
+    private sealed record SeededBranchData(
+        string HeadCoachLogin,
+        string SuperAdministratorLogin,
+        string SharedPassword);
 
     private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);
 

@@ -17,6 +17,7 @@ import {
 export type BaseUserFormValues = {
   fullName: string
   role: UserRole | null
+  branchId: string
   messengerPlatform: MessengerPlatform | null
   messengerPlatformUserId: string
   mustChangePassword: boolean

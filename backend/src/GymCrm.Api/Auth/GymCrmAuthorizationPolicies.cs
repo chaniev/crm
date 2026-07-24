@@ -1,4 +1,4 @@
-using GymCrm.Domain.Users;
+using GymCrm.Application.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GymCrm.Api.Auth;
@@ -22,72 +22,57 @@ internal static class GymCrmAuthorizationPolicies
     {
         options.AddPolicy(
             ManageUsers,
-            policy => policy.RequireRole(UserRole.HeadCoach.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ManageUsers)));
 
         options.AddPolicy(
             ManageClients,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ManageClients)));
 
         options.AddPolicy(
             ViewClients,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString(),
-                UserRole.Coach.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ViewClients)));
 
         options.AddPolicy(
             ViewClientPhotos,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString(),
-                UserRole.Coach.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ViewClientPhotos)));
 
         options.AddPolicy(
             ManageGroups,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ManageGroups)));
 
         options.AddPolicy(
             ManageSettings,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ManageSettings)));
 
         options.AddPolicy(
             ViewAuditLog,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ViewAuditLog)));
 
         options.AddPolicy(
             ViewFinancialReports,
-            policy => policy.RequireRole(UserRole.HeadCoach.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ViewFinancialReports)));
 
         options.AddPolicy(
             MarkAttendance,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Coach.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.MarkAttendance)));
 
         options.AddPolicy(
             ViewClientMessenger,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ViewClientMessenger)));
 
         options.AddPolicy(
             CreateClientMessengerLink,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.CreateClientMessengerLink)));
 
         options.AddPolicy(
             ReplyClientMessenger,
-            policy => policy.RequireRole(
-                UserRole.HeadCoach.ToString(),
-                UserRole.Administrator.ToString()));
+            policy => policy.RequireRole(GetRoleNames(CrmCapability.ReplyClientMessenger)));
+    }
+
+    private static string[] GetRoleNames(CrmCapability capability)
+    {
+        return UserRoleAuthorizationPolicy.GetRolesForCapability(capability)
+            .Select(role => role.ToString())
+            .ToArray();
     }
 }

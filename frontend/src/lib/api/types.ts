@@ -22,14 +22,15 @@ export type AuthenticatedUser = {
   id: string
   fullName: string
   login: string
-  role: 'HeadCoach' | 'Administrator' | 'Coach'
+  role: 'HeadCoach' | 'SuperAdministrator' | 'Administrator' | 'Coach'
   mustChangePassword: boolean
   isActive: boolean
   landingScreen: AppSection
   allowedSections: AppSection[]
   permissions: AccessPermissions
   assignedGroupIds: string[]
-  branchId?: string | null
+  branchId: string | null
+  createRoleOptions?: UserRole[]
 }
 
 export type SessionResponse = {
@@ -55,6 +56,13 @@ export type ChangePasswordRequest = {
 
 export type UserRole = AuthenticatedUser['role']
 export type MessengerPlatform = 'Telegram'
+export type UserAllowedAction =
+  | 'Read'
+  | 'Edit'
+  | 'Update'
+  | 'Deactivate'
+  | 'Reactivate'
+  | 'Delete'
 
 export type UserListItem = {
   id: string
@@ -67,15 +75,23 @@ export type UserListItem = {
   messengerPlatformUserId: string | null
   branchId: string | null
   branchName: string | null
+  allowedActions?: UserAllowedAction[]
+  roleOptions?: UserRole[]
 }
 
 export type UserDetails = UserListItem
+
+export type UserListResponse = {
+  items: UserListItem[]
+  createRoleOptions: UserRole[]
+}
 
 export type CreateUserRequest = {
   fullName: string
   login: string
   password: string
   role: UserRole
+  branchId: string | null
   mustChangePassword: boolean
   isActive: boolean
   messengerPlatform: MessengerPlatform | null
@@ -86,6 +102,7 @@ export type UpdateUserRequest = {
   fullName: string
   login: string
   role: UserRole
+  branchId: string | null
   mustChangePassword: boolean
   isActive: boolean
   messengerPlatform: MessengerPlatform | null

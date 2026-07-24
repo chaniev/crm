@@ -35,6 +35,7 @@ const financeUser: AuthenticatedUser = {
     canViewFinancialReports: true,
   },
   assignedGroupIds: [],
+  branchId: null,
 }
 
 describe('finance routes', () => {
@@ -91,6 +92,34 @@ describe('finance routes', () => {
 
     expect(route).toEqual({ kind: 'section', section: 'Home' })
     expect(resolveAccessibleRoutePath(financeUser, route)).toBe('/')
+  })
+
+  test('SuperAdministrator navigation follows backend permissions without finance access', () => {
+    const superAdministrator: AuthenticatedUser = {
+      ...financeUser,
+      id: 'superadmin-id',
+      fullName: 'Суперадминистратор',
+      login: 'superadmin',
+      role: 'SuperAdministrator',
+      branchId: null,
+      permissions: {
+        ...financeUser.permissions,
+        canViewFinancialReports: false,
+      },
+      allowedSections: financeUser.allowedSections.filter((section) => section !== 'Finance'),
+      createRoleOptions: ['Administrator', 'Coach'],
+    }
+
+    expect(getAccessibleNavigationSections(superAdministrator)).toEqual([
+      'Home',
+      'Schedule',
+      'Clients',
+      'Groups',
+      'Users',
+      'Audit',
+      'Settings',
+    ])
+    expect(resolveAccessibleRoutePath(superAdministrator, { kind: 'section', section: 'Finance' })).toBe('/')
   })
 })
 

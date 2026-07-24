@@ -40,6 +40,7 @@ const auditUser: AuthenticatedUser = {
     canViewFinancialReports: false,
   },
   assignedGroupIds: [],
+  branchId: null,
 }
 
 const deniedUser: AuthenticatedUser = {

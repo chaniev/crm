@@ -1,4 +1,5 @@
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Messenger;
 using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
@@ -697,20 +698,14 @@ internal sealed class ClientMessengerService(
             canCreateLink);
     }
 
-    private static bool CanRead(User currentUser)
-    {
-        return currentUser.Role is UserRole.HeadCoach or UserRole.Administrator;
-    }
+    private static bool CanRead(User currentUser) =>
+        UserRoleAuthorizationPolicy.HasCapability(currentUser.Role, CrmCapability.ViewClientMessenger);
 
-    private static bool CanReply(User currentUser)
-    {
-        return currentUser.Role is UserRole.HeadCoach or UserRole.Administrator;
-    }
+    private static bool CanReply(User currentUser) =>
+        UserRoleAuthorizationPolicy.HasCapability(currentUser.Role, CrmCapability.ReplyClientMessenger);
 
-    private static bool CanCreateLink(User currentUser)
-    {
-        return currentUser.Role is UserRole.HeadCoach or UserRole.Administrator;
-    }
+    private static bool CanCreateLink(User currentUser) =>
+        UserRoleAuthorizationPolicy.HasCapability(currentUser.Role, CrmCapability.CreateClientMessengerLink);
 
     private static Dictionary<string, string[]> ValidatePaging(int? skip, int? take)
     {

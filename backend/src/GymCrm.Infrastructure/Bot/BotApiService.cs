@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Bot;
@@ -68,6 +69,10 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance))
+        {
+            return BotApiResult<IReadOnlyList<BotAttendanceGroup>>.Failure(BotApiError.Forbidden);
+        }
 
         var query = dbContext.TrainingGroups.AsNoTracking();
         if (user.Role == UserRole.Coach)
@@ -110,6 +115,11 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance))
+        {
+            return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.Forbidden);
+        }
+
         if (!IsAttendanceDateAllowed(user.Role, trainingDate))
         {
             return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.InvalidAttendanceDate);
@@ -180,6 +190,11 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance))
+        {
+            return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.Forbidden);
+        }
+
         if (!IsAttendanceDateAllowed(user.Role, trainingDate))
         {
             return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate);
@@ -343,7 +358,7 @@ internal sealed class BotApiService(
         if (!string.IsNullOrWhiteSpace(query))
         {
             var byName = ApplyFullNameSearch(baseQuery, query);
-            if (user.Role is UserRole.HeadCoach or UserRole.Administrator)
+            if (UserRoleAuthorizationPolicy.GetOperationalScopeKind(user.Role) != AccessScopeKind.AssignedGroups)
             {
                 var byPhone = ApplyPhoneSearch(baseQuery, query);
                 baseQuery = byName.Union(byPhone);
@@ -479,7 +494,7 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
-        if (user.Role is not (UserRole.HeadCoach or UserRole.Administrator))
+        if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.ManageClients))
         {
             return BotApiResult<IReadOnlyList<BotExpiringMembershipListItem>>.Failure(BotApiError.Forbidden);
         }
@@ -702,9 +717,14 @@ internal sealed class BotApiService(
     {
         return role switch
         {
-            UserRole.HeadCoach or UserRole.Administrator =>
+            UserRole.HeadCoach or UserRole.SuperAdministrator =>
             [
                 new BotMenuItem("attendance", "Посещения"),
+                new BotMenuItem("client_search", "Поиск клиента"),
+                new BotMenuItem("expiring_memberships", "Заканчивающиеся")
+            ],
+            UserRole.Administrator =>
+            [
                 new BotMenuItem("client_search", "Поиск клиента"),
                 new BotMenuItem("expiring_memberships", "Заканчивающиеся")
             ],

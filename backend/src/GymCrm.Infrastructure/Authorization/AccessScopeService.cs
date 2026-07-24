@@ -19,10 +19,14 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                 .ToArrayAsync(cancellationToken)
             : [];
 
+        var permissions = UserRoleAuthorizationPolicy.GetPermissions(user.Role);
+        var scopeKind = UserRoleAuthorizationPolicy.GetOperationalScopeKind(user.Role);
+
         return user.Role switch
         {
-            UserRole.HeadCoach => new AccessScope(
+            UserRole.HeadCoach or UserRole.SuperAdministrator => new AccessScope(
                 user.Role,
+                scopeKind,
                 AppSection.Home,
                 [
                     AppSection.Home,
@@ -30,20 +34,14 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     AppSection.Groups,
                     AppSection.Users,
                     AppSection.Audit,
-                    AppSection.Finance,
+                    .. (user.Role == UserRole.HeadCoach ? [AppSection.Finance] : Array.Empty<string>()),
                     AppSection.Settings
                 ],
-                new PermissionSet(
-                    CanManageUsers: true,
-                    CanManageClients: true,
-                    CanManageGroups: true,
-                    CanManageSettings: true,
-                    CanMarkAttendance: true,
-                    CanViewAuditLog: true,
-                    CanViewFinancialReports: true),
+                permissions,
                 []),
             UserRole.Administrator => new AccessScope(
                 user.Role,
+                scopeKind,
                 AppSection.Home,
                 [
                     AppSection.Home,
@@ -52,30 +50,17 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     AppSection.Audit,
                     AppSection.Settings
                 ],
-                new PermissionSet(
-                    CanManageUsers: false,
-                    CanManageClients: true,
-                    CanManageGroups: true,
-                    CanManageSettings: true,
-                    CanMarkAttendance: false,
-                    CanViewAuditLog: true,
-                    CanViewFinancialReports: false),
+                permissions,
                 []),
             UserRole.Coach => new AccessScope(
                 user.Role,
+                scopeKind,
                 AppSection.Home,
                 [
                     AppSection.Home,
                     AppSection.Clients
                 ],
-                new PermissionSet(
-                    CanManageUsers: false,
-                    CanManageClients: false,
-                    CanManageGroups: false,
-                    CanManageSettings: false,
-                    CanMarkAttendance: true,
-                    CanViewAuditLog: false,
-                    CanViewFinancialReports: false),
+                permissions,
                 assignedGroupIds),
             _ => throw new InvalidOperationException($"Unsupported user role '{user.Role}'.")
         };
@@ -98,7 +83,7 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
 
         return user.Role switch
         {
-            UserRole.HeadCoach => GroupAccessDecision.Allowed,
+            UserRole.HeadCoach or UserRole.SuperAdministrator => GroupAccessDecision.Allowed,
             UserRole.Coach => await dbContext.GroupTrainers
                 .AnyAsync(
                     groupTrainer =>

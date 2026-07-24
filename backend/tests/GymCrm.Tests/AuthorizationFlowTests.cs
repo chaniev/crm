@@ -31,6 +31,10 @@ public class AuthorizationFlowTests
 
         Assert.NotNull(session.User);
         Assert.Equal("HeadCoach", session.User.Role);
+        Assert.Null(session.User.BranchId);
+        Assert.Equal(
+            ["Administrator", "Coach", "SuperAdministrator"],
+            session.User.CreateRoleOptions);
         Assert.Equal("Home", session.User.LandingScreen);
         Assert.Equal(
             ["Home", "Clients", "Groups", "Users", "Audit", "Finance", "Settings"],
@@ -69,6 +73,8 @@ public class AuthorizationFlowTests
 
         Assert.NotNull(session.User);
         Assert.Equal("Administrator", session.User.Role);
+        Assert.Equal(seeded.AssignedBranchId, session.User.BranchId);
+        Assert.Empty(session.User.CreateRoleOptions);
         Assert.Equal("Home", session.User.LandingScreen);
         Assert.Equal(["Home", "Clients", "Groups", "Audit", "Settings"], session.User.AllowedSections);
         Assert.False(session.User.Permissions.CanManageUsers);
@@ -105,6 +111,8 @@ public class AuthorizationFlowTests
 
         Assert.NotNull(session.User);
         Assert.Equal("Coach", session.User.Role);
+        Assert.Null(session.User.BranchId);
+        Assert.Empty(session.User.CreateRoleOptions);
         Assert.Equal("Home", session.User.LandingScreen);
         Assert.Equal(["Home", "Clients"], session.User.AllowedSections);
         Assert.False(session.User.Permissions.CanManageUsers);
@@ -129,6 +137,49 @@ public class AuthorizationFlowTests
             HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Super_administrator_session_is_global_without_branch_or_head_coach_only_finance()
+    {
+        await using var factory = new AuthorizationAppFactory();
+        var seeded = await SeedAuthorizationDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+
+        Assert.NotNull(session.User);
+        Assert.Equal("SuperAdministrator", session.User.Role);
+        Assert.Null(session.User.BranchId);
+        Assert.Equal(["Administrator", "Coach"], session.User.CreateRoleOptions);
+        Assert.Equal("Home", session.User.LandingScreen);
+        Assert.Equal(
+            ["Home", "Clients", "Groups", "Users", "Audit", "Settings"],
+            session.User.AllowedSections);
+        Assert.True(session.User.Permissions.CanManageUsers);
+        Assert.True(session.User.Permissions.CanManageClients);
+        Assert.True(session.User.Permissions.CanManageGroups);
+        Assert.True(session.User.Permissions.CanManageSettings);
+        Assert.True(session.User.Permissions.CanMarkAttendance);
+        Assert.True(session.User.Permissions.CanViewAuditLog);
+        Assert.False(session.User.Permissions.CanViewFinancialReports);
+
+        await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/client-management"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/group-management"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
+        await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.Forbidden);
+        await AssertStatusCodeAsync(
+            PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken),
+            HttpStatusCode.OK);
+        await AssertStatusCodeAsync(
+            PostWithoutBodyAsync(client, $"/access/attendance/{seeded.ForeignGroupId}", session.CsrfToken),
+            HttpStatusCode.OK);
+    }
+
     private static async Task<SeededAuthorizationData> SeedAuthorizationDataAsync(AuthorizationAppFactory factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -139,6 +190,13 @@ public class AuthorizationFlowTests
         var sharedPassword = "stage3-password";
 
         var headCoach = CreateUser("headcoach-stage3", "Главный тренер Stage 3", UserRole.HeadCoach, sharedPassword, now, passwordHashService);
+        var superAdministrator = CreateUser(
+            "superadministrator-stage3",
+            "Суперадминистратор Stage 3",
+            UserRole.SuperAdministrator,
+            sharedPassword,
+            now,
+            passwordHashService);
         var administrator = CreateUser("administrator-stage3", "Администратор Stage 3", UserRole.Administrator, sharedPassword, now, passwordHashService);
         var coach = CreateUser("coach-stage3", "Тренер Stage 3", UserRole.Coach, sharedPassword, now, passwordHashService);
 
@@ -213,8 +271,9 @@ public class AuthorizationFlowTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        administrator.BranchId = assignedBranch.Id;
 
-        dbContext.Users.AddRange(headCoach, administrator, coach);
+        dbContext.Users.AddRange(headCoach, superAdministrator, administrator, coach);
         dbContext.Branches.AddRange(assignedBranch, foreignBranch);
         dbContext.Halls.AddRange(assignedHall, foreignHall);
         dbContext.GroupTypes.Add(groupType);
@@ -229,9 +288,11 @@ public class AuthorizationFlowTests
 
         return new SeededAuthorizationData(
             headCoach.Login,
+            superAdministrator.Login,
             administrator.Login,
             coach.Login,
             sharedPassword,
+            assignedBranch.Id,
             assignedGroup.Id,
             foreignGroup.Id);
     }
@@ -334,7 +395,9 @@ public class AuthorizationFlowTests
         string LandingScreen,
         string[] AllowedSections,
         PermissionPayload Permissions,
-        string[] AssignedGroupIds);
+        string[] AssignedGroupIds,
+        Guid? BranchId,
+        string[] CreateRoleOptions);
 
     private sealed record PermissionPayload(
         bool CanManageUsers,
@@ -347,9 +410,11 @@ public class AuthorizationFlowTests
 
     private sealed record SeededAuthorizationData(
         string HeadCoachLogin,
+        string SuperAdministratorLogin,
         string AdministratorLogin,
         string CoachLogin,
         string SharedPassword,
+        Guid AssignedBranchId,
         Guid AssignedCoachGroupId,
         Guid ForeignGroupId);
 

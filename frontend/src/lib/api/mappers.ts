@@ -301,7 +301,12 @@ export function normalizeAuditJsonValue(value: unknown): unknown | null {
 }
 
 export function mapUserRole(role?: string): UserRole | undefined {
-  if (role === 'HeadCoach' || role === 'Administrator' || role === 'Coach') {
+  if (
+    role === 'HeadCoach' ||
+    role === 'SuperAdministrator' ||
+    role === 'Administrator' ||
+    role === 'Coach'
+  ) {
     return role
   }
 
