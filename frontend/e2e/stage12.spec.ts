@@ -26,6 +26,7 @@ const headCoachSession = {
       canViewFinancialReports: true,
     },
     assignedGroupIds: ['group-1'],
+    createRoleOptions: ['SuperAdministrator', 'Administrator', 'Coach'],
   },
 }
 
@@ -1454,7 +1455,10 @@ test.describe('Основные e2e сценарии', () => {
       }
 
       if (pathname === '/api/settings/administrators' && method === 'GET') {
-        await fulfillJson(route, 200, administrators)
+        await fulfillJson(route, 200, {
+          items: administrators,
+          createRoleOptions: ['Administrator'],
+        })
         return true
       }
 
