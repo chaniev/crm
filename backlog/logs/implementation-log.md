@@ -860,3 +860,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-083-membership-payment-status-simplification`, moves payment metadata from membership version to paid-by-definition sale, separates payment/purchase/record/validity dates, reports sales by payment date with purchase-date organizational attribution, removes unpaid web/bot/attendance semantics, and requires real-PostgreSQL atomicity/schema/report barriers plus frontend and bot red/green coverage.
+
+# 2026-07-24 20:14
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-082-super-administrator-role.plan.md
+
+## Skipped tasks
+- TASK-082-super-administrator-role.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; detailed test-first plan created for explicit security/architecture review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-082-super-administrator-role`, one backend-owned four-role capability/actor-target/scope matrix, explicit `branchId` session contract, protected staff endpoints, atomic role/branch audit, two-branch attendance and operational access, HeadCoach-only negative barriers, TASK-080/TASK-081 boundaries and synchronized frontend/internal-bot/Python consumers.
