@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using GymCrm.Application.Attendance;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
@@ -704,9 +705,10 @@ public class ClientMembershipCreationPricingApiTests
             await using var scope = factory.Services.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+            var businessDateProvider = scope.ServiceProvider.GetRequiredService<IBusinessDateProvider>();
 
             var now = DateTimeOffset.UtcNow;
-            var today = DateOnly.FromDateTime(now.UtcDateTime.Date);
+            var today = businessDateProvider.Today;
             var password = "pricing-red-phase-password";
             var branch = new Branch
             {

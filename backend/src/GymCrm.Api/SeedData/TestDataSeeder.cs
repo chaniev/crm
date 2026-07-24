@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Api.SeedData;
 
-internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
+internal sealed class TestDataSeeder : IAsyncDisposable
 {
     private const string DefaultPassword = "1";
     private const bool SeedUserMustChangePassword = false;
@@ -61,18 +61,51 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
         new(20, 0)
     ];
 
-    private readonly GymCrmDbContext dbContext = CreateDbContext(options.ConnectionString);
+    private readonly GymCrmDbContext dbContext;
+    private readonly SeedClientPhotoWriter photoWriter;
+    private readonly bool applyMigrations;
+    private readonly bool ownsDbContext;
     private readonly PasswordHasher<User> passwordHasher = new();
-    private readonly SeedClientPhotoWriter photoWriter = new(options.PhotoStorageRootPath);
+
+    public TestDataSeeder(SeedDataOptions options)
+        : this(
+            CreateDbContext(options.ConnectionString),
+            new SeedClientPhotoWriter(options.PhotoStorageRootPath),
+            options.ApplyMigrations,
+            ownsDbContext: true)
+    {
+    }
+
+    internal TestDataSeeder(GymCrmDbContext dbContext, string photoStorageRootPath)
+        : this(
+            dbContext,
+            new SeedClientPhotoWriter(photoStorageRootPath),
+            applyMigrations: false,
+            ownsDbContext: false)
+    {
+    }
+
+    private TestDataSeeder(
+        GymCrmDbContext dbContext,
+        SeedClientPhotoWriter photoWriter,
+        bool applyMigrations,
+        bool ownsDbContext)
+    {
+        this.dbContext = dbContext;
+        this.photoWriter = photoWriter;
+        this.applyMigrations = applyMigrations;
+        this.ownsDbContext = ownsDbContext;
+    }
 
     public async Task<SeedDataSummary> SeedAsync(CancellationToken cancellationToken)
     {
-        if (options.ApplyMigrations)
+        if (applyMigrations)
         {
             await dbContext.Database.MigrateAsync(cancellationToken);
         }
 
         await RemoveSeedDataAsync(cancellationToken);
+        dbContext.ChangeTracker.Clear();
 
         var now = DateTimeOffset.UtcNow;
         var validFrom = DateOnly.FromDateTime(now.UtcDateTime.Date.AddDays(-30));
@@ -114,11 +147,12 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
             groups.Count,
             clientData.Clients.Count,
             clientData.Clients.Count(client => !string.IsNullOrWhiteSpace(client.PhotoPath)),
-            options.PhotoStorageRootPath,
+            photoWriter.StorageRootPath,
             DefaultPassword);
     }
 
-    public ValueTask DisposeAsync() => dbContext.DisposeAsync();
+    public ValueTask DisposeAsync() =>
+        ownsDbContext ? dbContext.DisposeAsync() : ValueTask.CompletedTask;
 
     private async Task RemoveSeedDataAsync(CancellationToken cancellationToken)
     {
@@ -171,6 +205,26 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
         await dbContext.ClientMembershipSales
             .Where(sale => clientIds.Contains(sale.ClientId) || userIds.Contains(sale.CreatedByUserId))
             .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.ClientMembershipIdempotencyRecords
+            .Where(record => clientIds.Contains(record.ClientId) || userIds.Contains(record.ActorUserId))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.Clients
+            .Where(client => client.NotesChangedByUserId.HasValue && userIds.Contains(client.NotesChangedByUserId.Value))
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(client => client.NotesChangedByUserId, (Guid?)null)
+                    .SetProperty(client => client.NotesChangedAt, (DateTimeOffset?)null),
+                cancellationToken);
+
+        await dbContext.ClientMembershipSales
+            .Where(sale => sale.CommentChangedByUserId.HasValue && userIds.Contains(sale.CommentChangedByUserId.Value))
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(sale => sale.CommentChangedByUserId, (Guid?)null)
+                    .SetProperty(sale => sale.CommentChangedAt, (DateTimeOffset?)null),
+                cancellationToken);
 
         await dbContext.ClientContacts
             .Where(contact => clientIds.Contains(contact.ClientId))
@@ -226,16 +280,16 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
             .Where(hall => hallIds.Contains(hall.Id))
             .ExecuteDeleteAsync(cancellationToken);
 
+        await dbContext.Users
+            .Where(user => userIds.Contains(user.Id))
+            .ExecuteDeleteAsync(cancellationToken);
+
         await dbContext.Branches
             .Where(branch => branchIds.Contains(branch.Id))
             .ExecuteDeleteAsync(cancellationToken);
 
         await dbContext.GroupTypes
             .Where(groupType => groupTypeIds.Contains(groupType.Id))
-            .ExecuteDeleteAsync(cancellationToken);
-
-        await dbContext.Users
-            .Where(user => userIds.Contains(user.Id))
             .ExecuteDeleteAsync(cancellationToken);
 
         await photoWriter.DeleteSeedPhotosAsync(SeedIds.ClientCount, cancellationToken);
@@ -336,6 +390,7 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
                 FullName = $"Администратор {number:00}",
                 Login = $"seed.admin{number:00}",
                 Role = UserRole.Administrator,
+                BranchId = SeedIds.Branch(((number - 1) % SeedIds.BranchCount) + 1),
                 MustChangePassword = SeedUserMustChangePassword,
                 IsActive = true,
                 CreatedAt = now,
@@ -557,6 +612,7 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
             FirstName = fullName.FirstName,
             MiddleName = fullName.MiddleName,
             Phone = phone,
+            BirthDate = CreateBirthDate(clientNumber),
             Notes = $"Тестовый клиент #{clientNumber:000}.",
             PhotoPath = photo.RelativePath,
             PhotoContentType = photo.ContentType,
@@ -567,6 +623,9 @@ internal sealed class TestDataSeeder(SeedDataOptions options) : IAsyncDisposable
             UpdatedAt = now
         };
     }
+
+    private static DateOnly CreateBirthDate(int clientNumber) =>
+        new(1978 + ((clientNumber - 1) % 30), ((clientNumber - 1) % 12) + 1, ((clientNumber - 1) % 28) + 1);
 
     private static void Shuffle(int[] values, Random random)
     {

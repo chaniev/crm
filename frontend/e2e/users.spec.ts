@@ -48,6 +48,11 @@ test('Навигация открывает раздел Тренеры на м�
       return
     }
 
+    if (requestUrl.pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
     if (requestUrl.pathname === '/api/attendance/groups' && method === 'GET') {
       await fulfillJson(route, 200, { items: [] })
       return

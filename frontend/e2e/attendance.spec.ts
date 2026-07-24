@@ -217,10 +217,10 @@ test.describe('Мобильный сценарий посещений трене
     await expect(page.getByRole('button', { name: 'Следующая дата' })).toHaveAttribute('title', 'Будущие даты недоступны')
 
     const rosterViewControl = page.getByTestId('attendance-roster-view-control')
-    await rosterViewControl.getByRole('radio', { name: 'Все' }).click()
+    await rosterViewControl.getByText('Все', { exact: true }).click()
     const savedClientCard = page.getByTestId(`attendance-client-card-${CLIENT_ID}`)
     const absentClientCard = page.getByTestId(`attendance-client-card-${ABSENT_CLIENT_ID}`)
-    await expect(savedClientCard.getByRole('radio', { name: 'Был' })).toBeChecked()
+    await expect(savedClientCard.getByRole('radio', { name: 'Был', exact: true })).toBeChecked()
     await expect(absentClientCard.getByRole('radio', { name: 'Не был' })).toBeChecked()
 
     await savedClientCard.getByText('Не был', { exact: true }).click()
@@ -235,7 +235,7 @@ test.describe('Мобильный сценарий посещений трене
     })
     await expect(savedClientCard.getByRole('radio', { name: 'Не отмечено' })).toBeChecked()
     await expect(page.getByText('Отмечено 1 из 3')).toBeVisible()
-    await rosterViewControl.getByRole('radio', { name: 'Не отмечено', exact: true }).click()
+    await rosterViewControl.getByText('Не отмечено', { exact: true }).click()
     await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
     await expect(page.getByText(ABSENT_CLIENT_FULL_NAME)).toHaveCount(0)
   })

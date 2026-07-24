@@ -42,10 +42,14 @@ class GymCrmBotApplication:
             crm_client=self.crm_client,
             session_factory=self.session_factory,
         )
-        self.telegram = create_telegram_adapter(
-            settings=settings,
-            bot_service=self.bot_service,
-            session_factory=self.session_factory,
+        self.telegram = (
+            create_telegram_adapter(
+                settings=settings,
+                bot_service=self.bot_service,
+                session_factory=self.session_factory,
+            )
+            if settings.bot_enabled
+            else None
         )
         self.web_app = self._create_web_app()
 
@@ -59,7 +63,8 @@ class GymCrmBotApplication:
 
     async def stop(self) -> None:
         self.health.ready = False
-        await self.telegram.stop()
+        if self.telegram is not None:
+            await self.telegram.stop()
         await self.crm_client.aclose()
         await self.engine.dispose()
 
@@ -76,11 +81,13 @@ class GymCrmBotApplication:
             )
         )
         server_task = asyncio.create_task(server.serve())
-        polling_task = asyncio.create_task(self.telegram.run())
+        tasks = {server_task}
+        if self.telegram is not None:
+            tasks.add(asyncio.create_task(self.telegram.run()))
 
         try:
             done, pending = await asyncio.wait(
-                {server_task, polling_task},
+                tasks,
                 return_when=asyncio.FIRST_EXCEPTION,
             )
             for task in done:

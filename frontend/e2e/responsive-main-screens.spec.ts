@@ -374,7 +374,7 @@ const MANAGEMENT_ROUTES = [
     screenTestId: 'settings-screen',
     navLabel: 'Настройки',
     expectedPageTitle: 'Настройки',
-    expectedControls: ['Добавить тип', 'Обновить'],
+    expectedControls: ['Добавить абонемент', 'Обновить'],
     checkSharedEdges: true,
   },
 ] as const
@@ -1142,6 +1142,11 @@ async function mockApi(
       return
     }
 
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
     if (pathname === '/api/schedule/groups' && method === 'GET') {
       await fulfillJson(route, 200, SCHEDULE_GROUPS_RESPONSE)
       return
@@ -1182,6 +1187,11 @@ async function mockApi(
           updatedAt: '2026-05-01T10:00:00Z',
         },
       ])
+      return
+    }
+
+    if (pathname === '/api/settings/membership-catalog' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
       return
     }
 

@@ -46,6 +46,41 @@ if (args.Contains("--seed-leninsky-test-data", StringComparer.Ordinal))
     }
 }
 
+if (args.Contains("--seed-leninsky-admins-only", StringComparer.Ordinal))
+{
+    var seedArgs = args
+        .Where(argument => !string.Equals(argument, "--seed-leninsky-admins-only", StringComparison.Ordinal))
+        .ToArray();
+
+    try
+    {
+        var options = SeedDataOptionsParser.Parse(seedArgs);
+
+        if (options.ShowHelp)
+        {
+            Console.WriteLine(SeedDataOptionsParser.LeninskyAdminsOnlyUsage);
+            return;
+        }
+
+        await using var seeder = new LeninskyAdministratorsOnlySeeder(options);
+        var summary = await seeder.SeedAsync(CancellationToken.None);
+
+        Console.WriteLine("Leninsky administrators-only seed completed.");
+        Console.WriteLine($"Branch: {summary.BranchName}");
+        Console.WriteLine($"Administrators: {summary.AdministratorCount}");
+        Console.WriteLine($"Administrator password: {summary.DefaultUserPassword}");
+        return;
+    }
+    catch (SeedDataOptionsException exception)
+    {
+        Console.Error.WriteLine(exception.Message);
+        Console.Error.WriteLine();
+        Console.Error.WriteLine(SeedDataOptionsParser.LeninskyAdminsOnlyUsage);
+        Environment.ExitCode = 2;
+        return;
+    }
+}
+
 if (args.Contains("--seed-test-data", StringComparer.Ordinal))
 {
     var seedArgs = args

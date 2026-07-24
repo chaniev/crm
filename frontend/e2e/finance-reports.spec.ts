@@ -314,6 +314,7 @@ test.describe('Finance reports', () => {
     await page.getByTestId('finance-filter-panel').getByRole('button', { name: 'Фильтры' }).click()
     await expect(page.getByLabel('Дата в периоде')).toBeVisible()
     await expect(page.getByText('За выбранный период операций нет.')).toBeVisible()
+    await page.getByRole('button', { name: 'Применить' }).click()
     await expect(
       page.locator('nav.app-shell__side-nav[aria-label="Основная навигация"]'),
     ).toBeHidden()
@@ -380,6 +381,11 @@ async function mockFinanceApi(
     }
 
     if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
       await fulfillJson(route, 200, { items: [] })
       return
     }

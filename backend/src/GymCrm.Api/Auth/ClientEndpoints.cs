@@ -482,6 +482,7 @@ internal static class ClientEndpoints
     private static async Task<Results<Ok<IReadOnlyList<MembershipAttentionListItemResponse>>, UnauthorizedHttpResult>> ListExpiringMembershipsAsync(
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IBusinessDateProvider businessDateProvider,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -490,7 +491,7 @@ internal static class ClientEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = businessDateProvider.Today;
         var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
         var candidates = await dbContext.Clients
@@ -1594,7 +1595,7 @@ internal static class ClientEndpoints
 
             var replayClient = await LoadClientSnapshotAsync(id, dbContext, cancellationToken)
                 ?? throw new InvalidOperationException($"Updated client '{id}' was not found during membership idempotency replay.");
-            return TypedResults.Ok(MapDetails(replayClient, EmptyAttendanceHistoryPage()));
+            return TypedResults.Ok(MapDetails(replayClient, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
         }
 
         var existingIdempotency = await dbContext.ClientMembershipIdempotencyRecords
@@ -1752,7 +1753,7 @@ internal static class ClientEndpoints
                 transaction = null;
             }
 
-            return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage()));
+            return TypedResults.Ok(MapDetails(clientAfter, EmptyAttendanceHistoryPage(), businessDateProvider.Today));
         }
         catch (Exception exception)
         {

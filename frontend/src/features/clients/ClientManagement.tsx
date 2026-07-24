@@ -1422,7 +1422,7 @@ function ClientMembershipSnapshot({
             value={formatMembershipPricingProvenance(currentMembership)}
           />
           <CompactInfoItem
-            label="Оплачено"
+            label="Статус оплаты"
             value={
               currentMembership.paidAt
                 ? formatDateTimeValue(currentMembership.paidAt)

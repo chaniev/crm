@@ -818,7 +818,7 @@ public class ClientsApiTests
             dbContext.Halls.Add(targetHall);
             dbContext.GroupTypes.Add(targetGroupType);
             dbContext.TrainingGroups.Add(targetGroup);
-            var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+            var purchaseDate = GetBusinessToday();
             var targetCatalogItem = MembershipCatalogItem.CreateBranchOwned(
                 targetBranch.Id,
                 "Transfer Term",
@@ -882,10 +882,10 @@ public class ClientsApiTests
                        BranchId = targetBranchId,
                        GroupIds = new[] { targetGroupId },
                        MembershipCatalogItemId = targetCatalogItemId,
-                       ValidFrom = DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd"),
-                       ValidTo = DateOnly.FromDateTime(DateTime.UtcNow.Date).AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
+                       ValidFrom = GetBusinessToday().ToString("yyyy-MM-dd"),
+                       ValidTo = GetBusinessToday().AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
                        PaymentStatus = "Paid",
-                       PaymentDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd")
+                       PaymentDate = GetBusinessToday().ToString("yyyy-MM-dd")
                    },
                    session.CsrfToken))
         {
@@ -1256,7 +1256,7 @@ public class ClientsApiTests
                 dbContext.ClientMemberships.Add(CreateMembershipWithSale(
                     createdClientId,
                     behaviorKind,
-                    DateOnly.FromDateTime(DateTime.UtcNow.Date),
+                    GetBusinessToday(),
                     expirationDate,
                     1200m,
                     isPaid,
@@ -1269,7 +1269,7 @@ public class ClientsApiTests
             return createdClientId;
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
         var recentlyExpiredUnpaidClient = await CreateClientWithMembershipAsync(
             "Alpha",
             MembershipBehaviorKind.Term,
@@ -1474,7 +1474,7 @@ public class ClientsApiTests
                    new
                    {
                        BehaviorKind = "Term",
-                       PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd"),
+                       PurchaseDate = GetBusinessToday().ToString("yyyy-MM-dd"),
                        PaymentAmount = 1200m,
                        IsPaid = true,
                        SingleVisitUsed = false
@@ -1549,8 +1549,8 @@ public class ClientsApiTests
 
             await dbContext.SaveChangesAsync();
 
-            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, DateOnly.FromDateTime(DateTime.UtcNow.Date), true);
-            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupTwoId, seeded.HeadCoachId, DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1)), true);
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, GetBusinessToday(), true);
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupTwoId, seeded.HeadCoachId, GetBusinessToday().AddDays(-1), true);
 
             await dbContext.SaveChangesAsync();
         }
@@ -1562,8 +1562,8 @@ public class ClientsApiTests
                    new
                    {
                        BehaviorKind = "Term",
-                       PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-2)).ToString("yyyy-MM-dd"),
-                       ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(1)).ToString("yyyy-MM-dd"),
+                       PurchaseDate = GetBusinessToday().AddDays(-2).ToString("yyyy-MM-dd"),
+                       ExpirationDate = GetBusinessToday().AddMonths(1).ToString("yyyy-MM-dd"),
                        PaymentAmount = 1600m,
                        IsPaid = true,
                        SingleVisitUsed = false
@@ -1656,8 +1656,8 @@ public class ClientsApiTests
 
             await dbContext.SaveChangesAsync();
 
-            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, DateOnly.FromDateTime(DateTime.UtcNow.Date), true);
-            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupTwoId, seeded.HeadCoachId, DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1)), true);
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupOneId, seeded.HeadCoachId, GetBusinessToday(), true);
+            SeedAttendanceEntryForClient(dbContext, clientId, seeded.GroupTwoId, seeded.HeadCoachId, GetBusinessToday().AddDays(-1), true);
 
             await dbContext.SaveChangesAsync();
         }
@@ -1715,7 +1715,7 @@ public class ClientsApiTests
 
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
         var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -1792,7 +1792,7 @@ public class ClientsApiTests
                 GroupId = seeded.GroupOneId,
                 TrainerId = seeded.CoachId
             });
-            var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+            var today = GetBusinessToday();
             var now = DateTimeOffset.UtcNow;
             dbContext.ClientMemberships.Add(CreateMembershipWithSale(
                 allowedClientId,
@@ -1849,7 +1849,7 @@ public class ClientsApiTests
                 "paidAt",
                 "PaidAt"));
             Assert.Equal(
-                DateOnly.FromDateTime(DateTime.UtcNow.Date).AddDays(-3).ToString("yyyy-MM-dd"),
+                GetBusinessToday().AddDays(-3).ToString("yyyy-MM-dd"),
                 GetStringFromAnyCase(clientPayload, "lastVisitDate", "LastVisitDate"));
 
             var groupsPayload = GetArrayPayload(clientPayload.GetProperty("groups"));
@@ -1942,7 +1942,7 @@ public class ClientsApiTests
                 .ToArray();
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
 
         async Task SeedCurrentMembershipsAsync(
             Guid clientId,
@@ -2237,7 +2237,7 @@ public class ClientsApiTests
         });
 
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
 
         async Task<Guid> CreateClientForQuickFilterAsync(
             string lastName,
@@ -2488,7 +2488,7 @@ public class ClientsApiTests
             actorSession.CsrfToken,
             seeded.GroupOneId);
 
-        var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var purchaseDate = GetBusinessToday();
         var renewalDate = purchaseDate.AddMonths(1);
         var correctionDate = purchaseDate.AddMonths(2);
 
@@ -2634,7 +2634,7 @@ public class ClientsApiTests
             actorSession.CsrfToken,
             seeded.GroupOneId);
 
-        var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var purchaseDate = GetBusinessToday();
         using var purchaseResponse = await SendMembershipActionAsync(
             client,
             "purchase",
@@ -2742,7 +2742,7 @@ public class ClientsApiTests
             actorSession.CsrfToken,
             seeded.GroupOneId);
 
-        var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).AddDays(-1);
+        var purchaseDate = GetBusinessToday().AddDays(-1);
         using var purchaseResponse = await SendMembershipActionAsync(
             client,
             "purchase",
@@ -2775,7 +2775,7 @@ public class ClientsApiTests
         using (var futureRefundResponse = await PostJsonAsync(
                    client,
                    $"/clients/{clientId}/membership/sales/{saleId}/refunds",
-                   new { Amount = 1m, RefundDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).AddDays(1).ToString("yyyy-MM-dd") },
+                   new { Amount = 1m, RefundDate = GetBusinessToday().AddDays(1).ToString("yyyy-MM-dd") },
                    actorSession.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.BadRequest, futureRefundResponse.StatusCode);
@@ -2799,7 +2799,7 @@ public class ClientsApiTests
             Assert.Equal(HttpStatusCode.BadRequest, beforeSaleCreatedRefundResponse.StatusCode);
         }
 
-        var refundDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var refundDate = GetBusinessToday();
         using (var validRefundResponse = await PostJsonAsync(
                    client,
                    $"/clients/{clientId}/membership/sales/{saleId}/refunds",
@@ -2871,7 +2871,7 @@ public class ClientsApiTests
             ["purchase"] = new
             {
                 BehaviorKind = "Term",
-                PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd"),
+                PurchaseDate = GetBusinessToday().ToString("yyyy-MM-dd"),
                 PaymentAmount = 1000m,
                 IsPaid = false,
                 SingleVisitUsed = false
@@ -2879,15 +2879,15 @@ public class ClientsApiTests
             ["renew"] = new
             {
                 BehaviorKind = "Term",
-                RenewalDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd"),
+                RenewalDate = GetBusinessToday().ToString("yyyy-MM-dd"),
                 PaymentAmount = 1000m,
                 IsPaid = false
             },
             ["correct"] = new
             {
                 BehaviorKind = "Term",
-                PurchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd"),
-                ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.Date).AddMonths(1).ToString("yyyy-MM-dd"),
+                PurchaseDate = GetBusinessToday().ToString("yyyy-MM-dd"),
+                ExpirationDate = GetBusinessToday().AddMonths(1).ToString("yyyy-MM-dd"),
                 PaymentAmount = 1000m,
                 IsPaid = false,
                 SingleVisitUsed = false
@@ -2928,7 +2928,7 @@ public class ClientsApiTests
             actorSession.CsrfToken,
             seeded.GroupOneId);
 
-        var now = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var now = GetBusinessToday();
         using (var purchaseResponse = await SendMembershipActionAsync(
                    client,
                    "purchase",
@@ -3085,7 +3085,7 @@ public class ClientsApiTests
             actorSession.CsrfToken,
             seeded.GroupOneId);
 
-        var purchaseDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var purchaseDate = GetBusinessToday();
         var firstExpirationDate = purchaseDate.AddMonths(1).AddDays(-1);
         var renewalDate = purchaseDate.AddDays(10);
 
@@ -3155,7 +3155,7 @@ public class ClientsApiTests
             actorSession.CsrfToken,
             seeded.GroupOneId);
 
-        var currentDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var currentDate = GetBusinessToday();
         var oldExpiration = currentDate.AddMonths(-2);
 
         using (var scope = factory.Services.CreateScope())
@@ -3226,7 +3226,7 @@ public class ClientsApiTests
             actorSession.CsrfToken,
             seeded.GroupOneId);
 
-        var now = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var now = GetBusinessToday();
         using (var purchaseResponse = await SendMembershipActionAsync(
                    client,
                    "purchase",
@@ -3298,7 +3298,7 @@ public class ClientsApiTests
             actorSession.CsrfToken,
             seeded.GroupOneId);
 
-        var membershipDate = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var membershipDate = GetBusinessToday();
         using (var purchaseResponse = await SendMembershipActionAsync(
                    client,
                    "purchase",
@@ -3363,7 +3363,7 @@ public class ClientsApiTests
             seeded.GroupOneId);
 
         var operationStartedAt = DateTimeOffset.UtcNow;
-        var now = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var now = GetBusinessToday();
 
         using (var purchaseResponse = await SendMembershipActionAsync(
                    client,
@@ -3886,7 +3886,7 @@ public class ClientsApiTests
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
         var clientId = Guid.NewGuid();
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -3993,7 +3993,7 @@ public class ClientsApiTests
             ["ClientAttention:MembershipWindowDays"] = "1"
         });
         var seeded = await SeedClientsDataAsync(factory);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
         var visibleMissedId = Guid.NewGuid();
         var visibleMembershipId = Guid.NewGuid();
         var outsideId = Guid.NewGuid();
@@ -4043,7 +4043,7 @@ public class ClientsApiTests
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
         var clientId = Guid.NewGuid();
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetBusinessToday();
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -4724,7 +4724,7 @@ public class ClientsApiTests
         }
         var catalogItemId = GetGuidFromAnyCase(item, "id", "Id");
         var isPaid = GetBoolFromAnyCase(legacy, "isPaid", "IsPaid") ?? false;
-        var paymentDate = isPaid ? DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd") : null;
+        var paymentDate = isPaid ? GetBusinessToday().ToString("yyyy-MM-dd") : null;
 
         if (action == "renew")
             return new { MembershipCatalogItemId = catalogItemId, PaymentStatus = isPaid ? "Paid" : "Unpaid", PaymentDate = paymentDate };
@@ -4735,7 +4735,7 @@ public class ClientsApiTests
         {
             var parsedValidFrom = DateOnly.TryParse(validFrom, out var requestedValidFrom)
                 ? requestedValidFrom
-                : DateOnly.FromDateTime(DateTime.UtcNow.Date);
+                : GetBusinessToday();
             validFrom = parsedValidFrom.ToString("yyyy-MM-dd");
             if (string.IsNullOrWhiteSpace(validTo))
             {
@@ -4746,7 +4746,7 @@ public class ClientsApiTests
         {
             validFrom = DateOnly.TryParse(validFrom, out var requestedValidFrom)
                 ? requestedValidFrom.ToString("yyyy-MM-dd")
-                : DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd");
+                : GetBusinessToday().ToString("yyyy-MM-dd");
             validTo = string.Empty;
         }
         else
@@ -5318,6 +5318,12 @@ public class ClientsApiTests
         bool CanViewAuditLog);
 
     private sealed record LoginRequest(string Login, string Password);
+
+    private static DateOnly GetBusinessToday()
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
+        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timeZone).DateTime);
+    }
 
     private sealed class ClientsAppFactory(
         IReadOnlyDictionary<string, string?>? configurationOverrides = null,

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GymCrm.Api.SeedData;
 
-internal sealed class SeedClientPhotoWriter(string storageRootPath)
+internal sealed class SeedClientPhotoWriter
 {
     private const string ContentType = "image/png";
     private const int Width = 96;
@@ -13,15 +13,22 @@ internal sealed class SeedClientPhotoWriter(string storageRootPath)
     private static readonly byte[] PngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
     private static readonly uint[] CrcTable = BuildCrcTable();
 
+    public SeedClientPhotoWriter(string storageRootPath)
+    {
+        StorageRootPath = storageRootPath;
+    }
+
+    public string StorageRootPath { get; }
+
     public async Task<ClientPhotoSeedInfo> WritePhotoAsync(
         int clientNumber,
         CancellationToken cancellationToken)
     {
-        Directory.CreateDirectory(storageRootPath);
+        Directory.CreateDirectory(StorageRootPath);
 
         var relativePath = GetRelativePath(clientNumber);
         var bytes = CreatePngBytes(clientNumber);
-        var absolutePath = Path.Combine(storageRootPath, relativePath);
+        var absolutePath = Path.Combine(StorageRootPath, relativePath);
 
         await File.WriteAllBytesAsync(absolutePath, bytes, cancellationToken);
 
@@ -32,7 +39,7 @@ internal sealed class SeedClientPhotoWriter(string storageRootPath)
         int clientCount,
         CancellationToken cancellationToken)
     {
-        if (!Directory.Exists(storageRootPath))
+        if (!Directory.Exists(StorageRootPath))
         {
             return Task.CompletedTask;
         }
@@ -41,7 +48,7 @@ internal sealed class SeedClientPhotoWriter(string storageRootPath)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var absolutePath = Path.Combine(storageRootPath, GetRelativePath(clientNumber));
+            var absolutePath = Path.Combine(StorageRootPath, GetRelativePath(clientNumber));
             if (File.Exists(absolutePath))
             {
                 File.Delete(absolutePath);
