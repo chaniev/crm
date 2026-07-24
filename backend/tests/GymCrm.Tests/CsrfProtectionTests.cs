@@ -100,6 +100,59 @@ public class CsrfProtectionTests
         }
     }
 
+    [Fact]
+    public async Task Group_type_put_rejects_missing_and_invalid_csrf_without_mutation_or_audit()
+    {
+        await using var factory = new CsrfAppFactory();
+        var seeded = await SeedCsrfDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var missingTokenRequest = CreateJsonRequest(
+                   HttpMethod.Put,
+                   $"/group-types/{seeded.GroupTypeId}",
+                   new
+                   {
+                       Name = "CSRF Mutated Type",
+                       Description = "This update must be rejected."
+                   }))
+        {
+            using var missingTokenResponse = await client.SendAsync(missingTokenRequest);
+            Assert.Equal(HttpStatusCode.BadRequest, missingTokenResponse.StatusCode);
+        }
+
+        using (var invalidTokenRequest = CreateJsonRequest(
+                   HttpMethod.Put,
+                   $"/group-types/{seeded.GroupTypeId}",
+                   new
+                   {
+                       Name = "CSRF Mutated Type",
+                       Description = "This update must be rejected."
+                   }))
+        {
+            invalidTokenRequest.Headers.Add("X-CSRF-TOKEN", "invalid-csrf-token");
+            using var invalidTokenResponse = await client.SendAsync(invalidTokenRequest);
+            Assert.Equal(HttpStatusCode.BadRequest, invalidTokenResponse.StatusCode);
+        }
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var groupType = await dbContext.GroupTypes.SingleAsync(type => type.Id == seeded.GroupTypeId);
+        Assert.Equal("CSRF Default Type", groupType.Name);
+        Assert.Null(groupType.Description);
+        Assert.Equal(
+            0,
+            await dbContext.AuditLogs.CountAsync(log =>
+                log.ActionType == "GroupTypeUpdated" &&
+                log.EntityType == "GroupType" &&
+                log.EntityId == seeded.GroupTypeId.ToString()));
+    }
+
     private static async Task<SeededCsrfData> SeedCsrfDataAsync(CsrfAppFactory factory)
     {
         using var scope = factory.Services.CreateScope();

@@ -86,6 +86,7 @@ const administratorIsActiveLabel = 'Администратор активен'
 export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
   const canManageAdministrators = user.createRoleOptions?.includes('Administrator') === true
+  const canManageGroupTypes = user.permissions.canManageSettings
   const canManageHeadCoachSettings = user.createRoleOptions?.includes('SuperAdministrator') === true
 
   return (
@@ -96,20 +97,22 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
             <Tabs.Tab leftSection={<IconIdBadge2 size={18} />} value={'catalog' satisfies SettingsTab}>
               Абонементы
             </Tabs.Tab>
-            {canManageHeadCoachSettings ? <>
-            <Tabs.Tab
-              leftSection={<IconTags size={18} />}
-              value={'group-types' satisfies SettingsTab}
-            >
-              Типы групп
-            </Tabs.Tab>
-            <Tabs.Tab
-              leftSection={<IconSettings size={18} />}
-              value={'branches' satisfies SettingsTab}
-            >
-              Филиалы и залы
-            </Tabs.Tab>
-            </> : null}
+            {canManageGroupTypes ? (
+              <Tabs.Tab
+                leftSection={<IconTags size={18} />}
+                value={'group-types' satisfies SettingsTab}
+              >
+                Типы групп
+              </Tabs.Tab>
+            ) : null}
+            {canManageHeadCoachSettings ? (
+              <Tabs.Tab
+                leftSection={<IconSettings size={18} />}
+                value={'branches' satisfies SettingsTab}
+              >
+                Филиалы и залы
+              </Tabs.Tab>
+            ) : null}
             {canManageAdministrators ? (
               <Tabs.Tab
                 leftSection={<IconUserCog size={18} />}
@@ -128,16 +131,16 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
           />
         </PageTabsPanel>
 
-        {canManageHeadCoachSettings ? (
-          <>
-            <PageTabsPanel value={'group-types' satisfies SettingsTab}>
-              <GroupTypesSettingsPanel />
-            </PageTabsPanel>
+        {canManageGroupTypes ? (
+          <PageTabsPanel value={'group-types' satisfies SettingsTab}>
+            <GroupTypesSettingsPanel />
+          </PageTabsPanel>
+        ) : null}
 
-            <PageTabsPanel value={'branches' satisfies SettingsTab}>
-              <BranchSettingsScreen embedded />
-            </PageTabsPanel>
-          </>
+        {canManageHeadCoachSettings ? (
+          <PageTabsPanel value={'branches' satisfies SettingsTab}>
+            <BranchSettingsScreen embedded />
+          </PageTabsPanel>
         ) : null}
 
         {canManageAdministrators ? <PageTabsPanel value={'administrators' satisfies SettingsTab}>

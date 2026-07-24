@@ -1052,8 +1052,9 @@ public class GroupsApiTests
 
     [Theory]
     [InlineData("HeadCoach")]
+    [InlineData("SuperAdministrator")]
     [InlineData("Administrator")]
-    public async Task HeadCoach_or_Administrator_can_manage_group_types(string actorRole)
+    public async Task Manage_settings_roles_can_get_and_update_group_types(string actorRole)
     {
         await using var factory = new GroupsAppFactory();
         var seeded = await SeedGroupsDataAsync(factory);
@@ -1063,10 +1064,24 @@ public class GroupsApiTests
             HandleCookies = true
         });
 
-        var actorLogin = actorRole == "HeadCoach"
-            ? seeded.HeadCoachLogin
-            : seeded.AdministratorLogin;
+        var actorLogin = actorRole switch
+        {
+            "HeadCoach" => seeded.HeadCoachLogin,
+            "SuperAdministrator" => seeded.SuperAdministratorLogin,
+            _ => seeded.AdministratorLogin
+        };
         var session = await LoginAsync(client, actorLogin, seeded.SharedPassword);
+
+        using (var initialListResponse = await client.GetAsync("/group-types"))
+        {
+            Assert.Equal(HttpStatusCode.OK, initialListResponse.StatusCode);
+            var listPayload = await ReadJsonElementAsync(initialListResponse);
+            var seededGroupType = listPayload.EnumerateArray()
+                .Single(item => GetGuidFromProperty(item, "id") == seeded.GroupTypeId);
+            Assert.Equal("Groups Default Type", GetStringFromProperty(seededGroupType, "name"));
+            Assert.Equal(2, GetIntFromProperty(seededGroupType, "groupCount"));
+            Assert.False(seededGroupType.TryGetProperty("system" + "Identifier", out _));
+        }
 
         Guid groupTypeId;
         using (var createResponse = await PostJsonAsync(
@@ -1119,6 +1134,16 @@ public class GroupsApiTests
             Assert.Equal("Custom Group Type Updated", GetStringFromProperty(payload, "name"));
         }
 
+        using (var getResponse = await client.GetAsync($"/group-types/{groupTypeId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(getResponse);
+            Assert.Equal(groupTypeId, GetGuidFromProperty(payload, "id"));
+            Assert.Equal("Custom Group Type Updated", GetStringFromProperty(payload, "name"));
+            Assert.Equal(0, GetIntFromProperty(payload, "groupCount"));
+            Assert.False(payload.TryGetProperty("system" + "Identifier", out _));
+        }
+
         using (var deleteResponse = await DeleteAsync(client, $"/group-types/{groupTypeId}", session.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
@@ -1138,6 +1163,16 @@ public class GroupsApiTests
 
         var session = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
 
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.Equal(
+                0,
+                await dbContext.AuditLogs.CountAsync(log =>
+                    log.EntityType == "GroupType" &&
+                    log.EntityId == seeded.GroupTypeId.ToString()));
+        }
+
         using (var listResponse = await client.GetAsync("/group-types"))
         {
             Assert.Equal(HttpStatusCode.Forbidden, listResponse.StatusCode);
@@ -1154,6 +1189,191 @@ public class GroupsApiTests
                    session.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.Forbidden, createResponse.StatusCode);
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/group-types/{seeded.GroupTypeId}",
+                   new
+                   {
+                       Name = "Coach Mutated Type",
+                       Description = "Coach should not be able to mutate this."
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, updateResponse.StatusCode);
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var groupType = await dbContext.GroupTypes.SingleAsync(type => type.Id == seeded.GroupTypeId);
+            Assert.Equal("Groups Default Type", groupType.Name);
+            Assert.Null(groupType.Description);
+            Assert.Equal(
+                0,
+                await dbContext.AuditLogs.CountAsync(log =>
+                    log.EntityType == "GroupType" &&
+                    log.EntityId == seeded.GroupTypeId.ToString()));
+        }
+    }
+
+    [Fact]
+    public async Task Group_type_update_preserves_linked_group_identity_exposes_new_name_and_writes_stable_audit()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/group-types/{seeded.GroupTypeId}",
+                   new
+                   {
+                       Name = "Groups Default Type Renamed",
+                       Description = "Updated by Administrator."
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(updateResponse);
+            Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(payload, "id"));
+            Assert.Equal("Groups Default Type Renamed", GetStringFromProperty(payload, "name"));
+            Assert.Equal("Updated by Administrator.", GetStringFromProperty(payload, "description"));
+            Assert.Equal(2, GetIntFromProperty(payload, "groupCount"));
+        }
+
+        using (var groupDetailsResponse = await client.GetAsync($"/groups/{seeded.GroupOneId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, groupDetailsResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(groupDetailsResponse);
+            Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(payload, "groupTypeId"));
+            Assert.Equal("Groups Default Type Renamed", GetStringFromProperty(payload, "groupTypeName"));
+        }
+
+        using (var groupsListResponse = await client.GetAsync("/groups"))
+        {
+            Assert.Equal(HttpStatusCode.OK, groupsListResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(groupsListResponse);
+            var groups = GetArrayPayload(payload, "data", "items", "groups");
+            var linkedGroup = groups.EnumerateArray()
+                .Single(item => GetGuidFromProperty(item, "id") == seeded.GroupOneId);
+            Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(linkedGroup, "groupTypeId"));
+            Assert.Equal("Groups Default Type Renamed", GetStringFromProperty(linkedGroup, "groupTypeName"));
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var linkedGroup = await dbContext.TrainingGroups.SingleAsync(group => group.Id == seeded.GroupOneId);
+            Assert.Equal(seeded.GroupTypeId, linkedGroup.GroupTypeId);
+
+            var updateAudit = await dbContext.AuditLogs.SingleAsync(log =>
+                log.ActionType == "GroupTypeUpdated" &&
+                log.EntityType == "GroupType" &&
+                log.EntityId == seeded.GroupTypeId.ToString());
+            Assert.Equal(seeded.AdministratorId, updateAudit.UserId);
+            Assert.Equal(
+                $"Пользователь '{seeded.AdministratorLogin}' изменил тип группы 'Groups Default Type Renamed'.",
+                updateAudit.Description);
+            AssertGroupTypeAuditState(
+                updateAudit.OldValueJson,
+                seeded.GroupTypeId,
+                "Groups Default Type",
+                null,
+                2);
+            AssertGroupTypeAuditState(
+                updateAudit.NewValueJson,
+                seeded.GroupTypeId,
+                "Groups Default Type Renamed",
+                "Updated by Administrator.",
+                2);
+        }
+    }
+
+    [Fact]
+    public async Task Group_type_update_returns_current_validation_problem_for_invalid_or_duplicate_name()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
+
+        using (var invalidResponse = await PutJsonAsync(
+                   client,
+                   $"/group-types/{seeded.GroupTypeId}",
+                   new
+                   {
+                       Name = " ",
+                       Description = "Invalid update."
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, invalidResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(invalidResponse);
+            var errors = payload.GetProperty("errors");
+            var nameErrors = GetStringArrayFromProperty(errors, "name");
+            Assert.Contains("Укажите название типа группы.", nameErrors);
+            Assert.False(payload.TryGetProperty("system" + "Identifier", out _));
+        }
+
+        Guid duplicateGroupTypeId;
+        using (var createResponse = await PostJsonAsync(
+                   client,
+                   "/group-types",
+                   new
+                   {
+                       Name = "Duplicate Update Target",
+                       Description = "Used for duplicate validation."
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(createResponse);
+            duplicateGroupTypeId = GetGuidFromProperty(payload, "id");
+        }
+
+        using (var duplicateResponse = await PutJsonAsync(
+                   client,
+                   $"/group-types/{duplicateGroupTypeId}",
+                   new
+                   {
+                       Name = "Groups Default Type",
+                       Description = "Duplicate name update."
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, duplicateResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(duplicateResponse);
+            var errors = payload.GetProperty("errors");
+            var nameErrors = GetStringArrayFromProperty(errors, "name");
+            Assert.Contains("Тип группы с таким названием уже существует.", nameErrors);
+            Assert.False(payload.TryGetProperty("system" + "Identifier", out _));
+        }
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var originalGroupType = await dbContext.GroupTypes.SingleAsync(type => type.Id == seeded.GroupTypeId);
+            var duplicateGroupType = await dbContext.GroupTypes.SingleAsync(type => type.Id == duplicateGroupTypeId);
+            Assert.Equal("Groups Default Type", originalGroupType.Name);
+            Assert.Equal("Duplicate Update Target", duplicateGroupType.Name);
+            Assert.Equal(
+                0,
+                await dbContext.AuditLogs.CountAsync(log =>
+                    log.ActionType == "GroupTypeUpdated" &&
+                    log.EntityType == "GroupType"));
         }
     }
 
@@ -1838,6 +2058,33 @@ public class GroupsApiTests
         using var document = JsonDocument.Parse(payload!);
         Assert.Equal(expectedDurationMinutes, GetIntFromProperty(document.RootElement, "durationMinutes"));
         Assert.Equal(expectedWeekdays, GetIntArrayFromProperty(document.RootElement, "weekdays"));
+    }
+
+    private static void AssertGroupTypeAuditState(
+        string? payload,
+        Guid expectedId,
+        string expectedName,
+        string? expectedDescription,
+        int expectedGroupCount)
+    {
+        Assert.False(string.IsNullOrWhiteSpace(payload), "Audit state payload is empty.");
+        using var document = JsonDocument.Parse(payload!);
+        var root = document.RootElement;
+        Assert.Equal(expectedId, GetGuidFromProperty(root, "id"));
+        Assert.Equal(expectedName, GetStringFromProperty(root, "name"));
+        Assert.Equal(expectedGroupCount, GetIntFromProperty(root, "groupCount"));
+
+        if (expectedDescription is null)
+        {
+            Assert.True(
+                root.TryGetProperty("description", out var description) &&
+                    description.ValueKind == JsonValueKind.Null,
+                "Expected group type audit description to be null.");
+        }
+        else
+        {
+            Assert.Equal(expectedDescription, GetStringFromProperty(root, "description"));
+        }
     }
 
     private sealed record SeededGroupsData(
