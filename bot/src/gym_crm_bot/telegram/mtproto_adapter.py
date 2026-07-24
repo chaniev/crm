@@ -45,6 +45,9 @@ class TelegramMtProtoAdapter:
         if settings.telegram_api_id is None or settings.telegram_api_hash is None:
             msg = "Telegram API id/hash are required for MTProxy transport."
             raise ValueError(msg)
+        if settings.telegram_token is None:
+            msg = "Telegram token is required for Telegram MTProto transport."
+            raise ValueError(msg)
 
         self._settings = settings
         self._service = bot_service

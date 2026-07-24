@@ -24,7 +24,7 @@ export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelPr
     if (!loaded.current) onCountChange?.(null)
     void getClientAttentionItems(controller.signal).then((items) => {
       if (controller.signal.aborted) return
-      loaded.current = true; setClients(items); setLastSuccessfulCheck(new Date())
+      loaded.current = true; setClients(items); onCountChange?.(items.length); setLastSuccessfulCheck(new Date())
     }).catch((reason: unknown) => {
       if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : resources.home.attention.loadingErrorMessage)
     }).finally(() => { if (!controller.signal.aborted) setLoading(false) })

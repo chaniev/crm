@@ -102,6 +102,73 @@ curl -fsS http://localhost:3000/api/health/ready
 
 При первом старте backend применяет миграции и создаёт bootstrap `HeadCoach`, если база пустая. Стартовый логин по умолчанию: `headcoach`, пароль: `12345678`; после первого входа система попросит сменить пароль.
 
+## Runbook чистого развертывания
+
+Локальный сценарий с пересборкой (`down -v` + `up -d --build`):
+
+```bash
+cd /path/to/crm
+# Перед запуском подготовьте .env на основе deploy/.env.example.
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.yml down -v
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.yml up -d --build
+```
+
+Полный seed локально (после старта):
+
+```bash
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.yml run --rm --no-deps backend --seed-test-data --skip-migrations --photo-root /app/data/client-photos
+```
+
+Seed только администраторов:
+
+```bash
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.yml run --rm --no-deps backend --seed-leninsky-admins-only --skip-migrations
+```
+
+Серверный image-only сценарий на чистой среде (`down -v` + `load` + admins-only seed + `up`):
+
+```bash
+cd /opt/gym-crm
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.server.yml down -v
+sha256sum -c images/gym-crm-images-2026-05-15.tar.sha256
+./deploy/load-images.sh images/gym-crm-images-2026-05-15.tar
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.server.yml up -d db
+until docker compose --project-directory . --env-file .env -f deploy/docker-compose.server.yml exec -T db \
+  sh -lc 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"'; do sleep 2; done
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.server.yml run --rm --no-deps \
+  backend --seed-leninsky-admins-only
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.server.yml up -d
+```
+
+Admins-only seed выполняется до первого запуска backend. Так bootstrap-механизм не создаст
+дополнительного `HeadCoach`: таблица пользователей уже будет содержать пять администраторов.
+Сам seed применяет миграции и создаёт только обязательный филиал и администраторов.
+Один системный элемент каталога создаётся самой `InitialCreate`; admins-only seed
+пользовательский каталог не заполняет.
+
+Если сервер не имеет рабочего маршрута к Telegram, установите `BOT_ENABLED=false`.
+Контейнер бота продолжит инициализировать своё хранилище и обслуживать health endpoints,
+но не будет создавать Telegram adapter и запускать polling.
+
+Полный seed на сервере (выполнять только когда требуется демонстрационный набор данных):
+
+```bash
+docker compose --project-directory . --env-file .env -f deploy/docker-compose.server.yml run --rm --no-deps backend --seed-test-data --skip-migrations --photo-root /app/data/client-photos
+```
+
+## Что сравнить перед обновлением (локально ↔ сервер)
+
+Перед заменой образов сверяйте:
+
+- `deploy/dist/gym-crm-images-<tag>.env`
+- `deploy/dist/gym-crm-images-<tag>.tar.sha256`
+- `docker compose --project-directory . --env-file <env> -f <compose>.yml config --quiet`
+- `docker image inspect --format '{{.RepoTags}} {{.Id}} {{.RepoDigests}} {{.Architecture}} {{.Size}}' <image>`
+- `docker image inspect --format '{{.Config.Labels}}' <backend image> <frontend image> <bot image> <db image>`
+- версии/идентификаторы миграций на проде и локали (если есть)
+
+Изменения в этих артефактах подтверждают соответствие того, что разворачивается именно целевой build.
+
 ## Остановка и обновление
 
 Остановить без удаления данных:

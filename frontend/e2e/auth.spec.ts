@@ -149,6 +149,11 @@ test.describe('Аутентификация', () => {
         return true
       }
 
+      if (pathname === '/api/clients/attention' && method === 'GET') {
+        await fulfillJson(route, 200, { items: [] })
+        return true
+      }
+
       if (pathname === '/api/attendance/groups' && method === 'GET') {
         await fulfillJson(route, 200, { items: [] })
         return true
@@ -175,8 +180,9 @@ test.describe('Аутентификация', () => {
     await page.getByRole('button', { name: 'Сменить пароль и продолжить' }).click()
 
     await expect(page.getByTestId('home-screen')).toBeVisible()
+    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
     await expect(
-      page.getByText('Абонементы не требуют внимания.'),
+      page.getByText('Никому не требуется внимание'),
     ).toBeVisible()
   })
 

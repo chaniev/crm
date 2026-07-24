@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     database_url: str = Field(alias="BOT_DATABASE_URL")
     database_echo: bool = Field(default=False, alias="BOT_DATABASE_ECHO")
 
-    telegram_token: SecretStr = Field(
+    telegram_token: SecretStr | None = Field(
+        default=None,
         validation_alias=AliasChoices("BOT_TELEGRAM_TOKEN", "TELEGRAM_BOT_TOKEN"),
     )
     telegram_proxy_url: str | None = Field(
@@ -58,6 +59,7 @@ class Settings(BaseSettings):
         alias="BOT_TELEGRAM_PROXY_FAILOVER_DELAY_SECONDS",
     )
     bot_mode: str = Field(default="LongPolling", alias="BOT_MODE")
+    bot_enabled: bool = Field(default=True, alias="BOT_ENABLED")
 
     crm_base_url: str = Field(
         validation_alias=AliasChoices("CRM_API_BASE_URL", "BOT_CRM_BASE_URL"),
@@ -114,8 +116,13 @@ class Settings(BaseSettings):
         return value
 
     @model_validator(mode="after")
-    def validate_mtproxy_settings(self) -> Settings:
+    def validate_runtime_settings(self) -> Settings:
+        if self.bot_enabled and self.telegram_token is None:
+            msg = "BOT_TELEGRAM_TOKEN is required when BOT_ENABLED is true."
+            raise ValueError(msg)
         if not self.telegram_mtproxy_urls:
+            return self
+        if not self.bot_enabled:
             return self
         if self.telegram_api_id is None or self.telegram_api_hash is None:
             msg = (

@@ -56,6 +56,7 @@ test.describe('Уведомления', () => {
     await page.goto('/settings')
     await expect(page.getByTestId('settings-screen')).toBeVisible()
     await expect(page.getByRole('tab', { name: 'Типы групп' })).toBeVisible()
+    await page.getByRole('tab', { name: 'Типы групп' }).click()
 
     const groupTypeNotifications = getGroupTypeCreatedNotifications(page)
 
@@ -81,6 +82,7 @@ test.describe('Уведомления', () => {
 
     await page.goto('/settings')
     await expect(page.getByTestId('settings-screen')).toBeVisible()
+    await page.getByRole('tab', { name: 'Типы групп' }).click()
 
     const addTypeButton = page.getByRole('button', { name: 'Добавить тип' })
     await expect(addTypeButton).toBeInViewport()
@@ -149,6 +151,18 @@ async function mockSettingsApi(page: Page) {
 
     if (pathname === '/api/group-types' && method === 'GET') {
       await fulfillJson(route, 200, groupTypes)
+      return
+    }
+
+    if (pathname === '/api/branches' && method === 'GET') {
+      await fulfillJson(route, 200, {
+        items: [{ id: 'branch-1', name: 'Основной', isArchived: false }],
+      })
+      return
+    }
+
+    if (pathname === '/api/settings/membership-catalog' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
       return
     }
 

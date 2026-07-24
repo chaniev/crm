@@ -3229,7 +3229,9 @@
     grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 0.9fr);
     align-items: end;
   }
+}
 
+@media (min-width: 64rem) {
   .attendance-roster-toolbar {
     grid-template-columns: minmax(12rem, 1fr) auto auto;
   }

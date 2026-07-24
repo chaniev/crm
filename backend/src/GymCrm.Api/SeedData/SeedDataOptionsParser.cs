@@ -17,6 +17,20 @@ internal static class SeedDataOptionsParser
           -h, --help             Show help.
         """;
 
+    public const string LeninskyAdminsOnlyUsage = """
+        Usage:
+          backend/scripts/seed-leninsky-admins-only.sh [options]
+
+        Creates or updates only the Leninsky branch and five administrators
+        (password: 1). This command does not create membership catalog items,
+        clients, training groups, schedules, or attendance data.
+
+        Options:
+          --connection <value>   PostgreSQL connection string.
+          --skip-migrations      Do not apply EF Core migrations before seeding.
+          -h, --help             Show help.
+        """;
+
     public const string Usage = """
         Usage:
           dotnet run --no-launch-profile --project backend/src/GymCrm.Api/GymCrm.Api.csproj -- --seed-test-data [options]

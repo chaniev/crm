@@ -25,6 +25,7 @@ def clean_settings_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "CRM_BOT_API_TOKEN",
         "BOT_CRM_SERVICE_TOKEN",
         "BOT_MODE",
+        "BOT_ENABLED",
         "HTTP_PROXY",
         "HTTPS_PROXY",
         "http_proxy",
@@ -44,8 +45,32 @@ def test_settings_read_env_and_normalize_url(monkeypatch: pytest.MonkeyPatch) ->
     assert settings.database_url == "sqlite+aiosqlite:///./test.db"
     assert settings.crm_base_url == "http://crm.local"
     assert settings.bot_mode == "LongPolling"
+    assert settings.bot_enabled is True
     assert settings.http_port == 8080
     assert settings.telegram_proxy_url is None
+
+
+def test_settings_disabled_bot_does_not_require_telegram_token(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("BOT_DATABASE_URL", "sqlite+aiosqlite:///./test.db")
+    monkeypatch.setenv("BOT_ENABLED", "false")
+    monkeypatch.setenv("BOT_CRM_BASE_URL", "http://crm.local")
+    monkeypatch.setenv("BOT_CRM_SERVICE_TOKEN", "service-token")
+
+    settings = Settings()
+
+    assert settings.bot_enabled is False
+    assert settings.telegram_token is None
+
+
+def test_settings_enabled_bot_requires_telegram_token(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BOT_DATABASE_URL", "sqlite+aiosqlite:///./test.db")
+    monkeypatch.setenv("BOT_CRM_BASE_URL", "http://crm.local")
+    monkeypatch.setenv("BOT_CRM_SERVICE_TOKEN", "service-token")
+
+    with pytest.raises(ValueError, match="BOT_TELEGRAM_TOKEN"):
+        Settings()
 
 
 def test_settings_read_telegram_proxy_url(monkeypatch: pytest.MonkeyPatch) -> None:

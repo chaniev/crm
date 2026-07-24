@@ -1,3 +1,4 @@
+using GymCrm.Application.Attendance;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
@@ -9,7 +10,10 @@ using Npgsql;
 
 namespace GymCrm.Infrastructure.Clients;
 
-internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimeProvider timeProvider) : IClientMembershipService
+internal sealed class ClientMembershipService(
+    GymCrmDbContext dbContext,
+    TimeProvider timeProvider,
+    IBusinessDateProvider businessDateProvider) : IClientMembershipService
 {
     public async Task<ClientMembershipDetailsResult?> GetAsync(
         Guid clientId,
@@ -457,7 +461,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.ClientMissing);
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = GetToday();
         if (command.RefundDate > today)
         {
             return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundDateInFuture);
@@ -498,7 +502,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
             return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundAmountExceedsGrossAmount);
         }
 
-        var now = DateTimeOffset.UtcNow;
+        var now = timeProvider.GetUtcNow();
         var refund = new ClientMembershipRefund
         {
             Id = Guid.NewGuid(),
@@ -664,7 +668,7 @@ internal sealed class ClientMembershipService(GymCrmDbContext dbContext, TimePro
                 ? !membership.SingleVisitUsed && membership.ValidTo == null
                 : membership.IndividualValidFrom <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo >= today)), cancellationToken);
 
-    private DateOnly GetToday() => DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+    private DateOnly GetToday() => businessDateProvider.Today;
 
     private static bool IsValidSaleCommand(Guid clientId, Guid actorId, bool isPaid, DateOnly? paymentDate) =>
         clientId != Guid.Empty && actorId != Guid.Empty &&

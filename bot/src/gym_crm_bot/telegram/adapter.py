@@ -22,6 +22,9 @@ class TelegramPollingAdapter:
         session_factory: async_sessionmaker[AsyncSession],
     ) -> None:
         self._service = bot_service
+        if settings.telegram_token is None:
+            msg = "Telegram token is required for Telegram polling transport."
+            raise ValueError(msg)
         telegram_session = (
             AiohttpSession(proxy=settings.telegram_proxy_url)
             if settings.telegram_proxy_url is not None

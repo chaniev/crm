@@ -1693,12 +1693,34 @@ test.describe('Основные e2e сценарии', () => {
         return true
       }
 
+      if (pathname === '/api/clients/attention' && method === 'GET') {
+        await fulfillJson(route, 200, {
+          items: [
+            {
+              clientId: expiringClient.id,
+              fullName: `${expiringClient.lastName} ${expiringClient.firstName} ${expiringClient.middleName}`,
+              phone: expiringClient.phone,
+              notes: expiringClient.notes,
+              membership: {
+                membershipName: 'Месяц',
+                behaviorKind: 'Term',
+                expirationDate: expiringClient.expirationDate,
+                isPaid: expiringClient.hasActivePaidMembership,
+              },
+              telegramLink: null,
+              reasons: [{ type: 'expiringMembership', daysUntilExpiration: 3 }],
+            },
+          ],
+        })
+        return true
+      }
+
       return false
     })
 
     await page.goto('/')
     await expect(
-      page.getByRole('heading', { name: 'Абонементы требуют внимания' }),
+      page.getByRole('heading', { name: 'Клиенты, требующие внимания' }),
     ).toBeVisible()
     await expect(page.getByText('Иванов Иван Иванович')).toBeVisible()
     await expect(page.getByText('Осталось 3 дня')).toBeVisible()
@@ -1967,6 +1989,11 @@ test.describe('Основные e2e сценарии', () => {
         await fulfillJson(route, 200, {
           items: [toExpiringMembershipPayload(baseClient)],
         })
+        return true
+      }
+
+      if (pathname === '/api/clients/attention' && method === 'GET') {
+        await fulfillJson(route, 200, { items: [] })
         return true
       }
 
