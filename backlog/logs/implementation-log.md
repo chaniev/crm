@@ -877,3 +877,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-082-super-administrator-role`, one backend-owned four-role capability/actor-target/scope matrix, explicit `branchId` session contract, protected staff endpoints, atomic role/branch audit, two-branch attendance and operational access, HeadCoach-only negative barriers, TASK-080/TASK-081 boundaries and synchronized frontend/internal-bot/Python consumers.
+
+# 2026-07-25 00:09
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-081-administrator-group-type-settings.plan.md
+
+## Skipped tasks
+- TASK-081-administrator-group-type-settings.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; detailed test-first plan created for explicit permission/regression review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `fix/TASK-081-administrator-group-type-settings`, separates group-type visibility from staff `createRoleOptions` and neighboring settings tabs, preserves the backend `ManageSettings` role matrix, and requires frontend red/green role/edit coverage plus backend API, CSRF, linked-group and exact audit regression barriers.
