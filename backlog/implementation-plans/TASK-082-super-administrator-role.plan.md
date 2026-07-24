@@ -35,6 +35,7 @@ Branch rules:
 - Python bot содержит закрытый `BotRole` literal из трёх ролей; он должен распознавать новую строку, но не вычислять permissions или branch scope локально.
 - TASK-080 остаётся отдельной задачей про явные group grants для Administrator. TASK-082 даёт SuperAdministrator global attendance сейчас, но не создаёт модель разрешений TASK-080. После реализации TASK-080 её grant/revoke matrix должна включить HeadCoach и SuperAdministrator.
 - TASK-081 пересекается с permission-driven видимостью settings tabs. Если она будет реализована раньше, TASK-082 обязан сохранить её contract/tests; если позже — не считать общий `SettingsScreen` role-check доказательством доступа.
+- Фиксированный порядок реализации TASK-080, TASK-081 и TASK-082 не требуется и не является stop condition. При любом фактическом порядке каждая ветка обязана сохранить уже принятые contracts/tests и разрешить обычные merge/rebase conflicts без расширения scope.
 
 ## Fixed authorization decisions
 
@@ -58,31 +59,36 @@ The table is backend-owned. Session permissions, endpoint policies, resource acc
 ### Staff actor/target matrix
 - HeadCoach can create SuperAdministrator, Administrator and Coach. Existing HeadCoach immutability/deactivation/bootstrap protections remain unchanged.
 - Only HeadCoach can assign `SuperAdministrator` to an existing non-HeadCoach target. Such a transition must atomically clear `BranchId`.
+- HeadCoach can edit, deactivate and reactivate an existing SuperAdministrator.
+- Once assigned, the `SuperAdministrator` role is immutable: no actor, including HeadCoach, can change an existing SuperAdministrator to Coach, Administrator, HeadCoach or any other role.
 - SuperAdministrator can create Administrator for any active branch and Coach without a branch.
 - SuperAdministrator can edit/deactivate existing Administrator and Coach within the fields already supported by their flows.
 - SuperAdministrator cannot create, assign, edit, deactivate or otherwise mutate HeadCoach or any SuperAdministrator, including itself.
+- SuperAdministrator can list/read HeadCoach and other SuperAdministrator records, but those targets are read-only and expose no mutation `allowedActions`.
 - Administrator and Coach cannot list/manage staff through protected management endpoints. Existing self-service password/session flows remain available and are not staff management.
 - Coach↔Administrator role conversion is not introduced for SuperAdministrator. If product later needs it, it requires a separately accepted contract for branch assignment/removal.
-- HeadCoach demotion/reassignment of an existing SuperAdministrator must be fixed before code: either allow only `SuperAdministrator -> Coach`, or allow `-> Administrator` only with an explicit active `branchId`. No implicit/default branch is permitted.
 - List/get responses must not be treated as authorization. Every write re-evaluates actor, target, requested role, self-target and current persisted state immediately before mutation.
 
 ### Branch and role invariants
-- `Administrator` always has a non-null active `BranchId`.
+- `Administrator` always has a non-null `BranchId` referencing an existing branch.
 - `HeadCoach`, `SuperAdministrator` and `Coach` always have `BranchId = null`.
-- Creating/updating Administrator with missing, empty, unknown or archived branch returns stable field errors and does not save user/audit state.
+- Creating Administrator or assigning/changing an Administrator branch requires an explicitly selected active branch. Missing, empty, unknown or archived destination branch returns stable `branchId` field errors and does not save user/audit state.
+- Archiving a branch is allowed while Administrators remain assigned to it. Archival does not implicitly reassign, deactivate or change their role, and an unrelated Administrator edit may preserve the same archived `BranchId`; assigning or moving an Administrator to an archived branch remains forbidden.
 - Any accepted role transition validates the destination invariant and writes role/branch atomically.
 - Branch-owned client/group/catalog operations use one resolved backend scope: global for HeadCoach/SuperAdministrator, own branch for Administrator, assigned groups for Coach where that operation is already allowed.
 - Global dictionaries/settings keep their existing product semantics. TASK-082 must not silently reinterpret TASK-030/TASK-031 or add HeadCoach-only capabilities to SuperAdministrator.
 
 ### Stable denial and audit contract
-- Before writing tests, fix exact ProblemDetails types/codes for:
-  - actor cannot manage staff;
-  - actor cannot target protected role;
-  - self-escalation/protected self mutation;
-  - forbidden requested role transition;
-  - forbidden branch scope.
-- Policy-level `403`, resource-level `403`, validation `400` and missing target `404` must be deterministic and must not reveal protected-user details beyond the existing authenticated management contract.
-- Denied attempts do not mutate data and do not write success audit events. If denied-attempt audit is required by the existing audit contract, it must use a separate explicit action and tests; do not mix it with `UserUpdated`.
+- The accepted ProblemDetails denial mapping is:
+  - actor cannot manage staff: policy-level `403`, type `/problems/staff-management-forbidden`, code `staff_management_forbidden`;
+  - visible HeadCoach/SuperAdministrator target cannot be mutated: resource-level `403`, type `/problems/staff-target-forbidden`, code `staff_target_forbidden`;
+  - protected self mutation: resource-level `403`, type `/problems/staff-self-mutation-forbidden`, code `staff_self_mutation_forbidden`;
+  - forbidden requested role transition: resource-level `403`, type `/problems/staff-role-transition-forbidden`, code `staff_role_transition_forbidden`;
+  - forbidden branch scope: resource-level `403`, type `/problems/branch-scope-forbidden`, code `branch_scope_forbidden`;
+  - missing target: `404`, type `/problems/staff-not-found`, code `staff_not_found`;
+  - invalid role/branch destination state: existing validation `400` with stable field errors, including `branchId`.
+- These responses must be deterministic. Because SuperAdministrator is allowed to read protected staff records, a denied mutation returns the accepted resource-level `403`; an actually missing target returns `404`.
+- Denied attempts do not mutate data and do not write any audit event. They must not be mixed with `UserUpdated` or another success action.
 - Successful sensitive create/update/role/active/branch changes write exactly one audit event in the same transaction as the user mutation.
 - Audit state includes actor id through `AuditLog.UserId`, target id through `EntityId`, plus old/new `Role` and `BranchId` in typed snapshots. Password hashes and raw secrets never enter audit.
 
@@ -101,13 +107,15 @@ Each slice begins with focused unit/integration tests and a recorded expected re
 1. Obtain risky-task approval, move TASK-082 into implementation and create `feature/TASK-082-super-administrator-role` from clean current `main`; reread root/backend/frontend/bot `AGENTS.md`, the source task and this plan.
 2. Before production code, review and freeze:
    - the capability and staff actor/target tables above;
-   - exact HeadCoach transitions away from SuperAdministrator;
-   - stable ProblemDetails type/code/status values;
-   - whether denied sensitive operations are audited in the current product contract;
-   - TASK-080/TASK-081 merge order.
+   - immutable-role behavior for an existing SuperAdministrator and HeadCoach edit/deactivate/reactivate actions;
+   - read-only visibility of HeadCoach/SuperAdministrator targets to SuperAdministrator;
+   - stable ProblemDetails type/code/status values and the no-audit-on-denial decision;
+   - archived-branch preservation behavior for an already assigned Administrator.
 3. **Before production code**, add backend unit tests for a new focused role/capability policy:
    - all actor/action/target pairs for create, edit, deactivate and role assignment;
    - self-target rules;
+   - HeadCoach edit/deactivate/reactivate of SuperAdministrator and denial of every transition away from SuperAdministrator;
+   - SuperAdministrator read visibility but empty mutation actions for HeadCoach/SuperAdministrator targets;
    - global/branch/assigned-group scope kind per role;
    - HeadCoach-only finance/bootstrap/professional privileges;
    - SuperAdministrator cannot acquire HeadCoach/SuperAdministrator target permissions through any alternate action.
@@ -124,6 +132,9 @@ Each slice begins with focused unit/integration tests and a recorded expected re
    - Administrator and Coach cannot use `/users` or `/settings/administrators`, including direct POST/PUT with valid CSRF;
    - protected target, self-target, overposted role and stale target cases;
    - missing/empty/unknown/archived branch cases;
+   - branch archival preserves an existing Administrator assignment, while new assignment or reassignment to that archived branch is rejected;
+   - HeadCoach can edit/deactivate/reactivate SuperAdministrator but cannot change its role;
+   - SuperAdministrator can list/read HeadCoach and SuperAdministrator with no mutation actions and receives the stable `403` on direct mutation attempts;
    - accepted transitions preserve destination branch invariant;
    - failures leave user count, target row, session version and audit count unchanged.
 6. **Before production code**, add audit integration tests:
@@ -161,12 +172,16 @@ Each slice begins with focused unit/integration tests and a recorded expected re
     - role label/presentation/navigation for SuperAdministrator;
     - HeadCoach can select SuperAdministrator only when backend capability/options allow it;
     - SuperAdministrator sees Coach management and Administrator settings action, but no SuperAdministrator/HeadCoach target action;
+    - SuperAdministrator can see HeadCoach/SuperAdministrator records in read-only presentation without edit/deactivate controls;
+    - HeadCoach can edit/deactivate/reactivate SuperAdministrator but never receives a destination role option for it;
     - ordinary Administrator retains allowed settings but never sees Administrator-management controls;
-    - forms render active branches returned by backend and preserve backend validation errors;
+    - forms render active branches returned by backend, can preserve an unchanged archived Administrator branch, and preserve backend validation errors;
     - no component infers target permissions solely from role strings when backend `allowedActions` are available.
 12. **Before production code**, add Playwright flows:
     - HeadCoach creates SuperAdministrator and a fresh session has `branchId: null`;
+    - HeadCoach edits, deactivates and reactivates SuperAdministrator, while direct role-demotion requests are denied;
     - SuperAdministrator creates Administrator for branch B and Coach, then assigns Coach to a branch-B group;
+    - SuperAdministrator can view HeadCoach/another SuperAdministrator but cannot mutate either;
     - SuperAdministrator marks attendance in branch A and B;
     - direct SuperAdministrator escalation and direct Administrator staff-management requests are denied without mutation;
     - desktop and 390 px staff/settings flows remain usable.
@@ -182,15 +197,17 @@ Each slice begins with focused unit/integration tests and a recorded expected re
     - add explicit nullable `BranchId` to authenticated user response;
     - project exact permissions/sections from the capability matrix;
     - keep current user DB constraint and assert it supports SuperAdministrator; do not create a migration when the EF model/schema does not change;
+    - require an active branch only when creating Administrator or assigning/changing its branch; preserve an existing archived branch assignment on branch archival and unrelated staff edits;
     - keep bootstrap strictly HeadCoach and do not auto-seed a privileged SuperAdministrator;
     - update seed/test helpers and startup tests so counts/role parsing remain deterministic.
 16. Implement one staff-management application boundary used by both endpoint modules:
     - centralize actor/target/action decision, destination role/branch validation and mutation;
     - protect `/users` and `/settings/administrators` with `ManageUsers`/dedicated staff policy, never `ManageSettings`;
     - keep Administrator creation route compatibility if needed, but delegate to the same service;
-    - expose backend-owned create-role options and target `allowedActions` so frontend does not reproduce the matrix;
+    - expose backend-owned create-role options and target `allowedActions` so frontend does not reproduce the matrix; HeadCoach/SuperAdministrator records remain readable to SuperAdministrator with no mutation actions;
+    - allow HeadCoach to edit/deactivate/reactivate SuperAdministrator, reject every attempted transition away from that role and keep only HeadCoach promotion of an existing non-HeadCoach target to SuperAdministrator;
     - wrap mutation and required audit write in one transaction;
-    - return stable ProblemDetails without exception/SQL detail.
+    - return the accepted stable ProblemDetails without exception/SQL detail and never write audit for denied attempts.
 17. Implement global operational scope:
     - make HeadCoach/SuperAdministrator global and Administrator branch-scoped for branch-owned data through one resolved scope abstraction;
     - update client/group/attention/photo/membership/catalog/messenger consumers that currently compare roles directly;
@@ -323,12 +340,16 @@ No new database migration is expected: the role uses existing string storage and
 - Do not authorize with frontend role-name checks or Python bot literals.
 - Do not grant SuperAdministrator bootstrap, HeadCoach creation/replacement, financial reports, professional membership privilege or other HeadCoach-only behavior.
 - Do not make SuperAdministrator an assignable group trainer.
+- Do not change an existing SuperAdministrator to another role. HeadCoach may edit, deactivate and reactivate that user without changing the role.
+- SuperAdministrator may read HeadCoach/SuperAdministrator staff records, but backend `allowedActions` and every write endpoint must keep those targets immutable for that actor.
 - Do not give Administrator staff management through `ManageSettings`, UI visibility or direct API.
 - Do not implement TASK-080 group-grant persistence or Administrator attendance in this task.
 - Keep role and branch invariant changes atomic and concurrency-safe.
+- Branch archival may preserve an existing Administrator assignment; only creation and assignment/reassignment require an active destination branch.
 - Successful sensitive mutations require exact actor/target old/new audit data; failure must not leave unaudited privileged state.
+- Denied staff operations do not write audit events.
 - Preserve existing CSRF, session versioning, password hashing, messenger identity uniqueness and login immutability.
-- Stable ProblemDetails must not expose whether a protected HeadCoach/SuperAdministrator target exists to an unauthorized actor beyond the accepted management boundary.
+- Stable ProblemDetails must follow the accepted `400`/`403`/`404` mapping. SuperAdministrator already has accepted read visibility of HeadCoach/SuperAdministrator records, so protected-target mutation is a `403`, while an actually missing target is `404`.
 - Use bounded queries and avoid N+1 when resolving global/branch/assigned-group scope.
 - Preserve Mantine/Onest and narrow-screen usability.
 
@@ -338,6 +359,7 @@ No new database migration is expected: the role uses existing string storage and
 - Новый универсальный RBAC/ACL designer, custom roles или runtime permission editor.
 - Передача SuperAdministrator финансовых отчётов, bootstrap или professional-client привилегий.
 - Назначение SuperAdministrator тренером группы.
+- Понижение или иная смена роли существующего SuperAdministrator.
 - Автоматическое создание/seed SuperAdministrator в runtime.
 - Массовое изменение существующих пользователей или production data repair.
 - Объединение всех staff screens, полный redesign разделов `Тренеры`/`Настройки` или несвязанный UX refactor.
@@ -352,6 +374,8 @@ No new database migration is expected: the role uses existing string storage and
 - Полная pure actor/action/target matrix для четырёх ролей.
 - Capability matrix, включая явные HeadCoach-only отрицательные проверки для SuperAdministrator.
 - Role/branch invariant и допустимые destination states.
+- Неизменяемость роли существующего SuperAdministrator при разрешённых HeadCoach edit/deactivate/reactivate actions.
+- Read-only видимость HeadCoach/SuperAdministrator для SuperAdministrator с пустым набором mutation actions.
 - Scope kind: global, branch, assigned groups.
 - Frontend strict role/session/capability mapping.
 - UI form mapping does not invent a role/branch combination absent from backend options.
@@ -361,7 +385,10 @@ No new database migration is expected: the role uses existing string storage and
 - Session role, nullable branch and permission/section contract for all roles.
 - Both staff endpoint families use the same matrix; alternate endpoint/overposting cannot bypass it.
 - All actor/target create/update/deactivate/assignment pairs and direct API denial.
-- Active/missing/archived branch validation and DB invariant.
+- Active/missing/archived destination-branch validation, preservation of an existing archived Administrator assignment and DB invariant.
+- HeadCoach edit/deactivate/reactivate of SuperAdministrator succeeds; every attempted role change away from SuperAdministrator fails without mutation.
+- SuperAdministrator can list/read HeadCoach/SuperAdministrator but receives the exact protected-target `403` from direct mutation requests.
+- Every denial returns the accepted ProblemDetails type/code/status, leaves state unchanged and writes no audit event.
 - Atomic mutation/audit with exact actor, target, old/new role and branch.
 - Two-branch clients/groups/memberships/settings/audit access.
 - All-group web attendance for SuperAdministrator and unchanged HeadCoach/Coach behavior.
@@ -373,9 +400,10 @@ No new database migration is expected: the role uses existing string storage and
 ### UI/e2e tests
 - Role label, navigation and session refresh for SuperAdministrator.
 - HeadCoach-only creation/assignment of SuperAdministrator through backend-provided capabilities.
-- SuperAdministrator creates/edits Administrator and Coach but cannot act on protected roles.
+- HeadCoach can edit/deactivate/reactivate SuperAdministrator but cannot change its role.
+- SuperAdministrator creates/edits Administrator and Coach, sees protected roles read-only and cannot mutate them.
 - Administrator has settings access permitted by backend but no staff-management action/tab/direct API success.
-- Active branch selection and backend field errors.
+- Active branch selection, unchanged archived Administrator branch presentation and backend field errors.
 - Two-branch attendance flow.
 - Forced direct-request denial without UI controls.
 - Desktop and 390 px layout, keyboard labels/focus and no horizontal overflow.
@@ -406,8 +434,11 @@ No new database migration is expected: the role uses existing string storage and
 - [ ] `SuperAdministrator = 4` round-trips through EF, auth/session, public API, internal bot and Python DTO.
 - [ ] Session returns explicit correct `branchId` for all four roles.
 - [ ] Only HeadCoach can create/assign SuperAdministrator.
+- [ ] HeadCoach can edit/deactivate/reactivate SuperAdministrator, but no actor can change an existing SuperAdministrator to another role.
 - [ ] SuperAdministrator cannot create, assign, edit or deactivate HeadCoach/SuperAdministrator, including itself.
+- [ ] SuperAdministrator can list/read HeadCoach/SuperAdministrator and receives no mutation `allowedActions` for those targets.
 - [ ] SuperAdministrator creates Administrator only with an active branch and Coach only without branch.
+- [ ] Archiving a branch preserves existing Administrator assignments; creating or moving an Administrator to an archived branch is rejected.
 - [ ] Administrator/Coach cannot manage staff through either endpoint family or overposted payload.
 - [ ] HeadCoach-only finance/bootstrap/professional actions remain forbidden to SuperAdministrator.
 - [ ] SuperAdministrator operates on branch-owned clients/groups/memberships in two branches.
@@ -416,7 +447,7 @@ No new database migration is expected: the role uses existing string storage and
 - [ ] Administrator attendance remains denied until TASK-080; Coach stays assigned-group scoped.
 - [ ] Web and internal bot effective access agree.
 - [ ] Successful sensitive writes have one atomic audit event with actor/target/old-new role/branch.
-- [ ] Denials leave data and success-audit count unchanged.
+- [ ] Denials return the accepted ProblemDetails mapping, leave data unchanged and write no audit event.
 - [ ] Frontend uses backend permissions/options/allowed actions and recognizes the new role.
 - [ ] Python bot remains a thin consumer and recognizes the new role.
 - [ ] `dotnet test backend/GymCrm.slnx` passes.
@@ -434,7 +465,7 @@ Completion is blocked unless one automated four-role matrix proves capability, a
 - **Scope leakage:** current manager checks are spread across clients, membership, photo, messenger, attendance and bot code. Missing one consumer can make session and actual data access disagree.
 - **Bot/web divergence:** internal bot currently treats Administrator more broadly than web attendance. Copying current logic would preserve an unauthorized path.
 - **Accidental HeadCoach inheritance:** global scope must not imply finance, professional membership or bootstrap rights.
-- **Branch invariant corruption:** role change involving Administrator can leave illegal/null/stale `BranchId` if role and branch are not validated/written atomically.
+- **Branch invariant corruption:** promotion to SuperAdministrator or Administrator branch reassignment can leave illegal/null/stale `BranchId` if role and branch are not validated/written atomically; branch archival must preserve the accepted existing assignment without allowing a new archived-branch assignment.
 - **Unaudited privileged state:** current endpoint pattern can save user before audit write. Security-sensitive mutation requires a transaction and rollback test.
 - **Consumer outage:** strict frontend/Python role unions can reject the session immediately after backend rollout unless all consumers deploy compatibly.
 - **TASK overlap:** TASK-080 and TASK-081 touch the same attendance/settings decisions; parallel branches can silently reintroduce role checks or permissions.
@@ -444,8 +475,6 @@ Completion is blocked unless one automated four-role matrix proves capability, a
 Остановиться и не писать production code, если:
 - source task не переведён из risky в implementation или task-specific branch не создана от чистого актуального `main`;
 - capability/staff matrix выше не прошла explicit security/product review;
-- не зафиксировано допустимое HeadCoach действие при изменении существующего SuperAdministrator на другую роль;
-- TASK-080/TASK-081 уже изменили затронутые contracts, но merge/rebase strategy не определена;
 - невозможно отделить staff management от `ManageSettings` без временного direct API bypass;
 - role/branch mutation и обязательный audit нельзя сделать атомарными локально без system-wide audit redesign;
 - один backend-owned access scope нельзя применить к web и internal bot без дублирующихся contradictory rules;
@@ -459,4 +488,4 @@ Full-stack scope, role/permission domain, shared modules, enum/contract change �
 ## Ready for Codex execution
 no
 
-Причина: TASK-082 остаётся high-risk (`Safe for Codex: no`) и меняет привилегированную actor/target matrix, branch scope, attendance и все strict role consumers. План готовит локализованную test-first реализацию, но до active implementation требуется явный risky-task review, перевод source task в implementation и подтверждение HeadCoach transition semantics для уже существующего SuperAdministrator.
+Причина: TASK-082 остаётся high-risk (`Safe for Codex: no`) и меняет привилегированную actor/target matrix, branch scope, attendance и все strict role consumers. Product decisions по lifecycle SuperAdministrator, protected-target visibility, archived branch, denial ProblemDetails и denied-attempt audit зафиксированы; до active implementation всё ещё требуются явное одобрение risky-плана и перевод source task в implementation.
