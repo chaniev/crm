@@ -17,6 +17,11 @@ Branch rules:
 ## Goal
 Administrator и SuperAdministrator, как роли с действующим backend capability `ManageSettings`, видят глобальную вкладку `Типы групп`, загружают справочник и используют существующие list/create/edit/delete действия через текущий API. При этом соседние вкладки настроек, backend authorization, validation, CSRF, audit и связи существующих групп не расширяются и не переопределяются на frontend.
 
+## Review decisions
+- 2026-07-25 явно подтверждено включение `SuperAdministrator` в scope TASK-081.
+- Основание: backend уже возвращает `CanManageSettings: true` для `SuperAdministrator` и защищает весь `/group-types` единым `ManageSettings`; frontend не должен создавать исключение из этого capability-контракта.
+- Подтверждённое добавление ограничено вкладкой и существующими действиями `Типы групп`; оно не расширяет видимость `Филиалы и залы`, bootstrap-возможности или другие HeadCoach-only сценарии.
+
 ## Current understanding
 - `/settings` уже доступен Administrator: frontend route guard требует одновременно `user.permissions.canManageSettings` и `allowedSections.includes('Settings')`.
 - Backend `UserRoleAuthorizationPolicy` возвращает `CanManageSettings: true` для `HeadCoach`, `SuperAdministrator` и `Administrator`, а для `Coach` — `false`.
@@ -33,10 +38,10 @@ Administrator и SuperAdministrator, как роли с действующим b
 ## Execution steps
 1. Подготовить ветку `fix/TASK-081-administrator-group-type-settings` по правилам выше; перечитать root, backend и frontend `AGENTS.md`, исходную задачу и этот план.
 2. До production-кода зафиксировать фактическую матрицу:
-   - HeadCoach: `canManageSettings = true`, видит `Типы групп`; текущая видимость `Филиалы и залы` сохраняется;
-   - SuperAdministrator: `canManageSettings = true`, видит `Типы групп`, загружает список и использует существующие create/edit/delete действия; staff-management вкладка остаётся permission/options-driven;
-   - Administrator: `canManageSettings = true`, видит `Типы групп`, но не получает `Филиалы и залы` или `Администраторы`;
-   - Coach: `canManageSettings = false`, не получает UI- и API-доступ.
+   - HeadCoach: `canManageSettings = true`, видит `Абонементы`, `Типы групп`, `Филиалы и залы` и действующую staff-management вкладку `Администраторы`;
+   - SuperAdministrator: `canManageSettings = true`, видит `Абонементы`, `Типы групп` и действующую permission/options-driven вкладку `Администраторы`, но не получает `Филиалы и залы`;
+   - Administrator: `canManageSettings = true`, видит `Абонементы` и `Типы групп`, но не получает `Филиалы и залы` или `Администраторы`;
+   - Coach: `canManageSettings = false`, не получает навигацию `Настройки`, UI вкладок или API-доступ к `/group-types`.
 3. **До production-кода** расширить `SettingsScreen.test.tsx` table-driven component tests:
    - вкладка и panel `Типы групп` видимы для HeadCoach, SuperAdministrator и Administrator по `permissions.canManageSettings`;
    - Coach не видит вкладку;
@@ -54,6 +59,7 @@ Administrator и SuperAdministrator, как роли с действующим b
    - modal остаётся открыт, введённые данные не теряются;
    - frontend не воспроизводит backend uniqueness rule.
 6. **До production-кода** добавить отдельный focused Playwright flow, предпочтительно `frontend/e2e/settings-group-types.spec.ts`, вместо дальнейшего расширения большого `stage12.spec.ts`:
+   - использовать действующий mocked API Playwright-подход для проверки frontend route/visibility, request payload, CSRF header, ответа, validation rendering и сохранения mocked server state после reload;
    - session Administrator содержит `Settings`, `canManageSettings: true`, `createRoleOptions: []` и branch scope;
    - тот же list/edit/reload сценарий выполняется для session SuperAdministrator с `canManageSettings: true`;
    - Administrator видит `Абонементы` и `Типы групп`, но не получает `Филиалы и залы`/`Администраторы`;
@@ -68,7 +74,7 @@ Administrator и SuperAdministrator, как роли с действующим b
    - явно проверить `GET` и `PUT`, а не полагаться только на create/delete happy path;
    - сохранить negative `GET`/`PUT` для Coach;
    - после `PUT` проверить, что существующая `TrainingGroup.GroupTypeId` не изменилась и group details/list возвращает новое имя типа;
-   - проверить ровно одну update audit entry с actor id, entity id, old/new `name` и `description`;
+   - проверить ровно одну update audit entry со стабильными семантическими полями: actor id, entity type/id, action type и old/new `name`/`description`; не сравнивать динамические timestamps целиком;
    - подтвердить текущий `ValidationProblem` для duplicate/invalid name.
 8. **До production-кода** добавить в `CsrfProtectionTests` `PUT /group-types/{id}` как state-changing scenario с missing и invalid token; после отказа подтвердить отсутствие изменения типа и update audit entry.
 9. Запустить новые frontend component и focused Playwright tests до production-кода. Зафиксировать ожидаемую красную фазу: Administrator/SuperAdministrator не находят вкладку `Типы групп` из-за текущего `createRoleOptions.includes('SuperAdministrator')`. Backend tests могут остаться зелёными, потому что они фиксируют уже существующий авторитетный контракт; это baseline, а не замена обязательной красной frontend-регрессии.
@@ -174,18 +180,18 @@ The primary barrier is an automated four-role matrix across frontend component t
 
 | Role | Backend `ManageSettings` | Group-types UI/API | Neighboring tabs protected |
 |---|---:|---:|---:|
-| HeadCoach | yes | yes | existing behavior |
-| SuperAdministrator | yes | yes | existing staff/branch behavior |
-| Administrator | yes | yes | no branches/admin-management expansion |
-| Coach | no | no | yes |
+| HeadCoach | yes | yes | текущие `Филиалы и залы` и `Администраторы` сохраняются |
+| SuperAdministrator | yes | yes | текущая вкладка `Администраторы` сохраняется; `Филиалы и залы` не добавляется |
+| Administrator | yes | yes | `Филиалы и залы` и `Администраторы` не добавляются |
+| Coach | no | no | навигация и прямой route остаются недоступны |
 
-The release barrier additionally requires Administrator and SuperAdministrator Playwright edit-and-reload flows, an exact update audit assertion, linked-group identity preservation and CSRF rejection without mutation. Manual QA alone is not sufficient.
+The release barrier additionally requires Administrator and SuperAdministrator Playwright edit-and-reload flows, an update audit assertion over stable semantic fields, linked-group identity preservation and CSRF rejection without mutation. Manual QA alone is not sufficient.
 
 ## Risks
 - Reusing `createRoleOptions` would preserve a hidden coupling between staff-management transitions and global settings access.
 - Reusing one new `canManageSettings` predicate for both group types and branches would accidentally expose the `Филиалы и залы` tab to Administrator, violating scope.
 - Omitting SuperAdministrator from tests would leave the same consumer/backend mismatch for the role added by TASK-082.
-- Mock-only Playwright coverage could hide a backend authorization regression; backend integration tests must remain part of the barrier.
+- Mocked Playwright coverage не доказывает реальную backend authorization, CSRF rejection или audit persistence; их отдельно фиксируют обязательные backend integration tests.
 - Expanding the fix into a general settings-permission redesign would increase security risk and exceed the localized regression scope.
 - Existing `GroupsApiTests` is broad; keep added assertions focused and avoid unrelated restructuring.
 
@@ -203,4 +209,4 @@ Stop and do not write functional code if:
 Do not stop merely because the task touches frontend and backend regression tests or because it concerns roles/permissions. Backend production changes are not expected.
 
 ## Ready for Codex execution
-yes, after explicit review of this high-risk plan and explicit selection of TASK-081 for implementation. Until then the source task remains in `/backlog/risky`.
+yes. High-risk plan review completed on 2026-07-25, including explicit confirmation that `SuperAdministrator` is in scope. Implementation still starts only after explicit selection of TASK-081 for execution; until then the source task remains in `/backlog/risky`.
