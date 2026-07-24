@@ -1147,3 +1147,27 @@
 - active tasks after reconciliation: 28 (`tasks-ready`: 8, `risky`: 15, `needs-clarification`: 5, `implementation`: 0)
 - active implementation plans: 2 (`TASK-033`, `TASK-073`)
 - validation: repository history, merge ancestry, source and backlog-consistency audit only; runtime test suites were not rerun because project code was not changed
+
+# 2026-07-24 12:46
+
+## Processed inbox files
+- 2026-07-24.md
+
+## Created tasks
+- /backlog/risky/TASK-082-super-administrator-role.md
+- /backlog/risky/TASK-083-membership-payment-status-simplification.md
+
+## Updated existing tasks
+- /backlog/risky/TASK-080-administrator-authorized-group-attendance.md
+
+## Skipped duplicates
+- Заметка про attendance Administrator обновила существующую TASK-080 и перевела её из `needs-clarification` в `risky`; отдельный дубликат не создан.
+- TASK-075 проверена: она описывает `Held`/`NotHeld`, а не разрешение Administrator отмечать посещения.
+- Завершённые TASK-070 и TASK-078 проверены: они фиксируют прежнюю paid/unpaid-семантику, которую новая TASK-083 намеренно заменяет, поэтому завершённые карточки не переоткрывались.
+
+## Summary
+- tasks-ready: 0
+- risky: 2
+- needs-clarification: 0
+- updated existing: 1
+- processed files: 1
