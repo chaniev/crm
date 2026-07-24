@@ -843,3 +843,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-079-client-birth-date-profile`, nullable PostgreSQL `date` storage with no backfill, exact create/update/details date-only contract, existing permissions and client-audit snapshots, explicit clear semantics, frontend full-year/leap-day calculation and API/component/Playwright regression barriers.
+
+# 2026-07-24 13:05
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-083-membership-payment-status-simplification.plan.md
+
+## Skipped tasks
+- TASK-083-membership-payment-status-simplification.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; detailed test-first plan created for explicit product/architecture review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-083-membership-payment-status-simplification`, moves payment metadata from membership version to paid-by-definition sale, separates payment/purchase/record/validity dates, reports sales by payment date with purchase-date organizational attribution, removes unpaid web/bot/attendance semantics, and requires real-PostgreSQL atomicity/schema/report barriers plus frontend and bot red/green coverage.
