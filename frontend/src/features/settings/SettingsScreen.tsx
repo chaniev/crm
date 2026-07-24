@@ -42,6 +42,7 @@ import {
   type UserListItem,
   type AuthenticatedUser,
   type Branch,
+  type UserRole,
 } from '../../lib/api'
 import {
   Button,
@@ -84,7 +85,8 @@ const administratorIsActiveLabel = 'Администратор активен'
 
 export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
   const isMobile = useMediaQuery('(max-width: 48em)')
-  const isHeadCoach = user.role === 'HeadCoach'
+  const canManageAdministrators = user.createRoleOptions?.includes('Administrator') === true
+  const canManageHeadCoachSettings = user.createRoleOptions?.includes('SuperAdministrator') === true
 
   return (
     <PageLayout data-testid="settings-screen" title="Настройки">
@@ -94,7 +96,7 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
             <Tabs.Tab leftSection={<IconIdBadge2 size={18} />} value={'catalog' satisfies SettingsTab}>
               Абонементы
             </Tabs.Tab>
-            {isHeadCoach ? <>
+            {canManageHeadCoachSettings ? <>
             <Tabs.Tab
               leftSection={<IconTags size={18} />}
               value={'group-types' satisfies SettingsTab}
@@ -107,32 +109,40 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
             >
               Филиалы и залы
             </Tabs.Tab>
-            <Tabs.Tab
-              leftSection={<IconUserCog size={18} />}
-              value={'administrators' satisfies SettingsTab}
-            >
-              Администраторы
-            </Tabs.Tab>
             </> : null}
+            {canManageAdministrators ? (
+              <Tabs.Tab
+                leftSection={<IconUserCog size={18} />}
+                value={'administrators' satisfies SettingsTab}
+              >
+                Администраторы
+              </Tabs.Tab>
+            ) : null}
           </Tabs.List>
         </PageSection>
 
         <PageTabsPanel value={'catalog' satisfies SettingsTab}>
-          <MembershipCatalogSettings role={user.role} assignedBranchId={user.branchId} />
+          <MembershipCatalogSettings
+            assignedBranchId={user.branchId}
+            canSelectBranch={user.branchId === null}
+          />
         </PageTabsPanel>
 
-        {isHeadCoach ? <><PageTabsPanel value={'group-types' satisfies SettingsTab}>
-          <GroupTypesSettingsPanel />
-        </PageTabsPanel>
+        {canManageHeadCoachSettings ? (
+          <>
+            <PageTabsPanel value={'group-types' satisfies SettingsTab}>
+              <GroupTypesSettingsPanel />
+            </PageTabsPanel>
 
-        <PageTabsPanel value={'branches' satisfies SettingsTab}>
-          <BranchSettingsScreen embedded />
-        </PageTabsPanel>
+            <PageTabsPanel value={'branches' satisfies SettingsTab}>
+              <BranchSettingsScreen embedded />
+            </PageTabsPanel>
+          </>
+        ) : null}
 
-        <PageTabsPanel value={'administrators' satisfies SettingsTab}>
+        {canManageAdministrators ? <PageTabsPanel value={'administrators' satisfies SettingsTab}>
           <AdministratorsSettingsPanel />
-        </PageTabsPanel>
-        </> : null}
+        </PageTabsPanel> : null}
       </Tabs>
     </PageLayout>
   )
@@ -455,6 +465,7 @@ type AdministratorModalState =
 function AdministratorsSettingsPanel() {
   const [administrators, setAdministrators] = useState<UserListItem[]>([])
   const [branches, setBranches] = useState<Branch[]>([])
+  const [createRoleOptions, setCreateRoleOptions] = useState<UserRole[]>([])
   const [createBranchId, setCreateBranchId] = useState('')
   const [editBranchId, setEditBranchId] = useState('')
   const [loading, setLoading] = useState(true)
@@ -469,6 +480,7 @@ function AdministratorsSettingsPanel() {
       login: '',
       password: '',
       role: 'Administrator',
+      branchId: '',
       messengerPlatform: null,
       messengerPlatformUserId: '',
       mustChangePassword: true,
@@ -480,6 +492,7 @@ function AdministratorsSettingsPanel() {
       fullName: '',
       login: '',
       role: 'Administrator',
+      branchId: '',
       messengerPlatform: null,
       messengerPlatformUserId: '',
       mustChangePassword: false,
@@ -497,10 +510,11 @@ function AdministratorsSettingsPanel() {
       try {
         const [nextAdministrators, nextBranches] = await Promise.all([
           getAdministrators(controller.signal),
-          getBranches({}, controller.signal),
+          getBranches({ includeArchived: true }, controller.signal),
         ])
-        setAdministrators(nextAdministrators)
-        setBranches(nextBranches.filter((branch) => !branch.isArchived))
+        setAdministrators(nextAdministrators.items)
+        setCreateRoleOptions(nextAdministrators.createRoleOptions)
+        setBranches(nextBranches)
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -524,12 +538,13 @@ function AdministratorsSettingsPanel() {
   }, [reloadKey])
 
   function openCreateModal() {
-    setCreateBranchId(branches[0]?.id ?? '')
+    setCreateBranchId(branches.find((branch) => !branch.isArchived)?.id ?? '')
     createForm.setValues({
       fullName: '',
       login: '',
       password: '',
       role: 'Administrator',
+      branchId: createBranchId,
       messengerPlatform: null,
       messengerPlatformUserId: '',
       mustChangePassword: true,
@@ -541,10 +556,15 @@ function AdministratorsSettingsPanel() {
   }
 
   function openEditModal(administrator: UserListItem) {
-    setEditBranchId(administrator.branchId ?? branches[0]?.id ?? '')
+    setEditBranchId(
+      administrator.branchId ??
+      branches.find((branch) => !branch.isArchived)?.id ??
+      '',
+    )
     editForm.setValues({
       ...toEditUserFormValues(administrator),
       role: 'Administrator',
+      branchId: administrator.branchId ?? '',
     })
     editForm.clearErrors()
     setFormError(null)
@@ -677,7 +697,7 @@ function AdministratorsSettingsPanel() {
       <PageSection>
         <Stack gap="lg">
           <SectionHeader
-            actions={(
+            actions={createRoleOptions.includes('Administrator') ? (
               <ResponsiveButtonGroup>
                 <Button
                   color="accent.5"
@@ -691,7 +711,7 @@ function AdministratorsSettingsPanel() {
                   onClick={() => setReloadKey((key) => key + 1)}
                 />
               </ResponsiveButtonGroup>
-            )}
+            ) : undefined}
             description="Администраторы управляют настройками, клиентами, группами и журналом без доступа к созданию тренеров."
             title="Администраторы"
           />
@@ -707,7 +727,9 @@ function AdministratorsSettingsPanel() {
 
           {!loading && !loadError && administrators.length === 0 ? (
             <EmptyState
-              action={<Button onClick={openCreateModal}>Добавить администратора</Button>}
+              action={createRoleOptions.includes('Administrator')
+                ? <Button onClick={openCreateModal}>Добавить администратора</Button>
+                : undefined}
               icon={<IconUserCog size={24} />}
               title="Администраторы пока не добавлены"
             />
@@ -751,13 +773,19 @@ function AdministratorsSettingsPanel() {
                       ) : null}
                     </Stack>
 
-                    <Button
-                      leftSection={<IconEdit size={18} />}
-                      onClick={() => openEditModal(administrator)}
-                      variant="pill"
-                    >
-                      Редактировать
-                    </Button>
+                    {canEditStaffTarget(administrator) ? (
+                      <Button
+                        leftSection={<IconEdit size={18} />}
+                        onClick={() => openEditModal(administrator)}
+                        variant="pill"
+                      >
+                        Редактировать
+                      </Button>
+                    ) : (
+                      <Badge color="gray" radius="xl" variant="light">
+                        Только просмотр
+                      </Badge>
+                    )}
                   </Group>
                 </Paper>
               ))}
@@ -791,7 +819,7 @@ function AdministratorsSettingsPanel() {
               />
               <Select
                 allowDeselect={false}
-                data={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+                data={buildAdministratorBranchOptions(branches)}
                 error={!createBranchId ? 'Выберите филиал.' : undefined}
                 label="Филиал администратора"
                 onChange={(value) => setCreateBranchId(value ?? '')}
@@ -818,7 +846,7 @@ function AdministratorsSettingsPanel() {
               />
               <Select
                 allowDeselect={false}
-                data={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+                data={buildAdministratorBranchOptions(branches, modalState.administrator)}
                 error={!editBranchId ? 'Выберите филиал.' : undefined}
                 label="Филиал администратора"
                 onChange={(value) => setEditBranchId(value ?? '')}
@@ -882,4 +910,35 @@ function compareGroupTypes(left: GroupType, right: GroupType) {
 
 function compareUsers(left: UserListItem, right: UserListItem) {
   return left.fullName.localeCompare(right.fullName, 'ru')
+}
+
+function canEditStaffTarget(user: UserListItem) {
+  if (user.allowedActions === undefined) {
+    return true
+  }
+
+  return user.allowedActions.includes('Edit') || user.allowedActions.includes('Update')
+}
+
+function buildAdministratorBranchOptions(
+  branches: Branch[],
+  administrator?: UserListItem,
+) {
+  const options = branches
+    .filter((branch) => !branch.isArchived)
+    .map((branch) => ({ value: branch.id, label: branch.name }))
+
+  if (
+    administrator?.branchId &&
+    !options.some((option) => option.value === administrator.branchId)
+  ) {
+    options.push({
+      value: administrator.branchId,
+      label: administrator.branchName
+        ? `${administrator.branchName} (архивный)`
+        : 'Архивный филиал',
+    })
+  }
+
+  return options
 }

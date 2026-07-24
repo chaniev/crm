@@ -4,5 +4,6 @@ public enum UserRole
 {
     HeadCoach = 1,
     Administrator = 2,
-    Coach = 3
+    Coach = 3,
+    SuperAdministrator = 4
 }

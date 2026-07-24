@@ -139,7 +139,8 @@ public class GroupsApiTests
     [Theory]
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]
-    public async Task HeadCoach_or_Administrator_can_manage_group_and_assign_trainers(string actorRole)
+    [InlineData("SuperAdministrator")]
+    public async Task Manager_roles_can_manage_group_and_assign_trainers(string actorRole)
     {
         await using var factory = new GroupsAppFactory();
         var seeded = await SeedGroupsDataAsync(factory);
@@ -149,9 +150,12 @@ public class GroupsApiTests
             HandleCookies = true
         });
 
-        var actorLogin = actorRole == "HeadCoach"
-            ? seeded.HeadCoachLogin
-            : seeded.AdministratorLogin;
+        var actorLogin = actorRole switch
+        {
+            "HeadCoach" => seeded.HeadCoachLogin,
+            "SuperAdministrator" => seeded.SuperAdministratorLogin,
+            _ => seeded.AdministratorLogin
+        };
 
         var actorSession = await LoginAsync(client, actorLogin, seeded.SharedPassword);
         Assert.Equal(actorRole, actorSession.User?.Role);
@@ -295,6 +299,87 @@ public class GroupsApiTests
             var clientsPayload = await ReadJsonElementAsync(clientsResponse);
             var clientsArray = GetArrayPayload(clientsPayload, "data", "items", "clients");
             Assert.Equal(1, clientsArray.GetArrayLength());
+        }
+    }
+
+    [Fact]
+    public async Task SuperAdministrator_can_create_groups_in_two_branches()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        Guid foreignBranchId;
+        Guid foreignHallId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var foreignBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "Groups Foreign Branch",
+                IsArchived = false,
+                CreatedAt = seeded.Now,
+                UpdatedAt = seeded.Now
+            };
+            var foreignHall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = foreignBranch.Id,
+                Name = "Groups Foreign Hall",
+                IsArchived = false,
+                CreatedAt = seeded.Now,
+                UpdatedAt = seeded.Now
+            };
+            dbContext.Branches.Add(foreignBranch);
+            dbContext.Halls.Add(foreignHall);
+            await dbContext.SaveChangesAsync();
+            foreignBranchId = foreignBranch.Id;
+            foreignHallId = foreignHall.Id;
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+        var createdGroups = new List<(Guid Id, Guid BranchId)>();
+
+        foreach (var (branchId, hallId, suffix) in new[]
+                 {
+                     (seeded.BranchId, seeded.HallOneId, "own"),
+                     (foreignBranchId, foreignHallId, "foreign")
+                 })
+        {
+            using var response = await PostJsonAsync(
+                client,
+                "/groups",
+                new
+                {
+                    Name = $"SA two-branch {suffix}",
+                    BranchId = branchId,
+                    HallId = hallId,
+                    GroupTypeId = seeded.GroupTypeId,
+                    TrainingStartTime = "17:00:00",
+                    DurationMinutes = 60,
+                    Weekdays = new[] { 2, 4 },
+                    IsActive = true
+                },
+                session.CsrfToken);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            var payload = await ReadJsonElementAsync(response);
+            createdGroups.Add((GetGuidFromProperty(payload, "id"), branchId));
+            Assert.Equal(branchId, GetGuidFromProperty(payload, "branchId"));
+        }
+
+        using var listResponse = await client.GetAsync("/groups?page=1&pageSize=100");
+        Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+        var listPayload = await ReadJsonElementAsync(listResponse);
+        var groups = GetArrayPayload(listPayload, "data", "items", "groups");
+        foreach (var createdGroup in createdGroups)
+        {
+            var item = groups.EnumerateArray()
+                .Single(group => GetGuidFromProperty(group, "id") == createdGroup.Id);
+            Assert.Equal(createdGroup.BranchId, GetGuidFromProperty(item, "branchId"));
         }
     }
 
@@ -1261,6 +1346,13 @@ public class GroupsApiTests
         var sharedPassword = "stage5-password";
 
         var headCoach = CreateUser("headcoach-stage5", "Главный тренер Stage 5", UserRole.HeadCoach, sharedPassword, now, passwordHashService);
+        var superAdministrator = CreateUser(
+            "superadministrator-stage5",
+            "Суперадминистратор Stage 5",
+            UserRole.SuperAdministrator,
+            sharedPassword,
+            now,
+            passwordHashService);
         var administrator = CreateUser("administrator-stage5", "Администратор Stage 5", UserRole.Administrator, sharedPassword, now, passwordHashService);
         var coachOne = CreateUser("coach-one-stage5", "Тренер 1 Stage 5", UserRole.Coach, sharedPassword, now, passwordHashService);
         var coachTwo = CreateUser("coach-two-stage5", "Тренер 2 Stage 5", UserRole.Coach, sharedPassword, now, passwordHashService);
@@ -1344,7 +1436,7 @@ public class GroupsApiTests
             UpdatedAt = now
         };
 
-        dbContext.Users.AddRange(headCoach, administrator, coachOne, coachTwo);
+        dbContext.Users.AddRange(headCoach, superAdministrator, administrator, coachOne, coachTwo);
         dbContext.Branches.Add(branch);
         dbContext.Halls.AddRange(hallOne, hallTwo);
         dbContext.GroupTypes.Add(groupType);
@@ -1378,6 +1470,7 @@ public class GroupsApiTests
             coachOne.Id,
             coachTwo.Id,
             headCoach.Login,
+            superAdministrator.Login,
             administrator.Login,
             coachOne.Login,
             sharedPassword,
@@ -1753,6 +1846,7 @@ public class GroupsApiTests
         Guid CoachOneId,
         Guid CoachTwoId,
         string HeadCoachLogin,
+        string SuperAdministratorLogin,
         string AdministratorLogin,
         string CoachLogin,
         string SharedPassword,

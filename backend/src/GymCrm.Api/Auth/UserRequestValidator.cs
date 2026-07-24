@@ -14,8 +14,7 @@ internal static class UserRequestValidator
         string? messengerPlatform,
         string? messengerPlatformUserId,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken,
-        bool allowAdministratorRole = false)
+        CancellationToken cancellationToken)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -43,14 +42,6 @@ internal static class UserRequestValidator
         {
             errors["role"] = [UserResources.InvalidRole];
         }
-        else if (parsedRole is UserRole.HeadCoach)
-        {
-            errors["role"] = [UserResources.HeadCoachCreationUnavailable];
-        }
-        else if (parsedRole is UserRole.Administrator && !allowAdministratorRole)
-        {
-            errors["role"] = [UserResources.AdministratorCreationUnavailableOutsideSettings];
-        }
 
         await ValidateMessengerIdentityAsync(
             messengerPlatform,
@@ -72,8 +63,7 @@ internal static class UserRequestValidator
         bool isActive,
         User user,
         GymCrmDbContext dbContext,
-        CancellationToken cancellationToken,
-        bool allowAdministratorRole = false)
+        CancellationToken cancellationToken)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -98,25 +88,9 @@ internal static class UserRequestValidator
             return errors;
         }
 
-        if (user.Role == UserRole.HeadCoach)
+        if (user.Role == UserRole.HeadCoach && !isActive)
         {
-            if (parsedRole != UserRole.HeadCoach)
-            {
-                errors["role"] = [UserResources.HeadCoachRoleImmutable];
-            }
-
-            if (!isActive)
-            {
-                errors["isActive"] = [UserResources.HeadCoachCannotBeDeactivated];
-            }
-        }
-        else if (parsedRole == UserRole.HeadCoach)
-        {
-            errors["role"] = [UserResources.HeadCoachAssignmentUnavailable];
-        }
-        else if (parsedRole == UserRole.Administrator && !allowAdministratorRole)
-        {
-            errors["role"] = [UserResources.AdministratorAssignmentUnavailableOutsideSettings];
+            errors["isActive"] = [UserResources.HeadCoachCannotBeDeactivated];
         }
 
         await ValidateMessengerIdentityAsync(

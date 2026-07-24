@@ -17,6 +17,7 @@ internal static class UserAuditSerializer
                 user.Role.ToString(),
                 user.MessengerPlatform?.ToString(),
                 user.MessengerPlatformUserId,
+                user.BranchId,
                 user.MustChangePassword,
                 user.IsActive,
                 user.CreatedAt,

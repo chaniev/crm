@@ -95,7 +95,9 @@ export type {
   UpsertTrainingGroupRequest,
   UpdateAdministratorRequest,
   UserDetails,
+  UserAllowedAction,
   UserListItem,
+  UserListResponse,
   UserRole,
 } from './api/types'
 

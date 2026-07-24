@@ -42,7 +42,8 @@ namespace GymCrm.Tests;
     [Theory]
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]
-    public async Task HeadCoach_or_Administrator_can_manage_client_lifecycle(string actorRole)
+    [InlineData("SuperAdministrator")]
+    public async Task Manager_roles_can_manage_client_lifecycle(string actorRole)
     {
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
@@ -52,9 +53,12 @@ namespace GymCrm.Tests;
             HandleCookies = true
         });
 
-        var actorLogin = actorRole == "HeadCoach"
-            ? seeded.HeadCoachLogin
-            : seeded.AdministratorLogin;
+        var actorLogin = actorRole switch
+        {
+            "HeadCoach" => seeded.HeadCoachLogin,
+            "SuperAdministrator" => seeded.SuperAdministratorLogin,
+            _ => seeded.AdministratorLogin
+        };
 
         var actorSession = await LoginAsync(client, actorLogin, seeded.SharedPassword);
         Assert.Equal(actorRole, actorSession.User?.Role);
@@ -929,8 +933,10 @@ namespace GymCrm.Tests;
         }
     }
 
-    [Fact]
-    public async Task HeadCoach_can_upload_client_photo_and_details_include_photo_metadata()
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("SuperAdministrator")]
+    public async Task Global_manager_can_upload_client_photo_and_details_include_photo_metadata(string actorRole)
     {
         await using var factory = new ClientsAppFactory();
         var seeded = await SeedClientsDataAsync(factory);
@@ -940,7 +946,11 @@ namespace GymCrm.Tests;
             HandleCookies = true
         });
 
-        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var actorLogin = actorRole == "HeadCoach"
+            ? seeded.HeadCoachLogin
+            : seeded.SuperAdministratorLogin;
+        var session = await LoginAsync(client, actorLogin, seeded.SharedPassword);
+        Assert.Equal(actorRole, session.User?.Role);
         var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
 
         using (var uploadResponse = await PostPhotoAsync(
@@ -988,6 +998,99 @@ namespace GymCrm.Tests;
         Assert.True(persistedClient.PhotoSizeBytes > 0);
         Assert.NotNull(persistedClient.PhotoUploadedAt);
         Assert.True(File.Exists(ResolveStoredPhotoAbsolutePath(factory, persistedClient.PhotoPath!)));
+    }
+
+    [Fact]
+    public async Task SuperAdministrator_can_manage_clients_and_photos_in_two_branches()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        Guid foreignGroupId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var groupTypeId = await dbContext.TrainingGroups
+                .Where(group => group.Id == seeded.GroupOneId)
+                .Select(group => group.GroupTypeId)
+                .SingleAsync();
+            var now = DateTimeOffset.UtcNow;
+            var foreignBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Name = "Clients Foreign Branch",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var foreignHall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = foreignBranch.Id,
+                Name = "Clients Foreign Hall",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var foreignGroup = new TrainingGroup
+            {
+                Id = Guid.NewGuid(),
+                BranchId = foreignBranch.Id,
+                HallId = foreignHall.Id,
+                GroupTypeId = groupTypeId,
+                Name = "Clients Foreign Group",
+                TrainingStartTime = new TimeOnly(20, 0),
+                DurationMinutes = 60,
+                Weekdays = new[] { 2, 4 },
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            dbContext.Branches.Add(foreignBranch);
+            dbContext.Halls.Add(foreignHall);
+            dbContext.TrainingGroups.Add(foreignGroup);
+            await dbContext.SaveChangesAsync();
+            foreignGroupId = foreignGroup.Id;
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+        var clientIds = new[]
+        {
+            await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId),
+            await CreateClientForMembershipTestsAsync(client, session.CsrfToken, foreignGroupId)
+        };
+
+        foreach (var clientId in clientIds)
+        {
+            using (var uploadResponse = await PostPhotoAsync(
+                       client,
+                       clientId,
+                       CreateSamplePngBytes(),
+                       $"{clientId:N}.png",
+                       "image/png",
+                       session.CsrfToken))
+            {
+                Assert.Equal(HttpStatusCode.OK, uploadResponse.StatusCode);
+            }
+
+            using var photoResponse = await client.GetAsync($"/clients/{clientId}/photo");
+            Assert.Equal(HttpStatusCode.OK, photoResponse.StatusCode);
+            Assert.Equal("image/png", photoResponse.Content.Headers.ContentType?.MediaType);
+            Assert.NotEmpty(await photoResponse.Content.ReadAsByteArrayAsync());
+        }
+
+        using var listResponse = await client.GetAsync("/clients?page=1&pageSize=100");
+        Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+        var payload = await ReadJsonElementAsync(listResponse);
+        var visibleIds = GetArrayPayload(payload, "data", "items", "clients")
+            .EnumerateArray()
+            .Select(item => GetGuidFromProperty(item, "id"))
+            .ToArray();
+        Assert.All(clientIds, clientId => Assert.Contains(clientId, visibleIds));
     }
 
     [Theory]
@@ -4218,6 +4321,13 @@ namespace GymCrm.Tests;
         var sharedPassword = "stage6a-password";
 
         var headCoach = CreateUser("headcoach-stage6a", "Главный тренер Stage 6a", UserRole.HeadCoach, sharedPassword, now, passwordHashService);
+        var superAdministrator = CreateUser(
+            "superadministrator-stage6a",
+            "Суперадминистратор Stage 6a",
+            UserRole.SuperAdministrator,
+            sharedPassword,
+            now,
+            passwordHashService);
         var administrator = CreateUser("administrator-stage6a", "Администратор Stage 6a", UserRole.Administrator, sharedPassword, now, passwordHashService);
         var coach = CreateUser("coach-stage6a", "Тренер Stage 6a", UserRole.Coach, sharedPassword, now, passwordHashService);
 
@@ -4315,7 +4425,7 @@ namespace GymCrm.Tests;
         singleVisitCatalogItem.Id = SingleVisitCatalogItemId;
         professionalCatalogItem.Id = ProfessionalCatalogItemId;
 
-        dbContext.Users.AddRange(headCoach, administrator, coach);
+        dbContext.Users.AddRange(headCoach, superAdministrator, administrator, coach);
         dbContext.Branches.Add(branch);
         dbContext.Halls.AddRange(hallOne, hallTwo);
         dbContext.GroupTypes.Add(groupType);
@@ -4327,6 +4437,7 @@ namespace GymCrm.Tests;
         return new SeededClientsData(
             headCoach.Id,
             headCoach.Login,
+            superAdministrator.Login,
             administrator.Login,
             coach.Id,
             coach.Login,
@@ -5275,6 +5386,7 @@ namespace GymCrm.Tests;
     private sealed record SeededClientsData(
         Guid HeadCoachId,
         string HeadCoachLogin,
+        string SuperAdministratorLogin,
         string AdministratorLogin,
         Guid CoachId,
         string CoachLogin,

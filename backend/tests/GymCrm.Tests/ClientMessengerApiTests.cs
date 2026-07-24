@@ -188,6 +188,43 @@ public class ClientMessengerApiTests
     }
 
     [Fact]
+    public async Task SuperAdministrator_can_read_and_create_messenger_links_in_two_branches()
+    {
+        await using var factory = new ClientMessengerAppFactory();
+        var seeded = await SeedAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+
+        foreach (var clientId in new[] { seeded.ClientId, seeded.SecondBranchClientId })
+        {
+            using (var summaryResponse = await client.GetAsync(
+                       $"/clients/{clientId}/messenger/telegram"))
+            {
+                Assert.Equal(HttpStatusCode.OK, summaryResponse.StatusCode);
+                var payload = await ReadJsonElementAsync(summaryResponse);
+                var capabilities = payload.GetProperty("capabilities");
+                Assert.True(capabilities.GetProperty("canRead").GetBoolean());
+                Assert.True(capabilities.GetProperty("canReply").GetBoolean());
+                Assert.True(capabilities.GetProperty("canCreateLink").GetBoolean());
+            }
+
+            using var linkResponse = await PostWithoutBodyAsync(
+                client,
+                $"/clients/{clientId}/messenger/telegram/link-token",
+                session.CsrfToken);
+            Assert.Equal(HttpStatusCode.OK, linkResponse.StatusCode);
+            var linkPayload = await ReadJsonElementAsync(linkResponse);
+            Assert.Contains(
+                "https://t.me/gym_client_bot?start=",
+                linkPayload.GetProperty("deepLinkUrl").GetString());
+        }
+    }
+
+    [Fact]
     public async Task Telegram_link_uses_username_reported_by_bot_token_when_username_is_not_configured()
     {
         await using var factory = new ClientMessengerAppFactory(
@@ -404,6 +441,13 @@ public class ClientMessengerApiTests
         const string password = "messenger-tests-password";
 
         var headCoach = CreateUser("headcoach-messenger", "Главный тренер Messenger", UserRole.HeadCoach, password, now, passwordHashService);
+        var superAdministrator = CreateUser(
+            "superadministrator-messenger",
+            "Суперадминистратор Messenger",
+            UserRole.SuperAdministrator,
+            password,
+            now,
+            passwordHashService);
         var administrator = CreateUser("administrator-messenger", "Администратор Messenger", UserRole.Administrator, password, now, passwordHashService);
         var coach = CreateUser("coach-messenger", "Тренер Messenger", UserRole.Coach, password, now, passwordHashService);
         var branch = new Branch
@@ -425,18 +469,40 @@ public class ClientMessengerApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var secondBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "Messenger Second Branch",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var secondBranchClient = new Client
+        {
+            Id = Guid.NewGuid(),
+            BranchId = secondBranch.Id,
+            FirstName = "Second",
+            LastName = "Messenger Client",
+            Phone = "+79990000002",
+            Status = ClientStatus.Active,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        administrator.BranchId = branch.Id;
 
-        dbContext.Users.AddRange(headCoach, administrator, coach);
-        dbContext.Branches.Add(branch);
-        dbContext.Clients.Add(client);
+        dbContext.Users.AddRange(headCoach, superAdministrator, administrator, coach);
+        dbContext.Branches.AddRange(branch, secondBranch);
+        dbContext.Clients.AddRange(client, secondBranchClient);
         await dbContext.SaveChangesAsync();
 
         return new SeededMessengerData(
             headCoach.Login,
+            superAdministrator.Login,
             administrator.Login,
             coach.Login,
             password,
-            client.Id);
+            client.Id,
+            secondBranchClient.Id);
     }
 
     private static User CreateUser(
@@ -540,10 +606,12 @@ public class ClientMessengerApiTests
 
     private sealed record SeededMessengerData(
         string HeadCoachLogin,
+        string SuperAdministratorLogin,
         string AdministratorLogin,
         string CoachLogin,
         string SharedPassword,
-        Guid ClientId);
+        Guid ClientId,
+        Guid SecondBranchClientId);
 
     public sealed class FakeClientTelegramTransport : IClientTelegramTransport
     {

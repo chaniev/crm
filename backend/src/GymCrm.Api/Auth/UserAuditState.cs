@@ -7,6 +7,7 @@ internal sealed record UserAuditState(
     string Role,
     string? MessengerPlatform,
     string? MessengerPlatformUserId,
+    Guid? BranchId,
     bool MustChangeCredentials,
     bool IsActive,
     DateTimeOffset CreatedAt,

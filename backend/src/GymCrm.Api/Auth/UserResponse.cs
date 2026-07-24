@@ -12,4 +12,6 @@ internal sealed record UserResponse(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     Guid? BranchId = null,
-    string? BranchName = null);
+    string? BranchName = null,
+    IReadOnlyList<string>? AllowedActions = null,
+    IReadOnlyList<string>? RoleOptions = null);

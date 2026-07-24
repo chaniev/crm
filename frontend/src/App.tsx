@@ -100,6 +100,9 @@ const rolePresentationMap: Record<AuthenticatedUser['role'], RolePresentation> =
   HeadCoach: {
     roleLabel: 'Главный тренер',
   },
+  SuperAdministrator: {
+    roleLabel: 'Суперадминистратор',
+  },
   Administrator: {
     roleLabel: 'Администратор',
   },
@@ -1045,9 +1048,7 @@ function RouteViewport({
     return (
       <ClientsListScreen
         canManage={user.permissions.canManageClients}
-        canSeeWithoutGroupQuickFilter={
-          user.role === 'HeadCoach' || user.role === 'Administrator'
-        }
+        canSeeWithoutGroupQuickFilter={user.permissions.canManageClients}
         onCreate={onCreateClient}
         onOpen={onOpenClient}
         onPreview={onPreviewClient}
@@ -1088,6 +1089,7 @@ function RouteViewport({
   if (route.kind === 'userCreate') {
     return (
       <UserCreateScreen
+        createRoleOptions={user.createRoleOptions}
         onCancel={onReturnToUsers}
         onCreated={onReturnToUsers}
       />
@@ -1109,9 +1111,7 @@ function RouteViewport({
     return (
       <ClientsListScreen
         canManage={user.permissions.canManageClients}
-        canSeeWithoutGroupQuickFilter={
-          user.role === 'HeadCoach' || user.role === 'Administrator'
-        }
+        canSeeWithoutGroupQuickFilter={user.permissions.canManageClients}
         onCreate={onCreateClient}
         onOpen={onOpenClient}
         onPreview={onPreviewClient}

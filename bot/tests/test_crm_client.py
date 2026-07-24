@@ -15,6 +15,7 @@ from gym_crm_bot.crm.models import (
     AttendanceMarkRequest,
     AttendanceRosterResponse,
     AttendanceSaveResponse,
+    BotUserContext,
     ClientCardMembership,
     MembershipListResponse,
     TelegramIdentity,
@@ -60,6 +61,29 @@ async def test_crm_client_sets_headers_and_retries_safe_reads() -> None:
 def test_crm_client_does_not_expose_removed_payment_write_boundary() -> None:
     assert not hasattr(CrmBotApiClient, "list_unpaid_memberships")
     assert not hasattr(CrmBotApiClient, "mark_membership_payment")
+
+
+def test_bot_user_context_accepts_super_administrator_role() -> None:
+    context = BotUserContext.model_validate(
+        {
+            "userId": "00000000-0000-0000-0000-000000000082",
+            "fullName": "Супер Администратор",
+            "role": "SuperAdministrator",
+        }
+    )
+
+    assert context.role == "SuperAdministrator"
+
+
+def test_bot_user_context_rejects_unknown_role() -> None:
+    with pytest.raises(ValidationError):
+        BotUserContext.model_validate(
+            {
+                "userId": "00000000-0000-0000-0000-000000000083",
+                "fullName": "Unknown Role",
+                "role": "FinancialAdministrator",
+            }
+        )
 
 
 @pytest.mark.asyncio

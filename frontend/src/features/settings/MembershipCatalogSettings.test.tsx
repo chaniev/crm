@@ -28,7 +28,7 @@ describe('MembershipCatalogSettings', () => {
   test('covers loading and empty state in a fixed administrator branch', async () => {
     let resolveItems!: (value: []) => void
     getItemsMock.mockReturnValue(new Promise((resolve) => { resolveItems = resolve }))
-    renderWithProviders(<MembershipCatalogSettings role="Administrator" assignedBranchId="branch-1" />)
+    renderWithProviders(<MembershipCatalogSettings assignedBranchId="branch-1" />)
     expect(screen.getByText('Загружаем каталог...')).toBeInTheDocument()
     resolveItems([])
     expect(await screen.findByText('В этом филиале ещё нет абонементов')).toBeInTheDocument()
@@ -38,14 +38,20 @@ describe('MembershipCatalogSettings', () => {
 
   test('shows branch selector to HeadCoach and error state', async () => {
     getItemsMock.mockRejectedValue(new Error('Нет связи'))
-    renderWithProviders(<MembershipCatalogSettings role="HeadCoach" />)
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
     expect(await screen.findByRole('combobox', { name: 'Филиал каталога' })).toBeInTheDocument()
     expect(await screen.findByText('Нет связи')).toBeInTheDocument()
   })
 
+  test('shows branch selector to SuperAdministrator as a global settings consumer', async () => {
+    getItemsMock.mockRejectedValue(new Error('Нет связи'))
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
+    expect(await screen.findByRole('combobox', { name: 'Филиал каталога' })).toBeInTheDocument()
+  })
+
   test('edit form omits immutable controls and delete action', async () => {
     getItemsMock.mockResolvedValue([{ id: 'item-1', branchId: 'branch-1', name: 'Разовое', price: 500, behaviorKind: 'SingleVisit', availableFrom: '2026-01-01', availableTo: null, isSystemOwned: false }])
-    renderWithProviders(<MembershipCatalogSettings role="HeadCoach" />)
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
     fireEvent.click(await screen.findByRole('button', { name: 'Редактировать Разовое' }))
     expect(await screen.findByRole('textbox', { name: 'Название' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Цена')).not.toBeInTheDocument()
@@ -56,7 +62,7 @@ describe('MembershipCatalogSettings', () => {
   test('preserves server field errors on create', async () => {
     getItemsMock.mockResolvedValue([])
     vi.mocked(createMembershipCatalogItem).mockRejectedValue(Object.assign(new Error('Периоды пересекаются'), { fieldErrors: { name: ['Уже есть такой вариант.'] } }))
-    renderWithProviders(<MembershipCatalogSettings role="HeadCoach" />)
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
     fireEvent.click(await screen.findByRole('button', { name: 'Добавить абонемент' }))
     fireEvent.change(await screen.findByRole('textbox', { name: 'Название' }), { target: { value: 'Месяц' } })
     fireEvent.change(screen.getByRole('textbox', { name: 'Цена' }), { target: { value: '3000' } })

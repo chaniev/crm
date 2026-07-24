@@ -12,11 +12,10 @@ import {
   type Branch,
   type MembershipBehaviorKind,
   type MembershipCatalogItem,
-  type UserRole,
 } from '../../lib/api'
 import { Button, EmptyState, ErrorState, LoadingState, PageSection, RefreshButton, ResponsiveButtonGroup, SectionHeader } from '../shared/ux'
 
-type Props = { role: UserRole; assignedBranchId?: string | null }
+type Props = { assignedBranchId?: string | null; canSelectBranch?: boolean }
 type FormValues = { name: string; price: number | string; behaviorKind: Exclude<MembershipBehaviorKind, 'Professional'>; availableFrom: string; availableTo: string }
 type ModalState = { mode: 'create' } | { mode: 'edit'; item: MembershipCatalogItem } | null
 
@@ -25,7 +24,10 @@ const behaviorOptions = [
   { value: 'Term', label: 'Абонемент на срок' },
 ]
 
-export function MembershipCatalogSettings({ role, assignedBranchId }: Props) {
+export function MembershipCatalogSettings({
+  assignedBranchId,
+  canSelectBranch = false,
+}: Props) {
   const [branches, setBranches] = useState<Branch[]>([])
   const [branchId, setBranchId] = useState(assignedBranchId ?? '')
   const [items, setItems] = useState<MembershipCatalogItem[]>([])
@@ -94,7 +96,7 @@ export function MembershipCatalogSettings({ role, assignedBranchId }: Props) {
   return <Stack gap="lg">
     <PageSection><Stack gap="lg">
       <SectionHeader title="Каталог абонементов" description="Названия, цены и периоды, доступные для продажи." actions={<ResponsiveButtonGroup><Button leftSection={<IconPlus size={18}/>} onClick={openCreate} disabled={!branchId}>Добавить абонемент</Button><RefreshButton leftSection={<IconRefresh size={18}/>} onClick={() => setReloadKey((key) => key + 1)}/></ResponsiveButtonGroup>}/>
-      {role === 'HeadCoach' ? <Select allowDeselect={false} data={branches.map((item) => ({ value: item.id, label: item.name }))} label="Филиал каталога" onChange={(value) => setBranchId(value ?? '')} value={branchId || null}/> : <Paper className="hint-card" p="md" withBorder><Text c="dimmed" size="sm">Филиал каталога</Text><Text fw={700}>{branch?.name ?? 'Не назначен'}</Text></Paper>}
+      {canSelectBranch ? <Select allowDeselect={false} data={branches.map((item) => ({ value: item.id, label: item.name }))} label="Филиал каталога" onChange={(value) => setBranchId(value ?? '')} value={branchId || null}/> : <Paper className="hint-card" p="md" withBorder><Text c="dimmed" size="sm">Филиал каталога</Text><Text fw={700}>{branch?.name ?? 'Не назначен'}</Text></Paper>}
       {loading ? <LoadingState label="Загружаем каталог..."/> : null}
       {!loading && error ? <ErrorState title="Каталог не загрузился" message={error}/> : null}
       {!loading && !error && items.length === 0 ? <EmptyState icon={<IconPlus size={24}/>} title="В этом филиале ещё нет абонементов" action={<Button onClick={openCreate}>Добавить абонемент</Button>}/> : null}

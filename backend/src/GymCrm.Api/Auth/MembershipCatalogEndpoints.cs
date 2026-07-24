@@ -1,4 +1,5 @@
 using System.Text.Json;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Domain.Memberships;
@@ -36,7 +37,7 @@ internal static class MembershipCatalogEndpoints
             .Where(item => item.BranchId == scope.BranchId || item.BranchId == null)
             .OrderBy(item => item.BehaviorKind).ThenBy(item => item.Name)
             .Select(item => ToResponse(item)).ToListAsync(cancellationToken);
-        if (scope.Role == UserRole.Administrator)
+        if (scope.Role is UserRole.Administrator or UserRole.SuperAdministrator)
             items = items.Where(item => item.BehaviorKind != nameof(MembershipBehaviorKind.Professional)).ToList();
         return TypedResults.Ok(items);
     }
@@ -51,7 +52,7 @@ internal static class MembershipCatalogEndpoints
             .Where(item => (item.BranchId == branchId || item.BranchId == null) &&
                 item.AvailableFrom <= today && (item.AvailableTo == null || item.AvailableTo >= today))
             .OrderBy(item => item.Name).Select(item => ToResponse(item)).ToListAsync(cancellationToken);
-        if (scope.Role == UserRole.Administrator)
+        if (scope.Role is UserRole.Administrator or UserRole.SuperAdministrator)
             items = items.Where(item => item.BehaviorKind != nameof(MembershipBehaviorKind.Professional)).ToList();
         return TypedResults.Ok(items);
     }
@@ -109,7 +110,7 @@ internal static class MembershipCatalogEndpoints
 
     private static (bool Allowed, Guid? BranchId, UserRole Role) ResolveScope(User? user, Guid? requested) => user switch
     {
-        { Role: UserRole.HeadCoach } => (requested.HasValue, requested, user.Role),
+        { Role: UserRole.HeadCoach or UserRole.SuperAdministrator } => (requested.HasValue, requested, user.Role),
         { Role: UserRole.Administrator, BranchId: Guid own } when requested == own => (true, own, user.Role),
         _ => (false, null, user?.Role ?? UserRole.Coach)
     };
@@ -117,8 +118,8 @@ internal static class MembershipCatalogEndpoints
     private static MembershipCatalogItemResponse ToResponse(MembershipCatalogItem item) => new(item.Id,
         item.BranchId, item.Name, item.Price, item.BehaviorKind.ToString(), item.AvailableFrom, item.AvailableTo, item.IsSystemOwned);
     private static IResult Validation(string field, string message) => TypedResults.ValidationProblem(new Dictionary<string, string[]> { [field] = [message] });
-    private static IResult ScopeProblem() => Results.Problem(statusCode: 403, title: "Forbidden branch scope",
-        type: "https://gym-crm.local/problems/membership-catalog-branch-scope", extensions: new Dictionary<string, object?> { ["code"] = "membership_catalog_branch_scope" });
+    private static IResult ScopeProblem() =>
+        StaffProblemDetails.FromDenial(StaffAuthorizationDenial.BranchScopeForbidden);
     private static IResult OverlapProblem() => Results.Problem(statusCode: 409, title: "Catalog availability overlaps",
         type: "https://gym-crm.local/problems/membership-catalog-overlap", extensions: new Dictionary<string, object?> { ["code"] = "membership_catalog_overlap" });
 }

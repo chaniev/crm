@@ -1,7 +1,7 @@
 # TASK-082: Добавить роль суперадминистратора
 
 ## Status
-risky
+done
 
 ## Goal
 Главный тренер может создать суперадминистратора без привязки к филиалу. Суперадминистратор получает текущие права администратора в глобальном scope, управляет администраторами и тренерами во всех филиалах и может отмечать посещения в любой группе.
@@ -51,31 +51,31 @@ risky
 - Существующие HeadCoach, Administrator и Coach не должны получить новые права побочным эффектом.
 
 ## Acceptance criteria
-- [ ] Только HeadCoach может создать пользователя с ролью SuperAdministrator.
-- [ ] SuperAdministrator не может создать или повысить пользователя до HeadCoach либо SuperAdministrator.
-- [ ] SuperAdministrator не имеет собственного филиала, а auth/session и API возвращают для него `branchId: null`.
-- [ ] SuperAdministrator может создать Administrator для любого активного филиала; несуществующий или архивный филиал отклоняется.
-- [ ] SuperAdministrator может создать Coach без прямого branch assignment и управлять его назначениями в группы любых филиалов.
-- [ ] SuperAdministrator получает все текущие права Administrator и может выполнять соответствующие операции во всех филиалах.
-- [ ] SuperAdministrator может открыть attendance всех филиалов и сохранить отметки по любой их группе.
-- [ ] Обычный Administrator не может создавать или изменять других Administrator и Coach через UI или прямые API-запросы.
-- [ ] Прямые API-попытки обойти матрицу создания/изменения ролей отклоняются стабильным ProblemDetails и не меняют данные.
-- [ ] Auth/session, frontend и bot корректно распознают новую роль.
-- [ ] Критические действия новой роли отражаются в audit с корректным actor и scope.
-- [ ] Права и пользовательские сценарии существующих ролей не регрессируют.
+- [x] Только HeadCoach может создать пользователя с ролью SuperAdministrator.
+- [x] SuperAdministrator не может создать или повысить пользователя до HeadCoach либо SuperAdministrator.
+- [x] SuperAdministrator не имеет собственного филиала, а auth/session и API возвращают для него `branchId: null`.
+- [x] SuperAdministrator может создать Administrator для любого активного филиала; несуществующий или архивный филиал отклоняется.
+- [x] SuperAdministrator может создать Coach без прямого branch assignment и управлять его назначениями в группы любых филиалов.
+- [x] SuperAdministrator получает все текущие права Administrator и может выполнять соответствующие операции во всех филиалах.
+- [x] SuperAdministrator может открыть attendance всех филиалов и сохранить отметки по любой их группе.
+- [x] Обычный Administrator не может создавать или изменять других Administrator и Coach через UI или прямые API-запросы.
+- [x] Прямые API-попытки обойти матрицу создания/изменения ролей отклоняются стабильным ProblemDetails и не меняют данные.
+- [x] Auth/session, frontend и bot корректно распознают новую роль.
+- [x] Критические действия новой роли отражаются в audit с корректным actor и scope.
+- [x] Права и пользовательские сценарии существующих ролей не регрессируют.
 
 ## Test checklist
-- [ ] Добавить backend role/permission matrix integration tests для всех пар actor/target role.
-- [ ] Проверить создание пользователей, изменение роли, деактивацию, запрет self-escalation и ограничения на управление HeadCoach и SuperAdministrator.
-- [ ] Проверить `BranchId = null` у SuperAdministrator и Coach.
-- [ ] Проверить создание Administrator для разных активных филиалов и отказ для несуществующего или архивного филиала.
-- [ ] Проверить создание Coach без филиала и его назначения в группы разных филиалов.
-- [ ] Проверить глобальный доступ SuperAdministrator к клиентам, абонементам, группам, настройкам, аудиту и attendance минимум в двух филиалах.
-- [ ] Проверить denial для обычного Administrator на создание и изменение Administrator и Coach.
-- [ ] Проверить audit успешных и, если предусмотрено действующим контрактом, отклонённых чувствительных операций.
-- [ ] Обновить frontend auth, routing, user-management и action-visibility tests.
-- [ ] Обновить bot role parsing/contract tests и seed/bootstrap tests.
-- [ ] Запустить backend tests, frontend lint + build, bot ruff + pytest.
+- [x] Добавить backend role/permission matrix integration tests для всех пар actor/target role.
+- [x] Проверить создание пользователей, изменение роли, деактивацию, запрет self-escalation и ограничения на управление HeadCoach и SuperAdministrator.
+- [x] Проверить `BranchId = null` у SuperAdministrator и Coach.
+- [x] Проверить создание Administrator для разных активных филиалов и отказ для несуществующего или архивного филиала.
+- [x] Проверить создание Coach без филиала и его назначения в группы разных филиалов.
+- [x] Проверить глобальный доступ SuperAdministrator к клиентам, абонементам, группам, настройкам, аудиту и attendance минимум в двух филиалах.
+- [x] Проверить denial для обычного Administrator на создание и изменение Administrator и Coach.
+- [x] Проверить audit успешных и, если предусмотрено действующим контрактом, отклонённых чувствительных операций.
+- [x] Обновить frontend auth, routing, user-management и action-visibility tests.
+- [x] Обновить bot role parsing/contract tests и seed/bootstrap tests.
+- [x] Запустить backend tests, frontend lint + build, bot ruff + pytest.
 
 ## AI safety
 - Safe for Codex: no

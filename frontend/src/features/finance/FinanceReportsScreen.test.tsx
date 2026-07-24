@@ -49,6 +49,7 @@ const financeUser: AuthenticatedUser = {
     canViewFinancialReports: true,
   },
   assignedGroupIds: [],
+  branchId: null,
 }
 
 const deniedUser: AuthenticatedUser = {

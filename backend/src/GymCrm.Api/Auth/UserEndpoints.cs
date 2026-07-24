@@ -1,4 +1,3 @@
-using GymCrm.Application.Audit;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -13,7 +12,7 @@ internal static class UserEndpoints
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/users")
-            .RequireAuthorization(GymCrmAuthorizationPolicies.ManageUsers);
+            .RequireAuthorization();
 
         group.MapGet("/", ListUsersAsync);
         group.MapGet("/{id:guid}", GetUserAsync);
@@ -23,45 +22,62 @@ internal static class UserEndpoints
         return endpoints;
     }
 
-    private static async Task<Ok<IReadOnlyList<UserResponse>>> ListUsersAsync(
+    private static async Task<Results<Ok<UserListResponse>, ProblemHttpResult, UnauthorizedHttpResult>> ListUsersAsync(
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var readDecision = StaffManagementBoundary.AuthorizeRead(currentUser, UserRole.Coach);
+        if (!readDecision.Allowed)
+        {
+            return StaffProblemDetails.FromDenial(readDecision.Denial);
+        }
+
         IReadOnlyList<UserResponse> users = await dbContext.Users
             .AsNoTracking()
-            .Where(user => user.Role != UserRole.Administrator)
             .OrderBy(user => user.FullName)
             .ThenBy(user => user.Login)
-            .Select(user => new UserResponse(
-                user.Id,
-                user.FullName,
-                user.Login,
-                user.Role.ToString(),
-                user.MessengerPlatform != null ? user.MessengerPlatform.ToString() : null,
-                user.MessengerPlatformUserId,
-                user.MustChangePassword,
-                user.IsActive,
-                user.CreatedAt,
-                user.UpdatedAt))
+            .Select(user => ToResponse(user, currentUser))
             .ToListAsync(cancellationToken);
 
-        return TypedResults.Ok(users);
+        return TypedResults.Ok(new UserListResponse(
+            users,
+            StaffManagementBoundary.GetCreateRoleOptions(currentUser)));
     }
 
-    private static async Task<Results<Ok<UserResponse>, NotFound>> GetUserAsync(
+    private static async Task<Results<Ok<UserResponse>, ProblemHttpResult, UnauthorizedHttpResult>> GetUserAsync(
         Guid id,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var readDecision = StaffManagementBoundary.AuthorizeRead(currentUser, UserRole.Coach);
+        if (!readDecision.Allowed)
+        {
+            return StaffProblemDetails.FromDenial(readDecision.Denial);
+        }
+
         var user = await dbContext.Users
             .AsNoTracking()
             .SingleOrDefaultAsync(
-                candidate => candidate.Id == id && candidate.Role != UserRole.Administrator,
+                candidate => candidate.Id == id,
                 cancellationToken);
 
         return user is null
-            ? TypedResults.NotFound()
-            : TypedResults.Ok(ToResponse(user));
+            ? StaffProblemDetails.NotFound()
+            : TypedResults.Ok(ToResponse(user, currentUser));
     }
 
     private static async Task<Results<Created<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateUserAsync(
@@ -69,7 +85,6 @@ internal static class UserEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IPasswordHashService passwordHashService,
-        IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -85,68 +100,46 @@ internal static class UserEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var fullName = request.FullName?.Trim() ?? string.Empty;
-        var login = request.Login?.Trim() ?? string.Empty;
-
-        var errors = await UserRequestValidator.ValidateCreateAsync(
-            fullName,
-            login,
-            request.Password,
-            request.Role,
-            request.MessengerPlatform,
-            request.MessengerPlatformUserId,
+        var mutationResult = await StaffManagementMutationService.CreateAsync(
+            new StaffCreateCommand(
+                currentUser,
+                request.FullName,
+                request.Login,
+                request.Password,
+                request.Role,
+                request.MustChangePassword,
+                request.IsActive,
+                request.MessengerPlatform,
+                request.MessengerPlatformUserId,
+                request.BranchId),
             dbContext,
+            passwordHashService,
             cancellationToken);
 
-        if (errors.Count > 0)
+        if (mutationResult.Status == StaffMutationStatus.ValidationFailed)
         {
-            return TypedResults.ValidationProblem(errors);
+            return TypedResults.ValidationProblem(mutationResult.ValidationErrors!);
         }
 
-        var role = UserRequestValidator.ParseRole(request.Role)!;
-        var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
-            request.MessengerPlatform,
-            request.MessengerPlatformUserId);
-        var now = DateTimeOffset.UtcNow;
-
-        var user = new User
+        if (mutationResult.Status == StaffMutationStatus.Forbidden)
         {
-            Id = Guid.NewGuid(),
-            FullName = fullName,
-            Login = login,
-            Role = role.Value,
-            MessengerPlatform = messengerIdentity.Platform,
-            MessengerPlatformUserId = messengerIdentity.PlatformUserId,
-            MustChangePassword = request.MustChangePassword,
-            IsActive = request.IsActive,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
+            return StaffProblemDetails.FromDenial(mutationResult.Denial);
+        }
 
-        user.PasswordHash = passwordHashService.HashPassword(user, request.Password);
+        if (mutationResult.Status != StaffMutationStatus.Created)
+        {
+            throw new InvalidOperationException($"Unsupported staff create result '{mutationResult.Status}'.");
+        }
 
-        dbContext.Users.Add(user);
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        await auditLogService.WriteAsync(
-            new AuditLogEntry(
-                currentUser.Id,
-                UserAuditConstants.UserCreatedAction,
-                UserAuditConstants.UserEntityType,
-                user.Id.ToString(),
-                UserResources.UserCreatedDescription(currentUser.Login, user.Login),
-                NewValueJson: UserAuditSerializer.Serialize(user)),
-            cancellationToken);
-
-        return TypedResults.Created($"/users/{user.Id}", ToResponse(user));
+        var user = mutationResult.User!;
+        return TypedResults.Created($"/users/{user.Id}", ToResponse(user, currentUser));
     }
 
-    private static async Task<Results<Ok<UserResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateUserAsync(
+    private static async Task<Results<Ok<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateUserAsync(
         Guid id,
         UpdateUserRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
-        IAuditLogService auditLogService,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -162,71 +155,52 @@ internal static class UserEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var user = await dbContext.Users
-            .SingleOrDefaultAsync(
-                candidate => candidate.Id == id && candidate.Role != UserRole.Administrator,
-                cancellationToken);
-
-        if (user is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var fullName = request.FullName?.Trim() ?? string.Empty;
-        var requestedLogin = request.Login?.Trim() ?? string.Empty;
-
-        var errors = await UserRequestValidator.ValidateUpdateAsync(
-            fullName,
-            requestedLogin,
-            request.Role,
-            request.MessengerPlatform,
-            request.MessengerPlatformUserId,
-            request.IsActive,
-            user,
+        var mutationResult = await StaffManagementMutationService.UpdateAsync(
+            new StaffUpdateCommand(
+                currentUser,
+                id,
+                TargetRoleFilter: null,
+                request.FullName,
+                request.Login,
+                request.Role,
+                request.MustChangePassword,
+                request.IsActive,
+                request.MessengerPlatform,
+                request.MessengerPlatformUserId,
+                request.BranchId),
             dbContext,
             cancellationToken);
-        if (errors.Count > 0)
+
+        if (mutationResult.Status == StaffMutationStatus.NotFound)
         {
-            return TypedResults.ValidationProblem(errors);
+            return StaffProblemDetails.NotFound();
         }
 
-        var role = UserRequestValidator.ParseRole(request.Role)!.Value;
-        var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
-            request.MessengerPlatform,
-            request.MessengerPlatformUserId);
-        var oldState = UserAuditSerializer.Serialize(user);
-        var isSelfUpdate = currentUser.Id == user.Id;
+        if (mutationResult.Status == StaffMutationStatus.ValidationFailed)
+        {
+            return TypedResults.ValidationProblem(mutationResult.ValidationErrors!);
+        }
 
-        user.FullName = fullName;
-        user.Role = role;
-        user.MessengerPlatform = messengerIdentity.Platform;
-        user.MessengerPlatformUserId = messengerIdentity.PlatformUserId;
-        user.MustChangePassword = request.MustChangePassword;
-        user.IsActive = request.IsActive;
-        user.UpdatedAt = DateTimeOffset.UtcNow;
+        if (mutationResult.Status == StaffMutationStatus.Forbidden)
+        {
+            return StaffProblemDetails.FromDenial(mutationResult.Denial);
+        }
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        if (mutationResult.Status != StaffMutationStatus.Updated)
+        {
+            throw new InvalidOperationException($"Unsupported staff update result '{mutationResult.Status}'.");
+        }
 
-        await auditLogService.WriteAsync(
-            new AuditLogEntry(
-                currentUser.Id,
-                UserAuditConstants.UserUpdatedAction,
-                UserAuditConstants.UserEntityType,
-                user.Id.ToString(),
-                UserResources.UserUpdatedDescription(currentUser.Login, user.Login),
-                oldState,
-                UserAuditSerializer.Serialize(user)),
-            cancellationToken);
-
-        if (isSelfUpdate)
+        var user = mutationResult.User!;
+        if (currentUser.Id == user.Id)
         {
             await AuthSessionSync.SyncCurrentSessionAsync(httpContext, user);
         }
 
-        return TypedResults.Ok(ToResponse(user));
+        return TypedResults.Ok(ToResponse(user, currentUser));
     }
 
-    private static UserResponse ToResponse(User user)
+    private static UserResponse ToResponse(User user, User currentUser)
     {
         return new UserResponse(
             user.Id,
@@ -238,6 +212,10 @@ internal static class UserEndpoints
             user.MustChangePassword,
             user.IsActive,
             user.CreatedAt,
-            user.UpdatedAt);
+            user.UpdatedAt,
+            user.BranchId,
+            user.Branch?.Name,
+            StaffManagementBoundary.GetAllowedActions(currentUser, user),
+            StaffManagementBoundary.GetUpdateRoleOptions(currentUser, user));
     }
 }

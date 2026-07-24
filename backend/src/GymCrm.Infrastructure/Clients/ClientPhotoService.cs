@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Text;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Users;
@@ -181,7 +182,7 @@ internal sealed class ClientPhotoService(
 
         var hasAccess = actorRole.Value switch
         {
-            UserRole.HeadCoach => true,
+            UserRole.HeadCoach or UserRole.SuperAdministrator => true,
             UserRole.Administrator => true,
             UserRole.Coach => await dbContext.ClientGroups
                 .Where(clientGroup => clientGroup.ClientId == clientId)
@@ -311,7 +312,7 @@ internal sealed class ClientPhotoService(
     }
 
     private static bool CanManagePhotos(UserRole role) =>
-        role is UserRole.HeadCoach or UserRole.Administrator;
+        UserRoleAuthorizationPolicy.HasCapability(role, CrmCapability.ManageClients);
 
     private static PreparedPhotoResult PrepareStorageContent(
         DetectedPhotoFormat format,

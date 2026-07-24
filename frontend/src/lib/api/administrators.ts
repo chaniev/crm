@@ -2,11 +2,13 @@ import { API_ENDPOINTS } from './endpoints'
 import { extractArrayPayload, isRecord, readBoolean, readString } from './read-helpers'
 import { mapUserRole } from './mappers'
 import { request } from './transport'
+import { mapAllowedActions, mapRoleOptions } from './users'
 import type {
   CreateAdministratorRequest,
   UpdateAdministratorRequest,
   UserDetails,
   UserListItem,
+  UserListResponse,
   UserResponsePayload,
 } from './types'
 
@@ -15,9 +17,12 @@ export async function getAdministrators(signal?: AbortSignal) {
     signal,
   })
 
-  return extractArrayPayload<UserResponsePayload>(payload, ['items', 'users']).map(
-    mapAdministratorListItem,
-  )
+  return {
+    items: extractArrayPayload<UserResponsePayload>(payload, ['items', 'users']).map(
+      mapAdministratorListItem,
+    ),
+    createRoleOptions: mapRoleOptions(payload, ['createRoleOptions', 'CreateRoleOptions']),
+  } satisfies UserListResponse
 }
 
 export async function getAdministrator(
@@ -93,6 +98,8 @@ function mapAdministratorListItem(payload: UserResponsePayload): UserListItem {
       ]) ?? null,
     branchId: readString(payload, ['branchId', 'BranchId']) ?? null,
     branchName: readString(payload, ['branchName', 'BranchName']) ?? null,
+    allowedActions: mapAllowedActions(payload),
+    roleOptions: mapRoleOptions(payload, ['roleOptions', 'RoleOptions']),
   }
 }
 

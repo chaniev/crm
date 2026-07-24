@@ -106,7 +106,7 @@ internal static class AccessEndpoints
             GroupAccessDecision.Allowed => TypedResults.Ok(new GroupAccessProbeResponse(
                 groupId,
                 AccessApiConstants.AttendanceCapability,
-                user.Role == UserRole.HeadCoach
+                UserRoleAuthorizationPolicy.GetOperationalScopeKind(user.Role) == AccessScopeKind.Global
                     ? GymCrmAuthorizationPolicies.MarkAttendance
                     : AccessApiConstants.AssignedCoachScopeGrantedBy)),
             _ => throw new InvalidOperationException($"Unsupported access decision '{accessDecision}'.")

@@ -51,7 +51,7 @@ export function UsersListScreen({
 
       try {
         const nextUsers = await getUsers(controller.signal)
-        setUsers(nextUsers)
+        setUsers(nextUsers.items)
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
@@ -143,6 +143,7 @@ export function UsersListScreen({
               {users.map((user) => (
                 <Paper
                   className="list-row-card"
+                  data-testid={`user-card-${user.id}`}
                   key={user.id}
                   radius="24px"
                   withBorder
@@ -183,13 +184,19 @@ export function UsersListScreen({
                       ) : null}
                     </Stack>
 
-                    <Button
-                      leftSection={<IconUserEdit size={18} />}
-                      onClick={() => onEdit(user.id)}
-                      variant="light"
-                    >
-                      {resources.users.list.editAction}
-                    </Button>
+                    {canEditUser(user) ? (
+                      <Button
+                        leftSection={<IconUserEdit size={18} />}
+                        onClick={() => onEdit(user.id)}
+                        variant="light"
+                      >
+                        {resources.users.list.editAction}
+                      </Button>
+                    ) : (
+                      <Badge color="gray" radius="xl" variant="light">
+                        {resources.users.list.readOnlyTarget}
+                      </Badge>
+                    )}
                   </Group>
                 </Paper>
               ))}
@@ -199,4 +206,12 @@ export function UsersListScreen({
       </PageSection>
     </PageLayout>
   )
+}
+
+function canEditUser(user: UserListItem) {
+  if (user.allowedActions === undefined) {
+    return true
+  }
+
+  return user.allowedActions.includes('Edit') || user.allowedActions.includes('Update')
 }
