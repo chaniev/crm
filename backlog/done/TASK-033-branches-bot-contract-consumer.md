@@ -1,7 +1,11 @@
 # TASK-033: Обновить bot-consumer после внедрения филиалов
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- closed_by_status_audit_at: 2026-07-25
+- implementation_evidence: branch-aware backend internal-bot scope and current thin Python consumer tests, including TASK-080/TASK-082 cross-branch coverage
 
 ## Goal
 Telegram bot остается тонким consumer backend API после появления филиалов и залов и не дублирует правила доступа, филиалов, групп или абонементов.
@@ -39,18 +43,18 @@ Bot должен продолжать работать с клиентами, г
 - Send `X-Request-Id` and `Idempotency-Key` for write operations where existing patterns require it.
 
 ## Acceptance criteria
-- [ ] Bot API client совместим с backend contracts после внедрения филиалов.
-- [ ] Bot не дублирует branch/group validation.
-- [ ] Bot показывает тренеру только группы и клиентов, возвращенные backend.
-- [ ] Attendance flows продолжают работать с branch-aware groups.
-- [ ] При необходимости в списках групп отображается филиал/зал без изменения backend rules.
-- [ ] Обновлены affected bot tests.
+- [x] Bot API client совместим с backend contracts после внедрения филиалов.
+- [x] Bot не дублирует branch/group validation.
+- [x] Bot показывает тренеру только группы и клиентов, возвращенные backend.
+- [x] Attendance flows продолжают работать с branch-aware groups.
+- [x] Отображение филиала/зала не потребовалось: internal bot contract возвращает уже отфильтрованные и однозначные группы.
+- [x] Обновлены affected bot tests.
 
 ## Test checklist
-- [ ] Запустить `cd bot && ruff check .`.
-- [ ] Запустить `cd bot && pytest`.
-- [ ] Проверить сценарий выбора группы и отметки посещаемости тренером.
-- [ ] Проверить, что bot не показывает клиентов вне backend-visible scope.
+- [x] Запустить `cd bot && ruff check .`.
+- [x] Запустить `cd bot && pytest`.
+- [x] Проверить сценарий выбора группы и отметки посещаемости тренером.
+- [x] Проверить, что bot не показывает клиентов вне backend-visible scope.
 
 ## AI safety
 - Safe for Codex: no
@@ -68,3 +72,5 @@ Bot должен продолжать работать с клиентами, г
 - Created at: 2026-05-07 20:05
 - Created after TASK-022 clarification was completed.
 - Dependency update at 2026-05-12: TASK-031 moved to done, so backend branch-aware contracts are available for comparison; this task remains risky because Python bot DTOs/tests still do not consume branch/hall fields.
+- Closed at: 2026-07-25 by backlog status audit.
+- Evidence: backend `BotApiService` resolves effective branch/group scope and returns only authorized clients/groups; Python code contains no branch permission calculation; TASK-080/TASK-082 expanded backend, Python and internal-bot tests for Administrator grants, Coach assignments and SuperAdministrator multi-branch attendance.

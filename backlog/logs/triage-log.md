@@ -623,6 +623,52 @@
 - updated existing: 1
 - processed files: 1
 
+# 2026-07-25 status audit
+
+## Scope
+- Reviewed every active task in `tasks-ready`, `risky`, `needs-clarification` and `implementation-plans` against current `main`, merge ancestry, source code and available automated coverage.
+- Audit branch: `docs/backlog-status-audit-2026-07-25`.
+- Reconciled stale plans left after TASK-080, TASK-081 and TASK-082 were merged.
+
+## Moved tasks to done
+- `/backlog/risky/TASK-001-bot-access-denied-audit-idempotency.md` -> `/backlog/done/TASK-001-bot-access-denied-audit-idempotency.md`.
+- `/backlog/risky/TASK-003-bot-attendance-date-selection.md` -> `/backlog/done/TASK-003-bot-attendance-date-selection.md`.
+- `/backlog/risky/TASK-033-branches-bot-contract-consumer.md` -> `/backlog/done/TASK-033-branches-bot-contract-consumer.md`.
+- `/backlog/risky/TASK-081-administrator-group-type-settings.md` -> `/backlog/done/TASK-081-administrator-group-type-settings.md`.
+
+## Moved implementation plans to done
+- `TASK-033-branches-bot-contract-consumer.plan.md`.
+- `TASK-080-administrator-authorized-group-attendance.plan.md`.
+- `TASK-081-administrator-group-type-settings.plan.md`.
+- `TASK-082-super-administrator-role.plan.md`.
+
+## Evidence
+- TASK-001: Python sends a deterministic `Idempotency-Key` for access-denied audit; backend reserves/replays the key; bot/backend tests cover the header, mutation non-retry and duplicate audit cardinality. The final consumer update is present in TASK-083 commit `d64ca57`.
+- TASK-003: bot renders the accepted quick-date set from backend `today`/`minTrainingDate`/`maxTrainingDate`; bot and internal-bot tests cover Administrator, Coach and HeadCoach date/access boundaries.
+- TASK-033: backend owns branch/group scope for internal bot endpoints, Python contains no branch authorization logic, and TASK-080/TASK-082 tests cover assigned, granted and global multi-branch attendance consumers.
+- TASK-081: implementation commit `eedc10f` was merged through PR #91; backend, frontend unit and Playwright coverage prove Administrator/SuperAdministrator group-type access, Coach denial, validation, CSRF and audit behavior.
+- TASK-080 and TASK-082 task cards were already in `done`; their plans were stale active-folder duplicates after PR #92 and PR #90.
+
+## Actualized active tasks
+- TASK-002 moved from `risky` to `tasks-ready` and was narrowed to the remaining display-only gap: render backend `daysUntilExpiration`. The removed mark-payment confirmation is superseded by TASK-083.
+- TASK-005 and TASK-006 now use the current four-role matrix and no longer require the removed mark-payment scenario.
+- TASK-012 now records that its schedule-model dependency is complete; notification settings, delivery idempotency and scheduler design remain unimplemented.
+- TASK-071, TASK-074 and TASK-075 moved from `risky` to `needs-clarification` because their domain definitions are blocking implementation.
+
+## Kept active
+- Bot implementation/verification tasks TASK-004..TASK-014 remain active where acceptance is not fully evidenced: roster pagination, complete scenario matrix, live smoke, README, retention, runtime schema policy, read-model structure, photo upload, notifications, webhook and future MAX boundaries.
+- Client UX tasks TASK-016..TASK-021 remain active: current source/tests do not fully prove the six-action card, list return state, visual cleanup, six-tab detail structure, action-first empty states or the requested responsive scenario matrix.
+- TASK-058 remains in clarification because the second-monitor UX/session/state contract is unresolved.
+- TASK-071, TASK-074 and TASK-075 remain relevant but blocked on explicit product semantics.
+- TASK-073 remains the only active implementation plan; no implementation commit or source evidence was found.
+
+## Summary
+- moved to done: 4 tasks
+- moved plans to done: 4
+- active tasks after audit: 23 (`tasks-ready`: 9, `risky`: 7, `needs-clarification`: 7, `implementation`: 0)
+- active implementation plans after audit: 1 (`TASK-073`)
+- validation: merge history, source, contract and test-coverage audit; `cd bot && uv run ruff check .` passed; `cd bot && uv run pytest` passed (51 tests); backend/frontend suites were not rerun because project runtime code was not changed
+
 # 2026-05-24 12:23
 
 ## Processed inbox files

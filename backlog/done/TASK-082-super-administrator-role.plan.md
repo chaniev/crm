@@ -1,9 +1,12 @@
 # Implementation Plan: TASK-082 Добавить роль суперадминистратора
 
-## Source task
-/backlog/risky/TASK-082-super-administrator-role.md
+## Implementation status
+Done. Implemented in `feature/TASK-082-super-administrator-role`, commit `0a498d6`, and merged to `main` by PR #90 on 2026-07-25.
 
-Source status remains `risky`: этот план локализует security-sensitive изменение, test-first порядок и regression barriers для отдельного review. Задача не перемещается в active implementation и project code в рамках подготовки плана не меняется.
+## Source task
+/backlog/done/TASK-082-super-administrator-role.md
+
+Source status is `done`: security-sensitive change was reviewed, implemented and validated in its dedicated branch.
 
 ## Git branch
 feature/TASK-082-super-administrator-role

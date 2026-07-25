@@ -1,7 +1,11 @@
 # TASK-003: Довести выбор даты посещаемости в Telegram-боте
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- closed_by_status_audit_at: 2026-07-25
+- implementation_evidence: current bot date-window flow plus TASK-080 backend/internal-bot attendance regression coverage
 
 ## Goal
 `HeadCoach` и `Administrator` могут корректно работать с посещаемостью за прошлые даты в Telegram-боте.
@@ -32,14 +36,14 @@ risky
 - Ошибки backend должны показываться пользователю безопасно и понятно.
 
 ## Acceptance criteria
-- [ ] Для `HeadCoach` и `Administrator` доступен согласованный выбор прошлой даты.
-- [ ] Недоступные даты не приводят к неконсистентной отметке посещаемости.
-- [ ] Поведение выбранного UX явно зафиксировано в тестах.
-- [ ] Forbidden responses остаются корректными для ролей без доступа.
+- [x] Для `HeadCoach` и `Administrator` доступен согласованный выбор прошлой даты.
+- [x] Недоступные даты не приводят к неконсистентной отметке посещаемости.
+- [x] Поведение выбранного UX явно зафиксировано в тестах.
+- [x] Forbidden responses остаются корректными для ролей без доступа.
 
 ## Test checklist
-- [ ] Запустить `cd bot && ruff check .`.
-- [ ] Запустить `cd bot && pytest`.
+- [x] Запустить `cd bot && ruff check .`.
+- [x] Запустить `cd bot && pytest`.
 - [ ] Вручную проверить посещаемость в Telegram для `HeadCoach`, `Administrator` и `Coach`.
 
 ## AI safety
@@ -58,3 +62,5 @@ risky
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Closed at: 2026-07-25 by backlog status audit.
+- Accepted implementation: упрощённый набор быстрых дат `max`, `-1`, `-2`, `-7`, ограниченный backend-полями `today`, `minTrainingDate` и `maxTrainingDate`. Bot tests фиксируют Administrator/Coach границы, а backend/internal-bot tests — HeadCoach и Administrator access/validation.

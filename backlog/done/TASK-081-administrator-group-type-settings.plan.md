@@ -1,7 +1,10 @@
 # Implementation Plan: TASK-081 Вернуть администратору редактирование типов групп
 
+## Implementation status
+Done. Implemented in `fix/TASK-081-administrator-group-type-settings`, commit `eedc10f`, and merged to `main` by PR #91 on 2026-07-25.
+
 ## Source task
-/backlog/risky/TASK-081-administrator-group-type-settings.md
+/backlog/done/TASK-081-administrator-group-type-settings.md
 
 ## Implementation branch
 fix/TASK-081-administrator-group-type-settings

@@ -4,10 +4,12 @@
 ready
 
 ## Goal
-Telegram MVP защищен regression tests по ролям, ограничениям, поиску, абонементам, оплате и idempotency.
+Telegram MVP защищен regression tests по актуальной матрице ролей, ограничениям, поиску, абонементам, attendance/audit idempotency и update pipeline.
 
 ## Context
-Нужно расширить Python scenario tests: роли `HeadCoach` / `Administrator` / `Coach`, ограничения дат, forbidden responses и `BotAccessDenied`, search pagination, membership lists, mark-payment idempotency, private-chat/idempotency pipeline.
+Нужно расширить Python scenario tests: роли `HeadCoach` / `SuperAdministrator` / `Administrator` / `Coach`, ограничения дат, forbidden responses и `BotAccessDenied`, search pagination, expiring membership lists, attendance/audit idempotency, private-chat/update-idempotency pipeline.
+
+Исходный пункт `mark-payment idempotency` удалён как неактуальный: TASK-083 убрала отдельный mark-payment flow.
 
 ## User role
 система
@@ -17,7 +19,7 @@ Telegram MVP защищен regression tests по ролям, ограничен
 
 ## Scope
 - Найти существующий scenario test harness в `bot/`.
-- Добавить или расширить tests по перечисленным сценариям.
+- Добавить или расширить tests по актуальным перечисленным сценариям.
 - Использовать существующие fixtures и fake API patterns.
 - Зафиксировать edge cases без изменения production behavior.
 
@@ -30,9 +32,9 @@ Telegram MVP защищен regression tests по ролям, ограничен
 - Не делать brittle assertions на несущественный текст, если есть устойчивые признаки сценария.
 
 ## Acceptance criteria
-- [ ] Tests покрывают роли `HeadCoach`, `Administrator`, `Coach`.
+- [ ] Tests покрывают роли `HeadCoach`, `SuperAdministrator`, `Administrator`, `Coach`.
 - [ ] Tests покрывают ограничения дат и forbidden responses.
-- [ ] Tests покрывают `BotAccessDenied`, search pagination, membership lists и mark-payment idempotency.
+- [ ] Tests покрывают `BotAccessDenied`, search pagination, expiring membership lists и attendance/audit idempotency.
 - [ ] Tests покрывают private-chat/idempotency pipeline.
 
 ## Test checklist
@@ -56,3 +58,5 @@ Telegram MVP защищен regression tests по ролям, ограничен
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Updated at: 2026-07-25 by backlog status audit.
+- Current gap: focused tests exist for several contracts, but the complete scenario matrix above is not yet proven; in particular search pagination, forbidden-to-audit flow and transport-level private/group chat handling remain incomplete.

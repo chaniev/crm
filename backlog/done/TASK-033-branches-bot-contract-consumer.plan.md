@@ -1,7 +1,10 @@
 # Implementation Plan: TASK-033 Обновить bot-consumer после внедрения филиалов
 
+## Implementation status
+Done as of the 2026-07-25 backlog status audit. The final contract intentionally keeps branch/group authorization in backend `BotApiService`; the Python consumer renders only the authorized payload and does not need branch/hall fields for local access decisions.
+
 ## Source task
-/backlog/risky/TASK-033-branches-bot-contract-consumer.md
+/backlog/done/TASK-033-branches-bot-contract-consumer.md
 
 ## Goal
 Telegram bot remains a thin consumer of backend APIs after branches/halls are introduced, without storing branch state or duplicating branch, group, access or membership rules.
