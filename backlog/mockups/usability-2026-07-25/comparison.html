@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>K-4PRO · before / after</title>
+  <style>
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-400-normal.woff2") format("woff2");
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-700-normal.woff2") format("woff2");
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-800-normal.woff2") format("woff2");
+      font-weight: 800;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+    body {
+      padding: 26px;
+      color: #17312d;
+      background:
+        radial-gradient(circle at 8% 12%, rgba(84,157,131,.12), transparent 24%),
+        radial-gradient(circle at 92% 88%, rgba(216,154,61,.10), transparent 23%),
+        #edf1ed;
+      font-family: "Onest", ui-sans-serif, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .report { width: 100%; height: 100%; display: flex; flex-direction: column; }
+    .report-head { min-height: 62px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .task { font-size: 13px; font-weight: 800; color: #207b61; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 4px 0 0; font-size: 27px; line-height: 1.1; letter-spacing: -.4px; }
+    .viewport { flex: 0 0 auto; padding: 8px 12px; border: 1px solid #cbd8d2; border-radius: 999px; background: rgba(255,255,255,.72); color: #64736d; font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .pair { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; justify-items: center; }
+    .panel {
+      overflow: hidden;
+      border: 1px solid rgba(23,49,45,.13);
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 15px 50px rgba(23,49,45,.10), 0 3px 12px rgba(23,49,45,.05);
+    }
+    .panel-head { height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 17px; border-bottom: 1px solid #e1e8e4; }
+    .panel-label { display: flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 800; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #c95345; box-shadow: 0 0 0 5px rgba(201,83,69,.10); }
+    .after .dot { background: #207b61; box-shadow: 0 0 0 5px rgba(32,123,97,.10); }
+    .source { color: #87938d; font-size: 12px; font-weight: 700; }
+    .image-wrap { overflow: hidden; background: #f3f5f1; }
+    img { display: block; width: 100%; height: auto; }
+    .panel-foot { min-height: 69px; padding: 12px 16px 14px; border-top: 1px solid #e1e8e4; }
+    .panel-foot p { margin: 0; color: #66756f; font-size: 13px; line-height: 1.4; }
+    .panel-foot strong { color: #17312d; }
+    .benefits { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .benefit { padding: 5px 8px; border-radius: 999px; background: #edf5f2; color: #145a52; font-size: 11px; font-weight: 800; }
+
+    .mobile .panel { width: 424px; }
+    .mobile .image-wrap { width: 390px; height: 844px; margin: 0 16px; }
+    .landscape .panel { width: 936px; }
+    .landscape .image-wrap { width: 912px; height: 420px; margin: 0 12px; }
+    .desktop .panel { width: 920px; }
+    .desktop .image-wrap { width: 892px; height: 743px; margin: 0 14px; }
+    .desktop img { width: 892px; height: 743px; object-fit: cover; object-position: top left; }
+  </style>
+</head>
+<body>
+  <main class="report" id="report"></main>
+  <script>
+    const id = new URLSearchParams(location.search).get("task") || "085";
+    const data = {
+      "084": {
+        title: "Touch targets и compact-height shell",
+        viewport: "912 × 420 · landscape touch",
+        kind: "landscape",
+        before: "Desktop shell и мелкие controls включаются при повороте экрана.",
+        after: "Compact touch shell сохраняет primary navigation и достижимые controls.",
+        benefits: ["targets ≥44 px", "no Finance", "без desktop-only shell"]
+      },
+      "085": {
+        title: "Видимый поиск клиентов на mobile",
+        viewport: "390 × 844 · mobile baseline",
+        kind: "mobile",
+        before: "Primary locator скрыт внутри полноэкранных «Фильтров».",
+        after: "Поиск виден сразу, а secondary filters остаются свернутыми.",
+        benefits: ["−1 действие до поиска", "видны active filters", "branch context"]
+      },
+      "086": {
+        title: "Поиск, фильтры и paging групп",
+        viewport: "390 × 844 · mobile baseline",
+        kind: "mobile",
+        before: "30 длинных карточек без locator и ориентации в объёме.",
+        after: "Search, filters и диапазон 1–10 из 30 появляются до результатов.",
+        benefits: ["короче путь", "edit ≥44 px", "branch + hall"]
+      },
+      "087": {
+        title: "Effective scope расписания тренера",
+        viewport: "390 × 844 · mobile baseline",
+        kind: "mobile",
+        before: "Тренер отделяет свои занятия от глобального расписания клуба.",
+        after: "Концепт показывает только scoped занятия и честно маркирует неопределённость.",
+        benefits: ["меньше решений", "точные day counts", "backend-owned scope"]
+      },
+      "088": {
+        title: "Явная обратная связь о запрете",
+        viewport: "390 × 844 · mobile baseline",
+        kind: "mobile",
+        before: "Restricted route бесшумно возвращает пользователя на другой экран.",
+        after: "Причина ограничения и валидное recovery action видны сразу.",
+        benefits: ["понятная причина", "доступный recovery", "no dead controls"]
+      },
+      "089": {
+        title: "Desktop client list + preview без overflow",
+        viewport: "1440 × 1200 · desktop",
+        kind: "desktop",
+        before: "Preview сжимает прежнюю таблицу и скрывает primary columns.",
+        after: "Split layout оставляет четыре decision columns и branch context.",
+        benefits: ["no horizontal scroll", "полные значения", "state preserved"]
+      }
+    }[id];
+
+    const benefits = data.benefits.map(item => `<span class="benefit">${item}</span>`).join("");
+    document.getElementById("report").innerHTML = `
+      <header class="report-head">
+        <div><div class="task">TASK-${id} · визуальное сравнение</div><h1>${data.title}</h1></div>
+        <div class="viewport">${data.viewport}</div>
+      </header>
+      <section class="pair ${data.kind}">
+        <article class="panel before">
+          <div class="panel-head"><div class="panel-label"><span class="dot"></span>Сейчас</div><span class="source">реальный локальный стенд</span></div>
+          <div class="image-wrap"><img src="TASK-${id}-before.png" alt="Сейчас" /></div>
+          <div class="panel-foot"><p><strong>Проблема.</strong> ${data.before}</p></div>
+        </article>
+        <article class="panel after">
+          <div class="panel-head"><div class="panel-label"><span class="dot"></span>После доработки</div><span class="source">UX/UI-концепт</span></div>
+          <div class="image-wrap"><img src="TASK-${id}-after.png" alt="После" /></div>
+          <div class="panel-foot"><p><strong>Улучшение.</strong> ${data.after}</p><div class="benefits">${benefits}</div></div>
+        </article>
+      </section>`;
+  </script>
+</body>
+</html>

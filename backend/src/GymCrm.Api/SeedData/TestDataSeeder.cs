@@ -181,11 +181,30 @@ internal sealed class TestDataSeeder : IAsyncDisposable
             .Where(account => clientIds.Contains(account.ClientId))
             .ExecuteDeleteAsync(cancellationToken);
 
+        await dbContext.ClientMissedTrainingAcknowledgements
+            .Where(acknowledgement =>
+                clientIds.Contains(acknowledgement.ClientId) ||
+                userIds.Contains(acknowledgement.AcknowledgedByUserId) ||
+                dbContext.Attendance.Any(attendance =>
+                    attendance.Id == acknowledgement.LastAttendanceId &&
+                    (clientIds.Contains(attendance.ClientId) ||
+                     groupIds.Contains(attendance.GroupId) ||
+                     userIds.Contains(attendance.MarkedByUserId))))
+            .ExecuteDeleteAsync(cancellationToken);
+
         await dbContext.Attendance
             .Where(attendance =>
                 clientIds.Contains(attendance.ClientId) ||
                 groupIds.Contains(attendance.GroupId) ||
                 userIds.Contains(attendance.MarkedByUserId))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.AdministratorAttendanceGroupGrants
+            .Where(grant =>
+                userIds.Contains(grant.AdministratorId) ||
+                groupIds.Contains(grant.GroupId) ||
+                branchIds.Contains(grant.BranchId) ||
+                userIds.Contains(grant.GrantedByUserId))
             .ExecuteDeleteAsync(cancellationToken);
 
         await dbContext.ClientMembershipRefunds
@@ -248,6 +267,13 @@ internal sealed class TestDataSeeder : IAsyncDisposable
                 groupIds.Contains(assignment.GroupId) ||
                 userIds.Contains(assignment.TrainerId) ||
                 userIds.Contains(assignment.CreatedByUserId))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.GroupTrainerSubstitutions
+            .Where(substitution =>
+                groupIds.Contains(substitution.GroupId) ||
+                userIds.Contains(substitution.SubstituteTrainerId) ||
+                userIds.Contains(substitution.CreatedByUserId))
             .ExecuteDeleteAsync(cancellationToken);
 
         await dbContext.GroupTrainers
