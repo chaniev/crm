@@ -614,6 +614,7 @@ function getEstimatedCompactActionWidth(label: string) {
 
 type PageHeaderProps = {
   title?: string
+  titleId?: string
   className?: string
   description?: string
   actions?: ReactNode
@@ -623,6 +624,7 @@ type PageHeaderProps = {
 
 export function PageHeader({
   title,
+  titleId,
   className,
   description,
   actions,
@@ -643,7 +645,7 @@ export function PageHeader({
             <div className="page-header__eyebrow">{eyebrow}</div>
           ) : null}
           {title ? (
-            <Title className="page-header__title" order={titleOrder}>
+            <Title className="page-header__title" id={titleId} order={titleOrder}>
               {title}
             </Title>
           ) : null}

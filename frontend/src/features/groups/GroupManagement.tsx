@@ -75,6 +75,7 @@ import {
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import { GroupsSummaryBar } from './GroupsSummaryBar'
+import { GroupTrainerSubstitutionsSection } from './GroupTrainerSubstitutionsSection'
 
 type GroupsListScreenProps = {
   onCreate: () => void
@@ -595,6 +596,13 @@ export function GroupEditScreen({
             />
           </PageSection>
 
+          <PageSection>
+            <GroupTrainerSubstitutionsSection
+              groupId={groupId}
+              trainerOptions={trainerOptions}
+            />
+          </PageSection>
+
           <PageSection className="group-clients-card">
             <Stack gap="lg">
               <SectionHeader
@@ -816,8 +824,8 @@ function GroupForm({
             value: trainer.id,
             label: `${trainer.fullName} (${trainer.login})`,
           }))}
-          description="Можно выбрать несколько активных тренеров."
-          label="Тренеры группы"
+          description="Можно выбрать несколько активных тренеров. Временное замещение на период настраивается отдельно и не меняет этот список."
+          label="Основные тренеры группы"
           placeholder="Выберите тренеров"
           searchable
           {...form.getInputProps('trainerIds')}

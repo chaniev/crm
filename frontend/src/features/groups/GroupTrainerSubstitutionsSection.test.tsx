@@ -83,14 +83,14 @@ describe('GroupTrainerSubstitutionsSection', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Повторить загрузку замещений' }))
 
     await waitFor(() => expect(apiMocks.getGroupTrainerSubstitutions).toHaveBeenCalledTimes(2))
-    expect(await screen.findByText('Замещений пока нет')).toBeVisible()
+    expect(await screen.findByText('Текущих и будущих замещений нет')).toBeVisible()
   })
 
   test('renders backend statuses, inclusive period text and actions only from allowedActions', async () => {
     apiMocks.getGroupTrainerSubstitutions.mockResolvedValue(response({
       current: [
         { ...baseItem, id: 'active-no-edit', status: 'Active', allowedActions: { canEdit: false, canCancel: true } },
-        { ...baseItem, id: 'upcoming-no-cancel', status: 'Upcoming', allowedActions: { canEdit: true, canCancel: false } },
+        { ...baseItem, id: 'upcoming-no-cancel', startsOn: '2026-08-10', endsOn: '2026-08-12', status: 'Upcoming', allowedActions: { canEdit: true, canCancel: false } },
       ],
       history: {
         items: [
@@ -107,21 +107,52 @@ describe('GroupTrainerSubstitutionsSection', () => {
       <GroupTrainerSubstitutionsSection groupId="group-1" trainerOptions={trainerOptions} />,
     )
 
+    expect(await screen.findByRole('heading', { name: 'Текущие и будущие' })).toBeVisible()
     expect(await screen.findByText('Активно')).toBeVisible()
     expect(screen.getByText('Запланировано')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'История' })).toBeVisible()
+    expect(screen.getByText('Показано 2 из 2')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Показать историю замещений' })).toHaveAttribute('aria-expanded', 'false')
     fireEvent.click(screen.getByRole('button', { name: 'Показать историю замещений' }))
     expect(screen.getByText('Завершено')).toBeVisible()
     expect(screen.getByText('Отменено')).toBeVisible()
-    expect(screen.getAllByText(/по 05\.08\.2026 включительно/)).toHaveLength(4)
+    expect(screen.getAllByText(/по 05\.08\.2026 включительно/)).toHaveLength(3)
 
     const activeCard = screen.getByTestId('group-trainer-substitution-active-no-edit')
     expect(within(activeCard).queryByRole('button', { name: /Изменить/ })).not.toBeInTheDocument()
-    expect(within(activeCard).getByRole('button', { name: /Отменить/ })).toBeEnabled()
+    expect(within(activeCard).getByRole('button', {
+      name: 'Отменить замещение Ирина Замена, период 2026-08-01 - 2026-08-05',
+    })).toBeEnabled()
 
     const upcomingCard = screen.getByTestId('group-trainer-substitution-upcoming-no-cancel')
-    expect(within(upcomingCard).getByRole('button', { name: /Изменить/ })).toBeEnabled()
+    expect(within(upcomingCard).getByRole('button', {
+      name: 'Изменить замещение Ирина Замена, период 2026-08-10 - 2026-08-12',
+    })).toBeEnabled()
     expect(within(upcomingCard).queryByRole('button', { name: /Отменить/ })).not.toBeInTheDocument()
+  })
+
+  test('keeps current block visible with an empty message when only history exists', async () => {
+    apiMocks.getGroupTrainerSubstitutions.mockResolvedValue(response({
+      history: {
+        items: [
+          { ...baseItem, id: 'expired', status: 'Expired', allowedActions: { canEdit: false, canCancel: false } },
+        ],
+        totalCount: 3,
+        skip: 0,
+        take: 1,
+      },
+    }))
+
+    renderWithProviders(
+      <GroupTrainerSubstitutionsSection groupId="group-1" trainerOptions={trainerOptions} />,
+    )
+
+    expect(await screen.findByRole('heading', { name: 'Текущие и будущие' })).toBeVisible()
+    expect(screen.getByText('Текущих и будущих замещений нет')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'История' })).toBeVisible()
+    expect(screen.getByText('Показано 1 из 3')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Показать историю замещений' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('Завершено')).not.toBeInTheDocument()
   })
 
   test('keeps create dialog values and backend field errors after conflict', async () => {

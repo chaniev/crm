@@ -63,10 +63,18 @@ export type {
   FinancialReportTotals,
   FinancialReportTrainerBreakdownRow,
   GetFinancialReportParams,
+  GetGroupTrainerSubstitutionsParams,
   GetAuditLogParams,
   GetClientsParams,
   GroupClient,
   GroupClientsResponse,
+  GroupTrainerSubstitution,
+  GroupTrainerSubstitutionAllowedActions,
+  GroupTrainerSubstitutionCreateUnavailableReason,
+  GroupTrainerSubstitutionHistoryPage,
+  GroupTrainerSubstitutionStatus,
+  GroupTrainerSubstitutionsResponse,
+  GroupTrainerSubstitute,
   GroupType,
   GroupTrainerSummary,
   Hall,
@@ -96,6 +104,7 @@ export type {
   UpdateUserRequest,
   UpsertBranchRequest,
   UpsertClientRequest,
+  UpsertGroupTrainerSubstitutionRequest,
   UpsertGroupTypeRequest,
   UpsertHallRequest,
   UpsertTrainingGroupRequest,
@@ -192,6 +201,12 @@ export {
   getTrainerOptions,
   updateGroup,
 } from './api/groups'
+export {
+  cancelGroupTrainerSubstitution,
+  createGroupTrainerSubstitution,
+  getGroupTrainerSubstitutions,
+  updateGroupTrainerSubstitution,
+} from './api/groupTrainerSubstitutions'
 export { getScheduleGroups } from './api/schedule'
 export {
   getAttendanceGroupClients,

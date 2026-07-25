@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
-import { ApiError } from './errors'
 import {
   cancelGroupTrainerSubstitution,
   createGroupTrainerSubstitution,
@@ -79,6 +78,13 @@ describe('group trainer substitutions API', () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({
+        current: [],
+        history: { items: [], totalCount: 0, skip: 0, take: 20 },
+        canCreate: true,
+        createUnavailableReason: null,
+        csrfToken: 'csrf-for-substitution-writes',
+      }), { status: 200, headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
         ...substitutionPayload,
         id: 'created-substitution',
       }), { status: 201, headers: { 'content-type': 'application/json' } }))
@@ -95,6 +101,7 @@ describe('group trainer substitutions API', () => {
       }), { status: 200, headers: { 'content-type': 'application/json' } }))
     vi.stubGlobal('fetch', fetchMock)
 
+    await getGroupTrainerSubstitutions('group-1')
     await createGroupTrainerSubstitution('group-1', {
       substituteTrainerId: 'trainer-2',
       startsOn: '2026-08-01',
@@ -108,7 +115,7 @@ describe('group trainer substitutions API', () => {
     await cancelGroupTrainerSubstitution('group-1', 'substitution-1')
 
     expect(fetchMock).toHaveBeenNthCalledWith(
-      1,
+      2,
       '/api/groups/group-1/trainer-substitutions',
       expect.objectContaining({
         body: JSON.stringify({
@@ -121,7 +128,7 @@ describe('group trainer substitutions API', () => {
       }),
     )
     expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
+      3,
       '/api/groups/group-1/trainer-substitutions/substitution-1',
       expect.objectContaining({
         body: JSON.stringify({
@@ -134,13 +141,17 @@ describe('group trainer substitutions API', () => {
       }),
     )
     expect(fetchMock).toHaveBeenNthCalledWith(
-      3,
+      4,
       '/api/groups/group-1/trainer-substitutions/substitution-1/cancel',
       expect.objectContaining({
         credentials: 'include',
         method: 'POST',
       }),
     )
+    expect(
+      new Headers((fetchMock.mock.calls[1][1] as RequestInit).headers)
+        .get('X-CSRF-TOKEN'),
+    ).toBe('csrf-for-substitution-writes')
   })
 
   test('preserves backend ProblemDetails field errors for date conflicts', async () => {
@@ -162,7 +173,7 @@ describe('group trainer substitutions API', () => {
       substituteTrainerId: 'trainer-2',
       startsOn: '2026-08-01',
       endsOn: '2026-08-05',
-    })).rejects.toMatchObject<ApiError>({
+    })).rejects.toMatchObject({
       status: 409,
       code: 'group_trainer_substitution_overlap',
       fieldErrors: {
