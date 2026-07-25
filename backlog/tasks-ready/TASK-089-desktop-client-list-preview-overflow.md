@@ -9,6 +9,16 @@ P2
 ## Goal
 На desktop пользователь одновременно читает список и preview клиента без горизонтальной прокрутки скрытых колонок и потери значений.
 
+## Shared mobile UI contract
+
+- Normative contract:
+  [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
+- Foundation dependency: `TASK-090`; shared mobile corrections: `TASK-084`.
+- Эта задача владеет desktop split geometry и client decision columns.
+- Theme, typography, state panels, selection и tablet/mobile fallback берутся
+  из общего контракта.
+- Visual comparison определяет split workflow, но не отдельный desktop style.
+
 ## User role
 Суперадминистратор / администратор / главный тренер.
 

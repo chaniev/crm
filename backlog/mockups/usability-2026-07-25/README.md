@@ -195,8 +195,14 @@ single-column/drill-down path.
 
 ## Visual system and implementation boundary
 
+- Normative source:
+  [Единый контракт мобильного интерфейса CRM](../../../docs/MOBILE_UI_CONTRACT.md).
 - Font: Onest.
-- Existing colors from `frontend/src/theme.ts`.
+- Shared typography, spacing, radii, control sizes, operational states and
+  responsive behavior come from the normative contract, not from an individual
+  screenshot.
+- Deployment colors come from a registered `ThemeProfile`; screen mockups do
+  not define raw brand or status colors.
 - Mobile interactive target: at least `44 x 44 CSS px`.
 - Mobile text inputs: at least `16px`.
 - Cards and controls follow existing Mantine radius, border, and surface

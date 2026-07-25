@@ -9,6 +9,16 @@ P1
 ## Goal
 При открытии недоступного route пользователь понимает ограничение и получает валидное следующее действие, а не неожиданно оказывается на другом экране.
 
+## Shared mobile UI contract
+
+- Normative contract:
+  [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
+- Foundation dependency: `TASK-090`; touch/compact-height sweep: `TASK-084`.
+- Эта задача владеет route access resolution и recovery destination, но
+  использует общий `RestrictedState`, notification и focus contracts.
+- Visual comparison не задаёт отдельную restricted palette: warning/restricted
+  meaning остаётся invariant для всех deployment themes.
+
 ## User role
 Любая ограниченная роль, включая тренера и SuperAdministrator без доступа к Finance.
 

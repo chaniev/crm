@@ -9,6 +9,17 @@ P0
 ## Goal
 Основные CRM-сценарии остаются управляемыми на touch-устройствах: интерактивные зоны не меньше `44 x 44 CSS px`, текст полей не меньше `16px` на iPhone, а landscape compact-height не переключает интерфейс в тесное desktop-поведение.
 
+## Shared mobile UI contract
+
+- Normative contract:
+  [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
+- Foundation dependency: `TASK-090`.
+- Эта задача применяет shared control/shell foundation ко всем affected call
+  sites и выполняет acceptance sweep.
+- Screen-specific размеры, цвета и альтернативные shell patterns не вводятся.
+- Visual comparison определяет выявленную проблему и expected workflow, но не
+  заменяет общую design system.
+
 ## User role
 Суперадминистратор / администратор / главный тренер / тренер.
 

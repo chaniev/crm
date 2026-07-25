@@ -15,6 +15,18 @@ feature/TASK-085-ux-variants
 поиска интерфейс переходит в плотный search-focused state, сохраняет locator,
 активные фильтры и минимум пять полностью видимых результатов на `390 x 844`.
 
+## Shared mobile UI contract
+
+- Normative contract:
+  [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
+- Foundation dependency: `TASK-090`; touch/compact-height sweep: `TASK-084`.
+- Эта задача владеет только client-specific `browse` / `search-focused`,
+  `96px` identity cards, client decision data и state transitions.
+- Page spacing, typography, colors, locator/filter primitives, operational
+  states и temporary surfaces берутся из общего контракта.
+- Approved visual определяет workflow и information hierarchy, но не является
+  источником общей palette или component geometry.
+
 ## User role
 Суперадминистратор / администратор / тренер.
 
@@ -197,11 +209,9 @@ Dense client card:
 - Search не дублируется внутри drawer.
 - Drawer имеет title `Фильтры`, явный close, одну модель применения filters и
   focus return.
-- Если filters применяются сразу, closing action называется `Готово`, а не
-  `Применить`.
-- Если используется staged state, backend query обновляется только после
-  `Применить`; до этого chips вне drawer не меняются.
-- Нельзя смешивать immediate и explicit apply semantics.
+- Стандартная модель CRM — immediate application; closing action называется
+  `Готово`, а не `Применить`.
+- Staged state в этом workflow не используется.
 - Full-height surface использует dynamic viewport sizing, сохраняет scrollable
   fields и sticky bottom actions с
   `calc(12px + env(safe-area-inset-bottom))`.

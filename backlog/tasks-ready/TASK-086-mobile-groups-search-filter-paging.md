@@ -9,6 +9,16 @@ P1
 ## Goal
 Суперадминистратор, администратор или главный тренер находит и редактирует нужную группу без прокрутки всех групп клуба.
 
+## Shared mobile UI contract
+
+- Normative contract:
+  [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
+- Foundation dependency: `TASK-090`; touch/compact-height sweep: `TASK-084`.
+- Эта задача владеет group-specific locator fields, decision data и paging
+  source, но использует shared locator, filters, range, states и cards.
+- Visual comparison не задаёт собственные colors, typography, radii, shadows
+  или touch sizes.
+
 ## User role
 Суперадминистратор / администратор / главный тренер.
 

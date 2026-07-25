@@ -9,6 +9,16 @@ P1
 ## Goal
 Тренер видит расписание релевантных ему групп, а не глобальную сетку всех филиалов.
 
+## Shared mobile UI contract
+
+- Normative contract:
+  [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
+- UI foundation dependency: `TASK-090`; touch/compact-height sweep: `TASK-084`.
+- Общий контракт задаёт shell, day locator, cards, states и palette, но не
+  разрешает блокирующий вопрос effective scope.
+- Visual concept остаётся только возможным workflow после backend/product
+  clarification и не должен реализовываться через frontend filtering.
+
 ## User role
 Тренер.
 

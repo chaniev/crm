@@ -1,0 +1,808 @@
+# Единый контракт мобильного интерфейса CRM
+
+## Статус и назначение
+
+Этот документ является обязательным cross-screen UX/UI-контрактом для всех
+авторизованных экранов CRM, мобильного shell и связанных состояний входа.
+
+Контракт:
+
+- задаёт единый task-first workflow, визуальную систему и responsive-поведение;
+- отделяет общие правила интерфейса от предметных особенностей экранов;
+- задаёт механизм выбора цветовой темы для разных deployment;
+- является обязательной основой для `TASK-084`–`TASK-089` и новых UI-задач;
+- уточняет завершённые `TASK-046`, `TASK-048`, `TASK-051` и `TASK-056`, не
+  открывая их повторно.
+
+Если screen-specific mockup конфликтует с этим документом, mockup определяет
+только предметный workflow и состав данных, а этот контракт определяет
+типографику, геометрию, общие компоненты, цвета, состояния, responsive и
+accessibility.
+
+## Область действия
+
+### В scope
+
+- роли `SuperAdministrator`, `Administrator`, `HeadCoach`, `Coach`;
+- mobile portrait, mobile compact-height landscape, tablet и desktop;
+- shell, header, navigation, route-level layout;
+- списки, поиск, фильтры, формы, preview/detail, temporary surfaces;
+- loading, empty, error, stale, disabled, restricted, success;
+- deployment-specific light theme profiles;
+- общие Mantine-компоненты, Onest и Tabler Icons.
+
+### Вне scope
+
+- отдельная dark theme;
+- изменение backend-owned ролей, permissions, access scope и validation;
+- frontend-вычисление branch, attendance или schedule scope;
+- произвольный CSS/HTML из deployment config;
+- разные цветовые схемы для ролей;
+- маркетинговая визуальная система или декоративный redesign.
+
+## 1. Общий UX-контракт
+
+### Пользовательский контекст
+
+CRM используется сотрудником клуба как рабочий инструмент на телефоне:
+пользователь часто действует одной рукой, переключается между объектами,
+работает при открытой клавиатуре и должен быстро восстановить контекст после
+preview, detail или edit.
+
+### Требуемый результат
+
+Пользователь должен:
+
+1. открыть разрешённый раздел;
+2. сразу увидеть основной способ найти нужный объект;
+3. сузить набор без просмотра длинного документа;
+4. понять identity, scope, status и next action;
+5. выполнить одну операцию;
+6. вернуться без повторного ввода query и восстановления фильтров.
+
+Completion signal обязан называть изменённую сущность или подтверждённую
+операцию. Простое исчезновение loader не считается завершением.
+
+### Обязательный путь list-workspace
+
+```text
+app shell
+→ route context
+→ visible primary locator
+→ active constraints
+→ task-oriented results
+→ preview/detail/edit
+→ back with preserved context
+```
+
+При возврате сохраняются применимые к экрану:
+
+- `query`;
+- filters;
+- page или loaded batch;
+- selected entity;
+- scroll position;
+- раскрытый preview;
+- `browse` / `search-focused` state.
+
+### Классификация действий
+
+| Класс | Обязательное размещение |
+|---|---|
+| Primary | Видимо и визуально доминирует в активном task state |
+| Frequent | Видимо или доступно за одно очевидное действие |
+| Secondary | В contextual surface, drawer или detail |
+| Exceptional / destructive | В contextual menu/detail и с явным подтверждением, если действие необратимо |
+| Unmapped | Не отображать до появления пользовательской операции |
+
+На одном task state допускается только одно визуально доминирующее primary
+action. Primary action нельзя скрывать в overflow, drawer с фильтрами или
+контекстном меню.
+
+### Backend boundary
+
+Backend/session остаётся единственным источником истины для:
+
+- roles и permissions;
+- allowed sections и allowed actions;
+- branch/global scope;
+- attendance и schedule scope;
+- доступных filter options;
+- validation и ProblemDetails;
+- access facts и разрешённых recovery destinations.
+
+Цвет, видимость компонента или frontend role name не могут создавать новое
+доменное правило.
+
+Generic route-level restricted copy может находиться во frontend resources и
+объяснять access fact из session contract. Backend-specific reason показывается
+только при наличии явного backend contract.
+
+## 2. Информационная и визуальная иерархия
+
+### Route-level порядок
+
+В `browse` state используется единый порядок:
+
+1. shell header;
+2. page header;
+3. primary locator;
+4. active filters и range/status;
+5. result, form или recovery state;
+6. mobile bottom navigation.
+
+У каждого route есть ровно один `h1` и корректный document title. В
+`search-focused` state видимый page header может свернуться, но route остаётся
+доступно назван через document title, landmark и accessible name locator/results.
+
+### Смысл поверхности
+
+- `PageLayout` владеет route-level rhythm и header.
+- `PageSection` группирует отдельную рабочую секцию.
+- `TaskItem` представляет один результат или одну операционную сущность.
+- Nested `Paper` не используется только ради декоративной вложенности.
+- Цветной фон не заменяет section title, status label или selected state.
+
+## 3. Visual foundations
+
+### Типографика
+
+Единственный UI-шрифт — `Onest`.
+
+| Семантика | Mobile | Desktop | Weight |
+|---|---:|---:|---:|
+| Page title | `28/32px` | `32/36px` | `800` |
+| Section title | `18/24px` | `18/24px` | `700–800` |
+| Row/card primary | `16/20px` | `16/20px` | `700–800` |
+| Body / required decision data | `16/24px` | `16/24px` | `400–600` |
+| Secondary metadata | `14/20px` | `14/20px` | `400–600` |
+| Persistent label | `14/20px` | `13–14/18–20px` | `700` |
+
+Дополнительные правила:
+
+- inputs, selects и textareas на iPhone используют `font-size >= 16px`;
+- ФИО и другое primary identity на mobile допускает две строки;
+- required decision data нельзя размещать только в `12px` copy;
+- counters используют `font-variant-numeric: tabular-nums`;
+- placeholder не заменяет label;
+- локальные размеры route title запрещены.
+
+### Spacing
+
+| Token | `360–440` | `768` | `1440` |
+|---|---:|---:|---:|
+| Page horizontal padding | `16px` | `24px` | `32px` |
+| Page section gap | `16px` | `20px` | `24px` |
+| Normal component gap | `12px` | `12–16px` | `16px` |
+| Dense result gap | `8px` | `8px` | `8px` |
+| Form field gap | `16px` | `16px` | `16px` |
+
+Между независимыми touch targets должно оставаться не меньше `8px`.
+
+### Radii
+
+| Token | Значение | Назначение |
+|---|---:|---|
+| `radius.section` | `24px` | Route-level `PageSection` |
+| `radius.control` | `12px` | Button, input, select, compact toolbar |
+| `radius.item` | `8px` | Dense operational row/card |
+| `radius.sheet` | `20px 20px 0 0` | Bottom sheet, если он не full-screen |
+| `radius.pill` | `999px` | Badge/chip, но не обычная card |
+
+Full-screen mobile drawer/modal имеет radius `0`.
+
+### Borders и elevation
+
+- Основное разделение рабочих поверхностей выполняется border, spacing и
+  heading hierarchy.
+- Dense rows/cards не получают декоративную тень.
+- `PageSection` может использовать только общий low-elevation shadow token.
+- Selected state использует одновременно border/inset, доступный state и
+  `aria-selected`; одной заливки недостаточно.
+- Hover не является единственным признаком интерактивности.
+
+### Размеры контролов
+
+- Любой mobile/coarse-pointer target: минимум `44 x 44 CSS px`.
+- Primary submit: `48–52px` по высоте.
+- Search, select, tabs, pagination, close, refresh и icon actions: минимум
+  `44px` по активной области.
+- Fine-pointer desktop при normal height может использовать `36–40px`.
+- Compact-height touch не получает desktop density.
+- Визуальная иконка может быть `18–20px`, но hit area остаётся `44px`.
+
+Icon-only action обязан иметь доступное имя. Иконка без отдельной операции не
+добавляется.
+
+## 4. Deployment theme profiles
+
+### Цель
+
+Разные deployment могут использовать разные заранее утверждённые наборы
+цветов, не меняя разметку, hierarchy, component API и смысл состояний.
+
+Один profile содержит:
+
+- один обязательный основной цвет;
+- один опциональный второй основной цвет;
+- от трёх до четырёх дополнительных цветовых семейств;
+- ссылку на общую neutral и functional semantic основу.
+
+Количество основных и дополнительных цветов не включает neutral surfaces,
+текстовые цвета и функциональные `success/warning/danger/info`.
+
+### Выбранная модель конфигурации
+
+Публичный `/api/config` расширяется полем:
+
+```json
+{
+  "clubName": "K-4PRO",
+  "themeId": "default-green-v1"
+}
+```
+
+Deployment выбирает profile через environment configuration, например
+`CRM_THEME_ID`. Значение передаётся backend как `Branding__ThemeId`.
+
+Frontend содержит registry заранее утверждённых versioned profiles:
+
+```ts
+type ThemeProfile = {
+  schemaVersion: 1
+  id: string
+  main: {
+    primary: MantineColorsTuple
+    secondary?: MantineColorsTuple
+  }
+  supplementary: readonly [
+    MantineColorsTuple,
+    MantineColorsTuple,
+    MantineColorsTuple,
+    MantineColorsTuple?,
+  ]
+}
+```
+
+`themeId` является opaque identifier. Произвольные hex, CSS variables, URL и
+style rules через `/api/config` не передаются.
+
+Ответственность разделена однозначно:
+
+- backend заменяет missing/blank value на `default-green-v1`, trim-ит
+  configured string и возвращает его через `/api/config`;
+- backend не содержит копию frontend registry и не определяет, зарегистрирован
+  ли non-empty `themeId`;
+- frontend-функция `resolveThemeProfile(themeId)` единолично ищет profile в
+  registry;
+- неизвестный frontend registry identifier даёт `default-green-v1` и
+  reportable warning.
+
+### Обязательные profiles
+
+- `default-green-v1` — текущая green/amber visual direction;
+- `test-blue-coral-v1` — заведомо отличающаяся test palette для обнаружения
+  hardcoded green/amber values.
+
+Новый production profile добавляется в registry только вместе с theme,
+contrast и affected-screen tests. Deployment может переключаться между уже
+зарегистрированными profiles без изменения feature code.
+
+### Семантические tokens
+
+Configurable families:
+
+- `brand.primary.*`;
+- `brand.secondary.*`;
+- `accent.1.*`–`accent.4.*`;
+- `action.primary.*`;
+- `nav.active.*`;
+- `selection.*`;
+- `focus.ring`.
+
+Invariant neutral roles:
+
+- `surface.page`;
+- `surface.card`;
+- `surface.subtle`;
+- `surface.overlay`;
+- `border.default`;
+- `border.strong`;
+- `text.heading`;
+- `text.primary`;
+- `text.secondary`;
+- `text.inverse`.
+
+Invariant functional roles:
+
+- `status.success.*`;
+- `status.warning.*`;
+- `status.danger.*`;
+- `status.info.*`;
+- `status.neutral.*`.
+
+Functional meaning не переназначается deployment profile. Role, permission и
+branch не кодируются отдельными цветами.
+
+### Mantine и CSS integration
+
+- Тема создаётся через `createGymCrmTheme(profile)`.
+- `main.tsx` рендерит `ConfigThemeBootstrap`, который загружает app config,
+  разрешает profile и только затем монтирует meaningful `App` внутри
+  `MantineProvider`.
+- До разрешения config допустим минимальный loading shell в bundled default
+  theme; route content и authenticated shell в неподтверждённой palette не
+  показываются.
+- `App` получает уже загруженный app config через props/context и не выполняет
+  второй `/config` request.
+- `test/render.tsx` позволяет явно передать `themeId`/profile и по умолчанию
+  использует `default-green-v1`.
+- Semantic roles зеркалируются в CSS variables с prefix `--crm-`.
+- Shared primitives могут обращаться к Mantine color families.
+- Feature CSS/TSX использует semantic variables или shared component variants,
+  но не `brand.7`, raw hex или rgba brand value напрямую после migration.
+- Schedule/category presentation использует `accent.1`–`accent.4` вместе с
+  текстовым label; при большем числе категорий цвет может повторяться, потому
+  что identity не должна зависеть только от цвета.
+
+### Fallback и validation
+
+- missing/blank backend configuration считается обычным default и не требует
+  warning; `/api/config` возвращает `default-green-v1`;
+- unknown non-empty identifier возвращается backend без registry validation;
+- frontend разрешает unknown identifier в `default-green-v1`, фиксирует
+  reportable warning и не блокирует login;
+- profile schema и количество palettes проверяются unit tests;
+- каждый profile проходит contrast tests:
+  - normal text не меньше `4.5:1`;
+  - large text и UI boundaries не меньше `3:1`;
+  - focus ring различим на `surface.page` и `surface.card`;
+- status и selected state всегда имеют text/icon/border сигнал помимо цвета.
+
+### Что theme не может менять
+
+- типографику;
+- spacing и radii;
+- control heights и density;
+- порядок и видимость операций;
+- permission/restricted semantics;
+- status meaning;
+- safe-area/keyboard behavior;
+- responsive breakpoints;
+- role-specific доступ.
+
+## 5. Общие component recipes
+
+### Минимальный shared API и ownership
+
+Foundation implementation создаёт focused files и re-export через текущий
+`features/shared/ux.tsx`:
+
+- `features/shared/EntityLocatorBar.tsx`;
+- `features/shared/ActiveFiltersBar.tsx`;
+- `features/shared/ListRangeStatus.tsx`;
+- `features/shared/TaskItem.tsx`;
+- `features/shared/RestrictedState.tsx`;
+- `features/shared/TemporarySurfaceFooter.tsx`.
+
+Минимальные contracts:
+
+```ts
+type EntityLocatorBarProps = {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  onClear: () => void
+  onOpenFilters: () => void
+  activeFilterCount: number
+  resultsId: string
+  disabled?: boolean
+}
+
+type ActiveFilter = {
+  id: string
+  label: string
+  onRemove: () => void
+}
+
+type ActiveFiltersBarProps = {
+  filters: readonly ActiveFilter[]
+  onReset: () => void
+  resetLabel: string
+}
+
+type ListRangeStatusProps = {
+  start: number
+  end: number
+  total: number | null
+  hasMore?: boolean
+  loading?: boolean
+}
+
+type TaskItemInteraction =
+  | { kind: 'link'; href: string; current?: boolean }
+  | { kind: 'button'; onActivate: () => void; pressed?: boolean }
+  | { kind: 'option'; onActivate: () => void; selected: boolean }
+  | { kind: 'row'; onActivate: () => void; selected: boolean }
+
+type TaskItemProps = {
+  accessibleName: string
+  leading?: ReactNode
+  identity: ReactNode
+  metadata?: ReactNode
+  status?: ReactNode
+  trailing?: ReactNode
+  interaction?: TaskItemInteraction
+}
+
+type RestrictedStateProps = {
+  title: string
+  description: string
+  primaryAction: ReactNode
+  secondaryAction?: ReactNode
+  focusOnMount?: 'heading' | 'primary-action' | false
+}
+
+type TemporarySurfaceFooterProps = {
+  primaryAction: ReactNode
+  secondaryAction?: ReactNode
+}
+```
+
+Behavior:
+
+- `EntityLocatorBar` использует `role="search"`, persistent label и
+  `aria-controls={resultsId}`; filter trigger имеет `aria-haspopup="dialog"`.
+- `ActiveFiltersBar` имеет доступное имя scope; remove target не меньше `44px`.
+- `ListRangeStatus` использует `role="status"` и `aria-live="polite"`, но не
+  объявляет каждую loading animation; при `total=null` показывает известный
+  диапазон без выдуманного total и, если применимо, `hasMore`.
+- `TaskItem` рендерит семантику из discriminated `interaction` и поддерживает
+  соответствующее keyboard behavior; без `interaction` не получает
+  `tabIndex`/interactive role.
+- `kind='option'` допустим только внутри parent `role='listbox'`, а
+  `kind='row'` — внутри `grid`/`treegrid`; только эти варианты используют
+  `aria-selected`.
+- Link использует `aria-current`, button — `aria-pressed` только когда это
+  действительно toggle state, а не просто visual selection.
+- `RestrictedState` содержит heading; `focusOnMount` применяется на direct URL,
+  но не крадёт focus при обычной client navigation.
+- `TemporarySurfaceFooter` владеет safe-area padding и не знает domain actions.
+
+### App shell и header
+
+- `AppLayout` остаётся владельцем Mantine `AppShell`.
+- Mobile shell определяется не только width, но и touch/coarse pointer +
+  compact height.
+- Portrait header baseline — `72px`.
+- В compact-height secondary brand copy может скрываться; touch targets не
+  уменьшаются.
+- Profile trigger не меньше `44px`, полное имя доступно через accessible name.
+
+### Mobile bottom navigation
+
+- Не больше четырёх primary destinations плюс один overflow.
+- Набор destinations строится из целостного backend session access contract:
+  `allowedSections` и, где применимо, permissions/allowed actions.
+- Frontend не восстанавливает доступ из role name и не добавляет destination,
+  отсутствующий в `allowedSections`.
+- Для текущего SuperAdministrator contract primary destinations:
+  `Home`, `Schedule`, `Clients`, `Groups`; overflow: `Users`, `Audit`,
+  `Settings`; `Finance` отсутствует.
+- Main content резервирует:
+  `navigation height + 16px + env(safe-area-inset-bottom)`.
+- Overflow drawer имеет title, явный close, focus return и dynamic viewport.
+
+### Page header
+
+- В `browse` state содержит title, optional count/context и actions.
+- В action cluster не больше одного filled/accent action.
+- Refresh — frequent action, а не второй primary.
+- `search-focused` может визуально свернуть header по screen-specific contract.
+
+### EntityLocatorBar
+
+Shared pattern для длинных списков:
+
+```text
+[ search: minmax(0, 1fr) ] [ filter trigger: >=44px ]
+[ removable active filters / scoped reset ]
+[ result range ]
+```
+
+- Primary search всегда видим, если поиск является главным locator.
+- Search не дублируется в drawer.
+- Clear очищает только query.
+- Filter count не включает query и default values.
+- Search input и filter trigger остаются достижимы при software keyboard.
+
+### Filters
+
+- Standard CRM list filters применяются сразу.
+- Mobile drawer закрывается действием `Готово`, а не `Применить`.
+- Staged filtering допускается только как отдельное явно обоснованное
+  исключение и не смешивается с immediate controls в одной surface.
+- Secondary filters находятся в drawer/popover.
+- Active filters видимы вне temporary surface и удаляются по одному.
+- Reset очищает только advanced filters текущего scope и не очищает query.
+- Drawer footer sticky и использует:
+  `padding-bottom: calc(12px + env(safe-area-inset-bottom))`.
+
+### Task-oriented rows/cards
+
+- Вся card является primary row action только если она открывает
+  preview/detail.
+- Если единственная операция — `Редактировать`, card не становится лишним
+  focus stop, а edit action имеет target `44px`.
+- Identity, scope metadata, status/next action и branch/hall при global context
+  предшествуют secondary metadata.
+- На `360–440px` запрещена fixed right column, которая обрезает identity.
+- Полное primary identity остаётся доступно зрячему пользователю и в accessible
+  name.
+
+Sanctioned densities:
+
+- client search-focused card: `96px`;
+- normal identity card: content-driven, но не меньше `88px`;
+- group card: content-driven, ориентир `112–136px`;
+- skeleton повторяет geometry итогового item.
+
+### Range и paging
+
+- List показывает `Показаны X–Y из Z` или эквивалентное `1–10 из 30`.
+- Если API возвращает `total=null`, показывается только достоверный диапазон и
+  optional `Есть ещё`; UI не подставляет фиктивный total.
+- Pagination target не меньше `44px`.
+- Текущая page получает `aria-current="page"`.
+- Нельзя создавать mobile document из всех 30+ длинных cards без range и
+  ограниченного batch.
+- Data source paging определяется screen/API contract; визуальный pattern
+  остаётся единым.
+
+### Forms
+
+- Mobile form — одна колонка.
+- Labels постоянны.
+- API error не очищает введённые данные.
+- После submit focus/scroll переходит к первому invalid field.
+- При клавиатуре focused field, feedback и submit достижимы одним намеренным
+  scroll.
+- Pending блокирует duplicate submit.
+
+### Tabs
+
+- Сохраняется Mantine keyboard behavior.
+- Mobile target не меньше `44px`.
+- Tabs не заменяют primary navigation для большого числа destinations.
+
+### Drawer, modal, menu
+
+- Surface имеет доступное название, close behavior и initial focus strategy.
+- Close возвращает focus trigger, если trigger существует.
+- Escape закрывает desktop temporary surface.
+- Mobile back сначала закрывает верхнюю temporary surface.
+- Один temporary surface содержит не больше одного scroll container.
+- Nested modal/drawer запрещён.
+
+### Notifications
+
+- Transient mobile notification располагается сверху с normal spacing +
+  `env(safe-area-inset-top)` и не закрывает primary locator.
+- Persistent error/recovery отображается inline в рабочей секции.
+- Notification не используется вместо restricted или stale state, требующего
+  действия пользователя.
+- Desktop notification может оставаться top-right.
+
+## 6. Operational states
+
+| State | Обязательное поведение |
+|---|---|
+| Loading | Не выглядит empty; locator/context остаётся видимым |
+| Empty first-run | Объясняет отсутствие данных и показывает разрешённое create action |
+| Empty search | Сохраняет query и предлагает `Очистить поиск` |
+| Empty filtered | Сохраняет filters и предлагает scoped reset |
+| Error | Называет failed operation и предлагает retry без сброса context |
+| Stale | Явно помечает устаревшие данные и не выглядит success |
+| Disabled | Объясняет prerequisite, если причина не очевидна |
+| Restricted | Называет ограничение и валидный backend-authorized recovery |
+| Success | Называет сущность/операцию; duplicate submit предотвращён |
+
+Permission-restricted action не отображается как мёртвый disabled control.
+Unknown route, session loading и restricted route являются разными состояниями.
+
+## 7. Responsive matrix
+
+### `360 x 780`
+
+- narrow guardrail;
+- одна колонка и bottom navigation;
+- no horizontal page scroll;
+- chips переносятся, а не образуют обязательный horizontal rail;
+- locator может перенести filter trigger на новую строку, сохранив `44px`.
+
+### `390 x 844`
+
+- основной design stress baseline;
+- первый viewport показывает header/context, locator и начало results;
+- client search-focused state с двумя active filters показывает минимум пять
+  полных cards `96px` и начало шестой;
+- groups показывают summary, locator и начало первых 1–2 results.
+
+### `420 x 912`
+
+- target iPhone Air acceptance;
+- hierarchy не меняется только из-за дополнительной ширины;
+- client search-focused state показывает минимум шесть полных cards;
+- primary action остаётся достижим одной рукой, где это практично.
+
+### `440 x 956`
+
+- target iPhone 17 Pro Max acceptance;
+- допускается дополнительная secondary metadata line без смены action model;
+- проверяются длинные ФИО, branch и group names.
+
+### `768 x 1024`
+
+- two-column layout разрешён только при сохранении required decision data;
+- filters могут стать inline/popover;
+- preview split используется только без horizontal overflow;
+- иначе используется drill-down.
+
+### `1440 x 1200`
+
+- compact desktop toolbar и table-like rows;
+- optional split preview;
+- primary decision columns не требуют horizontal scroll;
+- `36–40px` controls допустимы только при fine pointer и normal height.
+
+### `912 x 420` и `956 x 440`
+
+- touch/coarse pointer получает compact mobile shell, а не тесный desktop shell;
+- temporary surfaces используют `dvh`/visual viewport, scrollable body и sticky
+  footer;
+- shell navigation и primary action достижимы;
+- нет nested scroll trap;
+- keyboard path сохраняет field, feedback и action.
+
+## 8. Safari, keyboard и safe areas
+
+- Full-height surface не полагается только на `100vh`.
+- Используется `100dvh` или измеренный visual viewport.
+- Fixed/sticky control добавляет safe-area inset к обычному spacing, а не
+  заменяет им spacing.
+- Bottom action не перекрывается browser chrome, keyboard или home indicator.
+- Device-level acceptance требует Simulator или physical iPhone; изменение
+  viewport в desktop Chromium не считается Safari acceptance.
+
+## 9. Sanctioned screen-specific variants
+
+### TASK-084
+
+Общесистемная acceptance/migration задача: обновляет shared controls и все
+affected call sites до touch/compact-height требований. Не задаёт собственную
+палитру или screen-only control sizes.
+
+### TASK-085
+
+- `browse` / `search-focused` state;
+- inline search;
+- `96px` identity-first client cards;
+- page create/refresh скрыты только в search-focused;
+- query и advanced filter reset разделены.
+
+### TASK-086
+
+- inline group search;
+- status/without-trainer filters;
+- range/paging;
+- branch/hall/schedule/trainer/status остаются decision data;
+- отдельный edit target `44px`.
+
+### TASK-087
+
+UI не реализуется до backend/product решения effective scope. После решения
+coach может получить variant `Мои занятия`: scoped counts, next lesson и
+chronological day list. SuperAdministrator остаётся global.
+
+### TASK-088
+
+Использует общий `RestrictedState`: heading, reason, primary recovery и
+optional accessible alternative. Silent loader/redirect запрещён.
+
+### TASK-089
+
+Desktop split разрешён только при `scrollWidth <= clientWidth` для primary
+decision columns. На tablet и compact-height используется drill-down, если
+split ухудшает читаемость.
+
+## 10. Implementation constraints
+
+- React, TypeScript, Mantine, Onest, Tabler Icons сохраняются.
+- Общие patterns реализуются или расширяются в `features/shared`.
+- Новый screen не копирует локально locator, state panel или touch-size rules.
+- Feature CSS хранит только предметную geometry, а не page-level theme.
+- Новые raw hex/rgba в feature code запрещены.
+- `TASK-090` мигрирует все существующие theme-sensitive brand, accent, surface,
+  border, focus и selection colors в shared и feature code.
+- Functional status/category colors переводятся на invariant status tokens или
+  configurable accent families.
+- Оправданные asset-specific overlays фиксируются в явном allowlist.
+- Static check запрещает raw color за пределами profile registry, invariant
+  semantic token source и allowlist.
+- Backend contract change для `themeId` обновляет frontend types, config tests,
+  backend API tests и deployment example.
+- Значимое отклонение от контракта требует UX/UI review и описанного
+  screen-specific exception.
+
+## 11. Measurable acceptance
+
+### Geometry и interaction
+
+- [ ] Нет unintended horizontal page scroll на `360`, `390`, `420`, `440`.
+- [ ] Все mobile/coarse-pointer targets не меньше `44 x 44 CSS px`.
+- [ ] Между независимыми targets не меньше `8px`.
+- [ ] Inputs/selects/textareas на iPhone имеют `font-size >= 16px`.
+- [ ] На одном task state только одно visually dominant primary action.
+- [ ] Primary locator не скрыт в drawer на list screens, где поиск является
+      основной операцией.
+- [ ] Back восстанавливает query, filters, page/batch, selection и scroll.
+- [ ] Focus order соответствует visual/task order.
+- [ ] Close temporary surface возвращает focus trigger.
+
+### Responsive и device
+
+- [ ] Пройден `390 x 844` stress baseline.
+- [ ] Пройдены target portraits `420 x 912` и `440 x 956`.
+- [ ] `912 x 420` и `956 x 440` не включают desktop-only shell на touch.
+- [ ] Drawer/modal и bottom actions безопасны при Safari chrome, keyboard и
+      safe-area.
+- [ ] `768 x 1024` не использует split, если теряется decision data.
+- [ ] `1440 x 1200` не требует horizontal scroll для primary columns.
+
+### States и accessibility
+
+- [ ] Loading, empty, error, stale, restricted и success различимы.
+- [ ] Color нигде не является единственным сигналом.
+- [ ] Text/icon/background contrast проходит требования для каждого profile.
+- [ ] Permission-restricted controls не выглядят доступными.
+- [ ] Long Russian content и 200% zoom не создают clipping/overlap.
+
+### Theme profiles
+
+- [ ] `/api/config` возвращает configured `themeId`, а missing/blank config —
+      `default-green-v1`.
+- [ ] Unknown non-empty id проходит backend без registry validation; frontend
+      использует `default-green-v1` и reportable warning.
+- [ ] Основные mobile paths проходят с `default-green-v1`.
+- [ ] Те же paths проходят с `test-blue-coral-v1`.
+- [ ] Переключение theme не меняет hierarchy, geometry, meaning и permissions.
+- [ ] Feature code не содержит новых raw brand/accent colors.
+
+### Required validation
+
+```text
+cd frontend && npm run lint
+cd frontend && npm run build
+cd frontend && npm run test:unit
+cd frontend && npm run test:e2e -- <affected-spec>
+cd frontend && npm run test:e2e:iphone
+dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj
+```
+
+Backend tests обязательны при изменении `/config` и deployment theme contract.
+Отдельно фиксируются проверки, которые остаются для Safari Responsive Design
+Mode, iOS Simulator или physical device.
+
+## 12. Governance для новых UI-задач
+
+Каждая новая или существенно изменённая UI-задача должна:
+
+1. ссылаться на этот контракт;
+2. описывать user, result и primary path;
+3. классифицировать действия;
+4. перечислять required decision data;
+5. описывать responsive transformations и operational states;
+6. перечислять только реальные screen-specific исключения;
+7. не задавать собственные brand colors, page spacing, control heights или
+   generic states;
+8. иметь measurable acceptance, а не только screenshot comparison.
