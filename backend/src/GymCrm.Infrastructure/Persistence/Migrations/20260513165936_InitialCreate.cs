@@ -865,6 +865,44 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "GroupTrainerSubstitutions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubstituteTrainerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    StartsOn = table.Column<DateOnly>(type: "date", nullable: false),
+                    EndsOn = table.Column<DateOnly>(type: "date", nullable: false),
+                    CreatedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GroupTrainerSubstitutions", x => x.Id);
+                    table.CheckConstraint("CK_GroupTrainerSubstitutions_Period_Inclusive", "\"EndsOn\" >= \"StartsOn\"");
+                    table.ForeignKey(
+                        name: "FK_GroupTrainerSubstitutions_TrainingGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GroupTrainerSubstitutions_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_GroupTrainerSubstitutions_Users_SubstituteTrainerId",
+                        column: x => x.SubstituteTrainerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Attendance_ClientId_GroupId_TrainingDate",
                 table: "Attendance",
@@ -1288,6 +1326,26 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 columns: new[] { "TrainerId", "GroupId", "ValidFrom", "ValidTo" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerSubstitutions_CreatedByUserId",
+                table: "GroupTrainerSubstitutions",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerSubstitutions_GroupId",
+                table: "GroupTrainerSubstitutions",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerSubstitutions_GroupId_SubstituteTrainerId_StartsOn_EndsOn",
+                table: "GroupTrainerSubstitutions",
+                columns: new[] { "GroupId", "SubstituteTrainerId", "StartsOn", "EndsOn" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupTrainerSubstitutions_SubstituteTrainerId",
+                table: "GroupTrainerSubstitutions",
+                column: "SubstituteTrainerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GroupTypes_Name",
                 table: "GroupTypes",
                 column: "Name",
@@ -1402,6 +1460,16 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     daterange("ValidFrom", COALESCE("ValidTo", 'infinity'::date), '[)') WITH &&
                 );
                 """);
+            migrationBuilder.Sql("""
+                ALTER TABLE "GroupTrainerSubstitutions"
+                ADD CONSTRAINT "EX_GroupTrainerSubstitutions_GroupTrainer_Period_NoOverlap"
+                EXCLUDE USING gist (
+                    "GroupId" WITH =,
+                    "SubstituteTrainerId" WITH =,
+                    daterange("StartsOn", "EndsOn", '[]') WITH &&
+                )
+                WHERE ("CancelledAt" IS NULL);
+                """);
         }
 
         /// <inheritdoc />
@@ -1451,6 +1519,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "GroupTrainerAssignments");
+
+            migrationBuilder.DropTable(
+                name: "GroupTrainerSubstitutions");
 
             migrationBuilder.DropTable(
                 name: "AdministratorAttendanceGroupGrants");

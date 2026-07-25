@@ -81,6 +81,16 @@ internal static class GroupResources
         return Format(nameof(TrainingGroupTrainersUpdatedDescription), actorLogin, groupName);
     }
 
+    public static string GroupTrainerSubstitutionCreateUnavailableGroupInactive => GetString(nameof(GroupTrainerSubstitutionCreateUnavailableGroupInactive));
+    public static string GroupTrainerSubstitutionOverlapTitle => GetString(nameof(GroupTrainerSubstitutionOverlapTitle));
+    public static string GroupTrainerSubstitutionOverlapDetail => GetString(nameof(GroupTrainerSubstitutionOverlapDetail));
+    public static string GroupTrainerSubstitutionNoChangesTitle => GetString(nameof(GroupTrainerSubstitutionNoChangesTitle));
+    public static string GroupTrainerSubstitutionNoChangesDetail => GetString(nameof(GroupTrainerSubstitutionNoChangesDetail));
+    public static string GroupTrainerSubstitutionImmutableTitle => GetString(nameof(GroupTrainerSubstitutionImmutableTitle));
+    public static string GroupTrainerSubstitutionImmutableDetail => GetString(nameof(GroupTrainerSubstitutionImmutableDetail));
+    public static string GroupTrainerSubstitutionActiveEditConflictTitle => GetString(nameof(GroupTrainerSubstitutionActiveEditConflictTitle));
+    public static string GroupTrainerSubstitutionActiveEditConflictDetail => GetString(nameof(GroupTrainerSubstitutionActiveEditConflictDetail));
+
     private static string Format(string name, params object[] args)
     {
         return string.Format(CultureInfo.CurrentCulture, GetString(name), args);

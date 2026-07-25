@@ -53,6 +53,7 @@ public class GroupTrainerSubstitutionsApiTests
         var created = await ReadJsonElementAsync(createResponse);
         var substitutionId = created.GetProperty("id").GetGuid();
         Assert.Equal("Upcoming", created.GetProperty("status").GetString());
+        Assert.True(created.GetProperty("substituteTrainer").GetProperty("isActive").GetBoolean());
         Assert.True(created.GetProperty("allowedActions").GetProperty("canEdit").GetBoolean());
         Assert.True(created.GetProperty("allowedActions").GetProperty("canCancel").GetBoolean());
 
@@ -90,12 +91,44 @@ public class GroupTrainerSubstitutionsApiTests
         Assert.False(cancelled.GetProperty("allowedActions").GetProperty("canEdit").GetBoolean());
         Assert.False(cancelled.GetProperty("allowedActions").GetProperty("canCancel").GetBoolean());
 
+        using (var repeatCancelResponse = await PostWithoutBodyAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}/cancel",
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Conflict, repeatCancelResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(repeatCancelResponse);
+            Assert.Equal("/problems/group-trainer-substitution-immutable", problem.GetProperty("type").GetString());
+            Assert.Equal("group_trainer_substitution_immutable", problem.GetProperty("code").GetString());
+            Assert.DoesNotContain("Substitution", await repeatCancelResponse.Content.ReadAsStringAsync());
+        }
+
+        using (var updateCancelledResponse = await PutJsonAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}",
+                   new
+                   {
+                       substituteTrainerId = seeded.SubstituteCoachId,
+                       startsOn = "2026-07-30",
+                       endsOn = "2026-08-01"
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Conflict, updateCancelledResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(updateCancelledResponse);
+            Assert.Equal("/problems/group-trainer-substitution-immutable", problem.GetProperty("type").GetString());
+            Assert.Equal("group_trainer_substitution_immutable", problem.GetProperty("code").GetString());
+        }
+
         await using var scope = factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
         var stored = await db.GroupTrainerSubstitutions.SingleAsync(item => item.Id == substitutionId);
         Assert.NotNull(stored.CancelledAt);
+        Assert.Equal(seeded.OtherCoachId, stored.SubstituteTrainerId);
+        Assert.Equal(new DateOnly(2026, 7, 27), stored.StartsOn);
+        Assert.Equal(new DateOnly(2026, 7, 29), stored.EndsOn);
         Assert.False(await db.GroupTrainerAssignments.AnyAsync(item => item.TrainerId == seeded.SubstituteCoachId || item.TrainerId == seeded.OtherCoachId));
-        Assert.Equal(3, await db.AuditLogs.CountAsync(log => log.EntityType == GroupAuditConstants.GroupTrainerSubstitutionEntityType));
+        Assert.Equal(3, await db.AuditLogs.CountAsync(log => log.EntityType == "GroupTrainerSubstitution"));
     }
 
     [Fact]
@@ -117,12 +150,58 @@ public class GroupTrainerSubstitutionsApiTests
         using var anonymousResponse = await anonymous.GetAsync($"/groups/{seeded.GroupId}/trainer-substitutions");
         Assert.Equal(HttpStatusCode.Unauthorized, anonymousResponse.StatusCode);
 
+        using (var coachGetResponse = await coachClient.GetAsync($"/groups/{seeded.GroupId}/trainer-substitutions"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, coachGetResponse.StatusCode);
+        }
+
         using var manager = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
-        _ = await LoginAsync(manager, "administrator");
+        var managerSession = await LoginAsync(manager, "administrator");
+        using var createResponse = await PostJsonAsync(
+            manager,
+            $"/groups/{seeded.GroupId}/trainer-substitutions",
+            new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+            managerSession.CsrfToken);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var created = await ReadJsonElementAsync(createResponse);
+        var substitutionId = created.GetProperty("id").GetGuid();
+
+        using (var managerGetResponse = await manager.GetAsync($"/groups/{seeded.GroupId}/trainer-substitutions"))
+        {
+            Assert.Equal(HttpStatusCode.OK, managerGetResponse.StatusCode);
+        }
+
         using var missingCsrf = await manager.PostAsJsonAsync(
             $"/groups/{seeded.GroupId}/trainer-substitutions",
-            new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" });
+            new { substituteTrainerId = seeded.OtherCoachId, startsOn = "2026-07-29", endsOn = "2026-07-31" });
         Assert.Equal(HttpStatusCode.BadRequest, missingCsrf.StatusCode);
+
+        using var missingCsrfPut = await manager.PutAsJsonAsync(
+            $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}",
+            new { substituteTrainerId = seeded.OtherCoachId, startsOn = "2026-07-29", endsOn = "2026-07-31" });
+        Assert.Equal(HttpStatusCode.BadRequest, missingCsrfPut.StatusCode);
+
+        using var missingCsrfCancel = await manager.SendAsync(new HttpRequestMessage(
+            HttpMethod.Post,
+            $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}/cancel"));
+        Assert.Equal(HttpStatusCode.BadRequest, missingCsrfCancel.StatusCode);
+
+        using (var coachPutResponse = await PutJsonAsync(
+                   coachClient,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}",
+                   new { substituteTrainerId = seeded.OtherCoachId, startsOn = "2026-07-29", endsOn = "2026-07-31" },
+                   coachSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, coachPutResponse.StatusCode);
+        }
+
+        using (var coachCancelResponse = await PostWithoutBodyAsync(
+                   coachClient,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}/cancel",
+                   coachSession.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, coachCancelResponse.StatusCode);
+        }
     }
 
     [Fact]
@@ -166,12 +245,118 @@ public class GroupTrainerSubstitutionsApiTests
             Assert.True(problem.GetProperty("errors").TryGetProperty("groupId", out _));
         }
 
+        using (var inactiveListResponse = await client.GetAsync($"/groups/{seeded.InactiveGroupId}/trainer-substitutions"))
+        {
+            Assert.Equal(HttpStatusCode.OK, inactiveListResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(inactiveListResponse);
+            Assert.False(payload.GetProperty("canCreate").GetBoolean());
+            Assert.Equal("group_inactive", payload.GetProperty("createUnavailableReason").GetProperty("code").GetString());
+        }
+
+        using (var emptyTrainerResponse = await PostJsonAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions",
+                   new { substituteTrainerId = Guid.Empty, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, emptyTrainerResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(emptyTrainerResponse);
+            Assert.True(problem.GetProperty("errors").TryGetProperty("substituteTrainerId", out _));
+        }
+
+        using (var missingTrainerResponse = await PostJsonAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions",
+                   new { startsOn = "2026-07-26", endsOn = "2026-07-28" },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, missingTrainerResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(missingTrainerResponse);
+            Assert.True(problem.GetProperty("errors").TryGetProperty("substituteTrainerId", out _));
+        }
+
+        using (var inactiveTrainerResponse = await PostJsonAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions",
+                   new { substituteTrainerId = seeded.InactiveCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, inactiveTrainerResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(inactiveTrainerResponse);
+            Assert.True(problem.GetProperty("errors").TryGetProperty("substituteTrainerId", out _));
+        }
+
+        using (var badRoleResponse = await PostJsonAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions",
+                   new { substituteTrainerId = seeded.BadRoleUserId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, badRoleResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(badRoleResponse);
+            Assert.True(problem.GetProperty("errors").TryGetProperty("substituteTrainerId", out _));
+        }
+
+        using (var missingGroupGetResponse = await client.GetAsync($"/groups/{Guid.NewGuid()}/trainer-substitutions"))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, missingGroupGetResponse.StatusCode);
+        }
+
+        using (var missingGroupPostResponse = await PostJsonAsync(
+                   client,
+                   $"/groups/{Guid.NewGuid()}/trainer-substitutions",
+                   new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, missingGroupPostResponse.StatusCode);
+        }
+
+        using (var invalidPagingResponse = await client.GetAsync($"/groups/{seeded.GroupId}/trainer-substitutions?historySkip=-1&historyTake=101"))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, invalidPagingResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(invalidPagingResponse);
+            Assert.True(problem.GetProperty("errors").TryGetProperty("historySkip", out _));
+            Assert.True(problem.GetProperty("errors").TryGetProperty("historyTake", out _));
+        }
+
         using var createResponse = await PostJsonAsync(
             client,
             $"/groups/{seeded.GroupId}/trainer-substitutions",
             new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
             session.CsrfToken);
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var created = await ReadJsonElementAsync(createResponse);
+        var substitutionId = created.GetProperty("id").GetGuid();
+
+        using (var noChangesResponse = await PutJsonAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}",
+                   new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Conflict, noChangesResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(noChangesResponse);
+            Assert.Equal("/problems/group-trainer-substitution-no-changes", problem.GetProperty("type").GetString());
+            Assert.Equal("group_trainer_substitution_no_changes", problem.GetProperty("code").GetString());
+            Assert.DoesNotContain("no changes", await noChangesResponse.Content.ReadAsStringAsync(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        using (var missingSubstitutionUpdateResponse = await PutJsonAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions/{Guid.NewGuid()}",
+                   new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, missingSubstitutionUpdateResponse.StatusCode);
+        }
+
+        using (var missingSubstitutionCancelResponse = await PostWithoutBodyAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions/{Guid.NewGuid()}/cancel",
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, missingSubstitutionCancelResponse.StatusCode);
+        }
 
         using var overlapResponse = await PostJsonAsync(
             client,
@@ -180,7 +365,8 @@ public class GroupTrainerSubstitutionsApiTests
             session.CsrfToken);
         Assert.Equal(HttpStatusCode.Conflict, overlapResponse.StatusCode);
         var overlapProblem = await ReadJsonElementAsync(overlapResponse);
-        Assert.Equal("group-trainer-substitution-overlap", overlapProblem.GetProperty("type").GetString());
+        Assert.Equal("/problems/group-trainer-substitution-overlap", overlapProblem.GetProperty("type").GetString());
+        Assert.Equal("group_trainer_substitution_overlap", overlapProblem.GetProperty("code").GetString());
         Assert.True(overlapProblem.GetProperty("errors").TryGetProperty("startsOn", out _));
         Assert.True(overlapProblem.GetProperty("errors").TryGetProperty("endsOn", out _));
 
@@ -197,6 +383,169 @@ public class GroupTrainerSubstitutionsApiTests
             new { substituteTrainerId = seeded.OtherCoachId, startsOn = "2026-07-27", endsOn = "2026-07-30" },
             session.CsrfToken);
         Assert.Equal(HttpStatusCode.Created, otherTrainerOverlap.StatusCode);
+    }
+
+    [Fact]
+    public async Task Update_rejects_current_substitute_when_they_became_permanent_but_cancel_remains_allowed()
+    {
+        await using var factory = new SubstitutionAppFactory(BusinessDate);
+        var seeded = await SeedAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var session = await LoginAsync(client, "headcoach");
+
+        using var createResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupId}/trainer-substitutions",
+            new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var substitutionId = (await ReadJsonElementAsync(createResponse)).GetProperty("id").GetGuid();
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.GroupTrainers.Add(new GroupTrainer { GroupId = seeded.GroupId, TrainerId = seeded.SubstituteCoachId });
+            await db.SaveChangesAsync();
+        }
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}",
+                   new { substituteTrainerId = seeded.OtherCoachId, startsOn = "2026-07-27", endsOn = "2026-07-29" },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Conflict, updateResponse.StatusCode);
+            var problem = await ReadJsonElementAsync(updateResponse);
+            Assert.Equal("/problems/group-trainer-substitution-immutable", problem.GetProperty("type").GetString());
+            Assert.Equal("group_trainer_substitution_immutable", problem.GetProperty("code").GetString());
+        }
+
+        using var cancelResponse = await PostWithoutBodyAsync(
+            client,
+            $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}/cancel",
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, cancelResponse.StatusCode);
+        var cancelled = await ReadJsonElementAsync(cancelResponse);
+        Assert.Equal("Cancelled", cancelled.GetProperty("status").GetString());
+
+        await using var verifyScope = factory.Services.CreateAsyncScope();
+        var verifyDb = verifyScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(2, await verifyDb.AuditLogs.CountAsync(log => log.EntityType == "GroupTrainerSubstitution"));
+        var stored = await verifyDb.GroupTrainerSubstitutions.SingleAsync(item => item.Id == substitutionId);
+        Assert.Equal(seeded.SubstituteCoachId, stored.SubstituteTrainerId);
+        Assert.NotNull(stored.CancelledAt);
+    }
+
+    [Fact]
+    public async Task Upcoming_update_cannot_move_start_before_business_date()
+    {
+        await using var factory = new SubstitutionAppFactory(BusinessDate);
+        var seeded = await SeedAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var session = await LoginAsync(client, "headcoach");
+
+        using var createResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupId}/trainer-substitutions",
+            new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-26", endsOn = "2026-07-28" },
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var substitutionId = (await ReadJsonElementAsync(createResponse)).GetProperty("id").GetGuid();
+
+        using var updateResponse = await PutJsonAsync(
+            client,
+            $"/groups/{seeded.GroupId}/trainer-substitutions/{substitutionId}",
+            new { substituteTrainerId = seeded.SubstituteCoachId, startsOn = "2026-07-24", endsOn = "2026-07-28" },
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+        var problem = await ReadJsonElementAsync(updateResponse);
+        Assert.True(problem.GetProperty("errors").TryGetProperty("startsOn", out _));
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var stored = await db.GroupTrainerSubstitutions.SingleAsync(item => item.Id == substitutionId);
+        Assert.Equal(new DateOnly(2026, 7, 26), stored.StartsOn);
+        Assert.Equal(1, await db.AuditLogs.CountAsync(log => log.EntityType == "GroupTrainerSubstitution"));
+    }
+
+    [Fact]
+    public async Task List_orders_current_items_and_paginates_history_by_lifecycle_state()
+    {
+        await using var factory = new SubstitutionAppFactory(BusinessDate);
+        var seeded = await SeedAsync(factory);
+        var now = DateTimeOffset.Parse("2026-07-20T10:00:00Z");
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.GroupTrainerSubstitutions.AddRange(
+                new GroupTrainerSubstitution
+                {
+                    Id = Guid.NewGuid(),
+                    GroupId = seeded.GroupId,
+                    SubstituteTrainerId = seeded.SubstituteCoachId,
+                    StartsOn = new DateOnly(2026, 7, 24),
+                    EndsOn = new DateOnly(2026, 7, 25),
+                    CreatedByUserId = seeded.PrimaryCoachId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new GroupTrainerSubstitution
+                {
+                    Id = Guid.NewGuid(),
+                    GroupId = seeded.GroupId,
+                    SubstituteTrainerId = seeded.SubstituteCoachId,
+                    StartsOn = new DateOnly(2026, 7, 26),
+                    EndsOn = new DateOnly(2026, 7, 27),
+                    CreatedByUserId = seeded.PrimaryCoachId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new GroupTrainerSubstitution
+                {
+                    Id = Guid.NewGuid(),
+                    GroupId = seeded.GroupId,
+                    SubstituteTrainerId = seeded.OtherCoachId,
+                    StartsOn = new DateOnly(2026, 7, 20),
+                    EndsOn = new DateOnly(2026, 7, 24),
+                    CreatedByUserId = seeded.PrimaryCoachId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new GroupTrainerSubstitution
+                {
+                    Id = Guid.NewGuid(),
+                    GroupId = seeded.GroupId,
+                    SubstituteTrainerId = seeded.OtherCoachId,
+                    StartsOn = new DateOnly(2026, 7, 19),
+                    EndsOn = new DateOnly(2026, 7, 30),
+                    CancelledAt = now,
+                    CreatedByUserId = seeded.PrimaryCoachId,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                });
+            await db.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        _ = await LoginAsync(client, "headcoach");
+        using var response = await client.GetAsync($"/groups/{seeded.GroupId}/trainer-substitutions?historySkip=0&historyTake=1");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        var current = payload.GetProperty("current");
+        Assert.Equal(2, current.GetArrayLength());
+        Assert.Equal("Active", current[0].GetProperty("status").GetString());
+        Assert.Equal("2026-07-24", current[0].GetProperty("startsOn").GetString());
+        Assert.Equal("Upcoming", current[1].GetProperty("status").GetString());
+        Assert.Equal("2026-07-26", current[1].GetProperty("startsOn").GetString());
+
+        var history = payload.GetProperty("history");
+        Assert.Equal(2, history.GetProperty("totalCount").GetInt32());
+        Assert.Equal(0, history.GetProperty("skip").GetInt32());
+        Assert.Equal(1, history.GetProperty("take").GetInt32());
+        var historyItems = history.GetProperty("items");
+        Assert.Equal(1, historyItems.GetArrayLength());
+        Assert.Equal("Expired", historyItems[0].GetProperty("status").GetString());
+        Assert.Equal("2026-07-20", historyItems[0].GetProperty("startsOn").GetString());
     }
 
     [Fact]
@@ -270,7 +619,57 @@ public class GroupTrainerSubstitutionsApiTests
         Assert.Equal(HttpStatusCode.Forbidden, revokedClient.StatusCode);
     }
 
-    private static async Task<SeededData> SeedAsync(SubstitutionAppFactory factory, bool createActiveSubstitution = false)
+    [Theory]
+    [InlineData(24, false)]
+    [InlineData(25, true)]
+    [InlineData(26, true)]
+    [InlineData(27, false)]
+    public async Task Effective_scope_uses_inclusive_substitution_dates_without_removing_permanent_or_management_access(
+        int businessDay,
+        bool substituteHasAccess)
+    {
+        var today = new DateOnly(2026, 7, businessDay);
+        await using var factory = new SubstitutionAppFactory(today);
+        var seeded = await SeedAsync(
+            factory,
+            createActiveSubstitution: true,
+            substitutionStartsOn: new DateOnly(2026, 7, 25),
+            substitutionEndsOn: new DateOnly(2026, 7, 26));
+
+        using var substituteClient = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var substituteSession = await LoginAsync(substituteClient, "substitute");
+        if (substituteHasAccess)
+        {
+            Assert.Contains(seeded.GroupId.ToString(), substituteSession.User!.AssignedGroupIds);
+            using var allowedClient = await substituteClient.GetAsync($"/clients/{seeded.ClientId}");
+            Assert.Equal(HttpStatusCode.OK, allowedClient.StatusCode);
+        }
+        else
+        {
+            Assert.DoesNotContain(seeded.GroupId.ToString(), substituteSession.User!.AssignedGroupIds);
+            using var forbiddenClient = await substituteClient.GetAsync($"/clients/{seeded.ClientId}");
+            Assert.Equal(HttpStatusCode.Forbidden, forbiddenClient.StatusCode);
+        }
+
+        using var permanentClient = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        var permanentSession = await LoginAsync(permanentClient, "primary");
+        Assert.Contains(seeded.GroupId.ToString(), permanentSession.User!.AssignedGroupIds);
+        using (var permanentAccess = await permanentClient.GetAsync($"/clients/{seeded.ClientId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, permanentAccess.StatusCode);
+        }
+
+        using var managerClient = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
+        _ = await LoginAsync(managerClient, "headcoach");
+        using var managerList = await managerClient.GetAsync($"/groups/{seeded.GroupId}/trainer-substitutions");
+        Assert.Equal(HttpStatusCode.OK, managerList.StatusCode);
+    }
+
+    private static async Task<SeededData> SeedAsync(
+        SubstitutionAppFactory factory,
+        bool createActiveSubstitution = false,
+        DateOnly? substitutionStartsOn = null,
+        DateOnly? substitutionEndsOn = null)
     {
         await using var scope = factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -284,6 +683,8 @@ public class GroupTrainerSubstitutionsApiTests
         var primaryCoachId = Guid.NewGuid();
         var substituteCoachId = Guid.NewGuid();
         var otherCoachId = Guid.NewGuid();
+        var inactiveCoachId = Guid.NewGuid();
+        var badRoleUserId = Guid.NewGuid();
         var clientId = Guid.NewGuid();
         var substitutionId = Guid.NewGuid();
         var photoPath = $"{clientId:N}.jpg";
@@ -302,8 +703,8 @@ public class GroupTrainerSubstitutionsApiTests
             CreateUser(primaryCoachId, "primary", UserRole.Coach, passwordHashService, now),
             CreateUser(substituteCoachId, "substitute", UserRole.Coach, passwordHashService, now, telegramId: "substitute-telegram"),
             CreateUser(otherCoachId, "other", UserRole.Coach, passwordHashService, now),
-            CreateUser(Guid.NewGuid(), "inactive", UserRole.Coach, passwordHashService, now, isActive: false),
-            CreateUser(Guid.NewGuid(), "badrole", UserRole.Administrator, passwordHashService, now, branchId));
+            CreateUser(inactiveCoachId, "inactive", UserRole.Coach, passwordHashService, now, isActive: false),
+            CreateUser(badRoleUserId, "badrole", UserRole.Administrator, passwordHashService, now, branchId));
         db.TrainingGroups.AddRange(
             new TrainingGroup
             {
@@ -356,8 +757,8 @@ public class GroupTrainerSubstitutionsApiTests
                 Id = substitutionId,
                 GroupId = groupId,
                 SubstituteTrainerId = substituteCoachId,
-                StartsOn = BusinessDate,
-                EndsOn = BusinessDate,
+                StartsOn = substitutionStartsOn ?? BusinessDate,
+                EndsOn = substitutionEndsOn ?? BusinessDate,
                 CreatedByUserId = primaryCoachId,
                 CreatedAt = now,
                 UpdatedAt = now
@@ -371,6 +772,8 @@ public class GroupTrainerSubstitutionsApiTests
             primaryCoachId,
             substituteCoachId,
             otherCoachId,
+            inactiveCoachId,
+            badRoleUserId,
             clientId,
             createActiveSubstitution ? substitutionId : null,
             "substitute-telegram");
@@ -386,12 +789,11 @@ public class GroupTrainerSubstitutionsApiTests
         string? telegramId = null,
         bool isActive = true)
     {
-        return new User
+        var user = new User
         {
             Id = id,
             FullName = login,
             Login = login,
-            PasswordHash = passwordHashService.HashPassword(Password),
             Role = role,
             BranchId = branchId,
             MessengerPlatform = telegramId is null ? null : MessengerPlatform.Telegram,
@@ -401,6 +803,8 @@ public class GroupTrainerSubstitutionsApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        user.PasswordHash = passwordHashService.HashPassword(user, Password);
+        return user;
     }
 
     private static async Task<SessionPayload> LoginAsync(HttpClient client, string login)
@@ -452,6 +856,8 @@ public class GroupTrainerSubstitutionsApiTests
         Guid PrimaryCoachId,
         Guid SubstituteCoachId,
         Guid OtherCoachId,
+        Guid InactiveCoachId,
+        Guid BadRoleUserId,
         Guid ClientId,
         Guid? ActiveSubstitutionId,
         string SubstituteTelegramId);
@@ -487,9 +893,10 @@ public class GroupTrainerSubstitutionsApiTests
                 var entityFrameworkProvider = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider();
+                var databaseName = $"gym-crm-substitution-tests-{Guid.NewGuid():N}";
                 services.AddDbContext<GymCrmDbContext>(options =>
                     options
-                        .UseInMemoryDatabase($"gym-crm-substitution-tests-{Guid.NewGuid():N}")
+                        .UseInMemoryDatabase(databaseName)
                         .UseInternalServiceProvider(entityFrameworkProvider));
                 services.RemoveAll<IBusinessDateProvider>();
                 services.AddSingleton<IBusinessDateProvider>(new FixedBusinessDateProvider(businessDate));

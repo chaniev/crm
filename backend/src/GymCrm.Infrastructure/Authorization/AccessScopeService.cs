@@ -5,18 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Infrastructure.Authorization;
 
-internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessScopeService
+internal sealed class AccessScopeService(
+    GymCrmDbContext dbContext,
+    IEffectiveGroupAssignmentService effectiveGroupAssignmentService) : IAccessScopeService
 {
     public async Task<AccessScope> GetAccessScopeAsync(User user, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(user);
 
         var coachAssignedGroupIds = user.Role == UserRole.Coach
-            ? await dbContext.GroupTrainers
-                .Where(groupTrainer => groupTrainer.TrainerId == user.Id)
-                .OrderBy(groupTrainer => groupTrainer.GroupId)
-                .Select(groupTrainer => groupTrainer.GroupId)
-                .ToArrayAsync(cancellationToken)
+            ? await effectiveGroupAssignmentService.ListEffectiveAssignedGroupIdsAsync(user.Id, cancellationToken)
             : [];
         var administratorGrantedGroupIds = user.Role == UserRole.Administrator
             ? await dbContext.AdministratorAttendanceGroupGrants
@@ -120,12 +118,10 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     cancellationToken)
                 ? GroupAccessDecision.Allowed
                 : GroupAccessDecision.Forbidden,
-            UserRole.Coach => await dbContext.GroupTrainers
-                .AnyAsync(
-                    groupTrainer =>
-                        groupTrainer.GroupId == groupId &&
-                        groupTrainer.TrainerId == user.Id,
-                    cancellationToken)
+            UserRole.Coach => await effectiveGroupAssignmentService.HasEffectiveAssignmentAsync(
+                user.Id,
+                groupId,
+                cancellationToken)
                 ? GroupAccessDecision.Allowed
                 : GroupAccessDecision.Forbidden,
             _ => GroupAccessDecision.Forbidden

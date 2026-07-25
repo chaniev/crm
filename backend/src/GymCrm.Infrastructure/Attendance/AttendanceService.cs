@@ -1,6 +1,7 @@
 using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Users;
@@ -15,6 +16,7 @@ internal sealed class AttendanceService(
     IClientMembershipService clientMembershipService,
     IAuditLogService auditLogService,
     IAttendanceDatePolicy attendanceDatePolicy,
+    IEffectiveGroupAssignmentService effectiveGroupAssignmentService,
     TimeProvider timeProvider) : IAttendanceService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
@@ -312,12 +314,9 @@ internal sealed class AttendanceService(
         return actor.Role switch
         {
             UserRole.HeadCoach or UserRole.SuperAdministrator => AttendanceBatchMutationError.None,
-            UserRole.Coach => await dbContext.GroupTrainers
-                .AsNoTracking()
-                .AnyAsync(
-                    groupTrainer =>
-                        groupTrainer.GroupId == groupId &&
-                        groupTrainer.TrainerId == actorId,
+            UserRole.Coach => await effectiveGroupAssignmentService.HasEffectiveAssignmentAsync(
+                    actorId,
+                    groupId,
                     cancellationToken)
                 ? AttendanceBatchMutationError.None
                 : AttendanceBatchMutationError.Forbidden,

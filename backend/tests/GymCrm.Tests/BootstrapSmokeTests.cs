@@ -88,6 +88,7 @@ public class BootstrapSmokeTests
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.TrainingGroup"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.ClientGroupAssignment"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.GroupTrainerAssignment"));
+        Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.GroupTrainerSubstitution"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Attendance.Attendance"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Clients.ClientMissedTrainingAcknowledgement"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Audit.AuditLog"));
@@ -128,5 +129,11 @@ public class BootstrapSmokeTests
 
         Assert.Contains("CREATE TABLE \"ClientMissedTrainingAcknowledgements\"", script);
         Assert.Contains("IX_ClientMissedTrainingAcknowledgements_ClientId", script);
+        Assert.Contains("CREATE TABLE \"GroupTrainerSubstitutions\"", script);
+        Assert.Contains("CK_GroupTrainerSubstitutions_Period_Inclusive", script);
+        Assert.Contains("CREATE EXTENSION IF NOT EXISTS btree_gist", script);
+        Assert.Contains("EX_GroupTrainerSubstitutions_GroupTrainer_Period_NoOverlap", script);
+        Assert.Contains("daterange(\"StartsOn\", \"EndsOn\", '[]') WITH &&", script);
+        Assert.Contains("WHERE (\"CancelledAt\" IS NULL)", script);
     }
 }

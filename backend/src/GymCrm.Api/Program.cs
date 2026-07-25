@@ -227,6 +227,7 @@ app.MapAttendanceEndpoints();
 app.MapReportsEndpoints();
 app.MapScheduleEndpoints();
 app.MapBotInternalEndpoints();
+app.MapGroupTrainerSubstitutionEndpoints();
 GymCrm.Api.Auth.GroupEndpoints.MapGroupEndpoints(app);
 
 app.MapGet(ApiHostingConstants.RootPath, () => Results.Ok(

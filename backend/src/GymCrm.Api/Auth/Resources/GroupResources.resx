@@ -105,4 +105,31 @@
   <data name="TrainingGroupTrainersUpdatedDescription" xml:space="preserve">
     <value>Пользователь '{0}' изменил тренеров группы '{1}'.</value>
   </data>
+  <data name="GroupTrainerSubstitutionCreateUnavailableGroupInactive" xml:space="preserve">
+    <value>Архивная группа не принимает новые замещения.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionOverlapTitle" xml:space="preserve">
+    <value>Период замещения пересекается с другим замещением.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionOverlapDetail" xml:space="preserve">
+    <value>Для этой группы и замещающего тренера уже есть незавершенное замещение с пересекающимся периодом.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionNoChangesTitle" xml:space="preserve">
+    <value>Изменения замещения не найдены.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionNoChangesDetail" xml:space="preserve">
+    <value>Переданные данные совпадают с текущим замещением.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionImmutableTitle" xml:space="preserve">
+    <value>Замещение нельзя изменить.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionImmutableDetail" xml:space="preserve">
+    <value>Завершенное или отмененное замещение недоступно для изменения.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionActiveEditConflictTitle" xml:space="preserve">
+    <value>Активное замещение можно изменить только по дате окончания.</value>
+  </data>
+  <data name="GroupTrainerSubstitutionActiveEditConflictDetail" xml:space="preserve">
+    <value>Для активного замещения нельзя изменить тренера или дату начала, а дата окончания не может быть раньше текущей бизнес-даты.</value>
+  </data>
 </root>

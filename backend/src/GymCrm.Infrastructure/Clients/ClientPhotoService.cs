@@ -13,6 +13,7 @@ namespace GymCrm.Infrastructure.Clients;
 
 internal sealed class ClientPhotoService(
     GymCrmDbContext dbContext,
+    IEffectiveGroupAssignmentService effectiveGroupAssignmentService,
     IOptions<ClientPhotoStorageOptions> storageOptions,
     IClientPhotoImageProcessor imageProcessor,
     ILogger<ClientPhotoService> logger) : IClientPhotoService
@@ -184,14 +185,10 @@ internal sealed class ClientPhotoService(
         {
             UserRole.HeadCoach or UserRole.SuperAdministrator => true,
             UserRole.Administrator => true,
-            UserRole.Coach => await dbContext.ClientGroups
-                .Where(clientGroup => clientGroup.ClientId == clientId)
-                .Join(
-                    dbContext.GroupTrainers.Where(groupTrainer => groupTrainer.TrainerId == command.RequestedByUserId),
-                    clientGroup => clientGroup.GroupId,
-                    groupTrainer => groupTrainer.GroupId,
-                    (_, _) => 1)
-                .AnyAsync(cancellationToken),
+            UserRole.Coach => await HasEffectiveClientGroupAsync(
+                clientId,
+                command.RequestedByUserId,
+                cancellationToken),
             _ => false
         };
 
@@ -233,6 +230,23 @@ internal sealed class ClientPhotoService(
         {
             return ClientPhotoReadResult.Failure(ClientPhotoError.PhotoMissing);
         }
+    }
+
+    private async Task<bool> HasEffectiveClientGroupAsync(
+        Guid clientId,
+        Guid trainerId,
+        CancellationToken cancellationToken)
+    {
+        var effectiveGroupIds = await effectiveGroupAssignmentService.ListEffectiveAssignedGroupIdsAsync(
+            trainerId,
+            cancellationToken);
+        return await dbContext.ClientGroups
+            .AsNoTracking()
+            .AnyAsync(
+                clientGroup =>
+                    clientGroup.ClientId == clientId &&
+                    effectiveGroupIds.Contains(clientGroup.GroupId),
+                cancellationToken);
     }
 
     private async Task<UserRole?> LoadUserRoleAsync(
