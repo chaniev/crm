@@ -31,6 +31,8 @@ The rendered screenshots follow the cross-device explanatory-copy rule in
   eyebrow, badge, intro or helper copy;
 - form/auth screens do not use pre-title badges or generic lead text that
   repeats the primary action;
+- a sole primary search does not show a generic label above the field, while
+  retaining a stable accessible name independent of placeholder;
 - required validation, recovery, constraint, security/legal and
   operational-state copy is placed next to the affected field/action/section.
 

@@ -93,13 +93,24 @@ function sectionTitle(title, description = '', action = '') {
     </div>`
 }
 
-function locator({ value = '', placeholder = 'Поиск', count = 0, label = 'Поиск', geometry = true } = {}) {
+function locator({
+  value = '',
+  placeholder = 'Поиск',
+  count = 0,
+  label = 'Поиск',
+  geometry = true,
+  visibleLabel = false,
+  kind = 'search',
+} = {}) {
+  const isSearch = kind === 'search'
+  const fieldRole = isSearch ? 'searchbox' : 'button'
+  const fieldLabel = isSearch ? label : `${label}: ${value}`
   return `
-    <div class="locator" role="search"${geometry ? ' data-geometry="locator"' : ''}>
+    <div class="locator locator--${kind}" role="${isSearch ? 'search' : 'group'}" data-locator-kind="${kind}"${geometry ? ' data-geometry="locator"' : ''}>
       <div class="locator__field">
-        <span class="persistent-label">${label}</span>
-        <div class="input-shell">
-          ${icon('search', 19)}
+        <span class="persistent-label${visibleLabel ? '' : ' sr-only'}">${label}</span>
+        <div class="input-shell" role="${fieldRole}" aria-label="${fieldLabel}">
+          ${icon(isSearch ? 'search' : 'calendar', 19)}
           <span class="${value ? 'input-shell__value' : 'input-shell__placeholder'}">${value || placeholder}</span>
           ${value ? icon('close', 18) : ''}
         </div>
@@ -236,7 +247,7 @@ function settingsTabs(active) {
 function baseClientsContext(body) {
   return shell(
     `${pageHeader('Клиенты', `${button('', { iconName: 'refresh' })}${button('', { iconName: 'plus', kind: 'accent' })}`)}
-    ${locator({ placeholder: 'Имя или телефон' })}
+    ${locator({ placeholder: 'Имя или телефон', label: 'Найти клиента' })}
     ${body}`,
     { active: 'clients' },
   )
@@ -335,7 +346,7 @@ const scenes = {
 
   'system-empty-filtered': () => shell(
     `${pageHeader('Клиенты')}
-    ${locator({ value: 'Алексей', count: 2 })}
+    ${locator({ value: 'Алексей', count: 2, label: 'Найти клиента' })}
     ${activeFilters(['Без абонемента', 'Группа 7'])}
     ${rangeStatus('0 совпадений')}
     ${statePanel('Клиенты не найдены', 'Поиск «Алексей» сохранён. Сбросьте только расширенные фильтры или очистите запрос отдельно.', { iconName: 'search', action: button('Сбросить фильтры', { kind: 'primary', iconName: 'filter' }) })}`,
@@ -422,7 +433,7 @@ const scenes = {
 
   'clients-browse': () => shell(
     `${pageHeader('Клиенты', `${button('', { iconName: 'refresh' })}${button('Новый', { kind: 'accent', iconName: 'plus' })}`)}
-    ${locator({ placeholder: 'Имя или телефон', count: 2 })}
+    ${locator({ placeholder: 'Имя или телефон', count: 2, label: 'Найти клиента' })}
     ${activeFilters(['Без абонемента', 'Активные'])}
     ${rangeStatus('Показаны 1–5 из 48')}
     <div class="task-list">
@@ -437,7 +448,7 @@ const scenes = {
   'clients-search-focused': () => shell(
     `<div class="page-stack" style="gap:12px">
       <h1 class="sr-only">Клиенты</h1>
-      ${locator({ value: 'А', count: 2 })}
+      ${locator({ value: 'А', count: 2, label: 'Найти клиента' })}
       ${activeFilters(['Активные', 'Без группы'])}
       ${rangeStatus('Показаны 1–6 · есть ещё')}
       <div class="task-list">
@@ -529,7 +540,7 @@ const scenes = {
   'groups-list': () => shell(
     `${pageHeader('Группы', `${button('', { iconName: 'refresh' })}${button('Создать', { kind: 'accent', iconName: 'plus' })}`)}
     <div class="metrics">${metric('Активные', '10')}${metric('Без тренера', '1', 'нужно назначить')}</div>
-    ${locator({ placeholder: 'Название группы', count: 1 })}
+    ${locator({ placeholder: 'Название группы', count: 1, label: 'Найти группу' })}
     ${rangeStatus('Показаны 1–3 из 12')}
     <div class="task-list">
       ${groupItem('Группа 7: вечер', 'Вт, Чт · старт 19:00 · 90 мин', 'Северный · Основной зал', 'Максим Орлов, Анна Лебедева', '14 клиентов · 2 тренера', 0)}
@@ -570,7 +581,7 @@ const scenes = {
   'users-list': () => shell(
     `${pageHeader('Тренеры', `${button('', { iconName: 'refresh' })}${button('Создать', { kind: 'accent', iconName: 'plus' })}`)}
     <div class="metrics">${metric('Активные', '7')}${metric('Смена пароля', '1')}</div>
-    ${locator({ placeholder: 'ФИО или логин', count: 1 })}
+    ${locator({ placeholder: 'ФИО или логин', count: 1, label: 'Найти тренера' })}
     ${rangeStatus('Показаны 1–4 из 8')}
     <div class="task-list">
       <article class="task-item" data-geometry="task-item-0"><div class="task-item__top"><div><div class="task-item__identity">Максим Орлов</div><div class="task-item__meta">maxim.orlov · Telegram подключён</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('Главный тренер', 'brand')}${badge('Активен', 'success')}</div></article>
@@ -609,7 +620,7 @@ const scenes = {
 
   'audit-list': () => shell(
     `${pageHeader('Журнал', button('', { iconName: 'refresh' }))}
-    ${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись' })}
+    ${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись журнала' })}
     ${activeFilters(['Клиенты', 'За 7 дней'])}
     ${rangeStatus('Показаны 1–5 из 128')}
     <div class="task-list">
@@ -621,7 +632,7 @@ const scenes = {
   ),
 
   'audit-details-modal': () => shell(
-    `${pageHeader('Журнал')}${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись' })}<div class="task-list"><article class="audit-event"><div class="badge-row">${badge('Клиент изменён', 'brand')}</div><div class="audit-event__title">Обновлены данные Александры Константинопольской</div><div class="audit-event__meta">29.07 · 09:42 · Мария Соколова</div></article></div>`,
+    `${pageHeader('Журнал')}${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись журнала' })}<div class="task-list"><article class="audit-event"><div class="badge-row">${badge('Клиент изменён', 'brand')}</div><div class="audit-event__title">Обновлены данные Александры Константинопольской</div><div class="audit-event__meta">29.07 · 09:42 · Мария Соколова</div></article></div>`,
     { active: 'more', role: 'Главный тренер' },
   ) + modalOverlay(
     'Подробности записи',
@@ -631,7 +642,7 @@ const scenes = {
 
   'finance-report': () => shell(
     `${pageHeader('Финансы', button('', { iconName: 'refresh' }))}
-    ${locator({ value: 'Июль 2026', count: 1, label: 'Период отчёта' })}
+    ${locator({ value: 'Июль 2026', count: 1, label: 'Период отчёта', visibleLabel: true, kind: 'period' })}
     ${activeFilters(['Все филиалы'])}
     <div class="metrics">${metric('Выручка', '486 200 ₽', 'продажи за период')}${metric('Чистая выручка', '462 800 ₽', 'после возвратов')}${metric('Продано', '64', 'абонемента')}${metric('Новые клиенты', '18')}</div>
     ${section(`${sectionTitle('По филиалам')}<div class="breakdown-row"><span class="breakdown-row__name">Северный</span><span class="breakdown-row__value">286 400 ₽</span></div><div class="breakdown-row"><span class="breakdown-row__name">Центр</span><span class="breakdown-row__value">176 400 ₽</span></div>`)}
@@ -641,7 +652,7 @@ const scenes = {
 
   'finance-zero-report': () => shell(
     `${pageHeader('Финансы', button('', { iconName: 'refresh' }))}
-    ${locator({ value: '1–7 января 2025', count: 2, label: 'Период отчёта' })}
+    ${locator({ value: '1–7 января 2025', count: 2, label: 'Период отчёта', visibleLabel: true, kind: 'period' })}
     ${activeFilters(['Центр', 'Илья Миронов'])}
     <div class="metrics">${metric('Выручка', '0 ₽')}${metric('Продано', '0')}</div>
     ${statePanel('За выбранный период операций нет', 'Измените период или снимите фильтры. Текущий отчёт и выбранный контекст сохранены.', { iconName: 'money', action: button('Сбросить фильтры', { kind: 'primary', iconName: 'filter' }) })}`,

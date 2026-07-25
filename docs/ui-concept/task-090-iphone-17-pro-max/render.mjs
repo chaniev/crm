@@ -194,6 +194,24 @@ async function validateScreen(screenId, themeId, expectedViewport = manifest.vie
       errors.push(`forbidden explanatory copy: ${foundForbiddenCopy.join(', ')}`)
     }
 
+    const visibleSearchLabels = [
+      ...document.querySelectorAll(
+        '.locator--search .persistent-label:not(.sr-only)',
+      ),
+    ]
+    if (visibleSearchLabels.length) {
+      errors.push(
+        `visible primary search labels: ${visibleSearchLabels.map((element) => element.textContent.trim()).join(', ')}`,
+      )
+    }
+
+    const unnamedSearchboxes = [
+      ...document.querySelectorAll('.locator--search [role="searchbox"]'),
+    ].filter((element) => !element.getAttribute('aria-label')?.trim())
+    if (unnamedSearchboxes.length) {
+      errors.push(`unnamed primary searchboxes: ${unnamedSearchboxes.length}`)
+    }
+
     return {
       screenId: currentScreen,
       themeId: currentTheme,

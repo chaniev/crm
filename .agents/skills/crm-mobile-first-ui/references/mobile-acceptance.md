@@ -56,6 +56,12 @@ visual viewport.
   toolbar/detail context, or state panel.
 - Desktop `1440 x 1200` does not reintroduce mobile-forbidden intro/hero or
   subtitle copy merely because more space is available.
+- A sole, obvious route-level search has no visible generic `Search`/`Find…`
+  label on mobile, tablet, or desktop.
+- Every visually unlabeled searchbox has a stable operation-and-object
+  accessible name from a label or ARIA; placeholder is not its only name.
+- Ordinary form fields, multiple or ambiguous text fields, and
+  period/date/scope controls retain visible persistent labels.
 - Fixed and sticky headers, bottom navigation, action bars, close controls, and notifications remain inside the safe area.
 - Safe-area spacing combines the project spacing token with `env(safe-area-inset-*)` or an equivalent measured inset; the safe-area inset does not replace the normal content margin.
 - Full-height mobile surfaces remain usable as Safari chrome expands or collapses and do not rely on `100vh` alone as evidence of correct height.

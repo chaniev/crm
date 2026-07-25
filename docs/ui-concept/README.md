@@ -46,6 +46,11 @@ Compact page header -> Summary/locator/filter -> Primary content surface
 - Допустимые пояснения к validation, recovery, constraint, security/legal или
   operational state показываются у связанного поля, действия или state panel,
   а не используются для заполнения header.
+- Единственный primary search locator не показывает отдельную строку `Поиск`
+  или `Найти...` на mobile и desktop. Его accessible name остаётся доступен
+  через visually-hidden label/ARIA, а placeholder описывает searchable fields.
+- Visible labels сохраняются у обычных form fields, нескольких неоднозначных
+  inputs и period/date/scope controls.
 - Ролевые бейджи показывать только когда они реально объясняют доступ или сценарий.
 - Summary strip: компактные stat pills в одну строку на desktop, wrap на mobile.
 - Filter bar: сначала частые фильтры, редкие фильтры в advanced area/drawer.

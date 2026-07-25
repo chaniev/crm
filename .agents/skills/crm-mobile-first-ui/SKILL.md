@@ -81,6 +81,11 @@ Rules:
 - place allowed validation, recovery, security/legal, prerequisite, scope, and
   operational-state copy next to the affected field, action, section, or state
   surface instead of using it as decorative text under the route title.
+- omit the visible generic label above a sole, obvious route-level search on
+  mobile and desktop; keep a stable accessible name through an associated
+  visually-hidden label or ARIA, and do not use placeholder as that name;
+- preserve visible persistent labels for ordinary forms, multiple or ambiguous
+  text fields, and period/date/scope controls.
 
 Use `.agents/skills/design-first-ui-prompting/SKILL.md` only when the
 deliverable includes a prompt for an external UI generator, a static visual

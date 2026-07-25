@@ -91,6 +91,9 @@ mobile, но active filters остаются видимыми и удаляем�
   умолчанию, без декоративных subtitle/eyebrow/badge/intro/helper.
 - `decision/usefulness test` и placement допустимых validation, recovery,
   constraint, security/legal и operational-state пояснений.
+- Единая mobile/desktop политика primary search: без видимых generic labels
+  `Поиск`/`Найти...`, но со stable accessible name, не зависящим от
+  placeholder.
 - Touch target minimum `44 x 44`, gap minimum `8px`.
 - iPhone input text minimum `16px`.
 - Coarse-pointer compact-height shell.
@@ -106,6 +109,9 @@ mobile, но active filters остаются видимыми и удаляем�
 - `SectionHeader` остаётся отдельным section-level contract и не используется
   как обход запрета route-level пояснений;
 - `EntityLocatorBar`;
+- `EntityLocatorBar` разделяет required `accessibleLabel`, task-oriented
+  `placeholder` и exceptional `visibleLabel`; последний запрещён для
+  единственного очевидного route-level search.
 - mobile-inline primary control mode для `CompactFilterPanel`;
 - `ActiveFiltersBar`;
 - `ListRangeStatus`;
@@ -212,6 +218,15 @@ Theme может менять brand/action/nav/accent presentation, но не:
       backend-owned constraint и operational-state пояснения находятся у
       связанного поля, действия, toolbar/detail section или state panel, а не
       используются как декоративный текст под `h1`.
+- [ ] На mobile, tablet и desktop над единственным primary search отсутствуют
+      видимые generic labels `Поиск`, `Найти запись`, `Найти занятие` и
+      аналоги.
+- [ ] Каждый visually unlabeled primary search имеет stable accessible name,
+      называющий операцию и объект; placeholder не является его единственным
+      accessible name.
+- [ ] Visible search label остаётся только при нескольких или неоднозначных
+      fields; period/date/scope controls и обычные form fields не теряют
+      обязательные persistent labels.
 - [ ] Drawer/modal используют dynamic viewport, safe-area footer и focus return.
 - [ ] Нет unintended horizontal page scroll на `360`, `390`, `420`, `440`.
 - [ ] Theme-sensitive raw colors удалены из shared/feature code; static check
@@ -232,6 +247,9 @@ Theme может менять brand/action/nav/accent presentation, но не:
       list, restricted, empty и error на `390 x 844`, `420 x 912`,
       `440 x 956`, `768 x 1024` и `1440 x 1200` не возвращает декоративный
       route-level copy.
+- [ ] `clients-browse`, `schedule-ready`, `groups-list`, `users-list` и
+      `audit-list` не показывают строку label над primary search; role/name
+      assertion на соответствующий `searchbox` проходит.
 - [ ] Component/E2E fixture проверяет presentation и focus общего
       `RestrictedState`; реальная route wiring остаётся в `TASK-088`.
 - [ ] Повторить E2E с `default-green-v1` и `test-blue-coral-v1`.

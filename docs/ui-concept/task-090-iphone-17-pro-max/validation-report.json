@@ -115,7 +115,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 440,
-      "scrollHeight": 986
+      "scrollHeight": 960
     },
     {
       "screenId": "clients-preview",
@@ -164,7 +164,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 440,
-      "scrollHeight": 1015
+      "scrollHeight": 989
     },
     {
       "screenId": "group-create",
@@ -325,7 +325,7 @@
       "themeId": "test-blue-coral-v1",
       "errors": [],
       "scrollWidth": 440,
-      "scrollHeight": 1015
+      "scrollHeight": 989
     },
     {
       "screenId": "audit-list",
@@ -460,7 +460,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 986
+      "scrollHeight": 960
     },
     {
       "screenId": "clients-preview",
@@ -509,7 +509,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 1035
+      "scrollHeight": 1009
     },
     {
       "screenId": "group-create",
@@ -726,7 +726,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 390,
-      "scrollHeight": 986
+      "scrollHeight": 960
     },
     {
       "screenId": "clients-preview",
@@ -775,7 +775,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 390,
-      "scrollHeight": 1015
+      "scrollHeight": 989
     },
     {
       "screenId": "group-create",
@@ -992,7 +992,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 420,
-      "scrollHeight": 986
+      "scrollHeight": 960
     },
     {
       "screenId": "clients-preview",
@@ -1041,7 +1041,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 420,
-      "scrollHeight": 1015
+      "scrollHeight": 989
     },
     {
       "screenId": "group-create",

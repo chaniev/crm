@@ -172,6 +172,35 @@ Critical copy нельзя удалять только ради сокращен
 пояснение не помещается компактно, его переносят из route header в связанную
 рабочую section, сохраняя доступность и порядок focus.
 
+### Подпись primary search locator
+
+На mobile, tablet и desktop единственный очевидный primary search locator
+показывается без видимой строки label перед полем. Generic подписи `Поиск`,
+`Найти запись`, `Найти занятие`, `Найти клиента` и их аналоги запрещены, если:
+
+- поле занимает стандартную route-level locator position;
+- search icon и placeholder однозначно показывают searchable attributes;
+- рядом нет другого text/search field, с которым его можно перепутать.
+
+Удаление видимого label не отменяет доступное имя. Search input обязан иметь
+стабильный `accessible name` через связанный visually-hidden `label`,
+`aria-label` или `aria-labelledby`. Имя называет операцию и объект, например
+`Найти клиента`, `Найти группу`, `Найти запись журнала`, и не исчезает после
+ввода значения. Placeholder сообщает формат или searchable attributes
+(`Имя или телефон`, `Пользователь или действие`), но не является единственным
+accessible name.
+
+Visible label допускается только как измеримое исключение:
+
+- на одной surface находятся несколько text/search fields;
+- locator встроен в форму, modal или detail и без label неоднозначен;
+- control является не search, а period/date/scope selector;
+- без label пользователь может выбрать неверный scope или тип данных.
+
+Исключение не распространяется на обычные form fields: их persistent labels
+сохраняются. Дополнительная ширина `768` или `1440px` не возвращает generic
+search label, удалённый на mobile.
+
 ### Смысл поверхности
 
 - `PageLayout` владеет route-level rhythm и header.
@@ -201,7 +230,8 @@ Critical copy нельзя удалять только ради сокращен
 - ФИО и другое primary identity на mobile допускает две строки;
 - required decision data нельзя размещать только в `12px` copy;
 - counters используют `font-variant-numeric: tabular-nums`;
-- placeholder не заменяет label;
+- placeholder не заменяет accessible name; visible label может быть скрыт
+  только у единственного очевидного primary search locator по правилу выше;
 - локальные размеры route title запрещены.
 
 ### Spacing
@@ -426,7 +456,9 @@ Foundation implementation создаёт focused files и re-export через �
 
 ```ts
 type EntityLocatorBarProps = {
-  label: string
+  accessibleLabel: string
+  placeholder: string
+  visibleLabel?: string
   value: string
   onChange: (value: string) => void
   onClear: () => void
@@ -488,8 +520,12 @@ type TemporarySurfaceFooterProps = {
 
 Behavior:
 
-- `EntityLocatorBar` использует `role="search"`, persistent label и
-  `aria-controls={resultsId}`; filter trigger имеет `aria-haspopup="dialog"`.
+- `EntityLocatorBar` использует `role="search"` и
+  `aria-controls={resultsId}`; input получает `accessibleLabel` через
+  `aria-label`/`aria-labelledby`, а не через placeholder.
+- `visibleLabel` отсутствует у единственного route-level primary search и
+  используется только для перечисленных неоднозначных исключений.
+- Filter trigger имеет `aria-haspopup="dialog"` и отдельное accessible name.
 - `ActiveFiltersBar` имеет доступное имя scope; remove target не меньше `44px`.
 - `ListRangeStatus` использует `role="status"` и `aria-live="polite"`, но не
   объявляет каждую loading animation; при `total=null` показывает известный
@@ -579,6 +615,9 @@ Shared pattern для длинных списков:
 ```
 
 - Primary search всегда видим, если поиск является главным locator.
+- Primary search не имеет видимого generic label над полем; route context,
+  search icon и task-oriented placeholder дают визуальный контекст, а
+  `accessibleLabel` сохраняет доступное имя.
 - Search не дублируется в drawer.
 - Clear очищает только query.
 - Filter count не включает query и default values.
