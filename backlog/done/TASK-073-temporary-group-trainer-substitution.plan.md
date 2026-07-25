@@ -1,9 +1,12 @@
 # Implementation Plan: TASK-073 Назначать замещающего тренера группы на период
 
-## Source task
-/backlog/risky/TASK-073-temporary-group-trainer-substitution.md
+## Implementation status
+Done. Implemented in `feature/TASK-073-temporary-group-trainer-substitution`, final implementation commit `69ac88f`, and merged to `main` by PR #94 (`0646218`) on 2026-07-25.
 
-Source status remains `risky`: this plan prepares the task for explicit security/architecture review and later selection; it does not move the task into active implementation.
+## Source task
+/backlog/done/TASK-073-temporary-group-trainer-substitution.md
+
+Source status is `done`: the security-sensitive effective-scope change was reviewed, implemented in its dedicated branch and merged with backend, PostgreSQL, frontend and cross-consumer regression coverage.
 
 ## Git branch
 feature/TASK-073-temporary-group-trainer-substitution
@@ -297,27 +300,27 @@ No Python bot production file is expected to change because the internal API sha
 - Manual QA supplements but never replaces automated barriers.
 
 ## Test plan
-- [ ] Unit and integration tests are committed before production code and fail for the intended missing behavior.
-- [ ] Inclusive start/end, one-day period, status and overlap semantics pass on a fixed club date.
-- [ ] HeadCoach/SuperAdministrator/Administrator management succeeds; Coach/anonymous/CSRF-negative cases fail correctly.
-- [ ] Invalid group/trainer/role/range/main-trainer and duplicate/overlap cases return stable field errors.
-- [ ] DB constraint protects a concurrent overlap race and maps it to `409 ProblemDetails`.
-- [ ] Create/update/cancel each write exactly one atomic audit event with required state.
-- [ ] Repeat cancel, immutable/no-op update return stable `409` and write no audit event.
-- [ ] Access is absent before, present on both boundaries, absent after and revoked immediately after cancel.
-- [ ] Attendance scope follows current business date rather than the selected `trainingDate`.
-- [ ] Inactive group preserves the temporary ground while blocking create/edit and allowing cancel.
-- [ ] HeadCoach can be selected; becoming/removing a permanent trainer follows the fixed union lifecycle.
-- [ ] Permanent or other valid grounds preserve access after temporary ground ends.
-- [ ] Client list/details/photo, attendance and internal bot use the same effective scope.
-- [ ] Schedule remains globally readable for authenticated users and is unaffected by substitution.
-- [ ] Substitute is absent from financial trainer attribution.
-- [ ] Frontend renders backend current/history pagination and status/actions, handles mutation errors and keeps permanent trainer ids unchanged.
-- [ ] `dotnet test backend/GymCrm.slnx` passes.
-- [ ] `cd frontend && npm run test:unit`, `npm run lint`, `npm run build` pass.
-- [ ] Focused Playwright substitution and responsive specs pass.
-- [ ] `cd bot && ruff check .` and `pytest` pass as unchanged-contract compatibility checks.
-- [ ] Clean PostgreSQL schema setup and final direct-access query audit pass.
+- [x] Unit and integration tests are committed before production code and fail for the intended missing behavior.
+- [x] Inclusive start/end, one-day period, status and overlap semantics pass on a fixed club date.
+- [x] HeadCoach/SuperAdministrator/Administrator management succeeds; Coach/anonymous/CSRF-negative cases fail correctly.
+- [x] Invalid group/trainer/role/range/main-trainer and duplicate/overlap cases return stable field errors.
+- [x] DB constraint protects a concurrent overlap race and maps it to `409 ProblemDetails`.
+- [x] Create/update/cancel each write exactly one atomic audit event with required state.
+- [x] Repeat cancel, immutable/no-op update return stable `409` and write no audit event.
+- [x] Access is absent before, present on both boundaries, absent after and revoked immediately after cancel.
+- [x] Attendance scope follows current business date rather than the selected `trainingDate`.
+- [x] Inactive group preserves the temporary ground while blocking create/edit and allowing cancel.
+- [x] HeadCoach can be selected; becoming/removing a permanent trainer follows the fixed union lifecycle.
+- [x] Permanent or other valid grounds preserve access after temporary ground ends.
+- [x] Client list/details/photo, attendance and internal bot use the same effective scope.
+- [x] Schedule remains globally readable for authenticated users and is unaffected by substitution.
+- [x] Substitute is absent from financial trainer attribution.
+- [x] Frontend renders backend current/history pagination and status/actions, handles mutation errors and keeps permanent trainer ids unchanged.
+- [x] `dotnet test backend/GymCrm.slnx` passes.
+- [x] `cd frontend && npm run test:unit`, `npm run lint`, `npm run build` pass.
+- [x] Focused Playwright substitution and responsive specs pass.
+- [x] `cd bot && ruff check .` and `pytest` pass as unchanged-contract compatibility checks.
+- [x] Clean PostgreSQL schema setup and final direct-access query audit pass.
 
 ## Regression barrier
 Completion is blocked unless a deterministic backend integration matrix proves the same effective group ids across session, access probe, client, photo, attendance and internal bot flows before/on/after the inclusive period and after cancel, while an automated financial test proves the substitute never enters trainer attribution. This is paired with a PostgreSQL overlap-concurrency test, exact atomic audit assertions and frontend component/Playwright coverage proving backend-owned statuses/actions and strict separation from permanent `trainerIds`.
@@ -349,6 +352,6 @@ Completion is blocked unless a deterministic backend integration matrix proves t
 Backend + frontend scope, shared group/client modules, schema change, bot compatibility, roles/permissions и высокая риск-классификация сами по себе не являются stop condition.
 
 ## Ready for Codex execution
-no
+no — implementation completed
 
-Причина: задача остаётся high-risk (`Safe for Codex: no`) и меняет security-sensitive effective access сразу в нескольких consumers. Продуктовые и архитектурные решения плана зафиксированы, но до реализации всё ещё требуется явный перевод risky-задачи в implementation и отдельная команда на исполнение.
+Причина: задача уже реализована и влита в `main`; повторное исполнение плана не требуется.
