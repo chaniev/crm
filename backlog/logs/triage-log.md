@@ -1217,3 +1217,34 @@
 - needs-clarification: 0
 - updated existing: 1
 - processed files: 1
+
+# 2026-07-25 post-TASK-073 merge status audit
+
+## Scope
+- Reconciled all active backlog folders with current `main` after PR #94.
+- Used the preceding full 2026-07-25 audit as the baseline and reviewed every later commit; only TASK-073 product code and repository UI-agent requirements changed after that baseline.
+- Audit branch: `refactor/backlog-status-audit-2026-07-25`.
+
+## Moved tasks to done
+- `/backlog/risky/TASK-073-temporary-group-trainer-substitution.md` -> `/backlog/done/TASK-073-temporary-group-trainer-substitution.md`.
+
+## Moved implementation plans to done
+- `/backlog/implementation-plans/TASK-073-temporary-group-trainer-substitution.plan.md` -> `/backlog/done/TASK-073-temporary-group-trainer-substitution.plan.md`.
+
+## Evidence
+- TASK-073 final implementation commit `69ac88f` is an ancestor of current `main` through merge commit `0646218` (PR #94).
+- Backend contains the dedicated substitution model, lifecycle/conflict validation, concurrency-safe PostgreSQL protection, management API, atomic audit and one effective-assignment service consumed by access scope, clients, photos, attendance and internal bot flows.
+- Frontend contains typed list/create/update/cancel transport, a separate group-management section and backend-driven status/action rendering without mutating permanent trainer assignments.
+- Focused unit, API, access-matrix, PostgreSQL, frontend component/API and Playwright tests cover the accepted workflow and security boundaries.
+
+## Kept active
+- 12 bot tasks remain relevant: their outstanding rendering, pagination, scenario-validation, documentation, runtime-policy, read-model, upload, notification, webhook and adapter-boundary criteria are not fully implemented or remain blocked on clarification.
+- Client UX tasks TASK-016..TASK-021 remain relevant: current source and coverage still do not prove all six-action, return-state, visual-cleanup, tab, empty-state and responsive-regression criteria.
+- TASK-058, TASK-071, TASK-074 and TASK-075 remain relevant but blocked on product/domain decisions recorded in their cards.
+
+## Summary
+- moved to done: 1 task
+- moved plans to done: 1
+- active tasks after audit: 22 (`tasks-ready`: 9, `risky`: 6, `needs-clarification`: 7, `implementation`: 0)
+- active implementation plans after audit: 0
+- validation: merge ancestry, source, contract and automated-coverage audit; runtime suites were not rerun because this change only reconciles backlog metadata
