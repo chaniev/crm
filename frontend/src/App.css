@@ -2439,6 +2439,21 @@
     linear-gradient(135deg, rgba(237, 245, 242, 0.92), rgba(246, 244, 238, 0.9));
 }
 
+.group-trainer-substitution-row {
+  overflow-wrap: anywhere;
+}
+
+.group-trainer-substitution-row__action {
+  min-height: 2.75rem;
+}
+
+@media (max-width: 48em) {
+  .group-trainer-substitution-row .page-header__actions,
+  .group-trainer-substitution-row__action {
+    width: 100%;
+  }
+}
+
 .attendance-context-controls {
   display: grid;
   grid-template-columns: 1fr;

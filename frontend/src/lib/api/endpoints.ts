@@ -63,6 +63,12 @@ export const API_ENDPOINTS = {
     byId: (groupId: string) => `/groups/${groupId}`,
     trainerOptions: '/groups/options/trainers',
     clients: (groupId: string) => `/groups/${groupId}/clients`,
+    trainerSubstitutions: (groupId: string) =>
+      `/groups/${groupId}/trainer-substitutions`,
+    trainerSubstitution: (groupId: string, substitutionId: string) =>
+      `/groups/${groupId}/trainer-substitutions/${substitutionId}`,
+    cancelTrainerSubstitution: (groupId: string, substitutionId: string) =>
+      `/groups/${groupId}/trainer-substitutions/${substitutionId}/cancel`,
   },
   schedule: {
     groups: '/schedule/groups',
@@ -116,6 +122,11 @@ export const GROUPS_QUERY_KEYS = {
   skip: 'skip',
   take: 'take',
   isActive: 'isActive',
+} as const
+
+export const GROUP_TRAINER_SUBSTITUTIONS_QUERY_KEYS = {
+  historySkip: 'historySkip',
+  historyTake: 'historyTake',
 } as const
 
 export const CLIENTS_DEFAULT_PAGE = 1

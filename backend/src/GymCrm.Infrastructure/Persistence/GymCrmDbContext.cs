@@ -33,6 +33,7 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<ClientGroupAssignment> ClientGroupAssignments => Set<ClientGroupAssignment>();
     public DbSet<GroupTrainer> GroupTrainers => Set<GroupTrainer>();
     public DbSet<GroupTrainerAssignment> GroupTrainerAssignments => Set<GroupTrainerAssignment>();
+    public DbSet<GroupTrainerSubstitution> GroupTrainerSubstitutions => Set<GroupTrainerSubstitution>();
     public DbSet<Attendance> Attendance => Set<Attendance>();
     public DbSet<ClientMissedTrainingAcknowledgement> ClientMissedTrainingAcknowledgements => Set<ClientMissedTrainingAcknowledgement>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();

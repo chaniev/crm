@@ -56,6 +56,7 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .HasColumnType("date");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
+                        .IsConcurrencyToken()
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -872,6 +873,53 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.ToTable("GroupTrainerAssignments", t =>
                         {
                             t.HasCheckConstraint("CK_GroupTrainerAssignments_Period_NonEmpty", "\"ValidTo\" IS NULL OR \"ValidTo\" > \"ValidFrom\"");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainerSubstitution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("EndsOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartsOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("SubstituteTrainerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("SubstituteTrainerId");
+
+                    b.HasIndex("GroupId", "SubstituteTrainerId", "StartsOn", "EndsOn");
+
+                    b.ToTable("GroupTrainerSubstitutions", t =>
+                        {
+                            t.HasCheckConstraint("CK_GroupTrainerSubstitutions_Period_Inclusive", "\"EndsOn\" >= \"StartsOn\"");
                         });
                 });
 
@@ -1759,6 +1807,33 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Trainer");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Groups.GroupTrainerSubstitution", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany("CreatedGroupTrainerSubstitutions")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
+                        .WithMany("TrainerSubstitutions")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "SubstituteTrainer")
+                        .WithMany("GroupTrainerSubstitutions")
+                        .HasForeignKey("SubstituteTrainerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Group");
+
+                    b.Navigation("SubstituteTrainer");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Groups.TrainingGroup", b =>
                 {
                     b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
@@ -1952,6 +2027,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.Navigation("TrainerAssignments");
 
+                    b.Navigation("TrainerSubstitutions");
+
                     b.Navigation("Trainers");
                 });
 
@@ -1982,6 +2059,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.Navigation("CreatedGroupTrainerAssignments");
 
+                    b.Navigation("CreatedGroupTrainerSubstitutions");
+
                     b.Navigation("CreatedMembershipRefunds");
 
                     b.Navigation("CreatedMembershipSales");
@@ -1993,6 +2072,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("GrantedAdministratorAttendanceGroupGrants");
 
                     b.Navigation("GroupTrainerAssignments");
+
+                    b.Navigation("GroupTrainerSubstitutions");
 
                     b.Navigation("MembershipChanges");
 

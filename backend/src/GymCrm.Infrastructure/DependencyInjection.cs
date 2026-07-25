@@ -45,6 +45,7 @@ public static class DependencyInjection
 
         services.AddScoped<IPasswordHashService, PasswordHashService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IEffectiveGroupAssignmentService, EffectiveGroupAssignmentService>();
         services.AddScoped<IAccessScopeService, AccessScopeService>();
         services.AddScoped<IAdministratorAttendanceGroupGrantService, AdministratorAttendanceGroupGrantService>();
         services.AddSingleton(TimeProvider.System);

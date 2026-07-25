@@ -93,6 +93,7 @@ internal static class ClientEndpoints
         string? quickFilters,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IEffectiveGroupAssignmentService effectiveGroupAssignmentService,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -142,6 +143,9 @@ internal static class ClientEndpoints
         var hasElevatedClientAccess = UserRoleAuthorizationPolicy.GetOperationalScopeKind(currentUser.Role) != AccessScopeKind.AssignedGroups;
         var unifiedSearch = !string.IsNullOrWhiteSpace(query) ? query : search;
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var effectiveGroupIds = !hasElevatedClientAccess
+            ? await effectiveGroupAssignmentService.ListEffectiveAssignedGroupIdsAsync(currentUser.Id, cancellationToken)
+            : Array.Empty<Guid>();
 
         if (!hasElevatedClientAccess && !string.IsNullOrWhiteSpace(phone))
         {
@@ -151,7 +155,7 @@ internal static class ClientEndpoints
         var clientsQuery = dbContext.Clients.AsNoTracking();
         if (currentUser.Role == UserRole.Coach)
         {
-            clientsQuery = ApplyCoachClientScope(clientsQuery, currentUser.Id, dbContext);
+            clientsQuery = ApplyCoachClientScope(clientsQuery, effectiveGroupIds);
         }
 
         if (!string.IsNullOrWhiteSpace(unifiedSearch))
@@ -278,7 +282,7 @@ internal static class ClientEndpoints
                 clientsQuery,
                 parsedQuickFilters,
                 hasElevatedClientAccess,
-                currentUser.Id,
+                effectiveGroupIds,
                 today);
         }
 
@@ -286,7 +290,7 @@ internal static class ClientEndpoints
         var quickFilterCounts = await BuildQuickFilterCountsAsync(
             quickFilterCountBaseQuery,
             hasElevatedClientAccess,
-            currentUser.Id,
+            effectiveGroupIds,
             today,
             cancellationToken);
         var activeCount = await statuslessQuery.CountAsync(
@@ -318,13 +322,13 @@ internal static class ClientEndpoints
                 client.Groups
                     .Where(clientGroup =>
                         hasElevatedClientAccess ||
-                        clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
+                        effectiveGroupIds.Contains(clientGroup.GroupId))
                     .Select(clientGroup => clientGroup.GroupId)
                     .ToArray(),
                 client.Groups
                     .Where(clientGroup =>
                         hasElevatedClientAccess ||
-                        clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
+                        effectiveGroupIds.Contains(clientGroup.GroupId))
                     .Select(clientGroup => new ClientGroupSummaryResponse(
                         clientGroup.GroupId,
                         clientGroup.Group.Name,
@@ -403,9 +407,7 @@ internal static class ClientEndpoints
                         attendance.ClientId == client.Id &&
                         attendance.IsPresent &&
                         (hasElevatedClientAccess ||
-                         dbContext.GroupTrainers.Any(groupTrainer =>
-                             groupTrainer.GroupId == attendance.GroupId &&
-                             groupTrainer.TrainerId == currentUser.Id)))
+                         effectiveGroupIds.Contains(attendance.GroupId)))
                     .OrderByDescending(attendance => attendance.TrainingDate)
                     .ThenByDescending(attendance => attendance.UpdatedAt)
                     .ThenByDescending(attendance => attendance.Id)
@@ -417,8 +419,8 @@ internal static class ClientEndpoints
         var responseItems = await HydrateClientListItemsAsync(
             projectedItems,
             hasElevatedClientAccess,
-            currentUser.Id,
             dbContext,
+            effectiveGroupIds,
             cancellationToken);
 
         return TypedResults.Ok(new ClientListResponse(
@@ -598,6 +600,7 @@ internal static class ClientEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IBusinessDateProvider businessDateProvider,
+        IEffectiveGroupAssignmentService effectiveGroupAssignmentService,
         ILoggerFactory loggerFactory,
         CancellationToken cancellationToken)
     {
@@ -632,8 +635,11 @@ internal static class ClientEndpoints
             return TypedResults.Ok(MapDetails(client, attendanceHistory, businessDateProvider.Today, loggerFactory.CreateLogger("ClientNotesMetadata")));
         }
 
+        var effectiveGroupIds = await effectiveGroupAssignmentService.ListEffectiveAssignedGroupIdsAsync(
+            currentUser.Id,
+            cancellationToken);
         var coachGroups = client.Groups
-            .Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
+            .Where(clientGroup => effectiveGroupIds.Contains(clientGroup.GroupId))
             .ToArray();
 
         if (coachGroups.Length == 0)
@@ -2135,7 +2141,7 @@ internal static class ClientEndpoints
     private static async Task<ClientQuickFilterCountsResponse> BuildQuickFilterCountsAsync(
         IQueryable<Client> baseQuery,
         bool hasElevatedClientAccess,
-        Guid currentUserId,
+        IReadOnlyCollection<Guid> effectiveGroupIds,
         DateOnly today,
         CancellationToken cancellationToken)
     {
@@ -2143,28 +2149,28 @@ internal static class ClientEndpoints
                 baseQuery,
                 [ClientQuickFilter.WithoutMembership],
                 hasElevatedClientAccess,
-                currentUserId,
+                effectiveGroupIds,
                 today)
             .CountAsync(cancellationToken);
         var expiringSoonCount = await ApplyQuickFilters(
                 baseQuery,
                 [ClientQuickFilter.ExpiringSoon],
                 hasElevatedClientAccess,
-                currentUserId,
+                effectiveGroupIds,
                 today)
             .CountAsync(cancellationToken);
         var withoutGroupCount = await ApplyQuickFilters(
                 baseQuery,
                 [ClientQuickFilter.WithoutGroup],
                 hasElevatedClientAccess,
-                currentUserId,
+                effectiveGroupIds,
                 today)
             .CountAsync(cancellationToken);
         var trialCount = await ApplyQuickFilters(
                 baseQuery,
                 [ClientQuickFilter.Trial],
                 hasElevatedClientAccess,
-                currentUserId,
+                effectiveGroupIds,
                 today)
             .CountAsync(cancellationToken);
 
@@ -2179,7 +2185,7 @@ internal static class ClientEndpoints
         IQueryable<Client> query,
         IReadOnlyCollection<ClientQuickFilter> quickFilters,
         bool hasElevatedClientAccess,
-        Guid currentUserId,
+        IReadOnlyCollection<Guid> effectiveGroupIds,
         DateOnly today)
     {
         var withoutMembership = quickFilters.Contains(ClientQuickFilter.WithoutMembership);
@@ -2212,7 +2218,7 @@ internal static class ClientEndpoints
             (withoutGroup &&
              !client.Groups.Any(clientGroup =>
                  hasElevatedClientAccess ||
-                 clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUserId))) ||
+                 effectiveGroupIds.Contains(clientGroup.GroupId))) ||
             (trial &&
              client.Memberships
                 .Where(membership => membership.ValidTo == null)
@@ -3081,17 +3087,9 @@ internal static class ClientEndpoints
 
     private static IQueryable<Client> ApplyCoachClientScope(
         IQueryable<Client> query,
-        Guid trainerId,
-        GymCrmDbContext dbContext)
+        IReadOnlyCollection<Guid> effectiveGroupIds)
     {
-        var assignedClientIds = dbContext.ClientGroups
-            .Where(clientGroup => dbContext.GroupTrainers.Any(
-                groupTrainer =>
-                    groupTrainer.GroupId == clientGroup.GroupId &&
-                    groupTrainer.TrainerId == trainerId))
-            .Select(clientGroup => clientGroup.ClientId);
-
-        return query.Where(client => assignedClientIds.Contains(client.Id));
+        return query.Where(client => client.Groups.Any(clientGroup => effectiveGroupIds.Contains(clientGroup.GroupId)));
     }
 
     private static IQueryable<Client> ApplyFullNameSearch(IQueryable<Client> query, string fullName)
@@ -3296,18 +3294,11 @@ internal static class ClientEndpoints
             : null;
     }
 
-    private static ClientListItemResponse MapListItem(Client client, User currentUser)
-    {
-        return currentUser.Role == UserRole.Coach
-            ? MapCoachListItem(client, currentUser.Id)
-            : MapManagerListItem(client);
-    }
-
     private static async Task<IReadOnlyList<ClientListItemResponse>> HydrateClientListItemsAsync(
         IReadOnlyList<ClientListItemResponse> items,
         bool hasElevatedClientAccess,
-        Guid currentUserId,
         GymCrmDbContext dbContext,
+        IReadOnlyCollection<Guid> effectiveGroupIds,
         CancellationToken cancellationToken)
     {
         if (items.Count == 0)
@@ -3338,13 +3329,7 @@ internal static class ClientEndpoints
 
         if (!hasElevatedClientAccess)
         {
-            var coachGroupIds = await dbContext.GroupTrainers
-                .AsNoTracking()
-                .Where(groupTrainer => groupTrainer.TrainerId == currentUserId)
-                .Select(groupTrainer => groupTrainer.GroupId)
-                .ToArrayAsync(cancellationToken);
-
-            attendanceQuery = attendanceQuery.Where(attendance => coachGroupIds.Contains(attendance.GroupId));
+            attendanceQuery = attendanceQuery.Where(attendance => effectiveGroupIds.Contains(attendance.GroupId));
         }
 
         var lastVisits = await attendanceQuery
@@ -3378,83 +3363,6 @@ internal static class ClientEndpoints
                 };
             })
             .ToArray();
-    }
-
-    private static ClientListItemResponse MapManagerListItem(Client client)
-    {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var groups = MapGroups(client.Groups);
-        var currentMembership = GetCurrentMembership(client);
-
-        return new ClientListItemResponse(
-            client.Id,
-            client.LastName,
-            client.FirstName,
-            client.MiddleName,
-            BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
-            client.Phone,
-            client.BranchId,
-            client.Branch.Name,
-            client.Status.ToString(),
-            groups.Select(group => group.Id).ToArray(),
-            groups,
-            client.Contacts.Count,
-            MapPhoto(client),
-            client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
-            client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-            HasActiveMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            MapCurrentMembershipSummary(currentMembership),
-            currentMembership is not null,
-            GetMembershipState(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership).ToString(),
-            client.AttendanceEntries
-                .Where(attendance => attendance.IsPresent)
-                .OrderByDescending(attendance => attendance.TrainingDate)
-                .ThenByDescending(attendance => attendance.UpdatedAt)
-                .Select(attendance => (DateOnly?)attendance.TrainingDate)
-                .FirstOrDefault(),
-            BuildActionHints(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(), currentMembership, groups.Count),
-            client.UpdatedAt);
-    }
-
-    private static ClientListItemResponse MapCoachListItem(Client client, Guid coachId)
-    {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var coachGroups = client.Groups
-            .Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == coachId))
-            .ToArray();
-        var groups = MapGroups(coachGroups);
-        var currentMembership = GetCurrentMembership(client);
-
-        return new ClientListItemResponse(
-            client.Id,
-            client.LastName,
-            client.FirstName,
-            client.MiddleName,
-            BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
-            string.Empty,
-            client.BranchId,
-            client.Branch.Name,
-            client.Status.ToString(),
-            groups.Select(group => group.Id).ToArray(),
-            groups,
-            0,
-            MapPhoto(client),
-            client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
-            client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-            HasActiveMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            MapCurrentMembershipSummary(currentMembership),
-            currentMembership is not null,
-            GetMembershipState(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership).ToString(),
-            client.AttendanceEntries
-                .Where(attendance =>
-                    attendance.IsPresent &&
-                    coachGroups.Select(group => group.GroupId).Contains(attendance.GroupId))
-                .OrderByDescending(attendance => attendance.TrainingDate)
-                .ThenByDescending(attendance => attendance.UpdatedAt)
-                .Select(attendance => (DateOnly?)attendance.TrainingDate)
-                .FirstOrDefault(),
-            BuildActionHints(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(), currentMembership, groups.Count),
-            client.UpdatedAt);
     }
 
     private static ClientDetailsResponse MapDetails(

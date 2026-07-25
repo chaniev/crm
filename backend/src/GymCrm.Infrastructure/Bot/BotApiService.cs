@@ -141,6 +141,9 @@ internal sealed class BotApiService(
         }
 
         var group = groupAccess.Group!;
+        var effectiveGroupIds = user.Role == UserRole.Coach
+            ? (await accessScopeService.GetAccessScopeAsync(user, cancellationToken)).AssignedGroupIds
+            : null;
         var clients = await dbContext.Clients
             .AsNoTracking()
             .Where(client =>
@@ -152,9 +155,6 @@ internal sealed class BotApiService(
                     .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
-            .Include(client => client.Groups)
-                .ThenInclude(clientGroup => clientGroup.Group)
-                    .ThenInclude(currentGroup => currentGroup.Trainers)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Branch)
@@ -178,6 +178,7 @@ internal sealed class BotApiService(
                 .Select(client => MapAttendanceClient(
                     client,
                     user,
+                    effectiveGroupIds,
                     groupId,
                     trainingDate,
                     businessDateProvider.Today))
@@ -363,9 +364,11 @@ internal sealed class BotApiService(
             .AsNoTracking()
             .Where(client => client.Status == ClientStatus.Active);
 
+        IReadOnlyList<Guid>? effectiveGroupIds = null;
         if (user.Role == UserRole.Coach)
         {
-            baseQuery = ApplyCoachClientScope(baseQuery, user.Id);
+            effectiveGroupIds = (await accessScopeService.GetAccessScopeAsync(user, cancellationToken)).AssignedGroupIds;
+            baseQuery = ApplyCoachClientScope(baseQuery, effectiveGroupIds);
         }
 
         if (!string.IsNullOrWhiteSpace(query))
@@ -413,7 +416,7 @@ internal sealed class BotApiService(
 
         return BotApiResult<BotClientSearchResponse>.Success(new BotClientSearchResponse(
             pageItems
-                .Select(client => MapClientListItem(client, user, today))
+                .Select(client => MapClientListItem(client, user, effectiveGroupIds, today))
                 .ToArray(),
             skip,
             take,
@@ -458,14 +461,12 @@ internal sealed class BotApiService(
         }
 
         var allowedGroupIds = user.Role == UserRole.Coach
-            ? client.Groups
-                .Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == user.Id))
-                .Select(clientGroup => clientGroup.GroupId)
-                .Distinct()
-                .ToArray()
+            ? (await accessScopeService.GetAccessScopeAsync(user, cancellationToken)).AssignedGroupIds
             : null;
 
-        if (user.Role == UserRole.Coach && (allowedGroupIds is null || allowedGroupIds.Length == 0))
+        if (user.Role == UserRole.Coach &&
+            (allowedGroupIds is null ||
+             !client.Groups.Any(clientGroup => allowedGroupIds.Contains(clientGroup.GroupId))))
         {
             return BotApiResult<BotClientCard>.Failure(BotApiError.Forbidden);
         }
@@ -474,7 +475,7 @@ internal sealed class BotApiService(
             .AsNoTracking()
             .Where(attendance => attendance.ClientId == clientId);
 
-        if (allowedGroupIds is { Length: > 0 })
+        if (allowedGroupIds is { Count: > 0 })
         {
             attendanceHistoryQuery = attendanceHistoryQuery
                 .Where(attendance => allowedGroupIds.Contains(attendance.GroupId));
@@ -493,7 +494,7 @@ internal sealed class BotApiService(
             .ToArrayAsync(cancellationToken);
 
         var today = businessDateProvider.Today;
-        return BotApiResult<BotClientCard>.Success(MapClientCard(client, user, today, attendanceHistory));
+        return BotApiResult<BotClientCard>.Success(MapClientCard(client, user, allowedGroupIds, today, attendanceHistory));
     }
 
     public async Task<BotApiResult<IReadOnlyList<BotExpiringMembershipListItem>>> ListExpiringMembershipsAsync(
@@ -774,16 +775,11 @@ internal sealed class BotApiService(
         return new BotAttendanceDateWindow(window.Today, window.MinTrainingDate, window.MaxTrainingDate);
     }
 
-    private IQueryable<Client> ApplyCoachClientScope(IQueryable<Client> query, Guid trainerId)
+    private static IQueryable<Client> ApplyCoachClientScope(
+        IQueryable<Client> query,
+        IReadOnlyCollection<Guid> effectiveGroupIds)
     {
-        var assignedClientIds = dbContext.ClientGroups
-            .Where(clientGroup => dbContext.GroupTrainers.Any(
-                groupTrainer =>
-                    groupTrainer.GroupId == clientGroup.GroupId &&
-                    groupTrainer.TrainerId == trainerId))
-            .Select(clientGroup => clientGroup.ClientId);
-
-        return query.Where(client => assignedClientIds.Contains(client.Id));
+        return query.Where(client => client.Groups.Any(clientGroup => effectiveGroupIds.Contains(clientGroup.GroupId)));
     }
 
     private static IQueryable<Client> ApplyFullNameSearch(IQueryable<Client> query, string fullName)
@@ -838,13 +834,14 @@ internal sealed class BotApiService(
     private static BotAttendanceClient MapAttendanceClient(
         Client client,
         User currentUser,
+        IReadOnlyCollection<Guid>? effectiveGroupIds,
         Guid groupId,
         DateOnly trainingDate,
         DateOnly businessDate)
     {
         var currentMembership = GetCurrentMembership(client);
         var visibleGroups = currentUser.Role == UserRole.Coach
-            ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
+            ? client.Groups.Where(clientGroup => effectiveGroupIds?.Contains(clientGroup.GroupId) == true)
             : client.Groups.AsEnumerable();
         var isProfessional = IsProfessional(currentMembership, businessDate);
         var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
@@ -875,13 +872,14 @@ internal sealed class BotApiService(
     private static BotClientListItem MapClientListItem(
         Client client,
         User user,
+        IReadOnlyCollection<Guid>? effectiveGroupIds,
         DateOnly trainingDate)
     {
         var currentMembership = GetCurrentMembership(client);
         var isProfessional = IsProfessional(currentMembership, trainingDate);
         var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
         var groups = user.Role == UserRole.Coach
-            ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == user.Id))
+            ? client.Groups.Where(clientGroup => effectiveGroupIds?.Contains(clientGroup.GroupId) == true)
             : client.Groups.AsEnumerable();
 
         return new BotClientListItem(
@@ -911,6 +909,7 @@ internal sealed class BotApiService(
     private static BotClientCard MapClientCard(
         Client client,
         User user,
+        IReadOnlyCollection<Guid>? effectiveGroupIds,
         DateOnly trainingDate,
         IReadOnlyList<BotAttendanceHistoryItem> attendanceHistory)
     {
@@ -918,7 +917,7 @@ internal sealed class BotApiService(
         var isProfessional = IsProfessional(currentMembership, trainingDate);
         var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
         var groups = user.Role == UserRole.Coach
-            ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == user.Id))
+            ? client.Groups.Where(clientGroup => effectiveGroupIds?.Contains(clientGroup.GroupId) == true)
             : client.Groups.AsEnumerable();
 
         return new BotClientCard(

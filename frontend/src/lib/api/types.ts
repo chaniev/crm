@@ -734,6 +734,67 @@ export type GroupClientsResponse = {
   clients: GroupClient[]
 }
 
+export type GroupTrainerSubstitutionStatus =
+  | 'Upcoming'
+  | 'Active'
+  | 'Expired'
+  | 'Cancelled'
+
+export type GroupTrainerSubstitutionAllowedActions = {
+  canEdit: boolean
+  canCancel: boolean
+}
+
+export type GroupTrainerSubstitute = {
+  id: string
+  fullName: string
+  login: string
+  isActive: boolean
+}
+
+export type GroupTrainerSubstitution = {
+  id: string
+  groupId: string
+  substituteTrainer: GroupTrainerSubstitute
+  startsOn: string
+  endsOn: string
+  status: GroupTrainerSubstitutionStatus
+  cancelledAt: string | null
+  createdAt: string
+  updatedAt: string
+  allowedActions: GroupTrainerSubstitutionAllowedActions
+}
+
+export type GroupTrainerSubstitutionHistoryPage = {
+  items: GroupTrainerSubstitution[]
+  totalCount: number
+  skip: number
+  take: number
+}
+
+export type GroupTrainerSubstitutionCreateUnavailableReason = {
+  code: string
+  message: string
+}
+
+export type GroupTrainerSubstitutionsResponse = {
+  current: GroupTrainerSubstitution[]
+  history: GroupTrainerSubstitutionHistoryPage
+  canCreate: boolean
+  createUnavailableReason: GroupTrainerSubstitutionCreateUnavailableReason | null
+}
+
+export type GetGroupTrainerSubstitutionsParams = {
+  historySkip?: number
+  historyTake?: number
+}
+
+export type UpsertGroupTrainerSubstitutionRequest = {
+  substituteTrainerId: string
+  startsOn: string
+  endsOn: string
+}
+
 export type AuditLogEntry = {
   id: string
   userId?: string

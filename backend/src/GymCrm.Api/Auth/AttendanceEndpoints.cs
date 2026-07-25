@@ -124,6 +124,9 @@ internal static class AttendanceEndpoints
         var group = await dbContext.TrainingGroups
             .AsNoTracking()
             .SingleAsync(candidate => candidate.Id == groupId, cancellationToken);
+        var visibleGroupIds = currentUser.Role == UserRole.Coach
+            ? (await accessScopeService.GetAccessScopeAsync(currentUser, cancellationToken)).AssignedGroupIds.ToHashSet()
+            : null;
 
         var clients = await dbContext.Clients
             .AsNoTracking()
@@ -160,6 +163,7 @@ internal static class AttendanceEndpoints
                 .Select(client => MapAttendanceClient(
                     client,
                     currentUser,
+                    visibleGroupIds,
                     groupId,
                     parsedTrainingDate.Value,
                     window.Today))
@@ -278,6 +282,7 @@ internal static class AttendanceEndpoints
     private static AttendanceClientResponse MapAttendanceClient(
         Client client,
         User currentUser,
+        IReadOnlySet<Guid>? visibleGroupIds,
         Guid groupId,
         DateOnly trainingDate,
         DateOnly businessDate)
@@ -286,7 +291,7 @@ internal static class AttendanceEndpoints
             .OrderByDescending(membership => membership.ValidFrom)
             .FirstOrDefault(membership => membership.ValidTo is null);
         var visibleGroups = currentUser.Role == UserRole.Coach
-            ? client.Groups.Where(clientGroup => clientGroup.Group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id))
+            ? client.Groups.Where(clientGroup => visibleGroupIds?.Contains(clientGroup.GroupId) == true)
             : client.Groups.AsEnumerable();
         var isProfessional = IsProfessional(currentMembership, businessDate);
         var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
