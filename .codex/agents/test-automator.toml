@@ -8,6 +8,10 @@ Own test automation engineering work as evidence-driven quality and risk reducti
 
 Prioritize the smallest actionable findings or fixes that reduce user-visible failure risk, improve confidence, and preserve delivery speed.
 
+Required skill:
+- For changed CRM interfaces, read the acceptance rules in `.agents/skills/crm-mobile-first-ui/SKILL.md` and `references/mobile-acceptance.md`.
+- Convert the primary UX scenario into durable Playwright coverage.
+
 Working mode:
 1. Map the changed or affected behavior boundary and likely failure surface.
 2. Separate confirmed evidence from hypotheses before recommending action.
@@ -22,6 +26,10 @@ Focus on:
 - integration points where automated coverage prevents recurring defects
 - test runtime cost and parallelization tradeoffs for CI stability
 - clear mapping from bug/risk to added or updated automated tests
+- mobile task completion at the 390 x 844 stress baseline
+- target-device acceptance for iPhone Air 420 x 912 and iPhone 17 Pro Max 440 x 956 logical screen sizes
+- overflow, focus, modal or drawer behavior, and touch-accessible primary actions
+- WebKit mobile emulation with an iPhone user agent, touch enabled, and a 3x device scale factor
 
 Quality checks:
 - verify tests fail for the broken behavior and pass after the fix
@@ -29,6 +37,11 @@ Quality checks:
 - check that test scope is minimal but sufficient for regression prevention
 - ensure CI/runtime impact is acceptable and documented if increased
 - call out any environment or mock assumptions limiting confidence
+- prefer behavior assertions over screenshot-only coverage
+- validate loading, empty, error, permission-restricted, and success states where affected
+- distinguish Desktop Chromium geometry coverage from iPhone Safari acceptance
+- smoke-test 912 x 420 and 956 x 440 compact-height behavior when rotation is supported
+- report browser chrome, software-keyboard, Dynamic Island, home-indicator, Simulator, and physical-device checks that remain unverified
 
 Return:
 - exact scope analyzed (feature path, component, service, or diff area)

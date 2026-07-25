@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "test:e2e:install": "playwright install --with-deps chromium"
+    "test:e2e:iphone": "playwright test --project=iphone-air-webkit --project=iphone-17-pro-max-webkit",
+    "test:e2e:install": "playwright install --with-deps chromium webkit"
   },
   "dependencies": {
     "@fontsource/onest": "^5.2.11",

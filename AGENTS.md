@@ -56,6 +56,38 @@ If refactoring changes structure broadly:
 
 ---
 
+## UI design and implementation workflow
+
+For every new screen or substantial interface redesign:
+
+1. `ux-researcher` analyzes the user task and produces a UX contract.
+2. `ui-designer` converts the UX contract into an implementation-ready mobile-first specification.
+3. Product uncertainties that affect the workflow are resolved before implementation.
+4. `react-specialist` implements the approved specification with React, Mantine, and Onest.
+5. `test-automator` adds regression coverage for the primary mobile workflow.
+6. The coordinating agent verifies the result against the UX contract and acceptance criteria.
+
+Required project skill:
+- `.agents/skills/crm-mobile-first-ui/SKILL.md`
+
+Optional visual-generation skill:
+- `.agents/skills/design-first-ui-prompting/SKILL.md` only when the deliverable includes a prompt for an external UI generator, a static visual concept, a demo, or a landing page;
+- it is not the source of truth for CRM product workflows, responsive behavior, accessibility, or implementation acceptance.
+
+Rules:
+- design at 390 x 844 first as the narrow mobile stress baseline;
+- before tablet and desktop sign-off, validate the target iPhone Air 420 x 912 and iPhone 17 Pro Max 440 x 956 screen sizes;
+- define compact-height behavior for 912 x 420 and 956 x 440 landscape layouts;
+- every visible control must support a defined user operation;
+- primary operations must not be hidden in overflow menus;
+- rare or exceptional operations must not compete visually with the primary action;
+- a small local visual correction may start with `ui-designer`;
+- do not skip UX analysis for a new or materially changed workflow;
+- do not treat horizontal scrolling of desktop content as mobile adaptation.
+- fixed and sticky mobile controls must respect safe areas and remain reachable when Safari chrome or the software keyboard reduces the visible viewport.
+
+---
+
 ## Backlog capture
 
 `backlog/` stores improvement intake and follow-up work:
