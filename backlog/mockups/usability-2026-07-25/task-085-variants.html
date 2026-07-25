@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TASK-085 · UX variants B and C</title>
+  <style>
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-400-normal.woff2") format("woff2");
+      font-weight: 400;
+    }
+
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-500-normal.woff2") format("woff2");
+      font-weight: 500;
+    }
+
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-700-normal.woff2") format("woff2");
+      font-weight: 700;
+    }
+
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-800-normal.woff2") format("woff2");
+      font-weight: 800;
+    }
+
+    :root {
+      --brand-0: #edf5f2;
+      --brand-1: #d4e6df;
+      --brand-4: #549d83;
+      --brand-5: #378c71;
+      --brand-6: #207b61;
+      --brand-7: #145a52;
+      --brand-9: #0a2522;
+      --accent-0: #fff4e5;
+      --accent-4: #e4a542;
+      --accent-6: #be7f28;
+      --page: #f3f5f1;
+      --surface: #ffffff;
+      --text: #17312d;
+      --muted: #78837f;
+      --border: #d9e4de;
+      --danger: #c96338;
+      --shadow: 0 8px 24px rgba(23, 49, 45, 0.07), 0 2px 7px rgba(23, 49, 45, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    body {
+      background: var(--page);
+      color: var(--text);
+      font-family: "Onest", ui-sans-serif, system-ui, sans-serif;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input {
+      color: inherit;
+      font: inherit;
+    }
+
+    button {
+      cursor: default;
+    }
+
+    h1,
+    p {
+      margin: 0;
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 110% 42%, rgba(84, 157, 131, 0.07), transparent 36%),
+        var(--page);
+    }
+
+    .appbar {
+      position: relative;
+      z-index: 20;
+      height: 72px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #dde5e0;
+      background: rgba(255, 255, 255, 0.98);
+    }
+
+    .brand {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--brand-7);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.05;
+    }
+
+    .brand-role {
+      max-width: 245px;
+      margin-top: 4px;
+      overflow: hidden;
+      color: #89938f;
+      font-size: 12px;
+      line-height: 1.1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .profile {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: #ffffff;
+      color: var(--brand-7);
+    }
+
+    .page {
+      position: absolute;
+      inset: 72px 0 76px;
+      padding: 12px 16px 0;
+      overflow: hidden;
+    }
+
+    .page-header {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .page-title {
+      min-width: 0;
+    }
+
+    .page-title h1 {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .page-title p {
+      margin-top: 5px;
+      overflow: hidden;
+      color: #87918d;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      gap: 8px;
+    }
+
+    .icon-button,
+    .create-button,
+    .filter-button,
+    .filter-chip,
+    .reset-button,
+    .clear-search {
+      min-width: 44px;
+      min-height: 44px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+    }
+
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      color: var(--brand-7);
+    }
+
+    .create-button {
+      width: 52px;
+      height: 52px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-color: var(--accent-4);
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e4a542, #d89735);
+      box-shadow: 0 8px 18px rgba(190, 127, 40, 0.2);
+      color: #ffffff;
+    }
+
+    .locator-row {
+      height: 48px;
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 48px;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .search-field {
+      position: relative;
+      min-width: 0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 46px 0 14px;
+      border: 1px solid #cfd9d4;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #7f8a85;
+      box-shadow: 0 1px 0 rgba(23, 49, 45, 0.02);
+    }
+
+    .search-field[data-filled="true"] {
+      border-color: rgba(20, 90, 82, 0.48);
+      color: var(--text);
+      box-shadow: 0 0 0 2px rgba(32, 123, 97, 0.09);
+    }
+
+    .search-icon {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      color: var(--brand-7);
+    }
+
+    .search-value {
+      min-width: 0;
+      overflow: hidden;
+      font-size: 16px;
+      font-weight: 500;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .search-field[data-filled="true"] .search-value {
+      font-weight: 700;
+    }
+
+    .clear-search {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: #65726d;
+      font-size: 21px;
+    }
+
+    .filter-button {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      color: var(--brand-7);
+    }
+
+    .filter-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--page);
+      border-radius: 999px;
+      background: var(--brand-6);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .active-filters {
+      height: 44px;
+      margin-top: 8px;
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .filter-chip,
+    .reset-button {
+      height: 44px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .filter-chip {
+      border-color: #b8d6cc;
+      background: var(--brand-0);
+      color: var(--brand-7);
+    }
+
+    .filter-chip span {
+      margin-left: 5px;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .reset-button {
+      width: 44px;
+      min-width: 44px;
+      padding: 0;
+      color: #596762;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .reset-button svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .client-list {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .client-card {
+      position: relative;
+      height: 108px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) 20px;
+      grid-template-rows: 40px 18px 22px;
+      column-gap: 9px;
+      align-items: center;
+      overflow: hidden;
+      border: 1px solid #e0e7e3;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: var(--shadow);
+    }
+
+    .client-card[data-selected="true"] {
+      border-color: rgba(32, 123, 97, 0.78);
+      box-shadow:
+        inset 3px 0 0 var(--brand-6),
+        var(--shadow);
+    }
+
+    .client-avatar {
+      grid-column: 1;
+      grid-row: 1 / 4;
+      align-self: center;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #f0f3f1;
+      color: var(--brand-9);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .client-name {
+      grid-column: 2 / 4;
+      grid-row: 1;
+      align-self: center;
+      min-width: 0;
+      padding-right: 18px;
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.12px;
+      line-height: 20px;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .client-meta {
+      grid-column: 2;
+      grid-row: 2;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      overflow: hidden;
+      color: #808b86;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 18px;
+      white-space: nowrap;
+    }
+
+    .client-phone,
+    .client-branch {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .client-phone {
+      flex: 0 1 auto;
+    }
+
+    .client-branch {
+      min-width: 0;
+      color: var(--brand-7);
+      font-weight: 700;
+    }
+
+    .meta-divider {
+      flex: 0 0 auto;
+      color: #b0b8b4;
+    }
+
+    .client-status-row {
+      grid-column: 2;
+      grid-row: 3;
+      min-width: 0;
+      display: flex;
+      align-items: end;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .status-pill {
+      min-width: 0;
+      height: 20px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #d9f5e9;
+      color: #24755c;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pill[data-tone="attention"] {
+      background: var(--accent-0);
+      color: #a15f23;
+    }
+
+    .status-pill[data-tone="archived"] {
+      background: #edf0ef;
+      color: #65716c;
+    }
+
+    .client-chevron {
+      grid-column: 3;
+      grid-row: 1 / 4;
+      align-self: center;
+      justify-self: end;
+      color: var(--brand-7);
+    }
+
+    .focused-page {
+      padding-top: 12px;
+    }
+
+    .focused-page .locator-row {
+      margin-top: 0;
+    }
+
+    .focused-page .client-list {
+      margin-top: 8px;
+    }
+
+    .focused-page .client-card {
+      height: 96px;
+      padding: 10px 12px;
+      grid-template-columns: 36px minmax(0, 1fr) 20px;
+      grid-template-rows: 36px 18px 18px;
+      column-gap: 9px;
+      border-radius: 14px;
+      box-shadow: 0 5px 16px rgba(23, 49, 45, 0.055);
+    }
+
+    .focused-page .client-avatar {
+      width: 36px;
+      height: 36px;
+      font-size: 14px;
+    }
+
+    .focused-page .client-name {
+      padding-right: 10px;
+      font-size: 16px;
+      line-height: 18px;
+    }
+
+    .focused-page .client-meta {
+      font-size: 11px;
+      line-height: 18px;
+    }
+
+    .focused-page .client-status-row {
+      align-items: center;
+    }
+
+    .focused-page .status-pill {
+      height: 18px;
+      padding-inline: 7px;
+      font-size: 9px;
+    }
+
+    .bottom-nav {
+      position: absolute;
+      z-index: 30;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 76px;
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4px;
+      border-top: 1px solid #dfe5e1;
+      background: rgba(255, 255, 255, 0.985);
+      box-shadow: 0 -8px 28px rgba(23, 49, 45, 0.06);
+    }
+
+    .nav-item {
+      min-width: 0;
+      min-height: 60px;
+      padding: 4px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border: 0;
+      border-radius: 13px;
+      background: transparent;
+      color: var(--brand-9);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .nav-item span {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .nav-item[data-active="true"] {
+      background: linear-gradient(135deg, #378c71, #207b61);
+      color: #ffffff;
+    }
+
+    svg {
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 1.9;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const variant = params.get("variant") === "c" ? "c" : "b";
+
+    const icons = {
+      chevronDown: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></svg>`,
+      refresh: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>`,
+      plus: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>`,
+      search: `<svg aria-hidden="true" class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>`,
+      filters: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>`,
+      filterOff: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5h14l-5.4 6.2v4.3l-3.2 2v-6.3z"/><path d="m4 20 16-16"/></svg>`,
+      chevronRight: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>`,
+      home: `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m4 11 8-7 8 7v9h-6v-6h-4v6H4z"/></svg>`,
+      calendar: `<svg aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M8 3v5M16 3v5M4 10h16"/></svg>`,
+      clients: `<svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 20v-2.2A4.8 4.8 0 0 1 8.3 13h1.4a4.8 4.8 0 0 1 4.8 4.8V20M15 14.2a4.2 4.2 0 0 1 5.5 4V20"/></svg>`,
+      groups: `<svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19v-1.5A4.5 4.5 0 0 1 7 13h2a4.5 4.5 0 0 1 4.5 4.5V19M14 13h2.5a5 5 0 0 1 5 5v1"/></svg>`,
+      more: `<svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>`,
+    };
+
+    const clients = [
+      {
+        name: "Алексеев Алексей Александрович",
+        phone: "+7 900 000-00-12",
+        branch: "Филиал Юг",
+        status: "Без абонемента",
+        tone: "attention",
+      },
+      {
+        name: "Алексеев Алексей Дмитриевич",
+        phone: "+7 900 000-02-37",
+        branch: "Филиал Север",
+        status: "Без группы",
+        tone: "attention",
+      },
+      {
+        name: "Алексеев Андрей Александрович",
+        phone: "+7 900 000-01-17",
+        branch: "Филиал Центр",
+        status: "Активный",
+        tone: "active",
+      },
+      {
+        name: "Алексеева Анна Владимировна",
+        phone: "+7 900 000-01-62",
+        branch: "Филиал Запад",
+        status: "До 31 июля",
+        tone: "attention",
+      },
+      {
+        name: "Алексеев Антон Сергеевич",
+        phone: "+7 900 000-03-08",
+        branch: "Филиал Юг",
+        status: "Активный",
+        tone: "active",
+      },
+      {
+        name: "Алексеева Алина Романовна",
+        phone: "+7 900 000-05-19",
+        branch: "Филиал Север",
+        status: "В архиве",
+        tone: "archived",
+      },
+    ];
+
+    function appbar() {
+      return `
+        <header class="appbar">
+          <div class="brand">
+            <div class="brand-mark">K4</div>
+            <div>
+              <div class="brand-name">K-4PRO</div>
+              <div class="brand-role">Суперадминистратор · все филиалы</div>
+            </div>
+          </div>
+          <button class="profile" aria-label="Открыть профиль">
+            ${icons.chevronDown}
+          </button>
+        </header>
+      `;
+    }
+
+    function activeFilters() {
+      return `
+        <div class="active-filters" aria-label="Активные фильтры">
+          <button class="filter-chip" type="button">Без абонемента <span>×</span></button>
+          <button class="filter-chip" type="button">Без группы <span>×</span></button>
+          <button class="reset-button" aria-label="Сбросить фильтры" type="button">
+            ${icons.filterOff}
+          </button>
+        </div>
+      `;
+    }
+
+    function locator({ focused = false } = {}) {
+      return `
+        <div class="locator-row" role="search">
+          <div
+            aria-label="Поиск клиентов"
+            class="search-field"
+            data-filled="${focused}"
+            role="searchbox"
+          >
+            ${icons.search}
+            <span class="search-value">${focused ? "алексеев" : "Имя или телефон"}</span>
+            ${focused ? `<button class="clear-search" aria-label="Очистить поиск" type="button">×</button>` : ""}
+          </div>
+          <button class="filter-button" aria-label="Фильтры, активно: 2" type="button">
+            ${icons.filters}
+            <span class="filter-count">2</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function clientCard(client, index, dense = false) {
+      return `
+        <article
+          aria-label="Открыть клиента ${client.name}"
+          class="client-card${dense ? " client-card--dense" : ""}"
+          data-selected="${index === 0}"
+        >
+          <div class="client-avatar">${client.name.split(" ").slice(0, 2).map((part) => part[0]).join("")}</div>
+          <div class="client-name">${client.name}</div>
+          <div class="client-meta">
+            <span class="client-phone">${client.phone}</span>
+            <span class="meta-divider">·</span>
+            <span class="client-branch">${client.branch}</span>
+          </div>
+          <div class="client-status-row">
+            <span class="status-pill" data-tone="${client.tone}">${client.status}</span>
+          </div>
+          <div class="client-chevron">${icons.chevronRight}</div>
+        </article>
+      `;
+    }
+
+    function clientList(dense = false) {
+      return `
+        <section class="client-list" aria-label="Результаты поиска">
+          ${clients.map((client, index) => clientCard(client, index, dense)).join("")}
+        </section>
+      `;
+    }
+
+    function bottomNav() {
+      const items = [
+        ["home", "Главная"],
+        ["calendar", "Расписание"],
+        ["clients", "Клиенты"],
+        ["groups", "Группы"],
+        ["more", "Ещё"],
+      ];
+
+      return `
+        <nav class="bottom-nav" aria-label="Основная навигация">
+          ${items.map(([icon, label]) => `
+            <button class="nav-item" data-active="${label === "Клиенты"}" type="button">
+              ${icons[icon]}
+              <span>${label}</span>
+            </button>
+          `).join("")}
+        </nav>
+      `;
+    }
+
+    function renderBalanced() {
+      return `
+        <main class="screen">
+          ${appbar()}
+          <div class="page">
+            <div class="page-header">
+              <div class="page-title">
+                <h1>Клиенты</h1>
+                <p>300 клиентов · 4 филиала</p>
+              </div>
+              <div class="header-actions">
+                <button class="icon-button" aria-label="Обновить список" type="button">
+                  ${icons.refresh}
+                </button>
+                <button class="create-button" aria-label="Новый клиент" type="button">
+                  ${icons.plus}
+                </button>
+              </div>
+            </div>
+            ${locator()}
+            ${activeFilters()}
+            ${clientList()}
+          </div>
+          ${bottomNav()}
+        </main>
+      `;
+    }
+
+    function renderSearchFocused() {
+      return `
+        <main class="screen">
+          ${appbar()}
+          <div class="page focused-page">
+            ${locator({ focused: true })}
+            ${activeFilters()}
+            ${clientList(true)}
+          </div>
+          ${bottomNav()}
+        </main>
+      `;
+    }
+
+    document.getElementById("root").innerHTML =
+      variant === "c" ? renderSearchFocused() : renderBalanced();
+  </script>
+</body>
+</html>

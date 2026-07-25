@@ -50,6 +50,12 @@ chrome, software keyboard, safe areas, and a Simulator or physical device.
 
 ## TASK-085: visible mobile client search
 
+### UX variants
+
+- [Variant B — balanced identity-first list](TASK-085-variant-B.png)
+- [Variant C — search-focused dense list](TASK-085-variant-C.png)
+- [Reproducible HTML source](task-085-variants.html)
+
 ### Current state
 
 The mobile client screen shows a single `Фильтры` button. Search by name or
