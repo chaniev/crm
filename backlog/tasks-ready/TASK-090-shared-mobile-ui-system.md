@@ -87,6 +87,10 @@ mobile, но active filters остаются видимыми и удаляем�
 ### Shared mobile foundations
 
 - Typography, spacing, radii и density из normative contract.
+- Единая для mobile и desktop политика route-level copy: title + actions по
+  умолчанию, без декоративных subtitle/eyebrow/badge/intro/helper.
+- `decision/usefulness test` и placement допустимых validation, recovery,
+  constraint, security/legal и operational-state пояснений.
 - Touch target minimum `44 x 44`, gap minimum `8px`.
 - iPhone input text minimum `16px`.
 - Coarse-pointer compact-height shell.
@@ -96,6 +100,11 @@ mobile, но active filters остаются видимыми и удаляем�
 ### Shared component recipes
 
 - `PageLayout` / `PageHeader` / `PageSection`;
+- route-level `PageLayout` / `PageHeader` API без свободных
+  description/eyebrow/badge slots; optional context принимает только
+  operational decision data из нормативных исключений;
+- `SectionHeader` остаётся отдельным section-level contract и не используется
+  как обход запрета route-level пояснений;
 - `EntityLocatorBar`;
 - mobile-inline primary control mode для `CompactFilterPanel`;
 - `ActiveFiltersBar`;
@@ -159,7 +168,8 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - `420 x 912`: target iPhone Air acceptance.
 - `440 x 956`: target iPhone 17 Pro Max acceptance.
 - `768 x 1024`: tablet transformation без потери decision data.
-- `1440 x 1200`: compact desktop без mobile density.
+- `1440 x 1200`: compact desktop без mobile density и без
+  subtitle/intro/hero-copy, запрещённых на mobile.
 - `912 x 420`, `956 x 440`: touch compact-height shell, dynamic viewport,
   reachable primary action, no nested scroll trap.
 
@@ -193,6 +203,15 @@ Theme может менять brand/action/nav/accent presentation, но не:
       `3:1`.
 - [ ] `EntityLocatorBar`, active filters, range state и shared state panels
       имеют один documented API/recipe.
+- [ ] На mobile, tablet и desktop отсутствуют постоянные route-level
+      subtitle/eyebrow/badge/intro/helper, не прошедшие
+      `decision/usefulness test`.
+- [ ] В `client-details` под `Карточка клиента` нет текста `Управление и
+      история`; во forced password change нет badge `Обязательное действие`.
+- [ ] Допустимые validation, recovery, security/legal, prerequisite,
+      backend-owned constraint и operational-state пояснения находятся у
+      связанного поля, действия, toolbar/detail section или state panel, а не
+      используются как декоративный текст под `h1`.
 - [ ] Drawer/modal используют dynamic viewport, safe-area footer и focus return.
 - [ ] Нет unintended horizontal page scroll на `360`, `390`, `420`, `440`.
 - [ ] Theme-sensitive raw colors удалены из shared/feature code; static check
@@ -209,6 +228,10 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] Component tests shared locator, filters, known/unknown total range,
       TaskItem interaction semantics, states и temporary surfaces.
 - [ ] Representative E2E: Home, Schedule, Clients, Groups.
+- [ ] Representative screenshot review: auth, client detail, create/edit,
+      list, restricted, empty и error на `390 x 844`, `420 x 912`,
+      `440 x 956`, `768 x 1024` и `1440 x 1200` не возвращает декоративный
+      route-level copy.
 - [ ] Component/E2E fixture проверяет presentation и focus общего
       `RestrictedState`; реальная route wiring остаётся в `TASK-088`.
 - [ ] Повторить E2E с `default-green-v1` и `test-blue-coral-v1`.

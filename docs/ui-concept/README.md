@@ -24,7 +24,7 @@
 Предпочтительная стратегия: не переносить весь продукт на левый sidebar ради одного макета, а сохранить текущий `AppShell` с верхней ролевой навигацией и унифицировать все вкладки через общий operational pattern:
 
 ```text
-Compact intro -> Summary strip -> Filter bar -> Primary content surface
+Compact page header -> Summary/locator/filter -> Primary content surface
 ```
 
 Это сохраняет уже работающую механику CRM, но убирает разнобой между вкладками.
@@ -39,7 +39,13 @@ Compact intro -> Summary strip -> Filter bar -> Primary content surface
 
 ## Общие правила интерфейса
 
-- Header вкладки: один короткий title, одна task-oriented description, справа primary CTA и вторичные действия.
+- Header вкладки: один короткий title, справа primary CTA и вторичные действия.
+- Постоянные subtitle/eyebrow/badge/intro/helper под title запрещены на mobile
+  и desktop, если не проходят `decision/usefulness test` из
+  `docs/MOBILE_UI_CONTRACT.md`.
+- Допустимые пояснения к validation, recovery, constraint, security/legal или
+  operational state показываются у связанного поля, действия или state panel,
+  а не используются для заполнения header.
 - Ролевые бейджи показывать только когда они реально объясняют доступ или сценарий.
 - Summary strip: компактные stat pills в одну строку на desktop, wrap на mobile.
 - Filter bar: сначала частые фильтры, редкие фильтры в advanced area/drawer.
@@ -58,7 +64,7 @@ Compact intro -> Summary strip -> Filter bar -> Primary content surface
 - `sand` - нейтральный контекст.
 - `accent` - сроки, предупреждения, внимание.
 - `red` - ошибки, блокеры, unpaid-risk.
-- Radius: `24px` для intro, `16px` для content surfaces, `12px` для rows, `999px` для chips/tabs.
+- Radius: `24px` для route-level sections, `16px` для content surfaces, `12px` для rows, `999px` для chips/tabs.
 - Desktop row height: `64-72px`; controls: `36-40px`.
 - Между секциями: `24px`; внутри секций: `16px`.
 
@@ -167,7 +173,6 @@ Pagination
 1. Зафиксировать shared layout tokens и новые shared-компоненты.
 2. Привести `Группы` и `Пользователи` к registry pattern.
 3. Доработать `Посещения` по гибридной схеме.
-4. Согласовать `Клиенты` с новым intro/filter/row language, не ломая state hook.
+4. Согласовать `Клиенты` с новым header/filter/row language, не ломая state hook.
 5. Упростить `Журнал`: compact filters + better log summary.
 6. Полировать `Главную` последней.
-

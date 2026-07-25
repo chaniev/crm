@@ -135,6 +135,43 @@ Generic route-level restricted copy может находиться во fronten
 `search-focused` state видимый page header может свернуться, но route остаётся
 доступно назван через document title, landmark и accessible name locator/results.
 
+### Поясняющий текст и служебные метки
+
+На mobile, tablet и desktop route-level header по умолчанию содержит только
+короткий `h1` и действия. Постоянные subtitle/description под `h1`,
+intro/hero-copy, eyebrow, badge/chip и другой служебный helper text запрещены,
+если они не меняют решение пользователя в текущем task state.
+
+Перед добавлением любого пояснения применяется `decision/usefulness test`.
+Текст допускается только если без него пользователь может:
+
+- выполнить неверное действие или не понять его важное последствие;
+- не понять причину ограничения или недоступности;
+- не выполнить обязательную предпосылку;
+- не восстановиться после ошибки;
+- пропустить security/legal/compliance требование;
+- неверно определить неоднозначный scope, status или backend-owned constraint.
+
+Текст, который лишь пересказывает title, navigation label, тип формы, роль или
+очевидную цель экрана, тест не проходит. В частности, нельзя добавлять под
+route title формулировки вроде `Управление и история`, а перед формой
+принудительной смены пароля — декоративную метку `Обязательное действие`.
+Свободное место на desktop не является основанием вернуть такой текст.
+
+Допустимые пояснения размещаются рядом с местом решения:
+
+- validation и password policy — у соответствующего поля;
+- prerequisite, security/legal и необратимое последствие — у действия или
+  внутри связанной form section;
+- scope, выбранная дата/range/entity — в locator, toolbar, detail или content
+  section;
+- loading, empty, error, stale, restricted, recovery и success — в
+  соответствующем state panel или inline recovery block.
+
+Critical copy нельзя удалять только ради сокращения высоты. Если допустимое
+пояснение не помещается компактно, его переносят из route header в связанную
+рабочую section, сохраняя доступность и порядок focus.
+
 ### Смысл поверхности
 
 - `PageLayout` владеет route-level rhythm и header.
@@ -495,10 +532,41 @@ Behavior:
 
 ### Page header
 
-- В `browse` state содержит title, optional count/context и actions.
+- В `browse` state по умолчанию содержит только title и actions.
+- Route-level `PageLayout` / `PageHeader` не предоставляет свободные
+  `description`, `subtitle`, `eyebrow` или badge slots для декоративного текста.
+- Optional count/context допустим только как compact decision data, прошедшие
+  `decision/usefulness test`; это не второе название экрана и не предложение
+  общего назначения.
+- Это ограничение относится к route-level `h1`: section title, status label и
+  required decision data не удаляются, но их пояснения также проходят
+  `decision/usefulness test` и остаются внутри соответствующей section.
+- На `360–440px` допустимый context занимает не больше одной строки. Более
+  длинное обязательное пояснение переносится в связанную content section без
+  потери полного текста.
+- На `768` и `1440px` действует тот же запрет: дополнительная ширина не
+  создаёт desktop-only intro, hero или subtitle. Operational context
+  размещается в toolbar, detail surface, form help или state panel.
+- В compact-height `912 x 420` и `956 x 440` необязательный header context
+  скрывается; обязательный остаётся в рабочей section вместе с действием или
+  recovery path.
 - В action cluster не больше одного filled/accent action.
 - Refresh — frequent action, а не второй primary.
 - `search-focused` может визуально свернуть header по screen-specific contract.
+
+### Auth и form copy
+
+- Перед `h1` и первым полем не используются pre-title badge, eyebrow или
+  generic lead, которые лишь объявляют тип или обязательность формы.
+- Forced password change показывает `Смените пароль` без badge
+  `Обязательное действие`; сама route guard, форма и primary action задают
+  обязательный путь.
+- Фразы, дублирующие primary action, например `После сохранения откроется ваш
+  стартовый раздел` рядом с кнопкой `Сменить пароль и продолжить`, удаляются.
+- Password policy, validation и recovery размещаются у затронутого поля.
+- Отдельный security/prerequisite alert допустим только при конкретной причине
+  или последствии, которые меняют действие пользователя. Backend-owned причину
+  frontend не придумывает.
 
 ### EntityLocatorBar
 

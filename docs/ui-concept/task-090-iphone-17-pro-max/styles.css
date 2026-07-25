@@ -260,8 +260,7 @@ svg {
 }
 
 .page-header h1,
-.page-header h2,
-.page-header p {
+.page-header h2 {
   margin: 0;
 }
 
@@ -271,15 +270,6 @@ svg {
   font-weight: 800;
   line-height: 32px;
   letter-spacing: -0.025em;
-}
-
-.page-header__meta {
-  margin-top: 3px !important;
-  color: var(--crm-text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  font-variant-numeric: tabular-nums;
 }
 
 .page-header__actions {
@@ -809,8 +799,8 @@ svg {
 .field__description {
   margin-top: 5px;
   color: var(--crm-text-secondary);
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .switch-row {
@@ -900,12 +890,12 @@ svg {
 .day-strip {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 5px;
+  gap: 3px;
 }
 
 .day-cell {
   display: grid;
-  min-width: 0;
+  min-width: 44px;
   min-height: 56px;
   place-items: center;
   border: 1px solid var(--crm-border-default);
@@ -1350,7 +1340,7 @@ svg {
   display: flex;
   min-height: 956px;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 32px 16px 24px;
   background:
     radial-gradient(circle at 80% 6%, color-mix(in srgb, var(--crm-brand-secondary-soft) 76%, transparent), transparent 30%),
@@ -1369,6 +1359,7 @@ svg {
 }
 
 .auth-card {
+  margin-top: clamp(140px, 18vh, 170px);
   border: 1px solid var(--crm-border-default);
   border-radius: 28px;
   padding: 24px 20px;
@@ -1389,22 +1380,8 @@ svg {
   letter-spacing: -0.025em;
 }
 
-.auth-card__lead {
-  margin-top: 6px !important;
-  color: var(--crm-text-secondary);
-  font-size: 15px;
-  line-height: 22px;
-}
-
 .auth-card .form-grid {
   margin-top: 20px;
-}
-
-.auth-footer {
-  color: var(--crm-text-secondary);
-  font-size: 13px;
-  line-height: 18px;
-  text-align: center;
 }
 
 .bootstrap-screen {

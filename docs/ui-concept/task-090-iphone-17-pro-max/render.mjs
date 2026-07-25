@@ -85,6 +85,7 @@ const validationReport = {
   browser: browserName,
   viewport: manifest.viewport,
   screens: [],
+  responsiveScreens: [],
   themeGeometry: [],
 }
 
@@ -111,19 +112,19 @@ async function collectGeometry() {
   })
 }
 
-async function validateScreen(screenId, themeId) {
-  return page.evaluate(({ screenId: currentScreen, themeId: currentTheme }) => {
+async function validateScreen(screenId, themeId, expectedViewport = manifest.viewport) {
+  return page.evaluate(({ screenId: currentScreen, themeId: currentTheme, expectedViewport: expected }) => {
     const errors = []
     const viewport = { width: window.innerWidth, height: window.innerHeight }
     const header = document.querySelector('.app-header')
     const main = document.querySelector('.screen-main')
     const nav = document.querySelector('.bottom-nav')
 
-    if (viewport.width !== 440 || viewport.height !== 956) {
+    if (viewport.width !== expected.width || viewport.height !== expected.height) {
       errors.push(`viewport ${viewport.width}x${viewport.height}`)
     }
 
-    if (document.documentElement.scrollWidth > 440) {
+    if (document.documentElement.scrollWidth > expected.width) {
       errors.push(`horizontal overflow ${document.documentElement.scrollWidth}px`)
     }
 
@@ -170,6 +171,29 @@ async function validateScreen(screenId, themeId) {
       errors.push(`page title ${getComputedStyle(h1).fontSize}`)
     }
 
+    const routeHeaderCopy = document.querySelector(
+      '.page-header p, .page-header__meta, .page-header__eyebrow, .page-header .badge',
+    )
+    if (routeHeaderCopy) {
+      errors.push(`route header copy: ${routeHeaderCopy.textContent.trim().slice(0, 48)}`)
+    }
+
+    const forbiddenCopy = [
+      'Обязательное действие',
+      'Управление и история',
+      'Рабочие разделы',
+      'Справочники клуба',
+      'Структура клуба',
+      'Команда и доступ',
+      'Рабочая CRM клуба',
+      'Первый вход',
+    ]
+    const visibleText = document.body.innerText
+    const foundForbiddenCopy = forbiddenCopy.filter((copy) => visibleText.includes(copy))
+    if (foundForbiddenCopy.length) {
+      errors.push(`forbidden explanatory copy: ${foundForbiddenCopy.join(', ')}`)
+    }
+
     return {
       screenId: currentScreen,
       themeId: currentTheme,
@@ -177,7 +201,7 @@ async function validateScreen(screenId, themeId) {
       scrollWidth: document.documentElement.scrollWidth,
       scrollHeight: document.documentElement.scrollHeight,
     }
-  }, { screenId, themeId })
+  }, { screenId, themeId, expectedViewport })
 }
 
 for (const screen of manifest.screens) {
@@ -233,6 +257,31 @@ for (const screen of manifest.screens.filter((item) => item.alternateTheme)) {
     fullPage: false,
   })
   process.stdout.write(`test-blue-coral-v1 ${screen.id}\n`)
+}
+
+for (const responsiveViewport of [
+  { width: 360, height: 780 },
+  { width: 390, height: 844 },
+  { width: 420, height: 912 },
+]) {
+  await page.setViewportSize(responsiveViewport)
+  for (const screen of manifest.screens) {
+    await openScreen(screen.id, 'default-green-v1')
+    const result = await validateScreen(
+      screen.id,
+      'default-green-v1',
+      responsiveViewport,
+    )
+    validationReport.responsiveScreens.push(result)
+    if (result.errors.length) {
+      throw new Error(
+        `${screen.id} ${responsiveViewport.width}x${responsiveViewport.height}: ${result.errors.join('; ')}`,
+      )
+    }
+  }
+  process.stdout.write(
+    `responsive validation ${responsiveViewport.width}x${responsiveViewport.height}: ${manifest.screens.length} screens\n`,
+  )
 }
 
 async function renderContactSheet({

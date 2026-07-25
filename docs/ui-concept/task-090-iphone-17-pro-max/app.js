@@ -67,12 +67,11 @@ function avatar(name, initials) {
   return `<span aria-label="${name}" class="avatar">${initials}</span>`
 }
 
-function pageHeader(title, meta = '', actions = '') {
+function pageHeader(title, actions = '') {
   return `
     <header class="page-header" data-geometry="page-header">
       <div class="page-header__copy">
         <h1>${title}</h1>
-        ${meta ? `<p class="page-header__meta">${meta}</p>` : ''}
       </div>
       ${actions ? `<div class="page-header__actions">${actions}</div>` : ''}
     </header>`
@@ -132,7 +131,7 @@ function field(label, value, { kind = 'input', description = '' } = {}) {
 }
 
 function switchRow(label, meta, on = true) {
-  return `<div class="switch-row"><div class="switch-row__copy"><div class="switch-row__label">${label}</div><div class="switch-row__meta">${meta}</div></div><span class="switch${on ? ' switch--on' : ''}"></span></div>`
+  return `<div class="switch-row"><div class="switch-row__copy"><div class="switch-row__label">${label}</div>${meta ? `<div class="switch-row__meta">${meta}</div>` : ''}</div><span class="switch${on ? ' switch--on' : ''}"></span></div>`
 }
 
 function header(role = 'Суперадминистратор') {
@@ -215,10 +214,10 @@ function groupItem(name, schedule, scope, trainer, counts, index, warning = fals
     </article>`
 }
 
-function formPage({ title, meta = '', active, fields, submit, backLabel = 'Назад', role = 'Суперадминистратор', extra = '' }) {
+function formPage({ title, active, fields, submit, backLabel = 'Назад', role = 'Суперадминистратор', extra = '' }) {
   const sticky = `<div class="sticky-action" data-geometry="sticky-action">${button(submit, { kind: 'primary', iconName: 'save', block: true })}</div>`
   return shell(
-    `${pageHeader(title, meta, button('', { iconName: 'back' }))}
+    `${pageHeader(title, button('', { iconName: 'back' }))}
     ${section(`<div class="form-grid">${fields.join('')}${extra}</div>`)}`,
     { active, role, sticky },
   )
@@ -236,7 +235,7 @@ function settingsTabs(active) {
 
 function baseClientsContext(body) {
   return shell(
-    `${pageHeader('Клиенты', '48 активных', `${button('', { iconName: 'refresh' })}${button('', { iconName: 'plus', kind: 'accent' })}`)}
+    `${pageHeader('Клиенты', `${button('', { iconName: 'refresh' })}${button('', { iconName: 'plus', kind: 'accent' })}`)}
     ${locator({ placeholder: 'Имя или телефон' })}
     ${body}`,
     { active: 'clients' },
@@ -278,39 +277,33 @@ const scenes = {
     <main class="auth-screen">
       <div class="auth-brand">
         <div class="app-brand__mark">K4</div>
-        <div><div class="app-brand__title">K-4PRO</div><div class="app-brand__meta">Рабочая CRM клуба</div></div>
+        <div class="app-brand__title">K-4PRO</div>
       </div>
       <section class="auth-card" data-geometry="auth-card">
         <h1>С возвращением</h1>
-        <p class="auth-card__lead">Войдите, чтобы продолжить работу с расписанием, клиентами и посещениями.</p>
         <div class="form-grid">
           ${field('Логин', 'maria.sokolova')}
           ${field('Пароль', '••••••••••')}
           ${button('Войти', { kind: 'primary', iconName: 'chevron', block: true })}
-          <div class="alert alert--info">${icon('shield', 22)}<div><div class="alert__title">Защищённый вход</div><div class="alert__copy">Роль и доступные разделы определит сервер после входа.</div></div></div>
         </div>
       </section>
-      <div class="auth-footer">Gym CRM · светлая тема deployment</div>
     </main>`,
 
   'auth-password-change': () => `
     <main class="auth-screen">
       <div class="auth-brand">
         <div class="app-brand__mark">K4</div>
-        <div><div class="app-brand__title">K-4PRO</div><div class="app-brand__meta">Первый вход</div></div>
+        <div class="app-brand__title">K-4PRO</div>
       </div>
       <section class="auth-card">
-        <div class="badge-row" style="margin-bottom:12px">${badge('Обязательное действие', 'warning')}</div>
         <h1>Смените пароль</h1>
-        <p class="auth-card__lead">После сохранения откроется ваш стартовый раздел.</p>
         <div class="form-grid">
           ${field('Текущий пароль', '••••••••')}
-          ${field('Новый пароль', '••••••••••••')}
+          ${field('Новый пароль', '••••••••••••', { description: 'Минимум 10 символов' })}
           ${field('Повторите новый пароль', '••••••••••••')}
           ${button('Сменить пароль и продолжить', { kind: 'primary', iconName: 'lock', block: true })}
         </div>
       </section>
-      <div class="auth-footer">Минимум 10 символов · значения сохранятся при ошибке</div>
     </main>`,
 
   'system-config-loading': () => `
@@ -326,8 +319,8 @@ const scenes = {
     </main>`,
 
   'system-restricted-route': () => shell(
-    `${pageHeader('Настройки', 'Доступ к разделу')}
-    ${statePanel('Раздел недоступен', 'Ваша роль не разрешает изменять филиалы и системные настройки. Доступные разделы определены сервером.', { tone: 'restricted', iconName: 'shield', action: button('Вернуться на главную', { kind: 'primary', iconName: 'home' }) })}`,
+    `${pageHeader('Настройки')}
+    ${statePanel('Раздел недоступен', 'Ваша роль не разрешает изменять филиалы и системные настройки.', { tone: 'restricted', iconName: 'shield', action: button('Вернуться на главную', { kind: 'primary', iconName: 'home' }) })}`,
     { active: 'more', role: 'Тренер' },
   ),
 
@@ -337,11 +330,11 @@ const scenes = {
     ${statePanel('Список клиентов не загрузился', 'Проверьте соединение и повторите запрос. Поиск, фильтры и текущая страница сохранены.', { tone: 'error', iconName: 'warning', action: button('Повторить', { kind: 'primary', iconName: 'refresh' }) })}`),
 
   'system-empty-first-run': () => baseClientsContext(
-    `${rangeStatus('0 клиентов')}${statePanel('Клиентов пока нет', 'Создайте первую карточку клиента. Поля и доступные действия проверит backend.', { iconName: 'clients', action: button('Новый клиент', { kind: 'primary', iconName: 'plus' }) })}`,
+    `${rangeStatus('0 клиентов')}${statePanel('Клиентов пока нет', 'Создайте первую карточку клиента.', { iconName: 'clients', action: button('Новый клиент', { kind: 'primary', iconName: 'plus' }) })}`,
   ),
 
   'system-empty-filtered': () => shell(
-    `${pageHeader('Клиенты', '48 активных')}
+    `${pageHeader('Клиенты')}
     ${locator({ value: 'Алексей', count: 2 })}
     ${activeFilters(['Без абонемента', 'Группа 7'])}
     ${rangeStatus('0 совпадений')}
@@ -350,14 +343,14 @@ const scenes = {
   ),
 
   'system-notification-success': () => shell(
-    `${pageHeader('Карточка клиента', 'Александра Константинопольская')}
-    ${section(`${sectionTitle('Абонемент', 'Текущий статус и следующая операция')}${badge('Оплачен до 26.08.2026', 'success')}<div class="fact-list" style="margin-top:14px"><div class="fact-row"><span class="fact-row__label">Тип</span><span class="fact-row__value">На 3 месяца</span></div><div class="fact-row"><span class="fact-row__label">Группа</span><span class="fact-row__value">Группа 7: вечер</span></div></div>`)}
+    `${pageHeader('Карточка клиента')}
+    ${section(`${sectionTitle('Абонемент')}${badge('Оплачен до 26.08.2026', 'success')}<div class="fact-list" style="margin-top:14px"><div class="fact-row"><span class="fact-row__label">Тип</span><span class="fact-row__value">На 3 месяца</span></div><div class="fact-row"><span class="fact-row__label">Группа</span><span class="fact-row__value">Группа 7: вечер</span></div></div>`)}
     ${section(`${sectionTitle('Последняя операция')}<div class="task-item"><div class="task-item__identity">Продление абонемента</div><div class="task-item__meta">Сегодня, 09:42 · Мария Соколова</div></div>`)}`,
     { active: 'clients' },
   ) + `<aside class="notification"><span class="notification__icon">${icon('check', 21)}</span><div><div class="notification__title">Абонемент продлён</div><div class="notification__copy">Александра Константинопольская · до 26.08.2026</div></div>${button('', { iconName: 'close' })}</aside>`,
 
   'navigation-overflow': () => shell(
-    `${pageHeader('Главная', 'Рабочие разделы')}${section(`${sectionTitle('Сегодня', 'Короткий список операций')}<div class="metrics">${metric('Занятий', '7')}${metric('Требуют внимания', '4')}</div>`)}`,
+    `${pageHeader('Главная')}${section(`${sectionTitle('Сегодня')}<div class="metrics">${metric('Занятий', '7')}${metric('Требуют внимания', '4')}</div>`)}`,
     { active: 'more' },
   ) + modalOverlay(
     'Остальные разделы',
@@ -399,7 +392,7 @@ const scenes = {
   'home-attention-ready': () => shell(
     `<h1 class="sr-only">Главная</h1>
     <div class="tabs"><button class="tab" type="button">${icon('check', 18)}Посещения</button><button class="tab tab--active" type="button">${icon('warning', 18)}Требуют внимания ${badge('4', 'danger')}</button></div>
-    ${section(`${sectionTitle('Клиенты, требующие внимания', 'Повторные пропуски и вопросы по абонементам')}${rangeStatus('4 клиента · по приоритету')}`, { compact: true })}
+    ${section(`${sectionTitle('Клиенты, требующие внимания')}${rangeStatus('4 клиента · по приоритету')}`, { compact: true })}
     <div class="task-list">
       ${clientItem('Александра Константинопольская', 'АК', 'Группа 7 · 2 пропуска', 'Истекает через 2 дня', 'Открыть карточку', 0)}
       ${clientItem('Иван Иванов', 'ИИ', 'Без группы · нет визитов', 'Нет оплаты', 'Связаться', 1)}
@@ -409,7 +402,7 @@ const scenes = {
   ),
 
   'schedule-ready': () => shell(
-    `${pageHeader('Расписание', '29 июля · 3 занятия', button('', { iconName: 'refresh' }))}
+    `${pageHeader('Расписание', button('', { iconName: 'refresh' }))}
     ${locator({ placeholder: 'Группа или тренер', count: 1, label: 'Найти занятие' })}
     ${activeFilters(['Северный'])}
     ${dayStrip()}
@@ -418,7 +411,7 @@ const scenes = {
   ),
 
   'schedule-filter-surface': () => shell(
-    `${pageHeader('Расписание', '29 июля · 3 занятия')}${dayStrip()}${scheduleCards()}`,
+    `${pageHeader('Расписание')}${dayStrip()}${scheduleCards()}`,
     { active: 'schedule', role: 'Главный тренер' },
   ) + modalOverlay(
     'Фильтры расписания',
@@ -428,7 +421,7 @@ const scenes = {
   ),
 
   'clients-browse': () => shell(
-    `${pageHeader('Клиенты', '48 активных', `${button('', { iconName: 'refresh' })}${button('Новый', { kind: 'accent', iconName: 'plus' })}`)}
+    `${pageHeader('Клиенты', `${button('', { iconName: 'refresh' })}${button('Новый', { kind: 'accent', iconName: 'plus' })}`)}
     ${locator({ placeholder: 'Имя или телефон', count: 2 })}
     ${activeFilters(['Без абонемента', 'Активные'])}
     ${rangeStatus('Показаны 1–5 из 48')}
@@ -460,7 +453,7 @@ const scenes = {
   ),
 
   'clients-preview': () => shell(
-    `${pageHeader('Краткая карточка', 'Контекст поиска сохранён', button('', { iconName: 'back' }))}
+    `${pageHeader('Краткая карточка', button('', { iconName: 'back' }))}
     ${section(`
       <div class="client-summary">${avatar('Александра Константинопольская', 'АК')}<div><div class="task-item__identity task-item__identity--wrap">Александра Константинопольская</div><div class="task-item__meta">+7 900 000-00-00</div><div style="margin-top:7px">${badge('Активный клиент', 'success')}</div></div></div>
       <div class="alert" style="margin-top:16px">${icon('warning', 22)}<div><div class="alert__title">Нужно сейчас</div><div class="alert__copy">Абонемент истекает через 2 дня.</div></div></div>
@@ -479,7 +472,7 @@ const scenes = {
   ),
 
   'client-details': () => shell(
-    `${pageHeader('Карточка клиента', 'Управление и история', `${button('', { iconName: 'back' })}${button('', { iconName: 'edit' })}`)}
+    `${pageHeader('Карточка клиента', `${button('', { iconName: 'back' })}${button('', { iconName: 'edit' })}`)}
     ${section(`<div class="client-summary">${avatar('Александра Константинопольская', 'АК')}<div><div class="task-item__identity task-item__identity--wrap">Александра Константинопольская</div><div class="task-item__meta">+7 900 000-00-00</div><div class="badge-row" style="margin-top:7px">${badge('Активный', 'success')}${badge('Группа 7', 'brand')}</div></div></div>`)}
     ${section(`${sectionTitle('Абонемент', 'Оплачен · истекает 31.07.2026')}${badge('Осталось 2 дня', 'warning')}<div class="fact-list" style="margin-top:14px"><div class="fact-row"><span class="fact-row__label">Тип</span><span class="fact-row__value">На 1 месяц</span></div><div class="fact-row"><span class="fact-row__label">Посещений</span><span class="fact-row__value">14</span></div></div>`)}
     ${section(`${sectionTitle('Контакты и заметки')}<div class="fact-list"><div class="fact-row"><span class="fact-row__label">Telegram</span><span class="fact-row__value">Подключён</span></div><div class="fact-row"><span class="fact-row__label">Последний контакт</span><span class="fact-row__value">28.07.2026</span></div></div>`)}`,
@@ -491,7 +484,6 @@ const scenes = {
 
   'client-create': () => formPage({
     title: 'Новый клиент',
-    meta: 'Основные данные',
     active: 'clients',
     submit: 'Сохранить клиента',
     fields: [
@@ -505,7 +497,6 @@ const scenes = {
 
   'client-edit': () => formPage({
     title: 'Александра Константинопольская',
-    meta: 'Редактирование клиента',
     active: 'clients',
     submit: 'Сохранить изменения',
     fields: [
@@ -518,25 +509,25 @@ const scenes = {
   }),
 
   'client-transfer-modal': () => shell(
-    `${pageHeader('Карточка клиента', 'Александра Константинопольская')}${section(`${sectionTitle('Текущая группа')}<div class="task-item"><div class="task-item__identity">Группа 7: вечер</div><div class="task-item__meta">Северный · Основной зал</div></div>`)}`,
+    `${pageHeader('Карточка клиента')}${section(`${sectionTitle('Текущая группа')}<div class="task-item"><div class="task-item__identity">Группа 7: вечер</div><div class="task-item__meta">Северный · Основной зал</div></div>`)}`,
     { active: 'clients' },
   ) + modalOverlay(
     'Перевод клиента',
-    `<div class="form-grid">${field('Новый филиал', 'Центр', { kind: 'select' })}${field('Новая группа', 'Функциональная 19:30', { kind: 'select' })}<div class="alert">${icon('warning', 21)}<div><div class="alert__title">Проверьте абонемент</div><div class="alert__copy">Цена новой группы отличается на 600 ₽. Backend запросит подтверждение продажи.</div></div></div></div>`,
+    `<div class="form-grid"><div class="fact-row"><span class="fact-row__label">Клиент</span><span class="fact-row__value">Александра Константинопольская</span></div>${field('Новый филиал', 'Центр', { kind: 'select' })}${field('Новая группа', 'Функциональная 19:30', { kind: 'select' })}<div class="alert">${icon('warning', 21)}<div><div class="alert__title">Проверьте абонемент</div><div class="alert__copy">Цена новой группы выше на 600 ₽. Перед переводом потребуется подтвердить продажу.</div></div></div></div>`,
     `${button('Отмена')}${button('Продолжить', { kind: 'primary' })}`,
   ),
 
   'client-telegram-link-modal': () => shell(
-    `${pageHeader('Карточка клиента', 'Александра Константинопольская')}${section(`${sectionTitle('Мессенджер')}<div class="task-item"><div class="task-item__identity">Telegram не подключён</div><div class="task-item__meta">Создайте персональную ссылку для клиента.</div></div>`)}`,
+    `${pageHeader('Карточка клиента')}${section(`${sectionTitle('Мессенджер')}<div class="task-item"><div class="task-item__identity">Telegram не подключён</div><div class="task-item__meta">Создайте персональную ссылку для клиента.</div></div>`)}`,
     { active: 'clients' },
   ) + modalOverlay(
     'Подключение Telegram',
-    `<div class="form-grid"><div class="state-panel" style="min-height:160px;padding:18px"><div class="state-panel__icon">${icon('message', 28)}</div><h2 style="font-size:18px">Ссылка готова</h2><p>Отправьте её Александре. После входа статус обновится автоматически.</p></div><div class="code-box">https://t.me/k4pro_bot?start=client_8fa2</div></div>`,
+    `<div class="form-grid"><div class="fact-row"><span class="fact-row__label">Клиент</span><span class="fact-row__value">Александра Константинопольская</span></div><div class="state-panel" style="min-height:160px;padding:18px"><div class="state-panel__icon">${icon('message', 28)}</div><h2 style="font-size:18px">Ссылка готова</h2><p>Отправьте её клиенту. После входа статус обновится автоматически.</p></div><div class="code-box">https://t.me/k4pro_bot?start=client_8fa2</div></div>`,
     `${button('Закрыть')}${button('Скопировать', { kind: 'primary', iconName: 'message' })}`,
   ),
 
   'groups-list': () => shell(
-    `${pageHeader('Группы', '12 групп', `${button('', { iconName: 'refresh' })}${button('Создать', { kind: 'accent', iconName: 'plus' })}`)}
+    `${pageHeader('Группы', `${button('', { iconName: 'refresh' })}${button('Создать', { kind: 'accent', iconName: 'plus' })}`)}
     <div class="metrics">${metric('Активные', '10')}${metric('Без тренера', '1', 'нужно назначить')}</div>
     ${locator({ placeholder: 'Название группы', count: 1 })}
     ${rangeStatus('Показаны 1–3 из 12')}
@@ -550,7 +541,6 @@ const scenes = {
 
   'group-create': () => formPage({
     title: 'Новая группа',
-    meta: 'Расписание и команда',
     active: 'groups',
     submit: 'Создать группу',
     fields: [
@@ -565,7 +555,6 @@ const scenes = {
 
   'group-edit': () => formPage({
     title: 'Группа 7: вечер',
-    meta: '14 клиентов · 2 тренера',
     active: 'groups',
     submit: 'Сохранить группу',
     fields: [
@@ -579,7 +568,7 @@ const scenes = {
   }),
 
   'users-list': () => shell(
-    `${pageHeader('Тренеры', '8 учётных записей', `${button('', { iconName: 'refresh' })}${button('Создать', { kind: 'accent', iconName: 'plus' })}`)}
+    `${pageHeader('Тренеры', `${button('', { iconName: 'refresh' })}${button('Создать', { kind: 'accent', iconName: 'plus' })}`)}
     <div class="metrics">${metric('Активные', '7')}${metric('Смена пароля', '1')}</div>
     ${locator({ placeholder: 'ФИО или логин', count: 1 })}
     ${rangeStatus('Показаны 1–4 из 8')}
@@ -593,7 +582,6 @@ const scenes = {
 
   'user-create': () => formPage({
     title: 'Новый тренер',
-    meta: 'Учётная запись и доступ',
     active: 'more',
     submit: 'Сохранить тренера',
     fields: [
@@ -603,12 +591,11 @@ const scenes = {
       field('Стартовый пароль', '••••••••••'),
       field('Telegram ID', '123456789'),
     ],
-    extra: switchRow('Сменить пароль при входе', 'Обязательное действие после авторизации', true),
+    extra: switchRow('Сменить пароль при входе', '', true),
   }),
 
   'user-edit': () => formPage({
     title: 'Анна Лебедева',
-    meta: 'Редактирование доступа',
     active: 'more',
     submit: 'Сохранить изменения',
     fields: [
@@ -621,7 +608,7 @@ const scenes = {
   }),
 
   'audit-list': () => shell(
-    `${pageHeader('Журнал', '128 записей', button('', { iconName: 'refresh' }))}
+    `${pageHeader('Журнал', button('', { iconName: 'refresh' }))}
     ${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись' })}
     ${activeFilters(['Клиенты', 'За 7 дней'])}
     ${rangeStatus('Показаны 1–5 из 128')}
@@ -634,7 +621,7 @@ const scenes = {
   ),
 
   'audit-details-modal': () => shell(
-    `${pageHeader('Журнал', '128 записей')}${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись' })}<div class="task-list"><article class="audit-event"><div class="badge-row">${badge('Клиент изменён', 'brand')}</div><div class="audit-event__title">Обновлены данные Александры Константинопольской</div><div class="audit-event__meta">29.07 · 09:42 · Мария Соколова</div></article></div>`,
+    `${pageHeader('Журнал')}${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись' })}<div class="task-list"><article class="audit-event"><div class="badge-row">${badge('Клиент изменён', 'brand')}</div><div class="audit-event__title">Обновлены данные Александры Константинопольской</div><div class="audit-event__meta">29.07 · 09:42 · Мария Соколова</div></article></div>`,
     { active: 'more', role: 'Главный тренер' },
   ) + modalOverlay(
     'Подробности записи',
@@ -643,7 +630,7 @@ const scenes = {
   ),
 
   'finance-report': () => shell(
-    `${pageHeader('Финансы', '1–29 июля 2026', button('', { iconName: 'refresh' }))}
+    `${pageHeader('Финансы', button('', { iconName: 'refresh' }))}
     ${locator({ value: 'Июль 2026', count: 1, label: 'Период отчёта' })}
     ${activeFilters(['Все филиалы'])}
     <div class="metrics">${metric('Выручка', '486 200 ₽', 'продажи за период')}${metric('Чистая выручка', '462 800 ₽', 'после возвратов')}${metric('Продано', '64', 'абонемента')}${metric('Новые клиенты', '18')}</div>
@@ -653,7 +640,7 @@ const scenes = {
   ),
 
   'finance-zero-report': () => shell(
-    `${pageHeader('Финансы', '1–7 января 2025', button('', { iconName: 'refresh' }))}
+    `${pageHeader('Финансы', button('', { iconName: 'refresh' }))}
     ${locator({ value: '1–7 января 2025', count: 2, label: 'Период отчёта' })}
     ${activeFilters(['Центр', 'Илья Миронов'])}
     <div class="metrics">${metric('Выручка', '0 ₽')}${metric('Продано', '0')}</div>
@@ -662,7 +649,7 @@ const scenes = {
   ),
 
   'settings-catalog': () => shell(
-    `${pageHeader('Настройки', 'Справочники клуба')}
+    `${pageHeader('Настройки')}
     ${settingsTabs('catalog')}
     ${section(`${sectionTitle('Каталог абонементов', 'Северный', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
       <div class="task-list">
@@ -674,9 +661,9 @@ const scenes = {
   ),
 
   'settings-group-types': () => shell(
-    `${pageHeader('Настройки', 'Справочники клуба')}
+    `${pageHeader('Настройки')}
     ${settingsTabs('types')}
-    ${section(`${sectionTitle('Типы групп', 'Используются в расписании', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
+    ${section(`${sectionTitle('Типы групп', '', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
       <div class="task-list">
         <article class="task-item" data-geometry="task-item-0"><div class="task-item__top"><div><div class="task-item__identity">Взрослая группа</div><div class="task-item__meta">Основные групповые тренировки</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('6 групп', 'brand')}</div></article>
         <article class="task-item" data-geometry="task-item-1"><div class="task-item__top"><div><div class="task-item__identity">Детская группа</div><div class="task-item__meta">Возрастные группы 6–14 лет</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('4 группы', 'brand')}</div></article>
@@ -686,7 +673,7 @@ const scenes = {
   ),
 
   'settings-branches': () => shell(
-    `${pageHeader('Настройки', 'Структура клуба')}
+    `${pageHeader('Настройки')}
     ${settingsTabs('branches')}
     ${section(`${sectionTitle('Филиалы и залы', '2 активных филиала', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
       <div class="task-list">
@@ -698,19 +685,18 @@ const scenes = {
   ),
 
   'settings-admins': () => shell(
-    `${pageHeader('Настройки', 'Команда и доступ')}
+    `${pageHeader('Настройки')}
     ${settingsTabs('admins')}
     ${section(`${sectionTitle('Администраторы', 'Доступ привязан к филиалу', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
       <div class="task-list">
         <article class="task-item" data-geometry="task-item-0"><div class="task-item__top"><div><div class="task-item__identity">Мария Соколова</div><div class="task-item__meta">maria.sokolova · Северный</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('Администратор', 'brand')}${badge('Активна', 'success')}</div></article>
         <article class="task-item" data-geometry="task-item-1"><div class="task-item__top"><div><div class="task-item__identity">Наталья Власова</div><div class="task-item__meta">natalia.admin · Центр</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('Администратор', 'brand')}${badge('Активна', 'success')}</div></article>
-      </div>
-      <div class="alert alert--info" style="margin-top:12px">${icon('shield', 21)}<div><div class="alert__title">Scope посещений</div><div class="alert__copy">Назначенные группы определяет backend.</div></div></div>`)}`,
+      </div>`)}`,
     { active: 'more' },
   ),
 
   'settings-modal-form': () => shell(
-    `${pageHeader('Настройки', 'Справочники клуба')}${settingsTabs('types')}${section(`${sectionTitle('Типы групп')}<div class="task-item"><div class="task-item__identity">Взрослая группа</div><div class="task-item__meta">6 групп</div></div>`)}`,
+    `${pageHeader('Настройки')}${settingsTabs('types')}${section(`${sectionTitle('Типы групп')}<div class="task-item"><div class="task-item__identity">Взрослая группа</div><div class="task-item__meta">6 групп</div></div>`)}`,
     { active: 'more' },
   ) + modalOverlay(
     'Новый тип группы',
@@ -719,7 +705,7 @@ const scenes = {
   ),
 
   'settings-delete-confirm': () => shell(
-    `${pageHeader('Настройки', 'Справочники клуба')}${settingsTabs('types')}${section(`${sectionTitle('Типы групп')}<div class="task-item"><div class="task-item__identity">Пробная группа</div><div class="task-item__meta">Не используется</div></div>`)}`,
+    `${pageHeader('Настройки')}${settingsTabs('types')}${section(`${sectionTitle('Типы групп')}<div class="task-item"><div class="task-item__identity">Пробная группа</div><div class="task-item__meta">Не используется</div></div>`)}`,
     { active: 'more' },
   ) + modalOverlay(
     'Удалить тип группы?',

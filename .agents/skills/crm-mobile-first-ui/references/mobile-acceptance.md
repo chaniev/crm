@@ -48,6 +48,14 @@ visual viewport.
 - Closed filters do not permanently consume the main mobile content area.
 - Active filters remain discoverable and removable.
 - The primary action does not compete with several equally emphasized actions.
+- Route headers on mobile, tablet, and desktop default to title plus actions;
+  decorative subtitle, eyebrow, badge, intro, or helper copy is absent.
+- Every remaining explanatory text maps to a concrete validation, recovery,
+  security/legal, prerequisite, decision-changing constraint, ambiguous scope,
+  or operational-state need and is placed next to that field, action, section,
+  toolbar/detail context, or state panel.
+- Desktop `1440 x 1200` does not reintroduce mobile-forbidden intro/hero or
+  subtitle copy merely because more space is available.
 - Fixed and sticky headers, bottom navigation, action bars, close controls, and notifications remain inside the safe area.
 - Safe-area spacing combines the project spacing token with `env(safe-area-inset-*)` or an equivalent measured inset; the safe-area inset does not replace the normal content margin.
 - Full-height mobile surfaces remain usable as Safari chrome expands or collapses and do not rely on `100vh` alone as evidence of correct height.

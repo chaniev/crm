@@ -164,7 +164,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 440,
-      "scrollHeight": 1026
+      "scrollHeight": 1015
     },
     {
       "screenId": "group-create",
@@ -325,7 +325,7 @@
       "themeId": "test-blue-coral-v1",
       "errors": [],
       "scrollWidth": 440,
-      "scrollHeight": 1026
+      "scrollHeight": 1015
     },
     {
       "screenId": "audit-list",
@@ -346,6 +346,806 @@
       "themeId": "test-blue-coral-v1",
       "errors": [],
       "scrollWidth": 440,
+      "scrollHeight": 956
+    }
+  ],
+  "responsiveScreens": [
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 986
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 1035
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 986
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 1015
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 986
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 1015
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 956
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "errors": [],
+      "scrollWidth": 420,
       "scrollHeight": 956
     }
   ],

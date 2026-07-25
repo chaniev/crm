@@ -75,6 +75,12 @@ Rules:
 - keep filters compact when closed and explicit when active;
 - preserve search or current context when navigating back;
 - prefer one-handed reach for the primary mobile action where practical.
+- keep route headers title-and-actions-first on mobile and desktop; do not add
+  subtitle, eyebrow, badge, intro, or helper copy unless its absence could
+  cause a wrong action, hide a constraint or consequence, or block recovery;
+- place allowed validation, recovery, security/legal, prerequisite, scope, and
+  operational-state copy next to the affected field, action, section, or state
+  surface instead of using it as decorative text under the route title.
 
 Use `.agents/skills/design-first-ui-prompting/SKILL.md` only when the
 deliverable includes a prompt for an external UI generator, a static visual
