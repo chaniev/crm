@@ -14,37 +14,58 @@
 
 | Тип задачи | Основной агент | Когда использовать |
 |---|---|---|
-| Доменные сущности, сервисы, async/await, DTO, транзакции, side effects, прикладная логика `.NET` | `csharp-developer` | Когда задача в основном про бизнес-логику, сервисный слой, persistence behavior или контрактную безопасность |
-| `ASP.NET Core` API, middleware, auth cookie, CSRF, DI, конфигурация, hosting, pipeline запросов | `dotnet-core-expert` | Когда задача в основном про HTTP-поведение, авторизацию, политики доступа, конфигурацию окружений или API boundary |
+| Доменные сущности, сервисы, DTO, транзакции, persistence, `ASP.NET Core` API, auth, DI и конфигурация | `dotnet-backend-specialist` | Когда задача затрагивает backend, доменную логику, хранение данных, API boundary, авторизацию или политики доступа |
+| Анализ пользовательского сценария, препятствий, лишних действий и информационной архитектуры | `ux-researcher` | Перед новым экраном или существенным изменением workflow; результатом должен быть UX-контракт для `ui-designer` |
 | Компоненты `React`, формы, состояние, эффекты, маршруты, доступность, поведение экранов | `react-specialist` | Когда задача в основном про клиентский интерфейс, state flow и user interaction |
-| Решения по UI/UX, иерархии, состояниям `loading/empty/error`, фокусу, keyboard navigation | `ui-designer` | Когда нужен implement-ready дизайн до начала верстки или перед переработкой экрана |
+| Решения по UI/UX, mobile-first иерархии, состояниям, фокусу и keyboard navigation | `ui-designer` | После UX-контракта, когда нужна implement-ready спецификация до начала верстки или переработки экрана |
 | Автотесты, regression coverage, test harness, фикстуры, стабилизация CI тестов | `test-automator` | Когда нужно покрыть риск тестами или исправить инфраструктуру тестирования |
 | `Dockerfile`, `docker-compose`, контейнерный runtime, healthcheck, image hardening, startup/shutdown | `docker-expert` | Когда задача про сборку, контейнеризацию, локальный запуск и эксплуатационное поведение |
+
+## Маршрутизация UI-задач
+
+| Сценарий | Последовательность агентов | Skills |
+|---|---|---|
+| Новый экран или существенная переработка workflow | `ux-researcher` → `ui-designer` → `react-specialist` → `test-automator` | Обязательно `crm-mobile-first-ui`; `design-first-ui-prompting` только для внешнего UI-generation prompt или статической визуальной концепции |
+| Анализ проблем существующего интерфейса без реализации | `ux-researcher` → `ui-designer` | `crm-mobile-first-ui` |
+| Локальная визуальная или interaction-правка | `ui-designer` → `react-specialist` | `crm-mobile-first-ui`; `design-first-ui-prompting` только если результатом является генерируемый визуальный артефакт |
+| Реализация уже утвержденной UI-спецификации | `react-specialist` → `test-automator` | `crm-mobile-first-ui` |
+| Mobile UX-регрессия | `test-automator` | acceptance-раздел `crm-mobile-first-ui` |
+
+Правила:
+- mobile-first применяется на каждом frontend-этапе, а не только на финальном этапе адаптивности;
+- `ux-researcher` определяет задачу и препятствия, но не подменяет `ui-designer`;
+- `ui-designer` не меняет бизнес-правила backend;
+- `react-specialist` не меняет утвержденный workflow молча;
+- `test-automator` проверяет завершение операции, а не только наличие элементов.
+- 390 x 844 используется как узкий stress baseline, а не как замена target-device acceptance;
+- обязательные целевые размеры: iPhone Air 420 x 912 и iPhone 17 Pro Max 440 x 956;
+- для затронутых mobile workflows нужен WebKit mobile run, а 912 x 420 и 956 x 440 используются для compact-height smoke;
+- safe area, Safari chrome и software keyboard входят в UI handoff; непроверенные Simulator и physical-device сценарии указываются явно.
 
 ## Выбор агента по этапам плана
 
 | Этап плана | Рекомендуемые агенты | Примечание |
 |---|---|---|
-| `Этап 0. Подготовка проекта` | `docker-expert`, `dotnet-core-expert`, `react-specialist` | Каркас репозитория, `docker-compose`, health checks, стартовая страница |
-| `Этап 1. База данных и миграции` | `csharp-developer`, `dotnet-core-expert`, `test-automator` | Схема БД, миграции, индексы, ограничения, проверки регрессий |
-| `Этап 2. Авторизация и первый вход` | `dotnet-core-expert`, `react-specialist`, `test-automator` | Cookie auth, CSRF, экран входа и смены пароля, проверка сценариев входа |
-| `Этап 3. Роли и проверка прав` | `dotnet-core-expert`, `csharp-developer`, `test-automator` | Политики доступа, backend enforcement, тесты матрицы прав |
-| `Этап 4. Управление пользователями` | `dotnet-core-expert`, `react-specialist`, `test-automator` | CRUD пользователей, ролевые ограничения, UI форм и списков |
-| `Этап 5. Управление группами` | `dotnet-core-expert`, `react-specialist`, `test-automator` | API групп, назначение тренеров, интерфейс списков и форм |
-| `Этап 6a. CRUD клиентов, контакты и группы` | `dotnet-core-expert`, `react-specialist`, `test-automator` | Карточка клиента, валидации, статус, контакты, привязка к группам |
-| `Этап 6b. Абонементы и версионирование` | `csharp-developer`, `dotnet-core-expert`, `react-specialist`, `test-automator` | Самая чувствительная бизнес-логика по `ClientMembership` и оплатам |
-| `Этап 6c. Фотографии клиентов` | `csharp-developer`, `dotnet-core-expert`, `docker-expert`, `react-specialist` | Загрузка файлов, storage path, volume, права доступа, UI загрузки |
-| `Этап 6d. Поиск и фильтрация клиентов` | `react-specialist`, `dotnet-core-expert`, `test-automator` | Фильтры, списки, query params, производительность и UX |
-| `Этап 7. Отметка посещений` | `dotnet-core-expert`, `react-specialist`, `test-automator` | Ключевой рабочий сценарий тренера и проверка ограничений по группам |
-| `Этап 8. История посещений и ролевые ограничения карточки` | `dotnet-core-expert`, `react-specialist`, `test-automator` | Разные представления данных для ролей и история посещений |
-| `Этап 9. Главная страница` | `react-specialist`, `dotnet-core-expert`, `ui-designer` | Информационная архитектура экрана, списки предупреждений и ролевой доступ |
-| `Этап 10. Журнал действий` | `csharp-developer`, `dotnet-core-expert`, `test-automator` | Append-only аудит, структура событий, проверки полноты и безопасности |
-| `Этап 11. Адаптивный интерфейс и UX-доработки` | `ui-designer`, `react-specialist`, `test-automator` | Адаптивность, порядок фокуса, keyboard flow, финальная полировка |
+| `Этап 0. Подготовка проекта` | `docker-expert`, `dotnet-backend-specialist`, `react-specialist` | Каркас репозитория, `docker-compose`, health checks, стартовая страница |
+| `Этап 1. База данных и миграции` | `dotnet-backend-specialist`, `test-automator` | Схема БД, миграции, индексы, ограничения, проверки регрессий |
+| `Этап 2. Авторизация и первый вход` | `ux-researcher`, `ui-designer`, `dotnet-backend-specialist`, `react-specialist`, `test-automator` | Cookie auth, CSRF, мобильный сценарий входа и смены пароля |
+| `Этап 3. Роли и проверка прав` | `dotnet-backend-specialist`, `test-automator` | Политики доступа, backend enforcement, тесты матрицы прав |
+| `Этап 4. Управление пользователями` | `ux-researcher`, `ui-designer`, `dotnet-backend-specialist`, `react-specialist`, `test-automator` | CRUD пользователей, ролевые ограничения, mobile-first UI форм и списков |
+| `Этап 5. Управление группами` | `ux-researcher`, `ui-designer`, `dotnet-backend-specialist`, `react-specialist`, `test-automator` | API групп, назначение тренеров, mobile-first интерфейс списков и форм |
+| `Этап 6a. CRUD клиентов, контакты и группы` | `ux-researcher`, `ui-designer`, `dotnet-backend-specialist`, `react-specialist`, `test-automator` | Карточка клиента, валидации, контакты, привязка к группам |
+| `Этап 6b. Абонементы и версионирование` | `ux-researcher`, `ui-designer`, `dotnet-backend-specialist`, `react-specialist`, `test-automator` | Чувствительная бизнес-логика по `ClientMembership`, оплатам и мобильным операциям |
+| `Этап 6c. Фотографии клиентов` | `ui-designer`, `dotnet-backend-specialist`, `docker-expert`, `react-specialist`, `test-automator` | Загрузка файлов, storage path, права доступа и мобильный UI загрузки |
+| `Этап 6d. Поиск и фильтрация клиентов` | `ux-researcher`, `ui-designer`, `react-specialist`, `dotnet-backend-specialist`, `test-automator` | Компактные фильтры, поиск, query params, производительность и UX |
+| `Этап 7. Отметка посещений` | `ux-researcher`, `ui-designer`, `dotnet-backend-specialist`, `react-specialist`, `test-automator` | Ключевой мобильный сценарий тренера и ограничения по группам |
+| `Этап 8. История посещений и ролевые ограничения карточки` | `ux-researcher`, `ui-designer`, `dotnet-backend-specialist`, `react-specialist`, `test-automator` | Разные представления данных для ролей и история посещений |
+| `Этап 9. Главная страница` | `ux-researcher`, `ui-designer`, `react-specialist`, `dotnet-backend-specialist`, `test-automator` | Информационная архитектура, предупреждения и ролевой доступ |
+| `Этап 10. Журнал действий` | `dotnet-backend-specialist`, `test-automator` | Append-only аудит, структура событий, проверки полноты и безопасности |
+| `Этап 11. Сквозной аудит адаптивности и UX` | `ux-researcher`, `ui-designer`, `react-specialist`, `test-automator` | Итоговый аудит; mobile-first уже должен применяться на предыдущих этапах |
 | `Этап 12. Тестирование` | `test-automator` + профильный агент по изменяемому слою | Выбор второго агента зависит от того, что именно тестируется |
-| `Этап 13. Docker и подготовка к развертыванию` | `docker-expert`, `dotnet-core-expert`, `react-specialist` | Финальная сборка, контейнеры, env config, health checks, startup behavior |
+| `Этап 13. Docker и подготовка к развертыванию` | `docker-expert`, `dotnet-backend-specialist`, `react-specialist` | Финальная сборка, контейнеры, env config, health checks, startup behavior |
 
-## Быстрые правила выбора между `csharp-developer` и `dotnet-core-expert`
+## Граница ответственности backend-агента
 
-- Выбирать `csharp-developer`, если задача в первую очередь про доменную модель, прикладной сервис, вычисления, версионирование сущностей, запись в БД или безопасное изменение контракта между слоями.
-- Выбирать `dotnet-core-expert`, если задача в первую очередь про API, middleware, cookie auth, CSRF, пайплайн запросов, конфигурацию приложения, DI и политики доступа.
-- Если задача реально делится на две независимые части, backend business logic передавать `csharp-developer`, а HTTP/API boundary передавать `dotnet-core-expert`.
+- `dotnet-backend-specialist` отвечает и за доменную модель, и за `ASP.NET Core` boundary.
+- Если задача затрагивает UI и backend, разделять UX/React и backend-подзадачи по агентам.
+- Frontend не должен самостоятельно определять роли, права, абонементы, посещения или правила валидации.

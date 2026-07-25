@@ -34,6 +34,27 @@ Primary users:
 
 ---
 
+## Mobile-first UX contract
+
+For a new screen or substantial workflow change:
+- read `.agents/skills/crm-mobile-first-ui/SKILL.md`;
+- involve `ux-researcher` before design;
+- involve `ui-designer` before implementation;
+- design and validate 390 x 844 first as the narrow mobile stress baseline;
+- validate target-device layouts at 420 x 912 for iPhone Air and 440 x 956 for iPhone 17 Pro Max;
+- define compact-height behavior at 912 x 420 and 956 x 440 for shell navigation, temporary surfaces, forms, and primary actions;
+- derive tablet and desktop variants from the mobile information hierarchy;
+- keep one visually dominant primary action per task state;
+- remove, defer, collapse, or move controls that do not support the current task;
+- never use horizontal scrolling of a desktop table as the default mobile solution;
+- keep fixed and sticky controls inside the safe area and usable through Safari chrome and software-keyboard changes;
+- preserve loading, empty, error, disabled, permission-restricted, and success states.
+
+An approved UX contract and UI specification are implementation inputs.
+If a technical constraint requires changing the approved interaction, return the conflict to `ui-designer` instead of silently changing the workflow.
+
+---
+
 ## Contract rules
 
 Frontend must not:
@@ -80,6 +101,11 @@ Minimum:
 
 If flows/UI changed significantly:
 - run affected Playwright tests
+- validate at 360, 390 x 844, 420 x 912, 440 x 956, 768, and 1440 px
+- run affected mobile workflows with WebKit mobile emulation and touch enabled
+- smoke-test compact-height behavior at 912 x 420 and 956 x 440
+- verify the primary task, one failure path, and one permission-restricted path
+- report Safari, software-keyboard, safe-area, and physical-device checks that remain unverified
 
 ## Preferred specialists
 

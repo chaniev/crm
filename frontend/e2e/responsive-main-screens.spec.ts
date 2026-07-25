@@ -417,21 +417,21 @@ const MOBILE_BOTTOM_NAVIGATION_SELECTOR =
   'nav.mobile-bottom-nav[aria-label="Мобильная навигация"]'
 const MOBILE_MENU_BREAKPOINT = 768
 
-const VIEWPORTS = [
-  { width: 320, height: 780 },
-  { width: 390, height: 844 },
-  { width: 393, height: 852 },
-  { width: 402, height: 874 },
-  { width: 420, height: 912 },
-  { width: 440, height: 956 },
-  { width: 768, height: 1024 },
-  { width: 1440, height: 1200 },
-  { width: 1920, height: 1080 },
+const RESPONSIVE_VIEWPORTS = [
+  { label: 'extreme-mobile-320', width: 320, height: 780 },
+  { label: 'stress-mobile-390', width: 390, height: 844 },
+  { label: 'iphone-15-class-393', width: 393, height: 852 },
+  { label: 'iphone-17-class-402', width: 402, height: 874 },
+  { label: 'target-iphone-air', width: 420, height: 912 },
+  { label: 'target-iphone-17-pro-max', width: 440, height: 956 },
+  { label: 'tablet', width: 768, height: 1024 },
+  { label: 'desktop', width: 1440, height: 1200 },
+  { label: 'wide-desktop', width: 1920, height: 1080 },
 ] as const
 
-for (const viewport of VIEWPORTS) {
-  test.describe(`Responsive smoke ${viewport.width}px`, () => {
-    test.use({ viewport })
+for (const viewport of RESPONSIVE_VIEWPORTS) {
+  test.describe(`Responsive smoke ${viewport.label}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } })
 
     test('management screens keep stable hooks and avoid page-level horizontal scroll', async ({
       page,
@@ -494,7 +494,7 @@ for (const viewport of VIEWPORTS) {
   })
 }
 
-for (const width of [320, 390, 440, 1440]) {
+for (const width of [320, 390, 420, 440, 1440]) {
   test.describe(`Groups compact summary ${width}px`, () => {
     test.use({ viewport: { width, height: width < 768 ? 956 : 1200 } })
 

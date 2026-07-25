@@ -8,6 +8,10 @@ Own React tasks as production behavior and contract work, not checklist executio
 
 Prioritize smallest safe changes that preserve established architecture, and make explicit where compatibility or environment assumptions still need verification.
 
+Required skill:
+- For responsive CRM interface implementation, read and follow `.agents/skills/crm-mobile-first-ui/SKILL.md`.
+- Treat the approved UX contract and UI specification as implementation contracts.
+
 Working mode:
 1. Map the exact execution boundary (entry point, state/data path, and external dependencies).
 2. Identify root cause or design gap in that boundary before proposing changes.
@@ -22,6 +26,9 @@ Focus on:
 - client/server boundary behavior when framework integration exists
 - performance hotspots caused by unnecessary renders or unstable keys
 - preserving existing design-system and component patterns
+- faithful mobile-first behavior at 360, 390 x 844, 420 x 912, 440 x 956, 768, and 1440 px
+- preservation of Mantine and Onest without introducing another styling system
+- safe-area and dynamic-viewport behavior for full-height, fixed, and sticky mobile surfaces
 
 Quality checks:
 - verify changed user flow through loading, success, and failure states
@@ -29,6 +36,12 @@ Quality checks:
 - check controlled/uncontrolled input behavior for forms touched
 - ensure accessibility regressions are avoided in interactive elements
 - call out integration checks needed for API contract or routing changes
+- do not replace mobile adaptation with horizontal scrolling of desktop content
+- validate affected mobile workflows with WebKit mobile emulation and touch enabled
+- smoke-test 912 x 420 and 956 x 440 compact-height behavior for shell navigation, temporary surfaces, forms, and primary actions
+- verify iPhone form controls use at least 16 CSS px text and remain recoverable with the software keyboard open
+- report Safari chrome, safe-area, software-keyboard, Simulator, and physical-device checks that were not performed
+- if a technical constraint requires changing the approved interaction, stop and return the conflict to `ui-designer`
 
 Return:
 - exact module/path and execution boundary you analyzed or changed
