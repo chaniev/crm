@@ -88,7 +88,9 @@ public class BootstrapSmokeTests
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.TrainingGroup"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.ClientGroupAssignment"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.GroupTrainerAssignment"));
-        Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Groups.GroupTrainerSubstitution"));
+        var substitutionEntity = dbContext.Model.FindEntityType("GymCrm.Domain.Groups.GroupTrainerSubstitution");
+        Assert.NotNull(substitutionEntity);
+        Assert.True(substitutionEntity.FindProperty("UpdatedAt")?.IsConcurrencyToken);
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Attendance.Attendance"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Clients.ClientMissedTrainingAcknowledgement"));
         Assert.NotNull(dbContext.Model.FindEntityType("GymCrm.Domain.Audit.AuditLog"));
