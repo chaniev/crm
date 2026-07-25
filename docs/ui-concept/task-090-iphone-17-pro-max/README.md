@@ -35,6 +35,8 @@ The rendered screenshots follow the cross-device explanatory-copy rule in
   retaining a stable accessible name independent of placeholder;
 - top-level lists omit a visible route title when active persistent navigation
   already names the route; semantic `h1` and relocated actions remain;
+- the groups registry starts with its locator and does not render aggregate
+  summary/stat widgets on mobile, tablet or desktop;
 - required validation, recovery, constraint, security/legal and
   operational-state copy is placed next to the affected field/action/section.
 

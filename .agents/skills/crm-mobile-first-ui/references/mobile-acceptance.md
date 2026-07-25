@@ -69,6 +69,11 @@ visual viewport.
   the first visible row is a locator, summary, filters, or task content.
 - Actions formerly owned by the hidden header remain visible in the first task
   toolbar when primary/frequent and retain accessible names.
+- Registry screens do not gain aggregate summary/stat widgets solely to fill
+  space; every retained widget changes a current decision and cannot be shown
+  more directly in locator, filter, range/status, or entity rows.
+- The Groups registry has no top summary/stat widgets at mobile, tablet, or
+  desktop widths; locator/filter toolbar and results use the released space.
 - Detail/create/edit/auth screens and routes under a generic `More`
   destination keep a visible title when navigation does not name the task;
   recovery states with specific headings do not duplicate an active route name.

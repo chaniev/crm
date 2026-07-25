@@ -256,6 +256,9 @@ async function validateScreen(screenId, themeId, expectedViewport = manifest.vie
     ) {
       errors.push(`locator actions missing: expected ${requiredActionCount}`)
     }
+    if (currentScreen === 'groups-list' && document.querySelector('.metrics')) {
+      errors.push('groups list retains summary widgets')
+    }
 
     return {
       screenId: currentScreen,

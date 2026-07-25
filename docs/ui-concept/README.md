@@ -127,14 +127,15 @@ List/table + preview rail на desktop
 
 ### Группы
 
-Заменить вертикальные metric cards на compact summary strip и добавить registry-фильтры.
+Использовать компактный registry без верхних metric/summary widgets. Состояние
+группы показывается в фильтрах и непосредственно в строке, где оно влияет на
+следующее действие.
 
 Структура:
 
 ```text
-Intro: Группы + Создать группу + refresh
-Summary strip: всего | активные | без тренера | перегруженные
-Filter bar: search | status | trainer
+Filter bar: search | status | trainer | day | refresh | create
+Range/status
 Rows: группа | расписание | тренеры | клиенты | статус | edit
 ```
 

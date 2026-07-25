@@ -240,6 +240,12 @@ Theme может менять brand/action/nav/accent presentation, но не:
       первый рабочий control поднимается на освободившееся место.
 - [ ] Refresh/create actions перенесены в первый task toolbar без overflow;
       primary/frequent operations остаются видимыми и имеют accessible names.
+- [ ] `Группы` не показывают summary/stat widgets (`Всего`, `Активные`,
+      `Без тренера`, `Перегружены`) на mobile, tablet или desktop; первым
+      рабочим блоком является locator/filter toolbar.
+- [ ] Количество и проблемный статус групп передаются через range/status,
+      фильтры и соответствующие строки, а ширины `768`/`1440` не возвращают
+      удалённые widgets.
 - [ ] Detail/create/edit/auth и mobile routes внутри `Ещё` сохраняют visible
       title, если navigation не называет задачу однозначно; recovery state с
       конкретным state heading не дублирует route title.
@@ -269,6 +275,9 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] `clients-browse`, `groups-list`, `schedule-ready` имеют visually-hidden
       level-one heading и не имеют дублирующего visible route title;
       `users-list`/`audit-list` сохраняют title на mobile при active `Ещё`.
+- [ ] `groups-list` не содержит summary/stat widget container на `390 x 844`,
+      `420 x 912`, `440 x 956`, `768 x 1024` и `1440 x 1200`; locator и
+      первые results поднимаются на освободившееся место.
 - [ ] `system-error-state`, `system-empty-first-run` и
       `system-empty-filtered` не дублируют `Клиенты`, когда active client nav и
       конкретный state heading уже дают полный контекст.

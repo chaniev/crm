@@ -177,6 +177,24 @@ route title не нужен. Active parent `Клиенты` не заменяе�
 table/list или summary. Если sidebar показывает лишь общий parent, visible
 route title сохраняется.
 
+### Сводные виджеты на list screen групп
+
+`Группы` используют единый registry pattern на mobile, tablet и desktop без
+верхних summary/stat widgets. Карточки `Всего`, `Активные`, `Без тренера`,
+`Перегружены` и их сокращённые варианты не показываются перед locator или
+списком.
+
+Первым видимым рабочим блоком после shell является locator/filter toolbar с
+доступными refresh и create actions, затем range/status и строки групп.
+Количество результатов сообщает range/status, а требующие внимания признаки
+показываются в соответствующем фильтре или строке группы. Дополнительная ширина
+`768` или `1440px` не возвращает удалённые виджеты.
+
+Новый summary widget на registry screen допустим только если он необходим для
+решения текущей задачи и его значение нельзя понятнее показать в locator,
+filter, range/status или строке объекта. Свободное место на desktop не является
+основанием для такого виджета.
+
 ### Поясняющий текст и служебные метки
 
 На mobile, tablet и desktop route-level header по умолчанию содержит только
@@ -780,7 +798,7 @@ Unknown route, session loading и restricted route являются разным
 - первый viewport показывает header/context, locator и начало results;
 - client search-focused state с двумя active filters показывает минимум пять
   полных cards `96px` и начало шестой;
-- groups показывают summary, locator и начало первых 1–2 results.
+- groups показывают locator и начало первых 1–2 results без summary widgets.
 
 ### `420 x 912`
 

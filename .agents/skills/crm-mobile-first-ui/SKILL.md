@@ -92,6 +92,10 @@ Rules:
   semantics;
 - move actions from a hidden list header into the first locator/toolbar/summary
   row without leaving a spacer or hiding primary/frequent operations;
+- do not add aggregate summary/stat widgets to a registry list unless each
+  value changes a current user decision and cannot be expressed more directly
+  in locator, filter, range/status, or entity rows; extra desktop width is not
+  a justification for widgets;
 - keep visible route titles for detail/create/edit/auth screens and routes
   whose active navigation is only a generic parent such as `More`; a recovery
   state with its own specific heading need not duplicate an active route name.

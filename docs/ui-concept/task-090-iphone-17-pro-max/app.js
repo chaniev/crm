@@ -562,7 +562,6 @@ const scenes = {
 
   'groups-list': () => shell(
     `<h1 class="sr-only">Группы</h1>
-    <div class="metrics">${metric('Активные', '10')}${metric('Без тренера', '1', 'нужно назначить')}</div>
     ${locator({
       placeholder: 'Название группы',
       count: 1,
