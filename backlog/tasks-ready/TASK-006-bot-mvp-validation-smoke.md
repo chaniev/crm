@@ -7,7 +7,9 @@ ready
 Перед приемкой Telegram MVP есть воспроизводимый набор автоматических и ручных проверок.
 
 ## Context
-В inbox перечислены обязательные команды проверки MVP и ручной smoke в Telegram: неизвестный и известный Telegram ID, меню по ролям, групповой чат, посещаемость, поиск, списки абонементов, отметка оплаты, повторный callback без дублей.
+В inbox перечислены обязательные команды проверки MVP и ручной smoke в Telegram: неизвестный и известный Telegram ID, меню по ролям, групповой чат, посещаемость, поиск, списки абонементов и повторный callback без дублей.
+
+Отдельная отметка оплаты удалена TASK-083. Актуальная ролевая матрица включает `SuperAdministrator` и назначаемый attendance scope `Administrator` из TASK-080.
 
 ## User role
 система
@@ -37,8 +39,8 @@ ready
 
 ## Test checklist
 - [ ] Неизвестный Telegram ID.
-- [ ] Известный Telegram ID и меню по ролям.
-- [ ] Групповой чат, посещаемость, поиск, списки абонементов, отметка оплаты.
+- [ ] Известный Telegram ID и меню для `HeadCoach`, `SuperAdministrator`, `Administrator`, `Coach`.
+- [ ] Групповой чат, посещаемость в актуальном role/scope matrix, поиск и список заканчивающихся абонементов.
 - [ ] Повторный callback без дублей.
 
 ## AI safety
@@ -57,3 +59,5 @@ ready
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Updated at: 2026-07-25 by backlog status audit.
+- Superseded scenario: отдельная отметка оплаты удалена TASK-083.

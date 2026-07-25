@@ -1,5 +1,8 @@
 # Implementation Plan: TASK-080 Разрешить администратору отмечать посещения в назначенных группах
 
+## Implementation status
+Done. Implemented in `feature/TASK-080-administrator-authorized-group-attendance`, commit `2d886f4`, and merged to `main` by PR #92 on 2026-07-25.
+
 ## Source task
 /backlog/done/TASK-080-administrator-authorized-group-attendance.md
 

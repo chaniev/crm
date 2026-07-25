@@ -1,7 +1,13 @@
 # TASK-081: Вернуть администратору редактирование типов групп
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-25
+- implementation_plan: /backlog/done/TASK-081-administrator-group-type-settings.plan.md
+- implementation_branch: fix/TASK-081-administrator-group-type-settings
+- moved_to_done_at: 2026-07-25
 
 ## Goal
 Администратор снова может открыть глобальный справочник типов групп и редактировать существующие типы в пределах действующего backend-контракта.
@@ -40,22 +46,22 @@ Backend разрешает администратору управлять ти�
 - Create/update/delete продолжают проходить CSRF, audit и действующие проверки уникальности/связей.
 
 ## Acceptance criteria
-- [ ] Administrator видит вкладку `Типы групп` в настройках.
-- [ ] Administrator может загрузить список и открыть форму редактирования существующего типа.
-- [ ] Допустимое изменение сохраняется через backend и видно после повторной загрузки.
-- [ ] Backend validation/ProblemDetails отображаются в форме без дублирования доменных правил.
-- [ ] HeadCoach сохраняет текущий доступ.
-- [ ] Coach и другие неразрешённые роли не получают UI- или API-доступ.
-- [ ] Доступ к другим вкладкам настроек не расширяется неявно.
-- [ ] Изменение типа группы продолжает записываться в audit trail.
+- [x] Administrator видит вкладку `Типы групп` в настройках.
+- [x] Administrator может загрузить список и открыть форму редактирования существующего типа.
+- [x] Допустимое изменение сохраняется через backend и видно после повторной загрузки.
+- [x] Backend validation/ProblemDetails отображаются в форме без дублирования доменных правил.
+- [x] HeadCoach сохраняет текущий доступ.
+- [x] Coach и другие неразрешённые роли не получают UI- или API-доступ.
+- [x] Доступ к другим вкладкам настроек не расширяется неявно.
+- [x] Изменение типа группы продолжает записываться в audit trail.
 
 ## Test checklist
-- [ ] Добавить frontend test для видимости вкладки и успешного edit flow под Administrator.
-- [ ] Добавить negative frontend test для Coach.
-- [ ] Проверить backend integration tests `GET`/`PUT /group-types` для Administrator, HeadCoach и запрещённой роли.
-- [ ] Проверить validation error, CSRF и audit payload при редактировании.
-- [ ] Проверить связанную группу после изменения названия/описания типа.
-- [ ] Запустить backend tests, frontend lint + build и затронутый Playwright settings flow.
+- [x] Добавить frontend test для видимости вкладки и успешного edit flow под Administrator.
+- [x] Добавить negative frontend test для Coach.
+- [x] Проверить backend integration tests `GET`/`PUT /group-types` для Administrator, HeadCoach и запрещённой роли.
+- [x] Проверить validation error, CSRF и audit payload при редактировании.
+- [x] Проверить связанную группу после изменения названия/описания типа.
+- [x] Запустить backend tests, frontend lint + build и затронутый Playwright settings flow.
 
 ## AI safety
 - Safe for Codex: no
@@ -75,3 +81,4 @@ Backend разрешает администратору управлять ти�
 - Created at: 2026-07-23 17:57
 - Created by skill: codex-backlog-skill
 - Duplicate check: активного дубликата нет. TASK-030 и TASK-053 завершены и описывают целевой доступ/flow; новая задача является regression follow-up к текущему рассогласованию frontend и backend.
+- Implemented at: 2026-07-25 in `fix/TASK-081-administrator-group-type-settings`, commit `eedc10f`, merged to `main` by PR #91.

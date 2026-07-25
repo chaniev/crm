@@ -7,7 +7,7 @@ risky
 Появляется безопасная проектная основа для напоминаний, ежедневных сводок и уведомлений о неотмеченной посещаемости.
 
 ## Context
-Нужно спроектировать `BotNotificationSettings`, `bot_delivery_log` и scheduler после уточнения backend-модели расписаний тренировок. Затем реализовать напоминания, ежедневные сводки и уведомления с защитой от дублей.
+Нужно спроектировать `BotNotificationSettings`, `bot_delivery_log` и scheduler на основе завершённой backend-модели расписаний TASK-034/TASK-043. Затем разбить напоминания, ежедневные сводки и уведомления с защитой от дублей на отдельные implementation tasks.
 
 ## User role
 администратор / тренер / система
@@ -58,3 +58,5 @@ risky
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Dependency updated at: 2026-07-25 by backlog status audit.
+- Schedule blocker is closed by TASK-034/TASK-043; the task remains active because notification settings, delivery-log idempotency, recipient rules and scheduler lifecycle are not designed or implemented.
