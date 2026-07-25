@@ -94,6 +94,9 @@ mobile, но active filters остаются видимыми и удаляем�
 - Единая mobile/desktop политика primary search: без видимых generic labels
   `Поиск`/`Найти...`, но со stable accessible name, не зависящим от
   placeholder.
+- Единый route-title visibility test: top-level list не показывает visible
+  header, если active persistent nav/tab уже однозначно называет route;
+  semantic `h1` и document title сохраняются.
 - Touch target minimum `44 x 44`, gap minimum `8px`.
 - iPhone input text minimum `16px`.
 - Coarse-pointer compact-height shell.
@@ -106,6 +109,8 @@ mobile, но active filters остаются видимыми и удаляем�
 - route-level `PageLayout` / `PageHeader` API без свободных
   description/eyebrow/badge slots; optional context принимает только
   operational decision data из нормативных исключений;
+- `PageLayout` поддерживает visually-hidden route `h1` без пустого header
+  wrapper; actions скрытого header переходят в locator/toolbar/summary row;
 - `SectionHeader` остаётся отдельным section-level contract и не используется
   как обход запрета route-level пояснений;
 - `EntityLocatorBar`;
@@ -227,6 +232,17 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] Visible search label остаётся только при нескольких или неоднозначных
       fields; period/date/scope controls и обычные form fields не теряют
       обязательные persistent labels.
+- [ ] `Клиенты`, `Группы` и `Расписание` list screens не показывают visible
+      route header, когда одноимённый bottom/desktop nav item видим и активен.
+- [ ] На route без visible header остаются semantic `h1`, document title,
+      named main landmark и `aria-current` активной navigation.
+- [ ] Header removal не оставляет spacer/action-only row: locator, summary или
+      первый рабочий control поднимается на освободившееся место.
+- [ ] Refresh/create actions перенесены в первый task toolbar без overflow;
+      primary/frequent operations остаются видимыми и имеют accessible names.
+- [ ] Detail/create/edit/auth и mobile routes внутри `Ещё` сохраняют visible
+      title, если navigation не называет задачу однозначно; recovery state с
+      конкретным state heading не дублирует route title.
 - [ ] Drawer/modal используют dynamic viewport, safe-area footer и focus return.
 - [ ] Нет unintended horizontal page scroll на `360`, `390`, `420`, `440`.
 - [ ] Theme-sensitive raw colors удалены из shared/feature code; static check
@@ -250,6 +266,12 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] `clients-browse`, `schedule-ready`, `groups-list`, `users-list` и
       `audit-list` не показывают строку label над primary search; role/name
       assertion на соответствующий `searchbox` проходит.
+- [ ] `clients-browse`, `groups-list`, `schedule-ready` имеют visually-hidden
+      level-one heading и не имеют дублирующего visible route title;
+      `users-list`/`audit-list` сохраняют title на mobile при active `Ещё`.
+- [ ] `system-error-state`, `system-empty-first-run` и
+      `system-empty-filtered` не дублируют `Клиенты`, когда active client nav и
+      конкретный state heading уже дают полный контекст.
 - [ ] Component/E2E fixture проверяет presentation и focus общего
       `RestrictedState`; реальная route wiring остаётся в `TASK-088`.
 - [ ] Повторить E2E с `default-green-v1` и `test-blue-coral-v1`.

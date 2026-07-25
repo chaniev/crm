@@ -33,6 +33,8 @@ The rendered screenshots follow the cross-device explanatory-copy rule in
   repeats the primary action;
 - a sole primary search does not show a generic label above the field, while
   retaining a stable accessible name independent of placeholder;
+- top-level lists omit a visible route title when active persistent navigation
+  already names the route; semantic `h1` and relocated actions remain;
 - required validation, recovery, constraint, security/legal and
   operational-state copy is placed next to the affected field/action/section.
 

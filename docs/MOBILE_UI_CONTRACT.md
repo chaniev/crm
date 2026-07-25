@@ -125,7 +125,8 @@ Generic route-level restricted copy может находиться во fronten
 В `browse` state используется единый порядок:
 
 1. shell header;
-2. page header;
+2. semantic route title и, только если он не дублирует persistent navigation,
+   visible page header;
 3. primary locator;
 4. active filters и range/status;
 5. result, form или recovery state;
@@ -134,6 +135,47 @@ Generic route-level restricted copy может находиться во fronten
 У каждого route есть ровно один `h1` и корректный document title. В
 `search-focused` state видимый page header может свернуться, но route остаётся
 доступно назван через document title, landmark и accessible name locator/results.
+
+### Видимость route title
+
+На mobile, tablet и desktop visible route header не показывается, если
+одновременно выполняются все условия:
+
+- это top-level list/workspace screen;
+- active persistent navigation или tab уже видимо и однозначно называет route;
+- `h1` не содержит entity identity, operation mode или critical scope;
+- действия из header помещаются в первый locator/toolbar/summary row без
+  скрытия primary/frequent operation.
+
+Для таких экранов semantic `h1` остаётся первым элементом route `main`, но
+визуально скрывается. Document title, main landmark name и
+`aria-current="page"` активной навигации сохраняют доступное название route.
+На mobile это применяется, например, к list screens `Клиенты`, `Группы` и
+`Расписание`, когда одноимённый пункт bottom navigation виден и активен. На
+desktop то же правило действует при одноимённом active item в persistent
+sidebar/top navigation.
+
+После удаления visible header:
+
+- первый видимый row содержит locator, filters, summary или другой рабочий
+  control;
+- refresh и другие frequent actions переходят в locator/toolbar;
+- create/add остаётся видимым в первом task area и не уходит в overflow;
+- пустой spacer или action-only строка на месте header не создаётся.
+
+Visible `h1` сохраняется, если active navigation не называет текущий route
+однозначно: например, mobile destination находится внутри `Ещё`; route является
+detail/create/edit/form/auth screen; заголовок называет сущность или операцию;
+recovery state не имеет собственного конкретного heading; либо перенос действий
+скроет primary operation. Если active `Клиенты` и state heading уже сообщает
+`Список клиентов не загрузился` / `Клиентов пока нет`, дублирующий visible
+route title не нужен. Active parent `Клиенты` не заменяет visible title
+`Карточка клиента`.
+
+Дополнительная ширина `768` или `1440px` не возвращает дублирующий header.
+Если desktop sidebar уже называет list route, content начинается с toolbar,
+table/list или summary. Если sidebar показывает лишь общий parent, visible
+route title сохраняется.
 
 ### Поясняющий текст и служебные метки
 
@@ -568,6 +610,8 @@ Behavior:
 
 ### Page header
 
+- Top-level list route не рендерит visible `PageHeader`, когда одноимённая
+  active persistent navigation уже видима; `h1` остаётся visually hidden.
 - В `browse` state по умолчанию содержит только title и actions.
 - Route-level `PageLayout` / `PageHeader` не предоставляет свободные
   `description`, `subtitle`, `eyebrow` или badge slots для декоративного текста.
@@ -587,6 +631,9 @@ Behavior:
   скрывается; обязательный остаётся в рабочей section вместе с действием или
   recovery path.
 - В action cluster не больше одного filled/accent action.
+- При скрытом `PageHeader` actions переходят в первый locator/toolbar/summary
+  row: primary/frequent остаются видимыми, secondary/rare не создают отдельную
+  строку только ради сохранения прежней геометрии.
 - Refresh — frequent action, а не второй primary.
 - `search-focused` может визуально свернуть header по screen-specific contract.
 

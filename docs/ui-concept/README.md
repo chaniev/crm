@@ -24,7 +24,7 @@
 Предпочтительная стратегия: не переносить весь продукт на левый sidebar ради одного макета, а сохранить текущий `AppShell` с верхней ролевой навигацией и унифицировать все вкладки через общий operational pattern:
 
 ```text
-Compact page header -> Summary/locator/filter -> Primary content surface
+Active navigation + semantic route title -> Summary/locator/filter -> Primary content surface
 ```
 
 Это сохраняет уже работающую механику CRM, но убирает разнобой между вкладками.
@@ -40,6 +40,14 @@ Compact page header -> Summary/locator/filter -> Primary content surface
 ## Общие правила интерфейса
 
 - Header вкладки: один короткий title, справа primary CTA и вторичные действия.
+- На top-level list видимый header отсутствует, если active persistent
+  navigation уже однозначно показывает тот же route. Semantic `h1`, document
+  title и accessible main name сохраняются.
+- Действия удалённого header переходят в первый locator/toolbar/summary row;
+  пустая строка на месте заголовка не остаётся.
+- Detail/form screens и mobile routes внутри `Ещё` сохраняют visible title,
+  когда navigation не называет текущую задачу. Recovery state с конкретным
+  heading не дублирует уже видимое название active route.
 - Постоянные subtitle/eyebrow/badge/intro/helper под title запрещены на mobile
   и desktop, если не проходят `decision/usefulness test` из
   `docs/MOBILE_UI_CONTRACT.md`.

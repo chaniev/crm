@@ -62,6 +62,16 @@ visual viewport.
   accessible name from a label or ARIA; placeholder is not its only name.
 - Ordinary form fields, multiple or ambiguous text fields, and
   period/date/scope controls retain visible persistent labels.
+- A top-level list has no visible route heading when an active persistent nav
+  item already names the same route; a semantic level-one heading, document
+  title, named main landmark, and active-nav state remain.
+- Removing a duplicate list heading leaves no blank spacer or action-only row;
+  the first visible row is a locator, summary, filters, or task content.
+- Actions formerly owned by the hidden header remain visible in the first task
+  toolbar when primary/frequent and retain accessible names.
+- Detail/create/edit/auth screens and routes under a generic `More`
+  destination keep a visible title when navigation does not name the task;
+  recovery states with specific headings do not duplicate an active route name.
 - Fixed and sticky headers, bottom navigation, action bars, close controls, and notifications remain inside the safe area.
 - Safe-area spacing combines the project spacing token with `env(safe-area-inset-*)` or an equivalent measured inset; the safe-area inset does not replace the normal content margin.
 - Full-height mobile surfaces remain usable as Safari chrome expands or collapses and do not rely on `100vh` alone as evidence of correct height.

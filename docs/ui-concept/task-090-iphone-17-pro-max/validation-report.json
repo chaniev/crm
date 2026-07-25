@@ -164,7 +164,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 440,
-      "scrollHeight": 989
+      "scrollHeight": 956
     },
     {
       "screenId": "group-create",
@@ -325,7 +325,7 @@
       "themeId": "test-blue-coral-v1",
       "errors": [],
       "scrollWidth": 440,
-      "scrollHeight": 989
+      "scrollHeight": 956
     },
     {
       "screenId": "audit-list",
@@ -509,7 +509,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 1009
+      "scrollHeight": 956
     },
     {
       "screenId": "group-create",
@@ -775,7 +775,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 390,
-      "scrollHeight": 989
+      "scrollHeight": 956
     },
     {
       "screenId": "group-create",
@@ -1041,7 +1041,7 @@
       "themeId": "default-green-v1",
       "errors": [],
       "scrollWidth": 420,
-      "scrollHeight": 989
+      "scrollHeight": 956
     },
     {
       "screenId": "group-create",

@@ -45,7 +45,21 @@ function icon(name, size = 20) {
   return `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`
 }
 
-function button(label, { kind = 'default', iconName = '', block = false, extra = '' } = {}) {
+const iconActionLabels = {
+  back: 'Назад',
+  close: 'Закрыть',
+  edit: 'Редактировать',
+  plus: 'Добавить',
+  refresh: 'Обновить',
+}
+
+function button(label, {
+  kind = 'default',
+  iconName = '',
+  block = false,
+  extra = '',
+  ariaLabel = '',
+} = {}) {
   const classes = [
     'button',
     kind === 'primary' ? 'button--primary' : '',
@@ -56,7 +70,9 @@ function button(label, { kind = 'default', iconName = '', block = false, extra =
     label === '' ? 'button--icon' : '',
     extra,
   ].filter(Boolean).join(' ')
-  return `<button class="${classes}" type="button">${iconName ? icon(iconName, 19) : ''}${label ? `<span>${label}</span>` : ''}</button>`
+  const accessibleName = ariaLabel || iconActionLabels[iconName] || ''
+  const aria = label === '' && accessibleName ? ` aria-label="${accessibleName}"` : ''
+  return `<button class="${classes}" type="button"${aria}>${iconName ? icon(iconName, 19) : ''}${label ? `<span>${label}</span>` : ''}</button>`
 }
 
 function badge(label, tone = 'brand') {
@@ -101,12 +117,13 @@ function locator({
   geometry = true,
   visibleLabel = false,
   kind = 'search',
+  actions = '',
 } = {}) {
   const isSearch = kind === 'search'
   const fieldRole = isSearch ? 'searchbox' : 'button'
   const fieldLabel = isSearch ? label : `${label}: ${value}`
   return `
-    <div class="locator locator--${kind}" role="${isSearch ? 'search' : 'group'}" data-locator-kind="${kind}"${geometry ? ' data-geometry="locator"' : ''}>
+    <div class="locator locator--${kind}${actions ? ' locator--with-actions' : ''}" role="${isSearch ? 'search' : 'group'}" data-locator-kind="${kind}"${geometry ? ' data-geometry="locator"' : ''}>
       <div class="locator__field">
         <span class="persistent-label${visibleLabel ? '' : ' sr-only'}">${label}</span>
         <div class="input-shell" role="${fieldRole}" aria-label="${fieldLabel}">
@@ -119,6 +136,7 @@ function locator({
         ${icon('filter', 20)}
         ${count ? `<span class="filter-button__count">${count}</span>` : ''}
       </button>
+      ${actions ? `<div class="locator__actions">${actions}</div>` : ''}
     </div>`
 }
 
@@ -246,7 +264,7 @@ function settingsTabs(active) {
 
 function baseClientsContext(body) {
   return shell(
-    `${pageHeader('Клиенты', `${button('', { iconName: 'refresh' })}${button('', { iconName: 'plus', kind: 'accent' })}`)}
+    `<h1 class="sr-only">Клиенты</h1>
     ${locator({ placeholder: 'Имя или телефон', label: 'Найти клиента' })}
     ${body}`,
     { active: 'clients' },
@@ -345,7 +363,7 @@ const scenes = {
   ),
 
   'system-empty-filtered': () => shell(
-    `${pageHeader('Клиенты')}
+    `<h1 class="sr-only">Клиенты</h1>
     ${locator({ value: 'Алексей', count: 2, label: 'Найти клиента' })}
     ${activeFilters(['Без абонемента', 'Группа 7'])}
     ${rangeStatus('0 совпадений')}
@@ -413,8 +431,8 @@ const scenes = {
   ),
 
   'schedule-ready': () => shell(
-    `${pageHeader('Расписание', button('', { iconName: 'refresh' }))}
-    ${locator({ placeholder: 'Группа или тренер', count: 1, label: 'Найти занятие' })}
+    `<h1 class="sr-only">Расписание</h1>
+    ${locator({ placeholder: 'Группа или тренер', count: 1, label: 'Найти занятие', actions: button('', { iconName: 'refresh' }) })}
     ${activeFilters(['Северный'])}
     ${dayStrip()}
     ${scheduleCards()}`,
@@ -422,7 +440,7 @@ const scenes = {
   ),
 
   'schedule-filter-surface': () => shell(
-    `${pageHeader('Расписание')}${dayStrip()}${scheduleCards()}`,
+    `<h1 class="sr-only">Расписание</h1>${dayStrip()}${scheduleCards()}`,
     { active: 'schedule', role: 'Главный тренер' },
   ) + modalOverlay(
     'Фильтры расписания',
@@ -432,8 +450,13 @@ const scenes = {
   ),
 
   'clients-browse': () => shell(
-    `${pageHeader('Клиенты', `${button('', { iconName: 'refresh' })}${button('Новый', { kind: 'accent', iconName: 'plus' })}`)}
-    ${locator({ placeholder: 'Имя или телефон', count: 2, label: 'Найти клиента' })}
+    `<h1 class="sr-only">Клиенты</h1>
+    ${locator({
+      placeholder: 'Имя или телефон',
+      count: 2,
+      label: 'Найти клиента',
+      actions: `${button('', { iconName: 'refresh' })}${button('', { kind: 'accent', iconName: 'plus', ariaLabel: 'Новый клиент' })}`,
+    })}
     ${activeFilters(['Без абонемента', 'Активные'])}
     ${rangeStatus('Показаны 1–5 из 48')}
     <div class="task-list">
@@ -538,9 +561,14 @@ const scenes = {
   ),
 
   'groups-list': () => shell(
-    `${pageHeader('Группы', `${button('', { iconName: 'refresh' })}${button('Создать', { kind: 'accent', iconName: 'plus' })}`)}
+    `<h1 class="sr-only">Группы</h1>
     <div class="metrics">${metric('Активные', '10')}${metric('Без тренера', '1', 'нужно назначить')}</div>
-    ${locator({ placeholder: 'Название группы', count: 1, label: 'Найти группу' })}
+    ${locator({
+      placeholder: 'Название группы',
+      count: 1,
+      label: 'Найти группу',
+      actions: `${button('', { iconName: 'refresh' })}${button('', { kind: 'accent', iconName: 'plus', ariaLabel: 'Создать группу' })}`,
+    })}
     ${rangeStatus('Показаны 1–3 из 12')}
     <div class="task-list">
       ${groupItem('Группа 7: вечер', 'Вт, Чт · старт 19:00 · 90 мин', 'Северный · Основной зал', 'Максим Орлов, Анна Лебедева', '14 клиентов · 2 тренера', 0)}

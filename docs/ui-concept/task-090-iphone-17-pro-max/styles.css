@@ -399,6 +399,16 @@ svg {
   gap: 8px;
 }
 
+.locator--with-actions {
+  grid-template-columns: minmax(0, 1fr) 48px auto;
+}
+
+.locator__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .locator__field {
   min-width: 0;
 }

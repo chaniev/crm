@@ -86,6 +86,15 @@ Rules:
   visually-hidden label or ARIA, and do not use placeholder as that name;
 - preserve visible persistent labels for ordinary forms, multiple or ambiguous
   text fields, and period/date/scope controls.
+- hide the visible route heading on a top-level list only when an active,
+  persistent navigation item already names that route unambiguously; retain a
+  visually-hidden `h1`, document title, named main landmark, and active-nav
+  semantics;
+- move actions from a hidden list header into the first locator/toolbar/summary
+  row without leaving a spacer or hiding primary/frequent operations;
+- keep visible route titles for detail/create/edit/auth screens and routes
+  whose active navigation is only a generic parent such as `More`; a recovery
+  state with its own specific heading need not duplicate an active route name.
 
 Use `.agents/skills/design-first-ui-prompting/SKILL.md` only when the
 deliverable includes a prompt for an external UI generator, a static visual

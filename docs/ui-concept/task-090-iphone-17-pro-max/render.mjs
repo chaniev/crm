@@ -166,6 +166,15 @@ async function validateScreen(screenId, themeId, expectedViewport = manifest.vie
     }
     if (smallInputs.length) errors.push(`small input text: ${smallInputs.join(', ')}`)
 
+    const unnamedIconButtons = [
+      ...document.querySelectorAll('button'),
+    ].filter((element) =>
+      !element.textContent.trim() && !element.getAttribute('aria-label')?.trim(),
+    )
+    if (unnamedIconButtons.length) {
+      errors.push(`unnamed icon buttons: ${unnamedIconButtons.length}`)
+    }
+
     const h1 = document.querySelector('.page-header h1')
     if (h1 && parseFloat(getComputedStyle(h1).fontSize) !== 28) {
       errors.push(`page title ${getComputedStyle(h1).fontSize}`)
@@ -210,6 +219,42 @@ async function validateScreen(screenId, themeId, expectedViewport = manifest.vie
     ].filter((element) => !element.getAttribute('aria-label')?.trim())
     if (unnamedSearchboxes.length) {
       errors.push(`unnamed primary searchboxes: ${unnamedSearchboxes.length}`)
+    }
+
+    const hiddenRouteTitleScreens = new Set([
+      'system-error-state',
+      'system-empty-first-run',
+      'system-empty-filtered',
+      'home-attendance-ready',
+      'home-attendance-all-marked',
+      'home-attention-ready',
+      'schedule-ready',
+      'schedule-filter-surface',
+      'clients-browse',
+      'clients-search-focused',
+      'groups-list',
+    ])
+    if (hiddenRouteTitleScreens.has(currentScreen)) {
+      const semanticHeading = document.querySelector('h1')
+      if (!semanticHeading?.classList.contains('sr-only')) {
+        errors.push('duplicate visible route title')
+      }
+      if (document.querySelector('.page-header')) {
+        errors.push('page header wrapper retained for hidden route title')
+      }
+    }
+
+    const requiredLocatorActions = {
+      'clients-browse': 2,
+      'groups-list': 2,
+      'schedule-ready': 1,
+    }
+    const requiredActionCount = requiredLocatorActions[currentScreen]
+    if (
+      requiredActionCount
+      && document.querySelectorAll('.locator__actions button').length !== requiredActionCount
+    ) {
+      errors.push(`locator actions missing: expected ${requiredActionCount}`)
     }
 
     return {
