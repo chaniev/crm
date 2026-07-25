@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>K-4PRO · usability concept</title>
+  <style>
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-400-normal.woff2") format("woff2");
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-500-normal.woff2") format("woff2");
+      font-weight: 500;
+    }
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-700-normal.woff2") format("woff2");
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: "Onest";
+      src: url("/frontend/node_modules/@fontsource/onest/files/onest-cyrillic-800-normal.woff2") format("woff2");
+      font-weight: 800;
+    }
+
+    :root {
+      --brand-0: #edf5f2;
+      --brand-1: #d4e6df;
+      --brand-4: #549d83;
+      --brand-5: #378c71;
+      --brand-6: #207b61;
+      --brand-7: #145a52;
+      --brand-9: #0a2522;
+      --accent-0: #fff4e5;
+      --accent-4: #e4a542;
+      --accent-6: #be7f28;
+      --surface: #ffffff;
+      --page: #f3f5f1;
+      --surface-subtle: #f6faf7;
+      --text: #17312d;
+      --muted: #66756f;
+      --border: #dce7e1;
+      --danger: #c95345;
+      --warning: #c98a2e;
+      --shadow: 0 10px 30px rgba(23, 49, 45, .07), 0 2px 8px rgba(23, 49, 45, .04);
+      --radius: 18px;
+      --pill: 999px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      background: var(--page);
+      color: var(--text);
+      font-family: "Onest", ui-sans-serif, system-ui, sans-serif;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: default; }
+    h1, h2, h3, p { margin: 0; }
+
+    .screen { position: fixed; inset: 0; width: 100%; height: 100%; background: var(--page); overflow: hidden; }
+    .appbar {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: rgba(255,255,255,.97);
+      border-bottom: 1px solid #dfe5e1;
+      position: relative;
+      z-index: 20;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--brand-7); color: white; font-weight: 800; letter-spacing: -.5px;
+    }
+    .brand-name { font-size: 17px; line-height: 1.05; font-weight: 800; }
+    .brand-role { margin-top: 4px; color: #8a9490; font-size: 13px; line-height: 1.05; white-space: nowrap; }
+    .profile {
+      min-width: 44px; min-height: 44px; padding: 0 13px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      border: 1px solid var(--border); border-radius: var(--pill); background: white; font-weight: 700;
+    }
+    .profile .avatar { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--brand-0); color: var(--brand-7); font-size: 12px; }
+
+    .page {
+      height: calc(100% - 72px - 76px);
+      overflow: hidden;
+      padding: 18px 16px 24px;
+    }
+    .title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .title-block { min-width: 0; }
+    .title { font-size: 25px; line-height: 1.08; letter-spacing: -.5px; font-weight: 800; }
+    .subtitle { margin-top: 3px; color: #8a9490; font-size: 14px; font-weight: 500; }
+    .title-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-button, .action-button, .secondary-button, .filter-button {
+      min-height: 44px; border: 1px solid var(--border); background: white; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;
+    }
+    .icon-button { min-width: 44px; padding: 0; font-size: 21px; }
+    .action-button { padding: 0 17px; color: white; border-color: var(--accent-4); background: linear-gradient(135deg, #e4a542, #d89a3d); box-shadow: 0 8px 18px rgba(190,127,40,.20); }
+    .secondary-button, .filter-button { padding: 0 14px; }
+    .soft-button { background: var(--brand-1); border-color: #bcd8cf; }
+    .full-button { width: 100%; min-height: 48px; }
+    .primary-button { color: white; background: linear-gradient(135deg, #2f8f6b, #207b61); border-color: var(--brand-6); }
+
+    .search {
+      height: 52px; display: flex; align-items: center; gap: 10px;
+      padding: 0 15px; border: 1px solid #cfd9d4; border-radius: 13px; background: white;
+      color: #8b9691; font-size: 16px;
+      box-shadow: 0 1px 0 rgba(23,49,45,.02);
+    }
+    .search .search-icon { color: var(--brand-7); font-size: 22px; line-height: 1; }
+    .toolbar { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 10px; }
+    .toolbar-actions { display: flex; gap: 8px; }
+    .chips { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .chip {
+      min-height: 32px; padding: 6px 11px; border-radius: var(--pill);
+      display: inline-flex; align-items: center; gap: 6px;
+      background: white; border: 1px solid var(--border); font-size: 13px; font-weight: 700;
+    }
+    .chip.active { background: var(--brand-0); border-color: #b7d7cd; color: var(--brand-7); }
+    .chip.warning { background: var(--accent-0); border-color: #f1d3a7; color: #7c5018; }
+    .chip.concept { background: #fff8df; border-color: #e4c661; color: #755d08; }
+    .count-badge {
+      min-width: 22px; height: 22px; padding: 0 7px; display: inline-grid; place-items: center;
+      border-radius: var(--pill); background: var(--brand-6); color: white; font-size: 12px;
+    }
+
+    .card {
+      background: var(--surface); border: 1px solid #e2e8e4; border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .client-list, .group-list, .lesson-list { display: grid; gap: 10px; }
+    .client-card {
+      min-height: 126px; padding: 14px;
+      display: grid; grid-template-columns: 54px minmax(0,1fr) auto; align-items: center; gap: 12px;
+    }
+    .client-card.selected { border-color: var(--brand-5); box-shadow: inset 3px 0 0 var(--brand-6), var(--shadow); }
+    .avatar-large { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: #f1f3f2; font-size: 19px; font-weight: 800; }
+    .client-name { font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .client-phone { margin-top: 3px; font-size: 14px; color: #8d9893; }
+    .branch-line { margin-top: 7px; color: var(--brand-7); font-size: 13px; font-weight: 700; }
+    .status-line { margin-top: 7px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .status {
+      display: inline-flex; align-items: center; padding: 5px 9px; border-radius: var(--pill);
+      background: #d7f7e9; color: #24755c; font-size: 11px; line-height: 1; font-weight: 800; text-transform: uppercase;
+    }
+    .next-action { width: 86px; text-align: right; font-size: 12px; color: #bc6a34; font-weight: 800; line-height: 1.2; }
+    .next-action strong { display: block; margin-top: 4px; color: var(--text); font-size: 13px; }
+
+    .bottom-nav {
+      height: 76px; position: absolute; left: 0; right: 0; bottom: 0; z-index: 30;
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+      background: rgba(255,255,255,.98); border-top: 1px solid #dfe5e1; box-shadow: 0 -8px 28px rgba(23,49,45,.06);
+    }
+    .nav-item {
+      min-width: 0; min-height: 60px; border: 0; border-radius: 13px; background: transparent;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      font-size: 11px; font-weight: 700;
+    }
+    .nav-item .nav-icon { font-size: 19px; line-height: 1; }
+    .nav-item.active { background: linear-gradient(135deg, #2f8f6b, #207b61); color: white; }
+    .nav-item span:last-child { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .summary-card { padding: 12px 14px; min-height: 64px; box-shadow: none; }
+    .summary-label { color: var(--muted); font-size: 12px; }
+    .summary-value { margin-top: 2px; font-size: 22px; font-weight: 800; }
+    .range-row { display: flex; align-items: center; justify-content: space-between; margin: 2px 0 10px; color: var(--muted); font-size: 13px; }
+    .range-row strong { color: var(--text); }
+    .group-card { padding: 14px; box-shadow: none; }
+    .group-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .group-name { font-size: 16px; line-height: 1.25; font-weight: 800; }
+    .group-meta { margin-top: 8px; color: #7c8883; font-size: 13px; line-height: 1.35; }
+    .group-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+    .edit-button { min-height: 44px; padding: 0 14px; border: 1px solid #bad6cd; border-radius: 12px; background: var(--brand-1); font-weight: 700; }
+    .mini-stats { color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
+
+    .day-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin: 10px 0 12px; }
+    .day {
+      min-height: 54px; padding: 7px 2px; border: 1px solid var(--border); border-radius: 11px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: white; font-size: 12px; font-weight: 800;
+    }
+    .day small { margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 600; }
+    .day.active { background: var(--brand-7); border-color: var(--brand-7); color: white; }
+    .day.active small { color: #d9f0e8; }
+    .next-lesson {
+      padding: 14px 16px; margin-bottom: 10px; border: 1px solid #b9d8ce; border-radius: 16px;
+      background: linear-gradient(135deg, #edf7f3, #ffffff);
+    }
+    .eyebrow { color: var(--brand-7); font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .next-lesson h2 { margin-top: 6px; font-size: 19px; line-height: 1.2; }
+    .next-lesson p { margin-top: 5px; color: var(--muted); font-size: 13px; }
+    .lesson { padding: 13px 14px; display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 10px; box-shadow: none; }
+    .lesson-time { color: var(--brand-7); font-size: 15px; font-weight: 800; }
+    .lesson-name { font-size: 14px; font-weight: 800; }
+    .lesson-meta { margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .lesson-arrow { font-size: 20px; color: var(--brand-6); }
+
+    .restricted-wrap { height: 100%; display: grid; place-items: center; padding: 10px 0 30px; }
+    .restricted-card { width: 100%; padding: 26px 22px; text-align: center; }
+    .lock-mark {
+      width: 66px; height: 66px; margin: 0 auto 18px; border-radius: 50%;
+      display: grid; place-items: center; background: var(--accent-0); color: #8f5a17; font-size: 29px;
+    }
+    .route-tag { display: inline-flex; margin-bottom: 10px; padding: 5px 9px; border-radius: 8px; background: #f3f5f4; color: var(--muted); font-family: ui-monospace, monospace; font-size: 12px; }
+    .restricted-card h1 { font-size: 25px; }
+    .restricted-card p { margin: 9px auto 20px; max-width: 290px; color: var(--muted); font-size: 15px; line-height: 1.45; }
+    .text-link { margin-top: 12px; color: var(--brand-7); font-size: 14px; font-weight: 700; }
+    .pattern-note { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e7ebe8; color: #7d8984; font-size: 12px; line-height: 1.4; }
+
+    .concept-ribbon {
+      position: absolute; z-index: 60; right: 14px; top: 82px;
+      padding: 7px 10px; border-radius: var(--pill); border: 1px solid #c5ddd5;
+      background: rgba(237,245,242,.96); color: var(--brand-7); font-size: 11px; font-weight: 800;
+      box-shadow: 0 4px 16px rgba(23,49,45,.08);
+    }
+
+    /* TASK-084 compact landscape */
+    .compact .appbar { height: 62px; padding: 0 14px; }
+    .compact .brand-mark { width: 36px; height: 36px; }
+    .compact .brand-role { margin-top: 2px; }
+    .compact .page { height: calc(100% - 62px - 68px); padding: 12px 16px 10px; }
+    .compact .bottom-nav { height: 68px; grid-template-columns: repeat(5, minmax(96px, 1fr)); padding: 5px max(12px, env(safe-area-inset-left, 0px)) calc(5px + env(safe-area-inset-bottom, 0px)); }
+    .compact .concept-ribbon { top: auto; right: 16px; bottom: 76px; }
+    .compact .nav-item { min-height: 56px; flex-direction: row; font-size: 13px; }
+    .compact .nav-item .nav-icon { font-size: 18px; }
+    .compact-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 14px; height: 100%; }
+    .compact-main { min-width: 0; }
+    .compact-toolbar { display: grid; grid-template-columns: auto minmax(220px,1fr) 44px 48px; gap: 8px; align-items: center; margin-bottom: 9px; }
+    .compact-title { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
+    .compact-title h1 { font-size: 22px; }
+    .compact-title span { color: #89938f; font-size: 13px; white-space: nowrap; }
+    .compact .search { height: 44px; }
+    .compact-row {
+      height: 74px; padding: 9px 12px; display: grid; grid-template-columns: 42px minmax(0,1fr) 135px 22px; gap: 10px; align-items: center;
+      border-radius: 15px; box-shadow: none; margin-bottom: 8px;
+    }
+    .compact-row .avatar-large { width: 40px; height: 40px; font-size: 15px; }
+    .compact-row .client-name { font-size: 14px; }
+    .compact-row .client-phone { font-size: 12px; }
+    .compact-row .branch-line { margin-top: 3px; font-size: 11px; }
+    .compact-row .next-action { width: auto; font-size: 11px; }
+    .overflow-panel { height: 100%; padding: 13px; box-shadow: none; }
+    .overflow-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; font-weight: 800; }
+    .overflow-item { min-height: 44px; padding: 0 11px; display: flex; align-items: center; gap: 10px; border-radius: 11px; font-size: 13px; font-weight: 700; }
+    .overflow-item + .overflow-item { border-top: 1px solid #edf0ee; }
+    .no-finance { margin-top: 6px; color: var(--muted); font-size: 10px; line-height: 1.3; }
+
+    /* TASK-089 desktop */
+    .desktop .appbar { height: 76px; padding: 0 18px; }
+    .desktop .appbar .brand-role { font-size: 14px; }
+    .desktop-shell { height: calc(100% - 76px); display: grid; grid-template-columns: 230px minmax(0,1fr); }
+    .side-nav { padding: 16px 14px; background: rgba(255,255,255,.76); border-right: 1px solid #dce4df; }
+    .side-item {
+      min-height: 44px; margin-bottom: 7px; padding: 0 15px; display: flex; align-items: center; gap: 10px;
+      border: 1px solid var(--border); border-radius: var(--pill); background: white; font-size: 14px; font-weight: 700;
+    }
+    .side-item.active { background: linear-gradient(135deg, #2f8f6b, #207b61); color: white; border-color: transparent; box-shadow: 0 8px 20px rgba(32,123,97,.16); }
+    .desktop-main { min-width: 0; padding: 18px; overflow: hidden; }
+    .desktop-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .desktop-title { display: flex; align-items: baseline; gap: 18px; }
+    .desktop-title h1 { font-size: 32px; }
+    .desktop-title span { color: #89938f; font-weight: 700; }
+    .desktop-toolbar {
+      min-height: 58px; padding: 8px; margin-bottom: 14px; border: 1px solid var(--border); border-radius: 12px; background: white;
+      display: grid; grid-template-columns: minmax(240px, 1fr) 170px 160px auto auto; gap: 8px;
+    }
+    .desktop-toolbar .search { height: 40px; font-size: 14px; }
+    .select-like { height: 40px; padding: 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--border); border-radius: 9px; background: white; color: #6f7a75; font-size: 13px; }
+    .desktop-workspace { height: calc(100% - 124px); display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 14px; min-width: 0; }
+    .table-card { min-width: 0; padding: 10px; overflow: hidden; }
+    .table-head, .table-row { display: grid; grid-template-columns: minmax(215px, 1.45fr) minmax(128px, .85fr) minmax(150px, .9fr) minmax(155px, 1fr); gap: 10px; align-items: center; }
+    .table-head { min-height: 36px; padding: 0 12px; color: #8c9692; font-size: 11px; text-transform: uppercase; }
+    .table-row { min-height: 76px; padding: 10px 12px; border: 1px solid #e4e9e6; border-radius: 10px; background: white; margin-bottom: 8px; font-size: 13px; }
+    .table-row.selected { border-color: var(--brand-5); box-shadow: inset 3px 0 0 var(--brand-6); }
+    .table-client { display: grid; grid-template-columns: 38px minmax(0,1fr); gap: 9px; align-items: center; min-width: 0; }
+    .table-avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #f1f3f2; font-weight: 800; }
+    .table-name { font-weight: 800; white-space: normal; line-height: 1.25; }
+    .table-phone { margin-top: 2px; color: #8b9591; font-size: 12px; }
+    .table-branch strong, .table-membership strong, .table-next strong { display: block; margin-bottom: 3px; font-size: 13px; }
+    .table-branch span, .table-membership span, .table-next span { color: #7e8984; font-size: 12px; line-height: 1.3; }
+    .preview { padding: 18px; overflow: hidden; }
+    .preview-top { display: grid; grid-template-columns: 54px 1fr 34px; gap: 12px; align-items: start; }
+    .preview h2 { font-size: 19px; line-height: 1.25; }
+    .preview-phone { margin-top: 4px; color: #8b9591; font-size: 13px; }
+    .close-button { width: 34px; height: 34px; border: 0; border-radius: 9px; background: #f1f4f2; font-size: 18px; }
+    .preview-action { margin: 16px 0; padding: 14px; border-radius: 12px; background: #faf7f0; }
+    .preview-action small { color: #9a9489; text-transform: uppercase; font-size: 10px; }
+    .preview-action strong { display: block; margin: 7px 0 5px; color: #b86d35; font-size: 14px; }
+    .details { display: grid; gap: 10px; }
+    .detail-row { display: grid; grid-template-columns: 95px 1fr; gap: 12px; align-items: start; font-size: 13px; }
+    .detail-row span { color: #89948f; }
+    .detail-row strong { text-align: right; line-height: 1.35; }
+    .preview-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .preview-actions button { min-height: 50px; padding: 0 9px; border: 1px solid var(--border); border-radius: 10px; background: white; font-weight: 700; }
+    .no-overflow-tag { position: absolute; top: 93px; right: 385px; z-index: 8; padding: 7px 10px; border-radius: var(--pill); background: var(--brand-0); border: 1px solid #b9d7cd; color: var(--brand-7); font-size: 11px; font-weight: 800; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const task = params.get("task") || "085";
+    const root = document.getElementById("root");
+
+    const brand = (role, profile = "") => `
+      <header class="appbar">
+        <div class="brand">
+          <div class="brand-mark">K4</div>
+          <div><div class="brand-name">K-4PRO</div><div class="brand-role">${role}</div></div>
+        </div>
+        <button class="profile" aria-label="Профиль">${profile ? `<span class="avatar">${profile.slice(0,2)}</span><span>${profile}</span>` : ""}<span>⌄</span></button>
+      </header>`;
+
+    const nav = (active, mode = "full") => {
+      const all = mode === "coach"
+        ? [["⌂","Главная"],["▣","Расписание"],["◎","Клиенты"]]
+        : [["⌂","Главная"],["▣","Расписание"],["◎","Клиенты"],["♙","Группы"],["•••","Ещё"]];
+      return `<nav class="bottom-nav">${all.map(([i,label]) => `<button class="nav-item ${label===active?"active":""}"><span class="nav-icon">${i}</span><span>${label}</span></button>`).join("")}</nav>`;
+    };
+
+    const clientCard = ({name, phone, branch, initials="АА", selected=false, action="Без абонемента"}) => `
+      <article class="card client-card ${selected?"selected":""}">
+        <div class="avatar-large">${initials}</div>
+        <div>
+          <div class="client-name">${name}</div>
+          <div class="client-phone">${phone}</div>
+          <div class="branch-line">${branch}</div>
+          <div class="status-line"><span class="status">Активный</span></div>
+        </div>
+        <div class="next-action">Нужно сделать<strong>${action}</strong></div>
+      </article>`;
+
+    function render084() {
+      root.innerHTML = `<main class="screen compact">
+        ${brand("Суперадминистратор · все филиалы", "СА")}
+        <div class="page">
+          <div class="compact-layout">
+            <section class="compact-main">
+              <div class="compact-toolbar">
+                <div class="compact-title"><h1>Клиенты</h1><span>300 · все филиалы</span></div>
+                <div class="search"><span class="search-icon">⌕</span><span>Имя или телефон</span></div>
+                <button class="icon-button" aria-label="Фильтры">≡</button>
+                <button class="action-button" aria-label="Новый клиент">＋</button>
+              </div>
+              <article class="card compact-row selected">
+                <div class="avatar-large">АА</div><div><div class="client-name">Алексеев Алексей Александрович</div><div class="client-phone">+79000000012</div><div class="branch-line">Филиал Юг · Зал 2</div></div>
+                <div class="next-action">Нужно сделать<strong>Оформить абонемент</strong></div><div>›</div>
+              </article>
+              <article class="card compact-row">
+                <div class="avatar-large">МЕ</div><div><div class="client-name">Михайлова Екатерина Сергеевна</div><div class="client-phone">+79000000128</div><div class="branch-line">Филиал Центр · Зал 1</div></div>
+                <div class="next-action" style="color:#24755c">В порядке<strong>До 24.09.2026</strong></div><div>›</div>
+              </article>
+            </section>
+            <aside class="card overflow-panel">
+              <div class="overflow-title"><span>Ещё разделы</span><span>×</span></div>
+              <div class="overflow-item"><span>♙</span><span>Пользователи</span></div>
+              <div class="overflow-item"><span>▤</span><span>Журнал</span></div>
+              <div class="overflow-item"><span>⚙</span><span>Настройки</span></div>
+              <div class="no-finance">Только разделы из backend session · Finance отсутствует</div>
+            </aside>
+          </div>
+        </div>
+        ${nav("Клиенты")}
+        <div class="concept-ribbon">После · compact touch shell · ≥44 px</div>
+      </main>`;
+    }
+
+    function render085() {
+      root.innerHTML = `<main class="screen">
+        ${brand("Суперадминистратор · все филиалы")}
+        <div class="page">
+          <div class="title-row">
+            <div class="title-block"><h1 class="title">Клиенты</h1><p class="subtitle">300 клиентов · 4 филиала</p></div>
+            <div class="title-actions"><button class="icon-button">↻</button><button class="action-button" style="width:48px;padding:0">＋</button></div>
+          </div>
+          <div class="toolbar">
+            <div class="search"><span class="search-icon">⌕</span><span>Имя или телефон</span></div>
+            <button class="filter-button">≡ <span class="count-badge">2</span></button>
+          </div>
+          <div class="chips"><span class="chip active">Без абонемента ×</span><span class="chip">Без группы ×</span><span class="chip">Сбросить</span></div>
+          <section class="client-list">
+            ${clientCard({name:"Алексеев Алексей Александрович",phone:"+79000000012",branch:"Филиал Юг · Вольная борьба",selected:true})}
+            ${clientCard({name:"Алексеев Алексей Дмитриевич",phone:"+79000000237",branch:"Филиал Север · Кикбоксинг"})}
+            ${clientCard({name:"Алексеев Андрей Александрович",phone:"+79000000117",branch:"Филиал Центр · ММА",initials:"АА"})}
+          </section>
+        </div>
+        ${nav("Клиенты")}
+        <div class="concept-ribbon">После · поиск виден сразу</div>
+      </main>`;
+    }
+
+    function groupCard(name, meta, trainer, stats) {
+      return `<article class="card group-card">
+        <div class="group-head"><div class="group-name">${name}</div><span class="status">Активна</span></div>
+        <div class="group-meta">${meta}<br>${trainer}</div>
+        <div class="group-footer"><button class="edit-button">✎&nbsp; Редактировать</button><div class="mini-stats">${stats}</div></div>
+      </article>`;
+    }
+
+    function render086() {
+      root.innerHTML = `<main class="screen">
+        ${brand("Суперадминистратор · все филиалы")}
+        <div class="page">
+          <div class="title-row">
+            <div class="title-block"><h1 class="title">Группы</h1><p class="subtitle">Управление по всем филиалам</p></div>
+            <div class="title-actions"><button class="icon-button">↻</button><button class="action-button">＋ Создать</button></div>
+          </div>
+          <div class="summary-grid">
+            <div class="card summary-card"><div class="summary-label">Всего групп</div><div class="summary-value">30</div></div>
+            <div class="card summary-card"><div class="summary-label">Без тренера</div><div class="summary-value">0</div></div>
+          </div>
+          <div class="toolbar">
+            <div class="search"><span class="search-icon">⌕</span><span>Название группы</span></div>
+            <button class="filter-button">≡ Фильтры</button>
+          </div>
+          <div class="chips"><span class="chip active">Активные</span><span class="chip">Без тренера</span></div>
+          <div class="range-row"><span>Результаты</span><strong>1–10 из 30</strong></div>
+          <section class="group-list">
+            ${groupCard("Боевое самбо группа 04","Филиал Центр · Зал 1 · Пн, Чт, Сб · 12:30","Тренер 04","7 клиентов · 1 тренер")}
+            ${groupCard("Боевое самбо группа 08","Филиал Центр · Зал 2 · Вт, Чт, Сб · 08:00","Тренер 08","6 клиентов · 1 тренер")}
+          </section>
+        </div>
+        ${nav("Группы")}
+        <div class="concept-ribbon">После · locator + 1–10 из 30</div>
+      </main>`;
+    }
+
+    function render087() {
+      root.innerHTML = `<main class="screen">
+        ${brand("Тренер")}
+        <div class="page">
+          <div class="chips" style="margin-bottom:9px"><span class="chip concept">⚠ Концепт: scope требует согласования</span></div>
+          <div class="title-row" style="margin-bottom:4px">
+            <div class="title-block"><h1 class="title">Мои занятия</h1><p class="subtitle">Только занятия из effective scope</p></div>
+            <button class="icon-button">↻</button>
+          </div>
+          <div class="day-strip">
+            <div class="day"><span>Пн</span><small>1</small></div><div class="day"><span>Вт</span><small>2</small></div>
+            <div class="day"><span>Ср</span><small>0</small></div><div class="day"><span>Чт</span><small>1</small></div>
+            <div class="day"><span>Пт</span><small>0</small></div><div class="day active"><span>Сб</span><small>3</small></div>
+            <div class="day"><span>Вс</span><small>0</small></div>
+          </div>
+          <section class="next-lesson">
+            <div class="eyebrow">Следующее занятие · через 35 минут</div>
+            <h2>Кикбоксинг группа 11</h2>
+            <p>16:00–17:00 · Филиал Центр · Зал 2 · 15 клиентов</p>
+          </section>
+          <section class="lesson-list">
+            <article class="card lesson"><div class="lesson-time">16:00</div><div><div class="lesson-name">Кикбоксинг группа 11</div><div class="lesson-meta">Филиал Центр · Зал 2 · 15 клиентов</div></div><div class="lesson-arrow">›</div></article>
+            <article class="card lesson"><div class="lesson-time">18:30</div><div><div class="lesson-name">Боевое самбо группа 04</div><div class="lesson-meta">Филиал Центр · Зал 1 · 7 клиентов</div></div><div class="lesson-arrow">›</div></article>
+            <article class="card lesson"><div class="lesson-time">20:00</div><div><div class="lesson-name">ММА группа 13</div><div class="lesson-meta">Временная замена · Филиал Север · Зал 1</div></div><div class="lesson-arrow">›</div></article>
+          </section>
+        </div>
+        ${nav("Расписание","coach")}
+      </main>`;
+    }
+
+    function render088() {
+      root.innerHTML = `<main class="screen">
+        ${brand("Тренер")}
+        <div class="page">
+          <div class="restricted-wrap">
+            <section class="card restricted-card">
+              <div class="lock-mark">⌧</div>
+              <div class="route-tag">/groups</div>
+              <h1>Раздел недоступен</h1>
+              <p>У роли «Тренер» нет доступа к разделу «Группы». Ваши данные и текущий экран не изменены.</p>
+              <button class="action-button primary-button full-button">На главный экран</button>
+              <div class="text-link">Открыть доступный раздел «Клиенты»</div>
+              <div class="pattern-note">Тот же явный сценарий применяется к <strong>/finance</strong> для Суперадминистратора. Finance не появляется в навигации.</div>
+            </section>
+          </div>
+        </div>
+        ${nav("","coach")}
+        <div class="concept-ribbon">После · причина + recovery</div>
+      </main>`;
+    }
+
+    function tableRow(name, phone, branch, membership, next, initials="АА", selected=false) {
+      return `<article class="table-row ${selected?"selected":""}">
+        <div class="table-client"><div class="table-avatar">${initials}</div><div><div class="table-name">${name}</div><div class="table-phone">${phone}</div></div></div>
+        <div class="table-branch"><strong>${branch}</strong><span>Backend global scope</span></div>
+        <div class="table-membership"><strong>${membership}</strong><span>${membership==="Без абонемента"?"Оформление не начато":"Активен"}</span></div>
+        <div class="table-next"><strong>${next}</strong><span>${next==="Оформить абонемент"?"Приоритетное действие":"Нет срочных действий"}</span></div>
+      </article>`;
+    }
+
+    function render089() {
+      root.innerHTML = `<main class="screen desktop">
+        ${brand("Суперадминистратор · глобальный scope", "СА")}
+        <div class="desktop-shell">
+          <aside class="side-nav">
+            <div class="side-item">⌂ Главная</div><div class="side-item">▣ Расписание</div><div class="side-item active">◎ Клиенты</div>
+            <div class="side-item">♙ Группы</div><div class="side-item">♙ Пользователи</div><div class="side-item">▤ Журнал</div><div class="side-item">⚙ Настройки</div>
+          </aside>
+          <section class="desktop-main">
+            <div class="desktop-title-row">
+              <div class="desktop-title"><h1>Клиенты</h1><span>300 клиентов · 4 филиала</span></div>
+              <div class="title-actions"><button class="icon-button">↻</button><button class="action-button">＋ Новый клиент</button></div>
+            </div>
+            <div class="desktop-toolbar">
+              <div class="search"><span class="search-icon">⌕</span><span>Поиск по имени или телефону</span></div>
+              <div class="select-like"><span>Все группы</span><span>⌄</span></div>
+              <div class="select-like"><span>Все филиалы</span><span>⌄</span></div>
+              <button class="secondary-button">≡ Ещё фильтры</button><button class="secondary-button">⊘ Сбросить</button>
+            </div>
+            <div class="desktop-workspace">
+              <section class="card table-card">
+                <div class="table-head"><span>Клиент</span><span>Филиал</span><span>Абонемент</span><span>Следующее действие</span></div>
+                ${tableRow("Алексеев Алексей Александрович","+79000000012","Филиал Юг","Без абонемента","Оформить абонемент","АА",true)}
+                ${tableRow("Алексеев Алексей Дмитриевич","+79000000237","Филиал Север","Без абонемента","Оформить абонемент")}
+                ${tableRow("Алексеев Андрей Александрович","+79000000117","Филиал Центр","До 14.09.2026","Нет действий")}
+                ${tableRow("Алексеев Анна Александрович","+79000000162","Филиал Центр","Без абонемента","Оформить абонемент")}
+                ${tableRow("Алексеев Дарья Александрович","+79000000222","Филиал Центр","До 30.08.2026","Нет действий","АД")}
+                ${tableRow("Алексеев Дмитрий Александрович","+79000000027","Филиал Юг","Без абонемента","Оформить абонемент","АД")}
+                ${tableRow("Алексеев Екатерина Александрович","+79000000192","Филиал Центр","До 06.10.2026","Нет действий","АЕ")}
+                ${tableRow("Алексеев Илья Александрович","+79000000042","Филиал Запад","Без абонемента","Оформить абонемент","АИ")}
+              </section>
+              <aside class="card preview">
+                <div class="preview-top"><div class="avatar-large">АА</div><div><h2>Алексеев Алексей Александрович</h2><div class="preview-phone">+79000000012</div><div class="status-line"><span class="status">Активный</span></div></div><button class="close-button">×</button></div>
+                <div class="preview-action"><small>Нужно сейчас</small><strong>Оформить абонемент</strong><span>Нет текущего абонемента</span></div>
+                <div class="details">
+                  <div class="detail-row"><span>Филиал</span><strong>Филиал Юг</strong></div>
+                  <div class="detail-row"><span>Группа</span><strong>Вольная борьба группа 22 · Зал 2</strong></div>
+                  <div class="detail-row"><span>Визит</span><strong>Нет визитов</strong></div>
+                  <div class="detail-row"><span>Контакты</span><strong>0</strong></div>
+                </div>
+                <div class="preview-actions"><button>Оформить абонемент</button><button>Сообщение</button><button>Посещение</button><button>Открыть карточку</button></div>
+              </aside>
+            </div>
+          </section>
+        </div>
+        <div class="no-overflow-tag">После · primary data без horizontal scroll</div>
+      </main>`;
+    }
+
+    ({ "084":render084, "085":render085, "086":render086, "087":render087, "088":render088, "089":render089 }[task] || render085)();
+  </script>
+</body>
+</html>
