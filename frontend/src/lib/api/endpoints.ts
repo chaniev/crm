@@ -19,6 +19,8 @@ export const API_ENDPOINTS = {
   administrators: {
     collection: '/settings/administrators',
     byId: (administratorId: string) => `/settings/administrators/${administratorId}`,
+    attendanceGroups: (administratorId: string) =>
+      `/settings/administrators/${administratorId}/attendance-groups`,
   },
   membershipCatalog: {
     collection: '/settings/membership-catalog',

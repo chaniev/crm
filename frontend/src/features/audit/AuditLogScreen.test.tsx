@@ -40,6 +40,7 @@ const auditUser: AuthenticatedUser = {
     canViewFinancialReports: false,
   },
   assignedGroupIds: [],
+  attendanceScope: { kind: 'Global', groupIds: [] },
   branchId: null,
 }
 

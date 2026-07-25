@@ -64,8 +64,15 @@ class MenuItem(ApiModel):
         return self.label
 
 
+class AttendanceDateWindow(ApiModel):
+    today: date
+    min_training_date: date | None = Field(alias="minTrainingDate")
+    max_training_date: date = Field(alias="maxTrainingDate")
+
+
 class MenuResponse(ApiModel):
-    user: BotUserContext | None = None
+    user: BotUserContext
+    attendance_date_window: AttendanceDateWindow = Field(alias="attendanceDateWindow")
     items: list[MenuItem]
 
 
@@ -100,6 +107,7 @@ class AttendanceRosterResponse(ApiModel):
     group_id: UUID = Field(alias="groupId")
     group_name: str = Field(alias="groupName")
     training_date: date = Field(alias="trainingDate")
+    attendance_date_window: AttendanceDateWindow = Field(alias="attendanceDateWindow")
     clients: list[AttendanceRosterClient]
 
     @property
@@ -128,6 +136,7 @@ class AttendanceSaveWarning(ApiModel):
 class AttendanceSaveResponse(ApiModel):
     group_name: str = Field(alias="groupName")
     training_date: date = Field(alias="trainingDate")
+    attendance_date_window: AttendanceDateWindow = Field(alias="attendanceDateWindow")
     marked_count: int = Field(alias="markedCount")
     present_count: int = Field(alias="presentCount")
     absent_count: int = Field(alias="absentCount")

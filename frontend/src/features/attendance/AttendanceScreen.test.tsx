@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
+  ApiError,
   getAttendanceGroupClients,
   getAttendanceGroups,
   saveAttendanceMarks,
@@ -20,6 +21,10 @@ const user = {
   role: 'Coach',
   permissions: { canMarkAttendance: true },
 } as AuthenticatedUser
+const administratorUser = {
+  role: 'Administrator',
+  permissions: { canMarkAttendance: true },
+} as AuthenticatedUser
 const getGroups = vi.mocked(getAttendanceGroups)
 const getRoster = vi.mocked(getAttendanceGroupClients)
 const saveMarks = vi.mocked(saveAttendanceMarks)
@@ -31,12 +36,14 @@ beforeEach(() => {
   getGroups.mockResolvedValue({
     groups: [{ id: 'group-1', name: 'Вечерняя' }],
     today: '2026-07-12',
+    minTrainingDate: '2026-07-10',
     maxTrainingDate: '2026-07-12',
   })
   getRoster.mockResolvedValue({
     groupId: 'group-1',
     trainingDate: '2026-07-12',
     today: '2026-07-12',
+    minTrainingDate: '2026-07-10',
     maxTrainingDate: '2026-07-12',
     clients: [{
       id: 'client-1',
@@ -61,6 +68,7 @@ describe('AttendanceWorkspace', () => {
         groupId: 'group-1',
         trainingDate: '2026-07-12',
         today: '2026-07-12',
+        minTrainingDate: '2026-07-10',
         maxTrainingDate: '2026-07-12',
         attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
       })
@@ -109,7 +117,7 @@ describe('AttendanceWorkspace', () => {
 
     expect(screen.getByRole('button', { name: 'Обновить список' })).toBeDisabled()
     pendingSave.resolve({
-      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
       attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
     })
     await waitFor(() => expect(screen.getByRole('button', { name: 'Обновить список' })).toBeEnabled())
@@ -120,6 +128,7 @@ describe('AttendanceWorkspace', () => {
       groupId: 'group-1',
       trainingDate: '2026-07-12',
       today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
       maxTrainingDate: '2026-07-12',
       clients: [{
         id: 'client-1',
@@ -155,7 +164,7 @@ describe('AttendanceWorkspace', () => {
     saveMarks
       .mockRejectedValueOnce(new Error('Ошибка первой строки'))
       .mockResolvedValueOnce({
-        groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+        groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
         attendanceMarks: [{ clientId: 'client-2', state: 'Present' }],
       })
     renderWithProviders(<AttendanceWorkspace user={user} />)
@@ -183,11 +192,11 @@ describe('AttendanceWorkspace', () => {
       })
     saveMarks
       .mockResolvedValueOnce({
-        groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+        groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
         attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
       })
       .mockResolvedValueOnce({
-        groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+        groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
         attendanceMarks: [{ clientId: 'client-1', state: 'Absent' }],
       })
 
@@ -210,7 +219,7 @@ describe('AttendanceWorkspace', () => {
 
   test('defaults to unmarked clients, shows the complete confirmed roster and resets a client', async () => {
     getRoster.mockResolvedValue({
-      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
       clients: [
         buildClient('client-1', 'Иван Иванов', 'Unmarked'),
         buildClient('client-2', 'Анна Петрова', 'Present'),
@@ -218,7 +227,7 @@ describe('AttendanceWorkspace', () => {
       ],
     })
     saveMarks.mockResolvedValue({
-      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
       attendanceMarks: [{ clientId: 'client-2', state: 'Unmarked' }],
     })
 
@@ -251,7 +260,7 @@ describe('AttendanceWorkspace', () => {
 
   test('distinguishes an empty group from a completed default view and opens all clients', async () => {
     getRoster.mockResolvedValueOnce({
-      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12', clients: [],
+      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12', clients: [],
     })
     const { unmount } = renderWithProviders(<AttendanceWorkspace user={user} />)
     expect(await screen.findByText('В выбранной группе пока нет клиентов')).toBeVisible()
@@ -259,7 +268,7 @@ describe('AttendanceWorkspace', () => {
     unmount()
 
     getRoster.mockResolvedValue({
-      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
       clients: [buildClient('client-2', 'Анна Петрова', 'Present')],
     })
     renderWithProviders(<AttendanceWorkspace user={user} />)
@@ -272,12 +281,14 @@ describe('AttendanceWorkspace', () => {
     getGroups.mockResolvedValue({
       groups: [{ id: 'group-1', name: 'Вечерняя' }],
       today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
       maxTrainingDate: '2026-07-12',
     })
     getRoster.mockImplementation(async (groupId, trainingDate) => ({
       groupId,
       trainingDate,
       today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
       maxTrainingDate: '2026-07-12',
       clients: [
         buildClient('client-1', 'Иван Иванов', 'Unmarked'),
@@ -297,6 +308,71 @@ describe('AttendanceWorkspace', () => {
     expect(within(viewControl).getByRole('radio', { name: 'Не отмечено' })).toBeChecked()
     expect(screen.queryByText('Анна Петрова')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Дата тренировки')).toHaveValue('2026-07-11')
+  })
+
+  test('clears an Administrator roster and reloads groups after attendance scope is revoked', async () => {
+    getGroups
+      .mockResolvedValueOnce({
+        groups: [{ id: 'group-1', name: 'Вечерняя' }],
+        today: '2026-07-12',
+        minTrainingDate: null,
+        maxTrainingDate: '2026-07-12',
+      })
+      .mockResolvedValueOnce({
+        groups: [],
+        today: '2026-07-12',
+        minTrainingDate: null,
+        maxTrainingDate: '2026-07-12',
+      })
+    saveMarks.mockRejectedValueOnce(
+      new ApiError(
+        'Доступ к группе запрещен.',
+        403,
+        {},
+        'attendance_group_forbidden',
+      ),
+    )
+
+    renderWithProviders(<AttendanceWorkspace user={administratorUser} />)
+
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    fireEvent.click(within(card).getByRole('radio', { name: 'Был' }))
+
+    expect(await screen.findByText('Доступ к группе изменился')).toBeVisible()
+    await waitFor(() => expect(getGroups).toHaveBeenCalledTimes(2))
+    expect(screen.getByText('Нет групп для отметки посещений')).toBeVisible()
+    expect(
+      screen.getByText('Главный тренер или суперадминистратор назначит группы, после этого они появятся здесь.'),
+    ).toBeVisible()
+    expect(screen.queryByTestId('attendance-roster')).not.toBeInTheDocument()
+  })
+
+  test('treats a bare attendance 403 as revoked scope for current backend compatibility', async () => {
+    getGroups
+      .mockResolvedValueOnce({
+        groups: [{ id: 'group-1', name: 'Вечерняя' }],
+        today: '2026-07-12',
+        minTrainingDate: null,
+        maxTrainingDate: '2026-07-12',
+      })
+      .mockResolvedValueOnce({
+        groups: [],
+        today: '2026-07-12',
+        minTrainingDate: null,
+        maxTrainingDate: '2026-07-12',
+      })
+    saveMarks.mockRejectedValueOnce(
+      new ApiError('Не удалось выполнить запрос.', 403),
+    )
+
+    renderWithProviders(<AttendanceWorkspace user={administratorUser} />)
+
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    fireEvent.click(within(card).getByRole('radio', { name: 'Был' }))
+
+    expect(await screen.findByText('Доступ к группе изменился')).toBeVisible()
+    await waitFor(() => expect(getGroups).toHaveBeenCalledTimes(2))
+    expect(screen.getByText('Нет групп для отметки посещений')).toBeVisible()
   })
 })
 

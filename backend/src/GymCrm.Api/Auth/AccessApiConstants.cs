@@ -19,5 +19,6 @@ internal static class AccessApiConstants
     public const string FinancialReportsCapability = "FinancialReports";
     public const string AttendanceCapability = "Attendance";
 
-    public const string AssignedCoachScopeGrantedBy = "AssignedCoachScope";
+    public const string CoachGroupAssignmentGrantedBy = "coach-group-assignment";
+    public const string AdministratorAttendanceGrantGrantedBy = "administrator-attendance-grant";
 }

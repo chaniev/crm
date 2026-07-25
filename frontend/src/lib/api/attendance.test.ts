@@ -15,6 +15,7 @@ describe('attendance API', () => {
       groupId: 'group-1',
       trainingDate: '2026-07-11',
       today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
       maxTrainingDate: '2026-07-12',
       clients: [
         { id: 'unmarked', fullName: 'Не отмечен', state: 'Unmarked' },
@@ -29,6 +30,7 @@ describe('attendance API', () => {
     )
 
     expect(response.today).toBe('2026-07-12')
+    expect(response.minTrainingDate).toBe('2026-07-10')
     expect(response.maxTrainingDate).toBe('2026-07-12')
     expect(response.clients.map((client) => client.state)).toEqual([
       'Unmarked',
@@ -42,6 +44,7 @@ describe('attendance API', () => {
       groupId: 'group-1',
       trainingDate: '2026-07-11',
       today: '2026-07-12',
+      minTrainingDate: null,
       maxTrainingDate: '2026-07-12',
       clients: [
         {
@@ -81,12 +84,14 @@ describe('attendance API', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
       groups: [{ id: 'group-1', name: 'Вечерняя' }],
       today: '2026-07-12',
+      minTrainingDate: null,
       maxTrainingDate: '2026-07-12',
     })))
 
     await expect(getAttendanceGroups()).resolves.toEqual({
       groups: [{ id: 'group-1', name: 'Вечерняя' }],
       today: '2026-07-12',
+      minTrainingDate: null,
       maxTrainingDate: '2026-07-12',
     })
   })
@@ -96,6 +101,7 @@ describe('attendance API', () => {
       groupId: 'group-1',
       trainingDate: '2026-07-12',
       today: '2026-07-12',
+      minTrainingDate: null,
       maxTrainingDate: '2026-07-12',
       attendanceMarks: [{ clientId: 'client-1', state: 'Absent' }],
     }))

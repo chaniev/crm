@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GymCrm.Api.Auth;
 
@@ -25,6 +26,28 @@ internal static class AttendanceValidationProblems
         return TypedResults.ValidationProblem(new Dictionary<string, string[]>
         {
             ["trainingDate"] = [AttendanceResources.TrainingDateInFuture]
+        });
+    }
+
+    public static ValidationProblem CreateTrainingDateUnavailableValidationProblem()
+    {
+        return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["trainingDate"] = ["Дата посещаемости недоступна для роли пользователя."]
+        });
+    }
+
+    public static ProblemHttpResult CreateAttendanceGroupForbiddenProblem()
+    {
+        return TypedResults.Problem(new ProblemDetails
+        {
+            Type = "/problems/attendance-group-forbidden",
+            Title = "Attendance group is not available for the current user.",
+            Status = StatusCodes.Status403Forbidden,
+            Extensions =
+            {
+                ["code"] = "attendance_group_forbidden"
+            }
         });
     }
 }

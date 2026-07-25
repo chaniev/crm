@@ -44,6 +44,7 @@ const user: AuthenticatedUser = {
     canViewFinancialReports: true,
   },
   assignedGroupIds: ['group-1'],
+  attendanceScope: { kind: 'Global', groupIds: [] },
   branchId: null,
 }
 
@@ -78,6 +79,7 @@ beforeEach(() => {
   getAttendanceGroupsMock.mockResolvedValue({
     groups: [],
     today: '2026-07-12',
+    minTrainingDate: '2026-07-10',
     maxTrainingDate: '2026-07-12',
   })
 })
@@ -125,12 +127,14 @@ describe('HomeDashboard', () => {
     getAttendanceGroupsMock.mockResolvedValueOnce({
       groups: [{ id: 'group-1', name: 'Вечерняя' }],
       today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
       maxTrainingDate: '2026-07-12',
     })
     getAttendanceGroupClientsMock.mockResolvedValueOnce({
       groupId: 'group-1',
       trainingDate: '2026-07-12',
       today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
       maxTrainingDate: '2026-07-12',
       clients: [],
     })
@@ -170,17 +174,18 @@ describe('HomeDashboard', () => {
     getAttendanceGroupsMock.mockResolvedValueOnce({
       groups: [{ id: 'group-1', name: 'Вечерняя' }],
       today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
       maxTrainingDate: '2026-07-12',
     })
     getAttendanceGroupClientsMock.mockResolvedValue({
-      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
       clients: [{
         id: 'client-1', fullName: 'Иван Иванов', state: 'Unmarked', groups: [], photo: null,
         isProfessional: false, professionalComment: null, hasActiveMembership: true, membershipWarning: false, currentMembership: null,
       }],
     })
     saveAttendanceMarksMock.mockResolvedValue({
-      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', maxTrainingDate: '2026-07-12',
+      groupId: 'group-1', trainingDate: '2026-07-12', today: '2026-07-12', minTrainingDate: '2026-07-10', maxTrainingDate: '2026-07-12',
       attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
     })
     renderWithProviders(<HomeDashboard user={user} />)

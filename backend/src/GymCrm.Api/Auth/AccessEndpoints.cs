@@ -82,7 +82,7 @@ internal static class AccessEndpoints
             GymCrmAuthorizationPolicies.ViewFinancialReports));
     }
 
-    private static async Task<Results<Ok<GroupAccessProbeResponse>, NotFound, ForbidHttpResult>> ProbeAttendanceAccessAsync(
+    private static async Task<Results<Ok<GroupAccessProbeResponse>, NotFound, ProblemHttpResult>> ProbeAttendanceAccessAsync(
         Guid groupId,
         HttpContext httpContext,
         IAccessScopeService accessScopeService,
@@ -91,7 +91,7 @@ internal static class AccessEndpoints
         var user = httpContext.GetAuthenticatedGymCrmUser();
         if (user is null)
         {
-            return TypedResults.Forbid();
+            return AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem();
         }
 
         var accessDecision = await accessScopeService.EvaluateGroupAccessAsync(
@@ -102,14 +102,23 @@ internal static class AccessEndpoints
         return accessDecision switch
         {
             GroupAccessDecision.GroupNotFound => TypedResults.NotFound(),
-            GroupAccessDecision.Forbidden => TypedResults.Forbid(),
+            GroupAccessDecision.Forbidden => AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem(),
             GroupAccessDecision.Allowed => TypedResults.Ok(new GroupAccessProbeResponse(
                 groupId,
                 AccessApiConstants.AttendanceCapability,
-                UserRoleAuthorizationPolicy.GetOperationalScopeKind(user.Role) == AccessScopeKind.Global
-                    ? GymCrmAuthorizationPolicies.MarkAttendance
-                    : AccessApiConstants.AssignedCoachScopeGrantedBy)),
+                GetAttendanceGrantedBy(user.Role))),
             _ => throw new InvalidOperationException($"Unsupported access decision '{accessDecision}'.")
+        };
+    }
+
+    private static string GetAttendanceGrantedBy(UserRole role)
+    {
+        return role switch
+        {
+            UserRole.HeadCoach or UserRole.SuperAdministrator => GymCrmAuthorizationPolicies.MarkAttendance,
+            UserRole.Coach => AccessApiConstants.CoachGroupAssignmentGrantedBy,
+            UserRole.Administrator => AccessApiConstants.AdministratorAttendanceGrantGrantedBy,
+            _ => throw new InvalidOperationException($"Unsupported role '{role}' for attendance access.")
         };
     }
 

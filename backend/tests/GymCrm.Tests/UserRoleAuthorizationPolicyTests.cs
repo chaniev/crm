@@ -23,6 +23,16 @@ public class UserRoleAuthorizationPolicyTests
     }
 
     [Fact]
+    public void Task080_administrator_is_route_eligible_for_attendance_without_implying_global_scope()
+    {
+        var permissions = UserRoleAuthorizationPolicy.GetPermissions(UserRole.Administrator);
+
+        Assert.True(permissions.CanMarkAttendance);
+        Assert.True(UserRoleAuthorizationPolicy.HasCapability(UserRole.Administrator, CrmCapability.MarkAttendance));
+        Assert.Equal(AccessScopeKind.Branch, UserRoleAuthorizationPolicy.GetOperationalScopeKind(UserRole.Administrator));
+    }
+
+    [Fact]
     public void Staff_create_matrix_is_exhaustive()
     {
         foreach (var actor in Enum.GetValues<UserRole>())
@@ -61,6 +71,14 @@ public class UserRoleAuthorizationPolicyTests
                 {
                     UserRole.HeadCoach when target == UserRole.HeadCoach =>
                         new[] { StaffMutationAction.Edit },
+                    UserRole.HeadCoach when target == UserRole.Administrator =>
+                        new[]
+                        {
+                            StaffMutationAction.Edit,
+                            StaffMutationAction.Deactivate,
+                            StaffMutationAction.Reactivate,
+                            StaffMutationAction.ManageAttendanceScope
+                        },
                     UserRole.HeadCoach =>
                         new[]
                         {
@@ -68,7 +86,15 @@ public class UserRoleAuthorizationPolicyTests
                             StaffMutationAction.Deactivate,
                             StaffMutationAction.Reactivate
                         },
-                    UserRole.SuperAdministrator when target is UserRole.Administrator or UserRole.Coach =>
+                    UserRole.SuperAdministrator when target == UserRole.Administrator =>
+                        new[]
+                        {
+                            StaffMutationAction.Edit,
+                            StaffMutationAction.Deactivate,
+                            StaffMutationAction.Reactivate,
+                            StaffMutationAction.ManageAttendanceScope
+                        },
+                    UserRole.SuperAdministrator when target == UserRole.Coach =>
                         new[]
                         {
                             StaffMutationAction.Edit,

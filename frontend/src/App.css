@@ -1186,6 +1186,62 @@
   outline-offset: 2px;
 }
 
+.administrator-attendance-scope-modal {
+  min-width: 0;
+}
+
+.administrator-attendance-scope-modal__content {
+  max-height: calc(100dvh - 2rem);
+  overflow: hidden;
+}
+
+.administrator-attendance-scope-modal__body {
+  max-height: calc(100dvh - 6rem);
+  overflow-y: auto;
+}
+
+.administrator-attendance-scope-modal__footer {
+  background: var(--mantine-color-body);
+}
+
+@media (max-width: 48em) {
+  .administrator-attendance-scope-modal__content {
+    width: 100vw !important;
+    max-width: none;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 0 !important;
+  }
+
+  .administrator-attendance-scope-modal__body {
+    max-height: calc(100dvh - 3.75rem);
+    padding: var(--mantine-spacing-md);
+  }
+
+  .administrator-attendance-scope-modal {
+    min-height: calc(100dvh - 5rem);
+  }
+
+  .administrator-attendance-scope-modal__footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    margin-inline: calc(var(--mantine-spacing-md) * -1);
+    margin-bottom: calc(var(--mantine-spacing-md) * -1);
+    padding: var(--mantine-spacing-md);
+    border-top: 1px solid var(--mantine-color-gray-3);
+  }
+
+  .administrator-attendance-scope-modal .list-row-card {
+    padding: 0.85rem;
+  }
+
+  .administrator-attendance-scope-modal :where(.mantine-Checkbox-input, .mantine-Checkbox-label) {
+    min-height: 44px;
+  }
+}
+
 .group-row-card {
   background:
     linear-gradient(135deg, rgba(246, 244, 238, 0.74), rgba(255, 255, 255, 0.94));

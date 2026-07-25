@@ -11,6 +11,7 @@ from gym_crm_bot.config import Settings
 from gym_crm_bot.core.service import BotService
 from gym_crm_bot.crm.errors import CrmUserNotConfiguredError
 from gym_crm_bot.crm.models import (
+    AttendanceDateWindow,
     AttendanceGroup,
     AttendanceGroupsResponse,
     AttendanceSaveResponse,
@@ -32,6 +33,9 @@ class FakeCrmClient:
     role: str = "Coach"
     menu_items: tuple[MenuItem, ...] = (MenuItem(code="attendance", title="Посещения"),)
     attendance_groups: tuple[AttendanceGroup, ...] = ()
+    attendance_today: date = date(2026, 5, 13)
+    attendance_min_training_date: date | None = date(2026, 5, 11)
+    attendance_max_training_date: date = date(2026, 5, 13)
 
     async def resolve_session(self, identity, *, request_id: str):  # noqa: ANN001
         if not self.known_user:
@@ -43,7 +47,19 @@ class FakeCrmClient:
         )
 
     async def get_menu(self, identity, *, request_id: str):  # noqa: ANN001
-        return MenuResponse(items=list(self.menu_items))
+        return MenuResponse(
+            user=BotUserContext(
+                crm_user_id="00000000-0000-0000-0000-000000000001",
+                display_name="Иван",
+                role=self.role,
+            ),
+            attendanceDateWindow=AttendanceDateWindow(
+                today=self.attendance_today,
+                minTrainingDate=self.attendance_min_training_date,
+                maxTrainingDate=self.attendance_max_training_date,
+            ),
+            items=list(self.menu_items),
+        )
 
     async def list_attendance_groups(self, identity, *, request_id: str):  # noqa: ANN001
         return AttendanceGroupsResponse(items=list(self.attendance_groups))
@@ -193,6 +209,122 @@ async def test_super_administrator_menu_renders_backend_actions_only(
         for button in row
     ]
     assert rendered_callbacks == ["menu|client_search", "menu|attendance"]
+
+
+@pytest.mark.asyncio
+async def test_administrator_attendance_dates_render_backend_business_window(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeCrmClient(
+            role="Administrator",
+            attendance_today=date(2031, 1, 9),
+            attendance_min_training_date=None,
+            attendance_max_training_date=date(2031, 1, 9),
+        ),
+        session_factory=session_factory,
+    )
+
+    response = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=801,
+            event_key="callback:801",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="888",
+            kind="callback",
+            callback_data="menu|attendance",
+        )
+    )
+
+    assert response.reply_markup is not None
+    assert [
+        button.callback_data
+        for row in response.reply_markup.inline_keyboard
+        for button in row
+    ] == [
+        "adt|2031-01-09",
+        "adt|2031-01-08",
+        "adt|2031-01-07",
+        "adt|2031-01-02",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_coach_attendance_dates_stop_at_backend_minimum(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeCrmClient(
+            role="Coach",
+            attendance_today=date(2031, 1, 9),
+            attendance_min_training_date=date(2031, 1, 7),
+            attendance_max_training_date=date(2031, 1, 9),
+        ),
+        session_factory=session_factory,
+    )
+
+    response = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=802,
+            event_key="callback:802",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="888",
+            kind="callback",
+            callback_data="menu|attendance",
+        )
+    )
+
+    assert response.reply_markup is not None
+    assert [
+        button.callback_data
+        for row in response.reply_markup.inline_keyboard
+        for button in row
+    ] == [
+        "adt|2031-01-09",
+        "adt|2031-01-08",
+        "adt|2031-01-07",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_administrator_empty_attendance_scope_renders_backend_empty_result(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeCrmClient(
+            role="Administrator",
+            attendance_groups=(),
+            attendance_min_training_date=None,
+        ),
+        session_factory=session_factory,
+    )
+    event = NormalizedTelegramEvent(
+        update_id=803,
+        event_key="callback:803",
+        chat_id=10,
+        chat_type="private",
+        platform_user_id="888",
+        kind="callback",
+        callback_data="adt|2026-05-13",
+    )
+    await service._save_state(
+        event,
+        "attendance",
+        {"step": "select_date", "role": "Administrator"},
+    )
+
+    response = await service._select_attendance_date(event, "2026-05-13")
+
+    assert response.text == "Нет доступных групп для отметки посещаемости."
+    assert response.reply_markup is None
 
 
 @pytest.mark.asyncio
@@ -348,6 +480,11 @@ async def test_attendance_save_omits_warning_block_when_backend_returns_no_warni
             AttendanceSaveResponse(
                 groupName="Группа",
                 trainingDate=date(2026, 5, 8),
+                attendanceDateWindow=AttendanceDateWindow(
+                    today=date(2026, 5, 13),
+                    minTrainingDate=date(2026, 5, 11),
+                    maxTrainingDate=date(2026, 5, 13),
+                ),
                 markedCount=1,
                 presentCount=1,
                 absentCount=0,

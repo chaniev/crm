@@ -791,6 +791,45 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AdministratorAttendanceGroupGrants",
+                columns: table => new
+                {
+                    AdministratorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uuid", nullable: false),
+                    GrantedByUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    GrantedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AdministratorAttendanceGroupGrants", x => new { x.AdministratorId, x.GroupId });
+                    table.ForeignKey(
+                        name: "FK_AdministratorAttendanceGroupGrants_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AdministratorAttendanceGroupGrants_TrainingGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AdministratorAttendanceGroupGrants_Users_AdministratorId",
+                        column: x => x.AdministratorId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AdministratorAttendanceGroupGrants_Users_GrantedByUserId",
+                        column: x => x.GrantedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GroupTrainerAssignments",
                 columns: table => new
                 {
@@ -1202,6 +1241,21 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 column: "Status");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AdministratorAttendanceGroupGrants_BranchId",
+                table: "AdministratorAttendanceGroupGrants",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdministratorAttendanceGroupGrants_GrantedByUserId",
+                table: "AdministratorAttendanceGroupGrants",
+                column: "GrantedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdministratorAttendanceGroupGrants_GroupId",
+                table: "AdministratorAttendanceGroupGrants",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GroupTrainers_TrainerId",
                 table: "GroupTrainers",
                 column: "TrainerId");
@@ -1397,6 +1451,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "GroupTrainerAssignments");
+
+            migrationBuilder.DropTable(
+                name: "AdministratorAttendanceGroupGrants");
 
             migrationBuilder.DropTable(
                 name: "GroupTrainers");

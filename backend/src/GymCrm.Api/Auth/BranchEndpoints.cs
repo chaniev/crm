@@ -260,9 +260,22 @@ internal static class BranchEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        var supportsTransactions = !providerName.Contains("InMemory", StringComparison.OrdinalIgnoreCase);
+        await using var transaction = supportsTransactions
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
+        await LockBranchAsync(dbContext, id, cancellationToken);
+
         var branch = await dbContext.Branches.SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
         if (branch is null)
         {
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+
             return TypedResults.NotFound();
         }
 
@@ -270,6 +283,11 @@ internal static class BranchEndpoints
         {
             var currentBranch = await LoadBranchSnapshotAsync(branch.Id, dbContext, cancellationToken)
                 ?? throw new InvalidOperationException($"Branch '{branch.Id}' was not found after archive state check.");
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync(cancellationToken);
+            }
+
             return TypedResults.Ok(MapBranch(currentBranch));
         }
 
@@ -289,10 +307,31 @@ internal static class BranchEndpoints
                 SerializeBranchAuditState(branch)),
             cancellationToken);
 
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
+
         var updatedBranch = await LoadBranchSnapshotAsync(branch.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated branch '{branch.Id}' was not found.");
 
         return TypedResults.Ok(MapBranch(updatedBranch));
+    }
+
+    private static async Task LockBranchAsync(
+        GymCrmDbContext dbContext,
+        Guid branchId,
+        CancellationToken cancellationToken)
+    {
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "Branches" WHERE "Id" = {branchId} FOR UPDATE""",
+            cancellationToken);
     }
 
     private static async Task<Ok<IReadOnlyList<HallResponse>>> ListHallsAsync(

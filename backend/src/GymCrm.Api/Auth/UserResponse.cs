@@ -14,4 +14,5 @@ internal sealed record UserResponse(
     Guid? BranchId = null,
     string? BranchName = null,
     IReadOnlyList<string>? AllowedActions = null,
-    IReadOnlyList<string>? RoleOptions = null);
+    IReadOnlyList<string>? RoleOptions = null,
+    int? AttendanceGrantCount = null);

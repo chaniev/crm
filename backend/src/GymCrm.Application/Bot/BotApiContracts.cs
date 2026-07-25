@@ -52,9 +52,15 @@ public sealed record BotUserContext(
 
 public sealed record BotMenuResponse(
     BotUserContext User,
+    BotAttendanceDateWindow AttendanceDateWindow,
     IReadOnlyList<BotMenuItem> Items);
 
 public sealed record BotMenuItem(string Code, string Label);
+
+public sealed record BotAttendanceDateWindow(
+    DateOnly Today,
+    DateOnly? MinTrainingDate,
+    DateOnly MaxTrainingDate);
 
 public sealed record BotAttendanceGroup(
     Guid Id,
@@ -73,6 +79,7 @@ public sealed record BotAttendanceRoster(
     Guid GroupId,
     string GroupName,
     DateOnly TrainingDate,
+    BotAttendanceDateWindow AttendanceDateWindow,
     IReadOnlyList<BotAttendanceClient> Clients);
 
 public sealed record BotAttendanceClient(
@@ -95,6 +102,7 @@ public sealed record BotAttendanceSaveResponse(
     Guid GroupId,
     string GroupName,
     DateOnly TrainingDate,
+    BotAttendanceDateWindow AttendanceDateWindow,
     int MarkedCount,
     int PresentCount,
     int AbsentCount,

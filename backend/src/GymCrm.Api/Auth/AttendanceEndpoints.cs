@@ -32,7 +32,8 @@ internal static class AttendanceEndpoints
     private static async Task<Results<Ok<AttendanceGroupsResponse>, UnauthorizedHttpResult>> ListGroupsAsync(
         HttpContext httpContext,
         GymCrmDbContext dbContext,
-        IBusinessDateProvider businessDateProvider,
+        IAccessScopeService accessScopeService,
+        IAttendanceDatePolicy attendanceDatePolicy,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -41,10 +42,15 @@ internal static class AttendanceEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var accessScope = await accessScopeService.GetAccessScopeAsync(currentUser, cancellationToken);
+        var accessibleGroupIds = accessScope.AttendanceScope.Kind == AttendanceScopeKind.Global
+            ? null
+            : accessScope.AttendanceScope.GroupIds.ToHashSet();
+
         var query = dbContext.TrainingGroups.AsNoTracking();
-        if (currentUser.Role == UserRole.Coach)
+        if (accessibleGroupIds is not null)
         {
-            query = query.Where(group => group.Trainers.Any(trainer => trainer.TrainerId == currentUser.Id));
+            query = query.Where(group => accessibleGroupIds.Contains(group.Id));
         }
 
         IReadOnlyList<AttendanceGroupResponse> groups = await query
@@ -66,17 +72,21 @@ internal static class AttendanceEndpoints
                 group.Clients.Count(clientGroup => clientGroup.Client.Status == ClientStatus.Active)))
             .ToListAsync(cancellationToken);
 
-        var today = businessDateProvider.Today;
-        return TypedResults.Ok(new AttendanceGroupsResponse(groups, today, today));
+        var window = attendanceDatePolicy.GetWindow(currentUser.Role);
+        return TypedResults.Ok(new AttendanceGroupsResponse(
+            groups,
+            window.Today,
+            window.MinTrainingDate,
+            window.MaxTrainingDate));
     }
 
-    private static async Task<Results<Ok<AttendanceGroupClientsResponse>, ValidationProblem, NotFound, ForbidHttpResult, UnauthorizedHttpResult>> GetGroupClientsAsync(
+    private static async Task<Results<Ok<AttendanceGroupClientsResponse>, ValidationProblem, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> GetGroupClientsAsync(
         Guid groupId,
         string? trainingDate,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
-        IBusinessDateProvider businessDateProvider,
+        IAttendanceDatePolicy attendanceDatePolicy,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -97,13 +107,18 @@ internal static class AttendanceEndpoints
 
         if (accessDecision == GroupAccessDecision.Forbidden)
         {
-            return TypedResults.Forbid();
+            return AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem();
         }
 
         var parsedTrainingDate = ParseTrainingDate(trainingDate);
         if (!parsedTrainingDate.HasValue)
         {
             return AttendanceValidationProblems.CreateTrainingDateValidationProblem(TrainingDateFormat);
+        }
+
+        if (!attendanceDatePolicy.IsAllowed(currentUser.Role, parsedTrainingDate.Value))
+        {
+            return AttendanceValidationProblems.CreateTrainingDateUnavailableValidationProblem();
         }
 
         var group = await dbContext.TrainingGroups
@@ -133,19 +148,21 @@ internal static class AttendanceEndpoints
             .ThenBy(client => client.Id)
             .ToListAsync(cancellationToken);
 
+        var window = attendanceDatePolicy.GetWindow(currentUser.Role);
         return TypedResults.Ok(new AttendanceGroupClientsResponse(
             group.Id,
             group.Name,
             parsedTrainingDate.Value,
-            businessDateProvider.Today,
-            businessDateProvider.Today,
+            window.Today,
+            window.MinTrainingDate,
+            window.MaxTrainingDate,
             clients
                 .Select(client => MapAttendanceClient(
                     client,
                     currentUser,
                     groupId,
                     parsedTrainingDate.Value,
-                    businessDateProvider.Today))
+                    window.Today))
                 .ToArray()));
     }
 
@@ -155,7 +172,7 @@ internal static class AttendanceEndpoints
         HttpContext httpContext,
         IAccessScopeService accessScopeService,
         IAttendanceService attendanceService,
-        IBusinessDateProvider businessDateProvider,
+        IAttendanceDatePolicy attendanceDatePolicy,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -183,13 +200,18 @@ internal static class AttendanceEndpoints
 
         if (accessDecision == GroupAccessDecision.Forbidden)
         {
-            return TypedResults.Forbid();
+            return AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem();
         }
 
         var parsedTrainingDate = ParseTrainingDate(request.TrainingDate);
         if (!parsedTrainingDate.HasValue)
         {
             return AttendanceValidationProblems.CreateTrainingDateValidationProblem(TrainingDateFormat);
+        }
+
+        if (!attendanceDatePolicy.IsAllowed(currentUser.Role, parsedTrainingDate.Value))
+        {
+            return AttendanceValidationProblems.CreateTrainingDateUnavailableValidationProblem();
         }
 
         if (request.AttendanceMarks is null || request.AttendanceMarks.Count == 0)
@@ -233,18 +255,21 @@ internal static class AttendanceEndpoints
                 AttendanceBatchMutationError.InvalidRequest => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveInvalidRequest),
                 AttendanceBatchMutationError.ClientOutsideGroup => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveClientOutsideGroup),
                 AttendanceBatchMutationError.TrainingDateInFuture => AttendanceValidationProblems.CreateTrainingDateInFutureValidationProblem(),
+                AttendanceBatchMutationError.TrainingDateUnavailable => AttendanceValidationProblems.CreateTrainingDateUnavailableValidationProblem(),
+                AttendanceBatchMutationError.Forbidden => AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem(),
                 AttendanceBatchMutationError.SingleVisitRestoreConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.SingleVisitRestoreConflict),
                 _ => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveFailed)
             };
         }
 
         var details = mutationResult.Details!;
-        var today = businessDateProvider.Today;
+        var window = attendanceDatePolicy.GetWindow(currentUser.Role);
         return TypedResults.Ok(new AttendanceSaveResponse(
             details.GroupId,
             details.TrainingDate,
-            today,
-            today,
+            window.Today,
+            window.MinTrainingDate,
+            window.MaxTrainingDate,
             parsedMarks
                 .Select(mark => new AttendanceMarkResponse(mark.ClientId, mark.State.ToString()))
                 .ToArray()));

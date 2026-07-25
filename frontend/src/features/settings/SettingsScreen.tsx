@@ -26,6 +26,7 @@ import {
   IconTrash,
   IconUserCog,
   IconUserPlus,
+  IconUsersGroup,
 } from '@tabler/icons-react'
 import {
   ApiError,
@@ -73,6 +74,7 @@ import {
   toUpdateUserPayload,
 } from '../users/UserManagement.mappers'
 import { BranchSettingsScreen } from './BranchSettingsScreen'
+import { AdministratorAttendanceScopeModal } from './AdministratorAttendanceScopeModal'
 import { MembershipCatalogSettings } from './MembershipCatalogSettings'
 
 type SettingsTab = 'catalog' | 'group-types' | 'branches' | 'administrators'
@@ -474,8 +476,10 @@ function AdministratorsSettingsPanel() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+  const [formErrorCode, setFormErrorCode] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [modalState, setModalState] = useState<AdministratorModalState>(null)
+  const [scopeAdministrator, setScopeAdministrator] = useState<UserListItem | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const createForm = useForm<CreateUserFormValues>({
     initialValues: {
@@ -555,6 +559,7 @@ function AdministratorsSettingsPanel() {
     })
     createForm.clearErrors()
     setFormError(null)
+    setFormErrorCode(null)
     setModalState({ mode: 'create' })
   }
 
@@ -571,12 +576,14 @@ function AdministratorsSettingsPanel() {
     })
     editForm.clearErrors()
     setFormError(null)
+    setFormErrorCode(null)
     setModalState({ mode: 'edit', administrator })
   }
 
   async function submitCreate(values: CreateUserFormValues) {
     setSubmitting(true)
     setFormError(null)
+    setFormErrorCode(null)
     createForm.clearErrors()
 
     try {
@@ -624,6 +631,7 @@ function AdministratorsSettingsPanel() {
 
     setSubmitting(true)
     setFormError(null)
+    setFormErrorCode(null)
     editForm.clearErrors()
 
     try {
@@ -663,6 +671,7 @@ function AdministratorsSettingsPanel() {
       if (error instanceof ApiError) {
         editForm.setErrors(applyFieldErrors(error.fieldErrors))
         setFormError(error.message)
+        setFormErrorCode(error.code)
         return
       }
 
@@ -769,6 +778,9 @@ function AdministratorsSettingsPanel() {
                       <Text c="dimmed" size="sm">
                         Филиал: {administrator.branchName ?? 'не назначен'}
                       </Text>
+                      <Text c="dimmed" size="sm">
+                        {formatAttendanceScopeSummary(administrator)}
+                      </Text>
                       {administrator.messengerPlatformUserId ? (
                         <Text c="dimmed" size="sm">
                           Telegram ID: {administrator.messengerPlatformUserId}
@@ -776,14 +788,27 @@ function AdministratorsSettingsPanel() {
                       ) : null}
                     </Stack>
 
-                    {canEditStaffTarget(administrator) ? (
-                      <Button
-                        leftSection={<IconEdit size={18} />}
-                        onClick={() => openEditModal(administrator)}
-                        variant="pill"
-                      >
-                        Редактировать
-                      </Button>
+                    {canEditStaffTarget(administrator) || canManageAttendanceScope(administrator) ? (
+                      <ResponsiveButtonGroup justify="flex-end">
+                        {canManageAttendanceScope(administrator) ? (
+                          <Button
+                            leftSection={<IconUsersGroup size={18} />}
+                            onClick={() => setScopeAdministrator(administrator)}
+                            variant="pill"
+                          >
+                            Группы посещений
+                          </Button>
+                        ) : null}
+                        {canEditStaffTarget(administrator) ? (
+                          <Button
+                            leftSection={<IconEdit size={18} />}
+                            onClick={() => openEditModal(administrator)}
+                            variant="pill"
+                          >
+                            Редактировать
+                          </Button>
+                        ) : null}
+                      </ResponsiveButtonGroup>
                     ) : (
                       <Badge color="gray" radius="xl" variant="light">
                         Только просмотр
@@ -839,7 +864,14 @@ function AdministratorsSettingsPanel() {
         {modalState?.mode === 'edit' ? (
           <form onSubmit={editForm.onSubmit((values) => void submitEdit(values))}>
             <Stack gap="lg">
-              <AdministratorFormError message={formError} />
+              <AdministratorFormError
+                message={formError}
+                onOpenAttendanceScope={
+                  formErrorCode === 'attendance_grants_must_be_revoked'
+                    ? () => setScopeAdministrator(modalState.administrator)
+                    : undefined
+                }
+              />
               <UserFormFields
                 credentialsFields={<UserEditCredentialsFields form={editForm} />}
                 form={editForm}
@@ -863,11 +895,31 @@ function AdministratorsSettingsPanel() {
           </form>
         ) : null}
       </Modal>
+
+      <AdministratorAttendanceScopeModal
+        administrator={scopeAdministrator}
+        onClose={() => setScopeAdministrator(null)}
+        onSaved={(administratorId, grantedGroupCount) =>
+          setAdministrators((current) =>
+            current.map((administrator) =>
+              administrator.id === administratorId
+                ? { ...administrator, attendanceGroupGrantCount: grantedGroupCount }
+                : administrator,
+            ),
+          )
+        }
+      />
     </Stack>
   )
 }
 
-function AdministratorFormError({ message }: { message: string | null }) {
+function AdministratorFormError({
+  message,
+  onOpenAttendanceScope,
+}: {
+  message: string | null
+  onOpenAttendanceScope?: () => void
+}) {
   if (!message) {
     return null
   }
@@ -879,7 +931,20 @@ function AdministratorFormError({ message }: { message: string | null }) {
       title="Сохранение не выполнено"
       variant="light"
     >
-      {message}
+      <Stack gap="sm">
+        <Text size="sm">{message}</Text>
+        {onOpenAttendanceScope ? (
+          <div>
+            <Button
+              leftSection={<IconUsersGroup size={18} />}
+              onClick={onOpenAttendanceScope}
+              variant="secondary"
+            >
+              Открыть группы посещений
+            </Button>
+          </div>
+        ) : null}
+      </Stack>
     </Alert>
   )
 }
@@ -921,6 +986,33 @@ function canEditStaffTarget(user: UserListItem) {
   }
 
   return user.allowedActions.includes('Edit') || user.allowedActions.includes('Update')
+}
+
+function canManageAttendanceScope(user: UserListItem) {
+  return user.allowedActions?.includes('ManageAttendanceScope') === true
+}
+
+function formatAttendanceScopeSummary(user: UserListItem) {
+  const count = user.attendanceGroupGrantCount ?? 0
+
+  return count > 0
+    ? `Посещения: ${formatGroupWord(count)}`
+    : 'Посещения: не назначены'
+}
+
+function formatGroupWord(count: number) {
+  const mod10 = count % 10
+  const mod100 = count % 100
+
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${count} группа`
+  }
+
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return `${count} группы`
+  }
+
+  return `${count} групп`
 }
 
 function buildAdministratorBranchOptions(

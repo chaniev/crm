@@ -4,7 +4,13 @@ import pytest
 from pydantic import ValidationError
 
 from gym_crm_bot.core.idempotency import build_mutation_idempotency_key
-from gym_crm_bot.crm.models import ClientListItem, MenuItem, MenuResponse
+from gym_crm_bot.crm.models import (
+    AttendanceDateWindow,
+    BotUserContext,
+    ClientListItem,
+    MenuItem,
+    MenuResponse,
+)
 from gym_crm_bot.resources.callbacks import decode_callback, encode_callback
 from gym_crm_bot.resources.keyboards import render_membership_list_keyboard, render_menu_keyboard
 
@@ -35,6 +41,16 @@ def test_mutation_idempotency_key_is_stable() -> None:
 def test_render_menu_keyboard_contains_role_aware_actions() -> None:
     keyboard = render_menu_keyboard(
         MenuResponse(
+            user=BotUserContext(
+                userId="00000000-0000-0000-0000-000000000001",
+                fullName="Тренер",
+                role="Coach",
+            ),
+            attendanceDateWindow=AttendanceDateWindow(
+                today="2026-05-13",
+                minTrainingDate="2026-05-11",
+                maxTrainingDate="2026-05-13",
+            ),
             items=[
                 MenuItem(code="attendance", title="Посещения"),
                 MenuItem(code="client_search", title="Поиск клиента"),

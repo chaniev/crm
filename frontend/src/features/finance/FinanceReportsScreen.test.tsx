@@ -49,6 +49,7 @@ const financeUser: AuthenticatedUser = {
     canViewFinancialReports: true,
   },
   assignedGroupIds: [],
+  attendanceScope: { kind: 'Global', groupIds: [] },
   branchId: null,
 }
 

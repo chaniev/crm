@@ -6,7 +6,12 @@ export type {
   AttendanceGroup,
   AttendanceGroupsResponse,
   AttendanceRosterResponse,
+  AttendanceScope,
+  AttendanceScopeKind,
   AttendanceState,
+  AdministratorAttendanceScopeGroup,
+  AdministratorAttendanceScopeResponse,
+  AdministratorUnavailableAttendanceGrant,
   AuditLogEntry,
   AuditLogFilterOptions,
   AuditLogFilterUser,
@@ -78,6 +83,7 @@ export type {
   UpdateMembershipCatalogItemRequest,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
+  ReplaceAdministratorAttendanceScopeRequest,
   SaveAttendanceMarksRequest,
   SaveAttendanceMarksResponse,
   SessionResponse,
@@ -118,8 +124,10 @@ export {
 } from './api/auth'
 export {
   createAdministrator,
+  getAdministratorAttendanceScope,
   getAdministrator,
   getAdministrators,
+  replaceAdministratorAttendanceScope,
   updateAdministrator,
 } from './api/administrators'
 export {

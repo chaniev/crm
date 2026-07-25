@@ -44,6 +44,15 @@ internal static class StaffManagementBoundary
             .ToArray();
     }
 
+    public static bool CanManageAttendanceScope(User actor, User target)
+    {
+        return UserRoleAuthorizationPolicy.GetAllowedTargetActions(
+                actor.Role,
+                target.Role,
+                actor.Id == target.Id)
+            .Contains(StaffMutationAction.ManageAttendanceScope);
+    }
+
     public static IReadOnlyList<string> GetCreateRoleOptions(User actor)
     {
         return UserRoleAuthorizationPolicy.GetCreateRoleOptions(actor.Role)

@@ -2,23 +2,31 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
+  getAdministratorAttendanceScope,
   getAdministrators,
   getBranches,
   getGroupTypes,
   getMembershipCatalogItems,
+  replaceAdministratorAttendanceScope,
+  updateAdministrator,
   updateGroupType,
   type AuthenticatedUser,
+  type AdministratorAttendanceScopeResponse,
   type GroupType,
+  type UserListItem,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { SettingsScreen } from './SettingsScreen'
 
 vi.mock('../../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../lib/api')>()),
+  getAdministratorAttendanceScope: vi.fn(),
   getAdministrators: vi.fn(),
   getBranches: vi.fn(),
   getGroupTypes: vi.fn(),
   getMembershipCatalogItems: vi.fn(),
+  replaceAdministratorAttendanceScope: vi.fn(),
+  updateAdministrator: vi.fn(),
   updateGroupType: vi.fn(),
 }))
 
@@ -41,6 +49,7 @@ const baseUser: AuthenticatedUser = {
     canViewFinancialReports: false,
   },
   assignedGroupIds: [],
+  attendanceScope: { kind: 'Global', groupIds: [] },
   branchId: null,
   createRoleOptions: ['Administrator', 'Coach'],
 }
@@ -63,12 +72,24 @@ beforeAll(() => {
 })
 
 beforeEach(() => {
+  vi.mocked(getAdministratorAttendanceScope).mockReset()
   vi.mocked(getAdministrators).mockReset()
   vi.mocked(getBranches).mockReset()
   vi.mocked(getGroupTypes).mockReset()
   vi.mocked(getMembershipCatalogItems).mockReset()
+  vi.mocked(replaceAdministratorAttendanceScope).mockReset()
+  vi.mocked(updateAdministrator).mockReset()
   vi.mocked(updateGroupType).mockReset()
   vi.mocked(getAdministrators).mockResolvedValue({ items: [], createRoleOptions: ['Administrator'] })
+  vi.mocked(getAdministratorAttendanceScope).mockResolvedValue(buildAttendanceScope())
+  vi.mocked(replaceAdministratorAttendanceScope).mockResolvedValue(buildAttendanceScope({
+    grantedGroupIds: ['group-2'],
+    groups: [
+      { ...buildAttendanceScope().groups[0], isGranted: false },
+      { ...buildAttendanceScope().groups[1], isGranted: true },
+      buildAttendanceScope().groups[2],
+    ],
+  }))
   vi.mocked(getBranches).mockResolvedValue([
     {
       id: 'branch-1',
@@ -294,6 +315,126 @@ describe('SettingsScreen', () => {
       }),
     )
   })
+
+  test('opens backend-driven attendance scope modal and confirms staged revoke before saving', async () => {
+    const administrator = buildAdministrator()
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [administrator],
+      createRoleOptions: ['Administrator'],
+    })
+    vi.mocked(getAdministratorAttendanceScope).mockResolvedValue(buildAttendanceScope())
+
+    renderSettings()
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    const card = await screen.findByTestId(`administrator-card-${administrator.id}`)
+
+    expect(within(card).getByText('Посещения: 1 группа')).toBeVisible()
+    fireEvent.click(within(card).getByRole('button', { name: 'Группы посещений' }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Группы посещений' })
+    expect(within(dialog).getByText('Мария Администратор')).toBeVisible()
+    expect(within(dialog).getByText('Филиал: Центр')).toBeVisible()
+    expect(within(dialog).getByText('Выбрано: 1')).toBeVisible()
+    expect(within(dialog).getByLabelText('Поиск группы')).toBeVisible()
+    expect(within(dialog).getByRole('checkbox', { name: /Вечерняя/ })).toBeChecked()
+    expect(within(dialog).getByRole('checkbox', { name: /Утренняя/ })).not.toBeChecked()
+    expect(within(dialog).getByRole('checkbox', { name: /Архивная/ })).toBeDisabled()
+    expect(within(dialog).getByText('Группа отключена')).toBeVisible()
+
+    fireEvent.click(within(dialog).getByRole('checkbox', { name: /Вечерняя/ }))
+    fireEvent.click(within(dialog).getByRole('checkbox', { name: /Утренняя/ }))
+    expect(within(dialog).getByText('К отзыву: 1')).toBeVisible()
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Сохранить' }))
+    expect(within(dialog).getByText(/Будет отозван доступ к 1 группе/)).toBeVisible()
+    expect(within(dialog).getByRole('button', { name: 'Вернуться' })).toBeVisible()
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Отозвать и сохранить' }))
+
+    await waitFor(() =>
+      expect(replaceAdministratorAttendanceScope).toHaveBeenCalledWith(administrator.id, {
+        expectedGroupIds: ['group-1'],
+        groupIds: ['group-2'],
+      }),
+    )
+    expect(await screen.findByText('Посещения: 1 группа')).toBeVisible()
+  })
+
+  test('keeps attendance scope selection after concurrency conflict and can reload backend state', async () => {
+    const administrator = buildAdministrator()
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [administrator],
+      createRoleOptions: ['Administrator'],
+    })
+    vi.mocked(replaceAdministratorAttendanceScope).mockRejectedValueOnce(
+      new ApiError(
+        'Данные изменились. Обновите список групп.',
+        409,
+        {},
+        'attendance_grant_concurrency_conflict',
+      ),
+    )
+    vi.mocked(getAdministratorAttendanceScope)
+      .mockResolvedValueOnce(buildAttendanceScope())
+      .mockResolvedValueOnce(buildAttendanceScope({
+        grantedGroupIds: ['group-2'],
+        groups: [
+          { ...buildAttendanceScope().groups[0], isGranted: false },
+          { ...buildAttendanceScope().groups[1], isGranted: true },
+          buildAttendanceScope().groups[2],
+        ],
+      }))
+
+    renderSettings()
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    const card = await screen.findByTestId(`administrator-card-${administrator.id}`)
+    fireEvent.click(within(card).getByRole('button', { name: 'Группы посещений' }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Группы посещений' })
+    fireEvent.click(within(dialog).getByRole('checkbox', { name: /Утренняя/ }))
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Сохранить' }))
+
+    expect(await within(dialog).findByText('Данные изменились. Обновите список групп.')).toBeVisible()
+    expect(within(dialog).getByRole('checkbox', { name: /Утренняя/ })).toBeChecked()
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Обновить данные' }))
+    await waitFor(() => expect(getAdministratorAttendanceScope).toHaveBeenCalledTimes(2))
+    expect(within(dialog).getByRole('checkbox', { name: /Утренняя/ })).toBeChecked()
+    expect(within(dialog).getByRole('checkbox', { name: /Вечерняя/ })).not.toBeChecked()
+  })
+
+  test('shows attendance grants revoke guidance from backend staff edit conflict', async () => {
+    const administrator = buildAdministrator()
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [administrator],
+      createRoleOptions: ['Administrator'],
+    })
+    vi.mocked(updateAdministrator).mockRejectedValueOnce(
+      new ApiError(
+        'Сначала отзовите группы посещений.',
+        409,
+        {},
+        'attendance_grants_must_be_revoked',
+      ),
+    )
+
+    renderSettings()
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    const card = await screen.findByTestId(`administrator-card-${administrator.id}`)
+    fireEvent.click(within(card).getByRole('button', { name: 'Редактировать' }))
+
+    const editDialog = await screen.findByRole('dialog', { name: 'Редактирование администратора' })
+    const loginInput = within(editDialog).getByLabelText('Логин')
+    fireEvent.change(loginInput, { target: { value: 'maria-updated' } })
+    fireEvent.click(within(editDialog).getByRole('button', { name: 'Сохранить' }))
+
+    expect(await within(editDialog).findByText('Сначала отзовите группы посещений.')).toBeVisible()
+    expect(loginInput).toHaveValue('maria-updated')
+
+    fireEvent.click(within(editDialog).getByRole('button', { name: 'Открыть группы посещений' }))
+    expect(await screen.findByRole('dialog', { name: 'Группы посещений' })).toBeVisible()
+  })
 })
 
 function renderSettings(user: Partial<AuthenticatedUser> = {}) {
@@ -309,4 +450,77 @@ function renderSettings(user: Partial<AuthenticatedUser> = {}) {
       }}
     />,
   )
+}
+
+function buildAdministrator(overrides: Partial<UserListItem> = {}): UserListItem {
+  return {
+    id: 'administrator-1',
+    fullName: 'Мария Администратор',
+    login: 'maria',
+    role: 'Administrator',
+    mustChangePassword: false,
+    isActive: true,
+    messengerPlatform: null,
+    messengerPlatformUserId: null,
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    attendanceGroupGrantCount: 1,
+    allowedActions: ['Edit', 'ManageAttendanceScope'],
+    ...overrides,
+  }
+}
+
+function buildAttendanceScope(
+  overrides: Partial<AdministratorAttendanceScopeResponse> = {},
+): AdministratorAttendanceScopeResponse {
+  return {
+    administrator: {
+      id: 'administrator-1',
+      fullName: 'Мария Администратор',
+      isActive: true,
+    },
+    branch: {
+      id: 'branch-1',
+      name: 'Центр',
+      isArchived: false,
+    },
+    grantedGroupIds: ['group-1'],
+    groups: [
+      {
+        id: 'group-1',
+        name: 'Вечерняя',
+        trainingStartTime: '19:00',
+        durationMinutes: 60,
+        weekdays: [1, 3],
+        isActive: true,
+        isGranted: true,
+        canGrant: true,
+        canRevoke: true,
+        disabledReason: null,
+      },
+      {
+        id: 'group-2',
+        name: 'Утренняя',
+        trainingStartTime: '09:00',
+        durationMinutes: 45,
+        weekdays: [2, 4],
+        isActive: true,
+        isGranted: false,
+        canGrant: true,
+        canRevoke: false,
+        disabledReason: null,
+      },
+      {
+        id: 'group-3',
+        name: 'Архивная',
+        isActive: false,
+        isGranted: false,
+        canGrant: false,
+        canRevoke: false,
+        disabledReason: 'group_inactive',
+      },
+    ],
+    unavailableGrants: [],
+    ...overrides,
+  }
 }
