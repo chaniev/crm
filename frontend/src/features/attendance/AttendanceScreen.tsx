@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, Stack } from '@mantine/core'
 import { IconCircleCheck, IconUsers, IconUsersGroup } from '@tabler/icons-react'
 import {
+  ApiError,
   getAttendanceGroupClients,
   getAttendanceGroups,
   saveAttendanceMarks,
@@ -45,15 +46,18 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
   const [groups, setGroups] = useState<AttendanceGroup[]>([])
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [groupsError, setGroupsError] = useState<string | null>(null)
+  const [scopeChangeMessage, setScopeChangeMessage] = useState<string | null>(null)
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
   const [trainingDate, setTrainingDate] = useState('')
   const [today, setToday] = useState('')
+  const [minTrainingDate, setMinTrainingDate] = useState<string | null>(null)
   const [maxTrainingDate, setMaxTrainingDate] = useState('')
   const [rows, setRows] = useState<Record<string, AttendanceClientRowState>>({})
   const [rosterLoading, setRosterLoading] = useState(false)
   const [rosterLoaded, setRosterLoaded] = useState(false)
   const [rosterError, setRosterError] = useState<string | null>(null)
   const [refreshVersion, setRefreshVersion] = useState(0)
+  const [groupsReloadKey, setGroupsReloadKey] = useState(0)
   const [rosterView, setRosterView] = useState<AttendanceRosterView>('unmarked')
   const contextVersionRef = useRef(0)
   const actionVersionsRef = useRef<Record<string, number>>({})
@@ -71,6 +75,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
         setGroups(response.groups)
         setTrainingDate((current) => current || response.today)
         setToday(response.today)
+        setMinTrainingDate(response.minTrainingDate)
         setMaxTrainingDate(response.maxTrainingDate)
         setSelectedGroupId((current) =>
           current && response.groups.some((group) => group.id === current)
@@ -88,7 +93,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
 
     void loadGroups()
     return () => controller.abort()
-  }, [])
+  }, [groupsReloadKey])
 
   useEffect(() => {
     if (!selectedGroupId || !trainingDate) {
@@ -121,6 +126,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
         if (controller.signal.aborted || contextVersion !== contextVersionRef.current) return
         setTrainingDate(response.trainingDate)
         setToday(response.today)
+        setMinTrainingDate(response.minTrainingDate)
         setMaxTrainingDate(response.maxTrainingDate)
         setRows((current) =>
           isContextChange
@@ -132,6 +138,11 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
         if (controller.signal.aborted || contextVersion !== contextVersionRef.current) return
         setRows({})
         setRosterLoaded(false)
+        if (isAttendanceGroupForbidden(error)) {
+          handleScopeChanged()
+          return
+        }
+
         setRosterError(error instanceof Error ? error.message : 'Не удалось загрузить клиентов группы на выбранную дату.')
       } finally {
         if (!controller.signal.aborted && contextVersion === contextVersionRef.current) setRosterLoading(false)
@@ -166,6 +177,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       if (!authoritativeState) throw new Error('Сервер не вернул сохраненное состояние.')
       setMaxTrainingDate(response.maxTrainingDate)
       setToday(response.today)
+      setMinTrainingDate(response.minTrainingDate)
       setRows((current) => updateRow(current, clientId, (row) => ({
         ...row,
         displayedState: authoritativeState,
@@ -177,6 +189,11 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       void refreshRosterAfterSave(selectedGroupId, trainingDate, contextKey)
     } catch (error) {
       if (contextKeyRef.current !== contextKey || actionVersionsRef.current[clientId] !== actionVersion) return
+      if (isAttendanceGroupForbidden(error)) {
+        handleScopeChanged()
+        return
+      }
+
       setRows((current) => updateRow(current, clientId, (row) => ({
         ...row,
         saveState: 'failed',
@@ -193,6 +210,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       setRows((current) => mergeRefreshedRows(current, response.clients))
       setMaxTrainingDate(response.maxTrainingDate)
       setToday(response.today)
+      setMinTrainingDate(response.minTrainingDate)
     } catch {
       // The saved state remains authoritative; a later manual refresh can retry derived fields.
     }
@@ -213,6 +231,18 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
     setTrainingDate(nextDate)
   }
 
+  function handleScopeChanged() {
+    contextVersionRef.current += 1
+    actionVersionsRef.current = {}
+    setSelectedGroupId(null)
+    setRows({})
+    setRosterLoaded(false)
+    setRosterLoading(false)
+    setRosterError(null)
+    setScopeChangeMessage('Доступ к группе изменился')
+    setGroupsReloadKey((key) => key + 1)
+  }
+
   const selectedGroup = groups.find((group) => group.id === selectedGroupId) ?? null
   const allRows = Object.values(rows)
   const visibleRows = rosterView === 'all'
@@ -224,13 +254,18 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
   return (
     <Stack data-testid="attendance-workspace" gap="var(--page-section-gap)">
       {groupsError ? <PageSection><ErrorState message={groupsError} title="Группы для посещений не загрузились" /></PageSection> : null}
+      {scopeChangeMessage ? (
+        <PageSection>
+          <ErrorState message="Список доступных групп обновлен." title={scopeChangeMessage} />
+        </PageSection>
+      ) : null}
       {groupsLoading ? <PageSection><LoadingState label="Загружаем доступные группы..." /></PageSection> : null}
       {!groupsLoading && !groupsError && groups.length === 0 ? (
         <PageSection>
           <EmptyState
-            description={user.role === 'Coach' ? 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.' : 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'}
+            description={getEmptyAttendanceDescription(user)}
             icon={<IconUsersGroup size={24} />}
-            title={user.role === 'Coach' ? 'Назначенные группы отсутствуют' : 'Доступные группы пока отсутствуют'}
+            title={getEmptyAttendanceTitle(user)}
           />
         </PageSection>
       ) : null}
@@ -238,10 +273,19 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       {!groupsLoading && !groupsError && groups.length > 0 ? (
         <AttendanceContextControls
           groups={groups}
+          minTrainingDate={minTrainingDate}
           maxTrainingDate={maxTrainingDate}
           onGroupChange={(groupId) => changeContext(groupId, trainingDate)}
           onTrainingDateChange={(value) => {
-            if (!value || value <= maxTrainingDate) changeContext(selectedGroupId, value)
+            if (
+              !value ||
+              (
+                value <= maxTrainingDate &&
+                (!minTrainingDate || value >= minTrainingDate)
+              )
+            ) {
+              changeContext(selectedGroupId, value)
+            }
           }}
           selectedGroupId={selectedGroupId}
           trainingDate={trainingDate}
@@ -362,4 +406,32 @@ function getSelectedGroupDescription(group: AttendanceGroup) {
   if (group.trainingStartTime) details.push(`Старт ${group.trainingStartTime}`)
   if (group.weekdays && typeof group.durationMinutes === 'number') details.push(formatGroupSchedule(group.weekdays, group.durationMinutes))
   return details.join(', ') || 'Список клиентов и отметки посещения на выбранную дату.'
+}
+
+function getEmptyAttendanceTitle(user: AuthenticatedUser) {
+  if (user.role === 'Administrator') {
+    return 'Нет групп для отметки посещений'
+  }
+
+  if (user.role === 'Coach') {
+    return 'Назначенные группы отсутствуют'
+  }
+
+  return 'Доступные группы пока отсутствуют'
+}
+
+function getEmptyAttendanceDescription(user: AuthenticatedUser) {
+  if (user.role === 'Administrator') {
+    return 'Главный тренер или суперадминистратор назначит группы, после этого они появятся здесь.'
+  }
+
+  if (user.role === 'Coach') {
+    return 'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.'
+  }
+
+  return 'Создайте группу и добавьте в нее клиентов, чтобы открыть сценарий отметки посещений.'
+}
+
+function isAttendanceGroupForbidden(error: unknown) {
+  return error instanceof ApiError && error.status === 403
 }

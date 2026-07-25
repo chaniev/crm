@@ -202,22 +202,37 @@ class BotService:
 
     async def _start_attendance(self, event: NormalizedTelegramEvent) -> BotResponse:
         try:
-            context = await self._crm_client.resolve_session(
+            menu = await self._crm_client.get_menu(
                 event.identity,
                 request_id=build_request_id(),
             )
         except CrmClientError as exc:
             return await self._map_crm_error(exc, event, audit_reason="attendance_menu")
 
+        date_window = menu.attendance_date_window
         await self._clear_states(event)
         await self._save_state(
             event,
             ATTENDANCE_SCENARIO,
-            {"step": "select_date", "role": context.role},
+            {
+                "step": "select_date",
+                "role": menu.user.role,
+                "today": date_window.today.isoformat(),
+                "min_training_date": (
+                    date_window.min_training_date.isoformat()
+                    if date_window.min_training_date is not None
+                    else None
+                ),
+                "max_training_date": date_window.max_training_date.isoformat(),
+            },
         )
         return BotResponse(
             text="Выберите дату тренировки.",
-            reply_markup=render_attendance_dates_keyboard(context.role, datetime.now(UTC).date()),
+            reply_markup=render_attendance_dates_keyboard(
+                today=date_window.today,
+                min_training_date=date_window.min_training_date,
+                max_training_date=date_window.max_training_date,
+            ),
             replace_existing=True,
         )
 

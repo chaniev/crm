@@ -495,6 +495,67 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.ToTable("ClientMemberships");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembershipIdempotencyRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("PayloadHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid?>("ResultMembershipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ResultSaleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("ActorUserId", "IdempotencyKey")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ClientMembershipIdempotency_Actor_Key");
+
+                    b.ToTable("ClientMembershipIdempotencyRecords", t =>
+                        {
+                            t.HasCheckConstraint("CK_ClientMembershipIdempotencyRecords_RequiredValues", "btrim(\"IdempotencyKey\") <> '' AND btrim(\"ActionType\") <> '' AND btrim(\"PayloadHash\") <> '' AND btrim(\"Status\") <> ''");
+                        });
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Clients.ClientMembershipRefund", b =>
                 {
                     b.Property<Guid>("Id")
@@ -589,15 +650,15 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("MembershipCatalogItemId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateOnly>("PaymentDate")
+                        .HasColumnType("date");
+
                     b.Property<string>("PricingMode")
                         .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
                     b.Property<DateOnly>("PurchaseDate")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly>("PaymentDate")
                         .HasColumnType("date");
 
                     b.HasKey("Id");
@@ -610,9 +671,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("MembershipCatalogItemId");
 
-                    b.HasIndex("PurchaseDate");
-
                     b.HasIndex("PaymentDate");
+
+                    b.HasIndex("PurchaseDate");
 
                     b.ToTable("ClientMembershipSales", t =>
                         {
@@ -661,6 +722,34 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.HasIndex("LastAttendanceId");
 
                     b.ToTable("ClientMissedTrainingAcknowledgements");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Groups.AdministratorAttendanceGroupGrant", b =>
+                {
+                    b.Property<Guid>("AdministratorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("GrantedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GrantedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AdministratorId", "GroupId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("GrantedByUserId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("AdministratorAttendanceGroupGrants");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Groups.ClientGroup", b =>
@@ -1542,6 +1631,41 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("LastAttendance");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Groups.AdministratorAttendanceGroupGrant", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Users.User", "Administrator")
+                        .WithMany("AdministratorAttendanceGroupGrants")
+                        .HasForeignKey("AdministratorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "GrantedByUser")
+                        .WithMany("GrantedAdministratorAttendanceGroupGrants")
+                        .HasForeignKey("GrantedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
+                        .WithMany("AdministratorAttendanceGroupGrants")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Administrator");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("GrantedByUser");
+
+                    b.Navigation("Group");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Groups.ClientGroup", b =>
                 {
                     b.HasOne("GymCrm.Domain.Clients.Client", "Client")
@@ -1818,6 +1942,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("GymCrm.Domain.Groups.TrainingGroup", b =>
                 {
+                    b.Navigation("AdministratorAttendanceGroupGrants");
+
                     b.Navigation("AttendanceEntries");
 
                     b.Navigation("ClientAssignments");
@@ -1836,6 +1962,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("GymCrm.Domain.Users.User", b =>
                 {
+                    b.Navigation("AdministratorAttendanceGroupGrants");
+
                     b.Navigation("AssignedGroups");
 
                     b.Navigation("AttendanceMarks");
@@ -1861,6 +1989,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("CreatedMessengerLinkTokens");
 
                     b.Navigation("CreatedMessengerMessages");
+
+                    b.Navigation("GrantedAdministratorAttendanceGroupGrants");
 
                     b.Navigation("GroupTrainerAssignments");
 

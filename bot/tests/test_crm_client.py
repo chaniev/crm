@@ -30,7 +30,19 @@ async def test_crm_client_sets_headers_and_retries_safe_reads() -> None:
             httpx.Response(status_code=503, json={"title": "temporary"}),
             httpx.Response(
                 status_code=200,
-                json={"items": [{"code": "attendance", "title": "Посещения"}]},
+                json={
+                    "user": {
+                        "userId": "00000000-0000-0000-0000-000000000001",
+                        "fullName": "Тренер",
+                        "role": "Coach",
+                    },
+                    "attendanceDateWindow": {
+                        "today": "2026-05-13",
+                        "minTrainingDate": "2026-05-11",
+                        "maxTrainingDate": "2026-05-13",
+                    },
+                    "items": [{"code": "attendance", "title": "Посещения"}],
+                },
             ),
         ]
     )
@@ -50,6 +62,10 @@ async def test_crm_client_sets_headers_and_retries_safe_reads() -> None:
     )
 
     assert response.items[0].code == "attendance"
+    assert response.user.role == "Coach"
+    assert response.attendance_date_window.today == date(2026, 5, 13)
+    assert response.attendance_date_window.min_training_date == date(2026, 5, 11)
+    assert response.attendance_date_window.max_training_date == date(2026, 5, 13)
     assert route.call_count == 2
     request = route.calls.last.request
     assert request.headers["Authorization"] == "Bearer service-token"
@@ -95,6 +111,11 @@ async def test_crm_client_sends_idempotency_key_for_remaining_attendance_write()
             json={
                 "groupName": "Группа",
                 "trainingDate": "2026-05-08",
+                "attendanceDateWindow": {
+                    "today": "2026-05-13",
+                    "minTrainingDate": "2026-05-11",
+                    "maxTrainingDate": "2026-05-13",
+                },
                 "markedCount": 1,
                 "presentCount": 1,
                 "absentCount": 0,
@@ -399,6 +420,11 @@ def test_crm_models_accept_status_free_attendance_and_expiring_contracts() -> No
             "groupId": "00000000-0000-0000-0000-000000000021",
             "groupName": "Группа",
             "trainingDate": "2026-05-08",
+            "attendanceDateWindow": {
+                "today": "2026-05-13",
+                "minTrainingDate": "2026-05-11",
+                "maxTrainingDate": "2026-05-13",
+            },
             "clients": [
                 {
                     "id": "00000000-0000-0000-0000-000000000011",
@@ -413,6 +439,11 @@ def test_crm_models_accept_status_free_attendance_and_expiring_contracts() -> No
         {
             "groupName": "Группа",
             "trainingDate": "2026-05-08",
+            "attendanceDateWindow": {
+                "today": "2026-05-13",
+                "minTrainingDate": "2026-05-11",
+                "maxTrainingDate": "2026-05-13",
+            },
             "markedCount": 1,
             "presentCount": 1,
             "absentCount": 0,

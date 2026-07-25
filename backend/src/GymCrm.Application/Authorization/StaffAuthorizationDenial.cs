@@ -7,5 +7,6 @@ public enum StaffAuthorizationDenial
     TargetForbidden = 2,
     SelfMutationForbidden = 3,
     RoleTransitionForbidden = 4,
-    BranchScopeForbidden = 5
+    BranchScopeForbidden = 5,
+    AttendanceGrantsMustBeRevoked = 6
 }

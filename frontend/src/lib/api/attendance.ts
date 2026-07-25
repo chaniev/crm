@@ -51,6 +51,10 @@ export async function getAttendanceGroups(signal?: AbortSignal) {
       .map(mapAttendanceGroup)
       .filter((group): group is AttendanceGroup => group !== null),
     today,
+    minTrainingDate: readNullableIsoDate(envelope, [
+      'minTrainingDate',
+      'MinTrainingDate',
+    ]),
     maxTrainingDate,
   } satisfies AttendanceGroupsResponse
 }
@@ -84,6 +88,10 @@ export async function getAttendanceGroupClients(
     groupId: responseGroupId,
     trainingDate: responseTrainingDate,
     today: requireIsoDate(envelope, ['today', 'Today']),
+    minTrainingDate: readNullableIsoDate(envelope, [
+      'minTrainingDate',
+      'MinTrainingDate',
+    ]),
     maxTrainingDate: requireIsoDate(envelope, [
       'maxTrainingDate',
       'MaxTrainingDate',
@@ -142,6 +150,10 @@ function mapSaveAttendanceResponse(payload: unknown): SaveAttendanceMarksRespons
     groupId,
     trainingDate,
     today: requireIsoDate(envelope, ['today', 'Today']),
+    minTrainingDate: readNullableIsoDate(envelope, [
+      'minTrainingDate',
+      'MinTrainingDate',
+    ]),
     maxTrainingDate: requireIsoDate(envelope, [
       'maxTrainingDate',
       'MaxTrainingDate',
@@ -301,4 +313,24 @@ function requireIsoDate(
   }
 
   return value
+}
+
+function readNullableIsoDate(
+  record: Record<string, unknown>,
+  keys: readonly string[],
+) {
+  for (const key of keys) {
+    if (record[key] === null) {
+      return null
+    }
+
+    const value = readString(record, [key])
+    const normalizedValue = value ? normalizeIsoDateValue(value) : null
+
+    if (normalizedValue) {
+      return normalizedValue
+    }
+  }
+
+  return null
 }

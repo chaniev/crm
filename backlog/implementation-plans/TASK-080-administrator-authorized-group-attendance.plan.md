@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-080 Разрешить администратору отмечать посещения в назначенных группах
 
 ## Source task
-/backlog/risky/TASK-080-administrator-authorized-group-attendance.md
+/backlog/done/TASK-080-administrator-authorized-group-attendance.md
 
-Source status remains `risky`: задача меняет authorization scope критического attendance write-flow и требует отдельного security/architecture review. План создан без перемещения задачи в active implementation и без изменений project code.
+Source status is `done`: risky authorization scope explicitly approved by the user, implemented in the dedicated task branch and validated by security, structural, cross-layer and clean-stand checks.
 
 ## Accepted review resolutions
 Accepted by the product owner on 2026-07-25:
@@ -471,16 +471,16 @@ These slices are phases of one security-sensitive contract and should remain in 
 - Infrastructure failures, wrong test seed, unavailable Docker/PostgreSQL or unrelated baseline regressions are not accepted as red evidence.
 
 ## Test plan
-- [ ] Unit policy/scope/set-diff tests are written first and fail for expected TASK-080 gaps.
-- [ ] Grant API and real-PostgreSQL concurrency/audit tests are written first and fail for expected gaps.
-- [ ] Attendance/session/access/web/internal-bot integration tests are written first and fail for expected gaps.
-- [ ] Frontend API/component/Playwright tests are written first and fail for expected gaps.
-- [ ] All focused tests pass after minimal implementation.
-- [ ] `dotnet test backend/GymCrm.slnx` passes.
-- [ ] Frontend unit tests, lint, build and focused Playwright pass.
-- [ ] Bot ruff and pytest pass.
-- [ ] Clean PostgreSQL schema/model/seed and two-branch local stand smoke pass.
-- [ ] Final source audit finds no frontend-only or pre-transaction-only Administrator attendance authorization.
+- [x] Unit policy/scope/set-diff tests are written first and fail for expected TASK-080 gaps.
+- [x] Grant API and real-PostgreSQL concurrency/audit tests are written first and fail for expected gaps.
+- [x] Attendance/session/access/web/internal-bot integration tests are written first and fail for expected gaps.
+- [x] Frontend API/component/Playwright tests are written first and fail for expected gaps.
+- [x] All focused tests pass after minimal implementation.
+- [x] `dotnet test backend/GymCrm.slnx` passes.
+- [x] Frontend unit tests, lint, build and focused Playwright pass.
+- [x] Bot ruff and pytest pass.
+- [x] Clean PostgreSQL schema/model/seed and two-branch local stand smoke pass.
+- [x] Final source audit finds no frontend-only or pre-transaction-only Administrator attendance authorization.
 
 ## Regression barrier
 Completion is blocked unless real-PostgreSQL concurrency tests prove that an Administrator attendance save cannot commit after an already committed revoke or branch archive, while the same suite proves compare-and-swap scope updates cannot lose a concurrent manager change. This is paired with a two-branch automated matrix showing identical effective group ids and accepted date windows in session, web list/roster/save, access probe and internal bot, exact atomic grant/revoke audit, and non-regression for HeadCoach, SuperAdministrator and Coach. Both required `ui-designer` reviews and the 320×568/390×844 mobile-touch checks must also be complete.
@@ -513,4 +513,4 @@ Stop and do not write production code if:
 Backend + frontend work, shared settings/attendance modules, permissions, schema and bot consumers are not by themselves stop conditions.
 
 ## Ready for Codex execution
-no — detailed planning and decomposition are complete, but high-risk authorization execution requires explicit human security/architecture approval and movement from `/backlog/risky` to `/backlog/implementation`.
+completed — explicit user approval was received, the task moved through `/backlog/implementation`, and the implemented result is recorded in `/backlog/done`.

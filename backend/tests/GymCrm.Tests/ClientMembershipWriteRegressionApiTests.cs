@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Attendance;
 using GymCrm.Application.Clients;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Audit;
@@ -1410,7 +1411,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
         {
             await using var scope = Factory.Services.CreateAsyncScope();
             var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-            var now = DateTimeOffset.UtcNow.AddMinutes(createdAtOffsetMinutes);
+            var now = scope.ServiceProvider.GetRequiredService<TimeProvider>()
+                .GetUtcNow()
+                .AddMinutes(createdAtOffsetMinutes);
             var sale = new ClientMembershipSale
             {
                 Id = Guid.NewGuid(),
@@ -1551,8 +1554,10 @@ public sealed class ClientMembershipWriteRegressionApiTests
             }
 
             var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
-            var now = DateTimeOffset.UtcNow;
-            var today = DateOnly.FromDateTime(now.UtcDateTime.Date);
+            var timeProvider = scope.ServiceProvider.GetRequiredService<TimeProvider>();
+            var businessDateProvider = scope.ServiceProvider.GetRequiredService<IBusinessDateProvider>();
+            var now = timeProvider.GetUtcNow();
+            var today = businessDateProvider.Today;
             var password = "membership-write-password";
             var branch = new Branch
             {
@@ -1730,6 +1735,8 @@ public sealed class ClientMembershipWriteRegressionApiTests
         MembershipAuditBlocker? auditBlocker = null,
         MembershipWriteSaveChangesBarrier? saveChangesBarrier = null) : WebApplicationFactory<Program>
     {
+        private static readonly DateTimeOffset FixedUtcNow = new(2026, 7, 24, 12, 0, 0, TimeSpan.Zero);
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Development");
@@ -1794,7 +1801,15 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 {
                     services.AddSingleton(saveChangesBarrier);
                 }
+
+                services.RemoveAll<TimeProvider>();
+                services.AddSingleton<TimeProvider>(new FixedTimeProvider(FixedUtcNow));
             });
+        }
+
+        private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
+        {
+            public override DateTimeOffset GetUtcNow() => utcNow;
         }
     }
 

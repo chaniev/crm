@@ -22,6 +22,7 @@ public class TrainingGroup
     public GroupType GroupType { get; set; } = null!;
     public ICollection<ClientGroup> Clients { get; set; } = new List<ClientGroup>();
     public ICollection<GroupTrainer> Trainers { get; set; } = new List<GroupTrainer>();
+    public ICollection<AdministratorAttendanceGroupGrant> AdministratorAttendanceGroupGrants { get; set; } = new List<AdministratorAttendanceGroupGrant>();
     public ICollection<ClientGroupAssignment> ClientAssignments { get; set; } = new List<ClientGroupAssignment>();
     public ICollection<GroupTrainerAssignment> TrainerAssignments { get; set; } = new List<GroupTrainerAssignment>();
     public ICollection<AttendanceEntry> AttendanceEntries { get; set; } = new List<AttendanceEntry>();

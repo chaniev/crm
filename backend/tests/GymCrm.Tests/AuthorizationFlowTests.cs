@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
@@ -53,13 +54,15 @@ public class AuthorizationFlowTests
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.OK);
-        await AssertStatusCodeAsync(
-            PostWithoutBodyAsync(client, $"/access/attendance/{seeded.ForeignGroupId}", session.CsrfToken),
-            HttpStatusCode.OK);
+        await AssertGroupAccessGrantedByAsync(
+            client,
+            seeded.ForeignGroupId,
+            session.CsrfToken,
+            "gym-crm.mark-attendance");
     }
 
     [Fact]
-    public async Task Administrator_cannot_manage_users_or_mark_attendance()
+    public async Task Administrator_can_open_attendance_but_is_denied_groups_without_grants()
     {
         await using var factory = new AuthorizationAppFactory();
         var seeded = await SeedAuthorizationDataAsync(factory);
@@ -81,9 +84,13 @@ public class AuthorizationFlowTests
         Assert.True(session.User.Permissions.CanManageClients);
         Assert.True(session.User.Permissions.CanManageGroups);
         Assert.True(session.User.Permissions.CanManageSettings);
-        Assert.False(session.User.Permissions.CanMarkAttendance);
+        Assert.True(session.User.Permissions.CanMarkAttendance);
         Assert.True(session.User.Permissions.CanViewAuditLog);
         Assert.False(session.User.Permissions.CanViewFinancialReports);
+        Assert.Empty(session.User.AssignedGroupIds);
+        Assert.NotNull(session.User.AttendanceScope);
+        Assert.Equal("AdministratorGrants", session.User.AttendanceScope.Kind);
+        Assert.Empty(session.User.AttendanceScope.GroupIds);
 
         await AssertStatusCodeAsync(client.GetAsync("/access/user-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/client-management"), HttpStatusCode.OK);
@@ -91,9 +98,8 @@ public class AuthorizationFlowTests
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.Forbidden);
-        await AssertStatusCodeAsync(
-            PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken),
-            HttpStatusCode.Forbidden);
+        await AssertAttendanceGroupForbiddenProblemAsync(
+            await PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken));
     }
 
     [Fact]
@@ -129,12 +135,13 @@ public class AuthorizationFlowTests
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.Forbidden);
         await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.Forbidden);
-        await AssertStatusCodeAsync(
-            PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken),
-            HttpStatusCode.OK);
-        await AssertStatusCodeAsync(
-            PostWithoutBodyAsync(client, $"/access/attendance/{seeded.ForeignGroupId}", session.CsrfToken),
-            HttpStatusCode.Forbidden);
+        await AssertGroupAccessGrantedByAsync(
+            client,
+            seeded.AssignedCoachGroupId,
+            session.CsrfToken,
+            "coach-group-assignment");
+        await AssertAttendanceGroupForbiddenProblemAsync(
+            await PostWithoutBodyAsync(client, $"/access/attendance/{seeded.ForeignGroupId}", session.CsrfToken));
     }
 
     [Fact]
@@ -172,12 +179,16 @@ public class AuthorizationFlowTests
         await AssertStatusCodeAsync(client.GetAsync("/access/settings-management"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/audit-log"), HttpStatusCode.OK);
         await AssertStatusCodeAsync(client.GetAsync("/access/financial-reports"), HttpStatusCode.Forbidden);
-        await AssertStatusCodeAsync(
-            PostWithoutBodyAsync(client, $"/access/attendance/{seeded.AssignedCoachGroupId}", session.CsrfToken),
-            HttpStatusCode.OK);
-        await AssertStatusCodeAsync(
-            PostWithoutBodyAsync(client, $"/access/attendance/{seeded.ForeignGroupId}", session.CsrfToken),
-            HttpStatusCode.OK);
+        await AssertGroupAccessGrantedByAsync(
+            client,
+            seeded.AssignedCoachGroupId,
+            session.CsrfToken,
+            "gym-crm.mark-attendance");
+        await AssertGroupAccessGrantedByAsync(
+            client,
+            seeded.ForeignGroupId,
+            session.CsrfToken,
+            "gym-crm.mark-attendance");
     }
 
     private static async Task<SeededAuthorizationData> SeedAuthorizationDataAsync(AuthorizationAppFactory factory)
@@ -349,6 +360,31 @@ public class AuthorizationFlowTests
         Assert.Equal(expectedStatusCode, response.StatusCode);
     }
 
+    private static async Task AssertGroupAccessGrantedByAsync(
+        HttpClient client,
+        Guid groupId,
+        string csrfToken,
+        string expectedGrantedBy)
+    {
+        using var response = await PostWithoutBodyAsync(client, $"/access/attendance/{groupId}", csrfToken);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonAsync<GroupAccessProbePayload>(response);
+        Assert.Equal(groupId, payload.GroupId);
+        Assert.Equal("Attendance", payload.Capability);
+        Assert.Equal(expectedGrantedBy, payload.GrantedBy);
+    }
+
+    private static async Task AssertAttendanceGroupForbiddenProblemAsync(HttpResponseMessage response)
+    {
+        using (response)
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+            var payload = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal("/problems/attendance-group-forbidden", payload.GetProperty("type").GetString());
+            Assert.Equal("attendance_group_forbidden", payload.GetProperty("code").GetString());
+        }
+    }
+
     private static async Task<HttpResponseMessage> PostJsonAsync<TPayload>(
         HttpClient client,
         string path,
@@ -383,6 +419,8 @@ public class AuthorizationFlowTests
 
     private sealed record LoginRequest(string Login, string Password);
 
+    private sealed record GroupAccessProbePayload(Guid GroupId, string Capability, string GrantedBy);
+
     private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);
 
     private sealed record UserPayload(
@@ -396,8 +434,11 @@ public class AuthorizationFlowTests
         string[] AllowedSections,
         PermissionPayload Permissions,
         string[] AssignedGroupIds,
+        AttendanceScopePayload? AttendanceScope,
         Guid? BranchId,
         string[] CreateRoleOptions);
+
+    private sealed record AttendanceScopePayload(string Kind, string[] GroupIds);
 
     private sealed record PermissionPayload(
         bool CanManageUsers,

@@ -325,6 +325,9 @@ internal static class AuthEndpoints
                 accessScope.Permissions.CanMarkAttendance,
                 accessScope.Permissions.CanViewAuditLog,
                 accessScope.Permissions.CanViewFinancialReports),
+            new AttendanceScopeResponse(
+                accessScope.AttendanceScope.Kind.ToString(),
+                accessScope.AttendanceScope.GroupIds),
             accessScope.AssignedGroupIds,
             StaffManagementBoundary.GetCreateRoleOptions(user));
     }
@@ -350,8 +353,13 @@ internal static class AuthEndpoints
         string LandingScreen,
         IReadOnlyList<string> AllowedSections,
         AccessPermissionsResponse Permissions,
+        AttendanceScopeResponse AttendanceScope,
         IReadOnlyList<Guid> AssignedGroupIds,
         IReadOnlyList<string> CreateRoleOptions);
+
+    private sealed record AttendanceScopeResponse(
+        string Kind,
+        IReadOnlyList<Guid> GroupIds);
 
     private sealed record AccessPermissionsResponse(
         bool CanManageUsers,

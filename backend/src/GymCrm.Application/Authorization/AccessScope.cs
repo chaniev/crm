@@ -8,4 +8,5 @@ public sealed record AccessScope(
     string LandingScreen,
     IReadOnlyList<string> AllowedSections,
     PermissionSet Permissions,
+    AttendanceScope AttendanceScope,
     IReadOnlyList<Guid> AssignedGroupIds);

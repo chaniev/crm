@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { request } from './transport'
 
-describe('request', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
+describe('API transport', () => {
   test('parses application/problem+json validation payloads', async () => {
     vi.stubGlobal(
       'fetch',
@@ -35,6 +35,41 @@ describe('request', () => {
         branchId: ['Укажите филиал клиента.'],
         groupIds: ['Укажите хотя бы одну группу клиента.'],
       },
+    })
+  })
+
+  test('preserves stable ProblemDetails code for frontend recovery flows', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      type: '/problems/attendance-group-forbidden',
+      title: 'Forbidden',
+      detail: 'Доступ к группе запрещен.',
+      code: 'attendance_group_forbidden',
+    }), {
+      status: 403,
+      headers: { 'content-type': 'application/problem+json; charset=utf-8' },
+    })))
+
+    await expect(request('/attendance/groups/group-1')).rejects.toMatchObject({
+      status: 403,
+      code: 'attendance_group_forbidden',
+      message: 'Доступ к группе запрещен.',
+    })
+  })
+
+  test('falls back to ProblemDetails type when explicit code is absent', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      type: '/problems/attendance-grants-must-be-revoked',
+      title: 'Conflict',
+      detail: 'Сначала отзовите группы посещений.',
+    }), {
+      status: 409,
+      headers: { 'content-type': 'application/problem+json; charset=utf-8' },
+    })))
+
+    await expect(request('/settings/administrators/administrator-1')).rejects.toMatchObject({
+      status: 409,
+      code: 'attendance_grants_must_be_revoked',
+      message: 'Сначала отзовите группы посещений.',
     })
   })
 })

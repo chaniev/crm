@@ -22,13 +22,27 @@ def render_menu_keyboard(menu: MenuResponse) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def render_attendance_dates_keyboard(role: str, today: date) -> InlineKeyboardMarkup:
-    dates = [today, today - timedelta(days=1)]
-    if role == "Coach":
-        dates.append(today - timedelta(days=2))
-    else:
-        dates.append(today - timedelta(days=2))
-        dates.append(today - timedelta(days=7))
+def render_attendance_dates_keyboard(
+    *,
+    today: date,
+    min_training_date: date | None,
+    max_training_date: date,
+) -> InlineKeyboardMarkup:
+    candidate_dates = [
+        max_training_date,
+        max_training_date - timedelta(days=1),
+        max_training_date - timedelta(days=2),
+        max_training_date - timedelta(days=7),
+    ]
+    dates = list(
+        dict.fromkeys(
+            value
+            for value in candidate_dates
+            if value <= today
+            and value <= max_training_date
+            and (min_training_date is None or value >= min_training_date)
+        )
+    )
 
     rows = [
         [

@@ -57,7 +57,7 @@ public static class UserRoleAuthorizationPolicy
                 CanManageClients: true,
                 CanManageGroups: true,
                 CanManageSettings: true,
-                CanMarkAttendance: false,
+                CanMarkAttendance: true,
                 CanViewAuditLog: true,
                 CanViewFinancialReports: false),
             UserRole.Coach => new PermissionSet(
@@ -195,10 +195,14 @@ public static class UserRoleAuthorizationPolicy
         {
             return targetRole == UserRole.HeadCoach
                 ? [StaffMutationAction.Edit]
-                : [StaffMutationAction.Edit, StaffMutationAction.Deactivate, StaffMutationAction.Reactivate];
+                : targetRole == UserRole.Administrator
+                    ? [StaffMutationAction.Edit, StaffMutationAction.Deactivate, StaffMutationAction.Reactivate, StaffMutationAction.ManageAttendanceScope]
+                    : [StaffMutationAction.Edit, StaffMutationAction.Deactivate, StaffMutationAction.Reactivate];
         }
 
-        return actorRole == UserRole.SuperAdministrator && targetRole is UserRole.Administrator or UserRole.Coach
+        return actorRole == UserRole.SuperAdministrator && targetRole == UserRole.Administrator
+            ? [StaffMutationAction.Edit, StaffMutationAction.Deactivate, StaffMutationAction.Reactivate, StaffMutationAction.ManageAttendanceScope]
+            : actorRole == UserRole.SuperAdministrator && targetRole == UserRole.Coach
             ? [StaffMutationAction.Edit, StaffMutationAction.Deactivate, StaffMutationAction.Reactivate]
             : [];
     }

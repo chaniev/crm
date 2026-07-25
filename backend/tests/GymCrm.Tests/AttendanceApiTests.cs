@@ -176,8 +176,12 @@ public class AttendanceApiTests
         var adminSession = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
         Assert.Equal("Administrator", adminSession.User?.Role);
 
-        using var forbiddenGroupsResponse = await client.GetAsync("/attendance/groups");
-        Assert.Equal(HttpStatusCode.Forbidden, forbiddenGroupsResponse.StatusCode);
+        using (var groupsResponse = await client.GetAsync("/attendance/groups"))
+        {
+            Assert.Equal(HttpStatusCode.OK, groupsResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(groupsResponse);
+            Assert.Empty(GetArrayPayload(payload, "groups").EnumerateArray());
+        }
 
         using var forbiddenSaveForAdmin = await PostJsonAsync(
             client,
@@ -188,7 +192,7 @@ public class AttendanceApiTests
                 AttendanceMarks = Array.Empty<object>()
             },
             adminSession.CsrfToken);
-        Assert.Equal(HttpStatusCode.Forbidden, forbiddenSaveForAdmin.StatusCode);
+        await AssertAttendanceGroupForbiddenProblemAsync(forbiddenSaveForAdmin);
 
         using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -200,7 +204,7 @@ public class AttendanceApiTests
 
         using var forbiddenCoachGroupClients = await coachClient.GetAsync(
             $"/attendance/groups/{seeded.UnassignedGroupId}/clients?trainingDate={GetBusinessToday():yyyy-MM-dd}");
-        Assert.Equal(HttpStatusCode.Forbidden, forbiddenCoachGroupClients.StatusCode);
+        await AssertAttendanceGroupForbiddenProblemAsync(forbiddenCoachGroupClients);
 
         using var forbiddenCoachSave = await PostJsonAsync(
             coachClient,
@@ -218,7 +222,47 @@ public class AttendanceApiTests
                 }
             },
             coachSession.CsrfToken);
-        Assert.Equal(HttpStatusCode.Forbidden, forbiddenCoachSave.StatusCode);
+        await AssertAttendanceGroupForbiddenProblemAsync(forbiddenCoachSave);
+    }
+
+    [Fact]
+    public async Task Task080_administrator_reaches_empty_attendance_scope_without_group_grants()
+    {
+        await using var factory = new AttendanceAppFactory();
+        var seeded = await SeedAttendanceDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        _ = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
+
+        using (var sessionResponse = await client.GetAsync("/auth/session"))
+        {
+            Assert.Equal(HttpStatusCode.OK, sessionResponse.StatusCode);
+            var sessionPayload = await ReadJsonElementAsync(sessionResponse);
+            var user = sessionPayload.GetProperty("user");
+            Assert.True(user.GetProperty("permissions").GetProperty("canMarkAttendance").GetBoolean());
+            var scope = user.GetProperty("attendanceScope");
+            Assert.Equal("AdministratorGrants", scope.GetProperty("kind").GetString());
+            Assert.Empty(scope.GetProperty("groupIds").EnumerateArray());
+            Assert.Empty(user.GetProperty("assignedGroupIds").EnumerateArray());
+        }
+
+        using (var groupsResponse = await client.GetAsync("/attendance/groups"))
+        {
+            Assert.Equal(HttpStatusCode.OK, groupsResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(groupsResponse);
+            Assert.Empty(GetArrayPayload(payload, "groups").EnumerateArray());
+            Assert.True(payload.TryGetProperty("minTrainingDate", out var minTrainingDate));
+            Assert.Equal(JsonValueKind.Null, minTrainingDate.ValueKind);
+            Assert.True(payload.TryGetProperty("maxTrainingDate", out _));
+        }
+
+        using var directResponse = await client.GetAsync(
+            $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={GetBusinessToday():yyyy-MM-dd}");
+        await AssertAttendanceGroupForbiddenProblemAsync(directResponse);
     }
 
     [Fact]
@@ -1106,6 +1150,14 @@ public class AttendanceApiTests
     private static async Task<JsonElement> ReadJsonElementAsync(HttpResponseMessage response)
     {
         return await response.Content.ReadFromJsonAsync<JsonElement>();
+    }
+
+    private static async Task AssertAttendanceGroupForbiddenProblemAsync(HttpResponseMessage response)
+    {
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.Equal("/problems/attendance-group-forbidden", payload.GetProperty("type").GetString());
+        Assert.Equal("attendance_group_forbidden", payload.GetProperty("code").GetString());
     }
 
     private static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)

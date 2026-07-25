@@ -155,6 +155,78 @@ internal static class StaffManagementMutationService
             return StaffMutationResult.ValidationFailed(branchErrors);
         }
 
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        var supportsTransactions = !providerName.Contains("InMemory", StringComparison.OrdinalIgnoreCase);
+        await using var transaction = supportsTransactions
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
+        await LockStaffUpdateRowsAsync(
+            dbContext,
+            user.Id,
+            new[] { user.BranchId, command.BranchId }
+                .Where(branchId => branchId.HasValue)
+                .Select(branchId => branchId!.Value)
+                .Distinct()
+                .Order()
+                .ToArray(),
+            cancellationToken);
+
+        await dbContext.Entry(user).ReloadAsync(cancellationToken);
+        if (command.TargetRoleFilter.HasValue && user.Role != command.TargetRoleFilter.Value)
+        {
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+
+            return StaffMutationResult.NotFound();
+        }
+
+        if (requestedRole.HasValue)
+        {
+            var lockedAuthorizationDecision = StaffManagementBoundary.AuthorizeUpdate(command.Actor, user, requestedRole.Value);
+            if (!lockedAuthorizationDecision.Allowed)
+            {
+                if (transaction is not null)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                }
+
+                return StaffMutationResult.Forbidden(lockedAuthorizationDecision.Denial);
+            }
+        }
+
+        branchErrors = await ValidateDestinationBranchAsync(
+            destinationRole,
+            command.BranchId,
+            user.BranchId,
+            dbContext,
+            cancellationToken);
+        if (branchErrors.Count > 0)
+        {
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+
+            return StaffMutationResult.ValidationFailed(branchErrors);
+        }
+
+        if (user.Role == UserRole.Administrator &&
+            (destinationRole != UserRole.Administrator || user.BranchId != command.BranchId) &&
+            await dbContext.AdministratorAttendanceGroupGrants.AnyAsync(
+                grant => grant.AdministratorId == user.Id,
+                cancellationToken))
+        {
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+
+            return StaffMutationResult.Forbidden(GymCrm.Application.Authorization.StaffAuthorizationDenial.AttendanceGrantsMustBeRevoked);
+        }
+
         var messengerIdentity = UserRequestValidator.NormalizeMessengerIdentity(
             command.MessengerPlatform,
             command.MessengerPlatformUserId);
@@ -178,7 +250,39 @@ internal static class StaffManagementMutationService
             UserAuditSerializer.Serialize(user)));
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
+
         return StaffMutationResult.Updated(user);
+    }
+
+    private static async Task LockStaffUpdateRowsAsync(
+        GymCrmDbContext dbContext,
+        Guid targetUserId,
+        IReadOnlyList<Guid> branchIds,
+        CancellationToken cancellationToken)
+    {
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        foreach (var branchId in branchIds.Order())
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""SELECT 1 FROM "Branches" WHERE "Id" = {branchId} FOR UPDATE""",
+                cancellationToken);
+        }
+
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "Users" WHERE "Id" = {targetUserId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "AdministratorAttendanceGroupGrants" WHERE "AdministratorId" = {targetUserId} ORDER BY "AdministratorId", "GroupId" FOR UPDATE""",
+            cancellationToken);
     }
 
     private static async Task<Dictionary<string, string[]>> ValidateDestinationBranchAsync(

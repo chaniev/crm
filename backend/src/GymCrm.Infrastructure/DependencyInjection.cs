@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHashService, PasswordHashService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
         services.AddScoped<IAccessScopeService, AccessScopeService>();
+        services.AddScoped<IAdministratorAttendanceGroupGrantService, AdministratorAttendanceGroupGrantService>();
         services.AddSingleton(TimeProvider.System);
         services
             .AddOptions<BusinessTimeOptions>()
@@ -55,6 +56,7 @@ public static class DependencyInjection
                 "BusinessTime:TimeZoneId must identify a system time zone.")
             .ValidateOnStart();
         services.AddSingleton<IBusinessDateProvider, BusinessDateProvider>();
+        services.AddScoped<IAttendanceDatePolicy, AttendanceDatePolicy>();
         services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<IClientMembershipService, ClientMembershipService>();
         services.AddScoped<IFinancialReportService, FinancialReportService>();

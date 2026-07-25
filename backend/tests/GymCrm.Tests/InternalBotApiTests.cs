@@ -115,7 +115,7 @@ public class InternalBotApiTests
             Assert.Equal(HttpStatusCode.OK, adminMenuResponse.StatusCode);
             var payload = await ReadJsonElementAsync(adminMenuResponse);
             var items = payload.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("code").GetString()).ToArray();
-            Assert.DoesNotContain("attendance", items);
+            Assert.Contains("attendance", items);
             Assert.DoesNotContain("unpaid_memberships", items);
             Assert.Contains("expiring_memberships", items);
         }
@@ -153,7 +153,9 @@ public class InternalBotApiTests
                    HttpMethod.Get,
                    $"/internal/bot/attendance/groups?platform=Telegram&platformUserId={seeded.AdminTelegramId}"))
         {
-            Assert.Equal(HttpStatusCode.Forbidden, adminGroupsResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, adminGroupsResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(adminGroupsResponse);
+            Assert.Empty(payload.EnumerateArray());
         }
 
         using (var superAdministratorGroupsResponse = await SendBotRequestAsync(
@@ -313,6 +315,101 @@ public class InternalBotApiTests
         {
             Assert.Equal(HttpStatusCode.BadRequest, futureDateResponse.StatusCode);
         }
+    }
+
+    [Fact]
+    public async Task Internal_bot_administrator_with_attendance_grant_can_list_roster_and_save_old_date_until_revoked()
+    {
+        await using var factory = new InternalBotAppFactory();
+        var seeded = await SeedDataAsync(factory);
+        using var client = factory.CreateClient();
+        var trainingDate = GetBusinessToday().AddDays(-5);
+
+        await using (var grantScope = factory.Services.CreateAsyncScope())
+        {
+            var db = grantScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var branchId = await db.TrainingGroups
+                .Where(group => group.Id == seeded.AdminGroupId)
+                .Select(group => group.BranchId)
+                .SingleAsync();
+            db.AdministratorAttendanceGroupGrants.Add(new AdministratorAttendanceGroupGrant
+            {
+                AdministratorId = seeded.AdminId,
+                GroupId = seeded.AdminGroupId,
+                BranchId = branchId,
+                GrantedByUserId = seeded.SuperAdministratorId,
+                GrantedAt = DateTimeOffset.UtcNow
+            });
+            await db.SaveChangesAsync();
+        }
+
+        using (var menuResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/menu?platform=Telegram&platformUserId={seeded.AdminTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, menuResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(menuResponse);
+            Assert.Equal(JsonValueKind.Null, payload.GetProperty("attendanceDateWindow").GetProperty("minTrainingDate").ValueKind);
+        }
+
+        using (var groupsResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/attendance/groups?platform=Telegram&platformUserId={seeded.AdminTelegramId}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, groupsResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(groupsResponse);
+            Assert.Contains(payload.EnumerateArray(), group => group.GetProperty("id").GetString() == seeded.AdminGroupId.ToString());
+        }
+
+        using (var rosterResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Get,
+                   $"/internal/bot/attendance/groups/{seeded.AdminGroupId}/clients" +
+                   $"?platform=Telegram&platformUserId={seeded.AdminTelegramId}" +
+                   $"&trainingDate={trainingDate:yyyy-MM-dd}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, rosterResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(rosterResponse);
+            Assert.Equal(JsonValueKind.Null, payload.GetProperty("attendanceDateWindow").GetProperty("minTrainingDate").ValueKind);
+            Assert.Contains(payload.GetProperty("clients").EnumerateArray(), candidate =>
+                candidate.GetProperty("id").GetString() == seeded.ExpiringTodayClientId.ToString());
+        }
+
+        using (var saveResponse = await SendBotRequestAsync(
+                   client,
+                   HttpMethod.Post,
+                   $"/internal/bot/attendance/groups/{seeded.AdminGroupId}",
+                   new BotSaveAttendanceRequest(
+                       "Telegram",
+                       seeded.AdminTelegramId,
+                       trainingDate.ToString("yyyy-MM-dd"),
+                       [new BotAttendanceMarkRequest(seeded.ExpiringTodayClientId, false)]),
+                   idempotencyKey: "attendance-admin-granted-old-date"))
+        {
+            Assert.Equal(HttpStatusCode.OK, saveResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(saveResponse);
+            Assert.Equal(JsonValueKind.Null, payload.GetProperty("attendanceDateWindow").GetProperty("minTrainingDate").ValueKind);
+        }
+
+        await using (var revokeScope = factory.Services.CreateAsyncScope())
+        {
+            var db = revokeScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var grant = await db.AdministratorAttendanceGroupGrants.SingleAsync(grant =>
+                grant.AdministratorId == seeded.AdminId &&
+                grant.GroupId == seeded.AdminGroupId);
+            db.AdministratorAttendanceGroupGrants.Remove(grant);
+            await db.SaveChangesAsync();
+        }
+
+        using var forbiddenRosterResponse = await SendBotRequestAsync(
+            client,
+            HttpMethod.Get,
+            $"/internal/bot/attendance/groups/{seeded.AdminGroupId}/clients" +
+            $"?platform=Telegram&platformUserId={seeded.AdminTelegramId}" +
+            $"&trainingDate={trainingDate:yyyy-MM-dd}");
+        Assert.Equal(HttpStatusCode.Forbidden, forbiddenRosterResponse.StatusCode);
     }
 
     [Fact]
@@ -592,6 +689,7 @@ public class InternalBotApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        administrator.BranchId = adminBranch.Id;
         var coachHall = new Hall
         {
             Id = Guid.NewGuid(),
@@ -715,6 +813,7 @@ public class InternalBotApiTests
             headCoach.MessengerPlatformUserId!,
             superAdministrator.Id,
             superAdministrator.MessengerPlatformUserId!,
+            administrator.Id,
             administrator.MessengerPlatformUserId!,
             coach.MessengerPlatformUserId!,
             inactiveCoach.MessengerPlatformUserId!,
@@ -899,6 +998,7 @@ public class InternalBotApiTests
         string HeadCoachTelegramId,
         Guid SuperAdministratorId,
         string SuperAdministratorTelegramId,
+        Guid AdminId,
         string AdminTelegramId,
         string CoachTelegramId,
         string InactiveTelegramId,

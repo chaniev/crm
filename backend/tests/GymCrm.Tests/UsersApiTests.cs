@@ -805,7 +805,7 @@ public class UsersApiTests
             Assert.Empty(headCoach.GetProperty("allowedActions").EnumerateArray());
             Assert.Empty(peerSuperAdministrator.GetProperty("allowedActions").EnumerateArray());
             Assert.Equal(
-                ["Edit", "Deactivate", "Reactivate"],
+                ["Edit", "Deactivate", "Reactivate", "ManageAttendanceScope"],
                 administrator.GetProperty("allowedActions")
                     .EnumerateArray()
                     .Select(item => item.GetString()!)

@@ -153,7 +153,8 @@ function mapAllowedAction(action: string): UserAllowedAction | null {
     action === 'Update' ||
     action === 'Deactivate' ||
     action === 'Reactivate' ||
-    action === 'Delete'
+    action === 'Delete' ||
+    action === 'ManageAttendanceScope'
   ) {
     return action
   }

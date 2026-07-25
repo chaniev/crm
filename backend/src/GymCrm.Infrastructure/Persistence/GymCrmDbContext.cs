@@ -27,6 +27,7 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<ClientMembershipRefund> ClientMembershipRefunds => Set<ClientMembershipRefund>();
     public DbSet<ClientBranchAssignment> ClientBranchAssignments => Set<ClientBranchAssignment>();
     public DbSet<TrainingGroup> TrainingGroups => Set<TrainingGroup>();
+    public DbSet<AdministratorAttendanceGroupGrant> AdministratorAttendanceGroupGrants => Set<AdministratorAttendanceGroupGrant>();
     public DbSet<GroupType> GroupTypes => Set<GroupType>();
     public DbSet<ClientGroup> ClientGroups => Set<ClientGroup>();
     public DbSet<ClientGroupAssignment> ClientGroupAssignments => Set<ClientGroupAssignment>();

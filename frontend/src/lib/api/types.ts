@@ -29,6 +29,7 @@ export type AuthenticatedUser = {
   allowedSections: AppSection[]
   permissions: AccessPermissions
   assignedGroupIds: string[]
+  attendanceScope: AttendanceScope
   branchId: string | null
   createRoleOptions?: UserRole[]
 }
@@ -63,6 +64,7 @@ export type UserAllowedAction =
   | 'Deactivate'
   | 'Reactivate'
   | 'Delete'
+  | 'ManageAttendanceScope'
 
 export type UserListItem = {
   id: string
@@ -75,6 +77,7 @@ export type UserListItem = {
   messengerPlatformUserId: string | null
   branchId: string | null
   branchName: string | null
+  attendanceGroupGrantCount?: number
   allowedActions?: UserAllowedAction[]
   roleOptions?: UserRole[]
 }
@@ -124,12 +127,66 @@ export type AttendanceGroup = {
   clientCount?: number
 }
 
+export type AttendanceScopeKind =
+  | 'Global'
+  | 'TrainerAssignments'
+  | 'AdministratorGrants'
+
+export type AttendanceScope = {
+  kind: AttendanceScopeKind
+  groupIds: string[]
+}
+
 export type AttendanceState = 'Unmarked' | 'Present' | 'Absent'
 
 export type AttendanceGroupsResponse = {
   groups: AttendanceGroup[]
   today: string
+  minTrainingDate: string | null
   maxTrainingDate: string
+}
+
+export type AdministratorAttendanceScopeGroup = {
+  id: string
+  name: string
+  trainingStartTime?: string
+  durationMinutes?: number
+  weekdays?: number[]
+  isActive: boolean
+  isGranted: boolean
+  canGrant: boolean
+  canRevoke: boolean
+  disabledReason: string | null
+}
+
+export type AdministratorUnavailableAttendanceGrant = {
+  groupId: string
+  branchId?: string | null
+  isGranted: true
+  canGrant: false
+  canRevoke: boolean
+  disabledReason: string
+}
+
+export type AdministratorAttendanceScopeResponse = {
+  administrator: {
+    id: string
+    fullName: string
+    isActive: boolean
+  }
+  branch: {
+    id: string
+    name: string
+    isArchived: boolean
+  } | null
+  grantedGroupIds: string[]
+  groups: AdministratorAttendanceScopeGroup[]
+  unavailableGrants: AdministratorUnavailableAttendanceGrant[]
+}
+
+export type ReplaceAdministratorAttendanceScopeRequest = {
+  expectedGroupIds: string[]
+  groupIds: string[]
 }
 
 export type ClientStatus = 'Active' | 'Archived'
@@ -448,6 +505,7 @@ export type AttendanceRosterResponse = {
   groupId: string
   trainingDate: string
   today: string
+  minTrainingDate: string | null
   maxTrainingDate: string
   clients: AttendanceClient[]
 }
@@ -464,6 +522,7 @@ export type SaveAttendanceMarksResponse = {
   groupId: string
   trainingDate: string
   today: string
+  minTrainingDate: string | null
   maxTrainingDate: string
   attendanceMarks: Array<{
     clientId: string

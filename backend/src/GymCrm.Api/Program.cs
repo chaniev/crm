@@ -213,6 +213,7 @@ app.MapAppConfigEndpoints();
 app.MapAuthEndpoints();
 app.MapAccessEndpoints();
 app.MapAdministratorEndpoints();
+app.MapAdministratorAttendanceGroupEndpoints();
 app.MapMembershipCatalogEndpoints();
 app.MapUserEndpoints();
 app.MapAuditLogEndpoints();

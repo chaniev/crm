@@ -5,5 +5,6 @@ internal sealed record AttendanceGroupClientsResponse(
     string GroupName,
     DateOnly TrainingDate,
     DateOnly Today,
+    DateOnly? MinTrainingDate,
     DateOnly MaxTrainingDate,
     IReadOnlyList<AttendanceClientResponse> Clients);

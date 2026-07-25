@@ -6,6 +6,7 @@ type AttendanceContextControlsProps = {
   groups: AttendanceGroup[]
   selectedGroupId: string | null
   trainingDate: string
+  minTrainingDate: string | null
   maxTrainingDate: string
   today: string
   onGroupChange: (groupId: string | null) => void
@@ -16,6 +17,7 @@ export function AttendanceContextControls({
   groups,
   selectedGroupId,
   trainingDate,
+  minTrainingDate,
   maxTrainingDate,
   today,
   onGroupChange,
@@ -40,6 +42,7 @@ export function AttendanceContextControls({
           data-testid="attendance-date-input"
           label="Дата тренировки"
           max={maxTrainingDate}
+          min={minTrainingDate ?? undefined}
           onChange={(event) => onTrainingDateChange(event.currentTarget.value)}
           size="md"
           type="date"
@@ -49,9 +52,14 @@ export function AttendanceContextControls({
           <ActionIcon
             aria-label="Предыдущая дата"
             data-testid="attendance-date-previous"
-            disabled={!trainingDate}
+            disabled={!trainingDate || Boolean(minTrainingDate && shiftIsoDate(trainingDate, -1) < minTrainingDate)}
             onClick={() => onTrainingDateChange(shiftIsoDate(trainingDate, -1))}
             size={44}
+            title={
+              minTrainingDate && shiftIsoDate(trainingDate, -1) < minTrainingDate
+                ? 'Дата вне доступного периода'
+                : 'Предыдущая дата'
+            }
             variant="default"
           >
             <IconChevronLeft size={20} />

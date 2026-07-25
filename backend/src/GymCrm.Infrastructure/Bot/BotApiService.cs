@@ -20,7 +20,9 @@ internal sealed class BotApiService(
     IAttendanceService attendanceService,
     IAuditLogService auditLogService,
     BotIdempotencyService idempotencyService,
-    IBusinessDateProvider businessDateProvider) : IBotApiService
+    IBusinessDateProvider businessDateProvider,
+    IAttendanceDatePolicy attendanceDatePolicy,
+    IAccessScopeService accessScopeService) : IBotApiService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private const string DateFormat = "yyyy-MM-dd";
@@ -53,8 +55,10 @@ internal sealed class BotApiService(
         }
 
         var user = resolvedUser.Value!;
+        var dateWindow = attendanceDatePolicy.GetWindow(user.Role);
         return BotApiResult<BotMenuResponse>.Success(new BotMenuResponse(
             MapUserContext(user, identity),
+            new BotAttendanceDateWindow(dateWindow.Today, dateWindow.MinTrainingDate, dateWindow.MaxTrainingDate),
             GetMenuItems(user.Role)));
     }
 
@@ -74,10 +78,15 @@ internal sealed class BotApiService(
             return BotApiResult<IReadOnlyList<BotAttendanceGroup>>.Failure(BotApiError.Forbidden);
         }
 
+        var accessScope = await accessScopeService.GetAccessScopeAsync(user, cancellationToken);
+        var accessibleGroupIds = accessScope.AttendanceScope.Kind == AttendanceScopeKind.Global
+            ? null
+            : accessScope.AttendanceScope.GroupIds.ToHashSet();
+
         var query = dbContext.TrainingGroups.AsNoTracking();
-        if (user.Role == UserRole.Coach)
+        if (accessibleGroupIds is not null)
         {
-            query = query.Where(group => group.Trainers.Any(trainer => trainer.TrainerId == user.Id));
+            query = query.Where(group => accessibleGroupIds.Contains(group.Id));
         }
 
         var groups = await query
@@ -120,7 +129,7 @@ internal sealed class BotApiService(
             return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.Forbidden);
         }
 
-        if (!IsAttendanceDateAllowed(user.Role, trainingDate))
+        if (!attendanceDatePolicy.IsAllowed(user.Role, trainingDate))
         {
             return BotApiResult<BotAttendanceRoster>.Failure(BotApiError.InvalidAttendanceDate);
         }
@@ -164,6 +173,7 @@ internal sealed class BotApiService(
             group.Id,
             group.Name,
             trainingDate,
+            MapDateWindow(user.Role),
             clients
                 .Select(client => MapAttendanceClient(
                     client,
@@ -195,7 +205,7 @@ internal sealed class BotApiService(
             return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.Forbidden);
         }
 
-        if (!IsAttendanceDateAllowed(user.Role, trainingDate))
+        if (!attendanceDatePolicy.IsAllowed(user.Role, trainingDate))
         {
             return BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate);
         }
@@ -262,6 +272,8 @@ internal sealed class BotApiService(
                         ["attendanceMarks"] = ["Часть клиентов не принадлежит выбранной группе."]
                     }),
                     AttendanceBatchMutationError.TrainingDateInFuture => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
+                    AttendanceBatchMutationError.TrainingDateUnavailable => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
+                    AttendanceBatchMutationError.Forbidden => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.Forbidden),
                     AttendanceBatchMutationError.SingleVisitRestoreConflict => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.SingleVisitRestoreConflict),
                     _ => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
                     {
@@ -297,6 +309,7 @@ internal sealed class BotApiService(
                 group.Id,
                 group.Name,
                 trainingDate,
+                MapDateWindow(user.Role),
                 marks.Count,
                 marks.Count(mark => mark.IsPresent),
                 marks.Count(mark => !mark.IsPresent),
@@ -657,20 +670,15 @@ internal sealed class BotApiService(
             return GroupAccessResult.NotFound();
         }
 
-        if (user.Role == UserRole.Coach)
+        var accessDecision = await accessScopeService.EvaluateGroupAccessAsync(user, groupId, cancellationToken);
+        if (accessDecision == GroupAccessDecision.GroupNotFound)
         {
-            var isAssigned = await dbContext.GroupTrainers
-                .AsNoTracking()
-                .AnyAsync(
-                    trainer =>
-                        trainer.GroupId == groupId &&
-                        trainer.TrainerId == user.Id,
-                    cancellationToken);
+            return GroupAccessResult.NotFound();
+        }
 
-            if (!isAssigned)
-            {
-                return GroupAccessResult.Forbidden();
-            }
+        if (accessDecision == GroupAccessDecision.Forbidden)
+        {
+            return GroupAccessResult.Forbidden();
         }
 
         return GroupAccessResult.Allowed(group);
@@ -725,6 +733,7 @@ internal sealed class BotApiService(
             ],
             UserRole.Administrator =>
             [
+                new BotMenuItem("attendance", "Посещения"),
                 new BotMenuItem("client_search", "Поиск клиента"),
                 new BotMenuItem("expiring_memberships", "Заканчивающиеся")
             ],
@@ -759,15 +768,10 @@ internal sealed class BotApiService(
             errors.Count == 0 ? null : errors);
     }
 
-    private bool IsAttendanceDateAllowed(UserRole role, DateOnly trainingDate)
+    private BotAttendanceDateWindow MapDateWindow(UserRole role)
     {
-        var today = businessDateProvider.Today;
-        if (trainingDate > today)
-        {
-            return false;
-        }
-
-        return role != UserRole.Coach || trainingDate >= today.AddDays(-2);
+        var window = attendanceDatePolicy.GetWindow(role);
+        return new BotAttendanceDateWindow(window.Today, window.MinTrainingDate, window.MaxTrainingDate);
     }
 
     private IQueryable<Client> ApplyCoachClientScope(IQueryable<Client> query, Guid trainerId)

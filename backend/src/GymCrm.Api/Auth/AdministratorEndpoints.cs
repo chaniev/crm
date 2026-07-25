@@ -39,13 +39,21 @@ internal static class AdministratorEndpoints
             return StaffProblemDetails.FromDenial(readDecision.Denial);
         }
 
-        IReadOnlyList<UserResponse> administrators = await dbContext.Users
+        var grantCounts = await dbContext.AdministratorAttendanceGroupGrants
+            .AsNoTracking()
+            .GroupBy(grant => grant.AdministratorId)
+            .Select(group => new { AdministratorId = group.Key, Count = group.Count() })
+            .ToDictionaryAsync(group => group.AdministratorId, group => group.Count, cancellationToken);
+
+        var administratorUsers = await dbContext.Users
             .AsNoTracking()
             .Where(user => user.Role == UserRole.Administrator)
             .OrderBy(user => user.FullName)
             .ThenBy(user => user.Login)
-            .Select(user => ToResponse(user, currentUser))
             .ToListAsync(cancellationToken);
+        IReadOnlyList<UserResponse> administrators = administratorUsers
+            .Select(user => ToResponse(user, currentUser, grantCounts.GetValueOrDefault(user.Id)))
+            .ToArray();
 
         return TypedResults.Ok(new UserListResponse(
             administrators,
@@ -78,7 +86,12 @@ internal static class AdministratorEndpoints
 
         return user is null
             ? StaffProblemDetails.NotFound()
-            : TypedResults.Ok(ToResponse(user, currentUser));
+            : TypedResults.Ok(ToResponse(
+                user,
+                currentUser,
+                await dbContext.AdministratorAttendanceGroupGrants.CountAsync(
+                    grant => grant.AdministratorId == user.Id,
+                    cancellationToken)));
     }
 
     private static async Task<Results<Created<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateAdministratorAsync(
@@ -133,7 +146,7 @@ internal static class AdministratorEndpoints
         }
 
         var user = mutationResult.User!;
-        return TypedResults.Created($"/settings/administrators/{user.Id}", ToResponse(user, currentUser));
+        return TypedResults.Created($"/settings/administrators/{user.Id}", ToResponse(user, currentUser, 0));
     }
 
     private static async Task<Results<Ok<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateAdministratorAsync(
@@ -198,10 +211,15 @@ internal static class AdministratorEndpoints
             await AuthSessionSync.SyncCurrentSessionAsync(httpContext, user);
         }
 
-        return TypedResults.Ok(ToResponse(user, currentUser));
+        return TypedResults.Ok(ToResponse(
+            user,
+            currentUser,
+            await dbContext.AdministratorAttendanceGroupGrants.CountAsync(
+                grant => grant.AdministratorId == user.Id,
+                cancellationToken)));
     }
 
-    private static UserResponse ToResponse(User user, User currentUser)
+    private static UserResponse ToResponse(User user, User currentUser, int? attendanceGrantCount = null)
     {
         return new UserResponse(
             user.Id,
@@ -217,6 +235,7 @@ internal static class AdministratorEndpoints
             user.BranchId,
             user.Branch?.Name,
             StaffManagementBoundary.GetAllowedActions(currentUser, user),
-            StaffManagementBoundary.GetUpdateRoleOptions(currentUser, user));
+            StaffManagementBoundary.GetUpdateRoleOptions(currentUser, user),
+            attendanceGrantCount);
     }
 }

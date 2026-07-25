@@ -35,6 +35,11 @@ internal static class StaffProblemDetails
                 "/problems/branch-scope-forbidden",
                 "Branch scope is forbidden.",
                 "branch_scope_forbidden"),
+            StaffAuthorizationDenial.AttendanceGrantsMustBeRevoked => Create(
+                StatusCodes.Status409Conflict,
+                "/problems/attendance-grants-must-be-revoked",
+                "Administrator attendance grants must be revoked before staff role or branch changes.",
+                "attendance_grants_must_be_revoked"),
             _ => Create(
                 StatusCodes.Status403Forbidden,
                 "/problems/staff-management-forbidden",

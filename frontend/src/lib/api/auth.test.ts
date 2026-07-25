@@ -30,6 +30,10 @@ describe('auth API', () => {
           canViewFinancialReports: false,
         },
         assignedGroupIds: [],
+        attendanceScope: {
+          kind: 'Global',
+          groupIds: [],
+        },
         branchId: null,
         createRoleOptions: ['Administrator', 'Coach'],
       },
@@ -43,6 +47,55 @@ describe('auth API', () => {
         createRoleOptions: ['Administrator', 'Coach'],
         permissions: {
           canViewFinancialReports: false,
+        },
+        attendanceScope: {
+          kind: 'Global',
+          groupIds: [],
+        },
+      },
+    })
+  })
+
+  test('maps Administrator attendance grants separately from coach assignments', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      isAuthenticated: true,
+      csrfToken: 'csrf',
+      bootstrapMode: false,
+      user: {
+        id: 'administrator-1',
+        fullName: 'Администратор',
+        login: 'administrator',
+        role: 'Administrator',
+        mustChangePassword: false,
+        isActive: true,
+        landingScreen: 'Home',
+        allowedSections: ['Home'],
+        permissions: {
+          canManageUsers: false,
+          canManageClients: true,
+          canManageGroups: false,
+          canManageSettings: true,
+          canMarkAttendance: true,
+          canViewAuditLog: false,
+          canViewFinancialReports: false,
+        },
+        assignedGroupIds: [],
+        attendanceScope: {
+          kind: 'AdministratorGrants',
+          groupIds: ['group-1', 'group-2'],
+        },
+        branchId: 'branch-1',
+        createRoleOptions: [],
+      },
+    })))
+
+    await expect(loadSession()).resolves.toMatchObject({
+      user: {
+        role: 'Administrator',
+        assignedGroupIds: [],
+        attendanceScope: {
+          kind: 'AdministratorGrants',
+          groupIds: ['group-1', 'group-2'],
         },
       },
     })

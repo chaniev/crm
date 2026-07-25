@@ -11,16 +11,36 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
     {
         ArgumentNullException.ThrowIfNull(user);
 
-        var assignedGroupIds = user.Role == UserRole.Coach
+        var coachAssignedGroupIds = user.Role == UserRole.Coach
             ? await dbContext.GroupTrainers
                 .Where(groupTrainer => groupTrainer.TrainerId == user.Id)
                 .OrderBy(groupTrainer => groupTrainer.GroupId)
                 .Select(groupTrainer => groupTrainer.GroupId)
                 .ToArrayAsync(cancellationToken)
             : [];
+        var administratorGrantedGroupIds = user.Role == UserRole.Administrator
+            ? await dbContext.AdministratorAttendanceGroupGrants
+                .Where(grant =>
+                    grant.AdministratorId == user.Id &&
+                    grant.Administrator.Role == UserRole.Administrator &&
+                    grant.Administrator.IsActive &&
+                    grant.Administrator.BranchId == grant.BranchId &&
+                    !grant.Branch.IsArchived &&
+                    grant.Group.BranchId == grant.BranchId)
+                .OrderBy(grant => grant.GroupId)
+                .Select(grant => grant.GroupId)
+                .ToArrayAsync(cancellationToken)
+            : [];
 
         var permissions = UserRoleAuthorizationPolicy.GetPermissions(user.Role);
         var scopeKind = UserRoleAuthorizationPolicy.GetOperationalScopeKind(user.Role);
+        var attendanceScope = user.Role switch
+        {
+            UserRole.HeadCoach or UserRole.SuperAdministrator => new AttendanceScope(AttendanceScopeKind.Global, []),
+            UserRole.Coach => new AttendanceScope(AttendanceScopeKind.TrainerAssignments, coachAssignedGroupIds),
+            UserRole.Administrator => new AttendanceScope(AttendanceScopeKind.AdministratorGrants, administratorGrantedGroupIds),
+            _ => throw new InvalidOperationException($"Unsupported user role '{user.Role}'.")
+        };
 
         return user.Role switch
         {
@@ -38,6 +58,7 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     AppSection.Settings
                 ],
                 permissions,
+                attendanceScope,
                 []),
             UserRole.Administrator => new AccessScope(
                 user.Role,
@@ -51,6 +72,7 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     AppSection.Settings
                 ],
                 permissions,
+                attendanceScope,
                 []),
             UserRole.Coach => new AccessScope(
                 user.Role,
@@ -61,7 +83,8 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
                     AppSection.Clients
                 ],
                 permissions,
-                assignedGroupIds),
+                attendanceScope,
+                coachAssignedGroupIds),
             _ => throw new InvalidOperationException($"Unsupported user role '{user.Role}'.")
         };
     }
@@ -84,6 +107,19 @@ internal sealed class AccessScopeService(GymCrmDbContext dbContext) : IAccessSco
         return user.Role switch
         {
             UserRole.HeadCoach or UserRole.SuperAdministrator => GroupAccessDecision.Allowed,
+            UserRole.Administrator => await dbContext.AdministratorAttendanceGroupGrants
+                .AnyAsync(
+                    grant =>
+                        grant.GroupId == groupId &&
+                        grant.AdministratorId == user.Id &&
+                        grant.Administrator.Role == UserRole.Administrator &&
+                        grant.Administrator.IsActive &&
+                        grant.Administrator.BranchId == grant.BranchId &&
+                        !grant.Branch.IsArchived &&
+                        grant.Group.BranchId == grant.BranchId,
+                    cancellationToken)
+                ? GroupAccessDecision.Allowed
+                : GroupAccessDecision.Forbidden,
             UserRole.Coach => await dbContext.GroupTrainers
                 .AnyAsync(
                     groupTrainer =>

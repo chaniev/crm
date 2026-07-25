@@ -87,6 +87,7 @@ type ConfirmActionModalProps = {
   confirmLabel: string
   pending?: boolean
   confirmColor?: string
+  cancelLabel?: string
   onClose: () => void
   onConfirm: MouseEventHandler<HTMLButtonElement>
 }
@@ -98,6 +99,7 @@ export function ConfirmActionModal({
   confirmLabel,
   pending = false,
   confirmColor = 'brand.7',
+  cancelLabel = resources.common.actions.cancel,
   onClose,
   onConfirm,
 }: ConfirmActionModalProps) {
@@ -117,7 +119,7 @@ export function ConfirmActionModal({
 
         <ResponsiveButtonGroup justify="flex-end">
           <Button disabled={pending} onClick={onClose} variant="secondary">
-            {resources.common.actions.cancel}
+            {cancelLabel}
           </Button>
           <Button color={confirmColor} loading={pending} onClick={onConfirm}>
             {confirmLabel}

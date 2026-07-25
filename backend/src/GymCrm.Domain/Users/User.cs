@@ -24,6 +24,8 @@ public class User
     public Branch? Branch { get; set; }
 
     public ICollection<GroupTrainer> AssignedGroups { get; set; } = new List<GroupTrainer>();
+    public ICollection<AdministratorAttendanceGroupGrant> AdministratorAttendanceGroupGrants { get; set; } = new List<AdministratorAttendanceGroupGrant>();
+    public ICollection<AdministratorAttendanceGroupGrant> GrantedAdministratorAttendanceGroupGrants { get; set; } = new List<AdministratorAttendanceGroupGrant>();
     public ICollection<GroupTrainerAssignment> GroupTrainerAssignments { get; set; } = new List<GroupTrainerAssignment>();
     public ICollection<ClientMembership> MembershipChanges { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembershipSale> CreatedMembershipSales { get; set; } = new List<ClientMembershipSale>();

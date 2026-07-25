@@ -9,8 +9,11 @@ import {
 import { ApiError } from './errors'
 
 type ProblemPayload = {
+  type?: string
   title?: string
   detail?: string
+  code?: string
+  errorCode?: string
   errors?: Record<string, string[]>
   csrfToken?: string
 }
@@ -56,10 +59,17 @@ export async function request<T>(
       payload?.detail ?? payload?.title ?? DEFAULT_REQUEST_ERROR_MESSAGE,
       response.status,
       payload?.errors ?? {},
+      payload?.code ?? payload?.errorCode ?? normalizeProblemType(payload?.type) ?? null,
     )
   }
 
   return payload as T
+}
+
+function normalizeProblemType(type: string | undefined) {
+  const slug = type?.split('/').filter(Boolean).at(-1)
+
+  return slug ? slug.replaceAll('-', '_') : null
 }
 
 function isJsonContentType(contentType: string) {

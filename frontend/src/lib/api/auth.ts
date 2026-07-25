@@ -6,6 +6,8 @@ import type {
   AccessPermissions,
   AppSection,
   AuthenticatedUser,
+  AttendanceScope,
+  AttendanceScopeKind,
   ChangePasswordRequest,
   LoginRequest,
   SessionResponse,
@@ -71,6 +73,8 @@ function mapAuthenticatedUser(payload: unknown): AuthenticatedUser | null {
     return null
   }
 
+  const assignedGroupIds = mapStringArray(payload.assignedGroupIds ?? payload.AssignedGroupIds)
+
   return {
     id: readString(payload, ['id', 'Id']) ?? '',
     fullName: readString(payload, ['fullName', 'FullName']) ?? '',
@@ -83,7 +87,12 @@ function mapAuthenticatedUser(payload: unknown): AuthenticatedUser | null {
       mapAppSection(readString(payload, ['landingScreen', 'LandingScreen'])) ?? 'Home',
     allowedSections: mapAppSections(payload.allowedSections ?? payload.AllowedSections),
     permissions: mapAccessPermissions(payload.permissions ?? payload.Permissions),
-    assignedGroupIds: mapStringArray(payload.assignedGroupIds ?? payload.AssignedGroupIds),
+    assignedGroupIds,
+    attendanceScope: mapAttendanceScope(
+      payload.attendanceScope ?? payload.AttendanceScope,
+      role,
+      assignedGroupIds,
+    ),
     branchId: readString(payload, ['branchId', 'BranchId']) ?? null,
     createRoleOptions: mapUserRoles(payload.createRoleOptions ?? payload.CreateRoleOptions),
   }
@@ -135,6 +144,45 @@ function mapUserRoles(payload: unknown) {
 
     return mappedRole ? [mappedRole] : []
   })
+}
+
+function mapAttendanceScope(
+  payload: unknown,
+  role: AuthenticatedUser['role'],
+  assignedGroupIds: string[],
+): AttendanceScope {
+  if (isRecord(payload)) {
+    const kind = mapAttendanceScopeKind(readString(payload, ['kind', 'Kind']))
+
+    if (kind) {
+      return {
+        kind,
+        groupIds: mapStringArray(payload.groupIds ?? payload.GroupIds),
+      }
+    }
+  }
+
+  if (role === 'Coach') {
+    return { kind: 'TrainerAssignments', groupIds: assignedGroupIds }
+  }
+
+  if (role === 'Administrator') {
+    return { kind: 'AdministratorGrants', groupIds: [] }
+  }
+
+  return { kind: 'Global', groupIds: [] }
+}
+
+function mapAttendanceScopeKind(value?: string): AttendanceScopeKind | null {
+  if (
+    value === 'Global' ||
+    value === 'TrainerAssignments' ||
+    value === 'AdministratorGrants'
+  ) {
+    return value
+  }
+
+  return null
 }
 
 function mapStringArray(payload: unknown) {

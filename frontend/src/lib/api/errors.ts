@@ -4,16 +4,19 @@ type FieldErrorAliases = Record<string, string>
 
 export class ApiError extends Error {
   status: number
+  code: string | null
   fieldErrors: Record<string, string[]>
 
   constructor(
     message: string,
     status: number,
     fieldErrors: Record<string, string[]> = {},
+    code: string | null = null,
   ) {
     super(message)
     this.name = 'ApiError'
     this.status = status
+    this.code = code
     this.fieldErrors = fieldErrors
   }
 }

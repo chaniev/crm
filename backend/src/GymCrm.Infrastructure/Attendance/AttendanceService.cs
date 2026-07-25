@@ -3,6 +3,7 @@ using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
@@ -13,7 +14,7 @@ internal sealed class AttendanceService(
     GymCrmDbContext dbContext,
     IClientMembershipService clientMembershipService,
     IAuditLogService auditLogService,
-    IBusinessDateProvider businessDateProvider,
+    IAttendanceDatePolicy attendanceDatePolicy,
     TimeProvider timeProvider) : IAttendanceService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
@@ -27,49 +28,21 @@ internal sealed class AttendanceService(
             return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.InvalidRequest);
         }
 
-        if (command.TrainingDate > businessDateProvider.Today)
-        {
-            return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.TrainingDateInFuture);
-        }
-
-        var group = await dbContext.TrainingGroups
+        var actorRole = await dbContext.Users
             .AsNoTracking()
-            .Where(candidate => candidate.Id == command.GroupId)
-            .Select(candidate => new { candidate.Id, candidate.Name })
+            .Where(user => user.Id == command.MarkedByUserId && user.IsActive)
+            .Select(user => (UserRole?)user.Role)
             .SingleOrDefaultAsync(cancellationToken);
-        if (group is null)
+        if (!actorRole.HasValue)
         {
-            return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.GroupMissing);
+            return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.Forbidden);
         }
 
-        var requestedClientIds = command.Marks.Select(mark => mark.ClientId).Order().ToArray();
-        var clientNames = requestedClientIds.Length == 0
-            ? new Dictionary<Guid, string>()
-            : await dbContext.ClientGroups
-                .AsNoTracking()
-                .Where(clientGroup =>
-                    clientGroup.GroupId == command.GroupId &&
-                    requestedClientIds.Contains(clientGroup.ClientId) &&
-                    clientGroup.Client.Status == ClientStatus.Active)
-                .Select(clientGroup => new
-                {
-                    clientGroup.ClientId,
-                    clientGroup.Client.LastName,
-                    clientGroup.Client.FirstName,
-                    clientGroup.Client.MiddleName
-                })
-                .Distinct()
-                .ToDictionaryAsync(
-                    client => client.ClientId,
-                    client => BuildClientName(client.LastName, client.FirstName, client.MiddleName),
-                    cancellationToken);
-
-        var invalidClientIds = requestedClientIds.Except(clientNames.Keys).Order().ToArray();
-        if (invalidClientIds.Length > 0)
+        if (!attendanceDatePolicy.IsAllowed(actorRole.Value, command.TrainingDate))
         {
-            return AttendanceBatchMutationResult.Failure(
-                AttendanceBatchMutationError.ClientOutsideGroup,
-                new AttendanceBatchSaveResult(command.GroupId, command.TrainingDate, [], [], [], invalidClientIds));
+            return command.TrainingDate > attendanceDatePolicy.GetWindow(actorRole.Value).MaxTrainingDate
+                ? AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.TrainingDateInFuture)
+                : AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.TrainingDateUnavailable);
         }
 
         var providerName = dbContext.Database.ProviderName ?? string.Empty;
@@ -85,6 +58,75 @@ internal sealed class AttendanceService(
 
         try
         {
+            var group = await dbContext.TrainingGroups
+                .AsNoTracking()
+                .Where(candidate => candidate.Id == command.GroupId)
+                .Select(candidate => new { candidate.Id, candidate.Name, candidate.BranchId })
+                .SingleOrDefaultAsync(cancellationToken);
+            if (group is null)
+            {
+                if (ownedTransaction is not null)
+                {
+                    await ownedTransaction.RollbackAsync(cancellationToken);
+                }
+
+                return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.GroupMissing);
+            }
+
+            await LockAttendanceAuthorizationRowsAsync(command.MarkedByUserId, group.BranchId, group.Id, cancellationToken);
+
+            var authorization = await EvaluateLockedAuthorizationAsync(
+                command.MarkedByUserId,
+                command.GroupId,
+                command.TrainingDate,
+                cancellationToken);
+            if (authorization == AttendanceBatchMutationError.Forbidden ||
+                authorization == AttendanceBatchMutationError.TrainingDateInFuture ||
+                authorization == AttendanceBatchMutationError.TrainingDateUnavailable)
+            {
+                if (ownedTransaction is not null)
+                {
+                    await ownedTransaction.RollbackAsync(cancellationToken);
+                }
+
+                return AttendanceBatchMutationResult.Failure(authorization);
+            }
+
+            var requestedClientIds = command.Marks.Select(mark => mark.ClientId).Order().ToArray();
+            var clientNames = requestedClientIds.Length == 0
+                ? new Dictionary<Guid, string>()
+                : await dbContext.ClientGroups
+                    .AsNoTracking()
+                    .Where(clientGroup =>
+                        clientGroup.GroupId == command.GroupId &&
+                        requestedClientIds.Contains(clientGroup.ClientId) &&
+                        clientGroup.Client.Status == ClientStatus.Active)
+                    .Select(clientGroup => new
+                    {
+                        clientGroup.ClientId,
+                        clientGroup.Client.LastName,
+                        clientGroup.Client.FirstName,
+                        clientGroup.Client.MiddleName
+                    })
+                    .Distinct()
+                    .ToDictionaryAsync(
+                        client => client.ClientId,
+                        client => BuildClientName(client.LastName, client.FirstName, client.MiddleName),
+                        cancellationToken);
+
+            var invalidClientIds = requestedClientIds.Except(clientNames.Keys).Order().ToArray();
+            if (invalidClientIds.Length > 0)
+            {
+                if (ownedTransaction is not null)
+                {
+                    await ownedTransaction.RollbackAsync(cancellationToken);
+                }
+
+                return AttendanceBatchMutationResult.Failure(
+                    AttendanceBatchMutationError.ClientOutsideGroup,
+                    new AttendanceBatchSaveResult(command.GroupId, command.TrainingDate, [], [], [], invalidClientIds));
+            }
+
             var existingEntries = requestedClientIds.Length == 0
             ? new Dictionary<Guid, AttendanceEntry>()
             : await dbContext.Attendance
@@ -216,6 +258,85 @@ internal sealed class AttendanceService(
 
             throw;
         }
+    }
+
+    private async Task LockAttendanceAuthorizationRowsAsync(
+        Guid actorId,
+        Guid branchId,
+        Guid groupId,
+        CancellationToken cancellationToken)
+    {
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "Branches" WHERE "Id" = {branchId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "Users" WHERE "Id" = {actorId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "TrainingGroups" WHERE "Id" = {groupId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "AdministratorAttendanceGroupGrants" WHERE "AdministratorId" = {actorId} AND "GroupId" = {groupId} FOR UPDATE""",
+            cancellationToken);
+    }
+
+    private async Task<AttendanceBatchMutationError> EvaluateLockedAuthorizationAsync(
+        Guid actorId,
+        Guid groupId,
+        DateOnly trainingDate,
+        CancellationToken cancellationToken)
+    {
+        var actor = await dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.Id == actorId && user.IsActive)
+            .Select(user => new { user.Id, user.Role, user.BranchId })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (actor is null)
+        {
+            return AttendanceBatchMutationError.Forbidden;
+        }
+
+        if (!attendanceDatePolicy.IsAllowed(actor.Role, trainingDate))
+        {
+            return trainingDate > attendanceDatePolicy.GetWindow(actor.Role).MaxTrainingDate
+                ? AttendanceBatchMutationError.TrainingDateInFuture
+                : AttendanceBatchMutationError.TrainingDateUnavailable;
+        }
+
+        return actor.Role switch
+        {
+            UserRole.HeadCoach or UserRole.SuperAdministrator => AttendanceBatchMutationError.None,
+            UserRole.Coach => await dbContext.GroupTrainers
+                .AsNoTracking()
+                .AnyAsync(
+                    groupTrainer =>
+                        groupTrainer.GroupId == groupId &&
+                        groupTrainer.TrainerId == actorId,
+                    cancellationToken)
+                ? AttendanceBatchMutationError.None
+                : AttendanceBatchMutationError.Forbidden,
+            UserRole.Administrator => await dbContext.AdministratorAttendanceGroupGrants
+                .AsNoTracking()
+                .AnyAsync(
+                    grant =>
+                        grant.GroupId == groupId &&
+                        grant.AdministratorId == actorId &&
+                        grant.Administrator.Role == UserRole.Administrator &&
+                        grant.Administrator.IsActive &&
+                        grant.Administrator.BranchId == grant.BranchId &&
+                        !grant.Branch.IsArchived &&
+                        grant.Group.BranchId == grant.BranchId,
+                    cancellationToken)
+                ? AttendanceBatchMutationError.None
+                : AttendanceBatchMutationError.Forbidden,
+            _ => AttendanceBatchMutationError.Forbidden
+        };
     }
 
     private async Task WriteDomainAuditsAsync(
