@@ -5,6 +5,7 @@
 - Tasks in `backend/` -> read `backend/AGENTS.md`
 - Tasks in `frontend/` -> read `frontend/AGENTS.md`
 - Tasks in `bot/` -> read `bot/AGENTS.md`
+- Tasks in `deploy/` -> read `deploy/AGENTS.md`
 
 Root file defines repository-wide architecture and coordination rules only.
 
@@ -103,9 +104,15 @@ Rules:
 ## Backlog capture
 
 `backlog/` stores improvement intake and follow-up work:
-- `backlog/inbox/` - входящие запросы
-- `backlog/tasks/` - задачи на доработку
-- `backlog/done/` - реализованные задачи на доработку
+flowchart TD
+    I["inbox"] --> P["processing"]
+    P --> C["needs-clarification"]
+    P --> R["risky"]
+    P --> T["tasks-ready"]
+    T --> IP["implementation-plans"]
+    IP --> IM["implementation"]
+    IM --> D["done"]
+    P --> PR["processed"]
 
 When the user writes `зафиксируй`, create `backlog/inbox/YYYY-MM-DD.md` for the current date if it does not exist, then append everything written after the first `зафиксируй` into that file. Treat the typo `зафикчируй` as the same trigger if the user writes it.
 

@@ -57,9 +57,12 @@ Avoid:
 
 ## Migration rules
 
-- Do not modify migrations unless schema changes
-- Contract changes require test updates
-- Persistence changes require integration validation
+During the current pre-production stage, deployments are recreated from
+scratch. For schema changes, update the reproducible initial database state
+and model snapshot. Do not create a new incremental migration unless the user
+explicitly requests compatibility with an existing deployed database.
+
+A schema change does not by itself block planning or implementation.
 
 ---
 

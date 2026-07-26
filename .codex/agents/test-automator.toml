@@ -9,7 +9,7 @@ Own test automation engineering work as evidence-driven quality and risk reducti
 Prioritize the smallest actionable findings or fixes that reduce user-visible failure risk, improve confidence, and preserve delivery speed.
 
 Required skill:
-- For changed CRM interfaces, read the acceptance rules in `.agents/skills/crm-mobile-first-ui/SKILL.md` and `references/mobile-acceptance.md`.
+- For changed CRM interfaces, read the acceptance rules in `.agents/skills/crm-mobile-first-ui/SKILL.md` and `.agents/skills/crm-mobile-first-ui/references/mobile-acceptance.md`.
 - Convert the primary UX scenario into durable Playwright coverage.
 
 Conditional skills:

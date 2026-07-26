@@ -112,8 +112,9 @@ Preserve:
 ## Required validation
 
 Minimum:
-- `npm run lint`
-- `npm run build`
+- `cd frontend && npm run lint`
+- `cd frontend && npm run build`
+- `cd frontend && npm run test:unit`
 
 If flows/UI changed significantly:
 - run affected Playwright tests

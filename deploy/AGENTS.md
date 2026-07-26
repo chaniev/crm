@@ -74,6 +74,6 @@ Default:
 - docker-expert
 
 Additional:
-- dotnet-core-expert
+- dotnet-backend-specialist
 - react-specialist
 - python-pro
