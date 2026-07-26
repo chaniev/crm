@@ -1601,10 +1601,11 @@ test.describe('Основные e2e сценарии', () => {
       fullName: 'Администратор настроек',
       login: 'settings-admin',
       password: '12345Aa!',
+      role: 'Administrator',
+      branchId: baseBranch.id,
       mustChangePassword: true,
       isActive: true,
     })
-    await expect.poll(() => administratorCreatePayload?.role).toBeUndefined()
     await expect(page.getByTestId('administrator-card-administrator-created')).toBeVisible()
   })
 

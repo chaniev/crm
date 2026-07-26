@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Npgsql;
 using Testcontainers.PostgreSql;
 
 namespace GymCrm.Tests;
@@ -234,6 +235,77 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
         }
     }
 
+    [Fact]
+    public async Task Task091_PostgreSql_administrator_update_rechecks_endpoint_family_after_locked_reload()
+    {
+        await using var context = await AdministratorAttendanceGrantPostgreSqlContext.CreateAsync();
+        var seeded = context.SeededData;
+        var connectionString = context.PostgreSql.GetConnectionString();
+        using var client = context.Factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        await using var branchLockConnection = new NpgsqlConnection(connectionString);
+        await branchLockConnection.OpenAsync();
+        await using var branchLockTransaction = await branchLockConnection.BeginTransactionAsync();
+        await using (var branchLockCommand = new NpgsqlCommand(
+            """SELECT 1 FROM "Branches" WHERE "Id" = @branchId FOR UPDATE""",
+            branchLockConnection,
+            branchLockTransaction))
+        {
+            branchLockCommand.Parameters.AddWithValue("branchId", seeded.AssignedBranchId);
+            await branchLockCommand.ExecuteScalarAsync();
+        }
+
+        var updateTask = PutJsonAsync(
+            client,
+            $"/settings/administrators/{seeded.AdministratorId}",
+            new
+            {
+                FullName = "TASK-091 stale administrative request",
+                Login = seeded.AdministratorLogin,
+                Role = "Administrator",
+                MustChangePassword = false,
+                IsActive = true,
+                BranchId = seeded.AssignedBranchId
+            },
+            session);
+
+        await WaitForBlockedBranchLockAsync(connectionString);
+
+        await using (var roleChangeConnection = new NpgsqlConnection(connectionString))
+        {
+            await roleChangeConnection.OpenAsync();
+            await using var roleChangeCommand = new NpgsqlCommand(
+                """UPDATE "Users" SET "Role" = 'Coach', "BranchId" = NULL WHERE "Id" = @userId""",
+                roleChangeConnection);
+            roleChangeCommand.Parameters.AddWithValue("userId", seeded.AdministratorId);
+            Assert.Equal(1, await roleChangeCommand.ExecuteNonQueryAsync());
+        }
+
+        await branchLockTransaction.CommitAsync();
+
+        using var response = await updateTask;
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var problem = await ReadJsonElementAsync(response);
+        Assert.Equal("staff_not_found", problem.GetProperty("code").GetString());
+
+        using var verificationScope = context.Factory.Services.CreateScope();
+        var dbContext = verificationScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var reloadedTarget = await dbContext.Users
+            .AsNoTracking()
+            .SingleAsync(user => user.Id == seeded.AdministratorId);
+        Assert.Equal(UserRole.Coach, reloadedTarget.Role);
+        Assert.NotEqual("TASK-091 stale administrative request", reloadedTarget.FullName);
+        Assert.False(await dbContext.AuditLogs.AnyAsync(log =>
+            log.EntityType == "User" &&
+            log.EntityId == seeded.AdministratorId.ToString() &&
+            log.ActionType == "UserUpdated"));
+    }
+
     private static async Task<HttpStatusCode> PutAttendanceGrantScopeAsync(
         HttpClient client,
         string endpoint,
@@ -321,6 +393,38 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
     private static async Task<JsonElement> ReadJsonElementAsync(HttpResponseMessage response)
     {
         return await response.Content.ReadFromJsonAsync<JsonElement>();
+    }
+
+    private static async Task WaitForBlockedBranchLockAsync(string connectionString)
+    {
+        await using var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync();
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(10);
+
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            await using var command = new NpgsqlCommand(
+                """
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM pg_stat_activity
+                    WHERE pid <> pg_backend_pid()
+                      AND wait_event_type = 'Lock'
+                      AND query LIKE '%FROM "Branches"%'
+                      AND query LIKE '%FOR UPDATE%'
+                )
+                """,
+                connection);
+
+            if (await command.ExecuteScalarAsync() is true)
+            {
+                return;
+            }
+
+            await Task.Delay(25);
+        }
+
+        throw new TimeoutException("The staff update did not reach the blocked branch lock.");
     }
 
     private static DateOnly GetBusinessToday()

@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
+  createAdministrator,
   getAdministratorAttendanceScope,
   getAdministrators,
   replaceAdministratorAttendanceScope,
+  updateAdministrator,
 } from './administrators'
 
 afterEach(() => {
@@ -10,6 +12,111 @@ afterEach(() => {
 })
 
 describe('administrators API', () => {
+  test('maps mixed administrative roles, nullable scope and backend actions/options', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      items: [
+        {
+          id: 'administrator-1',
+          fullName: 'Администратор',
+          login: 'admin',
+          role: 'Administrator',
+          isActive: true,
+          mustChangePassword: false,
+          branchId: 'branch-1',
+          branchName: 'Центр',
+          attendanceGroupGrantCount: 2,
+          allowedActions: ['Edit', 'ManageAttendanceScope'],
+          roleOptions: ['Administrator', 'SuperAdministrator'],
+        },
+        {
+          id: 'superadministrator-1',
+          fullName: 'Суперадминистратор',
+          login: 'superadmin',
+          role: 'SuperAdministrator',
+          isActive: true,
+          mustChangePassword: false,
+          branchId: null,
+          branchName: null,
+          allowedActions: [],
+          roleOptions: ['SuperAdministrator'],
+        },
+      ],
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+    })))
+
+    await expect(getAdministrators()).resolves.toEqual({
+      items: [
+        expect.objectContaining({
+          role: 'Administrator',
+          branchId: 'branch-1',
+          allowedActions: ['Edit', 'ManageAttendanceScope'],
+          roleOptions: ['Administrator', 'SuperAdministrator'],
+        }),
+        expect.objectContaining({
+          role: 'SuperAdministrator',
+          branchId: null,
+          allowedActions: [],
+          roleOptions: ['SuperAdministrator'],
+        }),
+      ],
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+    })
+  })
+
+  test('sends explicit role and nullable branch in create and update payloads', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse({
+        id: 'superadministrator-1',
+        fullName: 'Суперадминистратор',
+        login: 'superadmin',
+        role: 'SuperAdministrator',
+        isActive: true,
+        mustChangePassword: true,
+        branchId: null,
+      }))
+      .mockResolvedValueOnce(jsonResponse({
+        id: 'superadministrator-1',
+        fullName: 'Суперадминистратор',
+        login: 'superadmin',
+        role: 'SuperAdministrator',
+        isActive: true,
+        mustChangePassword: false,
+        branchId: null,
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await createAdministrator({
+      fullName: 'Суперадминистратор',
+      login: 'superadmin',
+      password: 'Password1!',
+      role: 'SuperAdministrator',
+      branchId: null,
+      mustChangePassword: true,
+      isActive: true,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
+    })
+    await updateAdministrator('superadministrator-1', {
+      fullName: 'Суперадминистратор',
+      login: 'superadmin',
+      role: 'SuperAdministrator',
+      branchId: null,
+      mustChangePassword: false,
+      isActive: true,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
+    })
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
+      role: 'SuperAdministrator',
+      branchId: null,
+    })
+    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body))).toMatchObject({
+      role: 'SuperAdministrator',
+      branchId: null,
+    })
+  })
+
   test('maps backend attendance summary and management action', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
       items: [

@@ -9,6 +9,7 @@ export type {
   AttendanceScope,
   AttendanceScopeKind,
   AttendanceState,
+  AdministrativeUserRole,
   AdministratorAttendanceScopeGroup,
   AdministratorAttendanceScopeResponse,
   AdministratorUnavailableAttendanceGrant,

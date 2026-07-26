@@ -1093,7 +1093,6 @@ function RouteViewport({
   if (route.kind === 'userCreate') {
     return (
       <UserCreateScreen
-        createRoleOptions={user.createRoleOptions}
         onCancel={onReturnToUsers}
         onCreated={onReturnToUsers}
       />

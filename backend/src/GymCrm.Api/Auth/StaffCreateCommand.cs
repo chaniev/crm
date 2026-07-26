@@ -12,4 +12,5 @@ internal sealed record StaffCreateCommand(
     bool IsActive,
     string? MessengerPlatform,
     string? MessengerPlatformUserId,
-    Guid? BranchId);
+    Guid? BranchId,
+    StaffEndpointRoleFamily EndpointRoleFamily);

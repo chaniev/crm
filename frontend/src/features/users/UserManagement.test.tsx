@@ -70,7 +70,7 @@ beforeEach(() => {
 })
 
 describe('UsersListScreen', () => {
-  test('renders backend-read-only protected targets without edit action', async () => {
+  test('does not implement frontend filtering of non-coach targets', async () => {
     vi.mocked(getUsers).mockResolvedValue({
       items: [
         {
@@ -96,57 +96,62 @@ describe('UsersListScreen', () => {
 })
 
 describe('UserCreateScreen', () => {
-  test('shows only backend-provided create role options and clears branch for SuperAdministrator', async () => {
+  test('hides role selector and sends fixed Coach payload when endpoint options are single Coach', async () => {
     vi.mocked(createUser).mockResolvedValue({
       ...coach,
-      id: 'superadmin-1',
-      role: 'SuperAdministrator',
+      id: 'coach-created',
+      role: 'Coach',
       branchId: null,
     })
     const onCreated = vi.fn()
 
     renderWithProviders(
       <UserCreateScreen
-        createRoleOptions={['Coach', 'SuperAdministrator']}
         onCancel={vi.fn()}
         onCreated={onCreated}
       />,
     )
 
-    fireEvent.change(screen.getByLabelText('ФИО'), { target: { value: 'Супер Админ' } })
-    fireEvent.change(screen.getByLabelText('Логин'), { target: { value: 'superadmin' } })
-    fireEvent.change(screen.getByLabelText('Стартовый пароль'), { target: { value: 'secret' } })
-    fireEvent.click(screen.getByRole('combobox', { name: 'Роль' }))
-    fireEvent.click(await screen.findByRole('option', { name: 'Суперадминистратор' }))
+    expect(screen.queryByRole('combobox', { name: 'Роль' })).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('ФИО'), { target: { value: 'Новый Тренер' } })
+    fireEvent.change(screen.getByLabelText('Логин'), { target: { value: 'new-coach' } })
+    fireEvent.change(screen.getByLabelText('Стартовый пароль'), { target: { value: 'secret123' } })
+
     expect(screen.queryByLabelText('Филиал администратора')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить тренера' }))
 
     await waitFor(() => expect(createUser).toHaveBeenCalledWith(expect.objectContaining({
-      role: 'SuperAdministrator',
+      fullName: 'Новый Тренер',
+      login: 'new-coach',
+      password: 'secret123',
+      role: 'Coach',
+      mustChangePassword: true,
+      isActive: true,
       branchId: null,
     })))
   })
 })
 
 describe('UserEditScreen', () => {
-  test('preserves archived Administrator branch while using active branches for new destination choices', async () => {
+  test('sends immutable Coach payload even when API returns stale branchId', async () => {
     vi.mocked(getUser).mockResolvedValue({
       ...coach,
       id: 'admin-archived',
-      fullName: 'Администратор старого филиала',
-      role: 'Administrator',
+      fullName: 'Тренер со старым филиалом',
+      role: 'Coach',
       branchId: 'branch-archived',
       branchName: 'Старый филиал',
       allowedActions: ['Edit'],
-      roleOptions: ['Administrator'],
+      roleOptions: ['Coach'],
     })
     vi.mocked(updateUser).mockResolvedValue({
       ...coach,
       id: 'admin-archived',
-      role: 'Administrator',
-      branchId: 'branch-archived',
-      branchName: 'Старый филиал',
+      role: 'Coach',
+      branchId: null,
+      branchName: null,
     })
 
     renderWithProviders(
@@ -158,11 +163,12 @@ describe('UserEditScreen', () => {
       />,
     )
 
-    expect(await screen.findByDisplayValue(/Старый филиал/)).toBeVisible()
+    expect(await screen.findByDisplayValue(/Тренер со старым филиалом/)).toBeVisible()
+    expect(screen.queryByLabelText('Филиал администратора')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить изменения' }))
     await waitFor(() => expect(updateUser).toHaveBeenCalledWith('admin-archived', expect.objectContaining({
-      role: 'Administrator',
-      branchId: 'branch-archived',
+      role: 'Coach',
+      branchId: null,
     })))
   })
 

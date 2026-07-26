@@ -1,10 +1,11 @@
 # Implementation Plan: TASK-091 Перенести создание суперадминистратора в раздел администраторов
 
 ## Source task
-/backlog/risky/TASK-091-administrator-role-creation-flow.md
+/backlog/done/TASK-091-administrator-role-creation-flow.md
 
-Source status remains `risky`. This plan prepares the task for security and
-architecture review; it does not select the task for active implementation.
+Source status is `done`: risky execution was explicitly approved by the user,
+implemented on the dedicated branch and completed after all required
+authorization, frontend, responsive and clean-deployment barriers passed.
 
 ## Git branch
 feature/TASK-091-administrator-role-creation-flow
@@ -653,31 +654,31 @@ code. The first focused run must fail for the expected missing behavior.
 - Russian copy review for long names and both administrative role labels.
 
 ## Test plan
-- [ ] Backend unit/integration tests are added first and fail for the intended
+- [x] Backend unit/integration tests are added first and fail for the intended
       missing endpoint-role-family behavior.
-- [ ] Frontend API/component/Playwright tests are added first and fail for the
+- [x] Frontend API/component/Playwright tests are added first and fail for the
       intended missing UI/contract behavior.
-- [ ] HeadCoach administrative and trainer create matrix passes.
-- [ ] SuperAdministrator administrative and trainer create matrix passes.
-- [ ] Exact HeadCoach self-update compatibility remains covered without
+- [x] HeadCoach administrative and trainer create matrix passes.
+- [x] SuperAdministrator administrative and trainer create matrix passes.
+- [x] Exact HeadCoach self-update compatibility remains covered without
       reintroducing HeadCoach into trainer list/get.
-- [ ] Wrong-section roles are denied without mutation or success audit.
-- [ ] Administrator active-branch and SuperAdministrator/Coach null-branch
+- [x] Wrong-section roles are denied without mutation or success audit.
+- [x] Administrator active-branch and SuperAdministrator/Coach null-branch
       invariants pass.
-- [ ] Existing SuperAdministrator immutability and attendance-grant recovery
+- [x] Existing SuperAdministrator immutability and attendance-grant recovery
       pass.
-- [ ] Administrative list/actions and trainer-only list are backend-owned.
-- [ ] SuperAdministrator capability-superset and multi-branch global-scope
+- [x] Administrative list/actions and trainer-only list are backend-owned.
+- [x] SuperAdministrator capability-superset and multi-branch global-scope
       barrier passes.
-- [ ] `dotnet test backend/GymCrm.slnx` passes.
-- [ ] `cd frontend && npm run test:unit` passes.
-- [ ] `cd frontend && npm run lint` passes.
-- [ ] `cd frontend && npm run build` passes.
-- [ ] `cd frontend && npm run test:e2e -- administrator-role-flow.spec.ts users.spec.ts`
+- [x] `dotnet test backend/GymCrm.slnx` passes.
+- [x] `cd frontend && npm run test:unit` passes.
+- [x] `cd frontend && npm run lint` passes.
+- [x] `cd frontend && npm run build` passes.
+- [x] `cd frontend && npm run test:e2e -- administrator-role-flow.spec.ts users.spec.ts`
       passes, with exact CLI adjusted to the final focused spec names.
-- [ ] `cd frontend && npm run test:e2e:iphone` passes for the affected flow.
-- [ ] Required portrait, compact-height, tablet and desktop checks are recorded.
-- [ ] Bot consumer search is clean; if bot changed, `ruff check .` and `pytest`
+- [x] `cd frontend && npm run test:e2e:iphone` passes for the affected flow.
+- [x] Required portrait, compact-height, tablet and desktop checks are recorded.
+- [x] Bot consumer search is clean; bot did not change, so `ruff check .` and `pytest`
       pass from `bot/`.
 
 ## Regression barrier
@@ -764,10 +765,9 @@ Full-stack scope, shared staff service, roles/permissions domain and high-risk
 classification сами по себе не являются stop condition.
 
 ## Ready for Codex execution
-no
+yes
 
-Причина: TASK-091 остаётся high-risk (`Safe for Codex: no`) и меняет transport
-boundary привилегированных staff mutations. UX/UI и test-first decomposition
-готовы, но до project-code execution требуются explicit security/architecture
-review, перевод source task в `/backlog/implementation` и создание указанной
-ветки от clean current `main`.
+Execution completed on 2026-07-26 after explicit approval. The source task was
+moved through `/backlog/implementation` to `/backlog/done`, the fixed security
+contract and UX specification were implemented, and all required validation
+and clean-deployment barriers passed.

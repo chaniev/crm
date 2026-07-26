@@ -1,16 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
-  Group,
-  Paper,
-  Select,
   Stack,
-  Text,
   ThemeIcon,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import {
   IconArrowLeft,
-  IconCheck,
   IconDeviceFloppy,
   IconUserPlus,
 } from '@tabler/icons-react'
@@ -18,10 +13,7 @@ import {
   ApiError,
   applyFieldErrors,
   createUser,
-  getBranches,
-  type Branch,
   type UserDetails,
-  type UserRole,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import { showAppNotification } from '../shared/notifications'
@@ -34,33 +26,26 @@ import {
   SectionHeader,
 } from '../shared/ux'
 import { UserFormFields, UserCreateCredentialsFields, type CreateUserFormValues } from './UserFormFields'
-import { toUserRoleOptions, userRoleOptions } from './UserManagement.constants'
+import { userRoleOptions } from './UserManagement.constants'
 import { toCreateUserPayload } from './UserManagement.mappers'
 
 type UserCreateScreenProps = {
-  createRoleOptions?: UserRole[]
   onCancel: () => void
   onCreated: (user: UserDetails) => void
 }
 
 export function UserCreateScreen({
-  createRoleOptions,
   onCancel,
   onCreated,
 }: UserCreateScreenProps) {
-  const [branches, setBranches] = useState<Branch[]>([])
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const resolvedRoleOptions = createRoleOptions?.length
-    ? toUserRoleOptions(createRoleOptions)
-    : userRoleOptions
-  const initialRole = resolvedRoleOptions[0]?.value ?? 'Coach'
   const form = useForm<CreateUserFormValues>({
     initialValues: {
       fullName: '',
       login: '',
       password: '',
-      role: initialRole,
+      role: 'Coach',
       branchId: '',
       messengerPlatform: null,
       messengerPlatformUserId: '',
@@ -74,42 +59,8 @@ export function UserCreateScreen({
         value.trim() ? null : resources.users.form.validation.loginRequired,
       password: (value) =>
         value ? null : resources.users.form.validation.passwordRequired,
-      role: (value) =>
-        value ? null : resources.users.form.validation.roleRequired,
-      branchId: (value, values) =>
-        values.role === 'Administrator' && !value
-          ? 'Выберите филиал администратора.'
-          : null,
     },
   })
-
-  useEffect(() => {
-    if (!createRoleOptions?.includes('Administrator')) {
-      return
-    }
-
-    const controller = new AbortController()
-
-    void getBranches({ includeArchived: false }, controller.signal)
-      .then((nextBranches) => {
-        if (controller.signal.aborted) {
-          return
-        }
-
-        const activeBranches = nextBranches.filter((branch) => !branch.isArchived)
-        setBranches(activeBranches)
-        if (!form.values.branchId) {
-          form.setFieldValue('branchId', activeBranches[0]?.id || '')
-        }
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) {
-          setBranches([])
-        }
-      })
-
-    return () => controller.abort()
-  }, [createRoleOptions, form])
 
   async function submit(values: CreateUserFormValues) {
     setSubmitting(true)
@@ -117,7 +68,11 @@ export function UserCreateScreen({
     form.clearErrors()
 
     try {
-      const createdUser = await createUser(toCreateUserPayload(values))
+      const createdUser = await createUser(toCreateUserPayload({
+        ...values,
+        role: 'Coach',
+        branchId: '',
+      }))
 
       showAppNotification({
         id: 'user-create-success',
@@ -176,33 +131,9 @@ export function UserCreateScreen({
               <UserFormFields
                 credentialsFields={<UserCreateCredentialsFields form={form} />}
                 form={form}
-                roleOptions={resolvedRoleOptions}
-                showRoleField={resolvedRoleOptions.length > 1}
+                roleOptions={userRoleOptions}
+                showRoleField={false}
               />
-              {form.values.role === 'Administrator' ? (
-                <Select
-                  allowDeselect={false}
-                  data={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
-                  error={form.errors.branchId}
-                  label="Филиал администратора"
-                  onChange={(value) => form.setFieldValue('branchId', value ?? '')}
-                  value={form.values.branchId || null}
-                />
-              ) : null}
-
-              <Paper className="hint-card" radius="24px" withBorder>
-                <Stack gap={6}>
-                  <Group gap="xs">
-                    <ThemeIcon color="var(--crm-brand-secondary)" radius="xl" size={28} variant="light">
-                      <IconCheck size={16} />
-                    </ThemeIcon>
-                    <Text fw={700}>{resources.users.create.loadingHintTitle}</Text>
-                  </Group>
-                  <Text c="dimmed" size="sm">
-                    {resources.users.create.loadingHintDescription}
-                  </Text>
-                </Stack>
-              </Paper>
 
               <ResponsiveButtonGroup justify="space-between">
                 <Button onClick={onCancel} variant="subtle">

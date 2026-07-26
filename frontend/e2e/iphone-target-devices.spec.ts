@@ -72,6 +72,14 @@ const HEAD_COACH_SESSION = {
   },
 } as const
 
+const HEAD_COACH_ADMIN_SESSION = {
+  ...HEAD_COACH_SESSION,
+  user: {
+    ...HEAD_COACH_SESSION.user,
+    createRoleOptions: ['Administrator', 'SuperAdministrator'],
+  },
+} as const
+
 test('target portrait keeps the login operation visible and touch-safe', async ({
   page,
 }, testInfo) => {
@@ -226,6 +234,194 @@ test('target compact-height landscape keeps the authenticated shell usable', asy
     compactViewport.height + 1,
   )
   await expectNoHorizontalScroll(page)
+})
+
+test('в целевых iPhone-профилях админ-панель рендерится без горизонтального скролла', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let createPayload: Record<string, unknown> | null = null
+
+  await page.setViewportSize(target)
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_ADMIN_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-07-25',
+        maxTrainingDate: '2026-07-25',
+      })
+      return
+    }
+
+    if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/settings/administrators' && method === 'GET') {
+      await fulfillJson(route, {
+        items: [
+          {
+            id: 'admin-1',
+            fullName: 'Администратор с длинным именем и ролью',
+            login: 'admin-1',
+            role: 'Administrator',
+            mustChangePassword: false,
+            isActive: true,
+            branchId: 'branch-1',
+            branchName: 'Центр',
+            allowedActions: ['Edit'],
+          },
+        ],
+        createRoleOptions: ['Administrator', 'SuperAdministrator'],
+      })
+      return
+    }
+
+    if (pathname === '/api/settings/administrators' && method === 'POST') {
+      createPayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        id: 'superadmin-created',
+        fullName: String(createPayload.fullName),
+        login: String(createPayload.login),
+        role: 'SuperAdministrator',
+        mustChangePassword: Boolean(createPayload.mustChangePassword),
+        isActive: Boolean(createPayload.isActive),
+        branchId: null,
+        branchName: null,
+        messengerPlatform: null,
+        messengerPlatformUserId: null,
+        allowedActions: ['Edit'],
+        roleOptions: ['SuperAdministrator'],
+      })
+      return
+    }
+
+    if (pathname === '/api/branches' && method === 'GET') {
+      await fulfillJson(route, [
+        {
+          id: 'branch-1',
+          name: 'Центр',
+          address: null,
+          description: null,
+          isArchived: false,
+          hallCount: 0,
+          groupCount: 0,
+          clientCount: 0,
+        },
+      ])
+      return
+    }
+
+    if (pathname === '/api/group-types' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/settings/membership-catalog' && method === 'GET') {
+      await fulfillJson(route, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/users' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    throw new Error(`Unexpected iPhone target API request: ${method} ${pathname}`)
+  })
+
+  await page.goto('/settings')
+  await expect(page.getByRole('tab', { name: 'Администраторы' })).toBeVisible()
+  await page.getByRole('tab', { name: 'Администраторы' }).click()
+  const createButton = page.getByRole('button', { name: 'Добавить администратора' }).first()
+  await expect(createButton).toBeVisible()
+  await expect(page.getByTestId('administrator-card-admin-1')).toBeVisible()
+  await expectNoHorizontalScroll(page)
+
+  await createButton.click()
+  const dialog = page.getByRole('dialog', { name: 'Новый администратор' })
+  const save = dialog.getByRole('button', { name: 'Сохранить' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByLabel('ФИО')).toBeFocused()
+  await expect(save).toBeInViewport()
+
+  const dialogBox = await page.locator('.administrator-form-modal__content').boundingBox()
+  expect(dialogBox).not.toBeNull()
+  expect(dialogBox!.x).toBeLessThanOrEqual(1)
+  expect(dialogBox!.width).toBeGreaterThanOrEqual(target.width - 1)
+
+  for (const control of [
+    dialog.getByRole('button', { name: 'Отменить' }),
+    save,
+  ]) {
+    const controlBox = await control.boundingBox()
+    expect(controlBox).not.toBeNull()
+    expect(controlBox!.height).toBeGreaterThanOrEqual(44)
+  }
+
+  await dialog.getByRole('combobox', { name: 'Роль' }).click()
+  await page.getByRole('option', { name: 'Суперадминистратор' }).click()
+  await expect(dialog.getByLabel('Филиал администратора')).toBeHidden()
+  await dialog.getByLabel('ФИО').fill('Новый Суперадминистратор')
+  await dialog.getByLabel('Логин').fill('new-superadmin')
+  await dialog.getByLabel('Стартовый пароль').fill('Password1!')
+  await save.click()
+
+  await expect.poll(() => createPayload).toMatchObject({
+    role: 'SuperAdministrator',
+    branchId: null,
+  })
+  await expect(page.getByText('Суперадминистратор создан')).toBeVisible()
+  await expect(page.getByTestId('administrator-card-superadmin-created')).toBeVisible()
+  await expectNoHorizontalScroll(page)
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await createButton.click()
+
+  const compactDialog = page.getByRole('dialog', { name: 'Новый администратор' })
+  const compactBody = compactDialog.locator('.administrator-form-modal__body')
+  const compactContent = page.locator('.administrator-form-modal__content')
+  const compactSave = compactDialog.getByRole('button', { name: 'Сохранить' })
+  await expect(compactDialog).toBeVisible()
+  await compactDialog.getByLabel('Telegram ID').scrollIntoViewIfNeeded()
+  await expect(compactSave).toBeInViewport()
+
+  const compactGeometry = await Promise.all([
+    compactBody.evaluate((element) => getComputedStyle(element).overflowY),
+    compactContent.evaluate((element) => getComputedStyle(element).overflow),
+    compactContent.boundingBox(),
+  ])
+  expect(compactGeometry[0]).toBe('auto')
+  expect(compactGeometry[1]).toBe('hidden')
+  expect(compactGeometry[2]).not.toBeNull()
+  expect(compactGeometry[2]!.height).toBeLessThanOrEqual(target.width)
+  expect(compactGeometry[2]!.x).toBeLessThanOrEqual(1)
+  expect(compactGeometry[2]!.width).toBeGreaterThanOrEqual(target.height - 1)
+  await expectNoHorizontalScroll(page)
+
+  await page.keyboard.press('Escape')
+  await expect(compactDialog).toBeHidden()
+  await expect(createButton).toBeFocused()
 })
 
 function targetScreenFor(projectName: string) {

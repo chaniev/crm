@@ -47,17 +47,20 @@ internal static class AdministratorEndpoints
 
         var administratorUsers = await dbContext.Users
             .AsNoTracking()
-            .Where(user => user.Role == UserRole.Administrator)
+            .Where(user => user.Role == UserRole.Administrator || user.Role == UserRole.SuperAdministrator)
             .OrderBy(user => user.FullName)
             .ThenBy(user => user.Login)
             .ToListAsync(cancellationToken);
         IReadOnlyList<UserResponse> administrators = administratorUsers
-            .Select(user => ToResponse(user, currentUser, grantCounts.GetValueOrDefault(user.Id)))
+            .Select(user => ToResponse(
+                user,
+                currentUser,
+                user.Role == UserRole.Administrator ? grantCounts.GetValueOrDefault(user.Id) : null))
             .ToArray();
 
         return TypedResults.Ok(new UserListResponse(
             administrators,
-            StaffManagementBoundary.GetCreateRoleOptions(currentUser)));
+            StaffManagementBoundary.GetCreateRoleOptions(currentUser, StaffEndpointRoleFamily.Administrators)));
     }
 
     private static async Task<Results<Ok<UserResponse>, ProblemHttpResult, UnauthorizedHttpResult>> GetAdministratorAsync(
@@ -81,7 +84,9 @@ internal static class AdministratorEndpoints
         var user = await dbContext.Users
             .AsNoTracking()
             .SingleOrDefaultAsync(
-                candidate => candidate.Id == id && candidate.Role == UserRole.Administrator,
+                candidate =>
+                    candidate.Id == id &&
+                    (candidate.Role == UserRole.Administrator || candidate.Role == UserRole.SuperAdministrator),
                 cancellationToken);
 
         return user is null
@@ -89,9 +94,11 @@ internal static class AdministratorEndpoints
             : TypedResults.Ok(ToResponse(
                 user,
                 currentUser,
-                await dbContext.AdministratorAttendanceGroupGrants.CountAsync(
-                    grant => grant.AdministratorId == user.Id,
-                    cancellationToken)));
+                user.Role == UserRole.Administrator
+                    ? await dbContext.AdministratorAttendanceGroupGrants.CountAsync(
+                        grant => grant.AdministratorId == user.Id,
+                        cancellationToken)
+                    : null));
     }
 
     private static async Task<Results<Created<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateAdministratorAsync(
@@ -120,12 +127,13 @@ internal static class AdministratorEndpoints
                 request.FullName,
                 request.Login,
                 request.Password,
-                UserRole.Administrator.ToString(),
+                request.Role,
                 request.MustChangePassword,
                 request.IsActive,
                 request.MessengerPlatform,
                 request.MessengerPlatformUserId,
-                request.BranchId),
+                request.BranchId,
+                StaffEndpointRoleFamily.Administrators),
             dbContext,
             passwordHashService,
             cancellationToken);
@@ -146,7 +154,9 @@ internal static class AdministratorEndpoints
         }
 
         var user = mutationResult.User!;
-        return TypedResults.Created($"/settings/administrators/{user.Id}", ToResponse(user, currentUser, 0));
+        return TypedResults.Created(
+            $"/settings/administrators/{user.Id}",
+            ToResponse(user, currentUser, user.Role == UserRole.Administrator ? 0 : null));
     }
 
     private static async Task<Results<Ok<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateAdministratorAsync(
@@ -173,10 +183,11 @@ internal static class AdministratorEndpoints
             new StaffUpdateCommand(
                 currentUser,
                 id,
-                UserRole.Administrator,
+                StaffEndpointRoleFamily.Administrators,
+                AllowHeadCoachSelfUpdateException: false,
                 request.FullName,
                 request.Login,
-                UserRole.Administrator.ToString(),
+                request.Role,
                 request.MustChangePassword,
                 request.IsActive,
                 request.MessengerPlatform,
@@ -214,9 +225,11 @@ internal static class AdministratorEndpoints
         return TypedResults.Ok(ToResponse(
             user,
             currentUser,
-            await dbContext.AdministratorAttendanceGroupGrants.CountAsync(
-                grant => grant.AdministratorId == user.Id,
-                cancellationToken)));
+            user.Role == UserRole.Administrator
+                ? await dbContext.AdministratorAttendanceGroupGrants.CountAsync(
+                    grant => grant.AdministratorId == user.Id,
+                    cancellationToken)
+                : null));
     }
 
     private static UserResponse ToResponse(User user, User currentUser, int? attendanceGrantCount = null)
@@ -235,7 +248,10 @@ internal static class AdministratorEndpoints
             user.BranchId,
             user.Branch?.Name,
             StaffManagementBoundary.GetAllowedActions(currentUser, user),
-            StaffManagementBoundary.GetUpdateRoleOptions(currentUser, user),
+            StaffManagementBoundary.GetUpdateRoleOptions(
+                currentUser,
+                user,
+                StaffEndpointRoleFamily.Administrators),
             attendanceGrantCount);
     }
 }

@@ -504,12 +504,12 @@ public class AdministratorAttendanceGrantApiTests
 
         using var roleResponse = await PutJsonAsync(
             client,
-            $"/users/{seeded.AdministratorId}",
+            $"/settings/administrators/{seeded.AdministratorId}",
             new
             {
                 FullName = "Админ",
                 Login = seeded.AdministratorLogin,
-                Role = "Coach",
+                Role = "SuperAdministrator",
                 MustChangePassword = false,
                 IsActive = true,
                 MessengerPlatform = (string?)null,
@@ -523,7 +523,7 @@ public class AdministratorAttendanceGrantApiTests
 
         using var branchResponse = await PutJsonAsync(
             client,
-            $"/users/{seeded.AdministratorId}",
+            $"/settings/administrators/{seeded.AdministratorId}",
             new
             {
                 FullName = "Админ",
