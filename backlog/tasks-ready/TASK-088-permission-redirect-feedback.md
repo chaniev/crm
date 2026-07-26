@@ -23,23 +23,48 @@ P1
 Любая ограниченная роль, включая тренера и SuperAdministrator без доступа к Finance.
 
 ## Problem
-Coach при прямом открытии `/groups` или `/users` попадает на `/`, а при `/clients/new` — на `/clients`, без объяснения причины. Silent fallback выглядит как ошибка навигации и не даёт recovery context.
+TASK-090 добавил shared `RestrictedState`, но route wiring осталось прежним:
+`resolveAccessibleRoutePath` возвращает только fallback path, `App` делает
+silent `replace`, причина denial теряется, а `RouteRedirectPlaceholder`
+показывает loader без recovery. Coach при прямом открытии `/groups` или
+`/users` попадает на `/`, а при `/clients/new` — на `/clients`, без объяснения
+причины. Unknown path также нормализуется в `Home`, поэтому not-found нельзя
+отличить от permission restriction.
 
 ## Scope
-- Route guard feedback для restricted read и write routes.
-- Явный restricted state или polite notification при automatic replace redirect.
+- Заменить path-only route resolution typed outcome:
+  `allowed | restricted | not-found`, где restricted содержит requested
+  destination, generic access reason и session-allowed recovery path.
+- Direct URL/deep link/reload к restricted read или write route сохраняет
+  requested route context и показывает inline `RestrictedState` с persistent
+  reason и recovery action; loader placeholder запрещён.
+- Если automatic `replace` необходим после изменения session/access во время
+  работы, destination показывает polite notification, называющую недоступный
+  раздел/операцию и причину. Notification не заменяет inline state для direct
+  URL.
 - Valid next action: `На главный экран` или `Открыть доступный раздел`.
 - Навигация и доступные operations по-прежнему строятся только из session/backend contract.
 - Разделить session loading, unknown route и permission restriction.
 - Для SuperAdministrator direct `/finance` показывает явное ограничение и recovery; `Finance` отсутствует в primary navigation и overflow.
-- В staff management HeadCoach и peer SuperAdministrator остаются читаемыми read-only targets без доступных edit/deactivate/reactivate controls.
-- Create role options для SuperAdministrator поступают из backend и ограничены `Administrator` и `Coach`.
+- Удалить `RouteRedirectPlaceholder` из permission-denied paths.
+
+## Existing non-regression baseline
+- Для SuperAdministrator `Finance` уже отсутствует в navigation/overflow по
+  session contract; задача добавляет feedback только для direct denial.
+- В staff management HeadCoach и peer SuperAdministrator уже являются
+  read-only targets без edit/deactivate/reactivate controls.
+- Create role options уже поступают из backend; для SuperAdministrator baseline
+  ограничен `Administrator` и `Coach`.
+- Эти правила остаются regression coverage, но не реализуются повторно внутри
+  route feedback.
 
 ## Out of scope
 - Изменение role/permission model.
 - Workflow запроса доступа.
 - Отображение unusable controls.
 - Собственные frontend permission semantics.
+- Target-specific backend `403` внутри уже разрешённого route: он использует
+  существующий ProblemDetails/recovery contract экрана, а не route guard.
 
 ## Responsive behavior
 - `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`: сообщение и primary recovery action помещаются в одну колонку и доступны без clipping.
@@ -49,29 +74,42 @@ Coach при прямом открытии `/groups` или `/users` попад�
 ## Operational and interaction states
 - Permission restricted: явный title, краткая причина и доступный destination.
 - Session loading остаётся отдельным временным состоянием.
-- Unknown route может использовать отдельный not-found/fallback contract.
-- После automatic redirect destination получает корректный document title, а restriction объявляется polite notification.
+- Unknown route использует отдельный not-found/fallback contract.
+- Direct denied URL использует `RestrictedState` с `focusOnMount="heading"` и
+  корректным document title недоступного destination.
+- После automatic redirect destination получает собственный document title, а
+  restriction объявляется polite notification.
 - При direct URL focus переходит к heading или primary recovery action; обычная навигация не должна получать неожиданный focus theft.
-- Direct denied staff mutation возвращает SuperAdministrator к `Users` с сохранённым объяснением, а не к несвязанному fallback.
+- Browser back/forward не создаёт redirect loop и не повторяет уже
+  acknowledged notification без нового denial event.
 
 ## Acceptance criteria
 - [ ] Restricted route не заканчивается loader или silent fallback без объяснения.
-- [ ] Direct URL к restricted section и restricted write route сообщает ограничение до или вместе с redirect.
+- [ ] Direct URL к restricted section и restricted write route показывает
+      inline `RestrictedState`; automatic replace после access change
+      показывает polite notification на valid destination.
+- [ ] Route access resolution сохраняет typed denial reason/requested
+      destination/recovery path, а unknown route остаётся отдельным outcome.
 - [ ] Доступные navigation sections продолжают определяться session contract.
 - [ ] Permission-restricted controls не появляются как неработающие.
 - [ ] Recovery action ведёт на route, реально доступный текущему пользователю.
 - [ ] Для SuperAdministrator `Finance` отсутствует в navigation/overflow, а direct `/finance` объясняет backend permission restriction.
-- [ ] HeadCoach и peer SuperAdministrator отображаются read-only; UI не предлагает запрещённые mutation actions.
-- [ ] SuperAdministrator не может выбрать `SuperAdministrator` в create-role options, если backend не передал эту роль.
+- [ ] Existing non-regression: HeadCoach и peer SuperAdministrator отображаются read-only; UI не предлагает запрещённые mutation actions.
+- [ ] Existing non-regression: SuperAdministrator не может выбрать
+      `SuperAdministrator` в create-role options, если backend не передал эту
+      роль.
 
 ## Test checklist
-- [ ] Unit tests route access resolution.
-- [ ] E2E restricted section route и restricted write route.
+- [ ] Unit tests typed route access resolution: allowed, restricted read,
+      restricted write, not-found и valid recovery selection.
+- [ ] E2E direct `/groups` для Coach, `/clients/new` без manage permission и
+      automatic redirect после access/session change.
 - [ ] E2E SuperAdministrator: `/finance` restriction, protected staff targets и backend-provided create role options.
 - [ ] E2E проверяет destination и видимую/announced feedback.
 - [ ] Проверить обязательные responsive/compact-height размеры.
 - [ ] `cd frontend && npm run lint`
 - [ ] `cd frontend && npm run build`
+- [ ] `cd frontend && npm run test:unit`
 
 ## AI safety
 - Safe for Codex: yes
@@ -94,5 +132,10 @@ Coach при прямом открытии `/groups` или `/users` попад�
 - Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
 - Foundation dependency is complete: shared `RestrictedState`, notification
   and focus contracts are available.
-- Status remains `ready`: route-specific access resolution, redirect feedback
-  and valid recovery destinations were explicitly outside TASK-090.
+- Revalidated against commit `3253b23`: adaptive navigation, absence of
+  SuperAdministrator Finance and protected staff/create-role behavior are
+  already covered baseline; path-only silent redirect and loader placeholder
+  remain.
+- Status remains `ready`: core scope is narrowed to typed access resolution,
+  deterministic inline/redirect feedback, not-found separation and valid
+  recovery destinations.

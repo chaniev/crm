@@ -7,7 +7,7 @@ ready
 P0
 
 ## Git branch
-feature/TASK-085-ux-variants
+feature/TASK-085-mobile-client-search
 
 ## Goal
 Суперадминистратор, администратор или тренер находит клиента среди 300+ записей
@@ -20,10 +20,16 @@ feature/TASK-085-ux-variants
 - Normative contract:
   [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
 - Foundation dependency: `TASK-090`; touch/compact-height sweep: `TASK-084`.
+- Return-state dependency: `TASK-017` должен быть реализован отдельной задачей
+  до TASK-085; эта карточка добавляет к нему сохранение
+  `browse` / `search-focused`.
 - Эта задача владеет только client-specific `browse` / `search-focused`,
   `96px` identity cards, client decision data и state transitions.
 - Page spacing, typography, colors, locator/filter primitives, operational
   states и temporary surfaces берутся из общего контракта.
+- Существующие `EntityLocatorBar`, `ActiveFiltersBar`, `ListRangeStatus`,
+  `TemporarySurfaceFooter` и typed client API являются baseline и не
+  реализуются заново.
 - Approved visual определяет workflow и information hierarchy, но не является
   источником общей palette или component geometry.
 
@@ -53,25 +59,26 @@ feature/TASK-085-ux-variants
   global multi-branch результата и конкретное status/action состояние.
 
 ## Problem
-На `390 x 844` текущий экран клиентов с 300 записями показывает только кнопку
-`Фильтры`; locator `Поиск по имени или телефону` появляется после открытия
-full-screen drawer. Высота списка из 20 строк составляет около `3366px`,
-поэтому search является primary operation, а не secondary filter.
+TASK-090 уже сделал locator постоянно видимым, скрыл дублирующий visible route
+header и подключил shared filters/states. Оставшаяся client-specific проблема:
 
-Первый концепт с постоянно видимым search решил discoverability, но создал два
-новых риска:
+- состояния `browse` / `search-focused` не различаются;
+- refresh и create постоянно занимают locator row во время ввода;
+- mobile row сохраняет `min-height: 8.1rem` и отдельную fixed right action
+  column, поэтому длинные ФИО обрезаются, а число видимых клиентов мало;
+- branch identity не показана в mobile global/multi-branch result;
+- navigation вызывает scroll reset, а полный `TASK-017` return-state contract
+  ещё не реализован.
 
-- верхняя зона и увеличенные cards снизили число видимых клиентов;
-- fixed right column `Нужно сделать / Без абонемента` продолжила обрезать ФИО,
-  хотя внутри card оставалось неиспользованное пространство.
-
-Вариант C устраняет оба риска: search-focused state сворачивает page header и
-page actions, а identity-first card больше не резервирует отдельную правую
-колонку под action text.
+Вариант C решает остаточный workflow: при поиске остаются locator, filters и
+результаты, а identity-first card высотой `96px` не резервирует отдельную
+колонку под action text. Visible top-level header не возвращается ни в одном
+state.
 
 ## Scope
 - Реализовать mobile state machine `browse` / `search-focused`.
-- Оставить client search постоянно видимым без открытия drawer.
+- Сохранить выпущенный TASK-090 inline search и shared locator/filter/state
+  primitives.
 - Использовать плотные identity-first cards высотой `96px` в
   search-focused state.
 - Сохранить в drawer вторичные filters: group, status, membership dates,
@@ -82,8 +89,9 @@ page actions, а identity-first card больше не резервирует о
   - clear search очищает только `query`;
   - reset filters не очищает `query`;
   - filter count не включает `query` и default `status=Active`.
-- Сохранять search, filters, scroll position и selected result при закрытии
-  drawer, открытии preview/detail и возврате к списку.
+- После отдельной реализации `TASK-017` сохранять search, filters, page/loaded
+  batch, scroll position, selected result и UI state при закрытии drawer,
+  открытии preview/detail и возврате к списку.
 - Сохранить существующую backend search semantics и typed API boundary.
 - Для SuperAdministrator искать по глобальному backend-permitted набору без
   локальной permission-фильтрации; показывать branch identity в cards для
@@ -105,8 +113,12 @@ page actions, а identity-first card больше не резервирует о
 
 Условие: `query` пустой и search не сфокусирован.
 
-- Видны page title, client count, refresh и permission-bound `Новый клиент`.
-- Search остаётся видимым под page header.
+- Visible page title отсутствует: persistent navigation уже называет
+  top-level route, а semantic `h1`, document title и named main сохраняются.
+- `EntityLocatorBar` является первым видимым row и содержит search, filter
+  trigger, refresh и permission-bound `Новый клиент`.
+- Count/range показывается через `ListRangeStatus` у results, а не через page
+  header или summary card.
 - Filter trigger показывает только количество active advanced filters.
 - Active filters видимы и индивидуально удаляемы вне drawer.
 - Cards используют ту же identity-first hierarchy, что и search results.
@@ -115,9 +127,10 @@ page actions, а identity-first card больше не резервирует о
 
 Условие: search сфокусирован или normalized `query` не пустой.
 
-- Page title, count, refresh и `Новый клиент` сворачиваются.
-- Locator row становится первой строкой content area и остаётся достижимой при
-  software keyboard.
+- Visible page title уже отсутствует; в этом state скрываются только refresh и
+  `Новый клиент`, без spacer или action-only строки.
+- Locator row остаётся первой строкой content area и достижим при software
+  keyboard.
 - Search, clear-search, filter trigger, active filter chips/reset и results
   остаются видимыми.
 - Results используют cards высотой `96px` с gap `8px`.
@@ -142,10 +155,10 @@ page actions, а identity-first card больше не резервирует о
 Порядок content:
 
 1. app header;
-2. page header только в `browse`;
-3. locator row: search + filter trigger;
+2. visually-hidden semantic route `h1`;
+3. locator row: search + filter trigger + разрешённые retained actions;
 4. active advanced filters/reset;
-5. results/recovery state;
+5. range и results/recovery state;
 6. bottom navigation с safe-area clearance.
 
 Dense client card:
@@ -166,14 +179,16 @@ Dense client card:
 ## Responsive behavior
 - `360 x 780`: search и filter trigger образуют locator row; active chips
   переносятся без horizontal scroll. В search-focused state видны минимум пять
-  полных common cards.
+  полных common cards. Search сохраняет min-width `156px`.
 - `390 x 844`: approved stress baseline варианта C; search-focused state
-  показывает минимум пять полных common cards и часть шестой.
+  показывает минимум пять полных common cards и часть шестой; search сохраняет
+  min-width `176px`.
 - `420 x 912`, `440 x 956`: в search-focused state видны минимум шесть полных
-  common cards; допускается 1–3 active chips в строке с переносом остальных.
+  common cards; search сохраняет min-width `200px` и `216px` соответственно;
+  допускается 1–3 active chips в строке с переносом остальных.
 - `768 x 1024`: search и frequent filters могут размещаться inline; secondary
-  filters остаются в popover/drawer. Mobile header-collapse не переносится
-  автоматически в desktop/tablet toolbar.
+  filters остаются в popover/drawer. Duplicate top-level header не
+  возвращается; tablet toolbar сохраняет ту же task hierarchy.
 - `1440 x 1200`: сохраняется компактный desktop toolbar.
 - `912 x 420`, `956 x 440`: на touch/mobile profile используется
   compact-height locator-first layout, а не desktop sidebar. Search остаётся
@@ -198,7 +213,7 @@ Dense client card:
 - Для роли без доступа к телефону label не обещает поиск по недоступному полю и
   card не показывает phone.
 - Focus order: search → clear search при непустом query → filter trigger →
-  active filters/reset → refresh/create только в `browse` → results.
+  refresh/create только в `browse` → active filters/reset → results.
 - Закрытие drawer возвращает focus на filter trigger.
 - Enter/Space на focused card открывает preview.
 - Escape закрывает desktop popover; mobile drawer закрывается системным back
@@ -219,11 +234,12 @@ Dense client card:
 ## Implementation constraints
 
 - Использовать React, TypeScript, Mantine, Onest и существующие theme tokens.
-- Использовать Mantine `TextInput`, `Drawer`, `Button`, `Badge` и shared
-  `Button` / `IconButton`.
-- Текущий mobile `CompactFilterPanel` скрывает primary search в drawer, поэтому
-  его нужно расширить режимом inline mobile primary control или создать
-  локальный `ClientsMobileToolbar`.
+- Использовать выпущенные `EntityLocatorBar`, `ActiveFiltersBar`,
+  `ListRangeStatus`, `TemporarySurfaceFooter`, `TaskItem` и shared
+  `Button` / `IconButton`; не создавать локальную alternative foundation.
+- Расширять существующий `ClientsToolbar` через shared slots/state, не
+  возвращать `CompactFilterPanel` и не создавать отдельный
+  `ClientsMobileToolbar`.
 - Не добавлять global state или новую abstraction только ради локального
   визуального перехода.
 - Search-focused state определяется UI/search state, а не frontend domain
@@ -235,6 +251,12 @@ Dense client card:
 
 ## Acceptance criteria
 - [ ] На `390 x 844` search виден без открытия `Фильтры`.
+- [ ] Top-level list не показывает visible `Клиенты` ни в `browse`, ни в
+      `search-focused`; semantic `h1`, document title, named main и active nav
+      сохраняются.
+- [ ] В `browse` search, filters, refresh и разрешённый `Новый клиент`
+      находятся в одном `EntityLocatorBar`; в `search-focused` refresh/create
+      скрыты без spacer и второй action-only строки.
 - [ ] Focus search переводит mobile screen в `search-focused`; blur пустого
       search возвращает `browse`, а непустой query сохраняет focused layout.
 - [ ] Clear search очищает только query; reset filters не очищает query.
@@ -266,9 +288,11 @@ Dense client card:
       permission-bound browse actions.
 - [ ] Добавить component test long ФИО + branch context + concrete status в
       card без one-line truncation.
+- [ ] Проверить locator min-width `156/176/200/216px` на
+      `360/390/420/440`.
 - [ ] E2E: search → расширенные filters → apply/reset → открыть клиента → вернуться.
 - [ ] E2E: focus empty search → type → clear while focused → blur → restore
-      browse header/actions.
+      browse retained actions.
 - [ ] E2E SuperAdministrator: global set из 300+ клиентов → search → filtered empty/reset → preview/detail → return с сохранённым state.
 - [ ] Проверить `360`, `390 x 844`, `420 x 912`, `440 x 956`, `768`, `1440` и compact-height landscape.
 - [ ] На `390 x 844` проверить пять полных cards; на `420 x 912` и
@@ -276,6 +300,7 @@ Dense client card:
 - [ ] Проверить отсутствие horizontal overflow и controls меньше `44 x 44`.
 - [ ] `cd frontend && npm run lint`
 - [ ] `cd frontend && npm run build`
+- [ ] `cd frontend && npm run test:unit`
 - [ ] Запустить affected Playwright и iPhone WebKit checks.
 
 ## AI safety
@@ -305,7 +330,9 @@ Dense client card:
 ## Processing notes
 
 - Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
-- Foundation dependency is complete: shared locator, filters, range/state
-  primitives and theme tokens are available.
+- Revalidated against commit `3253b23`: inline search, hidden top-level header,
+  shared locator/filters/range/states, scoped reset and drawer foundation are
+  already implemented and become regression baseline.
 - Status remains `ready`: TASK-090 explicitly excluded the client-specific
-  browse/search-focused state machine, `96px` cards and return-state behavior.
+  browse/search-focused state machine and `96px` cards. Generic return-state
+  implementation remains owned by separate `TASK-017`.
