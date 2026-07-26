@@ -41,6 +41,7 @@ internal static class UserEndpoints
 
         IReadOnlyList<UserResponse> users = await dbContext.Users
             .AsNoTracking()
+            .Where(user => user.Role == UserRole.Coach)
             .OrderBy(user => user.FullName)
             .ThenBy(user => user.Login)
             .Select(user => ToResponse(user, currentUser))
@@ -48,7 +49,7 @@ internal static class UserEndpoints
 
         return TypedResults.Ok(new UserListResponse(
             users,
-            StaffManagementBoundary.GetCreateRoleOptions(currentUser)));
+            StaffManagementBoundary.GetCreateRoleOptions(currentUser, StaffEndpointRoleFamily.Trainers)));
     }
 
     private static async Task<Results<Ok<UserResponse>, ProblemHttpResult, UnauthorizedHttpResult>> GetUserAsync(
@@ -72,7 +73,7 @@ internal static class UserEndpoints
         var user = await dbContext.Users
             .AsNoTracking()
             .SingleOrDefaultAsync(
-                candidate => candidate.Id == id,
+                candidate => candidate.Id == id && candidate.Role == UserRole.Coach,
                 cancellationToken);
 
         return user is null
@@ -111,7 +112,8 @@ internal static class UserEndpoints
                 request.IsActive,
                 request.MessengerPlatform,
                 request.MessengerPlatformUserId,
-                request.BranchId),
+                request.BranchId,
+                StaffEndpointRoleFamily.Trainers),
             dbContext,
             passwordHashService,
             cancellationToken);
@@ -159,7 +161,8 @@ internal static class UserEndpoints
             new StaffUpdateCommand(
                 currentUser,
                 id,
-                TargetRoleFilter: null,
+                StaffEndpointRoleFamily.Trainers,
+                AllowHeadCoachSelfUpdateException: true,
                 request.FullName,
                 request.Login,
                 request.Role,
@@ -216,6 +219,10 @@ internal static class UserEndpoints
             user.BranchId,
             user.Branch?.Name,
             StaffManagementBoundary.GetAllowedActions(currentUser, user),
-            StaffManagementBoundary.GetUpdateRoleOptions(currentUser, user));
+            StaffManagementBoundary.GetUpdateRoleOptions(
+                currentUser,
+                user,
+                StaffEndpointRoleFamily.Trainers,
+                allowHeadCoachSelfUpdateException: true));
     }
 }

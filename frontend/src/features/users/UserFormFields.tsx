@@ -4,6 +4,7 @@ import {
   SimpleGrid,
   Switch,
   TextInput,
+  type TextInputProps,
 } from '@mantine/core'
 import type { UseFormReturnType } from '@mantine/form'
 import type { ReactNode } from 'react'
@@ -13,6 +14,10 @@ import {
   messengerPlatformOptions,
   type UserRoleOption,
 } from './UserManagement.constants'
+
+type FullNameInputProps = TextInputProps & {
+  'data-autofocus'?: boolean
+}
 
 export type BaseUserFormValues = {
   fullName: string
@@ -36,22 +41,30 @@ export type EditUserFormValues = BaseUserFormValues & {
 type UserFormFieldsProps<FormValues extends BaseUserFormValues> = {
   credentialsFields: ReactNode
   form: UseFormReturnType<FormValues>
+  fullNameInputProps?: FullNameInputProps
   isActiveDisabled?: boolean
   isActiveLabel?: string
+  onRoleChange?: (value: UserRole | null) => void
   roleDisabled?: boolean
   roleOptions: UserRoleOption[]
+  scopeFields?: ReactNode
   showRoleField?: boolean
 }
 
 export function UserFormFields<FormValues extends BaseUserFormValues>({
   credentialsFields,
   form,
+  fullNameInputProps,
   isActiveDisabled = false,
   isActiveLabel = resources.users.form.labels.isActive,
+  onRoleChange,
   roleDisabled = false,
   roleOptions,
+  scopeFields,
   showRoleField = true,
 }: UserFormFieldsProps<FormValues>) {
+  const roleInputProps = form.getInputProps('role')
+
   return (
     <>
       {showRoleField ? (
@@ -59,6 +72,7 @@ export function UserFormFields<FormValues extends BaseUserFormValues>({
           <TextInput
             label={resources.users.form.labels.fullName}
             placeholder={resources.users.form.placeholders.fullName}
+            {...fullNameInputProps}
             {...form.getInputProps('fullName')}
           />
           <Select
@@ -66,18 +80,25 @@ export function UserFormFields<FormValues extends BaseUserFormValues>({
             data={roleOptions}
             disabled={roleDisabled}
             label={resources.users.form.labels.role}
-            {...form.getInputProps('role')}
+            {...roleInputProps}
+            onChange={(value) => {
+              roleInputProps.onChange(value)
+              onRoleChange?.(value as UserRole | null)
+            }}
           />
         </SimpleGrid>
       ) : (
         <TextInput
           label={resources.users.form.labels.fullName}
           placeholder={resources.users.form.placeholders.fullName}
+          {...fullNameInputProps}
           {...form.getInputProps('fullName')}
         />
       )}
 
       {credentialsFields}
+
+      {scopeFields}
 
       <SimpleGrid cols={{ base: 1, md: 2 }}>
         <Select

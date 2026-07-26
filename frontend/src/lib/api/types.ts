@@ -58,6 +58,10 @@ export type ChangePasswordRequest = {
 }
 
 export type UserRole = AuthenticatedUser['role']
+export type AdministrativeUserRole = Extract<
+  UserRole,
+  'Administrator' | 'SuperAdministrator'
+>
 export type MessengerPlatform = 'Telegram'
 export type UserAllowedAction =
   | 'Read'
@@ -633,21 +637,23 @@ export type CreateAdministratorRequest = {
   fullName: string
   login: string
   password: string
+  role: AdministrativeUserRole
   mustChangePassword: boolean
   isActive: boolean
   messengerPlatform: MessengerPlatform | null
   messengerPlatformUserId: string | null
-  branchId: string
+  branchId: string | null
 }
 
 export type UpdateAdministratorRequest = {
   fullName: string
   login: string
+  role: AdministrativeUserRole
   mustChangePassword: boolean
   isActive: boolean
   messengerPlatform: MessengerPlatform | null
   messengerPlatformUserId: string | null
-  branchId: string
+  branchId: string | null
 }
 
 export type GetClientsParams = {

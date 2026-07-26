@@ -1,7 +1,14 @@
 # TASK-091: Перенести создание суперадминистратора в раздел администраторов
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-091-administrator-role-creation-flow.plan.md
+- implementation_branch: feature/TASK-091-administrator-role-creation-flow
+- moved_to_done_at: 2026-07-26
 
 ## Goal
 Главный тренер создаёт администратора или суперадминистратора в едином разделе управления администраторами, а раздел тренеров используется только для создания и редактирования тренеров.
@@ -47,27 +54,27 @@ risky
 - Новый или существенно изменённый workflow должен пройти обязательные UX, UI и mobile acceptance этапы из `AGENTS.md`.
 
 ## Acceptance criteria
-- [ ] Главный тренер открывает раздел `Администраторы` и может выбрать создание администратора или суперадминистратора.
-- [ ] Выбор роли содержит только backend-разрешённые административные роли и виден только когда доступно больше одного варианта.
-- [ ] Суперадминистратор в том же разделе может создать только администратора и не видит возможности создать суперадминистратора.
-- [ ] При выборе администратора форма требует активный филиал; при выборе суперадминистратора поле филиала скрыто, очищено и в сохранённой записи `branchId` равен `null`.
-- [ ] Запрещённая попытка создать или изменить роль прямым API-запросом возвращает стабильный ProblemDetails, не создаёт пользователя и не пишет ложный success audit.
-- [ ] Раздел `Тренеры` показывает и позволяет создавать/редактировать только тренеров (`Coach`) без выбора административных ролей.
-- [ ] Существующие правила редактирования суперадминистраторов, администраторов и тренеров не ослаблены.
-- [ ] Успешное создание каждой разрешённой роли сохраняет корректные audit actor, target role и scope.
-- [ ] Primary create-flow остаётся достижимым и понятным на 390 x 844, 420 x 912, 440 x 956 и в compact-height 912 x 420 / 956 x 440.
+- [x] Главный тренер открывает раздел `Администраторы` и может выбрать создание администратора или суперадминистратора.
+- [x] Выбор роли содержит только backend-разрешённые административные роли и виден только когда доступно больше одного варианта.
+- [x] Суперадминистратор в том же разделе может создать только администратора и не видит возможности создать суперадминистратора.
+- [x] При выборе администратора форма требует активный филиал; при выборе суперадминистратора поле филиала скрыто, очищено и в сохранённой записи `branchId` равен `null`.
+- [x] Запрещённая попытка создать или изменить роль прямым API-запросом возвращает стабильный ProblemDetails, не создаёт пользователя и не пишет ложный success audit.
+- [x] Раздел `Тренеры` показывает и позволяет создавать/редактировать только тренеров (`Coach`) без выбора административных ролей.
+- [x] Существующие правила редактирования суперадминистраторов, администраторов и тренеров не ослаблены.
+- [x] Успешное создание каждой разрешённой роли сохраняет корректные audit actor, target role и scope.
+- [x] Primary create-flow остаётся достижимым и понятным на 390 x 844, 420 x 912, 440 x 956 и в compact-height 912 x 420 / 956 x 440.
 
 ## Test checklist
-- [ ] До production-кода добавить backend integration tests для матрицы actor × target role через используемые staff endpoints.
-- [ ] Проверить HeadCoach: создание `Administrator` с филиалом и `SuperAdministrator` без филиала.
-- [ ] Проверить SuperAdministrator: создание `Administrator` разрешено, создание `SuperAdministrator` и `HeadCoach` запрещено.
-- [ ] Проверить, что trainer list/create/edit contract возвращает и изменяет только допустимых `Coach`, без frontend-only фильтрации.
-- [ ] Добавить frontend component tests раздела администраторов для одно- и двухвариантных `createRoleOptions`, branch field и payload.
-- [ ] Добавить frontend regression tests, что раздел тренеров не показывает выбор административной роли.
-- [ ] Добавить Playwright-покрытие основного mobile workflow и permission-restricted варианта.
-- [ ] Запустить backend tests.
-- [ ] Запустить frontend lint, unit tests и build.
-- [ ] Если contract затронет bot, запустить bot ruff и pytest.
+- [x] До production-кода добавить backend integration tests для матрицы actor × target role через используемые staff endpoints.
+- [x] Проверить HeadCoach: создание `Administrator` с филиалом и `SuperAdministrator` без филиала.
+- [x] Проверить SuperAdministrator: создание `Administrator` разрешено, создание `SuperAdministrator` и `HeadCoach` запрещено.
+- [x] Проверить, что trainer list/create/edit contract возвращает и изменяет только допустимых `Coach`, без frontend-only фильтрации.
+- [x] Добавить frontend component tests раздела администраторов для одно- и двухвариантных `createRoleOptions`, branch field и payload.
+- [x] Добавить frontend regression tests, что раздел тренеров не показывает выбор административной роли.
+- [x] Добавить Playwright-покрытие основного mobile workflow и permission-restricted варианта.
+- [x] Запустить backend tests.
+- [x] Запустить frontend lint, unit tests и build.
+- [x] Подтвердить поиском, что bot не потребляет изменённые staff transports; bot code/contract не изменён, поэтому отдельный ruff/pytest не требовался.
 
 ## AI safety
 - Safe for Codex: no
@@ -85,3 +92,13 @@ risky
 - Created at: 2026-07-26 16:28
 - Created by skill: codex-backlog-skill
 - Duplicate check: завершённая TASK-082 реализовала роль и authorization matrix, а TASK-054 убрала ручной выбор роли из прежних раздельных форм; новая заметка является отдельным follow-up по переносу SuperAdministrator flow и очистке trainer workflow.
+- Approved for risky implementation by the user: 2026-07-26
+- Implementation branch: `feature/TASK-091-administrator-role-creation-flow`
+
+## Completion notes
+- Backend staff transports разделены на административную и trainer role family с повторной проверкой target family после locked reload.
+- `/settings/administrators` управляет `Administrator | SuperAdministrator`; `/users` остаётся Coach-only с точным HeadCoach self-update compatibility exception.
+- Административная панель вынесена из `SettingsScreen`, использует backend role/options/actions, controlled role/branch state и mobile temporary-surface contract.
+- Новых миграций и изменений схемы БД нет.
+- Проверено: backend 394/394; frontend unit 285/285; Chromium E2E 111/111; iPhone WebKit 10/10; lint и build.
+- Compose-стенд развёрнут с нуля после удаления named volumes, затем пересобран из финального рабочего дерева; db/backend/frontend/bot healthy, health checks возвращают 200.

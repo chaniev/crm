@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
+  createAdministrator,
   getAdministratorAttendanceScope,
   getAdministrators,
   getBranches,
@@ -16,10 +17,12 @@ import {
   type UserListItem,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
+import { showAppNotification } from '../shared/notifications'
 import { SettingsScreen } from './SettingsScreen'
 
 vi.mock('../../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../lib/api')>()),
+  createAdministrator: vi.fn(),
   getAdministratorAttendanceScope: vi.fn(),
   getAdministrators: vi.fn(),
   getBranches: vi.fn(),
@@ -28,6 +31,10 @@ vi.mock('../../lib/api', async (importOriginal) => ({
   replaceAdministratorAttendanceScope: vi.fn(),
   updateAdministrator: vi.fn(),
   updateGroupType: vi.fn(),
+}))
+
+vi.mock('../shared/notifications', () => ({
+  showAppNotification: vi.fn(),
 }))
 
 const baseUser: AuthenticatedUser = {
@@ -51,7 +58,7 @@ const baseUser: AuthenticatedUser = {
   assignedGroupIds: [],
   attendanceScope: { kind: 'Global', groupIds: [] },
   branchId: null,
-  createRoleOptions: ['Administrator', 'Coach'],
+  createRoleOptions: ['Administrator'],
 }
 
 const existingGroupType: GroupType = {
@@ -72,6 +79,7 @@ beforeAll(() => {
 })
 
 beforeEach(() => {
+  vi.mocked(createAdministrator).mockReset()
   vi.mocked(getAdministratorAttendanceScope).mockReset()
   vi.mocked(getAdministrators).mockReset()
   vi.mocked(getBranches).mockReset()
@@ -80,6 +88,7 @@ beforeEach(() => {
   vi.mocked(replaceAdministratorAttendanceScope).mockReset()
   vi.mocked(updateAdministrator).mockReset()
   vi.mocked(updateGroupType).mockReset()
+  vi.mocked(showAppNotification).mockReset()
   vi.mocked(getAdministrators).mockResolvedValue({ items: [], createRoleOptions: ['Administrator'] })
   vi.mocked(getAdministratorAttendanceScope).mockResolvedValue(buildAttendanceScope())
   vi.mocked(replaceAdministratorAttendanceScope).mockResolvedValue(buildAttendanceScope({
@@ -135,11 +144,287 @@ describe('SettingsScreen', () => {
     expect(screen.queryByRole('tab', { name: 'Администраторы' })).not.toBeInTheDocument()
   })
 
+  test('показывает фактическую роль администратора в строке списка', async () => {
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [
+        {
+          ...buildAdministrator(),
+          id: 'superadmin-1',
+          fullName: 'Суперадминистратор',
+          login: 'superadmin',
+          role: 'SuperAdministrator',
+          allowedActions: ['Edit'],
+          roleOptions: ['Administrator'],
+        },
+      ],
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+    })
+
+    renderSettings({
+      role: 'HeadCoach',
+      permissions: {
+        ...baseUser.permissions,
+      },
+      createRoleOptions: ['SuperAdministrator', 'Administrator'],
+      branchId: null,
+    })
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    const card = await screen.findByTestId('administrator-card-superadmin-1')
+    expect(
+      within(card).getByText('Суперадминистратор', {
+        selector: '.mantine-Badge-label',
+      }),
+    ).toBeVisible()
+    expect(within(card).getByText('Доступ: все филиалы')).toBeVisible()
+    expect(within(card).queryByText(/Филиал:/)).not.toBeInTheDocument()
+    expect(within(card).queryByText(/Посещения:/)).not.toBeInTheDocument()
+    expect(within(card).getByRole('button', { name: 'Редактировать' })).toBeVisible()
+  })
+
+  test('создаёт суперадминистратора из backend options и очищает филиал', async () => {
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [],
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+    })
+    vi.mocked(createAdministrator).mockResolvedValue({
+      ...buildAdministrator(),
+      id: 'superadmin-created',
+      fullName: 'Новый Суперадминистратор',
+      login: 'new-superadmin',
+      role: 'SuperAdministrator',
+      branchId: null,
+      branchName: null,
+      attendanceGroupGrantCount: undefined,
+      roleOptions: ['SuperAdministrator'],
+    })
+
+    renderSettings({
+      role: 'HeadCoach',
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+      branchId: null,
+    })
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Добавить администратора' }))[0],
+    )
+
+    const dialog = await screen.findByRole('dialog', { name: 'Новый администратор' })
+    fireEvent.change(within(dialog).getByLabelText('ФИО'), {
+      target: { value: 'Новый Суперадминистратор' },
+    })
+    fireEvent.change(within(dialog).getByLabelText('Логин'), {
+      target: { value: 'new-superadmin' },
+    })
+    fireEvent.change(within(dialog).getByLabelText('Стартовый пароль'), {
+      target: { value: 'Password1!' },
+    })
+    fireEvent.click(within(dialog).getByRole('combobox', { name: 'Роль' }))
+    fireEvent.click(await screen.findByRole('option', { name: 'Суперадминистратор' }))
+
+    expect(within(dialog).queryByLabelText('Филиал администратора')).not.toBeInTheDocument()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Сохранить' }))
+
+    await waitFor(() =>
+      expect(createAdministrator).toHaveBeenCalledWith(
+        expect.objectContaining({
+          role: 'SuperAdministrator',
+          branchId: null,
+        }),
+      ),
+    )
+  })
+
+  test('одна backend-роль хранится без selector и блокирует повторный submit', async () => {
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [],
+      createRoleOptions: ['Administrator'],
+    })
+    let resolveCreate: ((administrator: UserListItem) => void) | undefined
+    vi.mocked(createAdministrator).mockReturnValue(new Promise((resolve) => {
+      resolveCreate = resolve
+    }))
+
+    renderSettings()
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Добавить администратора' }))[0],
+    )
+
+    const dialog = await screen.findByRole('dialog', { name: 'Новый администратор' })
+    expect(within(dialog).queryByRole('combobox', { name: 'Роль' })).not.toBeInTheDocument()
+    expect(within(dialog).getByLabelText('Филиал администратора')).toHaveValue('Центр')
+
+    fireEvent.change(within(dialog).getByLabelText('ФИО'), {
+      target: { value: 'Новый Администратор' },
+    })
+    fireEvent.change(within(dialog).getByLabelText('Логин'), {
+      target: { value: 'new-administrator' },
+    })
+    fireEvent.change(within(dialog).getByLabelText('Стартовый пароль'), {
+      target: { value: 'Password1!' },
+    })
+
+    const save = within(dialog).getByRole('button', { name: 'Сохранить' })
+    fireEvent.click(save)
+    fireEvent.click(save)
+
+    await waitFor(() => expect(createAdministrator).toHaveBeenCalledTimes(1))
+    expect(createAdministrator).toHaveBeenCalledWith(expect.objectContaining({
+      role: 'Administrator',
+      branchId: 'branch-1',
+    }))
+    expect(save).toBeDisabled()
+
+    resolveCreate?.(buildAdministrator({
+      id: 'administrator-created',
+      fullName: 'Новый Администратор',
+      login: 'new-administrator',
+    }))
+    await waitFor(() => expect(dialog).not.toBeInTheDocument())
+  })
+
+  test('несколько активных филиалов требуют явного выбора', async () => {
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [],
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+    })
+    vi.mocked(getBranches).mockResolvedValue([
+      {
+        id: 'branch-1',
+        name: 'Центр',
+        address: null,
+        description: null,
+        isArchived: false,
+        hallCount: 0,
+        groupCount: 0,
+        clientCount: 0,
+      },
+      {
+        id: 'branch-2',
+        name: 'Север',
+        address: null,
+        description: null,
+        isArchived: false,
+        hallCount: 0,
+        groupCount: 0,
+        clientCount: 0,
+      },
+    ])
+
+    renderSettings({
+      role: 'HeadCoach',
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+    })
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Добавить администратора' }))[0],
+    )
+
+    const dialog = await screen.findByRole('dialog', { name: 'Новый администратор' })
+    const branch = within(dialog).getByRole('combobox', { name: 'Филиал администратора' })
+    expect(branch).toHaveValue('')
+
+    fireEvent.change(within(dialog).getByLabelText('ФИО'), {
+      target: { value: 'Новый Администратор' },
+    })
+    fireEvent.change(within(dialog).getByLabelText('Логин'), {
+      target: { value: 'new-administrator' },
+    })
+    fireEvent.change(within(dialog).getByLabelText('Стартовый пароль'), {
+      target: { value: 'Password1!' },
+    })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Сохранить' }))
+
+    expect(await within(dialog).findByText('Выберите филиал администратора.')).toBeVisible()
+    expect(createAdministrator).not.toHaveBeenCalled()
+  })
+
+  test('различает отсутствие активных филиалов и ошибку их загрузки', async () => {
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [],
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+    })
+    vi.mocked(getBranches).mockResolvedValue([])
+
+    const { unmount } = renderSettings({
+      role: 'HeadCoach',
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+      branchId: null,
+    })
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Добавить администратора' }))[0],
+    )
+    const emptyDialog = await screen.findByRole('dialog', { name: 'Новый администратор' })
+    expect(within(emptyDialog).getByText(/Нет активных филиалов/)).toBeVisible()
+    expect(within(emptyDialog).getByRole('button', { name: 'Сохранить' })).toBeDisabled()
+    fireEvent.click(within(emptyDialog).getByRole('combobox', { name: 'Роль' }))
+    fireEvent.click(await screen.findByRole('option', { name: 'Суперадминистратор' }))
+    expect(within(emptyDialog).queryByText(/Нет активных филиалов/)).not.toBeInTheDocument()
+    expect(within(emptyDialog).getByRole('button', { name: 'Сохранить' })).toBeEnabled()
+
+    unmount()
+    vi.mocked(getBranches).mockRejectedValue(new Error('network error'))
+    renderSettings({
+      role: 'HeadCoach',
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+      branchId: null,
+    })
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Добавить администратора' }))[0],
+    )
+    const errorDialog = await screen.findByRole('dialog', { name: 'Новый администратор' })
+    expect(within(errorDialog).getByText('Филиалы не загрузились')).toBeVisible()
+    expect(within(errorDialog).getByRole('button', { name: 'Повторить' })).toBeVisible()
+    fireEvent.click(within(errorDialog).getByRole('combobox', { name: 'Роль' }))
+    fireEvent.click(await screen.findByRole('option', { name: 'Суперадминистратор' }))
+    expect(within(errorDialog).queryByText('Филиалы не загрузились')).not.toBeInTheDocument()
+    expect(within(errorDialog).getByRole('button', { name: 'Сохранить' })).toBeEnabled()
+  })
+
+  test('staff_not_found закрывает stale edit и перезагружает список', async () => {
+    const administrator = buildAdministrator()
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [administrator],
+      createRoleOptions: ['Administrator'],
+    })
+    vi.mocked(updateAdministrator).mockRejectedValue(
+      new ApiError(
+        'Администратор больше не доступен.',
+        404,
+        {},
+        'staff_not_found',
+      ),
+    )
+
+    renderSettings()
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    const card = await screen.findByTestId(`administrator-card-${administrator.id}`)
+    fireEvent.click(within(card).getByRole('button', { name: 'Редактировать' }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Редактирование администратора' })
+    fireEvent.change(within(dialog).getByLabelText('ФИО'), {
+      target: { value: 'Устаревшая запись' },
+    })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Сохранить' }))
+
+    await waitFor(() => expect(dialog).not.toBeInTheDocument())
+    expect(showAppNotification).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Запись изменилась',
+    }))
+    await waitFor(() => expect(getAdministrators).toHaveBeenCalledTimes(2))
+  })
+
   test.each([
     {
       role: 'HeadCoach' as const,
       canManageSettings: true,
-      createRoleOptions: ['SuperAdministrator', 'Administrator', 'Coach'] as NonNullable<
+      createRoleOptions: ['SuperAdministrator', 'Administrator'] as NonNullable<
         AuthenticatedUser['createRoleOptions']
       >,
       expectsGroupTypes: true,

@@ -6,55 +6,67 @@ afterEach(() => {
 })
 
 describe('users API', () => {
-  test('maps SuperAdministrator staff actions and nullable branch from list envelope', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
-      items: [
-        {
-          id: 'superadmin-1',
-          fullName: 'Суперадминистратор',
-          login: 'superadmin',
-          role: 'SuperAdministrator',
-          mustChangePassword: false,
-          isActive: true,
-          branchId: null,
-          branchName: null,
-          allowedActions: [],
-        },
-      ],
-      createRoleOptions: ['Coach', 'SuperAdministrator'],
-    })))
+  test('maps coach list envelope and fixed create options', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse({
+          items: [
+            {
+              id: 'coach-1',
+              fullName: 'Тренер',
+              login: 'coach',
+              role: 'Coach',
+              mustChangePassword: false,
+              isActive: true,
+              branchId: null,
+              branchName: null,
+              allowedActions: ['Edit'],
+            },
+          ],
+          createRoleOptions: ['Coach'],
+        }),
+      ),
+    )
 
     await expect(getUsers()).resolves.toEqual({
       items: [
         expect.objectContaining({
-          id: 'superadmin-1',
-          role: 'SuperAdministrator',
+          id: 'coach-1',
+          role: 'Coach',
           branchId: null,
-          allowedActions: [],
+          allowedActions: ['Edit'],
         }),
       ],
-      createRoleOptions: ['Coach', 'SuperAdministrator'],
+      createRoleOptions: ['Coach'],
     })
   })
 
-  test('maps target-specific edit role options without inventing forbidden transitions', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
-      id: 'superadmin-1',
-      fullName: 'Суперадминистратор',
-      login: 'superadmin',
-      role: 'SuperAdministrator',
-      mustChangePassword: false,
-      isActive: true,
-      branchId: null,
-      allowedActions: ['Edit'],
-      roleOptions: ['SuperAdministrator'],
-    })))
+  test('preserves target roleOptions from user payload', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse({
+          id: 'coach-1',
+          fullName: 'Тренер',
+          login: 'coach',
+          role: 'Coach',
+          mustChangePassword: false,
+          isActive: true,
+          branchId: null,
+          allowedActions: ['Edit'],
+          roleOptions: ['Coach'],
+        }),
+      ),
+    )
 
-    await expect(getUser('superadmin-1')).resolves.toEqual(expect.objectContaining({
-      role: 'SuperAdministrator',
-      allowedActions: ['Edit'],
-      roleOptions: ['SuperAdministrator'],
-    }))
+    await expect(getUser('coach-1')).resolves.toEqual(
+      expect.objectContaining({
+        role: 'Coach',
+        allowedActions: ['Edit'],
+        roleOptions: ['Coach'],
+      }),
+    )
   })
 })
 

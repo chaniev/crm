@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Users;
@@ -38,8 +39,12 @@ public class UsersApiTests
             var items = usersPayload.GetProperty("items");
             Assert.Equal(JsonValueKind.Array, items.ValueKind);
             Assert.NotEmpty(items.EnumerateArray());
+            Assert.All(items.EnumerateArray(), item =>
+            {
+                Assert.Equal("Coach", GetStringFromProperty(item, "role"));
+            });
             Assert.Equal(
-                ["Administrator", "Coach", "SuperAdministrator"],
+                ["Coach"],
                 usersPayload.GetProperty("createRoleOptions").EnumerateArray().Select(item => item.GetString() ?? string.Empty).ToArray());
         }
 
@@ -93,7 +98,7 @@ public class UsersApiTests
     }
 
     [Fact]
-    public async Task Users_flow_requires_active_branch_for_administrator_role()
+    public async Task Users_flow_rejects_administrative_roles_before_branch_validation_without_mutation_or_audit()
     {
         await using var factory = new UsersAppFactory();
         var seeded = await SeedUsersDataAsync(factory);
@@ -104,22 +109,33 @@ public class UsersApiTests
         });
 
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var createLogin = $"admin-outside-users-{Guid.NewGuid():N}";
+        int userCountBefore;
+        int auditCountBefore;
+        using (var beforeScope = factory.Services.CreateScope())
+        {
+            var beforeDbContext = beforeScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            userCountBefore = await beforeDbContext.Users.CountAsync();
+            auditCountBefore = await beforeDbContext.AuditLogs.CountAsync(log => log.EntityType == "User");
+        }
 
         using (var createResponse = await PostJsonAsync(
                    client,
                    "/users",
                    new UserCreateRequest(
                        "Новый администратор",
-                       $"admin-outside-settings-{Guid.NewGuid():N}",
+                       createLogin,
                        "12345Aa!",
                        "Administrator",
                        true,
                        true),
                    session.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.BadRequest, createResponse.StatusCode);
-            var payload = await ReadJsonElementAsync(createResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("branchId", out _));
+            Assert.Equal(HttpStatusCode.Forbidden, createResponse.StatusCode);
+            await AssertProblemDetailsAsync(
+                createResponse,
+                "/problems/staff-role-transition-forbidden",
+                "staff_role_transition_forbidden");
         }
 
         using (var updateResponse = await PutJsonAsync(
@@ -133,10 +149,18 @@ public class UsersApiTests
                        true),
                    session.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
-            var payload = await ReadJsonElementAsync(updateResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("branchId", out _));
+            Assert.Equal(HttpStatusCode.Forbidden, updateResponse.StatusCode);
+            await AssertProblemDetailsAsync(
+                updateResponse,
+                "/problems/staff-role-transition-forbidden",
+                "staff_role_transition_forbidden");
         }
+
+        using var verificationScope = factory.Services.CreateScope();
+        var verificationDb = verificationScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(userCountBefore, await verificationDb.Users.CountAsync());
+        Assert.False(await verificationDb.Users.AnyAsync(user => user.Login == createLogin));
+        Assert.Equal(auditCountBefore, await verificationDb.AuditLogs.CountAsync(log => log.EntityType == "User"));
     }
 
     [Fact]
@@ -159,11 +183,13 @@ public class UsersApiTests
             var items = payload.GetProperty("items");
             Assert.Equal(JsonValueKind.Array, items.ValueKind);
             Assert.Equal(
-                ["Administrator", "Coach", "SuperAdministrator"],
+                ["Administrator", "SuperAdministrator"],
                 payload.GetProperty("createRoleOptions").EnumerateArray().Select(item => item.GetString() ?? string.Empty).ToArray());
             Assert.All(items.EnumerateArray(), item =>
             {
-                Assert.Equal("Administrator", GetStringFromProperty(item, "role"));
+                Assert.Contains(
+                    GetStringFromProperty(item, "role"),
+                    new[] { "Administrator", "SuperAdministrator" });
             });
         }
 
@@ -177,6 +203,7 @@ public class UsersApiTests
                        FullName = "Администратор из настроек",
                        Login = createLogin,
                        Password = "12345Aa!",
+                       Role = "Administrator",
                        MustChangePassword = true,
                        IsActive = true,
                        MessengerPlatform = "Telegram",
@@ -201,6 +228,7 @@ public class UsersApiTests
                    {
                        FullName = "Администратор из настроек v2",
                        Login = createLogin,
+                       Role = "Administrator",
                        MustChangePassword = false,
                        IsActive = false,
                        MessengerPlatform = (string?)null,
@@ -215,13 +243,41 @@ public class UsersApiTests
             Assert.Equal("Administrator", GetStringFromProperty(payload, "role"));
         }
 
+        var superAdministratorLogin = $"settings-super-admin-{Guid.NewGuid():N}";
+        using (var createSuperAdministratorResponse = await PostJsonAsync(
+                   client,
+                   "/settings/administrators",
+                   new
+                   {
+                       FullName = "Суперадминистратор из настроек",
+                       Login = superAdministratorLogin,
+                       Password = "12345Aa!",
+                       Role = "SuperAdministrator",
+                       MustChangePassword = true,
+                       IsActive = true,
+                       BranchId = (Guid?)null
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, createSuperAdministratorResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(createSuperAdministratorResponse);
+            Assert.Equal("SuperAdministrator", GetStringFromProperty(payload, "role"));
+            Assert.Equal(JsonValueKind.Null, payload.GetProperty("branchId").ValueKind);
+            Assert.Equal(
+                ["SuperAdministrator"],
+                payload.GetProperty("roleOptions").EnumerateArray().Select(item => item.GetString()!).ToArray());
+        }
+
         using (var usersListResponse = await client.GetAsync("/users"))
         {
             Assert.Equal(HttpStatusCode.OK, usersListResponse.StatusCode);
             var payload = await ReadJsonElementAsync(usersListResponse);
-            Assert.Contains(
+            Assert.DoesNotContain(
                 payload.GetProperty("items").EnumerateArray(),
                 item => GetStringFromProperty(item, "login") == createLogin);
+            Assert.DoesNotContain(
+                payload.GetProperty("items").EnumerateArray(),
+                item => GetStringFromProperty(item, "login") == superAdministratorLogin);
         }
     }
 
@@ -286,7 +342,7 @@ public class UsersApiTests
     }
 
     [Fact]
-    public async Task Settings_administrator_create_ignores_role_payload_and_persists_administrator()
+    public async Task Settings_administrator_create_rejects_coach_role_payload_without_mutation_or_audit()
     {
         await using var factory = new UsersAppFactory();
         var seeded = await SeedUsersDataAsync(factory);
@@ -298,6 +354,14 @@ public class UsersApiTests
 
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
         var createLogin = $"settings-admin-overpost-{Guid.NewGuid():N}";
+        int userCountBefore;
+        int auditCountBefore;
+        using (var beforeScope = factory.Services.CreateScope())
+        {
+            var beforeDbContext = beforeScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            userCountBefore = await beforeDbContext.Users.CountAsync();
+            auditCountBefore = await beforeDbContext.AuditLogs.CountAsync(log => log.EntityType == "User");
+        }
 
         using var createResponse = await PostJsonAsync(
             client,
@@ -314,16 +378,109 @@ public class UsersApiTests
             },
             session.CsrfToken);
 
-        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-
-        var payload = await ReadJsonElementAsync(createResponse);
-        Assert.Equal("Administrator", GetStringFromProperty(payload, "role"));
+        Assert.Equal(HttpStatusCode.Forbidden, createResponse.StatusCode);
+        await AssertProblemDetailsAsync(
+            createResponse,
+            "/problems/staff-role-transition-forbidden",
+            "staff_role_transition_forbidden");
 
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-        var createdUser = await dbContext.Users.SingleAsync(user => user.Login == createLogin);
+        Assert.Equal(userCountBefore, await dbContext.Users.CountAsync());
+        Assert.False(await dbContext.Users.AnyAsync(user => user.Login == createLogin));
+        Assert.Equal(auditCountBefore, await dbContext.AuditLogs.CountAsync(log => log.EntityType == "User"));
+    }
 
-        Assert.Equal(UserRole.Administrator, createdUser.Role);
+    [Fact]
+    public async Task Wrong_family_get_and_update_return_not_found_before_payload_validation()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var adminThroughUsersGet = await client.GetAsync($"/users/{seeded.AdministratorId}"))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, adminThroughUsersGet.StatusCode);
+            await AssertProblemDetailsAsync(
+                adminThroughUsersGet,
+                "/problems/staff-not-found",
+                "staff_not_found");
+        }
+
+        using (var coachThroughAdministratorsGet = await client.GetAsync($"/settings/administrators/{seeded.CoachId}"))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, coachThroughAdministratorsGet.StatusCode);
+            await AssertProblemDetailsAsync(
+                coachThroughAdministratorsGet,
+                "/problems/staff-not-found",
+                "staff_not_found");
+        }
+
+        using (var adminThroughUsersUpdate = await PutJsonAsync(
+                   client,
+                   $"/users/{seeded.AdministratorId}",
+                   new
+                   {
+                       FullName = "Wrong family",
+                       Login = seeded.AdministratorLogin,
+                       Role = "UnknownRole",
+                       MustChangePassword = false,
+                       IsActive = true,
+                       BranchId = seeded.BranchId
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, adminThroughUsersUpdate.StatusCode);
+            await AssertProblemDetailsAsync(
+                adminThroughUsersUpdate,
+                "/problems/staff-not-found",
+                "staff_not_found");
+        }
+
+        using (var coachThroughAdministratorsUpdate = await PutJsonAsync(
+                   client,
+                   $"/settings/administrators/{seeded.CoachId}",
+                   new
+                   {
+                       FullName = "Wrong family",
+                       Login = seeded.CoachLogin,
+                       Role = "UnknownRole",
+                       MustChangePassword = false,
+                       IsActive = true,
+                       BranchId = seeded.BranchId
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, coachThroughAdministratorsUpdate.StatusCode);
+            await AssertProblemDetailsAsync(
+                coachThroughAdministratorsUpdate,
+                "/problems/staff-not-found",
+                "staff_not_found");
+        }
+    }
+
+    [Fact]
+    public async Task SuperAdministrator_receives_global_operational_and_attendance_scope()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var accessScopeService = scope.ServiceProvider.GetRequiredService<IAccessScopeService>();
+        var superAdministrator = await dbContext.Users.SingleAsync(user => user.Id == seeded.SuperAdministratorId);
+
+        var accessScope = await accessScopeService.GetAccessScopeAsync(superAdministrator, CancellationToken.None);
+
+        Assert.Equal(AccessScopeKind.Global, accessScope.ScopeKind);
+        Assert.Equal(AttendanceScopeKind.Global, accessScope.AttendanceScope.Kind);
+        Assert.Empty(accessScope.AttendanceScope.GroupIds);
     }
 
     [Fact]
@@ -389,6 +546,55 @@ public class UsersApiTests
         AssertHasError(errors, "password");
         AssertHasError(errors, "role");
         AssertDoesNotHaveError(errors, "lastName");
+    }
+
+    [Theory]
+    [InlineData("/users", "missing")]
+    [InlineData("/users", "null")]
+    [InlineData("/users", "empty")]
+    [InlineData("/users", "unknown")]
+    [InlineData("/settings/administrators", "missing")]
+    [InlineData("/settings/administrators", "null")]
+    [InlineData("/settings/administrators", "empty")]
+    [InlineData("/settings/administrators", "unknown")]
+    public async Task Create_role_validation_returns_role_field_error_before_family_authorization(
+        string endpoint,
+        string roleCase)
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var payload = new Dictionary<string, object?>
+        {
+            ["fullName"] = "Role validation",
+            ["login"] = $"role-validation-{Guid.NewGuid():N}",
+            ["password"] = "12345Aa!",
+            ["mustChangePassword"] = false,
+            ["isActive"] = true,
+            ["branchId"] = endpoint == "/settings/administrators" ? seeded.BranchId : null
+        };
+
+        if (roleCase != "missing")
+        {
+            payload["role"] = roleCase switch
+            {
+                "null" => null,
+                "empty" => " ",
+                "unknown" => "UnknownRole",
+                _ => throw new ArgumentOutOfRangeException(nameof(roleCase), roleCase, "Unsupported role case.")
+            };
+        }
+
+        using var response = await PostJsonAsync(client, endpoint, payload, session.CsrfToken);
+        var errors = await ReadValidationErrorsAsync(response);
+
+        AssertHasError(errors, "role");
     }
 
     [Fact]
@@ -608,11 +814,11 @@ public class UsersApiTests
                    new UserUpdateRequest("Изменение главного тренера", seeded.HeadCoachLogin, "HeadCoach", false, true),
                    session.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.Forbidden, mutateHeadCoachResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, mutateHeadCoachResponse.StatusCode);
             await AssertProblemDetailsAsync(
                 mutateHeadCoachResponse,
-                "/problems/staff-target-forbidden",
-                "staff_target_forbidden");
+                "/problems/staff-not-found",
+                "staff_not_found");
         }
 
         using (var demotePeerSuperAdministratorResponse = await PutJsonAsync(
@@ -621,11 +827,11 @@ public class UsersApiTests
                    new UserUpdateRequest("Понижение суперадминистратора", seeded.PeerSuperAdministratorLogin, "Coach", false, true),
                    session.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.Forbidden, demotePeerSuperAdministratorResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, demotePeerSuperAdministratorResponse.StatusCode);
             await AssertProblemDetailsAsync(
                 demotePeerSuperAdministratorResponse,
-                "/problems/staff-target-forbidden",
-                "staff_target_forbidden");
+                "/problems/staff-not-found",
+                "staff_not_found");
         }
 
         using (var mutateSelfResponse = await PutJsonAsync(
@@ -639,11 +845,11 @@ public class UsersApiTests
                        true),
                    session.CsrfToken))
         {
-            Assert.Equal(HttpStatusCode.Forbidden, mutateSelfResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, mutateSelfResponse.StatusCode);
             await AssertProblemDetailsAsync(
                 mutateSelfResponse,
-                "/problems/staff-self-mutation-forbidden",
-                "staff_self_mutation_forbidden");
+                "/problems/staff-not-found",
+                "staff_not_found");
         }
 
         using (var missingTargetResponse = await PutJsonAsync(
@@ -679,7 +885,7 @@ public class UsersApiTests
     }
 
     [Fact]
-    public async Task HeadCoach_can_create_deactivate_and_reactivate_SuperAdministrator_but_cannot_change_its_role()
+    public async Task HeadCoach_can_create_deactivate_and_reactivate_SuperAdministrator_through_settings_but_cannot_change_its_role()
     {
         await using var factory = new UsersAppFactory();
         var seeded = await SeedUsersDataAsync(factory);
@@ -695,7 +901,7 @@ public class UsersApiTests
 
         using (var createResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/settings/administrators",
                    new
                    {
                        FullName = "HeadCoach created SA",
@@ -719,7 +925,7 @@ public class UsersApiTests
         {
             using var updateResponse = await PutJsonAsync(
                 client,
-                $"/users/{superAdministratorId}",
+                $"/settings/administrators/{superAdministratorId}",
                 new
                 {
                     FullName = "HeadCoach created SA",
@@ -738,7 +944,7 @@ public class UsersApiTests
 
         using (var forbiddenTransitionResponse = await PutJsonAsync(
                    client,
-                   $"/users/{superAdministratorId}",
+                   $"/settings/administrators/{superAdministratorId}",
                    new
                    {
                        FullName = "HeadCoach created SA",
@@ -772,7 +978,7 @@ public class UsersApiTests
     }
 
     [Fact]
-    public async Task SuperAdministrator_can_create_and_update_branch_staff_with_exact_audit_scope()
+    public async Task SuperAdministrator_can_create_and_update_coach_through_users_with_exact_audit_scope()
     {
         await using var factory = new UsersAppFactory();
         var seeded = await SeedUsersDataAsync(factory);
@@ -789,69 +995,38 @@ public class UsersApiTests
             Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
             var payload = await ReadJsonElementAsync(listResponse);
             Assert.Equal(
-                ["Administrator", "Coach"],
+                ["Coach"],
                 payload.GetProperty("createRoleOptions")
                     .EnumerateArray()
                     .Select(item => item.GetString()!)
                     .ToArray());
 
             var items = payload.GetProperty("items").EnumerateArray().ToArray();
-            var headCoach = items.Single(item => GetGuidFromProperty(item, "id") == seeded.HeadCoachId);
-            var peerSuperAdministrator = items.Single(
-                item => GetGuidFromProperty(item, "id") == seeded.PeerSuperAdministratorId);
-            var administrator = items.Single(
-                item => GetGuidFromProperty(item, "id") == seeded.AdministratorId);
-
-            Assert.Empty(headCoach.GetProperty("allowedActions").EnumerateArray());
-            Assert.Empty(peerSuperAdministrator.GetProperty("allowedActions").EnumerateArray());
+            Assert.All(items, item => Assert.Equal("Coach", GetStringFromProperty(item, "role")));
+            var coach = items.Single(item => GetGuidFromProperty(item, "id") == seeded.CoachId);
             Assert.Equal(
-                ["Edit", "Deactivate", "Reactivate", "ManageAttendanceScope"],
-                administrator.GetProperty("allowedActions")
+                ["Edit", "Deactivate", "Reactivate"],
+                coach.GetProperty("allowedActions")
                     .EnumerateArray()
                     .Select(item => item.GetString()!)
                     .ToArray());
             Assert.Equal(
-                ["Administrator"],
-                administrator.GetProperty("roleOptions")
+                ["Coach"],
+                coach.GetProperty("roleOptions")
                     .EnumerateArray()
                     .Select(item => item.GetString()!)
                     .ToArray());
         }
 
-        var administratorLogin = $"sa-happy-admin-{Guid.NewGuid():N}";
-        Guid administratorId;
-        using (var createAdministratorResponse = await PostJsonAsync(
-                   client,
-                   "/users",
-                   new
-                   {
-                       FullName = "SA Happy Administrator",
-                       Login = administratorLogin,
-                       Password = "12345Aa!",
-                       Role = "Administrator",
-                       MustChangePassword = false,
-                       IsActive = true,
-                       BranchId = seeded.SecondBranchId
-                   },
-                   session.CsrfToken))
-        {
-            Assert.Equal(HttpStatusCode.Created, createAdministratorResponse.StatusCode);
-            var payload = await ReadJsonElementAsync(createAdministratorResponse);
-            administratorId = GetGuidFromProperty(payload, "id");
-            Assert.Equal(seeded.SecondBranchId, GetGuidFromProperty(payload, "branchId"));
-            Assert.Equal(["Administrator"], payload.GetProperty("roleOptions")
-                .EnumerateArray()
-                .Select(item => item.GetString()!)
-                .ToArray());
-        }
-
+        var coachLogin = $"sa-happy-coach-{Guid.NewGuid():N}";
+        Guid coachId;
         using (var createCoachResponse = await PostJsonAsync(
                    client,
                    "/users",
                    new
                    {
                        FullName = "SA Happy Coach",
-                       Login = $"sa-happy-coach-{Guid.NewGuid():N}",
+                       Login = coachLogin,
                        Password = "12345Aa!",
                        Role = "Coach",
                        MustChangePassword = false,
@@ -862,6 +1037,7 @@ public class UsersApiTests
         {
             Assert.Equal(HttpStatusCode.Created, createCoachResponse.StatusCode);
             var payload = await ReadJsonElementAsync(createCoachResponse);
+            coachId = GetGuidFromProperty(payload, "id");
             Assert.Equal(JsonValueKind.Null, payload.GetProperty("branchId").ValueKind);
             Assert.Equal(["Coach"], payload.GetProperty("roleOptions")
                 .EnumerateArray()
@@ -871,28 +1047,28 @@ public class UsersApiTests
 
         using (var updateAdministratorResponse = await PutJsonAsync(
                    client,
-                   $"/users/{administratorId}",
+                   $"/users/{coachId}",
                    new
                    {
-                       FullName = "SA Happy Administrator moved",
-                       Login = administratorLogin,
-                       Role = "Administrator",
+                       FullName = "SA Happy Coach updated",
+                       Login = coachLogin,
+                       Role = "Coach",
                        MustChangePassword = true,
                        IsActive = false,
-                       BranchId = seeded.BranchId
+                       BranchId = (Guid?)null
                    },
                    session.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.OK, updateAdministratorResponse.StatusCode);
             var payload = await ReadJsonElementAsync(updateAdministratorResponse);
-            Assert.Equal(seeded.BranchId, GetGuidFromProperty(payload, "branchId"));
+            Assert.Equal(JsonValueKind.Null, payload.GetProperty("branchId").ValueKind);
             Assert.False(payload.GetProperty("isActive").GetBoolean());
         }
 
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
         var administratorAudit = await dbContext.AuditLogs
-            .Where(log => log.EntityType == "User" && log.EntityId == administratorId.ToString())
+            .Where(log => log.EntityType == "User" && log.EntityId == coachId.ToString())
             .OrderBy(log => log.CreatedAt)
             .ToListAsync();
 
@@ -900,9 +1076,9 @@ public class UsersApiTests
         Assert.All(administratorAudit, log => Assert.Equal(seeded.SuperAdministratorId, log.UserId));
         Assert.Equal("UserCreated", administratorAudit[0].ActionType);
         Assert.Equal("UserUpdated", administratorAudit[1].ActionType);
-        AssertAuditState(administratorAudit[0].NewValueJson, "Administrator", seeded.SecondBranchId);
-        AssertAuditState(administratorAudit[1].OldValueJson, "Administrator", seeded.SecondBranchId);
-        AssertAuditState(administratorAudit[1].NewValueJson, "Administrator", seeded.BranchId);
+        AssertAuditState(administratorAudit[0].NewValueJson, "Coach", null);
+        AssertAuditState(administratorAudit[1].OldValueJson, "Coach", null);
+        AssertAuditState(administratorAudit[1].NewValueJson, "Coach", null);
         AssertNoPasswordInAuditState(administratorAudit[0].NewValueJson);
         AssertNoPasswordInAuditState(administratorAudit[1].NewValueJson);
     }
@@ -924,7 +1100,7 @@ public class UsersApiTests
 
         using (var createResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/settings/administrators",
                    new
                    {
                        FullName = "Archived assigned administrator",
@@ -951,7 +1127,7 @@ public class UsersApiTests
 
         using (var preserveResponse = await PutJsonAsync(
                    client,
-                   $"/users/{assignedUserId}",
+                   $"/settings/administrators/{assignedUserId}",
                    new
                    {
                        FullName = "Archived assigned administrator updated",
@@ -980,7 +1156,7 @@ public class UsersApiTests
 
         using (var createOnArchivedResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/settings/administrators",
                    new
                    {
                        FullName = "New archived administrator",
@@ -999,7 +1175,7 @@ public class UsersApiTests
 
         using (var reassignToArchivedResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.AdministratorId}",
+                   $"/settings/administrators/{seeded.AdministratorId}",
                    new
                    {
                        FullName = "Администратор Stage 4",
@@ -1050,6 +1226,64 @@ public class UsersApiTests
         var login = $"settings-sa-admin-{Guid.NewGuid():N}";
         Guid administratorId;
 
+        using (var listResponse = await client.GetAsync("/settings/administrators"))
+        {
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(listResponse);
+            Assert.Equal(
+                ["Administrator"],
+                payload.GetProperty("createRoleOptions").EnumerateArray().Select(item => item.GetString()!).ToArray());
+
+            var items = payload.GetProperty("items").EnumerateArray().ToArray();
+            Assert.Contains(items, item => GetGuidFromProperty(item, "id") == seeded.AdministratorId);
+            var peerSuperAdministrator = items.Single(item => GetGuidFromProperty(item, "id") == seeded.PeerSuperAdministratorId);
+            Assert.Equal("SuperAdministrator", GetStringFromProperty(peerSuperAdministrator, "role"));
+            Assert.Empty(peerSuperAdministrator.GetProperty("allowedActions").EnumerateArray());
+            Assert.Empty(peerSuperAdministrator.GetProperty("roleOptions").EnumerateArray());
+        }
+
+        var forbiddenLogin = $"settings-sa-forbidden-{Guid.NewGuid():N}";
+        int userCountBeforeForbidden;
+        int auditCountBeforeForbidden;
+        using (var forbiddenBeforeScope = factory.Services.CreateScope())
+        {
+            var forbiddenBeforeDbContext = forbiddenBeforeScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            userCountBeforeForbidden = await forbiddenBeforeDbContext.Users.CountAsync();
+            auditCountBeforeForbidden = await forbiddenBeforeDbContext.AuditLogs.CountAsync(log => log.EntityType == "User");
+        }
+
+        using (var forbiddenCreateResponse = await PostJsonAsync(
+                   client,
+                   "/settings/administrators",
+                   new
+                   {
+                       FullName = "Forbidden peer super administrator",
+                       Login = forbiddenLogin,
+                       Password = "12345Aa!",
+                       Role = "SuperAdministrator",
+                       MustChangePassword = false,
+                       IsActive = true,
+                       BranchId = (Guid?)null
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, forbiddenCreateResponse.StatusCode);
+            await AssertProblemDetailsAsync(
+                forbiddenCreateResponse,
+                "/problems/staff-role-transition-forbidden",
+                "staff_role_transition_forbidden");
+        }
+
+        using (var forbiddenVerificationScope = factory.Services.CreateScope())
+        {
+            var forbiddenVerificationDbContext = forbiddenVerificationScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            Assert.Equal(userCountBeforeForbidden, await forbiddenVerificationDbContext.Users.CountAsync());
+            Assert.False(await forbiddenVerificationDbContext.Users.AnyAsync(user => user.Login == forbiddenLogin));
+            Assert.Equal(
+                auditCountBeforeForbidden,
+                await forbiddenVerificationDbContext.AuditLogs.CountAsync(log => log.EntityType == "User"));
+        }
+
         using (var createResponse = await PostJsonAsync(
                    client,
                    "/settings/administrators",
@@ -1058,6 +1292,7 @@ public class UsersApiTests
                        FullName = "Settings SA Administrator",
                        Login = login,
                        Password = "12345Aa!",
+                       Role = "Administrator",
                        MustChangePassword = false,
                        IsActive = true,
                        BranchId = seeded.SecondBranchId
@@ -1082,6 +1317,7 @@ public class UsersApiTests
                    {
                        FullName = "Settings SA Administrator moved",
                        Login = login,
+                       Role = "Administrator",
                        MustChangePassword = true,
                        IsActive = false,
                        BranchId = seeded.BranchId
@@ -1138,7 +1374,7 @@ public class UsersApiTests
         {
             using var response = await PostJsonAsync(
                 client,
-                "/users",
+                "/settings/administrators",
                 new
                 {
                     FullName = "Invalid branch administrator",
@@ -1156,7 +1392,7 @@ public class UsersApiTests
 
         using (var response = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.AdministratorId}",
+                   $"/settings/administrators/{seeded.AdministratorId}",
                    new
                    {
                        FullName = "Administrator invalid move",

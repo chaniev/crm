@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Paper,
-  Select,
   Stack,
   Text,
   ThemeIcon,
@@ -12,10 +11,8 @@ import { IconArrowLeft, IconDeviceFloppy, IconUserCog } from '@tabler/icons-reac
 import {
   ApiError,
   applyFieldErrors,
-  getBranches,
   getUser,
   updateUser,
-  type Branch,
   type UserDetails,
 } from '../../lib/api'
 import { resources } from '../../lib/resources'
@@ -34,10 +31,6 @@ import {
   UserFormFields,
   type EditUserFormValues,
 } from './UserFormFields'
-import {
-  toUserRoleOptions,
-  userRoleOptions,
-} from './UserManagement.constants'
 import {
   toEditUserFormValues,
   toUpdateUserPayload,
@@ -61,7 +54,6 @@ export function UserEditScreen({
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [user, setUser] = useState<UserDetails | null>(null)
-  const [branches, setBranches] = useState<Branch[]>([])
   const form = useForm<EditUserFormValues>({
     initialValues: {
       fullName: '',
@@ -76,12 +68,6 @@ export function UserEditScreen({
     validate: {
       fullName: (value) =>
         value.trim() ? null : resources.users.form.validation.fullNameRequired,
-      role: (value) =>
-        value ? null : resources.users.form.validation.roleRequired,
-      branchId: (value, values) =>
-        values.role === 'Administrator' && !value
-          ? 'Выберите филиал администратора.'
-          : null,
     },
   })
   const formRef = useRef(form)
@@ -125,30 +111,6 @@ export function UserEditScreen({
     return () => controller.abort()
   }, [userId])
 
-  useEffect(() => {
-    if (user?.role !== 'Administrator' && !user?.roleOptions?.includes('Administrator')) {
-      return
-    }
-
-    const controller = new AbortController()
-
-    void getBranches({ includeArchived: true }, controller.signal)
-      .then((nextBranches) => {
-        if (controller.signal.aborted) {
-          return
-        }
-
-        setBranches(nextBranches)
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) {
-          setBranches([])
-        }
-      })
-
-    return () => controller.abort()
-  }, [user])
-
   async function submit(values: EditUserFormValues) {
     if (!canMutateUser(user)) {
       return
@@ -159,7 +121,11 @@ export function UserEditScreen({
     form.clearErrors()
 
     try {
-      const updatedUser = await updateUser(userId, toUpdateUserPayload(values))
+      const updatedUser = await updateUser(userId, toUpdateUserPayload({
+        ...values,
+        role: 'Coach',
+        branchId: '',
+      }))
 
       if (userId === currentUserId) {
         await onRefreshSession()
@@ -245,20 +211,9 @@ export function UserEditScreen({
                     credentialsFields={<UserEditCredentialsFields form={form} />}
                     form={form}
                     isActiveDisabled={!canMutateUser(user)}
-                    roleDisabled={!canMutateUser(user)}
-                    roleOptions={resolveEditRoleOptions(user)}
+                    roleOptions={[]}
+                    showRoleField={false}
                   />
-                  {form.values.role === 'Administrator' ? (
-                    <Select
-                      allowDeselect={false}
-                      data={buildBranchOptions(branches, user)}
-                      disabled={!canMutateUser(user)}
-                      error={form.errors.branchId}
-                      label="Филиал администратора"
-                      onChange={(value) => form.setFieldValue('branchId', value ?? '')}
-                      value={form.values.branchId || null}
-                    />
-                  ) : null}
 
                   <Paper className="hint-card" radius="24px" withBorder>
                     <Stack gap={6}>
@@ -303,34 +258,4 @@ function canMutateUser(user: UserDetails | null) {
   }
 
   return user.allowedActions.includes('Edit') || user.allowedActions.includes('Update')
-}
-
-function resolveEditRoleOptions(user: UserDetails | null) {
-  if (user?.roleOptions?.length) {
-    return toUserRoleOptions(user.roleOptions)
-  }
-
-  if (user) {
-    return toUserRoleOptions([user.role])
-  }
-
-  return userRoleOptions
-}
-
-function buildBranchOptions(branches: Branch[], user: UserDetails | null) {
-  const activeOptions = branches
-    .filter((branch) => !branch.isArchived)
-    .map((branch) => ({ value: branch.id, label: branch.name }))
-
-  if (
-    user?.branchId &&
-    !activeOptions.some((option) => option.value === user.branchId)
-  ) {
-    activeOptions.push({
-      value: user.branchId,
-      label: user.branchName ? `${user.branchName} (архивный)` : 'Архивный филиал',
-    })
-  }
-
-  return activeOptions
 }

@@ -23,6 +23,22 @@ public class UserRoleAuthorizationPolicyTests
     }
 
     [Fact]
+    public void Super_administrator_is_capability_superset_of_administrator()
+    {
+        foreach (var capability in Enum.GetValues<CrmCapability>())
+        {
+            if (!UserRoleAuthorizationPolicy.HasCapability(UserRole.Administrator, capability))
+            {
+                continue;
+            }
+
+            Assert.True(
+                UserRoleAuthorizationPolicy.HasCapability(UserRole.SuperAdministrator, capability),
+                $"SuperAdministrator must include Administrator capability '{capability}'.");
+        }
+    }
+
+    [Fact]
     public void Task080_administrator_is_route_eligible_for_attendance_without_implying_global_scope()
     {
         var permissions = UserRoleAuthorizationPolicy.GetPermissions(UserRole.Administrator);

@@ -24,6 +24,15 @@ internal static class StaffManagementMutationService
         var requestedRole = UserRequestValidator.ParseRole(command.Role);
         if (requestedRole.HasValue)
         {
+            var endpointFamilyDecision = StaffManagementBoundary.AuthorizeEndpointRoleFamily(
+                command.EndpointRoleFamily,
+                command.Actor,
+                requestedRole.Value);
+            if (!endpointFamilyDecision.Allowed)
+            {
+                return StaffMutationResult.Forbidden(endpointFamilyDecision.Denial);
+            }
+
             var authorizationDecision = StaffManagementBoundary.AuthorizeCreate(command.Actor, requestedRole.Value);
             if (!authorizationDecision.Allowed)
             {
@@ -102,14 +111,18 @@ internal static class StaffManagementMutationService
             return StaffMutationResult.Forbidden(managementDecision.Denial);
         }
 
-        var users = dbContext.Users.AsQueryable();
-        if (command.TargetRoleFilter.HasValue)
-        {
-            users = users.Where(user => user.Role == command.TargetRoleFilter.Value);
-        }
-
-        var user = await users.SingleOrDefaultAsync(
-            candidate => candidate.Id == command.TargetId,
+        var user = await dbContext.Users.SingleOrDefaultAsync(
+            candidate =>
+                candidate.Id == command.TargetId &&
+                (command.EndpointRoleFamily == StaffEndpointRoleFamily.Trainers &&
+                    candidate.Role == UserRole.Coach ||
+                 command.EndpointRoleFamily == StaffEndpointRoleFamily.Administrators &&
+                    (candidate.Role == UserRole.Administrator || candidate.Role == UserRole.SuperAdministrator) ||
+                 command.AllowHeadCoachSelfUpdateException &&
+                    command.EndpointRoleFamily == StaffEndpointRoleFamily.Trainers &&
+                    command.Actor.Id == candidate.Id &&
+                    command.Actor.Role == UserRole.HeadCoach &&
+                    candidate.Role == UserRole.HeadCoach),
             cancellationToken);
         if (user is null)
         {
@@ -121,6 +134,17 @@ internal static class StaffManagementMutationService
         var requestedRole = UserRequestValidator.ParseRole(command.Role);
         if (requestedRole.HasValue)
         {
+            var endpointFamilyDecision = StaffManagementBoundary.AuthorizeEndpointRoleFamily(
+                command.EndpointRoleFamily,
+                command.Actor,
+                requestedRole.Value,
+                user,
+                command.AllowHeadCoachSelfUpdateException);
+            if (!endpointFamilyDecision.Allowed)
+            {
+                return StaffMutationResult.Forbidden(endpointFamilyDecision.Denial);
+            }
+
             var authorizationDecision = StaffManagementBoundary.AuthorizeUpdate(command.Actor, user, requestedRole.Value);
             if (!authorizationDecision.Allowed)
             {
@@ -173,7 +197,7 @@ internal static class StaffManagementMutationService
             cancellationToken);
 
         await dbContext.Entry(user).ReloadAsync(cancellationToken);
-        if (command.TargetRoleFilter.HasValue && user.Role != command.TargetRoleFilter.Value)
+        if (!IsTargetInEndpointFamily(command, user))
         {
             if (transaction is not null)
             {
@@ -185,6 +209,22 @@ internal static class StaffManagementMutationService
 
         if (requestedRole.HasValue)
         {
+            var lockedEndpointFamilyDecision = StaffManagementBoundary.AuthorizeEndpointRoleFamily(
+                command.EndpointRoleFamily,
+                command.Actor,
+                requestedRole.Value,
+                user,
+                command.AllowHeadCoachSelfUpdateException);
+            if (!lockedEndpointFamilyDecision.Allowed)
+            {
+                if (transaction is not null)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                }
+
+                return StaffMutationResult.Forbidden(lockedEndpointFamilyDecision.Denial);
+            }
+
             var lockedAuthorizationDecision = StaffManagementBoundary.AuthorizeUpdate(command.Actor, user, requestedRole.Value);
             if (!lockedAuthorizationDecision.Allowed)
             {
@@ -256,6 +296,16 @@ internal static class StaffManagementMutationService
         }
 
         return StaffMutationResult.Updated(user);
+    }
+
+    private static bool IsTargetInEndpointFamily(StaffUpdateCommand command, User user)
+    {
+        return StaffEndpointRoleFamilies.Contains(command.EndpointRoleFamily, user.Role) ||
+            command.AllowHeadCoachSelfUpdateException &&
+            StaffEndpointRoleFamilies.CanUseHeadCoachSelfUpdateException(
+                command.EndpointRoleFamily,
+                command.Actor,
+                user);
     }
 
     private static async Task LockStaffUpdateRowsAsync(

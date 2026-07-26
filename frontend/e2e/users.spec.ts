@@ -29,6 +29,7 @@ const headCoachSession = {
       canViewFinancialReports: true,
     },
     assignedGroupIds: [],
+    createRoleOptions: ['SuperAdministrator', 'Administrator', 'Coach'],
   },
 } as const
 
@@ -282,6 +283,58 @@ test('Создание тренера скрывает выбор роли и о
     mustChangePassword: true,
     isActive: true,
   })
+})
+
+test('Редактирование администратора через /users завершается ошибкой staff_not_found', async ({
+  page,
+}) => {
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const method = route.request().method()
+
+    if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/users/admin-1' && method === 'GET') {
+      await fulfillJson(route, 404, {
+        title: 'Не найдено',
+        detail: 'Сотрудник не найден.',
+        code: 'staff_not_found',
+      })
+      return
+    }
+
+    throw new Error(
+      `Unexpected API request in users e2e: ${method} ${requestUrl.pathname}`,
+    )
+  })
+
+  await page.goto('/users/admin-1/edit')
+
+  await expect(page.getByText('Карточка не загрузилась')).toBeVisible()
+  await expect(page.getByText('Сотрудник не найден.')).toBeVisible()
 })
 
 async function fulfillJson(
