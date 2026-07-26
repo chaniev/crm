@@ -75,6 +75,61 @@ Rules:
 - keep filters compact when closed and explicit when active;
 - preserve search or current context when navigating back;
 - prefer one-handed reach for the primary mobile action where practical.
+- keep route headers title-and-actions-first on mobile and desktop; do not add
+  subtitle, eyebrow, badge, intro, or helper copy unless its absence could
+  cause a wrong action, hide a constraint or consequence, or block recovery;
+- place allowed validation, recovery, security/legal, prerequisite, scope, and
+  operational-state copy next to the affected field, action, section, or state
+  surface instead of using it as decorative text under the route title.
+- omit the visible generic label above a sole, obvious route-level search on
+  mobile and desktop; keep a stable accessible name through an associated
+  visually-hidden label or ARIA, and do not use placeholder as that name;
+- preserve visible persistent labels for ordinary forms, multiple or ambiguous
+  text fields, and period/date/scope controls.
+- hide the visible route heading on a top-level list only when an active,
+  persistent navigation item already names that route unambiguously; retain a
+  visually-hidden `h1`, document title, named main landmark, and active-nav
+  semantics;
+- move actions from a hidden list header into the first locator/toolbar/summary
+  row without leaving a spacer or hiding primary/frequent operations;
+- keep the route-level locator field, filter trigger, and retained toolbar
+  actions in one non-wrapping row on mobile, tablet, and desktop; do not create
+  a second action-only line that leaves unused space beside the search field;
+- under width pressure, preserve a useful search width and collapse primary
+  create to an accessible `44 x 44px` icon button before wrapping the toolbar;
+  desktop may restore the action text, but must keep the same single-row
+  hierarchy;
+- do not add aggregate summary/stat widgets to a registry list unless each
+  value changes a current user decision and cannot be expressed more directly
+  in locator, filter, range/status, or entity rows; extra desktop width is not
+  a justification for widgets;
+- do not add a section card, title widget, or standalone range/status panel
+  that merely restates the selected persistent tab or names the collection
+  already made obvious by that tab and its rows; start with the operational
+  list/state on mobile and desktop, and retain a semantic accessible name
+  without visible duplication;
+- do not place a generic section title, task instruction, or decorative
+  date/scope meta immediately before a primary filter/control when the active
+  tab, the control's persistent label, and its selected value already identify
+  the task and context; keep required field labels and move only genuinely
+  decision-changing help next to the affected control on mobile and desktop;
+- a sole unambiguous workspace context selector may visually hide its generic
+  label only when the active tab, selected value, and placement identify it,
+  no adjacent selector can be confused with it, and the control keeps a stable
+  operation-specific accessible name; restore the visible label if another
+  competing selector is introduced;
+- keep visible route titles for detail/create/edit/auth screens and routes
+  whose active navigation is only a generic parent such as `More`; a recovery
+  state with its own specific heading need not duplicate an active route name.
+- when an active mobile overflow destination replaces the last primary route
+  slot, derive its label/icon from the authorized current route, move the
+  displaced route into the overflow drawer, keep the generic `More` trigger
+  stable, and synchronize `aria-current`, popup semantics, deep links,
+  back/forward, and permission redirects.
+- treat configurable auth/start-page imagery as registered deployment branding:
+  keep the current background as deterministic default, preserve an
+  independent contrast-safe form surface, validate responsive focal-point
+  cropping, and never block authentication on image resolution or loading.
 
 Use `.agents/skills/design-first-ui-prompting/SKILL.md` only when the
 deliverable includes a prompt for an external UI generator, a static visual

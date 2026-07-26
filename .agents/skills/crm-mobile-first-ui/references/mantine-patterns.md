@@ -42,7 +42,9 @@ Use the installed Mantine version and inspect existing shared components before 
 
 - Use the correct input type and autocomplete attributes.
 - Keep text inputs, textareas, and selects at 16 CSS px or larger on iPhone.
-- Keep labels persistent; do not rely on placeholder-only identification.
+- Keep labels persistent for ordinary forms, multiple or ambiguous fields, and
+  period/date/scope controls. A sole obvious route-level search may use a
+  visually-hidden label or ARIA name, but never placeholder-only identification.
 - Scroll or focus the first invalid field after submit.
 - Preserve entered values after recoverable API errors.
 - Keep the submit action visible or reachable with the mobile keyboard open.

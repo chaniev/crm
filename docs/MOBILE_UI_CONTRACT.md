@@ -9,7 +9,8 @@
 
 - задаёт единый task-first workflow, визуальную систему и responsive-поведение;
 - отделяет общие правила интерфейса от предметных особенностей экранов;
-- задаёт механизм выбора цветовой темы для разных deployment;
+- задаёт механизм выбора цветовой темы и фонового изображения стартовой
+  страницы для разных deployment;
 - является обязательной основой для `TASK-084`–`TASK-089` и новых UI-задач;
 - уточняет завершённые `TASK-046`, `TASK-048`, `TASK-051` и `TASK-056`, не
   открывая их повторно.
@@ -29,6 +30,7 @@ accessibility.
 - списки, поиск, фильтры, формы, preview/detail, temporary surfaces;
 - loading, empty, error, stale, disabled, restricted, success;
 - deployment-specific light theme profiles;
+- deployment-specific registered background images для auth/start page;
 - общие Mantine-компоненты, Onest и Tabler Icons.
 
 ### Вне scope
@@ -125,7 +127,8 @@ Generic route-level restricted copy может находиться во fronten
 В `browse` state используется единый порядок:
 
 1. shell header;
-2. page header;
+2. semantic route title и, только если он не дублирует persistent navigation,
+   visible page header;
 3. primary locator;
 4. active filters и range/status;
 5. result, form или recovery state;
@@ -134,6 +137,204 @@ Generic route-level restricted copy может находиться во fronten
 У каждого route есть ровно один `h1` и корректный document title. В
 `search-focused` state видимый page header может свернуться, но route остаётся
 доступно назван через document title, landmark и accessible name locator/results.
+
+### Видимость route title
+
+На mobile, tablet и desktop visible route header не показывается, если
+одновременно выполняются все условия:
+
+- это top-level list/workspace screen;
+- active persistent navigation или tab уже видимо и однозначно называет route;
+- `h1` не содержит entity identity, operation mode или critical scope;
+- действия из header помещаются в первый locator/toolbar/summary row без
+  скрытия primary/frequent operation.
+
+Для таких экранов semantic `h1` остаётся первым элементом route `main`, но
+визуально скрывается. Document title, main landmark name и
+`aria-current="page"` активной навигации сохраняют доступное название route.
+На mobile это применяется, например, к list screens `Клиенты`, `Группы` и
+`Расписание`, когда одноимённый пункт bottom navigation виден и активен. На
+desktop то же правило действует при одноимённом active item в persistent
+sidebar/top navigation.
+
+После удаления visible header:
+
+- первый видимый row содержит locator, filters, summary или другой рабочий
+  control;
+- refresh и другие frequent actions переходят в locator/toolbar;
+- create/add остаётся видимым в первом task area и не уходит в overflow;
+- пустой spacer или action-only строка на месте header не создаётся.
+
+Visible `h1` сохраняется, если active navigation не называет текущий route
+однозначно: например, mobile navigation показывает generic `Ещё`, а не текущий
+destination; route является detail/create/edit/form/auth screen; заголовок
+называет сущность или операцию; recovery state не имеет собственного
+конкретного heading; либо перенос действий скроет primary operation. После
+продвижения overflow destination в четвёртый adaptive slot top-level
+`Тренеры`, `Журнал`, `Финансы` или `Настройки` считаются однозначно названными
+active navigation и проходят общий visibility test без специального исключения
+для routes, исходно находившихся под `Ещё`.
+Create/edit/detail route сохраняет visible operation/entity title: active
+parent `Тренеры` не заменяет `Новый тренер` или имя редактируемого тренера.
+Если active `Клиенты` и state heading уже сообщает `Список клиентов не
+загрузился` / `Клиентов пока нет`, дублирующий visible route title не нужен.
+Active parent `Клиенты` не заменяет visible title `Карточка клиента`.
+
+Дополнительная ширина `768` или `1440px` не возвращает дублирующий header.
+Если desktop sidebar уже называет list route, content начинается с toolbar,
+table/list или summary. Если sidebar показывает лишь общий parent, visible
+route title сохраняется.
+
+### Виджет, повторяющий активную вкладку
+
+На mobile, tablet и desktop внутри active persistent tab запрещён section
+card/title widget, который только повторяет название выбранной вкладки или
+переименовывает уже очевидную коллекцию. Например, active tab
+`Требуют внимания` не сопровождается карточкой
+`Клиенты, требующие внимания`.
+
+В обычном tabbed workspace после tabs сразу начинается:
+
+1. необходимый operational toolbar без повторного заголовка;
+2. loading/error/empty state с конкретным state heading; или
+3. список рабочих объектов.
+
+Если count уже находится в badge активной вкладки, отдельная summary/range
+card с тем же count не создаётся. Порядок сортировки, freshness или scope
+показываются только когда меняют решение пользователя, и тогда используются
+как компактные данные без card/section-title styling.
+
+Semantic имя списка, tab state, document title и скрытый route heading
+сохраняются. Для focus recovery допустим visually-hidden list heading или
+accessible name, но не видимый дубль. Если тот же блок используется standalone
+без называющей его вкладки или навигации, visible title возвращается.
+
+На `768` и `1440px` дополнительная ширина не возвращает удалённый title widget,
+summary card или отдельную range/status panel. Desktop и mobile используют
+одинаковую информационную иерархию.
+
+### Вводный текст перед рабочим фильтром
+
+На mobile, tablet и desktop перед primary filter/control не показываются
+generic section title, инструкция или декоративная date/scope meta, если
+контекст уже однозначно задан active tab, accessible name самого control,
+его положением и selected value.
+
+Например, внутри active tab `Посещения` перед select `Группа` не используются
+`Отметка посещений`, отдельная строка `Среда, 29 июля` и generic visible label
+`Группа`: tab называет workspace, единственный select и выбранное значение
+показывают scope, а date navigation сообщает текущую дату.
+
+После active tab первым элементом рабочей section становится сам control либо
+control group. При удалении intro:
+
+- ordinary form label и labels в ambiguous/multi-control context не удаляются;
+- единственный однозначный workspace selector может скрыть generic label
+  визуально, но сохраняет stable operation-specific accessible name, не
+  зависящий от placeholder/value;
+- selected value и validation/recovery остаются у control;
+- date/scope navigation сохраняет accessible name;
+- progress и operational state остаются после controls;
+- пустой spacer на месте title/meta не создаётся.
+
+Visible control-intro допустим только при ambiguous scope, prerequisite,
+security/legal consequence, validation/recovery или constraint, меняющем
+решение пользователя. Такой текст размещается рядом с затронутым control, а не
+в generic section header.
+
+На `768` и `1440px` удалённые на mobile title/instruction/date meta не
+возвращаются для заполнения свободного места. Desktop использует тот же
+control-first порядок.
+
+Для `home-attendance-ready` select получает accessible name
+`Группа для отметки посещений`, но не показывает отдельный visible label
+`Группа`. Это узкое исключение отменяется, если рядом появляется второй select,
+control переносится из attendance context или selected value перестаёт
+однозначно сообщать объект выбора.
+
+### Сводные виджеты на list screen групп
+
+`Группы` используют единый registry pattern на mobile, tablet и desktop без
+верхних summary/stat widgets. Карточки `Всего`, `Активные`, `Без тренера`,
+`Перегружены` и их сокращённые варианты не показываются перед locator или
+списком.
+
+Первым видимым рабочим блоком после shell является locator/filter toolbar с
+доступными refresh и create actions, затем range/status и строки групп.
+Количество результатов сообщает range/status, а требующие внимания признаки
+показываются в соответствующем фильтре или строке группы. Дополнительная ширина
+`768` или `1440px` не возвращает удалённые виджеты.
+
+Новый summary widget на registry screen допустим только если он необходим для
+решения текущей задачи и его значение нельзя понятнее показать в locator,
+filter, range/status или строке объекта. Свободное место на desktop не является
+основанием для такого виджета.
+
+### Поясняющий текст и служебные метки
+
+На mobile, tablet и desktop route-level header по умолчанию содержит только
+короткий `h1` и действия. Постоянные subtitle/description под `h1`,
+intro/hero-copy, eyebrow, badge/chip и другой служебный helper text запрещены,
+если они не меняют решение пользователя в текущем task state.
+
+Перед добавлением любого пояснения применяется `decision/usefulness test`.
+Текст допускается только если без него пользователь может:
+
+- выполнить неверное действие или не понять его важное последствие;
+- не понять причину ограничения или недоступности;
+- не выполнить обязательную предпосылку;
+- не восстановиться после ошибки;
+- пропустить security/legal/compliance требование;
+- неверно определить неоднозначный scope, status или backend-owned constraint.
+
+Текст, который лишь пересказывает title, navigation label, тип формы, роль или
+очевидную цель экрана, тест не проходит. В частности, нельзя добавлять под
+route title формулировки вроде `Управление и история`, а перед формой
+принудительной смены пароля — декоративную метку `Обязательное действие`.
+Свободное место на desktop не является основанием вернуть такой текст.
+
+Допустимые пояснения размещаются рядом с местом решения:
+
+- validation и password policy — у соответствующего поля;
+- prerequisite, security/legal и необратимое последствие — у действия или
+  внутри связанной form section;
+- scope, выбранная дата/range/entity — в locator, toolbar, detail или content
+  section;
+- loading, empty, error, stale, restricted, recovery и success — в
+  соответствующем state panel или inline recovery block.
+
+Critical copy нельзя удалять только ради сокращения высоты. Если допустимое
+пояснение не помещается компактно, его переносят из route header в связанную
+рабочую section, сохраняя доступность и порядок focus.
+
+### Подпись primary search locator
+
+На mobile, tablet и desktop единственный очевидный primary search locator
+показывается без видимой строки label перед полем. Generic подписи `Поиск`,
+`Найти запись`, `Найти занятие`, `Найти клиента` и их аналоги запрещены, если:
+
+- поле занимает стандартную route-level locator position;
+- search icon и placeholder однозначно показывают searchable attributes;
+- рядом нет другого text/search field, с которым его можно перепутать.
+
+Удаление видимого label не отменяет доступное имя. Search input обязан иметь
+стабильный `accessible name` через связанный visually-hidden `label`,
+`aria-label` или `aria-labelledby`. Имя называет операцию и объект, например
+`Найти клиента`, `Найти группу`, `Найти запись журнала`, и не исчезает после
+ввода значения. Placeholder сообщает формат или searchable attributes
+(`Имя или телефон`, `Пользователь или действие`), но не является единственным
+accessible name.
+
+Visible label допускается только как измеримое исключение:
+
+- на одной surface находятся несколько text/search fields;
+- locator встроен в форму, modal или detail и без label неоднозначен;
+- control является не search, а period/date/scope selector;
+- без label пользователь может выбрать неверный scope или тип данных.
+
+Исключение не распространяется на обычные form fields: их persistent labels
+сохраняются. Дополнительная ширина `768` или `1440px` не возвращает generic
+search label, удалённый на mobile.
 
 ### Смысл поверхности
 
@@ -164,7 +365,8 @@ Generic route-level restricted copy может находиться во fronten
 - ФИО и другое primary identity на mobile допускает две строки;
 - required decision data нельзя размещать только в `12px` copy;
 - counters используют `font-variant-numeric: tabular-nums`;
-- placeholder не заменяет label;
+- placeholder не заменяет accessible name; visible label может быть скрыт
+  только у единственного очевидного primary search locator по правилу выше;
 - локальные размеры route title запрещены.
 
 ### Spacing
@@ -219,7 +421,8 @@ Icon-only action обязан иметь доступное имя. Иконка
 ### Цель
 
 Разные deployment могут использовать разные заранее утверждённые наборы
-цветов, не меняя разметку, hierarchy, component API и смысл состояний.
+цветов и фоновое изображение стартовой страницы, не меняя разметку, hierarchy,
+component API и смысл состояний.
 
 Один profile содержит:
 
@@ -238,12 +441,15 @@ Icon-only action обязан иметь доступное имя. Иконка
 ```json
 {
   "clubName": "K-4PRO",
-  "themeId": "default-green-v1"
+  "themeId": "default-green-v1",
+  "authBackgroundImageId": "k4pro-login-v1"
 }
 ```
 
 Deployment выбирает profile через environment configuration, например
-`CRM_THEME_ID`. Значение передаётся backend как `Branding__ThemeId`.
+`CRM_THEME_ID`, а фоновое изображение — через
+`CRM_AUTH_BACKGROUND_IMAGE_ID`. Значения передаются backend как
+`Branding__ThemeId` и `Branding__AuthBackgroundImageId`.
 
 Frontend содержит registry заранее утверждённых versioned profiles:
 
@@ -262,21 +468,40 @@ type ThemeProfile = {
     MantineColorsTuple?,
   ]
 }
+
+type AuthBackgroundProfile = {
+  schemaVersion: 1
+  id: string
+  asset: string
+  focalPoint: {
+    xPercent: number
+    yPercent: number
+  }
+}
 ```
 
-`themeId` является opaque identifier. Произвольные hex, CSS variables, URL и
-style rules через `/api/config` не передаются.
+`themeId` и `authBackgroundImageId` являются независимыми opaque identifiers:
+deployment может использовать одну palette с разными фоновыми изображениями.
+Произвольные hex, CSS variables, URL, binary image data и style rules через
+`/api/config` не передаются.
 
 Ответственность разделена однозначно:
 
 - backend заменяет missing/blank value на `default-green-v1`, trim-ит
   configured string и возвращает его через `/api/config`;
+- backend заменяет missing/blank `AuthBackgroundImageId` на
+  `k4pro-login-v1`, trim-ит non-empty configured string и возвращает его без
+  registry validation;
 - backend не содержит копию frontend registry и не определяет, зарегистрирован
-  ли non-empty `themeId`;
+  ли non-empty theme/background identifier;
 - frontend-функция `resolveThemeProfile(themeId)` единолично ищет profile в
   registry;
+- frontend-функция
+  `resolveAuthBackgroundProfile(authBackgroundImageId)` единолично ищет
+  background profile в registry;
 - неизвестный frontend registry identifier даёт `default-green-v1` и
-  reportable warning.
+  `k4pro-login-v1` соответственно, создаёт reportable warning и не блокирует
+  экран входа.
 
 ### Обязательные profiles
 
@@ -287,6 +512,36 @@ style rules через `/api/config` не передаются.
 Новый production profile добавляется в registry только вместе с theme,
 contrast и affected-screen tests. Deployment может переключаться между уже
 зарегистрированными profiles без изменения feature code.
+
+### Фоновое изображение auth/start page
+
+- `k4pro-login-v1` является обязательным default background profile и
+  ссылается на текущее bundled изображение
+  `frontend/src/assets/auth/k4pro-login-bg.png`.
+- Background применяется ко всему unauthenticated/forced-auth stage:
+  config/session loading, bootstrap error, `auth-login` и forced
+  `auth-password-change`. Utility password screen внутри authenticated shell
+  не превращается в стартовую страницу.
+- Изображение декоративное: не создаёт отдельный accessible object и не требует
+  `alt`; доступное имя и heading принадлежат форме или state card.
+- Auth card, inputs, validation, recovery и primary action не используют
+  изображение как единственный фон. Карточка сохраняет собственную opaque или
+  contrast-safe surface; нормальный текст проходит `4.5:1`, controls/boundaries
+  — `3:1`.
+- Image использует `background-size: cover`, не растягивается с нарушением
+  пропорций и кадрируется от зарегистрированного focal point. На `360`, `390`,
+  `420`, `440`, `768` и `1440px` форма остаётся первым task target, а image не
+  перекрывает и не сдвигает её.
+- Asset-specific overlay/crop хранится только в registered background profile
+  или явном allowlist. Deployment config не передаёт произвольный overlay,
+  position, CSS или URL.
+- Загрузка custom image не блокирует доступность формы входа. До разрешения
+  `/api/config` используется `k4pro-login-v1`; unknown id, decode/load error или
+  недоступный asset переключаются на current default image, а при невозможности
+  загрузить и его — на semantic solid auth background без layout shift.
+- Новый background profile добавляется только вместе с asset ownership/license
+  confirmation, responsive crop review и auth contrast tests. Выбор profile не
+  меняет content, geometry, focus order, validation или auth semantics.
 
 ### Семантические tokens
 
@@ -331,8 +586,8 @@ branch не кодируются отдельными цветами.
   разрешает profile и только затем монтирует meaningful `App` внутри
   `MantineProvider`.
 - До разрешения config допустим минимальный loading shell в bundled default
-  theme; route content и authenticated shell в неподтверждённой palette не
-  показываются.
+  theme и с `k4pro-login-v1`; route content и authenticated shell в
+  неподтверждённой palette не показываются.
 - `App` получает уже загруженный app config через props/context и не выполняет
   второй `/config` request.
 - `test/render.tsx` позволяет явно передать `themeId`/profile и по умолчанию
@@ -348,11 +603,14 @@ branch не кодируются отдельными цветами.
 ### Fallback и validation
 
 - missing/blank backend configuration считается обычным default и не требует
-  warning; `/api/config` возвращает `default-green-v1`;
+  warning; `/api/config` возвращает `default-green-v1` и
+  `k4pro-login-v1`;
 - unknown non-empty identifier возвращается backend без registry validation;
-- frontend разрешает unknown identifier в `default-green-v1`, фиксирует
-  reportable warning и не блокирует login;
-- profile schema и количество palettes проверяются unit tests;
+- frontend разрешает unknown theme/background identifiers в
+  `default-green-v1`/`k4pro-login-v1`, фиксирует reportable warning и не
+  блокирует login;
+- theme/background profile schema, количество palettes и диапазон focal point
+  проверяются unit tests;
 - каждый profile проходит contrast tests:
   - normal text не меньше `4.5:1`;
   - large text и UI boundaries не меньше `3:1`;
@@ -370,6 +628,9 @@ branch не кодируются отдельными цветами.
 - safe-area/keyboard behavior;
 - responsive breakpoints;
 - role-specific доступ.
+
+Фоновое изображение является частью deployment branding, но не меняет эти
+ограничения и не используется на authenticated CRM screens.
 
 ## 5. Общие component recipes
 
@@ -389,7 +650,9 @@ Foundation implementation создаёт focused files и re-export через �
 
 ```ts
 type EntityLocatorBarProps = {
-  label: string
+  accessibleLabel: string
+  placeholder: string
+  visibleLabel?: string
   value: string
   onChange: (value: string) => void
   onClear: () => void
@@ -451,8 +714,12 @@ type TemporarySurfaceFooterProps = {
 
 Behavior:
 
-- `EntityLocatorBar` использует `role="search"`, persistent label и
-  `aria-controls={resultsId}`; filter trigger имеет `aria-haspopup="dialog"`.
+- `EntityLocatorBar` использует `role="search"` и
+  `aria-controls={resultsId}`; input получает `accessibleLabel` через
+  `aria-label`/`aria-labelledby`, а не через placeholder.
+- `visibleLabel` отсутствует у единственного route-level primary search и
+  используется только для перечисленных неоднозначных исключений.
+- Filter trigger имеет `aria-haspopup="dialog"` и отдельное accessible name.
 - `ActiveFiltersBar` имеет доступное имя scope; remove target не меньше `44px`.
 - `ListRangeStatus` использует `role="status"` и `aria-live="polite"`, но не
   объявляет каждую loading animation; при `total=null` показывает известный
@@ -489,32 +756,165 @@ Behavior:
 - Для текущего SuperAdministrator contract primary destinations:
   `Home`, `Schedule`, `Clients`, `Groups`; overflow: `Users`, `Audit`,
   `Settings`; `Finance` отсутствует.
+- При наличии скрытых destinations mobile navigation содержит четыре route
+  slots и стабильный пятый trigger `Ещё` с overflow icon. `Ещё` всегда
+  открывает drawer `Остальные разделы` и не заменяется текущим route.
+- Первые три route slots сохраняют установленный priority order. Четвёртый
+  route slot является adaptive: по умолчанию содержит последнюю видимую
+  primary destination, для полного management access — `Groups`.
+- После перехода на destination из `Ещё` четвёртый adaptive slot заменяет
+  прежнюю четвёртую вкладку на точный label и icon текущего destination:
+  `Users -> Тренеры`, `Audit -> Журнал`, `Finance -> Финансы`,
+  `Settings -> Настройки`.
+- Для полного management access видимый ряд меняется так:
+  `Главная / Расписание / Клиенты / Группы / Ещё` ->
+  `Главная / Расписание / Клиенты / Финансы / Ещё`. На `Журнал`,
+  `Тренеры` и `Настройки` четвёртый slot меняется аналогично.
+- Вытесненная четвёртая destination переходит в drawer вместе с остальными
+  разрешёнными, но не видимыми в первых четырёх slots. Drawer сохраняет
+  canonical `APP_NAVIGATION_SECTIONS` order и не дублирует текущий visible
+  adaptive item. Например, на `Финансы` drawer содержит `Группы`, `Тренеры`,
+  `Журнал`, `Настройки`.
+- Adaptive slot остаётся обычной route navigation: active item использует тот
+  же selected style, что остальные route tabs, и получает
+  `aria-current="page"`. Русские labels `Тренеры`, `Журнал`,
+  `Финансы`, `Настройки` полностью видимы в одну строку на `360–440px`, не
+  перекрывают соседние items и не создают horizontal page scroll.
+- Пятый slot всегда видимо называется `Ещё`, не получает `aria-current` из-за
+  active overflow route и использует accessible name
+  `Ещё, открыть остальные разделы`, `aria-haspopup="dialog"` и актуальный
+  `aria-expanded`. Только он открывает drawer; click по adaptive route slot
+  не смешивается с popup behavior.
+- Если не видна ровно одна разрешённая destination, `Ещё` и drawer с одним
+  пунктом сохраняются. При direct link на этот hidden route он занимает
+  adaptive slot, а вытесненная четвёртая destination становится единственным
+  пунктом drawer.
+- Adaptive state и drawer contents вычисляются из resolved current route и
+  разрешённого `currentSection`, а не запоминаются после click. Reload, direct
+  deep link, browser back/forward и permission redirect синхронно пересчитывают
+  четвёртый slot. Child routes наследуют parent section: `/users/new` и
+  `/users/:id/edit` показывают active `Тренеры`.
+- До разрешения session/access contract shell не показывает предположенные
+  overflow destinations. Недоступный item не появляется даже кратковременно;
+  после redirect route slots и drawer соответствуют разрешённому fallback
+  route.
+- Переход с overflow route на вытесненную primary destination возвращает её в
+  четвёртый slot. Переход между overflow routes заменяет adaptive item без
+  промежуточного состояния и без изменения стабильного `Ещё`.
 - Main content резервирует:
   `navigation height + 16px + env(safe-area-inset-bottom)`.
-- Overflow drawer имеет title, явный close, focus return и dynamic viewport.
+- Overflow drawer имеет title, явный close, focus trap, focus return на
+  актуальный пятый slot и dynamic viewport. Close button остаётся видимым, body
+  скроллится внутри drawer без nested scroll trap.
+- На `768px` и шире mobile bottom navigation скрыта; persistent side/top
+  navigation показывает все разрешённые destinations и точный active item без
+  overflow promotion.
 
 ### Page header
 
-- В `browse` state содержит title, optional count/context и actions.
+- Top-level list route не рендерит visible `PageHeader`, когда одноимённая
+  active persistent navigation уже видима; `h1` остаётся visually hidden.
+- В `browse` state по умолчанию содержит только title и actions.
+- Route-level `PageLayout` / `PageHeader` не предоставляет свободные
+  `description`, `subtitle`, `eyebrow` или badge slots для декоративного текста.
+- Optional count/context допустим только как compact decision data, прошедшие
+  `decision/usefulness test`; это не второе название экрана и не предложение
+  общего назначения.
+- Это ограничение относится к route-level `h1`: section title, status label и
+  required decision data не удаляются, но их пояснения также проходят
+  `decision/usefulness test` и остаются внутри соответствующей section.
+- На `360–440px` допустимый context занимает не больше одной строки. Более
+  длинное обязательное пояснение переносится в связанную content section без
+  потери полного текста.
+- На `768` и `1440px` действует тот же запрет: дополнительная ширина не
+  создаёт desktop-only intro, hero или subtitle. Operational context
+  размещается в toolbar, detail surface, form help или state panel.
+- В compact-height `912 x 420` и `956 x 440` необязательный header context
+  скрывается; обязательный остаётся в рабочей section вместе с действием или
+  recovery path.
 - В action cluster не больше одного filled/accent action.
+- При скрытом `PageHeader` actions переходят в первый locator/toolbar/summary
+  row: primary/frequent остаются видимыми, secondary/rare не создают отдельную
+  строку только ради сохранения прежней геометрии.
 - Refresh — frequent action, а не второй primary.
 - `search-focused` может визуально свернуть header по screen-specific contract.
+
+### Auth и form copy
+
+- Перед `h1` и первым полем не используются pre-title badge, eyebrow или
+  generic lead, которые лишь объявляют тип или обязательность формы.
+- Forced password change показывает `Смените пароль` без badge
+  `Обязательное действие`; сама route guard, форма и primary action задают
+  обязательный путь.
+- Фразы, дублирующие primary action, например `После сохранения откроется ваш
+  стартовый раздел` рядом с кнопкой `Сменить пароль и продолжить`, удаляются.
+- Password policy, validation и recovery размещаются у затронутого поля.
+- Отдельный security/prerequisite alert допустим только при конкретной причине
+  или последствии, которые меняют действие пользователя. Backend-owned причину
+  frontend не придумывает.
 
 ### EntityLocatorBar
 
 Shared pattern для длинных списков:
 
 ```text
-[ search: minmax(0, 1fr) ] [ filter trigger: >=44px ]
+[ search: minmax(0, 1fr) ] [ filter: >=44px ] [ retained actions: >=44px ]
 [ removable active filters / scoped reset ]
 [ result range ]
 ```
 
 - Primary search всегда видим, если поиск является главным locator.
+- Primary search не имеет видимого generic label над полем; route context,
+  search icon и task-oriented placeholder дают визуальный контекст, а
+  `accessibleLabel` сохраняет доступное имя.
 - Search не дублируется в drawer.
 - Clear очищает только query.
 - Filter count не включает query и default values.
 - Search input и filter trigger остаются достижимы при software keyboard.
+
+#### Единая строка locator/toolbar
+
+На mobile, tablet и desktop primary locator, filter trigger и сохранённые
+primary/frequent actions располагаются в одной строке без переноса. Отдельная
+вторая строка только для refresh/create запрещена: она создаёт пустоту рядом с
+search и отнимает вертикальное место у результатов.
+
+Базовая геометрия:
+
+```text
+grid: minmax(0, 1fr) auto
+gap: 8px
+action cluster: flex; flex-wrap: nowrap; gap: 8px
+control target: >=44 x 44px
+```
+
+Минимальная полезная ширина search/locator:
+
+| Viewport | Search min-width |
+|---|---:|
+| `360` | `156px` |
+| `390` | `176px` |
+| `420` | `200px` |
+| `440` | `216px` |
+| `768` | `320px` |
+| `1440` | `420px`, preferred `420–560px` |
+
+При нехватке ширины применяется фиксированный приоритет:
+
+1. сохранить полезную ширину search;
+2. сохранить видимым primary create/add;
+3. сохранить filter trigger, если он меняет текущий result;
+4. secondary refresh/rare actions свернуть или убрать из этой строки.
+
+На `360–440px` create/add может быть icon-only `44 x 44px`, но сохраняет
+точное accessible name операции и primary/accent treatment. Filter и refresh
+используют icon-only controls с accessible name. На `768/1440` primary create
+возвращает icon + text, если строка сохраняется без переноса; дополнительная
+desktop-ширина не создаёт второй toolbar level.
+
+Horizontal scrolling, уменьшение touch target и сжатие search ниже указанного
+минимума не используются как fallback. DOM/focus order начинается с search,
+затем идёт action cluster; все видимые controls остаются в той же строке.
 
 ### Filters
 
@@ -626,7 +1026,7 @@ Unknown route, session loading и restricted route являются разным
 - первый viewport показывает header/context, locator и начало results;
 - client search-focused state с двумя active filters показывает минимум пять
   полных cards `96px` и начало шестой;
-- groups показывают summary, locator и начало первых 1–2 results.
+- groups показывают locator и начало первых 1–2 results без summary widgets.
 
 ### `420 x 912`
 
@@ -729,8 +1129,8 @@ split ухудшает читаемость.
 - Оправданные asset-specific overlays фиксируются в явном allowlist.
 - Static check запрещает raw color за пределами profile registry, invariant
   semantic token source и allowlist.
-- Backend contract change для `themeId` обновляет frontend types, config tests,
-  backend API tests и deployment example.
+- Backend contract change для `themeId`/`authBackgroundImageId` обновляет
+  frontend types, config tests, backend API tests и deployment example.
 - Значимое отклонение от контракта требует UX/UI review и описанного
   screen-specific exception.
 
@@ -769,10 +1169,18 @@ split ухудшает читаемость.
 
 ### Theme profiles
 
-- [ ] `/api/config` возвращает configured `themeId`, а missing/blank config —
-      `default-green-v1`.
+- [ ] `/api/config` возвращает configured `themeId` и
+      `authBackgroundImageId`, а missing/blank config —
+      `default-green-v1` и `k4pro-login-v1`.
 - [ ] Unknown non-empty id проходит backend без registry validation; frontend
-      использует `default-green-v1` и reportable warning.
+      использует соответствующий default profile и reportable warning.
+- [ ] `auth-login`, forced `auth-password-change`, config/session loading и
+      bootstrap error используют resolved background; default возвращает
+      текущее `k4pro-login-bg.png`.
+- [ ] На `360`, `390`, `420`, `440`, `768`, `1440` background сохраняет
+      пропорции/focal point, не сдвигает форму и не ухудшает contrast.
+- [ ] Unknown/missing/broken background не блокирует login и даёт
+      deterministic image/solid-color fallback без layout shift.
 - [ ] Основные mobile paths проходят с `default-green-v1`.
 - [ ] Те же paths проходят с `test-blue-coral-v1`.
 - [ ] Переключение theme не меняет hierarchy, geometry, meaning и permissions.

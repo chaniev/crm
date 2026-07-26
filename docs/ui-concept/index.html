@@ -388,12 +388,34 @@
       grid-template-columns: minmax(170px, 1.1fr) minmax(160px, .9fr) minmax(160px, .9fr) minmax(190px, 1fr) auto;
     }
 
+    .filter-bar.groups {
+      grid-template-columns: minmax(220px, 1.3fr) repeat(3, minmax(130px, .7fr)) auto;
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
     .field label {
       display: block;
       margin: 0 0 5px;
       color: var(--text);
       font-size: 12px;
       font-weight: 850;
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
     }
 
     .input {
@@ -662,6 +684,7 @@
       .summary-strip,
       .filter-bar,
       .filter-bar.audit,
+      .filter-bar.groups,
       .clients-layout,
       .entity-row,
       .entity-row.roster,
@@ -857,31 +880,18 @@
       <section class="mock-section" id="groups">
         <div class="mock-label">
           <h2>Группы</h2>
-          <span>Registry вместо вертикальных metric cards</span>
+          <span>Компактный registry без summary widgets</span>
         </div>
         <div class="screen">
           <div class="screen-body">
-            <section class="intro">
-              <div>
-                <div class="eyebrows"><span class="chip">Группы и расписание</span></div>
-                <h3>Группы и назначение тренеров</h3>
-                <p>Расписание, состав тренеров, загрузка группы и быстрый переход к редактированию.</p>
-              </div>
-              <div class="actions"><span class="button">Обновить</span><span class="button accent">Создать группу</span></div>
-            </section>
-            <div class="summary-strip">
-              <div class="stat-card"><div class="label">Всего</div><div class="value">12</div><div class="hint">групп</div></div>
-              <div class="stat-card"><div class="label">Активные</div><div class="value">10</div><div class="hint">в расписании</div></div>
-              <div class="stat-card"><div class="label">Без тренера</div><div class="value">1</div><div class="hint">назначить</div></div>
-              <div class="stat-card"><div class="label">Перегружены</div><div class="value">2</div><div class="hint">16+ клиентов</div></div>
-            </div>
+            <h1 class="sr-only">Группы</h1>
             <section class="surface">
-              <div class="filter-bar">
-                <div class="field"><label>Поиск</label><div class="input">Название группы</div></div>
+              <div class="filter-bar groups">
+                <div class="field"><label class="sr-only">Найти группу</label><div class="input">Название группы</div></div>
                 <div class="field"><label>Статус</label><div class="input">Активные</div></div>
                 <div class="field"><label>Тренер</label><div class="input">Все тренеры</div></div>
                 <div class="field"><label>День</label><div class="input">Любой</div></div>
-                <span class="button">Сбросить</span>
+                <div class="filter-actions"><button class="button" type="button">Обновить</button><button class="button accent" type="button">Создать группу</button></div>
               </div>
               <div class="row-list">
                 <div class="entity-row">

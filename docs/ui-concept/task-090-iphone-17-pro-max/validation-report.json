@@ -1,0 +1,3972 @@
+{
+  "browser": "webkit",
+  "viewports": {
+    "iphone17ProMax": {
+      "width": 440,
+      "height": 956
+    },
+    "iphoneAir": {
+      "width": 420,
+      "height": 912
+    },
+    "desktop": {
+      "width": 1440,
+      "height": 1200
+    }
+  },
+  "screens": [
+    {
+      "target": "iphone17ProMax",
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 960
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphone17ProMax",
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 960
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "iphoneAir",
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 420,
+        "height": 912
+      },
+      "errors": [],
+      "scrollWidth": 420,
+      "scrollHeight": 912
+    },
+    {
+      "target": "desktop",
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "desktop",
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1200
+      },
+      "errors": [],
+      "scrollWidth": 1440,
+      "scrollHeight": 1200
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "auth-login",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "system-restricted-route",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "home-attendance-ready",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "schedule-ready",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "schedule-filter-surface",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "clients-browse",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "clients-preview",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "groups-list",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "audit-list",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "finance-report",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    },
+    {
+      "target": "theme-invariance",
+      "screenId": "settings-group-types",
+      "themeId": "test-blue-coral-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 440,
+        "height": 956
+      },
+      "errors": [],
+      "scrollWidth": 440,
+      "scrollHeight": 956
+    }
+  ],
+  "responsiveScreens": [
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 812
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 960
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 887
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 784
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 845
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 814
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 896
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 792
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 823
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 788
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 793
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 360,
+        "height": 780
+      },
+      "errors": [],
+      "scrollWidth": 360,
+      "scrollHeight": 780
+    },
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 960
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 887
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 878
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "errors": [],
+      "scrollWidth": 390,
+      "scrollHeight": 844
+    },
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 576
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 691
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 420
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 478
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 638
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 578
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 638
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 579
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 420
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 719
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 663
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 573
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 709
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 585
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 784
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 952
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 859
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 710
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 716
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 756
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 420
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 420
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 817
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 788
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 870
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 720
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 784
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 723
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 676
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 420
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 815
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 720
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 756
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 730
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 785
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 616
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 458
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 912,
+        "height": 420
+      },
+      "errors": [],
+      "scrollWidth": 912,
+      "scrollHeight": 458
+    },
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 576
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 691
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 440
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 478
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 638
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 578
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 638
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 579
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 440
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 719
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 663
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 573
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 709
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 585
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 784
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 952
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 859
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 710
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 716
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 756
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 440
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 440
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 817
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 788
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 870
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 720
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 784
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 723
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 676
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 440
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 815
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 720
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 756
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 730
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 785
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 616
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 458
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "mobile",
+      "viewport": {
+        "width": 956,
+        "height": 440
+      },
+      "errors": [],
+      "scrollWidth": 956,
+      "scrollHeight": 458
+    },
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    }
+  ],
+  "themeGeometry": [
+    {
+      "screenId": "auth-login",
+      "mismatches": []
+    },
+    {
+      "screenId": "system-restricted-route",
+      "mismatches": []
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "mismatches": []
+    },
+    {
+      "screenId": "schedule-ready",
+      "mismatches": []
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "mismatches": []
+    },
+    {
+      "screenId": "clients-browse",
+      "mismatches": []
+    },
+    {
+      "screenId": "clients-preview",
+      "mismatches": []
+    },
+    {
+      "screenId": "groups-list",
+      "mismatches": []
+    },
+    {
+      "screenId": "audit-list",
+      "mismatches": []
+    },
+    {
+      "screenId": "finance-report",
+      "mismatches": []
+    },
+    {
+      "screenId": "settings-group-types",
+      "mismatches": []
+    }
+  ]
+}
