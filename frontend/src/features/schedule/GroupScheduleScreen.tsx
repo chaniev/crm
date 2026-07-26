@@ -61,6 +61,7 @@ import {
   ErrorState,
   LoadingState,
   IconButton,
+  PageLayout,
   PageSection,
   RefreshButton,
   type CompactFilterItem,
@@ -202,10 +203,11 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   }
 
   return (
-    <Stack
-      className="page-layout schedule-screen"
+    <PageLayout
+      showHeader={false}
+      title="Расписание"
+      className="schedule-screen"
       data-testid="schedule-screen"
-      gap="var(--page-section-gap)"
     >
       <ScheduleFiltersToolbar
         filterOptions={filterOptions}
@@ -277,7 +279,7 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
           )}
         </PageSection>
       ) : null}
-    </Stack>
+    </PageLayout>
   )
 }
 

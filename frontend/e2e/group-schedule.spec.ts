@@ -1,6 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
 
-const APP_CONFIG = { clubName: 'Iron Club' } as const
+const APP_CONFIG = {
+  clubName: 'Iron Club',
+  themeId: 'default-green-v1',
+  authBackgroundImageId: 'k4pro-login-v1',
+} as const
 
 const headCoachSession = {
   isAuthenticated: true,
@@ -14,7 +18,7 @@ const headCoachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -40,7 +44,7 @@ const coachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients'],
+    allowedSections: ['Home', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -66,7 +70,7 @@ const administratorSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Schedule',
-    allowedSections: ['Home', 'Clients', 'Groups'],
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups'],
     permissions: {
       canManageUsers: false,
       canManageClients: true,
@@ -273,7 +277,9 @@ test.describe('Расписание групповых занятий', () => {
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
     await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Расписание' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Расписание' })).toHaveClass(
+      /visually-hidden/,
+    )
     await expect(page.getByText('Обновлено автоматически')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
     await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
@@ -405,9 +411,9 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByRole('combobox', { name: 'Филиал' })).toBeVisible()
     await selectOption(page, 'Филиал', 'Север')
     await expect(page.getByRole('button', { name: 'Сбросить' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Применить' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Готово' })).toBeVisible()
     await page.getByRole('button', { name: 'Сбросить' }).click()
-    await page.getByRole('button', { name: 'Применить' }).click()
+    await page.getByRole('button', { name: 'Готово' }).click()
     await expect(page.getByRole('combobox', { name: 'Филиал' })).toHaveCount(0)
 
     await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()

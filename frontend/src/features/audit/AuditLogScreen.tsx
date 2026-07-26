@@ -31,7 +31,6 @@ import {
   PageLayout,
   PageSection,
   RefreshButton,
-  ResponsiveButtonGroup,
   type CompactFilterItem,
 } from '../shared/ux'
 
@@ -179,7 +178,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
   if (!user.permissions.canViewAuditLog) {
     return (
-      <PageLayout data-testid="audit-screen" title="Журнал">
+      <PageLayout data-testid="audit-screen" showHeader={false} title="Журнал">
         <PageSection>
           <ErrorState
             message="Этот экран доступен главному тренеру и администратору."
@@ -322,16 +321,9 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   ] satisfies CompactFilterItem[]
 
   return (
-    <PageLayout
-      actions={(
-        <ResponsiveButtonGroup>
-          <RefreshButton onClick={handleRefresh} />
-        </ResponsiveButtonGroup>
-      )}
-      data-testid="audit-screen"
-      title="Журнал"
-    >
+    <PageLayout data-testid="audit-screen" showHeader={false} title="Журнал">
       <CompactFilterPanel
+        actions={<RefreshButton onClick={handleRefresh} />}
         className="audit-filter-toolbar"
         data-testid="audit-filter-panel"
         onReset={handleResetFilters}
@@ -490,10 +482,10 @@ function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
         <Stack data-testid="audit-log-details-modal" gap="lg">
           <Stack gap="sm">
             <Group gap="xs" wrap="wrap">
-              <Badge color="brand.1" radius="xl" variant="light">
+              <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
                 {formatActionType(entry.actionType)}
               </Badge>
-              <Badge color="accent.5" radius="xl" variant="light">
+              <Badge color="var(--crm-brand-secondary)" radius="xl" variant="light">
                 {formatEntityType(entry.entityType)}
               </Badge>
               <Badge radius="xl" variant="light">

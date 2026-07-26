@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "check:raw-colors": "node scripts/check-raw-colors.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test:unit": "vitest run",

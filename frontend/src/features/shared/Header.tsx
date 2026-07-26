@@ -39,7 +39,7 @@ export function Header({
 
         <Group className="app-shell__brand" gap="sm" wrap="nowrap">
           {brandIcon ?? (
-            <ThemeIcon color="brand.7" radius="xl" size={36} variant="filled">
+            <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={36} variant="filled">
               <IconProgressCheck size={20} />
             </ThemeIcon>
           )}

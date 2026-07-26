@@ -1,8 +1,8 @@
 :root {
-  color: #17312d;
+  color: var(--crm-text-primary);
   background:
-    radial-gradient(circle at top, rgba(216, 154, 61, 0.2), transparent 24%),
-    linear-gradient(180deg, #f6f4ee 0%, #edf2ee 100%);
+    radial-gradient(circle at top, var(--crm-status-warning-border), transparent 24%),
+    linear-gradient(180deg, var(--crm-surface-page) 0%, var(--crm-surface-page-alt) 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

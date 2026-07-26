@@ -54,7 +54,7 @@ export function AttendanceClientRow({ row, onChange, onRetry }: AttendanceClient
               ) : null}
             </Group>
             {client.membershipWarningMessage ? (
-              <Text c="yellow.8" size="sm">{client.membershipWarningMessage}</Text>
+              <Text c="var(--crm-status-warning)" size="sm">{client.membershipWarningMessage}</Text>
             ) : null}
           </Stack>
         </Group>

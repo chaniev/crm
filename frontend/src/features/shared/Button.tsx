@@ -25,7 +25,7 @@ const sharedButtonVariantMap: Record<
   Pick<MantineButtonProps, 'color' | 'variant'>
 > = {
   primary: {
-    color: 'brand.7',
+    color: 'var(--crm-action-primary)',
     variant: 'filled',
   },
   secondary: {
@@ -38,7 +38,7 @@ const sharedButtonVariantMap: Record<
     variant: 'light',
   },
   filled: {
-    color: 'brand.7',
+    color: 'var(--crm-action-primary)',
     variant: 'filled',
   },
   default: {

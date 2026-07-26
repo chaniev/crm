@@ -518,6 +518,9 @@ contrast и affected-screen tests. Deployment может переключать�
 - `k4pro-login-v1` является обязательным default background profile и
   ссылается на текущее bundled изображение
   `frontend/src/assets/auth/k4pro-login-bg.png`.
+- `k4pro-login-v1` использует единый зарегистрированный focal point
+  `{ xPercent: 64, yPercent: 50 }` на всех breakpoints; responsive crop
+  достигается через `background-size: cover`, а не через deployment CSS.
 - Background применяется ко всему unauthenticated/forced-auth stage:
   config/session loading, bootstrap error, `auth-login` и forced
   `auth-password-change`. Utility password screen внутри authenticated shell
@@ -590,6 +593,9 @@ branch не кодируются отдельными цветами.
   неподтверждённой palette не показываются.
 - `App` получает уже загруженный app config через props/context и не выполняет
   второй `/config` request.
+- Один явный bootstrap attempt выполняет ровно один фактический `/api/config`
+  request даже под React StrictMode. Session retry не повторяет config request;
+  новый request допустим только для нового явного bootstrap attempt или reload.
 - `test/render.tsx` позволяет явно передать `themeId`/profile и по умолчанию
   использует `default-green-v1`.
 - Semantic roles зеркалируются в CSS variables с prefix `--crm-`.
@@ -609,6 +615,9 @@ branch не кодируются отдельными цветами.
 - frontend разрешает unknown theme/background identifiers в
   `default-green-v1`/`k4pro-login-v1`, фиксирует reportable warning и не
   блокирует login;
+- timeout, network error и `5xx` от `/api/config` дают typed non-blocking
+  warning и bundled defaults без автоматического retry loop; login остаётся
+  доступен;
 - theme/background profile schema, количество palettes и диапазон focal point
   проверяются unit tests;
 - каждый profile проходит contrast tests:
@@ -1018,7 +1027,9 @@ Unknown route, session loading и restricted route являются разным
 - одна колонка и bottom navigation;
 - no horizontal page scroll;
 - chips переносятся, а не образуют обязательный horizontal rail;
-- locator может перенести filter trigger на новую строку, сохранив `44px`.
+- primary locator, filter trigger и retained primary/frequent actions остаются
+  в одной non-wrapping строке; search сохраняет минимум `156px`, controls —
+  минимум `44px`, а secondary/rare action сворачивается первым.
 
 ### `390 x 844`
 
@@ -1136,6 +1147,13 @@ split ухудшает читаемость.
 
 ## 11. Measurable acceptance
 
+Normative representative-state matrix хранится в
+`docs/ui-concept/task-090-iphone-17-pro-max/manifest.json`. Состояния с
+`alternateTheme: true` проверяются под `default-green-v1` и
+`test-blue-coral-v1`: операции, DOM/focus order и status semantics совпадают,
+а соответствующие measured boxes в одном browser/font environment отличаются
+не более чем на `1 CSS px`.
+
 ### Geometry и interaction
 
 - [ ] Нет unintended horizontal page scroll на `360`, `390`, `420`, `440`.
@@ -1184,6 +1202,9 @@ split ухудшает читаемость.
 - [ ] Основные mobile paths проходят с `default-green-v1`.
 - [ ] Те же paths проходят с `test-blue-coral-v1`.
 - [ ] Переключение theme не меняет hierarchy, geometry, meaning и permissions.
+- [ ] Static raw-color check запрещает raw color, прямые Mantine palette
+      references и broad exemptions вне versioned profile registry,
+      invariant semantic token source и точечного reviewed allowlist.
 - [ ] Feature code не содержит новых raw brand/accent colors.
 
 ### Required validation

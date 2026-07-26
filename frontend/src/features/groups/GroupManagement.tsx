@@ -178,7 +178,6 @@ export function GroupsListScreen({
       showHeader={false}
       title="Группы"
     >
-      <h1 className="groups-screen__visually-hidden">Группы</h1>
       <GroupsSummaryBar
         error={summaryError}
         loading={summaryLoading}
@@ -237,7 +236,7 @@ export function GroupsListScreen({
                           <Badge radius="xl" variant="light">
                             Старт {group.trainingStartTime}
                           </Badge>
-                          <Badge color="brand.1" radius="xl" variant="light">
+                          <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
                             {group.groupTypeName}
                           </Badge>
                         </Group>
@@ -268,7 +267,7 @@ export function GroupsListScreen({
                     </Group>
 
                     <Group gap="sm" wrap="wrap">
-                      <Badge color="brand.1" radius="xl" variant="light">
+                      <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
                         Клиентов: {group.clientCount}
                       </Badge>
                       <Badge color="sand" radius="xl" variant="light">
@@ -607,7 +606,7 @@ export function GroupEditScreen({
             <Stack gap="lg">
               <SectionHeader
                 actions={(
-                  <Badge color="brand.1" radius="xl" variant="light">
+                  <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
                     Всего: {groupClients.length}
                   </Badge>
                 )}
@@ -937,7 +936,7 @@ function HintStat({
 }: HintStatProps) {
   return (
     <Group gap="sm" wrap="nowrap">
-      <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+      <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={34} variant="light">
         {icon}
       </ThemeIcon>
       <Stack gap={2}>

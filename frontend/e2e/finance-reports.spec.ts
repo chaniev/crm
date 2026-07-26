@@ -1,6 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
 
-const APP_CONFIG = { clubName: 'Iron Club' } as const
+const APP_CONFIG = {
+  clubName: 'Iron Club',
+  themeId: 'default-green-v1',
+  authBackgroundImageId: 'k4pro-login-v1',
+} as const
 
 const FINANCE_SESSION = {
   isAuthenticated: true,
@@ -16,6 +20,7 @@ const FINANCE_SESSION = {
     landingScreen: 'Home',
     allowedSections: [
       'Home',
+      'Schedule',
       'Clients',
       'Groups',
       'Users',
@@ -41,7 +46,7 @@ const NO_FINANCE_SESSION = {
   csrfToken: 'no-finance-csrf-token',
   user: {
     ...FINANCE_SESSION.user,
-    allowedSections: ['Home', 'Clients'],
+    allowedSections: ['Home', 'Schedule', 'Clients'],
     permissions: {
       ...FINANCE_SESSION.user.permissions,
       canViewFinancialReports: false,
@@ -314,7 +319,7 @@ test.describe('Finance reports', () => {
     await page.getByTestId('finance-filter-panel').getByRole('button', { name: 'Фильтры' }).click()
     await expect(page.getByLabel('Дата в периоде')).toBeVisible()
     await expect(page.getByText('За выбранный период операций нет.')).toBeVisible()
-    await page.getByRole('button', { name: 'Применить' }).click()
+    await page.getByRole('button', { name: 'Готово' }).click()
     await expect(
       page.locator('nav.app-shell__side-nav[aria-label="Основная навигация"]'),
     ).toBeHidden()
@@ -322,11 +327,15 @@ test.describe('Finance reports', () => {
       name: 'Мобильная навигация',
     })
     const overflowButton = bottomNavigation.getByRole('button', {
-      name: 'Открыть остальные разделы',
+      name: 'Ещё, открыть остальные разделы',
+    })
+    const financeButton = bottomNavigation.getByRole('button', {
+      name: 'Финансы',
     })
 
     await expect(bottomNavigation).toBeVisible()
-    await expect(overflowButton).toHaveAttribute('aria-current', 'page')
+    await expect(financeButton).toHaveAttribute('aria-current', 'page')
+    await expect(overflowButton).not.toHaveAttribute('aria-current')
     await overflowButton.click()
     await expect(
       page.locator('.mobile-bottom-nav__overflow-list'),
@@ -335,7 +344,7 @@ test.describe('Finance reports', () => {
       page.locator('.mobile-bottom-nav__overflow-list').getByRole('button', {
         name: 'Финансы',
       }),
-    ).toHaveAttribute('aria-current', 'page')
+    ).toHaveCount(0)
     await expect(
       page.getByRole('button', { name: 'Уведомления' }),
     ).toHaveCount(0)

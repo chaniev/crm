@@ -70,7 +70,7 @@ const STATUS_LABELS: Record<GroupTrainerSubstitution['status'], string> = {
 
 const STATUS_COLORS: Record<GroupTrainerSubstitution['status'], string> = {
   Active: 'teal',
-  Upcoming: 'brand.1',
+  Upcoming: 'var(--crm-brand-primary-soft)',
   Expired: 'gray',
   Cancelled: 'red',
 }

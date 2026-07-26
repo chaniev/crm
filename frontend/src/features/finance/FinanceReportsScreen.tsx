@@ -46,7 +46,6 @@ import {
   PageLayout,
   PageSection,
   RefreshButton,
-  SectionHeader,
   type CompactFilterItem,
   type CompactFilterPlacement,
 } from '../shared/ux'
@@ -97,12 +96,6 @@ const moneyFormatter = new Intl.NumberFormat('ru-RU', {
 
 const countFormatter = new Intl.NumberFormat('ru-RU', {
   maximumFractionDigits: 0,
-})
-
-const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
 })
 
 export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
@@ -298,7 +291,7 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
 
   if (!canViewFinance) {
     return (
-      <PageLayout data-testid="finance-screen" title="Финансы">
+      <PageLayout data-testid="finance-screen" showHeader={false} title="Финансы">
         <PageSection>
           <ErrorState
             message="Этот экран доступен только пользователям, которым backend выдал доступ к разделу финансов."
@@ -425,16 +418,7 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
   ] satisfies CompactFilterItem[]
 
   return (
-    <PageLayout
-      actions={
-        <RefreshButton
-          loading={isRefreshingReport}
-          onClick={() => setReloadKey((current) => current + 1)}
-        />
-      }
-      data-testid="finance-screen"
-      title="Финансы"
-    >
+    <PageLayout data-testid="finance-screen" showHeader={false} title="Финансы">
       <Stack gap="sm">
         {optionsError ? (
           <Alert
@@ -464,6 +448,12 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
         ) : null}
 
         <CompactFilterPanel
+          actions={
+            <RefreshButton
+              loading={isRefreshingReport}
+              onClick={() => setReloadKey((current) => current + 1)}
+            />
+          }
           className="finance-report-toolbar"
           data-testid="finance-filter-panel"
           onReset={handleResetFilters}
@@ -474,17 +464,6 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
 
       <PageSection>
         <Stack gap="lg">
-          <SectionHeader
-            actions={
-              report ? (
-                <Badge color="brand.1" radius="xl" variant="light">
-                  {formatPeriodRange(report.period.from, report.period.to)}
-                </Badge>
-              ) : null
-            }
-            title="Итоги отчета"
-          />
-
           {isInitialReportLoading ? (
             <LoadingState label="Загружаем финансовый отчет..." />
           ) : null}
@@ -1045,20 +1024,6 @@ function formatCount(value: number) {
 
 function formatMoney(value: number) {
   return moneyFormatter.format(value)
-}
-
-function formatPeriodRange(from: string, to: string) {
-  return `${formatDate(from)} - ${formatDate(to)}`
-}
-
-function formatDate(value: string) {
-  const [year, month, day] = value.split('-').map(Number)
-
-  if (!year || !month || !day) {
-    return value
-  }
-
-  return dateFormatter.format(new Date(year, month - 1, day))
 }
 
 function isZeroReport(report: FinancialReportResponse) {

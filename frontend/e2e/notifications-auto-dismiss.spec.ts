@@ -2,7 +2,11 @@ import { expect, test, type Page } from '@playwright/test'
 
 const APP_NOTIFICATION_AUTO_CLOSE_MS = 10_000
 const NOTIFICATION_TRANSITION_MS = 250
-const APP_CONFIG = { clubName: 'Iron Club' } as const
+const APP_CONFIG = {
+  clubName: 'Iron Club',
+  themeId: 'default-green-v1',
+  authBackgroundImageId: 'k4pro-login-v1',
+} as const
 
 const HEAD_COACH_SESSION = {
   isAuthenticated: true,

@@ -141,7 +141,9 @@ describe('GroupEditScreen', () => {
     )
 
     fireEvent.click(await screen.findByRole('button', { name: 'Назначить замещение' }))
-    fireEvent.click(screen.getByRole('combobox', { name: 'Замещающий тренер' }))
+    fireEvent.click(
+      await screen.findByRole('combobox', { name: 'Замещающий тренер' }),
+    )
     fireEvent.click(await screen.findByRole('option', { name: 'Замещающий Тренер (sub)' }))
     fireEvent.change(screen.getByLabelText('Начало периода'), { target: { value: '2026-08-01' } })
     fireEvent.change(screen.getByLabelText('Окончание периода'), { target: { value: '2026-08-05' } })

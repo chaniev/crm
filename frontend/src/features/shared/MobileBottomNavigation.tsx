@@ -1,10 +1,6 @@
-import {
-  Drawer,
-  Text,
-  UnstyledButton,
-} from '@mantine/core'
+import { Drawer, Text, UnstyledButton } from '@mantine/core'
 import { IconDots } from '@tabler/icons-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { AppSection } from '../../lib/api'
 import {
   APP_SECTION_LABELS,
@@ -24,15 +20,21 @@ export function MobileBottomNavigation({
   sections,
 }: MobileBottomNavigationProps) {
   const [overflowOpened, setOverflowOpened] = useState(false)
-  const { primarySections, overflowSections } = getMobileNavigationSections(sections)
-  const hasOverflow = overflowSections.length > 0
-  const overflowIsActive = Boolean(
-    currentSection && overflowSections.includes(currentSection),
+  const overflowTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const { primarySections, overflowSections } = getMobileNavigationSections(
+    sections,
+    currentSection,
   )
+  const hasOverflow = overflowSections.length > 0
 
   function handleNavigate(section: AppSection) {
     setOverflowOpened(false)
     onNavigate(section)
+  }
+
+  function closeOverflow() {
+    setOverflowOpened(false)
+    window.requestAnimationFrame(() => overflowTriggerRef.current?.focus())
   }
 
   if (primarySections.length === 0) {
@@ -67,19 +69,18 @@ export function MobileBottomNavigation({
 
           {hasOverflow ? (
             <UnstyledButton
-              aria-current={overflowIsActive ? 'page' : undefined}
               aria-expanded={overflowOpened}
               aria-haspopup="dialog"
-              aria-label="Открыть остальные разделы"
+              aria-label="Ещё, открыть остальные разделы"
               className="mobile-bottom-nav__item"
-              data-active={overflowIsActive ? 'true' : undefined}
               onClick={() => setOverflowOpened(true)}
+              ref={overflowTriggerRef}
               type="button"
             >
               <span className="mobile-bottom-nav__icon" aria-hidden="true">
                 <IconDots size={20} />
               </span>
-              <span className="mobile-bottom-nav__label">Еще</span>
+              <span className="mobile-bottom-nav__label">Ещё</span>
             </UnstyledButton>
           ) : null}
         </div>
@@ -94,12 +95,21 @@ export function MobileBottomNavigation({
             header: 'mobile-bottom-nav__sheet-header',
             title: 'mobile-bottom-nav__sheet-title',
           }}
-          onClose={() => setOverflowOpened(false)}
+          closeButtonProps={{ 'aria-label': 'Закрыть остальные разделы' }}
+          closeOnClickOutside
+          closeOnEscape
+          onClose={closeOverflow}
           opened={overflowOpened}
           overlayProps={{ backgroundOpacity: 0.18, blur: 2 }}
           position="bottom"
-          size="min(70vh, 24rem)"
-          title="Остальные разделы"
+          returnFocus
+          size="min(24rem, calc(100dvh - 1rem))"
+          title={
+            <Text component="span" fw={800}>
+              Остальные разделы
+            </Text>
+          }
+          trapFocus
           withCloseButton
         >
           <div className="mobile-bottom-nav__overflow-list">

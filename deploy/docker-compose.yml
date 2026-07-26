@@ -28,6 +28,8 @@ services:
       BootstrapUser__Login: ${BOOTSTRAP_USER_LOGIN:-headcoach}
       BootstrapUser__FullName: ${BOOTSTRAP_USER_FULL_NAME:-Главный тренер}
       Branding__ClubName: ${CRM_CLUB_NAME:-Gym CRM}
+      Branding__ThemeId: ${CRM_THEME_ID:-default-green-v1}
+      Branding__AuthBackgroundImageId: ${CRM_AUTH_BACKGROUND_IMAGE_ID:-k4pro-login-v1}
       BusinessTime__TimeZoneId: ${BACKEND_BUSINESS_TIME_ZONE_ID:-Europe/Moscow}
       ClientAttention__MembershipWindowDays: ${BACKEND_CLIENT_ATTENTION_MEMBERSHIP_WINDOW_DAYS:-3}
       Auth__CookieSecurePolicy: ${BACKEND_AUTH_COOKIE_SECURE_POLICY:-SameAsRequest}

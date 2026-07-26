@@ -285,7 +285,7 @@ export function ClientCreateScreen({
         <Stack gap="lg">
           {loadingOptions ? (
             <Group justify="center" py="xl">
-              <Loader color="brand.7" />
+              <Loader color="var(--crm-action-primary)" />
             </Group>
           ) : null}
 
@@ -451,7 +451,7 @@ export function ClientEditScreen({
       {loading ? (
         <PageSection>
           <Group justify="center" py="xl">
-            <Loader color="brand.7" />
+            <Loader color="var(--crm-action-primary)" />
           </Group>
         </PageSection>
       ) : null}
@@ -909,7 +909,7 @@ export function ClientDetailScreen({
       {loading ? (
         <PageSection>
           <Group justify="center" py="xl">
-            <Loader color="brand.7" />
+            <Loader color="var(--crm-action-primary)" />
           </Group>
         </PageSection>
       ) : null}
@@ -966,7 +966,7 @@ export function ClientDetailScreen({
           <PageSection className="client-section-card">
             <Stack gap="lg">
               <Group gap="xs">
-                <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+                <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={34} variant="light">
                   <IconEdit size={18} />
                 </ThemeIcon>
                 <div>
@@ -1004,7 +1004,7 @@ export function ClientDetailScreen({
               <PageSection className="client-section-card">
                 <Stack gap="lg">
                   <Group gap="xs">
-                    <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+                    <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={34} variant="light">
                       <IconUserHeart size={18} />
                     </ThemeIcon>
                     <div>
@@ -1051,7 +1051,7 @@ export function ClientDetailScreen({
               <Stack gap="lg">
                 <Group justify="space-between" wrap="wrap">
                   <Group gap="xs">
-                    <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+                    <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={34} variant="light">
                       <IconUsersGroup size={18} />
                     </ThemeIcon>
                     <div>
@@ -2133,7 +2133,7 @@ function ClientPhotoSection({
       <Stack gap="md">
         <Group justify="space-between" wrap="wrap">
           <Group gap="sm" wrap="nowrap">
-            <ThemeIcon color="brand.7" radius="xl" size={38} variant="light">
+            <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={38} variant="light">
               <IconCamera size={20} />
             </ThemeIcon>
             <div>
@@ -2149,7 +2149,7 @@ function ClientPhotoSection({
           </Group>
 
           {variant === 'default' ? (
-            <Badge color="brand.1" radius="sm" variant="light">
+            <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
               {canUpload ? 'Загрузка' : 'Просмотр'}
             </Badge>
           ) : null}
@@ -2160,7 +2160,7 @@ function ClientPhotoSection({
             <>
               {previewStatus === 'loading' ? (
                 <Group className="client-photo-placeholder" justify="center">
-                  <Loader color="brand.7" size="sm" />
+                  <Loader color="var(--crm-action-primary)" size="sm" />
                 </Group>
               ) : null}
 
@@ -2536,7 +2536,7 @@ function ClientAttendanceHistorySection({
           </div>
 
           <Group gap="sm" wrap="wrap">
-            <Badge color="brand.1" radius="xl" variant="light">
+            <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
               {canManage ? 'Полная карточка' : 'Режим тренера'}
             </Badge>
             <Badge color="sand" radius="xl" variant="light">
@@ -2575,7 +2575,7 @@ function ClientAttendanceHistorySection({
                       </Badge>
                     </Group>
 
-                  <Badge color="brand.1" radius="xl" variant="light">
+                  <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
                     {entry.groupName}
                   </Badge>
                 </Group>
@@ -2747,7 +2747,7 @@ function MembershipEditPanel({
               </Text>
             </div>
 
-            <Badge color="brand.1" radius="sm" variant="light">
+            <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
               Исправление
             </Badge>
           </Group>
@@ -3091,7 +3091,7 @@ function MembershipRenewPanel({
               </Text>
             </div>
 
-              <Badge color="brand.1" radius="sm" variant="light">
+              <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
               Новая продажа
             </Badge>
           </Group>

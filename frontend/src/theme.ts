@@ -1,61 +1,24 @@
-import { createTheme } from '@mantine/core'
+import { defaultGreenProfile } from './theme/profiles'
+import { createGymCrmTheme } from './theme/createGymCrmTheme'
 
-export const gymCrmTheme = createTheme({
-  primaryColor: 'brand',
-  primaryShade: 6,
-  fontFamily: 'Onest, ui-sans-serif, system-ui, sans-serif',
-  headings: {
-    fontFamily: 'Onest, ui-sans-serif, system-ui, sans-serif',
-  },
-  defaultRadius: 'md',
-  colors: {
-    brand: [
-      '#edf5f2',
-      '#d4e6df',
-      '#a8cdc0',
-      '#7ab39f',
-      '#549d83',
-      '#378c71',
-      '#207b61',
-      '#145a52',
-      '#103f3a',
-      '#0a2522',
-    ],
-    accent: [
-      '#fff4e5',
-      '#ffe7c1',
-      '#ffd08d',
-      '#f2b55d',
-      '#e4a542',
-      '#d89a3d',
-      '#be7f28',
-      '#95611d',
-      '#704716',
-      '#4a2f0d',
-    ],
-    sand: [
-      '#f9f7f1',
-      '#f2eee3',
-      '#e7decd',
-      '#dbceb2',
-      '#d1c39d',
-      '#cab88b',
-      '#b09d70',
-      '#8d7d56',
-      '#675c3f',
-      '#433a27',
-    ],
-  },
-  black: '#17312D',
-  white: '#FFFFFF',
-  other: {
-    background: '#F6F4EE',
-    surface: '#FFFFFF',
-    text: '#17312D',
-    muted: '#66756F',
-    border: '#D7E0DA',
-    success: '#2F8F6B',
-    warning: '#C98A2E',
-    danger: '#C95345',
-  },
-})
+export {
+  DEFAULT_AUTH_BACKGROUND_PROFILE_ID,
+  authBackgroundProfiles,
+} from './theme/backgrounds'
+export {
+  createSemanticVariables,
+  type SemanticVariableMap,
+} from './theme/semanticVariables'
+export { createGymCrmTheme } from './theme/createGymCrmTheme'
+export { resolveAuthBackgroundProfile, resolveThemeProfile } from './theme/resolveProfiles'
+export { DEFAULT_THEME_PROFILE_ID, themeProfiles } from './theme/profiles'
+export type {
+  AuthBackgroundProfile,
+  AuthStageBackground,
+  ThemeProfile,
+  ThemeResolutionResult,
+  ThemeResolutionWarning,
+  ThemeResolutionWarningSink,
+} from './theme/types'
+
+export const gymCrmTheme = createGymCrmTheme(defaultGreenProfile)

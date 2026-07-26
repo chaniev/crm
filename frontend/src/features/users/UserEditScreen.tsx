@@ -206,7 +206,7 @@ export function UserEditScreen({
           <SectionHeader
             description={resources.users.edit.sectionDescription}
             eyebrow={
-              <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+              <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={34} variant="light">
                 <IconUserCog size={18} />
               </ThemeIcon>
             }
