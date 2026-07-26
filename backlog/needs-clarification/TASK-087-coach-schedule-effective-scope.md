@@ -94,3 +94,12 @@ Usability-аудит показал в coach schedule до 88 глобальны
 ## Visual comparison
 - [Сейчас / концепт после согласования scope](../mockups/usability-2026-07-25/TASK-087-comparison.png)
 - [Описание преимуществ, вопросов и границ макета](../mockups/usability-2026-07-25/README.md#task-087-coach-schedule-effective-scope)
+
+## Processing notes
+
+- Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
+- UI foundation dependency is complete, but TASK-090 did not change schedule
+  authorization or effective-scope semantics.
+- Status remains `needs-clarification`: direct assignments, temporary
+  substitutions, attendance-scope parity and optional global view still need
+  explicit backend/product decisions.

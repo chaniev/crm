@@ -301,3 +301,11 @@ Dense client card:
 ## Previous comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-085-comparison.png)
 - [Описание преимуществ и границ макета](../mockups/usability-2026-07-25/README.md#task-085-visible-mobile-client-search)
+
+## Processing notes
+
+- Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
+- Foundation dependency is complete: shared locator, filters, range/state
+  primitives and theme tokens are available.
+- Status remains `ready`: TASK-090 explicitly excluded the client-specific
+  browse/search-focused state machine, `96px` cards and return-state behavior.

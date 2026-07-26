@@ -1,7 +1,18 @@
 # Implementation Plan: TASK-090 Ввести единую mobile UI system и deployment theme profiles
 
+## Implementation status
+
+Done. Implemented in `feature/TASK-090-shared-mobile-ui-system`, final
+implementation commit `3253b23`, and merged to `main` by PR #101 (`aee6d93`)
+on 2026-07-26.
+
 ## Source task
-/backlog/implementation/TASK-090-shared-mobile-ui-system.md
+/backlog/done/TASK-090-shared-mobile-ui-system.md
+
+Source status is `done`: the shared UI/config foundation was implemented in
+its dedicated branch and merged with backend API, deployment, frontend unit,
+static-color and responsive E2E regression coverage. The explicitly separate
+TASK-084–TASK-089 workflows remain active.
 
 ## Git branch
 feature/TASK-090-shared-mobile-ui-system

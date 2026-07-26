@@ -92,3 +92,11 @@ P1
 ## Visual comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-086-comparison.png)
 - [Описание преимуществ и границ макета](../mockups/usability-2026-07-25/README.md#task-086-mobile-first-group-locator-and-paging)
+
+## Processing notes
+
+- Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
+- Foundation dependency is complete: shared locator, active-filter, range and
+  state primitives are available.
+- Status remains `ready`: group search/filter/paging data flow, bounded
+  batches and return-state behavior were explicitly outside TASK-090.

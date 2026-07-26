@@ -98,3 +98,11 @@ Usability-аудит финального локального стенда вы
 ## Visual comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-084-comparison.png)
 - [Описание преимуществ и границ макета](../mockups/usability-2026-07-25/README.md#task-084-touch-targets-and-compact-height-shell)
+
+## Processing notes
+
+- Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
+- Foundation dependency is complete: shared targets, semantic controls,
+  compact-height shell primitives and responsive test infrastructure exist.
+- Status remains `ready`: the card owns the all-screen affected-call-site
+  sweep and Safari/device acceptance that TASK-090 explicitly left separate.
