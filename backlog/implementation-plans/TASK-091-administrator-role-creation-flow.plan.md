@@ -50,6 +50,10 @@ allowed actions, validation, ProblemDetails и audit.
 - `UserCreateScreen` получает session-wide `createRoleOptions`, поэтому
   административные роли появляются в create-flow тренера.
   `UserEditScreen` и `/users/{id}` также остаются generic staff flow.
+- Текущая policy отдельно разрешает `HeadCoach` обновлять собственную
+  учётную запись через `PUT /users/{currentHeadCoachId}` и синхронизирует
+  session после успеха. Сужение trainer transport не должно молча удалить
+  этот compatibility contract.
 - `SettingsScreen.tsx` превышает 1000 строк. Затронутый administrators panel
   следует вынести в focused feature component; это локальная часть TASK-091,
   а не общий settings refactor.
@@ -63,6 +67,33 @@ allowed actions, validation, ProblemDetails и audit.
   не должна выполнять это удаление. Если TASK-092 будет merged раньше,
   TASK-091 не возвращает widgets; если позже — TASK-091 не зависит от них и
   оставляет removal отдельной ветке.
+- Текущие `UserRoleAuthorizationPolicy` и `AccessScopeService` задают
+  `SuperAdministrator` как capability superset роли `Administrator` с
+  `Global` operational/attendance scope. TASK-091 не изменяет эту модель, но
+  обязана подтвердить её отдельным регрессионным барьером на данных нескольких
+  филиалов.
+
+## Resolved review decisions
+
+- `PUT /users/{currentHeadCoachId}` сохраняется как документированное
+  compatibility-исключение для self-update `HeadCoach`; trainer list/get и
+  обычные trainer updates остаются Coach-only.
+- Когда административный create contract возвращает несколько вариантов,
+  начальная роль — `Administrator`. Создание `SuperAdministrator` требует
+  явного переключения роли пользователем.
+- При отсутствии активных филиалов `Сохранить` блокируется только для
+  выбранного `Administrator`; `SuperAdministrator` по-прежнему можно создать.
+  Ошибка загрузки филиалов не считается пустым списком. Recovery ведёт к
+  управлению филиалами, если эта операция доступна текущему пользователю, либо
+  объясняет необходимость обратиться к главному тренеру.
+- Missing, `null`, empty и unknown `role` возвращают `400 ValidationProblem`
+  с ошибкой поля `role`; известная роль вне endpoint family возвращает
+  `403 staff_role_transition_forbidden`; wrong-family target возвращает
+  `404 staff_not_found` до проверки destination payload.
+- Дополнительный invariant review должен доказать, что
+  `SuperAdministrator` имеет все возможности `Administrator` во всех филиалах.
+  Обнаруженное расхождение является stop condition для TASK-091, а не
+  разрешением незаметно расширить её до изменения role matrix.
 
 ## Approved UX contract
 
@@ -78,7 +109,8 @@ allowed actions, validation, ProblemDetails и audit.
 1. Open `Настройки`.
 2. Select `Администраторы`.
 3. Activate `Добавить администратора`.
-4. Select an administrative role only when backend returned more than one
+4. Keep the default `Administrator` or explicitly select another
+   administrative role when backend returned more than one
    `createRoleOptions`.
 5. Enter credentials.
 6. For `Administrator`, explicitly select an active branch.
@@ -141,8 +173,18 @@ The existing transition matrix remains unchanged:
 - update targets only an existing `Coach` and accepts only role `Coach`;
 - requesting an administrative destination role for a Coach returns stable
   `staff_role_transition_forbidden`;
-- addressing a non-Coach id through trainer get/update returns stable
-  `staff_not_found`;
+- addressing a non-Coach id through trainer get returns stable
+  `staff_not_found`; update does the same except for the exact HeadCoach
+  self-update compatibility case below;
+- documented compatibility exception: `HeadCoach` may update only its own
+  existing `HeadCoach` record through `PUT /users/{currentHeadCoachId}` with
+  requested role `HeadCoach`, preserving the current authorization,
+  validation, audit and session-sync semantics;
+- the self-update exception does not add `HeadCoach` to trainer list/get, does
+  not expose other HeadCoach targets and does not permit
+  `SuperAdministrator` to mutate a HeadCoach;
+- the target is rechecked after the locked reload for both the Coach family
+  and the exact HeadCoach self-update exception;
 - frontend does not filter generic staff rows into trainers and does not infer
   permissions from actor role names.
 
@@ -162,6 +204,36 @@ constraint that:
 
 Do not authorize by frontend field visibility or by a duplicated role matrix in
 HTTP handlers.
+
+Request/target validation order is fixed:
+- missing, `null`, empty or unknown `role` returns `400 ValidationProblem`
+  with a `role` field error;
+- a known role outside the selected endpoint family returns
+  `403 staff_role_transition_forbidden`;
+- get/update of a target outside the selected endpoint family returns
+  `404 staff_not_found` before destination-role validation, except for the
+  exact documented HeadCoach self-update compatibility case;
+- the same target-family decision is repeated after locked reload.
+
+### SuperAdministrator capability and global-scope invariant
+
+TASK-091 must verify without changing the role matrix that:
+- for every `CrmCapability`, anything granted to `Administrator` is also
+  granted to `SuperAdministrator`;
+- `SuperAdministrator` receives `AccessScopeKind.Global` and global attendance
+  scope, not branch- or administrator-grant-limited scope;
+- administrator-visible client, client messenger, group, settings, membership,
+  attendance and audit operations remain available to `SuperAdministrator`;
+- for each Administrator capability, a multi-branch integration matrix covers
+  at least one read and, when the capability permits mutation, one mutation
+  against seeded records in two different branches;
+- frontend navigation and actions consume backend permissions, sections,
+  scopes and action contracts and do not re-restrict `SuperAdministrator` by
+  role-name checks.
+
+This is a regression assertion for the already approved TASK-082 model. If any
+capability or cross-branch operation fails, stop TASK-091 and return the
+authorization discrepancy for separate scope/security review.
 
 ## Fixed UI specification
 
@@ -200,12 +272,24 @@ Visible order:
 Role transition behavior:
 - one backend option is stored in controlled form state without a visible
   selector;
+- when backend returns more than one administrative option, initialize the
+  controlled role to `Administrator`; never initialize a create form to
+  `SuperAdministrator`;
 - selecting `SuperAdministrator` immediately clears `branchId` and hides the
   branch field;
 - selecting `Administrator` with one active branch preselects that branch;
 - with multiple active branches, no branch is silently selected;
-- with no active branch, show `Нет активных филиалов`, explain the available
-  recovery, and disable `Сохранить`;
+- with no active branch and selected role `Administrator`, show
+  `Нет активных филиалов`, explain the available recovery, and disable
+  `Сохранить`;
+- if current backend-driven navigation/actions allow branch management, the
+  recovery opens `Филиалы и залы`; otherwise it explains that the main coach
+  must create or restore an active branch;
+- selecting `SuperAdministrator` removes the no-active-branch blocker and
+  keeps `Сохранить` available because that role has global scope;
+- a failed branch request is a distinct error with retry and never renders as
+  `Нет активных филиалов`; it blocks Administrator submission but does not
+  block SuperAdministrator submission;
 - backend validation remains authoritative even when the UI disables an
   impossible submit.
 
@@ -228,6 +312,9 @@ Payload:
   `attendance_grants_must_be_revoked → Открыть группы посещений` recovery.
 - On recoverable API errors preserve form values and focus/scroll to the first
   invalid field.
+- If update returns `staff_not_found` because the target left this endpoint
+  family, close the edit surface, reload the list and notify that the record
+  changed; do not present the stale form as recoverable field input.
 
 ### Trainer flow
 - Titles/actions remain trainer-specific.
@@ -260,7 +347,9 @@ Payload:
 3. Administrative request/payload types and frontend API mapper tests.
 4. Focused administrators panel extraction and controlled form state.
 5. Trainer create/edit cleanup without frontend role filtering.
-6. Mobile/full-stack Playwright and permission/audit regression barrier.
+6. SuperAdministrator capability-superset and multi-branch scope regression
+   barrier.
+7. Mobile/full-stack Playwright and permission/audit regression barrier.
 
 All slices stay in the one TASK-091 branch because they form one contract
 change. Use small reviewable commits; do not split permissions or UI behavior
@@ -277,11 +366,15 @@ into separately deployable states that leave a bypass or broken consumer.
 3. Confirm the fixed contract above and inspect whether TASK-092 has already
    merged. Preserve its state; do not implement or undo it.
 4. **Before production code**, add/update backend unit tests for endpoint role-
-   family projection and complete HeadCoach/SuperAdministrator create/update
-   option intersections.
+   family projection, complete HeadCoach/SuperAdministrator create/update
+   option intersections, the exact HeadCoach self-update compatibility case
+   and the exhaustive
+   `Administrator capability => SuperAdministrator capability` invariant.
 5. **Before production code**, add backend integration tests for both endpoint
    families, actor × requested role × target role, branch invariants,
-   ProblemDetails, concurrency-safe target recheck and exact audit behavior.
+   ProblemDetails, concurrency-safe target recheck, exact audit behavior and
+   SuperAdministrator global access to representative records from at least
+   two branches.
 6. **Before production code**, add frontend API mapper/request tests for mixed
    administrative roles, role options, allowed actions, nullable branch and
    explicit create/update role payloads.
@@ -290,7 +383,8 @@ into separately deployable states that leave a bypass or broken consumer.
    roleOptions/actions, actual row roles and Coach-only trainer forms.
 8. **Before production code**, add/update focused Playwright scenarios for the
    primary mobile administrative workflow, SuperAdministrator restriction,
-   trainer isolation, failure recovery and responsive geometry.
+   trainer isolation, SuperAdministrator access to all Administrator-visible
+   operations, multi-branch scope, failure recovery and responsive geometry.
 9. Run the new focused backend, frontend unit/component and Playwright tests.
    Record that they fail for the intended missing TASK-091 behavior. Failures
    from fixtures, environment setup or unrelated baseline regressions do not
@@ -324,6 +418,9 @@ into separately deployable states that leave a bypass or broken consumer.
   permission defect; TASK-091 relocates workflows, not permissions.
 - Represent endpoint role families once in backend and reuse them for query
   filters, request validation and option projection.
+- Model the legacy HeadCoach self-update as one explicit, exact compatibility
+  predicate shared by pre-lock and post-lock update checks; do not broaden the
+  Coach role family or list/get results.
 - Keep role and branch in one controlled form state. Derive visible fields from
   selected backend option and clear invalid dependent state in the role-change
   event handler.
@@ -340,6 +437,8 @@ into separately deployable states that leave a bypass or broken consumer.
 ### Backend tests first
 - `backend/tests/GymCrm.Tests/UserRoleAuthorizationPolicyTests.cs` or a new
   focused endpoint-role-family unit test file
+- a focused `SuperAdministratorScopeInvariantTests.cs` integration matrix, or
+  equivalent focused additions to the existing authorization suites
 - `backend/tests/GymCrm.Tests/UsersApiTests.cs`
 - `backend/tests/GymCrm.Tests/AdministratorAttendanceGrantApiTests.cs` only for
   the existing grants-before-role-change recovery regression
@@ -407,8 +506,12 @@ migration is expected.
   uniqueness, active/archived branch behavior and attendance-grant conflict.
 - Preserve the existing immutable role of an established
   `SuperAdministrator`.
+- Preserve `PUT /users/{currentHeadCoachId}` for exact HeadCoach self-update
+  compatibility without exposing HeadCoach in trainer list/get.
 - `Administrator` has an active branch for new assignment;
   `SuperAdministrator` and `Coach` have `branchId: null`.
+- `SuperAdministrator` remains a capability superset of `Administrator` with
+  global operational and attendance scope across all branches.
 - No new frontend role-name permission checks or global state.
 - Preserve React 19, TypeScript, Vite, Mantine, Onest, semantic tokens and
   shared mobile UI contracts.
@@ -445,6 +548,8 @@ code. The first focused run must fail for the expected missing behavior.
   - trainer create options contain only Coach for permitted actors;
   - update role options are intersected with the target endpoint family;
   - protected/immutable SuperAdministrator options remain unchanged.
+- Every capability granted to Administrator is granted to SuperAdministrator,
+  while SuperAdministrator operational and attendance scopes remain global.
 - Frontend mappers preserve actual administrative role, nullable branch,
   backend `allowedActions` and endpoint-scoped `roleOptions`.
 - Frontend payload mapping clears branch for SuperAdministrator and Coach and
@@ -462,8 +567,15 @@ code. The first focused run must fail for the expected missing behavior.
 - HeadCoach/SuperAdministrator create Coach through the trainer endpoint.
 - Administrative roles submitted to trainer create/update and Coach submitted
   to administrative create/update return stable ProblemDetails.
+- Missing, `null`, empty and unknown roles return `400 ValidationProblem` with
+  a `role` field error; known roles outside the endpoint family return
+  `403 staff_role_transition_forbidden`.
 - Cross-family target ids do not leak through the wrong get/update endpoint and
-  return the fixed stable not-found contract.
+  return the fixed stable not-found contract before payload validation.
+- Exact HeadCoach self-update through
+  `PUT /users/{currentHeadCoachId}` still succeeds, syncs the current session
+  and writes the existing audit; other HeadCoach targets remain hidden and
+  forbidden through the trainer transport.
 - Missing, empty, unknown and archived Administrator branch destinations fail
   with `branchId` field errors.
 - Non-null branch for SuperAdministrator/Coach fails and leaves data unchanged.
@@ -474,6 +586,10 @@ code. The first focused run must fail for the expected missing behavior.
 - Every success records exact actor, target role and branch/global scope.
 - Every denial leaves user rows, target state and success-audit count unchanged.
 - Target endpoint role family is rechecked after locked reload.
+- SuperAdministrator can perform every Administrator capability and sees or
+  mutates allowed records from at least two branches without Administrator
+  branch/grant restrictions; each capability has a read assertion and, where
+  it permits mutation, a mutation assertion.
 
 ### UI/component tests
 - HeadCoach sees two administrative role options; SuperAdministrator sees no
@@ -482,6 +598,10 @@ code. The first focused run must fail for the expected missing behavior.
 - Administrator branch is required; one active branch is preselected, multiple
   branches require explicit selection, and no active branches shows recovery
   and disables submit.
+- A multi-option administrative create form initially selects Administrator.
+- No-active-branch disables only Administrator submission; switching to
+  SuperAdministrator restores submit availability, while branch-load failure
+  remains a retryable error distinct from an empty branch list.
 - Switching to SuperAdministrator hides/clears branch and sends null.
 - Switching back to Administrator requires a valid active branch.
 - Actual Administrator/SuperAdministrator badge, scope metadata and
@@ -493,11 +613,16 @@ code. The first focused run must fail for the expected missing behavior.
 - Trainer list/create/edit has no administrative role selector or branch field
   and sends Coach/null.
 - Empty, loading, error, stale/restricted and success states remain distinct.
+- A stale wrong-family edit closes, reloads the administrative list and
+  reports that the record changed.
 
 ### UI/e2e tests
 - HeadCoach creates both administrative roles from the administrators tab.
 - SuperAdministrator creates only Administrator and cannot submit/request
   SuperAdministrator.
+- SuperAdministrator navigation/actions retain every Administrator operation
+  and multi-branch coverage proves global visibility/scope for every
+  Administrator-visible operation.
 - Trainer create/edit remains Coach-only.
 - One forbidden direct API request produces the stable ProblemDetails and no
   success row/notification.
@@ -534,12 +659,16 @@ code. The first focused run must fail for the expected missing behavior.
       intended missing UI/contract behavior.
 - [ ] HeadCoach administrative and trainer create matrix passes.
 - [ ] SuperAdministrator administrative and trainer create matrix passes.
+- [ ] Exact HeadCoach self-update compatibility remains covered without
+      reintroducing HeadCoach into trainer list/get.
 - [ ] Wrong-section roles are denied without mutation or success audit.
 - [ ] Administrator active-branch and SuperAdministrator/Coach null-branch
       invariants pass.
 - [ ] Existing SuperAdministrator immutability and attendance-grant recovery
       pass.
 - [ ] Administrative list/actions and trainer-only list are backend-owned.
+- [ ] SuperAdministrator capability-superset and multi-branch global-scope
+      barrier passes.
 - [ ] `dotnet test backend/GymCrm.slnx` passes.
 - [ ] `cd frontend && npm run test:unit` passes.
 - [ ] `cd frontend && npm run lint` passes.
@@ -557,7 +686,16 @@ endpoint families enforce their own role sets while using the same global
 authorization policy. It must cover HeadCoach and SuperAdministrator, allowed
 and forbidden destination roles, cross-family target ids, branch/null scope,
 locked target recheck, stable ProblemDetails, exact audit actor/target/scope and
-no mutation/success audit after denial.
+no mutation/success audit after denial. The same barrier preserves the exact
+HeadCoach self-update compatibility exception without adding HeadCoach to
+trainer list/get.
+
+A separate authorization barrier must prove that every capability granted to
+Administrator is also granted to SuperAdministrator and that
+SuperAdministrator exercises Administrator-capability operations over records
+from at least two branches with global operational and attendance scope.
+Existing audit scope continues to mean the audited target `role` plus
+`branchId` or `null`; TASK-091 does not add a new audit `scopeKind` field.
 
 The frontend barrier is a component plus Playwright matrix proving that
 administrative options/actions come from backend contracts, branch state cannot
@@ -591,6 +729,11 @@ geometry are mandatory for completion.
 - **Strict fixture drift:** narrowing endpoint semantics will require existing
   backend/frontend fixtures to stop expecting generic staff without weakening
   unrelated TASK-082 security assertions.
+- **Compatibility regression:** a blanket Coach target filter can silently
+  remove the existing HeadCoach self-update and session-sync contract.
+- **SuperAdministrator scope regression:** endpoint- or frontend-specific role
+  checks can accidentally make SuperAdministrator weaker than Administrator
+  or restrict global data to one branch despite the global backend scope.
 
 ## Stop conditions
 Остановиться и не писать production code, если:
@@ -602,6 +745,10 @@ geometry are mandatory for completion.
   update и recheck после lock;
 - существующие role transitions, immutable SuperAdministrator или
   attendance-grant recovery конфликтуют с зафиксированным контрактом;
+- exact HeadCoach self-update compatibility нельзя сохранить без расширения
+  trainer list/get или ослабления endpoint-family boundary;
+- SuperAdministrator не является capability superset роли Administrator либо
+  не получает глобальный доступ к разрешённым операциям во всех филиалах;
 - direct bypass нельзя отклонить стабильным ProblemDetails без мутации и
   success audit;
 - требуется DB/schema change, production data rewrite или coordinated
