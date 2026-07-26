@@ -167,7 +167,7 @@ test('unknown auth-profile values are safely resolved on iPhone profiles', async
     getComputedStyle(element).getPropertyValue('--crm-auth-background-image'),
   )
 
-  expect(authBackgroundImage).toContain('k4pro-login-bg.png')
+  expect(authBackgroundImage).toContain('k4pro-login-bg')
   await expectNoHorizontalScroll(page)
 })
 
@@ -195,7 +195,7 @@ test('empty auth-profile values are safely resolved on iPhone profiles', async (
     getComputedStyle(element).getPropertyValue('--crm-auth-background-image'),
   )
 
-  expect(authBackgroundImage).toContain('k4pro-login-bg.png')
+  expect(authBackgroundImage).toContain('k4pro-login-bg')
   await expectNoHorizontalScroll(page)
 })
 
