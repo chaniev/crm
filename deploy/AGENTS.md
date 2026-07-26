@@ -39,6 +39,25 @@ Deploy owns local and production-oriented runtime composition for the CRM stack.
 
 ---
 
+## Parallel worktree runtime
+
+When a CRM stack is started from a task worktree:
+
+- use a task-local uncommitted `.env`;
+- use a unique `COMPOSE_PROJECT_NAME`;
+- use unique published `BACKEND_PORT` and `FRONTEND_PORT` values;
+- rely on the task-specific Compose project to isolate networks, containers,
+  and named volumes;
+- set `BOT_ENABLED=false` unless the task requires bot runtime validation;
+- never run multiple long-polling bot instances with the same Telegram token;
+- resolve the exact Compose project before `down`, `down -v`, or other cleanup;
+- never stop or remove containers or volumes owned by another task workspace.
+
+Use `.agents/skills/task-worktree/SKILL.md` for task workspace and local runtime
+isolation rules.
+
+---
+
 ## Docker rules
 
 Prefer:

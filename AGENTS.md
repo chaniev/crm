@@ -83,6 +83,10 @@ Complementary implementation and audit skills:
 - `.agents/skills/csharp-xunit/SKILL.md` when creating or substantially
   restructuring backend xUnit tests.
 
+Repository workflow skill:
+- `.agents/skills/task-worktree/SKILL.md` before starting, resuming, or cleaning
+  up any implementation task workspace.
+
 Generic skill guidance never overrides the nearest `AGENTS.md`, existing
 project contracts and tests, the approved UX contract, Mantine/Onest patterns,
 or the CRM business rules owned by backend.
@@ -119,33 +123,33 @@ When the user writes `зафиксируй`, create `backlog/inbox/YYYY-MM-DD.md
 
 ---
 
-## Git branch policy
+## Git task workspace policy
 
-Every implementation task MUST be executed in a dedicated git branch.
+Every implementation task MUST use an isolated task workspace:
 
-Rules:
-- one implementation task -> one separate branch;
-- never implement multiple unrelated tasks in the same branch;
-- branch creation is mandatory before any code changes;
-- implementation plans must explicitly mention the branch name;
-- implementation execution must stop if the current branch is unclear or dirty.
+- one task -> one dedicated branch;
+- one task -> one dedicated Git worktree;
+- one worktree -> one Codex session;
+- one running task stack -> one isolated Docker Compose project.
 
+Use `.agents/skills/task-worktree/SKILL.md` to create, resume, verify, or clean
+up a task workspace.
 
-Additional branch constraints:
-- all task branches MUST be created from the main branch;
-- do not create branches from other feature/fix/refactor branches;
-- before creating a task branch:
-  - checkout main;
-  - pull latest changes;
-  - verify clean git status.
+The primary repository directory is a coordination workspace. It MUST:
 
-Recommended flow:
+- remain on `main`;
+- stay free of implementation changes;
+- never switch to a feature, fix, or refactor branch;
+- be used only for fetch, worktree management, integration checks, and
+  repository administration.
 
-```text
-git checkout main
-git pull
-git checkout -b feature/TASK-XXX-short-name
-```
+Task branches MUST:
+
+- be created directly from the current `origin/main`;
+- use a unique task-specific name;
+- never be based on another unmerged task branch unless the implementation
+  plan explicitly declares and the user approves that dependency;
+- match the branch declared by the implementation plan when one exists.
 
 Recommended branch naming:
 
@@ -155,27 +159,32 @@ fix/TASK-XXX-short-name
 refactor/TASK-XXX-short-name
 ```
 
-If multiple subtasks are implemented independently, each subtask should receive its own branch.
+Before any project-code change, the coordinating agent MUST verify:
 
-Implementation plans should include:
-
-```md
-## Git branch
-feature/TASK-XXX-short-name
+```text
+git rev-parse --show-toplevel
+git branch --show-current
+git status --short --branch
+git worktree list
+git merge-base --is-ancestor origin/main HEAD
 ```
 
-Before implementation starts:
-1. verify current git status;
-2. create a dedicated branch;
-3. ensure branch matches the task being implemented.
+Implementation MUST stop if:
 
-Do not mix:
-- risky experiments;
-- refactoring;
-- unrelated fixes;
-- multiple backlog tasks
+- the current directory is the primary repository directory;
+- the task branch or worktree is ambiguous;
+- the branch does not match the implementation plan;
+- the task worktree contains unexplained changes;
+- another worktree is already assigned to the intended branch;
+- the task branch base or an inter-task dependency is unclear.
 
-inside one branch.
+Do not mix risky experiments, unrelated fixes, independent backlog tasks, or
+unrequested refactoring in one task workspace.
+
+The coordinating agent owns branch/worktree lifecycle and cleanup.
+Specialist agents work only inside the workspace delegated by the coordinator
+and MUST NOT create or remove worktrees unless explicitly assigned that
+responsibility.
 
 ---
 
