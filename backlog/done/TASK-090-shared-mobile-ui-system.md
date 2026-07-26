@@ -1,13 +1,14 @@
 # TASK-090: Ввести единую mobile UI system и deployment theme profiles
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-26 12:13
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-090-shared-mobile-ui-system.plan.md
+- implementation_plan: /backlog/done/TASK-090-shared-mobile-ui-system.plan.md
 - implementation_branch: feature/TASK-090-shared-mobile-ui-system
+- moved_to_done_at: 2026-07-26
 
 ## Priority
 P0
@@ -441,3 +442,19 @@ Feature tasks могут планироваться параллельно, но
 - Source: user request to replace screen-by-screen redesign with one mobile CRM
   interface system.
 - UX research and UI design pass: 2026-07-26.
+
+## Processing notes
+
+- Implemented in: `feature/TASK-090-shared-mobile-ui-system`, final
+  implementation commit `3253b23`.
+- Merged to `main`: PR #101, merge commit `aee6d93`, 2026-07-26.
+- Completion evidence: backend `/api/config` and deployment branding contract;
+  versioned theme/background registries and deterministic fallbacks; config
+  bootstrap; semantic tokens and raw-color regression barrier; shared mobile
+  primitives; adaptive navigation; unit, API and responsive Playwright
+  coverage committed with the implementation.
+- Residual device evidence: real Safari chrome, software keyboard, safe-area
+  and physical-device behavior remain a manual acceptance gap and are retained
+  in the completed plan; the screen-specific all-screen sweep remains
+  `TASK-084`.
+- Status actualized at: 2026-07-26 by backlog status audit.

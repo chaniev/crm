@@ -88,3 +88,11 @@ Coach при прямом открытии `/groups` или `/users` попад�
 ## Visual comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-088-comparison.png)
 - [Описание преимуществ и границ макета](../mockups/usability-2026-07-25/README.md#task-088-explicit-permission-restricted-feedback)
+
+## Processing notes
+
+- Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
+- Foundation dependency is complete: shared `RestrictedState`, notification
+  and focus contracts are available.
+- Status remains `ready`: route-specific access resolution, redirect feedback
+  and valid recovery destinations were explicitly outside TASK-090.

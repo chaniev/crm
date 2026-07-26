@@ -85,3 +85,11 @@ P2
 ## Visual comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-089-comparison.png)
 - [Описание преимуществ и границ макета](../mockups/usability-2026-07-25/README.md#task-089-desktop-client-list-and-preview-without-overflow)
+
+## Processing notes
+
+- Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
+- Foundation dependency is complete: theme, state and responsive primitives
+  no longer block the desktop workflow.
+- Status remains `ready`: desktop split geometry, visible decision columns,
+  overflow removal and state preservation were explicitly outside TASK-090.

@@ -1248,3 +1248,68 @@
 - active tasks after audit: 22 (`tasks-ready`: 9, `risky`: 6, `needs-clarification`: 7, `implementation`: 0)
 - active implementation plans after audit: 0
 - validation: merge ancestry, source, contract and automated-coverage audit; runtime suites were not rerun because this change only reconciles backlog metadata
+
+# 2026-07-26 post-TASK-090 merge status audit
+
+## Scope
+- Reconciled every active backlog folder with current `main` after PR #101.
+- Used the full 2026-07-25 audit and its post-TASK-073 reconciliation as the
+  baseline, then reviewed every later commit, current source and automated
+  coverage.
+- Audit branch: `refactor/backlog-status-audit-2026-07-26`.
+
+## Moved tasks to done
+- `/backlog/implementation/TASK-090-shared-mobile-ui-system.md` ->
+  `/backlog/done/TASK-090-shared-mobile-ui-system.md`.
+
+## Moved implementation plans to done
+- `/backlog/implementation-plans/TASK-090-shared-mobile-ui-system.plan.md` ->
+  `/backlog/done/TASK-090-shared-mobile-ui-system.plan.md`.
+
+## Evidence
+- TASK-090 final implementation commit `3253b23` is an ancestor of current
+  `main` through merge commit `aee6d93` (PR #101).
+- Backend and deployment contain the opaque theme/background config contract,
+  default normalization and both environment consumers.
+- Frontend contains versioned theme/background registries, deterministic
+  fallbacks, config bootstrap, semantic tokens, a raw-color regression barrier,
+  shared mobile primitives and adaptive navigation.
+- Committed API, unit, static-color and responsive Playwright coverage protects
+  the implemented foundation. Real Safari chrome/keyboard/safe-area and
+  physical-device behavior remain recorded manual evidence gaps.
+
+## Actualized active dependencies
+- TASK-084 remains `ready`: TASK-090 completed its foundation, but the
+  all-screen affected-call-site sweep and device acceptance remain separate.
+- TASK-085 remains `ready`: client browse/search-focused transitions, `96px`
+  cards and return-state behavior were explicitly outside TASK-090.
+- TASK-086 remains `ready`: group search/filter/paging data flow and bounded
+  batches were explicitly outside TASK-090.
+- TASK-087 remains `needs-clarification`: UI foundations are available, but
+  backend effective-scope semantics are unresolved.
+- TASK-088 remains `ready`: shared `RestrictedState` exists, while
+  route-specific access resolution and redirect recovery wiring remain absent.
+- TASK-089 remains `ready`: shared responsive primitives exist, while desktop
+  split geometry, overflow removal and state preservation remain absent.
+
+## Kept active
+- 12 bot tasks remain relevant: their rendering, pagination, full scenario
+  validation, live smoke, runbook, runtime policy, architecture, upload,
+  notification and webhook criteria are still incomplete or blocked.
+- Client tasks TASK-016–TASK-021 remain relevant: later shared UI work did not
+  implement their quick actions, return-state, detail/form cleanup, tabs,
+  action-first empty states or dedicated responsive acceptance.
+- TASK-058, TASK-071, TASK-074 and TASK-075 remain relevant and blocked on the
+  product/domain decisions already recorded in their cards.
+- No active task was found to be obsolete, duplicated or fully superseded by
+  the changes after the 2026-07-25 baseline.
+
+## Summary
+- moved to done: 1 task
+- moved plans to done: 1
+- active tasks after audit: 28 (`tasks-ready`: 14, `risky`: 6,
+  `needs-clarification`: 8, `implementation`: 0)
+- active implementation plans after audit: 0
+- validation: merge ancestry, source, contract and automated-coverage audit;
+  runtime suites were not rerun because this change only reconciles backlog
+  metadata
