@@ -150,6 +150,8 @@ contract.
 ## Source notes
 - Source: usability audit of the fully rebuilt and seeded local stand.
 - Evidence date: 2026-07-25.
+- Source file: `backlog/processed/2026-07-27.md`
+- Original note: `На экранах «Группы» и «Тренеры» отсутствует поиск. Необходимо добавить возможность поиска на обоих экранах.`
 
 ## Visual comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-086-comparison.png)
@@ -166,3 +168,7 @@ contract.
 - Status remains `ready` after requirements correction: the card now owns
   removal of the residual summary widget plus server-side
   search/filter/paging and affected frontend consumers.
+- Updated at: 2026-07-27 00:25
+- Duplicate check: часть новой заметки про поиск групп полностью покрыта этой
+  implementation task; отдельная задача не создана, scope и acceptance
+  criteria не изменены. Поиск тренеров вынесен в TASK-096.

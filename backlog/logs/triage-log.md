@@ -1339,3 +1339,30 @@
 - needs-clarification: 1
 - updated existing: 0
 - processed files: 1
+
+# 2026-07-27 00:25
+
+## Processed inbox files
+- 2026-07-27.md
+
+## Created tasks
+- /backlog/tasks-ready/TASK-094-filter-surface-consistency.md
+- /backlog/tasks-ready/TASK-095-remove-residual-service-copy.md
+- /backlog/tasks-ready/TASK-096-trainer-list-search.md
+
+## Updated existing tasks
+- /backlog/tasks-ready/TASK-093-add-button-placement.md
+- /backlog/implementation/TASK-086-mobile-groups-search-filter-paging.md
+
+## Skipped duplicates
+- Заметка про расположение, размер и цвет кнопок добавления/обновления обновила TASK-093; отдельный TASK не создан. После сверки с нормативным `docs/MOBILE_UI_CONTRACT.md` задача переведена из `needs-clarification` в `tasks-ready`.
+- Заметка про поиск групп полностью покрыта TASK-086, уже находящейся в implementation; карточка дополнена новой source note без изменения scope.
+- Завершённые TASK-044 и TASK-090 уже запрещают дублирующую/service copy, но конкретные остатки присутствуют в текущем frontend, поэтому TASK-095 создана как regression follow-up, а завершённые задачи не переоткрывались.
+- Завершённые TASK-046, TASK-056 и TASK-090 задали visual/filter baseline, но активной задачи на оставшиеся несовпадающие filter surfaces не найдено.
+
+## Summary
+- tasks-ready: 3
+- risky: 0
+- needs-clarification: 0
+- updated existing: 2
+- processed files: 1
