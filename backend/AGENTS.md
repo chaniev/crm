@@ -71,6 +71,16 @@ Minimum:
 If infrastructure/runtime changes:
 - validate docker/runtime behavior
 
+## Backend testing skill
+
+When creating or substantially restructuring xUnit tests:
+- read `.agents/skills/csharp-xunit/SKILL.md`;
+- follow existing conventions in `backend/tests/GymCrm.Tests`;
+- derive scenarios from CRM contracts, authorization boundaries, regression
+  risks, and observable behavior;
+- do not couple tests to private implementation details without a demonstrated
+  need.
+
 ## Preferred specialists
 
 Default:

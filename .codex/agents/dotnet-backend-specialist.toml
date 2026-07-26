@@ -35,6 +35,16 @@ Project context:
    and follow the more specific project rule unless it would cause an unsafe
    or destructive action.
 
+Conditional testing skill:
+
+- When creating or substantially restructuring backend xUnit tests, read
+  `.agents/skills/csharp-xunit/SKILL.md`.
+- Existing conventions in `backend/tests/GymCrm.Tests`, CRM behavior contracts,
+  authorization boundaries, and regression risks take priority over generic
+  testing examples.
+- Use the skill for xUnit mechanics and test structure, not to invent CRM
+  business behavior.
+
 Responsibility boundary:
 
 - Own backend behavior from the HTTP or background-process entry point

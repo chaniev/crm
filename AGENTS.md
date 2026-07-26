@@ -74,6 +74,18 @@ Optional visual-generation skill:
 - `.agents/skills/design-first-ui-prompting/SKILL.md` only when the deliverable includes a prompt for an external UI generator, a static visual concept, a demo, or a landing page;
 - it is not the source of truth for CRM product workflows, responsive behavior, accessibility, or implementation acceptance.
 
+Complementary implementation and audit skills:
+- `.agents/skills/react-best-practices/SKILL.md` for React implementation,
+  review, performance, state flow, data loading, effects, and refactoring;
+- `.agents/skills/web-design-guidelines/SKILL.md` only for an explicitly
+  requested independent accessibility or interface-compliance audit;
+- `.agents/skills/csharp-xunit/SKILL.md` when creating or substantially
+  restructuring backend xUnit tests.
+
+Generic skill guidance never overrides the nearest `AGENTS.md`, existing
+project contracts and tests, the approved UX contract, Mantine/Onest patterns,
+or the CRM business rules owned by backend.
+
 Rules:
 - design at 390 x 844 first as the narrow mobile stress baseline;
 - before tablet and desktop sign-off, validate the target iPhone Air 420 x 912 and iPhone 17 Pro Max 440 x 956 screen sizes;

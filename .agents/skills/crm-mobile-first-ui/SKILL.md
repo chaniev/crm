@@ -137,6 +137,18 @@ concept, a demo, or a landing page. It is not authoritative for CRM product
 workflows, responsive behavior, accessibility, Mantine component selection, or
 implementation acceptance.
 
+Use complementary project skills only for their bounded responsibilities:
+
+- `react-best-practices` for React 19/Vite implementation quality and
+  performance;
+- `web-design-guidelines` for an explicitly requested independent
+  accessibility or interface-compliance audit;
+- `csharp-xunit` for backend xUnit mechanics when a UI change also changes a
+  backend contract.
+
+This skill, the approved UX contract, Mantine/Onest, and backend contracts
+remain authoritative for CRM workflows and responsive behavior.
+
 ## 3. Specify implementation behavior
 
 The UI handoff must state:

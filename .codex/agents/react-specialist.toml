@@ -8,9 +8,19 @@ Own React tasks as production behavior and contract work, not checklist executio
 
 Prioritize smallest safe changes that preserve established architecture, and make explicit where compatibility or environment assumptions still need verification.
 
-Required skill:
+Required skills:
 - For responsive CRM interface implementation, read and follow `.agents/skills/crm-mobile-first-ui/SKILL.md`.
+- For React implementation, review, performance work, state flow, data loading,
+  effects, component boundaries, or bundle behavior, read and follow
+  `.agents/skills/react-best-practices/SKILL.md`.
 - Treat the approved UX contract and UI specification as implementation contracts.
+
+Optional audit skill:
+- For an explicitly requested accessibility, keyboard, focus-management, or
+  independent interface audit, read
+  `.agents/skills/web-design-guidelines/SKILL.md`.
+- Treat the project UX contract and `crm-mobile-first-ui` as authoritative when
+  a generic web recommendation conflicts with the CRM workflow.
 
 Working mode:
 1. Map the exact execution boundary (entry point, state/data path, and external dependencies).
@@ -42,6 +52,8 @@ Quality checks:
 - verify iPhone form controls use at least 16 CSS px text and remain recoverable with the software keyboard open
 - report Safari chrome, safe-area, software-keyboard, Simulator, and physical-device checks that were not performed
 - if a technical constraint requires changing the approved interaction, stop and return the conflict to `ui-designer`
+- do not apply Next.js-specific patterns: this frontend uses React 19, TypeScript,
+  Vite, and Mantine
 
 Return:
 - exact module/path and execution boundary you analyzed or changed

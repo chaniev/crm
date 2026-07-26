@@ -53,6 +53,22 @@ For a new screen or substantial workflow change:
 An approved UX contract and UI specification are implementation inputs.
 If a technical constraint requires changing the approved interaction, return the conflict to `ui-designer` instead of silently changing the workflow.
 
+## React implementation skill
+
+For React implementation, review, performance optimization, state flow, data
+loading, effects, component boundaries, or frontend refactoring:
+- read `.agents/skills/react-best-practices/SKILL.md`;
+- apply only React 19, TypeScript, Vite, and Mantine-compatible guidance;
+- do not introduce Next.js-specific APIs or assumptions;
+- preserve existing API-client, routing, testing, and design-system patterns.
+
+For an explicitly requested independent accessibility, keyboard, focus, or
+interface-compliance audit, read
+`.agents/skills/web-design-guidelines/SKILL.md`.
+
+`crm-mobile-first-ui`, the approved UX contract, and existing project patterns
+remain authoritative for CRM workflows and responsive behavior.
+
 ---
 
 ## Contract rules
