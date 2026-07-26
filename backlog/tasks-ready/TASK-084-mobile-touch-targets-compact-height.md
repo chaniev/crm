@@ -24,14 +24,21 @@ P0
 Суперадминистратор / администратор / главный тренер / тренер.
 
 ## Problem
-Usability-аудит финального локального стенда выявил системные нарушения mobile acceptance:
-- профильное меню `48 x 42`;
-- кнопки фильтров клиентов и расписания высотой `40px`;
-- refresh расписания `42 x 42`;
-- pagination и действия высотой `36-40px`;
-- close в filter drawer `28 x 28`;
-- поля и select высотой `36-40px` с текстом `14px`;
-- при `912 x 420` и `956 x 440` включается desktop shell с компактными desktop-контролами.
+Аудит 2026-07-25 зафиксировал системные нарушения mobile acceptance. После
+TASK-090 общий shell и shared primitives существуют, поэтому исходные замеры
+не считаются описанием всех текущих call sites. На `main` всё ещё видны
+остаточные риски, которые должна закрыть эта acceptance/migration задача:
+
+- mobile pagination клиентов использует controls `2.5rem`;
+- refresh расписания запрашивает размер `42px`;
+- `CompactFilterPanel` сохраняет поля и buttons высотой `36-40px` и текст
+  `14px` в части режимов;
+- внутренний clear control `EntityLocatorBar` и стандартные drawer close
+  controls не имеют гарантированного target `44 x 44`;
+- group edit rows, profile/menu, filters и другие screen call sites ещё не
+  прошли единый measured sweep;
+- Safari chrome, software keyboard, home indicator и physical-device safe
+  areas не подтверждены автоматизированной геометрией.
 
 ## Scope
 - Общие Mantine-паттерны `Button`, `ActionIcon`, refresh, pagination, tabs, inputs, selects, switches и close controls.
@@ -39,6 +46,9 @@ Usability-аудит финального локального стенда вы
 - Responsive-режим для coarse pointer + compact height, независимый от одной только ширины.
 - Доступность primary form actions и temporary surfaces при Safari chrome и software keyboard.
 - Regression-проверка главной, расписания, клиентов, групп и доступных settings/audit экранов.
+- Исправление shared primitive выполняется в самом primitive; screen-specific
+  override допускается только для предметной geometry, не как альтернативный
+  touch-size contract.
 - SuperAdministrator shell с backend session contract: `branchId: null`, global operational scope, allowed sections `Home`, `Schedule`, `Clients`, `Groups`, `Users`, `Audit`, `Settings` и явное отсутствие `Finance`.
 - Frontend не выводит доступность разделов или действий из названия роли, если backend уже передаёт permissions, allowed sections и allowed actions.
 
@@ -64,6 +74,7 @@ Usability-аудит финального локального стенда вы
 
 ## Acceptance criteria
 - [ ] На проверенных mobile paths нет интерактивной зоны меньше `44 x 44 CSS px`.
+- [ ] Между независимыми соседними touch targets остаётся минимум `8px`.
 - [ ] Text inputs, selects и textareas имеют `font-size >= 16px` на iPhone profiles.
 - [ ] Нет unintended horizontal page scrolling на `360`, `390`, `420`, `440`.
 - [ ] `912 x 420` и `956 x 440` не показывают desktop-only shell или controls высотой `36px`.
@@ -75,6 +86,7 @@ Usability-аудит финального локального стенда вы
 ## Test checklist
 - [ ] `cd frontend && npm run lint`
 - [ ] `cd frontend && npm run build`
+- [ ] `cd frontend && npm run test:unit`
 - [ ] Запустить affected responsive Playwright specs.
 - [ ] `cd frontend && npm run test:e2e:iphone`
 - [ ] Проверить `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`.
@@ -104,5 +116,9 @@ Usability-аудит финального локального стенда вы
 - Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
 - Foundation dependency is complete: shared targets, semantic controls,
   compact-height shell primitives and responsive test infrastructure exist.
+- Requirements revalidated against commit `3253b23`: the original audit
+  examples are now evidence baseline, while remaining `36-42px` call sites
+  and unverified device behavior are named explicitly above.
 - Status remains `ready`: the card owns the all-screen affected-call-site
-  sweep and Safari/device acceptance that TASK-090 explicitly left separate.
+  sweep, including shared primitive internals and Safari/device acceptance
+  that TASK-090 explicitly left separate.

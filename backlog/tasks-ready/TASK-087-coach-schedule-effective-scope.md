@@ -1,7 +1,7 @@
 # TASK-087: Ограничить расписание тренера его effective groups
 
 ## Status
-needs-clarification
+ready
 
 ## Priority
 P1
@@ -15,9 +15,9 @@ P1
   [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
 - UI foundation dependency: `TASK-090`; touch/compact-height sweep: `TASK-084`.
 - Общий контракт задаёт shell, day locator, cards, states и palette, но не
-  разрешает блокирующий вопрос effective scope.
-- Visual concept остаётся только возможным workflow после backend/product
-  clarification и не должен реализовываться через frontend filtering.
+  переопределяет backend-owned effective scope.
+- Visual concept задаёт scoped workflow, но не должен реализовываться через
+  frontend filtering.
 
 ## User role
 Тренер.
@@ -26,8 +26,17 @@ P1
 Usability-аудит показал в coach schedule до 88 глобальных schedule entries. На desktop concurrent events превращаются в узкие unreadable lanes, а на mobile unrelated groups увеличивают число решений до выбора нужного занятия. UI оптимизирован под глобальный overview, а не под задачу тренера `найти моё текущее/следующее занятие`.
 
 ## Scope
-- Зафиксировать backend-owned effective scope расписания тренера.
-- Backend возвращает только разрешённые schedule entries и filter options.
+- Применить существующий backend-owned effective scope к `/schedule/groups`
+  для роли Coach.
+- Effective groups Coach на business date:
+  - постоянные назначения из `GroupTrainers`;
+  - union активных, не отменённых временных замен из `TASK-073`, где
+    `StartsOn <= businessDate <= EndsOn`.
+- Использовать `IEffectiveGroupAssignmentService`; не копировать date/substitution
+  query в endpoint.
+- Фильтровать backend query до `totalCount` и paging.
+- Backend возвращает только разрешённые schedule entries и scoped filter
+  options/data.
 - Day counts и type legend вычисляются из scoped response.
 - Empty state сообщает, что занятий нет именно в scope тренера.
 - Frontend потребляет backend scope и не фильтрует permission semantics локально.
@@ -36,17 +45,30 @@ Usability-аудит показал в coach schedule до 88 глобальны
 - Редактирование расписания, drag-and-drop, отмены и conflict resolution.
 - Изменение attendance marking rules.
 - Показ unauthorized global schedule как обход scoped API.
+- Операция `Показать всё расписание` для Coach; elevated роли уже получают
+  свой backend-permitted global response без отдельного toggle.
+- Исторический или будущий entitlement preview: scope определяется на текущую
+  business date тем же контрактом, что session и attendance.
 
 ## Constraints
 - Backend остаётся source of truth для assignment, temporary substitution, attendance access и schedule scope.
 - Frontend не объединяет `assignedGroupIds`, substitutions и grants самостоятельно.
+- Coach schedule scope совпадает с `attendanceScope=TrainerAssignments` и
+  session `assignedGroupIds`, потому что все три consumers используют один
+  `IEffectiveGroupAssignmentService`.
 - Coach effective-scope narrowing не применяется к SuperAdministrator: session с `branchId: null` сохраняет global backend-permitted schedule и attendance scope.
+- HeadCoach, SuperAdministrator и Administrator сохраняют текущий
+  backend-permitted schedule contract; задача не расширяет и не сужает их
+  scope.
 
-## Clarification questions
-- [ ] Effective groups тренера — только прямые текущие назначения?
-- [ ] Должны ли входить активные временные замены из `TASK-073`?
-- [ ] Должен ли schedule scope совпадать с attendance scope во всех случаях?
-- [ ] Нужна ли разрешённая операция `Показать всё расписание`, и для каких ролей?
+## Resolved decisions
+- [x] Scope не ограничивается прямыми назначениями: он включает активные
+      временные замены из `TASK-073`.
+- [x] Для Coach schedule scope совпадает с текущим effective assignment,
+      используемым attendance/session.
+- [x] Границы временной замены inclusive и вычисляются по backend business
+      date; отменённая, ещё не начавшаяся и завершившаяся замена не даёт scope.
+- [x] `Показать всё расписание` для Coach отсутствует.
 
 ## Responsive behavior
 - `360 x 780`, `390 x 844`: day navigation и day list показывают только scoped entries; empty day не выглядит global-empty.
@@ -56,13 +78,16 @@ Usability-аудит показал в coach schedule до 88 глобальны
 
 ## Operational and interaction states
 - Loading: явное `Загружаем расписание`.
-- Empty scoped: `Для вас занятий в расписании нет` после согласования copy.
+- Empty scoped: `Для вас занятий в расписании нет`.
 - Error: retry; допустимый stale scoped schedule помечается как stale, а не success.
 - Permission: отсутствие групп в scope показывает empty state, а не silent redirect.
 - Day tabs имеют `aria-selected`; после выбора focus остаётся на выбранном дне.
 
 ## Acceptance criteria
 - [ ] Coach с ограниченным effective scope не видит unassigned global groups.
+- [ ] `/schedule/groups` применяет Coach scope до `totalCount` и paging.
+- [ ] Постоянное назначение и активная временная замена входят в scope;
+      future, expired и cancelled substitution не входят.
 - [ ] Branch/hall/trainer/group filters содержат только scoped options.
 - [ ] Day counts и legend согласованы со scoped entries.
 - [ ] Empty scoped schedule отличается от loading/error.
@@ -71,16 +96,26 @@ Usability-аудит показал в coach schedule до 88 глобальны
 
 ## Test checklist
 - [ ] Backend tests для coach schedule scope.
-- [ ] Сценарии direct assignment, substitution и no-scope после уточнения semantics.
+- [ ] Заменить regression
+      `Coach_can_view_all_seeded_schedule_groups_without_group_management_access`
+      на scoped contract.
+- [ ] Сценарии direct assignment, active/future/expired/cancelled substitution,
+      inclusive date boundaries и no-scope.
 - [ ] Обновить affected schedule frontend/e2e tests.
 - [ ] Non-regression: SuperAdministrator остаётся global и не получает coach-scoped empty copy.
 - [ ] Проверить mobile, compact-height и desktop weekly grid.
-- [ ] Запустить backend tests, frontend lint/build и iPhone WebKit checks.
+- [ ] `dotnet test backend/GymCrm.slnx`
+- [ ] `cd frontend && npm run lint`
+- [ ] `cd frontend && npm run build`
+- [ ] `cd frontend && npm run test:unit`
+- [ ] Запустить affected Playwright и iPhone WebKit checks.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for Codex: yes
 - Risk level: high
-- Reason: задача меняет security/data visibility contract и зависит от backend-owned определения effective scope.
+- Reason: задача меняет security/data visibility contract, но определение
+  effective scope уже централизовано в backend и зафиксировано integration
+  tests; frontend не принимает domain decisions.
 
 ## Related tasks
 - `TASK-063`: head coach group assignment.
@@ -92,7 +127,7 @@ Usability-аудит показал в coach schedule до 88 глобальны
 - Evidence date: 2026-07-25.
 
 ## Visual comparison
-- [Сейчас / концепт после согласования scope](../mockups/usability-2026-07-25/TASK-087-comparison.png)
+- [Сейчас / scoped workflow](../mockups/usability-2026-07-25/TASK-087-comparison.png)
 - [Описание преимуществ, вопросов и границ макета](../mockups/usability-2026-07-25/README.md#task-087-coach-schedule-effective-scope)
 
 ## Processing notes
@@ -100,6 +135,11 @@ Usability-аудит показал в coach schedule до 88 глобальны
 - Reviewed at: 2026-07-26 after TASK-090 was merged to `main`.
 - UI foundation dependency is complete, but TASK-090 did not change schedule
   authorization or effective-scope semantics.
-- Status remains `needs-clarification`: direct assignments, temporary
-  substitutions, attendance-scope parity and optional global view still need
-  explicit backend/product decisions.
+- Revalidated against backend source of truth:
+  `EffectiveGroupAssignmentService` already defines permanent + active
+  non-cancelled substitutions, and `AccessScopeService` uses it for Coach
+  attendance/session scope. `/schedule/groups` and its current regression
+  still return the global list.
+- Status changed to `ready`: the existing effective-assignment semantics are
+  now the required schedule contract, and global view for Coach is explicitly
+  out of scope.

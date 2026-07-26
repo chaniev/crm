@@ -1111,9 +1111,13 @@ affected call sites до touch/compact-height требований. Не зад�
 
 ### TASK-087
 
-UI не реализуется до backend/product решения effective scope. После решения
-coach может получить variant `Мои занятия`: scoped counts, next lesson и
-chronological day list. SuperAdministrator остаётся global.
+Coach schedule scope использует backend
+`IEffectiveGroupAssignmentService`: постоянные назначения union активные,
+не отменённые временные замены на business date. `/schedule/groups` применяет
+scope до total/paging, а frontend строит counts, filter options и day list
+только из scoped response. Global `Показать всё` для Coach отсутствует;
+SuperAdministrator и остальные elevated роли сохраняют свой
+backend-permitted global contract.
 
 ### TASK-088
 
