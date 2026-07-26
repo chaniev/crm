@@ -974,3 +974,26 @@
 - skipped: 0
 - plans created: 7
 - note: user explicitly selected the seven-task batch. Every task has a dedicated branch, isolated-worktree precondition, tests-before-production red/green order and automated regression barrier. TASK-087 keeps its high-risk data-visibility classification but is marked Safe for Codex, uses the existing backend-owned `IEffectiveGroupAssignmentService`, and has explicit security/non-leakage gates. TASK-085 and TASK-089 have mandatory execution dependencies on TASK-017; TASK-089 also follows TASK-085.
+
+# 2026-07-27 00:40
+
+## Moved to implementation
+- /backlog/implementation/TASK-093-add-button-placement.md
+- /backlog/implementation/TASK-094-filter-surface-consistency.md
+- /backlog/implementation/TASK-095-remove-residual-service-copy.md
+- /backlog/implementation/TASK-096-trainer-list-search.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-093-add-button-placement.plan.md
+- /backlog/implementation-plans/TASK-094-filter-surface-consistency.plan.md
+- /backlog/implementation-plans/TASK-095-remove-residual-service-copy.plan.md
+- /backlog/implementation-plans/TASK-096-trainer-list-search.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 4
+- skipped: 0
+- plans created: 4
+- note: user explicitly selected the four-task batch. UX research and UI handoff fixed the safe execution order as TASK-094 → TASK-093 → TASK-096, with TASK-095 after overlapping shared-toolbar work. TASK-086 remains owner of Groups search/filter/paging and TASK-092 remains owner of administrator widget removal. Every plan uses a separate branch/worktree, tests-before-production red/green order and automated mobile/theme/accessibility regression barrier; project code was not changed.

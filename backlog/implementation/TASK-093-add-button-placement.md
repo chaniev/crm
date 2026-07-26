@@ -1,7 +1,13 @@
 # TASK-093: Унифицировать расположение и оформление кнопок добавления и обновления
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 00:40
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-093-add-button-placement.plan.md
+- implementation_branch: feature/TASK-093-add-button-placement
 
 ## Goal
 На всех экранах CRM добавление и обновление находятся в предсказуемом task toolbar и используют единые размеры, визуальный приоритет и responsive-поведение.

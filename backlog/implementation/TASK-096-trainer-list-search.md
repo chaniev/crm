@@ -1,7 +1,13 @@
 # TASK-096: Добавить поиск в список тренеров
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 00:40
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-096-trainer-list-search.plan.md
+- implementation_branch: feature/TASK-096-trainer-list-search
 
 ## Goal
 Пользователь быстро находит нужного тренера по ФИО или логину без просмотра всего списка.

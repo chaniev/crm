@@ -1,7 +1,13 @@
 # TASK-095: Убрать остаточные дублирующие заголовки и служебные подписи
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 00:40
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-095-remove-residual-service-copy.plan.md
+- implementation_branch: fix/TASK-095-remove-residual-service-copy
 
 ## Goal
 Рабочие экраны CRM начинаются с полезных действий и данных без повторного названия раздела, декоративного пояснения и служебной подписи под названием организации.

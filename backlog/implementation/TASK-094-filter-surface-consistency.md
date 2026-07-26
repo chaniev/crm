@@ -1,7 +1,13 @@
 # TASK-094: Унифицировать фон областей фильтров
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 00:40
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-094-filter-surface-consistency.plan.md
+- implementation_branch: fix/TASK-094-filter-surface-consistency
 
 ## Goal
 Области поиска и фильтров на всех экранах CRM выглядят как один shared-паттерн на desktop и mobile и не меняют фон от экрана к экрану.
