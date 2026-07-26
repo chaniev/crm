@@ -446,6 +446,47 @@ async function validateScreen(
       }
     }
 
+    if (currentScreen === 'home-attendance-ready') {
+      const activeTab = document.querySelector('.tabs .tab--active')
+      const contextSection = document.querySelector('.tabs + .section')
+      const firstContextChild = contextSection?.querySelector('.section__inner')
+        ?.firstElementChild
+      const groupLabel = [...document.querySelectorAll('.field label')]
+        .find((element) =>
+          element.textContent.trim() === 'Группа для отметки посещений',
+        )
+      const groupControl = document.querySelector(
+        '[role="combobox"][aria-label="Группа для отметки посещений"]',
+      )
+      const dateNavigation = document.querySelector(
+        '.segmented[role="group"][aria-label="Дата тренировки"]',
+      )
+      if (!activeTab?.textContent.includes('Посещения')) {
+        errors.push('attendance tab is not active')
+      }
+      if (
+        visibleText.includes('Отметка посещений')
+        || visibleText.includes('Среда, 29 июля')
+      ) {
+        errors.push('attendance controls retain redundant intro copy')
+      }
+      if (contextSection?.querySelector('.section-title-row')) {
+        errors.push('attendance controls retain section title before group')
+      }
+      if (!firstContextChild?.classList.contains('form-grid')) {
+        errors.push('attendance context does not start with controls')
+      }
+      if (!groupLabel?.classList.contains('sr-only')) {
+        errors.push('attendance group label remains visible')
+      }
+      if (!groupControl || !groupControl.textContent.includes('Группа 7: вечер')) {
+        errors.push('attendance group control accessible name/value missing')
+      }
+      if (!dateNavigation) {
+        errors.push('attendance date navigation accessible name missing')
+      }
+    }
+
     if (currentScreen === 'navigation-overflow' && !isDesktop) {
       const drawerLabels = [...document.querySelectorAll('.overflow-item__label')]
         .map((element) => element.textContent.trim())

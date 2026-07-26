@@ -213,6 +213,45 @@ accessible name, но не видимый дубль. Если тот же бл�
 summary card или отдельную range/status panel. Desktop и mobile используют
 одинаковую информационную иерархию.
 
+### Вводный текст перед рабочим фильтром
+
+На mobile, tablet и desktop перед primary filter/control не показываются
+generic section title, инструкция или декоративная date/scope meta, если
+контекст уже однозначно задан active tab, accessible name самого control,
+его положением и selected value.
+
+Например, внутри active tab `Посещения` перед select `Группа` не используются
+`Отметка посещений`, отдельная строка `Среда, 29 июля` и generic visible label
+`Группа`: tab называет workspace, единственный select и выбранное значение
+показывают scope, а date navigation сообщает текущую дату.
+
+После active tab первым элементом рабочей section становится сам control либо
+control group. При удалении intro:
+
+- ordinary form label и labels в ambiguous/multi-control context не удаляются;
+- единственный однозначный workspace selector может скрыть generic label
+  визуально, но сохраняет stable operation-specific accessible name, не
+  зависящий от placeholder/value;
+- selected value и validation/recovery остаются у control;
+- date/scope navigation сохраняет accessible name;
+- progress и operational state остаются после controls;
+- пустой spacer на месте title/meta не создаётся.
+
+Visible control-intro допустим только при ambiguous scope, prerequisite,
+security/legal consequence, validation/recovery или constraint, меняющем
+решение пользователя. Такой текст размещается рядом с затронутым control, а не
+в generic section header.
+
+На `768` и `1440px` удалённые на mobile title/instruction/date meta не
+возвращаются для заполнения свободного места. Desktop использует тот же
+control-first порядок.
+
+Для `home-attendance-ready` select получает accessible name
+`Группа для отметки посещений`, но не показывает отдельный visible label
+`Группа`. Это узкое исключение отменяется, если рядом появляется второй select,
+control переносится из attendance context или selected value перестаёт
+однозначно сообщать объект выбора.
+
 ### Сводные виджеты на list screen групп
 
 `Группы` используют единый registry pattern на mobile, tablet и desktop без

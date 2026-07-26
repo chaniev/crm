@@ -143,6 +143,12 @@ mobile, но active filters остаются видимыми и удаляем�
 - active persistent tab не сопровождается section/title/summary widget,
   повторяющим label вкладки или очевидное имя коллекции; list/state начинается
   сразу, а semantic list name остаётся accessible-only;
+- primary filter/control не предваряется generic task heading/instruction или
+  decorative date/scope meta, когда active tab, control label и selected value
+  уже задают контекст; desktop не возвращает удалённый intro;
+- единственный однозначный workspace context selector может скрыть generic
+  visible label при сохранении operation-specific accessible name; ordinary
+  forms и ambiguous/multi-selector toolbars сохраняют visible labels;
 - `EntityLocatorBar`;
 - `EntityLocatorBar` разделяет required `accessibleLabel`, task-oriented
   `placeholder` и exceptional `visibleLabel`; последний запрещён для
@@ -306,6 +312,12 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] На `home-attention-ready` после active `Требуют внимания` сразу
       начинается attention list/state; visible `Клиенты, требующие внимания`
       и standalone range/status card отсутствуют.
+- [ ] На `home-attendance-ready` после active `Посещения` control card
+      начинается с group select; visible `Группа`, `Отметка посещений` и
+      decorative `Среда, 29 июля` перед control отсутствуют на mobile/desktop.
+- [ ] Group select имеет accessible name `Группа для отметки посещений`,
+      не зависящий от placeholder/value; selected value, date navigation,
+      progress, validation и recovery state сохраняются.
 - [ ] На top-level `Тренеры`, `Журнал`, `Финансы`, `Настройки` четвёртый
       adaptive mobile nav slot заменяет последнюю primary вкладку на точный
       active label/icon; первые три slots и пятый `Ещё` остаются стабильными.
@@ -373,6 +385,10 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] `home-attention-ready` на `360`, `390`, `420`, `440`, `768` и `1440`
       содержит selected tab `Требуют внимания`, но не содержит видимый heading
       `Клиенты, требующие внимания` или section/range widget перед списком.
+- [ ] `home-attendance-ready` на тех же ширинах содержит active `Посещения`
+      и выбранное значение group select без visible label `Группа`,
+      `Отметка посещений` или date meta перед control; role/name assertion
+      `Группа для отметки посещений` проходит.
 - [ ] `system-error-state`, `system-empty-first-run` и
       `system-empty-filtered` не дублируют `Клиенты`, когда active client nav и
       конкретный state heading уже дают полный контекст.

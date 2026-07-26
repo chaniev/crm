@@ -74,6 +74,10 @@ Active navigation + semantic route title -> Summary/locator/filter -> Primary co
 - Active tab не повторяется ниже отдельной title/summary card: после
   `Требуют внимания` сразу начинается operational list/state на mobile и
   desktop.
+- Рабочий filter/control не получает generic intro перед собой, если active tab
+  и label/value control уже задают контекст: в `Посещения` карточка начинается
+  сразу с group select и date navigation на mobile и desktop; generic label
+  скрыт, accessible name `Группа для отметки посещений` сохранён.
 - Visible labels сохраняются у обычных form fields, нескольких неоднозначных
   inputs и period/date/scope controls.
 - Ролевые бейджи показывать только когда они реально объясняют доступ или сценарий.

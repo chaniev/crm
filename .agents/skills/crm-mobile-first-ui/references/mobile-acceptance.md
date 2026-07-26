@@ -89,6 +89,17 @@ visual viewport.
 - Desktop `768/1440` does not restore a mobile-removed duplicate tab heading,
   summary card, or standalone range/status panel merely to use available
   space.
+- A primary filter/control is not preceded by a generic task heading or
+  decorative date/scope meta when the active tab plus the control's own label
+  and selected value already provide that context. Ordinary select/date/form
+  labels remain visible or otherwise explicitly associated.
+- A sole unambiguous workspace context selector may omit its visible generic
+  label only as a documented exception: it retains an operation-specific
+  accessible name independent of placeholder/value and has no adjacent
+  competing selector. Forms and multi-selector toolbars retain visible labels.
+- Desktop `768/1440` does not restore control-intro copy removed at mobile
+  widths; exceptions remain limited to validation, recovery, ambiguous scope,
+  prerequisites, or decision-changing constraints placed beside the control.
 - The Groups registry has no top summary/stat widgets at mobile, tablet, or
   desktop widths; locator/filter toolbar and results use the released space.
 - Detail/create/edit/auth screens and routes under a generic `More`

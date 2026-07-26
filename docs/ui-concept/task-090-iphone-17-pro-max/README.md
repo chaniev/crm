@@ -50,6 +50,10 @@ The rendered screenshots follow the cross-device explanatory-copy rule in
 - an active persistent tab is not repeated by a section/title/summary widget;
   `Требуют внимания` proceeds directly to its client list/state at every
   breakpoint;
+- primary filters do not receive generic control-intro copy when active tab,
+  field label and selected value already identify the task; attendance begins
+  directly with an accessible group selector and date navigation, without a
+  visible generic `Группа` label, on mobile and desktop;
 - required validation, recovery, constraint, security/legal and
   operational-state copy is placed next to the affected field/action/section.
 

@@ -152,11 +152,19 @@ function metric(label, value, hint = '') {
   return `<div class="metric"><div class="metric__label">${label}</div><div class="metric__value">${value}</div>${hint ? `<div class="metric__hint">${hint}</div>` : ''}</div>`
 }
 
-function field(label, value, { kind = 'input', description = '' } = {}) {
+function field(label, value, {
+  kind = 'input',
+  description = '',
+  visibleLabel = true,
+  accessibleLabel = label,
+} = {}) {
+  const accessibleAttributes = visibleLabel
+    ? ''
+    : ` role="${kind === 'select' ? 'combobox' : 'textbox'}" aria-label="${accessibleLabel}"${kind === 'select' ? ' aria-expanded="false"' : ''}`
   const shell = kind === 'textarea'
-    ? `<div class="text-area">${value}</div>`
-    : `<div class="${kind === 'select' ? 'select-shell' : kind === 'date' ? 'date-shell' : 'input-shell'}"><span class="${value ? 'input-shell__value' : 'field-placeholder'}">${value || 'Не выбрано'}</span>${kind === 'select' ? icon('down', 18) : ''}</div>`
-  return `<div class="field"><label>${label}</label>${shell}${description ? `<div class="field__description">${description}</div>` : ''}</div>`
+    ? `<div class="text-area"${accessibleAttributes}>${value}</div>`
+    : `<div class="${kind === 'select' ? 'select-shell' : kind === 'date' ? 'date-shell' : 'input-shell'}"${accessibleAttributes}><span class="${value ? 'input-shell__value' : 'field-placeholder'}">${value || 'Не выбрано'}</span>${kind === 'select' ? icon('down', 18) : ''}</div>`
+  return `<div class="field"><label class="${visibleLabel ? '' : 'sr-only'}">${visibleLabel ? label : accessibleLabel}</label>${shell}${description ? `<div class="field__description">${description}</div>` : ''}</div>`
 }
 
 function switchRow(label, meta, on = true) {
@@ -431,10 +439,9 @@ const scenes = {
     `<h1 class="sr-only">Главная</h1>
     <div class="tabs" data-geometry="page-header"><button class="tab tab--active" type="button">${icon('check', 18)}Посещения</button><button class="tab" type="button">${icon('warning', 18)}Требуют внимания ${badge('4', 'danger')}</button></div>
     ${section(`
-      ${sectionTitle('Отметка посещений', 'Среда, 29 июля')}
       <div class="form-grid">
-        ${field('Группа', 'Группа 7: вечер', { kind: 'select' })}
-        <div class="segmented"><span class="segmented__item">28 июл.</span><span class="segmented__item segmented__item--active">Сегодня</span><span class="segmented__item">30 июл.</span></div>
+        ${field('Группа', 'Группа 7: вечер', { kind: 'select', visibleLabel: false, accessibleLabel: 'Группа для отметки посещений' })}
+        <div aria-label="Дата тренировки" class="segmented" role="group"><span class="segmented__item">28 июл.</span><span class="segmented__item segmented__item--active">Сегодня</span><span class="segmented__item">30 июл.</span></div>
         <div class="progress"><div class="progress__track"><div class="progress__value" style="--progress:42%"></div></div><span class="progress__label">5 из 12</span></div>
       </div>
     `, { compact: true })}

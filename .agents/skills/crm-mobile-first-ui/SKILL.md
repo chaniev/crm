@@ -108,6 +108,16 @@ Rules:
   already made obvious by that tab and its rows; start with the operational
   list/state on mobile and desktop, and retain a semantic accessible name
   without visible duplication;
+- do not place a generic section title, task instruction, or decorative
+  date/scope meta immediately before a primary filter/control when the active
+  tab, the control's persistent label, and its selected value already identify
+  the task and context; keep required field labels and move only genuinely
+  decision-changing help next to the affected control on mobile and desktop;
+- a sole unambiguous workspace context selector may visually hide its generic
+  label only when the active tab, selected value, and placement identify it,
+  no adjacent selector can be confused with it, and the control keeps a stable
+  operation-specific accessible name; restore the visible label if another
+  competing selector is introduced;
 - keep visible route titles for detail/create/edit/auth screens and routes
   whose active navigation is only a generic parent such as `More`; a recovery
   state with its own specific heading need not duplicate an active route name.
