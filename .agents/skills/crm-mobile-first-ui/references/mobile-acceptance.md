@@ -82,6 +82,13 @@ visual viewport.
 - Registry screens do not gain aggregate summary/stat widgets solely to fill
   space; every retained widget changes a current decision and cannot be shown
   more directly in locator, filter, range/status, or entity rows.
+- Content under an active persistent tab does not begin with a section
+  card/title widget that repeats the tab or renames the same obvious
+  collection. The populated list or operational state starts immediately;
+  any semantic list name remains visually hidden or accessible-only.
+- Desktop `768/1440` does not restore a mobile-removed duplicate tab heading,
+  summary card, or standalone range/status panel merely to use available
+  space.
 - The Groups registry has no top summary/stat widgets at mobile, tablet, or
   desktop widths; locator/filter toolbar and results use the released space.
 - Detail/create/edit/auth screens and routes under a generic `More`

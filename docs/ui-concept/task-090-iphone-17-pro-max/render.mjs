@@ -190,7 +190,9 @@ async function validateScreen(
     if (main) {
       const style = getComputedStyle(main)
       const expectedTop = isDesktop ? 104 : isCompact ? 80 : 88
-      const expectedHorizontal = isDesktop ? 32 : 16
+      const expectedHorizontal = isDesktop
+        ? expected.width < 1200 ? 24 : 32
+        : 16
       if (parseFloat(style.paddingTop) !== expectedTop) {
         errors.push(`main padding-top ${style.paddingTop}`)
       }
@@ -337,6 +339,40 @@ async function validateScreen(
       errors.push(`unnamed primary searchboxes: ${unnamedSearchboxes.length}`)
     }
 
+    const searchMinimums = new Map([
+      [360, 156],
+      [390, 176],
+      [420, 200],
+      [440, 216],
+      [768, 320],
+      [1440, 420],
+    ])
+    for (const locator of document.querySelectorAll('.locator--with-actions')) {
+      const field = locator.querySelector('.input-shell')
+      const controls = [
+        field,
+        locator.querySelector('.filter-button'),
+        ...locator.querySelectorAll('.locator__actions button'),
+      ].filter(Boolean)
+      const rowTops = controls.map((element) =>
+        Number(element.getBoundingClientRect().top.toFixed(2)),
+      )
+      if (Math.max(...rowTops) - Math.min(...rowTops) > 0.5) {
+        errors.push(`locator actions wrapped: ${rowTops.join('/')}`)
+      }
+
+      const minimumSearchWidth = searchMinimums.get(expected.width)
+      if (
+        minimumSearchWidth
+        && locator.dataset.locatorKind === 'search'
+        && field.getBoundingClientRect().width < minimumSearchWidth - 0.5
+      ) {
+        errors.push(
+          `search width ${field.getBoundingClientRect().width.toFixed(1)}px < ${minimumSearchWidth}px`,
+        )
+      }
+    }
+
     const hiddenRouteTitleScreens = new Set([
       'system-error-state',
       'system-empty-first-run',
@@ -391,6 +427,23 @@ async function validateScreen(
 
     if (currentScreen === 'groups-list' && document.querySelector('.metrics')) {
       errors.push('groups list retains summary widgets')
+    }
+
+    if (currentScreen === 'home-attention-ready') {
+      const activeTab = document.querySelector('.tabs .tab--active')
+      const firstContentAfterTabs = document.querySelector('.tabs')?.nextElementSibling
+      if (!activeTab?.textContent.includes('Требуют внимания')) {
+        errors.push('attention tab is not active')
+      }
+      if (visibleText.includes('Клиенты, требующие внимания')) {
+        errors.push('attention tab repeated by visible widget title')
+      }
+      if (!firstContentAfterTabs?.classList.contains('task-list')) {
+        errors.push('attention list does not start immediately after tabs')
+      }
+      if (document.querySelector('.tabs + .section, .tabs + .range-status')) {
+        errors.push('attention tab retains section/range widget before list')
+      }
     }
 
     if (currentScreen === 'navigation-overflow' && !isDesktop) {
@@ -555,6 +608,31 @@ for (const responsiveViewport of [
       'default-green-v1',
       responsiveViewport,
       'mobile',
+    )
+    validationReport.responsiveScreens.push(result)
+    if (result.errors.length) {
+      throw new Error(
+        `${screen.id} ${responsiveViewport.width}x${responsiveViewport.height}: ${result.errors.join('; ')}`,
+      )
+    }
+  }
+  process.stdout.write(
+    `responsive ${responsiveViewport.width}x${responsiveViewport.height}: ${manifest.screens.length} screens\n`,
+  )
+}
+
+for (const responsiveViewport of [
+  { width: 768, height: 1024 },
+]) {
+  await desktopPage.setViewportSize(responsiveViewport)
+  for (const screen of manifest.screens) {
+    await openScreen(desktopPage, screen.id, 'default-green-v1')
+    const result = await validateScreen(
+      desktopPage,
+      screen.id,
+      'default-green-v1',
+      responsiveViewport,
+      'desktop',
     )
     validationReport.responsiveScreens.push(result)
     if (result.errors.length) {

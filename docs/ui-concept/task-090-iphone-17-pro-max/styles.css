@@ -414,6 +414,10 @@ svg {
   gap: 8px;
 }
 
+.locator__actions .button {
+  height: 48px;
+}
+
 .locator__field {
   min-width: 0;
 }
@@ -1723,7 +1727,7 @@ svg {
   }
 }
 
-@media (max-width: 767px), (max-height: 699px) {
+@media (max-width: 1099px), (max-height: 699px) {
   .button--responsive-label {
     width: 44px;
     padding-inline: 0;
@@ -1901,5 +1905,15 @@ svg {
   .bootstrap-card {
     max-width: 420px;
     padding: 40px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) and (min-height: 700px) {
+  .screen-main {
+    padding-inline: 24px;
+  }
+
+  .settings-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

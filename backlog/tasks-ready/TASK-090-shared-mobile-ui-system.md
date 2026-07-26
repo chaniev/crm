@@ -140,6 +140,9 @@ mobile, но active filters остаются видимыми и удаляем�
   desktop возвращает icon + text только при сохранении одной строки;
 - `SectionHeader` остаётся отдельным section-level contract и не используется
   как обход запрета route-level пояснений;
+- active persistent tab не сопровождается section/title/summary widget,
+  повторяющим label вкладки или очевидное имя коллекции; list/state начинается
+  сразу, а semantic list name остаётся accessible-only;
 - `EntityLocatorBar`;
 - `EntityLocatorBar` разделяет required `accessibleLabel`, task-oriented
   `placeholder` и exceptional `visibleLabel`; последний запрещён для
@@ -298,6 +301,11 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] Количество и проблемный статус групп передаются через range/status,
       фильтры и соответствующие строки, а ширины `768`/`1440` не возвращают
       удалённые widgets.
+- [ ] Active tab не дублируется ниже section/title/summary widget на mobile,
+      tablet или desktop; дополнительная ширина не возвращает удалённый блок.
+- [ ] На `home-attention-ready` после active `Требуют внимания` сразу
+      начинается attention list/state; visible `Клиенты, требующие внимания`
+      и standalone range/status card отсутствуют.
 - [ ] На top-level `Тренеры`, `Журнал`, `Финансы`, `Настройки` четвёртый
       adaptive mobile nav slot заменяет последнюю primary вкладку на точный
       active label/icon; первые три slots и пятый `Ещё` остаются стабильными.
@@ -362,6 +370,9 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] `groups-list` не содержит summary/stat widget container на `390 x 844`,
       `420 x 912`, `440 x 956`, `768 x 1024` и `1440 x 1200`; locator и
       первые results поднимаются на освободившееся место.
+- [ ] `home-attention-ready` на `360`, `390`, `420`, `440`, `768` и `1440`
+      содержит selected tab `Требуют внимания`, но не содержит видимый heading
+      `Клиенты, требующие внимания` или section/range widget перед списком.
 - [ ] `system-error-state`, `system-empty-first-run` и
       `system-empty-filtered` не дублируют `Клиенты`, когда active client nav и
       конкретный state heading уже дают полный контекст.

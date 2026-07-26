@@ -1784,7 +1784,7 @@
       },
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 799
+      "scrollHeight": 780
     },
     {
       "screenId": "schedule-ready",
@@ -1796,7 +1796,7 @@
       },
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 807
+      "scrollHeight": 780
     },
     {
       "screenId": "schedule-filter-surface",
@@ -1820,7 +1820,7 @@
       },
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 864
+      "scrollHeight": 812
     },
     {
       "screenId": "clients-search-focused",
@@ -1916,7 +1916,7 @@
       },
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 897
+      "scrollHeight": 845
     },
     {
       "screenId": "group-create",
@@ -1952,7 +1952,7 @@
       },
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 799
+      "scrollHeight": 780
     },
     {
       "screenId": "user-create",
@@ -2012,7 +2012,7 @@
       },
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 875
+      "scrollHeight": 823
     },
     {
       "screenId": "finance-zero-report",
@@ -2024,7 +2024,7 @@
       },
       "errors": [],
       "scrollWidth": 360,
-      "scrollHeight": 798
+      "scrollHeight": 780
     },
     {
       "screenId": "settings-catalog",
@@ -2276,7 +2276,7 @@
       },
       "errors": [],
       "scrollWidth": 390,
-      "scrollHeight": 864
+      "scrollHeight": 844
     },
     {
       "screenId": "clients-search-focused",
@@ -2372,7 +2372,7 @@
       },
       "errors": [],
       "scrollWidth": 390,
-      "scrollHeight": 877
+      "scrollHeight": 844
     },
     {
       "screenId": "group-create",
@@ -2468,7 +2468,7 @@
       },
       "errors": [],
       "scrollWidth": 390,
-      "scrollHeight": 875
+      "scrollHeight": 844
     },
     {
       "screenId": "finance-zero-report",
@@ -2696,7 +2696,7 @@
       },
       "errors": [],
       "scrollWidth": 912,
-      "scrollHeight": 671
+      "scrollHeight": 573
     },
     {
       "screenId": "schedule-ready",
@@ -2708,7 +2708,7 @@
       },
       "errors": [],
       "scrollWidth": 912,
-      "scrollHeight": 761
+      "scrollHeight": 709
     },
     {
       "screenId": "schedule-filter-surface",
@@ -2732,7 +2732,7 @@
       },
       "errors": [],
       "scrollWidth": 912,
-      "scrollHeight": 836
+      "scrollHeight": 784
     },
     {
       "screenId": "clients-search-focused",
@@ -2828,7 +2828,7 @@
       },
       "errors": [],
       "scrollWidth": 912,
-      "scrollHeight": 869
+      "scrollHeight": 817
     },
     {
       "screenId": "group-create",
@@ -2864,7 +2864,7 @@
       },
       "errors": [],
       "scrollWidth": 912,
-      "scrollHeight": 772
+      "scrollHeight": 720
     },
     {
       "screenId": "user-create",
@@ -2900,7 +2900,7 @@
       },
       "errors": [],
       "scrollWidth": 912,
-      "scrollHeight": 728
+      "scrollHeight": 676
     },
     {
       "screenId": "audit-details-modal",
@@ -2924,7 +2924,7 @@
       },
       "errors": [],
       "scrollWidth": 912,
-      "scrollHeight": 867
+      "scrollHeight": 815
     },
     {
       "screenId": "finance-zero-report",
@@ -2936,7 +2936,7 @@
       },
       "errors": [],
       "scrollWidth": 912,
-      "scrollHeight": 772
+      "scrollHeight": 720
     },
     {
       "screenId": "settings-catalog",
@@ -3152,7 +3152,7 @@
       },
       "errors": [],
       "scrollWidth": 956,
-      "scrollHeight": 671
+      "scrollHeight": 573
     },
     {
       "screenId": "schedule-ready",
@@ -3164,7 +3164,7 @@
       },
       "errors": [],
       "scrollWidth": 956,
-      "scrollHeight": 761
+      "scrollHeight": 709
     },
     {
       "screenId": "schedule-filter-surface",
@@ -3188,7 +3188,7 @@
       },
       "errors": [],
       "scrollWidth": 956,
-      "scrollHeight": 836
+      "scrollHeight": 784
     },
     {
       "screenId": "clients-search-focused",
@@ -3284,7 +3284,7 @@
       },
       "errors": [],
       "scrollWidth": 956,
-      "scrollHeight": 869
+      "scrollHeight": 817
     },
     {
       "screenId": "group-create",
@@ -3320,7 +3320,7 @@
       },
       "errors": [],
       "scrollWidth": 956,
-      "scrollHeight": 772
+      "scrollHeight": 720
     },
     {
       "screenId": "user-create",
@@ -3356,7 +3356,7 @@
       },
       "errors": [],
       "scrollWidth": 956,
-      "scrollHeight": 728
+      "scrollHeight": 676
     },
     {
       "screenId": "audit-details-modal",
@@ -3380,7 +3380,7 @@
       },
       "errors": [],
       "scrollWidth": 956,
-      "scrollHeight": 867
+      "scrollHeight": 815
     },
     {
       "screenId": "finance-zero-report",
@@ -3392,7 +3392,7 @@
       },
       "errors": [],
       "scrollWidth": 956,
-      "scrollHeight": 772
+      "scrollHeight": 720
     },
     {
       "screenId": "settings-catalog",
@@ -3465,6 +3465,462 @@
       "errors": [],
       "scrollWidth": 956,
       "scrollHeight": 458
+    },
+    {
+      "screenId": "auth-login",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "auth-password-change",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-config-loading",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-restricted-route",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-error-state",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-empty-first-run",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-empty-filtered",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "system-notification-success",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "navigation-overflow",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "home-attendance-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "home-attendance-all-marked",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "home-attention-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "schedule-ready",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "schedule-filter-surface",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "clients-browse",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "clients-search-focused",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "clients-preview",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-details",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-transfer-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "client-telegram-link-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "groups-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "group-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "group-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "users-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "user-create",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "user-edit",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "audit-list",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "audit-details-modal",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "finance-report",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "finance-zero-report",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-catalog",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-group-types",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-branches",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-admins",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-modal-form",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
+    },
+    {
+      "screenId": "settings-delete-confirm",
+      "themeId": "default-green-v1",
+      "mode": "desktop",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "errors": [],
+      "scrollWidth": 768,
+      "scrollHeight": 1024
     }
   ],
   "themeGeometry": [

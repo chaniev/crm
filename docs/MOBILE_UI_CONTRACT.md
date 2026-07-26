@@ -185,6 +185,34 @@ Active parent `Клиенты` не заменяет visible title `Карточ
 table/list или summary. Если sidebar показывает лишь общий parent, visible
 route title сохраняется.
 
+### Виджет, повторяющий активную вкладку
+
+На mobile, tablet и desktop внутри active persistent tab запрещён section
+card/title widget, который только повторяет название выбранной вкладки или
+переименовывает уже очевидную коллекцию. Например, active tab
+`Требуют внимания` не сопровождается карточкой
+`Клиенты, требующие внимания`.
+
+В обычном tabbed workspace после tabs сразу начинается:
+
+1. необходимый operational toolbar без повторного заголовка;
+2. loading/error/empty state с конкретным state heading; или
+3. список рабочих объектов.
+
+Если count уже находится в badge активной вкладки, отдельная summary/range
+card с тем же count не создаётся. Порядок сортировки, freshness или scope
+показываются только когда меняют решение пользователя, и тогда используются
+как компактные данные без card/section-title styling.
+
+Semantic имя списка, tab state, document title и скрытый route heading
+сохраняются. Для focus recovery допустим visually-hidden list heading или
+accessible name, но не видимый дубль. Если тот же блок используется standalone
+без называющей его вкладки или навигации, visible title возвращается.
+
+На `768` и `1440px` дополнительная ширина не возвращает удалённый title widget,
+summary card или отдельную range/status panel. Desktop и mobile используют
+одинаковую информационную иерархию.
+
 ### Сводные виджеты на list screen групп
 
 `Группы` используют единый registry pattern на mobile, tablet и desktop без

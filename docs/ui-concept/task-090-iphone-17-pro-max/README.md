@@ -37,6 +37,9 @@ The rendered screenshots follow the cross-device explanatory-copy rule in
   repeats the primary action;
 - a sole primary search does not show a generic label above the field, while
   retaining a stable accessible name independent of placeholder;
+- the search/locator, filter trigger, refresh and create actions stay in one
+  non-wrapping toolbar row on mobile and desktop; mobile create labels collapse
+  visually to accessible icon buttons before the search is compressed;
 - top-level lists omit a visible route title when active persistent navigation
   already names the route; semantic `h1` and relocated actions remain;
 - the fourth mobile route slot shows the exact active `Тренеры`, `Журнал`,
@@ -44,6 +47,9 @@ The rendered screenshots follow the cross-device explanatory-copy rule in
   displaced tab moves into the drawer and the fifth `Ещё` trigger remains;
 - the groups registry starts with its locator and does not render aggregate
   summary/stat widgets on mobile, tablet or desktop;
+- an active persistent tab is not repeated by a section/title/summary widget;
+  `Требуют внимания` proceeds directly to its client list/state at every
+  breakpoint;
 - required validation, recovery, constraint, security/legal and
   operational-state copy is placed next to the affected field/action/section.
 

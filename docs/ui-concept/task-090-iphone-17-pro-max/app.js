@@ -456,7 +456,6 @@ const scenes = {
   'home-attention-ready': () => shell(
     `<h1 class="sr-only">Главная</h1>
     <div class="tabs"><button class="tab" type="button">${icon('check', 18)}Посещения</button><button class="tab tab--active" type="button">${icon('warning', 18)}Требуют внимания ${badge('4', 'danger')}</button></div>
-    ${section(`${sectionTitle('Клиенты, требующие внимания')}${rangeStatus('4 клиента · по приоритету')}`, { compact: true })}
     <div class="task-list">
       ${clientItem('Александра Константинопольская', 'АК', 'Группа 7 · 2 пропуска', 'Истекает через 2 дня', 'Открыть карточку', 0)}
       ${clientItem('Иван Иванов', 'ИИ', 'Без группы · нет визитов', 'Нет оплаты', 'Связаться', 1)}

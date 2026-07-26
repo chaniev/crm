@@ -103,6 +103,11 @@ Rules:
   value changes a current user decision and cannot be expressed more directly
   in locator, filter, range/status, or entity rows; extra desktop width is not
   a justification for widgets;
+- do not add a section card, title widget, or standalone range/status panel
+  that merely restates the selected persistent tab or names the collection
+  already made obvious by that tab and its rows; start with the operational
+  list/state on mobile and desktop, and retain a semantic accessible name
+  without visible duplication;
 - keep visible route titles for detail/create/edit/auth screens and routes
   whose active navigation is only a generic parent such as `More`; a recovery
   state with its own specific heading need not duplicate an active route name.

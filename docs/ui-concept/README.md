@@ -67,6 +67,13 @@ Active navigation + semantic route title -> Summary/locator/filter -> Primary co
 - Единственный primary search locator не показывает отдельную строку `Поиск`
   или `Найти...` на mobile и desktop. Его accessible name остаётся доступен
   через visually-hidden label/ARIA, а placeholder описывает searchable fields.
+- Search/locator и его filter/refresh/create actions остаются в одной строке
+  без отдельного action-only уровня на mobile, tablet и desktop. На узкой
+  ширине подпись create скрывается визуально до icon-only `44 x 44px`, но
+  сохраняет accessible name; дополнительная ширина desktop не создаёт перенос.
+- Active tab не повторяется ниже отдельной title/summary card: после
+  `Требуют внимания` сразу начинается operational list/state на mobile и
+  desktop.
 - Visible labels сохраняются у обычных form fields, нескольких неоднозначных
   inputs и period/date/scope controls.
 - Ролевые бейджи показывать только когда они реально объясняют доступ или сценарий.
