@@ -7,6 +7,10 @@ internal static class LeninskySeedData
     public const string BranchName = "Ленинский";
     public const string DefaultPassword = "1";
     public const int AdministratorCount = 5;
+    public const string HeadCoachLogin = "headcoach";
+    public const string HeadCoachFullName = "Главный тренер";
+    public const string SuperAdministratorLogin = "sa";
+    public const string SuperAdministratorFullName = "Суперадминистратор";
 
     public static readonly (string Name, decimal Price, MembershipBehaviorKind BehaviorKind)[] Memberships =
     [

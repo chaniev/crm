@@ -21,9 +21,10 @@ internal static class SeedDataOptionsParser
         Usage:
           backend/scripts/seed-leninsky-admins-only.sh [options]
 
-        Creates or updates only the Leninsky branch and five administrators
-        (password: 1). This command does not create membership catalog items,
-        clients, training groups, schedules, or attendance data.
+        Creates or updates the Leninsky branch, HeadCoach 'headcoach',
+        SuperAdministrator 'sa', and five administrators 'admin1' through
+        'admin5' (password: 1). This command does not create membership catalog
+        items, clients, training groups, schedules, or attendance data.
 
         Options:
           --connection <value>   PostgreSQL connection string.
