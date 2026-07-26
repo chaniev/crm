@@ -179,19 +179,56 @@ function header(role = 'Суперадминистратор') {
     </header>`
 }
 
+const navigationItems = [
+  ['home', 'home', 'Главная'],
+  ['schedule', 'calendar', 'Расписание'],
+  ['clients', 'clients', 'Клиенты'],
+  ['groups', 'groups', 'Группы'],
+  ['users', 'user', 'Тренеры'],
+  ['audit', 'list', 'Журнал'],
+  ['finance', 'money', 'Финансы'],
+  ['settings', 'settings', 'Настройки'],
+]
+
+const primaryNavigationIds = ['home', 'schedule', 'clients', 'groups']
+const overflowNavigationIds = ['users', 'audit', 'finance', 'settings']
+
+function mobileNavigation(active = 'home') {
+  const visibleIds = overflowNavigationIds.includes(active)
+    ? ['home', 'schedule', 'clients', active]
+    : primaryNavigationIds
+  const visibleItems = visibleIds.map((id) => navigationItems.find(([itemId]) => itemId === id))
+  const hiddenItems = navigationItems.filter(([id]) => !visibleIds.includes(id))
+  return { visibleItems, hiddenItems }
+}
+
 function bottomNav(active = 'home') {
-  const items = [
-    ['home', 'home', 'Главная'],
-    ['schedule', 'calendar', 'Расписание'],
-    ['clients', 'clients', 'Клиенты'],
-    ['groups', 'groups', 'Группы'],
-    ['more', 'dots', 'Ещё'],
-  ]
-  return `<nav aria-label="Мобильная навигация" class="bottom-nav" data-geometry="bottom-nav">${items.map(([id, iconName, label]) => `<button class="nav-item${active === id ? ' nav-item--active' : ''}" type="button">${icon(iconName, 20)}<span class="nav-item__label">${label}</span></button>`).join('')}</nav>`
+  const { visibleItems } = mobileNavigation(active)
+  const routeButtons = visibleItems.map(([id, iconName, label]) => {
+    const current = active === id
+    return `<button${current ? ' aria-current="page"' : ''} class="nav-item${current ? ' nav-item--active' : ''}" data-nav-id="${id}" type="button">${icon(iconName, 20)}<span class="nav-item__label">${label}</span></button>`
+  }).join('')
+  return `<nav aria-label="Мобильная навигация" class="bottom-nav" data-geometry="bottom-nav">${routeButtons}<button aria-expanded="false" aria-haspopup="dialog" aria-label="Ещё, открыть остальные разделы" class="nav-item" data-nav-id="more" type="button">${icon('dots', 20)}<span class="nav-item__label">Ещё</span></button></nav>`
+}
+
+function desktopNav(active = 'home') {
+  return `<aside class="desktop-nav" data-geometry="desktop-nav"><nav aria-label="Основная навигация" class="desktop-nav__list">${navigationItems.map(([id, iconName, label]) => {
+    const current = active === id
+    return `<button${current ? ' aria-current="page"' : ''} class="desktop-nav__item${current ? ' desktop-nav__item--active' : ''}" data-nav-id="${id}" type="button">${icon(iconName, 20)}<span>${label}</span></button>`
+  }).join('')}</nav></aside>`
 }
 
 function shell(content, { active = 'home', role = 'Суперадминистратор', sticky = '' } = {}) {
-  return `<div class="screen-root">${header(role)}<main class="screen-main" data-geometry="screen-main"><div class="page-stack">${content}</div></main>${sticky}${bottomNav(active)}</div>`
+  return `<div class="screen-root" data-active-section="${active}">${header(role)}${desktopNav(active)}<main class="screen-main" data-geometry="screen-main"><div class="page-stack">${content}</div></main>${sticky}${bottomNav(active)}</div>`
+}
+
+function hiddenRouteTitle(title) {
+  return `<h1 class="sr-only">${title}</h1>`
+}
+
+function overflowRows(active) {
+  const { hiddenItems } = mobileNavigation(active)
+  return `<div class="overflow-list">${hiddenItems.map(([id, iconName, label]) => `<div class="overflow-item" data-nav-id="${id}"><span class="overflow-item__icon">${icon(iconName, 20)}</span><span class="overflow-item__label">${label}</span>${icon('chevron', 18)}</div>`).join('')}</div>`
 }
 
 function statePanel(title, description, { tone = '', action = '', iconName = 'warning' } = {}) {
@@ -340,7 +377,7 @@ const scenes = {
       <section class="bootstrap-card">
         <div class="app-brand__mark">K4</div>
         <div class="spinner"></div>
-        <div class="bootstrap-card__title">Готовим рабочее пространство</div>
+        <h1 class="bootstrap-card__title">Готовим рабочее пространство</h1>
         <div class="bootstrap-card__copy">Загружаем конфигурацию клуба и доступные разделы.</div>
         <div class="skeleton skeleton--line"></div>
         <div class="skeleton skeleton--line skeleton--line-short"></div>
@@ -348,9 +385,9 @@ const scenes = {
     </main>`,
 
   'system-restricted-route': () => shell(
-    `${pageHeader('Настройки')}
+    `${hiddenRouteTitle('Главная')}
     ${statePanel('Раздел недоступен', 'Ваша роль не разрешает изменять филиалы и системные настройки.', { tone: 'restricted', iconName: 'shield', action: button('Вернуться на главную', { kind: 'primary', iconName: 'home' }) })}`,
-    { active: 'more', role: 'Тренер' },
+    { active: 'home', role: 'Тренер' },
   ),
 
   'system-error-state': () => baseClientsContext(`
@@ -379,18 +416,16 @@ const scenes = {
   ) + `<aside class="notification"><span class="notification__icon">${icon('check', 21)}</span><div><div class="notification__title">Абонемент продлён</div><div class="notification__copy">Александра Константинопольская · до 26.08.2026</div></div>${button('', { iconName: 'close' })}</aside>`,
 
   'navigation-overflow': () => shell(
-    `${pageHeader('Главная')}${section(`${sectionTitle('Сегодня')}<div class="metrics">${metric('Занятий', '7')}${metric('Требуют внимания', '4')}</div>`)}`,
-    { active: 'more' },
-  ) + modalOverlay(
+    `${hiddenRouteTitle('Финансы')}
+    ${locator({ value: 'Июль 2026', count: 1, label: 'Период отчёта', visibleLabel: true, kind: 'period' })}
+    <div class="metrics">${metric('Выручка', '486 200 ₽')}${metric('Продано', '64')}</div>`,
+    { active: 'finance', role: 'Администратор' },
+  ) + `<div class="overflow-only-mobile">${modalOverlay(
     'Остальные разделы',
-    `<div class="overflow-list">
-      <div class="overflow-item"><span class="overflow-item__icon">${icon('user', 20)}</span><span class="overflow-item__label">Тренеры</span>${icon('chevron', 18)}</div>
-      <div class="overflow-item"><span class="overflow-item__icon">${icon('list', 20)}</span><span class="overflow-item__label">Журнал</span>${icon('chevron', 18)}</div>
-      <div class="overflow-item"><span class="overflow-item__icon">${icon('settings', 20)}</span><span class="overflow-item__label">Настройки</span>${icon('chevron', 18)}</div>
-    </div>`,
+    overflowRows('finance'),
     button('Закрыть', { kind: 'primary', block: true }),
     { large: true },
-  ),
+  )}</div>`,
 
   'home-attendance-ready': () => shell(
     `<h1 class="sr-only">Главная</h1>
@@ -455,7 +490,7 @@ const scenes = {
       placeholder: 'Имя или телефон',
       count: 2,
       label: 'Найти клиента',
-      actions: `${button('', { iconName: 'refresh' })}${button('', { kind: 'accent', iconName: 'plus', ariaLabel: 'Новый клиент' })}`,
+      actions: `${button('', { iconName: 'refresh' })}${button('Новый клиент', { kind: 'accent', iconName: 'plus', extra: 'button--responsive-label' })}`,
     })}
     ${activeFilters(['Без абонемента', 'Активные'])}
     ${rangeStatus('Показаны 1–5 из 48')}
@@ -566,7 +601,7 @@ const scenes = {
       placeholder: 'Название группы',
       count: 1,
       label: 'Найти группу',
-      actions: `${button('', { iconName: 'refresh' })}${button('', { kind: 'accent', iconName: 'plus', ariaLabel: 'Создать группу' })}`,
+      actions: `${button('', { iconName: 'refresh' })}${button('Создать группу', { kind: 'accent', iconName: 'plus', extra: 'button--responsive-label' })}`,
     })}
     ${rangeStatus('Показаны 1–3 из 12')}
     <div class="task-list">
@@ -606,21 +641,21 @@ const scenes = {
   }),
 
   'users-list': () => shell(
-    `${pageHeader('Тренеры', `${button('', { iconName: 'refresh' })}${button('Создать', { kind: 'accent', iconName: 'plus' })}`)}
+    `${hiddenRouteTitle('Тренеры')}
     <div class="metrics">${metric('Активные', '7')}${metric('Смена пароля', '1')}</div>
-    ${locator({ placeholder: 'ФИО или логин', count: 1, label: 'Найти тренера' })}
+    ${locator({ placeholder: 'ФИО или логин', count: 1, label: 'Найти тренера', actions: `${button('', { iconName: 'refresh' })}${button('Создать тренера', { kind: 'accent', iconName: 'plus', extra: 'button--responsive-label' })}` })}
     ${rangeStatus('Показаны 1–4 из 8')}
     <div class="task-list">
       <article class="task-item" data-geometry="task-item-0"><div class="task-item__top"><div><div class="task-item__identity">Максим Орлов</div><div class="task-item__meta">maxim.orlov · Telegram подключён</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('Главный тренер', 'brand')}${badge('Активен', 'success')}</div></article>
       <article class="task-item" data-geometry="task-item-1"><div class="task-item__top"><div><div class="task-item__identity">Анна Лебедева</div><div class="task-item__meta">anna.coach · Telegram подключён</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('Тренер', 'brand')}${badge('Активна', 'success')}</div></article>
       <article class="task-item" data-geometry="task-item-2"><div class="task-item__top"><div><div class="task-item__identity">Илья Миронов</div><div class="task-item__meta">ilya.mironov · Telegram не подключён</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('Тренер', 'brand')}${badge('Сменить пароль', 'warning')}</div></article>
     </div>`,
-    { active: 'more', role: 'Главный тренер' },
+    { active: 'users', role: 'Главный тренер' },
   ),
 
   'user-create': () => formPage({
     title: 'Новый тренер',
-    active: 'more',
+    active: 'users',
     submit: 'Сохранить тренера',
     fields: [
       field('ФИО', 'Иван Петров'),
@@ -634,7 +669,7 @@ const scenes = {
 
   'user-edit': () => formPage({
     title: 'Анна Лебедева',
-    active: 'more',
+    active: 'users',
     submit: 'Сохранить изменения',
     fields: [
       field('ФИО', 'Анна Лебедева'),
@@ -646,8 +681,8 @@ const scenes = {
   }),
 
   'audit-list': () => shell(
-    `${pageHeader('Журнал', button('', { iconName: 'refresh' }))}
-    ${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись журнала' })}
+    `${hiddenRouteTitle('Журнал')}
+    ${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись журнала', actions: button('', { iconName: 'refresh' }) })}
     ${activeFilters(['Клиенты', 'За 7 дней'])}
     ${rangeStatus('Показаны 1–5 из 128')}
     <div class="task-list">
@@ -655,12 +690,12 @@ const scenes = {
       <article class="audit-event" data-geometry="task-item-1"><div class="badge-row">${badge('Абонемент', 'warning')}${badge('Web', 'neutral')}</div><div class="audit-event__title">Оформлено продление абонемента</div><div class="audit-event__footer"><span class="audit-event__meta">29.07 · 09:40 · Мария Соколова</span>${icon('chevron', 18)}</div></article>
       <article class="audit-event" data-geometry="task-item-2"><div class="badge-row">${badge('Посещение', 'success')}${badge('Бот', 'info')}</div><div class="audit-event__title">Сохранены отметки группы 7</div><div class="audit-event__footer"><span class="audit-event__meta">29.07 · 09:18 · Максим Орлов</span>${icon('chevron', 18)}</div></article>
     </div>`,
-    { active: 'more', role: 'Главный тренер' },
+    { active: 'audit', role: 'Главный тренер' },
   ),
 
   'audit-details-modal': () => shell(
-    `${pageHeader('Журнал')}${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись журнала' })}<div class="task-list"><article class="audit-event"><div class="badge-row">${badge('Клиент изменён', 'brand')}</div><div class="audit-event__title">Обновлены данные Александры Константинопольской</div><div class="audit-event__meta">29.07 · 09:42 · Мария Соколова</div></article></div>`,
-    { active: 'more', role: 'Главный тренер' },
+    `${hiddenRouteTitle('Журнал')}${locator({ placeholder: 'Пользователь или действие', count: 2, label: 'Найти запись журнала' })}<div class="task-list"><article class="audit-event"><div class="badge-row">${badge('Клиент изменён', 'brand')}</div><div class="audit-event__title">Обновлены данные Александры Константинопольской</div><div class="audit-event__meta">29.07 · 09:42 · Мария Соколова</div></article></div>`,
+    { active: 'audit', role: 'Главный тренер' },
   ) + modalOverlay(
     'Подробности записи',
     `<div class="fact-list"><div class="fact-row"><span class="fact-row__label">Действие</span><span class="fact-row__value">Клиент изменён</span></div><div class="fact-row"><span class="fact-row__label">Пользователь</span><span class="fact-row__value">Мария Соколова</span></div><div class="fact-row"><span class="fact-row__label">Дата</span><span class="fact-row__value">29.07.2026 09:42</span></div></div><div class="diff-grid" style="margin-top:16px"><div class="diff-card"><div class="diff-card__label">Было</div><div class="diff-card__copy">Группа: не назначена<br>Абонемент до 31.07</div></div><div class="diff-card"><div class="diff-card__label">Стало</div><div class="diff-card__copy">Группа: Группа 7<br>Абонемент до 31.08</div></div></div>`,
@@ -668,26 +703,26 @@ const scenes = {
   ),
 
   'finance-report': () => shell(
-    `${pageHeader('Финансы', button('', { iconName: 'refresh' }))}
-    ${locator({ value: 'Июль 2026', count: 1, label: 'Период отчёта', visibleLabel: true, kind: 'period' })}
+    `${hiddenRouteTitle('Финансы')}
+    ${locator({ value: 'Июль 2026', count: 1, label: 'Период отчёта', visibleLabel: true, kind: 'period', actions: button('', { iconName: 'refresh' }) })}
     ${activeFilters(['Все филиалы'])}
     <div class="metrics">${metric('Выручка', '486 200 ₽', 'продажи за период')}${metric('Чистая выручка', '462 800 ₽', 'после возвратов')}${metric('Продано', '64', 'абонемента')}${metric('Новые клиенты', '18')}</div>
     ${section(`${sectionTitle('По филиалам')}<div class="breakdown-row"><span class="breakdown-row__name">Северный</span><span class="breakdown-row__value">286 400 ₽</span></div><div class="breakdown-row"><span class="breakdown-row__name">Центр</span><span class="breakdown-row__value">176 400 ₽</span></div>`)}
     ${section(`${sectionTitle('По тренерам')}<div class="breakdown-row"><span class="breakdown-row__name">Максим Орлов</span><span class="breakdown-row__value">182 100 ₽</span></div>`)}`,
-    { active: 'more', role: 'Администратор' },
+    { active: 'finance', role: 'Администратор' },
   ),
 
   'finance-zero-report': () => shell(
-    `${pageHeader('Финансы', button('', { iconName: 'refresh' }))}
-    ${locator({ value: '1–7 января 2025', count: 2, label: 'Период отчёта', visibleLabel: true, kind: 'period' })}
+    `${hiddenRouteTitle('Финансы')}
+    ${locator({ value: '1–7 января 2025', count: 2, label: 'Период отчёта', visibleLabel: true, kind: 'period', actions: button('', { iconName: 'refresh' }) })}
     ${activeFilters(['Центр', 'Илья Миронов'])}
     <div class="metrics">${metric('Выручка', '0 ₽')}${metric('Продано', '0')}</div>
     ${statePanel('За выбранный период операций нет', 'Измените период или снимите фильтры. Текущий отчёт и выбранный контекст сохранены.', { iconName: 'money', action: button('Сбросить фильтры', { kind: 'primary', iconName: 'filter' }) })}`,
-    { active: 'more', role: 'Администратор' },
+    { active: 'finance', role: 'Администратор' },
   ),
 
   'settings-catalog': () => shell(
-    `${pageHeader('Настройки')}
+    `${hiddenRouteTitle('Настройки')}
     ${settingsTabs('catalog')}
     ${section(`${sectionTitle('Каталог абонементов', 'Северный', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
       <div class="task-list">
@@ -695,11 +730,11 @@ const scenes = {
         <article class="task-item" data-geometry="task-item-1"><div class="task-item__top"><div><div class="task-item__identity">Разовое посещение</div><div class="task-item__meta">1 посещение · без срока</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="task-item__bottom">${badge('700 ₽', 'brand')}${badge('Активен', 'success')}</div></article>
         <article class="task-item" data-geometry="task-item-2"><div class="task-item__top"><div><div class="task-item__identity">Профессиональный</div><div class="task-item__meta">30 дней · без лимита</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="task-item__bottom">${badge('7 500 ₽', 'brand')}${badge('Активен', 'success')}</div></article>
       </div>`)}`,
-    { active: 'more' },
+    { active: 'settings' },
   ),
 
   'settings-group-types': () => shell(
-    `${pageHeader('Настройки')}
+    `${hiddenRouteTitle('Настройки')}
     ${settingsTabs('types')}
     ${section(`${sectionTitle('Типы групп', '', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
       <div class="task-list">
@@ -707,11 +742,11 @@ const scenes = {
         <article class="task-item" data-geometry="task-item-1"><div class="task-item__top"><div><div class="task-item__identity">Детская группа</div><div class="task-item__meta">Возрастные группы 6–14 лет</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('4 группы', 'brand')}</div></article>
         <article class="task-item" data-geometry="task-item-2"><div class="task-item__top"><div><div class="task-item__identity">Персональная</div><div class="task-item__meta">Индивидуальный формат</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('2 группы', 'brand')}</div></article>
       </div>`)}`,
-    { active: 'more' },
+    { active: 'settings' },
   ),
 
   'settings-branches': () => shell(
-    `${pageHeader('Настройки')}
+    `${hiddenRouteTitle('Настройки')}
     ${settingsTabs('branches')}
     ${section(`${sectionTitle('Филиалы и залы', '2 активных филиала', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
       <div class="task-list">
@@ -719,23 +754,23 @@ const scenes = {
         <article class="task-item" data-geometry="task-item-1"><div class="task-item__top"><div><div class="task-item__identity">Центр</div><div class="task-item__meta">пр. Мира, 42</div></div>${badge('Активный', 'success')}</div><div class="task-item__bottom"><span class="task-item__secondary">2 зала · 5 групп · 46 клиентов</span>${icon('chevron', 18)}</div></article>
       </div>
       <div class="section section--subtle" style="margin-top:12px"><div class="section__inner section__inner--compact">${sectionTitle('Залы филиала')}<div class="breakdown-row"><span class="breakdown-row__name">Основной зал</span>${badge('4 группы', 'brand')}</div><div class="breakdown-row"><span class="breakdown-row__name">Зал 2</span>${badge('3 группы', 'brand')}</div></div></div>`)}`,
-    { active: 'more' },
+    { active: 'settings' },
   ),
 
   'settings-admins': () => shell(
-    `${pageHeader('Настройки')}
+    `${hiddenRouteTitle('Настройки')}
     ${settingsTabs('admins')}
     ${section(`${sectionTitle('Администраторы', 'Доступ привязан к филиалу', button('Добавить', { kind: 'accent', iconName: 'plus' }))}
       <div class="task-list">
         <article class="task-item" data-geometry="task-item-0"><div class="task-item__top"><div><div class="task-item__identity">Мария Соколова</div><div class="task-item__meta">maria.sokolova · Северный</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('Администратор', 'brand')}${badge('Активна', 'success')}</div></article>
         <article class="task-item" data-geometry="task-item-1"><div class="task-item__top"><div><div class="task-item__identity">Наталья Власова</div><div class="task-item__meta">natalia.admin · Центр</div></div>${button('', { iconName: 'edit', kind: 'soft' })}</div><div class="badge-row">${badge('Администратор', 'brand')}${badge('Активна', 'success')}</div></article>
       </div>`)}`,
-    { active: 'more' },
+    { active: 'settings' },
   ),
 
   'settings-modal-form': () => shell(
-    `${pageHeader('Настройки')}${settingsTabs('types')}${section(`${sectionTitle('Типы групп')}<div class="task-item"><div class="task-item__identity">Взрослая группа</div><div class="task-item__meta">6 групп</div></div>`)}`,
-    { active: 'more' },
+    `${hiddenRouteTitle('Настройки')}${settingsTabs('types')}${section(`${sectionTitle('Типы групп')}<div class="task-item"><div class="task-item__identity">Взрослая группа</div><div class="task-item__meta">6 групп</div></div>`)}`,
+    { active: 'settings' },
   ) + modalOverlay(
     'Новый тип группы',
     `<div class="form-grid">${field('Название', 'Йога для начинающих')}${field('Описание', 'Мягкая групповая тренировка для взрослых', { kind: 'textarea' })}</div>`,
@@ -743,8 +778,8 @@ const scenes = {
   ),
 
   'settings-delete-confirm': () => shell(
-    `${pageHeader('Настройки')}${settingsTabs('types')}${section(`${sectionTitle('Типы групп')}<div class="task-item"><div class="task-item__identity">Пробная группа</div><div class="task-item__meta">Не используется</div></div>`)}`,
-    { active: 'more' },
+    `${hiddenRouteTitle('Настройки')}${settingsTabs('types')}${section(`${sectionTitle('Типы групп')}<div class="task-item"><div class="task-item__identity">Пробная группа</div><div class="task-item__meta">Не используется</div></div>`)}`,
+    { active: 'settings' },
   ) + modalOverlay(
     'Удалить тип группы?',
     `<div class="state-panel state-panel--error" style="min-height:220px;border:0;box-shadow:none;padding:8px"><div class="state-panel__icon">${icon('trash', 28)}</div><h2>«Пробная группа»</h2><p>Тип будет удалён из справочника. Это действие нельзя отменить.</p></div>`,

@@ -9,7 +9,8 @@
 
 - задаёт единый task-first workflow, визуальную систему и responsive-поведение;
 - отделяет общие правила интерфейса от предметных особенностей экранов;
-- задаёт механизм выбора цветовой темы для разных deployment;
+- задаёт механизм выбора цветовой темы и фонового изображения стартовой
+  страницы для разных deployment;
 - является обязательной основой для `TASK-084`–`TASK-089` и новых UI-задач;
 - уточняет завершённые `TASK-046`, `TASK-048`, `TASK-051` и `TASK-056`, не
   открывая их повторно.
@@ -29,6 +30,7 @@ accessibility.
 - списки, поиск, фильтры, формы, preview/detail, temporary surfaces;
 - loading, empty, error, stale, disabled, restricted, success;
 - deployment-specific light theme profiles;
+- deployment-specific registered background images для auth/start page;
 - общие Mantine-компоненты, Onest и Tabler Icons.
 
 ### Вне scope
@@ -164,13 +166,19 @@ sidebar/top navigation.
 - пустой spacer или action-only строка на месте header не создаётся.
 
 Visible `h1` сохраняется, если active navigation не называет текущий route
-однозначно: например, mobile destination находится внутри `Ещё`; route является
-detail/create/edit/form/auth screen; заголовок называет сущность или операцию;
-recovery state не имеет собственного конкретного heading; либо перенос действий
-скроет primary operation. Если active `Клиенты` и state heading уже сообщает
-`Список клиентов не загрузился` / `Клиентов пока нет`, дублирующий visible
-route title не нужен. Active parent `Клиенты` не заменяет visible title
-`Карточка клиента`.
+однозначно: например, mobile navigation показывает generic `Ещё`, а не текущий
+destination; route является detail/create/edit/form/auth screen; заголовок
+называет сущность или операцию; recovery state не имеет собственного
+конкретного heading; либо перенос действий скроет primary operation. После
+продвижения overflow destination в четвёртый adaptive slot top-level
+`Тренеры`, `Журнал`, `Финансы` или `Настройки` считаются однозначно названными
+active navigation и проходят общий visibility test без специального исключения
+для routes, исходно находившихся под `Ещё`.
+Create/edit/detail route сохраняет visible operation/entity title: active
+parent `Тренеры` не заменяет `Новый тренер` или имя редактируемого тренера.
+Если active `Клиенты` и state heading уже сообщает `Список клиентов не
+загрузился` / `Клиентов пока нет`, дублирующий visible route title не нужен.
+Active parent `Клиенты` не заменяет visible title `Карточка клиента`.
 
 Дополнительная ширина `768` или `1440px` не возвращает дублирующий header.
 Если desktop sidebar уже называет list route, content начинается с toolbar,
@@ -346,7 +354,8 @@ Icon-only action обязан иметь доступное имя. Иконка
 ### Цель
 
 Разные deployment могут использовать разные заранее утверждённые наборы
-цветов, не меняя разметку, hierarchy, component API и смысл состояний.
+цветов и фоновое изображение стартовой страницы, не меняя разметку, hierarchy,
+component API и смысл состояний.
 
 Один profile содержит:
 
@@ -365,12 +374,15 @@ Icon-only action обязан иметь доступное имя. Иконка
 ```json
 {
   "clubName": "K-4PRO",
-  "themeId": "default-green-v1"
+  "themeId": "default-green-v1",
+  "authBackgroundImageId": "k4pro-login-v1"
 }
 ```
 
 Deployment выбирает profile через environment configuration, например
-`CRM_THEME_ID`. Значение передаётся backend как `Branding__ThemeId`.
+`CRM_THEME_ID`, а фоновое изображение — через
+`CRM_AUTH_BACKGROUND_IMAGE_ID`. Значения передаются backend как
+`Branding__ThemeId` и `Branding__AuthBackgroundImageId`.
 
 Frontend содержит registry заранее утверждённых versioned profiles:
 
@@ -389,21 +401,40 @@ type ThemeProfile = {
     MantineColorsTuple?,
   ]
 }
+
+type AuthBackgroundProfile = {
+  schemaVersion: 1
+  id: string
+  asset: string
+  focalPoint: {
+    xPercent: number
+    yPercent: number
+  }
+}
 ```
 
-`themeId` является opaque identifier. Произвольные hex, CSS variables, URL и
-style rules через `/api/config` не передаются.
+`themeId` и `authBackgroundImageId` являются независимыми opaque identifiers:
+deployment может использовать одну palette с разными фоновыми изображениями.
+Произвольные hex, CSS variables, URL, binary image data и style rules через
+`/api/config` не передаются.
 
 Ответственность разделена однозначно:
 
 - backend заменяет missing/blank value на `default-green-v1`, trim-ит
   configured string и возвращает его через `/api/config`;
+- backend заменяет missing/blank `AuthBackgroundImageId` на
+  `k4pro-login-v1`, trim-ит non-empty configured string и возвращает его без
+  registry validation;
 - backend не содержит копию frontend registry и не определяет, зарегистрирован
-  ли non-empty `themeId`;
+  ли non-empty theme/background identifier;
 - frontend-функция `resolveThemeProfile(themeId)` единолично ищет profile в
   registry;
+- frontend-функция
+  `resolveAuthBackgroundProfile(authBackgroundImageId)` единолично ищет
+  background profile в registry;
 - неизвестный frontend registry identifier даёт `default-green-v1` и
-  reportable warning.
+  `k4pro-login-v1` соответственно, создаёт reportable warning и не блокирует
+  экран входа.
 
 ### Обязательные profiles
 
@@ -414,6 +445,36 @@ style rules через `/api/config` не передаются.
 Новый production profile добавляется в registry только вместе с theme,
 contrast и affected-screen tests. Deployment может переключаться между уже
 зарегистрированными profiles без изменения feature code.
+
+### Фоновое изображение auth/start page
+
+- `k4pro-login-v1` является обязательным default background profile и
+  ссылается на текущее bundled изображение
+  `frontend/src/assets/auth/k4pro-login-bg.png`.
+- Background применяется ко всему unauthenticated/forced-auth stage:
+  config/session loading, bootstrap error, `auth-login` и forced
+  `auth-password-change`. Utility password screen внутри authenticated shell
+  не превращается в стартовую страницу.
+- Изображение декоративное: не создаёт отдельный accessible object и не требует
+  `alt`; доступное имя и heading принадлежат форме или state card.
+- Auth card, inputs, validation, recovery и primary action не используют
+  изображение как единственный фон. Карточка сохраняет собственную opaque или
+  contrast-safe surface; нормальный текст проходит `4.5:1`, controls/boundaries
+  — `3:1`.
+- Image использует `background-size: cover`, не растягивается с нарушением
+  пропорций и кадрируется от зарегистрированного focal point. На `360`, `390`,
+  `420`, `440`, `768` и `1440px` форма остаётся первым task target, а image не
+  перекрывает и не сдвигает её.
+- Asset-specific overlay/crop хранится только в registered background profile
+  или явном allowlist. Deployment config не передаёт произвольный overlay,
+  position, CSS или URL.
+- Загрузка custom image не блокирует доступность формы входа. До разрешения
+  `/api/config` используется `k4pro-login-v1`; unknown id, decode/load error или
+  недоступный asset переключаются на current default image, а при невозможности
+  загрузить и его — на semantic solid auth background без layout shift.
+- Новый background profile добавляется только вместе с asset ownership/license
+  confirmation, responsive crop review и auth contrast tests. Выбор profile не
+  меняет content, geometry, focus order, validation или auth semantics.
 
 ### Семантические tokens
 
@@ -458,8 +519,8 @@ branch не кодируются отдельными цветами.
   разрешает profile и только затем монтирует meaningful `App` внутри
   `MantineProvider`.
 - До разрешения config допустим минимальный loading shell в bundled default
-  theme; route content и authenticated shell в неподтверждённой palette не
-  показываются.
+  theme и с `k4pro-login-v1`; route content и authenticated shell в
+  неподтверждённой palette не показываются.
 - `App` получает уже загруженный app config через props/context и не выполняет
   второй `/config` request.
 - `test/render.tsx` позволяет явно передать `themeId`/profile и по умолчанию
@@ -475,11 +536,14 @@ branch не кодируются отдельными цветами.
 ### Fallback и validation
 
 - missing/blank backend configuration считается обычным default и не требует
-  warning; `/api/config` возвращает `default-green-v1`;
+  warning; `/api/config` возвращает `default-green-v1` и
+  `k4pro-login-v1`;
 - unknown non-empty identifier возвращается backend без registry validation;
-- frontend разрешает unknown identifier в `default-green-v1`, фиксирует
-  reportable warning и не блокирует login;
-- profile schema и количество palettes проверяются unit tests;
+- frontend разрешает unknown theme/background identifiers в
+  `default-green-v1`/`k4pro-login-v1`, фиксирует reportable warning и не
+  блокирует login;
+- theme/background profile schema, количество palettes и диапазон focal point
+  проверяются unit tests;
 - каждый profile проходит contrast tests:
   - normal text не меньше `4.5:1`;
   - large text и UI boundaries не меньше `3:1`;
@@ -497,6 +561,9 @@ branch не кодируются отдельными цветами.
 - safe-area/keyboard behavior;
 - responsive breakpoints;
 - role-specific доступ.
+
+Фоновое изображение является частью deployment branding, но не меняет эти
+ограничения и не используется на authenticated CRM screens.
 
 ## 5. Общие component recipes
 
@@ -622,9 +689,59 @@ Behavior:
 - Для текущего SuperAdministrator contract primary destinations:
   `Home`, `Schedule`, `Clients`, `Groups`; overflow: `Users`, `Audit`,
   `Settings`; `Finance` отсутствует.
+- При наличии скрытых destinations mobile navigation содержит четыре route
+  slots и стабильный пятый trigger `Ещё` с overflow icon. `Ещё` всегда
+  открывает drawer `Остальные разделы` и не заменяется текущим route.
+- Первые три route slots сохраняют установленный priority order. Четвёртый
+  route slot является adaptive: по умолчанию содержит последнюю видимую
+  primary destination, для полного management access — `Groups`.
+- После перехода на destination из `Ещё` четвёртый adaptive slot заменяет
+  прежнюю четвёртую вкладку на точный label и icon текущего destination:
+  `Users -> Тренеры`, `Audit -> Журнал`, `Finance -> Финансы`,
+  `Settings -> Настройки`.
+- Для полного management access видимый ряд меняется так:
+  `Главная / Расписание / Клиенты / Группы / Ещё` ->
+  `Главная / Расписание / Клиенты / Финансы / Ещё`. На `Журнал`,
+  `Тренеры` и `Настройки` четвёртый slot меняется аналогично.
+- Вытесненная четвёртая destination переходит в drawer вместе с остальными
+  разрешёнными, но не видимыми в первых четырёх slots. Drawer сохраняет
+  canonical `APP_NAVIGATION_SECTIONS` order и не дублирует текущий visible
+  adaptive item. Например, на `Финансы` drawer содержит `Группы`, `Тренеры`,
+  `Журнал`, `Настройки`.
+- Adaptive slot остаётся обычной route navigation: active item использует тот
+  же selected style, что остальные route tabs, и получает
+  `aria-current="page"`. Русские labels `Тренеры`, `Журнал`,
+  `Финансы`, `Настройки` полностью видимы в одну строку на `360–440px`, не
+  перекрывают соседние items и не создают horizontal page scroll.
+- Пятый slot всегда видимо называется `Ещё`, не получает `aria-current` из-за
+  active overflow route и использует accessible name
+  `Ещё, открыть остальные разделы`, `aria-haspopup="dialog"` и актуальный
+  `aria-expanded`. Только он открывает drawer; click по adaptive route slot
+  не смешивается с popup behavior.
+- Если не видна ровно одна разрешённая destination, `Ещё` и drawer с одним
+  пунктом сохраняются. При direct link на этот hidden route он занимает
+  adaptive slot, а вытесненная четвёртая destination становится единственным
+  пунктом drawer.
+- Adaptive state и drawer contents вычисляются из resolved current route и
+  разрешённого `currentSection`, а не запоминаются после click. Reload, direct
+  deep link, browser back/forward и permission redirect синхронно пересчитывают
+  четвёртый slot. Child routes наследуют parent section: `/users/new` и
+  `/users/:id/edit` показывают active `Тренеры`.
+- До разрешения session/access contract shell не показывает предположенные
+  overflow destinations. Недоступный item не появляется даже кратковременно;
+  после redirect route slots и drawer соответствуют разрешённому fallback
+  route.
+- Переход с overflow route на вытесненную primary destination возвращает её в
+  четвёртый slot. Переход между overflow routes заменяет adaptive item без
+  промежуточного состояния и без изменения стабильного `Ещё`.
 - Main content резервирует:
   `navigation height + 16px + env(safe-area-inset-bottom)`.
-- Overflow drawer имеет title, явный close, focus return и dynamic viewport.
+- Overflow drawer имеет title, явный close, focus trap, focus return на
+  актуальный пятый slot и dynamic viewport. Close button остаётся видимым, body
+  скроллится внутри drawer без nested scroll trap.
+- На `768px` и шире mobile bottom navigation скрыта; persistent side/top
+  navigation показывает все разрешённые destinations и точный active item без
+  overflow promotion.
 
 ### Page header
 
@@ -674,7 +791,7 @@ Behavior:
 Shared pattern для длинных списков:
 
 ```text
-[ search: minmax(0, 1fr) ] [ filter trigger: >=44px ]
+[ search: minmax(0, 1fr) ] [ filter: >=44px ] [ retained actions: >=44px ]
 [ removable active filters / scoped reset ]
 [ result range ]
 ```
@@ -687,6 +804,50 @@ Shared pattern для длинных списков:
 - Clear очищает только query.
 - Filter count не включает query и default values.
 - Search input и filter trigger остаются достижимы при software keyboard.
+
+#### Единая строка locator/toolbar
+
+На mobile, tablet и desktop primary locator, filter trigger и сохранённые
+primary/frequent actions располагаются в одной строке без переноса. Отдельная
+вторая строка только для refresh/create запрещена: она создаёт пустоту рядом с
+search и отнимает вертикальное место у результатов.
+
+Базовая геометрия:
+
+```text
+grid: minmax(0, 1fr) auto
+gap: 8px
+action cluster: flex; flex-wrap: nowrap; gap: 8px
+control target: >=44 x 44px
+```
+
+Минимальная полезная ширина search/locator:
+
+| Viewport | Search min-width |
+|---|---:|
+| `360` | `156px` |
+| `390` | `176px` |
+| `420` | `200px` |
+| `440` | `216px` |
+| `768` | `320px` |
+| `1440` | `420px`, preferred `420–560px` |
+
+При нехватке ширины применяется фиксированный приоритет:
+
+1. сохранить полезную ширину search;
+2. сохранить видимым primary create/add;
+3. сохранить filter trigger, если он меняет текущий result;
+4. secondary refresh/rare actions свернуть или убрать из этой строки.
+
+На `360–440px` create/add может быть icon-only `44 x 44px`, но сохраняет
+точное accessible name операции и primary/accent treatment. Filter и refresh
+используют icon-only controls с accessible name. На `768/1440` primary create
+возвращает icon + text, если строка сохраняется без переноса; дополнительная
+desktop-ширина не создаёт второй toolbar level.
+
+Horizontal scrolling, уменьшение touch target и сжатие search ниже указанного
+минимума не используются как fallback. DOM/focus order начинается с search,
+затем идёт action cluster; все видимые controls остаются в той же строке.
 
 ### Filters
 
@@ -901,8 +1062,8 @@ split ухудшает читаемость.
 - Оправданные asset-specific overlays фиксируются в явном allowlist.
 - Static check запрещает raw color за пределами profile registry, invariant
   semantic token source и allowlist.
-- Backend contract change для `themeId` обновляет frontend types, config tests,
-  backend API tests и deployment example.
+- Backend contract change для `themeId`/`authBackgroundImageId` обновляет
+  frontend types, config tests, backend API tests и deployment example.
 - Значимое отклонение от контракта требует UX/UI review и описанного
   screen-specific exception.
 
@@ -941,10 +1102,18 @@ split ухудшает читаемость.
 
 ### Theme profiles
 
-- [ ] `/api/config` возвращает configured `themeId`, а missing/blank config —
-      `default-green-v1`.
+- [ ] `/api/config` возвращает configured `themeId` и
+      `authBackgroundImageId`, а missing/blank config —
+      `default-green-v1` и `k4pro-login-v1`.
 - [ ] Unknown non-empty id проходит backend без registry validation; frontend
-      использует `default-green-v1` и reportable warning.
+      использует соответствующий default profile и reportable warning.
+- [ ] `auth-login`, forced `auth-password-change`, config/session loading и
+      bootstrap error используют resolved background; default возвращает
+      текущее `k4pro-login-bg.png`.
+- [ ] На `360`, `390`, `420`, `440`, `768`, `1440` background сохраняет
+      пропорции/focal point, не сдвигает форму и не ухудшает contrast.
+- [ ] Unknown/missing/broken background не блокирует login и даёт
+      deterministic image/solid-color fallback без layout shift.
 - [ ] Основные mobile paths проходят с `default-green-v1`.
 - [ ] Те же paths проходят с `test-blue-coral-v1`.
 - [ ] Переключение theme не меняет hierarchy, geometry, meaning и permissions.

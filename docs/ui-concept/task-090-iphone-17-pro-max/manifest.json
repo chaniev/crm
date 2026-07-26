@@ -1,5 +1,10 @@
 {
   "viewport": { "width": 440, "height": 956 },
+  "viewports": {
+    "iphone17ProMax": { "width": 440, "height": 956 },
+    "iphoneAir": { "width": 420, "height": 912 },
+    "desktop": { "width": 1440, "height": 1200 }
+  },
   "screens": [
     { "id": "auth-login", "title": "Вход", "group": "auth", "alternateTheme": true },
     { "id": "auth-password-change", "title": "Смена пароля", "group": "auth" },

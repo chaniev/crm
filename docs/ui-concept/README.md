@@ -15,9 +15,15 @@
 - `docs/ui-concept/screenshots-current/05-users.png`
 - `docs/ui-concept/screenshots-current/06-audit.png`
 
-Новые макеты собраны в статическом прототипе:
+Финальные адаптивные макеты собраны из одного статического прототипа:
 
-- `docs/ui-concept/index.html`
+- `docs/ui-concept/task-090-iphone-17-pro-max/index.html`
+- `docs/ui-concept/task-090-iphone-17-pro-max/screenshots/default-green-v1/`
+  — iPhone 17 Pro Max `440 x 956`
+- `docs/ui-concept/task-090-iphone-17-pro-max/screenshots/iphone-air/default-green-v1/`
+  — iPhone Air `420 x 912`
+- `docs/ui-concept/task-090-iphone-17-pro-max/screenshots/desktop/default-green-v1/`
+  — desktop `1440 x 1200`
 
 ## Главный вывод
 
@@ -45,8 +51,12 @@ Active navigation + semantic route title -> Summary/locator/filter -> Primary co
   title и accessible main name сохраняются.
 - Действия удалённого header переходят в первый locator/toolbar/summary row;
   пустая строка на месте заголовка не остаётся.
-- Detail/form screens и mobile routes внутри `Ещё` сохраняют visible title,
-  когда navigation не называет текущую задачу. Recovery state с конкретным
+- На mobile четвёртый route slot адаптивный: на `Тренеры`, `Журнал`,
+  `Финансы`, `Настройки` он показывает точный active destination вместо
+  последней primary вкладки. Вытесненная вкладка переходит в drawer, а пятый
+  trigger `Ещё` всегда остаётся видимым.
+- Detail/form screens сохраняют visible operation/entity title, когда active
+  parent navigation не называет текущую задачу. Recovery state с конкретным
   heading не дублирует уже видимое название active route.
 - Постоянные subtitle/eyebrow/badge/intro/helper под title запрещены на mobile
   и desktop, если не проходят `decision/usefulness test` из
@@ -73,6 +83,9 @@ Active navigation + semantic route title -> Summary/locator/filter -> Primary co
 
 - Сохраняем `Mantine + Onest`.
 - Сохраняем светлую зеленовато-песочную палитру, но уменьшаем декоративность.
+- Auth/start page сохраняет текущее `k4pro-login-bg.png` как default background;
+  deployment может выбрать другой registered `authBackgroundImageId` независимо
+  от palette.
 - `brand` - primary actions, selected states, success.
 - `sand` - нейтральный контекст.
 - `accent` - сроки, предупреждения, внимание.

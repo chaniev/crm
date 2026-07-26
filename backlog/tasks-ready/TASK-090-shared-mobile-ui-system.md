@@ -12,8 +12,9 @@ feature/TASK-090-shared-mobile-ui-system
 ## Goal
 Все mobile CRM screens используют один task-first UX/UI contract, shared
 components и semantic tokens. Разные deployment выбирают утверждённую palette
-из одного или двух основных и трёх–четырёх дополнительных цветовых семейств
-без screen-specific CSS и без изменения смысла действий или состояний.
+из одного или двух основных и трёх–четырёх дополнительных цветовых семейств,
+а также зарегистрированное фоновое изображение стартовой страницы без
+screen-specific CSS и без изменения смысла действий или состояний.
 
 ## User role
 Суперадминистратор / администратор / главный тренер / тренер.
@@ -36,7 +37,9 @@ foundation их реализация может создать нескольк�
 
 Текущий `theme.ts` задаёт часть palette, но `App.css` и feature code всё ещё
 содержат hardcoded hex/rgba. `/api/config` передаёт deploy-time `clubName`, но
-не theme profile.
+не theme profile или background profile. Текущее
+`frontend/src/assets/auth/k4pro-login-bg.png` жёстко связано с CSS и пропало из
+новых auth mockups вместо того, чтобы оставаться default deployment asset.
 
 ## UX contract
 
@@ -57,25 +60,41 @@ mobile, но active filters остаются видимыми и удаляем�
 
 ### Theme foundation
 
-- Расширить backend `/config` и frontend `AppConfigResponse` полем `themeId`.
+- Расширить backend `/config` и frontend `AppConfigResponse` полями `themeId`
+  и `authBackgroundImageId`.
 - Добавить deployment env `CRM_THEME_ID` / backend
   `Branding__ThemeId`.
+- Добавить deployment env `CRM_AUTH_BACKGROUND_IMAGE_ID` / backend
+  `Branding__AuthBackgroundImageId`.
 - Добавить frontend registry versioned `ThemeProfile`.
+- Добавить frontend registry versioned `AuthBackgroundProfile`.
 - Добавить обязательные profiles:
   - `default-green-v1`;
   - `test-blue-coral-v1`.
 - Backend заменяет missing/blank `ThemeId` на `default-green-v1`, trim-ит и
   возвращает non-empty identifier без копирования frontend registry.
+- Backend заменяет missing/blank `AuthBackgroundImageId` на
+  `k4pro-login-v1`, trim-ит и возвращает non-empty identifier без копирования
+  frontend asset registry.
 - Frontend единолично разрешает known/unknown identifier через
   `resolveThemeProfile(themeId)`; unknown даёт default + warning.
+- Frontend единолично разрешает background identifier через
+  `resolveAuthBackgroundProfile(authBackgroundImageId)`; unknown даёт
+  `k4pro-login-v1` + warning.
 - Реализовать `createGymCrmTheme(profile)`.
 - Вынести config/theme bootstrap перед meaningful `App` render:
-  `ConfigThemeBootstrap` владеет `/config`, разрешает profile и монтирует
-  `MantineProvider`; `App` не делает duplicate config request.
-- Обновить `test/render.tsx`, чтобы tests могли передавать default/test profile.
+  `ConfigThemeBootstrap` владеет `/config`, разрешает theme/background profiles
+  и монтирует `MantineProvider`; `App` не делает duplicate config request.
+- Обновить `test/render.tsx`, чтобы tests могли передавать default/test theme
+  и auth background profiles.
 - Вынести neutral, text, border, action, selection, focus и status roles в
   semantic tokens/CSS variables с prefix `--crm-`.
 - Обеспечить deterministic fallback на `default-green-v1`.
+- Зарегистрировать `k4pro-login-v1` как default background, который использует
+  текущее `frontend/src/assets/auth/k4pro-login-bg.png`.
+- Обеспечить deterministic fallback background id:
+  missing/blank -> `k4pro-login-v1`; unknown/broken -> default + warning,
+  затем semantic solid background при недоступности default asset.
 - Убрать theme-sensitive raw brand/accent/surface/border/focus/selection colors
   из всех shared и feature call sites.
 - Перевести functional status/category colors на invariant status tokens или
@@ -111,6 +130,14 @@ mobile, но active filters остаются видимыми и удаляем�
   operational decision data из нормативных исключений;
 - `PageLayout` поддерживает visually-hidden route `h1` без пустого header
   wrapper; actions скрытого header переходят в locator/toolbar/summary row;
+- `MobileBottomNavigation` поддерживает route-derived adaptive fourth slot:
+  default primary destination либо label/icon текущего authorized overflow
+  destination; пятый `Ещё` остаётся стабильным drawer trigger;
+- `EntityLocatorBar` держит primary search, filter trigger и retained
+  primary/frequent actions в одной non-wrapping строке на mobile, tablet и
+  desktop; action-only второй level запрещён;
+- mobile create/add может использовать accessible icon-only `44 x 44px`, а
+  desktop возвращает icon + text только при сохранении одной строки;
 - `SectionHeader` остаётся отдельным section-level contract и не используется
   как обход запрета route-level пояснений;
 - `EntityLocatorBar`;
@@ -146,6 +173,8 @@ Foundation task мигрирует shared primitives, shell и representative ca
 - Client desktop split из `TASK-089`.
 - Dark theme.
 - Произвольные runtime hex/CSS из deployment config.
+- Произвольные runtime URL, binary image data, upload и crop/overlay CSS из
+  deployment config; custom image сначала регистрируется как versioned asset.
 - Разные themes для ролей.
 - Backend business rules.
 
@@ -162,6 +191,11 @@ Deployment выбирает только registered frontend `themeId`. Новы
 contrast и affected-screen tests до добавления в registry. Unknown/missing
 theme не ломает bootstrap: missing/blank backend config возвращает default без
 warning, unknown frontend registry id использует default с reportable warning.
+
+Deployment независимо выбирает registered `authBackgroundImageId`.
+`k4pro-login-v1` использует текущее `k4pro-login-bg.png` и является default.
+Background profile владеет bundled asset и focal point; auth overlay, crop и
+CSS не передаются через `/api/config`.
 
 Theme может менять brand/action/nav/accent presentation, но не:
 
@@ -187,10 +221,13 @@ Theme может менять brand/action/nav/accent presentation, но не:
 ## Operational states
 
 - Config loading использует bundled default theme до resolved bootstrap или
-  не показывает meaningful UI в неверной palette.
+  не показывает meaningful UI в неверной palette; auth stage использует
+  bundled `k4pro-login-v1` до resolved background profile.
 - Missing/blank backend theme возвращает `default-green-v1`.
+- Missing/blank auth background возвращает `k4pro-login-v1`.
 - Unknown non-empty identifier возвращается backend как configured value, а
-  frontend даёт default theme и reportable warning.
+  frontend даёт соответствующий default theme/background и reportable warning.
+- Unknown/broken background не блокирует login и не сдвигает auth card.
 - Shared loading не выглядит empty.
 - Empty, error, stale, restricted и success имеют разные contracts.
 - Retry не очищает locator/context.
@@ -202,10 +239,18 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] Inputs/selects/textareas на iPhone имеют `font-size >= 16px`.
 - [ ] Compact-height touch не получает desktop-only shell.
 - [ ] Shared surfaces используют semantic tokens, а не raw brand colors.
-- [ ] `/api/config` возвращает `themeId`; missing/blank backend config
-      возвращает `default-green-v1`.
+- [ ] `/api/config` возвращает `themeId` и `authBackgroundImageId`;
+      missing/blank backend config возвращает `default-green-v1` и
+      `k4pro-login-v1`.
 - [ ] Unknown non-empty id не валидируется дублирующим backend registry:
-      frontend использует `default-green-v1` и reportable warning.
+      frontend использует соответствующий default profile и reportable warning.
+- [ ] `k4pro-login-v1` использует текущее
+      `frontend/src/assets/auth/k4pro-login-bg.png` на `auth-login`, forced
+      `auth-password-change`, auth loading и bootstrap error.
+- [ ] Background сохраняет aspect ratio/focal point и не ухудшает доступность
+      auth card на `360`, `390`, `420`, `440`, `768`, `1440`.
+- [ ] Unknown/missing/broken background использует deterministic default/solid
+      fallback и не блокирует login.
 - [ ] `default-green-v1` и `test-blue-coral-v1` проходят одинаковый
       representative screen suite.
 - [ ] Theme switch не меняет geometry, hierarchy, permissions и status meaning.
@@ -240,15 +285,37 @@ Theme может менять brand/action/nav/accent presentation, но не:
       первый рабочий control поднимается на освободившееся место.
 - [ ] Refresh/create actions перенесены в первый task toolbar без overflow;
       primary/frequent operations остаются видимыми и имеют accessible names.
+- [ ] Search/locator, filter trigger и retained actions находятся в одной
+      строке без action-only второго level на `360`, `390`, `420`, `440`,
+      `768` и `1440`; action cluster не переносится.
+- [ ] Search сохраняет min-width `156/176/200/216/320/420px` соответственно;
+      при нехватке ширины secondary action сворачивается раньше search.
+- [ ] Mobile icon-only create/filter/refresh имеют точные accessible names и
+      targets не меньше `44 x 44px`; desktop text action не создаёт перенос.
 - [ ] `Группы` не показывают summary/stat widgets (`Всего`, `Активные`,
       `Без тренера`, `Перегружены`) на mobile, tablet или desktop; первым
       рабочим блоком является locator/filter toolbar.
 - [ ] Количество и проблемный статус групп передаются через range/status,
       фильтры и соответствующие строки, а ширины `768`/`1440` не возвращают
       удалённые widgets.
-- [ ] Detail/create/edit/auth и mobile routes внутри `Ещё` сохраняют visible
-      title, если navigation не называет задачу однозначно; recovery state с
-      конкретным state heading не дублирует route title.
+- [ ] На top-level `Тренеры`, `Журнал`, `Финансы`, `Настройки` четвёртый
+      adaptive mobile nav slot заменяет последнюю primary вкладку на точный
+      active label/icon; первые три slots и пятый `Ещё` остаются стабильными.
+- [ ] Вытесненная четвёртая вкладка появляется в `Остальные разделы`; drawer
+      содержит все authorized sections, не видимые в четырёх route slots,
+      без дублирования текущего adaptive item.
+- [ ] `Ещё` остаётся единственным drawer trigger, не получает
+      `aria-current="page"` из-за active overflow route и сохраняет точный
+      accessible name/popup state.
+- [ ] Deep link, reload, browser back/forward и permission redirect вычисляют
+      adaptive slot из resolved route/access contract без промежуточного
+      generic или unauthorized состояния.
+- [ ] При единственной hidden destination `Ещё` и drawer сохраняются; если она
+      active, в drawer переходит вытесненная четвёртая destination.
+- [ ] Top-level overflow workspace может скрыть duplicate route title после
+      promotion в adaptive slot; detail/create/edit/auth сохраняют visible
+      operation/entity title, даже когда parent destination виден в четвёртом
+      slot. Recovery state с конкретным state heading не дублирует route title.
 - [ ] Drawer/modal используют dynamic viewport, safe-area footer и focus return.
 - [ ] Нет unintended horizontal page scroll на `360`, `390`, `420`, `440`.
 - [ ] Theme-sensitive raw colors удалены из shared/feature code; static check
@@ -257,8 +324,9 @@ Theme может менять brand/action/nav/accent presentation, но не:
 ## Test checklist
 
 - [ ] Backend config/options/API tests для missing/blank default, configured и
-      trimmed pass-through theme id.
-- [ ] Frontend unit tests registry, fallback, theme creation и semantic tokens.
+      trimmed pass-through theme/background ids.
+- [ ] Frontend unit tests theme/background registries, fallback, theme creation
+      и semantic tokens.
 - [ ] Bootstrap tests подтверждают один `/config` request и отсутствие
       meaningful `App` до profile resolution.
 - [ ] `test/render.tsx` поддерживает default и alternate profile.
@@ -272,9 +340,25 @@ Theme может менять brand/action/nav/accent presentation, но не:
 - [ ] `clients-browse`, `schedule-ready`, `groups-list`, `users-list` и
       `audit-list` не показывают строку label над primary search; role/name
       assertion на соответствующий `searchbox` проходит.
+- [ ] На этих же list screens locator и actions геометрически находятся в
+      одной строке на mobile и desktop; `clients-browse` и `audit-list` не
+      содержат отдельной строки refresh/create под search.
 - [ ] `clients-browse`, `groups-list`, `schedule-ready` имеют visually-hidden
       level-one heading и не имеют дублирующего visible route title;
-      `users-list`/`audit-list` сохраняют title на mobile при active `Ещё`.
+      top-level `users-list`/`audit-list` применяют тот же visibility test после
+      появления active `Тренеры`/`Журнал` в adaptive slot.
+- [ ] На `/users`, `/audit`, `/finance`, `/settings` четвёртый slot показывает
+      соответственно `Тренеры`, `Журнал`, `Финансы`, `Настройки`, имеет
+      `aria-current="page"` и соответствующий route accessible name.
+- [ ] Пятый `Ещё` открывает drawer, имеет title/close/focus trap/return и
+      показывает только authorized sections, отсутствующие в четырёх route slots.
+- [ ] `/users/new` и `/users/:id/edit` сохраняют active `Тренеры` в четвёртом slot,
+      но показывают visible operation/entity `h1`.
+- [ ] Browser back `Финансы -> Группы` возвращает `Группы` в четвёртый slot;
+      back или navigation `Финансы -> Журнал` заменяет adaptive slot на
+      `Журнал` без flash, а `Ещё` остаётся пятым.
+- [ ] Русские labels adaptive slot полностью видимы на `360`, `390`, `420`,
+      `440`; touch target не меньше `44px`, horizontal scroll отсутствует.
 - [ ] `groups-list` не содержит summary/stat widget container на `390 x 844`,
       `420 x 912`, `440 x 956`, `768 x 1024` и `1440 x 1200`; locator и
       первые results поднимаются на освободившееся место.

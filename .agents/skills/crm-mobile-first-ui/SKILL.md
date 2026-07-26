@@ -92,6 +92,13 @@ Rules:
   semantics;
 - move actions from a hidden list header into the first locator/toolbar/summary
   row without leaving a spacer or hiding primary/frequent operations;
+- keep the route-level locator field, filter trigger, and retained toolbar
+  actions in one non-wrapping row on mobile, tablet, and desktop; do not create
+  a second action-only line that leaves unused space beside the search field;
+- under width pressure, preserve a useful search width and collapse primary
+  create to an accessible `44 x 44px` icon button before wrapping the toolbar;
+  desktop may restore the action text, but must keep the same single-row
+  hierarchy;
 - do not add aggregate summary/stat widgets to a registry list unless each
   value changes a current user decision and cannot be expressed more directly
   in locator, filter, range/status, or entity rows; extra desktop width is not
@@ -99,6 +106,15 @@ Rules:
 - keep visible route titles for detail/create/edit/auth screens and routes
   whose active navigation is only a generic parent such as `More`; a recovery
   state with its own specific heading need not duplicate an active route name.
+- when an active mobile overflow destination replaces the last primary route
+  slot, derive its label/icon from the authorized current route, move the
+  displaced route into the overflow drawer, keep the generic `More` trigger
+  stable, and synchronize `aria-current`, popup semantics, deep links,
+  back/forward, and permission redirects.
+- treat configurable auth/start-page imagery as registered deployment branding:
+  keep the current background as deterministic default, preserve an
+  independent contrast-safe form surface, validate responsive focal-point
+  cropping, and never block authentication on image resolution or loading.
 
 Use `.agents/skills/design-first-ui-prompting/SKILL.md` only when the
 deliverable includes a prompt for an external UI generator, a static visual

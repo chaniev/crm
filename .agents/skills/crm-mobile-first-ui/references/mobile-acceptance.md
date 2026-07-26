@@ -69,6 +69,16 @@ visual viewport.
   the first visible row is a locator, summary, filters, or task content.
 - Actions formerly owned by the hidden header remain visible in the first task
   toolbar when primary/frequent and retain accessible names.
+- A route-level locator/search, filter trigger, and retained toolbar actions
+  occupy one non-wrapping row at `360`, `390`, `420`, `440`, `768`, and
+  `1440px`; an action-only second line is not used to resolve width pressure.
+- The locator/search keeps a useful minimum width: `156px` at `360`, `176px`
+  at `390`, `200px` at `420`, `216px` at `440`, `320px` at `768`, and
+  `420px` at `1440`. Primary create may become an accessible icon-only
+  `44 x 44px` control on mobile and restore its text on desktop.
+- Secondary actions are collapsed or removed before the search is made
+  unusable; horizontal toolbar scrolling and unintended page scrolling are
+  not acceptable fallbacks.
 - Registry screens do not gain aggregate summary/stat widgets solely to fill
   space; every retained widget changes a current decision and cannot be shown
   more directly in locator, filter, range/status, or entity rows.
@@ -77,6 +87,20 @@ visual viewport.
 - Detail/create/edit/auth screens and routes under a generic `More`
   destination keep a visible title when navigation does not name the task;
   recovery states with specific headings do not duplicate an active route name.
+- When an active overflow destination replaces the last primary route item,
+  the adaptive item shows the exact authorized route label/icon and
+  `aria-current="page"`; the displaced primary item moves into overflow and
+  the generic `More` trigger remains visible and is not marked current.
+- Dynamic overflow state follows resolved route/access on deep link, reload,
+  back/forward, and redirect without showing unauthorized or stale items.
+- Current Russian overflow labels remain fully visible in one line at
+  `360–440px`; every item stays at least `44 x 44px` and creates no horizontal
+  page scroll.
+- A configured auth/start-page background preserves aspect ratio and registered
+  focal point without moving, covering, or reducing contrast of the form at
+  `360`, `390`, `420`, `440`, `768`, or `1440px`.
+- Missing, unknown, or failed auth background assets fall back
+  deterministically and never block login, validation, or recovery.
 - Fixed and sticky headers, bottom navigation, action bars, close controls, and notifications remain inside the safe area.
 - Safe-area spacing combines the project spacing token with `env(safe-area-inset-*)` or an equivalent measured inset; the safe-area inset does not replace the normal content margin.
 - Full-height mobile surfaces remain usable as Safari chrome expands or collapses and do not rely on `100vh` alone as evidence of correct height.
