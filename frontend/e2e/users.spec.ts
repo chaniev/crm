@@ -1,6 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
 
-const APP_CONFIG = { clubName: 'Iron Club' } as const
+const APP_CONFIG = {
+  clubName: 'Iron Club',
+  themeId: 'default-green-v1',
+  authBackgroundImageId: 'k4pro-login-v1',
+} as const
 
 const headCoachSession = {
   isAuthenticated: true,
@@ -14,7 +18,7 @@ const headCoachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,

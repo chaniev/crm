@@ -98,7 +98,7 @@ export function ConfirmActionModal({
   description,
   confirmLabel,
   pending = false,
-  confirmColor = 'brand.7',
+  confirmColor = 'var(--crm-action-primary)',
   cancelLabel = resources.common.actions.cancel,
   onClose,
   onConfirm,
@@ -159,9 +159,7 @@ export function MetricCard({
 type PageLayoutProps = ComponentPropsWithoutRef<'div'> & {
   children: ReactNode
   className?: string
-  description?: string
   actions?: ReactNode
-  eyebrow?: ReactNode
   showHeader?: boolean
   title: string
 }
@@ -169,9 +167,7 @@ type PageLayoutProps = ComponentPropsWithoutRef<'div'> & {
 export function PageLayout({
   children,
   className,
-  description,
   actions,
-  eyebrow,
   showHeader = true,
   title,
   ...props
@@ -186,11 +182,14 @@ export function PageLayout({
         <PageHeader
           actions={actions}
           className="page-layout__header"
-          description={description}
-          eyebrow={eyebrow}
           title={title}
           titleOrder={1}
         />
+      ) : null}
+      {!showHeader ? (
+        <Title className="visually-hidden" order={1}>
+          {title}
+        </Title>
       ) : null}
       {children}
     </Stack>
@@ -301,7 +300,7 @@ const compactFilterMobileQuery = '(max-width: 47.99em)'
 
 export function CompactFilterPanel({
   actions,
-  applyLabel = 'Применить',
+  applyLabel = 'Готово',
   primary,
   secondary = [],
   className,
@@ -778,7 +777,7 @@ type LoadingStateProps = {
 export function LoadingState({ label = 'Загружаем данные...' }: LoadingStateProps) {
   return (
     <Group className="state-panel state-panel--loading" justify="center">
-      <Loader color="brand.7" size="sm" />
+      <Loader color="var(--crm-action-primary)" size="sm" />
       <Text c="dimmed" fw={600} size="sm">
         {label}
       </Text>
@@ -824,8 +823,14 @@ export function Skeleton({ rows = 3 }: SkeletonProps) {
 }
 
 export { AppLayout } from './AppLayout'
+export { ActiveFiltersBar, type ActiveFilter } from './ActiveFiltersBar'
 export { Button } from './Button'
+export { EntityLocatorBar } from './EntityLocatorBar'
 export { Header } from './Header'
 export { IconButton } from './IconButton'
+export { ListRangeStatus } from './ListRangeStatus'
 export { MobileBottomNavigation } from './MobileBottomNavigation'
 export { NavigationTabs } from './NavigationTabs'
+export { RestrictedState } from './RestrictedState'
+export { TaskItem, type TaskItemInteraction } from './TaskItem'
+export { TemporarySurfaceFooter } from './TemporarySurfaceFooter'

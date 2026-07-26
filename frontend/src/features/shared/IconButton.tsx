@@ -27,7 +27,7 @@ const sharedIconButtonVariantMap: Record<
   Pick<ActionIconProps, 'color' | 'variant'>
 > = {
   primary: {
-    color: 'brand.7',
+    color: 'var(--crm-action-primary)',
     variant: 'filled',
   },
   secondary: {
@@ -40,7 +40,7 @@ const sharedIconButtonVariantMap: Record<
     variant: 'light',
   },
   filled: {
-    color: 'brand.7',
+    color: 'var(--crm-action-primary)',
     variant: 'filled',
   },
   default: {

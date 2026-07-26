@@ -394,7 +394,7 @@ export function BranchSettingsScreen({
   const headerActions = (
     <ResponsiveButtonGroup>
       <Button
-        color="accent.5"
+        color="var(--crm-brand-secondary)"
         leftSection={<IconPlus size={18} />}
         onClick={openCreateBranch}
       >
@@ -640,7 +640,7 @@ function BranchDetailsPanel({
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <Group gap="sm" wrap="nowrap">
-            <ThemeIcon color="brand.7" radius="xl" size={40} variant="light">
+            <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={40} variant="light">
               <IconBuildingStore size={20} />
             </ThemeIcon>
             <div>
@@ -735,7 +735,7 @@ function BranchDetailsPanel({
                       >
                         {hall.isArchived ? 'Архивный' : 'Активный'}
                       </Badge>
-                      <Badge color="brand.1" radius="sm" variant="light">
+                      <Badge color="var(--crm-brand-primary-soft)" radius="sm" variant="light">
                         Групп: {hall.groupCount}
                       </Badge>
                     </Group>

@@ -12,7 +12,7 @@ const session = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Clients',
-    allowedSections: ['Home', 'Clients'],
+    allowedSections: ['Home', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: true,
@@ -702,7 +702,11 @@ async function mockMembershipPricingApi(
     }
 
     if (url.pathname === '/api/config' && method === 'GET') {
-      return fulfillJson(route, { clubName: 'Клуб TASK-077' })
+      return fulfillJson(route, {
+        clubName: 'Клуб TASK-077',
+        themeId: 'default-green-v1',
+        authBackgroundImageId: 'k4pro-login-v1',
+      })
     }
 
     if (url.pathname === '/api/auth/session' && method === 'GET') {

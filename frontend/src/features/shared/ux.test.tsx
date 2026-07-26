@@ -6,6 +6,13 @@ import { renderWithProviders } from '../../test/render'
 import {
   AppLayout,
   Button,
+  EntityLocatorBar,
+  ActiveFiltersBar,
+  ListRangeStatus,
+  MobileBottomNavigation,
+  RestrictedState,
+  TaskItem,
+  TemporarySurfaceFooter,
   CompactFilterPanel,
   EmptyState,
   ErrorState,
@@ -132,12 +139,11 @@ describe('shared UX components', () => {
     )
   })
 
-  test('PageLayout renders route title, description, actions and shared wrapper', () => {
+  test('PageLayout renders route title, actions and shared wrapper', () => {
     const { container } = renderWithProviders(
       <PageLayout
         actions={<button type="button">Обновить</button>}
         data-testid="layout-test"
-        description="Описание страницы"
         title="Клиенты"
       >
         <p>Рабочая область</p>
@@ -146,13 +152,12 @@ describe('shared UX components', () => {
 
     expect(screen.getByTestId('layout-test')).toHaveClass('page-layout')
     expect(screen.getByRole('heading', { level: 1, name: 'Клиенты' })).toBeVisible()
-    expect(screen.getByText('Описание страницы')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Обновить' })).toBeVisible()
     expect(screen.getByText('Рабочая область')).toBeVisible()
     expect(container.querySelector('.page-layout__header')).toBeTruthy()
   })
 
-  test('PageLayout can keep its semantic title without rendering a page header', () => {
+  test('PageLayout keeps semantic heading when header is hidden', () => {
     renderWithProviders(
       <PageLayout showHeader={false} title="Главная">
         <div>Рабочая область</div>
@@ -160,7 +165,388 @@ describe('shared UX components', () => {
     )
 
     expect(screen.getByText('Рабочая область')).toBeVisible()
-    expect(screen.queryByRole('heading', { name: 'Главная' })).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        hidden: true,
+        level: 1,
+        name: 'Главная',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        hidden: true,
+        level: 1,
+        name: 'Главная',
+      }),
+    ).toHaveClass('visually-hidden')
+  })
+
+  test('MobileBottomNavigation surfaces overflow via drawer and keeps active route semantics', async () => {
+    const onNavigate = vi.fn()
+
+    renderWithProviders(
+      <MobileBottomNavigation
+        currentSection="Home"
+        onNavigate={onNavigate}
+        sections={sections}
+      />,
+    )
+
+    const overflowTrigger = screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })
+    const homeButton = screen.getByRole('button', { name: 'Главная' })
+
+    expect(screen.getByRole('navigation', { name: 'Мобильная навигация' })).toBeVisible()
+    expect(overflowTrigger).toHaveAttribute('aria-haspopup', 'dialog')
+    expect(overflowTrigger).toHaveAttribute('aria-expanded', 'false')
+    expect(homeButton).toHaveAttribute('aria-current', 'page')
+    expect(overflowTrigger).not.toHaveAttribute('aria-current', 'page')
+
+    fireEvent.click(overflowTrigger)
+    expect(overflowTrigger).toHaveAttribute('aria-expanded', 'true')
+
+    const overflowItem = await screen.findByRole('button', { name: 'Тренеры' })
+    fireEvent.click(overflowItem)
+
+    expect(onNavigate).toHaveBeenCalledWith('Users')
+  })
+
+  test('MobileBottomNavigation keeps overflow trigger stable when active route is displaced', () => {
+    renderWithProviders(
+      <MobileBottomNavigation
+        currentSection="Users"
+        onNavigate={() => undefined}
+        sections={sections}
+      />,
+    )
+
+    const overflowTrigger = screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })
+
+    expect(overflowTrigger).not.toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: 'Тренеры' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+  })
+
+  test('MobileBottomNavigation does not render overflow trigger when no overflow exists', () => {
+    renderWithProviders(
+      <MobileBottomNavigation
+        currentSection="Home"
+        onNavigate={() => undefined}
+        sections={['Home', 'Clients', 'Groups']}
+      />,
+    )
+
+    expect(screen.queryByRole('button', { name: 'Ещё, открыть остальные разделы' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Главная' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Клиенты' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Группы' })).toBeVisible()
+  })
+
+  test('MobileBottomNavigation promotes displaced active overflow section into visible fourth slot', () => {
+    renderWithProviders(
+      <MobileBottomNavigation
+        currentSection="Users"
+        onNavigate={() => undefined}
+        sections={['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit']}
+      />,
+    )
+
+    const root = screen.getByRole('navigation', { name: 'Мобильная навигация' })
+    const labels = within(root)
+      .getAllByRole('button')
+      .map((button) => button.textContent?.trim())
+      .filter(Boolean)
+
+    expect(labels).toEqual(['Главная', 'Расписание', 'Клиенты', 'Тренеры', 'Ещё'])
+    expect(screen.getByRole('button', { name: 'Тренеры' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })).not.toHaveAttribute(
+      'aria-current',
+    )
+  })
+
+  test('MobileBottomNavigation moves displaced section into overflow drawer and toggles expanded state', async () => {
+    renderWithProviders(
+      <MobileBottomNavigation
+        currentSection="Users"
+        onNavigate={() => undefined}
+        sections={['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit']}
+      />,
+    )
+
+    const overflowTrigger = screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })
+
+    fireEvent.click(overflowTrigger)
+    const overflowList = await screen.findByRole('dialog')
+    const drawerItemGroup = within(overflowList).getByRole('button', { name: 'Группы' })
+    const drawerItemAudit = within(overflowList).getByRole('button', { name: 'Журнал' })
+
+    expect(overflowTrigger).toHaveAttribute('aria-expanded', 'true')
+    await waitFor(() => {
+      expect(drawerItemGroup).toBeVisible()
+      expect(drawerItemAudit).toBeVisible()
+    })
+    expect(within(overflowList).queryByRole('button', { name: 'Тренеры' })).not.toBeInTheDocument()
+  })
+
+  test('EntityLocatorBar keeps locator, filter count, clear, and action slots in one task row', async () => {
+    const onFilterOpen = vi.fn()
+    const onFilterClear = vi.fn()
+    const onChange = vi.fn()
+
+    renderWithProviders(
+      <EntityLocatorBar
+        data-testid="entity-locator-bar"
+        accessibleLabel="Поиск клиентов"
+        placeholder="Поиск клиентов..."
+        value="Алекс"
+        onChange={onChange}
+        onClear={onFilterClear}
+        onOpenFilters={onFilterOpen}
+        activeFilterCount={2}
+        resultsId="entity-results"
+        primaryAction={<button type="button">Создать</button>}
+        disabled={false}
+      />,
+    )
+
+    const locatorRoot = screen.getByTestId('entity-locator-bar')
+    const locator = screen.getByRole('search')
+    const searchInput = within(locator).getByRole('textbox', { name: 'Поиск клиентов' })
+    const filtersToggle = screen.getByRole('button', { name: /фильтры/i })
+    const clearButton = screen.getByRole('button', { name: /сброс/i })
+
+    expect(locatorRoot).toHaveClass('entity-locator-bar')
+    expect(searchInput).toBeVisible()
+    expect(searchInput).toHaveAttribute('aria-controls', 'entity-results')
+    expect(filtersToggle).toHaveAttribute('aria-haspopup', 'dialog')
+    expect(filtersToggle).toBeVisible()
+    expect(clearButton).toBeVisible()
+
+    fireEvent.change(searchInput, { target: { value: 'Алина' } })
+    expect(onChange).toHaveBeenCalledWith('Алина')
+
+    fireEvent.click(clearButton)
+    expect(onFilterClear).toHaveBeenCalled()
+
+    fireEvent.click(filtersToggle)
+    expect(onFilterOpen).toHaveBeenCalled()
+
+    expect(screen.getByRole('button', { name: 'Создать' })).toBeVisible()
+    expect(screen.getAllByText('2').length).toBeGreaterThan(0)
+  })
+
+  test('EntityLocatorBar keeps primary and frequent actions in the same non-wrapping container', () => {
+    renderWithProviders(
+      <EntityLocatorBar
+        data-testid="entity-locator-bar"
+        accessibleLabel="Поиск клиентов"
+        placeholder="Поиск..."
+        value=""
+        onChange={() => undefined}
+        onClear={() => undefined}
+        onOpenFilters={() => undefined}
+        activeFilterCount={1}
+        resultsId="entity-results"
+        primaryAction={<button type="button">Создать</button>}
+        frequentActions={<button type="button">Импорт</button>}
+      />,
+    )
+
+    const root = screen.getByTestId('entity-locator-bar')
+    const actions = root.querySelector('.entity-locator-bar__actions')
+    const primaryAction = screen.getByRole('button', { name: 'Создать' })
+    const frequentAction = screen.getByRole('button', { name: 'Импорт' })
+
+    expect(actions).toContainElement(primaryAction)
+    expect(actions).toContainElement(frequentAction)
+    expect(root).toHaveClass('entity-locator-bar')
+  })
+
+  test('ActiveFiltersBar renders accessible region with clear actions and minimum touch targets', () => {
+    const onRemove = vi.fn()
+    const onReset = vi.fn()
+
+    renderWithProviders(
+      <ActiveFiltersBar
+        data-testid="active-filters"
+        filters={[
+          { id: 'status', label: 'Статус', onRemove },
+          { id: 'branch', label: 'Филиал', onRemove },
+        ]}
+        onReset={onReset}
+        resetLabel="Сбросить"
+      />,
+    )
+
+    const region = screen.getByRole('region')
+    const resetButton = screen.getByRole('button', { name: /сбросить/i })
+    const buttons = within(region).getAllByRole('button')
+
+    expect(region).toBeInTheDocument()
+    expect(region).toHaveAttribute('aria-live', 'polite')
+    expect(resetButton).toBeVisible()
+    expect(buttons).toHaveLength(3)
+
+    fireEvent.click(buttons[1])
+    expect(onRemove).toHaveBeenCalledTimes(1)
+
+    fireEvent.click(resetButton)
+    expect(onReset).toHaveBeenCalledTimes(1)
+  })
+
+  test('ListRangeStatus exposes status role semantics and avoids fabricated total while loading', () => {
+    const { rerender } = renderWithProviders(
+      <ListRangeStatus
+        data-testid="list-range"
+        start={1}
+        end={20}
+        total={200}
+        hasMore={true}
+      />,
+    )
+
+    const status = screen.getByRole('status')
+
+    expect(status).toHaveAttribute('aria-live', 'polite')
+    expect(status).toHaveTextContent(/1\s*[–-]\s*20/)
+    expect(status).toHaveTextContent('200')
+
+    rerender(
+      <ListRangeStatus
+        data-testid="list-range"
+        start={1}
+        end={20}
+        total={null}
+        hasMore={false}
+        loading={true}
+      />,
+    )
+
+    expect(screen.getByRole('status')).toHaveTextContent(/1\s*[–-]\s*20/)
+    expect(screen.queryByText(/200/)).not.toBeInTheDocument()
+  })
+
+  test('TaskItem derives only the semantics declared by its interaction', () => {
+    const onActivate = vi.fn()
+    const { container, rerender } = renderWithProviders(
+      <TaskItem
+        accessibleName="Иван Петров"
+        identity="Клиент"
+        metadata="№1024"
+        status="active"
+      />,
+    )
+
+    const staticItem = container.firstElementChild
+    expect(staticItem).not.toHaveAttribute('role')
+    expect(staticItem).not.toHaveAttribute('tabindex')
+
+    rerender(
+      <TaskItem
+        accessibleName="Иван Петров"
+        identity="Клиент"
+        metadata="№1024"
+        status="active"
+        leading={<span>Л</span>}
+        interaction={{ kind: 'link', href: '/clients/1' }}
+      />,
+    )
+
+    expect(screen.getByRole('link', { name: 'Иван Петров' })).toHaveAttribute(
+      'href',
+      '/clients/1',
+    )
+
+    rerender(
+      <TaskItem
+        accessibleName="Иван Петров"
+        identity="Клиент"
+        interaction={{ kind: 'button', onActivate, pressed: true }}
+      />,
+    )
+
+    const actionButton = screen.getByRole('button', { name: 'Иван Петров' })
+    expect(actionButton).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(actionButton)
+    expect(onActivate).toHaveBeenCalledTimes(1)
+
+    rerender(
+      <ul role="listbox" aria-label="Варианты">
+        <TaskItem
+          accessibleName="Иван Петров"
+          identity="Клиент"
+          metadata="№1024"
+          status="active"
+          leading={<span>Л</span>}
+          interaction={{ kind: 'option', onActivate, selected: false }}
+        />
+      </ul>,
+    )
+
+    const option = screen.getByRole('option')
+
+    expect(option).toHaveAttribute('aria-selected', 'false')
+    fireEvent.click(option)
+    expect(onActivate).toHaveBeenCalledTimes(2)
+
+    rerender(
+      <div role="grid" aria-label="Задачи">
+        <TaskItem
+          accessibleName="Иван Петров"
+          identity="Клиент"
+          interaction={{ kind: 'row', onActivate, selected: true }}
+        />
+      </div>,
+    )
+
+    const row = screen.getByRole('row', { name: 'Иван Петров' })
+    expect(row).toHaveAttribute('aria-selected', 'true')
+    fireEvent.keyDown(row, { key: 'Enter' })
+    expect(onActivate).toHaveBeenCalledTimes(3)
+  })
+
+  test('RestrictedState moves focus to heading and exposes primary action after mount', async () => {
+    const onRetry = vi.fn()
+
+    renderWithProviders(
+      <RestrictedState
+        data-testid="restricted-state"
+        title="Недостаточно прав"
+        description="Доступ ограничен"
+        primaryAction={<button type="button" onClick={onRetry}>Назад</button>}
+        secondaryAction={<button type="button">Поддержка</button>}
+        focusOnMount="primary-action"
+      />,
+    )
+
+    const heading = screen.getByRole('heading', { level: 2, name: 'Недостаточно прав' })
+    const primaryAction = screen.getByRole('button', { name: 'Назад' })
+
+    expect(heading).toBeVisible()
+    expect(primaryAction).toBeVisible()
+    await waitFor(() => expect(document.activeElement).toBe(primaryAction))
+    fireEvent.click(primaryAction)
+  })
+
+  test('TemporarySurfaceFooter keeps shared structure, action order, and safe-area ownership class', () => {
+    renderWithProviders(
+      <TemporarySurfaceFooter
+        data-testid="temp-footer"
+        secondaryAction={<button type="button">Отмена</button>}
+        primaryAction={<button type="button">Сохранить</button>}
+      />,
+    )
+
+    const footer = screen.getByTestId('temp-footer')
+    const buttons = within(footer).getAllByRole('button')
+
+    expect(footer).toHaveClass('temporary-surface-footer')
+    expect(footer).toHaveAttribute('data-safe-area-aware', 'true')
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      'Отмена',
+      'Сохранить',
+    ])
   })
 
   test('PageSection renders card and plain variants with density classes', () => {
@@ -369,14 +755,14 @@ describe('shared UX components', () => {
 
       expect(await screen.findByLabelText('Поиск')).toBeInTheDocument()
       expect(await screen.findByRole('button', { name: /Сбросить/i })).toBeInTheDocument()
-      const applyButton = await screen.findByRole('button', { name: 'Применить' })
+      const applyButton = await screen.findByRole('button', { name: 'Готово' })
       const sheetActions = document.querySelector<HTMLElement>(
         '.compact-filter-panel__sheet-actions',
       )
 
       expect(sheetActions).not.toBeNull()
       expect(within(sheetActions!).getAllByRole('button').map((button) => button.textContent)).toEqual([
-        'Применить',
+        'Готово',
         'Сбросить',
       ])
 

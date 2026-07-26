@@ -419,7 +419,7 @@ export function ClientMessengerChatSection({
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <Group gap="xs">
-            <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+            <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={34} variant="light">
               <IconBrandTelegram size={18} />
             </ThemeIcon>
             <div>
@@ -461,7 +461,7 @@ export function ClientMessengerChatSection({
 
         {loading ? (
           <Group justify="center" py="xl">
-            <Loader color="brand.7" />
+            <Loader color="var(--crm-action-primary)" />
             <Text c="dimmed" size="sm">
               Загружаем переписку...
             </Text>

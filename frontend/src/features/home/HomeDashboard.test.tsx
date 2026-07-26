@@ -141,7 +141,7 @@ describe('HomeDashboard', () => {
 
     renderWithProviders(<HomeDashboard user={user} />)
 
-    expect(screen.queryByRole('heading', { name: 'Главная' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Главная' })).toHaveClass('visually-hidden')
     expect(screen.getByRole('tab', { name: 'Посещения' })).toHaveAttribute('aria-selected', 'true')
     await waitFor(() => expect(getAttendanceGroupClientsMock).toHaveBeenCalledTimes(1))
     await waitFor(() => expect(screen.getByLabelText('2 клиентов требуют внимания')).toBeVisible())

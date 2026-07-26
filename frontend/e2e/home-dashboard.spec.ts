@@ -1,6 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
 
-const APP_CONFIG = { clubName: 'Iron Club' } as const
+const APP_CONFIG = {
+  clubName: 'Iron Club',
+  themeId: 'default-green-v1',
+  authBackgroundImageId: 'k4pro-login-v1',
+} as const
 
 const HEAD_COACH_SESSION = {
   isAuthenticated: true,
@@ -14,7 +18,7 @@ const HEAD_COACH_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -71,7 +75,9 @@ test.describe('Home dashboard', () => {
     await expect(
       shellNavigation.getByRole('button', { name: 'Посещения' }),
     ).toHaveCount(0)
-    await expect(page.getByRole('heading', { name: 'Главная' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Главная' })).toHaveClass(
+      /visually-hidden/,
+    )
     await expect(page.getByRole('tab', { name: 'Посещения' })).toHaveAttribute('aria-selected', 'true')
     await expect.poll(() => attendanceGroupsCalls).toBeGreaterThan(0)
     const groupsCallsBeforeSwitch = attendanceGroupsCalls

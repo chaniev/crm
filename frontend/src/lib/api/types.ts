@@ -43,6 +43,8 @@ export type SessionResponse = {
 
 export type AppConfigResponse = {
   clubName: string
+  themeId: string
+  authBackgroundImageId: string
 }
 
 export type LoginRequest = {

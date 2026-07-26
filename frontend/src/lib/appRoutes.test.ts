@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest'
-import type { AuthenticatedUser } from './api'
+import type { AppSection, AuthenticatedUser } from './api'
 import {
   getAccessibleNavigationSections,
   getMobileNavigationSections,
+  getSectionPath,
   getRoutePath,
   parseRoute,
   resolveAccessibleRoutePath,
@@ -18,6 +19,7 @@ const financeUser: AuthenticatedUser = {
   landingScreen: 'Home',
   allowedSections: [
     'Home',
+    'Schedule',
     'Clients',
     'Groups',
     'Users',
@@ -63,6 +65,24 @@ describe('finance routes', () => {
     ).not.toContain('Finance')
   })
 
+  test('requires Schedule permission in allowedSections', () => {
+    expect(
+      getAccessibleNavigationSections({
+        ...financeUser,
+        allowedSections: ['Clients', 'Groups'],
+      }),
+    ).not.toContain('Schedule')
+  })
+
+  test('includes Schedule when allowedSections explicitly contains it', () => {
+    expect(
+      getAccessibleNavigationSections({
+        ...financeUser,
+        allowedSections: ['Home', 'Schedule', 'Clients'],
+      }),
+    ).toContain('Schedule')
+  })
+
   test('redirects /finance when backend finance access is not granted', () => {
     expect(
       resolveAccessibleRoutePath(financeUser, {
@@ -93,6 +113,24 @@ describe('finance routes', () => {
 
     expect(route).toEqual({ kind: 'section', section: 'Home' })
     expect(resolveAccessibleRoutePath(financeUser, route)).toBe('/')
+  })
+
+  test('redirects Users detail routes when user management permission is revoked', () => {
+    const nonManagerUser = {
+      ...financeUser,
+      role: 'Coach',
+      permissions: {
+        ...financeUser.permissions,
+        canManageUsers: false,
+      },
+    } as const
+
+    expect(
+      resolveAccessibleRoutePath(nonManagerUser, {
+        kind: 'userEdit',
+        userId: 'trainer-1',
+      }),
+    ).toBe(getSectionPath(nonManagerUser.landingScreen))
   })
 
   test('SuperAdministrator navigation follows backend permissions without finance access', () => {
@@ -146,6 +184,11 @@ describe('client preview route', () => {
 })
 
 describe('mobile navigation sections', () => {
+  const getMobileNavigationSectionsWithCurrent = getMobileNavigationSections as (
+    accessibleSections: readonly AppSection[],
+    currentSection: AppSection | null,
+  ) => ReturnType<typeof getMobileNavigationSections>
+
   test('splits management sections into stable primary items and authorized overflow', () => {
     const accessibleSections = getAccessibleNavigationSections(financeUser)
 
@@ -155,12 +198,51 @@ describe('mobile navigation sections', () => {
     })
   })
 
+  test('promotes overflow destination to adaptive fourth slot when current section is overflow', () => {
+    const accessibleSections = getAccessibleNavigationSections({
+      ...financeUser,
+      allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Finance', 'Users', 'Audit', 'Settings'],
+      permissions: {
+        ...financeUser.permissions,
+        canViewFinancialReports: true,
+        canManageUsers: true,
+        canViewAuditLog: true,
+      },
+    })
+
+    expect(
+      getMobileNavigationSectionsWithCurrent(accessibleSections, 'Finance'),
+    ).toEqual({
+      primarySections: ['Home', 'Schedule', 'Clients', 'Finance'],
+      overflowSections: ['Groups', 'Users', 'Audit', 'Settings'],
+    })
+  })
+
+  test('respects adaptive overflow slot on non-finance route', () => {
+    const accessibleSections = getAccessibleNavigationSections({
+      ...financeUser,
+      allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+      permissions: {
+        ...financeUser.permissions,
+        canManageUsers: true,
+        canViewAuditLog: true,
+      },
+    })
+
+    expect(
+      getMobileNavigationSectionsWithCurrent(accessibleSections, 'Users'),
+    ).toEqual({
+      primarySections: ['Home', 'Schedule', 'Clients', 'Users'],
+      overflowSections: ['Groups', 'Audit', 'Settings'],
+    })
+  })
+
   test('shows coach sections directly when nothing overflows', () => {
     const accessibleSections = getAccessibleNavigationSections({
       ...financeUser,
       role: 'Coach',
       landingScreen: 'Home',
-      allowedSections: ['Home', 'Clients'],
+      allowedSections: ['Home', 'Schedule', 'Clients'],
       permissions: {
         canManageUsers: false,
         canManageClients: false,
@@ -191,7 +273,7 @@ describe('mobile navigation sections', () => {
     })
 
     expect(getMobileNavigationSections(accessibleSections)).toEqual({
-      primarySections: ['Home', 'Schedule', 'Groups', 'Settings'],
+      primarySections: ['Home', 'Groups', 'Settings'],
       overflowSections: [],
     })
   })

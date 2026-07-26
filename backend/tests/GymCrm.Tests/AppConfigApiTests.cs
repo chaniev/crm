@@ -23,6 +23,8 @@ public class AppConfigApiTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("Gym CRM", payload.ClubName);
+        Assert.Equal("default-green-v1", payload.ThemeId);
+        Assert.Equal("k4pro-login-v1", payload.AuthBackgroundImageId);
     }
 
     [Fact]
@@ -36,15 +38,20 @@ public class AppConfigApiTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("Iron Club", payload.ClubName);
+        Assert.Equal("default-green-v1", payload.ThemeId);
+        Assert.Equal("k4pro-login-v1", payload.AuthBackgroundImageId);
     }
 
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public async Task Get_config_returns_default_club_name_for_empty_or_whitespace_config(
-        string configuredClubName)
+    public async Task Get_config_returns_defaults_for_empty_or_whitespace_branding_config(
+        string configuredValue)
     {
-        await using var factory = new AppConfigAppFactory(configuredClubName);
+        await using var factory = new AppConfigAppFactory(
+            configuredValue,
+            configuredValue,
+            configuredValue);
         using var client = factory.CreateClient();
 
         using var response = await client.GetAsync("/config");
@@ -52,6 +59,26 @@ public class AppConfigApiTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("Gym CRM", payload.ClubName);
+        Assert.Equal("default-green-v1", payload.ThemeId);
+        Assert.Equal("k4pro-login-v1", payload.AuthBackgroundImageId);
+    }
+
+    [Fact]
+    public async Task Get_config_returns_trimmed_opaque_branding_profile_ids()
+    {
+        await using var factory = new AppConfigAppFactory(
+            clubName: "  Iron Club  ",
+            themeId: "  custom-theme-v42  ",
+            authBackgroundImageId: "  custom-login-bg-v9  ");
+        using var client = factory.CreateClient();
+
+        using var response = await client.GetAsync("/config");
+        var payload = await ReadJsonAsync<AppConfigPayload>(response);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("Iron Club", payload.ClubName);
+        Assert.Equal("custom-theme-v42", payload.ThemeId);
+        Assert.Equal("custom-login-bg-v9", payload.AuthBackgroundImageId);
     }
 
     [Fact]
@@ -80,6 +107,8 @@ public class AppConfigApiTests
 
         Assert.Equal(HttpStatusCode.OK, configResponse.StatusCode);
         Assert.Equal("Iron Club", config.ClubName);
+        Assert.Equal("default-green-v1", config.ThemeId);
+        Assert.Equal("k4pro-login-v1", config.AuthBackgroundImageId);
     }
 
     private static async Task<SessionPayload> GetSessionAsync(HttpClient client)
@@ -109,7 +138,10 @@ public class AppConfigApiTests
         return payload ?? throw new InvalidOperationException("Response JSON payload was empty.");
     }
 
-    private sealed record AppConfigPayload(string ClubName);
+    private sealed record AppConfigPayload(
+        string ClubName,
+        string ThemeId,
+        string AuthBackgroundImageId);
 
     private sealed record LoginRequest(string Login, string Password);
 
@@ -121,7 +153,10 @@ public class AppConfigApiTests
 
     private sealed record UserPayload(bool MustChangePassword);
 
-    private sealed class AppConfigAppFactory(string? clubName = null) : WebApplicationFactory<Program>
+    private sealed class AppConfigAppFactory(
+        string? clubName = null,
+        string? themeId = null,
+        string? authBackgroundImageId = null) : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -142,6 +177,16 @@ public class AppConfigApiTests
                 if (clubName is not null)
                 {
                     configuration["Branding:ClubName"] = clubName;
+                }
+
+                if (themeId is not null)
+                {
+                    configuration["Branding:ThemeId"] = themeId;
+                }
+
+                if (authBackgroundImageId is not null)
+                {
+                    configuration["Branding:AuthBackgroundImageId"] = authBackgroundImageId;
                 }
 
                 configurationBuilder.AddInMemoryCollection(configuration);

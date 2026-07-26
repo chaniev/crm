@@ -1,8 +1,37 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
+import { readFileSync } from 'node:fs'
 
 const LONG_CLUB_NAME =
   'Северный центр функциональной подготовки и спортивной реабилитации'
-const APP_CONFIG = { clubName: LONG_CLUB_NAME } as const
+type IPhoneManifest = {
+  screens: Array<{
+    alternateTheme?: boolean
+    id: string
+  }>
+  viewports: {
+    iphoneAir: { width: number; height: number }
+    iphone17ProMax: { width: number; height: number }
+  }
+}
+
+const TASK_090_MANIFEST = JSON.parse(
+  readFileSync(
+    new URL('../../docs/ui-concept/task-090-iphone-17-pro-max/manifest.json', import.meta.url),
+    'utf8',
+  ),
+) as IPhoneManifest
+
+const APP_CONFIG = {
+  clubName: LONG_CLUB_NAME,
+  themeId: 'default-green-v1',
+  authBackgroundImageId: 'k4pro-login-v1',
+} as const
+
+type AppConfigFixture = {
+  authBackgroundImageId: string
+  clubName: string
+  themeId: string
+}
 
 const MANAGEMENT_SESSION = {
   isAuthenticated: true,
@@ -16,7 +45,7 @@ const MANAGEMENT_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -42,7 +71,7 @@ const COACH_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients'],
+    allowedSections: ['Home', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -317,7 +346,8 @@ const MANAGEMENT_ROUTES = [
     path: '/',
     screenTestId: 'home-screen',
     navLabel: 'Главная',
-    expectedPageTitle: null,
+    expectedPageTitle: 'Главная',
+    expectedPageTitleHidden: true,
     expectedControls: ['Обновить список'],
     checkSharedEdges: true,
   },
@@ -325,9 +355,10 @@ const MANAGEMENT_ROUTES = [
     path: '/schedule',
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
-    expectedPageTitle: null,
+    expectedPageTitle: 'Расписание',
+    expectedPageTitleHidden: true,
     expectedControls: ['Обновить'],
-    expectedFilterToolbars: 0,
+    expectedFilterToolbars: 1,
     checkSharedEdges: true,
     checkScheduleOverflow: true,
   },
@@ -336,8 +367,9 @@ const MANAGEMENT_ROUTES = [
     screenTestId: 'clients-screen',
     navLabel: 'Клиенты',
     expectedPageTitle: 'Клиенты',
+    expectedPageTitleHidden: true,
     expectedControls: ['Обновить список', 'Новый клиент'],
-    expectedFilterToolbars: 1,
+    expectedFilterToolbars: 0,
     checkSharedEdges: true,
   },
   {
@@ -354,6 +386,7 @@ const MANAGEMENT_ROUTES = [
     screenTestId: 'users-screen',
     navLabel: 'Тренеры',
     expectedPageTitle: 'Тренеры',
+    expectedPageTitleHidden: true,
     expectedControls: ['Создать тренера', 'Обновить'],
     checkSharedEdges: true,
   },
@@ -362,6 +395,7 @@ const MANAGEMENT_ROUTES = [
     screenTestId: 'audit-screen',
     navLabel: 'Журнал',
     expectedPageTitle: 'Журнал',
+    expectedPageTitleHidden: true,
     expectedControls: ['Обновить'],
     expectedFilterToolbars: 1,
   },
@@ -370,6 +404,7 @@ const MANAGEMENT_ROUTES = [
     screenTestId: 'finance-screen',
     navLabel: 'Финансы',
     expectedPageTitle: 'Финансы',
+    expectedPageTitleHidden: true,
     expectedControls: ['Обновить'],
     expectedFilterToolbars: 1,
   },
@@ -378,6 +413,7 @@ const MANAGEMENT_ROUTES = [
     screenTestId: 'settings-screen',
     navLabel: 'Настройки',
     expectedPageTitle: 'Настройки',
+    expectedPageTitleHidden: true,
     expectedControls: ['Добавить абонемент', 'Обновить'],
     checkSharedEdges: true,
   },
@@ -388,16 +424,18 @@ const COACH_ROUTES = [
     path: '/schedule',
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
-    expectedPageTitle: null,
+    expectedPageTitle: 'Расписание',
+    expectedPageTitleHidden: true,
     expectedControls: ['Обновить'],
-    expectedFilterToolbars: 0,
+    expectedFilterToolbars: 1,
     checkScheduleOverflow: true,
   },
   {
     path: '/',
     screenTestId: 'home-screen',
     navLabel: 'Главная',
-    expectedPageTitle: null,
+    expectedPageTitle: 'Главная',
+    expectedPageTitleHidden: true,
     expectedControls: ['Обновить список'],
     expectedFilterToolbars: 0,
   },
@@ -406,8 +444,9 @@ const COACH_ROUTES = [
     screenTestId: 'clients-screen',
     navLabel: 'Клиенты',
     expectedPageTitle: 'Клиенты',
+    expectedPageTitleHidden: true,
     expectedControls: [],
-    expectedFilterToolbars: 1,
+    expectedFilterToolbars: 0,
   },
 ] as const
 
@@ -422,8 +461,11 @@ const RESPONSIVE_VIEWPORTS = [
   { label: 'stress-mobile-390', width: 390, height: 844 },
   { label: 'iphone-15-class-393', width: 393, height: 852 },
   { label: 'iphone-17-class-402', width: 402, height: 874 },
-  { label: 'target-iphone-air', width: 420, height: 912 },
-  { label: 'target-iphone-17-pro-max', width: 440, height: 956 },
+  { label: 'target-iphone-air', ...TASK_090_MANIFEST.viewports.iphoneAir },
+  {
+    label: 'target-iphone-17-pro-max',
+    ...TASK_090_MANIFEST.viewports.iphone17ProMax,
+  },
   { label: 'tablet', width: 768, height: 1024 },
   { label: 'desktop', width: 1440, height: 1200 },
   { label: 'wide-desktop', width: 1920, height: 1080 },
@@ -456,7 +498,7 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
           baselineEdges = await expectSharedContentEdges(page, baselineEdges)
         }
         if (route.screenTestId === 'clients-screen') {
-          await expectClientsSharedLayoutContract(page)
+          await expectClientsSharedLayoutContract(page, true)
         }
         if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
           await expectScheduleOverflowContract(page)
@@ -479,11 +521,15 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
         await expectLongBrandHeader(page)
         await expectActiveNavigation(page, viewport.width, route.navLabel)
         await expectNoServiceIntro(page)
-        await expectRoutePageTitle(page, route.expectedPageTitle)
+        await expectRoutePageTitle(
+          page,
+          route.expectedPageTitle,
+          'expectedPageTitleHidden' in route && route.expectedPageTitleHidden,
+        )
         await expectPrimaryControls(page, route.expectedControls)
         await expectSharedVisualBaseline(page, route.expectedFilterToolbars ?? 0)
         if (route.screenTestId === 'clients-screen') {
-          await expectClientsSharedLayoutContract(page)
+          await expectClientsSharedLayoutContract(page, false)
         }
         if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
           await expectScheduleOverflowContract(page)
@@ -493,6 +539,91 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
     })
   })
 }
+
+const ALTERNATE_THEME_CASES = [
+  { id: 'home-attendance-ready', path: '/', screenTestId: 'home-screen' },
+  { id: 'schedule-ready', path: '/schedule', screenTestId: 'schedule-screen' },
+  {
+    id: 'schedule-filter-surface',
+    path: '/schedule',
+    screenTestId: 'schedule-screen',
+    setup: 'schedule-filters',
+  },
+  { id: 'clients-browse', path: '/clients', screenTestId: 'clients-screen' },
+  {
+    id: 'clients-preview',
+    path: '/clients',
+    screenTestId: 'clients-screen',
+    setup: 'client-preview',
+  },
+  { id: 'groups-list', path: '/groups', screenTestId: 'groups-screen' },
+  { id: 'audit-list', path: '/audit', screenTestId: 'audit-screen' },
+  { id: 'finance-report', path: '/finance', screenTestId: 'finance-screen' },
+  {
+    id: 'settings-group-types',
+    path: '/settings',
+    screenTestId: 'settings-screen',
+    setup: 'settings-group-types',
+  },
+] as const
+
+test.describe('Manifest alternate-theme representative matrix', () => {
+  test.use({ viewport: TASK_090_MANIFEST.viewports.iphone17ProMax })
+
+  test('preserves operations, focus/status semantics and geometry within one CSS pixel', async ({
+    page,
+  }) => {
+    const manifestAlternateIds = new Set(
+      TASK_090_MANIFEST.screens
+        .filter((screen) => screen.alternateTheme)
+        .map((screen) => screen.id),
+    )
+
+    for (const representative of ALTERNATE_THEME_CASES) {
+      expect(
+        manifestAlternateIds.has(representative.id),
+        `${representative.id} must remain part of the normative alternate-theme matrix`,
+      ).toBe(true)
+    }
+
+    await mockApi(page, MANAGEMENT_SESSION, APP_CONFIG)
+    const defaultSnapshots = await captureAlternateThemeSnapshots(page)
+
+    await page.unroute('**/api/**')
+    await mockApi(page, MANAGEMENT_SESSION, {
+      ...APP_CONFIG,
+      themeId: 'test-blue-coral-v1',
+    })
+    const alternateSnapshots = await captureAlternateThemeSnapshots(page)
+
+    expect(alternateSnapshots.map((snapshot) => snapshot.id)).toEqual(
+      defaultSnapshots.map((snapshot) => snapshot.id),
+    )
+
+    for (let index = 0; index < defaultSnapshots.length; index += 1) {
+      const defaultSnapshot = defaultSnapshots[index]
+      const alternateSnapshot = alternateSnapshots[index]
+
+      expect(alternateSnapshot.operations).toEqual(defaultSnapshot.operations)
+      expect(alternateSnapshot.statusSemantics).toEqual(
+        defaultSnapshot.statusSemantics,
+      )
+      expect(alternateSnapshot.boxes).toHaveLength(defaultSnapshot.boxes.length)
+
+      for (let boxIndex = 0; boxIndex < defaultSnapshot.boxes.length; boxIndex += 1) {
+        const defaultBox = defaultSnapshot.boxes[boxIndex]
+        const alternateBox = alternateSnapshot.boxes[boxIndex]
+
+        for (const coordinate of ['x', 'y', 'width', 'height'] as const) {
+          expect(
+            Math.abs(alternateBox[coordinate] - defaultBox[coordinate]),
+            `${defaultSnapshot.id} ${defaultBox.key} ${coordinate}`,
+          ).toBeLessThanOrEqual(1)
+        }
+      }
+    }
+  })
+})
 
 for (const width of [320, 390, 420, 440, 1440]) {
   test.describe(`Groups compact summary ${width}px`, () => {
@@ -617,9 +748,21 @@ test.describe('Mobile filter drawer actions', () => {
     await mockApi(page, MANAGEMENT_SESSION)
 
     const filterScreens = [
-      { path: '/clients', panelTestId: 'clients-filter-panel' },
-      { path: '/audit', panelTestId: 'audit-filter-panel' },
-      { path: '/finance', panelTestId: 'finance-filter-panel' },
+      {
+        path: '/clients',
+        panelTestId: 'clients-filter-panel',
+        actionsSelector: '.temporary-surface-footer',
+      },
+      {
+        path: '/audit',
+        panelTestId: 'audit-filter-panel',
+        actionsSelector: '.compact-filter-panel__sheet-actions',
+      },
+      {
+        path: '/finance',
+        panelTestId: 'finance-filter-panel',
+        actionsSelector: '.compact-filter-panel__sheet-actions',
+      },
     ] as const
 
     for (const screen of filterScreens) {
@@ -628,18 +771,23 @@ test.describe('Mobile filter drawer actions', () => {
       const panel = page.getByTestId(screen.panelTestId)
 
       await expect(panel).toBeVisible()
-      await panel.getByRole('button', { name: 'Фильтры' }).click()
+      await panel.getByRole('button', { name: /фильтры/i }).click()
 
-      const applyButton = page.getByRole('button', { name: 'Применить' })
-      const actions = page.locator('.compact-filter-panel__sheet-actions')
+      const applyButton = page.getByRole('button', { name: 'Готово' })
+      const actions = page.locator(screen.actionsSelector)
 
       await expect(actions).toBeVisible()
       await expect(applyButton).toBeVisible()
 
-      const actionsBox = await actions.boundingBox()
+      await expect
+        .poll(async () => {
+          const actionsBox = await actions.boundingBox()
 
-      expect(actionsBox).not.toBeNull()
-      expect(actionsBox!.y + actionsBox!.height).toBeLessThanOrEqual(844)
+          return actionsBox
+            ? actionsBox.y + actionsBox.height
+            : Number.POSITIVE_INFINITY
+        })
+        .toBeLessThanOrEqual(844)
 
       await applyButton.click()
       await expect(applyButton).toHaveCount(0)
@@ -666,7 +814,7 @@ test.describe('Mobile bottom navigation interactions', () => {
     ).toHaveAttribute('aria-current', 'page')
 
     await bottomNavigation
-      .getByRole('button', { name: 'Открыть остальные разделы' })
+      .getByRole('button', { name: 'Ещё, открыть остальные разделы' })
       .click()
 
     const overflowList = page.locator('.mobile-bottom-nav__overflow-list')
@@ -678,11 +826,148 @@ test.describe('Mobile bottom navigation interactions', () => {
     await overflowList.getByRole('button', { name: 'Финансы' }).click()
     await expect(page).toHaveURL(/\/finance$/)
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Открыть остальные разделы' }),
+      bottomNavigation.getByRole('button', { name: 'Финансы' }),
     ).toHaveAttribute('aria-current', 'page')
+    await expect(
+      bottomNavigation.getByRole('button', { name: 'Ещё, открыть остальные разделы' }),
+    ).not.toHaveAttribute('aria-current')
     await expect(overflowList).toBeHidden()
   })
 })
+
+async function captureAlternateThemeSnapshots(page: Page) {
+  const snapshots = []
+
+  for (const representative of ALTERNATE_THEME_CASES) {
+    await page.goto(representative.path)
+
+    const screen = page.getByTestId(representative.screenTestId)
+    await expect(screen).toBeVisible()
+
+    let snapshotRoot = screen
+    const setup = 'setup' in representative ? representative.setup : undefined
+
+    if (setup === 'schedule-filters') {
+      await page
+        .getByTestId('schedule-filter-panel')
+        .getByRole('button', { name: 'Фильтры' })
+        .click()
+      snapshotRoot = page.getByRole('dialog', { name: 'Фильтры' })
+      await expect(snapshotRoot).toBeVisible()
+    }
+
+    if (setup === 'client-preview') {
+      await page
+        .getByRole('button', {
+          name: 'Выбрать клиента Александра Константинопольская-Северная',
+        })
+        .click()
+      snapshotRoot = page.getByTestId('client-preview-panel')
+      await expect(snapshotRoot).toBeVisible()
+    }
+
+    if (setup === 'settings-group-types') {
+      await page.getByRole('tab', { name: 'Типы групп' }).click()
+      await expect(page.getByRole('tab', { name: 'Типы групп' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      )
+    }
+
+    const snapshot = await snapshotRoot.evaluate((root, id) => {
+      function isVisible(element: HTMLElement) {
+        const style = window.getComputedStyle(element)
+        const rect = element.getBoundingClientRect()
+
+        return (
+          style.display !== 'none' &&
+          style.visibility !== 'hidden' &&
+          rect.width > 0 &&
+          rect.height > 0
+        )
+      }
+
+      function accessibleName(element: HTMLElement) {
+        const labelledBy = element.getAttribute('aria-labelledby')
+        const labelledText = labelledBy
+          ?.split(/\s+/)
+          .map((labelId) => document.getElementById(labelId)?.textContent?.trim() ?? '')
+          .filter(Boolean)
+          .join(' ')
+
+        return (
+          element.getAttribute('aria-label') ??
+          labelledText ??
+          element.textContent?.replace(/\s+/g, ' ').trim() ??
+          element.getAttribute('placeholder') ??
+          element.getAttribute('title') ??
+          ''
+        )
+      }
+
+      function semanticRole(element: HTMLElement) {
+        return (
+          element.getAttribute('role') ??
+          (element instanceof HTMLButtonElement
+            ? 'button'
+            : element instanceof HTMLInputElement
+              ? element.type || 'input'
+              : element.tagName.toLowerCase())
+        )
+      }
+
+      const focusable = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter(isVisible)
+      const operations = focusable.map((element) => ({
+        name: accessibleName(element),
+        role: semanticRole(element),
+      }))
+      const statusSemantics = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          '[role="status"], [role="alert"], [aria-current], [aria-selected], [aria-pressed], [data-tone]',
+        ),
+      )
+        .filter(isVisible)
+        .map((element) => ({
+          ariaCurrent: element.getAttribute('aria-current'),
+          ariaPressed: element.getAttribute('aria-pressed'),
+          ariaSelected: element.getAttribute('aria-selected'),
+          name: accessibleName(element),
+          role: semanticRole(element),
+          tone: element.getAttribute('data-tone'),
+        }))
+      const measuredElements = [root, ...focusable.slice(0, 12)]
+      const boxes = measuredElements.map((element, index) => {
+        const rect = element.getBoundingClientRect()
+
+        return {
+          height: rect.height,
+          key:
+            index === 0
+              ? 'root'
+              : `${semanticRole(element)}:${accessibleName(element)}`,
+          width: rect.width,
+          x: rect.x,
+          y: rect.y,
+        }
+      })
+
+      return {
+        boxes,
+        id,
+        operations,
+        statusSemantics,
+      }
+    }, representative.id)
+
+    snapshots.push(snapshot)
+  }
+
+  return snapshots
+}
 
 async function expectLongBrandHeader(page: Page) {
   const brandTitle = page.locator('.app-shell__brand-title')
@@ -714,28 +999,7 @@ async function expectActiveNavigation(page: Page, width: number, navLabel: strin
       return
     }
 
-    const overflowButton = bottomNavigation.getByRole('button', {
-      name: 'Открыть остальные разделы',
-    })
-
-    await expect(overflowButton).toBeVisible()
-    await expect(overflowButton).toHaveAttribute('aria-current', 'page')
-    await expectActiveMenuItemContrast(overflowButton)
-    await overflowButton.click()
-
-    const overflowList = page.locator('.mobile-bottom-nav__overflow-list')
-    const activeOverflowButton = overflowList.getByRole('button', { name: navLabel })
-
-    await expect(overflowList).toBeVisible()
-    await expect(activeOverflowButton).toHaveAttribute('aria-current', 'page')
-    await expectActiveMenuItemContrast(activeOverflowButton)
-    await expect(
-      overflowList.getByRole('button', { name: 'Уведомления' }),
-    ).toHaveCount(0)
-
-    await page.keyboard.press('Escape')
-    await expect(overflowList).toBeHidden()
-    return
+    throw new Error(`Current authorized route "${navLabel}" was not promoted into mobile navigation`)
   }
 
   await expect(sideNavigation).toBeVisible()
@@ -803,7 +1067,7 @@ async function expectRoutePageTitle(page: Page, title: string | null, hidden = f
 
   if (hidden) {
     await expect(heading).toBeAttached()
-    await expect(heading).toHaveClass(/groups-screen__visually-hidden/)
+    await expect(heading).toHaveClass(/visually-hidden/)
     const hiddenBox = await heading.boundingBox()
     expect(hiddenBox?.width ?? 0).toBeLessThanOrEqual(1)
     expect(hiddenBox?.height ?? 0).toBeLessThanOrEqual(1)
@@ -900,10 +1164,22 @@ async function expectSharedContentEdges(
   return baseline ?? edges
 }
 
-async function expectClientsSharedLayoutContract(page: Page) {
+async function expectClientsSharedLayoutContract(
+  page: Page,
+  expectsCreateAction: boolean,
+) {
   const clientsLayout = page.locator('main [data-testid="clients-screen"].page-layout')
+  const locatorBar = clientsLayout.locator('.entity-locator-bar')
+  const searchbox = locatorBar.getByRole('textbox', {
+    name: /Поиск по имени/,
+  })
+  const filterButton = locatorBar.getByRole('button', { name: /фильтры/i })
 
   await expect(clientsLayout).toHaveCount(1)
+  await expect(locatorBar).toBeVisible()
+  await expect(searchbox).toBeVisible()
+  await expect(searchbox).toHaveAttribute('aria-controls')
+  await expect(filterButton).toHaveAttribute('aria-haspopup', 'dialog')
   expect(await clientsLayout.locator(':scope > .page-section').count()).toBeGreaterThanOrEqual(2)
 
   const inlineLayoutOverrides = await clientsLayout.evaluate((element) => ({
@@ -919,6 +1195,23 @@ async function expectClientsSharedLayoutContract(page: Page) {
     paddingInline: '',
     width: '',
   })
+
+  const locatorControls = [searchbox, filterButton]
+  const createAction = locatorBar.getByRole('button', { name: 'Новый клиент' })
+
+  if (expectsCreateAction) {
+    await expect(createAction).toBeVisible()
+    locatorControls.push(createAction)
+  } else {
+    await expect(createAction).toHaveCount(0)
+  }
+
+  const locatorBoxes = await Promise.all(
+    locatorControls.map((control) => control.boundingBox()),
+  )
+  for (const box of locatorBoxes) expect(box).not.toBeNull()
+  const centers = locatorBoxes.map((box) => box!.y + box!.height / 2)
+  expect(Math.max(...centers) - Math.min(...centers)).toBeLessThanOrEqual(3)
 
   const geometry = await clientsLayout.evaluate((element) => {
     const layoutRect = element.getBoundingClientRect()
@@ -1098,6 +1391,7 @@ async function expectAttendance320Contract(page: Page) {
 async function mockApi(
   page: Page,
   session: typeof MANAGEMENT_SESSION | typeof COACH_SESSION,
+  appConfig: AppConfigFixture = APP_CONFIG,
 ) {
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
@@ -1115,7 +1409,7 @@ async function mockApi(
     }
 
     if (pathname === '/api/config' && method === 'GET') {
-      await fulfillJson(route, 200, APP_CONFIG)
+      await fulfillJson(route, 200, appConfig)
       return
     }
 

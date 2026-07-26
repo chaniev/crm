@@ -48,6 +48,7 @@ internal sealed class AccessScopeService(
                 AppSection.Home,
                 [
                     AppSection.Home,
+                    AppSection.Schedule,
                     AppSection.Clients,
                     AppSection.Groups,
                     AppSection.Users,
@@ -64,6 +65,7 @@ internal sealed class AccessScopeService(
                 AppSection.Home,
                 [
                     AppSection.Home,
+                    AppSection.Schedule,
                     AppSection.Clients,
                     AppSection.Groups,
                     AppSection.Audit,
@@ -78,6 +80,7 @@ internal sealed class AccessScopeService(
                 AppSection.Home,
                 [
                     AppSection.Home,
+                    AppSection.Schedule,
                     AppSection.Clients
                 ],
                 permissions,

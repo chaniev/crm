@@ -3,7 +3,6 @@ import {
   Badge,
   Group,
   Paper,
-  SimpleGrid,
   Stack,
   Text,
 } from '@mantine/core'
@@ -19,12 +18,9 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
-  MetricCard,
   PageLayout,
   PageSection,
   RefreshButton,
-  ResponsiveButtonGroup,
-  SectionHeader,
 } from '../shared/ux'
 import { userRoleLabels } from './UserManagement.constants'
 
@@ -74,51 +70,29 @@ export function UsersListScreen({
     return () => controller.abort()
   }, [reloadKey])
 
-  const activeUsersCount = users.filter((user) => user.isActive).length
-  const passwordRotationCount = users.filter((user) => user.mustChangePassword).length
-
   return (
     <PageLayout
-        actions={
-          <ResponsiveButtonGroup>
-            <Button
-              color="accent.5"
-              leftSection={<IconPlus size={18} />}
-              onClick={onCreate}
-            >
-              {resources.users.list.createAction}
-            </Button>
-            <RefreshButton
-              onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-            />
-          </ResponsiveButtonGroup>
-        }
       data-testid="users-screen"
+      showHeader={false}
       title="Тренеры"
     >
-
-      <SimpleGrid cols={{ base: 1, md: 3 }}>
-        <MetricCard
-          description={resources.users.list.metrics.total.description}
-          label={resources.users.list.metrics.total.label}
-          value={String(users.length)}
-        />
-        <MetricCard
-          description={resources.users.list.metrics.active.description}
-          label={resources.users.list.metrics.active.label}
-          value={String(activeUsersCount)}
-        />
-        <MetricCard
-          description={resources.users.list.metrics.passwordRotation.description}
-          label={resources.users.list.metrics.passwordRotation.label}
-          value={String(passwordRotationCount)}
-        />
-      </SimpleGrid>
+      <PageSection variant="plain">
+        <Group className="users-list-toolbar" gap="sm" justify="flex-end" wrap="wrap">
+          <Button
+            color="var(--crm-brand-secondary)"
+            leftSection={<IconPlus size={18} />}
+            onClick={onCreate}
+          >
+            {resources.users.list.createAction}
+          </Button>
+          <RefreshButton
+            onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+          />
+        </Group>
+      </PageSection>
 
       <PageSection>
         <Stack gap="lg">
-          <SectionHeader title={resources.users.list.sectionTitle} />
-
           {loading ? (
             <LoadingState label="Загружаем тренеров..." />
           ) : null}
@@ -165,7 +139,7 @@ export function UsersListScreen({
                             : resources.common.statuses.disabled}
                         </Badge>
                         <Badge
-                          color={user.mustChangePassword ? 'accent.6' : 'brand.6'}
+                          color={user.mustChangePassword ? 'var(--crm-status-warning)' : 'var(--crm-action-primary)'}
                           radius="xl"
                           variant="light"
                         >

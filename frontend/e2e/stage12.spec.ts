@@ -1,6 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
 
-const APP_CONFIG = { clubName: 'Iron Club' } as const
+const APP_CONFIG = {
+  clubName: 'Iron Club',
+  themeId: 'default-green-v1',
+  authBackgroundImageId: 'k4pro-login-v1',
+} as const
 const BOOTSTRAP_LOGIN = 'headcoach'
 
 const headCoachSession = {
@@ -15,7 +19,7 @@ const headCoachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -42,7 +46,7 @@ const administratorSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients', 'Groups', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: false,
       canManageClients: true,
@@ -68,7 +72,7 @@ const coachSession = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients'],
+    allowedSections: ['Home', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -1044,15 +1048,18 @@ test.describe('Основные e2e сценарии', () => {
     await expect(page.getByTestId('clients-screen')).toBeVisible()
 
     await page.getByLabel('Поиск по имени или телефону').fill('Фильтр')
+    await page.getByRole('button', { name: /Открыть фильтры/ }).click()
+    await expect(
+      page.getByRole('dialog', { name: 'Фильтры клиентов' }),
+    ).toBeVisible()
     await page.getByRole('combobox', { name: 'Группа' }).click()
     await page.getByRole('option', { name: 'Фильтр-группа' }).click()
-    await page.getByRole('button', { name: /Ещё фильтры/ }).click()
     await page.getByLabel('Истекает с').fill('2026-05-01')
     await page.getByRole('combobox', { name: 'Статус' }).click()
     await page.getByRole('option', { name: 'Архив' }).click()
     await page.getByLabel('Истекает по').fill('2026-05-31')
     await page.getByLabel('Без фото').click()
-    await page.keyboard.press('Escape')
+    await page.getByRole('button', { name: 'Готово' }).click()
 
     await expect
       .poll(() =>
@@ -1068,10 +1075,11 @@ test.describe('Основные e2e сценарии', () => {
             hasPhoto: 'false',
           }),
         ),
-      )
+    )
       .toBe(true)
     await expect(page.getByTestId('client-card-client-filter-1')).toBeVisible()
-    await expect(page.getByText('Показаны 1-20 из 21')).toBeVisible()
+    await expect(page.getByRole('status')).toContainText('1–20')
+    await expect(page.getByRole('status')).toContainText('из 21')
 
     await expect(page.getByRole('button', { name: 'Дальше' })).toBeEnabled()
     await page.getByRole('button', { name: 'Дальше' }).click()
@@ -1093,7 +1101,8 @@ test.describe('Основные e2e сценарии', () => {
       )
       .toBe(true)
     await expect(page.getByTestId('client-card-client-filter-21')).toBeVisible()
-    await expect(page.getByText('Показаны 21-21 из 21')).toBeVisible()
+    await expect(page.getByRole('status')).toContainText('21–21')
+    await expect(page.getByRole('status')).toContainText('из 21')
   })
 
   test('Создание группы с назначением тренеров', async ({ page }) => {
@@ -2028,7 +2037,7 @@ test.describe('Основные e2e сценарии', () => {
           await expect(page.getByTestId('home-screen')).toBeVisible()
           await expect(
             page.getByRole('heading', { name: 'Главная' }),
-          ).toHaveCount(0)
+          ).toHaveClass(/visually-hidden/)
         } else {
           await expect(page.getByTestId(screen.testId)).toBeVisible()
         }

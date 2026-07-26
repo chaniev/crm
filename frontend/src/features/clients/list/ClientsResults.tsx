@@ -14,7 +14,13 @@ import {
   IconUserHeart,
   IconUsers,
 } from '@tabler/icons-react'
-import { Button, EmptyState, ErrorState, Skeleton } from '../../shared/ux'
+import {
+  Button,
+  EmptyState,
+  ErrorState,
+  ListRangeStatus,
+  Skeleton,
+} from '../../shared/ux'
 import { clientListPageSizeOptions } from './clientListFilters'
 import {
   buildClientRowViewModel,
@@ -300,11 +306,13 @@ export function ClientsResults({
 
 function ClientsPageSummary({ state }: { state: ClientsListState }) {
   return (
-    <Text c="dimmed" size="sm">
-      {state.totalCount === null
-        ? `Страница ${state.page}, показано ${state.clients.length}`
-        : `Показаны ${state.pageStart}-${state.pageEnd} из ${state.totalCount}`}
-    </Text>
+    <ListRangeStatus
+      end={state.pageEnd}
+      hasMore={state.hasNextPage}
+      loading={state.loading}
+      start={state.pageStart}
+      total={state.totalCount}
+    />
   )
 }
 

@@ -42,7 +42,7 @@ export function GroupsSummaryBar({
         </div>
       </dl>
       <div aria-label="Действия с группами" className="groups-summary-bar__actions" role="group">
-        <Button className="groups-summary-bar__create" color="accent.5" onClick={onCreate}>
+        <Button className="groups-summary-bar__create" color="var(--crm-brand-secondary)" onClick={onCreate}>
           Создать
         </Button>
         <Tooltip label="Обновить список">

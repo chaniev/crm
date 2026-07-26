@@ -1,11 +1,43 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+
+type IPhoneManifest = {
+  viewports: {
+    iphoneAir: { width: number; height: number }
+    iphone17ProMax: { width: number; height: number }
+  }
+}
+
+const TASK_090_MANIFEST = JSON.parse(
+  readFileSync(
+    new URL('../../docs/ui-concept/task-090-iphone-17-pro-max/manifest.json', import.meta.url),
+    'utf8',
+  ),
+) as IPhoneManifest
 
 const TARGET_SCREENS = {
-  'iphone-air-webkit': { width: 420, height: 912 },
-  'iphone-17-pro-max-webkit': { width: 440, height: 956 },
+  'iphone-air-webkit': {
+    ...TASK_090_MANIFEST.viewports.iphoneAir,
+  },
+  'iphone-17-pro-max-webkit': {
+    ...TASK_090_MANIFEST.viewports.iphone17ProMax,
+  },
 } as const
 
-const APP_CONFIG = { clubName: 'Gym CRM' } as const
+const MOBILE_BOTTOM_NAVIGATION_SELECTOR = 'nav.mobile-bottom-nav[aria-label="Мобильная навигация"]'
+const SIDE_NAVIGATION_SELECTOR = 'nav.app-shell__side-nav[aria-label="Основная навигация"]'
+
+type AppConfigFixture = {
+  clubName: string
+  themeId?: string
+  authBackgroundImageId?: string
+}
+
+const APP_CONFIG = {
+  clubName: 'Gym CRM',
+  themeId: 'default-green-v1',
+  authBackgroundImageId: 'k4pro-login-v1',
+} as const
 
 const UNAUTHENTICATED_SESSION = {
   isAuthenticated: false,
@@ -26,7 +58,7 @@ const HEAD_COACH_SESSION = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -103,31 +135,96 @@ test('target portrait keeps the login operation visible and touch-safe', async (
   await expectNoHorizontalScroll(page)
 })
 
-test('target compact-height landscape keeps the authenticated shell usable', async ({
+test('unknown auth-profile values are safely resolved on iPhone profiles', async ({
   page,
 }, testInfo) => {
   const target = targetScreenFor(testInfo.project.name)
 
-  await page.setViewportSize({
+  await page.setViewportSize(target)
+  await mockApi(page, UNAUTHENTICATED_SESSION, {
+    clubName: 'iPhone fallback profile',
+    themeId: 'unknown-theme-v1',
+    authBackgroundImageId: 'unknown-login-v1',
+  })
+
+  await page.goto('/')
+
+  const authPage = page.locator('.gym-crm-page--auth')
+
+  await expect(page.getByRole('heading', { name: 'Добро пожаловать!' })).toBeVisible()
+  await expect(authPage).toBeVisible()
+  await expect(authPage).toHaveClass(/gym-crm-page--auth-image/)
+
+  const authBackgroundImage = await authPage.evaluate((element) =>
+    getComputedStyle(element).getPropertyValue('--crm-auth-background-image'),
+  )
+
+  expect(authBackgroundImage).toContain('k4pro-login-bg.png')
+  await expectNoHorizontalScroll(page)
+})
+
+test('empty auth-profile values are safely resolved on iPhone profiles', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.setViewportSize(target)
+  await mockApi(page, UNAUTHENTICATED_SESSION, {
+    clubName: 'iPhone fallback profile',
+    themeId: '',
+    authBackgroundImageId: '',
+  })
+
+  await page.goto('/')
+
+  const authPage = page.locator('.gym-crm-page--auth')
+
+  await expect(page.getByRole('heading', { name: 'Добро пожаловать!' })).toBeVisible()
+  await expect(authPage).toBeVisible()
+  await expect(authPage).toHaveClass(/gym-crm-page--auth-image/)
+
+  const authBackgroundImage = await authPage.evaluate((element) =>
+    getComputedStyle(element).getPropertyValue('--crm-auth-background-image'),
+  )
+
+  expect(authBackgroundImage).toContain('k4pro-login-bg.png')
+  await expectNoHorizontalScroll(page)
+})
+
+test('target compact-height landscape keeps the authenticated shell usable', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const compactViewport = {
     width: target.height,
     height: target.width,
-  })
+  }
+
+  await page.setViewportSize(compactViewport)
   await mockApi(page, HEAD_COACH_SESSION)
   await page.goto('/')
 
-  const sideNavigation = page.getByRole('navigation', {
-    name: 'Основная навигация',
-  })
+  const sideNavigation = page.locator(SIDE_NAVIGATION_SELECTOR)
+  const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
+  const homeButton = bottomNavigation.getByRole('button', { name: 'Главная' })
+  const homeScreen = page.getByTestId('home-screen')
 
-  await expect(page.getByTestId('home-screen')).toBeVisible()
-  await expect(sideNavigation).toBeVisible()
-  await expect(
-    sideNavigation.getByRole('button', { name: 'Главная' }),
-  ).toBeInViewport()
-  await expect(
-    page.getByRole('navigation', { name: 'Мобильная навигация' }),
-  ).toBeHidden()
-  await expect(page.getByRole('tab', { name: 'Посещения' })).toBeInViewport()
+  await expect(homeScreen).toBeVisible()
+  await expect(sideNavigation).toBeHidden()
+  await expect(bottomNavigation).toBeVisible()
+  await expect(homeButton).toBeVisible()
+  await expect(homeButton).toBeInViewport()
+
+  const homeBounds = await homeScreen.boundingBox()
+  const mobileNavBounds = await bottomNavigation.boundingBox()
+
+  expect(homeBounds).not.toBeNull()
+  expect(homeBounds!.y + homeBounds!.height).toBeGreaterThanOrEqual(0)
+  expect(homeBounds!.y).toBeLessThanOrEqual(compactViewport.height - 1)
+  expect(mobileNavBounds).not.toBeNull()
+  expect(mobileNavBounds!.y + mobileNavBounds!.height).toBeLessThanOrEqual(
+    compactViewport.height + 1,
+  )
   await expectNoHorizontalScroll(page)
 })
 
@@ -144,14 +241,20 @@ function targetScreenFor(projectName: string) {
 async function mockApi(
   page: Page,
   session: typeof UNAUTHENTICATED_SESSION | typeof HEAD_COACH_SESSION,
+  appConfig: AppConfigFixture = APP_CONFIG,
 ) {
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
     const { pathname } = requestUrl
     const method = route.request().method()
 
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
     if (pathname === '/api/config' && method === 'GET') {
-      await fulfillJson(route, APP_CONFIG)
+      await fulfillJson(route, appConfig)
       return
     }
 

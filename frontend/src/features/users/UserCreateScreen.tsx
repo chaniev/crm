@@ -157,7 +157,7 @@ export function UserCreateScreen({
           <SectionHeader
             description={resources.users.create.sectionDescription}
             eyebrow={
-              <ThemeIcon color="brand.7" radius="xl" size={34} variant="light">
+              <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={34} variant="light">
                 <IconUserPlus size={18} />
               </ThemeIcon>
             }
@@ -193,7 +193,7 @@ export function UserCreateScreen({
               <Paper className="hint-card" radius="24px" withBorder>
                 <Stack gap={6}>
                   <Group gap="xs">
-                    <ThemeIcon color="accent.5" radius="xl" size={28} variant="light">
+                    <ThemeIcon color="var(--crm-brand-secondary)" radius="xl" size={28} variant="light">
                       <IconCheck size={16} />
                     </ThemeIcon>
                     <Text fw={700}>{resources.users.create.loadingHintTitle}</Text>

@@ -92,7 +92,7 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
   const canManageHeadCoachSettings = user.createRoleOptions?.includes('SuperAdministrator') === true
 
   return (
-    <PageLayout data-testid="settings-screen" title="Настройки">
+    <PageLayout data-testid="settings-screen" showHeader={false} title="Настройки">
       <Tabs defaultValue="catalog" keepMounted={false}>
         <PageSection>
           <Tabs.List grow={isMobile}>
@@ -322,7 +322,7 @@ function GroupTypesSettingsPanel() {
             actions={(
               <ResponsiveButtonGroup>
                 <Button
-                  color="accent.5"
+                  color="var(--crm-brand-secondary)"
                   leftSection={<IconTags size={18} />}
                   onClick={openCreateModal}
                 >
@@ -363,7 +363,7 @@ function GroupTypesSettingsPanel() {
                     <Stack gap={8}>
                       <Group gap="sm" wrap="wrap">
                         <Text fw={700}>{groupType.name}</Text>
-                        <Badge color="brand.1" radius="xl" variant="light">
+                        <Badge color="var(--crm-brand-primary-soft)" radius="xl" variant="light">
                           Групп: {groupType.groupCount}
                         </Badge>
                       </Group>
@@ -712,7 +712,7 @@ function AdministratorsSettingsPanel() {
             actions={createRoleOptions.includes('Administrator') ? (
               <ResponsiveButtonGroup>
                 <Button
-                  color="accent.5"
+                  color="var(--crm-brand-secondary)"
                   leftSection={<IconUserPlus size={18} />}
                   onClick={openCreateModal}
                 >

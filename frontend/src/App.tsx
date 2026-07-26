@@ -1,4 +1,10 @@
-import { startTransition, useEffect, useState, type ReactNode } from 'react'
+import {
+  startTransition,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react'
 import {
   Alert,
   Button,
@@ -32,7 +38,6 @@ import {
   ApiError,
   applyFieldErrors,
   changePassword,
-  loadAppConfig,
   loadSession,
   login,
   logout,
@@ -43,6 +48,7 @@ import {
   type LoginRequest,
   type SessionResponse,
 } from './lib/api'
+import type { AuthStageBackground } from './theme'
 import {
   APP_SECTION_LABELS,
   getAccessibleNavigationSections,
@@ -208,16 +214,24 @@ function getAppDocumentTitle(
     return `Войти в ${clubName}`
   }
 
-  if (session.user.mustChangePassword || route.kind === 'password') {
+  if (session.user.mustChangePassword) {
+    return `Смените пароль • ${clubName}`
+  }
+
+  if (route.kind === 'password') {
     return `Смена пароля • ${clubName}`
   }
 
   return `${getRouteDocumentTitle(route)} • ${clubName}`
 }
 
-function App() {
+export type AppProps = {
+  appConfig: AppConfigResponse
+  authBackground: AuthStageBackground
+}
+
+export function App({ appConfig, authBackground }: AppProps) {
   const { navigate, pathname, route } = useAppRoute()
-  const [appConfig, setAppConfig] = useState<AppConfigResponse | null>(null)
   const [session, setSession] = useState<SessionResponse | null>(null)
   const [loadingSession, setLoadingSession] = useState(true)
   const [bootstrapError, setBootstrapError] = useState<string | null>(null)
@@ -225,8 +239,7 @@ function App() {
   const [passwordPending, setPasswordPending] = useState(false)
   const [logoutPending, setLogoutPending] = useState(false)
   const [passwordReturnPath, setPasswordReturnPath] = useState<string | null>(null)
-  const clubName = appConfig?.clubName
-  const displayedClubName = clubName ?? 'CRM'
+  const displayedClubName = appConfig.clubName
 
   useEffect(() => {
     const controller = new AbortController()
@@ -236,13 +249,9 @@ function App() {
       setBootstrapError(null)
 
       try {
-        const [currentConfig, currentSession] = await Promise.all([
-          loadAppConfig(controller.signal),
-          loadSession(controller.signal),
-        ])
+        const currentSession = await loadSession(controller.signal)
 
         startTransition(() => {
-          setAppConfig(currentConfig)
           setSession(currentSession)
         })
       } catch (error) {
@@ -293,13 +302,9 @@ function App() {
     setBootstrapError(null)
 
     try {
-      const [currentConfig, currentSession] = await Promise.all([
-        loadAppConfig(),
-        loadSession(),
-      ])
+      const currentSession = await loadSession()
 
       startTransition(() => {
-        setAppConfig(currentConfig)
         setSession(currentSession)
       })
     } catch (error) {
@@ -418,12 +423,12 @@ function App() {
   }
 
   if (loadingSession) {
-    return <LoadingState clubName={clubName} />
+    return <LoadingState authBackground={authBackground} clubName={displayedClubName} />
   }
 
   if (bootstrapError && !session) {
     return (
-      <StageFrame>
+      <StageFrame authBackground={authBackground}>
         <Paper className="stage-card stage-card--error" radius="32px" shadow="lg" withBorder>
           <Stack gap="lg">
             <Stack gap={6}>
@@ -459,7 +464,7 @@ function App() {
 
   if (!session?.isAuthenticated || !session.user) {
     return (
-      <StageFrame>
+      <StageFrame authBackground={authBackground}>
         <LoginScreen
           clubName={displayedClubName}
           pending={loginPending}
@@ -472,7 +477,7 @@ function App() {
 
   if (session.user.mustChangePassword) {
     return (
-      <StageFrame>
+      <StageFrame authBackground={authBackground}>
         <PasswordScreen
           mode="forced"
           pending={passwordPending}
@@ -531,12 +536,16 @@ function App() {
 }
 
 type StageFrameProps = {
+  authBackground: AuthStageBackground
   children: ReactNode
 }
 
-function StageFrame({ children }: StageFrameProps) {
+function StageFrame({ authBackground, children }: StageFrameProps) {
   return (
-    <div className="gym-crm-page gym-crm-page--auth">
+    <div
+      className={getAuthPageClassName(authBackground)}
+      style={getAuthBackgroundStyle(authBackground)}
+    >
       <main className="auth-layout">{children}</main>
     </div>
   )
@@ -654,7 +663,7 @@ function SetupDisclosure() {
       <summary>Первый запуск системы</summary>
       <Stack className="setup-disclosure__content" gap="xs">
         <Group gap="xs">
-          <ThemeIcon color="brand.7" radius="xl" size={28} variant="light">
+          <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={28} variant="light">
             <IconSparkles size={16} />
           </ThemeIcon>
           <Text fw={700}>Стартовые данные</Text>
@@ -728,16 +737,12 @@ function PasswordScreen({
 
   const title =
     mode === 'forced'
-      ? 'Задайте новый пароль для первого входа'
+      ? 'Смените пароль'
       : 'Смена пароля из профиля'
   const description =
     mode === 'forced'
       ? 'Введите текущий временный пароль и задайте новый для дальнейшей работы.'
       : 'Обновите пароль, который будете использовать при следующих входах.'
-  const afterSaveDescription =
-    mode === 'forced'
-      ? 'После сохранения откроется рабочий интерфейс с доступными вам разделами.'
-      : 'Новый пароль начнет действовать сразу после сохранения.'
 
   return (
     <Paper
@@ -749,10 +754,7 @@ function PasswordScreen({
       <Stack gap="lg">
         <Group justify="space-between" wrap="wrap">
           <Stack gap={6}>
-            <Text c="dimmed" fw={600} size="sm">
-              Смена пароля
-            </Text>
-            <Title order={2}>{title}</Title>
+            <Title order={mode === 'forced' ? 1 : 2}>{title}</Title>
             <Text c="dimmed">{description}</Text>
           </Stack>
 
@@ -808,19 +810,21 @@ function PasswordScreen({
               {mode === 'forced' ? 'Сменить пароль и продолжить' : 'Сохранить новый пароль'}
             </Button>
 
-            <Paper className="hint-card" radius="24px" withBorder>
-              <Stack gap={6}>
-                <Group gap="xs">
-                  <ThemeIcon color="brand.7" radius="xl" size={28} variant="light">
-                    <IconShieldCheck size={16} />
-                  </ThemeIcon>
-                  <Text fw={700}>Что будет дальше</Text>
-                </Group>
-                <Text c="dimmed" size="sm">
-                  {afterSaveDescription}
-                </Text>
-              </Stack>
-            </Paper>
+            {mode === 'utility' ? (
+              <Paper className="hint-card" radius="24px" withBorder>
+                <Stack gap={6}>
+                  <Group gap="xs">
+                    <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={28} variant="light">
+                      <IconShieldCheck size={16} />
+                    </ThemeIcon>
+                    <Text fw={700}>Пароль обновится сразу</Text>
+                  </Group>
+                  <Text c="dimmed" size="sm">
+                    Используйте новый пароль при следующих входах.
+                  </Text>
+                </Stack>
+              </Paper>
+            ) : null}
           </Stack>
         </form>
       </Stack>
@@ -1157,7 +1161,7 @@ function RouteViewport({
 
 function ClientsReadOnlyPlaceholder() {
   return (
-    <PageLayout title="Клиенты">
+    <PageLayout showHeader={false} title="Клиенты">
       <PageSection>
         <Stack gap="md">
           <Alert
@@ -1179,7 +1183,7 @@ function RouteRedirectPlaceholder() {
     <PageLayout title="Переход">
       <PageSection>
         <Group justify="center" py="xl">
-          <Loader color="brand.7" />
+          <Loader color="var(--crm-action-primary)" />
         </Group>
       </PageSection>
     </PageLayout>
@@ -1206,18 +1210,22 @@ function SectionPlaceholder() {
 }
 
 type LoadingStateProps = {
-  clubName?: string
+  authBackground: AuthStageBackground
+  clubName: string
 }
 
-function LoadingState({ clubName }: LoadingStateProps) {
-  const title = clubName ? `Открываем ${clubName}` : 'Открываем CRM'
+function LoadingState({ authBackground, clubName }: LoadingStateProps) {
+  const title = `Открываем ${clubName}`
 
   return (
-    <div className="gym-crm-page gym-crm-page--auth">
+    <div
+      className={getAuthPageClassName(authBackground)}
+      style={getAuthBackgroundStyle(authBackground)}
+    >
       <Container className="loading-layout" size="sm">
         <Paper className="loading-card" radius="32px" shadow="lg" withBorder>
           <Stack align="center" gap="md">
-            <Loader color="brand.7" size="lg" />
+            <Loader color="var(--crm-action-primary)" size="lg" />
             <Title className="brand-heading" order={3} title={title}>
               {title}
             </Title>
@@ -1229,6 +1237,21 @@ function LoadingState({ clubName }: LoadingStateProps) {
       </Container>
     </div>
   )
+}
+
+function getAuthPageClassName(authBackground: AuthStageBackground) {
+  return authBackground.asset
+    ? 'gym-crm-page gym-crm-page--auth gym-crm-page--auth-image'
+    : 'gym-crm-page gym-crm-page--auth gym-crm-page--auth-solid'
+}
+
+function getAuthBackgroundStyle(authBackground: AuthStageBackground) {
+  return {
+    '--crm-auth-background-image': authBackground.asset
+      ? `url("${authBackground.asset}")`
+      : 'none',
+    '--crm-auth-background-position': `${authBackground.focalPoint.xPercent}% ${authBackground.focalPoint.yPercent}%`,
+  } as CSSProperties
 }
 
 export default App

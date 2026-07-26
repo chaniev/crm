@@ -60,6 +60,7 @@ const MOBILE_PRIMARY_NAVIGATION_CANDIDATES: AppSection[] = [
   'Schedule',
   'Clients',
 ]
+const MOBILE_ADAPTIVE_FOURTH_CANDIDATE: AppSection = 'Groups'
 const MOBILE_PRIMARY_NAVIGATION_LIMIT = 4
 
 const sectionPathEntries = Object.entries(APP_SECTION_PATHS) as Array<
@@ -70,10 +71,6 @@ function isNavigationSectionAllowed(
   user: AuthenticatedUser,
   section: AppSection,
 ) {
-  if (section === 'Schedule') {
-    return true
-  }
-
   if (section === 'Users' && !user.permissions.canManageUsers) {
     return false
   }
@@ -130,35 +127,46 @@ export function getAccessibleNavigationSections(user: AuthenticatedUser) {
 
 export function getMobileNavigationSections(
   accessibleSections: readonly AppSection[],
+  currentSection: AppSection | null = null,
 ) {
-  const primarySections: AppSection[] = []
+  const primarySections: AppSection[] = MOBILE_PRIMARY_NAVIGATION_CANDIDATES
+    .filter((section) => accessibleSections.includes(section))
 
-  for (const section of MOBILE_PRIMARY_NAVIGATION_CANDIDATES) {
-    if (
-      accessibleSections.includes(section) &&
-      primarySections.length < MOBILE_PRIMARY_NAVIGATION_LIMIT
-    ) {
-      primarySections.push(section)
+  const canonicalFourth = accessibleSections.includes(MOBILE_ADAPTIVE_FOURTH_CANDIDATE)
+    ? MOBILE_ADAPTIVE_FOURTH_CANDIDATE
+    : accessibleSections.find((section) => !primarySections.includes(section)) ?? null
+  const shouldPromoteCurrent =
+    currentSection &&
+    accessibleSections.includes(currentSection) &&
+    !primarySections.includes(currentSection) &&
+    currentSection !== canonicalFourth
+
+  if (shouldPromoteCurrent) {
+    primarySections.push(currentSection)
+  } else if (canonicalFourth && primarySections.length < MOBILE_PRIMARY_NAVIGATION_LIMIT) {
+    primarySections.push(canonicalFourth)
+  }
+
+  if (primarySections.length < MOBILE_PRIMARY_NAVIGATION_LIMIT) {
+    for (const section of accessibleSections) {
+      if (primarySections.length >= MOBILE_PRIMARY_NAVIGATION_LIMIT) {
+        break
+      }
+
+      if (!primarySections.includes(section)) {
+        primarySections.push(section)
+      }
     }
   }
 
-  for (const section of accessibleSections) {
-    if (primarySections.length >= MOBILE_PRIMARY_NAVIGATION_LIMIT) {
-      break
-    }
-
-    if (!primarySections.includes(section)) {
-      primarySections.push(section)
-    }
-  }
-
-  const primarySectionSet = new Set(primarySections)
+  const constrainedPrimarySections = primarySections.slice(0, MOBILE_PRIMARY_NAVIGATION_LIMIT)
+  const primarySectionSet = new Set(constrainedPrimarySections)
   const overflowSections = accessibleSections.filter(
     (section) => !primarySectionSet.has(section),
   )
 
   return {
-    primarySections,
+    primarySections: constrainedPrimarySections,
     overflowSections,
   }
 }
@@ -288,10 +296,6 @@ export function resolveAccessibleRoutePath(
 
   if (!routeSection) {
     return fallbackPath
-  }
-
-  if (routeSection === 'Schedule') {
-    return getRoutePath(route)
   }
 
   if (isUsersRoute(route, routeSection) && !user.permissions.canManageUsers) {

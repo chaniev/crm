@@ -16,8 +16,11 @@ internal static class AppConfigEndpoints
 
     private static IResult GetAppConfig(IOptions<BrandingOptions> options)
     {
-        var clubName = options.Value.ResolveClubName();
+        var brandingOptions = options.Value;
 
-        return Results.Ok(new AppConfigResponse(clubName));
+        return Results.Ok(new AppConfigResponse(
+            brandingOptions.ResolveClubName(),
+            brandingOptions.ResolveThemeId(),
+            brandingOptions.ResolveAuthBackgroundImageId()));
     }
 }
