@@ -928,3 +928,20 @@
 - skipped: 0
 - plans created: 1
 - note: explicit user-selected TASK-090 moved from tasks-ready under the risky-task planning policy. Plan keeps implementation test-first, isolates work to branch `feature/TASK-090-shared-mobile-ui-system`, preserves backend ownership of CRM rules, and limits the foundation to shared mobile UI, theme/background config, semantic tokens, representative migration and regression barriers without implementing dependent TASK-085-TASK-089 workflows.
+
+# 2026-07-26 16:43
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-091-administrator-role-creation-flow.plan.md
+
+## Skipped tasks
+- TASK-091-administrator-role-creation-flow.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; detailed UX/UI and test-first plan created for explicit security/architecture review before active implementation selection.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan defines `feature/TASK-091-administrator-role-creation-flow`, separates administrative and trainer endpoint role families without changing the TASK-082 authorization matrix, requires backend unit/integration and frontend component/Playwright tests before functional code, preserves exact branch/global scope and audit semantics, and keeps TASK-092 in a separate branch.
