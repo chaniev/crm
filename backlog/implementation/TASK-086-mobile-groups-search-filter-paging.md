@@ -1,7 +1,13 @@
 # TASK-086: Добавить mobile-first поиск, фильтры и paging списка групп
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26 23:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-086-mobile-groups-search-filter-paging.plan.md
+- implementation_branch: feature/TASK-086-mobile-groups-search-filter-paging
 
 ## Priority
 P1

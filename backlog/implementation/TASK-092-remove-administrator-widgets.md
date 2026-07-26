@@ -1,7 +1,13 @@
 # TASK-092: Удалить сводные виджеты из раздела администраторов
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26 23:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-092-remove-administrator-widgets.plan.md
+- implementation_branch: feature/TASK-092-remove-administrator-widgets
 
 ## Goal
 Пользователь сразу переходит к списку и операциям с администраторами без занимающих место сводных карточек.

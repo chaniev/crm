@@ -1,7 +1,13 @@
 # TASK-087: Ограничить расписание тренера его effective groups
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26 23:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-087-coach-schedule-effective-scope.plan.md
+- implementation_branch: fix/TASK-087-coach-schedule-effective-scope
 
 ## Priority
 P1

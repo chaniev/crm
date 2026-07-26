@@ -945,3 +945,32 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-091-administrator-role-creation-flow`, separates administrative and trainer endpoint role families without changing the TASK-082 authorization matrix, requires backend unit/integration and frontend component/Playwright tests before functional code, preserves exact branch/global scope and audit semantics, and keeps TASK-092 in a separate branch.
+
+# 2026-07-26 23:56
+
+## Moved to implementation
+- /backlog/implementation/TASK-084-mobile-touch-targets-compact-height.md
+- /backlog/implementation/TASK-085-mobile-client-search.md
+- /backlog/implementation/TASK-086-mobile-groups-search-filter-paging.md
+- /backlog/implementation/TASK-087-coach-schedule-effective-scope.md
+- /backlog/implementation/TASK-088-permission-redirect-feedback.md
+- /backlog/implementation/TASK-089-desktop-client-list-preview-overflow.md
+- /backlog/implementation/TASK-092-remove-administrator-widgets.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-084-mobile-touch-targets-compact-height.plan.md
+- /backlog/implementation-plans/TASK-085-mobile-client-search.plan.md
+- /backlog/implementation-plans/TASK-086-mobile-groups-search-filter-paging.plan.md
+- /backlog/implementation-plans/TASK-087-coach-schedule-effective-scope.plan.md
+- /backlog/implementation-plans/TASK-088-permission-redirect-feedback.plan.md
+- /backlog/implementation-plans/TASK-089-desktop-client-list-preview-overflow.plan.md
+- /backlog/implementation-plans/TASK-092-remove-administrator-widgets.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 7
+- skipped: 0
+- plans created: 7
+- note: user explicitly selected the seven-task batch. Every task has a dedicated branch, isolated-worktree precondition, tests-before-production red/green order and automated regression barrier. TASK-087 keeps its high-risk data-visibility classification but is marked Safe for Codex, uses the existing backend-owned `IEffectiveGroupAssignmentService`, and has explicit security/non-leakage gates. TASK-085 and TASK-089 have mandatory execution dependencies on TASK-017; TASK-089 also follows TASK-085.

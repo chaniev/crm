@@ -1,7 +1,13 @@
 # TASK-085: Search-focused mobile-поиск клиентов — вариант C
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26 23:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-085-mobile-client-search.plan.md
+- implementation_branch: feature/TASK-085-mobile-client-search
 
 ## Priority
 P0

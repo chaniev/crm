@@ -1,7 +1,13 @@
 # TASK-089: Устранить horizontal overflow desktop-списка клиентов с preview
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26 23:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-089-desktop-client-list-preview-overflow.plan.md
+- implementation_branch: fix/TASK-089-desktop-client-list-preview-overflow
 
 ## Priority
 P2

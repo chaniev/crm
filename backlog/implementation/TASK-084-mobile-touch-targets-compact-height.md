@@ -1,7 +1,13 @@
 # TASK-084: Довести touch targets и compact-height shell до mobile acceptance
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26 23:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-084-mobile-touch-targets-compact-height.plan.md
+- implementation_branch: feature/TASK-084-mobile-touch-targets-compact-height
 
 ## Priority
 P0

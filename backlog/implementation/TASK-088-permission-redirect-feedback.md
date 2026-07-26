@@ -1,7 +1,13 @@
 # TASK-088: Заменить silent permission redirects явной обратной связью
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26 23:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-088-permission-redirect-feedback.plan.md
+- implementation_branch: fix/TASK-088-permission-redirect-feedback
 
 ## Priority
 P1
