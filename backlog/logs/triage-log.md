@@ -1313,3 +1313,29 @@
 - validation: merge ancestry, source, contract and automated-coverage audit;
   runtime suites were not rerun because this change only reconciles backlog
   metadata
+
+# 2026-07-26 16:28
+
+## Processed inbox files
+- 2026-07-26.md
+
+## Created tasks
+- /backlog/risky/TASK-091-administrator-role-creation-flow.md
+- /backlog/tasks-ready/TASK-092-remove-administrator-widgets.md
+- /backlog/needs-clarification/TASK-093-add-button-placement.md
+
+## Updated existing tasks
+- Нет.
+
+## Skipped duplicates
+- Завершённая TASK-082 уже реализовала роль SuperAdministrator и authorization matrix; TASK-091 создана как отдельный follow-up по переносу role-management flow, а не как дубликат роли.
+- Завершённая TASK-054 убрала прежний ручной выбор роли в раздельных формах, но не переносила создание SuperAdministrator в раздел администраторов.
+- Завершённая TASK-056 унифицировала фильтры, а TASK-090 создала shared mobile UI foundation; они не определяют единое положение primary add action, поэтому TASK-093 создана отдельно в `needs-clarification`.
+- Активных задач на удаление сводных виджетов раздела администраторов не найдено.
+
+## Summary
+- tasks-ready: 1
+- risky: 1
+- needs-clarification: 1
+- updated existing: 0
+- processed files: 1
