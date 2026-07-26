@@ -1,7 +1,13 @@
 # TASK-090: Ввести единую mobile UI system и deployment theme profiles
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-26 12:13
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-090-shared-mobile-ui-system.plan.md
+- implementation_branch: feature/TASK-090-shared-mobile-ui-system
 
 ## Priority
 P0

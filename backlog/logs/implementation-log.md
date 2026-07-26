@@ -911,3 +911,20 @@
 - skipped: 1
 - plans created: 1
 - note: plan defines `feature/TASK-080-administrator-authorized-group-attendance`, a dedicated audited grant model, explicit session attendance scope, compare-and-swap manager updates, branch/role/group lifecycle barriers, in-transaction save reauthorization against revoke races, shared web/internal-bot filtering and frontend desktop/390 px management/recovery coverage.
+
+# 2026-07-26 12:13
+
+## Moved to implementation
+- /backlog/implementation/TASK-090-shared-mobile-ui-system.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-090-shared-mobile-ui-system.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: explicit user-selected TASK-090 moved from tasks-ready under the risky-task planning policy. Plan keeps implementation test-first, isolates work to branch `feature/TASK-090-shared-mobile-ui-system`, preserves backend ownership of CRM rules, and limits the foundation to shared mobile UI, theme/background config, semantic tokens, representative migration and regression barriers without implementing dependent TASK-085-TASK-089 workflows.
