@@ -15,6 +15,8 @@ public sealed class LeninskySeedDataTests
         Assert.Equal("Ленинский", LeninskySeedData.BranchName);
         Assert.Equal("1", LeninskySeedData.DefaultPassword);
         Assert.Equal(5, LeninskySeedData.AdministratorCount);
+        Assert.Equal("headcoach", LeninskySeedData.HeadCoachLogin);
+        Assert.Equal("sa", LeninskySeedData.SuperAdministratorLogin);
 
         Assert.Equal(
             [
@@ -32,7 +34,7 @@ public sealed class LeninskySeedDataTests
     }
 
     [Fact]
-    public async Task Administrators_only_seed_creates_branch_and_admins_without_catalog_or_operational_data()
+    public async Task Administrators_only_seed_creates_branch_and_management_users_without_operational_data()
     {
         var options = new DbContextOptionsBuilder<GymCrmDbContext>()
             .UseInMemoryDatabase($"leninsky-admins-only-seed-{Guid.NewGuid():N}")
@@ -47,6 +49,8 @@ public sealed class LeninskySeedDataTests
 
         Assert.Equal("Ленинский", summary.BranchName);
         Assert.Equal(5, summary.AdministratorCount);
+        Assert.Equal("headcoach", summary.HeadCoachLogin);
+        Assert.Equal("sa", summary.SuperAdministratorLogin);
         Assert.Equal("1", summary.DefaultUserPassword);
         Assert.Equal(summary, secondSummary);
 
@@ -75,10 +79,86 @@ public sealed class LeninskySeedDataTests
                     LeninskySeedData.DefaultPassword));
         });
 
-        Assert.Equal(5, await dbContext.Users.CountAsync());
+        var headCoach = await dbContext.Users.SingleAsync(
+            user => user.Login == LeninskySeedData.HeadCoachLogin);
+        Assert.Equal(UserRole.HeadCoach, headCoach.Role);
+        Assert.Equal(LeninskySeedData.HeadCoachFullName, headCoach.FullName);
+        Assert.Null(headCoach.BranchId);
+        Assert.True(headCoach.IsActive);
+        Assert.False(headCoach.MustChangePassword);
+        Assert.Equal(
+            PasswordVerificationResult.Success,
+            passwordHasher.VerifyHashedPassword(
+                headCoach,
+                headCoach.PasswordHash,
+                LeninskySeedData.DefaultPassword));
+
+        var superAdministrator = await dbContext.Users.SingleAsync(
+            user => user.Login == LeninskySeedData.SuperAdministratorLogin);
+        Assert.Equal(UserRole.SuperAdministrator, superAdministrator.Role);
+        Assert.Equal(LeninskySeedData.SuperAdministratorFullName, superAdministrator.FullName);
+        Assert.Null(superAdministrator.BranchId);
+        Assert.True(superAdministrator.IsActive);
+        Assert.False(superAdministrator.MustChangePassword);
+        Assert.Equal(
+            PasswordVerificationResult.Success,
+            passwordHasher.VerifyHashedPassword(
+                superAdministrator,
+                superAdministrator.PasswordHash,
+                LeninskySeedData.DefaultPassword));
+
+        Assert.Equal(7, await dbContext.Users.CountAsync());
         Assert.Empty(await dbContext.MembershipCatalogItems.ToArrayAsync());
         Assert.Empty(await dbContext.Clients.ToArrayAsync());
         Assert.Empty(await dbContext.TrainingGroups.ToArrayAsync());
         Assert.Empty(await dbContext.GroupTypes.ToArrayAsync());
+    }
+
+    [Fact]
+    public async Task Administrators_only_seed_renames_legacy_administrator_logins()
+    {
+        var options = new DbContextOptionsBuilder<GymCrmDbContext>()
+            .UseInMemoryDatabase($"leninsky-admins-only-legacy-logins-{Guid.NewGuid():N}")
+            .Options;
+        await using var dbContext = new GymCrmDbContext(options);
+        var now = DateTimeOffset.UtcNow;
+
+        for (var number = 1; number <= LeninskySeedData.AdministratorCount; number++)
+        {
+            dbContext.Users.Add(new User
+            {
+                Id = LeninskySeedIds.Administrator(number),
+                FullName = $"Legacy administrator {number}",
+                Login = $"leninsky.admin{number}",
+                PasswordHash = "legacy-password-hash",
+                Role = UserRole.Administrator,
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        await using var seeder = new LeninskyAdministratorsOnlySeeder(dbContext);
+        await seeder.SeedAsync(CancellationToken.None);
+
+        var logins = await dbContext.Users
+            .OrderBy(user => user.Login)
+            .Select(user => user.Login)
+            .ToArrayAsync();
+
+        Assert.Equal(
+            [
+                "admin1",
+                "admin2",
+                "admin3",
+                "admin4",
+                "admin5",
+                "headcoach",
+                "sa"
+            ],
+            logins);
+        Assert.DoesNotContain(logins, login => login.StartsWith("leninsky.", StringComparison.Ordinal));
     }
 }

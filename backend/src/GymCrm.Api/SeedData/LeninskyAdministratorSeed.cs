@@ -16,27 +16,38 @@ internal static class LeninskyAdministratorSeed
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
-        var logins = Enumerable.Range(1, LeninskySeedData.AdministratorCount)
-            .Select(CreateLogin)
+        var administratorNumbers = Enumerable.Range(1, LeninskySeedData.AdministratorCount).ToArray();
+        var logins = administratorNumbers
+            .SelectMany(number => new[] { CreateLogin(number), CreateLegacyLogin(number) })
             .ToArray();
         var existingUsers = await dbContext.Users
             .Where(user => logins.Contains(user.Login))
-            .ToDictionaryAsync(user => user.Login, StringComparer.Ordinal, cancellationToken);
+            .ToArrayAsync(cancellationToken);
 
-        for (var number = 1; number <= LeninskySeedData.AdministratorCount; number++)
+        foreach (var number in administratorNumbers)
         {
             var login = CreateLogin(number);
-            if (!existingUsers.TryGetValue(login, out var user))
+            var currentUser = existingUsers.SingleOrDefault(user => user.Login == login);
+            var legacyUser = existingUsers.SingleOrDefault(user => user.Login == CreateLegacyLogin(number));
+
+            if (currentUser is not null && legacyUser is not null)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot rename seed administrator '{legacyUser.Login}' because login '{login}' already exists.");
+            }
+
+            var user = currentUser ?? legacyUser;
+            if (user is null)
             {
                 user = new User
                 {
                     Id = LeninskySeedIds.Administrator(number),
-                    Login = login,
                     CreatedAt = now
                 };
                 dbContext.Users.Add(user);
             }
 
+            user.Login = login;
             user.FullName = $"Администратор Ленинский {number}";
             user.Role = UserRole.Administrator;
             user.BranchId = branchId;
@@ -49,5 +60,7 @@ internal static class LeninskyAdministratorSeed
         return LeninskySeedData.AdministratorCount;
     }
 
-    public static string CreateLogin(int number) => $"leninsky.admin{number}";
+    public static string CreateLogin(int number) => $"admin{number}";
+
+    private static string CreateLegacyLogin(int number) => $"leninsky.admin{number}";
 }

@@ -119,7 +119,7 @@ docker compose --project-directory . --env-file .env -f deploy/docker-compose.ym
 docker compose --project-directory . --env-file .env -f deploy/docker-compose.yml run --rm --no-deps backend --seed-test-data --skip-migrations --photo-root /app/data/client-photos
 ```
 
-Seed только администраторов:
+Минимальный seed управляющих пользователей:
 
 ```bash
 docker compose --project-directory . --env-file .env -f deploy/docker-compose.yml run --rm --no-deps backend --seed-leninsky-admins-only --skip-migrations
@@ -140,9 +140,10 @@ docker compose --project-directory . --env-file .env -f deploy/docker-compose.se
 docker compose --project-directory . --env-file .env -f deploy/docker-compose.server.yml up -d
 ```
 
-Admins-only seed выполняется до первого запуска backend. Так bootstrap-механизм не создаст
-дополнительного `HeadCoach`: таблица пользователей уже будет содержать пять администраторов.
-Сам seed применяет миграции и создаёт только обязательный филиал и администраторов.
+Admins-only seed выполняется до первого запуска backend. Он сам создаёт `HeadCoach`
+с логином `headcoach`, `SuperAdministrator` с логином `sa` и администраторов
+`admin1`–`admin5`; пароль всех семи пользователей — `1`. Поэтому bootstrap-механизм
+не создаёт дополнительного `HeadCoach`. Seed также создаёт обязательный филиал.
 Один системный элемент каталога создаётся самой `InitialCreate`; admins-only seed
 пользовательский каталог не заполняет.
 

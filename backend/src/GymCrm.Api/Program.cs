@@ -68,7 +68,9 @@ if (args.Contains("--seed-leninsky-admins-only", StringComparer.Ordinal))
         Console.WriteLine("Leninsky administrators-only seed completed.");
         Console.WriteLine($"Branch: {summary.BranchName}");
         Console.WriteLine($"Administrators: {summary.AdministratorCount}");
-        Console.WriteLine($"Administrator password: {summary.DefaultUserPassword}");
+        Console.WriteLine($"Head coach: {summary.HeadCoachLogin}");
+        Console.WriteLine($"Super administrator: {summary.SuperAdministratorLogin}");
+        Console.WriteLine($"Seed user password: {summary.DefaultUserPassword}");
         return;
     }
     catch (SeedDataOptionsException exception)

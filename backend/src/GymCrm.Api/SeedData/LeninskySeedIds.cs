@@ -9,6 +9,10 @@ internal static class LeninskySeedIds
 
     public static Guid Branch => Create("branch");
 
+    public static Guid HeadCoach => Create("head-coach");
+
+    public static Guid SuperAdministrator => Create("super-administrator");
+
     public static Guid Administrator(int number) => Create($"administrator:{number:00}");
 
     public static Guid Membership(int number) => Create($"membership:{number:00}");

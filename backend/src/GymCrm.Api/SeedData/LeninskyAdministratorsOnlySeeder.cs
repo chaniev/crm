@@ -47,12 +47,19 @@ internal sealed class LeninskyAdministratorsOnlySeeder : IAsyncDisposable
             branch.Id,
             now,
             cancellationToken);
+        await LeninskyPrivilegedUserSeed.UpsertAsync(
+            dbContext,
+            passwordHasher,
+            now,
+            cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return new LeninskyAdministratorsOnlySeedSummary(
             branch.Name,
             administratorCount,
+            LeninskySeedData.HeadCoachLogin,
+            LeninskySeedData.SuperAdministratorLogin,
             LeninskySeedData.DefaultPassword);
     }
 
