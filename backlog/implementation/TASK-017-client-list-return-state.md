@@ -1,7 +1,13 @@
 # TASK-017: Сохранять состояние списка при возврате из карточки клиента
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 20:56
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-017-client-list-return-state.plan.md
+- implementation_branch: fix/TASK-017-client-list-return-state
 
 ## Goal
 Пользователь возвращается из карточки клиента к тому же списку, поиску, фильтрам, выбранному клиенту и позиции прокрутки.

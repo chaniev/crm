@@ -1021,3 +1021,20 @@
 - skipped: 1
 - plans created: 5
 - note: user explicitly selected the five-task batch. TASK-098 runs after TASK-096; TASK-101 runs after TASK-086/TASK-092; TASK-097 runs after TASK-095/TASK-101 to avoid overlapping ownership. Every executable task has a separate branch/worktree precondition, tests-before-production red/green order and automated component/Playwright/mobile regression barrier. TASK-100 was planned but not selected for execution because its TASK-070 product contract is unresolved. Project code was not changed.
+
+# 2026-07-27 20:56
+
+## Moved to implementation
+- /backlog/implementation/TASK-017-client-list-return-state.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-017-client-list-return-state.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected low-risk frontend TASK-017. The plan uses branch `fix/TASK-017-client-list-return-state`, a versioned per-history-entry state boundary without URL/localStorage/sessionStorage or cached client data, unit and frontend integration tests before production code, red/green Playwright coverage for browser Back and the explicit return CTA, direct-link/stale-data fallbacks, mobile WebKit checks and one reusable contract for downstream TASK-085/TASK-089. Project code was not changed.
