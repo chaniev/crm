@@ -25,6 +25,10 @@ profile account context и CRM semantics.
   active tab; рядом уже есть visually hidden focus heading и named result list.
 - `AuthenticatedShell` передаёт `brandMeta` с ролью и стартовым разделом и
   compact role copy в `Header`; роль отдельно полезно сохранена в profile menu.
+- `UserEditScreen` рендерит decorative `SectionHeader` с
+  `Редактирование доступа`, login-fixed description и отдельный hint-card
+  `Что можно менять на этом экране`; page title, fields и validation уже
+  предоставляют необходимый operation/constraint context.
 - Responsive Playwright уже имеет частичный `expectNoServiceIntro`, но не
   проверяет shell meta и concrete residual copy.
 - `Проверено: <time>` является operational freshness, loading/error/empty/
@@ -40,6 +44,9 @@ profile account context и CRM semantics.
   не под названием организации.
 - Detail/create/edit/auth titles, validation, legal/security, prerequisite,
   stale, error, recovery and success copy сохраняются.
+- На trainer edit сохраняются page title с identity, readonly login field,
+  field labels/descriptions, validation и submit; удаляются только три
+  конкретных service/decorative strings из source note.
 
 ## Dependencies and execution order
 1. TASK-090 — done, `decision/usefulness test` является source of truth.
@@ -68,20 +75,27 @@ profile account context и CRM semantics.
    - duplicate top-level list titles/service descriptions absent;
    - visible detail/form/recovery headings and accessible hidden `h1` remain;
    - no empty wrapper/gap at required widths.
-5. Запустить new tests и подтвердить expected failures on current
+5. До production-кода обновить `UserEditScreen` component/Playwright tests:
+   - три concrete service strings отсутствуют;
+   - page title, readonly login, editable fields, validation, loading/error/
+     read-only states и submit сохранены;
+   - duplicate return actions не исправлять здесь: это TASK-097.
+6. Запустить new tests и подтвердить expected failures on current
    `SectionHeader`, `brandMeta` and existing assertions that expect the copy.
-6. Удалить `AttentionPanel` visible `SectionHeader` title/description and its
+7. Удалить `AttentionPanel` visible `SectionHeader` title/description and its
    now-unused wrapper/import; сохранить refresh in the first operational row
    established by TASK-093, hidden focus heading and named list.
-7. Удалить `brandMeta`/`brandMetaCompact` use from `AuthenticatedShell`;
+8. Удалить `brandMeta`/`brandMetaCompact` use from `AuthenticatedShell`;
    если repository search подтверждает отсутствие других consumers, удалить
    props/render path and `.app-shell__brand-meta` CSS from shared `Header`.
-8. Провести inventory sweep по authenticated routes; удалять только
+9. Удалить trainer edit `SectionHeader`/hint-card и ставшие неиспользуемыми
+   resources/imports, сохранив form semantics и operational states.
+10. Провести inventory sweep по authenticated routes; удалять только
    navigation/title repeats and decorative intro. Каждое сохранённое
    non-obvious description имеет записанное decision/recovery reason.
-9. Обновить old Home/Stage12/Responsive assertions from positive copy checks to
+11. Обновить old Home/Stage12/Responsive assertions from positive copy checks to
    absence + preserved operational/accessibility checks.
-10. Запустить focused tests, full frontend unit/lint/build, affected Playwright
+12. Запустить focused tests, full frontend unit/lint/build, affected Playwright
     and iPhone WebKit/compact-height suites.
 
 ## Preferred implementation strategy
@@ -97,6 +111,9 @@ profile account context и CRM semantics.
 - `frontend/src/features/home/HomeDashboard.test.tsx`
 - `frontend/src/features/shared/Header.tsx`
 - `frontend/src/features/shared/ux.test.tsx`
+- `frontend/src/features/users/UserEditScreen.tsx`
+- `frontend/src/features/users/UserManagement.test.tsx`
+- `frontend/src/lib/resources.ts`
 - `frontend/src/App.tsx`
 - `frontend/src/App.css`
 - `frontend/e2e/home-dashboard.spec.ts`
@@ -125,6 +142,8 @@ profile account context и CRM semantics.
 - Attention duplicate copy absent while hidden heading/list name and refresh stay.
 - Shell meta absent while brand/profile/name/role-in-menu stay.
 - Loading, empty, error, stale and populated operational copy preserved.
+- Trainer edit service strings absent while title, readonly login, fields,
+  validation, states and submit remain.
 
 ### Integration tests
 - Backend integration tests are not applicable because no API/business contract
@@ -151,9 +170,10 @@ profile account context и CRM semantics.
 
 ## Regression barrier
 The executable authenticated-route copy inventory must assert both sides:
-forbidden duplicate/service strings and wrappers are absent, while hidden route/
-list names, profile role context, detail/form headings and operational/recovery
-copy remain. This prevents both recurrence and over-aggressive deletion.
+forbidden duplicate/service strings and wrappers, including the three trainer
+edit strings, are absent, while hidden route/list names, profile role context,
+detail/form headings and operational/recovery copy remain. This prevents both
+recurrence and over-aggressive deletion.
 
 ## Risks
 - Broad negative text matching can delete valid recovery or form guidance.

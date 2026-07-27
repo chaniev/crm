@@ -52,6 +52,7 @@ TASK-090 общий shell и shared primitives существуют, поэто�
 - Responsive-режим для coarse pointer + compact height, независимый от одной только ширины.
 - Доступность primary form actions и temporary surfaces при Safari chrome и software keyboard.
 - Regression-проверка главной, расписания, клиентов, групп и доступных settings/audit экранов.
+- Проверка полного видимого текста button/action labels при width pressure: увеличение touch target, icon и соседний контент не должны клиппировать подпись или оставлять её в виде неполного слова.
 - Исправление shared primitive выполняется в самом primitive; screen-specific
   override допускается только для предметной geometry, не как альтернативный
   touch-size contract.
@@ -81,6 +82,7 @@ TASK-090 общий shell и shared primitives существуют, поэто�
 ## Acceptance criteria
 - [ ] На проверенных mobile paths нет интерактивной зоны меньше `44 x 44 CSS px`.
 - [ ] Между независимыми соседними touch targets остаётся минимум `8px`.
+- [ ] Видимые button/action labels отображаются полностью; icon-only fallback используется только по утверждённому responsive contract и сохраняет точное accessible name.
 - [ ] Text inputs, selects и textareas имеют `font-size >= 16px` на iPhone profiles.
 - [ ] Нет unintended horizontal page scrolling на `360`, `390`, `420`, `440`.
 - [ ] `912 x 420` и `956 x 440` не показывают desktop-only shell или controls высотой `36px`.
@@ -96,6 +98,7 @@ TASK-090 общий shell и shared primitives существуют, поэто�
 - [ ] Запустить affected responsive Playwright specs.
 - [ ] `cd frontend && npm run test:e2e:iphone`
 - [ ] Проверить `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`.
+- [ ] Проверить длинные и штатные русские action labels на clipping/ellipsis во всех inventoried routes.
 - [ ] Повторить responsive matrix с SuperAdministrator fixture: `branchId: null`, без Finance, `createRoleOptions: ['Administrator', 'Coach']`.
 - [ ] Отдельно зафиксировать Safari chrome, software keyboard, home indicator и physical-device проверки, если Simulator/device недоступны.
 
@@ -112,6 +115,9 @@ TASK-090 общий shell и shared primitives существуют, поэто�
 - Source: usability audit of the fully rebuilt and seeded local stand.
 - Evidence date: 2026-07-25.
 - Tested geometry: Chromium/WebKit at required responsive sizes; real Safari chrome/keyboard/safe-area remained unverified.
+- Source file: `backlog/processed/2026-07-27-2.md`
+- Original note: `текст на кнопке «Открыть» не отображается полностью. Необходимо проверить все экраны и убедиться, что такого нет и на других кнопках и экранах.`
+- Screenshot: `/Users/muradchaniev/Desktop/Снимок экрана — 2026-07-27 в 00.36.17.png`
 
 ## Visual comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-084-comparison.png)
@@ -128,3 +134,5 @@ TASK-090 общий shell и shared primitives существуют, поэто�
 - Status remains `ready`: the card owns the all-screen affected-call-site
   sweep, including shared primitive internals and Safari/device acceptance
   that TASK-090 explicitly left separate.
+- Updated at: 2026-07-27 01:04
+- Duplicate check: общий all-screen label-clipping sweep добавлен сюда; конкретная desktop client-row регрессия остаётся в TASK-089 и не создаёт отдельную задачу.

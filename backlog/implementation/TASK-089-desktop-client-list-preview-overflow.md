@@ -38,6 +38,10 @@ P2
 `min-width: 46rem`, поэтому foundation tokens и shared states не устраняют
 геометрический конфликт.
 
+Screenshot из inbox 2026-07-27 подтверждает пользовательскую регрессию этой
+geometry: в строке с длинными значениями кнопка `Открыть` видна как неполная
+подпись `Откры...`/`Откры`.
+
 ## Scope
 - Desktop split layout списка и client preview.
 - На `1440 x 1200` использовать list-primary split:
@@ -63,6 +67,7 @@ P2
   сворачивается в hidden/right drawer или используется drill-down, а list
   остаётся full-width.
 - Full values для зрячего пользователя через достаточную ширину, wrap или явный tooltip/detail, а не только screen-reader accessible name.
+- Primary row action `Открыть` сохраняет полный видимый label при открытом preview и длинных значениях; icon-only variant допустим только по явному responsive contract с полным accessible name.
 - Сохранить selection, search, filters и scroll state.
 - Для SuperAdministrator сохранить branch context, full name и primary preview action в глобальном multi-branch наборе.
 
@@ -97,6 +102,7 @@ P2
       и next action доступны зрячему и keyboard-пользователю через approved
       columns или явное disclosure/preview.
 - [ ] Primary preview action достижим Tab и не скрыт overflow.
+- [ ] В row/preview context полностью видна подпись `Открыть`; она не обрезана до неполного слова и не перекрывается icon/соседними колонками.
 - [ ] Selection, search, filters и list scroll сохраняются при open/collapse preview.
 - [ ] Collapse возвращает focus выбранному row; повторное открытие
       восстанавливает выбранного клиента и deterministic default width.
@@ -107,6 +113,7 @@ P2
 
 ## Test checklist
 - [ ] Desktop E2E: выбрать клиента с длинными значениями, проверить list/preview, открыть полную карточку, вернуться.
+- [ ] В desktop geometry test измерить видимую ширину action label `Открыть` и закрепить отсутствие clipping на `1440 x 1200`.
 - [ ] Desktop E2E SuperAdministrator: multi-branch results с длинными client/branch/group values, selection/search/filter/scroll сохраняются.
 - [ ] Geometry assertion: list `scrollWidth <= clientWidth` для утверждённого набора primary columns.
 - [ ] Проверить `768 x 1024`, `1440 x 1200` и mobile smoke `390 x 844`.
@@ -127,6 +134,9 @@ P2
 ## Source notes
 - Source: usability audit of the fully rebuilt and seeded local stand.
 - Evidence date: 2026-07-25.
+- Source file: `backlog/processed/2026-07-27-2.md`
+- Original note: `На предоставленном экране текст на кнопке «Открыть» не отображается полностью.`
+- Screenshot: `/Users/muradchaniev/Desktop/Снимок экрана — 2026-07-27 в 00.36.17.png`
 
 ## Visual comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-089-comparison.png)
@@ -143,3 +153,5 @@ P2
   columns, overflow removal and fallback are now implementation-ready.
   Execution follows `TASK-017` and `TASK-085` to avoid duplicate state/list
   work.
+- Updated at: 2026-07-27 01:04
+- Duplicate check: screenshot является конкретным evidence для уже описанной client split/overflow задачи; отдельный TASK не создан. Общий all-screen clipping sweep добавлен в TASK-084.

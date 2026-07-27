@@ -22,6 +22,8 @@ single-column/drawer fallback while preserving TASK-017 state.
 ## Current understanding
 - Current CSS fixes preview at `22rem`, list rows/header at `min-width:46rem`
   and makes the list `overflow-x:auto`; measured content exceeds container.
+- Screenshot 2026-07-27 показывает пользовательский симптом той же geometry:
+  видимый label row action `Открыть` обрезан до неполного слова.
 - `useClientsListState` selects first/restored client, but there is no explicit
   persistent collapse state or focus-return contract.
 - `ClientsResults` currently renders five desktop columns; lower-priority data
@@ -54,6 +56,7 @@ single-column/drawer fallback while preserving TASK-017 state.
 4. Before production code add Playwright geometry tests:
    - `1440 x 1200` open preview with long multi-branch data and
      `scrollWidth <= clientWidth` for list/header;
+   - полный видимый label `Открыть` без clipping/ellipsis/overlap;
    - `768 x 1024` fallback when required columns do not fit;
    - `390 x 844` and compact-height mobile non-regression;
    - selection/search/filter/scroll/preview state across open/collapse/detail/back.
@@ -69,6 +72,8 @@ single-column/drawer fallback while preserving TASK-017 state.
      preview-open desktop mode;
    - define responsive columns/secondary row so full name, allowed phone,
      branch/group, membership/status, last visit and next action remain visible.
+   - reserve sufficient action width for full `Открыть` label, or use only an
+     explicitly approved icon-only variant with complete accessible name.
 8. Add deterministic fallback:
    - if available width cannot preserve approved data, render full-width list
      plus existing drill-down/right-drawer path;
@@ -123,6 +128,7 @@ single-column/drawer fallback while preserving TASK-017 state.
 
 ### UI/e2e tests
 - Long-value geometry at `1440 x 1200` with real `scrollWidth/clientWidth`.
+- Full row action label geometry: `Открыть` is visibly complete and keyboard reachable.
 - Tablet fallback and mobile/compact-height non-regression.
 - Search/filter/selection/scroll/collapse/detail/back restoration.
 - SuperAdministrator global multi-branch visibility.
@@ -138,9 +144,9 @@ single-column/drawer fallback while preserving TASK-017 state.
 
 ## Regression barrier
 Completion requires an automated long-content desktop test asserting
-`scrollWidth <= clientWidth` with preview open, plus state/focus restoration
-through TASK-017 and tablet/mobile fallback tests. CSS property assertions alone
-are insufficient.
+`scrollWidth <= clientWidth` with preview open and a complete visible `Открыть`
+label, plus state/focus restoration through TASK-017 and tablet/mobile fallback
+tests. CSS property assertions alone are insufficient.
 
 ## Risks
 - Removing min-width can silently truncate decision data instead of solving overflow.

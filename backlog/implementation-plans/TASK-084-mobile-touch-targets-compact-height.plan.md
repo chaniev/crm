@@ -24,6 +24,10 @@ controls используют текст минимум `16px`, а coarse-pointe
 - Подтверждённые дефекты находятся в `EntityLocatorBar`, `CompactFilterPanel`,
   client pagination, schedule refresh и связанных screen overrides в
   `frontend/src/App.css`.
+- Новый screenshot 2026-07-27 подтверждает отдельный класс geometry-регрессии:
+  видимая подпись client action `Открыть` клиппируется до неполного слова.
+  Конкретную desktop split geometry исправляет TASK-089, а этот sweep защищает
+  button labels на mobile/coarse и остальных inventoried routes.
 - Backend contracts, роли и permissions не меняются. SuperAdministrator matrix
   используется только как regression fixture.
 - UX-контракт берётся из source task, `docs/MOBILE_UI_CONTRACT.md` и
@@ -44,6 +48,8 @@ controls используют текст минимум `16px`, а coarse-pointe
 3. До production-кода расширить Playwright integration/geometry tests:
    - измерять bounding boxes targets и gaps на `360 x 780`, `390 x 844`,
      `420 x 912`, `440 x 956`, `768 x 1024`;
+   - проверять, что visible action labels не имеют text clipping/ellipsis,
+     а разрешённый icon-only fallback сохраняет полное accessible name;
    - проверять font-size inputs/selects/textareas, page overflow, safe-area
      clearance и compact-height shell на `912 x 420`, `956 x 440`;
    - повторить matrix с SuperAdministrator fixture без Finance.
@@ -127,6 +133,8 @@ geometry, если shared primitive уже соответствует contract.
 ### UI/e2e tests
 - No target below `44 x 44`, independent gap below `8px`, or iPhone form text
   below `16px`.
+- No visible action label is clipped to an incomplete word; icon-only responsive
+  fallback keeps the exact operation name.
 - No horizontal page overflow at `360/390/420/440`.
 - Compact-height uses mobile/coarse shell and reachable dynamic-viewport surfaces.
 - SuperAdministrator navigation remains Home/Schedule/Clients/Groups + allowed
@@ -144,10 +152,10 @@ geometry, если shared primitive уже соответствует contract.
 - [ ] Simulator/physical-device residual checks documented.
 
 ## Regression barrier
-Automated bounding-box/font-size/overflow checks in the required viewport matrix,
-shared component tests and the SuperAdministrator navigation fixture must remain
-green. No task completion claim without these automated barriers and an explicit
-device-evidence caveat.
+Automated bounding-box/font-size/overflow/label-clipping checks in the required
+viewport matrix, shared component tests and the SuperAdministrator navigation
+fixture must remain green. No task completion claim without these automated
+barriers and an explicit device-evidence caveat.
 
 ## Risks
 - A broad CSS selector can unintentionally reduce desktop density or alter many screens.

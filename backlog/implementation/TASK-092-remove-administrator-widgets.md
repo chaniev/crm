@@ -67,8 +67,12 @@ implementation
 ## Source notes
 - Source file: `backlog/processed/2026-07-26.md`
 - Original note: `удалить виджеты в окне работы с администраторами`
+- Source file: `backlog/processed/2026-07-27-2.md`
+- Original note: `Необходимо проверить все экраны и удалить оставшиеся виджеты. В частности, виджеты ещё присутствуют на экранах раздела «Настройка».`
 
 ## Processing notes
 - Created at: 2026-07-26 16:28
 - Created by skill: codex-backlog-skill
 - Duplicate check: активных задач на удаление сводных виджетов раздела администраторов не найдено; client visual-noise TASK-018 и завершённые group summary задачи относятся к другим экранам.
+- Updated at: 2026-07-27 01:04
+- Duplicate check: часть новой all-screen заметки про administrator settings полностью покрыта этой implementation task; scope не изменён. Остаточные BranchSettings/group-edit widgets вынесены в TASK-101.

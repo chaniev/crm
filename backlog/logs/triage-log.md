@@ -1366,3 +1366,36 @@
 - needs-clarification: 0
 - updated existing: 2
 - processed files: 1
+
+# 2026-07-27 01:04
+
+## Processed inbox files
+- 2026-07-27-2.md
+
+## Created tasks
+- /backlog/tasks-ready/TASK-097-trainer-edit-single-return-action.md
+- /backlog/tasks-ready/TASK-098-trainer-list-default-badges-cleanup.md
+- /backlog/tasks-ready/TASK-099-audit-log-remove-action-column.md
+- /backlog/needs-clarification/TASK-100-membership-catalog-list-type-badges.md
+- /backlog/tasks-ready/TASK-101-remove-residual-metric-widgets-settings-group-edit.md
+
+## Updated existing tasks
+- /backlog/implementation/TASK-084-mobile-touch-targets-compact-height.md
+- /backlog/implementation/TASK-086-mobile-groups-search-filter-paging.md
+- /backlog/implementation/TASK-089-desktop-client-list-preview-overflow.md
+- /backlog/implementation/TASK-092-remove-administrator-widgets.md
+- /backlog/implementation/TASK-095-remove-residual-service-copy.md
+
+## Skipped duplicates
+- Обрезанная подпись `Открыть` является конкретным evidence для desktop client split TASK-089; общий all-screen button-label sweep добавлен в TASK-084, отдельная задача не создана.
+- Decorative copy экрана редактирования тренера добавлена в TASK-095; duplicate return action вынесен в TASK-097 как отдельная interaction-задача.
+- Administrator metrics уже удаляются TASK-092, а group registry summary — TASK-086; TASK-101 охватывает только оставшиеся BranchSettings и group-edit `MetricCard`.
+- Завершённая TASK-057 удаляла колонку `Объект`, но сохраняла `Действие`, поэтому TASK-099 создана как отдельный follow-up.
+- Завершённая TASK-070 требует заметную системную семантику Professional; TASK-100 помещена в clarification вместо автоматического удаления единственной метки.
+
+## Summary
+- tasks-ready: 4
+- risky: 0
+- needs-clarification: 1
+- updated existing: 5
+- processed files: 1

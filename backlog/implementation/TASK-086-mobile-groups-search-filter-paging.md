@@ -152,6 +152,8 @@ contract.
 - Evidence date: 2026-07-25.
 - Source file: `backlog/processed/2026-07-27.md`
 - Original note: `На экранах «Группы» и «Тренеры» отсутствует поиск. Необходимо добавить возможность поиска на обоих экранах.`
+- Source file: `backlog/processed/2026-07-27-2.md`
+- Original note: `Необходимо проверить все экраны и удалить оставшиеся виджеты.`
 
 ## Visual comparison
 - [Сейчас / после](../mockups/usability-2026-07-25/TASK-086-comparison.png)
@@ -172,3 +174,5 @@ contract.
 - Duplicate check: часть новой заметки про поиск групп полностью покрыта этой
   implementation task; отдельная задача не создана, scope и acceptance
   criteria не изменены. Поиск тренеров вынесен в TASK-096.
+- Updated at: 2026-07-27 01:04
+- Duplicate check: group-registry summary widget уже явно удаляется этой implementation task; новая all-screen заметка добавлена как source evidence без изменения scope. Другие непокрытые MetricCard вынесены в TASK-101.
