@@ -1,7 +1,13 @@
 # TASK-101: Удалить оставшиеся неоперационные metric-виджеты
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 20:00
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-101-remove-residual-metric-widgets-settings-group-edit.plan.md
+- implementation_branch: fix/TASK-101-remove-residual-metric-widgets-settings-group-edit
 
 ## Goal
 Экраны филиалов и редактирования группы сразу показывают рабочие controls и данные без агрегатных карточек, не меняющих текущее решение пользователя.

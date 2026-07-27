@@ -1,7 +1,13 @@
 # TASK-098: Убрать обычные статусные метки из списка тренеров
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 20:00
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-098-trainer-list-default-badges-cleanup.plan.md
+- implementation_branch: fix/TASK-098-trainer-list-default-badges-cleanup
 
 ## Goal
 Список тренеров показывает ФИО, идентификационные данные, исключительные состояния и доступное действие без повторения обычной роли и нормальных статусов.

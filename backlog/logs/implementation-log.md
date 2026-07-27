@@ -997,3 +997,27 @@
 - skipped: 0
 - plans created: 4
 - note: user explicitly selected the four-task batch. UX research and UI handoff fixed the safe execution order as TASK-094 → TASK-093 → TASK-096, with TASK-095 after overlapping shared-toolbar work. TASK-086 remains owner of Groups search/filter/paging and TASK-092 remains owner of administrator widget removal. Every plan uses a separate branch/worktree, tests-before-production red/green order and automated mobile/theme/accessibility regression barrier; project code was not changed.
+
+# 2026-07-27 20:00
+
+## Moved to implementation
+- /backlog/implementation/TASK-097-trainer-edit-single-return-action.md
+- /backlog/implementation/TASK-098-trainer-list-default-badges-cleanup.md
+- /backlog/implementation/TASK-099-audit-log-remove-action-column.md
+- /backlog/implementation/TASK-101-remove-residual-metric-widgets-settings-group-edit.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-097-trainer-edit-single-return-action.plan.md
+- /backlog/implementation-plans/TASK-098-trainer-list-default-badges-cleanup.plan.md
+- /backlog/implementation-plans/TASK-099-audit-log-remove-action-column.plan.md
+- /backlog/implementation-plans/TASK-100-membership-catalog-list-type-badges.plan.md
+- /backlog/implementation-plans/TASK-101-remove-residual-metric-widgets-settings-group-edit.plan.md
+
+## Skipped tasks
+- TASK-100-membership-catalog-list-type-badges.md — not moved: source remains in `/backlog/needs-clarification`, `Safe for Codex: no`; product must decide whether the single exceptional `Профессиональный` system badge remains after generic type badges are removed. A conditional test-first plan was created with `Ready for Codex execution: no`.
+
+## Summary
+- moved: 4
+- skipped: 1
+- plans created: 5
+- note: user explicitly selected the five-task batch. TASK-098 runs after TASK-096; TASK-101 runs after TASK-086/TASK-092; TASK-097 runs after TASK-095/TASK-101 to avoid overlapping ownership. Every executable task has a separate branch/worktree precondition, tests-before-production red/green order and automated component/Playwright/mobile regression barrier. TASK-100 was planned but not selected for execution because its TASK-070 product contract is unresolved. Project code was not changed.

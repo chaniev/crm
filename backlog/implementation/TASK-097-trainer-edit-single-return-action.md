@@ -1,7 +1,13 @@
 # TASK-097: Оставить одно действие возврата на экранах редактирования
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 20:00
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-097-trainer-edit-single-return-action.plan.md
+- implementation_branch: fix/TASK-097-trainer-edit-single-return-action
 
 ## Goal
 Пользователь редактирует тренера и другие сущности без конкурирующих кнопок возврата: сохранение остаётся единственным primary action, а возврат к списку представлен один раз.

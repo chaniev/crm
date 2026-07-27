@@ -1,7 +1,13 @@
 # TASK-099: Удалить колонку «Действие» из списка журнала
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-27 20:00
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-099-audit-log-remove-action-column.plan.md
+- implementation_branch: fix/TASK-099-audit-log-remove-action-column
 
 ## Goal
 Пользователь быстрее сканирует журнал по времени, описанию, автору и деталям без отдельной повторяющей колонки `Действие`.
