@@ -1,16 +1,15 @@
 # Implementation Plan: TASK-100 Убрать метки типа абонемента из каталога
 
 ## Source task
-/backlog/tasks-ready/TASK-100-membership-catalog-list-type-badges.md
+/backlog/implementation/TASK-100-membership-catalog-list-type-badges.md
 
 ## Implementation branch
 fix/TASK-100-membership-catalog-list-type-badges
 
 Branch rules:
-- ветку и worktree не создавать, пока source task не выбрана для реализации и
-  не переведена в `/backlog/implementation`;
-- после выбора задачи использовать `.agents/skills/task-worktree/SKILL.md` и
-  создать отдельный worktree от актуального `origin/main`;
+- перед кодом использовать `.agents/skills/task-worktree/SKILL.md` и создать
+  отдельный worktree от актуального `origin/main`;
+- подтвердить clean status, ownership branch и active branch;
 - не менять backend `behaviorKind`, Professional privileges, catalog forms,
   permissions или TASK-070 contracts;
 - не распространять list-row cleanup на другие интерфейсы.
@@ -57,15 +56,17 @@ Gate закрыт 2026-07-27:
 - Row не оставляет пустого badge wrapper/gap и не получает horizontal scroll.
 
 ## Dependencies and execution order
-1. Product contract зафиксирован в `/backlog/tasks-ready/TASK-100-...md`.
-2. Отдельным planning run выбрать задачу и перевести source task в
-   `/backlog/implementation` с lifecycle metadata.
-3. Выполнить TASK-100 на dedicated branch/worktree.
+1. Product contract зафиксирован в `/backlog/implementation/TASK-100-...md`.
+2. Дождаться merge TASK-093 в `origin/main`, поскольку обе задачи меняют
+   `MembershipCatalogSettings.tsx`; TASK-093 владеет shared action placement,
+   TASK-100 — только badge cleanup list rows.
+3. Выполнить TASK-100 на dedicated branch/worktree из обновлённого
+   `origin/main`.
 
 ## Execution steps
-1. После выбора задачи и перевода в implementation создать isolated worktree,
-   затем повторно прочитать merged `MembershipCatalogSettings`, TASK-070
-   source/plan и role-scoped settings tests.
+1. После merge TASK-093 создать isolated worktree, затем повторно прочитать
+   merged `MembershipCatalogSettings`, TASK-070 source/plan и role-scoped
+   settings tests.
 2. До production-кода добавить component row matrix:
    - `SingleVisit` с произвольным именем;
    - `Term` с произвольным именем;
@@ -132,7 +133,8 @@ Gate закрыт 2026-07-27:
 
 ### Integration tests
 - Settings component integration с существующим API response доказывает, что
-  display rule использует `behaviorKind`, не меняя request/response contracts.
+  строки сохраняют name/price/availability/edit action и не показывают badges
+  для всех значений `behaviorKind`, не меняя request/response contracts.
 - Backend integration tests неприменимы, если утверждён list-only вариант:
   backend semantics не меняются.
 - Tests are written before production code and must fail on current generic
@@ -178,10 +180,11 @@ Browser-level check защищает от двойного текста, пус�
 
 ## Stop conditions
 Остановиться и не писать production-код, если:
+- TASK-093 не merged в `origin/main`;
 - изменение требует удалить или изменить Professional marker вне catalog list rows;
 - Professional presentation приходится выводить из имени или frontend role inference;
 - scope расширяется в backend privileges/catalog contracts;
 - task не переведена в implementation или worktree/branch невалиден.
 
 ## Ready for Codex execution
-no — product decision resolved; task awaits separate implementation selection
+yes, after TASK-093 is merged into origin/main

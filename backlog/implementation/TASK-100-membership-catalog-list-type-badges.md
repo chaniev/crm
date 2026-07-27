@@ -1,7 +1,7 @@
 # TASK-100: Убрать метки типа абонемента из каталога
 
 ## Status
-ready
+implementation
 
 ## Goal
 Строки каталога абонементов показывают только данные, необходимые для просмотра и редактирования варианта, без behavior/type/system badges.
@@ -47,7 +47,7 @@ ready
 - [ ] Добавить list-row cases для `SingleVisit`, `Term` и `Professional`.
 - [ ] Проверить нулевое количество behavior/type/system badges внутри каждой строки.
 - [ ] Проверить, что create form по-прежнему содержит выбор поведения для разрешённых типов.
-- [ ] Запустить frontend unit tests, lint и build после перевода задачи в ready.
+- [ ] При реализации запустить frontend unit tests, lint и build.
 
 ## AI safety
 - Safe for Codex: yes
@@ -58,6 +58,12 @@ ready
 - [x] Удалить из list rows все behavior/type/system badges, включая специальную метку `Профессиональный`.
 - [x] Не показывать отдельную метку, даже если название варианта отличается от `Профессиональный`.
 - [x] Сохранить системную семантику `Professional` в backend-контрактах и на остальных предусмотренных TASK-070 интерфейсах.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-28 00:45
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-100-membership-catalog-list-type-badges.plan.md
+- implementation_branch: fix/TASK-100-membership-catalog-list-type-badges
 
 ## Source notes
 - Source file: `backlog/processed/2026-07-27-2.md`

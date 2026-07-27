@@ -1038,3 +1038,26 @@
 - skipped: 0
 - plans created: 1
 - note: user explicitly selected low-risk frontend TASK-017. The plan uses branch `fix/TASK-017-client-list-return-state`, a versioned per-history-entry state boundary without URL/localStorage/sessionStorage or cached client data, unit and frontend integration tests before production code, red/green Playwright coverage for browser Back and the explicit return CTA, direct-link/stale-data fallbacks, mobile WebKit checks and one reusable contract for downstream TASK-085/TASK-089. Project code was not changed.
+
+# 2026-07-28 00:45
+
+## Moved to implementation
+- /backlog/implementation/TASK-100-membership-catalog-list-type-badges.md
+
+## Updated implementation plans
+- /backlog/implementation-plans/TASK-100-membership-catalog-list-type-badges.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans updated: 1
+- note: product clarification is resolved: all behavior/type/system badges are
+  removed only from membership catalog list rows, including `Professional`;
+  TASK-070 semantics and other interfaces remain unchanged. TASK-100 is
+  low-risk and Safe for Codex, uses dedicated branch
+  `fix/TASK-100-membership-catalog-list-type-badges`, preserves tests-before-
+  production order and waits for TASK-093 merge because both plans touch
+  `MembershipCatalogSettings.tsx`. Project code was not changed.
