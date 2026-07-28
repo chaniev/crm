@@ -24,6 +24,9 @@ single-column/drawer fallback while preserving TASK-017 state.
   and makes the list `overflow-x:auto`; measured content exceeds container.
 - Screenshot 2026-07-27 показывает пользовательский симптом той же geometry:
   видимый label row action `Открыть` обрезан до неполного слова.
+- TASK-084 намеренно оставляет этот client preview-open `1440 x 1200` case как
+  machine-readable exception с `ownerTask: TASK-089`; эта задача владеет
+  исправлением, regression test и удалением исключения.
 - `useClientsListState` selects first/restored client, but there is no explicit
   persistent collapse state or focus-return contract.
 - `ClientsResults` currently renders five desktop columns; lower-priority data
@@ -57,6 +60,8 @@ single-column/drawer fallback while preserving TASK-017 state.
    - `1440 x 1200` open preview with long multi-branch data and
      `scrollWidth <= clientWidth` for list/header;
    - полный видимый label `Открыть` без clipping/ellipsis/overlap;
+   - после зелёного geometry test удалить точечное TASK-084 inventory exception
+     для client preview-open desktop split;
    - `768 x 1024` fallback when required columns do not fit;
    - `390 x 844` and compact-height mobile non-regression;
    - selection/search/filter/scroll/preview state across open/collapse/detail/back.
@@ -146,7 +151,9 @@ single-column/drawer fallback while preserving TASK-017 state.
 Completion requires an automated long-content desktop test asserting
 `scrollWidth <= clientWidth` with preview open and a complete visible `Открыть`
 label, plus state/focus restoration through TASK-017 and tablet/mobile fallback
-tests. CSS property assertions alone are insufficient.
+tests. CSS property assertions alone are insufficient. Completion также
+требует удаления зарегистрированного TASK-084 exception; расширять или
+переносить его запрещено.
 
 ## Risks
 - Removing min-width can silently truncate decision data instead of solving overflow.

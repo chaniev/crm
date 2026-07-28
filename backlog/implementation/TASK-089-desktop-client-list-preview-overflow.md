@@ -42,6 +42,11 @@ Screenshot из inbox 2026-07-27 подтверждает пользовател
 geometry: в строке с длинными значениями кнопка `Открыть` видна как неполная
 подпись `Откры...`/`Откры`.
 
+TASK-084 намеренно не исправляет и не блокируется на этом preview-open desktop
+case: его `1440 x 1200` inventory хранит точечное исключение с
+`ownerTask: TASK-089`. Это исключение должно быть удалено только после
+автоматизированного geometry regression в рамках этой задачи.
+
 ## Scope
 - Desktop split layout списка и client preview.
 - На `1440 x 1200` использовать list-primary split:
@@ -68,6 +73,9 @@ geometry: в строке с длинными значениями кнопка 
   остаётся full-width.
 - Full values для зрячего пользователя через достаточную ширину, wrap или явный tooltip/detail, а не только screen-reader accessible name.
 - Primary row action `Открыть` сохраняет полный видимый label при открытом preview и длинных значениях; icon-only variant допустим только по явному responsive contract с полным accessible name.
+- Удалить зарегистрированное TASK-084 исключение для client preview-open
+  `1440 x 1200` clipping/horizontal overflow после прохождения regression
+  checks этой задачи; не расширять исключение на другие client states/routes.
 - Сохранить selection, search, filters и scroll state.
 - Для SuperAdministrator сохранить branch context, full name и primary preview action в глобальном multi-branch наборе.
 
@@ -155,3 +163,6 @@ geometry: в строке с длинными значениями кнопка 
   work.
 - Updated at: 2026-07-27 01:04
 - Duplicate check: screenshot является конкретным evidence для уже описанной client split/overflow задачи; отдельный TASK не создан. Общий all-screen clipping sweep добавлен в TASK-084.
+- Ownership clarification 2026-07-28: TASK-084 только регистрирует известное
+  preview-open desktop exception; исправление, зелёный `1440 x 1200` geometry
+  test и удаление exception принадлежат TASK-089.
