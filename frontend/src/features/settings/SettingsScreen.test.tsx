@@ -182,6 +182,34 @@ describe('SettingsScreen', () => {
     expect(within(card).getByRole('button', { name: 'Редактировать' })).toBeVisible()
   })
 
+  test('показывает управление группами посещений только по backend allowed action', async () => {
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [
+        {
+          ...buildAdministrator(),
+          id: 'superadmin-1',
+          fullName: 'Суперадминистратор',
+          login: 'superadmin',
+          role: 'SuperAdministrator',
+          branchId: null,
+          branchName: null,
+          attendanceGroupGrantCount: undefined,
+          allowedActions: ['ManageAttendanceScope'],
+          roleOptions: ['SuperAdministrator'],
+        },
+      ],
+      createRoleOptions: ['Administrator'],
+    })
+
+    renderSettings()
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    const card = await screen.findByTestId('administrator-card-superadmin-1')
+
+    expect(within(card).getByRole('button', { name: 'Группы посещений' })).toBeVisible()
+    expect(within(card).queryByRole('button', { name: 'Редактировать' })).not.toBeInTheDocument()
+  })
+
   test('создаёт суперадминистратора из backend options и очищает филиал', async () => {
     vi.mocked(getAdministrators).mockResolvedValue({
       items: [],
@@ -283,6 +311,43 @@ describe('SettingsScreen', () => {
       login: 'new-administrator',
     }))
     await waitFor(() => expect(dialog).not.toBeInTheDocument())
+  })
+
+  test('подставляет единственный активный филиал после догрузки открытой формы создания', async () => {
+    let resolveBranches: ((branches: Awaited<ReturnType<typeof getBranches>>) => void) | undefined
+    vi.mocked(getBranches).mockReturnValue(new Promise((resolve) => {
+      resolveBranches = resolve
+    }))
+
+    renderSettings()
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Добавить администратора' }))[0],
+    )
+
+    const dialog = await screen.findByRole('dialog', { name: 'Новый администратор' })
+    const branch = within(dialog).getByRole('combobox', { name: 'Филиал администратора' })
+    expect(branch).toBeDisabled()
+    expect(branch).toHaveValue('')
+
+    resolveBranches?.([
+      {
+        id: 'branch-1',
+        name: 'Центр',
+        address: null,
+        description: null,
+        isArchived: false,
+        hallCount: 0,
+        groupCount: 0,
+        clientCount: 0,
+      },
+    ])
+
+    await waitFor(() =>
+      expect(
+        within(dialog).getByRole('combobox', { name: 'Филиал администратора' }),
+      ).toHaveValue('Центр'),
+    )
   })
 
   test('несколько активных филиалов требуют явного выбора', async () => {
