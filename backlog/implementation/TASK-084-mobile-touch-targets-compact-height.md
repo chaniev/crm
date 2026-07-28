@@ -8,9 +8,32 @@ implementation
 - moved_from: /backlog/tasks-ready
 - implementation_plan: /backlog/implementation-plans/TASK-084-mobile-touch-targets-compact-height.plan.md
 - implementation_branch: feature/TASK-084-mobile-touch-targets-compact-height
+- implementation_state: not_started
+- last_status_reviewed_at: 2026-07-29 00:15 MSK
+- reviewed_main_commit: 6a9d28b1131a4561d150130ec697256e30f712a0
 
 ## Priority
 P0
+
+## Current status review
+
+- Status remains `implementation`; the task is not ready for `done`.
+- Current `main` contains PR #107 for TASK-091, but no TASK-084 implementation
+  merge or commit.
+- The declared branch
+  `feature/TASK-084-mobile-touch-targets-compact-height` does not exist locally
+  or on `origin`.
+- TASK-091 added focused administrator mobile coverage, but did not implement
+  the all-screen touch-target inventory or the TASK-084 acceptance sweep.
+- Confirmed TASK-084 baseline violations remain on `main`:
+  `EntityLocatorBar` clear control is `36 x 36px`, mobile client pagination is
+  `2.5rem` (`40px`), and schedule refresh requests `42px`.
+- The required machine-readable Playwright inventory with measured targets,
+  gaps, font sizes and the tracked TASK-089 exception is not present.
+- Acceptance criteria and task-specific test checklist therefore remain
+  unchecked.
+- Next action: create the declared branch/worktree from current `origin/main`
+  and execute the approved plan test-first.
 
 ## Goal
 Основные CRM-сценарии остаются управляемыми на touch-устройствах: интерактивные зоны не меньше `44 x 44 CSS px`, текст полей не меньше `16px` на iPhone, а landscape compact-height не переключает интерфейс в тесное desktop-поведение.

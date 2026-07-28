@@ -1061,3 +1061,28 @@
   `fix/TASK-100-membership-catalog-list-type-badges`, preserves tests-before-
   production order and waits for TASK-093 merge because both plans touch
   `MembershipCatalogSettings.tsx`. Project code was not changed.
+
+# 2026-07-29 00:15
+
+## Status reviewed
+- /backlog/implementation/TASK-084-mobile-touch-targets-compact-height.md
+
+## Result
+- status remains: `implementation`
+- implementation state: `not_started`
+- reviewed main: `6a9d28b1131a4561d150130ec697256e30f712a0`
+- merge/branch found: no TASK-084 implementation branch or merge
+
+## Evidence
+- PR #107 on current `main` belongs to TASK-091 and does not close TASK-084.
+- Known undersized controls remain: `36px` locator clear, `40px` mobile client
+  pagination and `42px` schedule refresh.
+- Required machine-readable touch-target inventory is absent.
+- No acceptance or task-specific test checklist item was marked complete.
+
+## Summary
+- moved: 0
+- completed: 0
+- note: TASK-084 remains selected for implementation, but execution has not
+  started. The next step is the declared isolated branch/worktree and the
+  approved test-first plan.
