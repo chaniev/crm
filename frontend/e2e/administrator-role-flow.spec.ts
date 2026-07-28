@@ -318,6 +318,108 @@ test('форма администратора сохраняет геометр�
   }
 })
 
+test('администрирование администраторов использует allowedActions для карточек действий на мобильном списке', async ({ page }) => {
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const method = route.request().method()
+
+    if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, 200, { items: [] })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/branches' && method === 'GET') {
+      await fulfillJson(route, 200, BRANCHES)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/group-types' && method === 'GET') {
+      await fulfillJson(route, 200, [])
+      return
+    }
+
+    if (requestUrl.pathname === '/api/settings/membership-catalog' && method === 'GET') {
+      await fulfillJson(route, 200, {
+        items: [],
+      })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/settings/administrators' && method === 'GET') {
+      await fulfillJson(route, 200, {
+        items: [
+          {
+            id: 'admin-actions',
+            fullName: 'Суперадмин action',
+            login: 'admin-actions',
+            role: 'SuperAdministrator',
+            mustChangePassword: false,
+            isActive: true,
+            branchId: null,
+            branchName: null,
+            allowedActions: ['ManageAttendanceScope'],
+          },
+          {
+            id: 'admin-view-only',
+            fullName: 'Только просмотр',
+            login: 'admin-view-only',
+            role: 'Administrator',
+            mustChangePassword: false,
+            isActive: true,
+            branchId: 'branch-1',
+            branchName: 'Центр',
+            allowedActions: [],
+          },
+        ],
+        createRoleOptions: ['Administrator'],
+      })
+      return
+    }
+
+    throw new Error(
+      `Unexpected allowed-actions API request: ${method} ${requestUrl.pathname}`,
+    )
+  })
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/settings')
+
+  await page.getByRole('tab', { name: 'Администраторы' }).click()
+
+  const managedCard = page.getByTestId('administrator-card-admin-actions')
+  const viewOnlyCard = page.getByTestId('administrator-card-admin-view-only')
+
+  await expect(managedCard).toBeVisible()
+  await expect(viewOnlyCard).toBeVisible()
+
+  await expect(managedCard.getByRole('button', { name: 'Группы посещений' })).toBeVisible()
+  await expect(managedCard.getByRole('button', { name: 'Редактировать' })).toHaveCount(0)
+
+  await expect(viewOnlyCard.getByText('Только просмотр', { exact: true }).first()).toBeVisible()
+  await expect(viewOnlyCard.getByRole('button', { name: 'Группы посещений' })).toHaveCount(0)
+  await expect(viewOnlyCard.getByRole('button', { name: 'Редактировать' })).toHaveCount(0)
+})
+
 async function mockAdministratorGeometryApi(page: Page) {
   await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
     const requestUrl = new URL(route.request().url())

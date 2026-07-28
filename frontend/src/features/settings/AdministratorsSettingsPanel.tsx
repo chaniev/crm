@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -93,7 +93,10 @@ export function AdministratorsSettingsPanel({
   const [submitting, setSubmitting] = useState(false)
   const submittingRef = useRef(false)
   const modalOpenerRef = useRef<HTMLElement | null>(null)
-  const activeBranches = branches.filter((branch) => !branch.isArchived)
+  const activeBranches = useMemo(
+    () => branches.filter((branch) => !branch.isArchived),
+    [branches],
+  )
   const canCreateAdministrator = createRoleOptions.length > 0
   const createForm = useForm<CreateUserFormValues>({
     initialValues: buildCreateInitialValues('Administrator', ''),
@@ -193,6 +196,32 @@ export function AdministratorsSettingsPanel({
 
     return () => controller.abort()
   }, [branchesReloadKey])
+
+  useEffect(() => {
+    if (modalState?.mode !== 'create') {
+      return
+    }
+
+    if (branchesLoading || branchesError) {
+      return
+    }
+
+    if (createForm.values.role !== 'Administrator' || createForm.values.branchId) {
+      return
+    }
+
+    if (activeBranches.length === 1) {
+      createForm.setFieldValue('branchId', activeBranches[0].id)
+    }
+  }, [
+    activeBranches,
+    branchesError,
+    branchesLoading,
+    createForm,
+    createForm.values.branchId,
+    createForm.values.role,
+    modalState?.mode,
+  ])
 
   function openCreateModal(event: MouseEvent<HTMLButtonElement>) {
     modalOpenerRef.current = event.currentTarget
@@ -949,8 +978,7 @@ function canEditStaffTarget(user: UserListItem) {
 }
 
 function canManageAttendanceScope(user: UserListItem) {
-  return user.role === 'Administrator' &&
-    user.allowedActions?.includes('ManageAttendanceScope') === true
+  return user.allowedActions?.includes('ManageAttendanceScope') === true
 }
 
 function formatAttendanceScopeSummary(user: UserListItem) {

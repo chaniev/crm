@@ -106,9 +106,18 @@ internal static class UserRequestValidator
 
     public static UserRole? ParseRole(string? role)
     {
-        return Enum.TryParse<UserRole>(role?.Trim(), ignoreCase: true, out var parsedRole)
-            ? parsedRole
-            : null;
+        var normalizedRole = role?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedRole))
+        {
+            return null;
+        }
+
+        var roleName = Enum.GetNames<UserRole>()
+            .FirstOrDefault(name => string.Equals(name, normalizedRole, StringComparison.OrdinalIgnoreCase));
+
+        return roleName is null
+            ? null
+            : Enum.Parse<UserRole>(roleName);
     }
 
     public static (MessengerPlatform? Platform, string? PlatformUserId) NormalizeMessengerIdentity(

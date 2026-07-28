@@ -553,10 +553,14 @@ public class UsersApiTests
     [InlineData("/users", "null")]
     [InlineData("/users", "empty")]
     [InlineData("/users", "unknown")]
+    [InlineData("/users", "definedNumeric")]
+    [InlineData("/users", "undefinedNumeric")]
     [InlineData("/settings/administrators", "missing")]
     [InlineData("/settings/administrators", "null")]
     [InlineData("/settings/administrators", "empty")]
     [InlineData("/settings/administrators", "unknown")]
+    [InlineData("/settings/administrators", "definedNumeric")]
+    [InlineData("/settings/administrators", "undefinedNumeric")]
     public async Task Create_role_validation_returns_role_field_error_before_family_authorization(
         string endpoint,
         string roleCase)
@@ -587,11 +591,57 @@ public class UsersApiTests
                 "null" => null,
                 "empty" => " ",
                 "unknown" => "UnknownRole",
+                "definedNumeric" => "4",
+                "undefinedNumeric" => "999",
                 _ => throw new ArgumentOutOfRangeException(nameof(roleCase), roleCase, "Unsupported role case.")
             };
         }
 
         using var response = await PostJsonAsync(client, endpoint, payload, session.CsrfToken);
+        var errors = await ReadValidationErrorsAsync(response);
+
+        AssertHasError(errors, "role");
+    }
+
+    [Theory]
+    [InlineData("/users", "definedNumeric")]
+    [InlineData("/users", "undefinedNumeric")]
+    [InlineData("/settings/administrators", "definedNumeric")]
+    [InlineData("/settings/administrators", "undefinedNumeric")]
+    public async Task Update_role_validation_returns_role_field_error_for_numeric_payloads(
+        string endpoint,
+        string roleCase)
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var targetId = endpoint == "/settings/administrators"
+            ? seeded.AdministratorId
+            : seeded.CoachId;
+        var payload = new
+        {
+            FullName = "Role validation update",
+            Login = endpoint == "/settings/administrators"
+                ? seeded.AdministratorLogin
+                : seeded.CoachLogin,
+            Role = roleCase switch
+            {
+                "definedNumeric" => "4",
+                "undefinedNumeric" => "999",
+                _ => throw new ArgumentOutOfRangeException(nameof(roleCase), roleCase, "Unsupported role case.")
+            },
+            MustChangePassword = false,
+            IsActive = true,
+            BranchId = endpoint == "/settings/administrators" ? seeded.BranchId : (Guid?)null
+        };
+
+        using var response = await PutJsonAsync(client, $"{endpoint}/{targetId}", payload, session.CsrfToken);
         var errors = await ReadValidationErrorsAsync(response);
 
         AssertHasError(errors, "role");
