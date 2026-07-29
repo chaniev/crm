@@ -68,7 +68,7 @@ import {
 } from '../shared/ux'
 
 const SCHEDULE_GROUPS_PAGE_SIZE = 100
-const MOBILE_BREAKPOINT = '(max-width: 47.99em)'
+const MOBILE_BREAKPOINT = '(max-width: 47.99em), (max-height: 30rem) and (pointer: coarse)'
 const SCHEDULE_DESKTOP_HOUR_HEIGHT_PX = 76
 const SCHEDULE_MOBILE_HOUR_HEIGHT_PX = 96
 const SCHEDULE_LANE_GAP_PX = 8
@@ -374,7 +374,7 @@ function ScheduleFiltersToolbar({
           icon={<IconRefresh size={18} />}
           label="Обновить"
           onClick={onRefresh}
-          size={42}
+          size={44}
         />
       )}
       className="schedule-filter-toolbar"

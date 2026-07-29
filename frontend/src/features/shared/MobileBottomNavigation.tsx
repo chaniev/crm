@@ -95,7 +95,10 @@ export function MobileBottomNavigation({
             header: 'mobile-bottom-nav__sheet-header',
             title: 'mobile-bottom-nav__sheet-title',
           }}
-          closeButtonProps={{ 'aria-label': 'Закрыть остальные разделы' }}
+          closeButtonProps={{
+            'aria-label': 'Закрыть остальные разделы',
+            className: 'temporary-surface-close mobile-bottom-nav__sheet-close',
+          }}
           closeOnClickOutside
           closeOnEscape
           onClose={closeOverflow}

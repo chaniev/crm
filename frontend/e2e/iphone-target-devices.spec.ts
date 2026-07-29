@@ -39,6 +39,91 @@ const APP_CONFIG = {
   authBackgroundImageId: 'k4pro-login-v1',
 } as const
 
+const CLIENT_LIST_ITEM = {
+  id: 'client-1',
+  fullName: 'Александр Петров',
+  groupCount: 1,
+  branchId: 'branch-1',
+  branchName: 'Центр',
+  hasActiveMembership: false,
+  hasCurrentMembership: false,
+  membershipWarning: false,
+  status: 'Active',
+  phone: '+7 999 111-22-33',
+  notes: '',
+  currentMembership: {
+    id: 'membership-1',
+    saleId: 'sale-1',
+    membershipCatalogItemId: 'catalog-1',
+    membershipName: 'Месяц',
+    behaviorKind: 'Term',
+    purchaseDate: '2026-06-01',
+    paymentDate: '2026-06-01',
+    paymentRecordedAt: '2026-06-01T09:00:00Z',
+    paymentRecordedByUserId: 'coach-1',
+    paymentRecordedByUserName: 'Тренер',
+    expirationDate: '2026-07-01',
+    grossAmount: 3500,
+    catalogPrice: 3500,
+    singleVisitUsed: false,
+    pricingMode: 'Catalog',
+  },
+  currentMembershipSummary: {
+    id: 'membership-1',
+    saleId: 'sale-1',
+    membershipCatalogItemId: 'catalog-1',
+    membershipName: 'Месяц',
+    behaviorKind: 'Term',
+    purchaseDate: '2026-06-01',
+    paymentDate: '2026-06-01',
+    paymentRecordedAt: '2026-06-01T09:00:00Z',
+    paymentRecordedByUserId: 'coach-1',
+    paymentRecordedByUserName: 'Тренер',
+    expirationDate: '2026-07-01',
+    grossAmount: 3500,
+    catalogPrice: 3500,
+    singleVisitUsed: false,
+    pricingMode: 'Catalog',
+  },
+  attendanceHistory: [],
+  attendanceHistoryTotalCount: 0,
+  membershipHistory: [],
+} as const
+
+const CLIENTS_LIST_RESPONSE = {
+  items: [CLIENT_LIST_ITEM],
+  totalCount: 1,
+  activeCount: 1,
+  archivedCount: 0,
+  skip: 0,
+  take: 20,
+  page: 1,
+  pageSize: 20,
+  hasNextPage: false,
+} as const
+
+const CLIENT_LIST_GROUPS_RESPONSE = [
+  {
+    id: 'group-1',
+    name: 'Группа 7',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Зал',
+    groupTypeId: 'type-1',
+    groupTypeName: 'Базовый',
+    trainingStartTime: '19:00',
+    durationMinutes: 60,
+    weekdays: [2, 4],
+    trainers: [{ id: 'coach-1', fullName: 'Тренер', login: 'coach' }],
+    trainerIds: ['coach-1'],
+    trainerCount: 1,
+    trainerNames: ['Тренер'],
+    clientCount: 12,
+    isActive: true,
+  },
+] as const
+
 const UNAUTHENTICATED_SESSION = {
   isAuthenticated: false,
   csrfToken: '',
@@ -236,6 +321,95 @@ test('target compact-height landscape keeps the authenticated shell usable', asy
   await expectNoHorizontalScroll(page)
 })
 
+test('iPhone clients route keeps core controls touch-safe and readable', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.setViewportSize(target)
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.goto('/clients')
+
+  const searchField = page.getByRole('textbox', { name: 'Поиск по имени или телефону' })
+  const filterLauncher = page.getByRole('button', { name: 'Открыть фильтры' })
+  const refreshButton = page.getByRole('button', { name: 'Обновить список' })
+  const createButton = page.getByRole('button', { name: 'Новый клиент' })
+
+  await expect(page.getByTestId('clients-screen')).toBeVisible()
+  await expectNoHorizontalScroll(page)
+
+  for (const control of [searchField, filterLauncher, refreshButton, createButton]) {
+    const box = await control.boundingBox()
+    expect(box).not.toBeNull()
+    expect(box!.width).toBeGreaterThanOrEqual(44)
+    expect(box!.height).toBeGreaterThanOrEqual(44)
+  }
+
+  const searchFontSize = await searchField.evaluate(
+    (element) => Number.parseFloat(getComputedStyle(element).fontSize),
+  )
+  expect(searchFontSize).toBeGreaterThanOrEqual(16)
+  await expect(searchField).toBeInViewport()
+  await expect(filterLauncher).toBeInViewport()
+  await expect(refreshButton).toBeInViewport()
+  await expect(createButton).toBeInViewport()
+})
+
+test('compact-height iPhone filter surface is keyboard-accessible and focus-safe', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const compactViewport = {
+    width: target.height,
+    height: target.width,
+  }
+
+  await page.setViewportSize(compactViewport)
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.goto('/clients')
+
+  const filterLauncher = page.getByRole('button', { name: 'Открыть фильтры' })
+  await expect(filterLauncher).toBeVisible()
+  await expect(filterLauncher).toBeInViewport()
+  await filterLauncher.focus()
+  await expect(filterLauncher).toBeFocused()
+  await page.keyboard.press('Enter')
+
+  const filterDialog = page.getByRole('dialog', { name: 'Фильтры клиентов' })
+  const closeButton = filterDialog.getByRole('button', { name: 'Закрыть фильтры клиентов' })
+  const applyButton = filterDialog.getByRole('button', { name: 'Готово' })
+
+  await expect(filterDialog).toBeVisible()
+  await expect(closeButton).toBeVisible()
+  await expect(applyButton).toBeVisible()
+
+  for (const control of [closeButton, applyButton]) {
+    const box = await control.boundingBox()
+    expect(box).not.toBeNull()
+    expect(box!.width).toBeGreaterThanOrEqual(44)
+    expect(box!.height).toBeGreaterThanOrEqual(43.9)
+    await expect(control).toBeInViewport()
+  }
+
+  const visibleFormControls = filterDialog.locator(
+    'input:visible, select:visible, textarea:visible',
+  )
+  const formControlCount = await visibleFormControls.count()
+  expect(formControlCount).toBeGreaterThan(0)
+
+  for (let index = 0; index < formControlCount; index += 1) {
+    const fontSize = await visibleFormControls.nth(index).evaluate(
+      (element) => Number.parseFloat(getComputedStyle(element).fontSize),
+    )
+    expect(fontSize).toBeGreaterThanOrEqual(16)
+  }
+
+  await expectNoHorizontalScroll(page)
+  await page.keyboard.press('Escape')
+  await expect(filterDialog).toBeHidden()
+  await expect(filterLauncher).toBeFocused()
+})
+
 test('в целевых iPhone-профилях админ-панель рендерится без горизонтального скролла', async ({
   page,
 }, testInfo) => {
@@ -269,6 +443,21 @@ test('в целевых iPhone-профилях админ-панель ренд
         today: '2026-07-25',
         maxTrainingDate: '2026-07-25',
       })
+      return
+    }
+
+    if (pathname === '/api/groups' && method === 'GET') {
+      await fulfillJson(route, CLIENT_LIST_GROUPS_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/clients' && method === 'GET') {
+      await fulfillJson(route, CLIENTS_LIST_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/clients/client-1' && method === 'GET') {
+      await fulfillJson(route, CLIENT_LIST_ITEM)
       return
     }
 
@@ -470,6 +659,21 @@ async function mockApi(
         today: '2026-07-25',
         maxTrainingDate: '2026-07-25',
       })
+      return
+    }
+
+    if (pathname === '/api/groups' && method === 'GET') {
+      await fulfillJson(route, CLIENT_LIST_GROUPS_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/clients' && method === 'GET') {
+      await fulfillJson(route, CLIENTS_LIST_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/clients/client-1' && method === 'GET') {
+      await fulfillJson(route, CLIENT_LIST_ITEM)
       return
     }
 

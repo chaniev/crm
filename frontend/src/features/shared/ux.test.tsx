@@ -336,6 +336,27 @@ describe('shared UX components', () => {
     expect(screen.getAllByText('2').length).toBeGreaterThan(0)
   })
 
+  test('EntityLocatorBar keeps clear action with dedicated touch contract class', () => {
+    renderWithProviders(
+      <EntityLocatorBar
+        data-testid="entity-locator-bar"
+        accessibleLabel="Поиск клиентов"
+        placeholder="Поиск клиентов..."
+        value="Алекс"
+        onChange={() => undefined}
+        onClear={() => undefined}
+        onOpenFilters={() => undefined}
+        activeFilterCount={0}
+        resultsId="entity-results"
+      />,
+    )
+
+    const clearButton = screen.getByRole('button', { name: 'Сбросить поисковый запрос' })
+
+    expect(clearButton).toHaveClass('entity-locator-bar__clear')
+    expect(clearButton).toHaveAttribute('type', 'button')
+  })
+
   test('EntityLocatorBar keeps primary and frequent actions in the same non-wrapping container', () => {
     renderWithProviders(
       <EntityLocatorBar
@@ -779,6 +800,50 @@ describe('shared UX components', () => {
     }
   })
 
+  test('CompactFilterPanel mobile mode keeps launcher and sheet action classes', () => {
+    const originalMatchMedia = window.matchMedia
+
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: query.includes('max-width'),
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      }),
+    })
+
+    try {
+      renderWithProviders(
+        <CompactFilterPanel
+          onReset={() => undefined}
+          primary={[
+            {
+              key: 'query',
+              label: 'Поиск',
+              render: () => <label htmlFor="query">Поиск<input id="query" /></label>,
+            },
+          ]}
+        />,
+      )
+
+      const launcher = screen.getByRole('button', { name: 'Фильтры' })
+
+      expect(launcher).toHaveClass('compact-filter-panel__mobile-launcher')
+      expect(launcher).toHaveAttribute('type', 'button')
+      expect(launcher).toHaveClass('shared-button')
+    } finally {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: originalMatchMedia,
+      })
+    }
+  })
+
   test('Button and IconButton expose accessible controls', () => {
     const onButtonClick = vi.fn()
     const onIconClick = vi.fn()
@@ -812,6 +877,12 @@ describe('shared UX components', () => {
     rerender(<RefreshButton loading onClick={onClick} />)
 
     expect(screen.getByRole('button', { name: 'Обновить' })).toBeDisabled()
+  })
+
+  test('RefreshButton keeps shared refresh contract class', () => {
+    renderWithProviders(<RefreshButton />)
+
+    expect(screen.getByRole('button', { name: 'Обновить' })).toHaveClass('refresh-button')
   })
 
   test('EmptyState renders title, optional description and optional action', () => {

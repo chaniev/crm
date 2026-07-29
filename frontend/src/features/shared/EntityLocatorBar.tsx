@@ -67,6 +67,7 @@ export function EntityLocatorBar({
               <IconX size={16} />
             </button>
           ) : null}
+          rightSectionWidth={value ? 44 : undefined}
           value={value}
         />
         <div className="entity-locator-bar__actions">

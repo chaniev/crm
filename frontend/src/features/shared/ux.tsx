@@ -296,7 +296,7 @@ type CompactFilterPanelProps = ComponentPropsWithoutRef<'div'> & {
 }
 
 const compactFilterGapPx = 8
-const compactFilterMobileQuery = '(max-width: 47.99em)'
+const compactFilterMobileQuery = '(max-width: 47.99em), (max-height: 30rem) and (pointer: coarse)'
 
 export function CompactFilterPanel({
   actions,
@@ -521,9 +521,15 @@ export function CompactFilterPanel({
             content: 'compact-filter-panel__sheet-content',
             header: 'compact-filter-panel__sheet-header',
           }}
+          closeButtonProps={{
+            'aria-label': 'Закрыть фильтры',
+            className: 'temporary-surface-close compact-filter-panel__sheet-close',
+          }}
+          closeOnEscape
           onClose={() => setSheetOpened(false)}
           opened={sheetOpened}
           position="bottom"
+          returnFocus
           size="100%"
           title={sheetTitle}
           transitionProps={{ duration: 0 }}

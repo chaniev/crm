@@ -284,7 +284,10 @@ export function ClientsToolbar({
           content: 'clients-v7-filters-drawer__content',
           header: 'clients-v7-filters-drawer__header',
         }}
-        closeButtonProps={{ 'aria-label': 'Закрыть фильтры клиентов' }}
+        closeButtonProps={{
+          'aria-label': 'Закрыть фильтры клиентов',
+          className: 'temporary-surface-close clients-v7-filters-drawer__close',
+        }}
         closeOnClickOutside
         closeOnEscape
         onClose={() => setFiltersOpened(false)}
