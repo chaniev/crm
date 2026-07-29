@@ -1399,3 +1399,64 @@
 - needs-clarification: 1
 - updated existing: 5
 - processed files: 1
+
+# 2026-07-30 post-TASK-084 status audit
+
+## Scope
+
+- Reconciled every active backlog folder with current `origin/main`
+  (`3e203671f98b9198e0cf552934c4fa5ead4a124e`).
+- Compared all 17 implementation cards with main history and available local
+  and remote task branches.
+- Revalidated TASK-084 against its mobile acceptance contract and automated
+  regression barriers.
+- Audit branch: `codex/backlog-status-actualization-2026-07-30`.
+
+## Moved tasks to done
+
+- `/backlog/implementation/TASK-084-mobile-touch-targets-compact-height.md` ->
+  `/backlog/done/TASK-084-mobile-touch-targets-compact-height.md`.
+
+## Moved implementation plans to done
+
+- `/backlog/implementation-plans/TASK-084-mobile-touch-targets-compact-height.plan.md` ->
+  `/backlog/done/TASK-084-mobile-touch-targets-compact-height.plan.md`.
+
+## Evidence
+
+- TASK-084 implementation commit `3e20367` is the current `origin/main`.
+- Shared touch targets, locator clear, client pagination, schedule refresh,
+  compact filters, temporary surfaces and compact-height shell were updated.
+- Machine-readable inventory and target-iPhone WebKit coverage are present.
+- Validation passed: frontend lint; build; unit tests `290/290`; Chromium
+  touch-target inventory `12/12`; target iPhone WebKit `14/14`.
+- The implementation landed directly on `main`, not through the declared
+  task branch/worktree. The deviation is recorded without changing the
+  delivery evidence.
+
+## Kept active
+
+- The other 16 implementation cards remain in `/backlog/implementation`.
+  Their declared implementation branches are absent locally and on `origin`,
+  and no matching delivered implementation was found on current `main`.
+- `tasks-ready` (8), `risky` (6) and `needs-clarification` (7) remain
+  unchanged; inbox and processing are empty.
+- The registered TASK-091 worktree does not reopen that already completed
+  task; worktree cleanup was not part of this audit.
+
+## Residual evidence caveat
+
+- Simulator/physical-device Safari chrome, software keyboard, home indicator
+  and safe-area behavior were not checked. The TASK-084 plan explicitly allows
+  automated code completion with this caveat, so no device-level acceptance is
+  claimed.
+
+## Summary
+
+- moved to done: 1 task
+- moved plans to done: 1
+- active tasks after audit: 37 (`tasks-ready`: 8, `risky`: 6,
+  `needs-clarification`: 7, `implementation`: 16)
+- active implementation plans after audit: 16
+- validation: source/history/branch audit plus frontend lint, build, unit,
+  Chromium geometry inventory and target-iPhone WebKit checks

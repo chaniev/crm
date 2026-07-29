@@ -1,7 +1,19 @@
 # Implementation Plan: TASK-084 Довести touch targets и compact-height shell до mobile acceptance
 
 ## Source task
-/backlog/implementation/TASK-084-mobile-touch-targets-compact-height.md
+/backlog/done/TASK-084-mobile-touch-targets-compact-height.md
+
+Source status is `done`: implementation commit `3e20367` is present on
+`origin/main`; the required lint, build, unit, Chromium inventory and target
+iPhone WebKit barriers passed during the 2026-07-30 status audit. Real
+Simulator/physical-device evidence remains explicitly unverified.
+
+## Implementation status
+
+Done. The implementation landed directly on `main` instead of the declared
+task branch. Automated code acceptance is complete; this plan does not claim
+physical-device Safari chrome, software-keyboard, home-indicator or safe-area
+acceptance.
 
 ## Implementation branch
 feature/TASK-084-mobile-touch-targets-compact-height
@@ -230,17 +242,17 @@ Rules:
   consistent with their backend session fixtures.
 
 ## Test plan
-- [ ] New shared unit/component tests fail for expected baseline reasons.
-- [ ] New geometry specs fail on known undersized controls.
-- [ ] Focus return, Escape/back and visible focus pass.
-- [ ] `npm run test:unit`
-- [ ] affected Playwright specs
-- [ ] `npm run test:e2e:iphone`
-- [ ] `1440 x 1200` clipping/focus/overflow matrix
-- [ ] navigation/access fixtures for all four roles
-- [ ] `npm run lint`
-- [ ] `npm run build`
-- [ ] Simulator/physical-device residual checks documented.
+- [x] New shared unit/component tests cover the corrected shared contracts.
+- [x] New geometry specs cover the known undersized-control baseline.
+- [x] Focus return, Escape/back and visible focus pass.
+- [x] `npm run test:unit`
+- [x] affected Playwright specs
+- [x] `npm run test:e2e:iphone`
+- [x] `1440 x 1200` clipping/focus/overflow matrix
+- [x] navigation/access fixtures for all four roles
+- [x] `npm run lint`
+- [x] `npm run build`
+- [x] Simulator/physical-device residual checks documented as unverified.
 
 ## Regression barrier
 Automated bounding-box/font-size/overflow/label-clipping checks in the required
@@ -265,4 +277,4 @@ Simulator/physical-device acceptance.
 - task worktree или branch не соответствует declared branch.
 
 ## Ready for Codex execution
-yes
+no — implementation completed

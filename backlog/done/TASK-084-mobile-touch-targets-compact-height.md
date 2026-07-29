@@ -1,39 +1,38 @@
 # TASK-084: Довести touch targets и compact-height shell до mobile acceptance
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-26 23:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-084-mobile-touch-targets-compact-height.plan.md
+- implementation_plan: /backlog/done/TASK-084-mobile-touch-targets-compact-height.plan.md
 - implementation_branch: feature/TASK-084-mobile-touch-targets-compact-height
-- implementation_state: not_started
-- last_status_reviewed_at: 2026-07-29 00:15 MSK
-- reviewed_main_commit: 6a9d28b1131a4561d150130ec697256e30f712a0
+- implementation_state: completed
+- implementation_commit: 3e203671f98b9198e0cf552934c4fa5ead4a124e
+- delivered_on_main_at: 2026-07-29
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30 00:42 MSK
+- reviewed_main_commit: 3e203671f98b9198e0cf552934c4fa5ead4a124e
 
 ## Priority
 P0
 
 ## Current status review
 
-- Status remains `implementation`; the task is not ready for `done`.
-- Current `main` contains PR #107 for TASK-091, but no TASK-084 implementation
-  merge or commit.
-- The declared branch
-  `feature/TASK-084-mobile-touch-targets-compact-height` does not exist locally
-  or on `origin`.
-- TASK-091 added focused administrator mobile coverage, but did not implement
-  the all-screen touch-target inventory or the TASK-084 acceptance sweep.
-- Confirmed TASK-084 baseline violations remain on `main`:
-  `EntityLocatorBar` clear control is `36 x 36px`, mobile client pagination is
-  `2.5rem` (`40px`), and schedule refresh requests `42px`.
-- The required machine-readable Playwright inventory with measured targets,
-  gaps, font sizes and the tracked TASK-089 exception is not present.
-- Acceptance criteria and task-specific test checklist therefore remain
-  unchecked.
-- Next action: create the declared branch/worktree from current `origin/main`
-  and execute the approved plan test-first.
+- Status is `done`: implementation commit `3e20367` is the current
+  `origin/main`.
+- Shared targets, locator clear, client pagination, schedule refresh, compact
+  filters, temporary surfaces and compact-height shell now follow the released
+  `44px`/`16px`/safe-area contract.
+- A machine-readable Playwright inventory covers the required viewport matrix,
+  role-aware navigation and the tracked TASK-089 desktop exception.
+- The implementation landed directly on `main` instead of the declared task
+  branch/worktree. This is a repository-workflow deviation, but does not change
+  the delivery evidence used for backlog status.
+- Automated code acceptance passed on 2026-07-30. Real Safari chrome,
+  software-keyboard, home-indicator and physical-device behavior remain an
+  explicit manual-evidence caveat; no device-level acceptance is claimed.
 
 ## Goal
 Основные CRM-сценарии остаются управляемыми на touch-устройствах: интерактивные зоны не меньше `44 x 44 CSS px`, текст полей не меньше `16px` на iPhone, а landscape compact-height не переключает интерфейс в тесное desktop-поведение.
@@ -103,27 +102,27 @@ TASK-090 общий shell и shared primitives существуют, поэто�
 - При открытой клавиатуре focused field, validation/recovery feedback и primary action доступны одним намеренным scroll.
 
 ## Acceptance criteria
-- [ ] На проверенных mobile paths нет интерактивной зоны меньше `44 x 44 CSS px`.
-- [ ] Между независимыми соседними touch targets остаётся минимум `8px`.
-- [ ] Видимые button/action labels отображаются полностью; icon-only fallback используется только по утверждённому responsive contract и сохраняет точное accessible name.
-- [ ] Text inputs, selects и textareas имеют `font-size >= 16px` на iPhone profiles.
-- [ ] Нет unintended horizontal page scrolling на `360`, `390`, `420`, `440`.
-- [ ] `912 x 420` и `956 x 440` не показывают desktop-only shell или controls высотой `36px`.
-- [ ] Fixed/sticky controls учитывают safe-area inset вместе с обычным spacing.
-- [ ] Focus order соответствует визуальному и task order, focus остаётся видимым.
-- [ ] Для SuperAdministrator primary mobile navigation содержит `Home`, `Schedule`, `Clients`, `Groups`, а `Users`, `Audit`, `Settings` достижимы через overflow.
-- [ ] `Finance` не появляется для SuperAdministrator в primary navigation, overflow, disabled controls или route recovery destinations.
+- [x] На проверенных mobile paths нет интерактивной зоны меньше `44 x 44 CSS px`.
+- [x] Между независимыми соседними touch targets остаётся минимум `8px`.
+- [x] Видимые button/action labels отображаются полностью; icon-only fallback используется только по утверждённому responsive contract и сохраняет точное accessible name.
+- [x] Text inputs, selects и textareas имеют `font-size >= 16px` на iPhone profiles.
+- [x] Нет unintended horizontal page scrolling на `360`, `390`, `420`, `440`.
+- [x] `912 x 420` и `956 x 440` не показывают desktop-only shell или controls высотой `36px`.
+- [x] Fixed/sticky controls учитывают safe-area inset вместе с обычным spacing.
+- [x] Focus order соответствует визуальному и task order, focus остаётся видимым.
+- [x] Для SuperAdministrator primary mobile navigation содержит `Home`, `Schedule`, `Clients`, `Groups`, а `Users`, `Audit`, `Settings` достижимы через overflow.
+- [x] `Finance` не появляется для SuperAdministrator в primary navigation, overflow, disabled controls или route recovery destinations.
 
 ## Test checklist
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
-- [ ] `cd frontend && npm run test:unit`
-- [ ] Запустить affected responsive Playwright specs.
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] Проверить `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`.
-- [ ] Проверить длинные и штатные русские action labels на clipping/ellipsis во всех inventoried routes.
-- [ ] Повторить responsive matrix с SuperAdministrator fixture: `branchId: null`, без Finance, `createRoleOptions: ['Administrator', 'Coach']`.
-- [ ] Отдельно зафиксировать Safari chrome, software keyboard, home indicator и physical-device проверки, если Simulator/device недоступны.
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
+- [x] `cd frontend && npm run test:unit`
+- [x] Запустить affected responsive Playwright specs.
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] Проверить `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`.
+- [x] Проверить длинные и штатные русские action labels на clipping/ellipsis во всех inventoried routes.
+- [x] Повторить responsive matrix с SuperAdministrator fixture: `branchId: null`, без Finance, `createRoleOptions: ['Administrator', 'Coach']`.
+- [x] Отдельно зафиксировать Safari chrome, software keyboard, home indicator и physical-device проверки, если Simulator/device недоступны.
 
 ## AI safety
 - Safe for Codex: yes
@@ -159,3 +158,16 @@ TASK-090 общий shell и shared primitives существуют, поэто�
   that TASK-090 explicitly left separate.
 - Updated at: 2026-07-27 01:04
 - Duplicate check: общий all-screen label-clipping sweep добавлен сюда; конкретная desktop client-row регрессия остаётся в TASK-089 и не создаёт отдельную задачу.
+
+## Completion notes
+
+- Delivered by `3e203671f98b9198e0cf552934c4fa5ead4a124e` on `main`.
+- Validation on 2026-07-30: lint passed; build passed; unit tests `290/290`;
+  Chromium touch-target inventory `12/12`; target iPhone WebKit `14/14`.
+- Inventory covers `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`,
+  `768 x 1024`, `1440 x 1200`, `912 x 420` and `956 x 440`, plus
+  SuperAdministrator, Administrator, HeadCoach and Coach navigation fixtures.
+- The only predeclared desktop exception remains owned by TASK-089.
+- Simulator/physical-device Safari chrome, software keyboard, home indicator
+  and safe-area evidence was not collected; automated completion is confirmed
+  without claiming physical-device acceptance.
