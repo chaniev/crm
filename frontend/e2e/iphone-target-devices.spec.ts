@@ -991,6 +991,11 @@ test('в целевых iPhone-профилях админ-панель ренд
     const { pathname } = requestUrl
     const method = route.request().method()
 
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
     if (pathname === '/api/config' && method === 'GET') {
       await fulfillJson(route, APP_CONFIG)
       return
@@ -1101,7 +1106,10 @@ test('в целевых iPhone-профилях админ-панель ренд
     }
 
     if (pathname === '/api/users' && method === 'GET') {
-      await fulfillJson(route, [])
+      await fulfillJson(route, {
+        items: [],
+        createRoleOptions: ['Coach'],
+      })
       return
     }
 
@@ -1186,6 +1194,97 @@ test('в целевых iPhone-профилях админ-панель ренд
   await page.keyboard.press('Escape')
   await expect(compactDialog).toBeHidden()
   await expect(createButton).toBeFocused()
+})
+
+test('целевые iPhone-профили сохраняют поиск тренера доступным в портрете и landscape', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/users' && method === 'GET') {
+      await fulfillJson(route, {
+        items: [
+          {
+            id: 'coach-anna',
+            fullName: 'Анна Ветрова',
+            login: 'anna.login',
+            role: 'Coach',
+            mustChangePassword: false,
+            isActive: true,
+            messengerPlatform: null,
+            messengerPlatformUserId: null,
+            branchId: null,
+            branchName: null,
+            allowedActions: ['Edit'],
+            roleOptions: ['Coach'],
+          },
+          {
+            id: 'coach-boris',
+            fullName: 'Борис Соколов',
+            login: 'boris.login',
+            role: 'Coach',
+            mustChangePassword: false,
+            isActive: true,
+            messengerPlatform: null,
+            messengerPlatformUserId: null,
+            branchId: null,
+            branchName: null,
+            allowedActions: ['Edit'],
+            roleOptions: ['Coach'],
+          },
+        ],
+        createRoleOptions: ['Coach'],
+      })
+      return
+    }
+
+    throw new Error(`Unexpected trainer search iPhone API request: ${method} ${pathname}`)
+  })
+
+  await page.goto('/users')
+
+  const locator = page.getByTestId('users-list-locator')
+  const search = page.getByRole('textbox', { name: 'Найти тренера' })
+  const refresh = page.getByRole('button', { name: 'Обновить' })
+  const create = page.getByRole('button', { name: 'Создать тренера' })
+
+  await expect(locator).toBeVisible()
+  await expect(search).toBeInViewport()
+  await expect(refresh).toBeInViewport()
+  await expect(create).toBeInViewport()
+  await search.fill('  ANNA.LOGIN  ')
+  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  await expect(page.getByTestId('user-card-coach-boris')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Сбросить поисковый запрос' }).click()
+  await expect(search).toBeFocused()
+  await expectNoHorizontalScroll(page)
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await locator.scrollIntoViewIfNeeded()
+  await expect(search).toBeInViewport()
+  await expect(refresh).toBeInViewport()
+  await expect(create).toBeInViewport()
+  await expectNoHorizontalScroll(page)
 })
 
 function targetScreenFor(projectName: string) {

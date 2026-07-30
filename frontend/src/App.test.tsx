@@ -40,17 +40,49 @@ vi.mock('./features/groups/GroupManagement', () => ({
 }))
 
 vi.mock('./features/users/UserManagement', () => ({
-  UserCreateScreen: () => <div data-testid="user-create-screen">New user</div>,
+  UserCreateScreen: ({ onCancel }: { onCancel: () => void }) => (
+    <div data-testid="user-create-screen">
+      New user
+      <button type="button" onClick={onCancel}>Назад к тренерам</button>
+    </div>
+  ),
   UserEditScreen: ({
+    onBack,
     onRefreshSession,
   }: {
+    onBack: () => void
     onRefreshSession: () => Promise<unknown>
   }) => (
     <div data-testid="user-edit-screen">
       Edit user
+      <button type="button" onClick={onBack}>Назад к тренерам</button>
       <button type="button" onClick={() => void onRefreshSession()}>
         Обновить сессию
       </button>
+    </div>
+  ),
+  UsersListScreen: ({
+    onCreate,
+    onEdit,
+    onQueryChange,
+    query,
+  }: {
+    onCreate: () => void
+    onEdit: (userId: string) => void
+    onQueryChange: (query: string) => void
+    query: string
+  }) => (
+    <div data-testid="users-list-screen">
+      <label>
+        Найти тренера
+        <input
+          aria-label="Найти тренера"
+          onChange={(event) => onQueryChange(event.currentTarget.value)}
+          value={query}
+        />
+      </label>
+      <button type="button" onClick={onCreate}>Создать тренера</button>
+      <button type="button" onClick={() => onEdit('trainer-1')}>Изменить тренера</button>
     </div>
   ),
 }))
@@ -189,6 +221,31 @@ afterEach(() => {
 })
 
 describe('App route access contract', () => {
+  test('keeps trainer query through create/edit returns and resets outside Users workflow', async () => {
+    renderAppAt('/users', baseSession)
+
+    const search = await screen.findByRole('textbox', { name: 'Найти тренера' })
+    fireEvent.change(search, { target: { value: 'Анна' } })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Изменить тренера' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/users/trainer-1/edit'))
+    fireEvent.click(screen.getByRole('button', { name: 'Назад к тренерам' }))
+
+    await waitFor(() => expect(window.location.pathname).toBe('/users'))
+    expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveValue('Анна')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Создать тренера' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/users/new'))
+    fireEvent.click(screen.getByRole('button', { name: 'Назад к тренерам' }))
+    expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveValue('Анна')
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Клиенты' })[0])
+    expect(await screen.findByTestId('clients-list-screen')).toBeVisible()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Тренеры' })[0])
+
+    expect(await screen.findByRole('textbox', { name: 'Найти тренера' })).toHaveValue('')
+  })
+
   test('renders an allowed section without access-denial shell', async () => {
     renderAppAt('/clients', baseSession)
 

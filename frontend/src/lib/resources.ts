@@ -63,6 +63,12 @@ export const resources = {
     },
     list: {
       createAction: 'Создать тренера',
+      searchAccessibleLabel: 'Найти тренера',
+      searchPlaceholder: 'ФИО или логин',
+      refreshingLabel: 'Обновляем список тренеров...',
+      staleErrorTitle: 'Список не обновился',
+      emptySearchTitle: 'Тренеры не найдены',
+      emptySearchDescription: 'Проверьте ФИО или логин.',
       metrics: {
         total: {
           label: 'Тренеры',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
+  Alert,
   Badge,
   Group,
   Paper,
@@ -11,31 +12,39 @@ import {
   IconUserEdit,
   IconUsers,
 } from '@tabler/icons-react'
-import { getUsers, type UserListItem } from '../../lib/api'
+import { getUsers, type UserListItem, type UserListResponse } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import {
   Button,
+  EntityLocatorBar,
   EmptyState,
   ErrorState,
   LoadingState,
   PageLayout,
   PageSection,
   TaskToolbarAction,
-  TaskToolbarActions,
   TaskToolbarRefreshAction,
 } from '../shared/ux'
 import { userRoleLabels } from './UserManagement.constants'
+import {
+  filterTrainerListItems,
+  normalizeTrainerListSearchQuery,
+} from './trainerListSearch'
 
 type UsersListScreenProps = {
   onCreate: () => void
   onEdit: (userId: string) => void
+  onQueryChange: (query: string) => void
+  query: string
 }
 
 export function UsersListScreen({
   onCreate,
   onEdit,
+  onQueryChange,
+  query,
 }: UsersListScreenProps) {
-  const [users, setUsers] = useState<UserListItem[]>([])
+  const [response, setResponse] = useState<UserListResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
@@ -48,8 +57,8 @@ export function UsersListScreen({
       setError(null)
 
       try {
-        const nextUsers = await getUsers(controller.signal)
-        setUsers(nextUsers.items)
+        const nextResponse = await getUsers(controller.signal)
+        setResponse(nextResponse)
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
@@ -72,6 +81,14 @@ export function UsersListScreen({
     return () => controller.abort()
   }, [reloadKey])
 
+  const filteredUsers = filterTrainerListItems(response?.items ?? [], query)
+  const hasQuery = Boolean(normalizeTrainerListSearchQuery(query))
+  const canCreate = (response?.createRoleOptions.length ?? 0) > 0
+
+  function reload() {
+    setReloadKey((currentKey) => currentKey + 1)
+  }
+
   return (
     <PageLayout
       data-testid="users-screen"
@@ -79,49 +96,98 @@ export function UsersListScreen({
       title="Тренеры"
     >
       <PageSection variant="plain">
-        <TaskToolbarActions
-          className="users-list-toolbar"
+        <EntityLocatorBar
+          accessibleLabel={resources.users.list.searchAccessibleLabel}
+          data-testid="users-list-locator"
           frequentActions={(
             <TaskToolbarRefreshAction
               loading={loading}
-              onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+              onClick={reload}
             />
           )}
-          primaryAction={(
+          onChange={onQueryChange}
+          onClear={() => onQueryChange('')}
+          placeholder={resources.users.list.searchPlaceholder}
+          primaryAction={canCreate ? (
             <TaskToolbarAction
               icon={<IconPlus size={18} />}
               label={resources.users.list.createAction}
               onClick={onCreate}
               priority="primary"
             />
-          )}
+          ) : null}
+          resultsId="users-results"
+          value={query}
         />
       </PageSection>
 
-      <PageSection>
-        <Stack gap="lg">
-          {loading ? (
+      <div
+        aria-busy={loading || undefined}
+        aria-label="Результаты поиска тренеров"
+        id="users-results"
+        role="region"
+      >
+        <PageSection>
+          <Stack gap="lg">
+          {loading && !response ? (
             <LoadingState label="Загружаем тренеров..." />
           ) : null}
 
-          {!loading && error ? (
+          {!loading && error && !response ? (
             <ErrorState
+              action={(
+                <Button
+                  aria-label="Повторить загрузку списка тренеров"
+                  onClick={reload}
+                  variant="light"
+                >
+                  Повторить
+                </Button>
+              )}
               message={error}
               title={resources.users.list.loadingErrorTitle}
             />
           ) : null}
 
-          {!loading && !error && users.length === 0 ? (
+          {loading && response ? (
+            <Text aria-live="polite" c="dimmed" fw={600} size="sm">
+              {resources.users.list.refreshingLabel}
+            </Text>
+          ) : null}
+
+          {!loading && error && response ? (
+            <Alert color="red" title={resources.users.list.staleErrorTitle} variant="light">
+              <Stack gap="sm">
+                <Text size="sm">{error}</Text>
+                <Group>
+                  <Button onClick={reload} variant="light">
+                    Повторить
+                  </Button>
+                </Group>
+              </Stack>
+            </Alert>
+          ) : null}
+
+          {response && filteredUsers.length === 0 ? (
             <EmptyState
-              description={resources.users.list.emptyDescription}
+              action={hasQuery ? (
+                <Button onClick={() => onQueryChange('')} variant="light">
+                  Очистить поиск
+                </Button>
+              ) : undefined}
+              description={hasQuery
+                ? resources.users.list.emptySearchDescription
+                : resources.users.list.emptyDescription}
               icon={<IconUsers size={24} />}
-              title={resources.users.list.emptyTitle}
+              title={hasQuery
+                ? resources.users.list.emptySearchTitle
+                : resources.users.list.emptyTitle}
             />
           ) : null}
 
-          {!loading && !error && users.length > 0 ? (
+          {response && filteredUsers.length > 0 ? (
             <Stack gap="md">
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <Paper
                   className="list-row-card"
                   data-testid={`user-card-${user.id}`}
@@ -183,8 +249,9 @@ export function UsersListScreen({
               ))}
             </Stack>
           ) : null}
-        </Stack>
-      </PageSection>
+          </Stack>
+        </PageSection>
+      </div>
     </PageLayout>
   )
 }
