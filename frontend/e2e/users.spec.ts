@@ -125,6 +125,62 @@ test('Поиск тренера фильтрует список и сохран�
       allowedActions: ['Edit'],
       roleOptions: ['Coach'],
     },
+    {
+      id: 'coach-inactive',
+      fullName: 'Ирина Петрова',
+      login: 'irina.login',
+      role: 'Coach',
+      mustChangePassword: false,
+      isActive: false,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
+      branchId: null,
+      branchName: null,
+      allowedActions: ['Edit'],
+      roleOptions: ['Coach'],
+    },
+    {
+      id: 'coach-read-only',
+      fullName: 'Алексей Романов',
+      login: 'alexey.login',
+      role: 'Coach',
+      mustChangePassword: false,
+      isActive: true,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
+      branchId: null,
+      branchName: null,
+      allowedActions: [],
+      roleOptions: ['Coach'],
+    },
+    {
+      id: 'superadmin-exception',
+      fullName: 'Сервисная учетная запись',
+      login: 'service.account',
+      role: 'SuperAdministrator',
+      mustChangePassword: false,
+      isActive: true,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
+      branchId: null,
+      branchName: null,
+      allowedActions: ['Edit'],
+      roleOptions: ['SuperAdministrator'],
+    },
+    {
+      id: 'coach-long',
+      fullName: 'Александра Константинопольская-Рождественская Очень Длинное Отчество',
+      login: 'alexandra.konstantinopolskaya-rozhdestvenskaya.very.long.login',
+      role: 'Coach',
+      mustChangePassword: false,
+      isActive: true,
+      messengerPlatform: 'Telegram',
+      messengerPlatformUserId: 'telegram-identifier-123456789012345678901234567890',
+      branchId: null,
+      branchName: null,
+      allowedActions: ['Edit'],
+      roleOptions: ['Coach'],
+    },
   ]
 
   await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
@@ -169,8 +225,17 @@ test('Поиск тренера фильтрует список и сохран�
 
   const search = page.getByRole('textbox', { name: 'Найти тренера' })
   await expect(search).toHaveAttribute('placeholder', 'ФИО или логин')
-  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
-  await expect(page.getByTestId('user-card-coach-boris')).toBeVisible()
+  const normalCard = page.getByTestId('user-card-coach-anna')
+  const passwordCard = page.getByTestId('user-card-coach-boris')
+  await expect(normalCard).toBeVisible()
+  await expect(passwordCard).toBeVisible()
+  await expect(normalCard.getByText('Тренер', { exact: true })).toHaveCount(0)
+  await expect(normalCard.getByText('Активен', { exact: true })).toHaveCount(0)
+  await expect(normalCard.getByText('Пароль актуален', { exact: true })).toHaveCount(0)
+  await expect(passwordCard.getByText('Требуется смена пароля', { exact: true })).toBeVisible()
+  await expect(page.getByTestId('user-card-coach-inactive').getByText('Отключен', { exact: true })).toBeVisible()
+  await expect(page.getByTestId('user-card-coach-read-only').getByText('Только просмотр', { exact: true })).toBeVisible()
+  await expect(page.getByTestId('user-card-superadmin-exception').getByText('Суперадминистратор', { exact: true })).toBeVisible()
 
   await search.fill('  ANNA.LOGIN  ')
   await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
@@ -186,7 +251,10 @@ test('Поиск тренера фильтрует список и сохран�
 
   await expect(page).toHaveURL(/\/users$/)
   await expect(search).toHaveValue('  ANNA.LOGIN  ')
-  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  await expect(normalCard).toBeVisible()
+  await expect(normalCard.getByText('Тренер', { exact: true })).toHaveCount(0)
+  await expect(normalCard.getByText('Активен', { exact: true })).toHaveCount(0)
+  await expect(normalCard.getByText('Пароль актуален', { exact: true })).toHaveCount(0)
 
   await page.getByTestId('user-card-coach-anna')
     .getByRole('button', { name: 'Редактировать' })
@@ -233,19 +301,34 @@ test('Поиск тренера фильтрует список и сохран�
   await expect(page.getByTestId('user-card-coach-boris')).toBeVisible()
 
   for (const viewport of [
-    { width: 360, height: 800 },
+    { width: 360, height: 780 },
     { width: 390, height: 844 },
     { width: 420, height: 912 },
     { width: 440, height: 956 },
     { width: 912, height: 420 },
     { width: 956, height: 440 },
     { width: 768, height: 1024 },
-    { width: 1440, height: 900 },
+    { width: 1440, height: 1200 },
   ]) {
     await page.setViewportSize(viewport)
+    const longCard = page.getByTestId('user-card-coach-long')
+    const longName = longCard.getByText(
+      'Александра Константинопольская-Рождественская Очень Длинное Отчество',
+    )
+    const longEdit = longCard.getByRole('button', { name: 'Редактировать' })
     await expect(search).toBeVisible()
     await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
+    await longCard.scrollIntoViewIfNeeded()
+    await expect(longName).toBeVisible()
+    await expect(longCard.getByText(/alexandra\.konstantinopolskaya/)).toBeVisible()
+    await expect(longCard.getByText(/telegram-identifier/)).toBeVisible()
+    await expect(longEdit).toBeVisible()
+    if (viewport.width <= 440) {
+      await expect.poll(() => longName.evaluate((element) =>
+        element.getBoundingClientRect().height > parseFloat(getComputedStyle(element).lineHeight),
+      )).toBe(true)
+    }
     await expect.poll(() => page.evaluate(() =>
       document.documentElement.scrollWidth <= document.documentElement.clientWidth,
     )).toBe(true)

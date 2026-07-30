@@ -188,64 +188,11 @@ export function UsersListScreen({
           {response && filteredUsers.length > 0 ? (
             <Stack gap="md">
               {filteredUsers.map((user) => (
-                <Paper
-                  className="list-row-card"
-                  data-testid={`user-card-${user.id}`}
+                <UserListCard
                   key={user.id}
-                  radius="24px"
-                  withBorder
-                >
-                  <Group justify="space-between" wrap="wrap">
-                    <Stack gap={8}>
-                      <Group gap="sm" wrap="wrap">
-                        <Text fw={700}>{user.fullName}</Text>
-                        <Badge radius="xl" variant="light">
-                          {userRoleLabels[user.role]}
-                        </Badge>
-                        <Badge
-                          color={user.isActive ? 'teal' : 'gray'}
-                          radius="xl"
-                          variant="light"
-                        >
-                          {user.isActive
-                            ? resources.common.statuses.active
-                            : resources.common.statuses.disabled}
-                        </Badge>
-                        <Badge
-                          color={user.mustChangePassword ? 'var(--crm-status-warning)' : 'var(--crm-action-primary)'}
-                          radius="xl"
-                          variant="light"
-                        >
-                          {user.mustChangePassword
-                            ? resources.users.list.passwordRotationRequired
-                            : resources.users.list.passwordActual}
-                        </Badge>
-                      </Group>
-                      <Text c="dimmed" size="sm">
-                        {resources.users.list.loginPrefix}: {user.login}
-                      </Text>
-                      {user.messengerPlatformUserId ? (
-                        <Text c="dimmed" size="sm">
-                          {resources.users.list.telegramIdPrefix}: {user.messengerPlatformUserId}
-                        </Text>
-                      ) : null}
-                    </Stack>
-
-                    {canEditUser(user) ? (
-                      <Button
-                        leftSection={<IconUserEdit size={18} />}
-                        onClick={() => onEdit(user.id)}
-                        variant="light"
-                      >
-                        {resources.users.list.editAction}
-                      </Button>
-                    ) : (
-                      <Badge color="gray" radius="xl" variant="light">
-                        {resources.users.list.readOnlyTarget}
-                      </Badge>
-                    )}
-                  </Group>
-                </Paper>
+                  onEdit={onEdit}
+                  user={user}
+                />
               ))}
             </Stack>
           ) : null}
@@ -253,6 +200,85 @@ export function UsersListScreen({
         </PageSection>
       </div>
     </PageLayout>
+  )
+}
+
+function UserListCard({
+  onEdit,
+  user,
+}: {
+  onEdit: (userId: string) => void
+  user: UserListItem
+}) {
+  const exceptionBadges: Array<{ color?: string; label: string }> = []
+
+  if (user.role !== 'Coach') {
+    exceptionBadges.push({ label: userRoleLabels[user.role] })
+  }
+
+  if (!user.isActive) {
+    exceptionBadges.push({
+      color: 'gray',
+      label: resources.common.statuses.disabled,
+    })
+  }
+
+  if (user.mustChangePassword) {
+    exceptionBadges.push({
+      color: 'var(--crm-status-warning)',
+      label: resources.users.list.passwordRotationRequired,
+    })
+  }
+
+  return (
+    <Paper
+      className="list-row-card"
+      data-testid={`user-card-${user.id}`}
+      radius="24px"
+      withBorder
+    >
+      <Group align="flex-start" justify="space-between" wrap="wrap">
+        <Stack gap={8} style={{ minWidth: 0 }}>
+          <Group gap="sm" wrap="wrap">
+            <Text fw={700} style={{ overflowWrap: 'anywhere' }}>
+              {user.fullName}
+            </Text>
+            {exceptionBadges.map((badge) => (
+              <Badge
+                color={badge.color}
+                key={badge.label}
+                radius="xl"
+                variant="light"
+              >
+                {badge.label}
+              </Badge>
+            ))}
+          </Group>
+          <Text c="dimmed" size="sm" style={{ overflowWrap: 'anywhere' }}>
+            {resources.users.list.loginPrefix}: {user.login}
+          </Text>
+          {user.messengerPlatformUserId ? (
+            <Text c="dimmed" size="sm" style={{ overflowWrap: 'anywhere' }}>
+              {resources.users.list.telegramIdPrefix}: {user.messengerPlatformUserId}
+            </Text>
+          ) : null}
+        </Stack>
+
+        {canEditUser(user) ? (
+          <Button
+            leftSection={<IconUserEdit size={18} />}
+            onClick={() => onEdit(user.id)}
+            variant="light"
+          >
+            {resources.users.list.editAction}
+          </Button>
+        ) : (
+          <Badge color="gray" radius="xl" variant="light">
+            {resources.users.list.readOnlyTarget}
+          </Badge>
+        )}
+      </Group>
+    </Paper>
   )
 }
 

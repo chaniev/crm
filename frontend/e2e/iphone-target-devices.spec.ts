@@ -1310,6 +1310,20 @@ test('целевые iPhone-профили сохраняют поиск тре�
             allowedActions: ['Edit'],
             roleOptions: ['Coach'],
           },
+          {
+            id: 'coach-long',
+            fullName: 'Александра Константинопольская-Рождественская Очень Длинное Отчество',
+            login: 'alexandra.konstantinopolskaya-rozhdestvenskaya.very.long.login',
+            role: 'Coach',
+            mustChangePassword: false,
+            isActive: true,
+            messengerPlatform: 'Telegram',
+            messengerPlatformUserId: 'telegram-identifier-123456789012345678901234567890',
+            branchId: null,
+            branchName: null,
+            allowedActions: ['Edit'],
+            roleOptions: ['Coach'],
+          },
         ],
         createRoleOptions: ['Coach'],
       })
@@ -1331,10 +1345,24 @@ test('целевые iPhone-профили сохраняют поиск тре�
   await expect(refresh).toBeInViewport()
   await expect(create).toBeInViewport()
   await search.fill('  ANNA.LOGIN  ')
-  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  const normalCard = page.getByTestId('user-card-coach-anna')
+  await expect(normalCard).toBeVisible()
+  await expect(normalCard.getByText('Тренер', { exact: true })).toHaveCount(0)
+  await expect(normalCard.getByText('Активен', { exact: true })).toHaveCount(0)
+  await expect(normalCard.getByText('Пароль актуален', { exact: true })).toHaveCount(0)
   await expect(page.getByTestId('user-card-coach-boris')).toHaveCount(0)
   await page.getByRole('button', { name: 'Сбросить поисковый запрос' }).click()
   await expect(search).toBeFocused()
+  const longCard = page.getByTestId('user-card-coach-long')
+  const longName = longCard.getByText(
+    'Александра Константинопольская-Рождественская Очень Длинное Отчество',
+  )
+  await longCard.scrollIntoViewIfNeeded()
+  await expect(longName).toBeVisible()
+  await expect(longCard.getByRole('button', { name: 'Редактировать' })).toBeVisible()
+  await expect.poll(() => longName.evaluate((element) =>
+    element.getBoundingClientRect().height > parseFloat(getComputedStyle(element).lineHeight),
+  )).toBe(true)
   await expectNoHorizontalScroll(page)
 
   await page.setViewportSize({ width: target.height, height: target.width })
