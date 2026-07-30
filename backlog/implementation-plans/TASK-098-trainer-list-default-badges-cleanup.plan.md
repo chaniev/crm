@@ -10,8 +10,8 @@ Branch rules:
 - перед кодом использовать `.agents/skills/task-worktree/SKILL.md` и отдельный
   worktree от актуального `origin/main`;
 - подтвердить clean status и active branch;
-- выполнять после merged TASK-096 и использовать её locator/toolbar/list-state
-  baseline;
+- TASK-096 находится в реализации; начинать TASK-098 только после её merge в
+  `origin/main` и использовать итоговый locator/toolbar/list-state baseline;
 - не менять backend `/users`, search semantics, create/edit forms или allowed
   actions.
 
@@ -29,6 +29,8 @@ Branch rules:
   остаётся отдельным decision-changing marker.
 - Backend-permitted list может содержать non-Coach exceptional item. Его role
   marker нельзя скрывать как default Coach label.
+- TASK-096 находится в реализации; текущий `UsersListScreen` до её merge не
+  является входным baseline для TASK-098.
 - После TASK-096 list будет иметь search/return-state behavior; badge cleanup
   не должна менять query, ordering или action visibility.
 
@@ -40,13 +42,19 @@ Branch rules:
 - `role !== Coach`: сохранить role marker, потому что это исключение в
   trainer-only list и оно может изменить решение пользователя.
 - ФИО, логин, optional Telegram ID и edit/read-only action сохраняются.
-- При отсутствии inline badges не остаётся пустого badge container/gap.
+- Длинные ФИО, логин и Telegram ID переносятся без обрезки; action остаётся
+  видимым и достижимым.
+- При отсутствии exception role/status markers не рендерится отдельная пустая
+  строка/контейнер меток и не остаётся дополнительного вертикального отступа.
+  Контейнер, в котором кроме меток остаётся ФИО или другой контент, пустым
+  marker container не считается.
 - Статусы не передаются только цветом; доступные имена действий сохраняются.
 
 ## Dependencies and execution order
 1. TASK-093/TASK-094 — shared toolbar baseline через dependency TASK-096.
-2. TASK-096 должна быть merged, потому что меняет `UsersListScreen`,
-   component tests, App route state и users Playwright.
+2. TASK-096 находится в реализации и должна быть merged в `origin/main`,
+   потому что меняет `UsersListScreen`, component tests, App route state и
+   users Playwright.
 3. TASK-098 выполняется как локальная row-hierarchy correction поверх merged
    search flow.
 
@@ -65,14 +73,19 @@ Branch rules:
    - default labels отсутствуют;
    - exception labels имеют точное количество;
    - fullName/login/Telegram/edit или read-only action остаются.
-4. До production-кода добавить integration case с TASK-096 search:
-   filtered normal и exceptional rows сохраняют одинаковый badge contract,
-   clear/refresh/edit-back не меняют semantics.
+4. После merge TASK-096 расширить её существующее component и App/route
+   integration coverage, не создавая дублирующий search-flow:
+   - внутри filtered normal и exceptional rows проверить тот же badge contract;
+   - в существующем сценарии search→edit→back добавить row-scoped assertions
+     после возврата;
+   - refresh и clear могут переиспользоваться как точки проверки, но их search
+     semantics не переопределяются и повторно не реализуются в TASK-098.
 5. До production-кода обновить users Playwright:
    - API fixture с normal/inactive/password/read-only/non-Coach items;
    - отсутствие трёх default labels только внутри normal row;
    - сохранение exception labels/actions;
-   - длинные ФИО/логины/Telegram ID не перекрывают action.
+   - длинные ФИО/логины/Telegram ID переносятся без обрезки и не перекрывают
+     action.
 6. Запустить новые tests и подтвердить ожидаемое падение: current normal row
    рендерит все три default badges.
 7. Сформировать row presentation из явных исключений: Coach role, active
@@ -80,7 +93,10 @@ Branch rules:
    non-Coach, disabled и password-rotation добавляются независимо.
 8. Не выводить edit permission из role/status; оставить существующий
    `canEditUser` и `Только просмотр` без изменений.
-9. Удалить empty wrapper/spacing и только действительно неиспользуемые local
+9. Если merged row содержит отдельный project-owned wrapper только для меток,
+   не рендерить его при пустой exception collection и убрать связанный
+   вертикальный gap. Не удалять общий контейнер, если в нём остаётся ФИО или
+   другой row content. Удалить только действительно неиспользуемые local
    imports/constants. Shared labels/resources удалять лишь при repository-wide
    zero-consumer proof.
 10. Запустить focused tests, full frontend unit/raw-color/lint/build, affected
@@ -109,7 +125,8 @@ Branch rules:
 - Frontend does not infer permissions or filter backend-permitted entities.
 - Non-Coach exception role remains visible.
 - Disabled/password-rotation/read-only states remain explicit text.
-- Identity and action do not clip or cause horizontal page scroll.
+- Длинные identity values переносятся без обрезки; identity и action не
+  перекрываются и не вызывают horizontal page scroll.
 - No backend/API/type changes and no card/search redesign.
 - Mantine, Onest and merged TASK-096 structure remain authoritative.
 
@@ -127,11 +144,16 @@ Branch rules:
   non-Coach rows.
 - Exact absence of default labels scoped to the normal row.
 - Identity/Telegram/edit and read-only behavior preserved.
-- No empty badge wrapper in the normal row.
+- При пустой exception collection отсутствует отдельный project-owned marker
+  container; tests не привязываются к внутренней DOM-структуре Mantine и не
+  считают контейнер с ФИО пустым.
 
 ### Integration tests
-- `UsersListScreen` component integration with mocked backend response and
-  merged TASK-096 search/refresh/edit-back state.
+- Расширить merged TASK-096 component coverage badge assertions для filtered
+  rows.
+- Расширить существующий TASK-096 App/route search→edit→back test row-scoped
+  assertions после возврата; не дублировать ownership и semantics query state
+  внутри `UsersListScreen`.
 - Backend integration tests неприменимы: endpoint contract, authorization and
   data semantics do not change.
 - Component/integration tests are written first and must fail on the current
@@ -139,10 +161,12 @@ Branch rules:
 
 ### UI/e2e tests
 - Normal and exceptional rows under real route composition.
-- Search→row→edit/back and refresh do not restore default badges.
-- Long identity content, action reachability and no overflow at `360 x 780`,
-  `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`,
-  `768 x 1024` and `1440 x 1200`.
+- Существующий merged TASK-096 search→row→edit/back и refresh flow не
+  восстанавливает default badges; TASK-098 добавляет row assertions, а не
+  дублирует search behavior.
+- Long identity content переносится без обрезки; action остаётся достижимым,
+  без overlap и horizontal overflow на `360 x 780`, `390 x 844`, `420 x 912`,
+  `440 x 956`, `912 x 420`, `956 x 440`, `768 x 1024` и `1440 x 1200`.
 
 ## Expected initial failure verification
 - Normal-row component and Playwright assertions must fail on `Тренер`,
@@ -166,14 +190,16 @@ Branch rules:
 ## Regression barrier
 Одна executable row-state matrix должна одновременно запрещать три
 default-positive badges и требовать disabled, password-rotation, read-only и
-non-Coach exception markers. Route-level Playwright с search/edit-back и long
-content защищает от возврата визуального шума, permission regression и
-responsive clipping.
+non-Coach exception markers. Расширенный существующий route-level Playwright
+TASK-096 проверяет badge contract после search/edit-back без дублирования
+search semantics; long content переносится без обрезки и защищает от
+permission regression, overlap и responsive clipping.
 
 ## Risks
 - Глобальный text query `Тренер` может совпасть с navigation, ФИО или title.
 - Скрытие всех role badges скроет редкий backend-permitted non-Coach target.
-- Условный badge wrapper может оставить пустую высоту/gap.
+- Отдельный условный marker wrapper может оставить пустую высоту/gap; общий
+  контейнер с ФИО нельзя ошибочно удалить как пустой.
 - Одновременная работа до merge TASK-096 приведёт к конфликтам в row и tests.
 
 ## Stop conditions
@@ -185,4 +211,5 @@ responsive clipping.
 - task worktree/branch невалиден.
 
 ## Ready for Codex execution
-yes, after TASK-096 is merged into origin/main
+TASK-096 is currently in implementation; yes, after it is merged into
+`origin/main`
