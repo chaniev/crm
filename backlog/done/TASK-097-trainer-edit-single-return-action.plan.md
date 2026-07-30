@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-097 Оставить одно действие возврата на экранах редактирования
 
 ## Source task
-/backlog/implementation/TASK-097-trainer-edit-single-return-action.md
+/backlog/done/TASK-097-trainer-edit-single-return-action.md
 
 ## Implementation branch
 fix/TASK-097-trainer-edit-single-return-action
@@ -215,15 +215,15 @@ header, а в footer editable form — только визуально доми�
   чрезмерного удаления.
 
 ## Test plan
-- [ ] Написать component и route integration tests до production-кода.
-- [ ] Добавить Playwright exact-count/primary-flow checks до production-кода.
-- [ ] Подтвердить ожидаемый red state на трёх edit routes.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`, если изменены CSS/tokens/colors
-- [ ] `cd frontend && npm run test:e2e -- <users/client/group affected specs>`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] Написать component и route integration tests до production-кода.
+- [x] Добавить Playwright exact-count/primary-flow checks до production-кода.
+- [x] Подтвердить ожидаемый red state на трёх edit routes.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`, если изменены CSS/tokens/colors
+- [x] `cd frontend && npm run test:e2e -- <users/client/group affected specs>`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 Автоматизированная матрица трёх route-level edit screens должна одновременно
@@ -251,11 +251,10 @@ footer cancel в create mode. Playwright path return→reopen→save защищ�
 - task worktree/branch невалиден.
 
 ## Ready for Codex execution
-no
+no — completed 2026-07-30 in commit `0f22419`
 
-Blocking dependencies:
-- TASK-095 должна быть merged в `origin/main`;
-- TASK-101 должна быть merged в `origin/main`.
-
-После merge обеих задач и повторной проверки baseline план становится готовым
-к выполнению без дополнительного product clarification.
+## Completion record
+- Source task moved to `/backlog/done/TASK-097-trainer-edit-single-return-action.md`.
+- Dependencies TASK-095 and TASK-101 were present in the verified `origin/main` baseline before implementation.
+- Integrated `main` validation passed: lint, build, raw-color check, 412 unit tests, 35 affected Chromium Playwright tests and 32 target-iPhone WebKit tests.
+- No backend or database contract changed; no migration is required.

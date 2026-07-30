@@ -1,13 +1,19 @@
 # TASK-097: Оставить одно действие возврата на экранах редактирования
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-27 20:00
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-097-trainer-edit-single-return-action.plan.md
+- implementation_plan: /backlog/done/TASK-097-trainer-edit-single-return-action.plan.md
 - implementation_branch: fix/TASK-097-trainer-edit-single-return-action
+- implementation_state: completed
+- implementation_commit: 0f22419
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30
+- reviewed_main_commit: 79cce69
 
 ## Goal
 Пользователь редактирует тренера и другие сущности без конкурирующих кнопок возврата: сохранение остаётся единственным primary action, а возврат к списку представлен один раз.
@@ -44,22 +50,22 @@ implementation
 - Выполнять после TASK-095 либо с явно согласованным ownership `UserEditScreen`, чтобы не смешивать конфликтующие изменения.
 
 ## Acceptance criteria
-- [ ] На экране редактирования тренера одновременно отображается ровно одно действие возврата к списку.
-- [ ] Сохранена верхняя кнопка `Назад к списку`; нижняя кнопка `К списку` отсутствует.
-- [ ] В form footer единственным действием редактирования остаётся `Сохранить изменения`.
-- [ ] Проверены остальные edit routes; одинаковые возвраты к одному destination не дублируются.
-- [ ] Loading, error, read-only и editable states сохраняют доступный возврат.
-- [ ] На 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 x 1024 и 1440 x 1200 нет clipping, horizontal page scroll или недостижимого primary action.
-- [ ] Keyboard focus order соответствует визуальному порядку, а доступное имя возврата однозначно сообщает destination.
+- [x] На экране редактирования тренера одновременно отображается ровно одно действие возврата к списку.
+- [x] Сохранена верхняя кнопка `Назад к списку`; нижняя кнопка `К списку` отсутствует.
+- [x] В form footer единственным действием редактирования остаётся `Сохранить изменения`.
+- [x] Проверены остальные edit routes; одинаковые возвраты к одному destination не дублируются.
+- [x] Loading, error, read-only и editable states сохраняют доступный возврат.
+- [x] На 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 x 1024 и 1440 x 1200 нет clipping, horizontal page scroll или недостижимого primary action.
+- [x] Keyboard focus order соответствует визуальному порядку, а доступное имя возврата однозначно сообщает destination.
 
 ## Test checklist
-- [ ] Обновить `UserEditScreen` component tests: один возврат, сохранённый submit и operational states.
-- [ ] Добавить inventory/regression проверку edit routes на два одинаковых return destinations.
-- [ ] Обновить affected users Playwright flow: открыть редактирование → вернуться; открыть повторно → сохранить.
-- [ ] Запустить `cd frontend && npm run test:unit`.
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить affected Playwright и mobile WebKit checks.
+- [x] Обновить `UserEditScreen` component tests: один возврат, сохранённый submit и operational states.
+- [x] Добавить inventory/regression проверку edit routes на два одинаковых return destinations.
+- [x] Обновить affected users Playwright flow: открыть редактирование → вернуться; открыть повторно → сохранить.
+- [x] Запустить `cd frontend && npm run test:unit`.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить affected Playwright и mobile WebKit checks.
 
 ## AI safety
 - Safe for Codex: yes
@@ -79,3 +85,12 @@ implementation
 - Created by skill: codex-backlog-skill + crm-mobile-first-ui
 - Duplicate check: TASK-095 покрывает decorative copy, но не дублирующие действия; TASK-093 задаёт placement primary actions, но не edit-screen return contract.
 - UI decision: оставить route/header back, удалить footer-дубликат.
+
+## Completion record
+- Completed on: 2026-07-30
+- Implementation commit: `0f22419`
+- Main merge commit: `b7e8d5c`
+- Integrated validation commit: `79cce69`
+- Validation: frontend lint, build, raw-color check, 412 unit tests, 35 affected Chromium Playwright tests and 32 target-iPhone WebKit tests passed.
+- Edit inventory: trainer, client and group edit routes keep one route-level return; create-flow cancellation remains available.
+- Data storage: backend and database structure were not changed; migration is not required.

@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-098 Убрать обычные статусные метки из списка тренеров
 
 ## Source task
-/backlog/implementation/TASK-098-trainer-list-default-badges-cleanup.md
+/backlog/done/TASK-098-trainer-list-default-badges-cleanup.md
 
 ## Implementation branch
 fix/TASK-098-trainer-list-default-badges-cleanup
@@ -177,15 +177,15 @@ Branch rules:
   `Тренер` does not create false positives.
 
 ## Test plan
-- [ ] Написать component truth-table tests до production-кода.
-- [ ] Написать users Playwright absence/exception checks до production-кода.
-- [ ] Подтвердить expected red state на normal row.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e -- e2e/users.spec.ts e2e/responsive-main-screens.spec.ts`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] Написать component truth-table tests до production-кода.
+- [x] Написать users Playwright absence/exception checks до production-кода.
+- [x] Подтвердить expected red state на normal row.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`
+- [x] `cd frontend && npm run test:e2e -- e2e/users.spec.ts e2e/responsive-main-screens.spec.ts`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 Одна executable row-state matrix должна одновременно запрещать три
@@ -211,5 +211,10 @@ permission regression, overlap и responsive clipping.
 - task worktree/branch невалиден.
 
 ## Ready for Codex execution
-TASK-096 is currently in implementation; yes, after it is merged into
-`origin/main`
+no — completed 2026-07-30 in commit `f59ee8b`
+
+## Completion record
+- Source task moved to `/backlog/done/TASK-098-trainer-list-default-badges-cleanup.md`.
+- TASK-096 was present in the verified `origin/main` baseline before implementation.
+- Integrated `main` validation passed: lint, build, raw-color check, 412 unit tests, 35 affected Chromium Playwright tests and 32 target-iPhone WebKit tests.
+- No backend or database contract changed; no migration is required.
