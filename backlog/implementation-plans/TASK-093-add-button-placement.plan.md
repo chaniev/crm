@@ -40,11 +40,27 @@ settings workspaces, сохранив backend-owned visibility, loading и фа�
   распознаёт create и refresh и выполняет их без переучивания между экранами.
 - Primary: разрешённый create/add, видимый и единственный filled/accent action.
 - Frequent: locator, filter trigger и refresh; refresh остаётся вторичным.
+- Create и refresh имеют независимые backend/session permission sources:
+  отсутствие create permission не скрывает разрешённый refresh.
+- Visible label и accessible name остаются operation/entity-specific; shared
+  recipe унифицирует semantic treatment и responsive presentation, но не
+  подменяет предметную формулировку generic-текстом.
 - Focus order: locator, clear, filters, refresh, create, active filters/results.
-- На `360/390/420/440` controls не переносятся; create и refresh становятся
-  icon-only `44 x 44px` раньше, чем locator сжимается ниже `156/176/200/216px`.
-- На `768/1440` текст может вернуться, но hierarchy и одна toolbar-строка не
-  меняются.
+- На `360/390/420/440` и при coarse-pointer compact-height
+  `912 x 420`/`956 x 440` create и refresh всегда icon-only `44 x 44px`,
+  независимо от доступного свободного места; accessible name остаётся точным,
+  используется один DOM control без responsive duplicate.
+- На `768/1440` create и refresh показывают icon + text, когда locator сохраняет
+  минимум `320/420px` и toolbar остаётся одной строкой.
+- При нехватке ширины locator toolbar применяет фиксированный fallback:
+  refresh теряет текст первым, затем полностью убирается из строки; create
+  сохраняется видимым и только после удаления refresh может стать icon-only.
+  Search не сжимается ниже установленного минимума, controls не переносятся и
+  horizontal scrolling не используется.
+- На no-locator mobile/compact-height screens create и refresh также всегда
+  icon-only; dummy locator/filter не добавляются. На `768/1440` подписи
+  возвращаются, если owning operational row остаётся одной строкой; при
+  нехватке ширины refresh сворачивается раньше create.
 
 ## Dependencies and execution order
 1. TASK-090 — done, shared mobile contract является source of truth.
@@ -60,15 +76,19 @@ settings workspaces, сохранив backend-owned visibility, loading и фа�
 
 ## Execution steps
 1. Создать isolated worktree и committed inventory
-   `docs/ui-concept/TASK-093-action-inventory.md`: route/surface, user operation,
-   current owner, create/refresh permission source, target shared pattern,
-   status `update/exclude` и причина исключения.
+   `docs/ui-concept/TASK-093-action-inventory.md`: route/surface, owner
+   `route/tab/section/recovery`, user operation, отдельные create и refresh
+   permission sources, current/target visible labels и accessible names, target
+   shared pattern, status `update/exclude` и причина исключения.
 2. До production-кода добавить shared component tests:
    - один cluster с frequent actions перед primary;
    - один semantic primary и secondary refresh;
    - exact accessible names, loading/disabled forwarding и `44px` recipe;
    - locator с filters и без filters без dummy control;
-   - single DOM/focus path при mobile icon-only label.
+   - single DOM/focus path при обязательном mobile/compact-height icon-only
+     label;
+   - `768/1440` icon + text и fallback `refresh text → refresh absent → create
+     icon-only` без wrap или сжатия locator.
 3. До production-кода обновить representative feature tests для Clients,
    Groups после TASK-086, Trainers, settings catalog/group types/branches/
    administrators, Schedule/Audit/Finance и Home/Attendance:
@@ -80,21 +100,32 @@ settings workspaces, сохранив backend-owned visibility, loading и фа�
    - exact accessible names и semantic variants;
    - одна row по measured `y`/bounding boxes;
    - target `>=44 x 44`, gaps `>=8px`, no horizontal page scroll;
+   - create/refresh icon-only на всех mobile/compact-height cases независимо от
+     свободного места и восстановление подписей на `768/1440`;
    - Clients и Groups как locator cases, один no-filter list и settings tab.
 5. Запустить новые tests и подтвердить ожидаемые падения из-за текущих wrapping
    groups, `40/42px` controls, feature colors и разных action hosts.
 6. Добавить focused shared recipe, предпочтительно
    `TaskToolbarActions`/`TaskToolbarAction`, и подключить его в
    `EntityLocatorBar`; shared code владеет order, spacing, semantic variants,
-   exact label и mobile icon-only behavior.
+   сохранением переданного exact accessible name в единственном DOM control и
+   mobile icon-only behavior, но operation/entity-specific wording остаётся у
+   owning feature.
 7. Расширить `EntityLocatorBar` optional filter trigger contract: при отсутствии
    реальных filters кнопка и drawer contract не рендерятся.
 8. Мигрировать inventory call sites небольшими slices:
    - locator screens используют slots shared action cluster;
-   - no-locator screens используют тот же cluster в первом task area;
-   - section-specific create operations остаются у своей section;
-   - empty-state duplicate create допустим только как recovery и использует тот
-     же operation/semantic treatment.
+   - no-locator screens используют тот же cluster в первой operational row
+     своего owner;
+   - только действия с одним owner и общим create/reload lifecycle объединяются
+     в один cluster;
+   - section-specific create/refresh operations остаются у своей section и не
+     продвигаются в route header или другую вкладку;
+   - route/section refresh не смешивается с error recovery `Повторить`:
+     recovery остаётся в соответствующем state surface и не мигрирует в task
+     toolbar;
+   - empty state не дублирует уже видимый toolbar create: в одном task state
+     остаётся один DOM control и один визуально доминирующий primary action.
 9. Удалить только доказанно неиспользуемые feature action wrappers, sizes,
    colors и CSS exceptions; не менять domain handlers и data loading.
 10. Запустить focused tests после каждого slice, затем full frontend unit,
@@ -129,7 +160,11 @@ settings workspaces, сохранив backend-owned visibility, loading и фа�
 
 ## Constraints
 - Backend/session/allowed-actions contracts remain the only permission source.
+- Create и refresh permission/availability вычисляются независимо и не
+  связываются одной frontend-веткой только из-за общего action cluster.
 - One visually dominant primary action per task state.
+- Один и тот же create operation не дублируется одновременно в toolbar и empty
+  state.
 - Primary create is never hidden in overflow/filter drawer.
 - No horizontal toolbar scrolling, raw colors or feature-only geometry fixes.
 - Preserve Mantine, Onest, Tabler Icons and existing handlers.
@@ -140,13 +175,15 @@ settings workspaces, сохранив backend-owned visibility, loading и фа�
 - Duplicate/service copy from TASK-095.
 - Trainer search behavior from TASK-096.
 - Forms, created entities, destructive/rare action redesign.
+- Перенос или унификация error recovery `Повторить` как route/section refresh.
 - Backend contracts, roles or permissions.
 
 ## Required test coverage
 
 ### Unit/component tests
 - Shared action order, variants, labels, `44px` contract and optional filters.
-- Permission-denied create, refresh loading/disabled and empty recovery.
+- Permission-denied create при независимо доступном refresh,
+  refresh loading/disabled и empty state без duplicate create.
 - Representative locator, no-locator and settings action composition.
 
 ### Integration tests
