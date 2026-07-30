@@ -936,12 +936,6 @@
   }
 
   @container (max-width: 34rem) {
-    .entity-locator-bar
-      .task-toolbar-actions:has(.task-toolbar-action--primary)
-      .task-toolbar-action--refresh {
-      display: none;
-    }
-
     .entity-locator-bar .task-toolbar-action--primary.shared-button {
       width: 44px;
       height: 44px;

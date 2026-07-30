@@ -1463,6 +1463,24 @@ function RouteViewport({
   onSaveClientListReturnState,
   onSaveGroupListReturnState,
 }: RouteViewportProps) {
+  const isUsersWorkflow =
+    route.kind === 'userCreate' ||
+    route.kind === 'userEdit' ||
+    (route.kind === 'section' && route.section === 'Users')
+
+  if (isUsersWorkflow) {
+    return (
+      <UsersWorkflowViewport
+        currentUserId={currentUserId}
+        onCreateUser={onCreateUser}
+        onEditUser={onEditUser}
+        onRefreshSession={onRefreshSession}
+        onReturnToUsers={onReturnToUsers}
+        route={route}
+      />
+    )
+  }
+
   if (route.kind === 'clientCreate') {
     return (
       <ClientCreateScreen
@@ -1536,26 +1554,6 @@ function RouteViewport({
     )
   }
 
-  if (route.kind === 'userCreate') {
-    return (
-      <UserCreateScreen
-        onCancel={onReturnToUsers}
-        onCreated={onReturnToUsers}
-      />
-    )
-  }
-
-  if (route.kind === 'userEdit') {
-    return (
-      <UserEditScreen
-        currentUserId={currentUserId}
-        onBack={onReturnToUsers}
-        onRefreshSession={onRefreshSession}
-        userId={route.userId}
-      />
-    )
-  }
-
   if (route.section === 'Clients') {
     return (
       <ClientsListScreen
@@ -1570,10 +1568,6 @@ function RouteViewport({
         onSaveReturnState={onSaveClientListReturnState}
       />
     )
-  }
-
-  if (route.section === 'Users') {
-    return <UsersListScreen onCreate={onCreateUser} onEdit={onEditUser} />
   }
 
   if (route.section === 'Groups') {
@@ -1614,6 +1608,55 @@ function RouteViewport({
   }
 
   return <SectionPlaceholder />
+}
+
+type UsersWorkflowViewportProps = {
+  currentUserId: string
+  onCreateUser: () => void
+  onEditUser: (userId: string) => void
+  onRefreshSession: () => Promise<unknown>
+  onReturnToUsers: () => void
+  route: Exclude<AppRoute, { kind: 'password' }>
+}
+
+function UsersWorkflowViewport({
+  currentUserId,
+  onCreateUser,
+  onEditUser,
+  onRefreshSession,
+  onReturnToUsers,
+  route,
+}: UsersWorkflowViewportProps) {
+  const [trainerQuery, setTrainerQuery] = useState('')
+
+  if (route.kind === 'userCreate') {
+    return (
+      <UserCreateScreen
+        onCancel={onReturnToUsers}
+        onCreated={onReturnToUsers}
+      />
+    )
+  }
+
+  if (route.kind === 'userEdit') {
+    return (
+      <UserEditScreen
+        currentUserId={currentUserId}
+        onBack={onReturnToUsers}
+        onRefreshSession={onRefreshSession}
+        userId={route.userId}
+      />
+    )
+  }
+
+  return (
+    <UsersListScreen
+      onCreate={onCreateUser}
+      onEdit={onEditUser}
+      onQueryChange={setTrainerQuery}
+      query={trainerQuery}
+    />
+  )
 }
 
 type RouteAccessStateProps = {

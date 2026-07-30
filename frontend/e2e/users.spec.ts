@@ -64,7 +64,10 @@ test('Навигация открывает раздел Тренеры на м�
     }
 
     if (requestUrl.pathname === '/api/users' && method === 'GET') {
-      await fulfillJson(route, 200, [])
+      await fulfillJson(route, 200, {
+        items: [],
+        createRoleOptions: ['Coach'],
+      })
       return
     }
 
@@ -87,6 +90,207 @@ test('Навигация открывает раздел Тренеры на м�
   await expect(page.getByTestId('users-screen')).toBeVisible()
   await expect(trainersNavButton).toHaveAttribute('aria-current', 'page')
   await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
+})
+
+test('Поиск тренера фильтрует список и сохраняется при возврате из карточки', async ({
+  page,
+}) => {
+  const trainers = [
+    {
+      id: 'coach-anna',
+      fullName: 'Анна Ветрова',
+      login: 'anna.login',
+      role: 'Coach',
+      mustChangePassword: false,
+      isActive: true,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
+      branchId: null,
+      branchName: null,
+      allowedActions: ['Edit'],
+      roleOptions: ['Coach'],
+    },
+    {
+      id: 'coach-boris',
+      fullName: 'Борис Соколов',
+      login: 'boris.login',
+      role: 'Coach',
+      mustChangePassword: true,
+      isActive: true,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
+      branchId: null,
+      branchName: null,
+      allowedActions: ['Edit'],
+      roleOptions: ['Coach'],
+    },
+  ]
+
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const method = route.request().method()
+
+    if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/users' && method === 'GET') {
+      await fulfillJson(route, 200, {
+        items: trainers,
+        createRoleOptions: ['Coach'],
+      })
+      return
+    }
+
+    if (requestUrl.pathname === '/api/users/coach-anna' && method === 'GET') {
+      await fulfillJson(route, 200, trainers[0])
+      return
+    }
+
+    throw new Error(
+      `Unexpected API request in users search e2e: ${method} ${requestUrl.pathname}`,
+    )
+  })
+
+  await page.goto('/users')
+
+  const search = page.getByRole('textbox', { name: 'Найти тренера' })
+  await expect(search).toHaveAttribute('placeholder', 'ФИО или логин')
+  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  await expect(page.getByTestId('user-card-coach-boris')).toBeVisible()
+
+  await search.fill('  ANNA.LOGIN  ')
+  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  await expect(page.getByTestId('user-card-coach-boris')).toHaveCount(0)
+
+  await page.getByTestId('user-card-coach-anna')
+    .getByRole('button', { name: 'Редактировать' })
+    .click()
+  await expect(page).toHaveURL(/\/users\/coach-anna\/edit$/)
+  await page.getByRole('button', { name: 'Назад к списку' }).first().click()
+
+  await expect(page).toHaveURL(/\/users$/)
+  await expect(search).toHaveValue('  ANNA.LOGIN  ')
+  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+
+  await page.getByTestId('user-card-coach-anna')
+    .getByRole('button', { name: 'Редактировать' })
+    .click()
+  await page.goBack()
+  await expect(page).toHaveURL(/\/users$/)
+  await expect(search).toHaveValue('  ANNA.LOGIN  ')
+
+  await search.fill('никого')
+  await expect(page.getByText('Тренеры не найдены')).toBeVisible()
+  await page.getByRole('button', { name: 'Очистить поиск' }).click()
+  await expect(search).toHaveValue('')
+  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  await expect(page.getByTestId('user-card-coach-boris')).toBeVisible()
+
+  for (const viewport of [
+    { width: 360, height: 800 },
+    { width: 390, height: 844 },
+    { width: 420, height: 912 },
+    { width: 440, height: 956 },
+    { width: 912, height: 420 },
+    { width: 956, height: 440 },
+    { width: 768, height: 1024 },
+    { width: 1440, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await expect(search).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
+    await expect.poll(() => page.evaluate(() =>
+      document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    )).toBe(true)
+  }
+})
+
+test('Поиск сохраняется при blocking и stale ошибках с явным retry', async ({
+  page,
+}) => {
+  const trainer = {
+    id: 'coach-anna',
+    fullName: 'Анна Ветрова',
+    login: 'anna.login',
+    role: 'Coach',
+    mustChangePassword: false,
+    isActive: true,
+    messengerPlatform: null,
+    messengerPlatformUserId: null,
+    branchId: null,
+    branchName: null,
+    allowedActions: ['Edit'],
+    roleOptions: ['Coach'],
+  }
+  let usersCalls = 0
+
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const method = route.request().method()
+
+    if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/users' && method === 'GET') {
+      usersCalls += 1
+
+      if (usersCalls === 1 || usersCalls === 2 || usersCalls === 4) {
+        await fulfillJson(route, 503, {
+          title: 'Сервис недоступен',
+          detail: 'Список тренеров временно недоступен.',
+        })
+        return
+      }
+
+      await fulfillJson(route, 200, {
+        items: [trainer],
+        createRoleOptions: ['Coach'],
+      })
+      return
+    }
+
+    throw new Error(
+      `Unexpected API request in users error e2e: ${method} ${requestUrl.pathname}`,
+    )
+  })
+
+  await page.goto('/users')
+
+  const search = page.getByRole('textbox', { name: 'Найти тренера' })
+  await search.fill('anna')
+  await expect(page.getByText('Список не загрузился')).toBeVisible()
+  await expect(page.getByText('Список тренеров временно недоступен.')).toBeVisible()
+  await page.getByRole('button', { name: 'Повторить загрузку списка тренеров' }).click()
+
+  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  await expect(search).toHaveValue('anna')
+  await page.getByRole('button', { name: 'Обновить' }).click()
+
+  await expect(page.getByText('Список не обновился')).toBeVisible()
+  await expect(page.getByText('Список тренеров временно недоступен.')).toBeVisible()
+  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  await expect(search).toHaveValue('anna')
+  await page.getByRole('button', { name: 'Повторить' }).click()
+
+  await expect.poll(() => usersCalls).toBe(5)
+  await expect(page.getByText('Список не обновился')).toHaveCount(0)
+  await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
+  await expect(search).toHaveValue('anna')
 })
 
 test('Редактирование пользователя показывает форму после загрузки', async ({ page }) => {
@@ -255,7 +459,10 @@ test('Создание тренера скрывает выбор роли и о
     }
 
     if (requestUrl.pathname === '/api/users' && method === 'GET') {
-      await fulfillJson(route, 200, [])
+      await fulfillJson(route, 200, {
+        items: [],
+        createRoleOptions: ['Coach'],
+      })
       return
     }
 

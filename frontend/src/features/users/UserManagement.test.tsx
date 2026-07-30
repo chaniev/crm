@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { useState } from 'react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   createUser,
@@ -70,21 +71,24 @@ beforeEach(() => {
 })
 
 describe('UsersListScreen', () => {
-  test('renders create and refresh as a shared task action cluster', async () => {
+  test('renders a no-filter trainer locator with create and refresh in one action row', async () => {
     vi.mocked(getUsers).mockResolvedValue({
       items: [],
       createRoleOptions: ['Coach'],
     } satisfies UserListResponse)
 
-    renderWithProviders(<UsersListScreen onCreate={vi.fn()} onEdit={vi.fn()} />)
+    renderUsersList()
 
     await waitFor(() => expect(getUsers).toHaveBeenCalled())
 
-    const toolbar = document.querySelector('.users-list-toolbar')
-    expect(toolbar).toBeTruthy()
+    const locator = screen.getByRole('search')
+    const buttons = within(locator).getAllByRole('button')
 
-    const buttons = within(toolbar as HTMLElement).getAllByRole('button')
-
+    expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveAttribute(
+      'placeholder',
+      'ФИО или логин',
+    )
+    expect(within(locator).queryByRole('button', { name: /фильтр/i })).not.toBeInTheDocument()
     expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
       'Обновить',
       'Создать тренера',
@@ -109,14 +113,171 @@ describe('UsersListScreen', () => {
       createRoleOptions: ['Coach', 'SuperAdministrator'],
     } satisfies UserListResponse)
 
-    renderWithProviders(<UsersListScreen onCreate={vi.fn()} onEdit={vi.fn()} />)
+    renderUsersList()
 
     const card = await screen.findByTestId('user-card-superadmin-1')
     expect(within(card).getAllByText('Суперадминистратор').length).toBeGreaterThan(0)
     expect(within(card).getByText('Только просмотр')).toBeVisible()
     expect(within(card).queryByRole('button', { name: 'Редактировать' })).not.toBeInTheDocument()
   })
+
+  test('filters current backend-permitted items by full name or login and clear restores order', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [
+        coach,
+        {
+          ...coach,
+          id: 'coach-2',
+          fullName: 'Анна Ветрова',
+          login: 'anna.login',
+        },
+      ],
+      createRoleOptions: ['Coach'],
+    } satisfies UserListResponse)
+
+    renderUsersList()
+
+    const search = screen.getByRole('textbox', { name: 'Найти тренера' })
+    expect(await screen.findByTestId('user-card-coach-1')).toBeVisible()
+    expect(screen.getByTestId('user-card-coach-2')).toBeVisible()
+
+    fireEvent.change(search, { target: { value: '  ANNA.LOGIN  ' } })
+
+    expect(screen.queryByTestId('user-card-coach-1')).not.toBeInTheDocument()
+    expect(screen.getByTestId('user-card-coach-2')).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Сбросить поисковый запрос' }))
+
+    expect(screen.getByTestId('user-card-coach-1')).toBeVisible()
+    expect(screen.getByTestId('user-card-coach-2')).toBeVisible()
+    expect(search).toHaveFocus()
+  })
+
+  test('distinguishes first-run empty from query-scoped empty and clears recovery', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [],
+      createRoleOptions: [],
+    } satisfies UserListResponse)
+
+    renderUsersList()
+
+    expect(await screen.findByText('Тренеры пока не заведены')).toBeVisible()
+    const search = screen.getByRole('textbox', { name: 'Найти тренера' })
+    fireEvent.change(search, { target: { value: 'Иван' } })
+
+    expect(screen.getByText('Тренеры не найдены')).toBeVisible()
+    expect(screen.queryByText('Тренеры пока не заведены')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Очистить поиск' }))
+
+    expect(search).toHaveValue('')
+    expect(screen.getByText('Тренеры пока не заведены')).toBeVisible()
+  })
+
+  test('shows create only for a non-empty backend role option set', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [],
+      createRoleOptions: [],
+    } satisfies UserListResponse)
+    const firstRender = renderUsersList()
+
+    await waitFor(() => expect(getUsers).toHaveBeenCalled())
+    expect(screen.queryByRole('button', { name: 'Создать тренера' })).not.toBeInTheDocument()
+
+    firstRender.unmount()
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [],
+      createRoleOptions: ['Administrator'],
+    } satisfies UserListResponse)
+    renderUsersList()
+
+    expect(await screen.findByRole('button', { name: 'Создать тренера' })).toBeVisible()
+  })
+
+  test('keeps retained filtered results during refresh and recovers from stale error', async () => {
+    let rejectRefresh!: (reason: Error) => void
+    const refreshPromise = new Promise<UserListResponse>((_resolve, reject) => {
+      rejectRefresh = reject
+    })
+    vi.mocked(getUsers)
+      .mockResolvedValueOnce({
+        items: [coach],
+        createRoleOptions: ['Coach'],
+      } satisfies UserListResponse)
+      .mockReturnValueOnce(refreshPromise)
+      .mockResolvedValueOnce({
+        items: [coach],
+        createRoleOptions: ['Coach'],
+      } satisfies UserListResponse)
+
+    renderUsersList('coach')
+
+    expect(await screen.findByTestId('user-card-coach-1')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+
+    const results = screen.getByRole('region', { name: 'Результаты поиска тренеров' })
+    expect(results).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('user-card-coach-1')).toBeVisible()
+    expect(screen.getByText('Обновляем список тренеров...')).toBeVisible()
+    expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toBeEnabled()
+
+    rejectRefresh(new Error('Сеть недоступна'))
+
+    expect(await screen.findByText('Список не обновился')).toBeVisible()
+    expect(screen.getByText('Сеть недоступна')).toBeVisible()
+    expect(screen.getByTestId('user-card-coach-1')).toBeVisible()
+    expect(results).not.toHaveAttribute('aria-busy')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+    await waitFor(() => expect(getUsers).toHaveBeenCalledTimes(3))
+    expect(screen.queryByText('Список не обновился')).not.toBeInTheDocument()
+  })
+
+  test('keeps query through a blocking load error and explicit retry', async () => {
+    vi.mocked(getUsers)
+      .mockRejectedValueOnce(new Error('Сервис временно недоступен'))
+      .mockResolvedValueOnce({
+        items: [
+          {
+            ...coach,
+            fullName: 'Анна Ветрова',
+            login: 'anna.login',
+          },
+        ],
+        createRoleOptions: ['Coach'],
+      } satisfies UserListResponse)
+
+    renderUsersList('anna')
+
+    expect(await screen.findByText('Список не загрузился')).toBeVisible()
+    expect(screen.getByText('Сервис временно недоступен')).toBeVisible()
+    expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveValue('anna')
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Повторить загрузку списка тренеров' }),
+    )
+
+    expect(await screen.findByText('Анна Ветрова')).toBeVisible()
+    expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveValue('anna')
+    expect(screen.queryByText('Список не загрузился')).not.toBeInTheDocument()
+  })
 })
+
+function renderUsersList(initialQuery = '') {
+  function Harness() {
+    const [query, setQuery] = useState(initialQuery)
+
+    return (
+      <UsersListScreen
+        onCreate={vi.fn()}
+        onEdit={vi.fn()}
+        onQueryChange={setQuery}
+        query={query}
+      />
+    )
+  }
+
+  return renderWithProviders(<Harness />)
+}
 
 describe('UserCreateScreen', () => {
   test('hides role selector and sends fixed Coach payload when endpoint options are single Coach', async () => {
