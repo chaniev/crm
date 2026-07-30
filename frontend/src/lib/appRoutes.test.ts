@@ -8,6 +8,7 @@ import {
   parseRoute,
   resolveAccessibleRoutePath,
   resolveRouteAccess,
+  type AppRoute,
 } from './appRoutes'
 
 const financeUser: AuthenticatedUser = {
@@ -185,6 +186,21 @@ describe('finance routes', () => {
 })
 
 describe('route parsing and resolution matrix', () => {
+  test('keeps the executable edit-route inventory to client, group and trainer', () => {
+    const editRoutes = [
+      { kind: 'clientEdit', clientId: 'client-1' },
+      { kind: 'groupEdit', groupId: 'group-1' },
+      { kind: 'userEdit', userId: 'trainer-1' },
+    ] satisfies AppRoute[]
+
+    expect(editRoutes.map((route) => route.kind)).toEqual([
+      'clientEdit',
+      'groupEdit',
+      'userEdit',
+    ])
+    expect(editRoutes.map((route) => parseRoute(getRoutePath(route)))).toEqual(editRoutes)
+  })
+
   test('preserves requested path for malformed unknown routes', () => {
     const malformedPath = '/%E0%AE'
 

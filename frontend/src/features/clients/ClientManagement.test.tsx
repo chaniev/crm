@@ -1,8 +1,9 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
   correctClientMembership,
+  createClient,
   getBranches,
   getClient,
   getEligibleMembershipCatalogItems,
@@ -10,11 +11,16 @@ import {
   purchaseClientMembership,
   renewClientMembership,
   transferClientBranch,
+  updateClient,
   updateClientMembershipComment,
   type ClientDetails,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
-import { ClientDetailScreen } from './ClientManagement'
+import {
+  ClientCreateScreen,
+  ClientDetailScreen,
+  ClientEditScreen,
+} from './ClientManagement'
 import { formatNoteAttributionDate } from './noteAttribution'
 
 vi.mock('../../lib/api', async (importOriginal) => {
@@ -27,33 +33,96 @@ vi.mock('../../lib/api', async (importOriginal) => {
     getEligibleMembershipCatalogItems: vi.fn(),
     getGroups: vi.fn(),
     correctClientMembership: vi.fn(),
+    createClient: vi.fn(),
     purchaseClientMembership: vi.fn(),
     renewClientMembership: vi.fn(),
     transferClientBranch: vi.fn(),
+    updateClient: vi.fn(),
     updateClientMembershipComment: vi.fn(),
   }
 })
 
 const getBranchesMock = vi.mocked(getBranches)
 const correctMembershipMock = vi.mocked(correctClientMembership)
+const createClientMock = vi.mocked(createClient)
 const getClientMock = vi.mocked(getClient)
 const getEligibleItemsMock = vi.mocked(getEligibleMembershipCatalogItems)
 const getGroupsMock = vi.mocked(getGroups)
 const purchaseMembershipMock = vi.mocked(purchaseClientMembership)
 const renewMembershipMock = vi.mocked(renewClientMembership)
 const transferClientMock = vi.mocked(transferClientBranch)
+const updateClientMock = vi.mocked(updateClient)
 const updateCommentMock = vi.mocked(updateClientMembershipComment)
+
+beforeAll(() => {
+  Object.defineProperty(document, 'fonts', {
+    configurable: true,
+    value: {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    },
+  })
+})
 
 beforeEach(() => {
   getBranchesMock.mockReset()
   correctMembershipMock.mockReset()
+  createClientMock.mockReset()
   getClientMock.mockReset()
   getEligibleItemsMock.mockReset()
   getGroupsMock.mockReset()
   purchaseMembershipMock.mockReset()
   renewMembershipMock.mockReset()
   transferClientMock.mockReset()
+  updateClientMock.mockReset()
   updateCommentMock.mockReset()
+})
+
+describe('Client route forms', () => {
+  test('keeps one header return and only submit in edit while create keeps cancel', async () => {
+    setupClientFormOptions()
+    getClientMock.mockResolvedValue(buildClientDetails())
+
+    const editView = renderWithProviders(
+      <ClientEditScreen
+        clientId="client-1"
+        onBack={vi.fn()}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    expect(await screen.findByRole('button', { name: 'Сохранить изменения' })).toBeVisible()
+    expect(screen.getAllByRole('button', { name: 'К карточке клиента' })).toHaveLength(1)
+    expect(screen.queryByRole('button', { name: 'Отменить' })).not.toBeInTheDocument()
+
+    editView.unmount()
+    setupClientFormOptions()
+    renderWithProviders(
+      <ClientCreateScreen onCancel={vi.fn()} onCreated={vi.fn()} />,
+    )
+
+    expect(await screen.findByRole('button', { name: 'Сохранить клиента' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Отменить' })).toBeVisible()
+  })
+
+  test('keeps the client header return during loading and load failure', async () => {
+    getClientMock.mockRejectedValue(new Error('client load failed'))
+    getBranchesMock.mockResolvedValue([])
+    getGroupsMock.mockResolvedValue({ items: [], totalCount: 0, skip: 0, take: 100 })
+
+    renderWithProviders(
+      <ClientEditScreen
+        clientId="client-1"
+        onBack={vi.fn()}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    expect(screen.getAllByRole('button', { name: 'К карточке клиента' })).toHaveLength(1)
+    expect(await screen.findByText('Карточка клиента не загрузилась')).toBeVisible()
+    expect(screen.getAllByRole('button', { name: 'К карточке клиента' })).toHaveLength(1)
+    expect(screen.queryByRole('form')).not.toBeInTheDocument()
+  })
 })
 
 describe('ClientDetailScreen membership sale comments', () => {
@@ -821,6 +890,27 @@ function renderClientDetails() {
       onEdit={() => undefined}
     />,
   )
+}
+
+function setupClientFormOptions() {
+  getBranchesMock.mockResolvedValue([
+    {
+      id: 'branch-1',
+      name: 'Основной',
+      address: null,
+      description: null,
+      isArchived: false,
+      hallCount: 0,
+      groupCount: 0,
+      clientCount: 0,
+    },
+  ])
+  getGroupsMock.mockResolvedValue({
+    items: [],
+    totalCount: 0,
+    skip: 0,
+    take: 100,
+  })
 }
 
 function buildCatalogItem() {

@@ -390,6 +390,8 @@ test('Группы: пагинация, редактирование и возв
   await editButton.click()
   await expect(page).toHaveURL('/groups/group-11/edit')
   await expect(page.getByRole('heading', { name: 'Настройка группы «Группа 11»' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'К списку групп' })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: 'Отменить' })).toHaveCount(0)
 
   const listRequestCountBeforeSave = listRequests.length
   await page.getByRole('textbox', { name: 'Название группы' }).fill('Группа 11 обновлена')

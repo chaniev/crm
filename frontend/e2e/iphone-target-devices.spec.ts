@@ -1345,6 +1345,74 @@ test('целевые iPhone-профили сохраняют поиск тре�
   await expectNoHorizontalScroll(page)
 })
 
+test('целевые iPhone-профили сохраняют единственный возврат и достижимый submit тренера', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const trainer = {
+    id: 'coach-anna',
+    fullName: 'Анна Ветрова',
+    login: 'anna.login',
+    role: 'Coach',
+    mustChangePassword: false,
+    isActive: true,
+    messengerPlatform: null,
+    messengerPlatformUserId: null,
+    branchId: null,
+    branchName: null,
+    allowedActions: ['Edit'],
+    roleOptions: ['Coach'],
+  }
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/users/coach-anna' && method === 'GET') {
+      await fulfillJson(route, trainer)
+      return
+    }
+
+    throw new Error(`Unexpected trainer edit iPhone API request: ${method} ${pathname}`)
+  })
+
+  await page.goto('/users/coach-anna/edit')
+
+  const routeReturn = page.getByRole('button', { name: 'Назад к списку' })
+  const submit = page.getByRole('button', { name: 'Сохранить изменения' })
+  await expect(routeReturn).toHaveCount(1)
+  await expect(page.getByRole('button', { exact: true, name: 'К списку' })).toHaveCount(0)
+  await expect(submit).toBeVisible()
+  await submit.scrollIntoViewIfNeeded()
+  const submitGeometry = await submit.boundingBox()
+  expect(submitGeometry).not.toBeNull()
+  expect(submitGeometry!.height).toBeGreaterThanOrEqual(44)
+  await expectNoHorizontalScroll(page)
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await routeReturn.scrollIntoViewIfNeeded()
+  await expect(routeReturn).toBeVisible()
+  await submit.scrollIntoViewIfNeeded()
+  await expect(submit).toBeVisible()
+  await expectNoHorizontalScroll(page)
+})
+
 test('в целевых iPhone-профилях каталог абонементов рендерит длинное название и доступную кнопку Изменить без горизонтального скролла', async ({
   page,
 }, testInfo) => {

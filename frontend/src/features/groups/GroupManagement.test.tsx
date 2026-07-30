@@ -32,7 +32,11 @@ vi.mock('../../lib/api', async (importOriginal) => ({
   updateGroup: apiMocks.updateGroup,
 }))
 
-import { GroupEditScreen, GroupsListScreen } from './GroupManagement'
+import {
+  GroupCreateScreen,
+  GroupEditScreen,
+  GroupsListScreen,
+} from './GroupManagement'
 
 const group = {
   id: 'group-1', name: 'Утренняя', branchId: 'branch-1', branchName: 'Центр',
@@ -257,6 +261,41 @@ describe('GroupEditScreen', () => {
     vi.useRealTimers()
   })
 
+  test('keeps one header return and only submit in edit while create keeps cancel', async () => {
+    setupGroupFormOptions()
+    apiMocks.getGroup.mockResolvedValue({
+      ...group,
+      createdAt: '2026-07-01T10:00:00Z',
+      updatedAt: '2026-07-20T10:00:00Z',
+    })
+    apiMocks.getGroupClients.mockResolvedValue({ groupId: 'group-1', clients: [] })
+    apiMocks.getGroupTrainerSubstitutions.mockResolvedValue({
+      current: [],
+      history: { items: [], totalCount: 0, skip: 0, take: 20 },
+      canCreate: true,
+      createUnavailableReason: null,
+    })
+
+    const editView = renderWithProviders(
+      <GroupEditScreen groupId="group-1" onBack={vi.fn()} onUpdated={vi.fn()} />,
+    )
+
+    expect(await screen.findByRole('button', { name: 'Сохранить изменения' })).toBeVisible()
+    expect(screen.getAllByRole('button', { name: 'К списку групп' })).toHaveLength(1)
+    expect(screen.queryByRole('button', { name: 'Отменить' })).not.toBeInTheDocument()
+
+    editView.unmount()
+    Object.values(apiMocks).forEach((mock) => mock.mockReset())
+    setupGroupFormOptions()
+
+    renderWithProviders(
+      <GroupCreateScreen onCancel={vi.fn()} onCreated={vi.fn()} />,
+    )
+
+    expect(await screen.findByRole('button', { name: 'Создать группу' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Отменить' })).toBeVisible()
+  })
+
   test('keeps permanent trainerIds unchanged after creating a temporary substitution', async () => {
     apiMocks.getGroup.mockResolvedValue({
       ...group,
@@ -465,3 +504,16 @@ describe('GroupEditScreen', () => {
     expect(screen.queryByText('Сохранение не выполнено')).not.toBeInTheDocument()
   })
 })
+
+function setupGroupFormOptions() {
+  apiMocks.getBranches.mockResolvedValue([
+    { id: 'branch-1', name: 'Центр', address: 'Адрес', isArchived: false },
+  ])
+  apiMocks.getHalls.mockResolvedValue([
+    { id: 'hall-1', branchId: 'branch-1', name: 'Большой', isArchived: false },
+  ])
+  apiMocks.getGroupTypes.mockResolvedValue([
+    { id: 'type-1', name: 'Общая', description: null, groupCount: 1 },
+  ])
+  apiMocks.getTrainerOptions.mockResolvedValue([])
+}
