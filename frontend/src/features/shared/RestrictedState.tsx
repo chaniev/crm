@@ -8,6 +8,7 @@ export type RestrictedStateProps = ComponentPropsWithoutRef<'section'> & {
   primaryAction: ReactNode
   secondaryAction?: ReactNode
   title: string
+  titleOrder?: 1 | 2 | 3 | 4 | 5 | 6
 }
 
 export function RestrictedState({
@@ -17,6 +18,7 @@ export function RestrictedState({
   primaryAction,
   secondaryAction,
   title,
+  titleOrder = 2,
   ...props
 }: RestrictedStateProps) {
   const headingRef = useRef<HTMLHeadingElement | null>(null)
@@ -43,7 +45,11 @@ export function RestrictedState({
       {...props}
     >
       <Stack align="center" gap="md">
-        <Title order={2} ref={headingRef} tabIndex={focusOnMount === 'heading' ? -1 : undefined}>
+        <Title
+          order={titleOrder}
+          ref={headingRef}
+          tabIndex={focusOnMount === 'heading' ? -1 : undefined}
+        >
           {title}
         </Title>
         <Text c="dimmed" ta="center">

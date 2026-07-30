@@ -162,6 +162,28 @@ const HEAD_COACH_SESSION = {
   },
 } as const
 
+const COACH_RESTRICTED_SESSION = {
+  ...HEAD_COACH_SESSION,
+  csrfToken: 'iphone-target-coach-csrf-token',
+  user: {
+    ...HEAD_COACH_SESSION.user,
+    id: 'iphone-target-coach',
+    fullName: 'Тренер группы',
+    login: 'coach',
+    role: 'Coach',
+    allowedSections: ['Home', 'Schedule', 'Clients'],
+    permissions: {
+      canManageUsers: false,
+      canManageClients: false,
+      canManageGroups: false,
+      canManageSettings: false,
+      canMarkAttendance: true,
+      canViewAuditLog: false,
+      canViewFinancialReports: false,
+    },
+  },
+} as const
+
 const HEAD_COACH_ADMIN_SESSION = {
   ...HEAD_COACH_SESSION,
   user: {
@@ -231,6 +253,43 @@ test('target portrait keeps the login operation visible and touch-safe', async (
   await password.fill('password')
   await expect(submit).toBeInViewport()
   await expectNoHorizontalScroll(page)
+})
+
+test('target portrait route restriction keeps recovery focused and touch-safe', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await mockApi(page, COACH_RESTRICTED_SESSION)
+  await page.goto('/clients/new')
+
+  const heading = page.getByRole('heading', { level: 1, name: 'Нет доступа' })
+  const recovery = page.getByRole('button', { name: 'Открыть Клиенты' })
+
+  await expect(heading).toBeFocused()
+  await expect(page.getByText('У вас нет доступа к операции «Новый клиент».')).toBeVisible()
+  await expect(recovery).toBeInViewport()
+  await expectNoHorizontalScroll(page)
+
+  const environment = await page.evaluate(() => ({
+    devicePixelRatio: window.devicePixelRatio,
+    innerWidth: window.innerWidth,
+    screenHeight: window.screen.height,
+    screenWidth: window.screen.width,
+    userAgent: navigator.userAgent,
+  }))
+
+  expect(testInfo.project.use.screen).toEqual(target)
+  expect(testInfo.project.use.hasTouch).toBe(true)
+  expect(environment.screenWidth).toBe(target.width)
+  expect(environment.screenHeight).toBeLessThan(target.height)
+  expect(environment.innerWidth).toBe(target.width)
+  expect(environment.devicePixelRatio).toBe(3)
+  expect(environment.userAgent).toContain('iPhone')
+
+  const recoveryBox = await recovery.boundingBox()
+  expect(recoveryBox).not.toBeNull()
+  expect(recoveryBox!.height).toBeGreaterThanOrEqual(44)
 })
 
 test('unknown auth-profile values are safely resolved on iPhone profiles', async ({
@@ -1031,7 +1090,10 @@ function targetScreenFor(projectName: string) {
 
 async function mockApi(
   page: Page,
-  session: typeof UNAUTHENTICATED_SESSION | typeof HEAD_COACH_SESSION,
+  session:
+    | typeof UNAUTHENTICATED_SESSION
+    | typeof HEAD_COACH_SESSION
+    | typeof COACH_RESTRICTED_SESSION,
   appConfig: AppConfigFixture = APP_CONFIG,
 ) {
   await page.route('**/api/**', async (route) => {

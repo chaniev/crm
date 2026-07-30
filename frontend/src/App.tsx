@@ -1,6 +1,7 @@
 import {
   startTransition,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -53,12 +54,15 @@ import type { AuthStageBackground } from './theme'
 import {
   APP_SECTION_LABELS,
   getAccessibleNavigationSections,
+  getDefaultRouteRecoveryDestination,
   getRoutePath,
   getRouteSection,
   getSectionPath,
   normalizePathname,
   parseRoute,
-  resolveAccessibleRoutePath,
+  resolveRouteAccess,
+  type ParsedRoute,
+  type RouteAccessResolution,
   type AppRoute,
 } from './lib/appRoutes'
 import {
@@ -110,13 +114,35 @@ import {
   PageLayout,
   PageSection,
 } from './features/shared/ux'
-import { showAppNotification } from './features/shared/notifications'
+import { RestrictedState } from './features/shared/RestrictedState'
+import {
+  showAppNotification,
+  showPoliteStatusNotification,
+} from './features/shared/notifications'
 import './App.css'
 
 type PasswordMode = 'forced' | 'utility'
 
+type PasswordReturnState = {
+  path: string
+  access: RouteAccessResolution | null
+}
+
+type PasswordReturnDecision = {
+  path: string
+  recoveryEvent: Extract<RouteAccessResolution, { kind: 'restricted' }> | null
+}
+
 type RolePresentation = {
   roleLabel: string
+}
+
+function assertNeverAppRoute(value: never): never {
+  throw new Error(`Unhandled app route: ${JSON.stringify(value)}`)
+}
+
+function isAppRoute(route: ParsedRoute): route is AppRoute {
+  return route.kind !== 'not-found'
 }
 
 type NavigateOptions = {
@@ -182,15 +208,47 @@ function useAppRoute() {
   }
 }
 
-function getPostPasswordPath(
+function getPostPasswordReturnDecision(
   user: AuthenticatedUser,
-  passwordReturnPath: string | null,
-) {
-  if (!passwordReturnPath) {
-    return getSectionPath(user.landingScreen)
+  passwordReturnState: PasswordReturnState | null,
+): PasswordReturnDecision {
+  if (!passwordReturnState?.path) {
+    return {
+      path: getDefaultRouteRecoveryDestination(user).recoveryPath,
+      recoveryEvent: null,
+    }
   }
 
-  return resolveAccessibleRoutePath(user, parseRoute(passwordReturnPath))
+  const passwordReturnAccess = resolveRouteAccess(
+    user,
+    parseRoute(passwordReturnState.path),
+  )
+
+  if (
+    passwordReturnState.access?.kind === 'allowed' &&
+    passwordReturnAccess.kind === 'restricted'
+  ) {
+    return {
+      path: passwordReturnAccess.recoveryPath,
+      recoveryEvent: passwordReturnAccess,
+    }
+  }
+
+  return {
+    path: passwordReturnAccess.requestedPath,
+    recoveryEvent: null,
+  }
+}
+
+function getRouteAccessLossNotificationMessage(
+  access: Extract<RouteAccessResolution, { kind: 'restricted' }>,
+) {
+  const deniedSubject =
+    access.reason.kind === 'section'
+      ? `Раздел «${access.requestedDestinationLabel}»`
+      : `Операция «${access.requestedDestinationLabel}»`
+
+  return `Больше нет доступа: ${deniedSubject}. Открыт доступный раздел «${access.recoveryLabel}».`
 }
 
 function getRouteDocumentTitle(route: AppRoute) {
@@ -216,12 +274,18 @@ function getRouteDocumentTitle(route: AppRoute) {
     case 'userEdit':
       return 'Редактирование тренера'
   }
+
+  return assertNeverAppRoute(route)
 }
 
 function getCurrentClientListReturnDepth(
-  route: AppRoute,
+  route: ParsedRoute,
   snapshot: ClientListReturnSnapshot,
 ) {
+  if (route.kind === 'not-found' || route.kind === 'password') {
+    return snapshot.returnDepth
+  }
+
   if (route.kind === 'section' && route.section === 'Clients') {
     return 0
   }
@@ -234,9 +298,13 @@ function getCurrentClientListReturnDepth(
 }
 
 function getCurrentGroupListReturnDepth(
-  route: AppRoute,
+  route: ParsedRoute,
   snapshot: GroupListReturnSnapshot,
 ) {
+  if (route.kind === 'not-found' || route.kind === 'password') {
+    return snapshot.returnDepth
+  }
+
   if (route.kind === 'section' && route.section === 'Groups') {
     return 0
   }
@@ -252,7 +320,8 @@ function stripAppReturnSnapshotsFromHistoryState(historyState: unknown) {
 
 function getAppDocumentTitle(
   clubName: string,
-  route: AppRoute,
+  route: ParsedRoute,
+  routeAccess: RouteAccessResolution | null,
   session: SessionResponse | null,
   loadingSession: boolean,
   bootstrapError: string | null,
@@ -273,8 +342,24 @@ function getAppDocumentTitle(
     return `Смените пароль • ${clubName}`
   }
 
+  if (routeAccess?.kind === 'restricted') {
+    return `${routeAccess.requestedDestinationLabel} — нет доступа • ${clubName}`
+  }
+
+  if (routeAccess?.kind === 'not-found') {
+    return `Страница не найдена • ${clubName}`
+  }
+
   if (route.kind === 'password') {
     return `Смена пароля • ${clubName}`
+  }
+
+  if (route.kind === 'section') {
+    return `${getRouteDocumentTitle(route)} • ${clubName}`
+  }
+
+  if (route.kind === 'not-found') {
+    return `Страница не найдена • ${clubName}`
   }
 
   return `${getRouteDocumentTitle(route)} • ${clubName}`
@@ -293,9 +378,20 @@ export function App({ appConfig, authBackground }: AppProps) {
   const [loginPending, setLoginPending] = useState(false)
   const [passwordPending, setPasswordPending] = useState(false)
   const [logoutPending, setLogoutPending] = useState(false)
-  const [passwordReturnPath, setPasswordReturnPath] = useState<string | null>(null)
+  const [passwordReturnState, setPasswordReturnState] = useState<PasswordReturnState | null>(
+    null,
+  )
   const authenticatedUserBoundaryRef = useRef<string | null>(null)
+  const routeAccessBoundaryRef = useRef<RouteAccessResolution | null>(null)
   const displayedClubName = appConfig.clubName
+
+  const routeAccess = useMemo(() => {
+    if (!session?.isAuthenticated || !session.user || session.user.mustChangePassword) {
+      return null
+    }
+
+    return resolveRouteAccess(session.user, route)
+  }, [route, session])
 
   const routeClientListReturnSnapshot = readClientListReturnSnapshot(
     window.history.state,
@@ -355,7 +451,9 @@ export function App({ appConfig, authBackground }: AppProps) {
     const targetSnapshot = snapshot
       ? withClientListReturnDepth(
           snapshot,
-          getNextClientListReturnDepth(route, snapshot),
+          isAppRoute(route)
+            ? getNextClientListReturnDepth(route, snapshot)
+            : snapshot.returnDepth,
         )
       : null
     const nextState = getClientListHistoryState(nextRoute, targetSnapshot)
@@ -407,7 +505,9 @@ export function App({ appConfig, authBackground }: AppProps) {
     const targetSnapshot = snapshot
       ? withGroupListReturnDepth(
           snapshot,
-          getNextGroupListReturnDepth(route, snapshot),
+          isAppRoute(route)
+            ? getNextGroupListReturnDepth(route, snapshot)
+            : snapshot.returnDepth,
         )
       : null
     const nextState = getGroupListHistoryState(nextRoute, targetSnapshot)
@@ -457,7 +557,10 @@ export function App({ appConfig, authBackground }: AppProps) {
   }
 
   useEffect(() => {
-    if (!isClientListReturnRoute(route) && !isGroupListReturnRoute(route)) {
+    if (
+      !isAppRoute(route) ||
+      (!isClientListReturnRoute(route) && !isGroupListReturnRoute(route))
+    ) {
       return
     }
 
@@ -488,6 +591,7 @@ export function App({ appConfig, authBackground }: AppProps) {
         '',
         window.location.pathname,
       )
+      routeAccessBoundaryRef.current = null
     }
 
     authenticatedUserBoundaryRef.current = authenticatedUserId
@@ -532,22 +636,48 @@ export function App({ appConfig, authBackground }: AppProps) {
     document.title = getAppDocumentTitle(
       displayedClubName,
       route,
+      routeAccess,
       session,
       loadingSession,
       bootstrapError,
     )
-  }, [bootstrapError, displayedClubName, loadingSession, route, session])
+  }, [
+    bootstrapError,
+    displayedClubName,
+    loadingSession,
+    route,
+    routeAccess,
+    session,
+  ])
 
   useEffect(() => {
-    if (!session?.isAuthenticated || !session.user || session.user.mustChangePassword) {
+    if (!session?.isAuthenticated || !session.user || !routeAccess) {
       return
     }
 
-    const accessiblePath = resolveAccessibleRoutePath(session.user, route)
-    if (accessiblePath !== pathname) {
-      navigate(accessiblePath, { replace: true })
+    const previousRouteAccess = routeAccessBoundaryRef.current
+
+    if (
+      previousRouteAccess?.kind === 'allowed' &&
+      routeAccess.kind === 'restricted' &&
+      previousRouteAccess.requestedPath === routeAccess.requestedPath &&
+      previousRouteAccess.requestedPath === pathname
+    ) {
+      routeAccessBoundaryRef.current = routeAccess
+
+      showPoliteStatusNotification({
+        id: `route-access-denied-${session.user.id}-${routeAccess.requestedPath}`,
+        title: 'Открыт доступный раздел',
+        message: getRouteAccessLossNotificationMessage(routeAccess),
+        color: 'yellow',
+      })
+
+      navigate(routeAccess.recoveryPath, { replace: true })
+      return
     }
-  }, [navigate, pathname, route, session])
+
+    routeAccessBoundaryRef.current = routeAccess
+  }, [navigate, pathname, routeAccess, session])
 
   async function retrySessionLoad() {
     setLoadingSession(true)
@@ -613,13 +743,30 @@ export function App({ appConfig, authBackground }: AppProps) {
         setSession(currentSession)
       })
 
-      if (currentSession.user) {
-        navigate(getPostPasswordPath(currentSession.user, passwordReturnPath), {
+      const nextSessionUser = currentSession.user
+      if (nextSessionUser) {
+        const postPasswordDecision = getPostPasswordReturnDecision(
+          nextSessionUser,
+          passwordReturnState,
+        )
+
+        navigate(postPasswordDecision.path, {
           replace: true,
         })
-      }
+        setPasswordReturnState(null)
 
-      setPasswordReturnPath(null)
+        if (postPasswordDecision.recoveryEvent) {
+          showPoliteStatusNotification({
+            id: 'auth-password-access-recovery',
+            title: 'Пароль обновлен, открыт доступный раздел',
+            message: `Пароль обновлен. ${getRouteAccessLossNotificationMessage(
+              postPasswordDecision.recoveryEvent,
+            )}`,
+            color: 'yellow',
+          })
+          return
+        }
+      }
 
       showAppNotification({
         id: `auth-password-${mode}`,
@@ -645,7 +792,7 @@ export function App({ appConfig, authBackground }: AppProps) {
         setSession(currentSession)
       })
 
-      setPasswordReturnPath(null)
+      setPasswordReturnState(null)
       navigate('/', { replace: true })
 
       showAppNotification({
@@ -670,7 +817,18 @@ export function App({ appConfig, authBackground }: AppProps) {
   }
 
   function openUtilityPassword() {
-    setPasswordReturnPath(route.kind === 'password' ? passwordReturnPath : pathname)
+    if (!session?.user || !routeAccess) {
+      return
+    }
+
+    const nextReturnAccess = routeAccess
+
+    setPasswordReturnState((route.kind === 'password')
+      ? passwordReturnState
+      : {
+        path: pathname,
+        access: nextReturnAccess,
+      })
     navigate({ kind: 'password' })
   }
 
@@ -739,8 +897,24 @@ export function App({ appConfig, authBackground }: AppProps) {
     )
   }
 
-  const currentSection = getRouteSection(route)
+  if (!routeAccess) {
+    return null
+  }
+
+  const accessibleRoute = routeAccess?.kind === 'allowed' ? routeAccess.route : null
+  const viewportRoute: Exclude<AppRoute, { kind: 'password' }> =
+    accessibleRoute && accessibleRoute.kind !== 'password'
+      ? accessibleRoute
+      : { kind: 'section', section: 'Home' }
+  const currentSection = accessibleRoute
+    ? getRouteSection(accessibleRoute)
+    : route.kind === 'not-found' || route.kind === 'password'
+      ? null
+      : getRouteSection(route)
   const authenticatedUser = session.user
+  const recoveryPath = routeAccess.kind === 'restricted' || routeAccess.kind === 'not-found'
+    ? routeAccess.recoveryPath
+    : getDefaultRouteRecoveryDestination(authenticatedUser).recoveryPath
 
   return (
     <AuthenticatedShell
@@ -756,13 +930,39 @@ export function App({ appConfig, authBackground }: AppProps) {
         <PasswordScreen
           mode="utility"
           onBack={() => {
-            navigate(getPostPasswordPath(authenticatedUser, passwordReturnPath), {
+            const postPasswordDecision = getPostPasswordReturnDecision(
+              authenticatedUser,
+              passwordReturnState,
+            )
+
+            navigate(postPasswordDecision.path, {
               replace: true,
             })
-            setPasswordReturnPath(null)
+            setPasswordReturnState(null)
+
+            if (postPasswordDecision.recoveryEvent) {
+              showPoliteStatusNotification({
+                id: 'auth-password-back-access-recovery',
+                title: 'Открыт доступный раздел',
+                message: getRouteAccessLossNotificationMessage(
+                  postPasswordDecision.recoveryEvent,
+                ),
+                color: 'yellow',
+              })
+            }
           }}
           pending={passwordPending}
           onSubmit={handleChangePassword}
+        />
+      ) : routeAccess?.kind === 'restricted' ? (
+        <RouteAccessState
+          access={routeAccess}
+          onRecovery={() => navigate(recoveryPath, { replace: true })}
+        />
+      ) : routeAccess?.kind === 'not-found' ? (
+        <RouteNotFoundState
+          onRecovery={() => navigate(recoveryPath, { replace: true })}
+          recoveryLabel={routeAccess.recoveryLabel}
         />
       ) : (
         <RouteViewport
@@ -798,7 +998,7 @@ export function App({ appConfig, authBackground }: AppProps) {
           groupListReturnSnapshot={activeGroupListReturnSnapshot}
           onSaveClientListReturnState={saveClientListReturnState}
           onSaveGroupListReturnState={saveGroupListReturnState}
-          route={route}
+          route={viewportRoute}
           user={authenticatedUser}
         />
       )}
@@ -1263,52 +1463,6 @@ function RouteViewport({
   onSaveClientListReturnState,
   onSaveGroupListReturnState,
 }: RouteViewportProps) {
-  if (
-    !user.permissions.canManageClients &&
-    (route.kind === 'clientCreate' || route.kind === 'clientEdit')
-  ) {
-    return <ClientsReadOnlyPlaceholder />
-  }
-
-  if (
-    !user.permissions.canManageGroups &&
-    (route.kind === 'groupCreate' || route.kind === 'groupEdit')
-  ) {
-    return <RouteRedirectPlaceholder />
-  }
-
-  if (route.kind === 'section' && route.section === 'Groups' && !user.permissions.canManageGroups) {
-    return <RouteRedirectPlaceholder />
-  }
-
-  if (
-    !user.permissions.canManageUsers &&
-    (route.kind === 'userCreate' || route.kind === 'userEdit')
-  ) {
-    return <RouteRedirectPlaceholder />
-  }
-
-  if (route.kind === 'section' && route.section === 'Users' && !user.permissions.canManageUsers) {
-    return <RouteRedirectPlaceholder />
-  }
-
-  if (route.kind === 'section' && route.section === 'Audit' && !user.permissions.canViewAuditLog) {
-    return <RouteRedirectPlaceholder />
-  }
-
-  if (
-    route.kind === 'section' &&
-    route.section === 'Finance' &&
-    (!user.permissions.canViewFinancialReports ||
-      !user.allowedSections.includes('Finance'))
-  ) {
-    return <RouteRedirectPlaceholder />
-  }
-
-  if (route.kind === 'section' && route.section === 'Settings' && !user.permissions.canManageSettings) {
-    return <RouteRedirectPlaceholder />
-  }
-
   if (route.kind === 'clientCreate') {
     return (
       <ClientCreateScreen
@@ -1462,33 +1616,68 @@ function RouteViewport({
   return <SectionPlaceholder />
 }
 
-function ClientsReadOnlyPlaceholder() {
+type RouteAccessStateProps = {
+  access: Extract<RouteAccessResolution, { kind: 'restricted' }>
+  onRecovery: () => void
+}
+
+function RouteAccessState({ access, onRecovery }: RouteAccessStateProps) {
+  const description =
+    access.reason.kind === 'section'
+      ? `У вас нет доступа к разделу «${access.requestedDestinationLabel}».`
+      : `У вас нет доступа к операции «${access.requestedDestinationLabel}».`
+
   return (
-    <PageLayout showHeader={false} title="Клиенты">
-      <PageSection>
-        <Stack gap="md">
-          <Alert
-            color="blue"
-            icon={<IconAlertCircle size={18} />}
-            title="Раздел скоро будет доступен"
-            variant="light"
-          >
-            Для тренера здесь появится рабочий список клиентов назначенных групп.
-          </Alert>
-        </Stack>
-      </PageSection>
+    <PageLayout
+      className="route-state-layout"
+      renderHiddenHeading={false}
+      showHeader={false}
+      title="Нет доступа"
+    >
+      <RestrictedState
+        className="route-state"
+        description={description}
+        focusOnMount="heading"
+        primaryAction={(
+          <Button fullWidth onClick={onRecovery}>
+            Открыть {access.recoveryLabel}
+          </Button>
+        )}
+        title="Нет доступа"
+        titleOrder={1}
+      />
     </PageLayout>
   )
 }
 
-function RouteRedirectPlaceholder() {
+type RouteNotFoundStateProps = {
+  onRecovery: () => void
+  recoveryLabel: string
+}
+
+function RouteNotFoundState({
+  onRecovery,
+  recoveryLabel,
+}: RouteNotFoundStateProps) {
   return (
-    <PageLayout title="Переход">
-      <PageSection>
-        <Group justify="center" py="xl">
-          <Loader color="var(--crm-action-primary)" />
-        </Group>
-      </PageSection>
+    <PageLayout
+      className="route-state-layout"
+      renderHiddenHeading={false}
+      showHeader={false}
+      title="Страница не найдена"
+    >
+      <RestrictedState
+        className="route-state"
+        description="Такой страницы нет или ссылка устарела."
+        focusOnMount="heading"
+        primaryAction={(
+          <Button fullWidth onClick={onRecovery}>
+            Открыть {recoveryLabel}
+          </Button>
+        )}
+        title="Страница не найдена"
+        titleOrder={1}
+      />
     </PageLayout>
   )
 }

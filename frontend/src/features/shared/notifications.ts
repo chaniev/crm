@@ -21,3 +21,11 @@ export function showAppNotification(notification: NotificationData) {
 
   return notificationId
 }
+
+export function showPoliteStatusNotification(notification: NotificationData) {
+  return showAppNotification({
+    ...notification,
+    role: 'status',
+    'aria-live': 'polite',
+  })
+}

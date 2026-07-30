@@ -114,6 +114,7 @@ function ResolvedConfigThemeBootstrap({
     <MantineProvider defaultColorScheme="light" theme={theme}>
       <Notifications
         autoClose={APP_NOTIFICATION_AUTO_CLOSE_MS}
+        className="app-notifications"
         limit={APP_NOTIFICATION_LIMIT}
         position="top-right"
       />

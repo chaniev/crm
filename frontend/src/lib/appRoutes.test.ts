@@ -3,10 +3,11 @@ import type { AppSection, AuthenticatedUser } from './api'
 import {
   getAccessibleNavigationSections,
   getMobileNavigationSections,
-  getSectionPath,
   getRoutePath,
+  getSectionPath,
   parseRoute,
   resolveAccessibleRoutePath,
+  resolveRouteAccess,
 } from './appRoutes'
 
 const financeUser: AuthenticatedUser = {
@@ -39,6 +40,23 @@ const financeUser: AuthenticatedUser = {
   assignedGroupIds: [],
   attendanceScope: { kind: 'Global', groupIds: [] },
   branchId: null,
+}
+
+const coachUser: AuthenticatedUser = {
+  ...financeUser,
+  id: 'coach-id',
+  login: 'coach',
+  role: 'Coach',
+  allowedSections: ['Home', 'Schedule', 'Clients'],
+  permissions: {
+    canManageUsers: false,
+    canManageClients: false,
+    canManageGroups: false,
+    canManageSettings: false,
+    canMarkAttendance: true,
+    canViewAuditLog: false,
+    canViewFinancialReports: false,
+  },
 }
 
 describe('finance routes', () => {
@@ -108,11 +126,11 @@ describe('finance routes', () => {
     ).toBe('/')
   })
 
-  test('normalizes removed Attendance route to Home', () => {
+  test('classifies /attendance as not-found', () => {
     const route = parseRoute('/attendance')
 
-    expect(route).toEqual({ kind: 'section', section: 'Home' })
-    expect(resolveAccessibleRoutePath(financeUser, route)).toBe('/')
+    expect((route as { kind: 'not-found'; path: string }).kind).toBe('not-found')
+    expect((route as { kind: 'not-found'; path: string }).path).toBe('/attendance')
   })
 
   test('redirects Users detail routes when user management permission is revoked', () => {
@@ -158,7 +176,100 @@ describe('finance routes', () => {
       'Audit',
       'Settings',
     ])
-    expect(resolveAccessibleRoutePath(superAdministrator, { kind: 'section', section: 'Finance' })).toBe('/')
+    expect(resolveRouteAccess(superAdministrator, { kind: 'section', section: 'Finance' })).toMatchObject({
+      kind: 'restricted',
+      recoveryPath: '/',
+      requestedDestinationLabel: 'Финансы',
+    })
+  })
+})
+
+describe('route parsing and resolution matrix', () => {
+  test('preserves requested path for malformed unknown routes', () => {
+    const malformedPath = '/%E0%AE'
+
+    expect((parseRoute(malformedPath) as { kind: 'not-found'; path: string }).kind).toBe(
+      'not-found',
+    )
+    expect((parseRoute(malformedPath) as { kind: 'not-found'; path: string }).path).toBe(
+      malformedPath,
+    )
+  })
+
+  test('maps unknown paths to not-found and keeps unknown denied outcome', () => {
+    const unknownPath = '/clients-analytics?from=web'
+    const route = parseRoute(unknownPath)
+
+    expect(route).toEqual({ kind: 'not-found', path: unknownPath })
+    expect(resolveRouteAccess(financeUser, route)).toEqual({
+      kind: 'not-found',
+      requestedPath: unknownPath,
+      recoveryPath: '/',
+      recoveryLabel: 'Главная',
+    })
+  })
+
+  test('allows section, read detail and utility password routes from current session contract', () => {
+    expect(resolveRouteAccess(financeUser, parseRoute('/clients'))).toMatchObject({
+      kind: 'allowed',
+      requestedPath: '/clients',
+      requestedDestinationLabel: 'Клиенты',
+    })
+    expect(resolveRouteAccess(financeUser, parseRoute('/clients/client-1'))).toMatchObject({
+      kind: 'allowed',
+      requestedPath: '/clients/client-1',
+      requestedDestinationLabel: 'Клиенты',
+    })
+    expect(resolveRouteAccess(financeUser, parseRoute('/password'))).toMatchObject({
+      kind: 'allowed',
+      requestedPath: '/password',
+      requestedDestinationLabel: 'Смена пароля',
+    })
+  })
+
+  test('restricts write routes while recovering to a readable parent section', () => {
+    const access = resolveRouteAccess(coachUser, parseRoute('/clients/new'))
+
+    expect(access).toMatchObject({
+      kind: 'restricted',
+      requestedPath: '/clients/new',
+      requestedDestinationLabel: 'Новый клиент',
+      reason: { kind: 'operation', label: 'Новый клиент' },
+      recoveryPath: '/clients',
+      recoveryLabel: 'Клиенты',
+    })
+  })
+
+  test('restricts section routes and recovers to the authorized landing or first section', () => {
+    expect(resolveRouteAccess(coachUser, parseRoute('/groups'))).toMatchObject({
+      kind: 'restricted',
+      requestedPath: '/groups',
+      requestedDestinationLabel: 'Группы',
+      reason: { kind: 'section', label: 'Группы' },
+      recoveryPath: '/',
+      recoveryLabel: 'Главная',
+    })
+
+    const landingNotAllowed = {
+      ...coachUser,
+      landingScreen: 'Groups',
+      allowedSections: ['Schedule', 'Clients'],
+    } satisfies AuthenticatedUser
+
+    expect(resolveRouteAccess(landingNotAllowed, parseRoute('/groups'))).toMatchObject({
+      kind: 'restricted',
+      recoveryPath: '/schedule',
+      recoveryLabel: 'Расписание',
+    })
+  })
+
+  test('keeps legacy path resolver as a compatibility wrapper over typed access', () => {
+    expect(resolveAccessibleRoutePath(coachUser, { kind: 'clientCreate' })).toBe(
+      '/clients',
+    )
+    expect(resolveAccessibleRoutePath(coachUser, { kind: 'section', section: 'Groups' })).toBe(
+      '/',
+    )
   })
 })
 
@@ -170,6 +281,10 @@ describe('client preview route', () => {
       kind: 'clientPreview',
       clientId: 'client-1',
     })
+    expect(route.kind).toBe('clientPreview')
+    if (route.kind !== 'clientPreview') {
+      throw new Error('Expected client preview route')
+    }
     expect(getRoutePath(route)).toBe('/clients/client-1/preview')
   })
 
