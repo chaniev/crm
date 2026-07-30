@@ -72,7 +72,6 @@ import {
   IconButton,
   ListRangeStatus,
   LoadingState,
-  MetricCard,
   PageLayout,
   PageSection,
   ResponsiveButtonGroup,
@@ -692,7 +691,6 @@ export function GroupEditScreen({
   const [groupTypeOptions, setGroupTypeOptions] = useState<GroupType[]>([])
   const [groupClients, setGroupClients] = useState<GroupClient[]>([])
   const [groupName, setGroupName] = useState(GROUPS_DEFAULT_NAME)
-  const [clientCount, setClientCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
@@ -734,7 +732,6 @@ export function GroupEditScreen({
         setTrainerOptions(options)
         setGroupClients(clientsResponse.clients)
         setGroupName(group.name)
-        setClientCount(group.clientCount)
         formRef.current.setValues(toFormValues(group))
       } catch (error) {
         if (controller.signal.aborted) {
@@ -818,24 +815,6 @@ export function GroupEditScreen({
 
       {!loading && !loadError ? (
         <>
-          <SimpleGrid cols={GROUPS_GRID_COLUMNS}>
-            <MetricCard
-              description="Клиенты, уже привязанные к группе"
-              label="Клиенты"
-              value={String(clientCount)}
-            />
-            <MetricCard
-              description="Доступных для выбора активных тренеров"
-              label="Тренеры"
-              value={String(trainerOptions.length)}
-            />
-            <MetricCard
-              description="Тренеры, выбранные в форме"
-              label="Назначено"
-              value={String(form.values.trainerIds.length)}
-            />
-          </SimpleGrid>
-
           <PageSection>
             <GroupForm
               form={form}

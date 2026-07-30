@@ -1090,6 +1090,21 @@ test('в целевых iPhone-профилях админ-панель ренд
       return
     }
 
+    if (pathname === '/api/halls' && method === 'GET') {
+      await fulfillJson(route, [
+        {
+          id: 'hall-1',
+          branchId: 'branch-1',
+          branchName: 'Центр',
+          name: 'Основной зал',
+          description: 'Основное пространство',
+          isArchived: false,
+          groupCount: 0,
+        },
+      ])
+      return
+    }
+
     if (pathname === '/api/group-types' && method === 'GET') {
       await fulfillJson(route, [])
       return
@@ -1188,6 +1203,43 @@ test('в целевых iPhone-профилях админ-панель ренд
   await expect(createButton).toBeFocused()
 })
 
+test('target portrait подтверждает, что на филиалы и залы отсутствуют summary-маркеры', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.setViewportSize(target)
+  await mockApi(page, HEAD_COACH_ADMIN_SESSION)
+  await page.goto('/settings')
+  await page.getByRole('tab', { name: 'Филиалы и залы' }).click()
+
+  const settingsScreen = page.locator('[data-testid="settings-screen"]')
+  const createButton = settingsScreen.getByRole('button', { name: 'Добавить филиал' })
+  const refreshButton = settingsScreen.getByRole('button', { name: 'Обновить' })
+  const firstBranch = page.locator('.settings-branch-row').first()
+
+  await expect(createButton).toBeVisible()
+  await expect(refreshButton).toBeVisible()
+  await expect(firstBranch).toBeVisible()
+  await expect(settingsScreen.locator('.metric-card')).toHaveCount(0)
+  await expect(createButton).toBeInViewport()
+  await expect(refreshButton).toBeInViewport()
+  await expectNoHorizontalScroll(page)
+
+  const createBox = await createButton.boundingBox()
+  const refreshBox = await refreshButton.boundingBox()
+  expect(createBox).not.toBeNull()
+  expect(refreshBox).not.toBeNull()
+  expect(createBox!.height).toBeGreaterThanOrEqual(44)
+  expect(refreshBox!.height).toBeGreaterThanOrEqual(44)
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await expect(createButton).toBeVisible()
+  await expect(refreshButton).toBeVisible()
+  await expect(settingsScreen.locator('.metric-card')).toHaveCount(0)
+  await expectNoHorizontalScroll(page)
+  await expect(createButton).toBeInViewport()
+})
+
 function targetScreenFor(projectName: string) {
   const target = TARGET_SCREENS[projectName as keyof typeof TARGET_SCREENS]
 
@@ -1252,6 +1304,47 @@ async function mockApi(
 
     if (pathname === '/api/clients/client-1' && method === 'GET') {
       await fulfillJson(route, CLIENT_LIST_ITEM)
+      return
+    }
+
+    if (pathname === '/api/branches' && method === 'GET') {
+      await fulfillJson(route, [
+        {
+          id: 'branch-1',
+          name: 'Центр',
+          address: null,
+          description: null,
+          isArchived: false,
+          hallCount: 1,
+          groupCount: 1,
+          clientCount: 12,
+        },
+      ])
+      return
+    }
+
+    if (pathname === '/api/halls' && method === 'GET') {
+      await fulfillJson(route, [
+        {
+          id: 'hall-1',
+          branchId: 'branch-1',
+          branchName: 'Центр',
+          name: 'Основной зал',
+          description: 'Основное пространство',
+          isArchived: false,
+          groupCount: 1,
+        },
+      ])
+      return
+    }
+
+    if (pathname === '/api/group-types' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/settings/membership-catalog' && method === 'GET') {
+      await fulfillJson(route, { items: [] })
       return
     }
 

@@ -59,6 +59,14 @@ const MANAGEMENT_SESSION = {
   },
 } as const
 
+const HEAD_COACH_ADMIN_SESSION = {
+  ...MANAGEMENT_SESSION,
+  user: {
+    ...MANAGEMENT_SESSION.user,
+    createRoleOptions: ['Administrator', 'SuperAdministrator'],
+  },
+} as const
+
 const COACH_SESSION = {
   isAuthenticated: true,
   csrfToken: 'coach-csrf-token',
@@ -814,6 +822,68 @@ for (const width of [320, 390, 420, 440, 768, 1440]) {
         const bottomNavigation = await page
           .locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
           .boundingBox()
+        expect(rowAfterScroll!.y + rowAfterScroll!.height).toBeLessThanOrEqual(
+          bottomNavigation!.y + 1,
+        )
+      }
+    })
+  })
+}
+
+const SETTINGS_BRANCH_VIEWPORTS = [
+  { label: 'narrow-360', width: 360, height: 780 },
+  { label: 'baseline-390', width: 390, height: 844 },
+  { label: 'iphone-air-420', width: 420, height: 912 },
+  { label: 'iphone-pro-max-440', width: 440, height: 956 },
+  { label: 'compact-air-912', width: 912, height: 420 },
+  { label: 'compact-pro-max-956', width: 956, height: 440 },
+  { label: 'tablet-768', width: 768, height: 1024 },
+  { label: 'desktop-1440', width: 1440, height: 1200 },
+] as const
+
+for (const viewport of SETTINGS_BRANCH_VIEWPORTS) {
+  test.describe(`Settings branches ${viewport.label}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } })
+
+    test('keeps primary operations and first branch row visible without metric summary cards', async ({
+      page,
+    }) => {
+      await mockApi(page, HEAD_COACH_ADMIN_SESSION)
+      await page.goto('/settings')
+
+      const tabs = page.getByRole('tab', { name: 'Филиалы и залы' })
+      await tabs.click()
+
+      const main = page.locator('main')
+      const panel = page.locator('[data-testid="settings-screen"]')
+      const heading = panel.getByRole('heading', { name: 'Филиалы и залы' })
+      const create = main.getByRole('button', { name: 'Добавить филиал' })
+      const refresh = main.getByRole('button', { name: 'Обновить' })
+      const firstRow = main.locator('.settings-branch-row').first()
+
+      await expect(heading).toBeVisible()
+      await expect(panel.locator('.metric-card')).toHaveCount(0)
+      await expect(create).toBeVisible()
+      await expect(refresh).toBeVisible()
+      await expect(firstRow).toBeVisible()
+      const boxes = await Promise.all([create.boundingBox(), refresh.boundingBox(), firstRow.boundingBox()])
+      const [createBox, refreshBox, firstRowBox] = boxes
+      expect(createBox).not.toBeNull()
+      expect(refreshBox).not.toBeNull()
+      expect(firstRowBox).not.toBeNull()
+      expect(createBox!.height).toBeGreaterThanOrEqual(44)
+      expect(refreshBox!.height).toBeGreaterThanOrEqual(44)
+      expect(firstRowBox!.x).toBeGreaterThanOrEqual(0)
+      await expectNoHorizontalScroll(page)
+
+      if (viewport.width < 768) {
+        await firstRow.scrollIntoViewIfNeeded()
+        const rowAfterScroll = await firstRow.boundingBox()
+        const bottomNavigation = await page
+          .locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
+          .boundingBox()
+        expect(bottomNavigation).not.toBeNull()
+        expect(rowAfterScroll).not.toBeNull()
         expect(rowAfterScroll!.y + rowAfterScroll!.height).toBeLessThanOrEqual(
           bottomNavigation!.y + 1,
         )

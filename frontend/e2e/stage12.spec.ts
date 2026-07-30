@@ -1737,6 +1737,8 @@ test.describe('Основные e2e сценарии', () => {
     await page.goto('/settings')
     await page.getByRole('tab', { name: 'Филиалы и залы' }).click()
     await expect(page.getByRole('heading', { name: 'Филиалы и залы' })).toBeVisible()
+    await expect(page.locator('[data-testid="settings-screen"]').locator('.metric-card')).toHaveCount(0)
+    await expect(page.locator('.settings-branch-row')).toBeVisible()
 
     await page.getByRole('button', { name: 'Добавить филиал' }).first().click()
     await page.getByLabel('Название филиала').fill('Юг')

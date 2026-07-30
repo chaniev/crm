@@ -6,7 +6,6 @@ import {
   Group,
   Modal,
   Paper,
-  SimpleGrid,
   Stack,
   Text,
   Textarea,
@@ -48,7 +47,6 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
-  MetricCard,
   PageLayout,
   PageSection,
   ResponsiveButtonGroup,
@@ -175,9 +173,6 @@ export function BranchSettingsScreen({
         : [],
     [halls, selectedBranch],
   )
-  const activeBranchCount = branches.filter((branch) => !branch.isArchived).length
-  const activeHallCount = halls.filter((hall) => !hall.isArchived).length
-
   function openCreateBranch() {
     branchForm.setValues({
       name: '',
@@ -424,24 +419,6 @@ export function BranchSettingsScreen({
         </PageSection>
       ) : null}
 
-      <SimpleGrid cols={{ base: 1, md: 3 }}>
-        <MetricCard
-          description="Всего заведенных филиалов"
-          label="Филиалы"
-          value={String(branches.length)}
-        />
-        <MetricCard
-          description="Филиалы, доступные для рабочих форм"
-          label="Активные филиалы"
-          value={String(activeBranchCount)}
-        />
-        <MetricCard
-          description="Активные залы во всех филиалах"
-          label="Активные залы"
-          value={String(activeHallCount)}
-        />
-      </SimpleGrid>
-
       <PageSection>
         <Stack gap="lg">
           {actionError ? (
@@ -681,12 +658,6 @@ function BranchDetailsPanel({
           </Text>
         )}
 
-        <SimpleGrid cols={{ base: 1, sm: 3 }}>
-          <BranchStat label="Залы" value={String(branch.hallCount)} />
-          <BranchStat label="Группы" value={String(branch.groupCount)} />
-          <BranchStat label="Клиенты" value={String(branch.clientCount)} />
-        </SimpleGrid>
-
         <Group justify="space-between" wrap="wrap">
           <div>
             <Text fw={800}>Залы филиала</Text>
@@ -902,24 +873,6 @@ function HallFormModal({
         </Stack>
       </form>
     </Modal>
-  )
-}
-
-type BranchStatProps = {
-  label: string
-  value: string
-}
-
-function BranchStat({ label, value }: BranchStatProps) {
-  return (
-    <Paper className="hint-card" radius="8px" withBorder>
-      <Stack gap={2}>
-        <Text c="dimmed" fw={600} size="xs">
-          {label}
-        </Text>
-        <Text fw={800}>{value}</Text>
-      </Stack>
-    </Paper>
   )
 }
 
