@@ -15,9 +15,9 @@ Branch rules:
 - не распространять list-row cleanup на другие интерфейсы.
 
 ## Goal
-Убрать все behavior/type/system badges из catalog list rows, включая
-специальную метку `Professional`, не меняя backend-owned семантику или
-представление `Professional` на других экранах.
+Убрать любые badges из catalog list rows, включая специальную метку
+`Professional`, не меняя backend-owned семантику или представление
+`Professional` на других экранах.
 
 ## Current understanding
 - `MembershipCatalogSettings` сейчас всегда рендерит generic
@@ -36,20 +36,24 @@ Branch rules:
 ## Product decision
 Gate закрыт 2026-07-27:
 
-1. `SingleVisit`, `Term` и `Professional` не показывают behavior/type/system
-   badges в list rows каталога.
+1. `SingleVisit`, `Term` и `Professional` не показывают никаких badges в list
+   rows каталога.
 2. Отдельная метка не показывается независимо от display name.
 3. Решение не распространяется на eligible lists продажи/перевода, карточку
    клиента и другие интерфейсы, предусмотренные TASK-070.
+4. Текущий контракт запрещает все badges внутри list row. Их возможное
+   возвращение или добавление в будущем требует отдельного продуктового решения.
 
 ## UX/UI contract after approval
-- `SingleVisit`, `Term` и `Professional` rows не показывают
-  behavior/type/system badges.
+- `SingleVisit`, `Term` и `Professional` rows не показывают никаких badges.
 - Если display name равно `Профессиональный`, оно отображается один раз как
   название варианта.
 - Frontend не добавляет заменяющую метку из display name, `isSystemOwned`,
   цены или role inference.
 - Название, цена, availability range и edit action остаются.
+- Длинное название переносится на несколько строк без clipping или horizontal
+  scroll. Действие `Изменить` остаётся видимым и доступным; его placement и
+  hierarchy из TASK-093 не меняются.
 - Create form сохраняет visible `Поведение`; edit form не получает immutable
   control обратно.
 - Loading, error, empty, branch-scope и permission behavior не меняются.
@@ -72,39 +76,41 @@ Gate закрыт 2026-07-27:
    - `Term` с произвольным именем;
    - `Professional` с именем `Профессиональный`;
    - переименованный `Professional`;
-   - нулевое количество behavior/type/system badges внутри каждой строки.
+   - нулевое количество любых badges внутри каждой строки.
 3. До production-кода добавить negative tests: generic `Разовый`/`На срок`
    отсутствуют в list rows, но create form options `Разовое посещение` и
    `Абонемент на срок` остаются.
-4. До production-кода сохранить edit-form regression: price/behavior/delete
-   остаются immutable/недоступными; name/date edit и server field errors
-   работают.
-5. До production-кода добавить settings Playwright:
-   branch-scoped catalog с тремя behavior kinds, отсутствие type/system badges,
-   long renamed Professional, edit action and no overflow.
-6. Запустить новые tests и подтвердить expected failures на current generic
+4. Сохранить существующий edit-form regression: price/behavior/delete остаются
+   immutable/недоступными. Новые edit-flow tests в TASK-100 не добавлять.
+5. До production-кода добавить отдельный
+   `frontend/e2e/membership-catalog-settings.spec.ts`: branch-scoped catalog с
+   тремя behavior kinds, exact zero badges, long renamed Professional,
+   перенос названия, видимое действие `Изменить` и отсутствие overflow.
+6. До production-кода добавить небольшой populated-catalog сценарий в
+   `frontend/e2e/iphone-target-devices.spec.ts` для обоих target iPhone
+   WebKit-проектов.
+7. Запустить новые tests и подтвердить expected failures на current generic
    badges и двойном Professional marker.
-7. Удалить list-row badge projection для всех behavior kinds. Не менять
+8. Удалить list-row badge projection для всех behavior kinds. Не менять
    API/type/domain mapping или presentation на других экранах.
-8. Удалить только ставшие неиспользуемыми local `behaviorLabel`/Badge paths;
+9. Удалить только ставшие неиспользуемыми local `behaviorLabel`/Badge paths;
    form option labels и shared client membership labels сохранить.
-9. Убрать empty inline wrapper/gap, сохранив identity/action hierarchy.
-10. Запустить focused settings tests, full frontend unit/raw-color/lint/build,
+10. Убрать empty inline wrapper/gap, сохранив identity/action hierarchy и
+    placement действия `Изменить` из TASK-093.
+11. Запустить focused settings tests, full frontend unit/raw-color/lint/build,
     affected Playwright и target iPhone WebKit checks.
 
 ## Preferred implementation strategy
 1. Red row-state matrix.
 2. Minimal list-only projection.
-3. Create/edit and TASK-070 counter-regressions.
+3. Create selector и существующий edit immutability regression.
 4. Responsive closure.
 
 ## Files likely to change
 - `frontend/src/features/settings/MembershipCatalogSettings.tsx`
 - `frontend/src/features/settings/MembershipCatalogSettings.test.tsx`
-- affected membership-catalog/settings Playwright spec
-- `frontend/e2e/stage12.spec.ts`, если он остаётся owner общего Settings flow
-- `frontend/e2e/iphone-target-devices.spec.ts`, если он владеет target-device
-  settings checks
+- `frontend/e2e/membership-catalog-settings.spec.ts`
+- `frontend/e2e/iphone-target-devices.spec.ts`
 - `frontend/src/App.css` только при наличии item-row-specific empty spacing
 
 ## Constraints
@@ -112,37 +118,38 @@ Gate закрыт 2026-07-27:
 - Не менять backend behavior/privilege/role/branch contracts.
 - Не удалять create-form behavior selector.
 - Не возвращать immutable behavior/price controls в edit form.
-- Не оставлять behavior/type/system badge ни для одного behavior kind в
-  catalog list rows.
+- Не оставлять никаких badges в catalog list rows.
+- Не менять placement или hierarchy действия `Изменить`, установленную
+  TASK-093.
 - Mantine, Onest и operational states сохраняются.
 
 ## Out of scope
 - Backend `behaviorKind`, seed, privileges, pricing и availability validation.
 - Professional assignment visibility для purchase/transfer.
 - Catalog create/edit workflow redesign.
-- Row fields кроме type/system badges.
+- Row fields кроме badges.
 - Пересмотр TASK-070 без явного продуктового решения.
 
 ## Required test coverage
 
 ### Unit/component tests
 - Matrix `SingleVisit`/`Term`/Professional/current-name/renamed-name`.
-- Нулевое количество behavior/type/system badges внутри каждой list row.
+- Нулевое количество любых badges внутри каждой list row.
 - Create behavior selector and edit immutability preserved.
 - Loading/error/empty/branch context and edit action preserved.
 
 ### Integration tests
-- Settings component integration с существующим API response доказывает, что
-  строки сохраняют name/price/availability/edit action и не показывают badges
-  для всех значений `behaviorKind`, не меняя request/response contracts.
-- Backend integration tests неприменимы, если утверждён list-only вариант:
-  backend semantics не меняются.
-- Tests are written before production code and must fail on current generic
-  badges/double Professional output.
+- Отдельные integration tests не требуются: component row matrix покрывает
+  проекцию существующего API response, а backend contracts не меняются.
 
 ### UI/e2e tests
 - HeadCoach catalog with ordinary and renamed Professional rows.
-- Exact zero list-row badge count, edit action and create behavior selector.
+- Отдельный `membership-catalog-settings.spec.ts` проверяет exact zero
+  list-row badge count, edit action и create behavior selector.
+- `iphone-target-devices.spec.ts` содержит небольшой populated-catalog сценарий
+  для обоих target iPhone WebKit-проектов.
+- Длинное название переносится без clipping; действие `Изменить` остаётся
+  видимым и доступным с placement из TASK-093.
 - No duplicate text/empty gap/overflow at `360 x 780`, `390 x 844`,
   `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`, `768 x 1024` and
   `1440 x 1200`.
@@ -151,8 +158,6 @@ Gate закрыт 2026-07-27:
 - Ordinary rows fail negative assertions on current generic badges.
 - Professional row fails zero-count assertion because current JSX renders two
   `Профессиональный` badges.
-- TASK-070 counter-tests для eligible lists и других интерфейсов должны
-  оставаться зелёными.
 
 ## Test plan
 - [ ] Написать component row matrix до production-кода.
@@ -160,15 +165,15 @@ Gate закрыт 2026-07-27:
 - [ ] Подтвердить expected red state на generic/double badges.
 - [ ] `cd frontend && npm run test:unit`
 - [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e -- <membership catalog/settings affected specs>`
+- [ ] `cd frontend && npm run test:e2e -- membership-catalog-settings.spec.ts`
 - [ ] `cd frontend && npm run test:e2e:iphone`
 - [ ] `cd frontend && npm run lint`
 - [ ] `cd frontend && npm run build`
 
 ## Regression barrier
-Одна executable matrix должна запрещать любые list-row behavior/type/system
-badges для обычного и переименованного Professional item и одновременно
-сохранять create behavior selector/edit immutability.
+Одна executable matrix должна запрещать любые badges для обычного и
+переименованного Professional item и одновременно сохранять create behavior
+selector/edit immutability.
 Browser-level check защищает от двойного текста, пустого wrapper и overflow.
 
 ## Risks
