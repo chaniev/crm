@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-100 Убрать метки типа абонемента из каталога
 
 ## Source task
-/backlog/implementation/TASK-100-membership-catalog-list-type-badges.md
+/backlog/done/TASK-100-membership-catalog-list-type-badges.md
 
 ## Implementation branch
 fix/TASK-100-membership-catalog-list-type-badges
@@ -160,15 +160,15 @@ Gate закрыт 2026-07-27:
   `Профессиональный` badges.
 
 ## Test plan
-- [ ] Написать component row matrix до production-кода.
-- [ ] Добавить settings Playwright exact-count checks до production-кода.
-- [ ] Подтвердить expected red state на generic/double badges.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e -- membership-catalog-settings.spec.ts`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] Написать component row matrix до production-кода.
+- [x] Добавить settings Playwright exact-count checks до production-кода.
+- [x] Подтвердить expected red state на generic/double badges.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`
+- [x] `cd frontend && npm run test:e2e -- membership-catalog-settings.spec.ts`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 Одна executable matrix должна запрещать любые badges для обычного и
@@ -192,4 +192,9 @@ Browser-level check защищает от двойного текста, пус�
 - task не переведена в implementation или worktree/branch невалиден.
 
 ## Ready for Codex execution
-yes, after TASK-093 is merged into origin/main
+no — completed 2026-07-30 in commit `aad79ac`
+
+## Completion record
+- Source task moved to `/backlog/done/TASK-100-membership-catalog-list-type-badges.md`.
+- Integrated `main` validation passed: lint, build, raw-color check, 404 unit tests and 202 Playwright tests.
+- No backend or database contract changed; no migration is required.

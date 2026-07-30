@@ -1,13 +1,19 @@
 # TASK-101: Удалить оставшиеся неоперационные metric-виджеты
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-27 20:00
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-101-remove-residual-metric-widgets-settings-group-edit.plan.md
+- implementation_plan: /backlog/done/TASK-101-remove-residual-metric-widgets-settings-group-edit.plan.md
 - implementation_branch: fix/TASK-101-remove-residual-metric-widgets-settings-group-edit
+- implementation_state: completed
+- implementation_commit: 0142fbe
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30
+- reviewed_main_commit: 5f5a7b3
 
 ## Goal
 Экраны филиалов и редактирования группы сразу показывают рабочие controls и данные без агрегатных карточек, не меняющих текущее решение пользователя.
@@ -49,24 +55,24 @@ Source audit нашёл ещё два непокрытых блока: три `M
   оставшихся `MetricCard` consumers.
 
 ## Acceptance criteria
-- [ ] В `Филиалы и залы` отсутствуют три metric cards количества филиалов и залов.
-- [ ] В group edit отсутствуют metric cards `Клиенты`, `Тренеры` и `Назначено`.
-- [ ] Первый рабочий viewport начинается с actions/list или form fields, а не со summary widgets.
-- [ ] Decision-changing count, если он обоснован и сохранён, находится рядом с соответствующим control без card styling и дублирования.
-- [ ] Loading, error, empty, read-only и permission-restricted states сохранены.
-- [ ] Нет пустых grid wrappers, лишнего вертикального отступа или неиспользуемых вычислений/imports.
-- [ ] Удалённые widgets не возвращаются на 768 x 1024 и 1440 x 1200.
-- [ ] На 390 x 844, 420 x 912, 440 x 956, 912 x 420 и 956 x 440 нет horizontal page scroll, clipping или недостижимых primary actions.
+- [x] В `Филиалы и залы` отсутствуют три metric cards количества филиалов и залов.
+- [x] В group edit отсутствуют metric cards `Клиенты`, `Тренеры` и `Назначено`.
+- [x] Первый рабочий viewport начинается с actions/list или form fields, а не со summary widgets.
+- [x] Decision-changing count, если он обоснован и сохранён, находится рядом с соответствующим control без card styling и дублирования.
+- [x] Loading, error, empty, read-only и permission-restricted states сохранены.
+- [x] Нет пустых grid wrappers, лишнего вертикального отступа или неиспользуемых вычислений/imports.
+- [x] Удалённые widgets не возвращаются на 768 x 1024 и 1440 x 1200.
+- [x] На 390 x 844, 420 x 912, 440 x 956, 912 x 420 и 956 x 440 нет horizontal page scroll, clipping или недостижимых primary actions.
 
 ## Test checklist
-- [ ] Обновить BranchSettings component tests: metrics отсутствуют, actions/list/states сохранены.
-- [ ] Обновить GroupManagement edit tests: metrics отсутствуют, fields/save/states сохранены.
-- [ ] Добавить affected Playwright absence/geometry checks на mobile, compact-height, tablet и desktop.
-- [ ] Проверить repository consumers `MetricCard` после merged TASK-086/TASK-092.
-- [ ] Запустить `cd frontend && npm run test:unit`.
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить affected Playwright и mobile WebKit checks.
+- [x] Обновить BranchSettings component tests: metrics отсутствуют, actions/list/states сохранены.
+- [x] Обновить GroupManagement edit tests: metrics отсутствуют, fields/save/states сохранены.
+- [x] Добавить affected Playwright absence/geometry checks на mobile, compact-height, tablet и desktop.
+- [x] Проверить repository consumers `MetricCard` после merged TASK-086/TASK-092.
+- [x] Запустить `cd frontend && npm run test:unit`.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить affected Playwright и mobile WebKit checks.
 
 ## AI safety
 - Safe for Codex: yes
@@ -85,3 +91,10 @@ Source audit нашёл ещё два непокрытых блока: три `M
 - Created by skill: codex-backlog-skill + crm-mobile-first-ui
 - Duplicate check: TASK-092 и TASK-086 покрывают administrator/group-registry widgets; BranchSettings и group edit остаются отдельными непокрытыми call sites.
 - UI inventory: `BranchSettingsScreen` и group edit — единственные найденные `MetricCard` consumers вне покрытых TASK-086/TASK-092.
+
+## Completion record
+- Completed on: 2026-07-30
+- Implementation commit: `0142fbe`
+- Integrated regression commit: `5f5a7b3`
+- Validation: frontend lint, build, raw-color check, 404 unit tests and 202 Playwright tests passed on integrated `main`.
+- Data storage: backend and database structure were not changed; migration is not required.

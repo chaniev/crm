@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-101 Удалить оставшиеся неоперационные metric-виджеты
 
 ## Source task
-/backlog/implementation/TASK-101-remove-residual-metric-widgets-settings-group-edit.md
+/backlog/done/TASK-101-remove-residual-metric-widgets-settings-group-edit.md
 
 ## Implementation branch
 fix/TASK-101-remove-residual-metric-widgets-settings-group-edit
@@ -239,15 +239,15 @@ Branch rules:
   operation, not fail due to missing API fixtures.
 
 ## Test plan
-- [ ] Написать BranchSettings/GroupEdit component tests до production-кода.
-- [ ] Добавить responsive Playwright absence/first-viewport checks до кода.
-- [ ] Подтвердить expected red state на девяти widgets.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e -- <settings/group affected specs>`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] Написать BranchSettings/GroupEdit component tests до production-кода.
+- [x] Добавить responsive Playwright absence/first-viewport checks до кода.
+- [x] Подтвердить expected red state на девяти widgets.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`
+- [x] `cd frontend && npm run test:e2e -- <settings/group affected specs>`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 Два focused component suites должны одновременно запрещать top metric blocks и
@@ -278,4 +278,9 @@ Playwright доказывает, что mobile/desktop первый viewport н�
 - task worktree/branch невалиден.
 
 ## Ready for Codex execution
-yes, after TASK-092 is merged into origin/main; TASK-086 is done
+no — completed 2026-07-30 in commit `0142fbe`
+
+## Completion record
+- Source task moved to `/backlog/done/TASK-101-remove-residual-metric-widgets-settings-group-edit.md`.
+- Integrated `main` validation passed: lint, build, raw-color check, 404 unit tests and 202 Playwright tests.
+- No backend or database contract changed; no migration is required.

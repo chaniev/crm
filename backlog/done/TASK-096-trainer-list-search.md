@@ -1,13 +1,19 @@
 # TASK-096: Добавить поиск в список тренеров
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-27 00:40
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-096-trainer-list-search.plan.md
+- implementation_plan: /backlog/done/TASK-096-trainer-list-search.plan.md
 - implementation_branch: feature/TASK-096-trainer-list-search
+- implementation_state: completed
+- implementation_commit: a9d3098
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30
+- reviewed_main_commit: 5f5a7b3
 
 ## Goal
 Пользователь быстро находит нужного тренера по ФИО или логину без просмотра всего списка.
@@ -50,23 +56,23 @@ implementation
 - Software keyboard, safe area и compact-height не должны скрывать locator или primary action.
 
 ## Acceptance criteria
-- [ ] На экране `Тренеры` поиск виден без открытия дополнительной панели.
-- [ ] Поиск по полному или частичному ФИО и логину регистронезависим и игнорирует внешние пробелы.
-- [ ] Очистка query возвращает полный backend-permitted список.
-- [ ] При отсутствии совпадений показан scoped empty-search state с действием очистки, а не first-run empty.
-- [ ] Loading, error, retry и refresh не раскрывают данные вне backend response и не меняют permission semantics.
-- [ ] Search, create и refresh следуют shared locator/action contract без переноса в отдельную action-only строку.
-- [ ] На 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 и 1440 px нет horizontal page scroll или недостижимых controls.
+- [x] На экране `Тренеры` поиск виден без открытия дополнительной панели.
+- [x] Поиск по полному или частичному ФИО и логину регистронезависим и игнорирует внешние пробелы.
+- [x] Очистка query возвращает полный backend-permitted список.
+- [x] При отсутствии совпадений показан scoped empty-search state с действием очистки, а не first-run empty.
+- [x] Loading, error, retry и refresh не раскрывают данные вне backend response и не меняют permission semantics.
+- [x] Search, create и refresh следуют shared locator/action contract без переноса в отдельную action-only строку.
+- [x] На 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 и 1440 px нет horizontal page scroll или недостижимых controls.
 
 ## Test checklist
-- [ ] Добавить component tests: partial/case-insensitive search, trim, clear и empty-search.
-- [ ] Добавить regression на loading/error/refresh при непустом query.
-- [ ] Добавить Playwright сценарий: найти тренера → открыть редактирование → вернуться.
-- [ ] Проверить keyboard/focus order и accessible names icon-only actions.
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить `cd frontend && npm run test:unit`.
-- [ ] Запустить affected Playwright и mobile WebKit checks.
+- [x] Добавить component tests: partial/case-insensitive search, trim, clear и empty-search.
+- [x] Добавить regression на loading/error/refresh при непустом query.
+- [x] Добавить Playwright сценарий: найти тренера → открыть редактирование → вернуться.
+- [x] Проверить keyboard/focus order и accessible names icon-only actions.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить `cd frontend && npm run test:unit`.
+- [x] Запустить affected Playwright и mobile WebKit checks.
 
 ## AI safety
 - Safe for Codex: yes
@@ -86,3 +92,11 @@ implementation
 - Created by skill: codex-backlog-skill
 - Duplicate check: завершённая TASK-086 покрывает только поиск групп; другой
   задачи на locator/search списка тренеров не найдено.
+
+## Completion record
+- Completed on: 2026-07-30
+- Implementation commit: `a9d3098`
+- Integrated regression commit: `5f5a7b3`
+- Validation: frontend lint, build, raw-color check, 404 unit tests and 202 Playwright tests passed on integrated `main`.
+- Device acceptance: an actual iPhone Air Simulator test passed with Safari chrome/safe areas, the software keyboard open, typed query `АННА`, reachable refresh/create actions and compact-height landscape.
+- Data storage: backend and database structure were not changed; migration is not required.

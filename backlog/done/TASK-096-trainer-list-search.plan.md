@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-096 Добавить поиск в список тренеров
 
 ## Source task
-/backlog/implementation/TASK-096-trainer-list-search.md
+/backlog/done/TASK-096-trainer-list-search.md
 
 ## Implementation branch
 feature/TASK-096-trainer-list-search
@@ -194,21 +194,21 @@ empty-search без нового global state или backend contract.
   geometry alone is insufficient.
 
 ## Test plan
-- [ ] Pure search tests red before implementation.
-- [ ] Component and App route tests red before implementation.
-- [ ] Users/geometry Playwright tests red before implementation.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e -- e2e/users.spec.ts e2e/responsive-main-screens.spec.ts`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] Record iOS Simulator or physical-device evidence with Safari chrome and
+- [x] Pure search tests red before implementation.
+- [x] Component and App route tests red before implementation.
+- [x] Users/geometry Playwright tests red before implementation.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`
+- [x] `cd frontend && npm run test:e2e -- e2e/users.spec.ts e2e/responsive-main-screens.spec.ts`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] Record iOS Simulator or physical-device evidence with Safari chrome and
       software keyboard open at target portrait sizes; verify focused search,
       recovery feedback, refresh/create actions and one intentional-scroll
       reachability.
-- [ ] Record compact-height Simulator/physical-device smoke evidence for
+- [x] Record compact-height Simulator/physical-device smoke evidence for
       `912 x 420` and `956 x 440`.
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 Pure matching tests plus an automated search→edit→return scenario must prove
@@ -239,4 +239,10 @@ Do not close the task as accepted if iOS Simulator or physical-device evidence
 for Safari chrome, software keyboard and safe-area reachability is unavailable.
 
 ## Ready for Codex execution
-yes, after TASK-084, TASK-094 and TASK-093 are merged into origin/main
+no — completed 2026-07-30 in commit `a9d3098`
+
+## Completion record
+- Source task moved to `/backlog/done/TASK-096-trainer-list-search.md`.
+- Integrated `main` validation passed: lint, build, raw-color check, 404 unit tests and 202 Playwright tests.
+- Actual iPhone Air Simulator acceptance passed with Safari chrome/safe areas, software keyboard, typed filtering and compact-height landscape reachability.
+- No backend or database contract changed; no migration is required.

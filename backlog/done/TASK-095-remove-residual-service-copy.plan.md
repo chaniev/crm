@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-095 Убрать остаточные дублирующие заголовки и служебные подписи
 
 ## Source task
-/backlog/implementation/TASK-095-remove-residual-service-copy.md
+/backlog/done/TASK-095-remove-residual-service-copy.md
 
 ## Implementation branch
 fix/TASK-095-remove-residual-service-copy
@@ -203,13 +203,13 @@ profile account context и CRM semantics.
 - Hidden headings/regions remain discoverable through role/name assertions.
 
 ## Test plan
-- [ ] Home and shell component tests red before implementation.
-- [ ] Route-level Playwright absence/accessibility checks red before implementation.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run test:e2e -- <affected-specs>`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] Home and shell component tests red before implementation.
+- [x] Route-level Playwright absence/accessibility checks red before implementation.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run test:e2e -- <affected-specs>`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 The table-driven Playwright authenticated-route matrix must assert both sides:
@@ -237,4 +237,9 @@ both recurrence and over-aggressive deletion.
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes, after TASK-093 is merged into origin/main; TASK-092 is done
+no — completed 2026-07-30 in commit `5f7ef2b`
+
+## Completion record
+- Source task moved to `/backlog/done/TASK-095-remove-residual-service-copy.md`.
+- Integrated `main` validation passed: lint, build, raw-color check, 404 unit tests and 202 Playwright tests.
+- No backend or database contract changed; no migration is required.

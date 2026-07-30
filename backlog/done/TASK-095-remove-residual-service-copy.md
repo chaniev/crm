@@ -1,13 +1,19 @@
 # TASK-095: Убрать остаточные дублирующие заголовки и служебные подписи
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-27 00:40
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-095-remove-residual-service-copy.plan.md
+- implementation_plan: /backlog/done/TASK-095-remove-residual-service-copy.plan.md
 - implementation_branch: fix/TASK-095-remove-residual-service-copy
+- implementation_state: completed
+- implementation_commit: 5f7ef2b
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30
+- reviewed_main_commit: 5f5a7b3
 
 ## Goal
 Рабочие экраны CRM начинаются с полезных действий и данных без повторного названия раздела, декоративного пояснения и служебной подписи под названием организации.
@@ -56,27 +62,27 @@ implementation
 - Не заменять удалённую copy новыми декоративными badges или tooltips.
 
 ## Acceptance criteria
-- [ ] В `Главная → Требуют внимания` не показываются указанные дублирующие заголовок и пояснение.
-- [ ] Под названием организации не показываются роль, `стартовый раздел` или аналогичная служебная подпись на desktop и mobile.
-- [ ] На edit route тренера не показываются `Редактирование доступа`, `Логин фиксируется после создания тренера.` и `Что можно менять на этом экране`.
-- [ ] Видимый page title с ФИО, readonly login field, field labels, validation и save action сохранены.
-- [ ] Все authenticated routes проверены; найденные duplicate/decorative labels удалены либо сохранены с обоснованием по `decision/usefulness test`.
-- [ ] Top-level list routes не показывают название, уже видимое в persistent navigation.
-- [ ] Visually hidden `h1`, region labels и heading hierarchy остаются доступными для assistive technologies.
-- [ ] Form, loading, empty, error, restricted и recovery copy не удалена как декоративная.
-- [ ] На обязательных mobile, compact-height, tablet и desktop размерах не остаётся пустых контейнеров или лишних отступов.
+- [x] В `Главная → Требуют внимания` не показываются указанные дублирующие заголовок и пояснение.
+- [x] Под названием организации не показываются роль, `стартовый раздел` или аналогичная служебная подпись на desktop и mobile.
+- [x] На edit route тренера не показываются `Редактирование доступа`, `Логин фиксируется после создания тренера.` и `Что можно менять на этом экране`.
+- [x] Видимый page title с ФИО, readonly login field, field labels, validation и save action сохранены.
+- [x] Все authenticated routes проверены; найденные duplicate/decorative labels удалены либо сохранены с обоснованием по `decision/usefulness test`.
+- [x] Top-level list routes не показывают название, уже видимое в persistent navigation.
+- [x] Visually hidden `h1`, region labels и heading hierarchy остаются доступными для assistive technologies.
+- [x] Form, loading, empty, error, restricted и recovery copy не удалена как декоративная.
+- [x] На обязательных mobile, compact-height, tablet и desktop размерах не остаётся пустых контейнеров или лишних отступов.
 
 ## Test checklist
-- [ ] Обновить HomeDashboard/AttentionPanel component tests на отсутствие видимой duplicate copy при сохранённом accessible region name.
-- [ ] Обновить shell component tests на отсутствие `brandMeta` и сохранённый profile context.
-- [ ] Обновить `UserEditScreen` tests на отсутствие трёх concrete service strings при сохранённых title, fields, validation и submit.
-- [ ] Обновить Playwright проверки основных routes на отсутствие route-level duplicate/service copy.
-- [ ] Вручную пройти Главную, Расписание, Посещения, Клиентов, Группы, Тренеров, Журнал, Финансы и Настройки.
-- [ ] Проверить 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 и 1440 px.
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить `cd frontend && npm run test:unit`.
-- [ ] Запустить affected Playwright и mobile WebKit checks.
+- [x] Обновить HomeDashboard/AttentionPanel component tests на отсутствие видимой duplicate copy при сохранённом accessible region name.
+- [x] Обновить shell component tests на отсутствие `brandMeta` и сохранённый profile context.
+- [x] Обновить `UserEditScreen` tests на отсутствие трёх concrete service strings при сохранённых title, fields, validation и submit.
+- [x] Обновить Playwright проверки основных routes на отсутствие route-level duplicate/service copy.
+- [x] Вручную пройти Главную, Расписание, Посещения, Клиентов, Группы, Тренеров, Журнал, Финансы и Настройки.
+- [x] Проверить 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 и 1440 px.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить `cd frontend && npm run test:unit`.
+- [x] Запустить affected Playwright и mobile WebKit checks.
 
 ## AI safety
 - Safe for Codex: yes
@@ -99,3 +105,10 @@ implementation
 - Duplicate check: TASK-044 и TASK-090 завершены и задали запрет на service intro/route copy; новая заметка фиксирует конкретные остатки/регрессии, поэтому создана отдельная follow-up задача вместо переоткрытия завершённых карточек.
 - Updated at: 2026-07-27 01:04
 - Duplicate check: trainer edit strings добавлены в существующий authenticated-route copy sweep; дублирующие return actions вынесены в TASK-097, потому что это interaction, а не copy-only scope.
+
+## Completion record
+- Completed on: 2026-07-30
+- Implementation commit: `5f7ef2b`
+- Integrated regression commit: `5f5a7b3`
+- Validation: frontend lint, build, raw-color check, 404 unit tests and 202 Playwright tests passed on integrated `main`.
+- Data storage: backend and database structure were not changed; migration is not required.
