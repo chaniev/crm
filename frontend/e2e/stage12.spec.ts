@@ -2057,19 +2057,30 @@ test.describe('Основные e2e сценарии', () => {
       await expect(
         auditGrid.getByRole('columnheader', { name: 'Объект' }),
       ).toHaveCount(0)
+      await expect(
+        auditGrid.getByRole('columnheader', { name: 'Действие' }),
+      ).toHaveCount(0)
+      await expect(auditGrid.getByRole('columnheader')).toHaveCount(4)
+      await expect(auditGrid.getByRole('row').nth(1).getByRole('cell')).toHaveCount(4)
       await expect(auditGrid.getByText('Объект', { exact: true })).toHaveCount(0)
+      await expect(auditGrid.getByText('Создание клиента', { exact: true })).toHaveCount(0)
       await expect(auditGrid.getByTestId('audit-log-actor-cell')).toContainText(
         'Главный тренер',
       )
       await expect(auditGrid).toContainText('Создан новый клиент')
 
-      await auditGrid.getByTestId('audit-log-details-action').first().click()
+      const detailsTrigger = auditGrid.getByTestId('audit-log-details-action').first()
+      await detailsTrigger.click()
       const detailsModal = page.getByTestId('audit-log-details-modal')
       await expect(detailsModal).toBeVisible()
+      await expect(detailsModal).toContainText('Создание клиента')
       await expect(detailsModal).toContainText('Web')
       await expect(detailsModal.getByText('Старые значения')).toBeVisible()
       await expect(detailsModal.getByText('ID объекта: client-1')).toBeVisible()
       await expect(detailsModal.getByText('"status": "Active"')).toBeVisible()
+      await page.keyboard.press('Escape')
+      await expect(detailsModal).toBeHidden()
+      await expect(detailsTrigger).toBeFocused()
     })
   }
 

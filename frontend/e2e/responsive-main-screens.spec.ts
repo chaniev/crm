@@ -502,6 +502,9 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
         if (route.screenTestId === 'clients-screen') {
           await expectClientsSharedLayoutContract(page, true)
         }
+        if (route.screenTestId === 'audit-screen') {
+          await expectAuditListContract(page)
+        }
         if ('checkScheduleOverflow' in route && route.checkScheduleOverflow) {
           await expectScheduleOverflowContract(page)
         }
@@ -1353,6 +1356,48 @@ async function expectClientsSharedLayoutContract(
     expect(Math.abs(section.right - geometry.layout.right)).toBeLessThanOrEqual(2)
     expect(section.width).toBeLessThanOrEqual(geometry.layout.width + 2)
   }
+}
+
+async function expectAuditListContract(page: Page) {
+  const grid = page.getByTestId('audit-log-grid')
+  const row = grid.locator('.audit-log-row').first()
+  const details = row.getByTestId('audit-log-details-action')
+
+  await expect(
+    grid.getByRole('columnheader', { includeHidden: true }),
+  ).toHaveCount(4)
+  await expect(row.getByRole('cell')).toHaveCount(4)
+  await expect(
+    grid.getByRole('columnheader', { includeHidden: true, name: 'Действие' }),
+  ).toHaveCount(0)
+  await expect(grid.getByText('Создание клиента', { exact: true })).toHaveCount(0)
+
+  const geometry = await row.evaluate((element) => {
+    const style = getComputedStyle(element)
+    const description = element.querySelector<HTMLElement>('.audit-log-description')
+    const detailsAction = element.querySelector<HTMLElement>(
+      '[data-testid="audit-log-details-action"]',
+    )
+    const detailsRect = detailsAction?.getBoundingClientRect()
+
+    return {
+      columns: style.gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+      areas: style.gridTemplateAreas,
+      descriptionClamp: description
+        ? getComputedStyle(description).webkitLineClamp
+        : '',
+      detailsWidth: detailsRect?.width ?? 0,
+      detailsHeight: detailsRect?.height ?? 0,
+    }
+  })
+
+  expect(geometry.columns).toBe((page.viewportSize()?.width ?? 0) >= 1200 ? 4 : 2)
+  expect(geometry.areas).not.toContain('action')
+  expect(geometry.areas).not.toContain('source')
+  expect(geometry.descriptionClamp).toBe('2')
+  expect(geometry.detailsWidth).toBeGreaterThanOrEqual(44)
+  expect(geometry.detailsHeight).toBeGreaterThanOrEqual(44)
+  await expect(details).toBeVisible()
 }
 
 async function expectScheduleOverflowContract(page: Page) {
