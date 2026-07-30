@@ -95,6 +95,7 @@ test('Навигация открывает раздел Тренеры на м�
 test('Поиск тренера фильтрует список и сохраняется при возврате из карточки', async ({
   page,
 }) => {
+  let updateCalls = 0
   const trainers = [
     {
       id: 'coach-anna',
@@ -153,6 +154,12 @@ test('Поиск тренера фильтрует список и сохран�
       return
     }
 
+    if (requestUrl.pathname === '/api/users/coach-anna' && method === 'PUT') {
+      updateCalls += 1
+      await fulfillJson(route, 200, trainers[0])
+      return
+    }
+
     throw new Error(
       `Unexpected API request in users search e2e: ${method} ${requestUrl.pathname}`,
     )
@@ -173,7 +180,9 @@ test('Поиск тренера фильтрует список и сохран�
     .getByRole('button', { name: 'Редактировать' })
     .click()
   await expect(page).toHaveURL(/\/users\/coach-anna\/edit$/)
-  await page.getByRole('button', { name: 'Назад к списку' }).first().click()
+  await expect(page.getByRole('button', { name: 'Назад к списку' })).toHaveCount(1)
+  await expect(page.getByRole('button', { exact: true, name: 'К списку' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Назад к списку' }).click()
 
   await expect(page).toHaveURL(/\/users$/)
   await expect(search).toHaveValue('  ANNA.LOGIN  ')
@@ -182,6 +191,36 @@ test('Поиск тренера фильтрует список и сохран�
   await page.getByTestId('user-card-coach-anna')
     .getByRole('button', { name: 'Редактировать' })
     .click()
+  await expect(page.getByRole('button', { name: 'Назад к списку' })).toHaveCount(1)
+  await expect(page.getByRole('button', { exact: true, name: 'К списку' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Сохранить изменения' }).click()
+  await expect(page).toHaveURL(/\/users$/)
+  expect(updateCalls).toBe(1)
+  await expect(search).toHaveValue('  ANNA.LOGIN  ')
+
+  await page.getByTestId('user-card-coach-anna')
+    .getByRole('button', { name: 'Редактировать' })
+    .click()
+  for (const viewport of [
+    { width: 360, height: 780 },
+    { width: 390, height: 844 },
+    { width: 420, height: 912 },
+    { width: 440, height: 956 },
+    { width: 912, height: 420 },
+    { width: 956, height: 440 },
+    { width: 768, height: 1024 },
+    { width: 1440, height: 1200 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await expect(page.getByRole('button', { name: 'Назад к списку' })).toHaveCount(1)
+    await expect(page.getByRole('button', { exact: true, name: 'К списку' })).toHaveCount(0)
+    const submit = page.getByRole('button', { name: 'Сохранить изменения' })
+    await submit.scrollIntoViewIfNeeded()
+    await expect(submit).toBeVisible()
+    await expect.poll(() => page.evaluate(() =>
+      document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    )).toBe(true)
+  }
   await page.goBack()
   await expect(page).toHaveURL(/\/users$/)
   await expect(search).toHaveValue('  ANNA.LOGIN  ')

@@ -29,13 +29,23 @@ vi.mock('./lib/api', async (importOriginal) => {
 vi.mock('./features/clients/ClientManagement', () => ({
   ClientCreateScreen: () => <div data-testid="client-create-screen">New client screen</div>,
   ClientDetailScreen: () => <div data-testid="client-detail-screen">Client detail</div>,
-  ClientEditScreen: () => <div data-testid="client-edit-screen">Client edit</div>,
+  ClientEditScreen: ({ onBack }: { onBack: () => void }) => (
+    <div data-testid="client-edit-screen">
+      Client edit
+      <button type="button" onClick={onBack}>К карточке клиента</button>
+    </div>
+  ),
   ClientsListScreen: () => <div data-testid="clients-list-screen">Clients list</div>,
 }))
 
 vi.mock('./features/groups/GroupManagement', () => ({
   GroupCreateScreen: () => <div data-testid="group-create-screen">New group</div>,
-  GroupEditScreen: () => <div data-testid="group-edit-screen">Group edit</div>,
+  GroupEditScreen: ({ onBack }: { onBack: () => void }) => (
+    <div data-testid="group-edit-screen">
+      Group edit
+      <button type="button" onClick={onBack}>К списку групп</button>
+    </div>
+  ),
   GroupsListScreen: () => <div data-testid="groups-list-screen">Groups list</div>,
 }))
 
@@ -221,6 +231,28 @@ afterEach(() => {
 })
 
 describe('App route access contract', () => {
+  test('keeps the existing destination matrix for all three edit routes', async () => {
+    const clientView = renderAppAt('/clients/client-1/edit', baseSession)
+    expect(await screen.findByTestId('client-edit-screen')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'К карточке клиента' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/clients/client-1'))
+    expect(await screen.findByTestId('client-detail-screen')).toBeVisible()
+    clientView.unmount()
+
+    const groupView = renderAppAt('/groups/group-1/edit', baseSession)
+    expect(await screen.findByTestId('group-edit-screen')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'К списку групп' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/groups'))
+    expect(await screen.findByTestId('groups-list-screen')).toBeVisible()
+    groupView.unmount()
+
+    renderAppAt('/users/trainer-1/edit', baseSession)
+    expect(await screen.findByTestId('user-edit-screen')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Назад к тренерам' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/users'))
+    expect(await screen.findByTestId('users-list-screen')).toBeVisible()
+  })
+
   test('keeps trainer query through create/edit returns and resets outside Users workflow', async () => {
     renderAppAt('/users', baseSession)
 

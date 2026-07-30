@@ -307,7 +307,7 @@ export function ClientCreateScreen({
               branchOptions={branchOptions}
               groupOptions={groupOptions}
               lockBranch={false}
-              onCancel={onCancel}
+              cancelAction={{ label: 'Отменить', onClick: onCancel }}
               photoSection={
                 <ClientPhotoSection
                   canUpload={false}
@@ -478,7 +478,7 @@ export function ClientEditScreen({
               branchOptions={branchOptions}
               groupOptions={groupOptions}
               lockBranch
-              onCancel={onBack}
+              cancelAction={null}
               photoSection={
                 client ? (
                   <ClientPhotoSection
@@ -1142,7 +1142,7 @@ type ClientFormProps = {
   branchOptions: Branch[]
   groupOptions: TrainingGroupListItem[]
   lockBranch?: boolean
-  onCancel: () => void
+  cancelAction: { label: string; onClick: () => void } | null
   photoSection?: ReactNode
   onSubmit: (values: ClientFormValues) => Promise<void>
   submitLabel: string
@@ -1463,7 +1463,7 @@ function ClientForm({
   branchOptions,
   groupOptions,
   lockBranch = false,
-  onCancel,
+  cancelAction,
   photoSection,
   onSubmit,
   submitLabel,
@@ -1675,10 +1675,12 @@ function ClientForm({
           </Stack>
         </Paper>
 
-        <ResponsiveButtonGroup justify="space-between">
-          <Button onClick={onCancel} type="button" variant="subtle">
-            Отменить
-          </Button>
+        <ResponsiveButtonGroup justify={cancelAction ? 'space-between' : 'flex-end'}>
+          {cancelAction ? (
+            <Button onClick={cancelAction.onClick} type="button" variant="subtle">
+              {cancelAction.label}
+            </Button>
+          ) : null}
           <Button
             leftSection={<IconDeviceFloppy size={18} />}
             loading={submitting}

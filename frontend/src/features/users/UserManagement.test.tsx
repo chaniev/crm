@@ -319,6 +319,54 @@ describe('UserCreateScreen', () => {
 })
 
 describe('UserEditScreen', () => {
+  test('keeps one route return and only the submit action in editable state', async () => {
+    const onBack = vi.fn()
+    vi.mocked(getUser).mockResolvedValue(coach)
+
+    renderWithProviders(
+      <UserEditScreen
+        currentUserId="headcoach-1"
+        onBack={onBack}
+        onRefreshSession={vi.fn()}
+        userId="coach-1"
+      />,
+    )
+
+    expect(await screen.findByRole('button', { name: 'Сохранить изменения' })).toBeVisible()
+    expect(screen.getAllByRole('button', { name: 'Назад к списку' })).toHaveLength(1)
+    expect(screen.queryByRole('button', { name: 'К списку' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Назад к списку' }))
+    expect(onBack).toHaveBeenCalledOnce()
+  })
+
+  test('keeps the route return while loading and after a load error', async () => {
+    let rejectLoad!: (reason: Error) => void
+    vi.mocked(getUser).mockReturnValue(
+      new Promise<UserDetails>((_resolve, reject) => {
+        rejectLoad = reject
+      }),
+    )
+
+    const view = renderWithProviders(
+      <UserEditScreen
+        currentUserId="headcoach-1"
+        onBack={vi.fn()}
+        onRefreshSession={vi.fn()}
+        userId="coach-loading"
+      />,
+    )
+
+    expect(screen.getAllByRole('button', { name: 'Назад к списку' })).toHaveLength(1)
+    expect(screen.queryByRole('button', { name: 'К списку' })).not.toBeInTheDocument()
+
+    rejectLoad(new Error('trainer load failed'))
+    expect(await screen.findByText('Карточка не загрузилась')).toBeVisible()
+    expect(screen.getAllByRole('button', { name: 'Назад к списку' })).toHaveLength(1)
+    expect(screen.queryByRole('form')).not.toBeInTheDocument()
+    view.unmount()
+  })
+
   test('sends immutable Coach payload even when API returns stale branchId', async () => {
     vi.mocked(getUser).mockResolvedValue({
       ...coach,
@@ -389,5 +437,7 @@ describe('UserEditScreen', () => {
 
     expect(await screen.findByText('Карточка доступна только для просмотра')).toBeVisible()
     expect(screen.queryByRole('button', { name: 'Сохранить изменения' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'К списку' })).not.toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Назад к списку' })).toHaveLength(1)
   })
 })
