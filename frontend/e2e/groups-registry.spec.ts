@@ -263,6 +263,10 @@ type RequestCounters = {
   lastUpdatePayload: { name: string } | null
 }
 
+type MockFailureState = {
+  active: boolean
+}
+
 type MockResponseContext = {
   method: string
   pathname: string
@@ -405,6 +409,52 @@ test('Группы: пагинация, редактирование и возв
   await expect.poll(() => listRequests.length).toBeGreaterThan(listRequestCountBeforeSave)
   expect(listRequests.at(-1)).toMatchObject({ page: 2, pageSize: 10 })
   expect(counters.lastUpdatePayload?.name).toBe('Группа 11 обновлена')
+  await expectNoHorizontalOverflow(page)
+})
+
+test('Группы: при временной ошибке сохранения изменения удерживаются и применяются после повторной отправки', async ({ page }) => {
+  const listRequests: ListRequestRecord[] = []
+  const counters: RequestCounters = {
+    groupsListCalls: 0,
+    groupGetCalls: 0,
+    groupPutCalls: 0,
+    lastUpdatePayload: null,
+  }
+  const failGroupPut: MockFailureState = { active: true }
+
+  await mockApi(page, {
+    session: headCoachSession,
+    listRequests,
+    counters,
+    failGroupPut,
+  })
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/groups')
+
+  await page.waitForLoadState('networkidle')
+  const pagination = page.getByRole('navigation', { name: 'Страницы списка групп' })
+  await expect(pagination).toBeVisible()
+  await pagination.getByRole('button', { name: '2' }).click()
+  await expect.poll(() => listRequests.at(-1)?.page).toBe(2)
+
+  const editButton = page.getByTestId('group-card-group-11').getByRole('button', { name: /Редактировать группу/ })
+  await editButton.click()
+
+  await expect(page.getByRole('heading', { name: 'Настройка группы «Группа 11»' })).toBeVisible()
+  await expect(page.locator('.metric-card')).toHaveCount(0)
+
+  await page.getByRole('textbox', { name: 'Название группы' }).fill('Группа 11 обновлена')
+  await page.getByRole('button', { name: 'Сохранить изменения' }).click()
+
+  await expect(page.getByText('Сохранение не выполнено')).toBeVisible()
+  await expect(
+    page.getByRole('textbox', { name: 'Название группы' }),
+  ).toHaveValue('Группа 11 обновлена')
+
+  await page.getByRole('button', { name: 'Сохранить изменения' }).click()
+  await expect.poll(() => counters.groupPutCalls).toBe(2)
+  await expect(page).toHaveURL('/groups')
   await expectNoHorizontalOverflow(page)
 })
 
@@ -576,6 +626,7 @@ async function mockApi(
     listRequests: ListRequestRecord[]
     counters: RequestCounters
     failGroupsList?: { active: boolean }
+    failGroupPut?: MockFailureState
   },
 ) {
   const branchScope = options.session.user.branchId
@@ -700,6 +751,19 @@ async function mockApi(
         const payload = route.request().postDataJSON() as { name?: string }
         options.counters.lastUpdatePayload = {
           name: payload.name ?? 'Группа без имени',
+        }
+
+        if (options.failGroupPut?.active) {
+          options.failGroupPut.active = false
+          await context.route.fulfill({
+            status: 500,
+            contentType: 'application/json; charset=utf-8',
+            body: JSON.stringify({
+              title: 'Временная ошибка сохранения',
+              detail: 'Подробности позже',
+            }),
+          })
+          return
         }
 
         await fulfillJson(context.route, 200, buildGroupPayload({

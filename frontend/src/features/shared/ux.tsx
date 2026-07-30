@@ -130,32 +130,6 @@ export function ConfirmActionModal({
   )
 }
 
-type MetricCardProps = {
-  description: string
-  label: string
-  value: string
-}
-
-export function MetricCard({
-  description,
-  label,
-  value,
-}: MetricCardProps) {
-  return (
-    <Paper className="surface-card metric-card" radius="var(--page-card-radius)" withBorder>
-      <Stack gap={6}>
-        <Text c="dimmed" fw={600} size="sm">
-          {label}
-        </Text>
-        <Title order={3}>{value}</Title>
-        <Text c="dimmed" size="sm">
-          {description}
-        </Text>
-      </Stack>
-    </Paper>
-  )
-}
-
 type PageLayoutProps = ComponentPropsWithoutRef<'div'> & {
   children: ReactNode
   className?: string

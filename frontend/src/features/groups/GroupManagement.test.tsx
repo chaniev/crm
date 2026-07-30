@@ -343,4 +343,125 @@ describe('GroupEditScreen', () => {
       }),
     ))
   })
+
+  test('does not render locator summary metrics on group edit form', async () => {
+    apiMocks.getGroup.mockResolvedValue({
+      ...group,
+      trainers: [{ id: 'trainer-main', fullName: 'Основной Тренер', login: 'main' }],
+      trainerIds: ['trainer-main'],
+      trainerCount: 1,
+      trainerNames: ['Основной Тренер'],
+      createdAt: '2026-07-01T10:00:00Z',
+      updatedAt: '2026-07-20T10:00:00Z',
+    })
+    apiMocks.getBranches.mockResolvedValue([
+      { id: 'branch-1', name: 'Центр', address: 'Адрес', isArchived: false },
+    ])
+    apiMocks.getHalls.mockResolvedValue([
+      { id: 'hall-1', branchId: 'branch-1', name: 'Большой', isArchived: false },
+    ])
+    apiMocks.getGroupTypes.mockResolvedValue([
+      { id: 'type-1', name: 'Общая', description: null, groupCount: 1 },
+    ])
+    apiMocks.getTrainerOptions.mockResolvedValue([
+      { id: 'trainer-main', fullName: 'Основной Тренер', login: 'main' },
+    ])
+    apiMocks.getGroupClients.mockResolvedValue({ groupId: 'group-1', clients: [] })
+    apiMocks.getGroupTrainerSubstitutions.mockResolvedValue({
+      current: [],
+      history: { items: [], totalCount: 0, skip: 0, take: 20 },
+      canCreate: true,
+      createUnavailableReason: null,
+    })
+
+    renderWithProviders(
+      <GroupEditScreen groupId="group-1" onBack={vi.fn()} onUpdated={vi.fn()} />,
+    )
+
+    expect(await screen.findByText('Название группы')).toBeVisible()
+    expect(screen.queryByText('Клиенты, уже привязанные к группе')).not.toBeInTheDocument()
+    expect(screen.queryByText('Доступных для выбора активных тренеров')).not.toBeInTheDocument()
+    expect(screen.queryByText('Назначено')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Сохранить изменения' })).toBeVisible()
+    expect(screen.queryByText('Клиенты группы')).toBeVisible()
+    expect(document.querySelector('.metric-card')).not.toBeInTheDocument()
+  })
+
+  test('keeps back action available when group edit load fails and hides form body', async () => {
+    const onBack = vi.fn()
+    apiMocks.getGroup.mockRejectedValue(new Error('group load failed'))
+    apiMocks.getBranches.mockResolvedValue([{ id: 'branch-1', name: 'Центр', isArchived: false }])
+    apiMocks.getHalls.mockResolvedValue([])
+    apiMocks.getGroupTypes.mockResolvedValue([])
+    apiMocks.getTrainerOptions.mockResolvedValue([])
+    apiMocks.getGroupClients.mockResolvedValue({ groupId: 'group-1', clients: [] })
+
+    renderWithProviders(
+      <GroupEditScreen groupId="group-1" onBack={onBack} onUpdated={vi.fn()} />,
+    )
+
+    expect(await screen.findByText('Экран редактирования не загрузился')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'К списку групп' })).toBeVisible()
+    expect(screen.queryByRole('form')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'К списку групп' }))
+    expect(onBack).toHaveBeenCalledOnce()
+  })
+
+  test('retains edited values after save failure and succeeds on retry without losing state', async () => {
+    const onUpdated = vi.fn()
+    apiMocks.getGroup.mockResolvedValue({
+      ...group,
+      trainers: [{ id: 'trainer-main', fullName: 'Основной Тренер', login: 'main' }],
+      trainerIds: ['trainer-main'],
+      trainerCount: 1,
+      trainerNames: ['Основной Тренер'],
+      createdAt: '2026-07-01T10:00:00Z',
+      updatedAt: '2026-07-20T10:00:00Z',
+    })
+    apiMocks.getBranches.mockResolvedValue([
+      { id: 'branch-1', name: 'Центр', address: 'Адрес', isArchived: false },
+    ])
+    apiMocks.getHalls.mockResolvedValue([
+      { id: 'hall-1', branchId: 'branch-1', name: 'Большой', isArchived: false },
+    ])
+    apiMocks.getGroupTypes.mockResolvedValue([
+      { id: 'type-1', name: 'Общая', description: null, groupCount: 1 },
+    ])
+    apiMocks.getTrainerOptions.mockResolvedValue([
+      { id: 'trainer-main', fullName: 'Основной Тренер', login: 'main' },
+      { id: 'trainer-sub', fullName: 'Запасной', login: 'sub' },
+    ])
+    apiMocks.getGroupClients.mockResolvedValue({ groupId: 'group-1', clients: [] })
+    apiMocks.getGroupTrainerSubstitutions.mockResolvedValue({
+      current: [],
+      history: { items: [], totalCount: 0, skip: 0, take: 20 },
+      canCreate: true,
+      createUnavailableReason: null,
+    })
+    apiMocks.updateGroup
+      .mockRejectedValueOnce(new Error('temporary'))
+      .mockResolvedValue({
+        ...group,
+        name: 'Группа 11 обновлена',
+        trainerIds: ['trainer-main'],
+      })
+
+    renderWithProviders(
+      <GroupEditScreen groupId="group-1" onBack={vi.fn()} onUpdated={onUpdated} />,
+    )
+
+    const nameInput = await screen.findByRole('textbox', { name: 'Название группы' })
+    fireEvent.change(nameInput, { target: { value: 'Группа 11 обновлена' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить изменения' }))
+
+    await waitFor(() =>
+      expect(screen.getByText('Сохранение не выполнено')).toBeVisible(),
+    )
+    await waitFor(() => expect(nameInput).toHaveValue('Группа 11 обновлена'))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить изменения' }))
+    await waitFor(() => expect(apiMocks.updateGroup).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(onUpdated).toHaveBeenCalledOnce())
+    expect(screen.queryByText('Сохранение не выполнено')).not.toBeInTheDocument()
+  })
 })

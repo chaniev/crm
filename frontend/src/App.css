@@ -1650,10 +1650,6 @@
   background: var(--crm-brand-alpha-08);
 }
 
-.metric-card {
-  min-height: 10.5rem;
-}
-
 .list-row-card {
   padding: 1rem 1.1rem;
   background: var(--crm-surface-page-alpha-55);
