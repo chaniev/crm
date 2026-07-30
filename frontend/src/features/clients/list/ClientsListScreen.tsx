@@ -1,28 +1,54 @@
+import { useEffect } from 'react'
 import { PageLayout, PageSection } from '../../shared/ux'
 import { ClientPreviewPanel } from './ClientPreviewPanel'
 import { ClientsResults } from './ClientsResults'
 import { ClientsToolbar } from './ClientsToolbar'
+import type { ClientListReturnSnapshot } from './clientListReturnState'
 import { useClientsListState } from './useClientsListState'
 
 type ClientsListScreenProps = {
   canManage: boolean
   canSeeWithoutGroupQuickFilter: boolean
+  initialReturnSnapshot?: ClientListReturnSnapshot | null
   previewClientId?: string | null
   onCreate: () => void
-  onOpen: (clientId: string) => void
-  onPreview: (clientId: string) => void
+  onOpen: (clientId: string, returnSnapshot?: ClientListReturnSnapshot) => void
+  onPreview: (clientId: string, returnSnapshot?: ClientListReturnSnapshot) => void
+  onSaveReturnState?: (snapshot: ClientListReturnSnapshot) => void
 }
 
 export function ClientsListScreen({
   canManage,
   canSeeWithoutGroupQuickFilter,
+  initialReturnSnapshot = null,
   previewClientId = null,
   onCreate,
   onOpen,
   onPreview,
+  onSaveReturnState,
 }: ClientsListScreenProps) {
-  const state = useClientsListState({ previewClientId })
+  const state = useClientsListState({
+    canSeeWithoutGroupQuickFilter,
+    initialReturnSnapshot,
+    previewClientId,
+  })
   const previewMode = Boolean(previewClientId)
+
+  useEffect(() => {
+    onSaveReturnState?.(state.returnSnapshot)
+  }, [onSaveReturnState, state.returnSnapshot])
+
+  function openClient(clientId: string) {
+    const snapshot = state.captureReturnSnapshot(clientId)
+    onSaveReturnState?.(snapshot)
+    onOpen(clientId, snapshot)
+  }
+
+  function previewClient(clientId: string) {
+    const snapshot = state.captureReturnSnapshot(clientId)
+    onSaveReturnState?.(snapshot)
+    onPreview(clientId, snapshot)
+  }
 
   return (
     <PageLayout
@@ -47,11 +73,11 @@ export function ClientsListScreen({
           <ClientsResults
             canManage={canManage}
             onCreate={onCreate}
-            onOpen={onOpen}
-            onPreview={onPreview}
+            onOpen={openClient}
+            onPreview={previewClient}
             state={state}
           />
-          <ClientPreviewPanel canManage={canManage} onOpen={onOpen} state={state} />
+          <ClientPreviewPanel canManage={canManage} onOpen={openClient} state={state} />
         </div>
       </PageSection>
     </PageLayout>

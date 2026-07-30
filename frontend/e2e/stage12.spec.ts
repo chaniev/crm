@@ -1105,6 +1105,248 @@ test.describe('Основные e2e сценарии', () => {
     await expect(page.getByRole('status')).toContainText('из 21')
   })
 
+  test('Возврат из компактного предпросмотра сохраняет фильтры и страницу списка', async ({
+    page,
+  }) => {
+    const filterGroup: GroupState = {
+      id: 'filter-group-compact',
+      branchId: baseBranch.id,
+      branchName: baseBranch.name,
+      hallId: baseHall.id,
+      hallName: baseHall.name,
+      groupTypeId: baseGroupType.id,
+      groupTypeName: baseGroupType.name,
+      name: 'Компактная группа',
+      trainingStartTime: '20:00',
+      durationMinutes: 60,
+      weekdays: [1, 3],
+      isActive: true,
+      trainerIds: ['trainer-1'],
+      trainerNames: ['Ирина Тренер'],
+      clientCount: 21,
+    }
+    const groups = [...baseGroups, filterGroup]
+    const filteredClients = Array.from({ length: 21 }, (_, index) => ({
+      ...baseClient,
+      id: `client-filter-${index + 1}`,
+      lastName: `Фильтр-${index + 1}`,
+      firstName: 'Клиент',
+      middleName: 'Компакт',
+      phone: `+79990011${String(index + 1).padStart(4, '0')}`,
+      status: 'Archived' as const,
+      groupIds: [filterGroup.id],
+      hasActiveMembership: false,
+      membershipWarning: true,
+      expirationDate: '2026-05-20',
+    }))
+    const clientRequests: Array<Record<string, string>> = []
+
+    await mockApi(page, async ({ pathname, method, route, searchParams }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/auth/login' && method === 'POST') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/groups' && method === 'GET') {
+        await fulfillJson(route, 200, buildGroupsListPayload(groups))
+        return true
+      }
+
+      if (pathname.startsWith('/api/clients/') && method === 'GET') {
+        const clientId = pathname.slice('/api/clients/'.length)
+        const client = [baseClient, ...filteredClients].find(
+          (item) => item.id === clientId,
+        )
+
+        if (!client) {
+          await fulfillJson(route, 404, { message: 'Клиент не найден' })
+          return true
+        }
+
+        await fulfillJson(route, 200, toClientPayload(client, groups))
+        return true
+      }
+
+      if (pathname === '/api/clients' && method === 'GET') {
+        const requestParams = Object.fromEntries(searchParams.entries())
+        const pageNumber = Number(requestParams.page ?? 1)
+        const isFilteredRequest =
+          requestParams.query === 'Фильтр' &&
+          requestParams.groupId === filterGroup.id &&
+          requestParams.status === 'Archived'
+
+        const pageItems = isFilteredRequest
+          ? pageNumber === 2
+            ? filteredClients.slice(20)
+            : filteredClients.slice(0, 20)
+          : [baseClient]
+
+        clientRequests.push(requestParams)
+        await fulfillJson(
+          route,
+          200,
+          buildClientsListPayload(pageItems, groups, searchParams, {
+            totalCount: isFilteredRequest ? filteredClients.length : 1,
+          }),
+        )
+        return true
+      }
+
+      return false
+    })
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/clients')
+    await expect(page.getByTestId('clients-screen')).toBeVisible()
+
+    await page.getByLabel('Поиск по имени или телефону').fill('  Фильтр  ')
+    await page.getByRole('button', { name: /Открыть фильтры/ }).click()
+    await expect(
+      page.getByRole('dialog', { name: 'Фильтры клиентов' }),
+    ).toBeVisible()
+    await page.getByRole('combobox', { name: 'Группа' }).click()
+    await page.getByRole('option', { name: 'Компактная группа' }).click()
+    await page.getByRole('combobox', { name: 'Статус' }).click()
+    await page.getByRole('option', { name: 'Архив' }).click()
+    await page.getByLabel('Без фото').click()
+    await page.getByRole('button', { name: 'Готово' }).click()
+
+    await expect
+      .poll(() =>
+        clientRequests.some((request) =>
+          hasRequestParams(request, {
+            page: '1',
+            pageSize: '20',
+            query: 'Фильтр',
+            groupId: filterGroup.id,
+            status: 'Archived',
+            hasPhoto: 'false',
+          }),
+        ),
+      )
+      .toBe(true)
+    await expect(page.getByTestId('client-card-client-filter-1')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Дальше' }).click()
+    await expect
+      .poll(() =>
+        clientRequests.some((request) =>
+          hasRequestParams(request, {
+            page: '2',
+            pageSize: '20',
+            query: 'Фильтр',
+            groupId: filterGroup.id,
+            status: 'Archived',
+            hasPhoto: 'false',
+          }),
+        ),
+      )
+      .toBe(true)
+
+    await expect(page.getByTestId('client-card-client-filter-21')).toBeVisible()
+
+    await page.getByTestId('client-card-client-filter-21').click()
+    await expect(page).toHaveURL('/clients/client-filter-21/preview')
+
+    await page.goBack()
+    await expect(page).toHaveURL('/clients')
+    await expect(page.getByRole('status')).toContainText('21–21')
+    await expect(page.getByRole('status')).toContainText('из 21')
+    await expect(page.getByTestId('client-card-client-filter-21')).toBeVisible()
+    await expect
+      .poll(() =>
+        clientRequests.filter((request) =>
+          hasRequestParams(request, {
+            page: '2',
+            pageSize: '20',
+            query: 'Фильтр',
+            groupId: filterGroup.id,
+            status: 'Archived',
+            hasPhoto: 'false',
+          }),
+        ).length >= 2,
+      )
+      .toBe(true)
+
+    const restoredCard = page.getByTestId('client-card-client-filter-21')
+    await expect(restoredCard).toHaveAttribute('aria-current', 'true')
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            window.history.state?.crmClientListReturnState?.selectedClientId,
+        ),
+      )
+      .toBe('client-filter-21')
+    await expect(restoredCard).toBeFocused()
+
+    await restoredCard.click()
+    await expect(page).toHaveURL('/clients/client-filter-21/preview')
+    await page.getByRole('button', { name: 'Открыть карточку' }).click()
+    await expect(page).toHaveURL('/clients/client-filter-21')
+
+    await page.goBack()
+    await expect(page).toHaveURL('/clients/client-filter-21/preview')
+    await page.goBack()
+    await expect(page).toHaveURL('/clients')
+    await expect(page.getByRole('status')).toContainText('21–21')
+    await expect(page.getByTestId('client-card-client-filter-21')).toBeFocused()
+
+    await page.getByTestId('client-card-client-filter-21').click()
+    await page.getByRole('button', { name: 'Открыть карточку' }).click()
+    await expect(page).toHaveURL('/clients/client-filter-21')
+    const historyLengthBeforeCta = await page.evaluate(() => window.history.length)
+
+    await page.getByRole('button', { name: 'К списку клиентов' }).click()
+    await expect(page).toHaveURL('/clients')
+    await expect(page.getByRole('status')).toContainText('21–21')
+    await expect(page.getByTestId('client-card-client-filter-21')).toBeFocused()
+    await expect
+      .poll(() => page.evaluate(() => window.history.length))
+      .toBe(historyLengthBeforeCta)
+
+    await page.goForward()
+    await expect(page).toHaveURL('/clients/client-filter-21/preview')
+    await page.goBack()
+    await expect(page).toHaveURL('/clients')
+
+    const pendingDraftRequestStart = clientRequests.length
+    await page
+      .getByLabel('Поиск по имени или телефону')
+      .fill('  Новый запрос  ')
+    await page.getByTestId('client-card-client-filter-21').click()
+    await expect(page).toHaveURL('/clients/client-filter-21/preview')
+    await expect
+      .poll(() => clientRequests.length)
+      .toBeGreaterThan(pendingDraftRequestStart)
+    await page.goBack()
+    await expect(page).toHaveURL('/clients')
+    await expect(page.getByLabel('Поиск по имени или телефону')).toHaveValue(
+      'Новый запрос',
+    )
+    await expect(page.getByTestId('client-card-client-filter-21')).toHaveCount(0)
+    await expect(page.getByTestId('client-card-client-1')).toBeFocused()
+    expect(
+      clientRequests
+        .slice(pendingDraftRequestStart)
+        .every((request) =>
+          hasRequestParams(request, {
+            page: '1',
+            pageSize: '20',
+            query: 'Новый запрос',
+            groupId: filterGroup.id,
+            status: 'Archived',
+            hasPhoto: 'false',
+          }),
+        ),
+    ).toBe(true)
+  })
+
   test('Создание группы с назначением тренеров', async ({ page }) => {
     let createGroupPayload: Record<string, unknown> | null = null
     const groups: GroupState[] = [...baseGroups]

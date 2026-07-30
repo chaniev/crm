@@ -1,6 +1,7 @@
 import {
   startTransition,
   useEffect,
+  useRef,
   useState,
   type CSSProperties,
   type ReactNode,
@@ -61,6 +62,16 @@ import {
   type AppRoute,
 } from './lib/appRoutes'
 import {
+  getClientListReturnHistoryStateForRoute,
+  getNextClientListReturnDepth,
+  isClientListReturnRoute,
+  mergeClientListReturnSnapshotIntoHistoryState,
+  readClientListReturnSnapshot,
+  stripClientListReturnSnapshotFromHistoryState,
+  withClientListReturnDepth,
+  type ClientListReturnSnapshot,
+} from './features/clients/list/clientListReturnState'
+import {
   ClientCreateScreen,
   ClientDetailScreen,
   ClientEditScreen,
@@ -100,6 +111,7 @@ type RolePresentation = {
 
 type NavigateOptions = {
   replace?: boolean
+  state?: unknown
 }
 
 const rolePresentationMap: Record<AuthenticatedUser['role'], RolePresentation> = {
@@ -137,15 +149,17 @@ function useAppRoute() {
       typeof nextRoute === 'string'
         ? normalizePathname(nextRoute)
         : getRoutePath(nextRoute)
+    const nextState =
+      options.state ?? stripClientListReturnSnapshotFromHistoryState(window.history.state)
 
     if (nextPath === pathname) {
       return
     }
 
     if (options.replace) {
-      window.history.replaceState(window.history.state, '', nextPath)
+      window.history.replaceState(nextState, '', nextPath)
     } else {
-      window.history.pushState(window.history.state, '', nextPath)
+      window.history.pushState(nextState, '', nextPath)
     }
 
     setPathname(nextPath)
@@ -195,6 +209,21 @@ function getRouteDocumentTitle(route: AppRoute) {
   }
 }
 
+function getCurrentClientListReturnDepth(
+  route: AppRoute,
+  snapshot: ClientListReturnSnapshot,
+) {
+  if (route.kind === 'section' && route.section === 'Clients') {
+    return 0
+  }
+
+  if (route.kind === 'clientPreview') {
+    return Math.max(1, snapshot.returnDepth)
+  }
+
+  return snapshot.returnDepth
+}
+
 function getAppDocumentTitle(
   clubName: string,
   route: AppRoute,
@@ -239,7 +268,127 @@ export function App({ appConfig, authBackground }: AppProps) {
   const [passwordPending, setPasswordPending] = useState(false)
   const [logoutPending, setLogoutPending] = useState(false)
   const [passwordReturnPath, setPasswordReturnPath] = useState<string | null>(null)
+  const authenticatedUserBoundaryRef = useRef<string | null>(null)
   const displayedClubName = appConfig.clubName
+
+  const routeClientListReturnSnapshot = readClientListReturnSnapshot(
+    window.history.state,
+    {
+      canSeeWithoutGroup: session?.user?.permissions.canManageClients ?? false,
+    },
+  )
+
+  const activeClientListReturnSnapshot = routeClientListReturnSnapshot
+
+  function getClientListHistoryState(
+    nextRoute: AppRoute,
+    snapshot: ClientListReturnSnapshot | null,
+  ) {
+    return getClientListReturnHistoryStateForRoute(
+      window.history.state,
+      nextRoute,
+      snapshot,
+    )
+  }
+
+  function saveClientListReturnState(snapshot: ClientListReturnSnapshot) {
+    const entrySnapshot = withClientListReturnDepth(
+      snapshot,
+      getCurrentClientListReturnDepth(route, snapshot),
+    )
+
+    window.history.replaceState(
+      mergeClientListReturnSnapshotIntoHistoryState(
+        window.history.state,
+        entrySnapshot,
+      ),
+      '',
+      window.location.pathname,
+    )
+  }
+
+  function navigateWithClientListReturnState(
+    nextRoute: AppRoute,
+    snapshot: ClientListReturnSnapshot | null,
+    options: Omit<NavigateOptions, 'state'> = {},
+  ) {
+    if (
+      snapshot &&
+      ((route.kind === 'section' && route.section === 'Clients') ||
+        route.kind === 'clientPreview')
+    ) {
+      saveClientListReturnState(snapshot)
+    }
+
+    const targetSnapshot = snapshot
+      ? withClientListReturnDepth(
+          snapshot,
+          getNextClientListReturnDepth(route, snapshot),
+        )
+      : null
+    const nextState = getClientListHistoryState(nextRoute, targetSnapshot)
+
+    navigate(nextRoute, {
+      ...options,
+      state: nextState,
+    })
+  }
+
+  function returnToClients() {
+    if (
+      (route.kind === 'clientDetails' || route.kind === 'clientPreview') &&
+      activeClientListReturnSnapshot &&
+      activeClientListReturnSnapshot.returnDepth > 0
+    ) {
+      window.history.go(-activeClientListReturnSnapshot.returnDepth)
+      return
+    }
+
+    navigate(
+      { kind: 'section', section: 'Clients' },
+      {
+        replace: route.kind === 'clientDetails' || route.kind === 'clientPreview',
+        state: stripClientListReturnSnapshotFromHistoryState(window.history.state),
+      },
+    )
+  }
+
+  useEffect(() => {
+    if (!isClientListReturnRoute(route)) {
+      return
+    }
+
+    const previousScrollRestoration = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+
+    return () => {
+      window.history.scrollRestoration = previousScrollRestoration
+    }
+  }, [route])
+
+  useEffect(() => {
+    if (loadingSession) {
+      return
+    }
+
+    const authenticatedUserId =
+      session?.isAuthenticated && session.user ? session.user.id : null
+    const previousAuthenticatedUserId = authenticatedUserBoundaryRef.current
+    const crossedUserBoundary =
+      authenticatedUserId === null ||
+      (previousAuthenticatedUserId !== null &&
+        previousAuthenticatedUserId !== authenticatedUserId)
+
+    if (crossedUserBoundary) {
+      window.history.replaceState(
+        stripClientListReturnSnapshotFromHistoryState(window.history.state),
+        '',
+        window.location.pathname,
+      )
+    }
+
+    authenticatedUserBoundaryRef.current = authenticatedUserId
+  }, [loadingSession, session])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -516,17 +665,29 @@ export function App({ appConfig, authBackground }: AppProps) {
         <RouteViewport
           onCreateClient={() => navigate({ kind: 'clientCreate' })}
           onEditClient={(clientId) => navigate({ kind: 'clientEdit', clientId })}
-          onOpenClient={(clientId) => navigate({ kind: 'clientDetails', clientId })}
-          onPreviewClient={(clientId) => navigate({ kind: 'clientPreview', clientId })}
+          onOpenClient={(clientId, returnSnapshot) =>
+            navigateWithClientListReturnState(
+              { kind: 'clientDetails', clientId },
+              returnSnapshot ?? activeClientListReturnSnapshot,
+            )
+          }
+          onPreviewClient={(clientId, returnSnapshot) =>
+            navigateWithClientListReturnState(
+              { kind: 'clientPreview', clientId },
+              returnSnapshot ?? activeClientListReturnSnapshot,
+            )
+          }
           onCreateGroup={() => navigate({ kind: 'groupCreate' })}
           currentUserId={authenticatedUser.id}
           onEditGroup={(groupId) => navigate({ kind: 'groupEdit', groupId })}
           onCreateUser={() => navigate({ kind: 'userCreate' })}
           onEditUser={(userId) => navigate({ kind: 'userEdit', userId })}
           onRefreshSession={refreshSessionState}
-          onReturnToClients={() => navigate({ kind: 'section', section: 'Clients' })}
+          onReturnToClients={returnToClients}
           onReturnToGroups={() => navigate({ kind: 'section', section: 'Groups' })}
           onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
+          clientListReturnSnapshot={activeClientListReturnSnapshot}
+          onSaveClientListReturnState={saveClientListReturnState}
           route={route}
           user={authenticatedUser}
         />
@@ -948,20 +1109,29 @@ type RouteViewportProps = {
   onEditGroup: (groupId: string) => void
   onCreateClient: () => void
   onEditClient: (clientId: string) => void
-  onOpenClient: (clientId: string) => void
-  onPreviewClient: (clientId: string) => void
+  clientListReturnSnapshot: ClientListReturnSnapshot | null
+  onOpenClient: (
+    clientId: string,
+    returnSnapshot?: ClientListReturnSnapshot | null,
+  ) => void
+  onPreviewClient: (
+    clientId: string,
+    returnSnapshot?: ClientListReturnSnapshot | null,
+  ) => void
   onCreateUser: () => void
   onEditUser: (userId: string) => void
   onRefreshSession: () => Promise<unknown>
   onReturnToClients: () => void
   onReturnToGroups: () => void
   onReturnToUsers: () => void
+  onSaveClientListReturnState: (snapshot: ClientListReturnSnapshot) => void
 }
 
 function RouteViewport({
   route,
   user,
   currentUserId,
+  clientListReturnSnapshot,
   onCreateClient,
   onEditClient,
   onOpenClient,
@@ -974,6 +1144,7 @@ function RouteViewport({
   onReturnToClients,
   onReturnToGroups,
   onReturnToUsers,
+  onSaveClientListReturnState,
 }: RouteViewportProps) {
   if (
     !user.permissions.canManageClients &&
@@ -1053,10 +1224,13 @@ function RouteViewport({
       <ClientsListScreen
         canManage={user.permissions.canManageClients}
         canSeeWithoutGroupQuickFilter={user.permissions.canManageClients}
+        initialReturnSnapshot={clientListReturnSnapshot}
+        key={`client-preview:${route.clientId}`}
         onCreate={onCreateClient}
         onOpen={onOpenClient}
         onPreview={onPreviewClient}
         previewClientId={route.clientId}
+        onSaveReturnState={onSaveClientListReturnState}
       />
     )
   }
@@ -1115,9 +1289,12 @@ function RouteViewport({
       <ClientsListScreen
         canManage={user.permissions.canManageClients}
         canSeeWithoutGroupQuickFilter={user.permissions.canManageClients}
+        initialReturnSnapshot={clientListReturnSnapshot}
+        key="clients-list"
         onCreate={onCreateClient}
         onOpen={onOpenClient}
         onPreview={onPreviewClient}
+        onSaveReturnState={onSaveClientListReturnState}
       />
     )
   }

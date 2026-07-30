@@ -2740,6 +2740,7 @@
   min-height: 4.5rem;
   padding: 0.65rem 0.75rem;
   border-radius: 0.5rem;
+  scroll-margin-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   background: var(--crm-surface-card-alpha-90);
   border-color: var(--crm-brand-alpha-10);
   cursor: pointer;

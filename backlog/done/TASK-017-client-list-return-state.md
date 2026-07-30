@@ -1,13 +1,14 @@
 # TASK-017: Сохранять состояние списка при возврате из карточки клиента
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-27 20:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-017-client-list-return-state.plan.md
+- implementation_plan: /backlog/done/TASK-017-client-list-return-state.plan.md
 - implementation_branch: fix/TASK-017-client-list-return-state
+- moved_to_done_at: 2026-07-30
 
 ## Goal
 Пользователь возвращается из карточки клиента к тому же списку, поиску, фильтрам, выбранному клиенту и позиции прокрутки.
@@ -37,15 +38,15 @@ implementation
 - Поведение должно быть предсказуемым после reload.
 
 ## Acceptance criteria
-- [ ] Возврат из карточки восстанавливает поиск.
-- [ ] Возврат восстанавливает фильтры.
-- [ ] Возврат восстанавливает выбранного клиента и позицию списка.
-- [ ] Прямая навигация в карточку клиента продолжает работать.
+- [x] Возврат из карточки восстанавливает поиск.
+- [x] Возврат восстанавливает фильтры.
+- [x] Возврат восстанавливает выбранного клиента и позицию списка.
+- [x] Прямая навигация в карточку клиента продолжает работать.
 
 ## Test checklist
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Добавить или обновить Playwright test на поиск, фильтры, карточку и возврат.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Добавить или обновить Playwright test на поиск, фильтры, карточку и возврат.
 
 ## AI safety
 - Safe for Codex: yes

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   getClient,
   getClients,
@@ -19,29 +19,51 @@ import {
   type ClientListFilterValues,
   type ClientStatusFilter,
 } from './clientListFilters'
+import {
+  createClientListEntryKey,
+  createClientListReturnSnapshot,
+  type ClientListReturnSnapshot,
+} from './clientListReturnState'
 
 export type ClientsListState = ReturnType<typeof useClientsListState>
 
 type UseClientsListStateOptions = {
+  canSeeWithoutGroupQuickFilter?: boolean
+  initialReturnSnapshot?: ClientListReturnSnapshot | null
   previewClientId?: string | null
 }
 
 export function useClientsListState({
+  canSeeWithoutGroupQuickFilter = false,
+  initialReturnSnapshot = null,
   previewClientId = null,
 }: UseClientsListStateOptions = {}) {
+  const [originEntryKey] = useState(
+    () => initialReturnSnapshot?.originEntryKey ?? createClientListEntryKey(),
+  )
+  const [lastReturnScrollY, setLastReturnScrollY] = useState(
+    () => initialReturnSnapshot?.scrollY ?? 0,
+  )
+  const returnRestoreSnapshotRef = useRef<ClientListReturnSnapshot | null>(
+    initialReturnSnapshot,
+  )
+  const [returnRestoreSnapshot, setReturnRestoreSnapshot] =
+    useState<ClientListReturnSnapshot | null>(initialReturnSnapshot)
   const [clients, setClients] = useState<ClientListItem[]>([])
   const [groupOptions, setGroupOptions] = useState<ClientGroupFilterOption[]>([])
   const [fallbackGroupOptions, setFallbackGroupOptions] = useState<
     ClientGroupFilterOption[]
   >([])
   const [filters, setFilters] = useState<ClientListFilterValues>(() =>
-    createDefaultClientListFilters(),
+    initialReturnSnapshot?.filters ?? createDefaultClientListFilters(),
   )
-  const [searchDraft, setSearchDraft] = useState('')
+  const [searchDraft, setSearchDraft] = useState(
+    () => initialReturnSnapshot?.searchDraft ?? '',
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(() => initialReturnSnapshot?.page ?? 1)
   const [totalCount, setTotalCount] = useState<number | null>(null)
   const [activeCount, setActiveCount] = useState<number | null>(null)
   const [archivedCount, setArchivedCount] = useState<number | null>(null)
@@ -49,7 +71,7 @@ export function useClientsListState({
     useState<ClientQuickFilterCounts | null>(null)
   const [hasNextPage, setHasNextPage] = useState(false)
   const [selectedClientId, setSelectedClientId] = useState<string | null>(
-    previewClientId,
+    previewClientId ?? initialReturnSnapshot?.selectedClientId ?? null,
   )
   const [previewCache, setPreviewCache] = useState<Record<string, ClientDetails>>({})
   const [previewLoading, setPreviewLoading] = useState(false)
@@ -112,12 +134,18 @@ export function useClientsListState({
   }, [])
 
   useEffect(() => {
+    const normalizedDraft = searchDraft.trim()
+
+    if (normalizedDraft === filters.query) {
+      return
+    }
+
     const debounceId = window.setTimeout(() => {
-      updateFilters({ query: searchDraft })
+      applySearchQuery(normalizedDraft)
     }, 250)
 
     return () => window.clearTimeout(debounceId)
-  }, [searchDraft])
+  }, [filters.query, searchDraft])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -148,6 +176,20 @@ export function useClientsListState({
         setSelectedClientId((currentClientId) => {
           if (previewClientId) {
             return previewClientId
+          }
+
+          const restoreSnapshot = returnRestoreSnapshotRef.current
+          if (restoreSnapshot) {
+            const restoredClientId =
+              restoreSnapshot.selectedClientId ?? restoreSnapshot.anchorClientId
+
+            if (!restoredClientId) {
+              return null
+            }
+
+            return nextResponse.items.some((client) => client.id === restoredClientId)
+              ? restoredClientId
+              : null
           }
 
           return currentClientId &&
@@ -218,6 +260,49 @@ export function useClientsListState({
     return () => controller.abort()
   }, [previewCache, selectedClientId])
 
+  const returnSnapshot = useMemo(
+    () =>
+      createClientListReturnSnapshot(
+        {
+          filters,
+          searchDraft,
+          page,
+          selectedClientId,
+          scrollY: lastReturnScrollY,
+          focusTarget: selectedClientId ? 'selected-client' : 'results-region',
+          originEntryKey,
+          returnDepth: initialReturnSnapshot?.returnDepth ?? 0,
+        },
+        { canSeeWithoutGroup: canSeeWithoutGroupQuickFilter },
+      ),
+    [
+      canSeeWithoutGroupQuickFilter,
+      filters,
+      initialReturnSnapshot?.returnDepth,
+      lastReturnScrollY,
+      originEntryKey,
+      page,
+      searchDraft,
+      selectedClientId,
+    ],
+  )
+
+  function applySearchQuery(query: string) {
+    setFilters((currentFilters) => {
+      const nextFilters = normalizeClientListFilters({
+        ...currentFilters,
+        query,
+      })
+
+      if (nextFilters.query === currentFilters.query) {
+        return currentFilters
+      }
+
+      setPage(1)
+      return nextFilters
+    })
+  }
+
   function updateFilters(nextFilters: Partial<ClientListFilterValues>) {
     setFilters((currentFilters) =>
       normalizeClientListFilters({
@@ -229,7 +314,7 @@ export function useClientsListState({
   }
 
   function applySearchNow() {
-    updateFilters({ query: searchDraft })
+    applySearchQuery(searchDraft.trim())
   }
 
   function setStatus(status: ClientStatusFilter) {
@@ -251,6 +336,42 @@ export function useClientsListState({
     setReloadKey((currentKey) => currentKey + 1)
   }
 
+  function captureReturnSnapshot(clientId: string | null = selectedClientId) {
+    const nextScrollY =
+      (initialReturnSnapshot?.returnDepth ?? 0) > 0
+        ? lastReturnScrollY
+        : typeof window === 'undefined'
+          ? 0
+          : window.scrollY
+    const snapshot = createClientListReturnSnapshot(
+      {
+        filters,
+        searchDraft,
+        page,
+        selectedClientId: clientId,
+        anchorClientId: clientId,
+        scrollY: nextScrollY,
+        focusTarget: clientId ? 'selected-client' : 'results-region',
+        originEntryKey,
+        returnDepth: returnSnapshot.returnDepth,
+      },
+      { canSeeWithoutGroup: canSeeWithoutGroupQuickFilter },
+    )
+
+    setLastReturnScrollY(snapshot.scrollY)
+    setSearchDraft(snapshot.searchDraft)
+    setFilters(snapshot.filters)
+    setPage(snapshot.page)
+    setSelectedClientId(clientId)
+
+    return snapshot
+  }
+
+  const completeReturnRestore = useCallback(() => {
+    returnRestoreSnapshotRef.current = null
+    setReturnRestoreSnapshot(null)
+  }, [])
+
   return {
     clients,
     filters,
@@ -270,6 +391,8 @@ export function useClientsListState({
     availableGroupOptions,
     selectedClientId,
     selectedPreview,
+    returnSnapshot,
+    returnRestoreSnapshot,
     previewLoading,
     previewError,
     isFirstRunEmpty,
@@ -279,6 +402,8 @@ export function useClientsListState({
     setStatus,
     resetFilters,
     reload,
+    captureReturnSnapshot,
+    completeReturnRestore,
     setPage,
     setSelectedClientId,
   }

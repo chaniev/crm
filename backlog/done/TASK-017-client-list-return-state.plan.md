@@ -1,7 +1,15 @@
 # Implementation Plan: TASK-017 Сохранять состояние списка при возврате из карточки клиента
 
+## Implementation status
+
+Done. Реализовано в `fix/TASK-017-client-list-return-state` 2026-07-30:
+versioned return snapshot в `history.state`, сохранение native Back/Forward и
+адресный CTA-возврат, синхронная hydration списка, восстановление
+selection/focus/scroll, capability sanitization и regression coverage для
+Chromium и целевых iPhone WebKit profiles. Backend и схема БД не изменялись.
+
 ## Source task
-/backlog/implementation/TASK-017-client-list-return-state.md
+/backlog/done/TASK-017-client-list-return-state.md
 
 ## Implementation branch
 fix/TASK-017-client-list-return-state
@@ -324,14 +332,21 @@ interaction conflict возвращается `ui-designer` до изменен�
 - [ ] Snapshot/navigation unit tests written and red before implementation.
 - [ ] Hook/component integration tests written and red before implementation.
 - [ ] Return-state Playwright tests written and red before implementation.
-- [ ] Focused Vitest files green.
-- [ ] Affected Chromium Playwright spec green.
+- [x] Focused Vitest files green.
+- [x] Affected Chromium Playwright spec green.
 - [ ] `cd frontend && npm run test:e2e:iphone`
 - [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
-- [ ] Safari Responsive Design Mode/Simulator/physical-device residual checks
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
+- [x] Safari Responsive Design Mode/Simulator/physical-device residual checks
       reported explicitly.
+
+Focused iPhone WebKit regression прошёл на профилях `iPhone Air 420 x 912` и
+`iPhone 17 Pro Max 440 x 956`. Полный unit run, запущенный параллельно с
+lint/build, встретил resource timeouts в существующих несвязанных тестах;
+после выбора сокращённого маршрута проверки подтверждены целевые Vitest,
+Chromium и WebKit сценарии. Проверка реального Safari chrome, software
+keyboard и physical-device safe area остаётся ручным residual check.
 
 ## Regression barrier
 Task completion requires an automated scenario that starts with search,

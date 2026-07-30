@@ -355,6 +355,235 @@ test('iPhone clients route keeps core controls touch-safe and readable', async (
   await expect(createButton).toBeInViewport()
 })
 
+test('iPhone return from preview keeps client list filters and page', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const filterGroup = {
+    id: 'target-filter-group',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Зал',
+    groupTypeId: 'type-1',
+    groupTypeName: 'Базовый',
+    name: 'Фильтр-группа',
+    trainingStartTime: '18:00',
+    durationMinutes: 50,
+    weekdays: [1],
+    isActive: true,
+    trainers: [{ id: 'coach-1', fullName: 'Тренер', login: 'coach' }],
+    trainerIds: ['coach-1'],
+    trainerCount: 1,
+    trainerNames: ['Тренер'],
+    clientCount: 21,
+  }
+  const groups = [...CLIENT_LIST_GROUPS_RESPONSE, filterGroup]
+  const filteredClients = Array.from({ length: 21 }, (_, index) => ({
+    ...CLIENT_LIST_ITEM,
+    id: `target-filter-client-${index + 1}`,
+    fullName: `Тестовый ${index + 1}`,
+    phone: `+79990022${String(index + 1).padStart(3, '0')}`,
+    status: 'Archived' as const,
+    groupCount: 1,
+    groups: [
+      {
+        id: filterGroup.id,
+        name: filterGroup.name,
+        branchId: filterGroup.branchId,
+        branchName: filterGroup.branchName,
+      },
+    ],
+    lastVisitDate: '2026-03-01',
+    currentMembershipSummary: null,
+    currentMembership: null,
+    notes: '',
+    attendanceHistory: [],
+    attendanceHistoryTotalCount: 0,
+    membershipHistory: [],
+    membershipWarning: true,
+    hasActiveMembership: false,
+  }))
+  const clientRequests: Array<Record<string, string>> = []
+
+  await page.setViewportSize(target)
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-07-25',
+        maxTrainingDate: '2026-07-25',
+      })
+      return
+    }
+
+    if (pathname === '/api/groups' && method === 'GET') {
+      await fulfillJson(route, groups)
+      return
+    }
+
+    if (pathname === '/api/groups/types' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/clients' && method === 'GET') {
+      const requestParams = Object.fromEntries(searchParams.entries())
+      const pageNumber = Number(requestParams.page ?? 1)
+      const isFilteredRequest =
+        requestParams.query === 'Фильтр' &&
+        requestParams.groupId === filterGroup.id &&
+        requestParams.status === 'Archived' &&
+        requestParams.hasPhoto === 'false'
+
+      const pageItems = isFilteredRequest
+        ? pageNumber === 2
+          ? filteredClients.slice(20)
+          : filteredClients.slice(0, 20)
+        : [
+            {
+              ...CLIENT_LIST_ITEM,
+              id: 'client-1',
+            },
+          ]
+
+      clientRequests.push(requestParams)
+      await fulfillJson(route, {
+        items: pageItems,
+        totalCount: isFilteredRequest ? filteredClients.length : 1,
+        activeCount: isFilteredRequest ? 0 : 1,
+        archivedCount: isFilteredRequest ? 21 : 0,
+        skip: (pageNumber - 1) * 20,
+        take: 20,
+        page: pageNumber,
+        pageSize: 20,
+        hasNextPage: isFilteredRequest ? pageNumber < 2 : false,
+        quickFilterCounts: {
+          withoutMembership: 0,
+          expiringSoon: 0,
+          withoutGroup: 0,
+          trial: 0,
+        },
+      })
+      return
+    }
+
+    if (pathname.startsWith('/api/clients/') && method === 'GET') {
+      const clientId = pathname.slice('/api/clients/'.length)
+      const client = filteredClients.find((item) => item.id === clientId)
+
+      if (!client) {
+        await route.fulfill({
+          status: 404,
+          contentType: 'application/json; charset=utf-8',
+          body: JSON.stringify({ message: 'Клиент не найден' }),
+        })
+        return
+      }
+
+      await fulfillJson(route, client)
+      return
+    }
+
+    await route.continue()
+  })
+
+  await page.goto('/clients')
+  await expect(page.getByTestId('clients-screen')).toBeVisible()
+
+  await page.getByLabel('Поиск по имени или телефону').fill('  Фильтр  ')
+  await page.getByRole('button', { name: /Открыть фильтры/ }).click()
+  await expect(page.getByRole('dialog', { name: 'Фильтры клиентов' })).toBeVisible()
+  await page.getByRole('combobox', { name: 'Группа' }).click()
+  await page.getByRole('option', { name: 'Фильтр-группа' }).click()
+  await page.getByRole('combobox', { name: 'Статус' }).click()
+  await page.getByRole('option', { name: 'Архив' }).click()
+  await page.getByLabel('Без фото').click()
+  await page.getByRole('button', { name: 'Готово' }).click()
+
+  await expect
+    .poll(() =>
+      clientRequests.some((request) =>
+        hasRequestParams(request, {
+          page: '1',
+          pageSize: '20',
+          query: 'Фильтр',
+          groupId: filterGroup.id,
+          status: 'Archived',
+          hasPhoto: 'false',
+        }),
+      ),
+    )
+    .toBe(true)
+
+  await page.getByRole('button', { name: 'Дальше' }).click()
+  await expect
+    .poll(() =>
+      clientRequests.some((request) =>
+        hasRequestParams(request, {
+          page: '2',
+          pageSize: '20',
+          query: 'Фильтр',
+          groupId: filterGroup.id,
+          status: 'Archived',
+          hasPhoto: 'false',
+        }),
+      ),
+    )
+    .toBe(true)
+
+  const targetCard = page.getByTestId('client-card-target-filter-client-21')
+  await expect(targetCard).toBeVisible()
+  await targetCard.click()
+  await expect(page).toHaveURL('/clients/target-filter-client-21/preview')
+
+  await page.goBack()
+  await expect(page).toHaveURL('/clients')
+  await expect
+    .poll(() =>
+      clientRequests.filter((request) =>
+        hasRequestParams(request, {
+          page: '2',
+          pageSize: '20',
+          query: 'Фильтр',
+          groupId: filterGroup.id,
+          status: 'Archived',
+          hasPhoto: 'false',
+        }),
+      ).length >= 2,
+    )
+    .toBe(true)
+
+  await expect(page.getByRole('status')).toContainText('21–21')
+  await expect(page.getByRole('status')).toContainText('из 21')
+  await expect(page.getByTestId('client-card-target-filter-client-21')).toBeVisible()
+  await expectNoHorizontalScroll(page)
+})
+
 test('compact-height iPhone filter surface is keyboard-accessible and focus-safe', async ({
   page,
 }, testInfo) => {
@@ -687,6 +916,15 @@ async function fulfillJson(route: Route, payload: unknown) {
     contentType: 'application/json; charset=utf-8',
     body: JSON.stringify(payload),
   })
+}
+
+function hasRequestParams(
+  currentParams: Record<string, string>,
+  expectedParams: Record<string, string>,
+) {
+  return Object.entries(expectedParams).every(
+    ([key, expectedValue]) => currentParams[key] === expectedValue,
+  )
 }
 
 async function expectNoHorizontalScroll(page: Page) {

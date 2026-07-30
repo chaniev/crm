@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
 import {
   Avatar,
   Badge,
@@ -45,6 +45,54 @@ export function ClientsResults({
   onPreview,
 }: ClientsResultsProps) {
   const isCompactLayout = useIsClientsCompactLayout()
+  const restoreClients = state.clients
+  const completeReturnRestore = state.completeReturnRestore
+  const restoreError = state.error
+  const restoreLoading = state.loading
+  const returnRestoreSnapshot = state.returnRestoreSnapshot
+  const restoreSelectedClientId = state.selectedClientId
+
+  useEffect(() => {
+    const snapshot = returnRestoreSnapshot
+
+    if (!snapshot || restoreLoading) {
+      return
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      const rowElements = getClientRowElements()
+      const selectedRow = snapshot.selectedClientId
+        ? findClientRowElement(rowElements, snapshot.selectedClientId)
+        : null
+      const anchorRow = snapshot.anchorClientId
+        ? findClientRowElement(rowElements, snapshot.anchorClientId)
+        : null
+      const firstRow = rowElements[0] ?? null
+      const recoveryAction = document.querySelector<HTMLElement>(
+        '[data-client-return-recovery="true"]',
+      )
+      const resultsRegion = document.getElementById('clients-results')
+
+      if (restoreError || restoreClients.length === 0) {
+        focusClientListReturnTarget(recoveryAction ?? resultsRegion)
+        completeReturnRestore()
+        return
+      }
+
+      restoreClientListScroll(snapshot.scrollY, anchorRow ?? selectedRow)
+      focusClientListReturnTarget(selectedRow ?? firstRow ?? resultsRegion)
+      completeReturnRestore()
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [
+    completeReturnRestore,
+    restoreClients,
+    restoreError,
+    restoreLoading,
+    restoreSelectedClientId,
+    returnRestoreSnapshot,
+  ])
 
   function selectClient(clientId: string) {
     if (isCompactLayout) {
@@ -67,7 +115,11 @@ export function ClientsResults({
     return (
       <ErrorState
         action={(
-          <Button onClick={state.reload} variant="light">
+          <Button
+            data-client-return-recovery="true"
+            onClick={state.reload}
+            variant="light"
+          >
             Повторить
           </Button>
         )}
@@ -82,9 +134,15 @@ export function ClientsResults({
       <EmptyState
         action={
           state.isFirstRunEmpty && canManage ? (
-            <Button onClick={onCreate}>Новый клиент</Button>
+            <Button data-client-return-recovery="true" onClick={onCreate}>
+              Новый клиент
+            </Button>
           ) : (
-            <Button onClick={state.resetFilters} variant="light">
+            <Button
+              data-client-return-recovery="true"
+              onClick={state.resetFilters}
+              variant="light"
+            >
               Сбросить фильтры
             </Button>
           )
@@ -119,8 +177,9 @@ export function ClientsResults({
         return (
           <Paper
             aria-label={`Выбрать клиента ${client.fullName}`}
-            aria-selected={selected}
+            aria-current={selected ? 'true' : undefined}
             className="clients-v7-row"
+            data-client-row-id={client.id}
             data-selected={selected || undefined}
             data-testid={`client-card-${client.id}`}
             key={client.id}
@@ -474,6 +533,67 @@ function isPlanAction(action: ClientNextActionViewModel) {
   return action.tone === 'gray' ||
     action.label === 'Планово' ||
     action.label === 'Плановое сопровождение'
+}
+
+function getClientRowElements() {
+  return Array.from(
+    document.querySelectorAll<HTMLElement>('[data-client-row-id]'),
+  )
+}
+
+function findClientRowElement(
+  rowElements: HTMLElement[],
+  clientId: string,
+) {
+  return rowElements.find((element) => element.dataset.clientRowId === clientId) ?? null
+}
+
+function focusClientListReturnTarget(element: HTMLElement | null) {
+  if (!element) {
+    return
+  }
+
+  if (!element.hasAttribute('tabindex') && !isNaturallyFocusable(element)) {
+    element.setAttribute('tabindex', '-1')
+  }
+
+  element.focus({ preventScroll: true })
+}
+
+function restoreClientListScroll(scrollY: number, anchorElement: HTMLElement | null) {
+  const maxScrollY = Math.max(
+    0,
+    document.documentElement.scrollHeight - window.innerHeight,
+  )
+  const targetScrollY = Math.min(Math.max(scrollY, 0), maxScrollY)
+
+  window.scrollTo({ top: targetScrollY })
+
+  if (anchorElement && !isElementInUsableViewport(anchorElement)) {
+    anchorElement.scrollIntoView({ block: 'nearest' })
+  }
+}
+
+function isElementInUsableViewport(element: HTMLElement) {
+  const rect = element.getBoundingClientRect()
+  const bottomNavigation = document.querySelector<HTMLElement>(
+    '[data-testid="mobile-bottom-navigation"]',
+  )
+  const usableBottom = bottomNavigation
+    ? bottomNavigation.getBoundingClientRect().top
+    : window.innerHeight
+
+  return rect.top >= 0 && rect.bottom <= usableBottom - 8
+}
+
+function isNaturallyFocusable(element: HTMLElement) {
+  return (
+    element instanceof HTMLButtonElement ||
+    element instanceof HTMLAnchorElement ||
+    element instanceof HTMLInputElement ||
+    element instanceof HTMLSelectElement ||
+    element instanceof HTMLTextAreaElement
+  )
 }
 
 const clientsCompactLayoutQuery = '(max-width: 62rem)'
