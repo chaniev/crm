@@ -58,6 +58,9 @@ const coachSession = {
   },
 } as const
 
+const I_PHONE_SAFARI_USER_AGENT =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1'
+
 const administratorSession = {
   isAuthenticated: true,
   csrfToken: 'administrator-schedule-csrf',
@@ -81,6 +84,46 @@ const administratorSession = {
       canViewFinancialReports: false,
     },
     assignedGroupIds: [],
+  },
+} as const
+
+const superAdministratorSession = {
+  ...headCoachSession,
+  user: {
+    ...headCoachSession.user,
+    id: 'superadmin-schedule-id',
+    fullName: 'Суперадмин',
+    login: 'superadmin-schedule',
+    role: 'SuperAdministrator',
+    permissions: {
+      ...headCoachSession.user.permissions,
+      canManageUsers: true,
+      canViewAuditLog: true,
+      canViewFinancialReports: true,
+    },
+    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+    assignedGroupIds: ['group-ghost'],
+    branchId: null,
+  },
+} as const
+
+const coachConflictingAssignedIdsSession = {
+  ...coachSession,
+  user: {
+    ...coachSession.user,
+    id: 'coach-conflict-id',
+    fullName: 'Тренер с конфликтными правами',
+    assignedGroupIds: ['group-ghost', 'group-other'],
+  },
+}
+
+const coachZeroScopeSession = {
+  ...coachSession,
+  user: {
+    ...coachSession.user,
+    id: 'coach-zero-scope-id',
+    fullName: 'Тренер без активных групп',
+    assignedGroupIds: ['group-ghost'],
   },
 } as const
 
@@ -265,6 +308,63 @@ const scheduleGroups: GroupState[] = [
   },
 ]
 
+const coachScopeProbeGroups: GroupState[] = [
+  {
+    id: 'group-conflict-visible',
+    name: 'Согласованная группа',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Основной зал',
+    groupTypeId: groupTypes[0].id,
+    groupTypeName: groupTypes[0].name,
+    trainingStartTime: '08:15',
+    durationMinutes: 45,
+    weekdays: [1, 3],
+    isActive: true,
+    trainerIds: ['trainer-1'],
+    trainerNames: ['Ирина Тренер'],
+    clientCount: 4,
+  },
+  {
+    id: 'group-filtered-empty',
+    name: 'Группа для фильтра',
+    branchId: 'branch-2',
+    branchName: 'Север',
+    hallId: 'hall-2',
+    hallName: 'Loft',
+    groupTypeId: groupTypes[2].id,
+    groupTypeName: groupTypes[2].name,
+    trainingStartTime: '19:30',
+    durationMinutes: 70,
+    weekdays: [2, 4],
+    isActive: true,
+    trainerIds: ['trainer-3'],
+    trainerNames: ['Ольга Север'],
+    clientCount: 2,
+  },
+]
+
+const coachSingleDayResponse: GroupState[] = [
+  {
+    id: 'group-only-tuesday',
+    name: 'Вторник только',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Основной зал',
+    groupTypeId: groupTypes[0].id,
+    groupTypeName: groupTypes[0].name,
+    trainingStartTime: '17:00',
+    durationMinutes: 60,
+    weekdays: [2],
+    isActive: true,
+    trainerIds: ['trainer-1'],
+    trainerNames: ['Ирина Тренер'],
+    clientCount: 5,
+  },
+]
+
 test.describe('Расписание групповых занятий', () => {
   test('desktop shows weekly calendar grid, overlapping cards, combined filters and reset', async ({
     page,
@@ -357,7 +457,7 @@ test.describe('Расписание групповых занятий', () => {
     expect(requestStats.groupsCollectionGetCalls).toBe(0)
   })
 
-  test('coach uses /api/schedule/groups and sees read-only full schedule dataset', async ({
+  test('coach uses /api/schedule/groups and renders backend response read-only', async ({
     page,
   }) => {
     const requestStats = createRequestStats()
@@ -393,6 +493,23 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
     await expect(page.getByTestId('schedule-type-legend')).toBeVisible()
     await expect(page.getByRole('button', { name: /Редактировать группу/i })).toHaveCount(0)
+
+    expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
+    expect(requestStats.groupsCollectionGetCalls).toBe(0)
+  })
+
+  test('SuperAdministrator remains global and does not receive Coach empty copy', async ({ page }) => {
+    const requestStats = createRequestStats()
+
+    await installScheduleClock(page)
+    await mockApi(page, superAdministratorSession, scheduleGroups, requestStats)
+    await page.goto('/schedule')
+
+    await expect(page.getByTestId('schedule-screen')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-7-group-sunday')).toBeVisible()
+    await expect(page.getByTestId('schedule-type-legend')).toContainText('Интенсив')
+    await expect(page.getByText('Для вас занятий в расписании нет')).toHaveCount(0)
 
     expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
     expect(requestStats.groupsCollectionGetCalls).toBe(0)
@@ -449,6 +566,145 @@ test.describe('Расписание групповых занятий', () => {
     expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
   })
 
+  test('coach показывает только группы из API без клиентской фильтрации по assignedGroupIds', async ({ page }) => {
+    const requestStats = createRequestStats()
+
+    await installScheduleClock(page)
+    await mockApi(page, coachConflictingAssignedIdsSession, coachScopeProbeGroups, requestStats)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/schedule')
+
+    await expect(page.getByTestId('schedule-screen')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-1-group-conflict-visible')).toBeVisible()
+    await expect(page.getByText('Согласованная группа')).toBeVisible()
+    await page.getByTestId('schedule-mobile-day-tab-2').click()
+    await expect(page.getByTestId('schedule-card-2-group-filtered-empty')).toBeVisible()
+    await expect(page.getByText('Группа для фильтра')).toBeVisible()
+    await expect(page.getByTestId(`schedule-type-token-${groupTypes[0].id}`)).toContainText('2')
+    const filterLauncher = page
+      .getByTestId('schedule-filter-panel')
+      .getByRole('button', { name: 'Фильтры' })
+    await expect(filterLauncher).toBeInViewport()
+    await filterLauncher.click()
+    await page.getByRole('combobox', { name: 'Группа' }).click()
+    await expect(page.getByRole('option', { name: 'Согласованная группа' })).toBeVisible()
+    await expect(page.getByRole('option', { name: 'Группа для фильтра' })).toBeVisible()
+    await expect(page.getByRole('option', { name: 'Неизвестная группа' })).toHaveCount(0)
+
+    expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
+  })
+
+  test('coach zero-scope получает отдельное empty-состояние и оставляет кнопку обновить доступной', async ({ page }) => {
+    const requestStats = createRequestStats()
+
+    await installScheduleClock(page)
+    await mockApi(page, coachZeroScopeSession, [], requestStats)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/schedule')
+
+    await expect(page.getByTestId('schedule-screen')).toBeVisible()
+    await expect(
+      page.getByText('Для вас занятий в расписании нет'),
+    ).toBeVisible()
+    await expect(
+      page.getByText(
+        'Когда вас назначат на группу или временную замену, занятия появятся здесь.',
+      ),
+    ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Обновить' })).toHaveCount(1)
+    const refreshButton = page.getByRole('button', { name: 'Обновить' })
+    const refreshBox = await refreshButton.boundingBox()
+    expect(refreshBox).not.toBeNull()
+    expect(refreshBox!.width).toBeGreaterThanOrEqual(44)
+    expect(refreshBox!.height).toBeGreaterThanOrEqual(44)
+    await expect(page.getByRole('button', { name: 'Фильтры' })).toBeHidden()
+
+    expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
+  })
+
+  test('coach day-empty copy: без фильтра и с фильтром должны отличаться', async ({ page }) => {
+    const requestStats = createRequestStats()
+
+    await installScheduleClock(page)
+    await mockApi(page, coachSession, coachSingleDayResponse, requestStats)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/schedule')
+
+    await expect(page.getByTestId('schedule-screen')).toBeVisible()
+    const mondayTab = page.getByTestId('schedule-mobile-day-tab-1')
+    await mondayTab.click()
+    await expect(page.getByText('В этот день у вас занятий нет')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Фильтры' }).click()
+    await page.getByRole('combobox', { name: 'Группа' }).click()
+    await page.getByRole('option', { name: 'Вторник только' }).click()
+    await page.getByRole('button', { name: 'Готово' }).click()
+    await expect(
+      page.getByText('День свободен для выбранных фильтров.'),
+    ).toBeVisible()
+  })
+
+  test('на mobile стрелки в панели дней переключают выбор и возвращают фокус', async ({ page }) => {
+    const requestStats = createRequestStats()
+
+    await installScheduleClock(page)
+    await mockApi(page, coachSession, coachScopeProbeGroups, requestStats)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/schedule')
+
+    const mondayTab = page.getByTestId('schedule-mobile-day-tab-1')
+    const tuesdayTab = page.getByTestId('schedule-mobile-day-tab-2')
+    await mondayTab.click()
+    await mondayTab.focus()
+    await expect(mondayTab).toHaveAttribute('aria-selected', 'true')
+    await page.keyboard.press('ArrowRight')
+    await expect(tuesdayTab).toHaveAttribute('aria-selected', 'true')
+    await expect(tuesdayTab).toBeFocused()
+    await page.keyboard.press('ArrowLeft')
+    await expect(mondayTab).toHaveAttribute('aria-selected', 'true')
+    await expect(mondayTab).toBeFocused()
+  })
+
+  test('schedule has no unintended horizontal overflow across mobile target matrix', async ({ page }) => {
+    const requestStats = createRequestStats()
+    const targetViewports = [
+      { width: 360, height: 780 },
+      { width: 390, height: 844 },
+      { width: 420, height: 912 },
+      { width: 440, height: 956 },
+      { width: 912, height: 420 },
+      { width: 956, height: 440 },
+      { width: 768, height: 1024 },
+      { width: 1440, height: 1200 },
+    ]
+
+    await page.addInitScript((userAgent) => {
+      Object.defineProperty(window.navigator, 'userAgent', {
+        configurable: true,
+        get: () => userAgent,
+      })
+    }, I_PHONE_SAFARI_USER_AGENT)
+    await installScheduleClock(page)
+    await mockApi(page, coachConflictingAssignedIdsSession, coachScopeProbeGroups, requestStats)
+
+    for (const viewport of targetViewports) {
+      await page.setViewportSize(viewport)
+      await page.goto('/schedule')
+      await expect(page.getByTestId('schedule-screen')).toBeVisible()
+
+      const dimensions = await page.evaluate(() => ({
+        bodyScrollWidth: document.body.scrollWidth,
+        documentScrollWidth: document.documentElement.scrollWidth,
+        viewportWidth: window.innerWidth,
+      }))
+
+      expect(dimensions.documentScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+      expect(dimensions.bodyScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+    }
+
+    expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThanOrEqual(targetViewports.length)
+  })
+
   test('group form sends TASK-034 schedule fields and shows backend field errors', async ({
     page,
   }) => {
@@ -503,7 +759,13 @@ test.describe('Расписание групповых занятий', () => {
 
 async function mockApi(
   page: Page,
-  session: typeof headCoachSession | typeof coachSession | typeof administratorSession,
+  session:
+    | typeof headCoachSession
+    | typeof coachSession
+    | typeof administratorSession
+    | typeof superAdministratorSession
+    | typeof coachConflictingAssignedIdsSession
+    | typeof coachZeroScopeSession,
   groups: GroupState[],
   requestStats: RequestStats,
   override?: (context: MockApiContext) => Promise<boolean>,

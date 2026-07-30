@@ -1,3 +1,5 @@
+using GymCrm.Application.Authorization;
+using GymCrm.Domain.Users;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using GymCrm.Infrastructure.Persistence;
@@ -16,14 +18,22 @@ internal static class ScheduleEndpoints
         return endpoints;
     }
 
-    private static async Task<Results<Ok<ScheduleGroupListResponse>, ValidationProblem>> ListGroupsAsync(
+    private static async Task<Results<Ok<ScheduleGroupListResponse>, ValidationProblem, UnauthorizedHttpResult>> ListGroupsAsync(
         int? page,
         int? pageSize,
         int? skip,
         int? take,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
+        IEffectiveGroupAssignmentService effectiveGroupAssignmentService,
         CancellationToken cancellationToken)
     {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
         var errors = GroupRequestValidator.ValidatePaging(page, pageSize, skip, take);
         if (errors.Count > 0)
         {
@@ -32,6 +42,13 @@ internal static class ScheduleEndpoints
 
         var paging = GroupRequestValidator.ResolvePaging(page, pageSize, skip, take);
         var query = TrainingGroupListQuery.CreateBaseQuery(dbContext);
+        if (currentUser.Role == UserRole.Coach)
+        {
+            var effectiveGroupIds = await effectiveGroupAssignmentService
+                .ListEffectiveAssignedGroupIdsAsync(currentUser.Id, cancellationToken);
+            query = TrainingGroupListQuery.ApplyGroupIdScope(query, effectiveGroupIds);
+        }
+
         var totalCount = await query.CountAsync(cancellationToken);
         var groups = await TrainingGroupListQuery.LoadPageAsync(query, paging, cancellationToken);
 

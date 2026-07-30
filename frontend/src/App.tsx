@@ -1438,6 +1438,7 @@ function RouteViewport({
       <GroupScheduleScreen
         canManageGroups={user.permissions.canManageGroups}
         onEditGroup={onEditGroup}
+        viewerRole={user.role}
       />
     )
   }

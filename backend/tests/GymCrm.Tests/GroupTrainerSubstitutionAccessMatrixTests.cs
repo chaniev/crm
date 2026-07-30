@@ -56,6 +56,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         Assert.NotNull(substituteSession.User);
         Assert.Equal(shouldHaveMainGroupAccess, substituteSession.User.AssignedGroupIds.Contains(seeded.MainGroupId.ToString()));
         Assert.Contains(seeded.PermanentGroupId.ToString(), substituteSession.User.AssignedGroupIds);
+        Assert.DoesNotContain(seeded.UnrelatedGroupId.ToString(), substituteSession.User.AssignedGroupIds);
 
         using var permanentAccessResponse = await PostWithoutBodyAsync(substituteClient, $"/access/attendance/{seeded.PermanentGroupId}", substituteSession.CsrfToken);
         Assert.Equal(HttpStatusCode.OK, permanentAccessResponse.StatusCode);
@@ -76,6 +77,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         var attendanceGroups = GetArrayPayload(attendanceGroupsPayload, "data", "items", "groups").EnumerateArray().ToArray();
         var attendanceGroupIds = attendanceGroups.Select(group => GetGuidFromProperty(group, "id")).ToArray();
         Assert.Contains(seeded.PermanentGroupId, attendanceGroupIds);
+        Assert.DoesNotContain(seeded.UnrelatedGroupId, attendanceGroupIds);
         if (shouldHaveMainGroupAccess)
         {
             Assert.Contains(seeded.MainGroupId, attendanceGroupIds);
@@ -183,6 +185,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         var botGroups = GetArrayPayload(botAttendanceGroupsPayload).EnumerateArray().ToArray();
         var botGroupIds = botGroups.Select(group => GetGuidFromProperty(group, "id")).ToArray();
         Assert.Contains(seeded.PermanentGroupId, botGroupIds);
+        Assert.DoesNotContain(seeded.UnrelatedGroupId, botGroupIds);
         if (shouldHaveMainGroupAccess)
         {
             Assert.Contains(seeded.MainGroupId, botGroupIds);
@@ -251,14 +254,22 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         Assert.Equal(HttpStatusCode.OK, scheduleResponse.StatusCode);
         var schedulePayload = await ReadJsonElementAsync(scheduleResponse);
         var scheduleItems = GetArrayPayload(schedulePayload, "items");
-        Assert.Equal(2, schedulePayload.GetProperty("totalCount").GetInt32());
-        Assert.Equal(2, scheduleItems.GetArrayLength());
         var scheduleGroupIds = scheduleItems
             .EnumerateArray()
             .Select(item => GetGuidFromProperty(item, "id"))
             .ToHashSet();
-        Assert.Contains(seeded.MainGroupId, scheduleGroupIds);
+        Assert.Equal(shouldHaveMainGroupAccess ? 2 : 1, schedulePayload.GetProperty("totalCount").GetInt32());
+        Assert.Equal(shouldHaveMainGroupAccess ? 2 : 1, scheduleItems.GetArrayLength());
         Assert.Contains(seeded.PermanentGroupId, scheduleGroupIds);
+        Assert.DoesNotContain(seeded.UnrelatedGroupId, scheduleGroupIds);
+        if (shouldHaveMainGroupAccess)
+        {
+            Assert.Contains(seeded.MainGroupId, scheduleGroupIds);
+        }
+        else
+        {
+            Assert.DoesNotContain(seeded.MainGroupId, scheduleGroupIds);
+        }
     }
 
     [Fact]
@@ -361,6 +372,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         var groupTypeId = Guid.NewGuid();
         var mainGroupId = Guid.NewGuid();
         var permanentGroupId = Guid.NewGuid();
+        var unrelatedGroupId = Guid.NewGuid();
 
         var headCoachId = Guid.NewGuid();
         var substituteCoachId = Guid.NewGuid();
@@ -457,7 +469,22 @@ public class GroupTrainerSubstitutionAccessMatrixTests
             UpdatedAt = now
         };
 
-        dbContext.TrainingGroups.AddRange(mainGroup, permanentGroup);
+        var unrelatedGroup = new TrainingGroup
+        {
+            Id = unrelatedGroupId,
+            BranchId = branchId,
+            HallId = hallSecondaryId,
+            GroupTypeId = groupTypeId,
+            Name = "Matrix Unrelated Group",
+            TrainingStartTime = new TimeOnly(12, 0),
+            DurationMinutes = 60,
+            Weekdays = [5],
+            IsActive = true,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        dbContext.TrainingGroups.AddRange(mainGroup, permanentGroup, unrelatedGroup);
 
         dbContext.GroupTrainers.AddRange(
             new GroupTrainer { GroupId = mainGroupId, TrainerId = headCoachId },
@@ -524,6 +551,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         return new SeededAccessMatrixData(
             mainGroupId,
             permanentGroupId,
+            unrelatedGroupId,
             headCoachId,
             substituteCoachId,
             mainClientId,
@@ -939,6 +967,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
     private sealed record SeededAccessMatrixData(
         Guid MainGroupId,
         Guid PermanentGroupId,
+        Guid UnrelatedGroupId,
         Guid HeadCoachId,
         Guid SubstituteCoachId,
         Guid MainClientId,
