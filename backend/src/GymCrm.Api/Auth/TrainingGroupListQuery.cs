@@ -19,6 +19,19 @@ internal static class TrainingGroupListQuery
         return query;
     }
 
+    public static IQueryable<TrainingGroup> ApplyGroupIdScope(
+        IQueryable<TrainingGroup> query,
+        IReadOnlyCollection<Guid> groupIds)
+    {
+        if (groupIds.Count == 0)
+        {
+            return query.Where(_ => false);
+        }
+
+        var scopedGroupIds = groupIds.ToHashSet();
+        return query.Where(group => scopedGroupIds.Contains(group.Id));
+    }
+
     public static Task<List<TrainingGroup>> LoadPageAsync(
         IQueryable<TrainingGroup> query,
         GroupPaging paging,

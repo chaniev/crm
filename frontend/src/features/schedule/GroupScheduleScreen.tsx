@@ -30,6 +30,7 @@ import {
 import {
   getScheduleGroups,
   type TrainingGroupListItem,
+  type UserRole,
 } from '../../lib/api'
 import {
   EMPTY_SCHEDULE_FILTERS,
@@ -45,6 +46,7 @@ import {
   getScheduleEntryGridMetrics,
   getScheduleTypeKey,
   getScheduleTypePalette,
+  hasActiveScheduleFilters,
   type ScheduleCalendarDay,
   type ScheduleCalendarEntry,
   type ScheduleFilterOptions,
@@ -87,11 +89,10 @@ const WEEKDAY_INDEX_BY_NUMBER: Record<WeekdayNumber, number> = {
 type GroupScheduleScreenProps = {
   canManageGroups: boolean
   onEditGroup: (groupId: string) => void
+  viewerRole: UserRole
 }
 
 export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
-  void props
-
   const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -180,6 +181,8 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
     () => buildScheduleTypeLegend(visibleEntries),
     [visibleEntries],
   )
+  const hasActiveFilters = hasActiveScheduleFilters(filters)
+  const isCoachViewer = props.viewerRole === 'Coach'
   useEffect(() => {
     setFilters((currentFilters) => {
       const nextFilters = {
@@ -197,6 +200,8 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
 
   const isInitialLoading = loading && groups.length === 0
   const hasStaleSchedule = groups.length > 0
+  const isCoachZeroScopeEmpty =
+    isCoachViewer && !isInitialLoading && !error && groups.length === 0
   const requestReload = () => {
     setNow(new Date())
     setReloadKey((currentKey) => currentKey + 1)
@@ -209,13 +214,20 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
       className="schedule-screen"
       data-testid="schedule-screen"
     >
-      <ScheduleFiltersToolbar
-        filterOptions={filterOptions}
-        filters={filters}
-        onRefresh={requestReload}
-        refreshDisabled={loading || refreshing}
-        setFilters={setFilters}
-      />
+      {isCoachZeroScopeEmpty ? (
+        <ScheduleRefreshToolbar
+          onRefresh={requestReload}
+          refreshDisabled={loading || refreshing}
+        />
+      ) : (
+        <ScheduleFiltersToolbar
+          filterOptions={filterOptions}
+          filters={filters}
+          onRefresh={requestReload}
+          refreshDisabled={loading || refreshing}
+          setFilters={setFilters}
+        />
+      )}
 
       {isInitialLoading ? (
         <PageSection>
@@ -251,11 +263,19 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
           density="compact"
         >
           {groups.length === 0 ? (
-            <EmptyState
-              description="Группы появятся здесь после создания расписания."
-              icon={<IconCalendarWeek size={24} />}
-              title="Расписание пока пустое"
-            />
+            isCoachViewer ? (
+              <EmptyState
+                description="Когда вас назначат на группу или временную замену, занятия появятся здесь."
+                icon={<IconCalendarWeek size={24} />}
+                title="Для вас занятий в расписании нет"
+              />
+            ) : (
+              <EmptyState
+                description="Группы появятся здесь после создания расписания."
+                icon={<IconCalendarWeek size={24} />}
+                title="Расписание пока пустое"
+              />
+            )
           ) : filteredGroups.length === 0 ? (
             <EmptyState
               description="Сбросьте часть фильтров, чтобы снова увидеть занятия в календаре."
@@ -270,6 +290,8 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
                 dayLabels={dayLabels}
                 days={calendarWeek.days}
                 selectedWeekday={selectedWeekday}
+                viewerRole={props.viewerRole}
+                hasActiveFilters={hasActiveFilters}
                 setSelectedWeekday={setSelectedWeekday}
                 visibleHourRange={calendarWeek.visibleHourRange}
               />
@@ -386,6 +408,32 @@ function ScheduleFiltersToolbar({
   )
 }
 
+type ScheduleRefreshToolbarProps = {
+  onRefresh: () => void
+  refreshDisabled: boolean
+}
+
+function ScheduleRefreshToolbar({
+  onRefresh,
+  refreshDisabled,
+}: ScheduleRefreshToolbarProps) {
+  return (
+    <div
+      className="schedule-filter-toolbar schedule-refresh-toolbar"
+      data-testid="schedule-filter-panel"
+    >
+      <IconButton
+        className="schedule-refresh-button"
+        disabled={refreshDisabled}
+        icon={<IconRefresh size={18} />}
+        label="Обновить"
+        onClick={onRefresh}
+        size={44}
+      />
+    </div>
+  )
+}
+
 type ResponsiveScheduleContentProps = {
   currentWeekday: WeekdayNumber
   dayCounts: Record<WeekdayNumber, number>
@@ -393,7 +441,9 @@ type ResponsiveScheduleContentProps = {
   days: ScheduleCalendarDay<TrainingGroupListItem>[]
   selectedWeekday: WeekdayNumber
   setSelectedWeekday: (weekday: WeekdayNumber) => void
+  hasActiveFilters: boolean
   visibleHourRange: ScheduleVisibleHourRange
+  viewerRole: UserRole
 }
 
 function ResponsiveScheduleContent({
@@ -403,6 +453,8 @@ function ResponsiveScheduleContent({
   days,
   selectedWeekday,
   setSelectedWeekday,
+  viewerRole,
+  hasActiveFilters,
   visibleHourRange,
 }: ResponsiveScheduleContentProps) {
   const isMobile = useScheduleMobileViewport()
@@ -415,6 +467,8 @@ function ResponsiveScheduleContent({
         dayLabels={dayLabels}
         days={days}
         selectedWeekday={selectedWeekday}
+        viewerRole={viewerRole}
+        hasActiveFilters={hasActiveFilters}
         setSelectedWeekday={setSelectedWeekday}
         visibleHourRange={visibleHourRange}
       />
@@ -428,7 +482,9 @@ function ResponsiveScheduleContent({
         dayCounts={dayCounts}
         dayLabels={dayLabels}
         days={days}
+        hasActiveFilters={hasActiveFilters}
         visibleHourRange={visibleHourRange}
+        viewerRole={viewerRole}
       />
     </div>
   )
@@ -495,7 +551,9 @@ type ScheduleDesktopGridProps = {
   dayCounts: Record<WeekdayNumber, number>
   dayLabels: ScheduleWeekdayLabel[]
   days: ScheduleCalendarDay<TrainingGroupListItem>[]
+  hasActiveFilters: boolean
   visibleHourRange: ScheduleVisibleHourRange
+  viewerRole: UserRole
 }
 
 function ScheduleDesktopGrid({
@@ -503,7 +561,9 @@ function ScheduleDesktopGrid({
   dayCounts,
   dayLabels,
   days,
+  hasActiveFilters,
   visibleHourRange,
+  viewerRole,
 }: ScheduleDesktopGridProps) {
   const hourMarks = buildScheduleHourMarks(visibleHourRange)
   const gridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
@@ -562,7 +622,7 @@ function ScheduleDesktopGrid({
 
             {day.entries.length === 0 ? (
               <Text c="dimmed" className="schedule-weekly-grid__empty-day" size="sm">
-                Занятий нет
+                {getScheduleDayEmptyCopy(viewerRole, hasActiveFilters).title}
               </Text>
             ) : null}
 
@@ -587,9 +647,11 @@ type ScheduleMobileListProps = {
   dayCounts: Record<WeekdayNumber, number>
   dayLabels: ScheduleWeekdayLabel[]
   days: ScheduleCalendarDay<TrainingGroupListItem>[]
+  hasActiveFilters: boolean
   selectedWeekday: WeekdayNumber
   setSelectedWeekday: (weekday: WeekdayNumber) => void
   visibleHourRange: ScheduleVisibleHourRange
+  viewerRole: UserRole
 }
 
 function ScheduleMobileList({
@@ -597,15 +659,29 @@ function ScheduleMobileList({
   dayCounts,
   dayLabels,
   days,
+  hasActiveFilters,
   selectedWeekday,
   setSelectedWeekday,
   visibleHourRange,
+  viewerRole,
 }: ScheduleMobileListProps) {
   const selectedDay = days.find((day) => day.weekday === selectedWeekday) ?? days[0]
   const hourMarks = buildScheduleHourMarks(visibleHourRange)
   const gridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
     SCHEDULE_MOBILE_HOUR_HEIGHT_PX
-  const selectWeekday = (weekday: WeekdayNumber) => setSelectedWeekday(weekday)
+  const tabRefs = useRef(new Map<WeekdayNumber, HTMLButtonElement>())
+  const selectWeekday = (
+    weekday: WeekdayNumber,
+    options: { focus?: boolean } = {},
+  ) => {
+    setSelectedWeekday(weekday)
+
+    if (options.focus) {
+      window.requestAnimationFrame(() => {
+        tabRefs.current.get(weekday)?.focus()
+      })
+    }
+  }
 
   return (
     <Stack className="schedule-mobile-list" data-testid="schedule-mobile-day-list" gap="md">
@@ -628,6 +704,13 @@ function ScheduleMobileList({
               day.weekday,
               selectWeekday,
             )}
+            ref={(node) => {
+              if (node) {
+                tabRefs.current.set(day.weekday, node)
+              } else {
+                tabRefs.current.delete(day.weekday)
+              }
+            }}
             role="tab"
             type="button"
           >
@@ -671,7 +754,10 @@ function ScheduleMobileList({
             ))}
 
             {selectedDay.entries.length === 0 ? (
-              <ScheduleDayEmpty />
+              <ScheduleDayEmpty
+                hasActiveFilters={hasActiveFilters}
+                viewerRole={viewerRole}
+              />
             ) : null}
 
             {selectedDay.entries.map((entry) => (
@@ -812,7 +898,15 @@ function ScheduleCalendarCard({
   )
 }
 
-function ScheduleDayEmpty() {
+function ScheduleDayEmpty({
+  hasActiveFilters,
+  viewerRole,
+}: {
+  hasActiveFilters: boolean
+  viewerRole: UserRole
+}) {
+  const copy = getScheduleDayEmptyCopy(viewerRole, hasActiveFilters)
+
   return (
     <div className="schedule-day-empty">
       <Group gap="sm" wrap="nowrap">
@@ -821,15 +915,39 @@ function ScheduleDayEmpty() {
         </ThemeIcon>
         <Stack gap={2}>
           <Text fw={700} size="sm">
-            Занятий нет
+            {copy.title}
           </Text>
           <Text c="dimmed" size="xs">
-            День свободен для выбранных фильтров.
+            {copy.description}
           </Text>
         </Stack>
       </Group>
     </div>
   )
+}
+
+function getScheduleDayEmptyCopy(
+  viewerRole: UserRole,
+  hasActiveFilters: boolean,
+) {
+  if (hasActiveFilters) {
+    return {
+      title: 'Занятий нет',
+      description: 'День свободен для выбранных фильтров.',
+    }
+  }
+
+  if (viewerRole === 'Coach') {
+    return {
+      title: 'В этот день у вас занятий нет',
+      description: 'На выбранный день в вашем расписании нет занятий.',
+    }
+  }
+
+  return {
+    title: 'Занятий нет',
+    description: 'В этот день в расписании нет занятий.',
+  }
 }
 
 async function getAllScheduleGroups(signal: AbortSignal) {
@@ -948,7 +1066,10 @@ function buildDayLabelMap(dayLabels: ScheduleWeekdayLabel[]) {
 function handleScheduleDayStripKeyDown(
   event: KeyboardEvent<HTMLButtonElement>,
   weekday: WeekdayNumber,
-  selectWeekday: (weekday: WeekdayNumber) => void,
+  selectWeekday: (
+    weekday: WeekdayNumber,
+    options?: { focus?: boolean },
+  ) => void,
 ) {
   if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
     return
@@ -960,7 +1081,7 @@ function handleScheduleDayStripKeyDown(
   const nextIndex = (WEEKDAY_INDEX_BY_NUMBER[weekday] + direction + 7) % 7
   const nextWeekday = WEEKDAY_BY_INDEX[nextIndex] ?? weekday
 
-  selectWeekday(nextWeekday)
+  selectWeekday(nextWeekday, { focus: true })
 }
 
 function formatEntryCount(count: number) {

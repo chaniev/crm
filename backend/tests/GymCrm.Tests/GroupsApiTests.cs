@@ -1,15 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using GymCrm.Application.Attendance;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
+using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -1056,7 +1059,7 @@ public class GroupsApiTests
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]
     [InlineData("Coach")]
-    public async Task Authenticated_crm_user_can_access_schedule_groups(string actorRole)
+    public async Task Authenticated_crm_user_can_access_schedule_groups_with_role_specific_scope(string actorRole)
     {
         await using var factory = new GroupsAppFactory();
         var seeded = await SeedGroupsDataAsync(factory);
@@ -1082,10 +1085,11 @@ public class GroupsApiTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var payload = await ReadJsonElementAsync(response);
-        Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
+        var expectedCount = actorRole == "Coach" ? 0 : 2;
+        Assert.Equal(expectedCount, payload.GetProperty("totalCount").GetInt32());
         Assert.Equal(0, payload.GetProperty("skip").GetInt32());
         Assert.Equal(20, payload.GetProperty("take").GetInt32());
-        Assert.Equal(2, GetArrayPayload(payload, "items").GetArrayLength());
+        Assert.Equal(expectedCount, GetArrayPayload(payload, "items").GetArrayLength());
     }
 
     [Fact]
@@ -1105,9 +1109,9 @@ public class GroupsApiTests
     }
 
     [Fact]
-    public async Task Coach_can_view_all_seeded_schedule_groups_without_group_management_access()
+    public async Task Coach_without_effective_groups_gets_empty_schedule_without_group_management_access()
     {
-        await using var factory = new GroupsAppFactory();
+        await using var factory = new GroupsAppFactory(businessDate: new DateOnly(2026, 7, 25));
         var seeded = await SeedGroupsDataAsync(factory);
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -1125,42 +1129,129 @@ public class GroupsApiTests
             var payload = await ReadJsonElementAsync(response);
             var items = GetArrayPayload(payload, "items");
 
-            Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
+            Assert.Equal(0, payload.GetProperty("totalCount").GetInt32());
             Assert.Equal(0, payload.GetProperty("skip").GetInt32());
             Assert.Equal(10, payload.GetProperty("take").GetInt32());
-            Assert.Equal(2, items.GetArrayLength());
-            Assert.Equal(
-                new[] { seeded.GroupOneId, seeded.GroupTwoId },
-                items.EnumerateArray().Select(item => GetGuidFromProperty(item, "id")).ToArray());
-
-            var firstItem = items[0];
-            Assert.Equal(seeded.GroupOneId, GetGuidFromProperty(firstItem, "id"));
-            Assert.Equal("Groups Branch", GetStringFromProperty(firstItem, "branchName"));
-            Assert.Equal(seeded.BranchId, GetGuidFromProperty(firstItem, "branchId"));
-            Assert.Equal("Groups Hall One", GetStringFromProperty(firstItem, "hallName"));
-            Assert.Equal(seeded.HallOneId, GetGuidFromProperty(firstItem, "hallId"));
-            Assert.Equal("Groups Default Type", GetStringFromProperty(firstItem, "groupTypeName"));
-            Assert.Equal(seeded.GroupTypeId, GetGuidFromProperty(firstItem, "groupTypeId"));
-            Assert.False(firstItem.TryGetProperty("groupType" + "System" + "Identifier", out _));
-            Assert.Equal("09:00", GetStringFromProperty(firstItem, "trainingStartTime"));
-            Assert.Equal(60, GetIntFromProperty(firstItem, "durationMinutes"));
-            Assert.Equal([1, 3], GetIntArrayFromProperty(firstItem, "weekdays"));
-            Assert.True(firstItem.GetProperty("isActive").GetBoolean());
-            Assert.Equal(1, GetIntFromProperty(firstItem, "trainerCount"));
-            Assert.Equal([seeded.CoachTwoId], GetGuidArrayFromProperty(firstItem, "trainerIds"));
-            Assert.Equal(["Тренер 2 Stage 5"], GetStringArrayFromProperty(firstItem, "trainerNames"));
-            Assert.Equal(1, GetIntFromProperty(firstItem, "clientCount"));
-
-            var trainers = GetArrayPayload(firstItem, "trainers");
-            Assert.Single(trainers.EnumerateArray());
-            var trainer = trainers[0];
-            Assert.Equal(seeded.CoachTwoId, GetGuidFromProperty(trainer, "id"));
-            Assert.Equal("Тренер 2 Stage 5", GetStringFromProperty(trainer, "fullName"));
-            Assert.Equal("coach-two-stage5", GetStringFromProperty(trainer, "login"));
+            Assert.Empty(items.EnumerateArray());
         }
 
         using var managementResponse = await client.GetAsync("/groups");
         Assert.Equal(HttpStatusCode.Forbidden, managementResponse.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Coach_schedule_groups_are_limited_to_effective_assignments_before_count_and_paging(bool useSqlite)
+    {
+        var businessDate = new DateOnly(2026, 7, 25);
+        await using var factory = new GroupsAppFactory(useSqlite: useSqlite, businessDate: businessDate);
+        var seeded = await SeedGroupsDataAsync(factory);
+        var unrelated = await CreateForeignGroupAsync(factory, seeded);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            dbContext.GroupTrainers.Add(new GroupTrainer
+            {
+                GroupId = seeded.GroupTwoId,
+                TrainerId = seeded.CoachOneId
+            });
+            dbContext.GroupTrainerAssignments.Add(new GroupTrainerAssignment
+            {
+                Id = Guid.NewGuid(),
+                GroupId = seeded.GroupTwoId,
+                TrainerId = seeded.CoachOneId,
+                ValidFrom = businessDate,
+                CreatedByUserId = seeded.HeadCoachId,
+                CreatedAt = seeded.Now
+            });
+            dbContext.GroupTrainerSubstitutions.AddRange(
+                new GroupTrainerSubstitution
+                {
+                    Id = Guid.NewGuid(),
+                    GroupId = seeded.GroupOneId,
+                    SubstituteTrainerId = seeded.CoachOneId,
+                    StartsOn = businessDate,
+                    EndsOn = businessDate,
+                    CreatedByUserId = seeded.HeadCoachId,
+                    CreatedAt = seeded.Now,
+                    UpdatedAt = seeded.Now
+                },
+                new GroupTrainerSubstitution
+                {
+                    Id = Guid.NewGuid(),
+                    GroupId = unrelated.GroupId,
+                    SubstituteTrainerId = seeded.CoachOneId,
+                    StartsOn = businessDate.AddDays(1),
+                    EndsOn = businessDate.AddDays(2),
+                    CreatedByUserId = seeded.HeadCoachId,
+                    CreatedAt = seeded.Now,
+                    UpdatedAt = seeded.Now
+                });
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
+        Assert.Equal("Coach", session.User?.Role);
+
+        using var response = await client.GetAsync("/schedule/groups?page=2&pageSize=1");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        var items = GetArrayPayload(payload, "items");
+
+        Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
+        Assert.Equal(1, payload.GetProperty("skip").GetInt32());
+        Assert.Equal(1, payload.GetProperty("take").GetInt32());
+        var item = Assert.Single(items.EnumerateArray());
+        Assert.Equal(seeded.GroupTwoId, GetGuidFromProperty(item, "id"));
+        Assert.DoesNotContain(
+            items.EnumerateArray(),
+            candidate => GetGuidFromProperty(candidate, "id") == unrelated.GroupId);
+    }
+
+    [Theory]
+    [InlineData("HeadCoach")]
+    [InlineData("Administrator")]
+    [InlineData("SuperAdministrator")]
+    public async Task Non_coach_schedule_group_sets_remain_global_and_exact(string actorRole)
+    {
+        await using var factory = new GroupsAppFactory(businessDate: new DateOnly(2026, 7, 25));
+        var seeded = await SeedGroupsDataAsync(factory);
+        var foreign = await CreateForeignGroupAsync(factory, seeded);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var actorLogin = actorRole switch
+        {
+            "HeadCoach" => seeded.HeadCoachLogin,
+            "Administrator" => seeded.AdministratorLogin,
+            "SuperAdministrator" => seeded.SuperAdministratorLogin,
+            _ => throw new InvalidOperationException($"Unsupported actor role '{actorRole}'.")
+        };
+        var session = await LoginAsync(client, actorLogin, seeded.SharedPassword);
+        Assert.Equal(actorRole, session.User?.Role);
+
+        using var response = await client.GetAsync("/schedule/groups?skip=0&take=10");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.Equal(3, payload.GetProperty("totalCount").GetInt32());
+        Assert.Equal(
+            new[] { seeded.GroupOneId, foreign.GroupId, seeded.GroupTwoId },
+            GetArrayPayload(payload, "items")
+                .EnumerateArray()
+                .Select(item => GetGuidFromProperty(item, "id"))
+                .ToArray());
     }
 
     [Fact]
@@ -2629,7 +2720,7 @@ public class GroupsApiTests
 
     private sealed record LoginRequest(string Login, string Password);
 
-    private sealed class GroupsAppFactory : WebApplicationFactory<Program>
+    private sealed class GroupsAppFactory(bool useSqlite = false, DateOnly? businessDate = null) : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -2650,17 +2741,61 @@ public class GroupsApiTests
             {
                 services.RemoveAll<DbContextOptions<GymCrmDbContext>>();
                 services.RemoveAll<GymCrmDbContext>();
+                services.RemoveAll<IDbContextOptionsConfiguration<GymCrmDbContext>>();
 
-                var databaseName = $"gym-crm-groups-tests-{Guid.NewGuid():N}";
-                var entityFrameworkProvider = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .BuildServiceProvider();
+                if (useSqlite)
+                {
+                    var sqliteProvider = new ServiceCollection()
+                        .AddEntityFrameworkSqlite()
+                        .BuildServiceProvider();
+                    var connection = new SqliteConnection("Data Source=:memory:");
+                    connection.Open();
+                    connection.CreateFunction<string?, string?>("btrim", value => value?.Trim(), isDeterministic: true);
+                    connection.CreateFunction<string?, int>("cardinality", value =>
+                        string.IsNullOrWhiteSpace(value)
+                            ? 0
+                            : JsonDocument.Parse(value).RootElement.GetArrayLength(),
+                        isDeterministic: true);
 
-                services.AddDbContext<GymCrmDbContext>(options =>
-                    options
-                        .UseInMemoryDatabase(databaseName)
-                        .UseInternalServiceProvider(entityFrameworkProvider));
+                    var bootstrapOptions = new DbContextOptionsBuilder<GymCrmDbContext>()
+                        .UseSqlite(connection)
+                        .UseInternalServiceProvider(sqliteProvider)
+                        .Options;
+                    using (var bootstrapContext = new GymCrmDbContext(bootstrapOptions))
+                    {
+                        bootstrapContext.Database.EnsureCreated();
+                    }
+
+                    services.AddSingleton(connection);
+                    services.AddDbContext<GymCrmDbContext>((serviceProvider, options) =>
+                        options
+                            .UseSqlite(serviceProvider.GetRequiredService<SqliteConnection>())
+                            .UseInternalServiceProvider(sqliteProvider));
+                }
+                else
+                {
+                    var databaseName = $"gym-crm-groups-tests-{Guid.NewGuid():N}";
+                    var entityFrameworkProvider = new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .BuildServiceProvider();
+
+                    services.AddDbContext<GymCrmDbContext>(options =>
+                        options
+                            .UseInMemoryDatabase(databaseName)
+                            .UseInternalServiceProvider(entityFrameworkProvider));
+                }
+
+                if (businessDate.HasValue)
+                {
+                    services.RemoveAll<IBusinessDateProvider>();
+                    services.AddSingleton<IBusinessDateProvider>(new FixedBusinessDateProvider(businessDate.Value));
+                }
             });
         }
+    }
+
+    private sealed class FixedBusinessDateProvider(DateOnly today) : IBusinessDateProvider
+    {
+        public DateOnly Today { get; } = today;
     }
 }
