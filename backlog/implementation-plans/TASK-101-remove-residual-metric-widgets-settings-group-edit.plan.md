@@ -17,8 +17,9 @@ Branch rules:
 
 ## Goal
 На `Филиалы и залы` первым рабочим content становится список/state, а на edit
-группы — форма; шесть aggregate metric cards, их dead calculations и empty
-wrappers исчезают на всех ширинах.
+группы — форма; шесть aggregate `MetricCard`, три дублирующих detail
+`BranchStat`, их dead calculations/components и empty wrappers исчезают на всех
+ширинах.
 
 ## Current understanding
 - `BranchSettingsScreen` всегда рендерит top `SimpleGrid` с `Филиалы`,
@@ -34,8 +35,11 @@ wrappers исчезают на всех ширинах.
   `GroupsSummaryBar`. После их merge TASK-101 должна повторить consumer search:
   если BranchSettings/GroupEdit были последними, shared `MetricCard` можно
   удалить как dead code; иначе он сохраняется.
-- Branch row/details counts (`Залов`, `Групп`, `Клиентов`) и group-client
-  section `Всего` относятся к выбранной сущности и остаются.
+- Branch row уже показывает `Залов`, `Групп`, `Клиентов`. Detail
+  `BranchStat` повторяет те же значения отдельной сеткой, не поддерживает
+  дополнительное решение и удаляется вместе с local props/component.
+- Branch row counts и group-client section `Всего` остаются как локальные
+  данные соответствующей строки/секции.
 
 ## UX/UI contract
 - Embedded Branch Settings: section header/actions → operational state/list;
@@ -46,8 +50,12 @@ wrappers исчезают на всех ширинах.
 - Loading, error/retry, empty/create, branch selection/details, modals and
   permission-restricted Settings tabs сохраняются.
 - Group form, save, validation, substitutions и client list сохраняются.
-- Decision-changing counts в конкретной branch row/details/group-clients
-  section остаются; replacement summary widgets не создаются.
+- Group load-error не получает новый retry control: доступным recovery остаётся
+  `К списку групп`. Проверяемый save recovery: первый submit получает server
+  error, введённые значения остаются в form, повторный submit успешен.
+- Branch row counts и group-client section `Всего` остаются; дублирующая
+  `BranchStat` grid в details удаляется, replacement summary widgets не
+  создаются.
 - После удаления нет empty grid, top spacer, horizontal scroll или
   недостижимого primary action.
 
@@ -65,33 +73,43 @@ wrappers исчезают на всех ширинах.
 1. Создать isolated worktree, подтвердить merged TASK-086/TASK-092 и выполнить
    `rg` inventory всех `MetricCard`/`GroupsSummaryBar` consumers.
 2. До production-кода добавить targeted `BranchSettingsScreen` component tests:
-   - три metric labels/values отсутствуют как top metrics;
+   - три `MetricCard` labels/values отсутствуют как top metrics;
+   - три detail `BranchStat` отсутствуют, а те же branch-specific counts
+     сохраняются в branch row;
    - header, add/refresh, loading, error/retry, empty/create and populated
      branch/hall operations сохраняются;
-   - branch-specific counts в row/details не удалены.
+   - embedded variant получает основное coverage; standalone variant сохраняет
+     PageLayout header/actions и проверяется отдельным component case без
+     искусственного production route.
 3. До production-кода расширить `GroupManagement` edit tests:
    - `Клиенты`, `Тренеры`, `Назначено` отсутствуют как top metric cards;
    - form fields, save, validation, substitutions and group-client state
      сохраняются;
-   - loading/error state не получает fake zero metrics.
+   - loading/error state не получает fake zero metrics, а load-error сохраняет
+     рабочую кнопку `К списку групп`;
+   - failed save сохраняет введённые values/error feedback и допускает
+     успешный повторный submit.
 4. До production-кода добавить Playwright primary paths:
    - Settings → `Филиалы и залы`: first operational viewport starts at
-     actions/state/list, create/edit modal remains usable;
-   - group edit: form begins immediately after state resolution, save and one
-     recovery path work;
-   - no metric grid/empty spacer at required portrait/landscape/tablet/desktop.
+     actions/state/list, detail `BranchStat` отсутствует, create/edit modal
+     remains usable;
+   - group edit: form begins immediately after state resolution; first save
+     fails without clearing form values, second save succeeds;
+   - no metric/stat grid or empty spacer at required
+     portrait/landscape/tablet/desktop.
 5. Запустить new tests и подтвердить expected failures на шести current
-   `MetricCard` и их top geometry.
+   `MetricCard`, трёх current detail `BranchStat` и top geometry.
 6. Удалить BranchSettings top `SimpleGrid`, `activeBranchCount`,
-   `activeHallCount` и только ставшие неиспользуемыми imports.
+   `activeHallCount`, detail `BranchStat` grid, local `BranchStatProps`/
+   `BranchStat` и только ставшие неиспользуемыми imports.
 7. Удалить GroupEdit top `SimpleGrid`, `clientCount` state/setter и
    `MetricCard` import; сохранить `GROUPS_GRID_COLUMNS`, если merged form hint
    продолжает его использовать.
 8. Повторить repository-wide `MetricCard` search:
    - при наличии consumers сохранить shared component/export/styles;
    - при zero consumers удалить `MetricCardProps`, component/export и его
-     dedicated tests/styles, не затрагивая `BranchStat`, `HintStat` и другие
-     operational surfaces.
+     dedicated tests/styles, не затрагивая `HintStat` и другие operational
+     surfaces.
 9. Удалить только пустые layout wrappers/rules, доказанно принадлежавшие
    removed metrics.
 10. Обновить old positive assertions/fixtures на absence + preserved
@@ -117,12 +135,15 @@ wrappers исчезают на всех ширинах.
 - `frontend/src/features/shared/ux.test.tsx` only for matching dead shared tests
 - `frontend/src/App.css` only for proven metric-specific empty rules
 - `frontend/e2e/stage12.spec.ts`
-- affected group/settings responsive Playwright specs
+- `frontend/e2e/groups-registry.spec.ts`
+- `frontend/e2e/responsive-main-screens.spec.ts`
 - `frontend/e2e/iphone-target-devices.spec.ts`, if it owns final target-device
   coverage
 
 ## Constraints
 - Удаляются только aggregate metric widgets и их dead code.
+- Удаляется дублирующая detail `BranchStat` grid; branch row counts и
+  group-client `Всего` остаются.
 - Branch/group CRUD, assignments, substitutions, permissions and API contracts
   stay unchanged.
 - Operational/recovery/form/validation surfaces remain.
@@ -140,31 +161,77 @@ wrappers исчезают на всех ширинах.
 ## Required test coverage
 
 ### Unit/component tests
-- BranchSettings metrics absent while actions/list/loading/error/empty/populated
-  states remain.
+- BranchSettings top metrics и detail `BranchStat` absent while branch row
+  counts, actions/list/loading/error/empty/populated states remain.
 - GroupEdit metrics absent while form/save/validation/substitutions/clients
   remain.
-- Entity-local branch/group counts preserved where explicitly retained.
+- Group load-error keeps return navigation; failed save preserves form values
+  and supports successful resubmit.
+- Branch row counts and group-client `Всего` preserved where explicitly
+  retained.
 - Zero-consumer shared `MetricCard` deletion, if applicable, leaves no broken
   exports/imports.
 
 ### Integration tests
 - BranchSettings mocked API component integration covers load→error/retry and
   populated operational actions.
-- GroupEdit mocked API integration covers load→edit→save and failure state.
+- GroupEdit mocked API integration covers load-error→back and
+  load→edit→failed save→successful resubmit.
 - Backend integration tests неприменимы: API/domain behavior does not change.
 - Component/integration tests are written before production code and must fail
   on current metric rendering.
 
 ### UI/e2e tests
-- Branch settings and group edit primary operations plus one recovery path.
-- Absence of six metrics and empty top wrappers at `360 x 780`, `390 x 844`,
-  `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`, `768 x 1024` and
-  `1440 x 1200`.
-- No page overflow/clipping; create/save actions stay `44 x 44px` and reachable.
+- Branch settings primary operation and error/retry; group edit save and failed
+  save→successful resubmit.
+- Absence of six top metrics, three detail `BranchStat` and empty wrappers at
+  `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`,
+  `956 x 440`, `768 x 1024` and `1440 x 1200`.
+- No page overflow/clipping; every affected create/save/back/retry action has
+  a touch target of at least `44 x 44px` where touch acceptance applies and
+  remains reachable.
+
+### Measurable layout assertions
+- Embedded Branch Settings DOM order is `SectionHeader` →
+  loading/error/empty/list `PageSection`; no metric/stat grid, empty element or
+  spacer node exists between them.
+- Standalone Branch Settings keeps `PageLayout` title/actions and the same
+  operational-state order; it receives component coverage only because no
+  production route currently consumes this variant.
+- The applicable first Branch operational surface (loading/error/empty or first
+  populated row) and, after successful Group load, the first labeled form
+  control start inside the initial viewport without programmatic or user
+  scrolling.
+- Group form/save remains vertically reachable by normal page scroll without
+  nested scrolling traps; the plan does not require the bottom save button to
+  be above the fold.
+- At `360`, `390`, `420` and `440px`, document/body scroll width is no more than
+  viewport width + `1px`; there is no clipping of affected operations.
+- Chromium viewport resizing proves responsive geometry. Only the configured
+  WebKit device projects at `420 x 912` and `440 x 956` count as target-iPhone
+  acceptance.
+
+### Test ownership
+- `BranchSettingsScreen.test.tsx`: embedded states/operations, standalone
+  contract, absence of top metrics/detail `BranchStat`, preservation of row
+  counts.
+- `GroupManagement.test.tsx`: metric absence, load-error/back, form values,
+  validation, failed save→successful resubmit, substitutions and clients.
+- `stage12.spec.ts`: existing Settings branch CRUD/error-retry path plus
+  absence of Branch metrics/detail stats; do not duplicate the viewport matrix
+  here.
+- `groups-registry.spec.ts`: group edit navigation/save/recovery path; do not
+  duplicate the viewport matrix here.
+- `responsive-main-screens.spec.ts`: Chromium geometry for `360 x 780`,
+  `390 x 844`, `912 x 420`, `956 x 440`, `768 x 1024` and `1440 x 1200`.
+- `iphone-target-devices.spec.ts`: only WebKit target-device assertions at
+  `420 x 912` and `440 x 956`.
+- Permission contracts are unchanged: rerun existing Settings/group access
+  component and e2e coverage; do not add duplicate TASK-101 permission cases.
 
 ## Expected initial failure verification
-- Branch tests must find the three current top metric cards.
+- Branch tests must find the three current top metric cards and three current
+  detail `BranchStat`.
 - Group edit tests must find `Клиенты`, `Тренеры`, `Назначено` in the metric
   structure; queries must be scoped so form labels/entity sections do not cause
   false positives.
@@ -174,7 +241,7 @@ wrappers исчезают на всех ширинах.
 ## Test plan
 - [ ] Написать BranchSettings/GroupEdit component tests до production-кода.
 - [ ] Добавить responsive Playwright absence/first-viewport checks до кода.
-- [ ] Подтвердить expected red state на шести widgets.
+- [ ] Подтвердить expected red state на девяти widgets.
 - [ ] `cd frontend && npm run test:unit`
 - [ ] `cd frontend && npm run check:raw-colors`
 - [ ] `cd frontend && npm run test:e2e -- <settings/group affected specs>`
@@ -184,7 +251,8 @@ wrappers исчезают на всех ширинах.
 
 ## Regression barrier
 Два focused component suites должны одновременно запрещать top metric blocks и
-требовать actions, operational states, form/save и entity-local decision data.
+detail `BranchStat`, требовать actions, operational states, form/save recovery,
+branch row counts и group-client section data.
 Repository-wide zero-consumer check защищает shared cleanup, а responsive
 Playwright доказывает, что mobile/desktop первый viewport не содержит widgets,
 пустого gap или потерянной primary action.
@@ -192,6 +260,9 @@ Playwright доказывает, что mobile/desktop первый viewport н�
 ## Risks
 - Broad text assertions `Клиенты`/`Тренеры` совпадут с form labels и
   entity-local sections.
+- Branch row и removed detail `BranchStat` используют одинаковые labels/values;
+  absence assertion должна быть scoped к detail stat structure, а preservation
+  assertion — к конкретной branch row.
 - `clientCount` можно ошибочно удалить из registry row, где он остаётся нужен.
 - `GROUPS_GRID_COLUMNS` останется consumer form hint даже после top grid removal.
 - Shared `MetricCard` consumer set будет неверным, если TASK-092 не merged.
