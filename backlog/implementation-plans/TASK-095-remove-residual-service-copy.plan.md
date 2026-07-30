@@ -38,45 +38,83 @@ profile account context и CRM semantics.
 - Active persistent navigation/tab остаётся видимым route/section context.
 - Attention content начинается с operational refresh/state/list без видимого
   duplicate title/description и без пустого spacer.
-- Hidden route `h1`, hidden focus heading, named list/region и heading hierarchy
-  сохраняются.
+- Строка `Клиенты, требующие внимания` полностью удаляется из Attention DOM и
+  accessibility tree. Layout-neutral visually hidden focus heading
+  `Список клиентов` сохраняется и становится accessible name списка через
+  `aria-labelledby`; heading hierarchy сохраняется.
 - Club name и profile trigger остаются; role остаётся внутри profile menu, но
   не под названием организации.
 - Detail/create/edit/auth titles, validation, legal/security, prerequisite,
   stale, error, recovery and success copy сохраняются.
 - На trainer edit сохраняются page title с identity, readonly login field,
-  field labels/descriptions, validation и submit; удаляются только три
-  конкретных service/decorative strings из source note.
+  field labels/descriptions, validation и submit. Три требования source note
+  удаляют четыре rendered text values: `sectionTitle`, `sectionDescription`,
+  `permissionsHintTitle` и `permissionsHintDescription`; важное последствие
+  очистки Telegram ID остаётся в description соответствующего поля.
 
 ## Dependencies and execution order
 1. TASK-090 — done, `decision/usefulness test` является source of truth.
-2. TASK-092 должна быть merged до final administrator copy inventory.
-3. TASK-093 желательно выполнить раньше, чтобы удаление Attention header не
-   проектировало новый placement refresh в этой branch.
+2. TASK-092 — done and merged; final administrator copy inventory строится на
+   этом baseline.
+3. TASK-093 — обязательная dependency и должна быть merged до начала TASK-095,
+   чтобы удаление Attention header использовало выпущенный placement refresh и
+   не проектировало action geometry в этой branch.
 4. TASK-095 удаляет только residual copy и empty wrappers.
+
+## Authenticated-route coverage matrix
+- Table-driven Playwright matrix является исполняемым regression barrier.
+  Markdown inventory из шага 1 является audit/review artifact и сам по себе не
+  считается исполняемым тестом.
+- Top-level sections:
+  `Главная`, `Расписание`, `Клиенты`, `Группы`, `Тренеры`, `Журнал`, `Финансы`,
+  `Настройки`.
+- Внутренние Home panels:
+  `Посещения`, `Требуют внимания`.
+- Authenticated nested routes:
+  `/password`, `/clients/new`, `/clients/:id/preview`, `/clients/:id`,
+  `/clients/:id/edit`, `/groups/new`, `/groups/:id/edit`, `/users/new`,
+  `/users/:id/edit`.
+- Settings tabs:
+  `Абонементы`, `Типы групп`, `Филиалы и залы`, `Администраторы`.
+- Полный allowed-route/tab sweep выполняется под `SuperAdministrator`.
+  Дополнительно `Coach` покрывает доступные sections и один representative
+  restricted deep-link/recovery scenario.
+- Каждая matrix entry проверяется минимум на `390 x 844` и desktop `1440px`.
+  Concrete changed surfaces — Home Attention, trainer edit и authenticated
+  shell — дополнительно проверяются на `420 x 912`, `440 x 956`,
+  `912 x 420`, `956 x 440` и tablet `768px`.
 
 ## Execution steps
 1. Создать isolated worktree и committed inventory
    `docs/ui-concept/TASK-095-copy-inventory.md` для всех authenticated routes и
    settings tabs: text, context owner, decision/usefulness verdict,
-   `remove/retain`, reason and accessible replacement when needed.
+   `remove/retain`, reason and accessible replacement when needed. Этот файл
+   является audit/review artifact; автоматические гарантии принадлежат
+   table-driven Playwright matrix.
 2. До production-кода обновить `HomeDashboard/AttentionPanel` tests:
-   - concrete title/description отсутствуют как visible text in populated,
-     loading, empty and error states;
-   - `Список клиентов` remains hidden/focusable;
-   - result list keeps accessible name;
+   - concrete title/description отсутствуют в DOM и accessibility tree in
+     populated, loading, empty and error states;
+   - `Список клиентов` remains layout-neutral visually hidden and focusable;
+   - populated result list получает accessible name `Список клиентов` через
+     `aria-labelledby`, без старого `aria-label`;
    - refresh, last check, empty/retry and action errors remain.
 3. До production-кода обновить shared shell/component tests:
    - brand renders only club identity, no `brandMeta` DOM;
    - role/start section are absent under brand at compact/desktop widths;
    - profile menu still exposes current name and role.
-4. До production-кода expand Playwright route inventory:
-   - exact forbidden attention/shell strings absent;
+4. До production-кода expand table-driven Playwright route matrix согласно
+   разделу `Authenticated-route coverage matrix`:
+   - exact forbidden attention string отсутствует в DOM/accessibility tree,
+     shell strings отсутствуют под brand;
    - duplicate top-level list titles/service descriptions absent;
    - visible detail/form/recovery headings and accessible hidden `h1` remain;
-   - no empty wrapper/gap at required widths.
+   - removed wrappers отсутствуют, а bounding boxes первого operational row
+     подтверждают отсутствие зарезервированного header spacer на required
+     widths.
 5. До production-кода обновить `UserEditScreen` component/Playwright tests:
-   - три concrete service strings отсутствуют;
+   - `sectionTitle`, `sectionDescription`, `permissionsHintTitle` и
+     `permissionsHintDescription` отсутствуют;
+   - field-level Telegram ID description с consequence очистки сохранён;
    - page title, readonly login, editable fields, validation, loading/error/
      read-only states и submit сохранены;
    - duplicate return actions не исправлять здесь: это TASK-097.
@@ -84,12 +122,15 @@ profile account context и CRM semantics.
    `SectionHeader`, `brandMeta` and existing assertions that expect the copy.
 7. Удалить `AttentionPanel` visible `SectionHeader` title/description and its
    now-unused wrapper/import; сохранить refresh in the first operational row
-   established by TASK-093, hidden focus heading and named list.
+   established by TASK-093. Перевести focus heading в layout-neutral
+   `visually-hidden`, удалить старый list `aria-label` и связать list с
+   `Список клиентов` через `aria-labelledby`.
 8. Удалить `brandMeta`/`brandMetaCompact` use from `AuthenticatedShell`;
    если repository search подтверждает отсутствие других consumers, удалить
    props/render path and `.app-shell__brand-meta` CSS from shared `Header`.
-9. Удалить trainer edit `SectionHeader`/hint-card и ставшие неиспользуемыми
-   resources/imports, сохранив form semantics и operational states.
+9. Удалить trainer edit `SectionHeader`/hint-card, четыре ставших
+   неиспользуемыми text resources и imports, сохранив form semantics,
+   field-level Telegram ID consequence и operational states.
 10. Провести inventory sweep по authenticated routes; удалять только
    navigation/title repeats and decorative intro. Каждое сохранённое
    non-obvious description имеет записанное decision/recovery reason.
@@ -139,11 +180,13 @@ profile account context и CRM semantics.
 ## Required test coverage
 
 ### Unit/component tests
-- Attention duplicate copy absent while hidden heading/list name and refresh stay.
+- Attention duplicate copy absent from DOM/accessibility tree while hidden
+  `Список клиентов` heading/list name and refresh stay.
 - Shell meta absent while brand/profile/name/role-in-menu stay.
 - Loading, empty, error, stale and populated operational copy preserved.
-- Trainer edit service strings absent while title, readonly login, fields,
-  validation, states and submit remain.
+- Four trainer edit service text values absent while title, readonly login,
+  fields, field-level Telegram consequence, validation, states and submit
+  remain.
 
 ### Integration tests
 - Backend integration tests are not applicable because no API/business contract
@@ -169,17 +212,19 @@ profile account context и CRM semantics.
 - [ ] `cd frontend && npm run build`
 
 ## Regression barrier
-The executable authenticated-route copy inventory must assert both sides:
-forbidden duplicate/service strings and wrappers, including the three trainer
-edit strings, are absent, while hidden route/list names, profile role context,
-detail/form headings and operational/recovery copy remain. This prevents both
-recurrence and over-aggressive deletion.
+The table-driven Playwright authenticated-route matrix must assert both sides:
+forbidden duplicate/service strings and wrappers, including all four trainer
+edit text values, are absent, while hidden route/list names, profile role
+context, detail/form headings, field-level Telegram consequence and
+operational/recovery copy remain. The Markdown copy inventory records the
+corresponding audit decisions but is not the executable barrier. This prevents
+both recurrence and over-aggressive deletion.
 
 ## Risks
 - Broad negative text matching can delete valid recovery or form guidance.
 - Removing `Header` meta API without full consumer search could break another shell.
 - Old tests may encode the obsolete visible title as an accessibility proxy.
-- TASK-093/TASK-092 overlap can cause merge conflicts if dependency order is ignored.
+- Starting before TASK-093 merge can cause action-placement conflicts.
 
 ## Stop conditions
 Остановиться, если:
@@ -187,8 +232,9 @@ recurrence and over-aggressive deletion.
   or recovery path;
 - removing it leaves no accessible region/heading name;
 - a screen needs workflow redesign rather than bounded copy cleanup;
-- TASK-092/TASK-093 baseline at an overlapping call site is unclear;
+- TASK-093 is not merged into `origin/main` or its baseline at an overlapping
+  call site is unclear;
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes, after overlapping TASK-092 and TASK-093 changes are merged into origin/main
+yes, after TASK-093 is merged into origin/main; TASK-092 is done
