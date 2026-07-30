@@ -444,7 +444,7 @@ test('Группы: браузерный возврат возвращает с�
   )
 })
 
-test('Группы: Coach без разрешения перенаправляется в доступный раздел без запроса реестра', async ({ page }) => {
+test('Группы: Coach без разрешения видит явный запрет без запроса реестра', async ({ page }) => {
   const listRequests: ListRequestRecord[] = []
   const counters: RequestCounters = {
     groupsListCalls: 0,
@@ -462,8 +462,10 @@ test('Группы: Coach без разрешения перенаправляе
 
   await page.goto('/groups')
 
-  await expect(page).toHaveURL('/')
-  await expect(page.getByRole('heading', { name: 'Главная' })).toBeVisible()
+  await expect(page).toHaveURL('/groups')
+  await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
+  await expect(page.getByText('У вас нет доступа к разделу «Группы».')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Поиск групп по названию' })).toHaveCount(0)
   expect(listRequests).toHaveLength(0)
   expect(counters.groupsListCalls).toBe(0)

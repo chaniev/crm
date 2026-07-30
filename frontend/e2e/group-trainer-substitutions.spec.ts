@@ -160,7 +160,12 @@ test('Coach direct group management route is denied by app routing', async ({ pa
 
   await page.goto('/groups/group-1/edit')
 
-  await expect(page).not.toHaveURL(/\/groups\/group-1\/edit$/)
+  await expect(page).toHaveURL(/\/groups\/group-1\/edit$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
+  await expect(
+    page.getByText('У вас нет доступа к операции «Редактирование группы».'),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Временные замещения' })).toHaveCount(0)
 })
 

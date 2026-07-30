@@ -250,7 +250,7 @@ test.describe('Finance reports', () => {
       )
   })
 
-  test('hides finance tab and redirects direct route when access is not granted', async ({
+  test('hides finance tab and keeps explicit restriction on a denied direct route', async ({
     page,
   }) => {
     await mockFinanceApi(page, {
@@ -259,8 +259,10 @@ test.describe('Finance reports', () => {
 
     await page.goto('/finance')
 
-    await expect(page).toHaveURL(/\/$/)
-    await expect(page.getByTestId('home-screen')).toBeVisible()
+    await expect(page).toHaveURL(/\/finance$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
+    await expect(page.getByText('У вас нет доступа к разделу «Финансы».')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
     await expect(
       page.getByRole('navigation', { name: 'Основная навигация' }).getByRole(
         'button',
@@ -268,6 +270,7 @@ test.describe('Finance reports', () => {
       ),
     ).toHaveCount(0)
     await expect(page.getByTestId('finance-screen')).toHaveCount(0)
+    await expect(page.getByTestId('home-screen')).toHaveCount(0)
   })
 
   test('shows backend ProblemDetails field errors for invalid report filters', async ({

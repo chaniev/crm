@@ -427,17 +427,20 @@ test('Администратор показывает валидационную
   await expect(modal.getByLabel('Название')).toHaveValue('Уникальное название')
 })
 
-test('Coach не видит /settings и получает перенаправление на домашний раздел', async ({ page }) => {
+test('Coach не видит /settings и получает явное состояние ограничения', async ({ page }) => {
   await mockSettingsApi(page, { session: COACH_SESSION })
 
   await page.goto('/settings')
 
-  await expect(page).toHaveURL('/')
+  await expect(page).toHaveURL('/settings')
+  await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
+  await expect(page.getByText('У вас нет доступа к разделу «Настройки».')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
   await expect(page.getByTestId('settings-screen')).toHaveCount(0)
   await expect(
     page.getByRole('button', { name: 'Настройки', exact: true }),
   ).toHaveCount(0)
-  await expect(page.getByTestId('home-screen')).toBeVisible()
+  await expect(page.getByTestId('home-screen')).toHaveCount(0)
 })
 
 async function fulfillJson(

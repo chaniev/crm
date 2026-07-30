@@ -1907,8 +1907,11 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.goto('/groups')
-    await expect(page).toHaveURL('/')
-    await expect(page.getByTestId('attendance-screen')).toBeVisible()
+    await expect(page).toHaveURL('/groups')
+    await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
+    await expect(page.getByText('У вас нет доступа к разделу «Группы».')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+    await expect(page.getByTestId('attendance-screen')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Группы' })).toHaveCount(0)
   })
 

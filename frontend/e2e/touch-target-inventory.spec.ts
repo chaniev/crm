@@ -31,11 +31,11 @@ type RouteCase = {
   controls: TouchCandidate[]
   path: string
   screenTestId: string
-  state?: 'default' | 'preview-open'
+  state?: 'default' | 'preview-open' | 'search-focused'
 }
 
 type RouteWithState = RouteCase & {
-  state: 'default' | 'preview-open'
+  state: 'default' | 'preview-open' | 'search-focused'
 }
 
 const MOBILE_BOTTOM_NAVIGATION_SELECTOR =
@@ -196,11 +196,6 @@ const ROUTE_CASES: RouteWithState[] = [
         locator: (page) => page.getByRole('button', { name: /фильтры/i }).first(),
       },
       {
-        gapKind: 'composite',
-        label: 'Сбросить поисковый запрос',
-        locator: (page) => page.getByRole('button', { name: 'Сбросить поисковый запрос' }),
-      },
-      {
         label: 'Обновить список',
         locator: (page) => page.getByRole('button', { name: 'Обновить список' }).first(),
       },
@@ -225,6 +220,28 @@ const ROUTE_CASES: RouteWithState[] = [
         label: 'Дальше',
         locator: (page) => page.getByRole('button', { name: 'Дальше' }),
         touchOnly: true,
+      },
+    ],
+  },
+  {
+    path: '/clients',
+    screenTestId: 'clients-screen',
+    state: 'search-focused',
+    controls: [
+      {
+        gapKind: 'composite',
+        label: 'Поиск по имени или телефону',
+        locator: (page) => page.getByRole('textbox', { name: 'Поиск по имени или телефону' }),
+        role: 'textbox',
+      },
+      {
+        label: 'Фильтры',
+        locator: (page) => page.getByRole('button', { name: /фильтры/i }).first(),
+      },
+      {
+        gapKind: 'composite',
+        label: 'Сбросить поисковый запрос',
+        locator: (page) => page.getByRole('button', { name: 'Сбросить поисковый запрос' }),
       },
     ],
   },
@@ -374,7 +391,7 @@ for (const viewport of VIEWPORT_MATRIX) {
         if (route.state === 'preview-open') {
           await openClientsPreview(page)
           await expect(page.getByTestId('client-preview-panel')).toBeVisible()
-        } else if (route.path === '/clients') {
+        } else if (route.state === 'search-focused') {
           await page
             .getByRole('textbox', { name: 'Поиск по имени или телефону' })
             .fill('Алекс')
@@ -591,7 +608,7 @@ async function expectNoServiceIntro(page: Page) {
 async function measureTarget(
   locator: Locator,
   route: string,
-  state: 'default' | 'preview-open',
+  state: 'default' | 'preview-open' | 'search-focused',
   role: string,
   viewport: ViewportCase,
   locatorLabel: string,
