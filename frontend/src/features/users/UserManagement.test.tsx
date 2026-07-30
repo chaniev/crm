@@ -153,6 +153,82 @@ describe('UsersListScreen', () => {
     expect(search).toHaveFocus()
   })
 
+  test('renders only decision-changing markers for normal and exceptional rows', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [
+        {
+          ...coach,
+          fullName: 'Анна Ветрова',
+          messengerPlatformUserId: 'telegram-1001',
+        },
+        {
+          ...coach,
+          id: 'coach-inactive',
+          fullName: 'Ирина Петрова',
+          isActive: false,
+        },
+        {
+          ...coach,
+          id: 'coach-password',
+          fullName: 'Сергей Иванов',
+          mustChangePassword: true,
+        },
+        {
+          ...coach,
+          id: 'coach-both',
+          fullName: 'Марина Смирнова',
+          isActive: false,
+          mustChangePassword: true,
+        },
+        {
+          ...coach,
+          id: 'coach-read-only',
+          fullName: 'Алексей Романов',
+          allowedActions: [],
+        },
+        {
+          ...coach,
+          id: 'superadmin-exception',
+          fullName: 'Сервисная учетная запись',
+          login: 'service-account',
+          role: 'SuperAdministrator',
+          roleOptions: ['SuperAdministrator'],
+        },
+      ],
+      createRoleOptions: ['Coach'],
+    } satisfies UserListResponse)
+
+    renderUsersList()
+
+    const normalCard = await screen.findByTestId('user-card-coach-1')
+    expect(within(normalCard).getByText('Анна Ветрова')).toBeVisible()
+    expect(within(normalCard).getByText('Логин: coach')).toBeVisible()
+    expect(within(normalCard).getByText('Telegram ID: telegram-1001')).toBeVisible()
+    expect(within(normalCard).getByRole('button', { name: 'Редактировать' })).toBeVisible()
+    expect(within(normalCard).queryByText('Тренер')).not.toBeInTheDocument()
+    expect(within(normalCard).queryByText('Активен')).not.toBeInTheDocument()
+    expect(within(normalCard).queryByText('Пароль актуален')).not.toBeInTheDocument()
+
+    const inactiveCard = screen.getByTestId('user-card-coach-inactive')
+    expect(within(inactiveCard).getAllByText('Отключен')).toHaveLength(1)
+    expect(within(inactiveCard).queryByText('Активен')).not.toBeInTheDocument()
+
+    const passwordCard = screen.getByTestId('user-card-coach-password')
+    expect(within(passwordCard).getAllByText('Требуется смена пароля')).toHaveLength(1)
+    expect(within(passwordCard).queryByText('Пароль актуален')).not.toBeInTheDocument()
+
+    const combinedCard = screen.getByTestId('user-card-coach-both')
+    expect(within(combinedCard).getAllByText('Отключен')).toHaveLength(1)
+    expect(within(combinedCard).getAllByText('Требуется смена пароля')).toHaveLength(1)
+
+    const readOnlyCard = screen.getByTestId('user-card-coach-read-only')
+    expect(within(readOnlyCard).getByText('Только просмотр')).toBeVisible()
+    expect(within(readOnlyCard).queryByRole('button', { name: 'Редактировать' })).not.toBeInTheDocument()
+
+    const nonCoachCard = screen.getByTestId('user-card-superadmin-exception')
+    expect(within(nonCoachCard).getByText('Суперадминистратор')).toBeVisible()
+  })
+
   test('distinguishes first-run empty from query-scoped empty and clears recovery', async () => {
     vi.mocked(getUsers).mockResolvedValue({
       items: [],
