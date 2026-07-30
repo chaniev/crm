@@ -150,6 +150,8 @@ export function UserEditScreen({
     }
   }
 
+  const userCanMutate = canMutateUser(user)
+
   return (
     <PageLayout
       actions={
@@ -196,16 +198,13 @@ export function UserEditScreen({
                   <UserFormFields
                     credentialsFields={<UserEditCredentialsFields form={form} />}
                     form={form}
-                    isActiveDisabled={!canMutateUser(user)}
+                    isActiveDisabled={!userCanMutate}
                     roleOptions={[]}
                     showRoleField={false}
                   />
 
-                  <ResponsiveButtonGroup justify="space-between">
-                    <Button onClick={onBack} variant="subtle">
-                      {resources.users.edit.listAction}
-                    </Button>
-                    {canMutateUser(user) ? (
+                  {userCanMutate ? (
+                    <ResponsiveButtonGroup justify="flex-end">
                       <Button
                         leftSection={<IconDeviceFloppy size={18} />}
                         loading={submitting}
@@ -213,8 +212,8 @@ export function UserEditScreen({
                       >
                         {resources.users.edit.submit}
                       </Button>
-                    ) : null}
-                  </ResponsiveButtonGroup>
+                    </ResponsiveButtonGroup>
+                  ) : null}
                 </Stack>
               </form>
             </>

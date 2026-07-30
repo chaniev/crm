@@ -120,7 +120,6 @@ export const resources = {
       fallbackError: 'Не удалось сохранить тренера. Попробуйте еще раз.',
       successTitle: 'Изменения сохранены',
       successMessage: 'Карточка тренера обновлена.',
-      listAction: 'К списку',
     },
     messenger: {
       platforms: {

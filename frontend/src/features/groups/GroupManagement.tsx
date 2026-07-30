@@ -667,7 +667,7 @@ export function GroupCreateScreen({
             branchOptions={branchOptions}
             groupTypeOptions={groupTypeOptions}
             hallOptions={hallOptions}
-              onCancel={onCancel}
+              cancelAction={{ label: 'Отменить', onClick: onCancel }}
               onSubmit={submit}
               submitLabel="Создать группу"
               submitting={submitting}
@@ -822,7 +822,7 @@ export function GroupEditScreen({
               branchOptions={branchOptions}
               groupTypeOptions={groupTypeOptions}
               hallOptions={hallOptions}
-              onCancel={onBack}
+              cancelAction={null}
               onSubmit={submit}
               submitLabel="Сохранить изменения"
               submitting={submitting}
@@ -896,7 +896,7 @@ type GroupFormProps = {
   branchOptions: Branch[]
   groupTypeOptions: GroupType[]
   hallOptions: Hall[]
-  onCancel: () => void
+  cancelAction: { label: string; onClick: () => void } | null
   onSubmit: (values: GroupFormValues) => Promise<void>
   submitLabel: string
   submitting: boolean
@@ -909,7 +909,7 @@ function GroupForm({
   branchOptions,
   groupTypeOptions,
   hallOptions,
-  onCancel,
+  cancelAction,
   onSubmit,
   submitLabel,
   submitting,
@@ -1141,9 +1141,11 @@ function GroupForm({
           </Text>
 
           <ResponsiveButtonGroup justify="flex-end">
-            <Button onClick={onCancel} type="button" variant="subtle">
-              Отменить
-            </Button>
+            {cancelAction ? (
+              <Button onClick={cancelAction.onClick} type="button" variant="subtle">
+                {cancelAction.label}
+              </Button>
+            ) : null}
             <Button
               leftSection={<IconDeviceFloppy size={18} />}
               loading={submitting}

@@ -715,6 +715,8 @@ test.describe('Основные e2e сценарии', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Иванов Иван Иванович' }),
     ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'К карточке клиента' })).toHaveCount(1)
+    await expect(page.getByRole('button', { name: 'Отменить' })).toHaveCount(0)
     await page.getByLabel('Дата рождения').fill('2001-03-15')
     await page
       .getByLabel('Рабочая заметка')
