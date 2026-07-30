@@ -329,7 +329,6 @@
 }
 
 .app-shell__brand-title,
-.app-shell__brand-meta,
 .app-shell__profile-name,
 .app-shell__current-view {
   max-width: 100%;
@@ -3955,10 +3954,6 @@
 
   .app-shell__brand-title {
     font-size: 0.98rem;
-  }
-
-  .app-shell__brand-meta {
-    font-size: 0.74rem;
   }
 
   .client-overview-card,

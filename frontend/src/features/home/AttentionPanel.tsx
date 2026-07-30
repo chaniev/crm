@@ -3,7 +3,7 @@ import { Anchor, Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/c
 import { IconBrandTelegram, IconCalendarEvent, IconCheck, IconUserHeart } from '@tabler/icons-react'
 import { getClientAttentionItems, markMissedTrainingContacted, type ClientAttentionItem, type ClientAttentionReason } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import { Button, EmptyState, ErrorState, LoadingState, PageSection, RefreshButton, ResponsiveButtonGroup, SectionHeader, TaskToolbarActions, TaskToolbarRefreshAction } from '../shared/ux'
+import { Button, EmptyState, ErrorState, LoadingState, PageSection, RefreshButton, ResponsiveButtonGroup, TaskToolbarActions, TaskToolbarRefreshAction } from '../shared/ux'
 
 type AttentionPanelProps = { onCountChange?: (count: number | null) => void; onOpenClient?: (clientId: string) => void }
 
@@ -51,27 +51,21 @@ export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelPr
 
   return <PageSection className="home-memberships-panel">
     <Stack gap="lg">
-      <SectionHeader
-        actions={(
-          <TaskToolbarActions
-            frequentActions={(
-              <TaskToolbarRefreshAction
-                loading={loading}
-                onClick={() => setReloadKey((value) => value + 1)}
-              />
-            )}
+      <TaskToolbarActions
+        frequentActions={(
+          <TaskToolbarRefreshAction
+            loading={loading}
+            onClick={() => setReloadKey((value) => value + 1)}
           />
         )}
-        description={resources.home.attention.description}
-        title={resources.home.attention.title}
       />
-      <Text component="h2" ref={headingRef} style={{ height: 0, margin: 0, overflow: 'hidden' }} tabIndex={-1}>Список клиентов</Text>
+      <Text className="visually-hidden" component="h2" id="home-attention-list-title" ref={headingRef} tabIndex={-1}>Список клиентов</Text>
       {lastSuccessfulCheck ? <Text c="dimmed" data-testid="memberships-last-check" size="sm">Проверено: {lastSuccessfulCheck.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</Text> : null}
       {loading && !loaded.current ? <LoadingState label="Загружаем клиентов..." /> : null}
       {!loading && error && !loaded.current ? <ErrorState action={<RefreshButton label="Повторить" onClick={() => setReloadKey((v) => v + 1)} />} message={error} title={resources.home.attention.loadingErrorTitle} /> : null}
       {error && loaded.current ? <Text aria-live="polite" c="red" size="sm">{error}</Text> : null}
       {loaded.current && clients.length === 0 ? <EmptyState description={resources.home.attention.emptyDescription} icon={<IconCalendarEvent size={28} />} title={resources.home.attention.emptyTitle} /> : null}
-      {loaded.current && clients.length > 0 ? <Stack aria-label="Клиенты, требующие внимания" data-testid="home-attention-list" gap="sm" role="list">
+      {loaded.current && clients.length > 0 ? <Stack aria-labelledby="home-attention-list-title" data-testid="home-attention-list" gap="sm" role="list">
         {clients.map((client) => <Paper className="home-client-row-card" data-testid={`home-client-card-${client.clientId}`} key={client.clientId} radius="lg" role="listitem" withBorder>
           <Stack gap="md">
             <Text fw={700} size="lg">{client.fullName}</Text>

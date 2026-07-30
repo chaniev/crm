@@ -240,12 +240,14 @@ describe('HomeDashboard', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
-    expect(
-      await screen.findByRole('heading', {
-        name: 'Клиенты, требующие внимания',
-      }),
-    ).toBeVisible()
     expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
+    expect(screen.queryByText('Клиенты, требующие внимания')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('Повторные пропуски тренировок и вопросы по абонементам.'),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Список клиентов' })).toHaveClass(
+      'visually-hidden',
+    )
     expect(
       screen.getByText('Нет клиентов с повторными пропусками или вопросами по абонементам.'),
     ).toBeVisible()
@@ -273,6 +275,7 @@ describe('HomeDashboard', () => {
     fireEvent.click(screen.getByRole('tab', { name: /Требуют внимания/ }))
 
     const list = await screen.findByTestId('home-attention-list')
+    const listHeading = screen.getByRole('heading', { name: 'Список клиентов' })
 
     expect(list).toHaveTextContent('Иван Иванов')
     expect(list).toHaveTextContent('Анна Петрова')
@@ -285,6 +288,8 @@ describe('HomeDashboard', () => {
     expect(screen.getByText('Осталось 2 дня')).toBeVisible()
     expect(screen.getByText('Истек')).toBeVisible()
     expect(screen.getByText('Истек 3 дня назад')).toBeVisible()
+    expect(list).toHaveAttribute('aria-labelledby', listHeading.id)
+    expect(list).not.toHaveAttribute('aria-label')
   })
 
   test('shows unknown membership attention state safely', async () => {

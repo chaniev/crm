@@ -98,7 +98,6 @@ describe('shared UX components', () => {
         header={(
           <Header
             brandTitle="Iron Club"
-            brandMeta="Главный тренер"
             profileControl={<button type="button">Профиль</button>}
           />
         )}
@@ -109,7 +108,7 @@ describe('shared UX components', () => {
 
     expect(screen.getByRole('banner')).toBeVisible()
     expect(screen.getByText('Iron Club')).toBeVisible()
-    expect(screen.getAllByText('Главный тренер')).toHaveLength(2)
+    expect(document.querySelector('.app-shell__brand-meta')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Профиль' })).toBeVisible()
     expect(screen.queryByRole('navigation', { name: 'Основная навигация' })).not.toBeInTheDocument()
     expect(screen.getByText('Рабочая область')).toBeVisible()
@@ -118,7 +117,7 @@ describe('shared UX components', () => {
   test('AppLayout can render vertical navigation in navbar slot', () => {
     renderWithProviders(
       <AppLayout
-        header={<Header brandMeta="Главный тренер" />}
+        header={<Header />}
         navbar={(
           <NavigationTabs
             currentSection="Home"

@@ -10,8 +10,6 @@ import type { ReactNode } from 'react'
 
 type HeaderProps = {
   brandIcon?: ReactNode
-  brandMeta?: ReactNode
-  brandMetaCompact?: ReactNode
   brandTitle?: string
   containerSize?: ContainerProps['size']
   leadingControl?: ReactNode
@@ -21,17 +19,12 @@ type HeaderProps = {
 
 export function Header({
   brandIcon,
-  brandMeta,
-  brandMetaCompact,
   brandTitle = 'Gym CRM',
   containerSize = '100%',
   leadingControl,
   navigation,
   profileControl,
 }: HeaderProps) {
-  const compactMeta = brandMetaCompact ?? brandMeta
-  const desktopMeta = brandMeta ?? brandMetaCompact
-
   return (
     <Container className="app-shell__header-inner" size={containerSize}>
       <div className="app-shell__header-top">
@@ -47,16 +40,6 @@ export function Header({
             <Text className="app-shell__brand-title" fw={800} title={brandTitle}>
               {brandTitle}
             </Text>
-            {compactMeta ? (
-              <Text c="dimmed" className="app-shell__brand-meta" hiddenFrom="lg" size="sm">
-                {compactMeta}
-              </Text>
-            ) : null}
-            {desktopMeta ? (
-              <Text c="dimmed" className="app-shell__brand-meta" visibleFrom="lg" size="sm">
-                {desktopMeta}
-              </Text>
-            ) : null}
           </div>
         </Group>
 
