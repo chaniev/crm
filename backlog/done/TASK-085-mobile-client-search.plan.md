@@ -1,7 +1,17 @@
 # Implementation Plan: TASK-085 Search-focused mobile-поиск клиентов — вариант C
 
 ## Source task
-/backlog/implementation/TASK-085-mobile-client-search.md
+/backlog/done/TASK-085-mobile-client-search.md
+
+Source status is `done`: implementation commit `4e23199` is present on current
+`origin/main`, TASK-017 is delivered, and the frontend unit, Chromium,
+target-iPhone WebKit, lint and build barriers passed during the 2026-07-30
+status audit.
+
+## Implementation status
+
+Done. The status audit verified final release behavior; historical
+pre-implementation red-phase ordering was not reconstructed.
 
 ## Implementation branch
 feature/TASK-085-mobile-client-search
@@ -215,4 +225,4 @@ portrait targets, exact global branch identity and compact/desktop scope.
 - worktree/branch/dependency order is invalid.
 
 ## Ready for Codex execution
-yes, after TASK-017 is merged; TASK-084 is already merged
+no — implementation completed

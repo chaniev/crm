@@ -1,7 +1,16 @@
 # Implementation Plan: TASK-086 Добавить mobile-first поиск, фильтры и paging списка групп
 
 ## Source task
-/backlog/implementation/TASK-086-mobile-groups-search-filter-paging.md
+/backlog/done/TASK-086-mobile-groups-search-filter-paging.md
+
+Source status is `done`: implementation commit `d3963a9` and integration commit
+`f8f6460` are present on current `origin/main`; backend, frontend, Chromium and
+target-iPhone release barriers passed during the 2026-07-30 status audit.
+
+## Implementation status
+
+Done. The status audit verified final release behavior; historical
+pre-implementation red-phase ordering was not reconstructed.
 
 ## Implementation branch
 feature/TASK-086-mobile-groups-search-filter-paging
@@ -317,4 +326,4 @@ state restoration and no duplicate return history.
 - task worktree or branch is invalid.
 
 ## Ready for Codex execution
-yes; product, access, paging, return-state and desktop-layout decisions resolved
+no — implementation completed

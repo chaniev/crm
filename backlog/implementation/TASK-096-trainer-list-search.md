@@ -13,7 +13,9 @@ implementation
 Пользователь быстро находит нужного тренера по ФИО или логину без просмотра всего списка.
 
 ## Context
-В inbox отмечено отсутствие поиска на экранах `Группы` и `Тренеры`. Поиск групп уже полностью входит в TASK-086, находящуюся в implementation. Активной задачи на поиск тренеров нет.
+В inbox отмечено отсутствие поиска на экранах `Группы` и `Тренеры`. Поиск групп
+уже реализован завершённой TASK-086. Отдельный поиск тренеров остаётся scope
+этой задачи.
 
 Текущий `UsersListScreen` загружает backend-permitted список через `getUsers`, показывает ФИО и логин, но не содержит locator/search state.
 
@@ -77,9 +79,10 @@ implementation
 ## Source notes
 - Source file: `backlog/processed/2026-07-27.md`
 - Original note: `На экранах «Группы» и «Тренеры» отсутствует поиск. Необходимо добавить возможность поиска на обоих экранах.`
-- Related existing task: `backlog/implementation/TASK-086-mobile-groups-search-filter-paging.md` покрывает часть заметки про группы.
+- Related existing task: `backlog/done/TASK-086-mobile-groups-search-filter-paging.md` покрывает часть заметки про группы.
 
 ## Processing notes
 - Created at: 2026-07-27 00:25
 - Created by skill: codex-backlog-skill
-- Duplicate check: TASK-086 покрывает только поиск групп; активной или завершённой задачи на locator/search списка тренеров не найдено.
+- Duplicate check: завершённая TASK-086 покрывает только поиск групп; другой
+  задачи на locator/search списка тренеров не найдено.

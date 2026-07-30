@@ -1,13 +1,20 @@
 # TASK-087: Ограничить расписание тренера его effective groups
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-26 23:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-087-coach-schedule-effective-scope.plan.md
+- implementation_plan: /backlog/done/TASK-087-coach-schedule-effective-scope.plan.md
 - implementation_branch: fix/TASK-087-coach-schedule-effective-scope
+- implementation_state: completed
+- implementation_commit: 9aef59282dfd72a7bbb4d6c775b613c9bc3ee42d
+- integration_commit: 7e386d1d3b412f94968e707778e2adffa76e0901
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30 19:33 MSK
+- reviewed_main_commit: c69f47b9a91d09363577406052cf8d36633726b3
 
 ## Priority
 P1
@@ -149,3 +156,18 @@ Usability-аудит показал в coach schedule до 88 глобальны
 - Status changed to `ready`: the existing effective-assignment semantics are
   now the required schedule contract, and global view for Coach is explicitly
   out of scope.
+
+## Completion notes
+
+- Implementation commit `9aef59282dfd72a7bbb4d6c775b613c9bc3ee42d`
+  is an ancestor of current `origin/main` through integration commit
+  `7e386d1d3b412f94968e707778e2adffa76e0901`.
+- `/schedule/groups` applies the existing backend effective-assignment service
+  before count and paging for Coach, including permanent and active temporary
+  assignments without leaking unrelated groups.
+- Frontend renders the backend-scoped response, role-specific empty states and
+  focus behavior without reproducing authorization semantics.
+- Validation on 2026-07-30: backend tests `420/420`; frontend lint and build
+  passed; unit tests `367/367`; targeted Chromium flows `46/46`; target iPhone
+  WebKit `20/20`.
+- Simulator/physical-device evidence remains unverified.

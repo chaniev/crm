@@ -55,8 +55,8 @@ standard filter/locator surface не остаётся вне inventory, migratio
   footer и reachable close/action controls.
 
 ## Resolved clarification decisions
-- TASK-094 ждёт merge TASK-086 в `origin/main` и создаёт task worktree только
-  из baseline с финальным Groups locator/filter contract.
+- TASK-086 merged into `origin/main` through `f8f6460`; TASK-094 uses that
+  final Groups locator/filter contract as its baseline.
 - Attendance остаётся operation-specific context surface с общими semantic
   paint tokens, но без standard filter semantics.
 - `surface role` в этой задаче означает shared CSS class/recipe, а не ARIA role.
@@ -71,10 +71,9 @@ standard filter/locator surface не остаётся вне inventory, migratio
 ## Dependencies and execution order
 1. TASK-090 — done, theme tokens/shared components уже выпущены.
 2. TASK-084 — done, compact-height and touch foundation уже merged.
-3. TASK-086 должна быть merged в `origin/main`; она остаётся владельцем Groups
-   search/filter/paging и предоставляет финальный Groups locator/filter
-   baseline.
-4. TASK-094 стартует после TASK-086 и создаёт semantic surface baseline,
+3. TASK-086 — done; она остаётся владельцем Groups search/filter/paging и
+   предоставляет финальный Groups locator/filter baseline.
+4. TASK-094 создаёт semantic surface baseline,
    включая conformance финального Groups без второго filter implementation.
 5. TASK-093 затем использует этот baseline для action sweep.
 6. TASK-096 использует итоговый locator surface на Trainers.
@@ -242,4 +241,4 @@ cannot silently omit another standard screen.
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes, after TASK-086 is merged into `origin/main`
+yes — TASK-086 merged through `f8f6460`

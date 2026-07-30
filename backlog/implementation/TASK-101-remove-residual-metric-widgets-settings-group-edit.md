@@ -45,7 +45,8 @@ Source audit нашёл ещё два непокрытых блока: три `M
 - Удаляются только aggregate/framed stat widgets, не прошедшие `decision/usefulness test`.
 - Primary create/save/edit operations остаются видимыми.
 - Дополнительная desktop-ширина не возвращает удалённые widgets.
-- Выполнять после TASK-086 и TASK-092 либо после проверки их merged state, чтобы корректно определить оставшихся consumers.
+- TASK-086 завершена; выполнять после TASK-092, чтобы корректно определить
+  оставшихся `MetricCard` consumers.
 
 ## Acceptance criteria
 - [ ] В `Филиалы и залы` отсутствуют три metric cards количества филиалов и залов.

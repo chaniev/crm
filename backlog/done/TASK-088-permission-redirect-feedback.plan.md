@@ -1,7 +1,17 @@
 # Implementation Plan: TASK-088 Заменить silent permission redirects явной обратной связью
 
 ## Source task
-/backlog/implementation/TASK-088-permission-redirect-feedback.md
+/backlog/done/TASK-088-permission-redirect-feedback.md
+
+Source status is `done`: implementation commit `2ca95ef`, integration commit
+`7c43c04` and stabilization commit `c69f47b` are present on current
+`origin/main`; frontend unit, Chromium, target-iPhone WebKit, lint and build
+barriers passed during the 2026-07-30 status audit.
+
+## Implementation status
+
+Done. The status audit verified final release behavior; historical
+pre-implementation red-phase ordering was not reconstructed.
 
 ## Implementation branch
 fix/TASK-088-permission-redirect-feedback
@@ -360,4 +370,4 @@ follows the context-aware return contract without silent fallback.
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes
+no — implementation completed

@@ -1,13 +1,21 @@
 # TASK-088: Заменить silent permission redirects явной обратной связью
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-26 23:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-088-permission-redirect-feedback.plan.md
+- implementation_plan: /backlog/done/TASK-088-permission-redirect-feedback.plan.md
 - implementation_branch: fix/TASK-088-permission-redirect-feedback
+- implementation_state: completed
+- implementation_commit: 2ca95efbbffe423f4e06b7586d5e3f2f18a99c5f
+- integration_commit: 7c43c04b7358e3f1bd8c8731bd42d95d4b604a64
+- stabilization_commit: c69f47b9a91d09363577406052cf8d36633726b3
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30 19:33 MSK
+- reviewed_main_commit: c69f47b9a91d09363577406052cf8d36633726b3
 
 ## Priority
 P1
@@ -145,3 +153,18 @@ silent `replace`, причина denial теряется, а `RouteRedirectPlace
 - Status remains `ready`: core scope is narrowed to typed access resolution,
   deterministic inline/redirect feedback, not-found separation and valid
   recovery destinations.
+
+## Completion notes
+
+- Implementation commit `2ca95efbbffe423f4e06b7586d5e3f2f18a99c5f`
+  is integrated by `7c43c04b7358e3f1bd8c8731bd42d95d4b604a64`;
+  `c69f47b9a91d09363577406052cf8d36633726b3` aligns downstream access
+  regressions with the released feedback contract.
+- Typed route outcomes now separate allowed, restricted and not-found states;
+  direct denials keep inline context and automatic access loss uses one
+  authorized recovery with polite feedback.
+- Navigation remains driven by backend session capabilities; protected actions
+  are not inferred from frontend role strings.
+- Validation on 2026-07-30: frontend lint and build passed; unit tests
+  `367/367`; targeted Chromium flows `46/46`; target iPhone WebKit `20/20`.
+- Simulator/physical-device evidence remains unverified.

@@ -1,13 +1,19 @@
 # TASK-085: Search-focused mobile-поиск клиентов — вариант C
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-26 23:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-085-mobile-client-search.plan.md
+- implementation_plan: /backlog/done/TASK-085-mobile-client-search.plan.md
 - implementation_branch: feature/TASK-085-mobile-client-search
+- implementation_state: completed
+- implementation_commit: 4e231991e28e2930c0bd4f5feb0c7ef7c52c1d0c
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30 19:33 MSK
+- reviewed_main_commit: c69f47b9a91d09363577406052cf8d36633726b3
 
 ## Priority
 P0
@@ -407,3 +413,18 @@ Dense client card:
   is compact-only, cards stay `96px` in both compact states, branch visibility
   uses `branchId === null`, pill priority follows backend hints, and locator
   remains interactive during list loading.
+
+## Completion notes
+
+- Implementation commit `4e231991e28e2930c0bd4f5feb0c7ef7c52c1d0c`
+  is an ancestor of current `origin/main`.
+- TASK-017 dependency is delivered by `d86ded4`; TASK-085 reuses its
+  versioned return-state boundary without a second persistence mechanism.
+- Released code contains the compact browse/search-focused state machine,
+  `96px` identity cards, branch-aware metadata, loading-race protection and
+  mobile/desktop action behavior required by the approved Variant C contract.
+- Validation on 2026-07-30: frontend lint and build passed; unit tests
+  `367/367`; targeted Chromium flows `46/46`; target iPhone WebKit `20/20`.
+- Simulator/physical-device Safari chrome, software keyboard, home indicator
+  and safe-area evidence was not collected; no physical-device acceptance is
+  claimed.

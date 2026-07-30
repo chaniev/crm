@@ -1,7 +1,18 @@
 # Implementation Plan: TASK-087 Ограничить расписание тренера его effective groups
 
 ## Source task
-/backlog/implementation/TASK-087-coach-schedule-effective-scope.md
+/backlog/done/TASK-087-coach-schedule-effective-scope.md
+
+Source status is `done`: implementation commit `9aef592` is integrated by
+`7e386d1` on current `origin/main`; backend leakage/scope coverage and the
+frontend responsive release barriers passed during the 2026-07-30 status
+audit.
+
+## Implementation status
+
+Done. The high-risk data-visibility contract is protected by backend and
+frontend regression coverage. Historical pre-implementation red-phase ordering
+was not reconstructed by the status audit.
 
 ## Implementation branch
 fix/TASK-087-coach-schedule-effective-scope
@@ -228,4 +239,4 @@ zero-scope recovery, and keeps SuperAdministrator global across branches.
 - isolated worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes, with high-risk security review and the required regression gates
+no — implementation completed

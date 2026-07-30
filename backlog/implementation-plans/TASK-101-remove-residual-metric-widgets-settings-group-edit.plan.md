@@ -52,8 +52,8 @@ wrappers исчезают на всех ширинах.
   недостижимого primary action.
 
 ## Dependencies and execution order
-1. TASK-086 должна быть merged, чтобы group registry summary ownership был
-   закрыт и final `GroupManagement.tsx` baseline известен.
+1. TASK-086 — done; group registry summary ownership закрыт и final
+   `GroupManagement.tsx` baseline известен.
 2. TASK-092 должна быть merged, чтобы administrator metrics и final
    `MetricCard` consumer set были известны.
 3. Выполнить TASK-101 и repository-wide consumer cleanup.
@@ -207,4 +207,4 @@ Playwright доказывает, что mobile/desktop первый viewport н�
 - task worktree/branch невалиден.
 
 ## Ready for Codex execution
-yes, after TASK-086 and TASK-092 are merged into origin/main
+yes, after TASK-092 is merged into origin/main; TASK-086 is done

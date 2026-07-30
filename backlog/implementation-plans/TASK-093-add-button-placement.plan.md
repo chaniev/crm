@@ -64,8 +64,8 @@ settings workspaces, сохранив backend-owned visibility, loading и фа�
 
 ## Dependencies and execution order
 1. TASK-090 — done, shared mobile contract является source of truth.
-2. TASK-084 — touch-target/compact-height foundation должна быть merged.
-3. TASK-086 — должна быть merged до изменения/приёмки Groups; эта ветка только
+2. TASK-084 — done; touch-target/compact-height foundation merged.
+3. TASK-086 — done; эта ветка только
    адаптирует итоговый group locator к общему action recipe.
 4. TASK-092 — должна быть merged до sweep administrator settings call site.
 5. TASK-094 — semantic filter/locator surface baseline должна быть merged.
@@ -233,4 +233,5 @@ feature color/size exception reappears.
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes, after TASK-084, TASK-086, TASK-092 and TASK-094 are merged into origin/main
+yes, after TASK-092 and TASK-094 are merged into origin/main; TASK-084 and
+TASK-086 are done

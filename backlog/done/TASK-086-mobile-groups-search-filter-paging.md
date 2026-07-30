@@ -1,13 +1,20 @@
 # TASK-086: Добавить mobile-first поиск, фильтры и paging списка групп
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-26 23:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-086-mobile-groups-search-filter-paging.plan.md
+- implementation_plan: /backlog/done/TASK-086-mobile-groups-search-filter-paging.plan.md
 - implementation_branch: feature/TASK-086-mobile-groups-search-filter-paging
+- implementation_state: completed
+- implementation_commit: d3963a91191f53255290ce1e57b044f5ae824107
+- integration_commit: f8f646008097d8dbbc83cf1f8834ea57c2ee37e6
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30 19:33 MSK
+- reviewed_main_commit: c69f47b9a91d09363577406052cf8d36633726b3
 
 ## Priority
 P1
@@ -176,3 +183,18 @@ contract.
   criteria не изменены. Поиск тренеров вынесен в TASK-096.
 - Updated at: 2026-07-27 01:04
 - Duplicate check: group-registry summary widget уже явно удаляется этой implementation task; новая all-screen заметка добавлена как source evidence без изменения scope. Другие непокрытые MetricCard вынесены в TASK-101.
+
+## Completion notes
+
+- Implementation commit `d3963a91191f53255290ce1e57b044f5ae824107`
+  is an ancestor of current `origin/main` through integration commit
+  `f8f646008097d8dbbc83cf1f8834ea57c2ee37e6`.
+- Backend now owns group management scope, server-side query/filter/count/page
+  semantics and direct foreign-branch target protection; frontend consumes the
+  typed envelope without local permission filtering.
+- The registry exposes locator, filters, honest range/paging, return-state
+  restoration and no summary widget across the required responsive modes.
+- Validation on 2026-07-30: backend tests `420/420`; frontend lint and build
+  passed; unit tests `367/367`; targeted Chromium flows `46/46`; target iPhone
+  WebKit `20/20`.
+- Simulator/physical-device evidence remains unverified.

@@ -1460,3 +1460,92 @@
 - active implementation plans after audit: 16
 - validation: source/history/branch audit plus frontend lint, build, unit,
   Chromium geometry inventory and target-iPhone WebKit checks
+
+# 2026-07-30 post-TASK-085–TASK-088 status audit
+
+## Scope
+
+- Reconciled every active backlog folder with current `origin/main`
+  (`c69f47b9a91d09363577406052cf8d36633726b3`).
+- Reviewed all commits after the preceding TASK-084 audit and verified
+  implementation ancestry, current source, contracts and regression coverage.
+- Audit branch: `codex/backlog-status-actualization-2026-07-30-2`.
+
+## Confirmed already done
+
+- TASK-017 was moved to `/backlog/done` by implementation commit `d86ded4`.
+  Its client list return-state contract is present on current `main` and is
+  consumed by TASK-085.
+
+## Moved tasks to done
+
+- `/backlog/implementation/TASK-085-mobile-client-search.md` ->
+  `/backlog/done/TASK-085-mobile-client-search.md`.
+- `/backlog/implementation/TASK-086-mobile-groups-search-filter-paging.md` ->
+  `/backlog/done/TASK-086-mobile-groups-search-filter-paging.md`.
+- `/backlog/implementation/TASK-087-coach-schedule-effective-scope.md` ->
+  `/backlog/done/TASK-087-coach-schedule-effective-scope.md`.
+- `/backlog/implementation/TASK-088-permission-redirect-feedback.md` ->
+  `/backlog/done/TASK-088-permission-redirect-feedback.md`.
+
+## Moved implementation plans to done
+
+- TASK-085, TASK-086, TASK-087 and TASK-088 plans moved from
+  `/backlog/implementation-plans` to `/backlog/done`.
+
+## Evidence
+
+- TASK-085: `4e23199` delivers compact client search-focused mode and reuses
+  the TASK-017 return-state boundary.
+- TASK-086: `d3963a9`, integrated by `f8f6460`, delivers scoped server-side
+  group search/filter/count/paging, direct-target protection and responsive
+  registry UX.
+- TASK-087: `9aef592`, integrated by `7e386d1`, applies backend-owned Coach
+  effective scope before schedule count/paging and preserves elevated-role
+  global behavior.
+- TASK-088: `2ca95ef`, integrated by `7c43c04` and stabilized by `c69f47b`,
+  delivers typed route access outcomes, persistent restriction feedback,
+  authorized recovery and separate not-found behavior.
+
+## Validation
+
+- Backend: `420/420` tests passed.
+- Frontend: lint and build passed; unit tests `367/367`.
+- Chromium: group registry, schedule, route access and touch inventory
+  `44/44`; focused client return/filter flows `2/2`.
+- Target iPhone WebKit: `20/20`.
+- Existing Magick.NET vulnerability warnings and the Vite large-chunk warning
+  remain visible but did not cause a functional validation failure.
+
+## Actualized active dependencies
+
+- TASK-089 now has both execution dependencies delivered: TASK-017 and
+  TASK-085.
+- TASK-094's TASK-086 gate is satisfied and its plan is ready for execution.
+- TASK-093 still waits for TASK-092 and TASK-094; TASK-084 and TASK-086 are
+  already done.
+- TASK-101 now waits only for TASK-092; its TASK-086 baseline is delivered.
+- TASK-096 now references the completed TASK-086 card under `/backlog/done`.
+
+## Kept active
+
+- 11 implementation tasks remain active: TASK-089 and TASK-092–TASK-101.
+  Their declared implementation branches are absent locally and on `origin`,
+  and no matching delivered implementation was found on current `main`.
+- `tasks-ready` (8), `risky` (6) and `needs-clarification` (7) remain
+  unchanged; inbox and processing are empty.
+
+## Residual evidence caveat
+
+- Simulator/physical-device Safari chrome, software keyboard, home indicator
+  and safe-area behavior were not checked. Automated WebKit coverage passed,
+  but no physical-device acceptance is claimed.
+
+## Summary
+
+- confirmed already done: 1 task (TASK-017)
+- moved to done: 4 tasks
+- moved plans to done: 4
+- active tasks after audit: 32 (`tasks-ready`: 8, `risky`: 6,
+  `needs-clarification`: 7, `implementation`: 11)
+- active implementation plans after audit: 11
