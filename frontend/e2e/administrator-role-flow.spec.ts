@@ -277,7 +277,21 @@ test('форма администратора сохраняет геометр�
 
   for (const viewport of targetViewports) {
     await page.setViewportSize(viewport)
+    const panel = page.getByTestId('administrators-settings-panel')
     const createButton = page.getByRole('button', { name: 'Добавить администратора' }).first()
+    const refreshButton = panel.getByRole('button', { name: 'Обновить' })
+    const firstAdministrator = page.getByTestId('administrator-card-admin-geometry')
+
+    await expect(panel.locator('.metric-card')).toHaveCount(0)
+    await expect(panel.locator(':scope > .page-section').first()).toBeVisible()
+    await expect(createButton).toBeInViewport()
+    await expect(refreshButton).toBeInViewport()
+    await expect(firstAdministrator).toBeVisible()
+    if (viewport.width === 390 && viewport.height === 844) {
+      await expect(firstAdministrator).toBeInViewport()
+    }
+    await expectNoHorizontalScroll(page)
+
     await createButton.click()
 
     const dialog = page.getByRole('dialog', { name: 'Новый администратор' })
@@ -467,7 +481,19 @@ async function mockAdministratorGeometryApi(page: Page) {
 
     if (requestUrl.pathname === '/api/settings/administrators' && method === 'GET') {
       await fulfillJson(route, 200, {
-        items: [],
+        items: [
+          {
+            id: 'admin-geometry',
+            fullName: 'Администратор геометрии',
+            login: 'admin-geometry',
+            role: 'Administrator',
+            mustChangePassword: false,
+            isActive: true,
+            branchId: 'branch-1',
+            branchName: 'Центр',
+            allowedActions: ['Edit'],
+          },
+        ],
         createRoleOptions: ['Administrator', 'SuperAdministrator'],
       })
       return

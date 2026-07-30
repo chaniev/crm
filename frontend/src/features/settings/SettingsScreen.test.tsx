@@ -122,6 +122,33 @@ describe('SettingsScreen', () => {
     expect(screen.getByRole('tab', { name: 'Администраторы' })).toBeVisible()
   })
 
+  test('starts the administrator workspace with the operational section and no metrics', async () => {
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [buildAdministrator()],
+      createRoleOptions: ['Administrator'],
+    })
+
+    renderSettings()
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+
+    const panel = await screen.findByTestId('administrators-settings-panel')
+    const administratorCard = await screen.findByTestId('administrator-card-administrator-1')
+
+    expect(panel.querySelector('.metric-card')).not.toBeInTheDocument()
+    expect(panel.firstElementChild).toHaveClass('page-section')
+    expect(within(panel).getByRole('heading', { name: 'Администраторы' })).toBeVisible()
+    expect(
+      within(panel).getByText(
+        'Администраторы управляют настройками, клиентами, группами и журналом без доступа к созданию тренеров.',
+      ),
+    ).toBeVisible()
+    expect(
+      within(panel).getByRole('button', { name: 'Добавить администратора' }),
+    ).toBeVisible()
+    expect(within(panel).getByRole('button', { name: 'Обновить' })).toBeVisible()
+    expect(administratorCard).toBeVisible()
+  })
+
   test('keeps ordinary Administrator settings without staff-management controls', () => {
     renderWithProviders(
       <SettingsScreen
