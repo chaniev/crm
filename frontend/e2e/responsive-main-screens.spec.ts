@@ -946,6 +946,284 @@ test.describe('TASK-089 clients tablet fallback', () => {
   })
 })
 
+test.describe('TASK-089 clients split capability boundary', () => {
+  test.use({ viewport: { width: 1700, height: 1200 } })
+
+  test('toggles between split and route fallback exactly on threshold inline-size', async ({
+    page,
+  }) => {
+    await mockApi(page, MANAGEMENT_SESSION)
+    await page.goto('/clients')
+
+    const layout = page.locator('#clients-results')
+    const row = page.getByTestId('client-card-client-1')
+    const preview = page.getByTestId('client-preview-panel')
+
+    await setClientListLayoutInlineSize(page, 1072)
+    await expect(layout).toHaveAttribute('data-client-preview-layout', 'expanded')
+    await expect(preview).toBeVisible()
+
+    await setClientListLayoutInlineSize(page, 1071)
+    await expect.poll(async () => layout.getAttribute('data-client-preview-layout')).toBe(
+      'fallback',
+    )
+    await expect(preview).toHaveCount(0)
+
+    await row.click()
+    await expect(page).toHaveURL(/\/clients\/client-1\/preview$/)
+
+    await page.goBack()
+    await expect(page).toHaveURL('/clients')
+    await setClientListLayoutInlineSize(page, 1071)
+    await expect(layout).toHaveAttribute('data-client-preview-layout', 'fallback')
+
+    await setClientListLayoutInlineSize(page, 1072)
+    await expect.poll(async () => layout.getAttribute('data-client-preview-layout')).toBe(
+      'expanded',
+    )
+    await expect(preview).toBeVisible()
+    await expect(page).toHaveURL('/clients')
+  })
+})
+
+test.describe('TASK-089 clients 200%-zoom equivalent', () => {
+  test.use({ viewport: { width: 1440, height: 1200 } })
+
+  test('falls back to route preview and keeps page/list overflow constrained when effective width is halved', async ({
+    page,
+  }) => {
+    await mockApi(page, MANAGEMENT_SESSION)
+    await page.goto('/clients')
+
+    const layout = page.locator('#clients-results')
+    const preview = page.getByTestId('client-preview-panel')
+    const row = page.getByTestId('client-card-client-1')
+
+    await expect(layout).toHaveAttribute('data-client-preview-layout', 'expanded')
+    await expect(preview).toBeVisible()
+
+    // Browser zoom is represented by its effective CSS viewport: 1440 / 200% = 720.
+    await page.setViewportSize({ width: 720, height: 600 })
+    await expect.poll(async () => layout.getAttribute('data-client-preview-layout')).toBe(
+      'fallback',
+    )
+    await expect(preview).toHaveCount(0)
+    await expectNoHorizontalScroll(page)
+
+    await row.click()
+    await expect(page).toHaveURL(/\/clients\/client-1\/preview$/)
+    await expectNoHorizontalScroll(page)
+
+    await page.goBack()
+    await page.setViewportSize({ width: 1440, height: 1200 })
+    await expect.poll(async () => layout.getAttribute('data-client-preview-layout')).toBe(
+      'expanded',
+    )
+    await expect(preview).toBeVisible()
+    await expectNoHorizontalScroll(page)
+  })
+})
+
+test.describe('TASK-089 clients split state flow', () => {
+  test.use({ viewport: { width: 1700, height: 1200 } })
+
+  test('preserves search, collapsed intent, reopen intent and detail/back state with return snapshot', async ({
+    page,
+  }) => {
+    await mockApi(page, MANAGEMENT_SESSION)
+
+    await page.route(/\/api\/clients(?:\?.*)?$/, async (route) => {
+      const requestUrl = new URL(route.request().url())
+      const { pathname } = requestUrl
+      const method = route.request().method()
+
+      if (pathname !== '/api/clients' || method !== 'GET') {
+        await route.continue()
+        return
+      }
+
+      const params = requestUrl.searchParams
+      const query = (params.get('query') ?? '').trim().toLowerCase()
+      const status = params.get('status') ?? 'all'
+      const page = Number.parseInt(params.get('page') ?? '1', 10) || 1
+      const pageSize = Number.parseInt(params.get('pageSize') ?? '20', 10) || 20
+
+      const longClients = Array.from({ length: 36 }, (_, index) => {
+        const isArchived = index % 3 === 0
+        const suffix = String(index + 1).padStart(2, '0')
+
+        return {
+          ...CLIENTS_RESPONSE.items[0],
+          id: `client-${suffix}`,
+          fullName: `Клиент ${suffix} Александр`,
+          phone: `+7 999 22${suffix}`,
+          status: isArchived ? 'Archived' : 'Active',
+        }
+      })
+
+      const filteredByStatus = longClients.filter((client) => {
+        if (status === 'all' || status === 'Active') {
+          return client.status === status || status === 'all'
+        }
+
+        return client.status === status
+      })
+      const filtered = query.length === 0
+        ? filteredByStatus
+        : filteredByStatus.filter((client) => client.fullName.toLowerCase().includes(query))
+      const skip = (page - 1) * pageSize
+      const items = filtered.slice(skip, skip + pageSize)
+
+      await fulfillJson(route, 200, {
+        items,
+        totalCount: filtered.length,
+        activeCount: filtered.length,
+        archivedCount: filtered.filter((client) => client.status === 'Archived').length,
+        skip,
+        take: pageSize,
+        page,
+        pageSize,
+        hasNextPage: skip + pageSize < filtered.length,
+        quickFilterCounts: {
+          withoutMembership: 0,
+          expiringSoon: 0,
+          withoutGroup: 0,
+          trial: 0,
+        },
+      })
+    })
+
+    await page.route('**/api/clients/client-*', async (route) => {
+      const requestUrl = new URL(route.request().url())
+      const clientId = requestUrl.pathname.slice('/api/clients/'.length)
+      const method = route.request().method()
+
+      if (method !== 'GET') {
+        await route.fallback()
+        return
+      }
+
+      const normalized = clientId.trim().toLowerCase()
+      if (!normalized.startsWith('client-')) {
+        await route.fallback()
+        return
+      }
+
+      const details = {
+        ...CLIENTS_RESPONSE.items[0],
+        id: normalized,
+        fullName: `Клиент ${normalized.slice('client-'.length)} Александр`,
+      }
+
+      await fulfillJson(route, 200, details)
+    })
+
+    await page.goto('/clients')
+
+    const layout = page.locator('#clients-results')
+    const preview = page.getByTestId('client-preview-panel')
+    const search = page.getByRole('textbox', { name: 'Поиск по имени или телефону' })
+
+    await expect(preview).toBeVisible()
+    await expect(layout).toHaveAttribute('data-client-preview-layout', 'expanded')
+
+    await search.fill('Клиент')
+    await search.blur()
+    await expect.poll(async () => {
+      const returnState = await readClientListReturnState(page)
+
+      return returnState?.searchDraft
+    }).toBe('Клиент')
+
+    await page.getByRole('button', { name: /Открыть фильтры/ }).click()
+    const filtersDialog = page.getByRole('dialog', { name: 'Фильтры клиентов' })
+    await filtersDialog.getByRole('combobox', { name: 'Статус' }).click()
+    await page.getByRole('option', { name: 'Архив' }).click()
+    await filtersDialog.getByRole('button', { name: 'Готово' }).click()
+    await expect(page.getByText('Статус: Архив').first()).toBeVisible()
+
+    const selectedRow = page.getByTestId('client-card-client-01')
+    await expect(selectedRow).toBeVisible()
+    await page.getByRole('button', { name: 'Свернуть preview' }).click()
+    await expect(preview).toHaveCount(0)
+    await expect(selectedRow).toBeFocused()
+
+    await expect
+      .poll(async () => {
+        const returnState = await readClientListReturnState(page)
+
+        return returnState?.ui?.previewIntent
+      })
+      .toBe('collapsed')
+
+    const targetRow = page.getByTestId('client-card-client-34')
+    await targetRow.scrollIntoViewIfNeeded()
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+    await targetRow.press('Space')
+    await expect(preview).toBeVisible()
+    await expect
+      .poll(async () => {
+        const returnState = await readClientListReturnState(page)
+
+        return returnState?.ui?.previewIntent
+      })
+      .toBe('expanded')
+    await expect(layout).toHaveAttribute('data-client-preview-layout', 'expanded')
+
+    const listScrollY = await page.evaluate(() => window.scrollY)
+    await targetRow.dblclick()
+    await expect(page).toHaveURL(/\/clients\/client-34$/)
+
+    await page.getByRole('button', { name: 'К списку клиентов' }).click()
+    await expect(page).toHaveURL('/clients')
+    await expect(page.locator('#clients-results')).toBeVisible()
+    await expect(targetRow).toBeVisible()
+    await expect(page.getByText('Статус: Архив').first()).toBeVisible()
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThanOrEqual(
+      Math.max(1, listScrollY - 2),
+    )
+
+    await expect
+      .poll(async () => {
+        const returnState = await readClientListReturnState(page)
+
+        return returnState?.selectedClientId
+      })
+      .toBe('client-34')
+    await expect
+      .poll(async () => {
+        const returnState = await readClientListReturnState(page)
+
+        return returnState?.searchDraft
+      })
+      .toBe('Клиент')
+  })
+})
+
+async function setClientListLayoutInlineSize(page: Page, inlineSizePx: number) {
+  const layout = page.locator('#clients-results')
+
+  await layout.evaluate((element, width) => {
+    const root = element as HTMLElement
+
+    root.style.width = `${width}px`
+    root.style.maxWidth = `${width}px`
+    root.style.minWidth = `${width}px`
+  }, inlineSizePx)
+
+  await expect.poll(async () =>
+    Math.round(
+      (await layout.evaluate((element) => element.getBoundingClientRect().width)) || 0,
+    ),
+  ).toBe(inlineSizePx)
+}
+
+async function readClientListReturnState(page: Page) {
+  return page.evaluate(() => {
+    return window.history.state?.crmClientListReturnState ?? null
+  })
+}
+
 async function captureAlternateThemeSnapshots(page: Page) {
   const snapshots = []
 
