@@ -16,9 +16,10 @@ Branch rules:
 
 ## Goal
 Реализовать утверждённый client-specific `browse ↔ search-focused` workflow:
-видимый search остаётся первым control, retained actions скрываются только во
-время поиска, результаты используют `96px` identity-first cards, а возврат из
-preview/detail восстанавливает полный list context через механизм TASK-017.
+видимый search остаётся первым control, внутри existing compact layout
+retained actions скрываются только во время поиска, оба compact states
+используют `96px` identity-first cards, а возврат из preview/detail
+восстанавливает полный list context через механизм TASK-017.
 
 ## Current understanding
 - Typed client API и backend search semantics уже существуют и не меняются.
@@ -28,14 +29,19 @@ preview/detail восстанавливает полный list context чере
   `ClientsResults` резервирует action column и имеет `min-height: 8.1rem`.
 - `useClientsListState` уже отделяет search draft от debounced query, но не
   хранит focus-driven UI state.
-- UX contract в source task уже approved. Перед реализацией
-  `ux-researcher`/`ui-designer` выполняют короткий conformance handoff; изменять
-  Variant C без product decision нельзя.
+- `EntityLocatorBar` сейчас disables search/clear/filter во время list loading,
+  а shared `Skeleton` использует fixed `72px`, что не соответствует целевому
+  compact loading contract.
+- `ClientsListScreen` не получает `currentUser.branchId`, поэтому exact branch
+  identity predicate нужно передать из route composition.
+- UX contract в source task approved; product clarifications and the required
+  `ux-researcher` → `ui-designer` conformance handoff completed at 2026-07-30.
+  Изменять Variant C или зафиксированные derived-state/compact-scope решения
+  без нового product decision нельзя.
 
 ## Dependencies and execution order
 1. TASK-090 — done.
-2. TASK-084 — shared touch/compact-height contract должен быть доступен или
-   изменения этой branch должны быть rebased onto it.
+2. TASK-084 — done; shared touch/compact-height contract является baseline.
 3. TASK-017 — mandatory execution dependency and source of return-state
    persistence.
 4. TASK-085.
@@ -46,38 +52,60 @@ preview/detail восстанавливает полный list context чере
    list-state restoration contract и reuse без второго persistence mechanism.
 2. До production-кода добавить unit tests:
    - transition table `browse ↔ search-focused`;
-   - clear query while focused, blur empty/non-empty;
+   - clear query while focused, blur empty/non-empty/whitespace-only;
+   - restored empty query derives `browse`, restored non-empty query derives
+     visual `search-focused` без persistence focus-only mode;
    - advanced filter count without query/default Active;
    - independent clear-search and reset-filters behavior;
-   - long-name/branch/action view model.
+   - long-name/branch view model при `branchId` null/non-null;
+   - compact pill priority: Archived, first backend action hint, Active fallback.
 3. До production-кода добавить component tests:
    - toolbar action visibility and focus order in both states;
+   - compact-only action hiding и сохранение desktop retained actions;
    - permission-bound create action;
    - active chips/remove/reset and drawer focus return;
-   - `96px` card DOM hierarchy without fixed action column;
-   - loading/empty/error recovery preserves locator and state.
+   - exact `96px` card/skeleton hierarchy в обоих compact states без fixed
+     action column;
+   - branch identity видима и входит в accessible name iff
+     `currentUser.branchId === null`;
+   - loading/empty/error recovery preserves locator and derived state;
+   - search, clear и filter trigger enabled во время loading, stale response не
+     перезаписывает более новый result.
 4. До production-кода добавить Playwright integration tests for the primary
    mobile flow, return through preview/detail, SuperAdministrator global search,
-   keyboard/drawer behavior and required geometry.
+   keyboard/drawer behavior, loading race, compact/desktop scope and required
+   geometry.
 5. Запустить new tests и подтвердить expected failures: missing state machine,
    visible retained actions, `8.1rem` rows/action column, missing branch context,
    absent return-state integration.
 6. Реализовать локальный UI state:
    - derive `search-focused` from input focus or normalized query;
    - keep query/filter domain state in existing hook;
-   - integrate `browse/search-focused` into TASK-017 restoration payload;
+   - после TASK-017 hydration derive restored mode только из normalized query:
+     empty/whitespace → `browse`, non-empty → visual `search-focused`;
+   - focus-only `search-focused` не добавлять в TASK-017 payload;
+   - после возврата focus selected/anchor card, а не search input, без открытия
+     software keyboard;
    - avoid new global store.
 7. Extend `ClientsToolbar` through existing slots/state:
-   - hide refresh/create only in search-focused without spacer;
-   - preserve search, filter trigger, clear and active filters;
+   - hide refresh/create only in compact `search-focused` without spacer;
+   - preserve desktop retained actions at `1440 x 1200`;
+   - preserve enabled search, filter trigger and clear during list loading;
    - keep immediate filter application and scoped reset semantics.
-8. Refactor mobile result card to approved `36px minmax(0,1fr) 20px` hierarchy,
-   `96px` height, two-line full name, branch identity when relevant and one
-   whole-card primary action.
+8. Refactor compact result card in both states to approved
+   `36px minmax(0,1fr) 20px` hierarchy, exact `96px` height, `8px` gap,
+   two-line full name and one whole-card primary action:
+   - show visible/accessibility branch identity iff
+     `currentUser.branchId === null`;
+   - pill priority: Archived → first backend `actionHint` compact mapping →
+     `Активен`;
+   - do not infer pill priority from local membership/group rules.
 9. Separate empty/recovery operations for query and advanced filters; retry and
-   refresh must not reset context.
+   refresh must not reset context. Abort or ignore stale list response so it
+   cannot overwrite newer clients/loading/error/selection/derived mode.
 10. Add exact mobile/compact-height CSS using shared tokens and safe-area
-    foundation; do not create `ClientsMobileToolbar`.
+    foundation; add `96px` client skeleton support through the released shared
+    primitive without creating `ClientsMobileToolbar`.
 11. Run focused red→green tests after each slice, then full frontend lint,
     build, unit and affected Playwright/iPhone checks.
 
@@ -93,9 +121,13 @@ preview/detail восстанавливает полный list context чере
 - `frontend/src/features/clients/list/ClientsToolbar.tsx`
 - `frontend/src/features/clients/list/ClientsResults.tsx`
 - `frontend/src/features/clients/list/ClientsListScreen.tsx`
+- `frontend/src/App.tsx`
 - `frontend/src/features/clients/list/clientListFilters.ts`
 - `frontend/src/features/clients/list/clientListFilters.test.ts`
 - `frontend/src/features/clients/list/clientListViewModel.ts`
+- `frontend/src/features/shared/EntityLocatorBar.tsx`
+- `frontend/src/features/shared/ux.tsx`
+- affected shared primitive tests
 - new focused client toolbar/results/state component tests
 - `frontend/src/App.css`
 - affected client Playwright specs, including return-state and responsive specs
@@ -106,7 +138,13 @@ preview/detail восстанавливает полный list context чере
 - Use only released shared primitives and tokens.
 - Query is not duplicated as active-filter chip.
 - No new persistent storage contract outside TASK-017.
-- Search-focused card height and required result counts are measurable acceptance.
+- Focus-only `search-focused` is not persisted; restored mode derives from
+  normalized restored query.
+- Search-focused action hiding and mobile cards are limited to the existing
+  compact breakpoint `max-width: 62rem`; desktop TASK-089 geometry remains out
+  of scope.
+- Compact card/skeleton height, gap and required result counts are measurable
+  acceptance.
 
 ## Out of scope
 - Backend search changes.
@@ -119,9 +157,9 @@ preview/detail восстанавливает полный list context чере
 ### Unit tests
 - Complete state transition table.
 - Filter count/reset scope.
-- Long-name, branch and concrete status/action view models.
-- Restoration serialization added by TASK-017 includes UI state without PII
-  persistence beyond its approved boundary.
+- Long-name, exact branch predicate and backend-driven compact pill view models.
+- TASK-017 serialization contains no focus-only TASK-085 mode; hydration derives
+  visual mode from normalized query.
 
 ### Integration tests
 - Backend tests are not applicable because the typed client API contract is unchanged.
@@ -132,9 +170,16 @@ preview/detail восстанавливает полный list context чере
 
 ### UI/e2e tests
 - Search/filter/detail/back primary path and separate recoveries.
-- Five full `96px` cards at `390 x 844`; six at `420 x 912` and `440 x 956`.
+- Empty/whitespace return restores `browse`; non-empty return restores visual
+  `search-focused`; both focus selected/anchor card without keyboard.
+- Five full `96px` cards at `360 x 780` and `390 x 844`; six at
+  `420 x 912` and `440 x 956`.
 - Locator min widths `156/176/200/216px`, touch targets and no overflow.
-- Long names and SuperAdministrator branch identity.
+- Exact card height `96px`, gap `8px`/top delta `104px`, including skeletons.
+- Long names and branch identity iff `currentUser.branchId === null`.
+- Compact behavior at `768 x 1024`, `912 x 420`, `956 x 440`; desktop retained
+  actions/table rows preserved at `1440 x 1200`.
+- Loading query/filter race leaves locator interactive and ignores stale result.
 - Software keyboard reachability and drawer focus return.
 
 ## Test plan
@@ -149,14 +194,17 @@ preview/detail восстанавливает полный list context чере
 
 ## Regression barrier
 The primary barrier is an automated search→filters→preview/detail→back scenario
-that asserts query, filters, page/batch, selected client, scroll position and
-`browse/search-focused` state, plus measured card/locator geometry at the three
-portrait targets and SuperAdministrator multi-branch coverage.
+that asserts query, filters, page, selected client, scroll position and derived
+`browse/search-focused` state, plus measured card/locator geometry at all
+portrait targets, exact global branch identity and compact/desktop scope.
 
 ## Risks
 - Focus/blur ordering can flicker retained actions or exit search-focused during clear.
 - A dense card can hide decision data or make long names inaccessible.
-- Duplicating TASK-017 storage would create inconsistent restoration behavior.
+- Persisting focus-only mode or duplicating TASK-017 storage would create
+  inconsistent restoration behavior.
+- A stale list response can overwrite a newer query/filter result unless request
+  ownership is asserted.
 
 ## Stop conditions
 Остановиться, если:
@@ -167,4 +215,4 @@ portrait targets and SuperAdministrator multi-branch coverage.
 - worktree/branch/dependency order is invalid.
 
 ## Ready for Codex execution
-yes, after TASK-017 and shared TASK-084 changes are merged
+yes, after TASK-017 is merged; TASK-084 is already merged

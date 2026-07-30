@@ -17,9 +17,10 @@ feature/TASK-085-mobile-client-search
 
 ## Goal
 Суперадминистратор, администратор или тренер находит клиента среди 300+ записей
-на mobile без предварительного открытия расширенных фильтров. После начала
-поиска интерфейс переходит в плотный search-focused state, сохраняет locator,
-активные фильтры и минимум пять полностью видимых результатов на `390 x 844`.
+на mobile без предварительного открытия расширенных фильтров. Compact layout
+использует плотные identity-first cards, а после начала поиска переходит в
+search-focused state, сохраняет locator, активные фильтры и минимум пять
+полностью видимых результатов на `390 x 844`.
 
 ## Shared mobile UI contract
 
@@ -27,8 +28,9 @@ feature/TASK-085-mobile-client-search
   [Единый контракт мобильного интерфейса CRM](../../docs/MOBILE_UI_CONTRACT.md).
 - Foundation dependency: `TASK-090`; touch/compact-height sweep: `TASK-084`.
 - Return-state dependency: `TASK-017` должен быть реализован отдельной задачей
-  до TASK-085; эта карточка добавляет к нему сохранение
-  `browse` / `search-focused`.
+  до TASK-085. Эта карточка не сохраняет focus-only UI mode: после hydration
+  `browse` / `search-focused` выводится из normalized restored query, а focus
+  восстанавливается на selected/anchor card без открытия keyboard.
 - Эта задача владеет только client-specific `browse` / `search-focused`,
   `96px` identity cards, client decision data и state transitions.
 - Page spacing, typography, colors, locator/filter primitives, operational
@@ -82,11 +84,12 @@ header и подключил shared filters/states. Оставшаяся client-
 state.
 
 ## Scope
-- Реализовать mobile state machine `browse` / `search-focused`.
+- Реализовать compact state machine `browse` / `search-focused` внутри
+  существующего breakpoint `max-width: 62rem`.
 - Сохранить выпущенный TASK-090 inline search и shared locator/filter/state
   primitives.
-- Использовать плотные identity-first cards высотой `96px` в
-  search-focused state.
+- Использовать плотные identity-first cards точной высотой `96px` и gap `8px`
+  в обоих compact states: `browse` и `search-focused`.
 - Сохранить в drawer вторичные filters: group, status, membership dates,
   without photo и page size.
 - Показывать active advanced filters вне drawer как удаляемые controls высотой
@@ -95,16 +98,21 @@ state.
   - clear search очищает только `query`;
   - reset filters не очищает `query`;
   - filter count не включает `query` и default `status=Active`.
-- После отдельной реализации `TASK-017` сохранять search, filters, page/loaded
-  batch, scroll position, selected result и UI state при закрытии drawer,
-  открытии preview/detail и возврате к списку.
+- После отдельной реализации `TASK-017` сохранять search, filters, page, scroll
+  position и selected result при открытии preview/detail и возврате к списку.
+  Focus-only `search-focused` не сериализовать; restored visual mode выводить
+  только из normalized query.
 - Сохранить существующую backend search semantics и typed API boundary.
-- Для SuperAdministrator искать по глобальному backend-permitted набору без
-  локальной permission-фильтрации; показывать branch identity в cards для
-  различения одноимённых клиентов.
-- `Новый клиент` показывать только по backend permission `canManageClients` и
-  только в `browse` state.
+- Для пользователя с `branchId === null` искать по глобальному
+  backend-permitted набору без локальной permission-фильтрации и показывать
+  branch identity в каждой card. Видимость branch identity не зависит от
+  количества rows, числа филиалов в response или совпадения ФИО.
+- `Новый клиент` показывать только по backend permission `canManageClients`;
+  внутри compact layout скрывать его только в `search-focused`, а desktop
+  retained action не менять.
 - Сохранять search и active filters видимыми при loading, empty, error и retry.
+- Во время list loading оставлять search, clear-search и filter trigger
+  enabled; stale request отменять или игнорировать.
 
 ## Out of scope
 - Client detail, tabs и quick actions из `TASK-016`–`TASK-021`.
@@ -117,7 +125,8 @@ state.
 
 ### Browse state
 
-Условие: `query` пустой и search не сфокусирован.
+Условие внутри compact layout: normalized `query` пустой и search не
+сфокусирован.
 
 - Visible page title отсутствует: persistent navigation уже называет
   top-level route, а semantic `h1`, document title и named main сохраняются.
@@ -127,14 +136,17 @@ state.
   header или summary card.
 - Filter trigger показывает только количество active advanced filters.
 - Active filters видимы и индивидуально удаляемы вне drawer.
-- Cards используют ту же identity-first hierarchy, что и search results.
+- Cards используют ту же identity-first hierarchy и точную высоту `96px`, что
+  и search results.
 
 ### Search-focused state
 
-Условие: search сфокусирован или normalized `query` не пустой.
+Условие внутри compact layout: search сфокусирован или normalized `query` не
+пустой.
 
-- Visible page title уже отсутствует; в этом state скрываются только refresh и
-  `Новый клиент`, без spacer или action-only строки.
+- Visible page title уже отсутствует; в этом compact state скрываются только
+  refresh и `Новый клиент`, без spacer или action-only строки. На desktop
+  `1440 x 1200` эти retained actions при search не скрываются.
 - Locator row остаётся первой строкой content area и достижим при software
   keyboard.
 - Search, clear-search, filter trigger, active filter chips/reset и results
@@ -151,10 +163,18 @@ state.
   в `search-focused` до blur.
 - Blur при пустом query: `search-focused` → `browse`.
 - Blur при непустом query: остаёмся в `search-focused`.
+- Whitespace-only draft нормализуется как empty query и после blur переводит
+  интерфейс в `browse`.
 - Mobile back при открытом drawer сначала закрывает drawer и возвращает focus
   на filter trigger.
 - Закрытие software keyboard не очищает query и filters.
-- Preview/detail/back восстанавливает предыдущий state без layout reset.
+- Preview/detail/back с empty или whitespace-only restored query возвращает
+  `browse`; с non-empty normalized query возвращает visual
+  `search-focused`.
+- После preview/detail/back focus получает restored selected/anchor card, а
+  если её нет — first visible card или results region по контракту TASK-017.
+  Search input не получает focus, и software keyboard не открывается.
+- Focus-only `search-focused` с empty query не сохраняется в TASK-017 payload.
 
 ## Mobile information hierarchy
 
@@ -176,9 +196,13 @@ Dense client card:
 - ФИО: `16px`, line-height `18–20px`, weight `800`, максимум две строки;
 - не использовать one-line ellipsis для ФИО на `360–440px`;
 - телефон показывать только роли с доступом;
-- branch identity показывать в global/multi-branch context;
-- concrete action/status `Без абонемента`, `Без группы`, `До 31 июля`,
-  `В архиве` показывать compact status pill под identity;
+- branch identity показывать в visible metadata и accessible name card тогда и
+  только тогда, когда `currentUser.branchId === null`;
+- при `status=Archived` compact pill всегда показывает `В архиве`;
+- для active client compact pill использует первый backend-provided
+  `actionHint`, mapped в краткую подпись (`Без абонемента`, `Без группы`,
+  `До 31 июля`); без значимого hint показывает `Активен`;
+- frontend не выводит приоритет pill из локальных membership/group rules;
 - не резервировать fixed right column под `Нужно сделать`;
 - полный ФИО остаётся в accessible name card и в preview/detail.
 
@@ -194,8 +218,11 @@ Dense client card:
   допускается 1–3 active chips в строке с переносом остальных.
 - `768 x 1024`: search и frequent filters могут размещаться inline; secondary
   filters остаются в popover/drawer. Duplicate top-level header не
-  возвращается; tablet toolbar сохраняет ту же task hierarchy.
-- `1440 x 1200`: сохраняется компактный desktop toolbar.
+  возвращается; existing compact behavior применяется, cards остаются `96px`,
+  а в `search-focused` refresh/create скрываются.
+- `1440 x 1200`: сохраняется compact desktop toolbar и desktop row/table
+  presentation; search не скрывает retained refresh/create и не включает
+  mobile cards.
 - `912 x 420`, `956 x 440`: на touch/mobile profile используется
   compact-height locator-first layout, а не desktop sidebar. Search остаётся
   достижим без drawer; search, result/recovery state и переход к результатам
@@ -203,8 +230,12 @@ Dense client card:
 - На `360`, `390`, `420`, `440` отсутствует horizontal page scroll.
 
 ## Operational and interaction states
-- Loading сохраняет locator и active filters; skeleton cards имеют ту же высоту
-  `96px`, что и results, чтобы не создавать layout shift.
+- Loading сохраняет locator и active filters; search, clear-search и filter
+  trigger остаются enabled, а skeleton cards имеют точную высоту `96px`, что и
+  compact results, чтобы не создавать layout shift.
+- Новый query/filter во время loading отменяет предыдущий list request или
+  делает его response stale; старый response не может перезаписать более новые
+  clients, loading, error, selection или derived visual mode.
 - Empty first-run в `browse` предлагает `Новый клиент`, только если операция
   разрешена.
 - Empty search state сохраняет query и показывает `Клиенты не найдены` +
@@ -213,13 +244,14 @@ Dense client card:
   `Сбросить фильтры`.
 - Если одновременно активны query и advanced filters, обе recovery operations
   доступны раздельно и явно называют свой scope.
-- Error сохраняет query, filters и текущий UI state; retry ничего не очищает.
+- Error сохраняет query, filters и derived visual mode; retry ничего не
+  очищает.
 - Refresh в `browse` не очищает query, filters, page или scroll state; в
   `search-focused` page refresh action скрыт, а recovery retry остаётся видимым.
 - Для роли без доступа к телефону label не обещает поиск по недоступному полю и
   card не показывает phone.
-- Focus order: search → clear search при непустом query → filter trigger →
-  refresh/create только в `browse` → active filters/reset → results.
+- Compact focus order: search → clear search при непустом query → filter trigger
+  → refresh/create только в `browse` → active filters/reset → results.
 - Закрытие drawer возвращает focus на filter trigger.
 - Enter/Space на focused card открывает preview.
 - Escape закрывает desktop popover; mobile drawer закрывается системным back
@@ -250,6 +282,10 @@ Dense client card:
   визуального перехода.
 - Search-focused state определяется UI/search state, а не frontend domain
   inference.
+- Focus-only UI mode не добавляется в TASK-017 payload: restored compact mode
+  выводится из normalized query.
+- Скрытие retained actions и mobile card presentation ограничены existing
+  compact query `max-width: 62rem`; TASK-089 desktop geometry не изменяется.
 - Backend остаётся владельцем search, permission и branch scope semantics.
 - Bottom navigation и sticky controls учитывают normal spacing плюс safe-area.
 - Не использовать `100vh` как единственное ограничение высоты drawer; применять
@@ -260,16 +296,23 @@ Dense client card:
 - [ ] Top-level list не показывает visible `Клиенты` ни в `browse`, ни в
       `search-focused`; semantic `h1`, document title, named main и active nav
       сохраняются.
-- [ ] В `browse` search, filters, refresh и разрешённый `Новый клиент`
-      находятся в одном `EntityLocatorBar`; в `search-focused` refresh/create
-      скрыты без spacer и второй action-only строки.
+- [ ] В compact `browse` search, filters, refresh и разрешённый `Новый клиент`
+      находятся в одном `EntityLocatorBar`; в compact `search-focused`
+      refresh/create скрыты без spacer и второй action-only строки.
+- [ ] На `1440 x 1200` непустой query не скрывает desktop refresh/create и не
+      включает mobile card presentation.
 - [ ] Focus search переводит mobile screen в `search-focused`; blur пустого
-      search возвращает `browse`, а непустой query сохраняет focused layout.
+      или whitespace-only search возвращает `browse`, а непустой normalized
+      query сохраняет focused layout.
 - [ ] Clear search очищает только query; reset filters не очищает query.
 - [ ] Filter count не включает query и default `status=Active`.
 - [ ] Открытие и закрытие drawer сохраняет search и filters.
 - [ ] Active advanced filters видимы и индивидуально удаляемы вне drawer.
 - [ ] Search и filter controls соответствуют `TASK-084`: target минимум `44 x 44`, font минимум `16px`.
+- [ ] Compact cards в `browse`, `search-focused` и loading имеют exact computed
+      height `96px`; последовательные card top positions отличаются на `104px`.
+- [ ] На `360 x 780` search-focused state показывает минимум пять полностью
+      видимых cards высотой `96px`.
 - [ ] На `390 x 844` search-focused state с двумя active filters показывает
       минимум пять полностью видимых cards высотой `96px` и часть шестой.
 - [ ] На `420 x 912` и `440 x 956` тот же state показывает минимум шесть
@@ -278,18 +321,28 @@ Dense client card:
       `Алексеев Андрей Александрович` читаются полностью максимум в две строки
       без fixed right action column.
 - [ ] Status/action state не уменьшает доступную ФИО ширину отдельной колонкой.
-- [ ] Переход в preview/detail и возврат не сбрасывает список и не ухудшает требования `TASK-017`.
+- [ ] Archived client с action hints показывает `В архиве`; active client с
+      несколькими hints показывает compact mapping первого backend hint;
+      active client без hint показывает `Активен`.
+- [ ] Возврат с empty/whitespace-only query показывает `browse`, а с non-empty
+      query — visual `search-focused`; в обоих случаях focus получает
+      selected/anchor card, search не сфокусирован и keyboard не открывается.
 - [ ] Нет horizontal page scroll на обязательных mobile-размерах.
-- [ ] SuperAdministrator с `branchId: null` ищет клиентов во всех разрешённых филиалах, а branch identity остаётся читаемой в multi-branch результатах.
+- [ ] Пользователь с `branchId: null` видит branch identity в visible metadata и
+      accessible name каждой card, включая one-row и single-branch result set;
+      при non-null `branchId` identity не показывается.
 - [ ] Frontend не добавляет собственный branch switcher или permission filter без backend contract.
 - [ ] Loading, empty, error и retry сохраняют locator, active filters и
-      search-focused/browse state.
+      derived search-focused/browse state.
+- [ ] Во время loading search, clear-search и filter trigger остаются enabled;
+      stale response не может заменить более свежую выдачу или selection.
 - [ ] При software keyboard search, clear/recovery operation и первый result
       остаются видимыми или достижимыми одним intentional scroll.
 
 ## Test checklist
 - [ ] Сначала добавить unit/component tests state machine
-      `browse ↔ search-focused`, clear-search и independent filter reset.
+      `browse ↔ search-focused`, whitespace-only query, clear-search и
+      independent filter reset.
 - [ ] Добавить component tests mobile toolbar, removable chips, filter count и
       permission-bound browse actions.
 - [ ] Добавить component test long ФИО + branch context + concrete status в
@@ -299,10 +352,17 @@ Dense client card:
 - [ ] E2E: search → расширенные filters → apply/reset → открыть клиента → вернуться.
 - [ ] E2E: focus empty search → type → clear while focused → blur → restore
       browse retained actions.
+- [ ] E2E: empty/whitespace-only и non-empty query проходят
+      preview/detail/back с focus на selected card и без открытия keyboard.
 - [ ] E2E SuperAdministrator: global set из 300+ клиентов → search → filtered empty/reset → preview/detail → return с сохранённым state.
 - [ ] Проверить `360`, `390 x 844`, `420 x 912`, `440 x 956`, `768`, `1440` и compact-height landscape.
-- [ ] На `390 x 844` проверить пять полных cards; на `420 x 912` и
-      `440 x 956` — шесть.
+- [ ] На `360 x 780` и `390 x 844` проверить пять полных cards; на
+      `420 x 912` и `440 x 956` — шесть.
+- [ ] Проверить compact behavior на `768 x 1024`, `912 x 420`,
+      `956 x 440` и сохранение desktop retained actions/table rows на
+      `1440 x 1200`.
+- [ ] Проверить loading race: query/filter остаются интерактивными, stale
+      response отменён или проигнорирован.
 - [ ] Проверить отсутствие horizontal overflow и controls меньше `44 x 44`.
 - [ ] `cd frontend && npm run lint`
 - [ ] `cd frontend && npm run build`
@@ -342,3 +402,8 @@ Dense client card:
 - Status remains `ready`: TASK-090 explicitly excluded the client-specific
   browse/search-focused state machine and `96px` cards. Generic return-state
   implementation remains owned by separate `TASK-017`.
+- Product decisions confirmed and `ux-researcher` → `ui-designer` conformance
+  handoff completed at 2026-07-30: focus-only mode is not persisted, behavior
+  is compact-only, cards stay `96px` in both compact states, branch visibility
+  uses `branchId === null`, pill priority follows backend hints, and locator
+  remains interactive during list loading.
