@@ -29,7 +29,8 @@ empty-search без нового global state или backend contract.
 - `EntityLocatorBar` реализует min search widths, clear, action slots and
   `aria-controls`, но current API всегда рендерит filter trigger.
 - `RouteViewport` остаётся local authenticated composition owner между list и
-  user edit routes; он может хранить trainer query без app-wide store.
+  user create/edit routes; он может хранить trainer query без app-wide store
+  или history/deep-link persistence.
 - Existing component test covers non-filtering of backend-permitted non-Coach
   payloads and edit allowed actions, but not search/states/return flow.
 
@@ -39,12 +40,24 @@ empty-search без нового global state или backend contract.
 - Accessible name: `Найти тренера`; placeholder: `ФИО или логин`.
 - Normalize with `trim().toLocaleLowerCase('ru-RU')`; match substring in
   `fullName` or `login` only.
-- Create is shown only from backend `createRoleOptions`; row edit only from
-  existing `allowedActions`.
-- Locator remains visible through loading/error; refresh/retry and edit/back do
-  not clear query.
-- First-run empty and query-scoped `Тренеры не найдены` are separate states;
-  empty-search includes explicit clear action.
+- Create is shown for any non-empty backend `createRoleOptions`, regardless of
+  which allowed role it contains; row edit only from existing `allowedActions`.
+- Match the released Clients/Groups list-return behavior at the UX level:
+  preserve query through list → create/edit → explicit or browser back; reset it
+  when leaving the Users workflow, on logout or full reload.
+- Locator remains visible and editable through loading/error. Refresh/retry is
+  disabled while a request is pending and never clears query.
+- Initial load without retained items uses a blocking loading state. Refresh
+  keeps the last backend-permitted filtered results visible, marks the results
+  region busy and exposes request progress without presenting stale data as a
+  completed refresh.
+- Initial failure without retained items uses blocking `ErrorState`; failed
+  refresh with retained items uses an inline stale-error beside the still
+  visible results. Both error paths provide an explicit `Повторить` action and
+  retain query.
+- Blank query plus an empty backend response is first-run empty. Any non-blank
+  query with zero matches, including an empty backend response, is
+  query-scoped `Тренеры не найдены` with an explicit clear action.
 
 ## Dependencies and execution order
 1. TASK-090 — done.
@@ -52,8 +65,9 @@ empty-search без нового global state или backend contract.
 3. TASK-094 — shared locator/filter surface baseline должна быть merged.
 4. TASK-093 — optional no-filter locator and action recipe должна быть merged.
 5. TASK-096.
-6. TASK-086 is not a code dependency; reuse a generic merged return-state utility
-   only if it exists, otherwise keep trainer query local to `RouteViewport`.
+6. TASK-086 is not a code dependency. Reuse its list-return UX semantics, but
+   keep trainer query local to `RouteViewport`; do not add a trainer history
+   serializer, reload persistence or generic return-state refactor.
 
 ## Execution steps
 1. Создать isolated worktree, inspect final shared APIs and record baseline
@@ -67,35 +81,49 @@ empty-search без нового global state или backend contract.
 3. До production-кода расширить `UsersListScreen` component tests:
    - locator label/placeholder, no filter trigger;
    - clear restores full backend-permitted list;
-   - first-run empty vs empty-search with clear action;
-   - non-empty query through loading, refresh, error and retry;
-   - `createRoleOptions=[]` hides create, Coach option shows it;
+   - blank-query first-run empty vs non-blank `Тренеры не найдены` with clear,
+     including when the backend response itself is empty;
+   - non-empty query through initial loading, stale refresh, blocking/stale
+     errors and explicit retry;
+   - refresh keeps retained backend-permitted results, marks them busy and
+     disables duplicate refresh/retry;
+   - `createRoleOptions=[]` hides create; any non-empty option set shows it,
+     including Coach and a representative non-Coach role;
    - per-item allowed edit/read-only semantics unchanged.
 4. До production-кода добавить App/route integration test for local query
-   ownership: search → open edit → return → same query and result; other user
-   mutations/forms remain unchanged.
+   ownership: search → open create/edit → explicit/browser return → same query
+   and result; leaving the Users workflow or remounting after full reload resets
+   query; other user mutations/forms remain unchanged.
 5. До production-кода add Playwright primary path and geometry:
    - find by full name/login;
    - clear/no-match;
    - edit/back restore;
-   - refresh/error recovery with query;
-   - search min widths, one row, `44px` actions, keyboard/focus and no overflow.
+   - blocking/stale error recovery with query and explicit `Повторить`;
+   - `360 x 780` narrow-width guardrail plus `390 x 844`, target iPhone,
+     compact-height, tablet and desktop geometry;
+   - search min widths, one row, `44px` actions, keyboard/focus and no unintended
+     horizontal overflow.
 6. Run new tests and confirm expected failures because locator/search helper,
    empty-search and return-state integration do not exist.
 7. Implement pure normalized filtering over the already received `items`;
    never refetch or infer hidden/unauthorized trainers from query.
 8. Consume full `UserListResponse`: keep items and `createRoleOptions`, and
-   render shared create action only when backend returns an allowed create role.
+   render shared create action when backend returns any non-empty allowed role
+   set.
 9. Replace `users-list-toolbar` with no-filter `EntityLocatorBar` using shared
    refresh/create actions; connect it to a named results region via
    `aria-controls`/`aria-busy`.
 10. Keep query in the smallest existing parent that survives list→edit→return
-    (`RouteViewport` controlled props preferred); do not add global store or
-    persistence beyond authenticated route lifetime.
+    (`RouteViewport` controlled props preferred); retain it only while the route
+    remains in the Users list/create/edit workflow and do not add a global
+    store, history serializer or reload/deep-link persistence.
 11. Render filtered results and scoped empty-search recovery while preserving
-    loading/error/first-run/list semantics and backend order.
+    backend order. Keep retained results during refresh, distinguish blocking
+    from stale error, and wire explicit `Повторить` to the same safe reload
+    operation without clearing query.
 12. Run focused red→green tests, full unit/raw-color/lint/build, users/responsive
-    Playwright and target iPhone WebKit checks.
+    Playwright, target iPhone WebKit checks and Simulator/physical-device
+    acceptance evidence.
 
 ## Preferred implementation strategy
 1. Pure search tests/helper.
@@ -111,6 +139,7 @@ empty-search без нового global state или backend contract.
 - `frontend/src/features/users/UserManagement.test.tsx`
 - `frontend/src/features/users/UserManagement.tsx` only if exports/props require it
 - `frontend/src/App.tsx`
+- `frontend/src/lib/resources.ts` if the new empty/recovery copy is centralized
 - App/route integration test location discovered before editing
 - `frontend/src/App.css` only to remove old `users-list-toolbar` CSS or add
   truly feature-specific results geometry
@@ -124,7 +153,10 @@ empty-search без нового global state или backend contract.
 - Search fields are exactly visible `fullName` and `login`.
 - No filters button/drawer on Trainers.
 - Create remains the single primary action; refresh is frequent secondary.
+- Create visibility is exactly `createRoleOptions.length > 0`; frontend must not
+  special-case Coach or infer a role permission.
 - No new global store; do not persist PII beyond existing route lifetime.
+- Query is local to the Users list/create/edit workflow and resets outside it.
 - Mantine, Onest, shared locator/actions and `44px` targets are mandatory.
 
 ## Out of scope
@@ -141,8 +173,10 @@ empty-search без нового global state или backend contract.
 - Blank/trim/case behavior and no matching on hidden fields.
 
 ### Integration tests
-- Component tests for locator, states, refresh and backend-owned actions.
-- App route test for search→edit→return persistence.
+- Component tests for locator, blocking/stale states, explicit retry, refresh
+  and backend-owned actions.
+- App route test for search→create/edit→return persistence and reset outside the
+  Users workflow/full reload.
 - Backend integration tests are not applicable because `/users` contract and
   authorization are unchanged.
 - All new tests are written before functional code and must first fail for the
@@ -151,8 +185,13 @@ empty-search без нового global state или backend contract.
 ### UI/e2e tests
 - Primary find→edit→return path, no match→clear and error→retry.
 - Backend create denied/allowed and protected target edit behavior.
-- Required mobile/tablet/desktop/compact-height geometry and no page scroll.
+- `360 x 780` narrow guardrail; `390 x 844`, `420 x 912`, `440 x 956`,
+  `912 x 420`, `956 x 440`, `768 x 1024` and `1440 x 1200` geometry with no
+  unintended horizontal page scroll.
 - Focus order, accessible names, keyboard clear and software-keyboard reachability.
+- Browser chrome, software keyboard, safe-area and home-indicator acceptance
+  requires recorded iOS Simulator or physical-device evidence; Playwright
+  geometry alone is insufficient.
 
 ## Test plan
 - [ ] Pure search tests red before implementation.
@@ -162,20 +201,31 @@ empty-search без нового global state или backend contract.
 - [ ] `cd frontend && npm run check:raw-colors`
 - [ ] `cd frontend && npm run test:e2e -- e2e/users.spec.ts e2e/responsive-main-screens.spec.ts`
 - [ ] `cd frontend && npm run test:e2e:iphone`
+- [ ] Record iOS Simulator or physical-device evidence with Safari chrome and
+      software keyboard open at target portrait sizes; verify focused search,
+      recovery feedback, refresh/create actions and one intentional-scroll
+      reachability.
+- [ ] Record compact-height Simulator/physical-device smoke evidence for
+      `912 x 420` and `956 x 440`.
 - [ ] `cd frontend && npm run lint`
 - [ ] `cd frontend && npm run build`
 
 ## Regression barrier
 Pure matching tests plus an automated search→edit→return scenario must prove
 trimmed case-insensitive fullName/login matching, preserved backend order/query,
-scoped empty recovery and unchanged backend-owned create/edit visibility. Target
-device geometry prevents a dummy filter, wrapped toolbar or unusable locator.
+scoped empty recovery, blocking/stale retry and unchanged backend-owned
+create/edit visibility. The `360 x 780` guardrail and target-device geometry
+prevent a dummy filter, wrapped toolbar or unusable locator. TASK-096 cannot be
+marked accepted without Simulator or physical-device evidence for changing
+Safari viewport, software keyboard and safe areas.
 
 ## Risks
 - Lowercasing/normalization can accidentally change displayed order or data.
 - Route-local persistence can expand into a generic global navigation refactor.
 - Discarding `createRoleOptions` would preserve the current permission leak in UI.
 - Loading implementation can mislabel a pending refresh as empty results.
+- Retained results can look current after a failed refresh unless busy/stale
+  feedback remains explicit.
 
 ## Stop conditions
 Остановиться, если:
@@ -184,6 +234,9 @@ device geometry prevents a dummy filter, wrapped toolbar or unusable locator.
 - persistence requires a new global store or unrelated routing redesign;
 - allowed create/edit semantics cannot be derived from existing backend response;
 - task worktree/branch is invalid.
+
+Do not close the task as accepted if iOS Simulator or physical-device evidence
+for Safari chrome, software keyboard and safe-area reachability is unavailable.
 
 ## Ready for Codex execution
 yes, after TASK-084, TASK-094 and TASK-093 are merged into origin/main
