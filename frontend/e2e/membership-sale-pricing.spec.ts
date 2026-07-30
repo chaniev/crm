@@ -592,7 +592,7 @@ test.describe('TASK-078 membership write regressions', () => {
     await expect(page.getByText('Оплачен')).toHaveCount(0)
     await expect(page.getByText('Не оплачен')).toHaveCount(0)
     await expect(page.getByText('Дата оплаты', { exact: true }).first()).toBeVisible()
-    await expect(page.getByText('Главный тренер', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText(/^Главный тренер ·/).first()).toBeVisible()
     await expectNoHorizontalScroll(page)
   })
 })

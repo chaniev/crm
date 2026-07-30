@@ -379,7 +379,6 @@ const MANAGEMENT_ROUTES = [
     expectedPageTitle: 'Клиенты',
     expectedPageTitleHidden: true,
     expectedControls: ['Обновить список', 'Новый клиент'],
-    expectedHiddenControlsAtTablet: ['Обновить список'],
     expectedFilterToolbars: 0,
     checkSharedEdges: true,
   },
@@ -390,7 +389,6 @@ const MANAGEMENT_ROUTES = [
     expectedPageTitle: 'Группы',
     expectedPageTitleHidden: true,
     expectedControls: ['Новая группа', 'Обновить список групп'],
-    expectedHiddenControlsAtTablet: ['Обновить список групп'],
     checkSharedEdges: true,
   },
   {
@@ -507,10 +505,6 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
         await expectPrimaryControls(
           page,
           route.expectedControls,
-          viewport.width === 768 &&
-            'expectedHiddenControlsAtTablet' in route
-            ? route.expectedHiddenControlsAtTablet
-            : [],
         )
         await expectSharedVisualBaseline(page, route.expectedFilterToolbars ?? 0)
         if ('checkSharedEdges' in route && route.checkSharedEdges) {
@@ -753,19 +747,11 @@ for (const width of [320, 390, 420, 440, 768, 1440]) {
       await expect(main.getByRole('region', { name: 'Список групп' })).toBeVisible()
       await expect(taskActions).toBeVisible()
       await expect(create).toHaveClass(/task-toolbar-action--primary/)
-      if (width === 768) {
-        await expect(refresh).toBeHidden()
-        await expect(taskActions.locator(':scope > button').last()).toHaveAttribute(
-          'data-action-priority',
-          'primary',
-        )
-      } else {
-        await expect(refresh).toHaveClass(/task-toolbar-action--refresh/)
-        await expect(taskActions.locator(':scope > button').first()).toHaveAttribute(
-          'data-action-priority',
-          'frequent',
-        )
-      }
+      await expect(refresh).toHaveClass(/task-toolbar-action--refresh/)
+      await expect(taskActions.locator(':scope > button').first()).toHaveAttribute(
+        'data-action-priority',
+        'frequent',
+      )
 
       const boxes = await Promise.all(
         [locator, search, filters, create, firstRow].map((element) =>
@@ -1682,8 +1668,6 @@ async function expectClientsSharedLayoutContract(
     'button.task-toolbar-action--refresh[aria-label="Обновить список"]',
   )
   const taskActions = locatorBar.locator('.task-toolbar-actions')
-  const viewportWidth = await page.evaluate(() => window.innerWidth)
-  const refreshUsesTabletFallback = viewportWidth === 768 && expectsCreateAction
 
   await expect(clientsLayout).toHaveCount(1)
   await expect(locatorBar).toBeVisible()
@@ -1691,11 +1675,7 @@ async function expectClientsSharedLayoutContract(
   await expect(searchbox).toHaveAttribute('aria-controls')
   await expect(filterButton).toHaveAttribute('aria-haspopup', 'dialog')
   await expect(refreshAction).toHaveCount(1)
-  if (refreshUsesTabletFallback) {
-    await expect(refreshAction).toBeHidden()
-  } else {
-    await expect(refreshAction).toBeVisible()
-  }
+  await expect(refreshAction).toBeVisible()
   await expect(taskActions.locator(':scope > button').first()).toHaveAttribute(
     'data-action-priority',
     'frequent',
@@ -1716,10 +1696,7 @@ async function expectClientsSharedLayoutContract(
     width: '',
   })
 
-  const locatorControls = [searchbox, filterButton]
-  if (!refreshUsesTabletFallback) {
-    locatorControls.push(refreshAction)
-  }
+  const locatorControls = [searchbox, filterButton, refreshAction]
   const createAction = locatorBar.getByRole('button', { name: 'Новый клиент' })
 
   if (expectsCreateAction) {
@@ -2152,7 +2129,10 @@ async function mockApi(
     }
 
     if (pathname === '/api/users' && method === 'GET') {
-      await fulfillJson(route, 200, USERS_RESPONSE)
+      await fulfillJson(route, 200, {
+        items: USERS_RESPONSE,
+        createRoleOptions: ['Coach'],
+      })
       return
     }
 
