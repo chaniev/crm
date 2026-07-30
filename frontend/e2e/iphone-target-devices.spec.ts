@@ -875,6 +875,71 @@ test('compact-height iPhone filter surface is keyboard-accessible and focus-safe
   await expect(filterLauncher).toBeFocused()
 })
 
+test('в целевых iPhone-профилях журнал сохраняет четыре поля без колонки действия', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.setViewportSize(target)
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.goto('/audit')
+
+  const grid = page.getByTestId('audit-log-grid')
+  const row = grid.locator('.audit-log-row').first()
+  const detailsTrigger = row.getByTestId('audit-log-details-action')
+
+  await expect(grid).toBeVisible()
+  await expect(
+    grid.getByRole('columnheader', { includeHidden: true }),
+  ).toHaveCount(4)
+  await expect(row.getByRole('cell')).toHaveCount(4)
+  await expect(
+    grid.getByRole('columnheader', { includeHidden: true, name: 'Действие' }),
+  ).toHaveCount(0)
+  await expect(grid.getByText('Создание клиента', { exact: true })).toHaveCount(0)
+
+  const geometry = await row.evaluate((element) => {
+    const style = getComputedStyle(element)
+    const description = element.querySelector<HTMLElement>('.audit-log-description')
+    const actor = element.querySelector<HTMLElement>('.audit-log-cell--actor')
+    const details = element.querySelector<HTMLElement>(
+      '[data-testid="audit-log-details-action"]',
+    )
+    const actorRect = actor?.getBoundingClientRect()
+    const detailsRect = details?.getBoundingClientRect()
+
+    return {
+      columns: style.gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+      areas: style.gridTemplateAreas,
+      descriptionClamp: description
+        ? getComputedStyle(description).webkitLineClamp
+        : '',
+      actorWithinRow:
+        Boolean(actorRect) &&
+        actorRect!.left >= element.getBoundingClientRect().left - 1 &&
+        actorRect!.right <= element.getBoundingClientRect().right + 1,
+      detailsWidth: detailsRect?.width ?? 0,
+      detailsHeight: detailsRect?.height ?? 0,
+    }
+  })
+
+  expect(geometry.columns).toBe(2)
+  expect(geometry.areas).not.toContain('action')
+  expect(geometry.areas).not.toContain('source')
+  expect(geometry.descriptionClamp).toBe('2')
+  expect(geometry.actorWithinRow).toBe(true)
+  expect(geometry.detailsWidth).toBeGreaterThanOrEqual(44)
+  expect(geometry.detailsHeight).toBeGreaterThanOrEqual(44)
+  await expectNoHorizontalScroll(page)
+
+  await detailsTrigger.click()
+  const detailsModal = page.getByTestId('audit-log-details-modal')
+  await expect(detailsModal).toContainText('Создание клиента')
+  await page.keyboard.press('Escape')
+  await expect(detailsModal).toBeHidden()
+  await expect(detailsTrigger).toBeFocused()
+})
+
 test('в целевых iPhone-профилях админ-панель рендерится без горизонтального скролла', async ({
   page,
 }, testInfo) => {
@@ -1142,6 +1207,47 @@ async function mockApi(
 
     if (pathname === '/api/clients/client-1' && method === 'GET') {
       await fulfillJson(route, CLIENT_LIST_ITEM)
+      return
+    }
+
+    if (pathname === '/api/audit-logs/options' && method === 'GET') {
+      await fulfillJson(route, {
+        users: [],
+        actionTypes: ['ClientCreated'],
+        entityTypes: ['Client'],
+        sources: ['Web'],
+        messengerPlatforms: ['Telegram'],
+      })
+      return
+    }
+
+    if (pathname === '/api/audit-logs' && method === 'GET') {
+      await fulfillJson(route, {
+        items: [
+          {
+            id: 'audit-iphone-1',
+            userName: 'Пользователь с очень длинным отображаемым именем',
+            userLogin: 'long.audit.user',
+            userRole: 'HeadCoach',
+            source: 'Web',
+            messengerPlatform: 'Telegram',
+            actionType: 'ClientCreated',
+            entityType: 'Client',
+            entityId: 'client-1',
+            description:
+              'Создан новый клиент с длинным описанием для проверки двухстрочного переноса без горизонтального переполнения',
+            oldValueJson: null,
+            newValueJson: { status: 'Active' },
+            createdAt: '2026-07-30T10:10:10.000Z',
+          },
+        ],
+        totalCount: 1,
+        skip: 0,
+        take: 20,
+        page: 1,
+        pageSize: 20,
+        hasNextPage: false,
+      })
       return
     }
 

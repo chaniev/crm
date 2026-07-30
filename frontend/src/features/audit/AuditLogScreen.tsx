@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Badge,
   Group,
@@ -77,6 +77,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   const [page, setPage] = useState(1)
   const [reloadKey, setReloadKey] = useState(0)
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null)
+  const detailsTriggerRef = useRef<HTMLButtonElement | null>(null)
   const [filters, setFilters] = useState<AuditFilterValues>(INITIAL_FILTER_VALUES)
 
   useEffect(() => {
@@ -360,7 +361,6 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             >
               <div className="audit-log-header" role="row">
                 <div role="columnheader">Дата</div>
-                <div role="columnheader">Действие</div>
                 <div role="columnheader">Описание</div>
                 <div role="columnheader">Пользователь</div>
                 <div role="columnheader">Детали</div>
@@ -369,7 +369,10 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
                 <AuditLogGridRow
                   entry={entry}
                   key={entry.id}
-                  onOpenDetails={setSelectedEntry}
+                  onOpenDetails={(entry, trigger) => {
+                    detailsTriggerRef.current = trigger
+                    setSelectedEntry(entry)
+                  }}
                 />
               ))}
             </div>
@@ -388,7 +391,10 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
       <AuditDetailsModal
         entry={selectedEntry}
-        onClose={() => setSelectedEntry(null)}
+        onClose={() => {
+          setSelectedEntry(null)
+          window.setTimeout(() => detailsTriggerRef.current?.focus(), 0)
+        }}
       />
     </PageLayout>
   )
@@ -396,7 +402,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
 type AuditLogGridRowProps = {
   entry: AuditLogEntry
-  onOpenDetails: (entry: AuditLogEntry) => void
+  onOpenDetails: (entry: AuditLogEntry, trigger: HTMLButtonElement) => void
 }
 
 function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
@@ -415,13 +421,6 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
         </Text>
       </div>
 
-      <div className="audit-log-cell audit-log-cell--action" role="cell">
-        <span className="audit-log-cell__label">Действие</span>
-        <Text fw={700} size="sm">
-          {formatActionType(entry.actionType)}
-        </Text>
-      </div>
-
       <div className="audit-log-cell audit-log-cell--description" role="cell">
         <span className="audit-log-cell__label">Описание</span>
         <Text className="audit-log-description" fw={700} size="sm">
@@ -435,7 +434,7 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
         data-testid="audit-log-actor-cell"
         role="cell"
       >
-        <span className="audit-log-cell__label">Автор</span>
+        <span className="audit-log-cell__label">Пользователь</span>
         <Text fw={700} size="sm">
           {entry.userName}
         </Text>
@@ -450,8 +449,9 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
         <Button
           aria-haspopup="dialog"
           aria-label={`Показать детали записи: ${entry.description}`}
+          className="audit-log-details-action"
           data-testid="audit-log-details-action"
-          onClick={() => onOpenDetails(entry)}
+          onClick={(event) => onOpenDetails(entry, event.currentTarget)}
           size="xs"
           variant="light"
         >
@@ -475,6 +475,7 @@ function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
       centered
       onClose={onClose}
       opened={Boolean(entry)}
+      returnFocus={false}
       size="xl"
       title="Подробности записи журнала"
     >

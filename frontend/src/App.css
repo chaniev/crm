@@ -3146,11 +3146,9 @@
   display: grid;
   grid-template-columns:
     6rem
-    7.25rem
-    minmax(12rem, 1fr)
-    8.75rem
-    6.25rem
-    4.75rem;
+    minmax(14rem, 1fr)
+    minmax(9rem, 0.45fr)
+    minmax(4.75rem, auto);
   gap: 0.7rem;
   align-items: start;
 }
@@ -3196,6 +3194,11 @@
   justify-self: end;
 }
 
+.audit-log-details-action {
+  min-width: 44px;
+  min-height: 44px;
+}
+
 .audit-log-description {
   display: -webkit-box;
   overflow: hidden;
@@ -3228,11 +3231,11 @@
   }
 
   .audit-log-row {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      "date action source details"
-      "description description description description"
-      "actor actor actor actor";
+      "date details"
+      "description description"
+      "actor actor";
     gap: 0.7rem 0.85rem;
   }
 
@@ -3242,10 +3245,6 @@
 
   .audit-log-cell--date {
     grid-area: date;
-  }
-
-  .audit-log-cell--action {
-    grid-area: action;
   }
 
   .audit-log-cell--description {
@@ -3266,9 +3265,8 @@
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "date details"
-      "action action"
       "description description"
-      "actor source";
+      "actor actor";
   }
 }
 
@@ -3277,10 +3275,8 @@
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "date details"
-      "action action"
       "description description"
-      "actor actor"
-      "source source";
+      "actor actor";
   }
 }
 
