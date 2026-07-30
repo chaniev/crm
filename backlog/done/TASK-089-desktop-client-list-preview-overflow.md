@@ -1,13 +1,20 @@
 # TASK-089: Устранить horizontal overflow desktop-списка клиентов с preview
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-26 23:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-089-desktop-client-list-preview-overflow.plan.md
+- implementation_plan: /backlog/done/TASK-089-desktop-client-list-preview-overflow.plan.md
 - implementation_branch: fix/TASK-089-desktop-client-list-preview-overflow
+- implementation_state: completed
+- implementation_commit: 87521b4
+- regression_commit: 378ea7f
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30
+- reviewed_main_commit: 342f5c5
 
 ## Priority
 P2
@@ -72,7 +79,8 @@ case: его `1440 x 1200` inventory хранит точечное исключ�
   сворачивается в hidden/right drawer или используется drill-down, а list
   остаётся full-width.
 - Full values для зрячего пользователя через достаточную ширину, wrap или явный tooltip/detail, а не только screen-reader accessible name.
-- Primary row action `Открыть` сохраняет полный видимый label при открытом preview и длинных значениях; icon-only variant допустим только по явному responsive contract с полным accessible name.
+- Отдельная row action не занимает пятую колонку: полная подпись
+  `Открыть карточку` остаётся видимой в preview и имеет точное accessible name.
 - Удалить зарегистрированное TASK-084 исключение для client preview-open
   `1440 x 1200` clipping/horizontal overflow после прохождения regression
   checks этой задачи; не расширять исключение на другие client states/routes.
@@ -103,32 +111,34 @@ case: его `1440 x 1200` inventory хранит точечное исключ�
   preview state и list scroll по `TASK-017`.
 
 ## Acceptance criteria
-- [ ] На `1440 x 1200` при открытом preview list container не требует horizontal scroll для primary decision data.
-- [ ] В preview-open mode list/header имеют `scrollWidth <= clientWidth`; тест
+- [x] На `1440 x 1200` при открытом preview list container не требует horizontal scroll для primary decision data.
+- [x] В preview-open mode list/header имеют `scrollWidth <= clientWidth`; тест
       не ограничивается CSS overflow property.
-- [ ] Полное имя, доступный phone, branch/group, membership/status, last visit
+- [x] Полное имя, доступный phone, branch/group, membership/status, last visit
       и next action доступны зрячему и keyboard-пользователю через approved
       columns или явное disclosure/preview.
-- [ ] Primary preview action достижим Tab и не скрыт overflow.
-- [ ] В row/preview context полностью видна подпись `Открыть`; она не обрезана до неполного слова и не перекрывается icon/соседними колонками.
-- [ ] Selection, search, filters и list scroll сохраняются при open/collapse preview.
-- [ ] Collapse возвращает focus выбранному row; повторное открытие
+- [x] Primary preview action достижим Tab и не скрыт overflow.
+- [x] В preview полностью видна подпись `Открыть карточку`; отдельная row action
+      не создаёт пятую колонку и не конкурирует с decision data.
+- [x] Selection, search, filters и list scroll сохраняются при open/collapse preview.
+- [x] Collapse возвращает focus выбранному row; повторное открытие
       восстанавливает выбранного клиента и deterministic default width.
-- [ ] При недостаточной list width preview автоматически использует
+- [x] При недостаточной list width preview автоматически использует
       single-column/drawer fallback без horizontal page/list scroll.
-- [ ] Mobile behavior не изменяется, кроме shared corrections из `TASK-084`.
-- [ ] SuperAdministrator с `branchId: null` видит branch context и primary decision data без horizontal overflow при открытом preview.
+- [x] Mobile behavior не изменяется, кроме shared corrections из `TASK-084`.
+- [x] SuperAdministrator с `branchId: null` видит branch context и primary decision data без horizontal overflow при открытом preview.
 
 ## Test checklist
-- [ ] Desktop E2E: выбрать клиента с длинными значениями, проверить list/preview, открыть полную карточку, вернуться.
-- [ ] В desktop geometry test измерить видимую ширину action label `Открыть` и закрепить отсутствие clipping на `1440 x 1200`.
-- [ ] Desktop E2E SuperAdministrator: multi-branch results с длинными client/branch/group values, selection/search/filter/scroll сохраняются.
-- [ ] Geometry assertion: list `scrollWidth <= clientWidth` для утверждённого набора primary columns.
-- [ ] Проверить `768 x 1024`, `1440 x 1200` и mobile smoke `390 x 844`.
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
-- [ ] `cd frontend && npm run test:unit`
-- [ ] Запустить affected client Playwright specs.
+- [x] Desktop E2E: выбрать клиента с длинными значениями, проверить list/preview, открыть полную карточку, вернуться.
+- [x] В desktop geometry test закрепить четыре decision columns, отсутствие
+      row action и видимую preview action `Открыть карточку` на `1440 x 1200`.
+- [x] Desktop E2E SuperAdministrator: multi-branch results с длинными client/branch/group values, selection/search/filter/scroll сохраняются.
+- [x] Geometry assertion: list `scrollWidth <= clientWidth` для утверждённого набора primary columns.
+- [x] Проверить `768 x 1024`, `1440 x 1200` и mobile smoke `390 x 844`.
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
+- [x] `cd frontend && npm run test:unit`
+- [x] Запустить affected client Playwright specs.
 
 ## AI safety
 - Safe for Codex: yes
@@ -166,3 +176,10 @@ case: его `1440 x 1200` inventory хранит точечное исключ�
 - Ownership clarification 2026-07-28: TASK-084 только регистрирует известное
   preview-open desktop exception; исправление, зелёный `1440 x 1200` geometry
   test и удаление exception принадлежат TASK-089.
+
+## Completion notes
+- Desktop split использует четыре decision columns без row-action и без
+  horizontal overflow; preview action остаётся видимым и доступным.
+- Добавлены проверки границы split/fallback, 200% effective width, сохранения
+  search/filter/scroll/collapse и возврата из карточки.
+- Изменений схемы хранения данных и миграции БД не потребовалось.

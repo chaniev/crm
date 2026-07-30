@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-092 Удалить сводные виджеты из раздела администраторов
 
 ## Source task
-/backlog/implementation/TASK-092-remove-administrator-widgets.md
+/backlog/done/TASK-092-remove-administrator-widgets.md
 
 ## Implementation branch
 feature/TASK-092-remove-administrator-widgets
@@ -111,13 +111,13 @@ permissions и operational states без иных workflow changes.
   tablet, desktop and compact-height smoke coverage.
 
 ## Test plan
-- [ ] Component absence/non-regression tests red before implementation.
-- [ ] Responsive Playwright assertion red before implementation.
-- [ ] `npm run test:unit`
-- [ ] `npm run test:e2e -- e2e/administrator-role-flow.spec.ts`
-- [ ] `npm run test:e2e:iphone`
-- [ ] `npm run lint`
-- [ ] `npm run build`
+- [x] Component absence/non-regression tests red before implementation.
+- [x] Responsive Playwright assertion red before implementation.
+- [x] `npm run test:unit`
+- [x] `npm run test:e2e -- e2e/administrator-role-flow.spec.ts`
+- [x] `npm run test:e2e:iphone`
+- [x] `npm run lint`
+- [x] `npm run build`
 
 ## Regression barrier
 Focused Settings component tests must simultaneously assert metric absence and
@@ -140,4 +140,4 @@ viewport.
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes
+no — completed on 2026-07-30 in commit `47f4a81`.

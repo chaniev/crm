@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-089 Устранить horizontal overflow desktop-списка клиентов с preview
 
 ## Source task
-/backlog/implementation/TASK-089-desktop-client-list-preview-overflow.md
+/backlog/done/TASK-089-desktop-client-list-preview-overflow.md
 
 ## Implementation branch
 fix/TASK-089-desktop-client-list-preview-overflow
@@ -232,14 +232,14 @@ single-column route-based drill-down fallback while preserving TASK-017 state.
 - SuperAdministrator global multi-branch visibility.
 
 ## Test plan
-- [ ] State/component tests red before implementation.
-- [ ] Desktop geometry/return-state Playwright tests red before implementation.
-- [ ] `npm run test:unit`
-- [ ] affected client Playwright specs
-- [ ] `npm run test:e2e:iphone`
-- [ ] `npm run lint`
-- [ ] `npm run build`
-- [ ] `360/390/420/440`, tablet, desktop, zoom and compact-height checks green.
+- [x] State/component tests red before implementation.
+- [x] Desktop geometry/return-state Playwright tests red before implementation.
+- [x] `npm run test:unit`
+- [x] affected client Playwright specs
+- [x] `npm run test:e2e:iphone`
+- [x] `npm run lint`
+- [x] `npm run build`
+- [x] `360/390/420/440`, tablet, desktop, zoom and compact-height checks green.
 
 ## Regression barrier
 Completion requires an automated long-content desktop test asserting
@@ -273,6 +273,5 @@ assertions alone are insufficient. Completion также требует удал
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes; dependencies are already merged and product decisions are resolved.
-Execution still begins with the required UX/UI conformance handoff and isolated
-worktree preflight.
+no — completed on 2026-07-30 in commit `87521b4`; regression closure
+`378ea7f`.
