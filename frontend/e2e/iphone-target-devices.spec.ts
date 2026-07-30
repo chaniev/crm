@@ -102,6 +102,49 @@ const CLIENTS_LIST_RESPONSE = {
   hasNextPage: false,
 } as const
 
+const MEMBERSHIP_CATALOG_LIST_ITEMS = [
+  {
+    id: 'single-visit-item',
+    branchId: 'branch-1',
+    name: 'Базовый разовый формат',
+    price: 500,
+    behaviorKind: 'SingleVisit',
+    availableFrom: '2026-01-01',
+    availableTo: null,
+    isSystemOwned: false,
+  },
+  {
+    id: 'term-item',
+    branchId: 'branch-1',
+    name: '10 тренировок подряд',
+    price: 1500,
+    behaviorKind: 'Term',
+    availableFrom: '2026-01-01',
+    availableTo: '2026-12-31',
+    isSystemOwned: false,
+  },
+  {
+    id: 'professional-item-current',
+    branchId: 'branch-1',
+    name: 'Профессиональный',
+    price: 4500,
+    behaviorKind: 'Professional',
+    availableFrom: '2026-01-01',
+    availableTo: null,
+    isSystemOwned: true,
+  },
+  {
+    id: 'professional-item-renamed',
+    branchId: 'branch-1',
+    name: 'Очень длинное переименованное название варианта абонемента для проверки переноса в списке',
+    price: 6500,
+    behaviorKind: 'Professional',
+    availableFrom: '2026-01-01',
+    availableTo: null,
+    isSystemOwned: true,
+  },
+] as const
+
 const CLIENT_LIST_GROUPS_RESPONSE = {
   items: [
     {
@@ -1287,6 +1330,64 @@ test('целевые iPhone-профили сохраняют поиск тре�
   await expectNoHorizontalScroll(page)
 })
 
+test('в целевых iPhone-профилях каталог абонементов рендерит длинное название и доступную кнопку Изменить без горизонтального скролла', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const longName = MEMBERSHIP_CATALOG_LIST_ITEMS[3].name
+  const editedItem = MEMBERSHIP_CATALOG_LIST_ITEMS[0]
+
+  await page.setViewportSize(target)
+  await mockIphoneMembershipCatalogApi(page, HEAD_COACH_SESSION)
+  await page.goto('/settings')
+
+  await expect(page.getByRole('tab', { name: 'Абонементы' })).toBeVisible()
+  await page.getByRole('tab', { name: 'Абонементы' }).click()
+
+  const membershipRows = page.locator('.list-row-card')
+  await expect(membershipRows).toHaveCount(4)
+  await expectNoHorizontalScroll(page)
+
+  const rows = await membershipRows.all()
+  for (const row of rows) {
+    await expect(row.locator('.mantine-Badge-root')).toHaveCount(0, { timeout: 1000 })
+    await expect(row.getByRole('button', { name: /^Редактировать / })).toBeVisible()
+  }
+
+  const longNameRow = page.locator('.list-row-card', { hasText: longName })
+  await expect(longNameRow).toBeVisible()
+  await longNameRow.scrollIntoViewIfNeeded()
+  const longNameText = longNameRow.getByText(longName)
+  await expect(longNameText).toBeVisible()
+
+  const editButton = longNameRow.getByRole('button', { name: `Редактировать ${longName}` })
+  await expect(editButton).toBeVisible()
+  await expect(editButton).toBeInViewport()
+
+  const editGeometry = await editButton.boundingBox()
+  expect(editGeometry).not.toBeNull()
+  expect(editGeometry!.height).toBeGreaterThanOrEqual(44)
+
+  const longNameGeometry = await longNameText.evaluate((element) => ({
+    left: element.getBoundingClientRect().left,
+    right: element.getBoundingClientRect().right,
+    lines: (element as HTMLElement).offsetHeight > parseFloat(getComputedStyle(element).lineHeight),
+  }))
+  expect(longNameGeometry.left).toBeGreaterThanOrEqual(0)
+  expect(longNameGeometry.right).toBeLessThanOrEqual(target.width + 1)
+  expect(longNameGeometry.lines).toBe(true)
+
+  await page.getByRole('button', { name: `Редактировать ${editedItem.name}` }).click()
+  const dialog = page.getByRole('dialog', { name: 'Редактирование абонемента' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByLabel('Название')).toHaveValue(editedItem.name)
+  await expect(dialog.getByLabel('Цена')).toHaveCount(0)
+  await expect(dialog.getByLabel('Поведение')).toHaveCount(0)
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expectNoHorizontalScroll(page)
+})
+
 function targetScreenFor(projectName: string) {
   const target = TARGET_SCREENS[projectName as keyof typeof TARGET_SCREENS]
 
@@ -1396,6 +1497,151 @@ async function mockApi(
     }
 
     throw new Error(`Unexpected target iPhone API request: ${method} ${pathname}`)
+  })
+}
+
+async function mockIphoneMembershipCatalogApi(
+  page: Page,
+  session:
+    | typeof UNAUTHENTICATED_SESSION
+    | typeof HEAD_COACH_SESSION
+    | typeof COACH_RESTRICTED_SESSION,
+) {
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, session)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-01-01',
+        maxTrainingDate: '2026-01-01',
+      })
+      return
+    }
+
+    if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        items: [],
+        totalCount: 0,
+        skip: 0,
+        take: 20,
+        page: 1,
+        pageSize: 20,
+        hasNextPage: false,
+      })
+      return
+    }
+
+    if (pathname === '/api/clients' && method === 'GET') {
+      await fulfillJson(route, {
+        items: [],
+        totalCount: 0,
+        activeCount: 0,
+        archivedCount: 0,
+        skip: 0,
+        take: 20,
+        page: 1,
+        pageSize: 20,
+        hasNextPage: false,
+      })
+      return
+    }
+
+    if (pathname === '/api/settings/membership-catalog' && method === 'GET') {
+      await fulfillJson(route, { items: MEMBERSHIP_CATALOG_LIST_ITEMS })
+      return
+    }
+
+    if (pathname === '/api/settings/membership-catalog' && method === 'POST') {
+      await fulfillJson(route, {
+        ...MEMBERSHIP_CATALOG_LIST_ITEMS[0],
+        name: 'Новый абонемент',
+      })
+      return
+    }
+
+    if (pathname === '/api/branches' && method === 'GET') {
+      await fulfillJson(route, [
+        {
+          id: 'branch-1',
+          name: 'Центр',
+          address: null,
+          description: null,
+          isArchived: false,
+          hallCount: 0,
+          groupCount: 0,
+          clientCount: 0,
+        },
+      ])
+      return
+    }
+
+    if (pathname === '/api/group-types' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/groups/types' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/settings/administrators' && method === 'GET') {
+      await fulfillJson(route, {
+        items: [],
+        createRoleOptions: ['Administrator'],
+      })
+      return
+    }
+
+    if (pathname === '/api/attendance/group-types' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/groups/summary' && method === 'GET') {
+      await fulfillJson(route, { totalCount: 0, activeWithoutTrainerCount: 0 })
+      return
+    }
+
+    if (pathname === '/api/settings/notifications' && method === 'GET') {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/users' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    throw new Error(`Unexpected iPhone target catalog API request: ${method} ${pathname}`)
   })
 }
 

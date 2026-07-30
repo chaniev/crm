@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Alert, Badge, Group, Modal, NumberInput, Paper, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
+import { Alert, Group, Modal, NumberInput, Paper, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { IconAlertCircle, IconEdit, IconPlus } from '@tabler/icons-react'
 import {
@@ -128,7 +128,7 @@ export function MembershipCatalogSettings({
       {loading ? <LoadingState label="Загружаем каталог..."/> : null}
       {!loading && error ? <ErrorState title="Каталог не загрузился" message={error}/> : null}
       {!loading && !error && items.length === 0 ? <EmptyState icon={<IconPlus size={24}/>} title="В этом филиале ещё нет абонементов"/> : null}
-      {!loading && !error ? <Stack>{items.map((item) => <Paper className="list-row-card" key={item.id} p="lg" withBorder><Group justify="space-between"><Stack gap={6}><Group><Text fw={700}>{item.name}</Text><Badge>{behaviorLabel(item.behaviorKind)}</Badge>{item.behaviorKind === 'Professional' ? <Badge color="blue">Профессиональный</Badge> : null}</Group><Text c="dimmed" size="sm">{formatPrice(item.price)} • {item.availableFrom} — {item.availableTo ?? 'бессрочно'}</Text></Stack><Button aria-label={`Редактировать ${item.name}`} leftSection={<IconEdit size={16}/>} onClick={() => openEdit(item)} variant="light">Изменить</Button></Group></Paper>)}</Stack> : null}
+      {!loading && !error ? <Stack>{items.map((item) => <Paper className="list-row-card" key={item.id} p="lg" withBorder><Group justify="space-between"><Stack gap={6}><Text fw={700}>{item.name}</Text><Text c="dimmed" size="sm">{formatPrice(item.price)} • {item.availableFrom} — {item.availableTo ?? 'бессрочно'}</Text></Stack><Button aria-label={`Редактировать ${item.name}`} leftSection={<IconEdit size={16}/>} onClick={() => openEdit(item)} variant="light">Изменить</Button></Group></Paper>)}</Stack> : null}
     </Stack></PageSection>
     <Modal centered opened={Boolean(modal)} onClose={() => setModal(null)} title={modal?.mode === 'edit' ? 'Редактирование абонемента' : 'Новый абонемент'}><form onSubmit={form.onSubmit((values) => void submit(values))}><Stack>
       {formError ? <Alert color="red" icon={<IconAlertCircle size={18}/>}>{formError}</Alert> : null}
@@ -140,5 +140,4 @@ export function MembershipCatalogSettings({
   </Stack>
 }
 
-function behaviorLabel(kind: MembershipBehaviorKind) { return kind === 'SingleVisit' ? 'Разовый' : kind === 'Term' ? 'На срок' : 'Профессиональный' }
 function formatPrice(value: number) { return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 2 }).format(value) }
