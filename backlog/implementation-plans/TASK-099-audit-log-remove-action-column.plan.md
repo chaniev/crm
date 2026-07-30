@@ -10,6 +10,8 @@ Branch rules:
 - перед кодом использовать `.agents/skills/task-worktree/SKILL.md` и отдельный
   worktree от актуального `origin/main`;
 - подтвердить clean status, active branch и base;
+- TASK-094 не является prerequisite: TASK-099 не меняет shared audit filter
+  surface и может выполняться поверх текущего `origin/main`;
 - не удалять `actionType` из API/types/filter/details modal;
 - не включать unrelated audit filters, pagination, permissions или backend
   semantics.
@@ -39,17 +41,21 @@ Branch rules:
   tracks.
 - Mobile/tablet layout использует только существующие areas `date`,
   `description`, `actor`, `details`; orphan `action`/`source` areas удаляются.
-- Description получает основную свободную ширину, details остаётся reachable
-  `44 x 44px`, long actor/description wrap без page overflow.
+- Description получает основную свободную ширину, переносится максимум на две
+  строки с сохранением текущего `line-clamp: 2`; полный текст остаётся в DOM и
+  details modal.
+- Details trigger имеет минимальную touch-зону `44 x 44px`; ширина может быть
+  больше из-за текстовой метки. Long actor/description не создают page overflow.
 - Закрытие details modal возвращает focus на тот же row trigger.
 - Loading, empty, error, permission-restricted, filter and pagination states не
   меняются.
 
 ## Dependencies and execution order
 1. TASK-057 — done; её отсутствие `Объект` остаётся regression contract.
-2. TASK-094 желательно merged, если она меняет shared audit filter surface.
-3. TASK-099 изменяет только list projection/CSS и тесты поверх итогового filter
-   baseline.
+2. TASK-094 не блокирует TASK-099: shared audit filter surface, filter layout и
+   paint contract не меняются.
+3. TASK-099 создаёт worktree от актуального `origin/main` и изменяет только list
+   projection/CSS и связанные tests.
 
 ## Execution steps
 1. Создать isolated worktree и зафиксировать текущий DOM/CSS column inventory,
@@ -70,14 +76,19 @@ Branch rules:
    - отсутствуют `Объект` и `Действие` в list;
    - filter по action type продолжает сужать request;
    - details modal сохраняет action type;
-   - long description/actor and button geometry do not overflow.
+   - long description остаётся в пределах двух строк, actor переносится без
+     overflow, details trigger имеет touch-зону не менее `44 x 44px`;
+   - computed row geometry содержит четыре tracks и не содержит orphan
+     `action`/`source` areas.
 6. Запустить tests и подтвердить expected failures на существующем action
    header/cell и exact column count.
 7. Удалить только action header и `audit-log-cell--action` из row; сохранить
    `entry.actionType` и `formatActionType` для options/modal.
 8. Переписать desktop `grid-template-columns` на четыре фактические колонки,
    отдав flexible track описанию. Удалить orphan responsive areas/selectors и
-   задать mobile order date/details → description → actor.
+   задать mobile order date/details → description → actor. Сохранить
+   двухстрочный `line-clamp` description и задать details trigger минимальную
+   touch-зону `44 x 44px`.
 9. Не добавлять отдельную source cell; source/messenger остаются diagnostic
    badges в details согласно текущему контракту.
 10. Обновить старые assertions/fixtures без удаления `actionType` payload.
@@ -97,14 +108,16 @@ Branch rules:
 - `frontend/src/App.css`
 - `frontend/e2e/stage12.spec.ts`
 - `frontend/e2e/responsive-main-screens.spec.ts`
-- `frontend/e2e/iphone-target-devices.spec.ts`, если он владеет итоговой
-  target-device матрицей audit
+- `frontend/e2e/iphone-target-devices.spec.ts`
 
 ## Constraints
 - `actionType` остаётся в API types, request query и details modal.
 - Filter, pagination, permissions и backend audit semantics не меняются.
 - Table roles/column counts соответствуют DOM и CSS.
-- Details trigger остаётся keyboard/touch accessible и возвращает focus.
+- Details trigger остаётся keyboard/touch accessible, имеет touch-зону не менее
+  `44 x 44px` и возвращает focus после закрытия modal.
+- List description сохраняет текущий `line-clamp: 2`; полный текст остаётся
+  доступен в details modal.
 - Не скрывать description/actor и не использовать horizontal page scrolling.
 - Mantine/Onest/current audit mapping остаются.
 
@@ -134,9 +147,15 @@ Branch rules:
 ### UI/e2e tests
 - Filter → row → details → close primary path.
 - No list action column on mobile/tablet/desktop.
-- Long description/actor, exact geometry and no page overflow at `360 x 780`,
+- Computed row geometry имеет четыре tracks, не содержит `action`/`source`
+  areas и сохраняет minimum `44 x 44px` details target.
+- Long description остаётся двухстрочным, actor переносится без page overflow
+  at `360 x 780`,
   `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`,
   `768 x 1024` and `1440 x 1200`.
+- `iphone-target-devices.spec.ts` содержит отдельный audit-specific WebKit
+  scenario для `420 x 912` и `440 x 956`, проверяющий отсутствие action column,
+  four-track geometry, details target и отсутствие horizontal overflow.
 
 ## Expected initial failure verification
 - Component exact-count and `Действие` absence assertions fail on current JSX.
@@ -148,6 +167,7 @@ Branch rules:
 ## Test plan
 - [ ] Написать component exact-column/filter/modal tests до production-кода.
 - [ ] Обновить audit Playwright absence/geometry checks до production-кода.
+- [ ] Добавить audit-specific checks в `e2e/iphone-target-devices.spec.ts`.
 - [ ] Подтвердить expected red state на action header/cell.
 - [ ] `cd frontend && npm run test:unit`
 - [ ] `cd frontend && npm run check:raw-colors`
@@ -167,13 +187,16 @@ action type. Responsive Playwright с long content и focus return защища�
 - CSS может оставить невидимую пустую track/area после удаления DOM cell.
 - Global query `Действие` совпадает с `Тип действия` filter; assertions нужно
   scope к grid.
+- Случайное удаление `line-clamp` ухудшит сканируемость list rows; полный текст
+  должен оставаться доступен в modal.
+- Текущий `size="xs"` details trigger может быть меньше `44 x 44px`; изменение
+  его minimum target входит в scope TASK-099.
 - Упрощение mobile areas может изменить порядок details/focus.
 
 ## Stop conditions
 Остановиться, если:
 - action type оказывается единственным источником критической диагностики и
   details modal его не сохраняет;
-- final shared filter baseline после TASK-094 неясен;
 - корректировка требует backend/API или permission changes;
 - DOM semantics и responsive grid нельзя согласовать локально;
 - task worktree/branch невалиден.
