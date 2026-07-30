@@ -149,6 +149,23 @@ describe('SettingsScreen', () => {
     expect(administratorCard).toBeVisible()
   })
 
+  test('keeps administrator refresh available when backend denies create', async () => {
+    vi.mocked(getAdministrators).mockResolvedValue({
+      items: [],
+      createRoleOptions: [],
+    })
+
+    renderSettings()
+    fireEvent.click(screen.getByRole('tab', { name: 'Администраторы' }))
+
+    const panel = await screen.findByTestId('administrators-settings-panel')
+
+    expect(
+      within(panel).queryByRole('button', { name: 'Добавить администратора' }),
+    ).not.toBeInTheDocument()
+    expect(within(panel).getByRole('button', { name: 'Обновить' })).toBeVisible()
+  })
+
   test('keeps ordinary Administrator settings without staff-management controls', () => {
     renderWithProviders(
       <SettingsScreen
@@ -169,6 +186,40 @@ describe('SettingsScreen', () => {
 
     expect(screen.getByRole('tab', { name: 'Абонементы' })).toBeVisible()
     expect(screen.queryByRole('tab', { name: 'Администраторы' })).not.toBeInTheDocument()
+  })
+
+  test('uses the shared refresh-then-create cluster for empty group types', async () => {
+    vi.mocked(getGroupTypes).mockResolvedValue([])
+
+    renderSettings({
+      role: 'Administrator',
+      branchId: 'branch-1',
+      createRoleOptions: [],
+    })
+    fireEvent.click(screen.getByRole('tab', { name: 'Типы групп' }))
+
+    expect(await screen.findByText('Типы групп пока не заведены')).toBeVisible()
+    const refresh = screen.getByRole('button', { name: 'Обновить' })
+    const create = screen.getByRole('button', { name: 'Добавить тип' })
+
+    expect(refresh).toHaveAttribute('data-action-priority', 'frequent')
+    expect(create).toHaveAttribute('data-action-priority', 'primary')
+    expect(screen.getAllByRole('button', { name: 'Добавить тип' })).toHaveLength(1)
+  })
+
+  test('uses the shared refresh-then-create cluster for branch settings', async () => {
+    renderSettings({
+      role: 'HeadCoach',
+      branchId: null,
+      createRoleOptions: ['Administrator', 'SuperAdministrator'],
+    })
+    fireEvent.click(screen.getByRole('tab', { name: 'Филиалы и залы' }))
+
+    const refresh = await screen.findByRole('button', { name: 'Обновить' })
+    const create = screen.getByRole('button', { name: 'Добавить филиал' })
+
+    expect(refresh).toHaveAttribute('data-action-priority', 'frequent')
+    expect(create).toHaveAttribute('data-action-priority', 'primary')
   })
 
   test('показывает фактическую роль администратора в строке списка', async () => {

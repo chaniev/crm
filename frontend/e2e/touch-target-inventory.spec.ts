@@ -21,6 +21,7 @@ type ViewportCase = {
 
 type TouchCandidate = {
   gapKind?: 'independent' | 'composite'
+  hiddenAtWidths?: number[]
   label: string
   locator: (page: Page) => Locator
   role?: 'button' | 'textbox'
@@ -196,6 +197,7 @@ const ROUTE_CASES: RouteWithState[] = [
         locator: (page) => page.getByRole('button', { name: /фильтры/i }).first(),
       },
       {
+        hiddenAtWidths: [768],
         label: 'Обновить список',
         locator: (page) => page.getByRole('button', { name: 'Обновить список' }).first(),
       },
@@ -243,6 +245,15 @@ const ROUTE_CASES: RouteWithState[] = [
         label: 'Сбросить поисковый запрос',
         locator: (page) => page.getByRole('button', { name: 'Сбросить поисковый запрос' }),
       },
+      {
+        hiddenAtWidths: [768],
+        label: 'Обновить список',
+        locator: (page) => page.getByRole('button', { name: 'Обновить список' }),
+      },
+      {
+        label: 'Новый клиент',
+        locator: (page) => page.getByRole('button', { name: 'Новый клиент' }),
+      },
     ],
   },
   {
@@ -263,6 +274,7 @@ const ROUTE_CASES: RouteWithState[] = [
     controls: [
       { label: 'Новая группа', locator: (page) => page.getByRole('button', { name: 'Новая группа' }).first() },
       {
+        hiddenAtWidths: [768],
         label: 'Обновить список групп',
         locator: (page) =>
           page.getByRole('button', { name: 'Обновить список групп' }).first(),
@@ -400,6 +412,15 @@ for (const viewport of VIEWPORT_MATRIX) {
 
           const locator = control.locator(page)
           const controlCount = await locator.count()
+
+          if (control.hiddenAtWidths?.includes(viewport.width)) {
+            if (controlCount > 0 && await locator.first().isVisible()) {
+              violations.push(
+                `${viewport.label} ${route.path} ${control.label} must use hidden fallback`,
+              )
+            }
+            continue
+          }
 
           if (controlCount === 0) {
             violations.push(`Missing control ${route.state} ${route.path}: ${control.label}`)

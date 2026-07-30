@@ -30,7 +30,7 @@ import {
   LoadingState,
   PageLayout,
   PageSection,
-  RefreshButton,
+  TaskToolbarRefreshAction,
   type CompactFilterItem,
 } from '../shared/ux'
 
@@ -324,7 +324,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   return (
     <PageLayout data-testid="audit-screen" showHeader={false} title="Журнал">
       <CompactFilterPanel
-        actions={<RefreshButton onClick={handleRefresh} />}
+        actions={<TaskToolbarRefreshAction loading={loading} onClick={handleRefresh} />}
         className="audit-filter-toolbar"
         data-testid="audit-filter-panel"
         onReset={handleResetFilters}

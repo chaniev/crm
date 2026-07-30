@@ -40,9 +40,11 @@ import {
   ErrorState,
   LoadingState,
   PageSection,
-  RefreshButton,
   ResponsiveButtonGroup,
   SectionHeader,
+  TaskToolbarAction,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
   TemporarySurfaceFooter,
 } from '../shared/ux'
 import {
@@ -398,21 +400,24 @@ export function AdministratorsSettingsPanel({
       <PageSection>
         <Stack gap="lg">
           <SectionHeader
-            actions={canCreateAdministrator ? (
-              <ResponsiveButtonGroup>
-                <Button
-                  color="var(--crm-brand-secondary)"
-                  leftSection={<IconUserPlus size={18} />}
-                  onClick={openCreateModal}
-                >
-                  Добавить администратора
-                </Button>
-                <RefreshButton
-                  leftSection={<IconRefresh size={18} />}
-                  onClick={() => setReloadKey((key) => key + 1)}
-                />
-              </ResponsiveButtonGroup>
-            ) : undefined}
+            actions={(
+              <TaskToolbarActions
+                frequentActions={(
+                  <TaskToolbarRefreshAction
+                    loading={loading}
+                    onClick={() => setReloadKey((key) => key + 1)}
+                  />
+                )}
+                primaryAction={canCreateAdministrator ? (
+                  <TaskToolbarAction
+                    icon={<IconUserPlus size={18} />}
+                    label="Добавить администратора"
+                    onClick={openCreateModal}
+                    priority="primary"
+                  />
+                ) : null}
+              />
+            )}
             description="Администраторы управляют настройками, клиентами, группами и журналом без доступа к созданию тренеров."
             title="Администраторы"
           />
@@ -430,9 +435,6 @@ export function AdministratorsSettingsPanel({
 
           {!loading && !loadError && administrators.length === 0 ? (
             <EmptyState
-              action={canCreateAdministrator
-                ? <Button onClick={openCreateModal}>Добавить администратора</Button>
-                : undefined}
               icon={<IconUserCog size={24} />}
               title="Администраторы пока не добавлены"
             />

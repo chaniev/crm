@@ -46,6 +46,7 @@ import {
   PageLayout,
   PageSection,
   RefreshButton,
+  TaskToolbarRefreshAction,
   type CompactFilterItem,
   type CompactFilterPlacement,
 } from '../shared/ux'
@@ -449,7 +450,7 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
 
         <CompactFilterPanel
           actions={
-            <RefreshButton
+            <TaskToolbarRefreshAction
               loading={isRefreshingReport}
               onClick={() => setReloadKey((current) => current + 1)}
             />

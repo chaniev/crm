@@ -70,6 +70,29 @@ beforeEach(() => {
 })
 
 describe('UsersListScreen', () => {
+  test('renders create and refresh as a shared task action cluster', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [],
+      createRoleOptions: ['Coach'],
+    } satisfies UserListResponse)
+
+    renderWithProviders(<UsersListScreen onCreate={vi.fn()} onEdit={vi.fn()} />)
+
+    await waitFor(() => expect(getUsers).toHaveBeenCalled())
+
+    const toolbar = document.querySelector('.users-list-toolbar')
+    expect(toolbar).toBeTruthy()
+
+    const buttons = within(toolbar as HTMLElement).getAllByRole('button')
+
+    expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
+      'Обновить',
+      'Создать тренера',
+    ])
+    expect(buttons[0]).toHaveClass('task-toolbar-action--refresh')
+    expect(buttons[1]).toHaveClass('task-toolbar-action--primary')
+  })
+
   test('does not implement frontend filtering of non-coach targets', async () => {
     vi.mocked(getUsers).mockResolvedValue({
       items: [

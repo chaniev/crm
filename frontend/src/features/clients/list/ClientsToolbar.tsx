@@ -7,7 +7,6 @@ import {
 import {
   IconFilterOff,
   IconPlus,
-  IconRefresh,
 } from '@tabler/icons-react'
 import { useState } from 'react'
 import { resources } from '../../../lib/resources'
@@ -15,7 +14,8 @@ import {
   ActiveFiltersBar,
   Button,
   EntityLocatorBar,
-  IconButton,
+  TaskToolbarAction,
+  TaskToolbarRefreshAction,
   TemporarySurfaceFooter,
   type CompactFilterItem,
   type ActiveFilter,
@@ -227,13 +227,10 @@ export function ClientsToolbar({
         data-client-search-mode={state.searchMode}
         data-loading={state.loading || undefined}
         frequentActions={(
-          <IconButton
-            className="clients-v7-refresh-button"
-            icon={<IconRefresh size={18} />}
+          <TaskToolbarRefreshAction
             label="Обновить список"
+            loading={state.loading}
             onClick={state.reload}
-            size={44}
-            variant="ghost"
           />
         )}
         onChange={state.setSearchDraft}
@@ -243,15 +240,12 @@ export function ClientsToolbar({
         onOpenFilters={() => setFiltersOpened(true)}
         placeholder={canManage ? 'Имя или телефон' : 'Имя клиента'}
         primaryAction={canManage ? (
-          <Button
-            aria-label="Новый клиент"
-            className="clients-v7-create-button"
-            color="var(--crm-brand-secondary)"
-            leftSection={<IconPlus size={20} />}
+          <TaskToolbarAction
+            icon={<IconPlus size={18} />}
+            label="Новый клиент"
             onClick={onCreate}
-          >
-            Новый клиент
-          </Button>
+            priority="primary"
+          />
         ) : null}
         resultsId="clients-results"
         value={state.searchDraft}

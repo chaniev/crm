@@ -23,7 +23,6 @@ import {
   IconClockHour4,
   IconDoor,
   IconMapPin,
-  IconRefresh,
   IconUser,
   IconUsers,
 } from '@tabler/icons-react'
@@ -62,10 +61,10 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
-  IconButton,
   PageLayout,
   PageSection,
   RefreshButton,
+  TaskToolbarRefreshAction,
   type CompactFilterItem,
 } from '../shared/ux'
 
@@ -390,13 +389,10 @@ function ScheduleFiltersToolbar({
   return (
     <CompactFilterPanel
       actions={(
-        <IconButton
-          className="schedule-refresh-button"
+        <TaskToolbarRefreshAction
           disabled={refreshDisabled}
-          icon={<IconRefresh size={18} />}
           label="Обновить"
           onClick={onRefresh}
-          size={44}
         />
       )}
       className="schedule-filter-toolbar"
@@ -422,13 +418,10 @@ function ScheduleRefreshToolbar({
       className="schedule-filter-toolbar schedule-refresh-toolbar"
       data-testid="schedule-filter-panel"
     >
-      <IconButton
-        className="schedule-refresh-button"
+      <TaskToolbarRefreshAction
         disabled={refreshDisabled}
-        icon={<IconRefresh size={18} />}
         label="Обновить"
         onClick={onRefresh}
-        size={44}
       />
     </div>
   )

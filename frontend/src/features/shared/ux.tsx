@@ -860,5 +860,10 @@ export { ListRangeStatus } from './ListRangeStatus'
 export { MobileBottomNavigation } from './MobileBottomNavigation'
 export { NavigationTabs } from './NavigationTabs'
 export { RestrictedState } from './RestrictedState'
+export {
+  TaskToolbarAction,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
+} from './TaskToolbarActions'
 export { TaskItem, type TaskItemInteraction } from './TaskItem'
 export { TemporarySurfaceFooter } from './TemporarySurfaceFooter'

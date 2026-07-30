@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Alert, Badge, Group, Modal, NumberInput, Paper, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { IconAlertCircle, IconEdit, IconPlus, IconRefresh } from '@tabler/icons-react'
+import { IconAlertCircle, IconEdit, IconPlus } from '@tabler/icons-react'
 import {
   ApiError,
   applyFieldErrors,
@@ -13,7 +13,18 @@ import {
   type MembershipBehaviorKind,
   type MembershipCatalogItem,
 } from '../../lib/api'
-import { Button, EmptyState, ErrorState, LoadingState, PageSection, RefreshButton, ResponsiveButtonGroup, SectionHeader } from '../shared/ux'
+import {
+  Button,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  PageSection,
+  ResponsiveButtonGroup,
+  SectionHeader,
+  TaskToolbarAction,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
+} from '../shared/ux'
 
 type Props = { assignedBranchId?: string | null; canSelectBranch?: boolean }
 type FormValues = { name: string; price: number | string; behaviorKind: Exclude<MembershipBehaviorKind, 'Professional'>; availableFrom: string; availableTo: string }
@@ -95,11 +106,28 @@ export function MembershipCatalogSettings({
   const branch = branches.find((item) => item.id === branchId)
   return <Stack gap="lg">
     <PageSection><Stack gap="lg">
-      <SectionHeader title="Каталог абонементов" description="Названия, цены и периоды, доступные для продажи." actions={<ResponsiveButtonGroup><Button leftSection={<IconPlus size={18}/>} onClick={openCreate} disabled={!branchId}>Добавить абонемент</Button><RefreshButton leftSection={<IconRefresh size={18}/>} onClick={() => setReloadKey((key) => key + 1)}/></ResponsiveButtonGroup>}/>
+      <SectionHeader
+        actions={(
+          <TaskToolbarActions
+            frequentActions={<TaskToolbarRefreshAction loading={loading} onClick={() => setReloadKey((key) => key + 1)} />}
+            primaryAction={(
+              <TaskToolbarAction
+                disabled={!branchId}
+                icon={<IconPlus size={18} />}
+                label="Добавить абонемент"
+                onClick={openCreate}
+                priority="primary"
+              />
+            )}
+          />
+        )}
+        description="Названия, цены и периоды, доступные для продажи."
+        title="Каталог абонементов"
+      />
       {canSelectBranch ? <Select allowDeselect={false} data={branches.map((item) => ({ value: item.id, label: item.name }))} label="Филиал каталога" onChange={(value) => setBranchId(value ?? '')} value={branchId || null}/> : <Paper className="hint-card" p="md" withBorder><Text c="dimmed" size="sm">Филиал каталога</Text><Text fw={700}>{branch?.name ?? 'Не назначен'}</Text></Paper>}
       {loading ? <LoadingState label="Загружаем каталог..."/> : null}
       {!loading && error ? <ErrorState title="Каталог не загрузился" message={error}/> : null}
-      {!loading && !error && items.length === 0 ? <EmptyState icon={<IconPlus size={24}/>} title="В этом филиале ещё нет абонементов" action={<Button onClick={openCreate}>Добавить абонемент</Button>}/> : null}
+      {!loading && !error && items.length === 0 ? <EmptyState icon={<IconPlus size={24}/>} title="В этом филиале ещё нет абонементов"/> : null}
       {!loading && !error ? <Stack>{items.map((item) => <Paper className="list-row-card" key={item.id} p="lg" withBorder><Group justify="space-between"><Stack gap={6}><Group><Text fw={700}>{item.name}</Text><Badge>{behaviorLabel(item.behaviorKind)}</Badge>{item.behaviorKind === 'Professional' ? <Badge color="blue">Профессиональный</Badge> : null}</Group><Text c="dimmed" size="sm">{formatPrice(item.price)} • {item.availableFrom} — {item.availableTo ?? 'бессрочно'}</Text></Stack><Button aria-label={`Редактировать ${item.name}`} leftSection={<IconEdit size={16}/>} onClick={() => openEdit(item)} variant="light">Изменить</Button></Group></Paper>)}</Stack> : null}
     </Stack></PageSection>
     <Modal centered opened={Boolean(modal)} onClose={() => setModal(null)} title={modal?.mode === 'edit' ? 'Редактирование абонемента' : 'Новый абонемент'}><form onSubmit={form.onSubmit((values) => void submit(values))}><Stack>

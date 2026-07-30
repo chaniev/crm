@@ -759,6 +759,7 @@
 
 .entity-locator-bar {
   min-width: 0;
+  container-type: inline-size;
 }
 
 .crm-filter-surface,
@@ -807,12 +808,30 @@
   flex-wrap: nowrap;
 }
 
+.task-toolbar-actions {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+
+.task-toolbar-action.shared-button {
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .entity-locator-bar__filter,
 .entity-locator-bar__clear,
 .active-filters-bar__item,
 .active-filters-bar__reset,
 .temporary-surface-footer :where(button, a),
 .restricted-state__actions :where(button, a),
+.task-toolbar-action.shared-button,
 .task-item--interactive {
   min-width: 44px;
   min-height: 44px;
@@ -849,20 +868,22 @@
   pointer-events: none;
 }
 
-@media (max-width: 62rem) {
-  .clients-v7-locator[data-client-search-mode='search-focused']
-    :where(.clients-v7-refresh-button, .clients-v7-create-button) {
-    display: none;
-  }
-}
-
-@media (max-width: 48rem) {
+@media (max-width: 47.99rem), ((pointer: coarse) and (max-height: 30rem)) {
   .entity-locator-bar__filter {
     width: 44px;
     padding-inline: 0;
   }
 
-  .entity-locator-bar__filter-label {
+  .task-toolbar-action.shared-button {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .entity-locator-bar__filter-label,
+  .task-toolbar-action .mantine-Button-label {
     position: absolute !important;
     width: 1px !important;
     height: 1px !important;
@@ -872,6 +893,88 @@
     clip: rect(0 0 0 0) !important;
     white-space: nowrap !important;
     border: 0 !important;
+  }
+
+  .task-toolbar-action .mantine-Button-section {
+    margin: 0;
+  }
+}
+
+@media (min-width: 48rem) {
+  .entity-locator-bar__row {
+    grid-template-columns: minmax(320px, 1fr) auto;
+  }
+
+  .entity-locator-bar__input {
+    min-width: 320px;
+  }
+}
+
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+  .entity-locator-bar .task-toolbar-action--refresh.shared-button {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .entity-locator-bar .task-toolbar-action--refresh .mantine-Button-label {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  .entity-locator-bar .task-toolbar-action--refresh .mantine-Button-section {
+    margin: 0;
+  }
+
+  @container (max-width: 34rem) {
+    .entity-locator-bar
+      .task-toolbar-actions:has(.task-toolbar-action--primary)
+      .task-toolbar-action--refresh {
+      display: none;
+    }
+
+    .entity-locator-bar .task-toolbar-action--primary.shared-button {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    .entity-locator-bar .task-toolbar-action--primary .mantine-Button-label {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      margin: -1px !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      clip: rect(0 0 0 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .entity-locator-bar .task-toolbar-action--primary .mantine-Button-section {
+      margin: 0;
+    }
+  }
+}
+
+@media (min-width: 80rem) {
+  .entity-locator-bar__row {
+    grid-template-columns: minmax(420px, 1fr) auto;
+  }
+
+  .entity-locator-bar__input {
+    min-width: 420px;
   }
 }
 
@@ -2539,18 +2642,6 @@
   background: var(--crm-surface-overlay);
 }
 
-.clients-v7-create-button {
-  min-height: 3rem;
-  border-radius: 0.55rem;
-  box-shadow: 0 10px 24px var(--crm-brand-alpha-16);
-}
-
-.clients-v7-refresh-button {
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  color: var(--crm-action-primary-active);
-}
-
 .clients-v7-preview {
   padding: 1rem;
   border-radius: 0.5rem;
@@ -3435,31 +3526,6 @@
     width: auto;
   }
 
-  .clients-v7-create-button {
-    width: 3.5rem;
-    height: 3.5rem;
-    min-width: 3.5rem;
-    min-height: 3.5rem;
-    flex: 0 0 3.5rem;
-    padding: 0;
-    border-radius: 50%;
-  }
-
-  .clients-v7-refresh-button {
-    width: 3rem;
-    height: 3rem;
-    min-width: 3rem;
-    min-height: 3rem;
-  }
-
-  .clients-v7-create-button .mantine-Button-label {
-    display: none;
-  }
-
-  .clients-v7-create-button .mantine-Button-section {
-    margin: 0;
-  }
-
   .clients-v7-layout {
     grid-template-columns: 1fr;
   }
@@ -3948,15 +4014,10 @@
   gap: 0.75rem;
 }
 
-.groups-list-create,
-.groups-list-refresh,
+.task-toolbar-action,
 .group-registry-row__edit {
   min-width: 44px;
   min-height: 44px;
-}
-
-.groups-list-create {
-  white-space: nowrap;
 }
 
 .groups-filters-drawer__content {
@@ -4077,42 +4138,7 @@
   min-height: 44px;
 }
 
-@media (max-width: 27.5rem) {
-  .groups-list-create {
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border-radius: 50%;
-  }
-
-  .groups-list-create .mantine-Button-label {
-    display: none;
-  }
-
-  .groups-list-create .mantine-Button-section {
-    margin: 0;
-  }
-
-}
-
 @media (min-width: 48rem) and (max-width: 63.99rem) {
-  .groups-list-create {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0;
-    border-radius: 50%;
-  }
-
-  .groups-list-create .mantine-Button-label {
-    display: none;
-  }
-
-  .groups-list-create .mantine-Button-section {
-    margin: 0;
-  }
-
   .group-registry-row {
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.8fr) 44px;
     gap: 0.6rem 1rem;

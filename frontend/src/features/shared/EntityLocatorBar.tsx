@@ -1,17 +1,18 @@
 import { Badge, TextInput } from '@mantine/core'
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react'
 import { useRef, type ComponentPropsWithoutRef, type ReactNode } from 'react'
+import { TaskToolbarActions } from './TaskToolbarActions'
 
 export type EntityLocatorBarProps = Omit<ComponentPropsWithoutRef<'div'>, 'onChange'> & {
   accessibleLabel: string
-  activeFilterCount: number
+  activeFilterCount?: number
   disabled?: boolean
   frequentActions?: ReactNode
   onChange: (value: string) => void
   onClear: () => void
   onInputBlur?: () => void
   onInputFocus?: () => void
-  onOpenFilters: () => void
+  onOpenFilters?: () => void
   placeholder: string
   primaryAction?: ReactNode
   resultsId: string
@@ -21,7 +22,7 @@ export type EntityLocatorBarProps = Omit<ComponentPropsWithoutRef<'div'>, 'onCha
 
 export function EntityLocatorBar({
   accessibleLabel,
-  activeFilterCount,
+  activeFilterCount = 0,
   className,
   disabled = false,
   frequentActions,
@@ -37,7 +38,8 @@ export function EntityLocatorBar({
   visibleLabel,
   ...props
 }: EntityLocatorBarProps) {
-  const hasActions = Boolean(primaryAction || frequentActions)
+  const hasFilterTrigger = Boolean(onOpenFilters)
+  const hasActions = Boolean(hasFilterTrigger || primaryAction || frequentActions)
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   function clearAndKeepSearchFocus() {
@@ -88,39 +90,41 @@ export function EntityLocatorBar({
           rightSectionWidth={value ? 44 : undefined}
           value={value}
         />
-        <div className="entity-locator-bar__actions">
-          <button
-            aria-haspopup="dialog"
-            aria-label={
-              activeFilterCount > 0
-                ? `Открыть фильтры, активно ${activeFilterCount}`
-                : 'Открыть фильтры'
-            }
-            className="entity-locator-bar__filter"
-            disabled={disabled}
-            onClick={onOpenFilters}
-            type="button"
-          >
-            <IconFilter aria-hidden="true" size={18} />
-            <span className="entity-locator-bar__filter-label">Фильтры</span>
-            {activeFilterCount > 0 ? (
-              <Badge
-                className="entity-locator-bar__filter-count"
-                component="span"
-                size="sm"
-                variant="filled"
+        {hasActions ? (
+          <div className="entity-locator-bar__actions">
+            {onOpenFilters ? (
+              <button
+                aria-haspopup="dialog"
+                aria-label={
+                  activeFilterCount > 0
+                    ? `Открыть фильтры, активно ${activeFilterCount}`
+                    : 'Открыть фильтры'
+                }
+                className="entity-locator-bar__filter"
+                disabled={disabled}
+                onClick={onOpenFilters}
+                type="button"
               >
-                {activeFilterCount}
-              </Badge>
+                <IconFilter aria-hidden="true" size={18} />
+                <span className="entity-locator-bar__filter-label">Фильтры</span>
+                {activeFilterCount > 0 ? (
+                  <Badge
+                    className="entity-locator-bar__filter-count"
+                    component="span"
+                    size="sm"
+                    variant="filled"
+                  >
+                    {activeFilterCount}
+                  </Badge>
+                ) : null}
+              </button>
             ) : null}
-          </button>
-          {hasActions ? (
-            <>
-              {frequentActions}
-              {primaryAction}
-            </>
-          ) : null}
-        </div>
+            <TaskToolbarActions
+              frequentActions={frequentActions}
+              primaryAction={primaryAction}
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   )
