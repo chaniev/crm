@@ -6,7 +6,6 @@ import {
   Modal,
   Paper,
   Select,
-  SimpleGrid,
   Stack,
   Text,
 } from '@mantine/core'
@@ -40,7 +39,6 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
-  MetricCard,
   PageSection,
   RefreshButton,
   ResponsiveButtonGroup,
@@ -395,31 +393,8 @@ export function AdministratorsSettingsPanel({
     }
   }
 
-  const activeCount = administrators.filter((administrator) => administrator.isActive).length
-  const passwordRotationCount = administrators.filter(
-    (administrator) => administrator.mustChangePassword,
-  ).length
-
   return (
-    <Stack gap="xl">
-      <SimpleGrid cols={{ base: 1, md: 3 }}>
-        <MetricCard
-          description="Пользователи с ролью администратора"
-          label="Администраторы"
-          value={String(administrators.length)}
-        />
-        <MetricCard
-          description="Могут входить в CRM"
-          label="Активные"
-          value={String(activeCount)}
-        />
-        <MetricCard
-          description="Должны сменить пароль при входе"
-          label="Смена пароля"
-          value={String(passwordRotationCount)}
-        />
-      </SimpleGrid>
-
+    <Stack data-testid="administrators-settings-panel" gap="xl">
       <PageSection>
         <Stack gap="lg">
           <SectionHeader
