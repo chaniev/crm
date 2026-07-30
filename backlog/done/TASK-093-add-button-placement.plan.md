@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-093 Унифицировать расположение и оформление кнопок добавления и обновления
 
 ## Source task
-/backlog/implementation/TASK-093-add-button-placement.md
+/backlog/done/TASK-093-add-button-placement.md
 
 ## Implementation branch
 feature/TASK-093-add-button-placement
@@ -202,14 +202,14 @@ settings workspaces, сохранив backend-owned visibility, loading и фа�
 - Loading and one permission-restricted role path.
 
 ## Test plan
-- [ ] Shared and representative component tests red before implementation.
-- [ ] Playwright placement/geometry matrix red before implementation.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e -- <affected-specs>`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] Shared and representative component tests red before implementation.
+- [x] Playwright placement/geometry matrix red before implementation.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`
+- [x] `cd frontend && npm run test:e2e -- <affected-specs>`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 An executable route/surface inventory plus Playwright geometry matrix must fail
@@ -233,5 +233,5 @@ feature color/size exception reappears.
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes, after TASK-092 and TASK-094 are merged into origin/main; TASK-084 and
-TASK-086 are done
+no — completed on 2026-07-30 in commit `1433180`; iPhone regression alignment
+`342f5c5`.

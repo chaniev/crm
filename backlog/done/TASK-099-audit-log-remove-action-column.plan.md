@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-099 Удалить колонку «Действие» из списка журнала
 
 ## Source task
-/backlog/implementation/TASK-099-audit-log-remove-action-column.md
+/backlog/done/TASK-099-audit-log-remove-action-column.md
 
 ## Implementation branch
 fix/TASK-099-audit-log-remove-action-column
@@ -165,16 +165,16 @@ Branch rules:
   over-deletion during implementation.
 
 ## Test plan
-- [ ] Написать component exact-column/filter/modal tests до production-кода.
-- [ ] Обновить audit Playwright absence/geometry checks до production-кода.
-- [ ] Добавить audit-specific checks в `e2e/iphone-target-devices.spec.ts`.
-- [ ] Подтвердить expected red state на action header/cell.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e -- e2e/stage12.spec.ts e2e/responsive-main-screens.spec.ts`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] Написать component exact-column/filter/modal tests до production-кода.
+- [x] Обновить audit Playwright absence/geometry checks до production-кода.
+- [x] Добавить audit-specific checks в `e2e/iphone-target-devices.spec.ts`.
+- [x] Подтвердить expected red state на action header/cell.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`
+- [x] `cd frontend && npm run test:e2e -- e2e/stage12.spec.ts e2e/responsive-main-screens.spec.ts`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 Component tests должны одновременно требовать четыре semantic headers/cells,
@@ -202,4 +202,4 @@ action type. Responsive Playwright с long content и focus return защища�
 - task worktree/branch невалиден.
 
 ## Ready for Codex execution
-yes
+no — completed on 2026-07-30 in commit `e2c75f9`.

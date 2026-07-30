@@ -1,13 +1,20 @@
 # TASK-093: Унифицировать расположение и оформление кнопок добавления и обновления
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-27 00:40
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-093-add-button-placement.plan.md
+- implementation_plan: /backlog/done/TASK-093-add-button-placement.plan.md
 - implementation_branch: feature/TASK-093-add-button-placement
+- implementation_state: completed
+- implementation_commit: 1433180
+- regression_commit: 342f5c5
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30
+- reviewed_main_commit: 342f5c5
 
 ## Goal
 На всех экранах CRM добавление и обновление находятся в предсказуемом task toolbar и используют единые размеры, визуальный приоритет и responsive-поведение.
@@ -49,26 +56,26 @@ implementation
 - Backend остаётся владельцем permissions и allowed actions.
 
 ## Acceptance criteria
-- [ ] В implementation inventory перечислены все экраны с create/add или refresh actions; каждый обновлён либо исключён с причиной.
-- [ ] На list screens locator/search, filters, create/add и refresh следуют единому shared toolbar contract.
-- [ ] Create/add использует один semantic primary treatment, refresh — один secondary/frequent treatment.
-- [ ] Размеры, gap, icon size и text/icon-only transitions одинаковы для эквивалентных действий.
-- [ ] На mobile create/add и refresh имеют touch target минимум 44 x 44 и точные accessible names.
-- [ ] На desktop/tablet действия не прыгают между правым краем, отдельной строкой и filter panel без обоснованного screen-specific исключения.
-- [ ] Permissions, loading/disabled states и фактические операции не изменены.
-- [ ] `Группы` и `Клиенты` соответствуют одному контракту с учётом различий их locator/filter composition.
-- [ ] Определены исключения для экранов, которым общий паттерн не подходит, с причиной.
+- [x] В implementation inventory перечислены все экраны с create/add или refresh actions; каждый обновлён либо исключён с причиной.
+- [x] На list screens locator/search, filters, create/add и refresh следуют единому shared toolbar contract.
+- [x] Create/add использует один semantic primary treatment, refresh — один secondary/frequent treatment.
+- [x] Размеры, gap, icon size и text/icon-only transitions одинаковы для эквивалентных действий.
+- [x] На mobile create/add и refresh имеют touch target минимум 44 x 44 и точные accessible names.
+- [x] На desktop/tablet действия не прыгают между правым краем, отдельной строкой и filter panel без обоснованного screen-specific исключения.
+- [x] Permissions, loading/disabled states и фактические операции не изменены.
+- [x] `Группы` и `Клиенты` соответствуют одному контракту с учётом различий их locator/filter composition.
+- [x] Определены исключения для экранов, которым общий паттерн не подходит, с причиной.
 
 ## Test checklist
-- [ ] До реализации собрать screenshot/inventory затронутых экранов на desktop и 390 x 844.
-- [ ] Добавить component regression для shared action placement, variants и accessible names.
-- [ ] Добавить Playwright visual/geometry checks минимум для одного list screen с фильтрами и одного без фильтров.
-- [ ] Проверить `Группы` и `Клиенты` как указанные пользователем regression examples.
-- [ ] Проверить 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 и 1440 px.
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить `cd frontend && npm run test:unit`.
-- [ ] Запустить affected Playwright и mobile WebKit checks.
+- [x] До реализации собрать screenshot/inventory затронутых экранов на desktop и 390 x 844.
+- [x] Добавить component regression для shared action placement, variants и accessible names.
+- [x] Добавить Playwright visual/geometry checks минимум для одного list screen с фильтрами и одного без фильтров.
+- [x] Проверить `Группы` и `Клиенты` как указанные пользователем regression examples.
+- [x] Проверить 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 и 1440 px.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить `cd frontend && npm run test:unit`.
+- [x] Запустить affected Playwright и mobile WebKit checks.
 
 ## AI safety
 - Safe for Codex: yes
@@ -91,3 +98,10 @@ implementation
 - Updated at: 2026-07-27 00:25
 - Update reason: новая заметка добавила concrete screens и visual inconsistencies; нормативный TASK-090 contract уже разрешает прежние вопросы placement/order/mobile behavior, поэтому задача расширена на create/refresh styling и переведена в `tasks-ready`.
 - Duplicate check: новая заметка относится к тому же cross-screen action pattern; отдельный TASK не создан.
+
+## Completion notes
+- Добавлен shared action cluster для create/add и refresh, проведён inventory
+  экранов и удалены дублирующие empty-state actions.
+- Mobile, tablet и desktop geometry закреплены component и Playwright-тестами,
+  включая permission-restricted и 768 px fallback.
+- Изменений схемы хранения данных и миграции БД не потребовалось.

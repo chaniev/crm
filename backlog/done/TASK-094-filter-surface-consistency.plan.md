@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-094 Унифицировать фон областей фильтров
 
 ## Source task
-/backlog/implementation/TASK-094-filter-surface-consistency.md
+/backlog/done/TASK-094-filter-surface-consistency.md
 
 ## Implementation branch
 fix/TASK-094-filter-surface-consistency
@@ -205,14 +205,14 @@ standard filter/locator surface не остаётся вне inventory, migratio
   Escape/close/`Готово`, safe area and no overflow.
 
 ## Test plan
-- [ ] Shared/component surface tests red before implementation.
-- [ ] Computed-style/theme Playwright matrix red before implementation.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e -- <affected-specs>`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] Shared/component surface tests red before implementation.
+- [x] Computed-style/theme Playwright matrix red before implementation.
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`
+- [x] `cd frontend && npm run test:e2e -- <affected-specs>`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Regression barrier
 A route inventory plus automated computed-style/theme matrix must fail on any
@@ -241,4 +241,4 @@ cannot silently omit another standard screen.
 - task worktree/branch is invalid.
 
 ## Ready for Codex execution
-yes — TASK-086 merged through `f8f6460`
+no — completed on 2026-07-30 in commit `691a550`.

@@ -1,13 +1,19 @@
 # TASK-092: Удалить сводные виджеты из раздела администраторов
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-26 23:56
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-092-remove-administrator-widgets.plan.md
+- implementation_plan: /backlog/done/TASK-092-remove-administrator-widgets.plan.md
 - implementation_branch: feature/TASK-092-remove-administrator-widgets
+- implementation_state: completed
+- implementation_commit: 47f4a81
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30
+- reviewed_main_commit: 342f5c5
 
 ## Goal
 Пользователь сразу переходит к списку и операциям с администраторами без занимающих место сводных карточек.
@@ -41,20 +47,20 @@ implementation
 - Сохранить Mantine и существующие shared UI patterns.
 
 ## Acceptance criteria
-- [ ] В разделе `Администраторы` не отображаются три сводных виджета количества, активности и смены пароля.
-- [ ] Заголовок, описание, кнопки добавления и обновления расположены перед списком и работают как раньше.
-- [ ] Loading, error, empty и populated states не регрессируют.
-- [ ] Создание и редактирование администратора остаются доступными согласно backend permissions.
-- [ ] После удаления блока нет пустого контейнера, лишнего вертикального отступа или неиспользуемого frontend-кода.
-- [ ] Раздел не получает горизонтальную прокрутку на 390 x 844, 420 x 912 и 440 x 956.
+- [x] В разделе `Администраторы` не отображаются три сводных виджета количества, активности и смены пароля.
+- [x] Заголовок, описание, кнопки добавления и обновления расположены перед списком и работают как раньше.
+- [x] Loading, error, empty и populated states не регрессируют.
+- [x] Создание и редактирование администратора остаются доступными согласно backend permissions.
+- [x] После удаления блока нет пустого контейнера, лишнего вертикального отступа или неиспользуемого frontend-кода.
+- [x] Раздел не получает горизонтальную прокрутку на 390 x 844, 420 x 912 и 440 x 956.
 
 ## Test checklist
-- [ ] Обновить `SettingsScreen` component tests: метрики отсутствуют, основной список и действия сохранены.
-- [ ] Вручную проверить loading, error, empty и populated states раздела.
-- [ ] Проверить mobile layout на 390 x 844, 420 x 912 и 440 x 956.
-- [ ] Запустить frontend lint.
-- [ ] Запустить frontend unit tests.
-- [ ] Запустить frontend build.
+- [x] Обновить `SettingsScreen` component tests: метрики отсутствуют, основной список и действия сохранены.
+- [x] Вручную проверить loading, error, empty и populated states раздела.
+- [x] Проверить mobile layout на 390 x 844, 420 x 912 и 440 x 956.
+- [x] Запустить frontend lint.
+- [x] Запустить frontend unit tests.
+- [x] Запустить frontend build.
 
 ## AI safety
 - Safe for Codex: yes
@@ -76,3 +82,9 @@ implementation
 - Duplicate check: активных задач на удаление сводных виджетов раздела администраторов не найдено; client visual-noise TASK-018 и завершённые group summary задачи относятся к другим экранам.
 - Updated at: 2026-07-27 01:04
 - Duplicate check: часть новой all-screen заметки про administrator settings полностью покрыта этой implementation task; scope не изменён. Остаточные BranchSettings/group-edit widgets вынесены в TASK-101.
+
+## Completion notes
+- Три сводных виджета удалены без изменения списка, форм, разрешений и
+  operational states раздела администраторов.
+- Component и responsive regression-проверки обновлены.
+- Изменений схемы хранения данных и миграции БД не потребовалось.

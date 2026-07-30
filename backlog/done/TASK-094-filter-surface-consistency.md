@@ -1,13 +1,19 @@
 # TASK-094: Унифицировать фон областей фильтров
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-27 00:40
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-094-filter-surface-consistency.plan.md
+- implementation_plan: /backlog/done/TASK-094-filter-surface-consistency.plan.md
 - implementation_branch: fix/TASK-094-filter-surface-consistency
+- implementation_state: completed
+- implementation_commit: 691a550
+- delivered_on_main_at: 2026-07-30
+- moved_to_done_at: 2026-07-30
+- last_status_reviewed_at: 2026-07-30
+- reviewed_main_commit: 342f5c5
 
 ## Goal
 Области поиска и фильтров на всех экранах CRM выглядят как один shared-паттерн на desktop и mobile и не меняют фон от экрана к экрану.
@@ -43,22 +49,22 @@ implementation
 - Реализация должна соответствовать TASK-056, TASK-090 и `docs/MOBILE_UI_CONTRACT.md`.
 
 ## Acceptance criteria
-- [ ] В implementation inventory перечислены все экраны с поиском или фильтрами; каждый обновлён либо исключён с обоснованием.
-- [ ] Одинаковые filter/locator surfaces используют один semantic background, border и shadow contract на desktop и mobile.
-- [ ] В feature code нет локального `white`, raw color или page-background override для стандартной области фильтров.
-- [ ] `default-green-v1` и `test-blue-coral-v1` сохраняют читаемость, границы и focus states панели.
-- [ ] Loading, empty, error и populated states не меняют фон панели непредсказуемо.
-- [ ] Фильтрация, сброс и active-filter controls работают как до visual cleanup.
-- [ ] На 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 и 1440 px нет overflow или сломанной иерархии.
+- [x] В implementation inventory перечислены все экраны с поиском или фильтрами; каждый обновлён либо исключён с обоснованием.
+- [x] Одинаковые filter/locator surfaces используют один semantic background, border и shadow contract на desktop и mobile.
+- [x] В feature code нет локального `white`, raw color или page-background override для стандартной области фильтров.
+- [x] `default-green-v1` и `test-blue-coral-v1` сохраняют читаемость, границы и focus states панели.
+- [x] Loading, empty, error и populated states не меняют фон панели непредсказуемо.
+- [x] Фильтрация, сброс и active-filter controls работают как до visual cleanup.
+- [x] На 390 x 844, 420 x 912, 440 x 956, 912 x 420, 956 x 440, 768 и 1440 px нет overflow или сломанной иерархии.
 
 ## Test checklist
-- [ ] Добавить component regression для shared filter surface и theme profiles.
-- [ ] Добавить или обновить Playwright visual/geometry checks минимум для двух representative screens.
-- [ ] Вручную проверить все найденные filter screens на desktop и mobile.
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить `cd frontend && npm run test:unit`.
-- [ ] Запустить affected Playwright и mobile WebKit checks.
+- [x] Добавить component regression для shared filter surface и theme profiles.
+- [x] Добавить или обновить Playwright visual/geometry checks минимум для двух representative screens.
+- [x] Вручную проверить все найденные filter screens на desktop и mobile.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить `cd frontend && npm run test:unit`.
+- [x] Запустить affected Playwright и mobile WebKit checks.
 
 ## AI safety
 - Safe for Codex: yes
@@ -76,3 +82,9 @@ implementation
 - Created at: 2026-07-27 00:25
 - Created by skill: codex-backlog-skill
 - Duplicate check: завершённые TASK-046, TASK-056 и TASK-090 задали общий визуальный и semantic-token baseline, но активной follow-up задачи на оставшиеся несовпадающие filter surfaces нет.
+
+## Completion notes
+- Standard locator/filter surfaces переведены на единый semantic paint
+  contract; attendance context оставлен документированным исключением.
+- Проверены обе theme profiles, responsive geometry и iPhone filter surfaces.
+- Изменений схемы хранения данных и миграции БД не потребовалось.
