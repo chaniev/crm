@@ -38,7 +38,9 @@ export async function getGroups(
     pageSize?: number
     skip?: number
     take?: number
+    query?: string
     isActive?: boolean
+    withoutTrainer?: boolean
   } = {},
   signal?: AbortSignal,
 ) {
@@ -62,8 +64,17 @@ export async function getGroups(
     searchParams.set(GROUPS_QUERY_KEYS.take, String(params.take))
   }
 
+  const query = typeof params.query === 'string' ? params.query.trim() : ''
+  if (query) {
+    searchParams.set(GROUPS_QUERY_KEYS.query, query)
+  }
+
   if (typeof params.isActive === 'boolean') {
     searchParams.set(GROUPS_QUERY_KEYS.isActive, String(params.isActive))
+  }
+
+  if (params.withoutTrainer === true) {
+    searchParams.set(GROUPS_QUERY_KEYS.withoutTrainer, 'true')
   }
 
   if (
@@ -76,29 +87,20 @@ export async function getGroups(
     searchParams.set(GROUPS_QUERY_KEYS.pageSize, String(GROUPS_DEFAULT_PAGE_SIZE))
   }
 
-  const payload = await request<GroupResponsePayload[] | GroupsListEnvelopePayload>(
+  const payload = await request<GroupsListEnvelopePayload>(
     `${API_ENDPOINTS.groups.collection}?${searchParams.toString()}`,
     { signal },
   )
 
-  if (Array.isArray(payload)) {
-    const items = payload.map(mapGroupListItem)
-
-    return {
-      items,
-      totalCount: items.length,
-      skip: 0,
-      take: items.length,
-    } satisfies TrainingGroupListResponse
-  }
+  assertGroupsListEnvelopePayload(payload)
 
   const items = payload.items.map(mapGroupListItem)
 
   return {
     items,
-    totalCount: payload.totalCount ?? items.length,
-    skip: payload.skip ?? 0,
-    take: payload.take ?? items.length,
+    totalCount: payload.totalCount,
+    skip: payload.skip,
+    take: payload.take,
   } satisfies TrainingGroupListResponse
 }
 
@@ -222,5 +224,20 @@ function mapGroupTrainerSummary(trainer: GroupResponsePayload['trainers'][number
     id: trainer.id,
     fullName: trainer.fullName,
     login: trainer.login,
+  }
+}
+
+function assertGroupsListEnvelopePayload(
+  payload: GroupsListEnvelopePayload,
+): asserts payload is GroupsListEnvelopePayload {
+  if (
+    !payload ||
+    typeof payload !== 'object' ||
+    !Array.isArray(payload.items) ||
+    typeof payload.totalCount !== 'number' ||
+    typeof payload.skip !== 'number' ||
+    typeof payload.take !== 'number'
+  ) {
+    throw new Error('Некорректный ответ списка групп.')
   }
 }

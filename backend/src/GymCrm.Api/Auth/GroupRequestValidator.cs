@@ -10,8 +10,16 @@ internal static class GroupRequestValidator
     public static Dictionary<string, string[]> ValidatePaging(int? page, int? pageSize, int? skip, int? take)
     {
         var errors = new Dictionary<string, string[]>();
+        var hasPageFamily = page.HasValue || pageSize.HasValue;
+        var hasOffsetFamily = skip.HasValue || take.HasValue;
 
-        if (page.HasValue || pageSize.HasValue)
+        if (hasPageFamily && hasOffsetFamily)
+        {
+            errors["paging"] = ["Use either page/pageSize or skip/take paging parameters, not both."];
+            return errors;
+        }
+
+        if (hasPageFamily)
         {
             if (page is <= 0)
             {
@@ -21,6 +29,17 @@ internal static class GroupRequestValidator
             if (pageSize is <= 0 or > GroupApiConstants.MaxTake)
             {
                 errors["pageSize"] = [GroupResources.PageSizeMustBeInRange(GroupApiConstants.MaxTake)];
+            }
+
+            if (errors.Count == 0)
+            {
+                var resolvedPage = page ?? GroupApiConstants.DefaultPage;
+                var resolvedPageSize = pageSize ?? GroupApiConstants.DefaultTake;
+                var skipValue = ((long)resolvedPage - 1) * resolvedPageSize;
+                if (skipValue > int.MaxValue)
+                {
+                    errors["page"] = ["Resolved paging offset is too large."];
+                }
             }
 
             return errors;
@@ -45,7 +64,7 @@ internal static class GroupRequestValidator
         {
             var resolvedPage = page ?? GroupApiConstants.DefaultPage;
             var resolvedPageSize = pageSize ?? GroupApiConstants.DefaultTake;
-            return new GroupPaging((resolvedPage - 1) * resolvedPageSize, resolvedPageSize);
+            return new GroupPaging(checked((resolvedPage - 1) * resolvedPageSize), resolvedPageSize);
         }
 
         return new GroupPaging(skip ?? 0, take ?? GroupApiConstants.DefaultTake);

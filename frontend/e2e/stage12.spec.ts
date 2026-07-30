@@ -1420,7 +1420,7 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.goto('/groups')
-    await page.getByRole('button', { name: 'Создать', exact: true }).click()
+    await page.getByRole('button', { name: 'Новая группа', exact: true }).click()
 
     await page.getByLabel('Название группы').fill('Новая тестовая группа')
     await page.getByLabel('Время начала').fill('19:00')
@@ -1458,7 +1458,7 @@ test.describe('Основные e2e сценарии', () => {
     const createdGroupCard = page.getByTestId(`group-card-${createdGroupId}`)
     await expect(createdGroupCard).toBeVisible()
     await expect(createdGroupCard.getByText('Новая тестовая группа')).toBeVisible()
-    await expect(createdGroupCard.getByText('Тренеры: Главный тренер, Ирина Тренер, Артем База')).toBeVisible()
+    await expect(createdGroupCard.getByText('Главный тренер, Ирина Тренер, Артем База')).toBeVisible()
   })
 
   test('Проверяет auto-refresh после создания группы и обновляет список без ручного перезагрузки', async ({
@@ -1540,7 +1540,7 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.goto('/groups')
-    await page.getByRole('button', { name: 'Создать', exact: true }).click()
+    await page.getByRole('button', { name: 'Новая группа', exact: true }).click()
     await page.getByLabel('Название группы').fill('Черновик для автообновления')
     await page.getByLabel('Время начала').fill('20:00')
     await page.getByLabel('Длительность').fill('45')
@@ -1558,7 +1558,7 @@ test.describe('Основные e2e сценарии', () => {
     await expect(page).toHaveURL('/groups')
     await expect(createdGroupCard).toBeVisible()
     await expect(createdGroupCard.getByText('Черновик для автообновления')).toBeVisible()
-    await expect(createdGroupCard.getByText('Тренеры: Ирина Тренер')).toBeVisible()
+    await expect(createdGroupCard.getByText('Ирина Тренер')).toBeVisible()
     expect(groupListCalls).toBeGreaterThanOrEqual(2)
   })
 

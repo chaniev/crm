@@ -121,7 +121,9 @@ export const GROUPS_QUERY_KEYS = {
   pageSize: 'pageSize',
   skip: 'skip',
   take: 'take',
+  query: 'query',
   isActive: 'isActive',
+  withoutTrainer: 'withoutTrainer',
 } as const
 
 export const GROUP_TRAINER_SUBSTITUTIONS_QUERY_KEYS = {

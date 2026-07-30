@@ -102,27 +102,32 @@ const CLIENTS_LIST_RESPONSE = {
   hasNextPage: false,
 } as const
 
-const CLIENT_LIST_GROUPS_RESPONSE = [
-  {
-    id: 'group-1',
-    name: 'Группа 7',
-    branchId: 'branch-1',
-    branchName: 'Центр',
-    hallId: 'hall-1',
-    hallName: 'Зал',
-    groupTypeId: 'type-1',
-    groupTypeName: 'Базовый',
-    trainingStartTime: '19:00',
-    durationMinutes: 60,
-    weekdays: [2, 4],
-    trainers: [{ id: 'coach-1', fullName: 'Тренер', login: 'coach' }],
-    trainerIds: ['coach-1'],
-    trainerCount: 1,
-    trainerNames: ['Тренер'],
-    clientCount: 12,
-    isActive: true,
-  },
-] as const
+const CLIENT_LIST_GROUPS_RESPONSE = {
+  items: [
+    {
+      id: 'group-1',
+      name: 'Группа 7',
+      branchId: 'branch-1',
+      branchName: 'Центр',
+      hallId: 'hall-1',
+      hallName: 'Зал',
+      groupTypeId: 'type-1',
+      groupTypeName: 'Базовый',
+      trainingStartTime: '19:00',
+      durationMinutes: 60,
+      weekdays: [2, 4],
+      trainers: [{ id: 'coach-1', fullName: 'Тренер', login: 'coach' }],
+      trainerIds: ['coach-1'],
+      trainerCount: 1,
+      trainerNames: ['Тренер'],
+      clientCount: 12,
+      isActive: true,
+    },
+  ],
+  totalCount: 1,
+  skip: 0,
+  take: 20,
+} as const
 
 const UNAUTHENTICATED_SESSION = {
   isAuthenticated: false,
@@ -545,7 +550,12 @@ test('iPhone return from preview keeps client list filters and page', async ({
     trainerNames: ['Тренер'],
     clientCount: 21,
   }
-  const groups = [...CLIENT_LIST_GROUPS_RESPONSE, filterGroup]
+  const groups = [...CLIENT_LIST_GROUPS_RESPONSE.items, filterGroup]
+  const groupsEnvelope = {
+    ...CLIENT_LIST_GROUPS_RESPONSE,
+    items: groups,
+    totalCount: groups.length,
+  }
   const filteredClients = Array.from({ length: 21 }, (_, index) => ({
     ...CLIENT_LIST_ITEM,
     id: `target-filter-client-${index + 1}`,
@@ -609,7 +619,7 @@ test('iPhone return from preview keeps client list filters and page', async ({
     }
 
     if (pathname === '/api/groups' && method === 'GET') {
-      await fulfillJson(route, groups)
+      await fulfillJson(route, groupsEnvelope)
       return
     }
 

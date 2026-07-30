@@ -85,6 +85,16 @@ import {
   GroupsListScreen,
 } from './features/groups/GroupManagement'
 import {
+  getGroupListReturnHistoryStateForRoute,
+  getNextGroupListReturnDepth,
+  isGroupListReturnRoute,
+  mergeGroupListReturnSnapshotIntoHistoryState,
+  readGroupListReturnSnapshot,
+  stripGroupListReturnSnapshotFromHistoryState,
+  withGroupListReturnDepth,
+  type GroupListReturnSnapshot,
+} from './features/groups/groupListReturnState'
+import {
   UserCreateScreen,
   UserEditScreen,
   UsersListScreen,
@@ -149,8 +159,7 @@ function useAppRoute() {
       typeof nextRoute === 'string'
         ? normalizePathname(nextRoute)
         : getRoutePath(nextRoute)
-    const nextState =
-      options.state ?? stripClientListReturnSnapshotFromHistoryState(window.history.state)
+    const nextState = options.state ?? stripAppReturnSnapshotsFromHistoryState(window.history.state)
 
     if (nextPath === pathname) {
       return
@@ -224,6 +233,23 @@ function getCurrentClientListReturnDepth(
   return snapshot.returnDepth
 }
 
+function getCurrentGroupListReturnDepth(
+  route: AppRoute,
+  snapshot: GroupListReturnSnapshot,
+) {
+  if (route.kind === 'section' && route.section === 'Groups') {
+    return 0
+  }
+
+  return snapshot.returnDepth
+}
+
+function stripAppReturnSnapshotsFromHistoryState(historyState: unknown) {
+  return stripGroupListReturnSnapshotFromHistoryState(
+    stripClientListReturnSnapshotFromHistoryState(historyState),
+  )
+}
+
 function getAppDocumentTitle(
   clubName: string,
   route: AppRoute,
@@ -279,15 +305,21 @@ export function App({ appConfig, authBackground }: AppProps) {
   )
 
   const activeClientListReturnSnapshot = routeClientListReturnSnapshot
+  const routeGroupListReturnSnapshot = readGroupListReturnSnapshot(
+    window.history.state,
+  )
+  const activeGroupListReturnSnapshot = routeGroupListReturnSnapshot
 
   function getClientListHistoryState(
     nextRoute: AppRoute,
     snapshot: ClientListReturnSnapshot | null,
   ) {
-    return getClientListReturnHistoryStateForRoute(
-      window.history.state,
-      nextRoute,
-      snapshot,
+    return stripGroupListReturnSnapshotFromHistoryState(
+      getClientListReturnHistoryStateForRoute(
+        window.history.state,
+        nextRoute,
+        snapshot,
+      ),
     )
   }
 
@@ -299,7 +331,7 @@ export function App({ appConfig, authBackground }: AppProps) {
 
     window.history.replaceState(
       mergeClientListReturnSnapshotIntoHistoryState(
-        window.history.state,
+        stripGroupListReturnSnapshotFromHistoryState(window.history.state),
         entrySnapshot,
       ),
       '',
@@ -334,6 +366,58 @@ export function App({ appConfig, authBackground }: AppProps) {
     })
   }
 
+  function getGroupListHistoryState(
+    nextRoute: AppRoute,
+    snapshot: GroupListReturnSnapshot | null,
+  ) {
+    return stripClientListReturnSnapshotFromHistoryState(
+      getGroupListReturnHistoryStateForRoute(
+        window.history.state,
+        nextRoute,
+        snapshot,
+      ),
+    )
+  }
+
+  function saveGroupListReturnState(snapshot: GroupListReturnSnapshot) {
+    const entrySnapshot = withGroupListReturnDepth(
+      snapshot,
+      getCurrentGroupListReturnDepth(route, snapshot),
+    )
+
+    window.history.replaceState(
+      mergeGroupListReturnSnapshotIntoHistoryState(
+        stripClientListReturnSnapshotFromHistoryState(window.history.state),
+        entrySnapshot,
+      ),
+      '',
+      window.location.pathname,
+    )
+  }
+
+  function navigateWithGroupListReturnState(
+    nextRoute: AppRoute,
+    snapshot: GroupListReturnSnapshot | null,
+    options: Omit<NavigateOptions, 'state'> = {},
+  ) {
+    if (snapshot && route.kind === 'section' && route.section === 'Groups') {
+      saveGroupListReturnState(snapshot)
+    }
+
+    const targetSnapshot = snapshot
+      ? withGroupListReturnDepth(
+          snapshot,
+          getNextGroupListReturnDepth(route, snapshot),
+        )
+      : null
+    const nextState = getGroupListHistoryState(nextRoute, targetSnapshot)
+
+    navigate(nextRoute, {
+      ...options,
+      state: nextState,
+    })
+  }
+
   function returnToClients() {
     if (
       (route.kind === 'clientDetails' || route.kind === 'clientPreview') &&
@@ -348,13 +432,32 @@ export function App({ appConfig, authBackground }: AppProps) {
       { kind: 'section', section: 'Clients' },
       {
         replace: route.kind === 'clientDetails' || route.kind === 'clientPreview',
-        state: stripClientListReturnSnapshotFromHistoryState(window.history.state),
+        state: stripAppReturnSnapshotsFromHistoryState(window.history.state),
+      },
+    )
+  }
+
+  function returnToGroups() {
+    if (
+      route.kind === 'groupEdit' &&
+      activeGroupListReturnSnapshot &&
+      activeGroupListReturnSnapshot.returnDepth > 0
+    ) {
+      window.history.go(-activeGroupListReturnSnapshot.returnDepth)
+      return
+    }
+
+    navigate(
+      { kind: 'section', section: 'Groups' },
+      {
+        replace: route.kind === 'groupEdit',
+        state: stripAppReturnSnapshotsFromHistoryState(window.history.state),
       },
     )
   }
 
   useEffect(() => {
-    if (!isClientListReturnRoute(route)) {
+    if (!isClientListReturnRoute(route) && !isGroupListReturnRoute(route)) {
       return
     }
 
@@ -381,7 +484,7 @@ export function App({ appConfig, authBackground }: AppProps) {
 
     if (crossedUserBoundary) {
       window.history.replaceState(
-        stripClientListReturnSnapshotFromHistoryState(window.history.state),
+        stripAppReturnSnapshotsFromHistoryState(window.history.state),
         '',
         window.location.pathname,
       )
@@ -679,15 +782,22 @@ export function App({ appConfig, authBackground }: AppProps) {
           }
           onCreateGroup={() => navigate({ kind: 'groupCreate' })}
           currentUserId={authenticatedUser.id}
-          onEditGroup={(groupId) => navigate({ kind: 'groupEdit', groupId })}
+          onEditGroup={(groupId, returnSnapshot) =>
+            navigateWithGroupListReturnState(
+              { kind: 'groupEdit', groupId },
+              returnSnapshot ?? activeGroupListReturnSnapshot,
+            )
+          }
           onCreateUser={() => navigate({ kind: 'userCreate' })}
           onEditUser={(userId) => navigate({ kind: 'userEdit', userId })}
           onRefreshSession={refreshSessionState}
           onReturnToClients={returnToClients}
-          onReturnToGroups={() => navigate({ kind: 'section', section: 'Groups' })}
+          onReturnToGroups={returnToGroups}
           onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
           clientListReturnSnapshot={activeClientListReturnSnapshot}
+          groupListReturnSnapshot={activeGroupListReturnSnapshot}
           onSaveClientListReturnState={saveClientListReturnState}
+          onSaveGroupListReturnState={saveGroupListReturnState}
           route={route}
           user={authenticatedUser}
         />
@@ -1106,10 +1216,14 @@ type RouteViewportProps = {
   user: AuthenticatedUser
   currentUserId: string
   onCreateGroup: () => void
-  onEditGroup: (groupId: string) => void
+  onEditGroup: (
+    groupId: string,
+    returnSnapshot?: GroupListReturnSnapshot | null,
+  ) => void
   onCreateClient: () => void
   onEditClient: (clientId: string) => void
   clientListReturnSnapshot: ClientListReturnSnapshot | null
+  groupListReturnSnapshot: GroupListReturnSnapshot | null
   onOpenClient: (
     clientId: string,
     returnSnapshot?: ClientListReturnSnapshot | null,
@@ -1125,6 +1239,7 @@ type RouteViewportProps = {
   onReturnToGroups: () => void
   onReturnToUsers: () => void
   onSaveClientListReturnState: (snapshot: ClientListReturnSnapshot) => void
+  onSaveGroupListReturnState: (snapshot: GroupListReturnSnapshot) => void
 }
 
 function RouteViewport({
@@ -1132,6 +1247,7 @@ function RouteViewport({
   user,
   currentUserId,
   clientListReturnSnapshot,
+  groupListReturnSnapshot,
   onCreateClient,
   onEditClient,
   onOpenClient,
@@ -1145,6 +1261,7 @@ function RouteViewport({
   onReturnToGroups,
   onReturnToUsers,
   onSaveClientListReturnState,
+  onSaveGroupListReturnState,
 }: RouteViewportProps) {
   if (
     !user.permissions.canManageClients &&
@@ -1306,7 +1423,14 @@ function RouteViewport({
   }
 
   if (route.section === 'Groups') {
-    return <GroupsListScreen onCreate={onCreateGroup} onEdit={onEditGroup} />
+    return (
+      <GroupsListScreen
+        initialReturnSnapshot={groupListReturnSnapshot}
+        onCreate={onCreateGroup}
+        onEdit={onEditGroup}
+        onSaveReturnState={onSaveGroupListReturnState}
+      />
+    )
   }
 
   if (route.section === 'Schedule') {

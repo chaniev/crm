@@ -248,10 +248,11 @@ const ROUTE_CASES: RouteWithState[] = [
     screenTestId: 'groups-screen',
     state: 'default',
     controls: [
-      { label: 'Создать', locator: (page) => page.getByRole('button', { name: 'Создать' }).first() },
+      { label: 'Новая группа', locator: (page) => page.getByRole('button', { name: 'Новая группа' }).first() },
       {
-        label: 'Обновить список',
-        locator: (page) => page.getByRole('button', { name: 'Обновить список' }).first(),
+        label: 'Обновить список групп',
+        locator: (page) =>
+          page.getByRole('button', { name: 'Обновить список групп' }).first(),
       },
       {
         label: 'Редактировать',
@@ -1086,6 +1087,8 @@ const GROUPS_RESPONSE = {
       isActive: true,
     },
   ],
+  skip: 0,
+  take: 20,
   totalCount: 1,
 }
 

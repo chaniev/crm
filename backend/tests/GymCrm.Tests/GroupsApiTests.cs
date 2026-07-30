@@ -18,6 +18,430 @@ namespace GymCrm.Tests;
 
 public class GroupsApiTests
 {
+    [Fact]
+    public async Task Groups_list_returns_strict_envelope_with_trimmed_search_filters_count_before_paging_and_stable_order()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        Guid assignedLocatorGroupId;
+        Guid unassignedLocatorGroupId;
+        Guid inactiveLocatorGroupId;
+        Guid unrelatedGroupId;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+            var inactiveAssignedTrainer = CreateUser(
+                "inactive-assigned-trainer-task086",
+                "Inactive Assigned Trainer TASK-086",
+                UserRole.Coach,
+                seeded.SharedPassword,
+                seeded.Now,
+                passwordHashService);
+            inactiveAssignedTrainer.IsActive = false;
+
+            var groups = new[]
+            {
+                new TrainingGroup
+                {
+                    Id = Guid.NewGuid(),
+                    BranchId = seeded.BranchId,
+                    HallId = seeded.HallOneId,
+                    GroupTypeId = seeded.GroupTypeId,
+                    Name = "  Alpha Locator Active  ",
+                    TrainingStartTime = new TimeOnly(11, 0),
+                    DurationMinutes = 60,
+                    Weekdays = [1],
+                    IsActive = true,
+                    CreatedAt = seeded.Now,
+                    UpdatedAt = seeded.Now
+                },
+                new TrainingGroup
+                {
+                    Id = Guid.NewGuid(),
+                    BranchId = seeded.BranchId,
+                    HallId = seeded.HallOneId,
+                    GroupTypeId = seeded.GroupTypeId,
+                    Name = "alpha locator no trainer",
+                    TrainingStartTime = new TimeOnly(10, 0),
+                    DurationMinutes = 60,
+                    Weekdays = [2],
+                    IsActive = true,
+                    CreatedAt = seeded.Now,
+                    UpdatedAt = seeded.Now
+                },
+                new TrainingGroup
+                {
+                    Id = Guid.NewGuid(),
+                    BranchId = seeded.BranchId,
+                    HallId = seeded.HallOneId,
+                    GroupTypeId = seeded.GroupTypeId,
+                    Name = "Alpha Locator Inactive",
+                    TrainingStartTime = new TimeOnly(12, 0),
+                    DurationMinutes = 60,
+                    Weekdays = [3],
+                    IsActive = false,
+                    CreatedAt = seeded.Now,
+                    UpdatedAt = seeded.Now
+                },
+                new TrainingGroup
+                {
+                    Id = Guid.NewGuid(),
+                    BranchId = seeded.BranchId,
+                    HallId = seeded.HallTwoId,
+                    GroupTypeId = seeded.GroupTypeId,
+                    Name = "Beta unrelated",
+                    TrainingStartTime = new TimeOnly(13, 0),
+                    DurationMinutes = 60,
+                    Weekdays = [4],
+                    IsActive = true,
+                    CreatedAt = seeded.Now,
+                    UpdatedAt = seeded.Now
+                }
+            };
+
+            assignedLocatorGroupId = groups[0].Id;
+            unassignedLocatorGroupId = groups[1].Id;
+            inactiveLocatorGroupId = groups[2].Id;
+            unrelatedGroupId = groups[3].Id;
+
+            dbContext.Users.Add(inactiveAssignedTrainer);
+            dbContext.TrainingGroups.AddRange(groups);
+            dbContext.GroupTrainers.Add(new GroupTrainer
+            {
+                GroupId = assignedLocatorGroupId,
+                TrainerId = inactiveAssignedTrainer.Id
+            });
+            dbContext.GroupTrainerAssignments.Add(new GroupTrainerAssignment
+            {
+                Id = Guid.NewGuid(),
+                GroupId = assignedLocatorGroupId,
+                TrainerId = inactiveAssignedTrainer.Id,
+                ValidFrom = DateOnly.FromDateTime(seeded.Now.UtcDateTime),
+                CreatedByUserId = seeded.HeadCoachId,
+                CreatedAt = seeded.Now
+            });
+            dbContext.GroupTrainerSubstitutions.Add(new GroupTrainerSubstitution
+            {
+                Id = Guid.NewGuid(),
+                GroupId = unassignedLocatorGroupId,
+                SubstituteTrainerId = seeded.CoachOneId,
+                StartsOn = DateOnly.FromDateTime(seeded.Now.UtcDateTime).AddDays(1),
+                EndsOn = DateOnly.FromDateTime(seeded.Now.UtcDateTime).AddDays(2),
+                CreatedByUserId = seeded.HeadCoachId,
+                CreatedAt = seeded.Now,
+                UpdatedAt = seeded.Now
+            });
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await client.GetAsync("/groups?query=%20LoCaToR%20&isActive=true&withoutTrainer=true&page=1&pageSize=1");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.True(payload.ValueKind == JsonValueKind.Object);
+        Assert.Equal(0, payload.GetProperty("skip").GetInt32());
+        Assert.Equal(1, payload.GetProperty("take").GetInt32());
+        Assert.Equal(1, payload.GetProperty("totalCount").GetInt32());
+        var items = payload.GetProperty("items");
+        Assert.Single(items.EnumerateArray());
+        Assert.Equal("alpha locator no trainer", GetStringFromProperty(items[0], "name"));
+        Assert.False(payload.TryGetProperty("data", out _));
+        Assert.False(payload.TryGetProperty("groups", out _));
+
+        using (var unfilteredResponse = await client.GetAsync("/groups?page=1&pageSize=100"))
+        {
+            Assert.Equal(HttpStatusCode.OK, unfilteredResponse.StatusCode);
+            var unfilteredPayload = await ReadJsonElementAsync(unfilteredResponse);
+            Assert.Equal(6, unfilteredPayload.GetProperty("totalCount").GetInt32());
+            Assert.Equal(
+                new[]
+                {
+                    assignedLocatorGroupId,
+                    inactiveLocatorGroupId,
+                    unassignedLocatorGroupId,
+                    unrelatedGroupId,
+                    seeded.GroupOneId,
+                    seeded.GroupTwoId
+                },
+                unfilteredPayload.GetProperty("items")
+                    .EnumerateArray()
+                    .Select(item => GetGuidFromProperty(item, "id"))
+                    .ToArray());
+        }
+
+        using (var blankQueryResponse = await client.GetAsync("/groups?query=%20%20&page=1&pageSize=100"))
+        {
+            Assert.Equal(HttpStatusCode.OK, blankQueryResponse.StatusCode);
+            var blankQueryPayload = await ReadJsonElementAsync(blankQueryResponse);
+            Assert.Equal(6, blankQueryPayload.GetProperty("totalCount").GetInt32());
+        }
+
+        using (var longQueryResponse = await client.GetAsync($"/groups?query={new string('x', 512)}"))
+        {
+            Assert.Equal(HttpStatusCode.OK, longQueryResponse.StatusCode);
+            var longQueryPayload = await ReadJsonElementAsync(longQueryResponse);
+            Assert.Equal(0, longQueryPayload.GetProperty("totalCount").GetInt32());
+            Assert.Empty(longQueryPayload.GetProperty("items").EnumerateArray());
+        }
+
+        using (var inactiveLocatorResponse = await client.GetAsync("/groups?query=locator&isActive=false&page=1&pageSize=10"))
+        {
+            Assert.Equal(HttpStatusCode.OK, inactiveLocatorResponse.StatusCode);
+            var inactiveLocatorPayload = await ReadJsonElementAsync(inactiveLocatorResponse);
+            Assert.Equal(1, inactiveLocatorPayload.GetProperty("totalCount").GetInt32());
+            var inactiveLocatorItem = Assert.Single(inactiveLocatorPayload.GetProperty("items").EnumerateArray());
+            Assert.Equal(inactiveLocatorGroupId, GetGuidFromProperty(inactiveLocatorItem, "id"));
+        }
+
+        using (var activeAbsentResponse = await client.GetAsync("/groups?query=locator&withoutTrainer=true&page=1&pageSize=10"))
+        {
+            Assert.Equal(HttpStatusCode.OK, activeAbsentResponse.StatusCode);
+            var activeAbsentPayload = await ReadJsonElementAsync(activeAbsentResponse);
+            Assert.Equal(2, activeAbsentPayload.GetProperty("totalCount").GetInt32());
+            Assert.Equal(
+                new[] { inactiveLocatorGroupId, unassignedLocatorGroupId },
+                activeAbsentPayload.GetProperty("items")
+                    .EnumerateArray()
+                    .Select(item => GetGuidFromProperty(item, "id"))
+                    .ToArray());
+        }
+    }
+
+    [Fact]
+    public async Task Groups_list_rejects_mixed_paging_families_and_invalid_arithmetic()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var mixedResponse = await client.GetAsync("/groups?page=1&pageSize=10&skip=0"))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, mixedResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(mixedResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("paging", out _));
+        }
+
+        using (var overflowResponse = await client.GetAsync($"/groups?page={int.MaxValue}&pageSize=100"))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, overflowResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(overflowResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("page", out _));
+        }
+
+        using (var pageOnlyOverflowResponse = await client.GetAsync($"/groups?page={int.MaxValue}"))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, pageOnlyOverflowResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(pageOnlyOverflowResponse);
+            Assert.True(payload.GetProperty("errors").TryGetProperty("page", out _));
+        }
+
+        using (var partialPageResponse = await client.GetAsync("/groups?page=2"))
+        {
+            Assert.Equal(HttpStatusCode.OK, partialPageResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(partialPageResponse);
+            Assert.Equal(20, payload.GetProperty("skip").GetInt32());
+            Assert.Equal(20, payload.GetProperty("take").GetInt32());
+        }
+
+        using (var partialPageSizeResponse = await client.GetAsync("/groups?pageSize=1"))
+        {
+            Assert.Equal(HttpStatusCode.OK, partialPageSizeResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(partialPageSizeResponse);
+            Assert.Equal(0, payload.GetProperty("skip").GetInt32());
+            Assert.Equal(1, payload.GetProperty("take").GetInt32());
+        }
+
+        using (var partialSkipResponse = await client.GetAsync("/groups?skip=1"))
+        {
+            Assert.Equal(HttpStatusCode.OK, partialSkipResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(partialSkipResponse);
+            Assert.Equal(1, payload.GetProperty("skip").GetInt32());
+            Assert.Equal(20, payload.GetProperty("take").GetInt32());
+        }
+    }
+
+    [Fact]
+    public async Task Administrator_group_management_is_scoped_to_own_branch_and_global_managers_keep_full_dataset()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        var foreign = await CreateForeignGroupAsync(factory, seeded, withTrainer: true);
+
+        using var administratorClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var administratorSession = await LoginAsync(administratorClient, seeded.AdministratorLogin, seeded.SharedPassword);
+
+        using (var listResponse = await administratorClient.GetAsync("/groups?page=1&pageSize=100"))
+        {
+            Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(listResponse);
+            Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
+            var ids = payload.GetProperty("items")
+                .EnumerateArray()
+                .Select(item => GetGuidFromProperty(item, "id"))
+                .ToArray();
+            Assert.Contains(seeded.GroupOneId, ids);
+            Assert.Contains(seeded.GroupTwoId, ids);
+            Assert.DoesNotContain(foreign.GroupId, ids);
+        }
+
+        using (var summaryResponse = await administratorClient.GetAsync("/groups/summary"))
+        {
+            Assert.Equal(HttpStatusCode.OK, summaryResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(summaryResponse);
+            Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
+            Assert.Equal(1, payload.GetProperty("activeWithoutTrainerCount").GetInt32());
+        }
+
+        using (var foreignDetailsResponse = await administratorClient.GetAsync($"/groups/{foreign.GroupId}"))
+        {
+            await AssertBranchScopeForbiddenAsync(foreignDetailsResponse);
+        }
+
+        using (var foreignClientsResponse = await administratorClient.GetAsync($"/groups/{foreign.GroupId}/clients"))
+        {
+            await AssertBranchScopeForbiddenAsync(foreignClientsResponse);
+        }
+
+        using (var missingDetailsResponse = await administratorClient.GetAsync($"/groups/{Guid.NewGuid()}"))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, missingDetailsResponse.StatusCode);
+        }
+
+        using (var foreignCreateResponse = await PostJsonAsync(
+                   administratorClient,
+                   "/groups",
+                   new
+                   {
+                       Name = "Administrator foreign create forbidden",
+                       BranchId = foreign.BranchId,
+                       HallId = foreign.HallId,
+                       GroupTypeId = seeded.GroupTypeId,
+                       TrainingStartTime = "15:00:00",
+                       DurationMinutes = 60,
+                       Weekdays = new[] { 1, 3 },
+                       IsActive = true
+                   },
+                   administratorSession.CsrfToken))
+        {
+            await AssertBranchScopeForbiddenAsync(foreignCreateResponse);
+        }
+
+        using (var foreignUpdateResponse = await PutJsonAsync(
+                   administratorClient,
+                   $"/groups/{foreign.GroupId}",
+                   new
+                   {
+                       Name = "Administrator foreign update forbidden",
+                       BranchId = foreign.BranchId,
+                       HallId = foreign.HallId,
+                       GroupTypeId = seeded.GroupTypeId,
+                       TrainingStartTime = "16:00:00",
+                       DurationMinutes = 60,
+                       Weekdays = new[] { 1, 3 },
+                       IsActive = true
+                   },
+                   administratorSession.CsrfToken))
+        {
+            await AssertBranchScopeForbiddenAsync(foreignUpdateResponse);
+        }
+
+        using (var foreignTrainerResponse = await AssignTrainersToGroupAsync(
+                   administratorClient,
+                   $"/groups/{foreign.GroupId}",
+                   foreign.GroupId,
+                   new[] { seeded.CoachOneId },
+                   administratorSession.CsrfToken))
+        {
+            await AssertBranchScopeForbiddenAsync(foreignTrainerResponse);
+        }
+
+        using (var foreignSubstitutionResponse = await PostJsonAsync(
+                   administratorClient,
+                   $"/groups/{foreign.GroupId}/trainer-substitutions",
+                   new
+                   {
+                       substituteTrainerId = seeded.CoachOneId,
+                       startsOn = "2026-07-26",
+                       endsOn = "2026-07-28"
+                   },
+                   administratorSession.CsrfToken))
+        {
+            await AssertBranchScopeForbiddenAsync(foreignSubstitutionResponse);
+        }
+
+        using var headCoachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(headCoachClient, seeded.HeadCoachLogin, seeded.SharedPassword);
+        using var headCoachListResponse = await headCoachClient.GetAsync("/groups?page=1&pageSize=100");
+        Assert.Equal(HttpStatusCode.OK, headCoachListResponse.StatusCode);
+        var headCoachPayload = await ReadJsonElementAsync(headCoachListResponse);
+        Assert.Equal(3, headCoachPayload.GetProperty("totalCount").GetInt32());
+        Assert.Contains(
+            headCoachPayload.GetProperty("items").EnumerateArray(),
+            item => GetGuidFromProperty(item, "id") == foreign.GroupId);
+
+        using var superAdministratorClient = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(superAdministratorClient, seeded.SuperAdministratorLogin, seeded.SharedPassword);
+        using var superListResponse = await superAdministratorClient.GetAsync("/groups?page=1&pageSize=100");
+        Assert.Equal(HttpStatusCode.OK, superListResponse.StatusCode);
+        var superPayload = await ReadJsonElementAsync(superListResponse);
+        Assert.Equal(3, superPayload.GetProperty("totalCount").GetInt32());
+        Assert.Contains(
+            superPayload.GetProperty("items").EnumerateArray(),
+            item => GetGuidFromProperty(item, "id") == foreign.GroupId);
+    }
+
+    [Fact]
+    public async Task Schedule_groups_remain_global_ordered_and_enveloped_after_management_scope_filters()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        var foreign = await CreateForeignGroupAsync(factory, seeded);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
+        Assert.Equal("Administrator", session.User?.Role);
+
+        using var response = await client.GetAsync("/schedule/groups?skip=0&take=10");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        var items = payload.GetProperty("items");
+        Assert.Equal(3, payload.GetProperty("totalCount").GetInt32());
+        Assert.Equal(0, payload.GetProperty("skip").GetInt32());
+        Assert.Equal(10, payload.GetProperty("take").GetInt32());
+        Assert.Equal(
+            new[] { seeded.GroupOneId, foreign.GroupId, seeded.GroupTwoId },
+            items.EnumerateArray().Select(item => GetGuidFromProperty(item, "id")).ToArray());
+    }
+
     [Theory]
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]
@@ -84,7 +508,7 @@ public class GroupsApiTests
         using var summaryResponse = await client.GetAsync("/groups/summary");
 
         Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
-        Assert.Equal(50, (await ReadJsonElementAsync(listResponse)).GetArrayLength());
+        Assert.Equal(50, (await ReadJsonElementAsync(listResponse)).GetProperty("items").GetArrayLength());
         Assert.Equal(HttpStatusCode.OK, summaryResponse.StatusCode);
         var summary = await ReadJsonElementAsync(summaryResponse);
         Assert.Equal(57, summary.GetProperty("totalCount").GetInt32());
@@ -1607,6 +2031,8 @@ public class GroupsApiTests
             UpdatedAt = now
         };
 
+        administrator.BranchId = branch.Id;
+
         var groupType = new GroupType
         {
             Id = Guid.NewGuid(),
@@ -1701,6 +2127,70 @@ public class GroupsApiTests
             groupOne.Id,
             groupTwo.Id,
             now);
+    }
+
+    private static async Task<ForeignGroupData> CreateForeignGroupAsync(
+        GroupsAppFactory factory,
+        SeededGroupsData seeded,
+        bool withTrainer = false)
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var foreignBranch = new Branch
+        {
+            Id = Guid.NewGuid(),
+            Name = "TASK-086 Foreign Branch",
+            IsArchived = false,
+            CreatedAt = seeded.Now,
+            UpdatedAt = seeded.Now
+        };
+        var foreignHall = new Hall
+        {
+            Id = Guid.NewGuid(),
+            BranchId = foreignBranch.Id,
+            Name = "TASK-086 Foreign Hall",
+            IsArchived = false,
+            CreatedAt = seeded.Now,
+            UpdatedAt = seeded.Now
+        };
+        var foreignGroup = new TrainingGroup
+        {
+            Id = Guid.NewGuid(),
+            BranchId = foreignBranch.Id,
+            HallId = foreignHall.Id,
+            GroupTypeId = seeded.GroupTypeId,
+            Name = "Foreign schedule group",
+            TrainingStartTime = new TimeOnly(12, 0),
+            DurationMinutes = 60,
+            Weekdays = [5],
+            IsActive = true,
+            CreatedAt = seeded.Now,
+            UpdatedAt = seeded.Now
+        };
+
+        dbContext.Branches.Add(foreignBranch);
+        dbContext.Halls.Add(foreignHall);
+        dbContext.TrainingGroups.Add(foreignGroup);
+        if (withTrainer)
+        {
+            dbContext.GroupTrainers.Add(new GroupTrainer
+            {
+                GroupId = foreignGroup.Id,
+                TrainerId = seeded.CoachTwoId
+            });
+            dbContext.GroupTrainerAssignments.Add(new GroupTrainerAssignment
+            {
+                Id = Guid.NewGuid(),
+                GroupId = foreignGroup.Id,
+                TrainerId = seeded.CoachTwoId,
+                ValidFrom = DateOnly.FromDateTime(seeded.Now.UtcDateTime),
+                CreatedByUserId = seeded.HeadCoachId,
+                CreatedAt = seeded.Now
+            });
+        }
+
+        await dbContext.SaveChangesAsync();
+        return new ForeignGroupData(foreignBranch.Id, foreignHall.Id, foreignGroup.Id);
     }
 
     private static async Task<Client> CreateClientEntityAsync(GymCrmDbContext dbContext, Guid branchId, DateTimeOffset now)
@@ -1838,6 +2328,14 @@ public class GroupsApiTests
     private static async Task<JsonElement> ReadJsonElementAsync(HttpResponseMessage response)
     {
         return await response.Content.ReadFromJsonAsync<JsonElement>();
+    }
+
+    private static async Task AssertBranchScopeForbiddenAsync(HttpResponseMessage response)
+    {
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.Equal("/problems/branch-scope-forbidden", GetStringFromProperty(payload, "type"));
+        Assert.Equal("branch_scope_forbidden", GetStringFromProperty(payload, "code"));
     }
 
     private static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)
@@ -2104,6 +2602,8 @@ public class GroupsApiTests
         Guid GroupOneId,
         Guid GroupTwoId,
         DateTimeOffset Now);
+
+    private sealed record ForeignGroupData(Guid BranchId, Guid HallId, Guid GroupId);
 
     private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);
 

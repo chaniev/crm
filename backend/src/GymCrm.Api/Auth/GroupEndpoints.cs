@@ -32,15 +32,24 @@ internal static class GroupEndpoints
         return endpoints;
     }
 
-    private static async Task<Results<Ok<IReadOnlyList<GroupListItemResponse>>, ValidationProblem>> ListGroupsAsync(
+    private static async Task<Results<Ok<GroupListResponse>, ValidationProblem, UnauthorizedHttpResult>> ListGroupsAsync(
         int? page,
         int? pageSize,
         int? skip,
         int? take,
+        string? query,
         bool? isActive,
+        bool? withoutTrainer,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
         var errors = GroupRequestValidator.ValidatePaging(page, pageSize, skip, take);
         if (errors.Count > 0)
         {
@@ -48,21 +57,30 @@ internal static class GroupEndpoints
         }
 
         var paging = GroupRequestValidator.ResolvePaging(page, pageSize, skip, take);
-        var query = TrainingGroupListQuery.CreateBaseQuery(dbContext, isActive);
-        var groups = await TrainingGroupListQuery.LoadPageAsync(query, paging, cancellationToken);
+        var groupsQuery = GroupManagementScope.ApplyTo(TrainingGroupListQuery.CreateBaseQuery(dbContext), currentUser);
+        groupsQuery = ApplyListCriteria(groupsQuery, query, isActive, withoutTrainer);
+        var totalCount = await groupsQuery.CountAsync(cancellationToken);
+        var groups = await TrainingGroupListQuery.LoadPageAsync(groupsQuery, paging, cancellationToken);
 
         IReadOnlyList<GroupListItemResponse> response = groups
             .Select(TrainingGroupListItemMapper.Map)
             .ToArray();
 
-        return TypedResults.Ok(response);
+        return TypedResults.Ok(new GroupListResponse(response, totalCount, paging.Skip, paging.Take));
     }
 
-    private static async Task<Ok<GroupSummaryResponse>> GetGroupSummaryAsync(
+    private static async Task<Results<Ok<GroupSummaryResponse>, UnauthorizedHttpResult>> GetGroupSummaryAsync(
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        var query = dbContext.TrainingGroups.AsNoTracking();
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var query = GroupManagementScope.ApplyTo(dbContext.TrainingGroups.AsNoTracking(), currentUser);
         var totalCount = await query.CountAsync(cancellationToken);
         var activeWithoutTrainerCount = await query
             .CountAsync(trainingGroup => trainingGroup.IsActive && !trainingGroup.Trainers.Any(), cancellationToken);
@@ -88,30 +106,55 @@ internal static class GroupEndpoints
         return TypedResults.Ok(trainers);
     }
 
-    private static async Task<Results<Ok<GroupDetailsResponse>, NotFound>> GetGroupAsync(
+    private static async Task<Results<Ok<GroupDetailsResponse>, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> GetGroupAsync(
         Guid id,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
         var group = await LoadGroupSnapshotAsync(id, dbContext, cancellationToken);
+        if (group is not null && !GroupManagementScope.Contains(currentUser, group.BranchId))
+        {
+            return GroupManagementScope.ForbiddenProblem();
+        }
 
         return group is null
             ? TypedResults.NotFound()
             : TypedResults.Ok(MapDetails(group));
     }
 
-    private static async Task<Results<Ok<IReadOnlyList<GroupClientResponse>>, NotFound>> GetGroupClientsAsync(
+    private static async Task<Results<Ok<IReadOnlyList<GroupClientResponse>>, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> GetGroupClientsAsync(
         Guid id,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        var groupExists = await dbContext.TrainingGroups
-            .AsNoTracking()
-            .AnyAsync(group => group.Id == id, cancellationToken);
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
 
-        if (!groupExists)
+        var groupBranchId = await dbContext.TrainingGroups
+            .AsNoTracking()
+            .Where(group => group.Id == id)
+            .Select(group => (Guid?)group.BranchId)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (!groupBranchId.HasValue)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!GroupManagementScope.Contains(currentUser, groupBranchId.Value))
+        {
+            return GroupManagementScope.ForbiddenProblem();
         }
 
         var clients = await dbContext.ClientGroups
@@ -164,6 +207,11 @@ internal static class GroupEndpoints
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
+        }
+
+        if (!GroupManagementScope.Contains(currentUser, normalizedRequest.BranchId!.Value))
+        {
+            return GroupManagementScope.ForbiddenProblem();
         }
 
         var trainingStartTime = GroupRequestValidator.ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
@@ -248,6 +296,11 @@ internal static class GroupEndpoints
             return TypedResults.NotFound();
         }
 
+        if (!GroupManagementScope.Contains(currentUser, group.BranchId))
+        {
+            return GroupManagementScope.ForbiddenProblem();
+        }
+
         var normalizedRequest = GroupRequestValidator.NormalizeRequest(request);
         var validationErrors = await GroupRequestValidator.ValidateUpsertRequestAsync(
             normalizedRequest,
@@ -257,6 +310,11 @@ internal static class GroupEndpoints
         if (validationErrors.Count > 0)
         {
             return TypedResults.ValidationProblem(validationErrors);
+        }
+
+        if (!GroupManagementScope.Contains(currentUser, normalizedRequest.BranchId!.Value))
+        {
+            return GroupManagementScope.ForbiddenProblem();
         }
 
         var oldState = SerializeAuditState(group);
@@ -318,6 +376,11 @@ internal static class GroupEndpoints
         if (group is null)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!GroupManagementScope.Contains(currentUser, group.BranchId))
+        {
+            return GroupManagementScope.ForbiddenProblem();
         }
 
         var normalizedTrainerIds = GroupRequestValidator.NormalizeTrainerIds(request.TrainerIds);
@@ -387,6 +450,31 @@ internal static class GroupEndpoints
             .SingleOrDefaultAsync(group => group.Id == id, cancellationToken);
     }
 
+    private static IQueryable<TrainingGroup> ApplyListCriteria(
+        IQueryable<TrainingGroup> query,
+        string? searchQuery,
+        bool? isActive,
+        bool? withoutTrainer)
+    {
+        var normalizedQuery = searchQuery?.Trim();
+        if (!string.IsNullOrEmpty(normalizedQuery))
+        {
+            var loweredQuery = normalizedQuery.ToLower();
+            query = query.Where(group => group.Name.ToLower().Contains(loweredQuery));
+        }
+
+        if (isActive.HasValue)
+        {
+            query = query.Where(group => group.IsActive == isActive.Value);
+        }
+
+        if (withoutTrainer == true)
+        {
+            query = query.Where(group => !group.Trainers.Any());
+        }
+
+        return query;
+    }
     private static void ApplyTrainerAssignments(
         TrainingGroup group,
         IReadOnlyList<Guid> requestedTrainerIds,

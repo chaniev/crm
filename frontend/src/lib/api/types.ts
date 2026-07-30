@@ -1008,9 +1008,9 @@ export type GroupResponsePayload = {
 
 export type GroupsListEnvelopePayload = {
   items: GroupResponsePayload[]
-  totalCount?: number
-  skip?: number
-  take?: number
+  totalCount: number
+  skip: number
+  take: number
 }
 
 export type GroupClientResponsePayload = {

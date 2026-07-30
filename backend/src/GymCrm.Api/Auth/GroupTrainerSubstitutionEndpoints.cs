@@ -42,14 +42,21 @@ internal static class GroupTrainerSubstitutionEndpoints
         return endpoints;
     }
 
-    private static async Task<Results<Ok<GroupTrainerSubstitutionListResponse>, ValidationProblem, NotFound>> ListAsync(
+    private static async Task<Results<Ok<GroupTrainerSubstitutionListResponse>, ValidationProblem, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> ListAsync(
         Guid groupId,
         int? historySkip,
         int? historyTake,
+        HttpContext httpContext,
         GymCrmDbContext dbContext,
         IBusinessDateProvider businessDateProvider,
         CancellationToken cancellationToken)
     {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
         var errors = ValidateHistoryPaging(historySkip, historyTake);
         if (errors.Count > 0)
         {
@@ -59,11 +66,16 @@ internal static class GroupTrainerSubstitutionEndpoints
         var group = await dbContext.TrainingGroups
             .AsNoTracking()
             .Where(candidate => candidate.Id == groupId)
-            .Select(candidate => new { candidate.Id, candidate.IsActive })
+            .Select(candidate => new { candidate.Id, candidate.BranchId, candidate.IsActive })
             .SingleOrDefaultAsync(cancellationToken);
         if (group is null)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!GroupManagementScope.Contains(currentUser, group.BranchId))
+        {
+            return GroupManagementScope.ForbiddenProblem();
         }
 
         var today = businessDateProvider.Today;
@@ -125,6 +137,17 @@ internal static class GroupTrainerSubstitutionEndpoints
             return TypedResults.Unauthorized();
         }
 
+        var groupBranchId = await LoadGroupBranchIdAsync(groupId, dbContext, cancellationToken);
+        if (!groupBranchId.HasValue)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (!GroupManagementScope.Contains(currentUser, groupBranchId.Value))
+        {
+            return GroupManagementScope.ForbiddenProblem();
+        }
+
         var parsed = await ValidateCreateAsync(groupId, request, dbContext, businessDateProvider.Today, cancellationToken);
         if (parsed.NotFound)
         {
@@ -173,7 +196,7 @@ internal static class GroupTrainerSubstitutionEndpoints
                 await transaction.CommitAsync(cancellationToken);
             }
         }
-        catch (DbUpdateException exception) when (IsSubstitutionOverlapException(exception))
+        catch (Exception exception) when (IsSubstitutionOverlapException(exception))
         {
             if (transaction is not null)
             {
@@ -218,6 +241,11 @@ internal static class GroupTrainerSubstitutionEndpoints
         if (substitution is null)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!GroupManagementScope.Contains(currentUser, substitution.Group.BranchId))
+        {
+            return GroupManagementScope.ForbiddenProblem();
         }
 
         var today = businessDateProvider.Today;
@@ -314,7 +342,7 @@ internal static class GroupTrainerSubstitutionEndpoints
                 await transaction.CommitAsync(cancellationToken);
             }
         }
-        catch (DbUpdateException exception) when (IsSubstitutionOverlapException(exception))
+        catch (Exception exception) when (IsSubstitutionOverlapException(exception))
         {
             if (transaction is not null)
             {
@@ -360,6 +388,11 @@ internal static class GroupTrainerSubstitutionEndpoints
         if (substitution is null)
         {
             return TypedResults.NotFound();
+        }
+
+        if (!GroupManagementScope.Contains(currentUser, substitution.Group.BranchId))
+        {
+            return GroupManagementScope.ForbiddenProblem();
         }
 
         var today = businessDateProvider.Today;
@@ -509,6 +542,18 @@ internal static class GroupTrainerSubstitutionEndpoints
         return errors;
     }
 
+    private static async Task<Guid?> LoadGroupBranchIdAsync(
+        Guid groupId,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.TrainingGroups
+            .AsNoTracking()
+            .Where(group => group.Id == groupId)
+            .Select(group => (Guid?)group.BranchId)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
     private static IQueryable<GroupTrainerSubstitution> LoadSubstitutionsQuery(GymCrmDbContext dbContext, Guid groupId) =>
         dbContext.GroupTrainerSubstitutions
             .AsNoTracking()
@@ -634,12 +679,58 @@ internal static class GroupTrainerSubstitutionEndpoints
         });
     }
 
-    private static bool IsSubstitutionOverlapException(DbUpdateException exception) =>
-        exception.InnerException is PostgresException postgresException &&
+    private static bool IsSubstitutionOverlapException(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException)
+        {
+            if (current is not DbUpdateException dbUpdateException)
+            {
+                continue;
+            }
+
+            var postgresException = FindPostgresException(dbUpdateException);
+            if (postgresException is null)
+            {
+                continue;
+            }
+
+            if (IsSubstitutionExclusionViolation(postgresException) ||
+                IsSubstitutionExclusionDeadlock(dbUpdateException, postgresException))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static PostgresException? FindPostgresException(Exception exception)
+    {
+        for (var current = exception.InnerException; current is not null; current = current.InnerException)
+        {
+            if (current is PostgresException postgresException)
+            {
+                return postgresException;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsSubstitutionExclusionViolation(PostgresException postgresException) =>
+        string.Equals(postgresException.SqlState, PostgresErrorCodes.ExclusionViolation, StringComparison.Ordinal) &&
         string.Equals(
             postgresException.ConstraintName,
             "EX_GroupTrainerSubstitutions_GroupTrainer_Period_NoOverlap",
             StringComparison.Ordinal);
+
+    private static bool IsSubstitutionExclusionDeadlock(
+        DbUpdateException dbUpdateException,
+        PostgresException postgresException) =>
+        string.Equals(postgresException.SqlState, PostgresErrorCodes.DeadlockDetected, StringComparison.Ordinal) &&
+        dbUpdateException.Entries.Any(entry => entry.Entity is GroupTrainerSubstitution) &&
+        (string.Equals(postgresException.TableName, "GroupTrainerSubstitutions", StringComparison.Ordinal) ||
+            (postgresException.Where?.Contains("GroupTrainerSubstitutions", StringComparison.Ordinal) ?? false));
 
     private static async Task<IDbContextTransaction?> BeginTransactionIfSupportedAsync(
         GymCrmDbContext dbContext,

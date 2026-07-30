@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
 const LONG_CLUB_NAME =
@@ -200,6 +200,8 @@ const GROUPS_RESPONSE = {
       isActive: true,
     },
   ],
+  skip: 0,
+  take: 20,
   totalCount: 1,
   hasNextPage: false,
 } as const
@@ -378,7 +380,7 @@ const MANAGEMENT_ROUTES = [
     navLabel: 'Группы',
     expectedPageTitle: 'Группы',
     expectedPageTitleHidden: true,
-    expectedControls: ['Создать', 'Обновить список'],
+    expectedControls: ['Новая группа', 'Обновить список групп'],
     checkSharedEdges: true,
   },
   {
@@ -626,83 +628,63 @@ test.describe('Manifest alternate-theme representative matrix', () => {
 })
 
 for (const width of [320, 390, 420, 440, 1440]) {
-  test.describe(`Groups compact summary ${width}px`, () => {
+  test.describe(`Groups registry ${width}px`, () => {
     test.use({ viewport: { width, height: width < 768 ? 956 : 1200 } })
 
-    test('keeps summary, actions and first row in the compact accessible geometry', async ({
+    test('keeps locator, primary actions and first row accessible without overflow', async ({
       page,
     }) => {
       await mockApi(page, MANAGEMENT_SESSION)
       await page.goto('/groups')
 
       const main = page.locator('main')
-      const summary = main.locator('.groups-summary-bar')
-      const total = summary.locator('.groups-summary-bar__metric').nth(0)
-      const withoutTrainer = summary.locator('.groups-summary-bar__metric').nth(1)
-      const create = summary.getByRole('button', { name: 'Создать', exact: true })
-      const refresh = summary.getByRole('button', { name: 'Обновить список' })
+      const locator = main.getByTestId('groups-list-controls')
+      const search = main.getByRole('textbox', { name: 'Поиск групп по названию' })
+      const filters = main.getByRole('button', { name: 'Открыть фильтры' })
+      const create = main.getByRole('button', { name: 'Новая группа', exact: true })
+      const refresh = main.getByRole('button', { name: 'Обновить список групп' })
       const firstRow = main.locator('[data-testid^="group-card-"]').first()
 
-      await expect(summary).toBeVisible()
-      await expect(summary.getByRole('heading', { level: 2, name: 'Сводка и действия групп' })).toBeAttached()
+      await expect(locator).toBeVisible()
+      await expect(main.locator('.groups-summary-bar')).toHaveCount(0)
       await expect(main.getByRole('heading', { level: 1, name: 'Группы' })).toBeAttached()
       await expect(main.getByRole('region', { name: 'Список групп' })).toBeVisible()
-      await expect(total.locator('dt')).toHaveText('Всего')
-      await expect(total.locator('dd')).toHaveText('100')
-      await expect(withoutTrainer.locator('dt')).toContainText('Без тренера')
-      await expect(withoutTrainer.locator('dd')).toHaveText('4')
-      await expect(create).toHaveText('Создать')
-      await expect(refresh).toHaveAttribute('aria-label', 'Обновить список')
-      await expectNoVisibleLegacyGroupsLabels(main)
 
       const boxes = await Promise.all(
-        [summary, total, withoutTrainer, create, refresh, firstRow].map((locator) =>
-          locator.boundingBox(),
+        [locator, search, filters, create, refresh, firstRow].map((element) =>
+          element.boundingBox(),
         ),
       )
-      const [summaryBox, totalBox, withoutTrainerBox, createBox, refreshBox, firstRowBox] = boxes
+      const [locatorBox, searchBox, filtersBox, createBox, refreshBox, firstRowBox] = boxes
 
       for (const box of boxes) expect(box).not.toBeNull()
-      expect(summaryBox!.height).toBeLessThanOrEqual(60)
+      expect(searchBox!.height).toBeGreaterThanOrEqual(44)
+      expect(filtersBox!.height).toBeGreaterThanOrEqual(44)
+      expect(filtersBox!.width).toBeGreaterThanOrEqual(44)
       expect(createBox!.height).toBeGreaterThanOrEqual(44)
       expect(createBox!.width).toBeGreaterThanOrEqual(44)
       expect(refreshBox!.height).toBeGreaterThanOrEqual(44)
       expect(refreshBox!.width).toBeGreaterThanOrEqual(44)
-      expect(totalBox!.x).toBeLessThan(withoutTrainerBox!.x)
-      expect(withoutTrainerBox!.x).toBeLessThan(createBox!.x)
-      expect(createBox!.x).toBeLessThan(refreshBox!.x)
-
-      const centers = [totalBox, withoutTrainerBox, createBox, refreshBox].map(
-        (box) => box!.y + box!.height / 2,
-      )
-      expect(Math.max(...centers) - Math.min(...centers)).toBeLessThanOrEqual(3)
-      for (const box of [totalBox, withoutTrainerBox, createBox, refreshBox]) {
-        expect(box!.x).toBeGreaterThanOrEqual(summaryBox!.x - 1)
+      for (const box of [searchBox, filtersBox, createBox, refreshBox]) {
+        expect(box!.x).toBeGreaterThanOrEqual(locatorBox!.x - 1)
         expect(box!.x + box!.width).toBeLessThanOrEqual(
-          summaryBox!.x + summaryBox!.width + 1,
+          locatorBox!.x + locatorBox!.width + 1,
         )
       }
 
-      const summaryBottom = summaryBox!.y + summaryBox!.height
-      const firstRowGap = firstRowBox!.y - summaryBottom
+      const locatorBottom = locatorBox!.y + locatorBox!.height
+      const firstRowGap = firstRowBox!.y - locatorBottom
       expect(firstRowGap).toBeGreaterThanOrEqual(8)
-      expect(firstRowGap).toBeLessThanOrEqual(12)
 
       const headerBox = await page.locator('.app-shell__header').boundingBox()
-      expect(summaryBox!.y).toBeGreaterThanOrEqual(headerBox!.y + headerBox!.height - 1)
-      expect(await summary.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+      expect(locatorBox!.y).toBeGreaterThanOrEqual(headerBox!.y + headerBox!.height - 1)
+      expect(await locator.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
       await expectNoHorizontalScroll(page)
 
-      await create.focus()
-      await expect(create).toBeFocused()
+      await search.focus()
+      await expect(search).toBeFocused()
       await page.keyboard.press('Tab')
-      await expect(refresh).toBeFocused()
-      await refresh.hover()
-      await expect(page.getByRole('tooltip', { name: 'Обновить список' })).toBeVisible()
-
-      if (width === 320) {
-        await expect(create.locator('svg')).toHaveCount(0)
-      }
+      await expect(filters).toBeFocused()
 
       if (width < MOBILE_MENU_BREAKPOINT) {
         await firstRow.scrollIntoViewIfNeeded()
@@ -716,27 +698,6 @@ for (const width of [320, 390, 420, 440, 1440]) {
       }
     })
   })
-}
-
-async function expectNoVisibleLegacyGroupsLabels(main: Locator) {
-  const visibleLabels = await main
-    .locator('h1, h2, h3, dt, [data-testid^="metric-card-"]')
-    .evaluateAll((elements) =>
-      elements
-        .filter((element) => {
-          const style = window.getComputedStyle(element)
-          const box = element.getBoundingClientRect()
-          return style.visibility !== 'hidden' && style.display !== 'none' && box.width > 1 && box.height > 1
-        })
-        .map((element) => element.textContent?.trim() ?? ''),
-    )
-
-  expect(visibleLabels).not.toContain('Группы')
-  expect(visibleLabels).not.toContain('Обзор групп')
-  expect(visibleLabels).not.toContain('Список групп')
-  expect(visibleLabels).not.toContain('Активные')
-  expect(visibleLabels.some((label) => label.includes('%'))).toBe(false)
-  expect(visibleLabels.some((label) => label.includes('Всё назначено'))).toBe(false)
 }
 
 test.describe('Mobile filter drawer actions', () => {
