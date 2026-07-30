@@ -326,7 +326,8 @@ describe('shared UX components', () => {
     const filtersToggle = screen.getByRole('button', { name: /фильтры/i })
     const clearButton = screen.getByRole('button', { name: /сброс/i })
 
-    expect(locatorRoot).toHaveClass('entity-locator-bar')
+    expect(locatorRoot).toHaveClass('entity-locator-bar', 'crm-filter-surface')
+    expect(locatorRoot).toHaveAttribute('role', 'search')
     expect(searchInput).toBeVisible()
     expect(searchInput).toHaveAttribute('aria-controls', 'entity-results')
     expect(filtersToggle).toHaveAttribute('aria-haspopup', 'dialog')
@@ -391,7 +392,7 @@ describe('shared UX components', () => {
 
     expect(actions).toContainElement(primaryAction)
     expect(actions).toContainElement(frequentAction)
-    expect(root).toHaveClass('entity-locator-bar')
+    expect(root).toHaveClass('entity-locator-bar', 'crm-filter-surface')
   })
 
   test('ActiveFiltersBar renders accessible region with clear actions and minimum touch targets', () => {
@@ -705,10 +706,42 @@ describe('shared UX components', () => {
       </FilterToolbar>,
     )
 
-    expect(container.querySelector('.filter-toolbar.custom-toolbar')).toBeTruthy()
+    expect(container.querySelector('.filter-toolbar.crm-filter-surface.custom-toolbar')).toBeTruthy()
     expect(container.querySelector('.filter-toolbar__controls')).toBeTruthy()
     expect(container.querySelector('.filter-toolbar__actions')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Сбросить' })).toBeVisible()
+  })
+
+  test('shared filter surface recipe is a paint-only class on filter components', () => {
+    const { container } = renderWithProviders(
+      <>
+        <FilterToolbar data-testid="filter-toolbar">
+          <label>
+            Поиск
+            <input />
+          </label>
+        </FilterToolbar>
+        <CompactFilterPanel
+          data-testid="compact-panel"
+          onReset={() => undefined}
+          primary={[
+            {
+              key: 'query',
+              label: 'Поиск',
+              render: () => <label htmlFor="compact-query">Поиск<input id="compact-query" /></label>,
+            },
+          ]}
+        />
+      </>,
+    )
+
+    const filterToolbar = screen.getByTestId('filter-toolbar')
+    const compactPanel = screen.getByTestId('compact-panel')
+
+    expect(filterToolbar).toHaveClass('crm-filter-surface')
+    expect(compactPanel).toHaveClass('crm-filter-surface')
+    expect(container.querySelector('.crm-filter-surface .filter-toolbar__controls')).toBeTruthy()
+    expect(container.querySelector('.crm-filter-surface .compact-filter-panel__desktop-row')).toBeTruthy()
   })
 
   test('CompactFilterPanel renders inline filters with more filters and reset actions', () => {
@@ -776,6 +809,7 @@ describe('shared UX components', () => {
     try {
       renderWithProviders(
         <CompactFilterPanel
+          data-testid="compact-panel"
           onReset={() => undefined}
           primary={[
             {
@@ -792,6 +826,9 @@ describe('shared UX components', () => {
         />,
       )
 
+      const compactPanel = screen.getByTestId('compact-panel')
+
+      expect(compactPanel).toHaveClass('crm-filter-surface')
       expect(screen.getByRole('button', { name: 'Фильтры' })).toBeVisible()
       expect(screen.queryByLabelText('Поиск')).not.toBeInTheDocument()
 
@@ -805,6 +842,7 @@ describe('shared UX components', () => {
       )
 
       expect(sheetActions).not.toBeNull()
+      expect(compactPanel).not.toContainElement(sheetActions)
       expect(within(sheetActions!).getAllByRole('button').map((button) => button.textContent)).toEqual([
         'Готово',
         'Сбросить',

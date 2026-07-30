@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
 const LONG_CLUB_NAME =
@@ -569,6 +569,55 @@ const ALTERNATE_THEME_CASES = [
   },
 ] as const
 
+const FILTER_SURFACE_CONFORMANCE_CASES = [
+  {
+    id: 'schedule',
+    path: '/schedule',
+    className: 'crm-filter-surface',
+    surfaceSelector: '[data-testid="schedule-filter-panel"]',
+    focusSelector: 'button',
+  },
+  {
+    id: 'clients',
+    path: '/clients',
+    className: 'crm-filter-surface',
+    surfaceSelector: '[data-testid="clients-filter-panel"] .entity-locator-bar',
+    focusSelector: 'input',
+  },
+  {
+    id: 'groups',
+    path: '/groups',
+    className: 'crm-filter-surface',
+    surfaceSelector: '[data-testid="groups-list-controls"] .entity-locator-bar',
+    focusSelector: 'input',
+  },
+  {
+    id: 'audit',
+    path: '/audit',
+    className: 'crm-filter-surface',
+    surfaceSelector: '[data-testid="audit-filter-panel"]',
+    focusSelector: 'button',
+  },
+  {
+    id: 'finance',
+    path: '/finance',
+    className: 'crm-filter-surface',
+    surfaceSelector: '[data-testid="finance-filter-panel"]',
+    focusSelector: 'button',
+  },
+] as const
+
+const FILTER_CONTEXT_EXCEPTION_CASES = [
+  {
+    id: 'attendance',
+    path: '/',
+    className: 'crm-context-surface',
+    forbiddenClassName: 'crm-filter-surface',
+    surfaceSelector: '[data-testid="attendance-toolbar"]',
+    focusSelector: 'input',
+  },
+] as const
+
 test.describe('Manifest alternate-theme representative matrix', () => {
   test.use({ viewport: TASK_090_MANIFEST.viewports.iphone17ProMax })
 
@@ -622,6 +671,38 @@ test.describe('Manifest alternate-theme representative matrix', () => {
             `${defaultSnapshot.id} ${defaultBox.key} ${coordinate}`,
           ).toBeLessThanOrEqual(1)
         }
+      }
+    }
+  })
+})
+
+test.describe('TASK-094 filter surface conformance', () => {
+  test.use({ viewport: TASK_090_MANIFEST.viewports.iphoneAir })
+
+  test('standard surfaces and attendance context resolve to semantic paint tokens in both themes', async ({
+    page,
+  }) => {
+    await mockApi(page, MANAGEMENT_SESSION, APP_CONFIG)
+    const defaultBoxes = await captureFilterSurfaceConformance(page)
+
+    await page.unroute('**/api/**')
+    await mockApi(page, MANAGEMENT_SESSION, {
+      ...APP_CONFIG,
+      themeId: 'test-blue-coral-v1',
+    })
+    const alternateBoxes = await captureFilterSurfaceConformance(page)
+
+    expect(Object.keys(alternateBoxes)).toEqual(Object.keys(defaultBoxes))
+
+    for (const [id, defaultBox] of Object.entries(defaultBoxes)) {
+      const alternateBox = alternateBoxes[id]
+
+      expect(alternateBox).toBeDefined()
+      for (const coordinate of ['width', 'height'] as const) {
+        expect(
+          Math.abs(alternateBox[coordinate] - defaultBox[coordinate]),
+          `${id} ${coordinate}`,
+        ).toBeLessThanOrEqual(1)
       }
     }
   })
@@ -1259,6 +1340,99 @@ async function expectScheduleOverflowContract(page: Page) {
   }))
 
   expect(overflow.scrollWidth).toBeGreaterThanOrEqual(overflow.clientWidth)
+}
+
+async function captureFilterSurfaceConformance(page: Page) {
+  const boxes: Record<string, { width: number; height: number }> = {}
+
+  for (const surfaceCase of FILTER_SURFACE_CONFORMANCE_CASES) {
+    await page.goto(surfaceCase.path)
+
+    const surface = page.locator(surfaceCase.surfaceSelector).first()
+    const focusTarget = surface.locator(surfaceCase.focusSelector).first()
+
+    await expect(surface, surfaceCase.id).toBeVisible()
+    await expect(surface, surfaceCase.id).toHaveClass(
+      new RegExp(`\\b${surfaceCase.className}\\b`),
+    )
+    await expectSemanticSurfacePaint(surface, surfaceCase.id)
+
+    await focusTarget.focus()
+    await expect(focusTarget, `${surfaceCase.id} focus target`).toBeFocused()
+
+    const box = await surface.boundingBox()
+    expect(box, surfaceCase.id).not.toBeNull()
+    boxes[surfaceCase.id] = {
+      height: Math.round(box!.height),
+      width: Math.round(box!.width),
+    }
+  }
+
+  for (const surfaceCase of FILTER_CONTEXT_EXCEPTION_CASES) {
+    await page.goto(surfaceCase.path)
+
+    const surface = page.locator(surfaceCase.surfaceSelector).first()
+    const focusTarget = surface.locator(surfaceCase.focusSelector).first()
+
+    await expect(surface, surfaceCase.id).toBeVisible()
+    await expect(surface, surfaceCase.id).toHaveClass(
+      new RegExp(`\\b${surfaceCase.className}\\b`),
+    )
+    await expect(surface, surfaceCase.id).not.toHaveClass(
+      new RegExp(`\\b${surfaceCase.forbiddenClassName}\\b`),
+    )
+    await expectSemanticSurfacePaint(surface, surfaceCase.id)
+
+    await focusTarget.focus()
+    await expect(focusTarget, `${surfaceCase.id} focus target`).toBeFocused()
+
+    const box = await surface.boundingBox()
+    expect(box, surfaceCase.id).not.toBeNull()
+    boxes[surfaceCase.id] = {
+      height: Math.round(box!.height),
+      width: Math.round(box!.width),
+    }
+  }
+
+  return boxes
+}
+
+async function expectSemanticSurfacePaint(surface: Locator, id: string) {
+  const paint = await surface.evaluate((element) => {
+    const style = window.getComputedStyle(element)
+    const probe = document.createElement('div')
+
+    probe.style.position = 'absolute'
+    probe.style.width = '0'
+    probe.style.height = '0'
+    probe.style.overflow = 'hidden'
+    probe.style.pointerEvents = 'none'
+    probe.style.background = 'var(--crm-surface-card)'
+    probe.style.borderColor = 'var(--crm-border-muted)'
+    element.appendChild(probe)
+
+    const probeStyle = window.getComputedStyle(probe)
+    const result = {
+      backgroundColor: style.backgroundColor,
+      borderColor: style.borderTopColor,
+      borderRadius: style.borderTopLeftRadius,
+      borderStyle: style.borderTopStyle,
+      borderWidth: style.borderTopWidth,
+      boxShadow: style.boxShadow,
+      expectedBackgroundColor: probeStyle.backgroundColor,
+      expectedBorderColor: probeStyle.borderTopColor,
+    }
+
+    probe.remove()
+    return result
+  })
+
+  expect(paint.backgroundColor, `${id} background`).toBe(paint.expectedBackgroundColor)
+  expect(paint.borderColor, `${id} border color`).toBe(paint.expectedBorderColor)
+  expect(paint.borderStyle, `${id} border style`).toBe('solid')
+  expect(paint.borderWidth, `${id} border width`).toBe('1px')
+  expect(paint.borderRadius, `${id} border radius`).toBe('10px')
+  expect(paint.boxShadow, `${id} shadow`).toBe('none')
 }
 
 async function expectNoHorizontalScroll(page: Page) {

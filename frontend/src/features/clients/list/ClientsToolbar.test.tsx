@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { fireEvent, screen, within } from '@testing-library/react'
 import { describe, expect, test, vi } from 'vitest'
 import { createDefaultClientListFilters } from './clientListFilters'
 import { ClientsToolbar } from './ClientsToolbar'
@@ -100,6 +100,29 @@ describe('ClientsToolbar behavior', () => {
     expect(filtersButton).toBeVisible()
   })
 
+  test('uses shared filter surface on locator and keeps active filters as a sibling', () => {
+    renderWithProviders(
+      <ClientsToolbar
+        canManage
+        canSeeWithoutGroup
+        onCreate={vi.fn()}
+        state={createState({
+          availableGroupOptions: [{ value: 'group-1', label: 'Вечерняя' }],
+          filters: { groupId: 'group-1' },
+        })}
+      />,
+    )
+
+    const panel = screen.getByTestId('clients-filter-panel')
+    const locator = within(panel).getByRole('search')
+    const activeFilters = screen.getByRole('region', { name: 'Активные фильтры' })
+
+    expect(locator).toHaveClass('entity-locator-bar', 'crm-filter-surface')
+    expect(activeFilters).toHaveClass('active-filters-bar')
+    expect(locator).not.toContainElement(activeFilters)
+    expect(activeFilters.parentElement).toBe(panel)
+  })
+
   test('uses coach-only locator naming and keeps refresh action available', () => {
     const reload = vi.fn()
 
@@ -158,6 +181,8 @@ function createState({
   applySearchNow = vi.fn(),
   clearSearchQuery = vi.fn(),
   reload = vi.fn(),
+  filters = {},
+  availableGroupOptions = [],
 }: {
   loading?: boolean
   searchDraft?: string
@@ -168,6 +193,8 @@ function createState({
   applySearchNow?: () => void
   clearSearchQuery?: () => void
   reload?: () => void
+  filters?: Partial<ReturnType<typeof createDefaultClientListFilters>>
+  availableGroupOptions?: Array<{ value: string; label: string }>
 } = {}) {
   const defaultFilters = createDefaultClientListFilters()
 
@@ -187,9 +214,10 @@ function createState({
     filters: {
       ...defaultFilters,
       query: searchDraft,
+      ...filters,
     },
     searchDraft,
-    availableGroupOptions: [],
+    availableGroupOptions,
     page: 1,
     pageStart: 0,
     pageEnd: 0,

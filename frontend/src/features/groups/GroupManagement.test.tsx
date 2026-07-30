@@ -106,6 +106,7 @@ describe('GroupsListScreen', () => {
 
     expect(await screen.findByText('Утренняя')).toBeVisible()
     expect(screen.getByRole('search')).toBeVisible()
+    expect(screen.getByRole('search')).toHaveClass('entity-locator-bar', 'crm-filter-surface')
     expect(screen.queryByText('Поиск групп по названию')).not.toBeInTheDocument()
     expect(screen.getByText('Тренер не назначен')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Редактировать группу «Утренняя»' })).toBeEnabled()

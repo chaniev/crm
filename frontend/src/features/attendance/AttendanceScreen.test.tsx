@@ -76,6 +76,11 @@ describe('AttendanceWorkspace', () => {
     renderWithProviders(<AttendanceWorkspace user={user} />)
 
     expect(await screen.findByLabelText('Посещение: Иван Иванов')).toBeVisible()
+    expect(screen.getByTestId('attendance-toolbar')).toHaveClass(
+      'attendance-context-controls',
+      'crm-context-surface',
+    )
+    expect(screen.getByTestId('attendance-toolbar')).not.toHaveClass('crm-filter-surface')
     expect(screen.getByText('Отмечено 0 из 1')).toBeVisible()
     const initialCard = screen.getByTestId('attendance-client-card-client-1')
     expect(within(initialCard).getByText('Не отмечено')).toBeVisible()

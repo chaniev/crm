@@ -26,7 +26,10 @@ export function AttendanceContextControls({
   const nextDate = shiftIsoDate(trainingDate, 1)
 
   return (
-    <div className="attendance-context-controls" data-testid="attendance-toolbar">
+    <div
+      className="attendance-context-controls crm-context-surface"
+      data-testid="attendance-toolbar"
+    >
       <Select
         data-testid="attendance-group-select"
         data={groups.map((group) => ({ value: group.id, label: group.name }))}

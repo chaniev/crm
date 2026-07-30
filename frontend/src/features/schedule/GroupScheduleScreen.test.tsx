@@ -183,6 +183,10 @@ describe('GroupScheduleScreen', () => {
     await waitFor(() =>
       expect(screen.getByTestId('schedule-calendar-grid')).toBeInTheDocument(),
     )
+    expect(screen.getByTestId('schedule-filter-panel')).toHaveClass(
+      'compact-filter-panel',
+      'crm-filter-surface',
+    )
     await waitFor(() => expect(screen.getAllByText('Утренняя база').length).toBeGreaterThan(0))
 
     expect(screen.getByTestId('schedule-card-1-group-core-1')).toBeVisible()
