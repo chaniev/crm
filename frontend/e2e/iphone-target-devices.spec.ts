@@ -419,7 +419,7 @@ test('iPhone clients route keeps core controls touch-safe and readable', async (
   await expect(createButton).toBeInViewport()
 })
 
-test('search focus hides create/refresh in compact mobile list and cards are 96px high', async ({
+test('search focus keeps create/refresh available in compact mobile list and cards are 96px high', async ({
   page,
 }, testInfo) => {
   const target = targetScreenFor(testInfo.project.name)
@@ -528,11 +528,12 @@ test('search focus hides create/refresh in compact mobile list and cards are 96p
   await expect(createButton).toBeVisible()
 
   await searchField.click()
-  await expect(refreshButton).toBeHidden()
-  await expect(createButton).toBeHidden()
+  await expect(refreshButton).toBeVisible()
+  await expect(createButton).toBeVisible()
 
   await searchField.fill('А')
-  await expect(refreshButton).toBeHidden()
+  await expect(refreshButton).toBeVisible()
+  await expect(createButton).toBeVisible()
   await searchField.fill('')
   await searchField.blur()
   await expect(refreshButton).toBeVisible()
