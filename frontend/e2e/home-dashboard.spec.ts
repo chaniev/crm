@@ -82,7 +82,13 @@ test.describe('Home dashboard', () => {
     await expect.poll(() => attendanceGroupsCalls).toBeGreaterThan(0)
     const groupsCallsBeforeSwitch = attendanceGroupsCalls
     await page.getByRole('tab', { name: /Требуют внимания/ }).click()
-    await expect(page.getByText('Клиенты, требующие внимания')).toBeVisible()
+    await expect(page.getByText('Клиенты, требующие внимания')).toHaveCount(0)
+    await expect(
+      page.getByText('Повторные пропуски тренировок и вопросы по абонементам.'),
+    ).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Список клиентов' })).toHaveClass(
+      /visually-hidden/,
+    )
     await expect(page.getByText('Никому не требуется внимание')).toBeVisible()
     await expect(
       page.getByText('Нет клиентов с повторными пропусками или вопросами по абонементам.'),
@@ -287,7 +293,14 @@ test.describe('Home dashboard', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
     await page.getByRole('tab', { name: /Требуют внимания/ }).click()
-    await expect(page.getByRole('heading', { name: 'Клиенты, требующие внимания' })).toBeVisible()
+    await expect(page.getByText('Клиенты, требующие внимания')).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Список клиентов' })).toHaveClass(
+      /visually-hidden/,
+    )
+    await expect(page.getByTestId('home-attention-list')).toHaveAttribute(
+      'aria-labelledby',
+      'home-attention-list-title',
+    )
     await expect(page.getByLabel('1 клиентов требуют внимания')).toBeVisible()
     await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
     await expect(page.getByText('Осталось 1 день')).toBeVisible()

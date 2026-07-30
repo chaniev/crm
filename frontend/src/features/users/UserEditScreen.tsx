@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
-  Paper,
   Stack,
-  Text,
-  ThemeIcon,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { IconArrowLeft, IconDeviceFloppy, IconUserCog } from '@tabler/icons-react'
+import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react'
 import {
   ApiError,
   applyFieldErrors,
@@ -24,7 +21,6 @@ import {
   PageLayout,
   PageSection,
   ResponsiveButtonGroup,
-  SectionHeader,
 } from '../shared/ux'
 import {
   UserEditCredentialsFields,
@@ -169,16 +165,6 @@ export function UserEditScreen({
     >
       <PageSection>
         <Stack gap="lg">
-          <SectionHeader
-            description={resources.users.edit.sectionDescription}
-            eyebrow={
-              <ThemeIcon color="var(--crm-action-primary)" radius="xl" size={34} variant="light">
-                <IconUserCog size={18} />
-              </ThemeIcon>
-            }
-            title={resources.users.edit.sectionTitle}
-          />
-
           {loading ? (
             <LoadingState label="Загружаем карточку тренера..." />
           ) : null}
@@ -214,15 +200,6 @@ export function UserEditScreen({
                     roleOptions={[]}
                     showRoleField={false}
                   />
-
-                  <Paper className="hint-card" radius="24px" withBorder>
-                    <Stack gap={6}>
-                      <Text fw={700}>{resources.users.edit.permissionsHintTitle}</Text>
-                      <Text c="dimmed" size="sm">
-                        {resources.users.edit.permissionsHintDescription}
-                      </Text>
-                    </Stack>
-                  </Paper>
 
                   <ResponsiveButtonGroup justify="space-between">
                     <Button onClick={onBack} variant="subtle">

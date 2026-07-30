@@ -132,7 +132,12 @@ test('Редактирование пользователя показывает
   await page.goto('/users/headcoach-id/edit')
 
   await expect(page.getByRole('heading', { name: 'Главный тренер' })).toBeVisible()
-  await expect(page.getByText('Редактирование доступа')).toBeVisible()
+  await expect(page.getByText('Редактирование доступа')).toHaveCount(0)
+  await expect(page.getByText('Логин фиксируется после создания тренера.')).toHaveCount(0)
+  await expect(page.getByText('Что можно менять на этом экране')).toHaveCount(0)
+  await expect(
+    page.getByText(/Если очистить поле, тренер потеряет доступ к боту/),
+  ).toBeVisible()
   await expect(page.getByLabel('ФИО')).toHaveValue('Главный тренер')
   await expect(page.getByLabel('Логин')).toHaveValue('headcoach')
   await expect(

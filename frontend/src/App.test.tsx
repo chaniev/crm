@@ -194,6 +194,13 @@ describe('App route access contract', () => {
 
     expect(await screen.findByTestId('clients-list-screen')).toBeVisible()
     expect(screen.queryByRole('heading', { level: 1, name: 'Нет доступа' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/стартовый раздел:/i)).not.toBeInTheDocument()
+    expect(document.querySelector('.app-shell__brand-meta')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', {
+      name: /Открыть профильное меню пользователя Главный тренер/i,
+    }))
+    expect(await screen.findByRole('menu')).toHaveTextContent('Главный тренер')
     expect(document.title).toBe('Клиенты • Gym CRM')
   })
 

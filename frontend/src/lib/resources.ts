@@ -24,8 +24,6 @@ export const resources = {
       message: 'Для этой учетной записи нет доступных блоков главной страницы.',
     },
     attention: {
-      title: 'Клиенты, требующие внимания',
-      description: 'Повторные пропуски тренировок и вопросы по абонементам.',
       loadingErrorTitle: 'Список не загрузился',
       loadingErrorMessage: 'Не удалось загрузить клиентов, требующих внимания.',
       actionError: 'Не удалось сохранить отметку',
@@ -109,8 +107,6 @@ export const resources = {
     edit: {
       fallbackTitle: 'Карточка тренера',
       backAction: 'Назад к списку',
-      sectionTitle: 'Редактирование доступа',
-      sectionDescription: 'Логин фиксируется после создания тренера.',
       loadingErrorTitle: 'Карточка не загрузилась',
       loadingErrorMessage: 'Не удалось загрузить тренера.',
       submit: 'Сохранить изменения',
@@ -118,9 +114,6 @@ export const resources = {
       fallbackError: 'Не удалось сохранить тренера. Попробуйте еще раз.',
       successTitle: 'Изменения сохранены',
       successMessage: 'Карточка тренера обновлена.',
-      permissionsHintTitle: 'Что можно менять на этом экране',
-      permissionsHintDescription:
-        'Доступны ФИО, активность, Telegram ID и флаг обязательной смены пароля. При очистке Telegram ID тренер теряет доступ к боту. Логин остается только для просмотра.',
       listAction: 'К списку',
     },
     messenger: {

@@ -187,6 +187,17 @@ describe('UserEditScreen', () => {
     )
 
     expect(await screen.findByDisplayValue(/Тренер со старым филиалом/)).toBeVisible()
+    expect(screen.queryByText('Редактирование доступа')).not.toBeInTheDocument()
+    expect(screen.queryByText('Логин фиксируется после создания тренера.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Что можно менять на этом экране')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(/Доступны ФИО, активность, Telegram ID/),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Попросите тренера прислать ID из /start или /id бота. Если очистить поле, тренер потеряет доступ к боту.',
+      ),
+    ).toBeVisible()
     expect(screen.queryByLabelText('Филиал администратора')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить изменения' }))
     await waitFor(() => expect(updateUser).toHaveBeenCalledWith('admin-archived', expect.objectContaining({

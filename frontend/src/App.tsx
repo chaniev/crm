@@ -1325,7 +1325,6 @@ function AuthenticatedShell({
   children,
 }: AuthenticatedShellProps) {
   const presentation = rolePresentationMap[user.role]
-  const landingLabel = APP_SECTION_LABELS[user.landingScreen]
   const navigationSections = getAccessibleNavigationSections(user)
 
   function handleSectionNavigation(section: AppSection) {
@@ -1392,8 +1391,6 @@ function AuthenticatedShell({
         header={(
           <Header
             brandTitle={clubName}
-            brandMeta={`${presentation.roleLabel} • стартовый раздел: ${landingLabel}`}
-            brandMetaCompact={presentation.roleLabel}
             profileControl={profileControl}
           />
         )}

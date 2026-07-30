@@ -1476,6 +1476,8 @@ async function expectActiveMenuItemContrast(activeButton: Locator) {
 async function expectNoServiceIntro(page: Page) {
   await expect(page.locator('.page-header-card')).toHaveCount(0)
   await expect(page.locator('.finance-header-card')).toHaveCount(0)
+  await expect(page.locator('.app-shell__brand-meta')).toHaveCount(0)
+  await expect(page.getByText(/стартовый раздел:/i)).toHaveCount(0)
   await expect(page.getByText('Главный тренер и администратор')).toHaveCount(0)
   await expect(page.getByText('Только для главного тренера')).toHaveCount(0)
   await expect(page.getByText('Любая доступная группа')).toHaveCount(0)

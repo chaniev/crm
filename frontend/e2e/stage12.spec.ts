@@ -1971,9 +1971,10 @@ test.describe('Основные e2e сценарии', () => {
     })
 
     await page.goto('/')
-    await expect(
-      page.getByRole('heading', { name: 'Клиенты, требующие внимания' }),
-    ).toBeVisible()
+    await expect(page.getByText('Клиенты, требующие внимания')).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Список клиентов' })).toHaveClass(
+      /visually-hidden/,
+    )
     await expect(page.getByText('Иванов Иван Иванович')).toBeVisible()
     await expect(page.getByText('Осталось 3 дня')).toBeVisible()
   })
