@@ -25,6 +25,48 @@ beforeEach(() => {
 })
 
 describe('MembershipCatalogSettings', () => {
+  const catalogItemMatrix = [
+    {
+      id: 'single-visit-item',
+      branchId: 'branch-1',
+      name: 'Базовый разовый формат',
+      price: 500,
+      behaviorKind: 'SingleVisit' as const,
+      availableFrom: '2026-01-01',
+      availableTo: null,
+      isSystemOwned: false,
+    },
+    {
+      id: 'term-item',
+      branchId: 'branch-1',
+      name: '10 тренировок подряд',
+      price: 1500,
+      behaviorKind: 'Term' as const,
+      availableFrom: '2026-01-01',
+      availableTo: null,
+      isSystemOwned: false,
+    },
+    {
+      id: 'professional-item-current',
+      branchId: 'branch-1',
+      name: 'Профессиональный',
+      price: 4500,
+      behaviorKind: 'Professional' as const,
+      availableFrom: '2026-01-01',
+      availableTo: null,
+      isSystemOwned: true,
+    },
+    {
+      id: 'professional-item-renamed',
+      branchId: 'branch-1',
+      name: 'Премиум пакет',
+      price: 6500,
+      behaviorKind: 'Professional' as const,
+      availableFrom: '2026-01-01',
+      availableTo: null,
+      isSystemOwned: true,
+    },
+  ]
   test('covers loading and empty state in a fixed administrator branch', async () => {
     let resolveItems!: (value: []) => void
     getItemsMock.mockReturnValue(new Promise((resolve) => { resolveItems = resolve }))
@@ -58,6 +100,30 @@ describe('MembershipCatalogSettings', () => {
     expect(screen.queryByLabelText('Цена')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Поведение')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /delete|удалить/i })).not.toBeInTheDocument()
+  })
+
+  test('catalog row matrix has no behavior badges and no generic behavior labels', async () => {
+    getItemsMock.mockResolvedValue(catalogItemMatrix)
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
+
+    await waitFor(() => {
+      for (const item of catalogItemMatrix) {
+        const row = screen.getByText(item.name).closest('.list-row-card')
+        expect(row).toBeInstanceOf(HTMLElement)
+        expect(row!.querySelectorAll('.mantine-Badge-root').length).toBe(0)
+        const rowText = row!.textContent ?? ''
+        const hasSingleVisitLabel = rowText.includes('Разовый')
+        const hasTermLabel = rowText.includes('На срок')
+        const professionalLabelCount = rowText.split('Профессиональный').length - 1
+        expect(hasSingleVisitLabel).toBe(false)
+        expect(hasTermLabel).toBe(false)
+        if (item.name === 'Профессиональный') {
+          expect(professionalLabelCount).toBe(1)
+        } else {
+          expect(professionalLabelCount).toBe(0)
+        }
+      }
+    })
   })
 
   test('preserves server field errors on create', async () => {
