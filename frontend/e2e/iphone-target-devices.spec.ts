@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Route } from '@playwright/test'
+import { expect, test, type Locator, type Page, type Route } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
 type IPhoneManifest = {
@@ -875,6 +875,44 @@ test('compact-height iPhone filter surface is keyboard-accessible and focus-safe
   await expect(filterLauncher).toBeFocused()
 })
 
+test('TASK-094 iPhone locator surfaces use semantic filter paint tokens', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.setViewportSize(target)
+  await mockApi(page, HEAD_COACH_SESSION)
+
+  const cases = [
+    {
+      id: 'clients',
+      path: '/clients',
+      surfaceSelector: '[data-testid="clients-filter-panel"] .entity-locator-bar',
+      focusSelector: 'input',
+    },
+    {
+      id: 'groups',
+      path: '/groups',
+      surfaceSelector: '[data-testid="groups-list-controls"] .entity-locator-bar',
+      focusSelector: 'input',
+    },
+  ] as const
+
+  for (const surfaceCase of cases) {
+    await page.goto(surfaceCase.path)
+
+    const surface = page.locator(surfaceCase.surfaceSelector).first()
+    const focusTarget = surface.locator(surfaceCase.focusSelector).first()
+
+    await expect(surface, surfaceCase.id).toBeVisible()
+    await expect(surface, surfaceCase.id).toHaveClass(/\bcrm-filter-surface\b/)
+    await expectSemanticSurfacePaint(surface, surfaceCase.id)
+    await focusTarget.focus()
+    await expect(focusTarget, `${surfaceCase.id} focus target`).toBeFocused()
+    await expectNoHorizontalScroll(page)
+  }
+})
+
 test('в целевых iPhone-профилях админ-панель рендерится без горизонтального скролла', async ({
   page,
 }, testInfo) => {
@@ -1161,6 +1199,47 @@ async function fulfillJson(route: Route, payload: unknown) {
     contentType: 'application/json; charset=utf-8',
     body: JSON.stringify(payload),
   })
+}
+
+async function expectSemanticSurfacePaint(
+  surface: Locator,
+  id: string,
+) {
+  const paint = await surface.evaluate((element) => {
+    const style = window.getComputedStyle(element)
+    const probe = document.createElement('div')
+
+    probe.style.position = 'absolute'
+    probe.style.width = '0'
+    probe.style.height = '0'
+    probe.style.overflow = 'hidden'
+    probe.style.pointerEvents = 'none'
+    probe.style.background = 'var(--crm-surface-card)'
+    probe.style.borderColor = 'var(--crm-border-muted)'
+    element.appendChild(probe)
+
+    const probeStyle = window.getComputedStyle(probe)
+    const result = {
+      backgroundColor: style.backgroundColor,
+      borderColor: style.borderTopColor,
+      borderRadius: style.borderTopLeftRadius,
+      borderStyle: style.borderTopStyle,
+      borderWidth: style.borderTopWidth,
+      boxShadow: style.boxShadow,
+      expectedBackgroundColor: probeStyle.backgroundColor,
+      expectedBorderColor: probeStyle.borderTopColor,
+    }
+
+    probe.remove()
+    return result
+  })
+
+  expect(paint.backgroundColor, `${id} background`).toBe(paint.expectedBackgroundColor)
+  expect(paint.borderColor, `${id} border color`).toBe(paint.expectedBorderColor)
+  expect(paint.borderStyle, `${id} border style`).toBe('solid')
+  expect(paint.borderWidth, `${id} border width`).toBe('1px')
+  expect(paint.borderRadius, `${id} border radius`).toBe('10px')
+  expect(paint.boxShadow, `${id} shadow`).toBe('none')
 }
 
 function hasRequestParams(

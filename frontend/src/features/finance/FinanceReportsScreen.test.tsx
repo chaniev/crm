@@ -147,6 +147,10 @@ describe('FinanceReportsScreen', () => {
     renderWithProviders(<FinanceReportsScreen user={financeUser} />)
 
     await screen.findByTestId('finance-totals')
+    expect(screen.getByTestId('finance-filter-panel')).toHaveClass(
+      'compact-filter-panel',
+      'crm-filter-surface',
+    )
 
     fireEvent.click(screen.getByRole('radio', { name: 'Период' }))
     await waitFor(() =>

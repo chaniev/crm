@@ -47,7 +47,9 @@ export function EntityLocatorBar({
 
   return (
     <div
-      className={['entity-locator-bar', className].filter(Boolean).join(' ')}
+      className={['entity-locator-bar', 'crm-filter-surface', className]
+        .filter(Boolean)
+        .join(' ')}
       role="search"
       {...props}
     >

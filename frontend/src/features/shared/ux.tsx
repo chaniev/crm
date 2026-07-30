@@ -267,7 +267,7 @@ export function FilterToolbar({
 }: FilterToolbarProps) {
   return (
     <div
-      className={['filter-toolbar', className].filter(Boolean).join(' ')}
+      className={['filter-toolbar', 'crm-filter-surface', className].filter(Boolean).join(' ')}
       {...props}
     >
       <div className="filter-toolbar__controls">{children}</div>
@@ -494,6 +494,7 @@ export function CompactFilterPanel({
       <div
         className={[
           'filter-toolbar',
+          'crm-filter-surface',
           'compact-filter-panel',
           'compact-filter-panel--mobile',
           className,
@@ -566,6 +567,7 @@ export function CompactFilterPanel({
     <div
       className={[
         'filter-toolbar',
+        'crm-filter-surface',
         'compact-filter-panel',
         'compact-filter-panel--desktop',
         className,

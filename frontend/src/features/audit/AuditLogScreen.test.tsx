@@ -71,6 +71,10 @@ describe('AuditLogScreen', () => {
     const grid = await screen.findByTestId('audit-log-grid')
     const actorCell = within(grid).getByTestId('audit-log-actor-cell')
 
+    expect(screen.getByTestId('audit-filter-panel')).toHaveClass(
+      'compact-filter-panel',
+      'crm-filter-surface',
+    )
     expect(grid).toBeVisible()
     expect(
       screen.queryByRole('heading', { name: 'Записи журнала' }),
