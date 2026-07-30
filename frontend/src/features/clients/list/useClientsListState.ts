@@ -25,6 +25,7 @@ import { deriveClientSearchMode } from './clientListSearchMode'
 import {
   createClientListEntryKey,
   createClientListReturnSnapshot,
+  type ClientListPreviewIntent,
   type ClientListReturnSnapshot,
 } from './clientListReturnState'
 
@@ -77,9 +78,13 @@ export function useClientsListState({
   const [selectedClientId, setSelectedClientId] = useState<string | null>(
     previewClientId ?? initialReturnSnapshot?.selectedClientId ?? null,
   )
+  const [previewIntent, setPreviewIntent] = useState<ClientListPreviewIntent>(
+    () => initialReturnSnapshot?.ui.previewIntent ?? 'expanded',
+  )
   const [previewCache, setPreviewCache] = useState<Record<string, ClientDetails>>({})
   const [previewLoading, setPreviewLoading] = useState(false)
   const [previewError, setPreviewError] = useState<string | null>(null)
+  const [previewReloadKey, setPreviewReloadKey] = useState(0)
   const activeFiltersCount = useMemo(() => {
     return countClientListFilters(filters)
   }, [filters])
@@ -238,6 +243,9 @@ export function useClientsListState({
 
   useEffect(() => {
     if (!selectedClientId || previewCache[selectedClientId]) {
+      if (!selectedClientId) {
+        setPreviewError(null)
+      }
       return
     }
 
@@ -275,7 +283,7 @@ export function useClientsListState({
     void loadPreview()
 
     return () => controller.abort()
-  }, [previewCache, selectedClientId])
+  }, [previewCache, previewReloadKey, selectedClientId])
 
   const returnSnapshot = useMemo(
     () =>
@@ -289,6 +297,7 @@ export function useClientsListState({
           focusTarget: selectedClientId ? 'selected-client' : 'results-region',
           originEntryKey,
           returnDepth: initialReturnSnapshot?.returnDepth ?? 0,
+          ui: { previewIntent },
         },
         { canSeeWithoutGroup: canSeeWithoutGroupQuickFilter },
       ),
@@ -299,6 +308,7 @@ export function useClientsListState({
       lastReturnScrollY,
       originEntryKey,
       page,
+      previewIntent,
       searchDraft,
       selectedClientId,
     ],
@@ -383,6 +393,7 @@ export function useClientsListState({
         focusTarget: clientId ? 'selected-client' : 'results-region',
         originEntryKey,
         returnDepth: returnSnapshot.returnDepth,
+        ui: { previewIntent },
       },
       { canSeeWithoutGroup: canSeeWithoutGroupQuickFilter },
     )
@@ -394,6 +405,17 @@ export function useClientsListState({
     setSelectedClientId(clientId)
 
     return snapshot
+  }
+
+  function reloadPreview() {
+    if (selectedClientId) {
+      setPreviewCache((currentCache) => {
+        const nextCache = { ...currentCache }
+        delete nextCache[selectedClientId]
+        return nextCache
+      })
+    }
+    setPreviewReloadKey((currentKey) => currentKey + 1)
   }
 
   const completeReturnRestore = useCallback(() => {
@@ -427,6 +449,7 @@ export function useClientsListState({
     returnRestoreSnapshot,
     previewLoading,
     previewError,
+    previewIntent,
     isFirstRunEmpty,
     setSearchDraft,
     setSearchFocused,
@@ -441,5 +464,7 @@ export function useClientsListState({
     completeReturnRestore,
     setPage,
     setSelectedClientId,
+    setPreviewIntent,
+    reloadPreview,
   }
 }

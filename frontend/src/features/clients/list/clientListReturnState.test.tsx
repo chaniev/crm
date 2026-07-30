@@ -79,7 +79,9 @@ describe('client-list return-state helpers', () => {
       status: 'Archived',
       groupId: 'group-42',
     })
-    expect((serialized as { ui: unknown }).ui).toEqual({})
+    expect((serialized as { ui: unknown }).ui).toEqual({
+      previewIntent: 'expanded',
+    })
     expect(serialized).toEqual(
       expect.objectContaining({
         version: 1,
@@ -139,6 +141,54 @@ describe('client-list return-state helpers', () => {
 
     expect((dropped as Record<string, unknown>).crmClientListReturnState).toBeUndefined()
     expect(dropped).toEqual(expect.objectContaining({ randomToken: 'keep-me' }))
+  })
+
+  test('round-trips sanitized preview intent in the typed ui namespace', () => {
+    const collapsed = createClientListReturnSnapshot(
+      {
+        filters: createDefaultClientListFilters(),
+        searchDraft: '',
+        page: 1,
+        selectedClientId: 'client-1',
+        scrollY: 0,
+        originEntryKey: 'clients:preview-intent',
+        ui: { previewIntent: 'collapsed' },
+      },
+      { canSeeWithoutGroup: true },
+    )
+
+    const routeState = getClientListReturnHistoryStateForRoute(
+      {},
+      { kind: 'clientDetails', clientId: 'client-1' },
+      collapsed,
+    )
+    const restored = readClientListReturnSnapshot(routeState, {
+      canSeeWithoutGroup: true,
+    })
+
+    expect(restored?.ui.previewIntent).toBe('collapsed')
+
+    const malformed = readClientListReturnSnapshot(
+      {
+        crmClientListReturnState: {
+          version: 1,
+          filters: createDefaultClientListFilters(),
+          searchDraft: '',
+          page: 1,
+          selectedClientId: 'client-1',
+          anchorClientId: 'client-1',
+          scrollY: 0,
+          focusTarget: 'selected-client',
+          originEntryKey: 'clients:legacy',
+          returnDepth: 1,
+          ui: { previewIntent: 'sideways', responsiveMode: 'split' },
+        },
+      },
+      { canSeeWithoutGroup: true },
+    )
+
+    expect(malformed?.ui.previewIntent).toBe('expanded')
+    expect(JSON.stringify(malformed)).not.toMatch(/responsiveMode|split/)
   })
 
   test('carries the namespace only across the exact list/preview/detail route matrix', () => {

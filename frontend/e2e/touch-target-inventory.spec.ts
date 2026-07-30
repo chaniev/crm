@@ -251,10 +251,6 @@ const ROUTE_CASES: RouteWithState[] = [
     state: 'preview-open',
     controls: [
       {
-        label: 'Открыть',
-        locator: (page) => page.getByRole('button', { name: /^Открыть$/ }).first(),
-      },
-      {
         label: 'Открыть карточку',
         locator: (page) => page.getByRole('button', { name: 'Открыть карточку' }).first(),
       },
@@ -460,16 +456,7 @@ for (const viewport of VIEWPORT_MATRIX) {
           }
 
           if (await hasHorizontalScroll(page)) {
-            const allowlistMatch = findAllowlistMatch(measurement.entry)
-
-            if (
-              route.state === 'preview-open' &&
-              allowlistMatch?.ownerTask === 'TASK-089'
-            ) {
-              measurement.entry.exception ??= allowlistMatch
-            } else {
-              violations.push(`${viewport.label} ${route.path} has horizontal page overflow`)
-            }
+            violations.push(`${viewport.label} ${route.path} has horizontal page overflow`)
           }
         }
 
