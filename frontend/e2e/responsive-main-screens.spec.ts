@@ -859,7 +859,7 @@ async function captureAlternateThemeSnapshots(page: Page) {
     if (setup === 'client-preview') {
       await page
         .getByRole('button', {
-          name: 'Выбрать клиента Александра Константинопольская-Северная',
+          name: /Открыть клиента Александра Константинопольская-Северная/,
         })
         .click()
       snapshotRoot = page.getByTestId('client-preview-panel')

@@ -24,13 +24,13 @@ import {
 import { clientListPageSizeOptions } from './clientListFilters'
 import {
   buildClientRowViewModel,
-  type ClientNextActionViewModel,
-  type ClientRowViewModel,
+  buildClientCompactViewModel,
 } from './clientListViewModel'
 import type { ClientsListState } from './useClientsListState'
 
 type ClientsResultsProps = {
   canManage: boolean
+  currentUserBranchId: string | null
   state: ClientsListState
   onCreate: () => void
   onOpen: (clientId: string) => void
@@ -39,6 +39,7 @@ type ClientsResultsProps = {
 
 export function ClientsResults({
   canManage,
+  currentUserBranchId,
   state,
   onCreate,
   onOpen,
@@ -103,10 +104,17 @@ export function ClientsResults({
     state.setSelectedClientId(clientId)
   }
 
+  const showBranchIdentity = currentUserBranchId === null
+
   if (state.loading) {
     return (
-      <Stack data-testid="clients-list" gap="xs">
-        <Skeleton rows={7} />
+      <Stack data-testid="clients-list" gap={isCompactLayout ? 8 : 'xs'}>
+        <Skeleton
+          className="clients-v7-row-skeleton"
+          gap={isCompactLayout ? 8 : 'sm'}
+          rowHeight={isCompactLayout ? 96 : 72}
+          rows={7}
+        />
       </Stack>
     )
   }
@@ -130,27 +138,27 @@ export function ClientsResults({
   }
 
   if (state.clients.length === 0) {
+    const hasSearchQuery = Boolean(state.filters.query.trim() || state.searchDraft.trim())
+    const hasAdvancedFilters = state.activeAdvancedFiltersCount > 0
+    const recoveryActions = buildEmptyRecoveryActions({
+      canManage,
+      hasAdvancedFilters,
+      hasSearchQuery,
+      isFirstRunEmpty: state.isFirstRunEmpty,
+      onClearSearch: state.clearSearchQuery,
+      onCreate,
+      onResetAdvancedFilters: state.resetAdvancedFilters,
+    })
+
     return (
       <EmptyState
-        action={
-          state.isFirstRunEmpty && canManage ? (
-            <Button data-client-return-recovery="true" onClick={onCreate}>
-              Новый клиент
-            </Button>
-          ) : (
-            <Button
-              data-client-return-recovery="true"
-              onClick={state.resetFilters}
-              variant="light"
-            >
-              Сбросить фильтры
-            </Button>
-          )
-        }
+        action={recoveryActions}
         description={
           state.isFirstRunEmpty
-            ? 'Создайте первую карточку клиента.'
-            : 'Попробуйте изменить поиск или сбросить фильтры.'
+            ? canManage
+              ? 'Создайте первую карточку клиента.'
+              : 'Клиентов пока нет.'
+            : resolveEmptyDescription(hasSearchQuery, hasAdvancedFilters)
         }
         icon={<IconUsers size={24} />}
         title={state.isFirstRunEmpty ? 'Клиентов пока нет' : 'Клиенты не найдены'}
@@ -159,7 +167,7 @@ export function ClientsResults({
   }
 
   return (
-    <Stack data-testid="clients-list" gap="sm">
+    <Stack data-testid="clients-list" gap={isCompactLayout ? 8 : 'sm'}>
       <div className="clients-v7-table-header" aria-hidden="true">
         <Text size="xs">Клиент</Text>
         <Text size="xs">Статус и абонемент</Text>
@@ -170,16 +178,25 @@ export function ClientsResults({
 
       {state.clients.map((client) => {
         const row = buildClientRowViewModel(client)
+        const compactCard = buildClientCompactViewModel(client, {
+          canSeePhone: canManage,
+          showBranchIdentity,
+        })
         const selected = state.selectedClientId === client.id
-        const mobileStatus = resolveMobileStatusBadge(row)
-        const mobileAction = resolveMobileAction(row)
 
         return (
           <Paper
-            aria-label={`Выбрать клиента ${client.fullName}`}
+            aria-label={isCompactLayout
+              ? compactCard.accessibleName
+              : `Выбрать клиента ${client.fullName}`}
             aria-current={selected ? 'true' : undefined}
             className="clients-v7-row"
+            data-client-branch-visible={
+              isCompactLayout && compactCard.branchLabel ? 'true' : undefined
+            }
             data-client-row-id={client.id}
+            data-client-search-card={isCompactLayout ? 'true' : undefined}
+            data-client-search-mode={state.searchMode}
             data-selected={selected || undefined}
             data-testid={`client-card-${client.id}`}
             key={client.id}
@@ -198,59 +215,48 @@ export function ClientsResults({
               <>
                 <Avatar
                   className="clients-v7-mobile-card__avatar"
-                  name={client.fullName}
+                  name={compactCard.fullName}
                   radius="xl"
-                  size="lg"
-                  src={row.photoUrl}
+                  size={36}
+                  src={compactCard.photoUrl}
                 />
                 <div className="clients-v7-mobile-card__main">
                   <Text className="clients-v7-row__primary" fw={800}>
-                    {client.fullName}
+                    {compactCard.fullName}
                   </Text>
-                  {canManage ? (
-                    <Text c="dimmed" className="clients-v7-row__secondary" size="sm">
-                      {client.phone || 'Телефон не указан'}
-                    </Text>
-                  ) : null}
+                  <div className="clients-v7-mobile-card__meta">
+                    {compactCard.phoneLabel ? (
+                      <Text
+                        c="dimmed"
+                        className="clients-v7-row__secondary clients-v7-mobile-card__phone"
+                        size="sm"
+                      >
+                        {compactCard.phoneLabel}
+                      </Text>
+                    ) : null}
+                    {compactCard.branchLabel ? (
+                      <Text
+                        c="dimmed"
+                        className="clients-v7-row__secondary clients-v7-mobile-card__branch"
+                        size="sm"
+                      >
+                        {compactCard.branchLabel}
+                      </Text>
+                    ) : null}
+                  </div>
                   <Badge
                     className="clients-v7-mobile-card__status"
-                    color={mobileStatus.color}
+                    color={compactCard.nextAction.tone}
                     variant="light"
                   >
-                    {mobileStatus.label}
+                    {compactCard.nextAction.label}
                   </Badge>
                 </div>
-                <div className="clients-v7-mobile-card__action">
-                  {mobileAction ? (
-                    <>
-                      <Text
-                        className="clients-v7-mobile-card__action-title"
-                        data-tone={mobileAction.tone}
-                        size="xs"
-                      >
-                        {mobileAction.label}
-                      </Text>
-                      <Text className="clients-v7-mobile-card__action-meta" size="sm">
-                        {mobileAction.description}
-                      </Text>
-                    </>
-                  ) : (
-                    <Text
-                      aria-hidden="true"
-                      className="clients-v7-mobile-card__empty-action"
-                      size="lg"
-                    >
-                      -
-                    </Text>
-                  )}
-                </div>
-                {mobileAction ? (
-                  <IconChevronRight
-                    aria-hidden="true"
-                    className="clients-v7-mobile-card__chevron"
-                    size={18}
-                  />
-                ) : null}
+                <IconChevronRight
+                  aria-hidden="true"
+                  className="clients-v7-mobile-card__chevron"
+                  size={20}
+                />
               </>
             ) : (
               <>
@@ -361,6 +367,85 @@ export function ClientsResults({
       )}
     </Stack>
   )
+}
+
+function buildEmptyRecoveryActions({
+  canManage,
+  hasAdvancedFilters,
+  hasSearchQuery,
+  isFirstRunEmpty,
+  onClearSearch,
+  onCreate,
+  onResetAdvancedFilters,
+}: {
+  canManage: boolean
+  hasAdvancedFilters: boolean
+  hasSearchQuery: boolean
+  isFirstRunEmpty: boolean
+  onClearSearch: () => void
+  onCreate: () => void
+  onResetAdvancedFilters: () => void
+}) {
+  if (isFirstRunEmpty && canManage) {
+    return (
+      <Button data-client-return-recovery="true" onClick={onCreate}>
+        Новый клиент
+      </Button>
+    )
+  }
+
+  const actions = []
+
+  if (hasSearchQuery) {
+    actions.push(
+      <Button
+        data-client-return-recovery="true"
+        key="clear-search"
+        onClick={onClearSearch}
+        variant="light"
+      >
+        Очистить поиск
+      </Button>,
+    )
+  }
+
+  if (hasAdvancedFilters) {
+    actions.push(
+      <Button
+        data-client-return-recovery={hasSearchQuery ? undefined : 'true'}
+        key="reset-filters"
+        onClick={onResetAdvancedFilters}
+        variant="light"
+      >
+        Сбросить фильтры
+      </Button>,
+    )
+  }
+
+  if (actions.length === 0) {
+    return null
+  }
+
+  return (
+    <Group gap="xs" wrap="wrap">
+      {actions}
+    </Group>
+  )
+}
+
+function resolveEmptyDescription(
+  hasSearchQuery: boolean,
+  hasAdvancedFilters: boolean,
+) {
+  if (hasSearchQuery && hasAdvancedFilters) {
+    return 'Можно очистить поиск или сбросить расширенные фильтры отдельно.'
+  }
+
+  if (hasSearchQuery) {
+    return 'Попробуйте другой запрос или очистите поиск.'
+  }
+
+  return 'Попробуйте изменить или сбросить расширенные фильтры.'
 }
 
 function ClientsPageSummary({ state }: { state: ClientsListState }) {
@@ -477,62 +562,6 @@ function getMobilePaginationItems(currentPage: number, totalPages: number | null
     'ellipsis',
     totalPages,
   ] as Array<number | 'ellipsis'>
-}
-
-function resolveMobileStatusBadge(row: ClientRowViewModel) {
-  if (row.client.status !== 'Active') {
-    return { color: 'red', label: row.statusLabel }
-  }
-
-  if (row.nextAction.iconKey === 'group') {
-    return { color: 'blue', label: 'Без группы' }
-  }
-
-  return { color: 'teal', label: row.statusLabel }
-}
-
-function resolveMobileAction(row: ClientRowViewModel) {
-  if (isPlanAction(row.nextAction)) {
-    return null
-  }
-
-  if (
-    row.nextAction.daysUntilExpiration !== null &&
-    row.nextAction.daysUntilExpiration >= 0
-  ) {
-    const daysLabel = row.nextAction.daysUntilExpiration === 0
-      ? 'сегодня'
-      : `${row.nextAction.daysUntilExpiration} дн.`
-
-    return {
-      label: 'Скоро закончится',
-      description: daysLabel,
-      tone: 'orange',
-    }
-  }
-
-  if (
-    row.nextAction.iconKey === 'membership' &&
-    row.membershipLabel === 'Без абонемента'
-  ) {
-    return {
-      label: 'Нужно сделать',
-      description: 'Без абонемента',
-      tone: 'red',
-    }
-  }
-
-  return {
-    label: row.nextAction.label,
-    description: row.nextAction.description,
-    tone: row.nextAction.tone,
-  }
-}
-
-function isPlanAction(action: ClientNextActionViewModel) {
-  return action.tone === 'gray' ||
-    action.label === 'Планово' ||
-    action.label === 'Плановое сопровождение'
 }
 
 function getClientRowElements() {

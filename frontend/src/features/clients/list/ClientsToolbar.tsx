@@ -22,7 +22,6 @@ import {
 } from '../../shared/ux'
 import {
   clientListPageSizeOptions,
-  createDefaultClientListFilters,
   type ClientStatusFilter,
 } from './clientListFilters'
 import type { ClientsListState } from './useClientsListState'
@@ -109,7 +108,7 @@ export function ClientsToolbar({
   const visibleQuickFilters = quickFilters.filter(
     (filter) => filter.key !== 'withoutGroup' || canSeeWithoutGroup,
   )
-  const advancedFilterCount = countAdvancedClientFilters(state)
+  const advancedFilterCount = state.activeAdvancedFiltersCount
   const activeAdvancedFilters = buildActiveAdvancedFilters(
     state,
     visibleQuickFilters,
@@ -211,26 +210,9 @@ export function ClientsToolbar({
     },
   ] satisfies CompactFilterItem[]
 
-  function clearSearchQuery() {
-    state.setSearchDraft('')
-    state.updateFilters({ query: '' })
-  }
-
-  function resetAdvancedFilters() {
-    const defaults = createDefaultClientListFilters()
-
-    state.updateFilters({
-      groupId: defaults.groupId,
-      status: defaults.status,
-      membershipExpiresFrom: defaults.membershipExpiresFrom,
-      membershipExpiresTo: defaults.membershipExpiresTo,
-      withoutPhoto: defaults.withoutPhoto,
-      withoutMembership: defaults.withoutMembership,
-      expiringSoon: defaults.expiringSoon,
-      withoutGroup: defaults.withoutGroup,
-      trial: defaults.trial,
-      pageSize: defaults.pageSize,
-    })
+  function handleSearchBlur() {
+    state.setSearchFocused(false)
+    state.applySearchNow()
   }
 
   return (
@@ -242,7 +224,8 @@ export function ClientsToolbar({
         accessibleLabel={canManage ? 'Поиск по имени или телефону' : 'Поиск по имени'}
         activeFilterCount={advancedFilterCount}
         className="clients-v7-locator"
-        disabled={state.loading}
+        data-client-search-mode={state.searchMode}
+        data-loading={state.loading || undefined}
         frequentActions={(
           <IconButton
             className="clients-v7-refresh-button"
@@ -254,7 +237,9 @@ export function ClientsToolbar({
           />
         )}
         onChange={state.setSearchDraft}
-        onClear={clearSearchQuery}
+        onClear={state.clearSearchQuery}
+        onInputBlur={handleSearchBlur}
+        onInputFocus={() => state.setSearchFocused(true)}
         onOpenFilters={() => setFiltersOpened(true)}
         placeholder={canManage ? 'Имя или телефон' : 'Имя клиента'}
         primaryAction={canManage ? (
@@ -274,7 +259,7 @@ export function ClientsToolbar({
 
       <ActiveFiltersBar
         filters={activeAdvancedFilters}
-        onReset={resetAdvancedFilters}
+        onReset={state.resetAdvancedFilters}
         resetLabel="Сбросить фильтры"
       />
 
@@ -317,7 +302,7 @@ export function ClientsToolbar({
           secondaryAction={(
             <Button
               leftSection={<IconFilterOff size={16} />}
-              onClick={resetAdvancedFilters}
+              onClick={state.resetAdvancedFilters}
               type="button"
               variant="secondary"
             >
@@ -328,22 +313,6 @@ export function ClientsToolbar({
       </Drawer>
     </div>
   )
-}
-
-function countAdvancedClientFilters(state: ClientsListState) {
-  const filters = state.filters
-
-  return [
-    Boolean(filters.groupId),
-    filters.status !== 'Active',
-    Boolean(filters.membershipExpiresFrom),
-    Boolean(filters.membershipExpiresTo),
-    filters.withoutPhoto,
-    filters.withoutMembership,
-    filters.expiringSoon,
-    filters.withoutGroup,
-    filters.trial,
-  ].filter(Boolean).length
 }
 
 function buildActiveAdvancedFilters(

@@ -9,16 +9,19 @@ import {
 } from '../../../lib/api'
 import {
   createDefaultClientListFilters,
+  countAdvancedClientListFilters,
   countClientListFilters,
   hasClientListFilters,
   mergeClientGroupFilterOptions,
   mergeStaticGroupFilterOptions,
   normalizeClientListFilters,
+  resetAdvancedClientListFilters,
   toClientListQueryParams,
   type ClientGroupFilterOption,
   type ClientListFilterValues,
   type ClientStatusFilter,
 } from './clientListFilters'
+import { deriveClientSearchMode } from './clientListSearchMode'
 import {
   createClientListEntryKey,
   createClientListReturnSnapshot,
@@ -60,6 +63,7 @@ export function useClientsListState({
   const [searchDraft, setSearchDraft] = useState(
     () => initialReturnSnapshot?.searchDraft ?? '',
   )
+  const [searchFocused, setSearchFocused] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
@@ -79,6 +83,18 @@ export function useClientsListState({
   const activeFiltersCount = useMemo(() => {
     return countClientListFilters(filters)
   }, [filters])
+  const activeAdvancedFiltersCount = useMemo(() => {
+    return countAdvancedClientListFilters(filters)
+  }, [filters])
+  const searchMode = useMemo(
+    () =>
+      deriveClientSearchMode({
+        searchFocused,
+        searchDraft,
+        query: filters.query,
+      }),
+    [filters.query, searchDraft, searchFocused],
+  )
   const hasAppliedFilters = useMemo(
     () => hasClientListFilters(filters),
     [filters],
@@ -95,6 +111,7 @@ export function useClientsListState({
     : null
   const isFirstRunEmpty =
     !hasAppliedFilters &&
+    !searchDraft.trim() &&
     clients.length === 0 &&
     (activeCount ?? 0) + (archivedCount ?? 0) === 0
 
@@ -332,6 +349,18 @@ export function useClientsListState({
     setPage(1)
   }
 
+  function clearSearchQuery() {
+    setSearchDraft('')
+    updateFilters({ query: '' })
+  }
+
+  function resetAdvancedFilters() {
+    setFilters((currentFilters) =>
+      resetAdvancedClientListFilters(currentFilters),
+    )
+    setPage(1)
+  }
+
   function reload() {
     setReloadKey((currentKey) => currentKey + 1)
   }
@@ -388,6 +417,9 @@ export function useClientsListState({
     hasNextPage,
     hasAppliedFilters,
     activeFiltersCount,
+    activeAdvancedFiltersCount,
+    searchFocused,
+    searchMode,
     availableGroupOptions,
     selectedClientId,
     selectedPreview,
@@ -397,10 +429,13 @@ export function useClientsListState({
     previewError,
     isFirstRunEmpty,
     setSearchDraft,
+    setSearchFocused,
     updateFilters,
     applySearchNow,
     setStatus,
     resetFilters,
+    clearSearchQuery,
+    resetAdvancedFilters,
     reload,
     captureReturnSnapshot,
     completeReturnRestore,

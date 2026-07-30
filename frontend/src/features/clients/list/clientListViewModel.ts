@@ -40,6 +40,15 @@ export type ClientPreviewViewModel = {
   events: Array<{ label: string; value: string }>
 }
 
+export type ClientCompactViewModel = {
+  accessibleName: string
+  branchLabel: string | null
+  fullName: string
+  nextAction: ClientNextActionViewModel
+  phoneLabel: string | null
+  photoUrl: string | null
+}
+
 export const statusLabelMap = resources.clients.statuses satisfies Record<
   ClientStatus,
   string
@@ -104,6 +113,36 @@ export function buildClientPreviewViewModel(
   }
 }
 
+export function buildClientCompactViewModel(
+  client: ClientListItem,
+  {
+    canSeePhone,
+    showBranchIdentity,
+  }: {
+    canSeePhone: boolean
+    showBranchIdentity: boolean
+  },
+): ClientCompactViewModel {
+  const phoneLabel = canSeePhone ? client.phone || 'Телефон не указан' : null
+  const branchLabel = showBranchIdentity ? client.branchName || 'Филиал не указан' : null
+  const nextAction = resolveCompactNextAction(client)
+  const accessibleParts = [
+    client.fullName,
+    phoneLabel,
+    branchLabel,
+    nextAction.label,
+  ].filter(Boolean)
+
+  return {
+    accessibleName: `Открыть клиента ${accessibleParts.join(', ')}`,
+    branchLabel,
+    fullName: client.fullName,
+    nextAction,
+    phoneLabel,
+    photoUrl: buildClientListPhotoUrl(client),
+  }
+}
+
 export function resolveHeaderCountsLabel(
   totalCount: number | null,
   activeCount: number | null,
@@ -147,6 +186,101 @@ export function resolveNextAction(client: ClientListItem): ClientNextActionViewM
     iconKey: '',
     daysUntilExpiration: null,
   }
+}
+
+function resolveCompactNextAction(client: ClientListItem): ClientNextActionViewModel {
+  if (client.status === 'Archived') {
+    return {
+      label: 'В архиве',
+      tone: 'gray',
+      description: statusLabelMap.Archived,
+      iconKey: 'archive',
+      daysUntilExpiration: null,
+    }
+  }
+
+  const [hint] = client.actionHints
+
+  if (!hint || isNonMeaningfulCompactHint(hint)) {
+    return buildActiveCompactAction()
+  }
+
+  if (hint.daysUntilExpiration !== null && hint.daysUntilExpiration >= 0) {
+    return {
+      label: `До ${formatRelativeExpirationDate(hint.daysUntilExpiration)}`,
+      tone: hint.tone || 'orange',
+      description: hint.description,
+      iconKey: hint.iconKey,
+      daysUntilExpiration: hint.daysUntilExpiration,
+    }
+  }
+
+  if (hint.iconKey === 'group' || hint.title === 'Без группы') {
+    return {
+      label: 'Без группы',
+      tone: hint.tone || 'blue',
+      description: hint.description,
+      iconKey: hint.iconKey,
+      daysUntilExpiration: hint.daysUntilExpiration,
+    }
+  }
+
+  if (
+    hint.title === 'Без абонемента' ||
+    (
+      hint.iconKey === 'membership' &&
+      hint.title === 'Оформить абонемент' &&
+      hint.description === 'Нет текущего абонемента'
+    )
+  ) {
+    return {
+      label: 'Без абонемента',
+      tone: hint.tone || 'yellow',
+      description: hint.description,
+      iconKey: hint.iconKey,
+      daysUntilExpiration: hint.daysUntilExpiration,
+    }
+  }
+
+  return {
+    label: hint.title || 'Активен',
+    tone: hint.tone || 'gray',
+    description: hint.description,
+    iconKey: hint.iconKey,
+    daysUntilExpiration: hint.daysUntilExpiration,
+  }
+}
+
+function buildActiveCompactAction(): ClientNextActionViewModel {
+  return {
+    label: 'Активен',
+    tone: 'teal',
+    description: 'Нет подсказок от сервера',
+    iconKey: 'check',
+    daysUntilExpiration: null,
+  }
+}
+
+function isNonMeaningfulCompactHint(
+  hint: { iconKey: string; title: string; tone: string },
+) {
+  return (
+    hint.tone === 'gray' ||
+    hint.iconKey === 'check' ||
+    hint.title === 'Планово' ||
+    hint.title === 'Плановое сопровождение'
+  )
+}
+
+function formatRelativeExpirationDate(daysUntilExpiration: number) {
+  const date = new Date()
+  date.setHours(12, 0, 0, 0)
+  date.setDate(date.getDate() + daysUntilExpiration)
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+  }).format(date)
 }
 
 export function formatDateValue(value?: string | null) {

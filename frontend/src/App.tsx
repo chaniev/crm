@@ -1224,6 +1224,7 @@ function RouteViewport({
       <ClientsListScreen
         canManage={user.permissions.canManageClients}
         canSeeWithoutGroupQuickFilter={user.permissions.canManageClients}
+        currentUserBranchId={user.branchId}
         initialReturnSnapshot={clientListReturnSnapshot}
         key={`client-preview:${route.clientId}`}
         onCreate={onCreateClient}
@@ -1289,6 +1290,7 @@ function RouteViewport({
       <ClientsListScreen
         canManage={user.permissions.canManageClients}
         canSeeWithoutGroupQuickFilter={user.permissions.canManageClients}
+        currentUserBranchId={user.branchId}
         initialReturnSnapshot={clientListReturnSnapshot}
         key="clients-list"
         onCreate={onCreateClient}

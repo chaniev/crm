@@ -355,6 +355,173 @@ test('iPhone clients route keeps core controls touch-safe and readable', async (
   await expect(createButton).toBeInViewport()
 })
 
+test('search focus hides create/refresh in compact mobile list and cards are 96px high', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const compactClients = Array.from({ length: 7 }, (_, index) => ({
+    ...CLIENT_LIST_ITEM,
+    id: `compact-client-${index + 1}`,
+    fullName: `Александр Петрович ${index + 1}`,
+  }))
+
+  await page.setViewportSize(target)
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-07-25',
+        maxTrainingDate: '2026-07-25',
+      })
+      return
+    }
+
+    if (pathname === '/api/groups' && method === 'GET') {
+      await fulfillJson(route, CLIENT_LIST_GROUPS_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/clients' && method === 'GET') {
+      await fulfillJson(route, {
+        items: compactClients,
+        totalCount: compactClients.length,
+        activeCount: compactClients.length,
+        archivedCount: 0,
+        skip: 0,
+        take: 20,
+        page: 1,
+        pageSize: 20,
+        hasNextPage: false,
+        quickFilterCounts: {
+          withoutMembership: 0,
+          expiringSoon: 0,
+          withoutGroup: 0,
+          trial: 0,
+        },
+      })
+      return
+    }
+
+    if (/^\/api\/clients\/compact-client-\d+$/.test(pathname) && method === 'GET') {
+      const client = compactClients.find(
+        (item) => `/api/clients/${item.id}` === pathname,
+      )
+      await fulfillJson(route, client ?? compactClients[0])
+      return
+    }
+
+    if (pathname === '/api/groups/types' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname.startsWith('/api/clients/') && method === 'GET') {
+      await route.fulfill({
+        status: 404,
+        contentType: 'application/json; charset=utf-8',
+        body: JSON.stringify({ message: 'Клиент не найден' }),
+      })
+      return
+    }
+
+    await route.continue()
+  })
+
+  await page.goto('/clients')
+  await expect(page.getByTestId('clients-screen')).toBeVisible()
+
+  const searchField = page.getByRole('textbox', {
+    name: 'Поиск по имени или телефону',
+  })
+  const refreshButton = page.getByRole('button', { name: 'Обновить список' })
+  const createButton = page.getByRole('button', { name: 'Новый клиент' })
+
+  await expect(refreshButton).toBeVisible()
+  await expect(createButton).toBeVisible()
+
+  await searchField.click()
+  await expect(refreshButton).toBeHidden()
+  await expect(createButton).toBeHidden()
+
+  await searchField.fill('А')
+  await expect(refreshButton).toBeHidden()
+  await searchField.fill('')
+  await searchField.blur()
+  await expect(refreshButton).toBeVisible()
+  await expect(createButton).toBeVisible()
+
+  const firstCard = page.getByTestId('client-card-compact-client-1')
+  const secondCard = page.getByTestId('client-card-compact-client-2')
+  await expect(firstCard).toBeVisible()
+  await expect(secondCard).toBeVisible()
+
+  const [firstBox, secondBox] = await Promise.all([
+    firstCard.boundingBox(),
+    secondCard.boundingBox(),
+  ])
+  expect(firstBox).not.toBeNull()
+  expect(secondBox).not.toBeNull()
+  expect(Math.round(firstBox!.height)).toBe(96)
+  expect(Math.round(secondBox!.y - firstBox!.y)).toBe(104)
+
+  const geometryTargets = [
+    { viewport: { width: 360, height: 780 }, locatorMinWidth: 156, visibleCards: 5 },
+    { viewport: { width: 390, height: 844 }, locatorMinWidth: 176, visibleCards: 5 },
+    { viewport: { width: 420, height: 912 }, locatorMinWidth: 200, visibleCards: 6 },
+    { viewport: { width: 440, height: 956 }, locatorMinWidth: 216, visibleCards: 6 },
+  ]
+
+  for (const geometryTarget of geometryTargets) {
+    await page.setViewportSize(geometryTarget.viewport)
+    await searchField.click()
+
+    const locatorWidth = await page
+      .locator('.entity-locator-bar__input')
+      .evaluate((element) => element.getBoundingClientRect().width)
+    expect(locatorWidth).toBeGreaterThanOrEqual(geometryTarget.locatorMinWidth)
+
+    const visibleCardCount = await page
+      .locator('[data-client-search-card="true"]')
+      .evaluateAll((cards) => {
+        const navigationTop =
+          document
+            .querySelector('[data-testid="mobile-bottom-navigation"]')
+            ?.getBoundingClientRect().top ?? window.innerHeight
+
+        return cards.filter((card) => {
+          const rect = card.getBoundingClientRect()
+          return rect.top >= 0 && rect.bottom <= navigationTop - 8
+        }).length
+      })
+
+    expect(visibleCardCount).toBeGreaterThanOrEqual(geometryTarget.visibleCards)
+  }
+})
+
 test('iPhone return from preview keeps client list filters and page', async ({
   page,
 }, testInfo) => {

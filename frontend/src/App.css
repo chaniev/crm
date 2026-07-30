@@ -841,6 +841,13 @@
   pointer-events: none;
 }
 
+@media (max-width: 62rem) {
+  .clients-v7-locator[data-client-search-mode='search-focused']
+    :where(.clients-v7-refresh-button, .clients-v7-create-button) {
+    display: none;
+  }
+}
+
 @media (max-width: 48rem) {
   .entity-locator-bar__filter {
     width: 44px;
@@ -2781,7 +2788,7 @@
 }
 
 .clients-v7-row-skeleton {
-  height: 4.5rem;
+  height: auto;
 }
 
 .clients-v7-preview {
@@ -3582,14 +3589,16 @@
 
   .clients-v7-row {
     min-width: 0;
-    min-height: 8.1rem;
-    grid-template-columns: 3.1rem minmax(0, 1fr) 5.2rem 0.7rem;
-    gap: 0.5rem;
+    height: 96px;
+    min-height: 96px;
+    grid-template-columns: 36px minmax(0, 1fr) 20px;
+    gap: 8px;
     align-items: center;
-    padding: 0.85rem;
-    border-radius: 0.9rem;
+    padding: 10px 12px;
+    border-radius: 0.5rem;
     background: var(--crm-surface-card-alpha-98);
     box-shadow: 0 14px 34px var(--crm-brand-alpha-08);
+    overflow: hidden;
   }
 
   .clients-v7-row[data-selected] {
@@ -3601,69 +3610,64 @@
 
   .clients-v7-mobile-card__avatar {
     align-self: center;
-    width: 3.1rem;
-    height: 3.1rem;
+    width: 36px;
+    height: 36px;
     color: var(--crm-text-heading);
     background: var(--crm-surface-neutral-overlay);
   }
 
   .clients-v7-mobile-card__main {
     min-width: 0;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .clients-v7-mobile-card__main .clients-v7-row__primary {
     font-size: 1rem;
+    line-height: 1.18;
+    white-space: normal;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .clients-v7-mobile-card__meta {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: nowrap;
+    margin-top: 0.1rem;
+  }
+
+  .clients-v7-mobile-card__meta .clients-v7-row__secondary {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 0.8rem;
+    line-height: 1.15;
+  }
+
+  .clients-v7-mobile-card__phone {
+    flex: 0 1 auto;
+  }
+
+  .clients-v7-mobile-card__branch {
+    flex: 1 1 auto;
   }
 
   .clients-v7-mobile-card__status {
-    margin-top: 0.42rem;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 0.28rem;
     border-radius: var(--radius-pill);
     font-weight: 800;
   }
 
-  .clients-v7-mobile-card__action {
-    min-width: 0;
-    width: 100%;
-    justify-self: end;
-    text-align: right;
-  }
-
-  .clients-v7-mobile-card__action-title {
-    font-size: 0.72rem;
-    font-weight: 850;
-    line-height: 1.2;
-  }
-
-  .clients-v7-mobile-card__action-title[data-tone='red'],
-  .clients-v7-mobile-card__action-title[data-tone='orange'],
-  .clients-v7-mobile-card__action-title[data-tone='yellow'] {
-    color: var(--crm-auth-action-hover);
-  }
-
-  .clients-v7-mobile-card__action-title[data-tone='blue'] {
-    color: var(--crm-status-info);
-  }
-
-  .clients-v7-mobile-card__action-title[data-tone='gray'] {
-    color: var(--crm-text-secondary);
-  }
-
-  .clients-v7-mobile-card__action-meta {
-    margin-top: 0.35rem;
-    color: var(--crm-text-heading);
-    font-size: 0.78rem;
-    font-weight: 650;
-    line-height: 1.2;
-  }
-
-  .clients-v7-mobile-card__empty-action,
   .clients-v7-mobile-card__chevron {
     color: var(--crm-action-primary-active);
-  }
-
-  .clients-v7-mobile-card__empty-action {
-    min-width: 1rem;
-    text-align: right;
   }
 
   .clients-v7-mobile-card__chevron {

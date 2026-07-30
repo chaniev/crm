@@ -9,6 +9,7 @@ import { useClientsListState } from './useClientsListState'
 type ClientsListScreenProps = {
   canManage: boolean
   canSeeWithoutGroupQuickFilter: boolean
+  currentUserBranchId: string | null
   initialReturnSnapshot?: ClientListReturnSnapshot | null
   previewClientId?: string | null
   onCreate: () => void
@@ -20,6 +21,7 @@ type ClientsListScreenProps = {
 export function ClientsListScreen({
   canManage,
   canSeeWithoutGroupQuickFilter,
+  currentUserBranchId,
   initialReturnSnapshot = null,
   previewClientId = null,
   onCreate,
@@ -72,6 +74,7 @@ export function ClientsListScreen({
         <div className="clients-v7-layout" id="clients-results">
           <ClientsResults
             canManage={canManage}
+            currentUserBranchId={currentUserBranchId}
             onCreate={onCreate}
             onOpen={openClient}
             onPreview={previewClient}

@@ -814,15 +814,33 @@ export function ErrorState({ title, message, action }: ErrorStateProps) {
   )
 }
 
-type SkeletonProps = {
+type SkeletonProps = ComponentPropsWithoutRef<typeof MantineSkeleton> & {
+  className?: string
+  gap?: MantineSpacing
+  rowHeight?: number
   rows?: number
 }
 
-export function Skeleton({ rows = 3 }: SkeletonProps) {
+export function Skeleton({
+  className,
+  gap = 'sm',
+  rowHeight = 72,
+  rows,
+  ...props
+}: SkeletonProps) {
+  if (rows === undefined && Object.keys(props).length > 0) {
+    return <MantineSkeleton className={className} radius="md" {...props} />
+  }
+
   return (
-    <Stack gap="sm">
-      {Array.from({ length: rows }, (_, index) => (
-        <MantineSkeleton className="skeleton-row" height={72} key={index} radius="md" />
+    <Stack className={className} gap={gap}>
+      {Array.from({ length: rows ?? 3 }, (_, index) => (
+        <MantineSkeleton
+          className="skeleton-row"
+          height={rowHeight}
+          key={index}
+          radius="md"
+        />
       ))}
     </Stack>
   )

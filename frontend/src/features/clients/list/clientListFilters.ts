@@ -79,7 +79,7 @@ export function hasClientListFilters(filters: ClientListFilterValues) {
 export function countClientListFilters(filters: ClientListFilterValues) {
   let count = 0
 
-  if (filters.query) {
+  if (filters.query.trim()) {
     count += 1
   }
 
@@ -120,6 +120,59 @@ export function countClientListFilters(filters: ClientListFilterValues) {
   }
 
   return count
+}
+
+export function countAdvancedClientListFilters(filters: ClientListFilterValues) {
+  let count = 0
+
+  if (filters.groupId) {
+    count += 1
+  }
+
+  if (filters.status !== 'Active') {
+    count += 1
+  }
+
+  if (filters.membershipExpiresFrom) {
+    count += 1
+  }
+
+  if (filters.membershipExpiresTo) {
+    count += 1
+  }
+
+  if (filters.withoutPhoto) {
+    count += 1
+  }
+
+  if (filters.withoutMembership) {
+    count += 1
+  }
+
+  if (filters.expiringSoon) {
+    count += 1
+  }
+
+  if (filters.withoutGroup) {
+    count += 1
+  }
+
+  if (filters.trial) {
+    count += 1
+  }
+
+  return count
+}
+
+export function resetAdvancedClientListFilters(
+  filters: ClientListFilterValues,
+): ClientListFilterValues {
+  const defaults = createDefaultClientListFilters()
+
+  return {
+    ...defaults,
+    query: filters.query,
+  }
 }
 
 export function toClientListQueryParams(

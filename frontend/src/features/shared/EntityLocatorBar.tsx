@@ -1,6 +1,6 @@
 import { Badge, TextInput } from '@mantine/core'
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react'
-import type { ComponentPropsWithoutRef, ReactNode } from 'react'
+import { useRef, type ComponentPropsWithoutRef, type ReactNode } from 'react'
 
 export type EntityLocatorBarProps = Omit<ComponentPropsWithoutRef<'div'>, 'onChange'> & {
   accessibleLabel: string
@@ -9,6 +9,8 @@ export type EntityLocatorBarProps = Omit<ComponentPropsWithoutRef<'div'>, 'onCha
   frequentActions?: ReactNode
   onChange: (value: string) => void
   onClear: () => void
+  onInputBlur?: () => void
+  onInputFocus?: () => void
   onOpenFilters: () => void
   placeholder: string
   primaryAction?: ReactNode
@@ -25,6 +27,8 @@ export function EntityLocatorBar({
   frequentActions,
   onChange,
   onClear,
+  onInputBlur,
+  onInputFocus,
   onOpenFilters,
   placeholder,
   primaryAction,
@@ -34,6 +38,12 @@ export function EntityLocatorBar({
   ...props
 }: EntityLocatorBarProps) {
   const hasActions = Boolean(primaryAction || frequentActions)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  function clearAndKeepSearchFocus() {
+    onClear()
+    inputRef.current?.focus()
+  }
 
   return (
     <div
@@ -54,14 +64,20 @@ export function EntityLocatorBar({
           disabled={disabled}
           id={`${resultsId}-locator`}
           leftSection={<IconSearch size={18} />}
+          onBlur={onInputBlur}
           onChange={(event) => onChange(event.currentTarget.value)}
+          onFocus={onInputFocus}
           placeholder={placeholder}
+          ref={inputRef}
           rightSection={value ? (
             <button
               aria-label="Сбросить поисковый запрос"
               className="entity-locator-bar__clear"
               disabled={disabled}
-              onClick={onClear}
+              onBlur={onInputBlur}
+              onClick={clearAndKeepSearchFocus}
+              onFocus={onInputFocus}
+              onMouseDown={(event) => event.preventDefault()}
               type="button"
             >
               <IconX size={16} />

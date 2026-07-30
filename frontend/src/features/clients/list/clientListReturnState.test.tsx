@@ -480,6 +480,48 @@ describe('useClientsListState with return-state snapshot', () => {
     })
     expect(getClientsMock.mock.calls.at(-1)?.[0]).toEqual(failedRequest)
   })
+
+  test('ignores a stale list response after newer filters have loaded', async () => {
+    const staleRequest = createDeferred<Awaited<ReturnType<typeof getClients>>>()
+    const currentRequest = createDeferred<Awaited<ReturnType<typeof getClients>>>()
+
+    getClientsMock
+      .mockImplementationOnce(() => staleRequest.promise)
+      .mockImplementationOnce(() => currentRequest.promise)
+
+    const result = renderHook(() =>
+      useClientsListState({ canSeeWithoutGroupQuickFilter: true }),
+    )
+
+    await waitFor(() => expect(getClientsMock).toHaveBeenCalledTimes(1))
+
+    act(() => {
+      result.result.current.updateFilters({ query: 'Новый запрос' })
+    })
+
+    await waitFor(() => expect(getClientsMock).toHaveBeenCalledTimes(2))
+
+    await act(async () => {
+      currentRequest.resolve(
+        buildClientsResponse([buildClientRow('client-current', 'Новый Клиент')]),
+      )
+    })
+
+    await waitFor(() => {
+      expect(result.result.current.loading).toBe(false)
+      expect(result.result.current.clients[0]?.id).toBe('client-current')
+    })
+
+    await act(async () => {
+      staleRequest.resolve(
+        buildClientsResponse([buildClientRow('client-stale', 'Старый Клиент')]),
+      )
+    })
+
+    expect(result.result.current.loading).toBe(false)
+    expect(result.result.current.error).toBeNull()
+    expect(result.result.current.clients[0]?.id).toBe('client-current')
+  })
 })
 
 async function captureState(options: ProbeOptions = {}) {
@@ -563,4 +605,13 @@ function snapshotToRequest(
     status,
     hasPhoto: snapshot.filters.withoutPhoto ? false : undefined,
   }
+}
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise
+  })
+
+  return { promise, resolve }
 }
