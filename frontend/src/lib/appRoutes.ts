@@ -12,6 +12,56 @@ export type AppRoute =
   | { kind: 'userCreate' }
   | { kind: 'userEdit'; userId: string }
 
+export type NotFoundRoute = {
+  kind: 'not-found'
+  path: string
+}
+
+export type ParsedRoute = AppRoute | NotFoundRoute
+
+export type RouteAccessReason = {
+  kind: 'section' | 'operation'
+  label: string
+}
+
+export type RouteRecoveryDestination = {
+  recoveryPath: string
+  recoveryLabel: string
+}
+
+export type RouteAccessAllowed = {
+  kind: 'allowed'
+  requestedPath: string
+  route: AppRoute
+  requestedDestinationLabel: string
+}
+
+export type RouteAccessRestricted = {
+  kind: 'restricted'
+  requestedPath: string
+  route: AppRoute
+  requestedDestinationLabel: string
+  reason: RouteAccessReason
+  recoveryPath: string
+  recoveryLabel: string
+}
+
+export type RouteAccessNotFound = {
+  kind: 'not-found'
+  requestedPath: string
+  recoveryPath: string
+  recoveryLabel: string
+}
+
+export type RouteAccessResolution =
+  | RouteAccessAllowed
+  | RouteAccessRestricted
+  | RouteAccessNotFound
+
+function assertNeverRoute(value: never): never {
+  throw new Error(`Unhandled app route: ${JSON.stringify(value)}`)
+}
+
 const PASSWORD_PATH = '/password'
 const CLIENT_CREATE_PATH = '/clients/new'
 const GROUP_CREATE_PATH = '/groups/new'
@@ -71,6 +121,10 @@ function isNavigationSectionAllowed(
   user: AuthenticatedUser,
   section: AppSection,
 ) {
+  if (section === 'Groups' && !user.permissions.canManageGroups) {
+    return false
+  }
+
   if (section === 'Users' && !user.permissions.canManageUsers) {
     return false
   }
@@ -115,6 +169,30 @@ export function normalizePathname(pathname: string) {
 
 export function getSectionPath(section: AppSection) {
   return APP_SECTION_PATHS[section]
+}
+
+function safeDecodePathComponent(value: string) {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
+function splitRequestedPath(pathname: string) {
+  const searchSeparatorIndex = pathname.indexOf('?')
+
+  if (searchSeparatorIndex === -1) {
+    return {
+      requestedPath: pathname,
+      routePathname: pathname,
+    }
+  }
+
+  return {
+    requestedPath: pathname,
+    routePathname: pathname.slice(0, searchSeparatorIndex),
+  }
 }
 
 export function getAccessibleNavigationSections(user: AuthenticatedUser) {
@@ -171,6 +249,32 @@ export function getMobileNavigationSections(
   }
 }
 
+function isRouteOperationRestrictedBySectionAccess(
+  user: AuthenticatedUser,
+  route: AppRoute,
+) {
+  if (isGroupManagementRoute(route) && !user.permissions.canManageGroups) {
+    return true
+  }
+
+  if (isClientWriteRoute(route) && !user.permissions.canManageClients) {
+    return true
+  }
+
+  if (isUsersRoute(route, null) && !user.permissions.canManageUsers) {
+    return true
+  }
+
+  return false
+}
+
+export function isSectionAllowed(
+  user: AuthenticatedUser,
+  section: AppSection,
+) {
+  return isNavigationSectionAllowed(user, section)
+}
+
 export function getRoutePath(route: AppRoute) {
   switch (route.kind) {
     case 'section':
@@ -194,64 +298,70 @@ export function getRoutePath(route: AppRoute) {
     case 'userEdit':
       return `/users/${encodeURIComponent(route.userId)}/edit`
   }
+
+  return assertNeverRoute(route)
 }
 
-export function parseRoute(pathname: string): AppRoute {
-  const normalizedPathname = normalizePathname(pathname)
+export function parseRoute(pathname: string): ParsedRoute {
+  const { requestedPath, routePathname } = splitRequestedPath(pathname)
+  const normalizedPathname = normalizePathname(routePathname)
+  const normalizedRequestedPath = splitRequestedPath(normalizedPathname).routePathname
 
-  if (normalizedPathname === PASSWORD_PATH) {
+  if (normalizedRequestedPath === PASSWORD_PATH) {
     return { kind: 'password' }
   }
 
-  if (normalizedPathname === CLIENT_CREATE_PATH) {
+  if (normalizedRequestedPath === CLIENT_CREATE_PATH) {
     return { kind: 'clientCreate' }
   }
 
-  if (normalizedPathname === GROUP_CREATE_PATH) {
+  if (normalizedRequestedPath === GROUP_CREATE_PATH) {
     return { kind: 'groupCreate' }
   }
 
-  if (normalizedPathname === USER_CREATE_PATH) {
+  if (normalizedRequestedPath === USER_CREATE_PATH) {
     return { kind: 'userCreate' }
   }
 
-  const clientEditMatch = normalizedPathname.match(CLIENT_EDIT_ROUTE_PATTERN)
+  const clientEditMatch = normalizedRequestedPath.match(CLIENT_EDIT_ROUTE_PATTERN)
   if (clientEditMatch) {
     return {
       kind: 'clientEdit',
-      clientId: decodeURIComponent(clientEditMatch[1]),
+      clientId: safeDecodePathComponent(clientEditMatch[1]),
     }
   }
 
-  const clientPreviewMatch = normalizedPathname.match(CLIENT_PREVIEW_ROUTE_PATTERN)
+  const clientPreviewMatch = normalizedRequestedPath.match(
+    CLIENT_PREVIEW_ROUTE_PATTERN,
+  )
   if (clientPreviewMatch) {
     return {
       kind: 'clientPreview',
-      clientId: decodeURIComponent(clientPreviewMatch[1]),
+      clientId: safeDecodePathComponent(clientPreviewMatch[1]),
     }
   }
 
-  const groupEditMatch = normalizedPathname.match(GROUP_EDIT_ROUTE_PATTERN)
+  const groupEditMatch = normalizedRequestedPath.match(GROUP_EDIT_ROUTE_PATTERN)
   if (groupEditMatch) {
     return {
       kind: 'groupEdit',
-      groupId: decodeURIComponent(groupEditMatch[1]),
+      groupId: safeDecodePathComponent(groupEditMatch[1]),
     }
   }
 
-  const userEditMatch = normalizedPathname.match(USER_EDIT_ROUTE_PATTERN)
+  const userEditMatch = normalizedRequestedPath.match(USER_EDIT_ROUTE_PATTERN)
   if (userEditMatch) {
     return {
       kind: 'userEdit',
-      userId: decodeURIComponent(userEditMatch[1]),
+      userId: safeDecodePathComponent(userEditMatch[1]),
     }
   }
 
-  const clientDetailsMatch = normalizedPathname.match(CLIENT_DETAILS_ROUTE_PATTERN)
+  const clientDetailsMatch = normalizedRequestedPath.match(CLIENT_DETAILS_ROUTE_PATTERN)
   if (clientDetailsMatch) {
     return {
       kind: 'clientDetails',
-      clientId: decodeURIComponent(clientDetailsMatch[1]),
+      clientId: safeDecodePathComponent(clientDetailsMatch[1]),
     }
   }
 
@@ -264,7 +374,183 @@ export function parseRoute(pathname: string): AppRoute {
     }
   }
 
-  return { kind: 'section', section: 'Home' }
+  return {
+    kind: 'not-found',
+    path: `${routePathname}${requestedPath.includes('?') ? requestedPath.slice(routePathname.length) : ''}`,
+  }
+}
+
+export function isRouteAllowedByPermission(user: AuthenticatedUser, route: AppRoute) {
+  if (route.kind === 'password') {
+    return true
+  }
+
+  const routeSection = getRouteSection(route)
+
+  if (!routeSection) {
+    return true
+  }
+
+  if (isUsersRoute(route, routeSection) && !user.permissions.canManageUsers) {
+    return false
+  }
+
+  if (routeSection === 'Audit' && !user.permissions.canViewAuditLog) {
+    return false
+  }
+
+  if (routeSection === 'Groups' && !user.permissions.canManageGroups) {
+    return false
+  }
+
+  if (routeSection === 'Finance') {
+    return (
+      user.permissions.canViewFinancialReports &&
+      user.allowedSections.includes('Finance')
+    )
+  }
+
+  if (routeSection === 'Settings') {
+    return user.permissions.canManageSettings && user.allowedSections.includes('Settings')
+  }
+
+  if (isRouteOperationRestrictedBySectionAccess(user, route)) {
+    return false
+  }
+
+  return user.allowedSections.includes(routeSection)
+}
+
+function getRouteAccessReason(route: AppRoute): RouteAccessReason {
+  switch (route.kind) {
+    case 'section':
+      return {
+        kind: 'section',
+        label: APP_SECTION_LABELS[route.section],
+      }
+    case 'password':
+      return { kind: 'operation', label: 'Смена пароля' }
+    case 'clientCreate':
+      return { kind: 'operation', label: 'Новый клиент' }
+    case 'clientEdit':
+      return { kind: 'operation', label: 'Редактирование клиента' }
+    case 'clientDetails':
+    case 'clientPreview':
+      return { kind: 'section', label: APP_SECTION_LABELS.Clients }
+    case 'groupCreate':
+      return { kind: 'operation', label: 'Новая группа' }
+    case 'groupEdit':
+      return { kind: 'operation', label: 'Редактирование группы' }
+    case 'userCreate':
+      return { kind: 'operation', label: 'Новый тренер' }
+    case 'userEdit':
+      return { kind: 'operation', label: 'Редактирование тренера' }
+  }
+
+  return assertNeverRoute(route)
+}
+
+export function getDefaultRouteRecoveryDestination(
+  user: AuthenticatedUser,
+): RouteRecoveryDestination {
+  const accessibleSections = getAccessibleNavigationSections(user)
+  const fallbackSection =
+    (accessibleSections.includes(user.landingScreen) ? user.landingScreen : null)
+    ?? accessibleSections[0]
+
+  if (!fallbackSection) {
+    throw new Error('Route recovery requires at least one accessible section.')
+  }
+
+  return {
+    recoveryPath: getSectionPath(fallbackSection),
+    recoveryLabel: APP_SECTION_LABELS[fallbackSection],
+  }
+}
+
+function getRecoveryDestination(user: AuthenticatedUser, route: AppRoute) {
+  const fallbackRecovery = getDefaultRouteRecoveryDestination(user)
+
+  if (
+    route.kind === 'clientCreate' ||
+    route.kind === 'clientEdit' ||
+    route.kind === 'clientDetails' ||
+    route.kind === 'clientPreview'
+  ) {
+    if (isSectionAllowed(user, 'Clients')) {
+      return {
+        recoveryPath: getSectionPath('Clients'),
+        recoveryLabel: APP_SECTION_LABELS.Clients,
+      }
+    }
+
+    return fallbackRecovery
+  }
+
+  if (route.kind === 'groupCreate' || route.kind === 'groupEdit') {
+    if (isSectionAllowed(user, 'Groups')) {
+      return {
+        recoveryPath: getSectionPath('Groups'),
+        recoveryLabel: APP_SECTION_LABELS.Groups,
+      }
+    }
+
+    return fallbackRecovery
+  }
+
+  if (route.kind === 'userCreate' || route.kind === 'userEdit') {
+    if (isSectionAllowed(user, 'Users')) {
+      return {
+        recoveryPath: getSectionPath('Users'),
+        recoveryLabel: APP_SECTION_LABELS.Users,
+      }
+    }
+
+    return fallbackRecovery
+  }
+
+  return fallbackRecovery
+}
+
+export function resolveRouteAccess(
+  user: AuthenticatedUser,
+  route: ParsedRoute,
+): RouteAccessResolution {
+  const requestedPath = route.kind === 'not-found'
+    ? route.path
+    : getRoutePath(route)
+
+  if (route.kind === 'not-found') {
+    const recovery = getDefaultRouteRecoveryDestination(user)
+
+    return {
+      kind: 'not-found',
+      requestedPath,
+      recoveryPath: recovery.recoveryPath,
+      recoveryLabel: recovery.recoveryLabel,
+    }
+  }
+
+  if (isRouteAllowedByPermission(user, route)) {
+    return {
+      kind: 'allowed',
+      requestedPath,
+      requestedDestinationLabel: getRouteAccessReason(route).label,
+      route,
+    }
+  }
+
+  const recovery = getRecoveryDestination(user, route)
+
+  return {
+    kind: 'restricted',
+    requestedPath,
+    requestedDestinationLabel: getRouteAccessReason(route).label,
+    reason: getRouteAccessReason(route),
+    recoveryPath: recovery.recoveryPath,
+    recoveryLabel: recovery.recoveryLabel,
+    route,
+  }
 }
 
 export function getRouteSection(route: AppRoute): AppSection | null {
@@ -285,54 +571,19 @@ export function getRouteSection(route: AppRoute): AppSection | null {
     case 'password':
       return null
   }
+
+  return assertNeverRoute(route)
 }
 
 export function resolveAccessibleRoutePath(
   user: AuthenticatedUser,
   route: AppRoute,
 ) {
-  const fallbackPath = getSectionPath(user.landingScreen)
-  const routeSection = getRouteSection(route)
+  const access = resolveRouteAccess(user, route)
 
-  if (!routeSection) {
-    return fallbackPath
+  if (access.kind === 'allowed') {
+    return access.requestedPath
   }
 
-  if (isUsersRoute(route, routeSection) && !user.permissions.canManageUsers) {
-    return fallbackPath
-  }
-
-  if (routeSection === 'Audit' && !user.permissions.canViewAuditLog) {
-    return fallbackPath
-  }
-
-  if (routeSection === 'Finance') {
-    return user.permissions.canViewFinancialReports &&
-      user.allowedSections.includes('Finance')
-      ? getRoutePath(route)
-      : fallbackPath
-  }
-
-  if (routeSection === 'Settings') {
-    return user.permissions.canManageSettings &&
-      user.allowedSections.includes('Settings')
-      ? getRoutePath(route)
-      : fallbackPath
-  }
-
-  if (isClientWriteRoute(route) && !user.permissions.canManageClients) {
-    return user.allowedSections.includes('Clients')
-      ? getSectionPath('Clients')
-      : fallbackPath
-  }
-
-  if (isGroupManagementRoute(route) && !user.permissions.canManageGroups) {
-    return fallbackPath
-  }
-
-  if (!user.allowedSections.includes(routeSection)) {
-    return fallbackPath
-  }
-
-  return getRoutePath(route)
+  return access.recoveryPath
 }

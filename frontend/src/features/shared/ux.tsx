@@ -160,6 +160,7 @@ type PageLayoutProps = ComponentPropsWithoutRef<'div'> & {
   children: ReactNode
   className?: string
   actions?: ReactNode
+  renderHiddenHeading?: boolean
   showHeader?: boolean
   title: string
 }
@@ -168,6 +169,7 @@ export function PageLayout({
   children,
   className,
   actions,
+  renderHiddenHeading = true,
   showHeader = true,
   title,
   ...props
@@ -186,7 +188,7 @@ export function PageLayout({
           titleOrder={1}
         />
       ) : null}
-      {!showHeader ? (
+      {!showHeader && renderHiddenHeading ? (
         <Title className="visually-hidden" order={1}>
           {title}
         </Title>

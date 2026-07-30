@@ -25,6 +25,11 @@ body {
   overflow-x: hidden;
 }
 
+.app-notifications:where([data-position='top-right']) {
+  top: calc(var(--mantine-spacing-md) + env(safe-area-inset-top, 0px));
+  right: calc(var(--mantine-spacing-md) + env(safe-area-inset-right, 0px));
+}
+
 button,
 input,
 textarea,

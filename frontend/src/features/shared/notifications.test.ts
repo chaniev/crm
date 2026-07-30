@@ -13,6 +13,7 @@ vi.mock('@mantine/notifications', () => ({
 import {
   APP_NOTIFICATION_AUTO_CLOSE_MS,
   showAppNotification,
+  showPoliteStatusNotification,
 } from './notifications'
 
 describe('showAppNotification', () => {
@@ -74,6 +75,46 @@ describe('showAppNotification', () => {
       title: 'Тип группы создан',
       message: 'Справочник сохранен.',
       color: 'teal',
+    })
+  })
+
+  test('marks route recovery notifications as polite status feedback', () => {
+    showPoliteStatusNotification({
+      id: 'route-access-denied-user-1',
+      title: 'Открыт доступный раздел',
+      message: 'Раздел больше недоступен.',
+      color: 'yellow',
+    })
+
+    expect(notificationsMock.show).toHaveBeenCalledWith({
+      autoClose: APP_NOTIFICATION_AUTO_CLOSE_MS,
+      id: 'route-access-denied-user-1',
+      title: 'Открыт доступный раздел',
+      message: 'Раздел больше недоступен.',
+      color: 'yellow',
+      role: 'status',
+      'aria-live': 'polite',
+    })
+  })
+
+  test('does not let callers downgrade polite status semantics', () => {
+    showPoliteStatusNotification({
+      id: 'route-access-denied-user-2',
+      title: 'Открыт доступный раздел',
+      message: 'Раздел больше недоступен.',
+      color: 'yellow',
+      role: 'alert',
+      'aria-live': 'assertive',
+    })
+
+    expect(notificationsMock.show).toHaveBeenCalledWith({
+      autoClose: APP_NOTIFICATION_AUTO_CLOSE_MS,
+      id: 'route-access-denied-user-2',
+      title: 'Открыт доступный раздел',
+      message: 'Раздел больше недоступен.',
+      color: 'yellow',
+      role: 'status',
+      'aria-live': 'polite',
     })
   })
 })

@@ -974,6 +974,19 @@
   background: var(--crm-surface-card);
 }
 
+.route-state-layout {
+  width: min(100%, 40rem);
+}
+
+.route-state {
+  width: 100%;
+}
+
+.route-state .restricted-state__actions,
+.route-state .restricted-state__primary-action {
+  width: 100%;
+}
+
 .restricted-state__actions,
 .temporary-surface-footer {
   display: flex;

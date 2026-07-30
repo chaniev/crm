@@ -181,6 +181,16 @@ describe('shared UX components', () => {
     ).toHaveClass('visually-hidden')
   })
 
+  test('PageLayout can delegate the only h1 to route-state content', () => {
+    renderWithProviders(
+      <PageLayout renderHiddenHeading={false} showHeader={false} title="Нет доступа">
+        <h1>Нет доступа</h1>
+      </PageLayout>,
+    )
+
+    expect(screen.getAllByRole('heading', { hidden: true, level: 1, name: 'Нет доступа' })).toHaveLength(1)
+  })
+
   test('MobileBottomNavigation surfaces overflow via drawer and keeps active route semantics', async () => {
     const onNavigate = vi.fn()
 
@@ -548,6 +558,19 @@ describe('shared UX components', () => {
     expect(primaryAction).toBeVisible()
     await waitFor(() => expect(document.activeElement).toBe(primaryAction))
     fireEvent.click(primaryAction)
+  })
+
+  test('RestrictedState can own a route-level h1', () => {
+    renderWithProviders(
+      <RestrictedState
+        title="Нет доступа"
+        titleOrder={1}
+        description="Доступ ограничен"
+        primaryAction={<button type="button">Открыть Главная</button>}
+      />,
+    )
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeVisible()
   })
 
   test('TemporarySurfaceFooter keeps shared structure, action order, and safe-area ownership class', () => {
