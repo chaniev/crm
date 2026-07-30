@@ -11,7 +11,6 @@ import {
 import {
   IconChevronLeft,
   IconChevronRight,
-  IconUserHeart,
   IconUsers,
 } from '@tabler/icons-react'
 import {
@@ -31,6 +30,7 @@ import type { ClientsListState } from './useClientsListState'
 type ClientsResultsProps = {
   canManage: boolean
   currentUserBranchId: string | null
+  isSplitLayout: boolean
   state: ClientsListState
   onCreate: () => void
   onOpen: (clientId: string) => void
@@ -40,6 +40,7 @@ type ClientsResultsProps = {
 export function ClientsResults({
   canManage,
   currentUserBranchId,
+  isSplitLayout,
   state,
   onCreate,
   onOpen,
@@ -96,12 +97,13 @@ export function ClientsResults({
   ])
 
   function selectClient(clientId: string) {
-    if (isCompactLayout) {
+    if (isCompactLayout || !isSplitLayout) {
       onPreview(clientId)
       return
     }
 
     state.setSelectedClientId(clientId)
+    state.setPreviewIntent('expanded')
   }
 
   const showBranchIdentity = currentUserBranchId === null
@@ -170,14 +172,14 @@ export function ClientsResults({
     <Stack data-testid="clients-list" gap={isCompactLayout ? 8 : 'sm'}>
       <div className="clients-v7-table-header" aria-hidden="true">
         <Text size="xs">Клиент</Text>
-        <Text size="xs">Статус и абонемент</Text>
-        <Text size="xs">Следующий шаг</Text>
-        <Text size="xs">Группа</Text>
-        <Text size="xs">Визит</Text>
+        <Text size="xs">Филиал</Text>
+        <Text size="xs">Абонемент</Text>
+        <Text size="xs">Следующее действие</Text>
       </div>
 
       {state.clients.map((client) => {
         const row = buildClientRowViewModel(client)
+        const groupLabel = getClientRowGroupLabel(client.branchName, row.groupLabel)
         const compactCard = buildClientCompactViewModel(client, {
           canSeePhone: canManage,
           showBranchIdentity,
@@ -201,8 +203,23 @@ export function ClientsResults({
             data-testid={`client-card-${client.id}`}
             key={client.id}
             onClick={() => selectClient(client.id)}
+            onDoubleClick={() => {
+              if (!isCompactLayout && isSplitLayout) {
+                onOpen(client.id)
+              }
+            }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                if (!isCompactLayout && isSplitLayout) {
+                  onOpen(client.id)
+                } else {
+                  selectClient(client.id)
+                }
+                return
+              }
+
+              if (event.key === ' ') {
                 event.preventDefault()
                 selectClient(client.id)
               }
@@ -274,19 +291,23 @@ export function ClientsResults({
                   </div>
                 </Group>
 
-                <div>
-                  <Group gap={6} wrap="nowrap">
+                <div className="clients-v7-row__branch">
+                  <Text className="clients-v7-row__primary" size="sm">
+                    {client.branchName || 'Филиал не указан'}
+                  </Text>
+                  <Text c="dimmed" className="clients-v7-row__secondary" size="sm">
+                    {groupLabel}
+                  </Text>
+                </div>
+
+                <div className="clients-v7-row__membership">
+                  <Group gap={6} wrap="wrap">
                     <Badge
                       color={client.status === 'Active' ? 'teal' : 'gray'}
                       variant="light"
                     >
                       {row.statusLabel}
                     </Badge>
-                    {client.isProfessional ? (
-                      <Badge color="blue" variant="light">
-                        Профессионал
-                      </Badge>
-                    ) : null}
                     <Text className="clients-v7-row__primary" size="sm">
                       {row.membershipLabel}
                     </Text>
@@ -296,7 +317,7 @@ export function ClientsResults({
                   </Text>
                 </div>
 
-                <div>
+                <div className="clients-v7-row__next-action">
                   <Badge color={row.nextAction.tone} variant="light">
                     {row.nextAction.label}
                   </Badge>
@@ -305,28 +326,10 @@ export function ClientsResults({
                       {row.nextAction.description}
                     </Text>
                   ) : null}
-                </div>
-
-                <Text className="clients-v7-row__primary" size="sm">
-                  {row.groupLabel}
-                </Text>
-
-                <Group justify="space-between" wrap="nowrap">
-                  <Text className="clients-v7-row__primary" size="sm">
+                  <Text c="dimmed" className="clients-v7-row__secondary" size="sm">
                     {row.lastVisitLabel}
                   </Text>
-                  <Button
-                    leftSection={<IconUserHeart size={16} />}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      onOpen(client.id)
-                    }}
-                    size="xs"
-                    variant="subtle"
-                  >
-                    Открыть
-                  </Button>
-                </Group>
+                </div>
               </>
             )}
           </Paper>
@@ -367,6 +370,18 @@ export function ClientsResults({
       )}
     </Stack>
   )
+}
+
+function getClientRowGroupLabel(branchName: string | null, groupLabel: string) {
+  if (!branchName) {
+    return groupLabel
+  }
+
+  const branchPrefix = `${branchName} · `
+
+  return groupLabel.startsWith(branchPrefix)
+    ? groupLabel.slice(branchPrefix.length)
+    : groupLabel
 }
 
 function buildEmptyRecoveryActions({

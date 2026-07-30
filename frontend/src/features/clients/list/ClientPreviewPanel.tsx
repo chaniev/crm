@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Alert,
   Avatar,
   Badge,
@@ -16,7 +17,9 @@ import {
   IconCreditCard,
   IconExternalLink,
   IconMessage,
+  IconRefresh,
   IconUserHeart,
+  IconX,
 } from '@tabler/icons-react'
 import { buildClientPreviewViewModel } from './clientListViewModel'
 import type { ClientsListState } from './useClientsListState'
@@ -25,12 +28,14 @@ type ClientPreviewPanelProps = {
   canManage: boolean
   state: ClientsListState
   onOpen: (clientId: string) => void
+  onCollapse: () => void
 }
 
 export function ClientPreviewPanel({
   canManage,
   state,
   onOpen,
+  onCollapse,
 }: ClientPreviewPanelProps) {
   const selectedClientId = state.selectedClientId
 
@@ -63,14 +68,33 @@ export function ClientPreviewPanel({
   if (state.previewError && !state.selectedPreview) {
     return (
       <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
-        <Alert
-          color="red"
-          icon={<IconAlertCircle size={18} />}
-          title="Preview не загрузился"
-          variant="light"
-        >
-          {state.previewError}
-        </Alert>
+        <Stack gap="sm">
+          <PreviewPanelHeader onCollapse={onCollapse} />
+          <Alert
+            color="red"
+            icon={<IconAlertCircle size={18} />}
+            title="Preview не загрузился"
+            variant="light"
+          >
+            {state.previewError}
+          </Alert>
+          <Group gap="xs" wrap="wrap">
+            <Button
+              leftSection={<IconRefresh size={16} />}
+              onClick={state.reloadPreview}
+              variant="light"
+            >
+              Повторить
+            </Button>
+            <Button
+              leftSection={<IconExternalLink size={16} />}
+              onClick={() => onOpen(selectedClientId)}
+              variant="default"
+            >
+              Открыть карточку
+            </Button>
+          </Group>
+        </Stack>
       </Paper>
     )
   }
@@ -90,6 +114,7 @@ export function ClientPreviewPanel({
   return (
     <Paper className="clients-v7-preview" data-testid="client-preview-panel" withBorder>
       <Stack gap="md">
+        <PreviewPanelHeader onCollapse={onCollapse} />
         <Group align="flex-start" gap="sm" wrap="nowrap">
           <Avatar
             name={preview.fullName}
@@ -199,5 +224,20 @@ export function ClientPreviewPanel({
         </div>
       </Stack>
     </Paper>
+  )
+}
+
+function PreviewPanelHeader({ onCollapse }: { onCollapse: () => void }) {
+  return (
+    <Group className="clients-v7-preview__header" justify="flex-end">
+      <ActionIcon
+        aria-label="Свернуть preview"
+        onClick={onCollapse}
+        size={44}
+        variant="subtle"
+      >
+        <IconX aria-hidden="true" size={18} />
+      </ActionIcon>
+    </Group>
   )
 }

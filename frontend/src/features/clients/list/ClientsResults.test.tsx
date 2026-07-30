@@ -44,6 +44,7 @@ describe('ClientsResults compact behavior', () => {
       <ClientsResults
         canManage
         currentUserBranchId={null}
+        isSplitLayout={false}
         onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={onPreview}
@@ -65,6 +66,7 @@ describe('ClientsResults compact behavior', () => {
       <ClientsResults
         canManage
         currentUserBranchId="branch-1"
+        isSplitLayout={false}
         onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={onPreview}
@@ -82,6 +84,7 @@ describe('ClientsResults compact behavior', () => {
       <ClientsResults
         canManage
         currentUserBranchId="branch-1"
+        isSplitLayout={false}
         onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={vi.fn()}
@@ -109,6 +112,7 @@ describe('ClientsResults compact behavior', () => {
       <ClientsResults
         canManage
         currentUserBranchId="branch-1"
+        isSplitLayout={false}
         onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={vi.fn()}
@@ -139,6 +143,7 @@ describe('ClientsResults compact behavior', () => {
       <ClientsResults
         canManage
         currentUserBranchId="branch-1"
+        isSplitLayout={false}
         onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={vi.fn()}
@@ -159,6 +164,120 @@ describe('ClientsResults compact behavior', () => {
   })
 })
 
+describe('ClientsResults desktop split behavior', () => {
+  beforeEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: query !== '(max-width: 62rem)',
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      }),
+    })
+  })
+
+  afterEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: originalMatchMedia,
+    })
+  })
+
+  test('renders the exact four desktop decision columns without a row action', () => {
+    renderWithProviders(
+      <ClientsResults
+        canManage
+        currentUserBranchId={null}
+        isSplitLayout
+        onCreate={vi.fn()}
+        onOpen={vi.fn()}
+        onPreview={vi.fn()}
+        state={createState({ clients: [buildClientItem()] })}
+      />,
+    )
+
+    expect(screen.getByText('Клиент')).toBeVisible()
+    expect(screen.getByText('Филиал')).toBeVisible()
+    expect(screen.getByText('Абонемент')).toBeVisible()
+    expect(screen.getByText('Следующее действие')).toBeVisible()
+    expect(screen.queryByText('Визит')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Открыть' })).not.toBeInTheDocument()
+    expect(screen.getByText('+7 999 111-22-33')).toBeVisible()
+    expect(screen.getByText(/Центральный/)).toBeVisible()
+    expect(screen.getByText(/Нет визитов/)).toBeVisible()
+  })
+
+  test('click and Space select/reopen preview while double click and Enter open full details', () => {
+    const onOpen = vi.fn()
+    const setSelectedClientId = vi.fn()
+    const setPreviewIntent = vi.fn()
+    renderWithProviders(
+      <ClientsResults
+        canManage
+        currentUserBranchId={null}
+        isSplitLayout
+        onCreate={vi.fn()}
+        onOpen={onOpen}
+        onPreview={vi.fn()}
+        state={createState({
+          clients: [buildClientItem()],
+          setPreviewIntent,
+          setSelectedClientId,
+        })}
+      />,
+    )
+
+    const row = screen.getByTestId('client-card-client-1')
+
+    fireEvent.click(row)
+    expect(setSelectedClientId).toHaveBeenCalledWith('client-1')
+    expect(setPreviewIntent).toHaveBeenCalledWith('expanded')
+    expect(onOpen).not.toHaveBeenCalled()
+
+    fireEvent.keyDown(row, { key: ' ' })
+    expect(setPreviewIntent).toHaveBeenCalledTimes(2)
+
+    fireEvent.doubleClick(row)
+    expect(onOpen).toHaveBeenCalledWith('client-1')
+
+    fireEvent.keyDown(row, { key: 'Enter' })
+    expect(onOpen).toHaveBeenCalledTimes(2)
+  })
+
+  test('fallback layout keeps route-based preview on click and keyboard', () => {
+    const onPreview = vi.fn()
+    const onOpen = vi.fn()
+    renderWithProviders(
+      <ClientsResults
+        canManage
+        currentUserBranchId={null}
+        isSplitLayout={false}
+        onCreate={vi.fn()}
+        onOpen={onOpen}
+        onPreview={onPreview}
+        state={createState({ clients: [buildClientItem()] })}
+      />,
+    )
+
+    const row = screen.getByTestId('client-card-client-1')
+
+    fireEvent.click(row)
+    fireEvent.keyDown(row, { key: 'Enter' })
+    fireEvent.keyDown(row, { key: ' ' })
+
+    expect(onPreview).toHaveBeenCalledTimes(3)
+    expect(onPreview).toHaveBeenLastCalledWith('client-1')
+    expect(onOpen).not.toHaveBeenCalled()
+  })
+})
+
 function createState({
   activeAdvancedFiltersCount = 0,
   clearSearchQuery = vi.fn(),
@@ -170,6 +289,8 @@ function createState({
   resetAdvancedFilters = vi.fn(),
   searchDraft = '',
   searchMode = 'browse',
+  setPreviewIntent = vi.fn(),
+  setSelectedClientId = vi.fn(),
 }: {
   activeAdvancedFiltersCount?: number
   clearSearchQuery?: () => void
@@ -181,6 +302,8 @@ function createState({
   resetAdvancedFilters?: () => void
   searchDraft?: string
   searchMode?: 'browse' | 'search-focused'
+  setPreviewIntent?: (intent: 'expanded' | 'collapsed') => void
+  setSelectedClientId?: (clientId: string | null) => void
 } = {}) {
   return {
     clients,
@@ -211,6 +334,7 @@ function createState({
     returnRestoreSnapshot: null,
     previewLoading: false,
     previewError: null,
+    previewIntent: 'expanded',
     isFirstRunEmpty: false,
     setSearchDraft: vi.fn(),
     setSearchFocused: vi.fn(),
@@ -224,7 +348,9 @@ function createState({
     captureReturnSnapshot: vi.fn(),
     completeReturnRestore: vi.fn(),
     setPage: vi.fn(),
-    setSelectedClientId: vi.fn(),
+    setSelectedClientId,
+    setPreviewIntent,
+    reloadPreview: vi.fn(),
   } as unknown as ClientsListState
 }
 

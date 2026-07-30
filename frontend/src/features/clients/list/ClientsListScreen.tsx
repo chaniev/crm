@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { PageLayout, PageSection } from '../../shared/ux'
 import { ClientPreviewPanel } from './ClientPreviewPanel'
 import { ClientsResults } from './ClientsResults'
 import { ClientsToolbar } from './ClientsToolbar'
+import { canUseClientsPreviewSplit } from './clientListPreviewLayout'
 import type { ClientListReturnSnapshot } from './clientListReturnState'
 import { useClientsListState } from './useClientsListState'
 
@@ -35,6 +36,10 @@ export function ClientsListScreen({
     previewClientId,
   })
   const previewMode = Boolean(previewClientId)
+  const layoutRef = useRef<HTMLDivElement | null>(null)
+  const [isPreviewSplitCapable, setIsPreviewSplitCapable] = useState(false)
+  const showPreviewPanel =
+    previewMode || (isPreviewSplitCapable && state.previewIntent === 'expanded')
 
   useEffect(() => {
     onSaveReturnState?.(state.returnSnapshot)
@@ -51,6 +56,53 @@ export function ClientsListScreen({
     onSaveReturnState?.(snapshot)
     onPreview(clientId, snapshot)
   }
+
+  const collapsePreview = useCallback(() => {
+    state.setPreviewIntent('collapsed')
+
+    const selectedClientId = state.selectedClientId
+    if (!selectedClientId) {
+      return
+    }
+
+    window.requestAnimationFrame(() => {
+      const selectedRow = document.querySelector<HTMLElement>(
+        `[data-client-row-id="${window.CSS.escape(selectedClientId)}"]`,
+      )
+      selectedRow?.focus({ preventScroll: true })
+    })
+  }, [state])
+
+  useEffect(() => {
+    const layoutElement = layoutRef.current
+
+    if (!layoutElement || previewMode) {
+      return
+    }
+
+    function updateSplitCapability(width: number) {
+      setIsPreviewSplitCapable(canUseClientsPreviewSplit(width))
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      updateSplitCapability(layoutElement.getBoundingClientRect().width)
+    })
+
+    if (typeof ResizeObserver === 'undefined') {
+      return () => window.cancelAnimationFrame(frameId)
+    }
+
+    const observer = new ResizeObserver(([entry]) => {
+      updateSplitCapability(entry?.contentRect.width ?? 0)
+    })
+
+    observer.observe(layoutElement)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+      observer.disconnect()
+    }
+  }, [previewMode])
 
   return (
     <PageLayout
@@ -71,16 +123,35 @@ export function ClientsListScreen({
       </PageSection>
 
       <PageSection density="compact">
-        <div className="clients-v7-layout" id="clients-results">
+        <div
+          className="clients-v7-layout"
+          data-client-preview-layout={
+            previewMode
+              ? 'route-preview'
+              : isPreviewSplitCapable
+                ? state.previewIntent
+                : 'fallback'
+          }
+          id="clients-results"
+          ref={layoutRef}
+        >
           <ClientsResults
             canManage={canManage}
             currentUserBranchId={currentUserBranchId}
+            isSplitLayout={!previewMode && isPreviewSplitCapable}
             onCreate={onCreate}
             onOpen={openClient}
             onPreview={previewClient}
             state={state}
           />
-          <ClientPreviewPanel canManage={canManage} onOpen={openClient} state={state} />
+          {showPreviewPanel ? (
+            <ClientPreviewPanel
+              canManage={canManage}
+              onCollapse={collapsePreview}
+              onOpen={openClient}
+              state={state}
+            />
+          ) : null}
         </div>
       </PageSection>
     </PageLayout>

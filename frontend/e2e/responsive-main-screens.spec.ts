@@ -796,6 +796,72 @@ test.describe('Mobile bottom navigation interactions', () => {
   })
 })
 
+test.describe('TASK-089 clients desktop preview split', () => {
+  test.use({ viewport: { width: 1440, height: 1200 } })
+
+  test('keeps four decision columns readable with preview open and no row action', async ({
+    page,
+  }) => {
+    await mockApi(page, MANAGEMENT_SESSION)
+    await page.goto('/clients')
+
+    const list = page.getByTestId('clients-list')
+    const preview = page.getByTestId('client-preview-panel')
+    const firstRow = page.getByTestId('client-card-client-1')
+    const header = list.locator('.clients-v7-table-header')
+
+    await expect(list).toBeVisible()
+    await expect(preview).toBeVisible()
+    await expect(header.getByText('Клиент')).toBeVisible()
+    await expect(header.getByText('Филиал')).toBeVisible()
+    await expect(header.getByText('Абонемент')).toBeVisible()
+    await expect(header.getByText('Следующее действие')).toBeVisible()
+    await expect(header.getByText('Статус и абонемент')).toHaveCount(0)
+    await expect(header.getByText('Визит')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /^Открыть$/ })).toHaveCount(0)
+    await expect(preview.getByRole('button', { name: 'Открыть карточку' })).toBeVisible()
+
+    const listGeometry = await list.evaluate((element) => {
+      const rows = Array.from(
+        element.querySelectorAll<HTMLElement>('.clients-v7-table-header, .clients-v7-row'),
+      )
+
+      return rows.map((row) => ({
+        clientWidth: row.clientWidth,
+        scrollWidth: row.scrollWidth,
+      }))
+    })
+
+    for (const row of listGeometry) {
+      expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth + 1)
+    }
+
+    await page.getByRole('button', { name: 'Свернуть preview' }).click()
+    await expect(preview).toHaveCount(0)
+    await expect(firstRow).toBeFocused()
+
+    await firstRow.click()
+    await expect(preview).toBeVisible()
+
+    await firstRow.dblclick()
+    await expect(page).toHaveURL(/\/clients\/client-1$/)
+  })
+})
+
+test.describe('TASK-089 clients tablet fallback', () => {
+  test.use({ viewport: { width: 768, height: 1024 } })
+
+  test('uses the route-based preview instead of a split pane', async ({ page }) => {
+    await mockApi(page, MANAGEMENT_SESSION)
+    await page.goto('/clients')
+
+    await expect(page.getByTestId('client-preview-panel')).toHaveCount(0)
+    await page.getByTestId('client-card-client-1').click()
+    await expect(page).toHaveURL(/\/clients\/client-1\/preview$/)
+    await expect(page.getByTestId('client-preview-panel')).toBeVisible()
+  })
+})
+
 async function captureAlternateThemeSnapshots(page: Page) {
   const snapshots = []
 
@@ -1381,6 +1447,34 @@ async function mockApi(
 
     if (pathname === '/api/clients/client-1' && method === 'GET') {
       await fulfillJson(route, 200, CLIENTS_RESPONSE.items[0])
+      return
+    }
+
+    if (
+      /^\/api\/clients\/[^/]+\/messenger\/telegram$/.test(pathname) &&
+      method === 'GET'
+    ) {
+      await fulfillJson(route, 200, {
+        platform: 'Telegram',
+        capabilities: {
+          visible: false,
+          canRead: false,
+          canReply: false,
+          canCreateLink: false,
+          canShowQr: false,
+        },
+        connection: {
+          status: 'NotConnected',
+          linkedAt: null,
+          telegramUsername: null,
+          telegramDisplayName: null,
+          pendingLinkExpiresAt: null,
+        },
+        unreadCount: 0,
+        totalMessageCount: 0,
+        latestMessageAt: null,
+        latestMessage: null,
+      })
       return
     }
 

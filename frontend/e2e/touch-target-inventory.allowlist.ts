@@ -14,20 +14,6 @@ export type TouchTargetInventoryAllowlistMatch = {
 }
 
 export const TOUCH_TARGET_ALLOWLIST: TouchTargetInventoryAllowlistMatch[] = [
-  {
-    route: '/clients',
-    state: 'preview-open',
-    role: 'SuperAdministrator',
-    viewport: {
-      width: 1440,
-      height: 1200,
-    },
-    pointerMode: 'fine',
-    locator: "role=button[name='Открыть']",
-    criterion: 'label-clipping',
-    reason: 'Known client preview-open desktop split geometry',
-    ownerTask: 'TASK-089',
-  },
 ]
 
 export function findAllowlistMatch(

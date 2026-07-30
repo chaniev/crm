@@ -9,6 +9,8 @@ const CLIENT_LIST_RETURN_STATE_KEY = 'crmClientListReturnState'
 const CLIENT_LIST_RETURN_STATE_VERSION = 1
 const MAX_RETURN_DEPTH = 8
 
+export type ClientListPreviewIntent = 'expanded' | 'collapsed'
+
 type ClientListReturnFocusTarget =
   | 'selected-client'
   | 'first-visible-row'
@@ -26,7 +28,9 @@ export type ClientListReturnSnapshot = {
   focusTarget: ClientListReturnFocusTarget
   originEntryKey: string
   returnDepth: number
-  ui: Record<string, never>
+  ui: {
+    previewIntent: ClientListPreviewIntent
+  }
 }
 
 export type ClientListReturnCapabilities = {
@@ -43,6 +47,9 @@ export type ClientListReturnSnapshotInput = {
   focusTarget?: ClientListReturnFocusTarget
   originEntryKey: string
   returnDepth?: number
+  ui?: {
+    previewIntent?: unknown
+  }
 }
 
 type ClientListReturnStateShape = {
@@ -87,7 +94,9 @@ export function createClientListReturnSnapshot(
     focusTarget: input.focusTarget ?? (selectedClientId ? 'selected-client' : 'results-region'),
     originEntryKey: sanitizeEntryKey(input.originEntryKey) ?? createClientListEntryKey(),
     returnDepth: sanitizeReturnDepth(input.returnDepth ?? 0),
-    ui: {},
+    ui: {
+      previewIntent: sanitizePreviewIntent(input.ui?.previewIntent),
+    },
   }
 }
 
@@ -207,6 +216,7 @@ function parseClientListReturnSnapshot(
       focusTarget: sanitizeFocusTarget(payload.focusTarget),
       originEntryKey,
       returnDepth: sanitizeReturnDepth(payload.returnDepth),
+      ui: isRecord(payload.ui) ? payload.ui : undefined,
     },
     capabilities,
   )
@@ -224,7 +234,9 @@ function serializeClientListReturnSnapshot(snapshot: ClientListReturnSnapshot) {
     focusTarget: snapshot.focusTarget,
     originEntryKey: snapshot.originEntryKey,
     returnDepth: snapshot.returnDepth,
-    ui: {},
+    ui: {
+      previewIntent: snapshot.ui.previewIntent,
+    },
   }
 }
 
@@ -331,6 +343,10 @@ function sanitizeFocusTarget(value: unknown): ClientListReturnFocusTarget {
   }
 
   return 'results-region'
+}
+
+function sanitizePreviewIntent(value: unknown): ClientListPreviewIntent {
+  return value === 'collapsed' ? 'collapsed' : 'expanded'
 }
 
 function normalizeSearchDraft(value: string) {
