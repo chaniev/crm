@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core'
+import { Badge, Paper, SimpleGrid, Stack, Text } from '@mantine/core'
 import { IconCalendarEvent, IconUserHeart } from '@tabler/icons-react'
 import {
   getMembershipAttentionItems,
@@ -17,6 +17,8 @@ import {
   RefreshButton,
   ResponsiveButtonGroup,
   SectionHeader,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
 } from '../shared/ux'
 
 type MembershipsPanelProps = {
@@ -62,10 +64,20 @@ export function MembershipsPanel({ onCountChange, onOpenClient }: MembershipsPan
   return (
     <PageSection className="home-memberships-panel">
       <Stack gap="lg">
-        <Group justify="space-between" wrap="wrap">
-          <SectionHeader description={resources.home.expiringMemberships.description} title={resources.home.expiringMemberships.title} />
-          <RefreshButton loading={loading} onClick={() => setReloadKey((current) => current + 1)} />
-        </Group>
+        <SectionHeader
+          actions={(
+            <TaskToolbarActions
+              frequentActions={(
+                <TaskToolbarRefreshAction
+                  loading={loading}
+                  onClick={() => setReloadKey((current) => current + 1)}
+                />
+              )}
+            />
+          )}
+          description={resources.home.expiringMemberships.description}
+          title={resources.home.expiringMemberships.title}
+        />
         {lastSuccessfulCheck ? (
           <Text c="dimmed" data-testid="memberships-last-check" size="sm">
             Проверено: {lastSuccessfulCheck.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}

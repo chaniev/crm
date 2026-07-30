@@ -139,7 +139,6 @@ export function ClientsListScreen({
             canManage={canManage}
             currentUserBranchId={currentUserBranchId}
             isSplitLayout={!previewMode && isPreviewSplitCapable}
-            onCreate={onCreate}
             onOpen={openClient}
             onPreview={previewClient}
             state={state}

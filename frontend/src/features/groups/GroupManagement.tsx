@@ -27,7 +27,6 @@ import {
   IconEdit,
   IconFilterOff,
   IconPlus,
-  IconRefresh,
   IconUserStar,
   IconUsers,
   IconUsersGroup,
@@ -78,6 +77,8 @@ import {
   PageSection,
   ResponsiveButtonGroup,
   SectionHeader,
+  TaskToolbarAction,
+  TaskToolbarRefreshAction,
   TemporarySurfaceFooter,
   type ActiveFilter,
 } from '../shared/ux'
@@ -206,14 +207,10 @@ export function GroupsListScreen({
           className="groups-list-locator"
           disabled={showFirstLoad}
           frequentActions={(
-            <IconButton
-              className="groups-list-refresh"
-              disabled={state.loading}
-              icon={<IconRefresh size={18} />}
+            <TaskToolbarRefreshAction
               label="Обновить список групп"
+              loading={state.loading}
               onClick={state.reload}
-              size={44}
-              variant="ghost"
             />
           )}
           onChange={state.setSearchDraft}
@@ -222,14 +219,12 @@ export function GroupsListScreen({
           onOpenFilters={() => setFiltersOpened(true)}
           placeholder="Название группы"
           primaryAction={(
-            <Button
-              aria-label="Новая группа"
-              className="groups-list-create"
-              leftSection={<IconPlus size={20} />}
+            <TaskToolbarAction
+              icon={<IconPlus size={18} />}
+              label="Новая группа"
               onClick={onCreate}
-            >
-              Новая группа
-            </Button>
+              priority="primary"
+            />
           )}
           resultsId="groups-results"
           value={state.searchDraft}
@@ -354,15 +349,7 @@ export function GroupsListScreen({
 
             {showEmpty ? (
               <EmptyState
-                action={state.isFirstRunEmpty ? (
-                  <Button
-                    data-group-return-recovery="true"
-                    leftSection={<IconPlus size={18} />}
-                    onClick={onCreate}
-                  >
-                    Новая группа
-                  </Button>
-                ) : state.filters.appliedQuery && state.activeFilterCount === 0 ? (
+                action={state.isFirstRunEmpty ? null : state.filters.appliedQuery && state.activeFilterCount === 0 ? (
                   <Button
                     data-group-return-recovery="true"
                     onClick={state.clearSearchQuery}

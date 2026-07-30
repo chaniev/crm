@@ -123,6 +123,32 @@ describe('ClientsToolbar behavior', () => {
     expect(activeFilters.parentElement).toBe(panel)
   })
 
+  test('orders refresh before the sole primary create action through the shared task action recipe', () => {
+    renderWithProviders(
+      <ClientsToolbar
+        canManage
+        canSeeWithoutGroup
+        onCreate={vi.fn()}
+        state={createState()}
+      />,
+    )
+
+    const panel = screen.getByTestId('clients-filter-panel')
+    const actions = panel.querySelector('.task-toolbar-actions')
+
+    expect(actions).toBeTruthy()
+
+    const buttons = within(actions as HTMLElement).getAllByRole('button')
+
+    expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
+      'Обновить список',
+      'Новый клиент',
+    ])
+    expect(buttons[0]).toHaveClass('task-toolbar-action--refresh')
+    expect(buttons[1]).toHaveClass('task-toolbar-action--primary')
+    expect(buttons[1]).toHaveAttribute('data-action-priority', 'primary')
+  })
+
   test('uses coach-only locator naming and keeps refresh action available', () => {
     const reload = vi.fn()
 

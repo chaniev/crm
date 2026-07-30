@@ -371,6 +371,7 @@ const MANAGEMENT_ROUTES = [
     expectedPageTitle: 'Клиенты',
     expectedPageTitleHidden: true,
     expectedControls: ['Обновить список', 'Новый клиент'],
+    expectedHiddenControlsAtTablet: ['Обновить список'],
     expectedFilterToolbars: 0,
     checkSharedEdges: true,
   },
@@ -381,6 +382,7 @@ const MANAGEMENT_ROUTES = [
     expectedPageTitle: 'Группы',
     expectedPageTitleHidden: true,
     expectedControls: ['Новая группа', 'Обновить список групп'],
+    expectedHiddenControlsAtTablet: ['Обновить список групп'],
     checkSharedEdges: true,
   },
   {
@@ -494,7 +496,14 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
           route.expectedPageTitle,
           'expectedPageTitleHidden' in route && route.expectedPageTitleHidden,
         )
-        await expectPrimaryControls(page, route.expectedControls)
+        await expectPrimaryControls(
+          page,
+          route.expectedControls,
+          viewport.width === 768 &&
+            'expectedHiddenControlsAtTablet' in route
+            ? route.expectedHiddenControlsAtTablet
+            : [],
+        )
         await expectSharedVisualBaseline(page, route.expectedFilterToolbars ?? 0)
         if ('checkSharedEdges' in route && route.checkSharedEdges) {
           baselineEdges = await expectSharedContentEdges(page, baselineEdges)
@@ -711,7 +720,7 @@ test.describe('TASK-094 filter surface conformance', () => {
   })
 })
 
-for (const width of [320, 390, 420, 440, 1440]) {
+for (const width of [320, 390, 420, 440, 768, 1440]) {
   test.describe(`Groups registry ${width}px`, () => {
     test.use({ viewport: { width, height: width < 768 ? 956 : 1200 } })
 
@@ -727,19 +736,36 @@ for (const width of [320, 390, 420, 440, 1440]) {
       const filters = main.getByRole('button', { name: 'Открыть фильтры' })
       const create = main.getByRole('button', { name: 'Новая группа', exact: true })
       const refresh = main.getByRole('button', { name: 'Обновить список групп' })
+      const taskActions = main.locator('.groups-list-locator .task-toolbar-actions')
       const firstRow = main.locator('[data-testid^="group-card-"]').first()
 
       await expect(locator).toBeVisible()
       await expect(main.locator('.groups-summary-bar')).toHaveCount(0)
       await expect(main.getByRole('heading', { level: 1, name: 'Группы' })).toBeAttached()
       await expect(main.getByRole('region', { name: 'Список групп' })).toBeVisible()
+      await expect(taskActions).toBeVisible()
+      await expect(create).toHaveClass(/task-toolbar-action--primary/)
+      if (width === 768) {
+        await expect(refresh).toBeHidden()
+        await expect(taskActions.locator(':scope > button').last()).toHaveAttribute(
+          'data-action-priority',
+          'primary',
+        )
+      } else {
+        await expect(refresh).toHaveClass(/task-toolbar-action--refresh/)
+        await expect(taskActions.locator(':scope > button').first()).toHaveAttribute(
+          'data-action-priority',
+          'frequent',
+        )
+      }
 
       const boxes = await Promise.all(
-        [locator, search, filters, create, refresh, firstRow].map((element) =>
+        [locator, search, filters, create, firstRow].map((element) =>
           element.boundingBox(),
         ),
       )
-      const [locatorBox, searchBox, filtersBox, createBox, refreshBox, firstRowBox] = boxes
+      const [locatorBox, searchBox, filtersBox, createBox, firstRowBox] = boxes
+      const refreshBox = width === 768 ? null : await refresh.boundingBox()
 
       for (const box of boxes) expect(box).not.toBeNull()
       expect(searchBox!.height).toBeGreaterThanOrEqual(44)
@@ -747,9 +773,21 @@ for (const width of [320, 390, 420, 440, 1440]) {
       expect(filtersBox!.width).toBeGreaterThanOrEqual(44)
       expect(createBox!.height).toBeGreaterThanOrEqual(44)
       expect(createBox!.width).toBeGreaterThanOrEqual(44)
-      expect(refreshBox!.height).toBeGreaterThanOrEqual(44)
-      expect(refreshBox!.width).toBeGreaterThanOrEqual(44)
-      for (const box of [searchBox, filtersBox, createBox, refreshBox]) {
+      if (refreshBox) {
+        expect(refreshBox.height).toBeGreaterThanOrEqual(44)
+        expect(refreshBox.width).toBeGreaterThanOrEqual(44)
+        expect(refreshBox.x).toBeLessThanOrEqual(createBox!.x)
+      }
+      if (width < 768) {
+        expect(refreshBox!.width).toBeLessThanOrEqual(48)
+        expect(createBox!.width).toBeLessThanOrEqual(48)
+      } else if (width === 768) {
+        expect(createBox!.width).toBeLessThanOrEqual(48)
+      } else {
+        expect(refreshBox!.width).toBeGreaterThan(88)
+        expect(createBox!.width).toBeGreaterThan(88)
+      }
+      for (const box of [searchBox, filtersBox, createBox, refreshBox].filter(Boolean)) {
         expect(box!.x).toBeGreaterThanOrEqual(locatorBox!.x - 1)
         expect(box!.x + box!.width).toBeLessThanOrEqual(
           locatorBox!.x + locatorBox!.width + 1,
@@ -1491,11 +1529,16 @@ async function expectRoutePageTitle(page: Page, title: string | null, hidden = f
 async function expectPrimaryControls(
   page: Page,
   expectedControls: readonly string[],
+  expectedHiddenControls: readonly string[] = [],
 ) {
   for (const controlName of expectedControls) {
-    await expect(
-      page.getByRole('button', { name: controlName }).first(),
-    ).toBeVisible()
+    const control = page.getByRole('button', { name: controlName }).first()
+
+    if (expectedHiddenControls.includes(controlName)) {
+      await expect(control).toBeHidden()
+    } else {
+      await expect(control).toBeVisible()
+    }
   }
 }
 
@@ -1563,12 +1606,28 @@ async function expectClientsSharedLayoutContract(
     name: /Поиск по имени/,
   })
   const filterButton = locatorBar.getByRole('button', { name: /фильтры/i })
+  const refreshAction = locatorBar.locator(
+    'button.task-toolbar-action--refresh[aria-label="Обновить список"]',
+  )
+  const taskActions = locatorBar.locator('.task-toolbar-actions')
+  const viewportWidth = await page.evaluate(() => window.innerWidth)
+  const refreshUsesTabletFallback = viewportWidth === 768 && expectsCreateAction
 
   await expect(clientsLayout).toHaveCount(1)
   await expect(locatorBar).toBeVisible()
   await expect(searchbox).toBeVisible()
   await expect(searchbox).toHaveAttribute('aria-controls')
   await expect(filterButton).toHaveAttribute('aria-haspopup', 'dialog')
+  await expect(refreshAction).toHaveCount(1)
+  if (refreshUsesTabletFallback) {
+    await expect(refreshAction).toBeHidden()
+  } else {
+    await expect(refreshAction).toBeVisible()
+  }
+  await expect(taskActions.locator(':scope > button').first()).toHaveAttribute(
+    'data-action-priority',
+    'frequent',
+  )
   expect(await clientsLayout.locator(':scope > .page-section').count()).toBeGreaterThanOrEqual(2)
 
   const inlineLayoutOverrides = await clientsLayout.evaluate((element) => ({
@@ -1586,10 +1645,14 @@ async function expectClientsSharedLayoutContract(
   })
 
   const locatorControls = [searchbox, filterButton]
+  if (!refreshUsesTabletFallback) {
+    locatorControls.push(refreshAction)
+  }
   const createAction = locatorBar.getByRole('button', { name: 'Новый клиент' })
 
   if (expectsCreateAction) {
     await expect(createAction).toBeVisible()
+    await expect(createAction).toHaveClass(/task-toolbar-action--primary/)
     locatorControls.push(createAction)
   } else {
     await expect(createAction).toHaveCount(0)

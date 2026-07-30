@@ -20,7 +20,9 @@ import {
   LoadingState,
   PageLayout,
   PageSection,
-  RefreshButton,
+  TaskToolbarAction,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
 } from '../shared/ux'
 import { userRoleLabels } from './UserManagement.constants'
 
@@ -77,18 +79,23 @@ export function UsersListScreen({
       title="Тренеры"
     >
       <PageSection variant="plain">
-        <Group className="users-list-toolbar" gap="sm" justify="flex-end" wrap="wrap">
-          <Button
-            color="var(--crm-brand-secondary)"
-            leftSection={<IconPlus size={18} />}
-            onClick={onCreate}
-          >
-            {resources.users.list.createAction}
-          </Button>
-          <RefreshButton
-            onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-          />
-        </Group>
+        <TaskToolbarActions
+          className="users-list-toolbar"
+          frequentActions={(
+            <TaskToolbarRefreshAction
+              loading={loading}
+              onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+            />
+          )}
+          primaryAction={(
+            <TaskToolbarAction
+              icon={<IconPlus size={18} />}
+              label={resources.users.list.createAction}
+              onClick={onCreate}
+              priority="primary"
+            />
+          )}
+        />
       </PageSection>
 
       <PageSection>

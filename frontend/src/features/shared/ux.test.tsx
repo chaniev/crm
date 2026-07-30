@@ -29,6 +29,9 @@ import {
   RefreshButton,
   SectionHeader,
   Skeleton,
+  TaskToolbarAction,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
 } from './ux'
 
 const sections: AppSection[] = [
@@ -393,6 +396,102 @@ describe('shared UX components', () => {
     expect(actions).toContainElement(primaryAction)
     expect(actions).toContainElement(frequentAction)
     expect(root).toHaveClass('entity-locator-bar', 'crm-filter-surface')
+  })
+
+  test('EntityLocatorBar can render locator actions without a filter trigger', () => {
+    renderWithProviders(
+      <EntityLocatorBar
+        data-testid="entity-locator-bar"
+        accessibleLabel="Поиск тренеров"
+        placeholder="Имя тренера"
+        value=""
+        onChange={() => undefined}
+        onClear={() => undefined}
+        resultsId="users-results"
+        frequentActions={<TaskToolbarRefreshAction label="Обновить" onClick={() => undefined} />}
+        primaryAction={(
+          <TaskToolbarAction
+            icon={<span aria-hidden="true">+</span>}
+            label="Создать тренера"
+            onClick={() => undefined}
+            priority="primary"
+          />
+        )}
+      />,
+    )
+
+    const locator = screen.getByRole('search')
+    const searchInput = screen.getByRole('textbox', { name: 'Поиск тренеров' })
+    const refresh = screen.getByRole('button', { name: 'Обновить' })
+    const create = screen.getByRole('button', { name: 'Создать тренера' })
+
+    expect(within(locator).queryByRole('button', { name: /фильтры/i })).not.toBeInTheDocument()
+    expect(searchInput).toHaveAttribute('aria-controls', 'users-results')
+    expect(refresh).toHaveClass('task-toolbar-action', 'task-toolbar-action--refresh')
+    expect(create).toHaveClass('task-toolbar-action', 'task-toolbar-action--primary')
+  })
+
+  test('TaskToolbarActions keeps frequent actions before the sole primary action', () => {
+    renderWithProviders(
+      <TaskToolbarActions
+        data-testid="task-actions"
+        frequentActions={<TaskToolbarRefreshAction label="Обновить список" onClick={() => undefined} />}
+        primaryAction={(
+          <TaskToolbarAction
+            icon={<span aria-hidden="true">+</span>}
+            label="Новый клиент"
+            onClick={() => undefined}
+            priority="primary"
+          />
+        )}
+      />,
+    )
+
+    const actions = screen.getByTestId('task-actions')
+    const buttons = within(actions).getAllByRole('button')
+
+    expect(actions).toHaveClass('task-toolbar-actions')
+    expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
+      'Обновить список',
+      'Новый клиент',
+    ])
+    expect(buttons[0]).toHaveAttribute('data-action-priority', 'frequent')
+    expect(buttons[1]).toHaveAttribute('data-action-priority', 'primary')
+  })
+
+  test('TaskToolbarAction and refresh action preserve exact accessible names and disabled states', () => {
+    const onCreate = vi.fn()
+    const onRefresh = vi.fn()
+
+    renderWithProviders(
+      <>
+        <TaskToolbarAction
+          icon={<span aria-hidden="true">+</span>}
+          label="Добавить администратора"
+          onClick={onCreate}
+          priority="primary"
+        />
+        <TaskToolbarRefreshAction
+          disabled
+          label="Обновить список групп"
+          loading
+          onClick={onRefresh}
+        />
+      </>,
+    )
+
+    const create = screen.getByRole('button', { name: 'Добавить администратора' })
+    const refresh = screen.getByRole('button', { name: 'Обновить список групп' })
+
+    expect(create).toHaveClass('task-toolbar-action--primary')
+    expect(refresh).toHaveClass('task-toolbar-action--refresh')
+    expect(refresh).toBeDisabled()
+
+    fireEvent.click(create)
+    fireEvent.click(refresh)
+
+    expect(onCreate).toHaveBeenCalledTimes(1)
+    expect(onRefresh).not.toHaveBeenCalled()
   })
 
   test('ActiveFiltersBar renders accessible region with clear actions and minimum touch targets', () => {

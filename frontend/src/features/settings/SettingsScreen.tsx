@@ -42,9 +42,11 @@ import {
   PageLayout,
   PageSection,
   PageTabsPanel,
-  RefreshButton,
   ResponsiveButtonGroup,
   SectionHeader,
+  TaskToolbarAction,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import { BranchSettingsScreen } from './BranchSettingsScreen'
@@ -297,16 +299,17 @@ function GroupTypesSettingsPanel() {
         <Stack gap="lg">
           <SectionHeader
             actions={(
-              <ResponsiveButtonGroup>
-                <Button
-                  color="var(--crm-brand-secondary)"
-                  leftSection={<IconTags size={18} />}
-                  onClick={openCreateModal}
-                >
-                  Добавить тип
-                </Button>
-                <RefreshButton onClick={() => setReloadKey((key) => key + 1)} />
-              </ResponsiveButtonGroup>
+              <TaskToolbarActions
+                frequentActions={<TaskToolbarRefreshAction loading={loading} onClick={() => setReloadKey((key) => key + 1)} />}
+                primaryAction={(
+                  <TaskToolbarAction
+                    icon={<IconTags size={18} />}
+                    label="Добавить тип"
+                    onClick={openCreateModal}
+                    priority="primary"
+                  />
+                )}
+              />
             )}
             description="Справочник используется при создании и редактировании тренировочных групп."
             title="Типы групп"
@@ -320,7 +323,6 @@ function GroupTypesSettingsPanel() {
 
           {!loading && !loadError && groupTypes.length === 0 ? (
             <EmptyState
-              action={<Button onClick={openCreateModal}>Добавить тип</Button>}
               icon={<IconTags size={24} />}
               title="Типы групп пока не заведены"
             />

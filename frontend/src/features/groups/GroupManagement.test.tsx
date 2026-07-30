@@ -110,6 +110,12 @@ describe('GroupsListScreen', () => {
     expect(screen.queryByText('Поиск групп по названию')).not.toBeInTheDocument()
     expect(screen.getByText('Тренер не назначен')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Редактировать группу «Утренняя»' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Обновить список групп' })).toHaveClass(
+      'task-toolbar-action--refresh',
+    )
+    expect(screen.getByRole('button', { name: 'Новая группа' })).toHaveClass(
+      'task-toolbar-action--primary',
+    )
     expect(screen.queryByText('Всего')).not.toBeInTheDocument()
     expect(screen.queryByText('Клиентов: 2')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Новая группа' }))

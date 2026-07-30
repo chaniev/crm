@@ -18,8 +18,9 @@ import {
   LoadingState,
   PageLayout,
   PageSection,
-  RefreshButton,
   SectionHeader,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
 } from '../shared/ux'
 import { AttendanceClientRow } from './AttendanceClientRow'
 import { AttendanceContextControls } from './AttendanceContextControls'
@@ -304,14 +305,17 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
             <div className="attendance-roster-toolbar">
               <AttendanceProgress marked={markedCount} total={allRows.length} />
               <AttendanceRosterViewControl onChange={setRosterView} value={rosterView} />
-              <div className="attendance-roster-refresh">
-                <RefreshButton
-                  disabled={hasPendingSave}
-                  label="Обновить список"
-                  loading={rosterLoading && rosterLoaded}
-                  onClick={() => setRefreshVersion((current) => current + 1)}
-                />
-              </div>
+              <TaskToolbarActions
+                className="attendance-roster-refresh"
+                frequentActions={(
+                  <TaskToolbarRefreshAction
+                    disabled={hasPendingSave}
+                    label="Обновить список"
+                    loading={rosterLoading && rosterLoaded}
+                    onClick={() => setRefreshVersion((current) => current + 1)}
+                  />
+                )}
+              />
             </div>
             {rosterError ? <ErrorState message={rosterError} title="Список клиентов не загрузился" /> : null}
             {rosterLoading && !rosterLoaded ? <LoadingState label="Загружаем состав группы..." /> : null}

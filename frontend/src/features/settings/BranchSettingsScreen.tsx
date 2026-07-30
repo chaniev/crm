@@ -51,9 +51,11 @@ import {
   MetricCard,
   PageLayout,
   PageSection,
-  RefreshButton,
   ResponsiveButtonGroup,
   SectionHeader,
+  TaskToolbarAction,
+  TaskToolbarActions,
+  TaskToolbarRefreshAction,
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 
@@ -392,20 +394,23 @@ export function BranchSettingsScreen({
   }
 
   const headerActions = (
-    <ResponsiveButtonGroup>
-      <Button
-        color="var(--crm-brand-secondary)"
-        leftSection={<IconPlus size={18} />}
-        onClick={openCreateBranch}
-      >
-        Добавить филиал
-      </Button>
-      <RefreshButton
-        disabled={loading}
-        label="Обновить"
-        onClick={() => setReloadKey((currentKey) => currentKey + 1)}
-      />
-    </ResponsiveButtonGroup>
+    <TaskToolbarActions
+      frequentActions={(
+        <TaskToolbarRefreshAction
+          label="Обновить"
+          loading={loading}
+          onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+        />
+      )}
+      primaryAction={(
+        <TaskToolbarAction
+          icon={<IconPlus size={18} />}
+          label="Добавить филиал"
+          onClick={openCreateBranch}
+          priority="primary"
+        />
+      )}
+    />
   )
 
   const content = (
@@ -470,11 +475,6 @@ export function BranchSettingsScreen({
 
           {!loading && !loadError && branches.length === 0 ? (
             <EmptyState
-              action={(
-                <Button leftSection={<IconPlus size={18} />} onClick={openCreateBranch}>
-                  Добавить филиал
-                </Button>
-              )}
               description="После создания филиала можно будет добавить залы и использовать их в формах CRM."
               icon={<IconBuildingStore size={24} />}
               title="Филиалы пока не созданы"
@@ -706,16 +706,6 @@ function BranchDetailsPanel({
 
         {halls.length === 0 ? (
           <EmptyState
-            action={
-              branch.isArchived ? null : (
-                <Button
-                  leftSection={<IconPlus size={18} />}
-                  onClick={() => onCreateHall(branch.id)}
-                >
-                  Добавить зал
-                </Button>
-              )
-            }
             description="Создайте первый зал, чтобы группы могли ссылаться на место тренировок."
             icon={<IconMapPin size={24} />}
             title="Залы пока не созданы"

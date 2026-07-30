@@ -45,7 +45,6 @@ describe('ClientsResults compact behavior', () => {
         canManage
         currentUserBranchId={null}
         isSplitLayout={false}
-        onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={onPreview}
         state={state}
@@ -67,7 +66,6 @@ describe('ClientsResults compact behavior', () => {
         canManage
         currentUserBranchId="branch-1"
         isSplitLayout={false}
-        onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={onPreview}
         state={state}
@@ -85,7 +83,6 @@ describe('ClientsResults compact behavior', () => {
         canManage
         currentUserBranchId="branch-1"
         isSplitLayout={false}
-        onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={vi.fn()}
         state={createState({ loading: true })}
@@ -113,7 +110,6 @@ describe('ClientsResults compact behavior', () => {
         canManage
         currentUserBranchId="branch-1"
         isSplitLayout={false}
-        onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={vi.fn()}
         state={createState({
@@ -144,7 +140,6 @@ describe('ClientsResults compact behavior', () => {
         canManage
         currentUserBranchId="branch-1"
         isSplitLayout={false}
-        onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={vi.fn()}
         state={createState({
@@ -196,7 +191,6 @@ describe('ClientsResults desktop split behavior', () => {
         canManage
         currentUserBranchId={null}
         isSplitLayout
-        onCreate={vi.fn()}
         onOpen={vi.fn()}
         onPreview={vi.fn()}
         state={createState({ clients: [buildClientItem()] })}
@@ -223,7 +217,6 @@ describe('ClientsResults desktop split behavior', () => {
         canManage
         currentUserBranchId={null}
         isSplitLayout
-        onCreate={vi.fn()}
         onOpen={onOpen}
         onPreview={vi.fn()}
         state={createState({
@@ -259,7 +252,6 @@ describe('ClientsResults desktop split behavior', () => {
         canManage
         currentUserBranchId={null}
         isSplitLayout={false}
-        onCreate={vi.fn()}
         onOpen={onOpen}
         onPreview={onPreview}
         state={createState({ clients: [buildClientItem()] })}

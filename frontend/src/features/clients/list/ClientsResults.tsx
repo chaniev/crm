@@ -32,7 +32,6 @@ type ClientsResultsProps = {
   currentUserBranchId: string | null
   isSplitLayout: boolean
   state: ClientsListState
-  onCreate: () => void
   onOpen: (clientId: string) => void
   onPreview: (clientId: string) => void
 }
@@ -42,7 +41,6 @@ export function ClientsResults({
   currentUserBranchId,
   isSplitLayout,
   state,
-  onCreate,
   onOpen,
   onPreview,
 }: ClientsResultsProps) {
@@ -148,7 +146,6 @@ export function ClientsResults({
       hasSearchQuery,
       isFirstRunEmpty: state.isFirstRunEmpty,
       onClearSearch: state.clearSearchQuery,
-      onCreate,
       onResetAdvancedFilters: state.resetAdvancedFilters,
     })
 
@@ -390,7 +387,6 @@ function buildEmptyRecoveryActions({
   hasSearchQuery,
   isFirstRunEmpty,
   onClearSearch,
-  onCreate,
   onResetAdvancedFilters,
 }: {
   canManage: boolean
@@ -398,15 +394,10 @@ function buildEmptyRecoveryActions({
   hasSearchQuery: boolean
   isFirstRunEmpty: boolean
   onClearSearch: () => void
-  onCreate: () => void
   onResetAdvancedFilters: () => void
 }) {
   if (isFirstRunEmpty && canManage) {
-    return (
-      <Button data-client-return-recovery="true" onClick={onCreate}>
-        Новый клиент
-      </Button>
-    )
+    return null
   }
 
   const actions = []

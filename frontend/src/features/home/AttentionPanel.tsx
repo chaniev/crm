@@ -3,7 +3,7 @@ import { Anchor, Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/c
 import { IconBrandTelegram, IconCalendarEvent, IconCheck, IconUserHeart } from '@tabler/icons-react'
 import { getClientAttentionItems, markMissedTrainingContacted, type ClientAttentionItem, type ClientAttentionReason } from '../../lib/api'
 import { resources } from '../../lib/resources'
-import { Button, EmptyState, ErrorState, LoadingState, PageSection, RefreshButton, ResponsiveButtonGroup, SectionHeader } from '../shared/ux'
+import { Button, EmptyState, ErrorState, LoadingState, PageSection, RefreshButton, ResponsiveButtonGroup, SectionHeader, TaskToolbarActions, TaskToolbarRefreshAction } from '../shared/ux'
 
 type AttentionPanelProps = { onCountChange?: (count: number | null) => void; onOpenClient?: (clientId: string) => void }
 
@@ -51,10 +51,20 @@ export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelPr
 
   return <PageSection className="home-memberships-panel">
     <Stack gap="lg">
-      <Group justify="space-between" wrap="wrap">
-        <SectionHeader description={resources.home.attention.description} title={resources.home.attention.title} />
-        <RefreshButton loading={loading} onClick={() => setReloadKey((value) => value + 1)} />
-      </Group>
+      <SectionHeader
+        actions={(
+          <TaskToolbarActions
+            frequentActions={(
+              <TaskToolbarRefreshAction
+                loading={loading}
+                onClick={() => setReloadKey((value) => value + 1)}
+              />
+            )}
+          />
+        )}
+        description={resources.home.attention.description}
+        title={resources.home.attention.title}
+      />
       <Text component="h2" ref={headingRef} style={{ height: 0, margin: 0, overflow: 'hidden' }} tabIndex={-1}>Список клиентов</Text>
       {lastSuccessfulCheck ? <Text c="dimmed" data-testid="memberships-last-check" size="sm">Проверено: {lastSuccessfulCheck.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</Text> : null}
       {loading && !loaded.current ? <LoadingState label="Загружаем клиентов..." /> : null}
