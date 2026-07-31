@@ -1,13 +1,18 @@
 # TASK-102: Убрать дублирование названий вкладок в «Настройках»
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-07-31 19:22
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-102-remove-settings-tab-title-duplication.plan.md
+- implementation_plan: /backlog/done/TASK-102-remove-settings-tab-title-duplication.plan.md
 - implementation_branch: fix/TASK-102-remove-settings-tab-title-duplication
+- implementation_state: completed
+- implementation_commit: f83065c
+- delivered_on_main_at: 2026-07-31
+- moved_to_done_at: 2026-07-31
+- last_status_reviewed_at: 2026-07-31
 
 ## Goal
 Пользователь сразу видит рабочие действия и содержимое выбранной вкладки «Настроек» без повторного названия этой же вкладки внутри панели.
@@ -48,25 +53,25 @@ implementation
 - Изменение ограничено локальной frontend-коррекцией и не возвращает copy, удалённую TASK-095.
 
 ## Acceptance criteria
-- [ ] В `Настройки → Абонементы` внутри активной панели нет видимого standalone-заголовка `Каталог абонементов`; сразу доступны relevant branch context, действия и operational state/list.
-- [ ] В панелях `Типы групп`, `Филиалы и залы` и `Администраторы` нет видимого заголовка, повторяющего название активной вкладки.
-- [ ] Названия вкладок, их active state, permission-based visibility и keyboard navigation не изменены.
-- [ ] Действия `Добавить…` и `Обновить` остаются видимыми, имеют прежние accessible names и запускают прежние операции.
-- [ ] Loading, empty, error, disabled, success и permission-restricted states сохранены; их собственные информативные заголовки не удалены.
-- [ ] Embedded `BranchSettingsScreen` не повторяет название вкладки, а standalone-вариант сохраняет route-level заголовок `Филиалы и залы`.
-- [ ] Удаление заголовков не оставляет пустых контейнеров или лишнего вертикального отступа перед первым operational block.
-- [ ] На `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`, `768` и `1440 px` нет horizontal page scroll, clipping, перекрытий или недостижимых основных действий.
+- [x] В `Настройки → Абонементы` внутри активной панели нет видимого standalone-заголовка `Каталог абонементов`; сразу доступны relevant branch context, действия и operational state/list.
+- [x] В панелях `Типы групп`, `Филиалы и залы` и `Администраторы` нет видимого заголовка, повторяющего название активной вкладки.
+- [x] Названия вкладок, их active state, permission-based visibility и keyboard navigation не изменены.
+- [x] Действия `Добавить…` и `Обновить` остаются видимыми, имеют прежние accessible names и запускают прежние операции.
+- [x] Loading, empty, error, disabled, success и permission-restricted states сохранены; их собственные информативные заголовки не удалены.
+- [x] Embedded `BranchSettingsScreen` не повторяет название вкладки, а standalone-вариант сохраняет route-level заголовок `Филиалы и залы`.
+- [x] Удаление заголовков не оставляет пустых контейнеров или лишнего вертикального отступа перед первым operational block.
+- [x] На `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`, `768` и `1440 px` нет horizontal page scroll, clipping, перекрытий или недостижимых основных действий.
 
 ## Test checklist
-- [ ] Обновить `SettingsScreen` component tests: для каждой разрешённой вкладки проверять отсутствие повторного видимого panel title при сохранённых tab, actions и operational states.
-- [ ] Обновить `MembershipCatalogSettings`, `BranchSettingsScreen` и administrator settings tests, затронутые изменением header-контракта.
-- [ ] Проверить отдельный route `BranchSettingsScreen`: standalone heading сохранён, embedded heading отсутствует.
-- [ ] Добавить или обновить affected Playwright checks для всех settings-вкладок на mobile, compact-height, tablet и desktop.
-- [ ] Проверить keyboard-переход между tabs, focus order и visible focus у toolbar actions.
-- [ ] Запустить `cd frontend && npm run test:unit`.
-- [ ] Запустить `cd frontend && npm run lint`.
-- [ ] Запустить `cd frontend && npm run build`.
-- [ ] Запустить affected Playwright specs и target iPhone WebKit checks.
+- [x] Обновить `SettingsScreen` component tests: для каждой разрешённой вкладки проверять отсутствие повторного видимого panel title при сохранённых tab, actions и operational states.
+- [x] Обновить `MembershipCatalogSettings`, `BranchSettingsScreen` и administrator settings tests, затронутые изменением header-контракта.
+- [x] Проверить отдельный route `BranchSettingsScreen`: standalone heading сохранён, embedded heading отсутствует.
+- [x] Добавить или обновить affected Playwright checks для всех settings-вкладок на mobile, compact-height, tablet и desktop.
+- [x] Проверить keyboard-переход между tabs, focus order и visible focus у toolbar actions.
+- [x] Запустить `cd frontend && npm run test:unit`.
+- [x] Запустить `cd frontend && npm run lint`.
+- [x] Запустить `cd frontend && npm run build`.
+- [x] Запустить affected Playwright specs и target iPhone WebKit checks.
 
 ## AI safety
 - Safe for Codex: yes
@@ -85,3 +90,11 @@ implementation
 - Created at: 2026-07-31 19:15
 - Created by skill: codex-backlog-skill + crm-mobile-first-ui
 - Duplicate check: активного дубликата в `tasks-ready`, `risky` и `needs-clarification` нет; завершённая TASK-095 задала общий anti-duplication контракт, но текущие settings-панели остались конкретным непокрытым follow-up. TASK-101 удаляла metric widgets и не покрывает tab-title duplication.
+
+## Completion record
+- Completed on: 2026-07-31.
+- Implementation commit: `f83065c`.
+- Validation: frontend lint, build, raw-color check, 413 unit tests, 64 affected Chromium Playwright tests and 32 target-iPhone WebKit tests passed.
+- Data storage: backend and database structure were not changed; migration is not required.
+- Runtime: no Docker Compose task stack was created because the plan required static, component and mocked browser validation only.
+- Residual device evidence: physical Safari chrome, software keyboard, safe-area, iOS Simulator and physical-device checks were not performed.

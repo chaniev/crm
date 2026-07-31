@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-102 Убрать дублирование названий вкладок в «Настройках»
 
 ## Source task
-/backlog/implementation/TASK-102-remove-settings-tab-title-duplication.md
+/backlog/done/TASK-102-remove-settings-tab-title-duplication.md
 
 ## Implementation branch
 fix/TASK-102-remove-settings-tab-title-duplication
@@ -276,21 +276,21 @@ operational toolbar, контекст и состояние/список без 
   red state is scoped to embedded settings panels.
 
 ## Test plan
-- [ ] До production-кода добавить/обновить component integration tests для
+- [x] До production-кода добавить/обновить component integration tests для
   четырёх вкладок.
-- [ ] До production-кода добавить focused four-tab Playwright
+- [x] До production-кода добавить focused four-tab Playwright
   absence/accessibility regression на `390 x 844` и точечно обновить
   существующие responsive/iPhone geometry cases.
-- [ ] Запустить focused tests и подтвердить expected red state только на
+- [x] Запустить focused tests и подтвердить expected red state только на
   существующих embedded `SectionHeader`/descriptions/wrapper.
-- [ ] `cd frontend && npm run test:unit -- src/features/settings/SettingsScreen.test.tsx src/features/settings/MembershipCatalogSettings.test.tsx src/features/settings/BranchSettingsScreen.test.tsx`
-- [ ] `cd frontend && npm run test:e2e -- settings-tab-title-duplication.spec.ts membership-catalog-settings.spec.ts responsive-main-screens.spec.ts stage12.spec.ts`
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run check:raw-colors`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
-- [ ] Отдельно отметить непроверенные physical Safari chrome, safe-area,
+- [x] `cd frontend && npm run test:unit -- src/features/settings/SettingsScreen.test.tsx src/features/settings/MembershipCatalogSettings.test.tsx src/features/settings/BranchSettingsScreen.test.tsx`
+- [x] `cd frontend && npm run test:e2e -- settings-tab-title-duplication.spec.ts membership-catalog-settings.spec.ts responsive-main-screens.spec.ts stage12.spec.ts`
+- [x] `cd frontend && npm run test:unit`
+- [x] `cd frontend && npm run check:raw-colors`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] `cd frontend && npm run lint`
+- [x] `cd frontend && npm run build`
+- [x] Отдельно отметить непроверенные physical Safari chrome, safe-area,
   software-keyboard и iOS Simulator checks; WebKit automation не выдавать за
   physical-device evidence.
 
@@ -337,4 +337,11 @@ standalone branch test положительно ожидает route-level `Фи
 - acceptance criteria невозможно выполнить без нового продуктового решения.
 
 ## Ready for Codex execution
-yes
+no — completed 2026-07-31 in commit `f83065c`
+
+## Completion record
+- Source task moved to `/backlog/done/TASK-102-remove-settings-tab-title-duplication.md`.
+- Expected red was confirmed on the four current embedded headings, three decorative descriptions and the branch header-only section before production changes.
+- Validation passed: frontend lint, build, raw-color check, 413 unit tests, 64 affected Chromium Playwright tests and 32 target-iPhone WebKit tests.
+- No backend or database contract changed; no migration is required.
+- Physical Safari chrome, software keyboard, safe-area, iOS Simulator and physical-device checks remain unverified.
