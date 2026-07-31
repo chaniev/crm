@@ -1086,3 +1086,27 @@
 - note: TASK-084 remains selected for implementation, but execution has not
   started. The next step is the declared isolated branch/worktree and the
   approved test-first plan.
+
+# 2026-07-31 19:22
+
+## Moved to implementation
+- /backlog/implementation/TASK-102-remove-settings-tab-title-duplication.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-102-remove-settings-tab-title-duplication.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected low-risk frontend TASK-102. The plan uses
+  dedicated branch `fix/TASK-102-remove-settings-tab-title-duplication`, an
+  isolated worktree from current `origin/main`, component/Playwright tests
+  before production code, expected red verification for four embedded
+  `SectionHeader` instances, a standalone BranchSettings title guard, named
+  tab-panel/accessibility coverage and responsive regression barriers for all
+  required mobile, compact-height, tablet and desktop sizes. Project code was
+  not changed.

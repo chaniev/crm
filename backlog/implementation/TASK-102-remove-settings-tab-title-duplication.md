@@ -1,7 +1,13 @@
 # TASK-102: Убрать дублирование названий вкладок в «Настройках»
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-07-31 19:22
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-102-remove-settings-tab-title-duplication.plan.md
+- implementation_branch: fix/TASK-102-remove-settings-tab-title-duplication
 
 ## Goal
 Пользователь сразу видит рабочие действия и содержимое выбранной вкладки «Настроек» без повторного названия этой же вкладки внутри панели.
