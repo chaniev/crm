@@ -50,7 +50,6 @@ import {
   PageLayout,
   PageSection,
   ResponsiveButtonGroup,
-  SectionHeader,
   TaskToolbarAction,
   TaskToolbarActions,
   TaskToolbarRefreshAction,
@@ -410,17 +409,10 @@ export function BranchSettingsScreen({
 
   const content = (
     <>
-      {embedded ? (
-        <PageSection>
-          <SectionHeader
-            actions={headerActions}
-            title="Филиалы и залы"
-          />
-        </PageSection>
-      ) : null}
-
       <PageSection>
         <Stack gap="lg">
+          {embedded ? headerActions : null}
+
           {actionError ? (
             <Alert
               color="red"

@@ -20,7 +20,6 @@ import {
   LoadingState,
   PageSection,
   ResponsiveButtonGroup,
-  SectionHeader,
   TaskToolbarAction,
   TaskToolbarActions,
   TaskToolbarRefreshAction,
@@ -106,23 +105,17 @@ export function MembershipCatalogSettings({
   const branch = branches.find((item) => item.id === branchId)
   return <Stack gap="lg">
     <PageSection><Stack gap="lg">
-      <SectionHeader
-        actions={(
-          <TaskToolbarActions
-            frequentActions={<TaskToolbarRefreshAction loading={loading} onClick={() => setReloadKey((key) => key + 1)} />}
-            primaryAction={(
-              <TaskToolbarAction
-                disabled={!branchId}
-                icon={<IconPlus size={18} />}
-                label="Добавить абонемент"
-                onClick={openCreate}
-                priority="primary"
-              />
-            )}
+      <TaskToolbarActions
+        frequentActions={<TaskToolbarRefreshAction loading={loading} onClick={() => setReloadKey((key) => key + 1)} />}
+        primaryAction={(
+          <TaskToolbarAction
+            disabled={!branchId}
+            icon={<IconPlus size={18} />}
+            label="Добавить абонемент"
+            onClick={openCreate}
+            priority="primary"
           />
         )}
-        description="Названия, цены и периоды, доступные для продажи."
-        title="Каталог абонементов"
       />
       {canSelectBranch ? <Select allowDeselect={false} data={branches.map((item) => ({ value: item.id, label: item.name }))} label="Филиал каталога" onChange={(value) => setBranchId(value ?? '')} value={branchId || null}/> : <Paper className="hint-card" p="md" withBorder><Text c="dimmed" size="sm">Филиал каталога</Text><Text fw={700}>{branch?.name ?? 'Не назначен'}</Text></Paper>}
       {loading ? <LoadingState label="Загружаем каталог..."/> : null}

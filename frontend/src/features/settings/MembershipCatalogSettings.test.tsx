@@ -74,6 +74,10 @@ describe('MembershipCatalogSettings', () => {
     expect(screen.getByText('Загружаем каталог...')).toBeInTheDocument()
     resolveItems([])
     expect(await screen.findByText('В этом филиале ещё нет абонементов')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Каталог абонементов' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('Названия, цены и периоды, доступные для продажи.'),
+    ).not.toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: 'Добавить абонемент' })).toHaveLength(1)
     expect(screen.queryByLabelText('Филиал каталога')).not.toBeInTheDocument()
     expect(screen.getByText('Центр')).toBeInTheDocument()
@@ -83,6 +87,7 @@ describe('MembershipCatalogSettings', () => {
     getItemsMock.mockRejectedValue(new Error('Нет связи'))
     renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
     expect(await screen.findByRole('combobox', { name: 'Филиал каталога' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Каталог абонементов' })).not.toBeInTheDocument()
     expect(await screen.findByText('Нет связи')).toBeInTheDocument()
   })
 

@@ -1738,7 +1738,9 @@ test.describe('Основные e2e сценарии', () => {
 
     await page.goto('/settings')
     await page.getByRole('tab', { name: 'Филиалы и залы' }).click()
-    await expect(page.getByRole('heading', { name: 'Филиалы и залы' })).toBeVisible()
+    const branchPanel = page.getByRole('tabpanel', { name: 'Филиалы и залы' })
+    await expect(branchPanel).toBeVisible()
+    await expect(branchPanel.getByRole('heading', { name: 'Филиалы и залы' })).toHaveCount(0)
     await expect(page.locator('[data-testid="settings-screen"]').locator('.metric-card')).toHaveCount(0)
     await expect(page.locator('.settings-branch-row')).toBeVisible()
 

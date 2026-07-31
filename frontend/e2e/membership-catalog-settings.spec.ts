@@ -81,11 +81,13 @@ test('TASK-100 membership catalog rows render without behavior badges', async ({
 
   const catalogTab = page.getByRole('tab', { name: 'Абонементы' })
   await catalogTab.click()
+  const catalogPanel = page.getByRole('tabpanel', { name: 'Абонементы' })
 
-  await expect(page.getByRole('heading', { name: 'Каталог абонементов' })).toBeVisible()
+  await expect(catalogPanel).toBeVisible()
+  await expect(catalogPanel.getByRole('heading', { name: 'Каталог абонементов' })).toHaveCount(0)
 
   for (const item of MEMBERSHIP_CATALOG_ITEMS) {
-    const row = page.locator('.list-row-card').filter({ hasText: item.name })
+    const row = catalogPanel.locator('.list-row-card').filter({ hasText: item.name })
     await expect(row).toBeVisible()
     await expect(row.locator('.mantine-Badge-root')).toHaveCount(0)
     await expect(row.getByRole('button', { name: `Редактировать ${item.name}` })).toBeVisible()

@@ -53,7 +53,7 @@ describe('BranchSettingsScreen', () => {
 
     renderWithProviders(<BranchSettingsScreen />)
 
-    expect(await screen.findByText('Филиалы и залы')).toBeVisible()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Филиалы и залы' })).toBeVisible()
     expect(screen.getAllByText('Центр').length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: 'Добавить филиал' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Обновить' })).toBeVisible()
@@ -68,13 +68,18 @@ describe('BranchSettingsScreen', () => {
     vi.mocked(getBranches).mockResolvedValue(branches)
     vi.mocked(getHalls).mockResolvedValue(halls)
 
-    renderWithProviders(<BranchSettingsScreen embedded />)
+    const { container } = renderWithProviders(<BranchSettingsScreen embedded />)
 
-    const heading = await screen.findByRole('heading', { name: 'Филиалы и залы' })
-    const firstBranch = document.querySelector('.settings-branch-row')
+    const firstBranch = await screen.findByRole('button', { name: 'Открыть филиал Центр' })
+    const sections = container.querySelectorAll('.page-section')
+    const toolbar = container.querySelector('.task-toolbar-actions')
 
-    expect(heading).toBeVisible()
-    expect(firstBranch).toBeInstanceOf(HTMLElement)
+    expect(screen.queryByRole('heading', { name: 'Филиалы и залы' })).not.toBeInTheDocument()
+    expect(sections).toHaveLength(1)
+    expect(toolbar).toBeInstanceOf(HTMLElement)
+    expect(
+      toolbar!.compareDocumentPosition(firstBranch) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Добавить филиал' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Обновить' })).toBeVisible()
     expect(document.querySelector('.metric-card')).not.toBeInTheDocument()

@@ -1455,7 +1455,10 @@ test('в целевых iPhone-профилях каталог абонемен�
   await expect(page.getByRole('tab', { name: 'Абонементы' })).toBeVisible()
   await page.getByRole('tab', { name: 'Абонементы' }).click()
 
-  const membershipRows = page.locator('.list-row-card')
+  const catalogPanel = page.getByRole('tabpanel', { name: 'Абонементы' })
+  const membershipRows = catalogPanel.locator('.list-row-card')
+  await expect(catalogPanel).toBeVisible()
+  await expect(catalogPanel.getByRole('heading', { name: 'Каталог абонементов' })).toHaveCount(0)
   await expect(membershipRows).toHaveCount(4)
   await expectNoHorizontalScroll(page)
 
@@ -1510,10 +1513,13 @@ test('target portrait подтверждает, что на филиалы и з
   await page.getByRole('tab', { name: 'Филиалы и залы' }).click()
 
   const settingsScreen = page.locator('[data-testid="settings-screen"]')
+  const activePanel = page.getByRole('tabpanel', { name: 'Филиалы и залы' })
   const createButton = settingsScreen.getByRole('button', { name: 'Добавить филиал' })
   const refreshButton = settingsScreen.getByRole('button', { name: 'Обновить' })
   const firstBranch = page.locator('.settings-branch-row').first()
 
+  await expect(activePanel).toBeVisible()
+  await expect(activePanel.getByRole('heading', { name: 'Филиалы и залы' })).toHaveCount(0)
   await expect(createButton).toBeVisible()
   await expect(refreshButton).toBeVisible()
   await expect(firstBranch).toBeVisible()
