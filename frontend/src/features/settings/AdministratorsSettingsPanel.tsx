@@ -41,7 +41,6 @@ import {
   LoadingState,
   PageSection,
   ResponsiveButtonGroup,
-  SectionHeader,
   TaskToolbarAction,
   TaskToolbarActions,
   TaskToolbarRefreshAction,
@@ -399,27 +398,21 @@ export function AdministratorsSettingsPanel({
     <Stack data-testid="administrators-settings-panel" gap="xl">
       <PageSection>
         <Stack gap="lg">
-          <SectionHeader
-            actions={(
-              <TaskToolbarActions
-                frequentActions={(
-                  <TaskToolbarRefreshAction
-                    loading={loading}
-                    onClick={() => setReloadKey((key) => key + 1)}
-                  />
-                )}
-                primaryAction={canCreateAdministrator ? (
-                  <TaskToolbarAction
-                    icon={<IconUserPlus size={18} />}
-                    label="Добавить администратора"
-                    onClick={openCreateModal}
-                    priority="primary"
-                  />
-                ) : null}
+          <TaskToolbarActions
+            frequentActions={(
+              <TaskToolbarRefreshAction
+                loading={loading}
+                onClick={() => setReloadKey((key) => key + 1)}
               />
             )}
-            description="Администраторы управляют настройками, клиентами, группами и журналом без доступа к созданию тренеров."
-            title="Администраторы"
+            primaryAction={canCreateAdministrator ? (
+              <TaskToolbarAction
+                icon={<IconUserPlus size={18} />}
+                label="Добавить администратора"
+                onClick={openCreateModal}
+                priority="primary"
+              />
+            ) : null}
           />
 
           {loading ? (

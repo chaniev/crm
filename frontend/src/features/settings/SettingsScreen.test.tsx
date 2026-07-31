@@ -136,17 +136,79 @@ describe('SettingsScreen', () => {
 
     expect(panel.querySelector('.metric-card')).not.toBeInTheDocument()
     expect(panel.firstElementChild).toHaveClass('page-section')
-    expect(within(panel).getByRole('heading', { name: 'Администраторы' })).toBeVisible()
+    expect(within(panel).queryByRole('heading', { name: 'Администраторы' })).not.toBeInTheDocument()
     expect(
-      within(panel).getByText(
+      within(panel).queryByText(
         'Администраторы управляют настройками, клиентами, группами и журналом без доступа к созданию тренеров.',
       ),
-    ).toBeVisible()
+    ).not.toBeInTheDocument()
+    expect(panel.querySelector('.section-header')).not.toBeInTheDocument()
     expect(
       within(panel).getByRole('button', { name: 'Добавить администратора' }),
     ).toBeVisible()
     expect(within(panel).getByRole('button', { name: 'Обновить' })).toBeVisible()
     expect(administratorCard).toBeVisible()
+  })
+
+  test('shows no duplicated tab titles in each settings tab panel', async () => {
+    const panelCases = [
+      {
+        tabName: 'Абонементы',
+        duplicateHeading: 'Каталог абонементов',
+        duplicateDescription: 'Названия, цены и периоды, доступные для продажи.',
+        actionName: 'Добавить абонемент',
+      },
+      {
+        tabName: 'Типы групп',
+        duplicateHeading: 'Типы групп',
+        duplicateDescription: 'Справочник используется при создании и редактировании тренировочных групп.',
+        actionName: 'Добавить тип',
+      },
+      {
+        tabName: 'Филиалы и залы',
+        duplicateHeading: 'Филиалы и залы',
+        duplicateDescription: null,
+        actionName: 'Добавить филиал',
+      },
+      {
+        tabName: 'Администраторы',
+        duplicateHeading: 'Администраторы',
+        duplicateDescription: 'Администраторы управляют настройками, клиентами, группами и журналом без доступа к созданию тренеров.',
+        actionName: 'Добавить администратора',
+      },
+    ] as const
+
+    for (const { tabName, duplicateHeading, duplicateDescription, actionName } of panelCases) {
+      vi.mocked(getAdministrators).mockResolvedValue({
+        items: [],
+        createRoleOptions: ['Administrator'],
+      })
+      vi.mocked(getGroupTypes).mockResolvedValue([])
+      vi.mocked(getMembershipCatalogItems).mockResolvedValue([])
+
+      const { unmount } = renderSettings({
+        createRoleOptions: ['Administrator', 'SuperAdministrator'],
+      })
+      const tab = screen.getByRole('tab', { name: tabName })
+      fireEvent.click(tab)
+
+      const panel = await screen.findByRole('tabpanel', { name: tabName })
+      const actionButton = within(panel).getByRole('button', { name: actionName })
+
+      expect(tab).toHaveAttribute('aria-selected', 'true')
+      expect(tab).toHaveAttribute('aria-controls', panel.id)
+      expect(panel).toHaveAttribute('aria-labelledby', tab.id)
+      expect(within(panel).queryByRole('heading', { name: duplicateHeading })).not.toBeInTheDocument()
+      expect(panel.querySelector('.section-header')).not.toBeInTheDocument()
+      if (duplicateDescription) {
+        expect(within(panel).queryByText(duplicateDescription)).not.toBeInTheDocument()
+      }
+      expect(panel.querySelector('.metric-card')).not.toBeInTheDocument()
+      expect(within(panel).getByRole('button', { name: 'Обновить' })).toBeVisible()
+      expect(actionButton).toBeVisible()
+
+      unmount()
+    }
   })
 
   test('keeps administrator refresh available when backend denies create', async () => {
@@ -163,7 +225,12 @@ describe('SettingsScreen', () => {
     expect(
       within(panel).queryByRole('button', { name: 'Добавить администратора' }),
     ).not.toBeInTheDocument()
-    expect(within(panel).getByRole('button', { name: 'Обновить' })).toBeVisible()
+    const refresh = within(panel).getByRole('button', { name: 'Обновить' })
+    const toolbar = panel.querySelector('.task-toolbar-actions')
+
+    expect(refresh).toBeVisible()
+    expect(toolbar).toBeInstanceOf(HTMLElement)
+    expect(toolbar).toHaveProperty('childElementCount', 1)
   })
 
   test('keeps ordinary Administrator settings without staff-management controls', () => {

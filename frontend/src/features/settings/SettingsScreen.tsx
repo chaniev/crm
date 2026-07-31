@@ -43,7 +43,6 @@ import {
   PageSection,
   PageTabsPanel,
   ResponsiveButtonGroup,
-  SectionHeader,
   TaskToolbarAction,
   TaskToolbarActions,
   TaskToolbarRefreshAction,
@@ -297,22 +296,16 @@ function GroupTypesSettingsPanel() {
     <Stack gap="xl">
       <PageSection>
         <Stack gap="lg">
-          <SectionHeader
-            actions={(
-              <TaskToolbarActions
-                frequentActions={<TaskToolbarRefreshAction loading={loading} onClick={() => setReloadKey((key) => key + 1)} />}
-                primaryAction={(
-                  <TaskToolbarAction
-                    icon={<IconTags size={18} />}
-                    label="Добавить тип"
-                    onClick={openCreateModal}
-                    priority="primary"
-                  />
-                )}
+          <TaskToolbarActions
+            frequentActions={<TaskToolbarRefreshAction loading={loading} onClick={() => setReloadKey((key) => key + 1)} />}
+            primaryAction={(
+              <TaskToolbarAction
+                icon={<IconTags size={18} />}
+                label="Добавить тип"
+                onClick={openCreateModal}
+                priority="primary"
               />
             )}
-            description="Справочник используется при создании и редактировании тренировочных групп."
-            title="Типы групп"
           />
 
           {loading ? <LoadingState label="Загружаем типы групп..." /> : null}

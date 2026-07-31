@@ -842,12 +842,14 @@ for (const viewport of SETTINGS_BRANCH_VIEWPORTS) {
 
       const main = page.locator('main')
       const panel = page.locator('[data-testid="settings-screen"]')
-      const heading = panel.getByRole('heading', { name: 'Филиалы и залы' })
+      const panelTab = panel.getByRole('tabpanel', { name: 'Филиалы и залы' })
+      const duplicateHeading = panelTab.getByRole('heading', { name: 'Филиалы и залы' })
       const create = main.getByRole('button', { name: 'Добавить филиал' })
       const refresh = main.getByRole('button', { name: 'Обновить' })
       const firstRow = main.locator('.settings-branch-row').first()
 
-      await expect(heading).toBeVisible()
+      await expect(panelTab).toBeVisible()
+      await expect(duplicateHeading).toHaveCount(0)
       await expect(panel.locator('.metric-card')).toHaveCount(0)
       await expect(create).toBeVisible()
       await expect(refresh).toBeVisible()
