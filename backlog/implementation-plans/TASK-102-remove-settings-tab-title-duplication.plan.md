@@ -40,8 +40,10 @@ operational toolbar, контекст и состояние/список без 
   `PageLayout` и должна сохранить title `Филиалы и залы`.
 - Текущие descriptions (`Названия, цены...`, `Справочник используется...`,
   `Администраторы управляют...`) не меняют решение, не объясняют validation,
-  scope, prerequisite или recovery. Они удаляются вместе с embedded
-  `SectionHeader`, а не переносятся в новую декоративную строку.
+  prerequisite или recovery. Пользователь отдельно подтвердил, что overview
+  про возможности администратора, включая отсутствие доступа к созданию
+  тренеров, также удаляется без переноса в форму или новую copy. Все три
+  descriptions удаляются вместе с embedded `SectionHeader`.
 - `TaskToolbarActions` уже является shared non-wrapping cluster с порядком
   frequent action → primary action, minimum `44 x 44px` targets и прежними
   accessible names. Новый toolbar component или CSS contract не требуется.
@@ -54,9 +56,10 @@ operational toolbar, контекст и состояние/список без 
 - Backend/API, permissions, CRUD, async state и routing contracts не меняются.
 
 ## UX/UI contract
-- Пользователи: Administrator с `canManageSettings`, HeadCoach и
-  SuperAdministrator с разрешёнными backend capabilities; Coach/restricted
-  пользователь не получает новых вкладок или controls.
+- Пользователи: все пользователи, которым существующие backend capabilities
+  уже открывают соответствующие settings-вкладки. План не вводит собственную
+  frontend role matrix; restricted пользователь не получает новых вкладок или
+  controls.
 - Контекст: mobile-first operational settings на `390 x 844`, затем target
   iPhone `420 x 912` и `440 x 956`, compact-height `912 x 420` и `956 x 440`,
   tablet `768 x 1024` и desktop `1440 x 1200`; `360 x 780` остаётся narrow
@@ -120,31 +123,38 @@ operational toolbar, контекст и состояние/список без 
      loading/error/empty/list сохраняются;
    - `BranchSettingsScreen.test.tsx`: embedded variant не содержит heading,
      отдельного header-only `PageSection` или empty spacer; toolbar находится в
-     том же operational section перед state/list; standalone variant сохраняет
-     видимый level-one heading и прежние actions;
+     том же operational section перед state/list; это единственный component
+     case, где structural assertion на число/порядок `PageSection` оправдан
+     конкретным regression risk; standalone variant сохраняет видимый
+     level-one heading и прежние actions;
    - не создавать искусственные pure unit tests для отсутствующей локальной
      логики.
-4. До production-кода добавить table-driven browser regression для всех четырёх
-   доступных settings tabs, предпочтительно отдельный
+4. До production-кода добавить focused table-driven browser regression на
+   mobile stress baseline `390 x 844` для всех четырёх доступных settings tabs,
+   предпочтительно отдельный
    `frontend/e2e/settings-tab-title-duplication.spec.ts`:
    - negative role/text assertions на повторные headings и descriptions;
    - named `tabpanel`, active tab и toolbar accessible names;
    - `Обновить`/`Добавить…` видимы, имеют target не меньше `44 x 44px` и
      сохраняют рабочие операции;
-   - первый operational control/state/list следует за toolbar без
-     `.section-header`/empty reserved block;
+   - первый operational control/state/list доступен сразу после toolbar без
+     видимого empty reserved block; не закреплять `.section-header` как общий
+     browser-level API;
    - keyboard Arrow navigation между разрешёнными tabs и последовательный
      focus toolbar controls сохраняются;
    - нет horizontal page scroll, clipping или недостижимых primary/frequent
-     actions на `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`,
-     `912 x 420`, `956 x 440`, `768 x 1024`, `1440 x 1200`.
+     actions на `390 x 844`.
 5. До production-кода обновить obsolete positive heading assertions в
    `membership-catalog-settings.spec.ts`, `responsive-main-screens.spec.ts` и
-   `stage12.spec.ts` на duplicate-absence + preserved-operation assertions;
-   расширить `iphone-target-devices.spec.ts`, чтобы оба target WebKit projects
-   прошли четыре вкладки и подтвердили title absence, named panel, actions,
-   first operational state/list и отсутствие overflow. Не дублировать тяжёлые
-   CRUD flows в каждом viewport.
+   `stage12.spec.ts` на duplicate-absence + preserved-operation assertions.
+   Переиспользовать существующую branch responsive matrix на `360 x 780`,
+   `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`,
+   `768 x 1024`, `1440 x 1200`: заменить obsolete heading expectation на
+   отсутствие embedded title при сохранённых actions, first row/state и no
+   overflow. В существующих catalog и branch cases
+   `iphone-target-devices.spec.ts` для обоих WebKit projects добавить только
+   focused title-absence/named-panel assertions. Не прогонять четыре вкладки на
+   каждом viewport и не дублировать CRUD flows.
 6. Запустить новые component и Playwright tests на неизменённом production-коде
    и сохранить expected red evidence: current four `SectionHeader` headings,
    три decorative descriptions и branch header-only section нарушают новые
@@ -163,17 +173,19 @@ operational toolbar, контекст и состояние/список без 
    `SettingsScreen`/`PageTabsPanel` semantics. Если accessible name теряется,
    добавить только локальную `aria-labelledby`/id связь tab → panel без
    видимого текста и без изменения shared tabs API сверх необходимого.
-10. Повторно запустить focused tests, затем полный frontend regression suite,
-    lint/build и target iPhone WebKit. Выполнить source search, подтверждающий,
-    что четыре embedded titles/descriptions не остались, standalone title и
-    operational state headings сохранены.
+10. Повторно запустить focused component/browser tests, полный `test:unit`,
+    affected Playwright specs, lint/build и target iPhone WebKit. Полный
+    Playwright suite для этой локальной коррекции не требуется. Выполнить
+    source search, подтверждающий, что четыре embedded titles/descriptions не
+    остались, standalone title и operational state headings сохранены.
 
 ## Preferred implementation strategy
 1. Accessibility/absence component tests in red state.
-2. Responsive four-tab Playwright matrix in red state.
+2. Focused four-tab Playwright regression на `390 x 844` в red state.
 3. Minimal `SectionHeader` removal with shared toolbar reuse.
 4. Standalone branch regression and dead-import cleanup.
-5. Full frontend and target-device regression closure.
+5. Full unit/static validation и focused responsive/target-device regression
+   closure.
 
 ## Files likely to change
 - `frontend/src/features/settings/SettingsScreen.tsx`
@@ -238,16 +250,18 @@ operational toolbar, контекст и состояние/список без 
   persistence and business contracts do not change.
 
 ### UI/e2e tests
-- All four authorized tabs under a capability-complete user.
+- All four authorized tabs under a capability-complete user на `390 x 844`.
 - One restricted-role/deep-link regression remains green without exposing
   unauthorized tabs.
 - Loading or empty state plus populated operational state are represented
   across the matrix; existing CRUD/error/recovery flows remain green.
 - Keyboard tab navigation, active state, named panels, toolbar focus order and
   accessible action names.
-- Portrait, compact-height, tablet and desktop geometry at all required
-  viewports; target portrait acceptance runs in both WebKit projects with
-  touch/iPhone profile.
+- Existing branch responsive matrix подтверждает representative geometry на
+  всех required portrait, compact-height, tablet и desktop viewports.
+- Existing catalog и branch target portrait cases проходят в обоих WebKit
+  projects с touch/iPhone profile и получают focused duplicate-absence/panel
+  assertions; four-tab viewport cross-product не создаётся.
 - No visible duplicate heading/description, header-only wrapper, horizontal
   page scroll, clipping or unreachable actions.
 
@@ -264,8 +278,9 @@ operational toolbar, контекст и состояние/список без 
 ## Test plan
 - [ ] До production-кода добавить/обновить component integration tests для
   четырёх вкладок.
-- [ ] До production-кода добавить/обновить Playwright absence/accessibility/
-  geometry matrix.
+- [ ] До production-кода добавить focused four-tab Playwright
+  absence/accessibility regression на `390 x 844` и точечно обновить
+  существующие responsive/iPhone geometry cases.
 - [ ] Запустить focused tests и подтвердить expected red state только на
   существующих embedded `SectionHeader`/descriptions/wrapper.
 - [ ] `cd frontend && npm run test:unit -- src/features/settings/SettingsScreen.test.tsx src/features/settings/MembershipCatalogSettings.test.tsx src/features/settings/BranchSettingsScreen.test.tsx`
@@ -282,12 +297,14 @@ operational toolbar, контекст и состояние/список без 
 ## Regression barrier
 Обязательная executable защита состоит из двух слоёв: table-driven Vitest
 matrix одновременно запрещает четыре embedded headings/descriptions и
-сохраняет tab/panel semantics, actions, capabilities и states; responsive
-Playwright matrix повторяет тот же контракт в браузере, проверяет structural
-absence header-only wrapper, keyboard/focus, `44 x 44px` actions и отсутствие
-overflow на required widths. Отдельный standalone branch test обязан
-положительно ожидать route-level `Филиалы и залы`, чтобы будущий broad cleanup
-не удалил необходимый заголовок.
+сохраняет tab/panel semantics, actions, capabilities и states; focused
+Playwright regression повторяет four-tab контракт на `390 x 844`, а
+существующие branch responsive и catalog/branch iPhone cases дают
+representative geometry/no-overflow coverage на required widths и WebKit
+profiles. CSS class absence не является общим browser contract; отдельный
+embedded branch component test защищает удаление header-only `PageSection`, а
+standalone branch test положительно ожидает route-level `Филиалы и залы`, чтобы
+будущий broad cleanup не удалил необходимый заголовок.
 
 ## Risks
 - Broad text queries могут спутать tab label или state heading с удаляемым
@@ -298,6 +315,9 @@ overflow на required widths. Отдельный standalone branch test обя�
   в standalone mode или оставить два `PageSection`/лишний gap.
 - Broad description cleanup может удалить field/state/recovery copy; удалять
   только три inventory-confirmed generic descriptions.
+- Дублирование four-tab checks во всех viewport/spec combinations увеличит
+  время и хрупкость regression suite без нового сигнала; four-tab semantics
+  проверять один раз, geometry — в существующих representative matrices.
 - Viewport-only Chromium не доказывает Safari chrome/safe-area behavior;
   automated target acceptance должна запускаться в существующих WebKit iPhone
   projects, а physical-device gaps — сообщаться явно.
@@ -309,8 +329,9 @@ overflow на required widths. Отдельный standalone branch test обя�
 - Mantine tab ↔ panel accessible naming нельзя сохранить без shared tabs API
   redesign;
 - удаление требует менять backend/API/permissions/CRUD semantics;
-- найденный heading или description несёт validation, security, prerequisite,
-  decision-changing scope или recovery, а не только повторяет tab;
+- найденный вне трёх product-approved descriptions heading или description
+  несёт validation, security, prerequisite, decision-changing scope или
+  recovery, а не только повторяет tab;
 - scope расширяется до Settings redesign, shared toolbar refactor или других
   route headings;
 - acceptance criteria невозможно выполнить без нового продуктового решения.
