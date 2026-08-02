@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Badge, Button, Stack } from '@mantine/core'
+import { Button, Stack, Text } from '@mantine/core'
 import { IconCircleCheck, IconUsers, IconUsersGroup } from '@tabler/icons-react'
 import {
   ApiError,
@@ -11,14 +11,12 @@ import {
   type AttendanceState,
   type AuthenticatedUser,
 } from '../../lib/api'
-import { formatGroupSchedule } from '../../lib/groupSchedule'
 import {
   EmptyState,
   ErrorState,
   LoadingState,
   PageLayout,
   PageSection,
-  SectionHeader,
   TaskToolbarActions,
   TaskToolbarRefreshAction,
 } from '../shared/ux'
@@ -60,6 +58,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
   const [refreshVersion, setRefreshVersion] = useState(0)
   const [groupsReloadKey, setGroupsReloadKey] = useState(0)
   const [rosterView, setRosterView] = useState<AttendanceRosterView>('unmarked')
+  const [rosterRefreshError, setRosterRefreshError] = useState(false)
   const contextVersionRef = useRef(0)
   const actionVersionsRef = useRef<Record<string, number>>({})
   const contextKeyRef = useRef('')
@@ -134,6 +133,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
             ? buildRowState(response.clients)
             : mergeManualRefresh(current, response.clients),
         )
+        setRosterRefreshError(false)
         setRosterLoaded(true)
       } catch (error) {
         if (controller.signal.aborted || contextVersion !== contextVersionRef.current) return
@@ -187,7 +187,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
         attemptedState: null,
         errorMessage: null,
       })))
-      void refreshRosterAfterSave(selectedGroupId, trainingDate, contextKey)
+      void refreshRosterAfterSave(selectedGroupId, trainingDate, contextKey, clientId, actionVersion)
     } catch (error) {
       if (contextKeyRef.current !== contextKey || actionVersionsRef.current[clientId] !== actionVersion) return
       if (isAttendanceGroupForbidden(error)) {
@@ -204,16 +204,30 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
     }
   }
 
-  async function refreshRosterAfterSave(groupId: string, date: string, contextKey: string) {
+  async function refreshRosterAfterSave(
+    groupId: string,
+    date: string,
+    contextKey: string,
+    clientId: string,
+    actionVersion: number,
+  ) {
     try {
       const response = await getAttendanceGroupClients(groupId, date)
-      if (contextKeyRef.current !== contextKey) return
+      if (
+        contextKeyRef.current !== contextKey ||
+        actionVersionsRef.current[clientId] !== actionVersion
+      ) return
       setRows((current) => mergeRefreshedRows(current, response.clients))
       setMaxTrainingDate(response.maxTrainingDate)
       setToday(response.today)
       setMinTrainingDate(response.minTrainingDate)
+      setRosterRefreshError(false)
     } catch {
-      // The saved state remains authoritative; a later manual refresh can retry derived fields.
+      if (
+        contextKeyRef.current !== contextKey ||
+        actionVersionsRef.current[clientId] !== actionVersion
+      ) return
+      setRosterRefreshError(true)
     }
   }
 
@@ -227,6 +241,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       setRosterLoaded(false)
       setRosterError(null)
       setRosterView('unmarked')
+      setRosterRefreshError(false)
     }
     setSelectedGroupId(nextGroupId)
     setTrainingDate(nextDate)
@@ -240,6 +255,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
     setRosterLoaded(false)
     setRosterLoading(false)
     setRosterError(null)
+    setRosterRefreshError(false)
     setScopeChangeMessage('Доступ к группе изменился')
     setGroupsReloadKey((key) => key + 1)
   }
@@ -251,10 +267,38 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
     : allRows.filter((row) => row.persistedState === 'Unmarked')
   const markedCount = allRows.filter((row) => row.persistedState !== 'Unmarked').length
   const hasPendingSave = allRows.some((row) => row.saveState === 'pending')
+  const refreshRoster = () => setRefreshVersion((current) => current + 1)
+  const progressControl = selectedGroup ? (
+    <AttendanceProgress compact marked={markedCount} total={allRows.length} />
+  ) : undefined
+  const rosterViewControl = selectedGroup ? (
+    <AttendanceRosterViewControl compact onChange={setRosterView} value={rosterView} />
+  ) : undefined
+  const refreshAction = selectedGroup ? (
+    <TaskToolbarActions
+      className="attendance-roster-refresh"
+      frequentActions={(
+        <TaskToolbarRefreshAction
+          disabled={hasPendingSave}
+          label="Обновить список"
+          loading={rosterLoading && rosterLoaded}
+          onClick={refreshRoster}
+        />
+      )}
+    />
+  ) : null
 
   return (
     <Stack data-testid="attendance-workspace" gap="var(--page-section-gap)">
-      {groupsError ? <PageSection><ErrorState message={groupsError} title="Группы для посещений не загрузились" /></PageSection> : null}
+      {groupsError ? (
+        <PageSection>
+          <ErrorState
+            action={<Button onClick={() => setGroupsReloadKey((key) => key + 1)} variant="light">Повторить загрузку групп</Button>}
+            message={groupsError}
+            title="Группы для посещений не загрузились"
+          />
+        </PageSection>
+      ) : null}
       {scopeChangeMessage ? (
         <PageSection>
           <ErrorState message="Список доступных групп обновлен." title={scopeChangeMessage} />
@@ -288,6 +332,9 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
               changeContext(selectedGroupId, value)
             }
           }}
+          progress={progressControl}
+          refreshAction={refreshAction}
+          rosterViewControl={rosterViewControl}
           selectedGroupId={selectedGroupId}
           trainingDate={trainingDate}
           today={today}
@@ -295,28 +342,14 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       ) : null}
 
       {!groupsLoading && !groupsError && selectedGroup ? (
-        <PageSection className="attendance-roster-section">
+        <PageSection className="attendance-roster-section" variant="plain">
           <Stack gap="lg">
-            <SectionHeader
-              actions={<Badge color="sand" radius="xl" variant="light">{formatDateLabel(trainingDate)}</Badge>}
-              description={getSelectedGroupDescription(selectedGroup)}
-              title={selectedGroup.name}
-            />
-            <div className="attendance-roster-toolbar">
-              <AttendanceProgress marked={markedCount} total={allRows.length} />
-              <AttendanceRosterViewControl onChange={setRosterView} value={rosterView} />
-              <TaskToolbarActions
-                className="attendance-roster-refresh"
-                frequentActions={(
-                  <TaskToolbarRefreshAction
-                    disabled={hasPendingSave}
-                    label="Обновить список"
-                    loading={rosterLoading && rosterLoaded}
-                    onClick={() => setRefreshVersion((current) => current + 1)}
-                  />
-                )}
-              />
-            </div>
+            {rosterRefreshError ? (
+              <div aria-live="polite" className="attendance-roster-stale">
+                <Text fw={600} size="sm">Не удалось обновить список после сохранения.</Text>
+                <Button onClick={refreshRoster} variant="light">Повторить обновление списка</Button>
+              </div>
+            ) : null}
             {rosterError ? <ErrorState message={rosterError} title="Список клиентов не загрузился" /> : null}
             {rosterLoading && !rosterLoaded ? <LoadingState label="Загружаем состав группы..." /> : null}
             {!rosterLoading && !rosterError && rosterLoaded && allRows.length === 0 ? (
@@ -397,19 +430,6 @@ function mergeManualRefresh(
     }
   }
   return next
-}
-
-function formatDateLabel(value: string) {
-  const [year, month, day] = value.split('-')
-  return year && month && day ? `${day}.${month}.${year}` : value
-}
-
-function getSelectedGroupDescription(group: AttendanceGroup) {
-  const details: string[] = []
-  if (group.clientCount !== undefined) details.push(`${group.clientCount} клиентов`)
-  if (group.trainingStartTime) details.push(`Старт ${group.trainingStartTime}`)
-  if (group.weekdays && typeof group.durationMinutes === 'number') details.push(formatGroupSchedule(group.weekdays, group.durationMinutes))
-  return details.join(', ') || 'Список клиентов и отметки посещения на выбранную дату.'
 }
 
 function getEmptyAttendanceTitle(user: AuthenticatedUser) {

@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-104 Поднять первое действие attendance workbench выше сгиба
 
 ## Source task
-/backlog/implementation/TASK-104-attendance-workbench-first-action.md
+/backlog/done/TASK-104-attendance-workbench-first-action.md
 
 ## Implementation branch
 fix/TASK-104-attendance-workbench-first-action
@@ -444,28 +444,28 @@ Files to inspect but not expected to change:
   green, proving that red state is scoped to TASK-104 presentation/state gaps.
 
 ## Test plan
-- [ ] Unit/component and Playwright assertions are written before production
+- [x] Unit/component and Playwright assertions are written before production
       code and fail for the expected TASK-104 reasons.
-- [ ] One compact workbench header owns group/date/progress/view/refresh without
+- [x] One compact workbench header owns group/date/progress/view/refresh without
       repeated selected group/date/schedule context.
-- [ ] First client row and at least one status action are above bottom navigation
+- [x] First client row and at least one status action are above bottom navigation
       without scroll at `390 x 844`, `420 x 912` and `440 x 956`.
-- [ ] Full date remains readable at `912 x 420` and `956 x 440`.
-- [ ] Previous/today/next and status controls are at least `44 x 44px`, with at
+- [x] Full date remains readable at `912 x 420` and `956 x 440`.
+- [x] Previous/today/next and status controls are at least `44 x 44px`, with at
       least `8px` between independent date actions.
-- [ ] Long group/client names and large progress do not clip required decision
+- [x] Long group/client names and large progress do not clip required decision
       data or create horizontal overflow.
-- [ ] Benign membership copy is absent; professional/inactive/warning copy
+- [x] Benign membership copy is absent; professional/inactive/warning copy
       remains next to the affected client.
-- [ ] Loading, empty, roster error, completed, success, stale/retry and
+- [x] Loading, empty, roster error, completed, success, stale/retry and
       scope-revoked states retain the applicable context and primary path.
-- [ ] Pending/error/retry stay row-local; confirmed progress and stale-response
+- [x] Pending/error/retry stay row-local; confirmed progress and stale-response
       protections remain correct.
-- [ ] Focus order and accessible names remain stable, including icon-only
+- [x] Focus order and accessible names remain stable, including icon-only
       variants.
-- [ ] Full unit, lint, build, affected Chromium Playwright and target-iPhone
+- [x] Full unit, lint, build, affected Chromium Playwright and target-iPhone
       WebKit commands pass.
-- [ ] Safari/Simulator/physical-device evidence or residual risk is reported.
+- [x] Safari/Simulator/physical-device evidence or residual risk is reported.
 
 ## Regression barrier
 Primary barrier: an automated `AttendanceScreen` component suite that protects

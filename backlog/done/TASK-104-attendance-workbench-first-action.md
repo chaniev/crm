@@ -1,13 +1,18 @@
 # TASK-104: Поднять первое действие attendance workbench выше сгиба
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-02 15:22
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-104-attendance-workbench-first-action.plan.md
+- implementation_plan: /backlog/done/TASK-104-attendance-workbench-first-action.plan.md
 - implementation_branch: fix/TASK-104-attendance-workbench-first-action
+- implementation_state: completed
+- implementation_commit: fde37e0
+- delivered_on_main_at: 2026-08-02
+- moved_to_done_at: 2026-08-02
+- last_status_reviewed_at: 2026-08-02
 
 ## Goal
 Тренер видит первую строку клиента и может поставить статус посещения без предварительного скролла, при этом группа, дата и прогресс остаются понятными на portrait и compact landscape.
@@ -42,20 +47,20 @@ Coach / Administrator / HeadCoach с backend-разрешённым attendance s
 - На странице не должно появиться horizontal overflow или nested-scroll trap.
 
 ## Acceptance criteria
-- [ ] На `390 x 844` первая строка клиента и хотя бы один status action видны над bottom navigation без скролла.
-- [ ] Group/date остаются видимыми, понятными и доступными; progress сохраняет completion signal.
-- [ ] На `912 x 420` и `956 x 440` дата `ДД.ММ.ГГГГ` полностью читается.
-- [ ] Prev/today/next имеют зоны не меньше `44 x 44px`, не перекрываются и не вытесняют значение даты.
-- [ ] Per-row pending/error/retry остаются внутри строки и не заменяются toast-only feedback.
-- [ ] На `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420` и `956 x 440` нет horizontal overflow.
-- [ ] Loading, empty, error, success и stale/retry состояния не скрывают выбранный контекст и primary action.
+- [x] На `390 x 844` первая строка клиента и хотя бы один status action видны над bottom navigation без скролла.
+- [x] Group/date остаются видимыми, понятными и доступными; progress сохраняет completion signal.
+- [x] На `912 x 420` и `956 x 440` дата `ДД.ММ.ГГГГ` полностью читается.
+- [x] Prev/today/next имеют зоны не меньше `44 x 44px`, не перекрываются и не вытесняют значение даты.
+- [x] Per-row pending/error/retry остаются внутри строки и не заменяются toast-only feedback.
+- [x] На `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420` и `956 x 440` нет horizontal overflow.
+- [x] Loading, empty, error, success и stale/retry состояния не скрывают выбранный контекст и primary action.
 
 ## Test checklist
-- [ ] Добавить component tests для compact header, row-local error/retry и доступного date label.
-- [ ] Добавить geometry/behavior assertions на `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420` и `956 x 440`.
-- [ ] Проверить long group/client names и large progress values.
-- [ ] Проверить keyboard/focus order и screen-reader name для даты и icon-only controls.
-- [ ] Проверить dynamic viewport, software keyboard и safe-area clearance вручную на доступном устройстве или явно оставить residual device risk.
+- [x] Добавить component tests для compact header, row-local error/retry и доступного date label.
+- [x] Добавить geometry/behavior assertions на `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420` и `956 x 440`.
+- [x] Проверить long group/client names и large progress values.
+- [x] Проверить keyboard/focus order и screen-reader name для даты и icon-only controls.
+- [x] Проверить dynamic viewport, software keyboard и safe-area clearance вручную на доступном устройстве или явно оставить residual device risk.
 
 ## AI safety
 - Safe for Codex: yes
@@ -75,3 +80,11 @@ Coach / Administrator / HeadCoach с backend-разрешённым attendance s
 - Created by skill: codex-backlog-skill + crm-mobile-first-ui
 - Duplicate check: активного дубликата нет; завершённые TASK-064 и TASK-066 меняли attendance workflow, но не закрывают обнаруженную above-fold и compact-landscape регрессию.
 - Grouping: portrait density и landscape date collapse объединены, потому что обе проблемы принадлежат одному responsive header и одному primary attendance path.
+
+## Completion record
+- Completed on: 2026-08-02.
+- Implementation commit: `fde37e0`.
+- Validation: frontend lint, build, 417 unit tests, 50 affected Chromium Playwright tests and 34 target-iPhone WebKit tests passed.
+- Data storage: backend and database structure were not changed; migration is not required.
+- Runtime: no Docker Compose task stack was created because the plan required component and mocked browser validation only.
+- Residual device evidence: physical Safari chrome, software keyboard, safe-area, iOS Simulator and physical-device checks were not performed; target iPhone WebKit portrait/landscape profiles passed.

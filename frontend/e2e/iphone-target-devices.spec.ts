@@ -102,6 +102,59 @@ const CLIENTS_LIST_RESPONSE = {
   hasNextPage: false,
 } as const
 
+const ATTENDANCE_GROUPS_RESPONSE = {
+  groups: [
+    {
+      id: 'group-1',
+      name: 'Группа 7: вечер',
+      trainingStartTime: '19:00',
+      durationMinutes: 60,
+      weekdays: [2, 4],
+      clientCount: 1,
+    },
+  ],
+  today: '2026-04-18',
+  maxTrainingDate: '2026-04-18',
+} as const
+
+const ATTENDANCE_ROSTER_RESPONSE = {
+  groupId: 'group-1',
+  trainingDate: '2026-04-18',
+  today: '2026-04-18',
+  maxTrainingDate: '2026-04-18',
+  clients: [
+    {
+      id: 'client-1',
+      fullName: 'Александр Петров',
+      state: 'Unmarked',
+      hasActiveMembership: false,
+      membershipWarning: true,
+      membershipWarningMessage: 'Абонемент просрочен, отметка посещения доступна.',
+      groups: [
+        {
+          id: 'group-1',
+          name: 'Группа 7: вечер',
+          isActive: true,
+        },
+      ],
+    },
+    {
+      id: 'client-2',
+      fullName: 'Мария Зайцева',
+      state: 'Absent',
+      hasActiveMembership: true,
+      membershipWarning: false,
+      groups: [
+        {
+          id: 'group-1',
+          name: 'Группа 7: вечер',
+          isActive: true,
+        },
+      ],
+    },
+  ],
+} as const
+
 const MEMBERSHIP_CATALOG_LIST_ITEMS = [
   {
     id: 'single-visit-item',
@@ -360,6 +413,173 @@ test('unknown auth-profile values are safely resolved on iPhone profiles', async
   )
 
   expect(authBackgroundImage).toContain('k4pro-login-bg')
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone attendance workbench remains compact, readable, and action-reachable', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  await page.setViewportSize(target)
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, ATTENDANCE_GROUPS_RESPONSE)
+      return
+    }
+
+    if (
+      pathname === '/api/attendance/groups/group-1/clients' &&
+      method === 'GET'
+    ) {
+      await fulfillJson(route, ATTENDANCE_ROSTER_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/attendance/group-types' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    throw new Error(
+      `Unexpected attendance target API request: ${method} ${pathname}`,
+    )
+  })
+
+  await page.goto('/')
+  const attendanceScreen = page.getByTestId('attendance-screen')
+  const toolbar = page.getByTestId('attendance-toolbar')
+  const groupSelect = page.getByTestId('attendance-group-select')
+  const dateInput = page.getByTestId('attendance-date-input')
+  const previousDate = page.getByRole('button', { name: 'Предыдущая дата' })
+  const today = page.getByRole('button', { name: 'Сегодня' })
+  const nextDate = page.getByRole('button', { name: 'Следующая дата' })
+  const refresh = page.getByRole('button', { name: 'Обновить список' })
+  const progress = page.getByRole('progressbar')
+  const rosterView = page.getByTestId('attendance-roster-view-control')
+  const firstAction = page.getByTestId('attendance-client-card-client-1').getByRole('radio', {
+    name: 'Был',
+    exact: true,
+  })
+
+  await expect(attendanceScreen).toBeVisible()
+  await expect(toolbar).toBeVisible()
+  await expect(groupSelect).toBeVisible()
+  await expect(dateInput).toBeVisible()
+  await expect(previousDate).toBeVisible()
+  await expect(today).toBeVisible()
+  await expect(nextDate).toBeVisible()
+  await expect(refresh).toBeVisible()
+  await expect(progress).toBeVisible()
+  await expect(rosterView).toBeVisible()
+  await expect(firstAction).toBeVisible()
+
+  await expect(toolbar.getByTestId('attendance-group-select')).toBeVisible()
+  await expect(toolbar.getByTestId('attendance-date-input')).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Предыдущая дата' })).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Сегодня' })).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Следующая дата' })).toBeVisible()
+  await expect(toolbar.getByRole('progressbar')).toBeVisible()
+  await expect(toolbar.getByTestId('attendance-roster-view-control')).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Обновить список' })).toBeVisible()
+
+  const controls = [groupSelect, dateInput, previousDate, today, nextDate, refresh]
+  for (const control of controls) {
+    const box = await control.boundingBox()
+    expect(box).not.toBeNull()
+    expect(box!.height).toBeGreaterThanOrEqual(44)
+  }
+
+  const dateInputBox = await dateInput.boundingBox()
+  const dateInputValue = await dateInput.evaluate(
+    (element) => (element as HTMLInputElement).value,
+  )
+  expect(dateInputBox).not.toBeNull()
+  expect(dateInputValue).toBe('2026-04-18')
+  expect(dateInputBox!.width).toBeGreaterThanOrEqual(
+    target.width >= 440 ? 216 : target.width >= 420 ? 200 : 176,
+  )
+  const clipping = await dateInput.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: (element as HTMLElement).scrollWidth,
+  }))
+  expect(clipping.scrollWidth).toBeLessThanOrEqual(clipping.clientWidth)
+
+  const firstActionBox = await firstAction.boundingBox()
+  const navigation = page.getByRole('navigation', { name: 'Мобильная навигация' })
+  const header = await page.locator('.app-shell__header').boundingBox()
+  const navigationCount = await navigation.count()
+  if (navigationCount > 0) {
+    const navigationBox = await navigation.boundingBox()
+    expect(firstActionBox).not.toBeNull()
+    expect(navigationBox).not.toBeNull()
+    expect(firstActionBox!.y + firstActionBox!.height).toBeLessThanOrEqual(
+      navigationBox!.y - 8,
+    )
+  } else {
+    const viewport = await page.viewportSize()
+    expect(viewport).not.toBeNull()
+    expect(firstActionBox).not.toBeNull()
+    expect(firstActionBox!.y + firstActionBox!.height).toBeLessThanOrEqual(
+      (viewport!.height ?? target.height) + 1,
+    )
+    expect(firstActionBox!.y).toBeGreaterThanOrEqual((header?.y ?? 0) + (header?.height ?? 0) - 1)
+  }
+
+  await expectNoHorizontalScroll(page)
+  await expect(
+    page.getByRole('heading', { name: ATTENDANCE_GROUPS_RESPONSE.groups[0].name }),
+  ).toHaveCount(0)
+
+  const environment = await page.evaluate(() => ({
+    devicePixelRatio: window.devicePixelRatio,
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
+    userAgent: navigator.userAgent,
+  }))
+
+  expect(testInfo.project.use.hasTouch).toBe(true)
+  expect(environment.devicePixelRatio).toBe(3)
+  expect(environment.userAgent).toContain('iPhone')
+  expect(environment.innerWidth).toBe(target.width)
+  expect(environment.innerHeight).toBeLessThanOrEqual(target.height)
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await expect(attendanceScreen).toBeVisible()
+  await expect(toolbar).toBeVisible()
+  await expect(firstAction).toBeVisible()
+
+  const compactFirstAction = await firstAction.boundingBox()
+  expect(compactFirstAction).not.toBeNull()
+  const compactViewport = await page.viewportSize()
+  expect(compactFirstAction!.y).toBeGreaterThanOrEqual(0)
+  expect(compactFirstAction!.y + compactFirstAction!.height).toBeLessThanOrEqual(
+    compactViewport!.height + 1,
+  )
   await expectNoHorizontalScroll(page)
 })
 

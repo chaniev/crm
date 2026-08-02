@@ -112,6 +112,64 @@ describe('AttendanceWorkspace', () => {
     expect(screen.getByText('Отмечено 1 из 1')).toBeVisible()
   })
 
+  test('keeps the attendance workbench controls in a single compact toolbar', async () => {
+    renderWithProviders(<AttendanceWorkspace user={user} />)
+
+    await screen.findByTestId('attendance-client-card-client-1')
+    const toolbar = screen.getByTestId('attendance-toolbar')
+    const selectedGroupHeading = screen.queryByRole('heading', { name: 'Вечерняя' })
+    const groupSelect = screen.getByRole('combobox', { name: 'Группа' })
+    const trainingDate = screen.getByLabelText('Дата тренировки')
+    const previousDate = screen.getByRole('button', { name: 'Предыдущая дата' })
+    const todayButton = screen.getByRole('button', { name: 'Сегодня' })
+    const nextDate = screen.getByRole('button', { name: 'Следующая дата' })
+    const progress = screen.getByRole('progressbar', { name: 'Отмечено 0 из 1' })
+    const viewControl = screen.getByTestId('attendance-roster-view-control')
+    const refreshButton = screen.getByRole('button', { name: 'Обновить список' })
+
+    expect(selectedGroupHeading).not.toBeInTheDocument()
+    expect(toolbar).toBeVisible()
+    expect(groupSelect).toBeVisible()
+    expect(trainingDate).toBeVisible()
+    expect(previousDate).toBeVisible()
+    expect(todayButton).toBeVisible()
+    expect(nextDate).toBeVisible()
+    expect(progress).toBeVisible()
+    expect(viewControl).toBeVisible()
+    expect(refreshButton).toBeVisible()
+
+    expect(toolbar).toContainElement(progress)
+    expect(toolbar).toContainElement(viewControl)
+    expect(toolbar).toContainElement(refreshButton)
+    expect(progress).toHaveAttribute('aria-valuenow', '0')
+    expect(progress).toHaveAttribute('aria-valuemin', '0')
+    expect(progress).toHaveAttribute('aria-valuemax', '1')
+  })
+
+  test('reports large progress from the complete confirmed roster', async () => {
+    getRoster.mockResolvedValue({
+      groupId: 'group-1',
+      trainingDate: '2026-07-12',
+      today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
+      maxTrainingDate: '2026-07-12',
+      clients: [
+        buildClient('client-1', 'Александра Константинопольская-Северная', 'Unmarked'),
+        ...Array.from({ length: 122 }, (_, index) =>
+          buildClient(`client-${index + 2}`, `Отмеченный клиент ${index + 2}`, 'Present'),
+        ),
+      ],
+    })
+
+    renderWithProviders(<AttendanceWorkspace user={user} />)
+
+    await screen.findByTestId('attendance-client-card-client-1')
+    const progress = screen.getByRole('progressbar', { name: 'Отмечено 122 из 123' })
+    expect(progress).toHaveAttribute('aria-valuenow', '122')
+    expect(progress).toHaveAttribute('aria-valuemax', '123')
+    expect(screen.getByText('Отмечено 122 из 123')).toBeVisible()
+  })
+
   test('disables manual refresh while a row save is pending', async () => {
     const pendingSave = createDeferred<Awaited<ReturnType<typeof saveAttendanceMarks>>>()
     saveMarks.mockReturnValueOnce(pendingSave.promise)
@@ -128,32 +186,129 @@ describe('AttendanceWorkspace', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Обновить список' })).toBeEnabled())
   })
 
-  test('renders status-free active membership without paid/unpaid attendance badges', async () => {
+  test('preserves professional/inactive/warning copy in roster rows', async () => {
     getRoster.mockResolvedValue({
       groupId: 'group-1',
       trainingDate: '2026-07-12',
       today: '2026-07-12',
       minTrainingDate: '2026-07-10',
       maxTrainingDate: '2026-07-12',
-      clients: [{
-        id: 'client-1',
-        fullName: 'Иван Иванов',
-        state: 'Unmarked',
-        groups: [],
-        photo: null,
-        isProfessional: false,
-        professionalComment: null,
-        hasActiveMembership: true,
-        membershipWarning: false,
-        currentMembership: null,
-      } as unknown as Awaited<ReturnType<typeof getAttendanceGroupClients>>['clients'][number]],
+      clients: [
+        {
+          id: 'client-pro',
+          fullName: 'Профессионал Клиент',
+          state: 'Unmarked',
+          groups: [],
+          photo: null,
+          isProfessional: true,
+          professionalComment: 'Сборная',
+          hasActiveMembership: true,
+          membershipWarning: false,
+          currentMembership: null,
+        },
+        {
+          id: 'client-inactive',
+          fullName: 'Клиент без статуса',
+          state: 'Unmarked',
+          groups: [],
+          photo: null,
+          isProfessional: false,
+          professionalComment: null,
+          hasActiveMembership: false,
+          membershipWarning: false,
+          currentMembership: null,
+        },
+        {
+          id: 'client-warning',
+          fullName: 'Клиент с предупреждением',
+          state: 'Unmarked',
+          groups: [],
+          photo: null,
+          isProfessional: false,
+          professionalComment: null,
+          hasActiveMembership: false,
+          membershipWarning: true,
+          membershipWarningMessage: 'Абонемент просрочен, отметка посещения доступна.',
+          currentMembership: null,
+        } as unknown as Awaited<ReturnType<typeof getAttendanceGroupClients>>['clients'][number],
+      ],
     })
 
     renderWithProviders(<AttendanceWorkspace user={user} />)
 
-    expect(await screen.findByText('Отметка доступна на выбранную дату')).toBeVisible()
-    expect(screen.queryByText('Не оплачено')).not.toBeInTheDocument()
-    expect(screen.queryByText('Проблема с абонементом')).not.toBeInTheDocument()
+    const professionalCard = await screen.findByTestId('attendance-client-card-client-pro')
+    const inactiveCard = screen.getByTestId('attendance-client-card-client-inactive')
+    const warningCard = screen.getByTestId('attendance-client-card-client-warning')
+
+    expect(within(professionalCard).getByText('Профессиональный статус')).toBeVisible()
+    expect(within(professionalCard).getByText('Профессионал')).toBeVisible()
+    expect(within(inactiveCard).getByText('Нужна проверка статуса абонемента')).toBeVisible()
+    expect(within(warningCard).getByText('Есть предупреждение по абонементу')).toBeVisible()
+    expect(within(warningCard).getByText('Абонемент просрочен, отметка посещения доступна.')).toBeVisible()
+  })
+
+  test('shows groups load errors and retries the existing groups reload path', async () => {
+    getGroups
+      .mockRejectedValueOnce(new Error('Группы временно недоступны'))
+      .mockResolvedValueOnce({
+        groups: [{ id: 'group-1', name: 'Вечерняя' }],
+        today: '2026-07-12',
+        minTrainingDate: '2026-07-10',
+        maxTrainingDate: '2026-07-12',
+      })
+
+    renderWithProviders(<AttendanceWorkspace user={user} />)
+
+    expect(await screen.findByText('Группы для посещений не загрузились')).toBeVisible()
+    expect(screen.getByText('Группы временно недоступны')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить загрузку групп' }))
+
+    await waitFor(() => expect(getGroups).toHaveBeenCalledTimes(2))
+    expect(await screen.findByTestId('attendance-toolbar')).toBeVisible()
+    expect(screen.getByRole('combobox', { name: 'Группа' })).toBeVisible()
+  })
+
+  test('keeps a saved row and exposes stale retry when refresh after save fails', async () => {
+    const roster = await getRoster('group-1', '2026-07-12')
+    getRoster.mockReset()
+    getRoster
+      .mockResolvedValueOnce(roster)
+      .mockRejectedValueOnce(new Error('Сбой фонового обновления'))
+      .mockResolvedValueOnce({
+        ...roster,
+        clients: roster.clients.map((client) => ({ ...client, state: 'Present' })),
+      })
+
+    saveMarks.mockResolvedValue({
+      groupId: 'group-1',
+      trainingDate: '2026-07-12',
+      today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
+      maxTrainingDate: '2026-07-12',
+      attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
+    })
+
+    renderWithProviders(<AttendanceWorkspace user={user} />)
+
+    await screen.findByLabelText('Посещение: Иван Иванов')
+    fireEvent.click(screen.getByText('Был'))
+
+    expect(await screen.findByText('Все клиенты отмечены')).toBeVisible()
+    await waitFor(() => expect(getRoster).toHaveBeenCalledTimes(2))
+    expect(
+      await screen.findByText('Не удалось обновить список после сохранения.'),
+    ).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Показать всех' }))
+    expect(await screen.findByRole('radio', { name: 'Был' })).toBeChecked()
+    expect(screen.getByText('Сохранено')).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить обновление списка' }))
+    await waitFor(() => expect(getRoster).toHaveBeenCalledTimes(3))
+    await waitFor(() =>
+      expect(screen.queryByText('Не удалось обновить список после сохранения.')).not.toBeInTheDocument(),
+    )
+    expect(screen.getByRole('radio', { name: 'Был' })).toBeChecked()
   })
 
   test('a failed row does not block saving another client', async () => {
