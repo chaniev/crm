@@ -1,7 +1,13 @@
 # TASK-104: Поднять первое действие attendance workbench выше сгиба
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-02 15:22
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-104-attendance-workbench-first-action.plan.md
+- implementation_branch: fix/TASK-104-attendance-workbench-first-action
 
 ## Goal
 Тренер видит первую строку клиента и может поставить статус посещения без предварительного скролла, при этом группа, дата и прогресс остаются понятными на portrait и compact landscape.

@@ -1134,3 +1134,27 @@
 - note: TASK-102 removed the four duplicated embedded settings titles and
   three approved decorative descriptions while preserving named tab panels,
   toolbar operations, standalone branch title and operational state headings.
+
+# 2026-08-02 15:22
+
+## Moved to implementation
+- /backlog/implementation/TASK-104-attendance-workbench-first-action.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-104-attendance-workbench-first-action.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected medium-risk, Safe-for-Codex frontend TASK-104.
+  UX research and UI design handoffs fixed one compact attendance workbench
+  header, removal of duplicated group/date/schedule context, row-local recovery,
+  readable date minimums and above-fold primary-action geometry. The plan uses
+  dedicated branch `fix/TASK-104-attendance-workbench-first-action`, an isolated
+  worktree from current `origin/main`, tests-before-production red/green order
+  and automated portrait, compact-height and target-iPhone WebKit regression
+  barriers. Project code was not changed.
