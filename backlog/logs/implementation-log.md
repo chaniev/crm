@@ -1158,3 +1158,28 @@
   worktree from current `origin/main`, tests-before-production red/green order
   and automated portrait, compact-height and target-iPhone WebKit regression
   barriers. Project code was not changed.
+
+# 2026-08-02 15:57
+
+## Moved to implementation
+- /backlog/implementation/TASK-106-parallel-schedule-readability.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-106-parallel-schedule-readability.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected medium-risk, Safe-for-Codex frontend TASK-106.
+  UX research and UI design handoffs fixed a desktop-only hybrid of readable
+  individual overlap cards and grouped summary + Mantine Popover for dense or
+  undersized clusters, with exact decision-data, keyboard/focus behavior and
+  mobile timeline preservation. The plan uses dedicated branch
+  `fix/TASK-106-parallel-schedule-readability`, an isolated worktree from
+  current `origin/main`, unit/component/Playwright tests before production code
+  and automated desktop, responsive and target-iPhone regression barriers.
+  Project code was not changed.

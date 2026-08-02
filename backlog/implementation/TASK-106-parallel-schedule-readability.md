@@ -1,7 +1,13 @@
 # TASK-106: Сделать параллельные занятия читаемыми в desktop schedule
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-02 15:57
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-106-parallel-schedule-readability.plan.md
+- implementation_branch: fix/TASK-106-parallel-schedule-readability
 
 ## Goal
 Пользователь определяет время, группу и зал/тренера каждого параллельного занятия без угадывания по обрезанным подписям.
