@@ -1,5 +1,6 @@
 import { ActionIcon, Button, Group, Select, TextInput } from '@mantine/core'
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { IconCalendar, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import type { ReactNode } from 'react'
 import type { AttendanceGroup } from '../../lib/api'
 
 type AttendanceContextControlsProps = {
@@ -11,6 +12,9 @@ type AttendanceContextControlsProps = {
   today: string
   onGroupChange: (groupId: string | null) => void
   onTrainingDateChange: (trainingDate: string) => void
+  progress?: ReactNode
+  rosterViewControl?: ReactNode
+  refreshAction?: ReactNode
 }
 
 export function AttendanceContextControls({
@@ -22,6 +26,9 @@ export function AttendanceContextControls({
   today,
   onGroupChange,
   onTrainingDateChange,
+  progress,
+  rosterViewControl,
+  refreshAction,
 }: AttendanceContextControlsProps) {
   const nextDate = shiftIsoDate(trainingDate, 1)
 
@@ -51,7 +58,7 @@ export function AttendanceContextControls({
           type="date"
           value={trainingDate}
         />
-        <Group gap={6} wrap="nowrap">
+        <Group className="attendance-date-actions" gap={8} wrap="nowrap">
           <ActionIcon
             aria-label="Предыдущая дата"
             data-testid="attendance-date-previous"
@@ -71,11 +78,13 @@ export function AttendanceContextControls({
             aria-label="Сегодня"
             data-testid="attendance-date-today"
             disabled={!today || trainingDate === today}
+            leftSection={<IconCalendar aria-hidden="true" size={18} />}
             onClick={() => onTrainingDateChange(today)}
             size="md"
+            title="Сегодня"
             variant="default"
           >
-            Сегодня
+            <span className="attendance-date-today-label">Сегодня</span>
           </Button>
           <ActionIcon
             aria-label="Следующая дата"
@@ -90,6 +99,9 @@ export function AttendanceContextControls({
           </ActionIcon>
         </Group>
       </div>
+      {progress ? <div className="attendance-toolbar-progress">{progress}</div> : null}
+      {rosterViewControl ? <div className="attendance-toolbar-view">{rosterViewControl}</div> : null}
+      {refreshAction ? <div className="attendance-toolbar-refresh">{refreshAction}</div> : null}
     </div>
   )
 }

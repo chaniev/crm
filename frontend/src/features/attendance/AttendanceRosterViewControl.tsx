@@ -6,9 +6,11 @@ export type AttendanceRosterView = 'unmarked' | 'all'
 type AttendanceRosterViewControlProps = {
   value: AttendanceRosterView
   onChange: (value: AttendanceRosterView) => void
+  compact?: boolean
 }
 
 export function AttendanceRosterViewControl({
+  compact = false,
   value,
   onChange,
 }: AttendanceRosterViewControlProps) {
@@ -16,7 +18,7 @@ export function AttendanceRosterViewControl({
 
   return (
     <Stack gap={4} role="group" aria-labelledby={labelId}>
-      <Text fw={700} id={labelId} size="sm">Показывать клиентов</Text>
+      <Text className={compact ? 'visually-hidden' : undefined} fw={700} id={labelId} size="sm">Показывать клиентов</Text>
       <SegmentedControl
         className="attendance-roster-view-control"
         data={[

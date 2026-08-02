@@ -22,9 +22,9 @@ export function AttendanceClientRow({ row, onChange, onRetry }: AttendanceClient
     ? 'Профессиональный статус'
     : client.membershipWarning
       ? 'Есть предупреждение по абонементу'
-      : client.hasActiveMembership
-        ? 'Отметка доступна на выбранную дату'
-        : 'Нужна проверка статуса абонемента'
+      : !client.hasActiveMembership
+        ? 'Нужна проверка статуса абонемента'
+        : null
 
   return (
     <Paper
@@ -45,7 +45,7 @@ export function AttendanceClientRow({ row, onChange, onRetry }: AttendanceClient
           <Stack className="attendance-client-main" gap={6}>
             <div>
               <Text fw={700}>{client.fullName}</Text>
-              <Text c="dimmed" size="sm">{statusLabel}</Text>
+              {statusLabel ? <Text c="dimmed" size="sm">{statusLabel}</Text> : null}
             </div>
             <Group gap="xs" wrap="wrap">
               {client.isProfessional ? <Badge color="blue" variant="light">Профессионал</Badge> : null}

@@ -3025,24 +3025,131 @@
 }
 
 .attendance-context-controls {
+  --attendance-date-input-min: 156px;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) 44px;
+  gap: 0.75rem 0.5rem;
   padding: 0.75rem;
+  align-items: end;
+}
+
+.attendance-context-controls > .mantine-Select-root,
+.attendance-date-control {
+  grid-column: 1 / -1;
+}
+
+.attendance-context-controls > .mantine-Select-root {
+  min-width: 0;
 }
 
 .attendance-date-control {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(var(--attendance-date-input-min), 1fr) auto;
   gap: 0.5rem;
   align-items: end;
+  min-width: 0;
 }
 
-.attendance-roster-toolbar {
+.attendance-date-actions {
+  min-width: 0;
+}
+
+.attendance-date-control :where(.mantine-Input-wrapper),
+.attendance-date-control :where(.mantine-Input-input) {
+  min-width: 0;
+}
+
+.attendance-date-control :where(.mantine-Input-input) {
+  font-size: 1rem;
+}
+
+.attendance-date-control :where(.mantine-ActionIcon-root) {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+}
+
+.attendance-date-control :where(.mantine-Button-root) {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding-inline: 0;
+}
+
+.attendance-date-control :where(.mantine-Button-section) {
+  margin-inline-end: 0;
+}
+
+.attendance-date-today-label,
+.attendance-toolbar-refresh .task-toolbar-action .mantine-Button-label {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  opacity: 0 !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.attendance-toolbar-progress,
+.attendance-toolbar-view,
+.attendance-toolbar-refresh {
+  min-width: 0;
+}
+
+.attendance-toolbar-progress {
+  grid-column: 1;
+}
+
+.attendance-toolbar-view {
+  grid-column: 2;
+}
+
+.attendance-toolbar-refresh {
+  grid-column: 3;
+}
+
+.attendance-toolbar-progress [role='progressbar'] {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-  align-items: end;
+  min-width: 0;
+}
+
+.attendance-toolbar-progress [role='progressbar'] :where(.mantine-Text-root) {
+  line-height: 1.2;
+}
+
+.attendance-toolbar-refresh .task-toolbar-actions,
+.attendance-toolbar-refresh .task-toolbar-action.shared-button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding-inline: 0;
+}
+
+.attendance-toolbar-refresh .task-toolbar-action .mantine-Button-section {
+  margin-inline: 0;
+}
+
+.attendance-roster-section {
+  min-width: 0;
+}
+
+.attendance-roster-stale {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid var(--crm-brand-alpha-12);
+  border-radius: 0.5rem;
+  background: var(--crm-status-warning-bg);
+}
+
+.attendance-roster-stale :where(.mantine-Button-root) {
+  min-height: 44px;
 }
 
 .attendance-roster-view-control {
@@ -3132,6 +3239,7 @@
 
 .attendance-context-controls :where(.mantine-Input-input, .mantine-Select-input, .mantine-Button-root) {
   min-height: 44px;
+  font-size: 1rem;
 }
 
 .attendance-save-error {
@@ -3836,16 +3944,94 @@
   }
 }
 
+@media (min-width: 24.375rem) {
+  .attendance-context-controls {
+    --attendance-date-input-min: 176px;
+  }
+}
+
+@media (min-width: 26.25rem) {
+  .attendance-context-controls {
+    --attendance-date-input-min: 200px;
+  }
+}
+
+@media (min-width: 27.5rem) {
+  .attendance-context-controls {
+    --attendance-date-input-min: 216px;
+  }
+}
+
 @media (min-width: 48rem) {
   .attendance-context-controls {
-    grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 0.9fr);
+    --attendance-date-input-min: 216px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto) 44px;
     align-items: end;
+  }
+
+  .attendance-context-controls > .mantine-Select-root {
+    grid-column: 1 / -1;
+  }
+
+  .attendance-date-control {
+    grid-column: 1 / -1;
+  }
+
+  .attendance-toolbar-progress {
+    grid-column: 1;
+  }
+
+  .attendance-toolbar-view {
+    grid-column: 2;
+  }
+
+  .attendance-toolbar-refresh {
+    grid-column: 3;
   }
 }
 
 @media (min-width: 64rem) {
-  .attendance-roster-toolbar {
-    grid-template-columns: minmax(12rem, 1fr) auto auto;
+  .attendance-context-controls {
+    grid-template-columns: minmax(220px, 1fr) minmax(332px, 1.25fr) minmax(7rem, 0.7fr) auto auto;
+  }
+
+  .attendance-date-control {
+    grid-column: 2;
+  }
+
+  .attendance-toolbar-progress {
+    grid-column: 3;
+  }
+
+  .attendance-toolbar-view {
+    grid-column: 4;
+  }
+
+  .attendance-toolbar-refresh {
+    grid-column: 5;
+  }
+
+  .attendance-date-control :where(.mantine-Button-root),
+  .attendance-toolbar-refresh .task-toolbar-action.shared-button {
+    width: auto;
+    min-width: 44px;
+    padding-inline: 0.875rem;
+  }
+
+  .attendance-date-control :where(.mantine-Button-section) {
+    margin-inline-end: 0.5rem;
+  }
+
+  .attendance-date-today-label,
+  .attendance-toolbar-refresh .task-toolbar-action .mantine-Button-label {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    opacity: 1 !important;
+    white-space: nowrap !important;
   }
 
   .attendance-roster-refresh,
@@ -3868,6 +4054,150 @@
 
   .attendance-client-actions {
     justify-items: end;
+  }
+}
+
+@media (min-width: 50rem) and (max-height: 30rem) {
+  .attendance-context-controls {
+    --attendance-date-input-min: 176px;
+    grid-template-columns: minmax(180px, 1fr) minmax(332px, 1.3fr) minmax(4.5rem, 0.45fr) 44px;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .attendance-context-controls > .mantine-Select-root {
+    grid-column: 1;
+  }
+
+  .attendance-date-control {
+    grid-column: 2;
+    min-width: 332px;
+  }
+
+  .attendance-toolbar-progress {
+    grid-column: 3;
+  }
+
+  .attendance-toolbar-view {
+    grid-column: 1 / -1;
+    justify-self: end;
+    width: min(100%, 16rem);
+  }
+
+  .attendance-toolbar-refresh {
+    grid-column: 4;
+  }
+
+  .attendance-toolbar-view,
+  .attendance-roster-view-control {
+    width: 100%;
+  }
+
+  .attendance-roster-view-control :where(.mantine-SegmentedControl-label) {
+    padding-inline: 0.3rem;
+    font-size: 0.78rem;
+  }
+
+  .attendance-toolbar-progress [role='progressbar'] {
+    gap: 4px;
+  }
+
+  .attendance-client-card {
+    padding: 0.6rem;
+  }
+
+  .attendance-client-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+  }
+
+  .attendance-client-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .attendance-client-main {
+    gap: 4px;
+  }
+
+  .attendance-client-actions {
+    justify-items: end;
+  }
+
+  .attendance-state-control {
+    width: min(19rem, 40vw);
+  }
+}
+
+@media (min-width: 50rem) and (max-height: 30rem) and (pointer: coarse) {
+  .attendance-context-controls {
+    grid-template-columns: minmax(150px, 1fr) minmax(332px, 1.35fr) minmax(3.5rem, 0.3fr) 9.5rem 44px;
+    gap: 0.375rem;
+  }
+
+  .attendance-toolbar-view {
+    grid-column: 4;
+    justify-self: stretch;
+    width: 9.5rem;
+  }
+
+  .attendance-toolbar-refresh {
+    grid-column: 5;
+  }
+}
+
+@media (max-width: 22.5rem) {
+  .attendance-context-controls {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .attendance-toolbar-progress [role='progressbar'] :where(.mantine-Text-root) {
+    font-size: 0.8rem;
+  }
+
+  .attendance-roster-section > .mantine-Stack-root {
+    gap: 0.5rem;
+  }
+
+  .attendance-client-card {
+    padding: 0.55rem;
+  }
+
+  .attendance-client-row {
+    gap: 0.5rem;
+  }
+
+  .attendance-client-identity {
+    gap: 0.5rem;
+  }
+
+  .attendance-client-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .attendance-client-main {
+    gap: 2px;
+  }
+
+  .attendance-client-main :where(.mantine-Badge-root),
+  .attendance-client-main :where(.mantine-Text-root) {
+    font-size: 0.8rem;
+  }
+
+  .attendance-client-actions {
+    gap: 0.25rem;
+  }
+}
+
+@media (max-width: 20rem) {
+  .attendance-date-control {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attendance-date-actions {
+    justify-content: flex-end;
   }
 }
 
@@ -3894,13 +4224,6 @@
     padding-inline: 0.35rem;
   }
 
-  .attendance-date-control {
-    grid-template-columns: 1fr;
-  }
-
-  .attendance-date-control > .mantine-Group-root {
-    justify-content: flex-end;
-  }
 }
 
 @media (max-width: 30rem) {

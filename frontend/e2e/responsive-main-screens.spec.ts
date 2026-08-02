@@ -229,7 +229,7 @@ const ATTENDANCE_GROUPS_RESPONSE = {
       trainingStartTime: '19:00',
       durationMinutes: 60,
       weekdays: [2, 4],
-      clientCount: 1,
+      clientCount: 123,
     },
   ],
   today: '2026-04-18',
@@ -258,6 +258,20 @@ const ATTENDANCE_ROSTER_RESPONSE = {
         },
       ],
     },
+    ...Array.from({ length: 122 }, (_, index) => ({
+      id: `client-${index + 2}`,
+      fullName: `Отмеченный клиент ${index + 2}`,
+      state: 'Present' as const,
+      hasActiveMembership: true,
+      membershipWarning: false,
+      groups: [
+        {
+          id: 'group-1',
+          name: 'Группа 7: вечерний поток с длинным названием',
+          isActive: true,
+        },
+      ],
+    })),
   ],
 } as const
 
@@ -552,6 +566,44 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
         }
         await expectNoHorizontalScroll(page)
       }
+    })
+  })
+}
+
+type AttendanceViewportConstraint = {
+  label: string
+  width: number
+  height: number
+  dateClusterMinWidth?: number
+  dateInputMinWidth?: number
+}
+
+const TASK_104_ATTENDANCE_VIEWPORTS: AttendanceViewportConstraint[] = [
+  { label: 'attendance-narrow-360', width: 360, height: 780, dateInputMinWidth: 156 },
+  { label: 'attendance-stress-390', width: 390, height: 844, dateInputMinWidth: 176 },
+  { label: 'attendance-iphone-air-420', ...TASK_090_MANIFEST.viewports.iphoneAir, dateInputMinWidth: 200 },
+  { label: 'attendance-iphone-pro-max-440', ...TASK_090_MANIFEST.viewports.iphone17ProMax, dateInputMinWidth: 216 },
+  { label: 'attendance-compact-air-912', width: 912, height: 420, dateClusterMinWidth: 332 },
+  { label: 'attendance-compact-pro-max-956', width: 956, height: 440, dateClusterMinWidth: 332 },
+  { label: 'attendance-tablet-768', width: 768, height: 1024 },
+  { label: 'attendance-desktop-1440', width: 1440, height: 1200 },
+] as const
+
+for (const viewport of TASK_104_ATTENDANCE_VIEWPORTS) {
+  test.describe(`TASK-104 attendance required geometry ${viewport.label}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } })
+
+    test('keeps primary attendance action and toolbar readable in compact workbench', async ({
+      page,
+    }) => {
+      await mockApi(page, MANAGEMENT_SESSION)
+      await page.goto('/')
+
+      await expect(page.getByTestId('attendance-screen')).toBeVisible()
+      await expect(page.getByTestId('attendance-toolbar')).toBeVisible()
+      await expect(page.getByTestId('attendance-client-card-client-1')).toBeVisible()
+      await expectAttendanceToolbarGeometry(page, viewport)
+      await expectNoHorizontalScroll(page)
     })
   })
 }
@@ -2024,6 +2076,93 @@ async function expectAttendance320Contract(page: Page) {
   const cardBox = await card.boundingBox()
   const navBox = await page.getByRole('navigation', { name: 'Мобильная навигация' }).boundingBox()
   expect(cardBox!.y + cardBox!.height).toBeLessThanOrEqual(navBox!.y + 1)
+}
+
+async function expectAttendanceToolbarGeometry(
+  page: Page,
+  viewport: AttendanceViewportConstraint,
+) {
+  const toolbar = page.getByTestId('attendance-toolbar')
+  const group = page.getByTestId('attendance-group-select')
+  const dateInput = page.getByTestId('attendance-date-input')
+  const previous = page.getByRole('button', { name: 'Предыдущая дата' })
+  const today = page.getByRole('button', { name: 'Сегодня' })
+  const next = page.getByRole('button', { name: 'Следующая дата' })
+  const refresh = page.getByRole('button', { name: 'Обновить список' })
+  const progress = page.getByRole('progressbar')
+  const rosterView = page.getByTestId('attendance-roster-view-control')
+  const firstAction = page
+    .getByTestId('attendance-client-card-client-1')
+    .getByRole('radio', { name: 'Был', exact: true })
+  const duplicateHeaders = page.getByRole('heading', {
+    name: ATTENDANCE_GROUPS_RESPONSE.groups[0].name,
+  })
+
+  await expect(toolbar).toBeVisible()
+  await expect(group).toBeVisible()
+  await expect(dateInput).toBeVisible()
+  await expect(previous).toBeVisible()
+  await expect(today).toBeVisible()
+  await expect(next).toBeVisible()
+  await expect(refresh).toBeVisible()
+  await expect(progress).toBeVisible()
+  await expect(progress).toHaveAttribute('aria-valuenow', '122')
+  await expect(progress).toHaveAttribute('aria-valuemax', '123')
+  await expect(rosterView).toBeVisible()
+  await expect(firstAction).toBeVisible()
+
+  for (const control of [group, dateInput, previous, today, next, refresh]) {
+    const box = await control.boundingBox()
+    expect(box).not.toBeNull()
+    expect(box!.height).toBeGreaterThanOrEqual(44)
+  }
+
+  const dateInputValue = await dateInput.evaluate(
+    (element) => (element as HTMLInputElement).value,
+  )
+  expect(dateInputValue).toBeTruthy()
+  const dateInputWidth = await dateInput.evaluate((element) => ({
+    clientWidth: (element as HTMLElement).clientWidth,
+    scrollWidth: (element as HTMLElement).scrollWidth,
+  }))
+  expect(dateInputWidth.scrollWidth).toBeLessThanOrEqual(dateInputWidth.clientWidth)
+  await expect(toolbar.getByTestId('attendance-group-select')).toBeVisible()
+  await expect(toolbar.getByTestId('attendance-date-input')).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Предыдущая дата' })).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Сегодня' })).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Следующая дата' })).toBeVisible()
+  await expect(toolbar.getByRole('progressbar')).toBeVisible()
+  await expect(toolbar.getByTestId('attendance-roster-view-control')).toBeVisible()
+  await expect(toolbar.getByRole('button', { name: 'Обновить список' })).toBeVisible()
+
+  if (viewport.dateClusterMinWidth) {
+    const dateControl = page.locator('.attendance-date-control')
+    const dateControlBox = await dateControl.boundingBox()
+    expect(dateControlBox).not.toBeNull()
+    expect(dateControlBox!.width).toBeGreaterThanOrEqual(viewport.dateClusterMinWidth)
+  } else {
+    const dateInputBox = await dateInput.boundingBox()
+    expect(dateInputBox).not.toBeNull()
+    expect(dateInputBox!.width).toBeGreaterThanOrEqual(
+      viewport.dateInputMinWidth ?? 0,
+    )
+  }
+
+  expect(await duplicateHeaders.count()).toBe(0)
+
+  const firstActionBox = await firstAction.boundingBox()
+  expect(firstActionBox).not.toBeNull()
+
+  const bottomNavigation = page.getByRole('navigation', {
+    name: 'Мобильная навигация',
+  })
+  if (await bottomNavigation.count() > 0) {
+    const navigationBox = await bottomNavigation.boundingBox()
+    expect(navigationBox).not.toBeNull()
+    expect(firstActionBox!.y + firstActionBox!.height).toBeLessThanOrEqual(
+      navigationBox!.y - 8,
+    )
+  }
 }
 
 async function mockApi(

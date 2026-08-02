@@ -177,7 +177,7 @@ test.describe('Мобильный сценарий посещений трене
     ).toHaveCount(0)
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
-    await expect(page.getByRole('heading', { name: assignedGroup.name })).toBeVisible()
+    await expect(page.getByRole('heading', { name: assignedGroup.name })).toHaveCount(0)
     await expect(page.getByText('Показывать клиентов')).toBeVisible()
     await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
     await expect(page.getByText(ABSENT_CLIENT_FULL_NAME)).toHaveCount(0)
@@ -198,9 +198,107 @@ test.describe('Мобильный сценарий посещений трене
     await expect(trainingDateInput).toBeVisible()
     await trainingDateInput.fill(FIXED_TRAINING_DATE)
 
-    await expect(page.getByText('18.04.2026', { exact: true })).toBeVisible()
-
     const clientCard = page.getByTestId(`attendance-client-card-${CLIENT_ID}`)
+
+    const dateInput = page.getByTestId('attendance-date-input')
+    const dateInputBox = await dateInput.boundingBox()
+    expect(dateInputBox).not.toBeNull()
+    expect(dateInputBox!.width).toBeGreaterThanOrEqual(176)
+    expect(await dateInput.evaluate((element) => (element as HTMLInputElement).value)).toBe(
+      FIXED_TRAINING_DATE,
+    )
+    const dateInputOverflow = await dateInput.evaluate((element) => ({
+      clientWidth: (element as HTMLElement).clientWidth,
+      scrollWidth: (element as HTMLElement).scrollWidth,
+    }))
+    expect(dateInputOverflow.scrollWidth).toBeLessThanOrEqual(dateInputOverflow.clientWidth)
+
+    const groupSelect = page.getByTestId('attendance-group-select')
+    const datePrevious = page.getByRole('button', { name: 'Предыдущая дата' })
+    const dateToday = page.getByRole('button', { name: 'Сегодня' })
+    const dateNext = page.getByRole('button', { name: 'Следующая дата' })
+
+    await trainingDateInput.fill('2026-04-17')
+    await expect(trainingDateInput).toHaveValue('2026-04-17')
+    await expect(clientCard).toBeVisible()
+
+    await groupSelect.focus()
+    await expect(groupSelect).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(trainingDateInput).toBeFocused()
+    await pressTabUntilFocused(page, datePrevious)
+    await page.keyboard.press('Tab')
+    await expect(dateToday).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(dateNext).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(
+      page.getByTestId('attendance-roster-view-control').getByRole('radio', {
+        name: 'Не отмечено',
+        exact: true,
+      }),
+    ).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('button', { name: 'Обновить список' })).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(
+      clientCard.getByRole('radio', { name: 'Не отмечено', exact: true }),
+    ).toBeFocused()
+
+    await trainingDateInput.fill(FIXED_TRAINING_DATE)
+    await expect(trainingDateInput).toHaveValue(FIXED_TRAINING_DATE)
+    await expect(clientCard).toBeVisible()
+
+    for (const control of [groupSelect, dateInput, datePrevious, dateToday, dateNext]) {
+      const box = await control.boundingBox()
+      expect(box).not.toBeNull()
+      expect(box!.height).toBeGreaterThanOrEqual(44)
+    }
+
+    const [groupBox, previousBox, todayBox, nextBox] = await Promise.all([
+      groupSelect.boundingBox(),
+      datePrevious.boundingBox(),
+      dateToday.boundingBox(),
+      dateNext.boundingBox(),
+    ])
+
+    expect(groupBox).not.toBeNull()
+    expect(previousBox).not.toBeNull()
+    expect(todayBox).not.toBeNull()
+    expect(nextBox).not.toBeNull()
+
+    const isDateControlsRow =
+      Math.abs((previousBox!.y - todayBox!.y)) < 3 &&
+      Math.abs((todayBox!.y - nextBox!.y)) < 3
+
+    if (isDateControlsRow) {
+      expect(todayBox!.x - (previousBox!.x + previousBox!.width)).toBeGreaterThanOrEqual(8)
+      expect(nextBox!.x - (todayBox!.x + todayBox!.width)).toBeGreaterThanOrEqual(8)
+    } else {
+      expect(todayBox!.y - (previousBox!.y + previousBox!.height)).toBeGreaterThanOrEqual(8)
+      expect(nextBox!.y - (todayBox!.y + todayBox!.height)).toBeGreaterThanOrEqual(8)
+    }
+
+    const firstAction = clientCard.getByRole('radio', { exact: true, name: 'Был' })
+    await expect(firstAction).toBeVisible()
+    const firstActionBox = await firstAction.boundingBox()
+    const navigation = page.getByRole('navigation', { name: 'Мобильная навигация' })
+    const navigationBox = await navigation.boundingBox()
+    expect(firstActionBox).not.toBeNull()
+    expect(navigationBox).not.toBeNull()
+    expect(firstActionBox!.y + firstActionBox!.height).toBeLessThanOrEqual(
+      navigationBox!.y - 8,
+    )
+
+    const pageGeometry = await page.evaluate(() => ({
+      documentScrollWidth: document.documentElement.scrollWidth,
+      viewportWidth: window.innerWidth,
+      bodyScrollWidth: document.body.scrollWidth,
+    }))
+
+    expect(pageGeometry.documentScrollWidth).toBeLessThanOrEqual(pageGeometry.viewportWidth + 1)
+    expect(pageGeometry.bodyScrollWidth).toBeLessThanOrEqual(pageGeometry.viewportWidth + 1)
+
     await clientCard.getByText('Был', { exact: true }).click()
 
     await expect
@@ -350,4 +448,17 @@ async function fulfillJson(
     contentType: 'application/json; charset=utf-8',
     body: JSON.stringify(payload),
   })
+}
+
+async function pressTabUntilFocused(
+  page: Page,
+  target: ReturnType<Page['locator']>,
+  maxPresses = 4,
+) {
+  for (let press = 0; press < maxPresses; press += 1) {
+    await page.keyboard.press('Tab')
+    if (await target.evaluate((element) => element === document.activeElement)) return
+  }
+
+  await expect(target).toBeFocused()
 }
