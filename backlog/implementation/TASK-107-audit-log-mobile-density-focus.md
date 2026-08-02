@@ -1,7 +1,13 @@
 # TASK-107: Уплотнить мобильный журнал и исправить pagination/focus
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-02 16:53
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-107-audit-log-mobile-density-focus.plan.md
+- implementation_branch: fix/TASK-107-audit-log-mobile-density-focus
 
 ## Goal
 Пользователь быстрее сканирует журнал на мобильном устройстве, безопасно переключает страницы и всегда возвращается к исходной записи после закрытия деталей.
