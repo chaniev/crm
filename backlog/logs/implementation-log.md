@@ -1183,3 +1183,51 @@
   current `origin/main`, unit/component/Playwright tests before production code
   and automated desktop, responsive and target-iPhone regression barriers.
   Project code was not changed.
+
+# 2026-08-02 16:53
+
+## Moved to implementation
+- /backlog/implementation/TASK-107-audit-log-mobile-density-focus.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-107-audit-log-mobile-density-focus.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected medium-risk, Safe-for-Codex frontend TASK-107.
+  UX research and UI design handoffs fixed a `96–124px` compact mobile row,
+  exact/raw technical-description handling, responsive `44 x 44px`
+  pagination, timer-free Mantine modal focus return and explicit retry/stale
+  states. The plan uses dedicated branch
+  `fix/TASK-107-audit-log-mobile-density-focus`, an isolated worktree from
+  current `origin/main`, unit/component/integration/Playwright tests before
+  production code, and automated portrait, compact-height and target-iPhone
+  WebKit regression barriers. Project code was not changed.
+
+# 2026-08-02 17:00
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-108-finance-report-task-first-hierarchy.plan.md
+
+## Skipped tasks
+- TASK-108-finance-report-task-first-hierarchy.md — not moved: source task
+  remains in `/backlog/risky`, is medium risk and `Safe for Codex: no`; plan
+  created for human financial-trust review before active implementation in
+  branch `fix/TASK-108-finance-report-task-first-hierarchy`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan is frontend-only, keeps backend finance values/query params/
+  permissions unchanged, requires component and Playwright red tests before
+  functional code, and blocks execution on formula, attribution, stale-scope
+  or financial-trust changes without review. Project code was not changed.
