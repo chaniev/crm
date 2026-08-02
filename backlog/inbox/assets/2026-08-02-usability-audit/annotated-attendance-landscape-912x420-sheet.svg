@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="912" height="912" viewBox="0 0 912 912">
+  <style>.mark{fill:#d92d2018;stroke:#d92d20;stroke-width:3}.badge{fill:#d92d20}.num{fill:#fff;font:700 16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-anchor:middle;dominant-baseline:middle}.heading{fill:#172126;font:700 25px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.title{fill:#172126;font:700 19px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.copy{fill:#4b5563;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}</style>
+  <rect width="912" height="912" fill="#f7f5ef"/><image href="mobile-attendance-landscape-912x420.png" width="912" height="420"/><line x1="0" y1="432" x2="912" y2="432" stroke="#d9ddd9" stroke-width="2"/>
+  <rect class="mark" x="632" y="174" width="258" height="99" rx="12"/><rect class="mark" x="232" y="305" width="664" height="111" rx="12"/>
+  <g><circle class="badge" cx="636" cy="168" r="15"/><text class="num" x="636" y="168">1</text></g><g><circle class="badge" cx="236" cy="299" r="15"/><text class="num" x="236" y="299">2</text></g>
+  <text class="heading" x="36" y="485">Посещения · compact landscape 912 × 420</text>
+  <g transform="translate(36 545)"><circle class="badge" cx="17" cy="17" r="17"/><text class="num" x="17" y="17">1</text><text class="title" x="54" y="11">Выбранная дата не читается</text><text class="copy" x="54" y="43"><tspan x="54">Поле даты сжимается до пустого квадрата — ключевой контекст</tspan><tspan x="54" dy="24">решения скрыт.</tspan></text></g>
+  <g transform="translate(36 690)"><circle class="badge" cx="17" cy="17" r="17"/><text class="num" x="17" y="17">2</text><text class="title" x="54" y="11">Roster не попадает в видимую область</text><text class="copy" x="54" y="43"><tspan x="54">Первый клиент и действие отметки остаются ниже экрана,</tspan><tspan x="54" dy="24">хотя высота уже критически мала.</tspan></text></g>
+</svg>
