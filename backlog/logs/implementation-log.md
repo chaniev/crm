@@ -1300,3 +1300,77 @@
   isolated worktree, pending-save recovery, mark-first keyboard priority,
   responsive geometry and target-iPhone WebKit barriers are mandatory. Project
   code was not changed.
+
+# 2026-08-16 17:37
+
+## Moved to implementation
+- /backlog/implementation/TASK-112-schedule-single-day-mode.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-112-schedule-single-day-mode.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected medium-risk, `Safe for Codex: yes`,
+  frontend-only TASK-112. UX research and UI-design handoffs fixed a wide-only
+  `Неделя / День` switch, reusable day view, canonical
+  `mode=week|day&weekday=1..7` history contract, responsive effective-mode
+  policy and keyboard/focus behavior. The plan uses dedicated branch
+  `feature/TASK-112-schedule-single-day-mode`, an isolated worktree,
+  pure/component/integration/Playwright tests before production code and
+  automated target-iPhone/overflow regression barriers. Backend/API and TASK-106
+  overlap logic remain outside scope; project code was not changed.
+
+# 2026-08-16 17:34
+
+## Moved to implementation
+- /backlog/implementation/TASK-111-ux-audit-regression-matrix.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-111-ux-audit-regression-matrix.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected low-risk, `Safe for Codex: yes`, test-only
+  TASK-111. The plan formalizes attendance/settings/audit/schedule/profile
+  surface and viewport coverage, separates page overflow from decision-data
+  loss, uses branch `fix/TASK-111-ux-audit-regression-matrix`, preserves
+  tests-before-harness/product order and requires Chromium, touch inventory
+  and target-iPhone WebKit regression barriers. Full green execution is gated
+  on TASK-106/107/109/110 being merged into `origin/main`; unresolved TASK-103
+  navigation naming is excluded. Project code was not changed.
+
+# 2026-08-16 17:39
+
+## Moved to implementation
+- /backlog/implementation/TASK-110-mobile-profile-trigger-touch-target.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-110-mobile-profile-trigger-touch-target.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected low-risk, `Safe for Codex: yes`, frontend-only
+  TASK-110. The UI/React feasibility handoff localized the production fix to
+  the actual profile-button border box, preserving Mantine menu semantics,
+  visible icons and header rhythm. The plan uses dedicated branch
+  `fix/TASK-110-mobile-profile-trigger-touch-target`, isolated worktree,
+  component and Playwright tests before CSS, expected `48 x 42px` red evidence,
+  machine-readable inventory and target-iPhone WebKit regression barriers.
+  TASK-111 consumes the focused contract only after TASK-110 merges. Project
+  code was not changed.
