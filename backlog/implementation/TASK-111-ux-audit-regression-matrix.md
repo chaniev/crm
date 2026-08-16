@@ -1,7 +1,13 @@
 # TASK-111: Расширить Playwright-регрессию по UX-аудиту 2026-08-02
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-16 17:34
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-111-ux-audit-regression-matrix.plan.md
+- implementation_branch: fix/TASK-111-ux-audit-regression-matrix
 
 ## Goal
 Автоматические suites обнаруживают подтверждённые mobile/desktop регрессии attendance, settings, audit, schedule и shared profile trigger вместо формального прохождения неполного inventory.

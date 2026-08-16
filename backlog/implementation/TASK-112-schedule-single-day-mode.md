@@ -1,7 +1,13 @@
 # TASK-112: Добавить однодневный режим недельного расписания
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-16 17:37
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-112-schedule-single-day-mode.plan.md
+- implementation_branch: feature/TASK-112-schedule-single-day-mode
 
 ## Goal
 Пользователь может сосредоточиться на расписании одного дня, не теряя недельный контекст и хронологический порядок занятий.

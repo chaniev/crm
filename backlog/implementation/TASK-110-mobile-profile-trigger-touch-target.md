@@ -1,7 +1,13 @@
 # TASK-110: Привести mobile profile trigger к touch contract
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-16 17:39
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-110-mobile-profile-trigger-touch-target.plan.md
+- implementation_branch: fix/TASK-110-mobile-profile-trigger-touch-target
 
 ## Goal
 Пользователь надёжно открывает профильное меню одним касанием, не меняя визуальный ритм mobile header.
