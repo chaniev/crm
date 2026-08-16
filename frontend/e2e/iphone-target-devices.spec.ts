@@ -388,6 +388,139 @@ test('target portrait route restriction keeps recovery focused and touch-safe', 
   expect(recoveryBox!.height).toBeGreaterThanOrEqual(44)
 })
 
+test('target portrait profile menu trigger stays reachable and keyboard-closeable', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const profileMenuName = `Открыть профильное меню пользователя ${HEAD_COACH_SESSION.user.fullName}`
+
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.goto('/')
+
+  const header = page.locator('.app-shell__header')
+  const profileTrigger = page.getByRole('button', {
+    name: profileMenuName,
+  })
+  const menu = page.getByRole('menu')
+
+  await expect(profileTrigger).toBeVisible()
+  await expect(profileTrigger).toHaveAccessibleName(profileMenuName)
+  await expect(profileTrigger).toHaveAttribute('aria-haspopup', 'menu')
+  await expect(profileTrigger).toHaveAttribute('aria-expanded', 'false')
+
+  const profileBox = await profileTrigger.boundingBox()
+  const headerBox = await header.boundingBox()
+  const visualViewport = page.viewportSize()
+
+  expect(profileBox).not.toBeNull()
+  expect(headerBox).not.toBeNull()
+  expect(visualViewport).not.toBeNull()
+  expect(profileBox!.width).toBeGreaterThanOrEqual(44)
+  expect(profileBox!.height).toBeGreaterThanOrEqual(44)
+  expect(profileBox!.x).toBeGreaterThanOrEqual(headerBox!.x)
+  expect(profileBox!.x + profileBox!.width).toBeLessThanOrEqual(
+    headerBox!.x + headerBox!.width,
+  )
+  expect(profileBox!.y).toBeGreaterThanOrEqual(headerBox!.y)
+  expect(profileBox!.y + profileBox!.height).toBeLessThanOrEqual(
+    headerBox!.y + headerBox!.height,
+  )
+  expect(profileBox!.x + profileBox!.width).toBeLessThanOrEqual(visualViewport!.width)
+  expect(profileBox!.y + profileBox!.height).toBeLessThanOrEqual(visualViewport!.height)
+
+  await page.touchscreen.tap(profileBox!.x + profileBox!.width / 2, profileBox!.y + profileBox!.height / 2)
+  await expect(menu).toBeVisible()
+  await expect(profileTrigger).toHaveAttribute('aria-expanded', 'true')
+  const menuBox = await menu.boundingBox()
+  expect(menuBox).not.toBeNull()
+  expect(menuBox!.x).toBeGreaterThanOrEqual(0)
+  expect(menuBox!.x + menuBox!.width).toBeLessThanOrEqual(visualViewport!.width)
+  expect(menuBox!.y).toBeGreaterThanOrEqual(0)
+  expect(menuBox!.y + menuBox!.height).toBeLessThanOrEqual(visualViewport!.height)
+
+  await page.touchscreen.tap(
+    profileBox!.x + profileBox!.width / 2,
+    profileBox!.y + profileBox!.height / 2,
+  )
+  await expect(menu).toBeHidden()
+  await expect(profileTrigger).toHaveAttribute('aria-expanded', 'false')
+  await expectNoHorizontalScroll(page)
+
+  await profileTrigger.focus()
+  await page.keyboard.press('Enter')
+  await expect(profileTrigger).toHaveAttribute('aria-expanded', 'true')
+  await expect(menu).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(profileTrigger).toHaveAttribute('aria-expanded', 'false')
+  await expect(menu).toBeHidden()
+  await expect(profileTrigger).toBeFocused()
+
+  await page.keyboard.press('Space')
+  await expect(profileTrigger).toHaveAttribute('aria-expanded', 'true')
+  await expect(menu).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(profileTrigger).toHaveAttribute('aria-expanded', 'false')
+  await expect(menu).toBeHidden()
+  await expect(profileTrigger).toBeFocused()
+
+  const focusGeometry = await profileTrigger.evaluate((element) => {
+    const rect = element.getBoundingClientRect()
+    const headerRect = element.closest('.app-shell__header')?.getBoundingClientRect()
+    const style = getComputedStyle(element)
+    const outlineWidth = Number.parseFloat(style.outlineWidth) || 0
+    const outlineOffset = Number.parseFloat(style.outlineOffset) || 0
+    const outlineOutset = outlineWidth + outlineOffset
+
+    return {
+      header: headerRect
+        ? {
+            bottom: headerRect.bottom,
+            left: headerRect.left,
+            right: headerRect.right,
+            top: headerRect.top,
+          }
+        : null,
+      outlineBottom: rect.bottom + outlineOutset,
+      outlineLeft: rect.left - outlineOutset,
+      outlineRight: rect.right + outlineOutset,
+      outlineStyle: style.outlineStyle,
+      outlineTop: rect.top - outlineOutset,
+      outlineWidth,
+      viewportHeight: window.innerHeight,
+      viewportWidth: window.innerWidth,
+    }
+  })
+
+  expect(focusGeometry.header).not.toBeNull()
+  expect(focusGeometry.outlineStyle).not.toBe('none')
+  expect(focusGeometry.outlineWidth).toBeGreaterThanOrEqual(2)
+  expect(focusGeometry.outlineLeft).toBeGreaterThanOrEqual(focusGeometry.header!.left)
+  expect(focusGeometry.outlineRight).toBeLessThanOrEqual(focusGeometry.header!.right)
+  expect(focusGeometry.outlineTop).toBeGreaterThanOrEqual(focusGeometry.header!.top)
+  expect(focusGeometry.outlineBottom).toBeLessThanOrEqual(focusGeometry.header!.bottom)
+  expect(focusGeometry.outlineLeft).toBeGreaterThanOrEqual(0)
+  expect(focusGeometry.outlineRight).toBeLessThanOrEqual(focusGeometry.viewportWidth)
+  expect(focusGeometry.outlineTop).toBeGreaterThanOrEqual(0)
+  expect(focusGeometry.outlineBottom).toBeLessThanOrEqual(focusGeometry.viewportHeight)
+  await expectNoHorizontalScroll(page)
+
+  const environment = await page.evaluate(() => ({
+    devicePixelRatio: window.devicePixelRatio,
+    innerHeight: window.innerHeight,
+    innerWidth: window.innerWidth,
+    screenHeight: window.screen.height,
+    screenWidth: window.screen.width,
+    userAgent: navigator.userAgent,
+  }))
+
+  expect(testInfo.project.use.hasTouch).toBe(true)
+  expect(environment.devicePixelRatio).toBe(3)
+  expect(environment.screenWidth).toBe(target.width)
+  expect(environment.innerWidth).toBe(target.width)
+  expect(environment.innerHeight).toBeLessThanOrEqual(target.height)
+  expect(environment.userAgent).toContain('iPhone')
+})
+
 test('unknown auth-profile values are safely resolved on iPhone profiles', async ({
   page,
 }, testInfo) => {

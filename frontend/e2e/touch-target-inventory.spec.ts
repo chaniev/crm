@@ -377,6 +377,60 @@ for (const viewport of VIEWPORT_MATRIX) {
       await mockApi(page, selectedRole.session, APP_CONFIG)
       const inventory: InventoryEntry[] = []
       const violations: string[] = []
+      await page.goto('/')
+      await expect(page.getByTestId('home-screen')).toBeVisible()
+
+      const profileLocator = page.getByRole('button', {
+        name: `Открыть профильное меню пользователя ${selectedRole.session.user.fullName}`,
+      })
+      const profileLocatorCount = await profileLocator.count()
+
+      if (profileLocatorCount === 0) {
+        violations.push('Missing control shared-auth-shell profile-trigger')
+      } else {
+        const profileTarget = await measureTarget(
+          profileLocator,
+          '/__shell__/authenticated',
+          'default',
+          selectedRole.label,
+          viewport,
+          'Профильное меню',
+          'button',
+          'independent',
+        )
+
+        if (viewport.pointerMode === 'coarse' && (
+          profileTarget.pageRect.width < 44 || profileTarget.pageRect.height < 44
+        )) {
+          violations.push(
+            `${viewport.label} __shell__/authenticated profile-trigger target ` +
+            `${profileTarget.pageRect.width}x${profileTarget.pageRect.height}`,
+          )
+        }
+
+        const profileLabelClipped = await isVisibleLabelClipped(profileLocator)
+
+        if (profileLabelClipped) {
+          const allowlistMatch = findAllowlistMatch(profileTarget.entry)
+
+          if (allowlistMatch?.criterion !== 'label-clipping') {
+            violations.push(
+              `${viewport.label} __shell__/authenticated profile-trigger visible label is clipped`,
+            )
+          } else {
+            profileTarget.entry.exception = allowlistMatch
+          }
+        }
+
+        if (await hasHorizontalScroll(page)) {
+          violations.push(`${viewport.label} __shell__/authenticated has horizontal page overflow`)
+        }
+
+        inventory.push({
+          ...resolveGapEntries([profileTarget])[0],
+          route: '/__shell__/authenticated',
+        })
+      }
 
       for (const route of relevantRoutes) {
         await page.goto(route.path)

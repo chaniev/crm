@@ -379,6 +379,8 @@
 
 .app-shell__profile-trigger {
   min-width: 0;
+  min-inline-size: 44px;
+  min-block-size: 44px;
   max-width: min(22rem, 42vw);
   display: inline-flex;
   align-items: center;

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import type { AppConfigResponse, AuthenticatedUser } from './lib/api/types'
-import { changePassword, loadSession } from './lib/api'
+import { changePassword, loadSession, logout } from './lib/api'
 import {
   showAppNotification,
   showPoliteStatusNotification,
@@ -242,6 +242,7 @@ const AUTH_BACKGROUND = {
 
 const loadSessionMock = vi.mocked(loadSession)
 const changePasswordMock = vi.mocked(changePassword)
+const logoutMock = vi.mocked(logout)
 const showAppNotificationMock = vi.mocked(showAppNotification)
 const showPoliteStatusNotificationMock = vi.mocked(showPoliteStatusNotification)
 
@@ -285,6 +286,60 @@ async function openUtilityPasswordScreen() {
   return screen.findByRole('button', { name: 'Сохранить новый пароль' })
 }
 
+async function getProfileMenuTrigger(userFullName = 'Главный тренер') {
+  return screen.findByRole('button', {
+    name: `Открыть профильное меню пользователя ${userFullName}`,
+  })
+}
+
+function activateNativeButtonWithKeyboard(
+  profileTrigger: HTMLElement,
+  key: 'Enter' | ' ',
+) {
+  expect(profileTrigger).toBeInstanceOf(HTMLButtonElement)
+  profileTrigger.focus()
+
+  const code = key === 'Enter' ? 'Enter' : 'Space'
+  const keyCode = key === 'Enter' ? 13 : 32
+  const shouldRunNativeDefault = fireEvent.keyDown(profileTrigger, {
+    key,
+    code,
+    keyCode,
+    charCode: keyCode,
+  })
+
+  if (key === 'Enter' && shouldRunNativeDefault) {
+    fireEvent.click(profileTrigger)
+  }
+
+  const shouldRunNativeKeyUpDefault = fireEvent.keyUp(profileTrigger, {
+    key,
+    code,
+    keyCode,
+    charCode: keyCode,
+  })
+
+  if (key === ' ' && shouldRunNativeDefault && shouldRunNativeKeyUpDefault) {
+    fireEvent.click(profileTrigger)
+  }
+}
+
+async function closeProfileMenuWithEscape(profileTrigger: HTMLElement) {
+  fireEvent.keyDown(screen.getByRole('menu', { hidden: true }), {
+    key: 'Escape',
+    code: 'Escape',
+  })
+
+  await waitFor(() => expect(profileTrigger).toHaveAttribute('aria-expanded', 'false'))
+  await waitFor(() => {
+    const menu = screen.queryByRole('menu', { hidden: true })
+    if (menu) {
+      expect(menu).not.toBeVisible()
+    }
+  })
+  expect(profileTrigger).toHaveFocus()
+}
+
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true })
   window.scrollTo = vi.fn()
@@ -294,6 +349,7 @@ afterEach(() => {
   vi.useRealTimers()
   loadSessionMock.mockReset()
   changePasswordMock.mockReset()
+  logoutMock.mockReset()
   showAppNotificationMock.mockReset()
   showPoliteStatusNotificationMock.mockReset()
 })
@@ -354,11 +410,69 @@ describe('App route access contract', () => {
     expect(screen.queryByText(/стартовый раздел:/i)).not.toBeInTheDocument()
     expect(document.querySelector('.app-shell__brand-meta')).not.toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', {
-      name: /Открыть профильное меню пользователя Главный тренер/i,
-    }))
+    const profileTrigger = await getProfileMenuTrigger()
+    fireEvent.click(profileTrigger)
     expect(await screen.findByRole('menu')).toHaveTextContent('Главный тренер')
     expect(document.title).toBe('Клиенты • Gym CRM')
+  })
+
+  test('keeps stable profile trigger accessible name and ARIA contract in the default state', async () => {
+    renderAppAt('/clients', baseSession)
+
+    const profileTrigger = await getProfileMenuTrigger()
+
+    expect(profileTrigger).toHaveAccessibleName('Открыть профильное меню пользователя Главный тренер')
+    expect(profileTrigger).toHaveAttribute('aria-haspopup', 'menu')
+    expect(profileTrigger).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  test('opens and closes the profile menu by click, Enter, and Space and returns focus on Escape', async () => {
+    renderAppAt('/clients', baseSession)
+
+    const profileTrigger = await getProfileMenuTrigger()
+
+    profileTrigger.focus()
+    fireEvent.click(profileTrigger)
+    expect(profileTrigger).toHaveAttribute('aria-expanded', 'true')
+    expect(await screen.findByRole('menu', { hidden: true })).toBeInTheDocument()
+    expect(
+      screen.getByRole('menuitem', { name: 'Смена пароля', hidden: true }),
+    ).toBeInTheDocument()
+
+    await closeProfileMenuWithEscape(profileTrigger)
+
+    activateNativeButtonWithKeyboard(profileTrigger, 'Enter')
+    await waitFor(() => expect(profileTrigger).toHaveAttribute('aria-expanded', 'true'))
+    expect(await screen.findByRole('menu', { hidden: true })).toBeInTheDocument()
+    await closeProfileMenuWithEscape(profileTrigger)
+
+    activateNativeButtonWithKeyboard(profileTrigger, ' ')
+    await waitFor(() => expect(profileTrigger).toHaveAttribute('aria-expanded', 'true'))
+    expect(await screen.findByRole('menu', { hidden: true })).toBeInTheDocument()
+    await closeProfileMenuWithEscape(profileTrigger)
+  })
+
+  test('keeps existing password action and keeps trigger enabled while logout is pending', async () => {
+    logoutMock.mockImplementation(() => new Promise(() => {}))
+    renderAppAt('/clients', baseSession)
+
+    const profileTrigger = await getProfileMenuTrigger()
+
+    fireEvent.click(profileTrigger)
+    expect(await screen.findByRole('menu', { hidden: true })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Смена пароля', hidden: true }))
+    expect(await screen.findByRole('button', { name: 'Сохранить новый пароль' })).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Назад' }))
+    expect(await screen.findByTestId('clients-list-screen')).toBeVisible()
+
+    fireEvent.click(profileTrigger)
+    const logoutItem = await screen.findByRole('menuitem', {
+      name: /^(Выход|Завершаем сессию\.\.\.)$/,
+      hidden: true,
+    })
+    fireEvent.click(logoutItem)
+    await waitFor(() => expect(logoutMock).toHaveBeenCalledTimes(1))
+    expect(profileTrigger).toBeEnabled()
   })
 
   test('renders direct denied client create as restricted inline state', async () => {
