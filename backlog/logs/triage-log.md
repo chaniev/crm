@@ -1858,3 +1858,39 @@
 - updated existing: 1
 - processed files: 0
 - validation: backlog structure, duplicate scope and status/directory consistency; no product tests required because product code did not change
+
+# 2026-08-16 21:25 TASK-110 completion status audit
+
+## Scope
+
+- Reconciled TASK-110 against integrated local `main` at `449ee76` after fast-forward integration and repeated all required frontend validation on the integrated tree.
+- Checked the task card, implementation plan, active-folder counts, source traceability, declared branch/worktree, test-first evidence and database/runtime scope.
+
+## Status changes
+
+- `/backlog/implementation/TASK-110-mobile-profile-trigger-touch-target.md` -> `/backlog/done/TASK-110-mobile-profile-trigger-touch-target.md`.
+- `/backlog/implementation-plans/TASK-110-mobile-profile-trigger-touch-target.plan.md` -> `/backlog/done/TASK-110-mobile-profile-trigger-touch-target.plan.md`.
+- Marked the task acceptance criteria and plan test checklist complete and recorded implementation, validation, migration, runtime and residual-device evidence.
+
+## Evidence
+
+- Product implementation commit and local `main` integration point: `449ee76`.
+- Pre-fix regression barrier measured the native button at `48 x 42.375px` on seven coarse-pointer inventory viewports and both target-iPhone WebKit projects.
+- Integrated frontend validation passed: lint, production build, 449 unit tests, 12 Chromium touch-inventory tests and 36 target-iPhone WebKit tests.
+- One-time keyboard smoke passed at `390 x 844`, `912 x 420` and `1440 x 1200` for Enter/Space, Escape, exact focus return and overflow.
+- TASK-110 changed no backend/API/database contract, so no migration is required; no Docker Compose task stack was created.
+
+## Consistency checks
+
+- TASK-110 now has one lifecycle location in `/backlog/done`.
+- Its completed plan points to the completed source card, and the source card points back to the completed plan.
+- Inbox and processing are empty; no duplicate active TASK-110 card or plan remains.
+- Active task IDs remain unique and active card statuses match their directories.
+
+## Summary
+
+- moved to done: 1 task
+- moved plans to done: 1
+- active tasks: 34 (`tasks-ready`: 8, `risky`: 10, `needs-clarification`: 10, `implementation`: 6)
+- active implementation plans: 9
+- physical Safari/iOS Simulator and physical-device checks remain explicitly unverified

@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-110 Привести mobile profile trigger к touch contract
 
 ## Source task
-/backlog/implementation/TASK-110-mobile-profile-trigger-touch-target.md
+/backlog/done/TASK-110-mobile-profile-trigger-touch-target.md
 
 ## Implementation branch
 fix/TASK-110-mobile-profile-trigger-touch-target
@@ -312,20 +312,20 @@ Files to inspect but not expected to change:
   green доказательством physical acceptance.
 
 ## Test plan
-- [ ] Component tests добавлены до production-кода и сохраняют profile menu
+- [x] Component tests добавлены до production-кода и сохраняют profile menu
   accessible name, popup/expanded state, Enter/Space, Escape и focus return.
-- [ ] Shared profile candidate добавлен в machine-readable touch inventory без
+- [x] Shared profile candidate добавлен в machine-readable touch inventory без
   allowlist и без route-by-route duplicate measurements.
-- [ ] До CSS fix записан expected red: actual mobile height около `42px`.
-- [ ] После fix actual border box `>=44 x 44px` на `360`, `390`, `420`, `440`,
+- [x] До CSS fix записан expected red: actual mobile height `42.375px`.
+- [x] После fix actual border box `>=44 x 44px` на `360`, `390`, `420`, `440`,
   `768`, `912x420` и `956x440`.
-- [ ] Target-iPhone WebKit `420 x 912` и `440 x 956` проходит touchscreen tap,
+- [x] Target-iPhone WebKit `420 x 912` и `440 x 956` проходит touchscreen tap,
   popup/expanded, Escape/focus return и overflow checks.
-- [ ] Header остаётся одной строкой; brand, visible icons, chevron, focus ring и
+- [x] Header остаётся одной строкой; brand, visible icons, chevron, focus ring и
   menu не overlap/clipping-уются в portrait/compact landscape.
-- [ ] `npm run test:unit`, lint, build, affected Chromium inventory и iPhone
+- [x] `npm run test:unit`, lint, build, affected Chromium inventory и iPhone
   WebKit suites проходят из declared task worktree.
-- [ ] Simulator/physical Safari gaps записаны отдельно, если не проверены.
+- [x] Simulator/physical Safari gaps записаны отдельно, если не проверены.
 
 ## Regression barrier
 Главный барьер — non-allowlisted machine-readable inventory entry shared
@@ -368,5 +368,14 @@ return, focus visibility и отсутствие page overflow. Manual QA не �
 Не останавливаться только потому, что control shared для всех ролей или потому,
 что tests находятся в unit и Playwright layers: scope остаётся локальным.
 
+## Completion evidence
+- Completed on 2026-08-16 in commit `449ee76`, fast-forward integrated into local `main`.
+- Expected red captured before production code: `48 x 42.375px` on all seven coarse-pointer inventory viewports and both target-iPhone WebKit projects.
+- Production change stayed local to `.app-shell__profile-trigger`: `min-inline-size` and `min-block-size` are `44px`; `App.tsx`, header dimensions, icons, menu state and allowlist were not changed.
+- Integrated validation passed: 449 unit tests, lint, production build, 12 Chromium touch-inventory tests and 36 target-iPhone WebKit tests.
+- One-time WebKit keyboard smoke passed at `390 x 844`, `912 x 420` and `1440 x 1200`.
+- No backend/API/database change, migration, Docker Compose task stack or branch-local runtime remained.
+- Physical Safari/iOS Simulator, dynamic chrome, actual safe-area/home indicator and physical touch remain residual device-only checks.
+
 ## Ready for Codex execution
-yes
+completed
