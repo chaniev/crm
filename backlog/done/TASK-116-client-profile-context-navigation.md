@@ -1,13 +1,18 @@
 # TASK-116: Открывать карточку клиента из посещений и группы
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-16 17:14
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-116-client-profile-context-navigation.plan.md
+- implementation_plan: /backlog/done/TASK-116-client-profile-context-navigation.plan.md
 - implementation_branch: fix/TASK-116-client-profile-context-navigation
+- implementation_state: completed
+- implementation_commit: afc7f5c
+- delivered_on_main_at: 2026-08-16
+- moved_to_done_at: 2026-08-16
+- last_status_reviewed_at: 2026-08-16
 
 ## Goal
 Тренер или администратор открывает карточку видимого клиента из attendance roster или состава группы и возвращается в тот же рабочий контекст.
@@ -48,20 +53,20 @@ implementation
 - Fixed/sticky controls, safe area и compact height не должны закрывать row action.
 
 ## Acceptance criteria
-- [ ] У каждого клиента attendance roster есть ровно одно очевидное действие открытия его карточки.
-- [ ] У каждого клиента в составе group edit есть такое же действие.
-- [ ] Attendance status actions сохраняют визуальный и keyboard priority.
-- [ ] Действие открывает правильный `clientId` и имеет имя с ФИО клиента.
-- [ ] Back из карточки возвращает выбранные attendance group/date/view или исходную group edit route.
-- [ ] Forbidden/not-found обрабатываются существующим recovery UX, без dead click.
-- [ ] На `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`, `768px` и `1440px` нет horizontal overflow, overlap или недоступной зоны касания.
+- [x] У каждого клиента attendance roster есть ровно одно очевидное действие открытия его карточки.
+- [x] У каждого клиента в составе group edit есть такое же действие.
+- [x] Attendance status actions сохраняют визуальный и keyboard priority.
+- [x] Действие открывает правильный `clientId` и имеет имя с ФИО клиента.
+- [x] Back из карточки возвращает выбранные attendance group/date/view или исходную group edit route.
+- [x] Forbidden/not-found обрабатываются существующим recovery UX, без dead click.
+- [x] На `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`, `768px` и `1440px` нет horizontal overflow, overlap или недоступной зоны касания.
 
 ## Test checklist
-- [ ] Добавить component tests для `AttendanceClientRow` и group client row с правильным `clientId`.
-- [ ] Добавить Playwright: attendance -> client -> back с сохранением group/date/view.
-- [ ] Добавить Playwright: group edit -> client -> back в ту же группу.
-- [ ] Проверить allowed и permission-restricted paths, keyboard order и visible focus.
-- [ ] Запустить frontend lint, build, unit tests, affected Chromium и target-iPhone WebKit tests.
+- [x] Добавить component tests для `AttendanceClientRow` и group client row с правильным `clientId`.
+- [x] Добавить Playwright: attendance -> client -> back с сохранением group/date/view.
+- [x] Добавить Playwright: group edit -> client -> back в ту же группу.
+- [x] Проверить allowed и permission-restricted paths, keyboard order и visible focus.
+- [x] Запустить frontend lint, build, unit tests, affected Chromium и target-iPhone WebKit tests.
 
 ## AI safety
 - Safe for Codex: yes
@@ -72,7 +77,7 @@ implementation
 Не требуется: затронутые строки и return-context contract подтверждены UX/UI-анализом; `Требуют внимания` исключены как уже реализованные.
 
 ## Source notes
-- Source file: `backlog/inbox/2026-08-16.md`
+- Source file: `backlog/processed/2026-08-16.md`
 - Original note: `Нельзя открыть профиль спортсмена с главной страницы/из группы`
 
 ## Processing notes
@@ -80,3 +85,11 @@ implementation
 - Created by skill: codex-backlog-skill + crm-mobile-first-ui
 - Duplicate check: активного дубликата нет; существующий переход из `Требуют внимания` покрывает только часть заметки, а TASK-017 относится к возврату из реестра клиентов.
 - UX/UI handoff: целевые surfaces — attendance roster на главной и client rows внутри group edit; whole-row click исключён из-за конкуренции с attendance actions.
+
+## Completion record
+- Completed on: 2026-08-16.
+- Implementation commit: `afc7f5c`; integrated into local `main` by fast-forward at `bae4d08`.
+- Validation: frontend lint, production build, 446 unit tests, 65 affected Chromium Playwright tests and 34 target-iPhone WebKit tests passed.
+- Data storage: backend, API and database structure were not changed; migration is not required.
+- Runtime: no Docker Compose task stack was created because the plan required frontend component and mocked browser validation only.
+- Residual device evidence: physical Safari chrome, software keyboard, safe-area, iOS Simulator and physical-device checks were not performed; target-iPhone WebKit portrait and compact-landscape profiles passed.

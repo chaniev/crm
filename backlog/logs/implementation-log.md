@@ -1398,3 +1398,23 @@
   `fix/TASK-109-settings-scope-touch-order`, an isolated worktree,
   component/Playwright tests before production code, full touch inventory and
   target-iPhone WebKit regression barriers. Project code was not changed.
+
+# 2026-08-16 19:01
+
+## Completed implementation
+- /backlog/done/TASK-116-client-profile-context-navigation.md
+
+## Completed implementation plan
+- /backlog/done/TASK-116-client-profile-context-navigation.plan.md
+
+## Summary
+- completed: 1
+- implementation commit: `afc7f5c`
+- integrated into local `main`: fast-forward at `bae4d08`
+- validation: frontend lint, production build, 446 unit tests, 65 affected
+  Chromium Playwright tests and 34 target-iPhone WebKit tests passed
+- data/runtime: no backend/API/database changes, no migration required, no
+  Docker Compose task stack created
+- residual device evidence: physical Safari/iOS device checks were not
+  performed; target-iPhone WebKit portrait and compact-landscape profiles
+  passed

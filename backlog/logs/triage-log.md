@@ -1770,3 +1770,49 @@
   `needs-clarification`: 11, `implementation`: 7)
 - validation: backlog/source review only; no product code or runtime tests
   changed
+
+# 2026-08-16 19:01 TASK-116 completion status audit
+
+## Scope
+
+- Reconciled TASK-116 against integrated local `main` after fast-forward to
+  `bae4d08` and repeated the required frontend validation on the integrated
+  tree.
+- Checked the task card, implementation plan, active-folder counts, source
+  traceability, declared branch/worktree and database/runtime scope.
+
+## Status changes
+
+- `/backlog/implementation/TASK-116-client-profile-context-navigation.md` ->
+  `/backlog/done/TASK-116-client-profile-context-navigation.md`.
+- `/backlog/implementation-plans/TASK-116-client-profile-context-navigation.plan.md` ->
+  `/backlog/done/TASK-116-client-profile-context-navigation.plan.md`.
+- Marked the task acceptance criteria and plan test checklist complete and
+  recorded implementation, validation, migration, runtime and residual-device
+  evidence.
+
+## Evidence
+
+- Product implementation commit: `afc7f5c`; local `main` integration point:
+  `bae4d08`.
+- Frontend validation passed: lint, production build, 446 unit tests, 65
+  affected Chromium Playwright tests and 34 target-iPhone WebKit tests.
+- TASK-116 changed no backend/API/database contract, so no migration is
+  required.
+- No Docker Compose task stack was created.
+
+## Consistency checks
+
+- TASK-116 now has one active lifecycle location: `/backlog/done`.
+- Its completed plan points to the completed source card, and the source card
+  points back to the completed plan.
+- Inbox and processing remain empty; no duplicate active TASK-116 card or plan
+  remains.
+
+## Summary
+
+- moved to done: 1 task
+- moved plans to done: 1
+- active tasks: 35 (`tasks-ready`: 8, `risky`: 10,
+  `needs-clarification`: 11, `implementation`: 6)
+- active implementation plans: 9

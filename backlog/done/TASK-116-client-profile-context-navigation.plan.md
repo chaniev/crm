@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-116 Открывать карточку клиента из посещений и группы
 
 ## Source task
-/backlog/implementation/TASK-116-client-profile-context-navigation.md
+/backlog/done/TASK-116-client-profile-context-navigation.md
 
 ## Implementation branch
 fix/TASK-116-client-profile-context-navigation
@@ -592,31 +592,40 @@ Files to inspect but not expected to change:
   корректным TASK-116 red state.
 
 ## Test plan
-- [ ] Unit/component/route-integration/Playwright tests написаны до production
+- [x] Unit/component/route-integration/Playwright tests написаны до production
       code и падают только по ожидаемым TASK-116 причинам.
-- [ ] В каждой attendance/group client row ровно одно действие с correct
+- [x] В каждой attendance/group client row ровно одно действие с correct
       `clientId` и accessible name с ФИО.
-- [ ] Attendance marks сохраняют visual/keyboard priority; whole row не
+- [x] Attendance marks сохраняют visual/keyboard priority; whole row не
       clickable.
-- [ ] Pending save блокирует navigation с доступной причиной; failed/saved
+- [x] Pending save блокирует navigation с доступной причиной; failed/saved
       row behavior сохраняется.
-- [ ] Attendance -> client -> back восстанавливает group/date/view и focus.
-- [ ] Group edit -> client -> back возвращает exact `groupId` и не ломает
+- [x] Attendance -> client -> back восстанавливает group/date/view и focus.
+- [x] Group edit -> client -> back возвращает exact `groupId` и не ломает
       subsequent group-list return.
-- [ ] Pristine group form открывает client без dialog; dirty form показывает
+- [x] Pristine group form открывает client без dialog; dirty form показывает
       exact three-way dialog. `Сохранить`, `Не сохранять`, `Отмена`, Escape,
       failed save, pending protection, preserved draft и focus return работают
       по confirmed contract.
-- [ ] Native Back/Forward и details-edit-details сохраняют typed origin;
+- [x] Native Back/Forward и details-edit-details сохраняют typed origin;
       native Back проходит intermediate entries, explicit action сразу ведёт в
       origin, malformed/direct context использует safe fallback.
-- [ ] Existing forbidden/not-found/load recovery доступен без dead click.
-- [ ] Все actions >= `44 x 44px`; long content, portrait, compact height,
+- [x] Existing forbidden/not-found/load recovery доступен без dead click.
+- [x] Все actions >= `44 x 44px`; long content, portrait, compact height,
       tablet/desktop не создают overlap/overflow.
-- [ ] Full unit, lint, build, affected Chromium Playwright и target-iPhone
+- [x] Full unit, lint, build, affected Chromium Playwright и target-iPhone
       WebKit commands проходят.
-- [ ] Safari/Simulator/physical-device evidence либо residual risk явно
+- [x] Safari/Simulator/physical-device evidence либо residual risk явно
       зафиксированы.
+
+## Completion record
+- Completed on: 2026-08-16.
+- Implementation commit: `afc7f5c`; integrated into local `main` by fast-forward at `bae4d08`.
+- Automated validation: frontend lint, production build, 446 unit tests, 65 affected Chromium Playwright tests and 34 target-iPhone WebKit tests passed.
+- Expected red barrier was confirmed before functional code: return-state helper, row actions and origin-aware return behavior were absent.
+- Backend/API/database structure did not change; migration is not required.
+- No Docker Compose task stack was created.
+- Residual device risk: physical Safari chrome, software keyboard, safe-area, iOS Simulator and physical-device behavior were not verified; target-iPhone WebKit portrait and compact-landscape profiles passed.
 
 ## Regression barrier
 Primary barrier: versioned return-context unit suite + App route-integration
