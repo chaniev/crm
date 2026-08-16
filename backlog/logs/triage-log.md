@@ -1631,3 +1631,57 @@
 - needs-clarification: 3
 - updated existing: 0
 - processed files: 1
+
+# 2026-08-16 16:53 status audit
+
+## Scope
+
+- Reconciled every active backlog folder with current `origin/main`
+  (`0b05f30d437edfb1d45e36a69771ac26fbea8480`).
+- Confirmed the primary repository is on clean `main`, `git pull --ff-only`
+  reports it is up to date, and no audit branch was created per user request.
+- Checked active card statuses against their directories, active task IDs for
+  collisions, implementation-plan source paths, task branches/worktrees and
+  product-code changes after completed TASK-104.
+
+## Status changes
+
+- No task or implementation-plan moves are required.
+- No active card status field requires normalization.
+
+## Evidence
+
+- After TASK-104 commit `8b77992`, current `main` contains only planning and
+  intake commits; there are no changes under `backend`, `frontend`, `bot` or
+  `deploy` that can satisfy another active task.
+- TASK-106 and TASK-107 remain explicitly in `/backlog/implementation` with
+  matching plans, but their declared branches and worktrees do not exist and
+  no delivered implementation is present on `main`.
+- TASK-108 remains in `/backlog/risky`; its plan explicitly requires human
+  review before implementation and correctly points to the risky source card.
+- TASK-109, TASK-110, TASK-111 and TASK-116 remain ready; no matching task
+  branch, worktree or delivered implementation was found.
+- TASK-112, TASK-113 and TASK-115 still contain blocking product/domain
+  questions; TASK-114 and TASK-117 still require risk review.
+- Previously audited bot and client-detail tasks remain active: subsequent
+  product changes do not add evidence that their acceptance criteria are
+  complete.
+
+## Consistency checks
+
+- Inbox and processing are empty.
+- All 35 active task IDs are unique.
+- Every active card status matches its directory.
+- All three active implementation plans point to the current active source
+  card: TASK-106 and TASK-107 in `implementation`, TASK-108 in `risky`.
+
+## Summary
+
+- moved to done: 0 tasks
+- moved plans to done: 0
+- active tasks: 35 (`tasks-ready`: 12, `risky`: 9,
+  `needs-clarification`: 12, `implementation`: 2)
+- active implementation plans: 3
+- validation: repository sync, history/source diff, branch/worktree audit and
+  backlog consistency checks; product tests were not required because no
+  product code changed
