@@ -1601,3 +1601,33 @@
 - needs-clarification: 2
 - updated existing: 0
 - processed files: 1
+
+# 2026-08-16 16:45
+
+## Processed inbox files
+- 2026-08-16.md
+
+## Created tasks
+- /backlog/needs-clarification/TASK-112-schedule-single-day-mode.md
+- /backlog/needs-clarification/TASK-113-schedule-group-type-organization.md
+- /backlog/risky/TASK-114-membership-comment-isolation-regression.md
+- /backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md
+- /backlog/tasks-ready/TASK-116-client-profile-context-navigation.md
+- /backlog/risky/TASK-117-group-weekday-specific-start-times.md
+
+## Updated existing tasks
+- нет
+
+## Skipped duplicates
+- Активных дубликатов в tasks-ready, risky и needs-clarification не найдено.
+- Завершённая TASK-069 не переоткрыта: TASK-114 создана как regression follow-up к её sale-level comment contract.
+- Завершённая TASK-078 исправляла разрешённые write-сценарии, но не разрешала пересекающиеся абонементы; три связанные заметки объединены в TASK-115.
+- Завершённые TASK-034/TASK-043/TASK-045 и активная implementation TASK-106 учтены как schedule baseline, а не продублированы.
+- Переход из карточек `Требуют внимания` уже существует; TASK-116 ограничена attendance roster и составом группы.
+
+## Summary
+- tasks-ready: 1
+- risky: 2
+- needs-clarification: 3
+- updated existing: 0
+- processed files: 1
