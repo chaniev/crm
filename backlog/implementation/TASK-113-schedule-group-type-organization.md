@@ -1,7 +1,13 @@
 # TASK-113: Добавить фильтр расписания по типу группы
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-16 20:24
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-113-schedule-group-type-organization.plan.md
+- implementation_branch: feature/TASK-113-schedule-group-type-organization
 
 ## Goal
 Пользователь быстро находит занятия нужного типа, не теряя временной порядок расписания.

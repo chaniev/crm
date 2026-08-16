@@ -1418,3 +1418,29 @@
 - residual device evidence: physical Safari/iOS device checks were not
   performed; target-iPhone WebKit portrait and compact-landscape profiles
   passed
+
+# 2026-08-16 20:24
+
+## Moved to implementation
+- /backlog/implementation/TASK-113-schedule-group-type-organization.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-113-schedule-group-type-organization.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected medium-risk, `Safe for Codex: yes`,
+  frontend-only TASK-113. The plan adds a payload-scoped single-select group
+  type filter without backend/API changes, preserves time-first ordering and
+  passive visible-result legend semantics, and uses branch
+  `feature/TASK-113-schedule-group-type-organization` plus an isolated
+  worktree. Unit and component integration tests, wide/mobile Playwright red
+  scenarios, refresh/state preservation, touch/overflow checks and
+  target-iPhone WebKit barriers are required before production code. Execution
+  is gated on TASK-106 and TASK-112 being merged into current `origin/main`;
+  their unmerged branches must not be copied. Project code was not changed.
