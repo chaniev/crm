@@ -21,8 +21,13 @@ risky
 - Заменить пару `trainingStartTime + weekdays` структурированными weekday schedule entries с одним start time на weekday.
 - Сохранить общий `durationMinutes` для группы; разная длительность по дням не входит в эту задачу.
 - Определить backend contract, validation, deterministic ordering и persistence для непустого уникального набора weekdays.
-- Обновить reproducible initial DB state, model snapshot и seed data без новой incremental migration.
+- Обновить reproducible initial DB state, model snapshot и seed data; если при
+  реализации обнаружится сохраняемая БД, добавить forward migration с
+  детерминированным переносом legacy weekdays на прежнее общее время.
 - Обновить create/edit group forms и schedule read model/consumer.
+- При выборе нового weekday автоматически копировать время ближайшего ранее
+  выбранного ISO-дня с непустым временем; если такого дня нет, оставлять поле
+  пустым. После копирования значения редактируются независимо.
 - Обновить bot и другие consumers, если они читают изменённый group schedule contract.
 - Сохранить permissions, audit и ProblemDetails semantics.
 - Добавить regression tests на round-trip и отображение разных времён одной группы.
@@ -33,22 +38,34 @@ risky
 - Календарные исключения, праздники, переносы, отмены и замены тренера.
 - Редактирование из schedule calendar.
 - Новая conflict-resolution или hall-capacity logic.
+- Неизменяемые snapshots времени исторических занятий; это отдельная TASK-118.
 
 ## Constraints
 - Backend владеет schedule validation и contract semantics.
 - Weekday uses ISO `1..7`; entries уникальны по weekday и возвращаются в стабильном порядке.
-- `trainingStartTime` остаётся local `HH:mm` без timezone conversion.
+- Каждый `startTime` остаётся local `HH:mm` без timezone conversion.
 - Изменение contract требует обновить всех consumers и affected tests.
 - Existing attendance, historical financial data и group permissions не должны меняться побочно.
+- Историческое attendance-время в рамках TASK-117 продолжает вычисляться по
+  текущему расписанию с fallback на самое раннее время, если weekday удалён.
+- Create/full update/trainer-only update используют общую сериализацию
+  group-агрегата и атомарно сохраняют CRM state вместе с audit.
+- Общей между слоями является JSON-схема `{ weekday, startTime }`, а не API CLR
+  type; DTO принадлежат своим слоям и явно маппятся.
 - Frontend не должен выводить расписание из display strings или дублировать validation rules.
 
 ## Acceptance criteria
 - [ ] Одна группа сохраняет, например, `Пн 18:00`, `Ср 18:00`, `Сб 10:00` и возвращает те же entries после reload.
 - [ ] Create/edit form позволяет задать одно время для каждого выбранного weekday без дублирования дня.
+- [ ] Новый выбранный день копирует время ближайшего ранее выбранного
+  заполненного ISO-дня, после чего оба значения остаются независимыми.
 - [ ] Schedule API и `/schedule` показывают каждое занятие в правильном дне и времени.
 - [ ] Общая длительность применяется к каждому entry и не меняется побочно.
 - [ ] Пустой набор, duplicate weekday и невалидное время возвращают стабильный ProblemDetails без частичной записи.
 - [ ] Permission, audit, idempotency и concurrent update behavior остаются согласованными.
+- [ ] Чистая БД создаётся из initial schema; если требуется сохранить
+  существующую БД, forward migration переносит legacy equal-time rows без
+  потери данных до удаления старых колонок.
 - [ ] Затронутые backend/frontend/bot consumers компилируются и проходят tests.
 
 ## Test checklist
@@ -74,3 +91,8 @@ risky
 - Created at: 2026-08-16 16:45
 - Created by skill: codex-backlog-skill
 - Duplicate check: активного дубликата нет; завершённые TASK-034/TASK-043 являются single-time baseline, а TASK-073 меняет только временную замену тренера.
+- Clarified at: 2026-08-16 18:07 MSK — приняты mutable-history fallback,
+  общий group-mutation lock, атомарный state+audit, layer-owned DTOs,
+  conditional forward migration, copy-from-previous-day UX, удаление дня без
+  подтверждения и контекстные имена schedule fields; immutable snapshots
+  вынесены в TASK-118.

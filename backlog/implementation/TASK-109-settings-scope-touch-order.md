@@ -1,7 +1,13 @@
 # TASK-109: Сделать Settings touch-safe и связать actions со scope
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-16 17:43
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-109-settings-scope-touch-order.plan.md
+- implementation_branch: fix/TASK-109-settings-scope-touch-order
 
 ## Goal
 Пользователь до нажатия `Создать` понимает активный раздел и филиал, а все частые controls настроек остаются достижимыми на touch и compact landscape.

@@ -59,9 +59,32 @@ Branch rules:
 - API mapper отображает backend `description` как строку и при её отсутствии
   строит технический fallback из raw `actionType/entityType/entityId`.
   Existing `resources.audit.*Labels` локализуют только известные tokens.
+- `AuditLogListResponse.totalCount` может быть `null`; в этом случае frontend
+  знает current page и `hasNextPage`, но не знает истинное количество страниц
+  и не должен представлять вычисленный `page + 1` как окончательный total.
 - Current state handling различает loading/empty/error, но initial error не
   даёт явный retry, global empty не отличается от filtered-empty, а failed
   refresh удаляет ранее успешный response вместо явного stale state.
+
+## Resolved product decisions — 2026-08-16
+- Для pagination с известным `totalCount` mobile summary показывает
+  `Страница X из Y`; при `totalCount = null` показывает только `Страница X`.
+  UI не придумывает и не озвучивает неизвестный `Y`.
+- Non-empty backend description остаётся verbatim two-line preview. Для
+  типичного короткого description весь текст виден в row; длинный description
+  может быть визуально ограничен двумя строками, но полное значение остаётся в
+  DOM, row-specific accessible name и details.
+- Пользователь выбрал mobile row variant A: отдельная visual context area с
+  grid areas
+  `"time details" "description details" "context context" "actor actor"`.
+- Visual context area не создаёт пятую semantic cell. Row сохраняет ровно
+  четыре `role="cell"`: Date, Description, User, Details. Полный context
+  семантически относится к Description cell; отдельный видимый context item
+  исключается из accessibility tree, чтобы screen reader не озвучивал данные
+  дважды.
+- Variant B с отдельной `44px` top row и полноширинным Description block не
+  используется: design comparison показал около `136px` для typical row против
+  около `112px` у variant A и не сохранил hard density gate `<=128px`.
 
 ## UX contract
 - Пользователи: `SuperAdministrator`, `HeadCoach`, `Administrator` с
@@ -72,15 +95,19 @@ Branch rules:
   compact-height `912 x 420`/`956 x 440`, tablet и desktop.
 - Primary task: быстро сравнить записи и определить нужное событие. Primary
   operation — scan/selection, а не отдельная dominant CTA.
-- Required decision data без details: дата/время, exact backend description,
-  action type, actor name/login, entity type и optional entity id/context.
+- Required decision data без details: дата/время, verbatim backend description
+  preview, action type, actor name/login, entity type и optional entity
+  id/context. Typical short descriptions видны полностью; full value длинного
+  two-line preview остаётся доступным через row-specific accessible name и
+  details без перевода или переписывания.
 - Frequent actions: filters, refresh, pagination, open details. Reset filters
   и raw JSON diagnostics — secondary. Destructive actions отсутствуют.
 - Primary path: открыть журнал → сканировать chronological rows → открыть
   details только при необходимости → закрыть → вернуться focus к exact row
   trigger и продолжить с теми же filters/page.
-- Completion signal: нужная запись определяется без modal; Escape, overlay и
-  close button возвращают focus к trigger, если он остаётся mounted.
+- Completion signal: типичная запись определяется без modal; для длинного
+  two-line preview details раскрывает полный текст. Escape, overlay и close
+  button возвращают focus к trigger, если он остаётся mounted.
 - Filter workflow и `CompactFilterPanel` не redesign-ятся в TASK-107.
 
 ## Approved UI specification
@@ -93,19 +120,25 @@ Branch rules:
   4. actor `full name · login`.
 - Mobile grid: `minmax(0, 1fr) 44px` with areas
   `"time details" "description details" "context context" "actor actor"`.
+- This is approved variant A. Details spans the right column beside time and
+  description; context then uses the full row width before actor.
 - Row padding: `10px 12px`; column gap `10px`; list gap `8px`;
   internal gaps `4px` before description and `6px` after it.
 - Description uses existing Onest/Mantine typography at `16px/20px`,
-  weight `800`, and at most two visual lines. The full value remains in DOM
-  and in details.
+  weight `800`, and at most two visual lines. Do not rewrite, translate or
+  ellipsize the stored value in JavaScript. The full value remains in DOM, the
+  row-specific details-control accessible name and details; CSS supplies the
+  visual two-line clamp.
 - Context and actor use existing `13–14px/18px` theme-compatible text and
   wrap. Truncation is allowed only with an accessible full value.
 - Typical one/two-line fixture row target is `96–124px`; hard automated
   acceptance is `<=128px`. Long stress content may make the row taller and
   must not be clipped only to satisfy the density assertion.
 - Remove visible repeated mobile labels `Дата / Описание / Пользователь`.
-  Preserve semantics through existing headers plus `visually-hidden` text
-  and/or a complete row accessible name.
+  Preserve exactly four semantic cells through accessible headers and the
+  Date, Description, User and Details cell roles. The direct visual context
+  grid item is not a fifth cell, is `aria-hidden`, and its full explicitly
+  labelled value is included once in the Description cell accessible name.
 - Details remains visible as a frequent secondary operation, but becomes an
   icon-only low-emphasis `44 x 44px` control on mobile with
   `aria-haspopup="dialog"` and name
@@ -118,8 +151,10 @@ Branch rules:
 - Preserve the four-column desktop table contract at `1440 x 1200`: Date,
   Description, User, Details.
 - Do not restore separate Action or Object columns.
-- Put formatted action/entity/context metadata inside the existing Description
-  cell below exact description.
+- Put formatted action/entity/context metadata visually in the existing
+  Description column below exact description. Keep the same four semantic
+  cells and associate the metadata with Description accessibility semantics;
+  do not add Action/Object/context columns.
 - At `768 x 1024`, use the widened compact/table-like form that preserves all
   decision data without visible repeated labels or horizontal page scroll.
 - Desktop details may retain text `Детали` if it stays low-emphasis and at
@@ -131,7 +166,8 @@ Branch rules:
   English or technical text; do not insert it into a guessed Russian sentence.
 - If a component fixture or future mapping supplies an empty description,
   display neutral UI copy `Описание не передано` and retain raw
-  action/entity/timestamp in the accessible name.
+  action/entity/timestamp in the Description cell and details-trigger
+  accessible names.
 - Known action/entity values use existing `resources.audit.*Labels`.
 - Unknown action/entity values remain raw backend tokens in muted/code-like
   metadata with explicit accessible labels such as
@@ -154,9 +190,11 @@ Branch rules:
   - page item: `Страница N журнала`, with current-page semantics preserved.
 - Previous/next are real disabled buttons at bounds and are not keyboard
   focusable while disabled.
-- At `360/390/420/440px`, show previous/next plus visible
-  `Страница X из Y`; suppress direct page buttons if they cannot fit. Do not
-  add horizontal pager scrolling.
+- At `360/390/420/440px`, suppress direct page buttons and show previous/next
+  plus one visible summary. When `totalCount` is known, the summary is
+  `Страница X из Y`; when `totalCount = null`, it is `Страница X`. Enabled or
+  disabled next communicates `hasNextPage`; never present `page + 1` as a
+  known final total. Do not add horizontal pager scrolling.
 - At `768/1440px`, direct pages may use `siblings={1}` and
   `boundaries={1}` only when the `44px + 8px` geometry fits.
 - Page change preserves filters and requests the selected page; refresh and
@@ -238,13 +276,20 @@ Branch rules:
    `AuditLogScreen.test.tsx`:
    - required date/time, exact description, formatted action/entity/id and
      actor/login are exposed without opening details;
+   - every row has exactly four semantic cells at every breakpoint; the visual
+     context item is not a fifth cell, and Description exposes its full
+     explicitly labelled context once to accessibility APIs;
    - repeated mobile labels are not part of the visible compact row contract;
    - known tokens use existing labels, unknown tokens remain raw with explicit
      accessible meaning, empty description uses `Описание не передано`;
+   - long non-empty description is unchanged in DOM/accessibility/details even
+     though mobile CSS limits it to two visual lines;
    - backend entry object and raw details values are not mutated;
    - desktop remains exactly four headers/cells with no Action/Object column.
 5. Before production changes, add component integration tests with mocked API:
    - pagination nav, previous/next/page names, current/disabled semantics;
+   - known `totalCount` renders `Страница X из Y`, while `totalCount = null`
+     renders only `Страница X` and never exposes a guessed final page count;
    - page 2 selection sends existing filters plus `page: 2`;
    - refresh/details close preserve filters and current page; filter change
      still resets page to one;
@@ -261,10 +306,13 @@ Branch rules:
    - a removed trigger is not focused.
 7. Before production changes, extend `stage12.spec.ts` and/or
    `responsive-main-screens.spec.ts`:
-   - compact mobile order and exact decision data;
+   - approved variant A grid areas, compact mobile order and exact decision
+     data without a fifth semantic cell;
    - typical row height `<=128px`, details `44 x 44px`, no repeated visible
      labels and no horizontal overflow;
-   - desktop four-column geometry and description-contained context;
+   - intentional two-line description clamp preserves the full accessible
+     value; actor/context long-content stress wraps without clipping;
+   - desktop four-column geometry and Description-associated context;
    - pagination controls `>=44 x 44px`, pairwise gap `>=8px`, stable names,
      current/disabled state and no pager overflow;
    - filters/page persist through page → details → close and retry paths.
@@ -276,7 +324,8 @@ Branch rules:
    - `420 x 912` and `440 x 956` meet density, geometry, focus and overflow
      contracts;
    - Escape, overlay and explicit close return focus;
-   - mobile pager is previous/next + summary and never horizontally scrolls.
+   - mobile pager is previous/next + the known-total or unknown-total summary
+     and never horizontally scrolls.
 9. Add geometry smoke at `360 x 780`, baseline `390 x 844`, tablet
    `768 x 1024`, desktop `1440 x 1200`, and compact-height
    `912 x 420`/`956 x 440`. Target iPhone WebKit tests remain mandatory;
@@ -292,16 +341,21 @@ Branch rules:
     description/action/entity/context/actor model. Keep helpers local unless a
     small audit-local pure module materially improves testing; do not create a
     global abstraction or duplicate backend rules.
-12. Update row JSX and audit-local CSS for the approved mobile areas, typography,
-    spacing and icon-only details control. Preserve four semantic desktop cells
-    and move context inside Description rather than adding columns.
+12. Update row JSX and audit-local CSS for approved variant A, typography,
+    spacing and icon-only details control. Preserve exactly four semantic cells
+    at every breakpoint. Render context as the dedicated visual `context` grid
+    item, but associate its full labelled value with Description semantics and
+    prevent duplicate screen-reader output; do not add a context/Action/Object
+    cell or column.
 13. Implement the explicit technical fallback rules: exact description,
     neutral empty copy, existing labels for known tokens and raw accessible
     tokens for unknown values. Do not language-detect or translate text.
 14. Add audit-local responsive pagination using Mantine 9 props and the
     installed responsive mechanism: accessible navigation/control/item names,
     `44 x 44px` targets, `8px` gaps, narrow previous/summary/next mode and
-    wider numbered mode. Preserve the existing page/filter request model.
+    wider numbered mode. Known totals use `Страница X из Y`; unknown totals use
+    `Страница X` without a synthesized final total. Preserve the existing
+    page/filter request model.
 15. Restore Mantine modal focus ownership, define close button label and remove
     the application timeout/manual stale-node focus path. Keep old/new JSON,
     source/platform, action/entity and entity id unchanged in details.
@@ -396,8 +450,13 @@ Files to inspect but not expected to change:
 ### Unit/component tests
 - Compact row presentation exposes date/time, exact description, action,
   entity/id and actor/login.
+- Approved variant A retains exactly four semantic cells; the separate visual
+  context region is not a fifth cell and is exposed once through Description
+  accessibility semantics.
 - No visible repeated mobile labels; accessible row/cell context remains.
 - Known labels, raw unknown tokens and neutral empty-description fallback.
+- Two-line visual clamp does not change the full description in DOM,
+  accessibility output or details.
 - Exactly four desktop headers/cells; no Action/Object columns.
 - Global empty, filtered-empty, initial error/retry and same-query stale state.
 - No application-owned delayed focus-return dependency.
@@ -406,13 +465,18 @@ Files to inspect but not expected to change:
 - Component integration with mocked API proves filter/page request preservation,
   filter reset-to-page-one, retry and stale response-key isolation.
 - Pagination control/item names, current page and disabled semantics.
+- Known total renders `Страница X из Y`; unknown total renders `Страница X`
+  without a guessed `Y`.
 - Modal open plus Escape/overlay/explicit-close focus return to exact trigger.
 - Backend integration tests are not applicable because no API, permission,
   persistence or backend behavior changes.
 
 ### UI/e2e tests
 - Primary scan → page → details → close path.
-- Typical row `<=128px`; long content wraps without clipping/overflow.
+- Variant A grid areas match the approved hierarchy and typical row is
+  `<=128px`; long actor/context wraps without clipping/overflow, while long
+  description uses the intentional two-line visual clamp and retains its full
+  accessible/details value.
 - At least three typical rows in the `390 x 844` content region and target
   four at `440 x 956`.
 - Every pager control `>=44 x 44px`, gap `>=8px`, stable names and correct
@@ -455,8 +519,9 @@ Files to inspect but not expected to change:
 ## Regression barrier
 TASK-107 is protected by a three-layer automated barrier:
 
-1. component tests lock exact/raw presentation, four-cell semantics,
-   pagination names/states, retry/stale isolation and timer-free focus paths;
+1. component tests lock exact/raw presentation, variant A four-cell semantics,
+   known/unknown-total pagination copy and names/states, retry/stale isolation
+   and timer-free focus paths;
 2. responsive Chromium tests lock row/pager geometry, density, long-content
    wrapping and absence of horizontal overflow;
 3. target-iPhone WebKit tests lock the real mobile branch, touch-size pager and
@@ -472,6 +537,9 @@ only evidence for focus, geometry or recovery.
 - A hard `max-height` could clip long description/actor/entity content;
   `<=128px` applies only to the defined typical fixture.
 - Icon-only details can lose meaning without a stable row-specific name.
+- Variant A adds a visual context item outside the four cells; incorrect ARIA
+  ownership could create a fifth semantic table item or duplicate spoken
+  context. Tests must lock four cells and one accessible context exposure.
 - Mantine internal markup/props may differ from assumptions; inspect installed
   v9 APIs instead of relying on brittle selectors.
 - Numbered `44px` page controls can overflow narrow content; mobile must use

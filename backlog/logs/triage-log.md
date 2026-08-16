@@ -1713,3 +1713,60 @@
 - needs-clarification: 0
 - updated existing: 1
 - processed files: 0
+
+# 2026-08-16 18:07 TASK-117 review decisions
+
+## Status audit
+
+- Baseline: integrated `origin/main` and `main` both at
+  `91bf77e3c10ada232e5a8732dbd6d2f120412e6f`; the working tree already
+  contained the user-owned TASK-109 lifecycle move before this backlog-only
+  update.
+- Scoped duplicate and consistency audit found no active task covering
+  immutable attendance start-time snapshots; no existing status was changed.
+- Existing user-owned TASK-109 lifecycle move in the working tree was preserved
+  and not modified by this update.
+
+## Processed inbox files
+
+- none; direct product and architecture clarification for TASK-117
+
+## Created tasks
+
+- `/backlog/risky/TASK-118-attendance-start-time-snapshots.md`
+
+## Updated existing tasks
+
+- `/backlog/risky/TASK-117-group-weekday-specific-start-times.md`
+- `/backlog/implementation-plans/TASK-117-group-weekday-specific-start-times.plan.md`
+
+## Captured decisions
+
+- TASK-117 keeps mutable historical schedule resolution with earliest-time
+  fallback; immutable snapshots are isolated in TASK-118.
+- Full group and trainer-only PUT use one group-mutation serialization strategy.
+- Group create/update state and required audit persist atomically.
+- Layers share the JSON entry schema, not an API-owned CLR type.
+- Clean initial schema remains required; a forward migration/backfill is added
+  when implementation evidence shows that an existing database must survive.
+- Selecting a weekday copies the nearest earlier selected non-empty ISO-day
+  time; copied values are independent afterward.
+- Deselect remains immediate without confirmation; API field names remain
+  contextual (`scheduleEntries` vs `groupScheduleEntries`).
+
+## Skipped duplicates
+
+- TASK-067 and TASK-117 are related baselines but do not provide immutable
+  attendance start-time snapshots.
+
+## Summary
+
+- tasks-ready: 0
+- risky: 1
+- needs-clarification: 0
+- updated existing: 1 task and 1 implementation plan
+- processed files: 0
+- active tasks after update: 36 (`tasks-ready`: 8, `risky`: 10,
+  `needs-clarification`: 11, `implementation`: 7)
+- validation: backlog/source review only; no product code or runtime tests
+  changed

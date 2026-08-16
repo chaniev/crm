@@ -27,12 +27,14 @@ Planning evidence на 2026-08-02: primary repository находится на cl
 считать planning snapshot актуальным execution base.
 
 ## Goal
-Coach, Administrator или HeadCoach на desktop schedule видит существование и
-число параллельных занятий и определяет полный интервал, группу, зал и тренера
-каждого события напрямую либо через один очевидный keyboard-accessible
-drill-down. Высокая параллельность и длинные значения не превращают карточки в
-`08:…`/`Б…`, не создают page-level overflow и не перестраивают mobile day
-timeline.
+Coach, Administrator, HeadCoach или другой уже авторизованный Schedule
+backend contract пользователь на desktop schedule видит существование и точное
+число занятий в плотном временном блоке и определяет полный интервал, группу,
+зал и тренера каждого события напрямую либо через один очевидный
+keyboard-accessible drill-down. UI не утверждает, что все события блока
+одновременны или образуют domain conflict. Высокая плотность и длинные значения
+не превращают карточки в `08:…`/`Б…`, не создают page-level overflow и не
+перестраивают mobile day timeline.
 
 ## Evidence
 - Source screenshot:
@@ -43,6 +45,18 @@ timeline.
   desktop-only hybrid: readable individual cards для достаточно просторных
   overlap cases и grouped summary + Mantine Popover для dense/unreadable
   clusters.
+- Product clarification от 2026-08-16 и утверждённые desktop/mobile макеты
+  зафиксированы в этом plan как текстовый source of truth:
+  - новое UI-название — `Занятия в интервале`; слово `параллельные` не
+    используется для presentation block;
+  - `count` означает все entries, представленные одним disclosure, а не peak
+    concurrency и не число domain conflicts;
+  - короткий dense block объединяется с непосредственно соседними render items
+    только когда их minimum visual bounds пересекаются; это presentation-only
+    grouping, необходимый, чтобы hit target не закрыл следующее занятие;
+  - mobile selected-day timeline остаётся в текущем виде без desktop
+    summary/Popover; известная теснота шести одновременных mobile lanes явно не
+    считается исправленной TASK-106.
 
 ## Current understanding
 - `frontend/src/features/schedule/GroupScheduleScreen.tsx` рендерит desktop
@@ -72,15 +86,17 @@ timeline.
   TASK-106 не требуются.
 
 ## UX contract
-- Пользователь: Coach / Administrator / HeadCoach, уже допущенный к Schedule
-  backend contract. Frontend не выводит доступ или conflict semantics из role.
+- Пользователь: Coach / Administrator / HeadCoach и любой уже авторизованный
+  SuperAdministrator, допущенный к Schedule backend contract. Frontend не
+  выводит доступ или conflict semantics из role и не меняет access behavior.
 - Основной контекст: быстрое чтение недельной сетки на `1440 x 1200` при
   нескольких занятиях в одном временном cluster.
 - Primary path: открыть `/schedule` → найти день/время → прочитать просторную
   event card либо активировать summary → увидеть полные details всех events →
   закрыть surface → продолжить scan с возвращённого focus.
 - Completion signal: для каждого event известны start/end, group и
-  hall/trainer; summary явно сообщает точное число скрытых в нём events.
+  hall/trainer; disclosure явно сообщает точное число представленных в нём
+  events без заявления, что все они одновременно активны.
 - Required decision-data: weekday/date context, полный time range, group name,
   hall, trainer(s). Group type, branch, active state и participants сохраняются
   в details как существующий secondary context.
@@ -93,25 +109,60 @@ timeline.
   semantics; Escape/close возвращает focus к trigger, а при исчезновении
   trigger после filter/refresh — к schedule board.
 - Measurable success: ни одна desktop overlap entry не остаётся start-only
-  compact card без hall/trainer и без obvious disclosure.
+  compact card без hall/trainer и без obvious disclosure; minimum visual/hit
+  geometry disclosure не перекрывает следующий render item вне disclosure.
 
 ## UI specification
 
+### Presentation terms and grouping rules
+- `Overlap cluster` — connected component существующего frontend layout по
+  half-open intervals `[start, end)`. Transitive case `A↔B↔C` остаётся одним
+  overlap cluster, даже если A и C не пересекаются; boundary
+  `previous.end === next.start` начинает отдельный cluster.
+- `Visual collision group` — presentation-only disclosure group. Он может
+  включить соседнюю non-overlapping entry, но не меняет overlap cluster, lane
+  assignment, backend conflict semantics или API data.
+- Сначала вычислить temporal top/height каждой entry из duration и desktop
+  hour scale, до применения existing `54px` lower visual bound. Readability
+  threshold `<84px` сравнивается именно с этим pre-clamp temporal height.
+- Для overlap cluster вычислить effective lane width после существующих
+  horizontal insets:
+  `(availableDayContentWidth - (laneCount - 1) * SCHEDULE_LANE_GAP_PX) / laneCount`.
+- Dense/unreadable overlap cluster — cluster с `laneCount >= 3`, effective lane
+  width `<112px` или pre-clamp temporal height хотя бы одной entry `<84px`.
+- Visual collision group строится только вокруг dense/unreadable overlap
+  cluster. Начальный group содержит все entries cluster; затем к нему
+  добавляется непосредственно предыдущий или следующий chronological render
+  item, если его clamped visual rectangle пересекает provisional disclosure
+  rectangle. После каждого добавления range/height пересчитываются; closure
+  повторяется, пока пересечений с соседями нет. Если сталкиваются два dense
+  groups, они становятся одним disclosure.
+- Provisional disclosure height — максимум temporal span group, `54px` и
+  natural wrapped content height trigger. Поэтому minimum `44px` hit target и
+  visible content не маскируют следующий item: любой фактически пересечённый
+  сосед включается в group и его данные/count переходят в disclosure.
+- Disclosure range — minimum start и maximum end всех entries group; exact
+  `count` — количество всех entries group. Это не peak concurrency.
+- Single entry остаётся обычной card, если только она не была поглощена
+  collision closure уже существующего dense/unreadable group.
+- До достоверного измерения ширины overlap clusters раскрываются
+  консервативно через disclosure; independent single entries не группируются.
+
 ### Desktop render decision
-- Выделить pure presentation helper/render model для overlap clusters поверх
+- Выделить pure presentation helper/render model для overlap clusters и visual
+  collision groups поверх
   уже отсортированных schedule entries. Не называть его conflict detector и не
   переносить в него backend business rules.
-- Cluster с одной entry всегда остаётся обычной card: TASK-106 не меняет
-  single-event presentation.
-- Для overlap cluster определить:
+- Для readability decision определить:
   - `SCHEDULE_DENSE_CLUSTER_MIN_LANE_COUNT = 3`;
   - `SCHEDULE_MIN_READABLE_LANE_WIDTH_PX = 112`;
   - `SCHEDULE_MIN_READABLE_CARD_HEIGHT_PX = 84`;
   - effective width с учётом existing `SCHEDULE_LANE_GAP_PX`;
-  - allocated card height из duration и desktop hour height с existing `54px`
-    lower geometry bound.
+  - pre-clamp temporal card height из duration и desktop hour height;
+  - existing `54px` как visual lower bound, но не как readability input.
 - Render summary, если overlap cluster имеет `laneCount >= 3` либо хотя бы одна
-  entry получает effective width `<112px` или allocated height `<84px`.
+  entry получает effective width `<112px` или pre-clamp temporal height
+  `<84px`; затем применить collision closure из предыдущего раздела.
 - Unsummarized two-lane cluster допустим только когда каждая card проходит оба
   readability threshold. Такие cards больше не используют current
   `laneCount > 1` compact rule: они показывают full time range, group и
@@ -126,20 +177,22 @@ timeline.
 
 ### Summary trigger
 - Semantic `<button type="button">`, full-width внутри day column с `6px`
-  inset, positioned от minimum cluster start до maximum cluster end.
+  inset, positioned от minimum group start до maximum group end.
 - Minimum hit area `44 x 44px`; minimum visual height сохраняет existing
-  `54px`, но не растягивает cluster поверх следующего non-overlapping event.
+  `54px`. Natural wrapped content может увеличить block только через описанный
+  collision closure и не перекрывает item вне disclosure.
 - Visible content:
-  1. `{clusterStart} - {clusterEnd} · {count} занятий`;
-  2. первые две group names и `+N`, если events больше двух;
-  3. hall/trainer counts только при фактической высоте не меньше `72px`.
+  1. `{start} - {end} · {count} занятий`;
+  2. первые две полные group names с wrapping и `+N`, если events больше двух,
+     где `N = count - 2`.
 - Exact count всегда видим; существование ни одного event не маскируется.
+- Не добавлять hall/trainer aggregate counts или type dots в trigger: эти
+  сведения полностью доступны в detail rows, а trigger сохраняет согласованную
+  с утверждённым макетом минимальную иерархию.
 - Accessible name:
-  `{weekday} {date}, {start} - {end}: {count} параллельных занятий. Открыть детали`.
+  `{weekday} {date}, {start} - {end}: {count} занятий в интервале. Открыть детали`.
 - Использовать `aria-haspopup="dialog"`, `aria-expanded`, stable
   `aria-controls`; `:focus-visible` — `2px` theme selection outline.
-- Palette может показать максимум шесть existing type dots и `+N`, без новых
-  raw colors или global tokens.
 
 ### Detail Popover
 - Использовать Mantine `Popover`, потому что read-only details контекстны
@@ -149,14 +202,20 @@ timeline.
   `min(520px, calc(100dvh - 32px))`.
 - Только detail list может иметь intentional vertical scrolling. Не добавлять
   horizontal scroll, row-level nested scroll или второй temporary surface.
-- Heading: `Параллельные занятия`. Explicit close control:
-  `Закрыть детали параллельных занятий`.
+- Dropdown имеет `role="dialog"`, `aria-modal="false"` и `aria-labelledby` на
+  heading. Heading: `Занятия в интервале`. Explicit close control:
+  `Закрыть детали занятий`.
 - Native button activation поддерживает Enter/Space. При open focus переходит
-  на close control либо heading с `tabIndex=-1`; Escape/close возвращает focus
-  к summary trigger, если он существует.
+  на close control; Escape/explicit close возвращает focus к summary trigger,
+  если он существует.
 - Если filter/successful refresh удалил open cluster, закрыть Popover и
-  перевести focus на surviving trigger либо `schedule-board`. Stale refresh
+  перевести focus на surviving trigger либо программно focusable
+  `schedule-board` (`tabIndex="-1"` и stable accessible name). Stale refresh
   error не закрывает details и не отключает уже видимые данные.
+- Stable disclosure key включает weekday, minimum start, maximum end и
+  отсортированные entry keys. Изменение membership/range создаёт новый key и
+  закрывает orphaned Popover; surviving key обновляет rows из current data без
+  stale copied entities.
 
 ### Detail rows
 - Рендерить семантический list; каждая row показывает:
@@ -183,13 +242,19 @@ timeline.
   же measured threshold. Сохранить существующий intentional board viewport,
   но не создавать новый nested-scroll layer или page overflow.
 - `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`: сохранить selected-day
-  mobile timeline, day strip, filters и existing event rendering; desktop
-  summary/Popover отсутствует.
+  mobile timeline, day strip, filters, refresh, bottom navigation и existing
+  event cards; desktop summary/Popover отсутствует.
 - `912 x 420`, `956 x 440`: при coarse pointer сохраняется mobile branch; при
   fine pointer Popover ограничен `100dvh - 32px`, close остаётся reachable.
+- Coarse-pointer landscape проверяется настоящим touch-capable Playwright
+  context (`hasTouch`/mobile WebKit project), а не только viewport или
+  подменой user-agent.
 - Mobile smoke должен доказать сохранение task-first order и отсутствие weekly
   desktop table, а не объявлять исправленной mobile high-density readability,
   которая не подтверждена scope.
+- При browser zoom `200%` от `1440px` ожидается responsive reflow примерно к
+  `720 CSS px`: проверяется mobile branch без desktop summary/Popover и без
+  document overflow, а не desktop visual balance.
 - На всех representative sizes: no document-level horizontal overflow; long
   content не расширяет Popover/page.
 
@@ -236,44 +301,72 @@ timeline.
 
 ### Phase 1 — tests before functional code
 4. До production-кода расширить `frontend/src/lib/groupSchedule.test.ts`:
-   - single event не classified как parallel cluster;
+   - single event не classified как overlap cluster;
    - exact same-time 2/3/6 events и transitive partial overlaps образуют
      deterministic clusters в chronological/stable order;
    - boundary `end === next.start` начинает новый cluster;
    - readability helper сохраняет roomy/tall 2-lane cards, но summarizes 3+
-     lanes, width `<112px` и height `<84px`;
+     lanes, width `<112px` и pre-clamp temporal height `<84px`;
+   - short dense cluster поглощает непосредственно следующую boundary entry,
+     только если clamped disclosure/entry rectangles пересекаются;
+   - collision closure не поглощает соседнюю entry при достаточном vertical
+     gap и не перескакивает через non-intersecting item;
+   - collision group сохраняет deterministic identity, minimum/maximum range и
+     exact total count, включая absorbed non-overlapping entries;
    - long names и count >6 не теряют entry identity и не получают hard cap;
-   - helper не меняет time parsing, lane assignment или group references.
+   - helper не меняет time parsing, lane assignment, overlap membership,
+     conflict semantics или group references.
 5. До production-кода расширить
    `frontend/src/features/schedule/GroupScheduleScreen.test.tsx` с mocked API
    fixture на шесть одновременных events:
    - desktop рендерит один summary trigger, exact count и не рендерит шесть
      unreadable competing cards;
-   - accessible name содержит weekday/date/full cluster range/count;
-   - click и Enter/Space открывают `Параллельные занятия`;
+   - visible trigger содержит range/count, первые две group names и
+     `+N = count - 2`, без aggregate hall/trainer counts и type dots;
+   - accessible name точно соответствует neutral contract и содержит
+     weekday/date/full disclosure range/count;
+   - click и Enter/Space открывают dialog `Занятия в интервале`; новое UI не
+     содержит label `параллельных занятий`;
+   - dialog связан через `aria-controls`/`aria-labelledby`, имеет
+     `aria-modal="false"`, а initial focus установлен на close control;
    - visible detail rows содержат full time/group/hall/branch/trainer для всех
      six events, long text и inactive/fallback state;
    - Escape и explicit close закрывают Popover и возвращают focus;
-   - filter/refresh orphan close имеет schedule-board focus fallback;
+   - membership/range change закрывает orphaned disclosure и использует
+     focusable schedule-board fallback, surviving stable key обновляет rows;
+   - short cluster + colliding back-to-back entry показываются одним
+     disclosure с total count и полными details; при достаточном gap entry
+     остаётся отдельной;
    - roomy two-lane entries остаются full readable cards, без start-only
      compact state;
+   - уже авторизованный SuperAdministrator сохраняет существующий Schedule
+     behavior без новой frontend role ветки;
    - initial loading/error, Coach/global/filtered empty и stale board tests
      сохраняются.
 6. До production-кода добавить focused Playwright scenario в
    `frontend/e2e/group-schedule.spec.ts` на `1440 x 1200`:
-   - fixture: six parallel events, long Russian group/hall/trainer values,
+   - fixture: six overlapping events, long Russian group/hall/trainer values,
      inactive and trainer-missing edges;
-   - summary visible, full count/range and stable accessible name;
+   - summary visible, full count/range, first two names, correct `+N` и stable
+     neutral accessible name;
    - Tab/Enter либо focus/Enter открывает details; все required decision-data
      visible после одного action;
    - Escape closes, trigger focused; explicit close тоже проверен;
+   - short dense/back-to-back fixture доказывает, что `54px`/`44px` surface не
+     закрывает следующий item: intersecting item включён в disclosure, а
+     non-intersecting следующий item остаётся отдельно видимым;
    - no individual card представлен только `08:…`/single-fragment surface;
    - `documentElement`/`body.scrollWidth <= innerWidth + 1`;
    - Popover и rows не имеют horizontal/nested-scroll trap.
 7. До production-кода расширить mobile preservation coverage:
    - `group-schedule.spec.ts` проверяет normal selected-day timeline на
-     `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`, отсутствие
-     desktop summary и weekly grid в mobile/coarse-pointer path;
+     `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`, отсутствие desktop
+     summary/Popover и weekly grid;
+   - `912 x 420` и `956 x 440` выполняются в touch-capable context с
+     `hasTouch` либо в mobile WebKit project и подтверждают тот же mobile path;
+   - fixture с шестью simultaneous mobile entries подтверждает только
+     отсутствие regressions текущего selected-day rendering; тест не требует
+     новой читаемости всех шести lanes;
    - при необходимости добавить один schedule smoke в
      `iphone-target-devices.spec.ts`, выполняемый обоими WebKit target projects,
      без объявления real-device Safari acceptance.
@@ -284,21 +377,23 @@ timeline.
    unrelated baseline не считается корректным red state.
 
 ### Phase 2 — minimal functional implementation
-9. Экспортировать local presentation cluster/readability helpers из
+9. Экспортировать local presentation overlap/readability/collision helpers из
    `groupSchedule.ts`, переиспользуя existing sorted entry boundaries и не
-   создавая альтернативную conflict semantics.
+   создавая альтернативную conflict semantics. Height threshold вычислять до
+   `54px` clamp; collision closure держать deterministic и presentation-only.
 10. В desktop grid измерить day-column width одним shared/local observer,
-    построить render items и заменить только dense/unreadable overlap clusters
+    построить render items и заменить dense/unreadable visual collision groups
     на full-column summary triggers. Mobile path не подключать к этому state.
 11. Развязать `data-compact` и `timeLabel` от raw `laneCount > 1`: surviving
     roomy two-lane cards показывают full time/group/hall/trainer; summary
     исключает узкие/короткие cards.
 12. Реализовать local schedule summary/Popover component. Предпочесть новый
-    `ScheduleParallelEventsPopover.tsx`, если inline implementation ещё больше
+    `ScheduleEventsDisclosure.tsx`, если inline implementation ещё больше
     раздувает `GroupScheduleScreen.tsx`; не создавать global abstraction.
-13. Добавить controlled `openedClusterKey`, close/reconcile behavior при
-    filter/refresh, explicit focus return/fallback и stable ids. Не хранить
-    stale copied API entities, если cluster можно derive из current data.
+13. Добавить controlled `openedDisclosureKey`, close/reconcile behavior при
+    filter/refresh, explicit focus return/fallback, focusable schedule board и
+    stable ids. Не хранить stale copied API entities, если disclosure можно
+    derive из current data.
 14. Добавить только schedule-local theme-token CSS для summary, wrapped detail
     rows, focus, viewport bounds и single list scroll. Не менять overall shell,
     board viewport, breakpoints или mobile event hierarchy.
@@ -314,18 +409,22 @@ timeline.
     - `npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`;
     - `npm run test:e2e:iphone`.
 17. Выполнить source/DOM review: нет start-only undisclosed desktop overlap
-    cards, duplicate hidden cards под summary, hard-capped events, frontend
-    permission/conflict inference, raw colors, orphaned Popover state, new
-    page-level overflow или unrelated files.
-18. Провести manual keyboard/200% zoom check at `1440 x 1200` и, если доступен,
-    Safari Responsive Design Mode/iOS Simulator smoke для mobile preservation.
-    Непроверенное device behavior указать как residual risk; manual QA не
-    заменяет automated regression barrier.
+    cards, duplicate hidden cards под summary, hard-capped events, misleading
+    `parallel`/`conflict` labels в новом surface, frontend permission/conflict
+    inference, raw colors, orphaned Popover state, new page-level overflow или
+    unrelated files.
+18. Провести manual keyboard и actual browser `200%` zoom check от
+    `1440 x 1200`: ожидается mobile reflow без desktop summary/Popover и без
+    document overflow. Если доступен, выполнить Safari Responsive Design
+    Mode/iOS Simulator smoke для mobile preservation. Непроверенное device
+    behavior указать как residual risk; manual QA не заменяет automated
+    regression barrier.
 
 ## Preferred implementation strategy
 1. Pure cluster/readability tests and component/Playwright disclosure tests in
    red state.
-2. One presentation-only cluster render model derived from existing entries.
+2. One presentation-only overlap + visual-collision render model derived from
+   existing entries.
 3. Desktop summary + one controlled Mantine Popover for unreadable clusters.
 4. Direct full metadata for surviving readable two-lane cards.
 5. Focus/refresh reconciliation, full frontend regression and mobile WebKit
@@ -335,7 +434,7 @@ timeline.
 - `frontend/src/lib/groupSchedule.ts`
 - `frontend/src/lib/groupSchedule.test.ts`
 - `frontend/src/features/schedule/GroupScheduleScreen.tsx`
-- `frontend/src/features/schedule/ScheduleParallelEventsPopover.tsx` (new,
+- `frontend/src/features/schedule/ScheduleEventsDisclosure.tsx` (new,
   preferred if local extraction keeps the screen focused)
 - `frontend/src/features/schedule/GroupScheduleScreen.test.tsx`
 - `frontend/src/App.css`
@@ -360,6 +459,9 @@ Files to inspect but not expected to change:
   tokens и schedule type palette; не добавлять component library или raw color.
 - Desktop summary не скрывает точное event count и даёт required data за один
   obvious action.
+- Новое UI использует neutral wording `Занятия в интервале`; count не
+  трактуется как peak concurrency или conflict count. Trigger не добавляет
+  aggregate hall/trainer counts или type dots.
 - Не оставлять start-only/ellipsis-only desktop overlap card без disclosure.
 - Mobile selected-day timeline, day strip, task order, safe-area/shell behavior
   и breakpoint остаются существующими.
@@ -378,7 +480,8 @@ Files to inspect but not expected to change:
 - Backend/API/DB changes.
 - Week navigation, dated event model или timezone semantics.
 - Redesign mobile high-density event layout без отдельного подтверждённого
-  evidence/product scope.
+  evidence/product scope; теснота six-lane mobile case остаётся известным
+  residual limitation TASK-106.
 - Общий redesign filters, legend, shell, schedule colors или typography.
 
 ## Required test coverage
@@ -387,7 +490,12 @@ Files to inspect but not expected to change:
 - Pure overlap cluster grouping: independent, exact, transitive and boundary
   cases; deterministic order and identity preservation.
 - Pure readability decision: lane count `2/3/6`, measured width around `112px`,
-  allocated height around `84px`, lane gap and unknown-measurement fallback.
+  pre-clamp temporal height around `84px`, lane gap and unknown-measurement
+  fallback.
+- Pure visual collision grouping: short dense cluster absorbs only directly
+  intersecting previous/next render items; closure stops at the first
+  non-intersecting item; exact count/range/key include absorbed entries without
+  mutating overlap membership.
 - Existing lane assignment, visible hour range, filters and time formatting
   remain green.
 
@@ -395,8 +503,12 @@ Files to inspect but not expected to change:
 - Full `GroupScheduleScreen` with mocked `/api/schedule/groups`: summary render,
   exact count, full detail list, accessible names, keyboard activation,
   Escape/close/focus return and orphaned-trigger recovery.
+- Neutral trigger/dialog copy, first two names, exact `+N = count - 2`, no
+  aggregate counts/type dots, correct dialog relationships and initial focus.
 - Readable two-lane vs summarized narrow/short cluster behavior.
+- Short dense/back-to-back collision disclosure vs non-colliding neighbor.
 - Long strings, six events, no-trainer fallback and inactive badge.
+- Existing authorized SuperAdministrator Schedule path remains unchanged.
 - Existing loading, empty, filtered empty, initial error and stale schedule
   behavior remains observable.
 - Backend integration tests are not applicable: TASK-106 changes no API,
@@ -407,20 +519,27 @@ Files to inspect but not expected to change:
 - `1440 x 1200` primary path and one-action full decision-data.
 - Summary accessible name, Enter/Space, Escape, explicit close, visible focus
   and focus return.
+- Summary/next-entry rectangles do not intersect outside one disclosure; exact
+  group count includes every item deliberately absorbed by collision closure.
 - Long group/hall/trainer names and six events without document/body overflow.
 - `768 x 1024` desktop-grid containment when current breakpoint applies.
-- Mobile preservation at `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`,
-  `956 x 440`; target-iPhone WebKit smoke when added.
+- Mobile preservation at `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`;
+  `912 x 420` and `956 x 440` in touch-capable/mobile WebKit context;
+  target-iPhone WebKit smoke when added.
+- Responsive equivalent near `720 CSS px` and actual `200%` zoom manual check
+  use mobile branch without desktop summary/Popover or document overflow.
 - Screenshot may supplement but must not replace behavior/geometry assertions.
 
 ### Regression priority
-High for frontend presentation: the screen is shared by three operational roles,
-current tests can pass while decision-data is visually unusable, and focus
-behavior is newly introduced. Domain/API risk remains low because contracts do
-not change.
+High for frontend presentation: the screen is shared by several authorized
+roles, current tests can pass while decision-data is visually unusable, and
+focus behavior is newly introduced. Domain/API risk remains low because
+contracts do not change.
 
 ### Manual-only checks
-- Visual balance of summary at 200% zoom and unusual desktop scaling.
+- Actual browser `200%` zoom from `1440 x 1200`: mobile reflow, no desktop
+  summary/Popover and no document overflow. Automated `720 CSS px` coverage is
+  the repeatable approximation, not a substitute for actual zoom smoke.
 - Real Safari chrome/safe-area/mobile preservation if Simulator or device is
   available. These are reported residual checks, not substitutes for automated
   tests.
@@ -443,25 +562,30 @@ not change.
 
 ## Regression barrier
 Primary barrier: pure unit tests lock deterministic overlap clusters and the
-`112px` width / `84px` height / `3+ lanes` summary decision without changing
-schedule semantics.
+`112px` width / pre-clamp `84px` height / `3+ lanes` summary decision plus
+visual-collision closure without changing schedule semantics.
 
 Interaction barrier: component tests lock one summary, complete visible detail
 rows, stable accessible names, Escape/close, focus return and stale/orphan
 recovery before production code is written.
 
-User-task barrier: Playwright at `1440 x 1200` proves that six parallel events
-with long values expose full time/group/hall/trainer in one action and do not
-overflow the document; mobile and target-iPhone smoke protect the existing day
-timeline.
+User-task barrier: Playwright at `1440 x 1200` proves that six overlapping
+events with long values expose full time/group/hall/trainer in one action, use
+neutral copy and do not overlap a next render item or overflow the document;
+mobile and target-iPhone smoke protect the existing day timeline without
+claiming to redesign dense mobile lanes.
 
 ## Risks
 - Reimplementing overlap detection separately can drift from lane layout and
   accidentally mimic domain conflict semantics. Derive one presentation model
   from existing entries and cover transitive/boundary cases.
 - Layout measurement can cause unreadable first-frame flash, observer loops or
-  excess renders. Use one column measurement source and conservative unknown
-  state; do not measure text.
+  excess renders. Use one column measurement source, conservative unknown state
+  and bounded collision/content-size reconciliation; observe resulting layout,
+  not individual string widths.
+- Collision closure can accidentally swallow distant entries or produce an
+  inflated count. Restrict growth to immediately adjacent intersecting visual
+  rectangles and unit-test both closure and its non-intersecting stop case.
 - Two-lane cards can still lose data if compact state remains tied to
   `laneCount`. Tests must reject any undisclosed start-only card.
 - Popover portal/long strings can introduce overflow, clipped close control or
@@ -469,6 +593,8 @@ timeline.
 - DOM text assertions can pass for CSS-hidden content. E2E must open the
   Popover and assert visible rows, not merely `toContainText` on hidden cards.
 - A six-event fixture is a stress baseline, not a production hard cap.
+- Mobile six-lane density remains a known out-of-scope limitation; preservation
+  tests must not be worded as if TASK-106 fixed it.
 - Existing board has an intentional internal desktop/tablet viewport contract;
   TASK-106 must not turn it into page overflow or add a second scroll trap.
 
