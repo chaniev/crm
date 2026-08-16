@@ -1374,3 +1374,27 @@
   machine-readable inventory and target-iPhone WebKit regression barriers.
   TASK-111 consumes the focused contract only after TASK-110 merges. Project
   code was not changed.
+
+# 2026-08-16 17:43
+
+## Moved to implementation
+- /backlog/implementation/TASK-109-settings-scope-touch-order.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-109-settings-scope-touch-order.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected medium-risk, `Safe for Codex: yes`,
+  frontend-only TASK-109. UX/UI handoffs selected one non-wrapping catalog
+  toolbar in order branch scope → refresh → primary create, with local
+  `44 x 44px` touch targets, branch-load recovery and unchanged backend
+  branch/payload/permission semantics. The plan uses dedicated branch
+  `fix/TASK-109-settings-scope-touch-order`, an isolated worktree,
+  component/Playwright tests before production code, full touch inventory and
+  target-iPhone WebKit regression barriers. Project code was not changed.
