@@ -1816,3 +1816,45 @@
 - active tasks: 35 (`tasks-ready`: 8, `risky`: 10,
   `needs-clarification`: 11, `implementation`: 6)
 - active implementation plans: 9
+
+# 2026-08-16 20:02 TASK-113 clarification update
+
+## Status audit
+
+- Baseline: local integrated `main` at `a20a6b58785654dc772d4e1f3c3c4696d9c43031`; `origin/main` at `8777507eb7be08804351b30cfa21f85057b9e5d6`.
+- Scope: direct product clarification for TASK-113; no inbox processing, project-code changes, branch switch or worktree creation.
+- Duplicate review confirmed that completed TASK-043/TASK-045 provide the schedule/type legend baseline, while active TASK-106/TASK-112 cover separate overlap-readability and day/week workflows.
+
+## Status changes
+
+- `/backlog/needs-clarification/TASK-113-schedule-group-type-organization.md` -> `/backlog/tasks-ready/TASK-113-schedule-group-type-organization.md`.
+
+## Resolved decisions
+
+- Target screen: `/schedule`.
+- Operation: clearable single-select filter `Тип группы`.
+- Schedule entries preserve chronological ordering after filtering.
+- Existing schedule-filter defaults define reset, local persistence, responsive placement and passive legend behavior; grouping, sort mode, multi-select and URL persistence remain out of scope.
+
+## Created tasks
+
+- none
+
+## Updated existing tasks
+
+- `/backlog/tasks-ready/TASK-113-schedule-group-type-organization.md`
+
+## Skipped duplicates
+
+- No new task was created; existing TASK-113 was clarified and reclassified.
+- TASK-106 and TASK-112 remain independent implementation tasks.
+
+## Summary
+
+- tasks-ready: 9
+- risky: 10
+- needs-clarification: 10
+- implementation: 6
+- updated existing: 1
+- processed files: 0
+- validation: backlog structure, duplicate scope and status/directory consistency; no product tests required because product code did not change
