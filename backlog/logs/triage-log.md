@@ -1685,3 +1685,31 @@
 - validation: repository sync, history/source diff, branch/worktree audit and
   backlog consistency checks; product tests were not required because no
   product code changed
+
+# 2026-08-16 17:24 clarification update
+
+## Processed inbox files
+- нет; обновлена существующая карточка по прямому продуктовому уточнению пользователя
+
+## Created tasks
+- нет
+
+## Updated existing tasks
+- `/backlog/needs-clarification/TASK-112-schedule-single-day-mode.md` -> `/backlog/tasks-ready/TASK-112-schedule-single-day-mode.md`
+
+## Resolved decisions
+- Один день означает weekday повторяющегося недельного шаблона, а не конкретную календарную дату.
+- Mobile сохраняет day-only представление.
+- Tablet/desktop по умолчанию показывают неделю и получают переключатель `Неделя / День`.
+- Режим и выбранный weekday сохраняются в URL при refresh, back/forward и смене viewport.
+
+## Skipped duplicates
+- Новая задача не создавалась; обновлена существующая TASK-112.
+- TASK-106 остаётся отдельной implementation-задачей про читаемость параллельных занятий.
+
+## Summary
+- tasks-ready: 1
+- risky: 0
+- needs-clarification: 0
+- updated existing: 1
+- processed files: 0

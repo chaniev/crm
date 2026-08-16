@@ -1,7 +1,13 @@
 # TASK-116: Открывать карточку клиента из посещений и группы
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-16 17:14
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-116-client-profile-context-navigation.plan.md
+- implementation_branch: fix/TASK-116-client-profile-context-navigation
 
 ## Goal
 Тренер или администратор открывает карточку видимого клиента из attendance roster или состава группы и возвращается в тот же рабочий контекст.

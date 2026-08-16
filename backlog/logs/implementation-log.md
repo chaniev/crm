@@ -1,3 +1,20 @@
+# 2026-08-16 17:16
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-117-group-weekday-specific-start-times.plan.md
+
+## Skipped tasks
+- TASK-117-group-weekday-specific-start-times.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; a detailed full-stack test-first plan was created for explicit review in branch `feature/TASK-117-group-weekday-specific-start-times`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan proposes the breaking `scheduleEntries[{weekday,startTime}]` contract, normalized child-table persistence, atomic exact-set replacement, synchronized backend/frontend/bot consumers, planning-stage mobile form UX/UI, red/green test evidence and clean PostgreSQL/device regression barriers. Project code was not changed.
+
 # 2026-07-22 08:31
 
 ## Moved to implementation
@@ -1231,3 +1248,55 @@
   permissions unchanged, requires component and Playwright red tests before
   functional code, and blocks execution on formula, attribution, stale-scope
   or financial-trust changes without review. Project code was not changed.
+
+# 2026-08-16 17:14
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-114-membership-comment-isolation-regression.plan.md
+
+## Skipped tasks
+- TASK-114-membership-comment-isolation-regression.md — not moved: source task
+  remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; a
+  test-first diagnostic and implementation plan was created for explicit human
+  review before active execution in branch
+  `fix/TASK-114-membership-comment-isolation-regression`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: current `main` inspection already shows sale-local persistence,
+  projection, frontend grouping and request identity, while existing coverage
+  is mostly EF InMemory or mocked at the missing vertical boundary. The plan
+  therefore requires an exact two-sale real-PostgreSQL red scenario before any
+  functional change, uses component/Playwright row-local barriers, and stops
+  speculative implementation if current `origin/main` is green so deployment
+  or version skew can be reconciled. Project code was not changed.
+
+# 2026-08-16 17:14
+
+## Moved to implementation
+- /backlog/implementation/TASK-116-client-profile-context-navigation.md
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-116-client-profile-context-navigation.plan.md
+
+## Skipped tasks
+- none
+
+## Summary
+- moved: 1
+- skipped: 0
+- plans created: 1
+- note: user explicitly selected medium-risk, `Safe for Codex: yes`,
+  frontend-only TASK-116. The plan preserves backend-owned client scope and
+  existing client/group list return snapshots, introduces a versioned typed
+  history-state origin for attendance/group round trips, and requires pure
+  state, component, route-integration and Playwright tests before production
+  code. Dedicated branch `fix/TASK-116-client-profile-context-navigation`, an
+  isolated worktree, pending-save recovery, mark-first keyboard priority,
+  responsive geometry and target-iPhone WebKit barriers are mandatory. Project
+  code was not changed.
