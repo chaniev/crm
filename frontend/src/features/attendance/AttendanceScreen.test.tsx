@@ -8,6 +8,7 @@ import {
   type AuthenticatedUser,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
+import { createClientProfileReturnContext } from '../clients/clientProfileReturnState'
 import { AttendanceWorkspace } from './AttendanceScreen'
 
 vi.mock('../../lib/api', async (importOriginal) => ({
@@ -61,6 +62,119 @@ beforeEach(() => {
 })
 
 describe('AttendanceWorkspace', () => {
+  test('captures the selected attendance group, date, view and exact client', async () => {
+    const onOpenClient = vi.fn()
+    renderWithProviders(
+      <AttendanceWorkspace onOpenClient={onOpenClient} user={user} />,
+    )
+
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    fireEvent.click(
+      within(screen.getByTestId('attendance-roster-view-control')).getByRole(
+        'radio',
+        { name: 'Все' },
+      ),
+    )
+    fireEvent.click(
+      within(card).getByRole('button', {
+        name: 'Открыть карточку клиента Иван Иванов',
+      }),
+    )
+
+    expect(onOpenClient).toHaveBeenCalledWith(
+      'client-1',
+      {
+        kind: 'attendance',
+        route: { kind: 'section', section: 'Home' },
+        groupId: 'group-1',
+        trainingDate: '2026-07-12',
+        rosterView: 'all',
+        anchorClientId: 'client-1',
+      },
+    )
+  })
+
+  test('reconciles a stale group after scope load while preserving a valid date and view', async () => {
+    const initialReturnContext = createClientProfileReturnContext({
+      origin: {
+        kind: 'attendance',
+        route: { kind: 'section', section: 'Home' },
+        groupId: 'stale-group',
+        trainingDate: '2026-07-11',
+        rosterView: 'all',
+        anchorClientId: 'client-1',
+      },
+      originEntryKey: 'client-profile:attendance-stale-group',
+      returnDepth: 0,
+    })
+
+    renderWithProviders(
+      <AttendanceWorkspace
+        initialReturnContext={initialReturnContext}
+        onOpenClient={vi.fn()}
+        user={user}
+      />,
+    )
+
+    await screen.findByTestId('attendance-client-card-client-1')
+    expect(getRoster).toHaveBeenCalledWith(
+      'group-1',
+      '2026-07-11',
+      expect.any(AbortSignal),
+    )
+    expect(
+      getRoster.mock.calls.some(([groupId]) => groupId === 'stale-group'),
+    ).toBe(false)
+    expect(
+      within(screen.getByTestId('attendance-roster-view-control')).getByRole(
+        'radio',
+        { name: 'Все' },
+      ),
+    ).toBeChecked()
+    expect(screen.getByText(/группа.*измен/i)).toBeVisible()
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: 'Открыть карточку клиента Иван Иванов',
+        }),
+      ).toHaveFocus(),
+    )
+  })
+
+  test('reconciles a stale date to today while preserving an allowed group', async () => {
+    const initialReturnContext = createClientProfileReturnContext({
+      origin: {
+        kind: 'attendance',
+        route: { kind: 'section', section: 'Home' },
+        groupId: 'group-1',
+        trainingDate: '2026-06-01',
+        rosterView: 'unmarked',
+        anchorClientId: 'client-1',
+      },
+      originEntryKey: 'client-profile:attendance-stale-date',
+      returnDepth: 0,
+    })
+
+    renderWithProviders(
+      <AttendanceWorkspace
+        initialReturnContext={initialReturnContext}
+        onOpenClient={vi.fn()}
+        user={user}
+      />,
+    )
+
+    await screen.findByTestId('attendance-client-card-client-1')
+    expect(getRoster).toHaveBeenCalledWith(
+      'group-1',
+      '2026-07-12',
+      expect.any(AbortSignal),
+    )
+    expect(
+      getRoster.mock.calls.some(([, date]) => date === '2026-06-01'),
+    ).toBe(false)
+    expect(screen.getByText(/дата.*измен/i)).toBeVisible()
+  })
+
   test('keeps a failed row in the default view and removes it only after exact retry succeeds', async () => {
     saveMarks
       .mockRejectedValueOnce(new Error('Связь прервана'))

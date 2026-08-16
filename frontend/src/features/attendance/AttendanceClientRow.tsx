@@ -1,4 +1,5 @@
-import { Avatar, Badge, Group, Paper, Stack, Text } from '@mantine/core'
+import { Avatar, Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
+import { IconUserCircle } from '@tabler/icons-react'
 import { buildClientPhotoUrl, type AttendanceState } from '../../lib/api'
 import { AttendanceSaveStatus } from './AttendanceSaveStatus'
 import { AttendanceStateControl } from './AttendanceStateControl'
@@ -7,11 +8,18 @@ import type { AttendanceClientRowState } from './types'
 type AttendanceClientRowProps = {
   row: AttendanceClientRowState
   onChange: (state: AttendanceState) => void
+  onOpenClient?: (clientId: string) => void
   onRetry: () => void
 }
 
-export function AttendanceClientRow({ row, onChange, onRetry }: AttendanceClientRowProps) {
+export function AttendanceClientRow({
+  row,
+  onChange,
+  onOpenClient,
+  onRetry,
+}: AttendanceClientRowProps) {
   const { client } = row
+  const pendingReasonId = `attendance-client-profile-pending-${client.id}`
   const photoUrl = client.photo
     ? buildClientPhotoUrl(
         client.id,
@@ -66,6 +74,33 @@ export function AttendanceClientRow({ row, onChange, onRetry }: AttendanceClient
             onChange={onChange}
             value={row.displayedState}
           />
+          {onOpenClient ? (
+            <>
+              <Button
+                aria-label={`Открыть карточку клиента ${client.fullName}`}
+                aria-describedby={row.saveState === 'pending' ? pendingReasonId : undefined}
+                aria-disabled={row.saveState === 'pending'}
+                className="attendance-client-profile-action"
+                data-client-profile-action-id={client.id}
+                leftSection={<IconUserCircle size={18} />}
+                onClick={() => {
+                  if (row.saveState === 'pending') return
+                  onOpenClient(client.id)
+                }}
+                type="button"
+                variant="light"
+              >
+                <span className="attendance-client-profile-action__label">
+                  Карточка клиента
+                </span>
+              </Button>
+              {row.saveState === 'pending' ? (
+                <Text className="visually-hidden" id={pendingReasonId}>
+                  Сначала дождитесь сохранения посещения
+                </Text>
+              ) : null}
+            </>
+          ) : null}
           <AttendanceSaveStatus
             errorMessage={row.errorMessage}
             onRetry={onRetry}

@@ -3,20 +3,31 @@ import { Badge, Tabs } from '@mantine/core'
 import type { AuthenticatedUser } from '../../lib/api'
 import { resources } from '../../lib/resources'
 import { AttendanceWorkspace } from '../attendance/AttendanceScreen'
+import type {
+  ClientProfileOriginInput,
+  ClientProfileReturnContext,
+} from '../clients/clientProfileReturnState'
 import { ErrorState, PageLayout, PageSection } from '../shared/ux'
 import { AttentionPanel } from './AttentionPanel'
 
 type HomeDashboardProps = {
+  initialReturnContext?: ClientProfileReturnContext | null
   user: AuthenticatedUser
-  onOpenClient?: (clientId: string) => void
+  onOpenClient?: (clientId: string, origin?: ClientProfileOriginInput | null) => void
 }
 
 type HomeTab = 'attendance' | 'memberships'
 
-export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
+export function HomeDashboard({
+  initialReturnContext = null,
+  user,
+  onOpenClient,
+}: HomeDashboardProps) {
   const canViewMemberships = user.permissions.canManageClients
   const canWorkWithAttendance = user.permissions.canMarkAttendance
-  const [activeTab, setActiveTab] = useState<HomeTab>(canWorkWithAttendance ? 'attendance' : 'memberships')
+  const [activeTab, setActiveTab] = useState<HomeTab>(() =>
+    canWorkWithAttendance ? 'attendance' : 'memberships',
+  )
   const [membershipCount, setMembershipCount] = useState<number | null>(null)
   const handleMembershipCount = useCallback((count: number | null) => setMembershipCount(count), [])
 
@@ -38,7 +49,11 @@ export function HomeDashboard({ user, onOpenClient }: HomeDashboardProps) {
 
   const attendancePanel = canWorkWithAttendance ? (
     <div aria-labelledby={canViewMemberships ? 'home-tabs-tab-attendance' : undefined} className="home-tab-panel" data-testid="attendance-screen" id="home-tabs-panel-attendance" role={canViewMemberships ? 'tabpanel' : undefined}>
-      <AttendanceWorkspace user={user} />
+      <AttendanceWorkspace
+        initialReturnContext={initialReturnContext}
+        onOpenClient={onOpenClient}
+        user={user}
+      />
     </div>
   ) : null
   const membershipsPanel = canViewMemberships ? (

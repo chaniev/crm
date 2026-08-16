@@ -465,6 +465,16 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
       return
     }
 
+    if (pathname === '/api/clients/client-1' && method === 'GET') {
+      await fulfillJson(route, CLIENT_LIST_ITEM)
+      return
+    }
+
+    if (pathname === '/api/clients/client-1/messenger/telegram' && method === 'GET') {
+      await fulfillJson(route, {})
+      return
+    }
+
     throw new Error(
       `Unexpected attendance target API request: ${method} ${pathname}`,
     )
@@ -485,6 +495,9 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
     name: 'Был',
     exact: true,
   })
+  const profileAction = page
+    .getByTestId('attendance-client-card-client-1')
+    .getByRole('button', { name: 'Открыть карточку клиента Александр Петров' })
 
   await expect(attendanceScreen).toBeVisible()
   await expect(toolbar).toBeVisible()
@@ -497,6 +510,7 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
   await expect(progress).toBeVisible()
   await expect(rosterView).toBeVisible()
   await expect(firstAction).toBeVisible()
+  await expect(profileAction).toBeVisible()
 
   await expect(toolbar.getByTestId('attendance-group-select')).toBeVisible()
   await expect(toolbar.getByTestId('attendance-date-input')).toBeVisible()
@@ -530,6 +544,10 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
   expect(clipping.scrollWidth).toBeLessThanOrEqual(clipping.clientWidth)
 
   const firstActionBox = await firstAction.boundingBox()
+  const profileActionBox = await profileAction.boundingBox()
+  expect(profileActionBox).not.toBeNull()
+  expect(profileActionBox!.width).toBeGreaterThanOrEqual(44)
+  expect(profileActionBox!.height).toBeGreaterThanOrEqual(44)
   const navigation = page.getByRole('navigation', { name: 'Мобильная навигация' })
   const header = await page.locator('.app-shell__header').boundingBox()
   const navigationCount = await navigation.count()
@@ -568,10 +586,18 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
   expect(environment.innerWidth).toBe(target.width)
   expect(environment.innerHeight).toBeLessThanOrEqual(target.height)
 
+  await profileAction.click()
+  await expect(page).toHaveURL(/\/clients\/client-1(?:\/|$)/)
+  await expect(page.getByRole('button', { name: 'К посещениям' })).toBeVisible()
+  await page.getByRole('button', { name: 'К посещениям' }).click()
+  await expect(attendanceScreen).toBeVisible()
+  await expect(profileAction).toBeFocused()
+
   await page.setViewportSize({ width: target.height, height: target.width })
   await expect(attendanceScreen).toBeVisible()
   await expect(toolbar).toBeVisible()
   await expect(firstAction).toBeVisible()
+  await expect(profileAction).toBeVisible()
 
   const compactFirstAction = await firstAction.boundingBox()
   expect(compactFirstAction).not.toBeNull()
@@ -581,6 +607,12 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
     compactViewport!.height + 1,
   )
   await expectNoHorizontalScroll(page)
+
+  await profileAction.click()
+  await expect(page).toHaveURL(/\/clients\/client-1(?:\/|$)/)
+  await page.getByRole('button', { name: 'К посещениям' }).click()
+  await expect(attendanceScreen).toBeVisible()
+  await expect(profileAction).toBeFocused()
 })
 
 test('empty auth-profile values are safely resolved on iPhone profiles', async ({

@@ -5,6 +5,7 @@ import {
   Checkbox,
   Drawer,
   Group,
+  Modal,
   MultiSelect,
   NumberInput,
   Paper,
@@ -51,6 +52,10 @@ import {
   type TrainingGroupListItem,
   type UpsertTrainingGroupRequest,
 } from '../../lib/api'
+import type {
+  ClientProfileOriginInput,
+  ClientProfileReturnContext,
+} from '../clients/clientProfileReturnState'
 import {
   formatDurationMinutes,
   formatGroupSchedule,
@@ -83,6 +88,7 @@ import {
 } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import { GroupTrainerSubstitutionsSection } from './GroupTrainerSubstitutionsSection'
+import { GroupClientRow } from './GroupClientRow'
 import {
   fromGroupStatusFilter,
   toGroupStatusFilter,
@@ -105,7 +111,9 @@ type GroupCreateScreenProps = {
 
 type GroupEditScreenProps = {
   groupId: string
+  initialReturnContext?: ClientProfileReturnContext | null
   onBack: () => void
+  onOpenClient?: (clientId: string, origin: ClientProfileOriginInput) => void
   onUpdated: () => void
 }
 
@@ -682,7 +690,9 @@ export function GroupCreateScreen({
 
 export function GroupEditScreen({
   groupId,
+  initialReturnContext = null,
   onBack,
+  onOpenClient,
   onUpdated,
 }: GroupEditScreenProps) {
   const [trainerOptions, setTrainerOptions] = useState<TrainerOption[]>([])
@@ -694,9 +704,12 @@ export function GroupEditScreen({
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+  const [pendingClientId, setPendingClientId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const form = useGroupForm()
   const formRef = useRef(form)
+  const loadedFormValuesRef = useRef<GroupFormValues | null>(null)
+  const returnFocusAppliedRef = useRef(false)
 
   useEffect(() => {
     formRef.current = form
@@ -732,7 +745,10 @@ export function GroupEditScreen({
         setTrainerOptions(options)
         setGroupClients(clientsResponse.clients)
         setGroupName(group.name)
-        formRef.current.setValues(toFormValues(group))
+        const nextValues = toFormValues(group)
+        loadedFormValuesRef.current = nextValues
+        formRef.current.setValues(nextValues)
+        formRef.current.resetDirty(nextValues)
       } catch (error) {
         if (controller.signal.aborted) {
           return
@@ -755,7 +771,39 @@ export function GroupEditScreen({
     return () => controller.abort()
   }, [groupId])
 
-  async function submit(values: GroupFormValues) {
+  useEffect(() => {
+    const origin = initialReturnContext?.origin
+    if (
+      returnFocusAppliedRef.current ||
+      loading ||
+      loadError ||
+      origin?.kind !== 'groupEdit' ||
+      origin.route.groupId !== groupId
+    ) {
+      return
+    }
+
+    returnFocusAppliedRef.current = true
+    const animationFrameId = window.requestAnimationFrame(() => {
+      const exactAction = document.querySelector<HTMLElement>(
+        `[data-group-client-profile-action-id="${escapeCssIdentifier(origin.anchorClientId)}"]`,
+      )
+      const fallbackAction = document.querySelector<HTMLElement>(
+        '.group-client-profile-action, .group-clients-card [role="heading"], .page-layout__header button',
+      )
+      const focusTarget = exactAction ?? fallbackAction
+
+      if (focusTarget && !focusTarget.matches('button, a, input, select, textarea, [tabindex]')) {
+        focusTarget.tabIndex = -1
+      }
+      exactAction?.scrollIntoView({ block: 'center' })
+      focusTarget?.focus({ preventScroll: true })
+    })
+
+    return () => window.cancelAnimationFrame(animationFrameId)
+  }, [groupClients, groupId, initialReturnContext, loadError, loading])
+
+  async function persistGroup(values: GroupFormValues) {
     setSubmitting(true)
     setFormError(null)
     form.clearErrors()
@@ -770,31 +818,129 @@ export function GroupEditScreen({
         color: 'teal',
       })
 
-      onUpdated()
+      loadedFormValuesRef.current = values
+      form.resetDirty(values)
+      return true
     } catch (error) {
       if (error instanceof ApiError) {
         form.setErrors(applyFieldErrors(error.fieldErrors))
         setFormError(error.message)
-        return
+        focusGroupFormRecovery()
+        return false
       }
 
       setFormError('Не удалось сохранить изменения группы.')
+      focusGroupFormRecovery()
+      return false
     } finally {
       setSubmitting(false)
     }
   }
 
+  async function submit(values: GroupFormValues) {
+    const saved = await persistGroup(values)
+    if (saved) {
+      onUpdated()
+    }
+  }
+
+  function openClientFromGroup(clientId: string) {
+    if (!onOpenClient) {
+      return
+    }
+
+    const origin: ClientProfileOriginInput = {
+      kind: 'groupEdit',
+      route: { kind: 'groupEdit', groupId },
+      anchorClientId: clientId,
+    }
+
+    onOpenClient(clientId, origin)
+  }
+
+  function handleOpenClient(clientId: string) {
+    if (!onOpenClient) {
+      return
+    }
+
+    if (!form.isDirty()) {
+      openClientFromGroup(clientId)
+      return
+    }
+
+    setPendingClientId(clientId)
+  }
+
+  function cancelPendingClientNavigation() {
+    const clientId = pendingClientId
+    setPendingClientId(null)
+    if (!clientId) return
+
+    window.requestAnimationFrame(() => {
+      document
+        .querySelector<HTMLElement>(
+          `[data-group-client-profile-action-id="${escapeCssIdentifier(clientId)}"]`,
+        )
+        ?.focus({ preventScroll: true })
+    })
+  }
+
+  async function saveAndOpenPendingClient() {
+    const clientId = pendingClientId
+    if (!clientId || submitting) return
+
+    const validation = form.validate()
+    if (validation.hasErrors) {
+      setPendingClientId(null)
+      setFormError('Проверьте обязательные поля группы.')
+      focusGroupFormRecovery()
+      return
+    }
+
+    const saved = await persistGroup(form.values)
+    if (saved) {
+      setPendingClientId(null)
+      openClientFromGroup(clientId)
+    } else {
+      setPendingClientId(null)
+    }
+  }
+
+  function discardAndOpenPendingClient() {
+    const clientId = pendingClientId
+    if (!clientId || submitting) return
+
+    const loadedValues = loadedFormValuesRef.current
+    if (loadedValues) {
+      form.setValues(loadedValues)
+      form.resetDirty(loadedValues)
+      form.clearErrors()
+      setFormError(null)
+    }
+
+    setPendingClientId(null)
+    openClientFromGroup(clientId)
+  }
+
+  function focusGroupFormRecovery() {
+    window.requestAnimationFrame(() => {
+      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]')
+      const formAlert = document.querySelector<HTMLElement>('.group-edit-form-recovery')
+      ;(invalidField ?? formAlert)?.focus({ preventScroll: false })
+    })
+  }
+
   return (
     <PageLayout
-        actions={(
-          <Button
-            leftSection={<IconArrowLeft size={18} />}
-            onClick={onBack}
-            variant="default"
-          >
-            К списку групп
-          </Button>
-        )}
+      actions={(
+        <Button
+          leftSection={<IconArrowLeft size={18} />}
+          onClick={onBack}
+          variant="default"
+        >
+          К списку групп
+        </Button>
+      )}
       title={`Настройка группы «${groupName}»`}
     >
 
@@ -815,6 +961,63 @@ export function GroupEditScreen({
 
       {!loading && !loadError ? (
         <>
+          <Modal
+            centered
+            classNames={{
+              body: 'group-client-navigation-modal__body',
+              content: 'group-client-navigation-modal__content',
+              header: 'group-client-navigation-modal__header',
+            }}
+            closeButtonProps={{
+              'aria-label': 'Отменить переход к карточке клиента',
+              disabled: submitting,
+            }}
+            closeOnClickOutside={!submitting}
+            closeOnEscape={!submitting}
+            onClose={cancelPendingClientNavigation}
+            opened={Boolean(pendingClientId)}
+            overlayProps={{ backgroundOpacity: 0.18, blur: 2 }}
+            returnFocus={false}
+            size="min(34rem, calc(100vw - 32px))"
+            title="Сохранить изменения в группе?"
+            trapFocus
+            transitionProps={{ duration: 0 }}
+            withCloseButton
+          >
+            <Stack gap="lg">
+              <Text size="sm">
+                Перед открытием карточки выберите, что сделать с текущими изменениями группы.
+              </Text>
+              <div className="group-client-navigation-modal__actions">
+                <ResponsiveButtonGroup>
+                  <Button
+                    loading={submitting}
+                    onClick={() => void saveAndOpenPendingClient()}
+                    type="button"
+                  >
+                    Сохранить
+                  </Button>
+                  <Button
+                    disabled={submitting}
+                    onClick={discardAndOpenPendingClient}
+                    type="button"
+                    variant="secondary"
+                  >
+                    Не сохранять
+                  </Button>
+                  <Button
+                    disabled={submitting}
+                    onClick={cancelPendingClientNavigation}
+                    type="button"
+                    variant="subtle"
+                  >
+                    Отмена
+                  </Button>
+                </ResponsiveButtonGroup>
+              </div>
+            </Stack>
+          </Modal>
+
           <PageSection>
             <GroupForm
               form={form}
@@ -845,7 +1048,6 @@ export function GroupEditScreen({
                     Всего: {groupClients.length}
                   </Badge>
                 )}
-                description="Read-only список помогает сверить состав группы до этапа клиентской карточки."
                 title="Клиенты группы"
               />
 
@@ -858,27 +1060,11 @@ export function GroupEditScreen({
               ) : (
                 <Stack gap="sm">
                   {groupClients.map((client) => (
-                    <Paper
-                      className="list-row-card"
+                    <GroupClientRow
+                      client={client}
                       key={client.id}
-                      radius="24px"
-                      withBorder
-                    >
-                      <Group justify="space-between" wrap="wrap">
-                        <Stack gap={6}>
-                          <Text fw={700}>{client.fullName}</Text>
-                          {client.phone ? (
-                            <Text c="dimmed" size="sm">
-                              Телефон: {client.phone}
-                            </Text>
-                          ) : null}
-                        </Stack>
-
-                        <Badge radius="xl" variant="light">
-                          {client.status}
-                        </Badge>
-                      </Group>
-                    </Paper>
+                      onOpenClient={handleOpenClient}
+                    />
                   ))}
                 </Stack>
               )}
@@ -949,8 +1135,10 @@ function GroupForm({
       <Stack gap="lg">
         {formError ? (
           <Alert
+            className="group-edit-form-recovery"
             color="red"
             icon={<IconAlertCircle size={18} />}
+            tabIndex={-1}
             title="Сохранение не выполнено"
             variant="light"
           >

@@ -28,7 +28,23 @@ vi.mock('./lib/api', async (importOriginal) => {
 
 vi.mock('./features/clients/ClientManagement', () => ({
   ClientCreateScreen: () => <div data-testid="client-create-screen">New client screen</div>,
-  ClientDetailScreen: () => <div data-testid="client-detail-screen">Client detail</div>,
+  ClientDetailScreen: ({
+    backLabel,
+    clientId,
+    onBack,
+    onEdit,
+  }: {
+    backLabel?: string
+    clientId: string
+    onBack: () => void
+    onEdit: (clientId: string) => void
+  }) => (
+    <div data-testid="client-detail-screen">
+      Client detail {clientId}
+      <button type="button" onClick={onBack}>{backLabel ?? 'К списку клиентов'}</button>
+      <button type="button" onClick={() => onEdit(clientId)}>Редактировать клиента</button>
+    </div>
+  ),
   ClientEditScreen: ({ onBack }: { onBack: () => void }) => (
     <div data-testid="client-edit-screen">
       Client edit
@@ -40,10 +56,30 @@ vi.mock('./features/clients/ClientManagement', () => ({
 
 vi.mock('./features/groups/GroupManagement', () => ({
   GroupCreateScreen: () => <div data-testid="group-create-screen">New group</div>,
-  GroupEditScreen: ({ onBack }: { onBack: () => void }) => (
+  GroupEditScreen: ({
+    groupId,
+    onBack,
+    onOpenClient,
+  }: {
+    groupId: string
+    onBack: () => void
+    onOpenClient?: (clientId: string, origin: unknown) => void
+  }) => (
     <div data-testid="group-edit-screen">
       Group edit
       <button type="button" onClick={onBack}>К списку групп</button>
+      {onOpenClient ? (
+        <button
+          type="button"
+          onClick={() => onOpenClient('client-group', {
+            kind: 'groupEdit',
+            route: { kind: 'groupEdit', groupId },
+            anchorClientId: 'client-group',
+          })}
+        >
+          Открыть клиента группы
+        </button>
+      ) : null}
     </div>
   ),
   GroupsListScreen: () => <div data-testid="groups-list-screen">Groups list</div>,
@@ -110,7 +146,39 @@ vi.mock('./features/settings/SettingsScreen', () => ({
 }))
 
 vi.mock('./features/home/HomeDashboard', () => ({
-  HomeDashboard: () => <div data-testid="home-screen">Главная</div>,
+  HomeDashboard: ({
+    initialReturnContext,
+    onOpenClient,
+  }: {
+    initialReturnContext?: { origin?: { kind?: string; groupId?: string; trainingDate?: string; rosterView?: string } } | null
+    onOpenClient?: (clientId: string, origin: unknown) => void
+  }) => (
+    <div data-testid="home-screen">
+      Главная
+      {initialReturnContext?.origin?.kind === 'attendance' ? (
+        <div data-testid="restored-attendance-context">
+          {initialReturnContext.origin.groupId}:
+          {initialReturnContext.origin.trainingDate}:
+          {initialReturnContext.origin.rosterView}
+        </div>
+      ) : null}
+      {onOpenClient ? (
+        <button
+          type="button"
+          onClick={() => onOpenClient('client-attendance', {
+            kind: 'attendance',
+            route: { kind: 'section', section: 'Home' },
+            groupId: 'group-2',
+            trainingDate: '2026-08-15',
+            rosterView: 'all',
+            anchorClientId: 'client-attendance',
+          })}
+        >
+          Открыть клиента посещений
+        </button>
+      ) : null}
+    </div>
+  ),
 }))
 
 vi.mock('./features/attendance/AttendanceScreen', () => ({
@@ -413,6 +481,124 @@ describe('App route access contract', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Нет доступа' })).toBeVisible()
     expect(window.location.pathname).toBe('/clients/new')
     expect(showPoliteStatusNotificationMock).not.toHaveBeenCalled()
+  })
+
+  test('opens a client from attendance with typed context and presents an exact return action', async () => {
+    renderAppAt('/', baseSession)
+    fireEvent.click(await screen.findByRole('button', {
+      name: 'Открыть клиента посещений',
+    }))
+
+    await waitFor(() => expect(window.location.pathname).toBe('/clients/client-attendance'))
+    expect(await screen.findByTestId('client-detail-screen')).toHaveTextContent(
+      'client-attendance',
+    )
+    expect(screen.getByRole('button', { name: 'К посещениям' })).toBeVisible()
+    expect(window.history.state).toMatchObject({
+      crmClientProfileReturnContext: {
+        version: 1,
+        returnDepth: 1,
+        origin: {
+          kind: 'attendance',
+          groupId: 'group-2',
+          trainingDate: '2026-08-15',
+          rosterView: 'all',
+          anchorClientId: 'client-attendance',
+        },
+      },
+    })
+
+    const originState = {
+      ...window.history.state,
+      crmClientProfileReturnContext: {
+        ...window.history.state.crmClientProfileReturnContext,
+        returnDepth: 0,
+      },
+    }
+    const goSpy = vi.spyOn(window.history, 'go').mockImplementation(() => {
+      window.history.replaceState(originState, '', '/')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'К посещениям' }))
+    expect(goSpy).toHaveBeenCalledWith(-1)
+    await waitFor(() => expect(window.location.pathname).toBe('/'))
+    expect(await screen.findByTestId('restored-attendance-context')).toHaveTextContent(
+      'group-2:2026-08-15:all',
+    )
+    goSpy.mockRestore()
+  })
+
+  test('fails closed when explicit history return lands on a mismatched entry', async () => {
+    renderAppAt('/', baseSession)
+    fireEvent.click(await screen.findByRole('button', {
+      name: 'Открыть клиента посещений',
+    }))
+    await screen.findByRole('button', { name: 'К посещениям' })
+
+    const goSpy = vi.spyOn(window.history, 'go').mockImplementation(() => {
+      window.history.replaceState(
+        { crmClientProfileReturnContext: window.history.state.crmClientProfileReturnContext },
+        '',
+        '/groups/group-wrong/edit',
+      )
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'К посещениям' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/clients'))
+    expect(await screen.findByTestId('clients-list-screen')).toBeVisible()
+    expect(window.history.state.crmClientProfileReturnContext).toBeUndefined()
+    goSpy.mockRestore()
+  })
+
+  test('opens a client from group edit and retains context through details-edit-details', async () => {
+    renderAppAt('/groups/group-1/edit', baseSession)
+    fireEvent.click(await screen.findByRole('button', {
+      name: 'Открыть клиента группы',
+    }))
+
+    await waitFor(() => expect(window.location.pathname).toBe('/clients/client-group'))
+    expect(screen.getByRole('button', { name: 'К группе' })).toBeVisible()
+    expect(window.history.state.crmClientProfileReturnContext).toMatchObject({
+      returnDepth: 1,
+      origin: {
+        kind: 'groupEdit',
+        route: { kind: 'groupEdit', groupId: 'group-1' },
+        anchorClientId: 'client-group',
+      },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Редактировать клиента' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/clients/client-group/edit'))
+    expect(window.history.state.crmClientProfileReturnContext.returnDepth).toBe(2)
+
+    fireEvent.click(screen.getByRole('button', { name: 'К карточке клиента' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/clients/client-group'))
+    expect(screen.getByRole('button', { name: 'К группе' })).toBeVisible()
+    expect(window.history.state.crmClientProfileReturnContext.returnDepth).toBe(3)
+  })
+
+  test('keeps direct and malformed client details on the existing clients fallback', async () => {
+    const directView = renderAppAt('/clients/client-direct', baseSession)
+    expect(await screen.findByRole('button', { name: 'К списку клиентов' })).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'К списку клиентов' }))
+    await waitFor(() => expect(window.location.pathname).toBe('/clients'))
+    directView.unmount()
+
+    window.history.replaceState({
+      crmClientProfileReturnContext: {
+        version: 1,
+        origin: { kind: 'external', path: 'https://example.com' },
+        originEntryKey: 'client-profile:malformed',
+        returnDepth: 1,
+      },
+    }, '', '/clients/client-malformed')
+    loadSessionMock.mockResolvedValue(mockSession(baseSession))
+    renderApp()
+
+    expect(await screen.findByRole('button', { name: 'К списку клиентов' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'К посещениям' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'К группе' })).not.toBeInTheDocument()
   })
 
   test('renders utility password route from direct path and keeps direct return target', async () => {

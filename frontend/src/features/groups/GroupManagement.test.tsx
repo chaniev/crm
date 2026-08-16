@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { renderWithProviders } from '../../test/render'
+import { createClientProfileReturnContext } from '../clients/clientProfileReturnState'
 import { createGroupListReturnSnapshot } from './groupListReturnState'
 
 const apiMocks = vi.hoisted(() => ({
@@ -503,6 +504,190 @@ describe('GroupEditScreen', () => {
     await waitFor(() => expect(onUpdated).toHaveBeenCalledOnce())
     expect(screen.queryByText('Сохранение не выполнено')).not.toBeInTheDocument()
   })
+
+  test('opens an exact client immediately from a pristine group form', async () => {
+    setupGroupEditWithClient()
+    const onOpenClient = vi.fn()
+
+    renderWithProviders(
+      <GroupEditScreen
+        groupId="group-1"
+        onBack={vi.fn()}
+        onOpenClient={onOpenClient}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Открыть карточку клиента Иван Иванов',
+      }),
+    )
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(onOpenClient).toHaveBeenCalledWith(
+      'client-1',
+      {
+        kind: 'groupEdit',
+        route: { kind: 'groupEdit', groupId: 'group-1' },
+        anchorClientId: 'client-1',
+      },
+    )
+  })
+
+  test('restores focus to the originating group client action after return', async () => {
+    setupGroupEditWithClient()
+    const initialReturnContext = createClientProfileReturnContext({
+      origin: {
+        kind: 'groupEdit',
+        route: { kind: 'groupEdit', groupId: 'group-1' },
+        anchorClientId: 'client-1',
+      },
+      originEntryKey: 'client-profile:group-focus',
+      returnDepth: 0,
+    })
+
+    renderWithProviders(
+      <GroupEditScreen
+        groupId="group-1"
+        initialReturnContext={initialReturnContext}
+        onBack={vi.fn()}
+        onOpenClient={vi.fn()}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    const profileAction = await screen.findByRole('button', {
+      name: 'Открыть карточку клиента Иван Иванов',
+    })
+    await waitFor(() => expect(profileAction).toHaveFocus())
+  })
+
+  test('keeps a dirty draft and returns focus when profile navigation is cancelled', async () => {
+    setupGroupEditWithClient()
+    const onOpenClient = vi.fn()
+
+    renderWithProviders(
+      <GroupEditScreen
+        groupId="group-1"
+        onBack={vi.fn()}
+        onOpenClient={onOpenClient}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    const nameInput = await screen.findByRole('textbox', { name: 'Название группы' })
+    fireEvent.change(nameInput, { target: { value: 'Черновик группы' } })
+    const profileAction = screen.getByRole('button', {
+      name: 'Открыть карточку клиента Иван Иванов',
+    })
+    fireEvent.click(profileAction)
+
+    expect(
+      await screen.findByRole('heading', { name: 'Сохранить изменения в группе?' }),
+    ).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Сохранить' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Не сохранять' })).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: 'Отмена' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(nameInput).toHaveValue('Черновик группы')
+    expect(onOpenClient).not.toHaveBeenCalled()
+    await waitFor(() => expect(profileAction).toHaveFocus())
+  })
+
+  test('explicitly discards a dirty draft without updating and opens the exact client', async () => {
+    setupGroupEditWithClient()
+    const onOpenClient = vi.fn()
+
+    renderWithProviders(
+      <GroupEditScreen
+        groupId="group-1"
+        onBack={vi.fn()}
+        onOpenClient={onOpenClient}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Название группы' }), {
+      target: { value: 'Черновик группы' },
+    })
+    fireEvent.click(screen.getByRole('button', {
+      name: 'Открыть карточку клиента Иван Иванов',
+    }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Не сохранять' }))
+
+    expect(apiMocks.updateGroup).not.toHaveBeenCalled()
+    expect(onOpenClient).toHaveBeenCalledWith(
+      'client-1',
+      expect.objectContaining({
+        kind: 'groupEdit',
+        anchorClientId: 'client-1',
+      }),
+    )
+  })
+
+  test('saves a dirty form once and opens the client only after update succeeds', async () => {
+    setupGroupEditWithClient()
+    const onOpenClient = vi.fn()
+    apiMocks.updateGroup.mockResolvedValue({
+      ...group,
+      name: 'Сохраненная группа',
+      createdAt: '2026-07-01T10:00:00Z',
+      updatedAt: '2026-08-16T10:00:00Z',
+    })
+
+    renderWithProviders(
+      <GroupEditScreen
+        groupId="group-1"
+        onBack={vi.fn()}
+        onOpenClient={onOpenClient}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Название группы' }), {
+      target: { value: 'Сохраненная группа' },
+    })
+    fireEvent.click(screen.getByRole('button', {
+      name: 'Открыть карточку клиента Иван Иванов',
+    }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Сохранить' }))
+
+    await waitFor(() => expect(apiMocks.updateGroup).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(onOpenClient).toHaveBeenCalledTimes(1))
+    expect(onOpenClient).toHaveBeenCalledWith(
+      'client-1',
+      expect.objectContaining({ kind: 'groupEdit', anchorClientId: 'client-1' }),
+    )
+  })
+
+  test('keeps a dirty draft and does not navigate after an update failure', async () => {
+    setupGroupEditWithClient()
+    const onOpenClient = vi.fn()
+    apiMocks.updateGroup.mockRejectedValue(new Error('temporary'))
+
+    renderWithProviders(
+      <GroupEditScreen
+        groupId="group-1"
+        onBack={vi.fn()}
+        onOpenClient={onOpenClient}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    const nameInput = await screen.findByRole('textbox', { name: 'Название группы' })
+    fireEvent.change(nameInput, { target: { value: 'Несохраненный черновик' } })
+    fireEvent.click(screen.getByRole('button', {
+      name: 'Открыть карточку клиента Иван Иванов',
+    }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Сохранить' }))
+
+    expect(await screen.findByText('Сохранение не выполнено')).toBeVisible()
+    expect(nameInput).toHaveValue('Несохраненный черновик')
+    expect(onOpenClient).not.toHaveBeenCalled()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
 })
 
 function setupGroupFormOptions() {
@@ -516,4 +701,30 @@ function setupGroupFormOptions() {
     { id: 'type-1', name: 'Общая', description: null, groupCount: 1 },
   ])
   apiMocks.getTrainerOptions.mockResolvedValue([])
+}
+
+function setupGroupEditWithClient() {
+  setupGroupFormOptions()
+  apiMocks.getGroup.mockResolvedValue({
+    ...group,
+    createdAt: '2026-07-01T10:00:00Z',
+    updatedAt: '2026-07-20T10:00:00Z',
+  })
+  apiMocks.getGroupClients.mockResolvedValue({
+    groupId: 'group-1',
+    clients: [
+      {
+        id: 'client-1',
+        fullName: 'Иван Иванов',
+        phone: '+7 999 000-00-01',
+        status: 'Active',
+      },
+    ],
+  })
+  apiMocks.getGroupTrainerSubstitutions.mockResolvedValue({
+    current: [],
+    history: { items: [], totalCount: 0, skip: 0, take: 20 },
+    canCreate: true,
+    createUnavailableReason: null,
+  })
 }

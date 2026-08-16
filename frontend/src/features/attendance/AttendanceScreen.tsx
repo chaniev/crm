@@ -11,6 +11,10 @@ import {
   type AttendanceState,
   type AuthenticatedUser,
 } from '../../lib/api'
+import type {
+  ClientProfileOriginInput,
+  ClientProfileReturnContext,
+} from '../clients/clientProfileReturnState'
 import {
   EmptyState,
   ErrorState,
@@ -29,19 +33,39 @@ import {
 } from './AttendanceRosterViewControl'
 import type { AttendanceClientRowState } from './types'
 
-type AttendanceScreenProps = { user: AuthenticatedUser }
+type AttendanceScreenProps = {
+  initialReturnContext?: ClientProfileReturnContext | null
+  onOpenClient?: (clientId: string, origin: ClientProfileOriginInput) => void
+  user: AuthenticatedUser
+}
 
-export function AttendanceScreen({ user }: AttendanceScreenProps) {
+export function AttendanceScreen({
+  initialReturnContext = null,
+  onOpenClient,
+  user,
+}: AttendanceScreenProps) {
   return (
     <PageLayout data-testid="attendance-screen" title="Посещения">
-      <AttendanceWorkspace user={user} />
+      <AttendanceWorkspace
+        initialReturnContext={initialReturnContext}
+        onOpenClient={onOpenClient}
+        user={user}
+      />
     </PageLayout>
   )
 }
 
-type AttendanceWorkspaceProps = { user: AuthenticatedUser }
+type AttendanceWorkspaceProps = {
+  initialReturnContext?: ClientProfileReturnContext | null
+  onOpenClient?: (clientId: string, origin: ClientProfileOriginInput) => void
+  user: AuthenticatedUser
+}
 
-export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
+export function AttendanceWorkspace({
+  initialReturnContext = null,
+  onOpenClient,
+  user,
+}: AttendanceWorkspaceProps) {
   const [groups, setGroups] = useState<AttendanceGroup[]>([])
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [groupsError, setGroupsError] = useState<string | null>(null)
@@ -59,9 +83,15 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
   const [groupsReloadKey, setGroupsReloadKey] = useState(0)
   const [rosterView, setRosterView] = useState<AttendanceRosterView>('unmarked')
   const [rosterRefreshError, setRosterRefreshError] = useState(false)
+  const [returnFocusClientId, setReturnFocusClientId] = useState<string | null>(
+    initialReturnContext?.origin.kind === 'attendance'
+      ? initialReturnContext.origin.anchorClientId
+      : null,
+  )
   const contextVersionRef = useRef(0)
   const actionVersionsRef = useRef<Record<string, number>>({})
   const contextKeyRef = useRef('')
+  const initialReturnContextAppliedRef = useRef(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -72,16 +102,33 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       try {
         const response = await getAttendanceGroups(controller.signal)
         if (controller.signal.aborted) return
+        const restored = getRestoredAttendanceContext(
+          initialReturnContextAppliedRef.current ? null : initialReturnContext,
+          response.groups,
+          response.today,
+          response.minTrainingDate,
+          response.maxTrainingDate,
+        )
+        initialReturnContextAppliedRef.current = true
+
         setGroups(response.groups)
-        setTrainingDate((current) => current || response.today)
         setToday(response.today)
         setMinTrainingDate(response.minTrainingDate)
         setMaxTrainingDate(response.maxTrainingDate)
-        setSelectedGroupId((current) =>
-          current && response.groups.some((group) => group.id === current)
-            ? current
-            : response.groups[0]?.id ?? null,
-        )
+        if (restored) {
+          setTrainingDate(restored.trainingDate)
+          setRosterView(restored.rosterView)
+          setScopeChangeMessage(restored.message)
+          setReturnFocusClientId(restored.anchorClientId)
+          setSelectedGroupId(restored.groupId)
+        } else {
+          setTrainingDate((currentDate) => currentDate || response.today)
+          setSelectedGroupId((current) =>
+            current && response.groups.some((group) => group.id === current)
+              ? current
+              : response.groups[0]?.id ?? null,
+          )
+        }
       } catch (error) {
         if (controller.signal.aborted) return
         setGroups([])
@@ -93,7 +140,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
 
     void loadGroups()
     return () => controller.abort()
-  }, [groupsReloadKey])
+  }, [groupsReloadKey, initialReturnContext])
 
   useEffect(() => {
     if (!selectedGroupId || !trainingDate) {
@@ -288,6 +335,43 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
     />
   ) : null
 
+  useEffect(() => {
+    if (!returnFocusClientId || rosterLoading || !rosterLoaded) {
+      return
+    }
+
+    const animationFrameId = window.requestAnimationFrame(() => {
+      const action = document.querySelector<HTMLElement>(
+        `[data-client-profile-action-id="${escapeCssIdentifier(returnFocusClientId)}"]`,
+      )
+      const fallback =
+        document.querySelector<HTMLElement>('[data-testid="attendance-roster-view-control"] input:checked') ??
+        document.querySelector<HTMLElement>('[data-testid="attendance-roster-view-control"] input') ??
+        document.querySelector<HTMLElement>('[data-testid="attendance-roster"]')
+
+      action?.scrollIntoView({ block: 'center' })
+      ;(action ?? fallback)?.focus({ preventScroll: true })
+      setReturnFocusClientId(null)
+    })
+
+    return () => window.cancelAnimationFrame(animationFrameId)
+  }, [returnFocusClientId, rosterLoaded, rosterLoading, visibleRows])
+
+  function openClient(clientId: string) {
+    if (!selectedGroupId || !trainingDate || !onOpenClient) {
+      return
+    }
+
+    onOpenClient(clientId, {
+      kind: 'attendance',
+      route: { kind: 'section', section: 'Home' },
+      groupId: selectedGroupId,
+      trainingDate,
+      rosterView,
+      anchorClientId: clientId,
+    })
+  }
+
   return (
     <Stack data-testid="attendance-workspace" gap="var(--page-section-gap)">
       {groupsError ? (
@@ -371,6 +455,7 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
                   <AttendanceClientRow
                     key={row.client.id}
                     onChange={(state) => void saveClientState(row.client.id, state)}
+                    onOpenClient={onOpenClient ? openClient : undefined}
                     onRetry={() => row.attemptedState && void saveClientState(row.client.id, row.attemptedState)}
                     row={row}
                   />
@@ -382,6 +467,76 @@ export function AttendanceWorkspace({ user }: AttendanceWorkspaceProps) {
       ) : null}
     </Stack>
   )
+}
+
+type RestoredAttendanceContext = {
+  anchorClientId: string
+  groupId: string
+  message: string | null
+  rosterView: AttendanceRosterView
+  trainingDate: string
+}
+
+function getRestoredAttendanceContext(
+  context: ClientProfileReturnContext | null,
+  groups: AttendanceGroup[],
+  today: string,
+  minTrainingDate: string | null,
+  maxTrainingDate: string,
+): RestoredAttendanceContext | null {
+  if (context?.origin.kind !== 'attendance' || groups.length === 0) {
+    return null
+  }
+
+  const origin = context.origin
+  const groupAllowed = groups.some((group) => group.id === origin.groupId)
+  const dateAllowed = isTrainingDateAllowed(
+    origin.trainingDate,
+    minTrainingDate,
+    maxTrainingDate,
+  )
+  const groupId = groupAllowed ? origin.groupId : groups[0]?.id
+  const trainingDate = dateAllowed ? origin.trainingDate : today
+
+  if (!groupId || !trainingDate) {
+    return null
+  }
+
+  const changedFields = [
+    groupAllowed ? null : 'группа изменена',
+    dateAllowed ? null : 'дата изменена',
+  ].filter(Boolean)
+  const message =
+    changedFields.length === 0
+      ? null
+      : `${changedFields.join(' и ')}. Контекст посещений выбран заново.`
+
+  return {
+    anchorClientId: origin.anchorClientId,
+    groupId,
+    message,
+    rosterView: origin.rosterView,
+    trainingDate,
+  }
+}
+
+function isTrainingDateAllowed(
+  trainingDate: string,
+  minTrainingDate: string | null,
+  maxTrainingDate: string,
+) {
+  return (
+    trainingDate <= maxTrainingDate &&
+    (!minTrainingDate || trainingDate >= minTrainingDate)
+  )
+}
+
+function escapeCssIdentifier(value: string) {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(value)
+  }
+
+  return value.replace(/["\\]/g, '\\$&')
 }
 
 function buildRowState(clients: AttendanceClient[]): Record<string, AttendanceClientRowState> {

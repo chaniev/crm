@@ -76,6 +76,19 @@ import {
   type ClientListReturnSnapshot,
 } from './features/clients/list/clientListReturnState'
 import {
+  createClientProfileReturnContext,
+  getClientProfileOriginRoute,
+  getClientProfileReturnHistoryStateForRoute,
+  getNextClientProfileReturnDepth,
+  isClientProfileScopedRoute,
+  mergeClientProfileReturnContextIntoHistoryState,
+  readClientProfileReturnContext,
+  stripClientProfileReturnContextFromHistoryState,
+  withClientProfileReturnDepth,
+  type ClientProfileOriginInput,
+  type ClientProfileReturnContext,
+} from './features/clients/clientProfileReturnState'
+import {
   ClientCreateScreen,
   ClientDetailScreen,
   ClientEditScreen,
@@ -137,12 +150,29 @@ type RolePresentation = {
   roleLabel: string
 }
 
+type PendingClientProfileReturn = {
+  originEntryKey: string
+  originRoute: AppRoute
+}
+
 function assertNeverAppRoute(value: never): never {
   throw new Error(`Unhandled app route: ${JSON.stringify(value)}`)
 }
 
 function isAppRoute(route: ParsedRoute): route is AppRoute {
   return route.kind !== 'not-found'
+}
+
+function isClientProfileOriginInput(
+  value: unknown,
+): value is ClientProfileOriginInput {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'kind' in value &&
+    ((value as { kind?: unknown }).kind === 'attendance' ||
+      (value as { kind?: unknown }).kind === 'groupEdit')
+  )
 }
 
 type NavigateOptions = {
@@ -312,9 +342,26 @@ function getCurrentGroupListReturnDepth(
   return snapshot.returnDepth
 }
 
+function getClientProfileBackLabel(
+  route: ParsedRoute,
+  context: ClientProfileReturnContext | null,
+) {
+  if (
+    !context ||
+    !isAppRoute(route) ||
+    !isClientProfileScopedRoute(route, context)
+  ) {
+    return 'К списку клиентов'
+  }
+
+  return context.origin.kind === 'attendance' ? 'К посещениям' : 'К группе'
+}
+
 function stripAppReturnSnapshotsFromHistoryState(historyState: unknown) {
-  return stripGroupListReturnSnapshotFromHistoryState(
-    stripClientListReturnSnapshotFromHistoryState(historyState),
+  return stripClientProfileReturnContextFromHistoryState(
+    stripGroupListReturnSnapshotFromHistoryState(
+      stripClientListReturnSnapshotFromHistoryState(historyState),
+    ),
   )
 }
 
@@ -383,6 +430,7 @@ export function App({ appConfig, authBackground }: AppProps) {
   )
   const authenticatedUserBoundaryRef = useRef<string | null>(null)
   const routeAccessBoundaryRef = useRef<RouteAccessResolution | null>(null)
+  const pendingClientProfileReturnRef = useRef<PendingClientProfileReturn | null>(null)
   const displayedClubName = appConfig.clubName
 
   const routeAccess = useMemo(() => {
@@ -405,16 +453,58 @@ export function App({ appConfig, authBackground }: AppProps) {
     window.history.state,
   )
   const activeGroupListReturnSnapshot = routeGroupListReturnSnapshot
+  const activeClientProfileReturnContext = readClientProfileReturnContext(
+    window.history.state,
+  )
+
+  useEffect(() => {
+    function validateClientProfileReturnLanding() {
+      const pendingReturn = pendingClientProfileReturnRef.current
+      if (!pendingReturn) {
+        return
+      }
+
+      pendingClientProfileReturnRef.current = null
+      const landedContext = readClientProfileReturnContext(window.history.state)
+      const landedPath = normalizePathname(window.location.pathname)
+      const expectedPath = getRoutePath(pendingReturn.originRoute)
+      const landedRoute = parseRoute(landedPath)
+      const landedOnExpectedOrigin =
+        landedPath === expectedPath &&
+        landedContext?.originEntryKey === pendingReturn.originEntryKey &&
+        landedContext.returnDepth === 0 &&
+        isAppRoute(landedRoute) &&
+        getRoutePath(getClientProfileOriginRoute(landedContext)) === expectedPath
+
+      if (landedOnExpectedOrigin) {
+        return
+      }
+
+      const fallbackRoute: AppRoute = { kind: 'section', section: 'Clients' }
+      window.history.replaceState(
+        stripAppReturnSnapshotsFromHistoryState(window.history.state),
+        '',
+        getRoutePath(fallbackRoute),
+      )
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    }
+
+    window.addEventListener('popstate', validateClientProfileReturnLanding)
+    return () =>
+      window.removeEventListener('popstate', validateClientProfileReturnLanding)
+  }, [])
 
   function getClientListHistoryState(
     nextRoute: AppRoute,
     snapshot: ClientListReturnSnapshot | null,
   ) {
-    return stripGroupListReturnSnapshotFromHistoryState(
-      getClientListReturnHistoryStateForRoute(
-        window.history.state,
-        nextRoute,
-        snapshot,
+    return stripClientProfileReturnContextFromHistoryState(
+      stripGroupListReturnSnapshotFromHistoryState(
+        getClientListReturnHistoryStateForRoute(
+          window.history.state,
+          nextRoute,
+          snapshot,
+        ),
       ),
     )
   }
@@ -468,11 +558,13 @@ export function App({ appConfig, authBackground }: AppProps) {
     nextRoute: AppRoute,
     snapshot: GroupListReturnSnapshot | null,
   ) {
-    return stripClientListReturnSnapshotFromHistoryState(
-      getGroupListReturnHistoryStateForRoute(
-        window.history.state,
-        nextRoute,
-        snapshot,
+    return stripClientProfileReturnContextFromHistoryState(
+      stripClientListReturnSnapshotFromHistoryState(
+        getGroupListReturnHistoryStateForRoute(
+          window.history.state,
+          nextRoute,
+          snapshot,
+        ),
       ),
     )
   }
@@ -518,7 +610,126 @@ export function App({ appConfig, authBackground }: AppProps) {
     })
   }
 
+  function saveClientProfileReturnContext(context: ClientProfileReturnContext) {
+    window.history.replaceState(
+      mergeClientProfileReturnContextIntoHistoryState(
+        window.history.state,
+        context,
+      ),
+      '',
+      window.location.pathname,
+    )
+  }
+
+  function navigateWithClientProfileReturnContext(
+    nextRoute: AppRoute,
+    context: ClientProfileReturnContext,
+    options: Omit<NavigateOptions, 'state'> = {},
+  ) {
+    const targetContext = withClientProfileReturnDepth(
+      context,
+      isAppRoute(route)
+        ? getNextClientProfileReturnDepth(route, context)
+        : context.returnDepth,
+    )
+    const nextState = getClientProfileReturnHistoryStateForRoute(
+      window.history.state,
+      nextRoute,
+      targetContext,
+    )
+
+    navigate(nextRoute, {
+      ...options,
+      state: nextState,
+    })
+  }
+
+  function openClientFromProfileOrigin(
+    clientId: string,
+    origin: ClientProfileOriginInput,
+  ) {
+    const originContext = createClientProfileReturnContext({
+      origin,
+      returnDepth: 0,
+    })
+
+    saveClientProfileReturnContext(originContext)
+    navigateWithClientProfileReturnContext(
+      { kind: 'clientDetails', clientId },
+      originContext,
+    )
+  }
+
+  function openClientDetails(
+    clientId: string,
+    returnSnapshotOrOrigin?: ClientListReturnSnapshot | ClientProfileOriginInput | null,
+  ) {
+    if (isClientProfileOriginInput(returnSnapshotOrOrigin)) {
+      openClientFromProfileOrigin(clientId, returnSnapshotOrOrigin)
+      return
+    }
+
+    if (
+      activeClientProfileReturnContext &&
+      isAppRoute(route) &&
+      isClientProfileScopedRoute(route, activeClientProfileReturnContext)
+    ) {
+      navigateWithClientProfileReturnContext(
+        { kind: 'clientDetails', clientId },
+        activeClientProfileReturnContext,
+      )
+      return
+    }
+
+    navigateWithClientListReturnState(
+      { kind: 'clientDetails', clientId },
+      returnSnapshotOrOrigin ?? activeClientListReturnSnapshot,
+    )
+  }
+
+  function editClient(clientId: string) {
+    if (
+      activeClientProfileReturnContext &&
+      isAppRoute(route) &&
+      isClientProfileScopedRoute(route, activeClientProfileReturnContext)
+    ) {
+      navigateWithClientProfileReturnContext(
+        { kind: 'clientEdit', clientId },
+        activeClientProfileReturnContext,
+      )
+      return
+    }
+
+    navigate({ kind: 'clientEdit', clientId })
+  }
+
   function returnToClients() {
+    if (
+      (route.kind === 'clientDetails' || route.kind === 'clientEdit') &&
+      activeClientProfileReturnContext &&
+      isClientProfileScopedRoute(route, activeClientProfileReturnContext)
+    ) {
+      if (activeClientProfileReturnContext.returnDepth > 0) {
+        pendingClientProfileReturnRef.current = {
+          originEntryKey: activeClientProfileReturnContext.originEntryKey,
+          originRoute: getClientProfileOriginRoute(activeClientProfileReturnContext),
+        }
+        window.history.go(-activeClientProfileReturnContext.returnDepth)
+        return
+      }
+
+      const originRoute = getClientProfileOriginRoute(activeClientProfileReturnContext)
+      navigate(originRoute, {
+        replace: true,
+        state: getClientProfileReturnHistoryStateForRoute(
+          window.history.state,
+          originRoute,
+          withClientProfileReturnDepth(activeClientProfileReturnContext, 0),
+        ),
+      })
+      return
+    }
+
     if (
       (route.kind === 'clientDetails' || route.kind === 'clientPreview') &&
       activeClientListReturnSnapshot &&
@@ -967,13 +1178,8 @@ export function App({ appConfig, authBackground }: AppProps) {
       ) : (
         <RouteViewport
           onCreateClient={() => navigate({ kind: 'clientCreate' })}
-          onEditClient={(clientId) => navigate({ kind: 'clientEdit', clientId })}
-          onOpenClient={(clientId, returnSnapshot) =>
-            navigateWithClientListReturnState(
-              { kind: 'clientDetails', clientId },
-              returnSnapshot ?? activeClientListReturnSnapshot,
-            )
-          }
+          onEditClient={editClient}
+          onOpenClient={openClientDetails}
           onPreviewClient={(clientId, returnSnapshot) =>
             navigateWithClientListReturnState(
               { kind: 'clientPreview', clientId },
@@ -995,6 +1201,11 @@ export function App({ appConfig, authBackground }: AppProps) {
           onReturnToGroups={returnToGroups}
           onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
           clientListReturnSnapshot={activeClientListReturnSnapshot}
+          clientProfileReturnContext={activeClientProfileReturnContext}
+          clientProfileReturnLabel={getClientProfileBackLabel(
+            route,
+            activeClientProfileReturnContext,
+          )}
           groupListReturnSnapshot={activeGroupListReturnSnapshot}
           onSaveClientListReturnState={saveClientListReturnState}
           onSaveGroupListReturnState={saveGroupListReturnState}
@@ -1420,10 +1631,12 @@ type RouteViewportProps = {
   onCreateClient: () => void
   onEditClient: (clientId: string) => void
   clientListReturnSnapshot: ClientListReturnSnapshot | null
+  clientProfileReturnContext: ClientProfileReturnContext | null
+  clientProfileReturnLabel: string
   groupListReturnSnapshot: GroupListReturnSnapshot | null
   onOpenClient: (
     clientId: string,
-    returnSnapshot?: ClientListReturnSnapshot | null,
+    returnSnapshotOrOrigin?: ClientListReturnSnapshot | ClientProfileOriginInput | null,
   ) => void
   onPreviewClient: (
     clientId: string,
@@ -1444,6 +1657,8 @@ function RouteViewport({
   user,
   currentUserId,
   clientListReturnSnapshot,
+  clientProfileReturnContext,
+  clientProfileReturnLabel,
   groupListReturnSnapshot,
   onCreateClient,
   onEditClient,
@@ -1498,6 +1713,7 @@ function RouteViewport({
     return (
       <ClientDetailScreen
         canManage={user.permissions.canManageClients}
+        backLabel={clientProfileReturnLabel}
         clientId={route.clientId}
         onBack={onReturnToClients}
         onEdit={onEditClient}
@@ -1545,7 +1761,9 @@ function RouteViewport({
     return (
       <GroupEditScreen
         groupId={route.groupId}
+        initialReturnContext={clientProfileReturnContext}
         onBack={onReturnToGroups}
+        onOpenClient={onOpenClient}
         onUpdated={onReturnToGroups}
       />
     )
@@ -1601,7 +1819,13 @@ function RouteViewport({
   }
 
   if (route.section === 'Home') {
-    return <HomeDashboard onOpenClient={onOpenClient} user={user} />
+    return (
+      <HomeDashboard
+        initialReturnContext={clientProfileReturnContext}
+        onOpenClient={onOpenClient}
+        user={user}
+      />
+    )
   }
 
   return <SectionPlaceholder />

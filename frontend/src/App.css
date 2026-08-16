@@ -3009,6 +3009,44 @@
     linear-gradient(135deg, var(--crm-brand-soft-overlay), var(--crm-surface-page-alpha-90));
 }
 
+.group-client-row {
+  min-width: 0;
+}
+
+.group-client-row__content {
+  min-width: 0;
+  gap: 0.75rem;
+}
+
+.group-client-row__identity {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.group-client-row__meta {
+  flex-shrink: 0;
+}
+
+.group-client-profile-action {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.group-client-navigation-modal__content {
+  max-height: calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow: hidden;
+}
+
+.group-client-navigation-modal__body {
+  max-height: calc(100dvh - 6rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow-y: auto;
+  padding-bottom: calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom));
+}
+
+.group-client-navigation-modal__actions :where(button) {
+  min-height: 44px;
+}
+
 .group-trainer-substitution-row {
   overflow-wrap: anywhere;
 }
@@ -3208,6 +3246,16 @@
   display: grid;
   min-width: 0;
   gap: 0.5rem;
+}
+
+.attendance-client-profile-action {
+  min-width: 44px;
+  min-height: 44px;
+  justify-self: stretch;
+}
+
+.attendance-client-profile-action[aria-disabled='true'] {
+  cursor: wait;
 }
 
 .attendance-state-control {

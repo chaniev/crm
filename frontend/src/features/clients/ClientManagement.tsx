@@ -503,6 +503,7 @@ export function ClientEditScreen({
 }
 
 type ClientDetailScreenProps = {
+  backLabel?: string
   clientId: string
   canManage: boolean
   onBack: () => void
@@ -510,6 +511,7 @@ type ClientDetailScreenProps = {
 }
 
 export function ClientDetailScreen({
+  backLabel = 'К списку клиентов',
   clientId,
   canManage,
   onBack,
@@ -822,7 +824,7 @@ export function ClientDetailScreen({
             onClick={onBack}
             variant="default"
           >
-            К списку клиентов
+            {backLabel}
           </Button>
           {canManage && client ? (
             <Button
