@@ -2244,3 +2244,101 @@
   backend baseline, task structure, risk classification, related-task policy,
   status/directory consistency and Markdown whitespace; no product tests
   required because project code did not change
+
+# 2026-08-20 01:42 TASK-119 plan review clarification
+
+## Scope
+
+- Updated the existing risky TASK-119 source contract and implementation plan
+  from explicit user answers during plan review.
+- Baseline: integrated `main` at
+  `2f54b9773fae32804bfdf1deab3580414e692c17`, equal to `origin/main`.
+- No inbox processing, project-code changes, status move, branch switch or
+  worktree creation.
+
+## Superseding decisions
+
+- Lesson lifecycle contains only `Scheduled | Cancelled`; attendance writes do
+  not create `Held`, `NotHeld` or a completion status.
+- Same-group overlapping lessons and exact duplicates are hard validation;
+  different-group trainer/hall resource conflicts remain confirmable warnings.
+- Slices A–E remain on explicitly declared dependent branches; after Slice F
+  integrates and verifies the complete result, A–F are merged to `main` as one
+  release integration. The user explicitly approved these unmerged
+  predecessor dependencies for TASK-119.
+- Cancellation recovery wording now describes the actual attempted transition:
+  cancelling a `Scheduled` occurrence that already has attendance marks.
+
+## Updated existing tasks and plans
+
+- `/backlog/risky/TASK-119-full-lesson-calendar.md`
+- `/backlog/implementation-plans/TASK-119-full-lesson-calendar.plan.md`
+
+## Summary
+
+- tasks created: 0
+- statuses changed: 0
+- updated existing tasks: 1
+- updated implementation plans: 1
+- processed inbox files: 0
+- validation: decision traceability, source-task/plan consistency and Markdown
+  review; no project tests required because project code did not change
+
+# 2026-08-20 01:56 TASK-119 remaining plan decisions
+
+## Scope
+
+- Applied the user's explicit selection of option A for review questions
+  3, 4 and 6–11 to the existing TASK-119 source task and implementation plan.
+- Baseline: integrated `main` at
+  `2f54b9773fae32804bfdf1deab3580414e692c17`, equal to `origin/main`.
+- No inbox processing, project-code changes, status move, branch switch or
+  worktree creation.
+
+## Resolved decisions
+
+- Coach calendar access is occurrence-date based. Upcoming non-cancelled
+  substitutions are visible, normal expiry does not hide their historical
+  occurrences, future roster is read-only, and Coach writes remain limited to
+  business today and the prior two days.
+- `ThisAndFuture` begins on the selected date; `EntireSeries` begins at
+  `max(StartsOn, business today)`. Attendance/cancellation facts and explicit
+  materialized exceptions are never rewritten by a series edit.
+- Recurring and legacy UUIDv5 namespaces/keys/test vectors are fixed; revision
+  uses canonical SHA-256 state; preview confirmation is server-side,
+  actor-bound, one-time and expires after 15 minutes.
+- Factual occurrences cannot be moved/edited; cancellation/restore targets one
+  occurrence. Ending or changing future lessons uses the series editor.
+- Migration cutover date is an explicit persisted parameter. Ambiguities use a
+  durable report and audited manual map/create-legacy repair; activation remains
+  blocked until unresolved count is zero.
+- A second `Present` after a SingleVisit was already used remains an attendance
+  fact without an automatic sale/write-off and returns a stable warning.
+- Calendar range response owns screen create capability and access-scoped
+  filter options, including empty-result behavior.
+- Mobile/tablet week is seven vertical ISO-day sections; desktop week is seven
+  columns. Navigation arrows are mode-aware, mutation forms use routes, and
+  cancellation/restore use explicit confirmation.
+
+## UI handoff verification
+
+- `ui-designer` reviewed option 11A against `crm-mobile-first-ui` and confirmed
+  exact responsive, focus, back/draft, safe-area and compact-height behavior.
+- Physical Safari, software keyboard, home indicator and one-handed reach remain
+  execution-time Simulator/device evidence.
+
+## Updated existing tasks and plans
+
+- `/backlog/risky/TASK-119-full-lesson-calendar.md`
+- `/backlog/implementation-plans/TASK-119-full-lesson-calendar.plan.md`
+
+## Summary
+
+- tasks created: 0
+- statuses changed: 0
+- updated existing tasks: 1
+- updated implementation plans: 1
+- processed inbox files: 0
+- validation: source/plan decision consistency, fixed UUID vectors, UI contract
+  review and Markdown checks; no project tests required because project code did
+  not change

@@ -17,23 +17,30 @@ TASK-119 нельзя безопасно реализовывать одной �
 | Slice | Предлагаемая branch | Зависимость |
 |---|---|---|
 | A. Calendar core и bounded projection | `feature/TASK-119-calendar-core` | текущий `origin/main` |
-| B. Calendar mutations, cancellation и warnings | `feature/TASK-119-calendar-mutations` | A merged в `origin/main` |
-| C. Occurrence-aware attendance и data transition | `feature/TASK-119-attendance-migration` | A и B merged |
-| D. Web calendar и attendance UX | `feature/TASK-119-web-calendar` | A–C merged |
-| E. Bot occurrence consumer | `feature/TASK-119-bot-occurrence-attendance` | A–C merged; может идти параллельно D |
-| F. Coordinated activation, cleanup и release regression | `feature/TASK-119-calendar-release-regression` | D и E merged |
+| B. Calendar mutations, cancellation и warnings | `feature/TASK-119-calendar-mutations` | reviewed green head A |
+| C. Occurrence-aware attendance и data transition | `feature/TASK-119-attendance-migration` | reviewed green head B, включающий A |
+| D. Web calendar и attendance UX | `feature/TASK-119-web-calendar` | reviewed green head C, включающий A–C |
+| E. Bot occurrence consumer | `feature/TASK-119-bot-occurrence-attendance` | тот же reviewed green head C; может идти параллельно D |
+| F. Coordinated activation, cleanup и release regression | `feature/TASK-119-calendar-release-regression` | base C и integration reviewed green heads D/E |
 
 Branch rules для каждого slice:
 - перед первым изменением project code прочитать и выполнить
   `.agents/skills/task-worktree/SKILL.md`;
-- создать branch непосредственно от актуального `origin/main` после merge всех
-  объявленных predecessor slices; не основывать её на unmerged child branch;
+- A создать непосредственно от актуального `origin/main`; B–F используют только
+  явно объявленные выше reviewed predecessor heads. Это утверждённое
+  пользователем исключение для зависимых unmerged task branches действует
+  только внутри TASK-119 и не разрешает другие скрытые зависимости;
 - primary repository оставить на `main`, а код менять только в отдельном
   registered task worktree;
 - до правки проверить git root, active branch, clean status, worktree list и
   `git merge-base --is-ancestor origin/main HEAD`;
-- при параллельной работе D/E второй merge выполнять только после повторной
-  проверки/rebase на уже обновлённый `origin/main`;
+- predecessor commit SHA должен быть зафиксирован в child task до создания
+  dependent branch; нельзя продолжать от изменённого или непроверенного head;
+- D и E создаются от одного SHA Slice C. Slice F создаётся от того же C head,
+  интегрирует reviewed heads D и E, разрешает конфликты и повторяет полный
+  cross-layer regression;
+- individual slices A–E не вливаются в `main`. После green Slice F полный
+  интегрированный результат A–F вливается в `main` одной release integration;
 - не использовать umbrella branch `feature/TASK-119-full-lesson-calendar` для
   смешанного full-stack изменения;
 - не копировать код из unmerged TASK-103/TASK-112/TASK-117/TASK-118 branches.
@@ -45,10 +52,11 @@ Planning baseline `2026-08-20 00:42 MSK`:
 - local `main` совпадает с `origin/main` и содержит clarified TASK-119;
 - TASK-119 branch/worktree и implementation plan до этого запуска отсутствовали.
 
-Executor обязан выполнить `git fetch origin` и повторить preflight. Нельзя
-начинать child slice, пока source task, этот план и predecessor results не
-находятся в его фактическом `origin/main` или пользователь явно не утвердил
-другой base.
+Executor обязан выполнить `git fetch origin` и повторить preflight. Slice A
+нельзя начинать, пока source task и этот план не находятся в фактическом
+`origin/main`. Slices B–F нельзя начинать, пока declared predecessor head не
+reviewed, не green и не зафиксирован точным commit SHA в соответствующей child
+task.
 
 ## Goal
 
@@ -72,12 +80,21 @@ backend-owned. Отдельный факт/статус проведения т�
   visible row-level `Посещаемость`, contextual mutation surfaces, URL-owned
   date/view state, preview/confirm warnings, exact responsive and focus rules.
 - Product clarification `2026-08-20` уточнил contract: Coach access проверяется
-  по постоянному назначению или upcoming/active substitution на дату occurrence;
+  по постоянному назначению или non-cancelled substitution на дату occurrence,
+  включая upcoming и historical occurrences после обычного окончания;
   recurring identity сохраняет slot lineage между rule versions; `Held` и
   attendance completion status не вводятся; group + initial series создаются
   атомарно; overlapping lessons одной группы запрещены; release обновляет DB,
   backend, frontend и bot согласованно; mobile toolbar использует compact
   single-row variant с Calendar tools surface.
+- User review `2026-08-20 01:42 MSK` подтвердил lifecycle только
+  `Scheduled | Cancelled`, hard-block overlap/exact duplicate одной группы и
+  merge в `main` после готовности реализации всех slices плана.
+- User review `2026-08-20 01:56 MSK` принял варианты A для occurrence-date
+  Coach access, future read-only attendance, `EntireSeries` от business today,
+  immutable factual occurrences, deterministic UUID/revision/one-time preview
+  token, report-zero migration repair, non-blocking second SingleVisit fact,
+  calendar-level capabilities и exact responsive week UX.
 - Evidence основана на source task, текущем коде и тестах. Physical iPhone,
   Safari chrome, software keyboard, safe area и one-handed reach не проверялись
   и остаются manual/Simulator evidence будущего execution.
@@ -159,8 +176,8 @@ template.
 
 ### Deterministic occurrence identity
 
-- Для recurring projection использовать один fixed RFC 4122 UUIDv5 namespace
-  и canonical UTF-8 key
+- Для recurring projection использовать fixed RFC 4122 UUIDv5 namespace
+  `a4b0c93e-e5d5-56ba-b9c1-236bd3254960` и canonical UTF-8 key
   `lesson-slot-lineage:{slotLineageId:D}:{date:yyyy-MM-dd}`.
 - `SlotLineageId` сохраняется при изменении времени, duration, hall или trainer
   set того же логического слота через `ThisAndFuture`/`EntireSeries`. Новый
@@ -174,9 +191,24 @@ template.
   database provider или process.
 - Projected DTO и последующая materialization обязаны получить один и тот же
   id; unique constraint и idempotent upsert защищают concurrent first write.
-- One-off occurrence получает server-generated UUID, а legacy attendance
-  backfill — детерминированный id из отдельного documented namespace, чтобы не
-  имитировать recurring origin, которого исторически нельзя доказать.
+- One-off occurrence получает server-generated random UUID. Legacy attendance
+  backfill использует отдельный UUIDv5 namespace
+  `51897eb3-fa5e-5206-89f6-a1cec037392e` и canonical key
+  `legacy-attendance:{groupId:D}:{date:yyyy-MM-dd}`, чтобы не имитировать
+  recurring origin, которого исторически нельзя доказать.
+- Обязательные cross-runtime vectors:
+  - recurring key
+    `lesson-slot-lineage:11111111-1111-1111-1111-111111111111:2026-08-20`
+    даёт `6ae07738-e4c4-5f0b-a8c3-24e2349f4e6e`;
+  - legacy key
+    `legacy-attendance:22222222-2222-2222-2222-222222222222:2026-08-20`
+    даёт `a896ae57-b0cb-50de-a308-cb438fc57893`.
+- Opaque `revision` — base64url SHA-256 digest canonical mutation state:
+  occurrence/source ids, source rule/slot version, source/current date, start,
+  duration, hall, sorted trainer ids, cancellation state, materialized
+  concurrency token и attendance-fact version. Presentation names и
+  actor-specific allowed actions в digest не входят. Projected и materialized
+  формы используют одну canonical serialization policy.
 - Frontend/bot считают id opaque string и никогда не вычисляют его локально.
 
 ### Bounded, side-effect-free projection
@@ -196,12 +228,19 @@ template.
 ### Access scope
 
 - Management roles используют существующий branch/group access scope.
-- Coach видит occurrence и может открыть attendance, если он сейчас постоянно
-  назначен на группу или имеет неотменённую upcoming/active substitution:
-  `EndsOn >= business today`, а inclusive range содержит дату occurrence.
-- Coach access вычисляется относительно `LessonDate`, а не относительно
-  только текущей даты запроса. После окончания/cancellation substitution доступ
-  к прошлым occurrences этой замены закрывается.
+- Постоянно назначенный Coach видит occurrences своей группы во всём
+  разрешённом calendar range.
+- Неотменённая substitution даёт Coach доступ к occurrences, чья `LessonDate`
+  входит в inclusive `[StartsOn, EndsOn]`: upcoming occurrences видны заранее,
+  а после обычного окончания substitution прошлые occurrences этого периода не
+  исчезают. Cancelled substitution доступа не даёт.
+- Calendar/detail и attendance roster для доступного будущего occurrence можно
+  открыть read-only. Attendance mutation для Coach разрешена только на business
+  today и два предыдущих calendar days; management сохраняет текущую policy —
+  future writes запрещены, исторического нижнего ограничения нет.
+- Backend возвращает отдельные `canViewAttendance` и `canEditAttendance` с
+  stable reason codes. Доступ вычисляется относительно `LessonDate`, а не только
+  текущей даты запроса.
 - Frontend и bot не выводят доступ из текущего списка тренеров группы; они
   используют только backend `allowedActions` и 403 ProblemDetails.
 
@@ -224,9 +263,9 @@ Calendar DTO возвращает только прямой backend-owned фак
 `hasAttendanceMarks`, равный наличию хотя бы одной persisted `Present`/`Absent`
 mark для occurrence. Completion enum, expected-client denominator и производный
 статус проведения не вводятся. DTO также возвращает `allowedActions` с
-boolean/reason codes для open attendance, edit, move, cancel и restore. UI не
-выводит permissions или cancellation state из
-role/date/attendance rows самостоятельно.
+boolean/reason codes для view/edit attendance, edit, move, cancel и restore. UI
+не выводит permissions или cancellation state из role/date/attendance rows
+самостоятельно.
 
 Если `Present`/`Absent` уже существуют, переход в `Cancelled` возвращает stable
 409 conflict и не удаляет marks. Recovery ведёт к явному разрешению attendance
@@ -240,9 +279,15 @@ conflict; attendance change и последующая cancellation команд�
 - `GET /schedule/lessons?from=YYYY-MM-DD&to=YYYY-MM-DD` с optional
   `branchId`, `hallId`, `trainerId`, `groupId`, `groupTypeId`.
 - `GET /schedule/lessons/{lessonOccurrenceId}` для detail/deep link.
+- Range response — typed envelope с normalized inclusive `from`/`to`, `items`,
+  screen-level `capabilities` и access-scoped `filterOptions`. Capabilities как
+  минимум содержат `canCreateOneOff` и nullable stable unavailable reason.
+  Filter options для branch/hall/trainer/group/group type не выводятся из
+  текущих items, поэтому остаются доступны при empty/filtered-empty результате;
+  unauthorized values не возвращаются.
 - Response item содержит:
   - `lessonOccurrenceId`, `sourceKind`, `isMaterialized`;
-  - date, start/end или duration;
+  - date, `startTime`, `durationMinutes` и computed `endTime`;
   - group id/name/type, branch, hall, trainers;
   - cancellation state и direct `hasAttendanceMarks` fact;
   - allowed actions/reasons;
@@ -289,6 +334,13 @@ conflict; attendance change и последующая cancellation команд�
   Preview response возвращает structured warnings, affected/skipped set и
   opaque `confirmationToken`, привязанный к actor, normalized command,
   occurrence/source revisions и точному preview result.
+- Preview token хранится server-side, действует 15 минут, одноразовый и содержит
+  actor id, normalized-command digest, target/source revisions, exact preview
+  digest, created/expires/consumed timestamps. Execute атомарно проверяет и
+  consume token вместе с mutation; expired, consumed или actor-mismatched token
+  не выполняет команду: expired возвращает
+  `lesson-mutation-preview-expired`, а consumed/actor-mismatched/unknown —
+  `lesson-mutation-preview-invalid` без раскрытия чужого preview.
 - Execute передаёт `confirmationToken`; warning codes используются только для
   presentation. Backend повторно вычисляет conflicts и affected/skipped set
   внутри transaction. Любое отличие возвращает
@@ -324,6 +376,9 @@ Stable ProblemDetails минимум:
 - `lesson-occurrence-not-found`;
 - `lesson-occurrence-forbidden`;
 - `lesson-occurrence-concurrency-conflict`;
+- `lesson-mutation-preview-invalid` — missing, consumed, actor-mismatched или
+  otherwise unusable one-time token без раскрытия чужого preview;
+- `lesson-mutation-preview-expired` — истёк 15-minute confirmation window;
 - `lesson-mutation-preview-stale` с актуальными warnings;
 - `lesson-group-overlap`;
 - `lesson-duplicate`;
@@ -346,6 +401,9 @@ Canonical bot endpoints:
 - `POST /internal/bot/attendance/lessons/{lessonOccurrenceId}`.
 
 Group/date остаются display fields в responses, но не command identity.
+GET roster разрешён для доступного будущего occurrence и возвращает
+`canEditAttendance=false` с backend reason; POST применяет role/date mutation
+window и не полагается на disabled state frontend.
 Attendance save атомарно:
 1. разрешает projected/materialized occurrence и actor access;
 2. materializes projected occurrence с тем же id idempotently;
@@ -355,6 +413,14 @@ Attendance save атомарно:
 5. пишет occurrence, attendance и membership audits;
 6. commits либо rolls back всю boundary.
 
+Если у клиента `SingleVisit` уже использован другим occurrence, второй
+`Present` остаётся допустимым attendance fact: mark сохраняется, дополнительное
+списание или новая продажа автоматически не создаются, response возвращает
+stable membership warning `single_visit_already_used`, а audit фиксирует
+attendance без write-off. Последующее снятие исходной отметки не переносит
+write-off на другой occurrence автоматически; такая корректировка остаётся
+явной пользовательской операцией.
+
 Unique attendance identity после cutover — `(ClientId, LessonOccurrenceId)`.
 
 ## Edit-scope semantics
@@ -363,21 +429,34 @@ Unique attendance identity после cutover — `(ClientId, LessonOccurrenceId
 - Materialize selected projection с тем же id.
 - Сохранить immutable source date/slot и записать overrides.
 - Move подавляет source position и показывает occurrence на target date.
+- Occurrence с attendance marks или status `Cancelled` является factual и не
+  принимает change/move command. Attendance исправляется через attendance
+  endpoint; `Cancelled` восстанавливается только explicit restore command, после
+  чего снова применяются обычные mutation guards.
 
 ### ThisAndFuture
 - Закрыть текущую immutable version на день перед target date.
 - Создать новую version, начинающуюся target date, и новые slots.
-- Не менять occurrences с attendance или factual cancellation state.
-- Scheduled materialized exceptions в scope либо сохраняют явные overrides,
-  либо обновляются только по правилам, зафиксированным preview; affected set
-  показывается до execute.
+- Scope начинается с выбранной target date и меняет projected schedule этого и
+  последующих периодов.
+- Не менять occurrences с attendance, cancellation state или любыми
+  materialized manual overrides/moves: explicit exception всегда сильнее
+  последующего series edit. Preview показывает их в skipped set.
 
 ### EntireSeries
-- Не переписывать rule/fact history задним числом.
-- Создать replacement versions только для редактируемых ranges.
-- `Cancelled` и occurrences с attendance остаются immutable
-  facts; preview показывает skipped/affected counts.
+- Scope начинается с `max(series.StartsOn, business today)` независимо от даты
+  occurrence, из которого открыт editor, и меняет весь projected schedule всех
+  slots от этой границы.
+- Прошедшие даты не переписываются. Occurrences с attendance, cancellation state
+  или materialized manual overrides/moves остаются immutable facts/exceptions;
+  preview показывает skipped/affected counts.
+- Создать replacement versions только для этого редактируемого future range.
 - Нельзя выполнять unbounded row generation для бессрочной части.
+
+Cancellation/restore всегда относится к одному конкретному occurrence и не
+имеет series scope. Прекращение или изменение будущих занятий выполняется через
+series editor (`EndsOn`, удаление/замена slots с `ThisAndFuture` или
+`EntireSeries`), а не массовой установкой `Cancelled`.
 
 Все три scope должны иметь domain tests на boundary dates, inclusive ends,
 multiple slots/day, existing exceptions и attendance facts.
@@ -394,7 +473,11 @@ Slice C подготавливает многошаговую проверяем
      отдельный forward migration/transition runner от текущей schema.
 2. Recurring cutover:
    - для каждой existing group создать одну current series/rule version из
-     legacy weekday/time/duration/hall/trainers с явной cutover date;
+     legacy weekday/time/duration/hall/trainers с required operator parameter
+     `--cutover-date YYYY-MM-DD`;
+   - записать cutover date и source schema/version в durable singleton migration
+     run; rerun обязан использовать ту же дату, а другая дата завершает run
+     stable mismatch error до изменения данных;
    - не проецировать этот current template назад как доказанную историю.
 3. Historical attendance backfill:
    - сгруппировать rows по `(GroupId, TrainingDate)`;
@@ -403,8 +486,18 @@ Slice C подготавливает многошаговую проверяем
    - zero/multiple match, missing group/slot или inconsistent payload записать
      в durable migration report без guessed binding.
 4. Resolution gate:
-   - report содержит group/date/reason/row count и resolution status;
-   - manual repair command/materialized mapping аудитируется;
+   - durable report row содержит run id, group/date, bounded attendance row ids
+     и count, reason code, resolution status/kind, target occurrence id,
+     resolved by/at и operator comment;
+   - maintenance CLI/command позволяет либо выбрать существующий occurrence,
+     либо создать `LegacyAttendance` occurrence с явно введёнными date/start,
+     duration, hall и sorted trainer ids. Operator передаёт exact subset
+     attendance row ids; ambiguous group/date можно partition между несколькими
+     occurrences, каждая row связывается ровно один раз, а report считается
+     resolved только после mapping всех rows. Guessed/default-first mapping
+     запрещён;
+   - manual repair command/materialized mapping аудитируется и идемпотентно
+     возвращает прежний result при повторе того же resolution;
    - activation запрещена, пока unresolved count не равен нулю.
 5. Canonical cutover:
    - сделать occurrence FK required;
@@ -444,10 +537,11 @@ idempotent rerun/concurrent materialization тестируются отдель�
   selector visible in the toolbar; today, day/week, refresh и filters reachable
   in one obvious Calendar tools interaction on narrow mobile.
 - Secondary: create one-off, move, edit occurrence, edit series.
-- Exceptional/destructive: cancel, restore, edit past occurrence with
-  attendance.
-- Coach видит свои lessons и открывает attendance; calendar mutation controls
-  не показываются как usable actions.
+- Exceptional/destructive: cancel и restore. Factual occurrence с attendance не
+  редактируется и не переносится через calendar mutation UI.
+- Coach видит свои permanent/substitution lessons, включая upcoming; future
+  attendance открывается read-only, а mutation controls не показываются как
+  usable actions.
 - Error retry сохраняет selected date/filter. Conflict сохраняет form values.
   Permission denial объясняет недоступное действие.
 
@@ -467,6 +561,11 @@ idempotent rerun/concurrent materialization тестируются отдель�
      `День/Неделя`, `Обновить` и filters;
    - management-only create one-off `44 x 44` icon button. У Coach этот control
      отсутствует, а освободившаяся ширина отдаётся date control.
+   Previous/next меняют anchor на один день в `day` mode и ровно на семь дней в
+   `week` mode с сохранением выбранного weekday; date picker выбирает anchor
+   date, а week boundaries — ISO Monday–Sunday, содержащие anchor. `Сегодня` в
+   week mode выбирает ISO week текущей даты и после render scroll/focus ведёт к
+   today section без перекрытия browser chrome.
 3. Все independent controls, включая previous/date/next внутри compound date
    group, имеют минимум `8px` gap. Touch target каждого интерактивного элемента
    не меньше `44 x 44`.
@@ -481,6 +580,9 @@ idempotent rerun/concurrent materialization тестируются отдель�
    или active indicator, а accessible name включает количество активных
    фильтров. Текущие значения видны в labeled fields; отдельный summary не
    дублируется. Если активных фильтров нет, trigger не показывает badge.
+   Create visibility и filter choices берутся из response-level
+   `capabilities/filterOptions`, поэтому management create остаётся доступным в
+   global/filtered empty state, а frontend не выводит право из role/items.
 6. Mobile default — selected-day task list, не сжатая desktop week grid.
 7. Lesson row/card показывает time/group, `Cancelled` marker when applicable и
    attendance marks fact first, затем type/hall/branch/trainer. Отдельный
@@ -491,8 +593,15 @@ idempotent rerun/concurrent materialization тестируются отдель�
 9. Secondary row menu содержит только разрешённые edit/move/series actions.
    Destructive cancellation action отделён и требует explicit confirmation;
    restore остаётся contextual recovery action.
-10. Week mode служит overview/navigation context; выбор lesson открывает detail
-   или attendance, не desktop table horizontal-scroll на mobile.
+10. Week mode на `360–768px` показывает семь последовательных вертикальных
+    day sections Monday–Sunday без horizontal scroll. Section имеет semantic
+    heading с weekday/date/lesson count, today marker when applicable и
+    chronological lesson cards; empty day остаётся компактным named state,
+    чтобы неделя сохраняла структуру. Body lesson card открывает occurrence
+    detail, а отдельная видимая `Посещаемость` открывает exact roster.
+11. На `1440px` week mode становится семиколонной week grid Monday–Sunday.
+    Cards сохраняют те же visible facts, accessible names и отдельную primary
+    attendance action; grid не меняет backend/query/URL state contract.
 
 Selected `date`, `view=day|week` и filters сохраняются в URL/history. Calendar
 feature обрабатывает reload/back/forward, retry и stale refresh без сброса к
@@ -503,8 +612,20 @@ context. Если TASK-103 merged, detail включается в его section
 
 ### Mutation surfaces
 
-- Create/edit/move — Mantine single-column form на mobile, Drawer или route
-  surface по existing pattern; не nested modal.
+- Create one-off, edit/move occurrence и edit series используют отдельные
+  routes с visible title и Mantine single-column form на mobile/tablet/desktop;
+  calendar context передаётся return URL/state. Browser back или close при dirty
+  draft требует explicit discard confirmation; successful save возвращает в
+  сохранённый calendar date/view/filter context и фокусирует affected lesson.
+- Canonical route patterns:
+  - `/schedule/lessons/new`;
+  - `/schedule/lessons/{lessonOccurrenceId}/edit?scope=occurrence`;
+  - `/schedule/lessons/{lessonOccurrenceId}/move`;
+  - `/schedule/series/{lessonSeriesId}/edit?scope=this-and-future|entire`.
+  Return context хранится typed history state/validated return parameter по
+  текущему router pattern и fails closed при malformed external value.
+- Cancellation и restore используют короткий explicit confirmation Modal с
+  date/time/group и последствием; это не nested modal и не full form route.
 - Series edit обязательно показывает scope `Только это`, `Это и будущие`,
   `Вся серия` с persistent label и backend preview affected/skipped counts.
 - Preview вызывается до execute. Trainer/hall warnings показываются рядом
@@ -513,8 +634,9 @@ context. Если TASK-103 merged, detail включается в его section
   являются warnings; это hard validation.
 - При preview stale или recoverable API error entered values, selected scope и
   focus context сохраняются.
-- `Cancelled` attendance conflict открывает recovery surface с понятной
-  причиной и ссылкой в occurrence attendance; marks не очищаются автоматически.
+- Попытка отменить `Scheduled` occurrence с attendance marks открывает recovery
+  surface с понятной причиной и ссылкой в occurrence attendance; marks не
+  очищаются автоматически.
 - Закрытие Menu/Drawer/Modal возвращает focus trigger; Escape закрывает desktop
   temporary surface, mobile back/explicit close не теряет draft без confirm.
 
@@ -524,9 +646,10 @@ context. Если TASK-103 merged, detail включается в его section
   when applicable и direct indication наличия marks; не показывать generic
   `Scheduled`, technical series/rule или производный completion status.
 - Roster/save state остаётся row-local и получает occurrence id from route.
-- Future/permission-restricted attendance action остаётся visible disabled с
-  backend reason, если его отсутствие создало бы ложное ощущение исчезнувшей
-  primary operation.
+- Future attendance route показывает roster read-only и disabled edit controls
+  с backend reason. Permission-restricted attendance action остаётся visible
+  disabled только если отсутствие создало бы ложное ощущение исчезнувшей primary
+  operation; unauthorized occurrence data не раскрывается.
 - Back возвращает selected schedule date/view/filter. Client profile return
   state меняет canonical identity с group/date на occurrence id и fails closed
   для stale/malformed history.
@@ -538,33 +661,40 @@ context. Если TASK-103 merged, detail включается в его section
   toolbar fits as `[date group max 276px] 8 [tools 44]`. Date label truncates to
   short format such as `20 авг` before reducing touch targets. Filters, Today,
   day/week and refresh are inside Calendar tools Drawer. No horizontal page
-  scroll.
+  scroll. Week mode использует одну колонку из семи vertical day sections.
 - `390 x 844`: stress baseline; content width assumes 16px side padding
   (`358px`). Management toolbar fits as `[date group max 254px] 8 [tools 44] 8
   [create 44]`; Coach toolbar fits as `[date group max 306px] 8 [tools 44]`.
   Primary attendance visible on every actionable row; no second action-only
-  toolbar.
+  toolbar. Week sections используют normal page scroll; ни section, ни card не
+  создаёт nested/horizontal scroll.
 - `420 x 912`: content width assumes 16px side padding (`388px`). Management
   date group max `284px`; Coach date group max `336px`. Date label may use
   medium weekday/date format if it does not push tools/create below `44px`.
+  Week mode остаётся той же одноколоночной hierarchy.
 - `440 x 956`: content width assumes 16px side padding (`408px`). Management
   date group max `304px`; Coach date group max `356px`. Same hierarchy; more
   row metadata may remain visible before wrapping. Do not add decorative summary
-  panels.
+  panels. Week mode остаётся одной колонкой; extra width отдаётся metadata wrap,
+  а не второй day column.
 - `768 x 1024`: toolbar may surface `Сегодня`, day/week switch, refresh and
   filters as separate controls if the row remains non-wrapping and primary row
-  hierarchy stays stable. Week overview + selected-day detail или wide day list
-  допустимы, но primary attendance остаётся visible и DOM/access names
-  стабильны.
+  hierarchy stays stable. Week remains seven vertical chronological day
+  sections in one content column; primary attendance stays visible and
+  DOM/access names stable.
 - `1440 x 1200`: toolbar surfaces date navigation, Today, day/week, refresh,
-  filters and create as labeled controls where useful. Week grid/list hybrid
-  допустим; не возвращать hero, aggregate widgets или duplicate heading только
-  ради свободной ширины.
+  filters and create as labeled controls where useful. Week uses seven columns
+  Monday–Sunday; cards order by start time and expose detail plus visible
+  attendance action. Do not return hero, aggregate widgets or duplicate heading
+  only to use free width.
 - `912 x 420` и `956 x 440`: compact shell; toolbar сохраняет reachable date
   navigation. Calendar tools opens a temporary surface with max-height based on
-  dynamic visible viewport, internal scroll only for the tools list, and sticky
+  `100dvh`/measured dynamic visible viewport, internal scroll only for the tools
+  list, and sticky
   `Готово`/`Сбросить фильтры` footer respecting safe area. Forms use one
-  intentional scroll and sticky footer without nested scrolling trap.
+  intentional scroll and sticky footer without nested scrolling trap. Week mode
+  stays vertical day sections in normal page scroll; it does not switch to a
+  compressed seven-column grid.
 - Fixed/sticky controls используют normal spacing плюс
   `env(safe-area-inset-bottom)`; `100vh` alone не считается достаточным.
 
@@ -577,12 +707,17 @@ context. Если TASK-103 merged, detail включается в его section
 - Duplicate submit предотвращён; success называет affected lesson/date/scope.
 - Focus order: previous date -> date control -> next date -> Calendar tools
   trigger -> management create, if present -> lessons -> attendance primary ->
-  contextual menu. Day/date strip поддерживает arrows/Home/End.
+  contextual menu. In week mode day headings/cards follow chronological DOM
+  order; desktop grid does not implement a custom keyboard trap and its lesson
+  actions remain reachable by ordinary Tab order.
 - Calendar tools Drawer/Menu имеет title, initial focus, close semantics и focus
   return. `Escape` закрывает desktop Menu/Drawer; mobile browser back или
   explicit close закрывает surface и возвращает focus на trigger. `Готово` и
   `Сбросить фильтры` не сбрасывают selected date.
 - Drawer/Modal имеет title, initial focus, close semantics и focus return.
+- Week section headings are semantic headings, not tabs. Cancellation/restore
+  Modal includes date, time, group and consequence; close returns focus to its
+  trigger. Dirty mutation route back navigation requires discard confirmation.
 - Keyboard-open view сохраняет focused field, validation/warning и primary
   submit reachable within one intentional scroll.
 - Long group/trainer/hall names, Russian text, 200% zoom и content wrapping не
@@ -697,8 +832,9 @@ unmerged branches без explicit assignment.
 6. Реализовать минимальный slice contract.
 7. Запустить те же focused tests green.
 8. Запустить relevant full regression suite и runtime check.
-9. Merge slice в `main`, повторить integration checks, затем только после push
-   актуального `origin/main` создавать dependent branch.
+9. Зафиксировать reviewed green commit SHA и передать его dependent slice без
+   merge в `main`. После Slice F выполнить полный integrated regression и только
+   затем влить единый результат A–F в `main`.
 
 Нельзя сначала написать entities/endpoints/UI, а tests добавить в финальной
 validation phase.
@@ -708,9 +844,9 @@ validation phase.
 1. Contract-first additive core, затем mutations, затем attendance transition.
 2. Один canonical backend occurrence model; frontend и bot только consumers.
 3. Side-effect-free read и materialization only on facts/exceptions/mutations.
-4. Additive compatibility может существовать в merged code между slices, но
-   промежуточные contracts не deploy в production. Slice F выпускает DB,
-   backend, frontend и bot одним bundle; dual write запрещён.
+4. Slices A–E остаются в отдельных dependency branches и не попадают в `main`
+   по отдельности. Slice F интегрирует DB, backend, frontend и bot, после чего
+   один green result вливается в `main`; dual write запрещён.
 5. Small verifiable commits внутри каждой branch: red tests -> minimal code ->
    green -> regression evidence.
 6. Backend/frontend/bot activation coordinated. После появления multiple
@@ -797,6 +933,8 @@ Exact files are confirmed with `rg` inside each child worktree before editing.
   warnings, validation, audit and migration semantics.
 - Frontend/bot do not infer status, conflicts, allowed actions or recurrence.
 - Dates/times are local `DateOnly`/`TimeOnly`; no timezone conversion is added.
+- Coach future attendance is read-only; attendance writes preserve the explicit
+  role/date policy and are revalidated inside the transaction.
 - `EndsOn` inclusive, `null` indefinite, and never earlier than `StartsOn`.
 - No unbounded pre-generation, read-side writes or mandatory background
   materializer.
@@ -805,6 +943,9 @@ Exact files are confirmed with `rg` inside each child worktree before editing.
 - Time ranges занятий одной группы не пересекаются; exact duplicates также
   запрещены hard validation независимо от warning confirmation.
 - Attendance marks are never automatically deleted by cancellation command.
+- Factual cancelled/attendance occurrences and materialized manual exceptions
+  are not rewritten by series edits; cancellation/restore has occurrence scope
+  only.
 - Existing access scope/permissions are reused; no RBAC redesign.
 - Initial/forward schema paths must converge to the same final model.
 - Every backend contract change updates web and bot consumers before activation.
@@ -829,21 +970,30 @@ Exact files are confirmed with `rg` inside each child worktree before editing.
 ### Unit/domain tests
 - inclusive series/version ranges, nullable end and version splitting;
 - several slots/day, different times, duration and boundary weekdays;
-- UUIDv5 culture/provider/timezone independence and projected/materialized
-  equality plus lineage continuity across time/duration/hall/trainer edits;
+- exact recurring/legacy UUIDv5 namespaces, canonical keys and fixed vectors;
+  culture/provider/timezone independence, projected/materialized equality and
+  lineage continuity across time/duration/hall/trainer edits;
 - overlay of original/moved/current dates without duplicates;
 - cancellation/restore matrix without `Held`/`NotHeld` and attendance conflict
   guard;
-- edit scopes with factual occurrences preserved;
+- edit scopes: `ThisAndFuture` from selected date, `EntireSeries` from
+  `max(StartsOn, business today)`, factual/manual exceptions preserved and
+  cancellation restricted to one occurrence;
 - conflict warning algebra for finite/indefinite weekly ranges;
 - backend allowed-action policy for all four roles/access scopes, включая
-  permanent Coach assignment и upcoming/active substitution by occurrence date.
+  permanent Coach assignment, upcoming/expired non-cancelled substitution by
+  occurrence date, future read-only roster and Coach today/minus-two write
+  window.
 
 ### Backend integration/PostgreSQL
 - bounded calendar query validation, exact raw JSON and stable ordering;
+- calendar envelope capabilities/filter options remain access-scoped and usable
+  for global/filtered empty results;
 - no `SaveChanges`/row count change on calendar GET;
 - projected -> concurrent first materialization produces one occurrence;
-- opaque revision/confirmation token rejects any changed preview result;
+- canonical revision changes on target mutation/attendance facts; one-time
+  server-side confirmation token enforces actor binding, 15-minute expiry,
+  atomic consumption and rejects changed preview result/replay;
 - different-group trainer/hall warnings remain confirmable, while same-group
   overlap and exact duplicate are rejected;
 - group create either commits group + initial series/slots/audits together or
@@ -853,9 +1003,13 @@ Exact files are confirmed with `rg` inside each child worktree before editing.
   changing cancellation state;
 - audit or membership failure rolls back the entire mutation;
 - two same-group same-day occurrences keep independent rosters/marks;
+- second same-day `Present` with an already-used SingleVisit remains saved,
+  creates no automatic sale/write-off, returns stable warning and does not
+  auto-transfer provenance after the original mark is cleared;
 - clean schema and current-schema forward migration converge;
-- unambiguous backfill, ambiguous report, repair, rerun idempotency and
-  unresolved activation block;
+- persisted cutover-date mismatch fails before writes; unambiguous backfill,
+  durable ambiguous report, exact-row partition across existing/create-legacy
+  manual repair, idempotent rerun and unresolved activation block;
 - final required FK and `(ClientId, LessonOccurrenceId)` uniqueness;
 - client history, missed-training, substitutions and internal bot consumers.
 
@@ -865,9 +1019,12 @@ Exact files are confirmed with `rg` inside each child worktree before editing.
 - URL date/view/filter parse, normalization, reload/back/forward and retry;
 - same-group same-day cards remain distinct and open exact occurrence;
 - row action visibility/disabled reasons by backend allowedActions;
+- response-level create capability/filter options in empty results, future
+  read-only attendance and expired substitution history visibility;
 - mutation preview/confirm, preserved draft, stale preview and attendance
   conflict recovery;
-- day/week navigation keyboard semantics and focus return;
+- day arrows move one date, week arrows move seven dates; vertical week section
+  order, desktop week-grid Tab semantics and route focus return;
 - occurrence-aware attendance/client return context and malformed fail-closed;
 - loading, stale, role-specific empty, filtered empty, error, permission and
   success states.
@@ -875,12 +1032,18 @@ Exact files are confirmed with `rg` inside each child worktree before editing.
 ### UI/E2E
 - Coach primary path in <=3 actions from Schedule to today attendance;
 - Administrator/HeadCoach create one-off, move occurrence and edit series scope;
-- `Cancelled` conflict keeps marks and form context;
+- cancellation attempt for `Scheduled` occurrence with marks keeps marks and
+  form/context;
 - warning-only conflict confirms successfully after explicit acknowledgement;
 - same-group overlapping or exact duplicate lesson is blocked without a
   confirm override;
 - multiple same-day occurrences never share route/roster;
 - selected date/filter survives retry and attendance round trip;
+- mobile/tablet week renders seven vertical Monday–Sunday sections without
+  horizontal/nested scroll; desktop week renders seven columns; card body opens
+  detail and visible attendance action opens the exact roster;
+- create/edit/move/series routes preserve/discard draft deliberately and return
+  to the affected lesson; cancellation/restore confirmation is explicit;
 - compact Calendar tools surface exposes Today, day/week, refresh and filters
   in one interaction, preserves active-filter indication and returns focus;
 - no horizontal page scroll, 44x44 targets, focus, Escape/back and safe-area
@@ -948,8 +1111,9 @@ same focused assertions.
 
 ## Rollout and rollback
 
-- Merge slices A–F может временно оставлять additive compatibility в `main`, но
-  ни один промежуточный slice не выпускается в production отдельно.
+- Slices A–E не вливаются в `main` по отдельности. Slice F интегрирует reviewed
+  heads D/E поверх общего predecessor C; после полного green regression единый
+  результат A–F вливается в `main` и только затем готовится production release.
 - До activation собрать совместимый release bundle: DB transition, backend,
   frontend и bot из согласованных commits/artifacts.
 - На pre-production выполнить dry-run current-schema transition, получить и

@@ -74,10 +74,10 @@ CRM сейчас показывает повторяющийся шаблон. �
   attendance, увидеть время/группу/зал/тренера/статус.
 - Secondary operations: создать разовое занятие, перенести занятие, изменить
   серию, изменить одно занятие.
-- Exceptional/destructive operations: отменить занятие, отметить
-  `не проводилось`, восстановить, изменить прошлое занятие с attendance.
+- Exceptional/destructive operations: отменить или восстановить занятие.
 - Required data in lesson row/card: дата, время начала, длительность, группа,
-  тип группы, зал/филиал, тренер, статус занятия, attendance completion state.
+  тип группы, зал/филиал, тренер, marker отмены и прямой факт наличия attendance
+  marks. Производный completion status не вводится.
 - Action budget: в primary mobile path тренер должен открыть attendance
   сегодняшнего занятия не более чем за 3 действия после входа в `Расписание`.
 - Failure recovery: при ошибке загрузки показать повтор запроса без потери
@@ -96,44 +96,64 @@ CRM сейчас показывает повторяющийся шаблон. �
   не переписываются изменением серии.
 - Администратор и главный тренер могут выполнять все календарные операции в
   пределах существующего access scope; суперадминистратор сохраняет полный
-  системный доступ. Тренер может просматривать свои занятия, сохранять их
-  attendance и явно подтверждать `Held` для занятия без участников. Тренер не
-  создаёт и не изменяет серии или разовые занятия, не переносит, не отменяет,
-  не восстанавливает и не переводит занятие в `NotHeld`.
-- При переводе занятия в `Cancelled` или `NotHeld` существующие
-  `Present`/`Absent` не удаляются автоматически. Команда блокируется стабильным
-  conflict ProblemDetails до явного разрешения конфликта; решение и последующий
-  переход аудитируются.
-- `Held` устанавливается автоматически в той же транзакции при первой
-  сохранённой attendance-операции. Для занятия без участников доступна явная
-  команда подтверждения `Held`.
-- Конфликты тренера, зала или времени показываются как предупреждение и не
-  блокируют сохранение. Backend возвращает структурированные warning codes из
-  mutation preview, frontend показывает их до подтверждения, а подтверждённая
-  команда выполняется без hard-block. Автоматическое разрешение конфликтов не
-  выполняется.
+  системный доступ. Тренер может просматривать свои занятия и сохранять их
+  attendance, но не создаёт и не изменяет серии или разовые занятия, не
+  переносит, не отменяет и не восстанавливает занятия.
+- Lifecycle occurrence содержит только `Scheduled` и `Cancelled`. Attendance
+  write не меняет lifecycle state. Отсутствие attendance marks не доказывает,
+  что занятие не проводилось; отдельные `Held`, `NotHeld`, completion status и
+  команда подтверждения пустого занятия не вводятся.
+- При попытке перевести `Scheduled` occurrence с существующими
+  `Present`/`Absent` marks в `Cancelled` команда блокируется стабильным conflict
+  ProblemDetails. Marks не удаляются автоматически; их явное изменение и
+  последующая отмена аудитируются раздельно.
+- Пересекающиеся занятия одной группы, включая exact duplicate, запрещены hard
+  validation. Конфликты разных групп по общему тренеру или залу остаются
+  неблокирующими preview warnings: backend возвращает structured warning codes,
+  frontend показывает их до подтверждения, а подтверждённая команда может
+  выполниться без автоматического разрешения конфликта.
+- Постоянно назначенный тренер видит occurrences своей группы в разрешённом
+  calendar range. Неотменённая substitution даёт доступ по `LessonDate` внутри
+  inclusive периода, включая upcoming и historical occurrences после обычного
+  окончания замены. Future attendance открывается read-only; Coach меняет marks
+  только за today и два предыдущих дня.
 - Повторяющаяся серия имеет включительную `StartsOn` и необязательную
   включительную `EndsOn`; `EndsOn = null` означает бессрочное расписание.
 - Бессрочная серия не порождает бесконечный набор строк. Целевая модель:
   `LessonSeries` -> immutable `LessonScheduleRuleVersion` -> weekly schedule
   slots. Calendar query детерминированно разворачивает версии правил только для
   запрошенного ограниченного диапазона дат.
-- Стабильный ID планового занятия детерминированно формируется из versioned
-  schedule slot и даты, например UUIDv5. Обычное будущее занятие может оставаться
+- Стабильный ID планового занятия детерминированно формируется UUIDv5 из stable
+  schedule-slot lineage и даты. Обычное будущее занятие может оставаться
   проекцией правила; `LessonOccurrence` с тем же ID материализуется при разовом
   занятии, исключении, переносе, lifecycle-переходе или первой attendance-записи.
   Calendar read накладывает материализованные occurrences на проекцию правил и
   не требует записи в БД или фоновой генерации.
 - `только это занятие` создаёт/изменяет materialized occurrence. `это и
-  будущие` закрывает текущую immutable rule version на предыдущей дате и
-  создаёт новую version. `вся серия` изменяет все ещё редактируемые occurrences,
-  но не переписывает сохранённую историческую attendance-семантику.
+  будущие` действует от выбранной даты. `вся серия` действует от
+  `max(StartsOn, business today)` независимо от выбранного occurrence. Прошлые
+  dates, cancellations, attendance facts и materialized manual overrides/moves
+  не переписываются. Factual occurrence с attendance или cancellation нельзя
+  edit/move; cancellation/restore относится только к одному occurrence.
 - При первой attendance-операции backend атомарно материализует occurrence и
   связывает attendance с `LessonOccurrenceId`; concurrent materialization
   защищается unique constraints/idempotent upsert.
 - Existing attendance rows связываются автоматически только при однозначном
   соответствии. Неоднозначные строки не привязываются молча и попадают в
-  migration report для ручного решения.
+  durable migration report для ручного выбора/создания legacy occurrence;
+  activation blocked до unresolved = 0, а cutover date передаётся явно и
+  сохраняется для idempotent rerun.
+- Если `SingleVisit` уже использован другим occurrence, второй `Present`
+  сохраняется как attendance fact без автоматической продажи или write-off и
+  возвращает явное предупреждение.
+- Calendar response возвращает screen-level create capability и access-scoped
+  filter options отдельно от rows, поэтому empty result не заставляет frontend
+  выводить permissions из роли.
+- Mobile/tablet week mode — семь vertical Monday–Sunday sections без horizontal
+  scroll; desktop — seven-column grid. Day arrows меняют один день, week arrows
+  семь дней. Card body открывает detail, видимая `Посещаемость` — exact roster.
+  Create/edit/move/series используют отдельные routes; cancellation/restore —
+  короткое explicit confirmation.
 - Bot продолжает работать через backend attendance endpoint, передавая
   `LessonOccurrenceId`; recurrence и calendar lifecycle в bot не дублируются.
 - Статусы TASK-075, TASK-112, TASK-117 и TASK-118 сейчас не меняются. Их
@@ -150,8 +170,8 @@ CRM сейчас показывает повторяющийся шаблон. �
 - Реализовать rule projection + fact materialization policy без бесконечной
   предварительной генерации и без write-side effects у calendar read.
 - Поддержать несколько schedule slots и occurrences одной группы в один день.
-- Определить lifecycle states конкретного занятия, минимум кандидаты:
-  `Scheduled`, `Held`, `NotHeld`, `Cancelled`.
+- Поддержать lifecycle конкретного занятия только со states
+  `Scheduled | Cancelled` и аудируемым restore `Cancelled -> Scheduled`.
 - Связать attendance с конкретным occurrence, а не только с
   `GroupId + TrainingDate`.
 - Поддержать календарную навигацию:
@@ -160,16 +180,18 @@ CRM сейчас показывает повторяющийся шаблон. �
   - день;
   - неделя;
   - переход между неделями.
+- Поддержать read-only открытие future attendance и backend-owned distinction
+  `canViewAttendance`/`canEditAttendance`.
 - Поддержать операции:
   - создать разовое занятие;
   - изменить одно занятие;
   - изменить серию;
   - перенести занятие;
   - отменить занятие;
-  - отметить `не проводилось`;
   - восстановить занятие;
   - открыть attendance конкретного occurrence.
-- Показывать неблокирующие предупреждения о конфликтах тренера, зала и времени.
+- Запрещать пересечение time ranges и exact duplicate у одной группы; показывать
+  неблокирующие предупреждения о конфликтах разных групп по тренеру или залу.
 - Определить migration/backfill policy для существующего расписания и
   существующих attendance rows.
 - После реализации актуализировать TASK-075, TASK-117, TASK-118 и TASK-112 по
@@ -181,8 +203,9 @@ CRM сейчас показывает повторяющийся шаблон. �
 - Drag-and-drop календарь.
 - Интеграция с Google/Outlook Calendar.
 - Уведомления о переносах и отменах.
-- Hard-block и автоматический conflict-resolution по залам, тренерам и
-  capacity; в текущем scope конфликты дают только предупреждение.
+- Hard-block и автоматический conflict-resolution конфликтов разных групп по
+  залам, тренерам и capacity; same-group overlap и exact duplicate остаются
+  hard validation, а resource conflicts разных групп дают предупреждение.
 - Billing/write-off policy для отменённых занятий, если не будет отдельно
   утверждена.
 - Сложные recurrence rules beyond weekly group schedule: праздники, месячные
@@ -200,9 +223,10 @@ CRM сейчас показывает повторяющийся шаблон. �
   обязана быть не раньше `StartsOn`, а `null` не ограничивает серию.
 - Нельзя материализовывать бессрочную серию на неограниченный горизонт или
   требовать background job только ради чтения календаря.
-- Детерминированный recurring occurrence ID включает versioned schedule slot и
-  дату, чтобы несколько занятий группы в один день не конфликтовали и ID
-  совпадал до и после материализации.
+- Детерминированный recurring occurrence ID включает stable schedule-slot
+  lineage и дату, чтобы несколько занятий группы в один день не конфликтовали,
+  ID сохранялся между rule versions логического slot и совпадал до/после
+  материализации.
 - Rule versions не изменяются задним числом после появления фактических
   occurrences; изменения будущей части создают новую version.
 - UI должен быть mobile-first и соответствовать `.agents/skills/crm-mobile-first-ui/SKILL.md`.
@@ -223,23 +247,30 @@ CRM сейчас показывает повторяющийся шаблон. �
 - [ ] Разовое занятие создаётся без recurring series и участвует в том же
   lifecycle, calendar query и attendance flow.
 - [ ] `только это`, `это и будущие` и `вся серия` имеют backend-owned semantics
-  и не переписывают attendance history.
-- [ ] `Scheduled`, `Held`, `NotHeld`, `Cancelled` и restore-переходы
-  валидируются и аудитируются; первая attendance-запись атомарно устанавливает
-  `Held`.
-- [ ] `Cancelled`/`NotHeld` при существующих `Present`/`Absent` возвращает
-  conflict без автоматического удаления данных и допускает только явное
-  аудируемое разрешение.
+  с утверждёнными date boundaries и не переписывают factual/manual history.
+- [ ] Переходы `Scheduled -> Cancelled -> Scheduled` валидируются и
+  аудитируются; attendance write не меняет lifecycle state.
+- [ ] Попытка отменить `Scheduled` occurrence с существующими
+  `Present`/`Absent` возвращает conflict без автоматического удаления данных и
+  допускает только явное аудируемое разрешение.
 - [ ] Администратор и главный тренер имеют полный calendar mutation scope в
   пределах существующего access scope, суперадминистратор сохраняет полный
-  доступ, а тренер для своих занятий ограничен attendance и явным `Held` без
-  участников.
-- [ ] Конфликты тренера, зала и времени видимы как предупреждения, но не
+  доступ, а тренер для своих занятий ограничен attendance.
+- [ ] Same-group overlap и exact duplicate блокируются без confirm override;
+  конфликты разных групп по общему тренеру или залу видимы как warnings и не
   блокируют подтверждённое сохранение; warning codes вычисляет backend.
 - [ ] Однозначный migration/backfill связывает legacy attendance автоматически,
-  а неоднозначности формируют проверяемый migration report.
+  а неоднозначности формируют durable report с audited manual repair и
+  report-zero activation gate.
+- [ ] Coach видит upcoming и historical occurrences неотменённой substitution
+  по LessonDate, future roster read-only и меняет marks только today/minus two.
+- [ ] Второй `Present` при уже использованном SingleVisit сохраняется без
+  автоматического списания/продажи и возвращает явное предупреждение.
+- [ ] Empty calendar сохраняет backend-owned create capability/filter options;
+  frontend не выводит permissions из role/items.
 - [ ] Mobile day/week UX выполняет зафиксированный primary path и responsive
-  criteria, а bot использует occurrence-aware backend endpoint.
+  criteria, включая seven-section mobile/tablet week, seven-column desktop week
+  и route-based mutation forms; bot использует occurrence-aware backend endpoint.
 - [ ] После интеграции выполнен status audit TASK-075/TASK-112/TASK-117/TASK-118
   без преждевременного изменения их текущих статусов.
 - [ ] До реализации umbrella scope декомпозирован на implementation-ready
@@ -274,6 +305,12 @@ CRM сейчас показывает повторяющийся шаблон. �
 - Source file: conversation on 2026-08-20.
 - Original note: пользователь подтвердил, что нравится идея полноценного
   календаря, и попросил сформировать новую продуктовую задачу на его реализацию.
+- Plan review 2026-08-20 01:42 MSK: пользователь подтвердил lifecycle только
+  `Scheduled | Cancelled`, hard-block пересечений занятий одной группы и merge
+  в `main` после готовности реализации всего плана.
+- Plan review 2026-08-20 01:56 MSK: пользователь принял варианты A по вопросам
+  access, entire-series boundary, identity/concurrency, factual immutability,
+  migration repair, SingleVisit, screen capabilities и week/form UX.
 
 ## Processing notes
 - Created at: 2026-08-20 00:15 MSK
@@ -289,6 +326,15 @@ CRM сейчас показывает повторяющийся шаблон. �
   day, standalone one-off lessons, три series-edit scope, role boundaries,
   non-destructive attendance conflicts, automatic `Held`, warning-only
   schedule conflicts, occurrence-aware bot и ambiguity-safe backfill.
+- Superseded at: 2026-08-20 01:42 MSK — прежние решения об `Held`/`NotHeld` и
+  warning-only любых schedule conflicts заменены явным lifecycle
+  `Scheduled | Cancelled` и hard validation для same-group overlap/exact
+  duplicate; different-group trainer/hall conflicts остаются warnings.
+- Clarified at: 2026-08-20 01:56 MSK — зафиксированы occurrence-date Coach
+  access и future read-only roster, `EntireSeries` от business today, immutable
+  facts/manual exceptions, explicit cutover/report repair, non-blocking second
+  SingleVisit attendance, response-level capabilities и exact responsive week
+  UI с route-based mutation forms.
 - Architecture decision: bounded deterministic rule projection plus on-fact
   materialization; recurring series uses inclusive `StartsOn` and nullable
   inclusive `EndsOn`, where `null` means indefinite. No unbounded pre-generation
