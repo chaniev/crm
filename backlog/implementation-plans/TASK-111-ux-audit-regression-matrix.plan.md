@@ -33,8 +33,9 @@ emulation от device-only acceptance.
   понадобится machine-readable matrix validator, `frontend/src/test`.
 - Backend/API/domain/permissions contracts не меняются; существующие role
   fixtures должны следовать текущим session/backend contracts.
-- Critical clarification questions отсутствуют. Нерешённая navigation naming
-  decision из TASK-103 явно исключена из assertions.
+- Critical clarification questions отсутствуют. Navigation naming decision
+  TASK-103 утверждена 2026-08-19, но остаётся исключена из TASK-111 до
+  реализации target route/navigation contract.
 - Реалистичный regression barrier есть: focused Chromium suites, полный touch
   inventory, target-iPhone WebKit projects, lint/build/unit и negative-control
   проверки test-only geometry/matrix helpers.
@@ -142,9 +143,10 @@ emulation; neither is physical iPhone/Safari acceptance.
 - Never cherry-pick product code from an unmerged dependency branch into
   TASK-111. If a required dependency is not on `origin/main`, mark only that
   matrix row pending and stop before claiming a green full matrix.
-- TASK-103 remains in `needs-clarification`. Do not add assertions for new
-  attendance route/navigation naming until that product decision is resolved;
-  this does not block the geometry/task-flow matrix listed above.
+- TASK-103 moved to `risky` with an approved standalone `/attendance`
+  route/navigation model. Do not add assertions for that target model until
+  TASK-103 implementation is integrated; this does not block the
+  geometry/task-flow matrix listed above.
 - If the dependency implementation creates a dedicated, narrower spec, extend
   that final spec rather than duplicating its mocks in a second large suite.
 - TASK-111 does not add or modify database schema, backend tests, Docker stack
@@ -333,7 +335,8 @@ Files to inspect but not expected to change:
 - Do not replace behavior/geometry assertions with screenshots.
 - Do not equate no horizontal page overflow with readable decision-data.
 - Do not add arbitrary sleeps/timeouts; wait for observable state.
-- Do not add assertions for unresolved TASK-103 navigation naming.
+- Do not add assertions for the approved but not yet implemented TASK-103
+  navigation naming.
 - Keep primary/frequent controls visible; inventory must not bless hidden
   overflow as a workaround for source-task acceptance.
 - TASK-111 branch must remain test-only. A required product change is a stop
@@ -477,5 +480,6 @@ phased.
 
 ## Ready for Codex execution
 yes — dependency-gated: full green completion waits for TASK-106, TASK-107,
-TASK-109 and TASK-110 contracts to be merged into `origin/main`; TASK-103
-navigation naming remains explicitly excluded.
+TASK-109 and TASK-110 contracts to be merged into `origin/main`; the approved
+TASK-103 navigation naming remains explicitly excluded until its implementation
+is integrated.

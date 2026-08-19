@@ -39,7 +39,10 @@ implementation
 ## Constraints
 - Tests должны проверять пользовательский результат и стабильные accessibility/geometry contracts, а не внутренние CSS class names.
 - Role data и allowed routes берутся из существующих backend/test contracts, без локального дублирования permission matrix.
-- Assertions на behavior после изменений синхронизируются с утверждёнными задачами TASK-103–TASK-110; нерешённую product decision из TASK-103 нельзя угадывать.
+- Assertions на behavior после изменений синхронизируются с утверждёнными
+  задачами TASK-103–TASK-110. Целевая navigation model TASK-103 утверждена, но
+  assertions на неё добавляются только вместе с реализацией этого contract, а
+  не против текущего merged-home baseline.
 - Target iPhone WebKit checks запускаются с touch enabled; page-level overflow проверяется отдельно от внутренней читаемости карточек.
 
 ## Acceptance criteria
@@ -61,10 +64,12 @@ implementation
 ## AI safety
 - Safe for Codex: yes
 - Risk level: low
-- Reason: задача добавляет regression coverage и не меняет product/domain behavior; нерешённые product expectations явно вынесены в зависимости.
+- Reason: задача добавляет regression coverage и не меняет product/domain behavior; dependency-gated product expectations явно вынесены из её scope.
 
 ## Clarification questions
-Не требуется для перечисленной matrix. Assertions на navigation naming добавляются только после разрешения TASK-103.
+Не требуется для перечисленной matrix. Navigation model TASK-103 разрешена
+2026-08-19; assertions на неё добавляются вместе с реализацией TASK-103 и не
+входят в текущий test-only scope TASK-111.
 
 ## Source notes
 - Source file: `backlog/processed/2026-08-02.md`
@@ -74,4 +79,6 @@ implementation
 - Created at: 2026-08-02 14:44
 - Created by skill: codex-backlog-skill + crm-mobile-first-ui
 - Duplicate check: активного дубликата нет; TASK-021 покрывает client detail regression, а завершённая TASK-084 создала неполный representative inventory. Новая задача ограничена gap matrix аудита 2026-08-02.
-- Dependency note: тесты могут добавляться вместе с соответствующими TASK-104/TASK-106–TASK-110; navigation assertions ждут продуктового решения TASK-103.
+- Dependency note: тесты могут добавляться вместе с соответствующими
+  TASK-104/TASK-106–TASK-110; navigation assertions ждут реализации
+  утверждённого contract TASK-103.
