@@ -79,9 +79,9 @@ risky
 - [x] Перевод сохраняет старую группу для прошлых посещений и отчётов, а с момента операции переносит в новую группу действующий и все будущие абонементы прежней группы.
 - [x] Списание `SingleVisit` восстанавливается при отмене посещения; календарного срока окончания нет, абонемент действует до использования.
 - [x] Определены purchase/renew/transfer/correction/refund и audit semantics, включая атрибуцию возврата актуальной группе на момент операции.
-- [ ] Определены UI-поля, состояния конфликтов и стабильные ProblemDetails codes.
+- [x] Определены UI-поля, состояния конфликтов и стабильные ProblemDetails codes.
 - [x] Зафиксировано влияние на отчёты, историю и существующие данные; frontend и bot должны использовать тот же backend-owned target contract.
-- [ ] Сформирована безопасная decomposition на implementation tasks и regression barriers.
+- [x] Сформирована безопасная decomposition на implementation tasks и regression barriers.
 
 ## Test checklist
 - [ ] После уточнения составить backend contract matrix для всех разрешённых и запрещённых сочетаний.
@@ -134,3 +134,11 @@ risky
 - Clarification update (2026-08-19 22:25): зафиксированы multi-branch охват `Professional`, overlap matrix, отсутствие attendance priority, правила продления/перевода/продажи/архивирования, исправление target и backfill. Статус оставлен `needs-clarification` до решения исторической отчётности, пограничных случаев backfill/archive, `Professional + Professional` и восстановления `SingleVisit`.
 - Clarification update (2026-08-19 22:33): запрещено пересечение двух `Professional`; определены effective-time история перевода, перенос будущих абонементов, legacy no-group исключение, отсутствие archive-blocking для будущих назначений и восстановление/срок `SingleVisit`. Статус оставлен `needs-clarification` до определения поведения legacy no-group, будущего абонемента архивной группы, конкретного срока `SingleVisit` и атрибуции возврата после перевода.
 - Clarification update (2026-08-19 22:37): закрыты последние вопросы по legacy eligibility, архивной группе, бессрочному до использования `SingleVisit` и возврату. Карточка полностью уточнена и переведена из `needs-clarification` в `risky` из-за membership, attendance, persistence, data-cleanup и financial-reporting scope.
+- Implementation planning (2026-08-19 22:50 MSK): создан
+  `/backlog/implementation-plans/TASK-115-membership-target-and-overlap-model.plan.md`.
+  План фиксирует target-aware read/write contract, collection вместо singular
+  current membership, stable ProblemDetails, mobile-first UX/UI, PostgreSQL
+  concurrency strategy, deterministic data transition и пять отдельных
+  regression barriers. TASK остаётся `risky` и не готова к Codex execution до
+  explicit review boundary cases SingleVisit restore, attendance enforcement,
+  cross-branch target, transfer API и historical financial attribution.

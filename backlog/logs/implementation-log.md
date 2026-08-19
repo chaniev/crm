@@ -1479,6 +1479,33 @@
 - data/runtime: no backend/API/database changes, no migration required, no Docker Compose task stack created
 - residual device evidence: physical Safari/iOS Simulator, dynamic chrome, actual safe area/home indicator and physical-device touch checks were not performed
 
+# 2026-08-19 22:50
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-115-membership-target-and-overlap-model.plan.md
+
+## Skipped tasks
+- TASK-115-membership-target-and-overlap-model.md — not moved: source task
+  remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; a
+  detailed test-first full-stack plan was created for explicit human review
+  before active execution in branch
+  `feature/TASK-115-membership-target-and-overlap-model`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: the plan replaces singular current-membership assumptions with a
+  target-aware collection, specifies group/coverage/overlap/attendance/report
+  contracts, deterministic legacy transition, reviewed mobile-first forms and
+  five independent regression barriers. Execution remains blocked on explicit
+  decisions for SingleVisit restore after a later sale, attendance enforcement,
+  cross-branch target scope, transfer API boundary and historical financial
+  attribution. Project code was not changed.
+
 # 2026-08-19 22:47
 
 ## Moved to implementation

@@ -2084,3 +2084,56 @@
 - updated existing: 1
 - processed files: 0
 - validation: product-question closure, task structure, decision traceability and target status/directory consistency; no product tests required because product code did not change
+
+# 2026-08-19 22:54 TASK-105 clarification completion
+
+## Scope
+
+- Final direct product clarification for TASK-105; no inbox processing,
+  project-code changes, branch switch or worktree creation.
+- Baseline: local integrated `main` at `b39530a`; `origin/main` at `921e173`.
+- Preserved unrelated modified `backlog/logs/implementation-log.md` and
+  untracked `backlog/implementation-plans/TASK-118-attendance-start-time-snapshots.plan.md`.
+
+## Resolved decisions
+
+- `Тренеры` remains a trainer-only registry for `HeadCoach` and
+  `SuperAdministrator`; `Administrator` and `Coach` do not receive access.
+- Canonical backend trainer API and frontend routes change from `/users...` to
+  `/coaches...` without a parallel legacy alias; shared domain `User` and
+  `/settings/administrators` remain unchanged.
+- Local filters are limited to disabled trainers and required password change;
+  role and Telegram filters are omitted.
+- Missing Telegram is not an exception; an existing Telegram ID remains visible.
+- Editable row is the single primary edit target; read-only rows are static,
+  backend-owned and explicitly marked.
+
+## Status changes
+
+- `/backlog/needs-clarification/TASK-105-trainer-access-registry-contract.md`
+  -> `/backlog/risky/TASK-105-trainer-access-registry-contract.md`.
+- Classification is `risky` because implementation atomically renames a
+  protected staff-management API/frontend route contract and must preserve its
+  authorization, CSRF, validation, ProblemDetails and audit boundaries.
+
+## Updated existing tasks
+
+- `/backlog/risky/TASK-105-trainer-access-registry-contract.md`
+
+## Skipped duplicates
+
+- No new task was created. Completed TASK-029 intentionally retained technical
+  `/users`, while TASK-096 and TASK-098 remain the search and row-presentation
+  baselines.
+
+## Summary
+
+- tasks-ready: 8
+- risky: 13
+- needs-clarification: 7
+- implementation: 6
+- updated existing: 1
+- processed files: 0
+- validation: product-question closure, duplicate scope, task structure,
+  cross-layer acceptance criteria and status/directory consistency; no product
+  tests required because project code did not change
