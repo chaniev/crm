@@ -1,3 +1,20 @@
+# 2026-08-19 22:49
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-118-attendance-start-time-snapshots.plan.md
+
+## Skipped tasks
+- TASK-118-attendance-start-time-snapshots.md — not moved: source task remains in `/backlog/risky`, is high risk and `Safe for Codex: no`; a detailed test-first plan was created for explicit review in branch `feature/TASK-118-attendance-start-time-snapshots` after TASK-117 is merged.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan selects one lazy occurrence-level `(GroupId, TrainingDate)` start-time snapshot shared by all client marks, preserved through `Unmarked`, and reused by web/internal-bot writes, history, audit, missed-training ordering and acknowledgement. It requires red/green PostgreSQL constraint/concurrency coverage, synchronized frontend/bot history consumers and clean-schema validation; unknown legacy time is not backfilled or presented as factual. Project code was not changed.
+
 # 2026-08-16 17:16
 
 ## Moved to implementation
