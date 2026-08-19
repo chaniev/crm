@@ -1956,3 +1956,131 @@
 - updated existing: 1
 - processed files: 0
 - validation: task structure, decision traceability and status/directory consistency; no product tests required because product code did not change
+
+# 2026-08-19 22:29 TASK-103 clarification update
+
+## Scope
+
+- Direct product clarification for TASK-103; no inbox processing, project-code
+  changes, branch switch or worktree creation.
+- Baseline at clarification start: local integrated `main` at `22ef8d1`;
+  final consistency verification at `ce2acb0` after the concurrent unrelated
+  TASK-115 clarification commit; `origin/main` at `921e173`.
+- UX-researcher and UI-designer review established the role/start-route matrix,
+  canonical attendance route, mobile primary placement and recovery boundary.
+
+## Resolved decisions
+
+- `Посещения` becomes a standalone backend-authorized section with canonical
+  route `/attendance` and one stable label across navigation, document title,
+  client return and recovery surfaces.
+- `Главная` remains a separate management inbox `Требуют внимания` for
+  Administrator, HeadCoach and SuperAdministrator; Coach does not receive or
+  see `Home`.
+- Coach and Administrator land on `/attendance`; HeadCoach and
+  SuperAdministrator land on `/`.
+- `Посещения` remains a direct primary mobile navigation item and is not hidden
+  in `Ещё`; `Расписание` stays a separate planned-classes route.
+- SuperAdministrator is explicitly included in the target contract.
+
+## Status changes
+
+- `/backlog/needs-clarification/TASK-103-attendance-navigation-model.md` ->
+  `/backlog/risky/TASK-103-attendance-navigation-model.md`.
+- Classification is `risky` because the clarified implementation extends the
+  backend authorization/session `AppSection`, `allowedSections` and
+  `landingScreen` contract, while leaving attendance permission semantics
+  unchanged.
+
+## Updated existing tasks
+
+- `/backlog/risky/TASK-103-attendance-navigation-model.md`
+- `/backlog/implementation/TASK-111-ux-audit-regression-matrix.md`
+- `/backlog/implementation-plans/TASK-111-ux-audit-regression-matrix.plan.md`
+  (dependency wording only; TASK-111 scope remains test-only and excludes the
+  unimplemented TASK-103 target contract).
+
+## Skipped duplicates
+
+- No new task was created; completed TASK-059 remains the current merged-home
+  baseline, TASK-088 owns typed permission recovery and TASK-104 owns workbench
+  density.
+
+## Summary
+
+- tasks-ready: 8
+- risky: 11
+- needs-clarification: 9
+- implementation: 6
+- updated existing: 2 tasks and 1 implementation plan
+- processed files: 0
+- validation: task structure, duplicate scope, resolved-decision traceability
+  and status/directory consistency; no product tests required because product
+  code did not change
+
+# 2026-08-19 22:33 TASK-115 clarification update
+
+## Scope
+
+- Direct product clarification for TASK-115; no inbox processing, project-code changes, branch switch or worktree creation.
+- Baseline: local integrated `main` at `ce2acb0`; `origin/main` at `921e173`.
+- Preserved concurrent unrelated TASK-103 and TASK-111 backlog changes.
+
+## Resolved decisions
+
+- Only one `Professional` may be active at a time; it cannot overlap another `Professional`.
+- A group transfer preserves the old group for earlier visits and reports, then moves the active and all future memberships of the old group from the operation moment.
+- Legacy memberships of clients without groups remain unchanged; future memberships do not block group archival.
+- Cancelling attendance restores a used `SingleVisit`, and an unused `SingleVisit` has an expiration period.
+
+## Status changes
+
+- none; TASK-115 remains in `needs-clarification` until the legacy no-group behavior, archived-group future membership, exact `SingleVisit` expiration and post-transfer refund attribution are defined.
+
+## Updated existing tasks
+
+- `/backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md`
+
+## Summary
+
+- tasks-ready: 8
+- risky: 11
+- needs-clarification: 9
+- implementation: 6
+- updated existing: 1
+- processed files: 0
+- validation: task structure, decision traceability and status/directory consistency; no product tests required because product code did not change
+
+# 2026-08-19 22:37 TASK-115 clarification completion
+
+## Scope
+
+- Final direct product clarification for TASK-115; no inbox processing, project-code changes, branch switch or worktree creation.
+- Baseline: local integrated `main` at `2a09728`; `origin/main` at `921e173`.
+- Preserved concurrent unrelated backlog changes.
+
+## Resolved decisions
+
+- A legacy membership without a group is ineligible until a group is assigned manually.
+- Archiving a group does not mutate its future memberships.
+- `SingleVisit` has no calendar expiration, remains valid until used and is restored when attendance is cancelled.
+- A refund after transfer is attributed to the membership's current group at refund time.
+
+## Status changes
+
+- `/backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md` -> `/backlog/risky/TASK-115-membership-target-and-overlap-model.md`.
+- Classification is `risky` because implementation changes membership and attendance eligibility, persistence constraints, existing client-group data and financial-report attribution.
+
+## Updated existing tasks
+
+- `/backlog/risky/TASK-115-membership-target-and-overlap-model.md`
+
+## Summary
+
+- tasks-ready: 8
+- risky: 12
+- needs-clarification: 8
+- implementation: 6
+- updated existing: 1
+- processed files: 0
+- validation: product-question closure, task structure, decision traceability and target status/directory consistency; no product tests required because product code did not change
