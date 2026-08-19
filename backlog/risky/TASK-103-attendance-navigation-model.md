@@ -16,8 +16,9 @@ attendance workbench, но активный navigation item называется
 появилась после завершённой TASK-059.
 
 2026-08-19 продукт подтвердил самостоятельный top-level раздел `Посещения`,
-отдельную management inbox `Главная`, role-specific landing routes и включение
-SuperAdministrator в целевую модель.
+замену отдельной management inbox `Home`/`Главная` на `Attention`/`Внимание` с
+canonical route `/attention`, role-specific landing routes, порядок основной
+навигации и включение SuperAdministrator в целевую модель.
 
 ## User role
 Coach / Administrator / HeadCoach / SuperAdministrator.
@@ -28,22 +29,33 @@ Coach / Administrator / HeadCoach / SuperAdministrator.
 - Название `Посещения` одинаково используется в desktop sidebar, mobile bottom
   navigation, overflow `Ещё`, доступном `h1`, named main landmark, document
   title, client-return action и permission recovery.
-- `Главная` остаётся отдельным management inbox `Требуют внимания` для
-  Administrator, HeadCoach и SuperAdministrator; attendance workbench и вкладка
-  `Посещения` удаляются из `Главная`.
-- Coach не видит `Главная`, потому что у этой роли нет отдельной management
-  задачи на данном экране.
+- Бывшая `Главная` заменяется самостоятельным section `Attention` с label
+  `Внимание` и canonical route `/attention` для Administrator, HeadCoach и
+  SuperAdministrator; backend/frontend identifier `Home` и section route `/`
+  удаляются, attendance workbench и вкладка `Посещения` также удаляются с этого
+  экрана.
+- Coach не видит `Внимание` и не получает section `Attention`, потому что
+  у этой роли нет отдельной management-задачи на данном экране.
 - Coach и Administrator после входа стартуют на `/attendance` с active nav
   `Посещения`.
-- HeadCoach и SuperAdministrator после входа стартуют на `/` с active nav
-  `Главная`; самостоятельный раздел `Посещения` остаётся доступен одним прямым
+- HeadCoach и SuperAdministrator после входа стартуют на `/attention` с active nav
+  `Внимание`; самостоятельный раздел `Посещения` остаётся доступен одним прямым
   navigation action.
-- На mobile `Посещения` всегда входит в primary bottom navigation для
-  авторизованного пользователя и не прячется в `Ещё`. Остальные доступные
-  разделы используют существующую adaptive fourth-slot/overflow модель.
-- `/` остаётся canonical route management inbox. Direct restricted `/` для
-  Coach использует явный recovery contract TASK-088 с переходом в
+- Desktop и mobile navigation используют единый приоритет: `Посещения` первым,
+  `Внимание` вторым для управляющих ролей, затем `Расписание` и `Клиенты`.
+  Для Coach, у которого нет `Внимание`, стабильный порядок —
+  `Посещения`, `Расписание`, `Клиенты`.
+- На mobile `Посещения`, доступное `Внимание` и `Расписание` остаются
+  стабильными primary items. `Клиенты` занимают четвёртую адаптивную позицию у
+  управляющих ролей; активный overflow destination временно заменяет
+  `Клиенты`, переносит их в `Ещё` и не вытесняет первые три позиции.
+- `/attention` является единственным canonical route management inbox
+  `Внимание`. Direct restricted `/attention` для Coach использует явный recovery
+  contract TASK-088 с переходом в
   `Посещения`, а не silent redirect.
+- `/` больше не является section route или alias `Внимание`; для
+  аутентифицированного пользователя он разрешается как `not-found` с явным
+  recovery в backend-authorized landing section.
 - `Расписание` остаётся самостоятельным `/schedule`: оно показывает
   запланированные занятия, но не служит входом в отметку факта посещения.
 
@@ -55,9 +67,13 @@ Coach / Administrator / HeadCoach / SuperAdministrator.
   contract (`AppSection`, `allowedSections`, `landingScreen`) по утверждённой
   role matrix без изменения attendance permission semantics.
 - Добавить canonical route `/attendance` и самостоятельный navigation item
-  `Посещения`; удалить attendance tab/workbench из `Главная`.
-- Оставить на `Главная` management inbox `Требуют внимания` для управляющих
-  ролей и исключить `Главная` из разрешённых sections Coach.
+  `Посещения`; удалить attendance tab/workbench из бывшей `Главная`.
+- Заменить backend/frontend section `Home` на `Attention`, назначить ему label
+  `Внимание` и canonical route `/attention`; исключить `Attention` из
+  разрешённых sections Coach и удалить `/` из section route registry.
+- Зафиксировать одинаковый desktop/mobile navigation order: `Посещения`,
+  доступное `Внимание`, `Расписание`, `Клиенты`, затем остальные разрешённые
+  sections.
 - Синхронизировать route label, active navigation, доступный `h1`, named main
   landmark, document title, client-return action и recovery-навигацию.
 - Обновить attendance client-profile return context так, чтобы возврат вёл на
@@ -80,6 +96,9 @@ Coach / Administrator / HeadCoach / SuperAdministrator.
 - Backend session contract остаётся единственным source of truth для
   `allowedSections` и `landingScreen`; frontend не выводит доступность section
   из role strings.
+- Frontend не преобразует legacy `Home` в `Attention`: session user с
+  неизвестным, legacy или отсутствующим `landingScreen`, либо без единого
+  известного allowed section, отклоняется mapper-ом fail closed.
 - Одна пользовательская задача не должна иметь конкурирующие названия в разных точках навигации.
 - Primary attendance entry должен оставаться доступным на `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420` и `956 x 440` с учётом safe area.
 - Разрешённые role-specific navigation items нельзя вычислять из локально продублированных frontend-правил.
@@ -90,25 +109,39 @@ Coach / Administrator / HeadCoach / SuperAdministrator.
 
 ## Acceptance criteria
 - [ ] Backend возвращает самостоятельный section `Attendance` и утверждённые
-      `allowedSections`/`landingScreen` для всех четырёх ролей.
+      `allowedSections`/`landingScreen` с section `Attention` вместо `Home` для
+      всех четырёх ролей; актуальный session contract больше не содержит
+      `Home`.
 - [ ] Coach и Administrator после входа открывают `/attendance`; active nav,
       доступный `h1`, main landmark и document title называют раздел
       `Посещения`.
-- [ ] HeadCoach и SuperAdministrator после входа открывают `/`, видят
-      management inbox `Главная` и переходят в `Посещения` одним прямым
+- [ ] HeadCoach и SuperAdministrator после входа открывают `/attention`, видят
+      management inbox `Внимание` и переходят в `Посещения` одним прямым
       navigation action.
-- [ ] Coach не видит и не получает в `allowedSections` section `Home`.
-- [ ] `Главная` управляющих ролей больше не содержит attendance tab/workbench и
-      сохраняет management inbox `Требуют внимания`.
+- [ ] Coach не видит `Внимание` и не получает в `allowedSections` section
+      `Attention`.
+- [ ] `Внимание` управляющих ролей больше не содержит attendance tab/workbench,
+      использует section identifier `Attention` и canonical route `/attention`.
+- [ ] На `Внимание` нет видимого route/operation heading `Требуют внимания`;
+      сохраняются скрытый `h1` `Внимание`, named main landmark и доступное имя
+      списка, а первым видимым контентом становится action toolbar или
+      operational state.
+- [ ] Desktop и mobile navigation показывают `Посещения` первым, доступное
+      `Внимание` вторым, затем `Расписание` и `Клиенты`; active overflow
+      promotion заменяет `Клиенты`, не вытесняя первые три позиции.
 - [ ] Route label, desktop nav, mobile nav, overflow, document title,
       client-return action и recovery-навигация используют стабильное название
       `Посещения`.
 - [ ] `/attendance` является canonical deep link и корректно сохраняет active
       state при reload и back/forward.
 - [ ] Возврат из карточки клиента восстанавливает attendance context на
-      `/attendance`, а не открывает `Главная`.
-- [ ] Direct `/` для Coach показывает явное ограничение с recovery action в
-      `Посещения`; permission/access change не создаёт silent redirect или loop.
+      `/attendance`, а не открывает `Внимание`.
+- [ ] Direct `/attention` для Coach показывает явное ограничение с recovery
+      action в `Посещения`; permission/access change не создаёт silent redirect
+      или loop.
+- [ ] Direct `/` для аутентифицированного пользователя показывает существующий
+      `not-found` state с recovery в его backend-authorized landing section и не
+      служит alias для `/attention`.
 - [ ] На mobile `Посещения` остаётся primary bottom-navigation item, а active
       overflow destination, `Ещё` и `aria-current` следуют adaptive navigation
       contract на всех целевых размерах.
@@ -119,7 +152,8 @@ Coach / Administrator / HeadCoach / SuperAdministrator.
 - [ ] Добавить backend contract tests для `allowedSections` и `landingScreen`
       Coach, Administrator, HeadCoach и SuperAdministrator.
 - [ ] Добавить или обновить route/component tests для каждой затронутой роли,
-      `/`, `/attendance`, `/schedule` и attendance client-return context.
+      `/`, `/attention`, `/attendance`, `/schedule` и attendance client-return
+      context.
 - [ ] Добавить Playwright-сценарии deep link, reload, back/forward и permission redirect.
 - [ ] Проверить авторизованный mobile overflow `Ещё` и `aria-current`.
 - [ ] Проверить доступный `h1`, document title и named main landmark.
@@ -136,8 +170,9 @@ Coach / Administrator / HeadCoach / SuperAdministrator.
   отдельного плана, cross-layer tests и human review.
 
 ## Clarification questions
-Не требуется. Целевая navigation model, role matrix, mobile placement и
-SuperAdministrator scope подтверждены пользователем 2026-08-19.
+Не требуется. Целевая navigation model, role matrix, labels, navigation order,
+mobile placement и SuperAdministrator scope подтверждены пользователем
+2026-08-19.
 
 ## Source notes
 - Source file: `backlog/processed/2026-08-02.md`
@@ -149,8 +184,11 @@ SuperAdministrator scope подтверждены пользователем 202
 - Duplicate check: активного дубликата нет; завершённая TASK-059 создала текущую объединённую модель и является baseline, а TASK-088 задаёт permission redirect contract.
 - Grouping: навигационная продуктовая развилка отделена от локальной компоновки attendance workbench в TASK-104.
 - Clarified at: 2026-08-19.
-- Clarification source: пользователь подтвердил все четыре рекомендованных
-  решения после UX-researcher и UI-designer review.
+- Clarification source: пользователь подтвердил самостоятельный раздел
+  `Посещения`, замену `Home`/`Главная` на `Attention`/`Внимание` с route
+  `/attention`, отсутствие видимого `Требуют внимания` и порядок `Посещения`
+  -> `Внимание` -> `Расписание` -> `Клиенты` после UX-researcher и UI-designer
+  review.
 - Classification: moved to `risky`, потому что самостоятельный backend-driven
   section меняет authorization/session access-scope contract, хотя attendance
   permission semantics остаётся прежней.

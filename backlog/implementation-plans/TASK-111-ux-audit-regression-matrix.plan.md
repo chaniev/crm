@@ -29,8 +29,8 @@ emulation от device-only acceptance.
 ## Planning eligibility and risk
 - Задача low risk и `Safe for Codex: yes`: меняется только frontend test
   harness и automated regression coverage.
-- Scope локализован в `frontend/e2e`, test-only fixtures/helpers и, если
-  понадобится machine-readable matrix validator, `frontend/src/test`.
+- Scope локализован в `frontend/e2e`, test-only fixtures/helpers и
+  обязательный machine-readable matrix validator в `frontend/src/test`.
 - Backend/API/domain/permissions contracts не меняются; существующие role
   fixtures должны следовать текущим session/backend contracts.
 - Critical clarification questions отсутствуют. Navigation naming decision
@@ -41,16 +41,21 @@ emulation от device-only acceptance.
   проверки test-only geometry/matrix helpers.
 
 ## Current understanding
-- Planning baseline: `main == origin/main` at
-  `d0d65dc19411e8ed9c12c3ef0844910a09bea0ea`.
+- Historical planning baseline: `main == origin/main` at
+  `d0d65dc19411e8ed9c12c3ef0844910a09bea0ea`. Перед execution
+  координатор синхронизирует refs и создаёт TASK-111 только от
+  фактического актуального `origin/main`.
 - TASK-104 уже merged и добавил attendance assertions для readable date,
   `44px` controls, above-fold first action, overflow и target iPhone WebKit.
   TASK-111 расширяет этот contract на полную заданную matrix, не переписывая
   TASK-104.
-- TASK-106 и TASK-107 находятся в `/backlog/implementation`; их планы уже
-  определяют будущие schedule decision-data и audit pagination/focus names.
-- TASK-109 и TASK-110 пока находятся в `/backlog/tasks-ready`; TASK-111 не
-  должен реализовывать их settings/profile UI fixes вместо owning tasks.
+- TASK-106, TASK-107 и TASK-109 находятся в
+  `/backlog/implementation`; их планы определяют будущие schedule
+  decision-data, audit pagination/focus names и settings touch/scope contract.
+- TASK-110 завершён коммитом `449ee76`; перед execution его
+  интеграция должна присутствовать в синхронизированном `origin/main`.
+  Его profile-trigger geometry, keyboard и target-iPhone tests уже являются
+  owning evidence и не дублируются в TASK-111.
 - `frontend/playwright.config.ts` уже содержит отдельные WebKit projects
   `iphone-air-webkit` (`420 x 912`) и `iphone-17-pro-max-webkit`
   (`440 x 956`) на iPhone profile с touch и `deviceScaleFactor: 3`.
@@ -65,8 +70,10 @@ emulation от device-only acceptance.
   controls и three modal close paths отсутствуют. Current app baseline ещё
   использует default Mantine pagination и timer-owned focus recovery; TASK-107
   является source task для UI correction.
-- Shared header profile trigger находится в
-  `frontend/src/features/shared/Header.tsx`, но не входит в inventory.
+- Shared profile trigger уже входит в touch inventory и target-iPhone
+  tests после TASK-110. TASK-111 регистрирует это evidence в
+  общей matrix и расширяет owning test только при доказанном
+  непокрытом criterion.
 - `group-schedule.spec.ts` уже проверяет несколько overlapping cards и
   document overflow, но не доказывает доступность полного start/end,
   group и hall/trainer decision-data для dense parallel fixture.
@@ -77,18 +84,23 @@ emulation от device-only acceptance.
 
 ## UX regression contract
 
-### Users and roles
-- Attendance: `Coach` как основной task user; один smoke под
-  `Administrator` или `HeadCoach` использует уже разрешённый backend scope и
-  не создаёт локальную permission matrix.
-- Settings: `HeadCoach`/`Administrator` только для доступных им tabs/actions;
-  не делать вывод о доступе по названию role или tab.
-- Audit: `SuperAdministrator`, `HeadCoach` или `Administrator` с
-  `canViewAuditLog`; permission-restricted user не должен отправлять audit
-  requests.
-- Schedule: `Coach` и/или `HeadCoach` с response, полученным через существующий
-  `/api/schedule/groups` contract.
-- Profile trigger: любой authenticated user; semantics не зависят от role.
+### Экраны, роли и обязательные viewport
+
+| Экран или область | Основной профиль | Дополнительные role/scope checks | Restricted/edge contract | Обязательная automated matrix |
+|---|---|---|---|---|
+| **Экран «Посещения»** | `Coach` с назначенной группой | `Administrator` с backend-issued group grant даёт один scope smoke | Backend разрешает attendance всем текущим ролям, поэтому role-denied case нет; Coach без assignment или Administrator без grant проверяют empty/restricted scope | Coach: Chromium `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`; WebKit `420 x 912`, `440 x 956`. Administrator smoke: Chromium `390 x 844` |
+| **Экран «Настройки»** (`/settings`) | `HeadCoach` с backend `createRoleOptions=[Administrator, SuperAdministrator]`: все четыре вкладки и global branch selector | `SuperAdministrator`: три разрешённые вкладки и global selector; `Administrator`: две вкладки и fixed assigned branch | `Coach`: route недоступен и settings API requests не отправляются | HeadCoach: Chromium `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`. SuperAdministrator/Administrator: Chromium `390 x 844`, `912 x 420`, `956 x 440`. Coach denial: Chromium `390 x 844` |
+| **Экран «Журнал»** (`/audit`) | `Administrator` с backend `canViewAuditLog` | `HeadCoach` и `SuperAdministrator` проходят access-parity smoke без дублирования всей geometry matrix | `Coach`: route недоступен, `/api/audit-logs` и options requests не отправляются | Administrator: Chromium `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`; WebKit `420 x 912`, `440 x 956`. Role parity/denial: Chromium `390 x 844` |
+| **Экран «Расписание»** (`/schedule`) | `HeadCoach` с global dense parallel fixture | Coach scope behavior остаётся в owning TASK-106 tests | Role-denied case нет: Schedule доступен всем текущим ролям | Desktop Chromium `1440 x 1200` |
+| **Шапка авторизованного приложения — меню профиля** | Любой authenticated user; current target-iPhone owning fixture — `HeadCoach` | Touch inventory может выполняться под `SuperAdministrator`; semantics role-invariant | Unauthenticated shell не показывает trigger | Existing eight-case touch inventory; WebKit `420 x 912`, `440 x 956` |
+| **Все перечисленные экраны — сквозной regression contract** | Test system | — | Device-only criteria не могут иметь status `automated-pass` | Каждый requirement использует matrix своего экрана |
+
+Таблица фиксирует test profiles, но не создаёт вторую
+permission model. Manifest хранит `roleProfileId`/ссылку на owning
+session fixture, а не копию всех permission booleans. Фактический
+access и visible controls по-прежнему берутся из текущих backend/session
+contracts (`permissions`, `allowedSections`, `createRoleOptions`, `branchId`,
+attendance scope/grants), а не выводятся из имени роли.
 
 ### Automated viewport taxonomy
 
@@ -125,21 +137,22 @@ emulation; neither is physical iPhone/Safari acceptance.
 
 ### Required surface matrix
 
-| Surface | Required regression contract | Owning suite |
+| Экран или область | Required regression contract | Owning suite |
 |---|---|---|
-| Attendance | readable selected date; group/date/previous/today/next/refresh and first mark action `>=44px`; first mark action above bottom navigation or inside compact viewport; no page overflow | `attendance.spec.ts` plus `iphone-target-devices.spec.ts` |
-| Settings | every visible tab, scope/branch select, refresh, create and representative edit `>=44px`; visual/task focus order is scope → actions → content; no action-only wrapped row or page overflow | existing TASK-109 settings Playwright spec plus touch inventory |
-| Audit | pager nav and stable previous/next/page names; each pager control `>=44px`; Escape, overlay and explicit close return focus to exact details trigger without arbitrary timeout; no pager/page overflow | TASK-107 audit specs plus target-iPhone/touch inventory |
-| Desktop schedule | for each event in dense parallel fixture, start/end, group and hall/trainer are readable directly or available through one obvious keyboard-operable disclosure; no page overflow | `group-schedule.spec.ts` at `1440 x 1200` |
-| Shared profile | profile trigger `>=44 x 44px`, stable accessible name, popup/expanded semantics, keyboard activation, Escape focus return and no overlap/focus clipping | TASK-110 affected spec plus touch inventory |
-| Cross-cutting | page overflow and internal decision-data/clipping are reported as different criteria; device-only gaps are emitted explicitly | matrix validator and affected suites |
+| **Экран «Посещения»** | readable selected date; group/date/previous/today/next/refresh and first mark action `>=44px`; first mark action above bottom navigation or inside compact viewport; no page overflow | `attendance.spec.ts` plus `iphone-target-devices.spec.ts` |
+| **Экран «Настройки»** | every visible tab, scope/branch select, refresh, create and representative edit `>=44px`; visual/task focus order is scope → actions → content; no action-only wrapped row or page overflow | existing TASK-109 settings Playwright spec plus touch inventory |
+| **Экран «Журнал»** | pager nav and stable previous/next/page names; each pager control `>=44px`; Escape, overlay and explicit close return focus to exact details trigger without arbitrary timeout; no pager/page overflow | TASK-107 audit specs plus target-iPhone/touch inventory |
+| **Экран «Расписание»** | for each event in dense parallel fixture, start/end, group and hall/trainer are readable directly or available through one obvious keyboard-operable disclosure; no page overflow | `group-schedule.spec.ts` at `1440 x 1200` |
+| **Шапка авторизованного приложения — меню профиля** | profile trigger `>=44 x 44px`, stable accessible name, popup/expanded semantics, keyboard activation, Escape focus return and no overlap/focus clipping | existing TASK-110 evidence in `App.test.tsx`, `iphone-target-devices.spec.ts` and touch inventory; extend only for a proven uncovered criterion |
+| **Все перечисленные экраны** | page overflow and internal decision-data/clipping are reported as different criteria; device-only gaps are emitted explicitly | mandatory matrix validator and affected suites |
 
 ## Dependencies and sequencing
 - TASK-104 is merged and is a hard regression baseline.
 - TASK-106, TASK-107, TASK-109 and TASK-110 own the corresponding product/UI
-  behavior. TASK-111 may formalize coverage only after each required contract
-  is merged into `origin/main`, or may land compatible test-only coverage in
-  the same integration sequence after those branches merge.
+  behavior. TASK-111 may start in parallel and formalize the complete screen
+  matrix immediately; dependency-sensitive executable evidence remains
+  `dependency-pending` until the corresponding contract is stable and merged
+  into `origin/main`.
 - Never cherry-pick product code from an unmerged dependency branch into
   TASK-111. If a required dependency is not on `origin/main`, mark only that
   matrix row pending and stop before claiming a green full matrix.
@@ -151,6 +164,35 @@ emulation; neither is physical iPhone/Safari acceptance.
   that final spec rather than duplicating its mocks in a second large suite.
 - TASK-111 does not add or modify database schema, backend tests, Docker stack
   or deployment configuration.
+
+### Parallel implementation contract
+- Simultaneous development of TASK-106, TASK-107, TASK-109, TASK-110 and
+  TASK-111 is allowed. The dependency gate controls final integration order,
+  not whether work may start in parallel.
+- Every task keeps its declared isolated branch/worktree based directly on the
+  synchronized `origin/main`; TASK-111 never bases itself on another unmerged
+  task branch and never cherry-picks product code from it.
+- While owning tasks are in progress, TASK-111 may implement dependency-free
+  work: the mandatory matrix/validator, attendance expansion and registration
+  of already integrated TASK-110 profile evidence.
+- Settings, audit and schedule entries may be declared in the manifest while
+  their evidence is `dependency-pending`, but this status is not a pass and
+  cannot satisfy the release barrier. Dependency-sensitive locators and final
+  owning spec names are bound only to an approved stable contract or after the
+  owning task is merged.
+- Owning tasks retain responsibility for product code and their focused RED/
+  GREEN regression. TASK-111 adds cross-screen completeness and may edit their
+  final test spec after integration, but does not duplicate an already exact
+  scenario and never fixes product behavior in its own branch.
+- Expected concurrent conflicts are limited primarily to
+  `touch-target-inventory.spec.ts`, `iphone-target-devices.spec.ts` and final
+  owning specs. After each dependency reaches `origin/main`, synchronize the
+  TASK-111 worktree with current `origin/main`, resolve only test-contract
+  conflicts and rerun the affected baseline.
+- Merge/closure order remains dependency-gated: TASK-111 may not be reported
+  fully green, merged or moved to `done` until every required owning contract
+  is integrated and every non-device-only matrix entry has executable passing
+  evidence.
 
 ## Execution roles
 1. Coordinating agent applies `task-worktree`, verifies dependencies and owns
@@ -184,12 +226,15 @@ emulation; neither is physical iPhone/Safari acceptance.
    evidence.
 
 ### Phase 1 — machine-readable test contract before harness changes
-6. Before changing inventory/helpers, add a small unit-level matrix contract
-   only if it directly drives the suites. Preferred shape:
+6. Before changing inventory/helpers, add the mandatory unit-level matrix
+   contract. Required shape unless an equally small existing test-only module
+   is proved to be a better direct owner:
    `frontend/e2e/ux-audit-regression-matrix.ts` plus
    `frontend/src/test/uxAuditRegressionMatrix.test.ts`.
-7. The matrix must have stable requirement ids and directly shared viewport,
-   surface and evidence metadata. Unit tests must reject:
+7. The matrix must have stable requirement ids and directly shared screen,
+   `roleProfileId`, viewport, evidence kind, owning spec and automation-status
+   metadata. It references owning session fixtures/contracts instead of copying
+   permission booleans. Unit tests must reject:
    - a missing attendance/settings/audit/schedule/profile surface;
    - omission of `390x844`, `420x912`, `440x956`, `912x420` or `956x440`
      from a requirement that mandates it;
@@ -199,11 +244,11 @@ emulation; neither is physical iPhone/Safari acceptance.
 8. Run this unit test before implementing the manifest/helper and retain the
    expected failure for missing/incomplete matrix entries. Then implement only
    the smallest test-only data/helper needed to make the unit contract pass.
-9. If no shared matrix/helper is introduced, unit tests are genuinely not
-   applicable because TASK-111 changes no production/pure business logic.
-   Document that decision before E2E edits; do not add empty or tautological
-   unit tests. Integration/Playwright coverage below remains mandatory and is
-   the primary regression barrier.
+9. The matrix/validator is not optional. It must reject a required
+   `dependency-pending` entry at release validation, while allowing the entry
+   to exist during parallel development without claiming automated pass.
+   Integration/Playwright coverage below remains the primary rendered-behavior
+   barrier.
 
 ### Phase 2 — integration/Playwright assertions before any product code
 10. Expand `touch-target-inventory.spec.ts` so the route inventory enumerates
@@ -211,7 +256,8 @@ emulation; neither is physical iPhone/Safari acceptance.
     - settings tabs, branch/catalog scope select, refresh, create and a
       representative visible edit action;
     - audit previous/next/current-page controls using TASK-107 stable names;
-    - shared profile trigger on authenticated routes;
+    - retain the existing shared profile trigger entry on authenticated routes
+      and map it to TASK-110 evidence without duplicating the scenario;
     - retain existing routes, role/access checks, machine-readable JSON and
       empty allowlist policy.
 11. Keep touch inventory measurement generic: actual target box, input font
@@ -248,10 +294,13 @@ emulation; neither is physical iPhone/Safari acceptance.
     If TASK-106 uses summary/Popover, verify accessible name, Enter/Space,
     visible focus, Escape/close focus return and every detail row; do not
     couple to private CSS classes or a chosen layout threshold.
-17. Add the shared profile trigger to inventory and extend the final TASK-110
-    test for `360/390/420/440px` plus compact landscape: actual hit area,
-    no overlap, unclipped visible focus, stable accessible name,
-    `aria-haspopup`/`aria-expanded`, Enter/Space and Escape focus return.
+17. Register existing TASK-110 profile evidence in the mandatory matrix:
+    touch inventory owns actual hit area across its eight viewports;
+    `iphone-target-devices.spec.ts` owns target-iPhone touch, popup semantics,
+    Enter/Space, Escape and exact focus return; `App.test.tsx` owns the focused
+    component semantics. Do not copy these scenarios. Extend the existing
+    owning test only if comparison with the matrix proves a specific uncovered
+    criterion such as overlap or focus clipping at a required viewport.
 18. Add explicit negative controls for test-only geometry/matrix helpers:
     synthetic `32 x 32px` pager and `48 x 42px` profile boxes must produce
     `insufficient-target`; a document with no overflow but missing/truncated
@@ -294,7 +343,7 @@ emulation; neither is physical iPhone/Safari acceptance.
 
 ## Preferred implementation strategy
 1. Dependency and baseline verification.
-2. Test-only matrix/helper unit contract in red, if a shared helper is useful.
+2. Mandatory test-only matrix/validator unit contract in red.
 3. Touch inventory completeness and per-surface Playwright assertions.
 4. Expected-red verification without product changes.
 5. Green only on merged owning UI contracts.
@@ -307,10 +356,9 @@ emulation; neither is physical iPhone/Safari acceptance.
 - `frontend/e2e/group-schedule.spec.ts`
 - final TASK-109 settings Playwright spec, to be discovered after merge
 - final TASK-107 audit Playwright spec(s), to be discovered after merge
-- final TASK-110 profile-trigger Playwright spec, to be discovered after merge
+- existing TASK-110 profile tests only if the matrix proves an uncovered gap
 
-Optional only when the data/helper directly drives tests and has meaningful
-negative-control coverage:
+Required machine-readable completeness contract:
 - `frontend/e2e/ux-audit-regression-matrix.ts`
 - `frontend/src/test/uxAuditRegressionMatrix.test.ts`
 
@@ -357,14 +405,14 @@ Files to inspect but not expected to change:
 ## Required test coverage
 
 ### Unit tests — before test-helper implementation
-- If a machine-readable matrix/helper is extracted, add its unit test first
-  and prove the incomplete/missing matrix fails.
+- Add the mandatory machine-readable matrix/validator unit test first and
+  prove the incomplete/missing matrix fails.
 - Cover required surface ids, viewport completeness, uniqueness, automated vs
   device-only classification and distinct overflow/decision-data criteria.
 - Cover synthetic undersized target and compressed-decision-data negative
   controls.
-- If no pure helper is introduced, record unit tests as not applicable because
-  production/business logic is unchanged; do not create tautological tests.
+- The matrix unit contract is required even though production/business logic
+  is unchanged; do not replace it with an empty or tautological test.
 
 ### Integration tests — before any product code
 - Playwright is the mandatory integration layer for rendered geometry,
@@ -388,7 +436,8 @@ Files to inspect but not expected to change:
 - Final TASK-106 schedule readability scenario.
 - Final TASK-107 audit component/Playwright scenarios.
 - Final TASK-109 settings scope/touch-order scenario.
-- Final TASK-110 profile trigger scenario.
+- Existing TASK-110 profile trigger scenarios are mapped as evidence and are
+  changed only for a proven uncovered criterion.
 
 ### Expected initial failure
 - Matrix/helper unit test fails before missing requirements are registered.
@@ -409,14 +458,15 @@ Files to inspect but not expected to change:
 
 ## Test plan
 - [ ] TASK-104/106/107/109/110 dependency state and owning specs are recorded.
-- [ ] Optional matrix/helper unit test is red before helper implementation and
-      green afterward, or unit N/A is justified.
+- [ ] Mandatory matrix/validator unit test is red before implementation and
+      green afterward; release validation rejects every required pending row.
 - [ ] Attendance passes the five-size Chromium matrix.
 - [ ] Both target-iPhone WebKit projects pass with touch/iPhone/DPR evidence.
 - [ ] Settings tabs/select/actions/edit pass geometry and focus/task order.
 - [ ] Audit pager passes names, size, gap, state and three close-path focus.
 - [ ] Dense desktop schedule exposes all required decision-data.
-- [ ] Shared profile trigger is present in inventory and detects `<44px`.
+- [ ] Existing TASK-110 profile evidence is mapped without duplication;
+      inventory still detects a profile trigger `<44px`.
 - [ ] Page overflow and internal decision-data failure are separate criteria.
 - [ ] Touch inventory artifacts contain complete metadata and no unjustified
       allowlist entries.
@@ -431,9 +481,10 @@ matrix and fail on undersized controls, broken focus return, unreadable/missing
 decision-data or page overflow.
 
 Coverage-completeness barrier: a machine-readable requirement matrix with
-unit validation is preferred when it directly parameterizes or indexes the
-suites. It prevents the inventory from silently returning to a representative
-subset and keeps device-only claims separate from automated evidence.
+unit validation is mandatory and indexes every required screen/criterion to
+owning executable evidence. It prevents the inventory from silently returning
+to a representative subset, rejects required pending rows at release and keeps
+device-only claims separate from automated evidence.
 
 Release barrier: full frontend unit/lint/build, affected Chromium specs and
 both target-iPhone WebKit projects are green twice; generated inventory JSON
@@ -479,7 +530,9 @@ the matrix spans several roles and viewports; keep changes test-only and
 phased.
 
 ## Ready for Codex execution
-yes — dependency-gated: full green completion waits for TASK-106, TASK-107,
-TASK-109 and TASK-110 contracts to be merged into `origin/main`; the approved
+yes — parallel-start, dependency-gated completion: dependency-free TASK-111
+work may proceed simultaneously with TASK-106, TASK-107 and TASK-109, but full
+green completion/merge waits for every required owning contract, including the
+TASK-110 integration, to be present in synchronized `origin/main`. The approved
 TASK-103 navigation naming remains explicitly excluded until its implementation
 is integrated.
