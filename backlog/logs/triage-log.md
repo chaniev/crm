@@ -1894,3 +1894,33 @@
 - active tasks: 34 (`tasks-ready`: 8, `risky`: 10, `needs-clarification`: 10, `implementation`: 6)
 - active implementation plans: 9
 - physical Safari/iOS Simulator and physical-device checks remain explicitly unverified
+
+# 2026-08-19 22:08 TASK-115 clarification update
+
+## Scope
+
+- Direct product clarification for TASK-115; no inbox processing, project-code changes, branch switch or worktree creation.
+- Baseline: local integrated `main` at `a468222`; `origin/main` at `921e173`.
+
+## Resolved decisions
+
+- Every client membership must be linked to exactly one concrete group, including `Professional`.
+- `Term` and `SingleVisit` cover their linked group; `Professional` covers all groups independently of its required group link.
+
+## Status changes
+
+- none; TASK-115 remains in `needs-clarification` because overlap, attendance allocation, multi-branch scope and mutation semantics are unresolved.
+
+## Updated existing tasks
+
+- `/backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md`
+
+## Summary
+
+- tasks-ready: 8
+- risky: 10
+- needs-clarification: 10
+- implementation: 6
+- updated existing: 1
+- processed files: 0
+- validation: task structure, resolved-question traceability and status/directory consistency; no product tests required because product code did not change

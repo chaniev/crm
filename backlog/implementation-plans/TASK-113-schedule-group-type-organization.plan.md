@@ -14,21 +14,41 @@ Branch rules:
   repository оставить на `main`, а код менять только в task worktree;
 - до первой правки подтвердить repo root, active branch, clean status,
   registered worktree и `git merge-base --is-ancestor origin/main HEAD`;
-- начинать implementation только от `origin/main`, в который уже интегрированы
-  TASK-106 и TASK-112; не копировать файлы или commits из их незамерженных
-  branches и не создавать branch dependency;
+- начинать implementation только от `origin/main`, в который уже интегрирована
+  TASK-112; TASK-106 не является functional prerequisite: если она уже
+  merged, адаптироваться к released render contract, а если нет — не ждать её
+  автоматически, не копировать files/commits из unmerged branch и не
+  создавать branch dependency;
 - не включать backend/API changes, TASK-106/TASK-112 fixes, redesign расписания,
   URL persistence фильтров или unrelated refactoring;
 - Docker Compose по умолчанию не запускать: задача покрывается frontend unit,
   component integration, mocked Playwright и target-iPhone WebKit tests.
 
-Planning evidence на 2026-08-16: primary repository находится на clean `main`
-`76d96e5e3e576e5e006080f2733d7ed3f8c89ff2`, совпадающем с локальным
-`origin/main`; отдельные worktree/branch TASK-113 и дубликат plan не найдены.
-TASK-106 и TASK-112 на planning snapshot ещё находятся в
-`/backlog/implementation`, поэтому этот commit не является допустимым execution
-base. Executor обязан выполнить `git fetch origin`, проверить интеграцию обеих
-задач и повторить source discovery после их merge.
+Actualization evidence на 2026-08-19: после `git fetch --prune origin`
+`origin/main` остаётся на
+`921e17340922ebdab701d76fa671387e57577115`; TASK-106 и TASK-112 всё ещё
+находятся в `/backlog/implementation`, и их declared local/remote branches и
+released source markers не найдены. Этот `origin/main` не является
+допустимым execution base, поскольку TASK-112 ещё не интегрирована.
+Executor обязан повторить fetch/source discovery после merge TASK-112
+и отдельно зафиксировать, присутствует ли TASK-106 в новой baseline.
+Отсутствие TASK-106 само по себе не блокирует TASK-113.
+
+Confirmed decisions on 2026-08-19:
+
+- на desktop `Тип группы` пока остаётся secondary item в existing
+  overflow surface;
+- existing contextual retention сохраняется: недоступное после
+  изменения другого filter или успешного payload refresh значение
+  очищается автоматически;
+- day counts всегда рассчитываются по каждому weekday из всей
+  filtered week; legend отражает всю filtered week в week mode и только
+  selected weekday в effective day mode;
+- inactive labels остаются `Фильтры` на mobile и `Ещё фильтры`
+  на desktop; при любом active filter оба trigger показывают
+  neutral `Фильтры · N`, где `N` — число всех non-null schedule filters;
+- only TASK-112 is a functional prerequisite; TASK-106 требует
+  merge-aware coordination, но не жёсткого ожидания.
 
 ## Goal
 Тренер, администратор или главный тренер на `/schedule` выбирает один доступный
@@ -60,17 +80,24 @@ viewport в рамках открытого экрана, а пассивная 
   name. Type filter не должен вводить новый sort или группировку.
 - Type legend уже строится после фильтрации из calendar entries. После
   интеграции TASK-112 source legend должен совпадать с реально rendered scope:
-  вся неделя в effective week mode и выбранный день в effective day mode.
+  вся filtered week в effective week mode и selected weekday в effective day
+  mode. Day counts при этом всегда отражают каждый weekday всей
+  filtered week, чтобы weekday strip не терял navigation context.
 - `CompactFilterPanel` уже даёт mobile bottom Drawer, desktop one-row filters,
   `Ещё фильтры`, reset, focus return, safe-area padding и `44px` controls.
   Новый select нужно встроить в этот surface, не создавая новый toolbar.
 - Manual/auto refresh меняют payload/reload state, но не remount screen и не
-  сбрасывают filter state. Existing retention effect удаляет значение только
-  после успешного payload update, если value больше не входит в разрешённые
-  contextual options; stale/error refresh сохраняет старые data и selection.
+  сбрасывают filter state. Existing retention effect пересчитывается
+  при изменении contextual options: если другой filter или успешный
+  payload update делает selected value недоступным, value очищается
+  автоматически. Stale/error refresh не заменяет groups/options и сохраняет
+  previous selection.
 - TASK-112 делает mode/weekday URL-owned presentation state, а filters оставляет
   local и вне URL. TASK-113 не меняет `mode`/`weekday`, history или viewport
   semantics.
+- TASK-106, если она есть в baseline, потребляет уже filtered calendar
+  entries на presentation layer; это делает её file-conflict risk, но не
+  functional prerequisite TASK-113.
 - Backend permissions/access scope, schedule conflict logic, loading, initial
   error, stale/retry, global empty и Coach zero-scope semantics не меняются.
 
@@ -84,8 +111,9 @@ viewport в рамках открытого экрана, а пассивная 
   увидеть только matching занятия в том же temporal order → при необходимости
   очистить сам select или нажать общий `Сбросить`.
 - Completion signal: selected value или active-filter state видим в filter
-  surface, все показанные cards имеют выбранный `groupTypeId`, day counts и
-  passive legend соответствуют rendered entries.
+  surface, все показанные cards имеют выбранный `groupTypeId`, day counts
+  отражают filtered entries каждого weekday, а passive legend соответствует
+  effective rendered scope.
 - Frequent operations: открыть filters, выбрать/очистить type, refresh.
   Recovery: общий reset и existing empty-state guidance. Type legend остаётся
   metadata и не получает click/keyboard behavior.
@@ -104,12 +132,17 @@ viewport в рамках открытого экрана, а пассивная 
 - Type options применяют branch/hall/trainer/group filters, но игнорируют
   current `groupTypeId`, чтобы selected option не исчезала только из-за
   собственного filter predicate.
+- Existing contextual reconciliation распространяется на все пять
+  dimensions: если после изменения другого filter selected value больше не
+  входит в options своего dimension, оно очищается автоматически. Не
+  вводить competing draft/confirmation model.
 - `applyScheduleFilters` добавляет exact `group.groupTypeId ===
   filters.groupTypeId` и сохраняет AND-composition всех пяти dimensions.
 - Filter state не входит в URL, API query, global store или TASK-112 history
   state. Viewport/mode change не remount-ит и не очищает selection.
 - Manual/auto refresh сохраняет selected id, если он остаётся разрешённой
-  option в новом payload. Если успешный refresh удалил id из authorized scope,
+  contextual option в новом payload. Если успешный refresh удалил id из
+  authorized scope или сделал его недоступным в current contextual options,
   очистить его через existing retention contract; failed/stale refresh не
   очищает selection.
 
@@ -124,16 +157,18 @@ viewport в рамках открытого экрана, а пассивная 
   current order, добавить `Тип группы` как secondary item existing
   `Ещё фильтры` Popover. Это включает предусмотренный panel overflow для
   tablet width и не демонтирует существующие controls на `1440px`.
-- При активных filters mobile launcher и desktop overflow trigger должны
-  показывать compact state `Фильтры · N` / `Ещё фильтры · N` либо эквивалентный
-  точный count через existing label props; не добавлять отдельную строку chips,
-  badges или actions. `N` — число non-null schedule filters.
+- Без active filters mobile launcher показывает `Фильтры`, а desktop overflow
+  trigger — `Ещё фильтры`. При любом active filter оба trigger показывают
+  neutral state `Фильтры · N` через existing label props, где `N` — число
+  всех non-null schedule filters, а не только hidden/secondary. Не добавлять
+  отдельную строку chips, badges или actions.
 - Mobile `360/390/420/440`: новый select находится в существующем Drawer после
   `Группа`; fields scroll vertically, sticky `Готово`/`Сбросить` остаются
   reachable, page не получает horizontal scroll.
 - `768 x 1024` и `1440 x 1200`: filter surface остаётся одной строкой;
-  overflowed controls доступны через один visible `Ещё фильтры` trigger. Не
-  разрешать clipping control как способ пройти no-overflow assertion.
+  overflowed controls доступны через один visible trigger: `Ещё фильтры`
+  без active filters и `Фильтры · N` при active filters. Не разрешать
+  clipping control как способ пройти no-overflow assertion.
 - `912 x 420` и `956 x 440` с coarse pointer: mobile Drawer сохраняет один
   intentional vertical scroll region, close и sticky actions доступны при
   `100dvh`/safe-area behavior; nested-scroll trap отсутствует.
@@ -147,9 +182,11 @@ viewport в рамках открытого экрана, а пассивная 
 - Filtering happens before calendar/day render derivation. Current calendar
   sorter remains the only ordering source; group type name/id never enters
   primary sort.
-- In effective week mode legend/counts derive from all filtered rendered week
-  entries. In effective day mode they derive from the selected day's filtered
-  entries, so metadata does not describe hidden days.
+- Day counts в week и effective day modes derive из всей filtered week и
+  сохраняют точный count для каждого weekday. Legend в effective week mode
+  derive from all filtered rendered week entries, а в effective day mode —
+  только from selected weekday filtered entries, чтобы metadata не описывала
+  hidden days.
 - Whole-filter empty сохраняет `По выбранным фильтрам занятий нет` и visible
   reset path. Selected-day empty после TASK-112 сохраняет day strip/context и
   current filtered-day copy.
@@ -179,10 +216,13 @@ viewport в рамках открытого экрана, а пассивная 
    `react-best-practices`; создать/возобновить declared worktree/branch.
 2. Вернуть evidence: absolute worktree path, active branch, HEAD/origin-main
    commits, clean status, registered ownership и successful ancestor check.
-3. Проверить, что TASK-106 и TASK-112 действительно merged в `origin/main`:
-   current schedule имеет released parallel-event presentation и released
-   week/day URL contract. Если нет — остановить code execution, не брать их
-   branches и не имитировать отсутствующие contracts.
+3. Проверить, что TASK-112 действительно merged в `origin/main` и current
+   schedule имеет released week/day URL contract. Если нет — остановить
+   code execution и не имитировать отсутствующий contract. Отдельно
+   зафиксировать state TASK-106: если она merged, защитить released
+   parallel-event render contract; если нет — не ждать её и не брать код из
+   unmerged branch. При concurrent execution заранее зафиксировать merge order
+   и integration owner из-за overlapping screen/CSS/tests.
 4. Повторно обнаружить actual owners filters, mode/day render scope, legend,
    empty states, filter panel and tests. Planning file list ниже является
    baseline, а не разрешением перезаписать integrated changes.
@@ -205,13 +245,16 @@ viewport в рамках открытого экрана, а пассивная 
      existing filters;
    - после type filtering `buildScheduleCalendarWeek` оставляет entries
      time-first и deterministic при одинаковом времени;
-   - legend, day counts и effective rendered-entry selection используют только
-     matching entries; отдельный type priority/sort отсутствует.
+   - day counts отражают matching entries каждого weekday всей filtered week,
+     а legend использует matching entries effective rendered scope; отдельный
+     type priority/sort отсутствует.
 7. До изменения `GroupScheduleScreen.tsx` расширить
    `GroupScheduleScreen.test.tsx` как frontend integration barrier:
    - `Тип группы` имеет default `Все типы`, payload-only sorted options и exact
      stable ids;
    - selection фильтрует cards/counts/legend совместно с existing dimensions;
+   - contextual retention автоматически очищает type или другой selected
+     value, если другой filter делает его недоступным;
    - `Очистить фильтр «Тип группы»` возвращает all available types, а общий
      `Сбросить` очищает все пять fields;
    - selected type сохраняется при manual refresh, fake-timer auto refresh и
@@ -220,15 +263,19 @@ viewport в рамках открытого экрана, а пассивная 
      retry сохраняют previous selection/data;
    - whole/day filter-empty, loading, initial error, stale board, global empty
      и Coach zero-scope не меняют existing state semantics;
-   - mobile Drawer и desktop Popover имеют active-count state, keyboard close
-     и focus return без duplicate controls.
-8. Если active TASK-112 вынесла pure effective-mode/rendered-entry helper,
+   - day mode сохраняет counts всех weekdays filtered week, но legend строит
+     только по selected weekday; week mode строит legend по всей filtered week;
+   - inactive labels — mobile `Фильтры` и desktop `Ещё фильтры`; при
+     active filters оба trigger имеют exact `Фильтры · N`, а также keyboard
+     close и focus return без duplicate controls.
+8. Если integrated TASK-112 вынесла pure effective-mode/rendered-entry helper,
    добавить test туда, а не дублировать mode decision в TASK-113. Если helper
    отсутствует, проверять legend day/week scope через screen integration.
 9. До production code расширить `frontend/e2e/group-schedule.spec.ts`:
    - wide `1440 x 1200`: открыть `Ещё фильтры`, выбрать type, увидеть только
      matching cards в chronological order, matching legend/count и unchanged
-     mode/weekday URL; separate clear и global reset возвращают full schedule;
+     mode/weekday URL; active trigger меняется на `Фильтры · 1`, separate clear и
+     global reset возвращают full schedule и inactive label;
    - mobile day mode `390 x 844`: открыть Drawer, выбрать type, закрыть
      `Готово`, получить selected-day matching result; выбрать день без этого
      type и увидеть existing filtered-day empty с reset path;
@@ -236,6 +283,8 @@ viewport в рамках открытого экрана, а пассивная 
      query/filter call;
    - manual refresh, auto refresh и `390 → 1440 → 390` сохраняют selected id,
      visible mode/weekday и active filter state;
+   - mobile и desktop active labels считают все non-null filters и показывают
+     exact `Фильтры · N`, не только secondary/overflowed filters;
    - successful response без id очищает stale selection; failed refresh
      сохраняет filtered stale board и retry;
    - filter Popover/Drawer close/focus, select clear target и no duplicate
@@ -263,19 +312,24 @@ viewport в рамках открытого экрана, а пассивная 
     `buildScheduleFilterOptions` построить contextual `groupTypes` из current
     payload с existing dedup/sort helper. Не добавлять API/catalog request.
 14. В integrated `GroupScheduleScreen` добавить type retention/equality и
-    `Select` item. Сохранить immutable state update, local ownership и existing
+    `Select` item. Сохранить existing contextual reconciliation: после любого
+    options recomputation очищать selected values, больше не входящие в options
+    своего dimension. Сохранить immutable state update, local ownership и existing
     `setFilters` lifecycle; не добавлять effect, зависящий от viewport/mode.
 15. Встроить select в current `CompactFilterPanel`: existing primary filters
     не переставлять, type передать secondary item, active count передать через
-    existing mobile/more label props, reset оставить `EMPTY_SCHEDULE_FILTERS`.
+    existing mobile/more label props. Inactive labels — `Фильтры` / `Ещё фильтры`,
+    active labels — exact `Фильтры · N` для обоих trigger; reset оставить
+    `EMPTY_SCHEDULE_FILTERS`.
 16. Если new red geometry test докажет, что current panel clipping-ует primary
     item из-за refresh custom action, сначала добавить focused regression в
     `features/shared/ux.test.tsx`, затем минимально исправить measurement в
     `features/shared/ux.tsx`. Не делать shared redesign и не менять other
     consumers без tests; при отсутствии red shared files не трогать.
-17. Убедиться, что integrated TASK-112 derives visible legend/counts from
-    effective rendered entries. Исправить только schedule-local derivation,
-    если test показывает hidden-day metadata; mode/query logic не менять.
+17. Убедиться, что integrated TASK-112 derives day counts из всех
+    weekdays filtered calendar week в любом mode, а legend — из all filtered
+    week entries в effective week mode и selected-weekday entries в effective day mode.
+    Исправить только schedule-local derivation; mode/query logic не менять.
 18. Не добавлять CSS, пока existing `CompactFilterPanel` contract проходит
     geometry. Если local CSS всё же нужен, использовать existing tokens,
     `min-width: 0`, `44px` targets и safe-area contract; не скрывать controls
@@ -328,7 +382,8 @@ Conditional only after a focused red test:
 Files to inspect but not expected to change:
 - integrated TASK-112 `frontend/src/features/schedule/scheduleViewQuery.ts`
   и его tests;
-- integrated TASK-106 schedule presentation helpers/components;
+- TASK-106 schedule presentation helpers/components, только если TASK-106
+  присутствует в execution baseline;
 - `frontend/src/lib/api/schedule.ts`;
 - `frontend/src/lib/api/types.ts`;
 - backend schedule endpoints/tests.
@@ -343,10 +398,15 @@ Files to inspect but not expected to change:
   `CompactFilterPanel` semantics и schedule API client.
 - Filters остаются local state и не меняют TASK-112 `mode`/`weekday` URL.
 - Type filter — single-select; clear и reset предсказуемы; legend metadata-only.
+- Contextual retention автоматически очищает selected value, если оно
+  больше не входит в current contextual options после filter change или
+  successful payload refresh; failed/stale refresh selection не очищает.
+- Day counts всегда охватывают всю filtered week; legend охватывает
+  effective rendered scope.
 - Minimum target `44 x 44px`, independent-target gap `8px`, select text `16px`,
   no page-level horizontal overflow и no action-only second row.
-- Не считать успешный stale/error refresh основанием очищать selection; не
-  сохранять id, исчезнувший из successful authorized payload.
+- Failed/stale refresh не является основанием очищать selection;
+  id, исчезнувший из successful authorized payload, не сохранять.
 
 ## Out of scope
 - Backend/API/database changes и server-side type filter.
@@ -364,14 +424,19 @@ Files to inspect but not expected to change:
 - Typed default/active/reset behavior нового `groupTypeId` field.
 - Payload-only group type options: id deduplication, label sorting, contextual
   other-filter application and self-dimension exclusion.
+- Contextual auto-clear недоступного selected value после other-filter или
+  successful payload change.
 - Exact type predicate + AND-composition всех filters.
-- Time-first calendar order after filtering and visible legend/count derivation.
+- Time-first calendar order after filtering, full-week per-weekday counts и
+  effective-scope legend derivation.
 
 ### Integration tests — before production code
 - `GroupScheduleScreen` + filter helpers + Mantine `CompactFilterPanel` +
   async payload refresh lifecycle.
 - Selection, separate clear, global reset, manual/auto refresh, successful
-  scope removal, stale/error retry and viewport preservation.
+  scope/context removal, stale/error retry and viewport preservation.
+- Exact inactive/active mobile и desktop trigger labels с count всех non-null
+  filters.
 - Operational state matrix: loading, global/Coach/filter/day empty, initial and
   stale errors.
 
@@ -388,7 +453,8 @@ Frontend component tests are the affected integration boundary.
 
 ### Existing tests to update
 - Existing desktop action-count assertion must account for the new visible
-  `Ещё фильтры` action while preserving refresh and reset order/names.
+  inactive `Ещё фильтры` action и active `Фильтры · N` state while preserving
+  refresh and reset order/names.
 - Existing fixture legend/card expectations must remain deterministic after
   selecting and clearing type.
 - Integrated TASK-112 tests must remain green and prove filters do not modify
@@ -400,7 +466,9 @@ Frontend component tests are the affected integration boundary.
   evidence. Manual QA supplements but does not replace automated barriers.
 
 ## Test plan
-- [ ] TASK-106 and TASK-112 confirmed merged into current `origin/main` before code.
+- [ ] TASK-112 confirmed merged into current `origin/main` before code.
+- [ ] TASK-106 state recorded; its regressions/contracts included only if present in
+  execution baseline, without branch dependency on unmerged work.
 - [ ] Unit tests written first and fail on absent typed type-filter behavior.
 - [ ] Component integration tests written first and fail on absent select/state flow.
 - [ ] Playwright tests written first and fail on absent mobile/wide workflow.
@@ -417,7 +485,9 @@ Minimum production barrier:
 - `GroupScheduleScreen` selection/clear/reset/refresh/state integration tests;
 - `group-schedule.spec.ts` combined-filter, empty, refresh, responsive and
   legend workflow;
-- released TASK-112 URL/mode regressions and TASK-106 presentation regressions;
+- released TASK-112 URL/mode regressions;
+- TASK-106 presentation regressions only when TASK-106 is present in execution
+  baseline;
 - target-iPhone WebKit + viewport overflow/touch-target coverage;
 - full frontend unit suite, lint and production build.
 
@@ -427,16 +497,20 @@ schedule payload, if time-first order/legend scope is unprotected, or if only
 manual QA was performed.
 
 ## Risks
-- TASK-106/TASK-112 modify the same screen/CSS/tests; starting from an
-  unintegrated or stale base can silently overwrite their contracts.
+- TASK-112 is a functional dependency and modifies the same screen/CSS/tests;
+  starting before its merge or from a stale base can silently overwrite its contract.
+- TASK-106 is not a functional dependency, but concurrent or later integration
+  touches the same screen/CSS/tests and requires an explicit merge order/integration
+  owner to preserve both filter and dense-event presentation regressions.
 - Adding a fifth filter can clip desktop/tablet controls if existing panel
   measurement does not account for custom refresh action; hidden clipping is
   not acceptable even when document scroll width stays within viewport.
-- Contextual option retention can clear selection too aggressively if type
-  options accidentally apply their own predicate, or retain stale unauthorized
-  ids if successful payload changes are ignored.
-- Deriving legend from the full week in effective day mode can expose metadata
-  for hidden days and violate the visible-result contract.
+- Contextual option retention can clear selection incorrectly if a dimension
+  applies its own predicate, or retain stale unauthorized ids if successful
+  payload changes are ignored.
+- Deriving legend from the full week in effective day mode exposes metadata for
+  hidden days; deriving day counts only from selected weekday removes navigation
+  context for the other weekdays.
 - Fake-timer auto refresh tests can become flaky if timer/network completion is
   not advanced deterministically.
 - Duplicate/long group type names can stress select readability and active
@@ -446,7 +520,7 @@ manual QA was performed.
 
 ## Stop conditions
 Остановиться и не писать production code, если:
-- TASK-106 или TASK-112 ещё не интегрирована в current `origin/main`;
+- TASK-112 ещё не интегрирована в current `origin/main`;
 - требуется backend/API/database, permissions/access или schedule conflict change;
 - `groupTypeId`/`groupTypeName` отсутствуют в actual authorized schedule payload;
 - выполнение acceptance требует filter URL persistence, multi-select,
@@ -458,10 +532,11 @@ manual QA was performed.
 - scope вышел за TASK-113 или expected red невозможно получить по причине уже
   реализованного поведения — сначала перепроверить stale/duplicate task.
 
-Не останавливаться только из-за frontend-only scope, shared Schedule screen,
-обычного merge conflict после dependency integration или необходимости
-component + Playwright coverage.
+Не останавливаться только из-за отсутствующей в baseline TASK-106,
+frontend-only scope, shared Schedule screen, обычного merge conflict после
+dependency integration или необходимости component + Playwright coverage.
 
 ## Ready for Codex execution
-yes — после обязательной интеграции TASK-106 и TASK-112 в актуальный
-`origin/main` и создания declared isolated worktree.
+yes — после обязательной интеграции TASK-112 в актуальный
+`origin/main`, фиксации actual TASK-106 state и создания declared isolated
+worktree. TASK-106 absence is not a stop condition.
