@@ -2137,3 +2137,48 @@
 - validation: product-question closure, duplicate scope, task structure,
   cross-layer acceptance criteria and status/directory consistency; no product
   tests required because project code did not change
+
+# 2026-08-20 00:15
+
+## Status audit
+
+- Baseline: local integrated `main` at `1e169ee`, equal to local
+  `origin/main`; no branch switch or worktree creation was required.
+- Scope: current schedule/calendar baseline and active TASK-075, TASK-112,
+  TASK-117 and TASK-118 overlap against merged code, Git history and backlog
+  contracts.
+- Evidence: merged calendar-like screen remains a recurring read-only weekday
+  template; TASK-112 explicitly excludes dated-calendar semantics; main has no
+  `LessonOccurrence` or `Held/NotHeld` implementation; TASK-117 and TASK-118
+  remain planned, unimplemented follow-ups.
+- Status changes: none. Existing tasks keep their current lifecycle until
+  TASK-119 product decisions establish which scopes are superseded or reused.
+- Consistency: no existing TASK-119 and no active full dated-calendar task were
+  found; the new umbrella task is not a duplicate of the narrower related
+  tasks.
+
+## Processed product clarification
+- conversation on 2026-08-20
+
+## Created tasks
+- /backlog/needs-clarification/TASK-119-full-lesson-calendar.md
+
+## Updated existing tasks
+- none
+
+## Skipped duplicates
+- TASK-075, TASK-117, TASK-118 and TASK-112 were not updated yet; TASK-119 is
+  an umbrella product clarification that may supersede them after explicit
+  product decision.
+
+## Summary
+- tasks-ready: 8
+- risky: 13
+- needs-clarification: 8
+- implementation: 6
+- created tasks: 1
+- updated existing: 0
+- processed files: 0
+- validation: task structure, unique TASK-ID, duplicate boundaries,
+  source traceability, status/directory consistency and related-task links;
+  no product tests required because project code did not change
