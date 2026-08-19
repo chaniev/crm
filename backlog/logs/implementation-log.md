@@ -1478,3 +1478,30 @@
 - validation: frontend lint, production build, 449 unit tests, 12 Chromium touch-inventory tests and 36 target-iPhone WebKit tests passed on integrated `main`
 - data/runtime: no backend/API/database changes, no migration required, no Docker Compose task stack created
 - residual device evidence: physical Safari/iOS Simulator, dynamic chrome, actual safe area/home indicator and physical-device touch checks were not performed
+
+# 2026-08-19 22:47
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-103-attendance-navigation-model.plan.md
+
+## Skipped tasks
+- /backlog/risky/TASK-103-attendance-navigation-model.md — карточка не
+  перемещена: medium-risk backend session/access-scope и frontend
+  route/recovery contract требуют отдельного human-reviewed execution; risky
+  planning policy разрешает создать подробный план, сохранив status `risky`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: user explicitly selected TASK-103 for planning only. UX/UI handoffs
+  fixed the four-role session matrix, standalone `/attendance`, management-only
+  Home, mandatory primary mobile placement, named main/hidden h1 semantics and
+  client-return/recovery behavior. The plan uses branch
+  `feature/TASK-103-attendance-navigation-model`, an isolated worktree, unit,
+  backend integration and Playwright tests before production code, coordinated
+  backend/frontend rollout and automated target-device regression barriers.
+  Project code was not changed.
