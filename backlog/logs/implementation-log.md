@@ -1532,3 +1532,30 @@
   backend integration and Playwright tests before production code, coordinated
   backend/frontend rollout and automated target-device regression barriers.
   Project code was not changed.
+
+# 2026-08-19 23:09
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-105-trainer-access-registry-contract.plan.md
+
+## Skipped tasks
+- /backlog/risky/TASK-105-trainer-access-registry-contract.md — карточка не
+  перемещена: high-risk protected trainer-management route/API contract имеет
+  `Safe for Codex: no`; подробный test-first plan создан для explicit human
+  review перед атомарным исполнением в branch
+  `feature/TASK-105-trainer-access-registry-contract`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan keeps `/coaches` as the only backend/frontend trainer route,
+  preserves backend-owned access and `allowedActions`, specifies local
+  exception filters, a single editable row target, workflow focus/state
+  recovery, coordinated release/rollback and five automated regression
+  barriers. Unit, backend integration, component/App integration and
+  Playwright tests must be written and observed red before production code.
+  Project code was not changed.
