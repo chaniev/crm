@@ -1924,3 +1924,35 @@
 - updated existing: 1
 - processed files: 0
 - validation: task structure, resolved-question traceability and status/directory consistency; no product tests required because product code did not change
+
+# 2026-08-19 22:25 TASK-115 clarification update
+
+## Scope
+
+- Direct product clarification for TASK-115; no inbox processing, project-code changes, branch switch or worktree creation.
+- Baseline: local integrated `main` at `22ef8d1`; `origin/main` at `921e173`.
+
+## Resolved decisions
+
+- `Professional` covers every group in every branch, uses its linked group for reporting and cannot overlap `Term` or `SingleVisit`.
+- Overlapping memberships of the same group are forbidden; memberships of different groups may overlap.
+- The overlap model guarantees one applicable entitlement for attendance, so no user-facing allocation choice is required.
+- Renewal, transfer, automatic group enrollment, archive blocking, target correction and legacy-data backfill rules were recorded.
+
+## Status changes
+
+- none; TASK-115 remains in `needs-clarification` pending historical reporting semantics and remaining boundary cases.
+
+## Updated existing tasks
+
+- `/backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md`
+
+## Summary
+
+- tasks-ready: 8
+- risky: 10
+- needs-clarification: 10
+- implementation: 6
+- updated existing: 1
+- processed files: 0
+- validation: task structure, decision traceability and status/directory consistency; no product tests required because product code did not change
