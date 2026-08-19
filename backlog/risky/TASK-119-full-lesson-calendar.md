@@ -1,0 +1,300 @@
+# TASK-119: Реализовать полноценный календарь занятий
+
+## Status
+risky
+
+## Goal
+CRM должна перейти от повторяющегося недельного шаблона к полноценному календарю
+конкретных занятий, чтобы администратор, главный тренер и тренер работали с
+реальными датами: день/неделя, перенос, отмена, разовое занятие, изменение
+одного занятия или серии и переход к посещаемости.
+
+## Context
+Текущая модель расписания описывает группу как недельный шаблон: выбранные
+weekday, одно общее время и presentation-only календарные подписи. TASK-117
+планирует отдельное время для каждого weekday, но также не создаёт
+самостоятельный факт конкретного занятия.
+
+Из-за этого несколько активных задач решают части одной проблемы:
+
+- TASK-117 добавляет разное время группы по weekday, но остаётся weekly-template
+  моделью.
+- TASK-118 фиксирует историческое время в attendance snapshot, но не вводит
+  полноценное занятие как сущность.
+- TASK-075 пытается добавить состояние `Held`/`NotHeld` для пары
+  `group + training date`, но блокируется вопросами lifecycle.
+- TASK-112 добавляет day mode для недельного шаблона, а не календарь дат.
+
+Продуктовое направление от 2026-08-20: вместо наращивания отдельных snapshot и
+weekday-исключений рассмотреть полноценную календарную модель с occurrence.
+
+Продуктовые вопросы закрыты 2026-08-20. Пользователь подтвердил поддержку
+нескольких занятий группы в один день, самостоятельных разовых занятий, трёх
+режимов изменения серии, role-based операций, предупреждений о конфликтах и
+неудаляющей attendance conflict policy. Для бессрочного расписания принята
+модель правила серии с необязательной датой окончания и ленивой
+материализацией конкретного occurrence.
+
+## User role
+Администратор / главный тренер / тренер / суперадминистратор / система.
+
+## Problem
+Пользователь ожидает календарь занятий как набор конкретных событий на даты, а
+CRM сейчас показывает повторяющийся шаблон. Из-за этого:
+
+- нельзя корректно перенести одно занятие без изменения всей группы;
+- нельзя добавить разовое занятие без создания отдельной группы или обходного
+  сценария;
+- отмена или `занятие не проводилось` не имеет общего lifecycle с расписанием;
+- история attendance зависит от текущего расписания или требует отдельного
+  snapshot-механизма;
+- `(GroupId, TrainingDate)` становится недостаточным ключом, если у группы
+  появятся два занятия в один день.
+
+## UX problem summary
+- Severity: high. Ментальная модель пользователя — календарь реальных занятий,
+  а системная модель — weekday-шаблон. Это создаёт риск неправильного переноса,
+  отмены и открытия attendance не того занятия.
+- Evidence basis: текущие backlog-задачи TASK-075/TASK-112/TASK-117/TASK-118 и
+  продуктовая дискуссия 2026-08-20. Это не результат физического iPhone-теста.
+- Root cause: backend не имеет стабильной сущности конкретного занятия, поэтому
+  frontend вынужден показывать календареподобный UI без календарной семантики.
+
+## UX contract
+- User/context: тренер и администратор работают в CRM на телефоне между
+  занятиями; частая операция — быстро открыть сегодня/выбранный день и перейти
+  к attendance.
+- Device baseline: проектировать сначала под `390 x 844`, затем проверить
+  `420 x 912`, `440 x 956`, `912 x 420`, `956 x 440`, tablet и desktop.
+- Goal: найти конкретное занятие по дате, понять его состояние и выполнить
+  допустимое действие без выбора между техническими сущностями.
+- Primary path mobile: `Расписание` -> `Сегодня` или выбор даты -> список
+  занятий дня -> карточка занятия -> `Посещаемость`.
+- Frequent operations: сменить день, сменить неделю, открыть сегодня, перейти к
+  attendance, увидеть время/группу/зал/тренера/статус.
+- Secondary operations: создать разовое занятие, перенести занятие, изменить
+  серию, изменить одно занятие.
+- Exceptional/destructive operations: отменить занятие, отметить
+  `не проводилось`, восстановить, изменить прошлое занятие с attendance.
+- Required data in lesson row/card: дата, время начала, длительность, группа,
+  тип группы, зал/филиал, тренер, статус занятия, attendance completion state.
+- Action budget: в primary mobile path тренер должен открыть attendance
+  сегодняшнего занятия не более чем за 3 действия после входа в `Расписание`.
+- Failure recovery: при ошибке загрузки показать повтор запроса без потери
+  выбранной даты; при конфликте переноса показать причину и оставить введённые
+  данные; при permission denial объяснить недоступное действие.
+- Success criteria: нет горизонтального page scroll на mobile; primary action
+  не спрятан в overflow; fixed/sticky controls учитывают safe area, Safari
+  chrome и software keyboard.
+
+## Product and architecture decisions
+- Одна группа может иметь несколько занятий в один календарный день; каждое
+  занятие имеет отдельный стабильный `LessonOccurrenceId`.
+- Разовое занятие может существовать без recurring rule.
+- Изменение повторяющегося расписания поддерживает три scope: `только это
+  занятие`, `это и будущие`, `вся серия`. Исторические occurrences с attendance
+  не переписываются изменением серии.
+- Администратор и главный тренер могут выполнять все календарные операции в
+  пределах существующего access scope; суперадминистратор сохраняет полный
+  системный доступ. Тренер может просматривать свои занятия, сохранять их
+  attendance и явно подтверждать `Held` для занятия без участников. Тренер не
+  создаёт и не изменяет серии или разовые занятия, не переносит, не отменяет,
+  не восстанавливает и не переводит занятие в `NotHeld`.
+- При переводе занятия в `Cancelled` или `NotHeld` существующие
+  `Present`/`Absent` не удаляются автоматически. Команда блокируется стабильным
+  conflict ProblemDetails до явного разрешения конфликта; решение и последующий
+  переход аудитируются.
+- `Held` устанавливается автоматически в той же транзакции при первой
+  сохранённой attendance-операции. Для занятия без участников доступна явная
+  команда подтверждения `Held`.
+- Конфликты тренера, зала или времени показываются как предупреждение и не
+  блокируют сохранение. Backend возвращает структурированные warning codes из
+  mutation preview, frontend показывает их до подтверждения, а подтверждённая
+  команда выполняется без hard-block. Автоматическое разрешение конфликтов не
+  выполняется.
+- Повторяющаяся серия имеет включительную `StartsOn` и необязательную
+  включительную `EndsOn`; `EndsOn = null` означает бессрочное расписание.
+- Бессрочная серия не порождает бесконечный набор строк. Целевая модель:
+  `LessonSeries` -> immutable `LessonScheduleRuleVersion` -> weekly schedule
+  slots. Calendar query детерминированно разворачивает версии правил только для
+  запрошенного ограниченного диапазона дат.
+- Стабильный ID планового занятия детерминированно формируется из versioned
+  schedule slot и даты, например UUIDv5. Обычное будущее занятие может оставаться
+  проекцией правила; `LessonOccurrence` с тем же ID материализуется при разовом
+  занятии, исключении, переносе, lifecycle-переходе или первой attendance-записи.
+  Calendar read накладывает материализованные occurrences на проекцию правил и
+  не требует записи в БД или фоновой генерации.
+- `только это занятие` создаёт/изменяет materialized occurrence. `это и
+  будущие` закрывает текущую immutable rule version на предыдущей дате и
+  создаёт новую version. `вся серия` изменяет все ещё редактируемые occurrences,
+  но не переписывает сохранённую историческую attendance-семантику.
+- При первой attendance-операции backend атомарно материализует occurrence и
+  связывает attendance с `LessonOccurrenceId`; concurrent materialization
+  защищается unique constraints/idempotent upsert.
+- Existing attendance rows связываются автоматически только при однозначном
+  соответствии. Неоднозначные строки не привязываются молча и попадают в
+  migration report для ручного решения.
+- Bot продолжает работать через backend attendance endpoint, передавая
+  `LessonOccurrenceId`; recurrence и calendar lifecycle в bot не дублируются.
+- Статусы TASK-075, TASK-112, TASK-117 и TASK-118 сейчас не меняются. Их
+  актуализация выполняется после реализации TASK-119 по фактическому
+  интегрированному результату.
+
+## Scope
+- Спроектировать backend-owned календарную модель:
+  - recurring schedule rules for group lessons;
+  - concrete lesson occurrences for dated lessons and exceptions;
+  - stable `LessonOccurrenceId` for attendance, history and audit.
+- Поддержать у recurring series обязательную дату начала и необязательную дату
+  окончания; отсутствие даты окончания означает бессрочную серию.
+- Реализовать rule projection + fact materialization policy без бесконечной
+  предварительной генерации и без write-side effects у calendar read.
+- Поддержать несколько schedule slots и occurrences одной группы в один день.
+- Определить lifecycle states конкретного занятия, минимум кандидаты:
+  `Scheduled`, `Held`, `NotHeld`, `Cancelled`.
+- Связать attendance с конкретным occurrence, а не только с
+  `GroupId + TrainingDate`.
+- Поддержать календарную навигацию:
+  - today;
+  - конкретная дата;
+  - день;
+  - неделя;
+  - переход между неделями.
+- Поддержать операции:
+  - создать разовое занятие;
+  - изменить одно занятие;
+  - изменить серию;
+  - перенести занятие;
+  - отменить занятие;
+  - отметить `не проводилось`;
+  - восстановить занятие;
+  - открыть attendance конкретного occurrence.
+- Показывать неблокирующие предупреждения о конфликтах тренера, зала и времени.
+- Определить migration/backfill policy для существующего расписания и
+  существующих attendance rows.
+- После реализации актуализировать TASK-075, TASK-117, TASK-118 и TASK-112 по
+  фактическому интегрированному результату, не меняя их статусы заранее.
+- Подготовить дальнейшую декомпозицию на backend contract/persistence,
+  frontend calendar UX, attendance migration, bot consumers и regression tests.
+
+## Out of scope
+- Drag-and-drop календарь.
+- Интеграция с Google/Outlook Calendar.
+- Уведомления о переносах и отменах.
+- Hard-block и автоматический conflict-resolution по залам, тренерам и
+  capacity; в текущем scope конфликты дают только предупреждение.
+- Billing/write-off policy для отменённых занятий, если не будет отдельно
+  утверждена.
+- Сложные recurrence rules beyond weekly group schedule: праздники, месячные
+  правила, произвольные RRULE.
+
+## Constraints
+- Backend владеет календарной семантикой, permissions, validation,
+  ProblemDetails, audit и migration policy.
+- Frontend не восстанавливает lifecycle занятия из attendance rows.
+- Время занятия хранится как local wall-clock time без timezone conversion,
+  пока не утверждена отдельная timezone-модель.
+- Старые attendance rows нельзя silently привязать к неверному occurrence при
+  неоднозначности backfill.
+- `StartsOn`/`EndsOn` являются local calendar dates; `EndsOn` включительна,
+  обязана быть не раньше `StartsOn`, а `null` не ограничивает серию.
+- Нельзя материализовывать бессрочную серию на неограниченный горизонт или
+  требовать background job только ради чтения календаря.
+- Детерминированный recurring occurrence ID включает versioned schedule slot и
+  дату, чтобы несколько занятий группы в один день не конфликтовали и ID
+  совпадал до и после материализации.
+- Rule versions не изменяются задним числом после появления фактических
+  occurrences; изменения будущей части создают новую version.
+- UI должен быть mobile-first и соответствовать `.agents/skills/crm-mobile-first-ui/SKILL.md`.
+- До implementation plan новый календарный workflow проходит обязательную
+  последовательность `ux-researcher -> ui-designer`; React-реализация не
+  проектирует lifecycle или permissions самостоятельно.
+- Изменение backend contract требует синхронного обновления web и bot
+  consumers.
+
+## Acceptance criteria
+- [ ] Recurring series сохраняет `StartsOn` и nullable inclusive `EndsOn`;
+  бессрочная серия корректно отображается в любом разрешённом диапазоне без
+  бесконечной предварительной генерации.
+- [ ] Rule versions и schedule slots поддерживают разные времена по weekday и
+  несколько занятий группы в один день.
+- [ ] Calendar API возвращает стабильный `LessonOccurrenceId` для projected и
+  materialized occurrences, а materialization сохраняет тот же ID.
+- [ ] Разовое занятие создаётся без recurring series и участвует в том же
+  lifecycle, calendar query и attendance flow.
+- [ ] `только это`, `это и будущие` и `вся серия` имеют backend-owned semantics
+  и не переписывают attendance history.
+- [ ] `Scheduled`, `Held`, `NotHeld`, `Cancelled` и restore-переходы
+  валидируются и аудитируются; первая attendance-запись атомарно устанавливает
+  `Held`.
+- [ ] `Cancelled`/`NotHeld` при существующих `Present`/`Absent` возвращает
+  conflict без автоматического удаления данных и допускает только явное
+  аудируемое разрешение.
+- [ ] Администратор и главный тренер имеют полный calendar mutation scope в
+  пределах существующего access scope, суперадминистратор сохраняет полный
+  доступ, а тренер для своих занятий ограничен attendance и явным `Held` без
+  участников.
+- [ ] Конфликты тренера, зала и времени видимы как предупреждения, но не
+  блокируют подтверждённое сохранение; warning codes вычисляет backend.
+- [ ] Однозначный migration/backfill связывает legacy attendance автоматически,
+  а неоднозначности формируют проверяемый migration report.
+- [ ] Mobile day/week UX выполняет зафиксированный primary path и responsive
+  criteria, а bot использует occurrence-aware backend endpoint.
+- [ ] После интеграции выполнен status audit TASK-075/TASK-112/TASK-117/TASK-118
+  без преждевременного изменения их текущих статусов.
+- [ ] До реализации umbrella scope декомпозирован на implementation-ready
+  backend, migration, frontend, bot и regression-test задачи с явными
+  зависимостями.
+
+## Test checklist
+- [ ] Для будущей реализации предусмотреть backend domain tests на recurrence,
+  optional end date, rule version splitting, deterministic occurrence identity,
+  occurrence materialization и state transitions.
+- [ ] Для будущей реализации предусмотреть integration tests на migration,
+  concurrent idempotent materialization, attendance binding, audit, permissions
+  и ProblemDetails.
+- [ ] Для будущей реализации предусмотреть frontend tests на mobile primary
+  path, date/week navigation, empty/error states и action availability.
+- [ ] Для будущей реализации предусмотреть bot/consumer contract tests, если bot
+  открывает или создаёт attendance.
+- [ ] Для будущей реализации проверить `390 x 844`, `420 x 912`, `440 x 956`,
+  `912 x 420`, `956 x 440`, tablet и desktop без горизонтального overflow.
+
+## AI safety
+- Safe for Codex: no
+- Risk level: high
+- Reason: задача меняет доменную модель расписания, persistence, migration,
+  attendance identity, audit, permissions и несколько frontend/bot workflows.
+
+## Clarification questions
+Не требуется. Решения закрыты 2026-08-20 и зафиксированы в разделе
+`Product and architecture decisions`.
+
+## Source notes
+- Source file: conversation on 2026-08-20.
+- Original note: пользователь подтвердил, что нравится идея полноценного
+  календаря, и попросил сформировать новую продуктовую задачу на его реализацию.
+
+## Processing notes
+- Created at: 2026-08-20 00:15 MSK
+- Created by skill: codex-backlog-skill + crm-mobile-first-ui
+- UX analysis: `ux-researcher` зафиксировал mobile day-first primary path,
+  action classification, failure recovery и измеримые device constraints;
+  implementation-ready UI specification намеренно отложена до закрытия
+  продуктовых вопросов.
+- Duplicate check: активного полного дубликата нет; TASK-075/TASK-117/TASK-118
+  решают отдельные фрагменты lifecycle/schedule/attendance snapshot, TASK-112
+  остаётся day mode для weekly-template baseline.
+- Clarified at: 2026-08-20 00:31 MSK — подтверждены multiple occurrences per
+  day, standalone one-off lessons, три series-edit scope, role boundaries,
+  non-destructive attendance conflicts, automatic `Held`, warning-only
+  schedule conflicts, occurrence-aware bot и ambiguity-safe backfill.
+- Architecture decision: bounded deterministic rule projection plus on-fact
+  materialization; recurring series uses inclusive `StartsOn` and nullable
+  inclusive `EndsOn`, where `null` means indefinite. No unbounded pre-generation
+  or mandatory background materializer.
+- Related-task decision: TASK-075/TASK-112/TASK-117/TASK-118 remain unchanged
+  until post-implementation status audit of TASK-119.
+- Moved to risky at: 2026-08-20 00:31 MSK after all blocking product and
+  architecture questions were resolved; classification remains high risk due
+  to schedule, attendance identity, persistence, migration and permissions.

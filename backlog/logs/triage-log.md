@@ -2182,3 +2182,65 @@
 - validation: task structure, unique TASK-ID, duplicate boundaries,
   source traceability, status/directory consistency and related-task links;
   no product tests required because project code did not change
+
+# 2026-08-20 00:31 TASK-119 clarification completion
+
+## Scope
+
+- Final product and architecture clarification for TASK-119; no inbox
+  processing, project-code changes, branch switch or worktree creation.
+- Baseline: integrated `main` at `a969c46`, equal to `origin/main`.
+- Evidence: current `TrainingGroup` stores one `TrainingStartTime` plus weekday
+  array, attendance identity is `ClientId + GroupId + TrainingDate`, and the
+  repository has no occurrence entity or background schedule materializer.
+
+## Resolved decisions
+
+- A group may have multiple lessons per day; one-off lessons may exist without
+  a recurring series; series edits support one occurrence, this-and-future and
+  whole-series scopes.
+- Administrator and HeadCoach receive full calendar mutation scope within
+  existing access boundaries; SuperAdministrator retains full access. Coach is
+  limited to attendance and explicit `Held` confirmation for own lessons.
+- Existing attendance is never deleted automatically for `Cancelled` or
+  `NotHeld`; conflicts require explicit audited resolution. `Held` is created
+  automatically on the first saved attendance operation and can be confirmed
+  explicitly for a lesson without participants.
+- Schedule conflicts are backend-owned preview warnings rather than hard
+  blocks; a confirmed mutation may proceed.
+- Recurring series uses inclusive `StartsOn` and nullable inclusive `EndsOn`;
+  `null` means indefinite.
+- Architecture uses bounded deterministic projection from immutable rule
+  versions and fact-driven occurrence materialization. A recurring occurrence
+  has a stable deterministic ID before and after materialization, so calendar
+  reads need neither unbounded pre-generation nor mandatory background writes.
+- Legacy attendance is linked automatically only when unambiguous; ambiguity
+  is reported for manual resolution. Bot remains a backend attendance API
+  consumer and sends `LessonOccurrenceId`.
+- TASK-075, TASK-112, TASK-117 and TASK-118 remain unchanged until a
+  post-implementation status audit of TASK-119.
+
+## Status changes
+
+- `/backlog/needs-clarification/TASK-119-full-lesson-calendar.md` ->
+  `/backlog/risky/TASK-119-full-lesson-calendar.md`.
+- Classification is `risky` because implementation changes schedule and
+  attendance identity, persistence, migration, permissions, audit and all
+  frontend/bot consumers.
+
+## Updated existing tasks
+
+- `/backlog/risky/TASK-119-full-lesson-calendar.md`
+
+## Summary
+
+- tasks-ready: 8
+- risky: 14
+- needs-clarification: 7
+- implementation: 6
+- updated existing: 1
+- processed files: 0
+- validation: decision traceability, architecture fit against the integrated
+  backend baseline, task structure, risk classification, related-task policy,
+  status/directory consistency and Markdown whitespace; no product tests
+  required because project code did not change
