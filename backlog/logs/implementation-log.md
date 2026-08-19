@@ -1559,3 +1559,30 @@
   barriers. Unit, backend integration, component/App integration and
   Playwright tests must be written and observed red before production code.
   Project code was not changed.
+
+# 2026-08-20 00:42
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-119-full-lesson-calendar.plan.md
+
+## Skipped tasks
+- /backlog/risky/TASK-119-full-lesson-calendar.md — карточка не перемещена:
+  high-risk umbrella меняет schedule domain, occurrence identity, attendance,
+  migration, audit, permissions, web и bot; подробный test-first plan создан,
+  но active execution требует review и отдельных child tasks/branches.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: UX/UI handoff закрепил day-first mobile calendar, visible row-level
+  `Посещаемость`, preview/confirm warnings, occurrence-aware attendance route и
+  target-device acceptance. План декомпозирует execution на шесть
+  последовательно интегрируемых slices: calendar core, mutations/lifecycle,
+  attendance migration, web, bot и release regression. Каждый slice требует
+  отдельную branch/worktree, unit и integration tests до production code,
+  expected-red evidence и automated regression barrier. TASK-119 остаётся в
+  `/backlog/risky`; project code не изменялся.
