@@ -2454,3 +2454,58 @@
 - created tasks: 0
 - updated existing: 1 task and 1 implementation plan
 - processed files: 1
+
+# 2026-08-21 12:48 clarification update
+
+## Baseline and scope
+
+- Integrated baseline: `origin/main` = local `main` =
+  `48a57d79ccd5fe7c376f269902c86bd2331ac828` in the primary coordination
+  workspace.
+- Scope: direct product clarification of TASK-115; no inbox processing,
+  project-code change, task branch or worktree was required.
+
+## Updated existing tasks
+
+- `/backlog/risky/TASK-115-membership-target-and-overlap-model.md`
+- `/backlog/implementation-plans/TASK-115-membership-target-and-overlap-model.plan.md`
+  (source link and superseded warning only; the one-group plan remains
+  non-executable)
+
+## Status changes
+
+- `/backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md`
+  -> `/backlog/risky/TASK-115-membership-target-and-overlap-model.md`.
+
+## Confirmed decisions
+
+- `Term` and `Professional` use an ordered set of 1–2 same-branch target
+  groups; `SingleVisit` uses exactly one; `Professional` retains global
+  all-branch coverage.
+- Existing overlap rules apply per covered group: overlapping memberships with
+  intersecting target sets conflict, disjoint ordinary sets may coexist, and
+  `Professional` remains globally exclusive.
+- Renewal inherits an editable set; transfer replaces the source group in the
+  set; immutable snapshots preserve history; the first group owns financial
+  attribution without duplicating canonical totals.
+- Active and future links block group archive.
+- Ambiguous legacy memberships keep an empty, non-eligible target set while
+  all existing client-group assignments remain unchanged.
+
+## Consistency and validation
+
+- TASK-115 contains no open clarification questions and its `risky` status
+  matches its lifecycle directory.
+- The old plan source link resolves to the moved task and the plan remains
+  explicitly superseded until a new multi-group plan is prepared.
+- Project tests were not run because only backlog Markdown changed.
+
+## Summary
+
+- tasks-ready: 8
+- risky: 14
+- needs-clarification: 7
+- implementation: 6
+- created tasks: 0
+- updated existing: 1 task and 1 plan metadata block
+- processed inbox files: 0
