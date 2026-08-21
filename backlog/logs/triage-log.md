@@ -2509,3 +2509,59 @@
 - created tasks: 0
 - updated existing: 1 task and 1 plan metadata block
 - processed inbox files: 0
+
+# 2026-08-21 16:38 TASK-115 clarification update
+
+## Baseline and scope
+
+- Local coordination baseline: `main` at `3458a1f`; `origin/main` at
+  `48a57d7`. Existing uncommitted TASK-115 planning changes were preserved.
+- Direct product clarification only; no inbox processing, project-code change,
+  branch switch or worktree creation.
+
+## Status audit
+
+- TASK-115 remains correctly classified as `risky`: increasing target
+  cardinality does not remove membership, attendance, persistence, concurrency
+  or financial-report risk.
+- No task status changes. Active counts remain: `tasks-ready` 8, `risky` 14,
+  `needs-clarification` 7, `implementation` 6.
+
+## Updated existing tasks
+
+- `/backlog/risky/TASK-115-membership-target-and-overlap-model.md`
+- `/backlog/implementation-plans/TASK-115-membership-target-and-overlap-model.plan.md`
+
+## Confirmed decisions
+
+- `Term` and `Professional` now accept 1–5 ordered target groups of one branch;
+  the earlier 1–2 limit is superseded. `SingleVisit` remains exactly one group.
+- Existing price, overlap, global Professional coverage, reporting Position 0,
+  transfer, archive and immutable snapshot rules do not change.
+- Legacy backfill accepts 1–5 same-branch groups and leaves 0, >5 or
+  cross-branch cases empty/ineligible.
+- Persistence positions expand to `0..4`; test strategy adds five-group order
+  preservation and atomic sixth-group rejection.
+- UI plan replaces fixed primary/secondary selectors with an accessible
+  add/reorder/remove list for up to five groups, including keyboard, touch,
+  focus and target-device acceptance.
+
+## Skipped duplicates
+
+- No new task created: this clarification changes cardinality already owned by
+  TASK-115.
+
+## Consistency and validation
+
+- Task status matches `/backlog/risky`; plan points to the same source task and
+  retains its dedicated branch plus `Ready for Codex execution: no` gate.
+- Historical 1–2 clarification remains in source notes marked superseded;
+  authoritative requirements, acceptance criteria and executable plan use 1–5.
+- Project tests were not run because only backlog Markdown changed.
+
+## Summary
+
+- created tasks: 0
+- updated existing: 1 task and 1 implementation plan
+- processed inbox files: 0
+- status changes: 0

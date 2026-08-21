@@ -1586,3 +1586,33 @@
   отдельную branch/worktree, unit и integration tests до production code,
   expected-red evidence и automated regression barrier. TASK-119 остаётся в
   `/backlog/risky`; project code не изменялся.
+
+# 2026-08-21 12:59
+
+## Moved to implementation
+- none
+
+## Created implementation plans
+- /backlog/implementation-plans/TASK-115-membership-target-and-overlap-model.plan.md
+
+## Skipped tasks
+- /backlog/risky/TASK-115-membership-target-and-overlap-model.md — карточка не
+  перемещена: high-risk membership/attendance/persistence/finance contract
+  имеет `Safe for Codex: no`. Superseded one-group plan полностью заменён
+  detailed test-first multi-group plan для mandatory human review перед active
+  execution в branch
+  `feature/TASK-115-membership-target-and-overlap-model`.
+
+## Summary
+- moved: 0
+- skipped: 1
+- plans created: 1
+- note: plan фиксирует normalized ordered targets на technical versions,
+  immutable sale/refund/attendance snapshots, set-intersection overlap и
+  Professional global exclusion, one backend entitlement resolver, no-sale
+  target transfer, archive guard, deterministic legacy transition, atomic
+  refund/report semantics и synchronized backend/frontend/bot rollout. UX/UI
+  handoff определяет mobile purchase/renew/correction/transfer, cards/history,
+  recovery states и target-iPhone acceptance. Unit, raw API, PostgreSQL,
+  frontend/Playwright и bot tests должны быть написаны и observed red до
+  production code. Project code не изменялся.
