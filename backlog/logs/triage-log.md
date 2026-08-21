@@ -2238,6 +2238,7 @@
 - risky: 14
 - needs-clarification: 7
 - implementation: 6
+
 - updated existing: 1
 - processed files: 0
 - validation: decision traceability, architecture fit against the integrated
@@ -2342,3 +2343,114 @@
 - validation: source/plan decision consistency, fixed UUID vectors, UI contract
   review and Markdown checks; no project tests required because project code did
   not change
+
+# 2026-08-21 12:05 status audit
+
+## Baseline and scope
+
+- Integrated baseline: `origin/main` = local `main` =
+  `283b81c310c8b8a5d648cf93ac64078239da4f51` in the primary coordination
+  workspace.
+- Scope: all task cards in `/backlog/tasks-ready`, `/backlog/risky`,
+  `/backlog/needs-clarification` and `/backlog/implementation`, their active
+  plans and supporting artifacts, Git history/branches/worktrees, source-task
+  links and unresolved clarification questions.
+- Audit ran before reading or moving any file from `/backlog/inbox`; no branch
+  switch, task branch or worktree was created.
+
+## Evidence
+
+- `main` is clean and exactly matches `origin/main`; `origin/main` is an
+  ancestor of `HEAD`.
+- The primary coordination workspace is the only registered worktree. No
+  active TASK-103--TASK-119 implementation worktree is registered.
+- Git history after the prior integrated active-task baseline contains only
+  TASK-119 clarification/plan documentation and the new inbox note; it contains
+  no project-code commit or validation evidence completing another active task.
+- All six cards in `/backlog/implementation` still have unchecked acceptance
+  criteria and test checklists, with no integrated completion evidence.
+- All seven cards in `/backlog/needs-clarification` still contain unresolved
+  mandatory product or architecture questions.
+
+## Status changes
+
+- none; no active task or implementation plan has sufficient integrated
+  evidence for moving to `/backlog/done`.
+
+## Unchanged active tasks
+
+- `/backlog/tasks-ready`: 8.
+- `/backlog/risky`: 14.
+- `/backlog/needs-clarification`: 7.
+- `/backlog/implementation`: 6.
+- Active implementation plans: 14 `.plan.md` files; the additional
+  `TASK-111-role-screen-access-matrix.md` is a supporting current-state artifact,
+  not a second task card or implementation plan.
+
+## Consistency checks
+
+- All 35 active task IDs are unique across lifecycle task folders.
+- Every active card's `## Status` matches its directory.
+- Every active `.plan.md` source link resolves to the matching active task;
+  plans for risky cards explicitly keep those cards out of implementation.
+- Required clarification questions are not hidden in `tasks-ready`, `risky` or
+  `implementation`; TASK-119 decisions and plan remain aligned with the latest
+  recorded product choices.
+
+## Validation
+
+- Passed: baseline/worktree checks, active-ID uniqueness, status/directory
+  consistency, source-task/plan linkage, unresolved-question review and
+  `git diff --check` for the pre-audit baseline.
+- Project tests were not run because this audit changed no project code.
+
+## Summary
+
+- moved to done: 0 tasks
+- moved plans to done: 0
+- unchanged active tasks: 35
+- tasks-ready: 8
+- risky: 14
+- needs-clarification: 7
+- implementation: 6
+
+# 2026-08-21 12:09
+
+## Processed inbox files
+
+- `2026-08-21.md`
+
+## Created tasks
+
+- none
+
+## Updated existing tasks
+
+- `/backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md`
+- `/backlog/implementation-plans/TASK-115-membership-target-and-overlap-model.plan.md`
+  (marked superseded and non-executable)
+
+## Status changes
+
+- `/backlog/risky/TASK-115-membership-target-and-overlap-model.md` ->
+  `/backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md`.
+
+## Skipped duplicates
+
+- The note `абонемент может быть привязан к нескольким группам` updates the
+  target cardinality already owned by TASK-115. No second membership-target
+  task was created.
+- The note supersedes the previous one-group decision rather than confirming
+  it. TASK-115 now contains explicit questions for type-specific coverage,
+  branch scope, overlap, attendance/SingleVisit, lifecycle, financial
+  attribution, archive and legacy transition semantics.
+
+## Summary
+
+- tasks-ready: 8
+- risky: 13
+- needs-clarification: 8
+- implementation: 6
+- created tasks: 0
+- updated existing: 1 task and 1 implementation plan
+- processed files: 1

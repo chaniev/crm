@@ -1,12 +1,17 @@
 # Implementation Plan: TASK-115 Адресность и одновременное действие абонементов
 
 ## Source task
-/backlog/risky/TASK-115-membership-target-and-overlap-model.md
+/backlog/needs-clarification/TASK-115-membership-target-and-overlap-model.md
 
-TASK-115 остаётся в /backlog/risky до отдельного human review. План
-декомпозирует breaking full-stack изменение и задаёт test-first барьеры, но не
-разрешает менять код проекта или выполнять data transition из primary
-repository.
+> **Superseded 2026-08-21 — do not execute.** Новая inbox-заметка меняет
+> cardinality с одной группы на несколько групп одного абонемента. TASK-115
+> возвращена в `/backlog/needs-clarification`. Этот документ сохраняется для
+> traceability прежней one-group модели и должен быть заменён после закрытия
+> multi-group clarification questions.
+
+TASK-115 не готова к human implementation review или изменению
+code/schema/runtime. Ни один контракт, этап, файл или acceptance barrier ниже
+не является актуальным execution instruction до публикации нового плана.
 
 ## Implementation branch
 feature/TASK-115-membership-target-and-overlap-model
