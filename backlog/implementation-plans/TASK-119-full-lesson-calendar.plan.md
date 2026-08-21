@@ -4,45 +4,35 @@
 /backlog/risky/TASK-119-full-lesson-calendar.md
 
 TASK-119 остаётся в `/backlog/risky`. Продуктовые вопросы закрыты, поэтому
-детальное planning и test-first декомпозиция допустимы, но umbrella scope имеет
-`Safe for Codex: no` и не переводится в активную implementation этим запуском.
-Код проекта, schema и runtime этим планом не меняются.
+детальное planning и test-first реализация допустимы в рамках одной задачи.
+High-risk classification сохраняется из-за ширины изменения, но сама по себе не
+требует отдельных backlog-карточек, веток или worktree. Код проекта, schema и
+runtime этим изменением плана не меняются.
 
-## Implementation branches
+## Implementation branch
 
-TASK-119 нельзя безопасно реализовывать одной общей веткой. До кода координатор
-должен создать отдельные backlog-карточки для следующих execution slices и
-назначить каждой отдельную branch/worktree:
+`feature/TASK-119-full-lesson-calendar`
 
-| Slice | Предлагаемая branch | Зависимость |
-|---|---|---|
-| A. Calendar core и bounded projection | `feature/TASK-119-calendar-core` | текущий `origin/main` |
-| B. Calendar mutations, cancellation и warnings | `feature/TASK-119-calendar-mutations` | reviewed green head A |
-| C. Occurrence-aware attendance и data transition | `feature/TASK-119-attendance-migration` | reviewed green head B, включающий A |
-| D. Web calendar и attendance UX | `feature/TASK-119-web-calendar` | reviewed green head C, включающий A–C |
-| E. Bot occurrence consumer | `feature/TASK-119-bot-occurrence-attendance` | тот же reviewed green head C; может идти параллельно D |
-| F. Coordinated activation, cleanup и release regression | `feature/TASK-119-calendar-release-regression` | base C и integration reviewed green heads D/E |
-
-Branch rules для каждого slice:
+Branch/worktree rules для всей TASK-119:
 - перед первым изменением project code прочитать и выполнить
   `.agents/skills/task-worktree/SKILL.md`;
-- A создать непосредственно от актуального `origin/main`; B–F используют только
-  явно объявленные выше reviewed predecessor heads. Это утверждённое
-  пользователем исключение для зависимых unmerged task branches действует
-  только внутри TASK-119 и не разрешает другие скрытые зависимости;
+- создать одну task branch непосредственно от актуального `origin/main` и один
+  registered task worktree; этапы A–F не получают собственных backlog-карточек,
+  веток или worktree;
 - primary repository оставить на `main`, а код менять только в отдельном
   registered task worktree;
 - до правки проверить git root, active branch, clean status, worktree list и
   `git merge-base --is-ancestor origin/main HEAD`;
-- predecessor commit SHA должен быть зафиксирован в child task до создания
-  dependent branch; нельзя продолжать от изменённого или непроверенного head;
-- D и E создаются от одного SHA Slice C. Slice F создаётся от того же C head,
-  интегрирует reviewed heads D и E, разрешает конфликты и повторяет полный
-  cross-layer regression;
-- individual slices A–E не вливаются в `main`. После green Slice F полный
-  интегрированный результат A–F вливается в `main` одной release integration;
-- не использовать umbrella branch `feature/TASK-119-full-lesson-calendar` для
-  смешанного full-stack изменения;
+- A–F являются последовательными implementation phases одной задачи. После
+  каждой фазы координатор фиксирует focused red/green evidence и checkpoint
+  commit; следующая фаза не начинается, пока предыдущая не reviewed и не green;
+- после green C web-фаза D и bot-фаза E могут выполняться параллельно внутри
+  того же task worktree только с явным разделением владения файлами и Git-
+  операциями координатора; при невозможности безопасного параллелизма они
+  выполняются последовательно в той же ветке;
+- фаза F не интегрирует дочерние ветки: она проверяет уже собранный в task branch
+  результат, выполняет cleanup и полный cross-layer regression;
+- task branch вливается в `main` один раз только после green A–F;
 - не копировать код из unmerged TASK-103/TASK-112/TASK-117/TASK-118 branches.
 
 Planning baseline `2026-08-20 00:42 MSK`:
@@ -50,13 +40,12 @@ Planning baseline `2026-08-20 00:42 MSK`:
   `803f25ecf056023c9507721e0daff67e1eb3d627`;
 - local `origin/main`: `803f25ecf056023c9507721e0daff67e1eb3d627`;
 - local `main` совпадает с `origin/main` и содержит clarified TASK-119;
-- TASK-119 branch/worktree и implementation plan до этого запуска отсутствовали.
+- TASK-119 branch/worktree до planning baseline отсутствовали.
 
-Executor обязан выполнить `git fetch origin` и повторить preflight. Slice A
+Executor обязан выполнить `git fetch origin` и повторить preflight. Фазу A
 нельзя начинать, пока source task и этот план не находятся в фактическом
-`origin/main`. Slices B–F нельзя начинать, пока declared predecessor head не
-reviewed, не green и не зафиксирован точным commit SHA в соответствующей child
-task.
+`origin/main`. Фазы B–F нельзя начинать, пока предыдущий phase checkpoint не
+reviewed, не green и не зафиксирован commit в той же task branch.
 
 ## Goal
 
@@ -89,7 +78,7 @@ backend-owned. Отдельный факт/статус проведения т�
   single-row variant с Calendar tools surface.
 - User review `2026-08-20 01:42 MSK` подтвердил lifecycle только
   `Scheduled | Cancelled`, hard-block overlap/exact duplicate одной группы и
-  merge в `main` после готовности реализации всех slices плана.
+  merge в `main` после готовности реализации всех фаз плана.
 - User review `2026-08-20 01:56 MSK` принял варианты A для occurrence-date
   Coach access, future read-only attendance, `EntireSeries` от business today,
   immutable factual occurrences, deterministic UUID/revision/one-time preview
@@ -130,7 +119,7 @@ backend-owned. Отдельный факт/статус проведения т�
   redesign TASK-103 не копируется в TASK-119.
 - Backend migration rule обычно предпочитает recreated initial state. Однако
   source TASK явно требует compatibility/backfill существующих attendance rows
-  и migration report, поэтому Slice C должен подготовить проверяемый forward
+  и migration report, поэтому фаза C должна подготовить проверяемый forward
   data transition, а также обновить reproducible initial state и model snapshot.
 
 ## Target domain contract
@@ -463,7 +452,7 @@ multiple slots/day, existing exceptions и attendance facts.
 
 ## Data transition and compatibility
 
-Slice C подготавливает многошаговую проверяемую transition из текущей модели:
+Фаза C подготавливает многошаговую проверяемую transition из текущей модели:
 
 1. Additive schema:
    - создать series/version/slot/occurrence tables и nullable
@@ -506,7 +495,7 @@ Slice C подготавливает многошаговую проверяем
      audit и all readers на occurrence join;
    - удалить `Attendance.GroupId/TrainingDate` как command source после
      verified migration; display values читаются из occurrence.
-6. Coordinated activation в Slice F:
+6. Coordinated activation в фазе F:
    - DB transition, backend, frontend и bot входят в один release и не
      разворачиваются в production частично;
    - legacy group/date attendance mutation endpoints и legacy weekly-template
@@ -723,9 +712,13 @@ context. Если TASK-103 merged, detail включается в его section
 - Long group/trainer/hall names, Russian text, 200% zoom и content wrapping не
   создают clipped actions.
 
-## Safe decomposition
+## Phased execution inside TASK-119
 
-### Slice A — calendar core and projection
+Этапы ниже являются внутренней декомпозицией одной implementation task. Они не
+создают отдельные backlog tasks, branches, worktrees или промежуточные merge в
+`main`.
+
+### Phase A — calendar core and projection
 
 Deliverables:
 - domain entities, pure recurrence/range/UUIDv5 policies;
@@ -735,9 +728,9 @@ Deliverables:
 - domain, API, SQLite/InMemory compatibility and PostgreSQL constraint/read
   tests written red first.
 
-Не менять attendance writes, web UI или bot в этой ветке.
+До green checkpoint A не менять attendance writes, web UI или bot.
 
-### Slice B — mutations, cancellation, conflicts and audit
+### Phase B — mutations, cancellation, conflicts and audit
 
 Deliverables:
 - preview/execute application services and explicit endpoints;
@@ -749,9 +742,9 @@ Deliverables:
 - atomic/idempotent materialization for calendar mutations;
 - red-first domain/API/PostgreSQL concurrency tests.
 
-Не мигрировать attendance identity и не менять consumers.
+До green checkpoint B не мигрировать attendance identity и не менять consumers.
 
-### Slice C — attendance identity and data transition
+### Phase C — attendance identity and data transition
 
 Deliverables:
 - nullable-to-required occurrence FK transition, migration report/resolution
@@ -761,9 +754,9 @@ Deliverables:
 - all backend readers/history/attention boundaries updated;
 - clean/current-schema/PostgreSQL concurrency tests red first.
 
-Не менять frontend/bot production code в этой ветке.
+До green checkpoint C не менять frontend/bot production code.
 
-### Slice D — web calendar and attendance
+### Phase D — web calendar and attendance
 
 Deliverables:
 - typed API mappers and URL state;
@@ -776,7 +769,7 @@ React implementation использует `react-specialist` и
 `.agents/skills/react-best-practices/SKILL.md`; technical conflicts возвращаются
 `ui-designer`, workflow не упрощается локально.
 
-### Slice E — bot occurrence consumer
+### Phase E — bot occurrence consumer
 
 Deliverables:
 - Pydantic models/client methods для lessons/occurrence id;
@@ -785,7 +778,7 @@ Deliverables:
 - no recurrence/cancellation/permission rules in Python;
 - API client/service/callback regressions red first, затем `ruff`/`pytest`.
 
-### Slice F — release regression and cleanup
+### Phase F — release regression and cleanup
 
 Deliverables:
 - cross-layer capability/activation gate and coordinated stack smoke;
@@ -801,25 +794,27 @@ Status files related TASKs не меняются до green integrated result.
 
 ## Execution roles
 
-For each child task:
-1. Coordinating agent owns branch/worktree, dependencies, merge order, isolated
-   Compose project, integrated verification and cleanup.
+For the single TASK-119 execution:
+1. Coordinating agent owns the single branch/worktree, phase order, checkpoint
+   commits, isolated Compose project, integrated verification, sole merge and
+   cleanup.
 2. `test-automator` writes automated regression coverage before production
-   code and records expected red evidence.
-3. Backend slices use `dotnet-backend-specialist`; substantial xUnit work reads
+   code in each phase and records expected red evidence.
+3. Backend phases use `dotnet-backend-specialist`; substantial xUnit work reads
    `.agents/skills/csharp-xunit/SKILL.md`.
-4. Web slice uses the completed `ux-researcher -> ui-designer` handoff, then
+4. Web phase uses the completed `ux-researcher -> ui-designer` handoff, then
    `react-specialist`; `test-automator` covers primary mobile workflow.
-5. Bot slice uses `python-pro` and keeps Python as thin adapter.
+5. Bot phase uses `python-pro` and keeps Python as thin adapter.
 6. `docker-expert` is involved only for actual runtime/container failure or
    required image/Compose change, not for ordinary feature design.
 
-Specialists не создают/remove worktrees, не меняют чужие slices и не копируют
-unmerged branches без explicit assignment.
+Specialists не создают/remove branches или worktrees, не выполняют merge и не
+копируют unmerged branches без explicit assignment. При параллельной работе D/E
+координатор назначает непересекающееся владение frontend и bot файлами.
 
 ## Test-first execution order
 
-Каждый slice обязан повторить полный red-green цикл:
+Каждая фаза обязана повторить полный red-green цикл:
 
 1. Выполнить workspace/dependency preflight и baseline focused tests.
 2. Написать/обновить unit tests требуемого поведения до functional code.
@@ -829,12 +824,12 @@ unmerged branches без explicit assignment.
 5. Запустить новые tests и зафиксировать expected failure именно из-за
    отсутствующей функциональности; compile/setup failure не считается
    достаточным red evidence.
-6. Реализовать минимальный slice contract.
+6. Реализовать минимальный phase contract.
 7. Запустить те же focused tests green.
 8. Запустить relevant full regression suite и runtime check.
-9. Зафиксировать reviewed green commit SHA и передать его dependent slice без
-   merge в `main`. После Slice F выполнить полный integrated regression и только
-   затем влить единый результат A–F в `main`.
+9. Зафиксировать reviewed green checkpoint commit в той же task branch. После
+   Phase F выполнить полный integrated regression и только затем один раз влить
+   единый результат A–F в `main`.
 
 Нельзя сначала написать entities/endpoints/UI, а tests добавить в финальной
 validation phase.
@@ -844,10 +839,10 @@ validation phase.
 1. Contract-first additive core, затем mutations, затем attendance transition.
 2. Один canonical backend occurrence model; frontend и bot только consumers.
 3. Side-effect-free read и materialization only on facts/exceptions/mutations.
-4. Slices A–E остаются в отдельных dependency branches и не попадают в `main`
-   по отдельности. Slice F интегрирует DB, backend, frontend и bot, после чего
-   один green result вливается в `main`; dual write запрещён.
-5. Small verifiable commits внутри каждой branch: red tests -> minimal code ->
+4. Phases A–F последовательно накапливаются в одной task branch и не попадают в
+   `main` частями. Phase F проверяет согласованность DB, backend, frontend и bot,
+   после чего один green result вливается в `main`; dual write запрещён.
+5. Small verifiable commits внутри task branch: red tests -> minimal code ->
    green -> regression evidence.
 6. Backend/frontend/bot activation coordinated. После появления multiple
    same-day occurrences downgrade к old group/date writes небезопасен; rollback
@@ -923,9 +918,10 @@ validation phase.
 ### Runtime/backlog
 - deploy files only if schema migration/health activation genuinely requires a
   runtime change; otherwise validate existing Compose path without editing it
-- related backlog task files only in final Slice F status audit.
+- related backlog task files only in final Phase F status audit.
 
-Exact files are confirmed with `rg` inside each child worktree before editing.
+Exact files are confirmed with `rg` inside the single TASK-119 worktree before
+editing.
 
 ## Constraints
 
@@ -1067,8 +1063,8 @@ Manual QA не заменяет automated barriers.
 
 ## Test plan
 
-- [ ] Для каждого slice unit и integration tests написаны до production code.
-- [ ] Для каждого slice зафиксирован expected red по отсутствующей функции.
+- [ ] Для каждой фазы unit и integration tests написаны до production code.
+- [ ] Для каждой фазы зафиксирован expected red по отсутствующей функции.
 - [ ] Focused tests green на той же assertion set после implementation.
 - [ ] `dotnet test backend/GymCrm.slnx` проходит.
 - [ ] PostgreSQL migration/concurrency suites проходят в isolated runtime.
@@ -1081,7 +1077,8 @@ Manual QA не заменяет automated barriers.
 - [ ] `cd bot && pytest` проходит.
 - [ ] Isolated Compose smoke подтверждает schema, health, real API web/bot
   contracts и report-zero activation gate.
-- [ ] Integrated `main` повторно проходит affected suites после каждого merge.
+- [ ] Task branch проходит полный integrated regression до единственного merge,
+      а обновлённый `main` повторно проходит affected suites после merge.
 - [ ] Simulator/physical-device gaps явно перечислены.
 - [ ] Related-task status audit выполнен только после integrated green result.
 
@@ -1111,9 +1108,9 @@ same focused assertions.
 
 ## Rollout and rollback
 
-- Slices A–E не вливаются в `main` по отдельности. Slice F интегрирует reviewed
-  heads D/E поверх общего predecessor C; после полного green regression единый
-  результат A–F вливается в `main` и только затем готовится production release.
+- Phases A–F выполняются в одной task branch. Промежуточных merge в `main` нет;
+  Phase F проверяет совместный результат, после полного green regression task
+  branch один раз вливается в `main` и только затем готовится production release.
 - До activation собрать совместимый release bundle: DB transition, backend,
   frontend и bot из согласованных commits/artifacts.
 - На pre-production выполнить dry-run current-schema transition, получить и
@@ -1151,7 +1148,7 @@ same focused assertions.
 - Preview warning TOCTOU может разрешить unseen conflict; execute recomputes
   under concurrency boundary and rejects stale acknowledgement.
 - Permanent compatibility fallback может снова сделать group/date source of
-  truth; Slice F removes it.
+  truth; Phase F removes it.
 - Large current `GroupScheduleScreen.tsx`/`AttendanceEndpoints.cs` can grow
   further; new behavior goes to focused feature/services/types, not one large
   file or broad unrelated refactor.
@@ -1159,9 +1156,9 @@ same focused assertions.
 ## Stop conditions
 
 Stop and do not write/continue functional code if:
-- child branch/worktree/base/dependency is ambiguous or contains unexplained
+- TASK-119 branch/worktree/base is ambiguous or contains unexplained
   changes;
-- source task/plan/predecessor merge is absent from current `origin/main`;
+- source task/plan is absent from current `origin/main`;
 - deterministic projected/materialized identity cannot be made provider- and
   culture-independent;
 - calendar read requires write-side materialization or unbounded generation;
@@ -1176,15 +1173,17 @@ Stop and do not write/continue functional code if:
 - technical constraint materially conflicts with approved UX contract;
 - scope expands into timezone, billing cancellation policy, notifications,
   arbitrary recurrence or production-destructive migration without rollback;
-- a required child slice would have to import an unmerged TASK branch.
+- выполнение любой фазы требует импортировать код из другой unmerged TASK
+  branch.
 
 Do not stop merely because backend, frontend, bot and migration all change.
 Это причина последовательной декомпозиции, а не отказа от planning.
 
 ## Ready for Codex execution
 
-no — продуктовые решения закрыты и план implementation-ready на уровне
-архитектуры, UX, tests и dependencies, но TASK-119 остаётся high-risk umbrella.
-Перед кодом нужно создать/review отдельные child backlog tasks A–F, перевести
-первый slice в implementation и выполнять их по одному через отдельные
-branch/worktree с test-first и merge gates.
+yes — продуктовые решения закрыты, а архитектура, UX, migration, test strategy,
+rollout и rollback определены. TASK-119 выполняется только по явному запросу
+пользователя как одна high-risk implementation task в одной branch/worktree.
+Перед кодом отдельные child backlog tasks не создаются: координатор создаёт или
+возобновляет единственный TASK-119 worktree и проходит phases A–F с обязательными
+red/green checkpoint gates и единственным merge в `main` после Phase F.

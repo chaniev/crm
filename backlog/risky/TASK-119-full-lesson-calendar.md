@@ -273,9 +273,10 @@ CRM сейчас показывает повторяющийся шаблон. �
   и route-based mutation forms; bot использует occurrence-aware backend endpoint.
 - [ ] После интеграции выполнен status audit TASK-075/TASK-112/TASK-117/TASK-118
   без преждевременного изменения их текущих статусов.
-- [ ] До реализации umbrella scope декомпозирован на implementation-ready
-  backend, migration, frontend, bot и regression-test задачи с явными
-  зависимостями.
+- [ ] Внутри одной TASK-119 реализация разделена на implementation-ready phases
+  backend core, mutations, migration/attendance, frontend, bot и release
+  regression с явными checkpoint-зависимостями; отдельные backlog tasks,
+  branches и worktrees для этих phases не создаются.
 
 ## Test checklist
 - [ ] Для будущей реализации предусмотреть backend domain tests на recurrence,
@@ -292,10 +293,13 @@ CRM сейчас показывает повторяющийся шаблон. �
   `912 x 420`, `956 x 440`, tablet и desktop без горизонтального overflow.
 
 ## AI safety
-- Safe for Codex: no
+- Safe for Codex: yes, only with explicit user start and mandatory phased gates
 - Risk level: high
 - Reason: задача меняет доменную модель расписания, persistence, migration,
   attendance identity, audit, permissions и несколько frontend/bot workflows.
+- Guardrail: одна task branch/worktree, red/green checkpoint после каждой фазы,
+  report-zero activation gate, coordinated release и один merge после полного
+  integrated regression.
 
 ## Clarification questions
 Не требуется. Решения закрыты 2026-08-20 и зафиксированы в разделе
