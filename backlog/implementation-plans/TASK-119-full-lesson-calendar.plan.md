@@ -1,51 +1,11 @@
 # Implementation Plan: TASK-119 Полноценный календарь занятий
 
-## Source task
-/backlog/risky/TASK-119-full-lesson-calendar.md
-
-TASK-119 остаётся в `/backlog/risky`. Продуктовые вопросы закрыты, поэтому
-детальное planning и test-first реализация допустимы в рамках одной задачи.
-High-risk classification сохраняется из-за ширины изменения, но сама по себе не
-требует отдельных backlog-карточек, веток или worktree. Код проекта, schema и
-runtime этим изменением плана не меняются.
-
-## Implementation branch
-
-`feature/TASK-119-full-lesson-calendar`
-
-Branch/worktree rules для всей TASK-119:
-- перед первым изменением project code прочитать и выполнить
-  `.agents/skills/task-worktree/SKILL.md`;
-- создать одну task branch непосредственно от актуального `origin/main` и один
-  registered task worktree; этапы A–F не получают собственных backlog-карточек,
-  веток или worktree;
-- primary repository оставить на `main`, а код менять только в отдельном
-  registered task worktree;
-- до правки проверить git root, active branch, clean status, worktree list и
-  `git merge-base --is-ancestor origin/main HEAD`;
-- A–F являются последовательными implementation phases одной задачи. После
-  каждой фазы координатор фиксирует focused red/green evidence и checkpoint
-  commit; следующая фаза не начинается, пока предыдущая не reviewed и не green;
-- после green C web-фаза D и bot-фаза E могут выполняться параллельно внутри
-  того же task worktree только с явным разделением владения файлами и Git-
-  операциями координатора; при невозможности безопасного параллелизма они
-  выполняются последовательно в той же ветке;
-- фаза F не интегрирует дочерние ветки: она проверяет уже собранный в task branch
-  результат, выполняет cleanup и полный cross-layer regression;
-- task branch вливается в `main` один раз только после green A–F;
-- не копировать код из unmerged TASK-103/TASK-112/TASK-117/TASK-118 branches.
-
-Planning baseline `2026-08-20 00:42 MSK`:
-- primary repository: clean `main`, HEAD
-  `803f25ecf056023c9507721e0daff67e1eb3d627`;
-- local `origin/main`: `803f25ecf056023c9507721e0daff67e1eb3d627`;
-- local `main` совпадает с `origin/main` и содержит clarified TASK-119;
-- TASK-119 branch/worktree до planning baseline отсутствовали.
-
-Executor обязан выполнить `git fetch origin` и повторить preflight. Фазу A
-нельзя начинать, пока source task и этот план не находятся в фактическом
-`origin/main`. Фазы B–F нельзя начинать, пока предыдущий phase checkpoint не
-reviewed, не green и не зафиксирован commit в той же task branch.
+## Metadata
+- source_task: /backlog/risky/TASK-119-full-lesson-calendar.md
+- branch: feature/TASK-119-full-lesson-calendar
+- readiness: yes — only on explicit high-risk start with phased gates
+- dependencies: if batched with TASK-115, integrate TASK-115 first; re-audit TASK-103/117/118 baseline before execution
+- risk: high — occurrence identity, migration, attendance, UI and bot coordinated cutover
 
 ## Goal
 
@@ -59,68 +19,6 @@ cancellation state, access, warnings, audit и attendance identity остают�
 backend-owned. Отдельный факт/статус проведения тренировки не вводится:
 проведённость не моделируется как lifecycle, а календарь показывает только
 прямой факт наличия сохранённых отметок клиентов.
-
-## Planning handoff
-
-- `ux-researcher` подтвердил day-first mobile primary path, action budget,
-  классификацию операций, recovery и риски старой пары
-  `(GroupId, TrainingDate)`.
-- `ui-designer` преобразовал contract в implementation-ready hierarchy:
-  visible row-level `Посещаемость`, contextual mutation surfaces, URL-owned
-  date/view state, preview/confirm warnings, exact responsive and focus rules.
-- Product clarification `2026-08-20` уточнил contract: Coach access проверяется
-  по постоянному назначению или non-cancelled substitution на дату occurrence,
-  включая upcoming и historical occurrences после обычного окончания;
-  recurring identity сохраняет slot lineage между rule versions; `Held` и
-  attendance completion status не вводятся; group + initial series создаются
-  атомарно; overlapping lessons одной группы запрещены; release обновляет DB,
-  backend, frontend и bot согласованно; mobile toolbar использует compact
-  single-row variant с Calendar tools surface.
-- User review `2026-08-20 01:42 MSK` подтвердил lifecycle только
-  `Scheduled | Cancelled`, hard-block overlap/exact duplicate одной группы и
-  merge в `main` после готовности реализации всех фаз плана.
-- User review `2026-08-20 01:56 MSK` принял варианты A для occurrence-date
-  Coach access, future read-only attendance, `EntireSeries` от business today,
-  immutable factual occurrences, deterministic UUID/revision/one-time preview
-  token, report-zero migration repair, non-blocking second SingleVisit fact,
-  calendar-level capabilities и exact responsive week UX.
-- Evidence основана на source task, текущем коде и тестах. Physical iPhone,
-  Safari chrome, software keyboard, safe area и one-handed reach не проверялись
-  и остаются manual/Simulator evidence будущего execution.
-
-## Current understanding
-
-- `TrainingGroup` хранит один `TrainingStartTime`, общий `DurationMinutes` и
-  массив `Weekdays`; самостоятельного факта занятия нет.
-- `/schedule/groups` возвращает group list. `GroupScheduleScreen.tsx` и
-  `groupSchedule.ts` разворачивают presentation-only неделю во frontend; read
-  не адресует реальные даты и не умеет открыть конкретный occurrence.
-- Frontend attendance получает roster и сохраняет mark по `groupId +
-  trainingDate`; `AttendanceWorkspace` выбирает группу и дату, а current route
-  `/attendance` пока не является canonical section route.
-- `Attendance` хранит `GroupId` и `TrainingDate`; unique index
-  `(ClientId, GroupId, TrainingDate)` не различает два занятия группы в один
-  день.
-- Первая/повторная attendance save, membership write-off/restore и audit уже
-  объединены `AttendanceService` в transaction, но materialization occurrence в
-  эту boundary не входит.
-- Bot повторяет старый contract: date -> groups -> group/date roster ->
-  group/date save. Bot state и idempotency target не содержат occurrence id.
-- TASK-112/TASK-117/TASK-118 имеют планы вокруг weekly-template/snapshot, но не
-  реализованы и не являются prerequisites. Их решения можно использовать как
-  evidence, но нельзя строить TASK-119 branch на их unmerged code.
-- TASK-075 остаётся needs-clarification. TASK-119 вводит только cancellation
-  transitions `Scheduled -> Cancelled -> Scheduled`; отдельные `Held`,
-  `NotHeld` и completion status не нужны. Related-task status audit выполняется
-  по факту интеграции.
-- TASK-103 планирует отдельный `/attendance`. TASK-119-D не зависит от unmerged
-  TASK-103: он обязан дать occurrence-addressable detail route. Если TASK-103 к
-  тому моменту merged, route расширяется; если нет — более широкий landing/nav
-  redesign TASK-103 не копируется в TASK-119.
-- Backend migration rule обычно предпочитает recreated initial state. Однако
-  source TASK явно требует compatibility/backfill существующих attendance rows
-  и migration report, поэтому фаза C должна подготовить проверяемый forward
-  data transition, а также обновить reproducible initial state и model snapshot.
 
 ## Target domain contract
 
@@ -506,34 +404,6 @@ multiple slots/day, existing exceptions и attendance facts.
 Clean database, current-schema forward migration, ambiguous report и
 idempotent rerun/concurrent materialization тестируются отдельно на PostgreSQL.
 
-## UX contract
-
-- User/context: Coach и management roles работают на телефоне между занятиями.
-- Result: найти конкретное занятие, увидеть отмену и наличие attendance marks,
-  выполнить разрешённую операцию без выбора технической series/rule сущности.
-- Primary mobile path: `Расписание` -> `Сегодня` или selected date -> day list
-  -> lesson row -> `Посещаемость`.
-- Action budget: Coach открывает attendance сегодняшнего занятия не более чем
-  за три действия после входа в `Расписание`.
-- Completion signal: attendance route/detail содержит тот же
-  `LessonOccurrenceId`, time/group/date и возвращается к сохранённой calendar
-  date/view/filter state.
-- Required row data: date, time range, group, group type, branch/hall, trainers,
-  visible cancellation marker только для `Cancelled` и direct indication
-  наличия attendance marks. Для обычного `Scheduled` отдельный status badge не
-  показывается.
-- Primary: `Посещаемость`. Frequent: previous/next date and current date
-  selector visible in the toolbar; today, day/week, refresh и filters reachable
-  in one obvious Calendar tools interaction on narrow mobile.
-- Secondary: create one-off, move, edit occurrence, edit series.
-- Exceptional/destructive: cancel и restore. Factual occurrence с attendance не
-  редактируется и не переносится через calendar mutation UI.
-- Coach видит свои permanent/substitution lessons, включая upcoming; future
-  attendance открывается read-only, а mutation controls не показываются как
-  usable actions.
-- Error retry сохраняет selected date/filter. Conflict сохраняет form values.
-  Permission denial объясняет недоступное действие.
-
 ## UI specification
 
 ### Schedule screen hierarchy
@@ -715,8 +585,7 @@ context. Если TASK-103 merged, detail включается в его section
 ## Phased execution inside TASK-119
 
 Этапы ниже являются внутренней декомпозицией одной implementation task. Они не
-создают отдельные backlog tasks, branches, worktrees или промежуточные merge в
-`main`.
+создают отдельные backlog tasks и интегрируются одним согласованным результатом.
 
 ### Phase A — calendar core and projection
 
@@ -726,7 +595,7 @@ Deliverables:
 - side-effect-free `/schedule/lessons` range query;
 - role-scoped DTO with allowedActions placeholders from backend policy;
 - domain, API, SQLite/InMemory compatibility and PostgreSQL constraint/read
-  tests written red first.
+  tests.
 
 До green checkpoint A не менять attendance writes, web UI или bot.
 
@@ -740,7 +609,7 @@ Deliverables:
   revision/confirmation-token concurrency;
 - permissions, stable ProblemDetails/resources and audits;
 - atomic/idempotent materialization for calendar mutations;
-- red-first domain/API/PostgreSQL concurrency tests.
+- domain/API/PostgreSQL concurrency tests.
 
 До green checkpoint B не мигрировать attendance identity и не менять consumers.
 
@@ -752,7 +621,7 @@ Deliverables:
 - atomic first attendance materialization + attendance/membership/audit;
 - occurrence-aware web/internal-bot backend endpoints;
 - all backend readers/history/attention boundaries updated;
-- clean/current-schema/PostgreSQL concurrency tests red first.
+- clean/current-schema/PostgreSQL concurrency tests.
 
 До green checkpoint C не менять frontend/bot production code.
 
@@ -763,11 +632,7 @@ Deliverables:
 - approved Schedule day/week UI, detail/mutation surfaces and responsive states;
 - occurrence-aware Attendance route/workspace/client-return context;
 - group create/edit schedule consumer aligned with canonical series contract;
-- unit/component/Playwright/target-iPhone tests red before production code.
-
-React implementation использует `react-specialist` и
-`.agents/skills/react-best-practices/SKILL.md`; technical conflicts возвращаются
-`ui-designer`, workflow не упрощается локально.
+- unit/component/Playwright/target-iPhone tests.
 
 ### Phase E — bot occurrence consumer
 
@@ -776,7 +641,7 @@ Deliverables:
 - dialog: date -> concrete lessons (group + time/cancelled marker) -> roster -> save;
 - bot state/idempotency target uses occurrence id;
 - no recurrence/cancellation/permission rules in Python;
-- API client/service/callback regressions red first, затем `ruff`/`pytest`.
+- API client/service/callback regressions.
 
 ### Phase F — release regression and cleanup
 
@@ -792,136 +657,11 @@ Deliverables:
 
 Status files related TASKs не меняются до green integrated result.
 
-## Execution roles
-
-For the single TASK-119 execution:
-1. Coordinating agent owns the single branch/worktree, phase order, checkpoint
-   commits, isolated Compose project, integrated verification, sole merge and
-   cleanup.
-2. `test-automator` writes automated regression coverage before production
-   code in each phase and records expected red evidence.
-3. Backend phases use `dotnet-backend-specialist`; substantial xUnit work reads
-   `.agents/skills/csharp-xunit/SKILL.md`.
-4. Web phase uses the completed `ux-researcher -> ui-designer` handoff, then
-   `react-specialist`; `test-automator` covers primary mobile workflow.
-5. Bot phase uses `python-pro` and keeps Python as thin adapter.
-6. `docker-expert` is involved only for actual runtime/container failure or
-   required image/Compose change, not for ordinary feature design.
-
-Specialists не создают/remove branches или worktrees, не выполняют merge и не
-копируют unmerged branches без explicit assignment. При параллельной работе D/E
-координатор назначает непересекающееся владение frontend и bot файлами.
-
-## Test-first execution order
-
-Каждая фаза обязана повторить полный red-green цикл:
-
-1. Выполнить workspace/dependency preflight и baseline focused tests.
-2. Написать/обновить unit tests требуемого поведения до functional code.
-3. Написать/обновить integration/contract tests до functional code.
-4. Для D/E написать соответствующие UI/e2e или bot contract tests до
-   production code.
-5. Запустить новые tests и зафиксировать expected failure именно из-за
-   отсутствующей функциональности; compile/setup failure не считается
-   достаточным red evidence.
-6. Реализовать минимальный phase contract.
-7. Запустить те же focused tests green.
-8. Запустить relevant full regression suite и runtime check.
-9. Зафиксировать reviewed green checkpoint commit в той же task branch. После
-   Phase F выполнить полный integrated regression и только затем один раз влить
-   единый результат A–F в `main`.
-
-Нельзя сначала написать entities/endpoints/UI, а tests добавить в финальной
-validation phase.
-
-## Preferred implementation strategy
-
-1. Contract-first additive core, затем mutations, затем attendance transition.
-2. Один canonical backend occurrence model; frontend и bot только consumers.
-3. Side-effect-free read и materialization only on facts/exceptions/mutations.
-4. Phases A–F последовательно накапливаются в одной task branch и не попадают в
-   `main` частями. Phase F проверяет согласованность DB, backend, frontend и bot,
-   после чего один green result вливается в `main`; dual write запрещён.
-5. Small verifiable commits внутри task branch: red tests -> minimal code ->
-   green -> regression evidence.
-6. Backend/frontend/bot activation coordinated. После появления multiple
-   same-day occurrences downgrade к old group/date writes небезопасен; rollback
-   после activation — forward fix или restore verified pre-activation backup,
-   не silent re-enable legacy endpoint.
-
-## Files likely to change
-
-### Backend domain/application
-- new `backend/src/GymCrm.Domain/Scheduling/*`
-- new `backend/src/GymCrm.Application/Scheduling/*`
-- `backend/src/GymCrm.Domain/Groups/TrainingGroup.cs`
-- `backend/src/GymCrm.Domain/Attendance/Attendance.cs`
-- `backend/src/GymCrm.Application/Attendance/IAttendanceService.cs`
-- `backend/src/GymCrm.Application/Attendance/AttendanceAuditContract.cs`
-
-### Backend API/infrastructure
-- `backend/src/GymCrm.Api/Auth/ScheduleEndpoints.cs`
-- new focused schedule request/response/problem/resource files under
-  `backend/src/GymCrm.Api/Auth/`
-- `backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs`
-- `backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs`
-- `backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs`
-- new `backend/src/GymCrm.Infrastructure/Scheduling/*`
-- `backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs`
-- new persistence configurations for series/rules/slots/occurrences/report
-- `backend/src/GymCrm.Infrastructure/Persistence/Configurations/AttendanceConfiguration.cs`
-- current initial/reproducible migration, forward transition migration and
-  `GymCrmDbContextModelSnapshot.cs`
-- seed/bootstrap data where schedule fixtures are created
-
-### Backend tests
-- new focused domain tests for recurrence, slot lineage, UUID and cancellation
-- new `LessonCalendarApiTests.cs`
-- new `LessonCalendarPostgreSqlTests.cs`
-- new `LessonOccurrenceMigrationTests.cs`
-- `backend/tests/GymCrm.Tests/AttendanceApiTests.cs`
-- `backend/tests/GymCrm.Tests/GroupsApiTests.cs`
-- `backend/tests/GymCrm.Tests/GroupTrainerSubstitutionsApiTests.cs`
-- client history, audit, missed-training, bot internal and bootstrap smoke tests
-  discovered by `GroupId`, `TrainingDate`, `Weekdays`, `TrainingStartTime`.
-
-### Frontend
-- `frontend/src/lib/api/endpoints.ts`
-- `frontend/src/lib/api/types.ts`
-- `frontend/src/lib/api/schedule.ts`
-- `frontend/src/lib/api/attendance.ts`
-- `frontend/src/lib/api.ts`
-- `frontend/src/lib/appRoutes.ts` and route tests for occurrence detail
-- `frontend/src/features/schedule/GroupScheduleScreen.tsx` split into focused
-  calendar/date/list/mutation components rather than growing the current large
-  file further
-- `frontend/src/features/attendance/*`
-- `frontend/src/features/groups/GroupManagement.tsx` and group API/form tests
-- `frontend/src/features/clients/clientProfileReturnState.ts`
-- `frontend/src/lib/groupSchedule.ts` only for reusable presentation math; no
-  recurrence/domain decisions
-- `frontend/src/App.tsx`, `frontend/src/App.css` and shared UI only where route,
-  dynamic viewport or established tokens require it
-- `frontend/e2e/group-schedule.spec.ts`
-- `frontend/e2e/attendance.spec.ts`
-- `frontend/e2e/iphone-target-devices.spec.ts`
-- `frontend/e2e/responsive-main-screens.spec.ts`
-- affected permission/history/touch/overflow specs.
-
-### Bot
-- `bot/src/gym_crm_bot/crm/models.py`
-- `bot/src/gym_crm_bot/crm/client.py`
-- `bot/src/gym_crm_bot/core/service.py`
-- `bot/src/gym_crm_bot/telegram/keyboards.py`
-- focused tests for models/client/service/callback/state/idempotency.
-
-### Runtime/backlog
-- deploy files only if schema migration/health activation genuinely requires a
-  runtime change; otherwise validate existing Compose path without editing it
-- related backlog task files only in final Phase F status audit.
-
-Exact files are confirmed with `rg` inside the single TASK-119 worktree before
-editing.
+## Likely files and layers
+- Backend lesson series/rule/slot/occurrence domain, policies, endpoints, persistence/migrations and cross-layer tests.
+- Occurrence-aware attendance, access, audit, reporting and internal-bot contracts.
+- Frontend schedule/calendar, group schedule editing, attendance routes/workspace and responsive tests.
+- Python bot occurrence flow/tests plus coordinated runtime, migration and activation assets.
 
 ## Constraints
 
@@ -961,7 +701,7 @@ editing.
 - Broader TASK-103 landing/navigation redesign unless already merged.
 - Unrelated group, membership, audit UI or routing refactor.
 
-## Required test coverage
+## Regression specification
 
 ### Unit/domain tests
 - inclusive series/version ranges, nullable end and version splitting;
@@ -1061,24 +801,16 @@ editing.
 
 Manual QA не заменяет automated barriers.
 
-## Test plan
+### Validation and acceptance
 
-- [ ] Для каждой фазы unit и integration tests написаны до production code.
-- [ ] Для каждой фазы зафиксирован expected red по отсутствующей функции.
-- [ ] Focused tests green на той же assertion set после implementation.
-- [ ] `dotnet test backend/GymCrm.slnx` проходит.
 - [ ] PostgreSQL migration/concurrency suites проходят в isolated runtime.
-- [ ] `cd frontend && npm run lint` проходит.
-- [ ] `cd frontend && npm run build` проходит.
-- [ ] `cd frontend && npm run test:unit` проходит.
 - [ ] Affected Chromium Playwright specs проходят.
 - [ ] `cd frontend && npm run test:e2e:iphone` проходит для affected scenarios.
-- [ ] `cd bot && ruff check .` проходит.
-- [ ] `cd bot && pytest` проходит.
 - [ ] Isolated Compose smoke подтверждает schema, health, real API web/bot
   contracts и report-zero activation gate.
-- [ ] Task branch проходит полный integrated regression до единственного merge,
-      а обновлённый `main` повторно проходит affected suites после merge.
+- [ ] Candidate SHA проходит полный integrated regression; после merge проверки
+      повторяются только при изменении tree/conflicts, затем выполняется один
+      aggregate release pass.
 - [ ] Simulator/physical-device gaps явно перечислены.
 - [ ] Related-task status audit выполнен только после integrated green result.
 
@@ -1107,6 +839,8 @@ No implementation is complete without recorded red and green evidence for the
 same focused assertions.
 
 ## Rollout and rollback
+
+Этот раздел применяется только при явно заданном deployment target.
 
 - Phases A–F выполняются в одной task branch. Промежуточных merge в `main` нет;
   Phase F проверяет совместный результат, после полного green regression task
@@ -1156,8 +890,6 @@ same focused assertions.
 ## Stop conditions
 
 Stop and do not write/continue functional code if:
-- TASK-119 branch/worktree/base is ambiguous or contains unexplained
-  changes;
 - source task/plan is absent from current `origin/main`;
 - deterministic projected/materialized identity cannot be made provider- and
   culture-independent;
@@ -1178,12 +910,3 @@ Stop and do not write/continue functional code if:
 
 Do not stop merely because backend, frontend, bot and migration all change.
 Это причина последовательной декомпозиции, а не отказа от planning.
-
-## Ready for Codex execution
-
-yes — продуктовые решения закрыты, а архитектура, UX, migration, test strategy,
-rollout и rollback определены. TASK-119 выполняется только по явному запросу
-пользователя как одна high-risk implementation task в одной branch/worktree.
-Перед кодом отдельные child backlog tasks не создаются: координатор создаёт или
-возобновляет единственный TASK-119 worktree и проходит phases A–F с обязательными
-red/green checkpoint gates и единственным merge в `main` после Phase F.

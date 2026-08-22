@@ -1,36 +1,11 @@
 # Implementation Plan: TASK-117 Поддержать разное время занятий группы по дням недели
 
-## Source task
-/backlog/risky/TASK-117-group-weekday-specific-start-times.md
-
-Source task status remains `risky`. This plan is created for explicit
-product/architecture review; TASK-117 is not moved into active implementation.
-
-## Implementation branch
-feature/TASK-117-group-weekday-specific-start-times
-
-Branch and worktree rules:
-- before any project-code change, read and use
-  `.agents/skills/task-worktree/SKILL.md`;
-- from the primary repository run `git fetch origin`, then create or safely
-  resume the branch above in the registered sibling worktree
-  `../crm-worktrees/TASK-117-group-weekday-specific-start-times`;
-- create a new branch directly from current `origin/main`; do not base it on
-  an unmerged schedule or backlog branch;
-- keep the primary repository on `main` and do not change project code there;
-- before editing, return the verified worktree path, active branch, base SHA,
-  current SHA and clean/unexplained-change status;
-- do not mix TASK-106, another schedule redesign, attendance-policy changes,
-  unrelated refactoring or another backlog task into this branch;
-- if runtime validation is needed, use a task-local Docker Compose project,
-  unique verified ports and `BOT_ENABLED=false` unless bot runtime validation
-  is explicitly required.
-
-Planning evidence on 2026-08-16: the primary repository is on clean `main` at
-`9cea2f2ffadc3a0057dfdafd51c8aa0bdb172f9c`, equal to local `origin/main`;
-no local/remote TASK-117 branch and no target worktree path were found. The
-executor must repeat the checks after `git fetch origin`; this planning snapshot
-is not an execution base guarantee.
+## Metadata
+- source_task: /backlog/risky/TASK-117-group-weekday-specific-start-times.md
+- branch: feature/TASK-117-group-weekday-specific-start-times
+- readiness: no — требуется explicit product/architecture review for high-risk cross-layer schema change
+- dependencies: none
+- risk: high — synchronized schedule schema/API/frontend/bot contract
 
 ## Goal
 Administrator or HeadCoach can create and edit one group with a common
@@ -38,40 +13,6 @@ duration and one local start time per selected ISO weekday. The same ordered
 weekday/time pairs round-trip through persistence and every affected API,
 frontend, attendance, audit and bot consumer, so `/schedule` renders, for
 example, `Пн 18:00`, `Ср 18:00`, `Сб 10:00` for the same group.
-
-## Current understanding
-- `TrainingGroup` currently persists one `TimeOnly TrainingStartTime`, one
-  `int[] Weekdays` and a shared `DurationMinutes`.
-- `UpsertTrainingGroupRequest`, normalized validation, group details/list,
-  audit state, attendance group responses, client group summaries,
-  administrator attendance-scope options and internal bot contracts repeat
-  that scalar-time/weekday-array shape.
-- `/schedule/groups` reuses `TrainingGroupListQuery` and
-  `TrainingGroupListItemMapper`; it does not own a separate scheduling model.
-- `frontend/src/lib/groupSchedule.ts` expands every selected weekday from the
-  same `group.trainingStartTime`, so its calendar occurrence model must change,
-  not only the API type.
-- The existing create/edit form presents one global time input plus a weekday
-  checkbox group. Its preview separates `Старт`, `Дни` and `Длительность`, so
-  it cannot show the required day/time pairing.
-- Client, attendance and administrator-scope UI snippets use the same old
-  fields. Python bot models and formatting also consume them.
-- Client-attention missed-training ordering uses a group's mutable scalar time
-  as a same-day ordering key and persists that resolved value in the existing
-  acknowledgement boundary. The new model needs an explicit date-to-entry
-  resolver; silently choosing an arbitrary entry is unsafe.
-- Group create/update currently has no task-specific idempotency key, ETag or
-  optimistic concurrency token. TASK-117 must not invent a new public
-  concurrency contract, but child-entry replacement must remain atomic and
-  must never produce a union/partial schedule under concurrent updates.
-- The repository's early-stage database policy requires updating the
-  reproducible initial schema, migration designers and model snapshot. During
-  implementation the executor must verify whether any target database must be
-  preserved; if so, TASK-117 also includes a forward migration and deterministic
-  backfill from the legacy scalar/weekday shape before old columns are removed.
-- UX research and UI-design handoff were completed at planning time. No WebKit
-  device, Simulator or physical-iPhone validation was performed during
-  planning; those remain implementation acceptance work.
 
 ## Proposed implementation contract
 
@@ -205,28 +146,6 @@ before behavioral production code.
 - Do not add attendance-day validation, session generation or exception-day
   semantics in this task.
 
-## UX contract
-
-- User: Administrator or HeadCoach with existing group-management permission.
-  Coach/Trainer consumes the schedule read-only through authorized schedule and
-  attendance surfaces.
-- Primary path: open create/edit group, confirm branch/hall/type/name, set the
-  common duration, select weekdays, enter one time for each selected weekday,
-  save, then observe success and exact pairs after reload.
-- Completion signal: notification plus list/details/schedule read model shows
-  the exact ISO-ordered pairs returned by backend.
-- Primary action: `Создать группу` / `Сохранить изменения`, visible and never
-  hidden in overflow.
-- Frequent controls: existing group fields, duration, weekday selectors,
-  selected-day time inputs and trainer assignment.
-- Secondary: cancel/back. Exceptional: existing active switch. No destructive
-  warning is added when deselecting a weekday within this task.
-- Failure recovery: retain every entered value on server/network error; show
-  section or row ProblemDetails near the affected control; focus and scroll to
-  the first invalid schedule control.
-- Permission-restricted users do not receive disabled fake edit controls; they
-  only see paired read-only values where already authorized.
-
 ## UI specification
 
 Keep the current create/edit shell and replace only the schedule portion of
@@ -292,107 +211,9 @@ Operational states:
   values on reload;
 - long group names and paired schedules wrap without page overflow.
 
-## Safe decomposition
+## Implementation sequence
 
-TASK-117 remains one branch and one coordinated rollout, but execution is split
-into verifiable phases:
-
-1. Backend contract/validation red tests and schedule semantics unit tests.
-2. Domain persistence, clean initial schema and atomic group aggregate update.
-3. Backend read/audit/attendance/authorization/internal-bot consumer
-   propagation.
-4. Frontend typed contract, occurrence helpers and form red tests, then
-   implementation against the planning-stage UI specification.
-5. Python bot contract/formatting adaptation.
-6. Focused green runs, full regressions, clean-DB/runtime smoke and device
-   acceptance.
-
-Do not deploy or merge a backend-only contract break while frontend/bot still
-consume the legacy fields.
-
-## Execution roles
-
-1. `ux-researcher` planning contract: complete; primary task, recovery,
-   mobile constraints and measurable outcomes are captured above.
-2. `ui-designer` planning handoff: complete; component order, states,
-   geometry, focus and responsive behavior are captured above.
-3. Coordinating agent creates/verifies the dedicated worktree and owns the
-   contract, integration order, schema/run-time checks and final acceptance.
-4. `test-automator` writes backend raw-JSON/integration, frontend
-   unit/component/Playwright and bot regression tests before behavioral code.
-5. `dotnet-backend-specialist` implements backend/domain/persistence only after
-   the red tests exist; when adding/substantially changing xUnit tests, the
-   executor reads `.agents/skills/csharp-xunit/SKILL.md`.
-6. `react-specialist` implements the reviewed React/Mantine contract only after
-   frontend red tests exist and reads
-   `.agents/skills/react-best-practices/SKILL.md`.
-7. `python-pro` adapts the thin bot consumer without moving CRM validation into
-   Python.
-
-All specialists must work in the coordinator-delegated TASK-117 worktree,
-must not create/remove worktrees, and must not revert another agent's edits.
-
-## Execution steps
-
-### Phase 0 — isolated workspace and baseline
-
-1. Re-read root/backend/frontend/bot `AGENTS.md`, this plan,
-   `task-worktree`, `crm-mobile-first-ui` and the applicable testing/
-   implementation skills.
-2. Fetch `origin`, create or safely resume the declared worktree/branch from
-   `origin/main`, and report the verified execution identity before edits.
-3. Inventory every active reference to `TrainingStartTime`, `Weekdays`,
-   `trainingStartTime`, `weekdays`, `training_start_time` and bot `weekdays`.
-   Classify domain, request, read model, attendance ordering, audit, seed,
-   frontend display and test-fixture consumers.
-4. Verify the target-database lifecycle from deployment/runtime evidence. Record
-   whether every target may be recreated or whether an applied database must be
-   upgraded; select the clean-schema-only or forward-migration path defined by
-   this plan before schema edits.
-5. Run and record focused baseline suites before changing assertions:
-   group/schedule/attendance/client-attention/internal-bot backend tests;
-   group form/schedule/frontend API unit tests and affected Playwright specs;
-   bot contract/service tests. Separate pre-existing failures from TASK-117.
-
-### Phase 1 — tests before functional code
-
-6. Before changing backend behavior, add a focused raw-JSON HTTP suite named
-   `GroupWeekdaySpecificScheduleApiTests` (or update the filter in this plan at
-   the same time). It must compile against the old server and cover:
-   - create `Пн 18:00`, `Ср 18:00`, `Сб 10:00`;
-   - response/list/details/schedule ordering and reload;
-   - update to a different exact set;
-   - empty, duplicate, out-of-range and invalid-time ProblemDetails paths;
-   - invalid create/update has no group/entry/audit partial write;
-   - permission and CSRF behavior;
-   - audit old/new ordered entries.
-7. Run that focused suite on the old behavior and record executed/failed counts
-   and assertion reasons. Expected HTTP/shape/atomicity assertion failures are
-   the red phase; compile errors, host setup errors or unrelated baseline
-   failures do not count.
-8. Add only the compile scaffolding necessary for the remaining tests (record
-   shapes/signatures with no successful mapping/persistence behavior), then
-   write backend unit tests for raw validation/normalization and date-to-entry
-   resolution before implementing them.
-9. Before backend functional code, add persistence/integration regressions for
-   composite uniqueness, weekday check, clean initial PostgreSQL creation,
-   equal-time seed conversion, mixed-time seed, exact-set concurrent full PUT,
-   concurrent full/trainer-only PUT, atomic audit failure and provider fallback
-   behavior. If the forward migration is required, add an upgrade/backfill
-   regression before implementing it.
-10. Before frontend functional code, update/add tests using only the new
-    payload: API mapping, nearest-earlier-day time copy, independent copied
-    values, selection/deselection/payload/edit reload, nested field
-    errors/focus, state retention, paired formatter, calendar occurrences and
-    mixed Saturday time. Do not make tests accept both old and new shapes.
-11. Before bot functional code, update/add Pydantic/client/service tests for
-    `scheduleEntries`, paired formatting and preservation of backend-provided
-    order without Python validation.
-12. Run all new focused unit/integration/component/bot tests and confirm they
-    execute and fail for missing TASK-117 behavior. No behavioral production
-    code starts until this evidence exists.
-
-### Phase 2 — backend model, schema and write contract
+### backend model, schema and write contract
 
 13. Implement `TrainingGroupScheduleEntry`, its EF configuration/navigation and
     `DbSet`; remove the legacy scalar time/weekday array from the domain model.
@@ -409,7 +230,7 @@ must not create/remove worktrees, and must not revert another agent's edits.
     Phase 0 selected the forward-migration path, implement and verify the
     create/backfill/verify/drop sequence as well.
 
-### Phase 3 — backend read and behavioral consumers
+### backend read and behavioral consumers
 
 17. Include/order schedule entries in group list/details loaders and mapper;
     use earliest start time only where a deterministic group-level sort
@@ -426,7 +247,7 @@ must not create/remove worktrees, and must not revert another agent's edits.
     removed fields. Keep unrelated financial, membership and trainer
     substitution semantics unchanged.
 
-### Phase 4 — frontend contract and UI
+### frontend contract and UI
 
 21. Replace frontend group/attendance/client/admin payload and view-model fields
     with a shared typed `GroupScheduleEntry`; update API mappers and payload
@@ -447,7 +268,7 @@ must not create/remove worktrees, and must not revert another agent's edits.
     its exact per-day times while preserving filters, loading/stale/error/empty
     states and TASK-106-independent current layout behavior from `origin/main`.
 
-### Phase 5 — bot and synchronized cleanup
+### bot and synchronized cleanup
 
 26. Replace Python `training_start_time`/`weekdays` fields with typed
     `schedule_entries`; format paired values such as
@@ -457,129 +278,10 @@ must not create/remove worktrees, and must not revert another agent's edits.
     A final repository search may leave them only in historical backlog/docs
     that are intentionally not executable.
 
-### Phase 6 — green regression and runtime acceptance
-
-28. Re-run the identical focused backend, frontend and bot red suites until
-    green without weakening assertions; record commands, executed counts and
-    outcomes.
-29. Run full required backend/frontend/bot regression commands.
-30. In the isolated TASK-117 stack, recreate PostgreSQL from scratch, run seed,
-    verify backend readiness and smoke the synchronized frontend contract.
-    If the forward-migration path was selected, also upgrade a database at the
-    preceding schema and verify equal-time schedule backfill before smoke.
-31. Execute the primary create/edit/reload/schedule flow in WebKit mobile
-    emulation at `390 x 844`, `420 x 912`, `440 x 956`, plus `360 x 780`,
-    `768 x 1024`, `1440 x 1200` and compact-height `912 x 420`/`956 x 440`.
-    Verify one validation recovery and one permission-restricted read-only path.
-32. Report Safari Responsive Design Mode, iOS Simulator, physical-device,
-    software-keyboard, browser-chrome, safe-area/home-indicator checks that
-    remain unverified; do not claim physical-iPhone acceptance without that
-    evidence.
-
-## Preferred implementation strategy
-
-1. Raw executable contract tests before DTO/domain behavior.
-2. One normalized backend schedule model and one ordered JSON entry schema,
-   with layer-owned transport types and explicit mappings.
-3. Exact-set transactional persistence before consumer propagation.
-4. Backend read/audit/attendance/bot contracts before frontend integration.
-5. Occurrence-based frontend mapping before form and calendar rendering.
-6. Planning-stage mobile form behavior with no parallel legacy UI.
-7. Synchronized breaking rollout and small, independently verifiable commits.
-
-Avoid a compatibility layer that preserves two schedule sources. Backend,
-frontend and bot may be implemented in phases but must merge/deploy as one
-coherent contract change.
-
-## Files likely to change
-
-Backend domain/persistence:
-- `backend/src/GymCrm.Domain/Groups/TrainingGroup.cs`
-- `backend/src/GymCrm.Domain/Groups/TrainingGroupScheduleEntry.cs` (new)
-- `backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/Configurations/TrainingGroupConfiguration.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/Configurations/TrainingGroupScheduleEntryConfiguration.cs` (new)
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260513165936_InitialCreate.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260513165936_InitialCreate.Designer.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260721210111_FixClientMembershipVersionConstraints.Designer.cs`
-- conditional new forward migration and designer when Phase 0 proves an
-  existing database must be preserved
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs`
-- `backend/src/GymCrm.Api/SeedData/TestDataSeeder.cs`
-
-Backend write/read contracts and consumers:
-- `backend/src/GymCrm.Api/Auth/GroupScheduleEntryRequest.cs` (new)
-- `backend/src/GymCrm.Api/Auth/GroupScheduleEntryResponse.cs` (new)
-- `backend/src/GymCrm.Api/Auth/UpsertTrainingGroupRequest.cs`
-- `backend/src/GymCrm.Api/Auth/NormalizedGroupRequest.cs`
-- `backend/src/GymCrm.Api/Auth/GroupRequestValidator.cs`
-- `backend/src/GymCrm.Api/Auth/GroupApiConstants.cs`
-- `backend/src/GymCrm.Api/Auth/GroupResources.cs`
-- `backend/src/GymCrm.Api/Auth/Resources/GroupResources.resx`
-- `backend/src/GymCrm.Api/Auth/GroupEndpoints.cs`
-- `backend/src/GymCrm.Api/Auth/GroupDetailsResponse.cs`
-- `backend/src/GymCrm.Api/Auth/GroupListItemResponse.cs`
-- `backend/src/GymCrm.Api/Auth/TrainingGroupListItemMapper.cs`
-- `backend/src/GymCrm.Api/Auth/TrainingGroupListQuery.cs`
-- `backend/src/GymCrm.Api/Auth/TrainingGroupAuditState.cs`
-- `backend/src/GymCrm.Api/Auth/AttendanceEndpoints.cs`
-- `backend/src/GymCrm.Api/Auth/AttendanceGroupResponse.cs`
-- `backend/src/GymCrm.Api/Auth/ClientGroupSummaryResponse.cs`
-- `backend/src/GymCrm.Api/Auth/ClientAttendanceHistoryEntryResponse.cs`
-- `backend/src/GymCrm.Api/Auth/ClientEndpoints.cs`
-- `backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs`
-- `backend/src/GymCrm.Application/Authorization/AdministratorAttendanceGroupGrantContracts.cs`
-- `backend/src/GymCrm.Infrastructure/Authorization/AdministratorAttendanceGroupGrantService.cs`
-- `backend/src/GymCrm.Application/Bot/BotApiContracts.cs`
-- `backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs`
-- focused date-to-schedule resolver under `backend/src/GymCrm.Application/Attendance/` or `backend/src/GymCrm.Domain/Groups/` (new; placement must respect dependencies)
-
-Backend tests:
-- `backend/tests/GymCrm.Tests/GroupWeekdaySpecificScheduleApiTests.cs` (new, preferred)
-- `backend/tests/GymCrm.Tests/GroupScheduleValidationTests.cs` (new, preferred)
-- `backend/tests/GymCrm.Tests/GroupSchedulePersistencePostgreSqlTests.cs` (new, preferred)
-- `backend/tests/GymCrm.Tests/GroupsApiTests.cs`
-- `backend/tests/GymCrm.Tests/AttendanceApiTests.cs`
-- `backend/tests/GymCrm.Tests/ClientsApiTests.cs`
-- `backend/tests/GymCrm.Tests/AdministratorAttendanceGrantApiTests.cs`
-- `backend/tests/GymCrm.Tests/AdministratorAttendanceGrantPostgreSqlTests.cs`
-- `backend/tests/GymCrm.Tests/InternalBotApiTests.cs`
-- `backend/tests/GymCrm.Tests/MissedTrainingStreakCalculatorTests.cs`
-- `backend/tests/GymCrm.Tests/TestDataSeederTests.cs`
-- other entity-initializer fixtures found by the mandatory source audit
-
-Frontend production and tests:
-- `frontend/src/lib/api/types.ts`
-- `frontend/src/lib/api/groups.ts`
-- `frontend/src/lib/api/groups.test.ts`
-- `frontend/src/lib/api/schedule.ts`
-- `frontend/src/lib/api/attendance.ts`
-- `frontend/src/lib/api/attendance.test.ts`
-- `frontend/src/lib/api/administrators.ts`
-- `frontend/src/lib/api/administrators.test.ts`
-- `frontend/src/lib/api/mappers.ts`
-- `frontend/src/lib/groupSchedule.ts`
-- `frontend/src/lib/groupSchedule.test.ts`
-- `frontend/src/features/groups/GroupManagement.tsx`
-- `frontend/src/features/groups/GroupManagement.test.tsx`
-- `frontend/src/features/schedule/GroupScheduleScreen.tsx`
-- `frontend/src/features/schedule/GroupScheduleScreen.test.tsx`
-- `frontend/src/features/clients/ClientManagement.tsx`
-- `frontend/src/features/settings/AdministratorAttendanceScopeModal.tsx`
-- `frontend/src/features/settings/SettingsScreen.test.tsx`
-- `frontend/src/App.css`
-- `frontend/e2e/group-schedule.spec.ts`
-- `frontend/e2e/groups-registry.spec.ts`
-- `frontend/e2e/attendance.spec.ts`
-- `frontend/e2e/administrator-attendance-scope.spec.ts`
-- `frontend/e2e/iphone-target-devices.spec.ts`
-- affected shared mock fixtures discovered by the source audit
-
-Bot production and tests:
-- `bot/src/gym_crm_bot/crm/models.py`
-- `bot/src/gym_crm_bot/core/service.py`
-- `bot/tests/test_crm_client.py`
-- `bot/tests/test_bot_service.py`
+## Likely files and layers
+- Backend group schedule domain, requests/projections, EF schema/migration, audit/attendance/internal-bot consumers and tests.
+- Frontend group form, schedule helpers/screen, typed API contracts and responsive tests.
+- Python bot schedule models/rendering/tests and synchronized runtime fixtures.
 
 ## Constraints
 - Backend is the only owner of ISO weekday uniqueness, time parsing,
@@ -604,7 +306,6 @@ Bot production and tests:
 - Use Mantine, Onest and existing design tokens/shared wrappers only.
 - Every mobile interactive target is at least `44 x 44px`; no horizontal page
   scrolling or nested schedule scroller.
-- Project code changes occur only in the declared TASK-117 worktree.
 
 ## Out of scope
 - More than one class/session for a group on the same weekday.
@@ -624,7 +325,7 @@ Bot production and tests:
 - General redesign of Groups, Schedule, Attendance or the navigation shell.
 - Unrelated TASK-106 implementation or schedule-card readability changes.
 
-## Required test coverage
+## Regression specification
 
 All unit and integration tests below are written or updated before behavioral
 functional code. The initial red run must contain executed failing assertions
@@ -704,7 +405,7 @@ for absent TASK-117 behavior; compile/setup failures are not evidence.
 - Manual QA may review Russian copy and wrapping, but it is not the regression
   barrier.
 
-## Test plan
+### Validation and acceptance
 - [ ] Record clean baseline focused backend/frontend/bot results.
 - [ ] Run red backend contract suite:
   `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~GroupWeekdaySpecificSchedule"`.
@@ -714,13 +415,9 @@ for absent TASK-117 behavior; compile/setup failures are not evidence.
   helpers/screen.
 - [ ] Run red bot CRM-client/service tests.
 - [ ] After implementation, rerun the identical focused suites to green.
-- [ ] Run `dotnet test backend/GymCrm.slnx`.
-- [ ] From `frontend`, run `npm run lint`, `npm run build` and
-  `npm run test:unit`.
 - [ ] From `frontend`, run affected Playwright specs including
   `npm run test:e2e -- group-schedule.spec.ts groups-registry.spec.ts attendance.spec.ts administrator-attendance-scope.spec.ts`.
 - [ ] From `frontend`, run `npm run test:e2e:iphone`.
-- [ ] From `bot`, run `ruff check .` and `pytest`.
 - [ ] Recreate the isolated PostgreSQL database, run seed and verify backend
   readiness/full-stack contract smoke; when Phase 0 selects the migration
   path, also run and verify the forward upgrade/backfill smoke.
@@ -772,8 +469,6 @@ same focused assertions.
 ## Stop conditions
 
 Stop and do not write or continue functional code if:
-- the declared branch/worktree is ambiguous, dirty with unexplained changes or
-  not based on current `origin/main`;
 - an external consumer requires a dual API contract or database preservation
   semantics beyond the equal-time forward migration captured here;
 - product requires multiple sessions per weekday, per-day duration,
@@ -793,9 +488,3 @@ Stop and do not write or continue functional code if:
 
 Do not stop merely because backend, frontend and bot all change. Their
 synchronized update is expected for TASK-117.
-
-## Ready for Codex execution
-no — the source task remains high-risk and `Safe for Codex: no`. Product and
-architecture decisions from the 2026-08-16 review are recorded, but active
-execution still requires explicit user approval and movement from
-`/backlog/risky` into the task implementation lifecycle.

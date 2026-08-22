@@ -1,23 +1,11 @@
 # Implementation Plan: TASK-111 Расширить Playwright-регрессию по UX-аудиту 2026-08-02
 
-## Source task
-/backlog/implementation/TASK-111-ux-audit-regression-matrix.md
-
-## Implementation branch
-fix/TASK-111-ux-audit-regression-matrix
-
-Branch rules:
-- перед изменением test-кода применить `task-worktree` и создать отдельный
-  worktree с этой branch напрямую от актуального `origin/main`;
-- primary repository оставить на `main`; до первой правки подтвердить repo
-  root, active branch, clean status, worktree list и
-  `git merge-base --is-ancestor origin/main HEAD`;
-- не брать test/UI-код из незамерженных TASK-106, TASK-107, TASK-109 или
-  TASK-110 и не основывать branch на их ветках;
-- не включать в branch UI-исправления, backend-код, новые permissions либо
-  unrelated test refactoring;
-- до project-code changes подтвердить, что active branch —
-  `fix/TASK-111-ux-audit-regression-matrix`.
+## Metadata
+- source_task: /backlog/implementation/TASK-111-ux-audit-regression-matrix.md
+- branch: fix/TASK-111-ux-audit-regression-matrix
+- readiness: yes — dependency-free work may start; completion remains dependency-gated
+- dependencies: TASK-106 for dense-schedule evidence; completed TASK-104/107/109/110 are baseline
+- risk: low — test harness/evidence changes; product code only after a proven defect
 
 ## Goal
 Сделать UX-аудит 2026-08-02 исполняемым regression contract: Playwright и
@@ -39,48 +27,6 @@ emulation от device-only acceptance.
 - Реалистичный regression barrier есть: focused Chromium suites, полный touch
   inventory, target-iPhone WebKit projects, lint/build/unit и negative-control
   проверки test-only geometry/matrix helpers.
-
-## Current understanding
-- Historical planning baseline: `main == origin/main` at
-  `d0d65dc19411e8ed9c12c3ef0844910a09bea0ea`. Перед execution
-  координатор синхронизирует refs и создаёт TASK-111 только от
-  фактического актуального `origin/main`.
-- TASK-104 уже merged и добавил attendance assertions для readable date,
-  `44px` controls, above-fold first action, overflow и target iPhone WebKit.
-  TASK-111 расширяет этот contract на полную заданную matrix, не переписывая
-  TASK-104.
-- TASK-106, TASK-107 и TASK-109 находятся в
-  `/backlog/implementation`; их планы определяют будущие schedule
-  decision-data, audit pagination/focus names и settings touch/scope contract.
-- TASK-110 завершён коммитом `449ee76`; перед execution его
-  интеграция должна присутствовать в синхронизированном `origin/main`.
-  Его profile-trigger geometry, keyboard и target-iPhone tests уже являются
-  owning evidence и не дублируются в TASK-111.
-- `frontend/playwright.config.ts` уже содержит отдельные WebKit projects
-  `iphone-air-webkit` (`420 x 912`) и `iphone-17-pro-max-webkit`
-  (`440 x 956`) на iPhone profile с touch и `deviceScaleFactor: 3`.
-- `frontend/e2e/touch-target-inventory.spec.ts` уже выполняет матрицу
-  `360x780`, `390x844`, `420x912`, `440x956`, `768x1024`, `1440x1200`,
-  `912x420`, `956x440`, измеряет `44 x 44px`, gaps, input font size,
-  label clipping и page overflow, но route inventory перечисляет только
-  representative controls.
-- Settings inventory сейчас включает только `Добавить абонемент` и
-  `Обновить`; tabs, branch/catalog select и edit controls не перечислены.
-- Audit inventory сейчас включает только `Обновить` и `Фильтры`; pagination
-  controls и three modal close paths отсутствуют. Current app baseline ещё
-  использует default Mantine pagination и timer-owned focus recovery; TASK-107
-  является source task для UI correction.
-- Shared profile trigger уже входит в touch inventory и target-iPhone
-  tests после TASK-110. TASK-111 регистрирует это evidence в
-  общей matrix и расширяет owning test только при доказанном
-  непокрытом criterion.
-- `group-schedule.spec.ts` уже проверяет несколько overlapping cards и
-  document overflow, но не доказывает доступность полного start/end,
-  group и hall/trainer decision-data для dense parallel fixture.
-- Existing suites дублируют локальные `expectNoHorizontalScroll` и geometry
-  snippets. TASK-111 не должен превращаться в общий refactor; extraction
-  допускается только для маленького test-only contract, который напрямую
-  нужен полной matrix.
 
 ## UX regression contract
 
@@ -169,9 +115,8 @@ emulation; neither is physical iPhone/Safari acceptance.
 - Simultaneous development of TASK-106, TASK-107, TASK-109, TASK-110 and
   TASK-111 is allowed. The dependency gate controls final integration order,
   not whether work may start in parallel.
-- Every task keeps its declared isolated branch/worktree based directly on the
-  synchronized `origin/main`; TASK-111 never bases itself on another unmerged
-  task branch and never cherry-picks product code from it.
+- TASK-111 never depends on or cherry-picks product code from an unmerged task;
+  it consumes only contracts integrated into `origin/main`.
 - While owning tasks are in progress, TASK-111 may implement dependency-free
   work: the mandatory matrix/validator, attendance expansion and registration
   of already integrated TASK-110 profile evidence.
@@ -186,46 +131,17 @@ emulation; neither is physical iPhone/Safari acceptance.
   scenario and never fixes product behavior in its own branch.
 - Expected concurrent conflicts are limited primarily to
   `touch-target-inventory.spec.ts`, `iphone-target-devices.spec.ts` and final
-  owning specs. After each dependency reaches `origin/main`, synchronize the
-  TASK-111 worktree with current `origin/main`, resolve only test-contract
-  conflicts and rerun the affected baseline.
+  owning specs. After each dependency reaches `origin/main`, update the
+  TASK-111 baseline, resolve only test-contract conflicts and rerun the
+  affected checks.
 - Merge/closure order remains dependency-gated: TASK-111 may not be reported
   fully green, merged or moved to `done` until every required owning contract
   is integrated and every non-device-only matrix entry has executable passing
   evidence.
 
-## Execution roles
-1. Coordinating agent applies `task-worktree`, verifies dependencies and owns
-   the branch/worktree lifecycle.
-2. `test-automator` owns the test-only matrix, unit contract for any extracted
-   helper, Playwright additions, expected-red evidence and flake review.
-3. `react-specialist` is not needed unless a new test exposes a product defect;
-   that defect must remain in its owning TASK rather than be fixed silently in
-   TASK-111.
-4. Coordinating agent verifies the final suite against this plan and
-   `crm-mobile-first-ui` mobile acceptance criteria.
+## Implementation sequence
 
-## Execution steps
-
-### Phase 0 — isolated workspace and dependency gate
-1. Read root/frontend `AGENTS.md`, source TASK, this plan,
-   `crm-mobile-first-ui`, `react-best-practices` only if React code becomes
-   relevant, and `task-worktree`.
-2. Verify TASK-104 is present on `origin/main`; verify whether TASK-106,
-   TASK-107, TASK-109 and TASK-110 are merged. Record exact commits and the
-   final owning spec filenames after merge.
-3. Create/resume the declared worktree and branch from current `origin/main`.
-   Stop if the branch/worktree is ambiguous or dirty.
-4. Run focused baseline before editing:
-   - `cd frontend && npm run test:unit`;
-   - `npm run test:e2e -- e2e/attendance.spec.ts e2e/group-schedule.spec.ts e2e/touch-target-inventory.spec.ts`;
-   - final merged settings and audit owning specs;
-   - `npm run test:e2e:iphone`.
-5. Record baseline counts and failures. A dependency regression, browser
-   installation problem, stale mock or port collision is not TASK-111 red
-   evidence.
-
-### Phase 1 — machine-readable test contract before harness changes
+### machine-readable test contract before harness changes
 6. Before changing inventory/helpers, add the mandatory unit-level matrix
    contract. Required shape unless an equally small existing test-only module
    is proved to be a better direct owner:
@@ -250,7 +166,7 @@ emulation; neither is physical iPhone/Safari acceptance.
    Integration/Playwright coverage below remains the primary rendered-behavior
    barrier.
 
-### Phase 2 — integration/Playwright assertions before any product code
+### integration/Playwright assertions before any product code
 10. Expand `touch-target-inventory.spec.ts` so the route inventory enumerates
     all applicable controls, not only representatives:
     - settings tabs, branch/catalog scope select, refresh, create and a
@@ -315,61 +231,10 @@ emulation; neither is physical iPhone/Safari acceptance.
     defect to TASK-106/107/109/110 (or create a separate backlog item); do not
     weaken the assertion or edit product code in this branch.
 
-### Phase 3 — green and regression closure
-21. Rerun the matrix unit test, affected Chromium specs, full touch inventory
-    and both target-iPhone WebKit projects. Remove duplicated assertions only
-    when one owning test still proves the exact criterion and the matrix points
-    to it.
-22. Run mandatory frontend validation from the TASK worktree:
-    - `cd frontend && npm run test:unit`;
-    - `npm run lint`;
-    - `npm run build`;
-    - `npm run test:e2e -- <all affected Chromium specs>`;
-    - `npm run test:e2e:iphone`.
-23. Run the focused suites at least twice after green to detect focus/geometry
-    flake. No arbitrary timeout or broad retry increase may be used to hide a
-    race.
-24. Inspect generated touch-inventory JSON artifacts and confirm that every
-    added control has route, role, state, viewport, pointer mode, measured box,
-    gap and exception metadata. Any allowlist entry requires a named owner TASK
-    and cannot hide TASK-111 acceptance failures.
-25. Review the diff: only test code/test fixtures/test-only helpers and task
-    artifacts may change; no frontend production, backend, bot, deploy,
-    database or permission files.
-26. Report device-only residual checks explicitly: Safari chrome expansion,
-    software keyboard, safe-area/home-indicator interaction, Dynamic Island,
-    one-handed reach and actual physical tap behavior remain unverified unless
-    supported by iOS Simulator or physical-device evidence.
-
-## Preferred implementation strategy
-1. Dependency and baseline verification.
-2. Mandatory test-only matrix/validator unit contract in red.
-3. Touch inventory completeness and per-surface Playwright assertions.
-4. Expected-red verification without product changes.
-5. Green only on merged owning UI contracts.
-6. Full Chromium/WebKit regression, flake rerun and artifact inspection.
-
-## Files likely to change
-- `frontend/e2e/touch-target-inventory.spec.ts`
-- `frontend/e2e/attendance.spec.ts`
-- `frontend/e2e/iphone-target-devices.spec.ts`
-- `frontend/e2e/group-schedule.spec.ts`
-- final TASK-109 settings Playwright spec, to be discovered after merge
-- final TASK-107 audit Playwright spec(s), to be discovered after merge
-- existing TASK-110 profile tests only if the matrix proves an uncovered gap
-
-Required machine-readable completeness contract:
-- `frontend/e2e/ux-audit-regression-matrix.ts`
-- `frontend/src/test/uxAuditRegressionMatrix.test.ts`
-
-Files to inspect but not expected to change:
-- `frontend/playwright.config.ts`
-- `frontend/src/features/attendance/**`
-- `frontend/src/features/settings/**`
-- `frontend/src/features/audit/**`
-- `frontend/src/features/schedule/**`
-- `frontend/src/features/shared/Header.tsx`
-- backend authorization/API/domain code and tests
+## Likely files and layers
+- Playwright projects/config, UX inventory helpers and machine-readable evidence artifacts.
+- Owning attendance/settings/audit/schedule/profile specs and validator unit tests.
+- Product components only when a new regression proves a remaining implementation defect.
 
 ## Constraints
 - Preserve React 19, TypeScript, Vite, Mantine 9 and Onest; do not add a test
@@ -402,7 +267,7 @@ Files to inspect but not expected to change:
 - Claims about physical Safari browser chrome, keyboard, safe areas or real
   tap accuracy without device evidence.
 
-## Required test coverage
+## Regression specification
 
 ### Unit tests — before test-helper implementation
 - Add the mandatory machine-readable matrix/validator unit test first and
@@ -456,7 +321,7 @@ Files to inspect but not expected to change:
   human readability. Manual checks supplement but never replace automated
   barriers.
 
-## Test plan
+### Validation and acceptance
 - [ ] TASK-104/106/107/109/110 dependency state and owning specs are recorded.
 - [ ] Mandatory matrix/validator unit test is red before implementation and
       green afterward; release validation rejects every required pending row.
@@ -528,11 +393,3 @@ Stop and do not write product code if:
 Do not stop only because multiple frontend suites share fixtures or because
 the matrix spans several roles and viewports; keep changes test-only and
 phased.
-
-## Ready for Codex execution
-yes — parallel-start, dependency-gated completion: dependency-free TASK-111
-work may proceed simultaneously with TASK-106, TASK-107 and TASK-109, but full
-green completion/merge waits for every required owning contract, including the
-TASK-110 integration, to be present in synchronized `origin/main`. The approved
-TASK-103 navigation naming remains explicitly excluded until its implementation
-is integrated.

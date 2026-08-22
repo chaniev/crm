@@ -1,30 +1,11 @@
 # Implementation Plan: TASK-112 Добавить однодневный режим недельного расписания
 
-## Source task
-/backlog/implementation/TASK-112-schedule-single-day-mode.md
-
-## Implementation branch
-feature/TASK-112-schedule-single-day-mode
-
-Branch rules:
-- перед изменением project code прочитать
-  `.agents/skills/task-worktree/SKILL.md` и создать либо безопасно возобновить
-  отдельный worktree
-  `../crm-worktrees/TASK-112-schedule-single-day-mode`;
-- создать branch непосредственно от актуального `origin/main`; primary
-  repository оставить на `main`, а код менять только в task worktree;
-- до первой правки подтвердить registered worktree, active branch, clean
-  status и `git merge-base --is-ancestor origin/main HEAD`;
-- не включать TASK-106, другие schedule/backlog TASKs, backend/API changes или
-  общий redesign routing/calendar;
-- Docker Compose по умолчанию не запускать: задача покрывается frontend unit,
-  component/integration, mocked Playwright и target-iPhone WebKit tests.
-
-Planning evidence на 2026-08-16: до backlog-подготовки primary repository был
-на clean `main` `d0d65dc19411e8ed9c12c3ef0844910a09bea0ea`, совпадающем с
-локальным `origin/main`; branch/worktree TASK-112 и дубликат plan не найдены.
-Executor обязан повторить проверку после `git fetch origin` и не считать этот
-planning snapshot актуальным execution base.
+## Metadata
+- source_task: /backlog/implementation/TASK-112-schedule-single-day-mode.md
+- branch: feature/TASK-112-schedule-single-day-mode
+- readiness: yes
+- dependencies: none; TASK-106 is merge-aware but not a functional dependency
+- risk: medium — URL/history/responsive state on a shared schedule screen
 
 ## Goal
 Coach, Administrator или HeadCoach на tablet/desktop может переключить
@@ -33,73 +14,6 @@ weekday повторяющегося недельного шаблона. На m
 day-only workflow. Stored mode и weekday воспроизводятся из URL после refresh,
 back/forward, фильтрации, обновления payload и смены viewport без введения
 dated-calendar semantics.
-
-## Planning handoff
-- `ux-researcher` на planning stage подтвердил primary path, action budget,
-  URL/viewport semantics, operational states и отсутствие blocking product
-  questions.
-- `ui-designer` преобразовал UX-контракт в implementation-ready specification:
-  wide-only Mantine mode switch, переиспользуемый day view, точную history
-  policy, tab/focus semantics и responsive matrix.
-- Product decision закрыт source TASK: `День` означает weekday повторяющегося
-  weekly template; `dd.MM` остаётся presentation-only label.
-
-## Current understanding
-- `frontend/src/features/schedule/GroupScheduleScreen.tsx` получает весь
-  разрешённый payload через `/api/schedule/groups`, строит одну calendar week
-  и сейчас хранит `selectedWeekday` только в local React state.
-- `ResponsiveScheduleContent` выбирает mobile day grid через
-  `(max-width: 47.99em), (max-height: 30rem) and (pointer: coarse)`; wide path
-  всегда рендерит seven-column `ScheduleDesktopGrid`.
-- Текущий day strip уже имеет `role="tablist"`, `role="tab`, `aria-selected`,
-  click и ArrowLeft/ArrowRight, но все tabs остаются в tab order и Home/End не
-  реализованы.
-- `frontend/src/App.tsx` хранит и обновляет только normalized pathname.
-  Query-only browser navigation не является state этого router, поэтому
-  schedule feature должен локально читать `window.location.search`, писать
-  History API и слушать `popstate`; общий router менять не требуется.
-- Filters, manual reload, 60-second auto refresh, current-week presentation
-  labels, loading/error/stale/empty states и type legend уже принадлежат
-  screen. View state не должен зависеть от schedule payload или filter state.
-- `frontend/src/App.css` содержит отдельные weekly и mobile-day surfaces.
-  Weekly grid намеренно может иметь один contained horizontal viewport на
-  tablet; wide day view не должен наследовать этот x-scroll.
-- `frontend/src/lib/groupSchedule.ts` уже сортирует entries по start time и
-  вычисляет overlap lanes/grid metrics. TASK-112 не меняет эту presentation
-  math и не вводит conflict/domain rules.
-- Existing tests: pure schedule helpers в `groupSchedule.test.ts`, component
-  coverage в `GroupScheduleScreen.test.tsx`, browser/responsive behavior в
-  `group-schedule.spec.ts`, `responsive-main-screens.spec.ts` и target-iPhone
-  projects.
-- Backend/API/database/permissions contracts не меняются; backend tests и DB
-  migration для TASK-112 не требуются.
-
-## UX contract
-- Пользователь: Coach / Administrator / HeadCoach, уже допущенный к Schedule
-  backend contract. Существующий SuperAdministrator global view остаётся
-  regression edge, но новые role rules не добавляются.
-- Результат: пользователь фокусируется на одном weekday и читает занятия в
-  хронологическом порядке, сохраняя возможность вернуться к week overview на
-  wide viewport.
-- Primary path wide: `/schedule` → `День` → weekday → day time grid → следующий
-  weekday. Week overview остаётся default и доступен без дополнительных
-  действий.
-- Primary path mobile/compact-height: `/schedule` → weekday strip → day time
-  grid → следующий weekday; mode control отсутствует.
-- Completion signal: выбранный tab имеет `aria-selected="true"`, day panel
-  связан с ним через ARIA и рендерит только entries выбранного weekday либо
-  точное day-empty состояние.
-- Primary/frequent controls: mode switch на wide, weekday tabs, filters и
-  refresh. Secondary/recovery: reset filters, retry. Type legend — supporting
-  information.
-- Unmapped/out of scope controls: date picker, Today/previous/next week,
-  edit/create/move/cancel, drag-and-drop и conflict resolution.
-- Required information сохраняет current contract: weekday, presentation-only
-  `dd.MM`, lesson count/current marker, time axis, full time, group, type,
-  hall/trainer, participants и inactive state в пределах существующей card
-  presentation.
-- Нельзя добавлять route subtitle, helper panel или copy, создающие впечатление
-  выбора конкретной календарной даты.
 
 ## UI specification
 
@@ -222,98 +136,9 @@ Media-query change меняет только render decision и никогда �
 - Permission-restricted route остаётся ответственностью current App/session
   access resolution; screen не выводит новые permission rules.
 
-## Execution roles
-1. UX contract и UI specification выполнены на planning stage и являются
-   implementation input.
-2. `test-automator` до production-кода добавляет pure unit,
-   component/integration и Playwright red regressions, затем закрывает
-   responsive и target-iPhone matrix.
-3. `react-specialist` только после подтверждённого red state реализует
-   минимальные React/Mantine/history/CSS changes, применяя
-   `.agents/skills/react-best-practices/SKILL.md`.
-4. Координирующий агент проверяет worktree, test-first evidence, URL history,
-   UX/UI contract и сохранение backend-owned semantics.
-5. Если актуальный `origin/main` уже содержит TASK-106 и её shared card/render
-   model изменился, executor адаптирует TASK-112 к merged contract. Код из
-   unmerged TASK-106 branch не копируется и branch dependency не создаётся.
+## Implementation sequence
 
-## Execution steps
-
-### Phase 0 — isolated workspace and baseline
-1. Выполнить `git fetch origin`; перечитать root/frontend `AGENTS.md`, source
-   TASK, этот plan, `crm-mobile-first-ui`, `react-best-practices` и
-   `task-worktree`; создать/возобновить declared branch/worktree и вернуть
-   verified path, branch, base commit и clean status.
-2. Проверить, merged ли TASK-106 в актуальный `origin/main`, и зафиксировать
-   current schedule card/grid contract. Не ждать TASK-106 автоматически и не
-   основывать TASK-112 на её unmerged branch; при одновременной работе
-   уведомить integration owner об overlapping files.
-3. До новых assertions запустить focused baseline:
-   - `cd frontend && npm run test:unit -- src/lib/groupSchedule.test.ts src/features/schedule/GroupScheduleScreen.test.tsx`;
-   - `npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`.
-   Отделить pre-existing failures от ожидаемого TASK-112 red state.
-4. Source-search подтвердить current consumers schedule media query, History
-   API/popstate, mobile ids, filter drawer, card modes и overflow contract. Не
-   менять backend, API types, app route model или unrelated shared components.
-
-### Phase 1 — tests before functional code
-5. До production-кода создать
-   `frontend/src/features/schedule/scheduleViewQuery.test.ts` и описать pure
-   query contract:
-   - exact round-trip `week/day` и weekdays `1..7`;
-   - missing values canonicalize to `week` + injected local weekday;
-   - unknown, blank, duplicate, `0`, `8`, decimal и non-numeric values fail
-     closed and repair deterministically;
-   - unrelated query params/hash composition сохраняются;
-   - serialization не мутирует input, заменяет только owned keys и даёт
-     stable canonical result;
-   - same semantic state определяется как no-op.
-6. До production-кода расширить `GroupScheduleScreen.test.tsx` как frontend
-   integration barrier:
-   - wide `/schedule` canonicalizes через `replaceState`, выбирает `week`,
-     показывает mode switch и weekly grid;
-   - wide `?mode=day&weekday=7` показывает только Sunday day panel и сохраняет
-     chronological entries;
-   - invalid query repair использует `replaceState`, сохраняет
-     `history.state`/unrelated query и не вызывает runtime error;
-   - click по mode/weekday использует ровно один `pushState`; semantic no-op
-     не создаёт entry;
-   - `popstate` на том же pathname восстанавливает mode/weekday;
-   - mobile/compact query `mode=week` скрывает mode switch, показывает stored
-     weekday и не переписывает mode; widening восстанавливает week;
-   - filter apply/reset, manual refresh, fake-timer auto refresh, payload
-     success/stale error не сбрасывают query/view;
-   - initial/global/Coach/filter empty скрывают mode control; selected-day
-     empty сохраняет strip/panel и точную copy;
-   - tabs имеют roving tabindex, `aria-controls`/tabpanel, ArrowLeft/Right,
-     Home/End, wrapping, focus и visible-focus class contract.
-7. До production-кода расширить `frontend/e2e/group-schedule.spec.ts`:
-   - `1440 x 1200` URL without params repairs/defaults to weekly grid; mode
-     switch доступен и имеет target не меньше `44px`;
-   - wide `День` + Tuesday создаёт URL, показывает только Tuesday day grid;
-     full reload сохраняет selection;
-   - browser Back/Forward проходит weekday/mode history без extra entries;
-   - filters/reset, manual refresh и `page.clock.fastForward(60_000)` auto
-     refresh сохраняют URL и visible day;
-   - `1440 → 390 → 1440` и `768 → compact-height → 768` показывают effective
-     day UI на narrow/coarse viewport, не меняют stored mode и восстанавливают
-     wide mode;
-   - empty selected weekday, filtered empty и stale/retry сохраняют current
-     temporal context;
-   - Arrow/Home/End, `aria-selected`, roving focus и tabpanel association;
-   - long group/type/hall/trainer values и viewport matrix не создают document
-     overflow; day mode не получает x-scroll/nested-scroll trap.
-8. При необходимости до production-кода добавить focused schedule case в
-   `responsive-main-screens.spec.ts` и/или `iphone-target-devices.spec.ts`,
-   только если current shared matrix не может доказать geometry/target-device
-   behavior без дублирования fixture.
-9. Запустить новые unit/component/integration и Playwright tests на неизменённом
-   production code. Зафиксировать expected red evidence: query helpers и mode
-   switch отсутствуют; selected weekday не восстанавливается; wide day mode,
-   Home/End и query-only popstate behavior отсутствуют. Broken mock/clock/
-   selector или unrelated baseline failure не считается корректным red state.
-
-### Phase 2 — minimal functional implementation
+### minimal functional implementation
 10. Добавить pure typed query helper `scheduleViewQuery.ts`; он владеет только
     `mode`/`weekday`, canonical repair и preservation unrelated URL state.
 11. Добавить local schedule URL-state hook либо focused logic рядом с helper:
@@ -335,59 +160,10 @@ Media-query change меняет только render decision и никогда �
     использовать её current public/local render contract; не возвращать
     start-only cards и не менять cluster/conflict semantics в рамках TASK-112.
 
-### Phase 3 — green and regression closure
-17. Повторно запустить focused unit/component/integration и Playwright tests;
-    исправлять production code по contract, не ослаблять URL, focus, state или
-    overflow assertions.
-18. Запустить обязательные frontend checks из task worktree:
-    - `cd frontend && npm run test:unit`;
-    - `npm run lint`;
-    - `npm run build`;
-    - `npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`;
-    - `npm run test:e2e:iphone`.
-19. Выполнить source/DOM review: нет frontend permission/date/conflict logic,
-    filters в query, duplicate responsive DOM с competing ids, positive
-    tabindex, viewport-driven mode rewrite, leaked popstate listener, raw
-    colors или нового page/nested overflow.
-20. Выполнить manual keyboard/200% zoom smoke на `768 x 1024` и
-    `1440 x 1200`. Если доступны Safari Responsive Design Mode/iOS Simulator
-    или physical target iPhones, проверить browser chrome, safe area и
-    compact-height; непроверенное device behavior указать residual risk.
-
-## Preferred implementation strategy
-1. Pure query tests → component/history integration tests → Playwright red
-   scenarios.
-2. Один typed schedule-owned stored URL state, отдельный от responsive
-   effective mode и payload/filter state.
-3. Переиспользование current day strip/time grid и cards без новой domain
-   model.
-4. Wide-only mode control и bounded one-day layout с локальным CSS.
-5. Green focused suite → full frontend regression → target-iPhone WebKit.
-
-## Files likely to change
-- `frontend/src/features/schedule/scheduleViewQuery.ts` (new)
-- `frontend/src/features/schedule/scheduleViewQuery.test.ts` (new)
-- `frontend/src/features/schedule/GroupScheduleScreen.tsx`
-- `frontend/src/features/schedule/GroupScheduleScreen.test.tsx`
-- `frontend/src/App.css`
-- `frontend/e2e/group-schedule.spec.ts`
-- `frontend/e2e/responsive-main-screens.spec.ts` (only for focused geometry
-  contract not already covered by group schedule spec)
-- `frontend/e2e/iphone-target-devices.spec.ts` (only if current target-iPhone
-  project selection needs an explicit schedule case)
-
-Files to inspect but not expected to change:
-- `frontend/src/App.tsx`
-- `frontend/src/lib/appRoutes.ts`
-- `frontend/src/lib/groupSchedule.ts`
-- `frontend/src/lib/groupSchedule.test.ts`
-- `frontend/src/lib/api/schedule.ts`
-- `frontend/src/lib/api/types.ts`
-- backend schedule endpoints/tests
-
-If `GroupScheduleScreen.tsx` remains too large after extracting pure query
-logic, a focused local `ScheduleDayView.tsx` extraction is allowed. Do not
-create a shared/global abstraction only for this task.
+## Likely files and layers
+- Schedule query/state helpers and their unit tests.
+- `GroupScheduleScreen` mode/day controls, styles and component/history tests.
+- Affected schedule Playwright specs for required portrait/landscape viewports.
 
 ## Constraints
 - Backend owns schedule payload, permissions, access scope, weekly-template
@@ -413,7 +189,7 @@ create a shared/global abstraction only for this task.
 - TASK-106 parallel-event readability implementation.
 - General app-router, navigation shell, filter panel or design-system refactor.
 
-## Required test coverage
+## Regression specification
 
 ### Unit tests — before production code
 - Pure parsing, validation, canonicalization, serialization, unrelated-query
@@ -446,7 +222,7 @@ component/history tests are the relevant integration boundary.
   and physical software-keyboard behavior require Simulator or physical-device
   evidence. Manual QA supplements but does not replace automated barriers.
 
-## Test plan
+### Validation and acceptance
 - [ ] Pure query tests written first and fail because helper is absent.
 - [ ] Component/history integration tests written first and fail on missing
   wide mode/day URL behavior.
@@ -505,6 +281,3 @@ still mutate stored mode.
 Не останавливаться только из-за frontend-only responsive/history change,
 shared Schedule module или необходимости согласовать обычный merge conflict с
 TASK-106.
-
-## Ready for Codex execution
-yes

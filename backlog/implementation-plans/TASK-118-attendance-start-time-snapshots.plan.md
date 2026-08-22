@@ -1,41 +1,11 @@
 # Implementation Plan: TASK-118 Зафиксировать историческое время занятия в посещении
 
-## Source task
-/backlog/risky/TASK-118-attendance-start-time-snapshots.md
-
-Source task status remains `risky`. This plan is created for explicit
-product/architecture review; TASK-118 is not moved into active implementation.
-
-## Implementation branch
-feature/TASK-118-attendance-start-time-snapshots
-
-Branch and worktree rules:
-- before any project-code change, read and use
-  `.agents/skills/task-worktree/SKILL.md`;
-- execute TASK-118 only after TASK-117 is merged into current `origin/main`;
-- from the primary repository run `git fetch origin`, verify the TASK-117 merge
-  commit is an ancestor of `origin/main`, then create or safely resume the
-  branch above in the registered sibling worktree
-  `../crm-worktrees/TASK-118-attendance-start-time-snapshots`;
-- create the branch directly from that current `origin/main`; never base
-  TASK-118 on an unmerged TASK-117 branch and never copy TASK-117 changes into
-  this branch manually;
-- keep the primary repository on `main` and do not change project code there;
-- before editing, return the verified worktree path, active branch, base SHA,
-  current SHA and clean/unexplained-change status;
-- do not mix TASK-075 lesson state, attendance eligibility, permissions,
-  membership/financial changes, schedule UI redesign or unrelated refactoring
-  into this branch;
-- if runtime validation is needed, use a task-local Docker Compose project,
-  unique verified ports and `BOT_ENABLED=false` unless bot runtime validation
-  is explicitly required.
-
-Planning evidence on 2026-08-19: the primary repository is clean on local
-`main` at `781aa86ed9a53b872716021413a6355c31c75ab3`, seven commits ahead of
-local `origin/main` at `921e17340922ebdab701d76fa671387e57577115`; no local
-TASK-118 branch or additional worktree exists. TASK-117 is planned but not
-implemented. The executor must repeat all checks after `git fetch origin` and
-must not use this planning snapshot as the execution base.
+## Metadata
+- source_task: /backlog/risky/TASK-118-attendance-start-time-snapshots.md
+- branch: feature/TASK-118-attendance-start-time-snapshots
+- readiness: no — TASK-117 must be integrated and DB compatibility path approved
+- dependencies: TASK-117
+- risk: high — immutable attendance history, transaction/concurrency and schema change
 
 ## Goal
 When the first persisted `Present` or `Absent` mark creates the attendance
@@ -44,39 +14,6 @@ start time once. Later schedule edits, weekday removal, attendance corrections,
 web/bot retries and temporary absence of client rows do not change that time.
 Client history, missed-training ordering and acknowledgement boundaries use the
 captured value, so historical event order remains stable.
-
-## Current understanding
-- Current `Attendance` is one row per `(ClientId, GroupId, TrainingDate)` and
-  contains state, single-visit lineage, actor and `MarkedAt`/`UpdatedAt`; it has
-  no historical session-time field or separate session record.
-- `AttendanceService.SaveAsync` is the single backend mutation boundary used by
-  both the web endpoint and `BotApiService`. It owns the transaction, validates
-  authorization, locks the group on PostgreSQL, applies tri-state changes,
-  coordinates single-visit write-off/restore and writes mandatory audit.
-- A repeated identical state is a no-op and preserves `MarkedAt`; `Unmarked`
-  removes the attendance row. A row-only snapshot would therefore disappear
-  when the last mark is reset and could be recaptured from a changed schedule.
-- One training occurrence is currently identified by `(GroupId,
-  TrainingDate)`. Several client attendance rows for that occurrence must not
-  acquire different times when clients are marked in separate requests.
-- Current client history orders by date, `UpdatedAt` and id, and reads the
-  group's mutable time. The frontend then sorts again by date only. The internal
-  bot client card also orders by date/`UpdatedAt` and omits time from its typed
-  history item.
-- `ClientAttentionEndpoints` orders the last event and creates
-  `MissedTrainingAttendanceEvent` from the current group time. The persisted
-  `ClientMissedTrainingAcknowledgement` already stores an immutable cutoff time,
-  but that value is currently copied from the mutable group schedule.
-- TASK-117 defines the prerequisite `scheduleEntries[{weekday,startTime}]`
-  contract, a backend-owned date-to-entry resolver and the matching-weekday /
-  earliest-time compatibility fallback. TASK-118 must reuse that resolver and
-  must not create a second schedule rule.
-- The repository is pre-production and `backend/AGENTS.md` requires reproducible
-  clean schema changes in `InitialCreate` and the EF model snapshot. An
-  incremental migration is not authorized unless the user explicitly requires
-  preservation of an existing deployed database.
-- Adding event time to the existing history rows is a local presentation and
-  ordering correction, not a new screen or a substantial CRM workflow redesign.
 
 ## Proposed implementation contract
 
@@ -222,104 +159,9 @@ Additional rules:
 - The conditional legacy path needs its own migration/upgrade tests and product
   copy; it is not silently included in the clean-schema implementation.
 
-## Safe decomposition
+## Implementation sequence
 
-TASK-118 remains one branch and one coordinated backend/consumer rollout, split
-into verifiable phases:
-
-1. Prerequisite/base and database-lifecycle verification.
-2. Unit, raw-contract and PostgreSQL red tests for occurrence snapshot storage.
-3. Domain/persistence schema and atomic capture in the shared attendance service.
-4. History, audit, missed-training and acknowledgement propagation.
-5. Small synchronized frontend and Python bot history adaptations.
-6. Focused green runs, full regressions, clean PostgreSQL/runtime smoke and
-   final mutable-schedule-source search.
-
-Do not merge or deploy a backend history-contract change while frontend and bot
-client-card consumers still ignore the new historical field.
-
-## Execution roles
-
-1. Coordinating agent creates/verifies the dedicated worktree, confirms the
-   TASK-117/base and database lifecycle, owns the cross-layer contract and final
-   acceptance.
-2. `test-automator` writes backend unit/integration/PostgreSQL, frontend unit/
-   component and bot contract/render regressions before behavioral code.
-3. `dotnet-backend-specialist` implements domain, EF, service, history,
-   attention and internal-bot changes only after red evidence exists; when
-   creating or substantially changing xUnit tests, the executor reads
-   `.agents/skills/csharp-xunit/SKILL.md`.
-4. `react-specialist` performs only the typed client-history mapping, stable
-   sorting and small display change, after reading
-   `.agents/skills/react-best-practices/SKILL.md`. No screen redesign is planned.
-5. `python-pro` adapts the thin bot history model/rendering without moving
-   schedule or attendance rules into Python.
-
-All specialists work only in the coordinator-delegated TASK-118 worktree, do
-not create/remove worktrees and do not revert another agent's edits.
-
-## Execution steps
-
-### Phase 0 — isolated workspace, prerequisite and baseline
-
-1. Re-read root/backend/frontend/bot `AGENTS.md`, this plan, TASK-117's merged
-   plan/contract, `task-worktree`, `csharp-xunit` and applicable React testing
-   guidance.
-2. Fetch `origin`; prove TASK-117 is merged into current `origin/main`; create
-   or safely resume the declared worktree/branch directly from that base and
-   report execution identity before edits.
-3. Inventory all executable reads of group schedule time from attendance,
-   history, client attention, acknowledgement, audit and bot paths, plus every
-   direct `Attendance` fixture. Classify each occurrence as mutable current
-   schedule, future snapshot source or unrelated group display.
-4. Verify from deployment/runtime evidence that target environments may still
-   be recreated. Record `clean-schema only`; stop for explicit migration design
-   approval if persistence of an applied database is required.
-5. Run focused baseline suites for attendance service/API, client history,
-   missed-training calculator/attention, internal bot API, frontend client API/
-   card and Python bot client-card rendering. Separate pre-existing failures
-   from TASK-118 evidence.
-
-### Phase 1 — tests before functional code
-
-6. Before domain/schema code, add focused model and initial-migration tests for
-   `AttendanceSessionStartTimeSnapshot`: composite key, required local time,
-   group FK, required Attendance composite FK, restrictive deletion and clean
-   PostgreSQL creation.
-7. Before service behavior, add `AttendanceStartTimeSnapshotApiTests` (or an
-   equivalently focused suite) covering web first mark, several clients in one
-   batch, later clients in another request, `Present/Absent` transitions,
-   identical replay, `Unmarked`, recreation after reset, audit JSON and no-op
-   `MarkedAt` preservation.
-8. Add schedule-mutation regressions on the TASK-117 API: capture Monday time,
-   edit that weekday's time, remove the weekday, then prove persistence,
-   history JSON and audit retain the captured value. Cover the documented
-   earliest-time fallback only at first capture for an off-schedule date.
-9. Add real-PostgreSQL concurrency tests for two first attendance writes and
-   for first attendance capture racing a group schedule update. Assert one
-   snapshot, identical time for every row, no provider exception and a result
-   matching one complete serialized transaction.
-10. Add rollback regressions proving invalid client/date/state, authorization
-    failure, mandatory audit failure and single-visit restore conflict leave no
-    new snapshot; all-`Unmarked`/empty no-op requests also create none.
-11. Before attention code, extend calculator/client-attention tests with two
-    same-date groups at different captured times, acknowledgement, later
-    schedule edits/removal and new post-boundary absences. Assert stable order,
-    boundary and streak.
-12. Before web consumer code, add raw client-history API tests for normalized
-    `trainingStartTime`, date/time/id order, paging stability, role/group scope
-    and schedule changes. Add frontend mapper/comparator/component assertions
-    for the typed time and exact displayed date/time.
-13. Before bot consumer code, add internal-bot tests proving its write creates
-    the same persistence model, bot idempotency replay does not recapture, and
-    client-card history returns the snapshot in stable order. Add Python model
-    and rendering tests for `HH:mm` without local schedule resolution.
-14. Run all new focused tests and record executed failures caused by missing
-    TASK-118 behavior. Compile errors, host/bootstrap failures and unrelated
-    baseline failures do not count as the required red phase. No behavioral
-    production code starts until executable red evidence exists.
-
-### Phase 2 — domain, persistence and clean schema
+### domain, persistence and clean schema
 
 15. Implement `AttendanceSessionStartTimeSnapshot` with focused construction
     semantics and no public application update method.
@@ -330,7 +172,7 @@ not create/remove worktrees and do not revert another agent's edits.
 18. Re-run model/initial-script tests and create a clean PostgreSQL database
     before service behavior, proving schema/model parity and FK enforcement.
 
-### Phase 3 — backend-owned atomic capture
+### backend-owned atomic capture
 
 19. Refactor `AttendanceService.SaveAsync` only enough to load/create the
     occurrence snapshot after the shared group lock and before adding new rows.
@@ -344,7 +186,7 @@ not create/remove worktrees and do not revert another agent's edits.
 22. Include normalized snapshot time in attendance audit old/new state without
     changing action type, source, messenger attribution or description.
 
-### Phase 4 — history, attention and acknowledgement
+### history, attention and acknowledgement
 
 23. Project `trainingStartTime` from the snapshot in client attendance history;
     replace `UpdatedAt`/mutable-schedule ordering with date/time/id ordering and
@@ -357,7 +199,7 @@ not create/remove worktrees and do not revert another agent's edits.
     search may retain group schedule only for current roster/group display and
     historical backlog/docs, never as an attendance event key.
 
-### Phase 5 — synchronized frontend and Python bot consumers
+### synchronized frontend and Python bot consumers
 
 27. Add `trainingStartTime` to the frontend client-history type/mapper; use
     backend-equivalent date/time/id order and render time beside the date in the
@@ -370,82 +212,10 @@ not create/remove worktrees and do not revert another agent's edits.
     fallback to current group schedule or accept both historical contracts in
     production mapping.
 
-### Phase 6 — green regression and runtime acceptance
-
-30. Re-run the identical focused red suites until green without weakening
-    assertions; record commands, executed counts and outcomes.
-31. Run full backend, frontend and bot validation required by nearest
-    `AGENTS.md` files.
-32. Recreate the isolated PostgreSQL database from scratch, seed it, verify
-    backend readiness, perform one web save and one internal-bot save, mutate
-    the relevant schedules and verify stable web/bot history plus client
-    attention.
-33. Search executable code/tests for attendance event ordering by
-    `Group.ScheduleEntries`, group start-time fallback or `UpdatedAt`. Classify
-    every remaining result and reject hidden mutable historical sources.
-34. Record that no forward migration/backfill or physical-device UI validation
-    was performed unless separately approved and actually executed.
-
-## Preferred implementation strategy
-
-1. Executable persistence and raw-contract tests before DTO/entity behavior.
-2. One lazy occurrence-level snapshot, not duplicated per client attendance row.
-3. One backend resolver reused only at first capture.
-4. Shared service capture before web/internal-bot read propagation.
-5. Snapshot-based history/attention ordering before thin consumer display.
-6. Clean-schema PostgreSQL and concurrency proof before full regressions.
-7. Small verifiable commits with no partially deployed history contract.
-
-## Files likely to change
-
-Backend domain/persistence:
-- `backend/src/GymCrm.Domain/Attendance/AttendanceSessionStartTimeSnapshot.cs` (new)
-- `backend/src/GymCrm.Domain/Attendance/Attendance.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/Configurations/AttendanceSessionStartTimeSnapshotConfiguration.cs` (new)
-- `backend/src/GymCrm.Infrastructure/Persistence/Configurations/AttendanceConfiguration.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260513165936_InitialCreate.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260513165936_InitialCreate.Designer.cs`
-- latest migration designer required after TASK-117 is merged
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/GymCrmDbContextModelSnapshot.cs`
-- affected seed/fixture builders found by the mandatory source audit
-
-Backend behavior/contracts:
-- merged TASK-117 date-to-schedule resolver under
-  `backend/src/GymCrm.Application/Attendance/` or its final owning module
-- `backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs`
-- `backend/src/GymCrm.Api/Auth/ClientAttendanceHistoryEntryResponse.cs`
-- `backend/src/GymCrm.Api/Auth/ClientEndpoints.cs`
-- `backend/src/GymCrm.Api/Auth/ClientAttentionEndpoints.cs`
-- `backend/src/GymCrm.Application/Attendance/MissedTrainingAttendanceEvent.cs`
-- `backend/src/GymCrm.Application/Attendance/MissedTrainingStreakCalculator.cs`
-- `backend/src/GymCrm.Application/Bot/BotApiContracts.cs`
-- `backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs`
-
-Backend tests:
-- `backend/tests/GymCrm.Tests/AttendanceStartTimeSnapshotApiTests.cs` (new, preferred)
-- `backend/tests/GymCrm.Tests/AttendanceStartTimeSnapshotPostgreSqlTests.cs` (new, preferred)
-- `backend/tests/GymCrm.Tests/AttendanceApiTests.cs`
-- `backend/tests/GymCrm.Tests/ClientsApiTests.cs`
-- `backend/tests/GymCrm.Tests/MissedTrainingStreakCalculatorTests.cs`
-- `backend/tests/GymCrm.Tests/InternalBotApiTests.cs`
-- `backend/tests/GymCrm.Tests/BootstrapSmokeTests.cs`
-- `backend/tests/GymCrm.Tests/TestDataSeederTests.cs`
-- other direct attendance fixtures found by the source audit
-
-Frontend production/tests:
-- `frontend/src/lib/api/types.ts`
-- `frontend/src/lib/api/clients.ts`
-- `frontend/src/lib/api/clients.test.ts`
-- `frontend/src/features/clients/ClientManagement.tsx`
-- `frontend/src/features/clients/ClientManagement.test.tsx`
-- affected client-card e2e mocks/spec only if the rendered history is covered
-
-Bot production/tests:
-- `bot/src/gym_crm_bot/crm/models.py`
-- `bot/src/gym_crm_bot/core/service.py`
-- `bot/tests/test_crm_client.py`
-- `bot/tests/test_bot_service.py`
+## Likely files and layers
+- Backend attendance snapshot domain/EF schema, save transaction, history/attention/audit/internal-bot projections and tests.
+- Frontend client-history contract/mapper/card and focused tests.
+- Python bot client-history model/rendering/tests and clean-schema/runtime fixtures.
 
 ## Constraints
 - Backend exclusively owns snapshot capture, schedule resolution, permissions,
@@ -463,7 +233,6 @@ Bot production/tests:
 - Existing permissions, access scopes, date windows, CSRF, bot idempotency,
   single-visit lineage and `MarkedAt` protection remain unchanged.
 - Existing acknowledgement `MarkedAt` guard and denormalized boundary remain.
-- Project code changes occur only in the declared TASK-118 worktree.
 
 ## Out of scope
 - Implementing TASK-117 or changing its accepted `scheduleEntries` contract.
@@ -480,7 +249,7 @@ Bot production/tests:
 - Removing the existing acknowledgement time boundary or rewriting historical
   audit rows.
 
-## Required test coverage
+## Regression specification
 
 All unit and integration tests below are written or updated before behavioral
 functional code. The initial red run must contain executed failing assertions
@@ -542,7 +311,7 @@ for absent TASK-118 behavior; compilation/setup failures are not evidence.
 - Legacy-data truthfulness can be validated only after a separately approved
   preservation/provenance design; it is not claimed by clean-schema tests.
 
-## Test plan
+### Validation and acceptance
 - [ ] Record focused baseline backend/frontend/bot results after TASK-117 merge.
 - [ ] Run red backend snapshot suites:
   `dotnet test backend/tests/GymCrm.Tests/GymCrm.Tests.csproj --filter "FullyQualifiedName~AttendanceStartTimeSnapshot"`.
@@ -551,12 +320,8 @@ for absent TASK-118 behavior; compilation/setup failures are not evidence.
 - [ ] Run red frontend client API/card tests.
 - [ ] Run red Python bot client/service tests.
 - [ ] After implementation, rerun the identical focused suites to green.
-- [ ] Run `dotnet test backend/GymCrm.slnx`.
-- [ ] From `frontend`, run `npm run lint`, `npm run build` and
-  `npm run test:unit`.
 - [ ] Run the affected client-card Playwright spec if history rendering has an
   existing e2e boundary.
-- [ ] From `bot`, run `ruff check .` and `pytest`.
 - [ ] Recreate clean PostgreSQL in the isolated stack, seed and smoke web/bot
   save -> schedule change -> stable history/attention.
 - [ ] Search executable code/tests for mutable schedule or `UpdatedAt` used as
@@ -608,8 +373,6 @@ same focused assertions.
 Stop and do not write or continue functional code if:
 - TASK-117 is not merged into current `origin/main`, or its authoritative
   resolver/contract cannot satisfy the prerequisite defined here;
-- the declared branch/worktree is ambiguous, dirty with unexplained changes or
-  not based directly on current `origin/main` after TASK-117;
 - an existing database must be preserved without explicit approval of a
   trustworthy legacy provenance/backfill contract;
 - product requires multiple sessions for one group/date, timezone conversion,
@@ -627,9 +390,3 @@ Stop and do not write or continue functional code if:
 
 Do not stop merely because backend, frontend and bot all need synchronized
 contract updates. That coordinated propagation is expected.
-
-## Ready for Codex execution
-no — the source task remains high-risk and `Safe for Codex: no`; TASK-117 is an
-unmerged prerequisite, and active execution plus any legacy-data compatibility
-path require explicit user approval and movement from `/backlog/risky` into the
-task implementation lifecycle.

@@ -1,54 +1,11 @@
 # Implementation Plan: TASK-113 Добавить фильтр расписания по типу группы
 
-## Source task
-/backlog/implementation/TASK-113-schedule-group-type-organization.md
-
-## Implementation branch
-feature/TASK-113-schedule-group-type-organization
-
-Branch rules:
-- до изменения project code применить `.agents/skills/task-worktree/SKILL.md`
-  и создать либо безопасно возобновить отдельный worktree
-  `../crm-worktrees/TASK-113-schedule-group-type-organization`;
-- создать branch непосредственно от актуального `origin/main`; primary
-  repository оставить на `main`, а код менять только в task worktree;
-- до первой правки подтвердить repo root, active branch, clean status,
-  registered worktree и `git merge-base --is-ancestor origin/main HEAD`;
-- начинать implementation только от `origin/main`, в который уже интегрирована
-  TASK-112; TASK-106 не является functional prerequisite: если она уже
-  merged, адаптироваться к released render contract, а если нет — не ждать её
-  автоматически, не копировать files/commits из unmerged branch и не
-  создавать branch dependency;
-- не включать backend/API changes, TASK-106/TASK-112 fixes, redesign расписания,
-  URL persistence фильтров или unrelated refactoring;
-- Docker Compose по умолчанию не запускать: задача покрывается frontend unit,
-  component integration, mocked Playwright и target-iPhone WebKit tests.
-
-Actualization evidence на 2026-08-19: после `git fetch --prune origin`
-`origin/main` остаётся на
-`921e17340922ebdab701d76fa671387e57577115`; TASK-106 и TASK-112 всё ещё
-находятся в `/backlog/implementation`, и их declared local/remote branches и
-released source markers не найдены. Этот `origin/main` не является
-допустимым execution base, поскольку TASK-112 ещё не интегрирована.
-Executor обязан повторить fetch/source discovery после merge TASK-112
-и отдельно зафиксировать, присутствует ли TASK-106 в новой baseline.
-Отсутствие TASK-106 само по себе не блокирует TASK-113.
-
-Confirmed decisions on 2026-08-19:
-
-- на desktop `Тип группы` пока остаётся secondary item в existing
-  overflow surface;
-- existing contextual retention сохраняется: недоступное после
-  изменения другого filter или успешного payload refresh значение
-  очищается автоматически;
-- day counts всегда рассчитываются по каждому weekday из всей
-  filtered week; legend отражает всю filtered week в week mode и только
-  selected weekday в effective day mode;
-- inactive labels остаются `Фильтры` на mobile и `Ещё фильтры`
-  на desktop; при любом active filter оба trigger показывают
-  neutral `Фильтры · N`, где `N` — число всех non-null schedule filters;
-- only TASK-112 is a functional prerequisite; TASK-106 требует
-  merge-aware coordination, но не жёсткого ожидания.
+## Metadata
+- source_task: /backlog/implementation/TASK-113-schedule-group-type-organization.md
+- branch: feature/TASK-113-schedule-group-type-organization
+- readiness: yes — only after TASK-112 is integrated
+- dependencies: TASK-112; TASK-106 is optional merge-aware baseline
+- risk: medium — shared schedule filters and derived counts/legend
 
 ## Goal
 Тренер, администратор или главный тренер на `/schedule` выбирает один доступный
@@ -57,49 +14,6 @@ Confirmed decisions on 2026-08-19:
 филиалом, залом, тренером и группой, остаётся выбранным при refresh и смене
 viewport в рамках открытого экрана, а пассивная легенда пересчитывается только
 по фактически показанным занятиям.
-
-## Current understanding
-- `frontend/src/features/schedule/GroupScheduleScreen.tsx` хранит schedule
-  filters в local React state, загружает весь разрешённый backend scope через
-  `/api/schedule/groups`, применяет frontend presentation filters и только
-  затем строит calendar render model.
-- `ScheduleFilters` и `ScheduleFilterOptions` в
-  `frontend/src/lib/groupSchedule.ts` сейчас содержат branch, hall, trainer и
-  group. `EMPTY_SCHEDULE_FILTERS`, `applyScheduleFilters`,
-  `buildScheduleFilterOptions`, retention/equality checks и toolbar должны
-  получить один новый `groupTypeId` dimension.
-- `TrainingGroupListItem` уже содержит обязательные `groupTypeId` и
-  `groupTypeName`; `getScheduleGroups` уже возвращает их. Новый endpoint,
-  request parameter, API mapping или справочник типов не нужны.
-- `buildScheduleFilterOptions` строит contextual options из уже загруженного
-  payload: для каждого dimension применяет остальные filters и исключает
-  собственный. Новый type options builder должен следовать тому же contract,
-  deduplicate по stable id и сортировать подписи через существующую русскую
-  locale strategy.
-- `buildScheduleCalendarWeek` сортирует entries time-first и затем по group
-  name. Type filter не должен вводить новый sort или группировку.
-- Type legend уже строится после фильтрации из calendar entries. После
-  интеграции TASK-112 source legend должен совпадать с реально rendered scope:
-  вся filtered week в effective week mode и selected weekday в effective day
-  mode. Day counts при этом всегда отражают каждый weekday всей
-  filtered week, чтобы weekday strip не терял navigation context.
-- `CompactFilterPanel` уже даёт mobile bottom Drawer, desktop one-row filters,
-  `Ещё фильтры`, reset, focus return, safe-area padding и `44px` controls.
-  Новый select нужно встроить в этот surface, не создавая новый toolbar.
-- Manual/auto refresh меняют payload/reload state, но не remount screen и не
-  сбрасывают filter state. Existing retention effect пересчитывается
-  при изменении contextual options: если другой filter или успешный
-  payload update делает selected value недоступным, value очищается
-  автоматически. Stale/error refresh не заменяет groups/options и сохраняет
-  previous selection.
-- TASK-112 делает mode/weekday URL-owned presentation state, а filters оставляет
-  local и вне URL. TASK-113 не меняет `mode`/`weekday`, history или viewport
-  semantics.
-- TASK-106, если она есть в baseline, потребляет уже filtered calendar
-  entries на presentation layer; это делает её file-conflict risk, но не
-  functional prerequisite TASK-113.
-- Backend permissions/access scope, schedule conflict logic, loading, initial
-  error, stale/retry, global empty и Coach zero-scope semantics не меняются.
 
 ## UX contract
 
@@ -197,115 +111,9 @@ viewport в рамках открытого экрана, а пассивная 
   selection не раскрывает unauthorized data. Failed refresh leaves existing
   filtered board available under stale/error surface.
 
-## Execution roles
-1. `ui-designer` перед test implementation сверяет локальный handoff с уже
-   integrated TASK-112 filter/mode order и подтверждает, что secondary desktop
-   placement, active-count labels и Drawer order не создают второй toolbar.
-2. `test-automator` до production code добавляет pure unit, component
-   integration и Playwright regressions и фиксирует expected red evidence.
-3. `react-specialist` после red evidence вносит минимальные React 19/Mantine
-   changes, не переносит domain rules во frontend и не перерабатывает screen.
-4. Координирующий агент проверяет task worktree, merged dependency baseline,
-   test-first order и итог против `crm-mobile-first-ui` criteria.
+## Implementation sequence
 
-## Execution steps
-
-### Phase 0 — isolated workspace and integrated baseline
-1. Выполнить `git fetch origin`; перечитать root/frontend `AGENTS.md`, source
-   TASK, этот plan, `task-worktree`, `crm-mobile-first-ui` и
-   `react-best-practices`; создать/возобновить declared worktree/branch.
-2. Вернуть evidence: absolute worktree path, active branch, HEAD/origin-main
-   commits, clean status, registered ownership и successful ancestor check.
-3. Проверить, что TASK-112 действительно merged в `origin/main` и current
-   schedule имеет released week/day URL contract. Если нет — остановить
-   code execution и не имитировать отсутствующий contract. Отдельно
-   зафиксировать state TASK-106: если она merged, защитить released
-   parallel-event render contract; если нет — не ждать её и не брать код из
-   unmerged branch. При concurrent execution заранее зафиксировать merge order
-   и integration owner из-за overlapping screen/CSS/tests.
-4. Повторно обнаружить actual owners filters, mode/day render scope, legend,
-   empty states, filter panel and tests. Planning file list ниже является
-   baseline, а не разрешением перезаписать integrated changes.
-5. До новых assertions запустить focused baseline:
-   - `cd frontend && npm run test:unit -- src/lib/groupSchedule.test.ts src/features/schedule/GroupScheduleScreen.test.tsx`;
-   - `npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`;
-   - `npm run test:e2e:iphone`.
-   Отделить pre-existing/dependency/browser-fixture failures от TASK-113 red.
-
-### Phase 1 — tests before functional code
-6. До изменения `groupSchedule.ts` расширить
-   `frontend/src/lib/groupSchedule.test.ts`:
-   - `EMPTY_SCHEDULE_FILTERS` включает null `groupTypeId`, а active-filter
-     detection считает выбранный type;
-   - type options берутся только из supplied payload, deduplicate по id,
-     сортируются по русскому label и не получают catalog-only values;
-   - selected type option сохраняется при исключении собственного dimension,
-     но options учитывают branch/hall/trainer/group context;
-   - type predicate работает отдельно и в AND-combination со всеми четырьмя
-     existing filters;
-   - после type filtering `buildScheduleCalendarWeek` оставляет entries
-     time-first и deterministic при одинаковом времени;
-   - day counts отражают matching entries каждого weekday всей filtered week,
-     а legend использует matching entries effective rendered scope; отдельный
-     type priority/sort отсутствует.
-7. До изменения `GroupScheduleScreen.tsx` расширить
-   `GroupScheduleScreen.test.tsx` как frontend integration barrier:
-   - `Тип группы` имеет default `Все типы`, payload-only sorted options и exact
-     stable ids;
-   - selection фильтрует cards/counts/legend совместно с existing dimensions;
-   - contextual retention автоматически очищает type или другой selected
-     value, если другой filter делает его недоступным;
-   - `Очистить фильтр «Тип группы»` возвращает all available types, а общий
-     `Сбросить` очищает все пять fields;
-   - selected type сохраняется при manual refresh, fake-timer auto refresh и
-     media-query/viewport transition, если value остаётся в payload;
-   - successful payload без selected id безопасно очищает type; stale error и
-     retry сохраняют previous selection/data;
-   - whole/day filter-empty, loading, initial error, stale board, global empty
-     и Coach zero-scope не меняют existing state semantics;
-   - day mode сохраняет counts всех weekdays filtered week, но legend строит
-     только по selected weekday; week mode строит legend по всей filtered week;
-   - inactive labels — mobile `Фильтры` и desktop `Ещё фильтры`; при
-     active filters оба trigger имеют exact `Фильтры · N`, а также keyboard
-     close и focus return без duplicate controls.
-8. Если integrated TASK-112 вынесла pure effective-mode/rendered-entry helper,
-   добавить test туда, а не дублировать mode decision в TASK-113. Если helper
-   отсутствует, проверять legend day/week scope через screen integration.
-9. До production code расширить `frontend/e2e/group-schedule.spec.ts`:
-   - wide `1440 x 1200`: открыть `Ещё фильтры`, выбрать type, увидеть только
-     matching cards в chronological order, matching legend/count и unchanged
-     mode/weekday URL; active trigger меняется на `Фильтры · 1`, separate clear и
-     global reset возвращают full schedule и inactive label;
-   - mobile day mode `390 x 844`: открыть Drawer, выбрать type, закрыть
-     `Готово`, получить selected-day matching result; выбрать день без этого
-     type и увидеть existing filtered-day empty с reset path;
-   - создать combined-filter case и подтвердить AND semantics без нового API
-     query/filter call;
-   - manual refresh, auto refresh и `390 → 1440 → 390` сохраняют selected id,
-     visible mode/weekday и active filter state;
-   - mobile и desktop active labels считают все non-null filters и показывают
-     exact `Фильтры · N`, не только secondary/overflowed filters;
-   - successful response без id очищает stale selection; failed refresh
-     сохраняет filtered stale board и retry;
-   - filter Popover/Drawer close/focus, select clear target и no duplicate
-     interactive legend behavior.
-10. До production code добавить/расширить responsive coverage:
-    - geometry/no-clipping/no-document-overflow на `360 x 780`, `390 x 844`,
-      `420 x 912`, `440 x 956`, `768 x 1024`, `1440 x 1200`;
-    - compact-height `912 x 420` и `956 x 440` с coarse/touch context;
-    - target-iPhone WebKit в `iphone-target-devices.spec.ts` для `420 x 912`
-      и `440 x 956`, если released shared matrix ещё не выполняет реальный
-      schedule filter workflow;
-    - actual borders `>=44 x 44`, visible focus, Drawer actions reachable,
-      отсутствие page x-overflow и nested vertical scroll trap.
-11. Запустить новые unit/component/integration и Playwright tests на unchanged
-    production code. Обязательный expected red: typed `groupTypeId` filter,
-    options и select отсутствуют; content/legend не фильтруются по type;
-    refresh/responsive workflow не может сохранить отсутствующий selection.
-    Selector, fixture, browser-install или unrelated dependency failure не
-    считается корректным red state. Сохранить test names и failure reason.
-
-### Phase 2 — minimal functional implementation
+### minimal functional implementation
 12. Только после red расширить `ScheduleFilters`, `ScheduleFilterOptions` и
     `EMPTY_SCHEDULE_FILTERS` новым type dimension.
 13. В `applyScheduleFilters` добавить exact type predicate; в
@@ -335,58 +143,10 @@ viewport в рамках открытого экрана, а пассивная 
     `min-width: 0`, `44px` targets и safe-area contract; не скрывать controls
     через `overflow`, не создавать вторую строку или horizontal scrolling.
 
-### Phase 3 — green and regression closure
-19. Повторно запустить focused unit/component/integration и Playwright tests;
-    исправлять implementation, не ослаблять id/source, ordering, refresh,
-    focus, target-size или overflow assertions.
-20. Запустить обязательные frontend checks из task worktree:
-    - `cd frontend && npm run test:unit`;
-    - `npm run lint`;
-    - `npm run build`;
-    - `npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`;
-    - `npm run test:e2e:iphone`.
-21. Выполнить source/DOM review: нет `/group-types` request, server filter
-    param, frontend permissions/type priorities, filter URL keys, duplicate
-    select/legend action, stale option leakage, page overflow или unrelated
-    TASK-106/TASK-112 code.
-22. Выполнить manual keyboard/200% zoom smoke для mobile Drawer, desktop
-    Popover, clear/reset and focus return. Если доступны Safari Responsive
-    Design Mode, iOS Simulator или physical devices, проверить dynamic chrome,
-    safe area, home indicator и software keyboard; непроверенное перечислить
-    как residual device risk, не заменяя automated regression barrier.
-
-## Preferred implementation strategy
-1. Integrated dependency/source discovery.
-2. Pure filtering/options/order unit tests.
-3. Screen integration tests for selection, clear/reset, refresh and states.
-4. Wide/mobile/target-iPhone Playwright red evidence.
-5. Minimal typed helper + screen wiring using current payload and filter panel.
-6. Focused green, full frontend regression and device-emulation barriers.
-
-## Files likely to change
-- `frontend/src/lib/groupSchedule.ts`
-- `frontend/src/lib/groupSchedule.test.ts`
-- `frontend/src/features/schedule/GroupScheduleScreen.tsx`
-- `frontend/src/features/schedule/GroupScheduleScreen.test.tsx`
-- `frontend/e2e/group-schedule.spec.ts`
-- `frontend/e2e/iphone-target-devices.spec.ts` (если released target-device
-  matrix не покрывает type-filter workflow)
-- `frontend/e2e/responsive-main-screens.spec.ts` (только для недостающей общей
-  geometry/no-overflow проверки)
-- `frontend/src/App.css` (только при доказанном local geometry defect)
-
-Conditional only after a focused red test:
-- `frontend/src/features/shared/ux.tsx`
-- `frontend/src/features/shared/ux.test.tsx`
-
-Files to inspect but not expected to change:
-- integrated TASK-112 `frontend/src/features/schedule/scheduleViewQuery.ts`
-  и его tests;
-- TASK-106 schedule presentation helpers/components, только если TASK-106
-  присутствует в execution baseline;
-- `frontend/src/lib/api/schedule.ts`;
-- `frontend/src/lib/api/types.ts`;
-- backend schedule endpoints/tests.
+## Likely files and layers
+- Typed schedule filters/options/helpers and their unit tests.
+- Existing schedule filter surface/screen and component integration tests.
+- Affected schedule Playwright specs; backend and bot are not expected to change.
 
 ## Constraints
 - Backend остаётся владельцем permissions, access scope, schedule semantics,
@@ -418,7 +178,7 @@ Files to inspect but not expected to change:
   schedule redesign.
 - Общий refactor `GroupScheduleScreen`, filter design system или app routing.
 
-## Required test coverage
+## Regression specification
 
 ### Unit tests — before production code
 - Typed default/active/reset behavior нового `groupTypeId` field.
@@ -465,7 +225,7 @@ Frontend component tests are the affected integration boundary.
   Island and physical software-keyboard behavior require Simulator or device
   evidence. Manual QA supplements but does not replace automated barriers.
 
-## Test plan
+### Validation and acceptance
 - [ ] TASK-112 confirmed merged into current `origin/main` before code.
 - [ ] TASK-106 state recorded; its regressions/contracts included only if present in
   execution baseline, without branch dependency on unmerged work.
@@ -535,8 +295,3 @@ manual QA was performed.
 Не останавливаться только из-за отсутствующей в baseline TASK-106,
 frontend-only scope, shared Schedule screen, обычного merge conflict после
 dependency integration или необходимости component + Playwright coverage.
-
-## Ready for Codex execution
-yes — после обязательной интеграции TASK-112 в актуальный
-`origin/main`, фиксации actual TASK-106 state и создания declared isolated
-worktree. TASK-106 absence is not a stop condition.

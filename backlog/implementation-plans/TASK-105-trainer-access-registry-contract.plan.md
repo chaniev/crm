@@ -1,38 +1,11 @@
 # Implementation Plan: TASK-105 Довести реестр тренеров до access-management workflow
 
-## Source task
-/backlog/risky/TASK-105-trainer-access-registry-contract.md
-
-Карточка остаётся в `/backlog/risky`: этот файл подготавливает high-risk
-cross-layer изменение, но не переводит его в активное исполнение. Продуктовые
-решения закрыты, однако запуск реализации требует отдельного human review из-за
-атомарного переименования защищённого HTTP/browser contract без legacy alias.
-
-## Implementation branch
-feature/TASK-105-trainer-access-registry-contract
-
-Branch rules:
-- перед изменением project code использовать
-  `.agents/skills/task-worktree/SKILL.md` и создать либо безопасно возобновить
-  отдельный worktree
-  `../crm-worktrees/TASK-105-trainer-access-registry-contract`;
-- создать branch непосредственно от актуального `origin/main`; primary
-  repository оставить на `main`, а код менять только в task worktree;
-- до первой правки подтвердить registered worktree, active branch, отсутствие
-  unexplained changes и `git merge-base --is-ancestor origin/main HEAD`;
-- не включать другие staff, settings, navigation или visual-refactor TASKs;
-- backend route, frontend API consumer и browser routes должны находиться в
-  одной branch и выпускаться/откатываться как один согласованный contract;
-- не добавлять временный `/users` alias: он прямо исключён продуктовым
-  контрактом TASK-105.
-
-Planning snapshot на 2026-08-19: primary repository находится на clean local
-`main` `ad81fb1723aff17f266b77e5448a2d414745ae58`, который на 10 commits
-опережает локальный `origin/main` `921e17340922ebdab701d76fa671387e57577115`.
-`origin/main` уже содержит завершённые TASK-096 и TASK-098. Локальной/remote
-branch TASK-105 и назначенного ей worktree не найдено. Executor обязан сделать
-`git fetch origin`, повторить preflight и не считать planning snapshot
-актуальным execution base.
+## Metadata
+- source_task: /backlog/risky/TASK-105-trainer-access-registry-contract.md
+- branch: feature/TASK-105-trainer-access-registry-contract
+- readiness: no — требуется human approval атомарного route/API cutover без legacy alias
+- dependencies: none
+- risk: high — protected access-management HTTP/browser contract changes atomically
 
 ## Goal
 HeadCoach или SuperAdministrator открывает trainer-only реестр на canonical
@@ -41,36 +14,6 @@ HeadCoach или SuperAdministrator открывает trainer-only реестр
 row target. Старый frontend/API path `/users` больше не обслуживает trainer
 workflow, а access, validation, audit, CSRF и ProblemDetails semantics остаются
 неизменными.
-
-## Current understanding
-- Продуктовые решения, canonical paths, filter dimensions, Telegram treatment,
-  row operation и access matrix подтверждены; clarification questions нет.
-- Backend `UserEndpoints` уже является trainer-only boundary: list/details
-  ограничены `UserRole.Coach`, create/update используют
-  `StaffEndpointRoleFamily.Trainers`, а `allowedActions` вычисляет backend.
-- HeadCoach и SuperAdministrator уже имеют доступ; Administrator и Coach уже
-  получают deterministic `staff_management_forbidden`. Эти правила не меняются.
-- Administrator/SuperAdministrator management остаётся на
-  `/settings/administrators`; общий `User` domain/database model остаётся общим.
-- Backend contract rename локализован в route group и created `Location`, но
-  затрагивает весь `UsersApiTests`/CSRF HTTP inventory.
-- Frontend browser paths сосредоточены в `appRoutes.ts`; `AppSection.Users`,
-  `canManageUsers`, route kinds `userCreate/userEdit`, feature directory
-  `features/users` и generic DTO/function names могут остаться внутренними.
-- Frontend API transport получает path из `API_ENDPOINTS.users`; transport
-  mapper и payload shape менять не требуется.
-- `UsersWorkflowViewport` уже сохраняет query между list/create/edit и
-  размонтируется после выхода из workflow. Здесь же следует хранить два filter
-  dimensions и return-focus snapshot, не вводя global store.
-- `EntityLocatorBar` уже поддерживает filter trigger/count и single-row action
-  layout; `ActiveFiltersBar`, Mantine `Drawer`, `Select` и
-  `TemporarySurfaceFooter` уже выпущены в соседних registry workflows.
-- Текущий `canEditUser` опасно считает отсутствующий `allowedActions`
-  разрешением на edit. TASK-105 должен fail closed: только `Edit`/`Update`
-  создаёт mutation target.
-- TASK-096 search и TASK-098 exception badges являются обязательным baseline;
-  server-side filtering, pagination, role/Telegram filters не нужны.
-- Database/schema, bot и deploy contracts не меняются; migration не требуется.
 
 ## Canonical contract
 
@@ -91,26 +34,6 @@ Invariants:
   переименовываются из `User` только ради route cosmetics;
 - created response `Location` использует `/coaches/{id}`;
 - deployment и rollback меняют backend и frontend вместе.
-
-## UX contract used
-- Users: HeadCoach и SuperAdministrator; Administrator/Coach видят существующий
-  permission-restricted route/API outcome.
-- Device context: быстрый one-handed operational workflow с design baseline
-  `390 x 844`, target iPhone `420 x 912` и `440 x 956`, compact-height
-  `912 x 420` и `956 x 440`.
-- Primary path: `/coaches` -> optional search -> filters -> выбрать один/два
-  exception states -> открыть editable row -> `/coaches/{id}/edit` -> back/save
-  -> тот же список, criteria и focus target.
-- Completion signal: edit form загружена для выбранного Coach; после возврата
-  search/filters сохранены, а фокус возвращён на строку либо определённый
-  recovery target.
-- Required decision data: ФИО, логин, optional Telegram ID, `Отключен`,
-  `Требуется смена пароля`, defensive `Только просмотр`.
-- Primary operation: editable trainer row. Frequent: search, filters, refresh.
-  Secondary: create, clear search, remove/reset filters. Exceptional list
-  operations отсутствуют.
-- Unmapped controls: role filter, Telegram filter, missing-Telegram marker,
-  positive badges `Тренер`, `Активен`, `Пароль актуален`.
 
 ## UI specification
 
@@ -276,110 +199,9 @@ the normal list/search fallback on return.
   Dynamic Island/home indicator or one-handed reach; record Simulator/physical
   device residual evidence separately.
 
-## Execution roles
-1. Planning-stage `ux-researcher` handoff is complete: user task, control
-   classes, failure/recovery paths and success criteria are fixed above.
-2. Planning-stage `ui-designer` handoff is complete: Drawer, active filters,
-   row semantics, focus return and responsive matrix are fixed above.
-3. `test-automator` writes/updates all backend contract, frontend unit/component
-   and Playwright regressions before any production code and records red
-   evidence.
-4. `dotnet-backend-specialist` performs the minimal endpoint path/Location
-   change after backend red evidence, without altering staff rules.
-5. `react-specialist` consumes this UX/UI contract and implements routes,
-   local state, filters, row interaction and focus recovery using
-   `react-best-practices` only after frontend red evidence.
-6. Coordinating agent verifies worktree, atomic cross-layer result, test-first
-   evidence and residual device risks.
+## Implementation sequence
 
-## Execution steps
-
-### Phase 0 — workspace and baseline
-1. Run `git fetch origin`; reread root/backend/frontend `AGENTS.md`, source task,
-   this plan, `task-worktree`, `crm-mobile-first-ui`, `react-best-practices` and
-   `csharp-xunit` before their respective implementation/test work.
-2. Create/resume the declared worktree and report verified path, branch, base,
-   status and commit before edits.
-3. Confirm `origin/main` contains TASK-096/TASK-098 search/row baseline, no
-   competing TASK-105 branch and no unexplained worktree changes.
-4. Capture baseline green focused backend/frontend tests and the current
-   affected Playwright specs. Old `/users` assertions are expected to be green
-   only at this baseline stage.
-5. Do not start Docker: route/unit/component/WebApplicationFactory/Playwright
-   red-green work does not require a Compose stack.
-
-### Phase 1 — write all required tests before functional code
-6. Update backend integration HTTP paths in `UsersApiTests.cs` from `/users` to
-   `/coaches` before production code. Preserve and explicitly assert:
-   - HeadCoach/SuperAdministrator list/create/details/update;
-   - response items are only `Coach` with backend-owned actions/options;
-   - Administrator/Coach receive the same deterministic `403` ProblemDetails;
-   - administrative targets remain `staff_not_found` through trainer endpoint;
-   - validation field keys, wrong-role denials, Telegram uniqueness, branch
-     constraints, session sync, audit payload/count and rollback behavior;
-   - created response `Location` is `/coaches/{id}`.
-7. Add one explicit canonical-route integration theory which proves old
-   `/users` list/details/create/update are unmapped `404` and do not mutate or
-   write audit. Do not authenticate/validate through an accidental legacy
-   handler.
-8. Move the trainer scenario in `CsrfProtectionTests.cs` to `/coaches`; keep
-   both missing and invalid-token assertions so the new state-changing route
-   cannot bypass CSRF.
-9. Update frontend API unit tests before production code to assert GET/details,
-   POST and PUT request `/api/coaches...`, preserve payload mapping and never
-   call `/api/users...`.
-10. Update `appRoutes` unit tests before production code:
-    - exact list/create/edit parse and serialization under `/coaches`;
-    - `APP_SECTION_PATHS.Users === '/coaches'` while internal section remains
-      `Users`;
-    - `/users`, `/users/new`, `/users/{id}/edit` are not-found, not redirects;
-    - direct/reload/back-forward-equivalent parsing, active navigation and
-      permission recovery use `/coaches`.
-11. Extend pure trainer-list unit tests before production code for status and
-    password separately, both together, query + each/both filters with AND,
-    backend-order preservation, active-count and no role/Telegram predicate.
-12. Update `UsersListScreen` component tests before production code:
-    - filter trigger/count, Drawer fields, immediate selection and focus return;
-    - active chips, single removal, reset preserving query;
-    - first-run/search/filter/search+filter empty recovery;
-    - refresh, blocking and stale errors preserve query/filters;
-    - exact row state matrix for normal, disabled, password, combined,
-      Telegram-present, missing-Telegram, empty/missing actions and defensive
-      non-Coach anomaly;
-    - editable row is one native target with click/Enter/Space path;
-    - read-only row is static; desktop cue is not another button/tab stop.
-13. Update `App.test.tsx` and bootstrap route tests before production code:
-    - list/create/edit returns and browser-path expectations are `/coaches`;
-    - query + both filters survive list -> edit -> explicit back/save/browser
-      back and reset after leaving workflow;
-    - edited row focus is restored once, with results/search fallback;
-    - session permission loss/recovery and unknown legacy `/users` outcome.
-14. Update all Playwright consumers before production code:
-    - `users.spec.ts` canonical browser/API routes, filters and row operation;
-    - `responsive-main-screens.spec.ts` route inventory;
-    - `touch-target-inventory.spec.ts` API mock and single-row target inventory;
-    - `iphone-target-devices.spec.ts` API/browser routes, Drawer/landscape and
-      target-device checks;
-    - `membership-catalog-settings.spec.ts` shared trainer API mock.
-15. Add route-level Playwright coverage for old `/users` not-found, direct
-    `/coaches`/create/edit reload, explicit/browser back-forward, active nav,
-    permission restriction, filter Drawer open/close/focus return, criteria
-    retention and editable/read-only rows.
-
-### Phase 2 — prove the expected red state
-16. Run focused backend tests. Expected red reasons: `/coaches` is currently
-    `404`, created `Location` is `/users/{id}`, and old `/users` is still mapped.
-17. Run focused frontend unit/component/App tests. Expected red reasons:
-    browser/API paths still use `/users`, no filter surface/state exists,
-    editable row has a nested heavy button, and missing `allowedActions` is
-    treated as editable.
-18. Run affected Chromium Playwright specs. Expected red reasons must match the
-    same route/filter/row contract, not fixture mistakes.
-19. Save command/output evidence for each failure. Do not weaken a contract or
-    change production code until backend integration, frontend unit/component
-    and frontend integration/E2E tests have all been written and observed red.
-
-### Phase 3 — backend canonical route
+### backend canonical route
 20. Change only the trainer endpoint group from `/users` to `/coaches` and the
     created `Location` to `/coaches/{id}`. Keep method names/types if renaming
     would be cosmetic.
@@ -389,7 +211,7 @@ the normal list/search fallback on return.
 22. Rerun focused backend tests green, including old-route `404` and CSRF, then
     run the complete backend solution.
 
-### Phase 4 — frontend canonical route/API
+### frontend canonical route/API
 23. Change `API_ENDPOINTS.users.collection/byId` values to `/coaches...` while
     retaining internal symbol names unless a compiler-required change exists.
 24. Change only path constants/patterns/serialization for `AppSection.Users`,
@@ -401,7 +223,7 @@ the normal list/search fallback on return.
 26. Verify list/create/edit direct link, reload, navigation current state,
     explicit/browser back-forward and permission recovery before continuing.
 
-### Phase 5 — local filters and operational states
+### local filters and operational states
 27. Extend the pure local projection with typed status/password filters and
     active count. Derive filtered items during render; do not duplicate server
     data or use an effect for filtering.
@@ -416,7 +238,7 @@ the normal list/search fallback on return.
 32. Preserve response/loading/error cancellation behavior; obsolete requests
     must not overwrite current response and stale refresh must not clear state.
 
-### Phase 6 — single row target and return focus
+### single row target and return focus
 33. Replace the per-row edit button with one full-row native target only for
     explicit `Edit`/`Update`; fail closed for undefined/empty/other actions.
 34. Keep static read-only row and exact exception metadata. Add only scoped row
@@ -428,81 +250,10 @@ the normal list/search fallback on return.
 36. Verify one tab stop per editable row, zero edit tab stops for read-only row,
     native Enter/Space activation and no nested interactive descendants.
 
-### Phase 7 — green and regression validation
-37. Rerun all new focused tests green, then full backend/frontend suites, lint,
-    raw-color check and production build.
-38. Run affected Chromium Playwright specs and target-iPhone WebKit projects at
-    `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`, `768 x 1024`,
-    `1440 x 1200`, `912 x 420` and `956 x 440` as applicable.
-39. Verify literal-route inventory with `rg -n '/users' backend frontend`:
-    remaining matches may be only internal module/directory names such as
-    `features/users` or `api/users`; no HTTP/browser route literal may remain.
-40. Run a coordinated backend/frontend smoke only if the execution workflow
-    requires it. If Compose is used, create a task-local project with free
-    ports and `BOT_ENABLED=false`; never reuse another task stack.
-41. Review final diff for accidental auth/permission/domain/model renames,
-    unrelated E2E fixture changes, generated artifacts and legacy aliases.
-42. Deploy and rollback backend/frontend artifacts together. If the runtime
-    requires independent rolling compatibility, stop: adding a temporary
-    `/users` alias would contradict the accepted product contract and needs a
-    separate rollout decision.
-
-## Preferred implementation strategy
-1. One atomic task branch: all tests/red evidence -> minimal backend path ->
-   frontend path/API -> local filters/row/focus -> green/regression evidence.
-2. Contract-first path inventory and explicit negative legacy tests.
-3. Backend-owned permissions/actions; frontend only projects returned items.
-4. Minimal route-local state and render-time derivation, without global store.
-5. Reuse EntityLocatorBar/ActiveFiltersBar/Drawer/footer and existing CRM
-   tokens; use scoped row CSS.
-6. No feature flag or compatibility alias. Coordinated release/rollback is the
-   safety mechanism.
-
-## Files likely to change
-
-Backend production:
-- `backend/src/GymCrm.Api/Auth/UserEndpoints.cs`
-
-Backend integration tests:
-- `backend/tests/GymCrm.Tests/UsersApiTests.cs`
-- `backend/tests/GymCrm.Tests/CsrfProtectionTests.cs`
-
-Frontend route/API production:
-- `frontend/src/lib/api/endpoints.ts`
-- `frontend/src/lib/appRoutes.ts`
-- `frontend/src/App.tsx`
-
-Frontend list production:
-- `frontend/src/features/users/UsersListScreen.tsx`
-- `frontend/src/features/users/trainerListSearch.ts`
-- `frontend/src/lib/resources.ts` for filter/filtered-empty accessible copy only
-- `frontend/src/App.css` for scoped trainer row/Drawer/responsive rules
-
-Frontend unit/component/integration tests:
-- `frontend/src/lib/api/users.test.ts`
-- `frontend/src/lib/appRoutes.test.ts`
-- `frontend/src/features/users/trainerListSearch.test.ts`
-- `frontend/src/features/users/UserManagement.test.tsx`
-- `frontend/src/App.test.tsx`
-- `frontend/src/bootstrap/authBootstrap.test.tsx`
-
-Frontend Playwright:
-- `frontend/e2e/users.spec.ts`
-- `frontend/e2e/responsive-main-screens.spec.ts`
-- `frontend/e2e/touch-target-inventory.spec.ts`
-- `frontend/e2e/iphone-target-devices.spec.ts`
-- `frontend/e2e/membership-catalog-settings.spec.ts`
-
-Conditional files:
-- `frontend/src/features/shared/EntityLocatorBar.tsx` and its shared tests only
-  if current focus fallback/trigger ref cannot be expressed by existing props;
-  prefer a narrow ref/prop extension, not redesign.
-- A focused `frontend/src/features/users/trainerListReturnState.ts` plus unit
-  test may be added if query/filter/id/scroll ownership makes
-  `UsersWorkflowViewport` unclear; do not copy server paging/query logic from
-  Groups or introduce persistence outside the workflow.
-
-No database, migration, bot or deploy production file is expected to change.
+## Likely files and layers
+- Backend trainer route group, created-location handling and Users/CSRF API tests.
+- Frontend route/API constants and the existing trainer registry workflow.
+- Registry filter, focus-return, mapper/component and affected Playwright tests.
 
 ## Constraints
 - Backend remains the sole source of truth for roles, access scope, trainer-only
@@ -533,7 +284,7 @@ No database, migration, bot or deploy production file is expected to change.
 - Redesigning create/edit forms, navigation shell or Settings.
 - Preserving `/users` as redirect, frontend alias or backend compatibility route.
 
-## Required test coverage
+## Regression specification
 
 ### Unit tests
 - Pure search/status/password projection, AND semantics, stable backend order,
@@ -582,19 +333,14 @@ No database, migration, bot or deploy production file is expected to change.
 - Return-focus tests fail because only query is retained and no selected-row
   snapshot/focus restoration exists.
 
-## Test plan
+### Validation and acceptance
 - [ ] Capture baseline green focused backend/frontend tests.
 - [ ] Write/update all backend integration tests before production code.
 - [ ] Write/update all frontend unit/component/App tests before production code.
 - [ ] Write/update affected Playwright tests before production code.
 - [ ] Record expected red failures for backend, frontend and Playwright.
 - [ ] Run focused backend tests for `UsersApiTests|CsrfProtectionTests`.
-- [ ] Run `dotnet test backend/GymCrm.slnx`.
 - [ ] Run focused frontend unit/component/App tests.
-- [ ] Run `cd frontend && npm run test:unit`.
-- [ ] Run `cd frontend && npm run check:raw-colors`.
-- [ ] Run `cd frontend && npm run lint`.
-- [ ] Run `cd frontend && npm run build`.
 - [ ] Run affected Chromium Playwright specs listed above.
 - [ ] Run `cd frontend && npm run test:e2e:iphone`.
 - [ ] Record iOS Simulator or physical-device evidence for Safari chrome,
@@ -647,16 +393,9 @@ TASK-105 is not complete if any barrier is replaced by manual QA alone.
   must change to complete the route rename;
 - implementation requires global state/router replacement, server-side filters
   or database changes;
-- active branch/worktree differs from this plan or has unexplained changes;
 - new tests cannot distinguish an intentional legacy `404` from auth/CSRF
   handling;
 - scope expands beyond TASK-105.
 
 Do not stop only because backend and frontend both change or because the module
 uses generic internal `User` names. Those are expected constraints.
-
-## Ready for Codex execution
-no — detailed test-first plan is ready, but the source remains high-risk and
-`Safe for Codex: no`. Require explicit human approval of the atomic
-backend/frontend release/rollback contract, then execute only in the declared
-branch/worktree.
