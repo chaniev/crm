@@ -1,35 +1,11 @@
 # Implementation Plan: TASK-114 Исправить изоляцию комментариев абонементов
 
-## Source task
-/backlog/risky/TASK-114-membership-comment-isolation-regression.md
-
-Task remains in `/backlog/risky` until explicit human risk review approves
-active implementation. This plan prepares a bounded regression investigation
-and test-first fix; it does not authorize project-code changes in the primary
-repository.
-
-## Implementation branch
-fix/TASK-114-membership-comment-isolation-regression
-
-Branch rules:
-- before changing project code, read and follow
-  `.agents/skills/task-worktree/SKILL.md`;
-- create or safely resume a dedicated worktree such as
-  `../crm-worktrees/TASK-114-membership-comment-isolation-regression`;
-- create the branch directly from the then-current `origin/main`; keep the
-  primary repository on `main` and make all code/test changes only in the task
-  worktree;
-- verify `git rev-parse --show-toplevel`, active branch, clean status,
-  registered worktree, and `git merge-base --is-ancestor origin/main HEAD`
-  before the first project-code edit;
-- do not combine TASK-114 with membership pricing, payment, refund, validity,
-  attendance, general client notes, or card redesign work.
-
-Planning evidence on 2026-08-16: the primary repository was on clean `main` at
-`9cea2f2ffadc3a0057dfdafd51c8aa0bdb172f9c`, equal to local `origin/main`;
-no local/remote TASK-114 branch or registered worktree was found. The executor
-must repeat the check after fetching `origin` and must not treat this snapshot
-as the execution base.
+## Metadata
+- source_task: /backlog/risky/TASK-114-membership-comment-isolation-regression.md
+- branch: fix/TASK-114-membership-comment-isolation-regression
+- readiness: no — требуется human approval и reproducible red либо proven deployment/version skew
+- dependencies: none
+- risk: high — membership persistence/financial adjacency; current code may already be correct
 
 ## Goal
 Администратор или главный тренер может хранить разные комментарии у двух
@@ -37,37 +13,6 @@ as the execution base.
 загрузка одной продажи не меняет комментарий, автора, время и остальные данные
 другой продажи, а все технические версии одной продажи продолжают разделять
 один sale-level комментарий.
-
-## Current understanding
-- Завершённая TASK-069 зафиксировала stable identity комментария как
-  `ClientMembershipSale.Id` (`saleId`), а не `ClientMembership.Id` технической
-  версии и не `Client.Id`.
-- Текущий backend-код на planning baseline уже выглядит sale-local:
-  `ClientMembershipService.UpdateCommentAsync` выбирает ровно пару
-  `candidate.Id == saleId && candidate.ClientId == clientId`, применяет
-  `ClientMembershipCommentPolicy` к найденной sale и сохраняет её.
-- Read path также выглядит sale-local: `LoadClientSnapshotAsync` загружает
-  `membership.Sale` и автора комментария, а `MapMembership` проецирует
-  `membership.SaleId`, `membership.Sale.Comment` и metadata каждой sale во все
-  её технические версии.
-- Frontend mapper требует непустой `saleId`. `ClientManagement.tsx` группирует
-  историю через `Map<string, ClientMembership[]>`, использует `saleId` как
-  React key, передаёт `membership.saleId` в update URL и создаёт один
-  `MembershipSaleComment` на группу версий.
-- Существующие tests полезны, но не закрывают production-like доказательство
-  полностью: backend membership-comment API test работает на EF InMemory и
-  проверяет update одной sale при `null` у второй; component/e2e tests в
-  основном используют вручную собранные/mocked snapshots и не доказывают всю
-  цепочку PostgreSQL -> GET/PUT response -> mapper -> две row-local формы ->
-  reload.
-- Поэтому root cause нельзя назначать заранее. Возможны: недостаточно строгая
-  regression fixture, divergence PostgreSQL/runtime, устаревший backend или
-  frontend deployment, response/mapping mismatch, duplicate/fallback identity,
-  React state reuse, либо данные, где две визуальные версии корректно имеют
-  один и тот же `saleId`.
-- Current code review alone does not justify speculative production changes.
-  Сначала нужен воспроизводимый failing contract на двух действительно разных
-  `saleId`.
 
 ## Reproduction contract
 До написания исправления зафиксировать один deterministic fixture:
@@ -133,119 +78,10 @@ as the execution base.
   correction отдельно; TASK-114 закрывать только после end-to-end regression
   barrier на фактически развернутой версии.
 
-## Execution steps
-1. Получить explicit approval на выполнение risky-задачи. Создать dedicated
-   worktree/branch по правилам выше; в implementation привлекать
-   `dotnet-backend-specialist`, `react-specialist` и `test-automator` для своих
-   слоёв, не отдавая им lifecycle worktree.
-2. Прочитать nearest `backend/AGENTS.md`, `frontend/AGENTS.md`, а перед созданием
-   или существенной перестройкой xUnit tests —
-   `.agents/skills/csharp-xunit/SKILL.md`; для React implementation/review —
-   `.agents/skills/react-best-practices/SKILL.md`.
-3. Зафиксировать reproduction contract и sanitized evidence. Подтвердить, что
-   `sale-A != sale-B`; не трактовать версии одной sale как две продажи.
-4. **До production-кода** добавить backend regression integration test
-   `ClientMembershipCommentIsolationRegressionTests` (или focused extension)
-   на real PostgreSQL: две sales, две versions первой sale, разные comments,
-   update первой, новый `DbContext`, GET reload, audit/actor/time и immutable
-   membership/financial/attendance snapshot.
-5. **До production-кода** добавить backend failure cases: validation error,
-   forbidden actor и mismatched `clientId + saleId` оставляют обе comments,
-   metadata and audit counts без изменений.
-6. Запустить новые backend tests и записать red evidence. Валидным red является
-   только подмена/общая persistence/projection либо нарушение atomic no-change;
-   Docker, Testcontainers, migration, auth fixture или compile failure не
-   считаются red по поведению.
-7. **До production-кода** усилить frontend API/mapper tests: response с двумя
-   sales и версиями первой sale сохраняет точные `saleId`, comment and complete
-   metadata; update request адресует только target sale и ProblemDetails не
-   заменяется общей ошибкой.
-8. **До production-кода** добавить component test с двумя одновременно
-   открываемыми формами: независимые drafts, save `sale-A`, unchanged `sale-B`,
-   updated attribution только у `sale-A`, row-local validation/forbidden error,
-   cancel/retry and rerender with new server snapshot.
-9. **До production-кода** расширить Playwright scenario до точных assertions:
-   две distinct sales видимы; update `sale-A` не меняет `sale-B` до и после page
-   reload; версии `sale-A` дают один comment block; request URL/body верны;
-   denied/error остаётся в target block. Предпочесть real local backend +
-   PostgreSQL для основного scenario; mocked route оставить быстрым component
-   barrier, но не единственным end-to-end доказательством.
-10. Запустить frontend focused tests и Playwright; сохранить expected red cause.
-11. Провести red review. Если точный scenario green на current `origin/main`,
-    остановить functional implementation и перейти к Slice D. Нельзя искусственно
-    ослаблять assertion, менять acceptance contract или вносить speculative fix.
-12. Если red локализован, внести минимальное production изменение только в
-    доказанный слой. Backend остаётся владельцем sale identity, permissions,
-    validation and audit; frontend только потребляет contract и держит row-local
-    UI state.
-13. Повторить focused tests до green. Проверить PUT response, GET reload, new
-    `DbContext` и UI reload одним и тем же fixture.
-14. Запустить полный backend regression suite, frontend lint/build/unit tests и
-    affected Playwright scenario в Chromium и WebKit mobile.
-15. На isolated local Compose stack пересоздать PostgreSQL из repository initial
-    state, повторить сценарий Administrator и HeadCoach, затем failure path.
-16. Сравнить final diff со Scope TASK-114: отсутствие schema/financial/
-    membership-lifecycle/UI-redesign изменений, если такой root cause не был
-    отдельно доказан и план не был повторно согласован.
-
-## Preferred implementation strategy
-- Evidence-first, test-first, one failing layer at a time.
-- Сначала real PostgreSQL/API barrier, затем typed frontend mapping/state,
-  затем browser workflow. Моки полезны для row-local UI, но не подтверждают
-  persistence isolation.
-- Использовать `saleId` как opaque backend-owned identity во всех слоях.
-  `membership.id`, array index, purchase date, membership name и client id не
-  являются допустимыми заменами React/request identity продажи.
-- Read model одной sale должен проецировать одинаковые comment/actor/time во
-  все её technical versions; разные sales никогда не нормализуются в одну
-  frontend group.
-- Error path должен быть no-write backend contract плюс row-local frontend
-  recovery. Не делать optimistic comment update до успешного response.
-- Сохранять малые проверяемые commits по доказанному слою; не смешивать
-  diagnostic instrumentation с permanent product behavior без необходимости.
-
-## Files likely to change
-
-### Backend tests first
-- `backend/tests/GymCrm.Tests/ClientMembershipCommentIsolationRegressionTests.cs`
-  — preferred new focused PostgreSQL/API suite.
-- `backend/tests/GymCrm.Tests/ClientsApiTests.cs` — только если небольшие shared
-  permission/ProblemDetails assertions лучше оставить рядом с существующими
-  membership-comment tests.
-- `backend/tests/GymCrm.Tests/ClientMembershipCommentPolicyTests.cs` — только
-  если red доказывает ошибку normalization/no-op policy; sale isolation сама по
-  себе не требует расширять domain policy.
-
-### Backend production only after backend red
-- `backend/src/GymCrm.Infrastructure/Clients/ClientMembershipService.cs`
-- `backend/src/GymCrm.Api/Auth/ClientEndpoints.cs`
-- `backend/src/GymCrm.Application/Clients/IClientMembershipService.cs` — только
-  если существующего `clientId + saleId` contract недостаточно, что сейчас не
-  ожидается.
-- `backend/src/GymCrm.Domain/Clients/ClientMembershipCommentPolicy.cs` — только
-  при policy-specific root cause.
-- `backend/src/GymCrm.Infrastructure/Persistence/Configurations/ClientMembershipSaleConfiguration.cs`
-  и reproducible initial state — только если real PostgreSQL evidence докажет
-  schema/model defect. Не создавать incremental migration по умолчанию.
-
-### Frontend tests first
-- `frontend/src/lib/api/mappers.membership-comment.test.ts`
-- `frontend/src/lib/api/clients.test.ts`
-- `frontend/src/features/clients/ClientManagement.test.tsx`
-- `frontend/e2e/stage12.spec.ts` либо новый focused
-  `frontend/e2e/membership-comment-isolation.spec.ts`.
-
-### Frontend production only after frontend red
-- `frontend/src/lib/api/mappers.ts`
-- `frontend/src/lib/api/clients.ts`
-- `frontend/src/lib/api/types.ts`
-- `frontend/src/features/clients/ClientManagement.tsx`
-- `frontend/src/App.css` только если row-local error/state correction требует
-  малой визуальной правки; redesign и новый visual workflow запрещены.
-
-If the exact test is green on current main, production files likely to change:
-- none; update deployment/version evidence and retain the new regression test
-  only if it adds protection not already present.
+## Likely files and layers
+- Focused PostgreSQL/API regression tests and proven backend service/projection layer only.
+- Frontend membership mapper, sale grouping/row state and focused tests only if frontend red is proven.
+- One vertical Playwright/runtime evidence path; no schema or membership-lifecycle changes by default.
 
 ## Constraints
 - Backend owns stable sale identity, permissions, validation, audit and
@@ -282,7 +118,7 @@ If the exact test is green on current main, production files likely to change:
 - Deployment to production; version reconciliation may be diagnosed, but any
   rollout action requires its own authorized execution workflow.
 
-## Required test coverage
+## Regression specification
 
 Unit and integration tests MUST be written or updated before functional code.
 The first focused run must demonstrate the observed missing behavior. If the
@@ -382,20 +218,11 @@ cd frontend && npm run test:unit -- src/lib/api/mappers.membership-comment.test.
 cd frontend && npm run test:e2e -- membership-comment-isolation.spec.ts --project=chromium
 ```
 
-Required green regression commands:
+For browser validation, run the focused membership-comment spec. Use the actual
+focused filename if the existing `stage12.spec.ts` is extended instead of
+creating a new file.
 
-```text
-dotnet test backend/GymCrm.slnx
-cd frontend && npm run lint
-cd frontend && npm run build
-cd frontend && npm run test:unit
-cd frontend && npm run test:e2e -- membership-comment-isolation.spec.ts
-```
-
-Use the actual focused spec filename if the existing `stage12.spec.ts` is
-extended instead of creating a new file.
-
-## Test plan
+### Validation and acceptance
 - [ ] Fixture contains one client, two distinct sales and two versions of A.
 - [ ] Distinct A/B comments and complete attribution survive initial GET.
 - [ ] Updating A changes only A in PUT response, PostgreSQL reload and GET.
@@ -461,18 +288,6 @@ React identity and row-local recovery.
   semantics;
 - contract перестаёт однозначно определять `clientId + saleId` target;
 - scope выходит за TASK-114 или появляется необратимая production операция;
-- isolated worktree/branch/base/dirty changes неоднозначны.
 
 Не останавливаться только потому, что regression затрагивает backend и frontend:
 локализованный cross-layer fix допустим после доказанного red scenario.
-
-## Ready for Codex execution
-no
-
-Reason: implementation plan is ready, but source task is `risky`, marked
-`Safe for Codex: no`, and current code inspection already matches much of the
-target contract. Human approval and a reproducible red or deployment-version
-root cause are required before functional code changes. After approval, the
-plan is executable in the dedicated TASK-114 worktree without additional
-product clarification as long as `clientId + distinct saleId` reproduction is
-confirmed.

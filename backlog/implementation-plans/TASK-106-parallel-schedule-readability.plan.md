@@ -1,30 +1,11 @@
 # Implementation Plan: TASK-106 Сделать параллельные занятия читаемыми в desktop schedule
 
-## Source task
-/backlog/implementation/TASK-106-parallel-schedule-readability.md
-
-## Implementation branch
-fix/TASK-106-parallel-schedule-readability
-
-Branch rules:
-- перед изменением project code использовать
-  `.agents/skills/task-worktree/SKILL.md` и создать либо безопасно возобновить
-  отдельный worktree
-  `../crm-worktrees/TASK-106-parallel-schedule-readability`;
-- создать branch непосредственно от актуального `origin/main`; primary
-  repository оставить на `main`, а код менять только в task worktree;
-- до первой правки подтвердить registered worktree, active branch, отсутствие
-  unexplained changes и `git merge-base --is-ancestor origin/main HEAD`;
-- не включать другие schedule/backlog TASKs, backend/API changes или общий
-  redesign календаря;
-- Docker Compose по умолчанию не запускать: задача покрывается frontend unit,
-  component и mocked Playwright tests.
-
-Planning evidence на 2026-08-02: primary repository находится на clean `main`
-`eeb471f3e5da3577a3a1566f43f9583bd6194d25`, совпадающем с локальным
-`origin/main`; branch/worktree TASK-106 и дубликат implementation plan не
-найдены. Executor обязан повторить проверку после `git fetch origin` и не
-считать planning snapshot актуальным execution base.
+## Metadata
+- source_task: /backlog/implementation/TASK-106-parallel-schedule-readability.md
+- branch: fix/TASK-106-parallel-schedule-readability
+- readiness: yes
+- dependencies: none
+- risk: medium — dense desktop schedule presentation with responsive regressions
 
 ## Goal
 Coach, Administrator, HeadCoach или другой уже авторизованный Schedule
@@ -35,82 +16,6 @@ keyboard-accessible drill-down. UI не утверждает, что все со
 одновременны или образуют domain conflict. Высокая плотность и длинные значения
 не превращают карточки в `08:…`/`Б…`, не создают page-level overflow и не
 перестраивают mobile day timeline.
-
-## Evidence
-- Source screenshot:
-  `/backlog/processed/assets/2026-08-02-usability-audit/desktop-schedule-1440x1200.png`.
-- На `1440 x 1200` screenshot показывает несколько одновременных карточек,
-  сжатых до неразличимых fragments времени и названия.
-- UX research и UI-design handoff выполнены на planning stage. Выбран
-  desktop-only hybrid: readable individual cards для достаточно просторных
-  overlap cases и grouped summary + Mantine Popover для dense/unreadable
-  clusters.
-- Product clarification от 2026-08-16 и утверждённые desktop/mobile макеты
-  зафиксированы в этом plan как текстовый source of truth:
-  - новое UI-название — `Занятия в интервале`; слово `параллельные` не
-    используется для presentation block;
-  - `count` означает все entries, представленные одним disclosure, а не peak
-    concurrency и не число domain conflicts;
-  - короткий dense block объединяется с непосредственно соседними render items
-    только когда их minimum visual bounds пересекаются; это presentation-only
-    grouping, необходимый, чтобы hit target не закрыл следующее занятие;
-  - mobile selected-day timeline остаётся в текущем виде без desktop
-    summary/Popover; известная теснота шести одновременных mobile lanes явно не
-    считается исправленной TASK-106.
-
-## Current understanding
-- `frontend/src/features/schedule/GroupScheduleScreen.tsx` рендерит desktop
-  entries absolute-positioned по дням и использует тот же
-  `ScheduleCalendarCard` для normal/overlap entries.
-- При `entry.laneCount > 1` компонент сейчас показывает только start time,
-  устанавливает `data-compact` и не даёт action для полных details.
-- `frontend/src/App.css` скрывает у compact card hall/trainer metadata и
-  ellipsizes title/time. DOM presence не делает эти данные понятными или
-  доступными одним очевидным действием.
-- `frontend/src/lib/groupSchedule.ts` вычисляет overlap lanes и делит ширину
-  дня как `100 / laneCount`; cluster уже формируется внутри layout algorithm,
-  но не экспортируется как desktop render model.
-- `frontend/src/lib/groupSchedule.test.ts` защищает lane assignment, однако не
-  проверяет cluster derivation/readability decision.
-- `frontend/src/features/schedule/GroupScheduleScreen.test.tsx` проверяет API
-  rendering и mobile day-strip keyboard behavior, но не disclosure для dense
-  desktop clusters.
-- `frontend/e2e/group-schedule.spec.ts` проверяет, что overlapping cards имеют
-  разные `x`, и отсутствие document overflow, но не full decision-data при
-  4–6 simultaneous events.
-- Loading, role-specific empty, filtered empty, initial error и stale schedule
-  paths уже принадлежат screen. Их semantics и временной контекст нужно
-  сохранить.
-- `/api/schedule/groups`, payload, permissions, access scope, conflict rules,
-  time parsing и backend code не меняются. Backend tests и DB changes для
-  TASK-106 не требуются.
-
-## UX contract
-- Пользователь: Coach / Administrator / HeadCoach и любой уже авторизованный
-  SuperAdministrator, допущенный к Schedule backend contract. Frontend не
-  выводит доступ или conflict semantics из role и не меняет access behavior.
-- Основной контекст: быстрое чтение недельной сетки на `1440 x 1200` при
-  нескольких занятиях в одном временном cluster.
-- Primary path: открыть `/schedule` → найти день/время → прочитать просторную
-  event card либо активировать summary → увидеть полные details всех events →
-  закрыть surface → продолжить scan с возвращённого focus.
-- Completion signal: для каждого event известны start/end, group и
-  hall/trainer; disclosure явно сообщает точное число представленных в нём
-  events без заявления, что все они одновременно активны.
-- Required decision-data: weekday/date context, полный time range, group name,
-  hall, trainer(s). Group type, branch, active state и participants сохраняются
-  в details как существующий secondary context.
-- Primary operation: прочитать и различить занятия. Frequent operations:
-  filters, refresh и mobile day selection. Secondary operation: открыть dense
-  cluster. Edit/create/resolve-conflict operations отсутствуют.
-- Action budget: dense cluster раскрывает все обязательные данные одним click,
-  Enter или Space с summary trigger.
-- Failure/recovery: initial error и stale/retry сохраняют существующую board
-  semantics; Escape/close возвращает focus к trigger, а при исчезновении
-  trigger после filter/refresh — к schedule board.
-- Measurable success: ни одна desktop overlap entry не остаётся start-only
-  compact card без hall/trainer и без obvious disclosure; minimum visual/hit
-  geometry disclosure не перекрывает следующий render item вне disclosure.
 
 ## UI specification
 
@@ -270,113 +175,9 @@ keyboard-accessible drill-down. UI не утверждает, что все со
   Popover с defined focus fallback.
 - Никаких disabled/pending/success controls не добавляется: TASK read-only.
 
-## Execution roles
-1. `ux-researcher` contract выполнен на planning stage: зафиксированы primary
-   task, decision-data, one-action disclosure и failure/recovery paths.
-2. `ui-designer` handoff выполнен на planning stage: зафиксированы hybrid
-   threshold, summary geometry, Popover, detail fields, focus и responsive
-   behavior.
-3. `test-automator` до production-кода добавляет unit/component/Playwright red
-   regressions и после implementation закрывает desktop/mobile matrix.
-4. `react-specialist` только после подтверждённого red state реализует
-   минимальные React/Mantine/CSS changes по этому contract, применяя
-   `.agents/skills/react-best-practices/SKILL.md`.
-5. Координирующий агент проверяет worktree, test-first evidence и результат
-   против UX/UI contract; backend/domain changes не делегируются.
+## Implementation sequence
 
-## Execution steps
-
-### Phase 0 — task workspace and baseline
-1. Выполнить `git fetch origin`, перечитать root/frontend `AGENTS.md`, source
-   TASK, этот plan, `crm-mobile-first-ui`, `react-best-practices` и
-   `task-worktree`; создать/возобновить declared branch/worktree и вернуть
-   verified path, branch, base и current commit.
-2. До новых assertions запустить focused baseline:
-   `cd frontend && npm run test:unit -- src/lib/groupSchedule.test.ts src/features/schedule/GroupScheduleScreen.test.tsx`
-   и `npm run test:e2e -- group-schedule.spec.ts`. Отделить pre-existing
-   failures от ожидаемого TASK-106 red state.
-3. Source-search подтвердить consumers current lane/compact CSS, test ids,
-   schedule viewport contract и Mantine Popover patterns. Не менять backend,
-   API types или unrelated shared components.
-
-### Phase 1 — tests before functional code
-4. До production-кода расширить `frontend/src/lib/groupSchedule.test.ts`:
-   - single event не classified как overlap cluster;
-   - exact same-time 2/3/6 events и transitive partial overlaps образуют
-     deterministic clusters в chronological/stable order;
-   - boundary `end === next.start` начинает новый cluster;
-   - readability helper сохраняет roomy/tall 2-lane cards, но summarizes 3+
-     lanes, width `<112px` и pre-clamp temporal height `<84px`;
-   - short dense cluster поглощает непосредственно следующую boundary entry,
-     только если clamped disclosure/entry rectangles пересекаются;
-   - collision closure не поглощает соседнюю entry при достаточном vertical
-     gap и не перескакивает через non-intersecting item;
-   - collision group сохраняет deterministic identity, minimum/maximum range и
-     exact total count, включая absorbed non-overlapping entries;
-   - long names и count >6 не теряют entry identity и не получают hard cap;
-   - helper не меняет time parsing, lane assignment, overlap membership,
-     conflict semantics или group references.
-5. До production-кода расширить
-   `frontend/src/features/schedule/GroupScheduleScreen.test.tsx` с mocked API
-   fixture на шесть одновременных events:
-   - desktop рендерит один summary trigger, exact count и не рендерит шесть
-     unreadable competing cards;
-   - visible trigger содержит range/count, первые две group names и
-     `+N = count - 2`, без aggregate hall/trainer counts и type dots;
-   - accessible name точно соответствует neutral contract и содержит
-     weekday/date/full disclosure range/count;
-   - click и Enter/Space открывают dialog `Занятия в интервале`; новое UI не
-     содержит label `параллельных занятий`;
-   - dialog связан через `aria-controls`/`aria-labelledby`, имеет
-     `aria-modal="false"`, а initial focus установлен на close control;
-   - visible detail rows содержат full time/group/hall/branch/trainer для всех
-     six events, long text и inactive/fallback state;
-   - Escape и explicit close закрывают Popover и возвращают focus;
-   - membership/range change закрывает orphaned disclosure и использует
-     focusable schedule-board fallback, surviving stable key обновляет rows;
-   - short cluster + colliding back-to-back entry показываются одним
-     disclosure с total count и полными details; при достаточном gap entry
-     остаётся отдельной;
-   - roomy two-lane entries остаются full readable cards, без start-only
-     compact state;
-   - уже авторизованный SuperAdministrator сохраняет существующий Schedule
-     behavior без новой frontend role ветки;
-   - initial loading/error, Coach/global/filtered empty и stale board tests
-     сохраняются.
-6. До production-кода добавить focused Playwright scenario в
-   `frontend/e2e/group-schedule.spec.ts` на `1440 x 1200`:
-   - fixture: six overlapping events, long Russian group/hall/trainer values,
-     inactive and trainer-missing edges;
-   - summary visible, full count/range, first two names, correct `+N` и stable
-     neutral accessible name;
-   - Tab/Enter либо focus/Enter открывает details; все required decision-data
-     visible после одного action;
-   - Escape closes, trigger focused; explicit close тоже проверен;
-   - short dense/back-to-back fixture доказывает, что `54px`/`44px` surface не
-     закрывает следующий item: intersecting item включён в disclosure, а
-     non-intersecting следующий item остаётся отдельно видимым;
-   - no individual card представлен только `08:…`/single-fragment surface;
-   - `documentElement`/`body.scrollWidth <= innerWidth + 1`;
-   - Popover и rows не имеют horizontal/nested-scroll trap.
-7. До production-кода расширить mobile preservation coverage:
-   - `group-schedule.spec.ts` проверяет normal selected-day timeline на
-     `360 x 780`, `390 x 844`, `420 x 912`, `440 x 956`, отсутствие desktop
-     summary/Popover и weekly grid;
-   - `912 x 420` и `956 x 440` выполняются в touch-capable context с
-     `hasTouch` либо в mobile WebKit project и подтверждают тот же mobile path;
-   - fixture с шестью simultaneous mobile entries подтверждает только
-     отсутствие regressions текущего selected-day rendering; тест не требует
-     новой читаемости всех шести lanes;
-   - при необходимости добавить один schedule smoke в
-     `iphone-target-devices.spec.ts`, выполняемый обоими WebKit target projects,
-     без объявления real-device Safari acceptance.
-8. Запустить новые focused unit/component и Playwright tests на неизменённом
-   production-коде. Сохранить expected red evidence: cluster/readability helper
-   отсутствует; current UI даёт six tiny start-only cards; summary, Popover и
-   focus-return contract отсутствуют. Failure из-за broken mock/selector или
-   unrelated baseline не считается корректным red state.
-
-### Phase 2 — minimal functional implementation
+### minimal functional implementation
 9. Экспортировать local presentation overlap/readability/collision helpers из
    `groupSchedule.ts`, переиспользуя existing sorted entry boundaries и не
    создавая альтернативную conflict semantics. Height threshold вычислять до
@@ -398,57 +199,10 @@ keyboard-accessible drill-down. UI не утверждает, что все со
     rows, focus, viewport bounds и single list scroll. Не менять overall shell,
     board viewport, breakpoints или mobile event hierarchy.
 
-### Phase 3 — green and regression closure
-15. Повторно запустить focused unit/component, desktop dense Playwright и
-    mobile preservation tests; исправлять production code по contract, не
-    ослаблять decision-data/focus/overflow assertions.
-16. Запустить обязательные frontend checks из task worktree:
-    - `cd frontend && npm run test:unit`;
-    - `npm run lint`;
-    - `npm run build`;
-    - `npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`;
-    - `npm run test:e2e:iphone`.
-17. Выполнить source/DOM review: нет start-only undisclosed desktop overlap
-    cards, duplicate hidden cards под summary, hard-capped events, misleading
-    `parallel`/`conflict` labels в новом surface, frontend permission/conflict
-    inference, raw colors, orphaned Popover state, new page-level overflow или
-    unrelated files.
-18. Провести manual keyboard и actual browser `200%` zoom check от
-    `1440 x 1200`: ожидается mobile reflow без desktop summary/Popover и без
-    document overflow. Если доступен, выполнить Safari Responsive Design
-    Mode/iOS Simulator smoke для mobile preservation. Непроверенное device
-    behavior указать как residual risk; manual QA не заменяет automated
-    regression barrier.
-
-## Preferred implementation strategy
-1. Pure cluster/readability tests and component/Playwright disclosure tests in
-   red state.
-2. One presentation-only overlap + visual-collision render model derived from
-   existing entries.
-3. Desktop summary + one controlled Mantine Popover for unreadable clusters.
-4. Direct full metadata for surviving readable two-lane cards.
-5. Focus/refresh reconciliation, full frontend regression and mobile WebKit
-   preservation checks.
-
-## Files likely to change
-- `frontend/src/lib/groupSchedule.ts`
-- `frontend/src/lib/groupSchedule.test.ts`
-- `frontend/src/features/schedule/GroupScheduleScreen.tsx`
-- `frontend/src/features/schedule/ScheduleEventsDisclosure.tsx` (new,
-  preferred if local extraction keeps the screen focused)
-- `frontend/src/features/schedule/GroupScheduleScreen.test.tsx`
-- `frontend/src/App.css`
-- `frontend/e2e/group-schedule.spec.ts`
-- `frontend/e2e/responsive-main-screens.spec.ts` (only if schedule overflow or
-  representative desktop contract needs a focused assertion)
-- `frontend/e2e/iphone-target-devices.spec.ts` (only for target-device schedule
-  preservation smoke)
-
-Files to inspect but not expected to change:
-- `frontend/src/lib/api/schedule.ts`
-- `frontend/src/lib/api/types.ts`
-- `frontend/src/features/shared/ux.tsx`
-- backend schedule endpoints/tests
+## Likely files and layers
+- `frontend/src/lib/groupSchedule.ts` and its focused unit tests.
+- `frontend/src/features/schedule/GroupScheduleScreen.tsx`, nearby styles and component tests.
+- Dense schedule Playwright fixtures/specs; backend and bot are not expected to change.
 
 ## Constraints
 - Backend остаётся единственным владельцем schedule data, permissions, access
@@ -484,7 +238,7 @@ Files to inspect but not expected to change:
   residual limitation TASK-106.
 - Общий redesign filters, legend, shell, schedule colors или typography.
 
-## Required test coverage
+## Regression specification
 
 ### Unit tests — write before production code
 - Pure overlap cluster grouping: independent, exact, transitive and boundary
@@ -544,7 +298,7 @@ contracts do not change.
   available. These are reported residual checks, not substitutes for automated
   tests.
 
-## Test plan
+### Validation and acceptance
 - [ ] До production-кода добавить unit tests для cluster/readability helpers.
 - [ ] До production-кода добавить component/integration tests для
       summary/Popover/focus/states.
@@ -553,9 +307,6 @@ contracts do not change.
 - [ ] Запустить новые tests на unchanged production code и сохранить ожидаемый
       red по отсутствующей TASK-106 functionality.
 - [ ] Реализовать минимальный desktop presentation change.
-- [ ] `cd frontend && npm run test:unit`
-- [ ] `cd frontend && npm run lint`
-- [ ] `cd frontend && npm run build`
 - [ ] `cd frontend && npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`
 - [ ] `cd frontend && npm run test:e2e:iphone`
 - [ ] Manual keyboard/200% zoom и residual Safari/device report.
@@ -613,6 +364,3 @@ claiming to redesign dense mobile lanes.
 Не останавливаться только потому, что Schedule shared между ролями или потому,
 что responsive measurement/component tests затрагивают несколько frontend
 files.
-
-## Ready for Codex execution
-yes

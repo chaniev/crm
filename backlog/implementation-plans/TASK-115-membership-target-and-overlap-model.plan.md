@@ -1,43 +1,19 @@
 # Implementation Plan: TASK-115 Адресность и одновременное действие абонементов
 
-## Source task
-/backlog/risky/TASK-115-membership-target-and-overlap-model.md
+## Metadata
+- source_task: /backlog/risky/TASK-115-membership-target-and-overlap-model.md
+- branch: feature/TASK-115-membership-target-and-overlap-model
+- readiness: no — требуется human review, explicit high-risk approval и verified DB lifecycle
+- dependencies: none; if batched with TASK-119, TASK-115 must integrate first
+- risk: high — membership/attendance/finance semantics, concurrency and schema transition
 
-## Planning status
+## Contract revision
 
 - Этот документ полностью заменяет superseded one-group plan от 2026-08-19.
 - План описывает подтверждённую ordered multi-group модель от 2026-08-21.
 - Clarification от 2026-08-21 16:38 MSK увеличивает верхнюю границу для
   `Term`/`Professional` с двух до пяти target groups; `SingleVisit` остаётся
   одногрупповым.
-- TASK-115 остаётся в `/backlog/risky`: план разрешён risky planning policy, но
-  не является разрешением на автоматическую реализацию.
-- До первого изменения project code обязателен human review этого документа и
-  явное разрешение пользователя на выполнение high-risk TASK-115.
-- На planning snapshot локальный `main` = `3458a1f`, `origin/main` = `48a57d7`;
-  implementation branch нельзя создавать, пока карточка и утверждённый план не
-  окажутся в актуальном `origin/main` либо пользователь не утвердит другой base.
-
-## Implementation branch
-feature/TASK-115-membership-target-and-overlap-model
-
-Branch rules:
-
-- перед созданием branch прочитать и выполнить
-  `.agents/skills/task-worktree/SKILL.md`;
-- создать отдельный worktree непосредственно от актуального `origin/main`;
-- primary repository оставить на `main`; project code, tests, schema и runtime
-  менять только в TASK-115 worktree;
-- проверить git root, branch, clean status, worktree registration и
-  `git merge-base --is-ancestor origin/main HEAD`;
-- поднять отдельный Docker Compose project для PostgreSQL/runtime проверок;
-- не добавлять unrelated fixes или refactoring;
-- все specialist agents работают только в делегированном worktree, не создают
-  и не удаляют worktree и не откатывают изменения других исполнителей;
-- из-за coordinated breaking contract задача использует одну branch и
-  последовательные review checkpoints. Если human review потребует независимые
-  child TASKs, сначала создать их карточки, branches и dependency order, затем
-  обновить этот план; не создавать несколько неучтённых branches под одним TASK.
 
 ## Goal
 
@@ -48,38 +24,6 @@ Branch rules:
 `Professional` глобально исключает любой другой entitlement. Attendance без
 пользовательского выбора однозначно разрешает entitlement по клиенту, группе и
 дате; финансовые и attendance события сохраняют immutable ordered snapshots.
-
-## Current understanding
-
-- `ClientMembership` — versioned entity с одним current technical row на sale,
-  но не содержит group target collection.
-- `ClientMembershipService` и read projections выбирают один client-wide
-  current membership. Purchase дополнительно блокируется client-wide active
-  membership, renew адресует client-wide current/latest period.
-- PostgreSQL exclusion constraint запрещает пересекающиеся current
-  `Term`/`Professional` periods по `ClientId`, независимо от групп, и не
-  моделирует `SingleVisit`.
-- Attendance хранит factual `GroupId`/`TrainingDate`; для `SingleVisit` также
-  хранит sale/write-off version identity. Save transaction может отметить
-  посещение без entitlement и вернуть backend warning; этот operational
-  mark-with-warning behavior не меняется без отдельного продуктового решения.
-- Текущий client branch transfer объединяет смену филиала/группы с новой
-  продажей (кроме unused `SingleVisit`). Это несовместимо с подтверждённым
-  no-sale target transfer и должно быть разделено.
-- Financial report атрибутирует sale/refund по client branch/group assignments
-  на дату события и может размножить одно событие по нескольким группам.
-- Group archive является `TrainingGroup.IsActive = false`; membership guard
-  отсутствует.
-- Refund register/cancel сейчас не проходят через общую membership idempotency
-  boundary и не защищают concurrent refund ceiling одной явной transaction;
-  это необходимо исправить вместе с immutable refund snapshot.
-- Frontend и bot используют singular `currentMembership`; формы не передают
-  target groups, history не показывает event snapshot, attendance UI правильно
-  не отправляет membership id.
-- В текущем schema нет deployed one-group membership FK. Поэтому singleton
-  migration является compatibility case только для реально обнаруженного
-  predecessor schema; основной current-baseline backfill использует правила
-  TASK-115 для current client groups.
 
 ## Confirmed implementation contract
 
@@ -545,35 +489,33 @@ checkpoints; each checkpoint must pass review before the next functional slice.
 
 ### Checkpoint A — contract, policy and additive persistence
 
-- Raw JSON request/response/ProblemDetails red tests.
-- Pure target/cardinality/overlap/resolver unit matrix red tests.
+- Raw JSON request/response/ProblemDetails tests.
+- Pure target/cardinality/overlap/resolver unit matrix.
 - Target/version/event snapshot schema and model tests.
 - Barrier: order/cardinality + exhaustive matrix + PostgreSQL concurrent write.
 
 ### Checkpoint B — transition and legacy state
 
-- Deterministic transition fixtures before transition code.
+- Deterministic transition fixtures.
 - Clean initial state plus selected lifecycle path.
 - Empty legacy read/correction/attendance isolation.
 - Barrier: counts/FKs/order/rerun, unchanged assignments and money.
 
 ### Checkpoint C — membership lifecycle, transfer, archive and finance
 
-- Purchase/renew/correct/refund/transfer/deactivate API red tests before service
-  changes.
+- Purchase/renew/correct/refund/transfer/deactivate API contract tests.
 - Atomic target-aware operations and immutable event snapshots.
 - Barrier: raw HTTP -> transaction -> fresh DbContext -> audit/report evidence.
 
 ### Checkpoint D — attendance entitlement
 
-- Resolver and attendance API red tests before write-off/restore code.
+- Resolver and attendance API contract tests.
 - Exact snapshot, one write-off/restore, warning-only no-entitlement path.
 - Barrier: concurrent attendance/purchase and atomic restore conflict.
 
 ### Checkpoint E — frontend and bot consumers
 
-- Type/mapper/component/Playwright and Pydantic/service red tests before
-  consumer implementation.
+- Type/mapper/component/Playwright and Pydantic/service contract tests.
 - Reviewed mobile forms/cards/transfer and thin bot rendering.
 - Barrier: no singular executable selection, no attendance picker, target
   iPhone WebKit workflows and bot contract tests.
@@ -582,208 +524,11 @@ No backend-only breaking contract may be deployed while frontend/bot consume
 the old shape. Checkpoint commits may remain separate in the TASK branch, but
 merge/deploy is one synchronized release.
 
-## Execution roles
-
-1. Coordinator: risky approval, worktree/branch, dependency sequence, DB
-   lifecycle, contract integration, runtime stack and final acceptance.
-2. `ux-researcher`: planning contract complete; re-engage only if implementation
-   discovers a material workflow conflict.
-3. `ui-designer`: planning handoff complete; resolves any conflict before React
-   implementation changes the approved interaction.
-4. `test-automator`: writes/updates unit, raw API, PostgreSQL, frontend,
-   Playwright and bot regressions before production code and records expected
-   red evidence.
-5. `dotnet-backend-specialist`: domain/application/API/persistence/attendance/
-   report implementation after backend red tests. Before creating or
-   substantially restructuring xUnit tests, read
-   `.agents/skills/csharp-xunit/SKILL.md`.
-6. `react-specialist`: React/Mantine implementation after frontend red tests;
-   read `.agents/skills/react-best-practices/SKILL.md` and preserve approved UX.
-7. `python-pro`: thin bot contract/renderer update; no CRM policy duplication.
-
-## Execution steps
-
-### Phase 0 — review and isolated baseline
-
-1. Human-review this plan; explicitly approve high-risk execution and DB
-   lifecycle path.
-2. Integrate planning changes into current `origin/main`.
-3. Read root/backend/frontend/bot AGENTS, task-worktree, crm-mobile-first-ui and
-   applicable implementation/testing skills.
-4. Create/verify dedicated branch, worktree and Docker Compose project.
-5. Inventory singular current membership, old overlap, transfer sale path,
-   report attribution, group deactivation and all bot/frontend consumers.
-6. Record baseline backend/frontend/bot suites and current DB schema/version.
-
-### Phase 1 — tests first, expected red
-
-7. Freeze raw JSON canonical requests/responses and stable ProblemDetails in
-   integration tests.
-8. Add pure unit tests for ordered set/cardinality, full overlap matrix,
-   inclusive boundaries, Professional global coverage, legacy empty state and
-   resolver uniqueness.
-9. Add PostgreSQL model/concurrency tests for target uniqueness/order, shared
-   lock order, competing purchase/correction/transfer/restore/archive and fresh
-   reload.
-10. Add transition fixtures for prior singleton, 2–5 same-branch groups, zero,
-    >5, cross-branch, all event snapshots and preserved assignments.
-11. Add lifecycle/report/audit tests for purchase, renew, correction, transfer,
-    refund/cancel, deactivation and canonical money.
-12. Add attendance resolver/write-off/restore/warning tests.
-13. Add frontend contract/component/e2e tests and bot models/service tests for
-    the new canonical contract.
-14. Run each new suite against baseline and record expected behavioral failing
-    assertions. Compilation errors, missing fixtures, Docker failure or
-    unrelated baseline failures are not valid red evidence. Minimal compile
-    scaffolding may define new types only; it must not implement successful
-    behavior.
-
-### Phase 2 — domain, persistence and transition
-
-15. Implement focused target, snapshot, overlap and entitlement policy types.
-16. Add EF entities/configurations/DbSets and provider-safe locking service.
-17. Update initial schema, designers/snapshot/seed and only the approved
-    database lifecycle path.
-18. Implement deterministic transition/legacy provenance; run the exact
-    transition tests red -> green before membership mutation code.
-
-### Phase 3 — backend lifecycle and projections
-
-19. Replace client-wide purchase/renew/current selection with addressed
-    collection and shared matrix policy.
-20. Implement atomic purchase auto-assignment, renew, correction/legacy repair,
-    membership target transfer and branch-transfer separation.
-21. Implement refund/sale snapshots, report attribution and group deactivation
-    guard.
-22. Implement resolver-driven attendance, exact write-off/restore and event
-    snapshot inside the existing owned transaction.
-23. Update client list/detail/attention, attendance, audit, internal bot and
-    ProblemDetails projections; remove singular runtime fallbacks.
-24. Run all backend focused tests green, then relevant regression suite, before
-    consumer production code.
-
-### Phase 4 — frontend and bot
-
-25. Update TypeScript API types/mappers/writes/errors to the canonical ordered
-    collection and backend-owned aggregate states.
-26. Implement reviewed current cards, target field, purchase/renew/correction,
-    separate transfer surface, mobile history and group archive recovery.
-27. Keep attendance selection unchanged; show resolver status/warnings only.
-28. Update list/preview/home attention stable identities and remove arbitrary
-    first-membership presentation.
-29. Update Python bot models/rendering for collections/targets; preserve
-    backend order and absence of attendance membership callbacks.
-30. Run the exact frontend/bot red tests green without weakening assertions.
-
-### Phase 5 — regression and runtime acceptance
-
-31. Run full required backend/frontend/bot commands.
-32. Recreate isolated PostgreSQL stack from final initial state and smoke the
-    synchronized API/frontend/bot contract.
-33. If a forward transition was approved, upgrade a representative predecessor
-    DB and compare dry-run counts/report totals before and after.
-34. Execute vertical flow: purchase `[A,B]` -> disjoint `[C]` -> conflict
-    `[B,C]` -> renew/reorder -> correct -> attendance write-off/restore ->
-    transfer -> refund/report -> archive block/recovery.
-35. Run mobile acceptance at all required viewports and target iPhone WebKit;
-    include failure recovery, stale and permission-restricted paths.
-36. Report actual commands/results and every Safari/Simulator/physical-device/
-    keyboard/chrome/safe-area check not performed.
-
-## Files likely to change
-
-Backend domain/application:
-
-- `backend/src/GymCrm.Domain/Clients/ClientMembership.cs`
-- `backend/src/GymCrm.Domain/Clients/ClientMembershipSale.cs`
-- `backend/src/GymCrm.Domain/Clients/ClientMembershipRefund.cs`
-- `backend/src/GymCrm.Domain/Attendance/Attendance.cs`
-- new focused target/snapshot entity files, one top-level type per file
-- `backend/src/GymCrm.Application/Clients/IClientMembershipService.cs`
-- `backend/src/GymCrm.Application/Clients/ClientMembershipSemantics.cs`
-- new focused overlap/entitlement contracts and policy files
-- `backend/src/GymCrm.Application/Attendance/IAttendanceService.cs`
-- `backend/src/GymCrm.Application/Bot/BotApiContracts.cs`
-- `backend/src/GymCrm.Application/Reports/FinancialReportContracts.cs`
-
-Backend infrastructure/persistence:
-
-- `backend/src/GymCrm.Infrastructure/Clients/ClientMembershipService.cs`
-- new membership lock/target repository services
-- `backend/src/GymCrm.Infrastructure/Attendance/AttendanceService.cs`
-- `backend/src/GymCrm.Infrastructure/Reports/FinancialReportService.cs`
-- `backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs`
-- `backend/src/GymCrm.Infrastructure/Persistence/GymCrmDbContext.cs`
-- existing/new focused EF configurations for membership/target/snapshots/
-  attendance/sale/refund
-- `backend/src/GymCrm.Infrastructure/Persistence/Migrations/20260513165936_InitialCreate.cs`
-- matching designer(s) and `GymCrmDbContextModelSnapshot.cs`
-- deterministic forward migration only if approved by Phase 0 evidence
-- seed/bootstrap data
-
-Backend API:
-
-- `backend/src/GymCrm.Api/Auth/ClientEndpoints.cs`
-- `PurchaseClientMembershipRequest.cs`
-- `RenewClientMembershipRequest.cs`
-- `CorrectClientMembershipRequest.cs`
-- `TransferClientBranchRequest.cs` and/or new focused membership target transfer
-  request
-- `ClientMembershipResponse.cs`
-- `CurrentMembershipSummaryResponse.cs` replacement
-- client list/detail/attention response contracts
-- `AttendanceEndpoints.cs`, `AttendanceClientResponse.cs`
-- `GroupEndpoints.cs`
-- membership/sale/refund/attendance/group audit states
-- client/attendance/group resource `.resx` files
-
-Backend tests:
-
-- new focused `MembershipTargetPolicyTests.cs`
-- new focused raw API `ClientMembershipTargetApiTests.cs`
-- new PostgreSQL `ClientMembershipTargetPostgreSqlTests.cs`
-- new transition `ClientMembershipTargetDataTransitionTests.cs`
-- new attendance entitlement tests
-- `ClientMembershipPersistenceModelTests.cs`
-- `ClientMembershipWriteRegressionApiTests.cs`
-- `ClientsApiTests.cs`
-- `AttendanceApiTests.cs`
-- `MembershipTransferCatalogTests.cs`
-- `FinancialReportsApiTests.cs`
-- `GroupsApiTests.cs`
-- `InternalBotApiTests.cs`
-- affected fixture/seeder/bootstrap tests
-
-Frontend:
-
-- `frontend/src/lib/api/types.ts`
-- `frontend/src/lib/api/mappers.ts`
-- `frontend/src/lib/api/clients.ts`
-- `frontend/src/lib/api/attendance.ts`
-- `frontend/src/lib/api/errors.ts`
-- their focused unit tests
-- `frontend/src/features/clients/ClientManagement.tsx`
-- new local membership components under `features/clients/membership/`
-- `ClientManagement.form.ts` and tests
-- client list/preview view models and tests
-- `frontend/src/features/home/MembershipsPanel.tsx`
-- attendance row/screen files and tests
-- `frontend/src/features/groups/GroupManagement.tsx` and tests
-- finance report component tests
-- `frontend/src/App.css`
-- `frontend/e2e/membership-sale-pricing.spec.ts` or new focused
-  `membership-target-overlap.spec.ts`
-- `frontend/e2e/attendance.spec.ts`
-- `frontend/e2e/groups-registry.spec.ts`
-- `frontend/e2e/iphone-target-devices.spec.ts`
-
-Bot:
-
-- `bot/src/gym_crm_bot/crm/models.py`
-- `bot/src/gym_crm_bot/core/service.py`
-- `bot/tests/test_crm_client.py`
-- `bot/tests/test_bot_service.py`
-- `bot/tests/test_callbacks_and_menu.py`
+## Likely files and layers
+- Backend membership target/domain policy, lifecycle services, EF schema/migrations, API projections and tests.
+- Attendance entitlement, reports/audit and internal-bot contract consumers.
+- Frontend membership API/forms/cards/transfer flows and responsive tests.
+- Python bot models/rendering/tests plus synchronized runtime/release configuration.
 
 ## Constraints
 
@@ -799,7 +544,6 @@ Bot:
 - Historical event snapshots are immutable under correction/transfer.
 - Idempotency and audit stay inside mutation transaction.
 - Mantine, Onest, existing design tokens and shared patterns remain.
-- No production code changes outside the declared worktree/branch.
 
 ## Out of scope
 
@@ -814,7 +558,7 @@ Bot:
   boundary required by TASK-115.
 - Reconstructing unknown historical attendance entitlement by heuristic.
 
-## Required test coverage
+## Regression specification
 
 ### Unit tests — written before functional code
 
@@ -885,20 +629,11 @@ Bot:
 - Human review of transition dry-run and financial attribution diff is required
   before modifying a preserved DB.
 
-## Test plan
+### Validation and acceptance
 
-- [ ] Record human approval, DB lifecycle evidence, branch/worktree/runtime and
-  baseline results.
-- [ ] Add/run focused backend unit/API tests and capture expected behavioral red.
-- [ ] Add/run real PostgreSQL concurrency/transition tests and capture red.
-- [ ] Add/run frontend API/component/Playwright tests and capture red.
-- [ ] Add/run bot Pydantic/service tests and capture red.
-- [ ] Implement each checkpoint only after its red evidence.
-- [ ] Rerun the identical focused tests green without weakening assertions.
-- [ ] Run `dotnet test backend/GymCrm.slnx`.
-- [ ] From `frontend/`: `npm run lint`, `npm run build`, `npm run test:unit`.
+- [ ] Record human approval, DB lifecycle evidence, runtime and baseline
+  results.
 - [ ] Run affected Playwright specs and `npm run test:e2e:iphone`.
-- [ ] From `bot/`: `ruff check .` and `pytest`.
 - [ ] Recreate isolated clean PostgreSQL/runtime stack; when approved, upgrade a
   representative predecessor DB.
 - [ ] Search executable code/tests for singular current-membership selection,
@@ -956,8 +691,6 @@ manual QA. All five barriers and full required suites must pass.
 - Current report attribution by assignments may change historical breakdowns;
   canonical totals must be diffed separately from intended attribution changes.
 - Backend/frontend/bot partial rollout is breaking.
-- Local planning baseline is ahead of `origin/main`; creating worktree too early
-  can omit the clarified contract/plan.
 
 ## Stop conditions
 
@@ -965,7 +698,6 @@ Stop and do not write/continue functional code if:
 
 - human review/explicit high-risk execution approval is absent;
 - task/plan is absent from execution base;
-- branch/worktree/base, dirty changes or Docker project ownership is ambiguous;
 - target DB lifecycle is unknown or transition would require uncontrolled data
   cleanup;
 - common lock order cannot cover every membership/attendance/archive mutation;
@@ -982,12 +714,3 @@ Stop and do not write/continue functional code if:
 Do not stop only because backend, frontend and bot change together; coordinated
 cross-layer work is expected. Stop only for an unresolved invariant, unsafe
 rollout/data path or scope expansion.
-
-## Ready for Codex execution
-no
-
-Reason: TASK-115 is high-risk and `Safe for Codex: no`. The multi-group
-architecture, test-first checkpoints, UX/UI handoff and regression barriers are
-prepared, but implementation requires human review, explicit execution
-approval, planning changes integrated into `origin/main` and a verified target
-database lifecycle.

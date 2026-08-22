@@ -1,35 +1,11 @@
 # Implementation Plan: TASK-103 Выделить «Посещения» в самостоятельный раздел
 
-## Source task
-/backlog/risky/TASK-103-attendance-navigation-model.md
-
-Карточка остаётся в `/backlog/risky`: этот файл готовит реализацию, но сам по
-себе не переводит medium-risk cross-layer изменение в активное исполнение.
-
-## Implementation branch
-feature/TASK-103-attendance-navigation-model
-
-Branch rules:
-- перед изменением project code использовать
-  `.agents/skills/task-worktree/SKILL.md` и создать либо безопасно возобновить
-  отдельный worktree
-  `../crm-worktrees/TASK-103-attendance-navigation-model`;
-- создать branch непосредственно от актуального `origin/main`; primary
-  repository оставить на `main`, а код менять только в task worktree;
-- до первой правки подтвердить registered worktree, active branch, отсутствие
-  unexplained changes и `git merge-base --is-ancestor origin/main HEAD`;
-- не включать TASK-104, TASK-111 или другой redesign
-  attendance/Attention/schedule;
-- backend и frontend изменения TASK-103 должны находиться в одной task branch
-  и выпускаться как один согласованный contract change.
-
-Planning snapshot на 2026-08-19: primary repository находится на clean local
-`main` `781aa86ed9a53b872716021413a6355c31c75ab3`, который на 7 commits опережает
-локальный `origin/main` `921e17340922ebdab701d76fa671387e57577115`.
-`origin/main` уже содержит завершённые TASK-104 и TASK-116. Локальной/remote
-branch TASK-103 и назначенного ей worktree не найдено. Executor обязан сделать
-`git fetch origin`, повторить preflight и не считать planning snapshot
-актуальным execution base.
+## Metadata
+- source_task: /backlog/risky/TASK-103-attendance-navigation-model.md
+- branch: feature/TASK-103-attendance-navigation-model
+- readiness: yes — после явного выбора задачи и human review cross-layer contract
+- dependencies: none; завершённые TASK-104 и TASK-116 являются baseline
+- risk: medium — coordinated backend session and frontend route/navigation contract
 
 ## Goal
 Coach, Administrator, HeadCoach и SuperAdministrator открывают отметку факта
@@ -39,36 +15,6 @@ section `Attention` с label `Внимание` и canonical route `/attention`;
 `Расписание` остаётся отдельным `/schedule`, а route,
 navigation, document title, main landmark, recovery и client-return используют
 одну стабильную attendance-модель.
-
-## Current understanding
-- Продуктовые решения, role matrix, landing routes, mobile placement и
-  SuperAdministrator scope подтверждены; blocking clarification questions нет.
-- Backend уже объявляет `AppSection.Attendance`, но `AccessScopeService` не
-  выдаёт section ни одной роли и оставляет `Home` landing для всех ролей;
-  целевой contract удаляет `AppSection.Home` и добавляет `AppSection.Attention`.
-- Frontend `AppSection`, session mapper и route registry не знают `Attendance`
-  или `Attention`; `/attendance` намеренно закреплён unit-тестом как
-  `not-found`, `/attention` также не существует, а `/` всё ещё означает `Home`.
-- `AttendanceScreen` уже существует и переиспользует выпущенный
-  `AttendanceWorkspace`, однако `RouteViewport` его не рендерит: workbench
-  монтируется внутри attendance tab `HomeDashboard`.
-- TASK-104 уже уплотнила attendance toolbar и сохранила row-local pending,
-  success, failure, retry, stale refresh и scope-recovery states. TASK-103 не
-  меняет их content, layout или attendance API semantics.
-- TASK-116 хранит versioned client-profile return context, но attendance origin
-  жёстко типизирован как section `Home`; explicit return и history validation
-  поэтому пока восстанавливают `/`.
-- TASK-088 уже предоставляет typed `allowed | restricted | not-found`, inline
-  direct denial и polite automatic access-loss feedback. Нужно изменить его
-  входной session/route contract, а не создавать новый redirect mechanism.
-- Mobile navigation сейчас резервирует `Home`, `Schedule`, `Clients` и
-  adaptive fourth slot. Простого добавления `Attendance` в список недостаточно:
-  целевой порядок начинается с `Attendance`, `Home` заменяется на `Attention`,
-  относительный порядок `Schedule` -> `Clients` сохраняется, а active overflow
-  promotion вытесняет адаптивный `Clients`, не затрагивая первые три позиции.
-- Backend/frontend contract меняется без database/schema migration и без
-  изменения bot contract. `AuthEndpoints` уже сериализует `LandingScreen` и
-  `AllowedSections` из `AccessScope`; отдельный transport DTO redesign не нужен.
 
 ## Approved role/session matrix
 
@@ -99,29 +45,6 @@ Invariants:
 - Coach does not receive `Attention` or display `Внимание`;
 - Administrator, HeadCoach and SuperAdministrator receive `Attention` as the
   management inbox and `Attendance` as the first direct navigation item.
-
-## UX contract used
-- Users: Coach, Administrator, HeadCoach, SuperAdministrator.
-- Coach primary path: login -> `/attendance` -> active `Посещения` -> choose
-  group/date -> mark attendance.
-- Administrator primary path is the same; `Внимание` remains separately
-  reachable as management inbox.
-- HeadCoach/SuperAdministrator primary landing: login -> `/attention` -> active
-  `Внимание`; `Посещения` is the first navigation item and remains reachable
-  with one direct navigation action.
-- Direct `/attention` for Coach remains at the requested URL and renders the
-  TASK-088 restricted state; primary recovery is `Открыть Посещения` to
-  `/attendance`.
-- Direct `/` for an authenticated user is `not-found`, is not an alias for
-  `/attention`, and offers the existing explicit recovery action to that
-  user's backend-authorized landing section.
-- Direct/reload/back/forward `/attendance` resolves to the same canonical route
-  and `aria-current="page"` state without silent redirect or loop.
-- Attendance row -> client details/edit -> `К посещениям` restores
-  `groupId`, `trainingDate`, `rosterView` and `anchorClientId` on
-  `/attendance`; malformed/stale context fails closed to `Клиенты`.
-- `Расписание` always means planned sessions on `/schedule`, never the entry
-  point for recording attendance.
 
 ## UI specification
 
@@ -220,124 +143,9 @@ Rules:
 - iOS Simulator/physical Safari must confirm browser-chrome, actual safe-area
   and software-keyboard behavior before claiming device-level acceptance.
 
-## Execution roles
-1. Planning-stage `ux-researcher` contract is complete: role paths, recovery,
-   history and mobile-primary invariants are fixed above.
-2. Planning-stage `ui-designer` handoff is complete: hierarchy, hidden heading,
-   main landmark, responsive matrix, overflow promotion and focus semantics are
-   fixed above.
-3. `test-automator` writes/updates the backend contract, frontend unit/component
-   and Playwright regressions before any production code and records red evidence.
-4. `dotnet-backend-specialist` makes the minimal backend session/access-scope
-   change after the backend red test is confirmed.
-5. `react-specialist` consumes the approved contracts and implements the
-   frontend mapper/route/navigation/Attention/return changes after frontend red
-   tests are confirmed, using `react-best-practices`.
-6. Coordinating agent verifies the shared worktree, test-first evidence,
-   cross-layer result, integrated local stand and residual device risks.
+## Implementation sequence
 
-## Execution steps
-
-### Phase 0 — workspace and baseline
-1. Run `git fetch origin`; reread root/backend/frontend `AGENTS.md`, source task,
-   this plan, `task-worktree`, `crm-mobile-first-ui`, `react-best-practices` and
-   `csharp-xunit` before their respective implementation/test work.
-2. Create/resume the declared isolated branch/worktree and report verified
-   worktree path, branch, base and current commit before edits.
-3. Confirm current `origin/main` contains completed TASK-104 and TASK-116 and
-   does not contain a competing TASK-103 branch/implementation.
-4. Capture baseline green results for the focused backend authorization tests,
-   current frontend unit tests and current affected Playwright specs. Baseline
-   tests that intentionally assert the old model are expected to be green here.
-5. Do not start Docker yet; unit/component/contract red-green work does not
-   require a runtime stack.
-
-### Phase 1 — write all required tests before functional code
-6. Update backend HTTP integration tests in `AuthorizationFlowTests.cs` with the
-   exact four-role matrix above. Preserve all permission and attendance-scope
-   assertions to prove representation changed without privilege expansion, and
-   assert that current `landingScreen`/`allowedSections` never serialize `Home`.
-7. Update frontend API mapper unit tests so session JSON containing
-   `Attendance`/`Attention` maps them in `landingScreen` and `allowedSections`,
-   unknown entries inside `allowedSections` are dropped, and a user payload
-   whose landing is unknown, legacy `Home`, missing or absent from the mapped
-   allowed sections—or whose mapped allowed sections are empty—is rejected
-   fail closed without substituting `Attention` or another local default.
-8. Update `appRoutes` unit tests before implementation:
-   - `/attendance` parse/serialize, exact label/path and allowed resolution;
-   - `/attention` parse/serialize with section `Attention`, exact label/path and
-     allowed resolution; `/` remains a separate `not-found` path;
-   - Coach `/attention` restricted outcome with `/attendance`/`Посещения`
-     recovery, while `/` uses role-specific not-found recovery;
-   - all role navigation inventories and exact desktop order `Attendance`,
-     `Attention`, `Schedule`, `Clients`, then the
-     remaining authorized sections;
-   - stable mobile primary sets and active overflow promotion which replaces
-     `Clients` without displacing `Attendance`, `Attention` or `Schedule`;
-   - reload/back/forward-equivalent route parsing and not-found separation.
-9. Update shared navigation/component tests before implementation:
-   - attendance icon/label/current state in sidebar and bottom navigation;
-   - generic `Ещё`, displaced-item drawer membership, `aria-current`, focus
-     return and authorized-only items;
-   - named `main` landmark for allowed `Посещения`, `Внимание`, restricted and
-     root not-found states.
-10. Update Attention/Attendance component tests before implementation:
-    - section `Attention` renders management inbox `Внимание` only, without a
-      visible `Требуют внимания`, tablist or attendance API calls; its hidden
-      `h1` remains available to screen readers without participating in layout,
-      its accessible list name and attention loading/error/empty/success remain
-      intact, and no heading spacer or flex gap precedes the first operational
-      surface;
-    - Attendance owns the semantic hidden `h1`, workbench and client-origin
-      section `Attendance` without changing TASK-104 behavior.
-11. Update client-profile return-state unit tests before implementation:
-    - newly serialized attendance origin is `/attendance`/`Attendance`;
-    - group/date/view/anchor/depth and unrelated history-state preservation;
-    - current version round-trip and malformed payload rejection;
-   - bump serialization to version 2; read a valid legacy version-1 `groupEdit`
-     context as version 2 in memory without eagerly rewriting `history.state`,
-     because its route is unchanged; reject legacy version-1 attendance/`Home`
-     context and use the existing Clients fallback because its history entry
-     cannot satisfy the new canonical URL.
-12. Update `App` integration tests before implementation:
-    - role-specific post-login landings and section rendering;
-    - document titles, hidden/visible headings and named `main` landmarks;
-    - direct Coach `/attention` denial, recovery and no initial silent redirect;
-    - direct `/` not-found with backend-landing recovery and no Attention alias;
-    - session access loss notification/replacement without loops;
-    - attendance client-return validation on `/attendance`.
-13. Update Playwright tests before implementation:
-    - Coach and Administrator login land on `/attendance` with active
-      `Посещения`; Coach has no `Внимание`;
-    - HeadCoach/SuperAdministrator land on `/attention`, see active `Внимание`
-      management inbox only and reach the first navigation item `Посещения` in
-      one direct action;
-    - canonical deep link, reload, back/forward and permission/access change;
-    - client details/edit return restores attendance context and anchor;
-    - `/schedule` remains separate and never renders attendance workbench;
-    - mobile primary/overflow/accessibility/geometry matrix at required sizes.
-14. Audit all realistic frontend unit/E2E session fixtures found by
-    `allowedSections`/`landingScreen`: update canonical role fixtures to the new
-    backend matrix; retain deliberately synthetic permission fixtures only when
-    the test names and asserts that synthetic contract. Do not introduce a
-    broad fixture-framework refactor in TASK-103.
-
-### Phase 2 — prove the expected red state
-15. Run the focused backend authorization tests. Expected red reason: current
-    `AccessScopeService` still returns `Home` landing for all roles and omits
-    both target `Attention` and `Attendance` contracts.
-16. Run the focused frontend unit/component tests. Expected red reasons:
-    mapper drops `Attendance` and `Attention`, `/attendance` and `/attention`
-    are `not-found`, `/` still resolves as `Home`, mobile ordering lacks the
-    target `Attendance`, `Attention`, `Schedule`, `Clients` priority,
-    Home still owns attendance and attendance return origin is still legacy
-    `Home`.
-17. Run the new affected Chromium Playwright specs. Expected red reasons must
-    match the same missing contract; distinguish genuine test/setup defects.
-18. Save command/output evidence for each expected failure. Do not weaken
-    assertions merely to get red tests compiling or passing.
-
-### Phase 3 — backend contract implementation
+### backend contract implementation
 19. Replace `AppSection.Home` with `AppSection.Attention`, then update
     `AccessScopeService` with the exact role matrix. Reuse the existing
     `AppSection.Attendance` constant; do not duplicate strings or role rules in
@@ -346,7 +154,7 @@ Rules:
     branch scope, group authorization and API ProblemDetails unchanged.
 21. Rerun focused backend tests green, then the complete backend solution.
 
-### Phase 4 — frontend route and session contract
+### frontend route and session contract
 22. Replace `Home` with `Attention` and add `Attendance` in the typed API
     section union and session mapper; remove the current `?? 'Home'` landing
     fallback, validate landing membership in the mapped allowed sections, and
@@ -366,7 +174,7 @@ Rules:
     resolved allowed/restricted/not-found name from `App`; do not create nested
     main landmarks.
 
-### Phase 5 — separate the screens and update history
+### separate the screens and update history
 27. Route section `Attendance` to existing `AttendanceScreen`, pass the current
     client return context and client-opening callback, and hide only its
     duplicate visible route heading.
@@ -391,92 +199,10 @@ Rules:
 33. Mechanically align affected test session fixtures and old-model assertions;
     do not change unrelated product expectations.
 
-### Phase 6 — green and regression validation
-34. Rerun all new focused tests green, then run the complete backend and
-    frontend unit suites, lint and production build.
-35. Run affected Chromium Playwright specs for attendance, auth landing,
-    `Attention`/`Внимание`,
-    route access, client-profile return, responsive screens and touch/navigation
-    inventory.
-36. Run target-iPhone WebKit projects and compact-height coverage. Treat desktop
-    Chromium viewport resizing as geometry evidence, not iPhone Safari proof.
-37. Start a task-local Docker Compose stack only after automated green checks:
-    choose free ports, use unique `COMPOSE_PROJECT_NAME`, keep `BOT_ENABLED=false`
-    and do not reuse another task's containers/volumes.
-38. On the integrated backend/frontend stand, smoke all four role landings,
-    actual session JSON, direct `/attendance`, Coach direct `/attention`
-    recovery, root `/` not-found recovery, management `Внимание` and
-    attendance client return. Stop the exact task stack
-    without deleting volumes unless the implementation workflow needs it kept.
-39. Review final diff for product-code scope, generated artifacts, fixture drift
-    and accidental TASK-104/attendance-domain changes.
-
-## Preferred implementation strategy
-1. One atomic cross-layer task branch with small verifiable commits:
-   tests/red evidence -> backend contract -> frontend contract/route ->
-   screen/history wiring -> green/regression evidence.
-2. Contract-first exact role matrix; frontend only consumes backend sections.
-3. Reuse TASK-088, TASK-104, TASK-116 and shared navigation components; do not
-   replace them with a new router, state store or authorization layer.
-4. No feature flag is required for a coordinated CRM release. Backend-first or
-   frontend-first independent rollout is unsafe because old frontend drops
-   `Attendance`/`Attention` and new frontend rejects old session section `Home`;
-   deploy/rollback the paired backend and frontend artifacts together.
-5. If runtime requires independent rolling compatibility, stop and design an
-   explicit version/feature capability before code rather than temporarily
-   deriving access from role strings.
-
-## Files likely to change
-
-Backend production:
-- `backend/src/GymCrm.Infrastructure/Authorization/AccessScopeService.cs`
-- `backend/src/GymCrm.Application/Authorization/AppSection.cs` to remove `Home`
-  and add `Attention` while preserving the existing `Attendance` constant
-
-Backend tests:
-- `backend/tests/GymCrm.Tests/AuthorizationFlowTests.cs`
-
-Frontend production:
-- `frontend/src/lib/api/types.ts`
-- `frontend/src/lib/api/auth.ts`
-- `frontend/src/lib/appRoutes.ts`
-- `frontend/src/lib/resources.ts`
-- `frontend/src/App.tsx`
-- `frontend/src/App.css`
-- `frontend/src/features/shared/AppLayout.tsx`
-- `frontend/src/features/shared/navigationIcons.tsx`
-- rename `frontend/src/features/home/HomeDashboard.tsx` to
-  `frontend/src/features/attention/AttentionDashboard.tsx`
-- move `frontend/src/features/home/AttentionPanel.tsx` to
-  `frontend/src/features/attention/AttentionPanel.tsx` and preserve its
-  visually-hidden list name without adding a visible operation heading
-- `frontend/src/features/attendance/AttendanceScreen.tsx`
-- `frontend/src/features/clients/clientProfileReturnState.ts`
-
-Frontend unit/component tests:
-- `frontend/src/lib/api/auth.test.ts`
-- `frontend/src/lib/appRoutes.test.ts`
-- `frontend/src/App.test.tsx`
-- `frontend/src/features/shared/ux.test.tsx`
-- rename `frontend/src/features/home/HomeDashboard.test.tsx` to
-  `frontend/src/features/attention/AttentionDashboard.test.tsx`
-- `frontend/src/features/attendance/AttendanceScreen.test.tsx`
-- `frontend/src/features/clients/clientProfileReturnState.test.ts`
-
-Primary Playwright tests:
-- `frontend/e2e/attendance.spec.ts`
-- `frontend/e2e/auth.spec.ts`
-- rename `frontend/e2e/home-dashboard.spec.ts` to
-  `frontend/e2e/attention-dashboard.spec.ts`
-- `frontend/e2e/route-access-feedback.spec.ts`
-- `frontend/e2e/client-profile-context-navigation.spec.ts`
-- `frontend/e2e/responsive-main-screens.spec.ts`
-- `frontend/e2e/iphone-target-devices.spec.ts`
-- `frontend/e2e/touch-target-inventory.spec.ts`
-- other specs containing canonical role session fixtures, discovered before
-  editing and changed only where the backend matrix affects their assumptions
-
-No database, migration, bot or deploy production files are expected to change.
+## Likely files and layers
+- `backend/src/**/AccessScope*`, auth/session contracts and focused API tests.
+- `frontend/src/appRoutes.ts`, app/session routing and navigation components.
+- Attendance/Attention viewports, client-return context and their unit/Playwright tests.
 
 ## Constraints
 - Backend remains the only source of truth for sections, landings, roles,
@@ -500,7 +226,7 @@ No database, migration, bot or deploy production files are expected to change.
 - New routing library, global navigation store or general E2E fixture refactor.
 - Bot UI/navigation changes.
 
-## Required test coverage
+## Regression specification
 
 All test changes below must be written before functional code and run red for
 the expected missing TASK-103 behavior.
@@ -561,14 +287,10 @@ pure role matrix solely to create an isolated unit test.
 These checks are residual device evidence, not substitutes for automated
 regression coverage.
 
-## Test plan
+### Validation and acceptance
 - [ ] Backend role matrix tests written before production code and confirmed red.
 - [ ] Frontend unit/component tests written before production code and confirmed red.
 - [ ] Affected Playwright tests written before production code and confirmed red.
-- [ ] `dotnet test backend/GymCrm.slnx` passes.
-- [ ] `cd frontend && npm run lint` passes.
-- [ ] `cd frontend && npm run build` passes.
-- [ ] `cd frontend && npm run test:unit` passes.
 - [ ] Affected Chromium Playwright specs pass.
 - [ ] `cd frontend && npm run test:e2e:iphone` passes for affected target-device cases.
 - [ ] Integrated isolated-stack smoke validates actual backend/frontend session contract.
@@ -626,7 +348,6 @@ both target routes before handoff.
 
 ## Stop conditions
 Stop and do not write/continue functional code if:
-- branch/worktree/base differs from this plan or contains unexplained changes;
 - current `origin/main` lacks TASK-104/TASK-116 baselines or a competing
   navigation implementation exists;
 - product role matrix, `Attention` identifier, `/attention` canonical route,
@@ -646,8 +367,3 @@ Stop and do not write/continue functional code if:
 Do not stop merely because both backend and frontend change, shared navigation
 is reused, or the task remains medium-risk. Those risks are localized by the
 phases and regression barriers above.
-
-## Ready for Codex execution
-yes — plan is implementation-ready, but the source task intentionally remains
-in `/backlog/risky`; begin only after explicit selection for execution, human
-review of this contract and creation of the declared isolated worktree.

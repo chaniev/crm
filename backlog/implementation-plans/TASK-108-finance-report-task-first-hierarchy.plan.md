@@ -1,104 +1,17 @@
 # Implementation Plan: TASK-108 Вернуть финансовому отчету task-first hierarchy
 
-## Source task
-/backlog/risky/TASK-108-finance-report-task-first-hierarchy.md
-
-Task remains in `/backlog/risky` until human review approves active
-implementation. This plan is created for implementation readiness and financial
-trust review, not as permission to start code changes in the primary repository.
-
-## Implementation branch
-fix/TASK-108-finance-report-task-first-hierarchy
-
-Branch rules:
-- перед изменением project code использовать `.agents/skills/task-worktree/SKILL.md`
-  и создать либо безопасно возобновить отдельный worktree
-  `../crm-worktrees/TASK-108-finance-report-task-first-hierarchy`;
-- создать branch непосредственно от актуального `origin/main`; primary
-  repository оставить на `main`, а код менять только в task worktree;
-- до первой правки подтвердить registered worktree, active branch, отсутствие
-  unexplained changes и `git merge-base --is-ancestor origin/main HEAD`;
-- не включать backend/API contract changes, formula changes, permissions,
-  export controls, currency/rounding changes или unrelated finance redesign;
-- Docker Compose по умолчанию не нужен: задача покрывается frontend unit,
-  component и mocked Playwright tests.
-
-Planning evidence на 2026-08-02: primary repository был проверен на clean
-`main` `8b77992b9026c8637befe15a7969d00aa7153870`, совпадающем с локальным
-`origin/main`; branch, remote branch и worktree TASK-108 не найдены. Source
-task находится в `/backlog/risky`. Executor обязан повторить проверку после
-`git fetch origin` и не считать planning snapshot актуальным execution base.
+## Metadata
+- source_task: /backlog/risky/TASK-108-finance-report-task-first-hierarchy.md
+- branch: fix/TASK-108-finance-report-task-first-hierarchy
+- readiness: no — требуется explicit activation/human review financial-trust UI
+- dependencies: none
+- risk: medium — frontend presentation must preserve backend-owned financial totals and scope
 
 ## Goal
 Пользователь, которому backend разрешил финансовые отчеты, сразу видит период и
 scope данных, отличает empty/loading/error/stale состояния и быстро переходит
 от KPI к branch/trainer/group breakdown на мобильных размерах без сомнений в
 актуальности финансовых данных.
-
-## UX contract used
-- Пользователь: SuperAdministrator, HeadCoach или другой backend-authorized
-  finance-report user.
-- Primary context: mobile operational check at `390 x 844`, with target checks
-  at `420 x 912` and `440 x 956`.
-- Completion signal: user can state the period, branch scope and trainer scope
-  of the displayed report, see whether operations exist, read totals, and reach
-  breakdown within the first intentional scroll.
-- Primary path: open `/finance` -> read closed scope summary -> optionally open
-  filters/change/reset -> read compact KPI summary -> inspect empty state or
-  breakdown -> retry if report failed.
-- Frequent actions: change period/branch/trainer/date, reset active scope,
-  refresh/retry. Secondary actions: open/close filter drawer/popover.
-- Stale trust rule: previous report data must be labeled with the last
-  successful scope, not the failed new filter values.
-
-## Human review decisions (2026-08-16)
-- Cleared/default filter baseline is the current month anchored to the local
-  current date, matching the valid initial request. Initial state has active
-  filter count `0`; reset returns to that valid baseline.
-- One external reset is shown in the filter toolbar only while filters are
-  active; the open drawer/popover keeps its contextual reset. Scope header and
-  empty state do not duplicate reset.
-- Backend field-validation errors recover through the affected fields and do
-  not offer retry. Retry is reserved for transport/server failures.
-- A newer immediate filter request supersedes an older failed request and its
-  retry target. Displayed money remains labeled only with the last successful
-  scope.
-- Zero reports suppress all five KPI surfaces and render one explicit empty
-  state.
-- All five KPI values have equal visual weight. `Чистая выручка` receives no
-  accent treatment; the full-width fifth row is a neutral geometry solution,
-  not emphasis.
-- Successful backend periods are formatted as exact
-  `dd.MM.yyyy–dd.MM.yyyy` ranges. Stale copy distinguishes same-scope refresh
-  failure from failure to load a newly requested scope.
-- A selected branch/trainer without an authorized option label is a data/access
-  inconsistency, not a normal fallback state. UI must not guess or silently
-  mask that inconsistency.
-- Export, sales/refund drill-down and new report navigation remain out of scope.
-- These decisions close the product/design questions but do not by themselves
-  activate implementation or move the source task out of `/backlog/risky`.
-
-## Current understanding
-- `frontend/src/features/finance/FinanceReportsScreen.tsx` fetches options and
-  report through existing API helpers, applies filters immediately, keeps the
-  previous `report` on refresh failure, and uses backend `report.period` and
-  `report.totals` as canonical data.
-- Mobile `CompactFilterPanel` currently collapses all period/branch/trainer
-  context behind a generic `Фильтры` button.
-- The KPI area is a five-card `SimpleGrid`; at mobile width each card has
-  `min-height: 8.25rem`, so empty periods show a long sequence of zero metrics
-  before the empty explanation.
-- Current stale behavior is a yellow alert above `FinanceReportResults`; the
-  displayed report surface itself is not marked stale and retry is not placed
-  inside that surface.
-- Existing tests already protect backend values from local recomputation,
-  filter query params, permissions, field errors and narrow no-horizontal-scroll.
-- Current `createClearedFilterValues()` returns `month` with an empty
-  `anchorDate`, although backend requires `anchorDate` for non-custom presets.
-  TASK-108 must correct this frontend reset defect while preserving endpoint
-  keys and backend period interpretation.
-- Backend contracts, formulas, query parameters, roles and permissions must not
-  change.
 
 ## Constraints
 - Backend remains the only source of truth for report values, resolved period,
@@ -479,115 +392,14 @@ Feedback timing:
 - Do not introduce Tailwind, new component libraries, global state, exports,
   charts or new KPI definitions.
 
-## Preferred implementation strategy
-1. Contract-preserving frontend change: keep current API types and query
-   mapping, and treat backend response period/totals as immutable input.
-2. Model one last-successful `{ report, filters, scopeLabels }` snapshot plus a
-   request-identified latest retryable failure beside current requested filters
-   so stale data cannot be relabeled or retried with an abandoned scope.
-3. Prefer finance-local components/state over a shared abstraction; extend
-   `CompactFilterPanel` only with the minimal conditional-reset contract and
-   protect all existing consumers with shared tests.
-4. Implement in small verifiable commits: red tests, display-state model,
-   scope/report hierarchy, compact styling, green/regression closure.
-5. Do not use feature flags or a backend compatibility layer: no contract or
-   rollout change is required for this bounded presentation fix.
+## Likely files and layers
+- Finance report screen/presentation components and nearby CRM styles.
+- Shared `CompactFilterPanel` only for the reviewed conditional-reset extension.
+- Finance component tests and affected responsive/Playwright specs.
 
-## Execution roles
-1. `ux-researcher` handoff выполнен на planning stage: зафиксированы task,
-   decision-data, state/recovery contract и financial-trust risks.
-2. `ui-designer` handoff выполнен на planning stage: зафиксированы component
-   order, scope/KPI geometry, responsive/focus behavior и human-review gates.
-3. `test-automator` до production-кода добавляет component/Playwright red
-   regressions и сохраняет expected-failure evidence.
-4. `react-specialist` только после подтвержденного red state реализует
-   минимальные React/Mantine/CSS changes по этому contract, применяя
-   `.agents/skills/react-best-practices/SKILL.md`.
-5. Координирующий агент проверяет worktree, test-first evidence, finance
-   contract preservation и acceptance matrix; backend specialists не нужны,
-   пока stop condition не обнаружит contract change.
+## Implementation sequence
 
-## Files likely to change
-- `frontend/src/features/finance/FinanceReportsScreen.tsx`
-- `frontend/src/features/finance/FinanceReportsScreen.test.tsx`
-- `frontend/src/features/finance/FinanceReportPresentation.tsx` — new local
-  presentation boundary
-- `frontend/src/features/finance/FinanceReportPresentation.test.tsx` — focused
-  state/scope/KPI unit-component coverage
-- `frontend/src/features/shared/ux.tsx` — minimal conditional reset visibility
-- `frontend/src/features/shared/ux.test.tsx` — shared reset regression coverage
-- `frontend/e2e/finance-reports.spec.ts`
-- `frontend/src/App.css`
-- `frontend/e2e/iphone-target-devices.spec.ts` — обязательный finance smoke для
-  обоих target WebKit projects
-- possibly `frontend/e2e/touch-target-inventory.spec.ts` only if added
-  controls require inventory updates
-
-## Execution steps
-
-### Phase 0 - workspace and baseline
-1. Read root `AGENTS.md`, `frontend/AGENTS.md`, source TASK, this plan,
-   `.agents/skills/crm-mobile-first-ui/SKILL.md`,
-   `.agents/skills/react-best-practices/SKILL.md` and
-   `.agents/skills/task-worktree/SKILL.md`.
-2. Create/resume the declared task worktree and branch from current
-   `origin/main`; confirm path, branch, base and clean task workspace.
-3. Inspect current `FinanceReportsScreen.tsx`, `CompactFilterPanel`, finance
-   CSS, `FinanceReportsScreen.test.tsx`, `finance-reports.spec.ts`, and API
-   types before writing tests.
-4. Run focused baseline when practical:
-   `cd frontend && npm run test:unit -- src/features/finance/FinanceReportsScreen.test.tsx src/lib/api/reports.test.ts`
-   and `npm run test:e2e -- finance-reports.spec.ts`.
-
-### Phase 1 - tests before functional code
-5. Before production code, add/update component tests for:
-   - `FinanceReportPresentation.test.tsx`: scope labels/inconsistency, active count,
-     loading/refreshing/error/stale/empty/success branches and compact KPI DOM;
-   - `FinanceReportsScreen.test.tsx`: async successful/requested snapshot,
-     unchanged API params, retry sequence, reset and permission boundary;
-   - non-empty report shows period, branch and trainer scope before opening
-     filters;
-   - backend totals are still rendered without local recomputation;
-   - zero report shows one explicit empty state and does not render five zero
-     KPI cards before it;
-   - initial loading shows loading, not empty/zero totals;
-   - error without data shows report-surface retry and no totals;
-   - stale-data error keeps previous report, labels it stale, uses last
-     successful scope, names the failed requested scope, and places retry
-     inside the report surface;
-   - retry repeats the latest retryable failed params; a newer filter request
-     supersedes the older retry target, and a later success replaces the
-     displayed snapshot and clears stale semantics;
-   - refreshing with previous data is announced as pending, not success,
-     empty or stale;
-   - backend field-validation errors focus the field and offer no retry;
-   - selected branch/trainer ids without authorized labels enter explicit
-     scope-data-inconsistent handling rather than a guessed fallback;
-   - initial baseline has active count `0`; reset clears only finance filters,
-     restores a valid current-month anchor and preserves query semantics;
-   - all KPI items use equal semantic/visual priority and zero reports render no
-     KPI strip.
-6. Before production code, add/update Playwright tests for:
-   - `390 x 844`, `420 x 912`, `440 x 956` scope summary visibility before
-     drawer open;
-   - no horizontal overflow at `360`, `390`, `420`, `440`;
-   - filter drawer open/close, reset and focus return;
-   - retry after initial error and stale refresh failure;
-   - long branch/trainer names, large/negative RUB values and wrapping;
-   - non-empty breakdown start reachable in the first intentional scroll;
-   - permission-restricted route still does not fetch or show finance data.
-7. До production code добавить finance scenario в
-   `frontend/e2e/iphone-target-devices.spec.ts`: на обоих WebKit projects
-   scope виден при закрытом drawer, controls имеют минимум `44 x 44px`, KPI и
-   первый breakdown не создают horizontal overflow, empty/stale recovery
-   остается достижимым.
-8. Run the new/updated component, Chromium matrix and target-iPhone tests and
-   capture expected red failures caused by the
-   missing hierarchy/stale behavior. Do not implement production code before
-   this red state unless a test is impossible to express; document any
-   exception.
-
-### Phase 2 - minimal implementation
+### minimal implementation
 9. Add local display-state model for last successful report/scope and requested
    scope; update it only on successful `getFinancialReport`. Add a separate
    request-identified retryable-failure snapshot that is superseded by a newer
@@ -609,23 +421,7 @@ Feedback timing:
     anchor, add minimal shared conditional-reset support, and preserve existing
     `toFinancialReportParams`, immediate apply, permissions and API calls.
 
-### Phase 3 - validation
-16. Rerun focused unit/component tests:
-    `cd frontend && npm run test:unit -- src/features/finance/FinanceReportPresentation.test.tsx src/features/finance/FinanceReportsScreen.test.tsx src/lib/api/reports.test.ts`.
-17. Rerun affected Chromium e2e:
-    `cd frontend && npm run test:e2e -- finance-reports.spec.ts responsive-main-screens.spec.ts touch-target-inventory.spec.ts`.
-18. Run required frontend checks:
-    `cd frontend && npm run lint`,
-    `cd frontend && npm run build`,
-    `cd frontend && npm run test:unit`,
-    `cd frontend && npm run check:raw-colors`.
-19. Run required target-device smoke:
-    `cd frontend && npm run test:e2e:iphone`.
-20. Report unverified physical Safari items: browser chrome, software keyboard,
-    Dynamic Island/home indicator, safe-area insets and one-handed reach unless
-    checked in Simulator or on device.
-
-## Required test coverage
+## Regression specification
 
 ### Unit/component tests
 Required before functional code:
@@ -652,7 +448,7 @@ Backend integration tests are not required because backend contracts and
 financial calculations are explicitly out of scope. If implementation discovers
 that backend behavior must change, stop and request product/backend review.
 
-## Test plan
+### Validation and acceptance
 - [ ] Red component tests for non-empty, zero/empty, loading, error without
       data, validation without retry, stale-data error and scope-label
       inconsistency.
@@ -661,8 +457,7 @@ that backend behavior must change, stop and request product/backend review.
       WebKit behavior.
 - [ ] Green focused unit/component tests after implementation.
 - [ ] Green affected Playwright finance spec after implementation.
-- [ ] Green `npm run lint`, `npm run build`, `npm run test:unit`.
-- [ ] Green `npm run check:raw-colors` and `npm run test:e2e:iphone`.
+- [ ] Green target-iPhone WebKit finance scenarios.
 - [ ] Explicit report of remaining Simulator/physical-device gaps.
 
 ## Regression barrier
@@ -694,18 +489,6 @@ regression barrier.
   audit/schedule/client screens; keep the conditional-reset API narrow and
   protect existing behavior with shared tests.
 
-## Human review outcome
-Product/design review completed on 2026-08-16:
-- zero reports use one empty state without five zero KPI surfaces;
-- all five KPI values have equal weight; no metric receives accent treatment;
-- exact displayed period and same-scope/changed-scope stale copy are approved;
-- selected branch/trainer labels are required authorized data, not a fallback;
-- export, details and sales/refund drill-down remain out of scope.
-
-No unresolved product decision remains in this plan. Starting implementation
-still requires an explicit activation request and moving the source task from
-`/backlog/risky` into the active implementation workflow.
-
 ## Stop conditions
 Stop and do not write further code if:
 - implementation requires changing finance formulas, attribution, refund
@@ -719,12 +502,3 @@ Stop and do not write further code if:
   task and the source item leaves `/backlog/risky`;
 - scope expands into exports, charts, new KPI definitions or a full finance
   redesign.
-
-## Ready for Codex execution
-no
-
-Reason: product/design questions are resolved and the plan itself is
-implementation-ready, but the source task remains in `/backlog/risky` and the
-user has not yet requested activation or implementation. On explicit activation,
-move the task into `/backlog/implementation`, create the declared isolated
-worktree and begin with the required red regression tests.
