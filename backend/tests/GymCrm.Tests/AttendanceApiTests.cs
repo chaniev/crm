@@ -1,21 +1,21 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using GymCrm.Application.Security;
-using GymCrm.Application.Audit;
 using GymCrm.Application.Attendance;
+using GymCrm.Application.Audit;
+using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
-using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
-using GymCrm.Infrastructure.Persistence;
 using GymCrm.Infrastructure.Audit;
+using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -839,7 +839,7 @@ public class AttendanceApiTests
             Name = "Attendance Group",
             TrainingStartTime = new TimeOnly(8, 0),
             DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+            Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
@@ -854,7 +854,7 @@ public class AttendanceApiTests
             Name = "Unassigned Group",
             TrainingStartTime = new TimeOnly(19, 0),
             DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+            Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

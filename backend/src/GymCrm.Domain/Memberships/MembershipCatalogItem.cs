@@ -64,10 +64,20 @@ public class MembershipCatalogItem
         bool systemOwned, DateTimeOffset now)
     {
         Validate(name, price, behaviorKind, availableFrom, availableTo);
-        return new MembershipCatalogItem { Id = Guid.NewGuid(), BranchId = branchId, Name = name.Trim(),
-            NormalizedName = NormalizeName(name), Price = price, BehaviorKind = behaviorKind,
-            AvailableFrom = availableFrom, AvailableTo = availableTo, IsSystemOwned = systemOwned,
-            CreatedAt = now, UpdatedAt = now };
+        return new MembershipCatalogItem
+        {
+            Id = Guid.NewGuid(),
+            BranchId = branchId,
+            Name = name.Trim(),
+            NormalizedName = NormalizeName(name),
+            Price = price,
+            BehaviorKind = behaviorKind,
+            AvailableFrom = availableFrom,
+            AvailableTo = availableTo,
+            IsSystemOwned = systemOwned,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
     }
 
     private static void Validate(string name, decimal price, MembershipBehaviorKind behaviorKind,

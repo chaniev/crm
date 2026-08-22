@@ -69,7 +69,14 @@ A schema change does not by itself block planning or implementation.
 ## Required validation
 
 Minimum:
-- `dotnet test backend/GymCrm.slnx`
+- `dotnet format backend/GymCrm.slnx --no-restore --verify-no-changes`
+- `dotnet build backend/GymCrm.slnx --no-restore -warnaserror`
+- `dotnet test backend/GymCrm.slnx --no-build`
+- `dotnet list backend/GymCrm.slnx package --vulnerable --include-transitive`
+
+Run `dotnet restore backend/GymCrm.slnx` before the checks when dependencies
+have not been restored or project/package references changed. Do not suppress
+NuGet audit warnings to make the build green.
 
 If infrastructure/runtime changes:
 - validate docker/runtime behavior

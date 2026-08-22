@@ -206,15 +206,17 @@ npm ci
 npm run dev
 ```
 
-Bot можно запускать локально после настройки переменных окружения:
+Bot можно запускать локально после настройки переменных окружения. Зависимости
+устанавливаются строго из `bot/uv.lock`:
 
 ```bash
 cd bot
-python -m venv .venv
-. .venv/bin/activate
-pip install -e '.[dev]'
-python -m gym_crm_bot.main
+uv sync --locked --extra dev
+uv run --locked python -m gym_crm_bot.main
 ```
+
+Подробная настройка, health endpoints и troubleshooting описаны в
+[`bot/README.md`](bot/README.md).
 
 ## Тестовые данные
 
@@ -272,7 +274,11 @@ dotnet dotnet-ef database update --project src/GymCrm.Infrastructure/GymCrm.Infr
 Backend:
 
 ```bash
-dotnet test backend/GymCrm.slnx
+dotnet restore backend/GymCrm.slnx
+dotnet format backend/GymCrm.slnx --no-restore --verify-no-changes
+dotnet build backend/GymCrm.slnx --no-restore -warnaserror
+dotnet test backend/GymCrm.slnx --no-build
+dotnet list backend/GymCrm.slnx package --vulnerable --include-transitive
 ```
 
 Frontend:
@@ -280,16 +286,22 @@ Frontend:
 ```bash
 cd frontend
 npm run lint
+npm run typecheck
+npm run check:raw-colors
 npm run build
 npm run test:unit
+npm run audit
 ```
 
 Bot:
 
 ```bash
 cd bot
-ruff check .
-pytest
+uv sync --locked --extra dev
+uv run --locked --extra dev ruff check .
+uv run --locked --extra dev ruff format --check .
+uv run --locked --extra dev mypy
+uv run --locked --extra dev pytest
 ```
 
 Docker smoke-проверка:

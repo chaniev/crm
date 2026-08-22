@@ -12,4 +12,3 @@ __all__ = [
     "create_session_factory",
     "session_scope",
 ]
-

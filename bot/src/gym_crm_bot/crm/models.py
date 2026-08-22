@@ -164,6 +164,7 @@ class ClientListItem(ApiModel):
     )
     has_active_membership: bool = Field(default=False, alias="hasActiveMembership")
 
+
 class ClientSearchResponse(ApiModel):
     items: list[ClientListItem]
     skip: int = 0

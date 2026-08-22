@@ -1,8 +1,8 @@
 using GymCrm.Application.Authorization;
 using GymCrm.Domain.Users;
+using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using GymCrm.Infrastructure.Persistence;
 
 namespace GymCrm.Api.Auth;
 

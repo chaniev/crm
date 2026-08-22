@@ -6,7 +6,7 @@ import logging
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from aiogram.types import InlineKeyboardMarkup
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -123,7 +123,7 @@ class TelegramMtProtoAdapter:
         )
         client.add_event_handler(self._on_message, events.NewMessage())
         client.add_event_handler(self._on_callback, events.CallbackQuery())
-        return client
+        return cast(TelethonClient, client)
 
     async def _wait_before_next_attempt(self) -> None:
         try:

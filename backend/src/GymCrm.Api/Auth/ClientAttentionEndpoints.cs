@@ -1,6 +1,6 @@
 using System.Text.Json;
-using GymCrm.Application.Audit;
 using GymCrm.Application.Attendance;
+using GymCrm.Application.Audit;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;

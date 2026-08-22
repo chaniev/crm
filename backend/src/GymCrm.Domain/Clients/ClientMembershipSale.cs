@@ -1,5 +1,5 @@
-using GymCrm.Domain.Users;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Users;
 
 namespace GymCrm.Domain.Clients;
 

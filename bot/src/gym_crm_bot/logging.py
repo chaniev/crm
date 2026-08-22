@@ -26,4 +26,3 @@ def configure_logging(level: str) -> None:
     )
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("aiogram").setLevel(logging.INFO)
-

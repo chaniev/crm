@@ -2,14 +2,13 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using GymCrm.Application.Bot;
 using GymCrm.Application.Attendance;
+using GymCrm.Application.Bot;
 using GymCrm.Domain.Attendance;
-using GymCrm.Domain.Audit;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
-using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using GymCrm.Infrastructure.Persistence.Configurations;
@@ -725,7 +724,7 @@ public class InternalBotApiTests
             Name = "Coach Group",
             TrainingStartTime = new TimeOnly(10, 0),
             DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+            Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
@@ -739,7 +738,7 @@ public class InternalBotApiTests
             Name = "Admin Group",
             TrainingStartTime = new TimeOnly(12, 0),
             DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+            Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

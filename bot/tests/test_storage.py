@@ -102,4 +102,3 @@ async def test_processed_update_reserve_duplicate_and_mark_processed(
         repo = ProcessedUpdateRepository(session)
         await repo.release(platform="Telegram", update_id=501)
         await session.commit()
-

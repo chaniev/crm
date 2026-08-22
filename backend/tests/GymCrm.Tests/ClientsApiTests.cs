@@ -1,6 +1,6 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -9,11 +9,11 @@ using GymCrm.Api.Auth;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Bot;
 using GymCrm.Application.Security;
-using GymCrm.Domain.Branches;
 using GymCrm.Domain.Attendance;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
-using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -26,8 +26,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GymCrm.Tests;
 
-    public class ClientsApiTests
-    {
+public class ClientsApiTests
+{
     private static readonly Guid TermCatalogItemId = Guid.Parse("20000000-0000-4000-8000-000000000001");
     private static readonly Guid SingleVisitCatalogItemId = Guid.Parse("20000000-0000-4000-8000-000000000002");
     private static readonly Guid ProfessionalCatalogItemId = Guid.Parse("20000000-0000-4000-8000-000000000003");
@@ -1481,18 +1481,18 @@ namespace GymCrm.Tests;
                 ],
                 resultClientIds);
 
-        var firstClient = clientItems[0];
-        Assert.Equal("Alpha Тест А", GetStringFromAnyCase(firstClient, "fullName", "FullName"));
-        Assert.Equal("Term", GetStringFromAnyCase(firstClient, "behaviorKind", "MembershipBehaviorKind"));
-        Assert.Equal(today.AddDays(-1).ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
-        Assert.Equal(-1L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
-        Assert.Equal("Expired", GetStringFromAnyCase(firstClient, "state", "State"));
+            var firstClient = clientItems[0];
+            Assert.Equal("Alpha Тест А", GetStringFromAnyCase(firstClient, "fullName", "FullName"));
+            Assert.Equal("Term", GetStringFromAnyCase(firstClient, "behaviorKind", "MembershipBehaviorKind"));
+            Assert.Equal(today.AddDays(-1).ToString("yyyy-MM-dd"), GetStringFromAnyCase(firstClient, "expirationDate", "ExpirationDate"));
+            Assert.Equal(-1L, GetLongFromAnyCase(firstClient, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.Equal("Expired", GetStringFromAnyCase(firstClient, "state", "State"));
 
-        var expiringClient = clientItems[3];
-        Assert.Equal("Delta Тест А", GetStringFromAnyCase(expiringClient, "fullName", "FullName"));
-        Assert.Equal(today.ToString("yyyy-MM-dd"), GetStringFromAnyCase(expiringClient, "expirationDate", "ExpirationDate"));
-        Assert.Equal(0L, GetLongFromAnyCase(expiringClient, "daysUntilExpiration", "DaysUntilExpiration"));
-        Assert.Equal("ExpiringSoon", GetStringFromAnyCase(expiringClient, "state", "State"));
+            var expiringClient = clientItems[3];
+            Assert.Equal("Delta Тест А", GetStringFromAnyCase(expiringClient, "fullName", "FullName"));
+            Assert.Equal(today.ToString("yyyy-MM-dd"), GetStringFromAnyCase(expiringClient, "expirationDate", "ExpirationDate"));
+            Assert.Equal(0L, GetLongFromAnyCase(expiringClient, "daysUntilExpiration", "DaysUntilExpiration"));
+            Assert.Equal("ExpiringSoon", GetStringFromAnyCase(expiringClient, "state", "State"));
         }
     }
 
@@ -3183,6 +3183,7 @@ namespace GymCrm.Tests;
 
         var purchaseDate = GetBusinessToday();
         var firstExpirationDate = purchaseDate.AddMonths(1).AddDays(-1);
+        var firstDurationDays = firstExpirationDate.DayNumber - purchaseDate.DayNumber;
         var renewalDate = purchaseDate.AddDays(10);
 
         using (var purchaseResponse = await SendMembershipActionAsync(
@@ -3231,7 +3232,7 @@ namespace GymCrm.Tests;
             .Where(membership => membership.ValidTo is null)
             .OrderByDescending(membership => membership.IndividualValidTo)
             .First();
-        Assert.Equal(firstExpirationDate.AddMonths(1), current.IndividualValidTo);
+        Assert.Equal(firstExpirationDate.AddDays(firstDurationDays + 1), current.IndividualValidTo);
     }
 
     [Fact]
@@ -3252,7 +3253,9 @@ namespace GymCrm.Tests;
             seeded.GroupOneId);
 
         var currentDate = GetBusinessToday();
+        var oldValidFrom = currentDate.AddMonths(-3);
         var oldExpiration = currentDate.AddMonths(-2);
+        var oldDurationDays = oldExpiration.DayNumber - oldValidFrom.DayNumber;
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -3261,7 +3264,7 @@ namespace GymCrm.Tests;
             dbContext.ClientMemberships.Add(CreateMembershipWithSale(
                 clientId,
                 MembershipBehaviorKind.Term,
-                currentDate.AddMonths(-3),
+                oldValidFrom,
                 oldExpiration,
                 700m,
                 paymentDate: GetBusinessToday(),
@@ -3277,7 +3280,7 @@ namespace GymCrm.Tests;
                    "renew",
                    clientId,
                    new
-               {
+                   {
                        BehaviorKind = "Term",
                        RenewalDate = renewalDate.ToString("yyyy-MM-dd"),
                        PaymentAmount = 700m,
@@ -3300,7 +3303,7 @@ namespace GymCrm.Tests;
             .Where(membership => membership.ValidTo is null)
             .OrderByDescending(membership => membership.IndividualValidTo)
             .First();
-        Assert.Equal(oldExpiration.AddMonths(1), current.IndividualValidTo);
+        Assert.Equal(oldExpiration.AddDays(oldDurationDays + 1), current.IndividualValidTo);
     }
 
     [Fact]
@@ -4097,8 +4100,12 @@ namespace GymCrm.Tests;
             var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             var outsideBranch = new Branch
             {
-                Id = Guid.NewGuid(), Name = "Outside", Address = "Outside", IsArchived = false,
-                CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+                Id = Guid.NewGuid(),
+                Name = "Outside",
+                Address = "Outside",
+                IsArchived = false,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
             };
             db.Branches.Add(outsideBranch);
             db.Clients.AddRange(
@@ -4166,15 +4173,27 @@ namespace GymCrm.Tests;
 
     private static Client NewAttentionClient(Guid id, Guid branchId, string lastName) => new()
     {
-        Id = id, BranchId = branchId, LastName = lastName, FirstName = "Клиент", Phone = "+79990000000",
-        Status = ClientStatus.Active, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+        Id = id,
+        BranchId = branchId,
+        LastName = lastName,
+        FirstName = "Клиент",
+        Phone = "+79990000000",
+        Status = ClientStatus.Active,
+        CreatedAt = DateTimeOffset.UtcNow,
+        UpdatedAt = DateTimeOffset.UtcNow
     };
 
     private static ClientMessengerAccount NewTelegramAccount(Guid clientId, string username) => new()
     {
-        Id = Guid.NewGuid(), ClientId = clientId, Platform = MessengerPlatform.Telegram,
-        PlatformUserId = Guid.NewGuid().ToString("N"), PlatformUserIdHash = Guid.NewGuid().ToString("N"),
-        Username = username, LinkedAt = DateTimeOffset.UtcNow, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+        Id = Guid.NewGuid(),
+        ClientId = clientId,
+        Platform = MessengerPlatform.Telegram,
+        PlatformUserId = Guid.NewGuid().ToString("N"),
+        PlatformUserIdHash = Guid.NewGuid().ToString("N"),
+        Username = username,
+        LinkedAt = DateTimeOffset.UtcNow,
+        CreatedAt = DateTimeOffset.UtcNow,
+        UpdatedAt = DateTimeOffset.UtcNow
     };
 
     [Fact]
@@ -4381,7 +4400,7 @@ namespace GymCrm.Tests;
             Name = "Group One",
             TrainingStartTime = new TimeOnly(9, 0),
             DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+            Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
@@ -4396,7 +4415,7 @@ namespace GymCrm.Tests;
             Name = "Group Two",
             TrainingStartTime = new TimeOnly(18, 30),
             DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+            Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

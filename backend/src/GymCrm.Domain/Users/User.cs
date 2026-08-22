@@ -1,8 +1,8 @@
 using GymCrm.Domain.Audit;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Messenger;
-using GymCrm.Domain.Branches;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
 
 namespace GymCrm.Domain.Users;

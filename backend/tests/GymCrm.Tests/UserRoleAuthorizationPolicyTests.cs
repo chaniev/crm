@@ -1,5 +1,5 @@
-using GymCrm.Application.Authorization;
 using GymCrm.Api.Auth;
+using GymCrm.Application.Authorization;
 using GymCrm.Domain.Users;
 using Microsoft.AspNetCore.Http;
 

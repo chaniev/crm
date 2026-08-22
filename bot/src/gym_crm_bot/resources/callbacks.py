@@ -29,4 +29,3 @@ def decode_callback(data: str) -> CallbackPayload:
     action = parts[0]
     decoded_parts = tuple(unquote(part) for part in parts[1:])
     return CallbackPayload(action=action, parts=decoded_parts)
-

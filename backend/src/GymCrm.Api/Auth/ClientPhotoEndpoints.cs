@@ -1,4 +1,3 @@
-using System.IO;
 using GymCrm.Application.Clients;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;

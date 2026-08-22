@@ -1,6 +1,5 @@
 using System.Globalization;
 using GymCrm.Application.Reports;
-using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;

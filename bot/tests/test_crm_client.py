@@ -105,7 +105,9 @@ def test_bot_user_context_rejects_unknown_role() -> None:
 @pytest.mark.asyncio
 @respx.mock
 async def test_crm_client_sends_idempotency_key_for_remaining_attendance_write() -> None:
-    route = respx.post("http://crm.local/internal/bot/attendance/groups/00000000-0000-0000-0000-000000000021").mock(
+    route = respx.post(
+        "http://crm.local/internal/bot/attendance/groups/00000000-0000-0000-0000-000000000021"
+    ).mock(
         return_value=httpx.Response(
             status_code=200,
             json={
@@ -265,9 +267,7 @@ async def test_crm_client_parses_status_free_search_and_card_contracts() -> None
     assert card.is_professional is True
     assert card.professional_comment == "Сборная"
     assert card.current_membership is not None
-    assert card.current_membership.id == UUID(
-        "00000000-0000-0000-0000-000000000098"
-    )
+    assert card.current_membership.id == UUID("00000000-0000-0000-0000-000000000098")
     assert card.current_membership.behavior_kind == "Professional"
     assert card.current_membership.type_label == "Профессиональный"
     assert card.current_membership.payment_date == date(2026, 4, 28)
@@ -346,9 +346,7 @@ async def test_crm_client_parses_group_schedule_contract_from_backend() -> None:
 @pytest.mark.asyncio
 @respx.mock
 async def test_crm_client_parses_amount_only_membership_sale_contract_from_backend() -> None:
-    respx.get(
-        "http://crm.local/internal/bot/clients/00000000-0000-0000-0000-000000000012"
-    ).mock(
+    respx.get("http://crm.local/internal/bot/clients/00000000-0000-0000-0000-000000000012").mock(
         return_value=httpx.Response(
             status_code=200,
             json={

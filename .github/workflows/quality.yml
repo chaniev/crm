@@ -1,0 +1,97 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore backend/GymCrm.slnx
+
+      - name: Verify formatting
+        run: dotnet format backend/GymCrm.slnx --no-restore --verify-no-changes
+
+      - name: Build with analyzers and NuGet audit
+        run: dotnet build backend/GymCrm.slnx --configuration Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test backend/GymCrm.slnx --configuration Release --no-build
+
+      - name: Report vulnerable dependencies
+        run: dotnet list backend/GymCrm.slnx package --vulnerable --include-transitive
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Audit frontend dependencies
+        run: npm run audit
+        working-directory: frontend
+
+      - name: Run frontend quality baseline
+        run: npm run check
+        working-directory: frontend
+
+  bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: bot/uv.lock
+
+      - name: Install locked dependencies
+        run: uv sync --locked --extra dev
+        working-directory: bot
+
+      - name: Ruff lint
+        run: uv run --locked --extra dev ruff check .
+        working-directory: bot
+
+      - name: Ruff format
+        run: uv run --locked --extra dev ruff format --check .
+        working-directory: bot
+
+      - name: Mypy
+        run: uv run --locked --extra dev mypy
+        working-directory: bot
+
+      - name: Pytest
+        run: uv run --locked --extra dev pytest
+        working-directory: bot

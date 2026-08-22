@@ -204,9 +204,7 @@ async def test_super_administrator_menu_renders_backend_actions_only(
     assert response.text == "Иван, выберите действие."
     assert response.reply_markup is not None
     rendered_callbacks = [
-        button.callback_data
-        for row in response.reply_markup.inline_keyboard
-        for button in row
+        button.callback_data for row in response.reply_markup.inline_keyboard for button in row
     ]
     assert rendered_callbacks == ["menu|client_search", "menu|attendance"]
 
@@ -241,9 +239,7 @@ async def test_administrator_attendance_dates_render_backend_business_window(
 
     assert response.reply_markup is not None
     assert [
-        button.callback_data
-        for row in response.reply_markup.inline_keyboard
-        for button in row
+        button.callback_data for row in response.reply_markup.inline_keyboard for button in row
     ] == [
         "adt|2031-01-09",
         "adt|2031-01-08",
@@ -282,9 +278,7 @@ async def test_coach_attendance_dates_stop_at_backend_minimum(
 
     assert response.reply_markup is not None
     assert [
-        button.callback_data
-        for row in response.reply_markup.inline_keyboard
-        for button in row
+        button.callback_data for row in response.reply_markup.inline_keyboard for button in row
     ] == [
         "adt|2031-01-09",
         "adt|2031-01-08",
@@ -374,9 +368,7 @@ async def test_super_administrator_attendance_groups_render_backend_data(
     assert "Филиал B: старт 18:30 · Пт" in response.text
     assert response.reply_markup is not None
     rendered_callbacks = [
-        button.callback_data
-        for row in response.reply_markup.inline_keyboard
-        for button in row
+        button.callback_data for row in response.reply_markup.inline_keyboard for button in row
     ]
     assert rendered_callbacks == [
         "agr|00000000-0000-0000-0000-000000000021",
@@ -407,10 +399,7 @@ def test_professional_client_card_renders_status_free_membership_contract() -> N
     text = BotService._render_client_card(card)
 
     assert "Профессионал: Сборная" in text
-    assert (
-        "Абонемент: Профессиональный, покупка 01.05.2026, оплата 28.04.2026"
-        in text
-    )
+    assert "Абонемент: Профессиональный, покупка 01.05.2026, оплата 28.04.2026" in text
     assert "оплачен" not in text.lower()
 
 

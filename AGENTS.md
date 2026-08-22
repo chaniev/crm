@@ -191,13 +191,13 @@ responsibility.
 ## Required validation
 
 Backend changes:
-- run backend tests
+- run backend format, build, dependency-audit and test checks
 
 Frontend changes:
-- run lint + build
+- run lint + typecheck + raw-color check + unit tests + build
 
 Bot changes:
-- run ruff + pytest
+- run locked uv sync + ruff lint/format + mypy + pytest
 
 Contract/runtime changes:
 - validate all affected layers

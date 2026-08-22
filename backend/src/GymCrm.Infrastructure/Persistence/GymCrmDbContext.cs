@@ -1,11 +1,11 @@
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Audit;
-using GymCrm.Domain.Branches;
 using GymCrm.Domain.Bot;
+using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
-using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 

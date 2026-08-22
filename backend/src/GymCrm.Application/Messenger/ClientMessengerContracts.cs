@@ -1,6 +1,3 @@
-using GymCrm.Domain.Messenger;
-using GymCrm.Domain.Users;
-
 namespace GymCrm.Application.Messenger;
 
 public static class ClientMessengerAuditConstants

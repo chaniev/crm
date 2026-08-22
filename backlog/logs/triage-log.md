@@ -2616,3 +2616,38 @@
 - implementation: 4
 - moved to done: 2 tasks and 2 implementation plans
 - processed inbox files: 0
+
+# 2026-08-22 23:28 direct engineering standards request
+
+## Baseline and scope
+
+- Implementation branch baseline: `origin/main` at `fbe313c`.
+- Direct user request; no inbox file was processed.
+- Scope: implement engineering baseline items 1–5 and 7, and capture item 6
+  as a separate refactoring task.
+
+## Created tasks
+
+- `/backlog/implementation/TASK-120-engineering-standards-baseline.md`.
+- `/backlog/risky/TASK-121-decompose-oversized-cross-layer-files.md`.
+
+## Duplicate check
+
+- No active task covered the repository-wide quality baseline.
+- TASK-010 already owns the `BotApiService` read-model architecture decision;
+  TASK-121 references it as a dependency instead of creating a competing task.
+- Historical `backlog/done/REFACTORING_PLAN.md` documents earlier completed
+  splits but does not cover the current residual hotspots.
+
+## Status audit
+
+- TASK-120 is in `implementation` while its isolated branch is being validated.
+- TASK-121 is `risky` because it spans runtime layers and requires a phased
+  plan plus architecture clarification before implementation.
+
+## Summary
+
+- created tasks: 2
+- updated existing tasks: 0
+- processed inbox files: 0
+- skipped duplicates: 1 partial overlap linked as dependency

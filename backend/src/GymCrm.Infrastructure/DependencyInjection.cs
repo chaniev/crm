@@ -1,14 +1,14 @@
 using GymCrm.Application.Attendance;
-using GymCrm.Application.Authorization;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Bot;
 using GymCrm.Application.Clients;
 using GymCrm.Application.Messenger;
 using GymCrm.Application.Reports;
 using GymCrm.Application.Security;
 using GymCrm.Infrastructure.AttendanceFeatures;
-using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Audit;
+using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Bot;
 using GymCrm.Infrastructure.Clients;
 using GymCrm.Infrastructure.HealthChecks;
@@ -16,9 +16,9 @@ using GymCrm.Infrastructure.Messenger;
 using GymCrm.Infrastructure.Persistence;
 using GymCrm.Infrastructure.Reports;
 using GymCrm.Infrastructure.Security;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 namespace GymCrm.Infrastructure;

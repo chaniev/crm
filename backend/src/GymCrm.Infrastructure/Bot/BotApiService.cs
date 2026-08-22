@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
-using GymCrm.Application.Authorization;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Bot;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Audit;

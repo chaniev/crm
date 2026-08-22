@@ -113,8 +113,11 @@ Preserve:
 
 Minimum:
 - `cd frontend && npm run lint`
+- `cd frontend && npm run typecheck`
+- `cd frontend && npm run check:raw-colors`
 - `cd frontend && npm run build`
 - `cd frontend && npm run test:unit`
+- `cd frontend && npm run audit` when dependencies or the lockfile change
 
 If flows/UI changed significantly:
 - run affected Playwright tests

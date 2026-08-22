@@ -62,8 +62,14 @@ Bot storage is not a CRM source of truth.
 ## Required validation
 
 Minimum:
-- `ruff check .`
-- `pytest`
+- `uv sync --locked --extra dev`
+- `uv run --locked --extra dev ruff check .`
+- `uv run --locked --extra dev ruff format --check .`
+- `uv run --locked --extra dev mypy`
+- `uv run --locked --extra dev pytest`
+
+Use `uv.lock` for local, CI and container dependency installation. Do not use
+an unlocked `pip install` as the normal project workflow.
 
 If runtime/docker changes:
 - validate container build/runtime

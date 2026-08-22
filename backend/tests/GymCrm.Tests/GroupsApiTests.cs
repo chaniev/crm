@@ -8,9 +8,9 @@ using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
-using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -1022,7 +1022,7 @@ public class GroupsApiTests
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
                        DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+                       Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    actorSession.CsrfToken))
@@ -1041,7 +1041,7 @@ public class GroupsApiTests
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:30:00",
                        DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+                       Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    actorSession.CsrfToken))
@@ -1304,7 +1304,7 @@ public class GroupsApiTests
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
                        DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+                       Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -1356,7 +1356,7 @@ public class GroupsApiTests
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "18:00:00",
                        DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+                       Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -1390,7 +1390,7 @@ public class GroupsApiTests
                        HallId = seeded.HallOneId,
                        TrainingStartTime = "18:00:00",
                        DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+                       Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -1411,7 +1411,7 @@ public class GroupsApiTests
                        GroupTypeId = Guid.NewGuid(),
                        TrainingStartTime = "18:00:00",
                        DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+                       Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    session.CsrfToken))
@@ -2035,7 +2035,7 @@ public class GroupsApiTests
                        GroupTypeId = seeded.GroupTypeId,
                        TrainingStartTime = "12:00:00",
                        DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+                       Weekdays = new[] { 1, 3 },
                        IsActive = true
                    },
                    managerSession.CsrfToken))
@@ -2141,7 +2141,7 @@ public class GroupsApiTests
             Name = "Existing coach-visible group",
             TrainingStartTime = new TimeOnly(9, 0),
             DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+            Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

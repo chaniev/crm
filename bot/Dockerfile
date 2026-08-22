@@ -1,19 +1,16 @@
 FROM python:3.13-slim AS builder
 WORKDIR /app
 
+COPY --from=ghcr.io/astral-sh/uv:0.12.5 /uv /uvx /bin/
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=never
 
 COPY . .
-
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-RUN if [ -f pyproject.toml ]; then \
-      pip install --upgrade pip && \
-      pip install --no-cache-dir . ; \
-    fi
+RUN uv sync --locked --no-dev --no-editable
 
 
 FROM python:3.13-slim AS runtime
@@ -23,13 +20,12 @@ RUN useradd --system --create-home --uid 10001 --user-group --shell /usr/sbin/no
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PATH="/opt/venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH"
 
-COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /app/.venv /app/.venv
 COPY . .
 
-RUN mkdir -p /app/data/bot && chown -R app:app /app /opt/venv
+RUN mkdir -p /app/data/bot && chown -R app:app /app
 USER app
 
 EXPOSE 8080

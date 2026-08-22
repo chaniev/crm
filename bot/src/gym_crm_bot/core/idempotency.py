@@ -15,4 +15,3 @@ def build_mutation_idempotency_key(
     target: str,
 ) -> str:
     return f"tg:{platform_user_id}:{update_id}:{action}:{target}"
-

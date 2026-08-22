@@ -57,12 +57,12 @@ internal sealed class BotIdempotencyRecordConfiguration : IEntityTypeConfigurati
         builder.Property(record => record.ExpiresAt).IsRequired();
 
         builder.HasIndex(record => new
-            {
-                record.Platform,
-                record.PlatformUserIdHash,
-                record.IdempotencyKey,
-                record.ActionType
-            })
+        {
+            record.Platform,
+            record.PlatformUserIdHash,
+            record.IdempotencyKey,
+            record.ActionType
+        })
             .IsUnique();
 
         builder.HasIndex(record => record.ExpiresAt);

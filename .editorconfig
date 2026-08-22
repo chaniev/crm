@@ -1,0 +1,30 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,csx}]
+indent_style = space
+indent_size = 4
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+dotnet_diagnostic.IDE0005.severity = warning
+
+[backend/src/GymCrm.Api/Startup/BootstrapUserStartupExtensions.cs]
+# Logging templates come from strongly typed localized resources and therefore
+# cannot be compile-time literals as required by CA2254.
+dotnet_diagnostic.CA2254.severity = none
+
+[*.{json,jsonc,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

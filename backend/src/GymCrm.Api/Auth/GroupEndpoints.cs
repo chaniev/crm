@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text.Json;
 using GymCrm.Application.Audit;
 using GymCrm.Domain.Groups;
-using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;

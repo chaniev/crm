@@ -1,5 +1,4 @@
 using System.Globalization;
-using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 

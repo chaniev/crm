@@ -2,7 +2,6 @@ using System.Buffers;
 using System.Text;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
-using GymCrm.Domain.Clients;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

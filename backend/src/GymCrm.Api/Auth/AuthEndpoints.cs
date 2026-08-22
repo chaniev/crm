@@ -1,6 +1,6 @@
 using System.Text.Json;
-using GymCrm.Application.Authorization;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;

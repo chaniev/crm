@@ -54,7 +54,7 @@ def test_render_menu_keyboard_contains_role_aware_actions() -> None:
             items=[
                 MenuItem(code="attendance", title="Посещения"),
                 MenuItem(code="client_search", title="Поиск клиента"),
-            ]
+            ],
         )
     )
 
@@ -84,10 +84,6 @@ def test_membership_list_keyboard_never_renders_removed_mark_payment_action() ->
         list_code="expiring_memberships",
     )
 
-    callback_data = [
-        button.callback_data
-        for row in keyboard.inline_keyboard
-        for button in row
-    ]
+    callback_data = [button.callback_data for row in keyboard.inline_keyboard for button in row]
 
     assert all(value is None or not value.startswith(("mpc", "mpy")) for value in callback_data)

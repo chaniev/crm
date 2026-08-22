@@ -1,12 +1,11 @@
 using System.Text.Json;
-using GymCrm.Application.Authorization;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Api.Auth;
@@ -72,8 +71,11 @@ internal static class MembershipCatalogEndpoints
         if (!await db.Branches.AnyAsync(branch => branch.Id == request.BranchId && !branch.IsArchived, cancellationToken))
             return Validation("branchId", "Active branch is required.");
         MembershipCatalogItem item;
-        try { item = MembershipCatalogItem.CreateBranchOwned(request.BranchId, request.Name, request.Price,
-            behavior, request.AvailableFrom, request.AvailableTo, DateTimeOffset.UtcNow); }
+        try
+        {
+            item = MembershipCatalogItem.CreateBranchOwned(request.BranchId, request.Name, request.Price,
+            behavior, request.AvailableFrom, request.AvailableTo, DateTimeOffset.UtcNow);
+        }
         catch (ArgumentException exception) { return Validation("catalog", exception.Message); }
         db.MembershipCatalogItems.Add(item);
         try { await db.SaveChangesAsync(cancellationToken); }

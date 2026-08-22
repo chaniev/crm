@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Attendance;
-using GymCrm.Application.Audit;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Branches;

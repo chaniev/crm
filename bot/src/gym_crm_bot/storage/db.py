@@ -39,4 +39,3 @@ async def session_scope(
         raise
     finally:
         await session.close()
-

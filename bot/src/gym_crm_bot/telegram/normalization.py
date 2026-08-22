@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from gym_crm_bot.crm.models import TelegramIdentity
 
@@ -22,7 +23,7 @@ class NormalizedTelegramEvent:
         return TelegramIdentity(platform_user_id=self.platform_user_id)
 
 
-def normalize_update(update: object) -> NormalizedTelegramEvent | None:
+def normalize_update(update: Any) -> NormalizedTelegramEvent | None:
     message = getattr(update, "message", None)
     if message is not None and getattr(message, "from_user", None) is not None:
         text = message.text or ""

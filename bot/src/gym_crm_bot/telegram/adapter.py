@@ -84,8 +84,8 @@ class TelegramPollingAdapter:
     @staticmethod
     async def _send_callback_response(callback_query: CallbackQuery, response: BotResponse) -> None:
         target_message = callback_query.message
-        if response.replace_existing and target_message is not None:
+        if response.replace_existing and isinstance(target_message, Message):
             await target_message.edit_text(response.text, reply_markup=response.reply_markup)
             return
-        if target_message is not None:
+        if isinstance(target_message, Message):
             await target_message.answer(response.text, reply_markup=response.reply_markup)

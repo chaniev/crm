@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Attendance;
-using GymCrm.Application.Clients;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
@@ -233,24 +232,41 @@ public sealed class MembershipTransferCatalogTests
 
                 var coach = new User
                 {
-                    Id = Guid.NewGuid(), Login = "transfer-head-coach", FullName = "Transfer Head Coach",
-                    Role = UserRole.HeadCoach, IsActive = true, MustChangePassword = false,
-                    CreatedAt = now, UpdatedAt = now
+                    Id = Guid.NewGuid(),
+                    Login = "transfer-head-coach",
+                    FullName = "Transfer Head Coach",
+                    Role = UserRole.HeadCoach,
+                    IsActive = true,
+                    MustChangePassword = false,
+                    CreatedAt = now,
+                    UpdatedAt = now
                 };
                 coach.PasswordHash = hashes.HashPassword(coach, Password);
                 var source = CreateBranch("Source", now);
                 var target = CreateBranch("Target", now);
                 var hall = new Hall
                 {
-                    Id = Guid.NewGuid(), BranchId = target.Id, Name = "Target hall", IsArchived = false,
-                    CreatedAt = now, UpdatedAt = now
+                    Id = Guid.NewGuid(),
+                    BranchId = target.Id,
+                    Name = "Target hall",
+                    IsArchived = false,
+                    CreatedAt = now,
+                    UpdatedAt = now
                 };
                 var groupType = new GroupType { Id = Guid.NewGuid(), Name = "Transfer", CreatedAt = now, UpdatedAt = now };
                 var group = new TrainingGroup
                 {
-                    Id = Guid.NewGuid(), BranchId = target.Id, HallId = hall.Id, GroupTypeId = groupType.Id,
-                    Name = "Target group", TrainingStartTime = new TimeOnly(12, 0), DurationMinutes = 60,
-                    Weekdays = [1], IsActive = true, CreatedAt = now, UpdatedAt = now
+                    Id = Guid.NewGuid(),
+                    BranchId = target.Id,
+                    HallId = hall.Id,
+                    GroupTypeId = groupType.Id,
+                    Name = "Target group",
+                    TrainingStartTime = new TimeOnly(12, 0),
+                    DurationMinutes = 60,
+                    Weekdays = [1],
+                    IsActive = true,
+                    CreatedAt = now,
+                    UpdatedAt = now
                 };
                 var targetTerm = MembershipCatalogItem.CreateBranchOwned(
                     target.Id, "Target Term", 1500m, MembershipBehaviorKind.Term, today.AddDays(-1), null, now);
@@ -268,8 +284,14 @@ public sealed class MembershipTransferCatalogTests
                 };
                 var crmClient = new Client
                 {
-                    Id = Guid.NewGuid(), BranchId = source.Id, LastName = "Transfer", FirstName = "Client",
-                    Phone = "+79990009999", Status = ClientStatus.Active, CreatedAt = now, UpdatedAt = now
+                    Id = Guid.NewGuid(),
+                    BranchId = source.Id,
+                    LastName = "Transfer",
+                    FirstName = "Client",
+                    Phone = "+79990009999",
+                    Status = ClientStatus.Active,
+                    CreatedAt = now,
+                    UpdatedAt = now
                 };
                 db.AddRange(coach, source, target, hall, groupType, group, targetTerm, sourceTerm, crmClient);
                 if (initialCatalog is not null && initialCatalog != sourceTerm &&
@@ -279,21 +301,31 @@ public sealed class MembershipTransferCatalogTests
                 {
                     var sale = new ClientMembershipSale
                     {
-                        Id = Guid.NewGuid(), ClientId = crmClient.Id, MembershipCatalogItemId = initialCatalog.Id,
-                        MembershipCatalogItem = initialCatalog, BehaviorKind = initialBehavior.Value,
+                        Id = Guid.NewGuid(),
+                        ClientId = crmClient.Id,
+                        MembershipCatalogItemId = initialCatalog.Id,
+                        MembershipCatalogItem = initialCatalog,
+                        BehaviorKind = initialBehavior.Value,
                         PricingMode = ClientMembershipSalePricingMode.Catalog,
-                        PurchaseDate = today, PaymentDate = today, GrossAmount = initialCatalog.Price,
-                        CreatedByUserId = coach.Id, CreatedAt = now
+                        PurchaseDate = today,
+                        PaymentDate = today,
+                        GrossAmount = initialCatalog.Price,
+                        CreatedByUserId = coach.Id,
+                        CreatedAt = now
                     };
                     var membership = new ClientMembership
                     {
-                        Id = Guid.NewGuid(), ClientId = crmClient.Id, SaleId = sale.Id,
+                        Id = Guid.NewGuid(),
+                        ClientId = crmClient.Id,
+                        SaleId = sale.Id,
                         BehaviorKind = initialBehavior.Value,
                         IndividualValidFrom = initialBehavior == MembershipBehaviorKind.SingleVisit ? null : today,
                         IndividualValidTo = initialBehavior == MembershipBehaviorKind.Term ? today.AddMonths(1) : null,
                         SingleVisitUsed = false,
                         ValidFrom = now,
-                        ChangeReason = ClientMembershipChangeReason.NewPurchase, ChangedByUserId = coach.Id, CreatedAt = now
+                        ChangeReason = ClientMembershipChangeReason.NewPurchase,
+                        ChangedByUserId = coach.Id,
+                        CreatedAt = now
                     };
                     db.AddRange(sale, membership);
                 }
@@ -386,8 +418,12 @@ public sealed class MembershipTransferCatalogTests
 
         private static Branch CreateBranch(string name, DateTimeOffset now) => new()
         {
-            Id = Guid.NewGuid(), Name = name, Address = $"{name} address", IsArchived = false,
-            CreatedAt = now, UpdatedAt = now
+            Id = Guid.NewGuid(),
+            Name = name,
+            Address = $"{name} address",
+            IsArchived = false,
+            CreatedAt = now,
+            UpdatedAt = now
         };
     }
 

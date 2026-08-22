@@ -202,7 +202,7 @@ public class CsrfProtectionTests
             Name = "CSRF Group",
             TrainingStartTime = new TimeOnly(9, 0),
             DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
+            Weekdays = new[] { 1, 3 },
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now

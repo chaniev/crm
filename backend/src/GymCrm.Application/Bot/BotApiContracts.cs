@@ -1,5 +1,3 @@
-using GymCrm.Domain.Users;
-
 namespace GymCrm.Application.Bot;
 
 public static class BotAuditConstants

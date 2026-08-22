@@ -660,11 +660,18 @@ internal sealed class ClientMembershipService(
     {
         return new ClientMembership
         {
-            Id = Guid.NewGuid(), ClientId = clientId, SaleId = sale.Id,
-            BehaviorKind = sale.BehaviorKind, IndividualValidFrom = validFrom, IndividualValidTo = validTo,
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            SaleId = sale.Id,
+            BehaviorKind = sale.BehaviorKind,
+            IndividualValidFrom = validFrom,
+            IndividualValidTo = validTo,
             ProfessionalComment = string.IsNullOrWhiteSpace(professionalComment) ? null : professionalComment.Trim(),
             SingleVisitUsed = singleVisitUsed,
-            ChangeReason = reason, ChangedByUserId = actorId, ValidFrom = now, CreatedAt = now
+            ChangeReason = reason,
+            ChangedByUserId = actorId,
+            ValidFrom = now,
+            CreatedAt = now
         };
     }
 
@@ -679,10 +686,17 @@ internal sealed class ClientMembershipService(
     {
         return new ClientMembershipSale
         {
-            Id = Guid.NewGuid(), ClientId = clientId, MembershipCatalogItemId = pricing.MembershipCatalogItemId,
-            MembershipCatalogItem = item, BehaviorKind = pricing.BehaviorKind, PricingMode = pricing.PricingMode,
-            PurchaseDate = purchaseDate, PaymentDate = paymentDate, GrossAmount = pricing.GrossAmount,
-            CreatedByUserId = actorId, CreatedAt = now
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            MembershipCatalogItemId = pricing.MembershipCatalogItemId,
+            MembershipCatalogItem = item,
+            BehaviorKind = pricing.BehaviorKind,
+            PricingMode = pricing.PricingMode,
+            PurchaseDate = purchaseDate,
+            PaymentDate = paymentDate,
+            GrossAmount = pricing.GrossAmount,
+            CreatedByUserId = actorId,
+            CreatedAt = now
         };
     }
 

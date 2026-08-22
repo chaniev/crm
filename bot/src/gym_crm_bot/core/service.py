@@ -310,6 +310,9 @@ class BotService:
             }
             for client in roster.clients
         ]
+        keyboard_marks = [
+            (client.id, client.full_name, client.is_present) for client in roster.clients
+        ]
 
         await self._save_state(
             event,
@@ -324,9 +327,7 @@ class BotService:
         )
         return BotResponse(
             text=self._render_roster_text(roster.group.name, training_date, marks),
-            reply_markup=render_attendance_roster_keyboard(
-                [(UUID(item["client_id"]), item["full_name"], item["is_present"]) for item in marks]
-            ),
+            reply_markup=render_attendance_roster_keyboard(keyboard_marks),
             replace_existing=True,
         )
 
@@ -367,7 +368,10 @@ class BotService:
             return await self._start_attendance(event)
 
         marks = [
-            AttendanceMarkRequest(clientId=UUID(item["client_id"]), isPresent=item["is_present"])
+            AttendanceMarkRequest(
+                client_id=UUID(item["client_id"]),
+                is_present=item["is_present"],
+            )
             for item in state["marks"]
         ]
         try:

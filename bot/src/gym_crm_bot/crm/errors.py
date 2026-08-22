@@ -42,4 +42,3 @@ class CrmMustChangePasswordError(CrmClientError):
 
 class CrmIdempotencyConflictError(CrmClientError):
     pass
-

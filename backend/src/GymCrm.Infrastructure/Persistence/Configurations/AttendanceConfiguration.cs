@@ -28,11 +28,11 @@ internal sealed class AttendanceConfiguration : IEntityTypeConfiguration<Attenda
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(attendance => new
-            {
-                attendance.ClientId,
-                attendance.GroupId,
-                attendance.TrainingDate
-            })
+        {
+            attendance.ClientId,
+            attendance.GroupId,
+            attendance.TrainingDate
+        })
             .IsUnique();
     }
 }

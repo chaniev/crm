@@ -2,19 +2,18 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using GymCrm.Application.Authorization;
-using GymCrm.Application.Audit;
 using GymCrm.Application.Attendance;
+using GymCrm.Application.Audit;
+using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
-using GymCrm.Domain.Clients;
 using GymCrm.Domain.Audit;
+using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
@@ -901,7 +900,7 @@ internal static class ClientEndpoints
         var today = businessDateProvider.Today;
         var currentMembership = GetCurrentMembership(client);
         var preserveSingleVisit = currentMembership is
-            { BehaviorKind: MembershipBehaviorKind.SingleVisit, SingleVisitUsed: false };
+        { BehaviorKind: MembershipBehaviorKind.SingleVisit, SingleVisitUsed: false };
 
         if (preserveSingleVisit)
         {

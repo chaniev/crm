@@ -43,10 +43,10 @@ internal sealed class ClientMembershipIdempotencyRecordConfiguration : IEntityTy
         builder.Property(record => record.ExpiresAt).IsRequired();
 
         builder.HasIndex(record => new
-            {
-                record.ActorUserId,
-                record.IdempotencyKey
-            })
+        {
+            record.ActorUserId,
+            record.IdempotencyKey
+        })
             .HasDatabaseName(GymCrmDbContext.ClientMembershipIdempotencyActorKeyIndexName)
             .IsUnique();
 

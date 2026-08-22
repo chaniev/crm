@@ -76,4 +76,3 @@ class UpdateGuardMiddleware(BaseMiddleware):
             await update.message.answer(PRIVATE_CHAT_ONLY_MESSAGE)
         elif isinstance(update.callback_query, CallbackQuery):
             await update.callback_query.answer(PRIVATE_CHAT_ONLY_MESSAGE)
-

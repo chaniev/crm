@@ -55,4 +55,3 @@ class ProcessedUpdate(Base):
     event_key: Mapped[str] = mapped_column(String(256), nullable=False)
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     result: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
-
