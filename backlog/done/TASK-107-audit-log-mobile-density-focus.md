@@ -1,13 +1,18 @@
 # TASK-107: Уплотнить мобильный журнал и исправить pagination/focus
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-02 16:53
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-107-audit-log-mobile-density-focus.plan.md
+- implementation_plan: /backlog/done/TASK-107-audit-log-mobile-density-focus.plan.md
 - implementation_branch: fix/TASK-107-audit-log-mobile-density-focus
+- implementation_state: completed
+- implementation_commit: e89802c
+- delivered_on_main_at: 2026-08-22
+- moved_to_done_at: 2026-08-22
+- last_status_reviewed_at: 2026-08-22
 
 ## Goal
 Пользователь быстрее сканирует журнал на мобильном устройстве, безопасно переключает страницы и всегда возвращается к исходной записи после закрытия деталей.
@@ -42,20 +47,20 @@ SuperAdministrator / HeadCoach / Administrator с backend-разрешённым
 - На `390/420/440px` не появляется horizontal overflow.
 
 ## Acceptance criteria
-- [ ] Actor, action/description, entity/context и date читаются без открытия details.
-- [ ] Mobile row не повторяет labels, уже понятные из устойчивой структуры, и показывает больше одной записи в типичном viewport `440 x 956`.
-- [ ] Все pagination controls имеют hit area не меньше `44 x 44px`.
-- [ ] Previous/next имеют стабильные accessible names и корректные disabled semantics.
-- [ ] Escape, overlay close и explicit close детерминированно возвращают focus в trigger.
-- [ ] Технический fallback не смешивает русский и английский текст случайным образом и не меняет backend semantics.
-- [ ] Loading, empty, filtered-empty, error, retry и stale states сохраняют фильтры и понятный recovery.
+- [x] Actor, action/description, entity/context и date читаются без открытия details.
+- [x] Mobile row не повторяет labels, уже понятные из устойчивой структуры, и показывает больше одной записи в типичном viewport `440 x 956`.
+- [x] Все pagination controls имеют hit area не меньше `44 x 44px`.
+- [x] Previous/next имеют стабильные accessible names и корректные disabled semantics.
+- [x] Escape, overlay close и explicit close детерминированно возвращают focus в trigger.
+- [x] Технический fallback не смешивает русский и английский текст случайным образом и не меняет backend semantics.
+- [x] Loading, empty, filtered-empty, error, retry и stale states сохраняют фильтры и понятный recovery.
 
 ## Test checklist
-- [ ] Добавить component tests для compact row hierarchy и technical description fallback.
-- [ ] Добавить geometry/accessibility assertions для pagination на `390/420/440px`.
-- [ ] Добавить focus-return cases для Escape, overlay и explicit close без timer dependency.
-- [ ] Проверить keyboard order, screen-reader names и disabled pagination.
-- [ ] Проверить long actor/entity/description и отсутствие horizontal overflow.
+- [x] Добавить component tests для compact row hierarchy и technical description fallback.
+- [x] Добавить geometry/accessibility assertions для pagination на `390/420/440px`.
+- [x] Добавить focus-return cases для Escape, overlay и explicit close без timer dependency.
+- [x] Проверить keyboard order, screen-reader names и disabled pagination.
+- [x] Проверить long actor/entity/description и отсутствие horizontal overflow.
 
 ## AI safety
 - Safe for Codex: yes
@@ -75,3 +80,12 @@ SuperAdministrator / HeadCoach / Administrator с backend-разрешённым
 - Created by skill: codex-backlog-skill + crm-mobile-first-ui
 - Duplicate check: активного дубликата нет; завершённая TASK-099 прямо исключала pagination и не исправляла обнаруженную row-density/focus проблему.
 - Grouping: density, pagination и details focus объединены как один mobile audit-log workflow.
+
+## Completion record
+- Completed on: 2026-08-22.
+- Implementation commit: `e89802c`; integrated into local `main` by fast-forward.
+- Test-first evidence: до production-кода mobile row измерялся около `199.7px`, pagination — `32 x 32px`; отсутствовали accessible pager names, deterministic focus-return и разделённые empty/retry/stale barriers.
+- Integrated validation: frontend lint, production build, 468 unit tests, raw-color scan with 0 disallowed findings, 96 affected Chromium Playwright tests and 38 target-iPhone WebKit tests passed.
+- Backend/API/database contracts were not changed; migration is not required.
+- No Docker Compose task stack was created because the plan required frontend component and mocked browser validation only.
+- Residual device risk: physical Safari chrome, actual safe-area/home-indicator behavior, iOS Simulator and physical-device touch were not verified; target-iPhone WebKit portrait and compact-landscape profiles passed.

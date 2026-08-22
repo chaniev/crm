@@ -2565,3 +2565,54 @@
 - updated existing: 1 task and 1 implementation plan
 - processed inbox files: 0
 - status changes: 0
+
+# 2026-08-22 23:27 TASK-107 and TASK-109 completion audit
+
+## Baseline and scope
+
+- Integrated local `main`: `3e82859076d32523a1c0539340d765f027edae5a`.
+- `origin/main`: `fbe313c018fb180f4217d07ae5275cd0d0587f4c`;
+  the completed release set remains local and was not pushed.
+- Scope: completion/status audit for TASK-107 and TASK-109 only; no inbox
+  processing, duplicate triage or unrelated backlog mutation.
+
+## Status changes
+
+- `/backlog/implementation/TASK-107-audit-log-mobile-density-focus.md` ->
+  `/backlog/done/TASK-107-audit-log-mobile-density-focus.md`.
+- `/backlog/implementation-plans/TASK-107-audit-log-mobile-density-focus.plan.md` ->
+  `/backlog/done/TASK-107-audit-log-mobile-density-focus.plan.md`.
+- `/backlog/implementation/TASK-109-settings-scope-touch-order.md` ->
+  `/backlog/done/TASK-109-settings-scope-touch-order.md`.
+- `/backlog/implementation-plans/TASK-109-settings-scope-touch-order.plan.md` ->
+  `/backlog/done/TASK-109-settings-scope-touch-order.plan.md`.
+
+## Completion evidence
+
+- TASK-107 test-first/implementation commits: `6badb60` and `e89802c`.
+- TASK-109 test-first/implementation commits: `764d968` and `3e82859`.
+- Integrated frontend validation passed: 468 unit tests, lint, production
+  build, raw-color scan with 0 disallowed findings, 96 combined affected
+  Chromium Playwright tests and 38 target-iPhone WebKit tests.
+- Backend/API/database contracts did not change; no migration was required.
+- No Docker Compose task stack or working-stand deployment was required by
+  either frontend-only plan.
+- Physical Safari chrome, software keyboard, safe-area/home-indicator,
+  iOS Simulator and physical-device touch remain explicitly unverified;
+  target-iPhone WebKit portrait and compact-landscape barriers passed.
+
+## Consistency
+
+- Both task cards now have `Status: done`, completed lifecycle metadata,
+  checked acceptance/test criteria and completion records.
+- Both plans point to their `/backlog/done/` task sources, have checked test
+  plans and `Ready for Codex execution: completed`.
+
+## Summary
+
+- tasks-ready: 8
+- risky: 14
+- needs-clarification: 7
+- implementation: 4
+- moved to done: 2 tasks and 2 implementation plans
+- processed inbox files: 0

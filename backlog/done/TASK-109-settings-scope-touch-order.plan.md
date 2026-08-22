@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-109 Сделать Settings touch-safe и связать actions со scope
 
 ## Source task
-/backlog/implementation/TASK-109-settings-scope-touch-order.md
+/backlog/done/TASK-109-settings-scope-touch-order.md
 
 ## Implementation branch
 fix/TASK-109-settings-scope-touch-order
@@ -205,16 +205,16 @@ Files to inspect but not expected to change:
 Safari chrome collapse, physical safe-area, Dynamic Island/home indicator, software keyboard и one-handed reach требуют iOS Simulator/physical device и не заменяют automated tests.
 
 ## Test plan
-- [ ] Baseline focused unit/e2e зафиксирован до новых assertions.
-- [ ] Unit/component и integration/UI tests написаны до production code.
-- [ ] Новые tests запущены в RED и падают по ожидаемой TASK-109 причине.
-- [ ] Tabs/select/refresh/create/edit и gaps измерены на всей matrix.
-- [ ] Scope → actions → content visual, DOM и keyboard order доказаны.
-- [ ] Branch A/B requests не меняют backend semantics.
-- [ ] Loading/empty/error/retry/disabled/success/permission states сохраняют tab/branch.
-- [ ] Long names, compact landscape, overflow и focus return проверены.
-- [ ] Full unit, lint, build, affected e2e и iPhone WebKit зелёные.
-- [ ] Unverified Simulator/device checks перечислены отдельно.
+- [x] Baseline focused unit/e2e зафиксирован до новых assertions.
+- [x] Unit/component и integration/UI tests написаны до production code.
+- [x] Новые tests запущены в RED и падают по ожидаемой TASK-109 причине.
+- [x] Tabs/select/refresh/create/edit и gaps измерены на всей matrix.
+- [x] Scope → actions → content visual, DOM и keyboard order доказаны.
+- [x] Branch A/B requests не меняют backend semantics.
+- [x] Loading/empty/error/retry/disabled/success/permission states сохраняют tab/branch.
+- [x] Long names, compact landscape, overflow и focus return проверены.
+- [x] Full unit, lint, build, affected e2e и iPhone WebKit зелёные.
+- [x] Unverified Simulator/device checks перечислены отдельно.
 
 ## Regression barrier
 Обязательный barrier: component tests на exact branch/task order и recovery; Playwright request assertions для двух branches; touch inventory без allowlist на восьми viewports; target-iPhone WebKit portrait/rotation; full frontend unit, lint и build. Screenshot без доказанных focus order, payload identity, recovery и geometry не считается завершением.
@@ -237,5 +237,12 @@ Safari chrome collapse, physical safe-area, Dynamic Island/home indicator, softw
 Не останавливаться только потому, что несколько Settings panels используют shared controls: behavior локализуется Settings-specific classes/tests.
 
 ## Ready for Codex execution
-yes
+completed
 
+## Completion evidence
+- Test-first commit `764d968` and implementation commit `3e82859` completed on 2026-08-22 and were fast-forward integrated into local `main`.
+- Expected RED recorded before production code: `40px` tabs, `36px` select, actions-before-scope DOM/focus order, missing branch retry/no-branch/stale-response/long-name/hall-action barriers.
+- Integrated `main` validation passed: 468 unit tests, lint, production build, raw-color scan with 0 disallowed findings, 96 combined affected Chromium Playwright tests and 38 target-iPhone WebKit tests.
+- Touch inventory covers eight viewports without allowlist exceptions; exact Branch A/B create scope, unchanged edit payload, recovery and stale-response isolation are automated.
+- Backend/API/database contracts and permissions did not change; no migration or Docker Compose task stack was required.
+- Physical Safari chrome, software keyboard, safe areas, iOS Simulator and physical-device touch remain residual device-only checks.

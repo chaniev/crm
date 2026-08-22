@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-107 Уплотнить мобильный журнал и исправить pagination/focus
 
 ## Source task
-/backlog/implementation/TASK-107-audit-log-mobile-density-focus.md
+/backlog/done/TASK-107-audit-log-mobile-density-focus.md
 
 ## Implementation branch
 fix/TASK-107-audit-log-mobile-density-focus
@@ -501,20 +501,20 @@ Files to inspect but not expected to change:
   preservation barriers.
 
 ## Test plan
-- [ ] Create/verify isolated worktree and branch from current `origin/main`.
-- [ ] Run focused baseline and record pre-existing failures.
-- [ ] Write/update unit/component presentation and state tests before code.
-- [ ] Write/update component integration pagination/focus/request tests before
+- [x] Create/verify isolated worktree and branch from current `origin/main`.
+- [x] Run focused baseline and record pre-existing failures.
+- [x] Write/update unit/component presentation and state tests before code.
+- [x] Write/update component integration pagination/focus/request tests before
       code.
-- [ ] Write/update Playwright geometry, close-path and responsive tests before
+- [x] Write/update Playwright geometry, close-path and responsive tests before
       code.
-- [ ] Run new tests on unchanged code and record expected red evidence.
-- [ ] Implement minimal audit-local React/Mantine/CSS changes.
-- [ ] Rerun focused tests to green.
-- [ ] Run full `test:unit`, `lint`, `build`, `check:raw-colors`.
-- [ ] Run affected Chromium Playwright suites.
-- [ ] Run `test:e2e:iphone` for both target WebKit projects.
-- [ ] Report Simulator/physical-device checks that remain unverified.
+- [x] Run new tests on unchanged code and record expected red evidence.
+- [x] Implement minimal audit-local React/Mantine/CSS changes.
+- [x] Rerun focused tests to green.
+- [x] Run full `test:unit`, `lint`, `build`, `check:raw-colors`.
+- [x] Run affected Chromium Playwright suites.
+- [x] Run `test:e2e:iphone` for both target WebKit projects.
+- [x] Report Simulator/physical-device checks that remain unverified.
 
 ## Regression barrier
 TASK-107 is protected by a three-layer automated barrier:
@@ -571,4 +571,11 @@ Do not stop merely because mobile, tablet and desktop variants or component
 plus Playwright tests are all affected.
 
 ## Ready for Codex execution
-yes
+completed
+
+## Completion evidence
+- Completed on 2026-08-22 in commit `e89802c`, fast-forward integrated into local `main`.
+- Expected RED recorded before production code: repeated labels, `199.7px` typical mobile row, `32 x 32px` unnamed pager controls, timer-based focus recovery and missing retry/stale barriers.
+- Integrated `main` validation passed: 468 unit tests, lint, production build, raw-color scan with 0 disallowed findings, 96 combined affected Chromium Playwright tests and 38 target-iPhone WebKit tests.
+- Backend/API/database contracts, audit payload semantics and permissions did not change; no migration or Docker Compose task stack was required.
+- Physical Safari/iOS Simulator, dynamic chrome, actual safe-area/home-indicator behavior and physical-device touch remain residual device-only checks.
