@@ -226,7 +226,7 @@ describe('AuditLogScreen', () => {
 
   test('labels known-total pagination and preserves filters and page across refresh', async () => {
     getAuditLogEntriesMock.mockImplementation(async (params) => {
-      const requestedPage = params.page ?? 1
+      const requestedPage = params?.page ?? 1
       return buildAuditResponse({
         items: [
           buildAuditEntry({

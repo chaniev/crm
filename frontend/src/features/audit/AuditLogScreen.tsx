@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Badge,
   Group,
@@ -11,7 +11,8 @@ import {
   Text,
   TextInput,
 } from '@mantine/core'
-import { IconCalendarEvent, IconSearch } from '@tabler/icons-react'
+import { useMediaQuery } from '@mantine/hooks'
+import { IconCalendarEvent, IconEye, IconSearch } from '@tabler/icons-react'
 import {
   getAuditLogEntries,
   getAuditLogFilterOptions,
@@ -67,24 +68,48 @@ const EMPTY_FILTER_OPTIONS: AuditLogFilterOptions = {
   messengerPlatforms: [],
 }
 
+type AuditResponseSnapshot = {
+  key: string
+  response: AuditLogListResponse
+}
+
 export function AuditLogScreen({ user }: AuditLogScreenProps) {
-  const [response, setResponse] = useState<AuditLogListResponse | null>(null)
+  const [responseSnapshot, setResponseSnapshot] =
+    useState<AuditResponseSnapshot | null>(null)
   const [filterOptions, setFilterOptions] = useState<AuditLogFilterOptions>(
     EMPTY_FILTER_OPTIONS,
   )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [staleError, setStaleError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [reloadKey, setReloadKey] = useState(0)
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null)
-  const detailsTriggerRef = useRef<HTMLButtonElement | null>(null)
   const [filters, setFilters] = useState<AuditFilterValues>(INITIAL_FILTER_VALUES)
+  const responseSnapshotRef = useRef<AuditResponseSnapshot | null>(null)
+  const isNarrowPager = useMediaQuery('(max-width: 47.99em)', undefined, {
+    getInitialValueInEffect: false,
+  })
+  const requestParams = useMemo(
+    () => buildAuditRequestParams(filters, page),
+    [filters, page],
+  )
+  const requestKey = useMemo(
+    () => buildAuditRequestKey(requestParams),
+    [requestParams],
+  )
+
+  function storeResponseSnapshot(nextSnapshot: AuditResponseSnapshot | null) {
+    responseSnapshotRef.current = nextSnapshot
+    setResponseSnapshot(nextSnapshot)
+  }
 
   useEffect(() => {
     if (!user.permissions.canViewAuditLog) {
-      setResponse(null)
+      storeResponseSnapshot(null)
       setFilterOptions(EMPTY_FILTER_OPTIONS)
       setError(null)
+      setStaleError(null)
       setLoading(false)
       return
     }
@@ -94,14 +119,15 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     async function load() {
       setLoading(true)
       setError(null)
+      setStaleError(null)
+      if (responseSnapshotRef.current?.key !== requestKey) {
+        storeResponseSnapshot(null)
+      }
 
       try {
         const [nextOptions, nextResponse] = await Promise.all([
           getAuditLogFilterOptions(controller.signal),
-          getAuditLogEntries(
-            buildAuditRequestParams(filters, page),
-            controller.signal,
-          ),
+          getAuditLogEntries(requestParams, controller.signal),
         ])
 
         if (controller.signal.aborted) {
@@ -109,18 +135,29 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
         }
 
         setFilterOptions(nextOptions)
-        setResponse(nextResponse)
+        storeResponseSnapshot({
+          key: requestKey,
+          response: nextResponse,
+        })
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
         }
 
-        setResponse(null)
-        setError(
+        const message =
           loadError instanceof Error
             ? loadError.message
-            : 'Не удалось загрузить журнал действий.',
-        )
+            : 'Не удалось загрузить журнал действий.'
+        const currentSnapshot = responseSnapshotRef.current
+
+        if (currentSnapshot?.key === requestKey) {
+          setStaleError('Не удалось обновить, показаны предыдущие данные')
+          setError(null)
+        } else {
+          storeResponseSnapshot(null)
+          setStaleError(null)
+          setError(message)
+        }
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false)
@@ -131,7 +168,10 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
     void load()
 
     return () => controller.abort()
-  }, [filters, page, reloadKey, user.permissions.canViewAuditLog])
+  }, [reloadKey, requestKey, requestParams, user.permissions.canViewAuditLog])
+
+  const response =
+    responseSnapshot?.key === requestKey ? responseSnapshot.response : null
 
   useEffect(() => {
     if (!selectedEntry) {
@@ -192,6 +232,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
   const entries = response?.items ?? []
   const totalPages = getTotalPages(response)
+  const hasActiveFilters = hasAuditFilters(filters)
   const userSelectOptions = filterOptions.users.map((auditUser) => ({
     value: auditUser.id,
     label: `${auditUser.fullName} (${auditUser.login})`,
@@ -340,6 +381,11 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
           {!loading && error ? (
             <ErrorState
+              action={
+                <Button onClick={handleRefresh} variant="secondary">
+                  Повторить
+                </Button>
+              }
               message={error}
               title="Журнал не загрузился"
             />
@@ -347,12 +393,39 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
           {!loading && !error && entries.length === 0 ? (
             <EmptyState
-              description="Сбросьте фильтры или обновите журнал после новых действий в системе."
-              title="Под выбранные фильтры записей нет."
+              action={
+                hasActiveFilters ? (
+                  <Button onClick={handleResetFilters} variant="secondary">
+                    Сбросить фильтры
+                  </Button>
+                ) : null
+              }
+              description={
+                hasActiveFilters
+                  ? 'Сбросьте фильтры или обновите журнал после новых действий в системе.'
+                  : 'Обновите журнал после новых действий в системе.'
+              }
+              title={
+                hasActiveFilters
+                  ? 'Под выбранные фильтры записей нет.'
+                  : 'В журнале пока нет записей'
+              }
             />
           ) : null}
 
-          {!loading && !error && entries.length > 0 ? (
+          {!error && staleError ? (
+            <ErrorState
+              action={
+                <Button onClick={handleRefresh} variant="secondary">
+                  Повторить
+                </Button>
+              }
+              message={staleError}
+              title="Данные могли устареть"
+            />
+          ) : null}
+
+          {!error && entries.length > 0 ? (
             <div
               aria-label="Журнал действий"
               className="audit-log-grid audit-log-list"
@@ -369,8 +442,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
                 <AuditLogGridRow
                   entry={entry}
                   key={entry.id}
-                  onOpenDetails={(entry, trigger) => {
-                    detailsTriggerRef.current = trigger
+                  onOpenDetails={(entry) => {
                     setSelectedEntry(entry)
                   }}
                 />
@@ -379,11 +451,31 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
           ) : null}
 
           {!loading && !error && totalPages > 1 ? (
-            <Group justify="space-between" wrap="wrap">
-              <Text c="dimmed" size="sm">
+            <Group
+              className="audit-pagination-shell"
+              justify="space-between"
+              role="navigation"
+              wrap="wrap"
+              aria-label="Страницы журнала действий"
+            >
+              <Text c="dimmed" className="audit-pagination-summary" size="sm">
                 {formatPaginationSummary(response)}
               </Text>
-              <Pagination onChange={handlePageChange} total={totalPages} value={page} />
+              <Pagination
+                className="audit-pagination"
+                gap={8}
+                getControlProps={(control) => ({
+                  'aria-label': getAuditPaginationControlLabel(control),
+                })}
+                getItemProps={(pageNumber) => ({
+                  'aria-label': `Страница ${pageNumber} журнала`,
+                })}
+                onChange={handlePageChange}
+                siblings={1}
+                total={totalPages}
+                value={page}
+                withPages={!isNarrowPager}
+              />
             </Group>
           ) : null}
         </Stack>
@@ -391,10 +483,7 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
       <AuditDetailsModal
         entry={selectedEntry}
-        onClose={() => {
-          setSelectedEntry(null)
-          window.setTimeout(() => detailsTriggerRef.current?.focus(), 0)
-        }}
+        onClose={() => setSelectedEntry(null)}
       />
     </PageLayout>
   )
@@ -402,56 +491,58 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
 
 type AuditLogGridRowProps = {
   entry: AuditLogEntry
-  onOpenDetails: (entry: AuditLogEntry, trigger: HTMLButtonElement) => void
+  onOpenDetails: (entry: AuditLogEntry) => void
 }
 
 function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
   const dateTimeParts = formatDateTimeParts(entry.createdAt)
-  const userLogin = getUserLoginLabel(entry)
+  const presentation = buildAuditEntryPresentation(entry)
 
   return (
     <div className="audit-log-row" data-testid="audit-log-row" role="row">
       <div className="audit-log-cell audit-log-cell--date" role="cell">
-        <span className="audit-log-cell__label">Дата</span>
-        <Text fw={700} size="sm">
-          {dateTimeParts.date}
-        </Text>
-        <Text c="dimmed" size="xs">
-          {dateTimeParts.time}
-        </Text>
-      </div>
-
-      <div className="audit-log-cell audit-log-cell--description" role="cell">
-        <span className="audit-log-cell__label">Описание</span>
-        <Text className="audit-log-description" fw={700} size="sm">
-          {entry.description}
+        <Text className="audit-log-time" fw={700} size="sm">
+          <span>{dateTimeParts.date}</span>
+          {dateTimeParts.time ? <span>{dateTimeParts.time}</span> : null}
         </Text>
       </div>
 
       <div
-        aria-label={`Автор: ${formatUserLabel(entry)}`}
+        aria-label={presentation.descriptionAccessibleLabel}
+        className="audit-log-cell audit-log-cell--description"
+        role="cell"
+      >
+        <Text className="audit-log-description" fw={800}>
+          {presentation.description}
+        </Text>
+      </div>
+
+      <Text aria-hidden="true" className="audit-log-context" size="sm">
+        {presentation.contextText}
+      </Text>
+
+      <div
+        aria-label={`Автор: ${presentation.actorAccessibleLabel}`}
         className="audit-log-cell audit-log-cell--actor"
         data-testid="audit-log-actor-cell"
         role="cell"
       >
-        <span className="audit-log-cell__label">Пользователь</span>
-        <Text fw={700} size="sm">
-          {entry.userName}
+        <Text className="audit-log-actor" fw={700} size="sm">
+          {presentation.actorText}
         </Text>
-        {userLogin ? (
-          <Text c="dimmed" size="xs">
-            {userLogin}
-          </Text>
-        ) : null}
       </div>
 
       <div className="audit-log-cell audit-log-cell--details" role="cell">
         <Button
           aria-haspopup="dialog"
-          aria-label={`Показать детали записи: ${entry.description}`}
+          aria-label={`Показать подробности записи: ${presentation.description}`}
           className="audit-log-details-action"
           data-testid="audit-log-details-action"
-          onClick={(event) => onOpenDetails(entry, event.currentTarget)}
+          leftSection={<IconEye aria-hidden="true" size={18} />}
+          onClick={(event) => {
+            event.currentTarget.focus({ preventScroll: true })
+            onOpenDetails(entry)
+          }}
           size="xs"
           variant="light"
         >
@@ -469,13 +560,36 @@ type AuditDetailsModalProps = {
 
 function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
   const dateTimeParts = entry ? formatDateTimeParts(entry.createdAt) : null
+  const description = entry ? getAuditDescription(entry) : ''
+
+  useEffect(() => {
+    if (!entry) {
+      return
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !event.isComposing) {
+        event.preventDefault()
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [entry, onClose])
 
   return (
     <Modal
       centered
+      closeButtonProps={{
+        'aria-label': 'Закрыть подробности записи',
+        autoFocus: true,
+      }}
+      closeOnEscape={false}
       onClose={onClose}
       opened={Boolean(entry)}
-      returnFocus={false}
+      returnFocus
       size="xl"
       title="Подробности записи журнала"
     >
@@ -504,7 +618,7 @@ function AuditDetailsModal({ entry, onClose }: AuditDetailsModalProps) {
               ) : null}
             </Group>
 
-            <Text fw={800}>{entry.description}</Text>
+            <Text fw={800}>{description}</Text>
 
             <Group gap="xs" wrap="wrap">
               <Text c="dimmed" size="sm">
@@ -592,6 +706,32 @@ function buildAuditRequestParams(
   }
 }
 
+function buildAuditRequestKey(params: GetAuditLogParams) {
+  return JSON.stringify({
+    actionType: params.actionType ?? null,
+    dateFrom: params.dateFrom ?? null,
+    dateTo: params.dateTo ?? null,
+    entityType: params.entityType ?? null,
+    messengerPlatform: params.messengerPlatform ?? null,
+    page: params.page ?? 1,
+    pageSize: params.pageSize ?? AUDIT_PAGE_SIZE,
+    source: params.source ?? null,
+    userId: params.userId ?? null,
+  })
+}
+
+function hasAuditFilters(filters: AuditFilterValues) {
+  return Boolean(
+    filters.userId ||
+      filters.source ||
+      filters.messengerPlatform ||
+      filters.actionType ||
+      filters.entityType ||
+      filters.dateFrom ||
+      filters.dateTo,
+  )
+}
+
 function getTotalPages(response: AuditLogListResponse | null) {
   if (!response) {
     return 1
@@ -609,14 +749,131 @@ function formatPaginationSummary(response: AuditLogListResponse | null) {
     return ''
   }
 
-  const firstItemIndex = response.totalCount === 0 ? 0 : response.skip + 1
-  const lastItemIndex = response.skip + response.items.length
-
   if (response.totalCount !== null) {
-    return `Показаны записи ${firstItemIndex}-${lastItemIndex} из ${response.totalCount}.`
+    return `Страница ${response.page} из ${getTotalPages(response)}`
   }
 
-  return `Показаны записи ${firstItemIndex}-${lastItemIndex}.`
+  return `Страница ${response.page}`
+}
+
+function getAuditPaginationControlLabel(
+  control: 'first' | 'previous' | 'last' | 'next',
+) {
+  if (control === 'first') {
+    return 'Первая страница журнала'
+  }
+
+  if (control === 'previous') {
+    return 'Предыдущая страница журнала'
+  }
+
+  if (control === 'next') {
+    return 'Следующая страница журнала'
+  }
+
+  return 'Последняя страница журнала'
+}
+
+type AuditTokenPresentation = {
+  visible: string
+  accessible: string
+}
+
+type AuditEntryPresentation = {
+  description: string
+  descriptionAccessibleLabel: string
+  contextText: string
+  actorText: string
+  actorAccessibleLabel: string
+}
+
+function buildAuditEntryPresentation(entry: AuditLogEntry): AuditEntryPresentation {
+  const description = getAuditDescription(entry)
+  const userLogin = getUserLoginLabel(entry)
+  const action = getAuditTokenPresentation({
+    dictionary: resources.audit.actionLabels,
+    knownPrefix: 'Действие',
+    unknownPrefix: 'Тип действия из API',
+    value: entry.actionType,
+  })
+  const entity = getAuditTokenPresentation({
+    dictionary: resources.audit.entityLabels,
+    knownPrefix: 'Объект',
+    unknownPrefix: 'Тип объекта из API',
+    value: entry.entityType,
+  })
+  const contextParts = [action, entity]
+  const accessibleParts = [`Описание: ${description}`, action.accessible, entity.accessible]
+
+  if (entry.entityId) {
+    contextParts.push({
+      visible: entry.entityId,
+      accessible: `ID объекта: ${entry.entityId}`,
+    })
+    accessibleParts.push(`ID объекта: ${entry.entityId}`)
+  }
+
+  if (entry.source) {
+    const source = getAuditTokenPresentation({
+      dictionary: resources.audit.sourceLabels,
+      knownPrefix: 'Источник',
+      unknownPrefix: 'Источник из API',
+      value: entry.source,
+    })
+    contextParts.push(source)
+    accessibleParts.push(source.accessible)
+  }
+
+  if (entry.messengerPlatform) {
+    const messengerPlatform = getAuditTokenPresentation({
+      dictionary: resources.audit.messengerPlatformLabels,
+      knownPrefix: 'Мессенджер',
+      unknownPrefix: 'Мессенджер из API',
+      value: entry.messengerPlatform,
+    })
+    contextParts.push(messengerPlatform)
+    accessibleParts.push(messengerPlatform.accessible)
+  }
+
+  return {
+    description,
+    descriptionAccessibleLabel: accessibleParts.join('. '),
+    contextText: contextParts.map((part) => part.visible).join(' · '),
+    actorText: userLogin ? `${entry.userName} · ${userLogin}` : entry.userName,
+    actorAccessibleLabel: formatUserLabel(entry),
+  }
+}
+
+function getAuditDescription(entry: AuditLogEntry) {
+  const description = entry.description
+
+  return description.trim() ? description : 'Описание не передано'
+}
+
+function getAuditTokenPresentation({
+  dictionary,
+  knownPrefix,
+  unknownPrefix,
+  value,
+}: {
+  dictionary: Record<string, string>
+  knownPrefix: string
+  unknownPrefix: string
+  value: string
+}): AuditTokenPresentation {
+  const label = dictionary[value]
+
+  if (label) {
+    return {
+      visible: label,
+      accessible: `${knownPrefix}: ${label}`,
+    }
+  }
+
+  return {
+    visible: value,
+    accessible: `${unknownPrefix}: ${value}`,
+  }
 }
 
 function formatActionType(actionType: string) {
