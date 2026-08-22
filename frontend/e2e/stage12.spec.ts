@@ -2070,7 +2070,9 @@ test.describe('Основные e2e сценарии', () => {
       await expect(auditGrid.getByRole('columnheader')).toHaveCount(4)
       await expect(auditGrid.getByRole('row').nth(1).getByRole('cell')).toHaveCount(4)
       await expect(auditGrid.getByText('Объект', { exact: true })).toHaveCount(0)
-      await expect(auditGrid.getByText('Создание клиента', { exact: true })).toHaveCount(0)
+      await expect(auditGrid.locator('.audit-log-context')).toContainText(
+        'Создание клиента',
+      )
       await expect(auditGrid.getByTestId('audit-log-actor-cell')).toContainText(
         'Главный тренер',
       )
@@ -2090,6 +2092,124 @@ test.describe('Основные e2e сценарии', () => {
       await expect(detailsTrigger).toBeFocused()
     })
   }
+
+  test('Журнал сохраняет фильтр и страницу через details, stale retry и refresh', async ({
+    page,
+  }) => {
+    const auditRequests: Array<Record<string, string>> = []
+    let failNextRefresh = false
+
+    await mockApi(page, async ({ pathname, method, route, searchParams }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, headCoachSession)
+        return true
+      }
+
+      if (pathname === '/api/audit-logs/options' && method === 'GET') {
+        await fulfillJson(route, 200, {
+          users: [],
+          actionTypes: ['ClientCreated'],
+          entityTypes: ['Client'],
+          sources: ['Web'],
+          messengerPlatforms: ['Telegram'],
+        })
+        return true
+      }
+
+      if (pathname === '/api/audit-logs' && method === 'GET') {
+        const request = Object.fromEntries(searchParams.entries())
+        auditRequests.push(request)
+
+        if (failNextRefresh) {
+          await fulfillJson(route, 503, {
+            title: 'Audit refresh unavailable',
+            status: 503,
+          })
+          return true
+        }
+
+        const requestedPage = Number(searchParams.get('page') ?? '1')
+        await fulfillJson(route, 200, {
+          items: [
+            {
+              id: `audit-page-${requestedPage}`,
+              userName: 'Главный тренер',
+              userLogin: BOOTSTRAP_LOGIN,
+              userRole: 'HeadCoach',
+              source: 'Web',
+              messengerPlatform: 'Telegram',
+              actionType: 'ClientCreated',
+              entityType: 'Client',
+              entityId: `client-page-${requestedPage}`,
+              description: `Запись страницы ${requestedPage}`,
+              oldValueJson: null,
+              newValueJson: { page: requestedPage },
+              createdAt: `${todayIso()}T10:10:10.000Z`,
+            },
+          ],
+          totalCount: 45,
+          skip: (requestedPage - 1) * 20,
+          take: 20,
+          page: requestedPage,
+          pageSize: 20,
+          hasNextPage: requestedPage < 3,
+        })
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/audit')
+    await page.getByRole('combobox', { name: 'Тип действия' }).click()
+    await page.getByRole('option', { name: 'Создание клиента' }).click()
+
+    const pagination = page.getByRole('navigation', {
+      name: 'Страницы журнала действий',
+    })
+    await expect(
+      pagination.getByRole('button', { name: 'Предыдущая страница журнала' }),
+    ).toBeDisabled()
+    await expect(
+      pagination.getByRole('button', { name: 'Следующая страница журнала' }),
+    ).toBeEnabled()
+    await pagination.getByRole('button', { name: 'Страница 2 журнала' }).click()
+    await expect(page.getByText('Запись страницы 2')).toBeVisible()
+    await expect(page.getByText('Страница 2 из 3', { exact: true })).toBeVisible()
+
+    const detailsTrigger = page.getByRole('button', {
+      name: 'Показать подробности записи: Запись страницы 2',
+    })
+    await detailsTrigger.click()
+    const dialog = page.getByRole('dialog', {
+      name: 'Подробности записи журнала',
+    })
+    await dialog
+      .getByRole('button', { name: 'Закрыть подробности записи' })
+      .click()
+    await expect(detailsTrigger).toBeFocused()
+
+    expect(auditRequests.at(-1)).toEqual(
+      expect.objectContaining({ actionType: 'ClientCreated', page: '2' }),
+    )
+
+    failNextRefresh = true
+    await page.getByRole('button', { name: 'Обновить' }).click()
+    await expect(
+      page.getByText('Не удалось обновить, показаны предыдущие данные'),
+    ).toBeVisible()
+    await expect(page.getByText('Запись страницы 2')).toBeVisible()
+    await expect(page.getByText('Страница 2 из 3', { exact: true })).toBeVisible()
+
+    failNextRefresh = false
+    await page.getByRole('button', { name: 'Повторить' }).click()
+    await expect(
+      page.getByText('Не удалось обновить, показаны предыдущие данные'),
+    ).toBeHidden()
+    expect(auditRequests.at(-1)).toEqual(
+      expect.objectContaining({ actionType: 'ClientCreated', page: '2' }),
+    )
+  })
 
   test('Фильтры аудита отправляют stable action/entity values', async ({
     page,

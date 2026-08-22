@@ -1363,7 +1363,18 @@ test('в целевых iPhone-профилях журнал сохраняет 
   await expect(
     grid.getByRole('columnheader', { includeHidden: true, name: 'Действие' }),
   ).toHaveCount(0)
-  await expect(grid.getByText('Создание клиента', { exact: true })).toHaveCount(0)
+  await expect(row.locator('.audit-log-context')).toContainText('Создание клиента')
+  await expect(row.locator('.audit-log-context')).toContainText('Клиент')
+  await expect(row.locator('.audit-log-context')).toContainText('client-1')
+  await expect(row.locator('.audit-log-context')).toHaveAttribute('aria-hidden', 'true')
+  await expect(row.locator('.audit-log-cell__label:visible')).toHaveCount(0)
+  await expect(row.getByRole('cell').nth(1)).toHaveAttribute(
+    'aria-label',
+    /Описание: Создан новый клиент.*Действие: Создание клиента.*Объект: Клиент.*ID объекта: client-1/,
+  )
+  await expect(detailsTrigger).toHaveAccessibleName(
+    'Показать подробности записи: Создан новый клиент',
+  )
 
   const geometry = await row.evaluate((element) => {
     const style = getComputedStyle(element)
@@ -1381,6 +1392,7 @@ test('в целевых iPhone-профилях журнал сохраняет 
       descriptionClamp: description
         ? getComputedStyle(description).webkitLineClamp
         : '',
+      rowHeight: element.getBoundingClientRect().height,
       actorWithinRow:
         Boolean(actorRect) &&
         actorRect!.left >= element.getBoundingClientRect().left - 1 &&
@@ -1391,20 +1403,148 @@ test('в целевых iPhone-профилях журнал сохраняет 
   })
 
   expect(geometry.columns).toBe(2)
-  expect(geometry.areas).not.toContain('action')
-  expect(geometry.areas).not.toContain('source')
+  expect(geometry.areas.replaceAll('"', '').trim()).toBe(
+    'time details description details context context actor actor',
+  )
   expect(geometry.descriptionClamp).toBe('2')
+  expect(geometry.rowHeight).toBeLessThanOrEqual(128)
   expect(geometry.actorWithinRow).toBe(true)
   expect(geometry.detailsWidth).toBeGreaterThanOrEqual(44)
   expect(geometry.detailsHeight).toBeGreaterThanOrEqual(44)
   await expectNoHorizontalScroll(page)
 
-  await detailsTrigger.click()
-  const detailsModal = page.getByTestId('audit-log-details-modal')
-  await expect(detailsModal).toContainText('Создание клиента')
-  await page.keyboard.press('Escape')
-  await expect(detailsModal).toBeHidden()
-  await expect(detailsTrigger).toBeFocused()
+  const pagination = page.getByRole('navigation', {
+    name: 'Страницы журнала действий',
+  })
+  const previous = pagination.getByRole('button', {
+    name: 'Предыдущая страница журнала',
+  })
+  const next = pagination.getByRole('button', {
+    name: 'Следующая страница журнала',
+  })
+  await expect(pagination).toBeVisible()
+  await expect(previous).toBeDisabled()
+  await expect(next).toBeEnabled()
+  await expect(page.getByText('Страница 1 из 3', { exact: true })).toBeVisible()
+  await expect(
+    pagination.getByRole('button', { name: /^Страница \d+ журнала$/ }),
+  ).toHaveCount(0)
+
+  const pagerGeometry = await pagination.evaluate((element) => {
+    const pagerRect = element.getBoundingClientRect()
+    const controls = Array.from(element.querySelectorAll('button')).map((control) =>
+      control.getBoundingClientRect(),
+    )
+
+    return {
+      minWidth: Math.min(...controls.map((rect) => rect.width)),
+      minHeight: Math.min(...controls.map((rect) => rect.height)),
+      gap: controls[1].left - controls[0].right,
+      left: Math.min(...controls.map((rect) => rect.left)),
+      right: Math.max(...controls.map((rect) => rect.right)),
+      pagerLeft: pagerRect.left,
+      pagerRight: pagerRect.right,
+      scrollWidth: element.scrollWidth,
+      clientWidth: element.clientWidth,
+    }
+  })
+  expect(pagerGeometry.minWidth).toBeGreaterThanOrEqual(44)
+  expect(pagerGeometry.minHeight).toBeGreaterThanOrEqual(44)
+  expect(pagerGeometry.gap).toBeGreaterThanOrEqual(8)
+  expect(pagerGeometry.left).toBeGreaterThanOrEqual(pagerGeometry.pagerLeft - 1)
+  expect(pagerGeometry.right).toBeLessThanOrEqual(pagerGeometry.pagerRight + 1)
+  expect(pagerGeometry.scrollWidth).toBeLessThanOrEqual(pagerGeometry.clientWidth + 1)
+
+  const bottomNavigation = page.locator(
+    'nav.mobile-bottom-nav[aria-label="Мобильная навигация"]',
+  )
+  const bottomNavigationBox = await bottomNavigation.boundingBox()
+  const rowBoxes = await grid.locator('.audit-log-row').evaluateAll((elements) =>
+    elements.map((element) => {
+      const rect = element.getBoundingClientRect()
+      return { bottom: rect.bottom, top: rect.top }
+    }),
+  )
+  const rowsBeforeNavigation = rowBoxes.filter(
+    (rowBox) =>
+      rowBox.top >= 0 &&
+      rowBox.bottom <= (bottomNavigationBox?.y ?? Number.NEGATIVE_INFINITY) + 1,
+  )
+  expect(rowsBeforeNavigation.length).toBeGreaterThanOrEqual(target.width === 440 ? 4 : 3)
+
+  const longDescription =
+    'Обновлены данные клиента Александра Константинопольская-Северная: длинное описание должно оставаться полным для accessibility и details.'
+  const longRow = grid.locator('.audit-log-row', { hasText: longDescription })
+  await expect(longRow.getByText(longDescription)).toBeVisible()
+  await expect(
+    longRow.getByRole('button', {
+      name: `Показать подробности записи: ${longDescription}`,
+    }),
+  ).toBeVisible()
+  const longContainment = await longRow.evaluate((element) => {
+    const rowRect = element.getBoundingClientRect()
+    const actorRect = element
+      .querySelector<HTMLElement>('.audit-log-cell--actor')
+      ?.getBoundingClientRect()
+    const contextRect = element
+      .querySelector<HTMLElement>('.audit-log-context')
+      ?.getBoundingClientRect()
+    return {
+      actorBottom: actorRect?.bottom ?? Number.POSITIVE_INFINITY,
+      contextRight: contextRect?.right ?? Number.POSITIVE_INFINITY,
+      rowBottom: rowRect.bottom,
+      rowRight: rowRect.right,
+    }
+  })
+  expect(longContainment.actorBottom).toBeLessThanOrEqual(longContainment.rowBottom + 1)
+  expect(longContainment.contextRight).toBeLessThanOrEqual(longContainment.rowRight + 1)
+
+  for (const closePath of ['button', 'overlay', 'escape'] as const) {
+    await detailsTrigger.click()
+    const detailsModal = page.getByTestId('audit-log-details-modal')
+    const dialog = page.getByRole('dialog', {
+      name: 'Подробности записи журнала',
+    })
+    const close = dialog.getByRole('button', {
+      name: 'Закрыть подробности записи',
+    })
+    await expect(detailsModal).toContainText('Создание клиента')
+    await expect(close).toBeFocused()
+
+    if (closePath === 'button') {
+      await close.click()
+    } else if (closePath === 'overlay') {
+      await page.locator('.mantine-Modal-overlay').click({ position: { x: 4, y: 4 } })
+    } else {
+      await page.keyboard.press('Escape')
+    }
+
+    await expect(detailsModal).toBeHidden()
+    await expect(detailsTrigger).toBeFocused()
+  }
+})
+
+test('мобильный pager не придумывает total при неизвестном количестве записей', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.setViewportSize(target)
+  await mockApi(page, HEAD_COACH_SESSION, APP_CONFIG, {
+    pageSize: 5,
+    totalCount: null,
+  })
+  await page.goto('/audit')
+
+  const pagination = page.getByRole('navigation', {
+    name: 'Страницы журнала действий',
+  })
+  await expect(page.getByText('Страница 1', { exact: true })).toBeVisible()
+  await expect(page.getByText('Страница 1 из 2', { exact: true })).toHaveCount(0)
+  await expect(
+    pagination.getByRole('button', { name: 'Следующая страница журнала' }),
+  ).toBeEnabled()
+  await expectNoHorizontalScroll(page)
 })
 
 test('в целевых iPhone-профилях админ-панель рендерится без горизонтального скролла', async ({
@@ -1944,6 +2084,7 @@ async function mockApi(
     | typeof HEAD_COACH_SESSION
     | typeof COACH_RESTRICTED_SESSION,
   appConfig: AppConfigFixture = APP_CONFIG,
+  auditPagination: { pageSize?: number; totalCount?: number | null } = {},
 ) {
   await page.route('**/api/**', async (route) => {
     const requestUrl = new URL(route.request().url())
@@ -2047,31 +2188,98 @@ async function mockApi(
     }
 
     if (pathname === '/api/audit-logs' && method === 'GET') {
+      const pageSize = auditPagination.pageSize ?? 20
+      const totalCount = Object.prototype.hasOwnProperty.call(
+        auditPagination,
+        'totalCount',
+      )
+        ? auditPagination.totalCount!
+        : 45
       await fulfillJson(route, {
         items: [
           {
             id: 'audit-iphone-1',
-            userName: 'Пользователь с очень длинным отображаемым именем',
-            userLogin: 'long.audit.user',
+            userName: 'Главный тренер',
+            userLogin: 'headcoach',
             userRole: 'HeadCoach',
             source: 'Web',
             messengerPlatform: 'Telegram',
             actionType: 'ClientCreated',
             entityType: 'Client',
             entityId: 'client-1',
-            description:
-              'Создан новый клиент с длинным описанием для проверки двухстрочного переноса без горизонтального переполнения',
+            description: 'Создан новый клиент',
             oldValueJson: null,
             newValueJson: { status: 'Active' },
             createdAt: '2026-07-30T10:10:10.000Z',
           },
+          {
+            id: 'audit-iphone-2',
+            userName: 'Главный тренер',
+            userLogin: 'headcoach',
+            userRole: 'HeadCoach',
+            source: 'Web',
+            messengerPlatform: 'Telegram',
+            actionType: 'ClientUpdated',
+            entityType: 'Client',
+            entityId: 'client-2',
+            description: 'Обновлён телефон клиента',
+            oldValueJson: null,
+            newValueJson: null,
+            createdAt: '2026-07-30T10:00:10.000Z',
+          },
+          {
+            id: 'audit-iphone-3',
+            userName: 'Главный тренер',
+            userLogin: 'headcoach',
+            userRole: 'HeadCoach',
+            source: 'ExternalApi',
+            messengerPlatform: 'Telegram',
+            actionType: 'AttendanceImported',
+            entityType: 'ExternalAttendance',
+            entityId: 'external-42',
+            description: 'Attendance import completed',
+            oldValueJson: null,
+            newValueJson: null,
+            createdAt: '2026-07-30T09:50:10.000Z',
+          },
+          {
+            id: 'audit-iphone-4',
+            userName: 'Главный тренер',
+            userLogin: 'headcoach',
+            userRole: 'HeadCoach',
+            source: 'Web',
+            messengerPlatform: 'Telegram',
+            actionType: 'Login',
+            entityType: 'UserSession',
+            entityId: 'session-4',
+            description: 'Пользователь вошёл в систему',
+            oldValueJson: null,
+            newValueJson: null,
+            createdAt: '2026-07-30T09:40:10.000Z',
+          },
+          {
+            id: 'audit-iphone-long',
+            userName: 'Пользователь с очень длинным отображаемым именем',
+            userLogin: 'long.audit.user',
+            userRole: 'HeadCoach',
+            source: 'Web',
+            messengerPlatform: 'Telegram',
+            actionType: 'ClientUpdated',
+            entityType: 'Client',
+            entityId: 'client-with-very-long-responsive-identifier',
+            description:
+              'Обновлены данные клиента Александра Константинопольская-Северная: длинное описание должно оставаться полным для accessibility и details.',
+            oldValueJson: null,
+            newValueJson: { status: 'Active' },
+            createdAt: '2026-07-30T09:30:10.000Z',
+          },
         ],
-        totalCount: 1,
+        totalCount,
         skip: 0,
-        take: 20,
+        take: pageSize,
         page: 1,
-        pageSize: 20,
-        hasNextPage: false,
+        pageSize,
+        hasNextPage: totalCount === null ? true : totalCount > pageSize,
       })
       return
     }

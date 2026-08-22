@@ -293,24 +293,85 @@ const AUDIT_ENTRIES_RESPONSE = {
   items: [
     {
       id: 'audit-1',
+      actionType: 'ClientCreated',
+      entityType: 'Client',
+      entityId: 'client-1',
+      description: 'Создан новый клиент',
+      createdAt: '2026-04-18T10:00:00Z',
+      oldValueJson: null,
+      newValueJson: '{"status":"Active"}',
+      userId: 'headcoach-id',
+      userName: 'Главный тренер',
+      userLogin: 'headcoach',
+      source: 'Web',
+      messengerPlatform: 'Telegram',
+    },
+    {
+      id: 'audit-2',
+      actionType: 'ClientUpdated',
+      entityType: 'Client',
+      entityId: 'client-2',
+      description: 'Обновлён телефон клиента',
+      createdAt: '2026-04-18T09:50:00Z',
+      oldValueJson: '{"phone":"+7 999 111-22-33"}',
+      newValueJson: '{"phone":"+7 999 123-45-67"}',
+      userId: 'headcoach-id',
+      userName: 'Главный тренер',
+      userLogin: 'headcoach',
+      source: 'Web',
+      messengerPlatform: 'Telegram',
+    },
+    {
+      id: 'audit-3',
+      actionType: 'AttendanceImported',
+      entityType: 'ExternalAttendance',
+      entityId: 'external-42',
+      description: 'Attendance import completed',
+      createdAt: '2026-04-18T09:40:00Z',
+      oldValueJson: null,
+      newValueJson: null,
+      userId: 'headcoach-id',
+      userName: 'Главный тренер',
+      userLogin: 'headcoach',
+      source: 'ExternalApi',
+      messengerPlatform: 'Telegram',
+    },
+    {
+      id: 'audit-4',
+      actionType: 'Login',
+      entityType: 'UserSession',
+      entityId: 'session-4',
+      description: 'Пользователь вошёл в систему',
+      createdAt: '2026-04-18T09:30:00Z',
+      oldValueJson: null,
+      newValueJson: null,
+      userId: 'headcoach-id',
+      userName: 'Главный тренер',
+      userLogin: 'headcoach',
+      source: 'Web',
+      messengerPlatform: 'Telegram',
+    },
+    {
+      id: 'audit-long',
       actionType: 'ClientUpdated',
       entityType: 'Client',
       entityId: 'client-1-with-long-responsive-identifier',
       description:
         'Обновлены данные клиента Александра Константинопольская-Северная: длинное описание должно переноситься внутри grid-строки без горизонтального скролла страницы.',
-      createdAt: '2026-04-18T10:00:00Z',
-      oldValueJson: '{"phone":"+7 999 111-22-33"}',
-      newValueJson: '{"phone":"+7 999 123-45-67"}',
+      createdAt: '2026-04-18T09:20:00Z',
+      oldValueJson: null,
+      newValueJson: null,
       userId: 'headcoach-id',
-      userLogin: 'headcoach',
-      userFullName: 'Главный тренер',
+      userName: 'Пользователь с очень длинным отображаемым именем и логином',
+      userLogin: 'very.long.audit.user.login',
       source: 'Web',
       messengerPlatform: 'Telegram',
     },
   ],
   page: 1,
   pageSize: 20,
-  totalCount: 1,
+  totalCount: 45,
+  hasNextPage: true,
 } as const
 
 const FINANCE_REPORT_RESPONSE = {
@@ -567,6 +628,76 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
         await expectNoHorizontalScroll(page)
       }
     })
+  })
+}
+
+const TASK_107_AUDIT_VIEWPORTS = [
+  { label: 'audit-narrow-360', width: 360, height: 780 },
+  { label: 'audit-stress-390', width: 390, height: 844 },
+  { label: 'audit-compact-air', width: 912, height: 420 },
+  { label: 'audit-compact-pro-max', width: 956, height: 440 },
+  { label: 'audit-tablet', width: 768, height: 1024 },
+  { label: 'audit-desktop', width: 1440, height: 1200 },
+] as const
+
+for (const viewport of TASK_107_AUDIT_VIEWPORTS) {
+  test.describe(`TASK-107 audit required geometry ${viewport.label}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } })
+
+    test('keeps compact decision data, pager and details reachable', async ({ page }) => {
+      await mockApi(page, MANAGEMENT_SESSION)
+      await page.goto('/audit')
+
+      await expectAuditListContract(page)
+      await expectNoHorizontalScroll(page)
+
+      if (viewport.height <= 440) {
+        const details = page.getByTestId('audit-log-details-action').first()
+        await details.click()
+
+        const dialog = page.getByRole('dialog', {
+          name: 'Подробности записи журнала',
+        })
+        const close = dialog.getByRole('button', {
+          name: 'Закрыть подробности записи',
+        })
+        await expect(dialog).toBeVisible()
+        await expect(close).toBeInViewport()
+        await close.click()
+        await expect(details).toBeFocused()
+      }
+    })
+
+    if (viewport.width === 390) {
+      test('rejects repeated labels, oversized rows and undersized unnamed pager controls', async ({
+        page,
+      }) => {
+        await mockApi(page, MANAGEMENT_SESSION)
+        await page.goto('/audit')
+
+        const row = page.getByTestId('audit-log-row').first()
+        const rowBox = await row.boundingBox()
+        const paginationRoot = page.locator('.mantine-Pagination-root')
+        const controlBoxes = await paginationRoot.locator('button').evaluateAll((controls) =>
+          controls.map((control) => {
+            const rect = control.getBoundingClientRect()
+            return { height: rect.height, width: rect.width }
+          }),
+        )
+
+        expect.soft(await row.locator('.audit-log-cell__label:visible').count()).toBe(0)
+        expect.soft(rowBox).not.toBeNull()
+        expect.soft(rowBox?.height ?? Number.POSITIVE_INFINITY).toBeLessThanOrEqual(128)
+        expect.soft(Math.min(...controlBoxes.map((box) => box.width))).toBeGreaterThanOrEqual(44)
+        expect.soft(Math.min(...controlBoxes.map((box) => box.height))).toBeGreaterThanOrEqual(44)
+        await expect.soft(
+          page.getByRole('button', { name: 'Предыдущая страница журнала' }),
+        ).toBeVisible()
+        await expect.soft(
+          page.getByRole('button', { name: 'Следующая страница журнала' }),
+        ).toBeVisible()
+      })
+    }
   })
 }
 
@@ -1805,7 +1936,11 @@ async function expectClientsSharedLayoutContract(
 async function expectAuditListContract(page: Page) {
   const grid = page.getByTestId('audit-log-grid')
   const row = grid.locator('.audit-log-row').first()
+  const rows = grid.locator('.audit-log-row')
   const details = row.getByTestId('audit-log-details-action')
+  const descriptionCell = row.getByRole('cell').nth(1)
+  const context = row.locator('.audit-log-context')
+  const viewport = page.viewportSize()
 
   await expect(
     grid.getByRole('columnheader', { includeHidden: true }),
@@ -1814,7 +1949,22 @@ async function expectAuditListContract(page: Page) {
   await expect(
     grid.getByRole('columnheader', { includeHidden: true, name: 'Действие' }),
   ).toHaveCount(0)
-  await expect(grid.getByText('Создание клиента', { exact: true })).toHaveCount(0)
+  await expect(row).toContainText('Создан новый клиент')
+  await expect(row).toContainText('Создание клиента')
+  await expect(row).toContainText('Клиент')
+  await expect(row).toContainText('client-1')
+  await expect(row).toContainText('Главный тренер')
+  await expect(row).toContainText('headcoach')
+  await expect(context).toHaveAttribute('aria-hidden', 'true')
+  await expect(descriptionCell).toHaveAttribute(
+    'aria-label',
+    /Описание: Создан новый клиент.*Действие: Создание клиента.*Объект: Клиент.*ID объекта: client-1/,
+  )
+  await expect(row.locator('.audit-log-cell__label:visible')).toHaveCount(0)
+  await expect(details).toHaveAttribute('aria-haspopup', 'dialog')
+  await expect(details).toHaveAccessibleName(
+    'Показать подробности записи: Создан новый клиент',
+  )
 
   const geometry = await row.evaluate((element) => {
     const style = getComputedStyle(element)
@@ -1830,18 +1980,109 @@ async function expectAuditListContract(page: Page) {
       descriptionClamp: description
         ? getComputedStyle(description).webkitLineClamp
         : '',
+      rowHeight: element.getBoundingClientRect().height,
       detailsWidth: detailsRect?.width ?? 0,
       detailsHeight: detailsRect?.height ?? 0,
     }
   })
 
-  expect(geometry.columns).toBe((page.viewportSize()?.width ?? 0) >= 1200 ? 4 : 2)
+  expect(geometry.columns).toBe((viewport?.width ?? 0) >= 1200 ? 4 : 2)
   expect(geometry.areas).not.toContain('action')
   expect(geometry.areas).not.toContain('source')
+  if ((viewport?.width ?? 0) < 1200) {
+    expect(geometry.areas.replaceAll('"', '').trim()).toBe(
+      'time details description details context context actor actor',
+    )
+  }
   expect(geometry.descriptionClamp).toBe('2')
   expect(geometry.detailsWidth).toBeGreaterThanOrEqual(44)
   expect(geometry.detailsHeight).toBeGreaterThanOrEqual(44)
+  if ((viewport?.width ?? 0) <= 440 && (viewport?.height ?? 0) >= 780) {
+    expect(geometry.rowHeight).toBeLessThanOrEqual(128)
+  }
+
+  const pagination = page.getByRole('navigation', {
+    name: 'Страницы журнала действий',
+  })
+  const previous = pagination.getByRole('button', {
+    name: 'Предыдущая страница журнала',
+  })
+  const next = pagination.getByRole('button', {
+    name: 'Следующая страница журнала',
+  })
+  await expect(pagination).toBeVisible()
+  await expect(previous).toBeDisabled()
+  await expect(next).toBeEnabled()
+  await expect(page.getByText('Страница 1 из 3', { exact: true })).toBeVisible()
+
+  const paginationGeometry = await pagination.evaluate((element) => {
+    const rootRect = element.getBoundingClientRect()
+    const controls = Array.from(
+      element.querySelectorAll<HTMLElement>('button:not([hidden])'),
+    )
+      .map((control) => control.getBoundingClientRect())
+      .filter((rect) => rect.width > 0 && rect.height > 0)
+      .sort((left, right) => left.left - right.left)
+
+    return {
+      rootLeft: rootRect.left,
+      rootRight: rootRect.right,
+      minWidth: Math.min(...controls.map((rect) => rect.width)),
+      minHeight: Math.min(...controls.map((rect) => rect.height)),
+      minGap:
+        controls.length > 1
+          ? Math.min(
+              ...controls.slice(1).map((rect, index) => rect.left - controls[index].right),
+            )
+          : Number.POSITIVE_INFINITY,
+      controlsLeft: Math.min(...controls.map((rect) => rect.left)),
+      controlsRight: Math.max(...controls.map((rect) => rect.right)),
+      scrollWidth: element.scrollWidth,
+      clientWidth: element.clientWidth,
+    }
+  })
+  expect(paginationGeometry.minWidth).toBeGreaterThanOrEqual(44)
+  expect(paginationGeometry.minHeight).toBeGreaterThanOrEqual(44)
+  expect(paginationGeometry.minGap).toBeGreaterThanOrEqual(8)
+  expect(paginationGeometry.controlsLeft).toBeGreaterThanOrEqual(
+    paginationGeometry.rootLeft - 1,
+  )
+  expect(paginationGeometry.controlsRight).toBeLessThanOrEqual(
+    paginationGeometry.rootRight + 1,
+  )
+  expect(paginationGeometry.scrollWidth).toBeLessThanOrEqual(
+    paginationGeometry.clientWidth + 1,
+  )
+
+  if ((viewport?.width ?? 0) <= 440) {
+    await expect(
+      pagination.getByRole('button', { name: /^Страница \d+ журнала$/ }),
+    ).toHaveCount(0)
+  } else {
+    await expect(
+      pagination.getByRole('button', { name: 'Страница 1 журнала' }),
+    ).toHaveAttribute('aria-current', 'page')
+  }
+
+  if ((viewport?.width ?? 0) === 390 || (viewport?.width ?? 0) === 440) {
+    const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
+    const bottomBox = await bottomNavigation.boundingBox()
+    const rowBoxes = await rows.evaluateAll((elements) =>
+      elements.map((element) => {
+        const rect = element.getBoundingClientRect()
+        return { bottom: rect.bottom, top: rect.top }
+      }),
+    )
+    const visibleRows = rowBoxes.filter(
+      (rowBox) => rowBox.top >= 0 && rowBox.bottom <= (bottomBox?.y ?? 0) + 1,
+    )
+    expect(visibleRows.length).toBeGreaterThanOrEqual(viewport?.width === 440 ? 4 : 3)
+  }
+
   await expect(details).toBeVisible()
+  await expect(grid.getByText('Attendance import completed')).toBeVisible()
+  await expect(grid.getByText('AttendanceImported')).toBeVisible()
+  await expect(grid.getByText('ExternalAttendance')).toBeVisible()
 }
 
 async function expectScheduleOverflowContract(page: Page) {
