@@ -1,13 +1,16 @@
 # TASK-120: Ввести единый engineering quality baseline
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-22 22:40 MSK
 - moved_from: direct user request
 - implementation_branch: feature/TASK-120-engineering-standards-baseline
-- implementation_state: in-progress
+- implementation_state: completed
+- implementation_commit: a32ed58
+- delivered_on_main_at: 2026-08-22
+- moved_to_done_at: 2026-08-22
 - last_status_reviewed_at: 2026-08-22
 
 ## Goal
@@ -84,3 +87,11 @@ implementation
 - Created at: 2026-08-22 23:28 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: активной задачи на единый engineering baseline не найдено.
+
+## Completion record
+- Completed on: 2026-08-22.
+- Implementation commit: `a32ed58`; integrated into local `main` by fast-forward.
+- Validation: .NET format and Release build passed; 420 backend tests, 468 frontend unit tests and 51 bot tests passed; strict TypeScript, raw-color, Ruff, strict mypy, npm audit and NuGet audit gates passed.
+- Container validation: locked bot Docker image built successfully and passed a runtime package import smoke-test.
+- Data storage: application contracts and database schema were not changed; migration is not required.
+- Residual observation: one concurrent PostgreSQL regression test produced a one-off `500` on an intermediate full run, then passed in isolation and in both subsequent full worktree/main runs.

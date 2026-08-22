@@ -2651,3 +2651,31 @@
 - updated existing tasks: 0
 - processed inbox files: 0
 - skipped duplicates: 1 partial overlap linked as dependency
+
+# 2026-08-22 23:42 TASK-120 completion
+
+## Baseline and scope
+
+- Local `main` fast-forwarded from `a79c9c9` to implementation commit `a32ed58`.
+- Scope: completion/status update for TASK-120 after post-merge cross-layer validation.
+
+## Status changes
+
+- `/backlog/implementation/TASK-120-engineering-standards-baseline.md` ->
+  `/backlog/done/TASK-120-engineering-standards-baseline.md`.
+- TASK-121 remains in `/backlog/risky` and was not implemented.
+
+## Completion evidence
+
+- Backend: format and Release warnings-as-errors build passed; 420 xUnit tests
+  passed; NuGet reported no vulnerable direct or transitive packages.
+- Frontend: lint, strict typecheck, raw-color gate, 468 unit tests, production
+  build and npm audit passed with zero vulnerabilities.
+- Bot: Ruff lint/format, strict mypy and 51 pytest tests passed; locked Docker
+  image build and runtime import smoke-test passed.
+
+## Summary
+
+- moved to done: 1 task
+- risky tasks created for follow-up: 1 (TASK-121)
+- processed inbox files: 0
