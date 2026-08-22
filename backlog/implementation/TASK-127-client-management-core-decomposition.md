@@ -1,7 +1,7 @@
 # TASK-127: Разделить core client screens и form components
 
 ## Status
-ready
+implementation
 
 ## Goal
 Create, edit и detail client screens имеют отдельные feature modules, а общий
@@ -72,3 +72,9 @@ sections, photo, attendance и membership UI.
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill + react-best-practices + crm-mobile-first-ui.
 - Duplicate check: client UX tasks меняют конкретные workflows; structural screen/form split отдельно не покрыт.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23 01:15
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-127-client-management-core-decomposition.plan.md
+- implementation_branch: refactor/TASK-127-client-management-core-decomposition

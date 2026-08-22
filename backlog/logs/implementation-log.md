@@ -1616,3 +1616,57 @@
   recovery states и target-iPhone acceptance. Unit, raw API, PostgreSQL,
   frontend/Playwright и bot tests должны быть написаны и observed red до
   production code. Project code не изменялся.
+
+# 2026-08-23 01:15
+- moved: none
+- planned_in_place: TASK-122
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-122-client-query-endpoints-decomposition.plan.md
+
+# 2026-08-23 01:15
+- moved: none
+- planned_in_place: TASK-123
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-123-client-lifecycle-endpoints-decomposition.plan.md
+
+# 2026-08-23 01:15
+- moved: none
+- planned_in_place: TASK-124
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-124-client-membership-http-decomposition.plan.md
+
+# 2026-08-23 01:15
+- moved: none
+- planned_in_place: TASK-125
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-125-client-membership-service-decomposition.plan.md
+
+# 2026-08-23 01:15
+- moved: TASK-126
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-126-app-shell-routing-decomposition.plan.md
+
+# 2026-08-23 01:15
+- moved: TASK-127
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-127-client-management-core-decomposition.plan.md
+
+# 2026-08-23 01:15
+- moved: none
+- planned_in_place: TASK-128
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-128-client-membership-ui-decomposition.plan.md
+
+# 2026-08-23 01:15
+- moved: none
+- planned_in_place: TASK-129
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-129-group-management-decomposition.plan.md
+
+# 2026-08-23 01:15
+- moved: none
+- planned_in_place: TASK-130
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-130-bot-core-service-decomposition.plan.md

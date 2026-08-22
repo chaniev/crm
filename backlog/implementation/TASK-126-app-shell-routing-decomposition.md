@@ -1,7 +1,7 @@
 # TASK-126: Декомпозировать App shell и routing orchestration
 
 ## Status
-ready
+implementation
 
 ## Goal
 `App.tsx` остаётся небольшим composition root, а routing/history, auth stages,
@@ -70,3 +70,9 @@ state graph и может сломать back/forward, recovery или permissio
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill + react-best-practices + crm-mobile-first-ui.
 - Duplicate check: active navigation tasks меняют product routes; эта задача сохраняет текущую route model.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23 01:15
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-126-app-shell-routing-decomposition.plan.md
+- implementation_branch: refactor/TASK-126-app-shell-routing-decomposition
