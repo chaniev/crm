@@ -2124,6 +2124,106 @@
   text-align: center;
 }
 
+.schedule-events-disclosure {
+  position: absolute;
+  inset-inline: 6px;
+  z-index: 2;
+  min-width: 0;
+  min-height: 54px;
+  padding: 0.48rem 0.58rem;
+  border: 1px solid var(--crm-brand-alpha-18);
+  border-radius: 0.5rem;
+  color: var(--crm-text-heading);
+  background: var(--crm-surface-card-alpha-98);
+  box-shadow: 0 7px 16px var(--crm-shadow-card);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.schedule-events-disclosure:focus-visible {
+  outline: 2px solid var(--crm-selection-border);
+  outline-offset: -2px;
+}
+
+.schedule-events-disclosure__time {
+  display: block;
+  color: var(--crm-action-primary-active);
+  font-size: 0.78rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.18;
+}
+
+.schedule-events-disclosure__names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.18rem 0.32rem;
+  min-width: 0;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.schedule-events-disclosure__more {
+  flex: 0 0 auto;
+  color: var(--crm-text-secondary);
+}
+
+.schedule-events-popover {
+  display: flex;
+  flex-direction: column;
+  max-height: min(520px, calc(100dvh - 32px));
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.85rem;
+  border-color: var(--crm-brand-alpha-14);
+}
+
+.schedule-events-popover__list {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 0;
+  min-width: 0;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.schedule-events-popover__row {
+  min-width: 0;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--crm-brand-alpha-10);
+  overflow-wrap: anywhere;
+}
+
+.schedule-events-popover__row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.schedule-events-popover__time,
+.schedule-events-popover__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.schedule-events-popover .schedule-event-card__type-chip {
+  flex: 0 1 auto;
+  max-width: 100%;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .schedule-mobile-list {
   min-width: 0;
 }
