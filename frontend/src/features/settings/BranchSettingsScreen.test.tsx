@@ -123,7 +123,7 @@ describe('BranchSettingsScreen', () => {
     ]
 
     for (const action of hallActions) {
-      expect(action.style.getPropertyValue('--ai-size')).toBe('2.75rem')
+      expect(action.style.getPropertyValue('--ai-size')).toContain('2.75rem')
     }
   })
 })

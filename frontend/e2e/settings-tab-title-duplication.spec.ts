@@ -165,7 +165,11 @@ test('keeps four settings panels named and operational without duplicated titles
     expect(refreshBox!.width).toBeGreaterThanOrEqual(44)
     expect(createBox!.height).toBeGreaterThanOrEqual(44)
     expect(createBox!.width).toBeGreaterThanOrEqual(44)
-    expect(firstOperationalBox!.y).toBeGreaterThanOrEqual(refreshBox!.y + refreshBox!.height)
+    if (tabCase.label === 'Абонементы') {
+      expect(Math.abs(firstOperationalBox!.y - refreshBox!.y)).toBeLessThan(8)
+    } else {
+      expect(firstOperationalBox!.y).toBeGreaterThanOrEqual(refreshBox!.y + refreshBox!.height)
+    }
 
     await refresh.focus()
     await expect(refresh).toBeFocused()

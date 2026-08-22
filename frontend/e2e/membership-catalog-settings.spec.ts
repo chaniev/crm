@@ -226,14 +226,18 @@ test('TASK-109 preserves two-branch query, create payload, edit contract and foc
     },
   })
   await expect(editDialog).toBeHidden()
-  await expect(edit).toBeFocused()
+  await expect(
+    panel.getByRole('button', { name: 'Редактировать Северный обновлённый' }),
+  ).toBeFocused()
   await expect(scope).toHaveValue(CATALOG_BRANCHES[1].name)
 })
 
 test('TASK-109 retries failed branch scope before loading catalog items', async ({ page }) => {
   const scenario: CatalogScenario = {
     branches: CATALOG_BRANCHES,
-    branchFailuresRemaining: 1,
+    // React StrictMode starts the initial effect twice in the Vite development
+    // shell. Both initial requests must fail so the recovery UI is observable.
+    branchFailuresRemaining: 2,
     itemsByBranch: { 'branch-1': [] },
   }
   await mockCatalogApi(page, HEAD_COACH_SESSION, scenario)

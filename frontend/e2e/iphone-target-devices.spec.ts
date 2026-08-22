@@ -2012,10 +2012,25 @@ test('в целевых iPhone-профилях каталог абонемен�
   await catalogTab.focus()
   await page.keyboard.press('Tab')
   expect.soft(await scope.evaluate((element) => element === document.activeElement), 'focus enters scope first').toBe(true)
-  await page.keyboard.press('Tab')
-  expect.soft(await refresh.evaluate((element) => element === document.activeElement), 'focus reaches refresh second').toBe(true)
-  await page.keyboard.press('Tab')
-  expect.soft(await create.evaluate((element) => element === document.activeElement), 'focus reaches create third').toBe(true)
+  const domOrder = await catalogPanel.evaluate((element) => {
+    const scopeElement = element.querySelector('[role="combobox"]')
+    const refreshElement = element.querySelector('[aria-label="Обновить"]')
+    const createElement = element.querySelector('[aria-label="Добавить абонемент"]')
+    if (!scopeElement || !refreshElement || !createElement) return false
+    return Boolean(
+      scopeElement.compareDocumentPosition(refreshElement) & Node.DOCUMENT_POSITION_FOLLOWING
+      && refreshElement.compareDocumentPosition(createElement) & Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+  })
+  expect.soft(domOrder, 'DOM order is scope → refresh → create').toBe(true)
+
+  // macOS WebKit follows the host Full Keyboard Access preference and may
+  // skip buttons on plain Tab. Chromium covers sequential Tab order; target
+  // WebKit still proves each action is independently keyboard-focusable.
+  await refresh.focus()
+  await expect(refresh).toBeFocused()
+  await create.focus()
+  await expect(create).toBeFocused()
 
   const rows = await membershipRows.all()
   for (const row of rows) {

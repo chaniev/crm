@@ -826,6 +826,70 @@
   white-space: nowrap;
 }
 
+.settings-tabs .mantine-Tabs-list {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-tabs .mantine-Tabs-tab {
+  min-width: 44px;
+  min-height: 44px;
+  white-space: normal;
+}
+
+.settings-tabs .mantine-Tabs-tabLabel {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.settings-tabs .mantine-Tabs-tab:focus-visible {
+  outline: 2px solid var(--crm-brand-alpha-34);
+  outline-offset: 2px;
+}
+
+.settings-catalog-toolbar {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+
+.settings-catalog-scope {
+  min-width: 0;
+}
+
+.settings-catalog-scope__select {
+  min-width: 0;
+}
+
+.settings-catalog-scope__select :where(.mantine-Input-input) {
+  min-height: 44px;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+}
+
+.settings-catalog-scope__static {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.35rem 0.75rem;
+  display: grid;
+  align-content: center;
+  border-color: var(--crm-brand-alpha-10);
+  background: var(--crm-surface-card-alpha-92);
+}
+
+.settings-catalog-scope__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-catalog-scope__reason {
+  margin-top: 0.35rem;
+}
+
 .entity-locator-bar__filter,
 .entity-locator-bar__clear,
 .active-filters-bar__item,
@@ -867,6 +931,28 @@
 
 .entity-locator-bar__filter-count {
   pointer-events: none;
+}
+
+@media (max-width: 47.99rem) {
+  .settings-tabs .mantine-Tabs-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-tabs .mantine-Tabs-tab {
+    width: 100%;
+    padding-inline: 0.5rem;
+  }
+
+  .settings-tabs .mantine-Tabs-tabSection {
+    display: none;
+  }
+}
+
+@media (min-width: 48rem) and (max-width: 63.99rem) and (min-height: 48rem) {
+  .settings-tabs .mantine-Tabs-tab {
+    flex: 1 1 calc(50% - 4px);
+  }
 }
 
 @media (max-width: 47.99rem), ((pointer: coarse) and (max-height: 30rem)) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Alert, Group, Modal, NumberInput, Paper, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { IconAlertCircle, IconEdit, IconPlus } from '@tabler/icons-react'
@@ -41,12 +41,16 @@ export function MembershipCatalogSettings({
   const [branches, setBranches] = useState<Branch[]>([])
   const [branchId, setBranchId] = useState(assignedBranchId ?? '')
   const [items, setItems] = useState<MembershipCatalogItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [reloadKey, setReloadKey] = useState(0)
+  const [branchesLoading, setBranchesLoading] = useState(true)
+  const [branchesError, setBranchesError] = useState<string | null>(null)
+  const [branchesReloadKey, setBranchesReloadKey] = useState(0)
+  const [itemsLoading, setItemsLoading] = useState(Boolean(assignedBranchId))
+  const [itemsError, setItemsError] = useState<string | null>(null)
+  const [itemsReloadKey, setItemsReloadKey] = useState(0)
   const [modal, setModal] = useState<ModalState>(null)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const itemsRequestId = useRef(0)
   const form = useForm<FormValues>({
     initialValues: { name: '', price: 0, behaviorKind: 'Term', availableFrom: new Date().toISOString().slice(0, 10), availableTo: '' },
     validate: {
@@ -58,24 +62,84 @@ export function MembershipCatalogSettings({
 
   useEffect(() => {
     const controller = new AbortController()
-    void getBranches({}, controller.signal).then((next) => {
-      const active = next.filter((branch) => !branch.isArchived)
-      setBranches(active)
-      setBranchId((current) => current || active[0]?.id || '')
-    }).catch((reason) => setError(reason instanceof Error ? reason.message : 'Не удалось загрузить филиалы.'))
+    setBranchesLoading(true)
+    setBranchesError(null)
+
+    void getBranches({}, controller.signal)
+      .then((next) => {
+        if (controller.signal.aborted) return
+        const active = next.filter((branch) => !branch.isArchived)
+        setBranches(active)
+        setBranchId((current) => {
+          if (assignedBranchId) {
+            return active.some((branch) => branch.id === assignedBranchId)
+              ? assignedBranchId
+              : ''
+          }
+
+          return active.some((branch) => branch.id === current)
+            ? current
+            : active[0]?.id ?? ''
+        })
+      })
+      .catch((reason) => {
+        if (controller.signal.aborted) return
+        setBranches([])
+        setBranchId('')
+        setBranchesError(reason instanceof Error ? reason.message : 'Не удалось загрузить филиалы.')
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setBranchesLoading(false)
+      })
+
     return () => controller.abort()
-  }, [])
+  }, [assignedBranchId, branchesReloadKey])
+
+  const branch = branches.find((item) => item.id === branchId)
+  const canUseAssignedScopeBeforeInitialBranchLoad =
+    !canSelectBranch &&
+    Boolean(assignedBranchId) &&
+    branchesReloadKey === 0 &&
+    branchesLoading &&
+    !branchesError
+  const itemBranchId =
+    canUseAssignedScopeBeforeInitialBranchLoad
+      ? assignedBranchId ?? ''
+      : !branchesLoading && !branchesError && branchId
+        ? branchId
+        : ''
 
   useEffect(() => {
-    if (!branchId) return
+    if (!itemBranchId) {
+      itemsRequestId.current += 1
+      setItems([])
+      setItemsLoading(false)
+      setItemsError(null)
+      return
+    }
+
     const controller = new AbortController()
-    setLoading(true); setError(null)
-    void getMembershipCatalogItems(branchId, controller.signal)
-      .then(setItems)
-      .catch((reason) => setError(reason instanceof Error ? reason.message : 'Не удалось загрузить каталог.'))
-      .finally(() => { if (!controller.signal.aborted) setLoading(false) })
+    const requestId = itemsRequestId.current + 1
+    itemsRequestId.current = requestId
+    setItems([])
+    setItemsLoading(true)
+    setItemsError(null)
+    void getMembershipCatalogItems(itemBranchId, controller.signal)
+      .then((nextItems) => {
+        if (controller.signal.aborted || itemsRequestId.current !== requestId) return
+        setItems(nextItems)
+      })
+      .catch((reason) => {
+        if (controller.signal.aborted || itemsRequestId.current !== requestId) return
+        setItemsError(reason instanceof Error ? reason.message : 'Не удалось загрузить каталог.')
+      })
+      .finally(() => {
+        if (!controller.signal.aborted && itemsRequestId.current === requestId) {
+          setItemsLoading(false)
+        }
+      })
     return () => controller.abort()
-  }, [branchId, reloadKey])
+  }, [itemBranchId, itemsReloadKey])
 
   function openCreate() {
     form.setValues({ name: '', price: 0, behaviorKind: 'Term', availableFrom: new Date().toISOString().slice(0, 10), availableTo: '' })
@@ -102,28 +166,88 @@ export function MembershipCatalogSettings({
     } finally { setSubmitting(false) }
   }
 
-  const branch = branches.find((item) => item.id === branchId)
+  const scopeResolved = Boolean(branch)
+  const scopeStatus = branchesLoading
+    ? 'Загружаем филиалы…'
+    : branchesError
+      ? 'Филиалы не загрузились'
+      : scopeResolved
+        ? branch?.name ?? 'Нет доступного филиала'
+        : 'Нет доступного филиала'
+  const createDisabledReason = !scopeResolved && canSelectBranch ? scopeStatus : null
+  const refreshLoading = branchesLoading || (scopeResolved && itemsLoading)
+
+  function refresh() {
+    if (branchesLoading || itemsLoading) return
+
+    if (!scopeResolved || branchesError) {
+      setBranchesReloadKey((key) => key + 1)
+      return
+    }
+
+    setItemsReloadKey((key) => key + 1)
+  }
+
   return <Stack gap="lg">
     <PageSection><Stack gap="lg">
-      <TaskToolbarActions
-        frequentActions={<TaskToolbarRefreshAction loading={loading} onClick={() => setReloadKey((key) => key + 1)} />}
-        primaryAction={(
-          <TaskToolbarAction
-            disabled={!branchId}
-            icon={<IconPlus size={18} />}
-            label="Добавить абонемент"
-            onClick={openCreate}
-            priority="primary"
-          />
-        )}
-      />
-      {canSelectBranch ? <Select allowDeselect={false} data={branches.map((item) => ({ value: item.id, label: item.name }))} label="Филиал каталога" onChange={(value) => setBranchId(value ?? '')} value={branchId || null}/> : <Paper className="hint-card" p="md" withBorder><Text c="dimmed" size="sm">Филиал каталога</Text><Text fw={700}>{branch?.name ?? 'Не назначен'}</Text></Paper>}
-      {loading ? <LoadingState label="Загружаем каталог..."/> : null}
-      {!loading && error ? <ErrorState title="Каталог не загрузился" message={error}/> : null}
-      {!loading && !error && items.length === 0 ? <EmptyState icon={<IconPlus size={24}/>} title="В этом филиале ещё нет абонементов"/> : null}
-      {!loading && !error ? <Stack>{items.map((item) => <Paper className="list-row-card" key={item.id} p="lg" withBorder><Group justify="space-between"><Stack gap={6}><Text fw={700}>{item.name}</Text><Text c="dimmed" size="sm">{formatPrice(item.price)} • {item.availableFrom} — {item.availableTo ?? 'бессрочно'}</Text></Stack><Button aria-label={`Редактировать ${item.name}`} leftSection={<IconEdit size={16}/>} onClick={() => openEdit(item)} variant="light">Изменить</Button></Group></Paper>)}</Stack> : null}
+      <div className="settings-catalog-toolbar">
+        <div className="settings-catalog-scope">
+          {canSelectBranch ? (
+            <Select
+              allowDeselect={false}
+              className="settings-catalog-scope__select"
+              data={branches.map((item) => ({ value: item.id, label: item.name }))}
+              description={scopeResolved ? branch?.name : undefined}
+              descriptionProps={{ className: 'visually-hidden' }}
+              disabled={branchesLoading || Boolean(branchesError) || branches.length === 0}
+              inputWrapperOrder={['label', 'input', 'description']}
+              label="Филиал каталога"
+              onChange={(value) => setBranchId(value ?? '')}
+              placeholder={scopeStatus}
+              value={branchId || null}
+            />
+          ) : (
+            <Paper
+              className="settings-catalog-scope__static"
+              withBorder
+            >
+              <Text c="dimmed" size="sm">Филиал каталога</Text>
+              <Text className="settings-catalog-scope__value" fw={700}>{scopeStatus}</Text>
+            </Paper>
+          )}
+          {createDisabledReason ? (
+            <Text c="dimmed" className="settings-catalog-scope__reason" size="sm">
+              {createDisabledReason}
+            </Text>
+          ) : null}
+        </div>
+        <TaskToolbarActions
+          aria-label={`Действия каталога абонементов: ${scopeStatus}`}
+          role="group"
+          frequentActions={(
+            <TaskToolbarRefreshAction
+              loading={refreshLoading}
+              onClick={refresh}
+            />
+          )}
+          primaryAction={(
+            <TaskToolbarAction
+              disabled={!scopeResolved}
+              icon={<IconPlus size={18} />}
+              label="Добавить абонемент"
+              onClick={openCreate}
+              priority="primary"
+            />
+          )}
+        />
+      </div>
+      {itemsLoading ? <LoadingState label="Загружаем каталог..."/> : null}
+      {branchesError ? <ErrorState title="Не удалось загрузить филиалы" message={branchesError}/> : null}
+      {scopeResolved && !itemsLoading && itemsError ? <ErrorState title="Каталог не загрузился" message={itemsError}/> : null}
+      {scopeResolved && !itemsLoading && !itemsError && items.length === 0 ? <EmptyState icon={<IconPlus size={24}/>} title="В этом филиале ещё нет абонементов"/> : null}
+      {scopeResolved && !itemsLoading && !itemsError ? <Stack>{items.map((item) => <Paper className="list-row-card" key={item.id} p="lg" withBorder><Group justify="space-between"><Stack gap={6}><Text fw={700}>{item.name}</Text><Text c="dimmed" size="sm">{formatPrice(item.price)} • {item.availableFrom} — {item.availableTo ?? 'бессрочно'}</Text></Stack><Button aria-label={`Редактировать ${item.name}`} leftSection={<IconEdit size={16}/>} onClick={() => openEdit(item)} variant="light">Изменить</Button></Group></Paper>)}</Stack> : null}
     </Stack></PageSection>
-    <Modal centered opened={Boolean(modal)} onClose={() => setModal(null)} title={modal?.mode === 'edit' ? 'Редактирование абонемента' : 'Новый абонемент'}><form onSubmit={form.onSubmit((values) => void submit(values))}><Stack>
+    <Modal centered opened={Boolean(modal)} onClose={() => setModal(null)} returnFocus title={modal?.mode === 'edit' ? 'Редактирование абонемента' : 'Новый абонемент'}><form onSubmit={form.onSubmit((values) => void submit(values))}><Stack>
       {formError ? <Alert color="red" icon={<IconAlertCircle size={18}/>}>{formError}</Alert> : null}
       <TextInput label="Название" {...form.getInputProps('name')}/>
       {modal?.mode === 'create' ? <SimpleGrid cols={2}><NumberInput label="Цена" min={0} {...form.getInputProps('price')}/><Select allowDeselect={false} data={behaviorOptions} label="Поведение" {...form.getInputProps('behaviorKind')}/></SimpleGrid> : null}

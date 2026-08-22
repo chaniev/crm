@@ -697,10 +697,11 @@ function BranchDetailsPanel({
                     </Text>
                   </Stack>
 
-                  <Group gap="xs" wrap="nowrap">
+                  <Group gap={8} wrap="nowrap">
                     <ActionIcon
                       aria-label={`Редактировать зал ${hall.name}`}
                       onClick={() => onEditHall(hall)}
+                      size={44}
                       variant="light"
                     >
                       <IconEdit size={16} />
@@ -714,6 +715,7 @@ function BranchDetailsPanel({
                       color={hall.isArchived ? 'teal' : 'gray'}
                       loading={hallPending === hall.id}
                       onClick={() => onArchiveHall(hall)}
+                      size={44}
                       variant="light"
                     >
                       {hall.isArchived ? (
@@ -727,6 +729,7 @@ function BranchDetailsPanel({
                       color="red"
                       disabled={hallPending === hall.id}
                       onClick={() => onDeleteHall(hall)}
+                      size={44}
                       variant="light"
                     >
                       <IconTrash size={16} />

@@ -73,6 +73,7 @@ const SUPER_ADMIN_SESSION = {
     canMarkAttendance: true,
     canViewAuditLog: true,
     canViewFinancialReports: true,
+    createRoleOptions: ['Administrator', 'SuperAdministrator'],
     fullName: 'Суперадминистратор',
     id: 'super-admin',
     isActive: true,

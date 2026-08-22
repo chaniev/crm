@@ -64,12 +64,13 @@ export function SettingsScreen({ user }: { user: AuthenticatedUser }) {
   return (
     <PageLayout data-testid="settings-screen" showHeader={false} title="Настройки">
       <Tabs
+        className="settings-tabs"
         keepMounted={false}
         onChange={(value) => setActiveTab((value as SettingsTab | null) ?? 'catalog')}
         value={activeTab}
       >
         <PageSection>
-          <Tabs.List grow={isMobile}>
+          <Tabs.List className="settings-tabs__list" grow={isMobile}>
             <Tabs.Tab leftSection={<IconIdBadge2 size={18} />} value={'catalog' satisfies SettingsTab}>
               Абонементы
             </Tabs.Tab>
