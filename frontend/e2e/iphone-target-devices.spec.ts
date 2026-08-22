@@ -1977,8 +1977,9 @@ test('в целевых iPhone-профилях каталог абонемен�
   await mockIphoneMembershipCatalogApi(page, HEAD_COACH_SESSION)
   await page.goto('/settings')
 
-  await expect(page.getByRole('tab', { name: 'Абонементы' })).toBeVisible()
-  await page.getByRole('tab', { name: 'Абонементы' }).click()
+  const catalogTab = page.getByRole('tab', { name: 'Абонементы' })
+  await expect(catalogTab).toBeVisible()
+  await catalogTab.click()
 
   const catalogPanel = page.getByRole('tabpanel', { name: 'Абонементы' })
   const membershipRows = catalogPanel.locator('.list-row-card')
@@ -1986,6 +1987,35 @@ test('в целевых iPhone-профилях каталог абонемен�
   await expect(catalogPanel.getByRole('heading', { name: 'Каталог абонементов' })).toHaveCount(0)
   await expect(membershipRows).toHaveCount(4)
   await expectNoHorizontalScroll(page)
+
+  const scope = catalogPanel.getByRole('combobox', { name: 'Филиал каталога' })
+  const refresh = catalogPanel.getByRole('button', { name: 'Обновить' })
+  const create = catalogPanel.getByRole('button', { name: 'Добавить абонемент' })
+  const [tabBox, scopeBox, refreshBox, createBox] = await Promise.all([
+    catalogTab.boundingBox(),
+    scope.boundingBox(),
+    refresh.boundingBox(),
+    create.boundingBox(),
+  ])
+  for (const [label, box] of [
+    ['tab', tabBox],
+    ['scope', scopeBox],
+    ['refresh', refreshBox],
+    ['create', createBox],
+  ] as const) {
+    expect(box).not.toBeNull()
+    expect.soft(box!.height, `${label} is touch-safe`).toBeGreaterThanOrEqual(44)
+  }
+  expect.soft(Math.abs(scopeBox!.y - refreshBox!.y), 'scope and actions stay in one row').toBeLessThan(8)
+  expect.soft(refreshBox!.x - (scopeBox!.x + scopeBox!.width), 'scope precedes actions').toBeGreaterThanOrEqual(8)
+
+  await catalogTab.focus()
+  await page.keyboard.press('Tab')
+  expect.soft(await scope.evaluate((element) => element === document.activeElement), 'focus enters scope first').toBe(true)
+  await page.keyboard.press('Tab')
+  expect.soft(await refresh.evaluate((element) => element === document.activeElement), 'focus reaches refresh second').toBe(true)
+  await page.keyboard.press('Tab')
+  expect.soft(await create.evaluate((element) => element === document.activeElement), 'focus reaches create third').toBe(true)
 
   const rows = await membershipRows.all()
   for (const row of rows) {
@@ -2024,6 +2054,13 @@ test('в целевых iPhone-профилях каталог абонемен�
   await expect(dialog.getByLabel('Поведение')).toHaveCount(0)
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()
+  await expectNoHorizontalScroll(page)
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await scope.scrollIntoViewIfNeeded()
+  await expect(scope).toBeVisible()
+  await expect(refresh).toBeVisible()
+  await expect(create).toBeVisible()
   await expectNoHorizontalScroll(page)
 })
 
@@ -2139,7 +2176,7 @@ async function mockApi(
       await fulfillJson(route, [
         {
           id: 'branch-1',
-          name: 'Центр',
+          name: 'Северный филиал с очень длинным названием для target iPhone',
           address: null,
           description: null,
           isArchived: false,

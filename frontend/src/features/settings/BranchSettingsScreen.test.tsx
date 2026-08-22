@@ -102,4 +102,28 @@ describe('BranchSettingsScreen', () => {
     expect(screen.getByRole('button', { name: 'Добавить филиал' })).toBeEnabled()
     await waitFor(() => expect(document.querySelector('.metric-card')).not.toBeInTheDocument())
   })
+
+  test('preserves keyboard branch selection and gives every hall action an explicit 44px touch hook', async () => {
+    vi.mocked(getBranches).mockResolvedValue(branches)
+    vi.mocked(getHalls).mockResolvedValue(halls)
+
+    renderWithProviders(<BranchSettingsScreen embedded />)
+
+    const branch = await screen.findByRole('button', { name: 'Открыть филиал Центр' })
+    expect(branch).toHaveAttribute('aria-selected', 'true')
+    fireEvent.keyDown(branch, { key: 'Enter' })
+    expect(branch).toHaveAttribute('aria-selected', 'true')
+    fireEvent.keyDown(branch, { key: ' ' })
+    expect(branch).toHaveAttribute('aria-selected', 'true')
+
+    const hallActions = [
+      screen.getByRole('button', { name: 'Редактировать зал Зал №1' }),
+      screen.getByRole('button', { name: 'Архивировать зал Зал №1' }),
+      screen.getByRole('button', { name: 'Удалить зал Зал №1' }),
+    ]
+
+    for (const action of hallActions) {
+      expect(action.style.getPropertyValue('--ai-size')).toBe('2.75rem')
+    }
+  })
 })

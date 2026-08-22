@@ -1,9 +1,10 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   createMembershipCatalogItem,
   getBranches,
   getMembershipCatalogItems,
+  updateMembershipCatalogItem,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { MembershipCatalogSettings } from './MembershipCatalogSettings'
@@ -18,10 +19,47 @@ vi.mock('../../lib/api', async (importOriginal) => ({
 
 const getBranchesMock = vi.mocked(getBranches)
 const getItemsMock = vi.mocked(getMembershipCatalogItems)
+const createItemMock = vi.mocked(createMembershipCatalogItem)
+const updateItemMock = vi.mocked(updateMembershipCatalogItem)
+
+const branchOne = {
+  id: 'branch-1',
+  name: 'Центр',
+  address: null,
+  description: null,
+  isArchived: false,
+  hallCount: 0,
+  groupCount: 0,
+  clientCount: 0,
+}
+
+const branchTwo = {
+  ...branchOne,
+  id: 'branch-2',
+  name: 'Северный филиал с очень длинным названием для проверки полного значения',
+}
+
+const branchOneItem = {
+  id: 'item-1',
+  branchId: 'branch-1',
+  name: 'Разовое',
+  price: 500,
+  behaviorKind: 'SingleVisit' as const,
+  availableFrom: '2026-01-01',
+  availableTo: null,
+  isSystemOwned: false,
+}
+
+const branchTwoItem = {
+  ...branchOneItem,
+  id: 'item-2',
+  branchId: 'branch-2',
+  name: 'Северный',
+}
 
 beforeEach(() => {
   vi.clearAllMocks()
-  getBranchesMock.mockResolvedValue([{ id: 'branch-1', name: 'Центр', address: null, description: null, isArchived: false, hallCount: 0, groupCount: 0, clientCount: 0 }])
+  getBranchesMock.mockResolvedValue([branchOne])
 })
 
 describe('MembershipCatalogSettings', () => {
@@ -140,5 +178,145 @@ describe('MembershipCatalogSettings', () => {
     fireEvent.change(screen.getByRole('textbox', { name: 'Цена' }), { target: { value: '3000' } })
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }))
     await waitFor(() => expect(screen.getByText('Уже есть такой вариант.')).toBeInTheDocument())
+  })
+
+  test.each([
+    {
+      label: 'selectable branch scope',
+      props: { canSelectBranch: true },
+      scope: () => screen.getByRole('combobox', { name: 'Филиал каталога' }),
+    },
+    {
+      label: 'fixed assigned branch scope',
+      props: { assignedBranchId: 'branch-1' },
+      scope: () => screen.getByText('Филиал каталога').parentElement,
+    },
+  ])('keeps $label before refresh, create and catalog content in DOM order', async ({ props, scope }) => {
+    getItemsMock.mockResolvedValue([branchOneItem])
+
+    renderWithProviders(<MembershipCatalogSettings {...props} />)
+
+    const edit = await screen.findByRole('button', { name: 'Редактировать Разовое' })
+    const scopeElement = scope()
+    const refresh = screen.getByRole('button', { name: 'Обновить' })
+    const create = screen.getByRole('button', { name: 'Добавить абонемент' })
+
+    expect(scopeElement).toBeInstanceOf(HTMLElement)
+    expect(scopeElement!.compareDocumentPosition(refresh) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(refresh.compareDocumentPosition(create) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(create.compareDocumentPosition(edit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getAllByRole('button', { name: 'Добавить абонемент' })).toHaveLength(1)
+  })
+
+  test('switches exact catalog scope, creates in selected branch and keeps edit payload unchanged', async () => {
+    getBranchesMock.mockResolvedValue([branchOne, branchTwo])
+    getItemsMock.mockImplementation(async (branchId) =>
+      branchId === 'branch-2' ? [branchTwoItem] : [branchOneItem],
+    )
+    createItemMock.mockResolvedValue({
+      ...branchTwoItem,
+      id: 'created-item',
+      name: 'Новый северный',
+      price: 2500,
+      behaviorKind: 'Term',
+    })
+    updateItemMock.mockResolvedValue({ ...branchTwoItem, name: 'Северный обновлённый' })
+
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
+
+    const scope = await screen.findByRole('combobox', { name: 'Филиал каталога' })
+    await waitFor(() => expect(scope).toHaveValue('Центр'))
+    fireEvent.click(scope)
+    fireEvent.click(await screen.findByRole('option', { name: branchTwo.name }))
+
+    await waitFor(() => expect(getItemsMock).toHaveBeenCalledWith('branch-2', expect.any(AbortSignal)))
+    expect(scope).toHaveValue(branchTwo.name)
+    expect(scope).toHaveAccessibleDescription(branchTwo.name)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Добавить абонемент' }))
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Название' }), {
+      target: { value: 'Новый северный' },
+    })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Цена' }), {
+      target: { value: '2500' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }))
+
+    await waitFor(() => expect(createItemMock).toHaveBeenCalledWith(expect.objectContaining({
+      branchId: 'branch-2',
+      name: 'Новый северный',
+      price: 2500,
+    })))
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Редактировать Северный' }))
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Название' }), {
+      target: { value: 'Северный обновлённый' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }))
+
+    await waitFor(() => expect(updateItemMock).toHaveBeenCalledWith('item-2', {
+      name: 'Северный обновлённый',
+      availableFrom: '2026-01-01',
+      availableTo: null,
+    }))
+  })
+
+  test('keeps branch loading and failure recovery separate from catalog items', async () => {
+    let resolveBranches!: (value: (typeof branchOne)[]) => void
+    getBranchesMock
+      .mockRejectedValueOnce(new Error('branches failed'))
+      .mockReturnValueOnce(new Promise((resolve) => { resolveBranches = resolve }))
+    getItemsMock.mockResolvedValue([])
+
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
+
+    expect(await screen.findByText('Филиалы не загрузились')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Добавить абонемент' })).toBeDisabled()
+    expect(screen.queryByText('В этом филиале ещё нет абонементов')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+    await waitFor(() => expect(getBranchesMock).toHaveBeenCalledTimes(2))
+    expect(screen.getByText('Загружаем филиалы…')).toBeVisible()
+    resolveBranches([branchOne])
+
+    await waitFor(() => expect(getItemsMock).toHaveBeenCalledWith('branch-1', expect.any(AbortSignal)))
+    expect(await screen.findByText('В этом филиале ещё нет абонементов')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Добавить абонемент' })).toBeEnabled()
+  })
+
+  test('explains unresolved branch scope and does not render catalog empty state', async () => {
+    getBranchesMock.mockResolvedValue([])
+    getItemsMock.mockResolvedValue([])
+
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
+
+    expect(await screen.findByText('Нет доступного филиала')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Добавить абонемент' })).toBeDisabled()
+    expect(screen.queryByText('В этом филиале ещё нет абонементов')).not.toBeInTheDocument()
+    expect(getItemsMock).not.toHaveBeenCalled()
+  })
+
+  test('does not let a stale branch response replace the selected branch catalog', async () => {
+    let resolveBranchOne!: (value: (typeof branchOneItem)[]) => void
+    let resolveBranchTwo!: (value: (typeof branchTwoItem)[]) => void
+    getBranchesMock.mockResolvedValue([branchOne, branchTwo])
+    getItemsMock.mockImplementation((branchId) => new Promise((resolve) => {
+      if (branchId === 'branch-1') resolveBranchOne = resolve
+      else resolveBranchTwo = resolve
+    }))
+
+    renderWithProviders(<MembershipCatalogSettings canSelectBranch />)
+
+    const scope = await screen.findByRole('combobox', { name: 'Филиал каталога' })
+    await waitFor(() => expect(scope).toHaveValue('Центр'))
+    fireEvent.click(scope)
+    fireEvent.click(await screen.findByRole('option', { name: branchTwo.name }))
+
+    await act(async () => { resolveBranchTwo([branchTwoItem]) })
+    expect(await screen.findByText('Северный')).toBeVisible()
+    await act(async () => { resolveBranchOne([branchOneItem]) })
+
+    expect(screen.getByText('Северный')).toBeVisible()
+    expect(screen.queryByText('Разовое')).not.toBeInTheDocument()
   })
 })

@@ -24,7 +24,7 @@ type TouchCandidate = {
   hiddenAtWidths?: number[]
   label: string
   locator: (page: Page) => Locator
-  role?: 'button' | 'textbox'
+  role?: 'button' | 'combobox' | 'tab' | 'textbox'
   touchOnly?: boolean
 }
 
@@ -287,6 +287,16 @@ const ROUTE_CASES: RouteWithState[] = [
     screenTestId: 'settings-screen',
     state: 'default',
     controls: [
+      ...['Абонементы', 'Типы групп', 'Филиалы и залы', 'Администраторы'].map((label) => ({
+        label: `Вкладка ${label}`,
+        locator: (page: Page) => page.getByRole('tab', { name: label }),
+        role: 'tab' as const,
+      })),
+      {
+        label: 'Филиал каталога',
+        locator: (page) => page.getByRole('combobox', { name: 'Филиал каталога' }),
+        role: 'combobox',
+      },
       {
         label: 'Добавить абонемент',
         locator: (page) => page.getByRole('button', { name: 'Добавить абонемент' }).first(),
@@ -294,6 +304,10 @@ const ROUTE_CASES: RouteWithState[] = [
       {
         label: 'Обновить',
         locator: (page) => page.getByRole('button', { name: 'Обновить' }).first(),
+      },
+      {
+        label: 'Редактировать абонемент',
+        locator: (page) => page.getByRole('button', { name: 'Редактировать Тестовый абонемент' }),
       },
     ],
   },
@@ -945,7 +959,16 @@ async function mockApi(
     }
 
     if (pathname === '/api/settings/membership-catalog' && method === 'GET') {
-      await fulfillJson(route, { items: [] })
+      await fulfillJson(route, { items: [{
+        id: 'catalog-item-1',
+        branchId: 'branch-1',
+        name: 'Тестовый абонемент',
+        price: 2000,
+        behaviorKind: 'Term',
+        availableFrom: '2026-01-01',
+        availableTo: null,
+        isSystemOwned: false,
+      }] })
       return
     }
 
