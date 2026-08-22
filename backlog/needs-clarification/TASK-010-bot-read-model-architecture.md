@@ -15,6 +15,10 @@ needs-clarification
 ## Problem
 Без архитектурного решения бот может накапливать крупный сервис со смешением transport, orchestration и query logic.
 
+На baseline 2026-08-22 `backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs`
+содержит около 1100 строк. Cross-layer refactoring umbrella TASK-121 оставляет
+этот slice здесь и не создаёт implementation task до закрытия вопросов ниже.
+
 ## Scope
 - Оценить текущий размер и ответственность `BotApiService`.
 - Определить критерии выделения query/use case классов.
@@ -52,8 +56,10 @@ needs-clarification
 ## Source notes
 - Source file: `backlog/inbox/2026-05-04.md`
 - Original note: `Решить архитектурное отличие полного плана: оставлять сборку read models в BotApiService или выделять отдельные именованные query/use case классы.`
+- Direct follow-up: 2026-08-22, запрос сформировать отдельные refactoring tasks; новый дубликат для `BotApiService` не создан.
 
 ## Processing notes
 - Created at: 2026-05-07 11:26
 - Created by skill: codex-backlog-skill
 - Duplicate check: existing task folders were empty before processing; no duplicate found.
+- Duplicate check 2026-08-22: TASK-121/TASK-122–TASK-130 проверены; backend `BotApiService` architecture остаётся исключительно в TASK-010 до продуктового решения.

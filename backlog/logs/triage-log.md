@@ -2679,3 +2679,82 @@
 - moved to done: 1 task
 - risky tasks created for follow-up: 1 (TASK-121)
 - processed inbox files: 0
+
+# 2026-08-22 23:47 status audit before refactoring decomposition
+
+## Baseline and scope
+
+- Integrated local `main`: `5c0f0dfa76908d43a95e7580cf57e139dc97d87c`.
+- Local `origin/main`: `a79c9c9a3504d851e000fccc537bd3f9e4fa1e4b`;
+  local `main` is two commits ahead and is the authoritative integrated baseline
+  for this direct backlog-only request.
+- Audited `tasks-ready`, `risky`, `needs-clarification`, `implementation` and
+  active implementation-plan references before creating new tasks.
+
+## Status evidence
+
+- All active task cards have a `## Status` matching their lifecycle directory.
+- No active task has sufficient new integrated implementation evidence to move
+  to `done`; no status changes were made.
+- Active TASK IDs are unique. The second `TASK-083` filename in `done` is an
+  explicitly named baseline evidence artifact, not a second active card.
+- Existing implementation plans reference current active task cards; the
+  TASK-111 role-screen matrix is a supporting document rather than an
+  executable plan.
+- `backlog/inbox` is empty; no source note was moved or processed.
+
+## Unchanged active counts
+
+- tasks-ready: 8
+- risky: 15
+- needs-clarification: 7
+- implementation: 4
+- implementation-plan/support files: 13
+
+## Validation
+
+- Repository/status/metadata audit only; project code and runtime were not
+  changed, so build and test suites were not run.
+
+# 2026-08-22 23:48 refactoring task decomposition
+
+## Processed inbox files
+
+- none; direct user request.
+
+## Created tasks
+
+- `/backlog/risky/TASK-122-client-query-endpoints-decomposition.md`.
+- `/backlog/risky/TASK-123-client-lifecycle-endpoints-decomposition.md`.
+- `/backlog/risky/TASK-124-client-membership-http-decomposition.md`.
+- `/backlog/risky/TASK-125-client-membership-service-decomposition.md`.
+- `/backlog/tasks-ready/TASK-126-app-shell-routing-decomposition.md`.
+- `/backlog/tasks-ready/TASK-127-client-management-core-decomposition.md`.
+- `/backlog/risky/TASK-128-client-membership-ui-decomposition.md`.
+- `/backlog/risky/TASK-129-group-management-decomposition.md`.
+- `/backlog/risky/TASK-130-bot-core-service-decomposition.md`.
+
+## Updated existing tasks
+
+- `/backlog/risky/TASK-121-decompose-oversized-cross-layer-files.md` — added
+  child map, order, metrics and resolved decomposition-level question.
+- `/backlog/needs-clarification/TASK-010-bot-read-model-architecture.md` —
+  recorded current `BotApiService` evidence and duplicate ownership.
+
+## Skipped duplicates
+
+- No new backend `BotApiService` task: TASK-010 already owns the architectural
+  decision and requires a separate implementation task only after clarification.
+- TASK-130 explicitly excludes future MAX/channel abstractions owned by TASK-014.
+- Membership TASK-114/TASK-115 and schedule TASK-117 change behavior/data
+  contracts and do not duplicate the behavior-preserving structural slices.
+
+## Summary
+
+- tasks-ready: 10
+- risky: 22
+- needs-clarification: 7
+- implementation: 4
+- created tasks: 9
+- updated existing tasks: 2
+- processed inbox files: 0

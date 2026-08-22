@@ -22,6 +22,24 @@ CRM-поведения и публичных контрактов.
 решением о выделении query/use-case классов из `BotApiService`; эта задача не
 должна подменять или дублировать то решение.
 
+## Child task map
+- TASK-122 — read-only client query endpoints.
+- TASK-123 — client lifecycle endpoints и validation.
+- TASK-124 — membership HTTP/idempotency/audit orchestration.
+- TASK-125 — `ClientMembershipService` за стабильным facade.
+- TASK-126 — `App.tsx` shell/routing decomposition.
+- TASK-127 — core client screens/forms.
+- TASK-128 — client membership UI.
+- TASK-129 — group registry/forms.
+- TASK-130 — Python `BotService` Telegram scenarios.
+- TASK-010 — архитектурное решение для backend `BotApiService`; отдельная
+  implementation task создаётся только после закрытия вопросов TASK-010.
+
+Последовательность внутри одного hotspot обязательна: TASK-122 -> TASK-123 ->
+TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начинается
+после TASK-126. TASK-130 независима от frontend/backend slices, но выполняется
+в собственной branch/worktree.
+
 ## User role
 Команда разработки, сопровождающая CRM backend, frontend и Telegram bot.
 
@@ -63,8 +81,8 @@ CRM-поведения и публичных контрактов.
 - `BotApiService` slice зависит от закрытого архитектурного решения TASK-010.
 
 ## Acceptance criteria
-- [ ] Зафиксирована карта текущих ответственностей и зависимостей всех hotspots.
-- [ ] Создан phased implementation plan с ограниченными child tasks, порядком и rollback points.
+- [x] Зафиксирована карта текущих ответственностей и зависимостей всех hotspots.
+- [x] Созданы ограниченные child tasks с порядком, метриками и rollback boundaries.
 - [ ] Ни один публичный API/route/callback/ProblemDetails/audit contract не изменён.
 - [ ] `ClientEndpoints` больше не является единым catch-all endpoint module.
 - [ ] `App.tsx`, `ClientManagement.tsx` и `GroupManagement.tsx` оставляют orchestration на уровне feature и используют focused components/hooks.
@@ -88,10 +106,11 @@ CRM-поведения и публичных контрактов.
 
 ## Clarification questions
 - [ ] Подтвердить и закрыть архитектурное решение TASK-010 до планирования `BotApiService` slice.
-- [ ] Утвердить метрики завершения для каждого child task: целевой размер, dependency direction и допустимый public surface.
+- [x] Метрики завершения, dependency direction и допустимый public surface зафиксированы в TASK-122–TASK-130.
 
 ## Source notes
 - Source: direct user request, 2026-08-22, пункт 6 рекомендаций по engineering standards.
+- Source: direct user request, 2026-08-22, сформировать отдельные задачи на рефакторинг.
 - Related task: `/backlog/needs-clarification/TASK-010-bot-read-model-architecture.md`.
 - Historical context: `/backlog/done/REFACTORING_PLAN.md`; остаточные hotspots появились или выросли после прежней декомпозиции.
 
@@ -99,3 +118,4 @@ CRM-поведения и публичных контрактов.
 - Created at: 2026-08-22 23:28 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-010 частично пересекается только с `BotApiService`; связь оформлена как dependency, остальные hotspots активной задачей не покрыты.
+- Decomposed at: 2026-08-22 23:47 MSK into TASK-122–TASK-130; umbrella task остаётся risky coordination record до завершения child tasks и решения TASK-010.
