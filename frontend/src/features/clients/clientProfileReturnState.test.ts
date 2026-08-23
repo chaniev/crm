@@ -16,7 +16,7 @@ describe('clientProfileReturnState', () => {
     const context = createClientProfileReturnContext({
       origin: {
         kind: 'attendance',
-        route: { kind: 'section', section: 'Home' },
+        route: { kind: 'section', section: 'Attendance' },
         groupId: 'group-2',
         trainingDate: '2026-08-15',
         rosterView: 'all',
@@ -43,7 +43,7 @@ describe('clientProfileReturnState', () => {
     })
     expect(getClientProfileOriginRoute(context)).toEqual({
       kind: 'section',
-      section: 'Home',
+      section: 'Attendance',
     })
   })
 
@@ -120,7 +120,7 @@ describe('clientProfileReturnState', () => {
     const context = createClientProfileReturnContext({
       origin: {
         kind: 'attendance',
-        route: { kind: 'section', section: 'Home' },
+        route: { kind: 'section', section: 'Attendance' },
         groupId: 'group-2',
         trainingDate: '2026-08-15',
         rosterView: 'unmarked',
@@ -142,6 +142,50 @@ describe('clientProfileReturnState', () => {
         withClientProfileReturnDepth(context, 8),
       ),
     ).toBe(8)
+  })
+
+  test('normalizes safe version-1 group edit history while rejecting legacy attendance history', () => {
+    expect(
+      readClientProfileReturnContext({
+        crmClientProfileReturnContext: {
+          version: 1,
+          origin: {
+            kind: 'groupEdit',
+            route: { kind: 'groupEdit', groupId: 'group-11' },
+            anchorClientId: 'client-4',
+          },
+          originEntryKey: 'client-profile:group-entry',
+          returnDepth: 1,
+        },
+      }),
+    ).toEqual({
+      version: 2,
+      origin: {
+        kind: 'groupEdit',
+        route: { kind: 'groupEdit', groupId: 'group-11' },
+        anchorClientId: 'client-4',
+      },
+      originEntryKey: 'client-profile:group-entry',
+      returnDepth: 1,
+    })
+
+    expect(
+      readClientProfileReturnContext({
+        crmClientProfileReturnContext: {
+          version: 1,
+          origin: {
+            kind: 'attendance',
+            route: { kind: 'section', section: 'Home' },
+            groupId: 'group-2',
+            trainingDate: '2026-08-15',
+            rosterView: 'all',
+            anchorClientId: 'client-7',
+          },
+          originEntryKey: 'client-profile:attendance-entry',
+          returnDepth: 1,
+        },
+      }),
+    ).toBeNull()
   })
 
   test.each([

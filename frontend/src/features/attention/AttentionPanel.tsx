@@ -5,9 +5,9 @@ import { getClientAttentionItems, markMissedTrainingContacted, type ClientAttent
 import { resources } from '../../lib/resources'
 import { Button, EmptyState, ErrorState, LoadingState, PageSection, RefreshButton, ResponsiveButtonGroup, TaskToolbarActions, TaskToolbarRefreshAction } from '../shared/ux'
 
-type AttentionPanelProps = { onCountChange?: (count: number | null) => void; onOpenClient?: (clientId: string) => void }
+type AttentionPanelProps = { onOpenClient?: (clientId: string) => void }
 
-export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelProps) {
+export function AttentionPanel({ onOpenClient }: AttentionPanelProps) {
   const [clients, setClients] = useState<ClientAttentionItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -21,19 +21,14 @@ export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelPr
   useEffect(() => {
     const controller = new AbortController()
     setLoading(true); setError(null)
-    if (!loaded.current) onCountChange?.(null)
     void getClientAttentionItems(controller.signal).then((items) => {
       if (controller.signal.aborted) return
-      loaded.current = true; setClients(items); onCountChange?.(items.length); setLastSuccessfulCheck(new Date())
+      loaded.current = true; setClients(items); setLastSuccessfulCheck(new Date())
     }).catch((reason: unknown) => {
-      if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : resources.home.attention.loadingErrorMessage)
+      if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : resources.attention.loadingErrorMessage)
     }).finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [onCountChange, reloadKey])
-
-  useEffect(() => {
-    if (loaded.current) onCountChange?.(clients.length)
-  }, [clients, onCountChange])
+  }, [reloadKey])
 
   async function contacted(client: ClientAttentionItem) {
     setPendingClientId(client.clientId)
@@ -45,11 +40,11 @@ export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelPr
       })
       if (!updated) queueMicrotask(() => headingRef.current?.focus())
     } catch (reason) {
-      setActionErrors((current) => ({ ...current, [client.clientId]: reason instanceof Error ? reason.message : resources.home.attention.actionError }))
+      setActionErrors((current) => ({ ...current, [client.clientId]: reason instanceof Error ? reason.message : resources.attention.actionError }))
     } finally { setPendingClientId(null) }
   }
 
-  return <PageSection className="home-memberships-panel">
+  return <PageSection className="attention-panel">
     <Stack gap="lg">
       <TaskToolbarActions
         frequentActions={(
@@ -59,21 +54,21 @@ export function AttentionPanel({ onCountChange, onOpenClient }: AttentionPanelPr
           />
         )}
       />
-      <Text className="visually-hidden" component="h2" id="home-attention-list-title" ref={headingRef} tabIndex={-1}>Список клиентов</Text>
+      <Text className="visually-hidden" component="h2" id="attention-list-title" ref={headingRef} tabIndex={-1}>Список клиентов</Text>
       {lastSuccessfulCheck ? <Text c="dimmed" data-testid="memberships-last-check" size="sm">Проверено: {lastSuccessfulCheck.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</Text> : null}
       {loading && !loaded.current ? <LoadingState label="Загружаем клиентов..." /> : null}
-      {!loading && error && !loaded.current ? <ErrorState action={<RefreshButton label="Повторить" onClick={() => setReloadKey((v) => v + 1)} />} message={error} title={resources.home.attention.loadingErrorTitle} /> : null}
+      {!loading && error && !loaded.current ? <ErrorState action={<RefreshButton label="Повторить" onClick={() => setReloadKey((v) => v + 1)} />} message={error} title={resources.attention.loadingErrorTitle} /> : null}
       {error && loaded.current ? <Text aria-live="polite" c="red" size="sm">{error}</Text> : null}
-      {loaded.current && clients.length === 0 ? <EmptyState description={resources.home.attention.emptyDescription} icon={<IconCalendarEvent size={28} />} title={resources.home.attention.emptyTitle} /> : null}
-      {loaded.current && clients.length > 0 ? <Stack aria-labelledby="home-attention-list-title" data-testid="home-attention-list" gap="sm" role="list">
-        {clients.map((client) => <Paper className="home-client-row-card" data-testid={`home-client-card-${client.clientId}`} key={client.clientId} radius="lg" role="listitem" withBorder>
+      {loaded.current && clients.length === 0 ? <EmptyState description={resources.attention.emptyDescription} icon={<IconCalendarEvent size={28} />} title={resources.attention.emptyTitle} /> : null}
+      {loaded.current && clients.length > 0 ? <Stack aria-labelledby="attention-list-title" data-testid="attention-list" gap="sm" role="list">
+        {clients.map((client) => <Paper className="attention-client-row-card" data-testid={`attention-client-card-${client.clientId}`} key={client.clientId} radius="lg" role="listitem" withBorder>
           <Stack gap="md">
             <Text fw={700} size="lg">{client.fullName}</Text>
             <Stack aria-label="Причины" gap="xs" role="list">{client.reasons.map((reason, index) => <ReasonRow client={client} error={actionErrors[client.clientId]} key={`${reason.type}-${index}`} onContacted={() => void contacted(client)} pending={pendingClientId === client.clientId} reason={reason} />)}</Stack>
             <SimpleGrid cols={{ base: 1, sm: 3 }}>
-              <HomeField label="Абонемент" value={client.membership ? (client.membership.membershipName || resources.common.membership.typeLabels[client.membership.behaviorKind]) : 'Нет данных'} />
-              <HomeField label="Контакты" value={<Stack gap={2}>{client.phone ? <Anchor href={`tel:${client.phone}`}>{client.phone}</Anchor> : <Text size="sm">Телефон не указан</Text>}{client.telegramLink ? <Anchor aria-label="Открыть Telegram в новой вкладке" href={client.telegramLink} rel="noopener noreferrer" target="_blank"><IconBrandTelegram size={16} /> Telegram</Anchor> : null}</Stack>} />
-              <HomeField label="Заметки" value={client.notes || 'Нет заметок'} />
+              <AttentionField label="Абонемент" value={client.membership ? (client.membership.membershipName || resources.common.membership.typeLabels[client.membership.behaviorKind]) : 'Нет данных'} />
+              <AttentionField label="Контакты" value={<Stack gap={2}>{client.phone ? <Anchor href={`tel:${client.phone}`}>{client.phone}</Anchor> : <Text size="sm">Телефон не указан</Text>}{client.telegramLink ? <Anchor aria-label="Открыть Telegram в новой вкладке" href={client.telegramLink} rel="noopener noreferrer" target="_blank"><IconBrandTelegram size={16} /> Telegram</Anchor> : null}</Stack>} />
+              <AttentionField label="Заметки" value={client.notes || 'Нет заметок'} />
             </SimpleGrid>
             {onOpenClient ? <ResponsiveButtonGroup justify="flex-end"><Button leftSection={<IconUserHeart size={18} />} onClick={() => onOpenClient(client.clientId)} variant="light">Карточка клиента</Button></ResponsiveButtonGroup> : null}
           </Stack>
@@ -102,4 +97,4 @@ function ReasonRow({ client, error, onContacted, pending, reason }: { client: Cl
 }
 
 function dayWord(value: number) { const n = value % 100; const d = n % 10; if (n >= 11 && n <= 19) return 'дней'; if (d === 1) return 'день'; if (d >= 2 && d <= 4) return 'дня'; return 'дней' }
-function HomeField({ label, value }: { label: string; value: ReactNode }) { return <div className="home-client-row__field"><Text c="dimmed" fw={700} size="xs" tt="uppercase">{label}</Text>{typeof value === 'string' ? <Text fw={600} size="sm" style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>{value}</Text> : value}</div> }
+function AttentionField({ label, value }: { label: string; value: ReactNode }) { return <div className="attention-client-row__field"><Text c="dimmed" fw={700} size="xs" tt="uppercase">{label}</Text>{typeof value === 'string' ? <Text fw={600} size="sm" style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>{value}</Text> : value}</div> }

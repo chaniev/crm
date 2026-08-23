@@ -29,9 +29,10 @@ const financeUser: AuthenticatedUser = {
   role: 'HeadCoach',
   mustChangePassword: false,
   isActive: true,
-  landingScreen: 'Home',
+  landingScreen: 'Attention',
   allowedSections: [
-    'Home',
+    'Attendance',
+    'Attention',
     'Clients',
     'Groups',
     'Users',
@@ -55,7 +56,7 @@ const financeUser: AuthenticatedUser = {
 
 const deniedUser: AuthenticatedUser = {
   ...financeUser,
-  allowedSections: ['Home', 'Clients'],
+  allowedSections: ['Attendance', 'Clients'],
   permissions: {
     ...financeUser.permissions,
     canViewFinancialReports: false,

@@ -44,8 +44,8 @@ const MANAGEMENT_SESSION = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -107,8 +107,8 @@ const COACH_SESSION = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -457,10 +457,10 @@ const TRAINERS_RESPONSE = [
 
 const MANAGEMENT_ROUTES = [
   {
-    path: '/',
-    screenTestId: 'home-screen',
-    navLabel: 'Главная',
-    expectedPageTitle: 'Главная',
+    path: '/attention',
+    screenTestId: 'attention-screen',
+    navLabel: 'Внимание',
+    expectedPageTitle: 'Внимание',
     expectedPageTitleHidden: true,
     expectedControls: ['Обновить список'],
     checkSharedEdges: true,
@@ -535,6 +535,15 @@ const MANAGEMENT_ROUTES = [
 
 const COACH_ROUTES = [
   {
+    path: '/attendance',
+    screenTestId: 'attendance-screen',
+    navLabel: 'Посещения',
+    expectedPageTitle: 'Посещения',
+    expectedPageTitleHidden: true,
+    expectedControls: ['Обновить'],
+    expectedFilterToolbars: 0,
+  },
+  {
     path: '/schedule',
     screenTestId: 'schedule-screen',
     navLabel: 'Расписание',
@@ -543,15 +552,6 @@ const COACH_ROUTES = [
     expectedControls: ['Обновить'],
     expectedFilterToolbars: 1,
     checkScheduleOverflow: true,
-  },
-  {
-    path: '/',
-    screenTestId: 'home-screen',
-    navLabel: 'Главная',
-    expectedPageTitle: 'Главная',
-    expectedPageTitleHidden: true,
-    expectedControls: ['Обновить список'],
-    expectedFilterToolbars: 0,
   },
   {
     path: '/clients',
@@ -782,7 +782,7 @@ for (const viewport of TASK_104_ATTENDANCE_VIEWPORTS) {
       page,
     }) => {
       await mockApi(page, MANAGEMENT_SESSION)
-      await page.goto('/')
+      await page.goto('/attendance')
 
       await expect(page.getByTestId('attendance-screen')).toBeVisible()
       await expect(page.getByTestId('attendance-toolbar')).toBeVisible()
@@ -794,7 +794,7 @@ for (const viewport of TASK_104_ATTENDANCE_VIEWPORTS) {
 }
 
 const ALTERNATE_THEME_CASES = [
-  { id: 'home-attendance-ready', path: '/', screenTestId: 'home-screen' },
+  { id: 'attention-ready', path: '/attention', screenTestId: 'attention-screen' },
   { id: 'schedule-ready', path: '/schedule', screenTestId: 'schedule-screen' },
   {
     id: 'schedule-filter-surface',
@@ -861,7 +861,7 @@ const FILTER_SURFACE_CONFORMANCE_CASES = [
 const FILTER_CONTEXT_EXCEPTION_CASES = [
   {
     id: 'attendance',
-    path: '/',
+    path: '/attendance',
     className: 'crm-context-surface',
     forbiddenClassName: 'crm-filter-surface',
     surfaceSelector: '[data-testid="attendance-toolbar"]',
@@ -1180,7 +1180,7 @@ test.describe('Mobile bottom navigation interactions', () => {
     page,
   }) => {
     await mockApi(page, MANAGEMENT_SESSION)
-    await page.goto('/')
+    await page.goto('/attention')
 
     const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
 

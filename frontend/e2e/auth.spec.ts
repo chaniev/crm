@@ -39,8 +39,8 @@ const forcedPasswordSession = {
     role: 'HeadCoach',
     mustChangePassword: true,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -199,8 +199,7 @@ test.describe('Аутентификация', () => {
     await page.getByPlaceholder('Повторите новый пароль').fill(UPDATED_PASSWORD)
     await page.getByRole('button', { name: 'Сменить пароль и продолжить' }).click()
 
-    await expect(page.getByTestId('home-screen')).toBeVisible()
-    await page.getByRole('tab', { name: /Требуют внимания/ }).click()
+    await expect(page.getByTestId('attention-screen')).toBeVisible()
     await expect(
       page.getByText('Никому не требуется внимание'),
     ).toBeVisible()

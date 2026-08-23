@@ -39,6 +39,7 @@ type AuthenticatedShellProps = {
   user: AuthenticatedUser
   currentSection: AppSection | null
   logoutPending: boolean
+  mainLabel: string
   onNavigateSection: (section: AppSection) => void
   onOpenPassword: () => void
   onLogout: () => Promise<void>
@@ -50,6 +51,7 @@ export function AuthenticatedShell({
   user,
   currentSection,
   logoutPending,
+  mainLabel,
   onNavigateSection,
   onOpenPassword,
   onLogout,
@@ -126,6 +128,7 @@ export function AuthenticatedShell({
           />
         )}
         navbar={shellNavigation}
+        mainLabel={mainLabel}
       >
         {children}
       </AppLayout>

@@ -18,8 +18,8 @@ describe('auth API', () => {
         role: 'SuperAdministrator',
         mustChangePassword: false,
         isActive: true,
-        landingScreen: 'Home',
-        allowedSections: ['Home', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+        landingScreen: 'Attention',
+        allowedSections: ['Attendance', 'Attention', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
         permissions: {
           canManageUsers: true,
           canManageClients: true,
@@ -68,8 +68,8 @@ describe('auth API', () => {
         role: 'Administrator',
         mustChangePassword: false,
         isActive: true,
-        landingScreen: 'Home',
-        allowedSections: ['Home'],
+        landingScreen: 'Attendance',
+        allowedSections: ['Attendance'],
         permissions: {
           canManageUsers: false,
           canManageClients: true,
@@ -111,6 +111,52 @@ describe('auth API', () => {
         fullName: 'Owner',
         login: 'owner',
         role: 'Owner',
+      },
+    })))
+
+    await expect(loadSession()).resolves.toMatchObject({
+      isAuthenticated: true,
+      user: null,
+    })
+  })
+
+  test('rejects legacy or incompatible backend section payloads', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      isAuthenticated: true,
+      csrfToken: 'csrf',
+      bootstrapMode: false,
+      user: {
+        id: 'coach-1',
+        fullName: 'Тренер',
+        login: 'coach',
+        role: 'Coach',
+        mustChangePassword: false,
+        isActive: true,
+        landingScreen: 'Home',
+        allowedSections: ['Home', 'Schedule', 'Clients'],
+      },
+    })))
+
+    await expect(loadSession()).resolves.toMatchObject({
+      isAuthenticated: true,
+      user: null,
+    })
+  })
+
+  test('rejects a landing absent from mapped allowed sections', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({
+      isAuthenticated: true,
+      csrfToken: 'csrf',
+      bootstrapMode: false,
+      user: {
+        id: 'headcoach-1',
+        fullName: 'Главный тренер',
+        login: 'headcoach',
+        role: 'HeadCoach',
+        mustChangePassword: false,
+        isActive: true,
+        landingScreen: 'Attention',
+        allowedSections: ['Attendance', 'Schedule', 'Clients'],
       },
     })))
 

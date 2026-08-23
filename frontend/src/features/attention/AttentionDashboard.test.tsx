@@ -1,0 +1,268 @@
+import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import {
+  getAttendanceGroupClients,
+  getAttendanceGroups,
+  getClientAttentionItems,
+  markMissedTrainingContacted,
+  saveAttendanceMarks,
+  type ClientAttentionItem,
+} from '../../lib/api'
+import { renderWithProviders } from '../../test/render'
+import { AttentionDashboard } from './AttentionDashboard'
+
+vi.mock('../../lib/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../lib/api')>()
+
+  return {
+    ...actual,
+    getAttendanceGroupClients: vi.fn(),
+    getAttendanceGroups: vi.fn(),
+    getClientAttentionItems: vi.fn(),
+    markMissedTrainingContacted: vi.fn(),
+    saveAttendanceMarks: vi.fn(),
+  }
+})
+
+const getAttendanceGroupClientsMock = vi.mocked(getAttendanceGroupClients)
+const getAttendanceGroupsMock = vi.mocked(getAttendanceGroups)
+const getAttentionMock = vi.mocked(getClientAttentionItems)
+const contactedMock = vi.mocked(markMissedTrainingContacted)
+const saveAttendanceMarksMock = vi.mocked(saveAttendanceMarks)
+
+beforeEach(() => {
+  getAttendanceGroupClientsMock.mockReset()
+  getAttendanceGroupsMock.mockReset()
+  getAttentionMock.mockReset()
+  contactedMock.mockReset()
+  saveAttendanceMarksMock.mockReset()
+})
+
+describe('AttentionDashboard', () => {
+  test('renders Attention as a heading-only route shell without attendance workspace', async () => {
+    getAttentionMock.mockResolvedValueOnce([])
+
+    renderWithProviders(<AttentionDashboard />)
+
+    expect(screen.getByTestId('attention-screen')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Внимание', level: 1 })).toHaveClass(
+      'visually-hidden',
+    )
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Требуют внимания' })).not.toBeInTheDocument()
+    expect(screen.queryByTestId('attendance-screen')).not.toBeInTheDocument()
+    expect(getAttendanceGroupsMock).not.toHaveBeenCalled()
+    expect(getAttendanceGroupClientsMock).not.toHaveBeenCalled()
+    expect(saveAttendanceMarksMock).not.toHaveBeenCalled()
+
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
+  })
+
+  test('loads status-free reasons and contacts, then keeps membership expiration after contacted', async () => {
+    const attention = {
+      clientId: 'client-1',
+      fullName: 'Иван Иванов',
+      phone: '+79990000000',
+      notes: 'Позвонить вечером',
+      telegramLink: 'https://t.me/ivan',
+      membership: {
+        behaviorKind: 'Term',
+        membershipName: 'Месяц',
+        expirationDate: '2026-07-20',
+        daysUntilExpiration: 0,
+      },
+      reasons: [
+        { type: 'missedTraining', missedCount: 4 },
+        { type: 'expiringMembership', expirationDate: '2026-07-20', daysUntilExpiration: 0 },
+      ],
+    } as unknown as ClientAttentionItem
+    getAttentionMock.mockResolvedValueOnce([attention])
+    contactedMock.mockResolvedValueOnce({
+      ...attention,
+      reasons: [
+        { type: 'expiringMembership', expirationDate: '2026-07-20', daysUntilExpiration: 0 },
+      ],
+    })
+
+    renderWithProviders(<AttentionDashboard />)
+
+    expect(await screen.findByText('Пропущено подряд: 4')).toBeVisible()
+    expect(screen.getByText('Истекает сегодня')).toBeVisible()
+    expect(screen.queryByText('Требует оплаты')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Telegram/ })).toHaveAttribute('target', '_blank')
+    expect(screen.getByRole('link', { name: /Telegram/ })).toHaveAttribute('rel', 'noopener noreferrer')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Связались с Иван Иванов' }))
+
+    await waitFor(() => expect(screen.queryByText('Пропущено подряд: 4')).not.toBeInTheDocument())
+    expect(screen.getByText('Истекает сегодня')).toBeVisible()
+    expect(screen.getByTestId('attention-list')).toBeVisible()
+  })
+
+  test('keeps missed reason after action error and allows retry that removes the card', async () => {
+    const attention: ClientAttentionItem = {
+      clientId: 'client-1',
+      fullName: 'Иван Иванов',
+      phone: null,
+      notes: null,
+      membership: null,
+      telegramLink: null,
+      reasons: [{ type: 'missedTraining', missedCount: 3 }],
+    }
+    getAttentionMock.mockResolvedValueOnce([attention])
+    contactedMock.mockRejectedValueOnce(new Error('Сеть недоступна')).mockResolvedValueOnce(null)
+
+    renderWithProviders(<AttentionDashboard />)
+
+    const action = await screen.findByRole('button', { name: 'Связались с Иван Иванов' })
+    fireEvent.click(action)
+    expect(await screen.findByText(/Сеть недоступна/)).toBeVisible()
+    expect(screen.getByText('Пропущено подряд: 3')).toBeVisible()
+
+    fireEvent.click(action)
+
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
+  })
+
+  test('retains last successful data and check time after refresh failure', async () => {
+    getAttentionMock
+      .mockResolvedValueOnce([buildMembership({ fullName: 'Сохраненный клиент' })])
+      .mockRejectedValueOnce(new Error('Обновление недоступно'))
+
+    renderWithProviders(<AttentionDashboard />)
+
+    expect(await screen.findByText('Сохраненный клиент')).toBeVisible()
+    expect(screen.getByTestId('memberships-last-check')).toBeVisible()
+    expect(screen.getByTestId('attention-list')).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+
+    expect(await screen.findByText('Обновление недоступно')).toBeVisible()
+    expect(screen.getByText('Сохраненный клиент')).toBeVisible()
+    expect(screen.getByTestId('memberships-last-check')).toBeVisible()
+    expect(screen.getByTestId('attention-list')).toBeVisible()
+  })
+
+  test('shows membership attention states and preserves backend order with hidden list name', async () => {
+    getAttentionMock.mockResolvedValueOnce([
+      buildMembership({
+        clientId: 'client-expiring',
+        fullName: 'Иван Иванов',
+        daysUntilExpiration: 2,
+        state: 'ExpiringSoon',
+      }),
+      buildMembership({
+        clientId: 'client-expired',
+        fullName: 'Анна Петрова',
+        expirationDate: '2026-05-03',
+        daysUntilExpiration: -3,
+        state: 'Expired',
+      }),
+    ])
+
+    renderWithProviders(<AttentionDashboard onOpenClient={() => undefined} />)
+
+    const list = await screen.findByTestId('attention-list')
+    const listHeading = screen.getByRole('heading', { name: 'Список клиентов' })
+
+    expect(list).toHaveTextContent('Иван Иванов')
+    expect(list).toHaveTextContent('Анна Петрова')
+    expect(list.textContent?.indexOf('Иван Иванов')).toBeLessThan(
+      list.textContent?.indexOf('Анна Петрова') ?? Number.POSITIVE_INFINITY,
+    )
+    expect(screen.queryByText('Требует оплаты')).not.toBeInTheDocument()
+    expect(screen.queryByText('Ожидается оплата')).not.toBeInTheDocument()
+    expect(screen.getByText('Скоро истечет')).toBeVisible()
+    expect(screen.getByText('Осталось 2 дня')).toBeVisible()
+    expect(screen.getByText('Истек')).toBeVisible()
+    expect(screen.getByText('Истек 3 дня назад')).toBeVisible()
+    expect(list).toHaveAttribute('aria-labelledby', listHeading.id)
+    expect(list).not.toHaveAttribute('aria-label')
+  })
+
+  test('shows loading state and refresh recovery', async () => {
+    const deferred = createDeferred<ClientAttentionItem[]>()
+    getAttentionMock.mockReturnValueOnce(deferred.promise)
+
+    renderWithProviders(<AttentionDashboard />)
+
+    expect(screen.getByText('Загружаем клиентов...')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Обновить' })).toBeDisabled()
+
+    deferred.resolve([])
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
+
+    getAttentionMock
+      .mockRejectedValueOnce(new Error('CRM API временно недоступен'))
+      .mockResolvedValueOnce([])
+
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+    expect(await screen.findByText('CRM API временно недоступен')).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+
+    expect(await screen.findByText('Никому не требуется внимание')).toBeVisible()
+  })
+
+  test('shows unknown membership attention state safely', async () => {
+    getAttentionMock.mockResolvedValueOnce([
+      buildMembership({
+        daysUntilExpiration: null,
+        expirationDate: null,
+        state: 'Unknown',
+      }),
+    ])
+
+    renderWithProviders(<AttentionDashboard />)
+
+    expect(await screen.findByText('Нет данных')).toBeVisible()
+  })
+})
+
+function buildMembership(
+  overrides: Partial<{
+    clientId: string
+    fullName: string
+    behaviorKind: 'SingleVisit' | 'Term' | 'Professional'
+    expirationDate: string | null
+    daysUntilExpiration: number | null
+    state: 'Expired' | 'ExpiringSoon' | 'Unknown'
+  }> = {},
+): ClientAttentionItem {
+  const state = overrides.state ?? 'ExpiringSoon'
+  const reasons: ClientAttentionItem['reasons'] = state === 'Unknown'
+    ? []
+    : [{
+      type: state === 'Expired' ? 'expiredMembership' : 'expiringMembership',
+      expirationDate: overrides.expirationDate ?? '2026-05-06',
+      daysUntilExpiration: overrides.daysUntilExpiration ?? 3,
+    }]
+
+  return {
+    clientId: overrides.clientId ?? 'client-1',
+    fullName: overrides.fullName ?? 'Иван Иванов',
+    phone: null,
+    notes: null,
+    telegramLink: null,
+    membership: state === 'Unknown'
+      ? null
+      : {
+        behaviorKind: overrides.behaviorKind ?? 'Term',
+        membershipName: '',
+        expirationDate: overrides.expirationDate ?? '2026-05-06',
+        daysUntilExpiration: overrides.daysUntilExpiration ?? 3,
+      } as unknown as ClientAttentionItem['membership'],
+    reasons,
+  }
+}
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void
+  let reject!: (reason?: unknown) => void
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve
+    reject = promiseReject
+  })
+
+  return { promise, reject, resolve }
+}

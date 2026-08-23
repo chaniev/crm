@@ -18,8 +18,8 @@ const headCoachSession = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -45,8 +45,8 @@ const administratorSession = {
     role: 'Administrator',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Audit', 'Settings'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: false,
       canManageClients: true,
@@ -71,8 +71,8 @@ const coachSession = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -281,8 +281,8 @@ const baseClient: ClientState = {
 
 const SCREEN_CHECKS = [
   {
-    path: '/',
-    testId: 'home-screen',
+    path: '/attention',
+    testId: 'attention-screen',
   },
   {
     path: '/schedule',
@@ -1916,7 +1916,7 @@ test.describe('Основные e2e сценарии', () => {
     await expect(page).toHaveURL('/groups')
     await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
     await expect(page.getByText('У вас нет доступа к разделу «Группы».')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Открыть Посещения' })).toBeVisible()
     await expect(page.getByTestId('attendance-screen')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Группы' })).toHaveCount(0)
   })
@@ -1976,7 +1976,7 @@ test.describe('Основные e2e сценарии', () => {
       return false
     })
 
-    await page.goto('/')
+    await page.goto('/attention')
     await expect(page.getByText('Клиенты, требующие внимания')).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Список клиентов' })).toHaveClass(
       /visually-hidden/,
@@ -2417,10 +2417,10 @@ test.describe('Основные e2e сценарии', () => {
 
       for (const screen of SCREEN_CHECKS) {
         await page.goto(screen.path)
-        if (screen.testId === 'home-screen') {
-          await expect(page.getByTestId('home-screen')).toBeVisible()
+        if (screen.testId === 'attention-screen') {
+          await expect(page.getByTestId('attention-screen')).toBeVisible()
           await expect(
-            page.getByRole('heading', { name: 'Главная' }),
+            page.getByRole('heading', { name: 'Внимание' }),
           ).toHaveClass(/visually-hidden/)
         } else {
           await expect(page.getByTestId(screen.testId)).toBeVisible()
@@ -2504,8 +2504,10 @@ async function expectActiveMainNavigation(page: Page, width: number, path: strin
 
 function getNavLabelByPath(path: string) {
   switch (path) {
-    case '/':
-      return 'Главная'
+    case '/attention':
+      return 'Внимание'
+    case '/attendance':
+      return 'Посещения'
     case '/schedule':
       return 'Расписание'
     case '/clients':
@@ -2517,7 +2519,7 @@ function getNavLabelByPath(path: string) {
     case '/settings':
       return 'Настройки'
     default:
-      return 'Главная'
+      return 'Внимание'
   }
 }
 

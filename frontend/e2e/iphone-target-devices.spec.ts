@@ -272,8 +272,8 @@ const HEAD_COACH_SESSION = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -296,7 +296,8 @@ const COACH_RESTRICTED_SESSION = {
     fullName: 'Тренер группы',
     login: 'coach',
     role: 'Coach',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -424,7 +425,7 @@ test('target portrait profile menu trigger stays reachable and keyboard-closeabl
   const profileMenuName = `Открыть профильное меню пользователя ${HEAD_COACH_SESSION.user.fullName}`
 
   await mockApi(page, HEAD_COACH_SESSION)
-  await page.goto('/')
+  await page.goto('/attention')
 
   const header = page.locator('.app-shell__header')
   const profileTrigger = page.getByRole('button', {
@@ -679,7 +680,7 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
     )
   })
 
-  await page.goto('/')
+  await page.goto('/attendance')
   const attendanceScreen = page.getByTestId('attendance-screen')
   const toolbar = page.getByTestId('attendance-toolbar')
   const groupSelect = page.getByTestId('attendance-group-select')
@@ -853,25 +854,25 @@ test('target compact-height landscape keeps the authenticated shell usable', asy
 
   await page.setViewportSize(compactViewport)
   await mockApi(page, HEAD_COACH_SESSION)
-  await page.goto('/')
+  await page.goto('/attention')
 
   const sideNavigation = page.locator(SIDE_NAVIGATION_SELECTOR)
   const bottomNavigation = page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)
-  const homeButton = bottomNavigation.getByRole('button', { name: 'Главная' })
-  const homeScreen = page.getByTestId('home-screen')
+  const attentionButton = bottomNavigation.getByRole('button', { name: 'Внимание' })
+  const attentionScreen = page.getByTestId('attention-screen')
 
-  await expect(homeScreen).toBeVisible()
+  await expect(attentionScreen).toBeVisible()
   await expect(sideNavigation).toBeHidden()
   await expect(bottomNavigation).toBeVisible()
-  await expect(homeButton).toBeVisible()
-  await expect(homeButton).toBeInViewport()
+  await expect(attentionButton).toBeVisible()
+  await expect(attentionButton).toBeInViewport()
 
-  const homeBounds = await homeScreen.boundingBox()
+  const attentionBounds = await attentionScreen.boundingBox()
   const mobileNavBounds = await bottomNavigation.boundingBox()
 
-  expect(homeBounds).not.toBeNull()
-  expect(homeBounds!.y + homeBounds!.height).toBeGreaterThanOrEqual(0)
-  expect(homeBounds!.y).toBeLessThanOrEqual(compactViewport.height - 1)
+  expect(attentionBounds).not.toBeNull()
+  expect(attentionBounds!.y + attentionBounds!.height).toBeGreaterThanOrEqual(0)
+  expect(attentionBounds!.y).toBeLessThanOrEqual(compactViewport.height - 1)
   expect(mobileNavBounds).not.toBeNull()
   expect(mobileNavBounds!.y + mobileNavBounds!.height).toBeLessThanOrEqual(
     compactViewport.height + 1,

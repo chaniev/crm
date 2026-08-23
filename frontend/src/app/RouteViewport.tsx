@@ -12,7 +12,8 @@ import {
   ClientEditScreen,
   ClientsListScreen,
 } from '../features/clients/ClientManagement'
-import { HomeDashboard } from '../features/home/HomeDashboard'
+import { AttendanceScreen } from '../features/attendance/AttendanceScreen'
+import { AttentionDashboard } from '../features/attention/AttentionDashboard'
 import { GroupScheduleScreen } from '../features/schedule/GroupScheduleScreen'
 import {
   GroupCreateScreen,
@@ -229,12 +230,20 @@ export function RouteViewport({
     return <SettingsScreen user={user} />
   }
 
-  if (route.section === 'Home') {
+  if (route.section === 'Attendance') {
     return (
-      <HomeDashboard
+      <AttendanceScreen
         initialReturnContext={clientProfileReturnContext}
         onOpenClient={onOpenClient}
         user={user}
+      />
+    )
+  }
+
+  if (route.section === 'Attention') {
+    return (
+      <AttentionDashboard
+        onOpenClient={onOpenClient}
       />
     )
   }

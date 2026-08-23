@@ -35,7 +35,8 @@ import {
 } from './ux'
 
 const sections: AppSection[] = [
-  'Home',
+  'Attendance',
+  'Attention',
   'Schedule',
   'Clients',
   'Groups',
@@ -49,17 +50,18 @@ describe('shared UX components', () => {
 
     renderWithProviders(
       <NavigationTabs
-        currentSection="Home"
+        currentSection="Attendance"
         onNavigate={onNavigate}
         sections={sections}
       />,
     )
 
     expect(screen.getByRole('navigation', { name: 'Основная навигация' })).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Главная' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Посещения' })).toHaveAttribute(
       'aria-current',
       'page',
     )
+    expect(screen.getByRole('button', { name: 'Внимание' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Расписание' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Клиенты' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Группы' })).toBeVisible()
@@ -120,7 +122,7 @@ describe('shared UX components', () => {
         header={<Header />}
         navbar={(
           <NavigationTabs
-            currentSection="Home"
+            currentSection="Attendance"
             onNavigate={() => undefined}
             orientation="vertical"
             sections={sections}
@@ -135,7 +137,7 @@ describe('shared UX components', () => {
 
     expect(desktopNavigation).toBeVisible()
     expect(desktopNavigation).toHaveAttribute('data-orientation', 'vertical')
-    expect(within(desktopNavigation).getByRole('button', { name: 'Главная' })).toHaveAttribute(
+    expect(within(desktopNavigation).getByRole('button', { name: 'Посещения' })).toHaveAttribute(
       'aria-current',
       'page',
     )
@@ -161,7 +163,7 @@ describe('shared UX components', () => {
 
   test('PageLayout keeps semantic heading when header is hidden', () => {
     renderWithProviders(
-      <PageLayout showHeader={false} title="Главная">
+      <PageLayout showHeader={false} title="Посещения">
         <div>Рабочая область</div>
       </PageLayout>,
     )
@@ -171,14 +173,14 @@ describe('shared UX components', () => {
       screen.getByRole('heading', {
         hidden: true,
         level: 1,
-        name: 'Главная',
+        name: 'Посещения',
       }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
         hidden: true,
         level: 1,
-        name: 'Главная',
+        name: 'Посещения',
       }),
     ).toHaveClass('visually-hidden')
   })
@@ -198,19 +200,19 @@ describe('shared UX components', () => {
 
     renderWithProviders(
       <MobileBottomNavigation
-        currentSection="Home"
+        currentSection="Attendance"
         onNavigate={onNavigate}
         sections={sections}
       />,
     )
 
     const overflowTrigger = screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })
-    const homeButton = screen.getByRole('button', { name: 'Главная' })
+    const attendanceButton = screen.getByRole('button', { name: 'Посещения' })
 
     expect(screen.getByRole('navigation', { name: 'Мобильная навигация' })).toBeVisible()
     expect(overflowTrigger).toHaveAttribute('aria-haspopup', 'dialog')
     expect(overflowTrigger).toHaveAttribute('aria-expanded', 'false')
-    expect(homeButton).toHaveAttribute('aria-current', 'page')
+    expect(attendanceButton).toHaveAttribute('aria-current', 'page')
     expect(overflowTrigger).not.toHaveAttribute('aria-current', 'page')
 
     fireEvent.click(overflowTrigger)
@@ -243,14 +245,14 @@ describe('shared UX components', () => {
   test('MobileBottomNavigation does not render overflow trigger when no overflow exists', () => {
     renderWithProviders(
       <MobileBottomNavigation
-        currentSection="Home"
+        currentSection="Attendance"
         onNavigate={() => undefined}
-        sections={['Home', 'Clients', 'Groups']}
+        sections={['Attendance', 'Clients', 'Groups']}
       />,
     )
 
     expect(screen.queryByRole('button', { name: 'Ещё, открыть остальные разделы' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Главная' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Посещения' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Клиенты' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Группы' })).toBeVisible()
   })
@@ -260,7 +262,7 @@ describe('shared UX components', () => {
       <MobileBottomNavigation
         currentSection="Users"
         onNavigate={() => undefined}
-        sections={['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit']}
+        sections={['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit']}
       />,
     )
 
@@ -270,7 +272,7 @@ describe('shared UX components', () => {
       .map((button) => button.textContent?.trim())
       .filter(Boolean)
 
-    expect(labels).toEqual(['Главная', 'Расписание', 'Клиенты', 'Тренеры', 'Ещё'])
+    expect(labels).toEqual(['Посещения', 'Внимание', 'Расписание', 'Тренеры', 'Ещё'])
     expect(screen.getByRole('button', { name: 'Тренеры' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('button', { name: 'Ещё, открыть остальные разделы' })).not.toHaveAttribute(
       'aria-current',
@@ -282,7 +284,7 @@ describe('shared UX components', () => {
       <MobileBottomNavigation
         currentSection="Users"
         onNavigate={() => undefined}
-        sections={['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit']}
+        sections={['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit']}
       />,
     )
 
@@ -665,7 +667,7 @@ describe('shared UX components', () => {
         title="Нет доступа"
         titleOrder={1}
         description="Доступ ограничен"
-        primaryAction={<button type="button">Открыть Главная</button>}
+        primaryAction={<button type="button">Открыть Посещения</button>}
       />,
     )
 

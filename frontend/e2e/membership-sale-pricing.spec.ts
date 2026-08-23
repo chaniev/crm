@@ -12,7 +12,7 @@ const session = {
     mustChangePassword: false,
     isActive: true,
     landingScreen: 'Clients',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: true,

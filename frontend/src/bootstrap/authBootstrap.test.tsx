@@ -85,8 +85,8 @@ const authenticatedSession = {
     role: 'Administrator',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Clients', 'Users'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Clients', 'Users'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,

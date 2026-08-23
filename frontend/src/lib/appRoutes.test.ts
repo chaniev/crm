@@ -18,9 +18,10 @@ const financeUser: AuthenticatedUser = {
   role: 'HeadCoach',
   mustChangePassword: false,
   isActive: true,
-  landingScreen: 'Home',
+  landingScreen: 'Attention',
   allowedSections: [
-    'Home',
+    'Attendance',
+    'Attention',
     'Schedule',
     'Clients',
     'Groups',
@@ -48,7 +49,8 @@ const coachUser: AuthenticatedUser = {
   id: 'coach-id',
   login: 'coach',
   role: 'Coach',
-  allowedSections: ['Home', 'Schedule', 'Clients'],
+  landingScreen: 'Attendance',
+  allowedSections: ['Attendance', 'Schedule', 'Clients'],
   permissions: {
     canManageUsers: false,
     canManageClients: false,
@@ -97,7 +99,7 @@ describe('finance routes', () => {
     expect(
       getAccessibleNavigationSections({
         ...financeUser,
-        allowedSections: ['Home', 'Schedule', 'Clients'],
+        allowedSections: ['Attendance', 'Schedule', 'Clients'],
       }),
     ).toContain('Schedule')
   })
@@ -124,14 +126,17 @@ describe('finance routes', () => {
           section: 'Finance',
         },
       ),
-    ).toBe('/')
+    ).toBe('/attention')
   })
 
-  test('classifies /attendance as not-found', () => {
+  test('parses canonical /attendance section route', () => {
     const route = parseRoute('/attendance')
 
-    expect((route as { kind: 'not-found'; path: string }).kind).toBe('not-found')
-    expect((route as { kind: 'not-found'; path: string }).path).toBe('/attendance')
+    expect(route).toEqual({ kind: 'section', section: 'Attendance' })
+  })
+
+  test('classifies root path as not-found', () => {
+    expect(parseRoute('/')).toEqual({ kind: 'not-found', path: '/' })
   })
 
   test('redirects Users detail routes when user management permission is revoked', () => {
@@ -169,7 +174,8 @@ describe('finance routes', () => {
     }
 
     expect(getAccessibleNavigationSections(superAdministrator)).toEqual([
-      'Home',
+      'Attendance',
+      'Attention',
       'Schedule',
       'Clients',
       'Groups',
@@ -179,7 +185,7 @@ describe('finance routes', () => {
     ])
     expect(resolveRouteAccess(superAdministrator, { kind: 'section', section: 'Finance' })).toMatchObject({
       kind: 'restricted',
-      recoveryPath: '/',
+      recoveryPath: '/attention',
       requestedDestinationLabel: 'Финансы',
     })
   })
@@ -220,8 +226,8 @@ describe('route parsing and resolution matrix', () => {
     expect(resolveRouteAccess(financeUser, route)).toEqual({
       kind: 'not-found',
       requestedPath: unknownPath,
-      recoveryPath: '/',
-      recoveryLabel: 'Главная',
+      recoveryPath: '/attention',
+      recoveryLabel: 'Внимание',
     })
   })
 
@@ -262,8 +268,8 @@ describe('route parsing and resolution matrix', () => {
       requestedPath: '/groups',
       requestedDestinationLabel: 'Группы',
       reason: { kind: 'section', label: 'Группы' },
-      recoveryPath: '/',
-      recoveryLabel: 'Главная',
+      recoveryPath: '/attendance',
+      recoveryLabel: 'Посещения',
     })
 
     const landingNotAllowed = {
@@ -284,7 +290,7 @@ describe('route parsing and resolution matrix', () => {
       '/clients',
     )
     expect(resolveAccessibleRoutePath(coachUser, { kind: 'section', section: 'Groups' })).toBe(
-      '/',
+      '/attendance',
     )
   })
 })
@@ -324,15 +330,15 @@ describe('mobile navigation sections', () => {
     const accessibleSections = getAccessibleNavigationSections(financeUser)
 
     expect(getMobileNavigationSections(accessibleSections)).toEqual({
-      primarySections: ['Home', 'Schedule', 'Clients', 'Groups'],
-      overflowSections: ['Users', 'Audit', 'Finance', 'Settings'],
+      primarySections: ['Attendance', 'Attention', 'Schedule', 'Clients'],
+      overflowSections: ['Groups', 'Users', 'Audit', 'Finance', 'Settings'],
     })
   })
 
   test('promotes overflow destination to adaptive fourth slot when current section is overflow', () => {
     const accessibleSections = getAccessibleNavigationSections({
       ...financeUser,
-      allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Finance', 'Users', 'Audit', 'Settings'],
+      allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Finance', 'Users', 'Audit', 'Settings'],
       permissions: {
         ...financeUser.permissions,
         canViewFinancialReports: true,
@@ -344,15 +350,15 @@ describe('mobile navigation sections', () => {
     expect(
       getMobileNavigationSectionsWithCurrent(accessibleSections, 'Finance'),
     ).toEqual({
-      primarySections: ['Home', 'Schedule', 'Clients', 'Finance'],
-      overflowSections: ['Groups', 'Users', 'Audit', 'Settings'],
+      primarySections: ['Attendance', 'Attention', 'Schedule', 'Finance'],
+      overflowSections: ['Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     })
   })
 
   test('respects adaptive overflow slot on non-finance route', () => {
     const accessibleSections = getAccessibleNavigationSections({
       ...financeUser,
-      allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+      allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
       permissions: {
         ...financeUser.permissions,
         canManageUsers: true,
@@ -363,8 +369,8 @@ describe('mobile navigation sections', () => {
     expect(
       getMobileNavigationSectionsWithCurrent(accessibleSections, 'Users'),
     ).toEqual({
-      primarySections: ['Home', 'Schedule', 'Clients', 'Users'],
-      overflowSections: ['Groups', 'Audit', 'Settings'],
+      primarySections: ['Attendance', 'Attention', 'Schedule', 'Users'],
+      overflowSections: ['Clients', 'Groups', 'Audit', 'Settings'],
     })
   })
 
@@ -372,8 +378,8 @@ describe('mobile navigation sections', () => {
     const accessibleSections = getAccessibleNavigationSections({
       ...financeUser,
       role: 'Coach',
-      landingScreen: 'Home',
-      allowedSections: ['Home', 'Schedule', 'Clients'],
+      landingScreen: 'Attendance',
+      allowedSections: ['Attendance', 'Schedule', 'Clients'],
       permissions: {
         canManageUsers: false,
         canManageClients: false,
@@ -386,7 +392,7 @@ describe('mobile navigation sections', () => {
     })
 
     expect(getMobileNavigationSections(accessibleSections)).toEqual({
-      primarySections: ['Home', 'Schedule', 'Clients'],
+      primarySections: ['Attendance', 'Schedule', 'Clients'],
       overflowSections: [],
     })
   })
@@ -394,7 +400,7 @@ describe('mobile navigation sections', () => {
   test('backfills missing primary candidates from remaining accessible sections', () => {
     const accessibleSections = getAccessibleNavigationSections({
       ...financeUser,
-      allowedSections: ['Home', 'Groups', 'Settings'],
+      allowedSections: ['Attendance', 'Groups', 'Settings'],
       permissions: {
         ...financeUser.permissions,
         canManageUsers: false,
@@ -404,7 +410,7 @@ describe('mobile navigation sections', () => {
     })
 
     expect(getMobileNavigationSections(accessibleSections)).toEqual({
-      primarySections: ['Home', 'Groups', 'Settings'],
+      primarySections: ['Attendance', 'Groups', 'Settings'],
       overflowSections: [],
     })
   })
@@ -412,7 +418,7 @@ describe('mobile navigation sections', () => {
   test('does not produce fake or unauthorized overflow sections', () => {
     const accessibleSections = getAccessibleNavigationSections({
       ...financeUser,
-      allowedSections: ['Home', 'Clients', 'Finance', 'Settings'],
+      allowedSections: ['Attendance', 'Clients', 'Finance', 'Settings'],
       permissions: {
         ...financeUser.permissions,
         canViewFinancialReports: false,

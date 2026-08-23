@@ -34,8 +34,8 @@ const coachSession = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -161,13 +161,13 @@ test.describe('Мобильный сценарий посещений трене
       return false
     })
 
-    await page.goto('/')
+    await page.goto('/attendance')
 
     await page.getByLabel('Логин').fill(COACH_LOGIN)
     await page.getByLabel('Пароль').fill(COACH_PASSWORD)
     await page.getByRole('button', { name: 'Войти' }).click()
 
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL('/attendance')
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
 
     const sideNavigation = page.locator(
@@ -184,14 +184,11 @@ test.describe('Мобильный сценарий посещений трене
     await expect(bottomNavigation).toBeVisible()
     await expect(bottomNavigation.getByRole('button')).toHaveCount(3)
     await expect(
-      bottomNavigation.getByRole('button', { name: 'Главная' }),
+      bottomNavigation.getByRole('button', { name: 'Посещения' }),
     ).toHaveAttribute('aria-current', 'page')
     await expect(
       bottomNavigation.getByRole('button', { name: 'Расписание' }),
     ).toBeVisible()
-    await expect(
-      bottomNavigation.getByRole('button', { name: 'Посещения' }),
-    ).toHaveCount(0)
     await expect(
       bottomNavigation.getByRole('button', { name: 'Клиенты' }),
     ).toBeVisible()
@@ -376,7 +373,7 @@ test.describe('TASK-111 attendance role and scope regression', () => {
       [assignedGroup],
     )
 
-    await page.goto('/')
+    await page.goto('/attendance')
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByTestId('attendance-group-select')).toHaveValue(assignedGroup.name)
@@ -392,7 +389,7 @@ test.describe('TASK-111 attendance role and scope regression', () => {
       rosterRequests += 1
     })
 
-    await page.goto('/')
+    await page.goto('/attendance')
 
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(page.getByText('Назначенные группы отсутствуют')).toBeVisible()

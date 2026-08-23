@@ -13,6 +13,7 @@ type AppLayoutProps = {
   header: ReactNode
   headerHeight?: AppShellProps['header']
   mainClassName?: string
+  mainLabel?: string
   navbar?: ReactNode
   navbarConfiguration?: AppShellProps['navbar']
   padding?: AppShellProps['padding']
@@ -34,6 +35,7 @@ export function AppLayout({
   header,
   headerHeight = { height: { base: 72, '48em': 76 } },
   mainClassName,
+  mainLabel,
   navbar,
   navbarConfiguration = defaultNavbarConfiguration,
   padding = 'md',
@@ -53,7 +55,10 @@ export function AppLayout({
         </AppShell.Navbar>
       ) : null}
 
-      <AppShell.Main className={['app-shell__main', mainClassName].filter(Boolean).join(' ')}>
+      <AppShell.Main
+        aria-label={mainLabel}
+        className={['app-shell__main', mainClassName].filter(Boolean).join(' ')}
+      >
         <Container px={0} size={containerSize}>{children}</Container>
       </AppShell.Main>
     </AppShell>

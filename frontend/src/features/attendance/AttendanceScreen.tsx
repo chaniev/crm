@@ -45,7 +45,7 @@ export function AttendanceScreen({
   user,
 }: AttendanceScreenProps) {
   return (
-    <PageLayout data-testid="attendance-screen" title="Посещения">
+    <PageLayout data-testid="attendance-screen" showHeader={false} title="Посещения">
       <AttendanceWorkspace
         initialReturnContext={initialReturnContext}
         onOpenClient={onOpenClient}
@@ -364,7 +364,7 @@ export function AttendanceWorkspace({
 
     onOpenClient(clientId, {
       kind: 'attendance',
-      route: { kind: 'section', section: 'Home' },
+      route: { kind: 'section', section: 'Attendance' },
       groupId: selectedGroupId,
       trainingDate,
       rosterView,

@@ -17,8 +17,8 @@ const ADMIN_SESSION = {
     role: 'Administrator',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Settings'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Settings'],
     permissions: {
       canManageUsers: false,
       canManageClients: true,
@@ -45,8 +45,8 @@ const SUPER_ADMIN_SESSION = {
     role: 'SuperAdministrator',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Audit', 'Settings'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -73,8 +73,8 @@ const COACH_SESSION = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -484,12 +484,12 @@ test('Coach не видит /settings и получает явное состо�
   await expect(page).toHaveURL('/settings')
   await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
   await expect(page.getByText('У вас нет доступа к разделу «Настройки».')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Открыть Посещения' })).toBeVisible()
   await expect(page.getByTestId('settings-screen')).toHaveCount(0)
   await expect(
     page.getByRole('button', { name: 'Настройки', exact: true }),
   ).toHaveCount(0)
-  await expect(page.getByTestId('home-screen')).toHaveCount(0)
+  await expect(page.getByTestId('attention-screen')).toHaveCount(0)
   expect(settingsApiRequests).toEqual([])
 })
 

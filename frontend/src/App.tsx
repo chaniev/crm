@@ -459,16 +459,17 @@ export function App({ appConfig, authBackground }: AppProps) {
     return null
   }
 
+  const authenticatedUser = session.user
   const accessibleRoute = routeAccess.kind === 'allowed' ? routeAccess.route : null
   const viewportRoute: Exclude<AppRoute, { kind: 'password' }> =
     accessibleRoute && accessibleRoute.kind !== 'password'
       ? accessibleRoute
-      : { kind: 'section', section: 'Home' }
+      : { kind: 'section', section: authenticatedUser.landingScreen }
   const currentSection = getCurrentSection(accessibleRoute, route)
-  const authenticatedUser = session.user
   const recoveryPath = routeAccess.kind === 'restricted' || routeAccess.kind === 'not-found'
     ? routeAccess.recoveryPath
     : getDefaultRouteRecoveryDestination(authenticatedUser).recoveryPath
+  const mainLabel = getMainLandmarkLabel(routeAccess)
 
   return (
     <AuthenticatedShell
@@ -478,6 +479,7 @@ export function App({ appConfig, authBackground }: AppProps) {
       onLogout={handleLogout}
       onNavigateSection={(section) => navigate({ kind: 'section', section })}
       onOpenPassword={openUtilityPassword}
+      mainLabel={mainLabel}
       user={authenticatedUser}
     >
       {route.kind === 'password' ? (
@@ -540,3 +542,15 @@ export function App({ appConfig, authBackground }: AppProps) {
 }
 
 export default App
+
+function getMainLandmarkLabel(routeAccess: RouteAccessResolution) {
+  if (routeAccess.kind === 'restricted') {
+    return 'Нет доступа'
+  }
+
+  if (routeAccess.kind === 'not-found') {
+    return 'Страница не найдена'
+  }
+
+  return routeAccess.requestedDestinationLabel
+}

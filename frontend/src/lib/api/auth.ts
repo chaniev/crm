@@ -74,6 +74,12 @@ function mapAuthenticatedUser(payload: unknown): AuthenticatedUser | null {
   }
 
   const assignedGroupIds = mapStringArray(payload.assignedGroupIds ?? payload.AssignedGroupIds)
+  const landingScreen = mapAppSection(readString(payload, ['landingScreen', 'LandingScreen']))
+  const allowedSections = mapAppSections(payload.allowedSections ?? payload.AllowedSections)
+
+  if (!landingScreen || allowedSections.length === 0 || !allowedSections.includes(landingScreen)) {
+    return null
+  }
 
   return {
     id: readString(payload, ['id', 'Id']) ?? '',
@@ -83,9 +89,8 @@ function mapAuthenticatedUser(payload: unknown): AuthenticatedUser | null {
     mustChangePassword:
       readBoolean(payload, ['mustChangePassword', 'MustChangePassword']) ?? false,
     isActive: readBoolean(payload, ['isActive', 'IsActive']) ?? false,
-    landingScreen:
-      mapAppSection(readString(payload, ['landingScreen', 'LandingScreen'])) ?? 'Home',
-    allowedSections: mapAppSections(payload.allowedSections ?? payload.AllowedSections),
+    landingScreen,
+    allowedSections,
     permissions: mapAccessPermissions(payload.permissions ?? payload.Permissions),
     assignedGroupIds,
     attendanceScope: mapAttendanceScope(
@@ -123,7 +128,8 @@ function mapAppSections(payload: unknown) {
 
 function mapAppSection(section?: string): AppSection | null {
   if (
-    section === 'Home' ||
+    section === 'Attendance' ||
+    section === 'Attention' ||
     section === 'Schedule' ||
     section === 'Clients' ||
     section === 'Groups' ||

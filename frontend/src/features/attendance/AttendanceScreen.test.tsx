@@ -85,7 +85,7 @@ describe('AttendanceWorkspace', () => {
       'client-1',
       {
         kind: 'attendance',
-        route: { kind: 'section', section: 'Home' },
+        route: { kind: 'section', section: 'Attendance' },
         groupId: 'group-1',
         trainingDate: '2026-07-12',
         rosterView: 'all',
@@ -98,7 +98,7 @@ describe('AttendanceWorkspace', () => {
     const initialReturnContext = createClientProfileReturnContext({
       origin: {
         kind: 'attendance',
-        route: { kind: 'section', section: 'Home' },
+        route: { kind: 'section', section: 'Attendance' },
         groupId: 'stale-group',
         trainingDate: '2026-07-11',
         rosterView: 'all',
@@ -145,7 +145,7 @@ describe('AttendanceWorkspace', () => {
     const initialReturnContext = createClientProfileReturnContext({
       origin: {
         kind: 'attendance',
-        route: { kind: 'section', section: 'Home' },
+        route: { kind: 'section', section: 'Attendance' },
         groupId: 'group-1',
         trainingDate: '2026-06-01',
         rosterView: 'unmarked',

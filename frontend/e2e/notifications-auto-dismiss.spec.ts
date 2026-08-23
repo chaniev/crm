@@ -19,9 +19,10 @@ const HEAD_COACH_SESSION = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
+    landingScreen: 'Attention',
     allowedSections: [
-      'Home',
+      'Attendance',
+      'Attention',
       'Schedule',
       'Clients',
       'Groups',

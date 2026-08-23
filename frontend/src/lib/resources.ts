@@ -18,41 +18,12 @@ export const resources = {
       disabled: 'Отключен',
     },
   },
-  home: {
-    accessDenied: {
-      title: 'Главная страница недоступна',
-      message: 'Для этой учетной записи нет доступных блоков главной страницы.',
-    },
-    attention: {
-      loadingErrorTitle: 'Список не загрузился',
-      loadingErrorMessage: 'Не удалось загрузить клиентов, требующих внимания.',
-      actionError: 'Не удалось сохранить отметку',
-      emptyTitle: 'Никому не требуется внимание',
-      emptyDescription: 'Нет клиентов с повторными пропусками или вопросами по абонементам.',
-    },
-    expiringMemberships: {
-      title: 'Абонементы требуют внимания',
-      description:
-        'Клиенты с истекшими или скоро истекающими абонементами.',
-      loadingErrorTitle: 'Список не загрузился',
-      loadingErrorMessage:
-        'Не удалось загрузить абонементы, требующие внимания.',
-      emptyTitle: 'Абонементы не требуют внимания.',
-      emptyDescription:
-        'Нет истекших или скоро истекающих абонементов.',
-      openClientAction: 'Карточка клиента',
-      fields: {
-        behaviorKind: 'Тип абонемента',
-        expirationDate: 'Дата окончания',
-        state: 'Состояние',
-      },
-      stateLabels: {
-        Expired: 'Истек',
-        ExpiringSoon: 'Скоро истечет',
-        Unknown: 'Неизвестно',
-      },
-      today: 'Сегодня',
-    },
+  attention: {
+    loadingErrorTitle: 'Список не загрузился',
+    loadingErrorMessage: 'Не удалось загрузить клиентов, требующих внимания.',
+    actionError: 'Не удалось сохранить отметку',
+    emptyTitle: 'Никому не требуется внимание',
+    emptyDescription: 'Нет клиентов с повторными пропусками или вопросами по абонементам.',
   },
   users: {
     roles: {

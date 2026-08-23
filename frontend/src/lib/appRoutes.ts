@@ -73,7 +73,8 @@ const USER_EDIT_ROUTE_PATTERN = /^\/users\/([^/]+)\/edit$/
 const CLIENT_DETAILS_ROUTE_PATTERN = /^\/clients\/([^/]+)$/
 
 export const APP_SECTION_LABELS: Record<AppSection, string> = {
-  Home: 'Главная',
+  Attendance: 'Посещения',
+  Attention: 'Внимание',
   Schedule: 'Расписание',
   Clients: 'Клиенты',
   Groups: 'Группы',
@@ -84,7 +85,8 @@ export const APP_SECTION_LABELS: Record<AppSection, string> = {
 }
 
 export const APP_SECTION_PATHS: Record<AppSection, string> = {
-  Home: '/',
+  Attendance: '/attendance',
+  Attention: '/attention',
   Schedule: '/schedule',
   Clients: '/clients',
   Groups: '/groups',
@@ -95,7 +97,8 @@ export const APP_SECTION_PATHS: Record<AppSection, string> = {
 }
 
 export const APP_NAVIGATION_SECTIONS: AppSection[] = [
-  'Home',
+  'Attendance',
+  'Attention',
   'Schedule',
   'Clients',
   'Groups',
@@ -106,11 +109,11 @@ export const APP_NAVIGATION_SECTIONS: AppSection[] = [
 ]
 
 const MOBILE_PRIMARY_NAVIGATION_CANDIDATES: AppSection[] = [
-  'Home',
+  'Attendance',
+  'Attention',
   'Schedule',
-  'Clients',
 ]
-const MOBILE_ADAPTIVE_FOURTH_CANDIDATE: AppSection = 'Groups'
+const MOBILE_ADAPTIVE_FOURTH_CANDIDATE: AppSection = 'Clients'
 const MOBILE_PRIMARY_NAVIGATION_LIMIT = 4
 
 const sectionPathEntries = Object.entries(APP_SECTION_PATHS) as Array<

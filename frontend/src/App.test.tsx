@@ -63,7 +63,7 @@ vi.mock('./features/groups/GroupManagement', () => ({
   }: {
     groupId: string
     onBack: () => void
-    onOpenClient?: (clientId: string, origin: unknown) => void
+    onOpenClient?: (clientId: string, origin?: unknown) => void
   }) => (
     <div data-testid="group-edit-screen">
       Group edit
@@ -145,16 +145,33 @@ vi.mock('./features/settings/SettingsScreen', () => ({
   SettingsScreen: () => <div data-testid="settings-screen">Settings</div>,
 }))
 
-vi.mock('./features/home/HomeDashboard', () => ({
-  HomeDashboard: ({
+vi.mock('./features/attention/AttentionDashboard', () => ({
+  AttentionDashboard: ({
+    onOpenClient,
+  }: {
+    onOpenClient?: (clientId: string, origin?: unknown) => void
+  }) => (
+    <div data-testid="attention-screen">
+      Внимание
+      {onOpenClient ? (
+        <button type="button" onClick={() => onOpenClient('client-attention')}>
+          Открыть клиента внимания
+        </button>
+      ) : null}
+    </div>
+  ),
+}))
+
+vi.mock('./features/attendance/AttendanceScreen', () => ({
+  AttendanceScreen: ({
     initialReturnContext,
     onOpenClient,
   }: {
     initialReturnContext?: { origin?: { kind?: string; groupId?: string; trainingDate?: string; rosterView?: string } } | null
     onOpenClient?: (clientId: string, origin: unknown) => void
   }) => (
-    <div data-testid="home-screen">
-      Главная
+    <div data-testid="attendance-screen">
+      Посещения
       {initialReturnContext?.origin?.kind === 'attendance' ? (
         <div data-testid="restored-attendance-context">
           {initialReturnContext.origin.groupId}:
@@ -167,7 +184,7 @@ vi.mock('./features/home/HomeDashboard', () => ({
           type="button"
           onClick={() => onOpenClient('client-attendance', {
             kind: 'attendance',
-            route: { kind: 'section', section: 'Home' },
+            route: { kind: 'section', section: 'Attendance' },
             groupId: 'group-2',
             trainingDate: '2026-08-15',
             rosterView: 'all',
@@ -181,18 +198,14 @@ vi.mock('./features/home/HomeDashboard', () => ({
   ),
 }))
 
-vi.mock('./features/attendance/AttendanceScreen', () => ({
-  AttendanceScreen: () => <div data-testid="attendance-screen">Посещения</div>,
-}))
-
 const baseSession: AuthenticatedUser = {
   attendanceScope: { kind: 'Global', groupIds: [] },
-  allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+  allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
   assignedGroupIds: [],
   branchId: null,
   id: 'headcoach-id',
   isActive: true,
-  landingScreen: 'Home',
+  landingScreen: 'Attention',
   login: 'headcoach',
   mustChangePassword: false,
   fullName: 'Главный тренер',
@@ -214,7 +227,7 @@ const clientRestrictedSession: AuthenticatedUser = {
     ...baseSession.permissions,
     canManageClients: false,
   },
-  allowedSections: ['Home', 'Clients', 'Schedule'],
+  allowedSections: ['Attendance', 'Clients', 'Schedule'],
   role: 'Coach',
 }
 
@@ -225,7 +238,7 @@ const financeRestrictedSession: AuthenticatedUser = {
     ...baseSession.permissions,
     canViewFinancialReports: false,
   },
-  allowedSections: ['Home', 'Schedule', 'Clients', 'Groups'],
+  allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups'],
 }
 
 const APP_CONFIG: AppConfigResponse = {
@@ -513,17 +526,17 @@ describe('App route access contract', () => {
     const restrictedHeading = await screen.findByRole('heading', { level: 1, name: 'Нет доступа' })
 
     expect(restrictedHeading).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Открыть Внимание' })).toBeVisible()
     expect(await screen.findByText('У вас нет доступа к разделу «Финансы».')).toBeVisible()
     expect(document.title).toBe('Финансы — нет доступа • Gym CRM')
   })
 
-  test('renders unknown /attendance as not-found state with safe copy', async () => {
-    renderAppAt('/attendance', baseSession)
+  test('renders authenticated root as not-found state with safe copy', async () => {
+    renderAppAt('/', baseSession)
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Страница не найдена' })).toBeVisible()
     expect(screen.getByText('Такой страницы нет или ссылка устарела.')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Открыть Внимание' })).toBeVisible()
     expect(screen.queryByText(/attendance/i)).not.toBeInTheDocument()
     expect(document.title).toBe('Страница не найдена • Gym CRM')
   })
@@ -562,17 +575,17 @@ describe('App route access contract', () => {
           ...baseSession.permissions,
           canManageUsers: false,
         },
-        allowedSections: ['Home', 'Schedule', 'Clients'],
+        allowedSections: ['Attendance', 'Schedule', 'Clients'],
       }),
     )
 
     fireEvent.click(screen.getByRole('button', { name: 'Обновить сессию' }))
 
-    await waitFor(() => expect(window.location.pathname).toBe('/'))
+    await waitFor(() => expect(window.location.pathname).toBe('/attendance'))
     expect(screen.queryByRole('heading', { level: 1, name: 'Нет доступа' })).not.toBeInTheDocument()
     expect(showPoliteStatusNotificationMock).toHaveBeenCalledTimes(1)
     expect(showPoliteStatusNotificationMock).toHaveBeenCalledWith(expect.objectContaining({
-      message: expect.stringContaining('Открыт доступный раздел «Главная»'),
+      message: expect.stringContaining('Открыт доступный раздел «Посещения»'),
       title: 'Открыт доступный раздел',
     }))
 
@@ -587,7 +600,7 @@ describe('App route access contract', () => {
       mockSession({
         ...clientRestrictedSession,
         id: 'coach-2',
-        allowedSections: ['Home', 'Schedule', 'Clients'],
+        allowedSections: ['Attendance', 'Schedule', 'Clients'],
         permissions: {
           ...clientRestrictedSession.permissions,
           canManageUsers: false,
@@ -616,7 +629,7 @@ describe('App route access contract', () => {
   })
 
   test('opens a client from attendance with typed context and presents an exact return action', async () => {
-    renderAppAt('/', baseSession)
+    renderAppAt('/attendance', baseSession)
     fireEvent.click(await screen.findByRole('button', {
       name: 'Открыть клиента посещений',
     }))
@@ -628,7 +641,7 @@ describe('App route access contract', () => {
     expect(screen.getByRole('button', { name: 'К посещениям' })).toBeVisible()
     expect(window.history.state).toMatchObject({
       crmClientProfileReturnContext: {
-        version: 1,
+        version: 2,
         returnDepth: 1,
         origin: {
           kind: 'attendance',
@@ -648,12 +661,12 @@ describe('App route access contract', () => {
       },
     }
     const goSpy = vi.spyOn(window.history, 'go').mockImplementation(() => {
-      window.history.replaceState(originState, '', '/')
+      window.history.replaceState(originState, '', '/attendance')
       window.dispatchEvent(new PopStateEvent('popstate'))
     })
     fireEvent.click(screen.getByRole('button', { name: 'К посещениям' }))
     expect(goSpy).toHaveBeenCalledWith(-1)
-    await waitFor(() => expect(window.location.pathname).toBe('/'))
+    await waitFor(() => expect(window.location.pathname).toBe('/attendance'))
     expect(await screen.findByTestId('restored-attendance-context')).toHaveTextContent(
       'group-2:2026-08-15:all',
     )
@@ -661,7 +674,7 @@ describe('App route access contract', () => {
   })
 
   test('fails closed when explicit history return lands on a mismatched entry', async () => {
-    renderAppAt('/', baseSession)
+    renderAppAt('/attendance', baseSession)
     fireEvent.click(await screen.findByRole('button', {
       name: 'Открыть клиента посещений',
     }))
@@ -743,7 +756,7 @@ describe('App route access contract', () => {
     expect(backButton).toBeVisible()
 
     fireEvent.click(backButton)
-    await waitFor(() => expect(window.location.pathname).toBe('/'))
+    await waitFor(() => expect(window.location.pathname).toBe('/attention'))
   })
 
   test('returns from utility password to the saved allowed path', async () => {
@@ -804,7 +817,7 @@ describe('App route access contract', () => {
           ...baseSession.permissions,
           canManageUsers: false,
         },
-        allowedSections: ['Home', 'Schedule', 'Clients'],
+        allowedSections: ['Attendance', 'Schedule', 'Clients'],
       }),
     )
 
@@ -819,7 +832,7 @@ describe('App route access contract', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: 'Сохранить новый пароль' }))
 
-    await waitFor(() => expect(window.location.pathname).toBe('/'))
+    await waitFor(() => expect(window.location.pathname).toBe('/attendance'))
     expect(showAppNotificationMock).not.toHaveBeenCalledWith(expect.objectContaining({
       id: 'auth-password-utility',
     }))

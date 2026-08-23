@@ -17,8 +17,8 @@ const headCoachSession = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -44,8 +44,8 @@ const coachSession = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -165,7 +165,7 @@ test('Coach direct group management route is denied by app routing', async ({ pa
   await expect(
     page.getByText('У вас нет доступа к операции «Редактирование группы».'),
   ).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Открыть Посещения' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Временные замещения' })).toHaveCount(0)
 })
 

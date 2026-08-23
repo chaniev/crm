@@ -12,12 +12,12 @@ import {
 
 const baseUser: AuthenticatedUser = {
   attendanceScope: { kind: 'Global', groupIds: [] },
-  allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users'],
+  allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users'],
   assignedGroupIds: [],
   branchId: null,
   id: 'headcoach-id',
   isActive: true,
-  landingScreen: 'Home',
+  landingScreen: 'Attention',
   login: 'headcoach',
   mustChangePassword: false,
   fullName: 'Главный тренер',
@@ -35,7 +35,7 @@ const baseUser: AuthenticatedUser = {
 
 const coachUser: AuthenticatedUser = {
   ...baseUser,
-  allowedSections: ['Home', 'Schedule', 'Clients'],
+  allowedSections: ['Attendance', 'Schedule', 'Clients'],
   id: 'coach-id',
   permissions: {
     ...baseUser.permissions,
@@ -276,7 +276,7 @@ describe('app route helpers', () => {
       access: savedAccess,
       path: '/users/trainer-1/edit',
     })).toMatchObject({
-      path: '/',
+      path: '/attendance',
       recoveryEvent: {
         kind: 'restricted',
         requestedPath: '/users/trainer-1/edit',

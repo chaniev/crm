@@ -17,9 +17,10 @@ const FINANCE_SESSION = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
+    landingScreen: 'Attention',
     allowedSections: [
-      'Home',
+      'Attendance',
+      'Attention',
       'Schedule',
       'Clients',
       'Groups',
@@ -46,7 +47,7 @@ const NO_FINANCE_SESSION = {
   csrfToken: 'no-finance-csrf-token',
   user: {
     ...FINANCE_SESSION.user,
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients'],
     permissions: {
       ...FINANCE_SESSION.user.permissions,
       canViewFinancialReports: false,
@@ -262,7 +263,7 @@ test.describe('Finance reports', () => {
     await expect(page).toHaveURL(/\/finance$/)
     await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
     await expect(page.getByText('У вас нет доступа к разделу «Финансы».')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Открыть Внимание' })).toBeVisible()
     await expect(
       page.getByRole('navigation', { name: 'Основная навигация' }).getByRole(
         'button',
@@ -270,7 +271,7 @@ test.describe('Finance reports', () => {
       ),
     ).toHaveCount(0)
     await expect(page.getByTestId('finance-screen')).toHaveCount(0)
-    await expect(page.getByTestId('home-screen')).toHaveCount(0)
+    await expect(page.getByTestId('attention-screen')).toHaveCount(0)
   })
 
   test('shows backend ProblemDetails field errors for invalid report filters', async ({

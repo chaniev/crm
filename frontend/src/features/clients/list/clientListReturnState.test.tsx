@@ -210,7 +210,7 @@ describe('client-list return-state helpers', () => {
       { kind: 'clientDetails', clientId: 'client-1' },
     ] as const
     const strippedRoutes = [
-      { kind: 'section', section: 'Home' },
+      { kind: 'section', section: 'Attention' },
       { kind: 'section', section: 'Groups' },
       { kind: 'password' },
       { kind: 'clientCreate' },

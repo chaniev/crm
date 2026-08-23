@@ -17,8 +17,8 @@ const HEAD_COACH_SESSION = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -41,7 +41,8 @@ const COACH_SESSION = {
     fullName: 'Тренер группы',
     login: 'coach',
     role: 'Coach',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -63,7 +64,7 @@ const SUPER_ADMIN_NO_FINANCE_SESSION = {
     fullName: 'Суперадминистратор',
     login: 'superadmin',
     role: 'SuperAdministrator',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     permissions: {
       ...HEAD_COACH_SESSION.user.permissions,
       canViewFinancialReports: false,
@@ -95,7 +96,7 @@ test.describe('route access feedback', () => {
     await expect(page).toHaveURL(/\/groups$/)
     await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeVisible()
     await expect(page.getByText('У вас нет доступа к разделу «Группы».')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Открыть Посещения' })).toBeVisible()
     await expect(page.getByTestId('groups-screen')).toHaveCount(0)
     await expect(
       page.getByRole('navigation', { name: 'Основная навигация' }).getByRole('button', {
@@ -159,7 +160,7 @@ test.describe('route access feedback', () => {
     ).toHaveCount(0)
   })
 
-  for (const unknownPath of ['/attendance', '/missing-route']) {
+  for (const unknownPath of ['/', '/missing-route']) {
     test(`${unknownPath} renders not-found without exposing raw path text`, async ({
       page,
     }) => {
@@ -172,8 +173,10 @@ test.describe('route access feedback', () => {
         page.getByRole('heading', { level: 1, name: 'Страница не найдена' }),
       ).toBeFocused()
       await expect(page.getByText('Такой страницы нет или ссылка устарела.')).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
-      await expect(page.getByText(new RegExp(unknownPath.slice(1), 'i'))).toHaveCount(0)
+      await expect(page.getByRole('button', { name: 'Открыть Внимание' })).toBeVisible()
+      if (unknownPath !== '/') {
+        await expect(page.getByText(new RegExp(unknownPath.slice(1), 'i'))).toHaveCount(0)
+      }
     })
   }
 

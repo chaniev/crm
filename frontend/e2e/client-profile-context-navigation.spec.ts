@@ -17,8 +17,8 @@ const ATTENDANCE_SESSION = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients', 'Groups'],
     permissions: {
       canManageUsers: false,
       canManageClients: true,
@@ -513,7 +513,7 @@ test.describe('TASK-116: контекст возврата в карточку �
     })
 
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/')
+    await page.goto('/attendance')
 
     const dateInput = page.getByTestId('attendance-date-input')
     const groupSelect = page.getByTestId('attendance-group-select')
@@ -542,7 +542,7 @@ test.describe('TASK-116: контекст возврата в карточку �
 
     await page.getByRole('button', { name: 'К посещениям' }).click()
 
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL('/attendance')
     await expect(page.getByTestId('attendance-screen')).toBeVisible()
     await expect(groupSelect).toHaveValue(ATTENDANCE_GROUP.name)
     await expect(dateInput).toHaveValue('2026-04-17')
@@ -565,7 +565,7 @@ test.describe('TASK-116: контекст возврата в карточку �
     })
 
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/')
+    await page.goto('/attendance')
 
     await page
       .getByTestId('attendance-roster-view-control')
@@ -727,7 +727,7 @@ test.describe('TASK-116: контекст возврата в карточку �
       clientDetailsStatus: 403,
     })
 
-    await page.goto('/')
+    await page.goto('/attendance')
     await page
       .getByTestId(`attendance-client-card-${CLIENT_ID}`)
       .getByRole('button', { name: `Открыть карточку клиента ${CLIENT_FULL_NAME}` })
@@ -795,7 +795,7 @@ test.describe('TASK-116: контекст возврата в карточку �
 
     for (const viewport of ATTENDANCE_GEO_VIEWPORTS) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height })
-      await page.goto('/')
+      await page.goto('/attendance')
 
       const cardAction = page
         .getByTestId(`attendance-client-card-${CLIENT_ID}`)

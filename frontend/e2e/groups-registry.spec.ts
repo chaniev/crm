@@ -17,8 +17,8 @@ const headCoachSession = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -41,7 +41,8 @@ const coachReadOnlySession = {
     fullName: 'Тренер без управления группами',
     login: 'coach-readonly',
     role: 'Coach',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       ...headCoachSession.user.permissions,
       canManageGroups: false,
@@ -65,7 +66,7 @@ const administratorSession = {
       canManageUsers: true,
       canViewFinancialReports: true,
     },
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
     branchId: 'branch-1',
   },
 } as const
@@ -83,7 +84,7 @@ const superAdministratorSession = {
       canManageUsers: true,
       canViewFinancialReports: true,
     },
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
     branchId: null,
   },
 } as const
@@ -517,7 +518,7 @@ test('Группы: Coach без разрешения видит явный за
   await expect(page).toHaveURL('/groups')
   await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
   await expect(page.getByText('У вас нет доступа к разделу «Группы».')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Открыть Главная' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Открыть Посещения' })).toBeVisible()
   await expect(page.getByRole('textbox', { name: 'Поиск групп по названию' })).toHaveCount(0)
   expect(listRequests).toHaveLength(0)
   expect(counters.groupsListCalls).toBe(0)

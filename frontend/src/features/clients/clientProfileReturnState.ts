@@ -2,13 +2,13 @@ import type { AppRoute } from '../../lib/appRoutes'
 import type { AttendanceRosterView } from '../attendance/AttendanceRosterViewControl'
 
 const CLIENT_PROFILE_RETURN_STATE_KEY = 'crmClientProfileReturnContext'
-const CLIENT_PROFILE_RETURN_STATE_VERSION = 1
+const CLIENT_PROFILE_RETURN_STATE_VERSION = 2
 const MAX_RETURN_DEPTH = 8
 const MAX_STRING_LENGTH = 200
 
 export type ClientProfileAttendanceOrigin = {
   kind: 'attendance'
-  route: { kind: 'section'; section: 'Home' }
+  route: { kind: 'section'; section: 'Attendance' }
   groupId: string
   trainingDate: string
   rosterView: AttendanceRosterView
@@ -150,7 +150,7 @@ export function isClientProfileOriginRoute(
   context: ClientProfileReturnContext,
 ) {
   if (context.origin.kind === 'attendance') {
-    return route.kind === 'section' && route.section === 'Home'
+    return route.kind === 'section' && route.section === 'Attendance'
   }
 
   return route.kind === 'groupEdit' && route.groupId === context.origin.route.groupId
@@ -169,10 +169,17 @@ function isClientProfileReturnRoute(
 function parseClientProfileReturnContext(
   payload: unknown,
 ): ClientProfileReturnContext | null {
-  if (
-    !isRecord(payload) ||
-    payload.version !== CLIENT_PROFILE_RETURN_STATE_VERSION
-  ) {
+  if (!isRecord(payload)) {
+    return null
+  }
+
+  const isCurrentVersion = payload.version === CLIENT_PROFILE_RETURN_STATE_VERSION
+  const isSafeLegacyGroupEditVersion =
+    payload.version === 1 &&
+    isRecord(payload.origin) &&
+    payload.origin.kind === 'groupEdit'
+
+  if (!isCurrentVersion && !isSafeLegacyGroupEditVersion) {
     return null
   }
 
@@ -249,9 +256,9 @@ function sanitizeAttendanceRoute(payload: unknown): ClientProfileAttendanceOrigi
   if (
     isRecord(payload) &&
     payload.kind === 'section' &&
-    payload.section === 'Home'
+    payload.section === 'Attendance'
   ) {
-    return { kind: 'section', section: 'Home' }
+    return { kind: 'section', section: 'Attendance' }
   }
 
   return null

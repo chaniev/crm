@@ -29,7 +29,7 @@ const auditUser: AuthenticatedUser = {
   mustChangePassword: false,
   isActive: true,
   landingScreen: 'Audit',
-  allowedSections: ['Home', 'Clients', 'Audit', 'Settings'],
+  allowedSections: ['Attendance', 'Attention', 'Clients', 'Audit', 'Settings'],
   permissions: {
     canManageUsers: true,
     canManageClients: true,
@@ -46,7 +46,7 @@ const auditUser: AuthenticatedUser = {
 
 const deniedUser: AuthenticatedUser = {
   ...auditUser,
-  allowedSections: ['Home', 'Clients'],
+  allowedSections: ['Attendance', 'Clients'],
   permissions: {
     ...auditUser.permissions,
     canViewAuditLog: false,

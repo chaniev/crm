@@ -45,9 +45,10 @@ internal sealed class AccessScopeService(
             UserRole.HeadCoach or UserRole.SuperAdministrator => new AccessScope(
                 user.Role,
                 scopeKind,
-                AppSection.Home,
+                AppSection.Attention,
                 [
-                    AppSection.Home,
+                    AppSection.Attendance,
+                    AppSection.Attention,
                     AppSection.Schedule,
                     AppSection.Clients,
                     AppSection.Groups,
@@ -62,9 +63,10 @@ internal sealed class AccessScopeService(
             UserRole.Administrator => new AccessScope(
                 user.Role,
                 scopeKind,
-                AppSection.Home,
+                AppSection.Attendance,
                 [
-                    AppSection.Home,
+                    AppSection.Attendance,
+                    AppSection.Attention,
                     AppSection.Schedule,
                     AppSection.Clients,
                     AppSection.Groups,
@@ -77,9 +79,9 @@ internal sealed class AccessScopeService(
             UserRole.Coach => new AccessScope(
                 user.Role,
                 scopeKind,
-                AppSection.Home,
+                AppSection.Attendance,
                 [
-                    AppSection.Home,
+                    AppSection.Attendance,
                     AppSection.Schedule,
                     AppSection.Clients
                 ],

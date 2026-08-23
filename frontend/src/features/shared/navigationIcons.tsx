@@ -1,8 +1,9 @@
 import {
   IconCalendarWeek,
   IconChartBar,
+  IconChecklist,
   IconClipboardList,
-  IconHome,
+  IconAlertTriangle,
   IconSettings,
   IconUserCog,
   IconUsers,
@@ -12,8 +13,10 @@ import type { AppSection } from '../../lib/api'
 
 export function getAppSectionIcon(section: AppSection, size = 17) {
   switch (section) {
-    case 'Home':
-      return <IconHome size={size} />
+    case 'Attendance':
+      return <IconChecklist size={size} />
+    case 'Attention':
+      return <IconAlertTriangle size={size} />
     case 'Schedule':
       return <IconCalendarWeek size={size} />
     case 'Clients':

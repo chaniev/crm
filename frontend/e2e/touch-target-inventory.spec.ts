@@ -77,7 +77,7 @@ const SUPER_ADMIN_SESSION = {
     fullName: 'Суперадминистратор',
     id: 'super-admin',
     isActive: true,
-    landingScreen: 'Home',
+    landingScreen: 'Attention',
     login: 'superadmin',
     mustChangePassword: false,
     permissions: {
@@ -90,7 +90,7 @@ const SUPER_ADMIN_SESSION = {
       canViewFinancialReports: true,
     },
     role: 'SuperAdministrator',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
   },
 } as const
 
@@ -102,7 +102,8 @@ const ADMIN_SESSION = {
     login: 'admin',
     role: 'Administrator',
     id: 'admin',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Audit', 'Settings'],
     permissions: {
       ...SUPER_ADMIN_SESSION.user.permissions,
     },
@@ -120,8 +121,8 @@ const HEAD_COACH_SESSION = {
     role: 'HeadCoach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Settings'],
+    landingScreen: 'Attention',
+    allowedSections: ['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit', 'Finance', 'Settings'],
     permissions: {
       canManageUsers: true,
       canManageClients: true,
@@ -146,8 +147,8 @@ const COACH_SESSION = {
     role: 'Coach',
     mustChangePassword: false,
     isActive: true,
-    landingScreen: 'Home',
-    allowedSections: ['Home', 'Schedule', 'Clients'],
+    landingScreen: 'Attendance',
+    allowedSections: ['Attendance', 'Schedule', 'Clients'],
     permissions: {
       canManageUsers: false,
       canManageClients: false,
@@ -163,13 +164,13 @@ const COACH_SESSION = {
 
 const ROUTE_CASES: RouteWithState[] = [
   {
-    path: '/',
-    screenTestId: 'home-screen',
+    path: '/attention',
+    screenTestId: 'attention-screen',
     state: 'default',
     controls: [
       {
-        label: 'Главная',
-        locator: (page) => page.getByRole('button', { name: 'Главная' }).first(),
+        label: 'Внимание',
+        locator: (page) => page.getByRole('button', { name: 'Внимание' }).first(),
         touchOnly: true,
       },
     ],
@@ -417,8 +418,8 @@ for (const viewport of VIEWPORT_MATRIX) {
       await mockApi(page, selectedRole.session, APP_CONFIG)
       const inventory: InventoryEntry[] = []
       const violations: string[] = []
-      await page.goto('/')
-      await expect(page.getByTestId('home-screen')).toBeVisible()
+      await page.goto('/attention')
+      await expect(page.getByTestId('attention-screen')).toBeVisible()
 
       const profileLocator = page.getByRole('button', {
         name: `Открыть профильное меню пользователя ${selectedRole.session.user.fullName}`,
@@ -628,9 +629,18 @@ for (const roleFixture of ROLE_MATRIX) {
 
     test('keeps role-aware mobile primary and overflow sections', async ({ page }) => {
       await mockApi(page, roleFixture.session)
-      await page.goto('/')
+      const landingPath = roleFixture.session.user.landingScreen === 'Attendance'
+        ? '/attendance'
+        : '/attention'
+      await page.goto(landingPath)
 
-      await expect(page.getByTestId('home-screen')).toBeVisible()
+      await expect(
+        page.getByTestId(
+          roleFixture.session.user.landingScreen === 'Attendance'
+            ? 'attendance-screen'
+            : 'attention-screen',
+        ),
+      ).toBeVisible()
       await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeVisible()
 
       const allowedSections = roleFixture.session.user.allowedSections
@@ -683,9 +693,10 @@ for (const roleFixture of ROLE_MATRIX) {
 function sectionLabel(section: string) {
   const sectionMap: Record<string, string> = {
     Audit: 'Журнал',
+    Attendance: 'Посещения',
     Clients: 'Клиенты',
     Groups: 'Группы',
-    Home: 'Главная',
+    Attention: 'Внимание',
     Schedule: 'Расписание',
     Settings: 'Настройки',
     Users: 'Тренеры',

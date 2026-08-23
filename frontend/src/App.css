@@ -3486,57 +3486,15 @@
   min-height: 44px;
 }
 
-.home-tabs .mantine-Tabs-list {
-  gap: 0.25rem;
-  margin-bottom: var(--page-section-gap);
-}
-
-.home-tabs .mantine-Tabs-tab {
-  min-height: 44px;
-  font-weight: 700;
-}
-
-.home-tabs .mantine-Tabs-tab:focus-visible {
-  outline: 3px solid var(--crm-brand-alpha-35);
-  outline-offset: 2px;
-}
-
-.home-tab-panel {
-  min-width: 0;
-}
-
-.home-screen-card {
-  background: var(--color-surface);
-}
-
-.home-empty-card,
-.home-client-row-card {
+.attention-client-row-card {
   background:
     linear-gradient(135deg, var(--crm-brand-soft-overlay), var(--crm-surface-card-alpha-98));
 }
 
-.home-client-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-.home-client-row__identity {
-  min-width: 0;
-}
-
-.home-client-row__fields {
-  gap: 0.9rem 1rem;
-}
-
-.home-client-row__field {
+.attention-client-row__field {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-}
-
-.home-empty-card {
-  border-color: var(--crm-brand-alpha-08);
 }
 
 .audit-filter-card,
@@ -4382,15 +4340,6 @@
   .attendance-roster-refresh,
   .attendance-roster-refresh > * {
     width: auto;
-  }
-
-  .home-client-row {
-    grid-template-columns: minmax(16rem, 0.9fr) minmax(0, 1.4fr);
-    align-items: center;
-  }
-
-  .home-client-row__fields {
-    gap: 0.9rem 1rem;
   }
 
   .attendance-client-row {
