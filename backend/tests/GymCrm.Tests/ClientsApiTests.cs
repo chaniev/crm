@@ -17,8 +17,11 @@ using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +41,129 @@ public class ClientsApiTests
         ["correct"] = ["/clients/{0}/membership/correct", "/clients/{0}/memberships/correct", "/clients/{0}/membership/correction", "/clients/{0}/membership/update"],
         ["mark-payment"] = ["/clients/{0}/membership/mark-payment", "/clients/{0}/memberships/mark-payment", "/clients/{0}/membership/payment", "/clients/{0}/membership/pay", "/clients/{0}/membership/mark-payment-by-user"]
     };
+
+    [Fact]
+    public async Task Client_query_endpoint_manifest_keeps_four_get_routes_without_duplicates()
+    {
+        await using var factory = new ClientsAppFactory();
+        using var client = factory.CreateClient();
+        using var sessionResponse = await client.GetAsync("/auth/session");
+        Assert.Equal(HttpStatusCode.OK, sessionResponse.StatusCode);
+
+        var expectedRoutes = new[]
+        {
+            (Template: "/clients", Policy: GymCrmAuthorizationPolicies.ViewClients),
+            (Template: "/clients/expiring-memberships", Policy: GymCrmAuthorizationPolicies.ManageClients),
+            (Template: "/clients/membership/expiration-suggestion", Policy: GymCrmAuthorizationPolicies.ManageClients),
+            (Template: "/clients/{id:guid}", Policy: GymCrmAuthorizationPolicies.ViewClients)
+        };
+        var endpoints = factory.Services
+            .GetRequiredService<EndpointDataSource>()
+            .Endpoints
+            .OfType<RouteEndpoint>()
+            .Where(endpoint => endpoint.Metadata
+                .GetMetadata<HttpMethodMetadata>()?
+                .HttpMethods
+                .Contains(HttpMethods.Get, StringComparer.OrdinalIgnoreCase) == true)
+            .ToArray();
+
+        foreach (var expectedRoute in expectedRoutes)
+        {
+            var matchingEndpoints = endpoints
+                .Where(endpoint => string.Equals(
+                    endpoint.RoutePattern.RawText?.TrimEnd('/'),
+                    expectedRoute.Template,
+                    StringComparison.Ordinal))
+                .ToArray();
+
+            var endpoint = Assert.Single(matchingEndpoints);
+            var policies = endpoint.Metadata
+                .GetOrderedMetadata<IAuthorizeData>()
+                .Select(metadata => metadata.Policy)
+                .Where(policy => !string.IsNullOrWhiteSpace(policy));
+            Assert.Contains(expectedRoute.Policy, policies);
+        }
+    }
+
+    [Fact]
+    public async Task Client_list_keeps_legacy_paging_empty_page_and_validation_field_keys()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var firstPageResponse = await client.GetAsync("/clients?status=Archived&skip=0&take=1"))
+        {
+            Assert.Equal(HttpStatusCode.OK, firstPageResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(firstPageResponse);
+            Assert.Single(GetArrayPayload(payload, "items", "clients").EnumerateArray());
+            Assert.Equal(1, GetLongFromAnyCase(payload, "totalCount", "TotalCount"));
+            Assert.Equal(0, GetLongFromAnyCase(payload, "skip", "Skip"));
+            Assert.Equal(1, GetLongFromAnyCase(payload, "take", "Take"));
+            Assert.Equal(1, GetLongFromAnyCase(payload, "page", "Page"));
+            Assert.False(GetBoolFromAnyCase(payload, "hasNextPage", "HasNextPage"));
+        }
+
+        using (var emptyPageResponse = await client.GetAsync("/clients?status=Archived&skip=1&take=1"))
+        {
+            Assert.Equal(HttpStatusCode.OK, emptyPageResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(emptyPageResponse);
+            Assert.Empty(GetArrayPayload(payload, "items", "clients").EnumerateArray());
+            Assert.Equal(1, GetLongFromAnyCase(payload, "totalCount", "TotalCount"));
+            Assert.Equal(1, GetLongFromAnyCase(payload, "skip", "Skip"));
+            Assert.Equal(1, GetLongFromAnyCase(payload, "take", "Take"));
+            Assert.Equal(2, GetLongFromAnyCase(payload, "page", "Page"));
+            Assert.False(GetBoolFromAnyCase(payload, "hasNextPage", "HasNextPage"));
+        }
+
+        var invalidCases = new[]
+        {
+            (Query: "page=0", Field: "page"),
+            (Query: "pageSize=0", Field: "pageSize"),
+            (Query: "skip=-1", Field: "skip"),
+            (Query: "take=0", Field: "take"),
+            (Query: "status=Unknown", Field: "status"),
+            (Query: "behaviorKind=Unknown", Field: "behaviorKind"),
+            (Query: "membershipExpiresFrom=not-a-date", Field: "membershipExpiresFrom"),
+            (Query: "membershipExpiresFrom=2026-02-02&membershipExpiresTo=2026-02-01", Field: "membershipExpiresTo")
+        };
+
+        foreach (var invalidCase in invalidCases)
+        {
+            using var response = await client.GetAsync($"/clients?{invalidCase.Query}");
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+            var payload = await ReadJsonElementAsync(response);
+            var errors = GetPropertyOrNull(payload, "errors", "Errors");
+            Assert.Equal(
+                JsonValueKind.Array,
+                GetPropertyOrNull(errors, invalidCase.Field).ValueKind);
+        }
+    }
+
+    [Fact]
+    public async Task Client_details_for_missing_id_remains_not_found()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await client.GetAsync($"/clients/{Guid.NewGuid()}");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
     [Theory]
     [InlineData("HeadCoach")]
