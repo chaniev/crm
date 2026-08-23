@@ -66,11 +66,25 @@ export function ClientTransferModal({
 
   useEffect(() => {
     if (!opened || !selectedBranchId || movesUnusedSingleVisit) return
+
     const controller = new AbortController()
     void getEligibleMembershipCatalogItems(selectedBranchId, controller.signal)
-      .then(setCatalogItems)
-      .catch(() => setCatalogItems([]))
-      .finally(() => { if (!controller.signal.aborted) setCatalogLoading(false) })
+      .then((items) => {
+        if (!controller.signal.aborted) {
+          setCatalogItems(items)
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setCatalogItems([])
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setCatalogLoading(false)
+        }
+      })
+
     return () => controller.abort()
   }, [movesUnusedSingleVisit, opened, selectedBranchId])
 

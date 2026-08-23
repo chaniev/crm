@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
@@ -572,6 +572,74 @@ describe('ClientDetailScreen sale-producing transfer pricing', () => {
     expect(within(dialog).getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
   })
 
+  test('ignores stale transfer catalog responses after target branch changes', async () => {
+    const branchOneCatalog = createDeferred<ReturnType<typeof buildCatalogItem>[]>()
+    const branchTwoCatalog = createDeferred<ReturnType<typeof buildCatalogItem>[]>()
+    const branchOneItem = {
+      ...buildCatalogItem(),
+      id: 'catalog-branch-1',
+      name: 'Старый филиал',
+    }
+    const branchTwoItem = {
+      ...buildCatalogItem(),
+      id: 'catalog-branch-2',
+      branchId: 'branch-2',
+      name: 'Северный абонемент',
+      price: 3200,
+    }
+
+    getClientMock.mockResolvedValue(buildClientDetails())
+    setupTransferOptions()
+    getEligibleItemsMock.mockImplementation((branchId) =>
+      branchId === 'branch-2'
+        ? branchTwoCatalog.promise
+        : branchOneCatalog.promise,
+    )
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
+
+    const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
+    await waitFor(() =>
+      expect(getEligibleItemsMock).toHaveBeenCalledWith(
+        'branch-1',
+        expect.any(AbortSignal),
+      ),
+    )
+
+    fireEvent.click(within(dialog).getByRole('combobox', { name: 'Целевой филиал' }))
+    fireEvent.click(await screen.findByRole('option', { name: /Северный/ }))
+
+    await waitFor(() =>
+      expect(getEligibleItemsMock).toHaveBeenCalledWith(
+        'branch-2',
+        expect.any(AbortSignal),
+      ),
+    )
+
+    await act(async () => {
+      branchTwoCatalog.resolve([branchTwoItem])
+    })
+
+    fireEvent.click(within(dialog).getByRole('radio', { name: 'По каталожной цене' }))
+    const catalogSelect = await within(dialog).findByRole('combobox', {
+      name: 'Вариант абонемента',
+    })
+    fireEvent.click(catalogSelect)
+
+    fireEvent.click(await screen.findByRole('option', { name: /Северный абонемент/ }))
+    expect(within(dialog).getByText('Каталожная цена')).toBeInTheDocument()
+    expect(within(dialog).getAllByText(/3\s*200\s*₽/).length).toBeGreaterThan(0)
+
+    await act(async () => {
+      branchOneCatalog.resolve([branchOneItem])
+    })
+
+    expect(screen.queryByText(/Старый филиал/)).not.toBeInTheDocument()
+    expect(within(dialog).getByText('Каталожная цена')).toBeInTheDocument()
+    expect(within(dialog).getAllByText(/3\s*200\s*₽/).length).toBeGreaterThan(0)
+  })
+
   test('sale-producing transfer requires payment date from business date and sends it once', async () => {
     const client = buildClientDetails({ businessDate: '2026-07-23' })
     getClientMock.mockResolvedValue(client)
@@ -964,6 +1032,15 @@ function buildCatalogItem() {
 async function selectCatalogOption(label: string) {
   fireEvent.click(screen.getByRole('combobox', { name: label }))
   fireEvent.click(await screen.findByRole('option', { name: /Месяц/ }))
+}
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((nextResolve) => {
+    resolve = nextResolve
+  })
+
+  return { promise, resolve }
 }
 
 function setupTransferOptions() {
