@@ -123,6 +123,41 @@ describe('Client route forms', () => {
     expect(screen.getAllByRole('button', { name: 'К карточке клиента' })).toHaveLength(1)
     expect(screen.queryByRole('form')).not.toBeInTheDocument()
   })
+
+  test('submits create payload once and returns the created client id', async () => {
+    setupClientFormOptions()
+    createClientMock.mockResolvedValue({ id: 'created-client' } as ClientDetails)
+    const onCreated = vi.fn()
+
+    renderWithProviders(
+      <ClientCreateScreen onCancel={vi.fn()} onCreated={onCreated} />,
+    )
+
+    expect(await screen.findByRole('button', { name: 'Сохранить клиента' })).toBeVisible()
+
+    fireEvent.change(screen.getByLabelText('Фамилия'), {
+      target: { value: ' Иванов ' },
+    })
+    fireEvent.change(screen.getByLabelText('Телефон'), {
+      target: { value: ' +7 999 000-00-00 ' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить клиента' }))
+
+    await waitFor(() => expect(createClientMock).toHaveBeenCalledTimes(1))
+    expect(createClientMock).toHaveBeenCalledWith({
+      lastName: 'Иванов',
+      firstName: undefined,
+      middleName: undefined,
+      phone: '+7 999 000-00-00',
+      birthDate: null,
+      branchId: 'branch-1',
+      notes: '',
+      contacts: [],
+      groupIds: [],
+    })
+    expect(onCreated).toHaveBeenCalledWith('created-client')
+  })
 })
 
 describe('ClientDetailScreen membership sale comments', () => {
