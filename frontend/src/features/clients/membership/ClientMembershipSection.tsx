@@ -1,6 +1,6 @@
 import { Badge, Group, Stack, Text } from '@mantine/core'
 
-import type { ClientDetails } from '../../../lib/api'
+import type { ClientDetails, ClientMembership } from '../../../lib/api'
 import { PageSection } from '../../shared/ux'
 import type {
   MembershipActionMode,
@@ -17,7 +17,7 @@ type ClientMembershipSectionProps = {
   pending: boolean
   onCancelAction: () => void
   onSubmit: (submission: MembershipActionSubmission) => Promise<void>
-  onClientChange: (client: ClientDetails) => void
+  onMembershipCommentChange: (membership: ClientMembership) => void
 }
 
 export function ClientMembershipSection({
@@ -26,7 +26,7 @@ export function ClientMembershipSection({
   pending,
   onCancelAction,
   onSubmit,
-  onClientChange,
+  onMembershipCommentChange,
 }: ClientMembershipSectionProps) {
   const currentMembership = client.currentMembership
   const canEditMembership = !client.isProfessional
@@ -90,7 +90,7 @@ export function ClientMembershipSection({
         <MembershipHistory
           clientId={client.id}
           history={client.membershipHistory}
-          onClientChange={onClientChange}
+          onMembershipCommentChange={onMembershipCommentChange}
         />
       </Stack>
     </PageSection>

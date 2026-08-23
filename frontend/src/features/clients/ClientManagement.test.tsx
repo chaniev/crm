@@ -550,6 +550,81 @@ describe('ClientDetailScreen membership sale comments', () => {
     expect(screen.getAllByText('Обновлено')).toHaveLength(1)
   })
 
+  test('keeps both sale comments when concurrent saves resolve with stale snapshots out of order', async () => {
+    const initial = buildClientWithMemberships()
+    const saleARequest = createDeferred<ClientDetails>()
+    const saleBRequest = createDeferred<ClientDetails>()
+    const saleAResponse = {
+      ...initial,
+      membershipHistory: initial.membershipHistory.map((membership) =>
+        membership.saleId === 'sale-1'
+          ? {
+              ...membership,
+              comment: 'Обновлено A',
+              commentLastChangedByName: 'Администратор A',
+              commentLastChangedAt: '2026-09-01T10:00:00Z',
+            }
+          : membership,
+      ),
+    }
+    const saleBResponse = {
+      ...initial,
+      membershipHistory: initial.membershipHistory.map((membership) =>
+        membership.saleId === 'sale-2'
+          ? {
+              ...membership,
+              comment: 'Обновлено B',
+              commentLastChangedByName: 'Администратор B',
+              commentLastChangedAt: '2026-09-01T10:01:00Z',
+            }
+          : membership,
+      ),
+    }
+
+    getClientMock.mockResolvedValue(initial)
+    updateCommentMock.mockImplementation((_clientId, saleId) =>
+      saleId === 'sale-1' ? saleARequest.promise : saleBRequest.promise,
+    )
+    renderClientDetails()
+
+    const saleA = await screen.findByTestId('membership-sale-comment-sale-1')
+    const saleB = screen.getByTestId('membership-sale-comment-sale-2')
+
+    fireEvent.click(
+      within(saleA).getByRole('button', { name: /Редактировать комментарий/ }),
+    )
+    fireEvent.change(
+      within(saleA).getByRole('textbox', { name: 'Комментарий к покупке' }),
+      { target: { value: 'Обновлено A' } },
+    )
+    fireEvent.click(within(saleA).getByRole('button', { name: 'Сохранить' }))
+
+    fireEvent.click(
+      within(saleB).getByRole('button', { name: /Редактировать комментарий/ }),
+    )
+    fireEvent.change(
+      within(saleB).getByRole('textbox', { name: 'Комментарий к покупке' }),
+      { target: { value: 'Обновлено B' } },
+    )
+    fireEvent.click(within(saleB).getByRole('button', { name: 'Сохранить' }))
+
+    await waitFor(() => expect(updateCommentMock).toHaveBeenCalledTimes(2))
+
+    await act(async () => {
+      saleBRequest.resolve(saleBResponse)
+    })
+    expect(await within(saleB).findByText('Обновлено B')).toBeInTheDocument()
+
+    await act(async () => {
+      saleARequest.resolve(saleAResponse)
+    })
+
+    expect(await within(saleA).findByText('Обновлено A')).toBeInTheDocument()
+    expect(within(saleB).getByText('Обновлено B')).toBeInTheDocument()
+    expect(screen.getAllByText('Обновлено A')).toHaveLength(1)
+    expect(screen.getAllByText('Обновлено B')).toHaveLength(1)
+  })
+
   test('keeps rejection and draft row-local, then retries without changing another sale', async () => {
     const initial = buildClientWithMemberships()
     const updated = {
