@@ -307,7 +307,7 @@ regression coverage.
   browser regressions were nevertheless validated green on the final candidate
   and this process-only checkbox is intentionally not claimed.
 - Final validation: backend format/build/audit and `431/431` xUnit tests;
-  frontend lint/typecheck/raw-color/audit, `524/524` unit tests and build;
+  frontend lint/typecheck/raw-color/audit, `525/525` unit tests and build;
   affected Chromium `29/29`; target iPhone WebKit `42/42`.
 - Isolated `crm-task-103` smoke validated actual HeadCoach session JSON through
   the frontend proxy, login, `/attention` landing/reload, navigation to

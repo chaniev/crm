@@ -214,7 +214,7 @@ mobile placement и SuperAdministrator scope подтверждены польз
   landmarks, explicit restricted/not-found recovery and version-2 client
   return context.
 - Validation: backend format/build/audit and `431/431` tests; frontend full
-  check/audit with `524/524` unit tests; affected Chromium `29/29`; target
+  check/audit with `525/525` unit tests; affected Chromium `29/29`; target
   iPhone WebKit `42/42`; isolated real-stack session/route/API smoke passed.
 - Physical Safari/iOS Simulator, actual safe-area/browser chrome and software
   keyboard behavior remain unverified. Standard backend Compose build remains
