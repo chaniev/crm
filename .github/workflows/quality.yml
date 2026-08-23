@@ -95,3 +95,32 @@ jobs:
       - name: Pytest
         run: uv run --locked --extra dev pytest
         working-directory: bot
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate local Compose configuration
+        run: >-
+          docker compose
+          --project-directory .
+          --env-file deploy/.env.example
+          -f deploy/docker-compose.yml
+          config --quiet
+
+      - name: Validate server Compose configuration
+        run: >-
+          docker compose
+          --project-directory .
+          --env-file deploy/.env.example
+          -f deploy/docker-compose.server.yml
+          config --quiet
+
+      - name: Validate deploy script syntax
+        run: >-
+          bash -n
+          deploy/build-images.sh
+          deploy/export-images.sh
+          deploy/load-images.sh
+          deploy/lib/images.sh

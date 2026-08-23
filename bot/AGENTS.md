@@ -2,84 +2,110 @@
 
 ## Scope
 
-Applies to all tasks inside `bot/`.
-
+Applies to all tasks inside `bot/` together with the root `AGENTS.md`.
 Bot is a thin Telegram adapter over backend APIs.
 
 ---
 
 ## Main areas
 
-- `telegram/` -> Telegram adapter
-- `crm/` -> backend API client
-- `core/` -> dialog flows
-- `storage/` -> bot-owned state
-- `tests/` -> runtime validation
+- `src/gym_crm_bot/telegram/` -> Telegram adapters and middleware
+- `src/gym_crm_bot/crm/` -> typed backend Bot API client and error mapping
+- `src/gym_crm_bot/core/` -> dialog flows, rendering, and idempotency orchestration
+- `src/gym_crm_bot/storage/` -> bot-owned session/runtime persistence
+- `src/gym_crm_bot/resources/` -> messages, callbacks, and keyboards
+- `tests/` -> unit, integration-boundary, and runtime regression tests
 
 ---
 
-## Bot responsibilities
+## Responsibility boundary
 
 Bot handles:
-- Telegram events
-- dialog state
-- idempotency
-- user interaction flow
-- backend response presentation
 
-Backend handles:
-- permissions
-- memberships
-- attendance logic
-- validation semantics
-- business rules
+- Telegram events and presentation
+- dialog/session state
+- adapter-level idempotency orchestration
+- user interaction flow
+- backend response and error presentation
+
+Backend handles permissions, memberships, attendance, validation, access scope,
+and all other CRM business rules. Bot must not infer or persist independent CRM
+truth.
 
 ---
 
-## Runtime rules
+## Runtime and request rules
 
-- Use long polling in MVP
-- Store secrets in env only
-- Use service token for backend calls
-- Send `X-Request-Id`
-- Use `Idempotency-Key` for write operations
-
-Retry only safe read requests.
+- Use long polling while it remains the supported MVP mode.
+- Load secrets from runtime environment only; never commit, log, or include
+  tokens, proxy secrets, or MTProto session material in diagnostics.
+- Use the configured service token only through the backend API client boundary.
+- Send `X-Request-Id` on every backend request.
+- Send `Idempotency-Key` for write operations.
+- Retry only safe reads and only for transient failures covered by the client policy.
+- Never automatically retry a mutation. A deliberate repeat of the same action
+  must preserve the same idempotency identity only when action and payload match.
 
 ---
 
 ## Storage rules
 
 Bot-owned storage may contain only:
+
 - dialog/session state
 - processed Telegram updates
-- adapter-specific runtime data
+- adapter-specific idempotency/runtime data
 
-Bot storage is not a CRM source of truth.
+Bot storage is not a CRM source of truth. Schema/runtime policy changes must
+define the migration owner and validate both clean initialization and any
+retained bot-storage upgrade path before production use.
 
 ---
 
 ## Required validation
 
+Run from the repository root.
+
 Minimum:
-- `uv sync --locked --extra dev`
-- `uv run --locked --extra dev ruff check .`
-- `uv run --locked --extra dev ruff format --check .`
-- `uv run --locked --extra dev mypy`
-- `uv run --locked --extra dev pytest`
 
-Use `uv.lock` for local, CI and container dependency installation. Do not use
-an unlocked `pip install` as the normal project workflow.
+- `cd bot && uv sync --locked --extra dev`
+- `cd bot && uv run --locked --extra dev ruff check .`
+- `cd bot && uv run --locked --extra dev ruff format --check .`
+- `cd bot && uv run --locked --extra dev mypy`
+- `cd bot && uv run --locked --extra dev pytest`
 
-If runtime/docker changes:
-- validate container build/runtime
+Use `bot/uv.lock` for local, CI, and container dependency installation. Do not
+use an unlocked `pip install` as the normal project workflow.
+
+If runtime, storage, or Docker behavior changes, validate the affected
+container/startup path and one representative failure path.
+
+---
+
+## Code review rules
+
+Flag:
+
+- CRM permissions or business rules reimplemented in Python
+- mutations retried automatically or sent without idempotency identity
+- backend requests missing request correlation
+- CRM entity state persisted as bot-owned truth
+- backend ProblemDetails flattened into misleading user messages
+- logs or fixtures exposing tokens, proxy secrets, session material, or user PII
+
+Prefer fixes at the adapter/client boundary and behavior assertions over private
+implementation coupling.
+
+---
 
 ## Preferred specialists
 
 Default:
+
 - python-pro
 
 Additional:
+
 - refactoring-specialist
 - docker-expert
 - test-automator
