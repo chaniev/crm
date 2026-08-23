@@ -496,7 +496,7 @@ const MANAGEMENT_ROUTES = [
     checkSharedEdges: true,
   },
   {
-    path: '/users',
+    path: '/coaches',
     screenTestId: 'users-screen',
     navLabel: 'Тренеры',
     expectedPageTitle: 'Тренеры',
@@ -2568,7 +2568,7 @@ async function mockApi(
       return
     }
 
-    if (pathname === '/api/users' && method === 'GET') {
+    if (pathname === '/api/coaches' && method === 'GET') {
       await fulfillJson(route, 200, {
         items: USERS_RESPONSE,
         createRoleOptions: ['Coach'],

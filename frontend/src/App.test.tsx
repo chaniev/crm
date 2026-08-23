@@ -108,15 +108,21 @@ vi.mock('./features/users/UserManagement', () => ({
     </div>
   ),
   UsersListScreen: ({
+    filters,
     onCreate,
     onEdit,
+    onFiltersChange,
     onQueryChange,
     query,
+    returnFocusRequest,
   }: {
+    filters: { status: 'all' | 'inactive'; password: 'all' | 'mustChange' }
     onCreate: () => void
     onEdit: (userId: string) => void
+    onFiltersChange: (filters: { status: 'all' | 'inactive'; password: 'all' | 'mustChange' }) => void
     onQueryChange: (query: string) => void
     query: string
+    returnFocusRequest?: { trainerId: string | null; scrollY: number } | null
   }) => (
     <div data-testid="users-list-screen">
       <label>
@@ -127,6 +133,20 @@ vi.mock('./features/users/UserManagement', () => ({
           value={query}
         />
       </label>
+      <output data-testid="trainer-filter-state">
+        {filters.status}:{filters.password}
+      </output>
+      <output data-testid="trainer-return-target">
+        {returnFocusRequest
+          ? returnFocusRequest.trainerId ?? 'results'
+          : 'none'}
+      </output>
+      <button
+        type="button"
+        onClick={() => onFiltersChange({ status: 'inactive', password: 'mustChange' })}
+      >
+        Включить фильтры тренеров
+      </button>
       <button type="button" onClick={onCreate}>Создать тренера</button>
       <button type="button" onClick={() => onEdit('trainer-1')}>Изменить тренера</button>
     </div>
@@ -383,36 +403,44 @@ describe('App route access contract', () => {
     expect(await screen.findByTestId('groups-list-screen')).toBeVisible()
     groupView.unmount()
 
-    renderAppAt('/users/trainer-1/edit', baseSession)
+    renderAppAt('/coaches/trainer-1/edit', baseSession)
     expect(await screen.findByTestId('user-edit-screen')).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Назад к тренерам' }))
-    await waitFor(() => expect(window.location.pathname).toBe('/users'))
+    await waitFor(() => expect(window.location.pathname).toBe('/coaches'))
     expect(await screen.findByTestId('users-list-screen')).toBeVisible()
+    expect(screen.getByTestId('trainer-return-target')).toHaveTextContent('results')
   })
 
-  test('keeps trainer query through create/edit returns and resets outside Users workflow', async () => {
-    renderAppAt('/users', baseSession)
+  test('keeps trainer criteria and return target inside workflow and resets them after unmount', async () => {
+    renderAppAt('/coaches', baseSession)
 
     const search = await screen.findByRole('textbox', { name: 'Найти тренера' })
     fireEvent.change(search, { target: { value: 'Анна' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Включить фильтры тренеров' }))
+    expect(screen.getByTestId('trainer-filter-state')).toHaveTextContent('inactive:mustChange')
 
     fireEvent.click(screen.getByRole('button', { name: 'Изменить тренера' }))
-    await waitFor(() => expect(window.location.pathname).toBe('/users/trainer-1/edit'))
+    await waitFor(() => expect(window.location.pathname).toBe('/coaches/trainer-1/edit'))
     fireEvent.click(screen.getByRole('button', { name: 'Назад к тренерам' }))
 
-    await waitFor(() => expect(window.location.pathname).toBe('/users'))
+    await waitFor(() => expect(window.location.pathname).toBe('/coaches'))
     expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveValue('Анна')
+    expect(screen.getByTestId('trainer-filter-state')).toHaveTextContent('inactive:mustChange')
+    expect(screen.getByTestId('trainer-return-target')).toHaveTextContent('trainer-1')
 
     fireEvent.click(screen.getByRole('button', { name: 'Создать тренера' }))
-    await waitFor(() => expect(window.location.pathname).toBe('/users/new'))
+    await waitFor(() => expect(window.location.pathname).toBe('/coaches/new'))
     fireEvent.click(screen.getByRole('button', { name: 'Назад к тренерам' }))
     expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveValue('Анна')
+    expect(screen.getByTestId('trainer-filter-state')).toHaveTextContent('inactive:mustChange')
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Клиенты' })[0])
     expect(await screen.findByTestId('clients-list-screen')).toBeVisible()
     fireEvent.click(screen.getAllByRole('button', { name: 'Тренеры' })[0])
 
     expect(await screen.findByRole('textbox', { name: 'Найти тренера' })).toHaveValue('')
+    expect(screen.getByTestId('trainer-filter-state')).toHaveTextContent('all:all')
+    expect(screen.getByTestId('trainer-return-target')).toHaveTextContent('none')
   })
 
   test('renders an allowed section without access-denial shell', async () => {
@@ -564,7 +592,7 @@ describe('App route access contract', () => {
   })
 
   test('auto-recovers once after same-user session refresh revokes current allowed route', async () => {
-    renderAppAt('/users/trainer-1/edit', baseSession)
+    renderAppAt('/coaches/trainer-1/edit', baseSession)
 
     expect(await screen.findByTestId('user-edit-screen')).toBeVisible()
 
@@ -593,7 +621,7 @@ describe('App route access contract', () => {
   })
 
   test('does not auto-recover when a different user loses access at the same path', async () => {
-    renderAppAt('/users/trainer-1/edit', baseSession)
+    renderAppAt('/coaches/trainer-1/edit', baseSession)
 
     expect(await screen.findByTestId('user-edit-screen')).toBeVisible()
     loadSessionMock.mockResolvedValueOnce(
@@ -611,7 +639,7 @@ describe('App route access contract', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Обновить сессию' }))
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Нет доступа' })).toBeVisible()
-    expect(window.location.pathname).toBe('/users/trainer-1/edit')
+    expect(window.location.pathname).toBe('/coaches/trainer-1/edit')
     expect(showPoliteStatusNotificationMock).not.toHaveBeenCalled()
   })
 
@@ -805,7 +833,7 @@ describe('App route access contract', () => {
   })
 
   test('combines password success with recovery when the saved allowed route is newly restricted', async () => {
-    renderAppAt('/users/trainer-1/edit', baseSession)
+    renderAppAt('/coaches/trainer-1/edit', baseSession)
 
     expect(await screen.findByTestId('user-edit-screen')).toBeVisible()
     await openUtilityPasswordScreen()

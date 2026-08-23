@@ -11,7 +11,7 @@ internal static class UserEndpoints
 {
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/users")
+        var group = endpoints.MapGroup("/coaches")
             .RequireAuthorization();
 
         group.MapGet("/", ListUsersAsync);
@@ -134,7 +134,7 @@ internal static class UserEndpoints
         }
 
         var user = mutationResult.User!;
-        return TypedResults.Created($"/users/{user.Id}", ToResponse(user, currentUser));
+        return TypedResults.Created($"/coaches/{user.Id}", ToResponse(user, currentUser));
     }
 
     private static async Task<Results<Ok<UserResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateUserAsync(

@@ -1,6 +1,22 @@
 import type { UserListItem } from '../../lib/api'
 
-type TrainerSearchItem = Pick<UserListItem, 'fullName' | 'login'>
+export type TrainerStatusFilter = 'all' | 'inactive'
+export type TrainerPasswordFilter = 'all' | 'mustChange'
+
+export type TrainerListFilters = {
+  status: TrainerStatusFilter
+  password: TrainerPasswordFilter
+}
+
+type TrainerSearchItem = Pick<
+  UserListItem,
+  'fullName' | 'login' | 'isActive' | 'mustChangePassword'
+>
+
+export const DEFAULT_TRAINER_LIST_FILTERS: TrainerListFilters = {
+  status: 'all',
+  password: 'all',
+}
 
 export function normalizeTrainerListSearchQuery(query: string) {
   return query.trim().toLocaleLowerCase('ru-RU')
@@ -24,6 +40,29 @@ export function isTrainerSearchMatch(
 export function filterTrainerListItems<T extends TrainerSearchItem>(
   items: readonly T[],
   query: string,
+  filters: TrainerListFilters = DEFAULT_TRAINER_LIST_FILTERS,
 ) {
-  return items.filter((item) => isTrainerSearchMatch(item, query))
+  return items.filter((item) =>
+    isTrainerSearchMatch(item, query) &&
+    isTrainerStatusMatch(item, filters.status) &&
+    isTrainerPasswordMatch(item, filters.password),
+  )
+}
+
+export function countActiveTrainerFilters(filters: TrainerListFilters) {
+  return Number(filters.status !== 'all') + Number(filters.password !== 'all')
+}
+
+function isTrainerStatusMatch(
+  item: TrainerSearchItem,
+  status: TrainerStatusFilter,
+) {
+  return status === 'all' || item.isActive === false
+}
+
+function isTrainerPasswordMatch(
+  item: TrainerSearchItem,
+  password: TrainerPasswordFilter,
+) {
+  return password === 'all' || item.mustChangePassword === true
 }

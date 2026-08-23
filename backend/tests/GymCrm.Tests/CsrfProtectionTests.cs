@@ -36,7 +36,7 @@ public class CsrfProtectionTests
         {
             ("users", () => CreateJsonRequest(
                 HttpMethod.Post,
-                "/users",
+                "/coaches",
                 new
                 {
                     FullName = "CSRF User",

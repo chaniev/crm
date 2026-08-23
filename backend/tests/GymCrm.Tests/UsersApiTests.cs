@@ -32,7 +32,7 @@ public class UsersApiTests
 
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
 
-        using (var listResponse = await client.GetAsync("/users"))
+        using (var listResponse = await client.GetAsync("/coaches"))
         {
             Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
             var usersPayload = await ReadJsonElementAsync(listResponse);
@@ -49,23 +49,27 @@ public class UsersApiTests
         }
 
         var createLogin = $"hc-user-{Guid.NewGuid():N}";
+        Guid createdUserId;
         using (var createResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest("Тестовый пользователь", createLogin, "12345Aa!", "Coach", false, true, "Telegram", "tg-user-001"),
                    session.CsrfToken))
         {
-            Assert.True(
-                createResponse.StatusCode is HttpStatusCode.Created or HttpStatusCode.OK,
-                $"Expected user create success, got {createResponse.StatusCode}.");
+            Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+            var payload = await ReadJsonElementAsync(createResponse);
+            createdUserId = GetGuidFromProperty(payload, "id");
+            Assert.NotEqual(Guid.Empty, createdUserId);
+            Assert.Equal($"/coaches/{createdUserId}", createResponse.Headers.Location?.OriginalString);
+            Assert.Equal("Coach", GetStringFromProperty(payload, "role"));
         }
 
-        Guid createdUserId;
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             var createdUser = await dbContext.Users.SingleAsync(user => user.Login == createLogin);
-            createdUserId = createdUser.Id;
+            Assert.Equal(createdUserId, createdUser.Id);
             Assert.Equal(createLogin, createdUser.Login);
             Assert.Equal(MessengerPlatform.Telegram, createdUser.MessengerPlatform);
             Assert.Equal("tg-user-001", createdUser.MessengerPlatformUserId);
@@ -73,7 +77,7 @@ public class UsersApiTests
 
         using (var updateResponse = await PutJsonAsync(
                    client,
-                   $"/users/{createdUserId}",
+                   $"/coaches/{createdUserId}",
                    new UserUpdateRequest("Обновлённый тестовый пользователь", createLogin, "Coach", true, false, " ", " "),
                    session.CsrfToken))
         {
@@ -94,6 +98,60 @@ public class UsersApiTests
             Assert.False(updatedUser.IsActive);
             Assert.Null(updatedUser.MessengerPlatform);
             Assert.Null(updatedUser.MessengerPlatformUserId);
+        }
+    }
+
+    [Fact]
+    public async Task Legacy_users_routes_are_unmapped()
+    {
+        await using var factory = new UsersAppFactory();
+        var seeded = await SeedUsersDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        using (var canonicalAnonymousResponse = await client.GetAsync("/coaches"))
+        {
+            Assert.Equal(HttpStatusCode.Unauthorized, canonicalAnonymousResponse.StatusCode);
+        }
+
+        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var canonicalMissingCsrfResponse = await client.PostAsJsonAsync("/coaches", new { }))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, canonicalMissingCsrfResponse.StatusCode);
+        }
+
+        var targetId = Guid.NewGuid();
+        var scenarios = new[]
+        {
+            new HttpRequestMessage(HttpMethod.Get, "/users"),
+            new HttpRequestMessage(HttpMethod.Get, $"/users/{targetId}"),
+            new HttpRequestMessage(HttpMethod.Post, "/users")
+            {
+                Content = JsonContent.Create(new { })
+            },
+            new HttpRequestMessage(HttpMethod.Put, $"/users/{targetId}")
+            {
+                Content = JsonContent.Create(new { })
+            }
+        };
+
+        foreach (var request in scenarios)
+        {
+            using (request)
+            using (var response = await client.SendAsync(request))
+            {
+                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                Assert.NotEqual("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+                var body = await response.Content.ReadAsStringAsync();
+                Assert.DoesNotContain("\"code\"", body);
+                Assert.DoesNotContain("csrf", body, StringComparison.OrdinalIgnoreCase);
+                Assert.DoesNotContain("staff_", body, StringComparison.OrdinalIgnoreCase);
+            }
         }
     }
 
@@ -121,7 +179,7 @@ public class UsersApiTests
 
         using (var createResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest(
                        "Новый администратор",
                        createLogin,
@@ -140,7 +198,7 @@ public class UsersApiTests
 
         using (var updateResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.CoachId}",
+                   $"/coaches/{seeded.CoachId}",
                    new UserUpdateRequest(
                        "Тренер как администратор",
                        seeded.CoachLogin,
@@ -268,7 +326,7 @@ public class UsersApiTests
                 payload.GetProperty("roleOptions").EnumerateArray().Select(item => item.GetString()!).ToArray());
         }
 
-        using (var usersListResponse = await client.GetAsync("/users"))
+        using (var usersListResponse = await client.GetAsync("/coaches"))
         {
             Assert.Equal(HttpStatusCode.OK, usersListResponse.StatusCode);
             var payload = await ReadJsonElementAsync(usersListResponse);
@@ -404,7 +462,7 @@ public class UsersApiTests
 
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
 
-        using (var adminThroughUsersGet = await client.GetAsync($"/users/{seeded.AdministratorId}"))
+        using (var adminThroughUsersGet = await client.GetAsync($"/coaches/{seeded.AdministratorId}"))
         {
             Assert.Equal(HttpStatusCode.NotFound, adminThroughUsersGet.StatusCode);
             await AssertProblemDetailsAsync(
@@ -424,7 +482,7 @@ public class UsersApiTests
 
         using (var adminThroughUsersUpdate = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.AdministratorId}",
+                   $"/coaches/{seeded.AdministratorId}",
                    new
                    {
                        FullName = "Wrong family",
@@ -499,7 +557,7 @@ public class UsersApiTests
         var firstLogin = $"tg-user-{Guid.NewGuid():N}";
         using (var firstResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest("Telegram One", firstLogin, "12345Aa!", "Coach", false, true, "Telegram", "duplicate-telegram-id"),
                    session.CsrfToken))
         {
@@ -508,7 +566,7 @@ public class UsersApiTests
 
         using var duplicateResponse = await PostJsonAsync(
             client,
-            "/users",
+            "/coaches",
             new UserCreateRequest("Telegram Two", $"tg-user-{Guid.NewGuid():N}", "12345Aa!", "Coach", false, true, "Telegram", "duplicate-telegram-id"),
             session.CsrfToken);
 
@@ -535,7 +593,7 @@ public class UsersApiTests
 
         using var response = await PostJsonAsync(
             client,
-            "/users",
+            "/coaches",
             new UserCreateRequest(" ", " ", "", "InvalidRole", false, true),
             session.CsrfToken);
 
@@ -549,12 +607,12 @@ public class UsersApiTests
     }
 
     [Theory]
-    [InlineData("/users", "missing")]
-    [InlineData("/users", "null")]
-    [InlineData("/users", "empty")]
-    [InlineData("/users", "unknown")]
-    [InlineData("/users", "definedNumeric")]
-    [InlineData("/users", "undefinedNumeric")]
+    [InlineData("/coaches", "missing")]
+    [InlineData("/coaches", "null")]
+    [InlineData("/coaches", "empty")]
+    [InlineData("/coaches", "unknown")]
+    [InlineData("/coaches", "definedNumeric")]
+    [InlineData("/coaches", "undefinedNumeric")]
     [InlineData("/settings/administrators", "missing")]
     [InlineData("/settings/administrators", "null")]
     [InlineData("/settings/administrators", "empty")]
@@ -604,8 +662,8 @@ public class UsersApiTests
     }
 
     [Theory]
-    [InlineData("/users", "definedNumeric")]
-    [InlineData("/users", "undefinedNumeric")]
+    [InlineData("/coaches", "definedNumeric")]
+    [InlineData("/coaches", "undefinedNumeric")]
     [InlineData("/settings/administrators", "definedNumeric")]
     [InlineData("/settings/administrators", "undefinedNumeric")]
     public async Task Update_role_validation_returns_role_field_error_for_numeric_payloads(
@@ -662,7 +720,7 @@ public class UsersApiTests
 
         using (var createHeadCoachResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest(
                        "Новый главный тренер",
                        $"new-headcoach-{Guid.NewGuid():N}",
@@ -681,7 +739,7 @@ public class UsersApiTests
 
         using (var assignHeadCoachResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.CoachId}",
+                   $"/coaches/{seeded.CoachId}",
                    new UserUpdateRequest(
                        " ",
                        seeded.CoachLogin,
@@ -699,7 +757,7 @@ public class UsersApiTests
 
         using (var missingMessengerPlatformResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest(
                        "Messenger Partial",
                        $"messenger-partial-{Guid.NewGuid():N}",
@@ -716,7 +774,7 @@ public class UsersApiTests
 
         using (var missingMessengerUserIdResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest(
                        "Messenger Partial",
                        $"messenger-partial-{Guid.NewGuid():N}",
@@ -733,7 +791,7 @@ public class UsersApiTests
 
         using (var tooLongMessengerUserIdResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest(
                        "Messenger Too Long",
                        $"messenger-too-long-{Guid.NewGuid():N}",
@@ -772,7 +830,7 @@ public class UsersApiTests
         Assert.NotNull(session.User);
         Assert.Equal(actorRole, session.User.Role);
 
-        using (var listResponse = await client.GetAsync("/users"))
+        using (var listResponse = await client.GetAsync("/coaches"))
         {
             Assert.Equal(HttpStatusCode.Forbidden, listResponse.StatusCode);
             await AssertProblemDetailsAsync(
@@ -783,7 +841,7 @@ public class UsersApiTests
 
         using (var createResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest(" ", " ", "", "InvalidRole", false, true),
                    session.CsrfToken))
         {
@@ -796,7 +854,7 @@ public class UsersApiTests
 
         using (var updateResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.HeadCoachId}",
+                   $"/coaches/{seeded.HeadCoachId}",
                    new UserUpdateRequest(" ", "changed-login", "InvalidRole", false, true),
                    session.CsrfToken))
         {
@@ -834,7 +892,7 @@ public class UsersApiTests
 
         using (var createHeadCoachResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest("Попытка главного тренера", createHeadCoachLogin, "12345Aa!", "HeadCoach", false, true),
                    session.CsrfToken))
         {
@@ -847,7 +905,7 @@ public class UsersApiTests
 
         using (var createSuperAdministratorResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest("Попытка суперадминистратора", createPeerSuperAdministratorLogin, "12345Aa!", "SuperAdministrator", false, true),
                    session.CsrfToken))
         {
@@ -860,7 +918,7 @@ public class UsersApiTests
 
         using (var mutateHeadCoachResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.HeadCoachId}",
+                   $"/coaches/{seeded.HeadCoachId}",
                    new UserUpdateRequest("Изменение главного тренера", seeded.HeadCoachLogin, "HeadCoach", false, true),
                    session.CsrfToken))
         {
@@ -873,7 +931,7 @@ public class UsersApiTests
 
         using (var demotePeerSuperAdministratorResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.PeerSuperAdministratorId}",
+                   $"/coaches/{seeded.PeerSuperAdministratorId}",
                    new UserUpdateRequest("Понижение суперадминистратора", seeded.PeerSuperAdministratorLogin, "Coach", false, true),
                    session.CsrfToken))
         {
@@ -886,7 +944,7 @@ public class UsersApiTests
 
         using (var mutateSelfResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.SuperAdministratorId}",
+                   $"/coaches/{seeded.SuperAdministratorId}",
                    new UserUpdateRequest(
                        "Изменение себя",
                        seeded.SuperAdministratorLogin,
@@ -904,7 +962,7 @@ public class UsersApiTests
 
         using (var missingTargetResponse = await PutJsonAsync(
                    client,
-                   $"/users/{Guid.NewGuid()}",
+                   $"/coaches/{Guid.NewGuid()}",
                    new UserUpdateRequest("Missing Coach", "missing-coach", "Coach", false, true),
                    session.CsrfToken))
         {
@@ -1040,7 +1098,7 @@ public class UsersApiTests
 
         var session = await LoginAsync(client, seeded.SuperAdministratorLogin, seeded.SharedPassword);
 
-        using (var listResponse = await client.GetAsync("/users"))
+        using (var listResponse = await client.GetAsync("/coaches"))
         {
             Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
             var payload = await ReadJsonElementAsync(listResponse);
@@ -1072,7 +1130,7 @@ public class UsersApiTests
         Guid coachId;
         using (var createCoachResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new
                    {
                        FullName = "SA Happy Coach",
@@ -1088,6 +1146,7 @@ public class UsersApiTests
             Assert.Equal(HttpStatusCode.Created, createCoachResponse.StatusCode);
             var payload = await ReadJsonElementAsync(createCoachResponse);
             coachId = GetGuidFromProperty(payload, "id");
+            Assert.Equal($"/coaches/{coachId}", createCoachResponse.Headers.Location?.OriginalString);
             Assert.Equal(JsonValueKind.Null, payload.GetProperty("branchId").ValueKind);
             Assert.Equal(["Coach"], payload.GetProperty("roleOptions")
                 .EnumerateArray()
@@ -1097,7 +1156,7 @@ public class UsersApiTests
 
         using (var updateAdministratorResponse = await PutJsonAsync(
                    client,
-                   $"/users/{coachId}",
+                   $"/coaches/{coachId}",
                    new
                    {
                        FullName = "SA Happy Coach updated",
@@ -1499,7 +1558,7 @@ public class UsersApiTests
         var createLogin = $"rollback-user-{Guid.NewGuid():N}";
         using (var createResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new
                    {
                        FullName = "Rollback create",
@@ -1530,7 +1589,7 @@ public class UsersApiTests
 
         using (var updateResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.CoachId}",
+                   $"/coaches/{seeded.CoachId}",
                    new
                    {
                        FullName = "Rollback update",
@@ -1572,7 +1631,7 @@ public class UsersApiTests
         var originalLogin = $"no-login-update-{Guid.NewGuid():N}";
         using (var createResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest("Безопасный пользователь", originalLogin, "12345Aa!", "Coach", false, true),
                    session.CsrfToken))
         {
@@ -1592,7 +1651,7 @@ public class UsersApiTests
         var changedLogin = $"changed-{originalLogin}";
         using (var updateResponse = await PutJsonAsync(
                    client,
-                   $"/users/{userId}",
+                   $"/coaches/{userId}",
                    new UserUpdateRequest("Безопасный пользователь", changedLogin, "Coach", false, true),
                    session.CsrfToken))
         {
@@ -1623,7 +1682,7 @@ public class UsersApiTests
 
         using (var updateResponse = await PutJsonAsync(
                    client,
-                   $"/users/{seeded.HeadCoachId}",
+                   $"/coaches/{seeded.HeadCoachId}",
                    new UserUpdateRequest("Главный тренер Stage 4 Обновлённый", seeded.HeadCoachLogin, "HeadCoach", false, true),
                    session.CsrfToken))
         {
@@ -1666,7 +1725,7 @@ public class UsersApiTests
 
         using (var createResponse = await PostJsonAsync(
                    client,
-                   "/users",
+                   "/coaches",
                    new UserCreateRequest("Аудит пользователь", createLogin, "12345Aa!", "Coach", false, true),
                    session.CsrfToken))
         {
@@ -1717,7 +1776,7 @@ public class UsersApiTests
 
         using (var updateResponse = await PutJsonAsync(
                    client,
-                   $"/users/{userId}",
+                   $"/coaches/{userId}",
                    new UserUpdateRequest("Аудит пользователь v2", createLogin, "Coach", true, false),
                    session.CsrfToken))
         {

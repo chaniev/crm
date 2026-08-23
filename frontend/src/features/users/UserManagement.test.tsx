@@ -13,6 +13,7 @@ import {
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { UserCreateScreen, UserEditScreen, UsersListScreen } from './UserManagement'
+import type { TrainerListFilters } from './trainerListSearch'
 
 vi.mock('../../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../lib/api')>()),
@@ -71,7 +72,7 @@ beforeEach(() => {
 })
 
 describe('UsersListScreen', () => {
-  test('renders a no-filter trainer locator with create and refresh in one action row', async () => {
+  test('renders trainer search, filters, refresh and create in one locator row', async () => {
     vi.mocked(getUsers).mockResolvedValue({
       items: [],
       createRoleOptions: ['Coach'],
@@ -88,13 +89,14 @@ describe('UsersListScreen', () => {
       'placeholder',
       'ФИО или логин',
     )
-    expect(within(locator).queryByRole('button', { name: /фильтр/i })).not.toBeInTheDocument()
     expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
+      'Открыть фильтры',
       'Обновить',
       'Создать тренера',
     ])
-    expect(buttons[0]).toHaveClass('task-toolbar-action--refresh')
-    expect(buttons[1]).toHaveClass('task-toolbar-action--primary')
+    expect(buttons[0]).toHaveClass('entity-locator-bar__filter')
+    expect(buttons[1]).toHaveClass('task-toolbar-action--refresh')
+    expect(buttons[2]).toHaveClass('task-toolbar-action--primary')
   })
 
   test('does not implement frontend filtering of non-coach targets', async () => {
@@ -118,7 +120,8 @@ describe('UsersListScreen', () => {
     const card = await screen.findByTestId('user-card-superadmin-1')
     expect(within(card).getAllByText('Суперадминистратор').length).toBeGreaterThan(0)
     expect(within(card).getByText('Только просмотр')).toBeVisible()
-    expect(within(card).queryByRole('button', { name: 'Редактировать' })).not.toBeInTheDocument()
+    expect(card.tagName).not.toBe('BUTTON')
+    expect(within(card).queryByRole('button')).not.toBeInTheDocument()
   })
 
   test('filters current backend-permitted items by full name or login and clear restores order', async () => {
@@ -204,7 +207,9 @@ describe('UsersListScreen', () => {
     expect(within(normalCard).getByText('Анна Ветрова')).toBeVisible()
     expect(within(normalCard).getByText('Логин: coach')).toBeVisible()
     expect(within(normalCard).getByText('Telegram ID: telegram-1001')).toBeVisible()
-    expect(within(normalCard).getByRole('button', { name: 'Редактировать' })).toBeVisible()
+    expect(normalCard.tagName).toBe('BUTTON')
+    expect(normalCard).toHaveAccessibleName('Редактировать тренера «Анна Ветрова»')
+    expect(within(normalCard).queryByRole('button')).not.toBeInTheDocument()
     expect(within(normalCard).queryByText('Тренер')).not.toBeInTheDocument()
     expect(within(normalCard).queryByText('Активен')).not.toBeInTheDocument()
     expect(within(normalCard).queryByText('Пароль актуален')).not.toBeInTheDocument()
@@ -223,10 +228,146 @@ describe('UsersListScreen', () => {
 
     const readOnlyCard = screen.getByTestId('user-card-coach-read-only')
     expect(within(readOnlyCard).getByText('Только просмотр')).toBeVisible()
-    expect(within(readOnlyCard).queryByRole('button', { name: 'Редактировать' })).not.toBeInTheDocument()
+    expect(readOnlyCard.tagName).not.toBe('BUTTON')
+    expect(within(readOnlyCard).queryByRole('button')).not.toBeInTheDocument()
 
     const nonCoachCard = screen.getByTestId('user-card-superadmin-exception')
     expect(within(nonCoachCard).getByText('Суперадминистратор')).toBeVisible()
+  })
+
+  test('fails closed for missing or unrelated allowedActions and uses one row target for Edit or Update', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [
+        { ...coach, id: 'missing-actions', allowedActions: undefined },
+        { ...coach, id: 'read-only-action', allowedActions: ['Read'] },
+        { ...coach, id: 'edit-action', fullName: 'Анна Ветрова', allowedActions: ['Edit'] },
+        { ...coach, id: 'update-action', fullName: 'Ирина Петрова', allowedActions: ['Update'] },
+      ],
+      createRoleOptions: [],
+    } satisfies UserListResponse)
+
+    const onEdit = vi.fn()
+    renderUsersList('', { onEdit })
+
+    const missingActions = await screen.findByTestId('user-card-missing-actions')
+    const unrelatedAction = screen.getByTestId('user-card-read-only-action')
+    expect(missingActions.tagName).not.toBe('BUTTON')
+    expect(unrelatedAction.tagName).not.toBe('BUTTON')
+    expect(within(missingActions).getByText('Только просмотр')).toBeVisible()
+    expect(within(unrelatedAction).getByText('Только просмотр')).toBeVisible()
+
+    const editRow = screen.getByRole('button', {
+      name: 'Редактировать тренера «Анна Ветрова»',
+    })
+    const updateRow = screen.getByRole('button', {
+      name: 'Редактировать тренера «Ирина Петрова»',
+    })
+    expect(within(editRow).queryByRole('button')).not.toBeInTheDocument()
+    expect(within(updateRow).queryByRole('button')).not.toBeInTheDocument()
+    fireEvent.click(editRow)
+    fireEvent.click(updateRow)
+    expect(onEdit).toHaveBeenNthCalledWith(1, 'edit-action')
+    expect(onEdit).toHaveBeenNthCalledWith(2, 'update-action')
+  })
+
+  test('applies status and password filters immediately with AND semantics and keeps query on reset', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [
+        { ...coach, id: 'active-current', fullName: 'Анна Активная' },
+        { ...coach, id: 'inactive-current', fullName: 'Анна Отключённая', isActive: false },
+        { ...coach, id: 'inactive-rotation', fullName: 'Анна Смена', isActive: false, mustChangePassword: true },
+        { ...coach, id: 'active-rotation', fullName: 'Борис Смена', mustChangePassword: true },
+      ],
+      createRoleOptions: [],
+    } satisfies UserListResponse)
+
+    renderUsersList('Анна')
+    expect(await screen.findByTestId('user-card-active-current')).toBeVisible()
+
+    const filterTrigger = screen.getByRole('button', { name: 'Открыть фильтры' })
+    fireEvent.click(filterTrigger)
+    const status = await screen.findByRole('combobox', { name: 'Статус' })
+    expect(status).toHaveFocus()
+    fireEvent.click(status)
+    fireEvent.click(await screen.findByRole('option', { name: 'Отключённые' }))
+
+    expect(screen.queryByTestId('user-card-active-current')).not.toBeInTheDocument()
+    expect(screen.getByTestId('user-card-inactive-current')).toBeVisible()
+    expect(screen.getByTestId('user-card-inactive-rotation')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Удалить фильтр «Отключённые»' })).toBeVisible()
+
+    fireEvent.click(screen.getByRole('combobox', { name: 'Пароль' }))
+    fireEvent.click(await screen.findByRole('option', { name: 'Требуется смена' }))
+    expect(screen.queryByTestId('user-card-inactive-current')).not.toBeInTheDocument()
+    expect(screen.getByTestId('user-card-inactive-rotation')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Открыть фильтры, активно 2' })).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Сбросить' }))
+    expect(screen.getByRole('textbox', { name: 'Найти тренера' })).toHaveValue('Анна')
+    expect(screen.getByTestId('user-card-active-current')).toBeVisible()
+    expect(screen.getByTestId('user-card-inactive-current')).toBeVisible()
+    expect(screen.queryByTestId('user-card-active-rotation')).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Фильтры тренеров' })).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Готово' }))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Фильтры тренеров' })).not.toBeInTheDocument())
+    expect(filterTrigger).toHaveFocus()
+  })
+
+  test('restores focus to the returned editable row and consumes the request once', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [{ ...coach, id: 'coach-return', fullName: 'Анна Ветрова' }],
+      createRoleOptions: [],
+    } satisfies UserListResponse)
+    const onReturnFocusConsumed = vi.fn()
+    const scrollIntoView = vi.fn()
+    HTMLElement.prototype.scrollIntoView = scrollIntoView
+
+    renderWithProviders(
+      <UsersListScreen
+        filters={{ status: 'all', password: 'all' }}
+        onCreate={vi.fn()}
+        onEdit={vi.fn()}
+        onFiltersChange={vi.fn()}
+        onQueryChange={vi.fn()}
+        onReturnFocusConsumed={onReturnFocusConsumed}
+        query=""
+        returnFocusRequest={{ trainerId: 'coach-return', scrollY: 120 }}
+      />,
+    )
+
+    const row = await screen.findByRole('button', {
+      name: 'Редактировать тренера «Анна Ветрова»',
+    })
+    await waitFor(() => expect(row).toHaveFocus())
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'center' })
+    expect(onReturnFocusConsumed).toHaveBeenCalledOnce()
+  })
+
+  test('focuses results rather than a read-only returned row', async () => {
+    vi.mocked(getUsers).mockResolvedValue({
+      items: [{ ...coach, id: 'coach-read-only-return', allowedActions: [] }],
+      createRoleOptions: [],
+    } satisfies UserListResponse)
+    HTMLElement.prototype.scrollIntoView = vi.fn()
+
+    renderWithProviders(
+      <UsersListScreen
+        filters={{ status: 'all', password: 'all' }}
+        onCreate={vi.fn()}
+        onEdit={vi.fn()}
+        onFiltersChange={vi.fn()}
+        onQueryChange={vi.fn()}
+        onReturnFocusConsumed={vi.fn()}
+        query=""
+        returnFocusRequest={{ trainerId: 'coach-read-only-return', scrollY: 0 }}
+      />,
+    )
+
+    await screen.findByTestId('user-card-coach-read-only-return')
+    await waitFor(() => expect(
+      screen.getByRole('region', { name: 'Результаты поиска тренеров' }),
+    ).toHaveFocus())
   })
 
   test('distinguishes first-run empty from query-scoped empty and clears recovery', async () => {
@@ -338,14 +479,23 @@ describe('UsersListScreen', () => {
   })
 })
 
-function renderUsersList(initialQuery = '') {
+function renderUsersList(
+  initialQuery = '',
+  options: { onEdit?: (userId: string) => void } = {},
+) {
   function Harness() {
     const [query, setQuery] = useState(initialQuery)
+    const [filters, setFilters] = useState<TrainerListFilters>({
+      status: 'all',
+      password: 'all',
+    })
 
     return (
       <UsersListScreen
+        filters={filters}
         onCreate={vi.fn()}
-        onEdit={vi.fn()}
+        onEdit={options.onEdit ?? vi.fn()}
+        onFiltersChange={setFilters}
         onQueryChange={setQuery}
         query={query}
       />

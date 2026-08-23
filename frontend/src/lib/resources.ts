@@ -40,6 +40,17 @@ export const resources = {
       staleErrorTitle: 'Список не обновился',
       emptySearchTitle: 'Тренеры не найдены',
       emptySearchDescription: 'Проверьте ФИО или логин.',
+      emptyFilteredDescription:
+        'Измените поисковый запрос или фильтры, чтобы расширить список.',
+      filtersTitle: 'Фильтры тренеров',
+      closeFilters: 'Закрыть фильтры тренеров',
+      statusFilterLabel: 'Статус',
+      passwordFilterLabel: 'Пароль',
+      filterAll: 'Все',
+      filterInactive: 'Отключённые',
+      filterMustChangePassword: 'Требуется смена',
+      activePasswordFilter: 'Требуется смена пароля',
+      doneFilters: 'Готово',
       metrics: {
         total: {
           label: 'Тренеры',

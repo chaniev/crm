@@ -168,7 +168,7 @@ describe('Slice B auth/bootstrap bootstrap behavior', () => {
   })
 
   test('session refresh does not refetch /api/config', async () => {
-    window.history.replaceState({}, '', '/users/1/edit')
+    window.history.replaceState({}, '', '/coaches/1/edit')
 
     loadAppConfigMock.mockResolvedValue(configContract)
     loadSessionMock.mockResolvedValue(authenticatedSession)

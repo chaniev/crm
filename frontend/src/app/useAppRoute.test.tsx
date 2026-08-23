@@ -95,13 +95,13 @@ describe('useAppRoute', () => {
     const { result } = renderHook(() => useAppRoute())
 
     act(() =>
-      result.current.navigate('/users/trainer-1/edit', {
+      result.current.navigate('/coaches/trainer-1/edit', {
         replace: true,
         state: { focusedUserId: 'trainer-1' },
       }),
     )
 
-    expect(window.location.pathname).toBe('/users/trainer-1/edit')
+    expect(window.location.pathname).toBe('/coaches/trainer-1/edit')
     expect(window.history.state).toEqual({ focusedUserId: 'trainer-1' })
     expect(result.current.route).toEqual({
       kind: 'userEdit',
@@ -270,16 +270,16 @@ describe('app route helpers', () => {
   })
 
   test('recovers a password return when the saved allowed route is now restricted', () => {
-    const savedAccess = resolveRouteAccess(baseUser, parseRoute('/users/trainer-1/edit'))
+    const savedAccess = resolveRouteAccess(baseUser, parseRoute('/coaches/trainer-1/edit'))
 
     expect(getPostPasswordReturnDecision(coachUser, {
       access: savedAccess,
-      path: '/users/trainer-1/edit',
+      path: '/coaches/trainer-1/edit',
     })).toMatchObject({
       path: '/attendance',
       recoveryEvent: {
         kind: 'restricted',
-        requestedPath: '/users/trainer-1/edit',
+        requestedPath: '/coaches/trainer-1/edit',
       },
     })
   })
