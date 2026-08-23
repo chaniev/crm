@@ -98,6 +98,33 @@ template.
   формы используют одну canonical serialization policy.
 - Frontend/bot считают id opaque string и никогда не вычисляют его локально.
 
+### Occurrence locator and bounded resolution
+
+- `LessonOccurrenceId` остаётся единственной identity занятия. Companion
+  `lessonDate` является недоверенным locator для bounded lookup, не частью
+  identity и не заменой occurrence id в command/audit/attendance keys.
+- Каждый occurrence-targeted detail, preview, execute и attendance request
+  передаёт пару `lessonOccurrenceId + lessonDate`. Для HTTP endpoints
+  `lessonOccurrenceId` остаётся route parameter, а `lessonDate=YYYY-MM-DD` —
+  required query parameter. Calendar DTO возвращает canonical current
+  `lessonDate`, и frontend/bot переносят её вместе с opaque id.
+- Общий backend resolver сначала ищет materialized occurrence по id и проверяет,
+  что locator равен его current `LessonDate`. Если строки нет, resolver
+  загружает только доступные actor rule versions/slots, действующие в указанную
+  дату, вычисляет projected ids ровно для этого дня и принимает только exact id
+  match. Resolver не сканирует другие даты, не вызывает `SaveChanges` и не
+  создаёт projection index/background materialization.
+- Для moved occurrence caller использует current displayed `LessonDate`;
+  immutable source/projected date остаётся backend state и не передаётся как
+  locator. One-off и другие materialized occurrences используют ту же пару для
+  единообразного deep-link/reload contract.
+- Missing или malformed `lessonDate` возвращает field-level ValidationProblem.
+  Well-formed date, на которой id не разрешается, не раскрывает данные другого
+  scope и возвращает существующий occurrence not-found/forbidden contract.
+- Preview token связывается также с normalized locator date. Execute повторно
+  разрешает id/date внутри transaction; locator mismatch или изменившийся
+  resolved target не выполняет mutation.
+
 ### Bounded, side-effect-free projection
 
 - Calendar query принимает inclusive `from`/`to`, валидирует порядок и
@@ -165,7 +192,8 @@ conflict; attendance change и последующая cancellation команд�
 
 - `GET /schedule/lessons?from=YYYY-MM-DD&to=YYYY-MM-DD` с optional
   `branchId`, `hallId`, `trainerId`, `groupId`, `groupTypeId`.
-- `GET /schedule/lessons/{lessonOccurrenceId}` для detail/deep link.
+- `GET /schedule/lessons/{lessonOccurrenceId}?lessonDate=YYYY-MM-DD` для
+  detail/deep link и bounded resolution projected occurrence.
 - Range response — typed envelope с normalized inclusive `from`/`to`, `items`,
   screen-level `capabilities` и access-scoped `filterOptions`. Capabilities как
   минимум содержат `canCreateOneOff` и nullable stable unavailable reason.
@@ -174,7 +202,8 @@ conflict; attendance change и последующая cancellation команд�
   unauthorized values не возвращаются.
 - Response item содержит:
   - `lessonOccurrenceId`, `sourceKind`, `isMaterialized`;
-  - date, `startTime`, `durationMinutes` и computed `endTime`;
+  - canonical current `lessonDate`, `startTime`, `durationMinutes` и computed
+    `endTime`;
   - group id/name/type, branch, hall, trainers;
   - cancellation state и direct `hasAttendanceMarks` fact;
   - allowed actions/reasons;
@@ -211,11 +240,12 @@ conflict; attendance change и последующая cancellation команд�
   initial series новой группы создаётся только atomic group-create command.
 - `POST /schedule/lessons/one-off/preview` и
   `POST /schedule/lessons/one-off` для standalone lesson.
-- `POST /schedule/lessons/{id}/change/preview` и
-  `POST /schedule/lessons/{id}/change` для edit/move с scope
+- `POST /schedule/lessons/{id}/change/preview?lessonDate=YYYY-MM-DD` и
+  `POST /schedule/lessons/{id}/change?lessonDate=YYYY-MM-DD` для edit/move с scope
   `Occurrence | ThisAndFuture | EntireSeries`.
-- `POST /schedule/lessons/{id}/cancellation/preview` и
-  `POST /schedule/lessons/{id}/cancellation` для cancel/restore между
+- `POST /schedule/lessons/{id}/cancellation/preview?lessonDate=YYYY-MM-DD` и
+  `POST /schedule/lessons/{id}/cancellation?lessonDate=YYYY-MM-DD` для
+  cancel/restore между
   `Scheduled | Cancelled` в разрешённой matrix.
 - Preview request использует local dates/time и opaque `expectedRevision`.
   Preview response возвращает structured warnings, affected/skipped set и
@@ -279,15 +309,18 @@ Stable ProblemDetails минимум:
 ### Occurrence-aware attendance
 
 Canonical web endpoints:
-- `GET /attendance/lessons/{lessonOccurrenceId}/clients`;
-- `POST /attendance/lessons/{lessonOccurrenceId}`;
+- `GET /attendance/lessons/{lessonOccurrenceId}/clients?lessonDate=YYYY-MM-DD`;
+- `POST /attendance/lessons/{lessonOccurrenceId}?lessonDate=YYYY-MM-DD`;
 
 Canonical bot endpoints:
 - `GET /internal/bot/attendance/lessons?trainingDate=YYYY-MM-DD`;
-- `GET /internal/bot/attendance/lessons/{lessonOccurrenceId}/clients`;
-- `POST /internal/bot/attendance/lessons/{lessonOccurrenceId}`.
+- `GET /internal/bot/attendance/lessons/{lessonOccurrenceId}/clients?lessonDate=YYYY-MM-DD`;
+- `POST /internal/bot/attendance/lessons/{lessonOccurrenceId}?lessonDate=YYYY-MM-DD`.
 
 Group/date остаются display fields в responses, но не command identity.
+`lessonDate` в occurrence-targeted request используется только как проверяемый
+bounded locator; attendance identity и mutation target остаются
+`LessonOccurrenceId`.
 GET roster разрешён для доступного будущего occurrence и возвращает
 `canEditAttendance=false` с backend reason; POST применяет role/date mutation
 window и не полагается на disabled state frontend.
@@ -465,8 +498,8 @@ idempotent rerun/concurrent materialization тестируются отдель�
 Selected `date`, `view=day|week` и filters сохраняются в URL/history. Calendar
 feature обрабатывает reload/back/forward, retry и stale refresh без сброса к
 today. Attendance detail использует canonical
-`/attendance/{lessonOccurrenceId}` и return URL/state на selected calendar
-context. Если TASK-103 merged, detail включается в его section; иначе TASK-119
+`/attendance/{lessonOccurrenceId}?lessonDate=YYYY-MM-DD` и return URL/state на
+selected calendar context. Если TASK-103 merged, detail включается в его section; иначе TASK-119
 не меняет broader landing/nav model.
 
 ### Mutation surfaces
@@ -478,8 +511,9 @@ context. Если TASK-103 merged, detail включается в его section
   сохранённый calendar date/view/filter context и фокусирует affected lesson.
 - Canonical route patterns:
   - `/schedule/lessons/new`;
-  - `/schedule/lessons/{lessonOccurrenceId}/edit?scope=occurrence`;
-  - `/schedule/lessons/{lessonOccurrenceId}/move`;
+  - `/schedule/lessons/{lessonOccurrenceId}?lessonDate=YYYY-MM-DD` для detail;
+  - `/schedule/lessons/{lessonOccurrenceId}/edit?lessonDate=YYYY-MM-DD&scope=occurrence`;
+  - `/schedule/lessons/{lessonOccurrenceId}/move?lessonDate=YYYY-MM-DD`;
   - `/schedule/series/{lessonSeriesId}/edit?scope=this-and-future|entire`.
   Return context хранится typed history state/validated return parameter по
   текущему router pattern и fails closed при malformed external value.
@@ -504,7 +538,8 @@ context. Если TASK-103 merged, detail включается в его section
 - Header/context: date, time, group, hall/branch, trainer, `Cancelled` marker
   when applicable и direct indication наличия marks; не показывать generic
   `Scheduled`, technical series/rule или производный completion status.
-- Roster/save state остаётся row-local и получает occurrence id from route.
+- Roster/save state остаётся row-local и получает occurrence id from route и
+  canonical `lessonDate` locator from validated route query.
 - Future attendance route показывает roster read-only и disabled edit controls
   с backend reason. Permission-restricted attendance action остаётся visible
   disabled только если отсутствие создало бы ложное ощущение исчезнувшей primary
@@ -593,6 +628,8 @@ Deliverables:
 - domain entities, pure recurrence/range/UUIDv5 policies;
 - additive EF model/configurations and reproducible schema baseline;
 - side-effect-free `/schedule/lessons` range query;
+- shared bounded occurrence resolver для projected/materialized id + date без
+  read-side writes или cross-date scan;
 - role-scoped DTO with allowedActions placeholders from backend policy;
 - domain, API, SQLite/InMemory compatibility and PostgreSQL constraint/read
   tests.
@@ -676,6 +713,9 @@ Status files related TASKs не меняются до green integrated result.
   materializer.
 - Several lessons per group/day are first-class and never collapsed by
   group/date keys.
+- Occurrence-targeted reads/mutations carry `lessonOccurrenceId + lessonDate`;
+  date is validated only as bounded locator and never replaces occurrence id as
+  attendance, audit or mutation identity.
 - Time ranges занятий одной группы не пересекаются; exact duplicates также
   запрещены hard validation независимо от warning confirmation.
 - Attendance marks are never automatically deleted by cancellation command.
@@ -709,6 +749,9 @@ Status files related TASKs не меняются до green integrated result.
 - exact recurring/legacy UUIDv5 namespaces, canonical keys and fixed vectors;
   culture/provider/timezone independence, projected/materialized equality and
   lineage continuity across time/duration/hall/trainer edits;
+- bounded resolver accepts projected id only on its locator date, resolves
+  materialized/moved id only on current displayed date and never scans other
+  dates;
 - overlay of original/moved/current dates without duplicates;
 - cancellation/restore matrix without `Held`/`NotHeld` and attendance conflict
   guard;
@@ -723,6 +766,9 @@ Status files related TASKs не меняются до green integrated result.
 
 ### Backend integration/PostgreSQL
 - bounded calendar query validation, exact raw JSON and stable ordering;
+- projected detail/change/cancellation/attendance endpoints require a valid
+  `lessonDate`, resolve the same external id without materializing on reads and
+  reject missing, malformed or mismatched locators without cross-scope leakage;
 - calendar envelope capabilities/filter options remain access-scoped and usable
   for global/filtered empty results;
 - no `SaveChanges`/row count change on calendar GET;
@@ -753,6 +799,8 @@ Status files related TASKs не меняются до green integrated result.
 - API mapping for projected/materialized/one-off/cancellation/actions/warnings/errors;
 - API mapping for direct `hasAttendanceMarks` without completion inference;
 - URL date/view/filter parse, normalization, reload/back/forward and retry;
+- occurrence detail/mutation/attendance routes round-trip opaque id together
+  with canonical `lessonDate`; malformed or stale locator fails closed;
 - same-group same-day cards remain distinct and open exact occurrence;
 - row action visibility/disabled reasons by backend allowedActions;
 - response-level create capability/filter options in empty results, future
@@ -789,7 +837,8 @@ Status files related TASKs не меняются до green integrated result.
 
 ### Bot tests
 - date lists concrete lessons with time/cancelled marker and distinct occurrence ids;
-- roster/save use occurrence id and idempotency target;
+- roster/save carry canonical lesson date as bounded locator while occurrence id
+  remains command/idempotency target;
 - same group twice per date selects correct lesson;
 - access/ProblemDetails/retry mapping does not add domain rules;
 - persisted draft/state resumes or fails closed after stale occurrence.
@@ -817,8 +866,8 @@ Manual QA не заменяет automated barriers.
 ## Regression barriers
 
 1. **Identity barrier:** domain/API/PostgreSQL tests доказывают одинаковый
-   deterministic id до/после materialization и независимость двух занятий
-   группы в день.
+   deterministic id до/после materialization, bounded id/date resolution без
+   read-side write/cross-date scan и независимость двух занятий группы в день.
 2. **Fact barrier:** attendance concurrency test доказывает одну atomic boundary
    occurrence + marks + membership + audit с rollback on failure, без скрытого
    изменения cancellation state.
@@ -864,6 +913,9 @@ same focused assertions.
 
 - Incorrect Guid byte ordering даст разные ids у projection/materialization;
   pure vectors и PostgreSQL concurrency tests обязательны.
+- UUIDv5 projected id нельзя обратить в source date/slot; потеря `lessonDate`
+  в route, return state или bot callback сделает projected deep link
+  неразрешимым. Typed route/callback models и bounded resolver tests обязательны.
 - Rule split может потерять moved exceptions или переписать facts; preview
   affected/skipped set и overlay tests защищают boundary.
 - Calendar query может скрыто материализовать data или читать бесконечный
@@ -893,6 +945,9 @@ Stop and do not write/continue functional code if:
 - source task/plan is absent from current `origin/main`;
 - deterministic projected/materialized identity cannot be made provider- and
   culture-independent;
+- occurrence-targeted API требует ID-only поиска projected UUID через
+  unbounded date scan, read-side materialization или постоянный projection
+  index вместо bounded `lessonOccurrenceId + lessonDate` resolution;
 - calendar read requires write-side materialization or unbounded generation;
 - occurrence access cannot reuse existing backend scope without RBAC redesign;
 - current DB must be preserved but no forward migration/report/backup path is
