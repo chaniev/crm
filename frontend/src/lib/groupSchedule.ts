@@ -98,6 +98,26 @@ export type ScheduleEntryGridMetrics = {
   laneWidthPercent: number
 }
 
+export type ScheduleVisualDisclosureGroup<TGroup = TrainingGroupListItem> = {
+  key: string
+  entries: ScheduleCalendarEntry<TGroup>[]
+  startMinutes: number
+  endMinutes: number
+  count: number
+}
+
+export type ScheduleVisualDisclosureOptions = {
+  dayContentWidthPx: number | null
+  disclosureNaturalHeightPxByKey?: ReadonlyMap<string, number>
+  hourHeightPx: number
+  laneGapPx: number
+}
+
+export const SCHEDULE_DENSE_CLUSTER_MIN_LANE_COUNT = 3
+export const SCHEDULE_MIN_READABLE_LANE_WIDTH_PX = 112
+export const SCHEDULE_MIN_READABLE_CARD_HEIGHT_PX = 84
+export const SCHEDULE_MIN_VISUAL_CARD_HEIGHT_PX = 54
+
 export const WEEKDAY_LABELS: Record<number, string> = {
   1: 'Пн',
   2: 'Вт',
@@ -294,6 +314,44 @@ export function getScheduleEntryGridMetrics<TGroup>(
     laneLeftPercent: entry.lane * laneWidthPercent,
     laneWidthPercent,
   }
+}
+
+export function buildScheduleVisualDisclosureGroups<TGroup>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+  options: ScheduleVisualDisclosureOptions,
+): ScheduleVisualDisclosureGroup<TGroup>[] {
+  const orderedEntries = [...entries].sort(compareScheduleCalendarEntriesByTime)
+  const clusters = buildScheduleOverlapClusters(orderedEntries)
+  const denseRanges = clusters
+    .filter((cluster) => isUnreadableOverlapCluster(cluster, options))
+    .map((cluster) => ({
+      startIndex: cluster.startIndex,
+      endIndex: cluster.endIndex,
+    }))
+
+  if (denseRanges.length === 0) {
+    return []
+  }
+
+  const mergedRanges = mergeIntersectingDisclosureRanges(
+    orderedEntries,
+    denseRanges,
+    options,
+  )
+
+  return mergedRanges.map((range) => {
+    const groupEntries = orderedEntries.slice(range.startIndex, range.endIndex + 1)
+    const startMinutes = Math.min(...groupEntries.map((entry) => entry.startMinutes))
+    const endMinutes = Math.max(...groupEntries.map((entry) => entry.endMinutes))
+
+    return {
+      key: buildScheduleDisclosureKey(groupEntries, startMinutes, endMinutes),
+      entries: groupEntries,
+      startMinutes,
+      endMinutes,
+      count: groupEntries.length,
+    }
+  })
 }
 
 export function buildScheduleDayCounts<TGroup>(
@@ -598,6 +656,251 @@ function layoutScheduleEntries<TGroup extends Pick<
   return positionedEntries
 }
 
+type ScheduleOverlapCluster<TGroup> = {
+  entries: ScheduleCalendarEntry<TGroup>[]
+  startIndex: number
+  endIndex: number
+  laneCount: number
+}
+
+function buildScheduleOverlapClusters<TGroup>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+): ScheduleOverlapCluster<TGroup>[] {
+  const clusters: ScheduleOverlapCluster<TGroup>[] = []
+  let clusterEntries: ScheduleCalendarEntry<TGroup>[] = []
+  let clusterStartIndex = 0
+  let clusterEndMinutes = 0
+
+  entries.forEach((entry, index) => {
+    if (clusterEntries.length === 0) {
+      clusterEntries = [entry]
+      clusterStartIndex = index
+      clusterEndMinutes = entry.endMinutes
+      return
+    }
+
+    if (entry.startMinutes < clusterEndMinutes) {
+      clusterEntries.push(entry)
+      clusterEndMinutes = Math.max(clusterEndMinutes, entry.endMinutes)
+      return
+    }
+
+    clusters.push(toScheduleOverlapCluster(clusterEntries, clusterStartIndex))
+    clusterEntries = [entry]
+    clusterStartIndex = index
+    clusterEndMinutes = entry.endMinutes
+  })
+
+  if (clusterEntries.length > 0) {
+    clusters.push(toScheduleOverlapCluster(clusterEntries, clusterStartIndex))
+  }
+
+  return clusters
+}
+
+function toScheduleOverlapCluster<TGroup>(
+  entries: ScheduleCalendarEntry<TGroup>[],
+  startIndex: number,
+): ScheduleOverlapCluster<TGroup> {
+  return {
+    entries,
+    startIndex,
+    endIndex: startIndex + entries.length - 1,
+    laneCount: Math.max(...entries.map((entry) => entry.laneCount), 1),
+  }
+}
+
+function isUnreadableOverlapCluster<TGroup>(
+  cluster: ScheduleOverlapCluster<TGroup>,
+  options: ScheduleVisualDisclosureOptions,
+) {
+  if (cluster.entries.length <= 1) {
+    return false
+  }
+
+  if (cluster.laneCount >= SCHEDULE_DENSE_CLUSTER_MIN_LANE_COUNT) {
+    return true
+  }
+
+  if (options.dayContentWidthPx === null) {
+    return true
+  }
+
+  const effectiveLaneWidth = (
+    options.dayContentWidthPx - ((cluster.laneCount - 1) * options.laneGapPx)
+  ) / cluster.laneCount
+
+  if (effectiveLaneWidth < SCHEDULE_MIN_READABLE_LANE_WIDTH_PX) {
+    return true
+  }
+
+  return cluster.entries.some((entry) =>
+    getScheduleEntryTemporalHeightPx(entry, options.hourHeightPx) <
+      SCHEDULE_MIN_READABLE_CARD_HEIGHT_PX,
+  )
+}
+
+function mergeIntersectingDisclosureRanges<TGroup>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+  initialRanges: Array<{ startIndex: number; endIndex: number }>,
+  options: ScheduleVisualDisclosureOptions,
+) {
+  let ranges = mergeRanges(initialRanges)
+  let changed = true
+
+  while (changed) {
+    changed = false
+
+    ranges = ranges.map((range) => {
+      let nextRange = { ...range }
+      let expanded = true
+
+      while (expanded) {
+        expanded = false
+
+        if (
+          nextRange.startIndex > 0 &&
+          visualRectsIntersect(
+            getDisclosureRangeRect(entries, nextRange, options),
+            getEntryVisualRect(entries[nextRange.startIndex - 1], options.hourHeightPx),
+          )
+        ) {
+          nextRange = {
+            ...nextRange,
+            startIndex: nextRange.startIndex - 1,
+          }
+          expanded = true
+          changed = true
+        }
+
+        if (
+          nextRange.endIndex < entries.length - 1 &&
+          visualRectsIntersect(
+            getDisclosureRangeRect(entries, nextRange, options),
+            getEntryVisualRect(entries[nextRange.endIndex + 1], options.hourHeightPx),
+          )
+        ) {
+          nextRange = {
+            ...nextRange,
+            endIndex: nextRange.endIndex + 1,
+          }
+          expanded = true
+          changed = true
+        }
+      }
+
+      return nextRange
+    })
+
+    const mergedRanges = mergeRanges(ranges)
+
+    if (mergedRanges.length !== ranges.length) {
+      changed = true
+    }
+
+    ranges = mergedRanges
+  }
+
+  return ranges
+}
+
+function mergeRanges(ranges: Array<{ startIndex: number; endIndex: number }>) {
+  const sortedRanges = [...ranges].sort((first, second) =>
+    first.startIndex - second.startIndex || first.endIndex - second.endIndex,
+  )
+  const mergedRanges: Array<{ startIndex: number; endIndex: number }> = []
+
+  for (const range of sortedRanges) {
+    const previousRange = mergedRanges.at(-1)
+
+    if (!previousRange || range.startIndex > previousRange.endIndex) {
+      mergedRanges.push({ ...range })
+      continue
+    }
+
+    previousRange.endIndex = Math.max(previousRange.endIndex, range.endIndex)
+  }
+
+  return mergedRanges
+}
+
+function getDisclosureRangeRect<TGroup>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+  range: { startIndex: number; endIndex: number },
+  options: ScheduleVisualDisclosureOptions,
+) {
+  const rangeEntries = entries.slice(range.startIndex, range.endIndex + 1)
+  const topMinutes = Math.min(...rangeEntries.map((entry) => entry.startMinutes))
+  const bottomMinutes = Math.max(...rangeEntries.map((entry) => entry.endMinutes))
+  const key = buildScheduleDisclosureKey(rangeEntries, topMinutes, bottomMinutes)
+  const top = (topMinutes / 60) * options.hourHeightPx
+  const temporalHeight = ((bottomMinutes - topMinutes) / 60) * options.hourHeightPx
+  const measuredHeight = options.disclosureNaturalHeightPxByKey?.get(key) ?? 0
+
+  return {
+    top,
+    bottom: top + Math.max(
+      SCHEDULE_MIN_VISUAL_CARD_HEIGHT_PX,
+      temporalHeight,
+      measuredHeight,
+    ),
+  }
+}
+
+function getEntryVisualRect<TGroup>(
+  entry: ScheduleCalendarEntry<TGroup>,
+  hourHeightPx: number,
+) {
+  return toVisualRect(entry.startMinutes, entry.endMinutes, hourHeightPx)
+}
+
+function toVisualRect(
+  startMinutes: number,
+  endMinutes: number,
+  hourHeightPx: number,
+) {
+  const top = (startMinutes / 60) * hourHeightPx
+  const naturalBottom = (endMinutes / 60) * hourHeightPx
+
+  return {
+    top,
+    bottom: Math.max(top + SCHEDULE_MIN_VISUAL_CARD_HEIGHT_PX, naturalBottom),
+  }
+}
+
+function visualRectsIntersect(
+  first: { top: number; bottom: number },
+  second: { top: number; bottom: number },
+) {
+  return first.top < second.bottom && second.top < first.bottom
+}
+
+function getScheduleEntryTemporalHeightPx<TGroup>(
+  entry: ScheduleCalendarEntry<TGroup>,
+  hourHeightPx: number,
+) {
+  return ((entry.endMinutes - entry.startMinutes) / 60) * hourHeightPx
+}
+
+function buildScheduleDisclosureKey<TGroup>(
+  entries: readonly ScheduleCalendarEntry<TGroup>[],
+  startMinutes: number,
+  endMinutes: number,
+) {
+  const entryKeys = entries.map((entry) => entry.key).sort((first, second) =>
+    first.localeCompare(second, 'ru'),
+  )
+  const weekday = entries[0]?.weekday ?? 0
+
+  return [
+    'schedule-disclosure',
+    weekday,
+    startMinutes,
+    endMinutes,
+    ...entryKeys,
+  ].join('__')
+}
+
 function finalizeCluster<TGroup>(
   entries: readonly ScheduleCalendarEntry<TGroup>[],
   laneCount: number,
@@ -633,6 +936,15 @@ function compareScheduleCalendarEntries<TGroup extends Pick<
   }
 
   return 0
+}
+
+function compareScheduleCalendarEntriesByTime<TGroup>(
+  first: ScheduleCalendarEntry<TGroup>,
+  second: ScheduleCalendarEntry<TGroup>,
+) {
+  return first.startMinutes - second.startMinutes ||
+    first.endMinutes - second.endMinutes ||
+    first.key.localeCompare(second.key, 'ru')
 }
 
 function compareScheduleGroups<TGroup extends Pick<

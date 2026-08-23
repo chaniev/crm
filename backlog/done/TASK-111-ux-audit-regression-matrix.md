@@ -1,13 +1,18 @@
 # TASK-111: Расширить Playwright-регрессию по UX-аудиту 2026-08-02
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-16 17:34
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-111-ux-audit-regression-matrix.plan.md
+- implementation_plan: /backlog/done/TASK-111-ux-audit-regression-matrix.plan.md
 - implementation_branch: fix/TASK-111-ux-audit-regression-matrix
+- implementation_state: completed
+- implementation_commit: 5e16840
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
 
 ## Goal
 Автоматические suites обнаруживают подтверждённые mobile/desktop регрессии attendance, settings, audit, schedule и shared profile trigger вместо формального прохождения неполного inventory.
@@ -46,20 +51,20 @@ implementation
 - Target iPhone WebKit checks запускаются с touch enabled; page-level overflow проверяется отдельно от внутренней читаемости карточек.
 
 ## Acceptance criteria
-- [ ] Attendance suite проверяет above-fold first action, читаемую дату, `44 x 44px` controls и отсутствие overflow на всей заданной matrix.
-- [ ] Settings suite проверяет размеры tab/select/actions и focus order.
-- [ ] Audit suite проверяет pagination accessible names/sizes и focus return для трёх способов закрытия.
-- [ ] Schedule desktop suite проверяет доступность start/end, группы и зала/тренера для parallel events при `1440 x 1200`.
-- [ ] Inventory включает profile trigger и обнаруживает hit area меньше `44 x 44px`.
-- [ ] Тесты различают page overflow и потерю decision-data внутри сжатого элемента.
-- [ ] Остаточные device-only проверки перечислены явно и не выдаются за пройденные.
+- [x] Attendance suite проверяет above-fold first action, читаемую дату, `44 x 44px` controls и отсутствие overflow на всей заданной matrix.
+- [x] Settings suite проверяет размеры tab/select/actions и focus order.
+- [x] Audit suite проверяет pagination accessible names/sizes и focus return для трёх способов закрытия.
+- [x] Schedule desktop suite проверяет доступность start/end, группы и зала/тренера для parallel events при `1440 x 1200`.
+- [x] Inventory включает profile trigger и обнаруживает hit area меньше `44 x 44px`.
+- [x] Тесты различают page overflow и потерю decision-data внутри сжатого элемента.
+- [x] Остаточные device-only проверки перечислены явно и не выдаются за пройденные.
 
 ## Test checklist
-- [ ] Запустить affected Playwright specs в Chromium.
-- [ ] Запустить target iPhone WebKit suite с touch enabled.
-- [ ] Повторно запустить `e2e/touch-target-inventory.spec.ts`.
-- [ ] Проверить стабильность focus assertions без arbitrary timeout.
-- [ ] Запустить frontend lint и build после изменения test helpers/config.
+- [x] Запустить affected Playwright specs в Chromium.
+- [x] Запустить target iPhone WebKit suite с touch enabled.
+- [x] Повторно запустить `e2e/touch-target-inventory.spec.ts`.
+- [x] Проверить стабильность focus assertions без arbitrary timeout.
+- [x] Запустить frontend lint и build после изменения test helpers/config.
 
 ## AI safety
 - Safe for Codex: yes
