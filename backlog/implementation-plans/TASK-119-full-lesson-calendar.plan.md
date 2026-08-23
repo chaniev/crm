@@ -6,6 +6,9 @@
 - readiness: yes — only on explicit high-risk start with phased gates
 - dependencies: if batched with TASK-115, integrate TASK-115 first; re-audit TASK-103/117/118 baseline before execution
 - risk: high — occurrence identity, migration, attendance, UI and bot coordinated cutover
+- confirmed_trainer_model: 2026-08-23 — schedule slots do not own trainers;
+  permanent trainers belong to the group, and a substitute replaces one of
+  them only on exact lesson occurrences with occurrence-scoped access
 
 ## Goal
 
@@ -43,31 +46,48 @@ backend-owned. Отдельный факт/статус проведения т�
   - required stable `SlotLineageId`, сохраняемый между rule versions для того
     же логического слота;
   - ISO weekday, local `TimeOnly` start, duration;
-  - hall и trainer assignment set, необходимые для projection/conflict preview;
+  - hall, необходимый для projection/conflict preview;
+  - trainer assignment в slot отсутствует: постоянные тренеры принадлежат
+    группе, а замены относятся к конкретным occurrences;
   - несколько slots одного weekday для одной группы разрешены только если их
     time ranges не пересекаются; одновременные или полностью одинаковые занятия
     одной группы запрещены hard validation.
 - `LessonOccurrence`:
-  - `Id`, required `GroupId`, local `LessonDate`, start, duration, hall и
-    trainer set;
+  - `Id`, required `GroupId`, local `LessonDate`, start, duration и hall;
   - nullable source series/rule/slot refs для standalone one-off;
   - immutable `ProjectedDate`/source identity для moved occurrence overlay;
   - status `Scheduled | Cancelled`;
   - source kind `Recurring | OneOff | LegacyAttendance`;
-  - concurrency token, materialization/audit metadata.
+  - concurrency token, materialization/audit metadata и effective trainer
+    snapshot для factual/materialized history.
+- Постоянные тренеры остаются dated group assignments. Для projected occurrence
+  backend получает base trainer set из assignments, чьи inclusive validity
+  dates содержат `LessonDate`; current `GroupTrainers` не используется как
+  historical shortcut.
+- `LessonOccurrenceTrainerSubstitution`:
+  - `Id`, required `LessonOccurrenceId`, `ReplacedTrainerId` и
+    `SubstituteTrainerId`;
+  - одна active замена конкретного permanent trainer внутри конкретного
+    occurrence; replacement materializes projected occurrence с тем же id;
+  - concurrency/audit metadata и nullable cancellation metadata;
+  - unique active replacement per `(LessonOccurrenceId, ReplacedTrainerId)`;
+  - substitute не становится permanent group trainer и не получает доступ к
+    другим occurrences той же группы или даты.
 
 Имена группы, type и branch могут читаться из текущей group identity, но
-время/duration/hall/trainers занятия принадлежат versioned slot или
-materialized occurrence. Frontend и bot не восстанавливают их из current group
-template.
+время/duration/hall принадлежат versioned slot или materialized occurrence.
+Effective trainers вычисляет backend как permanent assignments на `LessonDate`
+минус replaced trainers плюс active occurrence substitutions; factual
+materialized occurrence сохраняет этот result как history. Frontend и bot не
+восстанавливают trainers из current group state.
 
 ### Deterministic occurrence identity
 
 - Для recurring projection использовать fixed RFC 4122 UUIDv5 namespace
   `a4b0c93e-e5d5-56ba-b9c1-236bd3254960` и canonical UTF-8 key
   `lesson-slot-lineage:{slotLineageId:D}:{date:yyyy-MM-dd}`.
-- `SlotLineageId` сохраняется при изменении времени, duration, hall или trainer
-  set того же логического слота через `ThisAndFuture`/`EntireSeries`. Новый
+- `SlotLineageId` сохраняется при изменении времени, duration или hall того же
+  логического слота через `ThisAndFuture`/`EntireSeries`. Новый
   добавленный slot или перенос существующего slot на другой ISO weekday получает
   новый lineage. Удалённый slot прекращает создавать projected occurrences, но
   старые/materialized facts сохраняют source lineage.
@@ -92,8 +112,9 @@ template.
     даёт `a896ae57-b0cb-50de-a308-cb438fc57893`.
 - Opaque `revision` — base64url SHA-256 digest canonical mutation state:
   occurrence/source ids, source rule/slot version, source/current date, start,
-  duration, hall, sorted trainer ids, cancellation state, materialized
-  concurrency token и attendance-fact version. Presentation names и
+  duration, hall, dated permanent-assignment revision, active substitution ids,
+  sorted effective trainer ids, cancellation state, materialized concurrency
+  token и attendance-fact version. Presentation names и
   actor-specific allowed actions в digest не входят. Projected и materialized
   формы используют одну canonical serialization policy.
 - Frontend/bot считают id opaque string и никогда не вычисляют его локально.
@@ -144,10 +165,12 @@ template.
 - Management roles используют существующий branch/group access scope.
 - Постоянно назначенный Coach видит occurrences своей группы во всём
   разрешённом calendar range.
-- Неотменённая substitution даёт Coach доступ к occurrences, чья `LessonDate`
-  входит в inclusive `[StartsOn, EndsOn]`: upcoming occurrences видны заранее,
-  а после обычного окончания substitution прошлые occurrences этого периода не
-  исчезают. Cancelled substitution доступа не даёт.
+- Неотменённая occurrence substitution даёт substitute Coach доступ только к
+  exact `LessonOccurrenceId`, перечисленным в replacement command. Upcoming
+  replacement occurrences видны заранее; после наступления их дат historical
+  access к этим exact occurrences сохраняется. Другие занятия той же группы и
+  даже другие same-day occurrences не становятся доступными. Cancelled
+  substitution доступа не даёт.
 - Calendar/detail и attendance roster для доступного будущего occurrence можно
   открыть read-only. Attendance mutation для Coach разрешена только на business
   today и два предыдущих calendar days; management сохраняет текущую policy —
@@ -155,8 +178,8 @@ template.
 - Backend возвращает отдельные `canViewAttendance` и `canEditAttendance` с
   stable reason codes. Доступ вычисляется относительно `LessonDate`, а не только
   текущей даты запроса.
-- Frontend и bot не выводят доступ из текущего списка тренеров группы; они
-  используют только backend `allowedActions` и 403 ProblemDetails.
+- Frontend и bot не выводят доступ из current permanent/substitute trainer
+  lists; они используют только backend `allowedActions` и 403 ProblemDetails.
 
 ### Cancellation and attendance mark fact
 
@@ -177,9 +200,10 @@ Calendar DTO возвращает только прямой backend-owned фак
 `hasAttendanceMarks`, равный наличию хотя бы одной persisted `Present`/`Absent`
 mark для occurrence. Completion enum, expected-client denominator и производный
 статус проведения не вводятся. DTO также возвращает `allowedActions` с
-boolean/reason codes для view/edit attendance, edit, move, cancel и restore. UI
-не выводит permissions или cancellation state из role/date/attendance rows
-самостоятельно.
+boolean/reason codes для view/edit attendance, edit, move, cancel, restore,
+assign trainer substitution и cancel trainer substitution. UI не выводит
+permissions, effective trainers или cancellation state из role/date/attendance
+rows самостоятельно.
 
 Если `Present`/`Absent` уже существуют, переход в `Cancelled` возвращает stable
 409 conflict и не удаляет marks. Recovery ведёт к явному разрешению attendance
@@ -192,6 +216,8 @@ conflict; attendance change и последующая cancellation команд�
 
 - `GET /schedule/lessons?from=YYYY-MM-DD&to=YYYY-MM-DD` с optional
   `branchId`, `hallId`, `trainerId`, `groupId`, `groupTypeId`.
+  `trainerId` фильтрует backend-computed effective trainers occurrence, поэтому
+  replacement находится по substitute и не находится по replaced trainer.
 - `GET /schedule/lessons/{lessonOccurrenceId}?lessonDate=YYYY-MM-DD` для
   detail/deep link и bounded resolution projected occurrence.
 - Range response — typed envelope с normalized inclusive `from`/`to`, `items`,
@@ -204,7 +230,9 @@ conflict; attendance change и последующая cancellation команд�
   - `lessonOccurrenceId`, `sourceKind`, `isMaterialized`;
   - canonical current `lessonDate`, `startTime`, `durationMinutes` и computed
     `endTime`;
-  - group id/name/type, branch, hall, trainers;
+  - group id/name/type, branch, hall and backend-computed effective trainer
+    entries: trainer id/name, `Permanent | Substitute`, nullable
+    `replacedTrainerId`/`substitutionId` and replacement marker;
   - cancellation state и direct `hasAttendanceMarks` fact;
   - allowed actions/reasons;
   - opaque `revision`, одинаково применимый к projected и materialized forms.
@@ -217,18 +245,27 @@ conflict; attendance change и последующая cancellation команд�
   assignments и required nested `initialLessonSeries`, валидирует весь command
   и возвращает warnings/confirmation token до записи.
 - После cutover frontend не отправляет legacy `Weekdays`, `TrainingStartTime`,
-  `DurationMinutes`, hall и trainers как редактируемый schedule template внутри
-  обычного group update.
+  `DurationMinutes` и hall как редактируемый schedule template внутри обычного
+  group update. Permanent trainer assignments остаются group-owned contract и
+  никогда не копируются в editable schedule slots.
 - Group create остаётся одной пользовательской операцией: request содержит
   group fields, required `initialLessonSeries` и preview `confirmationToken`.
   Backend создаёт группу, series, first rule version и slots одной transaction;
   ошибка расписания не оставляет группу без initial schedule.
 - Group update управляет identity полями группы: name, type, branch, active
-  state и другими non-schedule атрибутами. Изменение дней, времени, duration,
-  hall и trainer set выполняется только через lesson-series preview/execute.
-- Постоянное назначение тренера на группу влияет на coach access scope.
-  Замещающий тренер задаётся отдельной substitution сущностью/командой на
-  конкретные даты и не переписывает historical occurrences.
+  state и другими non-schedule атрибутами. Изменение дней, времени, duration и
+  hall выполняется только через lesson-series preview/execute.
+- Permanent trainer assignment изменяется через
+  `POST /groups/{groupId}/trainer-assignments/preview` и
+  `POST /groups/{groupId}/trainer-assignments`. Dated preview/execute contract
+  возвращает exact future occurrences и trainer-overlap warnings; удаление
+  trainer не переписывает factual history. Series editor не содержит trainer
+  fields.
+- Замещающий тренер задаётся occurrence-aware substitution command: management
+  выбирает permanent trainer, substitute и точный набор
+  `lessonOccurrenceId + lessonDate`. Date range может быть только UI/query
+  способом получить bounded candidate set; execute хранит exact occurrence
+  replacements и не использует `(GroupId, date)` как identity.
 - Legacy fields читает только transition runner для migration/report. Они не
   входят в activated group read/write contract и не используются production
   API как compatibility source.
@@ -247,6 +284,14 @@ conflict; attendance change и последующая cancellation команд�
   `POST /schedule/lessons/{id}/cancellation?lessonDate=YYYY-MM-DD` для
   cancel/restore между
   `Scheduled | Cancelled` в разрешённой matrix.
+- `POST /schedule/lesson-trainer-substitutions/preview` и
+  `POST /schedule/lesson-trainer-substitutions` принимают
+  `replacedTrainerId`, `substituteTrainerId` и bounded exact target list из
+  `lessonOccurrenceId`, `lessonDate`, `expectedRevision`; execute создаёт по
+  одной audited replacement row на target occurrence.
+- Cancellation существующей замены использует тот же preview/confirmation-token
+  contract и exact occurrence/substitution ids; она не отменяет занятие и не
+  меняет permanent group assignment.
 - Preview request использует local dates/time и opaque `expectedRevision`.
   Preview response возвращает structured warnings, affected/skipped set и
   opaque `confirmationToken`, привязанный к actor, normalized command,
@@ -270,12 +315,16 @@ confirmation:
 - `lesson_hall_overlap`.
 
 Они означают, что занятие другой группы в пересекающееся время использует того
-же trainer или hall. Само совпадение времени у разных групп без общего trainer
-или hall предупреждением не является.
+же effective trainer или hall. Effective trainer set строится из dated
+permanent group assignments и exact occurrence substitutions; trainer из slot
+не существует. Само совпадение времени у разных групп без общего effective
+trainer или hall предупреждением не является.
 
 Warnings не блокируют подтверждённое сохранение. Для бессрочной weekly series
-conflict engine сравнивает weekday/time/range алгебраически, а materialized
-exceptions — по конкретным датам; он не разворачивает бесконечный календарь.
+conflict engine сравнивает weekday/time/range и dated permanent-assignment
+periods алгебраически, а materialized exceptions/substitutions — по конкретным
+датам; он не разворачивает бесконечный календарь. Назначение или отмена
+substitute повторно проверяет trainer overlaps exact target occurrences.
 Response ограничивает examples, но сообщает, если конфликт повторяется без
 конечной даты.
 
@@ -286,7 +335,8 @@ Hard validation без confirmation:
   пересекающимися time ranges в одну дату/weekday независимо от hall/trainer;
 - `lesson-duplicate` — полностью одинаковое занятие одной группы запрещено:
   совпадают one-off date либо recurring weekday/effective range, start,
-  duration, hall и нормализованный trainer set.
+  duration и hall. Permanent/substitute trainer state не создаёт отдельный
+  schedule slot и не различает duplicate lessons.
 
 Stable ProblemDetails минимум:
 - `lesson-calendar-range-invalid` — invalid/oversized range;
@@ -393,25 +443,39 @@ multiple slots/day, existing exceptions и attendance facts.
      отдельный forward migration/transition runner от текущей schema.
 2. Recurring cutover:
    - для каждой existing group создать одну current series/rule version из
-     legacy weekday/time/duration/hall/trainers с required operator parameter
+     legacy weekday/time/duration/hall с required operator parameter
      `--cutover-date YYYY-MM-DD`;
+   - current и historical permanent trainer assignments остаются group-owned
+     dated facts и не копируются в schedule slots;
    - записать cutover date и source schema/version в durable singleton migration
      run; rerun обязан использовать ту же дату, а другая дата завершает run
      stable mismatch error до изменения данных;
    - не проецировать этот current template назад как доказанную историю.
-3. Historical attendance backfill:
+3. Existing substitution transition:
+   - legacy group/date substitution разворачивается в exact occurrence
+     replacements только если на каждом target occurrence однозначно определён
+     один replaced permanent trainer;
+   - при нескольких permanent trainers, нескольких same-day occurrences без
+     доказанного target или отсутствующем assignment replacement не угадывается
+     и попадает в durable migration report;
+   - operator resolution выбирает exact occurrence ids, replaced trainer и
+     substitute; каждая созданная replacement row аудитируется и повторный run
+     идемпотентен.
+4. Historical attendance backfill:
    - сгруппировать rows по `(GroupId, TrainingDate)`;
    - автоматически создать `LegacyAttendance` occurrence и связать rows только
      если legacy schedule даёт ровно один доказуемый slot для weekday;
    - zero/multiple match, missing group/slot или inconsistent payload записать
      в durable migration report без guessed binding.
-4. Resolution gate:
+5. Resolution gate:
    - durable report row содержит run id, group/date, bounded attendance row ids
      и count, reason code, resolution status/kind, target occurrence id,
      resolved by/at и operator comment;
    - maintenance CLI/command позволяет либо выбрать существующий occurrence,
      либо создать `LegacyAttendance` occurrence с явно введёнными date/start,
-     duration, hall и sorted trainer ids. Operator передаёт exact subset
+     duration, hall и доказанным effective trainer provenance: permanent
+     assignments и, если применимо, occurrence substitutions. Operator
+     передаёт exact subset
      attendance row ids; ambiguous group/date можно partition между несколькими
      occurrences, каждая row связывается ровно один раз, а report считается
      resolved только после mapping всех rows. Guessed/default-first mapping
@@ -419,14 +483,14 @@ multiple slots/day, existing exceptions и attendance facts.
    - manual repair command/materialized mapping аудитируется и идемпотентно
      возвращает прежний result при повторе того же resolution;
    - activation запрещена, пока unresolved count не равен нулю.
-5. Canonical cutover:
+6. Canonical cutover:
    - сделать occurrence FK required;
    - заменить unique index на `(ClientId, LessonOccurrenceId)`;
    - обновить client history, missed-training, membership write-off/restore,
      audit и all readers на occurrence join;
    - удалить `Attendance.GroupId/TrainingDate` как command source после
      verified migration; display values читаются из occurrence.
-6. Coordinated activation в фазе F:
+7. Coordinated activation в фазе F:
    - DB transition, backend, frontend и bot входят в один release и не
      разворачиваются в production частично;
    - legacy group/date attendance mutation endpoints и legacy weekly-template
@@ -477,14 +541,19 @@ idempotent rerun/concurrent materialization тестируются отдель�
    global/filtered empty state, а frontend не выводит право из role/items.
 6. Mobile default — selected-day task list, не сжатая desktop week grid.
 7. Lesson row/card показывает time/group, `Cancelled` marker when applicable и
-   attendance marks fact first, затем type/hall/branch/trainer. Отдельный
+   attendance marks fact first, затем type/hall/branch и backend-computed
+   effective trainers. Substitute показывается как явная `Замена`, а replaced
+   permanent trainer не отображается как фактически ведущий это occurrence.
+   Отдельный
    `Scheduled` badge не выводится. Несколько same-group lessons различаются
    временем и stable occurrence identity; technical UUID полностью не выводится.
 8. `Посещаемость` — visible row primary action минимум 44px и никогда не
    находится в overflow.
-9. Secondary row menu содержит только разрешённые edit/move/series actions.
-   Destructive cancellation action отделён и требует explicit confirmation;
-   restore остаётся contextual recovery action.
+9. Secondary row menu содержит только разрешённые edit/move/series и
+   assign/cancel-substitution actions. Trainer replacement выбирает permanent
+   trainer, substitute и exact occurrence; destructive lesson cancellation
+   отделён и требует explicit confirmation; restore остаётся contextual
+   recovery action.
 10. Week mode на `360–768px` показывает семь последовательных вертикальных
     day sections Monday–Sunday без horizontal scroll. Section имеет semantic
     heading с weekday/date/lesson count, today marker when applicable и
@@ -521,6 +590,10 @@ selected calendar context. Если TASK-103 merged, detail включается
   date/time/group и последствием; это не nested modal и не full form route.
 - Series edit обязательно показывает scope `Только это`, `Это и будущие`,
   `Вся серия` с persistent label и backend preview affected/skipped counts.
+- Series/occurrence schedule forms не содержат arbitrary trainer selector.
+  Permanent trainers редактируются в group assignment surface, а замена — в
+  occurrence substitution surface с именами permanent/substitute trainer,
+  exact lesson date/time и backend preview conflicts.
 - Preview вызывается до execute. Trainer/hall warnings показываются рядом
   с confirmation action, остаются non-blocking для разрешённых resource
   overlaps и требуют explicit confirm. Same-group overlap и duplicate не
@@ -535,7 +608,8 @@ selected calendar context. Если TASK-103 merged, detail включается
 
 ### Attendance detail
 
-- Header/context: date, time, group, hall/branch, trainer, `Cancelled` marker
+- Header/context: date, time, group, hall/branch, effective trainers с явным
+  replacement marker, `Cancelled` marker
   when applicable и direct indication наличия marks; не показывать generic
   `Scheduled`, technical series/rule или производный completion status.
 - Roster/save state остаётся row-local и получает occurrence id from route и
@@ -626,6 +700,8 @@ selected calendar context. Если TASK-103 merged, detail включается
 
 Deliverables:
 - domain entities, pure recurrence/range/UUIDv5 policies;
+- dated permanent group-trainer projection and pure effective-trainer policy
+  without slot-owned trainers;
 - additive EF model/configurations and reproducible schema baseline;
 - side-effect-free `/schedule/lessons` range query;
 - shared bounded occurrence resolver для projected/materialized id + date без
@@ -642,6 +718,8 @@ Deliverables:
 - preview/execute application services and explicit endpoints;
 - atomic group + required initial series preview/execute and generic group
   update without legacy schedule writes;
+- permanent trainer assignment preview/execute and exact occurrence substitution
+  preview/execute/cancellation with effective-trainer conflict checks;
 - three edit scopes, cancellation/restore matrix, warning algebra, opaque
   revision/confirmation-token concurrency;
 - permissions, stable ProblemDetails/resources and audits;
@@ -655,6 +733,8 @@ Deliverables:
 Deliverables:
 - nullable-to-required occurrence FK transition, migration report/resolution
   gate and final attendance unique identity;
+- legacy group/date substitution transition to exact occurrence replacements
+  with ambiguity report/resolution;
 - atomic first attendance materialization + attendance/membership/audit;
 - occurrence-aware web/internal-bot backend endpoints;
 - all backend readers/history/attention boundaries updated;
@@ -668,14 +748,16 @@ Deliverables:
 - typed API mappers and URL state;
 - approved Schedule day/week UI, detail/mutation surfaces and responsive states;
 - occurrence-aware Attendance route/workspace/client-return context;
-- group create/edit schedule consumer aligned with canonical series contract;
+- group create/edit permanent-trainer consumer, occurrence substitution surface
+  and schedule consumer aligned with canonical series contract;
 - unit/component/Playwright/target-iPhone tests.
 
 ### Phase E — bot occurrence consumer
 
 Deliverables:
 - Pydantic models/client methods для lessons/occurrence id;
-- dialog: date -> concrete lessons (group + time/cancelled marker) -> roster -> save;
+- dialog: date -> concrete lessons (group + time/effective trainer/cancelled
+  marker) -> roster -> save;
 - bot state/idempotency target uses occurrence id;
 - no recurrence/cancellation/permission rules in Python;
 - API client/service/callback regressions.
@@ -723,6 +805,9 @@ Status files related TASKs не меняются до green integrated result.
   are not rewritten by series edits; cancellation/restore has occurrence scope
   only.
 - Existing access scope/permissions are reused; no RBAC redesign.
+- Schedule slots never own trainers. Permanent trainer assignments are
+  group-owned dated facts; substitute access and display are limited to exact
+  occurrence replacements and never widen to group/date scope.
 - Initial/forward schema paths must converge to the same final model.
 - Every backend contract change updates web and bot consumers before activation.
 - Keep React 19, TypeScript, Vite, Mantine, Onest and existing tokens; no new UI
@@ -748,7 +833,7 @@ Status files related TASKs не меняются до green integrated result.
 - several slots/day, different times, duration and boundary weekdays;
 - exact recurring/legacy UUIDv5 namespaces, canonical keys and fixed vectors;
   culture/provider/timezone independence, projected/materialized equality and
-  lineage continuity across time/duration/hall/trainer edits;
+  lineage continuity across time/duration/hall edits;
 - bounded resolver accepts projected id only on its locator date, resolves
   materialized/moved id only on current displayed date and never scans other
   dates;
@@ -758,11 +843,15 @@ Status files related TASKs не меняются до green integrated result.
 - edit scopes: `ThisAndFuture` from selected date, `EntireSeries` from
   `max(StartsOn, business today)`, factual/manual exceptions preserved and
   cancellation restricted to one occurrence;
-- conflict warning algebra for finite/indefinite weekly ranges;
+- effective-trainer policy: dated permanent assignments, exact replacement,
+  replacement cancellation, multiple permanent trainers and no same-day access
+  leakage to a non-target occurrence;
+- conflict warning algebra for finite/indefinite weekly ranges using permanent
+  assignment periods and concrete substitution exceptions;
 - backend allowed-action policy for all four roles/access scopes, включая
-  permanent Coach assignment, upcoming/expired non-cancelled substitution by
-  occurrence date, future read-only roster and Coach today/minus-two write
-  window.
+  permanent Coach assignment, upcoming/historical non-cancelled substitution
+  on exact occurrence ids, future read-only roster and Coach today/minus-two
+  write window.
 
 ### Backend integration/PostgreSQL
 - bounded calendar query validation, exact raw JSON and stable ordering;
@@ -778,6 +867,10 @@ Status files related TASKs не меняются до green integrated result.
   atomic consumption and rejects changed preview result/replay;
 - different-group trainer/hall warnings remain confirmable, while same-group
   overlap and exact duplicate are rejected;
+- permanent trainer assignment preview reports affected occurrences/conflicts;
+  exact substitution materializes targets idempotently, replaces only the
+  selected trainer, changes effective-trainer filter/display and grants the
+  substitute no access to another occurrence of the group or same date;
 - group create either commits group + initial series/slots/audits together or
   leaves no partial group, including stale preview and warning cases;
 - permissions/ProblemDetails/audit for every mutation/cancellation path;
@@ -792,19 +885,24 @@ Status files related TASKs не меняются до green integrated result.
 - persisted cutover-date mismatch fails before writes; unambiguous backfill,
   durable ambiguous report, exact-row partition across existing/create-legacy
   manual repair, idempotent rerun and unresolved activation block;
+- legacy group/date substitution auto-maps only with one provable replaced
+  permanent trainer and exact targets; ambiguous trainer/occurrence mapping
+  blocks activation until audited resolution;
 - final required FK and `(ClientId, LessonOccurrenceId)` uniqueness;
 - client history, missed-training, substitutions and internal bot consumers.
 
 ### Frontend unit/component
 - API mapping for projected/materialized/one-off/cancellation/actions/warnings/errors;
 - API mapping for direct `hasAttendanceMarks` without completion inference;
+- API mapping for permanent/effective/substitute trainers without frontend
+  derivation from current group assignments;
 - URL date/view/filter parse, normalization, reload/back/forward and retry;
 - occurrence detail/mutation/attendance routes round-trip opaque id together
   with canonical `lessonDate`; malformed or stale locator fails closed;
 - same-group same-day cards remain distinct and open exact occurrence;
 - row action visibility/disabled reasons by backend allowedActions;
 - response-level create capability/filter options in empty results, future
-  read-only attendance and expired substitution history visibility;
+  read-only attendance and exact upcoming/historical substitution visibility;
 - mutation preview/confirm, preserved draft, stale preview and attendance
   conflict recovery;
 - day arrows move one date, week arrows move seven dates; vertical week section
@@ -816,6 +914,10 @@ Status files related TASKs не меняются до green integrated result.
 ### UI/E2E
 - Coach primary path in <=3 actions from Schedule to today attendance;
 - Administrator/HeadCoach create one-off, move occurrence and edit series scope;
+- Administrator/HeadCoach replaces one permanent trainer on exact selected
+  occurrences; substitute sees upcoming/history only for those targets, card
+  and trainer filter show effective trainer, and another same-day occurrence
+  remains inaccessible;
 - cancellation attempt for `Scheduled` occurrence with marks keeps marks and
   form/context;
 - warning-only conflict confirms successfully after explicit acknowledgement;
@@ -836,7 +938,8 @@ Status files related TASKs не меняются до green integrated result.
 - affected target-iPhone scenarios use WebKit mobile emulation and touch.
 
 ### Bot tests
-- date lists concrete lessons with time/cancelled marker and distinct occurrence ids;
+- date lists concrete lessons with time/effective trainer/replacement marker,
+  cancelled marker and distinct occurrence ids;
 - roster/save carry canonical lesson date as bounded locator while occurrence id
   remains command/idempotency target;
 - same group twice per date selects correct lesson;
@@ -872,7 +975,8 @@ Manual QA не заменяет automated barriers.
    occurrence + marks + membership + audit с rollback on failure, без скрытого
    изменения cancellation state.
 3. **Migration barrier:** current-schema fixture даёт проверяемый report,
-   запрещает activation при ambiguity и после repair достигает required FK без
+   запрещает activation при attendance или legacy-substitution ambiguity и
+   после repair достигает required occurrence FK/exact replacement mapping без
    silent mapping.
 4. **Consumer barrier:** frontend and bot contract tests принимают только
    occurrence-aware command identity; legacy group/date write routes отсутствуют
@@ -927,6 +1031,10 @@ same focused assertions.
 - Existing attendance, client history, missed-training, substitutions and
   SingleVisit flows широко используют group/date; `rg` inventory и full backend
   suite нужны в C.
+- Если substitute access останется group/date-based, Coach увидит другое
+  same-day occurrence или будущие занятия вне exact replacement. Access matrix,
+  effective-trainer filter и migration tests должны доказывать occurrence-only
+  scope.
 - Web route overlap with unmerged TASK-103 может вызвать navigation conflict;
   TASK-119 добавляет только occurrence detail и reuses merged route when present.
 - TASK-117/TASK-118 implementation before TASK-119 would create overlapping
@@ -953,6 +1061,12 @@ Stop and do not write/continue functional code if:
 - current DB must be preserved but no forward migration/report/backup path is
   approved;
 - ambiguous attendance rows would be guessed or hidden instead of reported;
+- legacy substitution требует угадать replaced trainer/target occurrence либо
+  substitute access может быть реализован только через group/date scope вместо
+  exact occurrence replacements;
+- implementation снова вводит trainer set в schedule slot или выводит
+  effective trainers из current group links без dated assignment/substitution
+  policy;
 - atomic occurrence + attendance + membership + audit boundary cannot be proven on
   PostgreSQL;
 - API contract can only work through permanent dual source or frontend/bot
