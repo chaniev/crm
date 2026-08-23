@@ -650,6 +650,112 @@ describe('ClientDetailScreen membership purchase form', () => {
     expect(screen.getByLabelText('Дата оплаты')).toHaveValue('2026-07-24')
   })
 
+  test('preserves a failed purchase draft and retries with the same idempotency key', async () => {
+    const client = buildClientDetails({ businessDate: '2026-07-23' })
+    getClientMock.mockResolvedValue(client)
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+    purchaseMembershipMock
+      .mockRejectedValueOnce(
+        new ApiError('Проверьте сумму продажи.', 400, {
+          ManualSaleAmount: ['Сумма продажи требует уточнения.'],
+        }),
+      )
+      .mockResolvedValueOnce(client)
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
+    const amount = screen.getByRole('spinbutton', {
+      name: 'Фактическая сумма продажи, ₽',
+    })
+    fireEvent.change(amount, { target: { value: '4200' } })
+    fireEvent.change(screen.getByLabelText('Действует с'), {
+      target: { value: '2026-07-22' },
+    })
+    fireEvent.change(screen.getByLabelText('Действует по'), {
+      target: { value: '2026-08-20' },
+    })
+    fireEvent.change(await screen.findByLabelText('Дата оплаты'), {
+      target: { value: '2026-07-01' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
+    let confirmation = await screen.findByRole('dialog', {
+      name: /Подтвердить.*продажу/i,
+    })
+    fireEvent.click(
+      within(confirmation).getByRole('button', {
+        name: 'Подтвердить продажу',
+      }),
+    )
+
+    await screen.findByText('Сумма продажи требует уточнения.')
+    expect(screen.getAllByText('Проверьте сумму продажи.').length).toBeGreaterThan(0)
+    expect(screen.getByText('Сумма продажи требует уточнения.')).toBeVisible()
+    expect(amount).toHaveValue(4200)
+    expect(screen.getByLabelText('Действует с')).toHaveValue('2026-07-22')
+    const firstIdempotencyKey = purchaseMembershipMock.mock.calls[0]?.[2]
+      .idempotencyKey
+
+    fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
+    confirmation = await screen.findByRole('dialog', {
+      name: /Подтвердить.*продажу/i,
+    })
+    fireEvent.click(
+      within(confirmation).getByRole('button', {
+        name: 'Подтвердить продажу',
+      }),
+    )
+
+    await waitFor(() => expect(purchaseMembershipMock).toHaveBeenCalledTimes(2))
+    expect(purchaseMembershipMock.mock.calls[1]?.[2].idempotencyKey).toBe(
+      firstIdempotencyKey,
+    )
+    expect(purchaseMembershipMock.mock.calls[1]?.[1]).toEqual({
+      manualSaleAmount: 4200,
+      validFrom: '2026-07-22',
+      validTo: '2026-08-20',
+      paymentDate: '2026-07-01',
+    })
+  })
+
+  test('keeps one pending purchase request when submit is triggered again', async () => {
+    const pendingPurchase = createDeferred<ReturnType<typeof buildClientDetails>>()
+    getClientMock.mockResolvedValue(buildClientDetails())
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+    purchaseMembershipMock.mockReturnValue(pendingPurchase.promise)
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
+    fireEvent.change(screen.getByRole('spinbutton', {
+      name: 'Фактическая сумма продажи, ₽',
+    }), { target: { value: '4200' } })
+    fireEvent.change(screen.getByLabelText('Действует с'), {
+      target: { value: '2026-07-22' },
+    })
+    fireEvent.change(screen.getByLabelText('Действует по'), {
+      target: { value: '2026-08-20' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
+    const confirmation = await screen.findByRole('dialog', {
+      name: /Подтвердить.*продажу/i,
+    })
+    fireEvent.click(
+      within(confirmation).getByRole('button', {
+        name: 'Подтвердить продажу',
+      }),
+    )
+
+    await waitFor(() => expect(purchaseMembershipMock).toHaveBeenCalledTimes(1))
+    fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
+    expect(purchaseMembershipMock).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      pendingPurchase.resolve(buildClientDetails())
+    })
+  })
+
   test('does not submit a fractional manual amount', async () => {
     getClientMock.mockResolvedValue(buildClientDetails())
     getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
@@ -1169,6 +1275,58 @@ describe('ClientDetailScreen membership correction form', () => {
     expect(validFrom).toHaveValue('2026-07-05')
     expect(validTo).toHaveValue('2026-08-04')
     expect(paymentDate).toHaveValue('2026-07-24')
+  })
+
+  test('retries an addressed correction with the same idempotency key after ProblemDetails recovery', async () => {
+    const currentMembership = {
+      ...buildMembership(),
+      purchaseDate: '2026-07-01',
+      paymentDate: '2026-07-01',
+      validFrom: '2026-07-01',
+      expirationDate: '2026-07-31',
+    }
+    const client = {
+      ...buildClientDetails(),
+      currentMembership,
+      currentMembershipSummary: currentMembership,
+      hasCurrentMembership: true,
+      membershipHistory: [currentMembership],
+    }
+    getClientMock.mockResolvedValue(client)
+    correctMembershipMock
+      .mockRejectedValueOnce(
+        new ApiError('Проверьте исправление абонемента.', 400, {
+          ValidFrom: ['Начало срока пересекается с другой продажей.'],
+        }),
+      )
+      .mockResolvedValueOnce(client)
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Исправить' }))
+    const validFrom = await screen.findByLabelText('Действует с')
+    fireEvent.change(validFrom, { target: { value: '2026-07-05' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить исправление' }))
+
+    expect(
+      await screen.findByText('Начало срока пересекается с другой продажей.'),
+    ).toBeVisible()
+    expect(validFrom).toHaveValue('2026-07-05')
+    const firstIdempotencyKey = correctMembershipMock.mock.calls[0]?.[2]
+      .idempotencyKey
+
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить исправление' }))
+
+    await waitFor(() => expect(correctMembershipMock).toHaveBeenCalledTimes(2))
+    expect(correctMembershipMock.mock.calls[1]?.[2].idempotencyKey).toBe(
+      firstIdempotencyKey,
+    )
+    expect(correctMembershipMock.mock.calls[1]?.[1]).toEqual({
+      saleId: 'sale-current',
+      expectedMembershipId: 'version-current',
+      validFrom: '2026-07-05',
+      validTo: '2026-07-31',
+      paymentDate: '2026-07-01',
+    })
   })
 
   test('reloads after payment-date correction without exposing mark-payment', async () => {

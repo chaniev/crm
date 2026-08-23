@@ -50,7 +50,7 @@ import { ClientOverviewSection } from './ClientOverviewSection'
 import {
   ClientMembershipSection,
   useMembershipSubmissionKey,
-} from './ClientMembershipSection'
+} from './membership'
 import { ClientAttendanceHistorySection } from './ClientAttendanceHistorySection'
 
 type ClientDetailScreenProps = {

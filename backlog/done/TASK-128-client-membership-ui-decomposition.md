@@ -1,7 +1,7 @@
 # TASK-128: Выделить membership UI из ClientManagement
 
 ## Status
-risky
+done
 
 ## Goal
 Membership snapshot, purchase, renew, correct, payment, comment и refund UI
@@ -41,19 +41,31 @@ confirmation и history mapping находятся рядом с общими cl
 - Обязательны `refactoring-specialist`, `react-specialist` и `test-automator`.
 
 ## Acceptance criteria
-- [ ] Membership operations разделены по state/submit ownership.
-- [ ] Request payloads и idempotency behavior не изменились.
-- [ ] Payment/refund/comment attribution и history ordering сохранены.
-- [ ] Все loading/error/pending/disabled/success states имеют прежнее поведение.
-- [ ] Ни один membership module не превышает 500 строк.
-- [ ] Frontend quality baseline и membership browser regressions проходят.
+- [x] Membership operations разделены по state/submit ownership.
+- [x] Request payloads и idempotency behavior не изменились.
+- [x] Payment/refund/comment attribution и history ordering сохранены.
+- [x] Все loading/error/pending/disabled/success states имеют прежнее поведение.
+- [x] Ни один membership module не превышает 500 строк.
+- [x] Frontend quality baseline и membership browser regressions проходят.
 
 ## Test checklist
-- [ ] Characterization tests purchase/renew/correct payloads and validation.
-- [ ] Tests same-submit idempotency, double-click protection и retry recovery.
-- [ ] Refund/comment/payment/history regressions.
-- [ ] Permission-restricted и backend ProblemDetails paths.
-- [ ] Запустить lint, strict typecheck, raw-color, unit, build и affected Playwright/WebKit tests.
+- [x] Characterization tests purchase/renew/correct payloads and validation.
+- [x] Tests same-submit idempotency, double-click protection и retry recovery.
+- [x] Refund/comment/payment/history regressions.
+- [x] Permission-restricted и backend ProblemDetails paths.
+- [x] Запустить lint, strict typecheck, raw-color, unit, build и affected Playwright/WebKit tests.
+
+## Completion notes
+- Completed at: 2026-08-23.
+- Membership UI split into client-local `frontend/src/features/clients/membership/`
+  modules with `index.ts` barrel under 150 lines and every module under 500
+  lines.
+- Exact purchase/renew/correct payloads, backend ProblemDetails draft recovery,
+  sale comment identity, history ordering and idempotency retry lifecycle covered
+  by unit and affected browser regressions.
+- iPhone WebKit membership-only Playwright regression passed for 420 x 912 and
+  440 x 956 via temporary task config. Full run including transfer scenarios
+  exposed an unrelated transfer modal bottom-nav interception on iPhone profiles.
 
 ## AI safety
 - Safe for Codex: no

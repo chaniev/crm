@@ -3,7 +3,7 @@
 ## Metadata
 - source_task: /backlog/risky/TASK-128-client-membership-ui-decomposition.md
 - branch: refactor/TASK-128-client-membership-ui-decomposition
-- readiness: no — требуется human review financial confirmations, payload and idempotency state
+- readiness: done — human review approved 2026-08-23; implemented and locally validated
 - dependencies: TASK-127 — должна быть интегрирована, а location opaque membership subtree подтверждён
 - risk: high — UI управляет money/membership mutations, confirmation and retry identity
 
@@ -84,6 +84,19 @@ correct/payment/refund operations имеют focused typed modules не боле
 - One browser sequence purchase → reload → correct → comment → refund/cancel,
   with intercepted exact payload/idempotency assertions and component tests for
   row-local failure/retry and stable sale identity.
+
+## Completion notes
+- Completed at: 2026-08-23.
+- Entry boundary preserved:
+  `ClientDetailScreen -> ClientMembershipSection -> handleMembershipAction -> frontend API client`.
+- Public frontend import moved to `./membership` barrel; no backend/API DTO,
+  pricing, permission or workflow contract changed.
+- Added/strengthened unit regressions for failed purchase retry idempotency,
+  duplicate pending purchase guard and addressed correction retry idempotency.
+- Validation: frontend lint, typecheck, raw-color scanner, full unit suite,
+  build, affected Chromium Playwright and iPhone WebKit membership-only
+  Playwright passed. Full iPhone WebKit run including transfer scenarios
+  retained an unrelated transfer modal bottom-navigation interception failure.
 
 ## Risks and stop conditions
 - Остановиться, если TASK-127 moved or changed membership behavior beyond the
