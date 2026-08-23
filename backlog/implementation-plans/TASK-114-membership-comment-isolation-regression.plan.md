@@ -291,3 +291,15 @@ React identity and row-local recovery.
 
 Не останавливаться только потому, что regression затрагивает backend и frontend:
 локализованный cross-layer fix допустим после доказанного red scenario.
+
+## Execution record — 2026-08-23
+- Human approval was provided by the explicit `implement-release-plan` run.
+- Exact current-main PostgreSQL/API, mapper, component and browser scenarios
+  passed; the regression was not reproduced in database, backend response,
+  mapper, grouping, React identity or row-local recovery.
+- A test-only regression barrier was added and validated on candidate
+  `c1cbbc00fdf414f502e6c29f58bc347874b751f5`.
+- Production code was intentionally not changed under the plan's green-on-main
+  stop condition.
+- Completion remains blocked on sanitized evidence from the originally
+  reported deployed environment to confirm or reject rollout/version skew.
