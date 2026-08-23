@@ -438,6 +438,41 @@ public sealed class ClientMembershipWriteRegressionApiTests
     }
 
     [Fact]
+    public async Task Task123_PostgreSql_mandatory_membership_audit_failure_rolls_back_transfer_graph()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(
+            usePostgreSql: true,
+            throwMembershipAudit: true);
+
+        using var response = await context.TransferAsync(
+            $$"""
+            {
+              "targetBranchId": "{{context.TargetBranchId}}",
+              "targetGroupIds": ["{{context.TargetGroupId}}"],
+              "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
+              "validFrom": "{{context.Today:yyyy-MM-dd}}",
+              "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
+              "paymentDate": "{{context.Today:yyyy-MM-dd}}"
+            }
+            """,
+            "task123-transfer-audit-rollback");
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        await context.AssertCountsAsync(expectedSales: 0, expectedMemberships: 0, expectedMembershipAudits: 0);
+        await context.AssertIdempotencyCountAsync(0);
+        await context.AssertClientStillInSourceBranchAsync();
+
+        await using var scope = context.Factory.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.False(await db.ClientGroups.AnyAsync(clientGroup =>
+            clientGroup.ClientId == context.ClientId && clientGroup.GroupId == context.TargetGroupId));
+        Assert.False(await db.ClientBranchAssignments.AnyAsync(assignment =>
+            assignment.ClientId == context.ClientId && assignment.BranchId == context.TargetBranchId));
+        Assert.False(await db.ClientGroupAssignments.AnyAsync(assignment =>
+            assignment.ClientId == context.ClientId && assignment.GroupId == context.TargetGroupId));
+    }
+
+    [Fact]
     public async Task Membership_purchase_requires_idempotency_key_before_any_write()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: false);
@@ -1915,7 +1950,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
     {
         public async Task WriteAsync(AuditLogEntry entry, CancellationToken cancellationToken = default)
         {
-            if (entry.EntityType == "ClientMembership")
+            if (entry.EntityType == "ClientMembership" || entry.ActionType == "ClientTransferred")
             {
                 throw new InvalidOperationException("Mandatory membership audit failed for TASK-078 regression test.");
             }
