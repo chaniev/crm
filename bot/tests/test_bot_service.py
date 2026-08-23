@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
+from unittest.mock import AsyncMock
 from uuid import UUID
 
 import pytest
@@ -12,6 +13,7 @@ from gym_crm_bot.core.attendance_flow import AttendanceFlow
 from gym_crm_bot.core.client_flow import ClientFlow, format_client_group
 from gym_crm_bot.core.dialog_state import ATTENDANCE_SCENARIO, DialogStateStore
 from gym_crm_bot.core.service import BotService
+from gym_crm_bot.core.service_types import BotResponse
 from gym_crm_bot.crm.errors import CrmUserNotConfiguredError
 from gym_crm_bot.crm.models import (
     AttendanceDateWindow,
@@ -103,6 +105,8 @@ class FakeAttendanceCrmClient:
 class TranscriptCrmClient:
     request_ids: list[str] = field(default_factory=list)
     save_idempotency_keys: list[str] = field(default_factory=list)
+    client_search_requests: list[tuple[str, int, int, str]] = field(default_factory=list)
+    membership_list_requests: list[tuple[int, int, str]] = field(default_factory=list)
     group_id: UUID = UUID("00000000-0000-0000-0000-000000000021")
     first_client_id: UUID = UUID("00000000-0000-0000-0000-000000000031")
     second_client_id: UUID = UUID("00000000-0000-0000-0000-000000000032")
@@ -212,6 +216,7 @@ class TranscriptCrmClient:
         request_id: str,
     ) -> ClientSearchResponse:
         self.request_ids.append(request_id)
+        self.client_search_requests.append((query, page, page_size, request_id))
         if page == 1:
             return ClientSearchResponse(
                 items=[
@@ -267,6 +272,7 @@ class TranscriptCrmClient:
         request_id: str,
     ) -> MembershipListResponse:
         self.request_ids.append(request_id)
+        self.membership_list_requests.append((page, page_size, request_id))
         return MembershipListResponse(
             items=[
                 ClientListItem(
@@ -278,7 +284,7 @@ class TranscriptCrmClient:
             ],
             page=page,
             pageSize=page_size,
-            hasNextPage=False,
+            hasNextPage=page == 1,
         )
 
     async def audit_access_denied(  # noqa: ANN001
@@ -311,6 +317,185 @@ async def session_factory() -> async_sessionmaker[AsyncSession]:
         yield factory
     finally:
         await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_event_dispatch_table_routes_to_exact_scenario_handler(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeCrmClient(),
+        session_factory=session_factory,
+    )
+    attendance_start = AsyncMock(return_value=BotResponse(text="attendance.start"))
+    attendance_date = AsyncMock(return_value=BotResponse(text="attendance.date"))
+    attendance_group = AsyncMock(return_value=BotResponse(text="attendance.group"))
+    attendance_toggle = AsyncMock(return_value=BotResponse(text="attendance.toggle"))
+    attendance_save = AsyncMock(return_value=BotResponse(text="attendance.save"))
+    client_text = AsyncMock(return_value=BotResponse(text="clients.text"))
+    client_start = AsyncMock(return_value=BotResponse(text="clients.start"))
+    client_page = AsyncMock(return_value=BotResponse(text="clients.page"))
+    client_card = AsyncMock(return_value=BotResponse(text="clients.card"))
+    client_memberships = AsyncMock(return_value=BotResponse(text="clients.memberships"))
+    service._attendance.start = attendance_start
+    service._attendance.select_date = attendance_date
+    service._attendance.select_group = attendance_group
+    service._attendance.toggle_mark = attendance_toggle
+    service._attendance.save = attendance_save
+    service._clients.handle_text = client_text
+    service._clients.start_search = client_start
+    service._clients.paginate_search = client_page
+    service._clients.show_card = client_card
+    service._clients.show_memberships = client_memberships
+
+    client_id = UUID("00000000-0000-0000-0000-000000000031")
+    group_id = UUID("00000000-0000-0000-0000-000000000021")
+    cases = [
+        ("text", None, "query", client_text, (), {}, "clients.text"),
+        ("callback", "menu|attendance", None, attendance_start, (), {}, "attendance.start"),
+        (
+            "callback",
+            "adt|2026-05-13",
+            None,
+            attendance_date,
+            ("2026-05-13",),
+            {},
+            "attendance.date",
+        ),
+        (
+            "callback",
+            f"agr|{group_id}",
+            None,
+            attendance_group,
+            (str(group_id),),
+            {},
+            "attendance.group",
+        ),
+        (
+            "callback",
+            f"atg|{client_id}",
+            None,
+            attendance_toggle,
+            (str(client_id),),
+            {},
+            "attendance.toggle",
+        ),
+        ("callback", "asv", None, attendance_save, (), {}, "attendance.save"),
+        ("callback", "menu|client_search", None, client_start, (), {}, "clients.start"),
+        ("callback", "srp|2", None, client_page, (2,), {}, "clients.page"),
+        (
+            "callback",
+            f"ccd|{client_id}",
+            None,
+            client_card,
+            (client_id,),
+            {"replace_existing": True},
+            "clients.card",
+        ),
+        (
+            "callback",
+            "menu|expiring_memberships",
+            None,
+            client_memberships,
+            (),
+            {"list_code": "expiring_memberships", "page": 1, "replace_existing": True},
+            "clients.memberships",
+        ),
+        (
+            "callback",
+            "mlp|expiring_memberships|2",
+            None,
+            client_memberships,
+            (),
+            {"list_code": "expiring_memberships", "page": 2, "replace_existing": True},
+            "clients.memberships",
+        ),
+    ]
+
+    for update_id, (
+        kind,
+        callback_data,
+        event_text,
+        handler,
+        args,
+        kwargs,
+        expected_text,
+    ) in enumerate(
+        cases,
+        start=1000,
+    ):
+        event = NormalizedTelegramEvent(
+            update_id=update_id,
+            event_key=f"event:{update_id}",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind=kind,
+            callback_data=callback_data,
+            text=event_text,
+        )
+
+        response = await service.handle_event(event)
+
+        assert response.text == expected_text
+        handler.assert_awaited_once_with(event, *args, **kwargs)
+        handler.reset_mock()
+
+
+@pytest.mark.asyncio
+async def test_unknown_and_expired_callbacks_return_exact_recovery_responses(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeCrmClient(),
+        session_factory=session_factory,
+    )
+
+    unknown = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=1100,
+            event_key="callback:1100",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind="callback",
+            callback_data="unknown|payload",
+        )
+    )
+    expired_attendance = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=1101,
+            event_key="callback:1101",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind="callback",
+            callback_data="agr|00000000-0000-0000-0000-000000000021",
+        )
+    )
+    expired_search = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=1102,
+            event_key="callback:1102",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind="callback",
+            callback_data="srp|2",
+        )
+    )
+
+    assert unknown == BotResponse(text="Команда не поддерживается.", replace_existing=True)
+    assert expired_attendance.text == "Выберите дату тренировки."
+    assert expired_attendance.replace_existing is True
+    assert expired_search == BotResponse(
+        text="Введите ФИО или телефон клиента.",
+        replace_existing=True,
+    )
 
 
 @pytest.mark.asyncio
@@ -719,7 +904,15 @@ async def test_attendance_save_omits_warning_block_when_backend_returns_no_warni
 async def test_attendance_transcript_saves_with_idempotency_and_cleans_state(
     settings: Settings,
     session_factory: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    request_ids = iter(
+        ["attendance-menu", "attendance-groups", "attendance-roster", "attendance-save"]
+    )
+    monkeypatch.setattr(
+        "gym_crm_bot.core.attendance_flow.build_request_id",
+        lambda: next(request_ids),
+    )
     crm_client = TranscriptCrmClient()
     service = BotService(
         settings=settings,
@@ -810,14 +1003,33 @@ async def test_attendance_transcript_saves_with_idempotency_and_cleans_state(
         "tg:777:904:attendance:00000000-0000-0000-0000-000000000021"
     ]
     assert await state_store.get(save_event, ATTENDANCE_SCENARIO) is None
-    assert all(crm_client.request_ids)
+    assert crm_client.request_ids == [
+        "attendance-menu",
+        "attendance-groups",
+        "attendance-roster",
+        "attendance-save",
+    ]
 
 
 @pytest.mark.asyncio
 async def test_client_transcript_pages_card_and_memberships_through_service(
     settings: Settings,
     session_factory: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    request_ids = iter(
+        [
+            "client-search-page-1",
+            "client-search-page-2",
+            "client-card",
+            "memberships-page-1",
+            "memberships-page-2",
+        ]
+    )
+    monkeypatch.setattr(
+        "gym_crm_bot.core.client_flow.build_request_id",
+        lambda: next(request_ids),
+    )
     crm_client = TranscriptCrmClient()
     service = BotService(
         settings=settings,
@@ -871,6 +1083,12 @@ async def test_client_transcript_pages_card_and_memberships_through_service(
         )
     )
     assert page_response.text == "Результаты поиска: Петр\nСтраница: 2\n\n1. Петр Второй"
+    assert page_response.reply_markup is not None
+    assert [row[0].callback_data for row in page_response.reply_markup.inline_keyboard] == [
+        "ccd|00000000-0000-0000-0000-000000000032",
+        "srp|1",
+        "menu|root",
+    ]
 
     card_response = await service.handle_event(
         NormalizedTelegramEvent(
@@ -902,7 +1120,46 @@ async def test_client_transcript_pages_card_and_memberships_through_service(
         == "Заканчивающиеся абонементы\nСтраница: 1\n\n1. Петр Второй | Месячный | 01.06.2026"
     )
     assert membership_response.reply_markup is not None
-    assert membership_response.reply_markup.inline_keyboard[0][0].callback_data == (
-        "ccd|00000000-0000-0000-0000-000000000032"
+    assert [row[0].callback_data for row in membership_response.reply_markup.inline_keyboard] == [
+        "ccd|00000000-0000-0000-0000-000000000032",
+        "mlp|expiring_memberships|2",
+        "menu|root",
+    ]
+
+    membership_page_response = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=915,
+            event_key="callback:915",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind="callback",
+            callback_data="mlp|expiring_memberships|2",
+        )
     )
-    assert len(crm_client.request_ids) == 4
+    assert membership_page_response.text == (
+        "Заканчивающиеся абонементы\nСтраница: 2\n\n1. Петр Второй | Месячный | 01.06.2026"
+    )
+    assert membership_page_response.reply_markup is not None
+    assert [
+        row[0].callback_data for row in membership_page_response.reply_markup.inline_keyboard
+    ] == [
+        "ccd|00000000-0000-0000-0000-000000000032",
+        "mlp|expiring_memberships|1",
+        "menu|root",
+    ]
+    assert crm_client.request_ids == [
+        "client-search-page-1",
+        "client-search-page-2",
+        "client-card",
+        "memberships-page-1",
+        "memberships-page-2",
+    ]
+    assert crm_client.client_search_requests == [
+        ("Петр", 1, 5, "client-search-page-1"),
+        ("Петр", 2, 5, "client-search-page-2"),
+    ]
+    assert crm_client.membership_list_requests == [
+        (1, 5, "memberships-page-1"),
+        (2, 5, "memberships-page-2"),
+    ]

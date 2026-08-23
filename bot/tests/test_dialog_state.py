@@ -4,7 +4,12 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from gym_crm_bot.config import Settings
-from gym_crm_bot.core.dialog_state import ATTENDANCE_SCENARIO, SEARCH_SCENARIO, DialogStateStore
+from gym_crm_bot.core.dialog_state import (
+    ATTENDANCE_SCENARIO,
+    MEMBERSHIP_SCENARIO,
+    SEARCH_SCENARIO,
+    DialogStateStore,
+)
 from gym_crm_bot.storage.models import Base
 from gym_crm_bot.telegram.normalization import NormalizedTelegramEvent
 
@@ -54,12 +59,21 @@ async def test_dialog_state_store_upserts_clears_and_isolates_by_chat_user_and_s
 
     await store.save(primary, ATTENDANCE_SCENARIO, {"step": "select_date"})
     await store.save(primary, SEARCH_SCENARIO, {"step": "await_query"})
+    await store.save(
+        primary,
+        MEMBERSHIP_SCENARIO,
+        {"list_code": "expiring_memberships", "page": 2},
+    )
     await store.save(other_user, ATTENDANCE_SCENARIO, {"step": "other_user"})
     await store.save(other_chat, ATTENDANCE_SCENARIO, {"step": "other_chat"})
     await store.save(primary, ATTENDANCE_SCENARIO, {"step": "draft"})
 
     assert await store.get(primary, ATTENDANCE_SCENARIO) == {"step": "draft"}
     assert await store.get(primary, SEARCH_SCENARIO) == {"step": "await_query"}
+    assert await store.get(primary, MEMBERSHIP_SCENARIO) == {
+        "list_code": "expiring_memberships",
+        "page": 2,
+    }
     assert await store.get(other_user, ATTENDANCE_SCENARIO) == {"step": "other_user"}
     assert await store.get(other_chat, ATTENDANCE_SCENARIO) == {"step": "other_chat"}
 
@@ -67,5 +81,6 @@ async def test_dialog_state_store_upserts_clears_and_isolates_by_chat_user_and_s
 
     assert await store.get(primary, ATTENDANCE_SCENARIO) is None
     assert await store.get(primary, SEARCH_SCENARIO) is None
+    assert await store.get(primary, MEMBERSHIP_SCENARIO) is None
     assert await store.get(other_user, ATTENDANCE_SCENARIO) == {"step": "other_user"}
     assert await store.get(other_chat, ATTENDANCE_SCENARIO) == {"step": "other_chat"}
