@@ -165,6 +165,67 @@ public class ClientsApiTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Missing_client_lifecycle_mutations_remain_not_found()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var missingClientId = Guid.NewGuid();
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{missingClientId}",
+                   new
+                   {
+                       FirstName = "Missing",
+                       Phone = "+79990009999",
+                       BranchId = seeded.BranchId,
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, updateResponse.StatusCode);
+        }
+
+        using (var transferResponse = await PostMembershipJsonAsync(
+                   client,
+                   $"/clients/{missingClientId}/transfer",
+                   new
+                   {
+                       TargetBranchId = seeded.BranchId,
+                       TargetGroupIds = new[] { seeded.GroupOneId }
+                   },
+                   session.CsrfToken,
+                   $"clients-api-missing-transfer-{Guid.NewGuid():N}"))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, transferResponse.StatusCode);
+        }
+
+        using (var archiveResponse = await PutWithoutBodyAsync(
+                   client,
+                   $"/clients/{missingClientId}/archive",
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, archiveResponse.StatusCode);
+        }
+
+        using (var restoreResponse = await PutWithoutBodyAsync(
+                   client,
+                   $"/clients/{missingClientId}/restore",
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, restoreResponse.StatusCode);
+        }
+    }
+
     [Theory]
     [InlineData("HeadCoach")]
     [InlineData("Administrator")]
