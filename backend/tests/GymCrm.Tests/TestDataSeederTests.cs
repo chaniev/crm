@@ -141,22 +141,29 @@ public sealed class TestDataSeederTests
                 CreatedAt = now,
                 UpdatedAt = now
             };
+            var seededGroup = await dbContext.TrainingGroups
+                .AsNoTracking()
+                .SingleAsync(group => group.Id == seededGroupId);
+            var externalAttendanceOccurrenceId = Guid.NewGuid();
             var externalAttendance = new AttendanceEntry
             {
                 Id = Guid.NewGuid(),
                 ClientId = seededClientId,
                 GroupId = externalGroup.Id,
+                LessonOccurrenceId = externalAttendanceOccurrenceId,
                 TrainingDate = DateOnly.FromDateTime(now.UtcDateTime.Date),
                 IsPresent = false,
                 MarkedByUserId = seededAdministratorId,
                 MarkedAt = now,
                 UpdatedAt = now
             };
+            var preservedExternalAttendanceOccurrenceId = Guid.NewGuid();
             var preservedExternalAttendance = new AttendanceEntry
             {
                 Id = Guid.NewGuid(),
                 ClientId = externalClient.Id,
                 GroupId = externalGroup.Id,
+                LessonOccurrenceId = preservedExternalAttendanceOccurrenceId,
                 TrainingDate = DateOnly.FromDateTime(now.UtcDateTime.Date.AddDays(-1)),
                 IsPresent = false,
                 MarkedByUserId = externalSuperAdministrator.Id,
@@ -164,6 +171,7 @@ public sealed class TestDataSeederTests
                 UpdatedAt = now
             };
             var seedGroupAttendanceId = Guid.NewGuid();
+            var seedGroupAttendanceOccurrenceId = Guid.NewGuid();
             var seedGroupAcknowledgementId = Guid.NewGuid();
             var preservedAcknowledgementId = Guid.NewGuid();
             var preservedSubstitutionId = Guid.NewGuid();
@@ -201,6 +209,34 @@ public sealed class TestDataSeederTests
             dbContext.TrainingGroups.Add(externalGroup);
             dbContext.Users.AddRange(externalSuperAdministrator, externalAdministrator, externalCoach);
             dbContext.Clients.AddRange(externalClient, externalClientWithSeedGroupAttendance);
+            await dbContext.SaveChangesAsync();
+            await InsertLegacyAttendanceOccurrenceAsync(
+                dbContext,
+                externalAttendanceOccurrenceId,
+                externalGroup.Id,
+                externalAttendance.TrainingDate,
+                externalGroup.TrainingStartTime,
+                externalGroup.DurationMinutes,
+                externalHall.Id,
+                now);
+            await InsertLegacyAttendanceOccurrenceAsync(
+                dbContext,
+                preservedExternalAttendanceOccurrenceId,
+                externalGroup.Id,
+                preservedExternalAttendance.TrainingDate,
+                externalGroup.TrainingStartTime,
+                externalGroup.DurationMinutes,
+                externalHall.Id,
+                now);
+            await InsertLegacyAttendanceOccurrenceAsync(
+                dbContext,
+                seedGroupAttendanceOccurrenceId,
+                seededGroup.Id,
+                DateOnly.FromDateTime(now.UtcDateTime.Date.AddDays(-2)),
+                seededGroup.TrainingStartTime,
+                seededGroup.DurationMinutes,
+                seededGroup.HallId,
+                now);
             dbContext.Attendance.AddRange(
                 externalAttendance,
                 preservedExternalAttendance,
@@ -209,6 +245,7 @@ public sealed class TestDataSeederTests
                     Id = seedGroupAttendanceId,
                     ClientId = externalClientWithSeedGroupAttendance.Id,
                     GroupId = seededGroupId,
+                    LessonOccurrenceId = seedGroupAttendanceOccurrenceId,
                     TrainingDate = DateOnly.FromDateTime(now.UtcDateTime.Date.AddDays(-2)),
                     IsPresent = false,
                     MarkedByUserId = externalSuperAdministrator.Id,
@@ -394,5 +431,23 @@ public sealed class TestDataSeederTests
                 Directory.Delete(photoRoot, recursive: true);
             }
         }
+    }
+
+    private static async Task InsertLegacyAttendanceOccurrenceAsync(
+        GymCrmDbContext dbContext,
+        Guid id,
+        Guid groupId,
+        DateOnly lessonDate,
+        TimeOnly startTime,
+        int durationMinutes,
+        Guid hallId,
+        DateTimeOffset now)
+    {
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO "LessonOccurrences"
+                ("Id", "GroupId", "LessonDate", "StartTime", "DurationMinutes", "HallId", "ProjectedDate", "Status", "SourceKind", "Version", "CreatedAt", "UpdatedAt")
+            VALUES
+                ({id}, {groupId}, {lessonDate}, {startTime}, {durationMinutes}, {hallId}, {lessonDate}, {"Scheduled"}, {"LegacyAttendance"}, {1}, {now}, {now})
+            """);
     }
 }

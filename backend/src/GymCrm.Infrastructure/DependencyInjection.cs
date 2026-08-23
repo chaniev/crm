@@ -59,6 +59,7 @@ public static class DependencyInjection
         services.AddSingleton<IBusinessDateProvider, BusinessDateProvider>();
         services.AddScoped<IAttendanceDatePolicy, AttendanceDatePolicy>();
         services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<IAttendanceTransitionService, AttendanceTransitionService>();
         services.AddScoped<ClientMembershipDetailsReader>();
         services.AddScoped<ClientMembershipQueryStore>();
         services.AddScoped<IClientMembershipEntitlementResolver, ClientMembershipEntitlementResolver>();

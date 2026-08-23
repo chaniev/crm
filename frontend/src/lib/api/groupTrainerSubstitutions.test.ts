@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import {
-  cancelGroupTrainerSubstitution,
-  createGroupTrainerSubstitution,
   getGroupTrainerSubstitutions,
-  updateGroupTrainerSubstitution,
 } from './groupTrainerSubstitutions'
 
 afterEach(() => vi.unstubAllGlobals())
@@ -74,112 +71,11 @@ describe('group trainer substitutions API', () => {
     )
   })
 
-  test('writes exact ISO payloads through shared CSRF transport', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        current: [],
-        history: { items: [], totalCount: 0, skip: 0, take: 20 },
-        canCreate: true,
-        createUnavailableReason: null,
-        csrfToken: 'csrf-for-substitution-writes',
-      }), { status: 200, headers: { 'content-type': 'application/json' } }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        ...substitutionPayload,
-        id: 'created-substitution',
-      }), { status: 201, headers: { 'content-type': 'application/json' } }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        ...substitutionPayload,
-        id: 'updated-substitution',
-        endsOn: '2026-08-07',
-      }), { status: 200, headers: { 'content-type': 'application/json' } }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        ...substitutionPayload,
-        id: 'cancelled-substitution',
-        status: 'Cancelled',
-        allowedActions: { canEdit: false, canCancel: false },
-      }), { status: 200, headers: { 'content-type': 'application/json' } }))
-    vi.stubGlobal('fetch', fetchMock)
+  test('keeps the legacy trainer substitution client read-only', async () => {
+    const apiModule = await import('./groupTrainerSubstitutions')
 
-    await getGroupTrainerSubstitutions('group-1')
-    await createGroupTrainerSubstitution('group-1', {
-      substituteTrainerId: 'trainer-2',
-      startsOn: '2026-08-01',
-      endsOn: '2026-08-05',
-    })
-    await updateGroupTrainerSubstitution('group-1', 'substitution-1', {
-      substituteTrainerId: 'trainer-2',
-      startsOn: '2026-08-01',
-      endsOn: '2026-08-07',
-    })
-    await cancelGroupTrainerSubstitution('group-1', 'substitution-1')
-
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
-      '/api/groups/group-1/trainer-substitutions',
-      expect.objectContaining({
-        body: JSON.stringify({
-          substituteTrainerId: 'trainer-2',
-          startsOn: '2026-08-01',
-          endsOn: '2026-08-05',
-        }),
-        credentials: 'include',
-        method: 'POST',
-      }),
-    )
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      3,
-      '/api/groups/group-1/trainer-substitutions/substitution-1',
-      expect.objectContaining({
-        body: JSON.stringify({
-          substituteTrainerId: 'trainer-2',
-          startsOn: '2026-08-01',
-          endsOn: '2026-08-07',
-        }),
-        credentials: 'include',
-        method: 'PUT',
-      }),
-    )
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      4,
-      '/api/groups/group-1/trainer-substitutions/substitution-1/cancel',
-      expect.objectContaining({
-        credentials: 'include',
-        method: 'POST',
-      }),
-    )
-    expect(
-      new Headers((fetchMock.mock.calls[1][1] as RequestInit).headers)
-        .get('X-CSRF-TOKEN'),
-    ).toBe('csrf-for-substitution-writes')
-  })
-
-  test('preserves backend ProblemDetails field errors for date conflicts', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      type: '/problems/group-trainer-substitution-overlap',
-      title: 'Conflict',
-      detail: 'Период пересекается с существующим замещением.',
-      code: 'group_trainer_substitution_overlap',
-      errors: {
-        startsOn: ['Период пересекается с существующим замещением.'],
-        endsOn: ['Период пересекается с существующим замещением.'],
-      },
-    }), {
-      status: 409,
-      headers: { 'content-type': 'application/problem+json; charset=utf-8' },
-    })))
-
-    await expect(createGroupTrainerSubstitution('group-1', {
-      substituteTrainerId: 'trainer-2',
-      startsOn: '2026-08-01',
-      endsOn: '2026-08-05',
-    })).rejects.toMatchObject({
-      status: 409,
-      code: 'group_trainer_substitution_overlap',
-      fieldErrors: {
-        startsOn: ['Период пересекается с существующим замещением.'],
-        endsOn: ['Период пересекается с существующим замещением.'],
-      },
-    })
+    expect(apiModule).not.toHaveProperty('createGroupTrainerSubstitution')
+    expect(apiModule).not.toHaveProperty('updateGroupTrainerSubstitution')
+    expect(apiModule).not.toHaveProperty('cancelGroupTrainerSubstitution')
   })
 })

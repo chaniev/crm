@@ -13,9 +13,15 @@ internal sealed class AttendanceConfiguration : IEntityTypeConfiguration<Attenda
         builder.Property(attendance => attendance.MarkedAt).IsRequired();
         builder.Property(attendance => attendance.UpdatedAt).IsRequired();
 
+        builder.HasIndex(attendance => attendance.LessonOccurrenceId);
         builder.HasIndex(attendance => new { attendance.GroupId, attendance.TrainingDate });
         builder.HasIndex(attendance => attendance.SingleVisitMembershipSaleId);
         builder.HasIndex(attendance => attendance.SingleVisitWriteOffMembershipId);
+
+        builder.HasOne(attendance => attendance.LessonOccurrence)
+            .WithMany()
+            .HasForeignKey(attendance => attendance.LessonOccurrenceId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(attendance => attendance.SingleVisitMembershipSale)
             .WithMany()
@@ -30,8 +36,7 @@ internal sealed class AttendanceConfiguration : IEntityTypeConfiguration<Attenda
         builder.HasIndex(attendance => new
         {
             attendance.ClientId,
-            attendance.GroupId,
-            attendance.TrainingDate
+            attendance.LessonOccurrenceId
         })
             .IsUnique();
     }

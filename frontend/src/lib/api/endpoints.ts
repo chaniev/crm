@@ -63,19 +63,42 @@ export const API_ENDPOINTS = {
   },
   groups: {
     collection: '/groups',
+    preview: '/groups/preview',
     summary: '/groups/summary',
     byId: (groupId: string) => `/groups/${groupId}`,
     trainerOptions: '/groups/options/trainers',
     clients: (groupId: string) => `/groups/${groupId}/clients`,
     trainerSubstitutions: (groupId: string) =>
       `/groups/${groupId}/trainer-substitutions`,
-    trainerSubstitution: (groupId: string, substitutionId: string) =>
-      `/groups/${groupId}/trainer-substitutions/${substitutionId}`,
-    cancelTrainerSubstitution: (groupId: string, substitutionId: string) =>
-      `/groups/${groupId}/trainer-substitutions/${substitutionId}/cancel`,
+    trainerAssignmentsPreview: (groupId: string) =>
+      `/groups/${groupId}/trainer-assignments/preview`,
+    trainerAssignments: (groupId: string) =>
+      `/groups/${groupId}/trainer-assignments`,
+    lessonSeriesPreview: (groupOrSeriesId: string) =>
+      `/groups/${groupOrSeriesId}/lesson-series/preview`,
+    lessonSeries: (groupOrSeriesId: string) =>
+      `/groups/${groupOrSeriesId}/lesson-series`,
   },
   schedule: {
     groups: '/schedule/groups',
+    lessons: '/schedule/lessons',
+    lessonById: (lessonOccurrenceId: string) => `/schedule/lessons/${lessonOccurrenceId}`,
+    lessonChangePreview: (lessonOccurrenceId: string) =>
+      `/schedule/lessons/${lessonOccurrenceId}/change/preview`,
+    lessonChange: (lessonOccurrenceId: string) =>
+      `/schedule/lessons/${lessonOccurrenceId}/change`,
+    lessonCancellationPreview: (lessonOccurrenceId: string) =>
+      `/schedule/lessons/${lessonOccurrenceId}/cancellation/preview`,
+    lessonCancellation: (lessonOccurrenceId: string) =>
+      `/schedule/lessons/${lessonOccurrenceId}/cancellation`,
+    oneOffPreview: '/schedule/lessons/one-off/preview',
+    oneOff: '/schedule/lessons/one-off',
+    trainerSubstitutionsPreview: '/schedule/lesson-trainer-substitutions/preview',
+    trainerSubstitutions: '/schedule/lesson-trainer-substitutions',
+    trainerSubstitutionCancellationsPreview:
+      '/schedule/lesson-trainer-substitutions/cancellations/preview',
+    trainerSubstitutionCancellations:
+      '/schedule/lesson-trainer-substitutions/cancellations',
   },
   groupTypes: {
     collection: '/group-types',
@@ -97,6 +120,10 @@ export const API_ENDPOINTS = {
     groups: '/attendance/groups',
     groupClients: (groupId: string) => `/attendance/groups/${groupId}/clients`,
     groupMarks: (groupId: string) => `/attendance/groups/${groupId}`,
+    lessonClients: (lessonOccurrenceId: string) =>
+      `/attendance/lessons/${lessonOccurrenceId}/clients`,
+    lessonMarks: (lessonOccurrenceId: string) =>
+      `/attendance/lessons/${lessonOccurrenceId}`,
   },
   audit: {
     collection: '/audit-logs',

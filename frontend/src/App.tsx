@@ -511,7 +511,39 @@ export function App({ appConfig, authBackground }: AppProps) {
             )
           }
           onCreateGroup={() => navigate({ kind: 'groupCreate' })}
+          onCreateScheduleLesson={() => navigate({ kind: 'scheduleLessonCreate' })}
           currentUserId={authenticatedUser.id}
+          onEditScheduleLesson={(lessonOccurrenceId, lessonDate) =>
+            navigate({
+              kind: 'scheduleLessonEdit',
+              lessonOccurrenceId,
+              lessonDate,
+              scope: 'occurrence',
+            })
+          }
+          onEditScheduleSeries={(lesson, scope) => {
+            if (!lesson.lessonSeriesId) {
+              return
+            }
+
+            navigate({
+              kind: 'scheduleSeriesEdit',
+              lessonSeriesId: lesson.lessonSeriesId,
+              scope,
+              groupId: lesson.groupId,
+              lessonOccurrenceId: lesson.lessonOccurrenceId,
+              lessonDate: lesson.lessonDate,
+            })
+          }}
+          onMoveScheduleLesson={(lessonOccurrenceId, lessonDate) =>
+            navigate({ kind: 'scheduleLessonMove', lessonOccurrenceId, lessonDate })
+          }
+          onOpenAttendanceLesson={(lessonOccurrenceId, lessonDate) =>
+            navigate({ kind: 'attendanceLesson', lessonOccurrenceId, lessonDate })
+          }
+          onOpenScheduleLesson={(lessonOccurrenceId, lessonDate) =>
+            navigate({ kind: 'scheduleLessonDetail', lessonOccurrenceId, lessonDate })
+          }
           onEditGroup={(groupId, returnSnapshot) =>
             navigateWithGroupListReturnState(
               { kind: 'groupEdit', groupId },
@@ -523,6 +555,7 @@ export function App({ appConfig, authBackground }: AppProps) {
           onRefreshSession={refreshSessionState}
           onReturnToClients={returnToClients}
           onReturnToGroups={returnToGroups}
+          onReturnToSchedule={() => navigate({ kind: 'section', section: 'Schedule' })}
           onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
           clientListReturnSnapshot={activeClientListReturnSnapshot}
           clientProfileReturnContext={activeClientProfileReturnContext}

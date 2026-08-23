@@ -4,18 +4,22 @@ import {
   ApiError,
   getAttendanceGroupClients,
   getAttendanceGroups,
+  getAttendanceLessonClients,
   saveAttendanceMarks,
+  saveAttendanceLessonMarks,
   type AuthenticatedUser,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { createClientProfileReturnContext } from '../clients/clientProfileReturnState'
-import { AttendanceWorkspace } from './AttendanceScreen'
+import { AttendanceScreen, AttendanceWorkspace } from './AttendanceScreen'
 
 vi.mock('../../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../lib/api')>()),
   getAttendanceGroupClients: vi.fn(),
   getAttendanceGroups: vi.fn(),
+  getAttendanceLessonClients: vi.fn(),
   saveAttendanceMarks: vi.fn(),
+  saveAttendanceLessonMarks: vi.fn(),
 }))
 
 const user = {
@@ -28,12 +32,16 @@ const administratorUser = {
 } as AuthenticatedUser
 const getGroups = vi.mocked(getAttendanceGroups)
 const getRoster = vi.mocked(getAttendanceGroupClients)
+const getLessonRoster = vi.mocked(getAttendanceLessonClients)
 const saveMarks = vi.mocked(saveAttendanceMarks)
+const saveLessonMarks = vi.mocked(saveAttendanceLessonMarks)
 
 beforeEach(() => {
   getGroups.mockReset()
   getRoster.mockReset()
+  getLessonRoster.mockReset()
   saveMarks.mockReset()
+  saveLessonMarks.mockReset()
   getGroups.mockResolvedValue({
     groups: [{ id: 'group-1', name: 'Вечерняя' }],
     today: '2026-07-12',
@@ -59,9 +67,158 @@ beforeEach(() => {
       currentMemberships: [],
     }],
   })
+  getLessonRoster.mockResolvedValue({
+    groupId: 'group-1',
+    trainingDate: '2026-07-12',
+    lessonOccurrenceId: 'lesson-1',
+    lessonDate: '2026-07-12',
+    canEditAttendance: { allowed: true, reason: null },
+    today: '2026-07-12',
+    minTrainingDate: '2026-07-10',
+    maxTrainingDate: '2026-07-12',
+    clients: [{
+      id: 'client-1',
+      fullName: 'Иван Иванов',
+      state: 'Unmarked',
+      groups: [],
+      photo: null,
+      isProfessional: false,
+      professionalComment: null,
+      hasActiveMembership: true,
+      membershipWarning: false,
+      currentMemberships: [],
+    }],
+  })
+  saveLessonMarks.mockResolvedValue({
+    groupId: 'group-1',
+    trainingDate: '2026-07-12',
+    lessonOccurrenceId: 'lesson-1',
+    lessonDate: '2026-07-12',
+    today: '2026-07-12',
+    minTrainingDate: '2026-07-10',
+    maxTrainingDate: '2026-07-12',
+    attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
+  })
 })
 
 describe('AttendanceWorkspace', () => {
+  test('top-level Attendance does not load or mutate by legacy group/date', () => {
+    renderWithProviders(<AttendanceScreen user={user} />)
+
+    expect(screen.getByText('Посещаемость открывается из занятия')).toBeVisible()
+    expect(getGroups).not.toHaveBeenCalled()
+    expect(getRoster).not.toHaveBeenCalled()
+    expect(saveMarks).not.toHaveBeenCalled()
+  })
+
+  test('occurrence route loads and saves by lessonOccurrenceId plus lessonDate', async () => {
+    renderWithProviders(
+      <AttendanceScreen
+        lessonTarget={{
+          lessonOccurrenceId: 'lesson-1',
+          lessonDate: '2026-07-12',
+        }}
+        user={user}
+      />,
+    )
+
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    expect(getLessonRoster).toHaveBeenCalledWith(
+      'lesson-1',
+      '2026-07-12',
+      expect.any(AbortSignal),
+    )
+    expect(screen.queryByText('lesson-1')).not.toBeInTheDocument()
+
+    fireEvent.click(within(card).getByText('Был'))
+
+    await waitFor(() =>
+      expect(saveLessonMarks).toHaveBeenCalledWith('lesson-1', {
+        lessonDate: '2026-07-12',
+        trainingDate: '2026-07-12',
+        attendanceMarks: [{ clientId: 'client-1', state: 'Present' }],
+      }),
+    )
+  })
+
+  test('occurrence route captures backend roster group for client return navigation', async () => {
+    const onOpenClient = vi.fn()
+    renderWithProviders(
+      <AttendanceWorkspace
+        lessonTarget={{
+          lessonOccurrenceId: 'lesson-1',
+          lessonDate: '2026-07-12',
+        }}
+        onOpenClient={onOpenClient}
+        user={user}
+      />,
+    )
+
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    fireEvent.click(
+      within(card).getByRole('button', {
+        name: 'Открыть карточку клиента Иван Иванов',
+      }),
+    )
+
+    expect(onOpenClient).toHaveBeenCalledWith(
+      'client-1',
+      {
+        kind: 'attendance',
+        route: {
+          kind: 'attendanceLesson',
+          lessonOccurrenceId: 'lesson-1',
+          lessonDate: '2026-07-12',
+        },
+        groupId: 'group-1',
+        lessonOccurrenceId: 'lesson-1',
+        lessonDate: '2026-07-12',
+        trainingDate: '2026-07-12',
+        rosterView: 'unmarked',
+        anchorClientId: 'client-1',
+      },
+    )
+  })
+
+  test('occurrence read-only roster disables row controls from backend canEditAttendance', async () => {
+    getLessonRoster.mockResolvedValueOnce({
+      groupId: 'group-1',
+      trainingDate: '2026-07-12',
+      lessonOccurrenceId: 'lesson-1',
+      lessonDate: '2026-07-12',
+      canEditAttendance: { allowed: false, reason: 'future-lesson' },
+      today: '2026-07-12',
+      minTrainingDate: '2026-07-10',
+      maxTrainingDate: '2026-07-12',
+      clients: [{
+        id: 'client-1',
+        fullName: 'Иван Иванов',
+        state: 'Unmarked',
+        groups: [],
+        photo: null,
+        isProfessional: false,
+        professionalComment: null,
+        hasActiveMembership: true,
+        membershipWarning: false,
+        currentMemberships: [],
+      }],
+    })
+
+    renderWithProviders(
+      <AttendanceWorkspace
+        lessonTarget={{
+          lessonOccurrenceId: 'lesson-1',
+          lessonDate: '2026-07-12',
+        }}
+        user={user}
+      />,
+    )
+
+    const card = await screen.findByTestId('attendance-client-card-client-1')
+    expect(card).toHaveTextContent('Будущее занятие доступно только для просмотра.')
+    expect(within(card).getByRole('radio', { name: 'Был' })).toBeDisabled()
+  })
+
   test('captures the selected attendance group, date, view and exact client', async () => {
     const onOpenClient = vi.fn()
     renderWithProviders(

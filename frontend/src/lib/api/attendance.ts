@@ -60,7 +60,7 @@ export async function getAttendanceGroupClients(
   groupId: string,
   trainingDate: string,
   signal?: AbortSignal,
-) {
+): Promise<AttendanceRosterResponse> {
   const searchParams = new URLSearchParams()
   searchParams.set('trainingDate', trainingDate)
 
@@ -102,6 +102,25 @@ export async function getAttendanceGroupClients(
   } satisfies AttendanceRosterResponse
 }
 
+export async function getAttendanceLessonClients(
+  lessonOccurrenceId: string,
+  lessonDate: string,
+  signal?: AbortSignal,
+): Promise<AttendanceRosterResponse> {
+  const searchParams = new URLSearchParams()
+  searchParams.set('lessonDate', lessonDate)
+
+  const payload = await request<unknown>(
+    `${API_ENDPOINTS.attendance.lessonClients(lessonOccurrenceId)}?${searchParams.toString()}`,
+    { signal },
+  )
+
+  return mapAttendanceRosterResponse(payload, {
+    lessonOccurrenceId,
+    lessonDate,
+  })
+}
+
 export async function saveAttendanceMarks(
   groupId: string,
   payload: SaveAttendanceMarksRequest,
@@ -120,15 +139,130 @@ export async function saveAttendanceMarks(
   return mapSaveAttendanceResponse(response)
 }
 
-function mapSaveAttendanceResponse(payload: unknown): SaveAttendanceMarksResponse {
+export async function saveAttendanceLessonMarks(
+  lessonOccurrenceId: string,
+  payload: SaveAttendanceMarksRequest,
+) {
+  const lessonDate = payload.lessonDate ?? payload.trainingDate
+  const searchParams = new URLSearchParams()
+  searchParams.set('lessonDate', lessonDate)
+
+  const response = await request<unknown>(
+    `${API_ENDPOINTS.attendance.lessonMarks(lessonOccurrenceId)}?${searchParams.toString()}`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        LessonDate: lessonDate,
+        AttendanceMarks: payload.attendanceMarks.map((mark) => ({
+          ClientId: mark.clientId,
+          State: mark.state,
+        })),
+      }),
+    },
+  )
+
+  return mapSaveAttendanceResponse(response, {
+    lessonOccurrenceId,
+    lessonDate,
+  })
+}
+
+function mapAttendanceRosterResponse(
+  payload: unknown,
+  fallback: {
+    groupId?: string
+    lessonOccurrenceId?: string
+    lessonDate?: string
+    trainingDate?: string
+  },
+): AttendanceRosterResponse {
+  const envelope = requireRecord(payload, 'Некорректный ответ сохранения посещения.')
+  const groupId = readString(envelope, ['groupId', 'GroupId']) ?? fallback.groupId ?? ''
+  const trainingDate =
+    normalizeIsoDateValue(
+      readString(envelope, ['trainingDate', 'TrainingDate']) ??
+      readString(envelope, ['lessonDate', 'LessonDate']) ??
+      fallback.trainingDate ??
+      fallback.lessonDate,
+    ) ?? ''
+
+  if (!groupId) {
+    throw new Error('Ответ состава группы не содержит группу.')
+  }
+
+  if (!trainingDate) {
+    throw new Error('Ответ состава группы не содержит дату занятия.')
+  }
+
+  const lessonDate = normalizeIsoDateValue(
+    readString(envelope, ['lessonDate', 'LessonDate']) ??
+    fallback.lessonDate ??
+    trainingDate,
+  ) ?? trainingDate
+  const lessonOccurrenceId =
+    readString(envelope, ['lessonOccurrenceId', 'LessonOccurrenceId']) ??
+    fallback.lessonOccurrenceId
+  const canEditAttendance = readScheduleAction(envelope, [
+    'canEditAttendance',
+    'CanEditAttendance',
+  ])
+
+  return {
+    groupId,
+    trainingDate,
+    lessonOccurrenceId,
+    lessonDate,
+    canEditAttendance,
+    today: requireIsoDate(envelope, ['today', 'Today']),
+    minTrainingDate: readNullableIsoDate(envelope, [
+      'minTrainingDate',
+      'MinTrainingDate',
+    ]),
+    maxTrainingDate: requireIsoDate(envelope, [
+      'maxTrainingDate',
+      'MaxTrainingDate',
+    ]),
+    clients: extractArrayPayload<AttendanceClientPayload>(
+      payload,
+      ATTENDANCE_CLIENT_PAYLOAD_KEYS,
+    )
+      .map((client) => mapAttendanceClient(client))
+      .filter((client): client is AttendanceClient => client !== null),
+  } satisfies AttendanceRosterResponse
+}
+
+function mapSaveAttendanceResponse(
+  payload: unknown,
+  fallback: {
+    lessonOccurrenceId?: string
+    lessonDate?: string
+  } = {},
+): SaveAttendanceMarksResponse {
   const envelope = requireRecord(payload, 'Некорректный ответ сохранения посещения.')
   const groupId = readString(envelope, ['groupId', 'GroupId'])
-  const trainingDate = requireIsoDate(envelope, ['trainingDate', 'TrainingDate'])
+  const trainingDate =
+    normalizeIsoDateValue(
+      readString(envelope, ['trainingDate', 'TrainingDate']) ??
+      readString(envelope, ['lessonDate', 'LessonDate']) ??
+      fallback.lessonDate,
+    ) ?? ''
 
   if (!groupId) {
     throw new Error('Ответ сохранения посещения не содержит группу.')
   }
 
+  if (!trainingDate) {
+    throw new Error('Ответ сохранения посещения не содержит дату.')
+  }
+
+  const lessonDate = normalizeIsoDateValue(
+    readString(envelope, ['lessonDate', 'LessonDate']) ??
+    fallback.lessonDate ??
+    trainingDate,
+  ) ?? trainingDate
+  const lessonOccurrenceId =
+    readString(envelope, ['lessonOccurrenceId', 'LessonOccurrenceId']) ??
+    fallback.lessonOccurrenceId
   const attendanceMarks = extractArrayPayload<Record<string, unknown>>(
     payload,
     ['attendanceMarks', 'AttendanceMarks'],
@@ -146,6 +280,8 @@ function mapSaveAttendanceResponse(payload: unknown): SaveAttendanceMarksRespons
   return {
     groupId,
     trainingDate,
+    lessonOccurrenceId,
+    lessonDate,
     today: requireIsoDate(envelope, ['today', 'Today']),
     minTrainingDate: readNullableIsoDate(envelope, [
       'minTrainingDate',
@@ -157,6 +293,25 @@ function mapSaveAttendanceResponse(payload: unknown): SaveAttendanceMarksRespons
     ]),
     attendanceMarks,
   }
+}
+
+function readScheduleAction(
+  record: Record<string, unknown>,
+  keys: readonly string[],
+) {
+  for (const key of keys) {
+    const value = record[key]
+    if (!isRecord(value)) {
+      continue
+    }
+
+    return {
+      allowed: readBoolean(value, ['allowed', 'Allowed']) ?? false,
+      reason: readString(value, ['reason', 'Reason']) ?? null,
+    }
+  }
+
+  return undefined
 }
 
 function mapAttendanceGroup(payload: AttendanceGroupPayload): AttendanceGroup | null {

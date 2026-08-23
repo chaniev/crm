@@ -4,11 +4,13 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Bot;
+using GymCrm.Application.Scheduling;
 using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using GymCrm.Infrastructure.Persistence.Configurations;
@@ -193,17 +195,27 @@ public class InternalBotApiTests
                      (seeded.AdminGroupId, seeded.ExpiringTodayClientId, "attendance-sa-admin-branch")
                  })
         {
-            using (var rosterResponse = await SendBotRequestAsync(
+            using (var legacyRosterResponse = await SendBotRequestAsync(
                        client,
                        HttpMethod.Get,
                        $"/internal/bot/attendance/groups/{groupId}/clients" +
                        $"?platform=Telegram&platformUserId={seeded.SuperAdministratorTelegramId}" +
                        $"&trainingDate={today:yyyy-MM-dd}"))
             {
+                AssertLegacyRouteIsAbsent(legacyRosterResponse);
+            }
+
+            using (var rosterResponse = await SendBotLessonRosterRequestAsync(
+                       factory,
+                       client,
+                       groupId,
+                       today,
+                       seeded.SuperAdministratorTelegramId))
+            {
                 Assert.Equal(HttpStatusCode.OK, rosterResponse.StatusCode);
             }
 
-            using var saveResponse = await SendBotRequestAsync(
+            using (var legacySaveResponse = await SendBotRequestAsync(
                 client,
                 HttpMethod.Post,
                 $"/internal/bot/attendance/groups/{groupId}",
@@ -212,7 +224,19 @@ public class InternalBotApiTests
                     seeded.SuperAdministratorTelegramId,
                     today.ToString("yyyy-MM-dd"),
                     [new BotAttendanceMarkRequest(clientId, false)]),
-                idempotencyKey: idempotencyKey);
+                idempotencyKey: $"legacy-{idempotencyKey}"))
+            {
+                AssertLegacyRouteIsAbsent(legacySaveResponse);
+            }
+
+            using var saveResponse = await SendBotLessonSaveRequestAsync(
+                factory,
+                client,
+                groupId,
+                today,
+                seeded.SuperAdministratorTelegramId,
+                [new BotAttendanceMarkRequest(clientId, false)],
+                idempotencyKey);
             Assert.Equal(HttpStatusCode.OK, saveResponse.StatusCode);
         }
 
@@ -244,30 +268,26 @@ public class InternalBotApiTests
             await db.SaveChangesAsync();
         }
 
-        using (var adminSaveResponse = await SendBotRequestAsync(
+        using (var adminSaveResponse = await SendBotLessonSaveRequestAsync(
+                   factory,
                    client,
-                   HttpMethod.Post,
-                   $"/internal/bot/attendance/groups/{seeded.CoachGroupId}",
-                   new BotSaveAttendanceRequest(
-                       "Telegram",
-                       seeded.AdminTelegramId,
-                       today.AddDays(-5).ToString("yyyy-MM-dd"),
-                       [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]),
-                   idempotencyKey: "attendance-admin-old-date"))
+                   seeded.CoachGroupId,
+                   today.AddDays(-5),
+                   seeded.AdminTelegramId,
+                   [new BotAttendanceMarkRequest(seeded.CoachClientId, true)],
+                   "attendance-admin-old-date"))
         {
-            Assert.Equal(HttpStatusCode.Forbidden, adminSaveResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, adminSaveResponse.StatusCode);
         }
 
-        using (var headCoachSaveResponse = await SendBotRequestAsync(
+        using (var headCoachSaveResponse = await SendBotLessonSaveRequestAsync(
+                   factory,
                    client,
-                   HttpMethod.Post,
-                   $"/internal/bot/attendance/groups/{seeded.CoachGroupId}",
-                   new BotSaveAttendanceRequest(
-                       "Telegram",
-                       seeded.HeadCoachTelegramId,
-                       today.AddDays(-5).ToString("yyyy-MM-dd"),
-                       [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]),
-                   idempotencyKey: "attendance-headcoach-old-date"))
+                   seeded.CoachGroupId,
+                   today.AddDays(-5),
+                   seeded.HeadCoachTelegramId,
+                   [new BotAttendanceMarkRequest(seeded.CoachClientId, true)],
+                   "attendance-headcoach-old-date"))
         {
             Assert.Equal(HttpStatusCode.OK, headCoachSaveResponse.StatusCode);
         }
@@ -285,32 +305,28 @@ public class InternalBotApiTests
                 log.MessengerPlatform == "Telegram");
         }
 
-        using (var coachOldDateResponse = await SendBotRequestAsync(
+        using (var coachOldDateResponse = await SendBotLessonSaveRequestAsync(
+                   factory,
                    client,
-                   HttpMethod.Post,
-                   $"/internal/bot/attendance/groups/{seeded.CoachGroupId}",
-                   new BotSaveAttendanceRequest(
-                       "Telegram",
-                       seeded.CoachTelegramId,
-                       today.AddDays(-3).ToString("yyyy-MM-dd"),
-                       [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]),
-                   idempotencyKey: "attendance-coach-too-old"))
+                   seeded.CoachGroupId,
+                   today.AddDays(-3),
+                   seeded.CoachTelegramId,
+                   [new BotAttendanceMarkRequest(seeded.CoachClientId, true)],
+                   "attendance-coach-too-old"))
         {
             Assert.Equal(HttpStatusCode.BadRequest, coachOldDateResponse.StatusCode);
             var payload = await ReadJsonElementAsync(coachOldDateResponse);
             Assert.True(payload.GetProperty("errors").TryGetProperty("trainingDate", out _));
         }
 
-        using (var futureDateResponse = await SendBotRequestAsync(
+        using (var futureDateResponse = await SendBotLessonSaveRequestAsync(
+                   factory,
                    client,
-                   HttpMethod.Post,
-                   $"/internal/bot/attendance/groups/{seeded.CoachGroupId}",
-                   new BotSaveAttendanceRequest(
-                       "Telegram",
-                       seeded.HeadCoachTelegramId,
-                       today.AddDays(1).ToString("yyyy-MM-dd"),
-                       [new BotAttendanceMarkRequest(seeded.CoachClientId, true)]),
-                   idempotencyKey: "attendance-future-date"))
+                   seeded.CoachGroupId,
+                   today.AddDays(1),
+                   seeded.HeadCoachTelegramId,
+                   [new BotAttendanceMarkRequest(seeded.CoachClientId, true)],
+                   "attendance-future-date"))
         {
             Assert.Equal(HttpStatusCode.BadRequest, futureDateResponse.StatusCode);
         }
@@ -362,12 +378,12 @@ public class InternalBotApiTests
             Assert.Contains(payload.EnumerateArray(), group => group.GetProperty("id").GetString() == seeded.AdminGroupId.ToString());
         }
 
-        using (var rosterResponse = await SendBotRequestAsync(
+        using (var rosterResponse = await SendBotLessonRosterRequestAsync(
+                   factory,
                    client,
-                   HttpMethod.Get,
-                   $"/internal/bot/attendance/groups/{seeded.AdminGroupId}/clients" +
-                   $"?platform=Telegram&platformUserId={seeded.AdminTelegramId}" +
-                   $"&trainingDate={trainingDate:yyyy-MM-dd}"))
+                   seeded.AdminGroupId,
+                   trainingDate,
+                   seeded.AdminTelegramId))
         {
             Assert.Equal(HttpStatusCode.OK, rosterResponse.StatusCode);
             var payload = await ReadJsonElementAsync(rosterResponse);
@@ -376,16 +392,14 @@ public class InternalBotApiTests
                 candidate.GetProperty("id").GetString() == seeded.ExpiringTodayClientId.ToString());
         }
 
-        using (var saveResponse = await SendBotRequestAsync(
+        using (var saveResponse = await SendBotLessonSaveRequestAsync(
+                   factory,
                    client,
-                   HttpMethod.Post,
-                   $"/internal/bot/attendance/groups/{seeded.AdminGroupId}",
-                   new BotSaveAttendanceRequest(
-                       "Telegram",
-                       seeded.AdminTelegramId,
-                       trainingDate.ToString("yyyy-MM-dd"),
-                       [new BotAttendanceMarkRequest(seeded.ExpiringTodayClientId, false)]),
-                   idempotencyKey: "attendance-admin-granted-old-date"))
+                   seeded.AdminGroupId,
+                   trainingDate,
+                   seeded.AdminTelegramId,
+                   [new BotAttendanceMarkRequest(seeded.ExpiringTodayClientId, false)],
+                   "attendance-admin-granted-old-date"))
         {
             Assert.Equal(HttpStatusCode.OK, saveResponse.StatusCode);
             var payload = await ReadJsonElementAsync(saveResponse);
@@ -405,10 +419,10 @@ public class InternalBotApiTests
         using var forbiddenRosterResponse = await SendBotRequestAsync(
             client,
             HttpMethod.Get,
-            $"/internal/bot/attendance/groups/{seeded.AdminGroupId}/clients" +
+            $"/internal/bot/attendance/lessons/{await ResolveLessonOccurrenceIdAsync(factory, seeded.AdminGroupId, trainingDate)}/clients" +
             $"?platform=Telegram&platformUserId={seeded.AdminTelegramId}" +
-            $"&trainingDate={trainingDate:yyyy-MM-dd}");
-        Assert.Equal(HttpStatusCode.Forbidden, forbiddenRosterResponse.StatusCode);
+            $"&lessonDate={trainingDate:yyyy-MM-dd}");
+        Assert.Equal(HttpStatusCode.NotFound, forbiddenRosterResponse.StatusCode);
     }
 
     [Fact]
@@ -625,12 +639,14 @@ public class InternalBotApiTests
 
         for (var attempt = 0; attempt < 2; attempt++)
         {
-            using var response = await SendBotRequestAsync(
+            using var response = await SendBotLessonSaveRequestAsync(
+                factory,
                 client,
-                HttpMethod.Post,
-                $"/internal/bot/attendance/groups/{seeded.CoachGroupId}",
-                request,
-                idempotencyKey: "attendance-exception-release");
+                seeded.CoachGroupId,
+                GetBusinessToday(),
+                seeded.HeadCoachTelegramId,
+                request.AttendanceMarks,
+                "attendance-exception-release");
             Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
 
             await using var scope = factory.Services.CreateAsyncScope();
@@ -652,6 +668,10 @@ public class InternalBotApiTests
         dbContext.GroupTrainers.RemoveRange(dbContext.GroupTrainers);
         dbContext.Attendance.RemoveRange(dbContext.Attendance);
         dbContext.AuditLogs.RemoveRange(dbContext.AuditLogs);
+        dbContext.LessonOccurrences.RemoveRange(dbContext.LessonOccurrences);
+        dbContext.LessonScheduleSlots.RemoveRange(dbContext.LessonScheduleSlots);
+        dbContext.LessonScheduleRuleVersions.RemoveRange(dbContext.LessonScheduleRuleVersions);
+        dbContext.LessonSeries.RemoveRange(dbContext.LessonSeries);
         dbContext.Halls.RemoveRange(dbContext.Halls);
         dbContext.Branches.RemoveRange(dbContext.Branches);
         await dbContext.SaveChangesAsync();
@@ -777,6 +797,8 @@ public class InternalBotApiTests
             paymentClient,
             professionalPaymentClient);
         dbContext.GroupTrainers.Add(new GroupTrainer { GroupId = coachGroup.Id, TrainerId = coach.Id });
+        var coachSlotLineageIds = AddLessonSeriesForAllWeekdays(dbContext, coachGroup, coachHall.Id, now);
+        _ = AddLessonSeriesForAllWeekdays(dbContext, adminGroup, adminHall.Id, now);
         dbContext.ClientGroups.AddRange(
             new ClientGroup { ClientId = coachClient.Id, GroupId = coachGroup.Id, BranchId = coachBranch.Id },
             new ClientGroup { ClientId = expiringTodayClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id },
@@ -802,6 +824,9 @@ public class InternalBotApiTests
             Id = Guid.NewGuid(),
             ClientId = coachClient.Id,
             GroupId = coachGroup.Id,
+            LessonOccurrenceId = LessonOccurrenceIdPolicy.CreateRecurring(
+                coachSlotLineageIds[ToIsoWeekday(today.AddDays(-1))],
+                today.AddDays(-1)),
             TrainingDate = today.AddDays(-1),
             IsPresent = true,
             MarkedByUserId = coach.Id,
@@ -951,6 +976,122 @@ public class InternalBotApiTests
         });
 
         return membership;
+    }
+
+    private static IReadOnlyDictionary<int, Guid> AddLessonSeriesForAllWeekdays(
+        GymCrmDbContext dbContext,
+        TrainingGroup group,
+        Guid hallId,
+        DateTimeOffset now)
+    {
+        var seriesId = Guid.NewGuid();
+        var versionId = Guid.NewGuid();
+        var slotLineageIds = new Dictionary<int, Guid>();
+        var version = new LessonScheduleRuleVersion
+        {
+            Id = versionId,
+            LessonSeriesId = seriesId,
+            VersionNumber = 1,
+            EffectiveFrom = GetBusinessToday().AddYears(-1),
+            CreatedAt = now
+        };
+        foreach (var weekday in Enumerable.Range(1, 7))
+        {
+            var slotLineageId = Guid.NewGuid();
+            slotLineageIds[weekday] = slotLineageId;
+            version.Slots.Add(new LessonScheduleSlot
+            {
+                Id = Guid.NewGuid(),
+                LessonScheduleRuleVersionId = versionId,
+                SlotLineageId = slotLineageId,
+                IsoWeekday = weekday,
+                StartTime = group.TrainingStartTime,
+                DurationMinutes = group.DurationMinutes,
+                HallId = hallId,
+                CreatedAt = now
+            });
+        }
+
+        dbContext.LessonSeries.Add(new LessonSeries
+        {
+            Id = seriesId,
+            GroupId = group.Id,
+            StartsOn = GetBusinessToday().AddYears(-1),
+            Version = 1,
+            CreatedAt = now,
+            UpdatedAt = now,
+            RuleVersions = { version }
+        });
+        return slotLineageIds;
+    }
+
+    private static async Task<Guid> ResolveLessonOccurrenceIdAsync(
+        InternalBotAppFactory factory,
+        Guid groupId,
+        DateOnly lessonDate)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var slotLineageId = await dbContext.LessonSeries
+            .Where(series =>
+                series.GroupId == groupId &&
+                series.StartsOn <= lessonDate &&
+                (series.EndsOn == null || series.EndsOn >= lessonDate))
+            .SelectMany(series => series.RuleVersions
+                .Where(version =>
+                    version.EffectiveFrom <= lessonDate &&
+                    (version.EffectiveTo == null || version.EffectiveTo >= lessonDate)))
+            .SelectMany(version => version.Slots)
+            .Where(slot => slot.IsoWeekday == ToIsoWeekday(lessonDate))
+            .Select(slot => slot.SlotLineageId)
+            .SingleAsync();
+        return LessonOccurrenceIdPolicy.CreateRecurring(slotLineageId, lessonDate);
+    }
+
+    private static async Task<HttpResponseMessage> SendBotLessonRosterRequestAsync(
+        InternalBotAppFactory factory,
+        HttpClient client,
+        Guid groupId,
+        DateOnly lessonDate,
+        string platformUserId)
+    {
+        var lessonOccurrenceId = await ResolveLessonOccurrenceIdAsync(factory, groupId, lessonDate);
+        return await SendBotRequestAsync(
+            client,
+            HttpMethod.Get,
+            $"/internal/bot/attendance/lessons/{lessonOccurrenceId}/clients" +
+            $"?platform=Telegram&platformUserId={platformUserId}" +
+            $"&lessonDate={lessonDate:yyyy-MM-dd}");
+    }
+
+    private static async Task<HttpResponseMessage> SendBotLessonSaveRequestAsync(
+        InternalBotAppFactory factory,
+        HttpClient client,
+        Guid groupId,
+        DateOnly lessonDate,
+        string platformUserId,
+        IReadOnlyList<BotAttendanceMarkRequest> attendanceMarks,
+        string idempotencyKey)
+    {
+        var lessonOccurrenceId = await ResolveLessonOccurrenceIdAsync(factory, groupId, lessonDate);
+        return await SendBotRequestAsync(
+            client,
+            HttpMethod.Post,
+            $"/internal/bot/attendance/lessons/{lessonOccurrenceId}?lessonDate={lessonDate:yyyy-MM-dd}",
+            new BotSaveAttendanceRequest(
+                "Telegram",
+                platformUserId,
+                lessonDate.ToString("yyyy-MM-dd"),
+                attendanceMarks),
+            idempotencyKey: idempotencyKey);
+    }
+
+    private static int ToIsoWeekday(DateOnly date) =>
+        date.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)date.DayOfWeek;
+
+    private static void AssertLegacyRouteIsAbsent(HttpResponseMessage response)
+    {
+        Assert.Contains(response.StatusCode, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
     }
 
     private static async Task<HttpResponseMessage> SendBotRequestAsync(

@@ -1,4 +1,3 @@
-using GymCrm.Application.Attendance;
 using GymCrm.Domain.Groups;
 using GymCrm.Infrastructure.Authorization;
 using GymCrm.Infrastructure.Persistence;
@@ -11,13 +10,13 @@ public class EffectiveGroupAssignmentServiceTests
     private static readonly DateOnly BusinessDate = new(2026, 7, 25);
 
     [Fact]
-    public async Task List_effective_assigned_group_ids_returns_permanent_and_active_temporary_assignments_only()
+    public async Task List_effective_assigned_group_ids_returns_permanent_assignments_only_and_ignores_legacy_temporary_substitutions()
     {
         var trainerId = Guid.NewGuid();
         var permanentGroupId = Guid.NewGuid();
+        var deduplicatedGroupId = Guid.NewGuid();
         var activeStartsTodayGroupId = Guid.NewGuid();
         var activeEndsTodayGroupId = Guid.NewGuid();
-        var deduplicatedGroupId = Guid.NewGuid();
         var futureGroupId = Guid.NewGuid();
         var expiredGroupId = Guid.NewGuid();
         var cancelledGroupId = Guid.NewGuid();
@@ -35,12 +34,12 @@ public class EffectiveGroupAssignmentServiceTests
             CreateSubstitution(cancelledGroupId, trainerId, BusinessDate.AddDays(-1), BusinessDate.AddDays(1), cancelled: true));
         await dbContext.SaveChangesAsync();
 
-        var service = new EffectiveGroupAssignmentService(dbContext, new FixedBusinessDateProvider(BusinessDate));
+        var service = new EffectiveGroupAssignmentService(dbContext);
 
         var groupIds = await service.ListEffectiveAssignedGroupIdsAsync(trainerId, CancellationToken.None);
 
         Assert.Equal(
-            new[] { activeEndsTodayGroupId, activeStartsTodayGroupId, deduplicatedGroupId, permanentGroupId }
+            new[] { deduplicatedGroupId, permanentGroupId }
                 .OrderBy(groupId => groupId)
                 .ToArray(),
             groupIds);
@@ -62,7 +61,7 @@ public class EffectiveGroupAssignmentServiceTests
             BusinessDate));
         await dbContext.SaveChangesAsync();
 
-        var service = new EffectiveGroupAssignmentService(dbContext, new FixedBusinessDateProvider(BusinessDate));
+        var service = new EffectiveGroupAssignmentService(dbContext);
 
         Assert.Empty(await service.ListEffectiveAssignedGroupIdsAsync(Guid.Empty, CancellationToken.None));
         Assert.Empty(await service.ListEffectiveAssignedGroupIdsAsync(Guid.NewGuid(), CancellationToken.None));
@@ -70,13 +69,13 @@ public class EffectiveGroupAssignmentServiceTests
 
     [Theory]
     [InlineData("Permanent", true)]
-    [InlineData("ActiveTemporary", true)]
+    [InlineData("ActiveTemporary", false)]
     [InlineData("FutureTemporary", false)]
     [InlineData("ExpiredTemporary", false)]
     [InlineData("CancelledTemporary", false)]
     [InlineData("EmptyTrainer", false)]
     [InlineData("EmptyGroup", false)]
-    public async Task Has_effective_assignment_matches_permanent_and_active_temporary_scope(
+    public async Task Has_effective_assignment_matches_permanent_scope_and_ignores_legacy_temporary_substitutions(
         string scenario,
         bool expected)
     {
@@ -122,7 +121,7 @@ public class EffectiveGroupAssignmentServiceTests
 
         await dbContext.SaveChangesAsync();
 
-        var service = new EffectiveGroupAssignmentService(dbContext, new FixedBusinessDateProvider(BusinessDate));
+        var service = new EffectiveGroupAssignmentService(dbContext);
         var actualTrainerId = scenario == "EmptyTrainer" ? Guid.Empty : trainerId;
         var actualGroupId = scenario == "EmptyGroup" ? Guid.Empty : groupId;
 
@@ -160,8 +159,4 @@ public class EffectiveGroupAssignmentServiceTests
         };
     }
 
-    private sealed class FixedBusinessDateProvider(DateOnly today) : IBusinessDateProvider
-    {
-        public DateOnly Today { get; } = today;
-    }
 }

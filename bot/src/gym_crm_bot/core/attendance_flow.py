@@ -11,7 +11,7 @@ from gym_crm_bot.core.rendering import format_group_schedule
 from gym_crm_bot.core.service_types import BotResponse
 from gym_crm_bot.crm.client import CrmBotApiClient
 from gym_crm_bot.crm.errors import CrmClientError
-from gym_crm_bot.crm.models import AttendanceGroup, AttendanceMarkRequest
+from gym_crm_bot.crm.models import AttendanceGroup, AttendanceLesson, AttendanceMarkRequest
 from gym_crm_bot.resources.keyboards import (
     render_attendance_dates_keyboard,
     render_attendance_groups_keyboard,
@@ -80,8 +80,9 @@ class AttendanceFlow:
 
         training_date = date.fromisoformat(training_date_value)
         try:
-            response = await self._crm_client.list_attendance_groups(
+            response = await self._crm_client.list_attendance_lessons(
                 event.identity,
+                training_date=training_date,
                 request_id=build_request_id(),
             )
         except CrmClientError as exc:
@@ -101,7 +102,7 @@ class AttendanceFlow:
             event,
             ATTENDANCE_SCENARIO,
             {
-                "step": "select_group",
+                "step": "select_lesson",
                 "role": state.get("role"),
                 "training_date": training_date.isoformat(),
             },
@@ -122,13 +123,13 @@ class AttendanceFlow:
         if state is None or "training_date" not in state:
             return await self.start(event)
 
-        group_id = UUID(group_id_value)
+        lesson_occurrence_id = UUID(group_id_value)
         training_date = date.fromisoformat(state["training_date"])
         try:
-            roster = await self._crm_client.get_attendance_roster(
+            roster = await self._crm_client.get_attendance_lesson_roster(
                 event.identity,
-                group_id=group_id,
-                training_date=training_date,
+                lesson_occurrence_id=lesson_occurrence_id,
+                lesson_date=training_date,
                 request_id=build_request_id(),
             )
         except CrmClientError as exc:
@@ -153,6 +154,7 @@ class AttendanceFlow:
             {
                 "step": "draft",
                 "training_date": training_date.isoformat(),
+                "lesson_occurrence_id": str(lesson_occurrence_id),
                 "group_id": str(roster.group.id),
                 "group_name": roster.group.name,
                 "marks": marks,
@@ -208,17 +210,19 @@ class AttendanceFlow:
             for item in state["marks"]
         ]
         try:
-            response = await self._crm_client.save_attendance(
+            training_date = date.fromisoformat(state["training_date"])
+            target = state["lesson_occurrence_id"]
+            response = await self._crm_client.save_lesson_attendance(
                 event.identity,
-                group_id=UUID(state["group_id"]),
-                training_date=date.fromisoformat(state["training_date"]),
+                lesson_occurrence_id=UUID(target),
+                lesson_date=training_date,
                 marks=marks,
                 request_id=build_request_id(),
                 idempotency_key=build_mutation_idempotency_key(
                     action="attendance",
                     platform_user_id=event.platform_user_id,
                     update_id=event.update_id,
-                    target=state["group_id"],
+                    target=target,
                 ),
             )
         except CrmClientError as exc:
@@ -242,10 +246,15 @@ class AttendanceFlow:
         state = await self._state_store.get(event, ATTENDANCE_SCENARIO)
         if state is None or state.get("step") != "draft":
             return None
+        if not state.get("lesson_occurrence_id") or not state.get("training_date"):
+            return None
         return state
 
     @staticmethod
-    def _render_groups_text(training_date: date, groups: list[AttendanceGroup]) -> str:
+    def _render_groups_text(
+        training_date: date,
+        groups: list[AttendanceGroup] | list[AttendanceLesson],
+    ) -> str:
         return render_attendance_groups_text(training_date, groups)
 
     @staticmethod
@@ -266,9 +275,29 @@ class AttendanceFlow:
         return "\n".join(lines)
 
 
-def render_attendance_groups_text(training_date: date, groups: list[AttendanceGroup]) -> str:
-    lines = [f"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите группу."]
+def render_attendance_groups_text(
+    training_date: date,
+    groups: list[AttendanceGroup] | list[AttendanceLesson],
+) -> str:
+    lines = [f"Дата: {training_date.strftime('%d.%m.%Y')}. Выберите занятие."]
     for group in groups:
+        if isinstance(group, AttendanceLesson):
+            details = [
+                f"старт {group.start_time}",
+                f"{group.duration_minutes} мин",
+                group.hall_name,
+                group.branch_name,
+            ]
+            if group.effective_trainers:
+                trainer_names = ", ".join(
+                    trainer.display_name for trainer in group.effective_trainers
+                )
+                details.append(f"тренеры: {trainer_names}")
+            if group.status == "Cancelled":
+                details.append("отменено")
+            lines.append(f"{group.group_name}: {' · '.join(details)}")
+            continue
+
         schedule = format_group_schedule(
             group.weekdays,
             group.duration_minutes,

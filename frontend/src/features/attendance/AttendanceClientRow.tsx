@@ -7,6 +7,7 @@ import type { AttendanceClientRowState } from './types'
 
 type AttendanceClientRowProps = {
   row: AttendanceClientRowState
+  disabledReason?: string | null
   onChange: (state: AttendanceState) => void
   onOpenClient?: (clientId: string) => void
   onRetry: () => void
@@ -14,6 +15,7 @@ type AttendanceClientRowProps = {
 
 export function AttendanceClientRow({
   row,
+  disabledReason = null,
   onChange,
   onOpenClient,
   onRetry,
@@ -70,10 +72,15 @@ export function AttendanceClientRow({
         <div className="attendance-client-actions">
           <AttendanceStateControl
             clientName={client.fullName}
-            disabled={row.saveState === 'pending'}
+            disabled={row.saveState === 'pending' || Boolean(disabledReason)}
             onChange={onChange}
             value={row.displayedState}
           />
+          {disabledReason ? (
+            <Text c="dimmed" size="sm">
+              {disabledReason}
+            </Text>
+          ) : null}
           {onOpenClient ? (
             <>
               <Button

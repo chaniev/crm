@@ -82,6 +82,25 @@ class FlakyAttendanceCrmClient:
             warnings=[],
         )
 
+    async def save_lesson_attendance(  # noqa: ANN001, PLR0913
+        self,
+        identity,
+        *,
+        lesson_occurrence_id: UUID,
+        lesson_date: date,
+        marks: list[object],
+        request_id: str,
+        idempotency_key: str,
+    ) -> AttendanceSaveResponse:
+        return await self.save_attendance(
+            identity,
+            group_id=lesson_occurrence_id,
+            training_date=lesson_date,
+            marks=marks,
+            request_id=request_id,
+            idempotency_key=idempotency_key,
+        )
+
 
 def _save_event() -> NormalizedTelegramEvent:
     return NormalizedTelegramEvent(
@@ -115,6 +134,7 @@ async def test_save_error_retry_reuses_idempotency_and_cleans_only_after_success
     draft = {
         "step": "draft",
         "training_date": "2026-05-13",
+        "lesson_occurrence_id": str(crm_client.group_id),
         "group_id": str(crm_client.group_id),
         "group_name": "Группа",
         "marks": [

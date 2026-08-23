@@ -5,6 +5,7 @@ using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -29,9 +30,23 @@ public class CsrfProtectionTests
             HandleCookies = true
         });
 
-        _ = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date).ToString("yyyy-MM-dd");
+        using (var removedAttendanceRouteRequest = CreateJsonRequest(
+                   HttpMethod.Post,
+                   $"/attendance/groups/{seeded.GroupId}",
+                   new
+                   {
+                       TrainingDate = today,
+                       AttendanceMarks = Array.Empty<object>()
+                   }))
+        {
+            removedAttendanceRouteRequest.Headers.Add("X-CSRF-TOKEN", session.CsrfToken);
+            using var removedAttendanceRouteResponse = await client.SendAsync(removedAttendanceRouteRequest);
+            Assert.Equal(HttpStatusCode.NotFound, removedAttendanceRouteResponse.StatusCode);
+        }
+
         var scenarios = new (string Name, Func<HttpRequestMessage> CreateRequest)[]
         {
             ("users", () => CreateJsonRequest(
@@ -71,16 +86,15 @@ public class CsrfProtectionTests
                 })),
             ("attendance", () => CreateJsonRequest(
                 HttpMethod.Post,
-                $"/attendance/groups/{seeded.GroupId}",
+                $"/attendance/lessons/{seeded.LessonOccurrenceId}?lessonDate={today}",
                 new
                 {
-                    TrainingDate = today,
                     AttendanceMarks = new[]
                     {
                         new
                         {
                             ClientId = seeded.ClientId,
-                            IsPresent = true
+                            State = "Present"
                         }
                     }
                 })),
@@ -207,6 +221,19 @@ public class CsrfProtectionTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var lessonOccurrence = new LessonOccurrence
+        {
+            Id = Guid.NewGuid(),
+            GroupId = group.Id,
+            LessonDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            StartTime = group.TrainingStartTime,
+            DurationMinutes = group.DurationMinutes,
+            HallId = group.HallId,
+            Status = LessonOccurrenceStatus.Scheduled,
+            SourceKind = LessonOccurrenceSourceKind.LegacyAttendance,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
         var client = new Client
         {
             Id = Guid.NewGuid(),
@@ -224,6 +251,7 @@ public class CsrfProtectionTests
         dbContext.Halls.Add(hall);
         dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.Add(group);
+        dbContext.LessonOccurrences.Add(lessonOccurrence);
         dbContext.Clients.Add(client);
         dbContext.ClientGroups.Add(new ClientGroup
         {
@@ -237,6 +265,7 @@ public class CsrfProtectionTests
             headCoach.Login,
             sharedPassword,
             group.Id,
+            lessonOccurrence.Id,
             groupType.Id,
             client.Id);
     }
@@ -347,6 +376,7 @@ public class CsrfProtectionTests
         string HeadCoachLogin,
         string SharedPassword,
         Guid GroupId,
+        Guid LessonOccurrenceId,
         Guid GroupTypeId,
         Guid ClientId);
 

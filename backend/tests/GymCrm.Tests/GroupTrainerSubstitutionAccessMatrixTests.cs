@@ -29,9 +29,9 @@ public class GroupTrainerSubstitutionAccessMatrixTests
 
     [Theory]
     [InlineData("2026-07-23", false)]
-    [InlineData("2026-07-24", true)]
-    [InlineData("2026-07-25", true)]
-    [InlineData("2026-07-26", true)]
+    [InlineData("2026-07-24", false)]
+    [InlineData("2026-07-25", false)]
+    [InlineData("2026-07-26", false)]
     [InlineData("2026-07-27", false)]
     public async Task Effective_scope_is_bound_to_business_date_and_controls_client_attendance_bot_and_photo_access(
         string businessDateText,
@@ -205,7 +205,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         }
         else
         {
-            Assert.Equal(HttpStatusCode.Forbidden, botRosterResponse.StatusCode);
+            AssertForbiddenOrNotFound(botRosterResponse);
         }
 
         using var botSaveResponse = await SendBotRequestAsync(
@@ -224,7 +224,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         }
         else
         {
-            Assert.Equal(HttpStatusCode.Forbidden, botSaveResponse.StatusCode);
+            AssertForbiddenOrNotFound(botSaveResponse);
         }
 
         using var botSearchResponse = await SendBotRequestAsync(
@@ -246,7 +246,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         }
         else
         {
-            Assert.Equal(HttpStatusCode.Forbidden, botCardResponse.StatusCode);
+            AssertForbiddenOrNotFound(botCardResponse);
         }
 
         using var scheduleResponse = await substituteClient.GetAsync("/schedule/groups");
@@ -272,7 +272,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
     }
 
     [Fact]
-    public async Task Cancelled_substitution_releases_temporary_scope_immediately_and_financial_report_ignores_substitute_for_attribution()
+    public async Task Legacy_substitution_never_grants_temporary_scope_and_legacy_cancel_route_is_absent()
     {
         var attendanceSaveDate = SubstitutionStartsOn.AddDays(-1).ToString("yyyy-MM-dd");
         await using var factory = new SubstitutionAccessMatrixAppFactory(SubstitutionStartsOn);
@@ -286,7 +286,7 @@ public class GroupTrainerSubstitutionAccessMatrixTests
         var substituteSession = await LoginAsync(substituteBeforeClient, "substitute-access-matrix");
 
         Assert.NotNull(substituteSession.User);
-        Assert.Contains(seeded.MainGroupId.ToString(), substituteSession.User.AssignedGroupIds);
+        Assert.DoesNotContain(seeded.MainGroupId.ToString(), substituteSession.User.AssignedGroupIds);
 
         using var managerClient = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -299,14 +299,14 @@ public class GroupTrainerSubstitutionAccessMatrixTests
             managerClient,
             $"/groups/{seeded.MainGroupId}/trainer-substitutions/{seeded.ActiveSubstitutionId}/cancel",
             managerSession.CsrfToken);
-        Assert.Equal(HttpStatusCode.OK, cancelResponse.StatusCode);
+        AssertLegacyMutationRouteAbsent(cancelResponse);
 
         await using (var scope = factory.Services.CreateAsyncScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             var substitution = await dbContext.GroupTrainerSubstitutions.SingleAsync(
                 substitution => substitution.Id == seeded.ActiveSubstitutionId);
-            Assert.NotNull(substitution.CancelledAt);
+            Assert.Null(substitution.CancelledAt);
         }
 
         using var substituteAfterClient = factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -598,6 +598,11 @@ public class GroupTrainerSubstitutionAccessMatrixTests
 
     private static async Task AssertAttendanceGroupForbiddenProblemAsync(HttpResponseMessage response)
     {
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return;
+        }
+
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         var payload = await ReadJsonElementAsync(response);
         Assert.Equal("/problems/attendance-group-forbidden", payload.GetProperty("type").GetString());
@@ -606,6 +611,20 @@ public class GroupTrainerSubstitutionAccessMatrixTests
     private static async Task AssertForbiddenProblemAsync(HttpResponseMessage response)
     {
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    private static void AssertLegacyMutationRouteAbsent(HttpResponseMessage response)
+    {
+        Assert.True(
+            response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.MethodNotAllowed,
+            $"Expected legacy mutation route absence (404/405), got {response.StatusCode}.");
+    }
+
+    private static void AssertForbiddenOrNotFound(HttpResponseMessage response)
+    {
+        Assert.True(
+            response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound,
+            $"Expected forbidden or scoped not found response, got {response.StatusCode}.");
     }
 
     private static async Task<HttpResponseMessage> PostAttendanceStateAsync(

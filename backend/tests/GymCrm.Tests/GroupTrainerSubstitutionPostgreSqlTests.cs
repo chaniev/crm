@@ -12,7 +12,6 @@ using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,9 +27,6 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
 {
     private const string Password = "task073-postgres-password";
     private const string SubstitutionEntityType = "GroupTrainerSubstitution";
-    private const string CreatedAction = "GroupTrainerSubstitutionCreated";
-    private const string UpdatedAction = "GroupTrainerSubstitutionUpdated";
-    private const string CancelledAction = "GroupTrainerSubstitutionCancelled";
     private static readonly DateOnly BusinessDate = new(2026, 7, 25);
     private static readonly DateTimeOffset SeededAt = new(2026, 7, 20, 10, 0, 0, TimeSpan.Zero);
 
@@ -91,56 +87,29 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
     }
 
     [Fact]
-    public async Task Concurrent_overlapping_create_maps_exclusion_race_to_identical_stable_conflict()
+    public async Task Legacy_create_route_is_absent_and_does_not_write_or_audit()
     {
-        var barrier = new SubstitutionSaveChangesBarrier();
-        await using var context = await CreateContextAsync(saveBarrier: barrier);
-        using var firstClient = context.CreateClient();
-        using var secondClient = context.CreateClient();
-        var firstCsrf = await LoginAsync(firstClient, context.Seeded.ManagerLogin);
-        var secondCsrf = await LoginAsync(secondClient, context.Seeded.ManagerLogin);
-        var firstPayload = new UpsertPayload(
+        await using var context = await CreateContextAsync();
+        using var client = context.CreateClient();
+        var csrf = await LoginAsync(client, context.Seeded.ManagerLogin);
+        var payload = new UpsertPayload(
             context.Seeded.SubstituteTrainerId,
             "2026-07-26",
             "2026-07-28");
-        var secondPayload = new UpsertPayload(
-            context.Seeded.SubstituteTrainerId,
-            "2026-07-28",
-            "2026-07-30");
         var endpoint = $"/groups/{context.Seeded.GroupId}/trainer-substitutions";
 
-        var firstTask = PostJsonAsync(firstClient, endpoint, firstPayload, firstCsrf);
-        var secondTask = PostJsonAsync(secondClient, endpoint, secondPayload, secondCsrf);
-        await barrier.WaitForTwoSaveAttemptsAsync().WaitAsync(TimeSpan.FromSeconds(20));
-        barrier.Release();
-
-        using var first = await firstTask;
-        using var second = await secondTask;
-        AssertOneSuccessAndOneConflict(first, second, HttpStatusCode.Created);
-
-        var conflict = first.StatusCode == HttpStatusCode.Conflict ? first : second;
-        var losingPayload = ReferenceEquals(conflict, first) ? firstPayload : secondPayload;
-        var raceProblem = await AssertOverlapProblemAsync(conflict);
-
-        using var precheckConflict = await PostJsonAsync(firstClient, endpoint, losingPayload, firstCsrf);
-        var precheckProblem = await AssertOverlapProblemAsync(precheckConflict);
-        Assert.Equal(precheckProblem, raceProblem);
+        using var response = await PostJsonAsync(client, endpoint, payload, csrf);
+        AssertLegacyMutationRouteAbsent(response);
 
         await using var db = context.CreateDbContext();
-        var substitution = Assert.Single(await db.GroupTrainerSubstitutions.AsNoTracking().ToArrayAsync());
-        var audit = Assert.Single(await LoadSubstitutionAuditsAsync(db));
-        Assert.Equal(context.Seeded.ManagerId, audit.UserId);
-        Assert.Equal(CreatedAction, audit.ActionType);
-        Assert.Equal(substitution.Id.ToString(), audit.EntityId);
-        Assert.Null(audit.OldValueJson);
-        AssertAuditState(audit.NewValueJson, substitution);
+        Assert.Empty(await db.GroupTrainerSubstitutions.AsNoTracking().ToArrayAsync());
+        Assert.Empty(await LoadSubstitutionAuditsAsync(db));
     }
 
     [Fact]
-    public async Task Concurrent_overlapping_updates_map_exclusion_race_to_identical_stable_conflict()
+    public async Task Legacy_update_route_is_absent_and_preserves_existing_rows()
     {
-        var barrier = new SubstitutionSaveChangesBarrier();
-        await using var context = await CreateContextAsync(saveBarrier: barrier);
+        await using var context = await CreateContextAsync();
         var firstId = await context.SeedSubstitutionAsync(
             BusinessDate.AddDays(1),
             BusinessDate.AddDays(2));
@@ -148,38 +117,16 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
             BusinessDate.AddDays(5),
             BusinessDate.AddDays(6));
         var originalStates = await context.LoadSubstitutionsAsync();
-        using var firstClient = context.CreateClient();
-        using var secondClient = context.CreateClient();
-        var firstCsrf = await LoginAsync(firstClient, context.Seeded.ManagerLogin);
-        var secondCsrf = await LoginAsync(secondClient, context.Seeded.ManagerLogin);
-        var firstPayload = new UpsertPayload(
+        using var client = context.CreateClient();
+        var csrf = await LoginAsync(client, context.Seeded.ManagerLogin);
+        var payload = new UpsertPayload(
             context.Seeded.SubstituteTrainerId,
             "2026-07-26",
             "2026-07-29");
-        var secondPayload = new UpsertPayload(
-            context.Seeded.SubstituteTrainerId,
-            "2026-07-28",
-            "2026-07-31");
-        var firstEndpoint = $"/groups/{context.Seeded.GroupId}/trainer-substitutions/{firstId}";
-        var secondEndpoint = $"/groups/{context.Seeded.GroupId}/trainer-substitutions/{secondId}";
+        var endpoint = $"/groups/{context.Seeded.GroupId}/trainer-substitutions/{firstId}";
 
-        var firstTask = PutJsonAsync(firstClient, firstEndpoint, firstPayload, firstCsrf);
-        var secondTask = PutJsonAsync(secondClient, secondEndpoint, secondPayload, secondCsrf);
-        await barrier.WaitForTwoSaveAttemptsAsync().WaitAsync(TimeSpan.FromSeconds(20));
-        barrier.Release();
-
-        using var first = await firstTask;
-        using var second = await secondTask;
-        AssertOneSuccessAndOneConflict(first, second, HttpStatusCode.OK);
-
-        var conflict = first.StatusCode == HttpStatusCode.Conflict ? first : second;
-        var losingEndpoint = ReferenceEquals(conflict, first) ? firstEndpoint : secondEndpoint;
-        var losingPayload = ReferenceEquals(conflict, first) ? firstPayload : secondPayload;
-        var raceProblem = await AssertOverlapProblemAsync(conflict);
-
-        using var precheckConflict = await PutJsonAsync(firstClient, losingEndpoint, losingPayload, firstCsrf);
-        var precheckProblem = await AssertOverlapProblemAsync(precheckConflict);
-        Assert.Equal(precheckProblem, raceProblem);
+        using var response = await PutJsonAsync(client, endpoint, payload, csrf);
+        AssertLegacyMutationRouteAbsent(response);
 
         await using var db = context.CreateDbContext();
         var stored = await db.GroupTrainerSubstitutions
@@ -187,110 +134,67 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
             .OrderBy(substitution => substitution.Id)
             .ToArrayAsync();
         Assert.Equal(2, stored.Length);
-        var audit = Assert.Single(await LoadSubstitutionAuditsAsync(db));
-        Assert.Equal(context.Seeded.ManagerId, audit.UserId);
-        Assert.Equal(UpdatedAction, audit.ActionType);
-        var changed = Assert.Single(stored, substitution =>
-            originalStates[substitution.Id].StartsOn != substitution.StartsOn ||
-            originalStates[substitution.Id].EndsOn != substitution.EndsOn);
-        Assert.Equal(changed.Id.ToString(), audit.EntityId);
-        AssertAuditState(audit.OldValueJson, originalStates[changed.Id]);
-        AssertAuditState(audit.NewValueJson, changed);
+        foreach (var substitution in stored)
+        {
+            AssertSubstitutionState(originalStates[substitution.Id], substitution);
+        }
+
+        Assert.Empty(await LoadSubstitutionAuditsAsync(db));
     }
 
     [Fact]
-    public async Task Concurrent_cancel_requests_allow_one_mutation_and_one_audit()
+    public async Task Legacy_cancel_route_is_absent_and_preserves_existing_row()
     {
-        var barrier = new SubstitutionSaveChangesBarrier(blockedAttempts: 1);
-        await using var context = await CreateContextAsync(saveBarrier: barrier);
+        await using var context = await CreateContextAsync();
         var substitutionId = await context.SeedSubstitutionAsync(
             BusinessDate.AddDays(1),
             BusinessDate.AddDays(3));
         var original = (await context.LoadSubstitutionsAsync())[substitutionId];
-        using var firstClient = context.CreateClient();
-        using var secondClient = context.CreateClient();
-        var firstCsrf = await LoginAsync(firstClient, context.Seeded.ManagerLogin);
-        var secondCsrf = await LoginAsync(secondClient, context.Seeded.ManagerLogin);
+        using var client = context.CreateClient();
+        var csrf = await LoginAsync(client, context.Seeded.ManagerLogin);
         var endpoint = $"/groups/{context.Seeded.GroupId}/trainer-substitutions/{substitutionId}/cancel";
 
-        var firstTask = PostWithoutBodyAsync(firstClient, endpoint, firstCsrf);
-        await barrier.WaitForFirstSaveAttemptAsync().WaitAsync(TimeSpan.FromSeconds(20));
-        var secondTask = PostWithoutBodyAsync(secondClient, endpoint, secondCsrf);
-        barrier.Release();
-
-        using var first = await firstTask;
-        using var second = await secondTask;
-        AssertOneSuccessAndOneConflict(first, second, HttpStatusCode.OK);
-        var conflict = first.StatusCode == HttpStatusCode.Conflict ? first : second;
-        await AssertImmutableProblemAsync(conflict);
+        using var response = await PostWithoutBodyAsync(client, endpoint, csrf);
+        AssertLegacyMutationRouteAbsent(response);
 
         await using var db = context.CreateDbContext();
         var stored = await db.GroupTrainerSubstitutions.AsNoTracking().SingleAsync();
-        Assert.NotNull(stored.CancelledAt);
-        var audit = Assert.Single(await LoadSubstitutionAuditsAsync(db));
-        Assert.Equal(context.Seeded.ManagerId, audit.UserId);
-        Assert.Equal(CancelledAction, audit.ActionType);
-        Assert.Equal(substitutionId.ToString(), audit.EntityId);
-        AssertAuditState(audit.OldValueJson, original);
-        AssertAuditState(audit.NewValueJson, stored);
+        AssertSubstitutionState(original, stored);
+        Assert.Empty(await LoadSubstitutionAuditsAsync(db));
     }
 
     [Fact]
-    public async Task Concurrent_update_and_cancel_allow_only_one_lifecycle_mutation()
+    public async Task Legacy_update_and_cancel_routes_are_absent_without_lifecycle_mutation()
     {
-        var barrier = new SubstitutionSaveChangesBarrier(blockedAttempts: 1);
-        await using var context = await CreateContextAsync(saveBarrier: barrier);
+        await using var context = await CreateContextAsync();
         var substitutionId = await context.SeedSubstitutionAsync(
             BusinessDate.AddDays(1),
             BusinessDate.AddDays(3));
         var original = (await context.LoadSubstitutionsAsync())[substitutionId];
-        using var updateClient = context.CreateClient();
-        using var cancelClient = context.CreateClient();
-        var updateCsrf = await LoginAsync(updateClient, context.Seeded.ManagerLogin);
-        var cancelCsrf = await LoginAsync(cancelClient, context.Seeded.ManagerLogin);
+        using var client = context.CreateClient();
+        var csrf = await LoginAsync(client, context.Seeded.ManagerLogin);
         var endpoint = $"/groups/{context.Seeded.GroupId}/trainer-substitutions/{substitutionId}";
         var updatePayload = new UpsertPayload(
             context.Seeded.SubstituteTrainerId,
             "2026-07-26",
             "2026-07-29");
 
-        var cancelTask = PostWithoutBodyAsync(cancelClient, $"{endpoint}/cancel", cancelCsrf);
-        await barrier.WaitForFirstSaveAttemptAsync().WaitAsync(TimeSpan.FromSeconds(20));
-        var updateTask = PutJsonAsync(updateClient, endpoint, updatePayload, updateCsrf);
-        barrier.Release();
-
-        using var update = await updateTask;
-        using var cancel = await cancelTask;
-        AssertOneSuccessAndOneConflict(update, cancel, HttpStatusCode.OK);
-        var conflict = update.StatusCode == HttpStatusCode.Conflict ? update : cancel;
-        await AssertImmutableProblemAsync(conflict);
+        using var update = await PutJsonAsync(client, endpoint, updatePayload, csrf);
+        AssertLegacyMutationRouteAbsent(update);
+        using var cancel = await PostWithoutBodyAsync(client, $"{endpoint}/cancel", csrf);
+        AssertLegacyMutationRouteAbsent(cancel);
 
         await using var db = context.CreateDbContext();
         var stored = await db.GroupTrainerSubstitutions.AsNoTracking().SingleAsync();
-        var audit = Assert.Single(await LoadSubstitutionAuditsAsync(db));
-        Assert.Equal(context.Seeded.ManagerId, audit.UserId);
-        Assert.Equal(substitutionId.ToString(), audit.EntityId);
-        AssertAuditState(audit.OldValueJson, original);
-        AssertAuditState(audit.NewValueJson, stored);
-
-        if (audit.ActionType == UpdatedAction)
-        {
-            Assert.Null(stored.CancelledAt);
-            Assert.Equal(BusinessDate.AddDays(4), stored.EndsOn);
-        }
-        else
-        {
-            Assert.Equal(CancelledAction, audit.ActionType);
-            Assert.NotNull(stored.CancelledAt);
-            Assert.Equal(original.EndsOn, stored.EndsOn);
-        }
+        AssertSubstitutionState(original, stored);
+        Assert.Empty(await LoadSubstitutionAuditsAsync(db));
     }
 
     [Theory]
     [InlineData(AuditFailureOperation.Create)]
     [InlineData(AuditFailureOperation.Update)]
     [InlineData(AuditFailureOperation.Cancel)]
-    public async Task Mandatory_audit_failure_rolls_back_relational_mutation(
+    public async Task Legacy_mutation_routes_do_not_reach_audit_service(
         AuditFailureOperation operation)
     {
         await using var context = await CreateContextAsync(throwSubstitutionAudit: true);
@@ -339,7 +243,7 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
 
         using (response)
         {
-            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+            AssertLegacyMutationRouteAbsent(response);
         }
 
         await using var db = context.CreateDbContext();
@@ -358,8 +262,7 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
     }
 
     private async Task<TestContext> CreateContextAsync(
-        bool throwSubstitutionAudit = false,
-        SubstitutionSaveChangesBarrier? saveBarrier = null)
+        bool throwSubstitutionAudit = false)
     {
         await fixture.AcquireAsync();
         TestAppFactory? factory = null;
@@ -373,8 +276,7 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
 
             factory = new TestAppFactory(
                 fixture.ConnectionString,
-                throwSubstitutionAudit,
-                saveBarrier);
+                throwSubstitutionAudit);
             var seeded = await SeedBaseDataAsync(factory);
             return new TestContext(
                 fixture.ConnectionString,
@@ -546,70 +448,11 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
         return await client.SendAsync(request);
     }
 
-    private static void AssertOneSuccessAndOneConflict(
-        HttpResponseMessage first,
-        HttpResponseMessage second,
-        HttpStatusCode successStatus)
+    private static void AssertLegacyMutationRouteAbsent(HttpResponseMessage response)
     {
-        Assert.Equal(
-            1,
-            new[] { first, second }.Count(response => response.StatusCode == successStatus));
-        Assert.Equal(
-            1,
-            new[] { first, second }.Count(response => response.StatusCode == HttpStatusCode.Conflict));
-    }
-
-    private static async Task<ProblemSnapshot> AssertOverlapProblemAsync(
-        HttpResponseMessage response)
-    {
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-        var body = await response.Content.ReadAsStringAsync();
-        Assert.DoesNotContain("23P01", body, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("constraint", body, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("Npgsql", body, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("PostgresException", body, StringComparison.OrdinalIgnoreCase);
-        using var document = JsonDocument.Parse(body);
-        var root = document.RootElement;
-        Assert.Equal(
-            "/problems/group-trainer-substitution-overlap",
-            root.GetProperty("type").GetString());
-        Assert.Equal(
-            "group_trainer_substitution_overlap",
-            root.GetProperty("code").GetString());
-        var errors = root.GetProperty("errors");
-        Assert.True(errors.GetProperty("startsOn").GetArrayLength() > 0);
-        Assert.True(errors.GetProperty("endsOn").GetArrayLength() > 0);
-        return new ProblemSnapshot(
-            root.GetProperty("type").GetString()!,
-            root.GetProperty("code").GetString()!,
-            root.GetProperty("title").GetString()!,
-            root.GetProperty("detail").GetString()!,
-            CanonicalizeErrors(errors));
-    }
-
-    private static async Task AssertImmutableProblemAsync(HttpResponseMessage response)
-    {
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-        var body = await response.Content.ReadAsStringAsync();
-        Assert.DoesNotContain("Npgsql", body, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("PostgresException", body, StringComparison.OrdinalIgnoreCase);
-        using var document = JsonDocument.Parse(body);
-        Assert.Equal(
-            "/problems/group-trainer-substitution-immutable",
-            document.RootElement.GetProperty("type").GetString());
-        Assert.Equal(
-            "group_trainer_substitution_immutable",
-            document.RootElement.GetProperty("code").GetString());
-    }
-
-    private static string CanonicalizeErrors(JsonElement errors)
-    {
-        return string.Join(
-            "|",
-            errors.EnumerateObject()
-                .OrderBy(property => property.Name, StringComparer.Ordinal)
-                .Select(property =>
-                    $"{property.Name}:{string.Join(",", property.Value.EnumerateArray().Select(value => value.GetString()))}"));
+        Assert.True(
+            response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.MethodNotAllowed,
+            $"Expected legacy mutation route absence (404/405), got {response.StatusCode}.");
     }
 
     private static async Task<AuditLog[]> LoadSubstitutionAuditsAsync(GymCrmDbContext db)
@@ -620,37 +463,6 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
             .OrderBy(audit => audit.CreatedAt)
             .ThenBy(audit => audit.Id)
             .ToArrayAsync();
-    }
-
-    private static void AssertAuditState(
-        string? json,
-        GroupTrainerSubstitution expected)
-    {
-        Assert.False(string.IsNullOrWhiteSpace(json));
-        using var document = JsonDocument.Parse(json!);
-        var root = document.RootElement;
-        Assert.Equal(8, root.EnumerateObject().Count());
-        Assert.Equal(expected.Id, root.GetProperty("id").GetGuid());
-        Assert.Equal(expected.GroupId, root.GetProperty("groupId").GetGuid());
-        Assert.Equal(
-            expected.SubstituteTrainerId,
-            root.GetProperty("substituteTrainerId").GetGuid());
-        Assert.Equal(
-            expected.StartsOn.ToString("yyyy-MM-dd"),
-            root.GetProperty("startsOn").GetString());
-        Assert.Equal(
-            expected.EndsOn.ToString("yyyy-MM-dd"),
-            root.GetProperty("endsOn").GetString());
-        if (expected.CancelledAt.HasValue)
-        {
-            Assert.Equal(
-                expected.CancelledAt.Value,
-                root.GetProperty("cancelledAt").GetDateTimeOffset());
-        }
-        else
-        {
-            Assert.Equal(JsonValueKind.Null, root.GetProperty("cancelledAt").ValueKind);
-        }
     }
 
     private static void AssertSubstitutionState(
@@ -679,13 +491,6 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
         Guid SubstituteTrainerId,
         string StartsOn,
         string EndsOn);
-
-    private sealed record ProblemSnapshot(
-        string Type,
-        string Code,
-        string Title,
-        string Detail,
-        string Errors);
 
     private sealed record SeededData(
         Guid ManagerId,
@@ -752,8 +557,7 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
 
     private sealed class TestAppFactory(
         string connectionString,
-        bool throwSubstitutionAudit,
-        SubstitutionSaveChangesBarrier? saveBarrier) : WebApplicationFactory<Program>
+        bool throwSubstitutionAudit) : WebApplicationFactory<Program>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -774,10 +578,6 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
                 services.AddDbContext<GymCrmDbContext>(options =>
                 {
                     options.UseNpgsql(connectionString);
-                    if (saveBarrier is not null)
-                    {
-                        options.AddInterceptors(saveBarrier);
-                    }
                 });
                 services.RemoveAll<IBusinessDateProvider>();
                 services.AddSingleton<IBusinessDateProvider>(
@@ -825,56 +625,6 @@ public sealed class GroupTrainerSubstitutionPostgreSqlTests(
                 CreatedAt = DateTimeOffset.UtcNow
             });
             await db.SaveChangesAsync(cancellationToken);
-        }
-    }
-
-    private sealed class SubstitutionSaveChangesBarrier(
-        int blockedAttempts = 2) : SaveChangesInterceptor
-    {
-        private readonly TaskCompletionSource reachedOne =
-            new(TaskCreationOptions.RunContinuationsAsynchronously);
-        private readonly TaskCompletionSource reachedTwo =
-            new(TaskCreationOptions.RunContinuationsAsynchronously);
-        private readonly TaskCompletionSource release =
-            new(TaskCreationOptions.RunContinuationsAsynchronously);
-        private int attempts;
-
-        public Task WaitForFirstSaveAttemptAsync() => reachedOne.Task;
-
-        public Task WaitForTwoSaveAttemptsAsync() => reachedTwo.Task;
-
-        public void Release() => release.TrySetResult();
-
-        public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
-            DbContextEventData eventData,
-            InterceptionResult<int> result,
-            CancellationToken cancellationToken = default)
-        {
-            if (eventData.Context is GymCrmDbContext context)
-            {
-                context.ChangeTracker.DetectChanges();
-                if (context.ChangeTracker.Entries<GroupTrainerSubstitution>()
-                    .Any(entry => entry.State is EntityState.Added or EntityState.Modified))
-                {
-                    var attempt = Interlocked.Increment(ref attempts);
-                    if (attempt == 1)
-                    {
-                        reachedOne.TrySetResult();
-                    }
-
-                    if (attempt == 2)
-                    {
-                        reachedTwo.TrySetResult();
-                    }
-
-                    if (attempt <= blockedAttempts)
-                    {
-                        await release.Task.WaitAsync(cancellationToken);
-                    }
-                }
-            }
-
-            return result;
         }
     }
 

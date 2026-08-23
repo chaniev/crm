@@ -6,6 +6,7 @@ using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Messenger;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +31,12 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<ClientMembershipRefundTargetSnapshot> ClientMembershipRefundTargetSnapshots => Set<ClientMembershipRefundTargetSnapshot>();
     public DbSet<ClientBranchAssignment> ClientBranchAssignments => Set<ClientBranchAssignment>();
     public DbSet<TrainingGroup> TrainingGroups => Set<TrainingGroup>();
+    public DbSet<LessonSeries> LessonSeries => Set<LessonSeries>();
+    public DbSet<LessonScheduleRuleVersion> LessonScheduleRuleVersions => Set<LessonScheduleRuleVersion>();
+    public DbSet<LessonScheduleSlot> LessonScheduleSlots => Set<LessonScheduleSlot>();
+    public DbSet<LessonOccurrence> LessonOccurrences => Set<LessonOccurrence>();
+    public DbSet<LessonOccurrenceTrainerSubstitution> LessonOccurrenceTrainerSubstitutions => Set<LessonOccurrenceTrainerSubstitution>();
+    public DbSet<ScheduleMutationConfirmationToken> ScheduleMutationConfirmationTokens => Set<ScheduleMutationConfirmationToken>();
     public DbSet<AdministratorAttendanceGroupGrant> AdministratorAttendanceGroupGrants => Set<AdministratorAttendanceGroupGrant>();
     public DbSet<GroupType> GroupTypes => Set<GroupType>();
     public DbSet<ClientGroup> ClientGroups => Set<ClientGroup>();
@@ -38,6 +45,9 @@ public sealed class GymCrmDbContext(DbContextOptions<GymCrmDbContext> options) :
     public DbSet<GroupTrainerAssignment> GroupTrainerAssignments => Set<GroupTrainerAssignment>();
     public DbSet<GroupTrainerSubstitution> GroupTrainerSubstitutions => Set<GroupTrainerSubstitution>();
     public DbSet<Attendance> Attendance => Set<Attendance>();
+    public DbSet<AttendanceTransitionRun> AttendanceTransitionRuns => Set<AttendanceTransitionRun>();
+    public DbSet<AttendanceTransitionReportItem> AttendanceTransitionReportItems => Set<AttendanceTransitionReportItem>();
+    public DbSet<AttendanceTransitionRowResolution> AttendanceTransitionRowResolutions => Set<AttendanceTransitionRowResolution>();
     public DbSet<AttendanceEntitlementTargetSnapshot> AttendanceEntitlementTargetSnapshots => Set<AttendanceEntitlementTargetSnapshot>();
     public DbSet<ClientMissedTrainingAcknowledgement> ClientMissedTrainingAcknowledgements => Set<ClientMissedTrainingAcknowledgement>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();

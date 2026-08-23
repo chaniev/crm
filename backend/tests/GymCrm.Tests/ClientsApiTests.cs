@@ -2280,7 +2280,8 @@ public class ClientsApiTests
     [InlineData("Administrator")]
     public async Task HeadCoach_or_Administrator_can_search_and_filter_clients_for_list_queries(string actorRole)
     {
-        await using var factory = new ClientsAppFactory();
+        var today = GetBusinessToday();
+        await using var factory = new ClientsAppFactory(businessDate: today);
         var seeded = await SeedClientsDataAsync(factory);
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -2342,8 +2343,6 @@ public class ClientsApiTests
                 .Where(id => id != Guid.Empty)
                 .ToArray();
         }
-
-        var today = GetBusinessToday();
 
         async Task SeedCurrentMembershipsAsync(
             Guid clientId,

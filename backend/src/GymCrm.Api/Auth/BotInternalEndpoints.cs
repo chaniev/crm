@@ -20,8 +20,9 @@ internal static class BotInternalEndpoints
         group.MapPost("/telegram/session/resolve", ResolveSessionAsync);
         group.MapGet("/menu", GetMenuAsync);
         group.MapGet("/attendance/groups", ListAttendanceGroupsAsync);
-        group.MapGet("/attendance/groups/{groupId:guid}/clients", GetAttendanceRosterAsync);
-        group.MapPost("/attendance/groups/{groupId:guid}", SaveAttendanceAsync);
+        group.MapGet("/attendance/lessons", ListAttendanceLessonsAsync);
+        group.MapGet("/attendance/lessons/{lessonOccurrenceId:guid}/clients", GetAttendanceLessonRosterAsync);
+        group.MapPost("/attendance/lessons/{lessonOccurrenceId:guid}", SaveLessonAttendanceAsync);
         group.MapGet("/clients", SearchClientsAsync);
         group.MapGet("/clients/expiring-memberships", ListExpiringMembershipsAsync);
         group.MapGet("/clients/unpaid-memberships", ListUnpaidMembershipsAsync);
@@ -98,6 +99,28 @@ internal static class BotInternalEndpoints
             cancellationToken));
     }
 
+    private static async Task<IResult> ListAttendanceLessonsAsync(
+        string? trainingDate,
+        string? platform,
+        string? platformUserId,
+        IBotApiService botApiService,
+        CancellationToken cancellationToken)
+    {
+        var parsedTrainingDate = ParseDate(trainingDate);
+        if (!parsedTrainingDate.HasValue)
+        {
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["trainingDate"] = ["Укажите дату в формате yyyy-MM-dd."]
+            });
+        }
+
+        return ToHttpResult(await botApiService.ListAttendanceLessonsAsync(
+            ToIdentity(platform, platformUserId),
+            parsedTrainingDate.Value,
+            cancellationToken));
+    }
+
     private static async Task<IResult> GetAttendanceRosterAsync(
         Guid groupId,
         string? trainingDate,
@@ -119,6 +142,30 @@ internal static class BotInternalEndpoints
             ToIdentity(platform, platformUserId),
             groupId,
             parsedTrainingDate.Value,
+            cancellationToken));
+    }
+
+    private static async Task<IResult> GetAttendanceLessonRosterAsync(
+        Guid lessonOccurrenceId,
+        string? lessonDate,
+        string? platform,
+        string? platformUserId,
+        IBotApiService botApiService,
+        CancellationToken cancellationToken)
+    {
+        var parsedLessonDate = ParseDate(lessonDate);
+        if (!parsedLessonDate.HasValue)
+        {
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["lessonDate"] = ["Укажите дату занятия в формате yyyy-MM-dd."]
+            });
+        }
+
+        return ToHttpResult(await botApiService.GetAttendanceRosterByLessonAsync(
+            ToIdentity(platform, platformUserId),
+            lessonOccurrenceId,
+            parsedLessonDate.Value,
             cancellationToken));
     }
 
@@ -151,6 +198,46 @@ internal static class BotInternalEndpoints
             ToIdentity(request),
             groupId,
             parsedTrainingDate.Value,
+            request.AttendanceMarks?
+                .Select(mark => new BotAttendanceMarkInput(mark.ClientId, mark.IsPresent))
+                .ToArray() ?? [],
+            idempotencyKey,
+            JsonSerializer.Serialize(request, JsonOptions),
+            cancellationToken);
+
+        return ToHttpResult(result);
+    }
+
+    private static async Task<IResult> SaveLessonAttendanceAsync(
+        Guid lessonOccurrenceId,
+        string? lessonDate,
+        BotSaveAttendanceRequest request,
+        HttpContext httpContext,
+        IBotApiService botApiService,
+        CancellationToken cancellationToken)
+    {
+        var parsedLessonDate = ParseDate(lessonDate);
+        if (!parsedLessonDate.HasValue)
+        {
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["lessonDate"] = ["Укажите дату занятия в формате yyyy-MM-dd."]
+            });
+        }
+
+        var idempotencyKey = ReadIdempotencyKey(httpContext);
+        if (string.IsNullOrWhiteSpace(idempotencyKey))
+        {
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["idempotencyKey"] = ["Для изменяющего действия нужен Idempotency-Key."]
+            });
+        }
+
+        var result = await botApiService.SaveAttendanceByLessonAsync(
+            ToIdentity(request),
+            lessonOccurrenceId,
+            parsedLessonDate.Value,
             request.AttendanceMarks?
                 .Select(mark => new BotAttendanceMarkInput(mark.ClientId, mark.IsPresent))
                 .ToArray() ?? [],

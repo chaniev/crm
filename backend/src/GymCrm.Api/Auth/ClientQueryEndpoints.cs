@@ -53,6 +53,7 @@ internal static class ClientQueryEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IEffectiveGroupAssignmentService effectiveGroupAssignmentService,
+        IBusinessDateProvider businessDateProvider,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -101,7 +102,7 @@ internal static class ClientQueryEndpoints
         var membershipExpirationTo = ParseIsoDate(membershipExpiresTo);
         var hasElevatedClientAccess = UserRoleAuthorizationPolicy.GetOperationalScopeKind(currentUser.Role) != AccessScopeKind.AssignedGroups;
         var unifiedSearch = !string.IsNullOrWhiteSpace(query) ? query : search;
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = businessDateProvider.Today;
         var effectiveGroupIds = !hasElevatedClientAccess
             ? await effectiveGroupAssignmentService.ListEffectiveAssignedGroupIdsAsync(currentUser.Id, cancellationToken)
             : Array.Empty<Guid>();

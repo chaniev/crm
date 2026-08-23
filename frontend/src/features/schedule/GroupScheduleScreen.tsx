@@ -3,312 +3,407 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
-  type Dispatch,
-  type KeyboardEvent,
-  type MutableRefObject,
-  type SetStateAction,
+  type Ref,
 } from 'react'
 import {
+  ActionIcon,
+  Alert,
   Badge,
+  Button,
+  Drawer,
   Group,
+  NumberInput,
+  Paper,
+  SegmentedControl,
   Select,
   Stack,
   Text,
-  ThemeIcon,
+  TextInput,
 } from '@mantine/core'
-import { useMediaQuery } from '@mantine/hooks'
 import {
-  IconBuilding,
-  IconCalendarWeek,
-  IconClockHour4,
-  IconDoor,
-  IconMapPin,
-  IconUser,
+  IconBan,
+  IconCalendarEvent,
+  IconAlertTriangle,
+  IconChevronLeft,
+  IconChevronRight,
+  IconEdit,
+  IconPlus,
+  IconRefresh,
+  IconSettings,
   IconUsers,
 } from '@tabler/icons-react'
 import {
-  getScheduleGroups,
-  type TrainingGroupListItem,
+  ApiError,
+  applyFieldErrors,
+  applyGroupLessonSeries,
+  applyScheduleLessonTrainerSubstitution,
+  applyScheduleLessonTrainerSubstitutionCancellation,
+  getGroupLessonSeries,
+  getScheduleLessons,
+  getScheduleLesson,
+  previewGroupLessonSeries,
+  previewScheduleLessonTrainerSubstitution,
+  previewScheduleLessonTrainerSubstitutionCancellation,
+  type GroupLessonSeriesPreviewResponse,
+  type GroupLessonSeriesReadResponse,
+  type GroupLessonSeriesRequest,
+  type GroupLessonSeriesScope,
+  type ScheduleAction,
+  type ScheduleLesson,
+  type ScheduleLessonCancellationAction,
+  type ScheduleLessonTrainerSubstitutionCancellationPreviewResponse,
+  type ScheduleLessonTrainerSubstitutionPreviewResponse,
+  type ScheduleWarning,
   type UserRole,
 } from '../../lib/api'
 import {
-  EMPTY_SCHEDULE_FILTERS,
-  applyScheduleFilters,
-  buildScheduleCalendarWeek,
-  buildScheduleDayCounts,
-  buildScheduleFilterOptions,
-  buildScheduleHourMarks,
-  buildScheduleTypeLegend,
-  buildScheduleVisualDisclosureGroups,
-  buildScheduleWeekdayLabels,
-  formatScheduleEntryTimeRange,
-  getCurrentScheduleWeekday,
-  getScheduleEntryGridMetrics,
-  getScheduleTypeKey,
-  getScheduleTypePalette,
-  hasActiveScheduleFilters,
-  type ScheduleCalendarDay,
-  type ScheduleCalendarEntry,
-  type ScheduleFilterOptions,
-  type ScheduleFilters,
-  type ScheduleTypeLegendItem,
-  type ScheduleTypePalette,
-  type ScheduleVisualDisclosureGroup,
-  type ScheduleVisibleHourRange,
-  type ScheduleWeekdayLabel,
-  type WeekdayNumber,
-} from '../../lib/groupSchedule'
-import {
-  CompactFilterPanel,
   EmptyState,
   ErrorState,
   LoadingState,
   PageLayout,
   PageSection,
-  RefreshButton,
-  TaskToolbarRefreshAction,
-  type CompactFilterItem,
 } from '../shared/ux'
+import { ScheduleLessonChangeForm } from './ScheduleLessonChangeDrawer'
+import { ScheduleLessonCancellationDrawer } from './ScheduleLessonCancellationDrawer'
+import { ScheduleOneOffCreateForm } from './ScheduleOneOffCreateDrawer'
 import {
-  ScheduleEventsDisclosure,
-} from './ScheduleEventsDisclosure'
-import {
-  formatScheduleClientCount,
-  formatScheduleEntryCount,
-} from './schedulePresentation'
-
-const SCHEDULE_GROUPS_PAGE_SIZE = 100
-const MOBILE_BREAKPOINT = '(max-width: 47.99em), (max-height: 30rem) and (pointer: coarse)'
-const SCHEDULE_DESKTOP_HOUR_HEIGHT_PX = 76
-const SCHEDULE_MOBILE_HOUR_HEIGHT_PX = 96
-const SCHEDULE_LANE_GAP_PX = 8
-const SCHEDULE_AUTO_REFRESH_MS = 60_000
-const WEEKDAY_BY_INDEX = [1, 2, 3, 4, 5, 6, 7] as const satisfies readonly WeekdayNumber[]
-const WEEKDAY_INDEX_BY_NUMBER: Record<WeekdayNumber, number> = {
-  1: 0,
-  2: 1,
-  3: 2,
-  4: 3,
-  5: 4,
-  6: 5,
-  7: 6,
-}
+  formatScheduleActionUnavailableReason,
+  formatScheduleProblemCode,
+} from './scheduleActionReasons'
 
 type GroupScheduleScreenProps = {
   canManageGroups: boolean
   onEditGroup: (groupId: string) => void
+  onCreateLesson: () => void
+  onEditLesson: (lessonOccurrenceId: string, lessonDate: string) => void
+  onMoveLesson: (lessonOccurrenceId: string, lessonDate: string) => void
+  onEditSeries: (lesson: ScheduleLesson, scope: 'this-and-future' | 'entire') => void
+  onOpenAttendance: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenLessonDetail: (lessonOccurrenceId: string, lessonDate: string) => void
   viewerRole: UserRole
 }
 
-export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
-  const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
+type ScheduleLessonDetailScreenProps = {
+  lessonOccurrenceId: string
+  lessonDate: string
+  onEditLesson: (lessonOccurrenceId: string, lessonDate: string) => void
+  onMoveLesson: (lessonOccurrenceId: string, lessonDate: string) => void
+  onEditSeries: (lesson: ScheduleLesson, scope: 'this-and-future' | 'entire') => void
+  onOpenAttendance: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenLessonDetail: (lessonOccurrenceId: string, lessonDate: string) => void
+}
+
+type ScheduleViewMode = 'day' | 'week'
+
+type ScheduleFilters = {
+  branchId: string | null
+  hallId: string | null
+  trainerId: string | null
+  groupId: string | null
+  groupTypeId: string | null
+}
+
+type ScheduleUrlState = ScheduleFilters & {
+  date: string
+  view: ScheduleViewMode
+}
+
+type FilterOption = {
+  value: string
+  label: string
+}
+
+const EMPTY_FILTERS: ScheduleFilters = {
+  branchId: null,
+  hallId: null,
+  trainerId: null,
+  groupId: null,
+  groupTypeId: null,
+}
+
+const FILTER_KEYS = ['branchId', 'hallId', 'trainerId', 'groupId', 'groupTypeId'] as const
+const DAY_MS = 24 * 60 * 60 * 1000
+
+export function GroupScheduleScreen({
+  onCreateLesson,
+  onEditLesson,
+  onEditSeries,
+  onMoveLesson,
+  onOpenAttendance,
+  onOpenLessonDetail,
+  viewerRole,
+}: GroupScheduleScreenProps) {
+  const [urlState, setUrlState] = useState(readScheduleUrlState)
+  const [lessons, setLessons] = useState<ScheduleLesson[]>([])
+  const [capabilities, setCapabilities] = useState<{ createOneOff: ScheduleAction } | null>(null)
+  const [filterOptions, setFilterOptions] = useState(() => emptyFilterOptions())
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
-  const [filters, setFilters] = useState<ScheduleFilters>(EMPTY_SCHEDULE_FILTERS)
-  const [now, setNow] = useState(() => new Date())
-  const [selectedWeekday, setSelectedWeekday] = useState<WeekdayNumber>(() =>
-    getCurrentScheduleWeekday(),
+  const [toolsOpen, setToolsOpen] = useState(false)
+  const [cancellationTarget, setCancellationTarget] = useState<{
+    action: ScheduleLessonCancellationAction
+    lesson: ScheduleLesson
+  } | null>(null)
+  const [substitutionTarget, setSubstitutionTarget] = useState<{
+    action: 'Assign' | 'Cancel'
+    lesson: ScheduleLesson
+  } | null>(null)
+  const toolsTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const createTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const isFirstLoadRef = useRef(true)
+
+  useEffect(() => {
+    function syncFromHistory() {
+      setUrlState(readScheduleUrlState())
+    }
+
+    window.addEventListener('popstate', syncFromHistory)
+
+    return () => window.removeEventListener('popstate', syncFromHistory)
+  }, [])
+
+  const range = useMemo(
+    () => getScheduleRange(urlState.date, urlState.view),
+    [urlState.date, urlState.view],
   )
-  const firstLoadRef = useRef(true)
 
   useEffect(() => {
     const controller = new AbortController()
-    const isInitialLoad = firstLoadRef.current
+    const isInitial = isFirstLoadRef.current
 
-    async function load() {
-      if (isInitialLoad) {
+    async function loadLessons() {
+      if (isInitial) {
         setLoading(true)
       } else {
         setRefreshing(true)
       }
-
       setError(null)
 
       try {
-        const response = await getAllScheduleGroups(controller.signal)
+        const response = await getScheduleLessons({
+          from: range.from,
+          to: range.to,
+          ...pickScheduleFilters(urlState),
+        }, controller.signal)
 
-        setGroups(response.items)
+        if (controller.signal.aborted) {
+          return
+        }
+
+        setLessons(sortLessons(response.items))
+        setCapabilities(response.capabilities)
+        setFilterOptions(mapResponseFilterOptions(response.filterOptions))
       } catch (loadError) {
         if (controller.signal.aborted) {
           return
         }
 
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : 'Не удалось загрузить расписание.',
-        )
+        setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить расписание.')
       } finally {
         if (!controller.signal.aborted) {
-          firstLoadRef.current = false
+          isFirstLoadRef.current = false
           setLoading(false)
           setRefreshing(false)
         }
       }
     }
 
-    void load()
+    void loadLessons()
 
     return () => controller.abort()
-  }, [reloadKey])
+  }, [range.from, range.to, reloadKey, urlState])
 
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setNow(new Date())
-      setReloadKey((currentKey) => currentKey + 1)
-    }, SCHEDULE_AUTO_REFRESH_MS)
+  const activeFilterCount = countActiveFilters(urlState)
+  const activeFilters = activeFilterCount > 0
+  const createOneOffAllowed = capabilities?.createOneOff.allowed === true
+  const visibleLessons = useMemo(
+    () => lessons.filter((lesson) =>
+      urlState.view === 'week' || lesson.lessonDate === urlState.date,
+    ),
+    [lessons, urlState.date, urlState.view],
+  )
+  const days = useMemo(
+    () => buildScheduleDays(range.from, range.to, lessons),
+    [lessons, range.from, range.to],
+  )
+  const hasStaleLessons = lessons.length > 0
 
-    return () => window.clearInterval(intervalId)
-  }, [])
-
-  const filterOptions = useMemo(
-    () => buildScheduleFilterOptions(groups, filters),
-    [filters, groups],
-  )
-  const filteredGroups = useMemo(
-    () => applyScheduleFilters(groups, filters),
-    [filters, groups],
-  )
-  const calendarWeek = useMemo(
-    () => buildScheduleCalendarWeek(filteredGroups),
-    [filteredGroups],
-  )
-  const currentWeekday = useMemo(() => getCurrentScheduleWeekday(now), [now])
-  const dayLabels = useMemo(() => buildScheduleWeekdayLabels(now), [now])
-  const dayCounts = useMemo(
-    () => buildScheduleDayCounts(calendarWeek.days),
-    [calendarWeek.days],
-  )
-  const visibleEntries = useMemo(
-    () => calendarWeek.days.flatMap((day) => day.entries),
-    [calendarWeek.days],
-  )
-  const typeLegend = useMemo(
-    () => buildScheduleTypeLegend(visibleEntries),
-    [visibleEntries],
-  )
-  const hasActiveFilters = hasActiveScheduleFilters(filters)
-  const isCoachViewer = props.viewerRole === 'Coach'
-  useEffect(() => {
-    setFilters((currentFilters) => {
-      const nextFilters = {
-        branchId: retainFilterValue(currentFilters.branchId, filterOptions.branches),
-        hallId: retainFilterValue(currentFilters.hallId, filterOptions.halls),
-        trainerId: retainFilterValue(currentFilters.trainerId, filterOptions.trainers),
-        groupId: retainFilterValue(currentFilters.groupId, filterOptions.groups),
-      } satisfies ScheduleFilters
-
-      return areScheduleFiltersEqual(currentFilters, nextFilters)
-        ? currentFilters
-        : nextFilters
+  function applyState(next: Partial<ScheduleUrlState>, options: { replace?: boolean } = {}) {
+    setUrlState((current) => {
+      const merged = { ...current, ...next }
+      writeScheduleUrlState(merged, options)
+      return merged
     })
-  }, [filterOptions])
-
-  const isInitialLoading = loading && groups.length === 0
-  const hasStaleSchedule = groups.length > 0
-  const isCoachZeroScopeEmpty =
-    isCoachViewer && !isInitialLoading && !error && groups.length === 0
-  const requestReload = () => {
-    setNow(new Date())
-    setReloadKey((currentKey) => currentKey + 1)
   }
+
+  function moveBy(deltaDays: number) {
+    applyState({ date: addIsoDays(urlState.date, deltaDays) })
+  }
+
+  function refresh() {
+    setReloadKey((key) => key + 1)
+  }
+
+  function goToday() {
+    applyState({ date: todayIso() })
+    setToolsOpen(false)
+  }
+
+  function setView(view: string) {
+    if (view !== 'day' && view !== 'week') {
+      return
+    }
+
+    applyState({ view })
+    setToolsOpen(false)
+  }
+
+  function resetFilters() {
+    applyState(EMPTY_FILTERS)
+  }
+
+  const toolbar = (
+    <ScheduleToolbar
+      activeFilterCount={activeFilterCount}
+      createCapabilityState={getCreateCapabilityState(capabilities)}
+      date={urlState.date}
+      disabled={loading || refreshing}
+      onCreate={createOneOffAllowed ? onCreateLesson : null}
+      onDateChange={(date) => applyState({ date })}
+      onNext={() => moveBy(urlState.view === 'week' ? 7 : 1)}
+      onPrevious={() => moveBy(urlState.view === 'week' ? -7 : -1)}
+      onToolsOpen={() => setToolsOpen(true)}
+      createTriggerRef={createTriggerRef}
+      toolsTriggerRef={toolsTriggerRef}
+      view={urlState.view}
+    />
+  )
 
   return (
     <PageLayout
-      showHeader={false}
-      title="Расписание"
       className="schedule-screen"
       data-testid="schedule-screen"
+      showHeader={false}
+      title="Расписание"
     >
-      {isCoachZeroScopeEmpty ? (
-        <ScheduleRefreshToolbar
-          onRefresh={requestReload}
-          refreshDisabled={loading || refreshing}
-        />
-      ) : (
-        <ScheduleFiltersToolbar
-          filterOptions={filterOptions}
-          filters={filters}
-          onRefresh={requestReload}
-          refreshDisabled={loading || refreshing}
-          setFilters={setFilters}
-        />
-      )}
+      {toolbar}
 
-      {isInitialLoading ? (
+      <CalendarToolsSurface
+        activeFilters={activeFilters}
+        filterOptions={filterOptions}
+        filters={urlState}
+        opened={toolsOpen}
+        onClose={() => {
+          setToolsOpen(false)
+          toolsTriggerRef.current?.focus()
+        }}
+        onFilterChange={(key, value) => applyState({ [key]: value } as Partial<ScheduleUrlState>)}
+        onRefresh={() => {
+          refresh()
+          setToolsOpen(false)
+        }}
+        onResetFilters={resetFilters}
+        onToday={goToday}
+        onViewChange={setView}
+        refreshDisabled={loading || refreshing}
+        view={urlState.view}
+      />
+
+      <ScheduleLessonCancellationDrawer
+        action={cancellationTarget?.action ?? null}
+        lesson={cancellationTarget?.lesson ?? null}
+        onCancelledOrRestored={(lesson) => {
+          setCancellationTarget(null)
+          onOpenLessonDetail(lesson.lessonOccurrenceId, lesson.lessonDate)
+        }}
+        onClose={() => setCancellationTarget(null)}
+        opened={Boolean(cancellationTarget)}
+      />
+      <ScheduleTrainerSubstitutionDrawer
+        action={substitutionTarget?.action ?? null}
+        lesson={substitutionTarget?.lesson ?? null}
+        onChanged={(lesson) => {
+          setSubstitutionTarget(null)
+          onOpenLessonDetail(lesson.lessonOccurrenceId, lesson.lessonDate)
+        }}
+        onClose={() => setSubstitutionTarget(null)}
+        opened={Boolean(substitutionTarget)}
+        trainerOptions={filterOptions.trainers}
+      />
+
+      {loading && lessons.length === 0 ? (
         <PageSection>
-          <LoadingState label="Загружаем расписание..." />
+          <LoadingState label="Загружаем занятия..." />
         </PageSection>
       ) : null}
 
-      {!isInitialLoading && error ? (
+      {error ? (
         <PageSection>
           <ErrorState
-            action={(
-              <RefreshButton
-                label="Повторить"
-                loading={refreshing}
-                onClick={requestReload}
-                variant="secondary"
-              />
-            )}
+            action={<Button onClick={refresh} variant="light">Повторить</Button>}
             message={error}
-            title={
-              hasStaleSchedule
-                ? 'Не удалось обновить расписание'
-                : 'Расписание не загрузилось'
-            }
+            title={hasStaleLessons ? 'Не удалось обновить расписание' : 'Расписание не загрузилось'}
           />
         </PageSection>
       ) : null}
 
-      {!isInitialLoading && (!error || hasStaleSchedule) ? (
+      {!loading && (!error || hasStaleLessons) ? (
         <PageSection
-          aria-label="Доска расписания"
-          className="schedule-board"
+          aria-label="Расписание занятий"
+          className="schedule-board schedule-board--occurrences"
           data-testid="schedule-board"
           density="compact"
-          {...({ tabIndex: -1 } as { tabIndex: number })}
         >
-          {groups.length === 0 ? (
-            isCoachViewer ? (
-              <EmptyState
-                description="Когда вас назначат на группу или временную замену, занятия появятся здесь."
-                icon={<IconCalendarWeek size={24} />}
-                title="Для вас занятий в расписании нет"
-              />
-            ) : (
-              <EmptyState
-                description="Группы появятся здесь после создания расписания."
-                icon={<IconCalendarWeek size={24} />}
-                title="Расписание пока пустое"
-              />
-            )
-          ) : filteredGroups.length === 0 ? (
-            <EmptyState
-              description="Сбросьте часть фильтров, чтобы снова увидеть занятия в календаре."
-              icon={<IconClockHour4 size={24} />}
-              title="По выбранным фильтрам занятий нет"
+          {lessons.length === 0 ? (
+            <ScheduleEmptyState
+              activeFilters={activeFilters}
+              viewerRole={viewerRole}
+            />
+          ) : visibleLessons.length === 0 ? (
+            <ScheduleDayList
+              date={urlState.date}
+              lessons={[]}
+              onCancelOrRestoreLesson={(lesson, action) =>
+                setCancellationTarget({ lesson, action })}
+              onChangeLesson={(lesson) => onEditLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+              onEditSeries={onEditSeries}
+              onMoveLesson={(lesson) => onMoveLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+              onOpenDetail={onOpenLessonDetail}
+              onOpenAttendance={onOpenAttendance}
+              onTrainerSubstitution={(lesson, action) =>
+                setSubstitutionTarget({ lesson, action })}
+              title={formatLongDate(urlState.date)}
+            />
+          ) : urlState.view === 'day' ? (
+            <ScheduleDayList
+              date={urlState.date}
+              lessons={visibleLessons}
+              onCancelOrRestoreLesson={(lesson, action) =>
+                setCancellationTarget({ lesson, action })}
+              onChangeLesson={(lesson) => onEditLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+              onEditSeries={onEditSeries}
+              onMoveLesson={(lesson) => onMoveLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+              onOpenDetail={onOpenLessonDetail}
+              onOpenAttendance={onOpenAttendance}
+              onTrainerSubstitution={(lesson, action) =>
+                setSubstitutionTarget({ lesson, action })}
+              title={formatLongDate(urlState.date)}
             />
           ) : (
-            <Stack gap="md">
-              <ResponsiveScheduleContent
-                currentWeekday={currentWeekday}
-                dayCounts={dayCounts}
-                dayLabels={dayLabels}
-                days={calendarWeek.days}
-                selectedWeekday={selectedWeekday}
-                viewerRole={props.viewerRole}
-                hasActiveFilters={hasActiveFilters}
-                setSelectedWeekday={setSelectedWeekday}
-                visibleHourRange={calendarWeek.visibleHourRange}
-              />
-
-              <ScheduleTypeLegend legend={typeLegend} />
-            </Stack>
+            <ScheduleWeekView
+              days={days}
+              onCancelOrRestoreLesson={(lesson, action) =>
+                setCancellationTarget({ lesson, action })}
+              onChangeLesson={(lesson) => onEditLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+              onEditSeries={onEditSeries}
+              onMoveLesson={(lesson) => onMoveLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+              onOpenDetail={onOpenLessonDetail}
+              onOpenAttendance={onOpenAttendance}
+              onTrainerSubstitution={(lesson, action) =>
+                setSubstitutionTarget({ lesson, action })}
+            />
           )}
         </PageSection>
       ) : null}
@@ -316,986 +411,2192 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
   )
 }
 
-type ScheduleFiltersToolbarProps = {
-  filterOptions: ScheduleFilterOptions
-  filters: ScheduleFilters
-  onRefresh: () => void
-  refreshDisabled: boolean
-  setFilters: Dispatch<SetStateAction<ScheduleFilters>>
-}
+export function ScheduleLessonDetailScreen({
+  lessonDate,
+  lessonOccurrenceId,
+  onEditLesson,
+  onEditSeries,
+  onMoveLesson,
+  onOpenAttendance,
+  onOpenLessonDetail,
+}: ScheduleLessonDetailScreenProps) {
+  const [lesson, setLesson] = useState<ScheduleLesson | null>(null)
+  const [filterOptions, setFilterOptions] = useState(() => emptyFilterOptions())
+  const [cancellationAction, setCancellationAction] =
+    useState<ScheduleLessonCancellationAction | null>(null)
+  const [substitutionAction, setSubstitutionAction] = useState<'Assign' | 'Cancel' | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-function ScheduleFiltersToolbar({
-  filterOptions,
-  filters,
-  onRefresh,
-  refreshDisabled,
-  setFilters,
-}: ScheduleFiltersToolbarProps) {
-  const filterItems = [
-    {
-      key: 'branchId',
-      label: 'Филиал',
-      render: () => (
-        <Select
-          clearable
-          data={filterOptions.branches}
-          label="Филиал"
-          leftSection={<IconBuilding size={16} />}
-          onChange={(value) => updateFilter(setFilters, 'branchId', value)}
-          placeholder="Все филиалы"
-          searchable
-          value={filters.branchId}
-        />
-      ),
-    },
-    {
-      key: 'hallId',
-      label: 'Зал',
-      render: () => (
-        <Select
-          clearable
-          data={filterOptions.halls}
-          label="Зал"
-          leftSection={<IconDoor size={16} />}
-          onChange={(value) => updateFilter(setFilters, 'hallId', value)}
-          placeholder="Все залы"
-          searchable
-          value={filters.hallId}
-        />
-      ),
-    },
-    {
-      key: 'trainerId',
-      label: 'Тренер',
-      render: () => (
-        <Select
-          clearable
-          data={filterOptions.trainers}
-          label="Тренер"
-          leftSection={<IconUser size={16} />}
-          onChange={(value) => updateFilter(setFilters, 'trainerId', value)}
-          placeholder="Все тренеры"
-          searchable
-          value={filters.trainerId}
-        />
-      ),
-    },
-    {
-      key: 'groupId',
-      label: 'Группа',
-      render: () => (
-        <Select
-          clearable
-          data={filterOptions.groups}
-          label="Группа"
-          leftSection={<IconUsers size={16} />}
-          onChange={(value) => updateFilter(setFilters, 'groupId', value)}
-          placeholder="Все группы"
-          searchable
-          value={filters.groupId}
-        />
-      ),
-    },
-  ] satisfies CompactFilterItem[]
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadLesson() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const [response, optionsResponse] = await Promise.all([
+          getScheduleLesson(
+            lessonOccurrenceId,
+            lessonDate,
+            controller.signal,
+          ),
+          getScheduleLessons({
+            from: lessonDate,
+            to: lessonDate,
+          }, controller.signal),
+        ])
+
+        if (!controller.signal.aborted) {
+          setLesson(response)
+          setFilterOptions(mapResponseFilterOptions(optionsResponse.filterOptions))
+        }
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить занятие.')
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadLesson()
+
+    return () => controller.abort()
+  }, [lessonDate, lessonOccurrenceId])
 
   return (
-    <CompactFilterPanel
-      actions={(
-        <TaskToolbarRefreshAction
-          disabled={refreshDisabled}
-          label="Обновить"
-          onClick={onRefresh}
+    <PageLayout
+      className="schedule-screen"
+      data-testid="schedule-lesson-detail-screen"
+      showHeader
+      title="Занятие"
+    >
+      {loading ? (
+        <PageSection>
+          <LoadingState label="Загружаем занятие..." />
+        </PageSection>
+      ) : null}
+      {error ? (
+        <PageSection>
+          <ErrorState message={error} title="Занятие не загрузилось" />
+        </PageSection>
+      ) : null}
+      {lesson ? (
+        <PageSection>
+          <Stack gap="md">
+            <Stack gap={4}>
+              <Text fw={900} size="xl">{lesson.groupName}</Text>
+              <Text c="dimmed" fw={700}>
+                {formatLongDate(lesson.lessonDate)} · {formatTimeRange(lesson)}
+              </Text>
+            </Stack>
+            <Group gap="xs" wrap="wrap">
+              {lesson.status === 'Cancelled' ? <Badge color="gray">Отменено</Badge> : null}
+              {lesson.hasAttendanceMarks ? <Badge color="teal">Отметки есть</Badge> : null}
+              <Badge variant="light">{lesson.groupTypeName}</Badge>
+            </Group>
+            <Text>{lesson.hallName} · {lesson.branchName}</Text>
+            <Text>{formatEffectiveTrainers(lesson)}</Text>
+            <Group gap="sm" wrap="wrap">
+              {lesson.allowedActions.edit.allowed ? (
+                <Button
+                  leftSection={<IconEdit size={18} />}
+                  onClick={() => onEditLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+                  type="button"
+                  variant="light"
+                >
+                  Изменить
+                </Button>
+              ) : null}
+              {lesson.allowedActions.move.allowed ? (
+                <Button
+                  leftSection={<IconChevronRight size={18} />}
+                  onClick={() => onMoveLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+                  type="button"
+                  variant="light"
+                >
+                  Перенести
+                </Button>
+              ) : null}
+              {lesson.lessonSeriesId && lesson.allowedActions.edit.allowed ? (
+                <Button
+                  leftSection={<IconSettings size={18} />}
+                  onClick={() => onEditSeries(lesson, 'this-and-future')}
+                  type="button"
+                  variant="light"
+                >
+                  Серия
+                </Button>
+              ) : null}
+              {lesson.allowedActions.assignTrainerSubstitution.allowed ? (
+                <Button
+                  leftSection={<IconUsers size={18} />}
+                  onClick={() => setSubstitutionAction('Assign')}
+                  type="button"
+                  variant="light"
+                >
+                  Замена
+                </Button>
+              ) : null}
+              {lesson.allowedActions.cancelTrainerSubstitution.allowed ? (
+                <Button
+                  leftSection={<IconRefresh size={18} />}
+                  onClick={() => setSubstitutionAction('Cancel')}
+                  type="button"
+                  variant="light"
+                >
+                  Снять замену
+                </Button>
+              ) : null}
+              {lesson.allowedActions.cancel.allowed ? (
+                <Button
+                  color="red"
+                  leftSection={<IconBan size={18} />}
+                  onClick={() => setCancellationAction('Cancel')}
+                  type="button"
+                  variant="light"
+                >
+                  Отменить
+                </Button>
+              ) : null}
+              {lesson.allowedActions.restore.allowed ? (
+                <Button
+                  color="green"
+                  leftSection={<IconRefresh size={18} />}
+                  onClick={() => setCancellationAction('Restore')}
+                  type="button"
+                  variant="light"
+                >
+                  Восстановить
+                </Button>
+              ) : null}
+              <Button
+                disabled={!lesson.allowedActions.viewAttendance.allowed}
+                leftSection={<IconUsers size={18} />}
+                onClick={() => onOpenAttendance(lesson.lessonOccurrenceId, lesson.lessonDate)}
+              >
+                Посещаемость
+              </Button>
+            </Group>
+          </Stack>
+        </PageSection>
+      ) : null}
+      <ScheduleLessonCancellationDrawer
+        action={cancellationAction}
+        lesson={lesson}
+        onCancelledOrRestored={(changedLesson) => {
+          setCancellationAction(null)
+          setLesson(changedLesson)
+          onOpenLessonDetail(changedLesson.lessonOccurrenceId, changedLesson.lessonDate)
+        }}
+        onClose={() => setCancellationAction(null)}
+        opened={Boolean(cancellationAction)}
+      />
+      <ScheduleTrainerSubstitutionDrawer
+        action={substitutionAction}
+        lesson={lesson}
+        onChanged={(changedLesson) => {
+          setSubstitutionAction(null)
+          setLesson(changedLesson)
+          onOpenLessonDetail(changedLesson.lessonOccurrenceId, changedLesson.lessonDate)
+        }}
+        onClose={() => setSubstitutionAction(null)}
+        opened={Boolean(substitutionAction)}
+        trainerOptions={filterOptions.trainers}
+      />
+    </PageLayout>
+  )
+}
+
+export function ScheduleLessonCreateScreen({
+  onBack,
+  onCreated,
+}: {
+  onBack: () => void
+  onCreated: (lesson: ScheduleLesson) => void
+}) {
+  const [filterOptions, setFilterOptions] = useState(() => emptyFilterOptions())
+  const [createAllowed, setCreateAllowed] = useState<boolean | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const defaultDate = todayIso()
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadOptions() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const response = await getScheduleLessons({
+          from: defaultDate,
+          to: defaultDate,
+        }, controller.signal)
+
+        if (!controller.signal.aborted) {
+          setFilterOptions(mapResponseFilterOptions(response.filterOptions))
+          setCreateAllowed(response.capabilities.createOneOff.allowed)
+        }
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить параметры занятия.')
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadOptions()
+
+    return () => controller.abort()
+  }, [defaultDate])
+
+  return (
+    <PageLayout
+      className="schedule-screen"
+      data-testid="schedule-lesson-create-screen"
+      showHeader
+      title="Разовое занятие"
+    >
+      {loading ? (
+        <PageSection>
+          <LoadingState label="Загружаем параметры занятия..." />
+        </PageSection>
+      ) : null}
+      {error ? (
+        <PageSection>
+          <ErrorState message={error} title="Параметры не загрузились" />
+        </PageSection>
+      ) : null}
+      {!loading && !error && createAllowed === false ? (
+        <PageSection>
+          <ErrorState
+            action={<Button onClick={onBack} variant="light">Вернуться к расписанию</Button>}
+            message="Сервер не разрешил создание разового занятия для текущего пользователя."
+            title="Создание недоступно"
+          />
+        </PageSection>
+      ) : null}
+      {!loading && !error && createAllowed ? (
+        <PageSection>
+          <ScheduleOneOffCreateForm
+            defaultDate={defaultDate}
+            filterOptions={{
+              groups: filterOptions.groups,
+              halls: filterOptions.halls,
+            }}
+            footerClassName="schedule-route-form__footer"
+            filters={{
+              groupId: null,
+              hallId: null,
+            }}
+            onCancel={onBack}
+            onCreated={onCreated}
+          />
+        </PageSection>
+      ) : null}
+    </PageLayout>
+  )
+}
+
+export function ScheduleLessonChangeRouteScreen({
+  lessonDate,
+  lessonOccurrenceId,
+  mode,
+  onBack,
+  onChanged,
+}: {
+  lessonDate: string
+  lessonOccurrenceId: string
+  mode: 'edit' | 'move'
+  onBack: () => void
+  onChanged: (lesson: ScheduleLesson) => void
+}) {
+  const [lesson, setLesson] = useState<ScheduleLesson | null>(null)
+  const [filterOptions, setFilterOptions] = useState(() => emptyFilterOptions())
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadLesson() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const [response, optionsResponse] = await Promise.all([
+          getScheduleLesson(
+            lessonOccurrenceId,
+            lessonDate,
+            controller.signal,
+          ),
+          getScheduleLessons({
+            from: lessonDate,
+            to: lessonDate,
+          }, controller.signal),
+        ])
+
+        if (!controller.signal.aborted) {
+          setLesson(response)
+          setFilterOptions(mapResponseFilterOptions(optionsResponse.filterOptions))
+        }
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить занятие.')
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadLesson()
+
+    return () => controller.abort()
+  }, [lessonDate, lessonOccurrenceId])
+
+  const actionAllowed = lesson
+    ? mode === 'move'
+      ? lesson.allowedActions.move.allowed
+      : lesson.allowedActions.edit.allowed
+    : false
+  const unavailableReason = lesson
+    ? mode === 'move'
+      ? lesson.allowedActions.move.reason
+      : lesson.allowedActions.edit.reason
+    : null
+  const title = mode === 'move' ? 'Перенос занятия' : 'Изменение занятия'
+
+  return (
+    <PageLayout
+      className="schedule-screen"
+      data-testid={`schedule-lesson-${mode}-screen`}
+      showHeader
+      title={title}
+    >
+      {loading ? (
+        <PageSection>
+          <LoadingState label="Загружаем занятие..." />
+        </PageSection>
+      ) : null}
+      {error ? (
+        <PageSection>
+          <ErrorState message={error} title="Занятие не загрузилось" />
+        </PageSection>
+      ) : null}
+      {lesson && !actionAllowed ? (
+        <PageSection>
+          <ErrorState
+            action={<Button onClick={onBack} variant="light">Вернуться к расписанию</Button>}
+            message={
+              formatScheduleActionUnavailableReason(unavailableReason) ??
+              'Сервер не разрешил это изменение занятия.'
+            }
+            title={mode === 'move' ? 'Перенос недоступен' : 'Изменение недоступно'}
+          />
+        </PageSection>
+      ) : null}
+      {lesson && actionAllowed ? (
+        <PageSection>
+          <ScheduleLessonChangeForm
+            footerClassName="schedule-route-form__footer"
+            hallOptions={filterOptions.halls}
+            initialScope="Occurrence"
+            lesson={lesson}
+            lockScope
+            onCancel={onBack}
+            onChanged={onChanged}
+          />
+        </PageSection>
+      ) : null}
+    </PageLayout>
+  )
+}
+
+export function ScheduleSeriesEditScreen({
+  groupId,
+  lessonDate,
+  lessonSeriesId,
+  lessonOccurrenceId,
+  onBack,
+  onSaved,
+  scope,
+}: {
+  groupId?: string | null
+  lessonDate?: string | null
+  lessonSeriesId: string
+  lessonOccurrenceId?: string | null
+  onBack: () => void
+  onSaved: () => void
+  scope: 'this-and-future' | 'entire'
+}) {
+  const [series, setSeries] = useState<GroupLessonSeriesReadResponse | null>(null)
+  const [draft, setDraft] = useState<SeriesDraft | null>(null)
+  const [hallOptions, setHallOptions] = useState<FilterOption[]>([])
+  const [fieldErrors, setFieldErrors] = useState<SeriesFieldErrors>({})
+  const [preview, setPreview] = useState<GroupLessonSeriesPreviewResponse | null>(null)
+  const [submitting, setSubmitting] = useState<'preview' | 'execute' | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [dirty, setDirty] = useState(false)
+  const effectiveFromRef = useRef<HTMLInputElement | null>(null)
+  const endsOnRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadSeries() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const response = await getGroupLessonSeries(lessonSeriesId, controller.signal)
+        let scheduleHalls: FilterOption[] = []
+        const optionDate = lessonDate && isRealIsoDate(lessonDate)
+          ? lessonDate
+          : response.businessDate
+
+        try {
+          const optionsResponse = await getScheduleLessons({
+            from: optionDate,
+            to: optionDate,
+            groupId: groupId ?? response.groupId,
+          }, controller.signal)
+          scheduleHalls = mapResponseFilterOptions(optionsResponse.filterOptions).halls
+        } catch {
+          scheduleHalls = []
+        }
+
+        if (controller.signal.aborted) {
+          return
+        }
+
+        setSeries(response)
+        setDraft(buildSeriesDraft(response, scope, lessonDate))
+        setHallOptions(mergeSeriesHallOptions(response, scheduleHalls))
+        setPreview(null)
+        setFieldErrors({})
+        setFormError(null)
+        setDirty(false)
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          setError(loadError instanceof Error ? loadError.message : 'Не удалось загрузить серию занятий.')
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadSeries()
+
+    return () => controller.abort()
+  }, [groupId, lessonDate, lessonSeriesId, scope])
+
+  const pending = submitting !== null
+
+  function updateDraft<Field extends keyof SeriesDraft>(
+    field: Field,
+    value: SeriesDraft[Field],
+  ) {
+    setDraft((current) => current ? { ...current, [field]: value } : current)
+    setDirty(true)
+    setPreview(null)
+    setFormError(null)
+    setFieldErrors((current) => ({ ...current, [field]: undefined }))
+  }
+
+  function updateSlot<Field extends keyof SeriesSlotDraft>(
+    index: number,
+    field: Field,
+    value: SeriesSlotDraft[Field],
+  ) {
+    setDraft((current) => {
+      if (!current) {
+        return current
+      }
+
+      return {
+        ...current,
+        slots: current.slots.map((slot, slotIndex) =>
+          slotIndex === index ? { ...slot, [field]: value } : slot,
+        ),
+      }
+    })
+    setDirty(true)
+    setPreview(null)
+    setFormError(null)
+  }
+
+  function addSlot() {
+    setDraft((current) => {
+      if (!current) {
+        return current
+      }
+
+      return {
+        ...current,
+        slots: [
+          ...current.slots,
+          buildNewSeriesSlot(
+            current.slots.at(-1),
+            hallOptions[0],
+            current.slots.length,
+          ),
+        ],
+      }
+    })
+    setDirty(true)
+    setPreview(null)
+    setFormError(null)
+  }
+
+  function removeSlot(index: number) {
+    setDraft((current) => {
+      if (!current || current.slots.length <= 1) {
+        return current
+      }
+
+      return {
+        ...current,
+        slots: current.slots.filter((_, slotIndex) => slotIndex !== index),
+      }
+    })
+    setDirty(true)
+    setPreview(null)
+    setFormError(null)
+  }
+
+  async function submitPreview() {
+    if (!series || !draft) {
+      return
+    }
+
+    setSubmitting('preview')
+    setFieldErrors({})
+    setFormError(null)
+
+    try {
+      const response = await previewGroupLessonSeries(
+        lessonSeriesId,
+        toSeriesRequest(draft, series),
+      )
+      setPreview(response)
+    } catch (previewError) {
+      handleSeriesFormError(previewError)
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  async function confirmSeriesChange() {
+    if (!series || !draft || !preview) {
+      return
+    }
+
+    setSubmitting('execute')
+    setFieldErrors({})
+    setFormError(null)
+
+    try {
+      await applyGroupLessonSeries(lessonSeriesId, {
+        ...toSeriesRequest(draft, series),
+        expectedRevision: preview.revision,
+        confirmationToken: preview.confirmationToken,
+      })
+      setDirty(false)
+      setPreview(null)
+      onSaved()
+    } catch (executeError) {
+      if (executeError instanceof ApiError) {
+        const recoveryMessage = formatScheduleProblemCode(executeError.code)
+        if (recoveryMessage) {
+          setPreview(null)
+          setFormError(recoveryMessage)
+          return
+        }
+      }
+
+      handleSeriesFormError(executeError)
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  function handleSeriesFormError(formErrorValue: unknown) {
+    setPreview(null)
+
+    if (formErrorValue instanceof ApiError) {
+      const nextErrors = applyFieldErrors(formErrorValue.fieldErrors, SERIES_FIELD_ALIASES)
+      setFieldErrors(nextErrors)
+      focusFirstSeriesInvalidField(nextErrors)
+      setFormError(
+        formatScheduleProblemCode(formErrorValue.code) ??
+        'Не удалось проверить серию занятий. Проверьте поля и попробуйте снова.',
+      )
+      return
+    }
+
+    setFormError('Не удалось проверить серию занятий. Проверьте поля и попробуйте снова.')
+  }
+
+  function focusFirstSeriesInvalidField(errors: SeriesFieldErrors) {
+    const refs = {
+      effectiveFrom: effectiveFromRef,
+      endsOn: endsOnRef,
+    }
+    const firstInvalid = (Object.keys(refs) as Array<keyof typeof refs>)
+      .find((field) => errors[field])
+
+    if (firstInvalid) {
+      window.requestAnimationFrame(() => refs[firstInvalid].current?.focus())
+    }
+  }
+
+  function cancel() {
+    if (dirty && !window.confirm('Отменить изменение серии и потерять черновик?')) {
+      return
+    }
+
+    onBack()
+  }
+
+  return (
+    <PageLayout
+      className="schedule-screen"
+      data-testid="schedule-series-edit-screen"
+      showHeader
+      title="Изменение серии"
+    >
+      {loading ? (
+        <PageSection>
+          <LoadingState label="Загружаем серию занятий..." />
+        </PageSection>
+      ) : null}
+      {error ? (
+        <PageSection>
+          <ErrorState
+            action={<Button onClick={onBack} variant="light">Вернуться к расписанию</Button>}
+            message={error}
+            title="Серия не загрузилась"
+          />
+        </PageSection>
+      ) : null}
+      {series && draft ? (
+        <PageSection>
+          <form
+            data-testid="schedule-series-edit-form"
+            onSubmit={(event) => {
+              event.preventDefault()
+              void submitPreview()
+            }}
+          >
+            <Stack gap="md">
+              <Stack gap={4}>
+                <Text fw={900}>{series.groupName}</Text>
+                <Text c="dimmed" size="sm">
+                  Серия с {formatShortDate(series.startsOn)}
+                  {series.endsOn ? ` по ${formatShortDate(series.endsOn)}` : ''}
+                  {lessonOccurrenceId ? ` · источник ${formatShortDate(lessonDate ?? series.businessDate)}` : ''}
+                </Text>
+              </Stack>
+
+              <SegmentedControl
+                aria-label="Область изменения серии"
+                data={[
+                  { value: 'ThisAndFuture', label: 'С этого дня' },
+                  { value: 'EntireSeries', label: 'Вся серия' },
+                ]}
+                disabled={pending}
+                onChange={(value) => {
+                  const nextScope = value as GroupLessonSeriesScope
+                  updateDraft('scope', nextScope)
+                  updateDraft(
+                    'effectiveFrom',
+                    nextScope === 'EntireSeries'
+                      ? series.currentVersion.entireSeriesEffectiveFrom
+                      : (lessonDate && isRealIsoDate(lessonDate)
+                        ? lessonDate
+                        : series.currentVersion.thisAndFutureMinEffectiveFrom),
+                  )
+                }}
+                value={draft.scope}
+              />
+
+              <Group align="flex-start" grow>
+                <TextInput
+                  disabled={pending || draft.scope === 'EntireSeries'}
+                  error={fieldErrors.effectiveFrom}
+                  label="Дата начала изменения"
+                  max="9999-12-31"
+                  min="1900-01-01"
+                  onChange={(event) => updateDraft('effectiveFrom', event.currentTarget.value)}
+                  ref={effectiveFromRef}
+                  type="date"
+                  value={draft.effectiveFrom}
+                />
+                <TextInput
+                  disabled={pending}
+                  error={fieldErrors.endsOn}
+                  label="Дата окончания серии"
+                  max="9999-12-31"
+                  min="1900-01-01"
+                  onChange={(event) => updateDraft('endsOn', event.currentTarget.value)}
+                  ref={endsOnRef}
+                  type="date"
+                  value={draft.endsOn}
+                />
+              </Group>
+
+              <Stack gap="sm">
+                <Group align="center" justify="space-between">
+                  <Text fw={900}>Слоты серии</Text>
+                  <Button
+                    className="schedule-series-slot__action"
+                    disabled={pending}
+                    leftSection={<IconPlus size={18} />}
+                    onClick={addSlot}
+                    type="button"
+                    variant="light"
+                  >
+                    Добавить слот
+                  </Button>
+                </Group>
+                {draft.slots.length === 0 ? (
+                  <Alert color="red" icon={<IconAlertTriangle size={18} />}>
+                    В серии должен быть хотя бы один слот. Добавьте слот, чтобы сохранить расписание.
+                  </Alert>
+                ) : draft.slots.map((slot, index) => {
+                  const removeDisabled = pending || draft.slots.length <= 1
+
+                  return (
+                    <Paper
+                      className="schedule-series-slot"
+                      data-testid={`schedule-series-slot-${index}`}
+                      key={slot.key}
+                      radius="md"
+                      withBorder
+                    >
+                      <Stack gap="sm">
+                        <Select
+                          data={WEEKDAY_OPTIONS}
+                          disabled={pending}
+                          label="День недели"
+                          onChange={(value) =>
+                            updateSlot(index, 'isoWeekday', value ? Number(value) : slot.isoWeekday)}
+                          value={String(slot.isoWeekday)}
+                        />
+                        <Group align="flex-start" grow>
+                          <TextInput
+                            disabled={pending}
+                            label="Время начала"
+                            onChange={(event) => updateSlot(index, 'startTime', event.currentTarget.value)}
+                            type="time"
+                            value={trimSeconds(slot.startTime)}
+                          />
+                          <NumberInput
+                            disabled={pending}
+                            label="Длительность, минут"
+                            min={1}
+                            onChange={(value) =>
+                              updateSlot(index, 'durationMinutes', typeof value === 'number' ? value : '')}
+                            value={slot.durationMinutes}
+                          />
+                        </Group>
+                        <Select
+                          data={hallOptions}
+                          disabled={pending}
+                          label="Зал"
+                          onChange={(value) => updateSlot(index, 'hallId', value ?? '')}
+                          searchable
+                          value={slot.hallId || null}
+                        />
+                        <Button
+                          aria-describedby={removeDisabled ? `schedule-series-remove-reason-${index}` : undefined}
+                          className="schedule-series-slot__action"
+                          color="red"
+                          disabled={removeDisabled}
+                          onClick={() => removeSlot(index)}
+                          type="button"
+                          variant="light"
+                        >
+                          Удалить слот
+                        </Button>
+                        {removeDisabled ? (
+                          <Text
+                            c="dimmed"
+                            id={`schedule-series-remove-reason-${index}`}
+                            size="sm"
+                          >
+                            В серии должен остаться хотя бы один слот.
+                          </Text>
+                        ) : null}
+                      </Stack>
+                    </Paper>
+                  )
+                })}
+              </Stack>
+
+              {formError ? (
+                <Alert color="yellow" icon={<IconAlertTriangle size={18} />}>
+                  {formError}
+                </Alert>
+              ) : null}
+
+              {preview ? (
+                <SeriesPreviewPanel preview={preview} />
+              ) : null}
+
+              <Group className="schedule-route-form__footer" grow>
+                {preview ? (
+                  <Button
+                    loading={submitting === 'execute'}
+                    onClick={() => void confirmSeriesChange()}
+                    type="button"
+                  >
+                    Подтвердить изменение серии
+                  </Button>
+                ) : (
+                  <Button loading={submitting === 'preview'} type="submit">
+                    {formError ? 'Обновить предпросмотр' : 'Получить предпросмотр'}
+                  </Button>
+                )}
+                <Button disabled={pending} onClick={cancel} type="button" variant="light">
+                  Отмена
+                </Button>
+              </Group>
+            </Stack>
+          </form>
+        </PageSection>
+      ) : null}
+    </PageLayout>
+  )
+}
+
+function ScheduleTrainerSubstitutionDrawer({
+  action,
+  lesson,
+  opened,
+  onChanged,
+  onClose,
+  trainerOptions,
+}: {
+  action: 'Assign' | 'Cancel' | null
+  lesson: ScheduleLesson | null
+  opened: boolean
+  onChanged: (lesson: ScheduleLesson) => void
+  onClose: () => void
+  trainerOptions: FilterOption[]
+}) {
+  const [replacedTrainerId, setReplacedTrainerId] = useState('')
+  const [substituteTrainerId, setSubstituteTrainerId] = useState('')
+  const [substitutionId, setSubstitutionId] = useState('')
+  const [reason, setReason] = useState('')
+  const [preview, setPreview] =
+    useState<ScheduleLessonTrainerSubstitutionPreviewResponse |
+    ScheduleLessonTrainerSubstitutionCancellationPreviewResponse | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<SubstitutionFieldErrors>({})
+  const [submitting, setSubmitting] = useState<'preview' | 'execute' | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [dirty, setDirty] = useState(false)
+  const replacedRef = useRef<HTMLInputElement | null>(null)
+  const substituteRef = useRef<HTMLInputElement | null>(null)
+  const substitutionRef = useRef<HTMLInputElement | null>(null)
+
+  const permanentTrainers = useMemo(
+    () => lesson?.effectiveTrainers.filter((trainer) => trainer.kind === 'Permanent') ?? [],
+    [lesson],
+  )
+  const activeSubstitutions = useMemo(
+    () => lesson?.effectiveTrainers.filter((trainer) =>
+      trainer.kind === 'Substitute' && Boolean(trainer.substitutionId)) ?? [],
+    [lesson],
+  )
+
+  useEffect(() => {
+    if (!opened || !lesson) {
+      return
+    }
+
+    setReplacedTrainerId(permanentTrainers[0]?.trainerId ?? '')
+    setSubstituteTrainerId('')
+    setSubstitutionId(activeSubstitutions[0]?.substitutionId ?? '')
+    setReason('')
+    setPreview(null)
+    setFieldErrors({})
+    setFormError(null)
+    setSubmitting(null)
+    setDirty(false)
+  }, [activeSubstitutions, lesson, opened, permanentTrainers])
+
+  if (!lesson || !action) {
+    return null
+  }
+
+  const activeLesson = lesson
+  const pending = submitting !== null
+  const isAssign = action === 'Assign'
+  const copy = isAssign
+    ? {
+      title: 'Замена тренера',
+      preview: 'Получить предпросмотр',
+      confirm: 'Назначить замену',
+    }
+    : {
+      title: 'Снять замену тренера',
+      preview: 'Получить предпросмотр',
+      confirm: 'Снять замену',
+    }
+  const replacementOptions = permanentTrainers.map((trainer) => ({
+    value: trainer.trainerId,
+    label: trainer.fullName,
+  }))
+  const substituteOptions = trainerOptions
+    .filter((option) => option.value !== replacedTrainerId)
+  const activeSubstitutionOptions = activeSubstitutions.map((trainer) => ({
+    value: trainer.substitutionId!,
+    label: `${trainer.fullName}${trainer.replacedTrainerId ? ` вместо ${findTrainerName(activeLesson, trainer.replacedTrainerId)}` : ''}`,
+  }))
+
+  function markDirty() {
+    setDirty(true)
+    setPreview(null)
+    setFormError(null)
+  }
+
+  async function submitPreview() {
+    setSubmitting('preview')
+    setFieldErrors({})
+    setFormError(null)
+
+    try {
+      const response = isAssign
+        ? await previewScheduleLessonTrainerSubstitution({
+          replacedTrainerId: replacedTrainerId || null,
+          substituteTrainerId: substituteTrainerId || null,
+          targets: [buildSubstitutionTarget(activeLesson)],
+        })
+        : await previewScheduleLessonTrainerSubstitutionCancellation({
+          targets: [{
+            ...buildSubstitutionTarget(activeLesson),
+            substitutionId,
+          }],
+          reason: reason.trim() || null,
+        })
+
+      setPreview(response)
+    } catch (previewError) {
+      handleSubstitutionFormError(previewError)
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  async function confirmSubstitution() {
+    if (!preview) {
+      return
+    }
+
+    setSubmitting('execute')
+    setFieldErrors({})
+    setFormError(null)
+
+    try {
+      const response = isAssign
+        ? await applyScheduleLessonTrainerSubstitution({
+          replacedTrainerId: replacedTrainerId || null,
+          substituteTrainerId: substituteTrainerId || null,
+          targets: [buildSubstitutionTarget(activeLesson)],
+          confirmationToken: preview.confirmationToken,
+        })
+        : await applyScheduleLessonTrainerSubstitutionCancellation({
+          targets: [{
+            ...buildSubstitutionTarget(activeLesson),
+            substitutionId,
+          }],
+          reason: reason.trim() || null,
+          confirmationToken: preview.confirmationToken,
+        })
+      const changedLesson = response.lessons[0]
+      if (changedLesson) {
+        setDirty(false)
+        setPreview(null)
+        onChanged(changedLesson)
+      }
+    } catch (executeError) {
+      if (executeError instanceof ApiError) {
+        const recoveryMessage = formatScheduleProblemCode(executeError.code)
+        if (recoveryMessage) {
+          setPreview(null)
+          setFormError(recoveryMessage)
+          return
+        }
+      }
+
+      handleSubstitutionFormError(executeError)
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  function handleSubstitutionFormError(formErrorValue: unknown) {
+    setPreview(null)
+
+    if (formErrorValue instanceof ApiError) {
+      const nextErrors = applyFieldErrors(formErrorValue.fieldErrors, SUBSTITUTION_FIELD_ALIASES)
+      setFieldErrors(nextErrors)
+      focusFirstSubstitutionInvalidField(nextErrors)
+      setFormError(
+        formatScheduleProblemCode(formErrorValue.code) ??
+        'Не удалось проверить замену тренера. Проверьте поля и попробуйте снова.',
+      )
+      return
+    }
+
+    setFormError('Не удалось проверить замену тренера. Проверьте поля и попробуйте снова.')
+  }
+
+  function focusFirstSubstitutionInvalidField(errors: SubstitutionFieldErrors) {
+    const refs = {
+      replacedTrainerId: replacedRef,
+      substituteTrainerId: substituteRef,
+      substitutionId: substitutionRef,
+    }
+    const firstInvalid = (Object.keys(refs) as Array<keyof typeof refs>)
+      .find((field) => errors[field])
+
+    if (firstInvalid) {
+      window.requestAnimationFrame(() => refs[firstInvalid].current?.focus())
+    }
+  }
+
+  function cancel() {
+    if (dirty && !window.confirm('Отменить действие с заменой и потерять черновик?')) {
+      return
+    }
+
+    onClose()
+  }
+
+  return (
+    <Drawer
+      className="schedule-substitution-drawer"
+      onClose={cancel}
+      opened={opened}
+      position="bottom"
+      size="auto"
+      title={copy.title}
+      withinPortal
+    >
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          void submitPreview()
+        }}
+      >
+        <Stack gap="md">
+          <Stack gap={4}>
+            <Text fw={900}>{lesson.groupName}</Text>
+            <Text c="dimmed" size="sm">
+              {formatLongDate(lesson.lessonDate)} · {formatTimeRange(lesson)}
+            </Text>
+            <Text c="dimmed" size="sm">
+              {lesson.hallName} · {lesson.branchName}
+            </Text>
+          </Stack>
+
+          {isAssign ? (
+            <>
+              <Select
+                data={replacementOptions}
+                disabled={pending}
+                error={fieldErrors.replacedTrainerId}
+                label="Кого заменить"
+                onChange={(value) => {
+                  setReplacedTrainerId(value ?? '')
+                  markDirty()
+                }}
+                placeholder="Выберите постоянного тренера"
+                ref={replacedRef}
+                searchable
+                value={replacedTrainerId || null}
+              />
+              <Select
+                data={substituteOptions}
+                disabled={pending}
+                error={fieldErrors.substituteTrainerId}
+                label="Кто проведёт занятие"
+                onChange={(value) => {
+                  setSubstituteTrainerId(value ?? '')
+                  markDirty()
+                }}
+                placeholder="Выберите тренера на замену"
+                ref={substituteRef}
+                searchable
+                value={substituteTrainerId || null}
+              />
+            </>
+          ) : (
+            <>
+              <Select
+                data={activeSubstitutionOptions}
+                disabled={pending}
+                error={fieldErrors.substitutionId}
+                label="Активная замена"
+                onChange={(value) => {
+                  setSubstitutionId(value ?? '')
+                  markDirty()
+                }}
+                placeholder="Выберите замену"
+                ref={substitutionRef}
+                searchable
+                value={substitutionId || null}
+              />
+              <TextInput
+                disabled={pending}
+                label="Причина"
+                onChange={(event) => {
+                  setReason(event.currentTarget.value)
+                  markDirty()
+                }}
+                value={reason}
+              />
+            </>
+          )}
+
+          {formError ? (
+            <Alert color="yellow" icon={<IconAlertTriangle size={18} />}>
+              {formError}
+            </Alert>
+          ) : null}
+
+          {preview ? (
+            <SubstitutionPreviewPanel preview={preview} />
+          ) : null}
+
+          <Group className="schedule-substitution-drawer__footer" grow>
+            {preview ? (
+              <Button
+                loading={submitting === 'execute'}
+                onClick={() => void confirmSubstitution()}
+                type="button"
+              >
+                {copy.confirm}
+              </Button>
+            ) : (
+              <Button loading={submitting === 'preview'} type="submit">
+                {formError ? 'Обновить предпросмотр' : copy.preview}
+              </Button>
+            )}
+            <Button disabled={pending} onClick={cancel} type="button" variant="light">
+              Отмена
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Drawer>
+  )
+}
+
+type SeriesSlotDraft = {
+  key: string
+  isoWeekday: number
+  startTime: string
+  durationMinutes: number | ''
+  hallId: string
+}
+
+type SeriesDraft = {
+  scope: GroupLessonSeriesScope
+  effectiveFrom: string
+  endsOn: string
+  slots: SeriesSlotDraft[]
+}
+
+type SeriesFieldErrors = Partial<Record<'scope' | 'effectiveFrom' | 'endsOn' | 'slots', string>>
+
+type SubstitutionFieldErrors = Partial<
+  Record<'replacedTrainerId' | 'substituteTrainerId' | 'substitutionId' | 'reason', string>
+>
+
+const SERIES_FIELD_ALIASES = {
+  scope: 'scope',
+  effectiveFrom: 'effectiveFrom',
+  endsOn: 'endsOn',
+  slots: 'slots',
+} satisfies Record<string, keyof SeriesFieldErrors>
+
+const SUBSTITUTION_FIELD_ALIASES = {
+  replacedTrainerId: 'replacedTrainerId',
+  substituteTrainerId: 'substituteTrainerId',
+  substitutionId: 'substitutionId',
+  reason: 'reason',
+  'targets.0.substitutionId': 'substitutionId',
+} satisfies Record<string, keyof SubstitutionFieldErrors>
+
+const WEEKDAY_OPTIONS = [
+  { value: '1', label: 'Понедельник' },
+  { value: '2', label: 'Вторник' },
+  { value: '3', label: 'Среда' },
+  { value: '4', label: 'Четверг' },
+  { value: '5', label: 'Пятница' },
+  { value: '6', label: 'Суббота' },
+  { value: '7', label: 'Воскресенье' },
+]
+
+function buildSeriesDraft(
+  series: GroupLessonSeriesReadResponse,
+  routeScope: 'this-and-future' | 'entire',
+  routeLessonDate?: string | null,
+): SeriesDraft {
+  const scope: GroupLessonSeriesScope =
+    routeScope === 'entire' ? 'EntireSeries' : 'ThisAndFuture'
+  const fallbackEffectiveFrom = scope === 'EntireSeries'
+    ? series.currentVersion.entireSeriesEffectiveFrom
+    : series.currentVersion.thisAndFutureMinEffectiveFrom
+
+  return {
+    scope,
+    effectiveFrom:
+      scope === 'ThisAndFuture' && routeLessonDate && isRealIsoDate(routeLessonDate)
+        ? routeLessonDate
+        : fallbackEffectiveFrom,
+    endsOn: series.endsOn ?? '',
+    slots: series.currentVersion.slots.map((slot, index) => ({
+      key: `${slot.isoWeekday}:${slot.startTime}:${slot.hallId}:${index}`,
+      isoWeekday: slot.isoWeekday,
+      startTime: trimSeconds(slot.startTime),
+      durationMinutes: slot.durationMinutes,
+      hallId: slot.hallId,
+    })),
+  }
+}
+
+function buildNewSeriesSlot(
+  previousSlot: SeriesSlotDraft | undefined,
+  fallbackHall: FilterOption | undefined,
+  index: number,
+): SeriesSlotDraft {
+  return {
+    key: `new:${Date.now()}:${index}`,
+    isoWeekday: previousSlot?.isoWeekday ?? 1,
+    startTime: previousSlot?.startTime ?? '09:00',
+    durationMinutes: previousSlot?.durationMinutes ?? 60,
+    hallId: previousSlot?.hallId ?? fallbackHall?.value ?? '',
+  }
+}
+
+function toSeriesRequest(
+  draft: SeriesDraft,
+  series: GroupLessonSeriesReadResponse,
+): GroupLessonSeriesRequest {
+  return {
+    scope: draft.scope,
+    effectiveFrom: draft.scope === 'EntireSeries'
+      ? series.currentVersion.entireSeriesEffectiveFrom
+      : draft.effectiveFrom || null,
+    endsOn: draft.endsOn || null,
+    slots: draft.slots.map((slot) => ({
+      isoWeekday: slot.isoWeekday,
+      startTime: trimSeconds(slot.startTime),
+      durationMinutes: typeof slot.durationMinutes === 'number' ? slot.durationMinutes : null,
+      hallId: slot.hallId || null,
+    })),
+    expectedRevision: series.revision,
+  }
+}
+
+function mergeSeriesHallOptions(
+  series: GroupLessonSeriesReadResponse,
+  options: FilterOption[],
+) {
+  const byId = new Map<string, FilterOption>()
+  for (const slot of series.currentVersion.slots) {
+    byId.set(slot.hallId, { value: slot.hallId, label: slot.hallName })
+  }
+  for (const option of options) {
+    byId.set(option.value, option)
+  }
+
+  return [...byId.values()]
+}
+
+function SeriesPreviewPanel({ preview }: { preview: GroupLessonSeriesPreviewResponse }) {
+  return (
+    <Paper className="schedule-series-preview" data-testid="schedule-series-preview" radius="md" withBorder>
+      <Stack gap="sm">
+        <Stack gap={2}>
+          <Text fw={900}>Проверьте изменение серии</Text>
+          <Text c="dimmed" size="sm">
+            Область: {preview.scope === 'EntireSeries' ? 'вся серия' : 'с этого дня'} ·
+            {' '}с {formatShortDate(preview.effectiveFrom)}
+            {preview.endsOn ? ` по ${formatShortDate(preview.endsOn)}` : ''}
+          </Text>
+          <Text c="dimmed" size="sm">
+            Затронуто занятий: {preview.impact.totalAffectedOccurrences}.
+            Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
+          </Text>
+        </Stack>
+        {preview.warnings.length > 0 ? <WarningList warnings={preview.warnings} /> : null}
+        {preview.impact.examples.length > 0 ? (
+          <Stack gap={4}>
+            <Text fw={800} size="sm">Примеры занятий</Text>
+            {preview.impact.examples.slice(0, 3).map((occurrence) => (
+              <Text c="dimmed" key={`${occurrence.lessonOccurrenceId}:${occurrence.lessonDate}`} size="sm">
+                {formatShortDate(occurrence.lessonDate)} · {trimSeconds(occurrence.startTime)} · {occurrence.hallName}
+              </Text>
+            ))}
+          </Stack>
+        ) : null}
+        {preview.impact.skipped.length > 0 ? (
+          <Stack gap={4}>
+            <Text fw={800} size="sm">Пропущено</Text>
+            {preview.impact.skipped.slice(0, 3).map((occurrence) => (
+              <Text c="dimmed" key={`${occurrence.lessonOccurrenceId}:${occurrence.lessonDate}`} size="sm">
+                {formatShortDate(occurrence.lessonDate)} · {formatSkippedReason(occurrence.reason)}
+              </Text>
+            ))}
+          </Stack>
+        ) : null}
+      </Stack>
+    </Paper>
+  )
+}
+
+function SubstitutionPreviewPanel({
+  preview,
+}: {
+  preview: ScheduleLessonTrainerSubstitutionPreviewResponse |
+    ScheduleLessonTrainerSubstitutionCancellationPreviewResponse
+}) {
+  const target = preview.targets[0]
+
+  return (
+    <Paper className="schedule-substitution-preview" data-testid="schedule-substitution-preview" radius="md" withBorder>
+      <Stack gap="sm">
+        <Stack gap={2}>
+          <Text fw={900}>Проверьте замену перед подтверждением</Text>
+          {target ? (
+            <Text c="dimmed" size="sm">
+              {target.groupName} · {formatShortDate(target.lessonDate)}
+            </Text>
+          ) : null}
+          <Text c="dimmed" size="sm">
+            Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
+          </Text>
+        </Stack>
+        {preview.warnings.length > 0 ? <WarningList warnings={preview.warnings} /> : null}
+        {target?.warnings.length ? <WarningList warnings={target.warnings} /> : null}
+      </Stack>
+    </Paper>
+  )
+}
+
+function WarningList({ warnings }: { warnings: ScheduleWarning[] }) {
+  return (
+    <Alert color="yellow" icon={<IconAlertTriangle size={18} />}>
+      <Stack gap={4}>
+        {warnings.map((warning) => (
+          <Text key={`${warning.code}:${warning.message}`} size="sm">
+            {formatScheduleProblemCode(warning.code) ?? warning.message}
+          </Text>
+        ))}
+      </Stack>
+    </Alert>
+  )
+}
+
+function buildSubstitutionTarget(lesson: ScheduleLesson) {
+  return {
+    lessonOccurrenceId: lesson.lessonOccurrenceId,
+    lessonDate: lesson.lessonDate,
+    expectedRevision: lesson.revision,
+  }
+}
+
+function findTrainerName(lesson: ScheduleLesson, trainerId: string) {
+  return lesson.effectiveTrainers.find((trainer) => trainer.trainerId === trainerId)?.fullName ?? 'тренера'
+}
+
+function formatSkippedReason(reason: string) {
+  return formatScheduleProblemCode(reason) ?? 'Занятие не может быть изменено в составе этой операции.'
+}
+
+type ScheduleToolbarProps = {
+  activeFilterCount: number
+  createTriggerRef: Ref<HTMLButtonElement>
+  createCapabilityState: 'available' | 'unavailable' | 'unknown'
+  date: string
+  disabled: boolean
+  onCreate: (() => void) | null
+  onDateChange: (date: string) => void
+  onNext: () => void
+  onPrevious: () => void
+  onToolsOpen: () => void
+  toolsTriggerRef: Ref<HTMLButtonElement>
+  view: ScheduleViewMode
+}
+
+function ScheduleToolbar({
+  activeFilterCount,
+  createTriggerRef,
+  createCapabilityState,
+  date,
+  disabled,
+  onCreate,
+  onDateChange,
+  onNext,
+  onPrevious,
+  onToolsOpen,
+  toolsTriggerRef,
+  view,
+}: ScheduleToolbarProps) {
+  return (
+    <div
+      className="schedule-toolbar"
+      data-create-capability={createCapabilityState}
+      data-testid="schedule-toolbar"
+      data-view={view}
+    >
+      <div className="schedule-toolbar__date-group">
+        <ActionIcon
+          aria-label={view === 'week' ? 'Предыдущая неделя' : 'Предыдущий день'}
+          className="schedule-toolbar__button"
+          disabled={disabled}
+          onClick={onPrevious}
+          size={44}
+          type="button"
+          variant="light"
+        >
+          <IconChevronLeft size={20} />
+        </ActionIcon>
+        <TextInput
+          aria-label="Дата расписания"
+          className="schedule-toolbar__date-input"
+          leftSection={<IconCalendarEvent size={18} />}
+          max="9999-12-31"
+          min="1900-01-01"
+          onChange={(event) => {
+            if (isRealIsoDate(event.currentTarget.value)) {
+              onDateChange(event.currentTarget.value)
+            }
+          }}
+          type="date"
+          value={date}
         />
-      )}
-      className="schedule-filter-toolbar"
-      data-testid="schedule-filter-panel"
-      onReset={() => setFilters(EMPTY_SCHEDULE_FILTERS)}
-      primary={filterItems}
-      resetLabel="Сбросить"
+        <ActionIcon
+          aria-label={view === 'week' ? 'Следующая неделя' : 'Следующий день'}
+          className="schedule-toolbar__button"
+          disabled={disabled}
+          onClick={onNext}
+          size={44}
+          type="button"
+          variant="light"
+        >
+          <IconChevronRight size={20} />
+        </ActionIcon>
+      </div>
+      {onCreate ? (
+        <Button
+          aria-label="Создать разовое занятие"
+          className="schedule-toolbar__create"
+          data-testid="schedule-create-trigger"
+          leftSection={<IconPlus size={18} />}
+          onClick={onCreate}
+          ref={createTriggerRef}
+          type="button"
+        >
+          Создать
+        </Button>
+      ) : null}
+      <ActionIcon
+        aria-label={
+          activeFilterCount > 0
+            ? `Параметры календаря, активных фильтров: ${activeFilterCount}`
+            : 'Параметры календаря'
+        }
+        className="schedule-toolbar__button"
+        data-active={activeFilterCount > 0 ? 'true' : undefined}
+        data-testid="schedule-tools-trigger"
+        onClick={onToolsOpen}
+        ref={toolsTriggerRef}
+        size={44}
+        type="button"
+        variant="light"
+      >
+        <IconSettings size={20} />
+        {activeFilterCount > 0 ? (
+          <span className="schedule-toolbar__badge">{activeFilterCount}</span>
+        ) : null}
+      </ActionIcon>
+    </div>
+  )
+}
+
+type CalendarToolsSurfaceProps = {
+  activeFilters: boolean
+  filterOptions: ReturnType<typeof emptyFilterOptions>
+  filters: ScheduleUrlState
+  opened: boolean
+  onClose: () => void
+  onFilterChange: (key: keyof ScheduleFilters, value: string | null) => void
+  onRefresh: () => void
+  onResetFilters: () => void
+  onToday: () => void
+  onViewChange: (view: string) => void
+  refreshDisabled: boolean
+  view: ScheduleViewMode
+}
+
+function CalendarToolsSurface({
+  activeFilters,
+  filterOptions,
+  filters,
+  opened,
+  onClose,
+  onFilterChange,
+  onRefresh,
+  onResetFilters,
+  onToday,
+  onViewChange,
+  refreshDisabled,
+  view,
+}: CalendarToolsSurfaceProps) {
+  return (
+    <Drawer
+      className="schedule-tools-drawer"
+      onClose={onClose}
+      opened={opened}
+      position="bottom"
+      size="auto"
+      title="Параметры календаря"
+      withinPortal
+    >
+      <Stack gap="md">
+        <Group grow>
+          <Button leftSection={<IconCalendarEvent size={18} />} onClick={onToday} variant="light">
+            Сегодня
+          </Button>
+          <Button
+            disabled={refreshDisabled}
+            leftSection={<IconRefresh size={18} />}
+            onClick={onRefresh}
+            variant="light"
+          >
+            Обновить
+          </Button>
+        </Group>
+        <SegmentedControl
+          aria-label="Вид календаря"
+          data={[
+            { value: 'day', label: 'День' },
+            { value: 'week', label: 'Неделя' },
+          ]}
+          onChange={onViewChange}
+          value={view}
+        />
+        <Stack gap="sm">
+          <ScheduleFilterSelect
+            data={filterOptions.branches}
+            label="Филиал"
+            onChange={(value) => onFilterChange('branchId', value)}
+            value={filters.branchId}
+          />
+          <ScheduleFilterSelect
+            data={filterOptions.halls}
+            label="Зал"
+            onChange={(value) => onFilterChange('hallId', value)}
+            value={filters.hallId}
+          />
+          <ScheduleFilterSelect
+            data={filterOptions.trainers}
+            label="Тренер"
+            onChange={(value) => onFilterChange('trainerId', value)}
+            value={filters.trainerId}
+          />
+          <ScheduleFilterSelect
+            data={filterOptions.groups}
+            label="Группа"
+            onChange={(value) => onFilterChange('groupId', value)}
+            value={filters.groupId}
+          />
+          <ScheduleFilterSelect
+            data={filterOptions.groupTypes}
+            label="Тип группы"
+            onChange={(value) => onFilterChange('groupTypeId', value)}
+            value={filters.groupTypeId}
+          />
+        </Stack>
+        <Group className="schedule-tools-drawer__footer" grow>
+          <Button onClick={onClose}>Готово</Button>
+          <Button disabled={!activeFilters} onClick={onResetFilters} variant="light">
+            Сбросить фильтры
+          </Button>
+        </Group>
+      </Stack>
+    </Drawer>
+  )
+}
+
+function ScheduleFilterSelect({
+  data,
+  label,
+  onChange,
+  value,
+}: {
+  data: FilterOption[]
+  label: string
+  onChange: (value: string | null) => void
+  value: string | null
+}) {
+  return (
+    <Select
+      clearable
+      data={data}
+      label={label}
+      onChange={onChange}
+      searchable
+      value={value}
     />
   )
 }
 
-type ScheduleRefreshToolbarProps = {
-  onRefresh: () => void
-  refreshDisabled: boolean
-}
-
-function ScheduleRefreshToolbar({
-  onRefresh,
-  refreshDisabled,
-}: ScheduleRefreshToolbarProps) {
-  return (
-    <div
-      className="schedule-filter-toolbar schedule-refresh-toolbar"
-      data-testid="schedule-filter-panel"
-    >
-      <TaskToolbarRefreshAction
-        disabled={refreshDisabled}
-        label="Обновить"
-        onClick={onRefresh}
-      />
-    </div>
-  )
-}
-
-type ResponsiveScheduleContentProps = {
-  currentWeekday: WeekdayNumber
-  dayCounts: Record<WeekdayNumber, number>
-  dayLabels: ScheduleWeekdayLabel[]
-  days: ScheduleCalendarDay<TrainingGroupListItem>[]
-  selectedWeekday: WeekdayNumber
-  setSelectedWeekday: (weekday: WeekdayNumber) => void
-  hasActiveFilters: boolean
-  visibleHourRange: ScheduleVisibleHourRange
-  viewerRole: UserRole
-}
-
-function ResponsiveScheduleContent({
-  currentWeekday,
-  dayCounts,
-  dayLabels,
+function ScheduleWeekView({
   days,
-  selectedWeekday,
-  setSelectedWeekday,
-  viewerRole,
-  hasActiveFilters,
-  visibleHourRange,
-}: ResponsiveScheduleContentProps) {
-  const isMobile = useScheduleMobileViewport()
-
-  if (isMobile) {
-    return (
-      <ScheduleMobileList
-        currentWeekday={currentWeekday}
-        dayCounts={dayCounts}
-        dayLabels={dayLabels}
-        days={days}
-        selectedWeekday={selectedWeekday}
-        viewerRole={viewerRole}
-        hasActiveFilters={hasActiveFilters}
-        setSelectedWeekday={setSelectedWeekday}
-        visibleHourRange={visibleHourRange}
-      />
-    )
-  }
-
-  return (
-    <div className="schedule-board__viewport">
-      <ScheduleDesktopGrid
-        currentWeekday={currentWeekday}
-        dayCounts={dayCounts}
-        dayLabels={dayLabels}
-        days={days}
-        hasActiveFilters={hasActiveFilters}
-        visibleHourRange={visibleHourRange}
-        viewerRole={viewerRole}
-      />
-    </div>
-  )
-}
-
-function useScheduleMobileViewport() {
-  return useMediaQuery(MOBILE_BREAKPOINT)
-}
-
-function ScheduleTypeLegend({
-  legend,
+  onCancelOrRestoreLesson,
+  onChangeLesson,
+  onEditSeries,
+  onMoveLesson,
+  onOpenDetail,
+  onOpenAttendance,
+  onTrainerSubstitution,
 }: {
-  legend: ScheduleTypeLegendItem[]
+  days: Array<{ date: string; lessons: ScheduleLesson[] }>
+  onCancelOrRestoreLesson: (lesson: ScheduleLesson, action: ScheduleLessonCancellationAction) => void
+  onChangeLesson: (lesson: ScheduleLesson) => void
+  onEditSeries: (lesson: ScheduleLesson, scope: 'this-and-future' | 'entire') => void
+  onMoveLesson: (lesson: ScheduleLesson) => void
+  onOpenDetail: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenAttendance: (lessonOccurrenceId: string, lessonDate: string) => void
+  onTrainerSubstitution: (lesson: ScheduleLesson, action: 'Assign' | 'Cancel') => void
 }) {
-  if (legend.length === 0) {
-    return null
-  }
-
   return (
-    <div className="schedule-type-legend" data-testid="schedule-type-legend">
-      <Text c="dimmed" fw={800} size="xs">
-        Типы занятий
-      </Text>
-      <ScheduleTypeTokenList items={legend} />
-    </div>
-  )
-}
-
-function ScheduleTypeTokenList({
-  emptyLabel,
-  items,
-}: {
-  emptyLabel?: string
-  items: ScheduleTypeLegendItem[]
-}) {
-  if (items.length === 0) {
-    return (
-      <Text c="dimmed" size="sm">
-        {emptyLabel ?? 'Типы не найдены'}
-      </Text>
-    )
-  }
-
-  return (
-    <Group className="metadata-chip-list" gap="xs">
-      {items.map((item) => (
-        <span
-          className="metadata-chip schedule-type-token"
-          data-testid={`schedule-type-token-${item.key}`}
-          key={item.key}
-          style={buildScheduleTypeStyle(item.palette)}
-        >
-          <span aria-hidden="true" className="metadata-chip__dot" />
-          <span>{item.label}</span>
-          <span className="metadata-chip__count">{item.count}</span>
-        </span>
-      ))}
-    </Group>
-  )
-}
-
-type ScheduleDesktopGridProps = {
-  currentWeekday: WeekdayNumber
-  dayCounts: Record<WeekdayNumber, number>
-  dayLabels: ScheduleWeekdayLabel[]
-  days: ScheduleCalendarDay<TrainingGroupListItem>[]
-  hasActiveFilters: boolean
-  visibleHourRange: ScheduleVisibleHourRange
-  viewerRole: UserRole
-}
-
-function ScheduleDesktopGrid({
-  currentWeekday,
-  dayCounts,
-  dayLabels,
-  days,
-  hasActiveFilters,
-  visibleHourRange,
-  viewerRole,
-}: ScheduleDesktopGridProps) {
-  const [openedDisclosureKey, setOpenedDisclosureKey] = useState<string | null>(null)
-  const [measuredDayColumnNode, setMeasuredDayColumnNode] = useState<HTMLDivElement | null>(null)
-  const [disclosureNaturalHeightPxByKey, setDisclosureNaturalHeightPxByKey] = useState(
-    () => new Map<string, number>(),
-  )
-  const triggerRefs = useRef(new Map<string, HTMLButtonElement>())
-  const measuredDayColumnWidth = useElementWidth(measuredDayColumnNode)
-  const dayContentWidthPx = measuredDayColumnWidth === null
-    ? null
-    : Math.max(0, measuredDayColumnWidth - 12)
-  const hourMarks = buildScheduleHourMarks(visibleHourRange)
-  const gridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
-    SCHEDULE_DESKTOP_HOUR_HEIGHT_PX
-  const labelByWeekday = buildDayLabelMap(dayLabels)
-  const disclosureGroupsByWeekday = useMemo(() => new Map(days.map((day) => [
-    day.weekday,
-    buildScheduleVisualDisclosureGroups(day.entries, {
-      dayContentWidthPx,
-      disclosureNaturalHeightPxByKey,
-      hourHeightPx: SCHEDULE_DESKTOP_HOUR_HEIGHT_PX,
-      laneGapPx: SCHEDULE_LANE_GAP_PX,
-    }),
-  ])), [dayContentWidthPx, days, disclosureNaturalHeightPxByKey])
-  const disclosureKeys = useMemo(() => new Set(
-    [...disclosureGroupsByWeekday.values()]
-      .flatMap((groups) => groups.map((group) => group.key)),
-  ), [disclosureGroupsByWeekday])
-  const closeDisclosure = (key: string) => {
-    setOpenedDisclosureKey(null)
-    triggerRefs.current.get(key)?.focus()
-  }
-  const handleDisclosureNaturalHeight = (key: string, heightPx: number) => {
-    if (heightPx <= 0) {
-      return
-    }
-
-    setDisclosureNaturalHeightPxByKey((currentHeights) => {
-      const currentHeight = currentHeights.get(key) ?? 0
-
-      if (Math.abs(currentHeight - heightPx) <= 0.5) {
-        return currentHeights
-      }
-
-      const nextHeights = new Map(currentHeights)
-
-      nextHeights.set(key, heightPx)
-
-      return nextHeights
-    })
-  }
-
-  useEffect(() => {
-    if (!openedDisclosureKey || disclosureKeys.has(openedDisclosureKey)) {
-      return
-    }
-
-    const frameId = window.requestAnimationFrame(() => {
-      setOpenedDisclosureKey(null)
-      document.querySelector<HTMLElement>('[data-testid="schedule-board"]')?.focus()
-    })
-
-    return () => window.cancelAnimationFrame(frameId)
-  }, [disclosureKeys, openedDisclosureKey])
-
-  return (
-    <div
-      aria-label="Недельное расписание"
-      className="schedule-weekly-grid"
-      data-testid="schedule-calendar-grid"
-      tabIndex={-1}
-    >
-      <div className="schedule-weekly-grid__header">
-        <div className="schedule-weekly-grid__time-spacer" />
-        {days.map((day) => (
-          <ScheduleDayHeader
-            className="schedule-weekly-grid__day-header"
-            count={dayCounts[day.weekday]}
-            dateLabel={labelByWeekday.get(day.weekday)?.dateLabel ?? ''}
-            isCurrent={day.weekday === currentWeekday}
-            key={day.weekday}
-            label={labelByWeekday.get(day.weekday)?.label ?? day.label}
-            testId={`schedule-day-header-${day.weekday}`}
-            weekday={day.weekday}
-          />
-        ))}
-      </div>
-
-      <div className="schedule-weekly-grid__body">
-        <div
-          className="schedule-weekly-grid__time-axis"
-          style={{ height: `${gridHeight}px` }}
-        >
-          {hourMarks.map((hour, index) => (
-            <div
-              className="schedule-weekly-grid__time-slot"
-              key={hour}
-              style={{ top: `${index * SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}px` }}
-            >
-              {formatHourMark(hour)}
-            </div>
-          ))}
-        </div>
-
-        {days.map((day, index) => (
-          <ScheduleDesktopDayColumn
-            day={day}
-            disclosureGroups={disclosureGroupsByWeekday.get(day.weekday) ?? []}
-            gridHeight={gridHeight}
-            hasActiveFilters={hasActiveFilters}
-            hourMarks={hourMarks}
-            isCurrent={day.weekday === currentWeekday}
-            key={day.weekday}
-            labelByWeekday={labelByWeekday}
-            measureRef={index === 0 ? setMeasuredDayColumnNode : undefined}
-            onCloseDisclosure={closeDisclosure}
-            onDisclosureNaturalHeight={handleDisclosureNaturalHeight}
-            openedDisclosureKey={openedDisclosureKey}
-            setOpenedDisclosureKey={setOpenedDisclosureKey}
-            triggerRefs={triggerRefs}
-            viewerRole={viewerRole}
-            visibleHourRange={visibleHourRange}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-type ScheduleDesktopDayColumnProps = {
-  day: ScheduleCalendarDay<TrainingGroupListItem>
-  disclosureGroups: ScheduleVisualDisclosureGroup<TrainingGroupListItem>[]
-  gridHeight: number
-  hasActiveFilters: boolean
-  hourMarks: number[]
-  isCurrent: boolean
-  labelByWeekday: Map<WeekdayNumber, ScheduleWeekdayLabel>
-  measureRef?: (node: HTMLDivElement | null) => void
-  onCloseDisclosure: (key: string) => void
-  onDisclosureNaturalHeight: (key: string, heightPx: number) => void
-  openedDisclosureKey: string | null
-  setOpenedDisclosureKey: Dispatch<SetStateAction<string | null>>
-  triggerRefs: MutableRefObject<Map<string, HTMLButtonElement>>
-  viewerRole: UserRole
-  visibleHourRange: ScheduleVisibleHourRange
-}
-
-function ScheduleDesktopDayColumn({
-  day,
-  disclosureGroups,
-  gridHeight,
-  hasActiveFilters,
-  hourMarks,
-  isCurrent,
-  labelByWeekday,
-  measureRef,
-  onCloseDisclosure,
-  onDisclosureNaturalHeight,
-  openedDisclosureKey,
-  setOpenedDisclosureKey,
-  triggerRefs,
-  viewerRole,
-  visibleHourRange,
-}: ScheduleDesktopDayColumnProps) {
-  const hiddenEntryKeys = useMemo(() => new Set(disclosureGroups.flatMap((group) =>
-    group.entries.map((entry) => entry.key),
-  )), [disclosureGroups])
-  const renderItems = useMemo(() => ([
-    ...day.entries
-      .filter((entry) => !hiddenEntryKeys.has(entry.key))
-      .map((entry) => ({
-        type: 'entry' as const,
-        key: entry.key,
-        startMinutes: entry.startMinutes,
-        entry,
-      })),
-    ...disclosureGroups.map((group) => ({
-      type: 'disclosure' as const,
-      key: group.key,
-      startMinutes: group.startMinutes,
-      group,
-    })),
-  ].sort((first, second) =>
-    first.startMinutes - second.startMinutes || first.key.localeCompare(second.key, 'ru'),
-  )), [day.entries, disclosureGroups, hiddenEntryKeys])
-  const dayLabel = labelByWeekday.get(day.weekday)
-
-  return (
-    <div
-      className="schedule-weekly-grid__day-column"
-      data-current={isCurrent ? 'true' : undefined}
-      data-testid={`schedule-day-${day.weekday}`}
-      ref={measureRef}
-      style={{ height: `${gridHeight}px` }}
-    >
-      {hourMarks.slice(0, -1).map((hour, index) => (
-        <div
-          className="schedule-weekly-grid__hour-line"
-          key={`${day.weekday}-${hour}`}
-          style={{ top: `${index * SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}px` }}
+    <div className="schedule-week-view" data-testid="schedule-week-view">
+      {days.map((day) => (
+        <ScheduleDayList
+          date={day.date}
+          key={day.date}
+          lessons={day.lessons}
+          onCancelOrRestoreLesson={onCancelOrRestoreLesson}
+          onChangeLesson={onChangeLesson}
+          onEditSeries={onEditSeries}
+          onMoveLesson={onMoveLesson}
+          onOpenDetail={onOpenDetail}
+          onOpenAttendance={onOpenAttendance}
+          onTrainerSubstitution={onTrainerSubstitution}
+          title={`${formatWeekday(day.date)}, ${formatShortDate(day.date)}`}
         />
       ))}
+    </div>
+  )
+}
 
-      {day.entries.length === 0 ? (
-        <Text c="dimmed" className="schedule-weekly-grid__empty-day" size="sm">
-          {getScheduleDayEmptyCopy(viewerRole, hasActiveFilters).title}
+function ScheduleDayList({
+  date,
+  lessons,
+  onCancelOrRestoreLesson,
+  onChangeLesson,
+  onEditSeries,
+  onMoveLesson,
+  onOpenDetail,
+  onOpenAttendance,
+  onTrainerSubstitution,
+  title,
+}: {
+  date: string
+  lessons: ScheduleLesson[]
+  onCancelOrRestoreLesson: (lesson: ScheduleLesson, action: ScheduleLessonCancellationAction) => void
+  onChangeLesson: (lesson: ScheduleLesson) => void
+  onEditSeries: (lesson: ScheduleLesson, scope: 'this-and-future' | 'entire') => void
+  onMoveLesson: (lesson: ScheduleLesson) => void
+  onOpenDetail: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenAttendance: (lessonOccurrenceId: string, lessonDate: string) => void
+  onTrainerSubstitution: (lesson: ScheduleLesson, action: 'Assign' | 'Cancel') => void
+  title: string
+}) {
+  return (
+    <section
+      aria-labelledby={`schedule-day-${date}`}
+      className="schedule-day-section"
+      data-testid={`schedule-day-section-${date}`}
+    >
+      <Group align="center" className="schedule-day-section__header" justify="space-between">
+        <Text component="h2" fw={900} id={`schedule-day-${date}`} size="lg">
+          {title}
         </Text>
-      ) : null}
-
-      {renderItems.map((item) => item.type === 'entry' ? (
-        <ScheduleCalendarCard
-          entry={item.entry}
-          hourHeight={SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}
-          key={item.key}
-          mode="calendar"
-          visibleHourRange={visibleHourRange}
-        />
-      ) : (
-        <ScheduleEventsDisclosure
-          dateLabel={dayLabel?.dateLabel ?? ''}
-          group={item.group}
-          hourHeight={SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}
-          isOpen={openedDisclosureKey === item.group.key}
-          key={item.key}
-          onClose={() => onCloseDisclosure(item.group.key)}
-          onNaturalHeight={onDisclosureNaturalHeight}
-          onToggle={() => setOpenedDisclosureKey((currentKey) =>
-            currentKey === item.group.key ? null : item.group.key,
-          )}
-          triggerRefs={triggerRefs}
-          visibleHourRange={visibleHourRange}
-          weekdayLabel={dayLabel?.label ?? day.label}
-        />
-      ))}
-    </div>
-  )
-}
-
-type ScheduleMobileListProps = {
-  currentWeekday: WeekdayNumber
-  dayCounts: Record<WeekdayNumber, number>
-  dayLabels: ScheduleWeekdayLabel[]
-  days: ScheduleCalendarDay<TrainingGroupListItem>[]
-  hasActiveFilters: boolean
-  selectedWeekday: WeekdayNumber
-  setSelectedWeekday: (weekday: WeekdayNumber) => void
-  visibleHourRange: ScheduleVisibleHourRange
-  viewerRole: UserRole
-}
-
-function ScheduleMobileList({
-  currentWeekday,
-  dayCounts,
-  dayLabels,
-  days,
-  hasActiveFilters,
-  selectedWeekday,
-  setSelectedWeekday,
-  visibleHourRange,
-  viewerRole,
-}: ScheduleMobileListProps) {
-  const selectedDay = days.find((day) => day.weekday === selectedWeekday) ?? days[0]
-  const hourMarks = buildScheduleHourMarks(visibleHourRange)
-  const gridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
-    SCHEDULE_MOBILE_HOUR_HEIGHT_PX
-  const tabRefs = useRef(new Map<WeekdayNumber, HTMLButtonElement>())
-  const selectWeekday = (
-    weekday: WeekdayNumber,
-    options: { focus?: boolean } = {},
-  ) => {
-    setSelectedWeekday(weekday)
-
-    if (options.focus) {
-      window.requestAnimationFrame(() => {
-        tabRefs.current.get(weekday)?.focus()
-      })
-    }
-  }
-
-  return (
-    <Stack className="schedule-mobile-list" data-testid="schedule-mobile-day-list" gap="md">
-      <div
-        aria-label="День недели"
-        className="schedule-mobile-day-strip"
-        data-testid="schedule-mobile-day-strip"
-        role="tablist"
-      >
-        {dayLabels.map((day) => (
-          <button
-            aria-selected={day.weekday === selectedDay.weekday}
-            className="schedule-mobile-day-strip__button"
-            data-current={day.weekday === currentWeekday ? 'true' : undefined}
-            data-testid={`schedule-mobile-day-tab-${day.weekday}`}
-            key={day.weekday}
-            onClick={() => selectWeekday(day.weekday)}
-            onKeyDown={(event) => handleScheduleDayStripKeyDown(
-              event,
-              day.weekday,
-              selectWeekday,
-            )}
-            ref={(node) => {
-              if (node) {
-                tabRefs.current.set(day.weekday, node)
-              } else {
-                tabRefs.current.delete(day.weekday)
-              }
-            }}
-            role="tab"
-            type="button"
-          >
-            <span className="schedule-mobile-day-strip__weekday">{day.label}</span>
-            <span className="schedule-mobile-day-strip__date">{day.dateLabel}</span>
-            <span
-              className="schedule-day-header__count"
-              data-testid={`schedule-day-count-${day.weekday}`}
-            >
-              {formatScheduleEntryCount(dayCounts[day.weekday])}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <div
-        className="schedule-mobile-time-grid"
-        data-testid={`schedule-mobile-day-${selectedDay.weekday}`}
-        style={{ '--schedule-grid-height': `${gridHeight}px` } as CSSProperties}
-      >
-        <div className="schedule-mobile-time-grid__body">
-          <div className="schedule-mobile-time-grid__time-axis">
-            {hourMarks.map((hour, index) => (
-              <div
-                className="schedule-mobile-time-grid__time-slot"
-                key={hour}
-                style={{ top: `${index * SCHEDULE_MOBILE_HOUR_HEIGHT_PX}px` }}
-              >
-                {formatHourMark(hour)}
-              </div>
-            ))}
-          </div>
-
-          <div className="schedule-mobile-time-grid__events">
-            {hourMarks.slice(0, -1).map((hour, index) => (
-              <div
-                className="schedule-mobile-time-grid__hour-line"
-                key={`${selectedDay.weekday}-${hour}`}
-                style={{ top: `${index * SCHEDULE_MOBILE_HOUR_HEIGHT_PX}px` }}
-              />
-            ))}
-
-            {selectedDay.entries.length === 0 ? (
-              <ScheduleDayEmpty
-                hasActiveFilters={hasActiveFilters}
-                viewerRole={viewerRole}
-              />
-            ) : null}
-
-            {selectedDay.entries.map((entry) => (
-              <ScheduleCalendarCard
-                entry={entry}
-                hourHeight={SCHEDULE_MOBILE_HOUR_HEIGHT_PX}
-                key={entry.key}
-                mode="mobile-grid"
-                visibleHourRange={visibleHourRange}
-              />
-            ))}
-          </div>
+        <Badge variant="light">{formatLessonCount(lessons.length)}</Badge>
+      </Group>
+      {lessons.length === 0 ? (
+        <div className="schedule-day-section__empty">
+          <Text c="dimmed" fw={600} size="sm">В этот день занятий нет</Text>
         </div>
-      </div>
-    </Stack>
+      ) : (
+        <Stack gap="sm">
+          {lessons.map((lesson) => (
+            <ScheduleOccurrenceCard
+              key={`${lesson.lessonOccurrenceId}:${lesson.lessonDate}`}
+              lesson={lesson}
+              onCancelOrRestoreLesson={onCancelOrRestoreLesson}
+              onChangeLesson={onChangeLesson}
+              onEditSeries={onEditSeries}
+              onMoveLesson={onMoveLesson}
+              onOpenDetail={onOpenDetail}
+              onOpenAttendance={onOpenAttendance}
+              onTrainerSubstitution={onTrainerSubstitution}
+            />
+          ))}
+        </Stack>
+      )}
+    </section>
   )
 }
 
-type ScheduleDayHeaderProps = {
-  className?: string
-  count: number
-  dateLabel: string
-  isCurrent: boolean
-  label: string
-  testId: string
-  weekday: WeekdayNumber
-}
-
-function ScheduleDayHeader({
-  className,
-  count,
-  dateLabel,
-  isCurrent,
-  label,
-  testId,
-  weekday,
-}: ScheduleDayHeaderProps) {
-  return (
-    <div
-      aria-label={`${label} ${dateLabel}: ${formatScheduleEntryCount(count)}${isCurrent ? ', текущий день недели' : ''}`}
-      className={['schedule-day-header', className].filter(Boolean).join(' ')}
-      data-current={isCurrent ? 'true' : undefined}
-      data-testid={testId}
-    >
-      <Text className="schedule-day-header__weekday" fw={900}>
-        {label}
-      </Text>
-      <Text className="schedule-day-header__date" fw={800}>
-        {dateLabel}
-      </Text>
-      <span
-        className="schedule-day-header__count"
-        data-testid={`schedule-day-count-${weekday}`}
-      >
-        {formatScheduleEntryCount(count)}
-      </span>
-    </div>
-  )
-}
-
-type ScheduleCalendarCardProps = {
-  entry: ScheduleCalendarEntry<TrainingGroupListItem>
-  hourHeight: number
-  mode: 'calendar' | 'mobile-grid'
-  visibleHourRange?: ScheduleVisibleHourRange
-}
-
-function ScheduleCalendarCard({
-  entry,
-  hourHeight,
-  mode,
-  visibleHourRange,
-}: ScheduleCalendarCardProps) {
-  const group = entry.group
-  const typePalette = getScheduleTypePalette(group)
-  const timeRange = formatScheduleEntryTimeRange(entry)
-  const style = {
-    ...(visibleHourRange
-      ? buildCalendarEntryStyle(entry, visibleHourRange, hourHeight)
-      : {}),
-    ...buildScheduleTypeStyle(typePalette),
-  } satisfies ScheduleEventCardStyle
+function ScheduleOccurrenceCard({
+  lesson,
+  onCancelOrRestoreLesson,
+  onChangeLesson,
+  onEditSeries,
+  onMoveLesson,
+  onOpenDetail,
+  onOpenAttendance,
+  onTrainerSubstitution,
+}: {
+  lesson: ScheduleLesson
+  onCancelOrRestoreLesson: (lesson: ScheduleLesson, action: ScheduleLessonCancellationAction) => void
+  onChangeLesson: (lesson: ScheduleLesson) => void
+  onEditSeries: (lesson: ScheduleLesson, scope: 'this-and-future' | 'entire') => void
+  onMoveLesson: (lesson: ScheduleLesson) => void
+  onOpenDetail: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenAttendance: (lessonOccurrenceId: string, lessonDate: string) => void
+  onTrainerSubstitution: (lesson: ScheduleLesson, action: 'Assign' | 'Cancel') => void
+}) {
+  const attendanceAllowed = lesson.allowedActions.viewAttendance.allowed
+  const attendanceReasonId = `schedule-attendance-reason-${lesson.lessonOccurrenceId}`
+  const attendanceReason = attendanceAllowed
+    ? null
+    : getActionUnavailableReason(lesson.allowedActions.viewAttendance.reason)
+  const trainers = formatEffectiveTrainers(lesson)
+  const isCancelled = lesson.status === 'Cancelled'
 
   return (
     <article
-      className={[
-        'schedule-event-card',
-        mode === 'calendar'
-          ? 'schedule-event-card--calendar'
-          : 'schedule-event-card--mobile-grid',
-      ].join(' ')}
-      data-schedule-type={getScheduleTypeKey(group)}
-      data-testid={`schedule-card-${entry.weekday}-${group.id}`}
-      style={style}
+      className="schedule-occurrence-card"
+      data-lesson-date={lesson.lessonDate}
+      data-lesson-occurrence-id={lesson.lessonOccurrenceId}
+      data-testid={`schedule-card-${lesson.lessonOccurrenceId}`}
     >
-      <Stack gap={mode === 'mobile-grid' ? 'xs' : 4}>
-        <Group align="flex-start" justify="space-between" wrap="nowrap">
-          <Stack className="schedule-event-card__copy" gap={3}>
-            <Text className="schedule-event-card__time" fw={800}>
-              {timeRange}
-            </Text>
-            <Text className="schedule-event-card__title" fw={800}>
-              {group.name}
-            </Text>
-          </Stack>
-          {!group.isActive ? (
-            <Badge color="gray" radius="xl" size="xs" variant="light">
-              Неактивна
-            </Badge>
-          ) : null}
-        </Group>
-
-        <Group className="schedule-event-card__meta schedule-event-card__meta--primary" gap={6}>
-          <span className="schedule-event-card__type-chip">
-            {group.groupTypeName}
-          </span>
-        </Group>
-
-        <Group className="schedule-event-card__meta" gap="xs" wrap="nowrap">
-          <IconMapPin size={14} />
-          <Text size="xs">
-            {group.hallName} · {formatTrainerNamesInline(group)}
+      <button
+        aria-label={`Открыть занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+        className="schedule-occurrence-card__body"
+        onClick={() => onOpenDetail(lesson.lessonOccurrenceId, lesson.lessonDate)}
+        type="button"
+      >
+        <Stack gap={6}>
+          <Group align="flex-start" justify="space-between" wrap="nowrap">
+            <Stack gap={2}>
+              <Text className="schedule-occurrence-card__time" fw={900}>
+                {formatTimeRange(lesson)}
+              </Text>
+              <Text className="schedule-occurrence-card__title" fw={900}>
+                {lesson.groupName}
+              </Text>
+            </Stack>
+            {isCancelled ? <Badge color="gray" variant="light">Отменено</Badge> : null}
+          </Group>
+          <Group gap={6} wrap="wrap">
+            {lesson.hasAttendanceMarks ? (
+              <Badge color="teal" variant="light">Отметки есть</Badge>
+            ) : null}
+            <Badge variant="light">{lesson.groupTypeName}</Badge>
+            <Badge variant="outline">{lesson.sourceKind === 'OneOff' ? 'Разовое' : 'Регулярное'}</Badge>
+          </Group>
+          <Text c="dimmed" size="sm">
+            {lesson.hallName} · {lesson.branchName}
           </Text>
-        </Group>
-
-        <Group className="schedule-event-card__meta schedule-event-card__participants" gap="xs" wrap="nowrap">
-          <IconUsers size={14} />
-          <Text className="schedule-event-card__trainers" size="xs" title={formatTrainerNames(group)}>
-            {formatScheduleClientCount(group.clientCount)}
+          <Text c="dimmed" size="sm">
+            {trainers}
           </Text>
-        </Group>
-      </Stack>
+        </Stack>
+      </button>
+      <Group className="schedule-occurrence-card__actions" gap="xs" wrap="wrap">
+        {lesson.allowedActions.edit.allowed ? (
+          <Button
+            aria-label={`Изменить занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+            leftSection={<IconEdit size={18} />}
+            onClick={() => onChangeLesson(lesson)}
+            type="button"
+            variant="light"
+          >
+            Изменить
+          </Button>
+        ) : null}
+        {lesson.allowedActions.move.allowed ? (
+          <Button
+            aria-label={`Перенести занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+            leftSection={<IconChevronRight size={18} />}
+            onClick={() => onMoveLesson(lesson)}
+            type="button"
+            variant="light"
+          >
+            Перенести
+          </Button>
+        ) : null}
+        {lesson.lessonSeriesId && lesson.allowedActions.edit.allowed ? (
+          <Button
+            aria-label={`Изменить серию занятий: ${lesson.groupName}`}
+            leftSection={<IconSettings size={18} />}
+            onClick={() => onEditSeries(lesson, 'this-and-future')}
+            type="button"
+            variant="light"
+          >
+            Серия
+          </Button>
+        ) : null}
+        {lesson.allowedActions.assignTrainerSubstitution.allowed ? (
+          <Button
+            aria-label={`Назначить замену тренера: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+            leftSection={<IconUsers size={18} />}
+            onClick={() => onTrainerSubstitution(lesson, 'Assign')}
+            type="button"
+            variant="light"
+          >
+            Замена
+          </Button>
+        ) : null}
+        {lesson.allowedActions.cancelTrainerSubstitution.allowed ? (
+          <Button
+            aria-label={`Снять замену тренера: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+            leftSection={<IconRefresh size={18} />}
+            onClick={() => onTrainerSubstitution(lesson, 'Cancel')}
+            type="button"
+            variant="light"
+          >
+            Снять замену
+          </Button>
+        ) : null}
+        {lesson.allowedActions.cancel.allowed ? (
+          <Button
+            aria-label={`Отменить занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+            color="red"
+            leftSection={<IconBan size={18} />}
+            onClick={() => onCancelOrRestoreLesson(lesson, 'Cancel')}
+            type="button"
+            variant="light"
+          >
+            Отменить
+          </Button>
+        ) : null}
+        {lesson.allowedActions.restore.allowed ? (
+          <Button
+            aria-label={`Восстановить занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+            color="green"
+            leftSection={<IconRefresh size={18} />}
+            onClick={() => onCancelOrRestoreLesson(lesson, 'Restore')}
+            type="button"
+            variant="light"
+          >
+            Восстановить
+          </Button>
+        ) : null}
+        <Button
+          aria-label={`Открыть посещаемость: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+          aria-describedby={attendanceReason ? attendanceReasonId : undefined}
+          disabled={!attendanceAllowed}
+          leftSection={<IconUsers size={18} />}
+          onClick={() => onOpenAttendance(lesson.lessonOccurrenceId, lesson.lessonDate)}
+          type="button"
+        >
+          Посещаемость
+        </Button>
+        {attendanceReason ? (
+          <Text c="dimmed" id={attendanceReasonId} size="sm">
+            {attendanceReason}
+          </Text>
+        ) : null}
+      </Group>
     </article>
   )
 }
 
-function ScheduleDayEmpty({
-  hasActiveFilters,
+function ScheduleEmptyState({
+  activeFilters,
   viewerRole,
 }: {
-  hasActiveFilters: boolean
+  activeFilters: boolean
   viewerRole: UserRole
 }) {
-  const copy = getScheduleDayEmptyCopy(viewerRole, hasActiveFilters)
-
-  return (
-    <div className="schedule-day-empty">
-      <Group gap="sm" wrap="nowrap">
-        <ThemeIcon color="gray" radius="xl" size={34} variant="light">
-          <IconClockHour4 size={18} />
-        </ThemeIcon>
-        <Stack gap={2}>
-          <Text fw={700} size="sm">
-            {copy.title}
-          </Text>
-          <Text c="dimmed" size="xs">
-            {copy.description}
-          </Text>
-        </Stack>
-      </Group>
-    </div>
-  )
-}
-
-function getScheduleDayEmptyCopy(
-  viewerRole: UserRole,
-  hasActiveFilters: boolean,
-) {
-  if (hasActiveFilters) {
-    return {
-      title: 'Занятий нет',
-      description: 'День свободен для выбранных фильтров.',
-    }
+  if (activeFilters) {
+    return (
+      <EmptyState
+        description="Сбросьте часть фильтров, чтобы снова увидеть занятия."
+        icon={<IconCalendarEvent size={24} />}
+        title="По выбранным фильтрам занятий нет"
+      />
+    )
   }
 
   if (viewerRole === 'Coach') {
-    return {
-      title: 'В этот день у вас занятий нет',
-      description: 'На выбранный день в вашем расписании нет занятий.',
-    }
-  }
-
-  return {
-    title: 'Занятий нет',
-    description: 'В этот день в расписании нет занятий.',
-  }
-}
-
-function useElementWidth(node: HTMLElement | null) {
-  const [width, setWidth] = useState<number | null>(null)
-
-  useEffect(() => {
-    if (!node || typeof ResizeObserver === 'undefined') {
-      const frameId = window.requestAnimationFrame(() => {
-        setWidth(node?.clientWidth ? node.clientWidth : null)
-      })
-
-      return () => window.cancelAnimationFrame(frameId)
-    }
-
-    const updateWidth = (nextWidth: number) => {
-      setWidth((currentWidth) =>
-        Math.abs((currentWidth ?? 0) - nextWidth) > 0.5 ? nextWidth : currentWidth,
-      )
-    }
-    const observer = new ResizeObserver(([entry]) => {
-      updateWidth(entry?.contentRect.width ?? node.clientWidth)
-    })
-
-    updateWidth(node.clientWidth)
-    observer.observe(node)
-
-    return () => observer.disconnect()
-  }, [node])
-
-  return width && width > 0 ? width : null
-}
-
-async function getAllScheduleGroups(signal: AbortSignal) {
-  const firstPage = await getScheduleGroups(
-    { skip: 0, take: SCHEDULE_GROUPS_PAGE_SIZE },
-    signal,
-  )
-  const items = [...firstPage.items]
-  let totalCount = firstPage.totalCount
-
-  while (items.length < totalCount) {
-    const nextPage = await getScheduleGroups(
-      { skip: items.length, take: SCHEDULE_GROUPS_PAGE_SIZE },
-      signal,
+    return (
+      <EmptyState
+        description="Когда сервер даст доступ к вашим занятиям или заменам, они появятся здесь."
+        icon={<IconCalendarEvent size={24} />}
+        title="Для вас занятий нет"
+      />
     )
-
-    if (nextPage.items.length === 0) {
-      break
-    }
-
-    items.push(...nextPage.items)
-    totalCount = Math.max(totalCount, nextPage.totalCount)
   }
 
-  return {
-    items,
-    totalCount,
-  }
+  return (
+    <EmptyState
+      description="Занятия появятся после создания расписания или разового занятия."
+      icon={<IconCalendarEvent size={24} />}
+      title="Расписание пока пустое"
+    />
+  )
 }
 
-function updateFilter(
-  setFilters: Dispatch<SetStateAction<ScheduleFilters>>,
-  key: keyof ScheduleFilters,
-  value: string | null,
+function getScheduleRange(date: string, view: ScheduleViewMode) {
+  if (view === 'day') {
+    return { from: date, to: date }
+  }
+
+  const from = startOfIsoWeek(date)
+  return { from, to: addIsoDays(from, 6) }
+}
+
+function getCreateCapabilityState(
+  capabilities: { createOneOff: ScheduleAction } | null,
 ) {
-  setFilters((currentFilters) => ({
-    ...currentFilters,
-    [key]: value,
+  if (!capabilities) {
+    return 'unknown'
+  }
+
+  return capabilities.createOneOff.allowed ? 'available' : 'unavailable'
+}
+
+function buildScheduleDays(from: string, to: string, lessons: readonly ScheduleLesson[]) {
+  const dates: string[] = []
+  let current = from
+  while (current <= to) {
+    dates.push(current)
+    current = addIsoDays(current, 1)
+  }
+
+  return dates.map((date) => ({
+    date,
+    lessons: lessons.filter((lesson) => lesson.lessonDate === date),
   }))
 }
 
-function retainFilterValue(
-  value: string | null,
-  options: ReadonlyArray<{ value: string }>,
-) {
-  if (!value) {
-    return null
-  }
+function readScheduleUrlState(): ScheduleUrlState {
+  const params = new URLSearchParams(window.location.search)
+  const dateParam = params.get('date')
+  const viewParam = params.get('view')
 
-  return options.some((option) => option.value === value) ? value : null
-}
-
-function areScheduleFiltersEqual(
-  first: ScheduleFilters,
-  second: ScheduleFilters,
-) {
-  return (
-    first.branchId === second.branchId &&
-    first.hallId === second.hallId &&
-    first.trainerId === second.trainerId &&
-    first.groupId === second.groupId
-  )
-}
-
-function formatHourMark(hour: number) {
-  return `${String(hour).padStart(2, '0')}:00`
-}
-
-type ScheduleEventCardStyle = CSSProperties & {
-  '--metadata-chip-bg'?: string
-  '--metadata-chip-border'?: string
-  '--metadata-chip-color'?: string
-  '--schedule-type-bg'?: string
-  '--schedule-type-border'?: string
-  '--schedule-type-color'?: string
-}
-
-function buildScheduleTypeStyle(palette: ScheduleTypePalette): ScheduleEventCardStyle {
   return {
-    '--metadata-chip-bg': palette.background,
-    '--metadata-chip-border': palette.border,
-    '--metadata-chip-color': palette.color,
-    '--schedule-type-bg': palette.background,
-    '--schedule-type-border': palette.border,
-    '--schedule-type-color': palette.color,
+    date: isRealIsoDate(dateParam) ? dateParam : todayIso(),
+    view: viewParam === 'week' ? 'week' : 'day',
+    branchId: readNullableParam(params, 'branchId'),
+    hallId: readNullableParam(params, 'hallId'),
+    trainerId: readNullableParam(params, 'trainerId'),
+    groupId: readNullableParam(params, 'groupId'),
+    groupTypeId: readNullableParam(params, 'groupTypeId'),
   }
 }
 
-function buildCalendarEntryStyle(
-  entry: ScheduleCalendarEntry<TrainingGroupListItem>,
-  visibleHourRange: ScheduleVisibleHourRange,
-  hourHeight: number,
+function writeScheduleUrlState(
+  state: ScheduleUrlState,
+  options: { replace?: boolean } = {},
 ) {
-  const metrics = getScheduleEntryGridMetrics(entry, visibleHourRange)
-  const totalGridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
-    hourHeight
-  const top = (metrics.topPercent / 100) * totalGridHeight
-  const height = (metrics.heightPercent / 100) * totalGridHeight
-  const laneCount = Math.max(1, entry.laneCount)
-  const widthGapOffset = ((laneCount - 1) * SCHEDULE_LANE_GAP_PX) / laneCount
-  const leftGapOffset = (entry.lane * SCHEDULE_LANE_GAP_PX) / laneCount
+  const params = new URLSearchParams()
+  params.set('date', state.date)
+  params.set('view', state.view)
+  for (const key of FILTER_KEYS) {
+    const value = state[key]
+    if (value) {
+      params.set(key, value)
+    }
+  }
 
-  return {
-    top: `${top}px`,
-    height: `${Math.max(54, height)}px`,
-    left: `calc(${metrics.laneLeftPercent}% + ${leftGapOffset}px)`,
-    width: `calc(${metrics.laneWidthPercent}% - ${widthGapOffset}px)`,
-    zIndex: entry.lane + 1,
-  } satisfies CSSProperties
-}
-
-function buildDayLabelMap(dayLabels: ScheduleWeekdayLabel[]) {
-  return new Map(dayLabels.map((day) => [day.weekday, day]))
-}
-
-function handleScheduleDayStripKeyDown(
-  event: KeyboardEvent<HTMLButtonElement>,
-  weekday: WeekdayNumber,
-  selectWeekday: (
-    weekday: WeekdayNumber,
-    options?: { focus?: boolean },
-  ) => void,
-) {
-  if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
+  const nextPath = `/schedule?${params.toString()}`
+  if (`${window.location.pathname}${window.location.search}` === nextPath) {
     return
   }
 
-  event.preventDefault()
-
-  const direction = event.key === 'ArrowRight' ? 1 : -1
-  const nextIndex = (WEEKDAY_INDEX_BY_NUMBER[weekday] + direction + 7) % 7
-  const nextWeekday = WEEKDAY_BY_INDEX[nextIndex] ?? weekday
-
-  selectWeekday(nextWeekday, { focus: true })
+  if (options.replace) {
+    window.history.replaceState(window.history.state, '', nextPath)
+  } else {
+    window.history.pushState(window.history.state, '', nextPath)
+  }
 }
 
-
-function formatTrainerNames(group: TrainingGroupListItem) {
-  if (group.trainerNames.length > 0) {
-    return `Тренеры: ${group.trainerNames.join(', ')}`
-  }
-
-  if (group.trainers.length > 0) {
-    return `Тренеры: ${group.trainers.map((trainer) => trainer.fullName).join(', ')}`
-  }
-
-  return 'Тренеры пока не назначены'
+function readNullableParam(params: URLSearchParams, key: string) {
+  const value = params.get(key)?.trim()
+  return value ? value : null
 }
 
-function formatTrainerNamesInline(group: TrainingGroupListItem) {
-  if (group.trainerNames.length > 0) {
-    return group.trainerNames.join(', ')
+function pickScheduleFilters(state: ScheduleUrlState): ScheduleFilters {
+  return {
+    branchId: state.branchId,
+    hallId: state.hallId,
+    trainerId: state.trainerId,
+    groupId: state.groupId,
+    groupTypeId: state.groupTypeId,
+  }
+}
+
+function emptyFilterOptions() {
+  return {
+    branches: [] as FilterOption[],
+    halls: [] as FilterOption[],
+    trainers: [] as FilterOption[],
+    groups: [] as FilterOption[],
+    groupTypes: [] as FilterOption[],
+  }
+}
+
+function mapResponseFilterOptions(
+  options: Awaited<ReturnType<typeof getScheduleLessons>>['filterOptions'],
+) {
+  return {
+    branches: options.branches.map(toFilterOption),
+    halls: options.halls.map(toFilterOption),
+    trainers: options.trainers.map(toFilterOption),
+    groups: options.groups.map(toFilterOption),
+    groupTypes: options.groupTypes.map(toFilterOption),
+  }
+}
+
+function toFilterOption(option: { id: string; name: string }) {
+  return { value: option.id, label: option.name }
+}
+
+function countActiveFilters(filters: ScheduleFilters) {
+  return FILTER_KEYS.filter((key) => Boolean(filters[key])).length
+}
+
+function sortLessons(items: readonly ScheduleLesson[]) {
+  return [...items].sort((first, second) =>
+    first.lessonDate.localeCompare(second.lessonDate) ||
+    first.startTime.localeCompare(second.startTime) ||
+    first.groupName.localeCompare(second.groupName, 'ru') ||
+    first.lessonOccurrenceId.localeCompare(second.lessonOccurrenceId),
+  )
+}
+
+function formatEffectiveTrainers(lesson: ScheduleLesson) {
+  if (lesson.effectiveTrainers.length === 0) {
+    return 'Тренер не назначен'
   }
 
-  if (group.trainers.length > 0) {
-    return group.trainers.map((trainer) => trainer.fullName).join(', ')
+  return lesson.effectiveTrainers
+    .map((trainer) =>
+      trainer.kind === 'Substitute'
+        ? `${trainer.fullName} · замена`
+        : trainer.fullName,
+    )
+    .join(', ')
+}
+
+function getActionUnavailableReason(reason: string | null) {
+  return formatScheduleActionUnavailableReason(reason)
+}
+
+function formatTimeRange(lesson: ScheduleLesson) {
+  return `${trimSeconds(lesson.startTime)}-${trimSeconds(lesson.endTime)}`
+}
+
+function trimSeconds(value: string) {
+  return value.match(/^\d{2}:\d{2}/)?.[0] ?? value
+}
+
+function formatLessonCount(count: number) {
+  if (count === 1) return '1 занятие'
+  if (count >= 2 && count <= 4) return `${count} занятия`
+  return `${count} занятий`
+}
+
+function formatWeekday(date: string) {
+  return new Intl.DateTimeFormat('ru-RU', { weekday: 'short' }).format(parseIsoDate(date))
+}
+
+function formatShortDate(date: string) {
+  return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short' }).format(parseIsoDate(date))
+}
+
+function formatLongDate(date: string) {
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    weekday: 'long',
+  }).format(parseIsoDate(date))
+}
+
+function formatExpiresAt(value: string) {
+  const expiresAt = new Date(value)
+  if (Number.isNaN(expiresAt.getTime())) {
+    return 'окончания срока предпросмотра'
   }
 
-  return 'тренер не назначен'
+  return new Intl.DateTimeFormat('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(expiresAt)
+}
+
+function todayIso() {
+  return formatIsoDate(new Date())
+}
+
+function isRealIsoDate(value: string | null): value is string {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false
+  }
+
+  return formatIsoDate(parseIsoDate(value)) === value
+}
+
+function parseIsoDate(value: string) {
+  const [year, month, day] = value.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+function formatIsoDate(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function addIsoDays(value: string, days: number) {
+  const date = parseIsoDate(value)
+  date.setTime(date.getTime() + (days * DAY_MS))
+  return formatIsoDate(date)
+}
+
+function startOfIsoWeek(value: string) {
+  const date = parseIsoDate(value)
+  const weekday = date.getDay() === 0 ? 7 : date.getDay()
+  date.setDate(date.getDate() - weekday + 1)
+  return formatIsoDate(date)
 }

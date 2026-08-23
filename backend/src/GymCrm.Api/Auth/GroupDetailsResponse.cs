@@ -16,4 +16,6 @@ internal sealed record GroupDetailsResponse(
     IReadOnlyList<Guid> TrainerIds,
     IReadOnlyList<TrainerSummaryResponse> Trainers,
     int ClientCount,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    string TrainerAssignmentRevision,
+    IReadOnlyList<GroupTrainerAssignmentPeriodResponse> TrainerAssignmentPeriods);

@@ -8,9 +8,13 @@ const MAX_STRING_LENGTH = 200
 
 export type ClientProfileAttendanceOrigin = {
   kind: 'attendance'
-  route: { kind: 'section'; section: 'Attendance' }
-  groupId: string
+  route:
+    | { kind: 'section'; section: 'Attendance' }
+    | { kind: 'attendanceLesson'; lessonOccurrenceId: string; lessonDate: string }
+  groupId?: string
   trainingDate: string
+  lessonOccurrenceId?: string
+  lessonDate?: string
   rosterView: AttendanceRosterView
   anchorClientId: string
 }
@@ -150,7 +154,15 @@ export function isClientProfileOriginRoute(
   context: ClientProfileReturnContext,
 ) {
   if (context.origin.kind === 'attendance') {
-    return route.kind === 'section' && route.section === 'Attendance'
+    if (context.origin.route.kind === 'section') {
+      return route.kind === 'section' && route.section === 'Attendance'
+    }
+
+    return (
+      route.kind === 'attendanceLesson' &&
+      route.lessonOccurrenceId === context.origin.route.lessonOccurrenceId &&
+      route.lessonDate === context.origin.route.lessonDate
+    )
   }
 
   return route.kind === 'groupEdit' && route.groupId === context.origin.route.groupId
@@ -217,18 +229,34 @@ function sanitizeOrigin(payload: unknown): ClientProfileOrigin | null {
     const route = sanitizeAttendanceRoute(payload.route)
     const groupId = sanitizeRequiredString(payload.groupId)
     const trainingDate = sanitizeIsoDate(payload.trainingDate)
+    const lessonOccurrenceId = sanitizeRequiredString(payload.lessonOccurrenceId)
+    const lessonDate = sanitizeIsoDate(payload.lessonDate)
     const rosterView = sanitizeRosterView(payload.rosterView)
     const anchorClientId = sanitizeRequiredString(payload.anchorClientId)
 
-    if (!route || !groupId || !trainingDate || !rosterView || !anchorClientId) {
+    if (
+      !route ||
+      (route.kind === 'section' && !groupId) ||
+      !trainingDate ||
+      !rosterView ||
+      !anchorClientId ||
+      (route.kind === 'attendanceLesson' && (
+        !lessonOccurrenceId ||
+        !lessonDate ||
+        lessonOccurrenceId !== route.lessonOccurrenceId ||
+        lessonDate !== route.lessonDate
+      ))
+    ) {
       return null
     }
 
     return {
       kind: 'attendance',
       route,
-      groupId,
+      groupId: groupId ?? undefined,
       trainingDate,
+      lessonOccurrenceId: route.kind === 'attendanceLesson' ? lessonOccurrenceId ?? undefined : undefined,
+      lessonDate: route.kind === 'attendanceLesson' ? lessonDate ?? undefined : undefined,
       rosterView,
       anchorClientId,
     }
@@ -253,12 +281,25 @@ function sanitizeOrigin(payload: unknown): ClientProfileOrigin | null {
 }
 
 function sanitizeAttendanceRoute(payload: unknown): ClientProfileAttendanceOrigin['route'] | null {
-  if (
-    isRecord(payload) &&
-    payload.kind === 'section' &&
-    payload.section === 'Attendance'
-  ) {
+  if (!isRecord(payload)) {
+    return null
+  }
+
+  if (payload.kind === 'section' && payload.section === 'Attendance') {
     return { kind: 'section', section: 'Attendance' }
+  }
+
+  if (payload.kind === 'attendanceLesson') {
+    const lessonOccurrenceId = sanitizeRequiredString(payload.lessonOccurrenceId)
+    const lessonDate = sanitizeIsoDate(payload.lessonDate)
+
+    if (lessonOccurrenceId && lessonDate) {
+      return {
+        kind: 'attendanceLesson',
+        lessonOccurrenceId,
+        lessonDate,
+      }
+    }
   }
 
   return null

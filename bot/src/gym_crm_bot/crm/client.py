@@ -21,6 +21,7 @@ from gym_crm_bot.crm.errors import (
 )
 from gym_crm_bot.crm.models import (
     AttendanceGroupsResponse,
+    AttendanceLessonsResponse,
     AttendanceMarkRequest,
     AttendanceRosterResponse,
     AttendanceSaveResponse,
@@ -106,18 +107,16 @@ class CrmBotApiClient:
             items=payload if isinstance(payload, list) else payload.get("items", []),
         )
 
-    async def get_attendance_roster(
+    async def list_attendance_lessons(
         self,
         identity: TelegramIdentity,
         *,
-        group_id: UUID,
         training_date: date,
         request_id: str,
-    ) -> AttendanceRosterResponse:
-        return await self._request_model(
+    ) -> AttendanceLessonsResponse:
+        payload = await self._request_json(
             "GET",
-            f"/internal/bot/attendance/groups/{group_id}/clients",
-            AttendanceRosterResponse,
+            "/internal/bot/attendance/lessons",
             request_id=request_id,
             params={
                 **identity.as_query_params(),
@@ -125,26 +124,51 @@ class CrmBotApiClient:
             },
             safe_read=True,
         )
+        return AttendanceLessonsResponse(
+            items=payload if isinstance(payload, list) else payload.get("items", []),
+        )
 
-    async def save_attendance(
+    async def get_attendance_lesson_roster(
         self,
         identity: TelegramIdentity,
         *,
-        group_id: UUID,
-        training_date: date,
+        lesson_occurrence_id: UUID,
+        lesson_date: date,
+        request_id: str,
+    ) -> AttendanceRosterResponse:
+        return await self._request_model(
+            "GET",
+            f"/internal/bot/attendance/lessons/{lesson_occurrence_id}/clients",
+            AttendanceRosterResponse,
+            request_id=request_id,
+            params={
+                **identity.as_query_params(),
+                "lessonDate": lesson_date.isoformat(),
+            },
+            safe_read=True,
+        )
+
+    async def save_lesson_attendance(
+        self,
+        identity: TelegramIdentity,
+        *,
+        lesson_occurrence_id: UUID,
+        lesson_date: date,
         marks: list[AttendanceMarkRequest],
         request_id: str,
         idempotency_key: str,
     ) -> AttendanceSaveResponse:
         return await self._request_model(
             "POST",
-            f"/internal/bot/attendance/groups/{group_id}",
+            f"/internal/bot/attendance/lessons/{lesson_occurrence_id}",
             AttendanceSaveResponse,
             request_id=request_id,
             idempotency_key=idempotency_key,
+            params={
+                "lessonDate": lesson_date.isoformat(),
+            },
             json_body={
                 **identity.as_payload(),
-                "trainingDate": training_date.isoformat(),
                 "attendanceMarks": [mark.model_dump(by_alias=True, mode="json") for mark in marks],
             },
         )

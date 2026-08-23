@@ -8,6 +8,7 @@ using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -503,8 +504,9 @@ public sealed class ClientMembershipTargetPostgreSqlBarrierTests
                 $"task115-{idempotencySuffix}-{Guid.NewGuid():N}");
         }
 
-        public Task<HttpResponseMessage> SaveAttendanceAsync(Guid clientId, Guid groupId, string state)
+        public async Task<HttpResponseMessage> SaveAttendanceAsync(Guid clientId, Guid groupId, string state)
         {
+            var lessonOccurrenceId = await EnsureLessonOccurrenceAsync(groupId, BusinessDate);
             var body = JsonSerializer.Serialize(new Dictionary<string, object?>
             {
                 ["trainingDate"] = BusinessDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
@@ -518,13 +520,54 @@ public sealed class ClientMembershipTargetPostgreSqlBarrierTests
                 }
             }, JsonOptions);
 
-            return SendRawJsonAsync(
+            return await SendRawJsonAsync(
                 HttpClient,
                 HttpMethod.Post,
-                $"/attendance/groups/{groupId}",
+                $"/attendance/lessons/{lessonOccurrenceId}?lessonDate={BusinessDate:yyyy-MM-dd}",
                 body,
                 CsrfToken,
                 idempotencyKey: null);
+        }
+
+        private async Task<Guid> EnsureLessonOccurrenceAsync(Guid groupId, DateOnly lessonDate)
+        {
+            await using var scope = factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var existing = await db.LessonOccurrences
+                .Where(occurrence => occurrence.GroupId == groupId && occurrence.LessonDate == lessonDate)
+                .Select(occurrence => (Guid?)occurrence.Id)
+                .SingleOrDefaultAsync();
+            if (existing.HasValue)
+            {
+                return existing.Value;
+            }
+
+            var group = await db.TrainingGroups
+                .AsNoTracking()
+                .Where(candidate => candidate.Id == groupId)
+                .Select(candidate => new
+                {
+                    candidate.TrainingStartTime,
+                    candidate.DurationMinutes,
+                    candidate.HallId
+                })
+                .SingleAsync();
+            var occurrence = new LessonOccurrence
+            {
+                Id = Guid.NewGuid(),
+                GroupId = groupId,
+                LessonDate = lessonDate,
+                StartTime = group.TrainingStartTime,
+                DurationMinutes = group.DurationMinutes,
+                HallId = group.HallId,
+                Status = LessonOccurrenceStatus.Scheduled,
+                SourceKind = LessonOccurrenceSourceKind.LegacyAttendance,
+                CreatedAt = FixedUtcNow,
+                UpdatedAt = FixedUtcNow
+            };
+            db.LessonOccurrences.Add(occurrence);
+            await db.SaveChangesAsync();
+            return occurrence.Id;
         }
 
         public Task<HttpResponseMessage> TransferTargetsAsync(

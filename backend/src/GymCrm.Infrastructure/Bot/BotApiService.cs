@@ -5,10 +5,12 @@ using GymCrm.Application.Audit;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Bot;
 using GymCrm.Application.Clients;
+using GymCrm.Application.Scheduling;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -112,11 +114,123 @@ internal sealed class BotApiService(
         return BotApiResult<IReadOnlyList<BotAttendanceGroup>>.Success(groups);
     }
 
+    public async Task<BotApiResult<IReadOnlyList<BotAttendanceLesson>>> ListAttendanceLessonsAsync(
+        BotIdentity identity,
+        DateOnly trainingDate,
+        CancellationToken cancellationToken)
+    {
+        var resolvedUser = await ResolveUserAsync(identity, cancellationToken);
+        if (!resolvedUser.Succeeded)
+        {
+            return BotApiResult<IReadOnlyList<BotAttendanceLesson>>.Failure(resolvedUser.Error);
+        }
+
+        var user = resolvedUser.Value!;
+        if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance))
+        {
+            return BotApiResult<IReadOnlyList<BotAttendanceLesson>>.Failure(BotApiError.Forbidden);
+        }
+
+        var series = await LoadAccessibleSeriesAsync(user, trainingDate, trainingDate, cancellationToken);
+        var weekday = ToIsoWeekday(trainingDate);
+        var canEdit = attendanceDatePolicy.IsAllowed(user.Role, trainingDate);
+        var lessons = series
+            .SelectMany(item => item.RuleVersions
+                .Where(version =>
+                    version.EffectiveFrom <= trainingDate &&
+                    (version.EffectiveTo == null || version.EffectiveTo >= trainingDate))
+                .SelectMany(version => version.Slots
+                    .Where(slot => slot.IsoWeekday == weekday)
+                    .Select(slot => new { Series = item, Slot = slot })))
+            .OrderBy(item => item.Slot.StartTime)
+            .ThenBy(item => item.Series.Group.Name)
+            .ThenBy(item => item.Slot.Id)
+            .Select(item => new BotAttendanceLesson(
+                LessonOccurrenceIdPolicy.CreateRecurring(item.Slot.SlotLineageId, trainingDate),
+                trainingDate,
+                item.Series.GroupId,
+                item.Series.Group.Name,
+                item.Slot.StartTime.ToString("HH\\:mm", CultureInfo.InvariantCulture),
+                item.Slot.DurationMinutes,
+                item.Slot.Hall.Name,
+                item.Series.Group.Branch.Name,
+                MapEffectiveTrainerNames(item.Series.Group, trainingDate)
+                    .ToArray(),
+                "Scheduled",
+                true,
+                canEdit))
+            .ToList();
+        if (user.Role == UserRole.Coach)
+        {
+            var projectedIds = lessons.Select(lesson => lesson.LessonOccurrenceId).ToHashSet();
+            var substitutedOccurrences = await dbContext.LessonOccurrences
+                .AsNoTracking()
+                .Where(occurrence =>
+                    occurrence.LessonDate == trainingDate &&
+                    occurrence.TrainerSubstitutions.Any(substitution =>
+                        substitution.SubstituteTrainerId == user.Id &&
+                        substitution.CancelledAt == null))
+                .Include(occurrence => occurrence.Group)
+                    .ThenInclude(group => group.Branch)
+                .Include(occurrence => occurrence.Group)
+                    .ThenInclude(group => group.TrainerAssignments)
+                        .ThenInclude(assignment => assignment.Trainer)
+                .Include(occurrence => occurrence.Hall)
+                .Include(occurrence => occurrence.TrainerSubstitutions.Where(substitution => substitution.CancelledAt == null))
+                    .ThenInclude(substitution => substitution.SubstituteTrainer)
+                .AsSplitQuery()
+                .ToArrayAsync(cancellationToken);
+            lessons.AddRange(substitutedOccurrences
+                .Where(occurrence => !projectedIds.Contains(occurrence.Id))
+                .Select(occurrence => new BotAttendanceLesson(
+                    occurrence.Id,
+                    occurrence.LessonDate,
+                    occurrence.GroupId,
+                    occurrence.Group.Name,
+                    occurrence.StartTime.ToString("HH\\:mm", CultureInfo.InvariantCulture),
+                    occurrence.DurationMinutes,
+                    occurrence.Hall.Name,
+                    occurrence.Group.Branch.Name,
+                    MapEffectiveTrainerNames(occurrence.Group, occurrence.LessonDate, occurrence.TrainerSubstitutions)
+                        .ToArray(),
+                    occurrence.Status.ToString(),
+                    true,
+                    canEdit)));
+        }
+
+        return BotApiResult<IReadOnlyList<BotAttendanceLesson>>.Success(lessons
+            .OrderBy(lesson => lesson.StartTime, StringComparer.Ordinal)
+            .ThenBy(lesson => lesson.GroupName, StringComparer.CurrentCulture)
+            .ThenBy(lesson => lesson.LessonOccurrenceId)
+            .ToArray());
+    }
+
     public async Task<BotApiResult<BotAttendanceRoster>> GetAttendanceRosterAsync(
         BotIdentity identity,
         Guid groupId,
         DateOnly trainingDate,
         CancellationToken cancellationToken)
+    {
+        return await GetAttendanceRosterCoreAsync(identity, groupId, trainingDate, cancellationToken, null, false);
+    }
+
+    public async Task<BotApiResult<BotAttendanceRoster>> GetAttendanceRosterAsync(
+        BotIdentity identity,
+        Guid groupId,
+        DateOnly trainingDate,
+        CancellationToken cancellationToken,
+        Guid? lessonOccurrenceId)
+    {
+        return await GetAttendanceRosterCoreAsync(identity, groupId, trainingDate, cancellationToken, lessonOccurrenceId, false);
+    }
+
+    private async Task<BotApiResult<BotAttendanceRoster>> GetAttendanceRosterCoreAsync(
+        BotIdentity identity,
+        Guid groupId,
+        DateOnly trainingDate,
+        CancellationToken cancellationToken,
+        Guid? lessonOccurrenceId,
+        bool occurrenceScopeAccessAllowed = false)
     {
         var resolvedUser = await ResolveUserAsync(identity, cancellationToken);
         if (!resolvedUser.Succeeded)
@@ -136,14 +250,19 @@ internal sealed class BotApiService(
         }
 
         var groupAccess = await GetAccessibleGroupAsync(user, groupId, cancellationToken);
-        if (groupAccess.Error.HasValue)
+        if (groupAccess.Error.HasValue && !occurrenceScopeAccessAllowed)
         {
             return BotApiResult<BotAttendanceRoster>.Failure(groupAccess.Error.Value);
         }
 
-        var group = groupAccess.Group!;
+        var group = groupAccess.Group ?? await dbContext.TrainingGroups
+            .AsNoTracking()
+            .SingleAsync(candidate => candidate.Id == groupId, cancellationToken);
         var effectiveGroupIds = user.Role == UserRole.Coach
-            ? (await accessScopeService.GetAccessScopeAsync(user, cancellationToken)).AssignedGroupIds
+            ? (IReadOnlyList<Guid>)(await accessScopeService.GetAccessScopeAsync(user, cancellationToken)).AssignedGroupIds
+                .Append(occurrenceScopeAccessAllowed ? groupId : Guid.Empty)
+                .Where(id => id != Guid.Empty)
+                .ToArray()
             : null;
         var clients = await dbContext.Clients
             .AsNoTracking()
@@ -194,11 +313,35 @@ internal sealed class BotApiService(
                     client,
                     user,
                     effectiveGroupIds,
+                    lessonOccurrenceId ?? LessonOccurrenceIdPolicy.CreateLegacyAttendance(groupId, trainingDate),
                     groupId,
                     trainingDate,
                     businessDateProvider.Today,
                     entitlementByClientId[client.Id]))
                 .ToArray()));
+    }
+
+    public async Task<BotApiResult<BotAttendanceRoster>> GetAttendanceRosterByLessonAsync(
+        BotIdentity identity,
+        Guid lessonOccurrenceId,
+        DateOnly lessonDate,
+        CancellationToken cancellationToken)
+    {
+        var resolved = await ResolveProjectedLessonAsync(
+            identity,
+            lessonOccurrenceId,
+            lessonDate,
+            cancellationToken);
+
+        return resolved.Error.HasValue
+            ? BotApiResult<BotAttendanceRoster>.Failure(resolved.Error.Value)
+            : await GetAttendanceRosterCoreAsync(
+                identity,
+                resolved.GroupId,
+                lessonDate,
+                cancellationToken,
+                lessonOccurrenceId,
+                resolved.IsOccurrenceScopedAccess);
     }
 
     public async Task<BotApiResult<BotAttendanceSaveResponse>> SaveAttendanceAsync(
@@ -209,6 +352,29 @@ internal sealed class BotApiService(
         string idempotencyKey,
         string payloadJson,
         CancellationToken cancellationToken)
+    {
+        return await SaveAttendanceCoreAsync(
+            identity,
+            groupId,
+            trainingDate,
+            marks,
+            idempotencyKey,
+            payloadJson,
+            cancellationToken,
+            null,
+            false);
+    }
+
+    private async Task<BotApiResult<BotAttendanceSaveResponse>> SaveAttendanceCoreAsync(
+        BotIdentity identity,
+        Guid groupId,
+        DateOnly trainingDate,
+        IReadOnlyList<BotAttendanceMarkInput> marks,
+        string idempotencyKey,
+        string payloadJson,
+        CancellationToken cancellationToken,
+        Guid? lessonOccurrenceId,
+        bool occurrenceScopeAccessAllowed)
     {
         var resolvedUser = await ResolveUserAsync(identity, cancellationToken);
         if (!resolvedUser.Succeeded)
@@ -236,12 +402,14 @@ internal sealed class BotApiService(
         }
 
         var groupAccess = await GetAccessibleGroupAsync(user, groupId, cancellationToken);
-        if (groupAccess.Error.HasValue)
+        if (groupAccess.Error.HasValue && !occurrenceScopeAccessAllowed)
         {
             return BotApiResult<BotAttendanceSaveResponse>.Failure(groupAccess.Error.Value);
         }
 
-        var group = groupAccess.Group!;
+        var group = groupAccess.Group ?? await dbContext.TrainingGroups
+            .AsNoTracking()
+            .SingleAsync(candidate => candidate.Id == groupId, cancellationToken);
         var reservation = await idempotencyService.ReserveAsync<BotAttendanceSaveResponse>(
             identity,
             BotAuditConstants.BotAttendanceSavedAction,
@@ -264,6 +432,7 @@ internal sealed class BotApiService(
         {
             var mutationResult = await attendanceService.SaveAsync(
                 new SaveAttendanceCommand(
+                    lessonOccurrenceId ?? LessonOccurrenceIdPolicy.CreateLegacyAttendance(groupId, trainingDate),
                     groupId,
                     trainingDate,
                     user.Id,
@@ -284,6 +453,7 @@ internal sealed class BotApiService(
                 return mutationResult.Error switch
                 {
                     AttendanceBatchMutationError.GroupMissing => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound),
+                    AttendanceBatchMutationError.LessonOccurrenceMissing => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.NotFound),
                     AttendanceBatchMutationError.ClientOutsideGroup => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
                     {
                         ["attendanceMarks"] = ["Часть клиентов не принадлежит выбранной группе."]
@@ -291,6 +461,7 @@ internal sealed class BotApiService(
                     AttendanceBatchMutationError.TrainingDateInFuture => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
                     AttendanceBatchMutationError.TrainingDateUnavailable => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
                     AttendanceBatchMutationError.Forbidden => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.Forbidden),
+                    AttendanceBatchMutationError.LessonOccurrenceUnavailable => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
                     AttendanceBatchMutationError.SingleVisitRestoreConflict => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.SingleVisitRestoreConflict),
                     AttendanceBatchMutationError.MembershipEntitlementInvariantConflict => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
                     {
@@ -369,6 +540,35 @@ internal sealed class BotApiService(
             await idempotencyService.ReleaseAsync(recordId, CancellationToken.None);
             throw;
         }
+    }
+
+    public async Task<BotApiResult<BotAttendanceSaveResponse>> SaveAttendanceByLessonAsync(
+        BotIdentity identity,
+        Guid lessonOccurrenceId,
+        DateOnly lessonDate,
+        IReadOnlyList<BotAttendanceMarkInput> marks,
+        string idempotencyKey,
+        string payloadJson,
+        CancellationToken cancellationToken)
+    {
+        var resolved = await ResolveProjectedLessonAsync(
+            identity,
+            lessonOccurrenceId,
+            lessonDate,
+            cancellationToken);
+
+        return resolved.Error.HasValue
+            ? BotApiResult<BotAttendanceSaveResponse>.Failure(resolved.Error.Value)
+            : await SaveAttendanceCoreAsync(
+                identity,
+                resolved.GroupId,
+                lessonDate,
+                marks,
+                idempotencyKey,
+                payloadJson,
+                cancellationToken,
+                lessonOccurrenceId,
+                resolved.IsOccurrenceScopedAccess);
     }
 
     public async Task<BotApiResult<BotClientSearchResponse>> SearchClientsAsync(
@@ -734,6 +934,154 @@ internal sealed class BotApiService(
         return GroupAccessResult.Allowed(group);
     }
 
+    private async Task<IReadOnlyList<TrainingGroup>> LoadAccessibleGroupsAsync(
+        User user,
+        CancellationToken cancellationToken)
+    {
+        var accessScope = await accessScopeService.GetAccessScopeAsync(user, cancellationToken);
+        var accessibleGroupIds = accessScope.AttendanceScope.Kind == AttendanceScopeKind.Global
+            ? null
+            : accessScope.AttendanceScope.GroupIds.ToHashSet();
+
+        var query = dbContext.TrainingGroups
+            .AsNoTracking()
+            .Include(group => group.Branch)
+            .Include(group => group.Hall)
+            .Include(group => group.Trainers)
+                .ThenInclude(trainer => trainer.Trainer)
+            .AsSplitQuery();
+        if (accessibleGroupIds is not null)
+        {
+            query = query.Where(group => accessibleGroupIds.Contains(group.Id));
+        }
+
+        return await query
+            .OrderBy(group => group.Name)
+            .ThenBy(group => group.Id)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<LessonSeries>> LoadAccessibleSeriesAsync(
+        User user,
+        DateOnly from,
+        DateOnly to,
+        CancellationToken cancellationToken)
+    {
+        var accessScope = await accessScopeService.GetAccessScopeAsync(user, cancellationToken);
+        var accessibleGroupIds = accessScope.AttendanceScope.Kind == AttendanceScopeKind.Global
+            ? null
+            : accessScope.AttendanceScope.GroupIds.ToHashSet();
+
+        var query = dbContext.LessonSeries
+            .AsNoTracking()
+            .Where(series =>
+                series.StartsOn <= to &&
+                (series.EndsOn == null || series.EndsOn >= from))
+            .Include(series => series.Group)
+                .ThenInclude(group => group.Branch)
+            .Include(series => series.Group)
+                .ThenInclude(group => group.TrainerAssignments)
+                    .ThenInclude(assignment => assignment.Trainer)
+            .Include(series => series.RuleVersions)
+                .ThenInclude(version => version.Slots)
+                    .ThenInclude(slot => slot.Hall)
+            .AsSplitQuery();
+        if (accessibleGroupIds is not null)
+        {
+            query = query.Where(series => accessibleGroupIds.Contains(series.GroupId));
+        }
+
+        return await query
+            .OrderBy(series => series.Group.Name)
+            .ThenBy(series => series.GroupId)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    private async Task<LessonResolutionResult> ResolveProjectedLessonAsync(
+        BotIdentity identity,
+        Guid lessonOccurrenceId,
+        DateOnly lessonDate,
+        CancellationToken cancellationToken)
+    {
+        var resolvedUser = await ResolveUserAsync(identity, cancellationToken);
+        if (!resolvedUser.Succeeded)
+        {
+            return LessonResolutionResult.Failure(resolvedUser.Error);
+        }
+
+        var user = resolvedUser.Value!;
+        if (!UserRoleAuthorizationPolicy.HasCapability(user.Role, CrmCapability.MarkAttendance))
+        {
+            return LessonResolutionResult.Failure(BotApiError.Forbidden);
+        }
+
+        var materialized = await dbContext.LessonOccurrences
+            .AsNoTracking()
+            .Where(occurrence => occurrence.Id == lessonOccurrenceId && occurrence.LessonDate == lessonDate)
+            .Select(occurrence => new
+            {
+                occurrence.GroupId,
+                IsOccurrenceScopedAccess = occurrence.TrainerSubstitutions.Any(substitution =>
+                    substitution.SubstituteTrainerId == user.Id &&
+                    substitution.CancelledAt == null)
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (materialized is not null)
+        {
+            var access = await accessScopeService.EvaluateGroupAccessAsync(user, materialized.GroupId, cancellationToken);
+            return access == GroupAccessDecision.Allowed || materialized.IsOccurrenceScopedAccess
+                ? LessonResolutionResult.Success(
+                    materialized.GroupId,
+                    access != GroupAccessDecision.Allowed && materialized.IsOccurrenceScopedAccess)
+                : LessonResolutionResult.Failure(BotApiError.NotFound);
+        }
+
+        var weekday = ToIsoWeekday(lessonDate);
+        var series = await LoadAccessibleSeriesAsync(user, lessonDate, lessonDate, cancellationToken);
+        var groupId = series
+            .SelectMany(item => item.RuleVersions
+                .Where(version =>
+                    version.EffectiveFrom <= lessonDate &&
+                    (version.EffectiveTo == null || version.EffectiveTo >= lessonDate))
+                .SelectMany(version => version.Slots
+                    .Where(slot => slot.IsoWeekday == weekday)
+                    .Where(slot => LessonOccurrenceIdPolicy.CreateRecurring(slot.SlotLineageId, lessonDate) == lessonOccurrenceId)
+                    .Select(_ => (Guid?)item.GroupId)))
+            .SingleOrDefault();
+
+        return groupId is null
+            ? LessonResolutionResult.Failure(BotApiError.NotFound)
+            : LessonResolutionResult.Success(groupId.Value, false);
+    }
+
+    private static IEnumerable<string> MapEffectiveTrainerNames(
+        TrainingGroup group,
+        DateOnly lessonDate,
+        IEnumerable<LessonOccurrenceTrainerSubstitution>? substitutions = null)
+    {
+        var activeSubstitutions = substitutions?
+            .Where(substitution => substitution.CancelledAt == null)
+            .GroupBy(substitution => substitution.ReplacedTrainerId)
+            .Select(grouping => grouping.OrderBy(substitution => substitution.CreatedAt).ThenBy(substitution => substitution.Id).First())
+            .ToDictionary(substitution => substitution.ReplacedTrainerId)
+            ?? new Dictionary<Guid, LessonOccurrenceTrainerSubstitution>();
+
+        return group.TrainerAssignments
+            .Where(assignment =>
+                assignment.ValidFrom <= lessonDate &&
+                (assignment.ValidTo is null || assignment.ValidTo >= lessonDate) &&
+                !activeSubstitutions.ContainsKey(assignment.TrainerId))
+            .Select(assignment => assignment.Trainer.FullName)
+            .Concat(activeSubstitutions.Values.Select(substitution => substitution.SubstituteTrainer.FullName))
+            .OrderBy(name => name, StringComparer.CurrentCulture)
+            .ThenBy(name => name, StringComparer.Ordinal);
+    }
+
+    private static int ToIsoWeekday(DateOnly date)
+    {
+        return date.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)date.DayOfWeek;
+    }
+
     private async Task WriteBotAuditAsync(
         User user,
         BotIdentity identity,
@@ -884,6 +1232,7 @@ internal sealed class BotApiService(
         Client client,
         User currentUser,
         IReadOnlyCollection<Guid>? effectiveGroupIds,
+        Guid lessonOccurrenceId,
         Guid groupId,
         DateOnly trainingDate,
         DateOnly businessDate,
@@ -909,8 +1258,7 @@ internal sealed class BotApiService(
             _ => new MembershipWarningResult(false, null)
         };
         var isPresent = client.AttendanceEntries.Any(attendance =>
-            attendance.GroupId == groupId &&
-            attendance.TrainingDate == trainingDate &&
+            attendance.LessonOccurrenceId == lessonOccurrenceId &&
             attendance.IsPresent);
 
         return new BotAttendanceClient(
@@ -1186,6 +1534,16 @@ internal sealed class BotApiService(
         public static GroupAccessResult Forbidden() => new(BotApiError.Forbidden, null);
 
         public static GroupAccessResult NotFound() => new(BotApiError.NotFound, null);
+    }
+
+    private sealed record LessonResolutionResult(
+        BotApiError? Error,
+        Guid GroupId,
+        bool IsOccurrenceScopedAccess)
+    {
+        public static LessonResolutionResult Success(Guid groupId, bool isOccurrenceScopedAccess) => new(null, groupId, isOccurrenceScopedAccess);
+
+        public static LessonResolutionResult Failure(BotApiError error) => new(error, Guid.Empty, false);
     }
 
     private sealed record MembershipWarningResult(bool HasWarning, string? Message);

@@ -135,6 +135,84 @@ describe('finance routes', () => {
     expect(route).toEqual({ kind: 'section', section: 'Attendance' })
   })
 
+  test('parses occurrence attendance route only with a real lessonDate locator', () => {
+    expect(parseRoute('/attendance/lesson-1?lessonDate=2026-08-20')).toEqual({
+      kind: 'attendanceLesson',
+      lessonOccurrenceId: 'lesson-1',
+      lessonDate: '2026-08-20',
+    })
+    expect(getRoutePath({
+      kind: 'attendanceLesson',
+      lessonOccurrenceId: 'lesson 1',
+      lessonDate: '2026-08-20',
+    })).toBe('/attendance/lesson%201?lessonDate=2026-08-20')
+    expect(parseRoute('/attendance/lesson-1?lessonDate=2026-02-31')).toEqual({
+      kind: 'not-found',
+      path: '/attendance/lesson-1?lessonDate=2026-02-31',
+    })
+  })
+
+  test('parses schedule occurrence detail route with required lessonDate locator', () => {
+    expect(parseRoute('/schedule/lessons/lesson-1?lessonDate=2026-08-20')).toEqual({
+      kind: 'scheduleLessonDetail',
+      lessonOccurrenceId: 'lesson-1',
+      lessonDate: '2026-08-20',
+    })
+    expect(getRoutePath({
+      kind: 'scheduleLessonDetail',
+      lessonOccurrenceId: 'lesson 1',
+      lessonDate: '2026-08-20',
+    })).toBe('/schedule/lessons/lesson%201?lessonDate=2026-08-20')
+  })
+
+  test('parses canonical schedule mutation routes with validated scopes and real dates', () => {
+    expect(parseRoute('/schedule/lessons/new')).toEqual({ kind: 'scheduleLessonCreate' })
+    expect(parseRoute('/schedule/lessons/lesson-1/edit?lessonDate=2026-08-20&scope=occurrence')).toEqual({
+      kind: 'scheduleLessonEdit',
+      lessonOccurrenceId: 'lesson-1',
+      lessonDate: '2026-08-20',
+      scope: 'occurrence',
+    })
+    expect(parseRoute('/schedule/lessons/lesson-1/move?lessonDate=2026-08-20')).toEqual({
+      kind: 'scheduleLessonMove',
+      lessonOccurrenceId: 'lesson-1',
+      lessonDate: '2026-08-20',
+    })
+    expect(parseRoute('/schedule/series/series-1/edit?scope=this-and-future')).toEqual({
+      kind: 'scheduleSeriesEdit',
+      lessonSeriesId: 'series-1',
+      scope: 'this-and-future',
+    })
+    expect(parseRoute('/schedule/series/series-1/edit?scope=entire')).toEqual({
+      kind: 'scheduleSeriesEdit',
+      lessonSeriesId: 'series-1',
+      scope: 'entire',
+    })
+    expect(getRoutePath({
+      kind: 'scheduleLessonEdit',
+      lessonOccurrenceId: 'lesson 1',
+      lessonDate: '2026-08-20',
+      scope: 'occurrence',
+    })).toBe('/schedule/lessons/lesson%201/edit?lessonDate=2026-08-20&scope=occurrence')
+    expect(getRoutePath({
+      kind: 'scheduleLessonMove',
+      lessonOccurrenceId: 'lesson 1',
+      lessonDate: '2026-08-20',
+    })).toBe('/schedule/lessons/lesson%201/move?lessonDate=2026-08-20')
+    expect(parseRoute('/schedule/lessons/lesson-1/edit?lessonDate=2026-02-31&scope=occurrence')).toEqual({
+      kind: 'not-found',
+      path: '/schedule/lessons/lesson-1/edit?lessonDate=2026-02-31&scope=occurrence',
+    })
+    expect(parseRoute('/schedule/lessons/lesson-1/edit?lessonDate=2026-08-20&scope=series')).toEqual({
+      kind: 'not-found',
+      path: '/schedule/lessons/lesson-1/edit?lessonDate=2026-08-20&scope=series',
+    })
+    expect(parseRoute('/schedule/series/series-1/edit?scope=this-one')).toEqual({
+      kind: 'not-found',
+      path: '/schedule/series/series-1/edit?scope=this-one',
+    })
+  })
+
   test('classifies root path as not-found', () => {
     expect(parseRoute('/')).toEqual({ kind: 'not-found', path: '/' })
   })

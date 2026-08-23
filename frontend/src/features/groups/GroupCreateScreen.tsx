@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Stack } from '@mantine/core'
-import { IconArrowLeft } from '@tabler/icons-react'
+import { Alert, Paper, Stack, Text } from '@mantine/core'
+import { IconAlertTriangle, IconArrowLeft } from '@tabler/icons-react'
 import {
   ApiError,
   applyFieldErrors,
@@ -9,7 +9,9 @@ import {
   getGroupTypes,
   getHalls,
   getTrainerOptions,
+  previewGroupCreate,
   type Branch,
+  type GroupPreviewResponse,
   type GroupType,
   type Hall,
   type TrainerOption,
@@ -24,10 +26,11 @@ import {
 import { showAppNotification } from '../shared/notifications'
 import { GroupForm } from './GroupForm'
 import {
-  toUpsertGroupPayload,
+  toCreateGroupWithInitialSeriesPayload,
   useGroupForm,
   type GroupFormValues,
 } from './groupFormMapping'
+import { formatScheduleProblemCode } from '../schedule/scheduleActionReasons'
 
 export type GroupCreateScreenProps = {
   onCancel: () => void
@@ -45,6 +48,8 @@ export function GroupCreateScreen({
   const [loadingOptions, setLoadingOptions] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+  const [preview, setPreview] = useState<GroupPreviewResponse | null>(null)
+  const previewPayloadKeyRef = useRef<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const form = useGroupForm()
   const formRef = useRef(form)
@@ -71,6 +76,12 @@ export function GroupCreateScreen({
         const firstActiveBranch = branches.find((branch) => !branch.isArchived)
         if (firstActiveBranch && !formRef.current.values.branchId) {
           formRef.current.setFieldValue('branchId', firstActiveBranch.id)
+          const firstActiveHall = halls.find(
+            (hall) => !hall.isArchived && hall.branchId === firstActiveBranch.id,
+          )
+          if (firstActiveHall && !formRef.current.values.hallId) {
+            formRef.current.setFieldValue('hallId', firstActiveHall.id)
+          }
         }
         if (groupTypes[0] && !formRef.current.values.groupTypeId) {
           formRef.current.setFieldValue('groupTypeId', groupTypes[0].id)
@@ -103,7 +114,19 @@ export function GroupCreateScreen({
     form.clearErrors()
 
     try {
-      const createdGroup = await createGroup(toUpsertGroupPayload(values))
+      const previewPayload = toCreateGroupWithInitialSeriesPayload(values)
+      const previewPayloadKey = JSON.stringify(previewPayload)
+
+      if (!preview || previewPayloadKeyRef.current !== previewPayloadKey) {
+        const response = await previewGroupCreate(previewPayload)
+        previewPayloadKeyRef.current = previewPayloadKey
+        setPreview(response)
+        return
+      }
+
+      const createdGroup = await createGroup(
+        toCreateGroupWithInitialSeriesPayload(values, preview.confirmationToken),
+      )
 
       showAppNotification({
         id: 'group-create-success',
@@ -115,8 +138,12 @@ export function GroupCreateScreen({
       onCreated()
     } catch (error) {
       if (error instanceof ApiError) {
-        form.setErrors(applyFieldErrors(error.fieldErrors))
-        setFormError(error.message)
+        form.setErrors(applyFieldErrors(error.fieldErrors, GROUP_CREATE_FIELD_ALIASES))
+        const message = formatScheduleProblemCode(error.code) ??
+          'Не удалось проверить создание группы. Проверьте поля и попробуйте снова.'
+        setPreview(null)
+        previewPayloadKeyRef.current = null
+        setFormError(message)
         return
       }
 
@@ -154,21 +181,72 @@ export function GroupCreateScreen({
           ) : null}
 
           {!loadingOptions && !loadError ? (
-          <GroupForm
-            form={form}
-            formError={formError}
-            branchOptions={branchOptions}
-            groupTypeOptions={groupTypeOptions}
-            hallOptions={hallOptions}
+            <>
+              <GroupForm
+                form={form}
+                formError={formError}
+                branchOptions={branchOptions}
+                groupTypeOptions={groupTypeOptions}
+                hallOptions={hallOptions}
               cancelAction={{ label: 'Отменить', onClick: onCancel }}
               onSubmit={submit}
-              submitLabel="Создать группу"
+              showInitialSeriesFields
+              submitLabel={preview ? 'Создать группу' : 'Получить предпросмотр'}
               submitting={submitting}
               trainerOptions={trainerOptions}
             />
+              {preview ? (
+                <Paper className="group-create-preview" radius="24px" withBorder>
+                  <Stack gap="sm">
+                    <Text fw={900}>Проверьте расписание перед созданием</Text>
+                    <Text c="dimmed" size="sm">
+                      Группа будет создана вместе с начальной серией занятий. Подтвердить можно до {formatExpiresAt(preview.expiresAt)}.
+                    </Text>
+                    {preview.warnings.length > 0 ? (
+                      <Stack gap="xs">
+                        {preview.warnings.map((warning, index) => (
+                          <Alert
+                            color="yellow"
+                            icon={<IconAlertTriangle size={18} />}
+                            key={`${warning.code}:${index}`}
+                          >
+                            {warning.message || 'Проверьте предупреждение перед подтверждением.'}
+                          </Alert>
+                        ))}
+                      </Stack>
+                    ) : null}
+                    <Text c="dimmed" size="sm">
+                      Нажмите «Создать группу», чтобы выполнить атомарное создание группы и расписания.
+                    </Text>
+                  </Stack>
+                </Paper>
+              ) : null}
+            </>
           ) : null}
         </Stack>
       </PageSection>
     </PageLayout>
   )
+}
+
+const GROUP_CREATE_FIELD_ALIASES = {
+  'initialLessonSeries.startsOn': 'initialSeriesStartsOn',
+  'initialLessonSeries.endsOn': 'initialSeriesEndsOn',
+  'initialLessonSeries.slots': 'weekdays',
+  'initialLessonSeries.slots.0.isoWeekday': 'weekdays',
+  'initialLessonSeries.slots.0.startTime': 'trainingStartTime',
+  'initialLessonSeries.slots.0.durationMinutes': 'durationMinutes',
+  'initialLessonSeries.slots.0.hallId': 'hallId',
+} as const
+
+function formatExpiresAt(value: string) {
+  const expiresAt = new Date(value)
+  if (Number.isNaN(expiresAt.getTime())) {
+    return 'окончания срока предпросмотра'
+  }
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(expiresAt)
 }

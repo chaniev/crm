@@ -5,6 +5,7 @@ using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -120,13 +121,14 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
         var administratorSession = await LoginAsync(administratorClient, seeded.AdministratorLogin, seeded.SharedPassword);
         var endpoint = $"/settings/administrators/{seeded.AdministratorId}/attendance-groups";
         var groupDate = GetBusinessToday().ToString("yyyy-MM-dd");
+        var lessonSavePath = LessonSavePath(seeded.PrimaryLessonOccurrenceId, groupDate);
         var attendancePayload = new
         {
             TrainingDate = groupDate,
             AttendanceMarks = new[] { new { ClientId = seeded.AttendanceClientId, State = "Absent" } }
         };
 
-        using (var preSaveCheck = await administratorClient.GetAsync($"/attendance/groups/{seeded.PrimaryGroupId}/clients?trainingDate={groupDate}"))
+        using (var preSaveCheck = await administratorClient.GetAsync(LessonClientsPath(seeded.PrimaryLessonOccurrenceId, groupDate)))
         {
             Assert.Equal(HttpStatusCode.OK, preSaveCheck.StatusCode);
         }
@@ -152,10 +154,14 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
 
         using var forbiddenSaveResponse = await PostJsonAsync(
             administratorClient,
-            $"/attendance/groups/{seeded.PrimaryGroupId}",
+            lessonSavePath,
             attendancePayload,
             administratorSession);
-        Assert.Equal(HttpStatusCode.Forbidden, forbiddenSaveResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, forbiddenSaveResponse.StatusCode);
+        await AssertProblemDetailsAsync(
+            forbiddenSaveResponse,
+            "/problems/lesson-occurrence-not-found",
+            "lesson-occurrence-not-found");
 
         using var postRevokeScope = context.Factory.Services.CreateScope();
         var postRevokeDb = postRevokeScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -182,6 +188,7 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
         var administratorSession = await LoginAsync(administratorClient, seeded.AdministratorLogin, seeded.SharedPassword);
         var groupDate = GetBusinessToday();
         var groupDateString = groupDate.ToString("yyyy-MM-dd");
+        var lessonSavePath = LessonSavePath(seeded.PrimaryLessonOccurrenceId, groupDateString);
         var attendancePayload = new
         {
             TrainingDate = groupDateString,
@@ -195,7 +202,7 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
 
         using (var baselineSave = await PostJsonAsync(
                    administratorClient,
-                   $"/attendance/groups/{seeded.PrimaryGroupId}",
+                   lessonSavePath,
                    attendancePayload,
                    administratorSession))
         {
@@ -212,10 +219,14 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
 
         using var archivedSave = await PostJsonAsync(
             administratorClient,
-            $"/attendance/groups/{seeded.PrimaryGroupId}",
+            lessonSavePath,
             attendancePayloadAfterRestore,
             administratorSession);
-        Assert.Equal(HttpStatusCode.Forbidden, archivedSave.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, archivedSave.StatusCode);
+        await AssertProblemDetailsAsync(
+            archivedSave,
+            "/problems/lesson-occurrence-not-found",
+            "lesson-occurrence-not-found");
 
         using (var restoreResponse = await PutWithoutBodyAsync(
                    managerClient,
@@ -227,7 +238,7 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
 
         using (var restoredSave = await PostJsonAsync(
                     administratorClient,
-                    $"/attendance/groups/{seeded.PrimaryGroupId}",
+                    lessonSavePath,
                     attendancePayloadAfterRestore,
                     administratorSession))
         {
@@ -366,6 +377,12 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
         return await client.SendAsync(request);
     }
 
+    private static string LessonClientsPath(Guid lessonOccurrenceId, string lessonDate) =>
+        $"/attendance/lessons/{lessonOccurrenceId}/clients?lessonDate={lessonDate}";
+
+    private static string LessonSavePath(Guid lessonOccurrenceId, string lessonDate) =>
+        $"/attendance/lessons/{lessonOccurrenceId}?lessonDate={lessonDate}";
+
     private static async Task<string> LoginAsync(HttpClient client, string login, string password)
     {
         using var initialSession = await client.GetAsync("/auth/session");
@@ -393,6 +410,13 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
     private static async Task<JsonElement> ReadJsonElementAsync(HttpResponseMessage response)
     {
         return await response.Content.ReadFromJsonAsync<JsonElement>();
+    }
+
+    private static async Task AssertProblemDetailsAsync(HttpResponseMessage response, string expectedType, string expectedCode)
+    {
+        var payload = await ReadJsonElementAsync(response);
+        Assert.Equal(expectedType, payload.GetProperty("type").GetString());
+        Assert.Equal(expectedCode, payload.GetProperty("code").GetString());
     }
 
     private static async Task WaitForBlockedBranchLockAsync(string connectionString)
@@ -452,6 +476,7 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
         string SharedPassword,
         Guid AssignedBranchId,
         Guid PrimaryGroupId,
+        Guid PrimaryLessonOccurrenceId,
         Guid AlternateGroupId,
         Guid ForeignBranchStoredGroupId,
         Guid AttendanceClientId);
@@ -635,12 +660,26 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
                 CreatedAt = now,
                 UpdatedAt = now
             };
+            var primaryLessonOccurrence = new LessonOccurrence
+            {
+                Id = Guid.NewGuid(),
+                GroupId = primaryGroup.Id,
+                LessonDate = GetBusinessToday(),
+                StartTime = primaryGroup.TrainingStartTime,
+                DurationMinutes = primaryGroup.DurationMinutes,
+                HallId = primaryGroup.HallId,
+                Status = LessonOccurrenceStatus.Scheduled,
+                SourceKind = LessonOccurrenceSourceKind.LegacyAttendance,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
 
             dbContext.Users.AddRange(headCoach, superAdministrator, administrator);
             dbContext.Branches.AddRange(branch, secondBranch);
             dbContext.Halls.AddRange(hall, hallSecondBranch);
             dbContext.GroupTypes.Add(groupType);
             dbContext.TrainingGroups.AddRange(primaryGroup, alternateGroup, foreignBranchStoredGroup);
+            dbContext.LessonOccurrences.Add(primaryLessonOccurrence);
             dbContext.Clients.Add(client);
             dbContext.ClientGroups.Add(new ClientGroup
             {
@@ -669,6 +708,7 @@ public sealed class AdministratorAttendanceGrantPostgreSqlTests
                 sharedPassword,
                 branch.Id,
                 primaryGroup.Id,
+                primaryLessonOccurrence.Id,
                 alternateGroup.Id,
                 foreignBranchStoredGroup.Id,
                 client.Id);

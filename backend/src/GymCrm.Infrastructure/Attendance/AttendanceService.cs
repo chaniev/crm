@@ -3,7 +3,9 @@ using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
+using GymCrm.Application.Scheduling;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -61,27 +63,33 @@ internal sealed class AttendanceService(
 
         try
         {
-            var group = await dbContext.TrainingGroups
-                .AsNoTracking()
-                .Where(candidate => candidate.Id == command.GroupId)
-                .Select(candidate => new { candidate.Id, candidate.Name, candidate.BranchId })
-                .SingleOrDefaultAsync(cancellationToken);
-            if (group is null)
+            var lesson = await ResolveLessonForSaveAsync(command, cancellationToken);
+            if (lesson is null)
             {
                 if (ownedTransaction is not null)
                 {
                     await ownedTransaction.RollbackAsync(cancellationToken);
                 }
 
-                return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.GroupMissing);
+                return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.LessonOccurrenceMissing);
             }
 
-            await LockAttendanceAuthorizationRowsAsync(command.MarkedByUserId, group.BranchId, group.Id, cancellationToken);
+            if (lesson.Status != LessonOccurrenceStatus.Scheduled)
+            {
+                if (ownedTransaction is not null)
+                {
+                    await ownedTransaction.RollbackAsync(cancellationToken);
+                }
+
+                return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.LessonOccurrenceUnavailable);
+            }
+
+            await LockAttendanceAuthorizationRowsAsync(command.MarkedByUserId, lesson.BranchId, lesson.GroupId, cancellationToken);
 
             var authorization = await EvaluateLockedAuthorizationAsync(
                 command.MarkedByUserId,
-                command.GroupId,
-                command.TrainingDate,
+                lesson.GroupId,
+                lesson.LessonDate,
                 cancellationToken);
             if (authorization == AttendanceBatchMutationError.Forbidden ||
                 authorization == AttendanceBatchMutationError.TrainingDateInFuture ||
@@ -101,7 +109,7 @@ internal sealed class AttendanceService(
                 : await dbContext.ClientGroups
                     .AsNoTracking()
                     .Where(clientGroup =>
-                        clientGroup.GroupId == command.GroupId &&
+                        clientGroup.GroupId == lesson.GroupId &&
                         requestedClientIds.Contains(clientGroup.ClientId) &&
                         clientGroup.Client.Status == ClientStatus.Active)
                     .Select(clientGroup => new
@@ -127,17 +135,16 @@ internal sealed class AttendanceService(
 
                 return AttendanceBatchMutationResult.Failure(
                     AttendanceBatchMutationError.ClientOutsideGroup,
-                    new AttendanceBatchSaveResult(command.GroupId, command.TrainingDate, [], [], [], invalidClientIds));
+                    new AttendanceBatchSaveResult(command.LessonOccurrenceId, lesson.GroupId, lesson.LessonDate, [], [], [], invalidClientIds));
             }
 
             await LockAttendanceClientMembershipRowsAsync(requestedClientIds, cancellationToken);
 
             var existingEntries = requestedClientIds.Length == 0
             ? new Dictionary<Guid, AttendanceEntry>()
-            : await dbContext.Attendance
-                .Where(attendance =>
-                    attendance.GroupId == command.GroupId &&
-                    attendance.TrainingDate == command.TrainingDate &&
+                : await dbContext.Attendance
+                    .Where(attendance =>
+                    attendance.LessonOccurrenceId == command.LessonOccurrenceId &&
                     requestedClientIds.Contains(attendance.ClientId))
                 .ToDictionaryAsync(attendance => attendance.ClientId, cancellationToken);
 
@@ -196,8 +203,9 @@ internal sealed class AttendanceService(
                     {
                         Id = Guid.NewGuid(),
                         ClientId = mark.ClientId,
-                        GroupId = command.GroupId,
-                        TrainingDate = command.TrainingDate,
+                        LessonOccurrenceId = command.LessonOccurrenceId,
+                        GroupId = lesson.GroupId,
+                        TrainingDate = lesson.LessonDate,
                         IsPresent = mark.State == AttendanceState.Present,
                         MarkedByUserId = command.MarkedByUserId,
                         MarkedAt = now,
@@ -218,8 +226,8 @@ internal sealed class AttendanceService(
                 {
                     var entitlement = await entitlementResolver.ResolveAsync(
                         mark.ClientId,
-                        command.GroupId,
-                        command.TrainingDate,
+                        lesson.GroupId,
+                        lesson.LessonDate,
                         cancellationToken);
                     if (entitlement.Status == ClientMembershipEntitlementResolutionStatus.InvariantConflict)
                     {
@@ -238,7 +246,7 @@ internal sealed class AttendanceService(
 
                     var writeOff = await clientMembershipService.WriteOffSingleVisitAsync(
                         mark.ClientId,
-                        new WriteOffSingleVisitCommand(command.MarkedByUserId, command.TrainingDate, command.GroupId),
+                        new WriteOffSingleVisitCommand(command.MarkedByUserId, lesson.LessonDate, lesson.GroupId),
                         cancellationToken);
                     if (writeOff.Status == SingleVisitWriteOffStatus.MembershipEntitlementInvariantConflict)
                     {
@@ -270,15 +278,16 @@ internal sealed class AttendanceService(
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
-            await WriteDomainAuditsAsync(command, group.Name, clientNames, changes, writeOffs, restores, cancellationToken);
+            await WriteDomainAuditsAsync(command, lesson.GroupName, clientNames, changes, writeOffs, restores, cancellationToken);
 
             if (ownedTransaction is not null)
             {
                 await ownedTransaction.CommitAsync(cancellationToken);
             }
             return AttendanceBatchMutationResult.Success(new AttendanceBatchSaveResult(
-                command.GroupId,
-                command.TrainingDate,
+                command.LessonOccurrenceId,
+                lesson.GroupId,
+                lesson.LessonDate,
                 changes,
                 writeOffs,
                 restores,
@@ -293,6 +302,94 @@ internal sealed class AttendanceService(
 
             throw;
         }
+    }
+
+    private async Task<AttendanceLessonForSave?> ResolveLessonForSaveAsync(
+        SaveAttendanceCommand command,
+        CancellationToken cancellationToken)
+    {
+        var materialized = await dbContext.LessonOccurrences
+            .AsNoTracking()
+            .Where(occurrence => occurrence.Id == command.LessonOccurrenceId)
+            .Select(occurrence => new AttendanceLessonForSave(
+                occurrence.Id,
+                occurrence.GroupId,
+                occurrence.Group.Name,
+                occurrence.Group.BranchId,
+                occurrence.LessonDate,
+                occurrence.StartTime,
+                occurrence.DurationMinutes,
+                occurrence.HallId,
+                occurrence.Status))
+            .SingleOrDefaultAsync(cancellationToken);
+        if (materialized is not null)
+        {
+            return materialized.GroupId == command.GroupId && materialized.LessonDate == command.TrainingDate
+                ? materialized
+                : null;
+        }
+
+        var weekday = ToIsoWeekday(command.TrainingDate);
+        var projectedSeries = await dbContext.LessonSeries
+            .AsNoTracking()
+            .Where(series =>
+                series.GroupId == command.GroupId &&
+                series.StartsOn <= command.TrainingDate &&
+                (series.EndsOn == null || series.EndsOn >= command.TrainingDate))
+            .Include(series => series.Group)
+            .Include(series => series.RuleVersions)
+                .ThenInclude(version => version.Slots)
+            .AsSplitQuery()
+            .ToArrayAsync(cancellationToken);
+        var projectedMatch = projectedSeries
+            .SelectMany(series => series.RuleVersions
+                .Where(version =>
+                    version.EffectiveFrom <= command.TrainingDate &&
+                    (version.EffectiveTo == null || version.EffectiveTo >= command.TrainingDate))
+                .SelectMany(version => version.Slots
+                    .Where(slot => slot.IsoWeekday == weekday)
+                    .Select(slot => new
+                    {
+                        Series = series,
+                        Version = version,
+                        Slot = slot
+                    })))
+            .SingleOrDefault(candidate => LessonOccurrenceIdPolicy.CreateRecurring(candidate.Slot.SlotLineageId, command.TrainingDate) == command.LessonOccurrenceId);
+        if (projectedMatch is not null)
+        {
+            var now = timeProvider.GetUtcNow();
+            dbContext.LessonOccurrences.Add(new LessonOccurrence
+            {
+                Id = command.LessonOccurrenceId,
+                GroupId = command.GroupId,
+                LessonDate = command.TrainingDate,
+                StartTime = projectedMatch.Slot.StartTime,
+                DurationMinutes = projectedMatch.Slot.DurationMinutes,
+                HallId = projectedMatch.Slot.HallId,
+                SourceLessonSeriesId = projectedMatch.Series.Id,
+                SourceRuleVersionId = projectedMatch.Version.Id,
+                SourceSlotId = projectedMatch.Slot.Id,
+                SourceSlotLineageId = projectedMatch.Slot.SlotLineageId,
+                ProjectedDate = command.TrainingDate,
+                Status = LessonOccurrenceStatus.Scheduled,
+                SourceKind = LessonOccurrenceSourceKind.Recurring,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            return new AttendanceLessonForSave(
+                command.LessonOccurrenceId,
+                command.GroupId,
+                projectedMatch.Series.Group.Name,
+                projectedMatch.Series.Group.BranchId,
+                command.TrainingDate,
+                projectedMatch.Slot.StartTime,
+                projectedMatch.Slot.DurationMinutes,
+                projectedMatch.Slot.HallId,
+                LessonOccurrenceStatus.Scheduled);
+        }
+
+        return null;
     }
 
     private void AddAttendanceEntitlementSnapshots(
@@ -369,6 +466,11 @@ internal sealed class AttendanceService(
                 $"""SELECT 1 FROM "ClientMembershipTargetGroups" WHERE "ClientMembershipId" IN (SELECT "Id" FROM "ClientMemberships" WHERE "ClientId" = {clientId} AND "ValidTo" IS NULL) ORDER BY "ClientMembershipId", "Position" FOR UPDATE""",
                 cancellationToken);
         }
+    }
+
+    private static int ToIsoWeekday(DateOnly date)
+    {
+        return date.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)date.DayOfWeek;
     }
 
     private async Task<AttendanceBatchMutationError> EvaluateLockedAuthorizationAsync(
@@ -502,6 +604,7 @@ internal sealed class AttendanceService(
 
     private static bool IsValid(SaveAttendanceCommand command) =>
         command.GroupId != Guid.Empty &&
+        command.LessonOccurrenceId != Guid.Empty &&
         command.MarkedByUserId != Guid.Empty &&
         command.TrainingDate != default &&
         !string.IsNullOrWhiteSpace(command.ActorLogin) &&
@@ -518,6 +621,7 @@ internal sealed class AttendanceService(
         JsonSerializer.Serialize(new
         {
             clientId,
+            command.LessonOccurrenceId,
             command.GroupId,
             command.TrainingDate,
             State = state.ToString()
@@ -550,4 +654,15 @@ internal sealed class AttendanceService(
             membership.ValidTo,
             membership.CreatedAt
         }, SerializerOptions);
+
+    private sealed record AttendanceLessonForSave(
+        Guid LessonOccurrenceId,
+        Guid GroupId,
+        string GroupName,
+        Guid BranchId,
+        DateOnly LessonDate,
+        TimeOnly StartTime,
+        int DurationMinutes,
+        Guid HallId,
+        LessonOccurrenceStatus Status);
 }

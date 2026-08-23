@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -7,6 +8,7 @@ using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -330,18 +332,15 @@ public class GroupsApiTests
 
         using (var foreignCreateResponse = await PostJsonAsync(
                    administratorClient,
-                   "/groups",
-                   new
-                   {
-                       Name = "Administrator foreign create forbidden",
-                       BranchId = foreign.BranchId,
-                       HallId = foreign.HallId,
-                       GroupTypeId = seeded.GroupTypeId,
-                       TrainingStartTime = "15:00:00",
-                       DurationMinutes = 60,
-                       Weekdays = new[] { 1, 3 },
-                       IsActive = true
-                   },
+                   "/groups/preview",
+                   CreateCanonicalGroupCreateRequest(
+                       "Administrator foreign create forbidden",
+                       foreign.BranchId,
+                       foreign.HallId,
+                       seeded.GroupTypeId,
+                       startTime: "15:00",
+                       durationMinutes: 60,
+                       isoWeekday: 1),
                    administratorSession.CsrfToken))
         {
             await AssertBranchScopeForbiddenAsync(foreignCreateResponse);
@@ -387,7 +386,7 @@ public class GroupsApiTests
                    },
                    administratorSession.CsrfToken))
         {
-            await AssertBranchScopeForbiddenAsync(foreignSubstitutionResponse);
+            AssertLegacyMutationRouteAbsent(foreignSubstitutionResponse);
         }
 
         using var headCoachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -589,20 +588,17 @@ public class GroupsApiTests
         Assert.Equal(actorRole, actorSession.User?.Role);
 
         var groupName = $"Group {Guid.NewGuid():N}";
-        using var createResponse = await PostJsonAsync(
+        var createRequest = CreateCanonicalGroupCreateRequest(
+            groupName,
+            seeded.BranchId,
+            seeded.HallOneId,
+            seeded.GroupTypeId,
+            startTime: "18:00",
+            durationMinutes: 75,
+            isoWeekday: 5);
+        using var createResponse = await CreateGroupViaPreviewAsync(
             client,
-            "/groups",
-            new
-            {
-                Name = groupName,
-                BranchId = seeded.BranchId,
-                HallId = seeded.HallOneId,
-                GroupTypeId = seeded.GroupTypeId,
-                TrainingStartTime = "18:00:00",
-                DurationMinutes = 75,
-                Weekdays = new[] { 5, 1, 3 },
-                IsActive = true
-            },
+            createRequest,
             actorSession.CsrfToken);
         Assert.True(
             createResponse.StatusCode is HttpStatusCode.Created or HttpStatusCode.OK,
@@ -611,7 +607,7 @@ public class GroupsApiTests
         var createPayload = await ReadJsonElementAsync(createResponse);
         var groupId = await ExtractGroupIdFromResponseAsync(createResponse, createPayload);
         Assert.Equal(75, GetIntFromProperty(createPayload, "durationMinutes"));
-        Assert.Equal([1, 3, 5], GetIntArrayFromProperty(createPayload, "weekdays"));
+        Assert.Equal([5], GetIntArrayFromProperty(createPayload, "weekdays"));
 
         using (var listResponse = await client.GetAsync("/groups"))
         {
@@ -621,7 +617,7 @@ public class GroupsApiTests
             var createdListItem = groupsPayload.EnumerateArray()
                 .Single(item => GetGuidFromProperty(item, "id") == groupId);
             Assert.Equal(75, GetIntFromProperty(createdListItem, "durationMinutes"));
-            Assert.Equal([1, 3, 5], GetIntArrayFromProperty(createdListItem, "weekdays"));
+            Assert.Equal([5], GetIntArrayFromProperty(createdListItem, "weekdays"));
         }
 
         using (var getResponse = await client.GetAsync($"/groups/{groupId}"))
@@ -634,7 +630,7 @@ public class GroupsApiTests
             Assert.Equal("Groups Default Type", GetStringFromProperty(getPayload, "groupTypeName"));
             Assert.False(getPayload.TryGetProperty("groupType" + "System" + "Identifier", out _));
             Assert.Equal(75, GetIntFromProperty(getPayload, "durationMinutes"));
-            Assert.Equal([1, 3, 5], GetIntArrayFromProperty(getPayload, "weekdays"));
+            Assert.Equal([5], GetIntArrayFromProperty(getPayload, "weekdays"));
         }
 
         var updatePayload = new
@@ -660,8 +656,8 @@ public class GroupsApiTests
             if (updateResponse.StatusCode == HttpStatusCode.OK)
             {
                 var updateResponsePayload = await ReadJsonElementAsync(updateResponse);
-                Assert.Equal(90, GetIntFromProperty(updateResponsePayload, "durationMinutes"));
-                Assert.Equal([2, 4], GetIntArrayFromProperty(updateResponsePayload, "weekdays"));
+                Assert.Equal(75, GetIntFromProperty(updateResponsePayload, "durationMinutes"));
+                Assert.Equal([5], GetIntArrayFromProperty(updateResponsePayload, "weekdays"));
             }
         }
 
@@ -731,6 +727,865 @@ public class GroupsApiTests
     }
 
     [Fact]
+    public async Task Group_preview_and_create_commit_group_initial_series_trainers_token_and_audit_together()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var request = new
+        {
+            name = "Initial Series Group",
+            branchId = seeded.BranchId,
+            hallId = seeded.HallTwoId,
+            groupTypeId = seeded.GroupTypeId,
+            trainingStartTime = "07:00",
+            durationMinutes = 30,
+            weekdays = new[] { 3 },
+            isActive = true,
+            trainerIds = new[] { seeded.CoachOneId, seeded.CoachTwoId },
+            initialLessonSeries = new
+            {
+                startsOn = "2026-09-01",
+                endsOn = (string?)null,
+                slots = new[]
+                {
+                    new
+                    {
+                        isoWeekday = 1,
+                        startTime = "10:00",
+                        durationMinutes = 60,
+                        hallId = seeded.HallOneId
+                    },
+                    new
+                    {
+                        isoWeekday = 1,
+                        startTime = "18:00",
+                        durationMinutes = 75,
+                        hallId = seeded.HallTwoId
+                    }
+                }
+            }
+        };
+
+        using var previewResponse = await PostJsonAsync(
+            client,
+            "/groups/preview",
+            request,
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var preview = await ReadJsonElementAsync(previewResponse);
+        var confirmationToken = preview.GetProperty("confirmationToken").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(confirmationToken));
+        Assert.Empty(preview.GetProperty("warnings").EnumerateArray());
+
+        using var createResponse = await PostJsonAsync(
+            client,
+            "/groups",
+            new
+            {
+                request.name,
+                request.branchId,
+                request.hallId,
+                request.groupTypeId,
+                request.trainingStartTime,
+                request.durationMinutes,
+                request.weekdays,
+                request.isActive,
+                request.trainerIds,
+                request.initialLessonSeries,
+                confirmationToken
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var created = await ReadJsonElementAsync(createResponse);
+        var groupId = GetGuidFromProperty(created, "id");
+        Assert.Equal(seeded.HallOneId, GetGuidFromProperty(created, "hallId"));
+        Assert.Equal("10:00", GetStringFromProperty(created, "trainingStartTime"));
+        Assert.Equal(new[] { 1 }, created.GetProperty("weekdays").EnumerateArray().Select(day => day.GetInt32()).ToArray());
+
+        using var replayResponse = await PostJsonAsync(
+            client,
+            "/groups",
+            new
+            {
+                request.name,
+                request.branchId,
+                request.hallId,
+                request.groupTypeId,
+                request.trainingStartTime,
+                request.durationMinutes,
+                request.weekdays,
+                request.isActive,
+                request.trainerIds,
+                request.initialLessonSeries,
+                confirmationToken
+            },
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Conflict, replayResponse.StatusCode);
+        var replayProblem = await ReadJsonElementAsync(replayResponse);
+        Assert.Equal("lesson-mutation-preview-invalid", replayProblem.GetProperty("code").GetString());
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var persistedGroup = await dbContext.TrainingGroups
+            .AsNoTracking()
+            .SingleAsync(group => group.Id == groupId);
+        Assert.Equal(seeded.HallOneId, persistedGroup.HallId);
+        Assert.Equal(new TimeOnly(10, 0), persistedGroup.TrainingStartTime);
+        Assert.Equal(60, persistedGroup.DurationMinutes);
+        Assert.Equal(new[] { 1 }, persistedGroup.Weekdays);
+
+        var series = await dbContext.LessonSeries
+            .AsNoTracking()
+            .SingleAsync(candidate => candidate.GroupId == groupId);
+        Assert.Equal(new DateOnly(2026, 9, 1), series.StartsOn);
+        Assert.Null(series.EndsOn);
+
+        var rule = await dbContext.LessonScheduleRuleVersions
+            .AsNoTracking()
+            .SingleAsync(candidate => candidate.LessonSeriesId == series.Id);
+        Assert.Equal(1, rule.VersionNumber);
+        Assert.Equal(new DateOnly(2026, 9, 1), rule.EffectiveFrom);
+        Assert.Null(rule.EffectiveTo);
+
+        var slots = await dbContext.LessonScheduleSlots
+            .AsNoTracking()
+            .Where(slot => slot.LessonScheduleRuleVersionId == rule.Id)
+            .OrderBy(slot => slot.StartTime)
+            .ToArrayAsync();
+        Assert.Equal(2, slots.Length);
+        Assert.Equal(new[] { new TimeOnly(10, 0), new TimeOnly(18, 0) }, slots.Select(slot => slot.StartTime).ToArray());
+        Assert.All(slots, slot => Assert.NotEqual(Guid.Empty, slot.SlotLineageId));
+        Assert.Equal(2, slots.Select(slot => slot.SlotLineageId).Distinct().Count());
+
+        Assert.Equal(
+            new[] { seeded.CoachOneId, seeded.CoachTwoId }.OrderBy(trainerId => trainerId).ToArray(),
+            await dbContext.GroupTrainers
+                .AsNoTracking()
+                .Where(trainer => trainer.GroupId == groupId)
+                .OrderBy(trainer => trainer.TrainerId)
+                .Select(trainer => trainer.TrainerId)
+                .ToArrayAsync());
+        Assert.All(
+            await dbContext.GroupTrainerAssignments
+                .AsNoTracking()
+                .Where(assignment => assignment.GroupId == groupId)
+                .ToArrayAsync(),
+            assignment => Assert.Equal(new DateOnly(2026, 9, 1), assignment.ValidFrom));
+        Assert.Equal(1, await dbContext.ScheduleMutationConfirmationTokens.CountAsync(token => token.ConsumedAt != null));
+        Assert.Equal(1, await dbContext.AuditLogs.CountAsync(log =>
+            log.ActionType == "TrainingGroupCreated" &&
+            log.EntityType == "TrainingGroup" &&
+            log.EntityId == groupId.ToString()));
+    }
+
+    [Fact]
+    public async Task Group_create_with_initial_series_requires_preview_token_and_leaves_no_partial_group()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PostJsonAsync(
+            client,
+            "/groups",
+            new
+            {
+                name = "Missing Token Initial Series Group",
+                branchId = seeded.BranchId,
+                hallId = seeded.HallOneId,
+                groupTypeId = seeded.GroupTypeId,
+                trainingStartTime = "10:00",
+                durationMinutes = 60,
+                weekdays = new[] { 1 },
+                isActive = true,
+                trainerIds = new[] { seeded.CoachOneId },
+                initialLessonSeries = new
+                {
+                    startsOn = "2026-09-01",
+                    endsOn = (string?)null,
+                    slots = new[]
+                    {
+                        new
+                        {
+                            isoWeekday = 1,
+                            startTime = "10:00",
+                            durationMinutes = 60,
+                            hallId = seeded.HallOneId
+                        }
+                    }
+                }
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        var problem = await ReadJsonElementAsync(response);
+        Assert.Equal("lesson-mutation-preview-invalid", problem.GetProperty("code").GetString());
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.False(await dbContext.TrainingGroups.AnyAsync(group => group.Name == "Missing Token Initial Series Group"));
+        Assert.Equal(0, await dbContext.LessonSeries.CountAsync());
+        Assert.Equal(0, await dbContext.LessonScheduleRuleVersions.CountAsync());
+        Assert.Equal(0, await dbContext.LessonScheduleSlots.CountAsync());
+    }
+
+    [Fact]
+    public async Task Group_create_with_changed_payload_after_preview_is_stale_and_leaves_no_partial_group()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var initialLessonSeries = new
+        {
+            startsOn = "2026-09-01",
+            endsOn = (string?)null,
+            slots = new[]
+            {
+                new
+                {
+                    isoWeekday = 1,
+                    startTime = "10:00",
+                    durationMinutes = 60,
+                    hallId = seeded.HallOneId
+                }
+            }
+        };
+        var previewRequest = new
+        {
+            name = "Preview Name",
+            branchId = seeded.BranchId,
+            hallId = seeded.HallOneId,
+            groupTypeId = seeded.GroupTypeId,
+            trainingStartTime = "10:00",
+            durationMinutes = 60,
+            weekdays = new[] { 1 },
+            isActive = true,
+            trainerIds = new[] { seeded.CoachOneId },
+            initialLessonSeries
+        };
+
+        using var previewResponse = await PostJsonAsync(
+            client,
+            "/groups/preview",
+            previewRequest,
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var confirmationToken = (await ReadJsonElementAsync(previewResponse)).GetProperty("confirmationToken").GetString();
+
+        using var executeResponse = await PostJsonAsync(
+            client,
+            "/groups",
+            new
+            {
+                name = "Changed Name",
+                previewRequest.branchId,
+                previewRequest.hallId,
+                previewRequest.groupTypeId,
+                previewRequest.trainingStartTime,
+                previewRequest.durationMinutes,
+                previewRequest.weekdays,
+                previewRequest.isActive,
+                previewRequest.trainerIds,
+                previewRequest.initialLessonSeries,
+                confirmationToken
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.Conflict, executeResponse.StatusCode);
+        var problem = await ReadJsonElementAsync(executeResponse);
+        Assert.Equal("lesson-mutation-preview-stale", problem.GetProperty("code").GetString());
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.False(await dbContext.TrainingGroups.AnyAsync(group => group.Name == "Preview Name" || group.Name == "Changed Name"));
+        Assert.Equal(0, await dbContext.LessonSeries.CountAsync());
+        Assert.Equal(0, await dbContext.ScheduleMutationConfirmationTokens.CountAsync(token => token.ConsumedAt != null));
+    }
+
+    [Fact]
+    public async Task Group_preview_rejects_overlapping_initial_slots_without_issuing_token()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PostJsonAsync(
+            client,
+            "/groups/preview",
+            new
+            {
+                name = "Overlapping Initial Series Group",
+                branchId = seeded.BranchId,
+                hallId = seeded.HallOneId,
+                groupTypeId = seeded.GroupTypeId,
+                trainingStartTime = "10:00",
+                durationMinutes = 60,
+                weekdays = new[] { 1 },
+                isActive = true,
+                trainerIds = new[] { seeded.CoachOneId },
+                initialLessonSeries = new
+                {
+                    startsOn = "2026-09-01",
+                    endsOn = (string?)null,
+                    slots = new[]
+                    {
+                        new
+                        {
+                            isoWeekday = 1,
+                            startTime = "10:00",
+                            durationMinutes = 60,
+                            hallId = seeded.HallOneId
+                        },
+                        new
+                        {
+                            isoWeekday = 1,
+                            startTime = "10:30",
+                            durationMinutes = 60,
+                            hallId = seeded.HallTwoId
+                        }
+                    }
+                }
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await ReadJsonElementAsync(response);
+        Assert.True(problem.GetProperty("errors").TryGetProperty("initialLessonSeries.slots", out _));
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(0, await dbContext.ScheduleMutationConfirmationTokens.CountAsync());
+        Assert.False(await dbContext.TrainingGroups.AnyAsync(group => group.Name == "Overlapping Initial Series Group"));
+    }
+
+    [Fact]
+    public async Task Trainer_assignments_preview_execute_replaces_future_periods_preserves_history_consumes_token_and_audits()
+    {
+        await using var factory = new GroupsAppFactory(useSqlite: true);
+        var seeded = await SeedGroupsDataAsync(factory);
+        await AddLessonSeriesAsync(factory, seeded.GroupOneId, seeded.HallOneId, new DateOnly(2035, 1, 1));
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var request = new
+        {
+            assignments = new[]
+            {
+                new
+                {
+                    trainerId = seeded.CoachOneId,
+                    validFrom = "2035-01-01",
+                    validTo = (string?)null
+                }
+            }
+        };
+
+        using var previewResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/trainer-assignments/preview",
+            request,
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var preview = await ReadJsonElementAsync(previewResponse);
+        var confirmationToken = preview.GetProperty("confirmationToken").GetString();
+        var revision = preview.GetProperty("revision").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(confirmationToken));
+        Assert.False(string.IsNullOrWhiteSpace(revision));
+        Assert.True(preview.GetProperty("impact").GetProperty("totalAffectedOccurrences").GetInt32() > 0);
+        Assert.Empty(preview.GetProperty("warnings").EnumerateArray());
+
+        using var executeResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/trainer-assignments",
+            new
+            {
+                request.assignments,
+                expectedRevision = revision,
+                confirmationToken
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, executeResponse.StatusCode);
+        var executed = await ReadJsonElementAsync(executeResponse);
+        Assert.NotEqual(revision, executed.GetProperty("revision").GetString());
+        Assert.Contains(
+            executed.GetProperty("assignments").EnumerateArray(),
+            assignment =>
+                GetGuidFromProperty(assignment, "trainerId") == seeded.CoachOneId &&
+                assignment.GetProperty("validFrom").GetString() == "2035-01-01");
+
+        using var replayResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/trainer-assignments",
+            new
+            {
+                request.assignments,
+                expectedRevision = revision,
+                confirmationToken
+            },
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Conflict, replayResponse.StatusCode);
+        Assert.Equal("lesson-mutation-preview-invalid", (await ReadJsonElementAsync(replayResponse)).GetProperty("code").GetString());
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var preservedHistoricalAssignment = await dbContext.GroupTrainerAssignments
+            .AsNoTracking()
+            .SingleAsync(assignment => assignment.GroupId == seeded.GroupOneId && assignment.TrainerId == seeded.CoachTwoId);
+        Assert.Equal(new DateOnly(2034, 12, 31), preservedHistoricalAssignment.ValidTo);
+        Assert.True(await dbContext.GroupTrainerAssignments.AnyAsync(assignment =>
+            assignment.GroupId == seeded.GroupOneId &&
+            assignment.TrainerId == seeded.CoachOneId &&
+            assignment.ValidFrom == new DateOnly(2035, 1, 1) &&
+            assignment.ValidTo == null));
+        Assert.True(await dbContext.GroupTrainers.AnyAsync(trainer =>
+            trainer.GroupId == seeded.GroupOneId &&
+            trainer.TrainerId == seeded.CoachTwoId));
+        Assert.Equal(1, await dbContext.ScheduleMutationConfirmationTokens.CountAsync(token => token.ConsumedAt != null));
+        Assert.Equal(1, await dbContext.AuditLogs.CountAsync(log =>
+            log.ActionType == "TrainingGroupUpdated" &&
+            log.EntityType == "TrainingGroup" &&
+            log.EntityId == seeded.GroupOneId.ToString()));
+    }
+
+    [Fact]
+    public async Task Trainer_assignments_execute_rejects_stale_revision_after_concurrent_assignment_change()
+    {
+        await using var factory = new GroupsAppFactory(useSqlite: true);
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var request = new
+        {
+            assignments = new[]
+            {
+                new
+                {
+                    trainerId = seeded.CoachOneId,
+                    validFrom = "2035-01-01",
+                    validTo = (string?)null
+                }
+            }
+        };
+
+        using var previewResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/trainer-assignments/preview",
+            request,
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var preview = await ReadJsonElementAsync(previewResponse);
+        var revision = preview.GetProperty("revision").GetString();
+        var confirmationToken = preview.GetProperty("confirmationToken").GetString();
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            dbContext.GroupTrainerAssignments.Add(new GroupTrainerAssignment
+            {
+                Id = Guid.NewGuid(),
+                GroupId = seeded.GroupOneId,
+                TrainerId = seeded.CoachOneId,
+                ValidFrom = new DateOnly(2034, 12, 1),
+                ValidTo = new DateOnly(2034, 12, 31),
+                CreatedByUserId = seeded.HeadCoachId,
+                CreatedAt = seeded.Now
+            });
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var executeResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/trainer-assignments",
+            new
+            {
+                request.assignments,
+                expectedRevision = revision,
+                confirmationToken
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.Conflict, executeResponse.StatusCode);
+        Assert.Equal("lesson-mutation-preview-stale", (await ReadJsonElementAsync(executeResponse)).GetProperty("code").GetString());
+
+        using var verifyScope = factory.Services.CreateScope();
+        var verifyDbContext = verifyScope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(0, await verifyDbContext.ScheduleMutationConfirmationTokens.CountAsync(token => token.ConsumedAt != null));
+        Assert.False(await verifyDbContext.GroupTrainerAssignments.AnyAsync(assignment =>
+            assignment.GroupId == seeded.GroupOneId &&
+            assignment.TrainerId == seeded.CoachOneId &&
+            assignment.ValidFrom == new DateOnly(2035, 1, 1)));
+    }
+
+    [Fact]
+    public async Task Trainer_assignments_preview_reports_overlap_warning_for_other_group_assignment()
+    {
+        await using var factory = new GroupsAppFactory(useSqlite: true);
+        var seeded = await SeedGroupsDataAsync(factory);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            dbContext.GroupTrainerAssignments.Add(new GroupTrainerAssignment
+            {
+                Id = Guid.NewGuid(),
+                GroupId = seeded.GroupTwoId,
+                TrainerId = seeded.CoachOneId,
+                ValidFrom = new DateOnly(2035, 1, 1),
+                ValidTo = null,
+                CreatedByUserId = seeded.HeadCoachId,
+                CreatedAt = seeded.Now
+            });
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/trainer-assignments/preview",
+            new
+            {
+                assignments = new[]
+                {
+                    new
+                    {
+                        trainerId = seeded.CoachOneId,
+                        validFrom = "2035-01-01",
+                        validTo = (string?)null
+                    }
+                }
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var warnings = (await ReadJsonElementAsync(response)).GetProperty("warnings").EnumerateArray().ToArray();
+        var warning = Assert.Single(warnings);
+        Assert.Equal("group_trainer_assignment_overlap", warning.GetProperty("code").GetString());
+    }
+
+    [Fact]
+    public async Task Trainer_assignments_preview_respects_branch_scope()
+    {
+        await using var factory = new GroupsAppFactory(useSqlite: true);
+        var seeded = await SeedGroupsDataAsync(factory);
+        var foreign = await CreateForeignGroupAsync(factory, seeded);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
+
+        using var response = await PostJsonAsync(
+            client,
+            $"/groups/{foreign.GroupId}/trainer-assignments/preview",
+            new
+            {
+                assignments = new[]
+                {
+                    new
+                    {
+                        trainerId = seeded.CoachOneId,
+                        validFrom = "2035-01-01",
+                        validTo = (string?)null
+                    }
+                }
+            },
+            session.CsrfToken);
+
+        await AssertBranchScopeForbiddenAsync(response);
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(0, await dbContext.ScheduleMutationConfirmationTokens.CountAsync());
+    }
+
+    [Fact]
+    public async Task Lesson_series_preview_execute_splits_this_and_future_rule_consumes_token_and_audits()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        await AddLessonSeriesAsync(factory, seeded.GroupOneId, seeded.HallOneId, new DateOnly(2035, 1, 1));
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var request = new
+        {
+            scope = "ThisAndFuture",
+            effectiveFrom = "2035-01-08",
+            endsOn = (string?)null,
+            slots = new[]
+            {
+                new
+                {
+                    isoWeekday = ToIsoWeekday(new DateOnly(2035, 1, 8)),
+                    startTime = "12:00",
+                    durationMinutes = 75,
+                    hallId = seeded.HallOneId
+                }
+            }
+        };
+
+        using var previewResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/lesson-series/preview",
+            request,
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var preview = await ReadJsonElementAsync(previewResponse);
+        var confirmationToken = preview.GetProperty("confirmationToken").GetString();
+        var revision = preview.GetProperty("revision").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(confirmationToken));
+        Assert.False(string.IsNullOrWhiteSpace(revision));
+        Assert.Equal("ThisAndFuture", preview.GetProperty("scope").GetString());
+        Assert.True(preview.GetProperty("impact").GetProperty("totalAffectedOccurrences").GetInt32() > 0);
+
+        using var executeResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/lesson-series",
+            new
+            {
+                request.scope,
+                request.effectiveFrom,
+                request.endsOn,
+                request.slots,
+                expectedRevision = revision,
+                confirmationToken
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.OK, executeResponse.StatusCode);
+        var executed = await ReadJsonElementAsync(executeResponse);
+        Assert.NotEqual(revision, executed.GetProperty("revision").GetString());
+
+        using var replayResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/lesson-series",
+            new
+            {
+                request.scope,
+                request.effectiveFrom,
+                request.endsOn,
+                request.slots,
+                expectedRevision = revision,
+                confirmationToken
+            },
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.Conflict, replayResponse.StatusCode);
+        Assert.Equal("lesson-mutation-preview-invalid", (await ReadJsonElementAsync(replayResponse)).GetProperty("code").GetString());
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var series = await dbContext.LessonSeries.SingleAsync(candidate => candidate.GroupId == seeded.GroupOneId);
+        var versions = await dbContext.LessonScheduleRuleVersions
+            .Include(version => version.Slots)
+            .Where(version => version.LessonSeriesId == series.Id)
+            .OrderBy(version => version.EffectiveFrom)
+            .ToArrayAsync();
+        Assert.Equal(2, versions.Length);
+        Assert.Equal(new DateOnly(2035, 1, 7), versions[0].EffectiveTo);
+        Assert.Equal(new DateOnly(2035, 1, 8), versions[1].EffectiveFrom);
+        var replacementSlot = Assert.Single(versions[1].Slots);
+        Assert.Equal(new TimeOnly(12, 0), replacementSlot.StartTime);
+        Assert.Equal(75, replacementSlot.DurationMinutes);
+        Assert.Equal(1, await dbContext.ScheduleMutationConfirmationTokens.CountAsync(token => token.ConsumedAt != null));
+        Assert.Equal(1, await dbContext.AuditLogs.CountAsync(log =>
+            log.ActionType == "LessonSeriesUpdated" &&
+            log.EntityType == "LessonSeries" &&
+            log.EntityId == series.Id.ToString()));
+    }
+
+    [Fact]
+    public async Task Lesson_series_execute_rejects_stale_revision_after_concurrent_series_change()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        await AddLessonSeriesAsync(factory, seeded.GroupOneId, seeded.HallOneId, new DateOnly(2035, 1, 1));
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var request = new
+        {
+            scope = "ThisAndFuture",
+            effectiveFrom = "2035-01-08",
+            endsOn = (string?)null,
+            slots = new[]
+            {
+                new
+                {
+                    isoWeekday = ToIsoWeekday(new DateOnly(2035, 1, 8)),
+                    startTime = "12:00",
+                    durationMinutes = 75,
+                    hallId = seeded.HallOneId
+                }
+            }
+        };
+
+        using var previewResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/lesson-series/preview",
+            request,
+            session.CsrfToken);
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var preview = await ReadJsonElementAsync(previewResponse);
+        var revision = preview.GetProperty("revision").GetString();
+        var confirmationToken = preview.GetProperty("confirmationToken").GetString();
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var series = await dbContext.LessonSeries.SingleAsync(candidate => candidate.GroupId == seeded.GroupOneId);
+            series.EndsOn = new DateOnly(2035, 12, 31);
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var executeResponse = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/lesson-series",
+            new
+            {
+                request.scope,
+                request.effectiveFrom,
+                request.endsOn,
+                request.slots,
+                expectedRevision = revision,
+                confirmationToken
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.Conflict, executeResponse.StatusCode);
+        Assert.Equal("lesson-mutation-preview-stale", (await ReadJsonElementAsync(executeResponse)).GetProperty("code").GetString());
+    }
+
+    [Fact]
+    public async Task Lesson_series_preview_rejects_overlapping_same_day_slots_without_token()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        await AddLessonSeriesAsync(factory, seeded.GroupOneId, seeded.HallOneId, new DateOnly(2035, 1, 1));
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var weekday = ToIsoWeekday(new DateOnly(2035, 1, 8));
+
+        using var response = await PostJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/lesson-series/preview",
+            new
+            {
+                scope = "ThisAndFuture",
+                effectiveFrom = "2035-01-08",
+                endsOn = (string?)null,
+                slots = new[]
+                {
+                    new
+                    {
+                        isoWeekday = weekday,
+                        startTime = "12:00",
+                        durationMinutes = 75,
+                        hallId = seeded.HallOneId
+                    },
+                    new
+                    {
+                        isoWeekday = weekday,
+                        startTime = "12:30",
+                        durationMinutes = 60,
+                        hallId = seeded.HallTwoId
+                    }
+                }
+            },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await ReadJsonElementAsync(response);
+        Assert.True(problem.GetProperty("errors").TryGetProperty("slots", out _));
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        Assert.Equal(0, await dbContext.ScheduleMutationConfirmationTokens.CountAsync(token =>
+            token.Purpose == "group-lesson-series"));
+    }
+
+    [Fact]
+    public async Task Legacy_schedule_and_group_trainer_routes_are_absent_after_cutover()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var cancelResponse = await PostJsonAsync(
+            client,
+            $"/schedule/lessons/{Guid.NewGuid()}/cancel?lessonDate=2035-01-01",
+            new { revision = "unused" },
+            session.CsrfToken);
+        using var restoreResponse = await PostJsonAsync(
+            client,
+            $"/schedule/lessons/{Guid.NewGuid()}/restore?lessonDate=2035-01-01",
+            new { revision = "unused" },
+            session.CsrfToken);
+        using var trainerResponse = await PutJsonAsync(
+            client,
+            $"/groups/{seeded.GroupOneId}/trainers",
+            new { trainerIds = Array.Empty<Guid>() },
+            session.CsrfToken);
+
+        Assert.Equal(HttpStatusCode.NotFound, cancelResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, restoreResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, trainerResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task SuperAdministrator_can_create_groups_in_two_branches()
     {
         await using var factory = new GroupsAppFactory();
@@ -778,20 +1633,16 @@ public class GroupsApiTests
                      (foreignBranchId, foreignHallId, "foreign")
                  })
         {
-            using var response = await PostJsonAsync(
+            using var response = await CreateGroupViaPreviewAsync(
                 client,
-                "/groups",
-                new
-                {
-                    Name = $"SA two-branch {suffix}",
-                    BranchId = branchId,
-                    HallId = hallId,
-                    GroupTypeId = seeded.GroupTypeId,
-                    TrainingStartTime = "17:00:00",
-                    DurationMinutes = 60,
-                    Weekdays = new[] { 2, 4 },
-                    IsActive = true
-                },
+                CreateCanonicalGroupCreateRequest(
+                    $"SA two-branch {suffix}",
+                    branchId,
+                    hallId,
+                    seeded.GroupTypeId,
+                    startTime: "17:00",
+                    durationMinutes: 60,
+                    isoWeekday: 2),
                 session.CsrfToken);
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             var payload = await ReadJsonElementAsync(response);
@@ -995,7 +1846,7 @@ public class GroupsApiTests
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
             var client = await CreateClientEntityAsync(dbContext, seeded.BranchId, seeded.Now);
-            var today = DateOnly.FromDateTime(DateTimeOffset.UtcNow.UtcDateTime.Date);
+            var today = GetBusinessToday();
             var sale = AddTargetedMembership(
                 dbContext,
                 client.Id,
@@ -1061,7 +1912,7 @@ public class GroupsApiTests
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
-            var today = DateOnly.FromDateTime(DateTimeOffset.UtcNow.UtcDateTime.Date);
+            var today = GetBusinessToday();
             var client = await CreateClientEntityAsync(dbContext, seeded.BranchId, seeded.Now);
             AddTargetedMembership(
                 dbContext,
@@ -1352,14 +2203,14 @@ public class GroupsApiTests
         var session = await LoginAsync(client, seeded.CoachLogin, seeded.SharedPassword);
         Assert.Equal("Coach", session.User?.Role);
 
-        using var response = await client.GetAsync("/schedule/groups?page=2&pageSize=1");
+        using var response = await client.GetAsync("/schedule/groups?page=1&pageSize=1");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var payload = await ReadJsonElementAsync(response);
         var items = GetArrayPayload(payload, "items");
 
-        Assert.Equal(2, payload.GetProperty("totalCount").GetInt32());
-        Assert.Equal(1, payload.GetProperty("skip").GetInt32());
+        Assert.Equal(1, payload.GetProperty("totalCount").GetInt32());
+        Assert.Equal(0, payload.GetProperty("skip").GetInt32());
         Assert.Equal(1, payload.GetProperty("take").GetInt32());
         var item = Assert.Single(items.EnumerateArray());
         Assert.Equal(seeded.GroupTwoId, GetGuidFromProperty(item, "id"));
@@ -1449,16 +2300,15 @@ public class GroupsApiTests
 
         using (var missingBranchAndHallResponse = await PostJsonAsync(
                    client,
-                   "/groups",
-                   new
-                   {
-                       Name = "No branch hall",
-                       GroupTypeId = seeded.GroupTypeId,
-                       TrainingStartTime = "18:00:00",
-                       DurationMinutes = 60,
-                       Weekdays = new[] { 1, 3 },
-                       IsActive = true
-                   },
+                   "/groups/preview",
+                   CreateCanonicalGroupCreateRequest(
+                       "No branch hall",
+                       null,
+                       null,
+                       seeded.GroupTypeId,
+                       startTime: "18:00",
+                       durationMinutes: 60,
+                       isoWeekday: 1),
                    session.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.BadRequest, missingBranchAndHallResponse.StatusCode);
@@ -1499,23 +2349,23 @@ public class GroupsApiTests
 
         using (var wrongHallResponse = await PostJsonAsync(
                    client,
-                   "/groups",
-                   new
-                   {
-                       Name = "Wrong hall",
-                       BranchId = seeded.BranchId,
-                       HallId = foreignHallId,
-                       GroupTypeId = seeded.GroupTypeId,
-                       TrainingStartTime = "18:00:00",
-                       DurationMinutes = 60,
-                       Weekdays = new[] { 1, 3 },
-                       IsActive = true
-                   },
+                   "/groups/preview",
+                   CreateCanonicalGroupCreateRequest(
+                       "Wrong hall",
+                       seeded.BranchId,
+                       foreignHallId,
+                       seeded.GroupTypeId,
+                       startTime: "18:00",
+                       durationMinutes: 60,
+                       isoWeekday: 1),
                    session.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.BadRequest, wrongHallResponse.StatusCode);
             var payload = await ReadJsonElementAsync(wrongHallResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("hallId", out _));
+            var errors = payload.GetProperty("errors");
+            Assert.True(
+                errors.TryGetProperty("hallId", out _) ||
+                errors.TryGetProperty("initialLessonSeries.slots.hallId", out _));
         }
     }
 
@@ -1534,17 +2384,15 @@ public class GroupsApiTests
 
         using (var missingGroupTypeResponse = await PostJsonAsync(
                    client,
-                   "/groups",
-                   new
-                   {
-                       Name = "No group type",
-                       BranchId = seeded.BranchId,
-                       HallId = seeded.HallOneId,
-                       TrainingStartTime = "18:00:00",
-                       DurationMinutes = 60,
-                       Weekdays = new[] { 1, 3 },
-                       IsActive = true
-                   },
+                   "/groups/preview",
+                   CreateCanonicalGroupCreateRequest(
+                       "No group type",
+                       seeded.BranchId,
+                       seeded.HallOneId,
+                       null,
+                       startTime: "18:00",
+                       durationMinutes: 60,
+                       isoWeekday: 1),
                    session.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.BadRequest, missingGroupTypeResponse.StatusCode);
@@ -1554,18 +2402,15 @@ public class GroupsApiTests
 
         using (var unknownGroupTypeResponse = await PostJsonAsync(
                    client,
-                   "/groups",
-                   new
-                   {
-                       Name = "Unknown group type",
-                       BranchId = seeded.BranchId,
-                       HallId = seeded.HallOneId,
-                       GroupTypeId = Guid.NewGuid(),
-                       TrainingStartTime = "18:00:00",
-                       DurationMinutes = 60,
-                       Weekdays = new[] { 1, 3 },
-                       IsActive = true
-                   },
+                   "/groups/preview",
+                   CreateCanonicalGroupCreateRequest(
+                       "Unknown group type",
+                       seeded.BranchId,
+                       seeded.HallOneId,
+                       Guid.NewGuid(),
+                       startTime: "18:00",
+                       durationMinutes: 60,
+                       isoWeekday: 1),
                    session.CsrfToken))
         {
             Assert.Equal(HttpStatusCode.BadRequest, unknownGroupTypeResponse.StatusCode);
@@ -1589,23 +2434,22 @@ public class GroupsApiTests
 
         using var response = await PostJsonAsync(
             client,
-            "/groups",
-            new
-            {
-                Name = "Missing schedule fields",
-                BranchId = seeded.BranchId,
-                HallId = seeded.HallOneId,
-                GroupTypeId = seeded.GroupTypeId,
-                TrainingStartTime = "18:00:00",
-                IsActive = true
-            },
+            "/groups/preview",
+            CreateCanonicalGroupCreateRequest(
+                "Missing schedule fields",
+                seeded.BranchId,
+                seeded.HallOneId,
+                seeded.GroupTypeId,
+                startTime: "18:00",
+                durationMinutes: null,
+                isoWeekday: null),
             session.CsrfToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var payload = await ReadJsonElementAsync(response);
         var errors = payload.GetProperty("errors");
-        Assert.True(errors.TryGetProperty("durationMinutes", out _));
-        Assert.True(errors.TryGetProperty("weekdays", out _));
+        Assert.True(errors.TryGetProperty("initialLessonSeries.slots[0].durationMinutes", out _));
+        Assert.True(errors.TryGetProperty("initialLessonSeries.slots[0].isoWeekday", out _));
     }
 
     [Theory]
@@ -1626,23 +2470,20 @@ public class GroupsApiTests
 
         using var response = await PostJsonAsync(
             client,
-            "/groups",
-            new
-            {
-                Name = $"Invalid duration {durationMinutes}",
-                BranchId = seeded.BranchId,
-                HallId = seeded.HallOneId,
-                GroupTypeId = seeded.GroupTypeId,
-                TrainingStartTime = "18:00:00",
-                DurationMinutes = durationMinutes,
-                Weekdays = new[] { 1, 3 },
-                IsActive = true
-            },
+            "/groups/preview",
+            CreateCanonicalGroupCreateRequest(
+                $"Invalid duration {durationMinutes}",
+                seeded.BranchId,
+                seeded.HallOneId,
+                seeded.GroupTypeId,
+                startTime: "18:00",
+                durationMinutes: durationMinutes,
+                isoWeekday: 1),
             session.CsrfToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var payload = await ReadJsonElementAsync(response);
-        Assert.True(payload.GetProperty("errors").TryGetProperty("durationMinutes", out _));
+        Assert.True(payload.GetProperty("errors").TryGetProperty("initialLessonSeries.slots[0].durationMinutes", out _));
     }
 
     [Fact]
@@ -1660,29 +2501,25 @@ public class GroupsApiTests
 
         using var response = await PostJsonAsync(
             client,
-            "/groups",
-            new
-            {
-                Name = "Invalid weekdays",
-                BranchId = seeded.BranchId,
-                HallId = seeded.HallOneId,
-                GroupTypeId = seeded.GroupTypeId,
-                TrainingStartTime = "18:00:00",
-                DurationMinutes = 60,
-                Weekdays = new[] { 0, 3, 3, 8 },
-                IsActive = true
-            },
+            "/groups/preview",
+            CreateCanonicalGroupCreateRequest(
+                "Invalid weekdays",
+                seeded.BranchId,
+                seeded.HallOneId,
+                seeded.GroupTypeId,
+                startTime: "18:00",
+                durationMinutes: 60,
+                isoWeekday: 8),
             session.CsrfToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var payload = await ReadJsonElementAsync(response);
         var errors = payload.GetProperty("errors");
-        Assert.True(errors.TryGetProperty("weekdays", out var weekdaysErrors));
-        Assert.True(weekdaysErrors.GetArrayLength() >= 2);
+        Assert.True(errors.TryGetProperty("initialLessonSeries.slots[0].isoWeekday", out _));
     }
 
     [Fact]
-    public async Task Group_update_rejects_invalid_schedule_fields()
+    public async Task Group_update_ignores_legacy_schedule_fields()
     {
         await using var factory = new GroupsAppFactory();
         var seeded = await SeedGroupsDataAsync(factory);
@@ -1710,11 +2547,21 @@ public class GroupsApiTests
             },
             session.CsrfToken);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var payload = await ReadJsonElementAsync(response);
-        var errors = payload.GetProperty("errors");
-        Assert.True(errors.TryGetProperty("durationMinutes", out _));
-        Assert.True(errors.TryGetProperty("weekdays", out _));
+        Assert.Equal("Invalid update", GetStringFromProperty(payload, "name"));
+        Assert.Equal(seeded.HallOneId, GetGuidFromProperty(payload, "hallId"));
+        Assert.Equal("09:00", GetStringFromProperty(payload, "trainingStartTime"));
+        Assert.Equal(60, GetIntFromProperty(payload, "durationMinutes"));
+        Assert.Equal([1, 3], GetIntArrayFromProperty(payload, "weekdays"));
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var persistedGroup = await dbContext.TrainingGroups.AsNoTracking().SingleAsync(group => group.Id == seeded.GroupOneId);
+        Assert.Equal(seeded.HallOneId, persistedGroup.HallId);
+        Assert.Equal(new TimeOnly(9, 0), persistedGroup.TrainingStartTime);
+        Assert.Equal(60, persistedGroup.DurationMinutes);
+        Assert.Equal([1, 3], persistedGroup.Weekdays);
     }
 
     [Theory]
@@ -2067,20 +2914,17 @@ public class GroupsApiTests
             Assert.Equal(0, initialAuditCount);
         }
 
-        using var createResponse = await PostJsonAsync(
+        var createRequest = CreateCanonicalGroupCreateRequest(
+            $"Audit group {Guid.NewGuid():N}",
+            seeded.BranchId,
+            seeded.HallOneId,
+            seeded.GroupTypeId,
+            startTime: "07:00",
+            durationMinutes: 60,
+            isoWeekday: 1);
+        using var createResponse = await CreateGroupViaPreviewAsync(
             client,
-            "/groups",
-            new
-            {
-                Name = $"Audit group {Guid.NewGuid():N}",
-                BranchId = seeded.BranchId,
-                HallId = seeded.HallOneId,
-                GroupTypeId = seeded.GroupTypeId,
-                TrainingStartTime = "07:00:00",
-                DurationMinutes = 60,
-                Weekdays = new[] { 1, 3 },
-                IsActive = true
-            },
+            createRequest,
             session.CsrfToken);
 
         Assert.True(createResponse.IsSuccessStatusCode);
@@ -2111,7 +2955,7 @@ public class GroupsApiTests
             Assert.Equal(
                 $"Пользователь '{seeded.HeadCoachLogin}' создал группу '{createdGroupName}'.",
                 createLog.Description);
-            AssertAuditSchedule(createLog.NewValueJson, 60, [1, 3]);
+            AssertAuditSchedule(createLog.NewValueJson, 60, [1]);
         }
 
         using (var updateResponse = await PutJsonAsync(
@@ -2157,8 +3001,8 @@ public class GroupsApiTests
             Assert.Equal(
                 $"Пользователь '{seeded.HeadCoachLogin}' изменил группу 'Audit group updated'.",
                 updateLog.Description);
-            AssertAuditSchedule(updateLog.OldValueJson, 60, [1, 3]);
-            AssertAuditSchedule(updateLog.NewValueJson, 90, [2, 4]);
+            AssertAuditSchedule(updateLog.OldValueJson, 60, [1]);
+            AssertAuditSchedule(updateLog.NewValueJson, 60, [1]);
         }
     }
 
@@ -2176,20 +3020,16 @@ public class GroupsApiTests
         var managerSession = await LoginAsync(client, seeded.AdministratorLogin, seeded.SharedPassword);
 
         Guid createdGroupId;
-        using (var createResponse = await PostJsonAsync(
+        using (var createResponse = await CreateGroupViaPreviewAsync(
                    client,
-                   "/groups",
-                   new
-                   {
-                       Name = "Coach Session Group",
-                       BranchId = seeded.BranchId,
-                       HallId = seeded.HallTwoId,
-                       GroupTypeId = seeded.GroupTypeId,
-                       TrainingStartTime = "12:00:00",
-                       DurationMinutes = 60,
-                       Weekdays = new[] { 1, 3 },
-                       IsActive = true
-                   },
+                   CreateCanonicalGroupCreateRequest(
+                       "Coach Session Group",
+                       seeded.BranchId,
+                       seeded.HallTwoId,
+                       seeded.GroupTypeId,
+                       startTime: "12:00",
+                       durationMinutes: 60,
+                       isoWeekday: 1),
                    managerSession.CsrfToken))
         {
             Assert.True(
@@ -2370,6 +3210,65 @@ public class GroupsApiTests
             groupOne.Id,
             groupTwo.Id,
             now);
+    }
+
+    private static async Task AddLessonSeriesAsync(
+        GroupsAppFactory factory,
+        Guid groupId,
+        Guid hallId,
+        DateOnly startsOn)
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var now = DateTimeOffset.UtcNow;
+        var series = new LessonSeries
+        {
+            Id = Guid.NewGuid(),
+            GroupId = groupId,
+            StartsOn = startsOn,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var rule = new LessonScheduleRuleVersion
+        {
+            Id = Guid.NewGuid(),
+            LessonSeriesId = series.Id,
+            VersionNumber = 1,
+            EffectiveFrom = startsOn,
+            CreatedAt = now
+        };
+        rule.Slots.Add(new LessonScheduleSlot
+        {
+            Id = Guid.NewGuid(),
+            LessonScheduleRuleVersionId = rule.Id,
+            SlotLineageId = Guid.NewGuid(),
+            IsoWeekday = ToIsoWeekday(startsOn),
+            StartTime = new TimeOnly(10, 0),
+            DurationMinutes = 60,
+            HallId = hallId,
+            CreatedAt = now
+        });
+
+        if ((dbContext.Database.ProviderName ?? string.Empty).Contains("Sqlite", StringComparison.OrdinalIgnoreCase))
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""
+                INSERT INTO "LessonSeries" ("Id", "GroupId", "StartsOn", "EndsOn", "Version", "CreatedAt", "UpdatedAt")
+                VALUES ({series.Id}, {series.GroupId}, {series.StartsOn}, NULL, 1, {series.CreatedAt}, {series.UpdatedAt})
+                """);
+        }
+        else
+        {
+            dbContext.LessonSeries.Add(series);
+        }
+
+        dbContext.LessonScheduleRuleVersions.Add(rule);
+        await dbContext.SaveChangesAsync();
+    }
+
+    private static int ToIsoWeekday(DateOnly date)
+    {
+        return date.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)date.DayOfWeek;
     }
 
     private static async Task<ForeignGroupData> CreateForeignGroupAsync(
@@ -2610,6 +3509,73 @@ public class GroupsApiTests
         return await client.SendAsync(request);
     }
 
+    private static object CreateCanonicalGroupCreateRequest(
+        string name,
+        Guid? branchId,
+        Guid? hallId,
+        Guid? groupTypeId,
+        string startsOn = "2035-01-01",
+        int? isoWeekday = 1,
+        string startTime = "10:00",
+        int? durationMinutes = 60,
+        bool isActive = true,
+        IReadOnlyList<Guid>? trainerIds = null)
+    {
+        return new
+        {
+            name,
+            branchId,
+            hallId,
+            groupTypeId,
+            trainingStartTime = startTime,
+            durationMinutes,
+            weekdays = isoWeekday.HasValue ? new[] { isoWeekday.Value } : Array.Empty<int>(),
+            isActive,
+            trainerIds = trainerIds ?? Array.Empty<Guid>(),
+            initialLessonSeries = new
+            {
+                startsOn,
+                endsOn = (string?)null,
+                slots = new[]
+                {
+                    new
+                    {
+                        isoWeekday,
+                        startTime,
+                        durationMinutes,
+                        hallId
+                    }
+                }
+            }
+        };
+    }
+
+    private static async Task<HttpResponseMessage> CreateGroupViaPreviewAsync(
+        HttpClient client,
+        object request,
+        string csrfToken)
+    {
+        using var previewResponse = await PostJsonAsync(
+            client,
+            "/groups/preview",
+            request,
+            csrfToken);
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        var previewPayload = await ReadJsonElementAsync(previewResponse);
+        var confirmationToken = previewPayload.GetProperty("confirmationToken").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(confirmationToken));
+
+        var executePayload = JsonSerializer.SerializeToNode(request)?.AsObject()
+            ?? throw new InvalidOperationException("Group create request did not serialize to a JSON object.");
+        executePayload["confirmationToken"] = confirmationToken;
+
+        return await PostJsonAsync(
+            client,
+            "/groups",
+            executePayload,
+            csrfToken);
+    }
+
     private static async Task<HttpResponseMessage> DeleteAsync(
         HttpClient client,
         string path,
@@ -2632,6 +3598,13 @@ public class GroupsApiTests
         var payload = await ReadJsonElementAsync(response);
         Assert.Equal("/problems/branch-scope-forbidden", GetStringFromProperty(payload, "type"));
         Assert.Equal("branch_scope_forbidden", GetStringFromProperty(payload, "code"));
+    }
+
+    private static void AssertLegacyMutationRouteAbsent(HttpResponseMessage response)
+    {
+        Assert.True(
+            response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.MethodNotAllowed,
+            $"Expected legacy mutation route absence (404/405), got {response.StatusCode}.");
     }
 
     private static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)
@@ -2758,34 +3731,52 @@ public class GroupsApiTests
         IReadOnlyList<Guid> trainerIds,
         string csrfToken)
     {
+        var today = GetBusinessToday()
+            .ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
         var trainerPayload = new
         {
-            TrainerIds = trainerIds
+            assignments = trainerIds
+                .Select(trainerId => new
+                {
+                    trainerId,
+                    validFrom = today,
+                    validTo = (string?)null
+                })
+                .ToArray()
         };
 
-        var dedicatedAssignResponse = await PutJsonAsync(
+        var previewResponse = await PostJsonAsync(
             client,
-            $"{groupEndpointBase}/trainers",
+            $"{groupEndpointBase}/trainer-assignments/preview",
             trainerPayload,
             csrfToken);
 
-        if (dedicatedAssignResponse.StatusCode is not HttpStatusCode.NotFound)
+        if (previewResponse.StatusCode is not HttpStatusCode.OK)
         {
-            return dedicatedAssignResponse;
+            return previewResponse;
         }
 
-        dedicatedAssignResponse.Dispose();
+        var preview = await ReadJsonElementAsync(previewResponse);
+        var confirmationToken = preview.GetProperty("confirmationToken").GetString();
+        var revision = preview.GetProperty("revision").GetString();
+        previewResponse.Dispose();
 
-        var fullPayload = new
-        {
-            TrainerIds = trainerIds
-        };
-
-        return await PutJsonAsync(
+        return await PostJsonAsync(
             client,
-            $"/groups/{groupId}",
-            fullPayload,
+            $"/groups/{groupId}/trainer-assignments",
+            new
+            {
+                trainerPayload.assignments,
+                expectedRevision = revision,
+                confirmationToken
+            },
             csrfToken);
+    }
+
+    private static DateOnly GetBusinessToday()
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
+        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timeZone).DateTime);
     }
 
     private static bool ContainsPasswordFieldInJson(string jsonPayload)

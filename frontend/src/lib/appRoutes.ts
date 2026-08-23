@@ -3,6 +3,19 @@ import type { AppSection, AuthenticatedUser } from './api'
 export type AppRoute =
   | { kind: 'section'; section: AppSection }
   | { kind: 'password' }
+  | { kind: 'attendanceLesson'; lessonOccurrenceId: string; lessonDate: string }
+  | { kind: 'scheduleLessonDetail'; lessonOccurrenceId: string; lessonDate: string }
+  | { kind: 'scheduleLessonCreate' }
+  | { kind: 'scheduleLessonEdit'; lessonOccurrenceId: string; lessonDate: string; scope: 'occurrence' }
+  | { kind: 'scheduleLessonMove'; lessonOccurrenceId: string; lessonDate: string }
+  | {
+    kind: 'scheduleSeriesEdit'
+    lessonSeriesId: string
+    scope: 'this-and-future' | 'entire'
+    groupId?: string | null
+    lessonOccurrenceId?: string | null
+    lessonDate?: string | null
+  }
   | { kind: 'clientCreate' }
   | { kind: 'clientPreview'; clientId: string }
   | { kind: 'clientDetails'; clientId: string }
@@ -66,6 +79,12 @@ const PASSWORD_PATH = '/password'
 const CLIENT_CREATE_PATH = '/clients/new'
 const GROUP_CREATE_PATH = '/groups/new'
 const USER_CREATE_PATH = '/coaches/new'
+const ATTENDANCE_LESSON_ROUTE_PATTERN = /^\/attendance\/([^/]+)$/
+const SCHEDULE_LESSON_CREATE_PATH = '/schedule/lessons/new'
+const SCHEDULE_LESSON_DETAIL_ROUTE_PATTERN = /^\/schedule\/lessons\/([^/]+)$/
+const SCHEDULE_LESSON_EDIT_ROUTE_PATTERN = /^\/schedule\/lessons\/([^/]+)\/edit$/
+const SCHEDULE_LESSON_MOVE_ROUTE_PATTERN = /^\/schedule\/lessons\/([^/]+)\/move$/
+const SCHEDULE_SERIES_EDIT_ROUTE_PATTERN = /^\/schedule\/series\/([^/]+)\/edit$/
 const CLIENT_EDIT_ROUTE_PATTERN = /^\/clients\/([^/]+)\/edit$/
 const CLIENT_PREVIEW_ROUTE_PATTERN = /^\/clients\/([^/]+)\/preview$/
 const GROUP_EDIT_ROUTE_PATTERN = /^\/groups\/([^/]+)\/edit$/
@@ -198,6 +217,31 @@ function splitRequestedPath(pathname: string) {
   }
 }
 
+function getQueryValue(requestedPath: string, key: string) {
+  const searchSeparatorIndex = requestedPath.indexOf('?')
+
+  if (searchSeparatorIndex === -1) {
+    return null
+  }
+
+  return new URLSearchParams(requestedPath.slice(searchSeparatorIndex + 1)).get(key)
+}
+
+function isIsoDate(value: string | null) {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false
+  }
+
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  )
+}
+
 export function getAccessibleNavigationSections(user: AuthenticatedUser) {
   const sections: AppSection[] = APP_NAVIGATION_SECTIONS.filter((section) =>
     isNavigationSectionAllowed(user, section),
@@ -284,6 +328,31 @@ export function getRoutePath(route: AppRoute) {
       return getSectionPath(route.section)
     case 'password':
       return PASSWORD_PATH
+    case 'attendanceLesson':
+      return `/attendance/${encodeURIComponent(route.lessonOccurrenceId)}?lessonDate=${encodeURIComponent(route.lessonDate)}`
+    case 'scheduleLessonDetail':
+      return `/schedule/lessons/${encodeURIComponent(route.lessonOccurrenceId)}?lessonDate=${encodeURIComponent(route.lessonDate)}`
+    case 'scheduleLessonCreate':
+      return SCHEDULE_LESSON_CREATE_PATH
+    case 'scheduleLessonEdit':
+      return `/schedule/lessons/${encodeURIComponent(route.lessonOccurrenceId)}/edit?lessonDate=${encodeURIComponent(route.lessonDate)}&scope=${encodeURIComponent(route.scope)}`
+    case 'scheduleLessonMove':
+      return `/schedule/lessons/${encodeURIComponent(route.lessonOccurrenceId)}/move?lessonDate=${encodeURIComponent(route.lessonDate)}`
+    case 'scheduleSeriesEdit':
+    {
+      const searchParams = new URLSearchParams()
+      searchParams.set('scope', route.scope)
+      if (route.groupId) {
+        searchParams.set('groupId', route.groupId)
+      }
+      if (route.lessonOccurrenceId) {
+        searchParams.set('lessonOccurrenceId', route.lessonOccurrenceId)
+      }
+      if (route.lessonDate) {
+        searchParams.set('lessonDate', route.lessonDate)
+      }
+      return `/schedule/series/${encodeURIComponent(route.lessonSeriesId)}/edit?${searchParams.toString()}`
+    }
     case 'clientCreate':
       return CLIENT_CREATE_PATH
     case 'clientPreview':
@@ -324,6 +393,104 @@ export function parseRoute(pathname: string): ParsedRoute {
 
   if (normalizedRequestedPath === USER_CREATE_PATH) {
     return { kind: 'userCreate' }
+  }
+
+  if (normalizedRequestedPath === SCHEDULE_LESSON_CREATE_PATH) {
+    return { kind: 'scheduleLessonCreate' }
+  }
+
+  const attendanceLessonMatch = normalizedRequestedPath.match(ATTENDANCE_LESSON_ROUTE_PATTERN)
+  if (attendanceLessonMatch) {
+    const lessonDate = getQueryValue(requestedPath, 'lessonDate')
+
+    if (isIsoDate(lessonDate)) {
+      return {
+        kind: 'attendanceLesson',
+        lessonOccurrenceId: safeDecodePathComponent(attendanceLessonMatch[1]),
+        lessonDate: lessonDate!,
+      }
+    }
+
+    return { kind: 'not-found', path: requestedPath }
+  }
+
+  const scheduleLessonDetailMatch = normalizedRequestedPath.match(SCHEDULE_LESSON_DETAIL_ROUTE_PATTERN)
+  if (scheduleLessonDetailMatch) {
+    const lessonDate = getQueryValue(requestedPath, 'lessonDate')
+
+    if (isIsoDate(lessonDate)) {
+      return {
+        kind: 'scheduleLessonDetail',
+        lessonOccurrenceId: safeDecodePathComponent(scheduleLessonDetailMatch[1]),
+        lessonDate: lessonDate!,
+      }
+    }
+
+    return { kind: 'not-found', path: requestedPath }
+  }
+
+  const scheduleLessonEditMatch = normalizedRequestedPath.match(SCHEDULE_LESSON_EDIT_ROUTE_PATTERN)
+  if (scheduleLessonEditMatch) {
+    const lessonDate = getQueryValue(requestedPath, 'lessonDate')
+    const scope = getQueryValue(requestedPath, 'scope')
+
+    if (isIsoDate(lessonDate) && scope === 'occurrence') {
+      return {
+        kind: 'scheduleLessonEdit',
+        lessonOccurrenceId: safeDecodePathComponent(scheduleLessonEditMatch[1]),
+        lessonDate: lessonDate!,
+        scope,
+      }
+    }
+
+    return { kind: 'not-found', path: requestedPath }
+  }
+
+  const scheduleLessonMoveMatch = normalizedRequestedPath.match(SCHEDULE_LESSON_MOVE_ROUTE_PATTERN)
+  if (scheduleLessonMoveMatch) {
+    const lessonDate = getQueryValue(requestedPath, 'lessonDate')
+
+    if (isIsoDate(lessonDate)) {
+      return {
+        kind: 'scheduleLessonMove',
+        lessonOccurrenceId: safeDecodePathComponent(scheduleLessonMoveMatch[1]),
+        lessonDate: lessonDate!,
+      }
+    }
+
+    return { kind: 'not-found', path: requestedPath }
+  }
+
+  const scheduleSeriesEditMatch = normalizedRequestedPath.match(SCHEDULE_SERIES_EDIT_ROUTE_PATTERN)
+  if (scheduleSeriesEditMatch) {
+    const scope = getQueryValue(requestedPath, 'scope')
+    const lessonDate = getQueryValue(requestedPath, 'lessonDate')
+
+    if ((scope === 'this-and-future' || scope === 'entire') && (!lessonDate || isIsoDate(lessonDate))) {
+      const groupId = getQueryValue(requestedPath, 'groupId')
+      const lessonOccurrenceId = getQueryValue(requestedPath, 'lessonOccurrenceId')
+      const route: AppRoute = {
+        kind: 'scheduleSeriesEdit',
+        lessonSeriesId: safeDecodePathComponent(scheduleSeriesEditMatch[1]),
+        scope,
+      }
+
+      if (groupId) {
+        route.groupId = groupId
+      }
+      if (lessonOccurrenceId) {
+        route.lessonOccurrenceId = lessonOccurrenceId
+      }
+      if (lessonDate) {
+        route.lessonDate = lessonDate
+      }
+
+      return {
+        ...route,
+      }
+    }
+
+    return { kind: 'not-found', path: requestedPath }
   }
 
   const clientEditMatch = normalizedRequestedPath.match(CLIENT_EDIT_ROUTE_PATTERN)
@@ -433,6 +600,14 @@ function getRouteAccessReason(route: AppRoute): RouteAccessReason {
       }
     case 'password':
       return { kind: 'operation', label: 'Смена пароля' }
+    case 'attendanceLesson':
+      return { kind: 'section', label: APP_SECTION_LABELS.Attendance }
+    case 'scheduleLessonDetail':
+    case 'scheduleLessonCreate':
+    case 'scheduleLessonEdit':
+    case 'scheduleLessonMove':
+    case 'scheduleSeriesEdit':
+      return { kind: 'section', label: APP_SECTION_LABELS.Schedule }
     case 'clientCreate':
       return { kind: 'operation', label: 'Новый клиент' }
     case 'clientEdit':
@@ -484,6 +659,34 @@ function getRecoveryDestination(user: AuthenticatedUser, route: AppRoute) {
       return {
         recoveryPath: getSectionPath('Clients'),
         recoveryLabel: APP_SECTION_LABELS.Clients,
+      }
+    }
+
+    return fallbackRecovery
+  }
+
+  if (route.kind === 'attendanceLesson') {
+    if (isSectionAllowed(user, 'Attendance')) {
+      return {
+        recoveryPath: getSectionPath('Attendance'),
+        recoveryLabel: APP_SECTION_LABELS.Attendance,
+      }
+    }
+
+    return fallbackRecovery
+  }
+
+  if (
+    route.kind === 'scheduleLessonDetail' ||
+    route.kind === 'scheduleLessonCreate' ||
+    route.kind === 'scheduleLessonEdit' ||
+    route.kind === 'scheduleLessonMove' ||
+    route.kind === 'scheduleSeriesEdit'
+  ) {
+    if (isSectionAllowed(user, 'Schedule')) {
+      return {
+        recoveryPath: getSectionPath('Schedule'),
+        recoveryLabel: APP_SECTION_LABELS.Schedule,
       }
     }
 
@@ -560,6 +763,14 @@ export function getRouteSection(route: AppRoute): AppSection | null {
   switch (route.kind) {
     case 'section':
       return route.section
+    case 'attendanceLesson':
+      return 'Attendance'
+    case 'scheduleLessonDetail':
+    case 'scheduleLessonCreate':
+    case 'scheduleLessonEdit':
+    case 'scheduleLessonMove':
+    case 'scheduleSeriesEdit':
+      return 'Schedule'
     case 'clientCreate':
     case 'clientPreview':
     case 'clientDetails':

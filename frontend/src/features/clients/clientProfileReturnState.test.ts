@@ -47,6 +47,50 @@ describe('clientProfileReturnState', () => {
     })
   })
 
+  test('round-trips exact attendance lesson origin without legacy group context', () => {
+    const context = createClientProfileReturnContext({
+      origin: {
+        kind: 'attendance',
+        route: {
+          kind: 'attendanceLesson',
+          lessonOccurrenceId: 'occ-1',
+          lessonDate: '2026-08-20',
+        },
+        lessonOccurrenceId: 'occ-1',
+        lessonDate: '2026-08-20',
+        trainingDate: '2026-08-20',
+        rosterView: 'unmarked',
+        anchorClientId: 'client-7',
+      },
+      originEntryKey: 'client-profile:attendance-lesson-entry',
+      returnDepth: 1,
+    })
+
+    expect(
+      readClientProfileReturnContext(
+        mergeClientProfileReturnContextIntoHistoryState({}, context),
+      ),
+    ).toEqual(context)
+    expect(getClientProfileOriginRoute(context)).toEqual({
+      kind: 'attendanceLesson',
+      lessonOccurrenceId: 'occ-1',
+      lessonDate: '2026-08-20',
+    })
+    expect(
+      readClientProfileReturnContext(
+        getClientProfileReturnHistoryStateForRoute(
+          mergeClientProfileReturnContextIntoHistoryState({}, context),
+          {
+            kind: 'attendanceLesson',
+            lessonOccurrenceId: 'occ-1',
+            lessonDate: '2026-08-20',
+          },
+          context,
+        ),
+      ),
+    ).toEqual(context)
+  })
+
   test('round-trips a typed group edit origin', () => {
     const context = createClientProfileReturnContext({
       origin: {

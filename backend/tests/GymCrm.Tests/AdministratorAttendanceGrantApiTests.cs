@@ -4,6 +4,7 @@ using System.Text.Json;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -642,6 +643,8 @@ public class AdministratorAttendanceGrantApiTests
         _ = await LoginAsync(administratorClient, seeded.AdministratorLogin, seeded.SharedPassword);
 
         var todayString = GetBusinessToday().ToString("yyyy-MM-dd");
+        var lessonClientsPath = LessonClientsPath(seeded.ActiveGrantedLessonOccurrenceId, todayString);
+        var lessonSavePath = LessonSavePath(seeded.ActiveGrantedLessonOccurrenceId, todayString);
 
         using (var preScope = await administratorClient.GetAsync("/auth/session"))
         {
@@ -656,8 +659,7 @@ public class AdministratorAttendanceGrantApiTests
         var preListPayload = await ReadJsonElementAsync(preList);
         Assert.NotEmpty(preListPayload.GetProperty("groups").EnumerateArray());
 
-        using var preRoster = await administratorClient.GetAsync(
-            $"/attendance/groups/{seeded.ActiveGrantedGroupId}/clients?trainingDate={todayString}");
+        using var preRoster = await administratorClient.GetAsync(lessonClientsPath);
         Assert.Equal(HttpStatusCode.OK, preRoster.StatusCode);
 
         using (var preAccessProbe = await PostWithoutBodyAsync(
@@ -694,9 +696,12 @@ public class AdministratorAttendanceGrantApiTests
         var postListPayload = await ReadJsonElementAsync(postList);
         Assert.Empty(postListPayload.GetProperty("groups").EnumerateArray());
 
-        using var forbiddenRosterResponse = await administratorClient.GetAsync(
-            $"/attendance/groups/{seeded.ActiveGrantedGroupId}/clients?trainingDate={todayString}");
-        Assert.Equal(HttpStatusCode.Forbidden, forbiddenRosterResponse.StatusCode);
+        using var forbiddenRosterResponse = await administratorClient.GetAsync(lessonClientsPath);
+        Assert.Equal(HttpStatusCode.NotFound, forbiddenRosterResponse.StatusCode);
+        await AssertProblemDetailsAsync(
+            forbiddenRosterResponse,
+            "/problems/lesson-occurrence-not-found",
+            "lesson-occurrence-not-found");
 
         var adminSession = await GetSessionAsync(administratorClient);
         using (var forbiddenAccessProbe = await PostWithoutBodyAsync(
@@ -713,7 +718,7 @@ public class AdministratorAttendanceGrantApiTests
 
         using var forbiddenSaveResponse = await PostJsonAsync(
             administratorClient,
-            $"/attendance/groups/{seeded.ActiveGrantedGroupId}",
+            lessonSavePath,
             new
             {
                 TrainingDate = todayString,
@@ -723,7 +728,11 @@ public class AdministratorAttendanceGrantApiTests
                 }
             },
             adminSession.CsrfToken);
-        Assert.Equal(HttpStatusCode.Forbidden, forbiddenSaveResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, forbiddenSaveResponse.StatusCode);
+        await AssertProblemDetailsAsync(
+            forbiddenSaveResponse,
+            "/problems/lesson-occurrence-not-found",
+            "lesson-occurrence-not-found");
     }
 
     private static async Task<SeededAdministratorAttendanceGrantData> SeedDataAsync(AdministratorAttendanceGrantAppFactory factory)
@@ -854,12 +863,26 @@ public class AdministratorAttendanceGrantApiTests
             CreatedAt = now,
             UpdatedAt = now
         };
+        var activeGrantedLessonOccurrence = new LessonOccurrence
+        {
+            Id = Guid.NewGuid(),
+            GroupId = activeGrantedGroup.Id,
+            LessonDate = GetBusinessToday(),
+            StartTime = activeGrantedGroup.TrainingStartTime,
+            DurationMinutes = activeGrantedGroup.DurationMinutes,
+            HallId = activeGrantedGroup.HallId,
+            Status = LessonOccurrenceStatus.Scheduled,
+            SourceKind = LessonOccurrenceSourceKind.LegacyAttendance,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
 
         dbContext.Users.AddRange(headCoach, superAdministrator, administrator, coach);
         dbContext.Branches.AddRange(assignedBranch, secondBranch);
         dbContext.Halls.AddRange(assignedHall, secondHall);
         dbContext.GroupTypes.Add(groupType);
         dbContext.TrainingGroups.AddRange(activeGrantedGroup, activeAlternateGroup, inactiveBranchGroup, foreignStoredGroup, foreignCandidateGroup);
+        dbContext.LessonOccurrences.Add(activeGrantedLessonOccurrence);
 
         dbContext.AdministratorAttendanceGroupGrants.AddRange(
             new AdministratorAttendanceGroupGrant
@@ -894,6 +917,7 @@ public class AdministratorAttendanceGrantApiTests
             assignedBranch.Id,
             secondBranch.Id,
             activeGrantedGroup.Id,
+            activeGrantedLessonOccurrence.Id,
             inactiveBranchGroup.Id,
             activeAlternateGroup.Id,
             foreignStoredGroup.Id,
@@ -941,6 +965,12 @@ public class AdministratorAttendanceGrantApiTests
 
         return await client.SendAsync(request);
     }
+
+    private static string LessonClientsPath(Guid lessonOccurrenceId, string lessonDate) =>
+        $"/attendance/lessons/{lessonOccurrenceId}/clients?lessonDate={lessonDate}";
+
+    private static string LessonSavePath(Guid lessonOccurrenceId, string lessonDate) =>
+        $"/attendance/lessons/{lessonOccurrenceId}?lessonDate={lessonDate}";
 
     private static async Task<HttpResponseMessage> PutJsonAsync<TPayload>(
         HttpClient client,
@@ -1069,6 +1099,7 @@ public class AdministratorAttendanceGrantApiTests
         Guid AssignedBranchId,
         Guid SecondBranchId,
         Guid ActiveGrantedGroupId,
+        Guid ActiveGrantedLessonOccurrenceId,
         Guid InactiveBranchGroupId,
         Guid ActiveAlternateGroupId,
         Guid ForeignBranchStoredGroupId,

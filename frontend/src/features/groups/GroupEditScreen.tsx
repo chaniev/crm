@@ -16,6 +16,7 @@ import {
   type GroupType,
   type Hall,
   type TrainerOption,
+  type TrainingGroupDetails,
 } from '../../lib/api'
 import type {
   ClientProfileOriginInput,
@@ -34,12 +35,13 @@ import {
 import { showAppNotification } from '../shared/notifications'
 import { GroupClientRow } from './GroupClientRow'
 import { GroupForm } from './GroupForm'
+import { GroupTrainerAssignmentsSection } from './GroupTrainerAssignmentsSection'
 import { GroupTrainerSubstitutionsSection } from './GroupTrainerSubstitutionsSection'
 import { GROUPS_DEFAULT_NAME } from './groupManagement.constants'
 import { escapeCssIdentifier } from './groupDom'
 import {
   toFormValues,
-  toUpsertGroupPayload,
+  toUpdateGroupIdentityPayload,
   useGroupForm,
   type GroupFormValues,
 } from './groupFormMapping'
@@ -64,6 +66,7 @@ export function GroupEditScreen({
   const [hallOptions, setHallOptions] = useState<Hall[]>([])
   const [groupTypeOptions, setGroupTypeOptions] = useState<GroupType[]>([])
   const [groupClients, setGroupClients] = useState<GroupClient[]>([])
+  const [groupDetails, setGroupDetails] = useState<TrainingGroupDetails | null>(null)
   const [groupName, setGroupName] = useState(GROUPS_DEFAULT_NAME)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -108,6 +111,7 @@ export function GroupEditScreen({
         setGroupTypeOptions(groupTypes)
         setTrainerOptions(options)
         setGroupClients(clientsResponse.clients)
+        setGroupDetails(group)
         setGroupName(group.name)
         const nextValues = toFormValues(group)
         loadedFormValuesRef.current = nextValues
@@ -173,7 +177,10 @@ export function GroupEditScreen({
     form.clearErrors()
 
     try {
-      const updatedGroup = await updateGroup(groupId, toUpsertGroupPayload(values))
+      const updatedGroup = await updateGroup(
+        groupId,
+        toUpdateGroupIdentityPayload(values),
+      )
 
       showAppNotification({
         id: `group-edit-success-${groupId}`,
@@ -182,8 +189,12 @@ export function GroupEditScreen({
         color: 'teal',
       })
 
-      loadedFormValuesRef.current = values
-      form.resetDirty(values)
+      const nextValues = toFormValues(updatedGroup)
+      setGroupDetails(updatedGroup)
+      setGroupName(updatedGroup.name)
+      loadedFormValuesRef.current = nextValues
+      form.setValues(nextValues)
+      form.resetDirty(nextValues)
       return true
     } catch (error) {
       if (error instanceof ApiError) {
@@ -391,16 +402,29 @@ export function GroupEditScreen({
               hallOptions={hallOptions}
               cancelAction={null}
               onSubmit={submit}
+              showHallField={false}
+              showScheduleFields={false}
+              showTrainerField={false}
               submitLabel="Сохранить изменения"
               submitting={submitting}
               trainerOptions={trainerOptions}
             />
           </PageSection>
 
+          {groupDetails ? (
+            <PageSection>
+              <GroupTrainerAssignmentsSection
+                groupId={groupId}
+                initialPeriods={groupDetails.trainerAssignmentPeriods}
+                initialRevision={groupDetails.trainerAssignmentRevision}
+                trainerOptions={trainerOptions}
+              />
+            </PageSection>
+          ) : null}
+
           <PageSection>
             <GroupTrainerSubstitutionsSection
               groupId={groupId}
-              trainerOptions={trainerOptions}
             />
           </PageSection>
 

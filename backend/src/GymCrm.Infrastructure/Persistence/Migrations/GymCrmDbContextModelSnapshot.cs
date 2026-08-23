@@ -37,6 +37,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPresent")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid>("LessonOccurrenceId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("MarkedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -57,16 +60,18 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LessonOccurrenceId");
+
                     b.HasIndex("MarkedByUserId");
 
                     b.HasIndex("SingleVisitMembershipSaleId");
 
                     b.HasIndex("SingleVisitWriteOffMembershipId");
 
-                    b.HasIndex("GroupId", "TrainingDate");
-
-                    b.HasIndex("ClientId", "GroupId", "TrainingDate")
+                    b.HasIndex("ClientId", "LessonOccurrenceId")
                         .IsUnique();
+
+                    b.HasIndex("GroupId", "TrainingDate");
 
                     b.ToTable("Attendance");
                 });
@@ -137,6 +142,159 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_AttendanceEntitlementTargetSnapshots_Position", "\"Position\" >= 0 AND \"Position\" <= 4");
                         });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Attendance.AttendanceTransitionReportItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AttendanceRowIdsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OperatorComment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ReasonCode")
+                        .IsRequired()
+                        .HasMaxLength(96)
+                        .HasColumnType("character varying(96)");
+
+                    b.Property<string>("ResolutionKind")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ResolutionStatus")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ResolvedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RowCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("RunId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TargetLessonOccurrenceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("TrainingDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TargetLessonOccurrenceId");
+
+                    b.HasIndex("GroupId", "TrainingDate");
+
+                    b.HasIndex("RunId", "ResolutionStatus");
+
+                    b.ToTable("AttendanceTransitionReportItems");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Attendance.AttendanceTransitionRowResolution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AttendanceRowId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OperatorComment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("ReportItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResolutionDigest")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("ResolutionKind")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ResolvedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RunId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TargetLessonOccurrenceId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttendanceRowId")
+                        .IsUnique();
+
+                    b.HasIndex("ReportItemId");
+
+                    b.HasIndex("RunId");
+
+                    b.HasIndex("TargetLessonOccurrenceId");
+
+                    b.ToTable("AttendanceTransitionRowResolutions");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Attendance.AttendanceTransitionRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("CutoverDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("SourceSchemaVersion")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceSchemaVersion")
+                        .IsUnique();
+
+                    b.HasIndex("CutoverDate", "Status");
+
+                    b.ToTable("AttendanceTransitionRuns");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Audit.AuditLog", b =>
@@ -1532,6 +1690,325 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonOccurrence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("HallId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("LessonDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("ProjectedDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("SourceKind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid?>("SourceLessonSeriesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SourceRuleVersionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SourceSlotId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SourceSlotLineageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HallId");
+
+                    b.HasIndex("SourceLessonSeriesId");
+
+                    b.HasIndex("SourceRuleVersionId");
+
+                    b.HasIndex("SourceSlotId");
+
+                    b.HasIndex("SourceSlotLineageId");
+
+                    b.HasIndex("Id", "LessonDate");
+
+                    b.HasIndex("GroupId", "LessonDate", "StartTime");
+
+                    b.ToTable("LessonOccurrences", t =>
+                        {
+                            t.HasCheckConstraint("CK_LessonOccurrences_DurationMinutes", "\"DurationMinutes\" >= 1 AND \"DurationMinutes\" <= 180");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonOccurrenceTrainerSubstitution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LessonOccurrenceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ReplacedTrainerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SourceGroupTrainerSubstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SubstituteTrainerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CancelledByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("LessonOccurrenceId");
+
+                    b.HasIndex("ReplacedTrainerId");
+
+                    b.HasIndex("SourceGroupTrainerSubstitutionId");
+
+                    b.HasIndex("SubstituteTrainerId");
+
+                    b.HasIndex("UpdatedByUserId");
+
+                    b.HasIndex("LessonOccurrenceId", "ReplacedTrainerId")
+                        .IsUnique()
+                        .HasFilter("\"CancelledAt\" IS NULL");
+
+                    b.HasIndex("SourceGroupTrainerSubstitutionId", "LessonOccurrenceId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LessonOccurrenceTrainerSubstitutions_SourceGroupTrainerSub~1")
+                        .HasFilter("\"SourceGroupTrainerSubstitutionId\" IS NOT NULL");
+
+                    b.ToTable("LessonOccurrenceTrainerSubstitutions", t =>
+                        {
+                            t.HasCheckConstraint("CK_LessonOccurrenceTrainerSubstitutions_CancelledMetadata", "(\"CancelledAt\" IS NULL AND \"CancelledByUserId\" IS NULL) OR (\"CancelledAt\" IS NOT NULL AND \"CancelledByUserId\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_LessonOccurrenceTrainerSubstitutions_DifferentTrainers", "\"ReplacedTrainerId\" <> \"SubstituteTrainerId\"");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonScheduleRuleVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("EffectiveTo")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("LessonSeriesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonSeriesId", "VersionNumber")
+                        .IsUnique();
+
+                    b.HasIndex("LessonSeriesId", "EffectiveFrom", "EffectiveTo");
+
+                    b.ToTable("LessonScheduleRuleVersions", t =>
+                        {
+                            t.HasCheckConstraint("CK_LessonScheduleRuleVersions_DateRange", "\"EffectiveTo\" IS NULL OR \"EffectiveTo\" >= \"EffectiveFrom\"");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonScheduleSlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("HallId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("IsoWeekday")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("LessonScheduleRuleVersionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SlotLineageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HallId");
+
+                    b.HasIndex("LessonScheduleRuleVersionId", "SlotLineageId")
+                        .IsUnique();
+
+                    b.HasIndex("LessonScheduleRuleVersionId", "IsoWeekday", "StartTime");
+
+                    b.ToTable("LessonScheduleSlots", t =>
+                        {
+                            t.HasCheckConstraint("CK_LessonScheduleSlots_DurationMinutes", "\"DurationMinutes\" >= 1 AND \"DurationMinutes\" <= 180");
+
+                            t.HasCheckConstraint("CK_LessonScheduleSlots_IsoWeekday", "\"IsoWeekday\" >= 1 AND \"IsoWeekday\" <= 7");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonSeries", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly?>("EndsOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartsOn")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId")
+                        .IsUnique();
+
+                    b.HasIndex("StartsOn", "EndsOn");
+
+                    b.ToTable("LessonSeries", t =>
+                        {
+                            t.HasCheckConstraint("CK_LessonSeries_DateRange", "\"EndsOn\" IS NULL OR \"EndsOn\" >= \"StartsOn\"");
+                        });
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.ScheduleMutationConfirmationToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ConsumedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PayloadHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("ActorUserId", "Purpose", "ExpiresAt");
+
+                    b.ToTable("ScheduleMutationConfirmationTokens");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1614,6 +2091,12 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GymCrm.Domain.Schedule.LessonOccurrence", "LessonOccurrence")
+                        .WithMany()
+                        .HasForeignKey("LessonOccurrenceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("GymCrm.Domain.Users.User", "MarkedByUser")
                         .WithMany("AttendanceMarks")
                         .HasForeignKey("MarkedByUserId")
@@ -1633,6 +2116,8 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Group");
+
+                    b.Navigation("LessonOccurrence");
 
                     b.Navigation("MarkedByUser");
 
@@ -1662,6 +2147,52 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("FactualGroup");
 
                     b.Navigation("TargetGroup");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Attendance.AttendanceTransitionReportItem", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Attendance.AttendanceTransitionRun", "Run")
+                        .WithMany("ReportItems")
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Run");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Attendance.AttendanceTransitionRowResolution", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Attendance.Attendance", "AttendanceRow")
+                        .WithMany()
+                        .HasForeignKey("AttendanceRowId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Attendance.AttendanceTransitionReportItem", "ReportItem")
+                        .WithMany("RowResolutions")
+                        .HasForeignKey("ReportItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Attendance.AttendanceTransitionRun", "Run")
+                        .WithMany("RowResolutions")
+                        .HasForeignKey("RunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Schedule.LessonOccurrence", "TargetLessonOccurrence")
+                        .WithMany()
+                        .HasForeignKey("TargetLessonOccurrenceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AttendanceRow");
+
+                    b.Navigation("ReportItem");
+
+                    b.Navigation("Run");
+
+                    b.Navigation("TargetLessonOccurrence");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Audit.AuditLog", b =>
@@ -2205,6 +2736,143 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonOccurrence", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Branches.Hall", "Hall")
+                        .WithMany()
+                        .HasForeignKey("HallId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Schedule.LessonSeries", "SourceLessonSeries")
+                        .WithMany()
+                        .HasForeignKey("SourceLessonSeriesId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GymCrm.Domain.Schedule.LessonScheduleRuleVersion", "SourceRuleVersion")
+                        .WithMany()
+                        .HasForeignKey("SourceRuleVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GymCrm.Domain.Schedule.LessonScheduleSlot", "SourceSlot")
+                        .WithMany()
+                        .HasForeignKey("SourceSlotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Hall");
+
+                    b.Navigation("SourceLessonSeries");
+
+                    b.Navigation("SourceRuleVersion");
+
+                    b.Navigation("SourceSlot");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonOccurrenceTrainerSubstitution", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Users.User", "CancelledByUser")
+                        .WithMany()
+                        .HasForeignKey("CancelledByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GymCrm.Domain.Users.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Schedule.LessonOccurrence", "LessonOccurrence")
+                        .WithMany("TrainerSubstitutions")
+                        .HasForeignKey("LessonOccurrenceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "ReplacedTrainer")
+                        .WithMany()
+                        .HasForeignKey("ReplacedTrainerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Groups.GroupTrainerSubstitution", "SourceGroupTrainerSubstitution")
+                        .WithMany()
+                        .HasForeignKey("SourceGroupTrainerSubstitutionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GymCrm.Domain.Users.User", "SubstituteTrainer")
+                        .WithMany()
+                        .HasForeignKey("SubstituteTrainerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Users.User", "UpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CancelledByUser");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("LessonOccurrence");
+
+                    b.Navigation("ReplacedTrainer");
+
+                    b.Navigation("SourceGroupTrainerSubstitution");
+
+                    b.Navigation("SubstituteTrainer");
+
+                    b.Navigation("UpdatedByUser");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonScheduleRuleVersion", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Schedule.LessonSeries", "LessonSeries")
+                        .WithMany("RuleVersions")
+                        .HasForeignKey("LessonSeriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LessonSeries");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonScheduleSlot", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Branches.Hall", "Hall")
+                        .WithMany()
+                        .HasForeignKey("HallId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GymCrm.Domain.Schedule.LessonScheduleRuleVersion", "RuleVersion")
+                        .WithMany("Slots")
+                        .HasForeignKey("LessonScheduleRuleVersionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hall");
+
+                    b.Navigation("RuleVersion");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonSeries", b =>
+                {
+                    b.HasOne("GymCrm.Domain.Groups.TrainingGroup", "Group")
+                        .WithOne()
+                        .HasForeignKey("GymCrm.Domain.Schedule.LessonSeries", "GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+                });
+
             modelBuilder.Entity("GymCrm.Domain.Users.User", b =>
                 {
                     b.HasOne("GymCrm.Domain.Branches.Branch", "Branch")
@@ -2213,6 +2881,18 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Attendance.AttendanceTransitionReportItem", b =>
+                {
+                    b.Navigation("RowResolutions");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Attendance.AttendanceTransitionRun", b =>
+                {
+                    b.Navigation("ReportItems");
+
+                    b.Navigation("RowResolutions");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Branches.Branch", b =>
@@ -2306,6 +2986,21 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("GymCrm.Domain.Messenger.ClientMessengerAccount", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonOccurrence", b =>
+                {
+                    b.Navigation("TrainerSubstitutions");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonScheduleRuleVersion", b =>
+                {
+                    b.Navigation("Slots");
+                });
+
+            modelBuilder.Entity("GymCrm.Domain.Schedule.LessonSeries", b =>
+                {
+                    b.Navigation("RuleVersions");
                 });
 
             modelBuilder.Entity("GymCrm.Domain.Users.User", b =>

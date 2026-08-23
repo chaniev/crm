@@ -9,6 +9,25 @@ import { request } from './transport'
 import type {
   GroupResponsePayload,
   GroupsListEnvelopePayload,
+  ScheduleLessonCancellationExecuteRequest,
+  ScheduleLessonCancellationPreviewResponse,
+  ScheduleLessonCancellationRequest,
+  ScheduleLessonChangeExecuteRequest,
+  ScheduleLessonChangePreviewResponse,
+  ScheduleLessonChangeRequest,
+  ScheduleLessonTrainerSubstitutionCancellationExecuteRequest,
+  ScheduleLessonTrainerSubstitutionCancellationExecuteResponse,
+  ScheduleLessonTrainerSubstitutionCancellationPreviewResponse,
+  ScheduleLessonTrainerSubstitutionCancellationRequest,
+  ScheduleLessonTrainerSubstitutionExecuteRequest,
+  ScheduleLessonTrainerSubstitutionExecuteResponse,
+  ScheduleLessonTrainerSubstitutionPreviewResponse,
+  ScheduleLessonTrainerSubstitutionRequest,
+  ScheduleLesson,
+  ScheduleLessonsResponse,
+  ScheduleOneOffLessonExecuteRequest,
+  ScheduleOneOffLessonPreviewResponse,
+  ScheduleOneOffLessonRequest,
   TrainingGroupListResponse,
 } from './types'
 
@@ -75,4 +94,212 @@ export async function getScheduleGroups(
     skip: payload.skip ?? 0,
     take: payload.take ?? items.length,
   } satisfies TrainingGroupListResponse
+}
+
+export async function getScheduleLessons(
+  params: {
+    from: string
+    to: string
+    branchId?: string | null
+    hallId?: string | null
+    trainerId?: string | null
+    groupId?: string | null
+    groupTypeId?: string | null
+  },
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+  searchParams.set('from', params.from)
+  searchParams.set('to', params.to)
+
+  for (const [key, value] of Object.entries({
+    branchId: params.branchId,
+    hallId: params.hallId,
+    trainerId: params.trainerId,
+    groupId: params.groupId,
+    groupTypeId: params.groupTypeId,
+  })) {
+    if (value) {
+      searchParams.set(key, value)
+    }
+  }
+
+  return request<ScheduleLessonsResponse>(
+    `${API_ENDPOINTS.schedule.lessons}?${searchParams.toString()}`,
+    { signal },
+  )
+}
+
+export async function getScheduleLesson(
+  lessonOccurrenceId: string,
+  lessonDate: string,
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+  searchParams.set('lessonDate', lessonDate)
+
+  return request<ScheduleLesson>(
+    `${API_ENDPOINTS.schedule.lessonById(lessonOccurrenceId)}?${searchParams.toString()}`,
+    { signal },
+  )
+}
+
+export async function previewScheduleOneOffLesson(
+  payload: ScheduleOneOffLessonRequest,
+  signal?: AbortSignal,
+) {
+  return request<ScheduleOneOffLessonPreviewResponse>(
+    API_ENDPOINTS.schedule.oneOffPreview,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function createScheduleOneOffLesson(
+  payload: ScheduleOneOffLessonExecuteRequest,
+  signal?: AbortSignal,
+) {
+  return request<ScheduleLesson>(
+    API_ENDPOINTS.schedule.oneOff,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function previewScheduleLessonChange(
+  lessonOccurrenceId: string,
+  lessonDate: string,
+  payload: ScheduleLessonChangeRequest,
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+  searchParams.set('lessonDate', lessonDate)
+
+  return request<ScheduleLessonChangePreviewResponse>(
+    `${API_ENDPOINTS.schedule.lessonChangePreview(lessonOccurrenceId)}?${searchParams.toString()}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function changeScheduleLesson(
+  lessonOccurrenceId: string,
+  lessonDate: string,
+  payload: ScheduleLessonChangeExecuteRequest,
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+  searchParams.set('lessonDate', lessonDate)
+
+  return request<ScheduleLesson>(
+    `${API_ENDPOINTS.schedule.lessonChange(lessonOccurrenceId)}?${searchParams.toString()}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function previewScheduleLessonCancellation(
+  lessonOccurrenceId: string,
+  lessonDate: string,
+  payload: ScheduleLessonCancellationRequest,
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+  searchParams.set('lessonDate', lessonDate)
+
+  return request<ScheduleLessonCancellationPreviewResponse>(
+    `${API_ENDPOINTS.schedule.lessonCancellationPreview(lessonOccurrenceId)}?${searchParams.toString()}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function applyScheduleLessonCancellation(
+  lessonOccurrenceId: string,
+  lessonDate: string,
+  payload: ScheduleLessonCancellationExecuteRequest,
+  signal?: AbortSignal,
+) {
+  const searchParams = new URLSearchParams()
+  searchParams.set('lessonDate', lessonDate)
+
+  return request<ScheduleLesson>(
+    `${API_ENDPOINTS.schedule.lessonCancellation(lessonOccurrenceId)}?${searchParams.toString()}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function previewScheduleLessonTrainerSubstitution(
+  payload: ScheduleLessonTrainerSubstitutionRequest,
+  signal?: AbortSignal,
+) {
+  return request<ScheduleLessonTrainerSubstitutionPreviewResponse>(
+    API_ENDPOINTS.schedule.trainerSubstitutionsPreview,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function applyScheduleLessonTrainerSubstitution(
+  payload: ScheduleLessonTrainerSubstitutionExecuteRequest,
+  signal?: AbortSignal,
+) {
+  return request<ScheduleLessonTrainerSubstitutionExecuteResponse>(
+    API_ENDPOINTS.schedule.trainerSubstitutions,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function previewScheduleLessonTrainerSubstitutionCancellation(
+  payload: ScheduleLessonTrainerSubstitutionCancellationRequest,
+  signal?: AbortSignal,
+) {
+  return request<ScheduleLessonTrainerSubstitutionCancellationPreviewResponse>(
+    API_ENDPOINTS.schedule.trainerSubstitutionCancellationsPreview,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
+}
+
+export async function applyScheduleLessonTrainerSubstitutionCancellation(
+  payload: ScheduleLessonTrainerSubstitutionCancellationExecuteRequest,
+  signal?: AbortSignal,
+) {
+  return request<ScheduleLessonTrainerSubstitutionCancellationExecuteResponse>(
+    API_ENDPOINTS.schedule.trainerSubstitutionCancellations,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal,
+    },
+  )
 }

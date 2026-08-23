@@ -13,6 +13,14 @@ internal static class AttendanceValidationProblems
         });
     }
 
+    public static ValidationProblem CreateLessonDateValidationProblem(string lessonDateFormat)
+    {
+        return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+        {
+            ["lessonDate"] = [$"Дата занятия должна быть в формате {lessonDateFormat}."]
+        });
+    }
+
     public static ValidationProblem CreateAttendanceMarksValidationProblem(string message)
     {
         return TypedResults.ValidationProblem(new Dictionary<string, string[]>

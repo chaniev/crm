@@ -242,6 +242,93 @@ const SCHEDULE_GROUPS_RESPONSE = {
   take: 100,
 } as const
 
+const SCHEDULE_IOS_LESSON_CARD = {
+  lessonOccurrenceId: 'occ-evening',
+  sourceKind: 'Recurring',
+  isMaterialized: false,
+  lessonSeriesId: 'series-1',
+  lessonDate: '2026-08-20',
+  startTime: '18:00',
+  durationMinutes: 50,
+  endTime: '18:50',
+  groupId: 'group-1',
+  groupName: 'Утренняя база',
+  groupTypeId: 'type-1',
+  groupTypeName: 'Кардио',
+  branchId: 'branch-1',
+  branchName: 'Центр',
+  hallId: 'hall-1',
+  hallName: 'Основной зал',
+  effectiveTrainers: [{
+    trainerId: 'trainer-1',
+    fullName: 'Алиса',
+    kind: 'Permanent',
+    replacedTrainerId: null,
+    substitutionId: null,
+  }],
+  status: 'Scheduled',
+  hasAttendanceMarks: true,
+  allowedActions: {
+    viewAttendance: { allowed: true, reason: null },
+    editAttendance: { allowed: true, reason: null },
+    edit: { allowed: false, reason: 'not-implemented' },
+    move: { allowed: false, reason: 'not-implemented' },
+    cancel: { allowed: false, reason: 'not-implemented' },
+    restore: { allowed: false, reason: 'not-cancelled' },
+    assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+    cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+  },
+  revision: 'revision-1',
+} as const
+
+const SCHEDULE_IOS_DISABLED_LESSON_CARD = {
+  ...SCHEDULE_IOS_LESSON_CARD,
+  allowedActions: {
+    ...SCHEDULE_IOS_LESSON_CARD.allowedActions,
+    viewAttendance: { allowed: false, reason: 'attendance-forbidden' },
+  },
+} as const
+
+const SCHEDULE_IOS_MOVABLE_LESSON_CARD = {
+  ...SCHEDULE_IOS_LESSON_CARD,
+  lessonOccurrenceId: 'occ-evening-movable',
+  allowedActions: {
+    ...SCHEDULE_IOS_LESSON_CARD.allowedActions,
+    move: { allowed: true, reason: null },
+  },
+  revision: 'revision-1',
+} as const
+
+const SCHEDULE_IOS_ATTENDANCE_ROSTER = {
+  groupId: 'group-1',
+  trainingDate: '2026-08-20',
+  lessonOccurrenceId: 'occ-evening',
+  lessonDate: '2026-08-20',
+  canEditAttendance: { allowed: true, reason: null },
+  today: '2026-08-20',
+  minTrainingDate: null,
+  maxTrainingDate: '2026-08-20',
+  clients: [{
+    id: 'client-1',
+    fullName: 'Иван Иванов',
+    groups: [{
+      id: 'group-1',
+      name: 'Утренняя база',
+      isActive: true,
+      branchId: 'branch-1',
+      branchName: 'Центр',
+    }],
+    photo: null,
+    state: 'Unmarked',
+    isProfessional: false,
+    professionalComment: null,
+    hasActiveMembership: true,
+    membershipWarning: false,
+    membershipWarningMessage: null,
+    currentMemberships: [],
+  }],
+} as const
+
 const UNAUTHENTICATED_SESSION = {
   isAuthenticated: false,
   csrfToken: '',
@@ -815,18 +902,16 @@ test('target iPhone schedule preserves the mobile timeline in portrait and touch
   const target = targetScreenFor(testInfo.project.name)
 
   await mockApi(page, HEAD_COACH_SESSION)
-  await page.goto('/schedule')
+  await page.goto('/schedule?date=2026-08-20&view=day')
 
   await expect(page.getByTestId('schedule-screen')).toBeVisible()
-  await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
-  await expect(page.getByTestId('schedule-mobile-day-strip')).toBeVisible()
-  await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()
-  await expect(page.getByTestId('schedule-mobile-day-list')).toContainText(
-    'Мобильная группа 1 с длинным названием',
+  await expect(page.getByTestId('schedule-toolbar')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Параметры календаря' })).toBeVisible()
+  await expect(page.getByTestId('schedule-day-section-2026-08-20')).toBeVisible()
+  await expect(page.getByTestId('schedule-card-occ-evening')).toContainText(
+    'Утренняя база',
   )
-  await expect(page.getByTestId('schedule-calendar-grid')).toHaveCount(0)
-  await expect(page.locator('.schedule-events-disclosure')).toHaveCount(0)
+  await expect(page.getByTestId('schedule-week-view')).toHaveCount(0)
   await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeVisible()
   await expectNoHorizontalScroll(page)
 
@@ -834,15 +919,1392 @@ test('target iPhone schedule preserves the mobile timeline in portrait and touch
 
   await page.setViewportSize({ width: target.height, height: target.width })
 
-  await expect(page.getByTestId('schedule-mobile-day-strip')).toBeVisible()
-  await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()
-  await expect(page.getByTestId('schedule-mobile-day-list')).toContainText(
-    'Мобильная группа 1 с длинным названием',
+  await expect(page.getByTestId('schedule-toolbar')).toBeVisible()
+  await expect(page.getByTestId('schedule-day-section-2026-08-20')).toBeVisible()
+  await expect(page.getByTestId('schedule-card-occ-evening')).toContainText(
+    'Утренняя база',
   )
-  await expect(page.getByTestId('schedule-calendar-grid')).toHaveCount(0)
-  await expect(page.locator('.schedule-events-disclosure')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Параметры календаря' })).toBeVisible()
   await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeVisible()
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone opens exact attendance from schedule occurrence and stays state-safe after save', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let savedPayload: unknown = null
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-08-20',
+        maxTrainingDate: '2026-08-20',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      await fulfillJson(route, {
+        ...scheduleLessonsResponse({}),
+        items: [SCHEDULE_IOS_LESSON_CARD],
+      })
+      return
+    }
+
+    if (
+      pathname === '/api/attendance/lessons/occ-evening/clients' &&
+      method === 'GET'
+    ) {
+      expect(searchParams.get('lessonDate')).toBe('2026-08-20')
+      await fulfillJson(route, SCHEDULE_IOS_ATTENDANCE_ROSTER)
+      return
+    }
+
+    if (pathname === '/api/attendance/lessons/occ-evening' && method === 'POST') {
+      savedPayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        ...SCHEDULE_IOS_ATTENDANCE_ROSTER,
+        attendanceMarks: [{
+          clientId: 'client-1',
+          state: 'Present',
+        }],
+      })
+      return
+    }
+
+    throw new Error(`Unexpected schedule attendance API request: ${method} ${pathname}`)
+  })
+
+  await page.setViewportSize(target)
+  await page.goto('/schedule?date=2026-08-20&view=day')
+
+  const eveningCard = page.getByTestId('schedule-card-occ-evening')
+  await expect(eveningCard).toBeVisible()
+  await eveningCard.getByRole('button', { name: /Открыть посещаемость/ }).click()
+  await expect(page).toHaveURL('/attendance/occ-evening?lessonDate=2026-08-20')
+
+  await expect(page.getByTestId('attendance-client-card-client-1')).toBeVisible()
+  await page.getByRole('radio', { name: 'Был', exact: true }).click()
+
+  await expect.poll(() => savedPayload).toEqual({
+    LessonDate: '2026-08-20',
+    AttendanceMarks: [{ ClientId: 'client-1', State: 'Present' }],
+  })
+
+  await page.goBack()
+  await expect(page).toHaveURL(/\/schedule\?date=2026-08-20&view=day(&.*)?$/)
+  await expect(eveningCard).toBeVisible()
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone creates one-off lesson through preview and opens exact detail route', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let previewPayload: unknown = null
+  let executePayload: unknown = null
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-08-20',
+        maxTrainingDate: '2026-08-20',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      await fulfillJson(route, {
+        ...scheduleLessonsResponse({}),
+        items: [SCHEDULE_IOS_LESSON_CARD],
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/one-off/preview' && method === 'POST') {
+      expect(route.request().headers()['x-csrf-token']).toBe(HEAD_COACH_SESSION.csrfToken)
+      previewPayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        confirmationToken: 'one-off-preview-token',
+        expiresAt: '2026-08-20T09:15:00Z',
+        lesson: {
+          lessonOccurrenceId: 'preview-one-off',
+          sourceKind: 'OneOff',
+          isMaterialized: false,
+          lessonDate: '2026-08-20',
+          startTime: '12:30',
+          durationMinutes: 60,
+          endTime: '13:30',
+          groupId: 'group-1',
+          groupName: 'Утренняя база',
+          groupTypeId: 'type-1',
+          groupTypeName: 'Кардио',
+          branchId: 'branch-1',
+          branchName: 'Центр',
+          hallId: 'hall-1',
+          hallName: 'Основной зал',
+          effectiveTrainers: [{
+            trainerId: 'trainer-1',
+            fullName: 'Алиса',
+            kind: 'Permanent',
+            replacedTrainerId: null,
+            substitutionId: null,
+          }],
+          status: 'Scheduled',
+          hasAttendanceMarks: false,
+          allowedActions: {
+            viewAttendance: { allowed: true, reason: null },
+            editAttendance: { allowed: true, reason: null },
+            edit: { allowed: false, reason: 'not-implemented' },
+            move: { allowed: false, reason: 'not-implemented' },
+            cancel: { allowed: false, reason: 'not-implemented' },
+            restore: { allowed: false, reason: 'not-cancelled' },
+            assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+            cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+          },
+          revision: 'preview-one-off',
+        },
+        warnings: [{ code: 'hall-load', message: 'Проверьте нагрузку зала.' }],
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/one-off' && method === 'POST') {
+      expect(route.request().headers()['x-csrf-token']).toBe(HEAD_COACH_SESSION.csrfToken)
+      executePayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        lessonOccurrenceId: 'created-one-off',
+        sourceKind: 'OneOff',
+        isMaterialized: true,
+        lessonDate: '2026-08-20',
+        startTime: '12:30',
+        durationMinutes: 60,
+        endTime: '13:30',
+        groupId: 'group-1',
+        groupName: 'Утренняя база',
+        groupTypeId: 'type-1',
+        groupTypeName: 'Кардио',
+        branchId: 'branch-1',
+        branchName: 'Центр',
+        hallId: 'hall-1',
+        hallName: 'Основной зал',
+        effectiveTrainers: [{
+          trainerId: 'trainer-1',
+          fullName: 'Алиса',
+          kind: 'Permanent',
+          replacedTrainerId: null,
+          substitutionId: null,
+        }],
+        status: 'Scheduled',
+        hasAttendanceMarks: false,
+        allowedActions: {
+          viewAttendance: { allowed: true, reason: null },
+          editAttendance: { allowed: true, reason: null },
+          edit: { allowed: false, reason: 'not-implemented' },
+          move: { allowed: false, reason: 'not-implemented' },
+          cancel: { allowed: false, reason: 'not-implemented' },
+          restore: { allowed: false, reason: 'not-cancelled' },
+          assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+          cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+        },
+        revision: 'created-one-off',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/created-one-off' && method === 'GET') {
+      await fulfillJson(route, {
+        lessonOccurrenceId: 'created-one-off',
+        sourceKind: 'OneOff',
+        isMaterialized: true,
+        lessonDate: '2026-08-20',
+        startTime: '12:30',
+        durationMinutes: 60,
+        endTime: '13:30',
+        groupId: 'group-1',
+        groupName: 'Утренняя база',
+        groupTypeId: 'type-1',
+        groupTypeName: 'Кардио',
+        branchId: 'branch-1',
+        branchName: 'Центр',
+        hallId: 'hall-1',
+        hallName: 'Основной зал',
+        effectiveTrainers: [{
+          trainerId: 'trainer-1',
+          fullName: 'Алиса',
+          kind: 'Permanent',
+          replacedTrainerId: null,
+          substitutionId: null,
+        }],
+        status: 'Scheduled',
+        hasAttendanceMarks: false,
+        allowedActions: {
+          viewAttendance: { allowed: true, reason: null },
+          editAttendance: { allowed: true, reason: null },
+          edit: { allowed: false, reason: 'not-implemented' },
+          move: { allowed: false, reason: 'not-implemented' },
+          cancel: { allowed: false, reason: 'not-implemented' },
+          restore: { allowed: false, reason: 'not-cancelled' },
+          assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+          cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+        },
+        revision: 'created-one-off',
+      })
+      return
+    }
+
+    throw new Error(`Unexpected one-off schedule API request: ${method} ${pathname}`)
+  })
+
+  await page.setViewportSize(target)
+  await page.goto('/schedule?date=2026-08-20&view=day')
+
+  await page.getByRole('button', { name: 'Создать разовое занятие' }).click()
+
+  const createDialog = page.getByTestId('schedule-lesson-create-screen')
+  await expect(createDialog).toBeVisible()
+  await createDialog.getByLabel('Дата').fill('2026-08-20')
+  await createDialog.getByLabel('Время').fill('12:30')
+  await expect(createDialog.getByRole('button', { name: 'Получить предпросмотр' })).toBeEnabled()
+  await createDialog.getByRole('button', { name: 'Получить предпросмотр' }).click()
+
+  await expect.poll(() => previewPayload).toEqual({
+    groupId: 'group-1',
+    lessonDate: '2026-08-20',
+    startTime: '12:30',
+    durationMinutes: 60,
+    hallId: 'hall-1',
+  })
+  await expect(createDialog.getByText('Проверьте нагрузку зала.')).toBeVisible()
+
+  const createButton = createDialog.getByRole('button', { name: 'Создать занятие' })
+  const cancelButton = createDialog.getByRole('button', { name: 'Отмена' })
+  const createBox = await createButton.boundingBox()
+  const cancelBox = await cancelButton.boundingBox()
+  expect(createBox).not.toBeNull()
+  expect(cancelBox).not.toBeNull()
+  expect(createBox!.height).toBeGreaterThanOrEqual(44)
+  expect(cancelBox!.height).toBeGreaterThanOrEqual(44)
+
+  await createButton.click()
+
+  await expect.poll(() => executePayload).toEqual({
+    groupId: 'group-1',
+    lessonDate: '2026-08-20',
+    startTime: '12:30',
+    durationMinutes: 60,
+    hallId: 'hall-1',
+    confirmationToken: 'one-off-preview-token',
+  })
+
+  await expect(page).toHaveURL(/\/schedule\/lessons\/created-one-off\?lessonDate=2026-08-20$/)
+  await expect(page.getByTestId('schedule-lesson-detail-screen')).toBeVisible()
+
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone recovers one-off confirmation when preview becomes stale', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let executeCalls = 0
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-08-20',
+        maxTrainingDate: '2026-08-20',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      expect(pathname).toBe('/api/schedule/lessons')
+      await fulfillJson(route, {
+        ...scheduleLessonsResponse({}),
+        items: [SCHEDULE_IOS_LESSON_CARD],
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/one-off/preview' && method === 'POST') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json; charset=utf-8',
+        body: JSON.stringify({
+          confirmationToken: 'stale-preview-token',
+          expiresAt: '2026-08-20T09:15:00Z',
+          lesson: {
+            lessonOccurrenceId: 'preview-one-off',
+            sourceKind: 'OneOff',
+            isMaterialized: false,
+            lessonDate: '2026-08-20',
+            startTime: '12:30',
+            durationMinutes: 60,
+            endTime: '13:30',
+            groupId: 'group-1',
+            groupName: 'Утренняя база',
+            groupTypeId: 'type-1',
+            groupTypeName: 'Кардио',
+            branchId: 'branch-1',
+            branchName: 'Центр',
+            hallId: 'hall-1',
+            hallName: 'Основной зал',
+            effectiveTrainers: [{
+              trainerId: 'trainer-1',
+              fullName: 'Алиса',
+              kind: 'Permanent',
+              replacedTrainerId: null,
+              substitutionId: null,
+            }],
+            status: 'Scheduled',
+            hasAttendanceMarks: false,
+            allowedActions: {
+              viewAttendance: { allowed: true, reason: null },
+              editAttendance: { allowed: true, reason: null },
+              edit: { allowed: false, reason: 'not-implemented' },
+              move: { allowed: false, reason: 'not-implemented' },
+              cancel: { allowed: false, reason: 'not-implemented' },
+              restore: { allowed: false, reason: 'not-cancelled' },
+              assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+              cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+            },
+            revision: 'preview-one-off',
+          },
+          warnings: [],
+        }),
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/one-off' && method === 'POST') {
+      executeCalls += 1
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json; charset=utf-8',
+        body: JSON.stringify({
+          title: 'Schedule confirmation token is not valid for this mutation.',
+          code: 'lesson-mutation-preview-stale',
+        }),
+      })
+      return
+    }
+
+    throw new Error(`Unexpected stale one-off API request: ${method} ${pathname}`)
+  })
+
+  await page.setViewportSize(target)
+  await page.goto('/schedule?date=2026-08-20&view=day')
+
+  await page.getByRole('button', { name: 'Создать разовое занятие' }).click()
+  const createDialog = page.getByTestId('schedule-lesson-create-screen')
+  await expect(createDialog).toBeVisible()
+  await createDialog.getByLabel('Время').fill('12:30')
+  await createDialog.getByRole('button', { name: 'Получить предпросмотр' }).click()
+  await expect(createDialog.getByText('Проверьте занятие перед созданием')).toBeVisible()
+  await createDialog.getByRole('button', { name: 'Создать занятие' }).click()
+
+  await expect(createDialog.getByText('Параметры изменились после предпросмотра. Получите новый предпросмотр.')).toBeVisible()
+  await expect(createDialog.getByText('lesson-mutation-preview-stale')).toHaveCount(0)
+  await expect(createDialog.getByLabel('Время')).toHaveValue('12:30')
+  await expect(createDialog.getByRole('button', { name: 'Обновить предпросмотр' })).toBeVisible()
+  expect(executeCalls).toBe(1)
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone moves exact occurrence after preview and keeps returned lesson date', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let previewPayload: unknown = null
+  let executePayload: unknown = null
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-08-20',
+        maxTrainingDate: '2026-08-20',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      const requestedFrom = searchParams.get('from')
+      const requestedTo = searchParams.get('to')
+      expect(['2026-08-20', '2026-08-21']).toContain(requestedFrom)
+      expect(['2026-08-20', '2026-08-21']).toContain(requestedTo)
+      const isMovedDay = requestedFrom === '2026-08-21'
+      await fulfillJson(route, {
+        ...scheduleLessonsResponse({
+          date: isMovedDay ? '2026-08-21' : '2026-08-20',
+          from: requestedFrom ?? undefined,
+          to: requestedTo ?? undefined,
+        }),
+        items: [
+          {
+            ...SCHEDULE_IOS_MOVABLE_LESSON_CARD,
+            lessonOccurrenceId: 'occ-evening',
+            lessonDate: isMovedDay ? '2026-08-21' : '2026-08-20',
+            startTime: isMovedDay ? '11:15' : '18:00',
+            durationMinutes: 60,
+            endTime: isMovedDay ? '12:15' : '19:00',
+            revision: isMovedDay ? 'revision-2' : 'revision-1',
+          },
+        ],
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      await fulfillJson(route, {
+        lessonOccurrenceId: 'occ-evening',
+        sourceKind: 'Recurring',
+        isMaterialized: true,
+        lessonDate: searchParams.get('lessonDate') ?? '2026-08-20',
+        startTime: searchParams.get('lessonDate') === '2026-08-21' ? '11:15' : '18:00',
+        durationMinutes: 60,
+        endTime: searchParams.get('lessonDate') === '2026-08-21' ? '12:15' : '19:00',
+        groupId: 'group-1',
+        groupName: 'Утренняя база',
+        groupTypeId: 'type-1',
+        groupTypeName: 'Кардио',
+        branchId: 'branch-1',
+        branchName: 'Центр',
+        hallId: 'hall-1',
+        hallName: 'Основной зал',
+        effectiveTrainers: [{
+          trainerId: 'trainer-1',
+          fullName: 'Алиса',
+          kind: 'Permanent',
+          replacedTrainerId: null,
+          substitutionId: null,
+        }],
+        status: 'Scheduled',
+        hasAttendanceMarks: false,
+        allowedActions: {
+          viewAttendance: { allowed: true, reason: null },
+          editAttendance: { allowed: true, reason: null },
+          edit: { allowed: false, reason: null },
+          move: { allowed: true, reason: null },
+          cancel: { allowed: false, reason: 'not-implemented' },
+          restore: { allowed: false, reason: 'not-cancelled' },
+          assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+          cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+        },
+        revision: searchParams.get('lessonDate') === '2026-08-21' ? 'revision-2' : 'revision-1',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      await fulfillJson(route, {
+        ...SCHEDULE_IOS_MOVABLE_LESSON_CARD,
+        lessonOccurrenceId: 'occ-evening',
+        startTime: '18:00',
+        durationMinutes: 60,
+        endTime: '19:00',
+        revision: 'revision-1',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      await fulfillJson(route, {
+        ...SCHEDULE_IOS_MOVABLE_LESSON_CARD,
+        lessonOccurrenceId: 'occ-evening',
+        startTime: '18:00',
+        durationMinutes: 60,
+        endTime: '19:00',
+        revision: 'revision-1',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      await fulfillJson(route, {
+        ...SCHEDULE_IOS_MOVABLE_LESSON_CARD,
+        lessonOccurrenceId: 'occ-evening',
+        startTime: '18:00',
+        durationMinutes: 60,
+        endTime: '19:00',
+        revision: 'revision-1',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening/change/preview' && method === 'POST') {
+      expect(searchParams.get('lessonDate')).toBe('2026-08-20')
+      previewPayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        confirmationToken: 'change-preview-token',
+        expiresAt: '2026-08-20T09:15:00Z',
+        lesson: {
+          lessonOccurrenceId: 'occ-evening',
+          sourceKind: 'Recurring',
+          isMaterialized: true,
+          lessonDate: '2026-08-21',
+          startTime: '11:15',
+          durationMinutes: 60,
+          endTime: '12:15',
+          groupId: 'group-1',
+          groupName: 'Утренняя база',
+          groupTypeId: 'type-1',
+          groupTypeName: 'Кардио',
+          branchId: 'branch-1',
+          branchName: 'Центр',
+          hallId: 'hall-1',
+          hallName: 'Основной зал',
+          effectiveTrainers: [{
+            trainerId: 'trainer-1',
+            fullName: 'Алиса',
+            kind: 'Permanent',
+            replacedTrainerId: null,
+            substitutionId: null,
+          }],
+          status: 'Scheduled',
+          hasAttendanceMarks: false,
+          allowedActions: {
+            viewAttendance: { allowed: true, reason: null },
+            editAttendance: { allowed: true, reason: null },
+            edit: { allowed: false, reason: null },
+            move: { allowed: true, reason: null },
+            cancel: { allowed: false, reason: 'not-implemented' },
+            restore: { allowed: false, reason: 'not-cancelled' },
+            assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+            cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+          },
+          revision: 'preview-change',
+        },
+        warnings: [{ code: 'lesson-hall-overlap', message: 'Проверьте пересечение зала.' }],
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening/change' && method === 'POST') {
+      expect(searchParams.get('lessonDate')).toBe('2026-08-20')
+      expect(route.request().headers()['x-csrf-token']).toBe(HEAD_COACH_SESSION.csrfToken)
+      executePayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        lessonOccurrenceId: 'occ-evening',
+        sourceKind: 'Recurring',
+        isMaterialized: true,
+        lessonDate: '2026-08-21',
+        startTime: '11:15',
+        durationMinutes: 60,
+        endTime: '12:15',
+        groupId: 'group-1',
+        groupName: 'Утренняя база',
+        groupTypeId: 'type-1',
+        groupTypeName: 'Кардио',
+        branchId: 'branch-1',
+        branchName: 'Центр',
+        hallId: 'hall-1',
+        hallName: 'Основной зал',
+        effectiveTrainers: [{
+          trainerId: 'trainer-1',
+          fullName: 'Алиса',
+          kind: 'Permanent',
+          replacedTrainerId: null,
+          substitutionId: null,
+        }],
+        status: 'Scheduled',
+        hasAttendanceMarks: false,
+        allowedActions: {
+          viewAttendance: { allowed: true, reason: null },
+          editAttendance: { allowed: true, reason: null },
+          edit: { allowed: false, reason: null },
+          move: { allowed: true, reason: null },
+          cancel: { allowed: false, reason: 'not-implemented' },
+          restore: { allowed: false, reason: 'not-cancelled' },
+          assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+          cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+        },
+        revision: 'revision-2',
+      })
+      return
+    }
+
+    throw new Error(`Unexpected move schedule API request: ${method} ${pathname}`)
+  })
+
+  await page.setViewportSize(target)
+  await page.goto('/schedule?date=2026-08-20&view=day')
+
+  await expect(page.getByTestId('schedule-card-occ-evening')).toBeVisible()
+  await page
+    .getByTestId('schedule-card-occ-evening')
+    .getByRole('button', { name: /Открыть занятие/ })
+    .click()
+
+  await expect(page).toHaveURL(/\/schedule\/lessons\/occ-evening\?lessonDate=2026-08-20$/)
+  const detailCard = page.getByTestId('schedule-lesson-detail-screen')
+  await expect(detailCard).toBeVisible()
+  await detailCard.getByRole('button', { name: 'Перенести' }).click()
+
+  const drawer = page.getByTestId('schedule-lesson-move-screen')
+  await expect(drawer).toBeVisible()
+  await drawer.getByLabel('Дата').fill('2026-08-21')
+  await drawer.getByLabel('Время').fill('11:15')
+  await expect(drawer.getByRole('button', { name: 'Получить предпросмотр' })).toBeEnabled()
+  await drawer.getByRole('button', { name: 'Получить предпросмотр' }).click()
+
+  await expect.poll(() => previewPayload).toEqual({
+    scope: 'Occurrence',
+    newLessonDate: '2026-08-21',
+    startTime: '11:15',
+    durationMinutes: 60,
+    hallId: 'hall-1',
+    expectedRevision: 'revision-1',
+  })
+  await expect(drawer.getByText('Проверьте пересечение зала.')).toBeVisible()
+  await drawer.getByRole('button', { name: 'Сохранить изменение' }).click()
+
+  await expect.poll(() => executePayload).toEqual({
+    scope: 'Occurrence',
+    newLessonDate: '2026-08-21',
+    startTime: '11:15',
+    durationMinutes: 60,
+    hallId: 'hall-1',
+    expectedRevision: 'revision-1',
+    confirmationToken: 'change-preview-token',
+  })
+
+  await expect(page).toHaveURL(/\/schedule\/lessons\/occ-evening\?lessonDate=2026-08-21$/)
+  await expect(detailCard.getByText('11:15-12:15')).toBeVisible()
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone move draft stays editable after stale confirmation state', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let executeCalls = 0
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-08-20',
+        maxTrainingDate: '2026-08-20',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      expect(searchParams.get('from')).toBe('2026-08-20')
+      expect(searchParams.get('to')).toBe('2026-08-20')
+      await fulfillJson(route, {
+        ...scheduleLessonsResponse({}),
+        items: [
+          {
+            ...SCHEDULE_IOS_MOVABLE_LESSON_CARD,
+            lessonOccurrenceId: 'occ-evening',
+            startTime: '18:00',
+            durationMinutes: 60,
+            endTime: '19:00',
+          },
+        ],
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      await fulfillJson(route, {
+        ...SCHEDULE_IOS_MOVABLE_LESSON_CARD,
+        lessonOccurrenceId: 'occ-evening',
+        startTime: '18:00',
+        durationMinutes: 60,
+        endTime: '19:00',
+        revision: 'revision-1',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening/change/preview' && method === 'POST') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json; charset=utf-8',
+        body: JSON.stringify({
+          confirmationToken: 'stale-change-token',
+          expiresAt: '2026-08-20T09:15:00Z',
+          lesson: {
+            lessonOccurrenceId: 'occ-evening',
+            sourceKind: 'Recurring',
+            isMaterialized: true,
+            lessonDate: '2026-08-21',
+            startTime: '11:15',
+            durationMinutes: 60,
+            endTime: '12:15',
+            groupId: 'group-1',
+            groupName: 'Утренняя база',
+            groupTypeId: 'type-1',
+            groupTypeName: 'Кардио',
+            branchId: 'branch-1',
+            branchName: 'Центр',
+            hallId: 'hall-1',
+            hallName: 'Основной зал',
+            effectiveTrainers: [{
+              trainerId: 'trainer-1',
+              fullName: 'Алиса',
+              kind: 'Permanent',
+              replacedTrainerId: null,
+              substitutionId: null,
+            }],
+            status: 'Scheduled',
+            hasAttendanceMarks: false,
+            allowedActions: {
+              viewAttendance: { allowed: true, reason: null },
+              editAttendance: { allowed: true, reason: null },
+              edit: { allowed: false, reason: null },
+              move: { allowed: true, reason: null },
+              cancel: { allowed: false, reason: 'not-implemented' },
+              restore: { allowed: false, reason: 'not-cancelled' },
+              assignTrainerSubstitution: { allowed: false, reason: 'not-implemented' },
+              cancelTrainerSubstitution: { allowed: false, reason: 'no-substitution' },
+            },
+            revision: 'preview-change',
+          },
+          warnings: [],
+        }),
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening/change' && method === 'POST') {
+      executeCalls += 1
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json; charset=utf-8',
+        body: JSON.stringify({
+          title: 'Schedule confirmation token is not valid for this mutation.',
+          code: 'lesson-mutation-preview-stale',
+        }),
+      })
+      return
+    }
+
+    throw new Error(`Unexpected stale move API request: ${method} ${pathname}`)
+  })
+
+  await page.setViewportSize(target)
+  await page.goto('/schedule?date=2026-08-20&view=day')
+
+  await page
+    .getByTestId('schedule-card-occ-evening')
+    .getByRole('button', { name: /Открыть занятие/ })
+    .click()
+  const detail = page.getByTestId('schedule-lesson-detail-screen')
+  await expect(detail).toBeVisible()
+  await detail.getByRole('button', { name: 'Перенести' }).click()
+
+  const drawer = page.getByTestId('schedule-lesson-move-screen')
+  await drawer.getByLabel('Дата').fill('2026-08-21')
+  await drawer.getByLabel('Время').fill('11:15')
+  await drawer.getByRole('button', { name: 'Получить предпросмотр' }).click()
+  await expect(drawer.getByText('Проверьте изменение перед сохранением')).toBeVisible()
+  await drawer.getByRole('button', { name: 'Сохранить изменение' }).click()
+
+  await expect(drawer.getByText('Параметры изменились после предпросмотра. Получите новый предпросмотр.')).toBeVisible()
+  await expect(drawer.getByText('lesson-mutation-preview-stale')).toHaveCount(0)
+  await expect(drawer.getByLabel('Дата')).toHaveValue('2026-08-21')
+  await expect(drawer.getByRole('button', { name: 'Обновить предпросмотр' })).toBeVisible()
+  await expect(drawer.getByRole('button', { name: 'Отмена' })).toBeVisible()
+  expect(executeCalls).toBe(1)
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone shows restricted attendance action only and keeps route stable', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      expect(searchParams.get('from')).toBe('2026-08-20')
+      expect(searchParams.get('to')).toBe('2026-08-20')
+      await fulfillJson(route, {
+        ...scheduleLessonsResponse({}),
+        items: [SCHEDULE_IOS_DISABLED_LESSON_CARD],
+      })
+      return
+    }
+
+    if (pathname.startsWith('/api/attendance/lessons/') && method === 'POST') {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json; charset=utf-8',
+        body: JSON.stringify({ message: 'unexpected attendance request in permission-restricted test' }),
+      })
+      return
+    }
+
+    await route.continue()
+  })
+
+  await page.setViewportSize(target)
+  await page.goto('/schedule?date=2026-08-20&view=day')
+
+  const eveningCard = page.getByTestId('schedule-card-occ-evening')
+  const attendanceButton = eveningCard.getByRole('button', { name: /Открыть посещаемость/ })
+
+  await expect(attendanceButton).toBeDisabled()
+  await expect(eveningCard).toContainText('Посещаемость недоступна для вашей роли или зоны доступа.')
+  await expect(eveningCard).not.toContainText('attendance-forbidden')
+  await expect(page).toHaveURL(/\/schedule\?date=2026-08-20&view=day$/)
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone preserves schedule filters through retry when initial load fails', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const scheduleCalls: string[] = []
+  let allowSuccess = false
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-08-20',
+        maxTrainingDate: '2026-08-20',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      scheduleCalls.push(searchParams.toString())
+
+      if (!allowSuccess) {
+        await route.fulfill({
+          status: 503,
+          contentType: 'application/json; charset=utf-8',
+          body: JSON.stringify({ message: 'temporary error' }),
+        })
+        return
+      }
+
+      await fulfillJson(route, {
+        ...scheduleLessonsResponse({ view: 'week' }),
+        from: searchParams.get('from') ?? '2026-08-17',
+        to: searchParams.get('to') ?? '2026-08-23',
+      })
+      return
+    }
+
+    await route.continue()
+  })
+
+  await page.setViewportSize(target)
+  await page.goto('/schedule?date=2026-08-20&view=week&branchId=branch-1&trainerId=trainer-1')
+  await expect(page.getByText('Расписание не загрузилось')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Повторить' })).toBeVisible()
+  await expect(page).toHaveURL('/schedule?date=2026-08-20&view=week&branchId=branch-1&trainerId=trainer-1')
+
+  allowSuccess = true
+  await page.getByRole('button', { name: 'Повторить' }).click()
+  await expect(page.getByTestId('schedule-week-view')).toBeVisible()
+  await expectNoHorizontalScroll(page)
+  await expect(page).toHaveURL('/schedule?date=2026-08-20&view=week&branchId=branch-1&trainerId=trainer-1')
+
+  expect(scheduleCalls.length).toBeGreaterThanOrEqual(2)
+  const firstQuery = new URLSearchParams(scheduleCalls[0])
+  const secondQuery = new URLSearchParams(scheduleCalls[1])
+  expect(firstQuery.get('from')).toBe('2026-08-17')
+  expect(firstQuery.get('to')).toBe('2026-08-23')
+  expect(firstQuery.get('branchId')).toBe('branch-1')
+  expect(firstQuery.get('trainerId')).toBe('trainer-1')
+  expect(secondQuery.get('branchId')).toBe('branch-1')
+  expect(secondQuery.get('trainerId')).toBe('trainer-1')
+})
+
+test('target iPhone schedule tools drawer returns focus to the trigger button', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.setViewportSize(target)
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.goto('/schedule?date=2026-08-20&view=day')
+
+  const toolsButton = page.getByRole('button', { name: 'Параметры календаря' })
+  await toolsButton.click()
+  const drawer = page.getByRole('dialog', { name: 'Параметры календаря' })
+
+  await expect(drawer).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(drawer).toBeHidden()
+  await expect(toolsButton).toBeFocused()
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone schedule week mode keeps 7 vertical sections and no overflow', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  const viewports = [
+    { width: target.width, height: target.height },
+    { width: target.height, height: target.width },
+    { width: 420, height: 912 },
+    { width: 440, height: 956 },
+    { width: 912, height: 420 },
+    { width: 956, height: 440 },
+  ]
+
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, {
+        groups: [],
+        today: '2026-08-20',
+        maxTrainingDate: '2026-08-20',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      await fulfillJson(route, {
+        ...scheduleLessonsResponse({
+          date: searchParams.get('date') ?? '2026-08-20',
+          view: (searchParams.get('view') as 'day' | 'week') ?? 'week',
+        }),
+        from: searchParams.get('from') ?? '2026-08-17',
+        to: searchParams.get('to') ?? '2026-08-23',
+      })
+      return
+    }
+
+    await route.continue()
+  })
+
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport)
+    await page.goto('/schedule?date=2026-08-20&view=week')
+
+    await expect(page.getByTestId('schedule-week-view')).toBeVisible()
+    await expect(page.locator('[data-testid^="schedule-day-section-"]')).toHaveCount(7)
+    await expect(page.getByTestId('schedule-calendar-grid')).toHaveCount(0)
+    await expect(page.locator('.schedule-events-disclosure')).toHaveCount(0)
+    await expectNoHorizontalScroll(page)
+    await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeVisible()
+  }
+})
+
+test('target iPhone series editor adds/removes slots and returns to exact lesson', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let previewPayload: unknown = null
+  let executePayload: unknown = null
+
+  await page.setViewportSize(target)
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, { groups: [], today: '2026-08-20', maxTrainingDate: '2026-08-20' })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      await fulfillJson(route, scheduleLessonsResponse({}))
+      return
+    }
+
+    if (pathname === '/api/groups/series-1/lesson-series' && method === 'GET') {
+      await fulfillJson(route, targetSeriesResponse())
+      return
+    }
+
+    if (pathname === '/api/groups/series-1/lesson-series/preview' && method === 'POST') {
+      previewPayload = route.request().postDataJSON()
+      await fulfillJson(route, targetSeriesPreviewResponse())
+      return
+    }
+
+    if (pathname === '/api/groups/series-1/lesson-series' && method === 'POST') {
+      executePayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        ...targetSeriesPreviewResponse(),
+        revision: 'series-revision-2',
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      expect(searchParams.get('lessonDate')).toBe('2026-08-20')
+      await fulfillJson(route, SCHEDULE_IOS_LESSON_CARD)
+      return
+    }
+
+    throw new Error(`Unexpected target iPhone series API request: ${method} ${pathname}`)
+  })
+
+  await page.goto('/schedule/series/series-1/edit?scope=this-and-future&groupId=group-1&lessonOccurrenceId=occ-evening&lessonDate=2026-08-20')
+
+  const screen = page.getByTestId('schedule-series-edit-screen')
+  await expect(screen).toBeVisible()
+  const addSlotButton = screen.getByRole('button', { name: 'Добавить слот' })
+  await expectTouchTargetAtLeast(addSlotButton, 44)
+  await expect(screen.getByRole('button', { name: 'Удалить слот' })).toBeDisabled()
+
+  await screen.getByLabel('Время начала').fill('09:00')
+  await addSlotButton.click()
+  await expect(screen.locator('[data-testid^="schedule-series-slot-"]')).toHaveCount(2)
+  await screen.getByRole('button', { name: 'Удалить слот' }).first().click()
+  await expect(screen.locator('[data-testid^="schedule-series-slot-"]')).toHaveCount(1)
+  await expectNoHorizontalScroll(page)
+
+  await screen.getByRole('button', { name: 'Получить предпросмотр' }).click()
+  await expect(screen.getByText('Проверьте изменение серии')).toBeVisible()
+  await screen.getByRole('button', { name: 'Подтвердить изменение серии' }).click()
+
+  await expect(page).toHaveURL(/\/schedule\/lessons\/occ-evening\?lessonDate=2026-08-20$/)
+  expect(previewPayload).toEqual(expect.objectContaining({
+    scope: 'ThisAndFuture',
+    effectiveFrom: '2026-08-20',
+    expectedRevision: 'series-revision-1',
+    slots: [expect.objectContaining({ startTime: '09:00', hallId: 'hall-1' })],
+  }))
+  expect(executePayload).toEqual(expect.objectContaining({
+    confirmationToken: 'series-token',
+    expectedRevision: 'series-revision-1',
+  }))
+  await expectNoHorizontalScroll(page)
+})
+
+test('target iPhone cancels exact trainer substitution from occurrence card', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let previewPayload: unknown = null
+  let executePayload: unknown = null
+
+  await page.setViewportSize(target)
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname, searchParams } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, { groups: [], today: '2026-08-20', maxTrainingDate: '2026-08-20' })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      await fulfillJson(route, scheduleLessonsResponse({
+        items: [targetSubstitutedLesson()],
+      }))
+      return
+    }
+
+    if (pathname === '/api/schedule/lesson-trainer-substitutions/cancellations/preview' && method === 'POST') {
+      previewPayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        confirmationToken: 'substitution-cancel-token',
+        expiresAt: '2026-08-20T09:15:00Z',
+        targets: [{
+          lessonOccurrenceId: 'occ-evening',
+          lessonDate: '2026-08-20',
+          groupId: 'group-1',
+          groupName: 'Утренняя база',
+          substitutionId: 'substitution-1',
+          warnings: [],
+        }],
+        warnings: [],
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lesson-trainer-substitutions/cancellations' && method === 'POST') {
+      executePayload = route.request().postDataJSON()
+      await fulfillJson(route, {
+        lessons: [SCHEDULE_IOS_LESSON_CARD],
+        warnings: [],
+      })
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons/occ-evening' && method === 'GET') {
+      expect(searchParams.get('lessonDate')).toBe('2026-08-20')
+      await fulfillJson(route, SCHEDULE_IOS_LESSON_CARD)
+      return
+    }
+
+    throw new Error(`Unexpected target iPhone substitution API request: ${method} ${pathname}`)
+  })
+
+  await page.goto('/schedule?date=2026-08-20&view=day')
+
+  const card = page.getByTestId('schedule-card-occ-evening')
+  const cancelSubstitution = card.getByRole('button', { name: /Снять замену тренера/ })
+  await expect(cancelSubstitution).toBeVisible()
+  await expectTouchTargetAtLeast(cancelSubstitution, 44)
+  await cancelSubstitution.click()
+
+  const drawer = page.getByRole('dialog', { name: 'Снять замену тренера' })
+  await expect(drawer).toBeVisible()
+  await drawer.getByRole('button', { name: 'Получить предпросмотр' }).click()
+  await expect(drawer.getByText('Проверьте замену перед подтверждением')).toBeVisible()
+  await drawer.getByRole('button', { name: 'Снять замену' }).click()
+
+  await expect(page).toHaveURL(/\/schedule\/lessons\/occ-evening\?lessonDate=2026-08-20$/)
+  expect(previewPayload).toEqual({
+    targets: [{
+      lessonOccurrenceId: 'occ-evening',
+      lessonDate: '2026-08-20',
+      expectedRevision: 'revision-1',
+      substitutionId: 'substitution-1',
+    }],
+    reason: null,
+  })
+  expect(executePayload).toEqual({
+    targets: [{
+      lessonOccurrenceId: 'occ-evening',
+      lessonDate: '2026-08-20',
+      expectedRevision: 'revision-1',
+      substitutionId: 'substitution-1',
+    }],
+    reason: null,
+    confirmationToken: 'substitution-cancel-token',
+  })
   await expectNoHorizontalScroll(page)
 })
 
@@ -900,15 +2362,12 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
       return
     }
 
-    if (pathname === '/api/attendance/groups' && method === 'GET') {
-      await fulfillJson(route, ATTENDANCE_GROUPS_RESPONSE)
-      return
-    }
-
     if (
-      pathname === '/api/attendance/groups/group-1/clients' &&
+      pathname === '/api/attendance/lessons/occ-evening/clients' &&
       method === 'GET'
     ) {
+      const lessonDate = new URL(route.request().url()).searchParams.get('lessonDate')
+      expect(lessonDate).toBe('2026-04-18')
       await fulfillJson(route, ATTENDANCE_ROSTER_RESPONSE)
       return
     }
@@ -920,6 +2379,16 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
 
     if (pathname === '/api/clients/attention' && method === 'GET') {
       await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/groups' && method === 'GET') {
+      await fulfillJson(route, CLIENT_LIST_GROUPS_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/clients' && method === 'GET') {
+      await fulfillJson(route, CLIENTS_LIST_RESPONSE)
       return
     }
 
@@ -938,17 +2407,9 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
     )
   })
 
-  await page.goto('/attendance')
+  await page.goto('/attendance/occ-evening?lessonDate=2026-04-18')
   const attendanceScreen = page.getByTestId('attendance-screen')
-  const toolbar = page.getByTestId('attendance-toolbar')
-  const groupSelect = page.getByTestId('attendance-group-select')
-  const dateInput = page.getByTestId('attendance-date-input')
-  const previousDate = page.getByRole('button', { name: 'Предыдущая дата' })
-  const today = page.getByRole('button', { name: 'Сегодня' })
-  const nextDate = page.getByRole('button', { name: 'Следующая дата' })
-  const refresh = page.getByRole('button', { name: 'Обновить список' })
-  const progress = page.getByRole('progressbar')
-  const rosterView = page.getByTestId('attendance-roster-view-control')
+  const lessonContext = attendanceScreen.getByText('Посещаемость занятия')
   const firstAction = page.getByTestId('attendance-client-card-client-1').getByRole('radio', {
     name: 'Был',
     exact: true,
@@ -958,51 +2419,16 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
     .getByRole('button', { name: 'Открыть карточку клиента Александр Петров' })
 
   await expect(attendanceScreen).toBeVisible()
-  await expect(toolbar).toBeVisible()
-  await expect(groupSelect).toBeVisible()
-  await expect(dateInput).toBeVisible()
-  await expect(previousDate).toBeVisible()
-  await expect(today).toBeVisible()
-  await expect(nextDate).toBeVisible()
-  await expect(refresh).toBeVisible()
-  await expect(progress).toBeVisible()
-  await expect(rosterView).toBeVisible()
+  await expect(lessonContext).toBeVisible()
   await expect(firstAction).toBeVisible()
   await expect(profileAction).toBeVisible()
-
-  await expect(toolbar.getByTestId('attendance-group-select')).toBeVisible()
-  await expect(toolbar.getByTestId('attendance-date-input')).toBeVisible()
-  await expect(toolbar.getByRole('button', { name: 'Предыдущая дата' })).toBeVisible()
-  await expect(toolbar.getByRole('button', { name: 'Сегодня' })).toBeVisible()
-  await expect(toolbar.getByRole('button', { name: 'Следующая дата' })).toBeVisible()
-  await expect(toolbar.getByRole('progressbar')).toBeVisible()
-  await expect(toolbar.getByTestId('attendance-roster-view-control')).toBeVisible()
-  await expect(toolbar.getByRole('button', { name: 'Обновить список' })).toBeVisible()
-
-  const controls = [groupSelect, dateInput, previousDate, today, nextDate, refresh]
-  for (const control of controls) {
-    const box = await control.boundingBox()
-    expect(box).not.toBeNull()
-    expect(box!.height).toBeGreaterThanOrEqual(44)
-  }
-
-  const dateInputBox = await dateInput.boundingBox()
-  const dateInputValue = await dateInput.evaluate(
-    (element) => (element as HTMLInputElement).value,
-  )
-  expect(dateInputBox).not.toBeNull()
-  expect(dateInputValue).toBe('2026-04-18')
-  expect(dateInputBox!.width).toBeGreaterThanOrEqual(
-    target.width >= 440 ? 216 : target.width >= 420 ? 200 : 176,
-  )
-  const clipping = await dateInput.evaluate((element) => ({
-    clientWidth: element.clientWidth,
-    scrollWidth: (element as HTMLElement).scrollWidth,
-  }))
-  expect(clipping.scrollWidth).toBeLessThanOrEqual(clipping.clientWidth)
+  await expect(page.getByTestId('attendance-toolbar')).toHaveCount(0)
 
   const firstActionBox = await firstAction.boundingBox()
   const profileActionBox = await profileAction.boundingBox()
+  expect(firstActionBox).not.toBeNull()
+  expect(firstActionBox!.width).toBeGreaterThanOrEqual(44)
+  expect(firstActionBox!.height).toBeGreaterThanOrEqual(44)
   expect(profileActionBox).not.toBeNull()
   expect(profileActionBox!.width).toBeGreaterThanOrEqual(44)
   expect(profileActionBox!.height).toBeGreaterThanOrEqual(44)
@@ -1053,7 +2479,8 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
 
   await page.setViewportSize({ width: target.height, height: target.width })
   await expect(attendanceScreen).toBeVisible()
-  await expect(toolbar).toBeVisible()
+  await expect(lessonContext).toBeVisible()
+  await firstAction.scrollIntoViewIfNeeded()
   await expect(firstAction).toBeVisible()
   await expect(profileAction).toBeVisible()
 
@@ -2487,6 +3914,129 @@ function targetScreenFor(projectName: string) {
   return target
 }
 
+function scheduleLessonsResponse({
+  date = '2026-08-20',
+  from: requestedFrom,
+  items = [SCHEDULE_IOS_LESSON_CARD],
+  to: requestedTo,
+  view = 'day',
+  query = new URLSearchParams(),
+}: {
+  date?: string
+  from?: string
+  items?: readonly (typeof SCHEDULE_IOS_LESSON_CARD)[]
+  to?: string
+  view?: 'day' | 'week'
+  query?: URLSearchParams
+}) {
+  const from = requestedFrom ?? (view === 'week'
+    ? '2026-08-17'
+    : date)
+
+  const to = requestedTo ?? (view === 'week'
+    ? '2026-08-23'
+    : date)
+
+  return {
+    from,
+    to,
+    capabilities: {
+      createOneOff: { allowed: true, reason: null },
+    },
+    filterOptions: {
+      branches: [{ id: 'branch-1', name: 'Центр' }],
+      halls: [{ id: 'hall-1', name: 'Основной зал' }],
+      trainers: [{ id: 'trainer-1', name: 'Алиса' }],
+      groups: [{ id: 'group-1', name: 'Утренняя база' }],
+      groupTypes: [{ id: 'type-1', name: 'Кардио' }],
+    },
+    items,
+    query,
+  }
+}
+
+function targetSeriesResponse() {
+  return {
+    seriesId: 'series-1',
+    groupId: 'group-1',
+    groupName: 'Утренняя база',
+    businessDate: '2026-08-20',
+    startsOn: '2026-08-01',
+    endsOn: null,
+    revision: 'series-revision-1',
+    currentVersion: {
+      versionNumber: 1,
+      effectiveFrom: '2026-08-01',
+      effectiveTo: null,
+      thisAndFutureMinEffectiveFrom: '2026-08-20',
+      entireSeriesEffectiveFrom: '2026-08-01',
+      slots: [{
+        isoWeekday: 1,
+        startTime: '08:00',
+        durationMinutes: 50,
+        hallId: 'hall-1',
+        hallName: 'Основной зал',
+      }],
+    },
+  }
+}
+
+function targetSeriesPreviewResponse() {
+  return {
+    confirmationToken: 'series-token',
+    expiresAt: '2026-08-20T09:15:00Z',
+    revision: 'series-revision-1',
+    scope: 'ThisAndFuture',
+    effectiveFrom: '2026-08-20',
+    endsOn: null,
+    slots: [{
+      isoWeekday: 1,
+      startTime: '09:00',
+      durationMinutes: 50,
+      hallId: 'hall-1',
+      hallName: 'Основной зал',
+    }],
+    impact: {
+      totalAffectedOccurrences: 3,
+      examples: [{
+        lessonOccurrenceId: 'occ-evening',
+        lessonDate: '2026-08-20',
+        startTime: '09:00',
+        hallId: 'hall-1',
+        hallName: 'Основной зал',
+      }],
+      skipped: [],
+    },
+    warnings: [],
+  }
+}
+
+function targetSubstitutedLesson() {
+  return {
+    ...SCHEDULE_IOS_LESSON_CARD,
+    allowedActions: {
+      ...SCHEDULE_IOS_LESSON_CARD.allowedActions,
+      cancelTrainerSubstitution: { allowed: true, reason: null },
+    },
+    effectiveTrainers: [
+      {
+        trainerId: 'trainer-1',
+        fullName: 'Алиса',
+        kind: 'Permanent',
+        replacedTrainerId: null,
+        substitutionId: null,
+      },
+      {
+        trainerId: 'trainer-2',
+        fullName: 'Борис',
+        kind: 'Substitute',
+        replacedTrainerId: 'trainer-1',
+        substitutionId: 'substitution-1',
+      },
+    ],
+  }
+}
+
 async function mockApi(
   page: Page,
   session:
@@ -2696,6 +4246,17 @@ async function mockApi(
 
     if (pathname === '/api/schedule/groups' && method === 'GET') {
       await fulfillJson(route, SCHEDULE_GROUPS_RESPONSE)
+      return
+    }
+
+    if (pathname === '/api/schedule/lessons' && method === 'GET') {
+      const view = requestUrl.searchParams.get('view') === 'week' ? 'week' : 'day'
+      await fulfillJson(route, scheduleLessonsResponse({
+        from: requestUrl.searchParams.get('from') ?? undefined,
+        to: requestUrl.searchParams.get('to') ?? undefined,
+        view,
+        query: requestUrl.searchParams,
+      }))
       return
     }
 
@@ -2991,4 +4552,12 @@ async function expectNoHorizontalScroll(page: Page) {
   expect(dimensions.bodyScrollWidth).toBeLessThanOrEqual(
     dimensions.viewportWidth + 1,
   )
+}
+
+async function expectTouchTargetAtLeast(locator: Locator, minSize: number) {
+  const box = await locator.boundingBox()
+
+  expect(box).not.toBeNull()
+  expect(box!.width).toBeGreaterThanOrEqual(minSize)
+  expect(box!.height).toBeGreaterThanOrEqual(minSize)
 }

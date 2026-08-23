@@ -8,7 +8,17 @@ import { request } from './transport'
 import type {
   GroupClientResponsePayload,
   GroupClientsResponse,
+  GroupLessonSeriesExecuteRequest,
+  GroupLessonSeriesExecuteResponse,
+  GroupLessonSeriesPreviewResponse,
+  GroupLessonSeriesReadResponse,
+  GroupLessonSeriesRequest,
+  GroupPreviewResponse,
   GroupResponsePayload,
+  GroupTrainerAssignmentsExecuteRequest,
+  GroupTrainerAssignmentsExecuteResponse,
+  GroupTrainerAssignmentsPreviewRequest,
+  GroupTrainerAssignmentsPreviewResponse,
   GroupSummaryResponsePayload,
   GroupTrainerOptionPayload,
   GroupsListEnvelopePayload,
@@ -17,6 +27,7 @@ import type {
   TrainingGroupListItem,
   TrainingGroupListResponse,
   TrainingGroupSummary,
+  UpdateTrainingGroupIdentityRequest,
   UpsertTrainingGroupRequest,
 } from './types'
 
@@ -154,9 +165,16 @@ export async function createGroup(payload: UpsertTrainingGroupRequest) {
   return mapGroupDetails(response)
 }
 
+export async function previewGroupCreate(payload: UpsertTrainingGroupRequest) {
+  return request<GroupPreviewResponse>(API_ENDPOINTS.groups.preview, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
 export async function updateGroup(
   groupId: string,
-  payload: UpsertTrainingGroupRequest,
+  payload: UpdateTrainingGroupIdentityRequest,
 ) {
   const response = await request<GroupResponsePayload>(
     API_ENDPOINTS.groups.byId(groupId),
@@ -167,6 +185,68 @@ export async function updateGroup(
   )
 
   return mapGroupDetails(response)
+}
+
+export async function previewGroupTrainerAssignments(
+  groupId: string,
+  payload: GroupTrainerAssignmentsPreviewRequest,
+) {
+  return request<GroupTrainerAssignmentsPreviewResponse>(
+    API_ENDPOINTS.groups.trainerAssignmentsPreview(groupId),
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    },
+  )
+}
+
+export async function applyGroupTrainerAssignments(
+  groupId: string,
+  payload: GroupTrainerAssignmentsExecuteRequest,
+) {
+  return request<GroupTrainerAssignmentsExecuteResponse>(
+    API_ENDPOINTS.groups.trainerAssignments(groupId),
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    },
+  )
+}
+
+export async function getGroupLessonSeries(
+  groupOrSeriesId: string,
+  signal?: AbortSignal,
+) {
+  return request<GroupLessonSeriesReadResponse>(
+    API_ENDPOINTS.groups.lessonSeries(groupOrSeriesId),
+    { signal },
+  )
+}
+
+export async function previewGroupLessonSeries(
+  groupOrSeriesId: string,
+  payload: GroupLessonSeriesRequest,
+) {
+  return request<GroupLessonSeriesPreviewResponse>(
+    API_ENDPOINTS.groups.lessonSeriesPreview(groupOrSeriesId),
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    },
+  )
+}
+
+export async function applyGroupLessonSeries(
+  groupOrSeriesId: string,
+  payload: GroupLessonSeriesExecuteRequest,
+) {
+  return request<GroupLessonSeriesExecuteResponse>(
+    API_ENDPOINTS.groups.lessonSeries(groupOrSeriesId),
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    },
+  )
 }
 
 export function mapGroupListItem(payload: GroupResponsePayload): TrainingGroupListItem {
@@ -216,6 +296,13 @@ function mapGroupDetails(payload: GroupResponsePayload): TrainingGroupDetails {
     clientCount: payload.clientCount,
     updatedAt: payload.updatedAt,
     createdAt: payload.createdAt,
+    trainerAssignmentRevision: payload.trainerAssignmentRevision ?? '',
+    trainerAssignmentPeriods: (payload.trainerAssignmentPeriods ?? []).map((assignment) => ({
+      trainerId: assignment.trainerId,
+      trainerName: assignment.trainerName,
+      validFrom: assignment.validFrom,
+      validTo: assignment.validTo ?? null,
+    })),
   }
 }
 

@@ -5,7 +5,9 @@ import {
   ApiError,
   getAttendanceGroupClients,
   getAttendanceGroups,
+  getAttendanceLessonClients,
   saveAttendanceMarks,
+  saveAttendanceLessonMarks,
   type AttendanceClient,
   type AttendanceGroup,
   type AttendanceState,
@@ -35,19 +37,42 @@ import type { AttendanceClientRowState } from './types'
 
 type AttendanceScreenProps = {
   initialReturnContext?: ClientProfileReturnContext | null
+  lessonTarget?: AttendanceLessonTarget | null
   onOpenClient?: (clientId: string, origin: ClientProfileOriginInput) => void
   user: AuthenticatedUser
 }
 
+type AttendanceLessonTarget = {
+  lessonOccurrenceId: string
+  lessonDate: string
+}
+
 export function AttendanceScreen({
   initialReturnContext = null,
+  lessonTarget = null,
   onOpenClient,
   user,
 }: AttendanceScreenProps) {
+  if (!lessonTarget) {
+    return (
+      <PageLayout data-testid="attendance-screen" showHeader={false} title="Посещения">
+        <PageSection>
+          <EmptyState
+            action={<Button component="a" href="/schedule" variant="light">Открыть расписание</Button>}
+            description="Выберите конкретное занятие в расписании и откройте его посещаемость."
+            icon={<IconUsersGroup size={24} />}
+            title="Посещаемость открывается из занятия"
+          />
+        </PageSection>
+      </PageLayout>
+    )
+  }
+
   return (
     <PageLayout data-testid="attendance-screen" showHeader={false} title="Посещения">
       <AttendanceWorkspace
         initialReturnContext={initialReturnContext}
+        lessonTarget={lessonTarget}
         onOpenClient={onOpenClient}
         user={user}
       />
@@ -57,12 +82,14 @@ export function AttendanceScreen({
 
 type AttendanceWorkspaceProps = {
   initialReturnContext?: ClientProfileReturnContext | null
+  lessonTarget?: AttendanceLessonTarget | null
   onOpenClient?: (clientId: string, origin: ClientProfileOriginInput) => void
   user: AuthenticatedUser
 }
 
 export function AttendanceWorkspace({
   initialReturnContext = null,
+  lessonTarget = null,
   onOpenClient,
   user,
 }: AttendanceWorkspaceProps) {
@@ -71,6 +98,7 @@ export function AttendanceWorkspace({
   const [groupsError, setGroupsError] = useState<string | null>(null)
   const [scopeChangeMessage, setScopeChangeMessage] = useState<string | null>(null)
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
+  const [currentRosterGroupId, setCurrentRosterGroupId] = useState<string | null>(null)
   const [trainingDate, setTrainingDate] = useState('')
   const [today, setToday] = useState('')
   const [minTrainingDate, setMinTrainingDate] = useState<string | null>(null)
@@ -83,6 +111,7 @@ export function AttendanceWorkspace({
   const [groupsReloadKey, setGroupsReloadKey] = useState(0)
   const [rosterView, setRosterView] = useState<AttendanceRosterView>('unmarked')
   const [rosterRefreshError, setRosterRefreshError] = useState(false)
+  const [attendanceEditDeniedReason, setAttendanceEditDeniedReason] = useState<string | null>(null)
   const [returnFocusClientId, setReturnFocusClientId] = useState<string | null>(
     initialReturnContext?.origin.kind === 'attendance'
       ? initialReturnContext.origin.anchorClientId
@@ -94,6 +123,15 @@ export function AttendanceWorkspace({
   const initialReturnContextAppliedRef = useRef(false)
 
   useEffect(() => {
+    if (lessonTarget) {
+      setGroupsLoading(false)
+      setGroupsError(null)
+      setGroups([])
+      setSelectedGroupId(null)
+      setTrainingDate(lessonTarget.lessonDate)
+      return
+    }
+
     const controller = new AbortController()
 
     async function loadGroups() {
@@ -140,19 +178,22 @@ export function AttendanceWorkspace({
 
     void loadGroups()
     return () => controller.abort()
-  }, [groupsReloadKey, initialReturnContext])
+  }, [groupsReloadKey, initialReturnContext, lessonTarget])
 
   useEffect(() => {
-    if (!selectedGroupId || !trainingDate) {
+    if ((!selectedGroupId && !lessonTarget) || !trainingDate) {
       setRows({})
       setRosterLoaded(false)
       setRosterError(null)
+      setCurrentRosterGroupId(null)
       return
     }
 
     const controller = new AbortController()
     const contextVersion = ++contextVersionRef.current
-    const contextKey = `${selectedGroupId}:${trainingDate}`
+    const contextKey = lessonTarget
+      ? `${lessonTarget.lessonOccurrenceId}:${trainingDate}`
+      : `${selectedGroupId}:${trainingDate}`
     const isContextChange = contextKeyRef.current !== contextKey
     contextKeyRef.current = contextKey
     if (isContextChange) {
@@ -165,16 +206,28 @@ export function AttendanceWorkspace({
       setRosterLoading(true)
       setRosterError(null)
       try {
-        const response = await getAttendanceGroupClients(
-          selectedGroupId!,
-          trainingDate,
-          controller.signal,
-        )
+        const response = lessonTarget
+          ? await getAttendanceLessonClients(
+              lessonTarget.lessonOccurrenceId,
+              trainingDate,
+              controller.signal,
+            )
+          : await getAttendanceGroupClients(
+              selectedGroupId!,
+              trainingDate,
+              controller.signal,
+            )
         if (controller.signal.aborted || contextVersion !== contextVersionRef.current) return
-        setTrainingDate(response.trainingDate)
+        setTrainingDate(response.lessonDate ?? response.trainingDate)
+        setCurrentRosterGroupId(response.groupId)
         setToday(response.today)
         setMinTrainingDate(response.minTrainingDate)
         setMaxTrainingDate(response.maxTrainingDate)
+        setAttendanceEditDeniedReason(
+          response.canEditAttendance && !response.canEditAttendance.allowed
+            ? getAttendanceEditDeniedReason(response.canEditAttendance.reason)
+            : null,
+        )
         setRows((current) =>
           isContextChange
             ? buildRowState(response.clients)
@@ -199,11 +252,13 @@ export function AttendanceWorkspace({
 
     void loadRoster()
     return () => controller.abort()
-  }, [selectedGroupId, trainingDate, refreshVersion])
+  }, [lessonTarget, selectedGroupId, trainingDate, refreshVersion])
 
   async function saveClientState(clientId: string, attemptedState: AttendanceState) {
-    if (!selectedGroupId || !trainingDate) return
-    const contextKey = `${selectedGroupId}:${trainingDate}`
+    if ((!selectedGroupId && !lessonTarget) || !trainingDate || attendanceEditDeniedReason) return
+    const contextKey = lessonTarget
+      ? `${lessonTarget.lessonOccurrenceId}:${trainingDate}`
+      : `${selectedGroupId}:${trainingDate}`
     const actionVersion = (actionVersionsRef.current[clientId] ?? 0) + 1
     actionVersionsRef.current[clientId] = actionVersion
 
@@ -216,11 +271,18 @@ export function AttendanceWorkspace({
     })))
 
     try {
-      const response = await saveAttendanceMarks(selectedGroupId, {
-        trainingDate,
-        attendanceMarks: [{ clientId, state: attemptedState }],
-      })
+      const response = lessonTarget
+        ? await saveAttendanceLessonMarks(lessonTarget.lessonOccurrenceId, {
+            lessonDate: trainingDate,
+            trainingDate,
+            attendanceMarks: [{ clientId, state: attemptedState }],
+          })
+        : await saveAttendanceMarks(selectedGroupId!, {
+            trainingDate,
+            attendanceMarks: [{ clientId, state: attemptedState }],
+          })
       if (contextKeyRef.current !== contextKey || actionVersionsRef.current[clientId] !== actionVersion) return
+      setCurrentRosterGroupId(response.groupId)
       const authoritativeState = response.attendanceMarks.find((mark) => mark.clientId === clientId)?.state
       if (!authoritativeState) throw new Error('Сервер не вернул сохраненное состояние.')
       setMaxTrainingDate(response.maxTrainingDate)
@@ -234,7 +296,7 @@ export function AttendanceWorkspace({
         attemptedState: null,
         errorMessage: null,
       })))
-      void refreshRosterAfterSave(selectedGroupId, trainingDate, contextKey, clientId, actionVersion)
+      void refreshRosterAfterSave(trainingDate, contextKey, clientId, actionVersion)
     } catch (error) {
       if (contextKeyRef.current !== contextKey || actionVersionsRef.current[clientId] !== actionVersion) return
       if (isAttendanceGroupForbidden(error)) {
@@ -252,19 +314,21 @@ export function AttendanceWorkspace({
   }
 
   async function refreshRosterAfterSave(
-    groupId: string,
     date: string,
     contextKey: string,
     clientId: string,
     actionVersion: number,
   ) {
     try {
-      const response = await getAttendanceGroupClients(groupId, date)
+      const response = lessonTarget
+        ? await getAttendanceLessonClients(lessonTarget.lessonOccurrenceId, date)
+        : await getAttendanceGroupClients(selectedGroupId!, date)
       if (
         contextKeyRef.current !== contextKey ||
         actionVersionsRef.current[clientId] !== actionVersion
       ) return
       setRows((current) => mergeRefreshedRows(current, response.clients))
+      setCurrentRosterGroupId(response.groupId)
       setMaxTrainingDate(response.maxTrainingDate)
       setToday(response.today)
       setMinTrainingDate(response.minTrainingDate)
@@ -279,6 +343,11 @@ export function AttendanceWorkspace({
   }
 
   function changeContext(nextGroupId: string | null, nextDate: string) {
+    if (lessonTarget) {
+      setTrainingDate(nextDate)
+      return
+    }
+
     const nextKey = nextGroupId && nextDate ? `${nextGroupId}:${nextDate}` : ''
     if (nextKey !== contextKeyRef.current) {
       contextKeyRef.current = nextKey
@@ -286,6 +355,7 @@ export function AttendanceWorkspace({
       actionVersionsRef.current = {}
       setRows({})
       setRosterLoaded(false)
+      setCurrentRosterGroupId(null)
       setRosterError(null)
       setRosterView('unmarked')
       setRosterRefreshError(false)
@@ -298,6 +368,7 @@ export function AttendanceWorkspace({
     contextVersionRef.current += 1
     actionVersionsRef.current = {}
     setSelectedGroupId(null)
+    setCurrentRosterGroupId(null)
     setRows({})
     setRosterLoaded(false)
     setRosterLoading(false)
@@ -358,14 +429,27 @@ export function AttendanceWorkspace({
   }, [returnFocusClientId, rosterLoaded, rosterLoading, visibleRows])
 
   function openClient(clientId: string) {
-    if (!selectedGroupId || !trainingDate || !onOpenClient) {
+    if ((!selectedGroupId && !lessonTarget) || !trainingDate || !onOpenClient) {
+      return
+    }
+    const row = rows[clientId]
+    const originGroupId = selectedGroupId ?? currentRosterGroupId ?? row?.client.groups[0]?.id
+    if (!originGroupId) {
       return
     }
 
     onOpenClient(clientId, {
       kind: 'attendance',
-      route: { kind: 'section', section: 'Attendance' },
-      groupId: selectedGroupId,
+      route: lessonTarget
+        ? {
+            kind: 'attendanceLesson',
+            lessonOccurrenceId: lessonTarget.lessonOccurrenceId,
+            lessonDate: trainingDate,
+          }
+        : { kind: 'section', section: 'Attendance' },
+      groupId: originGroupId,
+      lessonOccurrenceId: lessonTarget?.lessonOccurrenceId,
+      lessonDate: lessonTarget ? trainingDate : undefined,
       trainingDate,
       rosterView,
       anchorClientId: clientId,
@@ -374,6 +458,16 @@ export function AttendanceWorkspace({
 
   return (
     <Stack data-testid="attendance-workspace" gap="var(--page-section-gap)">
+      {lessonTarget ? (
+        <PageSection>
+          <Stack gap={4}>
+            <Text fw={800}>Посещаемость занятия</Text>
+            <Text c="dimmed" size="sm">
+              {formatAttendanceLessonContext(trainingDate)}
+            </Text>
+          </Stack>
+        </PageSection>
+      ) : null}
       {groupsError ? (
         <PageSection>
           <ErrorState
@@ -389,7 +483,7 @@ export function AttendanceWorkspace({
         </PageSection>
       ) : null}
       {groupsLoading ? <PageSection><LoadingState label="Загружаем доступные группы..." /></PageSection> : null}
-      {!groupsLoading && !groupsError && groups.length === 0 ? (
+      {!lessonTarget && !groupsLoading && !groupsError && groups.length === 0 ? (
         <PageSection>
           <EmptyState
             description={getEmptyAttendanceDescription(user)}
@@ -425,9 +519,14 @@ export function AttendanceWorkspace({
         />
       ) : null}
 
-      {!groupsLoading && !groupsError && selectedGroup ? (
+      {!groupsLoading && !groupsError && (selectedGroup || lessonTarget) ? (
         <PageSection className="attendance-roster-section" variant="plain">
           <Stack gap="lg">
+            {attendanceEditDeniedReason ? (
+              <Text c="dimmed" fw={600} size="sm">
+                {attendanceEditDeniedReason}
+              </Text>
+            ) : null}
             {rosterRefreshError ? (
               <div aria-live="polite" className="attendance-roster-stale">
                 <Text fw={600} size="sm">Не удалось обновить список после сохранения.</Text>
@@ -454,6 +553,7 @@ export function AttendanceWorkspace({
                 {visibleRows.map((row) => (
                   <AttendanceClientRow
                     key={row.client.id}
+                    disabledReason={attendanceEditDeniedReason}
                     onChange={(state) => void saveClientState(row.client.id, state)}
                     onOpenClient={onOpenClient ? openClient : undefined}
                     onRetry={() => row.attemptedState && void saveClientState(row.client.id, row.attemptedState)}
@@ -484,7 +584,11 @@ function getRestoredAttendanceContext(
   minTrainingDate: string | null,
   maxTrainingDate: string,
 ): RestoredAttendanceContext | null {
-  if (context?.origin.kind !== 'attendance' || groups.length === 0) {
+  if (
+    context?.origin.kind !== 'attendance' ||
+    context.origin.route.kind !== 'section' ||
+    groups.length === 0
+  ) {
     return null
   }
 
@@ -613,4 +717,25 @@ function getEmptyAttendanceDescription(user: AuthenticatedUser) {
 
 function isAttendanceGroupForbidden(error: unknown) {
   return error instanceof ApiError && error.status === 403
+}
+
+function getAttendanceEditDeniedReason(reason: string | null) {
+  switch (reason) {
+    case 'future-lesson':
+    case 'attendance-future-read-only':
+      return 'Будущее занятие доступно только для просмотра.'
+    case 'lesson-cancelled':
+      return 'Отмененное занятие доступно только для просмотра.'
+    case 'forbidden':
+    case 'attendance-forbidden':
+      return 'Сервер не разрешил изменять посещаемость этого занятия.'
+    default:
+      return reason
+        ? `Редактирование недоступно: ${reason}.`
+        : 'Редактирование посещаемости недоступно.'
+  }
+}
+
+function formatAttendanceLessonContext(lessonDate: string) {
+  return `Дата ${lessonDate}`
 }

@@ -137,6 +137,24 @@ describe('useAppRoute', () => {
     })
   })
 
+  test('keeps query state in route parsing and browser popstate', () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20&view=week')
+    const { result } = renderHook(() => useAppRoute())
+
+    expect(result.current.pathname).toBe('/schedule?date=2026-08-20&view=week')
+    expect(result.current.route).toEqual({ kind: 'section', section: 'Schedule' })
+
+    window.history.pushState({}, '', '/attendance/lesson-1?lessonDate=2026-08-20')
+    act(() => window.dispatchEvent(new PopStateEvent('popstate')))
+
+    expect(result.current.pathname).toBe('/attendance/lesson-1?lessonDate=2026-08-20')
+    expect(result.current.route).toEqual({
+      kind: 'attendanceLesson',
+      lessonOccurrenceId: 'lesson-1',
+      lessonDate: '2026-08-20',
+    })
+  })
+
   test('clears return snapshots from the current entry through the routing owner', () => {
     window.history.replaceState({
       crmClientListReturnState: { version: 1 },

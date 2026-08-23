@@ -536,6 +536,9 @@ export type AttendanceClient = {
 export type AttendanceRosterResponse = {
   groupId: string
   trainingDate: string
+  lessonOccurrenceId?: string
+  lessonDate?: string
+  canEditAttendance?: ScheduleAction
   today: string
   minTrainingDate: string | null
   maxTrainingDate: string
@@ -544,6 +547,7 @@ export type AttendanceRosterResponse = {
 
 export type SaveAttendanceMarksRequest = {
   trainingDate: string
+  lessonDate?: string
   attendanceMarks: Array<{
     clientId: string
     state: AttendanceState
@@ -553,6 +557,8 @@ export type SaveAttendanceMarksRequest = {
 export type SaveAttendanceMarksResponse = {
   groupId: string
   trainingDate: string
+  lessonOccurrenceId?: string
+  lessonDate?: string
   today: string
   minTrainingDate: string | null
   maxTrainingDate: string
@@ -840,12 +846,6 @@ export type GetGroupTrainerSubstitutionsParams = {
   historyTake?: number
 }
 
-export type UpsertGroupTrainerSubstitutionRequest = {
-  substituteTrainerId: string
-  startsOn: string
-  endsOn: string
-}
-
 export type AuditLogEntry = {
   id: string
   userId?: string
@@ -981,6 +981,302 @@ export type TrainingGroupListResponse = {
   take: number
 }
 
+export type ScheduleAction = {
+  allowed: boolean
+  reason: string | null
+}
+
+export type ScheduleLessonAllowedActions = {
+  viewAttendance: ScheduleAction
+  editAttendance: ScheduleAction
+  edit: ScheduleAction
+  move: ScheduleAction
+  cancel: ScheduleAction
+  restore: ScheduleAction
+  assignTrainerSubstitution: ScheduleAction
+  cancelTrainerSubstitution: ScheduleAction
+}
+
+export type ScheduleLessonTrainer = {
+  trainerId: string
+  fullName: string
+  kind: 'Permanent' | 'Substitute'
+  replacedTrainerId: string | null
+  substitutionId: string | null
+}
+
+export type ScheduleLesson = {
+  lessonOccurrenceId: string
+  sourceKind: 'Recurring' | 'OneOff' | 'LegacyAttendance'
+  isMaterialized: boolean
+  lessonSeriesId: string | null
+  lessonDate: string
+  startTime: string
+  durationMinutes: number
+  endTime: string
+  groupId: string
+  groupName: string
+  groupTypeId: string
+  groupTypeName: string
+  branchId: string
+  branchName: string
+  hallId: string
+  hallName: string
+  effectiveTrainers: ScheduleLessonTrainer[]
+  status: 'Scheduled' | 'Cancelled'
+  hasAttendanceMarks: boolean
+  allowedActions: ScheduleLessonAllowedActions
+  revision: string
+}
+
+export type ScheduleLessonsResponse = {
+  from: string
+  to: string
+  items: ScheduleLesson[]
+  capabilities: {
+    createOneOff: ScheduleAction
+  }
+  filterOptions: {
+    branches: Array<{ id: string; name: string }>
+    halls: Array<{ id: string; name: string }>
+    trainers: Array<{ id: string; name: string }>
+    groups: Array<{ id: string; name: string }>
+    groupTypes: Array<{ id: string; name: string }>
+  }
+}
+
+export type ScheduleOneOffLessonRequest = {
+  groupId: string | null
+  lessonDate: string
+  startTime: string
+  durationMinutes: number | null
+  hallId: string | null
+}
+
+export type ScheduleOneOffLessonExecuteRequest = ScheduleOneOffLessonRequest & {
+  confirmationToken: string
+}
+
+export type ScheduleWarning = {
+  code: string
+  message: string
+}
+
+export type ScheduleOneOffLessonPreviewResponse = {
+  confirmationToken: string
+  expiresAt: string
+  lesson: ScheduleLesson
+  warnings: ScheduleWarning[]
+}
+
+export type ScheduleLessonChangeRequest = {
+  scope: 'Occurrence' | 'ThisAndFuture' | 'EntireSeries'
+  newLessonDate: string
+  startTime: string
+  durationMinutes: number | null
+  hallId: string | null
+  expectedRevision: string
+}
+
+export type ScheduleLessonChangeExecuteRequest = ScheduleLessonChangeRequest & {
+  confirmationToken: string
+}
+
+export type ScheduleLessonChangePreviewResponse = {
+  confirmationToken: string
+  expiresAt: string
+  lesson: ScheduleLesson
+  warnings: ScheduleWarning[]
+  impact: ScheduleLessonChangeImpact
+}
+
+export type ScheduleLessonChangeImpact = {
+  scope: 'Occurrence' | 'ThisAndFuture' | 'EntireSeries'
+  startsOn: string
+  affectsFutureProjection: boolean
+  skipped: ScheduleLessonChangeSkippedOccurrence[]
+}
+
+export type ScheduleLessonChangeSkippedOccurrence = {
+  lessonOccurrenceId: string
+  lessonDate: string
+  reason: string
+}
+
+export type ScheduleLessonCancellationAction = 'Cancel' | 'Restore'
+
+export type ScheduleLessonCancellationRequest = {
+  action: ScheduleLessonCancellationAction
+  expectedRevision: string
+}
+
+export type ScheduleLessonCancellationExecuteRequest = ScheduleLessonCancellationRequest & {
+  confirmationToken: string
+}
+
+export type ScheduleLessonCancellationPreviewResponse = {
+  confirmationToken: string
+  expiresAt: string
+  action: ScheduleLessonCancellationAction
+  lesson: ScheduleLesson
+}
+
+export type GroupLessonSeriesScope = 'ThisAndFuture' | 'EntireSeries'
+
+export type GroupLessonSeriesSlotRequest = {
+  isoWeekday: number
+  startTime: string
+  durationMinutes: number | null
+  hallId: string | null
+}
+
+export type GroupLessonSeriesRequest = {
+  scope: GroupLessonSeriesScope
+  effectiveFrom: string | null
+  endsOn: string | null
+  slots: GroupLessonSeriesSlotRequest[]
+  expectedRevision: string | null
+}
+
+export type GroupLessonSeriesExecuteRequest = GroupLessonSeriesRequest & {
+  confirmationToken: string
+}
+
+export type GroupLessonSeriesSlot = {
+  isoWeekday: number
+  startTime: string
+  durationMinutes: number
+  hallId: string
+  hallName: string
+}
+
+export type GroupLessonSeriesAffectedOccurrence = {
+  lessonOccurrenceId: string
+  lessonDate: string
+  startTime: string
+  hallId: string
+  hallName: string
+}
+
+export type GroupLessonSeriesSkippedOccurrence = {
+  lessonOccurrenceId: string
+  lessonDate: string
+  reason: string
+}
+
+export type GroupLessonSeriesImpact = {
+  totalAffectedOccurrences: number
+  examples: GroupLessonSeriesAffectedOccurrence[]
+  skipped: GroupLessonSeriesSkippedOccurrence[]
+}
+
+export type GroupLessonSeriesPreviewResponse = {
+  confirmationToken: string
+  expiresAt: string
+  revision: string
+  scope: GroupLessonSeriesScope
+  effectiveFrom: string
+  endsOn: string | null
+  slots: GroupLessonSeriesSlot[]
+  impact: GroupLessonSeriesImpact
+  warnings: ScheduleWarning[]
+}
+
+export type GroupLessonSeriesExecuteResponse = {
+  revision: string
+  scope: GroupLessonSeriesScope
+  effectiveFrom: string
+  endsOn: string | null
+  slots: GroupLessonSeriesSlot[]
+  impact: GroupLessonSeriesImpact
+  warnings: ScheduleWarning[]
+}
+
+export type GroupLessonSeriesReadResponse = {
+  seriesId: string
+  groupId: string
+  groupName: string
+  businessDate: string
+  startsOn: string
+  endsOn: string | null
+  revision: string
+  currentVersion: {
+    versionNumber: number
+    effectiveFrom: string
+    effectiveTo: string | null
+    thisAndFutureMinEffectiveFrom: string
+    entireSeriesEffectiveFrom: string
+    slots: GroupLessonSeriesSlot[]
+  }
+}
+
+export type ScheduleLessonTrainerSubstitutionTargetRequest = {
+  lessonOccurrenceId: string
+  lessonDate: string
+  expectedRevision: string
+}
+
+export type ScheduleLessonTrainerSubstitutionRequest = {
+  replacedTrainerId: string | null
+  substituteTrainerId: string | null
+  targets: ScheduleLessonTrainerSubstitutionTargetRequest[]
+}
+
+export type ScheduleLessonTrainerSubstitutionExecuteRequest =
+  ScheduleLessonTrainerSubstitutionRequest & {
+    confirmationToken: string
+  }
+
+export type ScheduleLessonTrainerSubstitutionCancellationTargetRequest = {
+  lessonOccurrenceId: string
+  lessonDate: string
+  substitutionId: string
+  expectedRevision: string
+}
+
+export type ScheduleLessonTrainerSubstitutionCancellationRequest = {
+  targets: ScheduleLessonTrainerSubstitutionCancellationTargetRequest[]
+  reason: string | null
+}
+
+export type ScheduleLessonTrainerSubstitutionCancellationExecuteRequest =
+  ScheduleLessonTrainerSubstitutionCancellationRequest & {
+    confirmationToken: string
+  }
+
+export type ScheduleLessonTrainerSubstitutionTargetResponse = {
+  lessonOccurrenceId: string
+  lessonDate: string
+  groupId: string
+  groupName: string
+  substitutionId: string | null
+  warnings: ScheduleWarning[]
+}
+
+export type ScheduleLessonTrainerSubstitutionPreviewResponse = {
+  confirmationToken: string
+  expiresAt: string
+  targets: ScheduleLessonTrainerSubstitutionTargetResponse[]
+  warnings: ScheduleWarning[]
+}
+
+export type ScheduleLessonTrainerSubstitutionExecuteResponse = {
+  lessons: ScheduleLesson[]
+  warnings: ScheduleWarning[]
+}
+
+export type ScheduleLessonTrainerSubstitutionCancellationPreviewResponse = {
+  confirmationToken: string
+  expiresAt: string
+  targets: ScheduleLessonTrainerSubstitutionTargetResponse[]
+  warnings: ScheduleWarning[]
+}
+
+export type ScheduleLessonTrainerSubstitutionCancellationExecuteResponse = {
+  lessons: ScheduleLesson[]
+  warnings: ScheduleWarning[]
+}
+
 export type TrainingGroupSummary = {
   totalCount: number
   activeWithoutTrainerCount: number
@@ -1009,6 +1305,8 @@ export type TrainingGroupDetails = {
   clientCount: number
   updatedAt?: string
   createdAt?: string
+  trainerAssignmentRevision: string
+  trainerAssignmentPeriods: GroupTrainerAssignmentPeriod[]
 }
 
 export type UpsertTrainingGroupRequest = {
@@ -1021,6 +1319,83 @@ export type UpsertTrainingGroupRequest = {
   weekdays: number[]
   isActive: boolean
   trainerIds: string[]
+  initialLessonSeries?: InitialLessonSeriesRequest
+  confirmationToken?: string
+}
+
+export type UpdateTrainingGroupIdentityRequest = {
+  name: string
+  branchId?: string
+  groupTypeId?: string
+  isActive: boolean
+}
+
+export type InitialLessonSeriesRequest = {
+  startsOn: string
+  endsOn: string | null
+  slots: InitialLessonSeriesSlotRequest[]
+}
+
+export type InitialLessonSeriesSlotRequest = {
+  isoWeekday: number
+  startTime: string
+  durationMinutes: number | null
+  hallId?: string
+}
+
+export type GroupPreviewResponse = {
+  confirmationToken: string
+  expiresAt: string
+  warnings: ScheduleWarning[]
+}
+
+export type GroupTrainerAssignmentPeriod = {
+  trainerId: string
+  trainerName: string
+  validFrom: string
+  validTo: string | null
+}
+
+export type GroupTrainerAssignmentPeriodRequest = {
+  trainerId: string | null
+  validFrom: string
+  validTo: string | null
+}
+
+export type GroupTrainerAssignmentsPreviewRequest = {
+  assignments: GroupTrainerAssignmentPeriodRequest[]
+  expectedRevision: string
+}
+
+export type GroupTrainerAssignmentsExecuteRequest = GroupTrainerAssignmentsPreviewRequest & {
+  confirmationToken: string
+}
+
+export type GroupTrainerAssignmentImpact = {
+  totalAffectedOccurrences: number
+  examples: Array<{
+    lessonOccurrenceId: string
+    lessonDate: string
+    startTime: string
+    hallId: string
+    hallName: string
+  }>
+}
+
+export type GroupTrainerAssignmentsPreviewResponse = {
+  confirmationToken: string
+  expiresAt: string
+  revision: string
+  assignments: GroupTrainerAssignmentPeriod[]
+  impact: GroupTrainerAssignmentImpact
+  warnings: ScheduleWarning[]
+}
+
+export type GroupTrainerAssignmentsExecuteResponse = {
+  revision: string
+  assignments: GroupTrainerAssignmentPeriod[]
+  impact: GroupTrainerAssignmentImpact
+  warnings: ScheduleWarning[]
 }
 
 export type GroupResponsePayload = {
@@ -1047,6 +1422,8 @@ export type GroupResponsePayload = {
   createdAt?: string
   trainerNames?: string[]
   trainerCount?: number
+  trainerAssignmentRevision?: string
+  trainerAssignmentPeriods?: GroupTrainerAssignmentPeriod[]
 }
 
 export type GroupsListEnvelopePayload = {

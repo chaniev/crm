@@ -1,4 +1,5 @@
 using System.Text.Json;
+using GymCrm.Api;
 using GymCrm.Api.Auth;
 using GymCrm.Api.SeedData;
 using GymCrm.Api.Startup;
@@ -202,6 +203,15 @@ builder.Services
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+if (AttendanceTransitionMaintenanceCommand.IsRequested(args))
+{
+    Environment.ExitCode = await AttendanceTransitionMaintenanceCommand.RunAsync(
+        args,
+        app.Services,
+        CancellationToken.None);
+    return;
+}
 
 await app.ApplyPersistenceStartupFlowAsync();
 await app.SeedBootstrapUserAsync();

@@ -131,7 +131,7 @@ export function useAppReturnNavigation({
 
     pendingClientProfileReturnRef.current = null
     const landedContext = readClientProfileReturnContext(window.history.state)
-    const landedPath = normalizePathname(window.location.pathname)
+    const landedPath = `${normalizePathname(window.location.pathname)}${window.location.search}`
     const expectedPath = getRoutePath(pendingReturn.originRoute)
     const landedOnExpectedOrigin =
       landedPath === expectedPath &&
@@ -276,7 +276,7 @@ export function useAppReturnNavigation({
         context,
       ),
       '',
-      window.location.pathname,
+      `${window.location.pathname}${window.location.search}`,
     )
   }
 

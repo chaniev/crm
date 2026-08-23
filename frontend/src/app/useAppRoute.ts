@@ -79,12 +79,12 @@ function assertNeverAppRoute(value: never): never {
 
 export function useAppRoute() {
   const [pathname, setPathname] = useState(() =>
-    normalizePathname(window.location.pathname),
+    normalizePathname(`${window.location.pathname}${window.location.search}`),
   )
 
   useEffect(() => {
     function handlePopState() {
-      setPathname(normalizePathname(window.location.pathname))
+      setPathname(normalizePathname(`${window.location.pathname}${window.location.search}`))
     }
 
     window.addEventListener('popstate', handlePopState)
@@ -121,7 +121,7 @@ export function useAppRoute() {
     window.history.replaceState(
       stripAppReturnSnapshotsFromHistoryState(window.history.state),
       '',
-      window.location.pathname,
+      `${window.location.pathname}${window.location.search}`,
     )
   }, [])
 
@@ -214,6 +214,18 @@ function getRouteDocumentTitle(route: AppRoute) {
       return APP_SECTION_LABELS[route.section]
     case 'password':
       return 'Смена пароля'
+    case 'attendanceLesson':
+      return 'Посещения'
+    case 'scheduleLessonDetail':
+      return 'Занятие'
+    case 'scheduleLessonCreate':
+      return 'Разовое занятие'
+    case 'scheduleLessonEdit':
+      return 'Изменение занятия'
+    case 'scheduleLessonMove':
+      return 'Перенос занятия'
+    case 'scheduleSeriesEdit':
+      return 'Изменение серии'
     case 'clientCreate':
       return 'Новый клиент'
     case 'clientPreview':

@@ -2,6 +2,7 @@ using System.Globalization;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Authorization;
 using GymCrm.Application.Clients;
+using GymCrm.Application.Scheduling;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
@@ -9,6 +10,7 @@ using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Api.Auth;
@@ -23,8 +25,8 @@ internal static class AttendanceEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.MarkAttendance);
 
         group.MapGet("/groups", ListGroupsAsync);
-        group.MapGet("/groups/{groupId:guid}/clients", GetGroupClientsAsync);
-        group.MapPost("/groups/{groupId:guid}", SaveAttendanceAsync);
+        group.MapGet("/lessons/{lessonOccurrenceId:guid}/clients", GetLessonClientsAsync);
+        group.MapPost("/lessons/{lessonOccurrenceId:guid}", SaveLessonAttendanceAsync);
 
         return endpoints;
     }
@@ -122,18 +124,52 @@ internal static class AttendanceEndpoints
             return AttendanceValidationProblems.CreateTrainingDateUnavailableValidationProblem();
         }
 
+        var lessonOccurrenceId = await ResolveGroupLessonOccurrenceIdAsync(
+            dbContext,
+            groupId,
+            parsedTrainingDate.Value,
+            cancellationToken);
+        lessonOccurrenceId ??= LessonOccurrenceIdPolicy.CreateLegacyAttendance(groupId, parsedTrainingDate.Value);
+
+        return await GetResolvedLessonClientsAsync(
+            lessonOccurrenceId.Value,
+            groupId,
+            parsedTrainingDate.Value,
+            currentUser,
+            dbContext,
+            accessScopeService,
+            attendanceDatePolicy,
+            entitlementResolver,
+            cancellationToken);
+    }
+
+    private static async Task<Results<Ok<AttendanceGroupClientsResponse>, ValidationProblem, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> GetResolvedLessonClientsAsync(
+        Guid lessonOccurrenceId,
+        Guid groupId,
+        DateOnly lessonDate,
+        User currentUser,
+        GymCrmDbContext dbContext,
+        IAccessScopeService accessScopeService,
+        IAttendanceDatePolicy attendanceDatePolicy,
+        IClientMembershipEntitlementResolver entitlementResolver,
+        CancellationToken cancellationToken,
+        bool occurrenceScopeAccessAllowed = false)
+    {
         var group = await dbContext.TrainingGroups
             .AsNoTracking()
             .SingleAsync(candidate => candidate.Id == groupId, cancellationToken);
         var visibleGroupIds = currentUser.Role == UserRole.Coach
-            ? (await accessScopeService.GetAccessScopeAsync(currentUser, cancellationToken)).AssignedGroupIds.ToHashSet()
+            ? (await accessScopeService.GetAccessScopeAsync(currentUser, cancellationToken)).AssignedGroupIds
+                .Append(occurrenceScopeAccessAllowed ? groupId : Guid.Empty)
+                .Where(id => id != Guid.Empty)
+                .ToHashSet()
             : null;
 
         var clients = await dbContext.Clients
             .AsNoTracking()
-            .Where(client =>
-                client.Status == ClientStatus.Active &&
-                client.Groups.Any(clientGroup => clientGroup.GroupId == groupId))
+                .Where(client =>
+                    client.Status == ClientStatus.Active &&
+                    client.Groups.Any(clientGroup => clientGroup.GroupId == groupId))
             .Include(client => client.Memberships)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
@@ -158,7 +194,7 @@ internal static class AttendanceEndpoints
             entitlementByClientId[client.Id] = await entitlementResolver.ResolveAsync(
                 client.Id,
                 groupId,
-                parsedTrainingDate.Value,
+                lessonDate,
                 cancellationToken);
         }
 
@@ -166,7 +202,7 @@ internal static class AttendanceEndpoints
         return TypedResults.Ok(new AttendanceGroupClientsResponse(
             group.Id,
             group.Name,
-            parsedTrainingDate.Value,
+            lessonDate,
             window.Today,
             window.MinTrainingDate,
             window.MaxTrainingDate,
@@ -175,21 +211,72 @@ internal static class AttendanceEndpoints
                     client,
                     currentUser,
                     visibleGroupIds,
+                    lessonOccurrenceId,
                     groupId,
-                    parsedTrainingDate.Value,
+                    lessonDate,
                     entitlementByClientId[client.Id]))
                 .ToArray()));
+    }
+
+    private static async Task<Results<Ok<AttendanceGroupClientsResponse>, ValidationProblem, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> GetLessonClientsAsync(
+        Guid lessonOccurrenceId,
+        string? lessonDate,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IAccessScopeService accessScopeService,
+        IAttendanceDatePolicy attendanceDatePolicy,
+        IClientMembershipEntitlementResolver entitlementResolver,
+        CancellationToken cancellationToken)
+    {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var parsedLessonDate = ParseTrainingDate(lessonDate);
+        if (!parsedLessonDate.HasValue)
+        {
+            return AttendanceValidationProblems.CreateLessonDateValidationProblem(TrainingDateFormat);
+        }
+
+        var resolved = await ResolveAttendanceLessonOccurrenceAsync(
+            lessonOccurrenceId,
+            parsedLessonDate.Value,
+            currentUser,
+            dbContext,
+            accessScopeService,
+            cancellationToken);
+        if (resolved is null)
+        {
+            return CreateLessonOccurrenceNotFoundProblem();
+        }
+
+        return await GetResolvedLessonClientsAsync(
+            lessonOccurrenceId,
+            resolved.GroupId,
+            parsedLessonDate.Value,
+            currentUser,
+            dbContext,
+            accessScopeService,
+            attendanceDatePolicy,
+            entitlementResolver,
+            cancellationToken,
+            resolved.IsOccurrenceScopedAccess);
     }
 
     private static async Task<Results<Ok<AttendanceSaveResponse>, ValidationProblem, NotFound, ForbidHttpResult, ProblemHttpResult, UnauthorizedHttpResult>> SaveAttendanceAsync(
         Guid groupId,
         SaveAttendanceRequest request,
         HttpContext httpContext,
+        GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
         IAttendanceService attendanceService,
         IAttendanceDatePolicy attendanceDatePolicy,
         IAntiforgery antiforgery,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? lessonOccurrenceId = null,
+        bool occurrenceScopeAccessAllowed = false)
     {
         var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
         if (csrfValidationResult is not null)
@@ -213,7 +300,7 @@ internal static class AttendanceEndpoints
             return TypedResults.NotFound();
         }
 
-        if (accessDecision == GroupAccessDecision.Forbidden)
+        if (accessDecision == GroupAccessDecision.Forbidden && !occurrenceScopeAccessAllowed)
         {
             return AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem();
         }
@@ -252,8 +339,14 @@ internal static class AttendanceEndpoints
             parsedMarks.Add(new AttendanceMarkCommand(mark.ClientId, state.Value));
         }
 
+        if (!lessonOccurrenceId.HasValue)
+        {
+            return CreateLegacyAttendanceWriteDisabledProblem();
+        }
+
         var mutationResult = await attendanceService.SaveAsync(
             new SaveAttendanceCommand(
+                lessonOccurrenceId.Value,
                 groupId,
                 parsedTrainingDate.Value,
                 currentUser.Id,
@@ -267,11 +360,13 @@ internal static class AttendanceEndpoints
             return mutationResult.Error switch
             {
                 AttendanceBatchMutationError.GroupMissing => TypedResults.NotFound(),
+                AttendanceBatchMutationError.LessonOccurrenceMissing => CreateLessonOccurrenceNotFoundProblem(),
                 AttendanceBatchMutationError.InvalidRequest => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveInvalidRequest),
                 AttendanceBatchMutationError.ClientOutsideGroup => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveClientOutsideGroup),
                 AttendanceBatchMutationError.TrainingDateInFuture => AttendanceValidationProblems.CreateTrainingDateInFutureValidationProblem(),
                 AttendanceBatchMutationError.TrainingDateUnavailable => AttendanceValidationProblems.CreateTrainingDateUnavailableValidationProblem(),
                 AttendanceBatchMutationError.Forbidden => AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem(),
+                AttendanceBatchMutationError.LessonOccurrenceUnavailable => CreateLessonOccurrenceUnavailableProblem(),
                 AttendanceBatchMutationError.SingleVisitRestoreConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.SingleVisitRestoreConflict),
                 AttendanceBatchMutationError.MembershipEntitlementInvariantConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem("Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору."),
                 _ => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveFailed)
@@ -291,10 +386,108 @@ internal static class AttendanceEndpoints
                 .ToArray()));
     }
 
+    private static async Task<Results<Ok<AttendanceSaveResponse>, ValidationProblem, NotFound, ForbidHttpResult, ProblemHttpResult, UnauthorizedHttpResult>> SaveLessonAttendanceAsync(
+        Guid lessonOccurrenceId,
+        string? lessonDate,
+        SaveAttendanceRequest request,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IAccessScopeService accessScopeService,
+        IAttendanceService attendanceService,
+        IAttendanceDatePolicy attendanceDatePolicy,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var parsedLessonDate = ParseTrainingDate(lessonDate);
+        if (!parsedLessonDate.HasValue)
+        {
+            return AttendanceValidationProblems.CreateLessonDateValidationProblem(TrainingDateFormat);
+        }
+
+        var resolved = await ResolveAttendanceLessonOccurrenceAsync(
+            lessonOccurrenceId,
+            parsedLessonDate.Value,
+            currentUser,
+            dbContext,
+            accessScopeService,
+            cancellationToken);
+        if (resolved is null)
+        {
+            return CreateLessonOccurrenceNotFoundProblem();
+        }
+
+        return await SaveAttendanceAsync(
+            resolved.GroupId,
+            request with { TrainingDate = lessonDate },
+            httpContext,
+            dbContext,
+            accessScopeService,
+            attendanceService,
+            attendanceDatePolicy,
+            antiforgery,
+            cancellationToken,
+            lessonOccurrenceId,
+            resolved.IsOccurrenceScopedAccess);
+    }
+
+    private static async Task<LegacyScheduleOccurrenceResolution?> ResolveAttendanceLessonOccurrenceAsync(
+        Guid lessonOccurrenceId,
+        DateOnly lessonDate,
+        User currentUser,
+        GymCrmDbContext dbContext,
+        IAccessScopeService accessScopeService,
+        CancellationToken cancellationToken)
+    {
+        var materialized = await dbContext.LessonOccurrences
+            .AsNoTracking()
+            .Where(occurrence => occurrence.Id == lessonOccurrenceId && occurrence.LessonDate == lessonDate)
+            .Select(occurrence => new
+            {
+                occurrence.GroupId,
+                occurrence.LessonDate,
+                occurrence.StartTime,
+                occurrence.DurationMinutes,
+                IsOccurrenceScopedAccess = occurrence.TrainerSubstitutions.Any(substitution =>
+                    substitution.SubstituteTrainerId == currentUser.Id &&
+                    substitution.CancelledAt == null)
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (materialized is not null)
+        {
+            var accessDecision = await accessScopeService.EvaluateGroupAccessAsync(
+                currentUser,
+                materialized.GroupId,
+                cancellationToken);
+            return accessDecision == GroupAccessDecision.Allowed || materialized.IsOccurrenceScopedAccess
+                ? new LegacyScheduleOccurrenceResolution(
+                    materialized.GroupId,
+                    materialized.LessonDate,
+                    materialized.StartTime,
+                    materialized.DurationMinutes,
+                    accessDecision != GroupAccessDecision.Allowed && materialized.IsOccurrenceScopedAccess)
+                : null;
+        }
+
+        return await ScheduleEndpoints.ResolveLegacyProjectedOccurrenceAsync(
+            lessonOccurrenceId,
+            lessonDate,
+            currentUser,
+            dbContext,
+            accessScopeService,
+            cancellationToken);
+    }
+
     private static AttendanceClientResponse MapAttendanceClient(
         Client client,
         User currentUser,
         IReadOnlySet<Guid>? visibleGroupIds,
+        Guid lessonOccurrenceId,
         Guid groupId,
         DateOnly trainingDate,
         ClientMembershipEntitlementResolution entitlement)
@@ -314,8 +507,7 @@ internal static class AttendanceEndpoints
             ? new MembershipWarningResult(true, "Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.")
             : EvaluateMembershipWarning(isProfessional, entitlementMembership, trainingDate);
         var attendance = client.AttendanceEntries.SingleOrDefault(attendance =>
-            attendance.GroupId == groupId &&
-            attendance.TrainingDate == trainingDate);
+            attendance.LessonOccurrenceId == lessonOccurrenceId);
         var state = attendance is null
             ? AttendanceState.Unmarked
             : attendance.IsPresent
@@ -333,6 +525,58 @@ internal static class AttendanceEndpoints
             warning.HasWarning,
             warning.Message,
             entitlement.Status == ClientMembershipEntitlementResolutionStatus.Found);
+    }
+
+    private static async Task<Guid?> ResolveGroupLessonOccurrenceIdAsync(
+        GymCrmDbContext dbContext,
+        Guid groupId,
+        DateOnly lessonDate,
+        CancellationToken cancellationToken)
+    {
+        var materialized = await dbContext.LessonOccurrences
+            .AsNoTracking()
+            .Where(occurrence => occurrence.GroupId == groupId && occurrence.LessonDate == lessonDate)
+            .Select(occurrence => (Guid?)occurrence.Id)
+            .ToArrayAsync(cancellationToken);
+        if (materialized.Length == 1)
+        {
+            return materialized[0];
+        }
+
+        if (materialized.Length > 1)
+        {
+            return null;
+        }
+
+        var weekday = ToIsoWeekday(lessonDate);
+        var series = await dbContext.LessonSeries
+            .AsNoTracking()
+            .Where(candidate =>
+                candidate.GroupId == groupId &&
+                candidate.StartsOn <= lessonDate &&
+                (candidate.EndsOn == null || candidate.EndsOn >= lessonDate))
+            .Include(candidate => candidate.RuleVersions)
+                .ThenInclude(version => version.Slots)
+            .AsSplitQuery()
+            .ToArrayAsync(cancellationToken);
+
+        var projectedIds = series
+            .SelectMany(candidate => candidate.RuleVersions
+                .Where(version =>
+                    version.EffectiveFrom <= lessonDate &&
+                    (version.EffectiveTo == null || version.EffectiveTo >= lessonDate))
+                .SelectMany(version => version.Slots
+                    .Where(slot => slot.IsoWeekday == weekday)
+                    .Select(slot => LessonOccurrenceIdPolicy.CreateRecurring(slot.SlotLineageId, lessonDate))))
+            .Distinct()
+            .ToArray();
+
+        return projectedIds.Length == 1 ? projectedIds[0] : null;
+    }
+
+    private static int ToIsoWeekday(DateOnly date)
+    {
+        return date.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)date.DayOfWeek;
     }
 
     private static MembershipWarningResult EvaluateMembershipWarning(
@@ -436,6 +680,45 @@ internal static class AttendanceEndpoints
         return string.IsNullOrWhiteSpace(fullName)
             ? ClientResources.ClientWithoutName
             : fullName;
+    }
+
+    private static ProblemHttpResult CreateLessonOccurrenceNotFoundProblem()
+    {
+        return TypedResults.Problem(new ProblemDetails
+        {
+            Type = "/problems/lesson-occurrence-not-found",
+            Title = "Lesson occurrence was not found for the supplied date locator.",
+            Status = StatusCodes.Status404NotFound,
+            Extensions =
+            {
+                ["code"] = "lesson-occurrence-not-found"
+            }
+        });
+    }
+
+    private static ProblemHttpResult CreateLessonOccurrenceUnavailableProblem()
+    {
+        return TypedResults.Problem(new ProblemDetails
+        {
+            Type = "/problems/lesson-attendance-state-conflict",
+            Title = "Lesson occurrence attendance cannot be changed in its current state.",
+            Status = StatusCodes.Status409Conflict,
+            Extensions =
+            {
+                ["code"] = "lesson-attendance-state-conflict"
+            }
+        });
+    }
+
+    private static ProblemHttpResult CreateLegacyAttendanceWriteDisabledProblem()
+    {
+        return TypedResults.Problem(new ProblemDetails
+        {
+            Type = "/problems/attendance-legacy-write-disabled",
+            Title = "Legacy attendance write endpoint is disabled",
+            Detail = "Attendance writes must target an exact lesson occurrence.",
+            Status = StatusCodes.Status410Gone
+        });
     }
 
 }

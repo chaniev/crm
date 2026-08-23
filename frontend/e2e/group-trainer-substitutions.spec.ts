@@ -78,6 +78,15 @@ const group = {
   trainerCount: 1,
   trainerNames: ['Основной Тренер'],
   clientCount: 0,
+  trainerAssignmentRevision: 'assignment-revision-group-1',
+  trainerAssignmentPeriods: [
+    {
+      trainerId: 'trainer-main',
+      trainerName: 'Основной Тренер',
+      validFrom: '2026-08-23',
+      validTo: null,
+    },
+  ],
   createdAt: '2026-07-01T10:00:00Z',
   updatedAt: '2026-07-20T10:00:00Z',
 } as const
@@ -108,48 +117,40 @@ type Substitution = {
   }
 }
 
-test('HeadCoach creates, edits and cancels a substitution without changing main trainers', async ({ page }) => {
-  const substitutions: Substitution[] = []
-  const groupUpdates: unknown[] = []
+test('HeadCoach sees legacy trainer substitutions as read-only historical data', async ({ page }) => {
   await mockApi(page, {
     session: headCoachSession,
-    substitutions,
-    onGroupUpdate: (payload) => groupUpdates.push(payload),
+    substitutions: [
+      buildSubstitution({
+        id: 'substitution-current',
+        startsOn: '2026-08-10',
+        endsOn: '2026-08-15',
+        allowedActions: { canEdit: true, canCancel: true },
+      }),
+      buildSubstitution({
+        id: 'substitution-history',
+        status: 'Cancelled',
+        allowedActions: { canEdit: false, canCancel: false },
+      }),
+    ],
   })
 
   await page.goto('/groups/group-1/edit')
+
   await expect(page.getByRole('heading', { name: 'Временные замещения' })).toBeVisible()
-  await expect(page.getByText('Основные тренеры группы')).toBeVisible()
+  await expect(page.getByText('Старые периодные замещения доступны только для просмотра.')).toBeVisible()
+  await expect(page.getByText('Создание, изменение и отмена периодных замещений отключены в календаре занятий.')).toBeVisible()
+  await expect(page.getByTestId('group-trainer-substitution-substitution-current')).toContainText('Замещающий Тренер')
+  await expect(page.getByTestId('group-trainer-substitution-substitution-current')).toContainText('по 15.08.2026 включительно')
 
-  await page.getByRole('button', { name: 'Назначить замещение' }).click()
-  await page.getByRole('combobox', { name: 'Замещающий тренер' }).click()
-  await page.getByRole('option', { name: 'Замещающий Тренер (sub)' }).click()
-  await page.getByLabel('Начало периода').fill('2026-08-02')
-  await page.getByLabel('Окончание периода').fill('2026-08-05')
-  await page.getByRole('button', { name: 'Создать замещение' }).click()
+  await expect(page.getByRole('button', { name: 'Назначить замещение' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Изменить замещение/ })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Отменить замещение/ })).toHaveCount(0)
+  await expect(page.getByRole('combobox', { name: 'Замещающий тренер' })).toHaveCount(0)
+  await expectNoHorizontalOverflow(page)
 
-  await expect(page.getByText('Дата начала пересекается.')).toBeVisible()
-  await expect(page.getByLabel('Начало периода')).toHaveValue('2026-08-02')
-
-  await page.getByLabel('Начало периода').fill('2026-08-10')
-  await page.getByRole('button', { name: 'Создать замещение' }).click()
-
-  const substitutionRow = page.getByTestId('group-trainer-substitution-substitution-created')
-  await expect(substitutionRow.getByText('Замещающий Тренер')).toBeVisible()
-  await expect(substitutionRow.getByText('по 15.08.2026 включительно')).toBeVisible()
-
-  await page.getByRole('button', { name: /Изменить замещение Замещающий Тренер/ }).click()
-  await page.getByLabel('Окончание периода').fill('2026-08-20')
-  await page.getByRole('button', { name: 'Сохранить замещение' }).click()
-  await expect(page.getByText('по 20.08.2026 включительно')).toBeVisible()
-
-  await page.getByRole('button', { name: /Отменить замещение Замещающий Тренер/ }).click()
-  await page.getByRole('button', { name: 'Отозвать замещение' }).click()
-  await expect(page.getByText('Текущих и будущих замещений нет')).toBeVisible()
-
-  await page.getByRole('button', { name: 'Сохранить изменения' }).click()
-  await expect.poll(() => groupUpdates.length).toBe(1)
-  expect(groupUpdates[0]).toMatchObject({ trainerIds: ['trainer-main'] })
+  await page.getByRole('button', { name: 'Показать историю замещений' }).click()
+  await expect(page.getByTestId('group-trainer-substitution-substitution-history')).toContainText('Отменено')
 })
 
 test('Coach direct group management route is denied by app routing', async ({ page }) => {
@@ -170,7 +171,7 @@ test('Coach direct group management route is denied by app routing', async ({ pa
 })
 
 for (const width of [320, 390, 440, 1440]) {
-  test(`substitution section has no horizontal overflow at ${width}px`, async ({ page }) => {
+  test(`read-only substitution section has no horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 860 })
     await mockApi(page, {
       session: headCoachSession,
@@ -185,10 +186,7 @@ for (const width of [320, 390, 440, 1440]) {
 
     await page.goto('/groups/group-1/edit')
     await expect(page.getByRole('heading', { name: 'Временные замещения' })).toBeVisible()
-    await expectNoHorizontalOverflow(page)
-
-    await page.getByRole('button', { name: 'Назначить замещение' }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Назначить замещение' })).toHaveCount(0)
     await expectNoHorizontalOverflow(page)
   })
 }
@@ -198,7 +196,6 @@ async function mockApi(
   options: {
     session: typeof headCoachSession | typeof coachSession
     substitutions: Substitution[]
-    onGroupUpdate?: (payload: unknown) => void
   },
 ) {
   await page.route('**/api/**', async (route) => {
@@ -227,65 +224,6 @@ async function mockApi(
       return
     }
 
-    if (pathname === '/api/groups/group-1/trainer-substitutions' && method === 'POST') {
-      const payload = request.postDataJSON() as {
-        substituteTrainerId: string
-        startsOn: string
-        endsOn: string
-      }
-
-      if (payload.startsOn === '2026-08-02') {
-        await fulfillJson(route, 409, {
-          title: 'Conflict',
-          detail: 'Период пересекается с существующим замещением.',
-          code: 'group_trainer_substitution_overlap',
-          errors: {
-            startsOn: ['Дата начала пересекается.'],
-            endsOn: ['Дата окончания пересекается.'],
-          },
-        }, 'application/problem+json')
-        return
-      }
-
-      const substitution = buildSubstitution({
-        id: 'substitution-created',
-        startsOn: payload.startsOn,
-        endsOn: payload.endsOn === '2026-08-05' ? '2026-08-15' : payload.endsOn,
-      })
-      options.substitutions.splice(0, options.substitutions.length, substitution)
-      await fulfillJson(route, 201, substitution)
-      return
-    }
-
-    const substitutionMatch = pathname.match(/^\/api\/groups\/group-1\/trainer-substitutions\/([^/]+)$/)
-    if (substitutionMatch && method === 'PUT') {
-      const payload = request.postDataJSON() as {
-        substituteTrainerId: string
-        startsOn: string
-        endsOn: string
-      }
-      const updated = buildSubstitution({
-        id: substitutionMatch[1],
-        startsOn: payload.startsOn,
-        endsOn: payload.endsOn,
-      })
-      options.substitutions.splice(0, options.substitutions.length, updated)
-      await fulfillJson(route, 200, updated)
-      return
-    }
-
-    const cancelMatch = pathname.match(/^\/api\/groups\/group-1\/trainer-substitutions\/([^/]+)\/cancel$/)
-    if (cancelMatch && method === 'POST') {
-      const cancelled = buildSubstitution({
-        id: cancelMatch[1],
-        status: 'Cancelled',
-        allowedActions: { canEdit: false, canCancel: false },
-      })
-      options.substitutions.splice(0, options.substitutions.length)
-      await fulfillJson(route, 200, cancelled)
-      return
-    }
-
     if (pathname === '/api/groups/group-1' && method === 'GET') {
       await fulfillJson(route, 200, group)
       return
@@ -293,7 +231,6 @@ async function mockApi(
 
     if (pathname === '/api/groups/group-1' && method === 'PUT') {
       const payload = request.postDataJSON()
-      options.onGroupUpdate?.(payload)
       await fulfillJson(route, 200, { ...group, ...payload })
       return
     }
@@ -373,30 +310,30 @@ function buildSubstitutionsResponse(substitutions: Substitution[]) {
     current: substitutions.filter((item) => item.status === 'Active' || item.status === 'Upcoming'),
     history: {
       items: substitutions.filter((item) => item.status === 'Expired' || item.status === 'Cancelled'),
-      totalCount: 0,
+      totalCount: substitutions.filter((item) => item.status === 'Expired' || item.status === 'Cancelled').length,
       skip: 0,
       take: 20,
     },
-    canCreate: true,
-    createUnavailableReason: null,
+    canCreate: false,
+    createUnavailableReason: {
+      code: 'legacy_group_date_substitution_disabled',
+      message: 'Периодные замещения доступны только для просмотра.',
+    },
   }
 }
 
-async function fulfillJson(
-  route: Route,
-  status: number,
-  payload: unknown,
-  contentType = 'application/json',
-) {
+async function fulfillJson(route: Route, status: number, body: unknown) {
   await route.fulfill({
     status,
-    contentType,
-    body: JSON.stringify(payload),
+    contentType: 'application/json',
+    body: JSON.stringify(body),
   })
 }
 
 async function expectNoHorizontalOverflow(page: Page) {
-  await expect.poll(
-    () => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth),
+  await expect.poll(() =>
+    page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    ),
   ).toBe(true)
 }

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import (
@@ -93,8 +93,71 @@ class AttendanceGroup(ApiModel):
     client_count: int | None = Field(default=None, alias="clientCount")
 
 
+class AttendanceLessonTrainer(ApiModel):
+    trainer_id: UUID | None = Field(default=None, alias="trainerId")
+    full_name: str = Field(validation_alias=AliasChoices("fullName", "name", "full_name"))
+    kind: str | None = None
+    replaced_trainer_id: UUID | None = Field(default=None, alias="replacedTrainerId")
+    substitution_id: UUID | None = Field(default=None, alias="substitutionId")
+
+    @property
+    def is_replacement(self) -> bool:
+        return bool(self.substitution_id or self.replaced_trainer_id or self.kind == "Substitute")
+
+    @property
+    def display_name(self) -> str:
+        return f"{self.full_name} (замена)" if self.is_replacement else self.full_name
+
+
+class AttendanceLesson(ApiModel):
+    lesson_occurrence_id: UUID = Field(alias="lessonOccurrenceId")
+    lesson_date: date = Field(alias="lessonDate")
+    group_id: UUID = Field(alias="groupId")
+    group_name: str = Field(alias="groupName")
+    start_time: str = Field(alias="startTime")
+    duration_minutes: int = Field(alias="durationMinutes")
+    hall_name: str = Field(alias="hallName")
+    branch_name: str = Field(alias="branchName")
+    effective_trainers: list[AttendanceLessonTrainer] = Field(
+        default_factory=list,
+        alias="effectiveTrainers",
+    )
+    status: Literal["Scheduled", "Cancelled"] = "Scheduled"
+    can_view_attendance: bool = Field(default=True, alias="canViewAttendance")
+    can_edit_attendance: bool = Field(default=False, alias="canEditAttendance")
+
+    @field_validator("effective_trainers", mode="before")
+    @classmethod
+    def _coerce_effective_trainers(cls, value: Any) -> Any:
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return [{"fullName": item} if isinstance(item, str) else item for item in value]
+        return value
+
+    @property
+    def id(self) -> UUID:
+        return self.lesson_occurrence_id
+
+    @property
+    def name(self) -> str:
+        return self.group_name
+
+    @property
+    def training_start_time(self) -> str:
+        return self.start_time
+
+    @property
+    def weekdays(self) -> list[int]:
+        return [self.lesson_date.isoweekday()]
+
+
 class AttendanceGroupsResponse(ApiModel):
     items: list[AttendanceGroup]
+
+
+class AttendanceLessonsResponse(ApiModel):
+    items: list[AttendanceLesson]
 
 
 class AttendanceRosterClient(ApiModel):

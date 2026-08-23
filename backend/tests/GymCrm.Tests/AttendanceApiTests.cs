@@ -1,13 +1,16 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Scheduling;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Audit;
 using GymCrm.Infrastructure.Persistence;
@@ -26,9 +29,9 @@ public class AttendanceApiTests
 {
     // Принятые контрактные допущения (этап 7):
     // 1) Список доступных групп для отметки: GET /attendance/groups
-    // 2) Список клиентов на дату: GET /attendance/groups/{groupId}/clients?trainingDate=yyyy-MM-dd
-    // 3) Сохранение/редактирование отметок: POST /attendance/groups/{groupId}
-    // 4) Тело отправки: { trainingDate, attendanceMarks: [{ clientId, state }] }
+    // 2) Список клиентов занятия: GET /attendance/lessons/{lessonOccurrenceId}/clients?lessonDate=yyyy-MM-dd
+    // 3) Сохранение/редактирование отметок: POST /attendance/lessons/{lessonOccurrenceId}?lessonDate=yyyy-MM-dd
+    // 4) Тело отправки: { attendanceMarks: [{ clientId, state }] }
 
     [Fact]
     public async Task HeadCoach_can_mark_attendance_edit_it_and_trigger_single_visit_write_off()
@@ -59,9 +62,19 @@ public class AttendanceApiTests
 
         var trainingDate = GetBusinessToday().ToDateTime(TimeOnly.MinValue);
         var trainingDateString = trainingDate.ToString("yyyy-MM-dd");
+        var lessonOccurrenceId = await ResolveLessonOccurrenceIdAsync(
+            factory,
+            seeded.AssignedGroupId,
+            DateOnly.FromDateTime(trainingDate));
+
+        using (var legacyClientsResponse = await client.GetAsync(
+                   $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={trainingDateString}"))
+        {
+            AssertLegacyRouteIsAbsent(legacyClientsResponse);
+        }
 
         using var clientsResponse = await client.GetAsync(
-            $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={trainingDateString}");
+            LessonClientsPath(lessonOccurrenceId, trainingDateString));
         var clientsResponseBody = await clientsResponse.Content.ReadAsStringAsync();
         Assert.True(
             clientsResponse.StatusCode == HttpStatusCode.OK,
@@ -74,10 +87,9 @@ public class AttendanceApiTests
 
         using var firstSaveResponse = await PostJsonAsync(
             client,
-            $"/attendance/groups/{seeded.AssignedGroupId}",
+            LessonSavePath(lessonOccurrenceId, trainingDateString),
             new
             {
-                TrainingDate = trainingDateString,
                 AttendanceMarks = new[]
                 {
                     new
@@ -92,10 +104,9 @@ public class AttendanceApiTests
 
         using var secondSaveResponse = await PostJsonAsync(
             client,
-            $"/attendance/groups/{seeded.AssignedGroupId}",
+            LessonSavePath(lessonOccurrenceId, trainingDateString),
             new
             {
-                TrainingDate = trainingDateString,
                 AttendanceMarks = new[]
                 {
                     new
@@ -192,7 +203,7 @@ public class AttendanceApiTests
                 AttendanceMarks = Array.Empty<object>()
             },
             adminSession.CsrfToken);
-        await AssertAttendanceGroupForbiddenProblemAsync(forbiddenSaveForAdmin);
+        AssertLegacyRouteIsAbsent(forbiddenSaveForAdmin);
 
         using var coachClient = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -202,16 +213,20 @@ public class AttendanceApiTests
         var coachSession = await LoginAsync(coachClient, seeded.CoachLogin, seeded.SharedPassword);
         Assert.Equal("Coach", coachSession.User?.Role);
 
-        using var forbiddenCoachGroupClients = await coachClient.GetAsync(
-            $"/attendance/groups/{seeded.UnassignedGroupId}/clients?trainingDate={GetBusinessToday():yyyy-MM-dd}");
-        await AssertAttendanceGroupForbiddenProblemAsync(forbiddenCoachGroupClients);
+        using var forbiddenCoachGroupClients = await GetLessonClientsAsync(
+            factory,
+            coachClient,
+            seeded.UnassignedGroupId,
+            GetBusinessToday().ToString("yyyy-MM-dd"));
+        await AssertLessonOccurrenceNotFoundProblemAsync(forbiddenCoachGroupClients);
 
         using var forbiddenCoachSave = await PostJsonAsync(
             coachClient,
-            $"/attendance/groups/{seeded.UnassignedGroupId}",
+            LessonSavePath(
+                await ResolveLessonOccurrenceIdAsync(factory, seeded.UnassignedGroupId, GetBusinessToday()),
+                GetBusinessToday().ToString("yyyy-MM-dd")),
             new
             {
-                TrainingDate = GetBusinessToday().ToString("yyyy-MM-dd"),
                 AttendanceMarks = new[]
                 {
                     new
@@ -222,7 +237,7 @@ public class AttendanceApiTests
                 }
             },
             coachSession.CsrfToken);
-        await AssertAttendanceGroupForbiddenProblemAsync(forbiddenCoachSave);
+        await AssertLessonOccurrenceNotFoundProblemAsync(forbiddenCoachSave);
     }
 
     [Fact]
@@ -260,9 +275,12 @@ public class AttendanceApiTests
             Assert.True(payload.TryGetProperty("maxTrainingDate", out _));
         }
 
-        using var directResponse = await client.GetAsync(
-            $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={GetBusinessToday():yyyy-MM-dd}");
-        await AssertAttendanceGroupForbiddenProblemAsync(directResponse);
+        using var directResponse = await GetLessonClientsAsync(
+            factory,
+            client,
+            seeded.AssignedGroupId,
+            GetBusinessToday().ToString("yyyy-MM-dd"));
+        await AssertLessonOccurrenceNotFoundProblemAsync(directResponse);
     }
 
     [Fact]
@@ -295,8 +313,7 @@ public class AttendanceApiTests
                      (seeded.ForeignBranchGroupId, seeded.ForeignBranchClientId)
                  })
         {
-            using (var rosterResponse = await client.GetAsync(
-                       $"/attendance/groups/{groupId}/clients?trainingDate={trainingDate}"))
+            using (var rosterResponse = await GetLessonClientsAsync(factory, client, groupId, trainingDate))
             {
                 Assert.Equal(HttpStatusCode.OK, rosterResponse.StatusCode);
                 var payload = await ReadJsonElementAsync(rosterResponse);
@@ -304,12 +321,13 @@ public class AttendanceApiTests
                 Assert.False(FindById(clients, clientId).ValueKind == JsonValueKind.Undefined);
             }
 
-            using var saveResponse = await PostJsonAsync(
+            using var saveResponse = await PostLessonAttendanceAsync(
+                factory,
                 client,
-                $"/attendance/groups/{groupId}",
+                groupId,
+                trainingDate,
                 new
                 {
-                    TrainingDate = trainingDate,
                     AttendanceMarks = new[]
                     {
                         new
@@ -353,8 +371,11 @@ public class AttendanceApiTests
         var pastTrainingDate = GetBusinessToday().AddDays(-2);
         var pastTrainingDateString = pastTrainingDate.ToString("yyyy-MM-dd");
 
-        using var clientsResponse = await client.GetAsync(
-            $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={pastTrainingDateString}");
+        using var clientsResponse = await GetLessonClientsAsync(
+            factory,
+            client,
+            seeded.AssignedGroupId,
+            pastTrainingDateString);
         var clientsResponseBody = await clientsResponse.Content.ReadAsStringAsync();
         Assert.True(
             clientsResponse.StatusCode == HttpStatusCode.OK,
@@ -373,12 +394,13 @@ public class AttendanceApiTests
             GetPropertyOrNull(warningClient, "hasActivePaidMembership", "HasActivePaidMembership").ValueKind);
         Assert.True(GetBoolFromAnyCase(warningClient, "hasActiveMembership", "HasActiveMembership"));
 
-        using var markResponse = await PostJsonAsync(
+        using var markResponse = await PostLessonAttendanceAsync(
+            factory,
             client,
-            $"/attendance/groups/{seeded.AssignedGroupId}",
+            seeded.AssignedGroupId,
+            pastTrainingDateString,
             new
             {
-                TrainingDate = pastTrainingDateString,
                 AttendanceMarks = new[]
                 {
                     new
@@ -423,8 +445,11 @@ public class AttendanceApiTests
         var trainingDate = GetBusinessToday();
         var trainingDateString = trainingDate.ToString("yyyy-MM-dd");
 
-        using (var clientsResponse = await client.GetAsync(
-                   $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={trainingDateString}"))
+        using (var clientsResponse = await GetLessonClientsAsync(
+                   factory,
+                   client,
+                   seeded.AssignedGroupId,
+                   trainingDateString))
         {
             Assert.Equal(HttpStatusCode.OK, clientsResponse.StatusCode);
             var clientsPayload = await ReadJsonElementAsync(clientsResponse);
@@ -437,12 +462,13 @@ public class AttendanceApiTests
         }
 
         var operationStartedAt = DateTimeOffset.UtcNow;
-        using var markResponse = await PostJsonAsync(
+        using var markResponse = await PostLessonAttendanceAsync(
+            factory,
             client,
-            $"/attendance/groups/{seeded.AssignedGroupId}",
+            seeded.AssignedGroupId,
+            trainingDateString,
             new
             {
-                TrainingDate = trainingDateString,
                 AttendanceMarks = new[]
                 {
                     new
@@ -489,15 +515,18 @@ public class AttendanceApiTests
         var date = GetBusinessToday();
         var dateText = date.ToString("yyyy-MM-dd");
 
-        using (var rosterResponse = await client.GetAsync(
-                   $"/attendance/groups/{seeded.AssignedGroupId}/clients?trainingDate={dateText}"))
+        using (var rosterResponse = await GetLessonClientsAsync(
+                   factory,
+                   client,
+                   seeded.AssignedGroupId,
+                   dateText))
         {
             var roster = await ReadJsonElementAsync(rosterResponse);
             Assert.Equal(dateText, roster.GetProperty("today").GetString());
             Assert.Equal("Unmarked", FindById(roster.GetProperty("clients"), seeded.SingleVisitClientId).GetProperty("state").GetString());
         }
 
-        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Present", session.CsrfToken);
+        await SaveStateAsync(factory, client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Present", session.CsrfToken);
 
         Guid writtenOffMembershipId;
         Guid saleId;
@@ -517,7 +546,7 @@ public class AttendanceApiTests
             auditCount = await db.AuditLogs.CountAsync();
         }
 
-        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Present", session.CsrfToken);
+        await SaveStateAsync(factory, client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Present", session.CsrfToken);
         await using (var scope = factory.Services.CreateAsyncScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -527,7 +556,7 @@ public class AttendanceApiTests
             Assert.Equal(auditCount, await db.AuditLogs.CountAsync());
         }
 
-        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Absent", session.CsrfToken);
+        await SaveStateAsync(factory, client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Absent", session.CsrfToken);
 
         await using (var scope = factory.Services.CreateAsyncScope())
         {
@@ -548,7 +577,7 @@ public class AttendanceApiTests
             Assert.Contains(await db.AuditLogs.ToListAsync(), log => log.ActionType == "ClientMembershipSingleVisitRestored");
         }
 
-        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Unmarked", session.CsrfToken);
+        await SaveStateAsync(factory, client, seeded.AssignedGroupId, seeded.SingleVisitClientId, dateText, "Unmarked", session.CsrfToken);
         await using (var scope = factory.Services.CreateAsyncScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -574,14 +603,14 @@ public class AttendanceApiTests
         foreach (var invalidState in new[] { "present", "0", "1", "2", "3" })
         {
             using var invalid = await PostStateAsync(
-                client, seeded.AssignedGroupId, seeded.SingleVisitClientId, today.ToString("yyyy-MM-dd"), invalidState, session.CsrfToken);
+                factory, client, seeded.AssignedGroupId, seeded.SingleVisitClientId, today.ToString("yyyy-MM-dd"), invalidState, session.CsrfToken);
             Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
             var invalidProblem = await ReadJsonElementAsync(invalid);
             Assert.True(invalidProblem.GetProperty("errors").TryGetProperty("attendanceMarks", out _));
         }
 
         using var future = await PostStateAsync(
-            client, seeded.AssignedGroupId, seeded.SingleVisitClientId, today.AddDays(1).ToString("yyyy-MM-dd"), "Present", session.CsrfToken);
+            factory, client, seeded.AssignedGroupId, seeded.SingleVisitClientId, today.AddDays(1).ToString("yyyy-MM-dd"), "Present", session.CsrfToken);
         Assert.Equal(HttpStatusCode.BadRequest, future.StatusCode);
         var futureProblem = await ReadJsonElementAsync(future);
         Assert.True(futureProblem.GetProperty("errors").TryGetProperty("trainingDate", out _));
@@ -605,6 +634,7 @@ public class AttendanceApiTests
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
 
         using var response = await PostStateAsync(
+            factory,
             client,
             seeded.AssignedGroupId,
             seeded.SingleVisitClientId,
@@ -639,7 +669,7 @@ public class AttendanceApiTests
         });
         var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
         var date = GetBusinessToday().ToString("yyyy-MM-dd");
-        await SaveStateAsync(client, seeded.AssignedGroupId, seeded.SingleVisitClientId, date, "Present", session.CsrfToken);
+        await SaveStateAsync(factory, client, seeded.AssignedGroupId, seeded.SingleVisitClientId, date, "Present", session.CsrfToken);
 
         Guid provenanceSaleId;
         Guid provenanceMembershipId;
@@ -687,12 +717,13 @@ public class AttendanceApiTests
             auditCount = await db.AuditLogs.CountAsync();
         }
 
-        using var conflict = await PostJsonAsync(
+        using var conflict = await PostLessonAttendanceAsync(
+            factory,
             client,
-            $"/attendance/groups/{seeded.AssignedGroupId}",
+            seeded.AssignedGroupId,
+            date,
             new
             {
-                TrainingDate = date,
                 AttendanceMarks = new object[]
                 {
                     new { ClientId = seeded.ProfessionalClientId, State = "Present" },
@@ -727,6 +758,7 @@ public class AttendanceApiTests
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => service.SaveAsync(
             new SaveAttendanceCommand(
+                Guid.NewGuid(),
                 seeded.AssignedGroupId,
                 GetBusinessToday(),
                 seeded.HeadCoachId,
@@ -740,6 +772,7 @@ public class AttendanceApiTests
     }
 
     private static async Task SaveStateAsync(
+        AttendanceAppFactory factory,
         HttpClient client,
         Guid groupId,
         Guid clientId,
@@ -747,23 +780,91 @@ public class AttendanceApiTests
         string state,
         string csrfToken)
     {
-        using var response = await PostStateAsync(client, groupId, clientId, date, state, csrfToken);
+        using var response = await PostStateAsync(factory, client, groupId, clientId, date, state, csrfToken);
         var body = await response.Content.ReadAsStringAsync();
         Assert.True(response.IsSuccessStatusCode, $"Expected success, got {response.StatusCode}. Body: {body}");
     }
 
-    private static Task<HttpResponseMessage> PostStateAsync(
+    private static async Task<HttpResponseMessage> PostStateAsync(
+        AttendanceAppFactory factory,
         HttpClient client,
         Guid groupId,
         Guid clientId,
         string date,
         string state,
-        string csrfToken) =>
-        PostJsonAsync(client, $"/attendance/groups/{groupId}", new
+        string csrfToken)
+    {
+        var lessonOccurrenceId = await ResolveLessonOccurrenceIdAsync(factory, groupId, ParseTrainingDateText(date));
+        return await PostJsonAsync(client, LessonSavePath(lessonOccurrenceId, date), new
         {
-            TrainingDate = date,
             AttendanceMarks = new[] { new { ClientId = clientId, State = state } }
         }, csrfToken);
+    }
+
+    private static async Task<HttpResponseMessage> GetLessonClientsAsync(
+        AttendanceAppFactory factory,
+        HttpClient client,
+        Guid groupId,
+        string date)
+    {
+        var lessonOccurrenceId = await ResolveLessonOccurrenceIdAsync(factory, groupId, ParseTrainingDateText(date));
+        return await client.GetAsync(LessonClientsPath(lessonOccurrenceId, date));
+    }
+
+    private static async Task<HttpResponseMessage> PostLessonAttendanceAsync<TPayload>(
+        AttendanceAppFactory factory,
+        HttpClient client,
+        Guid groupId,
+        string date,
+        TPayload payload,
+        string csrfToken)
+    {
+        var lessonOccurrenceId = await ResolveLessonOccurrenceIdAsync(factory, groupId, ParseTrainingDateText(date));
+        return await PostJsonAsync(client, LessonSavePath(lessonOccurrenceId, date), payload, csrfToken);
+    }
+
+    private static async Task<Guid> ResolveLessonOccurrenceIdAsync(
+        AttendanceAppFactory factory,
+        Guid groupId,
+        DateOnly lessonDate)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+        var materializedIds = await dbContext.LessonOccurrences
+            .Where(occurrence => occurrence.GroupId == groupId && occurrence.LessonDate == lessonDate)
+            .Select(occurrence => occurrence.Id)
+            .ToArrayAsync();
+        if (materializedIds.Length == 1)
+        {
+            return materializedIds[0];
+        }
+
+        var isoWeekday = lessonDate.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)lessonDate.DayOfWeek;
+        var slotLineageId = await dbContext.LessonSeries
+            .Where(series =>
+                series.GroupId == groupId &&
+                series.StartsOn <= lessonDate &&
+                (series.EndsOn == null || series.EndsOn >= lessonDate))
+            .SelectMany(series => series.RuleVersions
+                .Where(version =>
+                    version.EffectiveFrom <= lessonDate &&
+                    (version.EffectiveTo == null || version.EffectiveTo >= lessonDate)))
+            .SelectMany(version => version.Slots)
+            .Where(slot => slot.IsoWeekday == isoWeekday)
+            .Select(slot => slot.SlotLineageId)
+            .SingleAsync();
+
+        return LessonOccurrenceIdPolicy.CreateRecurring(slotLineageId, lessonDate);
+    }
+
+    private static string LessonClientsPath(Guid lessonOccurrenceId, string lessonDate) =>
+        $"/attendance/lessons/{lessonOccurrenceId}/clients?lessonDate={lessonDate}";
+
+    private static string LessonSavePath(Guid lessonOccurrenceId, string lessonDate) =>
+        $"/attendance/lessons/{lessonOccurrenceId}?lessonDate={lessonDate}";
+
+    private static DateOnly ParseTrainingDateText(string date) =>
+        DateOnly.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     private static async Task<SeededAttendanceData> SeedAttendanceDataAsync(AttendanceAppFactory factory)
     {
@@ -942,7 +1043,17 @@ public class AttendanceApiTests
             GroupId = assignedGroup.Id,
             TrainerId = coach.Id
         });
+        if (!factory.UseSqlite)
+        {
+            AddLessonSeriesForAllWeekdays(assignedGroup, assignedHall.Id, now, dbContext);
+            AddLessonSeriesForAllWeekdays(unassignedGroup, unassignedHall.Id, now, dbContext);
+            AddLessonSeriesForAllWeekdays(foreignGroup, foreignHall.Id, now, dbContext);
+        }
         await dbContext.SaveChangesAsync();
+        if (factory.UseSqlite)
+        {
+            await InsertMaterializedLessonOccurrenceAsync(assignedGroup, assignedHall.Id, GetBusinessToday(), now, dbContext);
+        }
 
         dbContext.ClientGroups.Add(new ClientGroup
         {
@@ -1035,6 +1146,66 @@ public class AttendanceApiTests
             singleVisitClient.Id,
             professionalClient.Id,
             foreignClient.Id);
+    }
+
+    private static void AddLessonSeriesForAllWeekdays(
+        TrainingGroup group,
+        Guid hallId,
+        DateTimeOffset now,
+        GymCrmDbContext dbContext)
+    {
+        var seriesId = Guid.NewGuid();
+        var versionId = Guid.NewGuid();
+        var version = new LessonScheduleRuleVersion
+        {
+            Id = versionId,
+            LessonSeriesId = seriesId,
+            VersionNumber = 1,
+            EffectiveFrom = GetBusinessToday().AddYears(-1),
+            CreatedAt = now
+        };
+        foreach (var weekday in Enumerable.Range(1, 7))
+        {
+            version.Slots.Add(new LessonScheduleSlot
+            {
+                Id = Guid.NewGuid(),
+                LessonScheduleRuleVersionId = versionId,
+                SlotLineageId = Guid.NewGuid(),
+                IsoWeekday = weekday,
+                StartTime = group.TrainingStartTime,
+                DurationMinutes = group.DurationMinutes,
+                HallId = hallId,
+                CreatedAt = now
+            });
+        }
+
+        dbContext.LessonSeries.Add(new LessonSeries
+        {
+            Id = seriesId,
+            GroupId = group.Id,
+            StartsOn = GetBusinessToday().AddYears(-1),
+            Version = 1,
+            CreatedAt = now,
+            UpdatedAt = now,
+            RuleVersions = { version }
+        });
+    }
+
+    private static async Task InsertMaterializedLessonOccurrenceAsync(
+        TrainingGroup group,
+        Guid hallId,
+        DateOnly lessonDate,
+        DateTimeOffset now,
+        GymCrmDbContext dbContext)
+    {
+        await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO "LessonOccurrences" (
+                "Id", "GroupId", "LessonDate", "StartTime", "DurationMinutes", "HallId",
+                "ProjectedDate", "Status", "SourceKind", "Version", "CreatedAt", "UpdatedAt")
+            VALUES (
+                {LessonOccurrenceIdPolicy.CreateLegacyAttendance(group.Id, lessonDate)}, {group.Id}, {lessonDate}, {group.TrainingStartTime},
+                {group.DurationMinutes}, {hallId}, {lessonDate}, {"Scheduled"}, {"LegacyAttendance"}, {1}, {now}, {now})
+            """);
     }
 
     private static async Task AddMembershipAsync(
@@ -1198,6 +1369,19 @@ public class AttendanceApiTests
         var payload = await ReadJsonElementAsync(response);
         Assert.Equal("/problems/attendance-group-forbidden", payload.GetProperty("type").GetString());
         Assert.Equal("attendance_group_forbidden", payload.GetProperty("code").GetString());
+    }
+
+    private static async Task AssertLessonOccurrenceNotFoundProblemAsync(HttpResponseMessage response)
+    {
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var payload = await ReadJsonElementAsync(response);
+        Assert.Equal("/problems/lesson-occurrence-not-found", payload.GetProperty("type").GetString());
+        Assert.Equal("lesson-occurrence-not-found", payload.GetProperty("code").GetString());
+    }
+
+    private static void AssertLegacyRouteIsAbsent(HttpResponseMessage response)
+    {
+        Assert.Contains(response.StatusCode, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
     }
 
     private static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)
@@ -1381,6 +1565,8 @@ public class AttendanceApiTests
 
     private sealed class AttendanceAppFactory(bool useSqlite = false, bool throwAudit = false) : WebApplicationFactory<Program>
     {
+        public bool UseSqlite { get; } = useSqlite;
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Development");
@@ -1401,7 +1587,7 @@ public class AttendanceApiTests
                 services.RemoveAll<DbContextOptions<GymCrmDbContext>>();
                 services.RemoveAll<GymCrmDbContext>();
                 services.RemoveAll<IDbContextOptionsConfiguration<GymCrmDbContext>>();
-                if (useSqlite)
+                if (UseSqlite)
                 {
                     var sqliteProvider = new ServiceCollection()
                         .AddEntityFrameworkSqlite()

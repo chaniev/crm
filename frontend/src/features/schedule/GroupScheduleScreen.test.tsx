@@ -1,549 +1,1046 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
-import type { ComponentProps } from 'react'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import {
+  ApiError,
+  applyScheduleLessonCancellation,
+  applyGroupLessonSeries,
+  applyScheduleLessonTrainerSubstitution,
+  applyScheduleLessonTrainerSubstitutionCancellation,
+  changeScheduleLesson,
+  createScheduleOneOffLesson,
+  getGroupLessonSeries,
+  getScheduleLesson,
+  getScheduleLessons,
+  previewGroupLessonSeries,
+  previewScheduleLessonCancellation,
+  previewScheduleLessonChange,
+  previewScheduleOneOffLesson,
+  previewScheduleLessonTrainerSubstitution,
+  previewScheduleLessonTrainerSubstitutionCancellation,
+  type ScheduleLesson,
+} from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
-import { GroupScheduleScreen } from './GroupScheduleScreen'
-
-const apiMocks = vi.hoisted(() => ({
-  getScheduleGroups: vi.fn(),
-}))
+import {
+  GroupScheduleScreen,
+  ScheduleLessonChangeRouteScreen,
+  ScheduleLessonCreateScreen,
+  ScheduleSeriesEditScreen,
+} from './GroupScheduleScreen'
 
 vi.mock('../../lib/api', async (importOriginal) => ({
-  ...await importOriginal<typeof import('../../lib/api')>(),
-  getScheduleGroups: apiMocks.getScheduleGroups,
+  ...(await importOriginal<typeof import('../../lib/api')>()),
+  applyScheduleLessonCancellation: vi.fn(),
+  applyGroupLessonSeries: vi.fn(),
+  applyScheduleLessonTrainerSubstitution: vi.fn(),
+  applyScheduleLessonTrainerSubstitutionCancellation: vi.fn(),
+  changeScheduleLesson: vi.fn(),
+  createScheduleOneOffLesson: vi.fn(),
+  getGroupLessonSeries: vi.fn(),
+  getScheduleLesson: vi.fn(),
+  getScheduleLessons: vi.fn(),
+  previewGroupLessonSeries: vi.fn(),
+  previewScheduleLessonCancellation: vi.fn(),
+  previewScheduleLessonChange: vi.fn(),
+  previewScheduleOneOffLesson: vi.fn(),
+  previewScheduleLessonTrainerSubstitution: vi.fn(),
+  previewScheduleLessonTrainerSubstitutionCancellation: vi.fn(),
 }))
 
-import { getScheduleGroups } from '../../lib/api'
+const getLessons = vi.mocked(getScheduleLessons)
+const getLesson = vi.mocked(getScheduleLesson)
+const getSeries = vi.mocked(getGroupLessonSeries)
+const previewOneOff = vi.mocked(previewScheduleOneOffLesson)
+const createOneOff = vi.mocked(createScheduleOneOffLesson)
+const previewSeries = vi.mocked(previewGroupLessonSeries)
+const applySeries = vi.mocked(applyGroupLessonSeries)
+const previewLessonChange = vi.mocked(previewScheduleLessonChange)
+const changeLesson = vi.mocked(changeScheduleLesson)
+const previewLessonCancellation = vi.mocked(previewScheduleLessonCancellation)
+const applyLessonCancellation = vi.mocked(applyScheduleLessonCancellation)
+const previewTrainerSubstitution = vi.mocked(previewScheduleLessonTrainerSubstitution)
+const applyTrainerSubstitution = vi.mocked(applyScheduleLessonTrainerSubstitution)
+const previewTrainerSubstitutionCancellation = vi.mocked(previewScheduleLessonTrainerSubstitutionCancellation)
+const applyTrainerSubstitutionCancellation = vi.mocked(applyScheduleLessonTrainerSubstitutionCancellation)
 
-type ScheduleGroupState = {
-  id: string
-  name: string
-  branchId: string
-  branchName: string
-  hallId: string
-  hallName: string
-  groupTypeId: string
-  groupTypeName: string
-  trainingStartTime: string
-  durationMinutes: number
-  weekdays: number[]
-  isActive: boolean
-  trainerIds: string[]
-  trainerNames: string[]
-  trainerCount: number
-  clientCount: number
-}
-
-function createScheduleItem(group: ScheduleGroupState) {
-  return {
-    ...group,
-    trainers: group.trainerIds.map((trainerId) => ({
-      id: trainerId,
-      fullName: group.trainerNames[0] ?? trainerId,
-      login: trainerId,
-    })),
-  }
-}
-
-function setupDesktopMediaQuery(enabled: boolean) {
-  vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => {
-    const isTargeted = query.includes('max-width: 47.99em') ||
-      query.includes('max-height: 30rem') ||
-      query.includes('pointer: coarse')
-
-    return {
-      addEventListener: () => undefined,
-      addListener: () => undefined,
-      dispatchEvent: () => false,
-      media: query,
-      matches: enabled && isTargeted ? true : false,
-      onchange: null,
-      removeEventListener: () => undefined,
-      removeListener: () => undefined,
-    }
+beforeEach(() => {
+  window.history.replaceState({}, '', '/schedule')
+  getLessons.mockReset()
+  getLesson.mockReset()
+  getSeries.mockReset()
+  previewOneOff.mockReset()
+  createOneOff.mockReset()
+  previewSeries.mockReset()
+  applySeries.mockReset()
+  previewLessonChange.mockReset()
+  changeLesson.mockReset()
+  previewLessonCancellation.mockReset()
+  applyLessonCancellation.mockReset()
+  previewTrainerSubstitution.mockReset()
+  applyTrainerSubstitution.mockReset()
+  previewTrainerSubstitutionCancellation.mockReset()
+  applyTrainerSubstitutionCancellation.mockReset()
+  getLessons.mockResolvedValue(buildScheduleResponse([
+    buildLesson({
+      lessonOccurrenceId: 'occurrence-morning',
+      startTime: '08:00',
+      endTime: '08:50',
+      groupName: 'Утренняя база',
+    }),
+    buildLesson({
+      lessonOccurrenceId: 'occurrence-evening',
+      startTime: '18:00',
+      endTime: '18:50',
+      groupName: 'Утренняя база',
+      hasAttendanceMarks: true,
+    }),
+  ]))
+  getLesson.mockResolvedValue(buildLesson({
+    allowedActions: buildAllowedActions({
+      edit: { allowed: true, reason: null },
+      move: { allowed: true, reason: null },
+    }),
+  }))
+  getSeries.mockResolvedValue(buildSeriesResponse())
+  previewOneOff.mockResolvedValue(buildPreviewResponse())
+  createOneOff.mockResolvedValue(buildLesson({
+    lessonOccurrenceId: 'created-one-off',
+    sourceKind: 'OneOff',
+    isMaterialized: true,
+    lessonDate: '2026-08-20',
+    startTime: '12:30',
+    endTime: '13:30',
+  }))
+  previewLessonChange.mockResolvedValue(buildChangePreviewResponse())
+  changeLesson.mockResolvedValue(buildLesson({
+    lessonOccurrenceId: 'occurrence-morning',
+    isMaterialized: true,
+    lessonDate: '2026-08-21',
+    startTime: '11:15',
+    durationMinutes: 60,
+    endTime: '12:15',
+    revision: 'revision-2',
+  }))
+  previewLessonCancellation.mockResolvedValue(buildCancellationPreviewResponse('Cancel'))
+  applyLessonCancellation.mockResolvedValue(buildLesson({
+    lessonOccurrenceId: 'occurrence-morning',
+    isMaterialized: true,
+    status: 'Cancelled',
+    revision: 'revision-2',
+    allowedActions: buildAllowedActions({
+      restore: { allowed: true, reason: null },
+    }),
+  }))
+  previewSeries.mockResolvedValue(buildSeriesPreviewResponse())
+  applySeries.mockResolvedValue(buildSeriesPreviewResponse())
+  previewTrainerSubstitution.mockResolvedValue(buildTrainerSubstitutionPreviewResponse())
+  applyTrainerSubstitution.mockResolvedValue({
+    lessons: [buildLesson({
+      effectiveTrainers: [
+        {
+          trainerId: 'trainer-1',
+          fullName: 'Алиса',
+          kind: 'Permanent',
+          replacedTrainerId: null,
+          substitutionId: null,
+        },
+        {
+          trainerId: 'trainer-2',
+          fullName: 'Борис',
+          kind: 'Substitute',
+          replacedTrainerId: 'trainer-1',
+          substitutionId: 'substitution-1',
+        },
+      ],
+      revision: 'after-substitution',
+    })],
+    warnings: [],
   })
-}
+  previewTrainerSubstitutionCancellation.mockResolvedValue(buildTrainerSubstitutionPreviewResponse())
+  applyTrainerSubstitutionCancellation.mockResolvedValue({
+    lessons: [buildLesson({ revision: 'after-substitution-cancel' })],
+    warnings: [],
+  })
+})
 
-const visibleScheduleGroups = [
-  createScheduleItem({
-    id: 'group-core-1',
-    name: 'Утренняя база',
-    branchId: 'branch-1',
-    branchName: 'Центр',
-    hallId: 'hall-1',
-    hallName: 'Основной зал',
-    groupTypeId: 'type-cardio',
-    groupTypeName: 'Кардио',
-    trainingStartTime: '08:00',
-    durationMinutes: 50,
-    weekdays: [1, 3],
-    isActive: true,
-    trainerIds: ['trainer-1'],
-    trainerNames: ['Алиса'],
-    trainerCount: 1,
-    clientCount: 12,
-  }),
-  createScheduleItem({
-    id: 'group-core-2',
-    name: 'Дневная интенсив',
-    branchId: 'branch-1',
-    branchName: 'Центр',
-    hallId: 'hall-1',
-    hallName: 'Основной зал',
-    groupTypeId: 'type-intense',
-    groupTypeName: 'Интенсив',
-    trainingStartTime: '14:00',
-    durationMinutes: 55,
-    weekdays: [2, 4],
-    isActive: true,
-    trainerIds: ['trainer-2'],
-    trainerNames: ['Борис'],
-    trainerCount: 1,
-    clientCount: 8,
-  }),
-  createScheduleItem({
-    id: 'group-core-3',
-    name: 'Вечерняя',
-    branchId: 'branch-2',
-    branchName: 'Север',
-    hallId: 'hall-2',
-    hallName: 'Зал Север',
-    groupTypeId: 'type-cardio',
-    groupTypeName: 'Кардио',
-    trainingStartTime: '18:30',
-    durationMinutes: 40,
-    weekdays: [2],
-    isActive: false,
-    trainerIds: ['trainer-3'],
-    trainerNames: ['Света'],
-    trainerCount: 1,
-    clientCount: 6,
-  }),
-]
+describe('GroupScheduleScreen occurrence calendar', () => {
+  test('loads date/view/filter state from URL and keeps same-day occurrences distinct', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20&view=day&trainerId=trainer-1')
+    const onOpenAttendance = vi.fn()
+    const onOpenLessonDetail = vi.fn()
 
-const tuesdayOnlyScheduleGroups = [
-  createScheduleItem({
-    id: 'group-tuesday-only',
-    name: 'Только вторник',
-    branchId: 'branch-1',
-    branchName: 'Центр',
-    hallId: 'hall-1',
-    hallName: 'Основной зал',
-    groupTypeId: 'type-cardio',
-    groupTypeName: 'Кардио',
-    trainingStartTime: '17:00',
-    durationMinutes: 50,
-    weekdays: [2],
-    isActive: true,
-    trainerIds: ['trainer-1'],
-    trainerNames: ['Алиса'],
-    trainerCount: 1,
-    clientCount: 10,
-  }),
-]
+    renderSchedule({ onOpenAttendance, onOpenLessonDetail })
 
-const denseScheduleGroups = [
-  ...Array.from({ length: 6 }, (_, index) => createScheduleItem({
-    id: `dense-${index + 1}`,
-    name: [
-      'База длинное название',
-      'Интенсивный поток',
-      'Кардио утром',
-      'Силовой блок',
-      'Функциональная подготовка',
-      'Восстановление',
-    ][index] ?? `Группа ${index + 1}`,
-    branchId: 'branch-1',
-    branchName: 'Центр',
-    hallId: index === 4 ? 'hall-2' : 'hall-1',
-    hallName: index === 4 ? 'Зал Север' : 'Основной зал',
-    groupTypeId: index % 2 === 0 ? 'type-cardio' : 'type-intense',
-    groupTypeName: index % 2 === 0 ? 'Кардио' : 'Интенсив',
-    trainingStartTime: '08:00',
-    durationMinutes: 45,
-    weekdays: [1],
-    isActive: index !== 5,
-    trainerIds: index === 2 ? [] : [`trainer-${index + 1}`],
-    trainerNames: index === 2 ? [] : [`Тренер ${index + 1}`],
-    trainerCount: index === 2 ? 0 : 1,
-    clientCount: 8 + index,
-  })),
-]
+    await screen.findByTestId('schedule-card-occurrence-morning')
+    expect(getLessons).toHaveBeenCalledWith(
+      {
+        from: '2026-08-20',
+        to: '2026-08-20',
+        branchId: null,
+        hallId: null,
+        trainerId: 'trainer-1',
+        groupId: null,
+        groupTypeId: null,
+      },
+      expect.any(AbortSignal),
+    )
 
-const roomyTwoLaneScheduleGroups = [
-  createScheduleItem({
-    id: 'roomy-first',
-    name: 'Просторная первая',
-    branchId: 'branch-1',
-    branchName: 'Центр',
-    hallId: 'hall-1',
-    hallName: 'Основной зал',
-    groupTypeId: 'type-cardio',
-    groupTypeName: 'Кардио',
-    trainingStartTime: '10:00',
-    durationMinutes: 90,
-    weekdays: [1],
-    isActive: true,
-    trainerIds: ['trainer-1'],
-    trainerNames: ['Алиса Полное Имя'],
-    trainerCount: 1,
-    clientCount: 10,
-  }),
-  createScheduleItem({
-    id: 'roomy-second',
-    name: 'Просторная вторая',
-    branchId: 'branch-1',
-    branchName: 'Центр',
-    hallId: 'hall-2',
-    hallName: 'Зал Север',
-    groupTypeId: 'type-intense',
-    groupTypeName: 'Интенсив',
-    trainingStartTime: '10:20',
-    durationMinutes: 90,
-    weekdays: [1],
-    isActive: true,
-    trainerIds: ['trainer-2'],
-    trainerNames: ['Борис Полное Имя'],
-    trainerCount: 1,
-    clientCount: 8,
-  }),
-]
+    expect(screen.getByTestId('schedule-card-occurrence-morning')).toHaveTextContent('08:00-08:50')
+    expect(screen.getByTestId('schedule-card-occurrence-evening')).toHaveTextContent('18:00-18:50')
+    expect(screen.getByTestId('schedule-card-occurrence-evening')).toHaveTextContent('Отметки есть')
 
-function renderScheduleScreen({
-  canManageGroups = false,
-  viewerRole = 'HeadCoach',
-}: Partial<ComponentProps<typeof GroupScheduleScreen>> = {}) {
+    fireEvent.click(
+      within(screen.getByTestId('schedule-card-occurrence-evening')).getByRole(
+        'button',
+        { name: /Открыть занятие/ },
+      ),
+    )
+    expect(onOpenLessonDetail).toHaveBeenCalledWith('occurrence-evening', '2026-08-20')
+
+    fireEvent.click(
+      within(screen.getByTestId('schedule-card-occurrence-evening')).getByRole(
+        'button',
+        { name: /Открыть посещаемость/ },
+      ),
+    )
+
+    expect(onOpenAttendance).toHaveBeenCalledWith('occurrence-evening', '2026-08-20')
+  })
+
+  test('opens tools drawer, uses response filterOptions and writes filters to URL', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    renderSchedule()
+
+    await screen.findByTestId('schedule-card-occurrence-morning')
+    fireEvent.click(screen.getByRole('button', { name: 'Параметры календаря' }))
+
+    const drawer = await screen.findByRole('dialog', { name: 'Параметры календаря' })
+    fireEvent.click(within(drawer).getByLabelText('Филиал'))
+    fireEvent.click(await screen.findByRole('option', { name: 'Центр' }))
+
+    await waitFor(() =>
+      expect(window.location.search).toContain('branchId=branch-1'),
+    )
+    expect(getLessons).toHaveBeenLastCalledWith(
+      expect.objectContaining({ branchId: 'branch-1' }),
+      expect.any(AbortSignal),
+    )
+    expect(
+      screen.getByRole('button', { name: /активных фильтров: 1/ }),
+    ).toBeVisible()
+  })
+
+  test('week mode queries ISO Monday-Sunday and renders seven vertical sections', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20&view=week')
+    renderSchedule()
+
+    await screen.findByTestId('schedule-week-view')
+
+    expect(getLessons).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: '2026-08-17',
+        to: '2026-08-23',
+      }),
+      expect.any(AbortSignal),
+    )
+    expect(screen.getAllByTestId(/^schedule-day-section-/)).toHaveLength(7)
+    expect(screen.getByTestId('schedule-day-section-2026-08-20')).toHaveTextContent('2 занятия')
+  })
+
+  test('disabled attendance action keeps backend reason visible and does not call route handler', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        allowedActions: buildAllowedActions({
+          viewAttendance: { allowed: false, reason: 'attendance-forbidden' },
+        }),
+      }),
+    ]))
+    const onOpenAttendance = vi.fn()
+
+    renderSchedule({ onOpenAttendance })
+
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    const action = within(card).getByRole('button', { name: /Открыть посещаемость/ })
+
+    expect(action).toBeDisabled()
+    expect(card).toHaveTextContent('Посещаемость недоступна для вашей роли или зоны доступа.')
+    expect(card).not.toHaveTextContent('attendance-forbidden')
+    fireEvent.click(action)
+    expect(onOpenAttendance).not.toHaveBeenCalled()
+  })
+
+  test('routes edit and move actions from separate backend allowances', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        allowedActions: buildAllowedActions({
+          edit: { allowed: true, reason: null },
+          move: { allowed: true, reason: null },
+        }),
+      }),
+    ]))
+    const onEditLesson = vi.fn()
+    const onMoveLesson = vi.fn()
+
+    renderSchedule({ onEditLesson, onMoveLesson })
+
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    fireEvent.click(within(card).getByRole('button', { name: /Изменить занятие/ }))
+    fireEvent.click(within(card).getByRole('button', { name: /Перенести занятие/ }))
+
+    expect(onEditLesson).toHaveBeenCalledWith('occurrence-morning', '2026-08-20')
+    expect(onMoveLesson).toHaveBeenCalledWith('occurrence-morning', '2026-08-20')
+  })
+
+  test('occurrence edit route saves exact change and routes to returned lesson', async () => {
+    const onChanged = vi.fn()
+
+    renderLessonChangeRoute({ onChanged })
+
+    const screenRoot = await screen.findByTestId('schedule-lesson-edit-screen')
+    expect(within(screenRoot).getByLabelText('Дата')).toHaveValue('2026-08-20')
+    expect(within(screenRoot).getByLabelText('Время')).toHaveValue('08:00')
+    expect(within(screenRoot).getByLabelText('Зал')).toHaveValue('Основной зал')
+
+    fireEvent.change(within(screenRoot).getByLabelText('Дата'), {
+      target: { value: '2026-08-21' },
+    })
+    fireEvent.change(within(screenRoot).getByLabelText('Время'), {
+      target: { value: '11:15' },
+    })
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Получить предпросмотр' }))
+
+    await waitFor(() =>
+      expect(previewLessonChange).toHaveBeenCalledWith(
+        'occurrence-morning',
+        '2026-08-20',
+        {
+          scope: 'Occurrence',
+          newLessonDate: '2026-08-21',
+          startTime: '11:15',
+          durationMinutes: 50,
+          hallId: 'hall-1',
+          expectedRevision: 'revision-1',
+        },
+      ),
+    )
+    expect(await within(screenRoot).findByText('Проверьте пересечение зала.')).toBeVisible()
+
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Сохранить изменение' }))
+
+    await waitFor(() =>
+      expect(changeLesson).toHaveBeenCalledWith(
+        'occurrence-morning',
+        '2026-08-20',
+        {
+          scope: 'Occurrence',
+          newLessonDate: '2026-08-21',
+          startTime: '11:15',
+          durationMinutes: 50,
+          hallId: 'hall-1',
+          expectedRevision: 'revision-1',
+          confirmationToken: 'change-preview-token',
+        },
+      ),
+    )
+    expect(onChanged).toHaveBeenCalledWith(expect.objectContaining({
+      lessonOccurrenceId: 'occurrence-morning',
+      lessonDate: '2026-08-21',
+    }))
+  })
+
+  test('stale occurrence change preserves draft and does not show raw backend code', async () => {
+    changeLesson.mockRejectedValue(new ApiError(
+      'Schedule confirmation token is not valid for this mutation.',
+      409,
+      {},
+      'lesson-mutation-preview-stale',
+    ))
+
+    renderLessonChangeRoute()
+
+    const screenRoot = await screen.findByTestId('schedule-lesson-edit-screen')
+    fireEvent.change(within(screenRoot).getByLabelText('Время'), {
+      target: { value: '11:15' },
+    })
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Получить предпросмотр' }))
+    await within(screenRoot).findByText('Проверьте изменение перед сохранением')
+
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Сохранить изменение' }))
+
+    expect(await within(screenRoot).findByText('Параметры изменились после предпросмотра. Получите новый предпросмотр.')).toBeVisible()
+    expect(within(screenRoot).queryByText('lesson-mutation-preview-stale')).not.toBeInTheDocument()
+    expect(within(screenRoot).getByLabelText('Время')).toHaveValue('11:15')
+    expect(within(screenRoot).getByRole('button', { name: 'Обновить предпросмотр' })).toBeVisible()
+  })
+
+  test('series edit route previews and applies exact backend series contract', async () => {
+    const onBack = vi.fn()
+    const onSaved = vi.fn()
+
+    renderWithProviders(
+      <ScheduleSeriesEditScreen
+        groupId="group-1"
+        lessonDate="2026-08-20"
+        lessonSeriesId="series-1"
+        lessonOccurrenceId="occurrence-morning"
+        onBack={onBack}
+        onSaved={onSaved}
+        scope="this-and-future"
+      />,
+    )
+
+    const screenRoot = await screen.findByTestId('schedule-series-edit-screen')
+    expect(await within(screenRoot).findByText('Утренняя база')).toBeVisible()
+    expect(within(screenRoot).getByRole('button', { name: 'Удалить слот' })).toBeDisabled()
+    fireEvent.change(within(screenRoot).getByLabelText('Время начала'), {
+      target: { value: '09:00' },
+    })
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Добавить слот' }))
+    expect(within(screenRoot).getAllByTestId(/schedule-series-slot-/)).toHaveLength(2)
+    fireEvent.click(within(screenRoot).getAllByRole('button', { name: 'Удалить слот' })[0])
+    expect(within(screenRoot).getAllByTestId(/schedule-series-slot-/)).toHaveLength(1)
+
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Получить предпросмотр' }))
+
+    expect(await within(screenRoot).findByText('Проверьте изменение серии')).toBeVisible()
+    expect(previewSeries).toHaveBeenCalledWith('series-1', expect.objectContaining({
+      scope: 'ThisAndFuture',
+      effectiveFrom: '2026-08-20',
+      expectedRevision: 'series-revision-1',
+      slots: [expect.objectContaining({
+        isoWeekday: 1,
+        startTime: '09:00',
+        durationMinutes: 50,
+        hallId: 'hall-1',
+      })],
+    }))
+
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Подтвердить изменение серии' }))
+    await waitFor(() => expect(applySeries).toHaveBeenCalledWith('series-1', expect.objectContaining({
+      confirmationToken: 'series-token',
+      expectedRevision: 'series-revision-1',
+    })))
+    expect(onSaved).toHaveBeenCalled()
+  })
+
+  test('opens exact occurrence trainer substitution preview from allowed card action', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        allowedActions: buildAllowedActions({
+          assignTrainerSubstitution: { allowed: true, reason: null },
+        }),
+      }),
+    ]))
+
+    renderSchedule()
+
+    fireEvent.click(await screen.findByRole('button', {
+      name: /Назначить замену тренера: Утренняя база/,
+    }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Получить предпросмотр' }))
+
+    await screen.findByTestId('schedule-substitution-preview')
+    expect(previewTrainerSubstitution).toHaveBeenCalledWith({
+      replacedTrainerId: 'trainer-1',
+      substituteTrainerId: null,
+      targets: [{
+        lessonOccurrenceId: 'occurrence-morning',
+        lessonDate: '2026-08-20',
+        expectedRevision: 'revision-1',
+      }],
+    })
+  })
+
+  test('opens exact occurrence trainer substitution cancellation with substitution id', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        allowedActions: buildAllowedActions({
+          cancelTrainerSubstitution: { allowed: true, reason: null },
+        }),
+        effectiveTrainers: [
+          {
+            trainerId: 'trainer-1',
+            fullName: 'Алиса',
+            kind: 'Permanent',
+            replacedTrainerId: null,
+            substitutionId: null,
+          },
+          {
+            trainerId: 'trainer-2',
+            fullName: 'Борис',
+            kind: 'Substitute',
+            replacedTrainerId: 'trainer-1',
+            substitutionId: 'substitution-1',
+          },
+        ],
+      }),
+    ]))
+
+    renderSchedule()
+
+    fireEvent.click(await screen.findByRole('button', {
+      name: /Снять замену тренера: Утренняя база/,
+    }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Получить предпросмотр' }))
+
+    await screen.findByTestId('schedule-substitution-preview')
+    expect(previewTrainerSubstitutionCancellation).toHaveBeenCalledWith({
+      targets: [{
+        lessonOccurrenceId: 'occurrence-morning',
+        lessonDate: '2026-08-20',
+        expectedRevision: 'revision-1',
+        substitutionId: 'substitution-1',
+      }],
+      reason: null,
+    })
+  })
+
+  test('cancels occurrence only when backend allows it and routes to returned exact lesson', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        allowedActions: buildAllowedActions({
+          cancel: { allowed: true, reason: null },
+        }),
+      }),
+    ]))
+    const onOpenLessonDetail = vi.fn()
+
+    renderSchedule({ onOpenLessonDetail })
+
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    expect(within(card).getByRole('button', { name: /Отменить занятие/ })).toBeVisible()
+    expect(within(card).queryByRole('button', { name: /Восстановить занятие/ })).not.toBeInTheDocument()
+    fireEvent.click(within(card).getByRole('button', { name: /Отменить занятие/ }))
+
+    const drawer = await screen.findByRole('dialog', { name: 'Отменить занятие' })
+    expect(drawer).toHaveTextContent('Утренняя база')
+    expect(drawer).toHaveTextContent('08:00-08:50')
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Получить предпросмотр' }))
+
+    await waitFor(() =>
+      expect(previewLessonCancellation).toHaveBeenCalledWith(
+        'occurrence-morning',
+        '2026-08-20',
+        {
+          action: 'Cancel',
+          expectedRevision: 'revision-1',
+        },
+      ),
+    )
+    expect(await within(drawer).findByText('Проверьте действие перед подтверждением')).toBeVisible()
+
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Отменить занятие' }))
+
+    await waitFor(() =>
+      expect(applyLessonCancellation).toHaveBeenCalledWith(
+        'occurrence-morning',
+        '2026-08-20',
+        {
+          action: 'Cancel',
+          expectedRevision: 'revision-1',
+          confirmationToken: 'cancel-preview-token',
+        },
+      ),
+    )
+    expect(onOpenLessonDetail).toHaveBeenCalledWith('occurrence-morning', '2026-08-20')
+  })
+
+  test('restores cancelled occurrence only from backend restore allowance', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        status: 'Cancelled',
+        allowedActions: buildAllowedActions({
+          cancel: { allowed: false, reason: 'lesson-cancelled' },
+          restore: { allowed: true, reason: null },
+        }),
+      }),
+    ]))
+    previewLessonCancellation.mockResolvedValue(buildCancellationPreviewResponse('Restore'))
+    applyLessonCancellation.mockResolvedValue(buildLesson({
+      lessonOccurrenceId: 'occurrence-morning',
+      isMaterialized: true,
+      status: 'Scheduled',
+      revision: 'revision-2',
+    }))
+
+    renderSchedule()
+
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    expect(within(card).queryByRole('button', { name: /Отменить занятие/ })).not.toBeInTheDocument()
+    fireEvent.click(within(card).getByRole('button', { name: /Восстановить занятие/ }))
+    const drawer = await screen.findByRole('dialog', { name: 'Восстановить занятие' })
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Получить предпросмотр' }))
+
+    await waitFor(() =>
+      expect(previewLessonCancellation).toHaveBeenCalledWith(
+        'occurrence-morning',
+        '2026-08-20',
+        {
+          action: 'Restore',
+          expectedRevision: 'revision-1',
+        },
+      ),
+    )
+  })
+
+  test('cancellation attendance conflict preserves context and hides raw backend code', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        hasAttendanceMarks: true,
+        allowedActions: buildAllowedActions({
+          cancel: { allowed: true, reason: null },
+        }),
+      }),
+    ]))
+    applyLessonCancellation.mockRejectedValue(new ApiError(
+      'Cannot cancel occurrence with attendance marks.',
+      409,
+      {},
+      'lesson-attendance-state-conflict',
+    ))
+
+    renderSchedule()
+
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    fireEvent.click(within(card).getByRole('button', { name: /Отменить занятие/ }))
+    const drawer = await screen.findByRole('dialog', { name: 'Отменить занятие' })
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Получить предпросмотр' }))
+    await within(drawer).findByText('Проверьте действие перед подтверждением')
+
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Отменить занятие' }))
+
+    expect(await within(drawer).findByText('У занятия уже есть отметки посещаемости.')).toBeVisible()
+    expect(within(drawer).getByText('Отметки есть')).toBeVisible()
+    expect(within(drawer).getByText('Утренняя база')).toBeVisible()
+    expect(within(drawer).queryByText('lesson-attendance-state-conflict')).not.toBeInTheDocument()
+    expect(within(drawer).queryByText('Cannot cancel occurrence with attendance marks.')).not.toBeInTheDocument()
+    expect(within(drawer).getByRole('button', { name: 'Обновить предпросмотр' })).toBeVisible()
+  })
+
+  test('stale cancellation preview recovery preserves exact context without raw backend text', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        allowedActions: buildAllowedActions({
+          cancel: { allowed: true, reason: null },
+        }),
+      }),
+    ]))
+    previewLessonCancellation.mockRejectedValue(new ApiError(
+      'Schedule confirmation token is not valid for this mutation.',
+      409,
+      {},
+      'lesson-mutation-preview-stale',
+    ))
+
+    renderSchedule()
+
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    fireEvent.click(within(card).getByRole('button', { name: /Отменить занятие/ }))
+    const drawer = await screen.findByRole('dialog', { name: 'Отменить занятие' })
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Получить предпросмотр' }))
+
+    expect(await within(drawer).findByText('Параметры изменились после предпросмотра. Получите новый предпросмотр.')).toBeVisible()
+    expect(within(drawer).getByText('Утренняя база')).toBeVisible()
+    expect(within(drawer).queryByText('lesson-mutation-preview-stale')).not.toBeInTheDocument()
+    expect(within(drawer).queryByText('Schedule confirmation token is not valid for this mutation.')).not.toBeInTheDocument()
+    expect(within(drawer).getByRole('button', { name: 'Обновить предпросмотр' })).toBeVisible()
+  })
+
+  test('create toolbar action routes to canonical creation screen when capability allows it', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    const onCreateLesson = vi.fn()
+
+    renderSchedule({ onCreateLesson })
+
+    await screen.findByTestId('schedule-card-occurrence-morning')
+    fireEvent.click(screen.getByRole('button', { name: 'Создать разовое занятие' }))
+
+    expect(onCreateLesson).toHaveBeenCalled()
+  })
+
+  test('create route creates one-off through preview confirmation', async () => {
+    const onCreated = vi.fn()
+
+    renderLessonCreateRoute({ onCreated })
+
+    const screenRoot = await screen.findByTestId('schedule-lesson-create-screen')
+    expect(within(screenRoot).getByLabelText('Группа')).toHaveValue('Утренняя база')
+    expect(within(screenRoot).getByLabelText('Зал')).toHaveValue('Основной зал')
+
+    fireEvent.change(within(screenRoot).getByLabelText('Дата'), {
+      target: { value: '2026-08-20' },
+    })
+    fireEvent.change(within(screenRoot).getByLabelText('Время'), {
+      target: { value: '12:30' },
+    })
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Получить предпросмотр' }))
+
+    await waitFor(() =>
+      expect(previewOneOff).toHaveBeenCalledWith({
+        groupId: 'group-1',
+        lessonDate: '2026-08-20',
+        startTime: '12:30',
+        durationMinutes: 60,
+        hallId: 'hall-1',
+      }),
+    )
+    expect(await within(screenRoot).findByText('Проверьте нагрузку зала.')).toBeVisible()
+
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Создать занятие' }))
+
+    await waitFor(() =>
+      expect(createOneOff).toHaveBeenCalledWith({
+        groupId: 'group-1',
+        lessonDate: '2026-08-20',
+        startTime: '12:30',
+        durationMinutes: 60,
+        hallId: 'hall-1',
+        confirmationToken: 'preview-token',
+      }),
+    )
+    expect(onCreated).toHaveBeenCalledWith(expect.objectContaining({
+      lessonOccurrenceId: 'created-one-off',
+      lessonDate: '2026-08-20',
+    }))
+  })
+
+  test('hides create when backend capability denies it without rendering raw reason code', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson(),
+    ], { allowed: false, reason: 'role-not-allowed' }))
+
+    renderSchedule()
+
+    await screen.findByTestId('schedule-card-occurrence-morning')
+    expect(screen.queryByRole('button', { name: 'Создать разовое занятие' })).not.toBeInTheDocument()
+    expect(screen.queryByText('role-not-allowed')).not.toBeInTheDocument()
+  })
+
+  test('stale one-off confirmation preserves draft and asks for a fresh preview without raw code', async () => {
+    createOneOff.mockRejectedValue(new ApiError(
+      'Schedule confirmation token is not valid for this mutation.',
+      409,
+      {},
+      'lesson-mutation-preview-stale',
+    ))
+
+    renderLessonCreateRoute()
+
+    const screenRoot = await screen.findByTestId('schedule-lesson-create-screen')
+    fireEvent.change(within(screenRoot).getByLabelText('Дата'), {
+      target: { value: '2026-08-20' },
+    })
+    fireEvent.change(within(screenRoot).getByLabelText('Время'), {
+      target: { value: '12:30' },
+    })
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Получить предпросмотр' }))
+    await within(screenRoot).findByText('Проверьте занятие перед созданием')
+
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Создать занятие' }))
+
+    expect(await within(screenRoot).findByText('Параметры изменились после предпросмотра. Получите новый предпросмотр.')).toBeVisible()
+    expect(within(screenRoot).queryByText('lesson-mutation-preview-stale')).not.toBeInTheDocument()
+    expect(within(screenRoot).getByLabelText('Время')).toHaveValue('12:30')
+    expect(within(screenRoot).getByRole('button', { name: 'Обновить предпросмотр' })).toBeVisible()
+  })
+
+  test('unknown one-off preview problem uses localized fallback without raw backend text', async () => {
+    previewOneOff.mockRejectedValue(new ApiError(
+      'Schedule confirmation token is not valid for this mutation.',
+      409,
+      {},
+      'backend-technical-code',
+    ))
+
+    renderLessonCreateRoute()
+
+    const screenRoot = await screen.findByTestId('schedule-lesson-create-screen')
+    fireEvent.change(within(screenRoot).getByLabelText('Дата'), {
+      target: { value: '2026-08-20' },
+    })
+    fireEvent.click(within(screenRoot).getByRole('button', { name: 'Получить предпросмотр' }))
+
+    expect(await within(screenRoot).findByText('Не удалось проверить разовое занятие. Проверьте поля и попробуйте снова.')).toBeVisible()
+    expect(within(screenRoot).queryByText('Schedule confirmation token is not valid for this mutation.')).not.toBeInTheDocument()
+    expect(within(screenRoot).queryByText('backend-technical-code')).not.toBeInTheDocument()
+  })
+})
+
+function renderSchedule({
+  onCreateLesson = vi.fn(),
+  onEditLesson = vi.fn(),
+  onEditSeries = vi.fn(),
+  onMoveLesson = vi.fn(),
+  onOpenAttendance = vi.fn(),
+  onOpenLessonDetail = vi.fn(),
+}: {
+  onCreateLesson?: () => void
+  onEditLesson?: (lessonOccurrenceId: string, lessonDate: string) => void
+  onEditSeries?: (lesson: ScheduleLesson, scope: 'this-and-future' | 'entire') => void
+  onMoveLesson?: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenAttendance?: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenLessonDetail?: (lessonOccurrenceId: string, lessonDate: string) => void
+} = {}) {
   return renderWithProviders(
     <GroupScheduleScreen
-      canManageGroups={canManageGroups}
+      canManageGroups
+      onCreateLesson={onCreateLesson}
+      onEditLesson={onEditLesson}
+      onEditSeries={onEditSeries}
       onEditGroup={vi.fn()}
-      viewerRole={viewerRole}
+      onMoveLesson={onMoveLesson}
+      onOpenAttendance={onOpenAttendance}
+      onOpenLessonDetail={onOpenLessonDetail}
+      viewerRole="HeadCoach"
     />,
   )
 }
 
-describe('GroupScheduleScreen', () => {
-  beforeEach(() => {
-    apiMocks.getScheduleGroups.mockReset().mockResolvedValue({
-      items: visibleScheduleGroups,
-      totalCount: visibleScheduleGroups.length,
-      skip: 0,
-      take: visibleScheduleGroups.length,
-    })
-  })
+function renderLessonCreateRoute({
+  onBack = vi.fn(),
+  onCreated = vi.fn(),
+}: {
+  onBack?: () => void
+  onCreated?: (lesson: ScheduleLesson) => void
+} = {}) {
+  return renderWithProviders(
+    <ScheduleLessonCreateScreen
+      onBack={onBack}
+      onCreated={onCreated}
+    />,
+  )
+}
 
-  afterEach(() => {
-    cleanup()
-    vi.restoreAllMocks()
-    vi.unstubAllGlobals()
-  })
+function renderLessonChangeRoute({
+  mode = 'edit',
+  onBack = vi.fn(),
+  onChanged = vi.fn(),
+}: {
+  mode?: 'edit' | 'move'
+  onBack?: () => void
+  onChanged?: (lesson: ScheduleLesson) => void
+} = {}) {
+  return renderWithProviders(
+    <ScheduleLessonChangeRouteScreen
+      lessonDate="2026-08-20"
+      lessonOccurrenceId="occurrence-morning"
+      mode={mode}
+      onBack={onBack}
+      onChanged={onChanged}
+    />,
+  )
+}
 
-  test('рендерит сетку и легенду строго по ответу API', async () => {
-    renderScheduleScreen()
+function buildScheduleResponse(
+  items: ScheduleLesson[],
+  createOneOff = { allowed: true, reason: null } as { allowed: boolean; reason: string | null },
+) {
+  return {
+    from: '2026-08-20',
+    to: '2026-08-20',
+    items,
+    capabilities: {
+      createOneOff,
+    },
+    filterOptions: {
+      branches: [{ id: 'branch-1', name: 'Центр' }],
+      halls: [{ id: 'hall-1', name: 'Основной зал' }],
+      trainers: [
+        { id: 'trainer-1', name: 'Алиса' },
+        { id: 'trainer-2', name: 'Борис' },
+      ],
+      groups: [{ id: 'group-1', name: 'Утренняя база' }],
+      groupTypes: [{ id: 'type-1', name: 'Кардио' }],
+    },
+  }
+}
 
-    expect(screen.getByTestId('schedule-screen')).toBeInTheDocument()
-    await waitFor(() =>
-      expect(apiMocks.getScheduleGroups).toHaveBeenCalledWith(
-        { skip: 0, take: 100 },
-        expect.any(AbortSignal),
-      ),
-    )
-    await waitFor(() =>
-      expect(screen.getByTestId('schedule-calendar-grid')).toBeInTheDocument(),
-    )
-    expect(screen.getByTestId('schedule-filter-panel')).toHaveClass(
-      'compact-filter-panel',
-      'crm-filter-surface',
-    )
-    await waitFor(() => expect(screen.getAllByText('Утренняя база').length).toBeGreaterThan(0))
+function buildPreviewResponse() {
+  return {
+    confirmationToken: 'preview-token',
+    expiresAt: '2026-08-20T09:15:00Z',
+    lesson: buildLesson({
+      lessonOccurrenceId: 'preview-one-off',
+      sourceKind: 'OneOff',
+      isMaterialized: false,
+      lessonDate: '2026-08-20',
+      startTime: '12:30',
+      endTime: '13:30',
+    }),
+    warnings: [{ code: 'hall-load', message: 'Проверьте нагрузку зала.' }],
+  }
+}
 
-    expect(screen.getByTestId('schedule-card-1-group-core-1')).toBeVisible()
-    expect(screen.getByTestId('schedule-card-2-group-core-2')).toBeVisible()
-    expect(screen.getByTestId('schedule-card-2-group-core-3')).toBeVisible()
-    expect(screen.getByTestId('schedule-type-token-type-cardio')).toHaveTextContent('3')
-    expect(screen.getByTestId('schedule-type-token-type-intense')).toHaveTextContent('2')
-    expect(screen.getByTestId('schedule-card-2-group-core-3')).toHaveTextContent('Зал Север')
-    expect(screen.getByTestId('schedule-card-1-group-core-1')).toHaveTextContent('Алиса')
-    expect(screen.queryByRole('textbox', { name: 'Поиск по названию', hidden: true }))
-      .not.toBeInTheDocument()
-  })
+function buildChangePreviewResponse(
+  impact: {
+    scope: 'Occurrence' | 'ThisAndFuture' | 'EntireSeries'
+    startsOn: string
+    affectsFutureProjection: boolean
+    skipped: Array<{
+      lessonOccurrenceId: string
+      lessonDate: string
+      reason: string
+    }>
+  } = {
+    scope: 'Occurrence',
+    startsOn: '2026-08-21',
+    affectsFutureProjection: false,
+    skipped: [],
+  },
+) {
+  return {
+    confirmationToken: 'change-preview-token',
+    expiresAt: '2026-08-20T09:15:00Z',
+    lesson: buildLesson({
+      lessonOccurrenceId: 'occurrence-morning',
+      isMaterialized: false,
+      lessonDate: '2026-08-21',
+      startTime: '11:15',
+      durationMinutes: 50,
+      endTime: '12:05',
+      revision: 'preview-change',
+    }),
+    warnings: [{ code: 'lesson_hall_overlap', message: 'Проверьте пересечение зала.' }],
+    impact,
+  }
+}
 
-  test('desktop dense overlap renders one disclosure with full details and focus recovery', async () => {
-    apiMocks.getScheduleGroups.mockResolvedValue({
-      items: denseScheduleGroups,
-      totalCount: denseScheduleGroups.length,
-      skip: 0,
-      take: 100,
-    })
+function buildCancellationPreviewResponse(action: 'Cancel' | 'Restore') {
+  return {
+    confirmationToken: action === 'Cancel' ? 'cancel-preview-token' : 'restore-preview-token',
+    expiresAt: '2026-08-20T09:15:00Z',
+    action,
+    lesson: buildLesson({
+      lessonOccurrenceId: 'occurrence-morning',
+      isMaterialized: false,
+      status: action === 'Cancel' ? 'Cancelled' : 'Scheduled',
+      revision: 'preview-cancellation',
+    }),
+  }
+}
 
-    renderScheduleScreen()
+function buildSeriesResponse() {
+  return {
+    seriesId: 'series-1',
+    groupId: 'group-1',
+    groupName: 'Утренняя база',
+    businessDate: '2026-08-20',
+    startsOn: '2026-08-01',
+    endsOn: null,
+    revision: 'series-revision-1',
+    currentVersion: {
+      versionNumber: 1,
+      effectiveFrom: '2026-08-01',
+      effectiveTo: null,
+      thisAndFutureMinEffectiveFrom: '2026-08-20',
+      entireSeriesEffectiveFrom: '2026-08-01',
+      slots: [{
+        isoWeekday: 1,
+        startTime: '08:00',
+        durationMinutes: 50,
+        hallId: 'hall-1',
+        hallName: 'Основной зал',
+      }],
+    },
+  }
+}
 
-    const disclosure = await screen.findByRole('button', {
-      name: /Пн \d{2}\.\d{2}, 08:00 - 08:45: 6 занятий в интервале\. Открыть детали/,
-    })
+function buildSeriesPreviewResponse() {
+  return {
+    confirmationToken: 'series-token',
+    expiresAt: '2026-08-20T09:15:00Z',
+    revision: 'series-revision-1',
+    scope: 'ThisAndFuture' as const,
+    effectiveFrom: '2026-08-20',
+    endsOn: null,
+    slots: [{
+      isoWeekday: 1,
+      startTime: '09:00',
+      durationMinutes: 50,
+      hallId: 'hall-1',
+      hallName: 'Основной зал',
+    }],
+    impact: {
+      totalAffectedOccurrences: 3,
+      examples: [{
+        lessonOccurrenceId: 'occurrence-morning',
+        lessonDate: '2026-08-20',
+        startTime: '09:00',
+        hallId: 'hall-1',
+        hallName: 'Основной зал',
+      }],
+      skipped: [],
+    },
+    warnings: [],
+  }
+}
 
-    expect(disclosure).toBeVisible()
-    expect(disclosure).toHaveAttribute('aria-haspopup', 'dialog')
-    expect(disclosure).toHaveAttribute('aria-expanded', 'false')
-    expect(disclosure).toHaveAttribute('aria-controls')
-    expect(disclosure).toHaveTextContent('08:00 - 08:45 · 6 занятий')
-    expect(disclosure).toHaveTextContent('База длинное название')
-    expect(disclosure).toHaveTextContent('Интенсивный поток')
-    expect(disclosure).toHaveTextContent('+4')
-    expect(screen.queryByTestId('schedule-card-1-dense-1')).not.toBeInTheDocument()
+function buildTrainerSubstitutionPreviewResponse() {
+  return {
+    confirmationToken: 'substitution-token',
+    expiresAt: '2026-08-20T09:15:00Z',
+    targets: [{
+      lessonOccurrenceId: 'occurrence-morning',
+      lessonDate: '2026-08-20',
+      groupId: 'group-1',
+      groupName: 'Утренняя база',
+      substitutionId: 'substitution-1',
+      warnings: [],
+    }],
+    warnings: [],
+  }
+}
 
-    disclosure.focus()
-    fireEvent.click(disclosure)
+function buildLesson(overrides: Partial<ScheduleLesson> = {}): ScheduleLesson {
+  return {
+    lessonOccurrenceId: 'occurrence-morning',
+    sourceKind: 'Recurring',
+    isMaterialized: false,
+    lessonSeriesId: 'series-1',
+    lessonDate: '2026-08-20',
+    startTime: '08:00',
+    durationMinutes: 50,
+    endTime: '08:50',
+    groupId: 'group-1',
+    groupName: 'Утренняя база',
+    groupTypeId: 'type-1',
+    groupTypeName: 'Кардио',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Основной зал',
+    effectiveTrainers: [{
+      trainerId: 'trainer-1',
+      fullName: 'Алиса',
+      kind: 'Permanent',
+      replacedTrainerId: null,
+      substitutionId: null,
+    }],
+    status: 'Scheduled',
+    hasAttendanceMarks: false,
+    revision: 'revision-1',
+    ...overrides,
+    allowedActions: overrides.allowedActions ?? buildAllowedActions(),
+  }
+}
 
-    const dialog = await screen.findByRole('dialog', { name: 'Занятия в интервале' })
-
-    expect(dialog).toBeVisible()
-    expect(disclosure).toHaveAttribute('aria-expanded', 'true')
-    expect(dialog).toHaveTextContent('База длинное название')
-    expect(dialog).toHaveTextContent('08:00 - 08:45')
-    expect(dialog).toHaveTextContent('Основной зал · Центр')
-    expect(dialog).toHaveTextContent('Тренер не назначен')
-    expect(dialog).toHaveTextContent('Неактивна')
-    expect(screen.getByRole('button', { name: 'Закрыть детали занятий' })).toHaveFocus()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Закрыть детали занятий' }))
-    await waitFor(() => expect(disclosure).toHaveAttribute('aria-expanded', 'false'))
-    expect(disclosure).toHaveFocus()
-
-    fireEvent.click(disclosure)
-    await screen.findByRole('dialog', { name: 'Занятия в интервале' })
-
-    fireEvent.keyDown(screen.getByRole('dialog', { name: 'Занятия в интервале' }), {
-      key: 'Escape',
-    })
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog', { name: 'Занятия в интервале' }))
-        .not.toBeInTheDocument(),
-    )
-    expect(disclosure).toHaveFocus()
-  })
-
-  test('readable two-lane cards keep full time, group, hall and trainer without compact mode', async () => {
-    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(420)
-    apiMocks.getScheduleGroups.mockResolvedValue({
-      items: roomyTwoLaneScheduleGroups,
-      totalCount: roomyTwoLaneScheduleGroups.length,
-      skip: 0,
-      take: 100,
-    })
-
-    renderScheduleScreen()
-
-    const firstCard = await screen.findByTestId('schedule-card-1-roomy-first')
-    const secondCard = screen.getByTestId('schedule-card-1-roomy-second')
-
-    expect(screen.queryByRole('button', { name: /занятий в интервале/ }))
-      .not.toBeInTheDocument()
-    expect(firstCard).toHaveTextContent('10:00 - 11:30')
-    expect(firstCard).toHaveTextContent('Просторная первая')
-    expect(firstCard).toHaveTextContent('Основной зал · Алиса Полное Имя')
-    expect(secondCard).toHaveTextContent('10:20 - 11:50')
-    expect(secondCard).toHaveTextContent('Зал Север · Борис Полное Имя')
-    expect(firstCard).not.toHaveAttribute('data-compact')
-    expect(secondCard).not.toHaveAttribute('data-compact')
-  })
-
-  test('successful refresh closes an orphaned disclosure and focuses the schedule board', async () => {
-    apiMocks.getScheduleGroups
-      .mockResolvedValueOnce({
-        items: denseScheduleGroups,
-        totalCount: denseScheduleGroups.length,
-        skip: 0,
-        take: 100,
-      })
-      .mockResolvedValueOnce({
-        items: [visibleScheduleGroups[0]],
-        totalCount: 1,
-        skip: 0,
-        take: 100,
-      })
-
-    renderScheduleScreen()
-
-    const disclosure = await screen.findByRole('button', {
-      name: /6 занятий в интервале\. Открыть детали/,
-    })
-    fireEvent.click(disclosure)
-    await screen.findByRole('dialog', { name: 'Занятия в интервале' })
-
-    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
-
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog', { name: 'Занятия в интервале' }))
-        .not.toBeInTheDocument(),
-    )
-    await waitFor(() => expect(screen.getByTestId('schedule-board')).toHaveFocus())
-  })
-
-  test('stale refresh error keeps the open disclosure and current detail rows available', async () => {
-    apiMocks.getScheduleGroups
-      .mockResolvedValueOnce({
-        items: denseScheduleGroups,
-        totalCount: denseScheduleGroups.length,
-        skip: 0,
-        take: 100,
-      })
-      .mockRejectedValueOnce(new Error('Сеть недоступна'))
-
-    renderScheduleScreen()
-
-    const disclosure = await screen.findByRole('button', {
-      name: /6 занятий в интервале\. Открыть детали/,
-    })
-    fireEvent.click(disclosure)
-    const dialog = await screen.findByRole('dialog', { name: 'Занятия в интервале' })
-
-    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
-
-    expect(await screen.findByText('Не удалось обновить расписание')).toBeVisible()
-    expect(dialog).toBeVisible()
-    expect(dialog).toHaveTextContent('База длинное название')
-    expect(disclosure).toHaveAttribute('aria-expanded', 'true')
-  })
-
-  test('в списке фильтров есть только значения из ответа и используются как единственный источник опций', async () => {
-    renderScheduleScreen()
-
-    await waitFor(() => expect(screen.getAllByText('Утренняя база').length).toBeGreaterThan(0))
-
-    fireEvent.click(screen.getByRole('combobox', { name: 'Филиал' }))
-    expect(screen.getByRole('option', { name: 'Центр' })).toBeVisible()
-    expect(screen.getByRole('option', { name: 'Север' })).toBeVisible()
-    expect(screen.queryByRole('option', { name: 'Юг' })).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('combobox', { name: 'Группа' }))
-    expect(screen.getByRole('option', { name: 'Утренняя база' })).toBeVisible()
-    expect(screen.getByRole('option', { name: 'Вечерняя' })).toBeVisible()
-    expect(screen.queryByRole('option', { name: 'Неизвестная группа' })).not.toBeInTheDocument()
-    expect(screen.getByTestId('schedule-day-count-2')).toHaveTextContent('2 занятия')
-  })
-
-  test('в мобильном списке переключение дней по стрелкам обновляет выбранный таб и фокус', async () => {
-    setupDesktopMediaQuery(true)
-
-    renderScheduleScreen()
-
-    await waitFor(() =>
-      expect(screen.getByTestId('schedule-mobile-day-strip')).toBeInTheDocument(),
-    )
-    const mondayTab = screen.getByTestId('schedule-mobile-day-tab-1')
-    const tuesdayTab = screen.getByTestId('schedule-mobile-day-tab-2')
-
-    fireEvent.click(mondayTab)
-    await mondayTab.focus()
-    expect(mondayTab).toHaveAttribute('aria-selected', 'true')
-    expect(document.activeElement).toBe(mondayTab)
-
-    fireEvent.keyDown(mondayTab, { key: 'ArrowRight' })
-    await waitFor(() => expect(tuesdayTab).toHaveAttribute('aria-selected', 'true'))
-    await waitFor(() => expect(document.activeElement).toBe(tuesdayTab))
-
-    fireEvent.keyDown(tuesdayTab, { key: 'ArrowLeft' })
-    await waitFor(() => expect(mondayTab).toHaveAttribute('aria-selected', 'true'))
-    await waitFor(() => expect(document.activeElement).toBe(mondayTab))
-  })
-
-  test('Coach zero-scope показывает role-specific copy и оставляет только refresh', async () => {
-    setupDesktopMediaQuery(true)
-    apiMocks.getScheduleGroups.mockResolvedValue({
-      items: [],
-      totalCount: 0,
-      skip: 0,
-      take: 100,
-    })
-
-    renderScheduleScreen({ viewerRole: 'Coach' })
-
-    await waitFor(() =>
-      expect(screen.getByText('Для вас занятий в расписании нет')).toBeVisible(),
-    )
-    expect(
-      screen.getByText(
-        'Когда вас назначат на группу или временную замену, занятия появятся здесь.',
-      ),
-    ).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Обновить' })).toBeVisible()
-    expect(screen.queryByRole('button', { name: 'Фильтры' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Сбросить' })).not.toBeInTheDocument()
-  })
-
-  test('elevated empty state не получает Coach copy даже без group-management permission', async () => {
-    apiMocks.getScheduleGroups.mockResolvedValue({
-      items: [],
-      totalCount: 0,
-      skip: 0,
-      take: 100,
-    })
-
-    renderScheduleScreen({ canManageGroups: false, viewerRole: 'SuperAdministrator' })
-
-    await waitFor(() => expect(screen.getByText('Расписание пока пустое')).toBeVisible())
-    expect(screen.queryByText('Для вас занятий в расписании нет')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Сбросить' })).toBeVisible()
-  })
-
-  test('Coach day-empty без фильтра отличается от filtered empty copy', async () => {
-    setupDesktopMediaQuery(true)
-    apiMocks.getScheduleGroups.mockResolvedValue({
-      items: tuesdayOnlyScheduleGroups,
-      totalCount: tuesdayOnlyScheduleGroups.length,
-      skip: 0,
-      take: 100,
-    })
-
-    renderScheduleScreen({ viewerRole: 'Coach' })
-
-    await waitFor(() =>
-      expect(screen.getByTestId('schedule-mobile-day-strip')).toBeInTheDocument(),
-    )
-    fireEvent.click(screen.getByTestId('schedule-mobile-day-tab-1'))
-    expect(screen.getByText('В этот день у вас занятий нет')).toBeVisible()
-    expect(
-      screen.getByText('На выбранный день в вашем расписании нет занятий.'),
-    ).toBeVisible()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Фильтры' }))
-    fireEvent.click(screen.getByRole('combobox', { name: 'Группа' }))
-    fireEvent.click(screen.getByRole('option', { name: 'Только вторник' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Готово' }))
-
-    await waitFor(() =>
-      expect(screen.getByText('День свободен для выбранных фильтров.')).toBeVisible(),
-    )
-    expect(screen.queryByText('В этот день у вас занятий нет')).not.toBeInTheDocument()
-  })
-
-  test('elevated no-filter day-empty остаётся global, не Coach-scoped', async () => {
-    setupDesktopMediaQuery(true)
-    apiMocks.getScheduleGroups.mockResolvedValue({
-      items: tuesdayOnlyScheduleGroups,
-      totalCount: tuesdayOnlyScheduleGroups.length,
-      skip: 0,
-      take: 100,
-    })
-
-    renderScheduleScreen({ viewerRole: 'SuperAdministrator' })
-
-    await waitFor(() =>
-      expect(screen.getByTestId('schedule-mobile-day-strip')).toBeInTheDocument(),
-    )
-    fireEvent.click(screen.getByTestId('schedule-mobile-day-tab-1'))
-
-    expect(screen.getByText('Занятий нет')).toBeVisible()
-    expect(screen.getByText('В этот день в расписании нет занятий.')).toBeVisible()
-    expect(screen.queryByText('В этот день у вас занятий нет')).not.toBeInTheDocument()
-  })
-
-  test('не рендерит состояние ошибки при корректном ответе API', async () => {
-    renderScheduleScreen()
-
-    await waitFor(() => expect(screen.queryByText('Расписание не загрузилось')).toBeNull())
-    expect(screen.queryByText('Не удалось загрузить расписание.')).toBeNull()
-    await waitFor(() => expect(getScheduleGroups).toHaveBeenCalledTimes(1))
-  })
-})
+function buildAllowedActions(overrides: Partial<ScheduleLesson['allowedActions']> = {}) {
+  return {
+    viewAttendance: overrides.viewAttendance ?? { allowed: true, reason: null },
+    editAttendance: overrides.editAttendance ?? { allowed: true, reason: null },
+    edit: overrides.edit ?? { allowed: false, reason: 'not-implemented' },
+    move: overrides.move ?? { allowed: false, reason: 'not-implemented' },
+    cancel: overrides.cancel ?? { allowed: false, reason: 'not-implemented' },
+    restore: overrides.restore ?? { allowed: false, reason: 'not-cancelled' },
+    assignTrainerSubstitution: overrides.assignTrainerSubstitution ?? { allowed: false, reason: 'not-implemented' },
+    cancelTrainerSubstitution: overrides.cancelTrainerSubstitution ?? { allowed: false, reason: 'no-substitution' },
+  }
+}

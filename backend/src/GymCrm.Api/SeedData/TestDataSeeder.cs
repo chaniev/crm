@@ -276,6 +276,22 @@ internal sealed class TestDataSeeder : IAsyncDisposable
                 userIds.Contains(substitution.CreatedByUserId))
             .ExecuteDeleteAsync(cancellationToken);
 
+        await dbContext.LessonOccurrenceTrainerSubstitutions
+            .Where(substitution =>
+                groupIds.Contains(substitution.LessonOccurrence.GroupId) ||
+                userIds.Contains(substitution.ReplacedTrainerId) ||
+                userIds.Contains(substitution.SubstituteTrainerId) ||
+                userIds.Contains(substitution.CreatedByUserId) ||
+                (substitution.UpdatedByUserId.HasValue && userIds.Contains(substitution.UpdatedByUserId.Value)) ||
+                (substitution.CancelledByUserId.HasValue && userIds.Contains(substitution.CancelledByUserId.Value)))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.LessonOccurrences
+            .Where(occurrence =>
+                groupIds.Contains(occurrence.GroupId) ||
+                hallIds.Contains(occurrence.HallId))
+            .ExecuteDeleteAsync(cancellationToken);
+
         await dbContext.GroupTrainers
             .Where(groupTrainer =>
                 groupIds.Contains(groupTrainer.GroupId) ||

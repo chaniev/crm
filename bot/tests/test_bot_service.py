@@ -19,6 +19,8 @@ from gym_crm_bot.crm.models import (
     AttendanceDateWindow,
     AttendanceGroup,
     AttendanceGroupsResponse,
+    AttendanceLesson,
+    AttendanceLessonsResponse,
     AttendanceRosterResponse,
     AttendanceSaveResponse,
     BotUserContext,
@@ -73,6 +75,16 @@ class FakeCrmClient:
     async def list_attendance_groups(self, identity, *, request_id: str):  # noqa: ANN001
         return AttendanceGroupsResponse(items=list(self.attendance_groups))
 
+    async def list_attendance_lessons(  # noqa: ANN001
+        self,
+        identity,
+        *,
+        training_date: date,
+        request_id: str,
+    ):
+        _ = training_date
+        return AttendanceGroupsResponse(items=list(self.attendance_groups))
+
     async def audit_access_denied(  # noqa: ANN001
         self,
         identity,
@@ -99,6 +111,25 @@ class FakeAttendanceCrmClient:
         idempotency_key: str,
     ) -> AttendanceSaveResponse:
         return self.response
+
+    async def save_lesson_attendance(  # noqa: ANN001, PLR0913
+        self,
+        identity: object,
+        *,
+        lesson_occurrence_id: UUID,
+        lesson_date: date,
+        marks: list[object],
+        request_id: str,
+        idempotency_key: str,
+    ) -> AttendanceSaveResponse:
+        return await self.save_attendance(
+            identity,
+            group_id=lesson_occurrence_id,
+            training_date=lesson_date,
+            marks=marks,
+            request_id=request_id,
+            idempotency_key=idempotency_key,
+        )
 
 
 @dataclass
@@ -152,6 +183,16 @@ class TranscriptCrmClient:
             ]
         )
 
+    async def list_attendance_lessons(  # noqa: ANN001
+        self,
+        identity,
+        *,
+        training_date: date,
+        request_id: str,
+    ):
+        _ = training_date
+        return await self.list_attendance_groups(identity, request_id=request_id)
+
     async def get_attendance_roster(  # noqa: ANN001
         self,
         identity,
@@ -180,6 +221,21 @@ class TranscriptCrmClient:
             ],
         )
 
+    async def get_attendance_lesson_roster(  # noqa: ANN001
+        self,
+        identity,
+        *,
+        lesson_occurrence_id: UUID,
+        lesson_date: date,
+        request_id: str,
+    ) -> AttendanceRosterResponse:
+        return await self.get_attendance_roster(
+            identity,
+            group_id=lesson_occurrence_id,
+            training_date=lesson_date,
+            request_id=request_id,
+        )
+
     async def save_attendance(  # noqa: ANN001, PLR0913
         self,
         identity,
@@ -204,6 +260,25 @@ class TranscriptCrmClient:
             presentCount=1,
             absentCount=0,
             warnings=[],
+        )
+
+    async def save_lesson_attendance(  # noqa: ANN001, PLR0913
+        self,
+        identity,
+        *,
+        lesson_occurrence_id: UUID,
+        lesson_date: date,
+        marks: list[object],
+        request_id: str,
+        idempotency_key: str,
+    ) -> AttendanceSaveResponse:
+        return await self.save_attendance(
+            identity,
+            group_id=lesson_occurrence_id,
+            training_date=lesson_date,
+            marks=marks,
+            request_id=request_id,
+            idempotency_key=idempotency_key,
         )
 
     async def search_clients(  # noqa: ANN001
@@ -311,6 +386,146 @@ class TranscriptCrmClient:
         reason: str,
     ) -> None:
         self.request_ids.append(request_id)
+
+
+@dataclass
+class SameGroupSameDayCrmClient:
+    request_ids: list[str] = field(default_factory=list)
+    roster_requests: list[tuple[UUID, date]] = field(default_factory=list)
+    save_requests: list[tuple[UUID, date]] = field(default_factory=list)
+    save_idempotency_keys: list[str] = field(default_factory=list)
+    group_id: UUID = UUID("00000000-0000-0000-0000-000000000021")
+    morning_lesson_id: UUID = UUID("10000000-0000-0000-0000-000000000001")
+    evening_lesson_id: UUID = UUID("10000000-0000-0000-0000-000000000002")
+    client_id: UUID = UUID("00000000-0000-0000-0000-000000000031")
+
+    async def get_menu(self, identity, *, request_id: str):  # noqa: ANN001
+        self.request_ids.append(request_id)
+        return MenuResponse(
+            user=BotUserContext(
+                crm_user_id="00000000-0000-0000-0000-000000000001",
+                display_name="Иван",
+                role="Coach",
+            ),
+            attendanceDateWindow=AttendanceDateWindow(
+                today=date(2026, 5, 13),
+                minTrainingDate=date(2026, 5, 11),
+                maxTrainingDate=date(2026, 5, 13),
+            ),
+            items=[MenuItem(code="attendance", title="Посещения")],
+        )
+
+    async def list_attendance_lessons(  # noqa: ANN001
+        self,
+        identity,
+        *,
+        training_date: date,
+        request_id: str,
+    ) -> AttendanceLessonsResponse:
+        self.request_ids.append(request_id)
+        return AttendanceLessonsResponse(
+            items=[
+                AttendanceLesson(
+                    lessonOccurrenceId=self.morning_lesson_id,
+                    lessonDate=training_date,
+                    groupId=self.group_id,
+                    groupName="Группа",
+                    startTime="10:00",
+                    durationMinutes=60,
+                    hallName="Зал 1",
+                    branchName="Центр",
+                    effectiveTrainers=["Утренний тренер"],
+                    status="Scheduled",
+                    canViewAttendance=True,
+                    canEditAttendance=True,
+                ),
+                AttendanceLesson(
+                    lessonOccurrenceId=self.evening_lesson_id,
+                    lessonDate=training_date,
+                    groupId=self.group_id,
+                    groupName="Группа",
+                    startTime="18:30",
+                    durationMinutes=75,
+                    hallName="Зал 2",
+                    branchName="Центр",
+                    effectiveTrainers=[
+                        {
+                            "fullName": "Вечерний тренер",
+                            "kind": "Substitute",
+                            "substitutionId": "20000000-0000-0000-0000-000000000001",
+                        }
+                    ],
+                    status="Scheduled",
+                    canViewAttendance=True,
+                    canEditAttendance=True,
+                ),
+            ]
+        )
+
+    async def get_attendance_lesson_roster(  # noqa: ANN001
+        self,
+        identity,
+        *,
+        lesson_occurrence_id: UUID,
+        lesson_date: date,
+        request_id: str,
+    ) -> AttendanceRosterResponse:
+        self.request_ids.append(request_id)
+        self.roster_requests.append((lesson_occurrence_id, lesson_date))
+        return AttendanceRosterResponse(
+            groupId=self.group_id,
+            groupName="Группа",
+            trainingDate=lesson_date,
+            attendanceDateWindow={
+                "today": "2026-05-13",
+                "minTrainingDate": "2026-05-11",
+                "maxTrainingDate": "2026-05-13",
+            },
+            clients=[
+                {
+                    "id": str(self.client_id),
+                    "fullName": "Петр Иванов",
+                    "isPresent": False,
+                    "membershipWarning": None,
+                }
+            ],
+        )
+
+    async def save_lesson_attendance(  # noqa: ANN001, PLR0913
+        self,
+        identity,
+        *,
+        lesson_occurrence_id: UUID,
+        lesson_date: date,
+        marks: list[object],
+        request_id: str,
+        idempotency_key: str,
+    ) -> AttendanceSaveResponse:
+        self.request_ids.append(request_id)
+        self.save_requests.append((lesson_occurrence_id, lesson_date))
+        self.save_idempotency_keys.append(idempotency_key)
+        return AttendanceSaveResponse(
+            groupName="Группа",
+            trainingDate=lesson_date,
+            attendanceDateWindow={
+                "today": "2026-05-13",
+                "minTrainingDate": "2026-05-11",
+                "maxTrainingDate": "2026-05-13",
+            },
+            markedCount=len(marks),
+            presentCount=0,
+            absentCount=1,
+            warnings=[],
+        )
+
+    async def list_attendance_groups(self, *args, **kwargs):  # noqa: ANN002, ANN003
+        raise AssertionError("attendance flow must list concrete lessons")
+
+    async def get_attendance_roster(self, *args, **kwargs):  # noqa: ANN002, ANN003
+        raise AssertionError("attendance flow must request roster by lesson occurrence")
+
+    async def save_attendance(self, *args, **kwargs):  # noqa: ANN002, ANN003
+        raise AssertionError("attendance flow must save by lesson occurrence")
 
 
 @pytest.fixture()
@@ -971,6 +1186,42 @@ def test_group_schedule_rendering_uses_backend_values_without_local_validation()
     assert format_client_group(client_group) == ("Группа (старт 19:00 · Пт, Пн, 8 · 75 мин)")
 
 
+def test_attendance_lesson_rendering_uses_occurrence_details_and_replacement_marker() -> None:
+    lesson = AttendanceLesson(
+        lessonOccurrenceId="10000000-0000-0000-0000-000000000001",
+        lessonDate="2026-05-13",
+        groupId="00000000-0000-0000-0000-000000000021",
+        groupName="Группа",
+        startTime="19:00",
+        durationMinutes=75,
+        hallName="Зал 1",
+        branchName="Центр",
+        effectiveTrainers=[
+            {
+                "trainerId": "00000000-0000-0000-0000-000000000081",
+                "fullName": "Иван Основной",
+                "kind": "Primary",
+            },
+            {
+                "trainerId": "00000000-0000-0000-0000-000000000082",
+                "fullName": "Петр Замещающий",
+                "kind": "Substitute",
+                "replacedTrainerId": "00000000-0000-0000-0000-000000000081",
+                "substitutionId": "20000000-0000-0000-0000-000000000001",
+            },
+        ],
+        status="Cancelled",
+        canViewAttendance=True,
+        canEditAttendance=False,
+    )
+
+    text = AttendanceFlow._render_groups_text(date(2026, 5, 13), [lesson])
+
+    assert "Группа: старт 19:00 · 75 мин · Зал 1 · Центр" in text
+    assert "тренеры: Иван Основной, Петр Замещающий (замена)" in text
+    assert "отменено" in text
+
+
 @pytest.mark.asyncio
 async def test_attendance_save_omits_warning_block_when_backend_returns_no_warnings(
     settings: Settings,
@@ -1010,6 +1261,7 @@ async def test_attendance_save_omits_warning_block_when_backend_returns_no_warni
         {
             "step": "draft",
             "training_date": "2026-05-08",
+            "lesson_occurrence_id": "10000000-0000-0000-0000-000000000001",
             "group_id": "00000000-0000-0000-0000-000000000021",
             "group_name": "Группа",
             "marks": [
@@ -1028,6 +1280,158 @@ async def test_attendance_save_omits_warning_block_when_backend_returns_no_warni
     assert "Посещения сохранены." in response.text
     assert "Предупреждения" not in response.text
     assert "Проф Клиент" not in response.text
+
+
+@pytest.mark.asyncio
+async def test_attendance_stale_draft_without_lesson_occurrence_restarts_without_legacy_write(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    service = BotService(
+        settings=settings,
+        crm_client=FakeCrmClient(),
+        session_factory=session_factory,
+    )
+    event = NormalizedTelegramEvent(
+        update_id=905,
+        event_key="callback:905",
+        chat_id=10,
+        chat_type="private",
+        platform_user_id="777",
+        kind="callback",
+        callback_data="asv",
+    )
+    state_store = DialogStateStore(settings=settings, session_factory=session_factory)
+    await state_store.save(
+        event,
+        ATTENDANCE_SCENARIO,
+        {
+            "step": "draft",
+            "training_date": "2026-05-13",
+            "group_id": "00000000-0000-0000-0000-000000000021",
+            "group_name": "Группа",
+            "marks": [],
+        },
+    )
+
+    response = await service.handle_event(event)
+
+    assert response.text == "Выберите дату тренировки."
+    assert response.replace_existing is True
+    restarted_state = await state_store.get(event, ATTENDANCE_SCENARIO)
+    assert restarted_state is not None
+    assert restarted_state["step"] == "select_date"
+    assert "group_id" not in restarted_state
+
+
+@pytest.mark.asyncio
+async def test_attendance_same_group_same_day_uses_selected_lesson_occurrence_contract(
+    settings: Settings,
+    session_factory: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    request_ids = iter(
+        ["attendance-menu", "attendance-lessons", "attendance-roster", "attendance-save"]
+    )
+    monkeypatch.setattr(
+        "gym_crm_bot.core.attendance_flow.build_request_id",
+        lambda: next(request_ids),
+    )
+    crm_client = SameGroupSameDayCrmClient()
+    service = BotService(
+        settings=settings,
+        crm_client=crm_client,
+        session_factory=session_factory,
+    )
+    state_store = DialogStateStore(settings=settings, session_factory=session_factory)
+
+    await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=910,
+            event_key="callback:910",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind="callback",
+            callback_data="menu|attendance",
+        )
+    )
+    lesson_response = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=911,
+            event_key="callback:911",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind="callback",
+            callback_data="adt|2026-05-13",
+        )
+    )
+
+    assert "Группа: старт 10:00 · 60 мин · Зал 1 · Центр" in lesson_response.text
+    assert "Группа: старт 18:30 · 75 мин · Зал 2 · Центр" in lesson_response.text
+    assert "Вечерний тренер (замена)" in lesson_response.text
+    assert lesson_response.reply_markup is not None
+    assert [row[0].callback_data for row in lesson_response.reply_markup.inline_keyboard] == [
+        "agr|10000000-0000-0000-0000-000000000001",
+        "agr|10000000-0000-0000-0000-000000000002",
+    ]
+
+    roster_response = await service.handle_event(
+        NormalizedTelegramEvent(
+            update_id=912,
+            event_key="callback:912",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind="callback",
+            callback_data="agr|10000000-0000-0000-0000-000000000002",
+        )
+    )
+
+    assert "Петр Иванов: Не был" in roster_response.text
+    draft_state = await state_store.get(
+        NormalizedTelegramEvent(
+            update_id=912,
+            event_key="callback:912",
+            chat_id=10,
+            chat_type="private",
+            platform_user_id="777",
+            kind="callback",
+            callback_data="agr|10000000-0000-0000-0000-000000000002",
+        ),
+        ATTENDANCE_SCENARIO,
+    )
+    assert draft_state is not None
+    assert draft_state["lesson_occurrence_id"] == "10000000-0000-0000-0000-000000000002"
+    assert crm_client.roster_requests == [
+        (UUID("10000000-0000-0000-0000-000000000002"), date(2026, 5, 13))
+    ]
+
+    save_event = NormalizedTelegramEvent(
+        update_id=913,
+        event_key="callback:913",
+        chat_id=10,
+        chat_type="private",
+        platform_user_id="777",
+        kind="callback",
+        callback_data="asv",
+    )
+    save_response = await service.handle_event(save_event)
+
+    assert "Посещения сохранены." in save_response.text
+    assert crm_client.save_requests == [
+        (UUID("10000000-0000-0000-0000-000000000002"), date(2026, 5, 13))
+    ]
+    assert crm_client.save_idempotency_keys == [
+        "tg:777:913:attendance:10000000-0000-0000-0000-000000000002"
+    ]
+    assert crm_client.request_ids == [
+        "attendance-menu",
+        "attendance-lessons",
+        "attendance-roster",
+        "attendance-save",
+    ]
 
 
 @pytest.mark.asyncio

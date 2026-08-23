@@ -14,16 +14,37 @@ public interface IBotApiService
         BotIdentity identity,
         CancellationToken cancellationToken);
 
+    Task<BotApiResult<IReadOnlyList<BotAttendanceLesson>>> ListAttendanceLessonsAsync(
+        BotIdentity identity,
+        DateOnly trainingDate,
+        CancellationToken cancellationToken);
+
     Task<BotApiResult<BotAttendanceRoster>> GetAttendanceRosterAsync(
         BotIdentity identity,
         Guid groupId,
         DateOnly trainingDate,
+        CancellationToken cancellationToken,
+        Guid? lessonOccurrenceId = null);
+
+    Task<BotApiResult<BotAttendanceRoster>> GetAttendanceRosterByLessonAsync(
+        BotIdentity identity,
+        Guid lessonOccurrenceId,
+        DateOnly lessonDate,
         CancellationToken cancellationToken);
 
     Task<BotApiResult<BotAttendanceSaveResponse>> SaveAttendanceAsync(
         BotIdentity identity,
         Guid groupId,
         DateOnly trainingDate,
+        IReadOnlyList<BotAttendanceMarkInput> marks,
+        string idempotencyKey,
+        string payloadJson,
+        CancellationToken cancellationToken);
+
+    Task<BotApiResult<BotAttendanceSaveResponse>> SaveAttendanceByLessonAsync(
+        BotIdentity identity,
+        Guid lessonOccurrenceId,
+        DateOnly lessonDate,
         IReadOnlyList<BotAttendanceMarkInput> marks,
         string idempotencyKey,
         string payloadJson,

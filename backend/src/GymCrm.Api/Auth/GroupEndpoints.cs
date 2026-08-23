@@ -3,7 +3,9 @@ using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Clients;
+using GymCrm.Application.Scheduling;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Schedule;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -28,9 +30,11 @@ internal static class GroupEndpoints
         group.MapGet(GroupApiConstants.LegacyTrainerOptionsRoute, ListTrainerOptionsAsync);
         group.MapGet(GroupApiConstants.DetailsRoute, GetGroupAsync);
         group.MapGet(GroupApiConstants.ClientsRoute, GetGroupClientsAsync);
+        group.MapPost(GroupApiConstants.PreviewRoute, PreviewGroupAsync);
         group.MapPost(GroupApiConstants.ListRoute, CreateGroupAsync);
         group.MapPut(GroupApiConstants.DetailsRoute, UpdateGroupAsync);
-        group.MapPut(GroupApiConstants.TrainersRoute, UpdateGroupTrainersAsync);
+        GroupTrainerAssignmentEndpoints.Map(group);
+        GroupLessonSeriesEndpoints.Map(group);
 
         return endpoints;
     }
@@ -185,12 +189,10 @@ internal static class GroupEndpoints
         return TypedResults.Ok(response);
     }
 
-    private static async Task<Results<Created<GroupDetailsResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateGroupAsync(
+    private static async Task<IResult> PreviewGroupAsync(
         UpsertTrainingGroupRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
-        IAuditLogService auditLogService,
-        IBusinessDateProvider businessDateProvider,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -206,37 +208,130 @@ internal static class GroupEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var normalizedRequest = GroupRequestValidator.NormalizeRequest(request);
-        var validationErrors = await GroupRequestValidator.ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken);
-        if (validationErrors.Count > 0)
-        {
-            return TypedResults.ValidationProblem(validationErrors);
-        }
-
-        if (!GroupManagementScope.Contains(currentUser, normalizedRequest.BranchId!.Value))
+        var parsed = await ValidateGroupCreateWithInitialSeriesAsync(request, currentUser, dbContext, cancellationToken);
+        if (parsed.Forbidden)
         {
             return GroupManagementScope.ForbiddenProblem();
         }
 
-        var trainingStartTime = GroupRequestValidator.ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
+        if (parsed.Errors.Count > 0)
+        {
+            return TypedResults.ValidationProblem(parsed.Errors);
+        }
+
+        var payload = CreateGroupCreatePayload(parsed);
+        var payloadJson = ScheduleMutationTokenPolicy.SerializePayload(payload);
+        var payloadHash = ScheduleMutationTokenPolicy.ComputeSha256Base64Url(payloadJson);
+        var rawToken = ScheduleMutationTokenPolicy.CreateSecureToken();
         var now = DateTimeOffset.UtcNow;
+        var expiresAt = now.Add(ScheduleMutationTokenPolicy.ConfirmationTokenLifetime);
+        dbContext.ScheduleMutationConfirmationTokens.Add(new ScheduleMutationConfirmationToken
+        {
+            Id = Guid.NewGuid(),
+            TokenHash = ScheduleMutationTokenPolicy.ComputeSha256Base64Url(rawToken),
+            ActorUserId = currentUser.Id,
+            Purpose = ScheduleMutationTokenPolicy.GroupCreatePurpose,
+            PayloadHash = payloadHash,
+            PayloadJson = payloadJson,
+            CreatedAt = now,
+            ExpiresAt = expiresAt
+        });
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return TypedResults.Ok(new GroupPreviewResponse(rawToken, expiresAt, []));
+    }
+
+    private static async Task<Results<Created<GroupDetailsResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateGroupAsync(
+        UpsertTrainingGroupRequest request,
+        HttpContext httpContext,
+        GymCrmDbContext dbContext,
+        IAuditLogService auditLogService,
+        IAntiforgery antiforgery,
+        CancellationToken cancellationToken)
+    {
+        var csrfValidationResult = await AuthCsrfValidation.ValidateRequestAsync(httpContext, antiforgery);
+        if (csrfValidationResult is not null)
+        {
+            return csrfValidationResult;
+        }
+
+        var currentUser = httpContext.GetAuthenticatedGymCrmUser();
+        if (currentUser is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        return await CreateGroupWithInitialSeriesAsync(
+            request,
+            currentUser,
+            dbContext,
+            auditLogService,
+            cancellationToken);
+    }
+
+    private static async Task<Results<Created<GroupDetailsResponse>, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> CreateGroupWithInitialSeriesAsync(
+        UpsertTrainingGroupRequest request,
+        GymCrm.Domain.Users.User currentUser,
+        GymCrmDbContext dbContext,
+        IAuditLogService auditLogService,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.ConfirmationToken))
+        {
+            return CreateGroupPreviewTokenProblem(ScheduleMutationTokenPolicy.PreviewInvalidCode, StatusCodes.Status409Conflict);
+        }
+
+        var rawToken = request.ConfirmationToken.Trim();
+        var tokenHash = ScheduleMutationTokenPolicy.ComputeSha256Base64Url(rawToken);
+        var token = await dbContext.ScheduleMutationConfirmationTokens
+            .SingleOrDefaultAsync(candidate =>
+                candidate.TokenHash == tokenHash &&
+                candidate.ActorUserId == currentUser.Id &&
+                candidate.Purpose == ScheduleMutationTokenPolicy.GroupCreatePurpose,
+                cancellationToken);
+        if (token is null || token.ConsumedAt is not null)
+        {
+            return CreateGroupPreviewTokenProblem(ScheduleMutationTokenPolicy.PreviewInvalidCode, StatusCodes.Status409Conflict);
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        if (token.ExpiresAt <= now)
+        {
+            return CreateGroupPreviewTokenProblem(ScheduleMutationTokenPolicy.PreviewExpiredCode, StatusCodes.Status409Conflict);
+        }
+
+        var parsed = await ValidateGroupCreateWithInitialSeriesAsync(request, currentUser, dbContext, cancellationToken);
+        if (parsed.Forbidden)
+        {
+            return GroupManagementScope.ForbiddenProblem();
+        }
+
+        if (parsed.Errors.Count > 0)
+        {
+            return TypedResults.ValidationProblem(parsed.Errors);
+        }
+
+        if (!ScheduleMutationTokenPolicy.PayloadMatches(token.PayloadHash, CreateGroupCreatePayload(parsed)))
+        {
+            return CreateGroupPreviewTokenProblem(ScheduleMutationTokenPolicy.PreviewStaleCode, StatusCodes.Status409Conflict);
+        }
 
         var group = new TrainingGroup
         {
             Id = Guid.NewGuid(),
-            BranchId = normalizedRequest.BranchId!.Value,
-            HallId = normalizedRequest.HallId!.Value,
-            GroupTypeId = normalizedRequest.GroupTypeId!.Value,
-            Name = normalizedRequest.Name,
-            TrainingStartTime = trainingStartTime.Value,
-            DurationMinutes = normalizedRequest.DurationMinutes!.Value,
-            Weekdays = normalizedRequest.Weekdays,
-            IsActive = normalizedRequest.IsActive ?? true,
+            BranchId = parsed.NormalizedRequest.BranchId!.Value,
+            HallId = parsed.FirstSlot.HallId!.Value,
+            GroupTypeId = parsed.NormalizedRequest.GroupTypeId!.Value,
+            Name = parsed.NormalizedRequest.Name,
+            TrainingStartTime = GroupRequestValidator.ParseTrainingStartTime(parsed.FirstSlot.StartTime)!.Value,
+            DurationMinutes = parsed.FirstSlot.DurationMinutes!.Value,
+            Weekdays = parsed.Slots.Select(slot => slot.IsoWeekday!.Value).Distinct().Order().ToArray(),
+            IsActive = parsed.NormalizedRequest.IsActive ?? true,
             CreatedAt = now,
             UpdatedAt = now
         };
 
-        foreach (var trainerId in normalizedRequest.TrainerIds)
+        foreach (var trainerId in parsed.NormalizedRequest.TrainerIds)
         {
             group.Trainers.Add(new GroupTrainer
             {
@@ -248,34 +343,101 @@ internal static class GroupEndpoints
                 Id = Guid.NewGuid(),
                 GroupId = group.Id,
                 TrainerId = trainerId,
-                ValidFrom = DateOnly.FromDateTime(now.UtcDateTime.Date),
+                ValidFrom = parsed.StartsOn!.Value,
                 CreatedByUserId = currentUser.Id,
                 CreatedAt = now
             });
         }
 
-        dbContext.TrainingGroups.Add(group);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        var series = new LessonSeries
+        {
+            Id = Guid.NewGuid(),
+            GroupId = group.Id,
+            StartsOn = parsed.StartsOn!.Value,
+            EndsOn = parsed.EndsOn,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+        var rule = new LessonScheduleRuleVersion
+        {
+            Id = Guid.NewGuid(),
+            LessonSeriesId = series.Id,
+            VersionNumber = 1,
+            EffectiveFrom = parsed.StartsOn.Value,
+            EffectiveTo = parsed.EndsOn,
+            CreatedAt = now
+        };
+        foreach (var slot in parsed.Slots)
+        {
+            rule.Slots.Add(new LessonScheduleSlot
+            {
+                Id = Guid.NewGuid(),
+                LessonScheduleRuleVersionId = rule.Id,
+                SlotLineageId = Guid.NewGuid(),
+                IsoWeekday = slot.IsoWeekday!.Value,
+                StartTime = GroupRequestValidator.ParseTrainingStartTime(slot.StartTime)!.Value,
+                DurationMinutes = slot.DurationMinutes!.Value,
+                HallId = slot.HallId!.Value,
+                CreatedAt = now
+            });
+        }
 
-        var createdGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken)
-            ?? throw new InvalidOperationException($"Created training group '{group.Id}' was not found.");
+        var mutationTransaction = await BeginGroupMutationTransactionAsync(dbContext, cancellationToken);
+        TrainingGroup createdGroup;
+        try
+        {
+            var tokenClaim = await ScheduleMutationTokenClaimPolicy.ClaimAsync(
+                dbContext,
+                token,
+                now,
+                cancellationToken);
+            if (tokenClaim == ScheduleMutationTokenClaimResult.Invalid)
+            {
+                return CreateGroupPreviewTokenProblem(ScheduleMutationTokenPolicy.PreviewInvalidCode, StatusCodes.Status409Conflict);
+            }
 
-        await auditLogService.WriteAsync(
-            new AuditLogEntry(
-                currentUser.Id,
-                GroupAuditConstants.TrainingGroupCreatedAction,
-                GroupAuditConstants.TrainingGroupEntityType,
-                group.Id.ToString(),
-                GroupResources.TrainingGroupCreatedDescription(currentUser.Login, group.Name),
-                NewValueJson: SerializeAuditState(createdGroup)),
-            cancellationToken);
+            if (tokenClaim == ScheduleMutationTokenClaimResult.Expired)
+            {
+                return CreateGroupPreviewTokenProblem(ScheduleMutationTokenPolicy.PreviewExpiredCode, StatusCodes.Status409Conflict);
+            }
+
+            dbContext.TrainingGroups.Add(group);
+            dbContext.LessonSeries.Add(series);
+            dbContext.LessonScheduleRuleVersions.Add(rule);
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            createdGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken)
+                ?? throw new InvalidOperationException($"Created training group '{group.Id}' was not found.");
+
+            await auditLogService.WriteAsync(
+                new AuditLogEntry(
+                    currentUser.Id,
+                    GroupAuditConstants.TrainingGroupCreatedAction,
+                    GroupAuditConstants.TrainingGroupEntityType,
+                    group.Id.ToString(),
+                    GroupResources.TrainingGroupCreatedDescription(currentUser.Login, group.Name),
+                    NewValueJson: SerializeAuditState(createdGroup)),
+                cancellationToken);
+
+            if (mutationTransaction is not null)
+            {
+                await mutationTransaction.CommitAsync(cancellationToken);
+            }
+        }
+        finally
+        {
+            if (mutationTransaction is not null)
+            {
+                await mutationTransaction.DisposeAsync();
+            }
+        }
 
         return TypedResults.Created($"{GroupApiConstants.RoutePrefix}/{group.Id}", MapDetails(createdGroup));
     }
 
     private static async Task<Results<Ok<GroupDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> UpdateGroupAsync(
         Guid id,
-        UpsertTrainingGroupRequest request,
+        UpdateTrainingGroupIdentityRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAuditLogService auditLogService,
@@ -306,7 +468,16 @@ internal static class GroupEndpoints
             return GroupManagementScope.ForbiddenProblem();
         }
 
-        var normalizedRequest = GroupRequestValidator.NormalizeRequest(request);
+        var normalizedRequest = GroupRequestValidator.NormalizeRequest(new UpsertTrainingGroupRequest(
+            request.Name,
+            request.BranchId,
+            group.HallId,
+            request.GroupTypeId,
+            group.TrainingStartTime.ToString("HH\\:mm", CultureInfo.InvariantCulture),
+            group.DurationMinutes,
+            group.Weekdays,
+            request.IsActive,
+            group.Trainers.Select(assignment => assignment.TrainerId).ToArray()));
         var validationErrors = await GroupRequestValidator.ValidateUpsertRequestAsync(
             normalizedRequest,
             dbContext,
@@ -342,19 +513,11 @@ internal static class GroupEndpoints
                 }
             }
 
-            var trainingStartTime = GroupRequestValidator.ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
-
             group.Name = normalizedRequest.Name;
             group.BranchId = normalizedRequest.BranchId!.Value;
-            group.HallId = normalizedRequest.HallId!.Value;
             group.GroupTypeId = normalizedRequest.GroupTypeId!.Value;
-            group.TrainingStartTime = trainingStartTime.Value;
-            group.DurationMinutes = normalizedRequest.DurationMinutes!.Value;
-            group.Weekdays = normalizedRequest.Weekdays;
             group.IsActive = requestedIsActive;
             group.UpdatedAt = DateTimeOffset.UtcNow;
-
-            ApplyTrainerAssignments(group, normalizedRequest.TrainerIds, currentUser.Id, DateTimeOffset.UtcNow, dbContext);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             if (mutationTransaction is not null)
@@ -464,6 +627,7 @@ internal static class GroupEndpoints
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.TrainerAssignments)
+                .ThenInclude(assignment => assignment.Trainer)
             .Include(group => group.Clients)
             .AsSplitQuery()
             .SingleOrDefaultAsync(group => group.Id == id, cancellationToken);
@@ -481,6 +645,7 @@ internal static class GroupEndpoints
             .Include(group => group.Trainers)
                 .ThenInclude(groupTrainer => groupTrainer.Trainer)
             .Include(group => group.TrainerAssignments)
+                .ThenInclude(assignment => assignment.Trainer)
             .Include(group => group.Clients)
             .AsSplitQuery()
             .SingleOrDefaultAsync(group => group.Id == id, cancellationToken);
@@ -719,7 +884,36 @@ internal static class GroupEndpoints
             trainers.Select(trainer => trainer.Id).ToArray(),
             trainers,
             group.Clients.Count,
-            group.UpdatedAt);
+            group.UpdatedAt,
+            BuildTrainerAssignmentRevision(group.TrainerAssignments),
+            group.TrainerAssignments
+                .OrderBy(assignment => assignment.ValidFrom)
+                .ThenBy(assignment => assignment.ValidTo)
+                .ThenBy(assignment => assignment.Trainer.FullName, StringComparer.CurrentCulture)
+                .ThenBy(assignment => assignment.TrainerId)
+                .Select(assignment => new GroupTrainerAssignmentPeriodResponse(
+                    assignment.TrainerId,
+                    assignment.Trainer.FullName,
+                    assignment.ValidFrom,
+                    assignment.ValidTo))
+                .ToArray());
+    }
+
+    private static string BuildTrainerAssignmentRevision(IEnumerable<GroupTrainerAssignment> assignments)
+    {
+        var canonical = string.Join(
+            "|",
+            assignments
+                .OrderBy(assignment => assignment.ValidFrom)
+                .ThenBy(assignment => assignment.ValidTo)
+                .ThenBy(assignment => assignment.TrainerId)
+                .Select(assignment => string.Join(
+                    ",",
+                    assignment.TrainerId.ToString("D"),
+                    assignment.ValidFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    assignment.ValidTo?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty)));
+
+        return ScheduleMutationTokenPolicy.ComputeSha256Base64Url(canonical);
     }
 
     private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)
@@ -767,6 +961,190 @@ internal static class GroupEndpoints
         return weekdays
             .OrderBy(weekday => weekday)
             .ToArray();
+    }
+
+    private static async Task<InitialSeriesValidation> ValidateGroupCreateWithInitialSeriesAsync(
+        UpsertTrainingGroupRequest request,
+        GymCrm.Domain.Users.User currentUser,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var errors = new Dictionary<string, string[]>();
+        var series = request.InitialLessonSeries;
+        if (series?.Slots is null || series.Slots.Count == 0)
+        {
+            errors["initialLessonSeries.slots"] = ["Initial lesson series must include at least one slot."];
+        }
+
+        var startsOn = ParseGroupSeriesDate(series?.StartsOn);
+        if (!startsOn.HasValue)
+        {
+            errors["initialLessonSeries.startsOn"] = ["startsOn должен быть в формате yyyy-MM-dd."];
+        }
+
+        DateOnly? endsOn = null;
+        if (!string.IsNullOrWhiteSpace(series?.EndsOn))
+        {
+            endsOn = ParseGroupSeriesDate(series.EndsOn);
+            if (!endsOn.HasValue)
+            {
+                errors["initialLessonSeries.endsOn"] = ["endsOn должен быть в формате yyyy-MM-dd."];
+            }
+        }
+
+        if (startsOn.HasValue && endsOn.HasValue && endsOn.Value < startsOn.Value)
+        {
+            errors["initialLessonSeries.endsOn"] = ["endsOn должен быть не раньше startsOn."];
+        }
+
+        var slots = series?.Slots?.ToArray() ?? [];
+        for (var index = 0; index < slots.Length; index++)
+        {
+            var slot = slots[index];
+            var prefix = $"initialLessonSeries.slots[{index}]";
+            if (slot.IsoWeekday is null or < 1 or > 7)
+            {
+                errors[$"{prefix}.isoWeekday"] = ["isoWeekday должен быть от 1 до 7."];
+            }
+
+            if (GroupRequestValidator.ParseTrainingStartTime(slot.StartTime) is null)
+            {
+                errors[$"{prefix}.startTime"] = ["startTime должен быть в формате HH:mm."];
+            }
+
+            if (slot.DurationMinutes is null or < GroupApiConstants.MinDurationMinutes or > GroupApiConstants.MaxDurationMinutes)
+            {
+                errors[$"{prefix}.durationMinutes"] = [GroupResources.DurationMinutesOutOfRange(GroupApiConstants.MinDurationMinutes, GroupApiConstants.MaxDurationMinutes)];
+            }
+
+            if (!slot.HallId.HasValue || slot.HallId.Value == Guid.Empty)
+            {
+                errors[$"{prefix}.hallId"] = [GroupResources.InvalidHallId];
+            }
+        }
+
+        var firstSlot = slots.FirstOrDefault();
+        var normalizedRequest = GroupRequestValidator.NormalizeRequest(request with
+        {
+            HallId = firstSlot?.HallId,
+            TrainingStartTime = firstSlot?.StartTime ?? string.Empty,
+            DurationMinutes = firstSlot?.DurationMinutes,
+            Weekdays = slots
+                .Where(slot => slot.IsoWeekday.HasValue)
+                .Select(slot => slot.IsoWeekday!.Value)
+                .Distinct()
+                .ToArray()
+        });
+        foreach (var pair in await GroupRequestValidator.ValidateUpsertRequestAsync(normalizedRequest, dbContext, cancellationToken))
+        {
+            errors.TryAdd(pair.Key, pair.Value);
+        }
+
+        if (normalizedRequest.BranchId.HasValue && !GroupManagementScope.Contains(currentUser, normalizedRequest.BranchId.Value))
+        {
+            return new InitialSeriesValidation(errors, normalizedRequest, firstSlot ?? new InitialLessonSeriesSlotRequest(null, null, null, null), startsOn, endsOn, slots)
+            {
+                Forbidden = true
+            };
+        }
+
+        if (errors.Count == 0)
+        {
+            var hallIds = slots.Select(slot => slot.HallId!.Value).Distinct().ToArray();
+            var hallBranchIds = await dbContext.Halls
+                .AsNoTracking()
+                .Where(hall => hallIds.Contains(hall.Id))
+                .Select(hall => new { hall.Id, hall.BranchId })
+                .ToArrayAsync(cancellationToken);
+            foreach (var missingHallId in hallIds.Except(hallBranchIds.Select(hall => hall.Id)))
+            {
+                errors[$"initialLessonSeries.slots.hallId.{missingHallId:D}"] = ["Зал не найден."];
+            }
+
+            if (hallBranchIds.Any(hall => hall.BranchId != normalizedRequest.BranchId!.Value))
+            {
+                errors["initialLessonSeries.slots.hallId"] = ["Все залы расписания должны принадлежать филиалу группы."];
+            }
+
+            foreach (var group in slots
+                         .GroupBy(slot => slot.IsoWeekday!.Value)
+                         .Where(group => group.SelectMany((left, leftIndex) => group.Skip(leftIndex + 1).Select(right => (left, right))).Any(pair =>
+                             ScheduleTimeRangePolicy.Overlaps(
+                                 GroupRequestValidator.ParseTrainingStartTime(pair.left.StartTime)!.Value,
+                                 pair.left.DurationMinutes!.Value,
+                                 GroupRequestValidator.ParseTrainingStartTime(pair.right.StartTime)!.Value,
+                                 pair.right.DurationMinutes!.Value))))
+            {
+                errors["initialLessonSeries.slots"] = [$"Slots for ISO weekday {group.Key} overlap."];
+            }
+        }
+
+        return new InitialSeriesValidation(
+            errors,
+            normalizedRequest,
+            firstSlot ?? new InitialLessonSeriesSlotRequest(null, null, null, null),
+            startsOn,
+            endsOn,
+            slots);
+    }
+
+    private static DateOnly? ParseGroupSeriesDate(string? value)
+    {
+        return DateOnly.TryParseExact(
+            value?.Trim(),
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out var parsed)
+            ? parsed
+            : null;
+    }
+
+    private static GroupCreateConfirmationPayload CreateGroupCreatePayload(InitialSeriesValidation parsed)
+    {
+        return new GroupCreateConfirmationPayload(
+            parsed.NormalizedRequest.Name,
+            parsed.NormalizedRequest.BranchId!.Value,
+            parsed.NormalizedRequest.GroupTypeId!.Value,
+            parsed.NormalizedRequest.IsActive ?? true,
+            parsed.NormalizedRequest.TrainerIds,
+            parsed.StartsOn!.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            parsed.EndsOn?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            parsed.Slots
+                .OrderBy(slot => slot.IsoWeekday!.Value)
+                .ThenBy(slot => GroupRequestValidator.ParseTrainingStartTime(slot.StartTime)!.Value)
+                .ThenBy(slot => slot.HallId!.Value)
+                .Select(slot => new GroupCreateSlotConfirmationPayload(
+                    slot.IsoWeekday!.Value,
+                    GroupRequestValidator.ParseTrainingStartTime(slot.StartTime)!.Value.ToString("HH\\:mm", CultureInfo.InvariantCulture),
+                    slot.DurationMinutes!.Value,
+                    slot.HallId!.Value))
+                .ToArray());
+    }
+
+    private static ProblemHttpResult CreateGroupPreviewTokenProblem(string code, int statusCode)
+    {
+        return TypedResults.Problem(new Microsoft.AspNetCore.Mvc.ProblemDetails
+        {
+            Type = $"/problems/{code}",
+            Title = "Group preview token is not valid for this mutation.",
+            Status = statusCode,
+            Extensions =
+            {
+                ["code"] = code
+            }
+        });
+    }
+
+    private sealed record InitialSeriesValidation(
+        Dictionary<string, string[]> Errors,
+        NormalizedGroupRequest NormalizedRequest,
+        InitialLessonSeriesSlotRequest FirstSlot,
+        DateOnly? StartsOn,
+        DateOnly? EndsOn,
+        IReadOnlyList<InitialLessonSeriesSlotRequest> Slots)
+    {
+        public bool Forbidden { get; init; }
     }
 
     private sealed record GroupDeactivationBlockingMembership(

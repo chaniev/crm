@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import type { TrainingGroupDetails } from '../../lib/api'
 import {
   toFormValues,
+  toUpdateGroupIdentityPayload,
   toUpsertGroupPayload,
   type GroupFormValues,
 } from './groupFormMapping'
@@ -16,6 +17,8 @@ describe('groupFormMapping', () => {
       trainingStartTime: ' 18:30 ',
       durationMinutes: 75,
       weekdays: ['5', '2', '4'],
+      initialSeriesStartsOn: '2026-09-01',
+      initialSeriesEndsOn: '',
       isActive: true,
       trainerIds: ['trainer-2', 'trainer-1'],
     }
@@ -55,6 +58,8 @@ describe('groupFormMapping', () => {
       trainingStartTime: '',
       durationMinutes: '',
       weekdays: [],
+      initialSeriesStartsOn: '2026-09-01',
+      initialSeriesEndsOn: '',
       isActive: false,
       trainerIds: [],
     })
@@ -70,6 +75,34 @@ describe('groupFormMapping', () => {
       isActive: false,
       trainerIds: [],
     })
+  })
+
+  test('builds identity-only update payload without schedule or trainer fields', () => {
+    const payload = toUpdateGroupIdentityPayload({
+      branchId: 'branch-1',
+      hallId: 'hall-1',
+      groupTypeId: 'type-1',
+      name: '  Новое имя  ',
+      trainingStartTime: '18:30',
+      durationMinutes: 75,
+      weekdays: ['2', '4'],
+      initialSeriesStartsOn: '2026-09-01',
+      initialSeriesEndsOn: '',
+      isActive: false,
+      trainerIds: ['trainer-2', 'trainer-1'],
+    })
+
+    expect(payload).toEqual({
+      name: 'Новое имя',
+      branchId: 'branch-1',
+      groupTypeId: 'type-1',
+      isActive: false,
+    })
+    expect(payload).not.toHaveProperty('hallId')
+    expect(payload).not.toHaveProperty('trainingStartTime')
+    expect(payload).not.toHaveProperty('durationMinutes')
+    expect(payload).not.toHaveProperty('weekdays')
+    expect(payload).not.toHaveProperty('trainerIds')
   })
 
   test('maps group details into controlled form values without changing trainer order', () => {
@@ -91,6 +124,8 @@ describe('groupFormMapping', () => {
       clientCount: 4,
       createdAt: '2026-07-01T10:00:00Z',
       updatedAt: '2026-07-20T10:00:00Z',
+      trainerAssignmentRevision: 'assignment-revision-1',
+      trainerAssignmentPeriods: [],
     }
 
     expect(toFormValues(details)).toEqual({
@@ -101,6 +136,8 @@ describe('groupFormMapping', () => {
       trainingStartTime: '09:00',
       durationMinutes: 60,
       weekdays: ['1', '3'],
+      initialSeriesStartsOn: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      initialSeriesEndsOn: '',
       isActive: true,
       trainerIds: ['trainer-2', 'trainer-1'],
     })

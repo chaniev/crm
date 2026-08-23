@@ -73,6 +73,20 @@ public sealed record BotAttendanceGroup(
     bool IsActive,
     int ClientCount);
 
+public sealed record BotAttendanceLesson(
+    Guid LessonOccurrenceId,
+    DateOnly LessonDate,
+    Guid GroupId,
+    string GroupName,
+    string StartTime,
+    int DurationMinutes,
+    string HallName,
+    string BranchName,
+    IReadOnlyList<string> EffectiveTrainers,
+    string Status,
+    bool CanViewAttendance,
+    bool CanEditAttendance);
+
 public sealed record BotAttendanceRoster(
     Guid GroupId,
     string GroupName,

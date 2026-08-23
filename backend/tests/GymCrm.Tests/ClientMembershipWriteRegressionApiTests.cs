@@ -12,6 +12,7 @@ using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
+using GymCrm.Domain.Schedule;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -2145,6 +2146,24 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 ChangedByUserId = ActorId,
                 CreatedAt = now.AddDays(-20)
             };
+            var attendanceGroup = await db.TrainingGroups
+                .AsNoTracking()
+                .SingleAsync(group => group.Id == TargetGroupId);
+            var attendanceOccurrence = new LessonOccurrence
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000f2"),
+                GroupId = TargetGroupId,
+                LessonDate = Today.AddDays(-19),
+                StartTime = attendanceGroup.TrainingStartTime,
+                DurationMinutes = attendanceGroup.DurationMinutes,
+                HallId = attendanceGroup.HallId,
+                ProjectedDate = Today.AddDays(-19),
+                Status = LessonOccurrenceStatus.Scheduled,
+                SourceKind = LessonOccurrenceSourceKind.LegacyAttendance,
+                Version = 1,
+                CreatedAt = now.AddDays(-19),
+                UpdatedAt = now.AddDays(-19)
+            };
             var refund = new ClientMembershipRefund
             {
                 Id = Guid.Parse("11400000-0000-0000-0000-0000000000e1"),
@@ -2161,6 +2180,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 Id = Guid.Parse("11400000-0000-0000-0000-0000000000f1"),
                 ClientId = ClientId,
                 GroupId = TargetGroupId,
+                LessonOccurrenceId = attendanceOccurrence.Id,
                 TrainingDate = Today.AddDays(-19),
                 IsPresent = true,
                 SingleVisitMembershipSaleId = saleB.Id,
@@ -2176,6 +2196,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             db.ClientMembershipSales.AddRange(saleA, saleB);
             db.ClientMemberships.AddRange(saleAVersionOne, saleAVersionTwo, saleBVersion);
             db.ClientMembershipRefunds.Add(refund);
+            db.LessonOccurrences.Add(attendanceOccurrence);
             db.Attendance.Add(attendance);
             await db.SaveChangesAsync();
 

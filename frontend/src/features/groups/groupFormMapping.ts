@@ -1,5 +1,9 @@
 import { useForm } from '@mantine/form'
-import type { TrainingGroupDetails, UpsertTrainingGroupRequest } from '../../lib/api'
+import type {
+  TrainingGroupDetails,
+  UpdateTrainingGroupIdentityRequest,
+  UpsertTrainingGroupRequest,
+} from '../../lib/api'
 
 export type GroupFormValues = {
   branchId: string
@@ -9,6 +13,8 @@ export type GroupFormValues = {
   trainingStartTime: string
   durationMinutes: number | ''
   weekdays: string[]
+  initialSeriesStartsOn: string
+  initialSeriesEndsOn: string
   isActive: boolean
   trainerIds: string[]
 }
@@ -23,6 +29,8 @@ export function useGroupForm() {
       trainingStartTime: '',
       durationMinutes: '',
       weekdays: [],
+      initialSeriesStartsOn: todayIso(),
+      initialSeriesEndsOn: '',
       isActive: true,
       trainerIds: [],
     },
@@ -52,6 +60,43 @@ export function toUpsertGroupPayload(
   }
 }
 
+export function toUpdateGroupIdentityPayload(
+  values: GroupFormValues,
+): UpdateTrainingGroupIdentityRequest {
+  return {
+    name: values.name.trim(),
+    branchId: values.branchId || undefined,
+    groupTypeId: values.groupTypeId || undefined,
+    isActive: values.isActive,
+  }
+}
+
+export function toCreateGroupWithInitialSeriesPayload(
+  values: GroupFormValues,
+  confirmationToken?: string,
+): UpsertTrainingGroupRequest {
+  const trainingStartTime = values.trainingStartTime.trim()
+  const durationMinutes =
+    typeof values.durationMinutes === 'number' ? values.durationMinutes : null
+  const weekdays = values.weekdays.map(Number)
+  const hallId = values.hallId || undefined
+
+  return {
+    ...toUpsertGroupPayload(values),
+    initialLessonSeries: {
+      startsOn: values.initialSeriesStartsOn,
+      endsOn: values.initialSeriesEndsOn.trim() || null,
+      slots: weekdays.map((isoWeekday) => ({
+        isoWeekday,
+        startTime: trainingStartTime,
+        durationMinutes,
+        hallId,
+      })),
+    },
+    ...(confirmationToken ? { confirmationToken } : {}),
+  }
+}
+
 export function toFormValues(group: TrainingGroupDetails): GroupFormValues {
   return {
     branchId: group.branchId,
@@ -61,7 +106,18 @@ export function toFormValues(group: TrainingGroupDetails): GroupFormValues {
     trainingStartTime: group.trainingStartTime,
     durationMinutes: group.durationMinutes,
     weekdays: group.weekdays.map(String),
+    initialSeriesStartsOn: todayIso(),
+    initialSeriesEndsOn: '',
     isActive: group.isActive,
     trainerIds: group.trainerIds,
   }
+}
+
+function todayIso() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Alert, Button, Stack } from '@mantine/core'
 import { IconCheck } from '@tabler/icons-react'
-import type { AuthenticatedUser } from '../lib/api'
+import type { AuthenticatedUser, ScheduleLesson } from '../lib/api'
 import type { AppRoute, RouteAccessResolution } from '../lib/appRoutes'
 import type { ClientProfileOriginInput, ClientProfileReturnContext } from '../features/clients/clientProfileReturnState'
 import type { ClientListReturnSnapshot } from '../features/clients/list/clientListReturnState'
@@ -14,7 +14,13 @@ import {
 } from '../features/clients/ClientManagement'
 import { AttendanceScreen } from '../features/attendance/AttendanceScreen'
 import { AttentionDashboard } from '../features/attention/AttentionDashboard'
-import { GroupScheduleScreen } from '../features/schedule/GroupScheduleScreen'
+import {
+  GroupScheduleScreen,
+  ScheduleLessonChangeRouteScreen,
+  ScheduleLessonCreateScreen,
+  ScheduleLessonDetailScreen,
+  ScheduleSeriesEditScreen,
+} from '../features/schedule/GroupScheduleScreen'
 import {
   GroupCreateScreen,
   GroupEditScreen,
@@ -41,6 +47,12 @@ type RouteViewportProps = {
   user: AuthenticatedUser
   currentUserId: string
   onCreateGroup: () => void
+  onCreateScheduleLesson: () => void
+  onEditScheduleLesson: (lessonOccurrenceId: string, lessonDate: string) => void
+  onEditScheduleSeries: (lesson: ScheduleLesson, scope: 'this-and-future' | 'entire') => void
+  onMoveScheduleLesson: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenAttendanceLesson: (lessonOccurrenceId: string, lessonDate: string) => void
+  onOpenScheduleLesson: (lessonOccurrenceId: string, lessonDate: string) => void
   onEditGroup: (
     groupId: string,
     returnSnapshot?: GroupListReturnSnapshot | null,
@@ -64,6 +76,7 @@ type RouteViewportProps = {
   onRefreshSession: () => Promise<unknown>
   onReturnToClients: () => void
   onReturnToGroups: () => void
+  onReturnToSchedule: () => void
   onReturnToUsers: () => void
   onSaveClientListReturnState: (snapshot: ClientListReturnSnapshot) => void
   onSaveGroupListReturnState: (snapshot: GroupListReturnSnapshot) => void
@@ -80,14 +93,21 @@ export function RouteViewport({
   onCreateClient,
   onEditClient,
   onOpenClient,
+  onOpenAttendanceLesson,
+  onOpenScheduleLesson,
   onPreviewClient,
   onCreateGroup,
+  onCreateScheduleLesson,
+  onEditScheduleLesson,
+  onEditScheduleSeries,
+  onMoveScheduleLesson,
   onEditGroup,
   onCreateUser,
   onEditUser,
   onRefreshSession,
   onReturnToClients,
   onReturnToGroups,
+  onReturnToSchedule,
   onReturnToUsers,
   onSaveClientListReturnState,
   onSaveGroupListReturnState,
@@ -186,6 +206,88 @@ export function RouteViewport({
     )
   }
 
+  if (route.kind === 'attendanceLesson') {
+    return (
+      <AttendanceScreen
+        initialReturnContext={clientProfileReturnContext}
+        lessonTarget={{
+          lessonOccurrenceId: route.lessonOccurrenceId,
+          lessonDate: route.lessonDate,
+        }}
+        onOpenClient={onOpenClient}
+        user={user}
+      />
+    )
+  }
+
+  if (route.kind === 'scheduleLessonDetail') {
+    return (
+      <ScheduleLessonDetailScreen
+        lessonDate={route.lessonDate}
+        lessonOccurrenceId={route.lessonOccurrenceId}
+        onEditLesson={onEditScheduleLesson}
+        onEditSeries={onEditScheduleSeries}
+        onMoveLesson={onMoveScheduleLesson}
+        onOpenAttendance={onOpenAttendanceLesson}
+        onOpenLessonDetail={onOpenScheduleLesson}
+      />
+    )
+  }
+
+  if (route.kind === 'scheduleLessonCreate') {
+    return (
+      <ScheduleLessonCreateScreen
+        onBack={onReturnToSchedule}
+        onCreated={(lesson) => onOpenScheduleLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+      />
+    )
+  }
+
+  if (route.kind === 'scheduleLessonEdit') {
+    return (
+      <ScheduleLessonChangeRouteScreen
+        lessonDate={route.lessonDate}
+        lessonOccurrenceId={route.lessonOccurrenceId}
+        mode="edit"
+        onBack={onReturnToSchedule}
+        onChanged={(lesson) => onOpenScheduleLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+      />
+    )
+  }
+
+  if (route.kind === 'scheduleLessonMove') {
+    return (
+      <ScheduleLessonChangeRouteScreen
+        lessonDate={route.lessonDate}
+        lessonOccurrenceId={route.lessonOccurrenceId}
+        mode="move"
+        onBack={onReturnToSchedule}
+        onChanged={(lesson) => onOpenScheduleLesson(lesson.lessonOccurrenceId, lesson.lessonDate)}
+      />
+    )
+  }
+
+  if (route.kind === 'scheduleSeriesEdit') {
+    return (
+      <ScheduleSeriesEditScreen
+        groupId={route.groupId}
+        lessonDate={route.lessonDate}
+        lessonSeriesId={route.lessonSeriesId}
+        lessonOccurrenceId={route.lessonOccurrenceId}
+        onBack={onReturnToSchedule}
+        onSaved={() => {
+          if (route.lessonOccurrenceId && route.lessonDate) {
+            onOpenScheduleLesson(route.lessonOccurrenceId, route.lessonDate)
+            return
+          }
+
+          onReturnToSchedule()
+        }}
+        scope={route.scope}
+      />
+    )
+  }
+
   if (route.section === 'Clients') {
     return (
       <ClientsListScreen
@@ -217,6 +319,12 @@ export function RouteViewport({
     return (
       <GroupScheduleScreen
         canManageGroups={user.permissions.canManageGroups}
+        onCreateLesson={onCreateScheduleLesson}
+        onEditLesson={onEditScheduleLesson}
+        onEditSeries={onEditScheduleSeries}
+        onMoveLesson={onMoveScheduleLesson}
+        onOpenAttendance={onOpenAttendanceLesson}
+        onOpenLessonDetail={onOpenScheduleLesson}
         onEditGroup={onEditGroup}
         viewerRole={user.role}
       />

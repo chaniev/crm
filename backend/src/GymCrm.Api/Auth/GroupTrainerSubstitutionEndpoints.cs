@@ -33,9 +33,6 @@ internal static class GroupTrainerSubstitutionEndpoints
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageGroups);
 
         group.MapGet("/", ListAsync);
-        group.MapPost("/", CreateAsync);
-        group.MapPut("/{substitutionId:guid}", UpdateAsync);
-        group.MapPost("/{substitutionId:guid}/cancel", CancelAsync);
 
         return endpoints;
     }

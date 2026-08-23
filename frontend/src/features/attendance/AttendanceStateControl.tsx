@@ -27,6 +27,7 @@ export function AttendanceStateControl({ clientName, disabled, value, onChange }
           <Radio.Card
             aria-label={option.label}
             className="attendance-state-option"
+            disabled={disabled}
             key={option.value}
             value={option.value}
           >

@@ -44,6 +44,10 @@ export type GroupFormProps = {
   hallOptions: Hall[]
   cancelAction: { label: string; onClick: () => void } | null
   onSubmit: (values: GroupFormValues) => Promise<void>
+  showHallField?: boolean
+  showInitialSeriesFields?: boolean
+  showScheduleFields?: boolean
+  showTrainerField?: boolean
   submitLabel: string
   submitting: boolean
   trainerOptions: TrainerOption[]
@@ -57,6 +61,10 @@ export function GroupForm({
   hallOptions,
   cancelAction,
   onSubmit,
+  showHallField = true,
+  showInitialSeriesFields = false,
+  showScheduleFields = true,
+  showTrainerField = true,
   submitLabel,
   submitting,
   trainerOptions,
@@ -121,21 +129,23 @@ export function GroupForm({
             value={selectedBranchId || null}
             error={form.errors.branchId}
           />
-          <Select
-            allowDeselect={false}
-            data={filteredHallOptions.map((hall) => ({
-              value: hall.id,
-              label: formatHallOptionLabel(hall),
-              disabled: hall.isArchived,
-            }))}
-            disabled={!selectedBranchId}
-            label="Зал"
-            onChange={(hallId) => form.setFieldValue('hallId', hallId ?? '')}
-            placeholder={selectedBranchId ? 'Выберите зал' : 'Сначала выберите филиал'}
-            searchable
-            value={form.values.hallId || null}
-            error={form.errors.hallId}
-          />
+          {showHallField ? (
+            <Select
+              allowDeselect={false}
+              data={filteredHallOptions.map((hall) => ({
+                value: hall.id,
+                label: formatHallOptionLabel(hall),
+                disabled: hall.isArchived,
+              }))}
+              disabled={!selectedBranchId}
+              label="Зал"
+              onChange={(hallId) => form.setFieldValue('hallId', hallId ?? '')}
+              placeholder={selectedBranchId ? 'Выберите зал' : 'Сначала выберите филиал'}
+              searchable
+              value={form.values.hallId || null}
+              error={form.errors.hallId}
+            />
+          ) : null}
         </SimpleGrid>
 
         <SimpleGrid cols={{ base: 1, md: 2 }}>
@@ -161,57 +171,82 @@ export function GroupForm({
           />
         </SimpleGrid>
 
-        <SimpleGrid cols={{ base: 1, md: 2 }}>
-          <TextInput
-            label="Время начала"
-            placeholder="18:00"
-            type="time"
-            {...form.getInputProps('trainingStartTime')}
-          />
-          <NumberInput
-            allowDecimal={false}
-            label="Длительность"
-            onChange={(value) =>
-              form.setFieldValue(
-                'durationMinutes',
-                typeof value === 'number' ? value : '',
-              )
-            }
-            placeholder="60"
-            suffix=" мин"
-            value={form.values.durationMinutes}
-            error={form.errors.durationMinutes}
-          />
-        </SimpleGrid>
-
-        <Checkbox.Group
-          label="Дни недели"
-          onChange={(weekdays) => form.setFieldValue('weekdays', weekdays)}
-          value={form.values.weekdays}
-          error={form.errors.weekdays}
-        >
-          <Group gap="xs" mt="xs">
-            {WEEKDAY_OPTIONS.map((option) => (
-              <Checkbox
-                key={option.value}
-                label={option.label}
-                value={option.value}
+        {showScheduleFields ? (
+          <>
+            <SimpleGrid cols={{ base: 1, md: 2 }}>
+              <TextInput
+                label="Время начала"
+                placeholder="18:00"
+                type="time"
+                {...form.getInputProps('trainingStartTime')}
               />
-            ))}
-          </Group>
-        </Checkbox.Group>
+              <NumberInput
+                allowDecimal={false}
+                label="Длительность"
+                onChange={(value) =>
+                  form.setFieldValue(
+                    'durationMinutes',
+                    typeof value === 'number' ? value : '',
+                  )
+                }
+                placeholder="60"
+                suffix=" мин"
+                value={form.values.durationMinutes}
+                error={form.errors.durationMinutes}
+              />
+            </SimpleGrid>
 
-        <MultiSelect
-          data={trainerOptions.map((trainer) => ({
-            value: trainer.id,
-            label: `${trainer.fullName} (${trainer.login})`,
-          }))}
-          description="Можно выбрать несколько активных тренеров. Временное замещение на период настраивается отдельно и не меняет этот список."
-          label="Основные тренеры группы"
-          placeholder="Выберите тренеров"
-          searchable
-          {...form.getInputProps('trainerIds')}
-        />
+            <Checkbox.Group
+              label="Дни недели"
+              onChange={(weekdays) => form.setFieldValue('weekdays', weekdays)}
+              value={form.values.weekdays}
+              error={form.errors.weekdays}
+            >
+              <Group gap="xs" mt="xs">
+                {WEEKDAY_OPTIONS.map((option) => (
+                  <Checkbox
+                    key={option.value}
+                    label={option.label}
+                    value={option.value}
+                  />
+                ))}
+              </Group>
+            </Checkbox.Group>
+          </>
+        ) : null}
+
+        {showInitialSeriesFields ? (
+          <SimpleGrid cols={{ base: 1, md: 2 }}>
+            <TextInput
+              label="Начало расписания"
+              max="9999-12-31"
+              min="1900-01-01"
+              type="date"
+              {...form.getInputProps('initialSeriesStartsOn')}
+            />
+            <TextInput
+              label="Окончание расписания"
+              max="9999-12-31"
+              min="1900-01-01"
+              type="date"
+              {...form.getInputProps('initialSeriesEndsOn')}
+            />
+          </SimpleGrid>
+        ) : null}
+
+        {showTrainerField ? (
+          <MultiSelect
+            data={trainerOptions.map((trainer) => ({
+              value: trainer.id,
+              label: `${trainer.fullName} (${trainer.login})`,
+            }))}
+            description="Можно выбрать несколько активных тренеров. Временное замещение на период настраивается отдельно и не меняет этот список."
+            label="Основные тренеры группы"
+            placeholder="Выберите тренеров"
+            searchable
+            {...form.getInputProps('trainerIds')}
+          />
+        ) : null}
 
         <Switch
           checked={form.values.isActive}
@@ -241,51 +276,61 @@ export function GroupForm({
                 )?.name ?? 'Не выбран'
               }
             />
-            <HintStat
-              icon={<IconUsersGroup size={18} />}
-              label="Зал"
-              value={
-                hallOptions.find((hall) => hall.id === form.values.hallId)?.name ??
-                'Не выбран'
-              }
-            />
-            <HintStat
-              icon={<IconClockHour4 size={18} />}
-              label="Старт"
-              value={
-                form.values.trainingStartTime ||
-                GROUPS_FORM_FALLBACK_VALUES.trainingStartTime
-              }
-            />
-            <HintStat
-              icon={<IconCalendarWeek size={18} />}
-              label="Дни"
-              value={
-                form.values.weekdays.length > 0
-                  ? formatWeekdays(form.values.weekdays.map(Number))
-                  : GROUPS_FORM_FALLBACK_VALUES.weekdays
-              }
-            />
-            <HintStat
-              icon={<IconClockHour4 size={18} />}
-              label="Длительность"
-              value={
-                typeof form.values.durationMinutes === 'number'
-                  ? formatDurationMinutes(form.values.durationMinutes)
-                  : GROUPS_FORM_FALLBACK_VALUES.durationMinutes
-              }
-            />
-            <HintStat
-              icon={<IconUserStar size={18} />}
-              label="Тренеры"
-              value={String(form.values.trainerIds.length)}
-            />
+            {showHallField ? (
+              <HintStat
+                icon={<IconUsersGroup size={18} />}
+                label="Зал"
+                value={
+                  hallOptions.find((hall) => hall.id === form.values.hallId)?.name ??
+                  'Не выбран'
+                }
+              />
+            ) : null}
+            {showScheduleFields ? (
+              <>
+                <HintStat
+                  icon={<IconClockHour4 size={18} />}
+                  label="Старт"
+                  value={
+                    form.values.trainingStartTime ||
+                    GROUPS_FORM_FALLBACK_VALUES.trainingStartTime
+                  }
+                />
+                <HintStat
+                  icon={<IconCalendarWeek size={18} />}
+                  label="Дни"
+                  value={
+                    form.values.weekdays.length > 0
+                      ? formatWeekdays(form.values.weekdays.map(Number))
+                      : GROUPS_FORM_FALLBACK_VALUES.weekdays
+                  }
+                />
+                <HintStat
+                  icon={<IconClockHour4 size={18} />}
+                  label="Длительность"
+                  value={
+                    typeof form.values.durationMinutes === 'number'
+                      ? formatDurationMinutes(form.values.durationMinutes)
+                      : GROUPS_FORM_FALLBACK_VALUES.durationMinutes
+                  }
+                />
+              </>
+            ) : null}
+            {showTrainerField ? (
+              <HintStat
+                icon={<IconUserStar size={18} />}
+                label="Тренеры"
+                value={String(form.values.trainerIds.length)}
+              />
+            ) : null}
           </SimpleGrid>
         </Paper>
 
         <Group justify="space-between" wrap="wrap">
           <Text c="dimmed" size="sm">
-            После сохранения тренеры увидят назначенную группу в своем рабочем списке.
+            {showTrainerField
+              ? 'После сохранения тренеры увидят назначенную группу в своем рабочем списке.'
+              : 'На этом экране сохраняются только название, филиал, тип и активность группы.'}
           </Text>
 
           <ResponsiveButtonGroup justify="flex-end">

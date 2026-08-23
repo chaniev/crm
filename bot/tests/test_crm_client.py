@@ -104,9 +104,9 @@ def test_bot_user_context_rejects_unknown_role() -> None:
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_crm_client_sends_idempotency_key_for_remaining_attendance_write() -> None:
+async def test_crm_client_sends_idempotency_key_for_lesson_attendance_write() -> None:
     route = respx.post(
-        "http://crm.local/internal/bot/attendance/groups/00000000-0000-0000-0000-000000000021"
+        "http://crm.local/internal/bot/attendance/lessons/10000000-0000-0000-0000-000000000001"
     ).mock(
         return_value=httpx.Response(
             status_code=200,
@@ -133,10 +133,10 @@ async def test_crm_client_sends_idempotency_key_for_remaining_attendance_write()
         http_client=http_client,
     )
 
-    await client.save_attendance(
+    await client.save_lesson_attendance(
         TelegramIdentity(platform_user_id="777"),
-        group_id=UUID("00000000-0000-0000-0000-000000000021"),
-        training_date=date(2026, 5, 8),
+        lesson_occurrence_id=UUID("10000000-0000-0000-0000-000000000001"),
+        lesson_date=date(2026, 5, 8),
         marks=[
             AttendanceMarkRequest(
                 clientId=UUID("00000000-0000-0000-0000-000000000010"),
@@ -151,6 +151,8 @@ async def test_crm_client_sends_idempotency_key_for_remaining_attendance_write()
     assert request.headers["Authorization"] == "Bearer service-token"
     assert request.headers["X-Request-Id"] == "req-2"
     assert request.headers["Idempotency-Key"] == "idem-1"
+    assert request.url.params["lessonDate"] == "2026-05-08"
+    assert "trainingDate" not in request.content.decode()
     await http_client.aclose()
 
 
@@ -360,6 +362,79 @@ async def test_crm_client_parses_group_schedule_contract_from_backend() -> None:
     assert groups.items[0].weekdays == [5, 1]
     assert card.groups[0].duration_minutes == 75
     assert card.groups[0].weekdays == [5, 1]
+    await http_client.aclose()
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_crm_client_parses_attendance_lessons_with_structured_effective_trainers() -> None:
+    respx.get("http://crm.local/internal/bot/attendance/lessons").mock(
+        return_value=httpx.Response(
+            status_code=200,
+            json={
+                "items": [
+                    {
+                        "lessonOccurrenceId": "10000000-0000-0000-0000-000000000001",
+                        "lessonDate": "2026-05-13",
+                        "groupId": "00000000-0000-0000-0000-000000000021",
+                        "groupName": "Группа",
+                        "startTime": "18:30",
+                        "durationMinutes": 75,
+                        "hallName": "Зал 2",
+                        "branchName": "Центр",
+                        "effectiveTrainers": [
+                            {
+                                "trainerId": "00000000-0000-0000-0000-000000000081",
+                                "fullName": "Иван Основной",
+                                "kind": "Primary",
+                            },
+                            {
+                                "trainerId": "00000000-0000-0000-0000-000000000082",
+                                "fullName": "Петр Замещающий",
+                                "kind": "Substitute",
+                                "replacedTrainerId": "00000000-0000-0000-0000-000000000081",
+                                "substitutionId": "20000000-0000-0000-0000-000000000001",
+                            },
+                        ],
+                        "status": "Scheduled",
+                        "canViewAttendance": True,
+                        "canEditAttendance": True,
+                    },
+                    {
+                        "lessonOccurrenceId": "10000000-0000-0000-0000-000000000002",
+                        "lessonDate": "2026-05-13",
+                        "groupId": "00000000-0000-0000-0000-000000000021",
+                        "groupName": "Группа",
+                        "startTime": "10:00",
+                        "durationMinutes": 60,
+                        "hallName": "Зал 1",
+                        "branchName": "Центр",
+                        "effectiveTrainers": ["Legacy String Trainer"],
+                        "status": "Scheduled",
+                        "canViewAttendance": True,
+                        "canEditAttendance": True,
+                    },
+                ],
+            },
+        )
+    )
+    http_client = httpx.AsyncClient(base_url="http://crm.local")
+    client = CrmBotApiClient(
+        base_url="http://crm.local",
+        service_token="service-token",
+        timeout_seconds=5,
+        http_client=http_client,
+    )
+
+    lessons = await client.list_attendance_lessons(
+        TelegramIdentity(platform_user_id="777"),
+        training_date=date(2026, 5, 13),
+        request_id="req-lessons",
+    )
+
+    assert lessons.items[0].effective_trainers[0].display_name == "Иван Основной"
+    assert lessons.items[0].effective_trainers[1].display_name == "Петр Замещающий (замена)"
+    assert lessons.items[1].effective_trainers[0].display_name == "Legacy String Trainer"
     await http_client.aclose()
 
 

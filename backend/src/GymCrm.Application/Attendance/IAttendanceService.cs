@@ -10,6 +10,7 @@ public interface IAttendanceService
 }
 
 public sealed record SaveAttendanceCommand(
+    Guid LessonOccurrenceId,
     Guid GroupId,
     DateOnly TrainingDate,
     Guid MarkedByUserId,
@@ -36,7 +37,9 @@ public enum AttendanceBatchMutationError
     SingleVisitRestoreConflict = 5,
     Forbidden = 6,
     TrainingDateUnavailable = 7,
-    MembershipEntitlementInvariantConflict = 8
+    MembershipEntitlementInvariantConflict = 8,
+    LessonOccurrenceMissing = 9,
+    LessonOccurrenceUnavailable = 10
 }
 
 public sealed record AttendanceEntryChangeResult(
@@ -57,6 +60,7 @@ public sealed record AttendanceSingleVisitRestoreResult(
     ClientMembershipSnapshotResult CurrentMembership);
 
 public sealed record AttendanceBatchSaveResult(
+    Guid LessonOccurrenceId,
     Guid GroupId,
     DateOnly TrainingDate,
     IReadOnlyList<AttendanceEntryChangeResult> Changes,

@@ -5,9 +5,7 @@ import {
 import { request } from './transport'
 import type {
   GetGroupTrainerSubstitutionsParams,
-  GroupTrainerSubstitution,
   GroupTrainerSubstitutionsResponse,
-  UpsertGroupTrainerSubstitutionRequest,
 } from './types'
 
 export async function getGroupTrainerSubstitutions(
@@ -43,41 +41,4 @@ export async function getGroupTrainerSubstitutions(
     canCreate: payload.canCreate,
     createUnavailableReason: payload.createUnavailableReason,
   } satisfies GroupTrainerSubstitutionsResponse
-}
-
-export async function createGroupTrainerSubstitution(
-  groupId: string,
-  payload: UpsertGroupTrainerSubstitutionRequest,
-) {
-  return request<GroupTrainerSubstitution>(
-    API_ENDPOINTS.groups.trainerSubstitutions(groupId),
-    {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    },
-  )
-}
-
-export async function updateGroupTrainerSubstitution(
-  groupId: string,
-  substitutionId: string,
-  payload: UpsertGroupTrainerSubstitutionRequest,
-) {
-  return request<GroupTrainerSubstitution>(
-    API_ENDPOINTS.groups.trainerSubstitution(groupId, substitutionId),
-    {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    },
-  )
-}
-
-export async function cancelGroupTrainerSubstitution(
-  groupId: string,
-  substitutionId: string,
-) {
-  return request<GroupTrainerSubstitution>(
-    API_ENDPOINTS.groups.cancelTrainerSubstitution(groupId, substitutionId),
-    { method: 'POST' },
-  )
 }

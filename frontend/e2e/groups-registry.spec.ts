@@ -259,9 +259,17 @@ type ListRequestRecord = {
 
 type RequestCounters = {
   groupsListCalls: number
+  groupCreateCalls?: number
   groupGetCalls: number
+  groupPreviewCalls?: number
+  groupTrainerAssignmentExecuteCalls?: number
+  groupTrainerAssignmentPreviewCalls?: number
   groupPutCalls: number
-  lastUpdatePayload: { name: string } | null
+  lastCreatePayload?: unknown
+  lastPreviewPayload?: unknown
+  lastTrainerAssignmentExecutePayload?: unknown
+  lastTrainerAssignmentPreviewPayload?: unknown
+  lastUpdatePayload: Record<string, unknown> | null
 }
 
 type MockFailureState = {
@@ -412,6 +420,135 @@ test('Группы: пагинация, редактирование и возв
   await expect.poll(() => listRequests.length).toBeGreaterThan(listRequestCountBeforeSave)
   expect(listRequests.at(-1)).toMatchObject({ page: 2, pageSize: 10 })
   expect(counters.lastUpdatePayload?.name).toBe('Группа 11 обновлена')
+  expect(counters.lastUpdatePayload).not.toHaveProperty('trainerIds')
+  expect(counters.lastUpdatePayload).not.toHaveProperty('trainingStartTime')
+  expect(counters.lastUpdatePayload).not.toHaveProperty('weekdays')
+  await expectNoHorizontalOverflow(page)
+})
+
+test('Группы: создание выполняется через preview initialLessonSeries и confirmation token', async ({ page }) => {
+  const listRequests: ListRequestRecord[] = []
+  const counters: RequestCounters = {
+    groupsListCalls: 0,
+    groupCreateCalls: 0,
+    groupGetCalls: 0,
+    groupPreviewCalls: 0,
+    groupPutCalls: 0,
+    lastCreatePayload: null,
+    lastPreviewPayload: null,
+    lastUpdatePayload: null,
+  }
+
+  await mockApi(page, {
+    session: headCoachSession,
+    listRequests,
+    counters,
+  })
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/groups')
+  await page.getByRole('button', { name: 'Новая группа' }).click()
+
+  await expect(page.getByRole('heading', { name: 'Новая группа' })).toBeVisible()
+  await page.getByRole('textbox', { name: 'Название группы' }).fill('Новая серия')
+  await page.getByLabel('Время начала').fill('10:00')
+  await page.getByLabel('Длительность').fill('60')
+  await page.getByRole('checkbox', { name: 'Пн' }).click()
+  await page.getByLabel('Начало расписания').fill('2026-09-01')
+  await page.getByRole('button', { name: 'Получить предпросмотр' }).click()
+
+  await expect.poll(() => counters.lastPreviewPayload).toEqual({
+    name: 'Новая серия',
+    branchId: 'branch-1',
+    hallId: 'hall-1',
+    groupTypeId: 'group-type-1',
+    trainingStartTime: '10:00',
+    durationMinutes: 60,
+    weekdays: [1],
+    isActive: true,
+    trainerIds: [],
+    initialLessonSeries: {
+      startsOn: '2026-09-01',
+      endsOn: null,
+      slots: [{
+        isoWeekday: 1,
+        startTime: '10:00',
+        durationMinutes: 60,
+        hallId: 'hall-1',
+      }],
+    },
+  })
+  await expect(page.getByText('Проверьте расписание перед созданием')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Создать группу' }).click()
+
+  await expect.poll(() => counters.lastCreatePayload).toEqual({
+    ...(counters.lastPreviewPayload as Record<string, unknown>),
+    confirmationToken: 'group-preview-token',
+  })
+  await expect.poll(() => counters.groupCreateCalls).toBe(1)
+  await expect(page).toHaveURL('/groups')
+})
+
+test('Группы: постоянные назначения тренеров идут через preview/execute с revision и token', async ({ page }) => {
+  const listRequests: ListRequestRecord[] = []
+  const counters: RequestCounters = {
+    groupsListCalls: 0,
+    groupGetCalls: 0,
+    groupPutCalls: 0,
+    groupTrainerAssignmentExecuteCalls: 0,
+    groupTrainerAssignmentPreviewCalls: 0,
+    lastUpdatePayload: null,
+  }
+
+  await mockApi(page, {
+    session: headCoachSession,
+    listRequests,
+    counters,
+  })
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/groups/group-11/edit')
+
+  await expect(page.getByRole('heading', { name: 'Настройка группы «Группа 11»' })).toBeVisible()
+  await expect(page.getByText('Постоянные назначения тренеров')).toBeVisible()
+  await expect(page.getByLabel('Время начала')).toHaveCount(0)
+  await expect(page.getByText('Основные тренеры группы')).toHaveCount(0)
+
+  await page.getByLabel('Окончание периода 1').fill('2026-09-30')
+  await page.getByRole('button', { name: 'Получить предпросмотр' }).click()
+
+  await expect.poll(() => counters.groupTrainerAssignmentPreviewCalls).toBe(1)
+  expect(counters.lastTrainerAssignmentPreviewPayload).toEqual({
+    assignments: [
+      {
+        trainerId: 'trainer-1',
+        validFrom: '2026-08-23',
+        validTo: '2026-09-30',
+      },
+    ],
+    expectedRevision: 'assignment-revision-group-11',
+  })
+  await expect(page.getByText('Предпросмотр изменений')).toBeVisible()
+  await expect(page.getByText('У тренера есть пересекающееся постоянное назначение в другой группе.')).toBeVisible()
+  await expect(page.getByText('assignment-preview-token')).toHaveCount(0)
+  await expect(page.getByText('technical backend warning')).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Сохранить назначения' }).click()
+
+  await expect.poll(() => counters.groupTrainerAssignmentExecuteCalls).toBe(1)
+  expect(counters.lastTrainerAssignmentExecutePayload).toEqual({
+    assignments: [
+      {
+        trainerId: 'trainer-1',
+        validFrom: '2026-08-23',
+        validTo: '2026-09-30',
+      },
+    ],
+    expectedRevision: 'assignment-revision-group-11',
+    confirmationToken: 'assignment-preview-token',
+  })
+  await expect(page.getByText('Предпросмотр изменений')).toHaveCount(0)
   await expectNoHorizontalOverflow(page)
 })
 
@@ -703,6 +840,50 @@ async function mockApi(
       return
     }
 
+    if (pathname === '/api/groups/preview' && method === 'POST') {
+      options.counters.groupPreviewCalls = (options.counters.groupPreviewCalls ?? 0) + 1
+      options.counters.lastPreviewPayload = route.request().postDataJSON()
+      await fulfillJson(context.route, 200, {
+        confirmationToken: 'group-preview-token',
+        expiresAt: '2026-09-01T09:15:00Z',
+        warnings: [],
+      })
+      return
+    }
+
+    if (pathname === '/api/groups' && method === 'POST') {
+      options.counters.groupCreateCalls = (options.counters.groupCreateCalls ?? 0) + 1
+      const payload = route.request().postDataJSON() as {
+        durationMinutes?: number
+        groupTypeId?: string
+        initialLessonSeries?: { slots?: Array<{ hallId?: string; isoWeekday?: number; startTime?: string }> }
+        isActive?: boolean
+        name?: string
+        trainingStartTime?: string
+        weekdays?: number[]
+      }
+      options.counters.lastCreatePayload = payload
+      const firstSlot = payload.initialLessonSeries?.slots?.[0]
+      await fulfillJson(context.route, 201, buildGroupPayload({
+        id: 'created-group',
+        name: payload.name ?? 'Новая группа',
+        branchId: 'branch-1',
+        branchName: 'Центр',
+        hallId: firstSlot?.hallId ?? 'hall-1',
+        hallName: 'Основной зал',
+        groupTypeId: payload.groupTypeId ?? 'group-type-1',
+        groupTypeName: 'Базовый',
+        trainingStartTime: firstSlot?.startTime ?? payload.trainingStartTime ?? '10:00',
+        durationMinutes: payload.durationMinutes ?? 60,
+        weekdays: firstSlot?.isoWeekday ? [firstSlot.isoWeekday] : payload.weekdays ?? [1],
+        trainerIds: [],
+        trainerNames: [],
+        isActive: payload.isActive ?? true,
+        clientCount: 0,
+      }))
+      return
+    }
+
     if (context.pathname === '/api/groups/options/trainers' && context.method === 'GET') {
       await fulfillJson(context.route, 200, TRAINER_OPTIONS)
       return
@@ -733,6 +914,72 @@ async function mockApi(
       return
     }
 
+    const trainerAssignmentsPreviewMatch = pathname.match(
+      /^\/api\/groups\/([^/]+)\/trainer-assignments\/preview$/,
+    )
+    if (trainerAssignmentsPreviewMatch && method === 'POST') {
+      options.counters.groupTrainerAssignmentPreviewCalls =
+        (options.counters.groupTrainerAssignmentPreviewCalls ?? 0) + 1
+      options.counters.lastTrainerAssignmentPreviewPayload = route.request().postDataJSON()
+      const assignmentsPayload = route.request().postDataJSON() as {
+        assignments?: Array<{ trainerId?: string; validFrom?: string; validTo?: string | null }>
+      }
+      await fulfillJson(context.route, 200, {
+        confirmationToken: 'assignment-preview-token',
+        expiresAt: '2026-08-23T10:15:00Z',
+        revision: `assignment-revision-${trainerAssignmentsPreviewMatch[1]}`,
+        assignments: (assignmentsPayload.assignments ?? []).map((assignment) => ({
+          trainerId: assignment.trainerId ?? 'trainer-1',
+          trainerName: 'Тренер',
+          validFrom: assignment.validFrom ?? '2026-08-23',
+          validTo: assignment.validTo ?? null,
+        })),
+        impact: {
+          totalAffectedOccurrences: 2,
+          examples: [
+            {
+              lessonOccurrenceId: 'occurrence-preview-1',
+              lessonDate: '2026-08-24',
+              startTime: '18:00',
+              hallId: 'hall-1',
+              hallName: 'Основной зал',
+            },
+          ],
+        },
+        warnings: [
+          {
+            code: 'group_trainer_assignment_overlap',
+            message: 'technical backend warning',
+          },
+        ],
+      })
+      return
+    }
+
+    const trainerAssignmentsExecuteMatch = pathname.match(
+      /^\/api\/groups\/([^/]+)\/trainer-assignments$/,
+    )
+    if (trainerAssignmentsExecuteMatch && method === 'POST') {
+      options.counters.groupTrainerAssignmentExecuteCalls =
+        (options.counters.groupTrainerAssignmentExecuteCalls ?? 0) + 1
+      options.counters.lastTrainerAssignmentExecutePayload = route.request().postDataJSON()
+      const assignmentsPayload = route.request().postDataJSON() as {
+        assignments?: Array<{ trainerId?: string; validFrom?: string; validTo?: string | null }>
+      }
+      await fulfillJson(context.route, 200, {
+        revision: `assignment-revision-${trainerAssignmentsExecuteMatch[1]}-2`,
+        assignments: (assignmentsPayload.assignments ?? []).map((assignment) => ({
+          trainerId: assignment.trainerId ?? 'trainer-1',
+          trainerName: 'Тренер',
+          validFrom: assignment.validFrom ?? '2026-08-23',
+          validTo: assignment.validTo ?? null,
+        })),
+        impact: { totalAffectedOccurrences: 2, examples: [] },
+        warnings: [],
+      })
+      return
+    }
+
     if (pathname.startsWith('/api/groups/') && pathname.length > '/api/groups/'.length) {
       const groupId = pathname.slice('/api/groups/'.length)
 
@@ -751,10 +998,8 @@ async function mockApi(
 
       if (method === 'PUT') {
         options.counters.groupPutCalls += 1
-        const payload = route.request().postDataJSON() as { name?: string }
-        options.counters.lastUpdatePayload = {
-          name: payload.name ?? 'Группа без имени',
-        }
+        const payload = route.request().postDataJSON() as Record<string, unknown> & { name?: string }
+        options.counters.lastUpdatePayload = payload
 
         if (options.failGroupPut?.active) {
           options.failGroupPut.active = false
@@ -851,6 +1096,14 @@ function buildGroupPayload(group: GroupData) {
     trainerCount: group.trainerIds.length,
     trainerNames: group.trainerNames,
     clientCount: group.clientCount,
+    trainerAssignmentRevision: `assignment-revision-${group.id}`,
+    trainerAssignmentPeriods: group.trainerIds.map((trainerId) => ({
+      trainerId,
+      trainerName: TRAINER_OPTIONS.find((item) => item.id === trainerId)?.fullName
+        ?? trainerId,
+      validFrom: '2026-08-23',
+      validTo: null,
+    })),
     updatedAt: '2026-07-22T10:00:00Z',
     createdAt: '2026-06-01T10:00:00Z',
   }
