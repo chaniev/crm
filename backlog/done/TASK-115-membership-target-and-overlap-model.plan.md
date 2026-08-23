@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-115 Адресность и одновременное действие абонементов
 
 ## Metadata
-- source_task: /backlog/risky/TASK-115-membership-target-and-overlap-model.md
+- source_task: /backlog/done/TASK-115-membership-target-and-overlap-model.md
 - branch: feature/TASK-115-membership-target-and-overlap-model
-- readiness: no — требуется human review, explicit high-risk approval и verified DB lifecycle
+- readiness: done — explicit high-risk execution approved 2026-08-23; recreatable DB lifecycle verified; implemented and locally validated
 - dependencies: none; if batched with TASK-119, TASK-115 must integrate first
 - risk: high — membership/attendance/finance semantics, concurrency and schema transition
 
@@ -631,14 +631,14 @@ merge/deploy is one synchronized release.
 
 ### Validation and acceptance
 
-- [ ] Record human approval, DB lifecycle evidence, runtime and baseline
+- [x] Record human approval, DB lifecycle evidence, runtime and baseline
   results.
-- [ ] Run affected Playwright specs and `npm run test:e2e:iphone`.
-- [ ] Recreate isolated clean PostgreSQL/runtime stack; when approved, upgrade a
-  representative predecessor DB.
-- [ ] Search executable code/tests for singular current-membership selection,
+- [x] Run affected Playwright specs and `npm run test:e2e:iphone`.
+- [x] Recreate isolated clean PostgreSQL/runtime stack; predecessor DB upgrade
+  is not required for the confirmed recreatable lifecycle.
+- [x] Search executable code/tests for singular current-membership selection,
   client-wide overlap, targetless write and transfer-created sale.
-- [ ] Record target-device evidence and all residual physical Safari checks.
+- [x] Record target-device evidence and all residual physical Safari checks.
 
 ## Regression barriers
 
@@ -674,6 +674,28 @@ attendance selector and required target-iPhone WebKit behavior.
 
 TASK-115 cannot complete on InMemory-only backend tests, mocked UI-only tests or
 manual QA. All five barriers and full required suites must pass.
+
+## Completion notes
+
+- Completed at: 2026-08-23; rebased implementation candidate: `2715554`.
+- The user invocation provided explicit high-risk execution approval. Preflight
+  confirmed no task dependency and a recreatable database lifecycle, so the
+  approved schema path was a fresh initial-state migration rather than an
+  upgrade of a preserved predecessor database.
+- Barriers A–D passed through the full `452/452` backend suite plus the focused
+  seven-test PostgreSQL concurrency barrier. A clean PostgreSQL volume applied
+  the initial schema, exposed the target/snapshot tables and target indexes,
+  omitted the old client-wide exclusion, and reported healthy readiness.
+- Barrier E passed frontend lint, typecheck, raw-color, build, `545/545` unit
+  tests, Chromium `15/15`, target-iPhone WebKit `44/44`, and bot locked sync,
+  Ruff, mypy and `61/61` tests.
+- Backend format, warnings-as-errors build and transitive vulnerability audit
+  passed. Source scans found no production singular current-membership field,
+  client-wide overlap constraint or transfer-created sale path; compatibility
+  normalization remains test-only.
+- Physical Safari dynamic chrome, native controls, software keyboard and real
+  safe-area insets remain manual-only residual evidence and are not claimed as
+  tested.
 
 ## Risks
 

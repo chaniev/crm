@@ -1,7 +1,7 @@
 # TASK-115: Определить адресность и одновременное действие абонементов
 
 ## Status
-risky
+done
 
 ## Goal
 Дать администратору и главному тренеру возможность привязать абонемент клиента
@@ -168,46 +168,46 @@ attendance. Поэтому поддержка нескольких паралл�
 
 ## Acceptance criteria
 
-- [ ] `Term` и `Professional` принимают 1–5 упорядоченных групп одного
+- [x] `Term` и `Professional` принимают 1–5 упорядоченных групп одного
   филиала; `SingleVisit` принимает ровно одну.
-- [ ] Цена не зависит от количества групп, а первая группа стабильно является
+- [x] Цена не зависит от количества групп, а первая группа стабильно является
   reporting group.
-- [ ] Подтверждённая overlap matrix реализована для пересекающихся и
+- [x] Подтверждённая overlap matrix реализована для пересекающихся и
   непересекающихся наборов без неоднозначного entitlement.
-- [ ] Attendance выбирает entitlement на backend без пользовательского выбора,
+- [x] Attendance выбирает entitlement на backend без пользовательского выбора,
   а `SingleVisit` списывается и восстанавливается ровно один раз.
-- [ ] Purchase, renew, correction и transfer сохраняют подтверждённый порядок,
+- [x] Purchase, renew, correction и transfer сохраняют подтверждённый порядок,
   snapshots и effective-time semantics.
-- [ ] Архивирование блокируется действующими и будущими membership links, но
+- [x] Архивирование блокируется действующими и будущими membership links, но
   не историческими snapshots.
-- [ ] Финансовые события относятся к первой группе snapshot и не дублируют
+- [x] Финансовые события относятся к первой группе snapshot и не дублируют
   canonical totals.
-- [ ] Data transition создаёт singleton/eligible multi-group sets и оставляет
+- [x] Data transition создаёт singleton/eligible multi-group sets и оставляет
   пустой заблокированный legacy set для неоднозначных данных без изменения
   назначений клиента.
-- [ ] API, ProblemDetails, audit, frontend и bot используют один согласованный
+- [x] API, ProblemDetails, audit, frontend и bot используют один согласованный
   multi-group контракт.
-- [ ] Устаревший one-group plan заменён test-first multi-group планом и прошёл
+- [x] Устаревший one-group plan заменён test-first multi-group планом и прошёл
   human review до начала implementation.
 
 ## Test checklist
 
-- [ ] Добавить backend contract matrix для всех разрешённых и запрещённых
+- [x] Добавить backend contract matrix для всех разрешённых и запрещённых
   сочетаний периодов, типов и наборов групп.
-- [ ] Проверить сохранение порядка для пяти групп и атомарный отказ при
+- [x] Проверить сохранение порядка для пяти групп и атомарный отказ при
   добавлении шестой группы без частичной записи/audit.
-- [ ] Проверить `[A, B]` против `[B, C]`, `[C]` и глобального `Professional`.
-- [ ] Проверить `SingleVisit` write-off/restore, atomicity, idempotency,
+- [x] Проверить `[A, B]` против `[B, C]`, `[C]` и глобального `Professional`.
+- [x] Проверить `SingleVisit` write-off/restore, atomicity, idempotency,
   concurrency и reload из БД.
-- [ ] Проверить purchase/renew/correction/transfer, сохранение порядка и
+- [x] Проверить purchase/renew/correction/transfer, сохранение порядка и
   immutable event snapshots.
-- [ ] Проверить archive guard для действующих, будущих и исторических записей.
-- [ ] Проверить migration cases: singleton, 2–5 групп одного филиала, без
+- [x] Проверить archive guard для действующих, будущих и исторических записей.
+- [x] Проверить migration cases: singleton, 2–5 групп одного филиала, без
   групп, больше пяти групп и группы разных филиалов.
-- [ ] Проверить неизменность client-group assignments и блокировку legacy
+- [x] Проверить неизменность client-group assignments и блокировку legacy
   empty-target membership.
-- [ ] Проверить финансовую атрибуцию первой группе без двойного учёта.
-- [ ] Проверить frontend primary workflow и bot/read consumers.
+- [x] Проверить финансовую атрибуцию первой группе без двойного учёта.
+- [x] Проверить frontend primary workflow и bot/read consumers.
 
 ## AI safety
 
@@ -278,3 +278,40 @@ attendance. Поэтому поддержка нескольких паралл�
 - Clarification update (2026-08-21 16:38 MSK): максимальная cardinality для
   `Term`/`Professional` изменена с двух до пяти; task, acceptance/test checklist
   и implementation plan синхронизированы. Risk/status не меняются.
+
+## Implementation lifecycle
+
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-115-membership-target-and-overlap-model.plan.md
+- implementation_branch: feature/TASK-115-membership-target-and-overlap-model
+- implementation_state: completed
+- implementation_commits: 2715554
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+
+- Completed on: 2026-08-23; validated implementation candidate: `2715554`.
+- Backend now owns ordered 1–5 target sets, target-aware overlap and entitlement
+  resolution, exact membership mutations, immutable sale/refund/attendance
+  snapshots, archive guards and Position `0` financial attribution. Canonical
+  reads expose `currentMemberships`; singular current-membership fields were
+  removed from the production contract.
+- Frontend and bot consume the same ordered collection contract. The primary
+  mobile workflow supports ordered selection, five-target limits, recovery,
+  multiple membership identities and target-aware transfer without attendance
+  membership selection.
+- Database lifecycle was confirmed as recreatable. The clean initial migration,
+  model snapshot and designers were updated and verified against a fresh
+  PostgreSQL volume; no preserved predecessor database or destructive data
+  transition was in scope. Legacy empty-target behavior and transition buckets
+  remain covered by domain/integration tests.
+- Validation on the rebased candidate: backend build with warnings as errors,
+  format, dependency audit and `452/452` tests; frontend lint, typecheck,
+  raw-color scan, build and `545/545` unit tests; Chromium `15/15`; target-iPhone
+  WebKit `44/44`; bot locked sync, Ruff, mypy and `61/61` tests; clean PostgreSQL
+  migration/schema/health checks and the focused seven-test concurrency barrier.
+- Residual manual evidence: physical Safari dynamic chrome, native controls,
+  software keyboard and real-device safe-area behavior were not exercised.
