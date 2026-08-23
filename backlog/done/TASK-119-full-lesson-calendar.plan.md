@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-119 Полноценный календарь занятий
 
 ## Metadata
-- source_task: /backlog/risky/TASK-119-full-lesson-calendar.md
+- source_task: /backlog/done/TASK-119-full-lesson-calendar.md
 - branch: feature/TASK-119-full-lesson-calendar
-- readiness: yes — only on explicit high-risk start with phased gates
+- readiness: completed — phased gates and integrated release regression passed
 - dependencies: if batched with TASK-115, integrate TASK-115 first; re-audit TASK-103/117/118 baseline before execution
 - risk: high — occurrence identity, migration, attendance, UI and bot coordinated cutover
 - confirmed_trainer_model: 2026-08-23 — schedule slots do not own trainers;
@@ -955,16 +955,16 @@ Manual QA не заменяет automated barriers.
 
 ### Validation and acceptance
 
-- [ ] PostgreSQL migration/concurrency suites проходят в isolated runtime.
-- [ ] Affected Chromium Playwright specs проходят.
-- [ ] `cd frontend && npm run test:e2e:iphone` проходит для affected scenarios.
-- [ ] Isolated Compose smoke подтверждает schema, health, real API web/bot
+- [x] PostgreSQL migration/concurrency suites проходят в isolated runtime.
+- [x] Affected Chromium Playwright specs проходят.
+- [x] `cd frontend && npm run test:e2e:iphone` проходит для affected scenarios.
+- [x] Isolated Compose smoke подтверждает schema, health, real API web/bot
   contracts и report-zero activation gate.
-- [ ] Candidate SHA проходит полный integrated regression; после merge проверки
+- [x] Candidate SHA проходит полный integrated regression; после merge проверки
       повторяются только при изменении tree/conflicts, затем выполняется один
       aggregate release pass.
-- [ ] Simulator/physical-device gaps явно перечислены.
-- [ ] Related-task status audit выполнен только после integrated green result.
+- [x] Simulator/physical-device gaps явно перечислены.
+- [x] Related-task status audit выполнен только после integrated green result.
 
 ## Regression barriers
 
@@ -1079,3 +1079,20 @@ Stop and do not write/continue functional code if:
 
 Do not stop merely because backend, frontend, bot and migration all change.
 Это причина последовательной декомпозиции, а не отказа от planning.
+
+## Completion record
+
+- Completed on: 2026-08-24.
+- Verified implementation candidate: `5a5cabe` on
+  `feature/TASK-119-full-lesson-calendar`.
+- Phase gates A–E passed focused domain/API/PostgreSQL, frontend Chromium/WebKit
+  and bot contract checks; Phase F passed the complete 512-test backend suite,
+  568 frontend unit tests/build, 66/66 target-iPhone WebKit and 65/65 bot tests.
+- Clean isolated Compose bootstrap applied all seven migrations; backend,
+  frontend, bot and PostgreSQL were healthy. Transition run
+  `c0d26679-8efa-4146-a740-28528c2d3b37` reported no items/unresolved rows and
+  activation-check returned `canActivate: true`.
+- NuGet vulnerability audit was clean; EF reported no pending model changes.
+- TASK-075, TASK-112, TASK-117 and TASK-118 were moved to done as superseded by
+  the implemented occurrence model. Physical iPhone/Safari chrome, real safe
+  area and software keyboard remain manual-only evidence gaps.

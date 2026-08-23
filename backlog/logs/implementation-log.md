@@ -1670,3 +1670,25 @@
 - planned_in_place: TASK-130
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-130-bot-core-service-decomposition.plan.md
+
+# 2026-08-24 — TASK-119 full lesson calendar
+- implemented: TASK-119 on `feature/TASK-119-full-lesson-calendar`
+- verified_candidate: `5a5cabe`
+- backend: format and Release/WarnAsError build passed; full suite 512/512;
+  PostgreSQL migration/concurrency/transition and token replay coverage passed;
+  NuGet audit clean; EF model has no pending changes.
+- frontend: lint, typecheck, raw-color, 568 unit tests and production build
+  passed; affected Chromium passed; target-iPhone WebKit passed 66/66.
+- bot: locked dependency sync, Ruff lint/format, mypy and 65/65 pytest passed;
+  attendance client/flow uses exact occurrence identity without group/date
+  roster or save fallback.
+- runtime: clean isolated Compose stack built from source, applied migrations
+  through `20260823173644_AddLessonOccurrenceTrainerSubstitutions`; all four
+  services healthy. Transition run `c0d26679-8efa-4146-a740-28528c2d3b37`
+  reported `ReadyForActivation`, unresolved `0`, and `canActivate: true`.
+- status_audit: TASK-075, TASK-112, TASK-117 and TASK-118 closed as superseded
+  by the implemented occurrence model; their task/plan artifacts moved to done.
+- cleanup: task Compose containers/network/disposable volumes removed.
+- residual_manual_evidence: physical iPhone/Safari chrome, real safe area and
+  software keyboard not executed; WebKit device profiles and compact landscape
+  automated coverage passed.

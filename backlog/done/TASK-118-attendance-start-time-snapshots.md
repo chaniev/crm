@@ -1,7 +1,7 @@
 # TASK-118: Зафиксировать историческое время занятия в посещении
 
 ## Status
-risky
+done
 
 ## Goal
 Историческое посещение использует время фактически зафиксированного занятия и
@@ -95,7 +95,7 @@ rows начинают получать другое вычисленное вр�
 
 ## Source notes
 - Source file:
-  `backlog/implementation-plans/TASK-117-group-weekday-specific-start-times.plan.md`
+  `backlog/done/TASK-117-group-weekday-specific-start-times.plan.md`
 - Original note: по итогам review TASK-117 пользователь принял текущий mutable
   fallback для TASK-117 и отдельно запросил задачу на immutable historical
   start-time snapshots.
@@ -106,3 +106,13 @@ rows начинают получать другое вычисленное вр�
 - Duplicate check: активного дубликата не найдено; TASK-067 хранит только
   acknowledgement boundary для пропусков, а TASK-117 меняет group schedule и
   явно оставляет snapshots за пределами своего scope.
+
+## Completion record
+- Completed by superseding implementation: TASK-119, candidate `5a5cabe`.
+- Historical time is preserved on the materialized `LessonOccurrence` together
+  with duration, hall, source identity and effective trainers; attendance has a
+  required occurrence FK instead of a separate mutable group/date snapshot.
+- Ambiguous legacy rows are blocked by a durable report/manual-resolution gate;
+  clean bootstrap and PostgreSQL transition/concurrency regressions passed.
+- moved_to_done_at: 2026-08-24
+- last_status_reviewed_at: 2026-08-24

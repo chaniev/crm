@@ -1,7 +1,7 @@
 # TASK-117: Поддержать разное время занятий группы по дням недели
 
 ## Status
-risky
+done
 
 ## Goal
 Одна группа может заниматься в разные дни недели в разное время, например по будням вечером, а в субботу утром.
@@ -96,3 +96,14 @@ risky
   conditional forward migration, copy-from-previous-day UX, удаление дня без
   подтверждения и контекстные имена schedule fields; immutable snapshots
   вынесены в TASK-118.
+
+## Completion record
+- Completed by superseding implementation: TASK-119, candidate `5a5cabe`.
+- The narrower mutable weekday-entry proposal was replaced by canonical
+  `LessonSeries -> immutable rule versions -> slots`, supporting different
+  times, durations and halls, multiple same-day non-overlapping slots, and
+  scoped series edits without duplicating trainer ownership in slots.
+- PostgreSQL constraints/concurrency, API, frontend series editor and target
+  iPhone workflows passed the integrated release barrier.
+- moved_to_done_at: 2026-08-24
+- last_status_reviewed_at: 2026-08-24

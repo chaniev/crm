@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-118 Зафиксировать историческое время занятия в посещении
 
 ## Metadata
-- source_task: /backlog/risky/TASK-118-attendance-start-time-snapshots.md
+- source_task: /backlog/done/TASK-118-attendance-start-time-snapshots.md
 - branch: feature/TASK-118-attendance-start-time-snapshots
-- readiness: no — TASK-117 must be integrated and DB compatibility path approved
+- readiness: completed by superseding TASK-119 implementation; not executed independently
 - dependencies: TASK-117
 - risk: high — immutable attendance history, transaction/concurrency and schema change
 

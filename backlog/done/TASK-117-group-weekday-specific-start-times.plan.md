@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-117 Поддержать разное время занятий группы по дням недели
 
 ## Metadata
-- source_task: /backlog/risky/TASK-117-group-weekday-specific-start-times.md
+- source_task: /backlog/done/TASK-117-group-weekday-specific-start-times.md
 - branch: feature/TASK-117-group-weekday-specific-start-times
-- readiness: no — требуется explicit product/architecture review for high-risk cross-layer schema change
+- readiness: completed by superseding TASK-119 implementation; not executed independently
 - dependencies: none
 - risk: high — synchronized schedule schema/API/frontend/bot contract
 

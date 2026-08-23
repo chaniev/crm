@@ -1,7 +1,7 @@
 # TASK-119: Реализовать полноценный календарь занятий
 
 ## Status
-risky
+done
 
 ## Goal
 CRM должна перейти от повторяющегося недельного шаблона к полноценному календарю
@@ -237,59 +237,59 @@ CRM сейчас показывает повторяющийся шаблон. �
   consumers.
 
 ## Acceptance criteria
-- [ ] Recurring series сохраняет `StartsOn` и nullable inclusive `EndsOn`;
+- [x] Recurring series сохраняет `StartsOn` и nullable inclusive `EndsOn`;
   бессрочная серия корректно отображается в любом разрешённом диапазоне без
   бесконечной предварительной генерации.
-- [ ] Rule versions и schedule slots поддерживают разные времена по weekday и
+- [x] Rule versions и schedule slots поддерживают разные времена по weekday и
   несколько занятий группы в один день.
-- [ ] Calendar API возвращает стабильный `LessonOccurrenceId` для projected и
+- [x] Calendar API возвращает стабильный `LessonOccurrenceId` для projected и
   materialized occurrences, а materialization сохраняет тот же ID.
-- [ ] Разовое занятие создаётся без recurring series и участвует в том же
+- [x] Разовое занятие создаётся без recurring series и участвует в том же
   lifecycle, calendar query и attendance flow.
-- [ ] `только это`, `это и будущие` и `вся серия` имеют backend-owned semantics
+- [x] `только это`, `это и будущие` и `вся серия` имеют backend-owned semantics
   с утверждёнными date boundaries и не переписывают factual/manual history.
-- [ ] Переходы `Scheduled -> Cancelled -> Scheduled` валидируются и
+- [x] Переходы `Scheduled -> Cancelled -> Scheduled` валидируются и
   аудитируются; attendance write не меняет lifecycle state.
-- [ ] Попытка отменить `Scheduled` occurrence с существующими
+- [x] Попытка отменить `Scheduled` occurrence с существующими
   `Present`/`Absent` возвращает conflict без автоматического удаления данных и
   допускает только явное аудируемое разрешение.
-- [ ] Администратор и главный тренер имеют полный calendar mutation scope в
+- [x] Администратор и главный тренер имеют полный calendar mutation scope в
   пределах существующего access scope, суперадминистратор сохраняет полный
   доступ, а тренер для своих занятий ограничен attendance.
-- [ ] Same-group overlap и exact duplicate блокируются без confirm override;
+- [x] Same-group overlap и exact duplicate блокируются без confirm override;
   конфликты разных групп по общему тренеру или залу видимы как warnings и не
   блокируют подтверждённое сохранение; warning codes вычисляет backend.
-- [ ] Однозначный migration/backfill связывает legacy attendance автоматически,
+- [x] Однозначный migration/backfill связывает legacy attendance автоматически,
   а неоднозначности формируют durable report с audited manual repair и
   report-zero activation gate.
-- [ ] Coach видит upcoming и historical occurrences неотменённой substitution
+- [x] Coach видит upcoming и historical occurrences неотменённой substitution
   по LessonDate, future roster read-only и меняет marks только today/minus two.
-- [ ] Второй `Present` при уже использованном SingleVisit сохраняется без
+- [x] Второй `Present` при уже использованном SingleVisit сохраняется без
   автоматического списания/продажи и возвращает явное предупреждение.
-- [ ] Empty calendar сохраняет backend-owned create capability/filter options;
+- [x] Empty calendar сохраняет backend-owned create capability/filter options;
   frontend не выводит permissions из role/items.
-- [ ] Mobile day/week UX выполняет зафиксированный primary path и responsive
+- [x] Mobile day/week UX выполняет зафиксированный primary path и responsive
   criteria, включая seven-section mobile/tablet week, seven-column desktop week
   и route-based mutation forms; bot использует occurrence-aware backend endpoint.
-- [ ] После интеграции выполнен status audit TASK-075/TASK-112/TASK-117/TASK-118
+- [x] После интеграции выполнен status audit TASK-075/TASK-112/TASK-117/TASK-118
   без преждевременного изменения их текущих статусов.
-- [ ] Внутри одной TASK-119 реализация разделена на implementation-ready phases
+- [x] Внутри одной TASK-119 реализация разделена на implementation-ready phases
   backend core, mutations, migration/attendance, frontend, bot и release
   regression с явными checkpoint-зависимостями; отдельные backlog tasks,
   branches и worktrees для этих phases не создаются.
 
 ## Test checklist
-- [ ] Для будущей реализации предусмотреть backend domain tests на recurrence,
+- [x] Для будущей реализации предусмотреть backend domain tests на recurrence,
   optional end date, rule version splitting, deterministic occurrence identity,
   occurrence materialization и state transitions.
-- [ ] Для будущей реализации предусмотреть integration tests на migration,
+- [x] Для будущей реализации предусмотреть integration tests на migration,
   concurrent idempotent materialization, attendance binding, audit, permissions
   и ProblemDetails.
-- [ ] Для будущей реализации предусмотреть frontend tests на mobile primary
+- [x] Для будущей реализации предусмотреть frontend tests на mobile primary
   path, date/week navigation, empty/error states и action availability.
-- [ ] Для будущей реализации предусмотреть bot/consumer contract tests, если bot
+- [x] Для будущей реализации предусмотреть bot/consumer contract tests, если bot
   открывает или создаёт attendance.
-- [ ] Для будущей реализации проверить `390 x 844`, `420 x 912`, `440 x 956`,
+- [x] Для будущей реализации проверить `390 x 844`, `420 x 912`, `440 x 956`,
   `912 x 420`, `956 x 440`, tablet и desktop без горизонтального overflow.
 
 ## AI safety
@@ -348,3 +348,30 @@ CRM сейчас показывает повторяющийся шаблон. �
 - Moved to risky at: 2026-08-20 00:31 MSK after all blocking product and
   architecture questions were resolved; classification remains high risk due
   to schedule, attendance identity, persistence, migration and permissions.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-119-full-lesson-calendar.plan.md
+- implementation_branch: feature/TASK-119-full-lesson-calendar
+- implementation_state: completed
+- implementation_commit: 5a5cabe
+- moved_to_done_at: 2026-08-24
+- last_status_reviewed_at: 2026-08-24
+
+## Completion record
+- Implemented deterministic bounded occurrence projection/materialization,
+  immutable series versions and multi-slot rules, one-off/change/move/cancel,
+  dated permanent trainers and exact occurrence substitutions.
+- Attendance and internal bot writes now use required occurrence identity;
+  legacy data has deterministic auto-mapping, durable ambiguity reporting,
+  audited manual repair and a report-zero activation gate.
+- Web provides URL-backed dated day/week calendar, exact attendance and
+  route-based mutation/series/substitution workflows with mobile acceptance.
+- Validation: backend format and Release/WarnAsError build passed, full backend
+  512/512, frontend 568 unit plus build and WebKit 66/66, bot 65/65, NuGet audit
+  clean, EF snapshot synchronized. Isolated Compose clean bootstrap applied all
+  seven migrations; all services were healthy and activation-check returned
+  `canActivate: true`, unresolved `0`.
+- Manual gap: physical iPhone/Safari chrome, safe area and software keyboard
+  were not executed; WebKit device profiles and compact landscape were covered.

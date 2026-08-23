@@ -1,7 +1,7 @@
 # TASK-075: Отмечать занятие как непроведённое
 
 ## Status
-needs-clarification
+done
 
 ## Goal
 Дать администратору и главному тренеру возможность явно зафиксировать на экране посещаемости, что занятие группы в выбранную дату не проводилось, и при необходимости восстановить его состояние.
@@ -68,3 +68,12 @@ needs-clarification
 - Duplicate check: TASK-067 содержит только рекомендательный расчёт повторных пропусков; отдельной активной задачи на аудируемое состояние проведённости занятия не найдено.
 - Status updated at: 2026-07-25 by backlog status audit.
 - Reason: не определено поведение существующих `Present`/`Absent`, способ хранения `Held` и будущие consumers состояния занятия; без этих решений реализация может разрушить attendance/audit semantics.
+
+## Status audit
+- reviewed_at: 2026-08-24
+- outcome: superseded by TASK-119
+- replacement: `/backlog/done/TASK-119-full-lesson-calendar.md`
+- resolution: отдельные `Held`/`NotHeld` не вводятся. Занятие имеет только
+  `Scheduled | Cancelled`; существующие `Present`/`Absent` блокируют отмену
+  стабильным conflict без удаления отметок, а restore аудитируется отдельно.
+- moved_to_done_at: 2026-08-24

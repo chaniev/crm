@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-112 Добавить однодневный режим недельного расписания
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-112-schedule-single-day-mode.md
+- source_task: /backlog/done/TASK-112-schedule-single-day-mode.md
 - branch: feature/TASK-112-schedule-single-day-mode
-- readiness: yes
+- readiness: completed by superseding TASK-119 implementation; not executed independently
 - dependencies: none; TASK-106 is merge-aware but not a functional dependency
 - risk: medium — URL/history/responsive state on a shared schedule screen
 

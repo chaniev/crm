@@ -1,13 +1,14 @@
 # TASK-112: Добавить однодневный режим недельного расписания
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-16 17:37
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-112-schedule-single-day-mode.plan.md
+- implementation_plan: /backlog/done/TASK-112-schedule-single-day-mode.plan.md
 - implementation_branch: feature/TASK-112-schedule-single-day-mode
+- implementation_state: superseded-by-TASK-119
 
 ## Goal
 Пользователь может сосредоточиться на расписании одного дня, не теряя недельный контекст и хронологический порядок занятий.
@@ -93,3 +94,13 @@ implementation
 - Updated at: 2026-08-16 17:24 after user clarified weekday semantics, device modes, defaults and URL persistence.
 - Moved to tasks-ready at: 2026-08-16 17:24 after all blocking product questions were resolved.
 - UX/UI handoff: перед реализацией требуется утвердить UX-контракт и mobile-first UI specification; текущий mobile selected-day flow является baseline.
+
+## Completion record
+- Completed by superseding implementation: TASK-119, candidate `5a5cabe`.
+- Original weekly-template presentation design replaced by a dated occurrence
+  calendar with URL-backed day/week mode, selected date, refresh/back-forward
+  persistence and responsive mobile/desktop layouts.
+- Validation: frontend quality baseline passed with 568 unit tests; affected
+  Chromium and full target-iPhone WebKit passed 66/66.
+- moved_to_done_at: 2026-08-24
+- last_status_reviewed_at: 2026-08-24
