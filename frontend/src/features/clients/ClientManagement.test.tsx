@@ -509,36 +509,85 @@ describe('ClientDetailScreen membership sale comments', () => {
     expect(screen.queryByText('Комментарий пока не добавлен.')).not.toBeInTheDocument()
   })
 
-  test('saves through sale identity and replaces the details snapshot', async () => {
+  test('saves through sale identity and keeps another draft stable across reorder and insertion', async () => {
     const initial = buildClientWithMemberships()
-    const updated = { ...initial, membershipHistory: initial.membershipHistory.map((item) => item.saleId === 'sale-1' ? { ...item, comment: 'Обновлено' } : item) }
+    const updated = {
+      ...initial,
+      membershipHistory: [
+        {
+          ...initial.membershipHistory[0],
+          id: 'version-4',
+          validFrom: '2026-09-01T10:00:00Z',
+          comment: 'Обновлено',
+          commentLastChangedByName: 'Главный тренер',
+          commentLastChangedAt: '2026-09-01T10:00:00Z',
+        },
+        ...initial.membershipHistory.map((item) => item.saleId === 'sale-1' ? {
+          ...item,
+          comment: 'Обновлено',
+          commentLastChangedByName: 'Главный тренер',
+          commentLastChangedAt: '2026-09-01T10:00:00Z',
+        } : item),
+      ],
+    }
     getClientMock.mockResolvedValue(initial)
     updateCommentMock.mockResolvedValue(updated)
     renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
 
-    const sale = await screen.findByTestId('membership-sale-comment-sale-1')
-    fireEvent.click(within(sale).getByRole('button', { name: /Редактировать комментарий/ }))
-    fireEvent.change(within(sale).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Обновлено' } })
-    fireEvent.click(within(sale).getByRole('button', { name: 'Сохранить' }))
+    const saleA = await screen.findByTestId('membership-sale-comment-sale-1')
+    const saleB = screen.getByTestId('membership-sale-comment-sale-2')
+    fireEvent.click(within(saleB).getByRole('button', { name: /Редактировать комментарий/ }))
+    fireEvent.change(within(saleB).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Черновик B' } })
+    fireEvent.click(within(saleA).getByRole('button', { name: /Редактировать комментарий/ }))
+    fireEvent.change(within(saleA).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Обновлено' } })
+    fireEvent.click(within(saleA).getByRole('button', { name: 'Сохранить' }))
 
     await waitFor(() => expect(updateCommentMock).toHaveBeenCalledWith('client-1', 'sale-1', 'Обновлено'))
-    expect(await screen.findByText('Обновлено')).toBeInTheDocument()
+    expect(updateCommentMock).toHaveBeenCalledTimes(1)
+    expect(await within(screen.getByTestId('membership-sale-comment-sale-1')).findByText('Обновлено')).toBeInTheDocument()
+    expect(within(screen.getByTestId('membership-sale-comment-sale-2')).getByRole('textbox', { name: 'Комментарий к покупке' })).toHaveValue('Черновик B')
+    expect(screen.getAllByText('Комментарий к покупке')).toHaveLength(2)
+    expect(screen.getAllByText('Обновлено')).toHaveLength(1)
   })
 
-  test('resets a canceled draft and keeps server data after a rejected save', async () => {
-    getClientMock.mockResolvedValue(buildClientWithMemberships())
-    updateCommentMock.mockRejectedValue(new Error('Недостаточно прав.'))
+  test('keeps rejection and draft row-local, then retries without changing another sale', async () => {
+    const initial = buildClientWithMemberships()
+    const updated = {
+      ...initial,
+      membershipHistory: initial.membershipHistory.map((item) => item.saleId === 'sale-1' ? {
+        ...item,
+        comment: 'Разрешено после повтора',
+        commentLastChangedByName: 'Главный тренер',
+        commentLastChangedAt: '2026-09-01T10:00:00Z',
+      } : item),
+    }
+    getClientMock.mockResolvedValue(initial)
+    updateCommentMock
+      .mockRejectedValueOnce(new Error('Недостаточно прав.'))
+      .mockResolvedValueOnce(updated)
     renderWithProviders(<ClientDetailScreen canManage clientId="client-1" onBack={() => undefined} onEdit={() => undefined} />)
-    const sale = await screen.findByTestId('membership-sale-comment-sale-1')
-    fireEvent.click(within(sale).getByRole('button', { name: /Редактировать комментарий/ }))
-    const input = within(sale).getByRole('textbox', { name: 'Комментарий к покупке' })
-    fireEvent.change(input, { target: { value: 'Несохраненный текст' } })
-    fireEvent.click(within(sale).getByRole('button', { name: /Отменить редактирование/ }))
-    fireEvent.click(within(sale).getByRole('button', { name: /Редактировать комментарий/ }))
-    expect(within(sale).getByRole('textbox', { name: 'Комментарий к покупке' })).toHaveValue('Комментарий первой покупки')
-    fireEvent.change(within(sale).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Запрещено' } })
-    fireEvent.click(within(sale).getByRole('button', { name: 'Сохранить' }))
-    expect(await within(sale).findByText('Недостаточно прав.')).toBeInTheDocument()
+    const saleA = await screen.findByTestId('membership-sale-comment-sale-1')
+    const saleB = screen.getByTestId('membership-sale-comment-sale-2')
+
+    fireEvent.click(within(saleB).getByRole('button', { name: /Редактировать комментарий/ }))
+    fireEvent.change(within(saleB).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Черновик B' } })
+    fireEvent.click(within(saleA).getByRole('button', { name: /Редактировать комментарий/ }))
+    fireEvent.change(within(saleA).getByRole('textbox', { name: 'Комментарий к покупке' }), { target: { value: 'Запрещено' } })
+    fireEvent.click(within(saleA).getByRole('button', { name: 'Сохранить' }))
+
+    expect(await within(saleA).findByText('Недостаточно прав.')).toBeInTheDocument()
+    expect(within(saleA).getByRole('textbox', { name: 'Комментарий к покупке' })).toHaveValue('Запрещено')
+    expect(within(saleB).getByRole('textbox', { name: 'Комментарий к покупке' })).toHaveValue('Черновик B')
+    expect(within(saleB).getByRole('button', { name: 'Сохранить' })).toBeEnabled()
+    expect(screen.queryByText('Действие не выполнено')).not.toBeInTheDocument()
+
+    fireEvent.click(within(saleA).getByRole('button', { name: 'Сохранить' }))
+    expect(await within(screen.getByTestId('membership-sale-comment-sale-1')).findByText('Разрешено после повтора')).toBeInTheDocument()
+    expect(within(screen.getByTestId('membership-sale-comment-sale-2')).getByRole('textbox', { name: 'Комментарий к покупке' })).toHaveValue('Черновик B')
+    expect(updateCommentMock).toHaveBeenNthCalledWith(1, 'client-1', 'sale-1', 'Запрещено')
+    expect(updateCommentMock).toHaveBeenNthCalledWith(2, 'client-1', 'sale-1', 'Запрещено')
+
+    fireEvent.click(within(screen.getByTestId('membership-sale-comment-sale-2')).getByRole('button', { name: /Отменить редактирование/ }))
     expect(screen.getByText('Комментарий второй покупки')).toBeInTheDocument()
   })
 })

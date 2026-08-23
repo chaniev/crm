@@ -46,10 +46,10 @@ risky
 - [ ] Финансовые, временные и attendance-поля обеих продаж остаются неизменными.
 
 ## Test checklist
-- [ ] Добавить backend integration test с двумя продажами, update одной и reload из БД.
-- [ ] Проверить audit event, actor и permission denial.
-- [ ] Добавить frontend test на два `saleId`, независимые формы, success и row-local error.
-- [ ] Запустить backend tests, frontend lint, build, unit tests и affected Playwright scenario.
+- [x] Добавить backend integration test с двумя продажами, update одной и reload из БД.
+- [x] Проверить audit event, actor и permission denial.
+- [x] Добавить frontend test на два `saleId`, независимые формы, success и row-local error.
+- [x] Запустить backend tests, frontend lint, build, unit tests и affected Playwright scenario.
 
 ## AI safety
 - Safe for Codex: no
@@ -67,3 +67,15 @@ risky
 - Created at: 2026-08-16 16:45
 - Created by skill: codex-backlog-skill
 - Duplicate check: активного дубликата нет; завершённая TASK-069 является целевым baseline, а новая заметка фиксирует повторную регрессию её acceptance contract.
+
+## Implementation investigation — 2026-08-23
+- Exact PostgreSQL/API, mapper, component, desktop Chromium and target-iPhone
+  WebKit scenarios are green on current `origin/main`.
+- Regression coverage now proves two distinct sales, two technical versions of
+  sale A, fresh GET/new `DbContext`, safe audit, immutable financial/refund/
+  attendance state, row-local drafts/errors/retry and stable sale identity.
+- No production code was changed: the implementation plan's green-on-main stop
+  condition applies and there is no failing deployment/version evidence.
+- TASK-114 remains `risky` and open until the reported environment supplies
+  sanitized deployed frontend/backend identifiers plus GET/PUT sale identity
+  evidence for version/deployment reconciliation.

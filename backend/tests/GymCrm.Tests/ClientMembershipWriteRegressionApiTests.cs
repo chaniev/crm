@@ -6,6 +6,7 @@ using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Clients;
 using GymCrm.Application.Security;
+using GymCrm.Domain.Attendance;
 using GymCrm.Domain.Audit;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
@@ -28,6 +29,171 @@ namespace GymCrm.Tests;
 public sealed class ClientMembershipWriteRegressionApiTests
 {
     private static readonly JsonSerializerOptions IdempotencyJsonOptions = new(JsonSerializerDefaults.Web);
+
+    [Fact]
+    public async Task Task114_PostgreSql_membership_comment_isolates_distinct_sales_versions_and_failures()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        var fixture = await context.SeedCommentIsolationFixtureAsync();
+        var initialSnapshot = await context.LoadCommentIsolationSnapshotAsync();
+
+        using (var initialResponse = await context.GetClientAsync())
+        {
+            var body = await initialResponse.Content.ReadAsStringAsync();
+            Assert.True(initialResponse.StatusCode == HttpStatusCode.OK, body);
+            using var document = JsonDocument.Parse(body);
+            AssertMembershipCommentProjection(
+                document.RootElement,
+                fixture,
+                "Комментарий A",
+                "TASK-114 Actor A",
+                fixture.InitialAChangedAt,
+                "Комментарий B",
+                "TASK-114 Actor B",
+                fixture.InitialBChangedAt);
+        }
+
+        using (var updateResponse = await context.UpdateCommentAsync(
+                   fixture.SaleAId,
+                   "  Комментарий A обновлён  "))
+        {
+            var body = await updateResponse.Content.ReadAsStringAsync();
+            Assert.True(updateResponse.StatusCode == HttpStatusCode.OK, body);
+            using var document = JsonDocument.Parse(body);
+            AssertMembershipCommentProjection(
+                document.RootElement,
+                fixture,
+                "Комментарий A обновлён",
+                "TASK-078 Head Coach",
+                fixture.UpdatedAt,
+                "Комментарий B",
+                "TASK-114 Actor B",
+                fixture.InitialBChangedAt);
+        }
+
+        using (var reloadResponse = await context.GetClientAsync())
+        {
+            var body = await reloadResponse.Content.ReadAsStringAsync();
+            Assert.True(reloadResponse.StatusCode == HttpStatusCode.OK, body);
+            using var document = JsonDocument.Parse(body);
+            AssertMembershipCommentProjection(
+                document.RootElement,
+                fixture,
+                "Комментарий A обновлён",
+                "TASK-078 Head Coach",
+                fixture.UpdatedAt,
+                "Комментарий B",
+                "TASK-114 Actor B",
+                fixture.InitialBChangedAt);
+        }
+
+        var successfulSnapshot = await context.LoadCommentIsolationSnapshotAsync();
+        Assert.Equal(initialSnapshot.Sales.ToArray(), successfulSnapshot.Sales.ToArray());
+        Assert.Equal(initialSnapshot.Memberships.ToArray(), successfulSnapshot.Memberships.ToArray());
+        Assert.Equal(initialSnapshot.Refunds.ToArray(), successfulSnapshot.Refunds.ToArray());
+        Assert.Equal(initialSnapshot.Attendance.ToArray(), successfulSnapshot.Attendance.ToArray());
+
+        var updatedSaleA = Assert.Single(successfulSnapshot.Comments, state => state.SaleId == fixture.SaleAId);
+        Assert.Equal("Комментарий A обновлён", updatedSaleA.Comment);
+        Assert.Equal(context.ActorId, updatedSaleA.ActorId);
+        Assert.Equal(fixture.UpdatedAt, updatedSaleA.ChangedAt);
+
+        var unchangedSaleB = Assert.Single(successfulSnapshot.Comments, state => state.SaleId == fixture.SaleBId);
+        var initialSaleB = Assert.Single(initialSnapshot.Comments, state => state.SaleId == fixture.SaleBId);
+        Assert.Equal(initialSaleB, unchangedSaleB);
+
+        var audit = Assert.Single(successfulSnapshot.Audits);
+        Assert.Equal(context.ActorId, audit.UserId);
+        Assert.Equal("ClientMembershipCommentChanged", audit.ActionType);
+        Assert.Equal("ClientMembershipSale", audit.EntityType);
+        Assert.Equal(fixture.SaleAId.ToString(), audit.EntityId);
+        Assert.Null(audit.OldValueJson);
+        Assert.NotNull(audit.NewValueJson);
+        Assert.DoesNotContain("Комментарий A", audit.NewValueJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("Комментарий B", audit.NewValueJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("grossAmount", audit.NewValueJson, StringComparison.OrdinalIgnoreCase);
+        using (var auditPayload = JsonDocument.Parse(audit.NewValueJson!))
+        {
+            Assert.Equal(
+                ["clientId", "saleId", "transition"],
+                auditPayload.RootElement.EnumerateObject().Select(property => property.Name).Order().ToArray());
+            Assert.Equal(context.ClientId, auditPayload.RootElement.GetProperty("clientId").GetGuid());
+            Assert.Equal(fixture.SaleAId, auditPayload.RootElement.GetProperty("saleId").GetGuid());
+            Assert.Equal("changed", auditPayload.RootElement.GetProperty("transition").GetString());
+        }
+
+        using (var noOpResponse = await context.UpdateCommentAsync(
+                   fixture.SaleAId,
+                   " Комментарий A обновлён "))
+        {
+            Assert.Equal(HttpStatusCode.OK, noOpResponse.StatusCode);
+        }
+
+        using (var validationResponse = await context.UpdateCommentAsync(
+                   fixture.SaleAId,
+                   new string('x', ClientMembershipCommentPolicy.MaxLength + 1)))
+        {
+            Assert.Equal(HttpStatusCode.BadRequest, validationResponse.StatusCode);
+        }
+
+        using (var missingResponse = await PutMembershipCommentAsync(
+                   context.HttpClient,
+                   context.ClientId,
+                   Guid.Parse("11400000-0000-0000-0000-00000000ffff"),
+                   "missing",
+                   context.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, missingResponse.StatusCode);
+        }
+
+        using (var crossClientResponse = await PutMembershipCommentAsync(
+                   context.HttpClient,
+                   fixture.OtherClientId,
+                   fixture.SaleAId,
+                   "cross-client",
+                   context.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, crossClientResponse.StatusCode);
+        }
+
+        using (var coachClient = context.Factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        }))
+        {
+            var coachCsrfToken = await LoginForCommentIsolationAsync(
+                coachClient,
+                fixture.CoachLogin,
+                fixture.CoachPassword);
+            using var forbiddenResponse = await PutMembershipCommentAsync(
+                coachClient,
+                context.ClientId,
+                fixture.SaleAId,
+                "forbidden",
+                coachCsrfToken);
+            Assert.Equal(HttpStatusCode.Forbidden, forbiddenResponse.StatusCode);
+        }
+
+        using (var anonymousClient = context.Factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        }))
+        {
+            var anonymousCsrfToken = await LoadCsrfTokenAsync(anonymousClient);
+            using var unauthorizedResponse = await PutMembershipCommentAsync(
+                anonymousClient,
+                context.ClientId,
+                fixture.SaleAId,
+                "unauthorized",
+                anonymousCsrfToken);
+            Assert.Equal(HttpStatusCode.Unauthorized, unauthorizedResponse.StatusCode);
+        }
+
+        var finalSnapshot = await context.LoadCommentIsolationSnapshotAsync();
+        AssertCommentIsolationSnapshotEqual(successfulSnapshot, finalSnapshot);
+    }
 
     [Fact]
     public void Task083_payment_date_policy_accepts_today_and_past_and_rejects_missing_and_future()
@@ -1414,6 +1580,106 @@ public sealed class ClientMembershipWriteRegressionApiTests
         return Convert.ToHexString(bytes);
     }
 
+    private static void AssertMembershipCommentProjection(
+        JsonElement details,
+        CommentIsolationFixture fixture,
+        string saleAComment,
+        string saleAActor,
+        DateTimeOffset saleAChangedAt,
+        string saleBComment,
+        string saleBActor,
+        DateTimeOffset saleBChangedAt)
+    {
+        var history = GetRequiredProperty(details, "membershipHistory").EnumerateArray().ToArray();
+        Assert.Equal(3, history.Length);
+
+        var saleAVersions = history
+            .Where(item => GetRequiredProperty(item, "saleId").GetGuid() == fixture.SaleAId)
+            .ToArray();
+        Assert.Equal(2, saleAVersions.Length);
+        Assert.All(saleAVersions, item => AssertMembershipComment(
+            item,
+            saleAComment,
+            saleAActor,
+            saleAChangedAt));
+
+        var saleBVersion = Assert.Single(
+            history,
+            item => GetRequiredProperty(item, "saleId").GetGuid() == fixture.SaleBId);
+        AssertMembershipComment(saleBVersion, saleBComment, saleBActor, saleBChangedAt);
+    }
+
+    private static void AssertMembershipComment(
+        JsonElement membership,
+        string comment,
+        string actor,
+        DateTimeOffset changedAt)
+    {
+        Assert.Equal(comment, GetRequiredProperty(membership, "comment").GetString());
+        Assert.Equal(actor, GetRequiredProperty(membership, "commentLastChangedByName").GetString());
+        Assert.Equal(
+            changedAt,
+            DateTimeOffset.Parse(GetRequiredProperty(membership, "commentLastChangedAt").GetString()!));
+    }
+
+    private static void AssertCommentIsolationSnapshotEqual(
+        CommentIsolationSnapshot expected,
+        CommentIsolationSnapshot actual)
+    {
+        Assert.Equal(expected.Sales.ToArray(), actual.Sales.ToArray());
+        Assert.Equal(expected.Memberships.ToArray(), actual.Memberships.ToArray());
+        Assert.Equal(expected.Refunds.ToArray(), actual.Refunds.ToArray());
+        Assert.Equal(expected.Attendance.ToArray(), actual.Attendance.ToArray());
+        Assert.Equal(expected.Comments.ToArray(), actual.Comments.ToArray());
+        Assert.Equal(expected.Audits.ToArray(), actual.Audits.ToArray());
+    }
+
+    private static async Task<string> LoginForCommentIsolationAsync(
+        HttpClient httpClient,
+        string login,
+        string password)
+    {
+        var csrfToken = await LoadCsrfTokenAsync(httpClient);
+        using var loginResponse = await SendRawJsonAsync(
+            httpClient,
+            HttpMethod.Post,
+            "/auth/login",
+            JsonSerializer.Serialize(new { login, password }),
+            csrfToken,
+            idempotencyKey: null);
+        var body = await loginResponse.Content.ReadAsStringAsync();
+        Assert.True(loginResponse.StatusCode == HttpStatusCode.OK, body);
+        using var loginDocument = JsonDocument.Parse(body);
+        return GetRequiredProperty(loginDocument.RootElement, "csrfToken").GetString()
+            ?? throw new Xunit.Sdk.XunitException("Authenticated session did not return a CSRF token.");
+    }
+
+    private static async Task<string> LoadCsrfTokenAsync(HttpClient httpClient)
+    {
+        using var sessionResponse = await httpClient.GetAsync("/auth/session");
+        var body = await sessionResponse.Content.ReadAsStringAsync();
+        Assert.True(sessionResponse.StatusCode == HttpStatusCode.OK, body);
+        using var sessionDocument = JsonDocument.Parse(body);
+        return GetRequiredProperty(sessionDocument.RootElement, "csrfToken").GetString()
+            ?? throw new Xunit.Sdk.XunitException("Session did not return a CSRF token.");
+    }
+
+    private static Task<HttpResponseMessage> PutMembershipCommentAsync(
+        HttpClient httpClient,
+        Guid clientId,
+        Guid saleId,
+        string? comment,
+        string csrfToken)
+    {
+        return SendRawJsonAsync(
+            httpClient,
+            HttpMethod.Put,
+            $"/clients/{clientId}/membership/sales/{saleId}/comment",
+            JsonSerializer.Serialize(new { comment }),
+            csrfToken,
+            idempotencyKey: null);
+    }
+
     private sealed class MembershipWriteContext : IAsyncDisposable
     {
         private MembershipWriteContext(
@@ -1459,7 +1725,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
         public Guid TargetGroupId { get; }
         public Guid TargetTermCatalogItemId { get; }
         public DateOnly Today { get; }
-        private string CsrfToken { get; }
+        public string CsrfToken { get; }
 
         public static async Task<MembershipWriteContext> CreateAsync(
             bool usePostgreSql,
@@ -1541,6 +1807,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
 
         public Task<HttpResponseMessage> GetClientAsync() =>
             HttpClient.GetAsync($"/clients/{ClientId}");
+
+        public Task<HttpResponseMessage> UpdateCommentAsync(Guid saleId, string? comment) =>
+            PutMembershipCommentAsync(HttpClient, ClientId, saleId, comment, CsrfToken);
 
         public void ReleaseBlockedMembershipAudit()
         {
@@ -1698,6 +1967,306 @@ public sealed class ClientMembershipWriteRegressionApiTests
             db.ClientMemberships.Add(membership);
             await db.SaveChangesAsync();
             return new MembershipTarget(membership.Id, sale.Id, sale.PurchaseDate);
+        }
+
+        public async Task<CommentIsolationFixture> SeedCommentIsolationFixtureAsync()
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var passwordHashService = scope.ServiceProvider.GetRequiredService<IPasswordHashService>();
+            var now = scope.ServiceProvider.GetRequiredService<TimeProvider>().GetUtcNow();
+            var initialAChangedAt = now.AddDays(-2);
+            var initialBChangedAt = now.AddDays(-1);
+            const string coachPassword = "task114-coach-password";
+
+            var commentProperty = db.Model
+                .FindEntityType(typeof(ClientMembershipSale))!
+                .FindProperty(nameof(ClientMembershipSale.Comment));
+            Assert.NotNull(commentProperty);
+            Assert.Equal(ClientMembershipCommentPolicy.MaxLength, commentProperty.GetMaxLength());
+            Assert.Contains(
+                db.Model.FindEntityType(typeof(ClientMembershipSale))!.GetForeignKeys(),
+                foreignKey => foreignKey.Properties.Any(property =>
+                    property.Name == nameof(ClientMembershipSale.CommentChangedByUserId)));
+
+            var branchId = await db.Clients
+                .Where(client => client.Id == ClientId)
+                .Select(client => client.BranchId)
+                .SingleAsync();
+            var actorA = new User
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000a1"),
+                FullName = "TASK-114 Actor A",
+                Login = "task114-actor-a",
+                Role = UserRole.HeadCoach,
+                MustChangePassword = false,
+                IsActive = true,
+                CreatedAt = now.AddDays(-10),
+                UpdatedAt = now.AddDays(-10)
+            };
+            actorA.PasswordHash = passwordHashService.HashPassword(actorA, coachPassword);
+            var actorB = new User
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000b1"),
+                FullName = "TASK-114 Actor B",
+                Login = "task114-actor-b",
+                Role = UserRole.HeadCoach,
+                MustChangePassword = false,
+                IsActive = true,
+                CreatedAt = now.AddDays(-10),
+                UpdatedAt = now.AddDays(-10)
+            };
+            actorB.PasswordHash = passwordHashService.HashPassword(actorB, coachPassword);
+            var coach = new User
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000c1"),
+                FullName = "TASK-114 Coach",
+                Login = "task114-coach",
+                Role = UserRole.Coach,
+                MustChangePassword = false,
+                IsActive = true,
+                CreatedAt = now.AddDays(-10),
+                UpdatedAt = now.AddDays(-10)
+            };
+            coach.PasswordHash = passwordHashService.HashPassword(coach, coachPassword);
+            var otherClient = new Client
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000d1"),
+                BranchId = branchId,
+                LastName = "TASK-114",
+                FirstName = "Other Client",
+                Phone = "+70001140001",
+                Status = ClientStatus.Active,
+                CreatedAt = now.AddDays(-10),
+                UpdatedAt = now.AddDays(-10)
+            };
+            var singleVisitCatalogItem = MembershipCatalogItem.CreateBranchOwned(
+                branchId,
+                "TASK-114 Single Visit",
+                500m,
+                MembershipBehaviorKind.SingleVisit,
+                Today.AddYears(-1),
+                null,
+                now.AddDays(-30));
+            var saleA = new ClientMembershipSale
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-00000000000a"),
+                ClientId = ClientId,
+                MembershipCatalogItemId = TermCatalogItemId,
+                BehaviorKind = MembershipBehaviorKind.Term,
+                PricingMode = ClientMembershipSalePricingMode.Catalog,
+                PurchaseDate = Today.AddDays(-60),
+                PaymentDate = Today.AddDays(-59),
+                GrossAmount = 1500m,
+                CreatedByUserId = ActorId,
+                CreatedAt = now.AddDays(-60),
+                Comment = "Комментарий A",
+                CommentChangedByUserId = actorA.Id,
+                CommentChangedAt = initialAChangedAt
+            };
+            var saleB = new ClientMembershipSale
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-00000000000b"),
+                ClientId = ClientId,
+                MembershipCatalogItemId = singleVisitCatalogItem.Id,
+                BehaviorKind = MembershipBehaviorKind.SingleVisit,
+                PricingMode = ClientMembershipSalePricingMode.Catalog,
+                PurchaseDate = Today.AddDays(-20),
+                PaymentDate = Today.AddDays(-20),
+                GrossAmount = 500m,
+                CreatedByUserId = ActorId,
+                CreatedAt = now.AddDays(-20),
+                Comment = "Комментарий B",
+                CommentChangedByUserId = actorB.Id,
+                CommentChangedAt = initialBChangedAt
+            };
+            var saleAVersionOne = new ClientMembership
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000a1"),
+                ClientId = ClientId,
+                SaleId = saleA.Id,
+                BehaviorKind = MembershipBehaviorKind.Term,
+                IndividualValidFrom = Today.AddDays(-60),
+                IndividualValidTo = Today.AddDays(-31),
+                SingleVisitUsed = false,
+                ValidFrom = now.AddDays(-60),
+                ValidTo = now.AddDays(-30),
+                ChangeReason = ClientMembershipChangeReason.NewPurchase,
+                ChangedByUserId = ActorId,
+                CreatedAt = now.AddDays(-60)
+            };
+            var saleAVersionTwo = new ClientMembership
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000a2"),
+                ClientId = ClientId,
+                SaleId = saleA.Id,
+                BehaviorKind = MembershipBehaviorKind.Term,
+                IndividualValidFrom = Today.AddDays(-60),
+                IndividualValidTo = Today.AddDays(-25),
+                SingleVisitUsed = false,
+                ValidFrom = now.AddDays(-30),
+                ValidTo = null,
+                ChangeReason = ClientMembershipChangeReason.Correction,
+                ChangedByUserId = ActorId,
+                CreatedAt = now.AddDays(-30)
+            };
+            var saleBVersion = new ClientMembership
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000b1"),
+                ClientId = ClientId,
+                SaleId = saleB.Id,
+                BehaviorKind = MembershipBehaviorKind.SingleVisit,
+                IndividualValidFrom = null,
+                IndividualValidTo = null,
+                SingleVisitUsed = true,
+                ValidFrom = now.AddDays(-20),
+                ValidTo = null,
+                ChangeReason = ClientMembershipChangeReason.NewPurchase,
+                ChangedByUserId = ActorId,
+                CreatedAt = now.AddDays(-20)
+            };
+            var refund = new ClientMembershipRefund
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000e1"),
+                SaleId = saleA.Id,
+                ClientId = ClientId,
+                Amount = 200m,
+                RefundDate = Today.AddDays(-10),
+                Comment = "TASK-114 refund snapshot",
+                CreatedByUserId = ActorId,
+                CreatedAt = now.AddDays(-10)
+            };
+            var attendance = new Attendance
+            {
+                Id = Guid.Parse("11400000-0000-0000-0000-0000000000f1"),
+                ClientId = ClientId,
+                GroupId = TargetGroupId,
+                TrainingDate = Today.AddDays(-19),
+                IsPresent = true,
+                SingleVisitMembershipSaleId = saleB.Id,
+                SingleVisitWriteOffMembershipId = saleBVersion.Id,
+                MarkedByUserId = ActorId,
+                MarkedAt = now.AddDays(-19),
+                UpdatedAt = now.AddDays(-19)
+            };
+
+            db.Users.AddRange(actorA, actorB, coach);
+            db.Clients.Add(otherClient);
+            db.MembershipCatalogItems.Add(singleVisitCatalogItem);
+            db.ClientMembershipSales.AddRange(saleA, saleB);
+            db.ClientMemberships.AddRange(saleAVersionOne, saleAVersionTwo, saleBVersion);
+            db.ClientMembershipRefunds.Add(refund);
+            db.Attendance.Add(attendance);
+            await db.SaveChangesAsync();
+
+            return new CommentIsolationFixture(
+                saleA.Id,
+                saleB.Id,
+                otherClient.Id,
+                coach.Login,
+                coachPassword,
+                initialAChangedAt,
+                initialBChangedAt,
+                now);
+        }
+
+        public async Task<CommentIsolationSnapshot> LoadCommentIsolationSnapshotAsync()
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var sales = await db.ClientMembershipSales
+                .AsNoTracking()
+                .Where(sale => sale.ClientId == ClientId)
+                .OrderBy(sale => sale.Id)
+                .Select(sale => new CommentIsolationSaleState(
+                    sale.Id,
+                    sale.ClientId,
+                    sale.MembershipCatalogItemId,
+                    sale.BehaviorKind,
+                    sale.PricingMode,
+                    sale.PurchaseDate,
+                    sale.PaymentDate,
+                    sale.GrossAmount,
+                    sale.CreatedByUserId,
+                    sale.CreatedAt))
+                .ToArrayAsync();
+            var memberships = await db.ClientMemberships
+                .AsNoTracking()
+                .Where(membership => membership.ClientId == ClientId)
+                .OrderBy(membership => membership.Id)
+                .Select(membership => new CommentIsolationMembershipState(
+                    membership.Id,
+                    membership.ClientId,
+                    membership.SaleId,
+                    membership.BehaviorKind,
+                    membership.IndividualValidFrom,
+                    membership.IndividualValidTo,
+                    membership.ProfessionalComment,
+                    membership.SingleVisitUsed,
+                    membership.ValidFrom,
+                    membership.ValidTo,
+                    membership.ChangeReason,
+                    membership.ChangedByUserId,
+                    membership.CreatedAt))
+                .ToArrayAsync();
+            var refunds = await db.ClientMembershipRefunds
+                .AsNoTracking()
+                .Where(refund => refund.ClientId == ClientId)
+                .OrderBy(refund => refund.Id)
+                .Select(refund => new CommentIsolationRefundState(
+                    refund.Id,
+                    refund.SaleId,
+                    refund.ClientId,
+                    refund.Amount,
+                    refund.RefundDate,
+                    refund.Comment,
+                    refund.CreatedByUserId,
+                    refund.CreatedAt,
+                    refund.CanceledAt,
+                    refund.CanceledByUserId))
+                .ToArrayAsync();
+            var attendance = await db.Attendance
+                .AsNoTracking()
+                .Where(entry => entry.ClientId == ClientId)
+                .OrderBy(entry => entry.Id)
+                .Select(entry => new CommentIsolationAttendanceState(
+                    entry.Id,
+                    entry.ClientId,
+                    entry.GroupId,
+                    entry.TrainingDate,
+                    entry.IsPresent,
+                    entry.SingleVisitMembershipSaleId,
+                    entry.SingleVisitWriteOffMembershipId,
+                    entry.MarkedByUserId,
+                    entry.MarkedAt,
+                    entry.UpdatedAt))
+                .ToArrayAsync();
+            var comments = await db.ClientMembershipSales
+                .AsNoTracking()
+                .Where(sale => sale.ClientId == ClientId)
+                .OrderBy(sale => sale.Id)
+                .Select(sale => new CommentIsolationCommentState(
+                    sale.Id,
+                    sale.Comment,
+                    sale.CommentChangedByUserId,
+                    sale.CommentChangedAt))
+                .ToArrayAsync();
+            var audits = await db.AuditLogs
+                .AsNoTracking()
+                .Where(log => log.ActionType == "ClientMembershipCommentChanged")
+                .OrderBy(log => log.Id)
+                .Select(log => new CommentIsolationAuditState(
+                    log.Id,
+                    log.UserId,
+                    log.ActionType,
+                    log.EntityType,
+                    log.EntityId,
+                    log.OldValueJson,
+                    log.NewValueJson,
+                    log.CreatedAt))
+                .ToArrayAsync();
+
+            return new CommentIsolationSnapshot(sales, memberships, refunds, attendance, comments, audits);
         }
 
         public async Task<SingleVisitSeed> SeedSingleVisitClientAsync()
@@ -2015,6 +2584,91 @@ public sealed class ClientMembershipWriteRegressionApiTests
         Guid SaleId,
         DateOnly PurchaseDate,
         DateOnly PaymentDate);
+
+    private sealed record CommentIsolationFixture(
+        Guid SaleAId,
+        Guid SaleBId,
+        Guid OtherClientId,
+        string CoachLogin,
+        string CoachPassword,
+        DateTimeOffset InitialAChangedAt,
+        DateTimeOffset InitialBChangedAt,
+        DateTimeOffset UpdatedAt);
+
+    private sealed record CommentIsolationSnapshot(
+        IReadOnlyList<CommentIsolationSaleState> Sales,
+        IReadOnlyList<CommentIsolationMembershipState> Memberships,
+        IReadOnlyList<CommentIsolationRefundState> Refunds,
+        IReadOnlyList<CommentIsolationAttendanceState> Attendance,
+        IReadOnlyList<CommentIsolationCommentState> Comments,
+        IReadOnlyList<CommentIsolationAuditState> Audits);
+
+    private sealed record CommentIsolationSaleState(
+        Guid Id,
+        Guid ClientId,
+        Guid? MembershipCatalogItemId,
+        MembershipBehaviorKind BehaviorKind,
+        ClientMembershipSalePricingMode PricingMode,
+        DateOnly PurchaseDate,
+        DateOnly PaymentDate,
+        decimal GrossAmount,
+        Guid CreatedByUserId,
+        DateTimeOffset CreatedAt);
+
+    private sealed record CommentIsolationMembershipState(
+        Guid Id,
+        Guid ClientId,
+        Guid SaleId,
+        MembershipBehaviorKind BehaviorKind,
+        DateOnly? IndividualValidFrom,
+        DateOnly? IndividualValidTo,
+        string? ProfessionalComment,
+        bool SingleVisitUsed,
+        DateTimeOffset ValidFrom,
+        DateTimeOffset? ValidTo,
+        ClientMembershipChangeReason ChangeReason,
+        Guid ChangedByUserId,
+        DateTimeOffset CreatedAt);
+
+    private sealed record CommentIsolationRefundState(
+        Guid Id,
+        Guid SaleId,
+        Guid ClientId,
+        decimal Amount,
+        DateOnly RefundDate,
+        string? Comment,
+        Guid CreatedByUserId,
+        DateTimeOffset CreatedAt,
+        DateTimeOffset? CanceledAt,
+        Guid? CanceledByUserId);
+
+    private sealed record CommentIsolationAttendanceState(
+        Guid Id,
+        Guid ClientId,
+        Guid GroupId,
+        DateOnly TrainingDate,
+        bool IsPresent,
+        Guid? SingleVisitMembershipSaleId,
+        Guid? SingleVisitWriteOffMembershipId,
+        Guid MarkedByUserId,
+        DateTimeOffset MarkedAt,
+        DateTimeOffset UpdatedAt);
+
+    private sealed record CommentIsolationCommentState(
+        Guid SaleId,
+        string? Comment,
+        Guid? ActorId,
+        DateTimeOffset? ChangedAt);
+
+    private sealed record CommentIsolationAuditState(
+        Guid Id,
+        Guid UserId,
+        string ActionType,
+        string EntityType,
+        string? EntityId,
+        string? OldValueJson,
+        string? NewValueJson,
+        DateTimeOffset CreatedAt);
 
     private sealed record SingleVisitSeed(Guid ClientId, Guid CatalogItemId);
 
