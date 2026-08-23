@@ -11,18 +11,6 @@ internal static class ClientEndpointSharedHelpers
 {
     internal static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
 
-    internal static void ValidateNamePart(
-        string? value,
-        string key,
-        string message,
-        Dictionary<string, string[]> errors)
-    {
-        if (!string.IsNullOrWhiteSpace(value) && value.Length > 128)
-        {
-            errors[key] = [message];
-        }
-    }
-
     internal static void ValidateAdditionalFields(
         IDictionary<string, JsonElement>? additionalFields,
         Dictionary<string, string[]> errors)
@@ -35,6 +23,18 @@ internal static class ClientEndpointSharedHelpers
         foreach (var field in additionalFields.Keys)
         {
             errors[field] = [$"Field '{field}' is not allowed for this operation."];
+        }
+    }
+
+    internal static void ValidateNamePart(
+        string? value,
+        string key,
+        string message,
+        Dictionary<string, string[]> errors)
+    {
+        if (!string.IsNullOrWhiteSpace(value) && value.Length > 128)
+        {
+            errors[key] = [message];
         }
     }
 

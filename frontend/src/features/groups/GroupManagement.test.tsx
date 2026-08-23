@@ -1,10 +1,12 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { ApiError } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import { createClientProfileReturnContext } from '../clients/clientProfileReturnState'
 import { createGroupListReturnSnapshot } from './groupListReturnState'
 
 const apiMocks = vi.hoisted(() => ({
+  createGroup: vi.fn(),
   createGroupTrainerSubstitution: vi.fn(),
   getBranches: vi.fn(),
   getGroup: vi.fn(),
@@ -20,6 +22,7 @@ const apiMocks = vi.hoisted(() => ({
 
 vi.mock('../../lib/api', async (importOriginal) => ({
   ...await importOriginal<typeof import('../../lib/api')>(),
+  createGroup: apiMocks.createGroup,
   createGroupTrainerSubstitution: apiMocks.createGroupTrainerSubstitution,
   getBranches: apiMocks.getBranches,
   getGroup: apiMocks.getGroup,
@@ -295,6 +298,109 @@ describe('GroupEditScreen', () => {
 
     expect(await screen.findByRole('button', { name: 'Создать группу' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'Отменить' })).toBeVisible()
+  })
+
+  test('create sends the exact schedule payload, keeps backend field errors and retries', async () => {
+    setupGroupFormOptions()
+    apiMocks.createGroup
+      .mockRejectedValueOnce(new ApiError('Проверьте поля группы.', 400, {
+        Name: ['Группа с таким названием уже существует.'],
+        TrainingStartTime: ['Время начала недоступно.'],
+      }))
+      .mockResolvedValue({
+        ...group,
+        name: 'Новая группа',
+        trainingStartTime: '18:30',
+        durationMinutes: 75,
+        weekdays: [3, 5],
+      })
+    const onCreated = vi.fn()
+
+    renderWithProviders(
+      <GroupCreateScreen onCancel={vi.fn()} onCreated={onCreated} />,
+    )
+
+    const nameInput = await screen.findByRole('textbox', { name: 'Название группы' })
+    fireEvent.change(nameInput, { target: { value: '  Новая группа  ' } })
+    fireEvent.change(screen.getByLabelText('Время начала'), {
+      target: { value: '18:30' },
+    })
+    fireEvent.change(screen.getByLabelText('Длительность'), {
+      target: { value: '75' },
+    })
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Ср' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Пт' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Создать группу' }))
+
+    const exactPayload = {
+      name: 'Новая группа',
+      branchId: 'branch-1',
+      hallId: undefined,
+      groupTypeId: 'type-1',
+      trainingStartTime: '18:30',
+      durationMinutes: 75,
+      weekdays: [3, 5],
+      isActive: true,
+      trainerIds: [],
+    }
+    await waitFor(() => expect(apiMocks.createGroup).toHaveBeenCalledWith(exactPayload))
+    expect(await screen.findByText('Группа с таким названием уже существует.')).toBeVisible()
+    expect(screen.getByText('Время начала недоступно.')).toBeVisible()
+    expect(nameInput).toHaveValue('  Новая группа  ')
+    expect(onCreated).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Создать группу' }))
+    await waitFor(() => expect(apiMocks.createGroup).toHaveBeenCalledTimes(2))
+    expect(apiMocks.createGroup).toHaveBeenLastCalledWith(exactPayload)
+    await waitFor(() => expect(onCreated).toHaveBeenCalledOnce())
+  })
+
+  test('edit sends the exact full-update payload and maps backend errors to current fields', async () => {
+    setupGroupFormOptions()
+    apiMocks.getGroup.mockResolvedValue({
+      ...group,
+      trainers: [{ id: 'trainer-main', fullName: 'Основной Тренер', login: 'main' }],
+      trainerIds: ['trainer-main'],
+      createdAt: '2026-07-01T10:00:00Z',
+      updatedAt: '2026-07-20T10:00:00Z',
+    })
+    apiMocks.getTrainerOptions.mockResolvedValue([
+      { id: 'trainer-main', fullName: 'Основной Тренер', login: 'main' },
+    ])
+    apiMocks.getGroupClients.mockResolvedValue({ groupId: 'group-1', clients: [] })
+    apiMocks.getGroupTrainerSubstitutions.mockResolvedValue({
+      current: [],
+      history: { items: [], totalCount: 0, skip: 0, take: 20 },
+      canCreate: true,
+      createUnavailableReason: null,
+    })
+    apiMocks.updateGroup.mockRejectedValue(new ApiError('Проверьте поля группы.', 400, {
+      Name: ['Название отклонено сервером.'],
+      TrainerIds: ['Состав основных тренеров недоступен.'],
+    }))
+    const onUpdated = vi.fn()
+
+    renderWithProviders(
+      <GroupEditScreen groupId="group-1" onBack={vi.fn()} onUpdated={onUpdated} />,
+    )
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Сохранить изменения' }))
+
+    await waitFor(() => expect(apiMocks.updateGroup).toHaveBeenCalledWith('group-1', {
+      name: 'Утренняя',
+      branchId: 'branch-1',
+      hallId: 'hall-1',
+      groupTypeId: 'type-1',
+      trainingStartTime: '09:00',
+      durationMinutes: 60,
+      weekdays: [1],
+      isActive: true,
+      trainerIds: ['trainer-main'],
+    }))
+    expect(await screen.findByText('Название отклонено сервером.')).toBeVisible()
+    expect(screen.getByText('Состав основных тренеров недоступен.')).toBeVisible()
+    expect(screen.getByRole('textbox', { name: 'Название группы' })).toHaveValue('Утренняя')
+    expect(onUpdated).not.toHaveBeenCalled()
   })
 
   test('keeps permanent trainerIds unchanged after creating a temporary substitution', async () => {
