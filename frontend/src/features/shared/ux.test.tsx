@@ -889,6 +889,51 @@ describe('shared UX components', () => {
     expect(onReset).toHaveBeenCalledTimes(1)
   })
 
+  test('CompactFilterPanel can hide reset actions when the screen has no active filters', async () => {
+    const originalMatchMedia = window.matchMedia
+
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: query.includes('max-width'),
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      }),
+    })
+
+    try {
+      renderWithProviders(
+        <CompactFilterPanel
+          onReset={() => undefined}
+          primary={[
+            {
+              key: 'query',
+              label: 'Поиск',
+              render: () => <label htmlFor="query">Поиск<input id="query" /></label>,
+            },
+          ]}
+          showReset={false}
+        />,
+      )
+
+      expect(screen.getByRole('button', { name: 'Фильтры' })).toBeVisible()
+      fireEvent.click(screen.getByRole('button', { name: 'Фильтры' }))
+
+      expect(await screen.findByRole('button', { name: 'Готово' })).toBeVisible()
+      expect(screen.queryByRole('button', { name: /Сбросить/i })).not.toBeInTheDocument()
+    } finally {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: originalMatchMedia,
+      })
+    }
+  })
+
   test('CompactFilterPanel keeps mobile page free of inline filter controls until sheet opens', async () => {
     const originalMatchMedia = window.matchMedia
 
@@ -952,6 +997,9 @@ describe('shared UX components', () => {
 
       await waitFor(() => {
         expect(screen.queryByLabelText('Поиск')).not.toBeInTheDocument()
+      })
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Фильтры' })).toHaveFocus()
       })
     } finally {
       Object.defineProperty(window, 'matchMedia', {

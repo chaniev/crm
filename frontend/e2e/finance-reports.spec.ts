@@ -176,6 +176,49 @@ const ZERO_REPORT_RESPONSE = {
   trainerBreakdown: [],
 } as const
 
+const MOBILE_FINANCE_VIEWPORTS = [
+  { width: 360, height: 780 },
+  { width: 390, height: 844 },
+  { width: 420, height: 912 },
+  { width: 440, height: 956 },
+] as const
+
+const LONG_BRANCH_NAME =
+  'Филиал с очень длинным названием для проверки финансового scope на мобильном экране'
+const LONG_TRAINER_NAME =
+  'Тренер с очень длинным полным именем для проверки переноса'
+const STRESS_REPORT_RESPONSE = {
+  ...REPORT_RESPONSE,
+  totals: {
+    soldMembershipCount: 123_456,
+    grossSales: 1_234_567_890,
+    refundTotal: 987_654_321,
+    netTotal: -246_913_569,
+    newClientsCount: 98_765,
+  },
+  branchBreakdown: [
+    {
+      ...REPORT_RESPONSE.branchBreakdown[0],
+      branchName: LONG_BRANCH_NAME,
+      grossSales: 1_234_567_890,
+      netTotal: -246_913_569,
+    },
+  ],
+  groupBreakdown: [
+    {
+      ...REPORT_RESPONSE.groupBreakdown[0],
+      branchName: LONG_BRANCH_NAME,
+      groupName: 'Группа с длинным названием для проверки переноса строки',
+    },
+  ],
+  trainerBreakdown: [
+    {
+      ...REPORT_RESPONSE.trainerBreakdown[0],
+      trainerName: LONG_TRAINER_NAME,
+    },
+  ],
+} as const
+
 test.describe('Finance reports', () => {
   test('shows finance navigation and renders backend totals with duplicated breakdown rows', async ({
     page,
@@ -251,6 +294,262 @@ test.describe('Finance reports', () => {
       )
   })
 
+  for (const viewport of MOBILE_FINANCE_VIEWPORTS) {
+    test(`keeps task-first hierarchy at ${viewport.width}x${viewport.height}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport)
+      await mockFinanceApi(page)
+
+      await page.goto('/finance')
+
+      const scopeHeader = page.getByTestId('finance-scope-header')
+      const filterLauncher = page.getByTestId('finance-filter-panel').getByRole(
+        'button',
+        { name: 'Фильтры' },
+      )
+      const firstBreakdown = page.getByRole('button', { name: 'По филиалам' })
+
+      await expect(scopeHeader).toContainText('Отчет: 01.05.2026–31.05.2026')
+      await expect(scopeHeader).toContainText('Филиал: Все филиалы')
+      await expect(scopeHeader).toContainText('Тренер: Все тренеры')
+      await expect(filterLauncher).toBeVisible()
+      await expect(page.getByTestId('finance-totals')).toBeVisible()
+      await expect(firstBreakdown).toBeVisible()
+
+      const kpiHeights = await page
+        .locator('.finance-kpi-strip__item')
+        .evaluateAll((items) =>
+          items.map((item) => item.getBoundingClientRect().height),
+        )
+      expect(kpiHeights).toHaveLength(5)
+      expect(Math.max(...kpiHeights)).toBeLessThanOrEqual(76)
+
+      if (viewport.width >= 390) {
+        const breakdownBox = await firstBreakdown.boundingBox()
+        const visualViewportHeight = await page.evaluate(
+          () => window.visualViewport?.height ?? window.innerHeight,
+        )
+        expect(breakdownBox).not.toBeNull()
+        expect(breakdownBox!.y).toBeLessThanOrEqual(visualViewportHeight + 1)
+      }
+
+      await expectNoHorizontalScroll(page)
+    })
+  }
+
+  for (const viewport of [
+    { width: 768, height: 1024 },
+    { width: 1440, height: 1200 },
+  ] as const) {
+    test(`preserves compact scope-to-breakdown order at ${viewport.width}x${viewport.height}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport)
+      await mockFinanceApi(page)
+      await page.goto('/finance')
+
+      const scopeHeader = page.getByTestId('finance-scope-header')
+      const filterPanel = page.getByTestId('finance-filter-panel')
+      const totals = page.getByTestId('finance-totals')
+      const breakdown = page.getByTestId('finance-branch-breakdown')
+
+      await expect(scopeHeader).toBeVisible()
+      await expect(filterPanel).toBeVisible()
+      await expect(totals).toBeVisible()
+      await expect(breakdown).toBeVisible()
+
+      const [scopeBox, filterBox, totalsBox, breakdownBox] = await Promise.all([
+        scopeHeader.boundingBox(),
+        filterPanel.boundingBox(),
+        totals.boundingBox(),
+        breakdown.boundingBox(),
+      ])
+      expect(scopeBox).not.toBeNull()
+      expect(filterBox).not.toBeNull()
+      expect(totalsBox).not.toBeNull()
+      expect(breakdownBox).not.toBeNull()
+      expect(scopeBox!.y).toBeLessThan(filterBox!.y)
+      expect(filterBox!.y).toBeLessThan(totalsBox!.y)
+      expect(totalsBox!.y).toBeLessThan(breakdownBox!.y)
+
+      const gridColumnCount = await page
+        .locator('.finance-kpi-strip')
+        .evaluate((element) =>
+          getComputedStyle(element).gridTemplateColumns.split(' ').length,
+        )
+      expect(gridColumnCount).toBe(5)
+      await expectNoHorizontalScroll(page)
+    })
+  }
+
+  test('mobile filters apply immediately, return focus and reset to the valid baseline', async ({
+    page,
+  }) => {
+    const reportRequests: URLSearchParams[] = []
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await mockFinanceApi(page, {
+      onReport(searchParams) {
+        reportRequests.push(new URLSearchParams(searchParams))
+      },
+    })
+    await page.goto('/finance')
+
+    const filterPanel = page.getByTestId('finance-filter-panel')
+    const filterLauncher = filterPanel.getByRole('button', { name: 'Фильтры' })
+    await expect(filterLauncher).toBeVisible()
+    await filterLauncher.click()
+    await page.getByRole('combobox', { name: 'Филиал' }).click()
+    await page.getByRole('option', { name: 'Центр' }).click()
+
+    await expect
+      .poll(() => reportRequests.at(-1)?.get('branchId'))
+      .toBe('branch-1')
+
+    await selectPeriodPreset(page, 'Период')
+    await page.getByRole('combobox', { name: 'Тренер' }).click()
+    await page.getByRole('option', { name: 'Ирина Тренер (irina)' }).click()
+    await expect
+      .poll(() => reportRequests.at(-1)?.toString())
+      .toContain(
+        'periodPreset=custom&from=',
+      )
+    await expect.poll(() => reportRequests.at(-1)?.get('branchId')).toBe('branch-1')
+    await expect.poll(() => reportRequests.at(-1)?.get('trainerId')).toBe('trainer-1')
+
+    await page.getByRole('button', { name: 'Готово' }).click()
+    const activeFilterLauncher = filterPanel.getByRole('button', {
+      name: 'Фильтры · 3',
+    })
+    await expect(activeFilterLauncher).toBeFocused()
+    await expect(
+      page.getByRole('button', {
+        name: 'Сбросить фильтры финансового отчета',
+      }),
+    ).toBeVisible()
+
+    await page
+      .getByRole('button', {
+        name: 'Сбросить фильтры финансового отчета',
+      })
+      .click()
+
+    await expect.poll(() => reportRequests.at(-1)?.get('periodPreset')).toBe('month')
+    await expect.poll(() => reportRequests.at(-1)?.get('anchorDate')).not.toBeNull()
+    await expect.poll(() => reportRequests.at(-1)?.has('branchId')).toBe(false)
+    await expect.poll(() => reportRequests.at(-1)?.has('trainerId')).toBe(false)
+    await expect(filterPanel.getByRole('button', { name: 'Фильтры' })).toBeVisible()
+    await expect(
+      page.getByRole('button', {
+        name: 'Сбросить фильтры финансового отчета',
+      }),
+    ).toHaveCount(0)
+  })
+
+  test('long authorized labels and large negative money stay readable without overflow', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await mockFinanceApi(page, {
+      branches: [
+        {
+          ...BRANCHES_RESPONSE[0],
+          name: LONG_BRANCH_NAME,
+        },
+      ],
+      trainers: [
+        {
+          id: 'trainer-1',
+          fullName: LONG_TRAINER_NAME,
+          login: 'trainer-with-long-login',
+        },
+      ],
+      report: STRESS_REPORT_RESPONSE,
+    })
+    await page.goto('/finance')
+
+    await page.getByRole('button', { name: 'Фильтры' }).click()
+    await page.getByRole('combobox', { name: 'Филиал' }).click()
+    await page.getByRole('option', { name: LONG_BRANCH_NAME }).click()
+    await page.getByRole('combobox', { name: 'Тренер' }).click()
+    await page
+      .getByRole('option', {
+        name: `${LONG_TRAINER_NAME} (trainer-with-long-login)`,
+      })
+      .click()
+    await page.getByRole('button', { name: 'Готово' }).click()
+
+    const scopeHeader = page.getByTestId('finance-scope-header')
+    await expect(scopeHeader).toHaveAccessibleName(
+      new RegExp(`${LONG_BRANCH_NAME}.*${LONG_TRAINER_NAME}`),
+    )
+    await expect(page.getByTestId('finance-totals')).toContainText(/−?246\s?913\s?569|−?246913569/)
+
+    const clippedKpis = await page
+      .locator('.finance-kpi-strip__item')
+      .evaluateAll((items) =>
+        items.filter(
+          (item) =>
+            item.scrollWidth > item.clientWidth + 1 ||
+            item.scrollHeight > item.clientHeight + 1,
+        ).length,
+      )
+    expect(clippedKpis).toBe(0)
+    await expectNoHorizontalScroll(page)
+  })
+
+  test('stale changed-scope failure keeps displayed labels and retries inside the report', async ({
+    page,
+  }) => {
+    let filteredAttempts = 0
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await mockFinanceApi(page, {
+      onReport(searchParams, route) {
+        if (searchParams.get('branchId') !== 'branch-1') {
+          return null
+        }
+
+        filteredAttempts += 1
+
+        if (filteredAttempts === 1) {
+          return fulfillJson(route, 503, { title: 'Сеть недоступна.' })
+        }
+
+        return null
+      },
+    })
+    await page.goto('/finance')
+
+    await expect(page.getByTestId('finance-scope-header')).toContainText(
+      'Филиал: Все филиалы',
+    )
+    await page.getByRole('button', { name: 'Фильтры' }).click()
+    await page.getByRole('combobox', { name: 'Филиал' }).click()
+    await page.getByRole('option', { name: 'Центр' }).click()
+    await page.getByRole('button', { name: 'Готово' }).click()
+
+    await expect(page.getByText('Отчет не обновился')).toBeVisible()
+    await expect(page.getByTestId('finance-scope-header')).toContainText(
+      'Филиал: Все филиалы',
+    )
+    await expect(
+      page.getByText(/Не удалось загрузить отчет для Филиал: Центр/),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Повторить обновление' }),
+    ).toBeVisible()
+
+    await page.getByRole('button', { name: 'Повторить обновление' }).click()
+
+    await expect.poll(() => filteredAttempts).toBe(2)
+    await expect(page.getByTestId('finance-scope-header')).toContainText(
+      'Филиал: Центр',
+    )
+    await expect(page.getByText('Отчет не обновился')).toHaveCount(0)
+  })
+
   test('hides finance tab and keeps explicit restriction on a denied direct route', async ({
     page,
   }) => {
@@ -323,6 +622,10 @@ test.describe('Finance reports', () => {
     await page.getByTestId('finance-filter-panel').getByRole('button', { name: 'Фильтры' }).click()
     await expect(page.getByLabel('Дата в периоде')).toBeVisible()
     await expect(page.getByText('За выбранный период операций нет.')).toBeVisible()
+    await expect(page.getByTestId('finance-totals')).toHaveCount(0)
+    await expect(page.getByTestId('finance-branch-breakdown')).toHaveCount(0)
+    await expect(page.getByTestId('finance-trainer-breakdown')).toHaveCount(0)
+    await expect(page.getByTestId('finance-group-breakdown')).toHaveCount(0)
     await page.getByRole('button', { name: 'Готово' }).click()
     await expect(
       page.locator('nav.app-shell__side-nav[aria-label="Основная навигация"]'),
@@ -359,6 +662,8 @@ test.describe('Finance reports', () => {
 type MockFinanceApiOptions = {
   session?: typeof FINANCE_SESSION | typeof NO_FINANCE_SESSION
   report?: unknown
+  branches?: unknown
+  trainers?: unknown
   onReport?: (
     searchParams: URLSearchParams,
     route: Parameters<Page['route']>[1] extends (route: infer T) => unknown
@@ -409,12 +714,12 @@ async function mockFinanceApi(
     }
 
     if (pathname === '/api/branches' && method === 'GET') {
-      await fulfillJson(route, 200, BRANCHES_RESPONSE)
+      await fulfillJson(route, 200, options.branches ?? BRANCHES_RESPONSE)
       return
     }
 
     if (pathname === '/api/groups/options/trainers' && method === 'GET') {
-      await fulfillJson(route, 200, TRAINERS_RESPONSE)
+      await fulfillJson(route, 200, options.trainers ?? TRAINERS_RESPONSE)
       return
     }
 

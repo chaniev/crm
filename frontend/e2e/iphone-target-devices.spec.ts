@@ -287,6 +287,66 @@ const HEAD_COACH_SESSION = {
   },
 } as const
 
+const FINANCE_TARGET_SESSION = {
+  ...HEAD_COACH_SESSION,
+  csrfToken: 'iphone-target-finance-csrf-token',
+  user: {
+    ...HEAD_COACH_SESSION.user,
+    allowedSections: [...HEAD_COACH_SESSION.user.allowedSections, 'Finance'],
+  },
+} as const
+
+const TARGET_FINANCE_REPORT = {
+  period: {
+    preset: 'month',
+    anchorDate: '2026-08-23',
+    from: '2026-08-01',
+    to: '2026-08-31',
+  },
+  totals: {
+    soldMembershipCount: 4,
+    grossSales: 18_000,
+    refundTotal: 2_000,
+    netTotal: 16_000,
+    newClientsCount: 3,
+  },
+  branchBreakdown: [
+    {
+      branchId: 'branch-1',
+      branchName: 'Северный филиал',
+      soldMembershipCount: 4,
+      grossSales: 18_000,
+      refundTotal: 2_000,
+      netTotal: 16_000,
+      newClientsCount: 3,
+    },
+  ],
+  groupBreakdown: [
+    {
+      groupId: 'group-1',
+      groupName: 'Вечерняя группа',
+      branchId: 'branch-1',
+      branchName: 'Северный филиал',
+      soldMembershipCount: 4,
+      grossSales: 18_000,
+      refundTotal: 2_000,
+      netTotal: 16_000,
+      newClientsCount: 3,
+    },
+  ],
+  trainerBreakdown: [
+    {
+      trainerId: 'trainer-1',
+      trainerName: 'Ирина Тренер',
+      soldMembershipCount: 4,
+      grossSales: 18_000,
+      refundTotal: 2_000,
+      netTotal: 16_000,
+      newClientsCount: 3,
+    },
+  ],
+} as const
+
 const COACH_RESTRICTED_SESSION = {
   ...HEAD_COACH_SESSION,
   csrfToken: 'iphone-target-coach-csrf-token',
@@ -416,6 +476,78 @@ test('target portrait route restriction keeps recovery focused and touch-safe', 
   const recoveryBox = await recovery.boundingBox()
   expect(recoveryBox).not.toBeNull()
   expect(recoveryBox!.height).toBeGreaterThanOrEqual(44)
+})
+
+test('TASK-108 target iPhone keeps finance context and compact-height recovery reachable', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await mockIphoneFinanceApi(page)
+  await page.goto('/finance')
+
+  const scopeHeader = page.getByTestId('finance-scope-header')
+  const filterPanel = page.getByTestId('finance-filter-panel')
+  const filterLauncher = filterPanel.getByRole('button', { name: 'Фильтры' })
+  const firstBreakdown = page.getByRole('button', { name: 'По филиалам' })
+
+  expect(testInfo.project.use.screen).toEqual(target)
+  expect(testInfo.project.use.hasTouch).toBe(true)
+  await expect(scopeHeader).toContainText('Отчет: 01.08.2026–31.08.2026')
+  await expect(scopeHeader).toContainText('Филиал: Все филиалы')
+  await expect(scopeHeader).toContainText('Тренер: Все тренеры')
+  await expect(filterLauncher).toBeVisible()
+  await expect(page.getByTestId('finance-totals')).toBeVisible()
+  await expect(firstBreakdown).toBeVisible()
+
+  const portraitGeometry = await firstBreakdown.evaluate((element) => ({
+    breakdownTop: element.getBoundingClientRect().top,
+    visualViewportHeight: window.visualViewport?.height ?? window.innerHeight,
+  }))
+  expect(portraitGeometry.breakdownTop).toBeLessThanOrEqual(
+    portraitGeometry.visualViewportHeight + 1,
+  )
+  await expectNoHorizontalScroll(page)
+
+  await filterLauncher.click()
+  const doneButton = page.getByRole('button', { name: 'Готово' })
+  await expect(page.getByLabel('Дата в периоде')).toBeVisible()
+  await expect(doneButton).toBeInViewport()
+  await doneButton.click()
+  await expect(filterLauncher).toBeFocused()
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await expect(filterLauncher).toBeVisible()
+  await filterLauncher.click()
+
+  const compactDateInput = page.getByLabel('Дата в периоде')
+  const compactDoneButton = page.getByRole('button', { name: 'Готово' })
+  await compactDateInput.focus()
+  await compactDoneButton.scrollIntoViewIfNeeded()
+  await expect(compactDateInput).toBeVisible()
+  await expect(compactDoneButton).toBeInViewport()
+
+  const drawerGeometry = await page
+    .locator('.compact-filter-panel__sheet-content')
+    .evaluate((element) => {
+      const rect = element.getBoundingClientRect()
+      const actions = element
+        .querySelector('.compact-filter-panel__sheet-actions')
+        ?.getBoundingClientRect()
+
+      return {
+        actionBottom: actions?.bottom ?? Number.POSITIVE_INFINITY,
+        drawerHeight: rect.height,
+        viewportHeight: window.innerHeight,
+      }
+    })
+  expect(drawerGeometry.drawerHeight).toBeLessThanOrEqual(
+    drawerGeometry.viewportHeight + 1,
+  )
+  expect(drawerGeometry.actionBottom).toBeLessThanOrEqual(
+    drawerGeometry.viewportHeight + 1,
+  )
+  await expectNoHorizontalScroll(page)
 })
 
 test('TASK-114 target iPhone keeps membership sale comments isolated through reload', async ({
@@ -2544,6 +2676,78 @@ async function mockApi(
     }
 
     throw new Error(`Unexpected target iPhone API request: ${method} ${pathname}`)
+  })
+}
+
+async function mockIphoneFinanceApi(page: Page) {
+  await page.route('**/api/**', async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const { pathname } = requestUrl
+    const method = route.request().method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, FINANCE_TARGET_SESSION)
+      return
+    }
+
+    if (pathname === '/api/clients/expiring-memberships' && method === 'GET') {
+      await fulfillJson(route, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/clients/attention' && method === 'GET') {
+      await fulfillJson(route, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, { items: [] })
+      return
+    }
+
+    if (pathname === '/api/branches' && method === 'GET') {
+      await fulfillJson(route, [
+        {
+          id: 'branch-1',
+          name: 'Северный филиал',
+          address: null,
+          description: null,
+          isArchived: false,
+          hallCount: 1,
+          groupCount: 1,
+          clientCount: 12,
+        },
+      ])
+      return
+    }
+
+    if (pathname === '/api/groups/options/trainers' && method === 'GET') {
+      await fulfillJson(route, [
+        {
+          id: 'trainer-1',
+          fullName: 'Ирина Тренер',
+          login: 'irina',
+        },
+      ])
+      return
+    }
+
+    if (pathname === '/api/reports/financial' && method === 'GET') {
+      await fulfillJson(route, TARGET_FINANCE_REPORT)
+      return
+    }
+
+    throw new Error(`Unexpected TASK-108 target iPhone API request: ${method} ${pathname}`)
   })
 }
 

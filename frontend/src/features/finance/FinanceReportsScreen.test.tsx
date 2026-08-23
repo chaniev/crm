@@ -182,6 +182,184 @@ describe('FinanceReportsScreen', () => {
     )
   })
 
+  test('distinguishes initial loading from empty and success states', async () => {
+    const pendingReport = createDeferred<FinancialReportResponse>()
+    getFinancialReportMock.mockReturnValueOnce(pendingReport.promise)
+
+    renderWithProviders(<FinanceReportsScreen user={financeUser} />)
+
+    expect(await screen.findByText('Загружаем финансовый отчет...')).toBeVisible()
+    expect(screen.getByTestId('finance-scope-header')).toHaveTextContent(
+      'Запрос: Месяц, дата',
+    )
+    expect(screen.queryByTestId('finance-totals')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('За выбранный период операций нет.'),
+    ).not.toBeInTheDocument()
+
+    pendingReport.resolve(buildReport())
+
+    expect(await screen.findByTestId('finance-totals')).toBeVisible()
+    expect(screen.queryByText('Загружаем финансовый отчет...')).not.toBeInTheDocument()
+  })
+
+  test('renders a retryable initial error inside the report surface', async () => {
+    getFinancialReportMock.mockRejectedValueOnce(new Error('Сеть недоступна.'))
+
+    renderWithProviders(<FinanceReportsScreen user={financeUser} />)
+
+    expect(await screen.findByText('Отчет не загрузился')).toBeVisible()
+    expect(screen.getByText('Сеть недоступна.')).toBeVisible()
+    expect(screen.queryByTestId('finance-totals')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }))
+
+    expect(await screen.findByTestId('finance-totals')).toBeVisible()
+  })
+
+  test('keeps displayed data visible and names the requested scope while refreshing', async () => {
+    const pendingRefresh = createDeferred<FinancialReportResponse>()
+    getFinancialReportMock
+      .mockResolvedValueOnce(buildReport())
+      .mockReturnValueOnce(pendingRefresh.promise)
+
+    renderWithProviders(<FinanceReportsScreen user={financeUser} />)
+
+    expect(await screen.findByTestId('finance-totals')).toHaveTextContent(/11\s?000\s?₽/)
+    const refreshButton = screen.getByRole('button', { name: 'Обновить' })
+    fireEvent.click(refreshButton)
+
+    expect(await screen.findByText(/Обновляем для Филиал: Все филиалы/)).toBeVisible()
+    expect(screen.getByTestId('finance-totals')).toHaveTextContent(/11\s?000\s?₽/)
+    expect(refreshButton).toBeDisabled()
+
+    pendingRefresh.resolve(
+      buildReport({
+        totals: {
+          soldMembershipCount: 3,
+          grossSales: 15_000,
+          refundTotal: 1_000,
+          netTotal: 14_000,
+          newClientsCount: 2,
+        },
+      }),
+    )
+
+    await waitFor(() =>
+      expect(screen.getByTestId('finance-totals')).toHaveTextContent(/14\s?000\s?₽/),
+    )
+  })
+
+  test('renders trusted report scope before compact filters', async () => {
+    renderWithProviders(<FinanceReportsScreen user={financeUser} />)
+
+    const scope = await screen.findByTestId('finance-scope-header')
+    const filterPanel = screen.getByTestId('finance-filter-panel')
+
+    expect(scope).toHaveTextContent('Отчет: 01.05.2026–31.05.2026')
+    expect(scope).toHaveTextContent('Филиал: Все филиалы')
+    expect(scope).toHaveTextContent('Тренер: Все тренеры')
+    expect(scope.compareDocumentPosition(filterPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  test('resets active filters to the valid initial baseline without dropping anchorDate', async () => {
+    renderWithProviders(<FinanceReportsScreen user={financeUser} />)
+
+    await screen.findByTestId('finance-totals')
+    const initialAnchorDate = getFinancialReportMock.mock.calls[0]?.[0].anchorDate
+
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Филиал' }))
+    await selectMantineOption('branch-1')
+    await waitFor(() =>
+      expect(getFinancialReportMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          branchId: 'branch-1',
+        }),
+        expect.anything(),
+      ),
+    )
+
+    fireEvent.click(screen.getByRole('button', {
+      name: /Сбросить фильтры финансового отчета|Сбросить/i,
+    }))
+
+    await waitFor(() =>
+      expect(getFinancialReportMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          anchorDate: initialAnchorDate,
+          branchId: undefined,
+          periodPreset: 'month',
+          trainerId: undefined,
+        }),
+        expect.anything(),
+      ),
+    )
+  })
+
+  test('renders one empty report state without zero KPI cards or empty breakdown copies', async () => {
+    getFinancialReportMock.mockResolvedValueOnce(
+      buildReport({
+        totals: {
+          soldMembershipCount: 0,
+          grossSales: 0,
+          refundTotal: 0,
+          netTotal: 0,
+          newClientsCount: 0,
+        },
+        branchBreakdown: [],
+        groupBreakdown: [],
+        trainerBreakdown: [],
+      }),
+    )
+
+    renderWithProviders(<FinanceReportsScreen user={financeUser} />)
+
+    expect(await screen.findByText('За выбранный период операций нет.')).toBeVisible()
+    expect(screen.queryByTestId('finance-totals')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('finance-branch-breakdown')).not.toBeInTheDocument()
+    expect(screen.queryByText('По филиалам нет строк за выбранный период.')).not.toBeInTheDocument()
+  })
+
+  test('keeps stale money labeled with the last successful scope after a changed-scope refresh fails', async () => {
+    getFinancialReportMock
+      .mockResolvedValueOnce(buildReport())
+      .mockRejectedValueOnce(new Error('Сеть недоступна.'))
+
+    renderWithProviders(<FinanceReportsScreen user={financeUser} />)
+
+    expect(await screen.findByTestId('finance-totals')).toHaveTextContent(/11\s?000\s?₽/)
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Филиал' }))
+    await selectMantineOption('branch-1')
+
+    expect(await screen.findByText('Отчет не обновился')).toBeVisible()
+    expect(screen.getByTestId('finance-scope-header')).toHaveTextContent(
+      'Филиал: Все филиалы',
+    )
+    expect(screen.getByText(/Не удалось загрузить отчет для Филиал: Центр/)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Повторить обновление' })).toBeVisible()
+  })
+
+  test('renders same-scope refresh failure as stale with the backend period', async () => {
+    getFinancialReportMock
+      .mockResolvedValueOnce(buildReport())
+      .mockRejectedValueOnce(new Error('Сеть недоступна.'))
+
+    renderWithProviders(<FinanceReportsScreen user={financeUser} />)
+
+    await screen.findByTestId('finance-totals')
+    fireEvent.click(screen.getByRole('button', { name: 'Обновить' }))
+
+    expect(await screen.findByText('Отчет не обновился')).toBeVisible()
+    expect(
+      screen.getByText(
+        'Не удалось обновить отчет. Показаны ранее загруженные данные за 01.05.2026–31.05.2026.',
+      ),
+    ).toBeVisible()
+    expect(screen.getByText('Сеть недоступна.')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Повторить обновление' })).toBeVisible()
+  })
+
+
   test('shows backend ProblemDetails field errors near filters', async () => {
     getFinancialReportMock.mockRejectedValueOnce(
       new ApiError('Фильтры отчета некорректны.', 400, {
@@ -193,6 +371,8 @@ describe('FinanceReportsScreen', () => {
 
     expect(await screen.findByText('Проверьте фильтры')).toBeVisible()
     expect(screen.getByText('Дата в периоде обязательна.')).toBeVisible()
+    expect(screen.queryByRole('button', { name: /Повторить/ })).not.toBeInTheDocument()
+    expect(screen.queryByTestId('finance-totals')).not.toBeInTheDocument()
   })
 
   test('does not load report when backend session does not grant finance access', () => {
@@ -259,4 +439,26 @@ function buildReport(
     ],
     ...overrides,
   }
+}
+
+function createDeferred<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((nextResolve) => {
+    resolve = nextResolve
+  })
+
+  return { promise, resolve }
+}
+
+async function selectMantineOption(value: string) {
+  let option: HTMLElement | undefined
+
+  await waitFor(() => {
+    option = Array.from(
+      document.querySelectorAll<HTMLElement>(`[role="option"][value="${value}"]`),
+    ).at(-1)
+    expect(option).toBeDefined()
+  })
+
+  fireEvent.click(option!)
 }

@@ -19,7 +19,7 @@ import {
   IconAlertCircle,
   IconCalendarEvent,
   IconChartBar,
-  IconReportMoney,
+  IconFilterOff,
 } from '@tabler/icons-react'
 import {
   ApiError,
@@ -39,17 +39,24 @@ import {
   type TrainerOption,
 } from '../../lib/api'
 import {
+  Button,
   CompactFilterPanel,
-  EmptyState,
   ErrorState,
-  LoadingState,
   PageLayout,
   PageSection,
-  RefreshButton,
   TaskToolbarRefreshAction,
   type CompactFilterItem,
   type CompactFilterPlacement,
 } from '../shared/ux'
+import {
+  FinanceReportSurface,
+  FinanceScopeHeader,
+  type FinanceFailedRequest,
+} from './FinanceReportPresentation'
+import {
+  resolveFinanceScopeLabels,
+  type FinanceScopeContext,
+} from './FinanceReportScope'
 
 type FinanceReportsScreenProps = {
   user: AuthenticatedUser
@@ -62,6 +69,11 @@ type FinanceFilterValues = {
   to: string
   branchId: string | null
   trainerId: string | null
+}
+
+type DisplayedFinancialReport = {
+  report: FinancialReportResponse
+  scope: FinanceScopeContext
 }
 
 type BreakdownColumn<Row> = {
@@ -99,36 +111,48 @@ const countFormatter = new Intl.NumberFormat('ru-RU', {
   maximumFractionDigits: 0,
 })
 
+const financeMobileFilterQuery =
+  '(max-width: 47.99em), (max-height: 30rem) and (pointer: coarse)'
+
 export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
   const canViewFinance =
     user.permissions.canViewFinancialReports &&
     user.allowedSections.includes('Finance')
+  const initialFiltersRef = useRef<FinanceFilterValues>(createInitialFilterValues())
   const form = useForm<FinanceFilterValues>({
-    initialValues: createInitialFilterValues(),
+    initialValues: initialFiltersRef.current,
   })
   const formRef = useRef(form)
-  const reportRef = useRef<FinancialReportResponse | null>(null)
+  const displayedReportRef = useRef<DisplayedFinancialReport | null>(null)
+  const branchOptionsRef = useRef<Array<{ value: string; label: string }>>([])
+  const trainerOptionsRef = useRef<Array<{ value: string; label: string }>>([])
+  const optionsLoadingRef = useRef(false)
+  const optionsErrorRef = useRef<string | null>(null)
   const [appliedFilters, setAppliedFilters] = useState<FinanceFilterValues>(() =>
-    createInitialFilterValues(),
+    initialFiltersRef.current,
   )
   const [branches, setBranches] = useState<Branch[]>([])
   const [trainers, setTrainers] = useState<TrainerOption[]>([])
   const [optionsLoading, setOptionsLoading] = useState(false)
   const [optionsError, setOptionsError] = useState<string | null>(null)
-  const [report, setReport] = useState<FinancialReportResponse | null>(null)
+  const [displayedReport, setDisplayedReport] =
+    useState<DisplayedFinancialReport | null>(null)
   const [reportLoading, setReportLoading] = useState(false)
   const [reportError, setReportError] = useState<string | null>(null)
+  const [failedRequest, setFailedRequest] = useState<FinanceFailedRequest | null>(null)
+  const [scopeTrustError, setScopeTrustError] = useState<string | null>(null)
   const [filterError, setFilterError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const usesMobileFilterLayout = useMediaQuery(financeMobileFilterQuery)
 
   useEffect(() => {
     formRef.current = form
   }, [form])
 
   useEffect(() => {
-    reportRef.current = report
-  }, [report])
+    displayedReportRef.current = displayedReport
+  }, [displayedReport])
 
   useEffect(() => {
     if (!canViewFinance) {
@@ -142,6 +166,8 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
     const controller = new AbortController()
 
     async function loadOptions() {
+      optionsLoadingRef.current = true
+      optionsErrorRef.current = null
       setOptionsLoading(true)
       setOptionsError(null)
 
@@ -162,13 +188,16 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
           return
         }
 
-        setOptionsError(
+        const message =
           error instanceof Error
             ? error.message
-            : 'Не удалось загрузить списки фильтров.',
-        )
+            : 'Не удалось загрузить списки фильтров.'
+
+        optionsErrorRef.current = message
+        setOptionsError(message)
       } finally {
         if (!controller.signal.aborted) {
+          optionsLoadingRef.current = false
           setOptionsLoading(false)
         }
       }
@@ -178,71 +207,6 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
 
     return () => controller.abort()
   }, [canViewFinance])
-
-  useEffect(() => {
-    if (!canViewFinance) {
-      setReport(null)
-      setReportError(null)
-      setFilterError(null)
-      setReportLoading(false)
-      return
-    }
-
-    const controller = new AbortController()
-
-    async function loadReport() {
-      setReportLoading(true)
-      setReportError(null)
-      setFilterError(null)
-
-      try {
-        const nextReport = await getFinancialReport(
-          toFinancialReportParams(appliedFilters),
-          controller.signal,
-        )
-
-        if (controller.signal.aborted) {
-          return
-        }
-
-        setReport(nextReport)
-        formRef.current.clearErrors()
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return
-        }
-
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Не удалось загрузить финансовый отчет.'
-
-        if (error instanceof ApiError) {
-          const nextFieldErrors = applyFieldErrors(error.fieldErrors)
-
-          if (Object.keys(nextFieldErrors).length > 0) {
-            formRef.current.setErrors(nextFieldErrors)
-            setFilterError(message)
-            focusFirstInvalidField(Object.keys(nextFieldErrors)[0])
-          }
-        }
-
-        setReportError(
-          reportRef.current
-            ? 'Не удалось обновить отчет. Показаны предыдущие данные.'
-            : message,
-        )
-      } finally {
-        if (!controller.signal.aborted) {
-          setReportLoading(false)
-        }
-      }
-    }
-
-    void loadReport()
-
-    return () => controller.abort()
-  }, [appliedFilters, canViewFinance, reloadKey])
 
   const branchOptions = useMemo(
     () =>
@@ -263,12 +227,143 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
     [trainers],
   )
 
+  useEffect(() => {
+    branchOptionsRef.current = branchOptions
+    trainerOptionsRef.current = trainerOptions
+  }, [branchOptions, trainerOptions])
+
+  useEffect(() => {
+    optionsLoadingRef.current = optionsLoading
+    optionsErrorRef.current = optionsError
+  }, [optionsError, optionsLoading])
+
+  const selectedScopeOptionsKey = useMemo(
+    () =>
+      createSelectedScopeOptionsKey({
+        branchOptions,
+        filters: appliedFilters,
+        optionsError,
+        optionsLoading,
+        trainerOptions,
+      }),
+    [appliedFilters, branchOptions, optionsError, optionsLoading, trainerOptions],
+  )
+
+  useEffect(() => {
+    if (!canViewFinance) {
+      setDisplayedReport(null)
+      setReportError(null)
+      setFailedRequest(null)
+      setFilterError(null)
+      setScopeTrustError(null)
+      setReportLoading(false)
+      return
+    }
+
+    const controller = new AbortController()
+
+    async function loadReport() {
+      const scopeResolution = resolveFinanceScopeLabels({
+        branchOptions: branchOptionsRef.current,
+        filters: appliedFilters,
+        trainerOptions: trainerOptionsRef.current,
+      })
+
+      if (scopeResolution.kind === 'inconsistent') {
+        if (
+          hasSelectedScopeFilter(appliedFilters) &&
+          optionsLoadingRef.current &&
+          !optionsErrorRef.current
+        ) {
+          setScopeTrustError(null)
+          setReportError(null)
+          setFailedRequest(null)
+          setReportLoading(false)
+          return
+        }
+
+        setScopeTrustError(scopeResolution.message)
+        setReportError(null)
+        setFailedRequest(null)
+        setReportLoading(false)
+        return
+      }
+
+      setReportLoading(true)
+      setReportError(null)
+      setFilterError(null)
+      setScopeTrustError(null)
+      setFailedRequest(null)
+      const requestKey = createFinanceRequestKey(appliedFilters)
+
+      try {
+        const nextReport = await getFinancialReport(
+          toFinancialReportParams(appliedFilters),
+          controller.signal,
+        )
+
+        if (controller.signal.aborted) {
+          return
+        }
+
+        setDisplayedReport({
+          report: nextReport,
+          scope: scopeResolution.scope,
+        })
+        formRef.current.clearErrors()
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return
+        }
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Не удалось загрузить финансовый отчет.'
+
+        if (error instanceof ApiError) {
+          const nextFieldErrors = applyFieldErrors(error.fieldErrors)
+
+          if (Object.keys(nextFieldErrors).length > 0) {
+            formRef.current.setErrors(nextFieldErrors)
+            setFilterError(message)
+            focusFirstInvalidField(Object.keys(nextFieldErrors)[0])
+            setReportError(null)
+            setFailedRequest(null)
+            return
+          }
+        }
+
+        if (displayedReportRef.current) {
+          setFailedRequest({
+            message,
+            requestKey,
+            requestedScope: scopeResolution.scope,
+          })
+          setReportError(null)
+        } else {
+          setReportError(message)
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setReportLoading(false)
+        }
+      }
+    }
+
+    void loadReport()
+
+    return () => controller.abort()
+  }, [appliedFilters, canViewFinance, reloadKey, selectedScopeOptionsKey])
+
   function applyFilters(values: FinanceFilterValues) {
     const nextFilters = normalizeFilterValues(values)
 
     form.setValues(nextFilters)
     form.clearErrors()
     setFilterError(null)
+    setFailedRequest(null)
+    setScopeTrustError(null)
     setAppliedFilters(nextFilters)
   }
 
@@ -282,11 +377,13 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
   }
 
   function handleResetFilters() {
-    const nextFilters = createClearedFilterValues()
+    const nextFilters = { ...initialFiltersRef.current }
 
     form.setValues(nextFilters)
     form.clearErrors()
     setFilterError(null)
+    setFailedRequest(null)
+    setScopeTrustError(null)
     setAppliedFilters(nextFilters)
   }
 
@@ -303,9 +400,32 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
     )
   }
 
+  const report = displayedReport?.report ?? null
+  const requestedScopeResolution = resolveFinanceScopeLabels({
+    branchOptions,
+    filters: appliedFilters,
+    trainerOptions,
+  })
+  const requestedScope =
+    requestedScopeResolution.kind === 'valid'
+      ? requestedScopeResolution.scope
+      : displayedReport?.scope ?? {
+          branchLabel: 'Все филиалы',
+          filters: appliedFilters,
+          trainerLabel: 'Все тренеры',
+        }
+  const activeFilterCount = getActiveFilterCount(
+    appliedFilters,
+    initialFiltersRef.current,
+  )
+  const hasActiveFilters = activeFilterCount > 0
   const hasReport = Boolean(report)
   const isInitialReportLoading = reportLoading && !hasReport
   const isRefreshingReport = reportLoading && hasReport
+  const activeFailedRequest =
+    failedRequest?.requestKey === createFinanceRequestKey(appliedFilters)
+      ? failedRequest
+      : null
   const filterErrorMessages = Object.values(form.errors).filter(
     (message): message is string => typeof message === 'string' && message.length > 0,
   )
@@ -448,121 +568,77 @@ export function FinanceReportsScreen({ user }: FinanceReportsScreenProps) {
           </Alert>
         ) : null}
 
+        {scopeTrustError ? (
+          <Alert
+            color="red"
+            icon={<IconAlertCircle size={18} />}
+            title="Нельзя подтвердить scope финансового отчета"
+            variant="light"
+          >
+            {scopeTrustError}
+          </Alert>
+        ) : null}
+
+        <FinanceScopeHeader
+          displayedReport={report}
+          displayedScope={displayedReport?.scope ?? null}
+          isRefreshing={isRefreshingReport}
+          requestedScope={requestedScope}
+        />
+
         <CompactFilterPanel
           actions={
-            <TaskToolbarRefreshAction
-              loading={isRefreshingReport}
-              onClick={() => setReloadKey((current) => current + 1)}
-            />
+            <Group className="finance-report-toolbar__actions" gap="xs" wrap="nowrap">
+              {usesMobileFilterLayout && hasActiveFilters ? (
+                <Button
+                  aria-label="Сбросить фильтры финансового отчета"
+                  className="finance-report-toolbar__mobile-reset"
+                  leftSection={<IconFilterOff size={16} />}
+                  onClick={handleResetFilters}
+                  type="button"
+                  variant="secondary"
+                >
+                  Сбросить
+                </Button>
+              ) : null}
+              <TaskToolbarRefreshAction
+                loading={reportLoading}
+                onClick={() => setReloadKey((current) => current + 1)}
+              />
+            </Group>
           }
           className="finance-report-toolbar"
           data-testid="finance-filter-panel"
+          mobileLabel={hasActiveFilters ? `Фильтры · ${activeFilterCount}` : 'Фильтры'}
           onReset={handleResetFilters}
           primary={primaryFilters}
+          resetLabel="Сбросить"
           secondary={secondaryFilters}
+          showReset={hasActiveFilters}
         />
       </Stack>
 
       <PageSection>
-        <Stack gap="lg">
-          {isInitialReportLoading ? (
-            <LoadingState label="Загружаем финансовый отчет..." />
-          ) : null}
-
-          {!isInitialReportLoading && reportError && !report ? (
-            <ErrorState
-              action={
-                <RefreshButton
-                  label="Повторить"
-                  onClick={() => setReloadKey((current) => current + 1)}
-                />
-              }
-              message={reportError}
-              title="Отчет не загрузился"
-            />
-          ) : null}
-
-          {reportError && report ? (
-            <Alert
-              color="yellow"
-              icon={<IconAlertCircle size={18} />}
-              title="Отчет не обновился"
-              variant="light"
-            >
-              {reportError}
-            </Alert>
-          ) : null}
-
+        <FinanceReportSurface
+          displayedScope={displayedReport?.scope ?? null}
+          failedRequest={activeFailedRequest}
+          initialError={reportError}
+          isInitialLoading={isInitialReportLoading}
+          isMobile={isMobile}
+          onRetry={() => setReloadKey((current) => current + 1)}
+          report={scopeTrustError ? null : report}
+        >
           {report ? (
-            <FinanceReportResults isMobile={isMobile} report={report} />
+            isMobile ? (
+              <MobileBreakdowns report={report} />
+            ) : (
+              <DesktopBreakdowns report={report} />
+            )
           ) : null}
-        </Stack>
+        </FinanceReportSurface>
       </PageSection>
     </PageLayout>
   )
-}
-
-type FinanceReportResultsProps = {
-  report: FinancialReportResponse
-  isMobile: boolean | undefined
-}
-
-function FinanceReportResults({ report, isMobile }: FinanceReportResultsProps) {
-  return (
-    <Stack gap="lg">
-      <SimpleGrid
-        className="finance-metrics-grid"
-        cols={{ base: 1, sm: 2, lg: 5 }}
-        data-testid="finance-totals"
-      >
-        <FinanceMetric
-          description="Продажи за период"
-          label="Продано абонементов"
-          value={formatCount(report.totals.soldMembershipCount)}
-        />
-        <FinanceMetric
-          description="Сумма продаж"
-          label="Выручка"
-          value={formatMoney(report.totals.grossSales)}
-        />
-        <FinanceMetric
-          description="Возвраты за период"
-          label="Возвраты"
-          value={formatMoney(report.totals.refundTotal)}
-        />
-        <FinanceMetric
-          description="Итоговая сумма"
-          label="Чистая выручка"
-          value={formatMoney(report.totals.netTotal)}
-        />
-        <FinanceMetric
-          description="Новые клиенты"
-          label="Новые клиенты"
-          value={formatCount(report.totals.newClientsCount)}
-        />
-      </SimpleGrid>
-
-      {isZeroReport(report) ? (
-        <EmptyState
-          description="Измените период или снимите фильтры."
-          icon={<IconReportMoney size={28} />}
-          title="За выбранный период операций нет."
-        />
-      ) : null}
-
-      {isMobile ? (
-        <MobileBreakdowns report={report} />
-      ) : (
-        <DesktopBreakdowns report={report} />
-      )}
-    </Stack>
-  )
-}
-
-type FinanceMetricProps = {
-  label: string
-  value: string
-  description: string
 }
 
 function CompactFilterField({
@@ -578,24 +654,6 @@ function CompactFilterField({
       <Text className="compact-filter-field__label">{label}</Text>
       {children}
     </Stack>
-  )
-}
-
-function FinanceMetric({ label, value, description }: FinanceMetricProps) {
-  return (
-    <Paper className="finance-metric-card" radius="var(--radius-inner)" withBorder>
-      <Stack gap={4}>
-        <Text c="dimmed" fw={700} size="xs" tt="uppercase">
-          {label}
-        </Text>
-        <Text className="finance-metric-card__value" fw={800}>
-          {value}
-        </Text>
-        <Text c="dimmed" size="xs">
-          {description}
-        </Text>
-      </Stack>
-    </Paper>
   )
 }
 
@@ -951,17 +1009,6 @@ function createInitialFilterValues(): FinanceFilterValues {
   }
 }
 
-function createClearedFilterValues(): FinanceFilterValues {
-  return {
-    periodPreset: 'month',
-    anchorDate: '',
-    from: '',
-    to: '',
-    branchId: null,
-    trainerId: null,
-  }
-}
-
 function normalizeFilterValues(values: FinanceFilterValues): FinanceFilterValues {
   return {
     periodPreset: values.periodPreset,
@@ -971,6 +1018,73 @@ function normalizeFilterValues(values: FinanceFilterValues): FinanceFilterValues
     branchId: values.branchId?.trim() || null,
     trainerId: values.trainerId?.trim() || null,
   }
+}
+
+function getActiveFilterCount(
+  values: FinanceFilterValues,
+  baseline: FinanceFilterValues,
+) {
+  let count = 0
+
+  if (values.periodPreset !== baseline.periodPreset) {
+    count += 1
+  } else if (values.periodPreset === 'custom') {
+    if (values.from !== baseline.from || values.to !== baseline.to) {
+      count += 1
+    }
+  } else if (values.anchorDate !== baseline.anchorDate) {
+    count += 1
+  }
+
+  if (values.branchId !== baseline.branchId) {
+    count += 1
+  }
+
+  if (values.trainerId !== baseline.trainerId) {
+    count += 1
+  }
+
+  return count
+}
+
+function hasSelectedScopeFilter(values: FinanceFilterValues) {
+  return Boolean(values.branchId || values.trainerId)
+}
+
+function createSelectedScopeOptionsKey({
+  filters,
+  branchOptions,
+  trainerOptions,
+  optionsLoading,
+  optionsError,
+}: {
+  filters: FinanceFilterValues
+  branchOptions: Array<{ value: string; label: string }>
+  trainerOptions: Array<{ value: string; label: string }>
+  optionsLoading: boolean
+  optionsError: string | null
+}) {
+  if (!hasSelectedScopeFilter(filters)) {
+    return 'all-scope'
+  }
+
+  const branchLabel = filters.branchId
+    ? branchOptions.find((option) => option.value === filters.branchId)?.label ?? ''
+    : 'all'
+  const trainerLabel = filters.trainerId
+    ? trainerOptions.find((option) => option.value === filters.trainerId)?.label ?? ''
+    : 'all'
+
+  return [
+    `branch:${filters.branchId ?? 'all'}:${branchLabel}`,
+    `trainer:${filters.trainerId ?? 'all'}:${trainerLabel}`,
+    `loading:${optionsLoading ? '1' : '0'}`,
+    `error:${optionsError ? '1' : '0'}`,
+  ].join('|')
+}
+
+function createFinanceRequestKey(values: FinanceFilterValues) {
+  return JSON.stringify(toFinancialReportParams(values))
 }
 
 function toFinancialReportParams(
@@ -1025,14 +1139,4 @@ function formatCount(value: number) {
 
 function formatMoney(value: number) {
   return moneyFormatter.format(value)
-}
-
-function isZeroReport(report: FinancialReportResponse) {
-  return (
-    report.totals.soldMembershipCount === 0 &&
-    report.totals.grossSales === 0 &&
-    report.totals.refundTotal === 0 &&
-    report.totals.netTotal === 0 &&
-    report.totals.newClientsCount === 0
-  )
 }

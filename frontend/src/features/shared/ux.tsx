@@ -269,6 +269,7 @@ type CompactFilterPanelProps = ComponentPropsWithoutRef<'div'> & {
   onReset: () => void
   resetLabel?: string
   sheetTitle?: string
+  showReset?: boolean
 }
 
 const compactFilterGapPx = 8
@@ -285,12 +286,14 @@ export function CompactFilterPanel({
   onReset,
   resetLabel = 'Сбросить',
   sheetTitle = 'Фильтры',
+  showReset = true,
   ...props
 }: CompactFilterPanelProps) {
   const isMobile = useMediaQuery(compactFilterMobileQuery)
   const [moreOpened, setMoreOpened] = useState(false)
   const [sheetOpened, setSheetOpened] = useState(false)
   const [visiblePrimaryCount, setVisiblePrimaryCount] = useState(primary.length)
+  const mobileRowRef = useRef<HTMLDivElement | null>(null)
   const rowRef = useRef<HTMLDivElement | null>(null)
   const widthCacheRef = useRef<{
     filters: Map<string, number>
@@ -350,12 +353,15 @@ export function CompactFilterPanel({
     )
     const moreWidth = widthCacheRef.current.more ||
       getEstimatedCompactActionWidth(moreLabel)
-    const resetWidth = widthCacheRef.current.reset ||
-      getEstimatedCompactActionWidth(resetLabel)
+    const resetWidth = showReset
+      ? widthCacheRef.current.reset || getEstimatedCompactActionWidth(resetLabel)
+      : 0
 
-    const actionCount = hasMoreAction ? 2 : 1
+    const actionCount = Number(hasMoreAction) + Number(showReset)
     const actionWidth =
-      moreWidth + resetWidth + (actionCount - 1) * compactFilterGapPx
+      (hasMoreAction ? moreWidth : 0) +
+      resetWidth +
+      Math.max(0, actionCount - 1) * compactFilterGapPx
 
     let nextVisibleCount = primary.length
 
@@ -377,7 +383,7 @@ export function CompactFilterPanel({
     }
 
     setVisiblePrimaryCount(nextVisibleCount)
-  }, [canOverflowPrimary, hasMoreAction, isMobile, moreLabel, primary, resetLabel])
+  }, [canOverflowPrimary, hasMoreAction, isMobile, moreLabel, primary, resetLabel, showReset])
 
   useLayoutEffect(() => {
     const frameId = window.requestAnimationFrame(measureLayout)
@@ -420,6 +426,17 @@ export function CompactFilterPanel({
 
   function handleReset() {
     onReset()
+  }
+
+  function closeMobileSheet() {
+    setSheetOpened(false)
+    window.requestAnimationFrame(() =>
+      mobileRowRef.current
+        ?.querySelector<HTMLButtonElement>(
+          '.compact-filter-panel__mobile-launcher',
+        )
+        ?.focus(),
+    )
   }
 
   function renderFilterItem(
@@ -477,7 +494,7 @@ export function CompactFilterPanel({
           .join(' ')}
         {...props}
       >
-        <div className="compact-filter-panel__mobile-row">
+        <div className="compact-filter-panel__mobile-row" ref={mobileRowRef}>
           <Button
             className="compact-filter-panel__mobile-launcher"
             fullWidth
@@ -503,7 +520,7 @@ export function CompactFilterPanel({
             className: 'temporary-surface-close compact-filter-panel__sheet-close',
           }}
           closeOnEscape
-          onClose={() => setSheetOpened(false)}
+          onClose={closeMobileSheet}
           opened={sheetOpened}
           position="bottom"
           returnFocus
@@ -518,19 +535,21 @@ export function CompactFilterPanel({
           </div>
           <div className="compact-filter-panel__sheet-actions">
             <Button
-              onClick={() => setSheetOpened(false)}
+              onClick={closeMobileSheet}
               type="button"
             >
               {applyLabel}
             </Button>
-            <Button
-              leftSection={<IconFilterOff size={16} />}
-              onClick={handleReset}
-              type="button"
-              variant="secondary"
-            >
-              {resetLabel}
-            </Button>
+            {showReset ? (
+              <Button
+                leftSection={<IconFilterOff size={16} />}
+                onClick={handleReset}
+                type="button"
+                variant="secondary"
+              >
+                {resetLabel}
+              </Button>
+            ) : null}
           </div>
         </Drawer>
       </div>
@@ -580,7 +599,7 @@ export function CompactFilterPanel({
           {actions ? (
             <div className="compact-filter-panel__custom-actions">{actions}</div>
           ) : null}
-          {resetButton}
+          {showReset ? resetButton : null}
         </div>
       </div>
     </div>
