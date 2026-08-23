@@ -8,6 +8,7 @@ import {
   getEligibleMembershipCatalogItems,
   type ClientMembership,
   type MembershipCatalogItem,
+  type TrainingGroupListItem,
 } from '../../../lib/api'
 import { ResponsiveButtonGroup } from '../../shared/ux'
 import {
@@ -26,8 +27,14 @@ import type {
   MembershipRenewFormValues,
 } from '../ClientManagement.types'
 import { InfoItem, MembershipSaleConfirmationModal, PaymentDateInput } from '../ClientSharedInfo'
-import { createMembershipRenewInitialValues } from './membershipForms'
+import { createMembershipRenewInitialValues, validateTargetGroups } from './membershipForms'
 import { useClientActionSubmissionKey } from '../useClientActionSubmissionKey'
+import { MembershipTargetGroupsField } from './MembershipTargetGroupsField'
+import {
+  isMembershipTargetLoadAbort,
+  loadAllActiveMembershipTargetGroups,
+  pickTargetGroupError,
+} from './membershipTargetGroups'
 
 type MembershipRenewPanelProps = {
   branchId: string
@@ -47,16 +54,24 @@ export function MembershipRenewPanel({
   onSubmit,
 }: MembershipRenewPanelProps) {
   const form = useForm<MembershipRenewFormValues>({
-    initialValues: createMembershipRenewInitialValues(businessDate),
+    initialValues: createMembershipRenewInitialValues(businessDate, currentMembership),
   })
   const [catalogItems, setCatalogItems] = useState<MembershipCatalogItem[]>([])
+  const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [groupsLoading, setGroupsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [confirmationOpened, setConfirmationOpened] = useState(false)
   const getSubmissionKey = useClientActionSubmissionKey()
   const selected = catalogItems.find(
     (item) => item.id === form.values.membershipCatalogItemId,
+  )
+  const targetBehaviorKind = selected?.behaviorKind ?? currentMembership.behaviorKind
+  const reportingBranchId = currentMembership.targetGroups[0]?.branchId ?? branchId
+  const availableGroups = groups.filter((group) => group.branchId === reportingBranchId)
+  const selectedTargetLabels = form.values.targetGroupIds.map(
+    (groupId) => availableGroups.find((group) => group.id === groupId)?.name ?? groupId,
   )
 
   useEffect(() => {
@@ -76,6 +91,23 @@ export function MembershipRenewPanel({
     return () => controller.abort()
   }, [branchId])
 
+  useEffect(() => {
+    const controller = new AbortController()
+    void loadAllActiveMembershipTargetGroups(controller.signal)
+      .then(setGroups)
+      .catch((error) => {
+        if (!isMembershipTargetLoadAbort(error)) {
+          setLoadError(
+            error instanceof Error ? error.message : 'Не удалось загрузить группы.',
+          )
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setGroupsLoading(false)
+      })
+    return () => controller.abort()
+  }, [])
+
   function requestConfirmation(values: MembershipRenewFormValues) {
     const errors: Record<string, string> = {
       ...validateMembershipSalePricing(values),
@@ -83,6 +115,7 @@ export function MembershipRenewPanel({
     if (!values.paymentDate) {
       errors.paymentDate = 'Укажите дату оплаты.'
     }
+    validateTargetGroups(values.targetGroupIds, targetBehaviorKind, errors)
     if (Object.keys(errors).length > 0) {
       form.setErrors(errors)
       return
@@ -96,7 +129,10 @@ export function MembershipRenewPanel({
     try {
       const payload = {
         ...buildMembershipSalePricingPayload(form.values),
+        saleId: currentMembership.saleId,
+        expectedMembershipId: currentMembership.id,
         paymentDate: form.values.paymentDate,
+        targetGroupIds: form.values.targetGroupIds,
         ...(selected?.behaviorKind === 'Professional'
           ? {
               professionalComment:
@@ -125,6 +161,7 @@ export function MembershipRenewPanel({
         onConfirm={() => void confirmRenewal()}
         opened={confirmationOpened}
         pending={pending}
+        targetGroupLabels={selectedTargetLabels}
         values={form.values}
       />
       <form noValidate onSubmit={form.onSubmit(requestConfirmation)}>
@@ -174,6 +211,17 @@ export function MembershipRenewPanel({
               form.clearFieldError('manualSaleAmount')
             }}
             values={form.values}
+          />
+          <MembershipTargetGroupsField
+            behaviorKind={targetBehaviorKind}
+            error={pickTargetGroupError(form.errors)}
+            groups={availableGroups}
+            loading={groupsLoading}
+            onChange={(targetGroupIds) => {
+              form.setFieldValue('targetGroupIds', targetGroupIds)
+              form.clearFieldError('targetGroupIds')
+            }}
+            targetGroupIds={form.values.targetGroupIds}
           />
 
           {selected?.behaviorKind === 'Professional' ? (

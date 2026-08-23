@@ -70,9 +70,10 @@ internal static class ClientMembershipMutationRules
         string? professionalComment,
         ClientMembershipChangeReason reason,
         Guid actorId,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        IReadOnlyList<ClientMembershipTargetDescriptor>? targets = null)
     {
-        return new ClientMembership
+        var membership = new ClientMembership
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
@@ -87,6 +88,13 @@ internal static class ClientMembershipMutationRules
             ValidFrom = now,
             CreatedAt = now
         };
+
+        if (targets is not null)
+        {
+            AddTargets(membership, targets);
+        }
+
+        return membership;
     }
 
     public static ClientMembershipSale CreateSale(
@@ -112,5 +120,55 @@ internal static class ClientMembershipMutationRules
             CreatedByUserId = actorId,
             CreatedAt = now
         };
+    }
+
+    public static void AddTargets(ClientMembership membership, IReadOnlyList<ClientMembershipTargetDescriptor> targets)
+    {
+        membership.TargetGroups.Clear();
+        for (var index = 0; index < targets.Count; index++)
+        {
+            membership.TargetGroups.Add(new ClientMembershipTargetGroup
+            {
+                ClientMembershipId = membership.Id,
+                GroupId = targets[index].GroupId,
+                BranchId = targets[index].BranchId,
+                Position = index
+            });
+        }
+    }
+
+    public static IReadOnlyList<ClientMembershipSaleTargetSnapshot> CreateSaleTargetSnapshots(
+        Guid saleId,
+        IReadOnlyList<ClientMembershipTargetDescriptor> targets,
+        string provenance = "Write")
+    {
+        return targets
+            .Select((target, index) => new ClientMembershipSaleTargetSnapshot
+            {
+                SaleId = saleId,
+                GroupId = target.GroupId,
+                BranchId = target.BranchId,
+                Position = index,
+                Provenance = provenance
+            })
+            .ToArray();
+    }
+
+    public static IReadOnlyList<ClientMembershipRefundTargetSnapshot> CreateRefundTargetSnapshots(
+        Guid refundId,
+        IReadOnlyList<ClientMembershipTargetGroup> targets,
+        string provenance = "Write")
+    {
+        return targets
+            .OrderBy(target => target.Position)
+            .Select(target => new ClientMembershipRefundTargetSnapshot
+            {
+                RefundId = refundId,
+                GroupId = target.GroupId,
+                BranchId = target.BranchId,
+                Position = target.Position,
+                Provenance = provenance
+            })
+            .ToArray();
     }
 }

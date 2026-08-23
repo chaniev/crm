@@ -16,7 +16,7 @@ function buildRow(saveState: AttendanceClientRowState['saveState']): AttendanceC
       professionalComment: null,
       hasActiveMembership: true,
       membershipWarning: false,
-      currentMembership: null,
+      currentMemberships: [],
     },
     displayedState: 'Unmarked',
     persistedState: 'Unmarked',

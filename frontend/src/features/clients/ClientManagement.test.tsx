@@ -76,6 +76,7 @@ beforeEach(() => {
   transferClientMock.mockReset()
   updateClientMock.mockReset()
   updateCommentMock.mockReset()
+  getGroupsMock.mockResolvedValue(buildGroupsPage())
 })
 
 describe('Client route forms', () => {
@@ -800,6 +801,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     fireEvent.change(screen.getByLabelText('Действует с'), { target: { value: '2026-07-22' } })
     fireEvent.change(screen.getByLabelText('Действует по'), { target: { value: '2026-08-20' } })
     fireEvent.change(await screen.findByLabelText('Дата оплаты'), { target: { value: '2026-07-10' } })
+    await selectMembershipTargetGroup()
     fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
 
     const confirmation = await screen.findByRole('dialog', { name: /Подтвердить.*продажу/i })
@@ -813,6 +815,7 @@ describe('ClientDetailScreen membership purchase form', () => {
         validFrom: '2026-07-22',
         validTo: '2026-08-20',
         paymentDate: '2026-07-10',
+        targetGroupIds: ['group-1'],
       }, { idempotencyKey: expect.any(String) }),
     )
   })
@@ -835,6 +838,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     fireEvent.change(screen.getByLabelText('Действует с'), { target: { value: '2026-07-22' } })
     fireEvent.change(screen.getByLabelText('Действует по'), { target: { value: '2026-08-20' } })
     fireEvent.change(await screen.findByLabelText('Дата оплаты'), { target: { value: '2026-07-24' } })
+    await selectMembershipTargetGroup()
     fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
 
     const confirmation = await screen.findByRole('dialog', { name: /Подтвердить.*продажу/i })
@@ -874,6 +878,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     fireEvent.change(await screen.findByLabelText('Дата оплаты'), {
       target: { value: '2026-07-01' },
     })
+    await selectMembershipTargetGroup()
 
     fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
     let confirmation = await screen.findByRole('dialog', {
@@ -912,6 +917,7 @@ describe('ClientDetailScreen membership purchase form', () => {
       validFrom: '2026-07-22',
       validTo: '2026-08-20',
       paymentDate: '2026-07-01',
+      targetGroupIds: ['group-1'],
     })
   })
 
@@ -933,6 +939,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     fireEvent.change(screen.getByLabelText('Действует по'), {
       target: { value: '2026-08-20' },
     })
+    await selectMembershipTargetGroup()
     fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
     const confirmation = await screen.findByRole('dialog', {
       name: /Подтвердить.*продажу/i,
@@ -969,6 +976,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     fireEvent.change(screen.getByLabelText('Действует по'), {
       target: { value: '2026-08-20' },
     })
+    await selectMembershipTargetGroup()
     fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
 
     const confirmation = await screen.findByRole('dialog', {
@@ -1007,6 +1015,7 @@ describe('ClientDetailScreen membership purchase form', () => {
     fireEvent.change(screen.getByLabelText('Действует по'), {
       target: { value: '2026-08-20' },
     })
+    await selectMembershipTargetGroup()
 
     fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
 
@@ -1028,8 +1037,7 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     } as unknown as ReturnType<typeof buildMembership>
     getClientMock.mockResolvedValue({
       ...buildClientDetails(),
-      currentMembership: previous,
-      currentMembershipSummary: previous,
+      currentMemberships: [previous],
       hasCurrentMembership: true,
       membershipHistory: [previous],
     })
@@ -1061,8 +1069,7 @@ describe('ClientDetailScreen membership renewal pricing', () => {
       ...buildClientDetails(),
       isProfessional: true,
       professionalComment: 'Льготный статус до конца сезона.',
-      currentMembership: professionalMembership,
-      currentMembershipSummary: professionalMembership,
+      currentMemberships: [professionalMembership],
       hasCurrentMembership: true,
       membershipHistory: [professionalMembership],
     })
@@ -1099,8 +1106,7 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     const currentMembership = buildMembership()
     const client = {
       ...buildClientDetails({ businessDate: '2026-07-23' }),
-      currentMembership,
-      currentMembershipSummary: currentMembership,
+      currentMemberships: [currentMembership],
       hasCurrentMembership: true,
       membershipHistory: [currentMembership],
     }
@@ -1123,7 +1129,10 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     await waitFor(() =>
       expect(renewMembershipMock).toHaveBeenCalledWith('client-1', {
         membershipCatalogItemId: 'catalog-1',
+        saleId: 'sale-current',
+        expectedMembershipId: 'version-current',
         paymentDate: '2026-07-05',
+        targetGroupIds: ['group-1'],
       }, { idempotencyKey: expect.any(String) }),
     )
     expect(renewMembershipMock.mock.calls[0]?.[1]).not.toHaveProperty('paymentStatus')
@@ -1134,8 +1143,7 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     const currentMembership = buildMembership()
     const client = {
       ...buildClientDetails({ businessDate: '2026-07-23' }),
-      currentMembership,
-      currentMembershipSummary: currentMembership,
+      currentMemberships: [currentMembership],
       hasCurrentMembership: true,
       membershipHistory: [currentMembership],
     }
@@ -1179,7 +1187,10 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     await waitFor(() => expect(renewMembershipMock).toHaveBeenCalledTimes(2))
     expect(renewMembershipMock.mock.calls[1]?.[1]).toEqual({
       membershipCatalogItemId: 'catalog-1',
+      saleId: 'sale-current',
+      expectedMembershipId: 'version-current',
       paymentDate: '2026-07-05',
+      targetGroupIds: ['group-1'],
     })
     expect(renewMembershipMock.mock.calls[1]?.[2].idempotencyKey).toBe(
       firstIdempotencyKey,
@@ -1192,8 +1203,7 @@ describe('ClientDetailScreen immutable sale actions', () => {
     const membership = buildMembership()
     const client = {
       ...buildClientDetails(),
-      currentMembership: membership,
-      currentMembershipSummary: membership,
+      currentMemberships: [membership],
       hasCurrentMembership: true,
       membershipHistory: [membership],
     }
@@ -1201,154 +1211,63 @@ describe('ClientDetailScreen immutable sale actions', () => {
 
     renderClientDetails()
 
-    expect(await screen.findByText('Абонемент и оплата')).toBeInTheDocument()
+    expect(await screen.findByText('История абонемента')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Отметить оплату' })).not.toBeInTheDocument()
     expect(screen.queryByText('Не оплачен')).not.toBeInTheDocument()
     expect(screen.queryByText('Оплачен')).not.toBeInTheDocument()
   })
 })
 
-describe('ClientDetailScreen sale-producing transfer pricing', () => {
-  test('offers all three pricing modes for a transfer that creates a sale', async () => {
+describe('ClientDetailScreen branch/group assignment transfer', () => {
+  test('does not render membership sale controls in assignment transfer', async () => {
     getClientMock.mockResolvedValue(buildClientDetails())
     setupTransferOptions()
-    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
 
     renderClientDetails()
     fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
 
     const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
-    expect(within(dialog).getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
-    expect(within(dialog).getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
-    expect(within(dialog).getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
+    expect(within(dialog).queryByRole('radio', { name: 'По каталожной цене' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('radio', { name: 'Без варианта каталога' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('combobox', { name: 'Вариант абонемента' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByLabelText('Дата оплаты')).not.toBeInTheDocument()
+    expect(getEligibleItemsMock).not.toHaveBeenCalled()
   })
 
-  test('ignores stale transfer catalog responses after target branch changes', async () => {
-    const branchOneCatalog = createDeferred<ReturnType<typeof buildCatalogItem>[]>()
-    const branchTwoCatalog = createDeferred<ReturnType<typeof buildCatalogItem>[]>()
-    const branchOneItem = {
-      ...buildCatalogItem(),
-      id: 'catalog-branch-1',
-      name: 'Старый филиал',
-    }
-    const branchTwoItem = {
-      ...buildCatalogItem(),
-      id: 'catalog-branch-2',
-      branchId: 'branch-2',
-      name: 'Северный абонемент',
-      price: 3200,
-    }
-
-    getClientMock.mockResolvedValue(buildClientDetails())
-    setupTransferOptions()
-    getEligibleItemsMock.mockImplementation((branchId) =>
-      branchId === 'branch-2'
-        ? branchTwoCatalog.promise
-        : branchOneCatalog.promise,
-    )
-
-    renderClientDetails()
-    fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
-
-    const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
-    await waitFor(() =>
-      expect(getEligibleItemsMock).toHaveBeenCalledWith(
-        'branch-1',
-        expect.any(AbortSignal),
-      ),
-    )
-
-    fireEvent.click(within(dialog).getByRole('combobox', { name: 'Целевой филиал' }))
-    fireEvent.click(await screen.findByRole('option', { name: /Северный/ }))
-
-    await waitFor(() =>
-      expect(getEligibleItemsMock).toHaveBeenCalledWith(
-        'branch-2',
-        expect.any(AbortSignal),
-      ),
-    )
-
-    await act(async () => {
-      branchTwoCatalog.resolve([branchTwoItem])
-    })
-
-    fireEvent.click(within(dialog).getByRole('radio', { name: 'По каталожной цене' }))
-    const catalogSelect = await within(dialog).findByRole('combobox', {
-      name: 'Вариант абонемента',
-    })
-    fireEvent.click(catalogSelect)
-
-    fireEvent.click(await screen.findByRole('option', { name: /Северный абонемент/ }))
-    expect(within(dialog).getByText('Каталожная цена')).toBeInTheDocument()
-    expect(within(dialog).getAllByText(/3\s*200\s*₽/).length).toBeGreaterThan(0)
-
-    await act(async () => {
-      branchOneCatalog.resolve([branchOneItem])
-    })
-
-    expect(screen.queryByText(/Старый филиал/)).not.toBeInTheDocument()
-    expect(within(dialog).getByText('Каталожная цена')).toBeInTheDocument()
-    expect(within(dialog).getAllByText(/3\s*200\s*₽/).length).toBeGreaterThan(0)
-  })
-
-  test('sale-producing transfer requires payment date from business date and sends it once', async () => {
+  test('sends only explicit branch and group assignment fields once', async () => {
     const client = buildClientDetails({ businessDate: '2026-07-23' })
     getClientMock.mockResolvedValue(client)
     setupTransferOptions()
-    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
     transferClientMock.mockResolvedValue(client)
 
     renderClientDetails()
     fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
 
     const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
-    const paymentDate = await within(dialog).findByLabelText('Дата оплаты')
-    expect(paymentDate).toBeRequired()
-    expect(paymentDate).toHaveAttribute('max', '2026-07-23')
-    expect(paymentDate).toHaveValue('2026-07-23')
-    expect(within(dialog).queryByRole('combobox', { name: 'Статус оплаты' })).not.toBeInTheDocument()
-
-    fireEvent.click(within(dialog).getByRole('radio', { name: 'Без варианта каталога' }))
-    fireEvent.change(within(dialog).getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }), {
-      target: { value: '4200' },
-    })
-    fireEvent.change(within(dialog).getByLabelText('Действует с'), { target: { value: '2026-07-22' } })
-    fireEvent.change(within(dialog).getByLabelText('Действует по'), { target: { value: '2026-08-20' } })
-    fireEvent.change(paymentDate, { target: { value: '2026-07-01' } })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Перевести клиента' }))
-    const confirmation = await screen.findByRole('dialog', {
-      name: /Подтвердить.*продажу/i,
-    })
-    fireEvent.click(
-      within(confirmation).getByRole('button', {
-        name: 'Подтвердить продажу',
-      }),
-    )
 
     await waitFor(() =>
       expect(transferClientMock).toHaveBeenCalledWith('client-1', {
         targetBranchId: 'branch-1',
         targetGroupIds: [],
-        membershipCatalogItemId: null,
-        manualSaleAmount: 4200,
-        validFrom: '2026-07-22',
-        validTo: '2026-08-20',
-        paymentDate: '2026-07-01',
       }, { idempotencyKey: expect.any(String) }),
     )
     expect(transferClientMock).toHaveBeenCalledTimes(1)
-    expect(transferClientMock.mock.calls[0]?.[1]).not.toHaveProperty('paymentStatus')
+    expect(transferClientMock.mock.calls[0]?.[1]).not.toHaveProperty('membershipCatalogItemId')
+    expect(transferClientMock.mock.calls[0]?.[1]).not.toHaveProperty('manualSaleAmount')
+    expect(transferClientMock.mock.calls[0]?.[1]).not.toHaveProperty('paymentDate')
   })
 
   test('preserves a failed transfer draft and retries with the same idempotency key', async () => {
     const client = buildClientDetails({ businessDate: '2026-07-23' })
     getClientMock.mockResolvedValue(client)
     setupTransferOptions()
-    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
     transferClientMock
       .mockRejectedValueOnce(
         new ApiError('Перевод не выполнен.', 400, {
-          ManualSaleAmount: ['Сумма продажи требует уточнения.'],
+          TargetBranchId: ['Филиал временно недоступен.'],
         }),
       )
       .mockResolvedValueOnce(client)
@@ -1359,59 +1278,21 @@ describe('ClientDetailScreen sale-producing transfer pricing', () => {
     const transferDialog = await screen.findByRole('dialog', {
       name: 'Перевод клиента',
     })
-    fireEvent.click(
-      within(transferDialog).getByRole('radio', {
-        name: 'Без варианта каталога',
-      }),
-    )
-    const amount = within(transferDialog).getByRole('spinbutton', {
-      name: 'Фактическая сумма продажи, ₽',
-    })
-    fireEvent.change(amount, { target: { value: '4200' } })
-    fireEvent.change(within(transferDialog).getByLabelText('Действует с'), {
-      target: { value: '2026-07-22' },
-    })
-    fireEvent.change(within(transferDialog).getByLabelText('Действует по'), {
-      target: { value: '2026-08-20' },
-    })
-    fireEvent.change(within(transferDialog).getByLabelText('Дата оплаты'), {
-      target: { value: '2026-07-01' },
-    })
 
     fireEvent.click(
       within(transferDialog).getByRole('button', {
         name: 'Перевести клиента',
       }),
     )
-    let confirmation = await screen.findByRole('dialog', {
-      name: /Подтвердить.*продажу/i,
-    })
-    fireEvent.click(
-      within(confirmation).getByRole('button', {
-        name: 'Подтвердить продажу',
-      }),
-    )
 
     expect(await screen.findByText('Перевод не выполнен.')).toBeVisible()
-    expect(screen.getByText('Сумма продажи требует уточнения.')).toBeVisible()
-    expect(amount).toHaveValue(4200)
-    expect(within(transferDialog).getByLabelText('Действует с')).toHaveValue(
-      '2026-07-22',
-    )
+    expect(screen.getByText('Филиал временно недоступен.')).toBeVisible()
     const firstIdempotencyKey = transferClientMock.mock.calls[0]?.[2]
       .idempotencyKey
 
     fireEvent.click(
       within(transferDialog).getByRole('button', {
         name: 'Перевести клиента',
-      }),
-    )
-    confirmation = await screen.findByRole('dialog', {
-      name: /Подтвердить.*продажу/i,
-    })
-    fireEvent.click(
-      within(confirmation).getByRole('button', {
-        name: 'Подтвердить продажу',
       }),
     )
 
@@ -1426,7 +1307,7 @@ describe('ClientDetailScreen sale-producing transfer pricing', () => {
     )
   })
 
-  test('preserves active unused SingleVisit without rendering new-sale pricing controls', async () => {
+  test('keeps assignment transfer independent from current membership state', async () => {
     const membership = {
       ...buildMembership(),
       behaviorKind: 'SingleVisit' as const,
@@ -1435,8 +1316,7 @@ describe('ClientDetailScreen sale-producing transfer pricing', () => {
     }
     getClientMock.mockResolvedValue({
       ...buildClientDetails(),
-      currentMembership: membership,
-      currentMembershipSummary: membership,
+      currentMemberships: [membership],
       hasCurrentMembership: true,
       membershipHistory: [membership],
     })
@@ -1446,12 +1326,10 @@ describe('ClientDetailScreen sale-producing transfer pricing', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Перевести' }))
 
     const dialog = await screen.findByRole('dialog', { name: 'Перевод клиента' })
-    expect(within(dialog).getByText(/перенесено без новой продажи/i)).toBeInTheDocument()
-    expect(within(dialog).queryByText('По каталожной цене')).not.toBeInTheDocument()
-    expect(within(dialog).queryByText('Индивидуальная сумма')).not.toBeInTheDocument()
-    expect(within(dialog).queryByText('Без варианта каталога')).not.toBeInTheDocument()
-    expect(within(dialog).queryByRole('combobox', { name: 'Вариант абонемента' })).not.toBeInTheDocument()
-    expect(within(dialog).queryByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/перенесено без новой продажи/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('radio', { name: 'По каталожной цене' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeInTheDocument()
+    expect(within(dialog).queryByRole('radio', { name: 'Без варианта каталога' })).not.toBeInTheDocument()
   })
 })
 
@@ -1464,9 +1342,9 @@ describe('ClientDetailScreen membership history pricing provenance', () => {
     expect(await screen.findByText('Каталожная цена')).toBeInTheDocument()
     expect(screen.getByText('Индивидуальная сумма')).toBeInTheDocument()
     expect(screen.getAllByText('Без варианта каталога')).not.toHaveLength(0)
-    expect(screen.getByText('3 000 ₽')).toBeInTheDocument()
-    expect(screen.getByText('4 100 ₽')).toBeInTheDocument()
-    expect(screen.getByText('4 200 ₽')).toBeInTheDocument()
+    expect(screen.getAllByText('3 000 ₽').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('4 100 ₽').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('4 200 ₽').length).toBeGreaterThan(0)
   })
 })
 
@@ -1475,8 +1353,7 @@ describe('ClientDetailScreen membership correction form', () => {
     const currentMembership = buildMembership()
     getClientMock.mockResolvedValue({
       ...buildClientDetails(),
-      currentMembership,
-      currentMembershipSummary: currentMembership,
+      currentMemberships: [currentMembership],
       hasCurrentMembership: true,
       membershipHistory: [currentMembership],
     })
@@ -1513,8 +1390,7 @@ describe('ClientDetailScreen membership correction form', () => {
     }
     getClientMock.mockResolvedValue({
       ...buildClientDetails(),
-      currentMembership,
-      currentMembershipSummary: currentMembership,
+      currentMemberships: [currentMembership],
       hasCurrentMembership: true,
       membershipHistory: [currentMembership],
     })
@@ -1552,6 +1428,7 @@ describe('ClientDetailScreen membership correction form', () => {
           validFrom: '2026-07-05',
           validTo: '2026-08-04',
           paymentDate: '2026-07-24',
+          targetGroupIds: ['group-1'],
         },
         { idempotencyKey: expect.any(String) },
       ),
@@ -1574,8 +1451,7 @@ describe('ClientDetailScreen membership correction form', () => {
     }
     const client = {
       ...buildClientDetails(),
-      currentMembership,
-      currentMembershipSummary: currentMembership,
+      currentMemberships: [currentMembership],
       hasCurrentMembership: true,
       membershipHistory: [currentMembership],
     }
@@ -1613,6 +1489,7 @@ describe('ClientDetailScreen membership correction form', () => {
       validFrom: '2026-07-05',
       validTo: '2026-07-31',
       paymentDate: '2026-07-01',
+      targetGroupIds: ['group-1'],
     })
   })
 
@@ -1630,15 +1507,13 @@ describe('ClientDetailScreen membership correction form', () => {
     }
     const initialClient = {
       ...buildClientDetails(),
-      currentMembership: initialMembership,
-      currentMembershipSummary: initialMembership,
+      currentMemberships: [initialMembership],
       hasCurrentMembership: true,
       membershipHistory: [initialMembership],
     }
     const correctedClient = {
       ...initialClient,
-      currentMembership: correctedMembership,
-      currentMembershipSummary: correctedMembership,
+      currentMemberships: [correctedMembership],
       membershipHistory: [correctedMembership, initialMembership],
     }
     getClientMock
@@ -1660,6 +1535,7 @@ describe('ClientDetailScreen membership correction form', () => {
       validFrom: '2026-07-01',
       validTo: '2026-07-31',
       paymentDate: '2026-07-05',
+      targetGroupIds: ['group-1'],
     }, { idempotencyKey: expect.any(String) })
     expect(screen.queryByRole('button', { name: 'Отметить оплату' })).not.toBeInTheDocument()
   })
@@ -1724,8 +1600,7 @@ function buildClientDetails(overrides: Partial<ClientDetails> = {}): ClientDetai
     professionalComment: null,
     hasActiveMembership: false,
     membershipWarning: false,
-    currentMembership: null,
-    currentMembershipSummary: null,
+    currentMemberships: [],
     hasCurrentMembership: false,
     membershipState: 'None',
     actionHints: [],
@@ -1739,7 +1614,7 @@ function buildClientDetails(overrides: Partial<ClientDetails> = {}): ClientDetai
 
 function buildClientWithMemberships(): ClientDetails {
   const client = buildClientDetails()
-  const common = { membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term' as const, purchaseDate: '2026-07-01', paymentDate: '2026-07-01', paymentRecordedAt: '2026-07-01T08:00:00Z', paymentRecordedByUserId: 'user-1', paymentRecordedByUserName: 'Анна Петрова', expirationDate: '2026-08-01', pricingMode: 'Catalog' as const, grossAmount: 3000, catalogPrice: 3000, singleVisitUsed: false, commentLastChangedByName: 'Анна Петрова', commentLastChangedAt: '2026-07-21T12:34:56Z' }
+  const common = { membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term' as const, purchaseDate: '2026-07-01', paymentDate: '2026-07-01', paymentRecordedAt: '2026-07-01T08:00:00Z', paymentRecordedByUserId: 'user-1', paymentRecordedByUserName: 'Анна Петрова', expirationDate: '2026-08-01', pricingMode: 'Catalog' as const, grossAmount: 3000, catalogPrice: 3000, singleVisitUsed: false, coverageKind: 'TargetGroups' as const, entitlementState: 'Active' as const, targetGroups: [buildMembershipTargetGroup()], commentLastChangedByName: 'Анна Петрова', commentLastChangedAt: '2026-07-21T12:34:56Z' }
   return {
     ...client,
     membershipHistory: [
@@ -1767,6 +1642,9 @@ function buildMembership() {
     grossAmount: 3000,
     catalogPrice: 3000,
     singleVisitUsed: false,
+    coverageKind: 'TargetGroups' as const,
+    entitlementState: 'Active' as const,
+    targetGroups: [buildMembershipTargetGroup()],
     comment: null,
     commentLastChangedByName: null,
     commentLastChangedAt: null,
@@ -1823,6 +1701,53 @@ async function selectCatalogOption(label: string) {
   fireEvent.click(await screen.findByRole('option', { name: /Месяц/ }))
 }
 
+async function selectMembershipTargetGroup() {
+  fireEvent.click(await screen.findByRole('combobox', { name: 'Добавить группу' }))
+  fireEvent.click(await screen.findByRole('option', { name: /Утренняя группа/ }))
+}
+
+function buildGroupsPage() {
+  return {
+    items: [buildTrainingGroup()],
+    totalCount: 1,
+    skip: 0,
+    take: 100,
+  }
+}
+
+function buildTrainingGroup() {
+  return {
+    id: 'group-1',
+    name: 'Утренняя группа',
+    branchId: 'branch-1',
+    branchName: 'Основной',
+    hallId: 'hall-1',
+    hallName: 'Зал 1',
+    groupTypeId: 'group-type-1',
+    groupTypeName: 'Взрослые',
+    trainingStartTime: '09:00',
+    durationMinutes: 60,
+    weekdays: [1, 3, 5],
+    isActive: true,
+    trainers: [],
+    trainerIds: [],
+    trainerCount: 0,
+    trainerNames: [],
+    clientCount: 0,
+  }
+}
+
+function buildMembershipTargetGroup() {
+  return {
+    groupId: 'group-1',
+    groupName: 'Утренняя группа',
+    branchId: 'branch-1',
+    branchName: 'Основной',
+    position: 1,
+    isActive: true,
+  }
+}
+
 function createDeferred<T>() {
   let resolve!: (value: T) => void
   const promise = new Promise<T>((nextResolve) => {
@@ -1874,6 +1799,9 @@ function buildClientWithPricingHistory(): ClientDetails {
     paymentRecordedByUserName: 'Анна Петрова',
     expirationDate: '2026-08-20',
     singleVisitUsed: false,
+    coverageKind: 'TargetGroups' as const,
+    entitlementState: 'Active' as const,
+    targetGroups: [buildMembershipTargetGroup()],
     comment: null,
     commentLastChangedByName: null,
     commentLastChangedAt: null,

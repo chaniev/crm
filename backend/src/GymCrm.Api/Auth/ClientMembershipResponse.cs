@@ -23,8 +23,19 @@ internal sealed record ClientMembershipResponse(
     DateTimeOffset ValidFrom,
     DateTimeOffset? ValidTo,
     DateTimeOffset CreatedAt,
+    string CoverageKind,
+    string EntitlementState,
+    IReadOnlyList<ClientMembershipTargetGroupResponse> TargetGroups,
     string? Comment,
     string? CommentLastChangedByName,
     DateTimeOffset? CommentLastChangedAt,
     ClientMembershipFinancialSummaryResponse FinancialSummary,
     IReadOnlyList<ClientMembershipRefundResponse> Refunds);
+
+internal sealed record ClientMembershipTargetGroupResponse(
+    Guid GroupId,
+    string GroupName,
+    Guid BranchId,
+    string BranchName,
+    int Position,
+    bool IsActive);

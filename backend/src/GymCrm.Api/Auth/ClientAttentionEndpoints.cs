@@ -239,6 +239,10 @@ internal static class ClientAttentionEndpoints
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
                     .ThenInclude(sale => sale.MembershipCatalogItem)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.TargetGroups)
+                    .ThenInclude(target => target.Group)
+                        .ThenInclude(group => group.Branch)
             .Include(client => client.AttendanceEntries)
                 .ThenInclude(attendance => attendance.Group)
             .Include(client => client.MissedTrainingAcknowledgements)
@@ -249,12 +253,12 @@ internal static class ClientAttentionEndpoints
         var cards = new List<ClientAttentionResponse>();
         foreach (var client in clients)
         {
-            var currentMembership = client.Memberships
+            var currentMemberships = client.Memberships
                 .Where(membership => membership.ValidTo is null)
-                .OrderByDescending(membership => membership.ValidFrom)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .FirstOrDefault();
+                .OrderBy(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
+                .ThenBy(membership => membership.Sale.PurchaseDate)
+                .ThenBy(membership => membership.Id)
+                .ToArray();
             var hasProfessionalMembership = client.Memberships.Any(membership =>
                 membership.ValidTo is null &&
                 membership.BehaviorKind == MembershipBehaviorKind.Professional &&
@@ -262,21 +266,13 @@ internal static class ClientAttentionEndpoints
                 membership.IndividualValidFrom.Value <= today &&
                 (!membership.IndividualValidTo.HasValue || membership.IndividualValidTo.Value >= today));
 
-            var reasons = new List<ClientAttentionReasonResponse>();
-            if (!hasProfessionalMembership && currentMembership is not null)
-            {
-                var expirationDate = currentMembership.IndividualValidTo;
-                var days = expirationDate?.DayNumber - today.DayNumber;
-                if (days is < 0)
-                {
-                    reasons.Add(new ClientAttentionReasonResponse(ExpiredMembership, null, expirationDate, days));
-                }
-                else if (days is not null && days <= membershipWindowDays)
-                {
-                    reasons.Add(new ClientAttentionReasonResponse(ExpiringMembership, null, expirationDate, days));
-                }
-
-            }
+            var membershipAttention = hasProfessionalMembership
+                ? []
+                : currentMemberships
+                    .Select(membership => CreateMembershipAttention(membership, today, membershipWindowDays))
+                    .Where(item => item is not null)
+                    .Select(item => item!.Value)
+                    .ToArray();
 
             var acknowledgement = client.MissedTrainingAcknowledgements.SingleOrDefault();
             var boundary = acknowledgement is null
@@ -294,12 +290,10 @@ internal static class ClientAttentionEndpoints
                     attendance.IsPresent ? AttendanceState.Present : AttendanceState.Absent,
                     attendance.MarkedAt)),
                 boundary);
-            if (missedCount >= MissedTrainingStreakCalculator.AttentionThreshold)
-            {
-                reasons.Insert(0, new ClientAttentionReasonResponse(MissedTraining, missedCount));
-            }
-
-            if (reasons.Count == 0)
+            var missedReason = missedCount >= MissedTrainingStreakCalculator.AttentionThreshold
+                ? new ClientAttentionReasonResponse(MissedTraining, missedCount)
+                : null;
+            if (membershipAttention.Length == 0 && missedReason is null)
             {
                 continue;
             }
@@ -313,20 +307,21 @@ internal static class ClientAttentionEndpoints
                 .ThenBy(account => account.Id)
                 .Select(account => account.Username!.Trim().TrimStart('@'))
                 .FirstOrDefault(IsValidTelegramUsername);
-            cards.Add(new ClientAttentionResponse(
-                client.Id,
-                BuildFullName(client),
-                client.Phone,
-                client.Notes,
-                currentMembership is null
-                    ? null
-                    : new ClientAttentionMembershipResponse(
-                        currentMembership.BehaviorKind.ToString(),
-                        ClientMembershipSaleDisplay.GetMembershipName(currentMembership.Sale),
-                        currentMembership.IndividualValidTo,
-                        currentMembership.IndividualValidTo?.DayNumber - today.DayNumber),
-                telegramUsername is null ? null : $"https://t.me/{telegramUsername}",
-                reasons));
+            var telegramLink = telegramUsername is null ? null : $"https://t.me/{telegramUsername}";
+            if (membershipAttention.Length == 0)
+            {
+                cards.Add(CreateAttentionCard(client, null, telegramLink, [missedReason!]));
+                continue;
+            }
+
+            for (var index = 0; index < membershipAttention.Length; index++)
+            {
+                var item = membershipAttention[index];
+                var reasons = index == 0 && missedReason is not null
+                    ? new[] { missedReason!, item.Reason }
+                    : [item.Reason];
+                cards.Add(CreateAttentionCard(client, item.Membership, telegramLink, reasons));
+            }
         }
 
         return cards
@@ -334,8 +329,69 @@ internal static class ClientAttentionEndpoints
             .ThenBy(card => card.Membership?.ExpirationDate ?? DateOnly.MaxValue)
             .ThenBy(card => card.FullName, StringComparer.OrdinalIgnoreCase)
             .ThenBy(card => card.ClientId)
+            .ThenBy(card => card.Membership?.MembershipId ?? Guid.Empty)
             .ToArray();
     }
+
+    private static (ClientAttentionMembershipResponse Membership, ClientAttentionReasonResponse Reason)? CreateMembershipAttention(
+        ClientMembership membership,
+        DateOnly today,
+        int membershipWindowDays)
+    {
+        var expirationDate = membership.IndividualValidTo;
+        var days = expirationDate?.DayNumber - today.DayNumber;
+        var reasonType = days switch
+        {
+            < 0 => ExpiredMembership,
+            not null when days <= membershipWindowDays => ExpiringMembership,
+            _ => null
+        };
+        if (reasonType is null)
+        {
+            return null;
+        }
+
+        var targets = membership.TargetGroups
+            .OrderBy(target => target.Position)
+            .Select(target => new ClientMembershipTargetGroupResponse(
+                target.GroupId,
+                target.Group.Name,
+                target.BranchId,
+                target.Group.Branch.Name,
+                target.Position,
+                target.Group.IsActive))
+            .ToArray();
+        var summary = new ClientAttentionMembershipResponse(
+            membership.Id,
+            membership.SaleId,
+            membership.BehaviorKind.ToString(),
+            ClientMembershipSaleDisplay.GetMembershipName(membership.Sale),
+            expirationDate,
+            days,
+            targets);
+        var reason = new ClientAttentionReasonResponse(
+            reasonType,
+            ExpirationDate: expirationDate,
+            DaysUntilExpiration: days,
+            MembershipId: membership.Id,
+            SaleId: membership.SaleId,
+            TargetGroups: targets);
+        return (summary, reason);
+    }
+
+    private static ClientAttentionResponse CreateAttentionCard(
+        Client client,
+        ClientAttentionMembershipResponse? membership,
+        string? telegramLink,
+        IReadOnlyList<ClientAttentionReasonResponse> reasons) =>
+        new(
+            client.Id,
+            BuildFullName(client),
+            client.Phone,
+            client.Notes,
+            membership,
+            telegramLink,
+            reasons);
 
     private static IQueryable<Client> ApplyScope(IQueryable<Client> query, User currentUser)
     {

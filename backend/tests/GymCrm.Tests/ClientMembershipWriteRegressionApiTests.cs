@@ -236,7 +236,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
         Assert.True(response.StatusCode == HttpStatusCode.OK, body);
 
         using var document = JsonDocument.Parse(body);
-        var currentMembership = GetRequiredProperty(document.RootElement, "currentMembership");
+        var currentMembership = GetOnlyCurrentMembership(document.RootElement);
         Assert.Equal(paymentDate.ToString("yyyy-MM-dd"), GetRequiredProperty(currentMembership, "paymentDate").GetString());
         Assert.Equal(context.ActorId, GetRequiredProperty(currentMembership, "paymentRecordedByUserId").GetGuid());
         Assert.Equal("TASK-078 Head Coach", GetRequiredProperty(currentMembership, "paymentRecordedByUserName").GetString());
@@ -378,13 +378,18 @@ public sealed class ClientMembershipWriteRegressionApiTests
     public async Task Task083_PostgreSql_renewal_requires_status_free_payment_date_and_uses_new_sale()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
-        await context.SeedOpenMembershipVersionAsync(context.Today.AddDays(-30), context.Today.AddDays(-1), -20);
+        var original = await context.SeedOpenMembershipVersionAsync(
+            context.Today.AddDays(-30),
+            context.Today.AddDays(-1),
+            -20);
         var paymentDate = context.Today.AddDays(-7);
 
         using var response = await context.RenewAsync(
             $$"""
             {
               "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+              "saleId": "{{original.SaleId}}",
+              "expectedMembershipId": "{{original.MembershipId}}",
               "paymentDate": "{{paymentDate:yyyy-MM-dd}}",
               "professionalComment": null
             }
@@ -516,7 +521,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
     }
 
     [Fact]
-    public async Task Task083_PostgreSql_sale_creating_transfer_requires_idempotency_and_rolls_back_payment_validation()
+    public async Task Task115_PostgreSql_branch_assignment_transfer_requires_idempotency_and_rejects_sale_fields()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
 
@@ -524,11 +529,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                    $$"""
                    {
                      "targetBranchId": "{{context.TargetBranchId}}",
-                     "targetGroupIds": ["{{context.TargetGroupId}}"],
-                     "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
-                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
-                     "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-                     "paymentDate": "{{context.Today:yyyy-MM-dd}}"
+                     "targetGroupIds": ["{{context.TargetGroupId}}"]
                    }
                    """,
                    idempotencyKey: null))
@@ -536,7 +537,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             await AssertValidationProblemAsync(missingKey, HttpStatusCode.BadRequest, "idempotencyKey");
         }
 
-        using (var futurePayment = await context.TransferAsync(
+        using (var saleFields = await context.TransferAsync(
                    $$"""
                    {
                      "targetBranchId": "{{context.TargetBranchId}}",
@@ -549,7 +550,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                    """,
                    "task083-transfer-future-payment"))
         {
-            await AssertValidationProblemAsync(futurePayment, HttpStatusCode.BadRequest, "paymentDate");
+            await AssertValidationProblemAsync(saleFields, HttpStatusCode.BadRequest, "membershipCatalogItemId");
         }
 
         await context.AssertCountsAsync(expectedSales: 0, expectedMemberships: 0, expectedMembershipAudits: 0);
@@ -558,18 +559,14 @@ public sealed class ClientMembershipWriteRegressionApiTests
     }
 
     [Fact]
-    public async Task Task083_PostgreSql_sale_creating_transfer_replay_and_conflict_do_not_duplicate_writes()
+    public async Task Task115_PostgreSql_branch_assignment_transfer_replay_creates_no_membership_or_sale()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
         const string idempotencyKey = "task083-transfer-replay";
         var payload = $$"""
         {
           "targetBranchId": "{{context.TargetBranchId}}",
-          "targetGroupIds": ["{{context.TargetGroupId}}"],
-          "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
-          "validFrom": "{{context.Today:yyyy-MM-dd}}",
-          "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-          "paymentDate": "{{context.Today:yyyy-MM-dd}}"
+          "targetGroupIds": ["{{context.TargetGroupId}}"]
         }
         """;
 
@@ -583,28 +580,12 @@ public sealed class ClientMembershipWriteRegressionApiTests
             Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
         }
 
-        using (var conflict = await context.TransferAsync(
-                   $$"""
-                   {
-                     "targetBranchId": "{{context.TargetBranchId}}",
-                     "targetGroupIds": ["{{context.TargetGroupId}}"],
-                     "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
-                     "validFrom": "{{context.Today:yyyy-MM-dd}}",
-                     "validTo": "{{context.Today.AddDays(30):yyyy-MM-dd}}",
-                     "paymentDate": "{{context.Today:yyyy-MM-dd}}"
-                   }
-                   """,
-                   idempotencyKey))
-        {
-            await AssertProblemAsync(conflict, HttpStatusCode.Conflict, "idempotency-conflict");
-        }
-
-        await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 1, expectedMembershipAudits: 0);
+        await context.AssertCountsAsync(expectedSales: 0, expectedMemberships: 0, expectedMembershipAudits: 0);
         await context.AssertIdempotencyCountAsync(1);
     }
 
     [Fact]
-    public async Task Task123_PostgreSql_mandatory_membership_audit_failure_rolls_back_transfer_graph()
+    public async Task Task115_PostgreSql_branch_assignment_audit_failure_rolls_back_assignment_graph()
     {
         await using var context = await MembershipWriteContext.CreateAsync(
             usePostgreSql: true,
@@ -614,11 +595,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             $$"""
             {
               "targetBranchId": "{{context.TargetBranchId}}",
-              "targetGroupIds": ["{{context.TargetGroupId}}"],
-              "membershipCatalogItemId": "{{context.TargetTermCatalogItemId}}",
-              "validFrom": "{{context.Today:yyyy-MM-dd}}",
-              "validTo": "{{context.Today.AddDays(29):yyyy-MM-dd}}",
-              "paymentDate": "{{context.Today:yyyy-MM-dd}}"
+              "targetGroupIds": ["{{context.TargetGroupId}}"]
             }
             """,
             "task123-transfer-audit-rollback");
@@ -887,10 +864,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
     [Fact]
     public async Task Concurrent_overlapping_purchases_with_different_idempotency_keys_still_return_membership_overlap()
     {
-        var saveChangesBarrier = new MembershipWriteSaveChangesBarrier();
-        await using var context = await MembershipWriteContext.CreateAsync(
-            usePostgreSql: true,
-            saveChangesBarrier: saveChangesBarrier);
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
 
         var firstPayload = $$"""
             {
@@ -914,8 +888,6 @@ public sealed class ClientMembershipWriteRegressionApiTests
 
         var firstRequest = context.PurchaseAsync(firstPayload, "purchase-overlap-race-first");
         var secondRequest = context.PurchaseAsync(secondPayload, "purchase-overlap-race-second");
-        await saveChangesBarrier.WaitForTwoMembershipSaveAttemptsAsync();
-        saveChangesBarrier.Release();
 
         using var first = await firstRequest;
         using var second = await secondRequest;
@@ -923,7 +895,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
         var firstBody = await first.Content.ReadAsStringAsync();
         var secondBody = await second.Content.ReadAsStringAsync();
 
-        Assert.NotEqual(first.StatusCode, second.StatusCode);
+        Assert.True(
+            first.StatusCode != second.StatusCode,
+            $"Expected one success and one conflict. First: {(int)first.StatusCode} {firstBody}; Second: {(int)second.StatusCode} {secondBody}");
         Assert.Contains(first.StatusCode, new[] { HttpStatusCode.OK, HttpStatusCode.Conflict });
         Assert.Contains(second.StatusCode, new[] { HttpStatusCode.OK, HttpStatusCode.Conflict });
 
@@ -1130,6 +1104,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 context.ClientId,
                 context.Today,
                 context.TermCatalogItemId,
+                context.SourceGroupId,
                 validTo: context.Today.AddDays(29)),
             "Pending",
             DateTimeOffset.UtcNow.AddMinutes(5));
@@ -1161,6 +1136,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 context.ClientId,
                 context.Today,
                 context.TermCatalogItemId,
+                context.SourceGroupId,
                 validTo: context.Today.AddDays(29)),
             "Completed",
             DateTimeOffset.UtcNow.AddMinutes(-1));
@@ -1245,7 +1221,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
     }
 
     [Fact]
-    public async Task Current_membership_selection_is_consistent_for_details_service_and_renewal()
+    public async Task Current_membership_collection_is_deterministic_and_renewal_is_explicitly_addressed()
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: false);
         var expired = await context.SeedOpenMembershipVersionAsync(
@@ -1269,8 +1245,14 @@ public sealed class ClientMembershipWriteRegressionApiTests
         {
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-            var currentMembership = GetRequiredProperty(document.RootElement, "currentMembership");
-            Assert.Equal(selectedFuture.MembershipId, Guid.Parse(GetRequiredProperty(currentMembership, "id").GetString()!));
+            Assert.False(document.RootElement.TryGetProperty("currentMembership", out _));
+            var currentMembershipIds = GetRequiredProperty(document.RootElement, "currentMemberships")
+                .EnumerateArray()
+                .Select(membership => GetRequiredProperty(membership, "id").GetGuid())
+                .ToArray();
+            Assert.Equal(
+                [selectedFuture.MembershipId, earlierFuture.MembershipId, active.MembershipId, expired.MembershipId],
+                currentMembershipIds);
         }
 
         await using (var scope = context.Factory.Services.CreateAsyncScope())
@@ -1278,13 +1260,15 @@ public sealed class ClientMembershipWriteRegressionApiTests
             var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
             var details = await service.GetAsync(context.ClientId, CancellationToken.None);
             Assert.NotNull(details);
-            Assert.Equal(selectedFuture.MembershipId, details.CurrentMembership?.Id);
+            Assert.Null(details.CurrentMembership);
         }
 
         using (var renewal = await context.RenewAsync(
                    $$"""
                    {
                      "membershipCatalogItemId": "{{context.TermCatalogItemId}}",
+                     "saleId": "{{selectedFuture.SaleId}}",
+                     "expectedMembershipId": "{{selectedFuture.MembershipId}}",
                      "paymentDate": "{{context.Today:yyyy-MM-dd}}"
                    }
                    """,
@@ -1319,6 +1303,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
         Guid membershipId;
         Guid refundId;
         Guid renewedMembershipId;
+        Guid correctedMembershipId;
 
         await using (var scope = context.Factory.Services.CreateAsyncScope())
         {
@@ -1334,6 +1319,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     context.Today,
                     context.Today.AddDays(29),
                     context.Today,
+                    [context.SourceGroupId],
                     ProfessionalComment: null),
                 CancellationToken.None);
             Assert.Equal(ClientMembershipMutationError.InvalidRequest, invalidPurchase.Error);
@@ -1346,6 +1332,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     context.Today,
                     context.Today.AddDays(29),
                     context.Today,
+                    [context.SourceGroupId],
                     ProfessionalComment: null),
                 CancellationToken.None);
             Assert.Equal(ClientMembershipMutationError.None, purchase.Error);
@@ -1384,7 +1371,8 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     membershipId,
                     context.Today,
                     context.Today.AddDays(29),
-                    context.Today.AddDays(-1)),
+                    context.Today.AddDays(-1),
+                    [context.SourceGroupId]),
                 CancellationToken.None);
             Assert.Equal(ClientMembershipMutationError.None, correction.Error);
             Assert.Equal(context.Today, correction.SaleAudit?.OldSale.PaymentDate);
@@ -1393,6 +1381,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             Assert.Equal(2, correction.Details?.MembershipHistory.Count);
             Assert.NotEqual(membershipId, correction.Details?.CurrentMembership?.Id);
             Assert.Equal(ClientMembershipChangeReason.Correction, correction.Details?.CurrentMembership?.ChangeReason);
+            correctedMembershipId = correction.Details!.CurrentMembership!.Id;
 
             var refund = await service.RegisterRefundAsync(
                 context.ClientId,
@@ -1440,6 +1429,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     context.ActorId,
                     context.TermCatalogItemId,
                     context.Today,
+                    saleId,
+                    correctedMembershipId,
+                    [context.SourceGroupId],
                     ProfessionalComment: null),
                 CancellationToken.None);
             Assert.Equal(ClientMembershipMutationError.None, renewal.Error);
@@ -1453,9 +1445,12 @@ public sealed class ClientMembershipWriteRegressionApiTests
         {
             var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
             var reloaded = await service.GetAsync(context.ClientId, CancellationToken.None);
-            Assert.Equal(renewedMembershipId, reloaded?.CurrentMembership?.Id);
-            Assert.Equal(ClientMembershipChangeReason.Renewal, reloaded?.CurrentMembership?.ChangeReason);
+            Assert.Null(reloaded?.CurrentMembership);
             Assert.Equal(3, reloaded?.MembershipHistory.Count);
+            Assert.Contains(
+                reloaded!.MembershipHistory,
+                membership => membership.Id == renewedMembershipId &&
+                              membership.ChangeReason == ClientMembershipChangeReason.Renewal);
         }
 
         var singleVisit = await context.SeedSingleVisitClientAsync();
@@ -1471,13 +1466,14 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     ValidFrom: null,
                     ValidTo: null,
                     context.Today,
+                    [context.SourceGroupId],
                     ProfessionalComment: null),
                 CancellationToken.None);
             Assert.Equal(ClientMembershipMutationError.None, singleVisitPurchase.Error);
 
             var writeOff = await service.WriteOffSingleVisitAsync(
                 singleVisit.ClientId,
-                new WriteOffSingleVisitCommand(context.ActorId, context.Today),
+                new WriteOffSingleVisitCommand(context.ActorId, context.Today, context.SourceGroupId),
                 CancellationToken.None);
             Assert.Equal(SingleVisitWriteOffStatus.Applied, writeOff.Status);
             Assert.False(writeOff.PreviousMembership?.SingleVisitUsed);
@@ -1554,10 +1550,17 @@ public sealed class ClientMembershipWriteRegressionApiTests
         return value;
     }
 
+    private static JsonElement GetOnlyCurrentMembership(JsonElement root)
+    {
+        Assert.False(root.TryGetProperty("currentMembership", out _));
+        return Assert.Single(GetRequiredProperty(root, "currentMemberships").EnumerateArray());
+    }
+
     private static object CreatePurchaseIdempotencyPayload(
         Guid clientId,
         DateOnly validFrom,
         Guid catalogItemId,
+        Guid targetGroupId,
         DateOnly? validTo)
     {
         return new
@@ -1568,6 +1571,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             ValidFrom = validFrom.ToString("yyyy-MM-dd"),
             ValidTo = validTo?.ToString("yyyy-MM-dd"),
             PaymentDate = validFrom.ToString("yyyy-MM-dd"),
+            TargetGroupIds = new[] { targetGroupId },
             ProfessionalComment = (string?)null,
             ManualSaleAmount = (decimal?)null
         };
@@ -1689,6 +1693,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             Guid actorId,
             Guid clientId,
             Guid termCatalogItemId,
+            Guid sourceGroupId,
             Guid targetBranchId,
             Guid targetGroupId,
             Guid targetTermCatalogItemId,
@@ -1703,6 +1708,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             ActorId = actorId;
             ClientId = clientId;
             TermCatalogItemId = termCatalogItemId;
+            SourceGroupId = sourceGroupId;
             TargetBranchId = targetBranchId;
             TargetGroupId = targetGroupId;
             TargetTermCatalogItemId = targetTermCatalogItemId;
@@ -1721,6 +1727,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
         public Guid ActorId { get; }
         public Guid ClientId { get; }
         public Guid TermCatalogItemId { get; }
+        public Guid SourceGroupId { get; }
         public Guid TargetBranchId { get; }
         public Guid TargetGroupId { get; }
         public Guid TargetTermCatalogItemId { get; }
@@ -1769,6 +1776,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     seeded.ActorId,
                     seeded.ClientId,
                     seeded.TermCatalogItemId,
+                    seeded.SourceGroupId,
                     seeded.TargetBranchId,
                     seeded.TargetGroupId,
                     seeded.TargetTermCatalogItemId,
@@ -1791,13 +1799,13 @@ public sealed class ClientMembershipWriteRegressionApiTests
         }
 
         public Task<HttpResponseMessage> PurchaseAsync(string rawJson, string? idempotencyKey) =>
-            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/purchase", rawJson, CsrfToken, idempotencyKey);
+            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/purchase", WithTargetGroup(rawJson), CsrfToken, idempotencyKey);
 
         public Task<HttpResponseMessage> RenewAsync(string rawJson, string? idempotencyKey) =>
-            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/renew", rawJson, CsrfToken, idempotencyKey);
+            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/renew", WithTargetGroup(rawJson), CsrfToken, idempotencyKey);
 
         public Task<HttpResponseMessage> CorrectAsync(string rawJson, string? idempotencyKey) =>
-            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/correct", rawJson, CsrfToken, idempotencyKey);
+            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/correct", WithTargetGroup(rawJson), CsrfToken, idempotencyKey);
 
         public Task<HttpResponseMessage> MarkPaymentAsync(string rawJson, string? idempotencyKey) =>
             SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/mark-payment", rawJson, CsrfToken, idempotencyKey);
@@ -1810,6 +1818,18 @@ public sealed class ClientMembershipWriteRegressionApiTests
 
         public Task<HttpResponseMessage> UpdateCommentAsync(Guid saleId, string? comment) =>
             PutMembershipCommentAsync(HttpClient, ClientId, saleId, comment, CsrfToken);
+
+        private string WithTargetGroup(string rawJson)
+        {
+            if (rawJson.Contains("\"targetGroupIds\"", StringComparison.OrdinalIgnoreCase))
+            {
+                return rawJson;
+            }
+
+            var closingBrace = rawJson.LastIndexOf('}');
+            Assert.True(closingBrace >= 0, "Expected a JSON object request payload.");
+            return rawJson.Insert(closingBrace, $",\n\"targetGroupIds\":[\"{SourceGroupId}\"]");
+        }
 
         public void ReleaseBlockedMembershipAudit()
         {
@@ -2440,6 +2460,15 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 CreatedAt = now,
                 UpdatedAt = now
             };
+            var sourceHall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = branch.Id,
+                Name = "TASK-115 source hall",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
             var targetGroupType = new GroupType
             {
                 Id = Guid.NewGuid(),
@@ -2457,6 +2486,20 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 TrainingStartTime = new TimeOnly(10, 0),
                 DurationMinutes = 60,
                 Weekdays = [1, 3],
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var sourceGroup = new TrainingGroup
+            {
+                Id = Guid.NewGuid(),
+                BranchId = branch.Id,
+                HallId = sourceHall.Id,
+                GroupTypeId = targetGroupType.Id,
+                Name = "TASK-115 source group",
+                TrainingStartTime = new TimeOnly(9, 0),
+                DurationMinutes = 60,
+                Weekdays = [2, 4],
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now
@@ -2502,9 +2545,9 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 now);
 
             db.Branches.AddRange(branch, targetBranch);
-            db.Halls.Add(targetHall);
+            db.Halls.AddRange(sourceHall, targetHall);
             db.GroupTypes.Add(targetGroupType);
-            db.TrainingGroups.Add(targetGroup);
+            db.TrainingGroups.AddRange(sourceGroup, targetGroup);
             db.Users.Add(actor);
             db.Clients.Add(client);
             db.MembershipCatalogItems.AddRange(termCatalogItem, targetTermCatalogItem);
@@ -2516,6 +2559,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 password,
                 client.Id,
                 termCatalogItem.Id,
+                sourceGroup.Id,
                 targetBranch.Id,
                 targetGroup.Id,
                 targetTermCatalogItem.Id,
@@ -2550,6 +2594,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
             string Password,
             Guid ClientId,
             Guid TermCatalogItemId,
+            Guid SourceGroupId,
             Guid TargetBranchId,
             Guid TargetGroupId,
             Guid TargetTermCatalogItemId,

@@ -249,18 +249,33 @@ class TranscriptCrmClient:
             id=client_id,
             fullName="Петр Второй",
             phone="+79990000000",
-            currentMembership={
-                "id": "00000000-0000-0000-0000-000000000099",
-                "behaviorKind": "Term",
-                "membershipCatalogItemId": "00000000-0000-0000-0000-000000000098",
-                "membershipLabel": "Месячный",
-                "purchaseDate": "2026-05-01",
-                "paymentDate": "2026-05-01",
-                "expirationDate": "2026-06-01",
-                "pricingMode": "Catalog",
-                "grossAmount": 2000,
-                "catalogPrice": 2000,
-            },
+            currentMemberships=[
+                {
+                    "id": "00000000-0000-0000-0000-000000000099",
+                    "saleId": "00000000-0000-0000-0000-000000000097",
+                    "behaviorKind": "Term",
+                    "membershipCatalogItemId": "00000000-0000-0000-0000-000000000098",
+                    "membershipLabel": "Месячный",
+                    "purchaseDate": "2026-05-01",
+                    "paymentDate": "2026-05-01",
+                    "expirationDate": "2026-06-01",
+                    "pricingMode": "Catalog",
+                    "grossAmount": 2000,
+                    "catalogPrice": 2000,
+                    "coverageKind": "TargetGroups",
+                    "entitlementState": "Active",
+                    "targetGroups": [
+                        {
+                            "groupId": "00000000-0000-0000-0000-000000000021",
+                            "groupName": "Йога",
+                            "branchId": "00000000-0000-0000-0000-000000000031",
+                            "branchName": "Центр",
+                            "position": 0,
+                            "isActive": True,
+                        }
+                    ],
+                }
+            ],
         )
 
     async def list_expiring_memberships(  # noqa: ANN001
@@ -767,24 +782,40 @@ def test_professional_client_card_renders_status_free_membership_contract() -> N
         fullName="Проф Клиент",
         isProfessional=True,
         professionalComment="Сборная",
-        currentMembership=ClientCardMembership(
-            id="00000000-0000-0000-0000-000000000098",
-            behaviorKind="Professional",
-            membershipCatalogItemId="00000000-0000-0000-0000-000000000099",
-            membershipLabel="Профессиональный",
-            purchaseDate="2026-05-01",
-            paymentDate="2026-04-28",
-            expirationDate=None,
-            pricingMode="Catalog",
-            grossAmount=0,
-            catalogPrice=0,
-        ),
+        currentMemberships=[
+            ClientCardMembership(
+                id="00000000-0000-0000-0000-000000000098",
+                saleId="00000000-0000-0000-0000-000000000097",
+                behaviorKind="Professional",
+                membershipCatalogItemId="00000000-0000-0000-0000-000000000099",
+                membershipLabel="Профессиональный",
+                purchaseDate="2026-05-01",
+                paymentDate="2026-04-28",
+                expirationDate=None,
+                pricingMode="Catalog",
+                grossAmount=0,
+                catalogPrice=0,
+                coverageKind="AllGroups",
+                entitlementState="Active",
+                targetGroups=[
+                    {
+                        "groupId": "00000000-0000-0000-0000-000000000021",
+                        "groupName": "Сборная",
+                        "branchId": "00000000-0000-0000-0000-000000000031",
+                        "branchName": "Центр",
+                        "position": 0,
+                        "isActive": True,
+                    }
+                ],
+            )
+        ],
     )
 
     text = ClientFlow._render_client_card(card)
 
     assert "Профессионал: Сборная" in text
     assert "Абонемент: Профессиональный, покупка 01.05.2026, оплата 28.04.2026" in text
+    assert "Доступ: все группы; отчётность: Сборная" in text
     assert "оплачен" not in text.lower()
 
 
@@ -792,24 +823,123 @@ def test_amount_only_client_card_renders_backend_membership_label_without_paymen
     card = ClientCardResponse(
         id="00000000-0000-0000-0000-000000000012",
         fullName="Клиент без варианта",
-        currentMembership=ClientCardMembership(
-            id="00000000-0000-0000-0000-000000000013",
-            behaviorKind="Term",
-            membershipCatalogItemId=None,
-            membershipLabel="Без варианта каталога",
-            purchaseDate="2026-07-22",
-            paymentDate="2026-07-20",
-            expirationDate="2026-08-21",
-            pricingMode="AmountOnly",
-            grossAmount=1750,
-            catalogPrice=None,
-        ),
+        currentMemberships=[
+            ClientCardMembership(
+                id="00000000-0000-0000-0000-000000000013",
+                saleId="00000000-0000-0000-0000-000000000014",
+                behaviorKind="Term",
+                membershipCatalogItemId=None,
+                membershipLabel="Без варианта каталога",
+                purchaseDate="2026-07-22",
+                paymentDate="2026-07-20",
+                expirationDate="2026-08-21",
+                pricingMode="AmountOnly",
+                grossAmount=1750,
+                catalogPrice=None,
+                coverageKind="TargetGroups",
+                entitlementState="Active",
+                targetGroups=[
+                    {
+                        "groupId": "00000000-0000-0000-0000-000000000021",
+                        "groupName": "Йога",
+                        "branchId": "00000000-0000-0000-0000-000000000031",
+                        "branchName": "Центр",
+                        "position": 0,
+                        "isActive": True,
+                    }
+                ],
+            )
+        ],
     )
 
     text = ClientFlow._render_client_card(card)
 
     assert "Абонемент: Без варианта каталога" in text
+    assert "Группы абонемента: 1. Йога (отчётность)" in text
     assert "оплачен" not in text.lower()
+
+
+def test_client_card_renders_legacy_target_missing_warning_from_backend() -> None:
+    card = ClientCardResponse(
+        id="00000000-0000-0000-0000-000000000015",
+        fullName="Legacy Client",
+        currentMemberships=[
+            {
+                "id": "00000000-0000-0000-0000-000000000016",
+                "saleId": "00000000-0000-0000-0000-000000000017",
+                "behaviorKind": "Term",
+                "membershipCatalogItemId": None,
+                "membershipLabel": "Legacy",
+                "purchaseDate": "2026-07-22",
+                "paymentDate": "2026-07-20",
+                "expirationDate": "2026-08-21",
+                "pricingMode": "AmountOnly",
+                "grossAmount": 1750,
+                "catalogPrice": None,
+                "coverageKind": "TargetGroups",
+                "entitlementState": "LegacyTargetMissing",
+                "targetGroups": [],
+            }
+        ],
+    )
+
+    text = ClientFlow._render_client_card(card)
+
+    assert "Абонемент: Legacy" in text
+    assert "Предупреждение: абонемент без групп, требуется исправление" in text
+
+
+def test_expiring_membership_list_keeps_same_client_memberships_distinct() -> None:
+    response = MembershipListResponse(
+        items=[
+            {
+                "id": "00000000-0000-0000-0000-000000000032",
+                "membershipId": "00000000-0000-0000-0000-000000000041",
+                "saleId": "00000000-0000-0000-0000-000000000051",
+                "fullName": "Петр Второй",
+                "membershipLabel": "Месячный",
+                "membershipExpiresAt": "2026-06-01",
+                "targetGroups": [
+                    {
+                        "groupId": "00000000-0000-0000-0000-000000000021",
+                        "groupName": "Йога",
+                        "branchId": "00000000-0000-0000-0000-000000000031",
+                        "branchName": "Центр",
+                        "position": 0,
+                        "isActive": True,
+                    }
+                ],
+            },
+            {
+                "id": "00000000-0000-0000-0000-000000000032",
+                "membershipId": "00000000-0000-0000-0000-000000000042",
+                "saleId": "00000000-0000-0000-0000-000000000052",
+                "fullName": "Петр Второй",
+                "membershipLabel": "Разовая",
+                "membershipExpiresAt": "2026-06-01",
+                "targetGroups": [
+                    {
+                        "groupId": "00000000-0000-0000-0000-000000000022",
+                        "groupName": "Бокс",
+                        "branchId": "00000000-0000-0000-0000-000000000031",
+                        "branchName": "Центр",
+                        "position": 0,
+                        "isActive": True,
+                    }
+                ],
+            },
+        ],
+        page=1,
+        pageSize=5,
+        hasNextPage=False,
+    )
+
+    text = ClientFlow._render_membership_list_text("Заканчивающиеся абонементы", response)
+
+    assert response.items[0].membership_id != response.items[1].membership_id
+    assert response.items[0].sale_id != response.items[1].sale_id
+    assert "1. Петр Второй | Месячный | 01.06.2026 | 1. Йога (отчётность)" in text
+    assert "2. Петр Второй | Разовая | 01.06.2026 | 1. Бокс (отчётность)" in text
 
 
 def test_bot_service_no_longer_routes_removed_unpaid_payment_callbacks() -> None:

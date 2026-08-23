@@ -32,9 +32,7 @@ function buildClientItem(overrides: Partial<ClientListItem> = {}): ClientListIte
     membershipWarning: false,
     lastVisitDate: null,
     membershipState: 'None',
-    currentMembership: null,
-    currentMembershipSummary: null,
-    actionHints: [],
+    currentMemberships: [],    actionHints: [],
     ...overrides,
   }
 }

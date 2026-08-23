@@ -39,9 +39,19 @@ internal sealed class ClientMembershipRefundService(
             return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundDateInFuture);
         }
 
+        var targetGroupIds = await dbContext.ClientMemberships
+            .AsNoTracking()
+            .Where(membership => membership.SaleId == command.SaleId && membership.ValidTo == null)
+            .SelectMany(membership => membership.TargetGroups)
+            .OrderBy(target => target.Position)
+            .Select(target => target.GroupId)
+            .ToArrayAsync(cancellationToken);
         await using var transaction = await ClientMembershipTransaction.BeginIfSupportedAsync(dbContext, cancellationToken);
+        await queryStore.LockRefundMutationRowsAsync(clientId, command.SaleId, targetGroupIds, cancellationToken);
         var sale = await dbContext.ClientMembershipSales
             .Include(candidate => candidate.Refunds)
+            .Include(candidate => candidate.Memberships)
+                .ThenInclude(membership => membership.TargetGroups)
             .SingleOrDefaultAsync(
                 candidate => candidate.Id == command.SaleId && candidate.ClientId == clientId,
                 cancellationToken);
@@ -88,11 +98,22 @@ internal sealed class ClientMembershipRefundService(
         };
 
         dbContext.ClientMembershipRefunds.Add(refund);
+        var currentTargets = sale.Memberships
+            .Where(membership => membership.ValidTo is null)
+            .SingleOrDefault()
+            ?.TargetGroups
+            .OrderBy(target => target.Position)
+            .ToArray() ?? [];
+        foreach (var snapshot in ClientMembershipMutationRules.CreateRefundTargetSnapshots(refund.Id, currentTargets))
+        {
+            refund.TargetSnapshots.Add(snapshot);
+        }
+
         await dbContext.SaveChangesAsync(cancellationToken);
         await ClientMembershipTransaction.CommitIfPresentAsync(transaction, cancellationToken);
 
         return ClientMembershipRefundMutationResult.Success(
-            await detailsReader.LoadRequiredAsync(clientId, cancellationToken),
+            await detailsReader.LoadRequiredForSaleAsync(clientId, sale.Id, cancellationToken),
             ClientMembershipDetailsReader.MapRefundSnapshot(refund));
     }
 
@@ -113,7 +134,25 @@ internal sealed class ClientMembershipRefundService(
             return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.ClientMissing);
         }
 
+        var refundIdentity = await dbContext.ClientMembershipRefunds
+            .AsNoTracking()
+            .Where(candidate => candidate.Id == command.RefundId && candidate.ClientId == clientId)
+            .Select(candidate => new { candidate.SaleId })
+            .SingleOrDefaultAsync(cancellationToken);
+        if (refundIdentity is null)
+        {
+            return ClientMembershipRefundMutationResult.Failure(ClientMembershipRefundMutationError.RefundMissing);
+        }
+
+        var targetGroupIds = await dbContext.ClientMemberships
+            .AsNoTracking()
+            .Where(membership => membership.SaleId == refundIdentity.SaleId && membership.ValidTo == null)
+            .SelectMany(membership => membership.TargetGroups)
+            .OrderBy(target => target.Position)
+            .Select(target => target.GroupId)
+            .ToArrayAsync(cancellationToken);
         await using var transaction = await ClientMembershipTransaction.BeginIfSupportedAsync(dbContext, cancellationToken);
+        await queryStore.LockRefundMutationRowsAsync(clientId, refundIdentity.SaleId, targetGroupIds, cancellationToken);
         var refund = await dbContext.ClientMembershipRefunds
             .SingleOrDefaultAsync(
                 candidate => candidate.Id == command.RefundId && candidate.ClientId == clientId,
@@ -139,7 +178,7 @@ internal sealed class ClientMembershipRefundService(
         await ClientMembershipTransaction.CommitIfPresentAsync(transaction, cancellationToken);
 
         return ClientMembershipRefundMutationResult.Success(
-            await detailsReader.LoadRequiredAsync(clientId, cancellationToken),
+            await detailsReader.LoadRequiredForSaleAsync(clientId, refund.SaleId, cancellationToken),
             ClientMembershipDetailsReader.MapRefundSnapshot(refund),
             previousRefund);
     }

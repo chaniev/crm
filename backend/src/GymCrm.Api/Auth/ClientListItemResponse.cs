@@ -17,7 +17,7 @@ internal sealed record ClientListItemResponse(
     bool IsProfessional,
     string? ProfessionalComment,
     bool HasActiveMembership,
-    CurrentMembershipSummaryResponse? CurrentMembershipSummary,
+    IReadOnlyList<ClientMembershipResponse> CurrentMemberships,
     bool HasCurrentMembership,
     string MembershipState,
     DateOnly? LastVisitDate,

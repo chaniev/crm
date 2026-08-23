@@ -4,6 +4,8 @@ internal enum ClientMembershipState
 {
     None,
     Active,
+    Future,
     Expired,
-    UsedSingleVisit
+    UsedSingleVisit,
+    LegacyTargetMissing
 }

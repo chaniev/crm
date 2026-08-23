@@ -651,11 +651,13 @@ public class AttendanceApiTests
             var attendance = await db.Attendance.SingleAsync(candidate => candidate.ClientId == seeded.SingleVisitClientId);
             provenanceSaleId = attendance.SingleVisitMembershipSaleId!.Value;
             provenanceMembershipId = attendance.SingleVisitWriteOffMembershipId!.Value;
-            var writtenOff = await db.ClientMemberships.SingleAsync(candidate => candidate.Id == provenanceMembershipId);
+            var writtenOff = await db.ClientMemberships
+                .Include(candidate => candidate.TargetGroups)
+                .SingleAsync(candidate => candidate.Id == provenanceMembershipId);
             var now = DateTimeOffset.UtcNow;
             writtenOff.ValidTo = now;
             conflictingMembershipId = Guid.NewGuid();
-            db.ClientMemberships.Add(new ClientMembership
+            var conflictingMembership = new ClientMembership
             {
                 Id = conflictingMembershipId,
                 ClientId = writtenOff.ClientId,
@@ -668,7 +670,19 @@ public class AttendanceApiTests
                 ChangedByUserId = seeded.HeadCoachId,
                 ValidFrom = now,
                 CreatedAt = now
-            });
+            };
+            foreach (var target in writtenOff.TargetGroups.OrderBy(target => target.Position))
+            {
+                conflictingMembership.TargetGroups.Add(new ClientMembershipTargetGroup
+                {
+                    ClientMembershipId = conflictingMembershipId,
+                    GroupId = target.GroupId,
+                    BranchId = target.BranchId,
+                    Position = target.Position
+                });
+            }
+
+            db.ClientMemberships.Add(conflictingMembership);
             await db.SaveChangesAsync();
             auditCount = await db.AuditLogs.CountAsync();
         }
@@ -960,6 +974,8 @@ public class AttendanceApiTests
             warningClient.Id,
             coach.Id,
             MembershipBehaviorKind.Term,
+            assignedGroup.Id,
+            branch.Id,
             GetBusinessToday().AddMonths(-2),
             GetBusinessToday().AddDays(-1),
             1200m,
@@ -970,6 +986,8 @@ public class AttendanceApiTests
             singleVisitClient.Id,
             coach.Id,
             MembershipBehaviorKind.SingleVisit,
+            assignedGroup.Id,
+            branch.Id,
             GetBusinessToday(),
             null,
             500m,
@@ -980,6 +998,8 @@ public class AttendanceApiTests
             professionalClient.Id,
             coach.Id,
             MembershipBehaviorKind.Professional,
+            assignedGroup.Id,
+            branch.Id,
             GetBusinessToday(),
             null,
             0m,
@@ -989,6 +1009,8 @@ public class AttendanceApiTests
             foreignClient.Id,
             superAdministrator.Id,
             MembershipBehaviorKind.Term,
+            foreignGroup.Id,
+            foreignBranch.Id,
             GetBusinessToday().AddDays(-1),
             GetBusinessToday().AddMonths(1),
             1800m,
@@ -1020,6 +1042,8 @@ public class AttendanceApiTests
         Guid clientId,
         Guid changedByUserId,
         MembershipBehaviorKind behaviorKind,
+        Guid groupId,
+        Guid groupBranchId,
         DateOnly purchaseDate,
         DateOnly? expirationDate,
         decimal paymentAmount,
@@ -1052,9 +1076,10 @@ public class AttendanceApiTests
                     now);
             dbContext.MembershipCatalogItems.Add(catalogItem);
         }
-        dbContext.ClientMemberships.Add(new ClientMembership
+        var membershipId = Guid.NewGuid();
+        var membership = new ClientMembership
         {
-            Id = Guid.NewGuid(),
+            Id = membershipId,
             ClientId = clientId,
             SaleId = saleId,
             BehaviorKind = behaviorKind,
@@ -1082,7 +1107,22 @@ public class AttendanceApiTests
                 CreatedByUserId = changedByUserId,
                 CreatedAt = now
             }
+        };
+        membership.TargetGroups.Add(new ClientMembershipTargetGroup
+        {
+            ClientMembershipId = membershipId,
+            GroupId = groupId,
+            BranchId = groupBranchId,
+            Position = 0
         });
+        membership.Sale.TargetSnapshots.Add(new ClientMembershipSaleTargetSnapshot
+        {
+            SaleId = saleId,
+            GroupId = groupId,
+            BranchId = groupBranchId,
+            Position = 0
+        });
+        dbContext.ClientMemberships.Add(membership);
 
         await dbContext.SaveChangesAsync();
     }

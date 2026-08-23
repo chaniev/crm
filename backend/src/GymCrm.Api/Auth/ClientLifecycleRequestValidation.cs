@@ -185,17 +185,16 @@ internal static class ClientLifecycleRequestValidation
         ValidateAdditionalFields(request.AdditionalFields, errors);
         var groupIds = NormalizeTransferGroupIds(request);
 
-        var targetBranchId = request.TargetBranchId ?? request.BranchId;
+        var targetBranchId = request.TargetBranchId;
         await ValidateClientBranchAsync(targetBranchId, currentBranchId: null, errors, dbContext, cancellationToken);
-        if (request.GroupId == Guid.Empty || request.GroupIds?.Any(groupId => groupId == Guid.Empty) == true ||
-            request.TargetGroupIds?.Any(groupId => groupId == Guid.Empty) == true)
+        if (request.TargetGroupIds?.Any(groupId => groupId == Guid.Empty) == true)
         {
-            errors["groupIds"] = [ClientResources.InvalidGroupId];
+            errors["targetGroupIds"] = [ClientResources.InvalidGroupId];
         }
 
         if (groupIds.Count == 0)
         {
-            errors["groupIds"] = [ClientResources.ClientGroupsRequired];
+            errors["targetGroupIds"] = [ClientResources.ClientGroupsRequired];
         }
 
         if (errors.Count > 0)
@@ -210,7 +209,7 @@ internal static class ClientLifecycleRequestValidation
 
         if (existingGroupCount != groupIds.Count)
         {
-            errors["groupIds"] = [ClientResources.GroupsMustExist];
+            errors["targetGroupIds"] = [ClientResources.GroupsMustExist];
             return errors;
         }
 
@@ -221,7 +220,7 @@ internal static class ClientLifecycleRequestValidation
 
         if (sameBranchGroupCount != groupIds.Count)
         {
-            errors["groupIds"] = [ClientResources.TransferGroupMustBelongToTargetBranch];
+            errors["targetGroupIds"] = [ClientResources.TransferGroupMustBelongToTargetBranch];
         }
 
         return errors;
@@ -295,13 +294,7 @@ internal static class ClientLifecycleRequestValidation
 
     internal static IReadOnlyList<Guid> NormalizeTransferGroupIds(TransferClientBranchRequest request)
     {
-        var groupIds = request.TargetGroupIds is { Count: > 0 }
-            ? request.TargetGroupIds
-            : request.GroupIds is { Count: > 0 }
-                ? request.GroupIds
-            : request.GroupId.HasValue
-                ? [request.GroupId.Value]
-                : [];
+        var groupIds = request.TargetGroupIds ?? [];
 
         return groupIds
             .Where(groupId => groupId != Guid.Empty)

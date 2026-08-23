@@ -69,6 +69,7 @@ public sealed record CreateClientMembershipPurchaseCommand(
     DateOnly? ValidFrom,
     DateOnly? ValidTo,
     DateOnly PaymentDate,
+    IReadOnlyList<Guid> TargetGroupIds,
     string? ProfessionalComment,
     decimal? ManualSaleAmount = null);
 
@@ -76,6 +77,9 @@ public sealed record RenewClientMembershipCommand(
     Guid ChangedByUserId,
     Guid? MembershipCatalogItemId,
     DateOnly PaymentDate,
+    Guid SaleId,
+    Guid ExpectedMembershipId,
+    IReadOnlyList<Guid> TargetGroupIds,
     string? ProfessionalComment,
     decimal? ManualSaleAmount = null);
 
@@ -85,7 +89,8 @@ public sealed record CorrectClientMembershipCommand(
     Guid ExpectedMembershipId,
     DateOnly? ValidFrom,
     DateOnly? ValidTo,
-    DateOnly PaymentDate);
+    DateOnly PaymentDate,
+    IReadOnlyList<Guid> TargetGroupIds);
 
 public sealed record RegisterClientMembershipRefundCommand(
     Guid ChangedByUserId,
@@ -100,7 +105,8 @@ public sealed record CancelClientMembershipRefundCommand(
 
 public sealed record WriteOffSingleVisitCommand(
     Guid ChangedByUserId,
-    DateOnly TrainingDate);
+    DateOnly TrainingDate,
+    Guid GroupId);
 
 public enum ClientMembershipMutationError
 {
@@ -122,7 +128,9 @@ public enum ClientMembershipMutationError
     ProfessionalOverrideNotAllowed = 16,
     ProfessionalPermissionDenied = 17,
     MembershipTargetMissing = 18,
-    MembershipTargetConflict = 19
+    MembershipTargetConflict = 19,
+    MembershipTargetsInvalid = 20,
+    BranchTransferMembershipTargetsAffected = 21
 }
 
 public enum ClientMembershipRefundMutationError
@@ -148,7 +156,8 @@ public enum SingleVisitWriteOffStatus
     MembershipNotSingleVisit = 4,
     SingleVisitAlreadyUsed = 5,
     MembershipPurchasedAfterTrainingDate = 6,
-    ProfessionalPrivilegeActive = 7
+    ProfessionalPrivilegeActive = 7,
+    MembershipEntitlementInvariantConflict = 8
 }
 
 public enum SingleVisitRestoreStatus
@@ -186,6 +195,9 @@ public sealed record ClientMembershipSnapshotResult(
     Guid ChangedByUserId,
     DateTimeOffset CreatedAt,
     Guid SaleId,
+    MembershipCoverageKind CoverageKind,
+    ClientMembershipEntitlementState EntitlementState,
+    IReadOnlyList<ClientMembershipTargetSnapshotResult> TargetGroups,
     string? Comment,
     string? CommentLastChangedByName,
     DateTimeOffset? CommentLastChangedAt,

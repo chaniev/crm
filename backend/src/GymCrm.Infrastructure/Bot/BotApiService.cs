@@ -22,7 +22,8 @@ internal sealed class BotApiService(
     BotIdempotencyService idempotencyService,
     IBusinessDateProvider businessDateProvider,
     IAttendanceDatePolicy attendanceDatePolicy,
-    IAccessScopeService accessScopeService) : IBotApiService
+    IAccessScopeService accessScopeService,
+    IClientMembershipEntitlementResolver entitlementResolver) : IBotApiService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private const string DateFormat = "yyyy-MM-dd";
@@ -155,6 +156,10 @@ internal sealed class BotApiService(
                     .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.TargetGroups)
+                    .ThenInclude(target => target.Group)
+                        .ThenInclude(group => group.Branch)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Branch)
@@ -169,6 +174,16 @@ internal sealed class BotApiService(
             .ThenBy(client => client.Id)
             .ToArrayAsync(cancellationToken);
 
+        var entitlementByClientId = new Dictionary<Guid, ClientMembershipEntitlementResolution>();
+        foreach (var client in clients)
+        {
+            entitlementByClientId[client.Id] = await entitlementResolver.ResolveAsync(
+                client.Id,
+                groupId,
+                trainingDate,
+                cancellationToken);
+        }
+
         return BotApiResult<BotAttendanceRoster>.Success(new BotAttendanceRoster(
             group.Id,
             group.Name,
@@ -181,7 +196,8 @@ internal sealed class BotApiService(
                     effectiveGroupIds,
                     groupId,
                     trainingDate,
-                    businessDateProvider.Today))
+                    businessDateProvider.Today,
+                    entitlementByClientId[client.Id]))
                 .ToArray()));
     }
 
@@ -276,6 +292,10 @@ internal sealed class BotApiService(
                     AttendanceBatchMutationError.TrainingDateUnavailable => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.InvalidAttendanceDate),
                     AttendanceBatchMutationError.Forbidden => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.Forbidden),
                     AttendanceBatchMutationError.SingleVisitRestoreConflict => BotApiResult<BotAttendanceSaveResponse>.Failure(BotApiError.SingleVisitRestoreConflict),
+                    AttendanceBatchMutationError.MembershipEntitlementInvariantConflict => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
+                    {
+                        ["attendanceMarks"] = ["Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору."]
+                    }),
                     _ => BotApiResult<BotAttendanceSaveResponse>.Validation(new Dictionary<string, string[]>
                     {
                         ["attendanceMarks"] = ["Не удалось сохранить посещаемость из-за некорректных данных."]
@@ -287,21 +307,34 @@ internal sealed class BotApiService(
             var warningClients = await dbContext.Clients
                 .AsNoTracking()
                 .Where(client => marks.Select(mark => mark.ClientId).Contains(client.Id))
-                .Include(client => client.Memberships)
                 .ToArrayAsync(cancellationToken);
 
-            var warnings = warningClients
-                .Select(client =>
+            var warningItems = new List<BotAttendanceClientWarning>();
+            foreach (var client in warningClients)
+            {
+                var entitlement = await entitlementResolver.ResolveAsync(
+                    client.Id,
+                    groupId,
+                    trainingDate,
+                    cancellationToken);
+                var message = entitlement.Status switch
                 {
-                    var currentMembership = GetCurrentMembership(client);
-                    var isProfessional = IsProfessional(currentMembership, businessDateProvider.Today);
-                    var membershipWarning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
-                    return new BotAttendanceClientWarning(
+                    ClientMembershipEntitlementResolutionStatus.NoEntitlement =>
+                        "У клиента нет подходящего абонемента для выбранной группы и даты.",
+                    ClientMembershipEntitlementResolutionStatus.InvariantConflict =>
+                        "Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.",
+                    _ => null
+                };
+                if (message is not null)
+                {
+                    warningItems.Add(new BotAttendanceClientWarning(
                         client.Id,
                         BuildClientFullName(client.LastName, client.FirstName, client.MiddleName),
-                        membershipWarning.Message);
-                })
-                .Where(item => item.MembershipWarning is not null)
+                        message));
+                }
+            }
+
+            var warnings = warningItems
                 .OrderBy(item => item.FullName, StringComparer.CurrentCulture)
                 .ThenBy(item => item.ClientId)
                 .ToArray();
@@ -392,6 +425,10 @@ internal sealed class BotApiService(
                     .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.TargetGroups)
+                    .ThenInclude(target => target.Group)
+                        .ThenInclude(group => group.Branch)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
@@ -443,6 +480,10 @@ internal sealed class BotApiService(
                     .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(currentClient => currentClient.Memberships)
                 .ThenInclude(membership => membership.Sale)
+            .Include(currentClient => currentClient.Memberships)
+                .ThenInclude(membership => membership.TargetGroups)
+                    .ThenInclude(target => target.Group)
+                        .ThenInclude(group => group.Branch)
             .Include(currentClient => currentClient.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
@@ -516,47 +557,55 @@ internal sealed class BotApiService(
         var today = businessDateProvider.Today;
         var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
-        var items = await dbContext.Clients
+        var items = await dbContext.ClientMemberships
             .AsNoTracking()
-            .Where(client => client.Status == ClientStatus.Active)
-            .Select(client => new
+            .Where(membership =>
+                membership.Client.Status == ClientStatus.Active &&
+                membership.ValidTo == null &&
+                membership.BehaviorKind != MembershipBehaviorKind.Professional &&
+                membership.IndividualValidTo.HasValue &&
+                membership.IndividualValidTo.Value >= today &&
+                membership.IndividualValidTo.Value < expiresBefore)
+            .Select(membership => new
             {
-                client.Id,
-                client.LastName,
-                client.FirstName,
-                client.MiddleName,
-                CurrentMembership = client.Memberships
-                    .Where(membership => membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.ValidFrom)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Select(membership => new
-                    {
-                        membership.BehaviorKind,
-                        MembershipLabel = membership.Sale.MembershipCatalogItem != null
-                            ? membership.Sale.MembershipCatalogItem.Name
-                            : ClientMembershipSaleDisplay.AmountOnlyLabel,
-                        ExpirationDate = membership.IndividualValidTo
-                    })
-                    .FirstOrDefault()
+                ClientId = membership.ClientId,
+                MembershipId = membership.Id,
+                membership.SaleId,
+                membership.Client.LastName,
+                membership.Client.FirstName,
+                membership.Client.MiddleName,
+                membership.BehaviorKind,
+                MembershipLabel = membership.Sale.MembershipCatalogItem != null
+                    ? membership.Sale.MembershipCatalogItem.Name
+                    : ClientMembershipSaleDisplay.AmountOnlyLabel,
+                ExpirationDate = membership.IndividualValidTo!.Value,
+                TargetGroups = membership.TargetGroups
+                    .OrderBy(target => target.Position)
+                    .Select(target => new BotClientMembershipTarget(
+                        target.GroupId,
+                        target.Group.Name,
+                        target.BranchId,
+                        target.Group.Branch.Name,
+                        target.Position,
+                        target.Group.IsActive))
+                    .ToArray()
             })
-            .Where(candidate =>
-                candidate.CurrentMembership != null &&
-                candidate.CurrentMembership.ExpirationDate.HasValue &&
-                candidate.CurrentMembership.ExpirationDate.Value >= today &&
-                candidate.CurrentMembership.ExpirationDate.Value < expiresBefore)
-            .OrderBy(candidate => candidate.CurrentMembership!.ExpirationDate)
+            .OrderBy(candidate => candidate.ExpirationDate)
             .ThenBy(candidate => candidate.LastName ?? string.Empty)
             .ThenBy(candidate => candidate.FirstName ?? string.Empty)
             .ThenBy(candidate => candidate.MiddleName ?? string.Empty)
-            .ThenBy(candidate => candidate.Id)
+            .ThenBy(candidate => candidate.ClientId)
+            .ThenBy(candidate => candidate.MembershipId)
             .Select(candidate => new BotExpiringMembershipListItem(
-                candidate.Id,
+                candidate.ClientId,
+                candidate.MembershipId,
+                candidate.SaleId,
                 BuildClientFullName(candidate.LastName, candidate.FirstName, candidate.MiddleName),
-                candidate.CurrentMembership!.BehaviorKind.ToString(),
-                candidate.CurrentMembership.MembershipLabel,
-                candidate.CurrentMembership.ExpirationDate!.Value,
-                candidate.CurrentMembership.ExpirationDate.Value.DayNumber - today.DayNumber))
+                candidate.BehaviorKind.ToString(),
+                candidate.MembershipLabel,
+                candidate.ExpirationDate,
+                candidate.ExpirationDate.DayNumber - today.DayNumber,
+                candidate.TargetGroups))
             .ToArrayAsync(cancellationToken);
 
         return BotApiResult<IReadOnlyList<BotExpiringMembershipListItem>>.Success(items);
@@ -837,14 +886,28 @@ internal sealed class BotApiService(
         IReadOnlyCollection<Guid>? effectiveGroupIds,
         Guid groupId,
         DateOnly trainingDate,
-        DateOnly businessDate)
+        DateOnly businessDate,
+        ClientMembershipEntitlementResolution entitlement)
     {
-        var currentMembership = GetCurrentMembership(client);
+        var entitlementMembership = entitlement.MembershipId.HasValue
+            ? client.Memberships.SingleOrDefault(membership => membership.Id == entitlement.MembershipId.Value)
+            : null;
         var visibleGroups = currentUser.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => effectiveGroupIds?.Contains(clientGroup.GroupId) == true)
             : client.Groups.AsEnumerable();
-        var isProfessional = IsProfessional(currentMembership, businessDate);
-        var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
+        var isProfessional = entitlement is
+        {
+            Status: ClientMembershipEntitlementResolutionStatus.Found,
+            BehaviorKind: MembershipBehaviorKind.Professional
+        };
+        var warning = entitlement.Status switch
+        {
+            ClientMembershipEntitlementResolutionStatus.InvariantConflict =>
+                new MembershipWarningResult(true, "Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору."),
+            ClientMembershipEntitlementResolutionStatus.NoEntitlement =>
+                new MembershipWarningResult(true, "У клиента нет подходящего абонемента для выбранной группы и даты."),
+            _ => new MembershipWarningResult(false, null)
+        };
         var isPresent = client.AttendanceEntries.Any(attendance =>
             attendance.GroupId == groupId &&
             attendance.TrainingDate == trainingDate &&
@@ -859,14 +922,10 @@ internal sealed class BotApiService(
             MapPhoto(client),
             isPresent,
             isProfessional,
-            isProfessional ? currentMembership!.ProfessionalComment : null,
+            isProfessional ? entitlementMembership?.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasActiveMembership(
-                isProfessional,
-                currentMembership,
-                trainingDate,
-                requirePurchaseDateReached: true));
+            entitlement.Status == ClientMembershipEntitlementResolutionStatus.Found);
     }
 
     private static BotClientListItem MapClientListItem(
@@ -875,9 +934,15 @@ internal sealed class BotApiService(
         IReadOnlyCollection<Guid>? effectiveGroupIds,
         DateOnly trainingDate)
     {
-        var currentMembership = GetCurrentMembership(client);
-        var isProfessional = IsProfessional(currentMembership, trainingDate);
-        var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
+        var currentMemberships = GetCurrentMemberships(client);
+        var professionalMembership = currentMemberships
+            .SingleOrDefault(membership =>
+                membership.BehaviorKind == MembershipBehaviorKind.Professional &&
+                ClientMembershipTargetPolicy.ResolveEntitlementState(membership, trainingDate) ==
+                ClientMembershipEntitlementState.Active);
+        var isProfessional = professionalMembership is not null;
+        var warning = EvaluateMembershipWarning(currentMemberships, trainingDate);
+        var singleMembership = currentMemberships.Count == 1 ? currentMemberships[0] : null;
         var groups = user.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => effectiveGroupIds?.Contains(clientGroup.GroupId) == true)
             : client.Groups.AsEnumerable();
@@ -892,18 +957,18 @@ internal sealed class BotApiService(
             MapGroups(groups),
             MapPhoto(client),
             isProfessional,
-            isProfessional ? currentMembership!.ProfessionalComment : null,
+            professionalMembership?.ProfessionalComment,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasActiveMembership(
-                isProfessional,
-                currentMembership,
-                trainingDate,
-                requirePurchaseDateReached: true),
-            currentMembership?.BehaviorKind.ToString(),
-            currentMembership is null
-                ? null
-                : ClientMembershipSaleDisplay.GetMembershipName(currentMembership.Sale));
+            currentMemberships.Any(membership =>
+                ClientMembershipTargetPolicy.ResolveEntitlementState(membership, trainingDate) ==
+                ClientMembershipEntitlementState.Active),
+            singleMembership?.BehaviorKind.ToString(),
+            singleMembership is not null
+                ? ClientMembershipSaleDisplay.GetMembershipName(singleMembership.Sale)
+                : currentMemberships.Count > 1
+                    ? $"{currentMemberships.Count} абонемента"
+                    : null);
     }
 
     private static BotClientCard MapClientCard(
@@ -913,9 +978,14 @@ internal sealed class BotApiService(
         DateOnly trainingDate,
         IReadOnlyList<BotAttendanceHistoryItem> attendanceHistory)
     {
-        var currentMembership = GetCurrentMembership(client);
-        var isProfessional = IsProfessional(currentMembership, trainingDate);
-        var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
+        var currentMemberships = GetCurrentMemberships(client);
+        var professionalMembership = currentMemberships
+            .SingleOrDefault(membership =>
+                membership.BehaviorKind == MembershipBehaviorKind.Professional &&
+                ClientMembershipTargetPolicy.ResolveEntitlementState(membership, trainingDate) ==
+                ClientMembershipEntitlementState.Active);
+        var isProfessional = professionalMembership is not null;
+        var warning = EvaluateMembershipWarning(currentMemberships, trainingDate);
         var groups = user.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => effectiveGroupIds?.Contains(clientGroup.GroupId) == true)
             : client.Groups.AsEnumerable();
@@ -930,29 +1000,47 @@ internal sealed class BotApiService(
             MapGroups(groups),
             MapPhoto(client),
             isProfessional,
-            isProfessional ? currentMembership!.ProfessionalComment : null,
+            professionalMembership?.ProfessionalComment,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasActiveMembership(
-                isProfessional,
-                currentMembership,
-                trainingDate,
-                requirePurchaseDateReached: true),
-            user.Role == UserRole.Coach || currentMembership is null
-                ? null
-                : new BotClientMembership(
-                    currentMembership.Id,
-                    currentMembership.Sale.MembershipCatalogItemId,
-                    currentMembership.BehaviorKind.ToString(),
-                    ClientMembershipSaleDisplay.GetMembershipName(currentMembership.Sale),
-                    currentMembership.Sale.PricingMode.ToString(),
-                    currentMembership.Sale.GrossAmount,
-                    ClientMembershipSaleDisplay.GetCatalogPrice(currentMembership.Sale),
-                    currentMembership.Sale.PurchaseDate,
-                    currentMembership.Sale.PaymentDate,
-                    currentMembership.IndividualValidTo,
-                    currentMembership.SingleVisitUsed),
+            currentMemberships.Any(membership =>
+                ClientMembershipTargetPolicy.ResolveEntitlementState(membership, trainingDate) ==
+                ClientMembershipEntitlementState.Active),
+            user.Role == UserRole.Coach
+                ? []
+                : currentMemberships
+                    .Select(membership => MapClientMembership(membership, trainingDate))
+                    .ToArray(),
             attendanceHistory);
+    }
+
+    private static BotClientMembership MapClientMembership(ClientMembership membership, DateOnly businessDate)
+    {
+        return new BotClientMembership(
+            membership.Id,
+            membership.SaleId,
+            membership.Sale.MembershipCatalogItemId,
+            membership.BehaviorKind.ToString(),
+            ClientMembershipSaleDisplay.GetMembershipName(membership.Sale),
+            membership.Sale.PricingMode.ToString(),
+            membership.Sale.GrossAmount,
+            ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
+            membership.Sale.PurchaseDate,
+            membership.Sale.PaymentDate,
+            membership.IndividualValidTo,
+            membership.SingleVisitUsed,
+            ClientMembershipTargetPolicy.ResolveCoverageKind(membership.BehaviorKind).ToString(),
+            ClientMembershipTargetPolicy.ResolveEntitlementState(membership, businessDate).ToString(),
+            membership.TargetGroups
+                .OrderBy(target => target.Position)
+                .Select(target => new BotClientMembershipTarget(
+                    target.GroupId,
+                    target.Group.Name,
+                    target.BranchId,
+                    target.Group.Branch.Name,
+                    target.Position,
+                    target.Group.IsActive))
+                .ToArray());
     }
 
     private static IReadOnlyList<BotClientGroupSummary> MapGroups(IEnumerable<ClientGroup> groups)
@@ -993,55 +1081,51 @@ internal sealed class BotApiService(
     }
 
     private static MembershipWarningResult EvaluateMembershipWarning(
-        bool isProfessional,
-        ClientMembership? membership,
+        IReadOnlyCollection<ClientMembership> memberships,
         DateOnly trainingDate)
     {
-        var issues = ClientMembershipSemantics.EvaluateIssues(isProfessional, membership, trainingDate);
-        if (issues.Count == 0)
+        if (memberships.Any(membership =>
+                ClientMembershipTargetPolicy.ResolveEntitlementState(membership, trainingDate) ==
+                ClientMembershipEntitlementState.Active))
         {
             return new MembershipWarningResult(false, null);
         }
 
-        if (issues.Contains(ClientMembershipIssue.NoCurrentMembership))
+        if (memberships.Count == 0)
         {
             return new MembershipWarningResult(true, "У клиента нет текущего абонемента.");
         }
 
-        var messages = new List<string>();
-        if (issues.Contains(ClientMembershipIssue.PurchasedAfterTrainingDate))
+        var states = memberships
+            .Select(membership => ClientMembershipTargetPolicy.ResolveEntitlementState(membership, trainingDate))
+            .ToHashSet();
+        if (states.Contains(ClientMembershipEntitlementState.LegacyTargetMissing))
         {
-            messages.Add("абонемент куплен позже выбранной даты");
+            return new MembershipWarningResult(true, "Абонемент без целевых групп не даёт права посещения. Исправьте группы абонемента.");
         }
 
-        if (issues.Contains(ClientMembershipIssue.SingleVisitAlreadyUsed))
+        if (states.Contains(ClientMembershipEntitlementState.Future))
         {
-            messages.Add("разовое посещение уже списано");
+            return new MembershipWarningResult(true, "Абонемент начнёт действовать позже выбранной даты.");
         }
 
-        if (issues.Contains(ClientMembershipIssue.Expired))
+        if (states.Contains(ClientMembershipEntitlementState.UsedSingleVisit))
         {
-            messages.Add("абонемент истек");
+            return new MembershipWarningResult(true, "Разовое посещение уже списано.");
         }
 
-        return messages.Count == 0
-            ? new MembershipWarningResult(false, null)
-            : new MembershipWarningResult(true, $"Проверьте абонемент: {string.Join(", ", messages)}.");
+        return new MembershipWarningResult(true, "Абонемент истёк.");
     }
 
-    private static ClientMembership? GetCurrentMembership(Client client)
+    private static IReadOnlyList<ClientMembership> GetCurrentMemberships(Client client)
     {
         return client.Memberships
+            .Where(membership => membership.ValidTo is null)
             .OrderByDescending(membership => membership.ValidFrom)
             .ThenByDescending(membership => membership.CreatedAt)
             .ThenByDescending(membership => membership.Id)
-            .FirstOrDefault(membership => membership.ValidTo is null);
+            .ToArray();
     }
-
-    private static bool IsProfessional(ClientMembership? membership, DateOnly businessDate) =>
-        membership?.BehaviorKind == MembershipBehaviorKind.Professional &&
-        membership.IndividualValidFrom <= businessDate &&
-        (membership.IndividualValidTo is null || membership.IndividualValidTo >= businessDate);
 
     private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)
     {

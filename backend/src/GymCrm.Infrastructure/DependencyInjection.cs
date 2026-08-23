@@ -61,9 +61,11 @@ public static class DependencyInjection
         services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<ClientMembershipDetailsReader>();
         services.AddScoped<ClientMembershipQueryStore>();
+        services.AddScoped<IClientMembershipEntitlementResolver, ClientMembershipEntitlementResolver>();
         services.AddScoped<ClientMembershipSaleLifecycleService>();
         services.AddScoped<ClientMembershipRefundService>();
         services.AddScoped<ClientMembershipVisitService>();
+        services.AddScoped<IClientMembershipTargetTransferService, ClientMembershipTargetTransferService>();
         services.AddScoped<IClientMembershipService, ClientMembershipService>();
         services.AddScoped<IFinancialReportService, FinancialReportService>();
         services.Configure<ClientTelegramOptions>(

@@ -23,7 +23,7 @@ namespace GymCrm.Tests;
 public sealed class MembershipTransferCatalogTests
 {
     [Fact]
-    public async Task Term_transfer_changes_branch_and_group_and_creates_membership_sale()
+    public async Task Term_assignment_transfer_changes_branch_and_group_without_financial_event()
     {
         await using var fixture = await TransferFixture.CreateAsync(MembershipBehaviorKind.Term);
         var before = await fixture.CountsAsync();
@@ -31,29 +31,20 @@ public sealed class MembershipTransferCatalogTests
         using var response = await fixture.TransferAsync(new
         {
             TargetBranchId = fixture.TargetBranchId,
-            TargetGroupIds = new[] { fixture.TargetGroupId },
-            MembershipCatalogItemId = fixture.TargetTermCatalogItemId,
-            ValidFrom = fixture.Today.ToString("yyyy-MM-dd"),
-            ValidTo = fixture.Today.AddMonths(1).ToString("yyyy-MM-dd"),
-            PaymentStatus = "Paid",
-            PaymentDate = fixture.Today.ToString("yyyy-MM-dd")
+            TargetGroupIds = new[] { fixture.TargetGroupId }
         });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         await fixture.AssertAssignmentAsync(fixture.TargetBranchId, fixture.TargetGroupId);
         var after = await fixture.CountsAsync();
-        Assert.Equal(before.Memberships + 1, after.Memberships);
-        Assert.Equal(before.Sales + 1, after.Sales);
-        var sale = await fixture.LatestSaleAsync();
-        Assert.Equal(ClientMembershipSalePricingMode.Catalog, sale.PricingMode);
-        Assert.Equal(1500m, sale.GrossAmount);
-        Assert.Equal(fixture.TargetTermCatalogItemId, sale.MembershipCatalogItemId);
+        Assert.Equal(before, after);
     }
 
     [Fact]
-    public async Task Term_transfer_supports_catalog_override()
+    public async Task Term_assignment_transfer_rejects_catalog_override_fields()
     {
         await using var fixture = await TransferFixture.CreateAsync(MembershipBehaviorKind.Term);
+        var before = await fixture.CountsAsync();
 
         using var response = await fixture.TransferAsync(new
         {
@@ -66,20 +57,19 @@ public sealed class MembershipTransferCatalogTests
             PaymentDate = fixture.Today.ToString("yyyy-MM-dd")
         });
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var sale = await fixture.LatestSaleAsync();
-        Assert.Equal(ClientMembershipSalePricingMode.CatalogOverride, sale.PricingMode);
-        Assert.Equal(1750m, sale.GrossAmount);
-        Assert.Equal(fixture.TargetTermCatalogItemId, sale.MembershipCatalogItemId);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await fixture.AssertAssignmentAsync(fixture.SourceBranchId, groupId: null);
+        Assert.Equal(before, await fixture.CountsAsync());
     }
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task Amount_only_transfer_works_without_current_membership_and_replaces_professional(bool replaceProfessional)
+    public async Task Amount_only_assignment_transfer_is_rejected_without_financial_changes(bool replaceProfessional)
     {
         await using var fixture = await TransferFixture.CreateAsync(
             replaceProfessional ? MembershipBehaviorKind.Professional : null);
+        var before = await fixture.CountsAsync();
 
         using var response = await fixture.TransferAsync(new
         {
@@ -93,17 +83,9 @@ public sealed class MembershipTransferCatalogTests
             PaymentDate = fixture.Today.ToString("yyyy-MM-dd")
         });
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        await fixture.AssertAssignmentAsync(fixture.TargetBranchId, fixture.TargetGroupId);
-        var sale = await fixture.LatestSaleAsync();
-        Assert.Equal(ClientMembershipSalePricingMode.AmountOnly, sale.PricingMode);
-        Assert.Equal(MembershipBehaviorKind.Term, sale.BehaviorKind);
-        Assert.Equal(1800m, sale.GrossAmount);
-        Assert.Null(sale.MembershipCatalogItemId);
-        var membership = await fixture.LatestMembershipAsync();
-        Assert.Equal(MembershipBehaviorKind.Term, membership.BehaviorKind);
-        Assert.Equal(fixture.Today, membership.IndividualValidFrom);
-        Assert.Equal(fixture.Today.AddDays(29), membership.IndividualValidTo);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await fixture.AssertAssignmentAsync(fixture.SourceBranchId, groupId: null);
+        Assert.Equal(before, await fixture.CountsAsync());
     }
 
     [Fact]

@@ -5,7 +5,6 @@ import {
   type ClientListItem,
   type ClientMembership,
   type ClientMembershipChangeReason,
-  type ClientMembershipSummary,
   type ClientStatus,
   type MembershipBehaviorKind,
 } from '../../../lib/api'
@@ -73,7 +72,7 @@ export function buildClientRowViewModel(
     membershipLabel: client.isProfessional
       ? 'Профессионал'
       : resolveMembershipLabel(
-          getCurrentMembershipSummary(client),
+          getSingleCurrentMembershipForLabel(client),
           client.hasCurrentMembership,
         ),
     membershipMeta: resolveMembershipMeta(client),
@@ -87,7 +86,7 @@ export function buildClientPreviewViewModel(
   client: ClientDetails,
   canManage: boolean,
 ): ClientPreviewViewModel {
-  const membership = getCurrentMembershipSummary(client)
+  const membership = getSingleCurrentMembershipForLabel(client)
   const lastVisit = getLatestAttendanceDate(client.attendanceHistory)
 
   return {
@@ -318,11 +317,11 @@ function buildClientListPhotoUrl(client: Pick<ClientListItem, 'id' | 'photo' | '
 }
 
 function resolveMembershipLabel(
-  membership: ClientMembershipSummary | ClientMembership | null,
+  membership: ClientMembership | null,
   hasCurrentMembership: boolean,
 ) {
   if (!hasCurrentMembership || !membership) {
-    return 'Без абонемента'
+    return hasCurrentMembership ? 'Несколько абонементов' : 'Без абонемента'
   }
 
   return behaviorKindLabels[membership.behaviorKind]
@@ -333,10 +332,10 @@ function resolveMembershipMeta(client: ClientListItem) {
     return client.professionalComment || 'Профессиональный статус'
   }
 
-  const membership = getCurrentMembershipSummary(client)
+  const membership = getSingleCurrentMembershipForLabel(client)
 
   if (!membership) {
-    return 'Оформление не начато'
+    return client.hasCurrentMembership ? client.membershipState : 'Оформление не начато'
   }
 
   const expiration = formatExpirationValue(
@@ -371,8 +370,8 @@ function resolveLastVisitLabel(value?: string | null) {
   return value ? formatDateValue(value) : 'Нет визитов'
 }
 
-function getCurrentMembershipSummary(client: ClientListItem) {
-  return client.currentMembershipSummary ?? client.currentMembership
+function getSingleCurrentMembershipForLabel(client: ClientListItem) {
+  return client.currentMemberships.length === 1 ? client.currentMemberships[0] : null
 }
 
 function buildPreviewEvents(client: ClientDetails) {

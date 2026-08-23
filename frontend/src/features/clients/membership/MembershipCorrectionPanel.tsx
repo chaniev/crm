@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Badge, Button, Group, Paper, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 
@@ -8,6 +8,7 @@ import {
   getMembershipExpirationSuggestion,
   type ClientMembership,
   type MembershipBehaviorKind,
+  type TrainingGroupListItem,
 } from '../../../lib/api'
 import { ResponsiveButtonGroup } from '../../shared/ux'
 import {
@@ -24,6 +25,12 @@ import {
   validateMembershipCorrectionForm,
 } from './membershipForms'
 import { useClientActionSubmissionKey } from '../useClientActionSubmissionKey'
+import { MembershipTargetGroupsField } from './MembershipTargetGroupsField'
+import {
+  isMembershipTargetLoadAbort,
+  loadAllActiveMembershipTargetGroups,
+  pickTargetGroupError,
+} from './membershipTargetGroups'
 
 type MembershipCorrectionPanelProps = {
   businessDate: string
@@ -52,7 +59,31 @@ export function MembershipCorrectionPanel({
   const [expirationSuggestionError, setExpirationSuggestionError] = useState<
     string | null
   >(null)
+  const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
+  const [groupsLoading, setGroupsLoading] = useState(true)
   const expirationSuggestionRequestIdRef = useRef(0)
+  const reportingBranchId = currentMembership.targetGroups[0]?.branchId
+  const availableGroups = reportingBranchId
+    ? groups.filter((group) => group.branchId === reportingBranchId)
+    : groups
+
+  useEffect(() => {
+    const controller = new AbortController()
+    setGroupsLoading(true)
+    void loadAllActiveMembershipTargetGroups(controller.signal)
+      .then(setGroups)
+      .catch((error) => {
+        if (!isMembershipTargetLoadAbort(error)) {
+          setExpirationSuggestionError(
+            error instanceof Error ? error.message : 'Не удалось загрузить группы.',
+          )
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setGroupsLoading(false)
+      })
+    return () => controller.abort()
+  }, [])
 
   const applySuggestedExpiration = useCallback(
     async (behaviorKind: MembershipBehaviorKind | null, validFrom: string) => {
@@ -124,6 +155,7 @@ export function MembershipCorrectionPanel({
         validFrom: values.validFrom,
         validTo: values.validTo || undefined,
         paymentDate: values.paymentDate,
+        targetGroupIds: values.targetGroupIds,
       }
       await onSubmit({
         kind: 'correct',
@@ -203,6 +235,18 @@ export function MembershipCorrectionPanel({
               value={form.values.validTo}
             />
           </SimpleGrid>
+
+          <MembershipTargetGroupsField
+            behaviorKind={currentMembership.behaviorKind}
+            error={pickTargetGroupError(form.errors)}
+            groups={availableGroups}
+            loading={groupsLoading}
+            onChange={(targetGroupIds) => {
+              form.setFieldValue('targetGroupIds', targetGroupIds)
+              form.clearFieldError('targetGroupIds')
+            }}
+            targetGroupIds={form.values.targetGroupIds}
+          />
 
           <Group justify="flex-end" wrap="wrap">
             <Button

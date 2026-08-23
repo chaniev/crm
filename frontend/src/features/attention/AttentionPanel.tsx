@@ -61,12 +61,13 @@ export function AttentionPanel({ onOpenClient }: AttentionPanelProps) {
       {error && loaded.current ? <Text aria-live="polite" c="red" size="sm">{error}</Text> : null}
       {loaded.current && clients.length === 0 ? <EmptyState description={resources.attention.emptyDescription} icon={<IconCalendarEvent size={28} />} title={resources.attention.emptyTitle} /> : null}
       {loaded.current && clients.length > 0 ? <Stack aria-labelledby="attention-list-title" data-testid="attention-list" gap="sm" role="list">
-        {clients.map((client) => <Paper className="attention-client-row-card" data-testid={`attention-client-card-${client.clientId}`} key={client.clientId} radius="lg" role="listitem" withBorder>
+        {clients.map((client) => <Paper className="attention-client-row-card" data-testid={`attention-client-card-${attentionItemKey(client)}`} key={attentionItemKey(client)} radius="lg" role="listitem" withBorder>
           <Stack gap="md">
             <Text fw={700} size="lg">{client.fullName}</Text>
             <Stack aria-label="Причины" gap="xs" role="list">{client.reasons.map((reason, index) => <ReasonRow client={client} error={actionErrors[client.clientId]} key={`${reason.type}-${index}`} onContacted={() => void contacted(client)} pending={pendingClientId === client.clientId} reason={reason} />)}</Stack>
-            <SimpleGrid cols={{ base: 1, sm: 3 }}>
-              <AttentionField label="Абонемент" value={client.membership ? (client.membership.membershipName || resources.common.membership.typeLabels[client.membership.behaviorKind]) : 'Нет данных'} />
+            <SimpleGrid cols={{ base: 1, sm: 4 }}>
+              <AttentionField label="Абонемент" value={formatAttentionMembershipLabel(client)} />
+              <AttentionField label="Группы" value={client.membership?.targetSummary ?? 'Нет данных'} />
               <AttentionField label="Контакты" value={<Stack gap={2}>{client.phone ? <Anchor href={`tel:${client.phone}`}>{client.phone}</Anchor> : <Text size="sm">Телефон не указан</Text>}{client.telegramLink ? <Anchor aria-label="Открыть Telegram в новой вкладке" href={client.telegramLink} rel="noopener noreferrer" target="_blank"><IconBrandTelegram size={16} /> Telegram</Anchor> : null}</Stack>} />
               <AttentionField label="Заметки" value={client.notes || 'Нет заметок'} />
             </SimpleGrid>
@@ -97,4 +98,6 @@ function ReasonRow({ client, error, onContacted, pending, reason }: { client: Cl
 }
 
 function dayWord(value: number) { const n = value % 100; const d = n % 10; if (n >= 11 && n <= 19) return 'дней'; if (d === 1) return 'день'; if (d >= 2 && d <= 4) return 'дня'; return 'дней' }
+function attentionItemKey(client: ClientAttentionItem) { return client.membership ? `${client.clientId}:${client.membership.membershipId}:${client.membership.saleId}` : client.clientId }
+function formatAttentionMembershipLabel(client: ClientAttentionItem) { return client.membership ? (client.membership.membershipName || resources.common.membership.typeLabels[client.membership.behaviorKind]) : 'Нет данных' }
 function AttentionField({ label, value }: { label: string; value: ReactNode }) { return <div className="attention-client-row__field"><Text c="dimmed" fw={700} size="xs" tt="uppercase">{label}</Text>{typeof value === 'string' ? <Text fw={600} size="sm" style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>{value}</Text> : value}</div> }

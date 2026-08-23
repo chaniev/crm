@@ -23,4 +23,13 @@ internal sealed record ClientMembershipAuditState(
     Guid ChangedByUserId,
     DateTimeOffset ValidFrom,
     DateTimeOffset? ValidTo,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    IReadOnlyList<ClientMembershipTargetAuditState> TargetGroups);
+
+internal sealed record ClientMembershipTargetAuditState(
+    Guid GroupId,
+    string GroupName,
+    Guid BranchId,
+    string BranchName,
+    int Position,
+    bool IsActive);

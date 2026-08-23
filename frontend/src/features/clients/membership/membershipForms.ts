@@ -10,12 +10,14 @@ import type {
   MembershipCorrectionFormValues,
   MembershipRenewFormValues,
 } from '../ClientManagement.types'
+import { mapMembershipTargetsToGroupIds } from './membershipTargetGroups'
 
 export type MembershipPurchaseFormValues = MembershipSalePricingValues & {
   validFrom: string
   validTo: string
   paymentDate: string
   professionalComment: string
+  targetGroupIds: string[]
 }
 
 export function createMembershipPurchaseInitialValues(
@@ -27,16 +29,19 @@ export function createMembershipPurchaseInitialValues(
     validTo: '',
     paymentDate: businessDate,
     professionalComment: '',
+    targetGroupIds: [],
   }
 }
 
 export function createMembershipRenewInitialValues(
   businessDate: string,
+  currentMembership: ClientMembership,
 ): MembershipRenewFormValues {
   return {
     ...createEmptyMembershipSalePricingValues(),
     paymentDate: businessDate,
     professionalComment: '',
+    targetGroupIds: mapMembershipTargetsToGroupIds(currentMembership.targetGroups),
   }
 }
 
@@ -47,6 +52,7 @@ export function createMembershipCorrectionInitialValues(
     validFrom: currentMembership.validFrom ?? currentMembership.purchaseDate,
     validTo: currentMembership.expirationDate ?? '',
     paymentDate: currentMembership.paymentDate,
+    targetGroupIds: mapMembershipTargetsToGroupIds(currentMembership.targetGroups),
   }
 }
 
@@ -70,9 +76,29 @@ export function validateMembershipCorrectionForm(
     errors.paymentDate = 'Укажите дату оплаты.'
   }
 
+  validateTargetGroups(values.targetGroupIds, behaviorKind, errors)
+
   return errors
 }
 
 function isExpirationRequired(behaviorKind: MembershipBehaviorKind) {
   return behaviorKind !== 'SingleVisit'
+}
+
+export function validateTargetGroups(
+  targetGroupIds: string[],
+  behaviorKind: MembershipBehaviorKind,
+  errors: Record<string, string>,
+) {
+  if (targetGroupIds.length === 0) {
+    errors.targetGroupIds = 'Выберите хотя бы одну группу'
+  }
+
+  if (behaviorKind === 'SingleVisit' && targetGroupIds.length !== 1) {
+    errors.targetGroupIds = 'Разовое посещение действует только в одной группе'
+  }
+
+  if (behaviorKind !== 'SingleVisit' && targetGroupIds.length > 5) {
+    errors.targetGroupIds = 'Можно выбрать не больше 5 групп'
+  }
 }

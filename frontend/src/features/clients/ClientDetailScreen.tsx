@@ -37,11 +37,6 @@ import {
   ClientRelatedSections,
 } from './ClientDetailSections'
 import {
-  buildMembershipSalePricingPayload,
-  createEmptyMembershipSalePricingValues,
-  validateMembershipSalePricing,
-} from './MembershipSalePricing'
-import {
   type ClientTransferFormValues,
   type MembershipActionMode,
   type MembershipActionSubmission,
@@ -82,17 +77,13 @@ export function ClientDetailScreen({
   const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const [membershipActionMode, setMembershipActionMode] =
     useState<MembershipActionMode | null>(null)
+  const [selectedMembershipId, setSelectedMembershipId] = useState<string | null>(null)
   const getTransferSubmissionKey = useClientActionSubmissionKey()
   const actionPendingRef = useRef(false)
   const transferForm = useForm<ClientTransferFormValues>({
     initialValues: {
       branchId: '',
       groupId: '',
-      ...createEmptyMembershipSalePricingValues(),
-      validFrom: '',
-      validTo: '',
-      paymentDate: client?.businessDate ?? '',
-      professionalComment: '',
     },
   })
 
@@ -206,11 +197,6 @@ export function ClientDetailScreen({
     transferForm.setValues({
       branchId: client.branchId,
       groupId: client.groupIds[0] ?? '',
-      ...createEmptyMembershipSalePricingValues(),
-      validFrom: '',
-      validTo: '',
-      paymentDate: client.businessDate,
-      professionalComment: '',
     })
 
     try {
@@ -241,38 +227,10 @@ export function ClientDetailScreen({
     transferForm.clearErrors()
 
     try {
-      const movesUnusedSingleVisit =
-        client.currentMembership?.behaviorKind === 'SingleVisit' &&
-        !client.currentMembership.singleVisitUsed
-      const pricingErrors = movesUnusedSingleVisit
-        ? {}
-        : validateMembershipSalePricing(values)
-
-      if (Object.keys(pricingErrors).length > 0) {
-        transferForm.setErrors(pricingErrors)
-        setTransferFormError('Выберите способ расчёта и проверьте сумму продажи.')
-        return
+      const payload = {
+        targetBranchId: values.branchId,
+        targetGroupIds: values.groupId ? [values.groupId] : [],
       }
-
-      const payload = movesUnusedSingleVisit
-        ? {
-              targetBranchId: values.branchId,
-              targetGroupIds: values.groupId ? [values.groupId] : [],
-            }
-        : {
-              targetBranchId: values.branchId,
-              targetGroupIds: values.groupId ? [values.groupId] : [],
-              ...buildMembershipSalePricingPayload(values),
-              ...(values.pricingMode === 'AmountOnly'
-                ? { membershipCatalogItemId: null }
-                : {}),
-              validFrom: values.validFrom || undefined,
-              validTo: values.validTo || undefined,
-              paymentDate: values.paymentDate,
-              ...(values.professionalComment.trim()
-                ? { professionalComment: values.professionalComment.trim() }
-                : {}),
-            }
       const updatedClient = await transferClientBranch(
         client.id,
         payload,
@@ -292,7 +250,16 @@ export function ClientDetailScreen({
       })
     } catch (error) {
       if (error instanceof ApiError) {
-        transferForm.setErrors(applyFieldErrors(error.fieldErrors))
+        const fieldErrors = applyFieldErrors(error.fieldErrors)
+        transferForm.setErrors({
+          ...fieldErrors,
+          branchId:
+            fieldErrors.branchId ??
+            fieldErrors.targetBranchId,
+          groupId:
+            fieldErrors.groupId ??
+            fieldErrors.targetGroupIds,
+        })
         setTransferFormError(error.message)
         return
       }
@@ -324,6 +291,7 @@ export function ClientDetailScreen({
 
       setClient(await getClient(client.id))
       setMembershipActionMode(null)
+      setSelectedMembershipId(null)
 
       const feedback =
         submission.kind === 'purchase'
@@ -370,14 +338,19 @@ export function ClientDetailScreen({
     setPhotoVersion(Date.now())
   }
 
-  function toggleMembershipActionMode(mode: MembershipActionMode) {
+  function toggleMembershipActionMode(mode: MembershipActionMode, membershipId?: string) {
     setActionError(null)
-    setMembershipActionMode((currentMode) => (currentMode === mode ? null : mode))
+    setMembershipActionMode((currentMode) => {
+      const nextMode = currentMode === mode && selectedMembershipId === (membershipId ?? null) ? null : mode
+      setSelectedMembershipId(nextMode === null ? null : membershipId ?? null)
+      return nextMode
+    })
   }
 
   function cancelMembershipAction() {
     setActionError(null)
     setMembershipActionMode(null)
+    setSelectedMembershipId(null)
   }
 
   return (
@@ -510,10 +483,7 @@ export function ClientDetailScreen({
           <ClientOverviewSection
             canManage={canManage}
             client={client}
-            membershipActionMode={membershipActionMode}
-            onMembershipActionModeChange={toggleMembershipActionMode}
             onPhotoUpload={canManage ? handlePhotoUpload : undefined}
-            pending={actionPending}
             photoVersion={photoVersion}
           />
 
@@ -522,7 +492,10 @@ export function ClientDetailScreen({
               actionMode={membershipActionMode}
               client={client}
               pending={actionPending}
+              selectedMembershipId={selectedMembershipId}
               onCancelAction={cancelMembershipAction}
+              onActionModeChange={toggleMembershipActionMode}
+              onClientChange={setClient}
               onSubmit={handleMembershipAction}
               onMembershipCommentChange={handleMembershipCommentChange}
             />
@@ -562,9 +535,7 @@ function applyMembershipSaleComment(
 
   return {
     ...client,
-    currentMembership: client.currentMembership
-      ? applyComment(client.currentMembership)
-      : null,
+    currentMemberships: client.currentMemberships.map(applyComment),
     membershipHistory: client.membershipHistory.map(applyComment),
   }
 }

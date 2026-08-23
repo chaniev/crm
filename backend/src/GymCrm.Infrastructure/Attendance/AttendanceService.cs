@@ -17,6 +17,7 @@ internal sealed class AttendanceService(
     IAuditLogService auditLogService,
     IAttendanceDatePolicy attendanceDatePolicy,
     IEffectiveGroupAssignmentService effectiveGroupAssignmentService,
+    IClientMembershipEntitlementResolver entitlementResolver,
     TimeProvider timeProvider) : IAttendanceService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
@@ -129,6 +130,8 @@ internal sealed class AttendanceService(
                     new AttendanceBatchSaveResult(command.GroupId, command.TrainingDate, [], [], [], invalidClientIds));
             }
 
+            await LockAttendanceClientMembershipRowsAsync(requestedClientIds, cancellationToken);
+
             var existingEntries = requestedClientIds.Length == 0
             ? new Dictionary<Guid, AttendanceEntry>()
             : await dbContext.Attendance
@@ -213,10 +216,40 @@ internal sealed class AttendanceService(
 
                 if (mark.State == AttendanceState.Present)
                 {
+                    var entitlement = await entitlementResolver.ResolveAsync(
+                        mark.ClientId,
+                        command.GroupId,
+                        command.TrainingDate,
+                        cancellationToken);
+                    if (entitlement.Status == ClientMembershipEntitlementResolutionStatus.InvariantConflict)
+                    {
+                        if (ownedTransaction is not null)
+                        {
+                            await ownedTransaction.RollbackAsync(cancellationToken);
+                        }
+
+                        return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.MembershipEntitlementInvariantConflict);
+                    }
+
+                    if (entitlement.Status == ClientMembershipEntitlementResolutionStatus.Found)
+                    {
+                        AddAttendanceEntitlementSnapshots(entry!, entitlement, now);
+                    }
+
                     var writeOff = await clientMembershipService.WriteOffSingleVisitAsync(
                         mark.ClientId,
-                        new WriteOffSingleVisitCommand(command.MarkedByUserId, command.TrainingDate),
+                        new WriteOffSingleVisitCommand(command.MarkedByUserId, command.TrainingDate, command.GroupId),
                         cancellationToken);
+                    if (writeOff.Status == SingleVisitWriteOffStatus.MembershipEntitlementInvariantConflict)
+                    {
+                        if (ownedTransaction is not null)
+                        {
+                            await ownedTransaction.RollbackAsync(cancellationToken);
+                        }
+
+                        return AttendanceBatchMutationResult.Failure(AttendanceBatchMutationError.MembershipEntitlementInvariantConflict);
+                    }
+
                     if (writeOff.Applied && writeOff.PreviousMembership is not null && writeOff.CurrentMembership is not null)
                     {
                         entry!.SingleVisitMembershipSaleId = writeOff.CurrentMembership.SaleId;
@@ -262,6 +295,32 @@ internal sealed class AttendanceService(
         }
     }
 
+    private void AddAttendanceEntitlementSnapshots(
+        AttendanceEntry entry,
+        ClientMembershipEntitlementResolution entitlement,
+        DateTimeOffset now)
+    {
+        foreach (var target in entitlement.TargetGroups.OrderBy(target => target.Position))
+        {
+            dbContext.AttendanceEntitlementTargetSnapshots.Add(new GymCrm.Domain.Attendance.AttendanceEntitlementTargetSnapshot
+            {
+                Id = Guid.NewGuid(),
+                AttendanceId = entry.Id,
+                ClientId = entitlement.ClientId,
+                FactualGroupId = entitlement.GroupId,
+                TrainingDate = entitlement.TrainingDate,
+                MembershipId = entitlement.MembershipId,
+                SaleId = entitlement.SaleId,
+                CoverageKind = entitlement.CoverageKind!.Value,
+                TargetGroupId = target.GroupId,
+                TargetBranchId = target.BranchId,
+                Position = target.Position,
+                Provenance = "Write",
+                CreatedAt = now
+            });
+        }
+    }
+
     private async Task LockAttendanceAuthorizationRowsAsync(
         Guid actorId,
         Guid branchId,
@@ -286,6 +345,30 @@ internal sealed class AttendanceService(
         await dbContext.Database.ExecuteSqlInterpolatedAsync(
             $"""SELECT 1 FROM "AdministratorAttendanceGroupGrants" WHERE "AdministratorId" = {actorId} AND "GroupId" = {groupId} FOR UPDATE""",
             cancellationToken);
+    }
+
+    private async Task LockAttendanceClientMembershipRowsAsync(
+        IReadOnlyList<Guid> clientIds,
+        CancellationToken cancellationToken)
+    {
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        foreach (var clientId in clientIds.Order())
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""SELECT 1 FROM "Clients" WHERE "Id" = {clientId} FOR UPDATE""",
+                cancellationToken);
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""SELECT 1 FROM "ClientMemberships" WHERE "ClientId" = {clientId} AND "ValidTo" IS NULL ORDER BY "Id" FOR UPDATE""",
+                cancellationToken);
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""SELECT 1 FROM "ClientMembershipTargetGroups" WHERE "ClientMembershipId" IN (SELECT "Id" FROM "ClientMemberships" WHERE "ClientId" = {clientId} AND "ValidTo" IS NULL) ORDER BY "ClientMembershipId", "Position" FOR UPDATE""",
+                cancellationToken);
+        }
     }
 
     private async Task<AttendanceBatchMutationError> EvaluateLockedAuthorizationAsync(

@@ -151,42 +151,26 @@ internal static class ClientQueryEndpoints
 
         if (parsedBehaviorKind.HasValue)
         {
-            clientsQuery = clientsQuery.Where(client => client.Memberships
-                .Where(membership => membership.ValidTo == null)
-                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .Take(1)
-                .Any(membership => membership.BehaviorKind == parsedBehaviorKind.Value));
+            clientsQuery = clientsQuery.Where(client => client.Memberships.Any(membership =>
+                membership.ValidTo == null &&
+                membership.BehaviorKind == parsedBehaviorKind.Value));
         }
 
         if (hasActiveMembership.HasValue)
         {
             clientsQuery = hasActiveMembership.Value
-                ? clientsQuery.Where(client => client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) || client.Memberships
-                    .Where(membership => membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Take(1)
-                    .Any(
-                        membership =>
-                            (membership.IndividualValidTo == null || membership.IndividualValidTo >= today) &&
-                            (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed))
-                    )
-                : clientsQuery.Where(client => !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) && !client.Memberships
-                    .Where(membership => membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Take(1)
-                    .Any(
-                        membership =>
-                            (membership.IndividualValidTo == null || membership.IndividualValidTo >= today) &&
-                            (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed)));
+                ? clientsQuery.Where(client => client.Memberships.Any(membership =>
+                    membership.ValidTo == null &&
+                    membership.TargetGroups.Any() &&
+                    (!membership.IndividualValidFrom.HasValue || membership.IndividualValidFrom.Value <= today) &&
+                    (!membership.IndividualValidTo.HasValue || membership.IndividualValidTo.Value >= today) &&
+                    (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed)))
+                : clientsQuery.Where(client => !client.Memberships.Any(membership =>
+                    membership.ValidTo == null &&
+                    membership.TargetGroups.Any() &&
+                    (!membership.IndividualValidFrom.HasValue || membership.IndividualValidFrom.Value <= today) &&
+                    (!membership.IndividualValidTo.HasValue || membership.IndividualValidTo.Value >= today) &&
+                    (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed)));
         }
 
         if (hasPhoto.HasValue)
@@ -312,55 +296,28 @@ internal static class ClientQueryEndpoints
                         client.PhotoUploadedAt.Value,
                         true)
                     : null,
-                client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
-                client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-                client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) || dbContext.ClientMemberships
-                    .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.ValidFrom)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Take(1)
-                    .Any(
-                        membership =>
-                            (membership.IndividualValidTo == null || membership.IndividualValidTo >= today) &&
-                            (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed)),
-                dbContext.ClientMemberships
-                    .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.ValidFrom)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Select(membership => new CurrentMembershipSummaryResponse(
-                        membership.Id,
-                        membership.Sale.MembershipCatalogItemId,
-                        membership.Sale.MembershipCatalogItem != null
-                            ? membership.Sale.MembershipCatalogItem.Name
-                            : ClientMembershipSaleDisplay.AmountOnlyLabel,
-                        membership.BehaviorKind.ToString(),
-                        membership.Sale.PricingMode.ToString(),
-                        membership.Sale.GrossAmount,
-                        membership.Sale.MembershipCatalogItem != null
-                            ? membership.Sale.MembershipCatalogItem.Price
-                            : null,
-                        membership.Sale.PurchaseDate,
-                        membership.Sale.PaymentDate,
-                        membership.IndividualValidTo,
-                        membership.SingleVisitUsed))
+                client.Memberships.Any(membership =>
+                    membership.ValidTo == null &&
+                    membership.BehaviorKind == MembershipBehaviorKind.Professional &&
+                    membership.TargetGroups.Any() &&
+                    membership.IndividualValidFrom.HasValue &&
+                    membership.IndividualValidFrom.Value <= today &&
+                    (!membership.IndividualValidTo.HasValue || membership.IndividualValidTo.Value >= today)),
+                client.Memberships
+                    .Where(membership =>
+                        membership.ValidTo == null &&
+                        membership.BehaviorKind == MembershipBehaviorKind.Professional &&
+                        membership.TargetGroups.Any() &&
+                        membership.IndividualValidFrom.HasValue &&
+                        membership.IndividualValidFrom.Value <= today &&
+                        (!membership.IndividualValidTo.HasValue || membership.IndividualValidTo.Value >= today))
+                    .OrderBy(membership => membership.Id)
+                    .Select(membership => membership.ProfessionalComment)
                     .FirstOrDefault(),
+                false,
+                Array.Empty<ClientMembershipResponse>(),
                 dbContext.ClientMemberships.Any(membership => membership.ClientId == client.Id && membership.ValidTo == null),
-                client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today))
-                    ? ClientMembershipState.Active.ToString()
-                    : (dbContext.ClientMemberships
-                    .Where(membership => membership.ClientId == client.Id && membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.ValidFrom)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Select(membership =>
-                        membership.IndividualValidTo != null && membership.IndividualValidTo < today
-                                ? ClientMembershipState.Expired.ToString()
-                                : membership.BehaviorKind == MembershipBehaviorKind.SingleVisit && membership.SingleVisitUsed
-                                    ? ClientMembershipState.UsedSingleVisit.ToString()
-                                    : ClientMembershipState.Active.ToString())
-                    .FirstOrDefault() ?? ClientMembershipState.None.ToString()),
+                ClientMembershipState.None.ToString(),
                 dbContext.Attendance
                     .Where(attendance =>
                         attendance.ClientId == client.Id &&
@@ -380,6 +337,7 @@ internal static class ClientQueryEndpoints
             hasElevatedClientAccess,
             dbContext,
             effectiveGroupIds,
+            today,
             cancellationToken);
 
         return TypedResults.Ok(new ClientListResponse(
@@ -433,76 +391,81 @@ internal static class ClientQueryEndpoints
         var today = businessDateProvider.Today;
         var expiresBefore = today.AddDays(ClientMembershipQueryConstants.ExpiringMembershipWindowDays);
 
-        var candidates = await dbContext.Clients
+        var candidates = await dbContext.ClientMemberships
             .AsNoTracking()
-            .Where(client => client.Status == ClientStatus.Active && !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)))
-            .Select(client => new
+            .Where(membership =>
+                membership.Client.Status == ClientStatus.Active &&
+                membership.ValidTo == null &&
+                membership.BehaviorKind != MembershipBehaviorKind.Professional &&
+                membership.IndividualValidTo.HasValue &&
+                membership.IndividualValidTo.Value < expiresBefore)
+            .Select(membership => new
             {
-                client.Id,
-                client.LastName,
-                client.FirstName,
-                client.MiddleName,
-                CurrentMembership = client.Memberships
-                    .Where(membership => membership.ValidTo == null)
-                    .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .Select(membership => new
-                    {
-                        membership.BehaviorKind,
-                        membership.IndividualValidTo
-                    })
-                    .FirstOrDefault()
-            })
-            .Where(candidate =>
-                candidate.CurrentMembership != null &&
-                candidate.CurrentMembership.IndividualValidTo.HasValue &&
-                candidate.CurrentMembership.IndividualValidTo.Value < expiresBefore)
-            .Select(candidate => new
-            {
-                candidate.Id,
-                candidate.LastName,
-                candidate.FirstName,
-                candidate.MiddleName,
-                BehaviorKind = candidate.CurrentMembership!.BehaviorKind,
-                IndividualValidTo = candidate.CurrentMembership!.IndividualValidTo
+                ClientId = membership.ClientId,
+                membership.Client.LastName,
+                membership.Client.FirstName,
+                membership.Client.MiddleName,
+                MembershipId = membership.Id,
+                membership.SaleId,
+                membership.BehaviorKind,
+                MembershipName = membership.Sale.MembershipCatalogItem != null
+                    ? membership.Sale.MembershipCatalogItem.Name
+                    : ClientMembershipSaleDisplay.AmountOnlyLabel,
+                ExpirationDate = membership.IndividualValidTo,
+                TargetGroups = membership.TargetGroups
+                    .OrderBy(target => target.Position)
+                    .Select(target => new ClientMembershipTargetGroupResponse(
+                        target.GroupId,
+                        target.Group.Name,
+                        target.BranchId,
+                        target.Group.Branch.Name,
+                        target.Position,
+                        target.Group.IsActive))
+                    .ToArray()
             })
             .ToArrayAsync(cancellationToken);
 
         IReadOnlyList<MembershipAttentionListItemResponse> response = candidates
             .Select(candidate => new
             {
-                candidate.Id,
-                candidate.IndividualValidTo,
+                candidate.ClientId,
+                candidate.MembershipId,
+                candidate.SaleId,
+                candidate.ExpirationDate,
                 candidate.FirstName,
                 candidate.LastName,
                 candidate.MiddleName,
                 candidate.BehaviorKind,
+                candidate.MembershipName,
+                candidate.TargetGroups,
                 State = ResolveMembershipAttentionState(
-                    candidate.IndividualValidTo,
+                    candidate.ExpirationDate,
                     today,
                     expiresBefore)
             })
             .Where(candidate => candidate.State is not null)
             .OrderBy(candidate => GetMembershipAttentionSortGroup(candidate.State!))
-            .ThenBy(candidate => GetMembershipAttentionDateSortValue(candidate.State!, candidate.IndividualValidTo, today))
+            .ThenBy(candidate => GetMembershipAttentionDateSortValue(candidate.State!, candidate.ExpirationDate, today))
             .ThenBy(candidate => candidate.LastName ?? string.Empty)
             .ThenBy(candidate => candidate.FirstName ?? string.Empty)
             .ThenBy(candidate => candidate.MiddleName ?? string.Empty)
-            .ThenBy(candidate => candidate.Id)
+            .ThenBy(candidate => candidate.ClientId)
+            .ThenBy(candidate => candidate.MembershipId)
             .Select(candidate => new MembershipAttentionListItemResponse(
-                candidate.Id,
+                candidate.ClientId,
                 ClientResponseMapper.BuildClientFullName(
                     candidate.LastName,
                     candidate.FirstName,
                     candidate.MiddleName),
+                candidate.MembershipId,
+                candidate.SaleId,
                 candidate.BehaviorKind.ToString(),
-                candidate.BehaviorKind.ToString(),
-                candidate.IndividualValidTo,
-                candidate.IndividualValidTo.HasValue
-                    ? candidate.IndividualValidTo.Value.DayNumber - today.DayNumber
+                candidate.MembershipName,
+                candidate.ExpirationDate,
+                candidate.ExpirationDate.HasValue
+                    ? candidate.ExpirationDate.Value.DayNumber - today.DayNumber
                     : null,
+                candidate.TargetGroups,
                 candidate.State!))
             .ToArray();
 
@@ -855,14 +818,8 @@ internal static class ClientQueryEndpoints
              !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) &&
              !client.Memberships.Any(membership => membership.ValidTo == null)) ||
             (expiringSoon &&
-             client.Memberships
-                .Where(membership => membership.ValidTo == null)
-                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .Take(1)
-                .Any(membership =>
+             client.Memberships.Any(membership =>
+                    membership.ValidTo == null &&
                     membership.IndividualValidTo.HasValue &&
                     membership.IndividualValidTo.Value < expiresBefore)) ||
             (withoutGroup &&
@@ -870,14 +827,9 @@ internal static class ClientQueryEndpoints
                  hasElevatedClientAccess ||
                  effectiveGroupIds.Contains(clientGroup.GroupId))) ||
             (trial &&
-             client.Memberships
-                .Where(membership => membership.ValidTo == null)
-                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .Take(1)
-                .Any(membership => membership.BehaviorKind == MembershipBehaviorKind.SingleVisit)));
+             client.Memberships.Any(membership =>
+                 membership.ValidTo == null &&
+                 membership.BehaviorKind == MembershipBehaviorKind.SingleVisit)));
     }
 
 
@@ -1046,14 +998,8 @@ internal static class ClientQueryEndpoints
             return query;
         }
 
-        return query.Where(client => client.Memberships
-            .Where(membership => membership.ValidTo == null)
-            .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-            .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-            .ThenByDescending(membership => membership.CreatedAt)
-            .ThenByDescending(membership => membership.Id)
-            .Take(1)
-            .Any(membership =>
+        return query.Where(client => client.Memberships.Any(membership =>
+                membership.ValidTo == null &&
                 membership.IndividualValidTo.HasValue &&
                 (!membershipExpirationFrom.HasValue || membership.IndividualValidTo.Value >= membershipExpirationFrom.Value) &&
                 (!membershipExpirationTo.HasValue || membership.IndividualValidTo.Value <= membershipExpirationTo.Value)));
@@ -1078,35 +1024,31 @@ internal static class ClientQueryEndpoints
         return membershipState switch
         {
             ClientMembershipState.None => query.Where(client =>
-                !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) &&
                 !client.Memberships.Any(membership => membership.ValidTo == null)),
-            ClientMembershipState.Expired => query.Where(client => !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) && client.Memberships
-                .Where(membership => membership.ValidTo == null)
-                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .Take(1)
-                .Any(membership => membership.IndividualValidTo != null && membership.IndividualValidTo < today)),
-            ClientMembershipState.UsedSingleVisit => query.Where(client => !client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) && client.Memberships
-                .Where(membership => membership.ValidTo == null)
-                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .Take(1)
-                .Any(membership => membership.BehaviorKind == MembershipBehaviorKind.SingleVisit && membership.SingleVisitUsed)),
-            ClientMembershipState.Active => query.Where(client => client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)) || client.Memberships
-                .Where(membership => membership.ValidTo == null)
-                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .Take(1)
-                .Any(
-                    membership =>
-                        (membership.IndividualValidTo == null || membership.IndividualValidTo >= today) &&
-                        (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed))),
+            ClientMembershipState.Expired => query.Where(client => client.Memberships.Any(membership =>
+                membership.ValidTo == null &&
+                membership.TargetGroups.Any() &&
+                membership.IndividualValidTo.HasValue &&
+                membership.IndividualValidTo.Value < today)),
+            ClientMembershipState.UsedSingleVisit => query.Where(client => client.Memberships.Any(membership =>
+                membership.ValidTo == null &&
+                membership.TargetGroups.Any() &&
+                membership.BehaviorKind == MembershipBehaviorKind.SingleVisit &&
+                membership.SingleVisitUsed)),
+            ClientMembershipState.Active => query.Where(client => client.Memberships.Any(membership =>
+                membership.ValidTo == null &&
+                membership.TargetGroups.Any() &&
+                (!membership.IndividualValidFrom.HasValue || membership.IndividualValidFrom.Value <= today) &&
+                (!membership.IndividualValidTo.HasValue || membership.IndividualValidTo.Value >= today) &&
+                (membership.BehaviorKind != MembershipBehaviorKind.SingleVisit || !membership.SingleVisitUsed))),
+            ClientMembershipState.Future => query.Where(client => client.Memberships.Any(membership =>
+                membership.ValidTo == null &&
+                membership.TargetGroups.Any() &&
+                membership.IndividualValidFrom.HasValue &&
+                membership.IndividualValidFrom.Value > today)),
+            ClientMembershipState.LegacyTargetMissing => query.Where(client => client.Memberships.Any(membership =>
+                membership.ValidTo == null &&
+                !membership.TargetGroups.Any())),
             _ => query
         };
     }

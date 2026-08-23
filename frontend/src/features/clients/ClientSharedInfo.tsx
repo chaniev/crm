@@ -65,6 +65,7 @@ type MembershipSaleConfirmationModalProps = {
   opened: boolean
   pending: boolean
   values: MembershipSalePricingValues & { paymentDate: string }
+  targetGroupLabels?: string[]
   onClose: () => void
   onConfirm: () => void
 }
@@ -74,6 +75,7 @@ export function MembershipSaleConfirmationModal({
   opened,
   pending,
   values,
+  targetGroupLabels = [],
   onClose,
   onConfirm,
 }: MembershipSaleConfirmationModalProps) {
@@ -118,6 +120,18 @@ export function MembershipSaleConfirmationModal({
             value={formatDateValue(values.paymentDate)}
           />
         </SimpleGrid>
+        {targetGroupLabels.length > 0 ? (
+          <Stack gap="xs">
+            <Text c="dimmed" fw={600} size="xs">
+              Группы абонемента
+            </Text>
+            {targetGroupLabels.map((label, index) => (
+              <Text key={`${label}-${index}`} size="sm">
+                {index + 1} {index === 0 ? 'Отчётность · ' : ''}{label}
+              </Text>
+            ))}
+          </Stack>
+        ) : null}
         <ResponsiveButtonGroup justify="flex-end">
           <Button disabled={pending} onClick={onClose} variant="subtle">
             Отменить

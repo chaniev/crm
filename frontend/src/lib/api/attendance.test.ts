@@ -53,7 +53,7 @@ describe('attendance API', () => {
           state: 'Unmarked',
           hasActiveMembership: true,
           membershipWarning: false,
-          currentMembership: {
+          currentMemberships: [{
             id: 'membership-1',
             saleId: 'sale-1',
             membershipName: 'Месяц',
@@ -65,7 +65,10 @@ describe('attendance API', () => {
             grossAmount: 3000,
             catalogPrice: 3000,
             singleVisitUsed: false,
-          },
+            coverageKind: 'TargetGroups',
+            entitlementState: 'Active',
+            targetGroups: [],
+          }],
         },
       ],
     })))
@@ -77,7 +80,8 @@ describe('attendance API', () => {
     expect(client.membershipWarning).toBe(false)
     expect(client).not.toHaveProperty('hasActivePaidMembership')
     expect(client).not.toHaveProperty('hasUnpaidCurrentMembership')
-    expect(client.currentMembership as Record<string, unknown>).not.toHaveProperty('isPaid')
+    const currentMemberships = client.currentMemberships as Array<Record<string, unknown>>
+    expect(currentMemberships[0]).not.toHaveProperty('isPaid')
   })
 
   test('maps groups envelope with backend-owned calendar bounds', async () => {

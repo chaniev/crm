@@ -636,9 +636,7 @@ function buildClientRow(id: string, fullName = 'Клиент Имя') {
     membershipState: 'None',
     hasCurrentMembership: false,
     actionHints: [],
-    currentMembership: null,
-    currentMembershipSummary: null,
-  } satisfies ClientListItem
+    currentMemberships: [],  } satisfies ClientListItem
 }
 
 function snapshotToRequest(

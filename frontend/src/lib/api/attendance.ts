@@ -6,16 +6,13 @@ import {
 } from './endpoints'
 import {
   buildDisplayNameFromParts,
-  deriveHasActiveMembership,
-  deriveMembershipWarning,
   mapClientGroups,
-  mapClientMembership,
+  mapClientCurrentMemberships,
   mapClientPhoto,
   normalizeIsoDateValue,
 } from './mappers'
 import {
   extractArrayPayload,
-  extractRecordPayload,
   isRecord,
   readBoolean,
   readString,
@@ -100,7 +97,7 @@ export async function getAttendanceGroupClients(
       payload,
       ATTENDANCE_CLIENT_PAYLOAD_KEYS,
     )
-      .map((client) => mapAttendanceClient(client, responseTrainingDate))
+      .map((client) => mapAttendanceClient(client))
       .filter((client): client is AttendanceClient => client !== null),
   } satisfies AttendanceRosterResponse
 }
@@ -189,10 +186,7 @@ function mapAttendanceGroup(payload: AttendanceGroupPayload): AttendanceGroup | 
   }
 }
 
-function mapAttendanceClient(
-  payload: AttendanceClientPayload,
-  trainingDate: string,
-): AttendanceClient | null {
+function mapAttendanceClient(payload: AttendanceClientPayload): AttendanceClient | null {
   if (!isRecord(payload)) {
     return null
   }
@@ -217,16 +211,7 @@ function mapAttendanceClient(
       readString(payload, ['middleName', 'MiddleName']),
     ) ??
     'Без имени'
-  const currentMembership = mapClientMembership(
-    extractRecordPayload(payload, [
-      'currentMembership',
-      'CurrentMembership',
-      'membership',
-      'Membership',
-      'membershipData',
-      'MembershipData',
-    ]),
-  )
+  const currentMemberships = mapClientCurrentMemberships(payload as ClientResponsePayload)
   const isProfessional =
     readBoolean(payload, ['isProfessional', 'IsProfessional']) ?? false
   const professionalComment =
@@ -246,17 +231,7 @@ function mapAttendanceClient(
     readBoolean(payload, [
       'hasActiveMembership',
       'HasActiveMembership',
-    ]) ??
-    (isProfessional
-      ? true
-      : deriveHasActiveMembership(currentMembership, trainingDate))
-  const derivedMembershipWarning =
-    !isProfessional &&
-    (Boolean(warningMessage) ||
-      deriveMembershipWarning(
-        currentMembership,
-        trainingDate,
-      ))
+    ]) ?? false
   const membershipWarning =
     readBoolean(payload, [
       'hasWarning',
@@ -269,7 +244,7 @@ function mapAttendanceClient(
       'MembershipWarningVisible',
       'hasMembershipIssue',
       'HasMembershipIssue',
-    ]) ?? derivedMembershipWarning
+    ]) ?? Boolean(warningMessage)
 
   return {
     id,
@@ -282,7 +257,7 @@ function mapAttendanceClient(
     hasActiveMembership,
     membershipWarning,
     membershipWarningMessage: warningMessage,
-    currentMembership,
+    currentMemberships,
   }
 }
 

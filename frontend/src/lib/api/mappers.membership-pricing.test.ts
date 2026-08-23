@@ -2,9 +2,25 @@ import { describe, expect, test } from 'vitest'
 import { applyFieldErrors } from './errors'
 import { mapClientMembership } from './mappers'
 
+const membershipTargetContract = {
+  coverageKind: 'TargetGroups',
+  entitlementState: 'Active',
+  targetGroups: [
+    {
+      groupId: 'group-1',
+      groupName: 'Утренняя группа',
+      branchId: 'branch-1',
+      branchName: 'Основной',
+      position: 1,
+      isActive: true,
+    },
+  ],
+}
+
 describe('membership sale pricing response mapping', () => {
   test('maps backend-owned amount-only label, nullable catalog and actual amount', () => {
     const membership = mapClientMembership({
+      ...membershipTargetContract,
       id: 'version-amount-only',
       saleId: 'sale-amount-only',
       membershipCatalogItemId: null,
@@ -42,6 +58,7 @@ describe('membership sale pricing response mapping', () => {
 
   test('keeps catalog context separate from an equal explicit override', () => {
     const membership = mapClientMembership({
+      ...membershipTargetContract,
       id: 'version-override',
       saleId: 'sale-override',
       membershipCatalogItemId: 'catalog-1',
@@ -70,6 +87,7 @@ describe('membership sale pricing response mapping', () => {
 
   test('maps PascalCase pricing fields without deriving provenance from amounts', () => {
     const membership = mapClientMembership({
+      ...membershipTargetContract,
       id: 'version-catalog',
       saleId: 'sale-catalog',
       MembershipCatalogItemId: 'catalog-1',

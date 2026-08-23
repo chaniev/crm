@@ -10,6 +10,7 @@ internal sealed class CorrectClientMembershipRequest
     public string? ValidFrom { get; init; }
     public string? ValidTo { get; init; }
     public string? PaymentDate { get; init; }
+    public IReadOnlyList<Guid>? TargetGroupIds { get; init; }
 
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? AdditionalFields { get; init; }

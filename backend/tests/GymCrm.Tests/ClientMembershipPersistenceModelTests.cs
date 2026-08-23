@@ -23,15 +23,14 @@ public sealed class ClientMembershipPersistenceModelTests
     }
 
     [Fact]
-    public void PostgreSql_overlap_constraint_ignores_closed_versions()
+    public void PostgreSql_schema_uses_target_rows_without_client_wide_period_exclusion()
     {
         using var dbContext = CreateDbContext();
         var script = dbContext.GetService<IMigrator>().GenerateScript();
 
-        Assert.Contains(
-            "\"ValidTo\" IS NULL AND \"BehaviorKind\" IN ('Term', 'Professional')",
-            script,
-            StringComparison.Ordinal);
+        Assert.DoesNotContain("EX_ClientMemberships_ClientId_Period_NoOverlap", script, StringComparison.Ordinal);
+        Assert.Contains("CK_ClientMembershipTargetGroups_Position", script, StringComparison.Ordinal);
+        Assert.Contains("IX_ClientMembershipTargetGroups_ClientMembershipId_GroupId", script, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -172,6 +171,100 @@ public sealed class ClientMembershipPersistenceModelTests
             "IX_ClientMembershipIdempotencyRecords_ExpiresAt",
             script,
             StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Target_groups_and_event_snapshots_are_represented_in_the_model()
+    {
+        using var dbContext = CreateDbContext();
+
+        Assert.NotNull(dbContext.Model.FindEntityType(typeof(ClientMembershipTargetGroup)));
+        Assert.NotNull(dbContext.Model.FindEntityType(typeof(ClientMembershipSaleTargetSnapshot)));
+        Assert.NotNull(dbContext.Model.FindEntityType(typeof(ClientMembershipRefundTargetSnapshot)));
+        Assert.NotNull(dbContext.Model.FindEntityType(typeof(GymCrm.Domain.Attendance.AttendanceEntitlementTargetSnapshot)));
+
+        var membershipTarget = dbContext.Model.FindEntityType(typeof(ClientMembershipTargetGroup))!;
+        Assert.Contains(
+            membershipTarget.GetIndexes(),
+            index => index.IsUnique &&
+                     index.Properties.Select(property => property.Name).SequenceEqual([
+                         nameof(ClientMembershipTargetGroup.ClientMembershipId),
+                         nameof(ClientMembershipTargetGroup.GroupId)
+                     ]));
+        Assert.Contains(
+            membershipTarget.GetKeys(),
+            key => key.Properties.Select(property => property.Name).SequenceEqual([
+                nameof(ClientMembershipTargetGroup.ClientMembershipId),
+                nameof(ClientMembershipTargetGroup.Position)
+            ]));
+    }
+
+    [Fact]
+    public void Initial_schema_contains_target_snapshot_tables_and_branch_fks()
+    {
+        using var dbContext = CreateDbContext();
+        var initialMigration = Assert.Single(
+            dbContext.Database.GetMigrations(),
+            candidate => candidate.EndsWith("_InitialCreate", StringComparison.Ordinal));
+        var script = dbContext.GetService<IMigrator>().GenerateScript(null, initialMigration);
+
+        Assert.Contains("CREATE TABLE \"ClientMembershipTargetGroups\"", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE \"ClientMembershipSaleTargetSnapshots\"", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE \"ClientMembershipRefundTargetSnapshots\"", script, StringComparison.Ordinal);
+        Assert.Contains("CREATE TABLE \"AttendanceEntitlementTargetSnapshots\"", script, StringComparison.Ordinal);
+        Assert.Contains("FK_ClientMembershipTargetGroups_Branches_BranchId", script, StringComparison.Ordinal);
+        Assert.Contains("FK_ClientMembershipSaleTargetSnapshots_Branches_BranchId", script, StringComparison.Ordinal);
+        Assert.Contains("FK_ClientMembershipRefundTargetSnapshots_Branches_BranchId", script, StringComparison.Ordinal);
+        Assert.Contains("FK_AttendanceEntitlementTargetSnapshots_Branches_TargetBranchId", script, StringComparison.Ordinal);
+        Assert.Contains("CK_ClientMembershipTargetGroups_Position", script, StringComparison.Ordinal);
+        Assert.Contains("CK_AttendanceEntitlementTargetSnapshots_Position", script, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Migration_designers_contain_target_snapshot_entities()
+    {
+        var migrationsPath = FindMigrationsPath();
+        foreach (var fileName in new[]
+                 {
+                     "20260513165936_InitialCreate.Designer.cs",
+                     "20260721210111_FixClientMembershipVersionConstraints.Designer.cs"
+                 })
+        {
+            var text = File.ReadAllText(Path.Combine(migrationsPath, fileName));
+
+            Assert.Contains("GymCrm.Domain.Clients.ClientMembershipTargetGroup", text, StringComparison.Ordinal);
+            Assert.Contains("GymCrm.Domain.Clients.ClientMembershipSaleTargetSnapshot", text, StringComparison.Ordinal);
+            Assert.Contains("GymCrm.Domain.Clients.ClientMembershipRefundTargetSnapshot", text, StringComparison.Ordinal);
+            Assert.Contains("GymCrm.Domain.Attendance.AttendanceEntitlementTargetSnapshot", text, StringComparison.Ordinal);
+            Assert.Contains("HasIndex(\"ClientMembershipId\", \"GroupId\")", text, StringComparison.Ordinal);
+            Assert.Contains("HasKey(\"ClientMembershipId\", \"Position\")", text, StringComparison.Ordinal);
+            Assert.Contains("HasForeignKey(\"BranchId\")", text, StringComparison.Ordinal);
+            Assert.Contains("HasForeignKey(\"TargetBranchId\")", text, StringComparison.Ordinal);
+            Assert.Contains(".OnDelete(DeleteBehavior.Restrict)", text, StringComparison.Ordinal);
+        }
+    }
+
+    private static string FindMigrationsPath()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(
+                directory.FullName,
+                "backend",
+                "src",
+                "GymCrm.Infrastructure",
+                "Persistence",
+                "Migrations");
+            if (Directory.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate backend persistence migrations directory.");
     }
 
     private static GymCrmDbContext CreateDbContext()

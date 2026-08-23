@@ -5,6 +5,7 @@ using GymCrm.Application.Attendance;
 using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
+using GymCrm.Domain.Groups;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
@@ -78,7 +79,7 @@ public class ClientMembershipCreationPricingApiTests
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        var currentMembership = GetRequiredProperty(document.RootElement, "currentMembership");
+        var currentMembership = GetOnlyCurrentMembership(document.RootElement);
 
         Assert.Equal(paymentDate.ToString("yyyy-MM-dd"), GetRequiredProperty(currentMembership, "paymentDate").GetString());
         Assert.Equal(context.ActorId, GetRequiredProperty(currentMembership, "paymentRecordedByUserId").GetGuid());
@@ -542,7 +543,7 @@ public class ClientMembershipCreationPricingApiTests
             $"Expected successful purchase, got {(int)response.StatusCode} {response.StatusCode}. Body: {responseBody}");
 
         using var responseDocument = JsonDocument.Parse(responseBody);
-        var currentMembershipPayload = GetRequiredProperty(responseDocument.RootElement, "currentMembership");
+        var currentMembershipPayload = GetOnlyCurrentMembership(responseDocument.RootElement);
         Assert.Equal(JsonValueKind.Object, currentMembershipPayload.ValueKind);
         var membershipId = GetRequiredProperty(currentMembershipPayload, "id").GetGuid();
         var saleId = GetRequiredProperty(currentMembershipPayload, "saleId").GetGuid();
@@ -584,11 +585,11 @@ public class ClientMembershipCreationPricingApiTests
                 log.UserId == context.ActorId &&
                 log.ActionType == "ClientMembershipPurchased" &&
                 log.EntityId == membership.Id.ToString());
-        Assert.Null(audit.OldValueJson);
+        Assert.Equal("[]", audit.OldValueJson);
         Assert.False(string.IsNullOrWhiteSpace(audit.NewValueJson));
 
         using var auditDocument = JsonDocument.Parse(audit.NewValueJson!);
-        var auditPayload = auditDocument.RootElement;
+        var auditPayload = Assert.Single(auditDocument.RootElement.EnumerateArray());
         Assert.Equal(sale.Id, GetRequiredProperty(auditPayload, "saleId").GetGuid());
         Assert.Equal(expectedCatalogItemId, ReadNullableGuidJson(auditPayload, "membershipCatalogItemId"));
         Assert.Equal(expectedMembershipName, GetRequiredProperty(auditPayload, "membershipName").GetString());
@@ -711,6 +712,12 @@ public class ClientMembershipCreationPricingApiTests
         return value;
     }
 
+    private static JsonElement GetOnlyCurrentMembership(JsonElement root)
+    {
+        Assert.False(root.TryGetProperty("currentMembership", out _));
+        return Assert.Single(GetRequiredProperty(root, "currentMemberships").EnumerateArray());
+    }
+
     private static Guid? ReadNullableGuidJson(JsonElement element, string propertyName)
     {
         var value = GetRequiredProperty(element, propertyName);
@@ -766,6 +773,7 @@ public class ClientMembershipCreationPricingApiTests
             HttpClient httpClient,
             Guid actorId,
             Guid clientId,
+            Guid targetGroupId,
             Guid termCatalogItemId,
             Guid professionalCatalogItemId,
             DateOnly today,
@@ -775,6 +783,7 @@ public class ClientMembershipCreationPricingApiTests
             HttpClient = httpClient;
             ActorId = actorId;
             ClientId = clientId;
+            TargetGroupId = targetGroupId;
             TermCatalogItemId = termCatalogItemId;
             ProfessionalCatalogItemId = professionalCatalogItemId;
             Today = today;
@@ -785,6 +794,7 @@ public class ClientMembershipCreationPricingApiTests
         public HttpClient HttpClient { get; }
         public Guid ActorId { get; }
         public Guid ClientId { get; }
+        public Guid TargetGroupId { get; }
         public Guid TermCatalogItemId { get; }
         public Guid ProfessionalCatalogItemId { get; }
         public DateOnly Today { get; }
@@ -808,6 +818,7 @@ public class ClientMembershipCreationPricingApiTests
                     httpClient,
                     seeded.ActorId,
                     seeded.ClientId,
+                    seeded.TargetGroupId,
                     seeded.TermCatalogItemId,
                     seeded.ProfessionalCatalogItemId,
                     seeded.Today,
@@ -826,16 +837,26 @@ public class ClientMembershipCreationPricingApiTests
                 HttpClient,
                 HttpMethod.Post,
                 $"/clients/{ClientId}/membership/purchase",
-                rawJson,
+                WithTargetGroup(rawJson),
                 CsrfToken);
 
         public Task<HttpResponseMessage> AttentionAsync() => HttpClient.GetAsync("/clients/attention");
 
-        public Task<HttpResponseMessage> RenewAsync(string rawJson) =>
-            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/renew", rawJson, CsrfToken);
+        public async Task<HttpResponseMessage> RenewAsync(string rawJson) =>
+            await SendRawJsonAsync(
+                HttpClient,
+                HttpMethod.Post,
+                $"/clients/{ClientId}/membership/renew",
+                await WithTargetAndIdentityAsync(rawJson),
+                CsrfToken);
 
-        public Task<HttpResponseMessage> CorrectAsync(string rawJson) =>
-            SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/correct", rawJson, CsrfToken);
+        public async Task<HttpResponseMessage> CorrectAsync(string rawJson) =>
+            await SendRawJsonAsync(
+                HttpClient,
+                HttpMethod.Post,
+                $"/clients/{ClientId}/membership/correct",
+                await WithTargetAndIdentityAsync(rawJson),
+                CsrfToken);
 
         public Task<HttpResponseMessage> MarkPaymentAsync(string rawJson) =>
             SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/mark-payment", rawJson, CsrfToken);
@@ -845,6 +866,34 @@ public class ClientMembershipCreationPricingApiTests
 
         public Task<HttpResponseMessage> CancelRefundAsync(Guid refundId) =>
             SendRawJsonAsync(HttpClient, HttpMethod.Post, $"/clients/{ClientId}/membership/refunds/{refundId}/cancel", "{}", CsrfToken);
+
+        private string WithTargetGroup(string rawJson)
+        {
+            if (rawJson.Contains("\"targetGroupIds\"", StringComparison.OrdinalIgnoreCase))
+            {
+                return rawJson;
+            }
+
+            var closingBrace = rawJson.LastIndexOf('}');
+            Assert.True(closingBrace >= 0, "Expected a JSON object request payload.");
+            return rawJson.Insert(closingBrace, $",\n\"targetGroupIds\":[\"{TargetGroupId}\"]");
+        }
+
+        private async Task<string> WithTargetAndIdentityAsync(string rawJson)
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var identity = await scope.ServiceProvider.GetRequiredService<GymCrmDbContext>()
+                .ClientMemberships
+                .AsNoTracking()
+                .Where(membership => membership.ClientId == ClientId && membership.ValidTo == null)
+                .Select(membership => new { membership.Id, membership.SaleId })
+                .SingleAsync();
+            var payload = WithTargetGroup(rawJson);
+            var closingBrace = payload.LastIndexOf('}');
+            return payload.Insert(
+                closingBrace,
+                $",\n\"saleId\":\"{identity.SaleId}\",\n\"expectedMembershipId\":\"{identity.Id}\"");
+        }
 
         public async ValueTask DisposeAsync()
         {
@@ -907,8 +956,41 @@ public class ClientMembershipCreationPricingApiTests
                 today.AddYears(-1),
                 null,
                 now);
+            var hall = new Hall
+            {
+                Id = Guid.NewGuid(),
+                BranchId = branch.Id,
+                Name = "Pricing API hall",
+                IsArchived = false,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var groupType = new GroupType
+            {
+                Id = Guid.NewGuid(),
+                Name = "Pricing API group type",
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var targetGroup = new TrainingGroup
+            {
+                Id = Guid.NewGuid(),
+                BranchId = branch.Id,
+                HallId = hall.Id,
+                GroupTypeId = groupType.Id,
+                Name = "Pricing API target group",
+                TrainingStartTime = new TimeOnly(18, 0),
+                DurationMinutes = 60,
+                Weekdays = [1, 3, 5],
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
 
             dbContext.Branches.Add(branch);
+            dbContext.Halls.Add(hall);
+            dbContext.GroupTypes.Add(groupType);
+            dbContext.TrainingGroups.Add(targetGroup);
             dbContext.Users.Add(actor);
             dbContext.Clients.Add(client);
             dbContext.MembershipCatalogItems.AddRange(termCatalogItem, professionalCatalogItem);
@@ -919,6 +1001,7 @@ public class ClientMembershipCreationPricingApiTests
                 actor.Login,
                 password,
                 client.Id,
+                targetGroup.Id,
                 termCatalogItem.Id,
                 professionalCatalogItem.Id,
                 today);
@@ -954,6 +1037,7 @@ public class ClientMembershipCreationPricingApiTests
             string Login,
             string Password,
             Guid ClientId,
+            Guid TargetGroupId,
             Guid TermCatalogItemId,
             Guid ProfessionalCatalogItemId,
             DateOnly Today);
@@ -974,7 +1058,10 @@ public class ClientMembershipCreationPricingApiTests
         if (path.Contains("/membership/purchase", StringComparison.Ordinal) ||
             path.Contains("/membership/renew", StringComparison.Ordinal) ||
             path.Contains("/membership/correct", StringComparison.Ordinal) ||
-            path.Contains("/membership/mark-payment", StringComparison.Ordinal))
+            path.Contains("/membership/mark-payment", StringComparison.Ordinal) ||
+            path.Contains("/membership/refunds/", StringComparison.Ordinal) ||
+            (path.Contains("/membership/sales/", StringComparison.Ordinal) &&
+             path.Contains("/refunds", StringComparison.Ordinal)))
         {
             request.Headers.Add("Idempotency-Key", $"pricing-test-{Guid.NewGuid():N}");
         }

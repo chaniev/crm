@@ -34,8 +34,31 @@ internal sealed class ClientMembershipDetailsReader(GymCrmDbContext dbContext)
             ?? throw new InvalidOperationException($"Client membership details for '{clientId}' were not found.");
     }
 
+    public async Task<ClientMembershipDetailsResult> LoadRequiredForMembershipAsync(
+        Guid clientId,
+        Guid membershipId,
+        CancellationToken cancellationToken)
+    {
+        var memberships = await LoadMembershipsAsync(clientId, cancellationToken);
+        return memberships.Count == 0
+            ? throw new InvalidOperationException($"Client membership details for '{clientId}' were not found.")
+            : CreateDetails(clientId, memberships, membershipId, saleId: null);
+    }
+
+    public async Task<ClientMembershipDetailsResult> LoadRequiredForSaleAsync(
+        Guid clientId,
+        Guid saleId,
+        CancellationToken cancellationToken)
+    {
+        var memberships = await LoadMembershipsAsync(clientId, cancellationToken);
+        return memberships.Count == 0
+            ? throw new InvalidOperationException($"Client membership details for '{clientId}' were not found.")
+            : CreateDetails(clientId, memberships, membershipId: null, saleId: saleId);
+    }
+
     public static ClientMembershipSnapshotResult MapMembershipSnapshot(ClientMembership membership)
     {
+        var targetGroups = MapTargets(membership.TargetGroups);
         return new ClientMembershipSnapshotResult(
             membership.Id,
             membership.Sale.MembershipCatalogItemId,
@@ -59,6 +82,9 @@ internal sealed class ClientMembershipDetailsReader(GymCrmDbContext dbContext)
             membership.ChangedByUserId,
             membership.CreatedAt,
             membership.SaleId,
+            ClientMembershipTargetPolicy.ResolveCoverageKind(membership.BehaviorKind),
+            ClientMembershipTargetPolicy.ResolveEntitlementState(membership, DateOnly.FromDateTime(DateTime.UtcNow.Date)),
+            targetGroups,
             membership.Sale.Comment,
             ResolveCommentAuthorName(membership.Sale),
             ResolveCommentChangedAt(membership.Sale),
@@ -112,6 +138,9 @@ internal sealed class ClientMembershipDetailsReader(GymCrmDbContext dbContext)
                 .ThenInclude(sale => sale.Refunds)
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.CommentChangedByUser)
+            .Include(membership => membership.TargetGroups)
+                .ThenInclude(target => target.Group)
+                    .ThenInclude(group => group.Branch)
             .Where(membership => membership.ClientId == clientId)
             .ToListAsync(cancellationToken);
 
@@ -123,22 +152,26 @@ internal sealed class ClientMembershipDetailsReader(GymCrmDbContext dbContext)
 
     private static ClientMembershipDetailsResult CreateDetails(
         Guid clientId,
-        IReadOnlyList<ClientMembership> memberships)
+        IReadOnlyList<ClientMembership> memberships,
+        Guid? membershipId = null,
+        Guid? saleId = null)
     {
         var history = memberships
             .Select(MapMembershipSnapshot)
             .ToArray();
 
-        return new ClientMembershipDetailsResult(
-            clientId,
-            history
-                .Where(membership => membership.ValidTo is null)
-                .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-                .ThenByDescending(membership => membership.CreatedAt)
-                .ThenByDescending(membership => membership.Id)
-                .FirstOrDefault(),
-            history);
+        var openMemberships = history
+            .Where(membership => membership.ValidTo is null)
+            .ToArray();
+        var addressedMembership = membershipId.HasValue
+            ? openMemberships.SingleOrDefault(membership => membership.Id == membershipId.Value)
+            : saleId.HasValue
+                ? openMemberships.SingleOrDefault(membership => membership.SaleId == saleId.Value)
+                : openMemberships.Length == 1
+                    ? openMemberships[0]
+                    : null;
+
+        return new ClientMembershipDetailsResult(clientId, addressedMembership, history);
     }
 
     private static string? ResolveCommentAuthorName(ClientMembershipSale sale) =>
@@ -179,6 +212,21 @@ internal sealed class ClientMembershipDetailsReader(GymCrmDbContext dbContext)
             .ThenByDescending(refund => refund.CreatedAt)
             .ThenByDescending(refund => refund.Id)
             .Select(MapRefundSnapshot)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ClientMembershipTargetSnapshotResult> MapTargets(
+        IEnumerable<ClientMembershipTargetGroup> targets)
+    {
+        return targets
+            .OrderBy(target => target.Position)
+            .Select(target => new ClientMembershipTargetSnapshotResult(
+                target.GroupId,
+                target.Group.Name,
+                target.BranchId,
+                target.Group.Branch.Name,
+                target.Position,
+                target.Group.IsActive))
             .ToArray();
     }
 }

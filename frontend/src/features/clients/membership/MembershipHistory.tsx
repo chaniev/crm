@@ -44,6 +44,42 @@ export function MembershipHistory({
             membership={versions[0]}
             onMembershipCommentChange={onMembershipCommentChange}
           />
+          <div className="membership-history-card-list">
+            {versions.map((membership) => (
+              <Paper className="membership-history-version-card" key={membership.id} radius="8px" withBorder>
+                <Stack gap="xs">
+                  <Group gap="xs" wrap="wrap">
+                    <Text fw={700} size="sm">
+                      {membership.membershipName}
+                    </Text>
+                    <Badge radius="sm" variant="light">
+                      {formatMembershipChangeReason(membership.changeReason)}
+                    </Badge>
+                    {membership.validTo ? null : (
+                      <Badge color="teal" radius="sm" variant="light">
+                        Текущая
+                      </Badge>
+                    )}
+                  </Group>
+                  <Text c="dimmed" size="sm">
+                    {formatDateValue(membership.purchaseDate)} -{' '}
+                    {formatExpirationValue(
+                      membership.behaviorKind,
+                      membership.expirationDate,
+                    )}
+                  </Text>
+                  <TargetGroupsLine membership={membership} />
+                  <Text size="sm">{formatCurrencyValue(membership.grossAmount)}</Text>
+                  <Text c="dimmed" size="xs">
+                    {formatDateValue(membership.paymentDate)} · {formatPaymentRecordingValue(membership)}
+                  </Text>
+                  <Text c="dimmed" size="xs">
+                    Версия: {formatMembershipVersionDate(membership)}
+                  </Text>
+                </Stack>
+              </Paper>
+            ))}
+          </div>
           <div className="membership-history-table-wrap">
             <Table
               className="membership-history-table"
@@ -54,6 +90,7 @@ export function MembershipHistory({
                 <Table.Tr>
                   <Table.Th>Событие</Table.Th>
                   <Table.Th>Период</Table.Th>
+                  <Table.Th>Группы</Table.Th>
                   <Table.Th>Сумма</Table.Th>
                   <Table.Th>Дата оплаты</Table.Th>
                   <Table.Th>Дата версии</Table.Th>
@@ -85,6 +122,9 @@ export function MembershipHistory({
                           membership.expirationDate,
                         )}
                       </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <TargetGroupsLine membership={membership} />
                     </Table.Td>
                     <Table.Td>
                       <Stack gap={2}>
@@ -130,4 +170,26 @@ function groupMembershipVersionsBySale(history: ClientMembership[]) {
     sales.set(membership.saleId, versions)
   }
   return [...sales].map(([saleId, versions]) => ({ saleId, versions }))
+}
+
+function TargetGroupsLine({ membership }: { membership: ClientMembership }) {
+  const targetGroups = membership.targetGroups ?? []
+
+  if (targetGroups.length === 0) {
+    return (
+      <Badge color="yellow" radius="sm" variant="light">
+        Абонемент без групп
+      </Badge>
+    )
+  }
+
+  return (
+    <Group gap={6} wrap="wrap">
+      {targetGroups.map((target) => (
+        <Badge key={`${membership.id}-${target.groupId}`} radius="sm" variant="light">
+          {target.position + 1} {target.position === 0 ? 'Отчётность · ' : ''}{target.groupName}
+        </Badge>
+      ))}
+    </Group>
+  )
 }

@@ -2,8 +2,6 @@ using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
-using GymCrm.Domain.Memberships;
-using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
 using static GymCrm.Api.Auth.ClientLifecycleRequestValidation;
 using static GymCrm.Api.Auth.ClientMembershipEndpoints;
-using static GymCrm.Api.Auth.ClientMembershipRequestValidation;
-
 
 namespace GymCrm.Api.Auth;
 
@@ -223,7 +219,6 @@ internal static class ClientLifecycleEndpoints
         TransferClientBranchRequest request,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
-        IClientMembershipService membershipService,
         IBusinessDateProvider businessDateProvider,
         IAuditLogService auditLogService,
         IServiceScopeFactory serviceScopeFactory,
@@ -243,21 +238,6 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.Unauthorized();
         }
 
-        var removedPaymentMarker = CreateRemovedPaymentMarkerProblem(request.PaymentStatus, request.IsPaid);
-        if (removedPaymentMarker is not null)
-        {
-            return removedPaymentMarker;
-        }
-
-        var transferIdempotencyKey = GetMembershipIdempotencyKey(httpContext.Request);
-        if (transferIdempotencyKey is null)
-        {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["idempotencyKey"] = ["Idempotency-Key header is required for this membership operation."]
-            });
-        }
-
         var client = await ClientResponseMapper.LoadClientSnapshotAsync(id, dbContext, cancellationToken);
         if (client is null)
         {
@@ -270,64 +250,8 @@ internal static class ClientLifecycleEndpoints
             return TypedResults.ValidationProblem(validationErrors);
         }
 
-        var targetBranchId = (request.TargetBranchId ?? request.BranchId)!.Value;
+        var targetBranchId = request.TargetBranchId!.Value;
         var targetGroupIds = NormalizeTransferGroupIds(request);
-        var today = businessDateProvider.Today;
-        var currentMembership = ClientResponseMapper.GetCurrentMembership(client);
-        var preserveSingleVisit = currentMembership is
-        { BehaviorKind: MembershipBehaviorKind.SingleVisit, SingleVisitUsed: false };
-
-        if (preserveSingleVisit)
-        {
-            if (request.PresentSaleFields.Count > 0)
-            {
-                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    [request.PresentSaleFields.Order(StringComparer.Ordinal).First()] =
-                        ["Active unused SingleVisit is transferred without a new membership or financial event."]
-                });
-            }
-        }
-        else if (!request.MembershipCatalogItemId.HasValue && !request.ManualSaleAmount.HasValue)
-        {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["membershipCatalogItemId"] = ["Choose a catalog item or provide a manual sale amount."],
-                ["manualSaleAmount"] = ["Choose a catalog item or provide a manual sale amount."]
-            });
-        }
-
-        MembershipBehaviorKind? transferBehavior = null;
-        if (!preserveSingleVisit)
-        {
-            var pricingErrors = new Dictionary<string, string[]>();
-            ValidatePricingSelection(request.MembershipCatalogItemId, request.ManualSaleAmount, pricingErrors);
-            ValidateCatalogPayment(request.PaymentStatus, request.IsPaid, request.PaymentDate, today, pricingErrors);
-            if (pricingErrors.Count > 0)
-                return TypedResults.ValidationProblem(pricingErrors);
-
-            transferBehavior = request.MembershipCatalogItemId.HasValue
-                ? await dbContext.MembershipCatalogItems
-                    .Where(item => item.Id == request.MembershipCatalogItemId.Value)
-                    .Select(item => (MembershipBehaviorKind?)item.BehaviorKind)
-                    .SingleOrDefaultAsync(cancellationToken)
-                : MembershipBehaviorKind.Term;
-            if (transferBehavior == MembershipBehaviorKind.Professional && currentUser.Role != UserRole.HeadCoach)
-            {
-                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    ["membershipCatalogItemId"] = ["Only HeadCoach can assign Professional membership."]
-                });
-            }
-            if (transferBehavior is MembershipBehaviorKind.Term or MembershipBehaviorKind.Professional &&
-                ParseIsoDate(request.ValidFrom) != today)
-            {
-                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    ["validFrom"] = ["Transfer membership must start on the backend business date."]
-                });
-            }
-        }
 
         return await ExecuteMembershipActionAsync(
             id,
@@ -342,27 +266,39 @@ internal static class ClientLifecycleEndpoints
             validateRequest: _ => [],
             executeAsync: async actor =>
             {
+                await LockClientAssignmentTransferRowsAsync(
+                    id,
+                    targetGroupIds,
+                    dbContext,
+                    cancellationToken);
+
                 var clientForMutation = await dbContext.Clients
                     .Include(candidate => candidate.Groups)
                     .Include(candidate => candidate.Memberships)
-                        .ThenInclude(membership => membership.Sale)
+                        .ThenInclude(membership => membership.TargetGroups)
                     .SingleOrDefaultAsync(candidate => candidate.Id == id, cancellationToken);
                 if (clientForMutation is null)
                 {
                     return ClientMembershipMutationResult.Failure(ClientMembershipMutationError.ClientMissing);
                 }
 
-                var now = DateTimeOffset.UtcNow;
-                var currentMembershipForMutation = ClientResponseMapper.GetCurrentMembership(clientForMutation);
-                if (!preserveSingleVisit && currentMembershipForMutation is not null)
+                var requestedGroupIds = targetGroupIds.ToHashSet();
+                var activeOrFutureTargets = clientForMutation.Memberships
+                    .Where(membership => membership.ValidTo is null)
+                    .Where(membership => ClientMembershipTargetPolicy.ResolveEntitlementState(
+                        membership,
+                        businessDateProvider.Today) is ClientMembershipEntitlementState.Active or ClientMembershipEntitlementState.Future)
+                    .SelectMany(membership => membership.TargetGroups)
+                    .Select(target => target.GroupId)
+                    .Distinct()
+                    .ToArray();
+                if (activeOrFutureTargets.Any(targetGroupId => !requestedGroupIds.Contains(targetGroupId)))
                 {
-                    currentMembershipForMutation.ValidTo = now;
-                    if (currentMembershipForMutation.BehaviorKind is MembershipBehaviorKind.Term or MembershipBehaviorKind.Professional)
-                    {
-                        currentMembershipForMutation.IndividualValidTo = today.AddDays(-1);
-                    }
+                    return ClientMembershipMutationResult.Failure(
+                        ClientMembershipMutationError.BranchTransferMembershipTargetsAffected);
                 }
 
+                var now = DateTimeOffset.UtcNow;
                 clientForMutation.BranchId = targetBranchId;
                 clientForMutation.UpdatedAt = now;
                 await CloseActiveBranchAssignmentsAsync(clientForMutation.Id, now, dbContext, cancellationToken);
@@ -378,22 +314,6 @@ internal static class ClientLifecycleEndpoints
                     cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
-
-                if (!preserveSingleVisit)
-                {
-                    return await membershipService.PurchaseAsync(
-                        clientForMutation.Id,
-                        new CreateClientMembershipPurchaseCommand(
-                            actor.Id,
-                            request.MembershipCatalogItemId,
-                            ParseIsoDate(request.ValidFrom),
-                            ParseIsoDate(request.ValidTo),
-                            ParseIsoDate(request.PaymentDate)!.Value,
-                            request.ProfessionalComment,
-                            request.ManualSaleAmount),
-                        cancellationToken);
-                }
-
                 return ClientMembershipMutationResult.Success(new ClientMembershipDetailsResult(id, null, []));
             },
             idempotencyPayload: new
@@ -401,14 +321,7 @@ internal static class ClientLifecycleEndpoints
                 ClientId = id,
                 Action = ClientAuditConstants.ClientTransferredAction,
                 TargetBranchId = targetBranchId,
-                GroupIds = targetGroupIds.Order().ToArray(),
-                PreserveSingleVisit = preserveSingleVisit,
-                request.MembershipCatalogItemId,
-                ValidFrom = NormalizeIsoDateForIdempotency(request.ValidFrom),
-                ValidTo = NormalizeIsoDateForIdempotency(request.ValidTo),
-                PaymentDate = NormalizeIsoDateForIdempotency(request.PaymentDate),
-                ProfessionalComment = NormalizeOptionalText(request.ProfessionalComment),
-                request.ManualSaleAmount
+                TargetGroupIds = targetGroupIds.Order().ToArray()
             },
             actionType: ClientAuditConstants.ClientTransferredAction,
             descriptionFactory: ClientAuditResources.ClientTransferredDescription,
@@ -424,6 +337,36 @@ internal static class ClientLifecycleEndpoints
                     SerializeAuditState(clientBefore),
                     SerializeAuditState(clientAfter)),
                 cancellationToken));
+    }
+
+    private static async Task LockClientAssignmentTransferRowsAsync(
+        Guid clientId,
+        IReadOnlyList<Guid> targetGroupIds,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        foreach (var groupId in targetGroupIds.Order())
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""SELECT 1 FROM "TrainingGroups" WHERE "Id" = {groupId} FOR UPDATE""",
+                cancellationToken);
+        }
+
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "Clients" WHERE "Id" = {clientId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "ClientMemberships" WHERE "ClientId" = {clientId} AND "ValidTo" IS NULL ORDER BY "Id" FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "ClientMembershipTargetGroups" WHERE "ClientMembershipId" IN (SELECT "Id" FROM "ClientMemberships" WHERE "ClientId" = {clientId} AND "ValidTo" IS NULL) ORDER BY "ClientMembershipId", "Position" FOR UPDATE""",
+            cancellationToken);
     }
 
     private static Task<Results<Ok<ClientDetailsResponse>, NotFound, ProblemHttpResult, UnauthorizedHttpResult>> ArchiveClientAsync(

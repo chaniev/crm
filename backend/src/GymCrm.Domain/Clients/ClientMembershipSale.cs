@@ -25,4 +25,5 @@ public class ClientMembershipSale
     public MembershipCatalogItem? MembershipCatalogItem { get; set; }
     public ICollection<ClientMembership> Memberships { get; set; } = new List<ClientMembership>();
     public ICollection<ClientMembershipRefund> Refunds { get; set; } = new List<ClientMembershipRefund>();
+    public ICollection<ClientMembershipSaleTargetSnapshot> TargetSnapshots { get; set; } = new List<ClientMembershipSaleTargetSnapshot>();
 }

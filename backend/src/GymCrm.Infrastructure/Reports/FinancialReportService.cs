@@ -1,4 +1,5 @@
 using GymCrm.Application.Reports;
+using GymCrm.Domain.Clients;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,16 +24,14 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
 
         var firstSales = await LoadFirstSalesAsync(clientIds, cancellationToken);
         var attributionRange = GetAttributionRange(events);
-        var branchAssignments = await LoadBranchAssignmentsAsync(clientIds, attributionRange.From, attributionRange.To, cancellationToken);
-        var branchIds = branchAssignments
-            .Select(assignment => assignment.BranchId)
+        var branchIds = events
+            .Select(financialEvent => financialEvent.ReportingBranchId)
             .Distinct()
             .ToArray();
         var branchesById = await LoadBranchesAsync(branchIds, cancellationToken);
 
-        var groupAssignments = await LoadGroupAssignmentsAsync(clientIds, attributionRange.From, attributionRange.To, cancellationToken);
-        var groupIds = groupAssignments
-            .Select(assignment => assignment.GroupId)
+        var groupIds = events
+            .Select(financialEvent => financialEvent.ReportingGroupId)
             .Distinct()
             .ToArray();
         var groupsById = await LoadGroupsAsync(groupIds, cancellationToken);
@@ -47,9 +46,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
         var attributedEvents = CreateAttributedEvents(
             events,
             firstSales,
-            branchAssignments,
             branchesById,
-            groupAssignments,
             groupsById,
             trainerAssignments,
             trainersById,
@@ -73,35 +70,48 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
     {
         var sales = await dbContext.ClientMembershipSales
             .AsNoTracking()
+            .Include(sale => sale.TargetSnapshots)
             .Where(sale => sale.PaymentDate >= query.From && sale.PaymentDate <= query.To)
-            .Select(sale => new FinancialEventProjection(
-                sale.Id,
-                sale.ClientId,
-                sale.PaymentDate,
-                sale.PurchaseDate,
-                FinancialEventKind.Sale,
-                sale.GrossAmount,
-                0m))
             .ToArrayAsync(cancellationToken);
 
         var refunds = await dbContext.ClientMembershipRefunds
             .AsNoTracking()
+            .Include(refund => refund.TargetSnapshots)
             .Where(refund =>
                 refund.CanceledAt == null &&
                 refund.RefundDate >= query.From &&
                 refund.RefundDate <= query.To)
-            .Select(refund => new FinancialEventProjection(
-                refund.Id,
-                refund.ClientId,
-                refund.RefundDate,
-                refund.RefundDate,
-                FinancialEventKind.Refund,
-                0m,
-                refund.Amount))
             .ToArrayAsync(cancellationToken);
 
         return sales
-            .Concat(refunds)
+            .Select(sale =>
+            {
+                var reportingSnapshot = GetReportingSaleSnapshot(sale.TargetSnapshots);
+                return new FinancialEventProjection(
+                    sale.Id,
+                    sale.ClientId,
+                    sale.PaymentDate,
+                    sale.PurchaseDate,
+                    FinancialEventKind.Sale,
+                    sale.GrossAmount,
+                    0m,
+                    reportingSnapshot.BranchId,
+                    reportingSnapshot.GroupId);
+            })
+            .Concat(refunds.Select(refund =>
+            {
+                var reportingSnapshot = GetReportingRefundSnapshot(refund.TargetSnapshots);
+                return new FinancialEventProjection(
+                    refund.Id,
+                    refund.ClientId,
+                    refund.RefundDate,
+                    refund.RefundDate,
+                    FinancialEventKind.Refund,
+                    0m,
+                    refund.Amount,
+                    reportingSnapshot.BranchId,
+                    reportingSnapshot.GroupId);
+            }))
             .OrderBy(financialEvent => financialEvent.AccountingDate)
             .ThenBy(financialEvent => financialEvent.Kind)
             .ThenBy(financialEvent => financialEvent.Id)
@@ -145,32 +155,6 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
                 });
     }
 
-    private async Task<BranchAssignmentProjection[]> LoadBranchAssignmentsAsync(
-        IReadOnlyCollection<Guid> clientIds,
-        DateOnly from,
-        DateOnly to,
-        CancellationToken cancellationToken)
-    {
-        if (clientIds.Count == 0)
-        {
-            return [];
-        }
-
-        return await dbContext.ClientBranchAssignments
-            .AsNoTracking()
-            .Where(assignment =>
-                clientIds.Contains(assignment.ClientId) &&
-                assignment.ValidFrom <= to &&
-                (assignment.ValidTo == null || assignment.ValidTo > from))
-            .Select(assignment => new BranchAssignmentProjection(
-                assignment.Id,
-                assignment.ClientId,
-                assignment.BranchId,
-                assignment.ValidFrom,
-                assignment.ValidTo))
-            .ToArrayAsync(cancellationToken);
-    }
-
     private async Task<IReadOnlyDictionary<Guid, BranchProjection>> LoadBranchesAsync(
         IReadOnlyCollection<Guid> branchIds,
         CancellationToken cancellationToken)
@@ -185,32 +169,6 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             .Where(branch => branchIds.Contains(branch.Id))
             .Select(branch => new BranchProjection(branch.Id, branch.Name))
             .ToDictionaryAsync(branch => branch.Id, cancellationToken);
-    }
-
-    private async Task<GroupAssignmentProjection[]> LoadGroupAssignmentsAsync(
-        IReadOnlyCollection<Guid> clientIds,
-        DateOnly from,
-        DateOnly to,
-        CancellationToken cancellationToken)
-    {
-        if (clientIds.Count == 0)
-        {
-            return [];
-        }
-
-        return await dbContext.ClientGroupAssignments
-            .AsNoTracking()
-            .Where(assignment =>
-                clientIds.Contains(assignment.ClientId) &&
-                assignment.ValidFrom <= to &&
-                (assignment.ValidTo == null || assignment.ValidTo > from))
-            .Select(assignment => new GroupAssignmentProjection(
-                assignment.Id,
-                assignment.ClientId,
-                assignment.GroupId,
-                assignment.ValidFrom,
-                assignment.ValidTo))
-            .ToArrayAsync(cancellationToken);
     }
 
     private async Task<IReadOnlyDictionary<Guid, GroupProjection>> LoadGroupsAsync(
@@ -279,9 +237,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
     private static List<AttributedFinancialEvent> CreateAttributedEvents(
         IReadOnlyList<FinancialEventProjection> events,
         IReadOnlyDictionary<Guid, FirstSaleProjection> firstSales,
-        IReadOnlyList<BranchAssignmentProjection> branchAssignments,
         IReadOnlyDictionary<Guid, BranchProjection> branchesById,
-        IReadOnlyList<GroupAssignmentProjection> groupAssignments,
         IReadOnlyDictionary<Guid, GroupProjection> groupsById,
         IReadOnlyList<TrainerAssignmentProjection> trainerAssignments,
         IReadOnlyDictionary<Guid, TrainerProjection> trainersById,
@@ -291,12 +247,9 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
 
         foreach (var financialEvent in events)
         {
-            var branchAssignment = ResolveBranchAssignment(
-                branchAssignments,
-                financialEvent.ClientId,
-                financialEvent.AttributionDate);
-            if (branchAssignment is null ||
-                !branchesById.TryGetValue(branchAssignment.BranchId, out var branch))
+            if (!branchesById.TryGetValue(financialEvent.ReportingBranchId, out var branch) ||
+                !groupsById.TryGetValue(financialEvent.ReportingGroupId, out var reportingGroup) ||
+                reportingGroup.BranchId != branch.Id)
             {
                 continue;
             }
@@ -306,16 +259,15 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
                 continue;
             }
 
-            var groupAttributions = ResolveGroupAttributions(
-                groupAssignments,
-                groupsById,
-                financialEvent.ClientId,
-                financialEvent.AttributionDate,
-                branch.Id);
+            var groupAttribution = new GroupAttribution(
+                reportingGroup.Id,
+                reportingGroup.Name,
+                reportingGroup.BranchId,
+                reportingGroup.BranchName);
             var trainerAttributions = ResolveTrainerAttributions(
                 trainerAssignments,
                 trainersById,
-                groupAttributions,
+                groupAttribution,
                 financialEvent.AttributionDate);
 
             if (query.TrainerId.HasValue &&
@@ -331,7 +283,7 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             attributedEvents.Add(new AttributedFinancialEvent(
                 financialEvent,
                 branch,
-                groupAttributions,
+                groupAttribution,
                 trainerAttributions,
                 isFirstSale));
         }
@@ -339,60 +291,15 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
         return attributedEvents;
     }
 
-    private static BranchAssignmentProjection? ResolveBranchAssignment(
-        IEnumerable<BranchAssignmentProjection> assignments,
-        Guid clientId,
-        DateOnly eventDate)
-    {
-        return assignments
-            .Where(assignment =>
-                assignment.ClientId == clientId &&
-                ContainsDate(assignment.ValidFrom, assignment.ValidTo, eventDate))
-            .OrderByDescending(assignment => assignment.ValidFrom)
-            .ThenBy(assignment => assignment.Id)
-            .FirstOrDefault();
-    }
-
-    private static IReadOnlyList<GroupAttribution> ResolveGroupAttributions(
-        IEnumerable<GroupAssignmentProjection> assignments,
-        IReadOnlyDictionary<Guid, GroupProjection> groupsById,
-        Guid clientId,
-        DateOnly eventDate,
-        Guid branchId)
-    {
-        return assignments
-            .Where(assignment =>
-                assignment.ClientId == clientId &&
-                ContainsDate(assignment.ValidFrom, assignment.ValidTo, eventDate) &&
-                groupsById.TryGetValue(assignment.GroupId, out var group) &&
-                group.BranchId == branchId)
-            .Select(assignment => groupsById[assignment.GroupId])
-            .OrderBy(group => group.Name)
-            .ThenBy(group => group.Id)
-            .Select(group => new GroupAttribution(
-                group.Id,
-                group.Name,
-                group.BranchId,
-                group.BranchName))
-            .ToArray();
-    }
-
     private static IReadOnlyList<TrainerAttribution> ResolveTrainerAttributions(
         IEnumerable<TrainerAssignmentProjection> assignments,
         IReadOnlyDictionary<Guid, TrainerProjection> trainersById,
-        IReadOnlyList<GroupAttribution> groupAttributions,
+        GroupAttribution groupAttribution,
         DateOnly eventDate)
     {
-        if (groupAttributions.Count == 0)
-        {
-            return [];
-        }
-
-        var groupIds = groupAttributions.Select(group => group.GroupId).ToHashSet();
-
         return assignments
             .Where(assignment =>
-                groupIds.Contains(assignment.GroupId) &&
+                assignment.GroupId == groupAttribution.GroupId &&
                 ContainsDate(assignment.ValidFrom, assignment.ValidTo, eventDate) &&
                 trainersById.TryGetValue(assignment.TrainerId, out _))
             .OrderBy(assignment => trainersById[assignment.TrainerId].FullName)
@@ -451,19 +358,16 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
         Guid? trainerId)
     {
         return attributedEvents
-            .SelectMany(attributedEvent =>
+            .Where(attributedEvent =>
+                !trainerId.HasValue ||
+                attributedEvent.TrainerAttributions.Any(
+                    trainer => trainer.GroupId == attributedEvent.GroupAttribution.GroupId &&
+                        trainer.TrainerId == trainerId.Value))
+            .Select(attributedEvent => new
             {
-                var groupAttributions = trainerId.HasValue
-                    ? attributedEvent.GroupAttributions.Where(group => attributedEvent.TrainerAttributions.Any(
-                        trainer => trainer.GroupId == group.GroupId && trainer.TrainerId == trainerId.Value))
-                    : attributedEvent.GroupAttributions;
-
-                return groupAttributions.Select(group => new
-                {
-                    Group = group,
-                    attributedEvent.Event,
-                    attributedEvent.IsFirstSale
-                });
+                Group = attributedEvent.GroupAttribution,
+                attributedEvent.Event,
+                attributedEvent.IsFirstSale
             })
             .GroupBy(row => row.Group)
             .OrderBy(group => group.Key.BranchName)
@@ -545,6 +449,24 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
             events.Max(financialEvent => financialEvent.AttributionDate));
     }
 
+    private static ReportingSnapshotProjection GetReportingSaleSnapshot(
+        IEnumerable<ClientMembershipSaleTargetSnapshot> snapshots)
+    {
+        return snapshots
+            .Where(snapshot => snapshot.Position == 0)
+            .Select(snapshot => new ReportingSnapshotProjection(snapshot.BranchId, snapshot.GroupId))
+            .SingleOrDefault();
+    }
+
+    private static ReportingSnapshotProjection GetReportingRefundSnapshot(
+        IEnumerable<ClientMembershipRefundTargetSnapshot> snapshots)
+    {
+        return snapshots
+            .Where(snapshot => snapshot.Position == 0)
+            .Select(snapshot => new ReportingSnapshotProjection(snapshot.BranchId, snapshot.GroupId))
+            .SingleOrDefault();
+    }
+
     private static FinancialReportResult EmptyResult()
     {
         return new FinancialReportResult(
@@ -567,23 +489,11 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
         DateOnly AttributionDate,
         FinancialEventKind Kind,
         decimal GrossSales,
-        decimal RefundTotal);
+        decimal RefundTotal,
+        Guid ReportingBranchId,
+        Guid ReportingGroupId);
 
     private sealed record AttributionDateRange(DateOnly From, DateOnly To);
-
-    private sealed record BranchAssignmentProjection(
-        Guid Id,
-        Guid ClientId,
-        Guid BranchId,
-        DateOnly ValidFrom,
-        DateOnly? ValidTo);
-
-    private sealed record GroupAssignmentProjection(
-        Guid Id,
-        Guid ClientId,
-        Guid GroupId,
-        DateOnly ValidFrom,
-        DateOnly? ValidTo);
 
     private sealed record TrainerAssignmentProjection(
         Guid Id,
@@ -618,9 +528,11 @@ internal sealed class FinancialReportService(GymCrmDbContext dbContext) : IFinan
     private sealed record AttributedFinancialEvent(
         FinancialEventProjection Event,
         BranchProjection Branch,
-        IReadOnlyList<GroupAttribution> GroupAttributions,
+        GroupAttribution GroupAttribution,
         IReadOnlyList<TrainerAttribution> TrainerAttributions,
         bool IsFirstSale);
+
+    private readonly record struct ReportingSnapshotProjection(Guid BranchId, Guid GroupId);
 
     private sealed class TotalsAccumulator
     {

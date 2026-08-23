@@ -153,31 +153,13 @@ describe('membership sale pricing API contract', () => {
     expect(readRequestBody(fetchMock)).not.toHaveProperty('IsPaid')
   })
 
-  test.each([
-    {
-      mode: 'Catalog',
-      pricing: { membershipCatalogItemId: 'catalog-target' },
-    },
-    {
-      mode: 'CatalogOverride',
-      pricing: {
-        membershipCatalogItemId: 'catalog-target',
-        manualSaleAmount: 6100,
-      },
-    },
-    {
-      mode: 'AmountOnly',
-      pricing: {
-        membershipCatalogItemId: null,
-        manualSaleAmount: 6200,
-      },
-    },
-  ])('sale-producing transfer sends the exact $mode pricing fields', async ({ pricing }) => {
+  test('branch assignment transfer strips every sale-producing field', async () => {
     const fetchMock = stubSuccessfulFetch()
     const payload = {
       targetBranchId: 'branch-2',
       targetGroupIds: ['group-2'],
-      ...pricing,
+      membershipCatalogItemId: 'catalog-target',
+      manualSaleAmount: 6100,
       validFrom: '2026-07-22',
       validTo: '2026-08-20',
       paymentDate: '2026-07-10',
@@ -194,13 +176,6 @@ describe('membership sale pricing API contract', () => {
     expect(readRequestBody(fetchMock)).toEqual({
       targetBranchId: 'branch-2',
       targetGroupIds: ['group-2'],
-      membershipCatalogItemId: pricing.membershipCatalogItemId,
-      ...('manualSaleAmount' in pricing
-        ? { manualSaleAmount: pricing.manualSaleAmount }
-        : {}),
-      validFrom: '2026-07-22',
-      validTo: '2026-08-20',
-      paymentDate: '2026-07-10',
     })
     expect(readRequestHeaders(fetchMock).get('Idempotency-Key')).toBe(
       'membership-key-transfer',

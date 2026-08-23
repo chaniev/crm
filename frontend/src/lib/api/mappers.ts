@@ -16,9 +16,12 @@ import type {
   ClientGroupPayload,
   ClientGroupSummary,
   ClientMembership,
+  ClientMembershipEntitlementState,
+  ClientMembershipTargetGroup,
   ClientPhoto,
   ClientResponsePayload,
   ClientStatus,
+  ClientMembershipCoverageKind,
   MembershipBehaviorKind,
   MembershipSalePricingMode,
   UserRole,
@@ -69,17 +72,15 @@ export function mapClientPhoto(payload: ClientResponsePayload): ClientPhoto | nu
   }
 }
 
-export function mapClientCurrentMembership(
+export function mapClientCurrentMemberships(
   payload: ClientResponsePayload,
-): ClientMembership | null {
-  const membershipPayload = extractRecordPayload(payload, [
-    'currentMembership',
-    'CurrentMembership',
-    'currentMembershipSummary',
-    'CurrentMembershipSummary',
+): ClientMembership[] {
+  return extractArrayPayload<unknown>(payload, [
+    'currentMemberships',
+    'CurrentMemberships',
   ])
-
-  return mapClientMembership(membershipPayload)
+    .map((membership) => mapClientMembership(membership))
+    .filter((membership): membership is ClientMembership => membership !== null)
 }
 
 export function mapClientGroups(payload: ClientResponsePayload): ClientGroupSummary[] {
@@ -128,11 +129,13 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
   const paymentDate =
     readString(payload, ['paymentDate', 'PaymentDate']) ?? ''
   const saleId = readString(payload, ['saleId', 'SaleId'])
-  const pricingMode = mapMembershipSalePricingMode(
-    readString(payload, ['pricingMode', 'PricingMode']),
-  )
+  const pricingMode = mapMembershipSalePricingMode(readString(payload, ['pricingMode', 'PricingMode']))
   const grossAmount = readNumber(payload, ['grossAmount', 'GrossAmount'])
   const membershipName = readString(payload, ['membershipName', 'MembershipName'])
+  const coverageKind = mapMembershipCoverageKind(readString(payload, ['coverageKind', 'CoverageKind']))
+  const entitlementState = mapMembershipEntitlementState(
+    readString(payload, ['entitlementState', 'EntitlementState']),
+  )
 
   if (
     !behaviorKind ||
@@ -141,7 +144,9 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
     !saleId ||
     !pricingMode ||
     grossAmount === undefined ||
-    !membershipName
+    !membershipName ||
+    !coverageKind ||
+    !entitlementState
   ) {
     return null
   }
@@ -165,6 +170,9 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
       readNumber(payload, ['catalogPrice', 'CatalogPrice']) ?? null,
     singleVisitUsed:
       readBoolean(payload, ['singleVisitUsed', 'SingleVisitUsed']) ?? false,
+    coverageKind,
+    entitlementState,
+    targetGroups: mapMembershipTargetGroups(payload),
     changeReason:
       readString(payload, ['changeReason', 'ChangeReason']) ?? undefined,
     paymentRecordedAt:
@@ -195,6 +203,66 @@ export function mapClientMembership(payload: unknown): ClientMembership | null {
     comment: readString(payload, ['comment', 'Comment']) ?? null,
     ...mapMembershipCommentAttribution(payload),
   }
+}
+
+function mapMembershipTargetGroups(
+  payload: Record<string, unknown>,
+): ClientMembershipTargetGroup[] {
+  return extractArrayPayload<Record<string, unknown>>(payload, [
+    'targetGroups',
+    'TargetGroups',
+    'targets',
+    'Targets',
+  ])
+    .map((target, index) => {
+      const groupId = readString(target, ['groupId', 'GroupId', 'id', 'Id'])
+      const groupName =
+        readString(target, ['groupName', 'GroupName', 'name', 'Name']) ?? ''
+      const branchId = readString(target, ['branchId', 'BranchId']) ?? ''
+      const branchName = readString(target, ['branchName', 'BranchName']) ?? ''
+      const position = readNumber(target, ['position', 'Position']) ?? index
+
+      if (!groupId) {
+        return null
+      }
+
+      return {
+        groupId,
+        groupName,
+        branchId,
+        branchName,
+        position,
+        isActive: readBoolean(target, ['isActive', 'IsActive']) ?? true,
+      } satisfies ClientMembershipTargetGroup
+    })
+    .filter((target): target is ClientMembershipTargetGroup => target !== null)
+    .sort((left, right) => left.position - right.position)
+}
+
+function mapMembershipCoverageKind(
+  value: string | undefined,
+): ClientMembershipCoverageKind | null {
+  if (value === 'AllGroups' || value === 'TargetGroups') {
+    return value
+  }
+
+  return null
+}
+
+function mapMembershipEntitlementState(
+  value: string | undefined,
+): ClientMembershipEntitlementState | null {
+  if (
+    value === 'Active' ||
+    value === 'Future' ||
+    value === 'Expired' ||
+    value === 'UsedSingleVisit' ||
+    value === 'LegacyTargetMissing'
+  ) {
+    return value
+  }
+
+  return null
 }
 
 function mapMembershipCommentAttribution(payload: Record<string, unknown>) {

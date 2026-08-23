@@ -35,7 +35,8 @@ public enum AttendanceBatchMutationError
     TrainingDateInFuture = 4,
     SingleVisitRestoreConflict = 5,
     Forbidden = 6,
-    TrainingDateUnavailable = 7
+    TrainingDateUnavailable = 7,
+    MembershipEntitlementInvariantConflict = 8
 }
 
 public sealed record AttendanceEntryChangeResult(

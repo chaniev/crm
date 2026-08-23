@@ -730,6 +730,149 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientMembershipTargetGroups",
+                columns: table => new
+                {
+                    ClientMembershipId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Position = table.Column<int>(type: "integer", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMembershipTargetGroups", x => new { x.ClientMembershipId, x.Position });
+                    table.CheckConstraint("CK_ClientMembershipTargetGroups_Position", "\"Position\" >= 0 AND \"Position\" <= 4");
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipTargetGroups_ClientMemberships_ClientMember~",
+                        column: x => x.ClientMembershipId,
+                        principalTable: "ClientMemberships",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipTargetGroups_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipTargetGroups_TrainingGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientMembershipSaleTargetSnapshots",
+                columns: table => new
+                {
+                    SaleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Position = table.Column<int>(type: "integer", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Provenance = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMembershipSaleTargetSnapshots", x => new { x.SaleId, x.Position });
+                    table.CheckConstraint("CK_ClientMembershipSaleTargetSnapshots_Position", "\"Position\" >= 0 AND \"Position\" <= 4");
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipSaleTargetSnapshots_ClientMembershipSales~",
+                        column: x => x.SaleId,
+                        principalTable: "ClientMembershipSales",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipSaleTargetSnapshots_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipSaleTargetSnapshots_TrainingGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientMembershipRefundTargetSnapshots",
+                columns: table => new
+                {
+                    RefundId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Position = table.Column<int>(type: "integer", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BranchId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Provenance = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientMembershipRefundTargetSnapshots", x => new { x.RefundId, x.Position });
+                    table.CheckConstraint("CK_ClientMembershipRefundTargetSnapshots_Position", "\"Position\" >= 0 AND \"Position\" <= 4");
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipRefundTargetSnapshots_ClientMembershipRef~",
+                        column: x => x.RefundId,
+                        principalTable: "ClientMembershipRefunds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipRefundTargetSnapshots_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ClientMembershipRefundTargetSnapshots_TrainingGroups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttendanceEntitlementTargetSnapshots",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AttendanceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FactualGroupId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TrainingDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    MembershipId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SaleId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CoverageKind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    TargetGroupId = table.Column<Guid>(type: "uuid", nullable: true),
+                    TargetBranchId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Position = table.Column<int>(type: "integer", nullable: false),
+                    Provenance = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttendanceEntitlementTargetSnapshots", x => x.Id);
+                    table.CheckConstraint("CK_AttendanceEntitlementTargetSnapshots_Position", "\"Position\" >= 0 AND \"Position\" <= 4");
+                    table.ForeignKey(
+                        name: "FK_AttendanceEntitlementTargetSnapshots_TrainingGroups_Factu~",
+                        column: x => x.FactualGroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AttendanceEntitlementTargetSnapshots_Branches_TargetBranchId",
+                        column: x => x.TargetBranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AttendanceEntitlementTargetSnapshots_TrainingGroups_Targe~",
+                        column: x => x.TargetGroupId,
+                        principalTable: "TrainingGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ClientGroupAssignments",
                 columns: table => new
                 {
@@ -1176,14 +1319,14 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ClientMemberships_ClientId",
                 table: "ClientMemberships",
-                column: "ClientId",
-                unique: true,
-                filter: "\"ValidTo\" IS NULL");
+                column: "ClientId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientMemberships_SaleId",
                 table: "ClientMemberships",
-                column: "SaleId");
+                column: "SaleId",
+                unique: true,
+                filter: "\"ValidTo\" IS NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientMemberships_ValidTo",
@@ -1246,6 +1389,89 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 column: "PaymentDate");
 
             migrationBuilder.CreateIndex(name: "IX_ClientMembershipSales_MembershipCatalogItemId", table: "ClientMembershipSales", column: "MembershipCatalogItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipTargetGroups_BranchId",
+                table: "ClientMembershipTargetGroups",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipTargetGroups_ClientMembershipId_GroupId",
+                table: "ClientMembershipTargetGroups",
+                columns: new[] { "ClientMembershipId", "GroupId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipTargetGroups_GroupId",
+                table: "ClientMembershipTargetGroups",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipSaleTargetSnapshots_BranchId",
+                table: "ClientMembershipSaleTargetSnapshots",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipSaleTargetSnapshots_GroupId",
+                table: "ClientMembershipSaleTargetSnapshots",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipSaleTargetSnapshots_SaleId_GroupId",
+                table: "ClientMembershipSaleTargetSnapshots",
+                columns: new[] { "SaleId", "GroupId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefundTargetSnapshots_BranchId",
+                table: "ClientMembershipRefundTargetSnapshots",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefundTargetSnapshots_GroupId",
+                table: "ClientMembershipRefundTargetSnapshots",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientMembershipRefundTargetSnapshots_RefundId_GroupId",
+                table: "ClientMembershipRefundTargetSnapshots",
+                columns: new[] { "RefundId", "GroupId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttendanceEntitlementTargetSnapshots_AttendanceId",
+                table: "AttendanceEntitlementTargetSnapshots",
+                column: "AttendanceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttendanceEntitlementTargetSnapshots_ClientId_TrainingDate",
+                table: "AttendanceEntitlementTargetSnapshots",
+                columns: new[] { "ClientId", "TrainingDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttendanceEntitlementTargetSnapshots_FactualGroupId",
+                table: "AttendanceEntitlementTargetSnapshots",
+                column: "FactualGroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttendanceEntitlementTargetSnapshots_MembershipId",
+                table: "AttendanceEntitlementTargetSnapshots",
+                column: "MembershipId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttendanceEntitlementTargetSnapshots_SaleId",
+                table: "AttendanceEntitlementTargetSnapshots",
+                column: "SaleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttendanceEntitlementTargetSnapshots_TargetGroupId",
+                table: "AttendanceEntitlementTargetSnapshots",
+                column: "TargetGroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttendanceEntitlementTargetSnapshots_TargetBranchId",
+                table: "AttendanceEntitlementTargetSnapshots",
+                column: "TargetBranchId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_BranchId",
@@ -1426,14 +1652,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 ) WHERE ("BehaviorKind" IN ('SingleVisit', 'Term'));
                 """);
             migrationBuilder.Sql("""
-                ALTER TABLE "ClientMemberships"
-                ADD CONSTRAINT "EX_ClientMemberships_ClientId_Period_NoOverlap"
-                EXCLUDE USING gist (
-                    "ClientId" WITH =,
-                    daterange("IndividualValidFrom", COALESCE("IndividualValidTo", 'infinity'::date), '[]') WITH &&
-                ) WHERE ("BehaviorKind" IN ('Term', 'Professional'));
-                """);
-            migrationBuilder.Sql("""
                 ALTER TABLE "ClientBranchAssignments"
                 ADD CONSTRAINT "EX_ClientBranchAssignments_ClientId_Period_NoOverlap"
                 EXCLUDE USING gist (
@@ -1475,6 +1693,9 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AttendanceEntitlementTargetSnapshots");
+
+            migrationBuilder.DropTable(
                 name: "ClientMissedTrainingAcknowledgements");
 
             migrationBuilder.DropTable(
@@ -1511,7 +1732,16 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 name: "ClientGroupAssignments");
 
             migrationBuilder.DropTable(
+                name: "ClientMembershipRefundTargetSnapshots");
+
+            migrationBuilder.DropTable(
                 name: "ClientMembershipRefunds");
+
+            migrationBuilder.DropTable(
+                name: "ClientMembershipSaleTargetSnapshots");
+
+            migrationBuilder.DropTable(
+                name: "ClientMembershipTargetGroups");
 
             migrationBuilder.DropTable(
                 name: "ClientMemberships");

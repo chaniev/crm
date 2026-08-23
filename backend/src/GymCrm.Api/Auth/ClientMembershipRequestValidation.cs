@@ -17,6 +17,7 @@ internal static class ClientMembershipRequestValidation
         _ = ValidateOptionalDate(request.ValidFrom, "validFrom", errors);
         _ = ValidateOptionalDate(request.ValidTo, "validTo", errors);
         ValidateCatalogPayment(request.PaymentStatus, request.IsPaid, request.PaymentDate, businessDate, errors);
+        ValidateTargetGroupIds(request.TargetGroupIds, errors);
 
         return errors;
     }
@@ -29,6 +30,9 @@ internal static class ClientMembershipRequestValidation
         var errors = new Dictionary<string, string[]>();
         ValidateAdditionalFields(request.AdditionalFields, errors);
         ValidatePricingSelection(request.MembershipCatalogItemId, request.ManualSaleAmount, errors);
+        ValidateRequiredGuid(request.SaleId, "saleId", errors);
+        ValidateRequiredGuid(request.ExpectedMembershipId, "expectedMembershipId", errors);
+        ValidateTargetGroupIds(request.TargetGroupIds, errors);
         ValidateCatalogPayment(request.PaymentStatus, request.IsPaid, request.PaymentDate, businessDate, errors);
 
         return errors;
@@ -120,6 +124,7 @@ internal static class ClientMembershipRequestValidation
         ValidateAdditionalFields(request.AdditionalFields, errors);
         ValidateRequiredGuid(request.SaleId, "saleId", errors);
         ValidateRequiredGuid(request.ExpectedMembershipId, "expectedMembershipId", errors);
+        ValidateTargetGroupIds(request.TargetGroupIds, errors);
         var validFrom = ValidateRequiredDate(request.ValidFrom, "validFrom", ClientResources.PurchaseDateRequired, errors);
         var validTo = ValidateOptionalDate(request.ValidTo, "validTo", errors);
         ValidateRequiredPaymentDate(request.PaymentDate, businessDate, errors);
@@ -148,6 +153,35 @@ internal static class ClientMembershipRequestValidation
             case ClientMembershipPaymentDateValidationResult.Future:
                 errors["paymentDate"] = ["Payment date cannot be in the future."];
                 break;
+        }
+    }
+
+    private static void ValidateTargetGroupIds(
+        IReadOnlyList<Guid>? targetGroupIds,
+        Dictionary<string, string[]> errors)
+    {
+        if (targetGroupIds is null || targetGroupIds.Count == 0)
+        {
+            errors["targetGroupIds"] = ["Выберите хотя бы одну группу."];
+            return;
+        }
+
+        if (targetGroupIds.Count > ClientMembershipTargetPolicy.MaxTargetCount)
+        {
+            errors["targetGroupIds"] = ["Можно выбрать не больше 5 групп."];
+        }
+
+        for (var index = 0; index < targetGroupIds.Count; index++)
+        {
+            if (targetGroupIds[index] == Guid.Empty)
+            {
+                errors[$"targetGroupIds[{index}]"] = ["Identifier is required for this membership operation."];
+            }
+        }
+
+        if (targetGroupIds.GroupBy(groupId => groupId).Any(group => group.Count() > 1))
+        {
+            errors["targetGroupIds"] = ["Группа уже выбрана."];
         }
     }
 

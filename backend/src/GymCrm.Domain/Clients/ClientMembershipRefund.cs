@@ -21,4 +21,5 @@ public class ClientMembershipRefund
     public Client Client { get; set; } = null!;
     public User CreatedByUser { get; set; } = null!;
     public User? CanceledByUser { get; set; }
+    public ICollection<ClientMembershipRefundTargetSnapshot> TargetSnapshots { get; set; } = new List<ClientMembershipRefundTargetSnapshot>();
 }

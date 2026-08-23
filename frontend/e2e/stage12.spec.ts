@@ -396,6 +396,7 @@ test.describe('Основные e2e сценарии', () => {
         paymentRecordedByUserId: 'headcoach-id', paymentRecordedByUserName: 'Главный тренер',
         expirationDate: '2026-08-31', pricingMode: 'Catalog', grossAmount: 4000,
         catalogPrice: 4000, singleVisitUsed: false, comment: value,
+        coverageKind: 'TargetGroups', entitlementState: 'Active', targetGroups: [],
         commentLastChangedByName: actor,
         commentLastChangedAt: changedAt,
       })
@@ -409,8 +410,7 @@ test.describe('Основные e2e сценарии', () => {
       )
       return {
         ...details,
-        currentMembership: saleOneLatest,
-        currentMembershipSummary: saleOneLatest,
+        currentMemberships: [saleOneLatest],
         membershipHistory: [
           saleOneLatest,
           {
@@ -529,6 +529,9 @@ test.describe('Основные e2e сценарии', () => {
         grossAmount: 4000,
         catalogPrice: 4000,
         singleVisitUsed: false,
+        coverageKind: 'TargetGroups',
+        entitlementState: 'Active',
+        targetGroups: [],
         comment,
         commentLastChangedByName: 'Администратор',
         commentLastChangedAt: '2026-07-21T12:34:56Z',
@@ -536,8 +539,7 @@ test.describe('Основные e2e сценарии', () => {
       const saleALatest = version('version-a2', 'sale-a', '2026-07-01', 'Комментарий A')
       return {
         ...details,
-        currentMembership: saleALatest,
-        currentMembershipSummary: saleALatest,
+        currentMemberships: [saleALatest],
         membershipHistory: [
           saleALatest,
           { ...version('version-a1', 'sale-a', '2026-07-01', 'Комментарий A'), changeReason: 'NewPurchase' },
@@ -2913,6 +2915,29 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
         ? 'Active'
         : 'Expired'
   const purchaseDate = addIsoDays(todayIso(), -20)
+  const currentMembership = behaviorKind
+    ? {
+        id: `${client.id}-m1`,
+        saleId: `${client.id}-sale-1`,
+        membershipCatalogItemId: 'catalog-1',
+        membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
+        behaviorKind,
+        purchaseDate,
+        paymentDate: purchaseDate,
+        paymentRecordedAt: `${purchaseDate}T09:00:00Z`,
+        paymentRecordedByUserId: 'headcoach-id',
+        paymentRecordedByUserName: 'Главный тренер',
+        expirationDate: client.expirationDate,
+        pricingMode: 'Catalog',
+        grossAmount: 4000,
+        catalogPrice: 4000,
+        singleVisitUsed: false,
+        changedByUserName: 'Тест',
+        coverageKind: isProfessional ? 'AllGroups' : 'TargetGroups',
+        entitlementState: client.hasActiveMembership ? 'Active' : 'Expired',
+        targetGroups: [],
+      }
+    : null
 
   return {
     id: client.id,
@@ -2953,66 +2978,8 @@ function toClientPayload(client: ClientState, groups: GroupState[]) {
     hasCurrentMembership: Boolean(behaviorKind),
     membershipState,
     lastVisitDate: addIsoDays(todayIso(), -1),
-    currentMembershipSummary: behaviorKind
-      ? {
-          id: `${client.id}-m1`,
-          saleId: `${client.id}-sale-1`,
-          membershipCatalogItemId: 'catalog-1',
-          membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
-          behaviorKind,
-          purchaseDate,
-          paymentDate: purchaseDate,
-          paymentRecordedAt: `${purchaseDate}T09:00:00Z`,
-          paymentRecordedByUserId: 'headcoach-id',
-          paymentRecordedByUserName: 'Главный тренер',
-          expirationDate: client.expirationDate,
-          pricingMode: 'Catalog',
-          grossAmount: 4000,
-          catalogPrice: 4000,
-          singleVisitUsed: false,
-        }
-      : null,
-    currentMembership: behaviorKind
-      ? {
-          id: `${client.id}-m1`,
-          saleId: `${client.id}-sale-1`,
-          membershipCatalogItemId: 'catalog-1',
-          membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
-          behaviorKind,
-          purchaseDate,
-          paymentDate: purchaseDate,
-          paymentRecordedAt: `${purchaseDate}T09:00:00Z`,
-          paymentRecordedByUserId: 'headcoach-id',
-          paymentRecordedByUserName: 'Главный тренер',
-          expirationDate: client.expirationDate,
-          pricingMode: 'Catalog',
-          grossAmount: 4000,
-          catalogPrice: 4000,
-          singleVisitUsed: false,
-          changedByUserName: 'Тест',
-        }
-      : null,
-    membershipHistory: behaviorKind
-      ? [
-          {
-            id: `${client.id}-m1`,
-            saleId: `${client.id}-sale-1`,
-            membershipCatalogItemId: 'catalog-1',
-            membershipName: behaviorKind === 'SingleVisit' ? 'Разовое посещение' : 'Месяц',
-            behaviorKind,
-            purchaseDate,
-            paymentDate: purchaseDate,
-            paymentRecordedAt: `${purchaseDate}T09:00:00Z`,
-            paymentRecordedByUserId: 'headcoach-id',
-            paymentRecordedByUserName: 'Главный тренер',
-            expirationDate: client.expirationDate,
-            pricingMode: 'Catalog',
-            grossAmount: 4000,
-            catalogPrice: 4000,
-            singleVisitUsed: false,
-          },
-        ]
-      : [],
+    currentMemberships: currentMembership ? [currentMembership] : [],
+    membershipHistory: currentMembership ? [currentMembership] : [],
     attendanceHistory: [],
     attendanceHistoryTotalCount: 0,
   }

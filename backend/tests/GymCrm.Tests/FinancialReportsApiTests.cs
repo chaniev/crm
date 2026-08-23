@@ -59,7 +59,7 @@ public class FinancialReportsApiTests
     }
 
     [Fact]
-    public async Task Branch_filter_uses_client_branch_period_on_financial_event_date()
+    public async Task Branch_filter_uses_event_reporting_snapshot()
     {
         await using var factory = new FinancialReportsAppFactory();
         var seeded = await SeedReportDataAsync(factory);
@@ -106,7 +106,9 @@ public class FinancialReportsApiTests
                 new DateOnly(2026, 5, 14),
                 999m,
                 seeded.HeadCoachId,
-                now);
+                now,
+                seeded.BranchAId,
+                seeded.GroupAId);
             sale.PaymentDate = new DateOnly(2026, 4, 30);
             await dbContext.SaveChangesAsync();
         }
@@ -243,6 +245,79 @@ public class FinancialReportsApiTests
         AssertTotals(payload.GetProperty("totals"), 7, 1003m, 170m, 833m, 6);
     }
 
+    [Fact]
+    public async Task Financial_report_uses_sale_and_refund_snapshot_after_client_target_changes()
+    {
+        await using var factory = new FinancialReportsAppFactory();
+        var seeded = await SeedReportDataAsync(factory);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = new DateTimeOffset(2026, 5, 26, 12, 0, 0, TimeSpan.Zero);
+            var client = CreateClient(seeded.BranchBId, "Snapshot", now);
+            dbContext.Clients.Add(client);
+            AddClientBranchPeriod(
+                dbContext,
+                client.Id,
+                seeded.BranchBId,
+                new DateOnly(2026, 5, 1),
+                null,
+                seeded.HeadCoachId,
+                now);
+            AddClientGroupPeriod(
+                dbContext,
+                client.Id,
+                seeded.GroupBId,
+                new DateOnly(2026, 5, 1),
+                null,
+                seeded.HeadCoachId,
+                now);
+
+            var sale = AddSale(
+                dbContext,
+                client.Id,
+                new DateOnly(2026, 5, 25),
+                100m,
+                seeded.HeadCoachId,
+                now,
+                seeded.BranchAId,
+                seeded.GroupAId);
+            AddRefund(
+                dbContext,
+                sale.Id,
+                client.Id,
+                new DateOnly(2026, 5, 26),
+                40m,
+                seeded.HeadCoachId,
+                now,
+                seeded.BranchAId,
+                seeded.GroupAId);
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var clientHttp = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        _ = await LoginAsync(clientHttp, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await clientHttp.GetAsync("/reports/financial?periodPreset=custom&from=2026-05-25&to=2026-05-26");
+        var payload = await ReadJsonElementAsync(response);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        AssertTotals(payload.GetProperty("totals"), 1, 100m, 40m, 60m, 1);
+
+        var branch = Assert.Single(payload.GetProperty("branchBreakdown").EnumerateArray());
+        Assert.Equal(seeded.BranchAId.ToString(), branch.GetProperty("branchId").GetString());
+        AssertTotals(branch, 1, 100m, 40m, 60m, 1);
+
+        var group = Assert.Single(payload.GetProperty("groupBreakdown").EnumerateArray());
+        Assert.Equal(seeded.GroupAId.ToString(), group.GetProperty("groupId").GetString());
+        AssertTotals(group, 1, 100m, 40m, 60m, 1);
+    }
+
     [Theory]
     [InlineData("/reports/financial", "periodPreset")]
     [InlineData("/reports/financial?periodPreset=week&anchorDate=2026-05-14", "periodPreset")]
@@ -354,7 +429,7 @@ public class FinancialReportsApiTests
     }
 
     [Fact]
-    public async Task Trainer_filter_keeps_canonical_totals_event_level_while_breakdowns_can_duplicate()
+    public async Task Trainer_filter_uses_reporting_group_and_keeps_event_count_once()
     {
         await using var factory = new FinancialReportsAppFactory();
         var seeded = await SeedDuplicatedTrainerAttributionDataAsync(factory);
@@ -373,12 +448,12 @@ public class FinancialReportsApiTests
         AssertTotals(payload.GetProperty("totals"), 1, 100m, 0m, 100m, 1);
 
         var groups = payload.GetProperty("groupBreakdown").EnumerateArray().ToArray();
-        Assert.Equal(2, groups.Length);
-        Assert.All(groups, group => AssertTotals(group, 1, 100m, 0m, 100m, 1));
+        var group = Assert.Single(groups);
+        AssertTotals(group, 1, 100m, 0m, 100m, 1);
 
         var trainer = Assert.Single(payload.GetProperty("trainerBreakdown").EnumerateArray());
         Assert.Equal(seeded.CoachOneId.ToString(), trainer.GetProperty("trainerId").GetString());
-        AssertTotals(trainer, 2, 200m, 0m, 200m, 2);
+        AssertTotals(trainer, 1, 100m, 0m, 100m, 1);
     }
 
     private static async Task<SeededReportData> SeedReportDataAsync(FinancialReportsAppFactory factory)
@@ -442,24 +517,24 @@ public class FinancialReportsApiTests
         AddGroupTrainerPeriod(dbContext, groupA.Id, coachOne.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
         AddGroupTrainerPeriod(dbContext, groupB.Id, coachTwo.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
 
-        var saleA1 = AddSale(dbContext, clientA.Id, new DateOnly(2026, 5, 10), 100m, headCoach.Id, now);
+        var saleA1 = AddSale(dbContext, clientA.Id, new DateOnly(2026, 5, 10), 100m, headCoach.Id, now, branchA.Id, groupA.Id);
         AddTechnicalMembershipVersions(dbContext, clientA.Id, saleA1.Id, headCoach.Id, now);
-        AddSale(dbContext, clientA.Id, new DateOnly(2026, 5, 20), 80m, headCoach.Id, now);
+        AddSale(dbContext, clientA.Id, new DateOnly(2026, 5, 20), 80m, headCoach.Id, now, branchB.Id, groupB.Id);
 
-        var saleB = AddSale(dbContext, clientB.Id, new DateOnly(2026, 4, 10), 200m, headCoach.Id, now.AddDays(-30));
-        AddRefund(dbContext, saleB.Id, clientB.Id, new DateOnly(2026, 5, 5), 50m, headCoach.Id, now);
+        var saleB = AddSale(dbContext, clientB.Id, new DateOnly(2026, 4, 10), 200m, headCoach.Id, now.AddDays(-30), branchA.Id, groupA.Id);
+        AddRefund(dbContext, saleB.Id, clientB.Id, new DateOnly(2026, 5, 5), 50m, headCoach.Id, now, branchA.Id, groupA.Id);
 
-        AddSale(dbContext, clientC.Id, new DateOnly(2026, 5, 15), 0m, headCoach.Id, now);
+        AddSale(dbContext, clientC.Id, new DateOnly(2026, 5, 15), 0m, headCoach.Id, now, branchB.Id, groupB.Id);
 
-        var saleD = AddSale(dbContext, clientD.Id, new DateOnly(2026, 5, 12), 120m, headCoach.Id, now);
-        AddRefund(dbContext, saleD.Id, clientD.Id, new DateOnly(2026, 5, 13), 40m, headCoach.Id, now, canceledByUserId: headCoach.Id);
+        var saleD = AddSale(dbContext, clientD.Id, new DateOnly(2026, 5, 12), 120m, headCoach.Id, now, branchA.Id, groupA.Id);
+        AddRefund(dbContext, saleD.Id, clientD.Id, new DateOnly(2026, 5, 13), 40m, headCoach.Id, now, branchA.Id, groupA.Id, canceledByUserId: headCoach.Id);
 
-        var saleE = AddSale(dbContext, clientE.Id, new DateOnly(2026, 5, 14), 300m, headCoach.Id, now);
-        AddRefund(dbContext, saleE.Id, clientE.Id, new DateOnly(2026, 5, 15), 30m, headCoach.Id, now);
-        AddRefund(dbContext, saleE.Id, clientE.Id, new DateOnly(2026, 5, 16), 20m, headCoach.Id, now);
+        var saleE = AddSale(dbContext, clientE.Id, new DateOnly(2026, 5, 14), 300m, headCoach.Id, now, branchA.Id, groupA.Id);
+        AddRefund(dbContext, saleE.Id, clientE.Id, new DateOnly(2026, 5, 15), 30m, headCoach.Id, now, branchA.Id, groupA.Id);
+        AddRefund(dbContext, saleE.Id, clientE.Id, new DateOnly(2026, 5, 16), 20m, headCoach.Id, now, branchA.Id, groupA.Id);
 
-        var saleF = AddSale(dbContext, clientF.Id, new DateOnly(2026, 5, 17), 70m, headCoach.Id, now);
-        AddRefund(dbContext, saleF.Id, clientF.Id, new DateOnly(2026, 5, 18), 70m, headCoach.Id, now);
+        var saleF = AddSale(dbContext, clientF.Id, new DateOnly(2026, 5, 17), 70m, headCoach.Id, now, branchA.Id, groupA.Id);
+        AddRefund(dbContext, saleF.Id, clientF.Id, new DateOnly(2026, 5, 18), 70m, headCoach.Id, now, branchA.Id, groupA.Id);
 
         await dbContext.SaveChangesAsync();
 
@@ -516,7 +591,7 @@ public class FinancialReportsApiTests
         AddGroupTrainerPeriod(dbContext, groupA.Id, coachOne.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
         AddGroupTrainerPeriod(dbContext, groupB.Id, coachOne.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
         AddGroupTrainerPeriod(dbContext, groupB.Id, coachTwo.Id, new DateOnly(2026, 1, 1), null, headCoach.Id, now);
-        AddSale(dbContext, client.Id, new DateOnly(2026, 5, 10), 100m, headCoach.Id, now);
+        AddSale(dbContext, client.Id, new DateOnly(2026, 5, 10), 100m, headCoach.Id, now, branch.Id, groupA.Id);
 
         await dbContext.SaveChangesAsync();
 
@@ -618,7 +693,9 @@ public class FinancialReportsApiTests
         DateOnly purchaseDate,
         decimal grossAmount,
         Guid createdByUserId,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdAt,
+        Guid? reportingBranchId = null,
+        Guid? reportingGroupId = null)
     {
         var sale = new ClientMembershipSale
         {
@@ -632,6 +709,17 @@ public class FinancialReportsApiTests
             CreatedAt = createdAt
         };
 
+        if (reportingBranchId.HasValue && reportingGroupId.HasValue)
+        {
+            sale.TargetSnapshots.Add(new ClientMembershipSaleTargetSnapshot
+            {
+                SaleId = sale.Id,
+                BranchId = reportingBranchId.Value,
+                GroupId = reportingGroupId.Value,
+                Position = 0
+            });
+        }
+
         dbContext.ClientMembershipSales.Add(sale);
         return sale;
     }
@@ -644,9 +732,11 @@ public class FinancialReportsApiTests
         decimal amount,
         Guid createdByUserId,
         DateTimeOffset createdAt,
+        Guid? reportingBranchId = null,
+        Guid? reportingGroupId = null,
         Guid? canceledByUserId = null)
     {
-        dbContext.ClientMembershipRefunds.Add(new ClientMembershipRefund
+        var refund = new ClientMembershipRefund
         {
             Id = Guid.NewGuid(),
             SaleId = saleId,
@@ -657,7 +747,20 @@ public class FinancialReportsApiTests
             CreatedAt = createdAt,
             CanceledAt = canceledByUserId.HasValue ? createdAt.AddHours(1) : null,
             CanceledByUserId = canceledByUserId
-        });
+        };
+
+        if (reportingBranchId.HasValue && reportingGroupId.HasValue)
+        {
+            refund.TargetSnapshots.Add(new ClientMembershipRefundTargetSnapshot
+            {
+                RefundId = refund.Id,
+                BranchId = reportingBranchId.Value,
+                GroupId = reportingGroupId.Value,
+                Position = 0
+            });
+        }
+
+        dbContext.ClientMembershipRefunds.Add(refund);
     }
 
     private static void AddTechnicalMembershipVersions(

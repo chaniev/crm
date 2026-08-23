@@ -2,6 +2,7 @@ using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
 using GymCrm.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Infrastructure.Clients;
 
@@ -9,7 +10,8 @@ internal sealed class ClientMembershipVisitService(
     GymCrmDbContext dbContext,
     TimeProvider timeProvider,
     ClientMembershipDetailsReader detailsReader,
-    ClientMembershipQueryStore queryStore)
+    ClientMembershipQueryStore queryStore,
+    IClientMembershipEntitlementResolver entitlementResolver)
 {
     public async Task<SingleVisitWriteOffResult> WriteOffSingleVisitAsync(
         Guid clientId,
@@ -18,7 +20,8 @@ internal sealed class ClientMembershipVisitService(
     {
         if (clientId == Guid.Empty ||
             command.ChangedByUserId == Guid.Empty ||
-            command.TrainingDate == default)
+            command.TrainingDate == default ||
+            command.GroupId == Guid.Empty)
         {
             return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.InvalidRequest);
         }
@@ -28,11 +31,27 @@ internal sealed class ClientMembershipVisitService(
             return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.ClientMissing);
         }
 
-        var currentMembership = await queryStore.LoadCurrentMembershipAsync(clientId, cancellationToken);
-        if (currentMembership is null)
+        var entitlement = await entitlementResolver.ResolveAsync(clientId, command.GroupId, command.TrainingDate, cancellationToken);
+        if (entitlement.Status == ClientMembershipEntitlementResolutionStatus.InvariantConflict)
+        {
+            return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.MembershipEntitlementInvariantConflict);
+        }
+
+        if (entitlement.Status == ClientMembershipEntitlementResolutionStatus.NoEntitlement ||
+            !entitlement.MembershipId.HasValue)
         {
             return SingleVisitWriteOffResult.Skip(SingleVisitWriteOffStatus.CurrentMembershipMissing);
         }
+
+        var currentMembership = await dbContext.ClientMemberships
+            .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.MembershipCatalogItem)
+            .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.CreatedByUser)
+            .Include(membership => membership.TargetGroups)
+                .ThenInclude(target => target.Group)
+                    .ThenInclude(group => group.Branch)
+            .SingleAsync(membership => membership.Id == entitlement.MembershipId.Value, cancellationToken);
 
         if (currentMembership.BehaviorKind != MembershipBehaviorKind.SingleVisit)
         {
@@ -51,9 +70,7 @@ internal sealed class ClientMembershipVisitService(
 
         var previousMembership = ClientMembershipDetailsReader.MapMembershipSnapshot(currentMembership);
         var now = timeProvider.GetUtcNow();
-        await ReplaceCurrentMembershipAsync(
-            currentMembership,
-            ClientMembershipMutationRules.CreateMembership(
+        var writtenOffMembership = ClientMembershipMutationRules.CreateMembership(
                 clientId,
                 currentMembership.Sale,
                 currentMembership.IndividualValidFrom,
@@ -62,11 +79,18 @@ internal sealed class ClientMembershipVisitService(
                 currentMembership.ProfessionalComment,
                 ClientMembershipChangeReason.SingleVisitWriteOff,
                 command.ChangedByUserId,
-                now),
+                now,
+                MapTargetDescriptors(currentMembership.TargetGroups));
+        await ReplaceCurrentMembershipAsync(
+            currentMembership,
+            writtenOffMembership,
             now,
             cancellationToken);
 
-        var currentMembershipSnapshot = (await detailsReader.LoadRequiredAsync(clientId, cancellationToken)).CurrentMembership
+        var currentMembershipSnapshot = (await detailsReader.LoadRequiredForMembershipAsync(
+                clientId,
+                writtenOffMembership.Id,
+                cancellationToken)).CurrentMembership
             ?? throw new InvalidOperationException($"Current membership for client '{clientId}' was not found after single-visit write-off.");
 
         return SingleVisitWriteOffResult.Success(previousMembership, currentMembershipSnapshot);
@@ -85,10 +109,12 @@ internal sealed class ClientMembershipVisitService(
             return SingleVisitRestoreResult.Failure(SingleVisitRestoreStatus.InvalidRequest);
         }
 
-        var currentMembership = await queryStore.LoadCurrentMembershipAsync(clientId, cancellationToken);
+        var currentMembership = await queryStore.LoadAddressedCurrentMembershipAsync(
+            clientId,
+            command.ExpectedSaleId,
+            command.ExpectedWriteOffMembershipId,
+            cancellationToken);
         if (currentMembership is null ||
-            currentMembership.Id != command.ExpectedWriteOffMembershipId ||
-            currentMembership.SaleId != command.ExpectedSaleId ||
             currentMembership.BehaviorKind != MembershipBehaviorKind.SingleVisit ||
             !currentMembership.SingleVisitUsed ||
             currentMembership.ChangeReason != ClientMembershipChangeReason.SingleVisitWriteOff)
@@ -98,9 +124,20 @@ internal sealed class ClientMembershipVisitService(
 
         var previousMembership = ClientMembershipDetailsReader.MapMembershipSnapshot(currentMembership);
         var now = timeProvider.GetUtcNow();
-        await ReplaceCurrentMembershipAsync(
-            currentMembership,
-            ClientMembershipMutationRules.CreateMembership(
+        var targets = MapTargetDescriptors(currentMembership.TargetGroups);
+        if (await queryStore.HasConflictingMembershipAsync(
+                clientId,
+                MembershipBehaviorKind.SingleVisit,
+                currentMembership.Sale.PurchaseDate,
+                validTo: null,
+                targets.Select(target => target.GroupId).ToArray(),
+                currentMembership.Id,
+                cancellationToken))
+        {
+            return SingleVisitRestoreResult.Failure(SingleVisitRestoreStatus.Conflict);
+        }
+
+        var nextMembership = ClientMembershipMutationRules.CreateMembership(
                 clientId,
                 currentMembership.Sale,
                 currentMembership.IndividualValidFrom,
@@ -109,14 +146,35 @@ internal sealed class ClientMembershipVisitService(
                 currentMembership.ProfessionalComment,
                 ClientMembershipChangeReason.SingleVisitRestore,
                 command.ChangedByUserId,
-                now),
+                now,
+                targets);
+        await ReplaceCurrentMembershipAsync(
+            currentMembership,
+            nextMembership,
             now,
             cancellationToken);
 
-        var restoredMembership = (await detailsReader.LoadRequiredAsync(clientId, cancellationToken)).CurrentMembership
+        var restoredMembership = (await detailsReader.LoadRequiredForMembershipAsync(
+                clientId,
+                nextMembership.Id,
+                cancellationToken)).CurrentMembership
             ?? throw new InvalidOperationException($"Current membership for client '{clientId}' was not found after single-visit restore.");
 
         return SingleVisitRestoreResult.Success(previousMembership, restoredMembership);
+    }
+
+    private static IReadOnlyList<ClientMembershipTargetDescriptor> MapTargetDescriptors(
+        IEnumerable<ClientMembershipTargetGroup> targets)
+    {
+        return targets
+            .OrderBy(target => target.Position)
+            .Select(target => new ClientMembershipTargetDescriptor(
+                target.GroupId,
+                target.BranchId,
+                target.Group.Name,
+                target.Group.Branch.Name,
+                target.Group.IsActive))
+            .ToArray();
     }
 
     private async Task ReplaceCurrentMembershipAsync(

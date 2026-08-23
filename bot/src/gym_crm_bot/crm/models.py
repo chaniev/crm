@@ -16,6 +16,14 @@ from pydantic import (
 BotRole = Literal["HeadCoach", "SuperAdministrator", "Administrator", "Coach"]
 MembershipBehaviorKind = Literal["SingleVisit", "Term", "Professional"]
 MembershipSalePricingMode = Literal["Catalog", "CatalogOverride", "AmountOnly"]
+MembershipCoverageKind = Literal["TargetGroups", "AllGroups"]
+MembershipEntitlementState = Literal[
+    "Active",
+    "Future",
+    "Expired",
+    "UsedSingleVisit",
+    "LegacyTargetMissing",
+]
 MenuCode = Literal["attendance", "client_search", "expiring_memberships"]
 
 
@@ -143,8 +151,19 @@ class AttendanceSaveResponse(ApiModel):
     warnings: list[AttendanceSaveWarning] = Field(default_factory=list)
 
 
+class ClientMembershipTargetGroup(ApiModel):
+    group_id: UUID = Field(alias="groupId")
+    group_name: str = Field(alias="groupName")
+    branch_id: UUID = Field(alias="branchId")
+    branch_name: str = Field(alias="branchName")
+    position: int
+    is_active: bool = Field(alias="isActive")
+
+
 class ClientListItem(ApiModel):
     id: UUID = Field(validation_alias=AliasChoices("id", "clientId"))
+    membership_id: UUID | None = Field(default=None, alias="membershipId")
+    sale_id: UUID | None = Field(default=None, alias="saleId")
     full_name: str = Field(alias="fullName")
     phone: str | None = None
     status: str | None = None
@@ -163,6 +182,10 @@ class ClientListItem(ApiModel):
         validation_alias=AliasChoices("warning", "membershipWarning"),
     )
     has_active_membership: bool = Field(default=False, alias="hasActiveMembership")
+    target_groups: list[ClientMembershipTargetGroup] = Field(
+        default_factory=list,
+        alias="targetGroups",
+    )
 
 
 class ClientSearchResponse(ApiModel):
@@ -186,6 +209,7 @@ class ClientSearchResponse(ApiModel):
 
 class ClientCardMembership(ApiModel):
     id: UUID
+    sale_id: UUID = Field(alias="saleId")
     behavior_kind: MembershipBehaviorKind = Field(alias="behaviorKind")
     membership_catalog_item_id: UUID | None = Field(alias="membershipCatalogItemId")
     membership_label: str = Field(alias="membershipLabel")
@@ -195,6 +219,9 @@ class ClientCardMembership(ApiModel):
     pricing_mode: MembershipSalePricingMode = Field(alias="pricingMode")
     gross_amount: Decimal = Field(alias="grossAmount")
     catalog_price: Decimal | None = Field(alias="catalogPrice")
+    coverage_kind: MembershipCoverageKind = Field(alias="coverageKind")
+    entitlement_state: MembershipEntitlementState = Field(alias="entitlementState")
+    target_groups: list[ClientMembershipTargetGroup] = Field(alias="targetGroups")
 
     @property
     def type_label(self) -> str:
@@ -229,7 +256,10 @@ class ClientCardResponse(ApiModel):
         validation_alias=AliasChoices("warning", "membershipWarning"),
     )
     photo_url: str | None = Field(default=None, alias="photoUrl")
-    current_membership: ClientCardMembership | None = Field(default=None, alias="currentMembership")
+    current_memberships: list[ClientCardMembership] = Field(
+        default_factory=list,
+        alias="currentMemberships",
+    )
     attendance_history: list[ClientAttendanceHistoryEntry] = Field(
         default_factory=list,
         alias="attendanceHistory",

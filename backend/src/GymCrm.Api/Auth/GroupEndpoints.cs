@@ -1,16 +1,20 @@
 using System.Globalization;
 using System.Text.Json;
+using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
+using GymCrm.Application.Clients;
 using GymCrm.Domain.Groups;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GymCrm.Api.Auth;
 
 internal static class GroupEndpoints
 {
+    private const int MaxGroupDeactivationAffectedMemberships = 5;
     private static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
 
     public static IEndpointRouteBuilder MapGroupEndpoints(this IEndpointRouteBuilder endpoints)
@@ -186,6 +190,7 @@ internal static class GroupEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAuditLogService auditLogService,
+        IBusinessDateProvider businessDateProvider,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -274,6 +279,7 @@ internal static class GroupEndpoints
         HttpContext httpContext,
         GymCrmDbContext dbContext,
         IAuditLogService auditLogService,
+        IBusinessDateProvider businessDateProvider,
         IAntiforgery antiforgery,
         CancellationToken cancellationToken)
     {
@@ -316,22 +322,53 @@ internal static class GroupEndpoints
             return GroupManagementScope.ForbiddenProblem();
         }
 
+        var requestedIsActive = normalizedRequest.IsActive ?? group.IsActive;
+        var deactivatingGroup = group.IsActive && !requestedIsActive;
         var oldState = SerializeAuditState(group);
-        var trainingStartTime = GroupRequestValidator.ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
+        var mutationTransaction = await BeginGroupMutationTransactionAsync(dbContext, cancellationToken);
+        try
+        {
+            if (deactivatingGroup)
+            {
+                await LockGroupDeactivationRowsAsync(group.Id, dbContext, cancellationToken);
+                var blockingMemberships = await LoadGroupDeactivationBlockersAsync(
+                    group.Id,
+                    businessDateProvider.Today,
+                    dbContext,
+                    cancellationToken);
+                if (blockingMemberships.Count > 0)
+                {
+                    return CreateGroupActiveMembershipsProblem(blockingMemberships);
+                }
+            }
 
-        group.Name = normalizedRequest.Name;
-        group.BranchId = normalizedRequest.BranchId!.Value;
-        group.HallId = normalizedRequest.HallId!.Value;
-        group.GroupTypeId = normalizedRequest.GroupTypeId!.Value;
-        group.TrainingStartTime = trainingStartTime.Value;
-        group.DurationMinutes = normalizedRequest.DurationMinutes!.Value;
-        group.Weekdays = normalizedRequest.Weekdays;
-        group.IsActive = normalizedRequest.IsActive ?? group.IsActive;
-        group.UpdatedAt = DateTimeOffset.UtcNow;
+            var trainingStartTime = GroupRequestValidator.ParseTrainingStartTime(normalizedRequest.TrainingStartTime)!;
 
-        ApplyTrainerAssignments(group, normalizedRequest.TrainerIds, currentUser.Id, DateTimeOffset.UtcNow, dbContext);
+            group.Name = normalizedRequest.Name;
+            group.BranchId = normalizedRequest.BranchId!.Value;
+            group.HallId = normalizedRequest.HallId!.Value;
+            group.GroupTypeId = normalizedRequest.GroupTypeId!.Value;
+            group.TrainingStartTime = trainingStartTime.Value;
+            group.DurationMinutes = normalizedRequest.DurationMinutes!.Value;
+            group.Weekdays = normalizedRequest.Weekdays;
+            group.IsActive = requestedIsActive;
+            group.UpdatedAt = DateTimeOffset.UtcNow;
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+            ApplyTrainerAssignments(group, normalizedRequest.TrainerIds, currentUser.Id, DateTimeOffset.UtcNow, dbContext);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+            if (mutationTransaction is not null)
+            {
+                await mutationTransaction.CommitAsync(cancellationToken);
+            }
+        }
+        finally
+        {
+            if (mutationTransaction is not null)
+            {
+                await mutationTransaction.DisposeAsync();
+            }
+        }
 
         var updatedGroup = await LoadGroupSnapshotAsync(group.Id, dbContext, cancellationToken)
             ?? throw new InvalidOperationException($"Updated training group '{group.Id}' was not found.");
@@ -474,6 +511,112 @@ internal static class GroupEndpoints
 
         return query;
     }
+
+    private static async Task<IDbContextTransaction?> BeginGroupMutationTransactionAsync(
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        return dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory"
+            ? null
+            : await dbContext.Database.BeginTransactionAsync(cancellationToken);
+    }
+
+    private static async Task LockGroupDeactivationRowsAsync(
+        Guid groupId,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "TrainingGroups" WHERE "Id" = {groupId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "ClientMembershipTargetGroups" WHERE "GroupId" = {groupId} ORDER BY "ClientMembershipId", "Position" FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "ClientMemberships" WHERE "ValidTo" IS NULL AND "Id" IN (SELECT "ClientMembershipId" FROM "ClientMembershipTargetGroups" WHERE "GroupId" = {groupId}) ORDER BY "ClientId", "Id" FOR UPDATE""",
+            cancellationToken);
+    }
+
+    private static async Task<IReadOnlyList<GroupDeactivationBlockingMembership>> LoadGroupDeactivationBlockersAsync(
+        Guid groupId,
+        DateOnly businessDate,
+        GymCrmDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var candidates = await dbContext.ClientMemberships
+            .AsNoTracking()
+            .Include(membership => membership.Client)
+            .Include(membership => membership.TargetGroups)
+                .ThenInclude(target => target.Group)
+                    .ThenInclude(group => group.Branch)
+            .Where(membership =>
+                membership.ValidTo == null &&
+                membership.TargetGroups.Any(target => target.GroupId == groupId))
+            .AsSplitQuery()
+            .ToArrayAsync(cancellationToken);
+
+        return candidates
+            .Select(membership => new
+            {
+                Membership = membership,
+                State = ClientMembershipTargetPolicy.ResolveEntitlementState(membership, businessDate)
+            })
+            .Where(row => row.State is ClientMembershipEntitlementState.Active or ClientMembershipEntitlementState.Future)
+            .OrderBy(row => row.Membership.Client.LastName)
+            .ThenBy(row => row.Membership.Client.FirstName)
+            .ThenBy(row => row.Membership.Client.MiddleName)
+            .ThenBy(row => row.Membership.ClientId)
+            .ThenBy(row => row.Membership.Id)
+            .Take(MaxGroupDeactivationAffectedMemberships)
+            .Select(row => new GroupDeactivationBlockingMembership(
+                row.Membership.Id,
+                row.Membership.SaleId,
+                row.Membership.ClientId,
+                BuildClientFullName(
+                    row.Membership.Client.LastName,
+                    row.Membership.Client.FirstName,
+                    row.Membership.Client.MiddleName),
+                row.Membership.BehaviorKind.ToString(),
+                row.State.ToString(),
+                row.Membership.TargetGroups
+                    .OrderBy(target => target.Position)
+                    .Select(target => new GroupDeactivationTargetSummary(
+                        target.GroupId,
+                        target.Group.Name,
+                        target.BranchId,
+                        target.Group.Branch.Name,
+                        target.Position))
+                    .ToArray()))
+            .ToArray();
+    }
+
+    private static ProblemHttpResult CreateGroupActiveMembershipsProblem(
+        IReadOnlyList<GroupDeactivationBlockingMembership> blockingMemberships)
+    {
+        return TypedResults.Problem(new HttpValidationProblemDetails(new Dictionary<string, string[]>
+        {
+            ["isActive"] = ["Нельзя отключить группу, пока в ней есть действующие или будущие абонементы."]
+        })
+        {
+            Status = StatusCodes.Status409Conflict,
+            Type = "group-active-memberships",
+            Title = "Группа используется в абонементах",
+            Detail = "Сначала перенесите или исправьте адресность действующих и будущих абонементов этой группы.",
+            Extensions =
+            {
+                ["code"] = "group-active-memberships",
+                ["recovery"] = "Откройте карточки клиентов из списка и перенесите абонементы на другую группу либо дождитесь окончания срока действия.",
+                ["affectedMemberships"] = blockingMemberships
+            }
+        });
+    }
+
     private static void ApplyTrainerAssignments(
         TrainingGroup group,
         IReadOnlyList<Guid> requestedTrainerIds,
@@ -625,4 +768,20 @@ internal static class GroupEndpoints
             .OrderBy(weekday => weekday)
             .ToArray();
     }
+
+    private sealed record GroupDeactivationBlockingMembership(
+        Guid MembershipId,
+        Guid SaleId,
+        Guid ClientId,
+        string ClientName,
+        string MembershipType,
+        string EntitlementState,
+        IReadOnlyList<GroupDeactivationTargetSummary> TargetGroups);
+
+    private sealed record GroupDeactivationTargetSummary(
+        Guid GroupId,
+        string GroupName,
+        Guid BranchId,
+        string BranchName,
+        int Position);
 }

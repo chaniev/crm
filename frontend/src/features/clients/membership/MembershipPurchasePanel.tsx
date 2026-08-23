@@ -7,6 +7,8 @@ import {
   applyFieldErrors,
   getEligibleMembershipCatalogItems,
   type MembershipCatalogItem,
+  type MembershipBehaviorKind,
+  type TrainingGroupListItem,
 } from '../../../lib/api'
 import { ResponsiveButtonGroup } from '../../shared/ux'
 import {
@@ -20,8 +22,15 @@ import { MembershipSaleConfirmationModal, PaymentDateInput } from '../ClientShar
 import {
   createMembershipPurchaseInitialValues,
   type MembershipPurchaseFormValues,
+  validateTargetGroups,
 } from './membershipForms'
 import { useClientActionSubmissionKey } from '../useClientActionSubmissionKey'
+import { MembershipTargetGroupsField } from './MembershipTargetGroupsField'
+import {
+  isMembershipTargetLoadAbort,
+  loadAllActiveMembershipTargetGroups,
+  pickTargetGroupError,
+} from './membershipTargetGroups'
 
 type MembershipPurchasePanelProps = {
   branchId: string
@@ -39,7 +48,9 @@ export function MembershipPurchasePanel({
   onSubmit,
 }: MembershipPurchasePanelProps) {
   const [items, setItems] = useState<MembershipCatalogItem[]>([])
+  const [groups, setGroups] = useState<TrainingGroupListItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [groupsLoading, setGroupsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [confirmationOpened, setConfirmationOpened] = useState(false)
@@ -49,6 +60,12 @@ export function MembershipPurchasePanel({
   })
   const selected = items.find(
     (item) => item.id === form.values.membershipCatalogItemId,
+  )
+  const targetBehaviorKind: MembershipBehaviorKind =
+    selected?.behaviorKind ?? 'Term'
+  const availableGroups = groups.filter((group) => group.branchId === branchId)
+  const selectedTargetLabels = form.values.targetGroupIds.map(
+    (groupId) => availableGroups.find((group) => group.id === groupId)?.name ?? groupId,
   )
 
   useEffect(() => {
@@ -67,6 +84,23 @@ export function MembershipPurchasePanel({
       })
     return () => controller.abort()
   }, [branchId])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    void loadAllActiveMembershipTargetGroups(controller.signal)
+      .then(setGroups)
+      .catch((error) => {
+        if (!isMembershipTargetLoadAbort(error)) {
+          setLoadError(
+            error instanceof Error ? error.message : 'Не удалось загрузить группы.',
+          )
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setGroupsLoading(false)
+      })
+    return () => controller.abort()
+  }, [])
 
   function requestConfirmation() {
     setFormError(null)
@@ -92,6 +126,7 @@ export function MembershipPurchasePanel({
     if (!form.values.paymentDate) {
       errors.paymentDate = 'Укажите дату оплаты.'
     }
+    validateTargetGroups(form.values.targetGroupIds, targetBehaviorKind, errors)
     if (Object.keys(errors).length > 0) {
       form.setErrors(errors)
       return
@@ -116,6 +151,7 @@ export function MembershipPurchasePanel({
             ? undefined
             : form.values.validTo || undefined,
         paymentDate: form.values.paymentDate,
+        targetGroupIds: form.values.targetGroupIds,
         ...(selected?.behaviorKind === 'Professional'
           ? { professionalComment: form.values.professionalComment.trim() }
           : {}),
@@ -145,6 +181,7 @@ export function MembershipPurchasePanel({
         onConfirm={() => void confirmPurchase()}
         opened={confirmationOpened}
         pending={pending}
+        targetGroupLabels={selectedTargetLabels}
         values={form.values}
       />
       <form noValidate onSubmit={form.onSubmit(requestConfirmation)}>
@@ -168,6 +205,17 @@ export function MembershipPurchasePanel({
               form.clearFieldError('manualSaleAmount')
             }}
             values={form.values}
+          />
+          <MembershipTargetGroupsField
+            behaviorKind={targetBehaviorKind}
+            error={pickTargetGroupError(form.errors)}
+            groups={availableGroups}
+            loading={groupsLoading}
+            onChange={(targetGroupIds) => {
+              form.setFieldValue('targetGroupIds', targetGroupIds)
+              form.clearFieldError('targetGroupIds')
+            }}
+            targetGroupIds={form.values.targetGroupIds}
           />
           {needsValidity ? (
             <SimpleGrid cols={{ base: 1, md: 2 }}>

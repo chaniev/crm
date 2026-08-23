@@ -438,7 +438,7 @@ public class InternalBotApiTests
             Assert.Equal(HttpStatusCode.OK, cardResponse.StatusCode);
             var payload = await ReadJsonElementAsync(cardResponse);
             Assert.Equal(JsonValueKind.Null, payload.GetProperty("phone").ValueKind);
-            Assert.Equal(JsonValueKind.Null, payload.GetProperty("currentMembership").ValueKind);
+            Assert.Empty(payload.GetProperty("currentMemberships").EnumerateArray());
             var groupPayload = payload.GetProperty("groups").EnumerateArray()
                 .Single(group => group.GetProperty("id").GetString() == seeded.CoachGroupId.ToString());
             Assert.Equal(60, groupPayload.GetProperty("durationMinutes").GetInt32());
@@ -528,12 +528,15 @@ public class InternalBotApiTests
         {
             Assert.Equal(HttpStatusCode.OK, amountOnlyCardResponse.StatusCode);
             var payload = await ReadJsonElementAsync(amountOnlyCardResponse);
-            var membership = payload.GetProperty("currentMembership");
+            var membership = Assert.Single(payload.GetProperty("currentMemberships").EnumerateArray());
             Assert.Equal(JsonValueKind.Null, membership.GetProperty("membershipCatalogItemId").ValueKind);
             Assert.Equal("Без варианта каталога", membership.GetProperty("membershipLabel").GetString());
             Assert.Equal("AmountOnly", membership.GetProperty("pricingMode").GetString());
             Assert.Equal(1800m, membership.GetProperty("grossAmount").GetDecimal());
             Assert.Equal(JsonValueKind.Null, membership.GetProperty("catalogPrice").ValueKind);
+            Assert.NotEqual(Guid.Empty, membership.GetProperty("saleId").GetGuid());
+            Assert.Equal("TargetGroups", membership.GetProperty("coverageKind").GetString());
+            Assert.NotEmpty(membership.GetProperty("targetGroups").EnumerateArray());
         }
     }
 
@@ -785,14 +788,14 @@ public class InternalBotApiTests
             new ClientGroup { ClientId = professionalPaymentClient.Id, GroupId = adminGroup.Id, BranchId = adminBranch.Id });
 
         dbContext.ClientMemberships.AddRange(
-            CreateMembership(coachClient.Id, coachBranch.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, now),
-            CreateMembership(expiringTodayClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today, 1500m, now),
-            CreateMembership(expiringDayNineClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(9), 1500m, now),
-            CreateMembership(expiringDayTenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, now),
-            CreateMembership(expiringDayElevenClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, now),
-            CreateMembership(expiredClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, now),
-            CreateMembership(paymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, now, amountOnly: true),
-            CreateMembership(professionalPaymentClient.Id, adminBranch.Id, administrator.Id, today.AddDays(-3), null, 0m, now, MembershipBehaviorKind.Professional));
+            CreateMembership(coachClient.Id, coachBranch.Id, coachGroup.Id, coach.Id, today.AddDays(-1), today.AddDays(5), 1200m, now),
+            CreateMembership(expiringTodayClient.Id, adminBranch.Id, adminGroup.Id, administrator.Id, today.AddDays(-10), today, 1500m, now),
+            CreateMembership(expiringDayNineClient.Id, adminBranch.Id, adminGroup.Id, administrator.Id, today.AddDays(-10), today.AddDays(9), 1500m, now),
+            CreateMembership(expiringDayTenClient.Id, adminBranch.Id, adminGroup.Id, administrator.Id, today.AddDays(-10), today.AddDays(10), 1500m, now),
+            CreateMembership(expiringDayElevenClient.Id, adminBranch.Id, adminGroup.Id, administrator.Id, today.AddDays(-10), today.AddDays(11), 1500m, now),
+            CreateMembership(expiredClient.Id, adminBranch.Id, adminGroup.Id, administrator.Id, today.AddDays(-20), today.AddDays(-1), 1500m, now),
+            CreateMembership(paymentClient.Id, adminBranch.Id, adminGroup.Id, administrator.Id, today.AddDays(-3), today.AddDays(20), 1800m, now, amountOnly: true),
+            CreateMembership(professionalPaymentClient.Id, adminBranch.Id, adminGroup.Id, administrator.Id, today.AddDays(-3), null, 0m, now, MembershipBehaviorKind.Professional));
 
         dbContext.Attendance.Add(new Attendance
         {
@@ -876,6 +879,7 @@ public class InternalBotApiTests
     private static ClientMembership CreateMembership(
         Guid clientId,
         Guid branchId,
+        Guid groupId,
         Guid changedByUserId,
         DateOnly purchaseDate,
         DateOnly? expirationDate,
@@ -898,9 +902,10 @@ public class InternalBotApiTests
         var catalogItemId = amountOnly
             ? (Guid?)null
             : catalogItem?.Id ?? MembershipCatalogItemConfiguration.ProfessionalCatalogItemId;
-        return new ClientMembership
+        var membershipId = Guid.NewGuid();
+        var membership = new ClientMembership
         {
-            Id = Guid.NewGuid(),
+            Id = membershipId,
             ClientId = clientId,
             SaleId = saleId,
             BehaviorKind = behaviorKind,
@@ -930,6 +935,22 @@ public class InternalBotApiTests
                 MembershipCatalogItem = catalogItem
             }
         };
+        membership.TargetGroups.Add(new ClientMembershipTargetGroup
+        {
+            ClientMembershipId = membershipId,
+            GroupId = groupId,
+            BranchId = branchId,
+            Position = 0
+        });
+        membership.Sale.TargetSnapshots.Add(new ClientMembershipSaleTargetSnapshot
+        {
+            SaleId = saleId,
+            GroupId = groupId,
+            BranchId = branchId,
+            Position = 0
+        });
+
+        return membership;
     }
 
     private static async Task<HttpResponseMessage> SendBotRequestAsync(

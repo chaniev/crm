@@ -12,11 +12,13 @@ export type MembershipCorrectionFormValues = {
   validFrom: string
   validTo: string
   paymentDate: string
+  targetGroupIds: string[]
 }
 
 export type MembershipRenewFormValues = {
   paymentDate: string
   professionalComment: string
+  targetGroupIds: string[]
 } & MembershipSalePricingValues
 
 export type MembershipActionSubmission =
@@ -36,11 +38,7 @@ export type MembershipActionSubmission =
       idempotencyKey: string
     }
 
-export type ClientTransferFormValues = MembershipSalePricingValues & {
+export type ClientTransferFormValues = {
   branchId: string
   groupId: string
-  validFrom: string
-  validTo: string
-  paymentDate: string
-  professionalComment: string
 }

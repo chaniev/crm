@@ -9,6 +9,9 @@ internal sealed class RenewClientMembershipRequest
     public string? PaymentStatus { get; init; }
     public bool? IsPaid { get; init; }
     public string? PaymentDate { get; init; }
+    public Guid? SaleId { get; init; }
+    public Guid? ExpectedMembershipId { get; init; }
+    public IReadOnlyList<Guid>? TargetGroupIds { get; init; }
     public string? ProfessionalComment { get; init; }
     public decimal? ManualSaleAmount { get; init; }
 

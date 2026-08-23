@@ -22,7 +22,7 @@ internal sealed record ClientDetailsResponse(
     bool IsProfessional,
     string? ProfessionalComment,
     bool HasActiveMembership,
-    ClientMembershipResponse? CurrentMembership,
+    IReadOnlyList<ClientMembershipResponse> CurrentMemberships,
     IReadOnlyList<ClientActionHintResponse> ActionHints,
     IReadOnlyList<ClientMembershipResponse> MembershipHistory,
     IReadOnlyList<ClientAttendanceHistoryEntryResponse> AttendanceHistory,

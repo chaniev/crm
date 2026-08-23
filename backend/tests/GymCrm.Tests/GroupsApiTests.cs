@@ -6,6 +6,7 @@ using GymCrm.Application.Security;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -979,6 +980,157 @@ public class GroupsApiTests
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var payload = await ReadJsonElementAsync(response);
         Assert.True(payload.GetProperty("errors").TryGetProperty("branchId", out _));
+    }
+
+    [Fact]
+    public async Task Group_deactivation_with_active_or_future_target_memberships_returns_conflict()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+        Guid blockingMembershipId;
+        Guid blockingSaleId;
+        Guid blockingClientId;
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var client = await CreateClientEntityAsync(dbContext, seeded.BranchId, seeded.Now);
+            var today = DateOnly.FromDateTime(DateTimeOffset.UtcNow.UtcDateTime.Date);
+            var sale = AddTargetedMembership(
+                dbContext,
+                client.Id,
+                seeded.GroupOneId,
+                seeded.BranchId,
+                MembershipBehaviorKind.Professional,
+                today.AddDays(1),
+                today.AddDays(30),
+                singleVisitUsed: false,
+                technicalClosed: false,
+                seeded.HeadCoachId,
+                seeded.Now);
+            await dbContext.SaveChangesAsync();
+            blockingMembershipId = sale.MembershipId;
+            blockingSaleId = sale.SaleId;
+            blockingClientId = client.Id;
+        }
+
+        using var clientHttp = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(clientHttp, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PutJsonAsync(
+            clientHttp,
+            $"/groups/{seeded.GroupOneId}",
+            new
+            {
+                Name = "Existing coach-visible group",
+                BranchId = seeded.BranchId,
+                HallId = seeded.HallOneId,
+                GroupTypeId = seeded.GroupTypeId,
+                TrainingStartTime = "09:00:00",
+                DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
+                IsActive = false
+            },
+            session.CsrfToken);
+        var payload = await ReadJsonElementAsync(response);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal("group-active-memberships", payload.GetProperty("type").GetString());
+        Assert.Equal("group-active-memberships", payload.GetProperty("code").GetString());
+        Assert.Contains("перенесите", payload.GetProperty("recovery").GetString(), StringComparison.OrdinalIgnoreCase);
+        Assert.True(payload.GetProperty("errors").TryGetProperty("isActive", out _));
+
+        var affectedMembership = Assert.Single(payload.GetProperty("affectedMemberships").EnumerateArray());
+        Assert.Equal(blockingMembershipId.ToString(), affectedMembership.GetProperty("membershipId").GetString());
+        Assert.Equal(blockingSaleId.ToString(), affectedMembership.GetProperty("saleId").GetString());
+        Assert.Equal(blockingClientId.ToString(), affectedMembership.GetProperty("clientId").GetString());
+        Assert.Equal("Professional", affectedMembership.GetProperty("membershipType").GetString());
+        Assert.Equal("Future", affectedMembership.GetProperty("entitlementState").GetString());
+    }
+
+    [Fact]
+    public async Task Group_deactivation_ignores_expired_used_and_closed_target_memberships()
+    {
+        await using var factory = new GroupsAppFactory();
+        var seeded = await SeedGroupsDataAsync(factory);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var today = DateOnly.FromDateTime(DateTimeOffset.UtcNow.UtcDateTime.Date);
+            var client = await CreateClientEntityAsync(dbContext, seeded.BranchId, seeded.Now);
+            AddTargetedMembership(
+                dbContext,
+                client.Id,
+                seeded.GroupOneId,
+                seeded.BranchId,
+                MembershipBehaviorKind.Term,
+                today.AddDays(-30),
+                today.AddDays(-1),
+                singleVisitUsed: false,
+                technicalClosed: false,
+                seeded.HeadCoachId,
+                seeded.Now);
+
+            AddTargetedMembership(
+                dbContext,
+                client.Id,
+                seeded.GroupOneId,
+                seeded.BranchId,
+                MembershipBehaviorKind.SingleVisit,
+                today,
+                null,
+                singleVisitUsed: true,
+                technicalClosed: false,
+                seeded.HeadCoachId,
+                seeded.Now);
+
+            AddTargetedMembership(
+                dbContext,
+                client.Id,
+                seeded.GroupOneId,
+                seeded.BranchId,
+                MembershipBehaviorKind.Term,
+                today.AddDays(-1),
+                today.AddDays(30),
+                singleVisitUsed: false,
+                technicalClosed: true,
+                seeded.HeadCoachId,
+                seeded.Now);
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        using var clientHttp = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(clientHttp, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await PutJsonAsync(
+            clientHttp,
+            $"/groups/{seeded.GroupOneId}",
+            new
+            {
+                Name = "Existing coach-visible group",
+                BranchId = seeded.BranchId,
+                HallId = seeded.HallOneId,
+                GroupTypeId = seeded.GroupTypeId,
+                TrainingStartTime = "09:00:00",
+                DurationMinutes = 60,
+                Weekdays = new[] { 1, 3 },
+                IsActive = false
+            },
+            session.CsrfToken);
+        var payload = await ReadJsonElementAsync(response);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.False(payload.GetProperty("isActive").GetBoolean());
     }
 
     [Fact]
@@ -2302,6 +2454,59 @@ public class GroupsApiTests
         return client;
     }
 
+    private static SeededTargetedMembership AddTargetedMembership(
+        GymCrmDbContext dbContext,
+        Guid clientId,
+        Guid groupId,
+        Guid branchId,
+        MembershipBehaviorKind behaviorKind,
+        DateOnly? validFrom,
+        DateOnly? validTo,
+        bool singleVisitUsed,
+        bool technicalClosed,
+        Guid changedByUserId,
+        DateTimeOffset now)
+    {
+        var sale = new ClientMembershipSale
+        {
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            BehaviorKind = behaviorKind,
+            PurchaseDate = validFrom ?? DateOnly.FromDateTime(now.UtcDateTime.Date),
+            PaymentDate = validFrom ?? DateOnly.FromDateTime(now.UtcDateTime.Date),
+            GrossAmount = 100m,
+            CreatedByUserId = changedByUserId,
+            CreatedAt = now
+        };
+        var membership = new ClientMembership
+        {
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            SaleId = sale.Id,
+            BehaviorKind = behaviorKind,
+            IndividualValidFrom = validFrom,
+            IndividualValidTo = validTo,
+            SingleVisitUsed = singleVisitUsed,
+            ValidFrom = now,
+            ValidTo = technicalClosed ? now.AddMinutes(1) : null,
+            ChangeReason = ClientMembershipChangeReason.NewPurchase,
+            ChangedByUserId = changedByUserId,
+            CreatedAt = now
+        };
+
+        membership.TargetGroups.Add(new ClientMembershipTargetGroup
+        {
+            ClientMembershipId = membership.Id,
+            GroupId = groupId,
+            BranchId = branchId,
+            Position = 0
+        });
+
+        dbContext.ClientMembershipSales.Add(sale);
+        dbContext.ClientMemberships.Add(membership);
+        return new SeededTargetedMembership(sale.Id, membership.Id);
+    }
+
     private static async Task AssignCoachesToGroupDirectlyAsync(
         GymCrmDbContext dbContext,
         Guid groupId,
@@ -2695,6 +2900,8 @@ public class GroupsApiTests
         DateTimeOffset Now);
 
     private sealed record ForeignGroupData(Guid BranchId, Guid HallId, Guid GroupId);
+
+    private sealed record SeededTargetedMembership(Guid SaleId, Guid MembershipId);
 
     private sealed record SessionPayload(bool IsAuthenticated, string CsrfToken, UserPayload? User);
 

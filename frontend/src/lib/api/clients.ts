@@ -14,9 +14,7 @@ import {
 import {
   buildClientFullName,
   buildDisplayNameFromParts,
-  deriveHasActiveMembership,
-  deriveMembershipWarning,
-  mapClientCurrentMembership,
+  mapClientCurrentMemberships,
   mapClientGroups,
   mapClientMembership,
   mapClientPhoto,
@@ -49,6 +47,7 @@ import type {
   ClientListResponse,
   ClientMembership,
   ClientMembershipPayload,
+  ClientMembershipTargetGroup,
   ClientQuickFilterCounts,
   ClientResponsePayload,
   CorrectClientMembershipRequest,
@@ -57,6 +56,9 @@ import type {
   MembershipAttentionState,
   MembershipExpirationSuggestion,
   MembershipBehaviorKind,
+  MembershipTargetTransferPreview,
+  MembershipTargetTransferPreviewMembership,
+  MembershipTargetTransferRequest,
   MembershipWriteRequestOptions,
   PurchaseClientMembershipRequest,
   RenewClientMembershipRequest,
@@ -233,10 +235,22 @@ function mapClientAttentionReason(payload: Record<string, unknown>): ClientAtten
     return missedCount === undefined ? null : { type: 'missedTraining', missedCount }
   }
   if (type === 'expiredMembership' || type === 'ExpiredMembership' || type === 'expiringMembership' || type === 'ExpiringMembership') {
+    const membershipId = readString(payload, ['membershipId', 'MembershipId'])
+    const saleId = readString(payload, ['saleId', 'SaleId'])
+    const targetGroups = mapAttentionTargetGroups(payload)
+
+    if (!membershipId || !saleId) {
+      return null
+    }
+
     return {
       type: type.toLowerCase().startsWith('expired') ? 'expiredMembership' : 'expiringMembership',
+      membershipId,
+      saleId,
       expirationDate: normalizeIsoDateValue(readString(payload, ['expirationDate', 'ExpirationDate'])),
       daysUntilExpiration: readNumber(payload, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? null,
+      targetGroups,
+      targetSummary: buildAttentionTargetSummary(targetGroups),
     }
   }
   return null
@@ -245,13 +259,20 @@ function mapClientAttentionReason(payload: Record<string, unknown>): ClientAtten
 function mapClientAttentionMembership(payload: Record<string, unknown>) {
   const value = payload.membership ?? payload.Membership
   if (!isRecord(value)) return null
+  const membershipId = readString(value, ['membershipId', 'MembershipId'])
+  const saleId = readString(value, ['saleId', 'SaleId'])
   const behaviorKind = mapMembershipBehaviorKind(readString(value, ['behaviorKind', 'BehaviorKind']))
-  if (!behaviorKind) return null
+  if (!membershipId || !saleId || !behaviorKind) return null
+  const targetGroups = mapAttentionTargetGroups(value)
   return {
+    membershipId,
+    saleId,
     behaviorKind,
     membershipName: readString(value, ['membershipName', 'MembershipName']) ?? '',
     expirationDate: normalizeIsoDateValue(readString(value, ['expirationDate', 'ExpirationDate'])),
     daysUntilExpiration: readNumber(value, ['daysUntilExpiration', 'DaysUntilExpiration']) ?? null,
+    targetGroups,
+    targetSummary: buildAttentionTargetSummary(targetGroups),
   }
 }
 
@@ -316,12 +337,6 @@ export async function transferClientBranch(
       body: JSON.stringify({
         targetBranchId: payload.targetBranchId,
         targetGroupIds: payload.targetGroupIds,
-        membershipCatalogItemId: payload.membershipCatalogItemId,
-        manualSaleAmount: payload.manualSaleAmount,
-        validFrom: payload.validFrom,
-        validTo: payload.validTo,
-        paymentDate: payload.paymentDate,
-        professionalComment: payload.professionalComment,
       }),
     },
   )
@@ -395,6 +410,7 @@ export async function purchaseClientMembership(
         ValidFrom: payload.validFrom,
         ValidTo: payload.validTo,
         PaymentDate: payload.paymentDate,
+        TargetGroupIds: payload.targetGroupIds,
         ProfessionalComment: payload.professionalComment,
       }),
     },
@@ -416,7 +432,10 @@ export async function renewClientMembership(
       body: JSON.stringify({
         MembershipCatalogItemId: payload.membershipCatalogItemId,
         ManualSaleAmount: payload.manualSaleAmount,
+        SaleId: payload.saleId,
+        ExpectedMembershipId: payload.expectedMembershipId,
         PaymentDate: payload.paymentDate,
+        TargetGroupIds: payload.targetGroupIds,
         ProfessionalComment: payload.professionalComment,
       }),
     },
@@ -441,6 +460,49 @@ export async function correctClientMembership(
         ValidFrom: payload.validFrom,
         ValidTo: payload.validTo,
         PaymentDate: payload.paymentDate,
+        TargetGroupIds: payload.targetGroupIds,
+      }),
+    },
+  )
+
+  return response ? mapClientDetails(response) : null
+}
+
+export async function previewClientMembershipTargetTransfer(
+  clientId: string,
+  payload: MembershipTargetTransferRequest,
+  signal?: AbortSignal,
+) {
+  const response = await request<unknown>(
+    API_ENDPOINTS.clients.membership.targetTransferPreview(clientId),
+    {
+      method: 'POST',
+      signal,
+      body: JSON.stringify({
+        SourceGroupId: payload.sourceGroupId,
+        TargetGroupId: payload.targetGroupId,
+        ExpectedMembershipIds: payload.expectedMembershipIds,
+      }),
+    },
+  )
+
+  return mapMembershipTargetTransferPreview(response)
+}
+
+export async function transferClientMembershipTargets(
+  clientId: string,
+  payload: MembershipTargetTransferRequest,
+  options: MembershipWriteRequestOptions,
+) {
+  const response = await request<ClientResponsePayload | null>(
+    API_ENDPOINTS.clients.membership.targetTransfer(clientId),
+    {
+      method: 'POST',
+      headers: membershipWriteHeaders(options),
+      body: JSON.stringify({
+        SourceGroupId: payload.sourceGroupId,
+        TargetGroupId: payload.targetGroupId,
+        ExpectedMembershipIds: payload.expectedMembershipIds,
       }),
     },
   )
@@ -451,6 +513,74 @@ export async function correctClientMembership(
 function membershipWriteHeaders(options: MembershipWriteRequestOptions) {
   return {
     'Idempotency-Key': options.idempotencyKey,
+  }
+}
+
+function mapMembershipTargetTransferPreview(
+  payload: unknown,
+): MembershipTargetTransferPreview {
+  const items = extractArrayPayload<Record<string, unknown>>(payload, [
+    'affectedMemberships',
+    'AffectedMemberships',
+    'items',
+    'Items',
+  ])
+
+  return {
+    affectedMemberships: items
+      .map(mapMembershipTargetTransferPreviewMembership)
+      .filter(
+        (membership): membership is MembershipTargetTransferPreviewMembership =>
+          membership !== null,
+      ),
+  }
+}
+
+function mapMembershipTargetTransferPreviewMembership(
+  payload: Record<string, unknown>,
+): MembershipTargetTransferPreviewMembership | null {
+  const membershipId = readString(payload, ['membershipId', 'MembershipId', 'id', 'Id'])
+  const saleId = readString(payload, ['saleId', 'SaleId'])
+  const membershipName =
+    readString(payload, ['membershipName', 'MembershipName']) ?? 'Абонемент'
+
+  if (!membershipId || !saleId) {
+    return null
+  }
+
+  return {
+    membershipId,
+    saleId,
+    membershipName,
+    beforeTargetGroups: extractArrayPayload<Record<string, unknown>>(payload, [
+      'beforeTargetGroups',
+      'BeforeTargetGroups',
+      'beforeTargets',
+      'BeforeTargets',
+    ]).map(mapTransferTarget).filter((target): target is NonNullable<ReturnType<typeof mapTransferTarget>> => target !== null),
+    afterTargetGroups: extractArrayPayload<Record<string, unknown>>(payload, [
+      'afterTargetGroups',
+      'AfterTargetGroups',
+      'afterTargets',
+      'AfterTargets',
+    ]).map(mapTransferTarget).filter((target): target is NonNullable<ReturnType<typeof mapTransferTarget>> => target !== null),
+  }
+}
+
+function mapTransferTarget(payload: Record<string, unknown>) {
+  const groupId = readString(payload, ['groupId', 'GroupId', 'id', 'Id'])
+
+  if (!groupId) {
+    return null
+  }
+
+  return {
+    groupId,
+    groupName: readString(payload, ['groupName', 'GroupName', 'name', 'Name']) ?? '',
+    branchId: readString(payload, ['branchId', 'BranchId']) ?? '',
+    branchName: readString(payload, ['branchName', 'BranchName']) ?? '',
+    position: readNumber(payload, ['position', 'Position']) ?? 0,
+    isActive: readBoolean(payload, ['isActive', 'IsActive']) ?? true,
   }
 }
 
@@ -471,8 +601,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
   const contacts = mapClientContacts(payload)
   const groups = mapClientGroups(payload)
   const fullName = buildClientFullName(payload)
-  const currentMembership = mapClientCurrentMembership(payload)
-  const currentMembershipSummary = currentMembership
+  const currentMemberships = mapClientCurrentMemberships(payload)
   const isProfessional =
     readBoolean(payload, ['isProfessional', 'IsProfessional']) ?? false
   const professionalComment =
@@ -492,17 +621,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     readBoolean(payload, [
       'hasActiveMembership',
       'HasActiveMembership',
-    ]) ??
-    (isProfessional
-      ? true
-      : deriveHasActiveMembership(currentMembership, new Date().toISOString()))
-  const derivedMembershipWarning =
-    !isProfessional &&
-    (Boolean(warningMessage) ||
-      deriveMembershipWarning(
-        currentMembership,
-        new Date().toISOString(),
-      ))
+    ]) ?? false
   const membershipWarning =
     readBoolean(payload, [
       'hasWarning',
@@ -515,7 +634,7 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
       'MembershipWarningVisible',
       'hasMembershipIssue',
       'HasMembershipIssue',
-    ]) ?? derivedMembershipWarning
+    ]) ?? Boolean(warningMessage)
 
   return {
     id: payload.id,
@@ -536,15 +655,13 @@ function mapClientListItem(payload: ClientResponsePayload): ClientListItem {
     hasActiveMembership,
     membershipWarning,
     membershipWarningMessage: warningMessage,
-    currentMembership,
-    currentMembershipSummary,
+    currentMemberships,
     hasCurrentMembership:
       readBoolean(payload, ['hasCurrentMembership', 'HasCurrentMembership']) ??
-      Boolean(currentMembershipSummary),
+      currentMemberships.length > 0,
     membershipState: mapClientMembershipState(
       readString(payload, ['membershipState', 'MembershipState']),
       isProfessional,
-      currentMembershipSummary,
       hasActiveMembership,
     ),
     actionHints: mapClientActionHints(payload),
@@ -605,14 +722,15 @@ function extractClientQuickFilterCounts(
 function mapClientMembershipState(
   state: string | undefined,
   isProfessional: boolean,
-  currentMembership: ClientMembership | null,
   hasActiveMembership: boolean,
 ) {
   if (
     state === 'None' ||
     state === 'Active' ||
+    state === 'Future' ||
     state === 'Expired' ||
-    state === 'UsedSingleVisit'
+    state === 'UsedSingleVisit' ||
+    state === 'LegacyTargetMissing'
   ) {
     return state
   }
@@ -621,16 +739,8 @@ function mapClientMembershipState(
     return 'Active'
   }
 
-  if (!currentMembership) {
-    return 'None'
-  }
-
   if (hasActiveMembership) {
     return 'Active'
-  }
-
-  if (currentMembership.behaviorKind === 'SingleVisit' && currentMembership.singleVisitUsed) {
-    return 'UsedSingleVisit'
   }
 
   return 'Expired'
@@ -641,6 +751,8 @@ function mapMembershipAttentionItem(
 ): MembershipAttentionItem | null {
   const clientId =
     readString(payload, ['clientId', 'ClientId', 'id', 'Id']) ?? ''
+  const membershipId = readString(payload, ['membershipId', 'MembershipId'])
+  const saleId = readString(payload, ['saleId', 'SaleId'])
   const fullName =
     readString(payload, ['fullName', 'FullName']) ??
     buildDisplayNameFromParts(
@@ -659,21 +771,65 @@ function mapMembershipAttentionItem(
     'daysUntilExpiration',
     'DaysUntilExpiration',
   ])
+  const targetGroups = mapAttentionTargetGroups(payload)
 
-  if (!clientId || !behaviorKind) {
+  if (!clientId || !membershipId || !saleId || !behaviorKind) {
     return null
   }
 
   return {
     clientId,
     fullName,
+    membershipId,
+    saleId,
     behaviorKind,
+    membershipName: readString(payload, ['membershipName', 'MembershipName']) ?? '',
     expirationDate,
     daysUntilExpiration: daysUntilExpiration ?? null,
+    targetGroups,
+    targetSummary: buildAttentionTargetSummary(targetGroups),
     state: mapMembershipAttentionState(
       readString(payload, ['state', 'State']),
     ),
   }
+}
+
+function mapAttentionTargetGroups(payload: Record<string, unknown>): ClientMembershipTargetGroup[] {
+  return extractArrayPayload<Record<string, unknown>>(payload, [
+    'targetGroups',
+    'TargetGroups',
+    'targets',
+    'Targets',
+  ])
+    .map((target, index) => {
+      const groupId = readString(target, ['groupId', 'GroupId', 'id', 'Id'])
+      if (!groupId) {
+        return null
+      }
+
+      return {
+        groupId,
+        groupName: readString(target, ['groupName', 'GroupName', 'name', 'Name']) ?? '',
+        branchId: readString(target, ['branchId', 'BranchId']) ?? '',
+        branchName: readString(target, ['branchName', 'BranchName']) ?? '',
+        position: readNumber(target, ['position', 'Position']) ?? index + 1,
+        isActive: readBoolean(target, ['isActive', 'IsActive']) ?? true,
+      } satisfies ClientMembershipTargetGroup
+    })
+    .filter((target): target is ClientMembershipTargetGroup => target !== null)
+    .sort((left, right) => left.position - right.position)
+}
+
+function buildAttentionTargetSummary(targetGroups: ClientMembershipTargetGroup[]) {
+  if (targetGroups.length === 0) {
+    return 'Без групп'
+  }
+
+  return targetGroups
+    .map((target, index) =>
+      `${index + 1}. ${target.groupName || target.groupId}${index === 0 ? ' · отчётность' : ''}`,
+    )
+    .join(' · ')
 }
 
 function mapMembershipAttentionState(
@@ -748,7 +904,7 @@ function mapClientDetails(payload: ClientResponsePayload): ClientDetails {
       : null,
     notesLastChangedAt: hasCompleteNoteAttribution ? notesLastChangedAt! : null,
     photo: mapClientPhoto(payload),
-    currentMembership: mapClientCurrentMembership(payload),
+    currentMemberships: mapClientCurrentMemberships(payload),
     membershipHistory: mapClientMembershipHistory(payload),
     attendanceHistory: attendanceHistory.items,
     attendanceHistoryLoaded: attendanceHistory.loaded,

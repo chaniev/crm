@@ -56,7 +56,7 @@ beforeEach(() => {
       professionalComment: null,
       hasActiveMembership: true,
       membershipWarning: false,
-      currentMembership: null,
+      currentMemberships: [],
     }],
   })
 })
@@ -318,7 +318,7 @@ describe('AttendanceWorkspace', () => {
           professionalComment: 'Сборная',
           hasActiveMembership: true,
           membershipWarning: false,
-          currentMembership: null,
+          currentMemberships: [],
         },
         {
           id: 'client-inactive',
@@ -330,7 +330,7 @@ describe('AttendanceWorkspace', () => {
           professionalComment: null,
           hasActiveMembership: false,
           membershipWarning: false,
-          currentMembership: null,
+          currentMemberships: [],
         },
         {
           id: 'client-warning',
@@ -343,7 +343,7 @@ describe('AttendanceWorkspace', () => {
           hasActiveMembership: false,
           membershipWarning: true,
           membershipWarningMessage: 'Абонемент просрочен, отметка посещения доступна.',
-          currentMembership: null,
+          currentMemberships: [],
         } as unknown as Awaited<ReturnType<typeof getAttendanceGroupClients>>['clients'][number],
       ],
     })
@@ -653,7 +653,7 @@ describe('AttendanceWorkspace', () => {
 function buildClient(id: string, fullName: string, state: 'Unmarked' | 'Present' | 'Absent') {
   return {
     id, fullName, state, groups: [], photo: null, isProfessional: false,
-    professionalComment: null, hasActiveMembership: true, membershipWarning: false, currentMembership: null,
+    professionalComment: null, hasActiveMembership: true, membershipWarning: false, currentMemberships: [],
   }
 }
 

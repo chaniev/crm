@@ -53,6 +53,10 @@ export const API_ENDPOINTS = {
       purchase: (clientId: string) => `/clients/${clientId}/membership/purchase`,
       renew: (clientId: string) => `/clients/${clientId}/membership/renew`,
       correct: (clientId: string) => `/clients/${clientId}/membership/correct`,
+      targetTransferPreview: (clientId: string) =>
+        `/clients/${clientId}/membership/targets/transfer/preview`,
+      targetTransfer: (clientId: string) =>
+        `/clients/${clientId}/membership/targets/transfer`,
       comment: (clientId: string, saleId: string) =>
         `/clients/${clientId}/membership/sales/${saleId}/comment`,
     },

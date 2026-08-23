@@ -148,11 +148,12 @@ public sealed record BotClientCard(
     bool HasMembershipWarning,
     string? MembershipWarning,
     bool HasActiveMembership,
-    BotClientMembership? CurrentMembership,
+    IReadOnlyList<BotClientMembership> CurrentMemberships,
     IReadOnlyList<BotAttendanceHistoryItem> AttendanceHistory);
 
 public sealed record BotClientMembership(
     Guid Id,
+    Guid SaleId,
     Guid? MembershipCatalogItemId,
     string BehaviorKind,
     string MembershipLabel,
@@ -162,7 +163,18 @@ public sealed record BotClientMembership(
     DateOnly PurchaseDate,
     DateOnly PaymentDate,
     DateOnly? ExpirationDate,
-    bool SingleVisitUsed);
+    bool SingleVisitUsed,
+    string CoverageKind,
+    string EntitlementState,
+    IReadOnlyList<BotClientMembershipTarget> TargetGroups);
+
+public sealed record BotClientMembershipTarget(
+    Guid GroupId,
+    string GroupName,
+    Guid BranchId,
+    string BranchName,
+    int Position,
+    bool IsActive);
 
 public sealed record BotAttendanceHistoryItem(
     DateOnly TrainingDate,
@@ -191,11 +203,14 @@ public sealed record BotClientPhoto(
 
 public sealed record BotExpiringMembershipListItem(
     Guid ClientId,
+    Guid MembershipId,
+    Guid SaleId,
     string FullName,
     string BehaviorKind,
     string MembershipLabel,
     DateOnly ExpirationDate,
-    int DaysUntilExpiration);
+    int DaysUntilExpiration,
+    IReadOnlyList<BotClientMembershipTarget> TargetGroups);
 
 public sealed record BotAccessDeniedAuditRequest(
     string ActionCode,

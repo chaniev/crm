@@ -10,11 +10,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("""
-                ALTER TABLE "ClientMemberships"
-                DROP CONSTRAINT "EX_ClientMemberships_ClientId_Period_NoOverlap";
-                """);
-
             migrationBuilder.DropIndex(
                 name: "IX_ClientMemberships_ClientId",
                 table: "ClientMemberships");
@@ -35,24 +30,11 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 unique: true,
                 filter: "\"ValidTo\" IS NULL");
 
-            migrationBuilder.Sql("""
-                ALTER TABLE "ClientMemberships"
-                ADD CONSTRAINT "EX_ClientMemberships_ClientId_Period_NoOverlap"
-                EXCLUDE USING gist (
-                    "ClientId" WITH =,
-                    daterange("IndividualValidFrom", COALESCE("IndividualValidTo", 'infinity'::date), '[]') WITH &&
-                ) WHERE ("ValidTo" IS NULL AND "BehaviorKind" IN ('Term', 'Professional'));
-                """);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("""
-                ALTER TABLE "ClientMemberships"
-                DROP CONSTRAINT "EX_ClientMemberships_ClientId_Period_NoOverlap";
-                """);
-
             migrationBuilder.DropIndex(
                 name: "IX_ClientMemberships_ClientId",
                 table: "ClientMemberships");
@@ -73,14 +55,6 @@ namespace GymCrm.Infrastructure.Persistence.Migrations
                 table: "ClientMemberships",
                 column: "SaleId");
 
-            migrationBuilder.Sql("""
-                ALTER TABLE "ClientMemberships"
-                ADD CONSTRAINT "EX_ClientMemberships_ClientId_Period_NoOverlap"
-                EXCLUDE USING gist (
-                    "ClientId" WITH =,
-                    daterange("IndividualValidFrom", COALESCE("IndividualValidTo", 'infinity'::date), '[]') WITH &&
-                ) WHERE ("BehaviorKind" IN ('Term', 'Professional'));
-                """);
         }
     }
 }

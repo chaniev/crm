@@ -1,14 +1,10 @@
 
-import { Alert, Badge, Button, Group, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core'
+import { Alert, Badge, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core'
 import { IconCheck, IconUserHeart } from '@tabler/icons-react'
-import type { ClientDetails, ClientMembership } from '../../lib/api'
+import type { ClientDetails } from '../../lib/api'
 import { PageSection } from '../shared/ux'
 import {
-  formatCurrencyValue,
   formatDateValue,
-  formatExpirationValue,
-  formatMembershipPricingProvenance,
-  formatPaymentRecordingValue,
   formatPreviewList,
   statusLabelMap,
 } from './ClientManagement.formatting'
@@ -16,26 +12,19 @@ import {
   formatClientBirthDate,
   getClientAgeDisplayValue,
 } from './clientBirthDate'
-import type { MembershipActionMode } from './ClientManagement.types'
 import { ClientPhotoSection } from './ClientPhotoSection'
 
 type ClientOverviewSectionProps = {
   canManage: boolean
   client: ClientDetails
-  membershipActionMode: MembershipActionMode | null
-  onMembershipActionModeChange: (mode: MembershipActionMode) => void
   onPhotoUpload?: (file: File) => Promise<void>
-  pending: boolean
   photoVersion: number | null
 }
 
 export function ClientOverviewSection({
   canManage,
   client,
-  membershipActionMode,
-  onMembershipActionModeChange,
   onPhotoUpload,
-  pending,
   photoVersion,
 }: ClientOverviewSectionProps) {
   const groupsValue =
@@ -133,16 +122,6 @@ export function ClientOverviewSection({
             />
           </SimpleGrid>
 
-          {canManage ? (
-            <ClientMembershipSnapshot
-              actionMode={membershipActionMode}
-              currentMembership={client.currentMembership}
-              isProfessional={client.isProfessional}
-              onActionModeChange={onMembershipActionModeChange}
-              pending={pending}
-              professionalComment={client.professionalComment}
-            />
-          ) : null}
         </Stack>
 
         <aside className="client-overview-rail">
@@ -158,151 +137,6 @@ export function ClientOverviewSection({
         </aside>
       </div>
     </PageSection>
-  )
-}
-
-type ClientMembershipSnapshotProps = {
-  actionMode: MembershipActionMode | null
-  currentMembership: ClientMembership | null
-  isProfessional: boolean
-  onActionModeChange: (mode: MembershipActionMode) => void
-  pending: boolean
-  professionalComment: string | null
-}
-
-function ClientMembershipSnapshot({
-  actionMode,
-  currentMembership,
-  isProfessional,
-  onActionModeChange,
-  pending,
-  professionalComment,
-}: ClientMembershipSnapshotProps) {
-  if (isProfessional) {
-    const canRenewFiniteProfessional =
-      currentMembership?.behaviorKind === 'Professional' &&
-      currentMembership.expirationDate !== null
-
-    return (
-      <Paper className="client-membership-snapshot" radius="8px" withBorder>
-        <Stack gap="md">
-          <Group justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700}>Профессиональный статус</Text>
-              <Text c="dimmed" size="sm">
-                {professionalComment || 'Профессионал не попадает в должники.'}
-              </Text>
-            </div>
-            <Badge color="blue" radius="sm" variant="light">
-              Профессионал
-            </Badge>
-          </Group>
-
-          {canRenewFiniteProfessional ? (
-            <Group>
-              <Button
-                disabled={pending}
-                onClick={() => onActionModeChange('renew')}
-                variant={actionMode === 'renew' ? 'filled' : 'light'}
-              >
-                Продлить
-              </Button>
-            </Group>
-          ) : null}
-        </Stack>
-      </Paper>
-    )
-  }
-
-  if (!currentMembership) {
-    return (
-      <Paper className="client-membership-snapshot" radius="8px" withBorder>
-        <Group justify="space-between" wrap="wrap">
-          <div>
-            <Text fw={700}>Абонемент не оформлен</Text>
-            <Text c="dimmed" size="sm">
-              Создайте абонемент, когда клиент оплатит первое посещение.
-            </Text>
-          </div>
-          <Button
-            disabled={pending}
-            onClick={() => onActionModeChange('purchase')}
-            variant={actionMode === 'purchase' ? 'filled' : 'light'}
-          >
-            Новый абонемент
-          </Button>
-        </Group>
-      </Paper>
-    )
-  }
-
-  return (
-    <Paper className="client-membership-snapshot" radius="8px" withBorder>
-      <Stack gap="md">
-        <Group justify="space-between" wrap="wrap">
-          <div>
-            <Text fw={700}>Абонемент и оплата</Text>
-            <Text c="dimmed" size="sm">
-              Текущий срок, сумма и даты продажи.
-            </Text>
-          </div>
-        </Group>
-
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }}>
-          <CompactInfoItem
-            label="Абонемент"
-            value={currentMembership.membershipName}
-          />
-          <CompactInfoItem
-            label="Действует до"
-            value={formatExpirationValue(
-              currentMembership.behaviorKind,
-              currentMembership.expirationDate,
-            )}
-          />
-          <CompactInfoItem
-            label="Сумма"
-            value={formatCurrencyValue(currentMembership.grossAmount)}
-          />
-          <CompactInfoItem
-            label="Расчёт"
-            value={formatMembershipPricingProvenance(currentMembership)}
-          />
-          <CompactInfoItem
-            label="Дата оплаты"
-            value={formatDateValue(currentMembership.paymentDate)}
-          />
-          <CompactInfoItem
-            label="Записал"
-            value={formatPaymentRecordingValue(currentMembership)}
-          />
-        </SimpleGrid>
-
-        <Group gap="sm" wrap="wrap">
-          <Button
-            disabled={pending}
-            onClick={() => onActionModeChange('renew')}
-            variant={actionMode === 'renew' ? 'filled' : 'light'}
-          >
-            Продлить
-          </Button>
-          <Button
-            disabled={pending}
-            onClick={() => onActionModeChange('purchase')}
-            variant={actionMode === 'purchase' ? 'filled' : 'light'}
-          >
-            Новый абонемент
-          </Button>
-          <Button
-            disabled={pending}
-            onClick={() => onActionModeChange('correct')}
-            variant={actionMode === 'correct' ? 'filled' : 'light'}
-          >
-            Исправить
-          </Button>
-        </Group>
-      </Stack>
-    </Paper>
   )
 }
 

@@ -38,6 +38,26 @@ const catalogItem = {
   isSystemOwned: false,
 } as const
 
+const membershipTargetGroups = Array.from({ length: 6 }, (_, index) => ({
+  id: `group-${index + 1}`,
+  name: `Группа ${index + 1}`,
+  branchId: 'branch-1',
+  branchName: 'Основной',
+  hallId: 'hall-1',
+  hallName: 'Основной зал',
+  groupTypeId: 'group-type-1',
+  groupTypeName: 'Общая',
+  trainingStartTime: `${18 + index}:00`,
+  durationMinutes: 60,
+  weekdays: [1, 3, 5],
+  isActive: true,
+  trainers: [],
+  trainerIds: [],
+  trainerCount: 0,
+  trainerNames: [],
+  clientCount: 0,
+}))
+
 test.describe('TASK-077 membership sale pricing', () => {
   test('purchase starts unselected and exposes three explicit modes on desktop and mobile', async ({ page }) => {
     await mockMembershipPricingApi(page, buildClient())
@@ -82,37 +102,17 @@ test.describe('TASK-077 membership sale pricing', () => {
     await expect(page.locator('input[value="4100"]')).toHaveCount(0)
   })
 
-  test('sale-producing transfer exposes the same unselected three-mode choice', async ({ page }) => {
-    await mockMembershipPricingApi(page, buildClient())
-
-    await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Перевести' }).click()
-
-    const dialog = page.getByRole('dialog', { name: 'Перевод клиента' })
-    await expect(dialog.getByRole('radio', { name: 'По каталожной цене' })).not.toBeChecked()
-    await expect(dialog.getByRole('radio', { name: 'Индивидуальная сумма' })).not.toBeChecked()
-    await expect(dialog.getByRole('radio', { name: 'Без варианта каталога' })).not.toBeChecked()
-  })
-
-  test('preserved unused SingleVisit transfer has no new-sale pricing controls', async ({ page }) => {
+  test('branch assignment transfer has no membership sale controls', async ({ page }) => {
     let requestBody: Record<string, unknown> | null = null
     let idempotencyKey: string | null = null
     await mockMembershipPricingApi(
       page,
-      buildClient({
-        behaviorKind: 'SingleVisit',
-        expirationDate: null,
-        singleVisitUsed: false,
-      }),
+      buildClient({ behaviorKind: 'Term' }),
       async ({ pathname, method, route }) => {
         if (pathname === '/api/clients/client-1/transfer' && method === 'POST') {
           requestBody = route.request().postDataJSON() as Record<string, unknown>
           idempotencyKey = route.request().headers()['idempotency-key'] ?? null
-          await fulfillJson(route, buildClient({
-            behaviorKind: 'SingleVisit',
-            expirationDate: null,
-            singleVisitUsed: false,
-          }))
+          await fulfillJson(route, buildClient({ behaviorKind: 'Term' }))
           return true
         }
         return false
@@ -123,7 +123,6 @@ test.describe('TASK-077 membership sale pricing', () => {
     await page.getByRole('button', { name: 'Перевести' }).click()
 
     const dialog = page.getByRole('dialog', { name: 'Перевод клиента' })
-    await expect(dialog.getByText(/перенесено без новой продажи/i)).toBeVisible()
     await expect(dialog.getByText('По каталожной цене')).toHaveCount(0)
     await expect(dialog.getByText('Индивидуальная сумма')).toHaveCount(0)
     await expect(dialog.getByText('Без варианта каталога')).toHaveCount(0)
@@ -154,6 +153,7 @@ test.describe('TASK-077 membership sale pricing', () => {
     await page.getByRole('button', { name: 'Новый абонемент' }).click()
     await page.getByRole('radio', { name: 'По каталожной цене' }).check()
     await selectOption(page, 'Вариант абонемента', /Месяц/)
+    await addMembershipTarget(page)
     await page.getByLabel('Действует с').fill('2026-07-22')
     await page.getByLabel('Действует по').fill('2026-08-20')
     await page.getByLabel('Дата оплаты').fill('2026-07-10')
@@ -170,6 +170,7 @@ test.describe('TASK-077 membership sale pricing', () => {
       ValidFrom: '2026-07-22',
       ValidTo: '2026-08-20',
       PaymentDate: '2026-07-10',
+      TargetGroupIds: ['group-1'],
     })
     expect(requestBody).not.toHaveProperty('PaymentStatus')
     expect(requestBody).not.toHaveProperty('IsPaid')
@@ -211,50 +212,11 @@ test.describe('TASK-077 membership sale pricing', () => {
       MembershipCatalogItemId: 'catalog-1',
       ManualSaleAmount: 5100,
       PaymentDate: '2026-07-05',
+      SaleId: 'sale-1',
+      ExpectedMembershipId: 'membership-1',
+      TargetGroupIds: ['group-1'],
     })
     expect(requestBody).not.toHaveProperty('PaymentStatus')
-  })
-
-  test('confirms an AmountOnly transfer and sends no stale catalog identity', async ({ page }) => {
-    let requestBody: Record<string, unknown> | null = null
-    let idempotencyKey: string | null = null
-    await mockMembershipPricingApi(page, buildClient(), async ({ pathname, method, route }) => {
-      if (pathname === '/api/clients/client-1/transfer' && method === 'POST') {
-        requestBody = route.request().postDataJSON() as Record<string, unknown>
-        idempotencyKey = route.request().headers()['idempotency-key'] ?? null
-        await fulfillJson(route, buildClient())
-        return true
-      }
-      return false
-    })
-
-    await page.goto('/clients/client-1')
-    await page.getByRole('button', { name: 'Перевести' }).click()
-    const transferDialog = page.getByRole('dialog', { name: 'Перевод клиента' })
-    await transferDialog.getByRole('radio', { name: 'Без варианта каталога' }).check()
-    await transferDialog.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }).fill('6200')
-    await transferDialog.getByLabel('Действует с').fill('2026-07-22')
-    await transferDialog.getByLabel('Действует по').fill('2026-08-20')
-    await transferDialog.getByLabel('Дата оплаты').fill('2026-07-01')
-    await transferDialog.getByRole('button', { name: 'Перевести клиента' }).click()
-
-    const confirmation = page.getByRole('dialog', { name: 'Подтвердить новую продажу?' })
-    await expect(confirmation.getByText('Без варианта каталога')).toBeVisible()
-    await expect(confirmation.getByText('6 200 ₽')).toBeVisible()
-    await expect(confirmation.getByText(/1.*июл.*2026|01\.07\.2026/)).toBeVisible()
-    await confirmation.getByRole('button', { name: 'Подтвердить продажу' }).click()
-
-    await expect.poll(() => requestBody).toEqual({
-      targetBranchId: 'branch-1',
-      targetGroupIds: [],
-      membershipCatalogItemId: null,
-      manualSaleAmount: 6200,
-      validFrom: '2026-07-22',
-      validTo: '2026-08-20',
-      paymentDate: '2026-07-01',
-    })
-    await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
-    expect(requestBody).not.toHaveProperty('paymentStatus')
   })
 
   test('keeps the manual draft and server field error visible after a 400 response', async ({ page }) => {
@@ -280,6 +242,7 @@ test.describe('TASK-077 membership sale pricing', () => {
     await page.goto('/clients/client-1')
     await page.getByRole('button', { name: 'Новый абонемент' }).click()
     await page.getByRole('radio', { name: 'Без варианта каталога' }).check()
+    await addMembershipTarget(page)
     const amount = page.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
     await amount.fill('100')
     await page.getByLabel('Действует с').fill('2026-07-22')
@@ -312,6 +275,7 @@ test.describe('TASK-077 membership sale pricing', () => {
     await page.goto('/clients/client-1')
     await page.getByRole('button', { name: 'Новый абонемент' }).click()
     await page.getByRole('radio', { name: 'Без варианта каталога' }).check()
+    await addMembershipTarget(page)
     await page.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' }).fill('4200')
     await page.getByLabel('Действует с').fill('2026-07-22')
     await page.getByLabel('Действует по').fill('2026-08-20')
@@ -381,6 +345,7 @@ test.describe('TASK-078 membership write regressions', () => {
       ValidFrom: '2026-07-05',
       ValidTo: '2026-08-04',
       PaymentDate: '2026-07-24',
+      TargetGroupIds: ['group-1'],
     })
     await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
     await expect(page.getByText('Срок пересекается с другим абонементом.')).toBeVisible()
@@ -427,6 +392,7 @@ test.describe('TASK-078 membership write regressions', () => {
       await page.goto('/clients/client-1')
       await page.getByRole('button', { name: 'Новый абонемент' }).click()
       await page.getByRole('radio', { name: 'Без варианта каталога' }).check()
+      await addMembershipTarget(page)
       const amount = page.getByRole('spinbutton', { name: 'Фактическая сумма продажи, ₽' })
       await amount.fill('4200')
       await page.getByLabel('Действует с').fill('2026-06-25')
@@ -483,6 +449,9 @@ test.describe('TASK-078 membership write regressions', () => {
     await expect.poll(() => requestBody).toEqual({
       MembershipCatalogItemId: 'catalog-1',
       PaymentDate: '2026-07-23',
+      SaleId: 'sale-1',
+      ExpectedMembershipId: 'membership-1',
+      TargetGroupIds: ['group-1'],
     })
     await expect.poll(() => idempotencyKey).toEqual(expect.any(String))
     await expect(page.getByText('Ожидает оплаты')).toHaveCount(0)
@@ -532,6 +501,7 @@ test.describe('TASK-078 membership write regressions', () => {
       ValidFrom: '2026-07-05',
       ValidTo: '2026-08-04',
       PaymentDate: '2026-07-05',
+      TargetGroupIds: ['group-1'],
     })
 
     await expect(page.getByRole('button', { name: 'Отметить оплату' })).toHaveCount(0)
@@ -592,7 +562,131 @@ test.describe('TASK-078 membership write regressions', () => {
     await expect(page.getByText('Оплачен')).toHaveCount(0)
     await expect(page.getByText('Не оплачен')).toHaveCount(0)
     await expect(page.getByText('Дата оплаты', { exact: true }).first()).toBeVisible()
-    await expect(page.getByText(/^Главный тренер ·/).first()).toBeVisible()
+    await expectNoHorizontalScroll(page)
+  })
+})
+
+test.describe('TASK-115 ordered membership targets', () => {
+  test('ordered selector preserves reporting order, max-five state and focus recovery', async ({ page }) => {
+    let requestBody: Record<string, unknown> | null = null
+    await mockMembershipPricingApi(page, buildClient(), async ({ pathname, method, route }) => {
+      if (pathname === '/api/clients/client-1/membership/purchase' && method === 'POST') {
+        requestBody = route.request().postDataJSON() as Record<string, unknown>
+        await fulfillJson(route, buildClient({ behaviorKind: 'Term' }))
+        return true
+      }
+      return false
+    })
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/clients/client-1')
+    await page.getByRole('button', { name: 'Новый абонемент' }).click()
+    await page.getByRole('radio', { name: 'По каталожной цене' }).check()
+    await selectOption(page, 'Вариант абонемента', /Месяц/)
+
+    await addMembershipTarget(page, /Группа 1/)
+    await page.getByRole('button', { name: 'Удалить группу Группа 1' }).click()
+    await expect(page.getByRole('combobox', { name: 'Добавить группу' })).toBeFocused()
+
+    for (const index of [1, 2, 3, 4, 5]) {
+      await addMembershipTarget(page, new RegExp(`Группа ${index}`))
+    }
+    await page.getByRole('button', { name: 'Поднять группу Группа 3' }).click()
+    await expect(page.getByText('Группа Группа 3 перемещена на позицию 2.')).toBeAttached()
+    await expect(page.getByRole('combobox', { name: 'Добавить группу' })).toBeDisabled()
+
+    const actionSizes = await page.locator('.membership-target-group-row__actions button, .membership-target-group-row > button').evaluateAll(
+      (buttons) => buttons.map((button) => {
+        const rect = button.getBoundingClientRect()
+        return { width: rect.width, height: rect.height }
+      }),
+    )
+    expect(actionSizes.every(({ width, height }) => width >= 44 && height >= 44)).toBe(true)
+    await expectNoHorizontalScroll(page)
+
+    await page.getByLabel('Действует с').fill('2026-07-24')
+    await page.getByLabel('Действует по').fill('2026-08-23')
+    await page.getByRole('button', { name: 'Оформить абонемент' }).click()
+    await page.getByRole('dialog', { name: 'Подтвердить новую продажу?' })
+      .getByRole('button', { name: 'Подтвердить продажу' }).click()
+
+    await expect.poll(() => requestBody).toMatchObject({
+      TargetGroupIds: ['group-1', 'group-3', 'group-2', 'group-4', 'group-5'],
+    })
+  })
+
+  test('multiple cards and no-sale transfer use preview affected identities only', async ({ page }) => {
+    const client = buildClient({ behaviorKind: 'Term' })
+    const firstMembership = client.currentMemberships[0]!
+    const secondMembership = {
+      ...firstMembership,
+      id: 'membership-2',
+      saleId: 'sale-2',
+      membershipName: 'Абонемент второй группы',
+      targetGroups: [{
+        ...firstMembership.targetGroups[0]!,
+        groupId: 'group-2',
+        groupName: 'Группа 2',
+      }],
+    }
+    const clientWithTwoMemberships = {
+      ...client,
+      currentMemberships: [firstMembership, secondMembership],
+      membershipHistory: [firstMembership, secondMembership],
+    }
+    let previewBody: Record<string, unknown> | null = null
+    let transferBody: Record<string, unknown> | null = null
+    let transferIdempotencyKey: string | null = null
+
+    await mockMembershipPricingApi(page, clientWithTwoMemberships, async ({ pathname, method, route }) => {
+      if (pathname.endsWith('/membership/targets/transfer/preview') && method === 'POST') {
+        previewBody = route.request().postDataJSON() as Record<string, unknown>
+        await fulfillJson(route, {
+          affectedMemberships: [{
+            membershipId: 'membership-1',
+            saleId: 'sale-1',
+            membershipName: 'Месяц',
+            beforeTargets: firstMembership.targetGroups,
+            afterTargets: [{
+              ...firstMembership.targetGroups[0],
+              groupId: 'group-3',
+              groupName: 'Группа 3',
+            }],
+          }],
+        })
+        return true
+      }
+      if (pathname.endsWith('/membership/targets/transfer') && method === 'POST') {
+        transferBody = route.request().postDataJSON() as Record<string, unknown>
+        transferIdempotencyKey = route.request().headers()['idempotency-key'] ?? null
+        await fulfillJson(route, clientWithTwoMemberships)
+        return true
+      }
+      return false
+    })
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/clients/client-1')
+    await expect(page.getByRole('button', { name: 'Продлить' })).toHaveCount(2)
+    const transferSurface = page.locator('.membership-group-transfer-surface')
+    await expect(transferSurface.getByText('Операция не создаёт продажу и не меняет цену или оплату.')).toBeVisible()
+    await expect(transferSurface.getByRole('spinbutton')).toHaveCount(0)
+    await selectOption(page, 'Исходная группа', /Группа 1/)
+    await selectOption(page, 'Целевая группа', /Группа 3/)
+    await page.getByRole('button', { name: 'Показать предпросмотр' }).click()
+    await expect(transferSurface.getByText('Станет')).toBeVisible()
+    await expect.poll(() => previewBody).toEqual({
+      SourceGroupId: 'group-1',
+      TargetGroupId: 'group-3',
+      ExpectedMembershipIds: ['membership-1', 'membership-2'],
+    })
+    await page.getByRole('button', { name: 'Перенести группу', exact: true }).click()
+    await expect.poll(() => transferBody).toEqual({
+      SourceGroupId: 'group-1',
+      TargetGroupId: 'group-3',
+      ExpectedMembershipIds: ['membership-1'],
+    })
+    await expect.poll(() => transferIdempotencyKey).toEqual(expect.any(String))
     await expectNoHorizontalScroll(page)
   })
 })
@@ -638,6 +732,21 @@ function buildClient(membership?: MembershipOverrides) {
         catalogPrice:
           membership.catalogPrice === undefined ? 3000 : membership.catalogPrice,
         singleVisitUsed: membership.singleVisitUsed ?? false,
+        coverageKind: 'TargetGroups',
+        entitlementState:
+          membership.behaviorKind === 'SingleVisit' && membership.singleVisitUsed
+            ? 'UsedSingleVisit'
+            : 'Active',
+        targetGroups: [
+          {
+            groupId: 'group-1',
+            groupName: 'Группа 1',
+            branchId: 'branch-1',
+            branchName: 'Основной',
+            position: 0,
+            isActive: true,
+          },
+        ],
         comment: null,
         commentLastChangedByName: null,
         commentLastChangedAt: null,
@@ -666,8 +775,7 @@ function buildClient(membership?: MembershipOverrides) {
     professionalComment: null,
     hasActiveMembership: Boolean(currentMembership),
     membershipWarning: false,
-    currentMembership,
-    currentMembershipSummary: currentMembership,
+    currentMemberships: currentMembership ? [currentMembership] : [],
     hasCurrentMembership: Boolean(currentMembership),
     membershipState: currentMembership ? 'Active' : 'None',
     actionHints: [],
@@ -752,7 +860,12 @@ async function mockMembershipPricingApi(
     }
 
     if (url.pathname === '/api/groups' && method === 'GET') {
-      return fulfillJson(route, { items: [], totalCount: 0, skip: 0, take: 100 })
+      return fulfillJson(route, {
+        items: membershipTargetGroups,
+        totalCount: membershipTargetGroups.length,
+        skip: 0,
+        take: 100,
+      })
     }
 
     return fulfillJson(route, {})
@@ -768,6 +881,10 @@ type MembershipPricingRequestHandler = (context: {
 async function selectOption(page: Page, label: string, option: RegExp) {
   await page.getByRole('combobox', { name: label }).click()
   await page.getByRole('option', { name: option }).click()
+}
+
+async function addMembershipTarget(page: Page, option = /Группа 1/) {
+  await selectOption(page, 'Добавить группу', option)
 }
 
 async function fulfillJson(route: Route, body: unknown) {

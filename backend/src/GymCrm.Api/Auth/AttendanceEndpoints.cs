@@ -87,6 +87,7 @@ internal static class AttendanceEndpoints
         GymCrmDbContext dbContext,
         IAccessScopeService accessScopeService,
         IAttendanceDatePolicy attendanceDatePolicy,
+        IClientMembershipEntitlementResolver entitlementResolver,
         CancellationToken cancellationToken)
     {
         var currentUser = httpContext.GetAuthenticatedGymCrmUser();
@@ -151,6 +152,16 @@ internal static class AttendanceEndpoints
             .ThenBy(client => client.Id)
             .ToListAsync(cancellationToken);
 
+        var entitlementByClientId = new Dictionary<Guid, ClientMembershipEntitlementResolution>();
+        foreach (var client in clients)
+        {
+            entitlementByClientId[client.Id] = await entitlementResolver.ResolveAsync(
+                client.Id,
+                groupId,
+                parsedTrainingDate.Value,
+                cancellationToken);
+        }
+
         var window = attendanceDatePolicy.GetWindow(currentUser.Role);
         return TypedResults.Ok(new AttendanceGroupClientsResponse(
             group.Id,
@@ -166,7 +177,7 @@ internal static class AttendanceEndpoints
                     visibleGroupIds,
                     groupId,
                     parsedTrainingDate.Value,
-                    window.Today))
+                    entitlementByClientId[client.Id]))
                 .ToArray()));
     }
 
@@ -262,6 +273,7 @@ internal static class AttendanceEndpoints
                 AttendanceBatchMutationError.TrainingDateUnavailable => AttendanceValidationProblems.CreateTrainingDateUnavailableValidationProblem(),
                 AttendanceBatchMutationError.Forbidden => AttendanceValidationProblems.CreateAttendanceGroupForbiddenProblem(),
                 AttendanceBatchMutationError.SingleVisitRestoreConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.SingleVisitRestoreConflict),
+                AttendanceBatchMutationError.MembershipEntitlementInvariantConflict => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem("Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору."),
                 _ => AttendanceValidationProblems.CreateAttendanceMarksValidationProblem(AttendanceResources.AttendanceSaveFailed)
             };
         }
@@ -285,16 +297,22 @@ internal static class AttendanceEndpoints
         IReadOnlySet<Guid>? visibleGroupIds,
         Guid groupId,
         DateOnly trainingDate,
-        DateOnly businessDate)
+        ClientMembershipEntitlementResolution entitlement)
     {
-        var currentMembership = client.Memberships
-            .OrderByDescending(membership => membership.ValidFrom)
-            .FirstOrDefault(membership => membership.ValidTo is null);
+        var entitlementMembership = entitlement.MembershipId.HasValue
+            ? client.Memberships.SingleOrDefault(membership => membership.Id == entitlement.MembershipId.Value)
+            : null;
         var visibleGroups = currentUser.Role == UserRole.Coach
             ? client.Groups.Where(clientGroup => visibleGroupIds?.Contains(clientGroup.GroupId) == true)
             : client.Groups.AsEnumerable();
-        var isProfessional = IsProfessional(currentMembership, businessDate);
-        var warning = EvaluateMembershipWarning(isProfessional, currentMembership, trainingDate);
+        var isProfessional = entitlement is
+        {
+            Status: ClientMembershipEntitlementResolutionStatus.Found,
+            BehaviorKind: MembershipBehaviorKind.Professional
+        };
+        var warning = entitlement.Status == ClientMembershipEntitlementResolutionStatus.InvariantConflict
+            ? new MembershipWarningResult(true, "Найдено несколько подходящих абонементов. Обновите карточку клиента или обратитесь к администратору.")
+            : EvaluateMembershipWarning(isProfessional, entitlementMembership, trainingDate);
         var attendance = client.AttendanceEntries.SingleOrDefault(attendance =>
             attendance.GroupId == groupId &&
             attendance.TrainingDate == trainingDate);
@@ -311,20 +329,11 @@ internal static class AttendanceEndpoints
             MapPhoto(client),
             state.ToString(),
             isProfessional,
-            isProfessional ? currentMembership!.ProfessionalComment : null,
+            isProfessional ? entitlementMembership?.ProfessionalComment : null,
             warning.HasWarning,
             warning.Message,
-            ClientMembershipSemantics.HasActiveMembership(
-                isProfessional,
-                currentMembership,
-                trainingDate,
-                requirePurchaseDateReached: true));
+            entitlement.Status == ClientMembershipEntitlementResolutionStatus.Found);
     }
-
-    private static bool IsProfessional(ClientMembership? membership, DateOnly businessDate) =>
-        membership?.BehaviorKind == MembershipBehaviorKind.Professional &&
-        membership.IndividualValidFrom <= businessDate &&
-        (membership.IndividualValidTo is null || membership.IndividualValidTo >= businessDate);
 
     private static MembershipWarningResult EvaluateMembershipWarning(
         bool isProfessional,

@@ -6,6 +6,8 @@ import {
   getClients,
   getMembershipAttentionItems,
   getMembershipExpirationSuggestion,
+  purchaseClientMembership,
+  renewClientMembership,
   updateClientMembershipComment,
 } from './clients'
 
@@ -26,6 +28,7 @@ describe('correctClientMembership', () => {
       validFrom: '2026-07-21',
       validTo: '2026-08-20',
       paymentDate: '2026-07-10',
+      targetGroupIds: ['group-b', 'group-a'],
       paymentAmount: 6000,
       purchaseDate: '2026-07-01',
       isPaid: true,
@@ -48,12 +51,93 @@ describe('correctClientMembership', () => {
           ValidFrom: '2026-07-21',
           ValidTo: '2026-08-20',
           PaymentDate: '2026-07-10',
+          TargetGroupIds: ['group-b', 'group-a'],
         }),
       }),
     )
     const init = fetchMock.mock.calls.at(-1)?.[1] as RequestInit
     expect(new Headers(init.headers).get('Idempotency-Key')).toBe(
       'membership-key-correction',
+    )
+  })
+})
+
+describe('membership write target contract', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  test('sends purchase targetGroupIds in displayed order', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ id: 'c-1', fullName: 'Иван Иванов' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await purchaseClientMembership(
+      'c-1',
+      {
+        membershipCatalogItemId: 'catalog-1',
+        validFrom: '2026-08-01',
+        validTo: '2026-08-31',
+        paymentDate: '2026-08-01',
+        targetGroupIds: ['group-2', 'group-1', 'group-3'],
+      },
+      { idempotencyKey: 'membership-key-purchase' },
+    )
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/clients/c-1/membership/purchase',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          MembershipCatalogItemId: 'catalog-1',
+          ManualSaleAmount: undefined,
+          ValidFrom: '2026-08-01',
+          ValidTo: '2026-08-31',
+          PaymentDate: '2026-08-01',
+          TargetGroupIds: ['group-2', 'group-1', 'group-3'],
+          ProfessionalComment: undefined,
+        }),
+      }),
+    )
+  })
+
+  test('sends renewal as addressed sale/version mutation with explicit targets', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ id: 'c-1', fullName: 'Иван Иванов' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await renewClientMembership(
+      'c-1',
+      {
+        saleId: 'sale-1',
+        expectedMembershipId: 'membership-1',
+        membershipCatalogItemId: 'catalog-2',
+        paymentDate: '2026-09-01',
+        targetGroupIds: ['group-1', 'group-2'],
+      },
+      { idempotencyKey: 'membership-key-renew' },
+    )
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/clients/c-1/membership/renew',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          MembershipCatalogItemId: 'catalog-2',
+          ManualSaleAmount: undefined,
+          SaleId: 'sale-1',
+          ExpectedMembershipId: 'membership-1',
+          PaymentDate: '2026-09-01',
+          TargetGroupIds: ['group-1', 'group-2'],
+          ProfessionalComment: undefined,
+        }),
+      }),
     )
   })
 })
@@ -160,6 +244,26 @@ describe('status-free membership read contract', () => {
       grossAmount: 3000,
       catalogPrice: 3000,
       singleVisitUsed: false,
+      coverageKind: 'TargetGroups',
+      entitlementState: 'Active',
+      targetGroups: [
+        {
+          groupId: 'group-2',
+          groupName: 'Вечерняя',
+          branchId: 'branch-1',
+          branchName: 'Основной',
+          position: 1,
+          isActive: true,
+        },
+        {
+          groupId: 'group-1',
+          groupName: 'Утренняя',
+          branchId: 'branch-1',
+          branchName: 'Основной',
+          position: 0,
+          isActive: true,
+        },
+      ],
     }
     vi.stubGlobal(
       'fetch',
@@ -171,11 +275,11 @@ describe('status-free membership read contract', () => {
             branchId: 'branch-1',
             branchName: 'Основной',
             status: 'Active',
-            businessDate: '2026-07-23',
+          businessDate: '2026-07-23',
             hasActiveMembership: true,
             hasCurrentMembership: true,
             membershipState: 'Active',
-            currentMembership: membership,
+            currentMemberships: [membership],
             membershipHistory: [membership],
           }),
           { status: 200, headers: { 'content-type': 'application/json' } },
@@ -184,11 +288,22 @@ describe('status-free membership read contract', () => {
     )
 
     const client = await getClient('c-1')
-    const currentMembership = client.currentMembership as unknown as Record<string, unknown>
+    const currentMembership = client.currentMemberships[0] as unknown as Record<string, unknown>
 
     expect(client).toMatchObject({
       hasActiveMembership: true,
       membershipState: 'Active',
+      currentMemberships: [
+        expect.objectContaining({
+          id: 'version-1',
+          targetGroups: [
+            expect.objectContaining({ groupId: 'group-1', position: 0 }),
+            expect.objectContaining({ groupId: 'group-2', position: 1 }),
+          ],
+          coverageKind: 'TargetGroups',
+          entitlementState: 'Active',
+        }),
+      ],
     })
     expect(client).not.toHaveProperty('hasActivePaidMembership')
     expect(client).not.toHaveProperty('hasUnpaidCurrentMembership')
@@ -228,10 +343,10 @@ describe('getClientAttentionItems', () => {
   afterEach(() => vi.unstubAllGlobals())
 
   test('maps status-free backend reasons and nullable contacts without deriving payment semantics', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2 }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }] }]), { status: 200, headers: { 'content-type': 'application/json' } }))
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { membershipId: 'membership-1', saleId: 'sale-1', behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2, targetGroups: [{ groupId: 'group-2', groupName: 'Вечерняя', branchId: 'branch-1', branchName: 'Основной', position: 2, isActive: true }, { groupId: 'group-1', groupName: 'Утренняя', branchId: 'branch-1', branchName: 'Основной', position: 1, isActive: true }] }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }] }]), { status: 200, headers: { 'content-type': 'application/json' } }))
     vi.stubGlobal('fetch', fetchMock)
 
-    await expect(getClientAttentionItems()).resolves.toEqual([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2 }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }] }])
+    await expect(getClientAttentionItems()).resolves.toEqual([{ clientId: 'c-1', fullName: 'Иван Иванов', phone: null, notes: null, membership: { membershipId: 'membership-1', saleId: 'sale-1', behaviorKind: 'Term', membershipName: 'Месяц', expirationDate: '2026-07-22', daysUntilExpiration: 2, targetGroups: [{ groupId: 'group-1', groupName: 'Утренняя', branchId: 'branch-1', branchName: 'Основной', position: 1, isActive: true }, { groupId: 'group-2', groupName: 'Вечерняя', branchId: 'branch-1', branchName: 'Основной', position: 2, isActive: true }], targetSummary: '1. Утренняя · отчётность · 2. Вечерняя' }, telegramLink: 'https://t.me/ivan', reasons: [{ type: 'missedTraining', missedCount: 4 }] }])
     expect(fetchMock).toHaveBeenCalledWith('/api/clients/attention', expect.any(Object))
   })
 })
@@ -248,25 +363,37 @@ describe('getMembershipAttentionItems', () => {
           {
             clientId: 'client-expired',
             fullName: 'Анна Петрова',
+            membershipId: 'membership-expired',
+            saleId: 'sale-expired',
             behaviorKind: 'Term',
+            membershipName: 'Месяц',
             expirationDate: '2026-05-03',
             daysUntilExpiration: -3,
+            targetGroups: [{ groupId: 'group-2', groupName: 'Вечерняя', branchId: 'branch-1', branchName: 'Основной', position: 2, isActive: true }, { groupId: 'group-1', groupName: 'Утренняя', branchId: 'branch-1', branchName: 'Основной', position: 1, isActive: true }],
             state: 'Expired',
           },
           {
             clientId: 'client-unknown',
             fullName: 'Ольга Смирнова',
+            membershipId: 'membership-unknown',
+            saleId: 'sale-unknown',
             behaviorKind: 'SingleVisit',
+            membershipName: 'Разовое',
             expirationDate: null,
             daysUntilExpiration: null,
+            targetGroups: [],
             state: 'Paused',
           },
           {
             clientId: 'client-missing-state',
             fullName: 'Иван Иванов',
+            membershipId: 'membership-missing-state',
+            saleId: 'sale-missing-state',
             behaviorKind: 'Professional',
+            membershipName: 'Профессионал',
             expirationDate: null,
             daysUntilExpiration: null,
+            targetGroups: [],
           },
         ]),
         {
@@ -283,25 +410,40 @@ describe('getMembershipAttentionItems', () => {
       {
         clientId: 'client-expired',
         fullName: 'Анна Петрова',
+        membershipId: 'membership-expired',
+        saleId: 'sale-expired',
         behaviorKind: 'Term',
+        membershipName: 'Месяц',
         expirationDate: '2026-05-03',
         daysUntilExpiration: -3,
+        targetGroups: [{ groupId: 'group-1', groupName: 'Утренняя', branchId: 'branch-1', branchName: 'Основной', position: 1, isActive: true }, { groupId: 'group-2', groupName: 'Вечерняя', branchId: 'branch-1', branchName: 'Основной', position: 2, isActive: true }],
+        targetSummary: '1. Утренняя · отчётность · 2. Вечерняя',
         state: 'Expired',
       },
       {
         clientId: 'client-unknown',
         fullName: 'Ольга Смирнова',
+        membershipId: 'membership-unknown',
+        saleId: 'sale-unknown',
         behaviorKind: 'SingleVisit',
+        membershipName: 'Разовое',
         expirationDate: null,
         daysUntilExpiration: null,
+        targetGroups: [],
+        targetSummary: 'Без групп',
         state: 'Unknown',
       },
       {
         clientId: 'client-missing-state',
         fullName: 'Иван Иванов',
+        membershipId: 'membership-missing-state',
+        saleId: 'sale-missing-state',
         behaviorKind: 'Professional',
+        membershipName: 'Профессионал',
         expirationDate: null,
         daysUntilExpiration: null,
+        targetGroups: [],
+        targetSummary: 'Без групп',
         state: 'Unknown',
       },
     ])

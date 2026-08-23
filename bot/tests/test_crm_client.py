@@ -223,18 +223,33 @@ async def test_crm_client_parses_status_free_search_and_card_contracts() -> None
                 "isProfessional": True,
                 "professionalComment": "Сборная",
                 "hasActiveMembership": True,
-                "currentMembership": {
-                    "id": "00000000-0000-0000-0000-000000000098",
-                    "behaviorKind": "Professional",
-                    "membershipCatalogItemId": "00000000-0000-0000-0000-000000000099",
-                    "membershipLabel": "Профессиональный",
-                    "purchaseDate": "2026-05-01",
-                    "paymentDate": "2026-04-28",
-                    "expirationDate": None,
-                    "pricingMode": "Catalog",
-                    "grossAmount": 0,
-                    "catalogPrice": 0,
-                },
+                "currentMemberships": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000098",
+                        "saleId": "00000000-0000-0000-0000-000000000097",
+                        "behaviorKind": "Professional",
+                        "membershipCatalogItemId": "00000000-0000-0000-0000-000000000099",
+                        "membershipLabel": "Профессиональный",
+                        "purchaseDate": "2026-05-01",
+                        "paymentDate": "2026-04-28",
+                        "expirationDate": None,
+                        "pricingMode": "Catalog",
+                        "grossAmount": 0,
+                        "catalogPrice": 0,
+                        "coverageKind": "AllGroups",
+                        "entitlementState": "Active",
+                        "targetGroups": [
+                            {
+                                "groupId": "00000000-0000-0000-0000-000000000021",
+                                "groupName": "Сборная",
+                                "branchId": "00000000-0000-0000-0000-000000000031",
+                                "branchName": "Центр",
+                                "position": 0,
+                                "isActive": True,
+                            }
+                        ],
+                    }
+                ],
                 "attendanceHistory": [],
             },
         )
@@ -266,15 +281,20 @@ async def test_crm_client_parses_status_free_search_and_card_contracts() -> None
     assert search.items[0].professional_comment == "Сборная"
     assert card.is_professional is True
     assert card.professional_comment == "Сборная"
-    assert card.current_membership is not None
-    assert card.current_membership.id == UUID("00000000-0000-0000-0000-000000000098")
-    assert card.current_membership.behavior_kind == "Professional"
-    assert card.current_membership.type_label == "Профессиональный"
-    assert card.current_membership.payment_date == date(2026, 4, 28)
+    assert len(card.current_memberships) == 1
+    assert card.current_memberships[0].id == UUID("00000000-0000-0000-0000-000000000098")
+    assert card.current_memberships[0].sale_id == UUID("00000000-0000-0000-0000-000000000097")
+    assert card.current_memberships[0].behavior_kind == "Professional"
+    assert card.current_memberships[0].type_label == "Профессиональный"
+    assert card.current_memberships[0].payment_date == date(2026, 4, 28)
+    assert card.current_memberships[0].coverage_kind == "AllGroups"
+    assert card.current_memberships[0].entitlement_state == "Active"
+    assert card.current_memberships[0].target_groups[0].group_name == "Сборная"
     assert "is_paid" not in type(search.items[0]).model_fields
     assert "has_unpaid_current_membership" not in type(search.items[0]).model_fields
     assert "has_active_paid_membership" not in type(search.items[0]).model_fields
-    assert "is_paid" not in type(card.current_membership).model_fields
+    assert "is_paid" not in type(card.current_memberships[0]).model_fields
+    assert "current_membership" not in type(card).model_fields
     assert "has_unpaid_current_membership" not in type(card).model_fields
     assert "has_active_paid_membership" not in type(card).model_fields
     await http_client.aclose()
@@ -352,18 +372,33 @@ async def test_crm_client_parses_amount_only_membership_sale_contract_from_backe
             json={
                 "id": "00000000-0000-0000-0000-000000000012",
                 "fullName": "Клиент без варианта",
-                "currentMembership": {
-                    "id": "00000000-0000-0000-0000-000000000013",
-                    "behaviorKind": "Term",
-                    "membershipCatalogItemId": None,
-                    "membershipLabel": "Без варианта каталога",
-                    "purchaseDate": "2026-07-22",
-                    "paymentDate": "2026-07-20",
-                    "expirationDate": "2026-08-21",
-                    "pricingMode": "AmountOnly",
-                    "grossAmount": 1750,
-                    "catalogPrice": None,
-                },
+                "currentMemberships": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000013",
+                        "saleId": "00000000-0000-0000-0000-000000000014",
+                        "behaviorKind": "Term",
+                        "membershipCatalogItemId": None,
+                        "membershipLabel": "Без варианта каталога",
+                        "purchaseDate": "2026-07-22",
+                        "paymentDate": "2026-07-20",
+                        "expirationDate": "2026-08-21",
+                        "pricingMode": "AmountOnly",
+                        "grossAmount": 1750,
+                        "catalogPrice": None,
+                        "coverageKind": "TargetGroups",
+                        "entitlementState": "Active",
+                        "targetGroups": [
+                            {
+                                "groupId": "00000000-0000-0000-0000-000000000021",
+                                "groupName": "Йога",
+                                "branchId": "00000000-0000-0000-0000-000000000031",
+                                "branchName": "Центр",
+                                "position": 0,
+                                "isActive": True,
+                            }
+                        ],
+                    }
+                ],
                 "attendanceHistory": [],
             },
         )
@@ -382,15 +417,16 @@ async def test_crm_client_parses_amount_only_membership_sale_contract_from_backe
         request_id="req-amount-only-card",
     )
 
-    assert card.current_membership is not None
-    assert card.current_membership.behavior_kind == "Term"
-    assert card.current_membership.membership_catalog_item_id is None
-    assert card.current_membership.membership_label == "Без варианта каталога"
-    assert card.current_membership.pricing_mode == "AmountOnly"
-    assert card.current_membership.gross_amount == Decimal("1750")
-    assert card.current_membership.catalog_price is None
-    assert "payment_amount" not in type(card.current_membership).model_fields
-    assert "is_paid" not in type(card.current_membership).model_fields
+    assert len(card.current_memberships) == 1
+    assert card.current_memberships[0].behavior_kind == "Term"
+    assert card.current_memberships[0].membership_catalog_item_id is None
+    assert card.current_memberships[0].membership_label == "Без варианта каталога"
+    assert card.current_memberships[0].pricing_mode == "AmountOnly"
+    assert card.current_memberships[0].gross_amount == Decimal("1750")
+    assert card.current_memberships[0].catalog_price is None
+    assert card.current_memberships[0].target_groups[0].group_name == "Йога"
+    assert "payment_amount" not in type(card.current_memberships[0]).model_fields
+    assert "is_paid" not in type(card.current_memberships[0]).model_fields
     await http_client.aclose()
 
 
@@ -459,9 +495,29 @@ def test_crm_models_accept_status_free_attendance_and_expiring_contracts() -> No
             "items": [
                 {
                     "id": "00000000-0000-0000-0000-000000000011",
+                    "membershipId": "00000000-0000-0000-0000-000000000041",
+                    "saleId": "00000000-0000-0000-0000-000000000051",
                     "fullName": "Обычный Клиент",
                     "membershipLabel": "Месячный",
                     "membershipExpiresAt": "2026-05-10",
+                    "targetGroups": [
+                        {
+                            "groupId": "00000000-0000-0000-0000-000000000021",
+                            "groupName": "Йога",
+                            "branchId": "00000000-0000-0000-0000-000000000031",
+                            "branchName": "Центр",
+                            "position": 0,
+                            "isActive": True,
+                        },
+                        {
+                            "groupId": "00000000-0000-0000-0000-000000000022",
+                            "groupName": "Бокс",
+                            "branchId": "00000000-0000-0000-0000-000000000031",
+                            "branchName": "Центр",
+                            "position": 1,
+                            "isActive": True,
+                        },
+                    ],
                 }
             ],
             "page": 1,
@@ -473,6 +529,9 @@ def test_crm_models_accept_status_free_attendance_and_expiring_contracts() -> No
     assert roster.clients[0].warning is None
     assert saved.warnings[0].membership_warning == "Истекает 10.05.2026"
     assert expiring.items[0].membership_label == "Месячный"
+    assert expiring.items[0].membership_id == UUID("00000000-0000-0000-0000-000000000041")
+    assert expiring.items[0].sale_id == UUID("00000000-0000-0000-0000-000000000051")
+    assert [target.group_name for target in expiring.items[0].target_groups] == ["Йога", "Бокс"]
     assert "has_unpaid_current_membership" not in type(roster.clients[0]).model_fields
     assert "has_unpaid_current_membership" not in type(saved.warnings[0]).model_fields
     assert "is_paid" not in type(expiring.items[0]).model_fields

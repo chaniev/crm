@@ -31,6 +31,10 @@ internal static class ClientResponseMapper
             .Include(client => client.Memberships)
                 .ThenInclude(membership => membership.Sale)
                     .ThenInclude(sale => sale.CreatedByUser)
+            .Include(client => client.Memberships)
+                .ThenInclude(membership => membership.TargetGroups)
+                    .ThenInclude(target => target.Group)
+                        .ThenInclude(group => group.Branch)
             .Include(client => client.Groups)
                 .ThenInclude(clientGroup => clientGroup.Group)
                     .ThenInclude(group => group.Trainers)
@@ -97,6 +101,7 @@ internal static class ClientResponseMapper
         bool hasElevatedClientAccess,
         GymCrmDbContext dbContext,
         IReadOnlyCollection<Guid> effectiveGroupIds,
+        DateOnly businessDate,
         CancellationToken cancellationToken)
     {
         if (items.Count == 0)
@@ -109,18 +114,17 @@ internal static class ClientResponseMapper
             .AsNoTracking()
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.MembershipCatalogItem)
+            .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.CreatedByUser)
+            .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.Refunds)
+            .Include(membership => membership.Sale)
+                .ThenInclude(sale => sale.CommentChangedByUser)
+            .Include(membership => membership.TargetGroups)
+                .ThenInclude(target => target.Group)
+                    .ThenInclude(group => group.Branch)
             .Where(membership => clientIds.Contains(membership.ClientId) && membership.ValidTo == null)
             .ToArrayAsync(cancellationToken);
-        var currentMembershipByClientId = currentMemberships
-            .GroupBy(membership => membership.ClientId)
-            .ToDictionary(
-                group => group.Key,
-                group => group
-                    .OrderByDescending(membership => membership.ValidFrom)
-                    .ThenByDescending(membership => membership.CreatedAt)
-                    .ThenByDescending(membership => membership.Id)
-                    .First());
-
         var attendanceQuery = dbContext.Attendance
             .AsNoTracking()
             .Where(attendance => clientIds.Contains(attendance.ClientId) && attendance.IsPresent);
@@ -143,20 +147,30 @@ internal static class ClientResponseMapper
         return items
             .Select(item =>
             {
-                currentMembershipByClientId.TryGetValue(item.Id, out var currentMembership);
+                var currentMembershipEntities = currentMemberships
+                    .Where(membership => membership.ClientId == item.Id)
+                    .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
+                    .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
+                    .ThenByDescending(membership => membership.CreatedAt)
+                    .ThenByDescending(membership => membership.Id)
+                    .ToArray();
+                var orderedMemberships = currentMembershipEntities
+                    .Select(membership => MapMembership(membership, businessDate))
+                    .ToArray();
                 lastVisitByClientId.TryGetValue(item.Id, out var lastVisitDate);
 
                 return item with
                 {
-                    HasActiveMembership = HasActiveMembership(item.IsProfessional, currentMembership),
-                    CurrentMembershipSummary = MapCurrentMembershipSummary(currentMembership),
-                    HasCurrentMembership = currentMembership is not null,
-                    MembershipState = GetMembershipState(item.IsProfessional, currentMembership).ToString(),
+                    HasActiveMembership = HasActiveMembership(currentMembershipEntities, businessDate),
+                    CurrentMemberships = hasElevatedClientAccess ? orderedMemberships : [],
+                    HasCurrentMembership = currentMembershipEntities.Length > 0,
+                    MembershipState = GetMembershipState(currentMembershipEntities, businessDate).ToString(),
                     LastVisitDate = lastVisitDate,
                     ActionHints = BuildActionHints(
                         item.IsProfessional,
                         item.ProfessionalComment,
-                        currentMembership,
+                        currentMembershipEntities,
+                        businessDate,
                         item.Groups.Count)
                 };
             })
@@ -180,8 +194,15 @@ internal static class ClientResponseMapper
             .ThenBy(contact => contact.Type, StringComparer.CurrentCulture)
             .ThenBy(contact => contact.Phone, StringComparer.CurrentCulture)
             .ToArray();
-        var membershipHistory = MapMembershipHistory(client.Memberships, logger);
-        var currentMembership = GetCurrentMembership(client);
+        var membershipHistory = MapMembershipHistory(client.Memberships, businessDate, logger);
+        var currentMembershipEntities = GetCurrentMemberships(client);
+        var currentMemberships = currentMembershipEntities
+            .Select(membership => MapMembership(membership, businessDate, logger))
+            .ToArray();
+        var professionalMembership = currentMembershipEntities.SingleOrDefault(membership =>
+            membership.BehaviorKind == MembershipBehaviorKind.Professional &&
+            ClientMembershipTargetPolicy.ResolveEntitlementState(membership, businessDate) ==
+            ClientMembershipEntitlementState.Active);
         var notesMetadata = ResolveNotesMetadata(client, logger);
 
         return new ClientDetailsResponse(
@@ -203,11 +224,11 @@ internal static class ClientResponseMapper
             groups,
             contacts,
             MapPhoto(client),
-            client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
-            client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-            HasActiveMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            currentMembership is null ? null : MapMembership(currentMembership, logger),
-            BuildActionHints(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(), currentMembership, groups.Count),
+            professionalMembership is not null,
+            professionalMembership?.ProfessionalComment,
+            HasActiveMembership(currentMembershipEntities, businessDate),
+            currentMemberships,
+            BuildActionHints(professionalMembership is not null, professionalMembership?.ProfessionalComment, currentMembershipEntities, businessDate, groups.Count),
             membershipHistory,
             attendanceHistory.Items,
             attendanceHistory.Skip,
@@ -227,7 +248,11 @@ internal static class ClientResponseMapper
     {
         var today = businessDate;
         var groups = MapGroups(coachGroups);
-        var currentMembership = GetCurrentMembership(client);
+        var currentMembershipEntities = GetCurrentMemberships(client);
+        var professionalMembership = currentMembershipEntities.SingleOrDefault(membership =>
+            membership.BehaviorKind == MembershipBehaviorKind.Professional &&
+            ClientMembershipTargetPolicy.ResolveEntitlementState(membership, businessDate) ==
+            ClientMembershipEntitlementState.Active);
         var notesMetadata = ResolveNotesMetadata(client, logger);
 
         return new ClientDetailsResponse(
@@ -249,11 +274,11 @@ internal static class ClientResponseMapper
             groups,
             [],
             MapPhoto(client),
-            client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)),
-            client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(),
-            HasActiveMembership(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), currentMembership),
-            null,
-            BuildActionHints(client.Memberships.Any(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)), client.Memberships.Where(membership => membership.ValidTo == null && membership.BehaviorKind == MembershipBehaviorKind.Professional && membership.IndividualValidFrom.HasValue && membership.IndividualValidFrom.Value <= today && (membership.IndividualValidTo == null || membership.IndividualValidTo.Value >= today)).Select(membership => membership.ProfessionalComment).FirstOrDefault(), currentMembership, groups.Count),
+            professionalMembership is not null,
+            professionalMembership?.ProfessionalComment,
+            HasActiveMembership(currentMembershipEntities, businessDate),
+            [],
+            BuildActionHints(professionalMembership is not null, professionalMembership?.ProfessionalComment, currentMembershipEntities, businessDate, groups.Count),
             [],
             attendanceHistory.Items,
             attendanceHistory.Skip,
@@ -283,13 +308,16 @@ internal static class ClientResponseMapper
             .ToArray();
     }
 
-    private static IReadOnlyList<ClientMembershipResponse> MapMembershipHistory(ICollection<ClientMembership> memberships, ILogger? logger = null)
+    private static IReadOnlyList<ClientMembershipResponse> MapMembershipHistory(
+        ICollection<ClientMembership> memberships,
+        DateOnly businessDate,
+        ILogger? logger = null)
     {
         return memberships
             .OrderByDescending(membership => membership.ValidFrom)
             .ThenByDescending(membership => membership.CreatedAt)
             .ThenByDescending(membership => membership.Id)
-            .Select(membership => MapMembership(membership, logger))
+            .Select(membership => MapMembership(membership, businessDate, logger))
             .ToArray();
     }
 
@@ -311,7 +339,7 @@ internal static class ClientResponseMapper
             true);
     }
 
-    private static ClientMembershipResponse MapMembership(ClientMembership membership, ILogger? logger = null)
+    private static ClientMembershipResponse MapMembership(ClientMembership membership, DateOnly businessDate, ILogger? logger = null)
     {
         var commentMetadata = ResolveMembershipCommentMetadata(membership.Sale, logger);
         return new ClientMembershipResponse(
@@ -337,6 +365,9 @@ internal static class ClientResponseMapper
             membership.ValidFrom,
             membership.ValidTo,
             membership.CreatedAt,
+            ClientMembershipTargetPolicy.ResolveCoverageKind(membership.BehaviorKind).ToString(),
+            ClientMembershipTargetPolicy.ResolveEntitlementState(membership, businessDate).ToString(),
+            MapMembershipTargets(membership.TargetGroups),
             membership.Sale.Comment,
             commentMetadata.Name,
             commentMetadata.ChangedAt,
@@ -359,6 +390,21 @@ internal static class ClientResponseMapper
                 sale.CommentChangedByUser is not null);
         }
         return (null, null);
+    }
+
+    private static IReadOnlyList<ClientMembershipTargetGroupResponse> MapMembershipTargets(
+        IEnumerable<ClientMembershipTargetGroup> targets)
+    {
+        return targets
+            .OrderBy(target => target.Position)
+            .Select(target => new ClientMembershipTargetGroupResponse(
+                target.GroupId,
+                target.Group.Name,
+                target.BranchId,
+                target.Group.Branch.Name,
+                target.Position,
+                target.Group.IsActive))
+            .ToArray();
     }
 
     private static ClientMembershipFinancialSummaryResponse MapFinancialSummary(ClientMembershipSale sale)
@@ -404,25 +450,7 @@ internal static class ClientResponseMapper
             .ToArray();
     }
 
-    private static CurrentMembershipSummaryResponse? MapCurrentMembershipSummary(ClientMembership? membership)
-    {
-        return membership is null
-            ? null
-            : new CurrentMembershipSummaryResponse(
-                membership.Id,
-                membership.Sale.MembershipCatalogItemId,
-                ClientMembershipSaleDisplay.GetMembershipName(membership.Sale),
-                membership.BehaviorKind.ToString(),
-                membership.Sale.PricingMode.ToString(),
-                membership.Sale.GrossAmount,
-                ClientMembershipSaleDisplay.GetCatalogPrice(membership.Sale),
-                membership.Sale.PurchaseDate,
-                membership.Sale.PaymentDate,
-                membership.IndividualValidTo,
-                membership.SingleVisitUsed);
-    }
-
-    internal static ClientMembership? GetCurrentMembership(Client client)
+    private static IReadOnlyList<ClientMembership> GetCurrentMemberships(Client client)
     {
         return client.Memberships
             .Where(membership => membership.ValidTo is null)
@@ -430,49 +458,57 @@ internal static class ClientResponseMapper
             .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
             .ThenByDescending(membership => membership.CreatedAt)
             .ThenByDescending(membership => membership.Id)
-            .FirstOrDefault();
+            .ToArray();
     }
 
-    private static bool HasActiveMembership(bool isProfessional, ClientMembership? membership)
-    {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-        return ClientMembershipSemantics.HasActiveMembership(isProfessional, membership, today);
-    }
+    private static bool HasActiveMembership(
+        IReadOnlyCollection<ClientMembership> memberships,
+        DateOnly businessDate) =>
+        memberships.Any(membership =>
+            ClientMembershipTargetPolicy.ResolveEntitlementState(membership, businessDate) ==
+            ClientMembershipEntitlementState.Active);
 
-    private static ClientMembershipState GetMembershipState(bool isProfessional, ClientMembership? membership)
+    private static ClientMembershipState GetMembershipState(
+        IReadOnlyCollection<ClientMembership> memberships,
+        DateOnly businessDate)
     {
-        if (isProfessional)
-        {
-            return ClientMembershipState.Active;
-        }
-
-        if (membership is null)
+        if (memberships.Count == 0)
         {
             return ClientMembershipState.None;
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-        if (membership.IndividualValidTo.HasValue && membership.IndividualValidTo.Value < today)
+        var states = memberships
+            .Select(membership => ClientMembershipTargetPolicy.ResolveEntitlementState(membership, businessDate))
+            .ToHashSet();
+        if (states.Contains(ClientMembershipEntitlementState.Active))
         {
-            return ClientMembershipState.Expired;
+            return ClientMembershipState.Active;
         }
 
-        if (membership.BehaviorKind == MembershipBehaviorKind.SingleVisit && membership.SingleVisitUsed)
+        if (states.Contains(ClientMembershipEntitlementState.Future))
         {
-            return ClientMembershipState.UsedSingleVisit;
+            return ClientMembershipState.Future;
         }
 
-        return ClientMembershipState.Active;
+        if (states.Contains(ClientMembershipEntitlementState.LegacyTargetMissing))
+        {
+            return ClientMembershipState.LegacyTargetMissing;
+        }
+
+        return states.Contains(ClientMembershipEntitlementState.UsedSingleVisit)
+            ? ClientMembershipState.UsedSingleVisit
+            : ClientMembershipState.Expired;
     }
 
     private static IReadOnlyList<ClientActionHintResponse> BuildActionHints(
         bool isProfessional,
         string? professionalComment,
-        ClientMembership? currentMembership,
+        IReadOnlyCollection<ClientMembership> currentMemberships,
+        DateOnly businessDate,
         int visibleGroupCount)
     {
         var hints = new List<ClientActionHintResponse>();
-        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var today = businessDate;
 
         if (isProfessional)
         {
@@ -498,7 +534,7 @@ internal static class ClientResponseMapper
             return hints;
         }
 
-        if (currentMembership is null)
+        if (currentMemberships.Count == 0)
         {
             hints.Add(new ClientActionHintResponse(
                 "Оформить абонемент",
@@ -509,9 +545,14 @@ internal static class ClientResponseMapper
         }
         else
         {
-            if (currentMembership.IndividualValidTo.HasValue)
+            var expiration = currentMemberships
+                .Where(membership => membership.IndividualValidTo.HasValue)
+                .Select(membership => membership.IndividualValidTo!.Value)
+                .Order()
+                .FirstOrDefault();
+            if (expiration != default)
             {
-                var daysUntilExpiration = currentMembership.IndividualValidTo.Value.DayNumber - today.DayNumber;
+                var daysUntilExpiration = expiration.DayNumber - today.DayNumber;
 
                 if (daysUntilExpiration < 0)
                 {
@@ -535,11 +576,23 @@ internal static class ClientResponseMapper
                 }
             }
 
-            if (currentMembership is { BehaviorKind: MembershipBehaviorKind.SingleVisit, SingleVisitUsed: true })
+            if (currentMemberships.Any(membership =>
+                    membership.BehaviorKind == MembershipBehaviorKind.SingleVisit &&
+                    membership.SingleVisitUsed))
             {
                 hints.Add(new ClientActionHintResponse(
                     "Оформить абонемент",
                     "Пробное посещение уже использовано",
+                    "orange",
+                    "membership",
+                    null));
+            }
+
+            if (currentMemberships.Any(membership => membership.TargetGroups.Count == 0))
+            {
+                hints.Add(new ClientActionHintResponse(
+                    "Исправить группы",
+                    "Абонемент без целевых групп не даёт права посещения",
                     "orange",
                     "membership",
                     null));

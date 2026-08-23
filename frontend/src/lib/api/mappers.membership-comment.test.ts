@@ -15,6 +15,18 @@ const baseMembership = {
   pricingMode: 'Catalog',
   grossAmount: 4000,
   catalogPrice: 4000,
+  coverageKind: 'TargetGroups',
+  entitlementState: 'Active',
+  targetGroups: [
+    {
+      groupId: 'group-1',
+      groupName: 'Утренняя группа',
+      branchId: 'branch-1',
+      branchName: 'Основной',
+      position: 1,
+      isActive: true,
+    },
+  ],
 }
 
 describe('mapClientMembership sale comment contract', () => {

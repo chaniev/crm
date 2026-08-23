@@ -186,6 +186,9 @@ class ClientFlow:
                 details.append(item.membership_label)
             if item.membership_expires_at:
                 details.append(item.membership_expires_at.strftime("%d.%m.%Y"))
+            target_summary = format_target_groups(item.target_groups)
+            if target_summary:
+                details.append(target_summary)
             suffix = f" | {' | '.join(details)}" if details else ""
             lines.append(f"{index}. {item.full_name}{suffix}")
         return "\n".join(lines)
@@ -204,8 +207,7 @@ def render_client_card(card: ClientCardResponse) -> str:
         lines.append(f"Профессионал{comment}")
     if card.warning:
         lines.append(f"Предупреждение: {card.warning}")
-    if card.current_membership:
-        membership = card.current_membership
+    for membership in card.current_memberships:
         lines.append(
             "Абонемент: "
             f"{membership.type_label}, "
@@ -214,6 +216,19 @@ def render_client_card(card: ClientCardResponse) -> str:
         )
         if membership.expiration_date is not None:
             lines.append(f"Действует до: {membership.expiration_date.strftime('%d.%m.%Y')}")
+        if membership.coverage_kind == "AllGroups":
+            reporting_group = next(
+                (target.group_name for target in membership.target_groups if target.position == 0),
+                None,
+            )
+            if reporting_group:
+                lines.append(f"Доступ: все группы; отчётность: {reporting_group}")
+            else:
+                lines.append("Доступ: все группы")
+        elif membership.target_groups:
+            lines.append(f"Группы абонемента: {format_target_groups(membership.target_groups)}")
+        if membership.entitlement_state == "LegacyTargetMissing":
+            lines.append("Предупреждение: абонемент без групп, требуется исправление")
     if card.attendance_history:
         lines.append("История посещений:")
         for item in card.attendance_history[:5]:
@@ -222,3 +237,14 @@ def render_client_card(card: ClientCardResponse) -> str:
                 f"- {item.training_date.strftime('%d.%m.%Y')} | {item.group_name} | {marker}"
             )
     return "\n".join(lines)
+
+
+def format_target_groups(target_groups: list[Any]) -> str:
+    if not target_groups:
+        return ""
+
+    return ", ".join(
+        f"{target.position + 1}. {target.group_name}"
+        + (" (отчётность)" if target.position == 0 else "")
+        for target in sorted(target_groups, key=lambda target: target.position)
+    )

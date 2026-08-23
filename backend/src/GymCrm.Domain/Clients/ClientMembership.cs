@@ -22,4 +22,5 @@ public class ClientMembership
     public Client Client { get; set; } = null!;
     public ClientMembershipSale Sale { get; set; } = null!;
     public User ChangedByUser { get; set; } = null!;
+    public ICollection<ClientMembershipTargetGroup> TargetGroups { get; set; } = new List<ClientMembershipTargetGroup>();
 }

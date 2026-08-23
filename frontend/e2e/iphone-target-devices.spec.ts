@@ -39,6 +39,27 @@ const APP_CONFIG = {
   authBackgroundImageId: 'k4pro-login-v1',
 } as const
 
+const CLIENT_MEMBERSHIP = {
+  id: 'membership-1',
+  saleId: 'sale-1',
+  membershipCatalogItemId: 'catalog-1',
+  membershipName: 'Месяц',
+  behaviorKind: 'Term',
+  purchaseDate: '2026-06-01',
+  paymentDate: '2026-06-01',
+  paymentRecordedAt: '2026-06-01T09:00:00Z',
+  paymentRecordedByUserId: 'coach-1',
+  paymentRecordedByUserName: 'Тренер',
+  expirationDate: '2026-07-01',
+  grossAmount: 3500,
+  catalogPrice: 3500,
+  singleVisitUsed: false,
+  pricingMode: 'Catalog',
+  coverageKind: 'TargetGroups',
+  entitlementState: 'Active',
+  targetGroups: [],
+} as const
+
 const CLIENT_LIST_ITEM = {
   id: 'client-1',
   fullName: 'Александр Петров',
@@ -51,40 +72,7 @@ const CLIENT_LIST_ITEM = {
   status: 'Active',
   phone: '+7 999 111-22-33',
   notes: '',
-  currentMembership: {
-    id: 'membership-1',
-    saleId: 'sale-1',
-    membershipCatalogItemId: 'catalog-1',
-    membershipName: 'Месяц',
-    behaviorKind: 'Term',
-    purchaseDate: '2026-06-01',
-    paymentDate: '2026-06-01',
-    paymentRecordedAt: '2026-06-01T09:00:00Z',
-    paymentRecordedByUserId: 'coach-1',
-    paymentRecordedByUserName: 'Тренер',
-    expirationDate: '2026-07-01',
-    grossAmount: 3500,
-    catalogPrice: 3500,
-    singleVisitUsed: false,
-    pricingMode: 'Catalog',
-  },
-  currentMembershipSummary: {
-    id: 'membership-1',
-    saleId: 'sale-1',
-    membershipCatalogItemId: 'catalog-1',
-    membershipName: 'Месяц',
-    behaviorKind: 'Term',
-    purchaseDate: '2026-06-01',
-    paymentDate: '2026-06-01',
-    paymentRecordedAt: '2026-06-01T09:00:00Z',
-    paymentRecordedByUserId: 'coach-1',
-    paymentRecordedByUserName: 'Тренер',
-    expirationDate: '2026-07-01',
-    grossAmount: 3500,
-    catalogPrice: 3500,
-    singleVisitUsed: false,
-    pricingMode: 'Catalog',
-  },
+  currentMemberships: [CLIENT_MEMBERSHIP],
   attendanceHistory: [],
   attendanceHistoryTotalCount: 0,
   membershipHistory: [],
@@ -566,7 +554,7 @@ test('TASK-114 target iPhone keeps membership sale comments isolated through rel
       actor: string,
       changedAt: string,
     ) => ({
-      ...CLIENT_LIST_ITEM.currentMembership,
+      ...CLIENT_MEMBERSHIP,
       id,
       saleId,
       purchaseDate,
@@ -586,8 +574,7 @@ test('TASK-114 target iPhone keeps membership sale comments isolated through rel
     )
     return {
       ...CLIENT_LIST_ITEM,
-      currentMembership: saleALatest,
-      currentMembershipSummary: saleALatest,
+      currentMemberships: [saleALatest],
       membershipHistory: [
         saleALatest,
         {
@@ -633,6 +620,10 @@ test('TASK-114 target iPhone keeps membership sale comments isolated through rel
     }
     if (pathname === '/api/clients/client-1' && method === 'GET') {
       await fulfillJson(route, buildDetails())
+      return
+    }
+    if (pathname === '/api/groups' && method === 'GET') {
+      await fulfillJson(route, CLIENT_LIST_GROUPS_RESPONSE)
       return
     }
     if (pathname === '/api/clients/client-1/messenger/telegram' && method === 'GET') {
@@ -1394,8 +1385,7 @@ test('iPhone return from preview keeps client list filters and page', async ({
       },
     ],
     lastVisitDate: '2026-03-01',
-    currentMembershipSummary: null,
-    currentMembership: null,
+    currentMemberships: [],
     notes: '',
     attendanceHistory: [],
     attendanceHistoryTotalCount: 0,

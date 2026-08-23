@@ -1081,7 +1081,6 @@ public class ClientsApiTests
 
         Guid targetBranchId;
         Guid targetGroupId;
-        Guid targetCatalogItemId;
         using (var scope = factory.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
@@ -1152,7 +1151,6 @@ public class ClientsApiTests
 
             targetBranchId = targetBranch.Id;
             targetGroupId = targetGroup.Id;
-            targetCatalogItemId = targetCatalogItem.Id;
         }
 
         using (var invalidTransferResponse = await PostMembershipJsonAsync(
@@ -1160,19 +1158,15 @@ public class ClientsApiTests
                    $"/clients/{clientId}/transfer",
                    new
                    {
-                       BranchId = targetBranchId,
-                       GroupId = seeded.GroupOneId,
-                       MembershipCatalogItemId = targetCatalogItemId,
-                       ValidFrom = GetBusinessToday(),
-                       ValidTo = GetBusinessToday().AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
-                       PaymentDate = GetBusinessToday()
+                       TargetBranchId = targetBranchId,
+                       TargetGroupIds = new[] { seeded.GroupOneId }
                    },
                    session.CsrfToken,
                    $"clients-api-transfer-invalid-group-{Guid.NewGuid():N}"))
         {
             Assert.Equal(HttpStatusCode.BadRequest, invalidTransferResponse.StatusCode);
             var payload = await ReadJsonElementAsync(invalidTransferResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("groupIds", out _));
+            Assert.True(payload.GetProperty("errors").TryGetProperty("targetGroupIds", out _));
         }
 
         using (var transferWithoutGroupResponse = await PostMembershipJsonAsync(
@@ -1180,19 +1174,15 @@ public class ClientsApiTests
                    $"/clients/{clientId}/transfer",
                    new
                    {
-                       BranchId = targetBranchId,
-                       GroupId = (Guid?)null,
-                       MembershipCatalogItemId = targetCatalogItemId,
-                       ValidFrom = GetBusinessToday(),
-                       ValidTo = GetBusinessToday().AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
-                       PaymentDate = GetBusinessToday()
+                       TargetBranchId = targetBranchId,
+                       TargetGroupIds = Array.Empty<Guid>()
                    },
                    session.CsrfToken,
                    $"clients-api-transfer-missing-group-{Guid.NewGuid():N}"))
         {
             Assert.Equal(HttpStatusCode.BadRequest, transferWithoutGroupResponse.StatusCode);
             var payload = await ReadJsonElementAsync(transferWithoutGroupResponse);
-            Assert.True(payload.GetProperty("errors").TryGetProperty("groupIds", out _));
+            Assert.True(payload.GetProperty("errors").TryGetProperty("targetGroupIds", out _));
         }
 
         using (var transferWithGroupResponse = await PostMembershipJsonAsync(
@@ -1200,12 +1190,8 @@ public class ClientsApiTests
                    $"/clients/{clientId}/transfer",
                    new
                    {
-                       BranchId = targetBranchId,
-                       GroupIds = new[] { targetGroupId },
-                       MembershipCatalogItemId = targetCatalogItemId,
-                       ValidFrom = GetBusinessToday(),
-                       ValidTo = GetBusinessToday().AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd"),
-                       PaymentDate = GetBusinessToday()
+                       TargetBranchId = targetBranchId,
+                       TargetGroupIds = new[] { targetGroupId }
                    },
                    session.CsrfToken,
                    $"clients-api-transfer-valid-{Guid.NewGuid():N}"))
@@ -1700,7 +1686,9 @@ public class ClientsApiTests
                     1200m,
                     paymentDate ?? GetBusinessToday(),
                     seeded.HeadCoachId,
-                    now));
+                    now,
+                    targetGroupId: seeded.GroupOneId,
+                    targetBranchId: seeded.BranchId));
             }
 
             await dbContext.SaveChangesAsync();
@@ -2257,18 +2245,10 @@ public class ClientsApiTests
             Assert.NotEqual(forbiddenClientId, GetGuidFromProperty(clientPayload, "id"));
             Assert.Equal(string.Empty, GetStringFromProperty(clientPayload, "phone"));
             Assert.Equal(0, clientPayload.GetProperty("contactCount").GetInt32());
-            Assert.Equal("Term", GetStringFromAnyCase(
-                GetPropertyOrNull(clientPayload, "currentMembershipSummary", "CurrentMembershipSummary"),
-                "behaviorKind",
-                "MembershipBehaviorKind"));
-            Assert.False(HasAnyProperty(
-                GetPropertyOrNull(clientPayload, "currentMembershipSummary", "CurrentMembershipSummary"),
-                "paymentAmount",
-                "PaymentAmount",
-                "paymentRecordedByUserId",
-                "PaymentRecordedByUserId",
-                "paymentRecordedAt",
-                "PaymentRecordedAt"));
+            Assert.Equal(
+                0,
+                GetArrayPayload(GetPropertyOrNull(clientPayload, "currentMemberships", "CurrentMemberships"))
+                    .GetArrayLength());
             Assert.Equal(
                 GetBusinessToday().AddDays(-3).ToString("yyyy-MM-dd"),
                 GetStringFromAnyCase(clientPayload, "lastVisitDate", "LastVisitDate"));
@@ -2453,7 +2433,9 @@ public class ClientsApiTests
                 paymentDate: GetBusinessToday(),
                 seeded.HeadCoachId,
                 DateTimeOffset.UtcNow,
-                professionalComment: "Фильтры должны считать клиента оплаченным"));
+                professionalComment: "Фильтры должны считать клиента оплаченным",
+                targetGroupId: seeded.GroupOneId,
+                targetBranchId: seeded.BranchId));
             await dbContext.SaveChangesAsync();
         }
 
@@ -2752,7 +2734,9 @@ public class ClientsApiTests
                     1000m,
                     paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
-                    now),
+                    now,
+                    targetGroupId: seeded.GroupOneId,
+                    targetBranchId: seeded.BranchId),
                 CreateMembershipWithSale(
                     expiredTrialClientId,
                     MembershipBehaviorKind.SingleVisit,
@@ -2762,7 +2746,9 @@ public class ClientsApiTests
                     paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
                     now.AddMinutes(1),
-                    singleVisitUsed: true),
+                    singleVisitUsed: true,
+                    targetGroupId: seeded.GroupOneId,
+                    targetBranchId: seeded.BranchId),
                 CreateMembershipWithSale(
                     longTermMembershipClientId,
                     MembershipBehaviorKind.Term,
@@ -2771,7 +2757,9 @@ public class ClientsApiTests
                     1000m,
                     paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
-                    now.AddMinutes(2)),
+                    now.AddMinutes(2),
+                    targetGroupId: seeded.GroupOneId,
+                    targetBranchId: seeded.BranchId),
                 CreateMembershipWithSale(
                     normalClientId,
                     MembershipBehaviorKind.Term,
@@ -2780,7 +2768,9 @@ public class ClientsApiTests
                     1000m,
                     paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
-                    now.AddMinutes(3)),
+                    now.AddMinutes(3),
+                    targetGroupId: seeded.GroupOneId,
+                    targetBranchId: seeded.BranchId),
                 CreateMembershipWithSale(
                     professionalClientId,
                     MembershipBehaviorKind.Professional,
@@ -2790,7 +2780,9 @@ public class ClientsApiTests
                     paymentDate: GetBusinessToday(),
                     seeded.HeadCoachId,
                     now.AddMinutes(4),
-                    professionalComment: "Льготный клиент"));
+                    professionalComment: "Льготный клиент",
+                    targetGroupId: seeded.GroupOneId,
+                    targetBranchId: seeded.BranchId));
 
             await dbContext.SaveChangesAsync();
         }
@@ -2820,8 +2812,8 @@ public class ClientsApiTests
                 .Single(candidate => GetGuidFromProperty(candidate, "id") == expiredTrialClientId);
             var expiredTrialHints = GetArrayPayload(
                 GetPropertyOrNull(expiredTrialClient, "actionHints", "ActionHints"));
-            Assert.Single(expiredTrialHints.EnumerateArray());
             Assert.Equal("Оформить абонемент", GetStringFromAnyCase(expiredTrialHints[0], "title", "Title"));
+            Assert.Single(expiredTrialHints.EnumerateArray());
         }
 
         using (var filteredResponse = await client.GetAsync("/clients?status=Active&quickFilters=WithoutMembership,Trial"))
@@ -4382,6 +4374,69 @@ public class ClientsApiTests
     }
 
     [Fact]
+    public async Task Attention_returns_one_stable_target_aware_item_per_membership()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        var clientId = Guid.NewGuid();
+        var today = GetBusinessToday();
+        ClientMembership firstMembership;
+        ClientMembership secondMembership;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            db.Clients.Add(NewAttentionClient(clientId, seeded.BranchId, "Два абонемента"));
+            firstMembership = CreateMembershipWithSale(
+                clientId,
+                MembershipBehaviorKind.Term,
+                today,
+                today.AddDays(1),
+                1000m,
+                today,
+                seeded.HeadCoachId,
+                DateTimeOffset.UtcNow,
+                targetGroupId: seeded.GroupOneId,
+                targetBranchId: seeded.BranchId);
+            secondMembership = CreateMembershipWithSale(
+                clientId,
+                MembershipBehaviorKind.Term,
+                today,
+                today.AddDays(2),
+                1200m,
+                today,
+                seeded.HeadCoachId,
+                DateTimeOffset.UtcNow.AddMinutes(1),
+                targetGroupId: seeded.GroupTwoId,
+                targetBranchId: seeded.BranchId);
+            db.ClientMemberships.AddRange(firstMembership, secondMembership);
+            await db.SaveChangesAsync();
+        }
+
+        using var http = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = true });
+        await LoginAsync(http, seeded.HeadCoachLogin, seeded.SharedPassword);
+        using var response = await http.GetAsync("/clients/attention");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var cards = (await ReadJsonElementAsync(response))
+            .EnumerateArray()
+            .Where(card => card.GetProperty("clientId").GetGuid() == clientId)
+            .ToArray();
+
+        Assert.Equal(2, cards.Length);
+        Assert.Equal(
+            [firstMembership.Id, secondMembership.Id],
+            cards.Select(card => card.GetProperty("membership").GetProperty("membershipId").GetGuid()));
+        Assert.Equal(
+            [firstMembership.SaleId, secondMembership.SaleId],
+            cards.Select(card => card.GetProperty("membership").GetProperty("saleId").GetGuid()));
+        Assert.Equal(
+            [seeded.GroupOneId, seeded.GroupTwoId],
+            cards.Select(card => card.GetProperty("membership").GetProperty("targetGroups")[0].GetProperty("groupId").GetGuid()));
+        Assert.All(cards, card => Assert.Equal(
+            card.GetProperty("membership").GetProperty("membershipId").GetGuid(),
+            card.GetProperty("reasons")[0].GetProperty("membershipId").GetGuid()));
+    }
+
+    [Fact]
     public async Task Attention_is_forbidden_for_coach_and_legacy_membership_endpoint_remains_available()
     {
         await using var factory = new ClientsAppFactory();
@@ -4933,6 +4988,12 @@ public class ClientsApiTests
             Content = JsonContent.Create(payload)
         };
         request.Headers.Add("X-CSRF-TOKEN", csrfToken);
+        if ((path.Contains("/membership/sales/", StringComparison.Ordinal) &&
+             path.Contains("/refunds", StringComparison.Ordinal)) ||
+            path.Contains("/membership/refunds/", StringComparison.Ordinal))
+        {
+            request.Headers.Add("Idempotency-Key", $"clients-api-refund-{Guid.NewGuid():N}");
+        }
 
         return await client.SendAsync(request);
     }
@@ -5142,6 +5203,27 @@ public class ClientsApiTests
             return payload;
         }
         var clientPayload = await ReadJsonElementAsync(clientResponse);
+        var currentMemberships = GetPropertyOrNull(clientPayload, "currentMemberships", "CurrentMemberships");
+        var currentMembership = currentMemberships.ValueKind == JsonValueKind.Array
+            ? currentMemberships.EnumerateArray().FirstOrDefault()
+            : default;
+        var currentTargets = currentMembership.ValueKind == JsonValueKind.Object
+            ? GetPropertyOrNull(currentMembership, "targetGroups", "TargetGroups")
+            : default;
+        var inheritedTargetGroupIds = currentTargets.ValueKind == JsonValueKind.Array
+            ? currentTargets.EnumerateArray()
+                .Select(target => GetGuidFromAnyCase(target, "groupId", "GroupId"))
+                .Where(groupId => groupId != Guid.Empty)
+                .ToArray()
+            : [];
+        var clientGroups = GetPropertyOrNull(clientPayload, "groups", "Groups");
+        var purchaseTargetGroupIds = clientGroups.ValueKind == JsonValueKind.Array
+            ? clientGroups.EnumerateArray()
+                .Select(group => GetGuidFromAnyCase(group, "id", "Id", "groupId", "GroupId"))
+                .Where(groupId => groupId != Guid.Empty)
+                .Take(1)
+                .ToArray()
+            : [];
         var branchId = GetGuidFromAnyCase(clientPayload, "branchId", "BranchId");
         using var catalogResponse = await client.GetAsync($"/membership-catalog/eligible?branchId={branchId}");
         if (!catalogResponse.IsSuccessStatusCode)
@@ -5176,8 +5258,13 @@ public class ClientsApiTests
         if (action == "renew")
             return new
             {
+                SaleId = GetGuidFromAnyCase(currentMembership, "saleId", "SaleId"),
+                ExpectedMembershipId = GetGuidFromAnyCase(currentMembership, "id", "Id"),
                 MembershipCatalogItemId = catalogItemId,
-                PaymentDate = paymentDate
+                PaymentDate = paymentDate,
+                TargetGroupIds = inheritedTargetGroupIds.Length > 0
+                    ? inheritedTargetGroupIds
+                    : purchaseTargetGroupIds
             };
 
         var validFrom = GetStringFromAnyCase(legacy, "validFrom", "ValidFrom", "purchaseDate", "PurchaseDate");
@@ -5212,6 +5299,7 @@ public class ClientsApiTests
             ValidFrom = string.IsNullOrWhiteSpace(validFrom) ? null : validFrom,
             ValidTo = string.IsNullOrWhiteSpace(validTo) ? null : validTo,
             PaymentDate = paymentDate,
+            TargetGroupIds = purchaseTargetGroupIds,
             ProfessionalComment = GetStringFromAnyCase(legacy, "professionalComment", "ProfessionalComment")
         };
     }
@@ -5223,13 +5311,6 @@ public class ClientsApiTests
         object payload)
     {
         var legacy = JsonSerializer.SerializeToElement(payload);
-        var explicitSaleId = GetGuidFromAnyCase(legacy, "saleId", "SaleId");
-        var explicitMembershipId = GetGuidFromAnyCase(legacy, "expectedMembershipId", "ExpectedMembershipId");
-        if (explicitSaleId != Guid.Empty && explicitMembershipId != Guid.Empty)
-        {
-            return payload;
-        }
-
         using var clientResponse = await client.GetAsync($"/clients/{clientId}");
         if (!clientResponse.IsSuccessStatusCode)
         {
@@ -5237,9 +5318,14 @@ public class ClientsApiTests
         }
 
         var clientPayload = await ReadJsonElementAsync(clientResponse);
-        var currentMembership = GetPropertyOrNull(clientPayload, "currentMembership", "CurrentMembership");
-        var saleId = GetGuidFromAnyCase(currentMembership, "saleId", "SaleId");
-        var membershipId = GetGuidFromAnyCase(currentMembership, "id", "Id");
+        var currentMemberships = GetPropertyOrNull(clientPayload, "currentMemberships", "CurrentMemberships");
+        var currentMembership = currentMemberships.ValueKind == JsonValueKind.Array
+            ? currentMemberships.EnumerateArray().FirstOrDefault()
+            : default;
+        var saleId = GetGuidFromAnyCase(legacy, "saleId", "SaleId");
+        if (saleId == Guid.Empty) saleId = GetGuidFromAnyCase(currentMembership, "saleId", "SaleId");
+        var membershipId = GetGuidFromAnyCase(legacy, "expectedMembershipId", "ExpectedMembershipId");
+        if (membershipId == Guid.Empty) membershipId = GetGuidFromAnyCase(currentMembership, "id", "Id");
         if (saleId == Guid.Empty || membershipId == Guid.Empty)
         {
             return payload;
@@ -5256,7 +5342,12 @@ public class ClientsApiTests
             ExpectedMembershipId = membershipId,
             ValidFrom = GetStringFromAnyCase(legacy, "validFrom", "ValidFrom", "purchaseDate", "PurchaseDate"),
             ValidTo = GetStringFromAnyCase(legacy, "validTo", "ValidTo", "expirationDate", "ExpirationDate"),
-            PaymentDate = GetStringFromAnyCase(legacy, "paymentDate", "PaymentDate")
+            PaymentDate = GetStringFromAnyCase(legacy, "paymentDate", "PaymentDate"),
+            TargetGroupIds = GetPropertyOrNull(currentMembership, "targetGroups", "TargetGroups")
+                .EnumerateArray()
+                .Select(target => GetGuidFromAnyCase(target, "groupId", "GroupId"))
+                .Where(groupId => groupId != Guid.Empty)
+                .ToArray()
         };
     }
 
@@ -5334,6 +5425,20 @@ public class ClientsApiTests
             if (nameSet.Contains(property.Name))
             {
                 return property.Value;
+            }
+        }
+
+        if (nameSet.Contains("currentMembership") || nameSet.Contains("currentMembershipSummary"))
+        {
+            var memberships = payload.EnumerateObject()
+                .FirstOrDefault(property => string.Equals(
+                    property.Name,
+                    "currentMemberships",
+                    StringComparison.OrdinalIgnoreCase))
+                .Value;
+            if (memberships.ValueKind == JsonValueKind.Array)
+            {
+                return memberships.EnumerateArray().FirstOrDefault();
             }
         }
 
@@ -5690,7 +5795,9 @@ public class ClientsApiTests
         DateTimeOffset validFrom,
         bool singleVisitUsed = false,
         DateTimeOffset? validTo = null,
-        string? professionalComment = null)
+        string? professionalComment = null,
+        Guid? targetGroupId = null,
+        Guid? targetBranchId = null)
     {
         var saleId = Guid.NewGuid();
         var catalogItemId = behaviorKind switch
@@ -5699,7 +5806,7 @@ public class ClientsApiTests
             MembershipBehaviorKind.Professional => ProfessionalCatalogItemId,
             _ => TermCatalogItemId
         };
-        return new ClientMembership
+        var membership = new ClientMembership
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
@@ -5728,6 +5835,19 @@ public class ClientsApiTests
                 CreatedAt = validFrom
             }
         };
+
+        if (targetGroupId.HasValue && targetBranchId.HasValue)
+        {
+            membership.TargetGroups.Add(new ClientMembershipTargetGroup
+            {
+                ClientMembershipId = membership.Id,
+                GroupId = targetGroupId.Value,
+                BranchId = targetBranchId.Value,
+                Position = 0
+            });
+        }
+
+        return membership;
     }
 
     private class TestClientPhotoImageProcessorProxy : DispatchProxy

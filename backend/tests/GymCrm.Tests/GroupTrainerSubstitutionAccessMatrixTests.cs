@@ -787,9 +787,10 @@ public class GroupTrainerSubstitutionAccessMatrixTests
             UpdatedAt = now
         });
 
+        var saleId = Guid.NewGuid();
         dbContext.ClientMembershipSales.Add(new ClientMembershipSale
         {
-            Id = Guid.NewGuid(),
+            Id = saleId,
             ClientId = clientId,
             BehaviorKind = MembershipBehaviorKind.Term,
             PricingMode = ClientMembershipSalePricingMode.AmountOnly,
@@ -798,6 +799,14 @@ public class GroupTrainerSubstitutionAccessMatrixTests
             GrossAmount = 1000m,
             CreatedByUserId = headCoachId,
             CreatedAt = now
+        });
+        dbContext.ClientMembershipSaleTargetSnapshots.Add(new ClientMembershipSaleTargetSnapshot
+        {
+            SaleId = saleId,
+            GroupId = groupId,
+            BranchId = branchId,
+            Position = 0,
+            Provenance = "Write"
         });
 
         await dbContext.SaveChangesAsync();

@@ -1,3 +1,4 @@
+using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
@@ -8,6 +9,65 @@ namespace GymCrm.Infrastructure.Clients;
 
 internal sealed class ClientMembershipQueryStore(GymCrmDbContext dbContext)
 {
+    public async Task LockMembershipMutationRowsAsync(
+        Guid clientId,
+        IReadOnlyCollection<Guid> targetGroupIds,
+        CancellationToken cancellationToken)
+    {
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        foreach (var groupId in targetGroupIds.Distinct().Order())
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""SELECT 1 FROM "TrainingGroups" WHERE "Id" = {groupId} FOR UPDATE""",
+                cancellationToken);
+        }
+
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "Clients" WHERE "Id" = {clientId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "ClientMemberships" WHERE "ClientId" = {clientId} AND "ValidTo" IS NULL ORDER BY "Id" FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "ClientMembershipTargetGroups" WHERE "ClientMembershipId" IN (SELECT "Id" FROM "ClientMemberships" WHERE "ClientId" = {clientId} AND "ValidTo" IS NULL) ORDER BY "ClientMembershipId", "Position" FOR UPDATE""",
+            cancellationToken);
+    }
+
+    public async Task LockRefundMutationRowsAsync(
+        Guid clientId,
+        Guid saleId,
+        IReadOnlyCollection<Guid> targetGroupIds,
+        CancellationToken cancellationToken)
+    {
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+        if (!providerName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        foreach (var groupId in targetGroupIds.Distinct().Order())
+        {
+            await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                $"""SELECT 1 FROM "TrainingGroups" WHERE "Id" = {groupId} FOR UPDATE""",
+                cancellationToken);
+        }
+
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "Clients" WHERE "Id" = {clientId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "ClientMembershipSales" WHERE "Id" = {saleId} AND "ClientId" = {clientId} FOR UPDATE""",
+            cancellationToken);
+        await dbContext.Database.ExecuteSqlInterpolatedAsync(
+            $"""SELECT 1 FROM "ClientMembershipRefunds" WHERE "SaleId" = {saleId} ORDER BY "Id" FOR UPDATE""",
+            cancellationToken);
+    }
+
     public async Task<bool> ClientExistsAsync(
         Guid clientId,
         CancellationToken cancellationToken)
@@ -17,24 +77,26 @@ internal sealed class ClientMembershipQueryStore(GymCrmDbContext dbContext)
             .AnyAsync(client => client.Id == clientId, cancellationToken);
     }
 
-    public async Task<ClientMembership?> LoadCurrentMembershipAsync(
+    public async Task<ClientMembership?> LoadAddressedCurrentMembershipAsync(
         Guid clientId,
+        Guid saleId,
+        Guid membershipId,
         CancellationToken cancellationToken)
     {
-        var openMemberships = await dbContext.ClientMemberships
+        return await dbContext.ClientMemberships
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(membership => membership.Sale)
                 .ThenInclude(sale => sale.CreatedByUser)
-            .Where(membership => membership.ClientId == clientId && membership.ValidTo == null)
-            .ToListAsync(cancellationToken);
-
-        return openMemberships
-            .OrderByDescending(membership => membership.IndividualValidTo ?? DateOnly.MaxValue)
-            .ThenByDescending(membership => membership.IndividualValidFrom ?? DateOnly.MaxValue)
-            .ThenByDescending(membership => membership.CreatedAt)
-            .ThenByDescending(membership => membership.Id)
-            .FirstOrDefault();
+            .Include(membership => membership.TargetGroups)
+                .ThenInclude(target => target.Group)
+                    .ThenInclude(group => group.Branch)
+            .SingleOrDefaultAsync(membership =>
+                membership.ClientId == clientId &&
+                membership.SaleId == saleId &&
+                membership.Id == membershipId &&
+                membership.ValidTo == null,
+                cancellationToken);
     }
 
     public async Task<bool> HasActiveMembershipAsync(
@@ -59,37 +121,41 @@ internal sealed class ClientMembershipQueryStore(GymCrmDbContext dbContext)
         MembershipBehaviorKind behaviorKind,
         DateOnly? validFrom,
         DateOnly? validTo,
+        IReadOnlyCollection<Guid> targetGroupIds,
         Guid? exceptMembershipId,
         CancellationToken cancellationToken)
     {
-        if (behaviorKind is not (MembershipBehaviorKind.Term or MembershipBehaviorKind.Professional))
-        {
-            return false;
-        }
-
-        if (!validFrom.HasValue)
+        if (targetGroupIds.Count == 0)
         {
             return false;
         }
 
         var query = dbContext.ClientMemberships.AsNoTracking()
+            .Include(membership => membership.Sale)
+            .Include(membership => membership.TargetGroups)
             .Where(membership =>
                 membership.ClientId == clientId &&
-                membership.ValidTo == null &&
-                membership.BehaviorKind != MembershipBehaviorKind.SingleVisit);
+                membership.ValidTo == null);
         if (exceptMembershipId.HasValue)
         {
             query = query.Where(membership => membership.Id != exceptMembershipId.Value);
         }
 
-        var requestedFrom = validFrom.Value;
-        var requestedTo = validTo;
-        return await query.AnyAsync(
-            membership =>
-                membership.IndividualValidFrom.HasValue &&
-                membership.IndividualValidFrom.Value <= (requestedTo ?? DateOnly.MaxValue) &&
-                (membership.IndividualValidTo ?? DateOnly.MaxValue) >= requestedFrom,
-            cancellationToken);
+        var candidates = await query.ToListAsync(cancellationToken);
+        return candidates.Any(membership =>
+            ClientMembershipTargetPolicy.EffectivePeriodsOverlap(
+                membership.BehaviorKind,
+                membership.IndividualValidFrom ?? membership.Sale.PurchaseDate,
+                membership.IndividualValidTo,
+                membership.SingleVisitUsed,
+                behaviorKind,
+                validFrom,
+                validTo) &&
+            ClientMembershipTargetPolicy.TargetSetsOverlap(
+                membership.BehaviorKind,
+                membership.TargetGroups.Select(target => target.GroupId).ToArray(),
+                behaviorKind,
+                targetGroupIds.ToArray()));
     }
 
     public async Task<ClientMembershipAddressedMembershipLookup> LoadAddressedMembershipAsync(
@@ -119,6 +185,9 @@ internal sealed class ClientMembershipQueryStore(GymCrmDbContext dbContext)
                 .ThenInclude(sale => sale.MembershipCatalogItem)
             .Include(candidate => candidate.Sale)
                 .ThenInclude(sale => sale.Refunds)
+            .Include(candidate => candidate.TargetGroups)
+                .ThenInclude(target => target.Group)
+                    .ThenInclude(group => group.Branch)
             .SingleOrDefaultAsync(
                 candidate =>
                     candidate.Id == expectedMembershipId &&

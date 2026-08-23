@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY *.slnx ./
+COPY Directory.Build.props ./
 COPY src/GymCrm.Api/GymCrm.Api.csproj src/GymCrm.Api/
 COPY src/GymCrm.Application/GymCrm.Application.csproj src/GymCrm.Application/
 COPY src/GymCrm.Infrastructure/GymCrm.Infrastructure.csproj src/GymCrm.Infrastructure/

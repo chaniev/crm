@@ -413,8 +413,6 @@ function buildClientItem(): ClientListItem {
     membershipWarning: false,
     lastVisitDate: null,
     membershipState: 'None',
-    currentMembership: null,
-    currentMembershipSummary: null,
-    actionHints: [],
+    currentMemberships: [],    actionHints: [],
   }
 }

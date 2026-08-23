@@ -200,8 +200,10 @@ export type ClientStatus = 'Active' | 'Archived'
 export type ClientMembershipState =
   | 'None'
   | 'Active'
+  | 'Future'
   | 'Expired'
   | 'UsedSingleVisit'
+  | 'LegacyTargetMissing'
 export type ClientQuickFilter =
   | 'WithoutMembership'
   | 'ExpiringSoon'
@@ -399,24 +401,13 @@ export type ClientListItem = {
   hasActiveMembership: boolean
   membershipWarning: boolean
   membershipWarningMessage?: string
-  currentMembership: ClientMembership | null
-  currentMembershipSummary: ClientMembershipSummary | null
+  currentMemberships: ClientMembership[]
   hasCurrentMembership: boolean
   membershipState: ClientMembershipState
   actionHints: ClientActionHint[]
   lastVisitDate?: string | null
   updatedAt?: string
 }
-
-export type ClientMembershipSummary = Pick<
-  ClientMembership,
-  | 'id'
-  | 'behaviorKind'
-  | 'purchaseDate'
-  | 'paymentDate'
-  | 'expirationDate'
-  | 'singleVisitUsed'
->
 
 export type ClientMembership = {
   id: string
@@ -431,6 +422,9 @@ export type ClientMembership = {
   grossAmount: number
   catalogPrice: number | null
   singleVisitUsed: boolean
+  coverageKind: ClientMembershipCoverageKind
+  entitlementState: ClientMembershipEntitlementState
+  targetGroups: ClientMembershipTargetGroup[]
   changeReason?: ClientMembershipChangeReason | string
   paymentRecordedAt: string
   paymentRecordedByUserId: string
@@ -446,6 +440,24 @@ export type ClientMembership = {
   commentLastChangedAt: string | null
 }
 
+export type ClientMembershipCoverageKind = 'TargetGroups' | 'AllGroups'
+
+export type ClientMembershipEntitlementState =
+  | 'Active'
+  | 'Future'
+  | 'Expired'
+  | 'UsedSingleVisit'
+  | 'LegacyTargetMissing'
+
+export type ClientMembershipTargetGroup = {
+  groupId: string
+  groupName: string
+  branchId: string
+  branchName: string
+  position: number
+  isActive: boolean
+}
+
 export type MembershipAttentionState =
   | 'Expired'
   | 'ExpiringSoon'
@@ -454,9 +466,14 @@ export type MembershipAttentionState =
 export type MembershipAttentionItem = {
   clientId: string
   fullName: string
+  membershipId: string
+  saleId: string
   behaviorKind: MembershipBehaviorKind
+  membershipName: string
   expirationDate: string | null
   daysUntilExpiration: number | null
+  targetGroups: ClientMembershipTargetGroup[]
+  targetSummary: string
   state: MembershipAttentionState
 }
 
@@ -464,8 +481,12 @@ export type ExpiringClientMembership = MembershipAttentionItem
 
 export type ClientAttentionMembershipReason = {
   type: 'expiredMembership' | 'expiringMembership'
+  membershipId: string
+  saleId: string
   expirationDate: string | null
   daysUntilExpiration: number | null
+  targetGroups: ClientMembershipTargetGroup[]
+  targetSummary: string
 }
 
 export type ClientAttentionMissedTrainingReason = {
@@ -478,10 +499,14 @@ export type ClientAttentionReason =
   | ClientAttentionMissedTrainingReason
 
 export type ClientAttentionMembershipSummary = {
+  membershipId: string
+  saleId: string
   behaviorKind: MembershipBehaviorKind
   membershipName: string
   expirationDate: string | null
   daysUntilExpiration: number | null
+  targetGroups: ClientMembershipTargetGroup[]
+  targetSummary: string
 }
 
 export type ClientAttentionItem = {
@@ -505,7 +530,7 @@ export type AttendanceClient = {
   hasActiveMembership: boolean
   membershipWarning: boolean
   membershipWarningMessage?: string
-  currentMembership: ClientMembership | null
+  currentMemberships: ClientMembership[]
 }
 
 export type AttendanceRosterResponse = {
@@ -547,7 +572,7 @@ export type ClientDetails = ClientListItem & {
   notesLastChangedByName: string | null
   notesLastChangedAt: string | null
   photo: ClientPhoto | null
-  currentMembership: ClientMembership | null
+  currentMemberships: ClientMembership[]
   membershipHistory: ClientMembership[]
   attendanceHistory: ClientAttendanceHistoryEntry[]
   attendanceHistoryLoaded: boolean
@@ -575,12 +600,6 @@ export type UpsertClientRequest = {
 export type TransferClientBranchRequest = {
   targetBranchId: string
   targetGroupIds: string[]
-  membershipCatalogItemId?: string | null
-  manualSaleAmount?: number | null
-  validFrom?: string
-  validTo?: string
-  paymentDate?: string
-  professionalComment?: string
 }
 
 export type Branch = {
@@ -697,6 +716,7 @@ export type PurchaseClientMembershipRequest = {
   validFrom?: string
   validTo?: string
   paymentDate: string
+  targetGroupIds: string[]
   professionalComment?: string
 }
 
@@ -706,6 +726,7 @@ export type CorrectClientMembershipRequest = {
   validFrom: string
   validTo?: string
   paymentDate: string
+  targetGroupIds: string[]
 }
 
 export type MembershipWriteRequestOptions = {
@@ -719,10 +740,31 @@ export type MembershipExpirationSuggestion = {
 }
 
 export type RenewClientMembershipRequest = {
+  saleId: string
+  expectedMembershipId: string
   membershipCatalogItemId?: string | null
   manualSaleAmount?: number | null
   paymentDate: string
+  targetGroupIds: string[]
   professionalComment?: string
+}
+
+export type MembershipTargetTransferRequest = {
+  sourceGroupId: string
+  targetGroupId: string
+  expectedMembershipIds: string[]
+}
+
+export type MembershipTargetTransferPreviewMembership = {
+  membershipId: string
+  saleId: string
+  membershipName: string
+  beforeTargetGroups: ClientMembershipTargetGroup[]
+  afterTargetGroups: ClientMembershipTargetGroup[]
+}
+
+export type MembershipTargetTransferPreview = {
+  affectedMemberships: MembershipTargetTransferPreviewMembership[]
 }
 
 export type TrainerOption = {
@@ -1095,8 +1137,7 @@ export type ClientResponsePayload = {
   hasPhoto?: boolean | null
   isProfessional?: boolean | null
   professionalComment?: string | null
-  currentMembership?: Record<string, unknown> | null
-  currentMembershipSummary?: Record<string, unknown> | null
+  currentMemberships?: unknown[] | null
   hasCurrentMembership?: boolean | null
   membershipState?: string | null
   actionHints?: unknown[] | Record<string, unknown>
