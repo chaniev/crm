@@ -13,12 +13,19 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
+using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
+using static GymCrm.Api.Auth.ClientMembershipAudit;
+using static GymCrm.Api.Auth.ClientMembershipRequestValidation;
 
 namespace GymCrm.Api.Auth;
 
-internal static partial class ClientEndpoints
+internal static class ClientMembershipEndpoints
 {
-    private static RouteGroupBuilder MapClientMembershipEndpoints(this RouteGroupBuilder group)
+    private const int MembershipIdempotencyKeyMaxLength = 128;
+    private const string MembershipIdempotencyPending = "Pending";
+    private const string MembershipIdempotencyCompleted = "Completed";
+
+    internal static RouteGroupBuilder MapClientMembershipEndpoints(this RouteGroupBuilder group)
     {
         group.MapPost("/{id:guid}/membership/purchase", PurchaseMembershipAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
@@ -394,7 +401,7 @@ internal static partial class ClientEndpoints
         return TypedResults.Ok(ClientResponseMapper.MapDetails(clientAfter, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
+    internal static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
         Guid id,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
@@ -698,7 +705,7 @@ internal static partial class ClientEndpoints
         }
     }
 
-    private static string? GetMembershipIdempotencyKey(HttpRequest request)
+    internal static string? GetMembershipIdempotencyKey(HttpRequest request)
     {
         if (!request.Headers.TryGetValue("Idempotency-Key", out var values))
         {
@@ -716,7 +723,7 @@ internal static partial class ClientEndpoints
             : value;
     }
 
-    private static string? NormalizeIsoDateForIdempotency(string? value)
+    internal static string? NormalizeIsoDateForIdempotency(string? value)
     {
         return ParseIsoDate(value)?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
     }

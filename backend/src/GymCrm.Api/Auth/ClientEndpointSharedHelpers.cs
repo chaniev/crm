@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GymCrm.Api.Auth;
 
-internal static partial class ClientEndpoints
+internal static class ClientEndpointSharedHelpers
 {
-    private static void ValidateNamePart(
+    internal static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
+
+    internal static void ValidateNamePart(
         string? value,
         string key,
         string message,
@@ -21,14 +23,29 @@ internal static partial class ClientEndpoints
         }
     }
 
-    private static string? NormalizeOptionalText(string? value)
+    internal static void ValidateAdditionalFields(
+        IDictionary<string, JsonElement>? additionalFields,
+        Dictionary<string, string[]> errors)
+    {
+        if (additionalFields is null)
+        {
+            return;
+        }
+
+        foreach (var field in additionalFields.Keys)
+        {
+            errors[field] = [$"Field '{field}' is not allowed for this operation."];
+        }
+    }
+
+    internal static string? NormalizeOptionalText(string? value)
     {
         return string.IsNullOrWhiteSpace(value)
             ? null
             : value.Trim();
     }
 
-    private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)
+    internal static string BuildClientFullName(string? lastName, string? firstName, string? middleName)
     {
         var fullName = string.Join(
             ' ',
@@ -41,7 +58,7 @@ internal static partial class ClientEndpoints
             : fullName;
     }
 
-    private static string SerializeAuditState(Client client)
+    internal static string SerializeAuditState(Client client)
     {
         return JsonSerializer.Serialize(
             new ClientAuditState(
@@ -69,8 +86,7 @@ internal static partial class ClientEndpoints
             AuditSerializerOptions);
     }
 
-
-    private static AuditLogEntry BuildNoteAuditEntry(
+    internal static AuditLogEntry BuildNoteAuditEntry(
         Guid actorId,
         Client client,
         string actorLogin,
@@ -87,7 +103,7 @@ internal static partial class ClientEndpoints
             NewValueJson: JsonSerializer.Serialize(new { transition }, AuditSerializerOptions));
     }
 
-    private static async Task TryWriteClientAuditAsync(
+    internal static async Task TryWriteClientAuditAsync(
         IAuditLogService auditLogService,
         GymCrmDbContext dbContext,
         ILoggerFactory loggerFactory,

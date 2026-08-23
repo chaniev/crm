@@ -1,12 +1,13 @@
 using System.Text.Json;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
+using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
 
 namespace GymCrm.Api.Auth;
 
-internal static partial class ClientEndpoints
+internal static class ClientMembershipAudit
 {
-    private static string? SerializeMembershipAuditState(ClientMembership? membership)
+    internal static string? SerializeMembershipAuditState(ClientMembership? membership)
     {
         if (membership is null)
         {
@@ -41,7 +42,7 @@ internal static partial class ClientEndpoints
             AuditSerializerOptions);
     }
 
-    private static string SerializeSaleAuditState(ClientMembershipSaleSnapshotResult sale)
+    internal static string SerializeSaleAuditState(ClientMembershipSaleSnapshotResult sale)
     {
         return JsonSerializer.Serialize(
             new ClientMembershipSaleAuditState(
@@ -60,7 +61,7 @@ internal static partial class ClientEndpoints
             AuditSerializerOptions);
     }
 
-    private static string SerializeRefundAuditState(ClientMembershipRefundSnapshotResult refund)
+    internal static string SerializeRefundAuditState(ClientMembershipRefundSnapshotResult refund)
     {
         return JsonSerializer.Serialize(
             new ClientMembershipRefundAuditState(

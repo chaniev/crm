@@ -1,15 +1,15 @@
 using System.Globalization;
-using System.Text.Json;
 using GymCrm.Application.Clients;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
 using Microsoft.AspNetCore.Http.HttpResults;
+using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
 
 namespace GymCrm.Api.Auth;
 
-internal static partial class ClientEndpoints
+internal static class ClientMembershipRequestValidation
 {
-    private static Dictionary<string, string[]> ValidatePurchaseMembershipRequest(PurchaseClientMembershipRequest request, DateOnly businessDate)
+    internal static Dictionary<string, string[]> ValidatePurchaseMembershipRequest(PurchaseClientMembershipRequest request, DateOnly businessDate)
     {
         var errors = new Dictionary<string, string[]>();
         ValidateAdditionalFields(request.AdditionalFields, errors);
@@ -21,7 +21,7 @@ internal static partial class ClientEndpoints
         return errors;
     }
 
-    private static Dictionary<string, string[]> ValidateRenewMembershipRequest(
+    internal static Dictionary<string, string[]> ValidateRenewMembershipRequest(
         RenewClientMembershipRequest request,
         Client client,
         DateOnly businessDate)
@@ -34,7 +34,7 @@ internal static partial class ClientEndpoints
         return errors;
     }
 
-    private static void ValidateCatalogPayment(
+    internal static void ValidateCatalogPayment(
         string? status,
         bool? isPaid,
         string? paymentDate,
@@ -56,7 +56,7 @@ internal static partial class ClientEndpoints
         ValidateRequiredPaymentDate(paymentDate, businessDate, errors);
     }
 
-    private static ProblemHttpResult? CreateRemovedPaymentMarkerProblem(string? paymentStatus, bool? isPaid)
+    internal static ProblemHttpResult? CreateRemovedPaymentMarkerProblem(string? paymentStatus, bool? isPaid)
     {
         if (string.Equals(paymentStatus?.Trim(), "Unpaid", StringComparison.OrdinalIgnoreCase) || isPaid == false)
         {
@@ -70,7 +70,7 @@ internal static partial class ClientEndpoints
         return null;
     }
 
-    private static ProblemHttpResult CreateProblem(
+    internal static ProblemHttpResult CreateProblem(
         int statusCode,
         string type,
         string title,
@@ -85,7 +85,7 @@ internal static partial class ClientEndpoints
         });
     }
 
-    private static void ValidatePricingSelection(
+    internal static void ValidatePricingSelection(
         Guid? membershipCatalogItemId,
         decimal? manualSaleAmount,
         Dictionary<string, string[]> errors)
@@ -111,22 +111,7 @@ internal static partial class ClientEndpoints
         }
     }
 
-    private static void ValidateAdditionalFields(
-        IDictionary<string, JsonElement>? additionalFields,
-        Dictionary<string, string[]> errors)
-    {
-        if (additionalFields is null)
-        {
-            return;
-        }
-
-        foreach (var field in additionalFields.Keys)
-        {
-            errors[field] = [$"Field '{field}' is not allowed for this operation."];
-        }
-    }
-
-    private static Dictionary<string, string[]> ValidateCorrectMembershipRequest(
+    internal static Dictionary<string, string[]> ValidateCorrectMembershipRequest(
         CorrectClientMembershipRequest request,
         Client client,
         DateOnly businessDate)
@@ -166,7 +151,7 @@ internal static partial class ClientEndpoints
         }
     }
 
-    private static Dictionary<string, string[]> ValidateRefundRequest(CreateClientMembershipRefundRequest request)
+    internal static Dictionary<string, string[]> ValidateRefundRequest(CreateClientMembershipRefundRequest request)
     {
         var errors = new Dictionary<string, string[]>();
 
@@ -308,7 +293,7 @@ internal static partial class ClientEndpoints
             : null;
     }
 
-    private static DateOnly? ParseIsoDate(string? value)
+    internal static DateOnly? ParseIsoDate(string? value)
     {
         return DateOnly.TryParseExact(
             value?.Trim(),
@@ -320,7 +305,7 @@ internal static partial class ClientEndpoints
             : null;
     }
 
-    private static Dictionary<string, string[]> CreateMembershipOperationError(ClientMembershipMutationError error)
+    internal static Dictionary<string, string[]> CreateMembershipOperationError(ClientMembershipMutationError error)
     {
         return error switch
         {
@@ -370,7 +355,7 @@ internal static partial class ClientEndpoints
         };
     }
 
-    private static Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult> MapRefundMutationError(
+    internal static Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult> MapRefundMutationError(
         ClientMembershipRefundMutationError error)
     {
         if (error == ClientMembershipRefundMutationError.ClientMissing)
