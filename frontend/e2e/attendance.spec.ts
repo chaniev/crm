@@ -49,6 +49,29 @@ const coachSession = {
   },
 }
 
+const administratorAttendanceSession = {
+  ...coachSession,
+  csrfToken: 'administrator-attendance-csrf-token',
+  user: {
+    ...coachSession.user,
+    assignedGroupIds: [],
+    branchId: 'branch-1',
+    fullName: 'Администратор филиала',
+    id: 'administrator-id',
+    login: 'administrator',
+    role: 'Administrator',
+  },
+} as const
+
+const coachWithoutAssignmentSession = {
+  ...coachSession,
+  csrfToken: 'coach-empty-scope-csrf-token',
+  user: {
+    ...coachSession.user,
+    assignedGroupIds: [],
+  },
+} as const
+
 const assignedGroup = {
   id: GROUP_ID,
   name: 'Группа 7: вечер',
@@ -343,6 +366,44 @@ test.describe('Мобильный сценарий посещений трене
   })
 })
 
+test.describe('TASK-111 attendance role and scope regression', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('Administrator consumes the backend-issued attendance group grant', async ({ page }) => {
+    await mockAttendanceWorkspace(
+      page,
+      administratorAttendanceSession,
+      [assignedGroup],
+    )
+
+    await page.goto('/')
+
+    await expect(page.getByTestId('attendance-screen')).toBeVisible()
+    await expect(page.getByTestId('attendance-group-select')).toHaveValue(assignedGroup.name)
+    await expect(page.getByTestId(`attendance-client-card-${CLIENT_ID}`)).toBeVisible()
+    await expect(page.getByText(CLIENT_FULL_NAME)).toBeVisible()
+  })
+
+  test('Coach without an assigned backend scope gets the restricted empty state', async ({
+    page,
+  }) => {
+    let rosterRequests = 0
+    await mockAttendanceWorkspace(page, coachWithoutAssignmentSession, [], () => {
+      rosterRequests += 1
+    })
+
+    await page.goto('/')
+
+    await expect(page.getByTestId('attendance-screen')).toBeVisible()
+    await expect(page.getByText('Назначенные группы отсутствуют')).toBeVisible()
+    await expect(page.getByText(
+      'Когда вам назначат группу, экран посещений автоматически покажет рабочий список.',
+    )).toBeVisible()
+    await expect(page.getByTestId('attendance-roster')).toHaveCount(0)
+    expect(rosterRequests).toBe(0)
+  })
+})
+
 function buildRosterPayload(trainingDate: string, state: string) {
   return {
     groupId: GROUP_ID,
@@ -398,6 +459,47 @@ function buildRosterPayload(trainingDate: string, state: string) {
       },
     ],
   }
+}
+
+async function mockAttendanceWorkspace(
+  page: Page,
+  session: typeof administratorAttendanceSession | typeof coachWithoutAssignmentSession,
+  groups: readonly (typeof assignedGroup)[],
+  onRosterRequest?: () => void,
+) {
+  await mockApi(page, async ({ method, pathname, route, searchParams }) => {
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, session)
+      return true
+    }
+
+    if (pathname === '/api/attendance/groups' && method === 'GET') {
+      await fulfillJson(route, 200, {
+        groups,
+        today: FIXED_TRAINING_DATE,
+        maxTrainingDate: FIXED_TRAINING_DATE,
+      })
+      return true
+    }
+
+    if (
+      pathname === `/api/attendance/groups/${GROUP_ID}/clients`
+      && method === 'GET'
+    ) {
+      onRosterRequest?.()
+      await fulfillJson(
+        route,
+        200,
+        buildRosterPayload(
+          searchParams.get('trainingDate') ?? FIXED_TRAINING_DATE,
+          'Unmarked',
+        ),
+      )
+      return true
+    }
+
+    return false
+  })
 }
 
 type MockApiContext = {

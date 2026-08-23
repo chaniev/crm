@@ -637,7 +637,7 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
     }
 
     if (pathname === '/api/auth/session' && method === 'GET') {
-      await fulfillJson(route, HEAD_COACH_SESSION)
+      await fulfillJson(route, COACH_RESTRICTED_SESSION)
       return
     }
 
