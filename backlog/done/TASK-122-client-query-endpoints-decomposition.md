@@ -1,7 +1,7 @@
 # TASK-122: Выделить read-only client query endpoints
 
 ## Status
-risky
+done
 
 ## Goal
 Изменения списка и карточки клиентов можно вносить в локальный query-модуль,
@@ -43,18 +43,18 @@ Read-only handlers, фильтры, paging, coach scope, hydration и response m
 - Обязательны `refactoring-specialist`, `dotnet-backend-specialist` и test-first review.
 
 ## Acceptance criteria
-- [ ] Route manifest и OpenAPI surface read endpoints не изменились.
-- [ ] Все list/detail filters, ordering, counts и paging возвращают прежние результаты.
-- [ ] Coach и branch scopes проходят отдельные allowed/forbidden regressions.
-- [ ] `ClientEndpoints.cs` уменьшен минимум на 1000 строк без перемещения write logic в query modules.
-- [ ] Новые типы имеют одну явную responsibility и не зависят от frontend/bot.
-- [ ] Полный backend quality baseline проходит.
+- [x] Route manifest и OpenAPI surface read endpoints не изменились.
+- [x] Все list/detail filters, ordering, counts и paging возвращают прежние результаты.
+- [x] Coach и branch scopes проходят отдельные allowed/forbidden regressions.
+- [x] `ClientEndpoints.cs` уменьшен минимум на 1000 строк без перемещения write logic в query modules.
+- [x] Новые типы имеют одну явную responsibility и не зависят от frontend/bot.
+- [x] Полный backend quality baseline проходит.
 
 ## Test checklist
-- [ ] Добавить/обновить characterization tests для list, detail, quick filters и paging.
-- [ ] Проверить HeadCoach, Administrator и Coach scope matrices.
-- [ ] Проверить invalid dates/status/paging и стабильные ProblemDetails.
-- [ ] Запустить format, Release build, полный xUnit suite и NuGet audit.
+- [x] Добавить/обновить characterization tests для list, detail, quick filters и paging.
+- [x] Проверить HeadCoach, Administrator и Coach scope matrices.
+- [x] Проверить invalid dates/status/paging и стабильные ProblemDetails.
+- [x] Запустить format, Release build, полный xUnit suite и NuGet audit.
 
 ## AI safety
 - Safe for Codex: no
@@ -72,3 +72,20 @@ Read-only handlers, фильтры, paging, coach scope, hydration и response m
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: активной задачи на структурное выделение client query endpoints не найдено.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-122-client-query-endpoints-decomposition.plan.md
+- implementation_branch: refactor/TASK-122-client-query-endpoints-decomposition
+- implementation_state: completed
+- implementation_commits: 5f1125b, 4debc5d
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23.
+- Integrated candidate: `8cc084b`; query route/field manifests and role/scope regressions were independently reviewed.
+- Validation: backend format, warnings-as-errors build, NuGet audit and aggregate `430/430` xUnit tests passed.
+- Runtime/data: API behavior and schema were unchanged; migration and Docker Compose task stack were not required.

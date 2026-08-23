@@ -1,7 +1,7 @@
 # TASK-123: Выделить client lifecycle endpoints и validation
 
 ## Status
-risky
+done
 
 ## Goal
 Создание, редактирование, перевод между филиалами и archive/restore клиента
@@ -42,19 +42,19 @@ Upsert, transfer, group/contact assignment periods и audit serialization тру
 - Обязательны `refactoring-specialist`, `dotnet-backend-specialist` и `test-automator`.
 
 ## Acceptance criteria
-- [ ] Create/update/transfer/archive/restore routes и contracts не изменились.
-- [ ] Invalid JSON и validation errors имеют прежние ProblemDetails keys/status.
-- [ ] Contact/group/branch assignment periods сохраняются и закрываются как прежде.
-- [ ] Audit state before/after и actor semantics не изменились.
-- [ ] Lifecycle module не содержит membership sale/refund orchestration.
-- [ ] Полный backend quality baseline проходит.
+- [x] Create/update/transfer/archive/restore routes и contracts не изменились.
+- [x] Invalid JSON и validation errors имеют прежние ProblemDetails keys/status.
+- [x] Contact/group/branch assignment periods сохраняются и закрываются как прежде.
+- [x] Audit state before/after и actor semantics не изменились.
+- [x] Lifecycle module не содержит membership sale/refund orchestration.
+- [x] Полный backend quality baseline проходит.
 
 ## Test checklist
-- [ ] Characterization tests на каждый lifecycle route и повторный reload.
-- [ ] Allowed/forbidden tests по ролям и филиалам.
-- [ ] Validation/atomicity tests для transfer и group assignments.
-- [ ] Audit regression tests с точными event categories и entity ids.
-- [ ] Запустить format, Release build, полный xUnit suite и NuGet audit.
+- [x] Characterization tests на каждый lifecycle route и повторный reload.
+- [x] Allowed/forbidden tests по ролям и филиалам.
+- [x] Validation/atomicity tests для transfer и group assignments.
+- [x] Audit regression tests с точными event categories и entity ids.
+- [x] Запустить format, Release build, полный xUnit suite и NuGet audit.
 
 ## AI safety
 - Safe for Codex: no
@@ -72,3 +72,20 @@ Upsert, transfer, group/contact assignment periods и audit serialization тру
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: active client workflow tasks меняют UX/возможности и не покрывают structural lifecycle extraction.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-123-client-lifecycle-endpoints-decomposition.plan.md
+- implementation_branch: refactor/TASK-123-client-lifecycle-endpoints-decomposition
+- implementation_state: completed
+- implementation_commits: b13dc9a, e23a2e7, 264e3aa, 54ec604, b8f5ebd
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23; final local-main integration: `a3e12ea`.
+- Lifecycle endpoints and validation are dedicated top-level owners; the initial filename-only partial split was corrected before acceptance.
+- Validation: exact route/role/404/audit/rollback regressions plus backend format, warnings-as-errors build, NuGet audit and aggregate `430/430` xUnit tests passed.
+- Runtime/data: contracts and schema were unchanged; migration and Docker Compose task stack were not required.

@@ -1,7 +1,7 @@
 # TASK-125: Декомпозировать ClientMembershipService за стабильным facade
 
 ## Status
-risky
+done
 
 ## Goal
 `IClientMembershipService` сохраняет текущий публичный contract, а purchase,
@@ -46,19 +46,19 @@ renew/correct, visit write-off, refund и query responsibilities реализу�
 - Обязательны `refactoring-specialist`, `dotnet-backend-specialist` и `test-automator`.
 
 ## Acceptance criteria
-- [ ] Публичный `IClientMembershipService` и DI registration не изменились.
-- [ ] Facade не превышает 250 строк и только валидирует boundary/delegates.
-- [ ] Каждый collaborator имеет одну use-case responsibility и не превышает 400 строк.
-- [ ] Transaction, overlap, idempotency-adjacent и audit-observable behavior сохранены.
-- [ ] Attendance consumer продолжает корректно write-off/restore SingleVisit.
-- [ ] Полный backend quality baseline проходит.
+- [x] Публичный `IClientMembershipService` и DI registration не изменились.
+- [x] Facade не превышает 250 строк и только валидирует boundary/delegates.
+- [x] Каждый collaborator имеет одну use-case responsibility и не превышает 400 строк.
+- [x] Transaction, overlap, idempotency-adjacent и audit-observable behavior сохранены.
+- [x] Attendance consumer продолжает корректно write-off/restore SingleVisit.
+- [x] Полный backend quality baseline проходит.
 
 ## Test checklist
-- [ ] Characterization tests Get/Purchase/Renew/Correct/Comment.
-- [ ] Tests WriteOff/Restore SingleVisit и attendance integration.
-- [ ] Tests Register/Cancel refund, rollback и overlap concurrency.
-- [ ] Проверить existing API regressions после изменения DI graph.
-- [ ] Запустить format, Release build, полный xUnit suite и NuGet audit.
+- [x] Characterization tests Get/Purchase/Renew/Correct/Comment.
+- [x] Tests WriteOff/Restore SingleVisit и attendance integration.
+- [x] Tests Register/Cancel refund, rollback и overlap concurrency.
+- [x] Проверить existing API regressions после изменения DI graph.
+- [x] Запустить format, Release build, полный xUnit suite и NuGet audit.
 
 ## AI safety
 - Safe for Codex: no
@@ -76,3 +76,20 @@ renew/correct, visit write-off, refund и query responsibilities реализу�
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: active membership product tasks меняют behavior/data model и явно исключены из этого structural slice.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-125-client-membership-service-decomposition.plan.md
+- implementation_branch: refactor/TASK-125-client-membership-service-decomposition
+- implementation_state: completed
+- implementation_commits: 1a7c0d2, 8fe45b6
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23; final local-main integration: `ef3d69c`.
+- Facade is 64 lines; all focused collaborators are at most 394 lines, preserve the unchanged nine-method interface and share the scoped `GymCrmDbContext` without mutable cross-operation state.
+- Validation: PostgreSQL facade sequence for all nine methods, overlap/concurrency/audit rollback/Attendance barriers, backend format, warnings-as-errors build, clean NuGet audit and aggregate `430/430` xUnit tests passed.
+- Runtime/data: interface, observable rules and schema were unchanged; migration and Docker Compose task stack were not required.

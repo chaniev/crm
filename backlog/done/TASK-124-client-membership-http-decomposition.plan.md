@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-124 Выделить membership HTTP orchestration из ClientEndpoints
 
 ## Metadata
-- source_task: /backlog/risky/TASK-124-client-membership-http-decomposition.md
+- source_task: /backlog/done/TASK-124-client-membership-http-decomposition.md
 - branch: refactor/TASK-124-client-membership-http-decomposition
 - readiness: no — требуется human review money/idempotency/concurrency/audit boundary
 - dependencies: TASK-122 и TASK-123 — обе последовательно интегрированы до начала исполнения

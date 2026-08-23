@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-130 Декомпозировать Python BotService по сценариям
 
 ## Metadata
-- source_task: /backlog/risky/TASK-130-bot-core-service-decomposition.md
+- source_task: /backlog/done/TASK-130-bot-core-service-decomposition.md
 - branch: refactor/TASK-130-bot-core-service-decomposition
 - readiness: no — требуется human review attendance state/idempotency callback characterization
 - dependencies: none; TASK-010 and TASK-014 remain explicitly out of scope

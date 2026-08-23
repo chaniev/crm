@@ -1,7 +1,7 @@
 # TASK-127: Разделить core client screens и form components
 
 ## Status
-implementation
+done
 
 ## Goal
 Create, edit и detail client screens имеют отдельные feature modules, а общий
@@ -42,19 +42,19 @@ sections, photo, attendance и membership UI.
 - Обязательны `refactoring-specialist`, `react-specialist` и `test-automator`.
 
 ## Acceptance criteria
-- [ ] Три route screen имеют отдельные modules и прежние public exports.
-- [ ] Form/photo/attendance/transfer state не поднят в новый global context.
-- [ ] Loading, empty, error, disabled, pending и restricted states сохранены.
-- [ ] Return-to-list/group/attendance context и focus behavior не изменились.
-- [ ] Root/barrel не превышает 250 строк; feature modules не превышают 600 строк.
-- [ ] Frontend quality baseline и affected mobile workflows проходят.
+- [x] Три route screen имеют отдельные modules и прежние public exports.
+- [x] Form/photo/attendance/transfer state не поднят в новый global context.
+- [x] Loading, empty, error, disabled, pending и restricted states сохранены.
+- [x] Return-to-list/group/attendance context и focus behavior не изменились.
+- [x] Root/barrel не превышает 250 строк; feature modules не превышают 600 строк.
+- [x] Frontend quality baseline и affected mobile workflows проходят.
 
 ## Test checklist
-- [ ] Characterization component tests create/edit/detail and validation errors.
-- [ ] Photo upload/validation и attendance pagination regressions.
-- [ ] Transfer allowed/forbidden и navigation return-context tests.
-- [ ] Проверить long names и все обязательные mobile/desktop viewports.
-- [ ] Запустить lint, strict typecheck, raw-color, unit, build и affected Playwright/WebKit tests.
+- [x] Characterization component tests create/edit/detail and validation errors.
+- [x] Photo upload/validation и attendance pagination regressions.
+- [x] Transfer allowed/forbidden и navigation return-context tests.
+- [x] Проверить long names и все обязательные mobile/desktop viewports.
+- [x] Запустить lint, strict typecheck, raw-color, unit, build и affected Playwright/WebKit tests.
 
 ## AI safety
 - Safe for Codex: yes
@@ -76,5 +76,16 @@ sections, photo, attendance и membership UI.
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-23 01:15
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-127-client-management-core-decomposition.plan.md
+- implementation_plan: /backlog/done/TASK-127-client-management-core-decomposition.plan.md
 - implementation_branch: refactor/TASK-127-client-management-core-decomposition
+- implementation_state: completed
+- implementation_commits: d5cc2a0, 645af39, 582657a, e5594f8
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23; integrated candidate: `59a9202`.
+- Compatibility barrel is 5 lines; non-membership screen/form/section modules are within the 600-line limit, while the 892-line opaque membership subtree was preserved for TASK-128.
+- Validation: exact create/edit payload and ProblemDetails draft regressions, stale loads, detail recovery, transfer retry/idempotency and focus return plus lint/typecheck/raw-color, `522/522` unit tests, build, affected Chromium and `40/40` target-iPhone WebKit passed.
+- Residual device evidence: physical Safari/software keyboard were not executed; photo removal and attendance pagination were not applicable because those operations are absent from the current component/API baseline.

@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-123 Выделить client lifecycle endpoints и validation
 
 ## Metadata
-- source_task: /backlog/risky/TASK-123-client-lifecycle-endpoints-decomposition.md
+- source_task: /backlog/done/TASK-123-client-lifecycle-endpoints-decomposition.md
 - branch: refactor/TASK-123-client-lifecycle-endpoints-decomposition
 - readiness: no — требуется human review атомарности period/audit boundaries
 - dependencies: TASK-122 — должна быть интегрирована до начала исполнения

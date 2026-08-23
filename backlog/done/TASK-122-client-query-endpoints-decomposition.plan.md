@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-122 Выделить read-only client query endpoints
 
 ## Metadata
-- source_task: /backlog/risky/TASK-122-client-query-endpoints-decomposition.md
+- source_task: /backlog/done/TASK-122-client-query-endpoints-decomposition.md
 - branch: refactor/TASK-122-client-query-endpoints-decomposition
 - readiness: no — требуется human review authorization/scope characterization перед исполнением
 - dependencies: none

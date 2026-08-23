@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-127 Разделить core client screens и form components
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-127-client-management-core-decomposition.md
+- source_task: /backlog/done/TASK-127-client-management-core-decomposition.md
 - branch: refactor/TASK-127-client-management-core-decomposition
 - readiness: yes
 - dependencies: TASK-126 — должна быть интегрирована до начала исполнения

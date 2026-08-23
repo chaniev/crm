@@ -1,7 +1,7 @@
 # TASK-124: Выделить membership HTTP orchestration из ClientEndpoints
 
 ## Status
-risky
+done
 
 ## Goal
 Transport orchestration покупки, продления, корректировки, оплаты, возвратов и
@@ -44,19 +44,19 @@ concurrency или audit behavior.
 - Обязательны `refactoring-specialist`, `dotnet-backend-specialist` и `test-automator`.
 
 ## Acceptance criteria
-- [ ] Все membership HTTP contracts и ProblemDetails полностью сохранены.
-- [ ] Same-key retry возвращает тот же результат без второй mutation.
-- [ ] Different-key concurrent overlap даёт один success и один stable conflict, без `500`.
-- [ ] Refund/comment/audit isolation не изменена.
-- [ ] `ClientEndpoints.cs` после TASK-122–124 не превышает 300 строк и только композирует modules.
-- [ ] Полный backend quality baseline проходит.
+- [x] Все membership HTTP contracts и ProblemDetails полностью сохранены.
+- [x] Same-key retry возвращает тот же результат без второй mutation.
+- [x] Different-key concurrent overlap даёт один success и один stable conflict, без `500`.
+- [x] Refund/comment/audit isolation не изменена.
+- [x] `ClientEndpoints.cs` после TASK-122–124 не превышает 300 строк и только композирует modules.
+- [x] Полный backend quality baseline проходит.
 
 ## Test checklist
-- [ ] Characterization tests на все membership routes и validation failures.
-- [ ] Idempotency replay/in-progress/cleanup regression tests.
-- [ ] Повторить PostgreSQL concurrent-overlap test минимум 5 раз подряд.
-- [ ] Проверить mandatory audit rollback и отсутствие leaked constraint details.
-- [ ] Запустить format, Release build, полный xUnit suite и NuGet audit.
+- [x] Characterization tests на все membership routes и validation failures.
+- [x] Idempotency replay/in-progress/cleanup regression tests.
+- [x] Повторить PostgreSQL concurrent-overlap test минимум 5 раз подряд.
+- [x] Проверить mandatory audit rollback и отсутствие leaked constraint details.
+- [x] Запустить format, Release build, полный xUnit suite и NuGet audit.
 
 ## AI safety
 - Safe for Codex: no
@@ -74,3 +74,20 @@ concurrency или audit behavior.
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-114/TASK-115 покрывают behavior regressions и новую target model, но не transport decomposition.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-124-client-membership-http-decomposition.plan.md
+- implementation_branch: refactor/TASK-124-client-membership-http-decomposition
+- implementation_state: completed
+- implementation_commits: ffac884, 22ddd06, 3731a4d
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23; final local-main integration: `0a6dbfa`.
+- `ClientEndpoints.cs` is a 15-line composition root; membership endpoint, validation and audit owners are separate top-level modules.
+- Validation: exact seven-route/policy/ProblemDetails/idempotency/replay tests, `44/44` membership regressions, five PostgreSQL overlap repetitions and aggregate `430/430` xUnit tests passed; NuGet audit was clean.
+- Runtime/data: HTTP contracts and schema were unchanged; migration and Docker Compose task stack were not required.

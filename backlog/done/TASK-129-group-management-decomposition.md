@@ -1,7 +1,7 @@
 # TASK-129: Разделить group registry и group form modules
 
 ## Status
-risky
+done
 
 ## Goal
 Список, создание, редактирование и форма группы имеют отдельные state/transport
@@ -41,19 +41,19 @@ weekday/time payload, trainer assignment или permission-restricted behavior.
 - Обязательны `refactoring-specialist`, `react-specialist` и `test-automator`.
 
 ## Acceptance criteria
-- [ ] Registry, create, edit и form имеют отдельные modules.
-- [ ] Create/update payloads полностью совпадают с baseline.
-- [ ] Filters, search, branch scope и member list behavior сохранены.
-- [ ] Loading/empty/error/pending/restricted states не изменились.
-- [ ] Root/barrel не превышает 200 строк; modules не превышают 500 строк.
-- [ ] Frontend quality baseline и affected mobile group workflows проходят.
+- [x] Registry, create, edit и form имеют отдельные modules.
+- [x] Create/update payloads полностью совпадают с baseline.
+- [x] Filters, search, branch scope и member list behavior сохранены.
+- [x] Loading/empty/error/pending/restricted states не изменились.
+- [x] Root/barrel не превышает 200 строк; modules не превышают 500 строк.
+- [x] Frontend quality baseline и affected mobile group workflows проходят.
 
 ## Test checklist
-- [ ] Characterization tests list filters and row actions.
-- [ ] Create/edit form payload and validation tests.
-- [ ] Allowed/forbidden role and branch scope paths.
-- [ ] Mobile portrait/compact-landscape form and registry checks.
-- [ ] Запустить lint, strict typecheck, raw-color, unit, build и affected Playwright/WebKit tests.
+- [x] Characterization tests list filters and row actions.
+- [x] Create/edit form payload and validation tests.
+- [x] Allowed/forbidden role and branch scope paths.
+- [x] Mobile portrait/compact-landscape form and registry checks.
+- [x] Запустить lint, strict typecheck, raw-color, unit, build и affected Playwright/WebKit tests.
 
 ## AI safety
 - Safe for Codex: no
@@ -71,3 +71,20 @@ weekday/time payload, trainer assignment или permission-restricted behavior.
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill + react-best-practices + crm-mobile-first-ui.
 - Duplicate check: TASK-117 меняет schedule contract и явно исключён; structural group module split не покрыт.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-129-group-management-decomposition.plan.md
+- implementation_branch: refactor/TASK-129-group-management-decomposition
+- implementation_state: completed
+- implementation_commits: 1866f6a, 2aed3ae
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23; integrated candidate: `dcac393`.
+- Compatibility barrel is 6 lines; list/create/edit/form/mapper modules are within the 500-line target and preserve exact schedule/trainer payloads.
+- Validation: lint/typecheck/raw-color, `512/512` unit tests, build, `21/21` affected Chromium and focused target-iPhone WebKit portrait/compact-height checks passed; the later combined frontend chain passed `40/40` iPhone WebKit.
+- Residual device evidence: physical Safari/software keyboard were not executed; an unrelated full-suite client-filter timeout seen during an isolated run was absent from the final combined run.

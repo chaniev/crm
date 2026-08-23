@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-129 Разделить group registry и group form modules
 
 ## Metadata
-- source_task: /backlog/risky/TASK-129-group-management-decomposition.md
+- source_task: /backlog/done/TASK-129-group-management-decomposition.md
 - branch: refactor/TASK-129-group-management-decomposition
 - readiness: no — требуется human review schedule payload/scope characterization
 - dependencies: TASK-126 — app shell/routing decomposition должна быть интегрирована

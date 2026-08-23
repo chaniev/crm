@@ -1,7 +1,7 @@
 # TASK-130: Декомпозировать Python BotService по сценариям
 
 ## Status
-risky
+done
 
 ## Goal
 `BotService` остаётся тонким event-dispatch facade, а attendance, client search,
@@ -40,19 +40,19 @@ membership rendering, CRM errors и bot-owned state.
 - Обязательны `refactoring-specialist`, `python-pro` и `test-automator`.
 
 ## Acceptance criteria
-- [ ] `BotService` не превышает 200 строк и только dispatch/delegates.
-- [ ] Attendance, client и membership scenarios имеют отдельные typed boundaries.
-- [ ] Callback payloads и visible Telegram responses сохранены.
-- [ ] State recovery/cleanup, request ids и idempotency behavior не изменились.
-- [ ] Не создана конкурирующая MAX/core abstraction.
-- [ ] Ruff, strict mypy и полный pytest suite проходят.
+- [x] `BotService` не превышает 200 строк и только dispatch/delegates.
+- [x] Attendance, client и membership scenarios имеют отдельные typed boundaries.
+- [x] Callback payloads и visible Telegram responses сохранены.
+- [x] State recovery/cleanup, request ids и idempotency behavior не изменились.
+- [x] Не создана конкурирующая MAX/core abstraction.
+- [x] Ruff, strict mypy и полный pytest suite проходят.
 
 ## Test checklist
-- [ ] Characterization tests command/text/callback dispatch.
-- [ ] Attendance date/group/toggle/save and failure recovery tests.
-- [ ] Client search pagination/card/membership rendering tests.
-- [ ] State cleanup, CRM errors, request-id/idempotency regressions.
-- [ ] Запустить locked uv sync, Ruff lint/format, mypy и pytest.
+- [x] Characterization tests command/text/callback dispatch.
+- [x] Attendance date/group/toggle/save and failure recovery tests.
+- [x] Client search pagination/card/membership rendering tests.
+- [x] State cleanup, CRM errors, request-id/idempotency regressions.
+- [x] Запустить locked uv sync, Ruff lint/format, mypy и pytest.
 
 ## AI safety
 - Safe for Codex: no
@@ -71,3 +71,20 @@ membership rendering, CRM errors и bot-owned state.
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-014 зависит от будущего MAX; TASK-130 ограничен текущими Telegram scenarios и не создаёт channel abstraction.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-130-bot-core-service-decomposition.plan.md
+- implementation_branch: refactor/TASK-130-bot-core-service-decomposition
+- implementation_state: completed
+- implementation_commits: ffc88c6, e262a09
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23; integrated candidate: `c994307`, local-main merge `a09096c`.
+- `BotService` is 166 lines; attendance/client/dialog/error/rendering boundaries are separate and no MAX/channel abstraction was introduced.
+- Validation: locked `uv sync`, Ruff lint/format, strict mypy and full `59/59` pytest passed, including failure/retry/idempotency/request-id/state-cleanup transcripts.
+- Runtime/data: bot callback/storage/public constructor contracts were unchanged; deployment and Docker Compose task stack were not requested.

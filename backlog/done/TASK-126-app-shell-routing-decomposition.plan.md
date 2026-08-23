@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-126 Декомпозировать App shell и routing orchestration
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-126-app-shell-routing-decomposition.md
+- source_task: /backlog/done/TASK-126-app-shell-routing-decomposition.md
 - branch: refactor/TASK-126-app-shell-routing-decomposition
 - readiness: yes
 - dependencies: none

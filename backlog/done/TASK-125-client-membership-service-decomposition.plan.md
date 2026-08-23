@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-125 Декомпозировать ClientMembershipService за стабильным facade
 
 ## Metadata
-- source_task: /backlog/risky/TASK-125-client-membership-service-decomposition.md
+- source_task: /backlog/done/TASK-125-client-membership-service-decomposition.md
 - branch: refactor/TASK-125-client-membership-service-decomposition
 - readiness: no — требуется human review transaction/overlap/attendance service boundaries
 - dependencies: TASK-124 — должна быть интегрирована до исполнения
