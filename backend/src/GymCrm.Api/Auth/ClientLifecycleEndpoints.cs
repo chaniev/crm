@@ -8,9 +8,10 @@ using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using static GymCrm.Api.Auth.ClientEndpoints;
 using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
 using static GymCrm.Api.Auth.ClientLifecycleRequestValidation;
+using static GymCrm.Api.Auth.ClientMembershipEndpoints;
+using static GymCrm.Api.Auth.ClientMembershipRequestValidation;
 
 
 namespace GymCrm.Api.Auth;

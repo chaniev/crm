@@ -34,15 +34,18 @@ public sealed class ClientMembershipPaymentReadSemanticsTests
     [Fact]
     public void Removed_payment_actions_and_filters_have_stable_tombstone_problem_types()
     {
-        var clientEndpoints = ReadRepositoryFile("backend/src/GymCrm.Api/Auth/ClientEndpoints.cs");
+        var clientMembershipEndpoints = ReadRepositoryFile("backend/src/GymCrm.Api/Auth/ClientMembershipEndpoints.cs");
         var clientQueryEndpoints = ReadRepositoryFile("backend/src/GymCrm.Api/Auth/ClientQueryEndpoints.cs");
         var botEndpoints = ReadRepositoryFile("backend/src/GymCrm.Api/Auth/BotInternalEndpoints.cs");
 
         Assert.Contains("membership-payment-filter-removed", clientQueryEndpoints, StringComparison.Ordinal);
-        Assert.Contains("membership-payment-action-removed", clientEndpoints, StringComparison.Ordinal);
+        Assert.Contains("membership-payment-action-removed", clientMembershipEndpoints, StringComparison.Ordinal);
         Assert.Contains("membership-payment-action-removed", botEndpoints, StringComparison.Ordinal);
         Assert.Contains("membership-unpaid-list-removed", botEndpoints, StringComparison.Ordinal);
-        Assert.Contains("StatusCodes.Status410Gone", clientEndpoints + clientQueryEndpoints + botEndpoints, StringComparison.Ordinal);
+        Assert.Contains(
+            "StatusCodes.Status410Gone",
+            clientMembershipEndpoints + clientQueryEndpoints + botEndpoints,
+            StringComparison.Ordinal);
     }
 
     [Fact]
