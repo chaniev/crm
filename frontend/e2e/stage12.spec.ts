@@ -371,30 +371,67 @@ test.describe('Основные e2e сценарии', () => {
   })
 
   test('Комментарий устойчиво привязан к покупке с несколькими версиями', async ({ page }) => {
-    const changedAt = '2026-07-21T12:34:56Z'
-    let comment = 'Исходный комментарий'
-    let updateBody: Record<string, unknown> | null = null
+    const initialAChangedAt = '2026-07-20T10:00:00Z'
+    const initialBChangedAt = '2026-07-21T11:00:00Z'
+    const updatedAt = '2026-07-22T12:34:56Z'
+    let commentA = 'Исходный комментарий A'
+    const commentB = 'Исходный комментарий B'
+    let failNextUpdate = true
+    const updateBodies: Record<string, unknown>[] = []
+    const updateUrls: string[] = []
+    const getSaleIdentities: string[][] = []
     let detailsLoads = 0
     const buildDetails = () => {
       const details = toClientPayload({ ...baseClient, behaviorKind: 'Term' }, baseGroups)
-      const version = (id: string, saleId: string, purchaseDate: string, value: string | null) => ({
+      const version = (
+        id: string,
+        saleId: string,
+        purchaseDate: string,
+        value: string,
+        actor: string,
+        changedAt: string,
+      ) => ({
         id, saleId, membershipCatalogItemId: 'catalog-1', membershipName: 'Месяц', behaviorKind: 'Term',
         purchaseDate, paymentDate: purchaseDate, paymentRecordedAt: changedAt,
         paymentRecordedByUserId: 'headcoach-id', paymentRecordedByUserName: 'Главный тренер',
         expirationDate: '2026-08-31', pricingMode: 'Catalog', grossAmount: 4000,
-        catalogPrice: 4000,
-        singleVisitUsed: false, comment: value, commentLastChangedByName: 'Главный тренер',
+        catalogPrice: 4000, singleVisitUsed: false, comment: value,
+        commentLastChangedByName: actor,
         commentLastChangedAt: changedAt,
       })
-      const saleOneLatest = version('version-2', 'sale-1', '2026-07-01', comment)
+      const saleOneLatest = version(
+        'version-2',
+        'sale-1',
+        '2026-07-01',
+        commentA,
+        commentA === 'Исходный комментарий A' ? 'Автор A' : 'Главный тренер',
+        commentA === 'Исходный комментарий A' ? initialAChangedAt : updatedAt,
+      )
       return {
         ...details,
         currentMembership: saleOneLatest,
         currentMembershipSummary: saleOneLatest,
         membershipHistory: [
           saleOneLatest,
-          { ...version('version-1', 'sale-1', '2026-07-01', comment), changeReason: 'NewPurchase' },
-          version('version-3', 'sale-2', '2026-06-01', 'Другая покупка'),
+          {
+            ...version(
+              'version-1',
+              'sale-1',
+              '2026-07-01',
+              commentA,
+              commentA === 'Исходный комментарий A' ? 'Автор A' : 'Главный тренер',
+              commentA === 'Исходный комментарий A' ? initialAChangedAt : updatedAt,
+            ),
+            changeReason: 'NewPurchase',
+          },
+          version(
+            'version-3',
+            'sale-2',
+            '2026-06-01',
+            commentB,
+            'Автор B',
+            initialBChangedAt,
+          ),
         ],
       }
     }
@@ -406,33 +443,141 @@ test.describe('Основные e2e сценарии', () => {
       }
       if (pathname === '/api/clients/client-1' && method === 'GET') {
         detailsLoads += 1
-        await fulfillJson(route, 200, buildDetails())
+        const details = buildDetails()
+        getSaleIdentities.push(details.membershipHistory.map((membership) => membership.saleId))
+        await fulfillJson(route, 200, details)
         return true
       }
       if (pathname === '/api/clients/client-1/membership/sales/sale-1/comment' && method === 'PUT') {
-        updateBody = route.request().postDataJSON() as Record<string, unknown>
-        comment = String(updateBody.comment)
+        updateUrls.push(new URL(route.request().url()).pathname)
+        const updateBody = route.request().postDataJSON() as Record<string, unknown>
+        updateBodies.push(updateBody)
+        if (failNextUpdate) {
+          failNextUpdate = false
+          await fulfillJson(route, 403, {
+            type: '/problems/forbidden',
+            title: 'Forbidden',
+            detail: 'Недостаточно прав.',
+          })
+          return true
+        }
+        commentA = String(updateBody.comment)
         await fulfillJson(route, 200, buildDetails())
         return true
       }
       return false
     })
 
-    await page.setViewportSize({ width: 390, height: 900 })
+    await page.setViewportSize({ width: 1440, height: 1200 })
     await page.goto('/clients/client-1')
     await expect(page.getByText('Комментарий к покупке')).toHaveCount(2)
     const targetSale = page.getByTestId('membership-sale-comment-sale-1')
+    const untouchedSale = page.getByTestId('membership-sale-comment-sale-2')
+    await expect(untouchedSale.getByText(commentB)).toBeVisible()
+    await expect(untouchedSale.getByText(/^Автор B ·/)).toBeVisible()
     await targetSale.getByRole('button', { name: /Редактировать комментарий/ }).click()
     await targetSale.getByRole('textbox', { name: 'Комментарий к покупке' }).fill('Обновленный комментарий')
     await targetSale.getByRole('button', { name: 'Сохранить' }).click()
+    await expect(targetSale.getByText('Недостаточно прав.')).toBeVisible()
+    await expect(targetSale.getByRole('textbox', { name: 'Комментарий к покупке' })).toHaveValue('Обновленный комментарий')
+    await expect(untouchedSale.getByText(commentB)).toBeVisible()
+    await expect(untouchedSale.getByRole('button', { name: /Редактировать комментарий/ })).toBeEnabled()
+    await expect(page.getByText('Действие не выполнено')).toHaveCount(0)
+
+    await targetSale.getByRole('button', { name: 'Сохранить' }).click()
     await expect(targetSale.getByText('Обновленный комментарий')).toBeVisible()
     await expect(targetSale.getByText(/^Главный тренер · \d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}$/)).toBeVisible()
-    expect(updateBody).toEqual({ comment: 'Обновленный комментарий' })
+    await expect(untouchedSale.getByText(commentB)).toBeVisible()
+    await expect(untouchedSale.getByText(/^Автор B ·/)).toBeVisible()
+    expect(updateBodies).toEqual([
+      { comment: 'Обновленный комментарий' },
+      { comment: 'Обновленный комментарий' },
+    ])
+    expect(updateUrls).toEqual([
+      '/api/clients/client-1/membership/sales/sale-1/comment',
+      '/api/clients/client-1/membership/sales/sale-1/comment',
+    ])
     await page.reload()
     await expect(page.getByTestId('membership-sale-comment-sale-1').getByText('Обновленный комментарий')).toBeVisible()
+    await expect(page.getByTestId('membership-sale-comment-sale-2').getByText(commentB)).toBeVisible()
     await expect(page.getByText('Комментарий к покупке')).toHaveCount(2)
     expect(detailsLoads).toBeGreaterThanOrEqual(2)
+    expect(getSaleIdentities).toEqual(expect.arrayContaining([
+      ['sale-1', 'sale-1', 'sale-2'],
+    ]))
     await expectNoHorizontalScroll(page)
+  })
+
+  test('Administrator обновляет только выбранную вторую покупку', async ({ page }) => {
+    let commentB = 'Комментарий B'
+    let updateBody: Record<string, unknown> | null = null
+    const buildDetails = () => {
+      const details = toClientPayload({ ...baseClient, behaviorKind: 'Term' }, baseGroups)
+      const version = (id: string, saleId: string, purchaseDate: string, comment: string) => ({
+        id,
+        saleId,
+        membershipCatalogItemId: 'catalog-1',
+        membershipName: 'Месяц',
+        behaviorKind: 'Term',
+        purchaseDate,
+        paymentDate: purchaseDate,
+        paymentRecordedAt: '2026-07-21T12:34:56Z',
+        paymentRecordedByUserId: 'administrator-id',
+        paymentRecordedByUserName: 'Администратор',
+        expirationDate: '2026-08-31',
+        pricingMode: 'Catalog',
+        grossAmount: 4000,
+        catalogPrice: 4000,
+        singleVisitUsed: false,
+        comment,
+        commentLastChangedByName: 'Администратор',
+        commentLastChangedAt: '2026-07-21T12:34:56Z',
+      })
+      const saleALatest = version('version-a2', 'sale-a', '2026-07-01', 'Комментарий A')
+      return {
+        ...details,
+        currentMembership: saleALatest,
+        currentMembershipSummary: saleALatest,
+        membershipHistory: [
+          saleALatest,
+          { ...version('version-a1', 'sale-a', '2026-07-01', 'Комментарий A'), changeReason: 'NewPurchase' },
+          version('version-b1', 'sale-b', '2026-06-01', commentB),
+        ],
+      }
+    }
+
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/auth/session' && method === 'GET') {
+        await fulfillJson(route, 200, administratorSession)
+        return true
+      }
+      if (pathname === '/api/clients/client-1' && method === 'GET') {
+        await fulfillJson(route, 200, buildDetails())
+        return true
+      }
+      if (pathname === '/api/clients/client-1/membership/sales/sale-b/comment' && method === 'PUT') {
+        updateBody = route.request().postDataJSON() as Record<string, unknown>
+        commentB = String(updateBody.comment)
+        await fulfillJson(route, 200, buildDetails())
+        return true
+      }
+      return false
+    })
+
+    await page.goto('/clients/client-1')
+    const saleA = page.getByTestId('membership-sale-comment-sale-a')
+    const saleB = page.getByTestId('membership-sale-comment-sale-b')
+    await expect(saleA.getByText('Комментарий A')).toBeVisible()
+    await saleB.getByRole('button', { name: /Редактировать комментарий/ }).click()
+    await saleB.getByRole('textbox', { name: 'Комментарий к покупке' }).fill('Комментарий B обновлён')
+    await saleB.getByRole('button', { name: 'Сохранить' }).click()
+
+    await expect(saleB.getByText('Комментарий B обновлён')).toBeVisible()
+    await expect(saleA.getByText('Комментарий A')).toBeVisible()
+    expect(updateBody).toEqual({ comment: 'Комментарий B обновлён' })
+    await page.reload()
+    await expect(page.getByTestId('membership-sale-comment-sale-b').getByText('Комментарий B обновлён')).toBeVisible()
+    await expect(page.getByTestId('membership-sale-comment-sale-a').getByText('Комментарий A')).toBeVisible()
   })
 
   test('Coach получает denied response при прямой mutation комментария', async ({ page }) => {

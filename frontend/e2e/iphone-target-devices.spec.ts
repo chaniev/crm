@@ -417,6 +417,141 @@ test('target portrait route restriction keeps recovery focused and touch-safe', 
   expect(recoveryBox!.height).toBeGreaterThanOrEqual(44)
 })
 
+test('TASK-114 target iPhone keeps membership sale comments isolated through reload', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+  let commentA = 'Комментарий A'
+  const commentB = 'Комментарий B'
+  const updateRequests: Array<{ body: unknown; pathname: string }> = []
+  const buildDetails = () => {
+    const version = (
+      id: string,
+      saleId: string,
+      purchaseDate: string,
+      comment: string,
+      actor: string,
+      changedAt: string,
+    ) => ({
+      ...CLIENT_LIST_ITEM.currentMembership,
+      id,
+      saleId,
+      purchaseDate,
+      paymentDate: purchaseDate,
+      validFrom: changedAt,
+      comment,
+      commentLastChangedByName: actor,
+      commentLastChangedAt: changedAt,
+    })
+    const saleALatest = version(
+      'sale-a-version-2',
+      'sale-a',
+      '2026-07-01',
+      commentA,
+      commentA === 'Комментарий A' ? 'Автор A' : 'Главный тренер',
+      commentA === 'Комментарий A' ? '2026-07-20T10:00:00Z' : '2026-07-22T12:34:56Z',
+    )
+    return {
+      ...CLIENT_LIST_ITEM,
+      currentMembership: saleALatest,
+      currentMembershipSummary: saleALatest,
+      membershipHistory: [
+        saleALatest,
+        {
+          ...version(
+            'sale-a-version-1',
+            'sale-a',
+            '2026-07-01',
+            commentA,
+            commentA === 'Комментарий A' ? 'Автор A' : 'Главный тренер',
+            commentA === 'Комментарий A' ? '2026-07-20T10:00:00Z' : '2026-07-22T12:34:56Z',
+          ),
+          changeReason: 'NewPurchase',
+        },
+        version(
+          'sale-b-version-1',
+          'sale-b',
+          '2026-06-01',
+          commentB,
+          'Автор B',
+          '2026-07-21T11:00:00Z',
+        ),
+      ],
+    }
+  }
+
+  await page.route('**/api/**', async (route) => {
+    const request = route.request()
+    const pathname = new URL(request.url()).pathname
+    const method = request.method()
+
+    if (!pathname.startsWith('/api/')) {
+      await route.continue()
+      return
+    }
+
+    if (pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, APP_CONFIG)
+      return
+    }
+    if (pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, HEAD_COACH_SESSION)
+      return
+    }
+    if (pathname === '/api/clients/client-1' && method === 'GET') {
+      await fulfillJson(route, buildDetails())
+      return
+    }
+    if (pathname === '/api/clients/client-1/messenger/telegram' && method === 'GET') {
+      await fulfillJson(route, {})
+      return
+    }
+    if (pathname === '/api/clients/client-1/membership/sales/sale-a/comment' && method === 'PUT') {
+      const body = request.postDataJSON() as { comment: string }
+      updateRequests.push({ body, pathname })
+      commentA = body.comment
+      await fulfillJson(route, buildDetails())
+      return
+    }
+
+    throw new Error(`Unexpected TASK-114 iPhone API request: ${method} ${pathname}`)
+  })
+
+  await page.goto('/clients/client-1')
+  expect(testInfo.project.use.screen).toEqual(target)
+  expect(testInfo.project.use.hasTouch).toBe(true)
+  await expect(page.getByText('Комментарий к покупке')).toHaveCount(2)
+  const saleA = page.getByTestId('membership-sale-comment-sale-a')
+  const saleB = page.getByTestId('membership-sale-comment-sale-b')
+  await expect(saleB.getByText(commentB)).toBeVisible()
+
+  await saleA.getByRole('button', { name: /Редактировать комментарий/ }).click()
+  const input = saleA.getByRole('textbox', { name: 'Комментарий к покупке' })
+  await input.fill('Комментарий A обновлён')
+  await expect(input).toBeVisible()
+  const save = saleA.getByRole('button', { name: 'Сохранить' })
+  await save.scrollIntoViewIfNeeded()
+  await expect(save).toBeInViewport()
+  await save.click()
+
+  await expect(saleA.getByText('Комментарий A обновлён')).toBeVisible()
+  await expect(saleB.getByText(commentB)).toBeVisible()
+  expect(updateRequests).toEqual([{
+    body: { comment: 'Комментарий A обновлён' },
+    pathname: '/api/clients/client-1/membership/sales/sale-a/comment',
+  }])
+  await page.reload()
+  await expect(page.getByTestId('membership-sale-comment-sale-a').getByText('Комментарий A обновлён')).toBeVisible()
+  await expect(page.getByTestId('membership-sale-comment-sale-b').getByText(commentB)).toBeVisible()
+  await expectNoHorizontalScroll(page)
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await page.getByTestId('membership-sale-comment-sale-a').scrollIntoViewIfNeeded()
+  await expect(page.getByTestId('membership-sale-comment-sale-a')).toBeVisible()
+  await expect(page.getByTestId('membership-sale-comment-sale-b')).toBeVisible()
+  await expectNoHorizontalScroll(page)
+})
+
 test('target portrait profile menu trigger stays reachable and keyboard-closeable', async ({
   page,
 }, testInfo) => {
