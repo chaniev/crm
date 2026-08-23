@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-108 Вернуть финансовому отчету task-first hierarchy
 
 ## Metadata
-- source_task: /backlog/risky/TASK-108-finance-report-task-first-hierarchy.md
+- source_task: /backlog/done/TASK-108-finance-report-task-first-hierarchy.md
 - branch: fix/TASK-108-finance-report-task-first-hierarchy
-- readiness: no — требуется explicit activation/human review financial-trust UI
+- readiness: completed — explicit user activation received and regression barrier passed
 - dependencies: none
 - risk: medium — frontend presentation must preserve backend-owned financial totals and scope
 
@@ -449,16 +449,16 @@ financial calculations are explicitly out of scope. If implementation discovers
 that backend behavior must change, stop and request product/backend review.
 
 ### Validation and acceptance
-- [ ] Red component tests for non-empty, zero/empty, loading, error without
+- [x] Red component tests for non-empty, zero/empty, loading, error without
       data, validation without retry, stale-data error and scope-label
       inconsistency.
-- [ ] Red Playwright tests for mobile scope summary, reset, retry, drawer focus,
+- [x] Red Playwright tests for mobile scope summary, reset, retry, drawer focus,
       no horizontal overflow, first-scroll breakdown, compact-height and target
       WebKit behavior.
-- [ ] Green focused unit/component tests after implementation.
-- [ ] Green affected Playwright finance spec after implementation.
-- [ ] Green target-iPhone WebKit finance scenarios.
-- [ ] Explicit report of remaining Simulator/physical-device gaps.
+- [x] Green focused unit/component tests after implementation.
+- [x] Green affected Playwright finance spec after implementation.
+- [x] Green target-iPhone WebKit finance scenarios.
+- [x] Explicit report of remaining Simulator/physical-device gaps.
 
 ## Regression barrier
 The task is not complete unless automated tests fail before implementation for
@@ -502,3 +502,11 @@ Stop and do not write further code if:
   task and the source item leaves `/backlog/risky`;
 - scope expands into exports, charts, new KPI definitions or a full finance
   redesign.
+
+## Completion evidence
+- Completed on 2026-08-23 after explicit user activation of the risky financial UI plan.
+- Expected red was captured on baseline `b8588d8`: missing visible report scope and KPI rendering for an empty report.
+- Implementation commit `161f274`; integrated candidate `ee02cd1` includes the current local `main` and was fast-forward integrated into local `main`.
+- Candidate validation passed: frontend lint, typecheck, production build, 545 unit tests, raw-color scan with 0 disallowed findings, 14 finance Chromium Playwright scenarios and 2 target-iPhone WebKit scenarios.
+- Backend/API/database contracts, finance calculations and query semantics were unchanged; no migration or Docker Compose task stack was required.
+- Physical Safari chrome, software keyboard, actual safe areas, iOS Simulator and physical-device touch remain unverified; automated WebKit portrait and compact-landscape coverage passed.
