@@ -147,8 +147,54 @@ describe('app route helpers', () => {
     })).toEqual({ retained: 'keep' })
   })
 
-  test('keeps document titles aligned with session and route access state', () => {
+  test('keeps document titles aligned with auth stages and route access state', () => {
     const session = authenticatedSession(baseUser)
+    const unauthenticatedSession: SessionResponse = {
+      bootstrapMode: false,
+      csrfToken: '',
+      isAuthenticated: false,
+      user: null,
+    }
+    const forcedPasswordSession = authenticatedSession({
+      ...baseUser,
+      mustChangePassword: true,
+    })
+
+    expect(getAppDocumentTitle(
+      'Gym CRM',
+      parseRoute('/clients'),
+      null,
+      null,
+      true,
+      null,
+    )).toBe('Открываем Gym CRM')
+
+    expect(getAppDocumentTitle(
+      'Gym CRM',
+      parseRoute('/clients'),
+      null,
+      null,
+      false,
+      'Network unavailable',
+    )).toBe('Вход недоступен • Gym CRM')
+
+    expect(getAppDocumentTitle(
+      'Gym CRM',
+      parseRoute('/clients'),
+      null,
+      unauthenticatedSession,
+      false,
+      null,
+    )).toBe('Войти в Gym CRM')
+
+    expect(getAppDocumentTitle(
+      'Gym CRM',
+      parseRoute('/clients'),
+      null,
+      forcedPasswordSession,
+      false,
+      null,
+    )).toBe('Смените пароль • Gym CRM')
 
     expect(getAppDocumentTitle(
       'Gym CRM',
@@ -176,6 +222,15 @@ describe('app route helpers', () => {
       false,
       null,
     )).toBe('Страница не найдена • Gym CRM')
+
+    expect(getAppDocumentTitle(
+      'Gym CRM',
+      parseRoute('/password'),
+      resolveRouteAccess(baseUser, parseRoute('/password')),
+      session,
+      false,
+      null,
+    )).toBe('Смена пароля • Gym CRM')
   })
 
   test('recovers a password return when the saved allowed route is now restricted', () => {
