@@ -1145,6 +1145,214 @@ public sealed class ClientMembershipWriteRegressionApiTests
         }
     }
 
+    [Fact]
+    public async Task Facade_contract_delegates_all_membership_operations_without_cross_scope_state()
+    {
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
+        Guid saleId;
+        Guid membershipId;
+        Guid refundId;
+        Guid renewedMembershipId;
+
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
+            var missing = await service.GetAsync(Guid.NewGuid(), CancellationToken.None);
+            Assert.Null(missing);
+
+            var invalidPurchase = await service.PurchaseAsync(
+                Guid.Empty,
+                new CreateClientMembershipPurchaseCommand(
+                    context.ActorId,
+                    context.TermCatalogItemId,
+                    context.Today,
+                    context.Today.AddDays(29),
+                    context.Today,
+                    ProfessionalComment: null),
+                CancellationToken.None);
+            Assert.Equal(ClientMembershipMutationError.InvalidRequest, invalidPurchase.Error);
+
+            var purchase = await service.PurchaseAsync(
+                context.ClientId,
+                new CreateClientMembershipPurchaseCommand(
+                    context.ActorId,
+                    context.TermCatalogItemId,
+                    context.Today,
+                    context.Today.AddDays(29),
+                    context.Today,
+                    ProfessionalComment: null),
+                CancellationToken.None);
+            Assert.Equal(ClientMembershipMutationError.None, purchase.Error);
+            Assert.Null(purchase.SaleAudit);
+            Assert.Equal(context.ClientId, purchase.Details?.ClientId);
+            var purchasedMembership = purchase.Details!.CurrentMembership!;
+            Assert.Equal(ClientMembershipChangeReason.NewPurchase, purchasedMembership.ChangeReason);
+            Assert.Equal(context.TermCatalogItemId, purchasedMembership.MembershipCatalogItemId);
+            Assert.Equal(1500m, purchasedMembership.FinancialSummary.GrossAmount);
+            Assert.Single(purchase.Details.MembershipHistory);
+            saleId = purchasedMembership.SaleId;
+            membershipId = purchasedMembership.Id;
+        }
+
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
+            var details = await service.GetAsync(context.ClientId, CancellationToken.None);
+            Assert.Equal(membershipId, details?.CurrentMembership?.Id);
+
+            var comment = await service.UpdateCommentAsync(
+                context.ClientId,
+                saleId,
+                new UpdateClientMembershipCommentCommand(context.ActorId, "  facade comment  "),
+                CancellationToken.None);
+            Assert.True(comment.Found);
+            Assert.Equal("set", comment.Transition);
+            Assert.Equal("facade comment", comment.Details?.CurrentMembership?.Comment);
+            Assert.Equal(membershipId, comment.Details?.CurrentMembership?.Id);
+
+            var correction = await service.CorrectAsync(
+                context.ClientId,
+                new CorrectClientMembershipCommand(
+                    context.ActorId,
+                    saleId,
+                    membershipId,
+                    context.Today,
+                    context.Today.AddDays(29),
+                    context.Today.AddDays(-1)),
+                CancellationToken.None);
+            Assert.Equal(ClientMembershipMutationError.None, correction.Error);
+            Assert.Equal(context.Today, correction.SaleAudit?.OldSale.PaymentDate);
+            Assert.Equal(context.Today.AddDays(-1), correction.SaleAudit?.NewSale.PaymentDate);
+            Assert.Equal(saleId, correction.SaleAudit?.NewSale.Id);
+            Assert.Equal(2, correction.Details?.MembershipHistory.Count);
+            Assert.NotEqual(membershipId, correction.Details?.CurrentMembership?.Id);
+            Assert.Equal(ClientMembershipChangeReason.Correction, correction.Details?.CurrentMembership?.ChangeReason);
+
+            var refund = await service.RegisterRefundAsync(
+                context.ClientId,
+                new RegisterClientMembershipRefundCommand(
+                    context.ActorId,
+                    saleId,
+                    context.Today,
+                    100m,
+                    "facade refund"),
+                CancellationToken.None);
+            Assert.Equal(ClientMembershipRefundMutationError.None, refund.Error);
+            Assert.Null(refund.PreviousRefund);
+            Assert.Equal(saleId, refund.Refund?.SaleId);
+            Assert.Equal(100m, refund.Refund?.Amount);
+            Assert.Equal("facade refund", refund.Refund?.Comment);
+            Assert.Equal(100m, refund.Details?.CurrentMembership?.FinancialSummary.RefundedAmount);
+            Assert.Equal(ClientMembershipRefundStatus.Partial, refund.Details?.CurrentMembership?.FinancialSummary.RefundStatus);
+            Assert.Single(refund.Details!.CurrentMembership!.Refunds);
+            refundId = refund.Refund!.Id;
+        }
+
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
+            var cancel = await service.CancelRefundAsync(
+                context.ClientId,
+                new CancelClientMembershipRefundCommand(context.ActorId, refundId),
+                CancellationToken.None);
+            Assert.Equal(ClientMembershipRefundMutationError.None, cancel.Error);
+            Assert.Null(cancel.PreviousRefund?.CanceledAt);
+            Assert.NotNull(cancel.Refund?.CanceledAt);
+            Assert.Equal(context.ActorId, cancel.Refund?.CanceledByUserId);
+            Assert.Equal(0m, cancel.Details?.CurrentMembership?.FinancialSummary.RefundedAmount);
+            Assert.Equal(ClientMembershipRefundStatus.None, cancel.Details?.CurrentMembership?.FinancialSummary.RefundStatus);
+
+            var repeatedCancel = await service.CancelRefundAsync(
+                context.ClientId,
+                new CancelClientMembershipRefundCommand(context.ActorId, refundId),
+                CancellationToken.None);
+            Assert.Equal(ClientMembershipRefundMutationError.RefundAlreadyCanceled, repeatedCancel.Error);
+
+            var renewal = await service.RenewAsync(
+                context.ClientId,
+                new RenewClientMembershipCommand(
+                    context.ActorId,
+                    context.TermCatalogItemId,
+                    context.Today,
+                    ProfessionalComment: null),
+                CancellationToken.None);
+            Assert.Equal(ClientMembershipMutationError.None, renewal.Error);
+            Assert.Null(renewal.SaleAudit);
+            Assert.Equal(ClientMembershipChangeReason.Renewal, renewal.Details?.CurrentMembership?.ChangeReason);
+            Assert.Equal(3, renewal.Details?.MembershipHistory.Count);
+            renewedMembershipId = renewal.Details!.CurrentMembership!.Id;
+        }
+
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
+            var reloaded = await service.GetAsync(context.ClientId, CancellationToken.None);
+            Assert.Equal(renewedMembershipId, reloaded?.CurrentMembership?.Id);
+            Assert.Equal(ClientMembershipChangeReason.Renewal, reloaded?.CurrentMembership?.ChangeReason);
+            Assert.Equal(3, reloaded?.MembershipHistory.Count);
+        }
+
+        var singleVisit = await context.SeedSingleVisitClientAsync();
+        Guid restoredMembershipId;
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
+            var singleVisitPurchase = await service.PurchaseAsync(
+                singleVisit.ClientId,
+                new CreateClientMembershipPurchaseCommand(
+                    context.ActorId,
+                    singleVisit.CatalogItemId,
+                    ValidFrom: null,
+                    ValidTo: null,
+                    context.Today,
+                    ProfessionalComment: null),
+                CancellationToken.None);
+            Assert.Equal(ClientMembershipMutationError.None, singleVisitPurchase.Error);
+
+            var writeOff = await service.WriteOffSingleVisitAsync(
+                singleVisit.ClientId,
+                new WriteOffSingleVisitCommand(context.ActorId, context.Today),
+                CancellationToken.None);
+            Assert.Equal(SingleVisitWriteOffStatus.Applied, writeOff.Status);
+            Assert.False(writeOff.PreviousMembership?.SingleVisitUsed);
+            Assert.True(writeOff.CurrentMembership?.SingleVisitUsed);
+            Assert.Equal(ClientMembershipChangeReason.SingleVisitWriteOff, writeOff.CurrentMembership?.ChangeReason);
+            Assert.Equal(writeOff.PreviousMembership?.SaleId, writeOff.CurrentMembership?.SaleId);
+
+            var restore = await service.RestoreSingleVisitAsync(
+                singleVisit.ClientId,
+                new RestoreSingleVisitCommand(
+                    context.ActorId,
+                    writeOff.CurrentMembership!.SaleId,
+                    writeOff.CurrentMembership.Id),
+                CancellationToken.None);
+            Assert.Equal(SingleVisitRestoreStatus.Applied, restore.Status);
+            Assert.True(restore.PreviousMembership?.SingleVisitUsed);
+            Assert.False(restore.CurrentMembership?.SingleVisitUsed);
+            Assert.Equal(ClientMembershipChangeReason.SingleVisitRestore, restore.CurrentMembership?.ChangeReason);
+            Assert.Equal(writeOff.CurrentMembership.SaleId, restore.CurrentMembership?.SaleId);
+            restoredMembershipId = restore.CurrentMembership!.Id;
+
+            var conflictingRestore = await service.RestoreSingleVisitAsync(
+                singleVisit.ClientId,
+                new RestoreSingleVisitCommand(
+                    context.ActorId,
+                    writeOff.CurrentMembership.SaleId,
+                    writeOff.CurrentMembership.Id),
+                CancellationToken.None);
+            Assert.Equal(SingleVisitRestoreStatus.Conflict, conflictingRestore.Status);
+        }
+
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
+            var reloaded = await service.GetAsync(singleVisit.ClientId, CancellationToken.None);
+            Assert.Equal(restoredMembershipId, reloaded?.CurrentMembership?.Id);
+            Assert.False(reloaded?.CurrentMembership?.SingleVisitUsed);
+            Assert.Equal(ClientMembershipChangeReason.SingleVisitRestore, reloaded?.CurrentMembership?.ChangeReason);
+        }
+    }
+
     private static async Task AssertValidationProblemAsync(
         HttpResponseMessage response,
         HttpStatusCode expectedStatus,
@@ -1492,6 +1700,42 @@ public sealed class ClientMembershipWriteRegressionApiTests
             return new MembershipTarget(membership.Id, sale.Id, sale.PurchaseDate);
         }
 
+        public async Task<SingleVisitSeed> SeedSingleVisitClientAsync()
+        {
+            await using var scope = Factory.Services.CreateAsyncScope();
+            var db = scope.ServiceProvider.GetRequiredService<GymCrmDbContext>();
+            var now = scope.ServiceProvider.GetRequiredService<TimeProvider>().GetUtcNow();
+            var branchId = await db.Clients
+                .AsNoTracking()
+                .Where(client => client.Id == ClientId)
+                .Select(client => client.BranchId)
+                .SingleAsync();
+            var singleVisitClient = new Client
+            {
+                Id = Guid.NewGuid(),
+                BranchId = branchId,
+                LastName = "TASK-125",
+                FirstName = "Single Visit",
+                Phone = $"+79{Random.Shared.NextInt64(100_000_000, 999_999_999)}",
+                Status = ClientStatus.Active,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            var singleVisitCatalogItem = MembershipCatalogItem.CreateBranchOwned(
+                branchId,
+                "TASK-125 Single Visit",
+                500m,
+                MembershipBehaviorKind.SingleVisit,
+                Today.AddYears(-1),
+                null,
+                now);
+
+            db.Clients.Add(singleVisitClient);
+            db.MembershipCatalogItems.Add(singleVisitCatalogItem);
+            await db.SaveChangesAsync();
+            return new SingleVisitSeed(singleVisitClient.Id, singleVisitCatalogItem.Id);
+        }
+
         public async Task AssertCountsAsync(int expectedSales, int expectedMemberships, int expectedMembershipAudits)
         {
             await using var scope = Factory.Services.CreateAsyncScope();
@@ -1771,6 +2015,8 @@ public sealed class ClientMembershipWriteRegressionApiTests
         Guid SaleId,
         DateOnly PurchaseDate,
         DateOnly PaymentDate);
+
+    private sealed record SingleVisitSeed(Guid ClientId, Guid CatalogItemId);
 
     private sealed class MembershipWriteAppFactory(
         string? postgresConnectionString,
