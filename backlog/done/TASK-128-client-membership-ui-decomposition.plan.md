@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-128 Выделить membership UI из ClientManagement
 
 ## Metadata
-- source_task: /backlog/risky/TASK-128-client-membership-ui-decomposition.md
+- source_task: /backlog/done/TASK-128-client-membership-ui-decomposition.md
 - branch: refactor/TASK-128-client-membership-ui-decomposition
 - readiness: done — human review approved 2026-08-23; implemented and locally validated
 - dependencies: TASK-127 — должна быть интегрирована, а location opaque membership subtree подтверждён
@@ -89,14 +89,16 @@ correct/payment/refund operations имеют focused typed modules не боле
 - Completed at: 2026-08-23.
 - Entry boundary preserved:
   `ClientDetailScreen -> ClientMembershipSection -> handleMembershipAction -> frontend API client`.
-- Public frontend import moved to `./membership` barrel; no backend/API DTO,
-  pricing, permission or workflow contract changed.
-- Added/strengthened unit regressions for failed purchase retry idempotency,
-  duplicate pending purchase guard and addressed correction retry idempotency.
-- Validation: frontend lint, typecheck, raw-color scanner, full unit suite,
-  build, affected Chromium Playwright and iPhone WebKit membership-only
-  Playwright passed. Full iPhone WebKit run including transfer scenarios
-  retained an unrelated transfer modal bottom-navigation interception failure.
+- Public frontend import moved to the one-export `./membership` barrel; the
+  unchanged transfer/membership submit-key helper remains neutral and no
+  backend/API DTO, pricing, permission or workflow contract changed.
+- Added/strengthened regressions for confirm/cancel, purchase/renew/correct
+  exact retry identity and payloads, duplicate pending guard, ProblemDetails
+  draft recovery, deterministic sale/version ordering and restricted roles.
+- Validation: lint, typecheck, raw-color scanner, `528/528` unit tests, build,
+  Chromium membership `15/15` and target-iPhone WebKit membership `24/24`
+  passed. Full WebKit spec was `27/30`; only unrelated transfer-modal bottom
+  navigation interception cases failed.
 
 ## Risks and stop conditions
 - Остановиться, если TASK-127 moved or changed membership behavior beyond the

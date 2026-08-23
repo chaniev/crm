@@ -2793,19 +2793,19 @@
 
 ## Status changes
 
-- TASK-122, TASK-123, TASK-124, TASK-125, TASK-126, TASK-127, TASK-129 and TASK-130 source tasks and implementation plans moved to `/backlog/done`.
-- TASK-128 remains `/backlog/risky`: the local behavior-preserving refactor was blocked before edits by an explicit post-disclosure approval gate for financial-mutation idempotency ownership.
-- Umbrella TASK-121 remains `/backlog/risky` until TASK-128 and the separate TASK-010 `BotApiService` architecture dependency are resolved.
+- TASK-122–130 source tasks and implementation plans moved to `/backlog/done` after TASK-128 received explicit post-disclosure approval and passed independent implementation, refactoring and test reviews.
+- Umbrella TASK-121 remains `/backlog/risky` only until the separate TASK-010 `BotApiService` architecture dependency is resolved.
 
 ## Completion evidence
 
 - Backend TASK-122–125: format, warnings-as-errors build, clean NuGet audit and aggregate `430/430` xUnit tests passed on integrated local `main`.
 - Frontend TASK-126/127/129: lint, typecheck, raw-color, `522/522` unit tests, build, affected Chromium and final `40/40` target-iPhone WebKit passed on the combined frontend candidate.
 - Bot TASK-130: locked `uv sync`, Ruff lint/format, strict mypy and full `59/59` pytest passed.
+- Frontend TASK-128: lint/typecheck/raw-color/build, `528/528` unit tests, Chromium membership `15/15` and target-iPhone WebKit membership `24/24` passed.
 - No schema migration, deployment, push or Docker Compose task stack was required.
 
 ## Summary
 
-- moved to done: 8 tasks and 8 implementation plans
-- remaining from TASK-122–130: TASK-128
+- moved to done: 9 tasks and 9 implementation plans
+- remaining from TASK-122–130: none
 - unresolved umbrella dependency: TASK-010

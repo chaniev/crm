@@ -55,18 +55,6 @@ confirmation и history mapping находятся рядом с общими cl
 - [x] Permission-restricted и backend ProblemDetails paths.
 - [x] Запустить lint, strict typecheck, raw-color, unit, build и affected Playwright/WebKit tests.
 
-## Completion notes
-- Completed at: 2026-08-23.
-- Membership UI split into client-local `frontend/src/features/clients/membership/`
-  modules with `index.ts` barrel under 150 lines and every module under 500
-  lines.
-- Exact purchase/renew/correct payloads, backend ProblemDetails draft recovery,
-  sale comment identity, history ordering and idempotency retry lifecycle covered
-  by unit and affected browser regressions.
-- iPhone WebKit membership-only Playwright regression passed for 420 x 912 and
-  440 x 956 via temporary task config. Full run including transfer scenarios
-  exposed an unrelated transfer modal bottom-nav interception on iPhone profiles.
-
 ## AI safety
 - Safe for Codex: no
 - Risk level: high
@@ -83,3 +71,22 @@ confirmation и history mapping находятся рядом с общими cl
 - Created at: 2026-08-22 23:47 MSK.
 - Created by skill: codex-backlog-skill + react-best-practices + crm-mobile-first-ui.
 - Duplicate check: TASK-114/TASK-115 относятся к behavior/data model; эта задача только структурирует существующий consumer.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-128-client-membership-ui-decomposition.plan.md
+- implementation_branch: refactor/TASK-128-client-membership-ui-decomposition
+- implementation_state: completed
+- implementation_commits: fc19535, 3e4e4e0, 1b721fe
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23; final integrated candidate: `1b721fe`.
+- Membership UI is a client-local feature with a one-line barrel and focused modules of at most 237 lines; the shared transfer/membership submit-key hook remains a neutral client-level helper.
+- Exact purchase/renew/correct payloads, ProblemDetails draft recovery, confirm/cancel, stable failure/retry idempotency, duplicate pending protection, deterministic history/comment identity and restricted-role behavior are covered.
+- Validation: lint, typecheck, raw-color, build, `528/528` unit tests, Chromium membership `15/15` and target-iPhone WebKit membership `24/24` passed.
+- Applicability: current frontend/API baseline has no refund/cancel-membership or mutable payment action; those workflows were not invented. Physical Safari, software keyboard and real safe-area insets remain unverified.
+- Residual unrelated evidence: the full WebKit membership spec passed `27/30`; three existing transfer-modal cases are intercepted by mobile bottom navigation and are outside the extracted membership section.

@@ -97,7 +97,7 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 - [x] Frontend: lint, strict typecheck, raw-color gate, unit tests, build и affected mobile Playwright workflows.
 - [x] Bot: Ruff lint/format, strict mypy, pytest и callback/idempotency regressions.
 - [x] Проверить отсутствие contract diffs в OpenAPI/typed DTO/callback payload snapshots, где применимо.
-- [ ] Повторить cross-layer validation после интеграции всех slices.
+- [x] Повторить cross-layer validation после интеграции всех TASK-122–130 slices.
 
 ## AI safety
 - Safe for Codex: no
@@ -119,4 +119,4 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-010 частично пересекается только с `BotApiService`; связь оформлена как dependency, остальные hotspots активной задачей не покрыты.
 - Decomposed at: 2026-08-22 23:47 MSK into TASK-122–TASK-130; umbrella task остаётся risky coordination record до завершения child tasks и решения TASK-010.
-- Progress reviewed at 2026-08-23: TASK-122–127, TASK-129 and TASK-130 завершены и локально интегрированы; TASK-128 ожидает отдельного явного high-risk approval после disclosure риска idempotency денежных membership mutations; TASK-010 остаётся unresolved dependency для `BotApiService`.
+- Progress reviewed at 2026-08-23: TASK-122–130 завершены, independently reviewed и локально интегрированы; TASK-010 остаётся единственной unresolved dependency для `BotApiService`, поэтому umbrella task сохраняет статус `risky`.
