@@ -472,10 +472,15 @@ public sealed class ClientMembershipWriteRegressionApiTests
             assignment.ClientId == context.ClientId && assignment.GroupId == context.TargetGroupId));
     }
 
-    [Fact]
-    public async Task Membership_purchase_requires_idempotency_key_before_any_write()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("oversized")]
+    public async Task Membership_purchase_rejects_missing_blank_or_oversized_idempotency_key_before_any_write(
+        string? keyCase)
     {
         await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: false);
+        var idempotencyKey = keyCase == "oversized" ? new string('x', 129) : keyCase;
 
         using var response = await context.PurchaseAsync(
             $$"""
@@ -487,7 +492,7 @@ public sealed class ClientMembershipWriteRegressionApiTests
               "professionalComment": null
             }
             """,
-            idempotencyKey: null);
+            idempotencyKey);
 
         await AssertValidationProblemAsync(response, HttpStatusCode.BadRequest, "idempotencyKey");
         await context.AssertCountsAsync(expectedSales: 0, expectedMemberships: 0, expectedMembershipAudits: 0);
@@ -568,14 +573,17 @@ public sealed class ClientMembershipWriteRegressionApiTests
         }
         """;
 
+        string firstBody;
         using (var first = await context.PurchaseAsync(body, idempotencyKey))
         {
             Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+            firstBody = await first.Content.ReadAsStringAsync();
         }
 
         using (var replay = await context.PurchaseAsync(body, idempotencyKey))
         {
             Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+            Assert.Equal(firstBody, await replay.Content.ReadAsStringAsync());
         }
 
         await context.AssertCountsAsync(expectedSales: 1, expectedMemberships: 1, expectedMembershipAudits: 1);
