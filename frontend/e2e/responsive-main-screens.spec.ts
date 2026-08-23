@@ -67,6 +67,35 @@ const HEAD_COACH_ADMIN_SESSION = {
   },
 } as const
 
+const ADMIN_AUDIT_SESSION = {
+  ...MANAGEMENT_SESSION,
+  csrfToken: 'administrator-audit-csrf-token',
+  user: {
+    ...MANAGEMENT_SESSION.user,
+    branchId: 'branch-1',
+    fullName: 'Администратор',
+    id: 'administrator-id',
+    login: 'administrator',
+    permissions: {
+      ...MANAGEMENT_SESSION.user.permissions,
+      canManageUsers: false,
+    },
+    role: 'Administrator',
+  },
+} as const
+
+const SUPER_ADMIN_AUDIT_SESSION = {
+  ...MANAGEMENT_SESSION,
+  csrfToken: 'superadministrator-audit-csrf-token',
+  user: {
+    ...MANAGEMENT_SESSION.user,
+    fullName: 'Суперадминистратор',
+    id: 'superadministrator-id',
+    login: 'superadministrator',
+    role: 'SuperAdministrator',
+  },
+} as const
+
 const COACH_SESSION = {
   isAuthenticated: true,
   csrfToken: 'coach-csrf-token',
@@ -634,6 +663,8 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
 const TASK_107_AUDIT_VIEWPORTS = [
   { label: 'audit-narrow-360', width: 360, height: 780 },
   { label: 'audit-stress-390', width: 390, height: 844 },
+  { label: 'audit-iphone-air-420', width: 420, height: 912 },
+  { label: 'audit-iphone-pro-max-440', width: 440, height: 956 },
   { label: 'audit-compact-air', width: 912, height: 420 },
   { label: 'audit-compact-pro-max', width: 956, height: 440 },
   { label: 'audit-tablet', width: 768, height: 1024 },
@@ -645,7 +676,7 @@ for (const viewport of TASK_107_AUDIT_VIEWPORTS) {
     test.use({ viewport: { width: viewport.width, height: viewport.height } })
 
     test('keeps compact decision data, pager and details reachable', async ({ page }) => {
-      await mockApi(page, MANAGEMENT_SESSION)
+      await mockApi(page, ADMIN_AUDIT_SESSION)
       await page.goto('/audit')
 
       await expectAuditListContract(page)
@@ -672,7 +703,7 @@ for (const viewport of TASK_107_AUDIT_VIEWPORTS) {
       test('rejects repeated labels, oversized rows and undersized unnamed pager controls', async ({
         page,
       }) => {
-        await mockApi(page, MANAGEMENT_SESSION)
+        await mockApi(page, ADMIN_AUDIT_SESSION)
         await page.goto('/audit')
 
         const row = page.getByTestId('audit-log-row').first()
@@ -698,6 +729,29 @@ for (const viewport of TASK_107_AUDIT_VIEWPORTS) {
         ).toBeVisible()
       })
     }
+  })
+}
+
+for (const profile of [
+  { label: 'HeadCoach', session: MANAGEMENT_SESSION },
+  { label: 'SuperAdministrator', session: SUPER_ADMIN_AUDIT_SESSION },
+] as const) {
+  test.describe(`TASK-111 audit access parity ${profile.label}`, () => {
+    test.use({ viewport: { width: 390, height: 844 } })
+
+    test('opens the same API-backed audit surface without duplicating geometry coverage', async ({
+      page,
+    }) => {
+      await mockApi(page, profile.session)
+      await page.goto('/audit')
+
+      await expect(page.getByTestId('audit-screen')).toBeVisible()
+      await expect(page.getByTestId('audit-log-grid')).toBeVisible()
+      await expect(page.getByRole('navigation', {
+        name: 'Страницы журнала действий',
+      })).toBeVisible()
+      await expectNoHorizontalScroll(page)
+    })
   })
 }
 
@@ -2408,7 +2462,11 @@ async function expectAttendanceToolbarGeometry(
 
 async function mockApi(
   page: Page,
-  session: typeof MANAGEMENT_SESSION | typeof COACH_SESSION,
+  session:
+    | typeof MANAGEMENT_SESSION
+    | typeof COACH_SESSION
+    | typeof ADMIN_AUDIT_SESSION
+    | typeof SUPER_ADMIN_AUDIT_SESSION,
   appConfig: AppConfigFixture = APP_CONFIG,
 ) {
   await page.route('**/api/**', async (route) => {

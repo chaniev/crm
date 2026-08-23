@@ -104,6 +104,26 @@ test.describe('route access feedback', () => {
     ).toHaveCount(0)
   })
 
+  test('Coach direct /audit is denied before audit APIs are requested', async ({ page }) => {
+    const auditApiRequests: string[] = []
+    await page.setViewportSize({ width: 390, height: 844 })
+    page.on('request', (request) => {
+      const pathname = new URL(request.url()).pathname
+      if (pathname === '/api/audit-logs' || pathname === '/api/audit-logs/options') {
+        auditApiRequests.push(pathname)
+      }
+    })
+    await mockApi(page, COACH_SESSION)
+
+    await page.goto('/audit')
+
+    await expect(page).toHaveURL(/\/audit$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'Нет доступа' })).toBeFocused()
+    await expect(page.getByText('У вас нет доступа к разделу «Журнал».')).toBeVisible()
+    await expect(page.getByTestId('audit-screen')).toHaveCount(0)
+    expect(auditApiRequests).toEqual([])
+  })
+
   test('Coach direct /clients/new recovers to the readable Clients parent', async ({
     page,
   }) => {

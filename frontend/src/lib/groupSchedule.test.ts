@@ -11,6 +11,7 @@ import {
   buildScheduleTodaySummary,
   buildScheduleTypeLegend,
   buildScheduleWeekdayLabels,
+  buildScheduleVisualDisclosureGroups,
   formatScheduleEntryTimeRange,
   formatTrainingStartTime,
   getCurrentScheduleWeekday,
@@ -346,6 +347,322 @@ describe('groupSchedule helpers', () => {
       { id: 'first', lane: 0, laneCount: 2 },
       { id: 'second', lane: 1, laneCount: 2 },
       { id: 'third', lane: 0, laneCount: 2 },
+    ])
+  })
+
+  test('groups overlapping entries as half-open transitive clusters without merging boundaries', () => {
+    const calendarWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'first',
+        name: 'Первая',
+        trainingStartTime: '10:00',
+        durationMinutes: 45,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'second',
+        name: 'Вторая',
+        trainingStartTime: '10:30',
+        durationMinutes: 45,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'third',
+        name: 'Третья',
+        trainingStartTime: '11:00',
+        durationMinutes: 30,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'boundary',
+        name: 'Граница',
+        trainingStartTime: '11:30',
+        durationMinutes: 30,
+        weekdays: [1],
+      }),
+    ])
+    const groups = buildScheduleVisualDisclosureGroups(calendarWeek.days[0].entries, {
+      dayContentWidthPx: 420,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    })
+
+    expect(groups.map((group) => group.entries.map((entry) => entry.group.id))).toEqual([
+      ['first', 'second', 'third'],
+    ])
+    expect(groups[0]).toEqual(expect.objectContaining({
+      count: 3,
+      startMinutes: 600,
+      endMinutes: 690,
+    }))
+  })
+
+  test('summarizes unreadable overlap clusters by lane count, width, height and unknown measurement', () => {
+    const denseWeek = buildScheduleCalendarWeek(
+      Array.from({ length: 6 }, (_, index) => createGroup({
+        id: `dense-${index}`,
+        name: `Плотная ${index}`,
+        trainingStartTime: '08:00',
+        durationMinutes: 45,
+        weekdays: [1],
+      })),
+    )
+    const narrowTwoLaneWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'narrow-first',
+        name: 'Узкая первая',
+        trainingStartTime: '10:00',
+        durationMinutes: 60,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'narrow-second',
+        name: 'Узкая вторая',
+        trainingStartTime: '10:15',
+        durationMinutes: 60,
+        weekdays: [1],
+      }),
+    ])
+    const shortTwoLaneWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'short-first',
+        name: 'Короткая первая',
+        trainingStartTime: '12:00',
+        durationMinutes: 30,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'short-second',
+        name: 'Короткая вторая',
+        trainingStartTime: '12:10',
+        durationMinutes: 30,
+        weekdays: [1],
+      }),
+    ])
+    const roomyTwoLaneWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'roomy-first',
+        name: 'Просторная первая',
+        trainingStartTime: '14:00',
+        durationMinutes: 90,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'roomy-second',
+        name: 'Просторная вторая',
+        trainingStartTime: '14:30',
+        durationMinutes: 90,
+        weekdays: [1],
+      }),
+    ])
+
+    expect(buildScheduleVisualDisclosureGroups(denseWeek.days[0].entries, {
+      dayContentWidthPx: 720,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    })).toHaveLength(1)
+    expect(buildScheduleVisualDisclosureGroups(narrowTwoLaneWeek.days[0].entries, {
+      dayContentWidthPx: 220,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    })).toHaveLength(1)
+    expect(buildScheduleVisualDisclosureGroups(shortTwoLaneWeek.days[0].entries, {
+      dayContentWidthPx: 420,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    })).toHaveLength(1)
+    expect(buildScheduleVisualDisclosureGroups(roomyTwoLaneWeek.days[0].entries, {
+      dayContentWidthPx: 420,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    })).toHaveLength(0)
+    expect(buildScheduleVisualDisclosureGroups(roomyTwoLaneWeek.days[0].entries, {
+      dayContentWidthPx: null,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    })).toHaveLength(1)
+  })
+
+  test('applies the readable width and pre-clamp height thresholds at their exact boundaries', () => {
+    const exactBoundaryWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'boundary-first',
+        name: 'Граница первая',
+        trainingStartTime: '10:00',
+        durationMinutes: 84,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'boundary-second',
+        name: 'Граница вторая',
+        trainingStartTime: '10:20',
+        durationMinutes: 84,
+        weekdays: [1],
+      }),
+    ])
+    const shortWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'short-boundary-first',
+        name: 'Ниже высоты первая',
+        trainingStartTime: '12:00',
+        durationMinutes: 83,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'short-boundary-second',
+        name: 'Ниже высоты вторая',
+        trainingStartTime: '12:20',
+        durationMinutes: 83,
+        weekdays: [1],
+      }),
+    ])
+
+    expect(buildScheduleVisualDisclosureGroups(exactBoundaryWeek.days[0].entries, {
+      dayContentWidthPx: 232,
+      hourHeightPx: 60,
+      laneGapPx: 8,
+    })).toHaveLength(0)
+    expect(buildScheduleVisualDisclosureGroups(exactBoundaryWeek.days[0].entries, {
+      dayContentWidthPx: 231,
+      hourHeightPx: 60,
+      laneGapPx: 8,
+    })).toHaveLength(1)
+    expect(buildScheduleVisualDisclosureGroups(shortWeek.days[0].entries, {
+      dayContentWidthPx: 232,
+      hourHeightPx: 60,
+      laneGapPx: 8,
+    })).toHaveLength(1)
+  })
+
+  test('absorbs only adjacent visual collisions into disclosure range and count', () => {
+    const calendarWeek = buildScheduleCalendarWeek([
+      createGroup({
+        id: 'previous',
+        name: 'Предыдущее',
+        trainingStartTime: '08:50',
+        durationMinutes: 5,
+        weekdays: [1],
+      }),
+      ...Array.from({ length: 3 }, (_, index) => createGroup({
+        id: `dense-${index}`,
+        name: `Плотная ${index}`,
+        trainingStartTime: '09:00',
+        durationMinutes: 30,
+        weekdays: [1],
+      })),
+      createGroup({
+        id: 'next-touching',
+        name: 'Соседнее',
+        trainingStartTime: '09:30',
+        durationMinutes: 30,
+        weekdays: [1],
+      }),
+      createGroup({
+        id: 'far',
+        name: 'Далеко',
+        trainingStartTime: '11:00',
+        durationMinutes: 60,
+        weekdays: [1],
+      }),
+    ])
+    const groups = buildScheduleVisualDisclosureGroups(calendarWeek.days[0].entries, {
+      dayContentWidthPx: 720,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    })
+
+    expect(groups).toHaveLength(1)
+    expect(groups[0].entries.map((entry) => entry.group.id)).toEqual([
+      'previous',
+      'dense-0',
+      'dense-1',
+      'dense-2',
+      'next-touching',
+    ])
+    expect(groups[0]).toEqual(expect.objectContaining({
+      count: 5,
+      startMinutes: 530,
+      endMinutes: 600,
+    }))
+  })
+
+  test('uses measured wrapped disclosure height for collision closure', () => {
+    const calendarWeek = buildScheduleCalendarWeek([
+      ...Array.from({ length: 3 }, (_, index) => createGroup({
+        id: `wrapped-dense-${index}`,
+        name: `Очень длинное название плотной группы ${index}`,
+        trainingStartTime: '09:00',
+        durationMinutes: 30,
+        weekdays: [1],
+      })),
+      createGroup({
+        id: 'wrapped-neighbor',
+        name: 'Сосед после естественной высоты',
+        trainingStartTime: '09:45',
+        durationMinutes: 30,
+        weekdays: [1],
+      }),
+    ])
+    const options = {
+      dayContentWidthPx: 720,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    }
+    const initialGroups = buildScheduleVisualDisclosureGroups(
+      calendarWeek.days[0].entries,
+      options,
+    )
+
+    expect(initialGroups).toHaveLength(1)
+    expect(initialGroups[0].entries.map((entry) => entry.group.id)).toEqual([
+      'wrapped-dense-0',
+      'wrapped-dense-1',
+      'wrapped-dense-2',
+    ])
+
+    const measuredGroups = buildScheduleVisualDisclosureGroups(
+      calendarWeek.days[0].entries,
+      {
+        ...options,
+        disclosureNaturalHeightPxByKey: new Map([[initialGroups[0].key, 80]]),
+      },
+    )
+
+    expect(measuredGroups).toHaveLength(1)
+    expect(measuredGroups[0].entries.map((entry) => entry.group.id)).toEqual([
+      'wrapped-dense-0',
+      'wrapped-dense-1',
+      'wrapped-dense-2',
+      'wrapped-neighbor',
+    ])
+  })
+
+  test('keeps adjacent dense clusters separate when their visual rectangles do not collide', () => {
+    const calendarWeek = buildScheduleCalendarWeek([
+      ...Array.from({ length: 3 }, (_, index) => createGroup({
+        id: `morning-dense-${index}`,
+        name: `Утренняя плотная ${index}`,
+        trainingStartTime: '09:00',
+        durationMinutes: 30,
+        weekdays: [1],
+      })),
+      ...Array.from({ length: 3 }, (_, index) => createGroup({
+        id: `afternoon-dense-${index}`,
+        name: `Дневная плотная ${index}`,
+        trainingStartTime: '11:00',
+        durationMinutes: 30,
+        weekdays: [1],
+      })),
+    ])
+    const groups = buildScheduleVisualDisclosureGroups(calendarWeek.days[0].entries, {
+      dayContentWidthPx: 720,
+      hourHeightPx: 76,
+      laneGapPx: 8,
+    })
+
+    expect(groups.map((group) => group.entries.map((entry) => entry.group.id))).toEqual([
+      ['morning-dense-0', 'morning-dense-1', 'morning-dense-2'],
+      ['afternoon-dense-0', 'afternoon-dense-1', 'afternoon-dense-2'],
     ])
   })
 

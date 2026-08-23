@@ -325,6 +325,31 @@ const ROUTE_CASES: RouteWithState[] = [
         label: 'Фильтры',
         locator: (page) => page.getByRole('button', { name: /фильтры/i }).first(),
       },
+      {
+        label: 'Показать подробности записи: Создан новый клиент',
+        locator: (page) => page.getByRole('button', {
+          name: 'Показать подробности записи: Создан новый клиент',
+        }),
+      },
+      {
+        label: 'Предыдущая страница журнала',
+        locator: (page) => page.getByRole('button', {
+          name: 'Предыдущая страница журнала',
+        }),
+      },
+      {
+        hiddenAtWidths: [360, 390, 420, 440],
+        label: 'Страница 1 журнала',
+        locator: (page) => page.getByRole('button', {
+          name: 'Страница 1 журнала',
+        }),
+      },
+      {
+        label: 'Следующая страница журнала',
+        locator: (page) => page.getByRole('button', {
+          name: 'Следующая страница журнала',
+        }),
+      },
     ],
   },
 ]
@@ -1045,10 +1070,26 @@ async function mockApi(
 
     if (pathname === '/api/audit-logs' && method === 'GET') {
       await fulfillJson(route, {
-        items: [],
+        items: [
+          {
+            id: 'audit-touch-target-1',
+            userName: 'Суперадминистратор',
+            userLogin: 'superadmin',
+            userRole: 'SuperAdministrator',
+            source: 'Web',
+            messengerPlatform: null,
+            actionType: 'ClientCreated',
+            entityType: 'Client',
+            entityId: 'client-1',
+            description: 'Создан новый клиент',
+            oldValueJson: null,
+            newValueJson: { status: 'Active' },
+            createdAt: '2026-07-30T10:10:10.000Z',
+          },
+        ],
         page: 1,
         pageSize: 20,
-        totalCount: 0,
+        totalCount: 45,
       })
       return
     }

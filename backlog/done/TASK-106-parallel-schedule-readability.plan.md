@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-106 Сделать параллельные занятия читаемыми в desktop schedule
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-106-parallel-schedule-readability.md
+- source_task: /backlog/done/TASK-106-parallel-schedule-readability.md
 - branch: fix/TASK-106-parallel-schedule-readability
 - readiness: yes
 - dependencies: none
@@ -299,17 +299,17 @@ contracts do not change.
   tests.
 
 ### Validation and acceptance
-- [ ] До production-кода добавить unit tests для cluster/readability helpers.
-- [ ] До production-кода добавить component/integration tests для
+- [x] До production-кода добавить unit tests для cluster/readability helpers.
+- [x] До production-кода добавить component/integration tests для
       summary/Popover/focus/states.
-- [ ] До production-кода добавить Playwright desktop dense fixture и mobile
+- [x] До production-кода добавить Playwright desktop dense fixture и mobile
       preservation assertions.
-- [ ] Запустить новые tests на unchanged production code и сохранить ожидаемый
+- [x] Запустить новые tests на unchanged production code и сохранить ожидаемый
       red по отсутствующей TASK-106 functionality.
-- [ ] Реализовать минимальный desktop presentation change.
-- [ ] `cd frontend && npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`
-- [ ] `cd frontend && npm run test:e2e:iphone`
-- [ ] Manual keyboard/200% zoom и residual Safari/device report.
+- [x] Реализовать минимальный desktop presentation change.
+- [x] `cd frontend && npm run test:e2e -- group-schedule.spec.ts responsive-main-screens.spec.ts`
+- [x] `cd frontend && npm run test:e2e:iphone`
+- [x] Keyboard path проверен автоматически; actual 200% zoom и Safari/device checks явно перечислены в residual report.
 
 ## Regression barrier
 Primary barrier: pure unit tests lock deterministic overlap clusters and the
@@ -364,3 +364,13 @@ claiming to redesign dense mobile lanes.
 Не останавливаться только потому, что Schedule shared между ролями или потому,
 что responsive measurement/component tests затрагивают несколько frontend
 files.
+
+## Ready for Codex execution
+completed
+
+## Completion evidence
+- Completed on 2026-08-23 in commit `4933696`, fast-forward integrated into local `main`.
+- Expected RED was recorded before production code for the missing dense-cluster disclosure, keyboard/focus behavior and responsive preservation barriers.
+- Final validation passed: frontend lint, typecheck, raw-color scan with 0 disallowed findings, production build, 478 unit tests, 69 affected Chromium Playwright tests and 40 target-iPhone touch/WebKit tests.
+- Backend/API/database contracts and permissions did not change; migration, Docker Compose task stack and runtime deployment were not required.
+- Actual browser 200% zoom, physical Safari chrome, software keyboard, safe-area behavior, iOS Simulator and physical-device touch remain residual checks; automated 720 CSS px equivalent and target-iPhone WebKit portrait/compact-landscape profiles passed.
