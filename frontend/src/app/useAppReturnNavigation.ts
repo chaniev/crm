@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import {
   getRoutePath,
   normalizePathname,
-  parseRoute,
   type AppRoute,
   type ParsedRoute,
 } from '../lib/appRoutes'
@@ -125,41 +124,34 @@ export function useAppReturnNavigation({
   )
 
   useEffect(() => {
-    function validateClientProfileReturnLanding() {
-      const pendingReturn = pendingClientProfileReturnRef.current
-      if (!pendingReturn) {
-        return
-      }
-
-      pendingClientProfileReturnRef.current = null
-      const landedContext = readClientProfileReturnContext(window.history.state)
-      const landedPath = normalizePathname(window.location.pathname)
-      const expectedPath = getRoutePath(pendingReturn.originRoute)
-      const landedRoute = parseRoute(landedPath)
-      const landedOnExpectedOrigin =
-        landedPath === expectedPath &&
-        landedContext?.originEntryKey === pendingReturn.originEntryKey &&
-        landedContext.returnDepth === 0 &&
-        isAppRoute(landedRoute) &&
-        getRoutePath(getClientProfileOriginRoute(landedContext)) === expectedPath
-
-      if (landedOnExpectedOrigin) {
-        return
-      }
-
-      const fallbackRoute: AppRoute = { kind: 'section', section: 'Clients' }
-      window.history.replaceState(
-        stripAppReturnSnapshotsFromHistoryState(window.history.state),
-        '',
-        getRoutePath(fallbackRoute),
-      )
-      window.dispatchEvent(new PopStateEvent('popstate'))
+    const pendingReturn = pendingClientProfileReturnRef.current
+    if (!pendingReturn) {
+      return
     }
 
-    window.addEventListener('popstate', validateClientProfileReturnLanding)
-    return () =>
-      window.removeEventListener('popstate', validateClientProfileReturnLanding)
-  }, [])
+    pendingClientProfileReturnRef.current = null
+    const landedContext = readClientProfileReturnContext(window.history.state)
+    const landedPath = normalizePathname(window.location.pathname)
+    const expectedPath = getRoutePath(pendingReturn.originRoute)
+    const landedOnExpectedOrigin =
+      landedPath === expectedPath &&
+      landedContext?.originEntryKey === pendingReturn.originEntryKey &&
+      landedContext.returnDepth === 0 &&
+      isAppRoute(route) &&
+      getRoutePath(getClientProfileOriginRoute(landedContext)) === expectedPath
+
+    if (landedOnExpectedOrigin) {
+      return
+    }
+
+    navigate(
+      { kind: 'section', section: 'Clients' },
+      {
+        replace: true,
+        state: stripAppReturnSnapshotsFromHistoryState(window.history.state),
+      },
+    )
+  }, [navigate, route])
 
   function getClientListHistoryState(
     nextRoute: AppRoute,
