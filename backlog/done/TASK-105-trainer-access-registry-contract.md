@@ -1,7 +1,7 @@
 # TASK-105: Довести реестр тренеров до access-management workflow
 
 ## Status
-risky
+done
 
 ## Goal
 HeadCoach или SuperAdministrator быстро находит тренера с исключительным

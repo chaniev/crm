@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-105 Довести реестр тренеров до access-management workflow
 
 ## Metadata
-- source_task: /backlog/risky/TASK-105-trainer-access-registry-contract.md
+- source_task: /backlog/done/TASK-105-trainer-access-registry-contract.md
 - branch: feature/TASK-105-trainer-access-registry-contract
-- readiness: no — требуется human approval атомарного route/API cutover без legacy alias
+- readiness: done — human approval received; implemented, validated and locally integrated 2026-08-23
 - dependencies: none
 - risk: high — protected access-management HTTP/browser contract changes atomically
 
