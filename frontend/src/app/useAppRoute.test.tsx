@@ -6,6 +6,7 @@ import {
   getAppDocumentTitle,
   getPostPasswordReturnDecision,
   stripAppReturnSnapshotsFromHistoryState,
+  useAppDocumentTitle,
   useAppRoute,
 } from './useAppRoute'
 
@@ -135,6 +136,25 @@ describe('useAppRoute', () => {
       clientId: 'client-7',
     })
   })
+
+  test('clears return snapshots from the current entry through the routing owner', () => {
+    window.history.replaceState({
+      crmClientListReturnState: { version: 1 },
+      crmClientProfileReturnContext: { version: 1 },
+      crmGroupListReturnState: { version: 1 },
+      retained: 'keep',
+    }, '', '/clients/client-7')
+    const { result } = renderHook(() => useAppRoute())
+
+    act(() => result.current.clearCurrentReturnSnapshots())
+
+    expect(window.location.pathname).toBe('/clients/client-7')
+    expect(window.history.state).toEqual({ retained: 'keep' })
+    expect(result.current.route).toEqual({
+      kind: 'clientDetails',
+      clientId: 'client-7',
+    })
+  })
 })
 
 describe('app route helpers', () => {
@@ -231,6 +251,22 @@ describe('app route helpers', () => {
       false,
       null,
     )).toBe('Смена пароля • Gym CRM')
+  })
+
+  test('synchronizes the document title through the routing module hook', () => {
+    const session = authenticatedSession(baseUser)
+    const route = parseRoute('/clients')
+
+    renderHook(() => useAppDocumentTitle({
+      bootstrapError: null,
+      clubName: 'Gym CRM',
+      loadingSession: false,
+      route,
+      routeAccess: resolveRouteAccess(baseUser, route),
+      session,
+    }))
+
+    expect(document.title).toBe('Клиенты • Gym CRM')
   })
 
   test('recovers a password return when the saved allowed route is now restricted', () => {

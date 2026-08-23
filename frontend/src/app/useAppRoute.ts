@@ -48,6 +48,15 @@ export type NavigateOptions = {
   state?: unknown
 }
 
+type UseAppDocumentTitleOptions = {
+  bootstrapError: string | null
+  clubName: string
+  loadingSession: boolean
+  route: ParsedRoute
+  routeAccess: RouteAccessResolution | null
+  session: SessionResponse | null
+}
+
 export function isAppRoute(route: ParsedRoute): route is AppRoute {
   return route.kind !== 'not-found'
 }
@@ -108,16 +117,52 @@ export function useAppRoute() {
     [pathname],
   )
 
+  const clearCurrentReturnSnapshots = useCallback(() => {
+    window.history.replaceState(
+      stripAppReturnSnapshotsFromHistoryState(window.history.state),
+      '',
+      window.location.pathname,
+    )
+  }, [])
+
   const route = useMemo(() => parseRoute(pathname), [pathname])
 
   return useMemo(
     () => ({
+      clearCurrentReturnSnapshots,
       navigate,
       pathname,
       route,
     }),
-    [navigate, pathname, route],
+    [clearCurrentReturnSnapshots, navigate, pathname, route],
   )
+}
+
+export function useAppDocumentTitle({
+  bootstrapError,
+  clubName,
+  loadingSession,
+  route,
+  routeAccess,
+  session,
+}: UseAppDocumentTitleOptions) {
+  useEffect(() => {
+    document.title = getAppDocumentTitle(
+      clubName,
+      route,
+      routeAccess,
+      session,
+      loadingSession,
+      bootstrapError,
+    )
+  }, [
+    bootstrapError,
+    clubName,
+    loadingSession,
+    route,
+    routeAccess,
+    session,
+  ])
 }
 
 export function getPostPasswordReturnDecision(

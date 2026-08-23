@@ -49,11 +49,10 @@ import {
   RouteViewport,
 } from './app/RouteViewport'
 import {
-  getAppDocumentTitle,
   getCurrentSection,
   getPostPasswordReturnDecision,
   getRouteAccessLossNotificationMessage,
-  stripAppReturnSnapshotsFromHistoryState,
+  useAppDocumentTitle,
   useAppRoute,
   type PasswordReturnState,
 } from './app/useAppRoute'
@@ -73,7 +72,12 @@ export type AppProps = {
 }
 
 export function App({ appConfig, authBackground }: AppProps) {
-  const { navigate, pathname, route } = useAppRoute()
+  const {
+    clearCurrentReturnSnapshots,
+    navigate,
+    pathname,
+    route,
+  } = useAppRoute()
   const [session, setSession] = useState<SessionResponse | null>(null)
   const [loadingSession, setLoadingSession] = useState(true)
   const [bootstrapError, setBootstrapError] = useState<string | null>(null)
@@ -126,16 +130,12 @@ export function App({ appConfig, authBackground }: AppProps) {
         previousAuthenticatedUserId !== authenticatedUserId)
 
     if (crossedUserBoundary) {
-      window.history.replaceState(
-        stripAppReturnSnapshotsFromHistoryState(window.history.state),
-        '',
-        window.location.pathname,
-      )
+      clearCurrentReturnSnapshots()
       routeAccessBoundaryRef.current = null
     }
 
     authenticatedUserBoundaryRef.current = authenticatedUserId
-  }, [loadingSession, session])
+  }, [clearCurrentReturnSnapshots, loadingSession, session])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -172,23 +172,14 @@ export function App({ appConfig, authBackground }: AppProps) {
     return () => controller.abort()
   }, [])
 
-  useEffect(() => {
-    document.title = getAppDocumentTitle(
-      displayedClubName,
-      route,
-      routeAccess,
-      session,
-      loadingSession,
-      bootstrapError,
-    )
-  }, [
+  useAppDocumentTitle({
     bootstrapError,
-    displayedClubName,
+    clubName: displayedClubName,
     loadingSession,
     route,
     routeAccess,
     session,
-  ])
+  })
 
   useEffect(() => {
     if (!session?.isAuthenticated || !session.user || !routeAccess) {
