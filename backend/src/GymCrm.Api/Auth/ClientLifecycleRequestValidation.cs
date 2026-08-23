@@ -4,13 +4,14 @@ using GymCrm.Domain.Groups;
 using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
 
 
 namespace GymCrm.Api.Auth;
 
-internal static partial class ClientEndpoints
+internal static class ClientLifecycleRequestValidation
 {
-    private static async Task<Client?> LoadClientForMutationAsync(
+    internal static async Task<Client?> LoadClientForMutationAsync(
         Guid id,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
@@ -19,7 +20,7 @@ internal static partial class ClientEndpoints
             .SingleOrDefaultAsync(client => client.Id == id, cancellationToken);
     }
 
-    private static async Task<Dictionary<string, string[]>> ValidateUpsertRequestAsync(
+    internal static async Task<Dictionary<string, string[]>> ValidateUpsertRequestAsync(
         NormalizedClientRequest request,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken,
@@ -175,7 +176,7 @@ internal static partial class ClientEndpoints
         }
     }
 
-    private static async Task<Dictionary<string, string[]>> ValidateTransferRequestAsync(
+    internal static async Task<Dictionary<string, string[]>> ValidateTransferRequestAsync(
         TransferClientBranchRequest request,
         GymCrmDbContext dbContext,
         CancellationToken cancellationToken)
@@ -226,7 +227,7 @@ internal static partial class ClientEndpoints
         return errors;
     }
 
-    private static async Task<(UpsertClientRequest? Request, ProblemHttpResult? Problem)> ReadUpsertClientRequestAsync(
+    internal static async Task<(UpsertClientRequest? Request, ProblemHttpResult? Problem)> ReadUpsertClientRequestAsync(
         HttpRequest httpRequest,
         CancellationToken cancellationToken)
     {
@@ -251,7 +252,7 @@ internal static partial class ClientEndpoints
             type: "https://tools.ietf.org/html/rfc9110#section-15.5.1",
             statusCode: StatusCodes.Status400BadRequest);
 
-    private static NormalizedClientRequest NormalizeRequest(UpsertClientRequest request)
+    internal static NormalizedClientRequest NormalizeRequest(UpsertClientRequest request)
     {
         return new NormalizedClientRequest(
             NormalizeOptionalText(request.LastName),
@@ -292,7 +293,7 @@ internal static partial class ClientEndpoints
             .ToArray() ?? [];
     }
 
-    private static IReadOnlyList<Guid> NormalizeTransferGroupIds(TransferClientBranchRequest request)
+    internal static IReadOnlyList<Guid> NormalizeTransferGroupIds(TransferClientBranchRequest request)
     {
         var groupIds = request.TargetGroupIds is { Count: > 0 }
             ? request.TargetGroupIds
@@ -309,7 +310,7 @@ internal static partial class ClientEndpoints
             .ToArray();
     }
 
-    private static async Task ReplaceContactsAsync(
+    internal static async Task ReplaceContactsAsync(
         Guid clientId,
         IReadOnlyList<NormalizedClientContactRequest> requestedContacts,
         GymCrmDbContext dbContext,
@@ -337,7 +338,7 @@ internal static partial class ClientEndpoints
         }
     }
 
-    private static async Task ReplaceGroupAssignmentsAsync(
+    internal static async Task ReplaceGroupAssignmentsAsync(
         Guid clientId,
         Guid branchId,
         IReadOnlyList<Guid> requestedGroupIds,
@@ -407,7 +408,7 @@ internal static partial class ClientEndpoints
         }
     }
 
-    private static void OpenBranchAssignment(
+    internal static void OpenBranchAssignment(
         Guid clientId,
         Guid branchId,
         Guid changedByUserId,
@@ -425,7 +426,7 @@ internal static partial class ClientEndpoints
         });
     }
 
-    private static async Task CloseActiveBranchAssignmentsAsync(
+    internal static async Task CloseActiveBranchAssignmentsAsync(
         Guid clientId,
         DateTimeOffset now,
         GymCrmDbContext dbContext,

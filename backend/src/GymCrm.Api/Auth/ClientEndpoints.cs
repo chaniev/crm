@@ -5,7 +5,6 @@ using System.Text.Json;
 using GymCrm.Application.Attendance;
 using GymCrm.Application.Audit;
 using GymCrm.Application.Clients;
-using GymCrm.Domain.Audit;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
@@ -15,12 +14,12 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
+using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
 
 namespace GymCrm.Api.Auth;
 
-internal static partial class ClientEndpoints
+internal static class ClientEndpoints
 {
-    private static readonly JsonSerializerOptions AuditSerializerOptions = new(JsonSerializerDefaults.Web);
     private const int MembershipIdempotencyKeyMaxLength = 128;
     private const string MembershipIdempotencyPending = "Pending";
     private const string MembershipIdempotencyCompleted = "Completed";
@@ -405,7 +404,7 @@ internal static partial class ClientEndpoints
         return TypedResults.Ok(ClientResponseMapper.MapDetails(clientAfter, ClientResponseMapper.EmptyAttendanceHistoryPage(), businessDateProvider.Today));
     }
 
-    private static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
+    internal static async Task<Results<Ok<ClientDetailsResponse>, NotFound, ValidationProblem, ProblemHttpResult, UnauthorizedHttpResult>> ExecuteMembershipActionAsync(
         Guid id,
         HttpContext httpContext,
         GymCrmDbContext dbContext,
@@ -709,7 +708,7 @@ internal static partial class ClientEndpoints
         }
     }
 
-    private static string? GetMembershipIdempotencyKey(HttpRequest request)
+    internal static string? GetMembershipIdempotencyKey(HttpRequest request)
     {
         if (!request.Headers.TryGetValue("Idempotency-Key", out var values))
         {
@@ -727,7 +726,7 @@ internal static partial class ClientEndpoints
             : value;
     }
 
-    private static string? NormalizeIsoDateForIdempotency(string? value)
+    internal static string? NormalizeIsoDateForIdempotency(string? value)
     {
         return ParseIsoDate(value)?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
     }
@@ -796,7 +795,7 @@ internal static partial class ClientEndpoints
         return errors;
     }
 
-    private static void ValidateCatalogPayment(
+    internal static void ValidateCatalogPayment(
         string? status,
         bool? isPaid,
         string? paymentDate,
@@ -818,7 +817,7 @@ internal static partial class ClientEndpoints
         ValidateRequiredPaymentDate(paymentDate, businessDate, errors);
     }
 
-    private static ProblemHttpResult? CreateRemovedPaymentMarkerProblem(string? paymentStatus, bool? isPaid)
+    internal static ProblemHttpResult? CreateRemovedPaymentMarkerProblem(string? paymentStatus, bool? isPaid)
     {
         if (string.Equals(paymentStatus?.Trim(), "Unpaid", StringComparison.OrdinalIgnoreCase) || isPaid == false)
         {
@@ -847,7 +846,7 @@ internal static partial class ClientEndpoints
         });
     }
 
-    private static void ValidatePricingSelection(
+    internal static void ValidatePricingSelection(
         Guid? membershipCatalogItemId,
         decimal? manualSaleAmount,
         Dictionary<string, string[]> errors)
@@ -870,21 +869,6 @@ internal static partial class ClientEndpoints
         {
             errors["manualSaleAmount"] =
                 ["Manual sale amount must be a positive whole number of RUB within the supported range."];
-        }
-    }
-
-    private static void ValidateAdditionalFields(
-        IDictionary<string, JsonElement>? additionalFields,
-        Dictionary<string, string[]> errors)
-    {
-        if (additionalFields is null)
-        {
-            return;
-        }
-
-        foreach (var field in additionalFields.Keys)
-        {
-            errors[field] = [$"Field '{field}' is not allowed for this operation."];
         }
     }
 
@@ -1070,7 +1054,7 @@ internal static partial class ClientEndpoints
             : null;
     }
 
-    private static DateOnly? ParseIsoDate(string? value)
+    internal static DateOnly? ParseIsoDate(string? value)
     {
         return DateOnly.TryParseExact(
             value?.Trim(),
@@ -1186,102 +1170,6 @@ internal static partial class ClientEndpoints
         if (!string.IsNullOrWhiteSpace(value) && value.Length > 128)
         {
             errors[key] = [message];
-        }
-    }
-
-    private static string? NormalizeOptionalText(string? value)
-    {
-        return string.IsNullOrWhiteSpace(value)
-            ? null
-            : value.Trim();
-    }
-
-    private static string BuildClientFullName(string? lastName, string? firstName, string? middleName)
-    {
-        var fullName = string.Join(
-            ' ',
-            new[] { lastName, firstName, middleName }
-                .Where(part => !string.IsNullOrWhiteSpace(part))
-                .Select(part => part!.Trim()));
-
-        return string.IsNullOrWhiteSpace(fullName)
-            ? ClientResources.ClientWithoutName
-            : fullName;
-    }
-
-    private static string SerializeAuditState(Client client)
-    {
-        return JsonSerializer.Serialize(
-            new ClientAuditState(
-                client.Id,
-                client.LastName,
-                client.FirstName,
-                client.MiddleName,
-                client.Phone,
-                client.BranchId,
-                client.BirthDate,
-                client.Notes,
-                client.Status.ToString(),
-                client.Contacts
-                    .Select(contact => new ClientContactAuditState(contact.Type, contact.FullName, contact.Phone))
-                    .OrderBy(contact => contact.FullName, StringComparer.CurrentCulture)
-                    .ThenBy(contact => contact.Type, StringComparer.CurrentCulture)
-                    .ThenBy(contact => contact.Phone, StringComparer.CurrentCulture)
-                    .ToArray(),
-                client.Groups
-                    .Select(clientGroup => clientGroup.GroupId)
-                    .OrderBy(groupId => groupId)
-                    .ToArray(),
-                client.CreatedAt,
-                client.UpdatedAt),
-            AuditSerializerOptions);
-    }
-
-
-    private static AuditLogEntry BuildNoteAuditEntry(
-        Guid actorId,
-        Client client,
-        string actorLogin,
-        string transition)
-    {
-        return new AuditLogEntry(
-            actorId,
-            ClientAuditConstants.ClientNoteChangedAction,
-            ClientAuditConstants.ClientEntityType,
-            client.Id.ToString(),
-            ClientAuditResources.ClientNoteChangedDescription(
-                actorLogin,
-                BuildClientFullName(client.LastName, client.FirstName, client.MiddleName)),
-            NewValueJson: JsonSerializer.Serialize(new { transition }, AuditSerializerOptions));
-    }
-
-    private static async Task TryWriteClientAuditAsync(
-        IAuditLogService auditLogService,
-        GymCrmDbContext dbContext,
-        ILoggerFactory loggerFactory,
-        Guid actorId,
-        Guid clientId,
-        AuditLogEntry entry,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            await auditLogService.WriteAsync(entry, cancellationToken);
-        }
-        catch (Exception exception)
-        {
-            foreach (var trackedAudit in dbContext.ChangeTracker.Entries<AuditLog>()
-                         .Where(tracked => tracked.State == EntityState.Added))
-            {
-                trackedAudit.State = EntityState.Detached;
-            }
-
-            loggerFactory.CreateLogger("ClientAudit").LogError(
-                exception,
-                "Client audit write failed. ActionType={ActionType} ClientId={ClientId} ActorId={ActorId}",
-                entry.ActionType,
-                clientId,
-                actorId);
         }
     }
 

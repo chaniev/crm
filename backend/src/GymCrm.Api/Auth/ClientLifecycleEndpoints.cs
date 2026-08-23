@@ -8,13 +8,16 @@ using GymCrm.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using static GymCrm.Api.Auth.ClientEndpoints;
+using static GymCrm.Api.Auth.ClientEndpointSharedHelpers;
+using static GymCrm.Api.Auth.ClientLifecycleRequestValidation;
 
 
 namespace GymCrm.Api.Auth;
 
-internal static partial class ClientEndpoints
+internal static class ClientLifecycleEndpoints
 {
-    private static RouteGroupBuilder MapClientLifecycleEndpoints(this RouteGroupBuilder group)
+    internal static RouteGroupBuilder MapClientLifecycleEndpoints(this RouteGroupBuilder group)
     {
         group.MapPost("/", CreateClientAsync)
             .RequireAuthorization(GymCrmAuthorizationPolicies.ManageClients);
