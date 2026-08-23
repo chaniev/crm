@@ -1148,10 +1148,11 @@ public sealed class ClientMembershipWriteRegressionApiTests
     [Fact]
     public async Task Facade_contract_delegates_all_membership_operations_without_cross_scope_state()
     {
-        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: false);
+        await using var context = await MembershipWriteContext.CreateAsync(usePostgreSql: true);
         Guid saleId;
         Guid membershipId;
         Guid refundId;
+        Guid renewedMembershipId;
 
         await using (var scope = context.Factory.Services.CreateAsyncScope())
         {
@@ -1181,8 +1182,14 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     context.Today,
                     ProfessionalComment: null),
                 CancellationToken.None);
-            Assert.True(purchase.Succeeded, purchase.Error.ToString());
+            Assert.Equal(ClientMembershipMutationError.None, purchase.Error);
+            Assert.Null(purchase.SaleAudit);
+            Assert.Equal(context.ClientId, purchase.Details?.ClientId);
             var purchasedMembership = purchase.Details!.CurrentMembership!;
+            Assert.Equal(ClientMembershipChangeReason.NewPurchase, purchasedMembership.ChangeReason);
+            Assert.Equal(context.TermCatalogItemId, purchasedMembership.MembershipCatalogItemId);
+            Assert.Equal(1500m, purchasedMembership.FinancialSummary.GrossAmount);
+            Assert.Single(purchase.Details.MembershipHistory);
             saleId = purchasedMembership.SaleId;
             membershipId = purchasedMembership.Id;
         }
@@ -1200,6 +1207,8 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 CancellationToken.None);
             Assert.True(comment.Found);
             Assert.Equal("set", comment.Transition);
+            Assert.Equal("facade comment", comment.Details?.CurrentMembership?.Comment);
+            Assert.Equal(membershipId, comment.Details?.CurrentMembership?.Id);
 
             var correction = await service.CorrectAsync(
                 context.ClientId,
@@ -1211,7 +1220,13 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     context.Today.AddDays(29),
                     context.Today.AddDays(-1)),
                 CancellationToken.None);
-            Assert.True(correction.Succeeded, correction.Error.ToString());
+            Assert.Equal(ClientMembershipMutationError.None, correction.Error);
+            Assert.Equal(context.Today, correction.SaleAudit?.OldSale.PaymentDate);
+            Assert.Equal(context.Today.AddDays(-1), correction.SaleAudit?.NewSale.PaymentDate);
+            Assert.Equal(saleId, correction.SaleAudit?.NewSale.Id);
+            Assert.Equal(2, correction.Details?.MembershipHistory.Count);
+            Assert.NotEqual(membershipId, correction.Details?.CurrentMembership?.Id);
+            Assert.Equal(ClientMembershipChangeReason.Correction, correction.Details?.CurrentMembership?.ChangeReason);
 
             var refund = await service.RegisterRefundAsync(
                 context.ClientId,
@@ -1222,7 +1237,14 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     100m,
                     "facade refund"),
                 CancellationToken.None);
-            Assert.True(refund.Succeeded, refund.Error.ToString());
+            Assert.Equal(ClientMembershipRefundMutationError.None, refund.Error);
+            Assert.Null(refund.PreviousRefund);
+            Assert.Equal(saleId, refund.Refund?.SaleId);
+            Assert.Equal(100m, refund.Refund?.Amount);
+            Assert.Equal("facade refund", refund.Refund?.Comment);
+            Assert.Equal(100m, refund.Details?.CurrentMembership?.FinancialSummary.RefundedAmount);
+            Assert.Equal(ClientMembershipRefundStatus.Partial, refund.Details?.CurrentMembership?.FinancialSummary.RefundStatus);
+            Assert.Single(refund.Details!.CurrentMembership!.Refunds);
             refundId = refund.Refund!.Id;
         }
 
@@ -1233,7 +1255,12 @@ public sealed class ClientMembershipWriteRegressionApiTests
                 context.ClientId,
                 new CancelClientMembershipRefundCommand(context.ActorId, refundId),
                 CancellationToken.None);
-            Assert.True(cancel.Succeeded, cancel.Error.ToString());
+            Assert.Equal(ClientMembershipRefundMutationError.None, cancel.Error);
+            Assert.Null(cancel.PreviousRefund?.CanceledAt);
+            Assert.NotNull(cancel.Refund?.CanceledAt);
+            Assert.Equal(context.ActorId, cancel.Refund?.CanceledByUserId);
+            Assert.Equal(0m, cancel.Details?.CurrentMembership?.FinancialSummary.RefundedAmount);
+            Assert.Equal(ClientMembershipRefundStatus.None, cancel.Details?.CurrentMembership?.FinancialSummary.RefundStatus);
 
             var repeatedCancel = await service.CancelRefundAsync(
                 context.ClientId,
@@ -1249,10 +1276,24 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     context.Today,
                     ProfessionalComment: null),
                 CancellationToken.None);
-            Assert.True(renewal.Succeeded, renewal.Error.ToString());
+            Assert.Equal(ClientMembershipMutationError.None, renewal.Error);
+            Assert.Null(renewal.SaleAudit);
+            Assert.Equal(ClientMembershipChangeReason.Renewal, renewal.Details?.CurrentMembership?.ChangeReason);
+            Assert.Equal(3, renewal.Details?.MembershipHistory.Count);
+            renewedMembershipId = renewal.Details!.CurrentMembership!.Id;
+        }
+
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
+            var reloaded = await service.GetAsync(context.ClientId, CancellationToken.None);
+            Assert.Equal(renewedMembershipId, reloaded?.CurrentMembership?.Id);
+            Assert.Equal(ClientMembershipChangeReason.Renewal, reloaded?.CurrentMembership?.ChangeReason);
+            Assert.Equal(3, reloaded?.MembershipHistory.Count);
         }
 
         var singleVisit = await context.SeedSingleVisitClientAsync();
+        Guid restoredMembershipId;
         await using (var scope = context.Factory.Services.CreateAsyncScope())
         {
             var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
@@ -1266,13 +1307,17 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     context.Today,
                     ProfessionalComment: null),
                 CancellationToken.None);
-            Assert.True(singleVisitPurchase.Succeeded, singleVisitPurchase.Error.ToString());
+            Assert.Equal(ClientMembershipMutationError.None, singleVisitPurchase.Error);
 
             var writeOff = await service.WriteOffSingleVisitAsync(
                 singleVisit.ClientId,
                 new WriteOffSingleVisitCommand(context.ActorId, context.Today),
                 CancellationToken.None);
-            Assert.True(writeOff.Applied);
+            Assert.Equal(SingleVisitWriteOffStatus.Applied, writeOff.Status);
+            Assert.False(writeOff.PreviousMembership?.SingleVisitUsed);
+            Assert.True(writeOff.CurrentMembership?.SingleVisitUsed);
+            Assert.Equal(ClientMembershipChangeReason.SingleVisitWriteOff, writeOff.CurrentMembership?.ChangeReason);
+            Assert.Equal(writeOff.PreviousMembership?.SaleId, writeOff.CurrentMembership?.SaleId);
 
             var restore = await service.RestoreSingleVisitAsync(
                 singleVisit.ClientId,
@@ -1281,7 +1326,12 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     writeOff.CurrentMembership!.SaleId,
                     writeOff.CurrentMembership.Id),
                 CancellationToken.None);
-            Assert.True(restore.Applied);
+            Assert.Equal(SingleVisitRestoreStatus.Applied, restore.Status);
+            Assert.True(restore.PreviousMembership?.SingleVisitUsed);
+            Assert.False(restore.CurrentMembership?.SingleVisitUsed);
+            Assert.Equal(ClientMembershipChangeReason.SingleVisitRestore, restore.CurrentMembership?.ChangeReason);
+            Assert.Equal(writeOff.CurrentMembership.SaleId, restore.CurrentMembership?.SaleId);
+            restoredMembershipId = restore.CurrentMembership!.Id;
 
             var conflictingRestore = await service.RestoreSingleVisitAsync(
                 singleVisit.ClientId,
@@ -1291,6 +1341,15 @@ public sealed class ClientMembershipWriteRegressionApiTests
                     writeOff.CurrentMembership.Id),
                 CancellationToken.None);
             Assert.Equal(SingleVisitRestoreStatus.Conflict, conflictingRestore.Status);
+        }
+
+        await using (var scope = context.Factory.Services.CreateAsyncScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<IClientMembershipService>();
+            var reloaded = await service.GetAsync(singleVisit.ClientId, CancellationToken.None);
+            Assert.Equal(restoredMembershipId, reloaded?.CurrentMembership?.Id);
+            Assert.False(reloaded?.CurrentMembership?.SingleVisitUsed);
+            Assert.Equal(ClientMembershipChangeReason.SingleVisitRestore, reloaded?.CurrentMembership?.ChangeReason);
         }
     }
 
