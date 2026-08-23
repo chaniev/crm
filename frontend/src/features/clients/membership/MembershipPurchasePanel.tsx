@@ -21,7 +21,7 @@ import {
   createMembershipPurchaseInitialValues,
   type MembershipPurchaseFormValues,
 } from './membershipForms'
-import { useMembershipSubmissionKey } from './useMembershipSubmissionKey'
+import { useClientActionSubmissionKey } from '../useClientActionSubmissionKey'
 
 type MembershipPurchasePanelProps = {
   branchId: string
@@ -43,7 +43,7 @@ export function MembershipPurchasePanel({
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [confirmationOpened, setConfirmationOpened] = useState(false)
-  const getSubmissionKey = useMembershipSubmissionKey()
+  const getSubmissionKey = useClientActionSubmissionKey()
   const form = useForm<MembershipPurchaseFormValues>({
     initialValues: createMembershipPurchaseInitialValues(businessDate),
   })

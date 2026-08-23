@@ -27,7 +27,7 @@ import type {
 } from '../ClientManagement.types'
 import { InfoItem, MembershipSaleConfirmationModal, PaymentDateInput } from '../ClientSharedInfo'
 import { createMembershipRenewInitialValues } from './membershipForms'
-import { useMembershipSubmissionKey } from './useMembershipSubmissionKey'
+import { useClientActionSubmissionKey } from '../useClientActionSubmissionKey'
 
 type MembershipRenewPanelProps = {
   branchId: string
@@ -54,7 +54,7 @@ export function MembershipRenewPanel({
   const [loadError, setLoadError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [confirmationOpened, setConfirmationOpened] = useState(false)
-  const getSubmissionKey = useMembershipSubmissionKey()
+  const getSubmissionKey = useClientActionSubmissionKey()
   const selected = catalogItems.find(
     (item) => item.id === form.values.membershipCatalogItemId,
   )

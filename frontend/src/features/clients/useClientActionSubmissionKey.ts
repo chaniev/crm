@@ -1,8 +1,8 @@
 import { useCallback, useRef } from 'react'
 
-import type { MembershipActionMode } from '../ClientManagement.types'
+import type { MembershipActionMode } from './ClientManagement.types'
 
-export function useMembershipSubmissionKey() {
+export function useClientActionSubmissionKey() {
   const submissionRef = useRef<{ fingerprint: string; key: string } | null>(null)
 
   return useCallback((kind: MembershipActionMode | 'transfer', payload: unknown) => {

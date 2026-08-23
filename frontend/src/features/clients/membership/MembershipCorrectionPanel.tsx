@@ -23,7 +23,7 @@ import {
   createMembershipCorrectionInitialValues,
   validateMembershipCorrectionForm,
 } from './membershipForms'
-import { useMembershipSubmissionKey } from './useMembershipSubmissionKey'
+import { useClientActionSubmissionKey } from '../useClientActionSubmissionKey'
 
 type MembershipCorrectionPanelProps = {
   businessDate: string
@@ -44,7 +44,7 @@ export function MembershipCorrectionPanel({
   const form = useForm<MembershipCorrectionFormValues>({ initialValues })
   const formRef = useRef(form)
   formRef.current = form
-  const getSubmissionKey = useMembershipSubmissionKey()
+  const getSubmissionKey = useClientActionSubmissionKey()
   const [expirationManuallyChanged, setExpirationManuallyChanged] =
     useState(false)
   const [expirationSuggestionLoading, setExpirationSuggestionLoading] =

@@ -47,11 +47,9 @@ import {
 } from './ClientManagement.types'
 import { ClientTransferModal } from './ClientTransferModal'
 import { ClientOverviewSection } from './ClientOverviewSection'
-import {
-  ClientMembershipSection,
-  useMembershipSubmissionKey,
-} from './membership'
+import { ClientMembershipSection } from './membership'
 import { ClientAttendanceHistorySection } from './ClientAttendanceHistorySection'
+import { useClientActionSubmissionKey } from './useClientActionSubmissionKey'
 
 type ClientDetailScreenProps = {
   backLabel?: string
@@ -83,7 +81,7 @@ export function ClientDetailScreen({
   const [photoVersion, setPhotoVersion] = useState<number | null>(null)
   const [membershipActionMode, setMembershipActionMode] =
     useState<MembershipActionMode | null>(null)
-  const getTransferSubmissionKey = useMembershipSubmissionKey()
+  const getTransferSubmissionKey = useClientActionSubmissionKey()
   const actionPendingRef = useRef(false)
   const transferForm = useForm<ClientTransferFormValues>({
     initialValues: {
