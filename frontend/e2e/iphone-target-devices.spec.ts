@@ -225,6 +225,35 @@ const CLIENT_LIST_GROUPS_RESPONSE = {
   take: 20,
 } as const
 
+const SCHEDULE_GROUPS_RESPONSE = {
+  items: Array.from({ length: 6 }, (_, index) => ({
+    id: `iphone-schedule-${index + 1}`,
+    name: `Мобильная группа ${index + 1} с длинным названием`,
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Основной зал',
+    groupTypeId: 'type-1',
+    groupTypeName: 'Базовый',
+    trainingStartTime: '09:00',
+    durationMinutes: 60,
+    weekdays: [1, 2, 3, 4, 5, 6, 7],
+    trainers: [{
+      id: `coach-${index + 1}`,
+      fullName: `Тренер ${index + 1}`,
+      login: `coach-${index + 1}`,
+    }],
+    trainerIds: [`coach-${index + 1}`],
+    trainerCount: 1,
+    trainerNames: [`Тренер ${index + 1}`],
+    clientCount: 10 + index,
+    isActive: true,
+  })),
+  totalCount: 6,
+  skip: 0,
+  take: 100,
+} as const
+
 const UNAUTHENTICATED_SESSION = {
   isAuthenticated: false,
   csrfToken: '',
@@ -521,6 +550,43 @@ test('target portrait profile menu trigger stays reachable and keyboard-closeabl
   expect(environment.userAgent).toContain('iPhone')
 })
 
+test('target iPhone schedule preserves the mobile timeline in portrait and touch landscape', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.goto('/schedule')
+
+  await expect(page.getByTestId('schedule-screen')).toBeVisible()
+  await expect(page.getByTestId('schedule-filter-panel')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
+  await expect(page.getByTestId('schedule-mobile-day-strip')).toBeVisible()
+  await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()
+  await expect(page.getByTestId('schedule-mobile-day-list')).toContainText(
+    'Мобильная группа 1 с длинным названием',
+  )
+  await expect(page.getByTestId('schedule-calendar-grid')).toHaveCount(0)
+  await expect(page.locator('.schedule-events-disclosure')).toHaveCount(0)
+  await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeVisible()
+  await expectNoHorizontalScroll(page)
+
+  expect(testInfo.project.use.hasTouch).toBe(true)
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+
+  await expect(page.getByTestId('schedule-mobile-day-strip')).toBeVisible()
+  await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()
+  await expect(page.getByTestId('schedule-mobile-day-list')).toContainText(
+    'Мобильная группа 1 с длинным названием',
+  )
+  await expect(page.getByTestId('schedule-calendar-grid')).toHaveCount(0)
+  await expect(page.locator('.schedule-events-disclosure')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
+  await expect(page.locator(MOBILE_BOTTOM_NAVIGATION_SELECTOR)).toBeVisible()
+  await expectNoHorizontalScroll(page)
+})
+
 test('unknown auth-profile values are safely resolved on iPhone profiles', async ({
   page,
 }, testInfo) => {
@@ -571,7 +637,7 @@ test('target iPhone attendance workbench remains compact, readable, and action-r
     }
 
     if (pathname === '/api/auth/session' && method === 'GET') {
-      await fulfillJson(route, HEAD_COACH_SESSION)
+      await fulfillJson(route, COACH_RESTRICTED_SESSION)
       return
     }
 
@@ -2333,6 +2399,11 @@ async function mockApi(
         pageSize,
         hasNextPage: totalCount === null ? true : totalCount > pageSize,
       })
+      return
+    }
+
+    if (pathname === '/api/schedule/groups' && method === 'GET') {
+      await fulfillJson(route, SCHEDULE_GROUPS_RESPONSE)
       return
     }
 

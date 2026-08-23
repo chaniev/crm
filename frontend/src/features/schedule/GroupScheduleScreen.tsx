@@ -6,6 +6,7 @@ import {
   type CSSProperties,
   type Dispatch,
   type KeyboardEvent,
+  type MutableRefObject,
   type SetStateAction,
 } from 'react'
 import {
@@ -39,6 +40,7 @@ import {
   buildScheduleFilterOptions,
   buildScheduleHourMarks,
   buildScheduleTypeLegend,
+  buildScheduleVisualDisclosureGroups,
   buildScheduleWeekdayLabels,
   formatScheduleEntryTimeRange,
   getCurrentScheduleWeekday,
@@ -52,6 +54,7 @@ import {
   type ScheduleFilters,
   type ScheduleTypeLegendItem,
   type ScheduleTypePalette,
+  type ScheduleVisualDisclosureGroup,
   type ScheduleVisibleHourRange,
   type ScheduleWeekdayLabel,
   type WeekdayNumber,
@@ -67,6 +70,13 @@ import {
   TaskToolbarRefreshAction,
   type CompactFilterItem,
 } from '../shared/ux'
+import {
+  ScheduleEventsDisclosure,
+} from './ScheduleEventsDisclosure'
+import {
+  formatScheduleClientCount,
+  formatScheduleEntryCount,
+} from './schedulePresentation'
 
 const SCHEDULE_GROUPS_PAGE_SIZE = 100
 const MOBILE_BREAKPOINT = '(max-width: 47.99em), (max-height: 30rem) and (pointer: coarse)'
@@ -257,9 +267,11 @@ export function GroupScheduleScreen(props: GroupScheduleScreenProps) {
 
       {!isInitialLoading && (!error || hasStaleSchedule) ? (
         <PageSection
+          aria-label="Доска расписания"
           className="schedule-board"
           data-testid="schedule-board"
           density="compact"
+          {...({ tabIndex: -1 } as { tabIndex: number })}
         >
           {groups.length === 0 ? (
             isCoachViewer ? (
@@ -558,13 +570,77 @@ function ScheduleDesktopGrid({
   visibleHourRange,
   viewerRole,
 }: ScheduleDesktopGridProps) {
+  const [openedDisclosureKey, setOpenedDisclosureKey] = useState<string | null>(null)
+  const [measuredDayColumnNode, setMeasuredDayColumnNode] = useState<HTMLDivElement | null>(null)
+  const [disclosureNaturalHeightPxByKey, setDisclosureNaturalHeightPxByKey] = useState(
+    () => new Map<string, number>(),
+  )
+  const triggerRefs = useRef(new Map<string, HTMLButtonElement>())
+  const measuredDayColumnWidth = useElementWidth(measuredDayColumnNode)
+  const dayContentWidthPx = measuredDayColumnWidth === null
+    ? null
+    : Math.max(0, measuredDayColumnWidth - 12)
   const hourMarks = buildScheduleHourMarks(visibleHourRange)
   const gridHeight = (visibleHourRange.endHour - visibleHourRange.startHour) *
     SCHEDULE_DESKTOP_HOUR_HEIGHT_PX
   const labelByWeekday = buildDayLabelMap(dayLabels)
+  const disclosureGroupsByWeekday = useMemo(() => new Map(days.map((day) => [
+    day.weekday,
+    buildScheduleVisualDisclosureGroups(day.entries, {
+      dayContentWidthPx,
+      disclosureNaturalHeightPxByKey,
+      hourHeightPx: SCHEDULE_DESKTOP_HOUR_HEIGHT_PX,
+      laneGapPx: SCHEDULE_LANE_GAP_PX,
+    }),
+  ])), [dayContentWidthPx, days, disclosureNaturalHeightPxByKey])
+  const disclosureKeys = useMemo(() => new Set(
+    [...disclosureGroupsByWeekday.values()]
+      .flatMap((groups) => groups.map((group) => group.key)),
+  ), [disclosureGroupsByWeekday])
+  const closeDisclosure = (key: string) => {
+    setOpenedDisclosureKey(null)
+    triggerRefs.current.get(key)?.focus()
+  }
+  const handleDisclosureNaturalHeight = (key: string, heightPx: number) => {
+    if (heightPx <= 0) {
+      return
+    }
+
+    setDisclosureNaturalHeightPxByKey((currentHeights) => {
+      const currentHeight = currentHeights.get(key) ?? 0
+
+      if (Math.abs(currentHeight - heightPx) <= 0.5) {
+        return currentHeights
+      }
+
+      const nextHeights = new Map(currentHeights)
+
+      nextHeights.set(key, heightPx)
+
+      return nextHeights
+    })
+  }
+
+  useEffect(() => {
+    if (!openedDisclosureKey || disclosureKeys.has(openedDisclosureKey)) {
+      return
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      setOpenedDisclosureKey(null)
+      document.querySelector<HTMLElement>('[data-testid="schedule-board"]')?.focus()
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [disclosureKeys, openedDisclosureKey])
 
   return (
-    <div className="schedule-weekly-grid" data-testid="schedule-calendar-grid">
+    <div
+      aria-label="Недельное расписание"
+      className="schedule-weekly-grid"
+      data-testid="schedule-calendar-grid"
+      tabIndex={-1}
+    >
       <div className="schedule-weekly-grid__header">
         <div className="schedule-weekly-grid__time-spacer" />
         {days.map((day) => (
@@ -597,40 +673,136 @@ function ScheduleDesktopGrid({
           ))}
         </div>
 
-        {days.map((day) => (
-          <div
-            className="schedule-weekly-grid__day-column"
-            data-current={day.weekday === currentWeekday ? 'true' : undefined}
-            data-testid={`schedule-day-${day.weekday}`}
+        {days.map((day, index) => (
+          <ScheduleDesktopDayColumn
+            day={day}
+            disclosureGroups={disclosureGroupsByWeekday.get(day.weekday) ?? []}
+            gridHeight={gridHeight}
+            hasActiveFilters={hasActiveFilters}
+            hourMarks={hourMarks}
+            isCurrent={day.weekday === currentWeekday}
             key={day.weekday}
-            style={{ height: `${gridHeight}px` }}
-          >
-            {hourMarks.slice(0, -1).map((hour, index) => (
-              <div
-                className="schedule-weekly-grid__hour-line"
-                key={`${day.weekday}-${hour}`}
-                style={{ top: `${index * SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}px` }}
-              />
-            ))}
-
-            {day.entries.length === 0 ? (
-              <Text c="dimmed" className="schedule-weekly-grid__empty-day" size="sm">
-                {getScheduleDayEmptyCopy(viewerRole, hasActiveFilters).title}
-              </Text>
-            ) : null}
-
-            {day.entries.map((entry) => (
-              <ScheduleCalendarCard
-                entry={entry}
-                hourHeight={SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}
-                key={entry.key}
-                mode="calendar"
-                visibleHourRange={visibleHourRange}
-              />
-            ))}
-          </div>
+            labelByWeekday={labelByWeekday}
+            measureRef={index === 0 ? setMeasuredDayColumnNode : undefined}
+            onCloseDisclosure={closeDisclosure}
+            onDisclosureNaturalHeight={handleDisclosureNaturalHeight}
+            openedDisclosureKey={openedDisclosureKey}
+            setOpenedDisclosureKey={setOpenedDisclosureKey}
+            triggerRefs={triggerRefs}
+            viewerRole={viewerRole}
+            visibleHourRange={visibleHourRange}
+          />
         ))}
       </div>
+    </div>
+  )
+}
+
+type ScheduleDesktopDayColumnProps = {
+  day: ScheduleCalendarDay<TrainingGroupListItem>
+  disclosureGroups: ScheduleVisualDisclosureGroup<TrainingGroupListItem>[]
+  gridHeight: number
+  hasActiveFilters: boolean
+  hourMarks: number[]
+  isCurrent: boolean
+  labelByWeekday: Map<WeekdayNumber, ScheduleWeekdayLabel>
+  measureRef?: (node: HTMLDivElement | null) => void
+  onCloseDisclosure: (key: string) => void
+  onDisclosureNaturalHeight: (key: string, heightPx: number) => void
+  openedDisclosureKey: string | null
+  setOpenedDisclosureKey: Dispatch<SetStateAction<string | null>>
+  triggerRefs: MutableRefObject<Map<string, HTMLButtonElement>>
+  viewerRole: UserRole
+  visibleHourRange: ScheduleVisibleHourRange
+}
+
+function ScheduleDesktopDayColumn({
+  day,
+  disclosureGroups,
+  gridHeight,
+  hasActiveFilters,
+  hourMarks,
+  isCurrent,
+  labelByWeekday,
+  measureRef,
+  onCloseDisclosure,
+  onDisclosureNaturalHeight,
+  openedDisclosureKey,
+  setOpenedDisclosureKey,
+  triggerRefs,
+  viewerRole,
+  visibleHourRange,
+}: ScheduleDesktopDayColumnProps) {
+  const hiddenEntryKeys = useMemo(() => new Set(disclosureGroups.flatMap((group) =>
+    group.entries.map((entry) => entry.key),
+  )), [disclosureGroups])
+  const renderItems = useMemo(() => ([
+    ...day.entries
+      .filter((entry) => !hiddenEntryKeys.has(entry.key))
+      .map((entry) => ({
+        type: 'entry' as const,
+        key: entry.key,
+        startMinutes: entry.startMinutes,
+        entry,
+      })),
+    ...disclosureGroups.map((group) => ({
+      type: 'disclosure' as const,
+      key: group.key,
+      startMinutes: group.startMinutes,
+      group,
+    })),
+  ].sort((first, second) =>
+    first.startMinutes - second.startMinutes || first.key.localeCompare(second.key, 'ru'),
+  )), [day.entries, disclosureGroups, hiddenEntryKeys])
+  const dayLabel = labelByWeekday.get(day.weekday)
+
+  return (
+    <div
+      className="schedule-weekly-grid__day-column"
+      data-current={isCurrent ? 'true' : undefined}
+      data-testid={`schedule-day-${day.weekday}`}
+      ref={measureRef}
+      style={{ height: `${gridHeight}px` }}
+    >
+      {hourMarks.slice(0, -1).map((hour, index) => (
+        <div
+          className="schedule-weekly-grid__hour-line"
+          key={`${day.weekday}-${hour}`}
+          style={{ top: `${index * SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}px` }}
+        />
+      ))}
+
+      {day.entries.length === 0 ? (
+        <Text c="dimmed" className="schedule-weekly-grid__empty-day" size="sm">
+          {getScheduleDayEmptyCopy(viewerRole, hasActiveFilters).title}
+        </Text>
+      ) : null}
+
+      {renderItems.map((item) => item.type === 'entry' ? (
+        <ScheduleCalendarCard
+          entry={item.entry}
+          hourHeight={SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}
+          key={item.key}
+          mode="calendar"
+          visibleHourRange={visibleHourRange}
+        />
+      ) : (
+        <ScheduleEventsDisclosure
+          dateLabel={dayLabel?.dateLabel ?? ''}
+          group={item.group}
+          hourHeight={SCHEDULE_DESKTOP_HOUR_HEIGHT_PX}
+          isOpen={openedDisclosureKey === item.group.key}
+          key={item.key}
+          onClose={() => onCloseDisclosure(item.group.key)}
+          onNaturalHeight={onDisclosureNaturalHeight}
+          onToggle={() => setOpenedDisclosureKey((currentKey) =>
+            currentKey === item.group.key ? null : item.group.key,
+          )}
+          triggerRefs={triggerRefs}
+          visibleHourRange={visibleHourRange}
+          weekdayLabel={dayLabel?.label ?? day.label}
+        />
+      ))}
     </div>
   )
 }
@@ -713,7 +885,7 @@ function ScheduleMobileList({
               className="schedule-day-header__count"
               data-testid={`schedule-day-count-${day.weekday}`}
             >
-              {formatEntryCount(dayCounts[day.weekday])}
+              {formatScheduleEntryCount(dayCounts[day.weekday])}
             </span>
           </button>
         ))}
@@ -790,7 +962,7 @@ function ScheduleDayHeader({
 }: ScheduleDayHeaderProps) {
   return (
     <div
-      aria-label={`${label} ${dateLabel}: ${formatEntryCount(count)}${isCurrent ? ', текущий день недели' : ''}`}
+      aria-label={`${label} ${dateLabel}: ${formatScheduleEntryCount(count)}${isCurrent ? ', текущий день недели' : ''}`}
       className={['schedule-day-header', className].filter(Boolean).join(' ')}
       data-current={isCurrent ? 'true' : undefined}
       data-testid={testId}
@@ -805,7 +977,7 @@ function ScheduleDayHeader({
         className="schedule-day-header__count"
         data-testid={`schedule-day-count-${weekday}`}
       >
-        {formatEntryCount(count)}
+        {formatScheduleEntryCount(count)}
       </span>
     </div>
   )
@@ -827,9 +999,6 @@ function ScheduleCalendarCard({
   const group = entry.group
   const typePalette = getScheduleTypePalette(group)
   const timeRange = formatScheduleEntryTimeRange(entry)
-  const timeLabel = mode === 'calendar' && entry.laneCount > 1
-    ? timeRange.split(' - ')[0]
-    : timeRange
   const style = {
     ...(visibleHourRange
       ? buildCalendarEntryStyle(entry, visibleHourRange, hourHeight)
@@ -845,7 +1014,6 @@ function ScheduleCalendarCard({
           ? 'schedule-event-card--calendar'
           : 'schedule-event-card--mobile-grid',
       ].join(' ')}
-      data-compact={mode === 'calendar' && entry.laneCount > 1 ? 'true' : undefined}
       data-schedule-type={getScheduleTypeKey(group)}
       data-testid={`schedule-card-${entry.weekday}-${group.id}`}
       style={style}
@@ -854,7 +1022,7 @@ function ScheduleCalendarCard({
         <Group align="flex-start" justify="space-between" wrap="nowrap">
           <Stack className="schedule-event-card__copy" gap={3}>
             <Text className="schedule-event-card__time" fw={800}>
-              {timeLabel}
+              {timeRange}
             </Text>
             <Text className="schedule-event-card__title" fw={800}>
               {group.name}
@@ -941,6 +1109,36 @@ function getScheduleDayEmptyCopy(
     title: 'Занятий нет',
     description: 'В этот день в расписании нет занятий.',
   }
+}
+
+function useElementWidth(node: HTMLElement | null) {
+  const [width, setWidth] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!node || typeof ResizeObserver === 'undefined') {
+      const frameId = window.requestAnimationFrame(() => {
+        setWidth(node?.clientWidth ? node.clientWidth : null)
+      })
+
+      return () => window.cancelAnimationFrame(frameId)
+    }
+
+    const updateWidth = (nextWidth: number) => {
+      setWidth((currentWidth) =>
+        Math.abs((currentWidth ?? 0) - nextWidth) > 0.5 ? nextWidth : currentWidth,
+      )
+    }
+    const observer = new ResizeObserver(([entry]) => {
+      updateWidth(entry?.contentRect.width ?? node.clientWidth)
+    })
+
+    updateWidth(node.clientWidth)
+    observer.observe(node)
+
+    return () => observer.disconnect()
+  }, [node])
+
+  return width && width > 0 ? width : null
 }
 
 async function getAllScheduleGroups(signal: AbortSignal) {
@@ -1077,46 +1275,6 @@ function handleScheduleDayStripKeyDown(
   selectWeekday(nextWeekday, { focus: true })
 }
 
-function formatEntryCount(count: number) {
-  return `${count} ${formatLessonWord(count)}`
-}
-
-function formatLessonWord(count: number) {
-  const absCount = Math.abs(count)
-  const lastDigit = absCount % 10
-  const lastTwoDigits = absCount % 100
-
-  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
-    return 'занятий'
-  }
-
-  if (lastDigit === 1) {
-    return 'занятие'
-  }
-
-  if (lastDigit >= 2 && lastDigit <= 4) {
-    return 'занятия'
-  }
-
-  return 'занятий'
-}
-
-function formatScheduleClientCount(clientCount: number) {
-  const absCount = Math.abs(clientCount)
-  const lastDigit = absCount % 10
-  const lastTwoDigits = absCount % 100
-  let word = 'участников'
-
-  if (lastTwoDigits < 11 || lastTwoDigits > 14) {
-    if (lastDigit === 1) {
-      word = 'участник'
-    } else if (lastDigit >= 2 && lastDigit <= 4) {
-      word = 'участника'
-    }
-  }
-
-  return `${clientCount} ${word}`
-}
 
 function formatTrainerNames(group: TrainingGroupListItem) {
   if (group.trainerNames.length > 0) {

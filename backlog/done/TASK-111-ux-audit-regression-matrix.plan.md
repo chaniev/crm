@@ -1,7 +1,7 @@
 # Implementation Plan: TASK-111 Расширить Playwright-регрессию по UX-аудиту 2026-08-02
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-111-ux-audit-regression-matrix.md
+- source_task: /backlog/done/TASK-111-ux-audit-regression-matrix.md
 - branch: fix/TASK-111-ux-audit-regression-matrix
 - readiness: yes — dependency-free work may start; completion remains dependency-gated
 - dependencies: TASK-106 for dense-schedule evidence; completed TASK-104/107/109/110 are baseline
@@ -322,22 +322,22 @@ emulation; neither is physical iPhone/Safari acceptance.
   barriers.
 
 ### Validation and acceptance
-- [ ] TASK-104/106/107/109/110 dependency state and owning specs are recorded.
-- [ ] Mandatory matrix/validator unit test is red before implementation and
+- [x] TASK-104/106/107/109/110 dependency state and owning specs are recorded.
+- [x] Mandatory matrix/validator unit test is red before implementation and
       green afterward; release validation rejects every required pending row.
-- [ ] Attendance passes the five-size Chromium matrix.
-- [ ] Both target-iPhone WebKit projects pass with touch/iPhone/DPR evidence.
-- [ ] Settings tabs/select/actions/edit pass geometry and focus/task order.
-- [ ] Audit pager passes names, size, gap, state and three close-path focus.
-- [ ] Dense desktop schedule exposes all required decision-data.
-- [ ] Existing TASK-110 profile evidence is mapped without duplication;
+- [x] Attendance passes the five-size Chromium matrix.
+- [x] Both target-iPhone WebKit projects pass with touch/iPhone/DPR evidence.
+- [x] Settings tabs/select/actions/edit pass geometry and focus/task order.
+- [x] Audit pager passes names, size, gap, state and three close-path focus.
+- [x] Dense desktop schedule exposes all required decision-data.
+- [x] Existing TASK-110 profile evidence is mapped without duplication;
       inventory still detects a profile trigger `<44px`.
-- [ ] Page overflow and internal decision-data failure are separate criteria.
-- [ ] Touch inventory artifacts contain complete metadata and no unjustified
+- [x] Page overflow and internal decision-data failure are separate criteria.
+- [x] Touch inventory artifacts contain complete metadata and no unjustified
       allowlist entries.
-- [ ] Full unit, lint, build, affected Chromium and iPhone WebKit commands pass.
-- [ ] Focus/geometry suites pass on a second run without timeout/retry masking.
-- [ ] Device-only residual checks are listed without false pass claims.
+- [x] Full unit, lint, build, affected Chromium and iPhone WebKit commands pass.
+- [x] Focus/geometry suites pass on a second run without timeout/retry masking.
+- [x] Device-only residual checks are listed without false pass claims.
 
 ## Regression barrier
 Primary barrier: the affected Playwright suites plus
@@ -393,3 +393,13 @@ Stop and do not write product code if:
 Do not stop only because multiple frontend suites share fixtures or because
 the matrix spans several roles and viewports; keep changes test-only and
 phased.
+
+## Ready for Codex execution
+completed
+
+## Completion evidence
+- Completed on 2026-08-23 in implementation commit `5e16840`, fast-forward integrated into local `main`.
+- The required matrix test recorded a valid RED against the missing manifest, then passed `18/18`; release validation contains no pending executable rows and keeps physical-device criteria `manual-only`.
+- Final frontend validation passed lint, typecheck, raw-color scan with 0 disallowed findings, 496 unit tests and production build. Affected Chromium passed `43/43` sequentially without retries, both target-iPhone WebKit projects passed `40/40` twice, and the standalone inventory suite passed `12/12`.
+- Eight reviewed inventory JSON artifacts contain 249 measured targets, 0 violations and 0 entries with incomplete metadata; no allowlist entry, product code, backend/API/database contract or runtime configuration changed.
+- Physical touch/one-handed reach, real Safari chrome and software-keyboard behavior, safe-area/home-indicator/Dynamic Island behavior, and the final 200% visual scan remain explicitly manual-only.

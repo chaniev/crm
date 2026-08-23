@@ -308,6 +308,54 @@ const scheduleGroups: GroupState[] = [
   },
 ]
 
+const denseScheduleGroups: GroupState[] = [
+  ...Array.from({ length: 6 }, (_, index) => ({
+    id: `dense-${index + 1}`,
+    name: [
+      'База с очень длинным названием для проверки полного переноса',
+      'Интенсивный поток продвинутой функциональной подготовки',
+      'Кардио утром',
+      'Силовой блок',
+      'Функциональная подготовка',
+      'Восстановление',
+    ][index] ?? `Группа ${index + 1}`,
+    branchId: 'branch-1',
+    branchName: 'Центральный филиал с длинным названием',
+    hallId: index === 4 ? 'hall-2' : 'hall-1',
+    hallName: index === 4
+      ? 'Зал Север с длинным названием'
+      : 'Основной зал с длинным названием',
+    groupTypeId: index % 2 === 0 ? groupTypes[0].id : groupTypes[2].id,
+    groupTypeName: index % 2 === 0 ? groupTypes[0].name : groupTypes[2].name,
+    trainingStartTime: '08:00',
+    durationMinutes: 45,
+    weekdays: [1],
+    isActive: index !== 5,
+    trainerIds: index === 2 ? [] : [trainers[index % trainers.length].id],
+    trainerNames: index === 2
+      ? []
+      : [`${trainers[index % trainers.length].fullName} с полным длинным именем`],
+    clientCount: 8 + index,
+  })),
+  {
+    id: 'dense-following',
+    name: 'Следующее отдельное занятие',
+    branchId: 'branch-1',
+    branchName: 'Центр',
+    hallId: 'hall-1',
+    hallName: 'Основной зал',
+    groupTypeId: groupTypes[1].id,
+    groupTypeName: groupTypes[1].name,
+    trainingStartTime: '12:00',
+    durationMinutes: 60,
+    weekdays: [1],
+    isActive: true,
+    trainerIds: ['trainer-2'],
+    trainerNames: ['Артем База'],
+    clientCount: 7,
+  },
+]
+
 const coachScopeProbeGroups: GroupState[] = [
   {
     id: 'group-conflict-visible',
@@ -366,7 +414,7 @@ const coachSingleDayResponse: GroupState[] = [
 ]
 
 test.describe('Расписание групповых занятий', () => {
-  test('desktop shows weekly calendar grid, overlapping cards, combined filters and reset', async ({
+  test('desktop shows weekly calendar grid, overlap disclosure, combined filters and reset', async ({
     page,
   }) => {
     const requestStats = createRequestStats()
@@ -421,25 +469,26 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-type-legend')).toContainText('База')
     await expect(page.getByTestId('schedule-type-legend')).toContainText('Интенсив')
 
-    const mondayAlphaCard = page.getByTestId('schedule-card-1-group-alpha')
-    const mondayMorningCard = page.getByTestId('schedule-card-1-group-early')
+    const mondayOverlapDisclosure = page.getByRole('button', {
+      name: 'Пн 11.05, 09:30 - 10:30: 2 занятия в интервале. Открыть детали',
+    })
     const mondayEveningCard = page.getByTestId('schedule-card-1-group-late')
 
-    await expect(mondayAlphaCard).toContainText('09:30')
-    await expect(mondayAlphaCard).toContainText('Альфа')
-    await expect(mondayAlphaCard).toContainText('Кардио')
-    await expect(mondayAlphaCard).toContainText('Основной зал')
-    await expect(mondayAlphaCard).toContainText('12 участников')
-    await expect(mondayAlphaCard).toContainText('Неактивна')
-    await expect(mondayAlphaCard).toHaveAttribute('data-schedule-type', groupTypes[0].id)
+    await expect(mondayOverlapDisclosure).toBeVisible()
+    await expect(mondayOverlapDisclosure).toContainText('09:30 - 10:30 · 2 занятия')
+    await expect(mondayOverlapDisclosure).toContainText('Альфа')
+    await expect(mondayOverlapDisclosure).toContainText('Утренняя группа')
+    await expect(page.getByTestId('schedule-card-1-group-alpha')).toHaveCount(0)
+    await expect(page.getByTestId('schedule-card-1-group-early')).toHaveCount(0)
+    await mondayOverlapDisclosure.click()
+    const overlapDialog = page.getByRole('dialog', { name: 'Занятия в интервале' })
+    await expect(overlapDialog).toContainText('09:30 - 10:30')
+    await expect(overlapDialog).toContainText('Основной зал · Центр')
+    await expect(overlapDialog).toContainText('Ирина Тренер, Артем База')
+    await expect(overlapDialog).toContainText('12 участников')
+    await expect(overlapDialog).toContainText('Неактивна')
+    await page.getByRole('button', { name: 'Закрыть детали занятий' }).click()
     await expect(page.getByRole('button', { name: /Редактировать группу/i })).toHaveCount(0)
-
-    const alphaBox = await mondayAlphaCard.boundingBox()
-    const morningBox = await mondayMorningCard.boundingBox()
-
-    expect(alphaBox).not.toBeNull()
-    expect(morningBox).not.toBeNull()
-    expect(alphaBox?.x).not.toBe(morningBox?.x)
     await expect(mondayEveningCard).toContainText('19:00 - 20:00')
 
     await selectOption(page, 'Филиал', 'Север')
@@ -452,9 +501,130 @@ test.describe('Расписание групповых занятий', () => {
     await expect(page.getByTestId('schedule-type-legend')).toContainText('Интенсив')
 
     await page.getByRole('button', { name: 'Сбросить' }).click()
-    await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
+    await expect(mondayOverlapDisclosure).toBeVisible()
     expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
     expect(requestStats.groupsCollectionGetCalls).toBe(0)
+  })
+
+  test('desktop dense block exposes exact full decision data in one keyboard action', async ({
+    page,
+  }) => {
+    const requestStats = createRequestStats()
+
+    await installScheduleClock(page)
+    await page.setViewportSize({ width: 1440, height: 1200 })
+    await mockApi(page, headCoachSession, denseScheduleGroups, requestStats)
+    await page.goto('/schedule')
+
+    const disclosure = page.getByRole('button', {
+      name: 'Пн 11.05, 08:00 - 08:45: 6 занятий в интервале. Открыть детали',
+    })
+    const followingCard = page.getByTestId('schedule-card-1-dense-following')
+
+    await expect(disclosure).toBeVisible()
+    await expect(disclosure).toContainText('08:00 - 08:45 · 6 занятий')
+    await expect(disclosure).toContainText(
+      'База с очень длинным названием для проверки полного переноса',
+    )
+    await expect(disclosure).toContainText(
+      'Интенсивный поток продвинутой функциональной подготовки',
+    )
+    await expect(disclosure).toContainText('+4')
+    await expect(disclosure).not.toContainText('Основной зал')
+    await expect(disclosure).not.toContainText('Тренер')
+    await expect(page.locator('[data-testid^="schedule-card-1-dense-"]')).toHaveCount(1)
+    await expect(followingCard).toBeVisible()
+
+    const triggerBox = await disclosure.boundingBox()
+    const followingBox = await followingCard.boundingBox()
+
+    expect(triggerBox).not.toBeNull()
+    expect(followingBox).not.toBeNull()
+    expect(triggerBox!.y + triggerBox!.height).toBeLessThanOrEqual(followingBox!.y)
+
+    await disclosure.focus()
+    await page.keyboard.press('Enter')
+
+    const dialog = page.getByRole('dialog', { name: 'Занятия в интервале' })
+    const close = page.getByRole('button', { name: 'Закрыть детали занятий' })
+    const detailRows = dialog.getByRole('listitem')
+
+    await expect(dialog).toBeVisible()
+    await expect(close).toBeFocused()
+    await expect(detailRows).toHaveCount(6)
+    await expect(dialog).toContainText('Основной зал с длинным названием · Центральный филиал с длинным названием')
+    await expect(dialog).toContainText('Тренер не назначен')
+    await expect(dialog).toContainText('13 участников')
+    await expect(dialog).toContainText('Неактивна')
+    await expect(detailRows.first()).toHaveAccessibleName(
+      /08:00 - 08:45, База с очень длинным названием.*Кардио.*Основной зал.*Ирина Тренер.*8 участников/,
+    )
+
+    const geometry = await dialog.evaluate((element) => {
+      const rect = element.getBoundingClientRect()
+      const list = element.querySelector<HTMLElement>('.schedule-events-popover__list')
+
+      return {
+        bodyScrollWidth: document.body.scrollWidth,
+        dialogBottom: rect.bottom,
+        dialogLeft: rect.left,
+        dialogRight: rect.right,
+        dialogWidth: rect.width,
+        documentScrollWidth: document.documentElement.scrollWidth,
+        listOverflowX: list ? getComputedStyle(list).overflowX : '',
+        viewportHeight: window.innerHeight,
+        viewportWidth: window.innerWidth,
+      }
+    })
+
+    expect(geometry.dialogWidth).toBeLessThanOrEqual(420)
+    expect(geometry.dialogLeft).toBeGreaterThanOrEqual(16)
+    expect(geometry.dialogRight).toBeLessThanOrEqual(geometry.viewportWidth - 16)
+    expect(geometry.dialogBottom).toBeLessThanOrEqual(geometry.viewportHeight - 16)
+    expect(geometry.listOverflowX).toBe('hidden')
+    expect(geometry.documentScrollWidth).toBeLessThanOrEqual(geometry.viewportWidth + 1)
+    expect(geometry.bodyScrollWidth).toBeLessThanOrEqual(geometry.viewportWidth + 1)
+
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await expect(disclosure).toBeFocused()
+
+    await page.keyboard.press('Space')
+    await expect(dialog).toBeVisible()
+    await expect(close).toBeFocused()
+    await close.click()
+    await expect(dialog).toBeHidden()
+    await expect(disclosure).toBeFocused()
+
+    const focusStyle = await disclosure.evaluate((element) => {
+      element.focus()
+      const style = getComputedStyle(element)
+
+      return {
+        outlineStyle: style.outlineStyle,
+        outlineWidth: Number.parseFloat(style.outlineWidth),
+      }
+    })
+
+    expect(focusStyle.outlineStyle).not.toBe('none')
+    expect(focusStyle.outlineWidth).toBeGreaterThanOrEqual(2)
+
+    await page.setViewportSize({ width: 768, height: 1024 })
+    await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
+    await expect(disclosure).toBeVisible()
+    await expect(page.getByTestId('schedule-mobile-day-list')).toHaveCount(0)
+
+    const tabletGeometry = await page.evaluate(() => ({
+      bodyScrollWidth: document.body.scrollWidth,
+      documentScrollWidth: document.documentElement.scrollWidth,
+      viewportWidth: window.innerWidth,
+    }))
+
+    expect(tabletGeometry.documentScrollWidth)
+      .toBeLessThanOrEqual(tabletGeometry.viewportWidth + 1)
+    expect(tabletGeometry.bodyScrollWidth)
+      .toBeLessThanOrEqual(tabletGeometry.viewportWidth + 1)
+    expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
   })
 
   test('coach uses /api/schedule/groups and renders backend response read-only', async ({
@@ -468,7 +638,10 @@ test.describe('Расписание групповых занятий', () => {
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
     await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
-    await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
+    await expect(page.getByRole('button', {
+      name: 'Пн 11.05, 09:30 - 10:30: 2 занятия в интервале. Открыть детали',
+    })).toBeVisible()
+    await expect(page.getByTestId('schedule-card-1-group-alpha')).toHaveCount(0)
     await expect(page.getByTestId('schedule-card-7-group-sunday')).toBeVisible()
     await expect(page.getByTestId('schedule-day-header-1')).toHaveAttribute(
       'data-current',
@@ -490,7 +663,10 @@ test.describe('Расписание групповых занятий', () => {
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
     await expect(page.getByTestId('schedule-calendar-grid')).toBeVisible()
-    await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
+    await expect(page.getByRole('button', {
+      name: 'Пн 11.05, 09:30 - 10:30: 2 занятия в интервале. Открыть детали',
+    })).toBeVisible()
+    await expect(page.getByTestId('schedule-card-1-group-alpha')).toHaveCount(0)
     await expect(page.getByTestId('schedule-type-legend')).toBeVisible()
     await expect(page.getByRole('button', { name: /Редактировать группу/i })).toHaveCount(0)
 
@@ -506,7 +682,10 @@ test.describe('Расписание групповых занятий', () => {
     await page.goto('/schedule')
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
-    await expect(page.getByTestId('schedule-card-1-group-alpha')).toBeVisible()
+    await expect(page.getByRole('button', {
+      name: 'Пн 11.05, 09:30 - 10:30: 2 занятия в интервале. Открыть детали',
+    })).toBeVisible()
+    await expect(page.getByTestId('schedule-card-1-group-alpha')).toHaveCount(0)
     await expect(page.getByTestId('schedule-card-7-group-sunday')).toBeVisible()
     await expect(page.getByTestId('schedule-type-legend')).toContainText('Интенсив')
     await expect(page.getByText('Для вас занятий в расписании нет')).toHaveCount(0)
@@ -564,6 +743,34 @@ test.describe('Расписание групповых занятий', () => {
     expect(dimensions.bodyScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
 
     expect(requestStats.scheduleGroupsGetCalls).toBeGreaterThan(0)
+  })
+
+  test('responsive 720 CSS px equivalent keeps the mobile timeline without desktop disclosure', async ({
+    page,
+  }) => {
+    const requestStats = createRequestStats()
+
+    await installScheduleClock(page)
+    await page.setViewportSize({ width: 720, height: 600 })
+    await mockApi(page, headCoachSession, denseScheduleGroups, requestStats)
+    await page.goto('/schedule')
+
+    await expect(page.getByTestId('schedule-mobile-day-list')).toBeVisible()
+    await expect(page.getByTestId('schedule-mobile-day-strip')).toBeVisible()
+    await expect(page.getByTestId('schedule-calendar-grid')).toHaveCount(0)
+    await expect(page.locator('.schedule-events-disclosure')).toHaveCount(0)
+    await expect(page.getByTestId('schedule-mobile-day-1')).toContainText(
+      'База с очень длинным названием для проверки полного переноса',
+    )
+
+    const dimensions = await page.evaluate(() => ({
+      bodyScrollWidth: document.body.scrollWidth,
+      documentScrollWidth: document.documentElement.scrollWidth,
+      viewportWidth: window.innerWidth,
+    }))
+
+    expect(dimensions.documentScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
+    expect(dimensions.bodyScrollWidth).toBeLessThanOrEqual(dimensions.viewportWidth + 1)
   })
 
   test('coach показывает только группы из API без клиентской фильтрации по assignedGroupIds', async ({ page }) => {

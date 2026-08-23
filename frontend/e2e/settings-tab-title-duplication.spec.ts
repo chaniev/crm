@@ -101,6 +101,16 @@ const BRANCHES = [
     groupCount: 4,
     clientCount: 12,
   },
+  {
+    id: 'branch-2',
+    name: 'Северный филиал с очень длинным названием для проверки полного scope',
+    address: 'ул. Северная, 27',
+    description: null,
+    isArchived: false,
+    hallCount: 1,
+    groupCount: 2,
+    clientCount: 8,
+  },
 ] as const
 
 const HALLS = [
@@ -193,77 +203,99 @@ test('keeps four settings panels named and operational without duplicated titles
   }
 })
 
-test('TASK-109 keeps settings scope, actions and content touch-safe in visual and focus order', async ({
-  page,
-}) => {
-  await mockApi(page)
-  await page.goto('/settings')
+const TASK_111_SETTINGS_VIEWPORTS = [
+  { label: '390x844', width: 390, height: 844 },
+  { label: '420x912', width: 420, height: 912 },
+  { label: '440x956', width: 440, height: 956 },
+  { label: '912x420', width: 912, height: 420 },
+  { label: '956x440', width: 956, height: 440 },
+] as const
 
-  const catalogTab = page.getByRole('tab', { name: 'Абонементы' })
-  await catalogTab.click()
-  const panel = page.getByRole('tabpanel', { name: 'Абонементы' })
-  const scope = panel.getByRole('combobox', { name: 'Филиал каталога' })
-  const refresh = panel.getByRole('button', { name: 'Обновить' })
-  const create = panel.getByRole('button', { name: 'Добавить абонемент' })
-  const edit = panel.getByRole('button', { name: 'Редактировать 10 тренировок' })
+for (const viewport of TASK_111_SETTINGS_VIEWPORTS) {
+  test.describe(`TASK-111 settings regression ${viewport.label}`, () => {
+    test.use({ viewport: { width: viewport.width, height: viewport.height } })
 
-  await expect(edit).toBeVisible()
+    test('keeps scope, actions and content touch-safe in visual and focus order', async ({
+      page,
+    }) => {
+      await mockApi(page)
+      await page.goto('/settings')
 
-  for (const tab of TAB_MATRIX.map(({ label }) => page.getByRole('tab', { name: label }))) {
-    const tabBox = await tab.boundingBox()
-    expect(tabBox).not.toBeNull()
-    expect.soft(tabBox!.height, `${await tab.textContent()} tab height`).toBeGreaterThanOrEqual(44)
-    expect.soft(tabBox!.width, `${await tab.textContent()} tab width`).toBeGreaterThanOrEqual(44)
-  }
+      const catalogTab = page.getByRole('tab', { name: 'Абонементы' })
+      await catalogTab.click()
+      const panel = page.getByRole('tabpanel', { name: 'Абонементы' })
+      const scope = panel.getByRole('combobox', { name: 'Филиал каталога' })
+      const refresh = panel.getByRole('button', { name: 'Обновить' })
+      const create = panel.getByRole('button', { name: 'Добавить абонемент' })
+      const edit = panel.getByRole('button', { name: 'Редактировать 10 тренировок' })
 
-  const [scopeBox, refreshBox, createBox, editBox] = await Promise.all([
-    scope.boundingBox(),
-    refresh.boundingBox(),
-    create.boundingBox(),
-    edit.boundingBox(),
-  ])
-  for (const [name, box] of [
-    ['scope', scopeBox],
-    ['refresh', refreshBox],
-    ['create', createBox],
-    ['edit', editBox],
-  ] as const) {
-    expect(box).not.toBeNull()
-    expect.soft(box!.height, `${name} height`).toBeGreaterThanOrEqual(44)
-    expect.soft(box!.width, `${name} width`).toBeGreaterThanOrEqual(44)
-  }
+      await expect(edit).toBeVisible()
+      await scope.click()
+      await page.getByRole('option', { name: BRANCHES[1].name }).click()
+      await expect(scope).toHaveValue(BRANCHES[1].name)
+      await expect(scope).toHaveAccessibleDescription(BRANCHES[1].name)
 
-  expect.soft(Math.abs(scopeBox!.y - refreshBox!.y), 'scope and actions share one row').toBeLessThan(8)
-  expect.soft(refreshBox!.x - (scopeBox!.x + scopeBox!.width), 'scope precedes actions').toBeGreaterThanOrEqual(8)
-  expect.soft(createBox!.x - (refreshBox!.x + refreshBox!.width), 'actions have an 8px gap').toBeGreaterThanOrEqual(8)
-  expect.soft(editBox!.y, 'content follows scoped toolbar').toBeGreaterThanOrEqual(
-    Math.max(scopeBox!.y + scopeBox!.height, createBox!.y + createBox!.height),
-  )
+      for (const tab of TAB_MATRIX.map(({ label }) => page.getByRole('tab', { name: label }))) {
+        const tabBox = await tab.boundingBox()
+        expect(tabBox).not.toBeNull()
+        expect.soft(tabBox!.height, `${await tab.textContent()} tab height`).toBeGreaterThanOrEqual(44)
+        expect.soft(tabBox!.width, `${await tab.textContent()} tab width`).toBeGreaterThanOrEqual(44)
+      }
 
-  const domOrder = await panel.evaluate((element) => {
-    const scopeElement = element.querySelector('[role="combobox"]')
-    const refreshElement = element.querySelector('[aria-label="Обновить"]')
-    const createElement = element.querySelector('[aria-label="Добавить абонемент"]')
-    const editElement = element.querySelector('[aria-label="Редактировать 10 тренировок"]')
-    if (!scopeElement || !refreshElement || !createElement || !editElement) return false
-    return Boolean(
-      scopeElement.compareDocumentPosition(refreshElement) & Node.DOCUMENT_POSITION_FOLLOWING
-      && refreshElement.compareDocumentPosition(createElement) & Node.DOCUMENT_POSITION_FOLLOWING
-      && createElement.compareDocumentPosition(editElement) & Node.DOCUMENT_POSITION_FOLLOWING,
-    )
+      const [scopeBox, refreshBox, createBox, editBox] = await Promise.all([
+        scope.boundingBox(),
+        refresh.boundingBox(),
+        create.boundingBox(),
+        edit.boundingBox(),
+      ])
+      for (const [name, box] of [
+        ['scope', scopeBox],
+        ['refresh', refreshBox],
+        ['create', createBox],
+        ['edit', editBox],
+      ] as const) {
+        expect(box).not.toBeNull()
+        expect.soft(box!.height, `${name} height`).toBeGreaterThanOrEqual(44)
+        expect.soft(box!.width, `${name} width`).toBeGreaterThanOrEqual(44)
+      }
+
+      expect.soft(Math.abs(scopeBox!.y - refreshBox!.y), 'scope and actions share one row').toBeLessThan(8)
+      expect.soft(refreshBox!.x - (scopeBox!.x + scopeBox!.width), 'scope precedes actions').toBeGreaterThanOrEqual(8)
+      expect.soft(createBox!.x - (refreshBox!.x + refreshBox!.width), 'actions have an 8px gap').toBeGreaterThanOrEqual(8)
+      expect.soft(editBox!.y, 'content follows scoped toolbar').toBeGreaterThanOrEqual(
+        Math.max(scopeBox!.y + scopeBox!.height, createBox!.y + createBox!.height),
+      )
+
+      const domOrder = await panel.evaluate((element) => {
+        const scopeElement = element.querySelector('[role="combobox"]')
+        const refreshElement = element.querySelector('[aria-label="Обновить"]')
+        const createElement = element.querySelector('[aria-label="Добавить абонемент"]')
+        const editElement = element.querySelector('[aria-label="Редактировать 10 тренировок"]')
+        if (!scopeElement || !refreshElement || !createElement || !editElement) return false
+        return Boolean(
+          scopeElement.compareDocumentPosition(refreshElement) & Node.DOCUMENT_POSITION_FOLLOWING
+          && refreshElement.compareDocumentPosition(createElement) & Node.DOCUMENT_POSITION_FOLLOWING
+          && createElement.compareDocumentPosition(editElement) & Node.DOCUMENT_POSITION_FOLLOWING,
+        )
+      })
+      expect.soft(domOrder, 'DOM order is scope → refresh → create → edit').toBe(true)
+
+      await catalogTab.focus()
+      await page.keyboard.press('Tab')
+      expect.soft(await scope.evaluate((element) => element === document.activeElement), 'scope is first panel tab stop').toBe(true)
+      await page.keyboard.press('Tab')
+      expect.soft(await refresh.evaluate((element) => element === document.activeElement), 'refresh follows scope').toBe(true)
+      await page.keyboard.press('Tab')
+      expect.soft(await create.evaluate((element) => element === document.activeElement), 'create follows refresh').toBe(true)
+      await page.keyboard.press('Tab')
+      expect.soft(await edit.evaluate((element) => element === document.activeElement), 'content follows actions').toBe(true)
+
+      await edit.scrollIntoViewIfNeeded()
+      await expect(edit).toBeInViewport()
+      await expectNoHorizontalScroll(page)
+    })
   })
-  expect.soft(domOrder, 'DOM order is scope → refresh → create → edit').toBe(true)
-
-  await catalogTab.focus()
-  await page.keyboard.press('Tab')
-  expect.soft(await scope.evaluate((element) => element === document.activeElement), 'scope is first panel tab stop').toBe(true)
-  await page.keyboard.press('Tab')
-  expect.soft(await refresh.evaluate((element) => element === document.activeElement), 'refresh follows scope').toBe(true)
-  await page.keyboard.press('Tab')
-  expect.soft(await create.evaluate((element) => element === document.activeElement), 'create follows refresh').toBe(true)
-
-  await expectNoHorizontalScroll(page)
-})
+}
 
 function firstOperationalContent(
   panel: ReturnType<Page['getByRole']>,

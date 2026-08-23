@@ -291,6 +291,12 @@ async function mockSettingsApi(
   return state
 }
 
+const TASK_111_ROLE_SCOPE_VIEWPORTS = [
+  { label: '390x844', width: 390, height: 844 },
+  { label: '912x420', width: 912, height: 420 },
+  { label: '956x440', width: 956, height: 440 },
+] as const
+
 for (const profile of [
   {
     label: 'Administrator',
@@ -305,30 +311,62 @@ for (const profile of [
     visibleAdministratorsTab: true,
   },
 ]) {
-  test(`${profile.label} видит вкладки абонементов и типов групп, не видит соседние вкладки в /settings`, async ({
-    page,
-  }) => {
-    await mockSettingsApi(page, { session: profile.session })
+  for (const viewport of TASK_111_ROLE_SCOPE_VIEWPORTS) {
+    test(`${profile.label} сохраняет разрешённые вкладки и scope при ${viewport.label}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height })
+      await mockSettingsApi(page, { session: profile.session })
 
-    await page.goto('/settings')
+      await page.goto('/settings')
 
-    await expect(page.getByTestId('settings-screen')).toBeVisible()
-    await expect(page.getByRole('tab', { name: 'Абонементы' })).toBeVisible()
-    await expect(page.getByRole('tab', { name: 'Типы групп' })).toBeVisible()
-    await expect(
-      page.getByRole('tab', { name: 'Филиалы и залы' }),
-    ).toHaveCount(0)
-
-    if (profile.visibleAdministratorsTab) {
+      const membershipTab = page.getByRole('tab', { name: 'Абонементы' })
+      const groupTypesTab = page.getByRole('tab', { name: 'Типы групп' })
+      await expect(page.getByTestId('settings-screen')).toBeVisible()
+      await expect(membershipTab).toBeVisible()
+      await expect(groupTypesTab).toBeVisible()
       await expect(
-        page.getByRole('tab', { name: 'Администраторы' }),
-      ).toBeVisible()
-    } else {
-      await expect(
-        page.getByRole('tab', { name: 'Администраторы' }),
+        page.getByRole('tab', { name: 'Филиалы и залы' }),
       ).toHaveCount(0)
-    }
-  })
+
+      if (profile.visibleAdministratorsTab) {
+        await expect(
+          page.getByRole('tab', { name: 'Администраторы' }),
+        ).toBeVisible()
+      } else {
+        await expect(
+          page.getByRole('tab', { name: 'Администраторы' }),
+        ).toHaveCount(0)
+      }
+
+      for (const tab of [membershipTab, groupTypesTab]) {
+        const box = await tab.boundingBox()
+        expect(box).not.toBeNull()
+        expect(box!.width).toBeGreaterThanOrEqual(44)
+        expect(box!.height).toBeGreaterThanOrEqual(44)
+      }
+
+      const panel = page.getByRole('tabpanel', { name: 'Абонементы' })
+      const branchSelector = panel.getByRole('combobox', { name: 'Филиал каталога' })
+      if (profile.label === 'SuperAdministrator') {
+        await expect(branchSelector).toBeVisible()
+        const selectorBox = await branchSelector.boundingBox()
+        expect(selectorBox).not.toBeNull()
+        expect(selectorBox!.height).toBeGreaterThanOrEqual(44)
+      } else {
+        await expect(branchSelector).toHaveCount(0)
+        await expect(panel.getByText('Центр', { exact: true })).toBeVisible()
+      }
+
+      const overflow = await page.evaluate(() => ({
+        body: document.body.scrollWidth,
+        document: document.documentElement.scrollWidth,
+        viewport: window.innerWidth,
+      }))
+      expect(overflow.document).toBeLessThanOrEqual(overflow.viewport + 1)
+      expect(overflow.body).toBeLessThanOrEqual(overflow.viewport + 1)
+    })
+  }
 
   test(`${profile.label} редактирует тип группы, отправляет корректный PUT и видит результат после перезагрузки`, async ({
     page,
@@ -428,6 +466,17 @@ test('Администратор показывает валидационную
 })
 
 test('Coach не видит /settings и получает явное состояние ограничения', async ({ page }) => {
+  const settingsApiRequests: string[] = []
+  await page.setViewportSize({ width: 390, height: 844 })
+  page.on('request', (request) => {
+    const pathname = new URL(request.url()).pathname
+    if (
+      pathname.startsWith('/api/settings/')
+      || ['/api/branches', '/api/group-types', '/api/halls'].includes(pathname)
+    ) {
+      settingsApiRequests.push(pathname)
+    }
+  })
   await mockSettingsApi(page, { session: COACH_SESSION })
 
   await page.goto('/settings')
@@ -441,6 +490,7 @@ test('Coach не видит /settings и получает явное состо�
     page.getByRole('button', { name: 'Настройки', exact: true }),
   ).toHaveCount(0)
   await expect(page.getByTestId('home-screen')).toHaveCount(0)
+  expect(settingsApiRequests).toEqual([])
 })
 
 async function fulfillJson(
