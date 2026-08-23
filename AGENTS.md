@@ -1,214 +1,153 @@
 # Repository Agent Rules
 
-## Routing
+## Scope and routing
+
+This file always applies. A nested `AGENTS.md` adds scoped rules and overrides
+this file only when the two conflict.
 
 - Tasks in `backend/` -> read `backend/AGENTS.md`
 - Tasks in `frontend/` -> read `frontend/AGENTS.md`
 - Tasks in `bot/` -> read `bot/AGENTS.md`
 - Tasks in `deploy/` -> read `deploy/AGENTS.md`
+- Tasks in `backlog/` -> read `backlog/AGENTS.md`
 
-Root file defines repository-wide architecture and coordination rules only.
+Paths without a nested file use these repository-wide rules.
 
 ---
 
-## Source of truth priority
+## Evidence and instruction precedence
 
-1. User request
-2. Nearest `AGENTS.md`
-3. Source code, types, tests, configs
-4. Runtime/build configs
-5. `docs/*` as additional context only
+For desired behavior, use this order:
+
+1. Explicit user request and the accepted task or implementation plan
+2. Applicable root and nested `AGENTS.md` files
+3. Approved UX or architecture contracts
+
+For current behavior, prefer executable evidence:
+
+1. Tests and public types/contracts
+2. Runtime and build configuration
+3. Source code
+4. `docs/*` as supporting context
+
+If the requested outcome conflicts materially with an architecture, security,
+data-retention, or deployment invariant, surface the conflict before changing
+the invariant. Documentation does not override executable behavior unless the
+task explicitly updates that behavior and its validation.
 
 ---
 
 ## Architecture invariants
 
-Backend owns CRM business logic:
-- roles
-- permissions
-- access scope
-- memberships
-- attendance
-- audit semantics
-- validation semantics
+Backend owns CRM business logic, including:
+
+- roles, permissions, and access scope
+- memberships and attendance
+- audit and validation semantics
+- persistence consistency
+- public and internal API contracts
 - ProblemDetails contracts
 
-Frontend and bot must not duplicate domain rules.
+Frontend and bot consume backend decisions. They must not independently derive
+or duplicate CRM domain rules.
 
 ---
 
-## Cross-layer rules
+## Cross-layer change impact
 
-If backend contract changes:
-- update all consumers
-- validate both sides
+| Change | Required synchronization |
+|---|---|
+| Staff API contract | Update `frontend/src/lib/api/**`, its facade exports, affected UI, and consumer tests |
+| Internal Bot API contract | Update `bot/src/gym_crm_bot/crm/**` and backend/bot contract tests |
+| Permission or domain semantics | Add backend authorization/domain coverage; consumers render backend decisions |
+| ProblemDetails or validation contract | Update backend contract tests and affected frontend/bot error mapping |
+| Runtime variable | Update service binding, both Compose files, `deploy/.env.example`, and operational docs |
+| Database schema | Follow `backend/AGENTS.md`; validate clean bootstrap and every retained-database upgrade path |
 
-If runtime/infrastructure changes:
-- validate affected services
-
-If UX changes significantly:
-- involve `ui-designer`
-
-If workflow or usability is unclear:
-- involve `ux-researcher`
-
-If refactoring changes structure broadly:
-- involve `refactoring-specialist`
+Runtime or infrastructure changes must validate every affected service. Do not
+change a shared contract without updating and validating all consumers in the
+same task or an explicitly approved coordinated dependency.
 
 ---
 
-## UI design and implementation workflow
+## Specialist and skill routing
 
-For every new screen or substantial interface redesign:
-
-1. `ux-researcher` analyzes the user task and produces a UX contract.
-2. `ui-designer` converts the UX contract into an implementation-ready mobile-first specification.
-3. Product uncertainties that affect the workflow are resolved before implementation.
-4. `react-specialist` implements the approved specification with React, Mantine, and Onest.
-5. `test-automator` adds regression coverage for the primary mobile workflow.
-6. The coordinating agent verifies the result against the UX contract and acceptance criteria.
-
-Required project skill:
-- `.agents/skills/crm-mobile-first-ui/SKILL.md`
-
-Optional visual-generation skill:
-- `.agents/skills/design-first-ui-prompting/SKILL.md` only when the deliverable includes a prompt for an external UI generator, a static visual concept, a demo, or a landing page;
-- it is not the source of truth for CRM product workflows, responsive behavior, accessibility, or implementation acceptance.
-
-Complementary implementation and audit skills:
-- `.agents/skills/react-best-practices/SKILL.md` for React implementation,
-  review, performance, state flow, data loading, effects, and refactoring;
-- `.agents/skills/web-design-guidelines/SKILL.md` only for an explicitly
-  requested independent accessibility or interface-compliance audit;
-- `.agents/skills/csharp-xunit/SKILL.md` when creating or substantially
-  restructuring backend xUnit tests.
-
-Repository workflow skill:
-- `.agents/skills/task-worktree/SKILL.md` before starting, resuming, or cleaning
-  up any implementation task workspace.
-
-Generic skill guidance never overrides the nearest `AGENTS.md`, existing
-project contracts and tests, the approved UX contract, Mantine/Onest patterns,
-or the CRM business rules owned by backend.
-
-Rules:
-- design at 390 x 844 first as the narrow mobile stress baseline;
-- before tablet and desktop sign-off, validate the target iPhone Air 420 x 912 and iPhone 17 Pro Max 440 x 956 screen sizes;
-- define compact-height behavior for 912 x 420 and 956 x 440 landscape layouts;
-- every visible control must support a defined user operation;
-- primary operations must not be hidden in overflow menus;
-- rare or exceptional operations must not compete visually with the primary action;
-- a small local visual correction may start with `ui-designer`;
-- do not skip UX analysis for a new or materially changed workflow;
-- do not treat horizontal scrolling of desktop content as mobile adaptation.
-- fixed and sticky mobile controls must respect safe areas and remain reachable when Safari chrome or the software keyboard reduces the visible viewport.
+- New screens or materially changed workflows follow `frontend/AGENTS.md` and
+  `.agents/skills/crm-mobile-first-ui/SKILL.md`: UX analysis, UI specification,
+  React implementation, and regression coverage are required in that order.
+- Broad structural refactors involve `refactoring-specialist`.
+- Layer-specific specialists and skills are defined in the nearest
+  `AGENTS.md`.
+- Generic skill guidance never overrides applicable repository instructions,
+  executable contracts, or backend-owned CRM rules.
 
 ---
 
 ## Backlog capture
 
-`backlog/` stores improvement intake and follow-up work:
-flowchart TD
-    I["inbox"] --> P["processing"]
-    P --> C["needs-clarification"]
-    P --> R["risky"]
-    P --> T["tasks-ready"]
-    T --> IP["implementation-plans"]
-    IP --> IM["implementation"]
-    IM --> D["done"]
-    P --> PR["processed"]
-
-When the user writes `зафиксируй`, create `backlog/inbox/YYYY-MM-DD.md` for the current date if it does not exist, then append everything written after the first `зафиксируй` into that file. Treat the typo `зафикчируй` as the same trigger if the user writes it.
-
+When the user writes `зафиксируй`, create
+`backlog/inbox/YYYY-MM-DD.md` for the current date if it does not exist, then
+append everything after the first `зафиксируй`. Treat `зафикчируй` as the same
+trigger. Follow `backlog/AGENTS.md` for all other backlog workflow rules.
 
 ---
 
 ## Git task workspace policy
 
-Every implementation task MUST use an isolated task workspace:
+Every implementation task uses an isolated task workspace:
 
-- one task -> one dedicated branch;
-- one task -> one dedicated Git worktree;
-- one worktree -> one Codex session;
-- one running task stack -> one isolated Docker Compose project.
+- one task -> one dedicated branch
+- one task -> one dedicated Git worktree
+- one worktree -> one Codex session
+- one running stack -> one isolated Docker Compose project
 
-Use `.agents/skills/task-worktree/SKILL.md` to create, resume, verify, or clean
-up a task workspace.
+Before starting, resuming, or cleaning up implementation work, read and follow
+`.agents/skills/task-worktree/SKILL.md`.
 
-The primary repository directory is a coordination workspace. It MUST:
+Non-negotiable boundaries:
 
-- remain on `main`;
-- stay free of implementation changes;
-- never switch to a feature, fix, or refactor branch;
-- be used only for fetch, worktree management, integration checks, and
-  repository administration.
-
-Task branches MUST:
-
-- be created directly from the current `origin/main`;
-- use a unique task-specific name;
-- never be based on another unmerged task branch unless the implementation
-  plan explicitly declares and the user approves that dependency;
-- match the branch declared by the implementation plan when one exists.
-
-Recommended branch naming:
-
-```text
-feature/TASK-XXX-short-name
-fix/TASK-XXX-short-name
-refactor/TASK-XXX-short-name
-```
-
-Before any project-code change, the coordinating agent MUST verify:
-
-```text
-git rev-parse --show-toplevel
-git branch --show-current
-git status --short --branch
-git worktree list
-git merge-base --is-ancestor origin/main HEAD
-```
-
-Implementation MUST stop if:
-
-- the current directory is the primary repository directory;
-- the task branch or worktree is ambiguous;
-- the branch does not match the implementation plan;
-- the task worktree contains unexplained changes;
-- another worktree is already assigned to the intended branch;
-- the task branch base or an inter-task dependency is unclear.
-
-Do not mix risky experiments, unrelated fixes, independent backlog tasks, or
-unrequested refactoring in one task workspace.
-
-The coordinating agent owns branch/worktree lifecycle and cleanup.
-Specialist agents work only inside the workspace delegated by the coordinator
-and MUST NOT create or remove worktrees unless explicitly assigned that
-responsibility.
+- The primary repository directory remains on `main` and is used only for
+  coordination and repository administration.
+- Task branches start from current `origin/main` unless an implementation plan
+  declares and the user approves another dependency.
+- A plan-declared branch must be used verbatim.
+- Stop when the branch, worktree, base, ownership of existing changes, or
+  inter-task dependency is ambiguous.
+- Do not mix unrelated fixes, experiments, or refactors into the task.
+- The coordinating agent owns branch, worktree, integration, and cleanup
+  lifecycle. Specialists do not create or remove worktrees unless assigned.
 
 ---
 
-## Required validation
+## Validation policy
 
-Backend changes:
-- run backend format, build, dependency-audit and test checks
+Run commands from the repository root unless the nearest `AGENTS.md` says
+otherwise. The commands in `.github/workflows/quality.yml` are the CI baseline;
+keep scoped validation instructions synchronized with them.
 
-Frontend changes:
-- run lint + typecheck + raw-color check + unit tests + build
+- Backend changes -> backend format, Release build, dependency audit, and tests
+- Frontend changes -> the canonical frontend check, plus affected Playwright flows
+- Bot changes -> locked dependency sync, lint/format, typing, and tests
+- Deploy/runtime changes -> both Compose configurations and affected service behavior
+- Contract changes -> all affected producers and consumers
+- Instruction or CI changes -> verify paths, command syntax, and the affected validation entry points
 
-Bot changes:
-- run locked uv sync + ruff lint/format + mypy + pytest
-
-Contract/runtime changes:
-- validate all affected layers
+Report checks that could not run and the exact environment dependency that
+remains unverified. Do not suppress security or dependency audit failures to
+make validation green.
 
 ---
 
-## Forbidden patterns
+## Code review rules
 
-- Duplicating CRM rules outside backend
-- Mixing transport and domain logic
-- Hidden cross-layer coupling
-- Large unstructured files
-- Bypassing validation/audit semantics
-- Adding unrelated refactoring to feature tasks
+Prioritize behavior, security, data, authorization, audit, contract, and
+operability defects. Leave formatting and mechanical lint enforcement to CI.
+
+Flag:
+
+- CRM rules duplicated outside backend
+- transport, UI, persistence, and domain responsibilities mixed together
+- hidden cross-layer coupling or unsynchronized contract changes
+- validation, authorization, idempotency, or audit semantics bypassed
+- destructive data/runtime changes without an explicit migration or rollback path
+- unrelated refactoring included in a scoped feature or fix

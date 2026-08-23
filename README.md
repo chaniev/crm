@@ -59,13 +59,24 @@ crm/
       storage/                bot-owned runtime state
     tests/
   backlog/
+    AGENTS.md
     README.md
     inbox/                    входящие запросы
-    tasks/                    задачи на доработку
+    processing/               временная обработка входящих запросов
+    processed/                обработанные исходные заметки
+    tasks-ready/              задачи, готовые к планированию/реализации
+    risky/                    задачи с обязательным review риска
+    needs-clarification/      задачи с блокирующими вопросами
+    implementation-plans/     планы незавершённых задач
+    implementation/           задачи в активной реализации
     done/                     реализованные задачи на доработку
+    logs/                     журналы triage, планирования и status audit
   deploy/
+    AGENTS.md
     .env.example
     docker-compose.yml
+    docker-compose.server.yml
+    SERVER_INSTALL.md
   docs/
     MVP-ТЗ.md
     MVP_SCREEN_MAP.md
