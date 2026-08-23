@@ -25,6 +25,7 @@ import {
   uploadClientPhoto,
   type Branch,
   type ClientDetails,
+  type ClientMembership,
   type ClientStatus,
   type TrainingGroupListItem,
 } from '../../lib/api'
@@ -94,6 +95,16 @@ export function ClientDetailScreen({
       professionalComment: '',
     },
   })
+
+  function handleMembershipCommentChange(
+    updatedMembership: ClientMembership,
+  ) {
+    setClient((currentClient) =>
+      currentClient
+        ? applyMembershipSaleComment(currentClient, updatedMembership)
+        : currentClient,
+    )
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -513,7 +524,7 @@ export function ClientDetailScreen({
               pending={actionPending}
               onCancelAction={cancelMembershipAction}
               onSubmit={handleMembershipAction}
-              onClientChange={setClient}
+              onMembershipCommentChange={handleMembershipCommentChange}
             />
           ) : null}
 
@@ -532,4 +543,28 @@ export function ClientDetailScreen({
       ) : null}
     </PageLayout>
   )
+}
+
+function applyMembershipSaleComment(
+  client: ClientDetails,
+  updatedMembership: ClientMembership,
+): ClientDetails {
+  const applyComment = (membership: ClientMembership) =>
+    membership.saleId === updatedMembership.saleId
+      ? {
+          ...membership,
+          comment: updatedMembership.comment,
+          commentLastChangedByName:
+            updatedMembership.commentLastChangedByName,
+          commentLastChangedAt: updatedMembership.commentLastChangedAt,
+        }
+      : membership
+
+  return {
+    ...client,
+    currentMembership: client.currentMembership
+      ? applyComment(client.currentMembership)
+      : null,
+    membershipHistory: client.membershipHistory.map(applyComment),
+  }
 }

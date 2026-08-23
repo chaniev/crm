@@ -1,7 +1,19 @@
 # TASK-114: Исправить изоляцию комментариев абонементов
 
 ## Status
-risky
+done
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-114-membership-comment-isolation-regression.plan.md
+- implementation_branch: fix/TASK-114-membership-comment-isolation-regression
+- implementation_state: completed
+- regression_barrier_commit: 32332e2
+- implementation_commit: d819a9d
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
 
 ## Goal
 Комментарий сохраняется и отображается только у выбранной продажи абонемента, не подменяя комментарии других абонементов клиента.
@@ -38,12 +50,12 @@ risky
 - Contract change требует обновить всех потребителей и затронутые tests.
 
 ## Acceptance criteria
-- [ ] Два абонемента с разными `saleId` могут иметь разные комментарии одновременно.
-- [ ] Изменение комментария первой продажи не меняет вторую до и после reload.
-- [ ] Все технические версии одной продажи показывают один sale-level комментарий.
-- [ ] Видны корректные автор и дата/время именно изменённой продажи.
-- [ ] Forbidden и validation errors не оставляют частичных изменений и не подменяются общей ошибкой.
-- [ ] Финансовые, временные и attendance-поля обеих продаж остаются неизменными.
+- [x] Два абонемента с разными `saleId` могут иметь разные комментарии одновременно.
+- [x] Изменение комментария первой продажи не меняет вторую до и после reload.
+- [x] Все технические версии одной продажи показывают один sale-level комментарий.
+- [x] Видны корректные автор и дата/время именно изменённой продажи.
+- [x] Forbidden и validation errors не оставляют частичных изменений и не подменяются общей ошибкой.
+- [x] Финансовые, временные и attendance-поля обеих продаж остаются неизменными.
 
 ## Test checklist
 - [x] Добавить backend integration test с двумя продажами, update одной и reload из БД.
@@ -68,7 +80,7 @@ risky
 - Created by skill: codex-backlog-skill
 - Duplicate check: активного дубликата нет; завершённая TASK-069 является целевым baseline, а новая заметка фиксирует повторную регрессию её acceptance contract.
 
-## Implementation investigation — 2026-08-23
+## Initial implementation investigation — 2026-08-23
 - Exact PostgreSQL/API, mapper, component, desktop Chromium and target-iPhone
   WebKit scenarios are green on current `origin/main`.
 - Regression coverage now proves two distinct sales, two technical versions of
@@ -76,6 +88,22 @@ risky
   attendance state, row-local drafts/errors/retry and stable sale identity.
 - No production code was changed: the implementation plan's green-on-main stop
   condition applies and there is no failing deployment/version evidence.
-- TASK-114 remains `risky` and open until the reported environment supplies
-  sanitized deployed frontend/backend identifiers plus GET/PUT sale identity
-  evidence for version/deployment reconciliation.
+- At that point TASK-114 remained `risky` pending deployed-environment evidence.
+
+## Completion record
+- The user explicitly overrode the green-on-main stop condition and requested
+  completion without deployed-environment evidence.
+- A deterministic frontend red was then reproduced: two distinct sale comment
+  saves could complete in reverse response order, and the older full-client
+  response replaced the already-updated non-target sale in local UI state.
+- Commit `d819a9d` applies returned comment/actor/time fields only to the exact
+  `saleId` through a functional state update. It does not replace unrelated
+  client or membership state from the response.
+- Regression coverage proves both A/B comments remain after out-of-order stale
+  responses. Existing PostgreSQL/API, mapper, error/retry, role, reload and
+  target-iPhone barriers remain green.
+- Validation on `d819a9d`: frontend lint, typecheck, raw-color scan, production
+  build, `530/530` unit tests, `3/3` affected Chromium tests and `2/2` target
+  iPhone WebKit tests passed.
+- API and database contracts are unchanged. No migration or historical comment
+  rewrite is required; existing persisted comments remain intact on rollout.

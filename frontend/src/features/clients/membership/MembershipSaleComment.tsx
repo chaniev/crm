@@ -1,24 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Alert, Button, Group, Stack, Text, Textarea } from '@mantine/core'
 
-import {
-  updateClientMembershipComment,
-  type ClientDetails,
-  type ClientMembership,
-} from '../../../lib/api'
+import { updateClientMembershipComment, type ClientMembership } from '../../../lib/api'
 import { formatDateValue } from '../ClientManagement.formatting'
 import { formatNoteAttributionDate } from '../noteAttribution'
 
 type MembershipSaleCommentProps = {
   clientId: string
   membership: ClientMembership
-  onClientChange: (client: ClientDetails) => void
+  onMembershipCommentChange: (membership: ClientMembership) => void
 }
 
 export function MembershipSaleComment({
   clientId,
   membership,
-  onClientChange,
+  onMembershipCommentChange,
 }: MembershipSaleCommentProps) {
   const [editing, setEditing] = useState(false)
   const [comment, setComment] = useState(membership.comment ?? '')
@@ -46,9 +42,18 @@ export function MembershipSaleComment({
     setPending(true)
     setError(null)
     try {
-      onClientChange(
-        await updateClientMembershipComment(clientId, membership.saleId, comment),
+      const updatedClient = await updateClientMembershipComment(
+        clientId,
+        membership.saleId,
+        comment,
       )
+      const updatedMembership = updatedClient.membershipHistory.find(
+        (candidate) => candidate.saleId === membership.saleId,
+      )
+      if (!updatedMembership) {
+        throw new Error('Сервер не вернул обновлённый комментарий покупки.')
+      }
+      onMembershipCommentChange(updatedMembership)
       setEditing(false)
     } catch (saveError) {
       setError(

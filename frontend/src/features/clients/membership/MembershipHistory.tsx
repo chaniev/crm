@@ -1,6 +1,6 @@
 import { Badge, Group, Paper, Stack, Table, Text } from '@mantine/core'
 
-import type { ClientDetails, ClientMembership } from '../../../lib/api'
+import type { ClientMembership } from '../../../lib/api'
 import {
   compareMembershipHistory,
   formatCurrencyValue,
@@ -16,13 +16,13 @@ import { MembershipSaleComment } from './MembershipSaleComment'
 type MembershipHistoryProps = {
   clientId: string
   history: ClientMembership[]
-  onClientChange: (client: ClientDetails) => void
+  onMembershipCommentChange: (membership: ClientMembership) => void
 }
 
 export function MembershipHistory({
   clientId,
   history,
-  onClientChange,
+  onMembershipCommentChange,
 }: MembershipHistoryProps) {
   const sortedHistory = [...history].sort(compareMembershipHistory)
   const sales = groupMembershipVersionsBySale(sortedHistory)
@@ -42,7 +42,7 @@ export function MembershipHistory({
           <MembershipSaleComment
             clientId={clientId}
             membership={versions[0]}
-            onClientChange={onClientChange}
+            onMembershipCommentChange={onMembershipCommentChange}
           />
           <div className="membership-history-table-wrap">
             <Table
