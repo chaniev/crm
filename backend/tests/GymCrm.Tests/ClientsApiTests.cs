@@ -854,6 +854,20 @@ public class ClientsApiTests
             Assert.Equal(HttpStatusCode.Forbidden, updateResponse.StatusCode);
         }
 
+        using (var transferResponse = await PostMembershipJsonAsync(
+                   client,
+                   $"/clients/{seeded.ArchivedClientId}/transfer",
+                   new
+                   {
+                       TargetBranchId = seeded.BranchId,
+                       TargetGroupIds = new[] { seeded.GroupOneId }
+                   },
+                   actorSession.CsrfToken,
+                   $"clients-api-coach-transfer-forbidden-{Guid.NewGuid():N}"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, transferResponse.StatusCode);
+        }
+
         using (var archiveResponse = await PutWithoutBodyAsync(
                    client,
                    $"/clients/{seeded.ArchivedClientId}/archive",
@@ -1056,6 +1070,25 @@ public class ClientsApiTests
             Assert.Single(persistedClient.Memberships, membership => membership.ValidTo == null);
             Assert.Equal(targetBranchId, activeBranchAssignment.BranchId);
             Assert.Equal([targetGroupId], activeGroupAssignments.Select(assignment => assignment.GroupId).ToArray());
+
+            var transferAudit = await dbContext.AuditLogs.SingleAsync(log =>
+                log.ActionType == "ClientTransferred" && log.EntityId == clientId.ToString());
+            Assert.Equal(seeded.HeadCoachId, transferAudit.UserId);
+            Assert.Equal("Client", transferAudit.EntityType);
+            Assert.Equal(
+                $"Пользователь '{seeded.HeadCoachLogin}' перевел клиента 'Membership Client Tests' в другой филиал.",
+                transferAudit.Description);
+
+            using var oldState = JsonDocument.Parse(transferAudit.OldValueJson!);
+            using var newState = JsonDocument.Parse(transferAudit.NewValueJson!);
+            Assert.Equal(seeded.BranchId, oldState.RootElement.GetProperty("branchId").GetGuid());
+            Assert.Equal(
+                [seeded.GroupOneId],
+                oldState.RootElement.GetProperty("groupIds").EnumerateArray().Select(groupId => groupId.GetGuid()).ToArray());
+            Assert.Equal(targetBranchId, newState.RootElement.GetProperty("branchId").GetGuid());
+            Assert.Equal(
+                [targetGroupId],
+                newState.RootElement.GetProperty("groupIds").EnumerateArray().Select(groupId => groupId.GetGuid()).ToArray());
         }
     }
 
