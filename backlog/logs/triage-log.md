@@ -2282,6 +2282,7 @@
 - updated existing tasks: 1
 - updated implementation plans: 1
 - processed inbox files: 0
+
 - validation: decision traceability, source-task/plan consistency and Markdown
   review; no project tests required because project code did not change
 
@@ -2758,3 +2759,53 @@
 - created tasks: 9
 - updated existing tasks: 2
 - processed inbox files: 0
+
+# 2026-08-23 TASK-111 completion
+
+## Baseline and scope
+
+- Implementation branch `fix/TASK-111-ux-audit-regression-matrix` was created directly from fresh `origin/main` at `813078e`.
+- TASK-104/106/107/109/110 and their owning test contracts were confirmed on that baseline before implementation.
+- Scope remained frontend test harness and regression evidence only; no inbox processing or unrelated backlog mutation was performed.
+
+## Status changes
+
+- `/backlog/implementation/TASK-111-ux-audit-regression-matrix.md` ->
+  `/backlog/done/TASK-111-ux-audit-regression-matrix.md`.
+- `/backlog/implementation-plans/TASK-111-ux-audit-regression-matrix.plan.md` ->
+  `/backlog/done/TASK-111-ux-audit-regression-matrix.plan.md`.
+
+## Completion evidence
+
+- Implementation commit: `5e16840`; the completed branch was fast-forward integrated into local `main` without push or deployment.
+- The matrix validator recorded the required valid RED, then passed `18/18`; full frontend validation passed lint, typecheck, raw-color scan, 496 unit tests and production build.
+- Affected Chromium passed `43/43` sequentially without retries; both target-iPhone WebKit projects passed `40/40` twice; the standalone inventory suite passed `12/12`.
+- Eight inventory JSON artifacts contain 249 measured targets, 0 violations and 0 incomplete-metadata entries. Product/backend/API/database/runtime contracts and allowlists did not change.
+- Physical-device touch/reach, real Safari chrome/keyboard/safe-area behavior and the final 200% visual scan remain explicit manual-only checks.
+
+## Summary
+
+- moved to done: 1 task and 1 implementation plan
+- implementation tasks remaining: 4
+- processed inbox files: 0
+
+# 2026-08-23 TASK-122–130 implementation progress
+
+## Status changes
+
+- TASK-122–130 source tasks and implementation plans moved to `/backlog/done` after TASK-128 received explicit post-disclosure approval and passed independent implementation, refactoring and test reviews.
+- Umbrella TASK-121 remains `/backlog/risky` only until the separate TASK-010 `BotApiService` architecture dependency is resolved.
+
+## Completion evidence
+
+- Backend TASK-122–125: format, warnings-as-errors build, clean NuGet audit and aggregate `430/430` xUnit tests passed on integrated local `main`.
+- Frontend TASK-126/127/129: lint, typecheck, raw-color, `522/522` unit tests, build, affected Chromium and final `40/40` target-iPhone WebKit passed on the combined frontend candidate.
+- Bot TASK-130: locked `uv sync`, Ruff lint/format, strict mypy and full `59/59` pytest passed.
+- Frontend TASK-128: lint/typecheck/raw-color/build, `528/528` unit tests, Chromium membership `15/15` and target-iPhone WebKit membership `24/24` passed.
+- No schema migration, deployment, push or Docker Compose task stack was required.
+
+## Summary
+
+- moved to done: 9 tasks and 9 implementation plans
+- remaining from TASK-122–130: none
+- unresolved umbrella dependency: TASK-010

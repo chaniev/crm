@@ -17,8 +17,11 @@ using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Messenger;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +41,296 @@ public class ClientsApiTests
         ["correct"] = ["/clients/{0}/membership/correct", "/clients/{0}/memberships/correct", "/clients/{0}/membership/correction", "/clients/{0}/membership/update"],
         ["mark-payment"] = ["/clients/{0}/membership/mark-payment", "/clients/{0}/memberships/mark-payment", "/clients/{0}/membership/payment", "/clients/{0}/membership/pay", "/clients/{0}/membership/mark-payment-by-user"]
     };
+
+    [Fact]
+    public async Task Client_query_endpoint_manifest_keeps_four_get_routes_without_duplicates()
+    {
+        await using var factory = new ClientsAppFactory();
+        using var client = factory.CreateClient();
+        using var sessionResponse = await client.GetAsync("/auth/session");
+        Assert.Equal(HttpStatusCode.OK, sessionResponse.StatusCode);
+
+        var expectedRoutes = new[]
+        {
+            (Template: "/clients", Policy: GymCrmAuthorizationPolicies.ViewClients),
+            (Template: "/clients/expiring-memberships", Policy: GymCrmAuthorizationPolicies.ManageClients),
+            (Template: "/clients/membership/expiration-suggestion", Policy: GymCrmAuthorizationPolicies.ManageClients),
+            (Template: "/clients/{id:guid}", Policy: GymCrmAuthorizationPolicies.ViewClients)
+        };
+        var endpoints = factory.Services
+            .GetRequiredService<EndpointDataSource>()
+            .Endpoints
+            .OfType<RouteEndpoint>()
+            .Where(endpoint => endpoint.Metadata
+                .GetMetadata<HttpMethodMetadata>()?
+                .HttpMethods
+                .Contains(HttpMethods.Get, StringComparer.OrdinalIgnoreCase) == true)
+            .ToArray();
+
+        foreach (var expectedRoute in expectedRoutes)
+        {
+            var matchingEndpoints = endpoints
+                .Where(endpoint => string.Equals(
+                    endpoint.RoutePattern.RawText?.TrimEnd('/'),
+                    expectedRoute.Template,
+                    StringComparison.Ordinal))
+                .ToArray();
+
+            var endpoint = Assert.Single(matchingEndpoints);
+            var policies = endpoint.Metadata
+                .GetOrderedMetadata<IAuthorizeData>()
+                .Select(metadata => metadata.Policy)
+                .Where(policy => !string.IsNullOrWhiteSpace(policy));
+            Assert.Contains(expectedRoute.Policy, policies);
+        }
+    }
+
+    [Fact]
+    public async Task Membership_endpoint_manifest_keeps_all_mutation_routes_and_manage_clients_policy()
+    {
+        await using var factory = new ClientsAppFactory();
+        using var client = factory.CreateClient();
+        using var sessionResponse = await client.GetAsync("/auth/session");
+        Assert.Equal(HttpStatusCode.OK, sessionResponse.StatusCode);
+
+        var expectedRoutes = new[]
+        {
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/purchase"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/renew"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/correct"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/mark-payment"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/sales/{saleId:guid}/refunds"),
+            (Method: HttpMethods.Put, Template: "/clients/{id:guid}/membership/sales/{saleId:guid}/comment"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/refunds/{refundId:guid}/cancel")
+        };
+        var endpoints = factory.Services
+            .GetRequiredService<EndpointDataSource>()
+            .Endpoints
+            .OfType<RouteEndpoint>()
+            .ToArray();
+
+        foreach (var expectedRoute in expectedRoutes)
+        {
+            var endpoint = Assert.Single(endpoints, endpoint =>
+                string.Equals(endpoint.RoutePattern.RawText?.TrimEnd('/'), expectedRoute.Template, StringComparison.Ordinal) &&
+                endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods
+                    .Contains(expectedRoute.Method, StringComparer.OrdinalIgnoreCase) == true);
+            var policies = endpoint.Metadata
+                .GetOrderedMetadata<IAuthorizeData>()
+                .Select(metadata => metadata.Policy)
+                .Where(policy => !string.IsNullOrWhiteSpace(policy));
+
+            Assert.Contains(GymCrmAuthorizationPolicies.ManageClients, policies);
+        }
+    }
+
+    [Fact]
+    public async Task Membership_mutation_validation_keeps_problem_details_field_keys_and_payment_tombstone()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+
+        var invalidPostCases = new[]
+        {
+            (
+                Path: $"/clients/{clientId}/membership/purchase",
+                ExpectedFields: new[] { "membershipCatalogItemId", "manualSaleAmount", "paymentDate" }),
+            (
+                Path: $"/clients/{clientId}/membership/renew",
+                ExpectedFields: new[] { "membershipCatalogItemId", "manualSaleAmount", "paymentDate" }),
+            (
+                Path: $"/clients/{clientId}/membership/correct",
+                ExpectedFields: new[] { "saleId", "expectedMembershipId", "validFrom", "paymentDate" }),
+            (
+                Path: $"/clients/{clientId}/membership/sales/{Guid.NewGuid()}/refunds",
+                ExpectedFields: new[] { "amount", "refundDate" }),
+            (
+                Path: $"/clients/{clientId}/membership/refunds/{Guid.NewGuid()}/cancel",
+                ExpectedFields: new[] { "refundId" })
+        };
+
+        foreach (var invalidCase in invalidPostCases)
+        {
+            using var response = await PostMembershipJsonAsync(
+                client,
+                invalidCase.Path,
+                new { },
+                session.CsrfToken,
+                $"task124-validation-{Guid.NewGuid():N}");
+            await AssertValidationProblemFieldsAsync(response, invalidCase.ExpectedFields);
+        }
+
+        using (var commentResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/sales/{Guid.NewGuid()}/comment",
+                   new { comment = new string('x', 2001) },
+                   session.CsrfToken))
+        {
+            await AssertValidationProblemFieldsAsync(commentResponse, ["comment"]);
+        }
+
+        using var tombstoneResponse = await PostMembershipJsonAsync(
+            client,
+            $"/clients/{clientId}/membership/mark-payment",
+            new { },
+            session.CsrfToken,
+            $"task124-payment-tombstone-{Guid.NewGuid():N}");
+        Assert.Equal(HttpStatusCode.Gone, tombstoneResponse.StatusCode);
+        Assert.Equal("application/problem+json", tombstoneResponse.Content.Headers.ContentType?.MediaType);
+        var tombstone = await ReadJsonElementAsync(tombstoneResponse);
+        Assert.Equal("membership-payment-action-removed", GetStringFromAnyCase(tombstone, "type", "Type"));
+        Assert.NotEqual(
+            JsonValueKind.Undefined,
+            GetPropertyOrNull(GetPropertyOrNull(tombstone, "errors", "Errors"), "membership", "Membership").ValueKind);
+    }
+
+    [Fact]
+    public async Task Client_list_keeps_legacy_paging_empty_page_and_validation_field_keys()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using (var firstPageResponse = await client.GetAsync("/clients?status=Archived&skip=0&take=1"))
+        {
+            Assert.Equal(HttpStatusCode.OK, firstPageResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(firstPageResponse);
+            Assert.Single(GetArrayPayload(payload, "items", "clients").EnumerateArray());
+            Assert.Equal(1, GetLongFromAnyCase(payload, "totalCount", "TotalCount"));
+            Assert.Equal(0, GetLongFromAnyCase(payload, "skip", "Skip"));
+            Assert.Equal(1, GetLongFromAnyCase(payload, "take", "Take"));
+            Assert.Equal(1, GetLongFromAnyCase(payload, "page", "Page"));
+            Assert.False(GetBoolFromAnyCase(payload, "hasNextPage", "HasNextPage"));
+        }
+
+        using (var emptyPageResponse = await client.GetAsync("/clients?status=Archived&skip=1&take=1"))
+        {
+            Assert.Equal(HttpStatusCode.OK, emptyPageResponse.StatusCode);
+            var payload = await ReadJsonElementAsync(emptyPageResponse);
+            Assert.Empty(GetArrayPayload(payload, "items", "clients").EnumerateArray());
+            Assert.Equal(1, GetLongFromAnyCase(payload, "totalCount", "TotalCount"));
+            Assert.Equal(1, GetLongFromAnyCase(payload, "skip", "Skip"));
+            Assert.Equal(1, GetLongFromAnyCase(payload, "take", "Take"));
+            Assert.Equal(2, GetLongFromAnyCase(payload, "page", "Page"));
+            Assert.False(GetBoolFromAnyCase(payload, "hasNextPage", "HasNextPage"));
+        }
+
+        var invalidCases = new[]
+        {
+            (Query: "page=0", Field: "page"),
+            (Query: "pageSize=0", Field: "pageSize"),
+            (Query: "skip=-1", Field: "skip"),
+            (Query: "take=0", Field: "take"),
+            (Query: "status=Unknown", Field: "status"),
+            (Query: "behaviorKind=Unknown", Field: "behaviorKind"),
+            (Query: "membershipExpiresFrom=not-a-date", Field: "membershipExpiresFrom"),
+            (Query: "membershipExpiresFrom=2026-02-02&membershipExpiresTo=2026-02-01", Field: "membershipExpiresTo")
+        };
+
+        foreach (var invalidCase in invalidCases)
+        {
+            using var response = await client.GetAsync($"/clients?{invalidCase.Query}");
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+            var payload = await ReadJsonElementAsync(response);
+            var errors = GetPropertyOrNull(payload, "errors", "Errors");
+            Assert.Equal(
+                JsonValueKind.Array,
+                GetPropertyOrNull(errors, invalidCase.Field).ValueKind);
+        }
+    }
+
+    [Fact]
+    public async Task Client_details_for_missing_id_remains_not_found()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+
+        using var response = await client.GetAsync($"/clients/{Guid.NewGuid()}");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Missing_client_lifecycle_mutations_remain_not_found()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var missingClientId = Guid.NewGuid();
+
+        using (var updateResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{missingClientId}",
+                   new
+                   {
+                       FirstName = "Missing",
+                       Phone = "+79990009999",
+                       BranchId = seeded.BranchId,
+                       Contacts = Array.Empty<object>(),
+                       GroupIds = new[] { seeded.GroupOneId }
+                   },
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, updateResponse.StatusCode);
+        }
+
+        using (var transferResponse = await PostMembershipJsonAsync(
+                   client,
+                   $"/clients/{missingClientId}/transfer",
+                   new
+                   {
+                       TargetBranchId = seeded.BranchId,
+                       TargetGroupIds = new[] { seeded.GroupOneId }
+                   },
+                   session.CsrfToken,
+                   $"clients-api-missing-transfer-{Guid.NewGuid():N}"))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, transferResponse.StatusCode);
+        }
+
+        using (var archiveResponse = await PutWithoutBodyAsync(
+                   client,
+                   $"/clients/{missingClientId}/archive",
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, archiveResponse.StatusCode);
+        }
+
+        using (var restoreResponse = await PutWithoutBodyAsync(
+                   client,
+                   $"/clients/{missingClientId}/restore",
+                   session.CsrfToken))
+        {
+            Assert.Equal(HttpStatusCode.NotFound, restoreResponse.StatusCode);
+        }
+    }
 
     [Theory]
     [InlineData("HeadCoach")]
@@ -728,6 +1021,20 @@ public class ClientsApiTests
             Assert.Equal(HttpStatusCode.Forbidden, updateResponse.StatusCode);
         }
 
+        using (var transferResponse = await PostMembershipJsonAsync(
+                   client,
+                   $"/clients/{seeded.ArchivedClientId}/transfer",
+                   new
+                   {
+                       TargetBranchId = seeded.BranchId,
+                       TargetGroupIds = new[] { seeded.GroupOneId }
+                   },
+                   actorSession.CsrfToken,
+                   $"clients-api-coach-transfer-forbidden-{Guid.NewGuid():N}"))
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, transferResponse.StatusCode);
+        }
+
         using (var archiveResponse = await PutWithoutBodyAsync(
                    client,
                    $"/clients/{seeded.ArchivedClientId}/archive",
@@ -930,6 +1237,25 @@ public class ClientsApiTests
             Assert.Single(persistedClient.Memberships, membership => membership.ValidTo == null);
             Assert.Equal(targetBranchId, activeBranchAssignment.BranchId);
             Assert.Equal([targetGroupId], activeGroupAssignments.Select(assignment => assignment.GroupId).ToArray());
+
+            var transferAudit = await dbContext.AuditLogs.SingleAsync(log =>
+                log.ActionType == "ClientTransferred" && log.EntityId == clientId.ToString());
+            Assert.Equal(seeded.HeadCoachId, transferAudit.UserId);
+            Assert.Equal("Client", transferAudit.EntityType);
+            Assert.Equal(
+                $"Пользователь '{seeded.HeadCoachLogin}' перевел клиента 'Membership Client Tests' в другой филиал.",
+                transferAudit.Description);
+
+            using var oldState = JsonDocument.Parse(transferAudit.OldValueJson!);
+            using var newState = JsonDocument.Parse(transferAudit.NewValueJson!);
+            Assert.Equal(seeded.BranchId, oldState.RootElement.GetProperty("branchId").GetGuid());
+            Assert.Equal(
+                [seeded.GroupOneId],
+                oldState.RootElement.GetProperty("groupIds").EnumerateArray().Select(groupId => groupId.GetGuid()).ToArray());
+            Assert.Equal(targetBranchId, newState.RootElement.GetProperty("branchId").GetGuid());
+            Assert.Equal(
+                [targetGroupId],
+                newState.RootElement.GetProperty("groupIds").EnumerateArray().Select(groupId => groupId.GetGuid()).ToArray());
         }
     }
 
@@ -4949,6 +5275,23 @@ public class ClientsApiTests
         request.Headers.Add("Idempotency-Key", idempotencyKey);
 
         return await client.SendAsync(request);
+    }
+
+    private static async Task AssertValidationProblemFieldsAsync(
+        HttpResponseMessage response,
+        IReadOnlyCollection<string> expectedFields)
+    {
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var payload = await ReadJsonElementAsync(response);
+        var errors = GetPropertyOrNull(payload, "errors", "Errors");
+        Assert.Equal(JsonValueKind.Object, errors.ValueKind);
+        foreach (var expectedField in expectedFields)
+        {
+            Assert.NotEqual(
+                JsonValueKind.Undefined,
+                GetPropertyOrNull(errors, expectedField).ValueKind);
+        }
     }
 
     private static object AddMembershipAction(object payload, string action)

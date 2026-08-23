@@ -416,6 +416,24 @@ describe('App route access contract', () => {
     expect(document.title).toBe('Клиенты • Gym CRM')
   })
 
+  test('keeps route state behind a single browser popstate listener', async () => {
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+    const view = renderAppAt('/clients', baseSession)
+
+    try {
+      expect(await screen.findByTestId('clients-list-screen')).toBeVisible()
+
+      const popstateRegistrations = addEventListenerSpy.mock.calls.filter(
+        ([eventName]) => eventName === 'popstate',
+      )
+
+      expect(popstateRegistrations).toHaveLength(1)
+    } finally {
+      view.unmount()
+      addEventListenerSpy.mockRestore()
+    }
+  })
+
   test('keeps stable profile trigger accessible name and ARIA contract in the default state', async () => {
     renderAppAt('/clients', baseSession)
 

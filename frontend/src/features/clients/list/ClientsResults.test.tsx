@@ -1,8 +1,9 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import type { ClientListItem } from '../../../lib/api'
 import { renderWithProviders } from '../../../test/render'
 import { createDefaultClientListFilters } from './clientListFilters'
+import { createClientListReturnSnapshot } from './clientListReturnState'
 import { ClientsResults } from './ClientsResults'
 import type { ClientsListState } from './useClientsListState'
 
@@ -157,6 +158,44 @@ describe('ClientsResults compact behavior', () => {
     expect(clearSearchQuery).not.toHaveBeenCalled()
     expect(resetAdvancedFilters).not.toHaveBeenCalled()
   })
+
+  test('returns focus to the selected client after restoring list context', async () => {
+    const completeReturnRestore = vi.fn()
+    const returnRestoreSnapshot = createClientListReturnSnapshot(
+      {
+        filters: createDefaultClientListFilters(),
+        searchDraft: '',
+        page: 1,
+        selectedClientId: 'client-1',
+        scrollY: 0,
+        focusTarget: 'selected-client',
+        originEntryKey: 'clients:return-focus',
+        returnDepth: 1,
+      },
+      { canSeeWithoutGroup: true },
+    )
+    window.scrollTo = vi.fn()
+
+    renderWithProviders(
+      <ClientsResults
+        canManage
+        currentUserBranchId="branch-1"
+        isSplitLayout={false}
+        onOpen={vi.fn()}
+        onPreview={vi.fn()}
+        state={createState({
+          clients: [buildClientItem()],
+          completeReturnRestore,
+          returnRestoreSnapshot,
+          selectedClientId: 'client-1',
+        })}
+      />,
+    )
+
+    const selectedClient = screen.getByTestId('client-card-client-1')
+    await waitFor(() => expect(selectedClient).toHaveFocus())
+    expect(completeReturnRestore).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('ClientsResults desktop split behavior', () => {
@@ -274,6 +313,7 @@ function createState({
   activeAdvancedFiltersCount = 0,
   clearSearchQuery = vi.fn(),
   clients = [],
+  completeReturnRestore = vi.fn(),
   error = null,
   filtersQuery = '',
   loading = false,
@@ -281,12 +321,15 @@ function createState({
   resetAdvancedFilters = vi.fn(),
   searchDraft = '',
   searchMode = 'browse',
+  selectedClientId = null,
+  returnRestoreSnapshot = null,
   setPreviewIntent = vi.fn(),
   setSelectedClientId = vi.fn(),
 }: {
   activeAdvancedFiltersCount?: number
   clearSearchQuery?: () => void
   clients?: ClientListItem[]
+  completeReturnRestore?: () => void
   error?: string | null
   filtersQuery?: string
   loading?: boolean
@@ -294,6 +337,8 @@ function createState({
   resetAdvancedFilters?: () => void
   searchDraft?: string
   searchMode?: 'browse' | 'search-focused'
+  selectedClientId?: string | null
+  returnRestoreSnapshot?: ClientsListState['returnRestoreSnapshot']
   setPreviewIntent?: (intent: 'expanded' | 'collapsed') => void
   setSelectedClientId?: (clientId: string | null) => void
 } = {}) {
@@ -320,10 +365,10 @@ function createState({
     searchFocused: false,
     searchMode,
     availableGroupOptions: [],
-    selectedClientId: null,
+    selectedClientId,
     selectedPreview: null,
     returnSnapshot: null,
-    returnRestoreSnapshot: null,
+    returnRestoreSnapshot,
     previewLoading: false,
     previewError: null,
     previewIntent: 'expanded',
@@ -338,7 +383,7 @@ function createState({
     resetAdvancedFilters,
     reload,
     captureReturnSnapshot: vi.fn(),
-    completeReturnRestore: vi.fn(),
+    completeReturnRestore,
     setPage: vi.fn(),
     setSelectedClientId,
     setPreviewIntent,

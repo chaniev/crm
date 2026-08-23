@@ -83,21 +83,21 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 ## Acceptance criteria
 - [x] Зафиксирована карта текущих ответственностей и зависимостей всех hotspots.
 - [x] Созданы ограниченные child tasks с порядком, метриками и rollback boundaries.
-- [ ] Ни один публичный API/route/callback/ProblemDetails/audit contract не изменён.
-- [ ] `ClientEndpoints` больше не является единым catch-all endpoint module.
-- [ ] `App.tsx`, `ClientManagement.tsx` и `GroupManagement.tsx` оставляют orchestration на уровне feature и используют focused components/hooks.
-- [ ] Python bot service разбит на typed responsibilities без дублирования backend rules.
+- [x] Ни один публичный API/route/callback/ProblemDetails/audit contract не изменён.
+- [x] `ClientEndpoints` больше не является единым catch-all endpoint module.
+- [x] `App.tsx`, `ClientManagement.tsx` и `GroupManagement.tsx` оставляют orchestration на уровне feature и используют focused components/hooks.
+- [x] Python bot service разбит на typed responsibilities без дублирования backend rules.
 - [ ] Решение TASK-010 соблюдено; `BotApiService` не получает вторую конкурирующую архитектуру.
-- [ ] Размер и cyclomatic/ownership hotspots заметно уменьшены и измерены до/после.
-- [ ] Все обязательные backend/frontend/bot gates проходят после каждого slice.
+- [x] Размер и cyclomatic/ownership hotspots заметно уменьшены и измерены до/после.
+- [x] Все обязательные backend/frontend/bot gates проходят после каждого завершённого slice.
 
 ## Test checklist
-- [ ] До первого переноса определить characterization tests для каждого hotspot.
-- [ ] Backend: format, Release build, полный xUnit suite и affected PostgreSQL integration tests.
-- [ ] Frontend: lint, strict typecheck, raw-color gate, unit tests, build и affected mobile Playwright workflows.
-- [ ] Bot: Ruff lint/format, strict mypy, pytest и callback/idempotency regressions.
-- [ ] Проверить отсутствие contract diffs в OpenAPI/typed DTO/callback payload snapshots, где применимо.
-- [ ] Повторить cross-layer validation после интеграции всех slices.
+- [x] До первого переноса определить characterization tests для каждого hotspot.
+- [x] Backend: format, Release build, полный xUnit suite и affected PostgreSQL integration tests.
+- [x] Frontend: lint, strict typecheck, raw-color gate, unit tests, build и affected mobile Playwright workflows.
+- [x] Bot: Ruff lint/format, strict mypy, pytest и callback/idempotency regressions.
+- [x] Проверить отсутствие contract diffs в OpenAPI/typed DTO/callback payload snapshots, где применимо.
+- [x] Повторить cross-layer validation после интеграции всех TASK-122–130 slices.
 
 ## AI safety
 - Safe for Codex: no
@@ -119,3 +119,4 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-010 частично пересекается только с `BotApiService`; связь оформлена как dependency, остальные hotspots активной задачей не покрыты.
 - Decomposed at: 2026-08-22 23:47 MSK into TASK-122–TASK-130; umbrella task остаётся risky coordination record до завершения child tasks и решения TASK-010.
+- Progress reviewed at 2026-08-23: TASK-122–130 завершены, independently reviewed и локально интегрированы; TASK-010 остаётся единственной unresolved dependency для `BotApiService`, поэтому umbrella task сохраняет статус `risky`.
