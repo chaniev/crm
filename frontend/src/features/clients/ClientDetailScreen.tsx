@@ -106,6 +106,11 @@ export function ClientDetailScreen({
 
       try {
         const nextClient = await getClient(clientId, controller.signal)
+
+        if (controller.signal.aborted) {
+          return
+        }
+
         setClient(nextClient)
       } catch (error) {
         if (controller.signal.aborted) {

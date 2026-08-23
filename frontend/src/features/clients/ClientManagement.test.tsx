@@ -158,6 +158,119 @@ describe('Client route forms', () => {
     })
     expect(onCreated).toHaveBeenCalledWith('created-client')
   })
+
+  test('ignores a stale edit load after the client route changes', async () => {
+    setupClientFormOptions()
+    const firstLoad = createDeferred<ClientDetails>()
+    const secondLoad = createDeferred<ClientDetails>()
+    const firstClient = buildClientDetails({
+      id: 'client-1',
+      fullName: 'Иван Иванов',
+      firstName: 'Иван',
+      lastName: 'Иванов',
+    })
+    const secondClient = buildClientDetails({
+      id: 'client-2',
+      fullName: 'Пётр Петров',
+      firstName: 'Пётр',
+      lastName: 'Петров',
+    })
+    getClientMock.mockImplementation((requestedClientId) =>
+      requestedClientId === 'client-2' ? secondLoad.promise : firstLoad.promise,
+    )
+
+    const view = renderWithProviders(
+      <ClientEditScreen
+        clientId="client-1"
+        onBack={vi.fn()}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    await waitFor(() =>
+      expect(getClientMock).toHaveBeenCalledWith(
+        'client-1',
+        expect.any(AbortSignal),
+      ),
+    )
+    view.rerender(
+      <ClientEditScreen
+        clientId="client-2"
+        onBack={vi.fn()}
+        onUpdated={vi.fn()}
+      />,
+    )
+
+    await act(async () => {
+      secondLoad.resolve(secondClient)
+    })
+    expect(await screen.findByDisplayValue('Петров')).toBeVisible()
+
+    await act(async () => {
+      firstLoad.resolve(firstClient)
+    })
+
+    expect(screen.getByDisplayValue('Петров')).toBeVisible()
+    expect(screen.queryByDisplayValue('Иванов')).not.toBeInTheDocument()
+  })
+
+  test('ignores a stale detail load after the client route changes', async () => {
+    const firstLoad = createDeferred<ClientDetails>()
+    const secondLoad = createDeferred<ClientDetails>()
+    const firstClient = buildClientDetails({
+      id: 'client-1',
+      fullName: 'Иван Иванов',
+    })
+    const secondClient = buildClientDetails({
+      id: 'client-2',
+      fullName: 'Пётр Петров',
+    })
+    getClientMock.mockImplementation((requestedClientId) =>
+      requestedClientId === 'client-2' ? secondLoad.promise : firstLoad.promise,
+    )
+
+    const view = renderWithProviders(
+      <ClientDetailScreen
+        canManage
+        clientId="client-1"
+        onBack={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+    )
+
+    await waitFor(() =>
+      expect(getClientMock).toHaveBeenCalledWith(
+        'client-1',
+        expect.any(AbortSignal),
+      ),
+    )
+    view.rerender(
+      <ClientDetailScreen
+        canManage
+        clientId="client-2"
+        onBack={vi.fn()}
+        onEdit={vi.fn()}
+      />,
+    )
+
+    await act(async () => {
+      secondLoad.resolve(secondClient)
+    })
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Пётр Петров' }),
+    ).toBeVisible()
+
+    await act(async () => {
+      firstLoad.resolve(firstClient)
+    })
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Пётр Петров' }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('heading', { level: 1, name: 'Иван Иванов' }),
+    ).not.toBeInTheDocument()
+  })
 })
 
 describe('ClientDetailScreen membership sale comments', () => {

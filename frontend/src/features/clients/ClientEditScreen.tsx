@@ -64,6 +64,10 @@ export function ClientEditScreen({
           getGroups({ take: 100 }, controller.signal),
         ])
 
+        if (controller.signal.aborted) {
+          return
+        }
+
         setClient(nextClient)
         setBranchOptions(branches)
         setGroupOptions(groupsResponse.items)
