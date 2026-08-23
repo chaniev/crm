@@ -414,6 +414,10 @@ describe('Client route forms', () => {
     expect(screen.queryByRole('button', { name: 'Редактировать' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Перевести' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'В архив' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Новый абонемент' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Продлить' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Исправить' })).not.toBeInTheDocument()
+    expect(screen.queryByText('История абонемента')).not.toBeInTheDocument()
     expect(screen.getByText('Режим тренера')).toBeVisible()
   })
 })
@@ -427,6 +431,74 @@ describe('ClientDetailScreen membership sale comments', () => {
     expect(screen.getAllByText('Комментарий к покупке')).toHaveLength(2)
     expect(screen.getByText('Комментарий второй покупки')).toBeInTheDocument()
     expect(screen.queryByText('sale-1')).not.toBeInTheDocument()
+  })
+
+  test('keeps sale and version order stable when the API history is reordered', async () => {
+    const initial = buildClientWithMemberships()
+    const orderedHistory = initial.membershipHistory.map((membership) => ({
+      ...membership,
+      validFrom:
+        membership.id === 'version-3'
+          ? '2026-08-01'
+          : membership.id === 'version-2'
+            ? '2026-07-02'
+            : '2026-07-01',
+    }))
+    const expectedCommentActions = [
+      'Редактировать комментарий к покупке от 1 авг. 2026 г.',
+      'Редактировать комментарий к покупке от 1 июл. 2026 г.',
+    ]
+
+    getClientMock.mockResolvedValue({
+      ...initial,
+      membershipHistory: orderedHistory,
+    })
+    const firstView = renderClientDetails()
+
+    expect(
+      (await screen.findAllByRole('button', {
+        name: /Редактировать комментарий к покупке/,
+      })).map((button) => button.getAttribute('aria-label')),
+    ).toEqual(expectedCommentActions)
+    const firstSale = screen
+      .getByTestId('membership-sale-comment-sale-1')
+      .closest('.membership-sale-card')
+    expect(firstSale).not.toBeNull()
+    expect(
+      within(firstSale as HTMLElement)
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) => row.textContent),
+    ).toEqual([
+      expect.stringContaining('Исправление'),
+      expect.stringContaining('Новая покупка'),
+    ])
+
+    firstView.unmount()
+    getClientMock.mockResolvedValue({
+      ...initial,
+      membershipHistory: [...orderedHistory].reverse(),
+    })
+    renderClientDetails()
+
+    expect(
+      (await screen.findAllByRole('button', {
+        name: /Редактировать комментарий к покупке/,
+      })).map((button) => button.getAttribute('aria-label')),
+    ).toEqual(expectedCommentActions)
+    const reorderedFirstSale = screen
+      .getByTestId('membership-sale-comment-sale-1')
+      .closest('.membership-sale-card')
+    expect(reorderedFirstSale).not.toBeNull()
+    expect(
+      within(reorderedFirstSale as HTMLElement)
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) => row.textContent),
+    ).toEqual([
+      expect.stringContaining('Исправление'),
+      expect.stringContaining('Новая покупка'),
+    ])
   })
 
   test('does not expose comments or their empty state to coach', async () => {
@@ -756,6 +828,41 @@ describe('ClientDetailScreen membership purchase form', () => {
     })
   })
 
+  test('cancels purchase confirmation without a request and preserves the draft', async () => {
+    getClientMock.mockResolvedValue(buildClientDetails())
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Новый абонемент' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'Без варианта каталога' }))
+    const amount = screen.getByRole('spinbutton', {
+      name: 'Фактическая сумма продажи, ₽',
+    })
+    fireEvent.change(amount, { target: { value: '4200' } })
+    fireEvent.change(screen.getByLabelText('Действует с'), {
+      target: { value: '2026-07-22' },
+    })
+    fireEvent.change(screen.getByLabelText('Действует по'), {
+      target: { value: '2026-08-20' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Оформить абонемент' }))
+
+    const confirmation = await screen.findByRole('dialog', {
+      name: /Подтвердить.*продажу/i,
+    })
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Отменить' }))
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: /Подтвердить.*продажу/i }),
+      ).not.toBeInTheDocument(),
+    )
+    expect(purchaseMembershipMock).not.toHaveBeenCalled()
+    expect(amount).toHaveValue(4200)
+    expect(screen.getByLabelText('Действует с')).toHaveValue('2026-07-22')
+    expect(screen.getByLabelText('Действует по')).toHaveValue('2026-08-20')
+  })
+
   test('does not submit a fractional manual amount', async () => {
     getClientMock.mockResolvedValue(buildClientDetails())
     getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
@@ -897,6 +1004,62 @@ describe('ClientDetailScreen membership renewal pricing', () => {
     )
     expect(renewMembershipMock.mock.calls[0]?.[1]).not.toHaveProperty('paymentStatus')
     expect(screen.queryByRole('combobox', { name: 'Статус оплаты' })).not.toBeInTheDocument()
+  })
+
+  test('preserves renewal draft and idempotency key across a network retry', async () => {
+    const currentMembership = buildMembership()
+    const client = {
+      ...buildClientDetails({ businessDate: '2026-07-23' }),
+      currentMembership,
+      currentMembershipSummary: currentMembership,
+      hasCurrentMembership: true,
+      membershipHistory: [currentMembership],
+    }
+    getClientMock.mockResolvedValue(client)
+    getEligibleItemsMock.mockResolvedValue([buildCatalogItem()])
+    renewMembershipMock
+      .mockRejectedValueOnce(new Error('Сеть недоступна. Повторите попытку.'))
+      .mockResolvedValueOnce(client)
+
+    renderClientDetails()
+    fireEvent.click(await screen.findByRole('button', { name: 'Продлить' }))
+    fireEvent.click(await screen.findByRole('radio', { name: 'По каталожной цене' }))
+    await selectCatalogOption('Вариант абонемента')
+    const paymentDate = await screen.findByLabelText('Дата оплаты')
+    fireEvent.change(paymentDate, { target: { value: '2026-07-05' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Продлить абонемент' }))
+    let confirmation = await screen.findByRole('dialog', {
+      name: /Подтвердить.*продажу/i,
+    })
+    fireEvent.click(
+      within(confirmation).getByRole('button', {
+        name: 'Подтвердить продажу',
+      }),
+    )
+
+    expect(await screen.findByText('Сеть недоступна. Повторите попытку.')).toBeVisible()
+    expect(paymentDate).toHaveValue('2026-07-05')
+    const firstIdempotencyKey = renewMembershipMock.mock.calls[0]?.[2]
+      .idempotencyKey
+
+    fireEvent.click(screen.getByRole('button', { name: 'Продлить абонемент' }))
+    confirmation = await screen.findByRole('dialog', {
+      name: /Подтвердить.*продажу/i,
+    })
+    fireEvent.click(
+      within(confirmation).getByRole('button', {
+        name: 'Подтвердить продажу',
+      }),
+    )
+
+    await waitFor(() => expect(renewMembershipMock).toHaveBeenCalledTimes(2))
+    expect(renewMembershipMock.mock.calls[1]?.[1]).toEqual({
+      membershipCatalogItemId: 'catalog-1',
+      paymentDate: '2026-07-05',
+    })
+    expect(renewMembershipMock.mock.calls[1]?.[2].idempotencyKey).toBe(
+      firstIdempotencyKey,
+    )
   })
 })
 
