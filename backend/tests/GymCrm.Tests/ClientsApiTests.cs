@@ -86,6 +86,112 @@ public class ClientsApiTests
     }
 
     [Fact]
+    public async Task Membership_endpoint_manifest_keeps_all_mutation_routes_and_manage_clients_policy()
+    {
+        await using var factory = new ClientsAppFactory();
+        using var client = factory.CreateClient();
+        using var sessionResponse = await client.GetAsync("/auth/session");
+        Assert.Equal(HttpStatusCode.OK, sessionResponse.StatusCode);
+
+        var expectedRoutes = new[]
+        {
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/purchase"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/renew"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/correct"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/mark-payment"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/sales/{saleId:guid}/refunds"),
+            (Method: HttpMethods.Put, Template: "/clients/{id:guid}/membership/sales/{saleId:guid}/comment"),
+            (Method: HttpMethods.Post, Template: "/clients/{id:guid}/membership/refunds/{refundId:guid}/cancel")
+        };
+        var endpoints = factory.Services
+            .GetRequiredService<EndpointDataSource>()
+            .Endpoints
+            .OfType<RouteEndpoint>()
+            .ToArray();
+
+        foreach (var expectedRoute in expectedRoutes)
+        {
+            var endpoint = Assert.Single(endpoints, endpoint =>
+                string.Equals(endpoint.RoutePattern.RawText?.TrimEnd('/'), expectedRoute.Template, StringComparison.Ordinal) &&
+                endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods
+                    .Contains(expectedRoute.Method, StringComparer.OrdinalIgnoreCase) == true);
+            var policies = endpoint.Metadata
+                .GetOrderedMetadata<IAuthorizeData>()
+                .Select(metadata => metadata.Policy)
+                .Where(policy => !string.IsNullOrWhiteSpace(policy));
+
+            Assert.Contains(GymCrmAuthorizationPolicies.ManageClients, policies);
+        }
+    }
+
+    [Fact]
+    public async Task Membership_mutation_validation_keeps_problem_details_field_keys_and_payment_tombstone()
+    {
+        await using var factory = new ClientsAppFactory();
+        var seeded = await SeedClientsDataAsync(factory);
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true
+        });
+        var session = await LoginAsync(client, seeded.HeadCoachLogin, seeded.SharedPassword);
+        var clientId = await CreateClientForMembershipTestsAsync(client, session.CsrfToken, seeded.GroupOneId);
+
+        var invalidPostCases = new[]
+        {
+            (
+                Path: $"/clients/{clientId}/membership/purchase",
+                ExpectedFields: new[] { "membershipCatalogItemId", "manualSaleAmount", "paymentDate" }),
+            (
+                Path: $"/clients/{clientId}/membership/renew",
+                ExpectedFields: new[] { "membershipCatalogItemId", "manualSaleAmount", "paymentDate" }),
+            (
+                Path: $"/clients/{clientId}/membership/correct",
+                ExpectedFields: new[] { "saleId", "expectedMembershipId", "validFrom", "paymentDate" }),
+            (
+                Path: $"/clients/{clientId}/membership/sales/{Guid.NewGuid()}/refunds",
+                ExpectedFields: new[] { "amount", "refundDate" }),
+            (
+                Path: $"/clients/{clientId}/membership/refunds/{Guid.NewGuid()}/cancel",
+                ExpectedFields: new[] { "refundId" })
+        };
+
+        foreach (var invalidCase in invalidPostCases)
+        {
+            using var response = await PostMembershipJsonAsync(
+                client,
+                invalidCase.Path,
+                new { },
+                session.CsrfToken,
+                $"task124-validation-{Guid.NewGuid():N}");
+            await AssertValidationProblemFieldsAsync(response, invalidCase.ExpectedFields);
+        }
+
+        using (var commentResponse = await PutJsonAsync(
+                   client,
+                   $"/clients/{clientId}/membership/sales/{Guid.NewGuid()}/comment",
+                   new { comment = new string('x', 2001) },
+                   session.CsrfToken))
+        {
+            await AssertValidationProblemFieldsAsync(commentResponse, ["comment"]);
+        }
+
+        using var tombstoneResponse = await PostMembershipJsonAsync(
+            client,
+            $"/clients/{clientId}/membership/mark-payment",
+            new { },
+            session.CsrfToken,
+            $"task124-payment-tombstone-{Guid.NewGuid():N}");
+        Assert.Equal(HttpStatusCode.Gone, tombstoneResponse.StatusCode);
+        Assert.Equal("application/problem+json", tombstoneResponse.Content.Headers.ContentType?.MediaType);
+        var tombstone = await ReadJsonElementAsync(tombstoneResponse);
+        Assert.Equal("membership-payment-action-removed", GetStringFromAnyCase(tombstone, "type", "Type"));
+        Assert.NotEqual(
+            JsonValueKind.Undefined,
+            GetPropertyOrNull(GetPropertyOrNull(tombstone, "errors", "Errors"), "membership", "Membership").ValueKind);
+    }
+
+    [Fact]
     public async Task Client_list_keeps_legacy_paging_empty_page_and_validation_field_keys()
     {
         await using var factory = new ClientsAppFactory();
@@ -5169,6 +5275,23 @@ public class ClientsApiTests
         request.Headers.Add("Idempotency-Key", idempotencyKey);
 
         return await client.SendAsync(request);
+    }
+
+    private static async Task AssertValidationProblemFieldsAsync(
+        HttpResponseMessage response,
+        IReadOnlyCollection<string> expectedFields)
+    {
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var payload = await ReadJsonElementAsync(response);
+        var errors = GetPropertyOrNull(payload, "errors", "Errors");
+        Assert.Equal(JsonValueKind.Object, errors.ValueKind);
+        foreach (var expectedField in expectedFields)
+        {
+            Assert.NotEqual(
+                JsonValueKind.Undefined,
+                GetPropertyOrNull(errors, expectedField).ValueKind);
+        }
     }
 
     private static object AddMembershipAction(object payload, string action)
