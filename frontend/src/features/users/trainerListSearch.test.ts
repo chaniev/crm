@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import type { UserListItem } from '../../lib/api'
 import {
+  countActiveTrainerFilters,
   filterTrainerListItems,
   isTrainerSearchMatch,
   normalizeTrainerListSearchQuery,
@@ -38,8 +39,20 @@ const TRAINERS: Array<
     fullName: 'Тренер-исследователь',
     login: 'Trainer-Search',
     role: 'Coach',
+    mustChangePassword: true,
+    isActive: false,
+    messengerPlatform: 'Telegram',
+    messengerPlatformUserId: 'telegram-hidden-value',
+    branchId: null,
+    branchName: null,
+  },
+  {
+    id: 'coach-3',
+    fullName: 'Олег Соколов',
+    login: 'inactive-only',
+    role: 'Coach',
     mustChangePassword: false,
-    isActive: true,
+    isActive: false,
     messengerPlatform: null,
     messengerPlatformUserId: null,
     branchId: null,
@@ -79,6 +92,48 @@ describe('trainerListSearch', () => {
 
     const resultByHiddenField = filterTrainerListItems(TRAINERS, 'superadministrator')
     expect(resultByHiddenField).toEqual([])
+  })
+
+  test('filters by inactive and required password dimensions simultaneously', () => {
+    expect(
+      filterTrainerListItems(TRAINERS, '', {
+        status: 'inactive',
+        password: 'all',
+      }).map((item) => item.id),
+    ).toEqual(['coach-2', 'coach-3'])
+
+    expect(
+      filterTrainerListItems(TRAINERS, '', {
+        status: 'all',
+        password: 'mustChange',
+      }).map((item) => item.id),
+    ).toEqual(['admin-1', 'coach-2'])
+
+    expect(
+      filterTrainerListItems(TRAINERS, '', {
+        status: 'inactive',
+        password: 'mustChange',
+      }).map((item) => item.id),
+    ).toEqual(['coach-2'])
+
+    expect(
+      filterTrainerListItems(TRAINERS, 'исследователь', {
+        status: 'inactive',
+        password: 'mustChange',
+      }).map((item) => item.id),
+    ).toEqual(['coach-2'])
+
+    expect(
+      filterTrainerListItems(TRAINERS, 'telegram-hidden-value', {
+        status: 'all',
+        password: 'all',
+      }),
+    ).toEqual([])
+
+    expect(countActiveTrainerFilters({ status: 'all', password: 'all' })).toBe(0)
+    expect(countActiveTrainerFilters({ status: 'inactive', password: 'all' })).toBe(1)
+    expect(countActiveTrainerFilters({ status: 'all', password: 'mustChange' })).toBe(1)
+    expect(countActiveTrainerFilters({ status: 'inactive', password: 'mustChange' })).toBe(2)
   })
 
   test('returns full backend order when query is blank', () => {

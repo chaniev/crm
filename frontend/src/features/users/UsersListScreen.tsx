@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
+  Drawer,
   Group,
-  Paper,
+  Select,
   Stack,
   Text,
 } from '@mantine/core'
 import {
+  IconFilterOff,
   IconPlus,
   IconUserEdit,
   IconUsers,
@@ -16,6 +18,7 @@ import { getUsers, type UserListItem, type UserListResponse } from '../../lib/ap
 import { resources } from '../../lib/resources'
 import {
   Button,
+  ActiveFiltersBar,
   EntityLocatorBar,
   EmptyState,
   ErrorState,
@@ -24,30 +27,53 @@ import {
   PageSection,
   TaskToolbarAction,
   TaskToolbarRefreshAction,
+  TemporarySurfaceFooter,
+  type ActiveFilter,
 } from '../shared/ux'
 import { userRoleLabels } from './UserManagement.constants'
 import {
+  countActiveTrainerFilters,
+  DEFAULT_TRAINER_LIST_FILTERS,
   filterTrainerListItems,
   normalizeTrainerListSearchQuery,
+  type TrainerListFilters,
+  type TrainerPasswordFilter,
+  type TrainerStatusFilter,
 } from './trainerListSearch'
 
+export type TrainerListReturnRequest = {
+  trainerId: string | null
+  scrollY: number
+}
+
 type UsersListScreenProps = {
+  filters: TrainerListFilters
   onCreate: () => void
   onEdit: (userId: string) => void
+  onFiltersChange: (filters: TrainerListFilters) => void
   onQueryChange: (query: string) => void
+  onReturnFocusConsumed?: () => void
   query: string
+  returnFocusRequest?: TrainerListReturnRequest | null
 }
 
 export function UsersListScreen({
+  filters,
   onCreate,
   onEdit,
+  onFiltersChange,
   onQueryChange,
+  onReturnFocusConsumed,
   query,
+  returnFocusRequest = null,
 }: UsersListScreenProps) {
+  const [filtersOpened, setFiltersOpened] = useState(false)
   const [response, setResponse] = useState<UserListResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const resultsRef = useRef<HTMLDivElement | null>(null)
+  const statusFilterRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -81,12 +107,115 @@ export function UsersListScreen({
     return () => controller.abort()
   }, [reloadKey])
 
-  const filteredUsers = filterTrainerListItems(response?.items ?? [], query)
+  const filteredUsers = filterTrainerListItems(response?.items ?? [], query, filters)
   const hasQuery = Boolean(normalizeTrainerListSearchQuery(query))
+  const activeFilterCount = countActiveTrainerFilters(filters)
+  const hasActiveFilters = activeFilterCount > 0
   const canCreate = (response?.createRoleOptions.length ?? 0) > 0
+  const showFirstRunEmpty =
+    response &&
+    response.items.length === 0 &&
+    !hasQuery &&
+    !hasActiveFilters
+  const showFilteredEmpty =
+    response &&
+    filteredUsers.length === 0 &&
+    !showFirstRunEmpty
+  const activeFilters = buildActiveTrainerFilters(filters, onFiltersChange)
+  const statusOptions = [
+    { value: 'all', label: resources.users.list.filterAll },
+    { value: 'inactive', label: resources.users.list.filterInactive },
+  ] satisfies Array<{ value: TrainerStatusFilter; label: string }>
+  const passwordOptions = [
+    { value: 'all', label: resources.users.list.filterAll },
+    { value: 'mustChange', label: resources.users.list.filterMustChangePassword },
+  ] satisfies Array<{ value: TrainerPasswordFilter; label: string }>
+
+  useEffect(() => {
+    if (!returnFocusRequest || loading) {
+      return
+    }
+
+    const animationFrameId = window.requestAnimationFrame(() => {
+      const row = returnFocusRequest.trainerId
+        ? document.querySelector<HTMLElement>(
+          getTrainerRowSelector(returnFocusRequest.trainerId),
+        )
+        : null
+      const focusTarget =
+        row instanceof HTMLButtonElement
+          ? row
+          : row
+            ? resultsRef.current
+            : document.querySelector<HTMLElement>('[data-trainer-return-recovery="true"]') ??
+              resultsRef.current ??
+              document.querySelector<HTMLInputElement>('#coaches-results-locator')
+
+      if (row) {
+        row.scrollIntoView({ block: 'center' })
+      } else if (returnFocusRequest.scrollY > 0) {
+        window.scrollTo({ top: returnFocusRequest.scrollY })
+      }
+
+      focusTarget?.focus({ preventScroll: true })
+      onReturnFocusConsumed?.()
+    })
+
+    return () => window.cancelAnimationFrame(animationFrameId)
+  }, [
+    filteredUsers,
+    loading,
+    onReturnFocusConsumed,
+    returnFocusRequest,
+  ])
+
+  useEffect(() => {
+    if (!filtersOpened) {
+      return
+    }
+
+    const animationFrameId = window.requestAnimationFrame(() => {
+      statusFilterRef.current?.focus()
+    })
+
+    return () => window.cancelAnimationFrame(animationFrameId)
+  }, [filtersOpened])
 
   function reload() {
     setReloadKey((currentKey) => currentKey + 1)
+  }
+
+  function resetTrainerFilters() {
+    onFiltersChange(DEFAULT_TRAINER_LIST_FILTERS)
+  }
+
+  function updateStatusFilter(status: TrainerStatusFilter) {
+    onFiltersChange({
+      ...filters,
+      status,
+    })
+  }
+
+  function updatePasswordFilter(password: TrainerPasswordFilter) {
+    onFiltersChange({
+      ...filters,
+      password,
+    })
+  }
+
+  function focusFiltersTriggerFallback() {
+    window.setTimeout(() => {
+      const focusTarget =
+        document.querySelector<HTMLButtonElement>('.entity-locator-bar__filter:not(:disabled)') ??
+        document.querySelector<HTMLInputElement>('#coaches-results-locator')
+
+      focusTarget?.focus()
+    }, 0)
+  }
+
+  function closeFiltersDrawer() {
+    setFiltersOpened(false)
+    focusFiltersTriggerFallback()
   }
 
   return (
@@ -97,6 +226,7 @@ export function UsersListScreen({
     >
       <PageSection variant="plain">
         <EntityLocatorBar
+          activeFilterCount={activeFilterCount}
           accessibleLabel={resources.users.list.searchAccessibleLabel}
           data-testid="users-list-locator"
           frequentActions={(
@@ -107,6 +237,7 @@ export function UsersListScreen({
           )}
           onChange={onQueryChange}
           onClear={() => onQueryChange('')}
+          onOpenFilters={() => setFiltersOpened(true)}
           placeholder={resources.users.list.searchPlaceholder}
           primaryAction={canCreate ? (
             <TaskToolbarAction
@@ -116,16 +247,85 @@ export function UsersListScreen({
               priority="primary"
             />
           ) : null}
-          resultsId="users-results"
+          resultsId="coaches-results"
           value={query}
         />
+        <ActiveFiltersBar
+          filters={activeFilters}
+          onReset={resetTrainerFilters}
+          resetLabel={resources.common.actions.resetFilters}
+        />
       </PageSection>
+
+      <Drawer
+        classNames={{
+          body: 'coaches-filters-drawer__body',
+          content: 'coaches-filters-drawer__content',
+          header: 'coaches-filters-drawer__header',
+        }}
+        closeButtonProps={{
+          'aria-label': resources.users.list.closeFilters,
+          className: 'temporary-surface-close coaches-filters-drawer__close',
+        }}
+        closeOnClickOutside
+        closeOnEscape
+        onClose={closeFiltersDrawer}
+        opened={filtersOpened}
+        overlayProps={{ backgroundOpacity: 0.18, blur: 2 }}
+        position="bottom"
+        returnFocus
+        size="min(24rem, 100dvh)"
+        title={resources.users.list.filtersTitle}
+        trapFocus
+        withCloseButton
+        zIndex={300}
+      >
+        <div className="coaches-filters-drawer__fields">
+          <Select
+            data-autofocus
+            data={statusOptions}
+            label={resources.users.list.statusFilterLabel}
+            onChange={(value) =>
+              updateStatusFilter((value as TrainerStatusFilter | null) ?? 'all')
+            }
+            ref={statusFilterRef}
+            value={filters.status}
+          />
+          <Select
+            data={passwordOptions}
+            label={resources.users.list.passwordFilterLabel}
+            onChange={(value) =>
+              updatePasswordFilter((value as TrainerPasswordFilter | null) ?? 'all')
+            }
+            value={filters.password}
+          />
+        </div>
+        <TemporarySurfaceFooter
+          primaryAction={(
+            <Button onClick={closeFiltersDrawer} type="button">
+              {resources.users.list.doneFilters}
+            </Button>
+          )}
+          secondaryAction={(
+            <Button
+              leftSection={<IconFilterOff size={16} />}
+              onClick={resetTrainerFilters}
+              type="button"
+              variant="secondary"
+            >
+              Сбросить
+            </Button>
+          )}
+        />
+      </Drawer>
 
       <div
         aria-busy={loading || undefined}
         aria-label="Результаты поиска тренеров"
-        id="users-results"
+        id="coaches-results"
+        ref={resultsRef}
         role="region"
+        tabIndex={-1}
       >
         <PageSection>
           <Stack gap="lg">
@@ -168,20 +368,38 @@ export function UsersListScreen({
             </Alert>
           ) : null}
 
-          {response && filteredUsers.length === 0 ? (
+          {showFilteredEmpty ? (
             <EmptyState
-              action={hasQuery ? (
-                <Button onClick={() => onQueryChange('')} variant="light">
+              action={hasActiveFilters ? (
+                <Button
+                  data-trainer-return-recovery="true"
+                  onClick={resetTrainerFilters}
+                  variant="light"
+                >
+                  {resources.common.actions.resetFilters}
+                </Button>
+              ) : hasQuery ? (
+                <Button
+                  data-trainer-return-recovery="true"
+                  onClick={() => onQueryChange('')}
+                  variant="light"
+                >
                   Очистить поиск
                 </Button>
               ) : undefined}
-              description={hasQuery
-                ? resources.users.list.emptySearchDescription
-                : resources.users.list.emptyDescription}
+              description={hasActiveFilters
+                ? resources.users.list.emptyFilteredDescription
+                : resources.users.list.emptySearchDescription}
               icon={<IconUsers size={24} />}
-              title={hasQuery
-                ? resources.users.list.emptySearchTitle
-                : resources.users.list.emptyTitle}
+              title={resources.users.list.emptySearchTitle}
+            />
+          ) : null}
+
+          {showFirstRunEmpty ? (
+            <EmptyState
+              description={resources.users.list.emptyDescription}
+              icon={<IconUsers size={24} />}
+              title={resources.users.list.emptyTitle}
             />
           ) : null}
 
@@ -230,62 +448,102 @@ function UserListCard({
     })
   }
 
-  return (
-    <Paper
-      className="list-row-card"
-      data-testid={`user-card-${user.id}`}
-      radius="24px"
-      withBorder
-    >
-      <Group align="flex-start" justify="space-between" wrap="wrap">
-        <Stack gap={8} style={{ minWidth: 0 }}>
-          <Group gap="sm" wrap="wrap">
-            <Text fw={700} style={{ overflowWrap: 'anywhere' }}>
-              {user.fullName}
-            </Text>
-            {exceptionBadges.map((badge) => (
-              <Badge
-                color={badge.color}
-                key={badge.label}
-                radius="xl"
-                variant="light"
-              >
-                {badge.label}
-              </Badge>
-            ))}
-          </Group>
-          <Text c="dimmed" size="sm" style={{ overflowWrap: 'anywhere' }}>
-            {resources.users.list.loginPrefix}: {user.login}
-          </Text>
-          {user.messengerPlatformUserId ? (
-            <Text c="dimmed" size="sm" style={{ overflowWrap: 'anywhere' }}>
-              {resources.users.list.telegramIdPrefix}: {user.messengerPlatformUserId}
-            </Text>
-          ) : null}
-        </Stack>
+  if (canEditUser(user)) {
+    return (
+      <button
+        aria-label={`Редактировать тренера «${user.fullName}»`}
+        className="coach-registry-row coach-registry-row--editable list-row-card"
+        data-testid={`user-card-${user.id}`}
+        data-trainer-id={user.id}
+        onClick={() => onEdit(user.id)}
+        type="button"
+      >
+        <UserRowContent exceptionBadges={exceptionBadges} user={user} />
+        <span aria-hidden="true" className="coach-registry-row__cue">
+          <IconUserEdit size={18} />
+          <span>{resources.users.list.editAction}</span>
+        </span>
+      </button>
+    )
+  }
 
-        {canEditUser(user) ? (
-          <Button
-            leftSection={<IconUserEdit size={18} />}
-            onClick={() => onEdit(user.id)}
-            variant="light"
-          >
-            {resources.users.list.editAction}
-          </Button>
-        ) : (
-          <Badge color="gray" radius="xl" variant="light">
-            {resources.users.list.readOnlyTarget}
-          </Badge>
-        )}
-      </Group>
-    </Paper>
+  return (
+    <div
+      className="coach-registry-row list-row-card"
+      data-testid={`user-card-${user.id}`}
+      data-trainer-id={user.id}
+    >
+      <UserRowContent exceptionBadges={exceptionBadges} user={user} />
+      <Badge color="gray" radius="xl" variant="light">
+        {resources.users.list.readOnlyTarget}
+      </Badge>
+    </div>
   )
 }
 
 function canEditUser(user: UserListItem) {
-  if (user.allowedActions === undefined) {
-    return true
+  return user.allowedActions?.some((action) => action === 'Edit' || action === 'Update') === true
+}
+
+function UserRowContent({
+  exceptionBadges,
+  user,
+}: {
+  exceptionBadges: Array<{ color?: string; label: string }>
+  user: UserListItem
+}) {
+  return (
+    <span className="coach-registry-row__identity">
+      <span className="coach-registry-row__title-line">
+        <span className="coach-registry-row__name">{user.fullName}</span>
+        {exceptionBadges.map((badge) => (
+          <Badge
+            color={badge.color}
+            key={badge.label}
+            radius="xl"
+            variant="light"
+          >
+            {badge.label}
+          </Badge>
+        ))}
+      </span>
+      <span className="coach-registry-row__meta">
+        {resources.users.list.loginPrefix}: {user.login}
+      </span>
+      {user.messengerPlatformUserId ? (
+        <span className="coach-registry-row__meta">
+          {resources.users.list.telegramIdPrefix}: {user.messengerPlatformUserId}
+        </span>
+      ) : null}
+    </span>
+  )
+}
+
+function buildActiveTrainerFilters(
+  filters: TrainerListFilters,
+  onFiltersChange: (filters: TrainerListFilters) => void,
+): ActiveFilter[] {
+  const activeFilters: ActiveFilter[] = []
+
+  if (filters.status === 'inactive') {
+    activeFilters.push({
+      id: 'status',
+      label: resources.users.list.filterInactive,
+      onRemove: () => onFiltersChange({ ...filters, status: 'all' }),
+    })
   }
 
-  return user.allowedActions.includes('Edit') || user.allowedActions.includes('Update')
+  if (filters.password === 'mustChange') {
+    activeFilters.push({
+      id: 'password',
+      label: resources.users.list.activePasswordFilter,
+      onRemove: () => onFiltersChange({ ...filters, password: 'all' }),
+    })
+  }
+
+  return activeFilters
+}
+
+function getTrainerRowSelector(trainerId: string) {
+  return `[data-trainer-id="${trainerId.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"]`
 }

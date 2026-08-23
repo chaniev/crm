@@ -33,7 +33,7 @@ const headCoachSession = {
   },
 } as const
 
-test('Навигация открывает раздел Тренеры на маршруте /users', async ({ page }) => {
+test('Навигация открывает раздел Тренеры на маршруте /coaches', async ({ page }) => {
   await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
     const requestUrl = new URL(route.request().url())
     const method = route.request().method()
@@ -63,7 +63,7 @@ test('Навигация открывает раздел Тренеры на м�
       return
     }
 
-    if (requestUrl.pathname === '/api/users' && method === 'GET') {
+    if (requestUrl.pathname === '/api/coaches' && method === 'GET') {
       await fulfillJson(route, 200, {
         items: [],
         createRoleOptions: ['Coach'],
@@ -86,10 +86,35 @@ test('Навигация открывает раздел Тренеры на м�
   await expect(desktopNavigation).toBeVisible()
   await trainersNavButton.click()
 
-  await expect(page).toHaveURL(/\/users$/)
+  await expect(page).toHaveURL(/\/coaches$/)
   await expect(page.getByTestId('users-screen')).toBeVisible()
   await expect(trainersNavButton).toHaveAttribute('aria-current', 'page')
   await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
+})
+
+test('legacy /users trainer routes resolve to not-found without redirect', async ({ page }) => {
+  await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
+    const requestUrl = new URL(route.request().url())
+    const method = route.request().method()
+
+    if (requestUrl.pathname === '/api/auth/session' && method === 'GET') {
+      await fulfillJson(route, 200, headCoachSession)
+      return
+    }
+
+    if (requestUrl.pathname === '/api/config' && method === 'GET') {
+      await fulfillJson(route, 200, APP_CONFIG)
+      return
+    }
+
+    throw new Error(`Unexpected legacy-route API request: ${method} ${requestUrl.pathname}`)
+  })
+
+  for (const legacyPath of ['/users', '/users/new', '/users/coach-anna/edit']) {
+    await page.goto(legacyPath)
+    await expect(page).toHaveURL(new RegExp(`${legacyPath.replaceAll('/', '\\/')}$`))
+    await expect(page.getByRole('heading', { name: 'Страница не найдена' })).toBeVisible()
+  }
 })
 
 test('Поиск тренера фильтрует список и сохраняется при возврате из карточки', async ({
@@ -130,7 +155,7 @@ test('Поиск тренера фильтрует список и сохран�
       fullName: 'Ирина Петрова',
       login: 'irina.login',
       role: 'Coach',
-      mustChangePassword: false,
+      mustChangePassword: true,
       isActive: false,
       messengerPlatform: null,
       messengerPlatformUserId: null,
@@ -197,7 +222,7 @@ test('Поиск тренера фильтрует список и сохран�
       return
     }
 
-    if (requestUrl.pathname === '/api/users' && method === 'GET') {
+    if (requestUrl.pathname === '/api/coaches' && method === 'GET') {
       await fulfillJson(route, 200, {
         items: trainers,
         createRoleOptions: ['Coach'],
@@ -205,12 +230,12 @@ test('Поиск тренера фильтрует список и сохран�
       return
     }
 
-    if (requestUrl.pathname === '/api/users/coach-anna' && method === 'GET') {
+    if (requestUrl.pathname === '/api/coaches/coach-anna' && method === 'GET') {
       await fulfillJson(route, 200, trainers[0])
       return
     }
 
-    if (requestUrl.pathname === '/api/users/coach-anna' && method === 'PUT') {
+    if (requestUrl.pathname === '/api/coaches/coach-anna' && method === 'PUT') {
       updateCalls += 1
       await fulfillJson(route, 200, trainers[0])
       return
@@ -221,7 +246,7 @@ test('Поиск тренера фильтрует список и сохран�
     )
   })
 
-  await page.goto('/users')
+  await page.goto('/coaches')
 
   const search = page.getByRole('textbox', { name: 'Найти тренера' })
   await expect(search).toHaveAttribute('placeholder', 'ФИО или логин')
@@ -236,39 +261,57 @@ test('Поиск тренера фильтрует список и сохран�
   await expect(page.getByTestId('user-card-coach-inactive').getByText('Отключен', { exact: true })).toBeVisible()
   await expect(page.getByTestId('user-card-coach-read-only').getByText('Только просмотр', { exact: true })).toBeVisible()
   await expect(page.getByTestId('user-card-superadmin-exception').getByText('Суперадминистратор', { exact: true })).toBeVisible()
+  await expect(normalCard).toHaveAttribute('aria-label', 'Редактировать тренера «Анна Ветрова»')
+  await expect(normalCard.getByRole('button')).toHaveCount(0)
+  await expect(page.getByTestId('user-card-coach-read-only').getByRole('button')).toHaveCount(0)
+
+  const filterTrigger = page.getByRole('button', { name: 'Открыть фильтры' })
+  await filterTrigger.click()
+  const statusFilter = page.getByRole('combobox', { name: 'Статус' })
+  await expect(statusFilter).toBeFocused()
+  await statusFilter.click()
+  await page.getByRole('option', { name: 'Отключённые' }).click()
+  await expect(page.getByTestId('user-card-coach-inactive')).toBeVisible()
+  await expect(normalCard).toHaveCount(0)
+  await page.getByRole('combobox', { name: 'Пароль' }).click()
+  await page.getByRole('option', { name: 'Требуется смена' }).click()
+  await expect(page.getByRole('button', { name: 'Открыть фильтры, активно 2' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Удалить фильтр «Отключённые»' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Удалить фильтр «Требуется смена пароля»' })).toBeVisible()
+  await page.getByRole('button', { name: 'Сбросить', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Фильтры тренеров' })).toBeVisible()
+  await expect(normalCard).toBeVisible()
+  await page.getByRole('button', { name: 'Готово' }).click()
+  await expect(page.getByRole('dialog', { name: 'Фильтры тренеров' })).toHaveCount(0)
+  await expect(filterTrigger).toBeFocused()
 
   await search.fill('  ANNA.LOGIN  ')
   await expect(page.getByTestId('user-card-coach-anna')).toBeVisible()
   await expect(page.getByTestId('user-card-coach-boris')).toHaveCount(0)
 
-  await page.getByTestId('user-card-coach-anna')
-    .getByRole('button', { name: 'Редактировать' })
-    .click()
-  await expect(page).toHaveURL(/\/users\/coach-anna\/edit$/)
+  await page.getByTestId('user-card-coach-anna').click()
+  await expect(page).toHaveURL(/\/coaches\/coach-anna\/edit$/)
   await expect(page.getByRole('button', { name: 'Назад к списку' })).toHaveCount(1)
   await expect(page.getByRole('button', { exact: true, name: 'К списку' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Назад к списку' }).click()
 
-  await expect(page).toHaveURL(/\/users$/)
+  await expect(page).toHaveURL(/\/coaches$/)
   await expect(search).toHaveValue('  ANNA.LOGIN  ')
   await expect(normalCard).toBeVisible()
+  await expect(normalCard).toBeFocused()
   await expect(normalCard.getByText('Тренер', { exact: true })).toHaveCount(0)
   await expect(normalCard.getByText('Активен', { exact: true })).toHaveCount(0)
   await expect(normalCard.getByText('Пароль актуален', { exact: true })).toHaveCount(0)
 
-  await page.getByTestId('user-card-coach-anna')
-    .getByRole('button', { name: 'Редактировать' })
-    .click()
+  await page.getByTestId('user-card-coach-anna').press('Enter')
   await expect(page.getByRole('button', { name: 'Назад к списку' })).toHaveCount(1)
   await expect(page.getByRole('button', { exact: true, name: 'К списку' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Сохранить изменения' }).click()
-  await expect(page).toHaveURL(/\/users$/)
+  await expect(page).toHaveURL(/\/coaches$/)
   expect(updateCalls).toBe(1)
   await expect(search).toHaveValue('  ANNA.LOGIN  ')
 
-  await page.getByTestId('user-card-coach-anna')
-    .getByRole('button', { name: 'Редактировать' })
-    .click()
+  await page.getByTestId('user-card-coach-anna').press(' ')
   for (const viewport of [
     { width: 360, height: 780 },
     { width: 390, height: 844 },
@@ -283,14 +326,14 @@ test('Поиск тренера фильтрует список и сохран�
     await expect(page.getByRole('button', { name: 'Назад к списку' })).toHaveCount(1)
     await expect(page.getByRole('button', { exact: true, name: 'К списку' })).toHaveCount(0)
     const submit = page.getByRole('button', { name: 'Сохранить изменения' })
-    await submit.scrollIntoViewIfNeeded()
     await expect(submit).toBeVisible()
+    await submit.evaluate((element) => element.scrollIntoView({ block: 'center' }))
     await expect.poll(() => page.evaluate(() =>
       document.documentElement.scrollWidth <= document.documentElement.clientWidth,
     )).toBe(true)
   }
   await page.goBack()
-  await expect(page).toHaveURL(/\/users$/)
+  await expect(page).toHaveURL(/\/coaches$/)
   await expect(search).toHaveValue('  ANNA.LOGIN  ')
 
   await search.fill('никого')
@@ -315,7 +358,7 @@ test('Поиск тренера фильтрует список и сохран�
     const longName = longCard.getByText(
       'Александра Константинопольская-Рождественская Очень Длинное Отчество',
     )
-    const longEdit = longCard.getByRole('button', { name: 'Редактировать' })
+    const longEditCue = longCard.getByText('Редактировать', { exact: true })
     await expect(search).toBeVisible()
     await expect(page.getByRole('button', { name: 'Обновить' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Создать тренера' })).toBeVisible()
@@ -323,7 +366,16 @@ test('Поиск тренера фильтрует список и сохран�
     await expect(longName).toBeVisible()
     await expect(longCard.getByText(/alexandra\.konstantinopolskaya/)).toBeVisible()
     await expect(longCard.getByText(/telegram-identifier/)).toBeVisible()
-    await expect(longEdit).toBeVisible()
+    await expect(longCard).toHaveAttribute(
+      'aria-label',
+      'Редактировать тренера «Александра Константинопольская-Рождественская Очень Длинное Отчество»',
+    )
+    await expect(longCard.getByRole('button')).toHaveCount(0)
+    if (viewport.width >= 1024) {
+      await expect(longEditCue).toBeVisible()
+    } else {
+      await expect(longEditCue).toBeHidden()
+    }
     if (viewport.width <= 440) {
       await expect.poll(() => longName.evaluate((element) =>
         element.getBoundingClientRect().height > parseFloat(getComputedStyle(element).lineHeight),
@@ -368,7 +420,7 @@ test('Поиск сохраняется при blocking и stale ошибках 
       return
     }
 
-    if (requestUrl.pathname === '/api/users' && method === 'GET') {
+    if (requestUrl.pathname === '/api/coaches' && method === 'GET') {
       usersCalls += 1
 
       if (usersCalls === 1 || usersCalls === 2 || usersCalls === 4) {
@@ -391,7 +443,7 @@ test('Поиск сохраняется при blocking и stale ошибках 
     )
   })
 
-  await page.goto('/users')
+  await page.goto('/coaches')
 
   const search = page.getByRole('textbox', { name: 'Найти тренера' })
   await search.fill('anna')
@@ -433,7 +485,7 @@ test('Редактирование пользователя показывает
     }
 
     if (
-      requestUrl.pathname === '/api/users/headcoach-id' &&
+      requestUrl.pathname === '/api/coaches/headcoach-id' &&
       method === 'GET'
     ) {
       userDetailsCalls += 1
@@ -455,7 +507,7 @@ test('Редактирование пользователя показывает
     )
   })
 
-  await page.goto('/users/headcoach-id/edit')
+  await page.goto('/coaches/headcoach-id/edit')
 
   await expect(page.getByRole('heading', { name: 'Главный тренер' })).toBeVisible()
   await expect(page.getByText('Редактирование доступа')).toHaveCount(0)
@@ -498,7 +550,7 @@ test('Редактирование пользователя показывает
     }
 
     if (
-      requestUrl.pathname === '/api/users/headcoach-id' &&
+      requestUrl.pathname === '/api/coaches/headcoach-id' &&
       method === 'GET'
     ) {
       await fulfillJson(route, 200, {
@@ -515,7 +567,7 @@ test('Редактирование пользователя показывает
     }
 
     if (
-      requestUrl.pathname === '/api/users/headcoach-id' &&
+      requestUrl.pathname === '/api/coaches/headcoach-id' &&
       method === 'PUT'
     ) {
       updateUserPayload = route.request().postDataJSON()
@@ -539,7 +591,7 @@ test('Редактирование пользователя показывает
     )
   })
 
-  await page.goto('/users/headcoach-id/edit')
+  await page.goto('/coaches/headcoach-id/edit')
 
   await page.getByLabel('ФИО').fill('Главный')
   await page.getByRole('button', { name: 'Сохранить изменения' }).click()
@@ -570,7 +622,7 @@ test('Создание тренера скрывает выбор роли и о
       return
     }
 
-    if (requestUrl.pathname === '/api/users' && method === 'POST') {
+    if (requestUrl.pathname === '/api/coaches' && method === 'POST') {
       createUserPayload = route.request().postDataJSON()
       await fulfillJson(route, 200, {
         id: 'coach-created',
@@ -585,7 +637,7 @@ test('Создание тренера скрывает выбор роли и о
       return
     }
 
-    if (requestUrl.pathname === '/api/users' && method === 'GET') {
+    if (requestUrl.pathname === '/api/coaches' && method === 'GET') {
       await fulfillJson(route, 200, {
         items: [],
         createRoleOptions: ['Coach'],
@@ -598,7 +650,7 @@ test('Создание тренера скрывает выбор роли и о
     )
   })
 
-  await page.goto('/users/new')
+  await page.goto('/coaches/new')
   await expect(page.getByRole('heading', { name: 'Новый тренер' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Сохранить тренера' })).toBeVisible()
   await expect(page.getByRole('combobox', { name: 'Роль' })).toHaveCount(0)
@@ -619,7 +671,7 @@ test('Создание тренера скрывает выбор роли и о
   })
 })
 
-test('Редактирование администратора через /users завершается ошибкой staff_not_found', async ({
+test('Редактирование администратора через /coaches завершается ошибкой staff_not_found', async ({
   page,
 }) => {
   await page.route(/^https?:\/\/[^/]+\/api(?:\/|$)/, async (route) => {
@@ -651,7 +703,7 @@ test('Редактирование администратора через /user
       return
     }
 
-    if (requestUrl.pathname === '/api/users/admin-1' && method === 'GET') {
+    if (requestUrl.pathname === '/api/coaches/admin-1' && method === 'GET') {
       await fulfillJson(route, 404, {
         title: 'Не найдено',
         detail: 'Сотрудник не найден.',
@@ -665,7 +717,7 @@ test('Редактирование администратора через /user
     )
   })
 
-  await page.goto('/users/admin-1/edit')
+  await page.goto('/coaches/admin-1/edit')
 
   await expect(page.getByText('Карточка не загрузилась')).toBeVisible()
   await expect(page.getByText('Сотрудник не найден.')).toBeVisible()

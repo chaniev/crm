@@ -409,7 +409,7 @@ async function mockCatalogApi(
       return
     }
 
-    if (pathname === '/api/users' && method === 'GET') {
+    if (pathname === '/api/coaches' && method === 'GET') {
       await fulfillJson(route, [])
       return
     }

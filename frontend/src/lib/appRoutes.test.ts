@@ -192,6 +192,24 @@ describe('finance routes', () => {
 })
 
 describe('route parsing and resolution matrix', () => {
+  test('uses only canonical coaches routes and treats every legacy users route as not-found', () => {
+    expect(parseRoute('/coaches')).toEqual({ kind: 'section', section: 'Users' })
+    expect(parseRoute('/coaches/new')).toEqual({ kind: 'userCreate' })
+    expect(parseRoute('/coaches/trainer-1/edit')).toEqual({
+      kind: 'userEdit',
+      userId: 'trainer-1',
+    })
+    expect(getSectionPath('Users')).toBe('/coaches')
+    expect(getRoutePath({ kind: 'userCreate' })).toBe('/coaches/new')
+    expect(getRoutePath({ kind: 'userEdit', userId: 'trainer 1' })).toBe(
+      '/coaches/trainer%201/edit',
+    )
+
+    for (const legacyPath of ['/users', '/users/new', '/users/trainer-1/edit']) {
+      expect(parseRoute(legacyPath)).toEqual({ kind: 'not-found', path: legacyPath })
+    }
+  })
+
   test('keeps the executable edit-route inventory to client, group and trainer', () => {
     const editRoutes = [
       { kind: 'clientEdit', clientId: 'client-1' },

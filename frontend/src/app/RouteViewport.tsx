@@ -24,7 +24,12 @@ import {
   UserCreateScreen,
   UserEditScreen,
   UsersListScreen,
+  type TrainerListReturnRequest,
 } from '../features/users/UserManagement'
+import {
+  DEFAULT_TRAINER_LIST_FILTERS,
+  type TrainerListFilters,
+} from '../features/users/trainerListSearch'
 import { AuditLogScreen } from '../features/audit/AuditLogScreen'
 import { FinanceReportsScreen } from '../features/finance/FinanceReportsScreen'
 import { SettingsScreen } from '../features/settings/SettingsScreen'
@@ -269,6 +274,27 @@ function UsersWorkflowViewport({
   route,
 }: UsersWorkflowViewportProps) {
   const [trainerQuery, setTrainerQuery] = useState('')
+  const [trainerFilters, setTrainerFilters] = useState<TrainerListFilters>(
+    DEFAULT_TRAINER_LIST_FILTERS,
+  )
+  const [returnFocusRequest, setReturnFocusRequest] =
+    useState<TrainerListReturnRequest | null>(null)
+
+  function editTrainerFromList(userId: string) {
+    setReturnFocusRequest({
+      trainerId: userId,
+      scrollY: window.scrollY,
+    })
+    onEditUser(userId)
+  }
+
+  function returnFromTrainerEdit() {
+    setReturnFocusRequest((currentRequest) => currentRequest ?? {
+      trainerId: null,
+      scrollY: 0,
+    })
+    onReturnToUsers()
+  }
 
   if (route.kind === 'userCreate') {
     return (
@@ -283,7 +309,7 @@ function UsersWorkflowViewport({
     return (
       <UserEditScreen
         currentUserId={currentUserId}
-        onBack={onReturnToUsers}
+        onBack={returnFromTrainerEdit}
         onRefreshSession={onRefreshSession}
         userId={route.userId}
       />
@@ -292,10 +318,14 @@ function UsersWorkflowViewport({
 
   return (
     <UsersListScreen
+      filters={trainerFilters}
       onCreate={onCreateUser}
-      onEdit={onEditUser}
+      onEdit={editTrainerFromList}
+      onFiltersChange={setTrainerFilters}
       onQueryChange={setTrainerQuery}
+      onReturnFocusConsumed={() => setReturnFocusRequest(null)}
       query={trainerQuery}
+      returnFocusRequest={returnFocusRequest}
     />
   )
 }

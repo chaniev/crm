@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
-import { getUser, getUsers } from './users'
+import { createUser, getUser, getUsers, updateUser } from './users'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -7,26 +7,27 @@ afterEach(() => {
 
 describe('users API', () => {
   test('maps coach list envelope and fixed create options', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        items: [
+          {
+            id: 'coach-1',
+            fullName: 'Тренер',
+            login: 'coach',
+            role: 'Coach',
+            mustChangePassword: false,
+            isActive: true,
+            branchId: null,
+            branchName: null,
+            allowedActions: ['Edit'],
+          },
+        ],
+        createRoleOptions: ['Coach'],
+      }),
+    )
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
-        jsonResponse({
-          items: [
-            {
-              id: 'coach-1',
-              fullName: 'Тренер',
-              login: 'coach',
-              role: 'Coach',
-              mustChangePassword: false,
-              isActive: true,
-              branchId: null,
-              branchName: null,
-              allowedActions: ['Edit'],
-            },
-          ],
-          createRoleOptions: ['Coach'],
-        }),
-      ),
+      fetchMock,
     )
 
     await expect(getUsers()).resolves.toEqual({
@@ -40,24 +41,29 @@ describe('users API', () => {
       ],
       createRoleOptions: ['Coach'],
     })
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/coaches',
+      expect.objectContaining({ method: 'GET' }),
+    )
   })
 
   test('preserves target roleOptions from user payload', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        id: 'coach-1',
+        fullName: 'Тренер',
+        login: 'coach',
+        role: 'Coach',
+        mustChangePassword: false,
+        isActive: true,
+        branchId: null,
+        allowedActions: ['Edit'],
+        roleOptions: ['Coach'],
+      }),
+    )
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
-        jsonResponse({
-          id: 'coach-1',
-          fullName: 'Тренер',
-          login: 'coach',
-          role: 'Coach',
-          mustChangePassword: false,
-          isActive: true,
-          branchId: null,
-          allowedActions: ['Edit'],
-          roleOptions: ['Coach'],
-        }),
-      ),
+      fetchMock,
     )
 
     await expect(getUser('coach-1')).resolves.toEqual(
@@ -67,6 +73,51 @@ describe('users API', () => {
         roleOptions: ['Coach'],
       }),
     )
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/coaches/coach-1',
+      expect.objectContaining({ method: 'GET' }),
+    )
+  })
+
+  test('posts and updates only through canonical coaches API paths', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(jsonResponse({
+      id: 'coach-1',
+      fullName: 'Тренер',
+      login: 'coach',
+      role: 'Coach',
+      mustChangePassword: false,
+      isActive: true,
+      branchId: null,
+      allowedActions: ['Edit'],
+      roleOptions: ['Coach'],
+    })))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const sharedPayload = {
+      fullName: 'Тренер',
+      login: 'coach',
+      role: 'Coach' as const,
+      branchId: null,
+      mustChangePassword: false,
+      isActive: true,
+      messengerPlatform: null,
+      messengerPlatformUserId: null,
+    }
+
+    await createUser({ ...sharedPayload, password: 'secret' })
+    await updateUser('coach-1', sharedPayload)
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      '/api/coaches',
+      expect.objectContaining({ method: 'POST' }),
+    )
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/coaches/coach-1',
+      expect.objectContaining({ method: 'PUT' }),
+    )
+    expect(fetchMock.mock.calls.flatMap(([url]) => [url])).not.toContain('/api/users')
   })
 })
 

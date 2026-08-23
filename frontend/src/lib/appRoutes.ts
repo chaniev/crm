@@ -65,11 +65,11 @@ function assertNeverRoute(value: never): never {
 const PASSWORD_PATH = '/password'
 const CLIENT_CREATE_PATH = '/clients/new'
 const GROUP_CREATE_PATH = '/groups/new'
-const USER_CREATE_PATH = '/users/new'
+const USER_CREATE_PATH = '/coaches/new'
 const CLIENT_EDIT_ROUTE_PATTERN = /^\/clients\/([^/]+)\/edit$/
 const CLIENT_PREVIEW_ROUTE_PATTERN = /^\/clients\/([^/]+)\/preview$/
 const GROUP_EDIT_ROUTE_PATTERN = /^\/groups\/([^/]+)\/edit$/
-const USER_EDIT_ROUTE_PATTERN = /^\/users\/([^/]+)\/edit$/
+const USER_EDIT_ROUTE_PATTERN = /^\/coaches\/([^/]+)\/edit$/
 const CLIENT_DETAILS_ROUTE_PATTERN = /^\/clients\/([^/]+)$/
 
 export const APP_SECTION_LABELS: Record<AppSection, string> = {
@@ -90,7 +90,7 @@ export const APP_SECTION_PATHS: Record<AppSection, string> = {
   Schedule: '/schedule',
   Clients: '/clients',
   Groups: '/groups',
-  Users: '/users',
+  Users: '/coaches',
   Audit: '/audit',
   Finance: '/finance',
   Settings: '/settings',
@@ -299,7 +299,7 @@ export function getRoutePath(route: AppRoute) {
     case 'userCreate':
       return USER_CREATE_PATH
     case 'userEdit':
-      return `/users/${encodeURIComponent(route.userId)}/edit`
+      return `/coaches/${encodeURIComponent(route.userId)}/edit`
   }
 
   return assertNeverRoute(route)

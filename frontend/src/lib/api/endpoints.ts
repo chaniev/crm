@@ -13,8 +13,8 @@ export const API_ENDPOINTS = {
     changePassword: '/auth/change-password',
   },
   users: {
-    collection: '/users',
-    byId: (userId: string) => `/users/${userId}`,
+    collection: '/coaches',
+    byId: (userId: string) => `/coaches/${userId}`,
   },
   administrators: {
     collection: '/settings/administrators',

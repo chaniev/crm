@@ -2022,7 +2022,7 @@ test('в целевых iPhone-профилях админ-панель ренд
       return
     }
 
-    if (pathname === '/api/users' && method === 'GET') {
+    if (pathname === '/api/coaches' && method === 'GET') {
       await fulfillJson(route, {
         items: [],
         createRoleOptions: ['Coach'],
@@ -2138,7 +2138,7 @@ test('целевые iPhone-профили сохраняют поиск тре�
       return
     }
 
-    if (pathname === '/api/users' && method === 'GET') {
+    if (pathname === '/api/coaches' && method === 'GET') {
       await fulfillJson(route, {
         items: [
           {
@@ -2192,20 +2192,33 @@ test('целевые iPhone-профили сохраняют поиск тре�
     throw new Error(`Unexpected trainer search iPhone API request: ${method} ${pathname}`)
   })
 
-  await page.goto('/users')
+  await page.goto('/coaches')
 
   const locator = page.getByTestId('users-list-locator')
   const search = page.getByRole('textbox', { name: 'Найти тренера' })
+  const filter = page.getByRole('button', { name: 'Открыть фильтры' })
   const refresh = page.getByRole('button', { name: 'Обновить' })
   const create = page.getByRole('button', { name: 'Создать тренера' })
 
   await expect(locator).toBeVisible()
   await expect(search).toBeInViewport()
+  await expect(filter).toBeInViewport()
   await expect(refresh).toBeInViewport()
   await expect(create).toBeInViewport()
+  const searchBox = await search.boundingBox()
+  expect(searchBox).not.toBeNull()
+  expect(searchBox!.width).toBeGreaterThanOrEqual(target.width === 420 ? 200 : 216)
+  for (const action of [filter, refresh, create]) {
+    const actionBox = await action.boundingBox()
+    expect(actionBox).not.toBeNull()
+    expect(actionBox!.width).toBeGreaterThanOrEqual(44)
+    expect(actionBox!.height).toBeGreaterThanOrEqual(44)
+  }
   await search.fill('  ANNA.LOGIN  ')
   const normalCard = page.getByTestId('user-card-coach-anna')
   await expect(normalCard).toBeVisible()
+  await expect(normalCard).toHaveAttribute('aria-label', 'Редактировать тренера «Анна Ветрова»')
+  await expect(normalCard.getByRole('button')).toHaveCount(0)
   await expect(normalCard.getByText('Тренер', { exact: true })).toHaveCount(0)
   await expect(normalCard.getByText('Активен', { exact: true })).toHaveCount(0)
   await expect(normalCard.getByText('Пароль актуален', { exact: true })).toHaveCount(0)
@@ -2218,7 +2231,11 @@ test('целевые iPhone-профили сохраняют поиск тре�
   )
   await longCard.scrollIntoViewIfNeeded()
   await expect(longName).toBeVisible()
-  await expect(longCard.getByRole('button', { name: 'Редактировать' })).toBeVisible()
+  await expect(longCard.getByRole('button')).toHaveCount(0)
+  await expect(longCard.getByText('Редактировать', { exact: true })).toBeHidden()
+  const longCardBox = await longCard.boundingBox()
+  expect(longCardBox).not.toBeNull()
+  expect(longCardBox!.height).toBeGreaterThanOrEqual(64)
   await expect.poll(() => longName.evaluate((element) =>
     element.getBoundingClientRect().height > parseFloat(getComputedStyle(element).lineHeight),
   )).toBe(true)
@@ -2227,8 +2244,25 @@ test('целевые iPhone-профили сохраняют поиск тре�
   await page.setViewportSize({ width: target.height, height: target.width })
   await locator.scrollIntoViewIfNeeded()
   await expect(search).toBeInViewport()
+  await expect(filter).toBeInViewport()
   await expect(refresh).toBeInViewport()
   await expect(create).toBeInViewport()
+  await filter.click()
+  const filtersDialog = page.getByRole('dialog', { name: 'Фильтры тренеров' })
+  await expect(filtersDialog).toBeVisible()
+  for (const control of [
+    filtersDialog.getByRole('combobox', { name: 'Статус' }),
+    filtersDialog.getByRole('combobox', { name: 'Пароль' }),
+    filtersDialog.getByRole('button', { name: 'Сбросить', exact: true }),
+    filtersDialog.getByRole('button', { name: 'Готово' }),
+    filtersDialog.getByRole('button', { name: 'Закрыть фильтры тренеров' }),
+  ]) {
+    await control.scrollIntoViewIfNeeded()
+    await expect(control).toBeInViewport()
+  }
+  await page.keyboard.press('Escape')
+  await expect(filtersDialog).toHaveCount(0)
+  await expect(filter).toBeFocused()
   await expectNoHorizontalScroll(page)
 })
 
@@ -2271,7 +2305,7 @@ test('целевые iPhone-профили сохраняют единствен
       return
     }
 
-    if (pathname === '/api/users/coach-anna' && method === 'GET') {
+    if (pathname === '/api/coaches/coach-anna' && method === 'GET') {
       await fulfillJson(route, trainer)
       return
     }
@@ -2279,7 +2313,7 @@ test('целевые iPhone-профили сохраняют единствен
     throw new Error(`Unexpected trainer edit iPhone API request: ${method} ${pathname}`)
   })
 
-  await page.goto('/users/coach-anna/edit')
+  await page.goto('/coaches/coach-anna/edit')
 
   const routeReturn = page.getByRole('button', { name: 'Назад к списку' })
   const submit = page.getByRole('button', { name: 'Сохранить изменения' })
@@ -2887,7 +2921,7 @@ async function mockIphoneMembershipCatalogApi(
       return
     }
 
-    if (pathname === '/api/users' && method === 'GET') {
+    if (pathname === '/api/coaches' && method === 'GET') {
       await fulfillJson(route, [])
       return
     }

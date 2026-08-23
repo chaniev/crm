@@ -1775,6 +1775,127 @@
   outline-offset: 2px;
 }
 
+.coaches-filters-drawer__content {
+  max-height: min(24rem, 100dvh);
+  border-radius: 18px 18px 0 0;
+  overflow: hidden;
+}
+
+.coaches-filters-drawer__header {
+  min-height: 56px;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--crm-border-default);
+}
+
+.coaches-filters-drawer__body {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  max-height: calc(100dvh - 56px);
+  padding: 0;
+}
+
+.coaches-filters-drawer__fields {
+  min-height: 0;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.coaches-filters-drawer__fields :where(.mantine-Input-input, .mantine-Select-input) {
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+.coach-registry-row {
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem 0.85rem;
+  border: 1px solid var(--crm-brand-alpha-08);
+  border-radius: var(--dense-surface-radius);
+  color: var(--crm-text-primary);
+  font: inherit;
+  text-align: left;
+}
+
+.coach-registry-row--editable {
+  cursor: pointer;
+}
+
+.coach-registry-row:not(.coach-registry-row--editable) {
+  cursor: default;
+}
+
+.coach-registry-row--editable:hover {
+  border-color: var(--crm-brand-alpha-18);
+  background: var(--crm-surface-card-alpha-90);
+}
+
+.coach-registry-row:not(.coach-registry-row--editable):hover {
+  border-color: var(--crm-brand-alpha-08);
+  background: var(--crm-surface-page-alpha-55);
+}
+
+.coach-registry-row__identity {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.coach-registry-row__title-line {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.coach-registry-row__name,
+.coach-registry-row__meta {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.coach-registry-row__name {
+  color: var(--crm-text-heading);
+  font-weight: 700;
+}
+
+.coach-registry-row__meta {
+  color: var(--crm-text-secondary);
+  font-size: 0.875rem;
+}
+
+.coach-registry-row__cue {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--crm-action-primary-active);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (min-width: 64rem) {
+  .coach-registry-row__cue {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 47.99rem), ((pointer: coarse) and (max-height: 30rem)) {
+  .coach-registry-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .coach-registry-row__cue {
+    display: none;
+  }
+}
+
 .administrator-attendance-scope-modal {
   min-width: 0;
 }
