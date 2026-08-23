@@ -59,6 +59,11 @@ public static class DependencyInjection
         services.AddSingleton<IBusinessDateProvider, BusinessDateProvider>();
         services.AddScoped<IAttendanceDatePolicy, AttendanceDatePolicy>();
         services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<ClientMembershipDetailsReader>();
+        services.AddScoped<ClientMembershipQueryStore>();
+        services.AddScoped<ClientMembershipSaleLifecycleService>();
+        services.AddScoped<ClientMembershipRefundService>();
+        services.AddScoped<ClientMembershipVisitService>();
         services.AddScoped<IClientMembershipService, ClientMembershipService>();
         services.AddScoped<IFinancialReportService, FinancialReportService>();
         services.Configure<ClientTelegramOptions>(
