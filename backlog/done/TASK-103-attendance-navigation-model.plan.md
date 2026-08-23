@@ -1,9 +1,9 @@
 # Implementation Plan: TASK-103 Выделить «Посещения» в самостоятельный раздел
 
 ## Metadata
-- source_task: /backlog/risky/TASK-103-attendance-navigation-model.md
+- source_task: /backlog/done/TASK-103-attendance-navigation-model.md
 - branch: feature/TASK-103-attendance-navigation-model
-- readiness: yes — после явного выбора задачи и human review cross-layer contract
+- readiness: done — implemented, validated and locally integrated 2026-08-23
 - dependencies: none; завершённые TASK-104 и TASK-116 являются baseline
 - risk: medium — coordinated backend session and frontend route/navigation contract
 
@@ -288,13 +288,37 @@ These checks are residual device evidence, not substitutes for automated
 regression coverage.
 
 ### Validation and acceptance
-- [ ] Backend role matrix tests written before production code and confirmed red.
-- [ ] Frontend unit/component tests written before production code and confirmed red.
+- [x] Backend role matrix tests written before production code and confirmed red.
+- [x] Frontend unit/component tests written before production code and confirmed red.
 - [ ] Affected Playwright tests written before production code and confirmed red.
-- [ ] Affected Chromium Playwright specs pass.
-- [ ] `cd frontend && npm run test:e2e:iphone` passes for affected target-device cases.
-- [ ] Integrated isolated-stack smoke validates actual backend/frontend session contract.
-- [ ] Manual/Simulator gaps are reported without claiming unverified device acceptance.
+- [x] Affected Chromium Playwright specs pass.
+- [x] `cd frontend && npm run test:e2e:iphone` passes for affected target-device cases.
+- [x] Integrated isolated-stack smoke validates actual backend/frontend session contract.
+- [x] Manual/Simulator gaps are reported without claiming unverified device acceptance.
+
+### Completion notes
+- Completed at: 2026-08-23; exact functional candidate: `ba0b330`.
+- Backend red evidence: focused `AuthorizationFlowTests` failed `4/4` against
+  the old `Home` role matrix and passed after the exact four-role contract was
+  implemented. Frontend red evidence: the version-1 attendance-return test
+  rejected the missing safe group-edit normalization before the version-2
+  sanitizer was implemented.
+- No independent pre-production red Playwright run was recorded; affected
+  browser regressions were nevertheless validated green on the final candidate
+  and this process-only checkbox is intentionally not claimed.
+- Final validation: backend format/build/audit and `431/431` xUnit tests;
+  frontend lint/typecheck/raw-color/audit, `524/524` unit tests and build;
+  affected Chromium `29/29`; target iPhone WebKit `42/42`.
+- Isolated `crm-task-103` smoke validated actual HeadCoach session JSON through
+  the frontend proxy, login, `/attention` landing/reload, navigation to
+  `/attendance`, authenticated root not-found recovery, and completed
+  Attention/Attendance API requests with HTTP 200.
+- The repository's pre-existing backend Dockerfile omits
+  `Directory.Build.props` before container restore and therefore fails with
+  `NETSDK1013`. The smoke used a temporary, uncommitted one-line build-recipe
+  correction; repository deploy files were not changed as unrelated scope.
+- Physical Safari/iOS Simulator, actual safe-area/browser chrome and software
+  keyboard behavior remain unverified and are not claimed.
 
 ## Regression barrier
 Primary barrier: `AuthorizationFlowTests` locks the exact four-role

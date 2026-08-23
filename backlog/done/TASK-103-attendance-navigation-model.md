@@ -1,7 +1,7 @@
 # TASK-103: Выделить «Посещения» в самостоятельный раздел
 
 ## Status
-risky
+done
 
 ## Goal
 Пользователь открывает отметку посещений через самостоятельный раздел
@@ -108,58 +108,58 @@ Coach / Administrator / HeadCoach / SuperAdministrator.
   TASK-104 сохраняются без редизайна.
 
 ## Acceptance criteria
-- [ ] Backend возвращает самостоятельный section `Attendance` и утверждённые
+- [x] Backend возвращает самостоятельный section `Attendance` и утверждённые
       `allowedSections`/`landingScreen` с section `Attention` вместо `Home` для
       всех четырёх ролей; актуальный session contract больше не содержит
       `Home`.
-- [ ] Coach и Administrator после входа открывают `/attendance`; active nav,
+- [x] Coach и Administrator после входа открывают `/attendance`; active nav,
       доступный `h1`, main landmark и document title называют раздел
       `Посещения`.
-- [ ] HeadCoach и SuperAdministrator после входа открывают `/attention`, видят
+- [x] HeadCoach и SuperAdministrator после входа открывают `/attention`, видят
       management inbox `Внимание` и переходят в `Посещения` одним прямым
       navigation action.
-- [ ] Coach не видит `Внимание` и не получает в `allowedSections` section
+- [x] Coach не видит `Внимание` и не получает в `allowedSections` section
       `Attention`.
-- [ ] `Внимание` управляющих ролей больше не содержит attendance tab/workbench,
+- [x] `Внимание` управляющих ролей больше не содержит attendance tab/workbench,
       использует section identifier `Attention` и canonical route `/attention`.
-- [ ] На `Внимание` нет видимого route/operation heading `Требуют внимания`;
+- [x] На `Внимание` нет видимого route/operation heading `Требуют внимания`;
       сохраняются скрытый `h1` `Внимание`, named main landmark и доступное имя
       списка, а первым видимым контентом становится action toolbar или
       operational state.
-- [ ] Desktop и mobile navigation показывают `Посещения` первым, доступное
+- [x] Desktop и mobile navigation показывают `Посещения` первым, доступное
       `Внимание` вторым, затем `Расписание` и `Клиенты`; active overflow
       promotion заменяет `Клиенты`, не вытесняя первые три позиции.
-- [ ] Route label, desktop nav, mobile nav, overflow, document title,
+- [x] Route label, desktop nav, mobile nav, overflow, document title,
       client-return action и recovery-навигация используют стабильное название
       `Посещения`.
-- [ ] `/attendance` является canonical deep link и корректно сохраняет active
+- [x] `/attendance` является canonical deep link и корректно сохраняет active
       state при reload и back/forward.
-- [ ] Возврат из карточки клиента восстанавливает attendance context на
+- [x] Возврат из карточки клиента восстанавливает attendance context на
       `/attendance`, а не открывает `Внимание`.
-- [ ] Direct `/attention` для Coach показывает явное ограничение с recovery
+- [x] Direct `/attention` для Coach показывает явное ограничение с recovery
       action в `Посещения`; permission/access change не создаёт silent redirect
       или loop.
-- [ ] Direct `/` для аутентифицированного пользователя показывает существующий
+- [x] Direct `/` для аутентифицированного пользователя показывает существующий
       `not-found` state с recovery в его backend-authorized landing section и не
       служит alias для `/attention`.
-- [ ] На mobile `Посещения` остаётся primary bottom-navigation item, а active
+- [x] На mobile `Посещения` остаётся primary bottom-navigation item, а active
       overflow destination, `Ещё` и `aria-current` следуют adaptive navigation
       contract на всех целевых размерах.
-- [ ] Deep link, reload, back/forward и permission redirect сохраняют корректный route и active state.
-- [ ] `Расписание` остаётся семантически отличимо от отметки посещений.
+- [x] Deep link, reload, back/forward и permission redirect сохраняют корректный route и active state.
+- [x] `Расписание` остаётся семантически отличимо от отметки посещений.
 
 ## Test checklist
-- [ ] Добавить backend contract tests для `allowedSections` и `landingScreen`
+- [x] Добавить backend contract tests для `allowedSections` и `landingScreen`
       Coach, Administrator, HeadCoach и SuperAdministrator.
-- [ ] Добавить или обновить route/component tests для каждой затронутой роли,
+- [x] Добавить или обновить route/component tests для каждой затронутой роли,
       `/`, `/attention`, `/attendance`, `/schedule` и attendance client-return
       context.
-- [ ] Добавить Playwright-сценарии deep link, reload, back/forward и permission redirect.
-- [ ] Проверить авторизованный mobile overflow `Ещё` и `aria-current`.
-- [ ] Проверить доступный `h1`, document title и named main landmark.
-- [ ] Проверить primary attendance entry и restricted/recovery state на
+- [x] Добавить Playwright-сценарии deep link, reload, back/forward и permission redirect.
+- [x] Проверить авторизованный mobile overflow `Ещё` и `aria-current`.
+- [x] Проверить доступный `h1`, document title и named main landmark.
+- [x] Проверить primary attendance entry и restricted/recovery state на
       `390 x 844`, `420 x 912`, `440 x 956`, `912 x 420` и `956 x 440`.
-- [ ] Запустить backend tests, frontend lint, build, unit tests и affected
+- [x] Запустить backend tests, frontend lint, build, unit tests и affected
       Chromium/target-iPhone WebKit Playwright suites.
 
 ## AI safety
@@ -192,3 +192,31 @@ mobile placement и SuperAdministrator scope подтверждены польз
 - Classification: moved to `risky`, потому что самостоятельный backend-driven
   section меняет authorization/session access-scope contract, хотя attendance
   permission semantics остаётся прежней.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-23
+- moved_from: /backlog/risky
+- implementation_plan: /backlog/done/TASK-103-attendance-navigation-model.plan.md
+- implementation_branch: feature/TASK-103-attendance-navigation-model
+- implementation_state: completed
+- implementation_commits: 5d441ff, ba0b330
+- delivered_on_main_at: 2026-08-23
+- moved_to_done_at: 2026-08-23
+- last_status_reviewed_at: 2026-08-23
+
+## Completion record
+- Completed on: 2026-08-23; exact functional candidate: `ba0b330`.
+- Backend session source of truth now returns the approved Attendance/Attention
+  landing and allowed-section matrix without changing permissions or attendance
+  scope semantics.
+- Frontend owns canonical `/attendance` and `/attention` screens, fail-closed
+  legacy session mapping, stable desktop/mobile navigation, named main
+  landmarks, explicit restricted/not-found recovery and version-2 client
+  return context.
+- Validation: backend format/build/audit and `431/431` tests; frontend full
+  check/audit with `524/524` unit tests; affected Chromium `29/29`; target
+  iPhone WebKit `42/42`; isolated real-stack session/route/API smoke passed.
+- Physical Safari/iOS Simulator, actual safe-area/browser chrome and software
+  keyboard behavior remain unverified. Standard backend Compose build remains
+  blocked by the pre-existing Dockerfile omission of `Directory.Build.props`;
+  runtime smoke used an uncommitted temporary recipe correction only.
