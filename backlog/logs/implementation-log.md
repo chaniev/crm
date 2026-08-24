@@ -1700,3 +1700,9 @@
 - completed historical plan: `/backlog/done/TASK-113-schedule-group-type-organization.plan.md`; it was not executed independently because TASK-119 replaced its frontend-local weekly-template boundary with the approved URL/API-backed occurrence calendar.
 - follow-up: `/backlog/tasks-ready/TASK-131-schedule-group-type-filter-regression.md` owns the missing direct backend/frontend/Playwright regression barrier without reopening TASK-113.
 - validation: backlog status/path/reference/duplicate audit only; project code and runtime were unchanged, so suites were not rerun.
+
+# 2026-08-24 14:25
+- moved: TASK-133
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-133-schedule-task-first-cards.plan.md

@@ -2964,3 +2964,51 @@
 - created tasks: 1
 - updated existing tasks: 2
 - processed inbox files: 0
+
+# 2026-08-24 14:12 schedule card UX follow-up
+
+## Baseline and scope
+
+- Status audit выполнен в coordination workspace до создания новой карточки; отдельная ветка, worktree и Docker Compose project не создавались.
+- Локальные `main` и `origin/main` совпадают на `59c019d6750d95be805726bb4678bfc73dc06cd3` (`59c019d`).
+- Проверены активные каталоги, `## Status`, уникальность TASK-ID, незавершённые plans, TASK-106/TASK-119/TASK-131 и текущая реализация `GroupScheduleScreen`.
+- Код приложения, API, тесты, runtime и inbox-файлы не изменялись и не обрабатывались.
+
+## Status audit result
+
+- Активные статусы соответствуют каталогам; implementation tasks и unfinished implementation plans отсутствуют.
+- Active TASK-ID уникальны; следующий свободный ID после TASK-132 — TASK-133.
+- Достаточного evidence для перевода существующих активных задач в `done` не найдено; status changes: none.
+- Unchanged active tasks: tasks-ready TASK-002, TASK-004, TASK-005, TASK-006, TASK-008, TASK-018, TASK-019, TASK-021, TASK-131; risky TASK-007, TASK-011, TASK-012, TASK-013, TASK-016, TASK-020, TASK-121, TASK-132; needs-clarification TASK-009, TASK-014, TASK-058, TASK-071, TASK-074; implementation none.
+
+## Created tasks
+
+- `/backlog/tasks-ready/TASK-133-schedule-task-first-cards.md` — task-first action hierarchy, time grouping, responsive date/navigation correction and density improvements for the current occurrence calendar.
+
+## Preserved visual evidence
+
+- `/backlog/mockups/TASK-133-schedule-task-first-cards/desktop-1440x1200.jpg`.
+- `/backlog/mockups/TASK-133-schedule-task-first-cards/mobile-390x844.jpg`.
+
+## Duplicate and consistency checks
+
+- TASK-106 is completed historical desktop parallel-event readability work; TASK-119 owns the integrated calendar model; TASK-131 owns only group-type filter regression coverage. None owns the current card action hierarchy and mobile clipping defects.
+- TASK-133 is `ready` in `backlog/tasks-ready`, references existing evidence files and contains no blocking clarification questions.
+- No source note was deleted or moved: this was a direct conversation request, and `backlog/inbox` remains empty except for its placeholder.
+
+## Validation
+
+- Backlog path/status/reference/ID checks and duplicate review completed.
+- Both referenced JPEG files exist and match the audited `1440 x 1200` and `390 x 844` viewports.
+- Project build, unit, Playwright and Docker validation were not run because project code and runtime did not change.
+
+## Summary
+
+- tasks-ready: 10
+- risky: 8
+- needs-clarification: 5
+- implementation: 0
+- unfinished implementation plans: 0
+- created tasks: 1
+- updated existing tasks: 0
+- processed inbox files: 0
