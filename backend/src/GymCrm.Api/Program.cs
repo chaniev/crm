@@ -112,6 +112,13 @@ if (args.Contains("--seed-test-data", StringComparer.Ordinal))
         Console.WriteLine($"Training groups: {summary.GroupCount}");
         Console.WriteLine($"Clients: {summary.ClientCount}");
         Console.WriteLine($"Client photos: {summary.ClientPhotoCount}");
+        Console.WriteLine($"Annual memberships: {summary.AnnualMembershipCount}");
+        Console.WriteLine($"Monthly memberships: {summary.MonthlyMembershipCount}");
+        Console.WriteLine($"Professional memberships: {summary.ProfessionalMembershipCount}");
+        Console.WriteLine($"Clients without memberships: {summary.ClientsWithoutMembershipCount}");
+        Console.WriteLine($"Clients in two groups: {summary.MultiGroupClientCount}");
+        Console.WriteLine($"Lesson series: {summary.LessonSeriesCount}");
+        Console.WriteLine($"Lesson schedule slots: {summary.LessonScheduleSlotCount}");
         Console.WriteLine($"Photo storage: {summary.PhotoStorageRootPath}");
         Console.WriteLine($"Seed user password: {summary.DefaultUserPassword}");
         return;

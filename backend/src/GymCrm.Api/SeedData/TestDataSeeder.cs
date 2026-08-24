@@ -42,15 +42,6 @@ internal sealed class TestDataSeeder : IAsyncDisposable
 
     private static readonly int[] Durations = [60, 90, 120];
 
-    private static readonly int[][] WeekdaySets =
-    [
-        [1, 3, 5],
-        [2, 4, 6],
-        [1, 4, 6],
-        [2, 3, 5],
-        [1, 2, 4]
-    ];
-
     private static readonly TimeOnly[] TrainingStartTimes =
     [
         new(8, 0),
@@ -65,12 +56,14 @@ internal sealed class TestDataSeeder : IAsyncDisposable
     private readonly SeedClientPhotoWriter photoWriter;
     private readonly bool applyMigrations;
     private readonly bool ownsDbContext;
+    private readonly TimeZoneInfo businessTimeZone;
     private readonly PasswordHasher<User> passwordHasher = new();
 
     public TestDataSeeder(SeedDataOptions options)
         : this(
             CreateDbContext(options.ConnectionString),
             new SeedClientPhotoWriter(options.PhotoStorageRootPath),
+            TimeZoneInfo.FindSystemTimeZoneById(options.BusinessTimeZoneId),
             options.ApplyMigrations,
             ownsDbContext: true)
     {
@@ -80,6 +73,7 @@ internal sealed class TestDataSeeder : IAsyncDisposable
         : this(
             dbContext,
             new SeedClientPhotoWriter(photoStorageRootPath),
+            TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow"),
             applyMigrations: false,
             ownsDbContext: false)
     {
@@ -88,11 +82,13 @@ internal sealed class TestDataSeeder : IAsyncDisposable
     private TestDataSeeder(
         GymCrmDbContext dbContext,
         SeedClientPhotoWriter photoWriter,
+        TimeZoneInfo businessTimeZone,
         bool applyMigrations,
         bool ownsDbContext)
     {
         this.dbContext = dbContext;
         this.photoWriter = photoWriter;
+        this.businessTimeZone = businessTimeZone;
         this.applyMigrations = applyMigrations;
         this.ownsDbContext = ownsDbContext;
     }
@@ -108,6 +104,7 @@ internal sealed class TestDataSeeder : IAsyncDisposable
         dbContext.ChangeTracker.Clear();
 
         var now = DateTimeOffset.UtcNow;
+        var deploymentDate = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, businessTimeZone).DateTime);
         var validFrom = DateOnly.FromDateTime(now.UtcDateTime.Date.AddDays(-30));
         var groupTypeData = await ResolveGroupTypesAsync(now, cancellationToken);
         var branches = CreateBranches(now);
@@ -120,6 +117,15 @@ internal sealed class TestDataSeeder : IAsyncDisposable
             groups,
             administrators[0].Id,
             validFrom,
+            now,
+            cancellationToken);
+        var schedules = TestDataScheduleSeed.Create(groups, deploymentDate, now);
+        var membershipData = await TestDataMembershipSeed.CreateAsync(
+            dbContext,
+            clientData.Clients,
+            clientData.GroupLinks,
+            administrators[0].Id,
+            deploymentDate,
             now,
             cancellationToken);
 
@@ -135,6 +141,9 @@ internal sealed class TestDataSeeder : IAsyncDisposable
         dbContext.ClientBranchAssignments.AddRange(clientData.BranchAssignments);
         dbContext.ClientGroups.AddRange(clientData.GroupLinks);
         dbContext.ClientGroupAssignments.AddRange(clientData.GroupAssignments);
+        dbContext.LessonSeries.AddRange(schedules);
+        dbContext.MembershipCatalogItems.AddRange(membershipData.CatalogItems);
+        dbContext.ClientMemberships.AddRange(membershipData.Memberships);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -147,6 +156,13 @@ internal sealed class TestDataSeeder : IAsyncDisposable
             groups.Count,
             clientData.Clients.Count,
             clientData.Clients.Count(client => !string.IsNullOrWhiteSpace(client.PhotoPath)),
+            membershipData.AnnualCount,
+            membershipData.MonthlyCount,
+            membershipData.ProfessionalCount,
+            membershipData.WithoutMembershipCount,
+            TestDataMembershipSeed.SecondaryGroupClientCount,
+            schedules.Count,
+            schedules.SelectMany(series => series.RuleVersions).SelectMany(version => version.Slots).Count(),
             photoWriter.StorageRootPath,
             DefaultPassword);
     }
@@ -162,6 +178,13 @@ internal sealed class TestDataSeeder : IAsyncDisposable
         var branchIds = SeedIds.BranchIds;
         var hallIds = SeedIds.HallIds;
         var groupTypeIds = SeedIds.GroupTypeIds;
+
+        await dbContext.AttendanceEntitlementTargetSnapshots
+            .Where(snapshot =>
+                clientIds.Contains(snapshot.ClientId) ||
+                groupIds.Contains(snapshot.FactualGroupId) ||
+                (snapshot.TargetGroupId.HasValue && groupIds.Contains(snapshot.TargetGroupId.Value)))
+            .ExecuteDeleteAsync(cancellationToken);
 
         await dbContext.ClientMessengerReadStates
             .Where(state => clientIds.Contains(state.ClientId) || userIds.Contains(state.UserId))
@@ -207,6 +230,15 @@ internal sealed class TestDataSeeder : IAsyncDisposable
                 userIds.Contains(grant.GrantedByUserId))
             .ExecuteDeleteAsync(cancellationToken);
 
+        await dbContext.ClientMembershipRefundTargetSnapshots
+            .Where(snapshot =>
+                clientIds.Contains(snapshot.Refund.ClientId) ||
+                groupIds.Contains(snapshot.GroupId) ||
+                userIds.Contains(snapshot.Refund.CreatedByUserId) ||
+                (snapshot.Refund.CanceledByUserId.HasValue &&
+                 userIds.Contains(snapshot.Refund.CanceledByUserId.Value)))
+            .ExecuteDeleteAsync(cancellationToken);
+
         await dbContext.ClientMembershipRefunds
             .Where(refund =>
                 clientIds.Contains(refund.ClientId) ||
@@ -214,10 +246,24 @@ internal sealed class TestDataSeeder : IAsyncDisposable
                 (refund.CanceledByUserId.HasValue && userIds.Contains(refund.CanceledByUserId.Value)))
             .ExecuteDeleteAsync(cancellationToken);
 
+        await dbContext.ClientMembershipTargetGroups
+            .Where(target =>
+                clientIds.Contains(target.ClientMembership.ClientId) ||
+                groupIds.Contains(target.GroupId) ||
+                userIds.Contains(target.ClientMembership.ChangedByUserId))
+            .ExecuteDeleteAsync(cancellationToken);
+
         await dbContext.ClientMemberships
             .Where(membership =>
                 clientIds.Contains(membership.ClientId) ||
                 userIds.Contains(membership.ChangedByUserId))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.ClientMembershipSaleTargetSnapshots
+            .Where(snapshot =>
+                clientIds.Contains(snapshot.Sale.ClientId) ||
+                groupIds.Contains(snapshot.GroupId) ||
+                userIds.Contains(snapshot.Sale.CreatedByUserId))
             .ExecuteDeleteAsync(cancellationToken);
 
         await dbContext.ClientMembershipSales
@@ -292,6 +338,14 @@ internal sealed class TestDataSeeder : IAsyncDisposable
                 hallIds.Contains(occurrence.HallId))
             .ExecuteDeleteAsync(cancellationToken);
 
+        await dbContext.LessonSeries
+            .Where(series => groupIds.Contains(series.GroupId))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.ScheduleMutationConfirmationTokens
+            .Where(token => userIds.Contains(token.ActorUserId))
+            .ExecuteDeleteAsync(cancellationToken);
+
         await dbContext.GroupTrainers
             .Where(groupTrainer =>
                 groupIds.Contains(groupTrainer.GroupId) ||
@@ -323,6 +377,10 @@ internal sealed class TestDataSeeder : IAsyncDisposable
 
         await dbContext.Users
             .Where(user => userIds.Contains(user.Id))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await dbContext.MembershipCatalogItems
+            .Where(item => SeedIds.MembershipCatalogIds.Contains(item.Id))
             .ExecuteDeleteAsync(cancellationToken);
 
         await dbContext.Branches
@@ -505,7 +563,9 @@ internal sealed class TestDataSeeder : IAsyncDisposable
                         : Durations[(groupNumber - 2) % Durations.Length],
                     Weekdays = sundayOnlyGroup
                         ? [7]
-                        : WeekdaySets[(groupNumber - 2) % WeekdaySets.Length].ToArray(),
+                        : groupNumber % 2 == 0
+                            ? [1, 3, 5]
+                            : [2, 4, 6],
                     IsActive = true,
                     CreatedAt = now,
                     UpdatedAt = now
@@ -632,6 +692,28 @@ internal sealed class TestDataSeeder : IAsyncDisposable
                 CreatedByUserId = actorUserId,
                 CreatedAt = now
             });
+
+            if (clientNumber <= TestDataMembershipSeed.SecondaryGroupClientCount)
+            {
+                var branchGroups = groups.Where(candidate => candidate.BranchId == group.BranchId).ToArray();
+                var primaryIndex = Array.FindIndex(branchGroups, candidate => candidate.Id == group.Id);
+                var secondaryGroup = branchGroups[(primaryIndex + 1) % branchGroups.Length];
+                groupLinks.Add(new ClientGroup
+                {
+                    ClientId = client.Id,
+                    GroupId = secondaryGroup.Id,
+                    BranchId = secondaryGroup.BranchId
+                });
+                groupAssignments.Add(new ClientGroupAssignment
+                {
+                    Id = SeedIds.ClientGroupAssignment(clientNumber, 2),
+                    ClientId = client.Id,
+                    GroupId = secondaryGroup.Id,
+                    ValidFrom = validFrom,
+                    CreatedByUserId = actorUserId,
+                    CreatedAt = now
+                });
+            }
         }
 
         return (clients, branchAssignments, groupLinks, groupAssignments);

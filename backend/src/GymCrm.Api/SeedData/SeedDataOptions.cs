@@ -4,6 +4,7 @@ internal sealed record SeedDataOptions
 {
     public required string ConnectionString { get; init; }
     public required string PhotoStorageRootPath { get; init; }
+    public required string BusinessTimeZoneId { get; init; }
     public bool ApplyMigrations { get; init; } = true;
     public bool ShowHelp { get; init; }
 
@@ -11,6 +12,7 @@ internal sealed record SeedDataOptions
     {
         ConnectionString = string.Empty,
         PhotoStorageRootPath = string.Empty,
+        BusinessTimeZoneId = string.Empty,
         ApplyMigrations = false,
         ShowHelp = true
     };

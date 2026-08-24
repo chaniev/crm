@@ -9,5 +9,12 @@ internal sealed record SeedDataSummary(
     int GroupCount,
     int ClientCount,
     int ClientPhotoCount,
+    int AnnualMembershipCount,
+    int MonthlyMembershipCount,
+    int ProfessionalMembershipCount,
+    int ClientsWithoutMembershipCount,
+    int MultiGroupClientCount,
+    int LessonSeriesCount,
+    int LessonScheduleSlotCount,
     string PhotoStorageRootPath,
     string DefaultUserPassword);

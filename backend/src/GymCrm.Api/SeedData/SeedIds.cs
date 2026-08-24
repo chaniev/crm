@@ -37,7 +37,31 @@ internal static class SeedIds
         Create($"client-branch-assignment:{clientNumber:000}");
 
     public static Guid ClientGroupAssignment(int clientNumber) =>
-        Create($"client-group-assignment:{clientNumber:000}");
+        ClientGroupAssignment(clientNumber, 1);
+
+    public static Guid ClientGroupAssignment(int clientNumber, int position) =>
+        Create($"client-group-assignment:{clientNumber:000}:{position:00}");
+
+    public static Guid MembershipCatalog(int branchNumber, string duration) =>
+        Create($"membership-catalog:{branchNumber:00}:{duration}");
+
+    public static Guid MembershipSale(int clientNumber) =>
+        Create($"membership-sale:{clientNumber:000}");
+
+    public static Guid Membership(int clientNumber) =>
+        Create($"membership:{clientNumber:000}");
+
+    public static Guid LessonSeries(int groupNumber) =>
+        Create($"lesson-series:{groupNumber:00}");
+
+    public static Guid LessonScheduleRuleVersion(int groupNumber) =>
+        Create($"lesson-schedule-rule-version:{groupNumber:00}:01");
+
+    public static Guid LessonScheduleSlot(int groupNumber, int isoWeekday) =>
+        Create($"lesson-schedule-slot:{groupNumber:00}:{isoWeekday}");
+
+    public static Guid LessonScheduleSlotLineage(int groupNumber, int isoWeekday) =>
+        Create($"lesson-schedule-slot-lineage:{groupNumber:00}:{isoWeekday}");
 
     public static Guid[] GroupTypeIds =>
         Enumerable.Range(1, GroupTypeCount).Select(GroupType).ToArray();
@@ -62,6 +86,15 @@ internal static class SeedIds
 
     public static Guid[] ClientIds =>
         Enumerable.Range(1, ClientCount).Select(Client).ToArray();
+
+    public static Guid[] MembershipCatalogIds =>
+        Enumerable.Range(1, BranchCount)
+            .SelectMany(branchNumber => new[]
+            {
+                MembershipCatalog(branchNumber, "annual"),
+                MembershipCatalog(branchNumber, "monthly")
+            })
+            .ToArray();
 
     private static Guid Create(string key)
     {

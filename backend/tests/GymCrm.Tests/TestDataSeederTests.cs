@@ -2,39 +2,47 @@ using GymCrm.Api.SeedData;
 using GymCrm.Domain.Branches;
 using GymCrm.Domain.Clients;
 using GymCrm.Domain.Groups;
+using GymCrm.Domain.Memberships;
 using GymCrm.Domain.Users;
 using GymCrm.Infrastructure.Persistence;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Testcontainers.PostgreSql;
 using AttendanceEntry = GymCrm.Domain.Attendance.Attendance;
 
 namespace GymCrm.Tests;
 
 public sealed class TestDataSeederTests
 {
+    private static readonly TimeZoneInfo BusinessTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
+
     [Fact]
     public async Task Full_seed_is_repeatable_and_cleans_current_seed_related_state()
     {
-        await using var connection = new SqliteConnection("Data Source=:memory:");
-        await connection.OpenAsync();
-        connection.CreateFunction("btrim", (string value) => value.Trim(), isDeterministic: true);
-        connection.CreateFunction(
-            "cardinality",
-            (string? value) => string.IsNullOrWhiteSpace(value) ? 0 : value.Count(character => character == ',') + 1,
-            isDeterministic: true);
+        await using var postgreSql = new PostgreSqlBuilder("postgres:17-alpine")
+            .WithDatabase($"gym_crm_seed_{Guid.NewGuid():N}")
+            .WithUsername("gym_crm")
+            .WithPassword("gym_crm")
+            .Build();
+        await postgreSql.StartAsync();
         var options = new DbContextOptionsBuilder<GymCrmDbContext>()
-            .UseSqlite(connection)
+            .UseNpgsql(postgreSql.GetConnectionString())
             .Options;
         await using var dbContext = new GymCrmDbContext(options);
-        await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.Database.MigrateAsync();
 
         var photoRoot = Path.Combine(Path.GetTempPath(), $"gym-crm-full-seed-tests-{Guid.NewGuid():N}");
         try
         {
             await using var seeder = new TestDataSeeder(dbContext, photoRoot);
 
+            var deploymentDateLowerBound = CurrentBusinessDate();
             var firstSummary = await seeder.SeedAsync(CancellationToken.None);
+            var deploymentDateUpperBound = CurrentBusinessDate();
             Assert.Equal(SeedIds.ClientCount, firstSummary.ClientCount);
+            await AssertRequestedOperationalSeedAsync(
+                dbContext,
+                deploymentDateLowerBound,
+                deploymentDateUpperBound);
 
             var seededAdministratorId = SeedIds.Administrator(1);
             var seededClientId = SeedIds.Client(1);
@@ -360,6 +368,10 @@ public sealed class TestDataSeederTests
             var secondSummary = await seeder.SeedAsync(CancellationToken.None);
 
             Assert.Equal(firstSummary with { PhotoStorageRootPath = secondSummary.PhotoStorageRootPath }, secondSummary);
+            await AssertRequestedOperationalSeedAsync(
+                dbContext,
+                deploymentDateLowerBound,
+                CurrentBusinessDate());
             Assert.False(await dbContext.ClientMembershipIdempotencyRecords
                 .AnyAsync(record => record.ClientId == seededClientId || record.ActorUserId == seededAdministratorId));
             Assert.False(await dbContext.ClientMembershipSales.AnyAsync(sale => sale.Id == seedClientSaleId));
@@ -433,6 +445,103 @@ public sealed class TestDataSeederTests
         }
     }
 
+    private static DateOnly CurrentBusinessDate() =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, BusinessTimeZone).DateTime);
+
+    private static async Task AssertRequestedOperationalSeedAsync(
+        GymCrmDbContext dbContext,
+        DateOnly deploymentDateLowerBound,
+        DateOnly deploymentDateUpperBound)
+    {
+        var seededClientIds = SeedIds.ClientIds;
+        var memberships = await dbContext.ClientMemberships
+            .AsNoTracking()
+            .Where(membership => seededClientIds.Contains(membership.ClientId) && membership.ValidTo == null)
+            .ToArrayAsync();
+
+        Assert.Equal(255, memberships.Length);
+        Assert.Equal(
+            150,
+            memberships.Count(membership =>
+                membership.BehaviorKind == MembershipBehaviorKind.Term &&
+                membership.IndividualValidFrom.HasValue &&
+                membership.IndividualValidTo == membership.IndividualValidFrom.Value.AddYears(1).AddDays(-1)));
+        Assert.Equal(
+            90,
+            memberships.Count(membership =>
+                membership.BehaviorKind == MembershipBehaviorKind.Term &&
+                membership.IndividualValidFrom.HasValue &&
+                membership.IndividualValidTo == membership.IndividualValidFrom.Value.AddMonths(1).AddDays(-1)));
+        Assert.Equal(15, memberships.Count(membership => membership.BehaviorKind == MembershipBehaviorKind.Professional));
+        Assert.Equal(45, SeedIds.ClientCount - memberships.Select(membership => membership.ClientId).Distinct().Count());
+
+        var professionalClientIds = memberships
+            .Where(membership => membership.BehaviorKind == MembershipBehaviorKind.Professional)
+            .Select(membership => membership.ClientId)
+            .ToHashSet();
+        var seededClientGroupCounts = await dbContext.ClientGroups
+            .AsNoTracking()
+            .Where(link => seededClientIds.Contains(link.ClientId))
+            .GroupBy(link => link.ClientId)
+            .Select(group => new { ClientId = group.Key, Count = group.Count() })
+            .ToArrayAsync();
+
+        Assert.Equal(SeedIds.ClientCount, seededClientGroupCounts.Length);
+        Assert.Equal(29, seededClientGroupCounts.Count(client => client.Count == 2));
+        Assert.Equal(SeedIds.ClientCount - 29, seededClientGroupCounts.Count(client => client.Count == 1));
+        Assert.DoesNotContain(
+            seededClientGroupCounts,
+            client => client.Count == 2 && professionalClientIds.Contains(client.ClientId));
+
+        var mismatchedBranchLinkCount = await (
+            from link in dbContext.ClientGroups.AsNoTracking()
+            join client in dbContext.Clients.AsNoTracking() on link.ClientId equals client.Id
+            where seededClientIds.Contains(link.ClientId) && link.BranchId != client.BranchId
+            select link).CountAsync();
+        Assert.Equal(0, mismatchedBranchLinkCount);
+
+        Assert.Equal(255, await dbContext.ClientMembershipSales.CountAsync(sale => seededClientIds.Contains(sale.ClientId)));
+        Assert.Equal(8, await dbContext.MembershipCatalogItems.CountAsync(item => SeedIds.BranchIds.Contains(item.BranchId!.Value)));
+
+        var series = await dbContext.LessonSeries
+            .AsNoTracking()
+            .Where(item => SeedIds.TrainingGroupIds.Contains(item.GroupId))
+            .Include(item => item.RuleVersions)
+            .ThenInclude(version => version.Slots)
+            .ToArrayAsync();
+
+        Assert.Equal(SeedIds.TrainingGroupCount, series.Length);
+        Assert.All(series, item =>
+        {
+            Assert.InRange(item.StartsOn, deploymentDateLowerBound, deploymentDateUpperBound);
+            Assert.Null(item.EndsOn);
+            var version = Assert.Single(item.RuleVersions);
+            Assert.Equal(item.StartsOn, version.EffectiveFrom);
+            Assert.Null(version.EffectiveTo);
+        });
+
+        var sundaySeries = Assert.Single(series, item => item.GroupId == SeedIds.TrainingGroup(1));
+        var sundaySlot = Assert.Single(Assert.Single(sundaySeries.RuleVersions).Slots);
+        Assert.Equal(7, sundaySlot.IsoWeekday);
+        Assert.Equal(new TimeOnly(10, 30), sundaySlot.StartTime);
+
+        foreach (var regularSeries in series.Where(item => item.GroupId != SeedIds.TrainingGroup(1)))
+        {
+            var slots = Assert.Single(regularSeries.RuleVersions).Slots.OrderBy(slot => slot.IsoWeekday).ToArray();
+            Assert.Equal(3, slots.Length);
+            var weekdays = slots.Select(slot => slot.IsoWeekday).ToArray();
+            Assert.True(
+                weekdays.SequenceEqual([1, 3, 5]) || weekdays.SequenceEqual([2, 4, 6]),
+                $"Unexpected seeded schedule: {string.Join(',', weekdays)}.");
+        }
+
+        Assert.Equal(88, series.SelectMany(item => item.RuleVersions).SelectMany(version => version.Slots).Count());
+        Assert.All(
+            series.SelectMany(item => item.RuleVersions).SelectMany(version => version.Slots),
+            slot => Assert.Contains(slot.HallId, SeedIds.HallIds));
+        Assert.Equal(SeedIds.HallCount, await dbContext.Halls.CountAsync(hall => SeedIds.HallIds.Contains(hall.Id)));
+    }
+
     private static async Task InsertLegacyAttendanceOccurrenceAsync(
         GymCrmDbContext dbContext,
         Guid id,
@@ -445,9 +554,9 @@ public sealed class TestDataSeederTests
     {
         await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO "LessonOccurrences"
-                ("Id", "GroupId", "LessonDate", "StartTime", "DurationMinutes", "HallId", "ProjectedDate", "Status", "SourceKind", "Version", "CreatedAt", "UpdatedAt")
+                ("Id", "GroupId", "LessonDate", "StartTime", "DurationMinutes", "HallId", "ProjectedDate", "Status", "SourceKind", "CreatedAt", "UpdatedAt")
             VALUES
-                ({id}, {groupId}, {lessonDate}, {startTime}, {durationMinutes}, {hallId}, {lessonDate}, {"Scheduled"}, {"LegacyAttendance"}, {1}, {now}, {now})
+                ({id}, {groupId}, {lessonDate}, {startTime}, {durationMinutes}, {hallId}, {lessonDate}, {"Scheduled"}, {"LegacyAttendance"}, {now}, {now})
             """);
     }
 }

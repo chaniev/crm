@@ -36,6 +36,10 @@ internal static class SeedDataOptionsParser
         Usage:
           dotnet run --no-launch-profile --project backend/src/GymCrm.Api/GymCrm.Api.csproj -- --seed-test-data [options]
 
+        Recreates the deterministic local demo data: branches, halls, users,
+        clients, memberships, group assignments, and recurring lesson schedules.
+        Lesson calendars and memberships start on the command execution date.
+
         Options:
           --connection <value>   PostgreSQL connection string.
           --photo-root <path>    Directory for generated client photos.
@@ -50,6 +54,10 @@ internal static class SeedDataOptionsParser
           Photo root is resolved from --photo-root, ClientPhoto__StorageRootPath,
           GYM_CRM_CLIENT_PHOTO_ROOT, appsettings.Development.json, then
           uploads/client-photos under the repository root.
+
+          Calendar date uses BusinessTime__TimeZoneId,
+          BACKEND_BUSINESS_TIME_ZONE_ID, appsettings.Development.json, then
+          Europe/Moscow.
         """;
 
     public static SeedDataOptions Parse(string[] args)
@@ -102,11 +110,18 @@ internal static class SeedDataOptionsParser
             Environment.GetEnvironmentVariable("GYM_CRM_CLIENT_PHOTO_ROOT"),
             appSettings.PhotoStorageRootPath,
             Path.Combine(repositoryRoot, "uploads", "client-photos"));
+        var businessTimeZoneId = FirstNonEmpty(
+            Environment.GetEnvironmentVariable("BusinessTime__TimeZoneId"),
+            Environment.GetEnvironmentVariable("BACKEND_BUSINESS_TIME_ZONE_ID"),
+            appSettings.BusinessTimeZoneId,
+            "Europe/Moscow")!;
+        ValidateTimeZone(businessTimeZoneId);
 
         return new SeedDataOptions
         {
             ConnectionString = connectionString,
             PhotoStorageRootPath = ResolvePath(repositoryRoot, photoStorageRootPath!),
+            BusinessTimeZoneId = businessTimeZoneId,
             ApplyMigrations = applyMigrations
         };
     }
@@ -152,7 +167,22 @@ internal static class SeedDataOptionsParser
         return Directory.GetCurrentDirectory();
     }
 
-    private static (string? ConnectionString, string? PhotoStorageRootPath) LoadAppSettings(string repositoryRoot)
+    private static void ValidateTimeZone(string timeZoneId)
+    {
+        try
+        {
+            _ = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        }
+        catch (Exception exception) when (exception is TimeZoneNotFoundException or InvalidTimeZoneException)
+        {
+            throw new SeedDataOptionsException($"Business time zone '{timeZoneId}' is invalid.");
+        }
+    }
+
+    private static (
+        string? ConnectionString,
+        string? PhotoStorageRootPath,
+        string? BusinessTimeZoneId) LoadAppSettings(string repositoryRoot)
     {
         var developmentAppSettingsPath = Path.Combine(
             repositoryRoot,
@@ -172,7 +202,9 @@ internal static class SeedDataOptionsParser
             ReadJsonString(developmentAppSettingsPath, "ConnectionStrings", "Postgres") ??
                 ReadJsonString(appSettingsPath, "ConnectionStrings", "Postgres"),
             ReadJsonString(developmentAppSettingsPath, "ClientPhoto", "StorageRootPath") ??
-                ReadJsonString(appSettingsPath, "ClientPhoto", "StorageRootPath"));
+                ReadJsonString(appSettingsPath, "ClientPhoto", "StorageRootPath"),
+            ReadJsonString(developmentAppSettingsPath, "BusinessTime", "TimeZoneId") ??
+                ReadJsonString(appSettingsPath, "BusinessTime", "TimeZoneId"));
     }
 
     private static string? ReadJsonString(string path, params string[] propertyPath)
