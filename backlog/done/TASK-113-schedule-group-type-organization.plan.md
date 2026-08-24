@@ -1,10 +1,10 @@
 # Implementation Plan: TASK-113 Добавить фильтр расписания по типу группы
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-113-schedule-group-type-organization.md
+- source_task: /backlog/done/TASK-113-schedule-group-type-organization.md
 - branch: feature/TASK-113-schedule-group-type-organization
-- readiness: yes — only after TASK-112 is integrated
-- dependencies: TASK-112; TASK-106 is optional merge-aware baseline
+- readiness: completed by superseding TASK-119 implementation; not executed independently
+- dependencies: superseded by TASK-119; historical TASK-112/TASK-106 dependencies are closed
 - risk: medium — shared schedule filters and derived counts/legend
 
 ## Goal
@@ -295,3 +295,10 @@ manual QA was performed.
 Не останавливаться только из-за отсутствующей в baseline TASK-106,
 frontend-only scope, shared Schedule screen, обычного merge conflict после
 dependency integration или необходимости component + Playwright coverage.
+
+## Completion and supersession record
+- Status audit: 2026-08-24 09:44 MSK against integrated `main`/`origin/main` at `2adfc72`.
+- TASK-119 candidate `5a5cabe` delivered the TASK-113 user goal as part of the approved full lesson calendar: `Тип группы` is a clearable schedule filter, `groupTypeId` is URL/API-backed, filter options are backend access-scoped and results remain chronologically ordered.
+- This plan was not executed because its implementation boundary became stale: it targets frontend-local filtering, `CompactFilterPanel`, legacy `groupSchedule` helpers, weekday counts and a passive legend that no longer own the current dated occurrence calendar.
+- Historical unchecked RED/validation items are preserved as the unexecuted original plan; they are not completion evidence for TASK-119.
+- Focused missing regression coverage is owned by `/backlog/tasks-ready/TASK-131-schedule-group-type-filter-regression.md` and must validate the current TASK-119 contract rather than revive this plan.

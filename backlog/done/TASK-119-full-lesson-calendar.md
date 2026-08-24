@@ -375,3 +375,7 @@ CRM сейчас показывает повторяющийся шаблон. �
   `canActivate: true`, unresolved `0`.
 - Manual gap: physical iPhone/Safari chrome, safe area and software keyboard
   were not executed; WebKit device profiles and compact landscape were covered.
+- Post-completion status audit at 2026-08-24 09:44 MSK closed TASK-113 as
+  `superseded-by-TASK-119`: this implementation already owns the URL/API-backed
+  `Тип группы` filter. Focused residual regression coverage is tracked by
+  `/backlog/tasks-ready/TASK-131-schedule-group-type-filter-regression.md`.

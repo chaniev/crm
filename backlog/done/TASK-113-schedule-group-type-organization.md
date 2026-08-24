@@ -1,13 +1,15 @@
 # TASK-113: Добавить фильтр расписания по типу группы
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-16 20:24
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-113-schedule-group-type-organization.plan.md
+- implementation_plan: /backlog/done/TASK-113-schedule-group-type-organization.plan.md
 - implementation_branch: feature/TASK-113-schedule-group-type-organization
+- implementation_state: superseded-by-TASK-119
+- implementation_commit: 5a5cabe
 
 ## Goal
 Пользователь быстро находит занятия нужного типа, не теряя временной порядок расписания.
@@ -99,3 +101,12 @@ implementation
 - Updated at: 2026-08-16 20:02 after the user confirmed `/schedule`, an очищаемый single-select filter `Тип группы` and preserved chronological ordering.
 - Moved to tasks-ready at: 2026-08-16 20:02 after all blocking product questions were resolved.
 - Coordination: TASK-106 and TASK-112 remain separate implementation tasks; TASK-113 must use their integrated baseline without copying unmerged branch code or changing their contracts.
+- Status audit at: 2026-08-24 09:44 MSK — TASK-119 replaced the weekly-template screen with the integrated dated occurrence calendar and delivered the group-type filter through its approved URL-backed, backend-filtered contract. The original TASK-113 branch and plan were not executed independently.
+
+## Completion record
+- Completed by superseding implementation: TASK-119, candidate `5a5cabe`, integrated into `main` before baseline `2adfc72`.
+- The user-visible goal is present in the current calendar: a clearable `Тип группы` select uses access-scoped response options, writes `groupTypeId` to schedule URL/API state, composes with the other filters and preserves chronological date/time ordering.
+- The original frontend-local, payload-only filtering plan is intentionally obsolete: TASK-119 made schedule filters URL-backed and backend-owned, replaced `CompactFilterPanel` with `Параметры календаря`, and replaced weekday-template legend/count assumptions with a dated occurrence calendar.
+- Direct regression coverage for selecting, clearing and resetting the group-type filter is tracked separately by `TASK-131-schedule-group-type-filter-regression.md`; it does not keep TASK-113 implementation open.
+- moved_to_done_at: 2026-08-24 09:44 MSK
+- last_status_reviewed_at: 2026-08-24 09:44 MSK

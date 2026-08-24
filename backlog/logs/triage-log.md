@@ -2809,3 +2809,54 @@
 - moved to done: 9 tasks and 9 implementation plans
 - remaining from TASK-122–130: none
 - unresolved umbrella dependency: TASK-010
+
+# 2026-08-24 09:44 TASK-113 status audit and regression follow-up
+
+## Baseline and scope
+
+- Status audit ran in the coordination workspace before creating the follow-up task; no branch switch, task worktree or Docker Compose project was created.
+- Integrated local `main` and local `origin/main` both resolve to `2adfc72517fdaadbf11522a5be19605fce4ddb5d` (`2adfc72`).
+- Scope: reconcile TASK-113 against current code, tests, Git history, TASK-106/TASK-112 closure and the superseding TASK-119 contract. No inbox file was read, moved or processed.
+
+## Completion evidence
+
+- TASK-119 candidate `5a5cabe` is integrated and its completion record reports backend `512/512`, frontend `568` unit tests, affected Chromium, target-iPhone WebKit `66/66`, bot `65/65` and clean isolated runtime validation.
+- Current `GroupScheduleScreen` includes `groupTypeId` in URL state, renders a clearable `Тип группы` select from response `filterOptions.groupTypes`, sends the selected id to `GET /schedule/lessons` and retains date/time chronological sorting.
+- Current backend loads access-scoped lesson series before building filter options and applies an exact `GroupTypeId` predicate after scope resolution.
+- TASK-113's original frontend-local, no-URL/no-API `CompactFilterPanel` and weekly legend/count implementation boundary is superseded by the approved dated occurrence calendar.
+- No independent TASK-113 implementation branch or worktree exists; the historical plan's own stop condition requires stale/duplicate reconciliation when expected RED is unavailable because behavior is already implemented.
+
+## Status changes
+
+- `/backlog/implementation/TASK-113-schedule-group-type-organization.md` -> `/backlog/done/TASK-113-schedule-group-type-organization.md`.
+- `/backlog/implementation-plans/TASK-113-schedule-group-type-organization.plan.md` -> `/backlog/done/TASK-113-schedule-group-type-organization.plan.md`.
+- TASK-113 now has `Status: done`, `implementation_state: superseded-by-TASK-119`, candidate `5a5cabe` and completion evidence; the plan points to the colocated done task and is marked not executed independently.
+- TASK-119 received a reverse traceability note to the closed TASK-113 and its regression follow-up.
+
+## Created tasks
+
+- `/backlog/tasks-ready/TASK-131-schedule-group-type-filter-regression.md` — focused backend/frontend/Playwright regression coverage for the current URL/API-backed group-type filter contract.
+
+## Duplicate and consistency checks
+
+- Active TASK IDs remain unique; no active task already owns the focused group-type regression barrier.
+- Active task `## Status` values match their directories. TASK-113 and its completed plan are colocated in `/backlog/done` and their references resolve.
+- Existing active plan references resolved before the move; no unfinished plan remains in `/backlog/implementation-plans` after TASK-113 closure.
+- One pre-existing out-of-scope issue remains unchanged: risky umbrella TASK-121 contains a blocking TASK-010 architecture checkbox and requires a separate status decision under the backlog invariant.
+- No source note was deleted or moved; this was a direct user request and no duplicate task was intentionally created.
+
+## Validation
+
+- Backlog path/status/reference/ID checks and read-only source/test evidence review completed.
+- Project code and runtime were not changed, so build, unit, Playwright and Docker validation were not rerun.
+
+## Summary
+
+- tasks-ready: 9
+- risky: 7
+- needs-clarification: 6
+- implementation: 0
+- unfinished implementation plans: 0
+- moved to done: 1 task and 1 implementation plan
+- created tasks: 1
+- processed inbox files: 0
