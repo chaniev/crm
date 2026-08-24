@@ -2860,3 +2860,107 @@
 - moved to done: 1 task and 1 implementation plan
 - created tasks: 1
 - processed inbox files: 0
+
+# 2026-08-24 09:56 TASK-010/TASK-121 status audit
+
+## Baseline and scope
+
+- Status audit ran in the coordination workspace before checking `backlog/inbox`;
+  no branch switch, task worktree or Docker Compose project was created.
+- Clean local `main` and `origin/main` both resolve to
+  `e3eff91d6cc64a30791bc5aa0dff4dc94f323631` (`e3eff91`).
+- Scope: reconcile TASK-010 and TASK-121 against current source, public internal
+  Bot API contracts, tests, Git history and completed TASK-122–TASK-130; create
+  only the bounded successor required by the resolved architecture decision.
+- Project code, tests, runtime configuration, migrations and deployment state
+  were explicitly out of scope and were not changed.
+
+## Evidence and decision
+
+- `BotApiService.cs` grew from 1108 lines at `a32ed58` on 2026-08-22 to 1550
+  lines on the integrated baseline; `IBotApiService` exposes 12 operations.
+- The service currently combines identity/menu, attendance queries and
+  mutations, idempotency, client search/card/expiring-membership projections,
+  access scope, mapping and audit responsibilities.
+- The other TASK-121 root hotspots are decomposed on the baseline:
+  `ClientEndpoints.cs` 15 lines, `App.tsx` 589, `ClientManagement.tsx` 5,
+  `GroupManagement.tsx` 6 and Python `core/service.py` 166.
+- TASK-122–TASK-130 and their completed plans are colocated in `backlog/done`;
+  their completion record contains the required backend/frontend/bot gates.
+- Current regression evidence includes 1229 lines in `InternalBotApiTests.cs`
+  plus related access-scope, trainer-substitution and PostgreSQL membership
+  barrier tests.
+- Architecture decision: retain `IBotApiService`/`BotApiService` as a stable
+  facade, extract capability-oriented internal collaborators rather than a
+  class per endpoint, and use client read models as the first read-only slice.
+
+## Status changes
+
+- `/backlog/needs-clarification/TASK-010-bot-read-model-architecture.md` ->
+  `/backlog/done/TASK-010-bot-read-model-architecture.md`; all architecture
+  questions and acceptance criteria are resolved, with no implementation
+  falsely claimed by the decision card.
+- `/backlog/risky/TASK-121-decompose-oversized-cross-layer-files.md` remains
+  `risky`, now has no blocking clarification question and identifies TASK-132
+  as its only unfinished executable child.
+
+## Created tasks
+
+- `/backlog/risky/TASK-132-bot-client-read-model-decomposition.md` — test-first
+  extraction of search, client-card and expiring-membership read models behind
+  the stable facade, with authorization/contract/rollback stop conditions.
+
+## Updated existing tasks
+
+- `/backlog/done/TASK-010-bot-read-model-architecture.md`.
+- `/backlog/risky/TASK-121-decompose-oversized-cross-layer-files.md`.
+
+## Unchanged active tasks
+
+- tasks-ready: TASK-002, TASK-004, TASK-005, TASK-006, TASK-008, TASK-018,
+  TASK-019, TASK-021 and TASK-131.
+- risky: TASK-007, TASK-011, TASK-012, TASK-013, TASK-016 and TASK-020.
+- needs-clarification: TASK-009, TASK-014, TASK-058, TASK-071 and TASK-074.
+- implementation: none.
+
+## Duplicate and consistency checks
+
+- Active TASK IDs are unique; TASK-132 is the next unused ID after TASK-131.
+- Active task `## Status` values match their directories; TASK-010 is `done`,
+  while TASK-121 and TASK-132 are `risky` and contain explicit review/stop gates.
+- TASK-010, TASK-121 and TASK-132 references resolve in both directions. No
+  active or completed executable task duplicates the client read-model slice.
+- No unfinished implementation plan exists, and no implementation branch or
+  worktree exists for TASK-010, TASK-121 or TASK-132.
+- Completed plan/task colocation was checked. TASK-050 is the documented
+  historical plan-only exception: its plan explicitly records a direct Codex
+  thread request and the absence of a source backlog task, so it is not an
+  unresolved active-card reference.
+- Historical triage-log paths were preserved as append-only evidence rather
+  than rewritten after the TASK-010 move.
+
+## Inbox and source preservation
+
+- `backlog/inbox` contains no Markdown source notes; only its placeholder file
+  remains. No inbox or processed source file was moved, changed or deleted.
+- `backlog/processing` contains no task source in progress; no duplicate was
+  intentionally created.
+
+## Validation
+
+- Backlog path/status/reference/ID checks, source line counts, current contract
+  surface and existing test evidence were verified read-only.
+- Only backlog Markdown artifacts changed. Build, unit, Playwright, bot and
+  Docker gates were not rerun because project code and runtime did not change.
+
+## Summary
+
+- tasks-ready: 9
+- risky: 8
+- needs-clarification: 5
+- implementation: 0
+- unfinished implementation plans: 0
+- moved to done: 1 architecture task
+- created tasks: 1
+- updated existing tasks: 2
+- processed inbox files: 0

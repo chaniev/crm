@@ -9,18 +9,21 @@ frontend и bot-файлах, выделив небольшие проверяе
 CRM-поведения и публичных контрактов.
 
 ## Context
-После введения engineering quality baseline остаются структурные hotspots:
+Исходные structural hotspots и состояние на актуальном `origin/main` `e3eff91`:
 
-- `backend/src/GymCrm.Api/Auth/ClientEndpoints.cs` — около 3950 строк;
-- `backend/src/GymCrm.Infrastructure/Bot/BotApiService.cs` — около 1100 строк;
-- `frontend/src/App.tsx` — около 2000 строк;
-- `frontend/src/features/clients/ClientManagement.tsx` — около 3430 строк;
-- `frontend/src/features/groups/GroupManagement.tsx` — около 1450 строк;
-- `bot/src/gym_crm_bot/core/service.py` — около 750 строк.
+| Hotspot | Baseline 2026-08-22 | Current 2026-08-24 | State |
+|---|---:|---:|---|
+| `ClientEndpoints.cs` | ~3950 | 15 | decomposed |
+| `BotApiService.cs` | 1108 | 1550 | active hotspot |
+| `App.tsx` | ~2000 | 589 | decomposed |
+| `ClientManagement.tsx` | ~3430 | 5 | decomposed |
+| `GroupManagement.tsx` | ~1450 | 6 | decomposed |
+| Python `core/service.py` | ~750 | 166 | decomposed |
 
-`backlog/needs-clarification/TASK-010-bot-read-model-architecture.md` уже владеет
-решением о выделении query/use-case классов из `BotApiService`; эта задача не
-должна подменять или дублировать то решение.
+TASK-122–TASK-130 завершены и находятся в `/backlog/done`. TASK-010 закрыла
+архитектурный вопрос для backend `BotApiService`: стабильный facade сохраняется,
+а capabilities выделяются последовательными internal collaborators без
+class-per-endpoint архитектуры. Первый executable slice оформлен как TASK-132.
 
 ## Child task map
 - TASK-122 — read-only client query endpoints.
@@ -32,8 +35,8 @@ CRM-поведения и публичных контрактов.
 - TASK-128 — client membership UI.
 - TASK-129 — group registry/forms.
 - TASK-130 — Python `BotService` Telegram scenarios.
-- TASK-010 — архитектурное решение для backend `BotApiService`; отдельная
-  implementation task создаётся только после закрытия вопросов TASK-010.
+- TASK-010 — завершённое архитектурное решение для backend `BotApiService`.
+- TASK-132 — первый backend `BotApiService` client read-model slice.
 
 Последовательность внутри одного hotspot обязательна: TASK-122 -> TASK-123 ->
 TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начинается
@@ -59,8 +62,8 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
   transport adapters по текущим пользовательским операциям.
 - Разделить Python bot orchestration на небольшие сервисы с явными typed
   boundaries, сохранив callback payloads, idempotency и Telegram behavior.
-- После решения TASK-010 выполнить согласованный slice для `BotApiService`; до
-  этого не вводить собственную конкурирующую query/use-case архитектуру.
+- Выполнить TASK-132 за стабильным `IBotApiService` facade, не вводя
+  конкурирующую class-per-endpoint query/use-case архитектуру.
 - Сохранить или усилить regression coverage перед каждым переносом кода.
 
 ## Out of scope
@@ -78,7 +81,8 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 - Existing tests сначала фиксируют поведение, затем переносится код.
 - Для каждого slice нужен отдельный task branch/worktree и чистый merge-base от
   актуального `origin/main`; umbrella plan обязан создать дочерние executable tasks.
-- `BotApiService` slice зависит от закрытого архитектурного решения TASK-010.
+- `BotApiService` slice обязан следовать закрытому решению TASK-010 и выполняться
+  только через TASK-132 либо явно согласованную последующую capability task.
 
 ## Acceptance criteria
 - [x] Зафиксирована карта текущих ответственностей и зависимостей всех hotspots.
@@ -87,7 +91,9 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 - [x] `ClientEndpoints` больше не является единым catch-all endpoint module.
 - [x] `App.tsx`, `ClientManagement.tsx` и `GroupManagement.tsx` оставляют orchestration на уровне feature и используют focused components/hooks.
 - [x] Python bot service разбит на typed responsibilities без дублирования backend rules.
-- [ ] Решение TASK-010 соблюдено; `BotApiService` не получает вторую конкурирующую архитектуру.
+- [x] Решение TASK-010 зафиксировано; `BotApiService` не получает вторую конкурирующую архитектуру.
+- [ ] TASK-132 интегрирована: client read models выделены за стабильным facade,
+  а `BotApiService` заметно уменьшен без contract или behavior diff.
 - [x] Размер и cyclomatic/ownership hotspots заметно уменьшены и измерены до/после.
 - [x] Все обязательные backend/frontend/bot gates проходят после каждого завершённого slice.
 
@@ -98,6 +104,8 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 - [x] Bot: Ruff lint/format, strict mypy, pytest и callback/idempotency regressions.
 - [x] Проверить отсутствие contract diffs в OpenAPI/typed DTO/callback payload snapshots, где применимо.
 - [x] Повторить cross-layer validation после интеграции всех TASK-122–130 slices.
+- [ ] После TASK-132 повторить backend gates и affected internal Bot API/bot
+  consumer regressions.
 
 ## AI safety
 - Safe for Codex: no
@@ -105,13 +113,14 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 - Reason: широкий структурный refactoring затрагивает несколько runtime-слоёв и может незаметно изменить authorization, orchestration или пользовательские workflow.
 
 ## Clarification questions
-- [ ] Подтвердить и закрыть архитектурное решение TASK-010 до планирования `BotApiService` slice.
+- [x] Архитектурное решение TASK-010 закрыто 2026-08-24; first slice — TASK-132.
 - [x] Метрики завершения, dependency direction и допустимый public surface зафиксированы в TASK-122–TASK-130.
 
 ## Source notes
 - Source: direct user request, 2026-08-22, пункт 6 рекомендаций по engineering standards.
 - Source: direct user request, 2026-08-22, сформировать отдельные задачи на рефакторинг.
-- Related task: `/backlog/needs-clarification/TASK-010-bot-read-model-architecture.md`.
+- Related decision: `/backlog/done/TASK-010-bot-read-model-architecture.md`.
+- Remaining child task: `/backlog/risky/TASK-132-bot-client-read-model-decomposition.md`.
 - Historical context: `/backlog/done/REFACTORING_PLAN.md`; остаточные hotspots появились или выросли после прежней декомпозиции.
 
 ## Processing notes
@@ -120,3 +129,7 @@ TASK-124 -> TASK-125 и TASK-126 -> TASK-127 -> TASK-128. TASK-129 начина�
 - Duplicate check: TASK-010 частично пересекается только с `BotApiService`; связь оформлена как dependency, остальные hotspots активной задачей не покрыты.
 - Decomposed at: 2026-08-22 23:47 MSK into TASK-122–TASK-130; umbrella task остаётся risky coordination record до завершения child tasks и решения TASK-010.
 - Progress reviewed at 2026-08-23: TASK-122–130 завершены, independently reviewed и локально интегрированы; TASK-010 остаётся единственной unresolved dependency для `BotApiService`, поэтому umbrella task сохраняет статус `risky`.
+- Status reviewed at 2026-08-24 09:56 MSK against `main == origin/main`
+  `e3eff91`: TASK-010 architecture resolved and moved to done; TASK-132 created
+  as the only remaining executable slice. Umbrella remains `risky` until
+  TASK-132 is implemented and validated.
