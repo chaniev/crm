@@ -78,9 +78,9 @@ crm/
     docker-compose.server.yml
     SERVER_INSTALL.md
   docs/
-    MVP-ТЗ.md
+    requirements/           живой реестр требований (REQ-*)
     MVP_SCREEN_MAP.md
-    BOT-МЕССЕНДЖЕР-ТЗ.md
+    archive/                архивные ТЗ (MVP-ТЗ, BOT-ТЗ)
     ui-concept/
 ```
 

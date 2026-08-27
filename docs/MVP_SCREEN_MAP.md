@@ -1,6 +1,6 @@
 # MVP Screen Map
 
-Источник: [docs/MVP-ТЗ.md](/Users/chanievmurad/Documents/work/crm/docs/MVP-ТЗ.md)  
+Источник: [docs/archive/MVP-ТЗ.md](archive/MVP-ТЗ.md); актуальные требования — [docs/requirements/](requirements/README.md)  
 Подход: [30-ui-dashboard-designer.toml](/Users/chanievmurad/Documents/work/crm/.codex/agents/gym-crm-agents/agents/30-ui-dashboard-designer.toml)  
 Принцип: один общий пул экранов, различия ролей выражаются доступом, составом данных и доступными действиями внутри экрана.
 
