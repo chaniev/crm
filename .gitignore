@@ -19,3 +19,4 @@ bot/.ruff_cache/
 .env.*.local
 
 deploy/dist/
+.artifacts/

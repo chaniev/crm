@@ -21,13 +21,29 @@ jobs:
           fetch-depth: 0
 
       - name: Validate requirements registry and active backlog
-        run: python3 scripts/validate_requirements.py
+        run: >-
+          python3 scripts/harness/verify_change.py
+          --profile full
+          --area requirements
 
       - name: Require changelog for requirement changes
         if: github.event_name == 'pull_request'
         run: >-
-          python3 scripts/validate_requirements.py
+          python3 scripts/harness/verify_change.py
+          --profile full
+          --area requirements
           --base "${{ github.event.pull_request.base.sha }}"
+
+  harness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Test verification harness
+        run: >-
+          python3 scripts/harness/verify_change.py
+          --profile full
+          --area harness
 
   backend:
     runs-on: ubuntu-latest
@@ -38,20 +54,11 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Restore
-        run: dotnet restore backend/GymCrm.slnx
-
-      - name: Verify formatting
-        run: dotnet format backend/GymCrm.slnx --no-restore --verify-no-changes
-
-      - name: Build with analyzers and NuGet audit
-        run: dotnet build backend/GymCrm.slnx --configuration Release --no-restore -warnaserror
-
-      - name: Test
-        run: dotnet test backend/GymCrm.slnx --configuration Release --no-build
-
-      - name: Report vulnerable dependencies
-        run: dotnet list backend/GymCrm.slnx package --vulnerable --include-transitive
+      - name: Run backend quality baseline
+        run: >-
+          python3 scripts/harness/verify_change.py
+          --profile full
+          --area backend
 
   frontend:
     runs-on: ubuntu-latest
@@ -64,17 +71,11 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install locked dependencies
-        run: npm ci
-        working-directory: frontend
-
-      - name: Audit frontend dependencies
-        run: npm run audit
-        working-directory: frontend
-
       - name: Run frontend quality baseline
-        run: npm run check
-        working-directory: frontend
+        run: >-
+          python3 scripts/harness/verify_change.py
+          --profile full
+          --area frontend
 
   bot:
     runs-on: ubuntu-latest
@@ -92,51 +93,19 @@ jobs:
           enable-cache: true
           cache-dependency-glob: bot/uv.lock
 
-      - name: Install locked dependencies
-        run: uv sync --locked --extra dev
-        working-directory: bot
-
-      - name: Ruff lint
-        run: uv run --locked --extra dev ruff check .
-        working-directory: bot
-
-      - name: Ruff format
-        run: uv run --locked --extra dev ruff format --check .
-        working-directory: bot
-
-      - name: Mypy
-        run: uv run --locked --extra dev mypy
-        working-directory: bot
-
-      - name: Pytest
-        run: uv run --locked --extra dev pytest
-        working-directory: bot
+      - name: Run bot quality baseline
+        run: >-
+          python3 scripts/harness/verify_change.py
+          --profile full
+          --area bot
 
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
-      - name: Validate local Compose configuration
+      - name: Run deploy quality baseline
         run: >-
-          docker compose
-          --project-directory .
-          --env-file deploy/.env.example
-          -f deploy/docker-compose.yml
-          config --quiet
-
-      - name: Validate server Compose configuration
-        run: >-
-          docker compose
-          --project-directory .
-          --env-file deploy/.env.example
-          -f deploy/docker-compose.server.yml
-          config --quiet
-
-      - name: Validate deploy script syntax
-        run: >-
-          bash -n
-          deploy/build-images.sh
-          deploy/export-images.sh
-          deploy/load-images.sh
-          deploy/lib/images.sh
+          python3 scripts/harness/verify_change.py
+          --profile full
+          --area deploy

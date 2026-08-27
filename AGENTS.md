@@ -142,6 +142,11 @@ Run commands from the repository root unless the nearest `AGENTS.md` says
 otherwise. The commands in `.github/workflows/quality.yml` are the CI baseline;
 keep scoped validation instructions synchronized with them.
 
+Use `python3 scripts/harness/verify_change.py --base origin/main` as the default
+local entry point for change-aware validation. Use `--dry-run` to inspect the
+selected areas and commands. `docs/HARNESS.md` defines the runner contract and
+safe full-baseline fallback.
+
 - Backend changes -> backend format, Release build, dependency audit, and tests
 - Frontend changes -> the canonical frontend check, plus affected Playwright flows
 - Bot changes -> locked dependency sync, lint/format, typing, and tests
