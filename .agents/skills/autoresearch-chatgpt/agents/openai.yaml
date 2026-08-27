@@ -1,0 +1,4 @@
+interface:
+  display_name: "Autoresearch for ChatGPT"
+  short_description: "Optimize skills with scored, isolated trials"
+  default_prompt: "Use $autoresearch-chatgpt to benchmark and improve an attached skill with bounded, isolated evaluations."
