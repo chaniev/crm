@@ -29,6 +29,15 @@ description: "Выбрать готовые backlog tasks, перевести и
 implementation задачу с unresolved critical product questions, полностью
 неясным scope или необратимым production действием без recovery.
 
+Каждая задача, меняющая поведение системы, должна ссылаться на существующий
+ID требования (`REQ-*`) из `docs/requirements/**` или содержать новую карточку
+требования по шаблону `docs/requirements/_шаблон-требования.md`. Задача без
+`REQ-*` ссылки не готова к переводу в implementation: вернуть её в
+`backlog/needs-clarification` с указанием недостающего требования, либо (если
+поведение очевидно из source task) добавить новую карточку со статусом
+`предложено`, строку в `docs/requirements/CHANGELOG.md` и сослаться на неё.
+Обновление затронутых `REQ-*` карточек входит в definition of done executor'а.
+
 Full-stack, shared UI, migrations, payments, roles и permissions сами по себе
 не являются blocker для planning. Если изменение локализуемо, создать plan и
 явно описать task-specific risk. Risky task может получить plan, но остаётся в
@@ -66,6 +75,8 @@ Plan должен содержать только информацию, необ
 Обязательно:
 
 - source task, branch, readiness, dependencies и task-specific risk;
+- `REQ-*` ссылки: существующие требования, которые задача изменяет, и/или
+  новые карточки, добавленные при планировании;
 - goal и решения, реально влияющие на implementation;
 - изменяемые contracts/data/UX semantics;
 - bounded implementation slices;
@@ -101,6 +112,7 @@ contract может быть длиннее, но каждая семантик�
 
 ## Metadata
 - source_task: /backlog/implementation/TASK-XXX-short.md
+- requirements: REQ-XXX-000 | new REQ-XXX-000 (+ карточка)
 - branch: feature/TASK-XXX-short
 - readiness: yes | no — краткая причина, если no
 - dependencies: none | TASK-YYY (условие)
@@ -179,6 +191,8 @@ contract может быть длиннее, но каждая семантик�
 Проверить:
 
 - source/task/plan links и branch names;
+- наличие `REQ-*` ссылки в каждом plan (или новую карточку в
+  `docs/requirements/` с записью в CHANGELOG);
 - отсутствие duplicate TASK IDs/plans;
 - status и lifecycle перемещённых задач;
 - наличие конкретных tests, expected-red evidence и regression barrier;

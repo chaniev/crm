@@ -15,6 +15,19 @@ Paths without a nested file use these repository-wide rules.
 
 ---
 
+## Product requirements registry
+
+`docs/requirements/**` is the source of truth for desired product behavior.
+Every task that adds or changes system behavior must reference an existing
+requirement ID (`REQ-*`) from the registry, or add a new requirement card as
+part of the same task. Updating the affected `REQ-*` cards and
+`docs/requirements/CHANGELOG.md` is part of the task's definition of done.
+A task or implementation plan without a `REQ-*` reference is not ready for
+implementation. Registry format, status model, and change process are defined
+in `docs/requirements/README.md`.
+
+---
+
 ## Evidence and instruction precedence
 
 For desired behavior, use this order:
