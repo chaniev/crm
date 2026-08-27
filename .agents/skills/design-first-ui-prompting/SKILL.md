@@ -18,6 +18,16 @@ acceptance are authoritative. Do not translate image-oriented format, imagery,
 style, or negative-prompt examples into product requirements unless the
 deliverable explicitly includes a generated visual artifact.
 
+When the generated artifact depicts an operational product workflow, add an
+`OPERATIONAL CONTRACT` block to every screen prompt. State which controls are
+visible, disabled, absent, or deferred from supplied capabilities; preserve
+supplied backend reasons verbatim; forbid inferred role, urgency, conflict, or
+validation semantics. For every temporary surface or route transition, state
+open/close behavior, focus return, and the exact context restored on return
+(URL/query, entity or group anchor, and scroll position). Keep these behavioral
+requirements in the prompt even when a static image cannot prove them; identify
+them as implementation annotations rather than inventing visual decoration.
+
 ## Core principle
 **Prompt like a design system, not a wish.**
 
