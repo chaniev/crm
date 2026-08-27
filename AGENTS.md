@@ -22,9 +22,13 @@ Every task that adds or changes system behavior must reference an existing
 requirement ID (`REQ-*`) from the registry, or add a new requirement card as
 part of the same task. Updating the affected `REQ-*` cards and
 `docs/requirements/CHANGELOG.md` is part of the task's definition of done.
-A task or implementation plan without a `REQ-*` reference is not ready for
-implementation. Registry format, status model, and change process are defined
-in `docs/requirements/README.md`.
+A task or implementation plan must contain requirements metadata. A task that
+does not change product behavior may use `none` with a concrete reason. A task
+with an unresolved product decision may use `pending` only while it remains in
+`backlog/needs-clarification`. A behavior-changing task is not ready for
+implementation until every referenced requirement has product decision
+`принято`; `предложено` never authorizes implementation. Registry format,
+status model, and change process are defined in `docs/requirements/README.md`.
 
 ---
 

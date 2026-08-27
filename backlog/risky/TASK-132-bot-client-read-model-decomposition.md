@@ -3,6 +3,9 @@
 ## Status
 risky
 
+## Requirements
+- none — behavior-preserving internal service decomposition only
+
 ## Goal
 Уменьшить backend `BotApiService` и стоимость изменений internal Bot API,
 выделив client read-model capability за стабильным facade без изменения

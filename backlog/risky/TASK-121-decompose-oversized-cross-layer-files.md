@@ -3,6 +3,9 @@
 ## Status
 risky
 
+## Requirements
+- none — behavior-preserving structural refactor only
+
 ## Goal
 Снизить стоимость изменений и регрессионный риск в крупнейших backend,
 frontend и bot-файлах, выделив небольшие проверяемые границы без изменения

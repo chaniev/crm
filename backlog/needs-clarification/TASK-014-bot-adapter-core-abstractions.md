@@ -3,6 +3,9 @@
 ## Status
 needs-clarification
 
+## Requirements
+- pending — future MAX channel behavior has no accepted requirement
+
 ## Goal
 Понять, какие adapter/core границы нужны после стабилизации Telegram-сценариев для поддержки будущего MAX.
 

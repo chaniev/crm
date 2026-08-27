@@ -48,6 +48,11 @@ flowchart TD
   or `implementation/`.
 - A risky task does not move to implementation until its required review and
   stop conditions are explicit.
+- Every active task contains `## Requirements`. Use concrete `REQ-*` links for
+  product behavior, `none` with a reason for behavior-preserving work, or
+  `pending` only in `needs-clarification` while a product decision is missing.
+- A task referencing a requirement with decision `предложено` does not move to
+  `tasks-ready` or `implementation`.
 - Creating a plan does not imply that implementation has started.
 - Moving a completed task to `done/` also moves its completed plan there.
 - Preserve historical logs; append corrections or status updates instead of
@@ -67,6 +72,8 @@ For backlog changes:
 - verify every referenced file and task ID exists or is explicitly marked external;
 - verify card status and directory agree;
 - verify implementation plans link to the intended task and branch;
+- verify active task and unfinished plan requirements metadata, referenced IDs,
+  approval state, and allowed `none`/`pending` usage;
 - verify completed task/plan pairs are colocated in `done/`;
 - report unresolved duplicates, stale statuses, and blocking questions rather
   than guessing their resolution.
@@ -77,4 +84,6 @@ For backlog changes:
 
 Flag lost source traceability, duplicate active tasks, status/directory drift,
 plans presented as active implementation, risky work missing review gates, and
-completed artifacts left in active directories.
+completed artifacts left in active directories. Also flag behavior-changing
+work without accepted requirements, `pending` outside `needs-clarification`,
+and `none` without a specific behavior-preserving reason.

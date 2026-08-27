@@ -3,6 +3,9 @@
 ## Status
 ready
 
+## Requirements
+- REQ-BOT-003 — changes
+
 ## Goal
 Большие группы в Telegram-боте открываются без превышения лимитов сообщений и callback-кнопок.
 

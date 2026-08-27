@@ -18,6 +18,8 @@ Main goals:
 - convert chaotic inbox notes into executable tasks;
 - separate safe tasks from risky or unclear work;
 - avoid duplicate task generation;
+- connect every task to accepted product requirements or record why requirement
+  metadata is intentionally `none`/`pending`;
 - preserve traceability from raw note to generated task;
 - keep `/backlog/inbox` clean by moving processed notes through a lifecycle.
 
@@ -195,6 +197,9 @@ Is the expected result understandable?
 Is the scope reasonably bounded?
   └─ no → needs-clarification
 
+Is the product behavior linked to an accepted REQ-*?
+  └─ no, product decision missing → needs-clarification + pending
+
 Does the task touch risky areas?
   └─ yes → risky
 
@@ -307,6 +312,11 @@ Every generated task must use this structure:
 
 ## Status
 ready / risky / needs-clarification
+
+## Requirements
+- REQ-XXX-000 — implements | changes | constrains | verifies
+<!-- or: none — concrete behavior-preserving reason -->
+<!-- or, only in needs-clarification: pending — missing product decision -->
 
 ## Goal
 Что должно измениться для пользователя.
@@ -429,6 +439,12 @@ ready / risky / needs-clarification
 8. Если похожей задачи нет:
    - создай новый TASK-XXX-short-name.md в соответствующей папке;
    - используй общий шаблон задачи;
+   - сопоставь поведение с `docs/requirements/**`;
+   - используй только требования с решением `принято` для `tasks-ready` и
+     `risky`; новая карточка `предложено` оставляет задачу в
+     `needs-clarification` до явного approval;
+   - используй `none` только для behavior-preserving работы с причиной, а
+     `pending` — только для незакрытого продуктового решения;
    - заполни все обязательные разделы.
 
 9. После успешного создания или обновления всех задач из inbox-файла:
@@ -498,6 +514,8 @@ updated_existing_tasks:
    - успешно обработанные файлы перемещены в /backlog/processed;
    - исходные заметки не удалены;
    - triage-log.md обновлен;
+   - requirements metadata присутствует, все `REQ-*` существуют, а
+     `предложено` не попало в ready/implementation workflow;
    - дубликаты не созданы намеренно.
 8. Если задачи не были созданы и не были обновлены при наличии inbox-файлов — это ошибка выполнения.
 ```
@@ -558,6 +576,7 @@ updated_existing_tasks:
 - Prefer scenario-based tasks.
 - Do not give vague tasks directly to Codex.
 - Do not allow Codex to invent missing requirements.
+- Do not treat a newly proposed requirement as approved implementation scope.
 - Move unclear work to `needs-clarification`.
 - Move dangerous work to `risky`.
 - Add guardrails after incidents.

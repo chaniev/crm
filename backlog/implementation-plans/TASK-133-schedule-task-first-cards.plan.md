@@ -2,6 +2,7 @@
 
 ## Metadata
 - source_task: /backlog/implementation/TASK-133-schedule-task-first-cards.md
+- requirements: REQ-GRP-007 (implements); REQ-GRP-005 (constrains); REQ-NFR-001 (constrains); REQ-ATT-006 (constrains)
 - branch: feature/TASK-133-schedule-task-first-cards
 - readiness: yes
 - ux_handoff: /backlog/mockups/TASK-133-schedule-task-first-cards/proposed/README-v2.md; `v2-*` PNGs are the visual reference and the README corrections override ambiguous PNG details

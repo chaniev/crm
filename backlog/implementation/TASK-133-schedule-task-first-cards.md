@@ -3,6 +3,12 @@
 ## Status
 implementation
 
+## Requirements
+- REQ-GRP-007 — implements
+- REQ-GRP-005 — constrains
+- REQ-NFR-001 — constrains
+- REQ-ATT-006 — constrains
+
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-24 14:25
 - moved_from: /backlog/tasks-ready

@@ -3,6 +3,10 @@
 ## Status
 risky
 
+## Requirements
+- REQ-BOT-004 — changes
+- REQ-NFR-003 — constrains
+
 ## Goal
 Старые `bot_conversation_states` и `bot_processed_updates` очищаются по управляемой retention-политике.
 

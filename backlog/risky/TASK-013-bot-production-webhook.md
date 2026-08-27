@@ -3,6 +3,11 @@
 ## Status
 risky
 
+## Requirements
+- REQ-BOT-001 — changes
+- REQ-BOT-007 — constrains
+- REQ-NFR-004 — changes
+
 ## Goal
 Telegram-бот может работать в production через webhook с валидацией secret и понятной deployment-инструкцией.
 

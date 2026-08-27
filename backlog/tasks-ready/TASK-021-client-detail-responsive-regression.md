@@ -3,6 +3,10 @@
 ## Status
 ready
 
+## Requirements
+- REQ-CLI-001 — verifies
+- REQ-NFR-001 — verifies
+
 ## Goal
 Карточка клиента и связанные form/detail сценарии стабильно работают на tablet и mobile после UI-изменений.
 

@@ -1706,3 +1706,11 @@
 - planned_in_place: none
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-133-schedule-task-first-cards.plan.md
+
+# 2026-08-28 — TASK-134 requirements workflow
+- moved: TASK-134 from direct accepted request
+- planned_in_place: none — scope accepted directly by user
+- requirements: none — process-only, no product behavior change
+- branch: feature/TASK-134-requirements-workflow
+- validation: requirements registry/task/plan validator, diff gate, negative
+  missing-metadata test, three skill quick validations, YAML parse, diff check

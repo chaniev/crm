@@ -3,6 +3,11 @@
 ## Status
 ready
 
+## Requirements
+- REQ-CLI-001 — changes
+- REQ-CLI-004 — constrains
+- REQ-NFR-001 — constrains
+
 ## Goal
 Detail и form сценарии клиента выглядят плотнее и понятнее, без пустых блоков и повторяющихся статусов.
 

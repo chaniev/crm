@@ -3,6 +3,11 @@
 ## Status
 risky
 
+## Requirements
+- REQ-BOT-006 — implements
+- REQ-CLI-004 — constrains
+- REQ-AUD-001 — constrains
+
 ## Goal
 Пользователь может заменить или добавить фото клиента из Telegram-бота с подтверждением и audit trail.
 

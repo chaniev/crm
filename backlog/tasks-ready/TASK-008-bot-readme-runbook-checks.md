@@ -3,6 +3,9 @@
 ## Status
 ready
 
+## Requirements
+- none — documentation-only; runtime and product behavior do not change
+
 ## Goal
 Разработчик может настроить, запустить и проверить Telegram-бота по README без устных подсказок.
 

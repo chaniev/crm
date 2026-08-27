@@ -3,6 +3,10 @@
 ## Status
 ready
 
+## Requirements
+- REQ-BOT-003 — changes
+- REQ-SUB-005 — constrains
+
 ## Goal
 Пользователь Telegram-бота видит дату окончания и количество оставшихся дней по каждому заканчивающемуся абонементу.
 

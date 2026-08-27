@@ -2,7 +2,8 @@
 
 Дата: 2026-04-17
 
-Основание: [MVP-ТЗ.md](../../docs/MVP-ТЗ.md), [MVP_SCREEN_MAP.md](../../docs/MVP_SCREEN_MAP.md)
+Историческое основание: [MVP-ТЗ.md](../../docs/archive/MVP-ТЗ.md), [MVP_SCREEN_MAP.md](../../docs/MVP_SCREEN_MAP.md).
+Актуальные требования: [реестр REQ-*](../../docs/requirements/README.md).
 
 ## 1. Цель плана
 

@@ -29,14 +29,20 @@ description: "Выбрать готовые backlog tasks, перевести и
 implementation задачу с unresolved critical product questions, полностью
 неясным scope или необратимым production действием без recovery.
 
-Каждая задача, меняющая поведение системы, должна ссылаться на существующий
-ID требования (`REQ-*`) из `docs/requirements/**` или содержать новую карточку
-требования по шаблону `docs/requirements/_шаблон-требования.md`. Задача без
-`REQ-*` ссылки не готова к переводу в implementation: вернуть её в
-`backlog/needs-clarification` с указанием недостающего требования, либо (если
-поведение очевидно из source task) добавить новую карточку со статусом
-`предложено`, строку в `docs/requirements/CHANGELOG.md` и сослаться на неё.
-Обновление затронутых `REQ-*` карточек входит в definition of done executor'а.
+Каждая задача содержит `## Requirements`. Для изменения поведения использовать
+существующий `REQ-*` с решением `принято` либо добавить карточку по шаблону
+`docs/requirements/_шаблон-требования.md`. Новая карточка с решением
+`предложено` не разрешает implementation: оставить задачу в
+`backlog/needs-clarification` до явного product approval, затем записать
+`принято` со ссылкой на задачу. `none` допустимо только с конкретной причиной,
+что поведение не меняется. `pending` допустимо только в
+`needs-clarification`. Обновление затронутых карточек и CHANGELOG входит в
+definition of done executor'а.
+
+Для отношения `changes` до перемещения задачи записать принятую целевую
+редакцию в карточку, добавить history/CHANGELOG и сменить её реализацию с
+`реализовано` на `частично` или `не начато`. Для `implements` карточка уже
+должна описывать принятый target без изменения смысла этой задачей.
 
 Full-stack, shared UI, migrations, payments, roles и permissions сами по себе
 не являются blocker для planning. Если изменение локализуемо, создать plan и
@@ -75,8 +81,9 @@ Plan должен содержать только информацию, необ
 Обязательно:
 
 - source task, branch, readiness, dependencies и task-specific risk;
-- `REQ-*` ссылки: существующие требования, которые задача изменяет, и/или
-  новые карточки, добавленные при планировании;
+- requirements metadata из source task с отношением `implements`, `changes`,
+  `constrains`, `verifies` либо обоснованным `none`; `pending` в executable
+  plan запрещён;
 - goal и решения, реально влияющие на implementation;
 - изменяемые contracts/data/UX semantics;
 - bounded implementation slices;
@@ -112,7 +119,7 @@ contract может быть длиннее, но каждая семантик�
 
 ## Metadata
 - source_task: /backlog/implementation/TASK-XXX-short.md
-- requirements: REQ-XXX-000 | new REQ-XXX-000 (+ карточка)
+- requirements: REQ-XXX-000 (implements|changes|constrains|verifies) | none — reason
 - branch: feature/TASK-XXX-short
 - readiness: yes | no — краткая причина, если no
 - dependencies: none | TASK-YYY (условие)
@@ -170,7 +177,8 @@ contract может быть длиннее, но каждая семантик�
 
 1. прочитать source task и проверить соответствие каталога/status;
 2. найти возможные дубликаты во всех active folders и `backlog/done`;
-3. проверить critical questions, scope, dependencies и regression strategy;
+3. проверить critical questions, scope, dependencies, regression strategy и
+   requirements approval state;
 4. выбрать уникальную branch с префиксом `feature/`, `fix/` или `refactor/`;
 5. создать plan по компактному шаблону;
 6. переместить только ready task и обновить lifecycle;
@@ -191,13 +199,14 @@ contract может быть длиннее, но каждая семантик�
 Проверить:
 
 - source/task/plan links и branch names;
-- наличие `REQ-*` ссылки в каждом plan (или новую карточку в
-  `docs/requirements/` с записью в CHANGELOG);
+- requirements metadata в task/plan, существование ID, решение `принято` и
+  отсутствие `pending`; для `none` — конкретная behavior-preserving причина;
 - отсутствие duplicate TASK IDs/plans;
 - status и lifecycle перемещённых задач;
 - наличие конкретных tests, expected-red evidence и regression barrier;
 - отсутствие повторов `AGENTS.md`, worktree, agents и generic validation;
-- diff ограничен backlog-файлами.
+- diff ограничен backlog-файлами и, только когда создаётся/принимается
+  требование, `docs/requirements/**` вместе с `CHANGELOG.md`.
 
 В отчёте перечислить изменённые task/plan/log files и причины пропуска. Не
 печатать полный tree backlog и не повторять содержание созданных plans.

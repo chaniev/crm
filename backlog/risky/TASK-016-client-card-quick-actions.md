@@ -3,6 +3,10 @@
 ## Status
 risky
 
+## Requirements
+- REQ-CLI-001 — changes
+- REQ-USR-001 — constrains
+
 ## Goal
 В карточке клиента доступны ожидаемые быстрые действия, а каждое действие соблюдает права, статус клиента и backend-валидацию.
 

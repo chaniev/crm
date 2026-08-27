@@ -3,6 +3,11 @@
 ## Status
 ready
 
+## Requirements
+- REQ-BOT-003 — verifies
+- REQ-BOT-004 — verifies
+- REQ-BOT-007 — verifies
+
 ## Goal
 Telegram MVP защищен regression tests по актуальной матрице ролей, ограничениям, поиску, абонементам, attendance/audit idempotency и update pipeline.
 

@@ -3,6 +3,9 @@
 ## Status
 needs-clarification
 
+## Requirements
+- REQ-NFR-004 — changes
+
 ## Goal
 Принять понятное решение, должен ли бот автосоздавать SQLAlchemy tables в dev или runtime должен строго полагаться на Alembic migrations.
 

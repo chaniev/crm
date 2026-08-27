@@ -3,6 +3,9 @@
 ## Status
 needs-clarification
 
+## Requirements
+- pending — trial-payment and conversion semantics require product approval
+
 ## Goal
 Пользователь видит количество оплаченных пробных посещений и долю клиентов, вернувшихся после пробного занятия, с фильтрами по периоду, тренеру и филиалу.
 

@@ -3,6 +3,9 @@
 ## Status
 needs-clarification
 
+## Requirements
+- pending — membership freeze model and streak semantics require product approval
+
 ## Goal
 После появления самостоятельной backend-owned модели заморозки абонемента корректно учитывать замороженные периоды при расчёте последовательных пропусков клиента.
 

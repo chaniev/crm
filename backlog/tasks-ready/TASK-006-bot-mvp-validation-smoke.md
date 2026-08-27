@@ -3,6 +3,14 @@
 ## Status
 ready
 
+## Requirements
+- REQ-BOT-001 — verifies
+- REQ-BOT-002 — verifies
+- REQ-BOT-003 — verifies
+- REQ-BOT-004 — verifies
+- REQ-BOT-007 — verifies
+- REQ-NFR-004 — verifies
+
 ## Goal
 Перед приемкой Telegram MVP есть воспроизводимый набор автоматических и ручных проверок.
 

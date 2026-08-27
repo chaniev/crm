@@ -3,6 +3,10 @@
 ## Status
 risky
 
+## Requirements
+- REQ-CLI-001 — changes
+- REQ-NFR-001 — constrains
+
 ## Goal
 Пустые состояния ведут пользователя к следующему действию, а disabled actions объясняют конкретную причину недоступности.
 

@@ -3,6 +3,9 @@
 ## Status
 needs-clarification
 
+## Requirements
+- pending — multi-window product behavior and security scope require approval
+
 ## Goal
 Сформировать понятные требования к возможности вынести отдельные разделы CRM, например `Расписание` и `Финансы`, в отдельное окно или вкладку для работы на втором мониторе.
 

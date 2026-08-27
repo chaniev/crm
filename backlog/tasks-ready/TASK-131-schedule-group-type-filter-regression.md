@@ -3,6 +3,9 @@
 ## Status
 ready
 
+## Requirements
+- REQ-GRP-005 — verifies
+
 ## Goal
 Фильтр `Тип группы` в актуальном календаре `/schedule` защищён прямыми backend, frontend component и Playwright regression-тестами, чтобы выбор, URL/API round-trip, очистка и совместная фильтрация не ломались незаметно.
 
