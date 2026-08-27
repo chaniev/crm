@@ -1,7 +1,7 @@
 # TASK-134: Встроить реестр требований в delivery workflow
 
 ## Status
-implementation
+done
 
 ## Requirements
 - none — process-only change; product behavior does not change
@@ -11,6 +11,8 @@ implementation
 - moved_from: direct user request
 - implementation_plan: none — scope was explicitly accepted in conversation
 - implementation_branch: feature/TASK-134-requirements-workflow
+- integrated_to_main_at: 2026-08-28
+- candidate_commit: bbc05071a0c12e3bde5e5b742d2ef067150ef01d
 
 ## Goal
 Каждая задача проходит от triage до закрытия с проверяемой связью с реестром

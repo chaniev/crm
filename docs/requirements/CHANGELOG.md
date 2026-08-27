@@ -15,7 +15,7 @@
   расписания (задача [TASK-133](../../backlog/implementation/TASK-133-schedule-task-first-cards.md)).
 - 28.08.2026 — реестр — продуктовое решение отделено от состояния реализации;
   добавлены обязательные task metadata, approval gate и CI validation
-  (задача [TASK-134](../../backlog/implementation/TASK-134-requirements-workflow.md)).
+  (задача [TASK-134](../../backlog/done/TASK-134-requirements-workflow.md)).
 
 ## 2026-08-27
 

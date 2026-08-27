@@ -1714,3 +1714,5 @@
 - branch: feature/TASK-134-requirements-workflow
 - validation: requirements registry/task/plan validator, diff gate, negative
   missing-metadata test, three skill quick validations, YAML parse, diff check
+- integrated: local main fast-forward at candidate `bbc0507`; closure recorded
+  after integration and TASK-134 moved to `backlog/done`
