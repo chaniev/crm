@@ -3,6 +3,23 @@
 The `v2-*` files are the implementation reference. The older unprefixed PNGs
 are retained as comparison evidence.
 
+## Required implementation corrections
+
+These annotations override ambiguous details in the static PNGs:
+
+- Empty state exposes one create operation. Keep the toolbar `+` when creation
+  is permitted; do not repeat `Создать занятие` as a second body action.
+- A cancelled card opens detail through the same card-body trigger and chevron
+  as every other card. Do not render a duplicate visible `Подробнее` control;
+  keep restore and other deferred operations in `Ещё`.
+- Recoverable error exposes one primary retry action. Stale retained cards show
+  real last-known content with `Данные могут быть устаревшими`; do not use
+  skeleton placeholders to represent cached data and do not duplicate retry as
+  both `Повторить` and `Обновить расписание`.
+- At `360–440px`, schedule tools move out of the date toolbar into a labeled
+  `44 x 44px` trigger in the day-summary row next to the lesson count. The
+  trigger retains an accessible name and active-filter indicator.
+
 ## Screen matrix
 
 | File | Purpose |
@@ -61,4 +78,3 @@ are retained as comparison evidence.
 - Loading prevents duplicate mutation actions. Retry keeps date and filters.
 - Visible text is illustrative presentation copy only where the task already
   defines that state; permissions and reasons still come from backend fields.
-
