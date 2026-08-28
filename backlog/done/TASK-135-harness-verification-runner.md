@@ -1,12 +1,15 @@
 # TASK-135: Единый harness verification runner
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-28
 - implementation_branch: feature/TASK-135-harness-verification-runner
-- implementation_state: in_progress
+- implementation_state: completed
+- implementation_commit: 930ec6a860391f5b620f8ebecd0680eac4ea6c2d
+- delivered_on_main_at: 2026-08-28
+- moved_to_done_at: 2026-08-28
 
 ## Goal
 Дать разработчику и Codex единую локальную и CI-точку входа, которая по
