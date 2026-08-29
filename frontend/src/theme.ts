@@ -38,12 +38,14 @@ export {
   foundationLayers,
   foundationRadii,
   foundationSpacing,
+  foundationSurfaces,
   type FoundationVariableMap,
   type FoundationBreakpoint,
   type FoundationElevation,
   type FoundationLayer,
   type FoundationRadius,
   type FoundationSpacing,
+  type FoundationSurface,
 } from './theme/foundations'
 export {
   createTypographyVariables,

@@ -481,7 +481,11 @@ function AuditLogGridRow({ entry, onOpenDetails }: AuditLogGridRowProps) {
   const presentation = buildAuditEntryPresentation(entry)
 
   return (
-    <div className="audit-log-row" data-testid="audit-log-row" role="row">
+    <div
+      className="audit-log-row crm-list-row-surface"
+      data-testid="audit-log-row"
+      role="row"
+    >
       <div className="audit-log-cell audit-log-cell--date" role="cell">
         <Text className="audit-log-time" fw={700} size="sm">
           <span>{dateTimeParts.date}</span>

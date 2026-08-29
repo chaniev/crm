@@ -9,6 +9,13 @@
 - ДД.ММ.ГГГГ — REQ-ДОМЕН-NNN — <что изменилось: новая | текст | решение | реализация> (задача <ссылка>)
 ```
 
+## 2026-08-30
+
+- 30.08.2026 — REQ-NFR-001 — текст дополнен принятым list-row/focus-card
+  контрактом; representative Users/Audit slices и mobile radius overrides
+  реализованы, общая реализация требования остаётся «частично» (задача
+  [TASK-160](../../backlog/implementation/TASK-160-list-row-surfaces.md)).
+
 ## 2026-08-29
 
 - 29.08.2026 — REQ-GRP-007 — принята mobile-density редакция с компактными

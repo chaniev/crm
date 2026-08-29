@@ -8,11 +8,20 @@ import {
   foundationLayers,
   foundationRadii,
   foundationSpacing,
+  foundationSurfaces,
 } from '../theme/foundations'
 import { createSemanticVariables } from '../theme/semanticVariables'
 import { defaultGreenProfile } from '../theme/profiles'
 
 const appCss = readFileSync(resolve(process.cwd(), 'src/App.css'), 'utf8')
+const usersListSource = readFileSync(
+  resolve(process.cwd(), 'src/features/users/UsersListScreen.tsx'),
+  'utf8',
+)
+const auditLogSource = readFileSync(
+  resolve(process.cwd(), 'src/features/audit/AuditLogScreen.tsx'),
+  'utf8',
+)
 
 describe('TASK-145 design foundation scales', () => {
   test('documents the existing canonical breakpoint, spacing, radius, layer and elevation values', () => {
@@ -80,6 +89,53 @@ describe('TASK-145 design foundation scales', () => {
     expect(appCss).not.toContain('z-index: -1;')
     expect(appCss).not.toContain('z-index: 210;')
     expect(appCss).not.toContain('z-index: 220;')
+  })
+
+  test('publishes the list-row surface contract without elevation', () => {
+    expect(foundationSurfaces.listRow).toEqual({
+      background: 'var(--crm-surface-subtle)',
+      border: 'var(--crm-border-muted)',
+      elevation: 'none',
+      radius: '8px',
+    })
+
+    const variables = createFoundationVariables()
+    expect(variables).toMatchObject({
+      '--crm-surface-list-row': 'var(--crm-surface-subtle)',
+      '--crm-surface-list-row-border': 'var(--crm-border-muted)',
+      '--crm-radius-list-row': '8px',
+      '--crm-elevation-list-row': 'none',
+    })
+    expect(Number.parseFloat(variables['--crm-radius-list-row'])).toBeLessThanOrEqual(16)
+  })
+
+  test('keeps focus radii on desktop and compacts them at the mobile boundary', () => {
+    expect(foundationRadii.card).toBe('24px')
+    expect(foundationRadii.inner).toBe('20px')
+    expect(foundationRadii.cardMobile).toBe('16px')
+    expect(foundationRadii.innerMobile).toBe('12px')
+    expect(appCss).toContain('@media (max-width: 48rem)')
+    expect(createFoundationVariables()).toMatchObject({
+      '--crm-radius-card-mobile': '16px',
+      '--crm-radius-inner-mobile': '12px',
+    })
+    expect(appCss).toContain('--crm-radius-card: var(--crm-radius-card-mobile);')
+    expect(appCss).toContain('--crm-radius-inner: var(--crm-radius-inner-mobile);')
+  })
+
+  test('migrates trainers and audit rows to the list-row paint contract', () => {
+    expect(appCss).toContain('background: var(--crm-surface-list-row);')
+    expect(appCss).toContain('border-color: var(--crm-surface-list-row-border);')
+    expect(appCss).toContain('border-radius: var(--crm-radius-list-row);')
+    expect(appCss).toContain('box-shadow: var(--crm-elevation-list-row);')
+    expect(usersListSource).toContain('list-row-card crm-list-row-surface')
+    expect(auditLogSource).toContain('audit-log-row crm-list-row-surface')
+    expect(usersListSource).not.toContain('--crm-elevation-card')
+    expect(auditLogSource).not.toContain('--crm-elevation-card')
+
+    const listRowRule = appCss.match(/\.crm-list-row-surface\s*\{([^}]*)\}/)?.[1]
+    expect(listRowRule).toBeTruthy()
+    expect(listRowRule).not.toMatch(/\b(?:height|min-height|margin|padding|gap)\s*:/)
   })
 })
 

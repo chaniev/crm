@@ -24,9 +24,20 @@ export const foundationSpacing = {
 
 export const foundationRadii = {
   card: '24px',
+  cardMobile: '16px',
   inner: '20px',
+  innerMobile: '12px',
   denseSurface: '8px',
   pill: '999px',
+} as const
+
+export const foundationSurfaces = {
+  listRow: {
+    background: 'var(--crm-surface-subtle)',
+    border: 'var(--crm-border-muted)',
+    elevation: 'none',
+    radius: '8px',
+  },
 } as const
 
 export const foundationLayers = {
@@ -65,9 +76,15 @@ export function createFoundationVariables(): FoundationVariableMap {
       foundationSpacing.pageCardPaddingCompactMobile,
     '--crm-space-dense-surface-padding': foundationSpacing.denseSurfacePadding,
     '--crm-radius-card': foundationRadii.card,
+    '--crm-radius-card-mobile': foundationRadii.cardMobile,
     '--crm-radius-inner': foundationRadii.inner,
+    '--crm-radius-inner-mobile': foundationRadii.innerMobile,
     '--crm-radius-dense-surface': foundationRadii.denseSurface,
     '--crm-radius-pill': foundationRadii.pill,
+    '--crm-surface-list-row': foundationSurfaces.listRow.background,
+    '--crm-surface-list-row-border': foundationSurfaces.listRow.border,
+    '--crm-radius-list-row': foundationSurfaces.listRow.radius,
+    '--crm-elevation-list-row': foundationSurfaces.listRow.elevation,
     '--crm-layer-underlay': foundationLayers.underlay,
     '--crm-layer-base': foundationLayers.base,
     '--crm-layer-raised': foundationLayers.raised,
@@ -84,5 +101,6 @@ export function createFoundationVariables(): FoundationVariableMap {
 export type FoundationBreakpoint = keyof typeof foundationBreakpoints
 export type FoundationSpacing = keyof typeof foundationSpacing
 export type FoundationRadius = keyof typeof foundationRadii
+export type FoundationSurface = keyof typeof foundationSurfaces
 export type FoundationLayer = keyof typeof foundationLayers
 export type FoundationElevation = keyof typeof foundationElevation
