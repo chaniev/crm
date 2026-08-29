@@ -39,6 +39,13 @@ import {
   type GroupListReturnSnapshot,
 } from '../features/groups/groupListReturnState'
 import {
+  createScheduleReturnSnapshot,
+  isScheduleSectionPath,
+  mergeScheduleReturnSnapshotIntoHistoryState,
+  readScheduleReturnSnapshot,
+  withScheduleReturnDepth,
+} from '../features/schedule/scheduleReturnState'
+import {
   isAppRoute,
   isClientProfileOriginInput,
   stripAppReturnSnapshotsFromHistoryState,
@@ -122,6 +129,61 @@ export function useAppReturnNavigation({
   const activeClientProfileReturnContext = readClientProfileReturnContext(
     window.history.state,
   )
+  const activeScheduleReturnSnapshot = readScheduleReturnSnapshot(
+    window.history.state,
+  )
+
+  function navigateWithScheduleReturnState(
+    nextRoute: AppRoute,
+    lessonOccurrenceId?: string | null,
+    options: Omit<NavigateOptions, 'state'> = {},
+  ) {
+    let snapshot = activeScheduleReturnSnapshot
+
+    if (isScheduleSectionPath(window.location.pathname)) {
+      snapshot = createScheduleReturnSnapshot(lessonOccurrenceId)
+      window.history.replaceState(
+        mergeScheduleReturnSnapshotIntoHistoryState(window.history.state, snapshot),
+        '',
+        `${window.location.pathname}${window.location.search}`,
+      )
+    }
+
+    const targetSnapshot = snapshot
+      ? withScheduleReturnDepth(snapshot, (snapshot.returnDepth ?? 0) + 1)
+      : null
+    const nextState = targetSnapshot
+      ? mergeScheduleReturnSnapshotIntoHistoryState(
+          stripAppReturnSnapshotsFromHistoryState(window.history.state),
+          targetSnapshot,
+        )
+      : stripAppReturnSnapshotsFromHistoryState(window.history.state)
+
+    navigate(nextRoute, {
+      ...options,
+      state: nextState,
+    })
+  }
+
+  function returnToSchedule() {
+    if (activeScheduleReturnSnapshot) {
+      if (activeScheduleReturnSnapshot.returnDepth > 0) {
+        window.history.go(-activeScheduleReturnSnapshot.returnDepth)
+        return
+      }
+
+      navigate(activeScheduleReturnSnapshot.path, {
+        replace: true,
+        state: mergeScheduleReturnSnapshotIntoHistoryState(
+          stripAppReturnSnapshotsFromHistoryState(window.history.state),
+          withScheduleReturnDepth(activeScheduleReturnSnapshot, 0),
+        ),
+      })
+      return
+    }
+
+    navigate({ kind: 'section', section: 'Schedule' })
+  }
 
   useEffect(() => {
     const pendingReturn = pendingClientProfileReturnRef.current
@@ -446,13 +508,16 @@ export function useAppReturnNavigation({
     activeClientListReturnSnapshot,
     activeClientProfileReturnContext,
     activeGroupListReturnSnapshot,
+    activeScheduleReturnSnapshot,
     editClient,
     openClientDetails,
     returnToClients,
     returnToGroups,
+    returnToSchedule,
     saveClientListReturnState,
     saveGroupListReturnState,
     navigateWithClientListReturnState,
     navigateWithGroupListReturnState,
+    navigateWithScheduleReturnState,
   }
 }

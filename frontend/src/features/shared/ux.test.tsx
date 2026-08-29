@@ -303,6 +303,26 @@ describe('shared UX components', () => {
     expect(within(overflowList).queryByRole('button', { name: 'Тренеры' })).not.toBeInTheDocument()
   })
 
+  test('MobileBottomNavigation keeps all five Russian labels fully readable without truncation hooks', () => {
+    renderWithProviders(
+      <MobileBottomNavigation
+        currentSection="Schedule"
+        onNavigate={() => undefined}
+        sections={['Attendance', 'Attention', 'Schedule', 'Clients', 'Groups', 'Users', 'Audit']}
+      />,
+    )
+
+    const root = screen.getByRole('navigation', { name: 'Мобильная навигация' })
+    const labels = within(root).getAllByRole('button').map((button) =>
+      within(button).getByText(/^(Посещения|Внимание|Расписание|Клиенты|Группы|Тренеры|Ещё)$/),
+    )
+
+    for (const label of labels) {
+      expect(label).toHaveAttribute('data-no-truncate', 'true')
+      expect(label).not.toHaveAttribute('title')
+    }
+  })
+
   test('EntityLocatorBar keeps locator, filter count, clear, and action slots in one task row', async () => {
     const onFilterOpen = vi.fn()
     const onFilterClear = vi.fn()

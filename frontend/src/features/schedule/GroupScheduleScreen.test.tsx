@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   ApiError,
@@ -20,6 +20,12 @@ import {
   type ScheduleLesson,
 } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
+import {
+  createScheduleReturnSnapshot,
+  mergeScheduleReturnSnapshotIntoHistoryState,
+  readScheduleReturnSnapshot,
+  stripScheduleReturnSnapshotFromHistoryState,
+} from './scheduleReturnState'
 import {
   GroupScheduleScreen,
   ScheduleLessonChangeRouteScreen,
@@ -184,8 +190,14 @@ describe('GroupScheduleScreen occurrence calendar', () => {
       expect.any(AbortSignal),
     )
 
-    expect(screen.getByTestId('schedule-card-occurrence-morning')).toHaveTextContent('08:00-08:50')
-    expect(screen.getByTestId('schedule-card-occurrence-evening')).toHaveTextContent('18:00-18:50')
+    expect(screen.getByTestId('schedule-time-group-2026-08-20-08:00-08:50')).toHaveTextContent('08:00-08:50')
+    expect(screen.getByTestId('schedule-time-group-2026-08-20-18:00-18:50')).toHaveTextContent('18:00-18:50')
+    expect(screen.getByTestId('schedule-card-occurrence-morning')).toHaveAttribute(
+      'id',
+      'schedule-card-anchor-occurrence-morning',
+    )
+    // The exact interval is the time-group heading and is not repeated inside sibling cards.
+    expect(within(screen.getByTestId('schedule-card-occurrence-morning')).queryByText('08:00-08:50')).not.toBeInTheDocument()
     expect(screen.getByTestId('schedule-card-occurrence-evening')).toHaveTextContent('Отметки есть')
 
     fireEvent.click(
@@ -286,9 +298,12 @@ describe('GroupScheduleScreen occurrence calendar', () => {
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
     fireEvent.click(within(card).getByRole('button', { name: /Изменить занятие/ }))
-    fireEvent.click(within(card).getByRole('button', { name: /Перенести занятие/ }))
 
     expect(onEditLesson).toHaveBeenCalledWith('occurrence-morning', '2026-08-20')
+
+    // Перенести is a deferred action and is reachable only via the `Ещё` surface.
+    const surface = await openMoreActions(card)
+    fireEvent.click(within(surface).getByRole('button', { name: /Перенести занятие/ }))
     expect(onMoveLesson).toHaveBeenCalledWith('occurrence-morning', '2026-08-20')
   })
 
@@ -436,7 +451,9 @@ describe('GroupScheduleScreen occurrence calendar', () => {
 
     renderSchedule()
 
-    fireEvent.click(await screen.findByRole('button', {
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    const surface = await openMoreActions(card)
+    fireEvent.click(within(surface).getByRole('button', {
       name: /Назначить замену тренера: Утренняя база/,
     }))
     fireEvent.click(await screen.findByRole('button', { name: 'Получить предпросмотр' }))
@@ -481,7 +498,9 @@ describe('GroupScheduleScreen occurrence calendar', () => {
 
     renderSchedule()
 
-    fireEvent.click(await screen.findByRole('button', {
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    const surface = await openMoreActions(card)
+    fireEvent.click(within(surface).getByRole('button', {
       name: /Снять замену тренера: Утренняя база/,
     }))
     fireEvent.click(await screen.findByRole('button', { name: 'Получить предпросмотр' }))
@@ -512,9 +531,11 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     renderSchedule({ onOpenLessonDetail })
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
-    expect(within(card).getByRole('button', { name: /Отменить занятие/ })).toBeVisible()
-    expect(within(card).queryByRole('button', { name: /Восстановить занятие/ })).not.toBeInTheDocument()
-    fireEvent.click(within(card).getByRole('button', { name: /Отменить занятие/ }))
+    expect(within(card).queryByRole('button', { name: /Отменить занятие/ })).not.toBeInTheDocument()
+    const surface = await openMoreActions(card)
+    expect(within(surface).getByRole('button', { name: /Отменить занятие/ })).toBeInTheDocument()
+    expect(within(surface).queryByRole('button', { name: /Восстановить занятие/ })).not.toBeInTheDocument()
+    fireEvent.click(within(surface).getByRole('button', { name: /Отменить занятие/ }))
 
     const drawer = await screen.findByRole('dialog', { name: 'Отменить занятие' })
     expect(drawer).toHaveTextContent('Утренняя база')
@@ -572,7 +593,8 @@ describe('GroupScheduleScreen occurrence calendar', () => {
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
     expect(within(card).queryByRole('button', { name: /Отменить занятие/ })).not.toBeInTheDocument()
-    fireEvent.click(within(card).getByRole('button', { name: /Восстановить занятие/ }))
+    const surface = await openMoreActions(card)
+    fireEvent.click(within(surface).getByRole('button', { name: /Восстановить занятие/ }))
     const drawer = await screen.findByRole('dialog', { name: 'Восстановить занятие' })
     fireEvent.click(within(drawer).getByRole('button', { name: 'Получить предпросмотр' }))
 
@@ -608,7 +630,8 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     renderSchedule()
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
-    fireEvent.click(within(card).getByRole('button', { name: /Отменить занятие/ }))
+    const cancelSurface = await openMoreActions(card)
+    fireEvent.click(within(cancelSurface).getByRole('button', { name: /Отменить занятие/ }))
     const drawer = await screen.findByRole('dialog', { name: 'Отменить занятие' })
     fireEvent.click(within(drawer).getByRole('button', { name: 'Получить предпросмотр' }))
     await within(drawer).findByText('Проверьте действие перед подтверждением')
@@ -642,7 +665,8 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     renderSchedule()
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
-    fireEvent.click(within(card).getByRole('button', { name: /Отменить занятие/ }))
+    const cancelSurface = await openMoreActions(card)
+    fireEvent.click(within(cancelSurface).getByRole('button', { name: /Отменить занятие/ }))
     const drawer = await screen.findByRole('dialog', { name: 'Отменить занятие' })
     fireEvent.click(within(drawer).getByRole('button', { name: 'Получить предпросмотр' }))
 
@@ -772,7 +796,303 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     expect(within(screenRoot).queryByText('Schedule confirmation token is not valid for this mutation.')).not.toBeInTheDocument()
     expect(within(screenRoot).queryByText('backend-technical-code')).not.toBeInTheDocument()
   })
+
+  test('groups same-interval occurrences under one chronological time-group heading', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        lessonOccurrenceId: 'parallel-a',
+        startTime: '10:00',
+        endTime: '10:50',
+        groupName: 'Параллель А',
+      }),
+      buildLesson({
+        lessonOccurrenceId: 'parallel-b',
+        startTime: '10:00',
+        endTime: '10:50',
+        groupName: 'Параллель Б',
+        hasAttendanceMarks: true,
+      }),
+      buildLesson({
+        lessonOccurrenceId: 'other-end',
+        startTime: '10:00',
+        endTime: '11:00',
+        groupName: 'Другая длительность',
+      }),
+      buildLesson({
+        lessonOccurrenceId: 'later',
+        startTime: '12:00',
+        endTime: '12:50',
+        groupName: 'Позже',
+      }),
+    ]))
+
+    renderSchedule()
+
+    await screen.findByTestId('schedule-card-parallel-a')
+
+    const sameIntervalGroup = screen.getByTestId('schedule-time-group-2026-08-20-10:00-10:50')
+    expect(within(sameIntervalGroup).getByTestId('schedule-card-parallel-a')).toBeInTheDocument()
+    expect(within(sameIntervalGroup).getByTestId('schedule-card-parallel-b')).toBeInTheDocument()
+    expect(within(sameIntervalGroup).queryByTestId('schedule-card-other-end')).not.toBeInTheDocument()
+
+    const orderedGroupTestIds = screen
+      .getAllByTestId(/^schedule-time-group-/)
+      .map((element) => element.getAttribute('data-testid'))
+    expect(orderedGroupTestIds).toEqual([
+      'schedule-time-group-2026-08-20-10:00-10:50',
+      'schedule-time-group-2026-08-20-10:00-11:00',
+      'schedule-time-group-2026-08-20-12:00-12:50',
+    ])
+
+    // Neutral attendance badge is exhaustive.
+    expect(screen.getByTestId('schedule-card-parallel-a')).toHaveTextContent('Без отметок')
+    expect(screen.getByTestId('schedule-card-parallel-b')).toHaveTextContent('Отметки есть')
+    expect(screen.getByTestId('schedule-card-later')).toHaveTextContent('Без отметок')
+  })
+
+  test('more-actions surface shares one ordered capability-derived action model across drawer and menu', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        allowedActions: buildAllowedActions({
+          edit: { allowed: true, reason: null },
+          move: { allowed: true, reason: null },
+          assignTrainerSubstitution: { allowed: true, reason: null },
+          cancel: { allowed: true, reason: null },
+        }),
+      }),
+    ]))
+
+    renderSchedule()
+
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    // Max three visible card actions next to the body trigger: attendance, edit, more.
+    expect(within(card).getByRole('button', { name: /Открыть посещаемость/ })).toBeVisible()
+    expect(within(card).getByRole('button', { name: /Изменить занятие/ })).toBeVisible()
+    expect(within(card).getByRole('button', { name: /Ещё действий/ })).toBeVisible()
+    expect(within(card).queryByRole('button', { name: /Перенести занятие/ })).not.toBeInTheDocument()
+    expect(within(card).queryByRole('button', { name: /Отменить занятие/ })).not.toBeInTheDocument()
+    expect(within(card).queryByRole('button', { name: /Снять замену тренера/ })).not.toBeInTheDocument()
+
+    const drawerSurface = await openMoreActions(card)
+    expect(within(drawerSurface)
+      .getAllByRole('button')
+      .map((button) => button.textContent?.trim())
+      .filter(Boolean)).toEqual([
+      'Перенести',
+      'Серия',
+      'Замена',
+      'Отменить',
+    ])
+    expect(within(drawerSurface).getByText('Утренняя база')).toBeInTheDocument()
+    expect(within(drawerSurface).getByText('08:00-08:50')).toBeInTheDocument()
+
+    // Desktop fine-pointer surface (Mantine Menu) consumes the same model.
+    const matchMediaSpy = vi
+      .spyOn(window, 'matchMedia')
+      .mockImplementation((query: string) => makeMediaQueryResult(query, query.includes('pointer: fine')))
+    try {
+      cleanup()
+      renderSchedule()
+      const desktopCard = await screen.findByTestId('schedule-card-occurrence-morning')
+      const desktopTrigger = within(desktopCard).getByRole('button', { name: /Ещё действий/ })
+      fireEvent.click(desktopTrigger)
+      await waitFor(() => expect(desktopTrigger).toHaveAttribute('aria-expanded', 'true'))
+      const menu = await waitFor(() => {
+        const dropdown = document.querySelector('[data-menu-dropdown]')
+        expect(dropdown).not.toBeNull()
+        return dropdown as HTMLElement
+      })
+      expect(within(menu).getAllByRole('menuitem', { hidden: true }).map((item) => item.textContent)).toEqual([
+        'Перенести',
+        'Серия',
+        'Замена',
+        'Отменить',
+      ])
+      fireEvent.keyDown(menu, { key: 'Escape' })
+      await waitFor(() => expect(desktopTrigger).toHaveAttribute('aria-expanded', 'false'))
+      await waitFor(() => expect(desktopTrigger).toHaveFocus())
+    } finally {
+      matchMediaSpy.mockRestore()
+    }
+  })
+
+  test('Ещё is absent without deferred actions and Escape returns focus to its trigger', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        lessonSeriesId: null,
+        allowedActions: buildAllowedActions({
+          edit: { allowed: true, reason: null },
+        }),
+      }),
+      buildLesson({
+        lessonOccurrenceId: 'occurrence-minimal',
+        lessonSeriesId: null,
+      }),
+    ]))
+
+    renderSchedule()
+
+    const fullCard = await screen.findByTestId('schedule-card-occurrence-morning')
+    expect(within(fullCard).getByRole('button', { name: /Изменить занятие/ })).toBeVisible()
+    expect(within(fullCard).queryByRole('button', { name: /Ещё действий/ })).not.toBeInTheDocument()
+
+    const minimalCard = screen.getByTestId('schedule-card-occurrence-minimal')
+    expect(within(minimalCard).queryByRole('button', { name: /Изменить занятие/ })).not.toBeInTheDocument()
+    expect(within(minimalCard).queryByRole('button', { name: /Ещё действий/ })).not.toBeInTheDocument()
+
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({
+        lessonSeriesId: null,
+        allowedActions: buildAllowedActions({
+          move: { allowed: true, reason: null },
+        }),
+      }),
+    ]))
+    // Re-render a card with deferred actions for the keyboard path.
+    cleanup()
+    renderSchedule()
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    const moreTrigger = within(card).getByRole('button', { name: /Ещё действий/ })
+    moreTrigger.focus()
+    fireEvent.click(moreTrigger)
+    const surface = await screen.findByRole('dialog', { name: /Ещё действий/ })
+    fireEvent.keyDown(within(surface).getByRole('button', { name: /Перенести занятие/ }), { key: 'Escape' })
+
+    await waitFor(() => expect(moreTrigger).toHaveFocus())
+  })
+
+  test('mobile date toolbar keeps previous, full date, next and create only; tools live in the day-summary row', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20&trainerId=trainer-1')
+    renderSchedule()
+
+    await screen.findByTestId('schedule-card-occurrence-morning')
+
+    const toolbar = screen.getByTestId('schedule-toolbar')
+    expect(toolbar).toHaveAttribute('data-tools-placement', 'day-summary')
+    expect(within(toolbar).getByRole('button', { name: 'Предыдущий день' })).toBeInTheDocument()
+    expect(within(toolbar).getByLabelText('Дата расписания')).toHaveValue('2026-08-20')
+    expect(within(toolbar).getByRole('button', { name: 'Следующий день' })).toBeInTheDocument()
+    expect(within(toolbar).getByRole('button', { name: 'Создать разовое занятие' })).toBeInTheDocument()
+    expect(within(toolbar).queryByRole('button', { name: 'Параметры календаря' })).not.toBeInTheDocument()
+
+    const daySummary = screen.getByTestId('schedule-day-summary')
+    expect(daySummary).toHaveTextContent('четверг')
+    expect(daySummary).toHaveTextContent('2 занятия')
+    const toolsTrigger = within(daySummary).getByRole('button', { name: /Параметры календаря, активных фильтров: 1/ })
+    expect(toolsTrigger).toHaveAttribute('data-target-size', '44')
+  })
+
+  test('loading renders card-shaped skeletons while toolbar stays available', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockReturnValue(new Promise(() => undefined))
+
+    renderSchedule()
+
+    const skeletons = await screen.findAllByTestId('schedule-card-skeleton')
+    expect(skeletons.length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByTestId('schedule-toolbar')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Предыдущий день' })).toBeDisabled()
+    expect(screen.queryByTestId('schedule-card-occurrence-morning')).not.toBeInTheDocument()
+  })
+
+  test('error with retained data marks real stale cards instead of skeletons', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValueOnce(buildScheduleResponse([
+      buildLesson(),
+    ]))
+    renderSchedule()
+    await screen.findByTestId('schedule-card-occurrence-morning')
+
+    getLessons.mockRejectedValue(new Error('network down'))
+    fireEvent.click(screen.getByRole('button', { name: /Параметры календаря/ }))
+    const toolsDrawer = await screen.findByRole('dialog', { name: 'Параметры календаря' })
+    await waitFor(() => expect(within(toolsDrawer).getByRole('button', { name: 'Обновить' })).toBeEnabled())
+    fireEvent.click(within(toolsDrawer).getByRole('button', { name: 'Обновить' }))
+
+    expect(await screen.findByText('Не удалось обновить расписание')).toBeVisible()
+    expect(screen.getByTestId('schedule-stale-banner')).toHaveTextContent('Данные могут быть устаревшими')
+    expect(screen.getByTestId('schedule-card-occurrence-morning')).toBeInTheDocument()
+    expect(screen.queryByTestId('schedule-card-skeleton')).not.toBeInTheDocument()
+  })
+
+  test('cancelled card uses the shared body detail trigger without a duplicate Подробнее', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    getLessons.mockResolvedValue(buildScheduleResponse([
+      buildLesson({ status: 'Cancelled' }),
+    ]))
+    const onOpenLessonDetail = vi.fn()
+
+    renderSchedule({ onOpenLessonDetail })
+
+    const card = await screen.findByTestId('schedule-card-occurrence-morning')
+    expect(within(card).getByRole('button', { name: /Открыть занятие/ })).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Подробнее' })).not.toBeInTheDocument()
+    fireEvent.click(within(card).getByRole('button', { name: /Открыть занятие/ }))
+    expect(onOpenLessonDetail).toHaveBeenCalledWith('occurrence-morning', '2026-08-20')
+  })
+
+  test('restores captured schedule origin anchor and scroll from a return snapshot', async () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20')
+    renderSchedule()
+    await screen.findByTestId('schedule-card-occurrence-morning')
+    cleanup()
+
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20&view=day')
+    window.history.replaceState(
+      {
+        crmScheduleReturnState: {
+          version: 1,
+          path: '/schedule?date=2026-08-20&view=day',
+          timeGroupAnchorId: 'schedule-time-group-2026-08-20-18:00-18:50',
+          cardAnchorId: 'schedule-card-anchor-occurrence-evening',
+          scrollY: 320,
+          focusTarget: 'card',
+          originEntryKey: 'schedule:test-entry',
+          returnDepth: 1,
+        },
+      },
+      '',
+      '/schedule?date=2026-08-20&view=day',
+    )
+
+    const scrollSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined)
+    const focusSpy = vi.fn()
+    HTMLElement.prototype.focus = focusSpy
+
+    renderSchedule()
+    await screen.findByTestId('schedule-card-occurrence-evening')
+
+    await waitFor(() =>
+      expect(scrollSpy).toHaveBeenCalledWith(expect.objectContaining({ top: 320 })),
+    )
+    await waitFor(() =>
+      expect(focusSpy).toHaveBeenCalled(),
+    )
+
+    scrollSpy.mockRestore()
+  })
 })
+
+async function openMoreActions(card: HTMLElement) {
+  fireEvent.click(within(card).getByRole('button', { name: /Ещё действий/ }))
+  return await screen.findByRole('dialog', { name: /Ещё действий/ })
+}
+
+function makeMediaQueryResult(query: string, matches: boolean) {
+  return {
+    matches,
+    media: query,
+    onchange: null,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+    addListener: () => undefined,
+    removeListener: () => undefined,
+    dispatchEvent: () => false,
+  }
+}
 
 function renderSchedule({
   onCreateLesson = vi.fn(),
@@ -1044,3 +1364,58 @@ function buildAllowedActions(overrides: Partial<ScheduleLesson['allowedActions']
     cancelTrainerSubstitution: overrides.cancelTrainerSubstitution ?? { allowed: false, reason: 'no-substitution' },
   }
 }
+
+describe('scheduleReturnState', () => {
+  test('captures and reads back a schedule origin snapshot', () => {
+    window.history.replaceState({}, '', '/schedule?date=2026-08-20&view=week&groupId=group-1')
+    window.scrollTo(0, 0)
+    Object.defineProperty(window, 'scrollY', { value: 220, configurable: true })
+
+    const snapshot = createScheduleReturnSnapshot('occurrence-morning')
+
+    expect(snapshot).toMatchObject({
+      version: 1,
+      path: '/schedule?date=2026-08-20&view=week&groupId=group-1',
+      timeGroupAnchorId: null,
+      cardAnchorId: 'schedule-card-anchor-occurrence-morning',
+      scrollY: 220,
+      focusTarget: 'card',
+    })
+    expect(snapshot.originEntryKey).toBeTruthy()
+
+    window.history.replaceState(
+      mergeScheduleReturnSnapshotIntoHistoryState(window.history.state, snapshot),
+      '',
+      '/schedule?date=2026-08-20&view=week&groupId=group-1',
+    )
+    expect(readScheduleReturnSnapshot(window.history.state)).toEqual(snapshot)
+  })
+
+  test('rejects stale or malformed schedule origins', () => {
+    expect(readScheduleReturnSnapshot(null)).toBeNull()
+    expect(readScheduleReturnSnapshot({})).toBeNull()
+    expect(readScheduleReturnSnapshot({
+      crmScheduleReturnState: { version: 2, path: '/schedule' },
+    })).toBeNull()
+    expect(readScheduleReturnSnapshot({
+      crmScheduleReturnState: { version: 1 },
+    })).toBeNull()
+    expect(readScheduleReturnSnapshot({
+      crmScheduleReturnState: {
+        version: 1,
+        path: '/clients',
+        cardAnchorId: 'schedule-card-anchor-occurrence-morning',
+        scrollY: 10,
+        focusTarget: 'card',
+        originEntryKey: 'k',
+      },
+    })).toBeNull()
+  })
+
+  test('strip removes only the schedule snapshot from history state', () => {
+    expect(stripScheduleReturnSnapshotFromHistoryState({
+      crmScheduleReturnState: { version: 1 },
+      retained: 'keep',
+    })).toEqual({ retained: 'keep' })
+  })
+})

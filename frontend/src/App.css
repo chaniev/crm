@@ -598,12 +598,21 @@
 
 .mobile-bottom-nav__label {
   max-width: 100%;
-  overflow: hidden;
-  font-size: 0.72rem;
+  overflow: visible;
+  font-size: clamp(0.6rem, 1.7vw, 0.72rem);
   font-weight: 800;
   line-height: 1.1;
-  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@media (max-width: 27.5em) {
+  .mobile-bottom-nav__inner {
+    gap: 0.125rem;
+  }
+
+  .mobile-bottom-nav__item {
+    padding-inline: 0.1rem;
+  }
 }
 
 .mobile-bottom-nav__sheet-content {
@@ -1995,8 +2004,8 @@
 }
 
 .schedule-toolbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 44px;
+  display: flex;
+  flex-wrap: nowrap;
   gap: 0.5rem;
   align-items: center;
   width: 100%;
@@ -2004,8 +2013,27 @@
   margin-bottom: var(--page-section-gap);
 }
 
-.schedule-toolbar[data-create-capability='available'] {
-  grid-template-columns: minmax(0, 1fr) 44px 44px;
+.schedule-day-summary {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: var(--page-section-gap);
+}
+
+.schedule-day-summary__weekday {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.schedule-day-summary__count {
+  flex: 0 0 auto;
+}
+
+.schedule-day-summary .schedule-toolbar__button {
+  margin-inline-start: auto;
 }
 
 .schedule-toolbar__date-group {
@@ -2013,6 +2041,7 @@
   grid-template-columns: 44px minmax(120px, 1fr) 44px;
   gap: 0.5rem;
   align-items: center;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -2151,6 +2180,207 @@
   overflow: visible;
 }
 
+.schedule-time-group,
+.schedule-occurrence-card {
+  scroll-margin-top: 4.5rem;
+  scroll-margin-bottom: calc(80px + env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+.schedule-time-group__heading {
+  margin: 0 0 0.5rem;
+  color: var(--crm-text-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-time-group__cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.schedule-time-group__cards .schedule-occurrence-card {
+  outline: none;
+}
+
+.schedule-occurrence-card__attendance {
+  flex: 1 1 auto;
+}
+
+.schedule-occurrence-card__secondary :where(.mantine-Button-label),
+.schedule-occurrence-card__more :where(.mantine-Button-label) {
+  white-space: nowrap;
+}
+
+.schedule-occurrence-card__chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--crm-action-primary-active);
+}
+
+@media (max-width: 26.25em) {
+  .schedule-occurrence-card__secondary :where(.mantine-Button-label),
+  .schedule-occurrence-card__more :where(.mantine-Button-label) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .schedule-occurrence-card__secondary,
+  .schedule-occurrence-card__more {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: 0;
+  }
+
+  .schedule-occurrence-card__secondary :where(.mantine-Button-section),
+  .schedule-occurrence-card__more :where(.mantine-Button-section) {
+    margin-inline: 0;
+  }
+}
+
+.schedule-stale-banner {
+  display: block;
+  margin: 0 0 var(--page-section-gap);
+}
+
+.schedule-skeleton-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.schedule-skeleton {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.9rem;
+  border: 1px solid var(--crm-border-default);
+  border-radius: var(--dense-surface-radius);
+  background: var(--crm-surface-card);
+}
+
+.schedule-skeleton__line {
+  height: 0.9rem;
+  border-radius: 0.35rem;
+  background: var(--crm-brand-alpha-06);
+  animation: schedule-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.schedule-skeleton__line--title {
+  width: 65%;
+  height: 1.1rem;
+}
+
+.schedule-skeleton__line--short {
+  width: 40%;
+}
+
+.schedule-skeleton__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.schedule-skeleton__action {
+  width: 9rem;
+  height: 44px;
+  border-radius: 0.4rem;
+  background: var(--crm-brand-alpha-06);
+  animation: schedule-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes schedule-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.schedule-more-drawer .mantine-Drawer-content {
+  max-height: min(84dvh, 40rem);
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  overflow: hidden auto;
+}
+
+.schedule-more-drawer__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.85rem;
+}
+
+.schedule-more-drawer__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.schedule-more-drawer__action {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--crm-border-default);
+  border-radius: 0.75rem;
+  color: var(--crm-action-primary-active);
+  background: var(--crm-surface-card);
+}
+
+.schedule-more-drawer__action[data-danger='true'] {
+  color: var(--crm-status-danger);
+}
+
+@media (max-height: 30rem) and (pointer: coarse), (max-height: 30rem) and (hover: none) {
+  .schedule-more-drawer .mantine-Drawer-content {
+    max-height: calc(100dvh - 16px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .schedule-more-drawer__body,
+  .schedule-more-drawer .mantine-Drawer-body {
+    min-height: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .schedule-more-drawer__content {
+    min-height: 0;
+    flex: 1 1 auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    align-items: start;
+    gap: 1rem;
+    overflow: hidden;
+  }
+
+  .schedule-more-drawer__actions {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+@media (min-width: 90em) {
+  .schedule-time-group__cards {
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    max-width: calc(320px * 3 + 2 * 0.75rem);
+  }
+}
+
 .schedule-week-view {
   display: grid;
   grid-template-columns: 1fr;
@@ -2203,7 +2433,13 @@
 }
 
 .schedule-occurrence-card__actions {
-  justify-content: space-between;
+  justify-content: flex-start;
+}
+
+@media (max-width: 26.25em) {
+  .schedule-occurrence-card__actions {
+    justify-content: space-between;
+  }
 }
 
 .schedule-occurrence-card__actions :where(.mantine-Button-root) {

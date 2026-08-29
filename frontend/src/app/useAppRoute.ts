@@ -27,6 +27,9 @@ import {
 import {
   stripGroupListReturnSnapshotFromHistoryState,
 } from '../features/groups/groupListReturnState'
+import {
+  stripScheduleReturnSnapshotFromHistoryState,
+} from '../features/schedule/scheduleReturnState'
 
 export type PasswordReturnState = {
   path: string
@@ -248,9 +251,11 @@ function getRouteDocumentTitle(route: AppRoute) {
 }
 
 export function stripAppReturnSnapshotsFromHistoryState(historyState: unknown) {
-  return stripClientProfileReturnContextFromHistoryState(
-    stripGroupListReturnSnapshotFromHistoryState(
-      stripClientListReturnSnapshotFromHistoryState(historyState),
+  return stripScheduleReturnSnapshotFromHistoryState(
+    stripClientProfileReturnContextFromHistoryState(
+      stripGroupListReturnSnapshotFromHistoryState(
+        stripClientListReturnSnapshotFromHistoryState(historyState),
+      ),
     ),
   )
 }

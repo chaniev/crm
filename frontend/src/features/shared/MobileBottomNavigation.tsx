@@ -61,7 +61,7 @@ export function MobileBottomNavigation({
               <span className="mobile-bottom-nav__icon" aria-hidden="true">
                 {getAppSectionIcon(section, 20)}
               </span>
-              <span className="mobile-bottom-nav__label">
+              <span className="mobile-bottom-nav__label" data-no-truncate="true">
                 {APP_SECTION_LABELS[section]}
               </span>
             </UnstyledButton>
@@ -80,7 +80,7 @@ export function MobileBottomNavigation({
               <span className="mobile-bottom-nav__icon" aria-hidden="true">
                 <IconDots size={20} />
               </span>
-              <span className="mobile-bottom-nav__label">Ещё</span>
+              <span className="mobile-bottom-nav__label" data-no-truncate="true">Ещё</span>
             </UnstyledButton>
           ) : null}
         </div>

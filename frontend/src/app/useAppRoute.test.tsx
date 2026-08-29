@@ -78,6 +78,7 @@ describe('useAppRoute', () => {
       crmClientListReturnState: { version: 1 },
       crmClientProfileReturnContext: { version: 1 },
       crmGroupListReturnState: { version: 1 },
+      crmScheduleReturnState: { version: 1 },
       retained: 'keep',
     }, '', '/clients')
 
@@ -160,6 +161,7 @@ describe('useAppRoute', () => {
       crmClientListReturnState: { version: 1 },
       crmClientProfileReturnContext: { version: 1 },
       crmGroupListReturnState: { version: 1 },
+      crmScheduleReturnState: { version: 1 },
       retained: 'keep',
     }, '', '/clients/client-7')
     const { result } = renderHook(() => useAppRoute())
@@ -181,6 +183,7 @@ describe('app route helpers', () => {
       crmClientListReturnState: { version: 1 },
       crmClientProfileReturnContext: { version: 1 },
       crmGroupListReturnState: { version: 1 },
+      crmScheduleReturnState: { version: 1 },
       retained: 'keep',
     })).toEqual({ retained: 'keep' })
   })

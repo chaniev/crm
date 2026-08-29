@@ -2274,7 +2274,10 @@ test('target iPhone cancels exact trainer substitution from occurrence card', as
   await page.goto('/schedule?date=2026-08-20&view=day')
 
   const card = page.getByTestId('schedule-card-occ-evening')
-  const cancelSubstitution = card.getByRole('button', { name: /Снять замену тренера/ })
+  await expect(card.getByRole('button', { name: /Снять замену тренера/ })).toHaveCount(0)
+  await card.getByRole('button', { name: /Ещё действий/ }).click()
+  const moreDrawer = page.getByRole('dialog', { name: /Ещё действий/ })
+  const cancelSubstitution = moreDrawer.getByRole('button', { name: /Снять замену тренера/ })
   await expect(cancelSubstitution).toBeVisible()
   await expectTouchTargetAtLeast(cancelSubstitution, 44)
   await cancelSubstitution.click()

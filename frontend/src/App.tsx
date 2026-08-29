@@ -106,10 +106,12 @@ export function App({ appConfig, authBackground }: AppProps) {
     openClientDetails,
     returnToClients,
     returnToGroups,
+    returnToSchedule,
     saveClientListReturnState,
     saveGroupListReturnState,
     navigateWithClientListReturnState,
     navigateWithGroupListReturnState,
+    navigateWithScheduleReturnState,
   } = useAppReturnNavigation({
     canManageClients: session?.user?.permissions.canManageClients ?? false,
     navigate,
@@ -511,38 +513,49 @@ export function App({ appConfig, authBackground }: AppProps) {
             )
           }
           onCreateGroup={() => navigate({ kind: 'groupCreate' })}
-          onCreateScheduleLesson={() => navigate({ kind: 'scheduleLessonCreate' })}
+          onCreateScheduleLesson={() =>
+            navigateWithScheduleReturnState({ kind: 'scheduleLessonCreate' })
+          }
           currentUserId={authenticatedUser.id}
           onEditScheduleLesson={(lessonOccurrenceId, lessonDate) =>
-            navigate({
+            navigateWithScheduleReturnState({
               kind: 'scheduleLessonEdit',
               lessonOccurrenceId,
               lessonDate,
               scope: 'occurrence',
-            })
+            }, lessonOccurrenceId)
           }
           onEditScheduleSeries={(lesson, scope) => {
             if (!lesson.lessonSeriesId) {
               return
             }
 
-            navigate({
+            navigateWithScheduleReturnState({
               kind: 'scheduleSeriesEdit',
               lessonSeriesId: lesson.lessonSeriesId,
               scope,
               groupId: lesson.groupId,
               lessonOccurrenceId: lesson.lessonOccurrenceId,
               lessonDate: lesson.lessonDate,
-            })
+            }, lesson.lessonOccurrenceId)
           }}
           onMoveScheduleLesson={(lessonOccurrenceId, lessonDate) =>
-            navigate({ kind: 'scheduleLessonMove', lessonOccurrenceId, lessonDate })
+            navigateWithScheduleReturnState(
+              { kind: 'scheduleLessonMove', lessonOccurrenceId, lessonDate },
+              lessonOccurrenceId,
+            )
           }
           onOpenAttendanceLesson={(lessonOccurrenceId, lessonDate) =>
-            navigate({ kind: 'attendanceLesson', lessonOccurrenceId, lessonDate })
+            navigateWithScheduleReturnState(
+              { kind: 'attendanceLesson', lessonOccurrenceId, lessonDate },
+              lessonOccurrenceId,
+            )
           }
           onOpenScheduleLesson={(lessonOccurrenceId, lessonDate) =>
-            navigate({ kind: 'scheduleLessonDetail', lessonOccurrenceId, lessonDate })
+            navigateWithScheduleReturnState(
+              { kind: 'scheduleLessonDetail', lessonOccurrenceId, lessonDate },
+              lessonOccurrenceId,
+            )
           }
           onEditGroup={(groupId, returnSnapshot) =>
             navigateWithGroupListReturnState(
@@ -555,7 +568,7 @@ export function App({ appConfig, authBackground }: AppProps) {
           onRefreshSession={refreshSessionState}
           onReturnToClients={returnToClients}
           onReturnToGroups={returnToGroups}
-          onReturnToSchedule={() => navigate({ kind: 'section', section: 'Schedule' })}
+          onReturnToSchedule={returnToSchedule}
           onReturnToUsers={() => navigate({ kind: 'section', section: 'Users' })}
           clientListReturnSnapshot={activeClientListReturnSnapshot}
           clientProfileReturnContext={activeClientProfileReturnContext}

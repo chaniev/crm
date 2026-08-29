@@ -24,6 +24,7 @@ import {
   IconBan,
   IconCalendarEvent,
   IconAlertTriangle,
+  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconEdit,
@@ -70,6 +71,17 @@ import {
   formatScheduleActionUnavailableReason,
   formatScheduleProblemCode,
 } from './scheduleActionReasons'
+import { readScheduleReturnSnapshot } from './scheduleReturnState'
+import {
+  buildScheduleTimeGroups,
+  getScheduleCardAnchorId,
+} from './scheduleTimeGroups'
+import {
+  buildScheduleDeferredActions,
+} from './scheduleDeferredActions'
+import {
+  ScheduleMoreActionsSurface,
+} from './ScheduleMoreActionsSurface'
 
 type GroupScheduleScreenProps = {
   canManageGroups: boolean
@@ -215,6 +227,25 @@ export function GroupScheduleScreen({
     return () => controller.abort()
   }, [range.from, range.to, reloadKey, urlState])
 
+  const restoredEntryKeyRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (loading) {
+      return
+    }
+
+    const snapshot = readScheduleReturnSnapshot(window.history.state)
+    if (!snapshot || restoredEntryKeyRef.current === snapshot.originEntryKey) {
+      return
+    }
+
+    restoredEntryKeyRef.current = snapshot.originEntryKey
+    window.scrollTo({ top: snapshot.scrollY })
+    if (snapshot.focusTarget === 'card' && snapshot.cardAnchorId) {
+      document.getElementById(snapshot.cardAnchorId)?.focus()
+    }
+  }, [loading])
+
   const activeFilterCount = countActiveFilters(urlState)
   const activeFilters = activeFilterCount > 0
   const createOneOffAllowed = capabilities?.createOneOff.allowed === true
@@ -266,7 +297,6 @@ export function GroupScheduleScreen({
 
   const toolbar = (
     <ScheduleToolbar
-      activeFilterCount={activeFilterCount}
       createCapabilityState={getCreateCapabilityState(capabilities)}
       date={urlState.date}
       disabled={loading || refreshing}
@@ -274,11 +304,41 @@ export function GroupScheduleScreen({
       onDateChange={(date) => applyState({ date })}
       onNext={() => moveBy(urlState.view === 'week' ? 7 : 1)}
       onPrevious={() => moveBy(urlState.view === 'week' ? -7 : -1)}
-      onToolsOpen={() => setToolsOpen(true)}
       createTriggerRef={createTriggerRef}
-      toolsTriggerRef={toolsTriggerRef}
       view={urlState.view}
     />
+  )
+
+  const daySummary = (
+    <div className="schedule-day-summary" data-testid="schedule-day-summary">
+      <Text className="schedule-day-summary__weekday" fw={800}>
+        {formatLongWeekday(urlState.date)}
+      </Text>
+      <Badge className="schedule-day-summary__count" variant="light">
+        {formatLessonCount(visibleLessons.length)}
+      </Badge>
+      <ActionIcon
+        aria-label={
+          activeFilterCount > 0
+            ? `Параметры календаря, активных фильтров: ${activeFilterCount}`
+            : 'Параметры календаря'
+        }
+        className="schedule-toolbar__button"
+        data-active={activeFilterCount > 0 ? 'true' : undefined}
+        data-target-size="44"
+        data-testid="schedule-tools-trigger"
+        onClick={() => setToolsOpen(true)}
+        ref={toolsTriggerRef}
+        size={44}
+        type="button"
+        variant="light"
+      >
+        <IconSettings size={20} />
+        {activeFilterCount > 0 ? (
+          <span className="schedule-toolbar__badge">{activeFilterCount}</span>
+        ) : null}
+      </ActionIcon>
+    </div>
   )
 
   return (
@@ -289,6 +349,7 @@ export function GroupScheduleScreen({
       title="Расписание"
     >
       {toolbar}
+      {daySummary}
 
       <CalendarToolsSurface
         activeFilters={activeFilters}
@@ -334,8 +395,24 @@ export function GroupScheduleScreen({
       />
 
       {loading && lessons.length === 0 ? (
-        <PageSection>
-          <LoadingState label="Загружаем занятия..." />
+        <PageSection aria-label="Загружаем занятия" className="schedule-board--occurrences">
+          <div className="schedule-skeleton-list" data-testid="schedule-skeleton-list">
+            {[0, 1, 2].map((index) => (
+              <div
+                className="schedule-skeleton"
+                data-testid="schedule-card-skeleton"
+                key={index}
+              >
+                <div className="schedule-skeleton__line schedule-skeleton__line--title" />
+                <div className="schedule-skeleton__line" />
+                <div className="schedule-skeleton__line schedule-skeleton__line--short" />
+                <div className="schedule-skeleton__actions">
+                  <div className="schedule-skeleton__action" />
+                  <div className="schedule-skeleton__action" />
+                </div>
+              </div>
+            ))}
+          </div>
         </PageSection>
       ) : null}
 
@@ -347,6 +424,18 @@ export function GroupScheduleScreen({
             title={hasStaleLessons ? 'Не удалось обновить расписание' : 'Расписание не загрузилось'}
           />
         </PageSection>
+      ) : null}
+
+      {error && hasStaleLessons && !loading ? (
+        <Text
+          className="schedule-stale-banner"
+          c="dimmed"
+          data-testid="schedule-stale-banner"
+          fw={700}
+          size="sm"
+        >
+          Данные могут быть устаревшими
+        </Text>
       ) : null}
 
       {!loading && (!error || hasStaleLessons) ? (
@@ -374,7 +463,7 @@ export function GroupScheduleScreen({
               onOpenAttendance={onOpenAttendance}
               onTrainerSubstitution={(lesson, action) =>
                 setSubstitutionTarget({ lesson, action })}
-              title={formatLongDate(urlState.date)}
+              title={null}
             />
           ) : urlState.view === 'day' ? (
             <ScheduleDayList
@@ -389,7 +478,7 @@ export function GroupScheduleScreen({
               onOpenAttendance={onOpenAttendance}
               onTrainerSubstitution={(lesson, action) =>
                 setSubstitutionTarget({ lesson, action })}
-              title={formatLongDate(urlState.date)}
+              title={null}
             />
           ) : (
             <ScheduleWeekView
@@ -1834,7 +1923,6 @@ function formatSkippedReason(reason: string) {
 }
 
 type ScheduleToolbarProps = {
-  activeFilterCount: number
   createTriggerRef: Ref<HTMLButtonElement>
   createCapabilityState: 'available' | 'unavailable' | 'unknown'
   date: string
@@ -1843,13 +1931,10 @@ type ScheduleToolbarProps = {
   onDateChange: (date: string) => void
   onNext: () => void
   onPrevious: () => void
-  onToolsOpen: () => void
-  toolsTriggerRef: Ref<HTMLButtonElement>
   view: ScheduleViewMode
 }
 
 function ScheduleToolbar({
-  activeFilterCount,
   createTriggerRef,
   createCapabilityState,
   date,
@@ -1858,8 +1943,6 @@ function ScheduleToolbar({
   onDateChange,
   onNext,
   onPrevious,
-  onToolsOpen,
-  toolsTriggerRef,
   view,
 }: ScheduleToolbarProps) {
   return (
@@ -1867,6 +1950,7 @@ function ScheduleToolbar({
       className="schedule-toolbar"
       data-create-capability={createCapabilityState}
       data-testid="schedule-toolbar"
+      data-tools-placement="day-summary"
       data-view={view}
     >
       <div className="schedule-toolbar__date-group">
@@ -1920,26 +2004,6 @@ function ScheduleToolbar({
           Создать
         </Button>
       ) : null}
-      <ActionIcon
-        aria-label={
-          activeFilterCount > 0
-            ? `Параметры календаря, активных фильтров: ${activeFilterCount}`
-            : 'Параметры календаря'
-        }
-        className="schedule-toolbar__button"
-        data-active={activeFilterCount > 0 ? 'true' : undefined}
-        data-testid="schedule-tools-trigger"
-        onClick={onToolsOpen}
-        ref={toolsTriggerRef}
-        size={44}
-        type="button"
-        variant="light"
-      >
-        <IconSettings size={20} />
-        {activeFilterCount > 0 ? (
-          <span className="schedule-toolbar__badge">{activeFilterCount}</span>
-        ) : null}
-      </ActionIcon>
     </div>
   )
 }
@@ -2133,38 +2197,62 @@ function ScheduleDayList({
   onOpenDetail: (lessonOccurrenceId: string, lessonDate: string) => void
   onOpenAttendance: (lessonOccurrenceId: string, lessonDate: string) => void
   onTrainerSubstitution: (lesson: ScheduleLesson, action: 'Assign' | 'Cancel') => void
-  title: string
+  title: string | null
 }) {
   return (
     <section
-      aria-labelledby={`schedule-day-${date}`}
+      {...(title
+        ? { 'aria-labelledby': `schedule-day-${date}` }
+        : { 'aria-label': formatLongDate(date) })}
       className="schedule-day-section"
       data-testid={`schedule-day-section-${date}`}
     >
-      <Group align="center" className="schedule-day-section__header" justify="space-between">
-        <Text component="h2" fw={900} id={`schedule-day-${date}`} size="lg">
-          {title}
-        </Text>
-        <Badge variant="light">{formatLessonCount(lessons.length)}</Badge>
-      </Group>
+      {title ? (
+        <Group align="center" className="schedule-day-section__header" justify="space-between">
+          <Text component="h2" fw={900} id={`schedule-day-${date}`} size="lg">
+            {title}
+          </Text>
+          <Badge variant="light">{formatLessonCount(lessons.length)}</Badge>
+        </Group>
+      ) : null}
       {lessons.length === 0 ? (
         <div className="schedule-day-section__empty">
           <Text c="dimmed" fw={600} size="sm">В этот день занятий нет</Text>
         </div>
       ) : (
         <Stack gap="sm">
-          {lessons.map((lesson) => (
-            <ScheduleOccurrenceCard
-              key={`${lesson.lessonOccurrenceId}:${lesson.lessonDate}`}
-              lesson={lesson}
-              onCancelOrRestoreLesson={onCancelOrRestoreLesson}
-              onChangeLesson={onChangeLesson}
-              onEditSeries={onEditSeries}
-              onMoveLesson={onMoveLesson}
-              onOpenDetail={onOpenDetail}
-              onOpenAttendance={onOpenAttendance}
-              onTrainerSubstitution={onTrainerSubstitution}
-            />
+          {buildScheduleTimeGroups(date, lessons).map((timeGroup) => (
+            <section
+              aria-labelledby={`${timeGroup.id}-heading`}
+              className="schedule-time-group"
+              data-testid={timeGroup.id}
+              id={timeGroup.id}
+              key={timeGroup.id}
+            >
+              <Text
+                className="schedule-time-group__heading"
+                component="h3"
+                fw={900}
+                id={`${timeGroup.id}-heading`}
+              >
+                {timeGroup.label}
+              </Text>
+              <div className="schedule-time-group__cards">
+                {timeGroup.lessons.map((lesson) => (
+                  <ScheduleOccurrenceCard
+                    key={`${lesson.lessonOccurrenceId}:${lesson.lessonDate}`}
+                    lesson={lesson}
+                    onCancelOrRestoreLesson={onCancelOrRestoreLesson}
+                    onChangeLesson={onChangeLesson}
+                    onEditSeries={onEditSeries}
+                    onMoveLesson={onMoveLesson}
+                    onOpenDetail={onOpenDetail}
+                    onOpenAttendance={onOpenAttendance}
+                    onTrainerSubstitution={onTrainerSubstitution}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
         </Stack>
       )}
@@ -2191,6 +2279,7 @@ function ScheduleOccurrenceCard({
   onOpenAttendance: (lessonOccurrenceId: string, lessonDate: string) => void
   onTrainerSubstitution: (lesson: ScheduleLesson, action: 'Assign' | 'Cancel') => void
 }) {
+  const bodyRef = useRef<HTMLButtonElement | null>(null)
   const attendanceAllowed = lesson.allowedActions.viewAttendance.allowed
   const attendanceReasonId = `schedule-attendance-reason-${lesson.lessonOccurrenceId}`
   const attendanceReason = attendanceAllowed
@@ -2198,6 +2287,14 @@ function ScheduleOccurrenceCard({
     : getActionUnavailableReason(lesson.allowedActions.viewAttendance.reason)
   const trainers = formatEffectiveTrainers(lesson)
   const isCancelled = lesson.status === 'Cancelled'
+  const timeRange = formatTimeRange(lesson)
+  const accessibleContext = `${lesson.groupName}, ${timeRange}`
+  const deferredActions = buildScheduleDeferredActions(lesson, {
+    onMoveLesson,
+    onEditSeries,
+    onTrainerSubstitution,
+    onCancelOrRestoreLesson,
+  })
 
   return (
     <article
@@ -2205,44 +2302,59 @@ function ScheduleOccurrenceCard({
       data-lesson-date={lesson.lessonDate}
       data-lesson-occurrence-id={lesson.lessonOccurrenceId}
       data-testid={`schedule-card-${lesson.lessonOccurrenceId}`}
+      id={getScheduleCardAnchorId(lesson.lessonOccurrenceId)}
+      tabIndex={-1}
     >
       <button
-        aria-label={`Открыть занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+        aria-label={`Открыть занятие: ${accessibleContext}`}
         className="schedule-occurrence-card__body"
         onClick={() => onOpenDetail(lesson.lessonOccurrenceId, lesson.lessonDate)}
+        ref={bodyRef}
         type="button"
       >
         <Stack gap={6}>
-          <Group align="flex-start" justify="space-between" wrap="nowrap">
+          <Group align="flex-start" className="schedule-occurrence-card__heading" justify="space-between" wrap="nowrap">
             <Stack gap={2}>
-              <Text className="schedule-occurrence-card__time" fw={900}>
-                {formatTimeRange(lesson)}
-              </Text>
               <Text className="schedule-occurrence-card__title" fw={900}>
                 {lesson.groupName}
               </Text>
+              <Text c="dimmed" size="sm">
+                {lesson.hallName} · {lesson.branchName}
+              </Text>
+              <Text c="dimmed" size="sm">
+                {trainers}
+              </Text>
             </Stack>
-            {isCancelled ? <Badge color="gray" variant="light">Отменено</Badge> : null}
+            <span aria-hidden="true" className="schedule-occurrence-card__chevron">
+              <IconChevronDown size={18} />
+            </span>
           </Group>
           <Group gap={6} wrap="wrap">
-            {lesson.hasAttendanceMarks ? (
-              <Badge color="teal" variant="light">Отметки есть</Badge>
-            ) : null}
+            {isCancelled ? <Badge color="gray" variant="light">Отменено</Badge> : null}
+            <Badge color="teal" variant="light">
+              {lesson.hasAttendanceMarks ? 'Отметки есть' : 'Без отметок'}
+            </Badge>
             <Badge variant="light">{lesson.groupTypeName}</Badge>
             <Badge variant="outline">{lesson.sourceKind === 'OneOff' ? 'Разовое' : 'Регулярное'}</Badge>
           </Group>
-          <Text c="dimmed" size="sm">
-            {lesson.hallName} · {lesson.branchName}
-          </Text>
-          <Text c="dimmed" size="sm">
-            {trainers}
-          </Text>
         </Stack>
       </button>
-      <Group className="schedule-occurrence-card__actions" gap="xs" wrap="wrap">
+      <Group className="schedule-occurrence-card__actions" gap="xs">
+        <Button
+          aria-label={`Открыть посещаемость: ${accessibleContext}`}
+          aria-describedby={attendanceReason ? attendanceReasonId : undefined}
+          className="schedule-occurrence-card__attendance"
+          disabled={!attendanceAllowed}
+          leftSection={<IconUsers size={18} />}
+          onClick={() => onOpenAttendance(lesson.lessonOccurrenceId, lesson.lessonDate)}
+          type="button"
+        >
+          Посещаемость
+        </Button>
         {lesson.allowedActions.edit.allowed ? (
           <Button
-            aria-label={`Изменить занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
+            aria-label={`Изменить занятие: ${accessibleContext}`}
+            className="schedule-occurrence-card__secondary"
             leftSection={<IconEdit size={18} />}
             onClick={() => onChangeLesson(lesson)}
             type="button"
@@ -2251,84 +2363,18 @@ function ScheduleOccurrenceCard({
             Изменить
           </Button>
         ) : null}
-        {lesson.allowedActions.move.allowed ? (
-          <Button
-            aria-label={`Перенести занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
-            leftSection={<IconChevronRight size={18} />}
-            onClick={() => onMoveLesson(lesson)}
-            type="button"
-            variant="light"
-          >
-            Перенести
-          </Button>
-        ) : null}
-        {lesson.lessonSeriesId && lesson.allowedActions.edit.allowed ? (
-          <Button
-            aria-label={`Изменить серию занятий: ${lesson.groupName}`}
-            leftSection={<IconSettings size={18} />}
-            onClick={() => onEditSeries(lesson, 'this-and-future')}
-            type="button"
-            variant="light"
-          >
-            Серия
-          </Button>
-        ) : null}
-        {lesson.allowedActions.assignTrainerSubstitution.allowed ? (
-          <Button
-            aria-label={`Назначить замену тренера: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
-            leftSection={<IconUsers size={18} />}
-            onClick={() => onTrainerSubstitution(lesson, 'Assign')}
-            type="button"
-            variant="light"
-          >
-            Замена
-          </Button>
-        ) : null}
-        {lesson.allowedActions.cancelTrainerSubstitution.allowed ? (
-          <Button
-            aria-label={`Снять замену тренера: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
-            leftSection={<IconRefresh size={18} />}
-            onClick={() => onTrainerSubstitution(lesson, 'Cancel')}
-            type="button"
-            variant="light"
-          >
-            Снять замену
-          </Button>
-        ) : null}
-        {lesson.allowedActions.cancel.allowed ? (
-          <Button
-            aria-label={`Отменить занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
-            color="red"
-            leftSection={<IconBan size={18} />}
-            onClick={() => onCancelOrRestoreLesson(lesson, 'Cancel')}
-            type="button"
-            variant="light"
-          >
-            Отменить
-          </Button>
-        ) : null}
-        {lesson.allowedActions.restore.allowed ? (
-          <Button
-            aria-label={`Восстановить занятие: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
-            color="green"
-            leftSection={<IconRefresh size={18} />}
-            onClick={() => onCancelOrRestoreLesson(lesson, 'Restore')}
-            type="button"
-            variant="light"
-          >
-            Восстановить
-          </Button>
-        ) : null}
-        <Button
-          aria-label={`Открыть посещаемость: ${lesson.groupName}, ${formatTimeRange(lesson)}`}
-          aria-describedby={attendanceReason ? attendanceReasonId : undefined}
-          disabled={!attendanceAllowed}
-          leftSection={<IconUsers size={18} />}
-          onClick={() => onOpenAttendance(lesson.lessonOccurrenceId, lesson.lessonDate)}
-          type="button"
-        >
-          Посещаемость
-        </Button>
+        <ScheduleMoreActionsSurface
+          accessibleContext={accessibleContext}
+          actions={deferredActions}
+          context={{
+            groupName: lesson.groupName,
+            interval: timeRange,
+            hallLine: `${lesson.hallName} · ${lesson.branchName}`,
+            trainers,
+          }}
+          fallbackFocusRef={bodyRef}
+          onSelectAction={(action) => action.run()}
+        />
         {attendanceReason ? (
           <Text c="dimmed" id={attendanceReasonId} size="sm">
             {attendanceReason}
@@ -2538,6 +2584,10 @@ function formatLessonCount(count: number) {
 
 function formatWeekday(date: string) {
   return new Intl.DateTimeFormat('ru-RU', { weekday: 'short' }).format(parseIsoDate(date))
+}
+
+function formatLongWeekday(date: string) {
+  return new Intl.DateTimeFormat('ru-RU', { weekday: 'long' }).format(parseIsoDate(date))
 }
 
 function formatShortDate(date: string) {

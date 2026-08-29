@@ -93,8 +93,8 @@ test.describe('Occurrence schedule calendar', () => {
     await page.goto('/schedule?date=2026-08-20&view=day')
 
     await expect(page.getByTestId('schedule-screen')).toBeVisible()
-    await expect(page.getByTestId('schedule-card-occ-morning')).toContainText('08:00-08:50')
-    await expect(page.getByTestId('schedule-card-occ-evening')).toContainText('18:00-18:50')
+    await expect(page.getByTestId('schedule-time-group-2026-08-20-08:00-08:50')).toContainText('08:00-08:50')
+    await expect(page.getByTestId('schedule-time-group-2026-08-20-18:00-18:50')).toContainText('18:00-18:50')
     await page
       .getByTestId('schedule-card-occ-evening')
       .getByRole('button', { name: /Открыть занятие/ })
@@ -637,9 +637,20 @@ test.describe('Occurrence schedule calendar', () => {
 
     await page.goto('/schedule?date=2026-08-20&view=day')
     const card = page.getByTestId('schedule-card-occ-evening')
-    await expect(card.getByRole('button', { name: /Отменить занятие/ })).toBeVisible()
-    await expect(card.getByRole('button', { name: /Восстановить занятие/ })).toHaveCount(0)
-    await card.getByRole('button', { name: /Отменить занятие/ }).click()
+    await expect(card.getByRole('button', { name: /Отменить занятие/ })).toHaveCount(0)
+    await card.getByRole('button', { name: /Ещё действий/ }).click()
+    const moreCancelButton = page
+      .getByRole('dialog', { name: /Ещё действий/ })
+      .getByRole('button', { name: /Отменить занятие/ })
+      .or(page.getByRole('menuitem', { name: /Отменить занятие/ }))
+    await expect(moreCancelButton).toBeVisible()
+    await expect(
+      page
+        .getByRole('dialog', { name: /Ещё действий/ })
+        .getByRole('button', { name: /Восстановить занятие/ })
+        .or(page.getByRole('menuitem', { name: /Восстановить занятие/ })),
+    ).toHaveCount(0)
+    await moreCancelButton.click()
 
     const drawer = page.getByRole('dialog', { name: 'Отменить занятие' })
     await expect(drawer).toContainText('Утренняя база')
@@ -750,7 +761,12 @@ test.describe('Occurrence schedule calendar', () => {
     await page.goto('/schedule?date=2026-08-20&view=day')
     await page
       .getByTestId('schedule-card-occ-evening')
+      .getByRole('button', { name: /Ещё действий/ })
+      .click()
+    await page
+      .getByRole('dialog', { name: /Ещё действий/ })
       .getByRole('button', { name: /Снять замену тренера/ })
+      .or(page.getByRole('menuitem', { name: /Снять замену тренера/ }))
       .click()
 
     const drawer = page.getByRole('dialog', { name: 'Снять замену тренера' })
@@ -830,7 +846,12 @@ test.describe('Occurrence schedule calendar', () => {
     await page.goto('/schedule?date=2026-08-20&view=day')
     await page
       .getByTestId('schedule-card-occ-evening')
+      .getByRole('button', { name: /Ещё действий/ })
+      .click()
+    await page
+      .getByRole('dialog', { name: /Ещё действий/ })
       .getByRole('button', { name: /Отменить занятие/ })
+      .or(page.getByRole('menuitem', { name: /Отменить занятие/ }))
       .click()
 
     const drawer = page.getByRole('dialog', { name: 'Отменить занятие' })
@@ -975,6 +996,99 @@ test.describe('Occurrence schedule calendar', () => {
       expect(dimensions.body).toBeLessThanOrEqual(dimensions.viewport + 1)
     }
   })
+
+  test('dense day groups parallel intervals, keeps cards task-first and restores attendance context', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/schedule/lessons' && method === 'GET') {
+        await fulfillJson(route, 200, scheduleResponse({ items: denseDayLessons() }))
+        return true
+      }
+
+      if (pathname === '/api/attendance/lessons/dense-parallel-a/clients' && method === 'GET') {
+        await fulfillJson(route, 200, rosterResponse({ canEdit: true }))
+        return true
+      }
+
+      return false
+    })
+
+    await page.goto('/schedule?date=2026-08-20&view=day')
+    await expect(page.getByTestId('schedule-screen')).toBeVisible()
+
+    // Exact interval grouping: three parallel occurrences share one heading.
+    const parallelGroup = page.getByTestId('schedule-time-group-2026-08-20-10:00-10:50')
+    await expect(parallelGroup).toBeVisible()
+    for (const occurrenceId of ['dense-parallel-a', 'dense-parallel-b', 'dense-parallel-c']) {
+      await expect(parallelGroup.getByTestId(`schedule-card-${occurrenceId}`)).toBeVisible()
+    }
+    await expect(page.getByTestId('schedule-time-group-2026-08-20-10:00-11:00')).toBeVisible()
+
+    // Task-first card: at most attendance, edit and `Ещё` next to the body trigger.
+    const primaryCard = page.getByTestId('schedule-card-dense-parallel-a')
+    await expect(primaryCard.getByRole('button', { name: /Открыть занятие/ })).toBeVisible()
+    await expect(primaryCard.getByRole('button', { name: /Открыть посещаемость/ })).toBeVisible()
+    await expect(primaryCard.getByRole('button', { name: /Изменить занятие/ })).toBeVisible()
+    await expect(primaryCard.getByRole('button', { name: /Ещё действий/ })).toBeVisible()
+    const visiblePrimaryCardActions = await primaryCard
+      .locator('.schedule-occurrence-card__actions button:visible')
+      .count()
+    expect(visiblePrimaryCardActions).toBeLessThanOrEqual(3)
+    await expect(primaryCard.getByRole('button', { name: /Перенести занятие/ })).toHaveCount(0)
+    await expect(primaryCard.getByRole('button', { name: /Отменить занятие/ })).toHaveCount(0)
+
+    // Neutral attendance badge is exhaustive and response-driven.
+    await expect(primaryCard.getByText('Без отметок')).toBeVisible()
+    await expect(page.getByTestId('schedule-card-dense-morning-marks').getByText('Отметки есть')).toBeVisible()
+
+    // Restricted attendance keeps the backend reason attached to the disabled control.
+    const restrictedCard = page.getByTestId('schedule-card-dense-parallel-b')
+    await expect(restrictedCard.getByRole('button', { name: /Открыть посещаемость/ })).toBeDisabled()
+    await expect(restrictedCard).toContainText('Посещаемость недоступна для вашей роли или зоны доступа.')
+    await expect(restrictedCard.getByRole('button', { name: /Ещё действий/ })).toHaveCount(0)
+
+    // Cancelled card shares the body trigger and hides restore behind `Ещё`.
+    const cancelledCard = page.getByTestId('schedule-card-dense-parallel-c')
+    await expect(cancelledCard.getByRole('button', { name: /Открыть занятие/ })).toBeVisible()
+    await expect(cancelledCard.getByRole('button', { name: 'Подробнее' })).toHaveCount(0)
+    await expect(cancelledCard.getByRole('button', { name: /Отменить занятие/ })).toHaveCount(0)
+
+    // Deferred surface exposes occurrence context and ordered actions; explicit close returns focus.
+    await primaryCard.getByRole('button', { name: /Ещё действий/ }).click()
+    const moreDrawer = page.getByRole('dialog', { name: /Ещё действий/ })
+    await expect(moreDrawer).toBeVisible()
+    await expect(moreDrawer).toContainText('Плавание для дошкольников средней группы с инструктором')
+    await expect(moreDrawer).toContainText('10:00-10:50')
+    const deferredButtons = moreDrawer.locator('.schedule-more-drawer__action')
+    await expect(deferredButtons).toHaveCount(4)
+    await expect(deferredButtons.nth(3)).toContainText('Отменить')
+    await moreDrawer.getByRole('button', { name: 'Закрыть дополнительные действия' }).click()
+    await expect(moreDrawer).toBeHidden()
+    await expect(primaryCard.getByRole('button', { name: /Ещё действий/ })).toBeFocused()
+
+    // Primary flow: attendance opens from the dense card and back restores the exact list URL and card.
+    await primaryCard.getByRole('button', { name: /Открыть посещаемость/ }).click()
+    await expect(page).toHaveURL(/\/attendance\/dense-parallel-a\?lessonDate=2026-08-20$/)
+    await page.goBack()
+    await expect(page).toHaveURL('/schedule?date=2026-08-20&view=day')
+    await expect(page.getByTestId('schedule-card-dense-parallel-a')).toBeVisible()
+
+    // Geometry at the mobile stress baseline: readable date and navigation labels, no overflow.
+    const dimensions = await page.evaluate(() => ({
+      body: document.body.scrollWidth,
+      viewport: document.documentElement.clientWidth,
+      labels: [...document.querySelectorAll('.mobile-bottom-nav__label')].map((label) => ({
+        scrollWidth: label.scrollWidth,
+        clientWidth: label.clientWidth,
+        text: label.textContent,
+      })),
+    }))
+    expect(dimensions.body).toBeLessThanOrEqual(dimensions.viewport + 1)
+    expect(dimensions.labels.length).toBeGreaterThanOrEqual(5)
+    for (const label of dimensions.labels) {
+      expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth + 1)
+    }
+  })
 })
 
 async function mockApi(
@@ -1111,6 +1225,104 @@ function lesson(overrides: Record<string, unknown>) {
     revision: 'revision-1',
     ...overrides,
   }
+}
+
+function denseDayLessons() {
+  const filler = (index: number, startTime: string, endTime: string) => lesson({
+    lessonOccurrenceId: `dense-filler-${index}`,
+    groupName: `Группа ${index}`,
+    startTime,
+    endTime,
+    durationMinutes: 50,
+    hasAttendanceMarks: index % 2 === 0,
+  })
+
+  return [
+    lesson({
+      lessonOccurrenceId: 'dense-morning-marks',
+      groupName: 'Утренняя йога',
+      startTime: '08:00',
+      endTime: '08:50',
+      hasAttendanceMarks: true,
+    }),
+    lesson({
+      lessonOccurrenceId: 'dense-morning-parallel',
+      groupName: 'Утренняя силовая подготовка для начинающих спортсменов',
+      startTime: '08:00',
+      endTime: '08:50',
+      hallId: 'hall-2',
+      hallName: 'Второй зал',
+    }),
+    lesson({
+      lessonOccurrenceId: 'dense-parallel-a',
+      groupName: 'Плавание для дошкольников средней группы с инструктором',
+      startTime: '10:00',
+      endTime: '10:50',
+      hasAttendanceMarks: false,
+      allowedActions: buildAllowedActions({
+        edit: { allowed: true, reason: null },
+        move: { allowed: true, reason: null },
+        assignTrainerSubstitution: { allowed: true, reason: null },
+        cancel: { allowed: true, reason: null },
+      }),
+    }),
+    lesson({
+      lessonOccurrenceId: 'dense-parallel-b',
+      groupName: 'Растяжка',
+      startTime: '10:00',
+      endTime: '10:50',
+      hallId: 'hall-2',
+      hallName: 'Второй зал',
+      allowedActions: buildAllowedActions({
+        viewAttendance: { allowed: false, reason: 'attendance-forbidden' },
+      }),
+    }),
+    lesson({
+      lessonOccurrenceId: 'dense-parallel-c',
+      groupName: 'Бокс',
+      startTime: '10:00',
+      endTime: '10:50',
+      hallId: 'hall-3',
+      hallName: 'Третий зал',
+      status: 'Cancelled',
+      effectiveTrainers: [
+        {
+          trainerId: 'trainer-1',
+          fullName: 'Алиса',
+          kind: 'Permanent',
+          replacedTrainerId: null,
+          substitutionId: null,
+        },
+        {
+          trainerId: 'trainer-2',
+          fullName: 'Борис',
+          kind: 'Substitute',
+          replacedTrainerId: 'trainer-1',
+          substitutionId: 'substitution-1',
+        },
+      ],
+      allowedActions: buildAllowedActions({
+        viewAttendance: { allowed: false, reason: 'lesson-cancelled' },
+        restore: { allowed: true, reason: null },
+      }),
+    }),
+    lesson({
+      lessonOccurrenceId: 'dense-long-interval',
+      groupName: 'Персональная тренировка',
+      startTime: '10:00',
+      endTime: '11:00',
+      durationMinutes: 60,
+    }),
+    filler(1, '11:00', '11:50'),
+    filler(2, '12:00', '12:50'),
+    filler(3, '13:00', '13:50'),
+    filler(4, '14:00', '14:50'),
+    filler(5, '15:00', '15:50'),
+    filler(6, '16:00', '16:50'),
+    filler(7, '17:00', '17:50'),
+    filler(8, '18:00', '18:50'),
+    filler(9, '19:00', '19:50'),
+  ]
 }
 
 function seriesResponse() {
