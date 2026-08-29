@@ -63,7 +63,7 @@ test.describe('Уведомления', () => {
     await expect(page.getByRole('tab', { name: 'Типы групп' })).toBeVisible()
     await page.getByRole('tab', { name: 'Типы групп' }).click()
 
-    const groupTypeNotifications = getGroupTypeCreatedNotifications(page)
+    const groupTypeNotifications = getGroupTypeCreatedNotifications(page, 'top-right')
 
     await createGroupType(page, 'Тип 1')
     await expect(groupTypeNotifications.first()).toBeVisible()
@@ -92,10 +92,16 @@ test.describe('Уведомления', () => {
     const addTypeButton = page.getByRole('button', { name: 'Добавить тип' })
     await expect(addTypeButton).toBeInViewport()
 
-    const groupTypeNotifications = getGroupTypeCreatedNotifications(page)
+    const groupTypeNotifications = getGroupTypeCreatedNotifications(page, 'top-center')
     await createGroupType(page, 'Мобильный тип')
 
     await expect(groupTypeNotifications.first()).toBeVisible()
+    const notificationBox = await groupTypeNotifications.first().boundingBox()
+    expect(notificationBox?.y).toBeGreaterThanOrEqual(72)
+    expect(notificationBox?.x).toBeGreaterThanOrEqual(16)
+    expect(notificationBox ? 390 - notificationBox.x - notificationBox.width : -1).toBeGreaterThanOrEqual(
+      16,
+    )
     await page.clock.runFor(APP_NOTIFICATION_AUTO_CLOSE_MS + NOTIFICATION_TRANSITION_MS + 100)
 
     await expect(groupTypeNotifications).toHaveCount(0)
@@ -103,9 +109,12 @@ test.describe('Уведомления', () => {
   })
 })
 
-function getGroupTypeCreatedNotifications(page: Page) {
+function getGroupTypeCreatedNotifications(
+  page: Page,
+  position: 'top-center' | 'top-right',
+) {
   return page
-    .locator('[data-position="top-right"] [role="alert"]')
+    .locator(`[data-position="${position}"] [role="alert"]`)
     .filter({ hasText: /Тип группы создан/ })
 }
 

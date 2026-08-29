@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
+import { useMediaQuery } from '@mantine/hooks'
 import App from '../App'
 import {
   k4proLoginBackgroundProfile,
@@ -75,7 +76,11 @@ function ResolvedConfigThemeBootstrap({
   preloadAuthBackground,
   themeProfile,
 }: ResolvedConfigThemeBootstrapProps) {
-  const theme = useMemo(() => createGymCrmTheme(themeProfile), [themeProfile])
+  const mobileControls = useMediaQuery('(max-width: 48rem)', false)
+  const theme = useMemo(
+    () => createGymCrmTheme(themeProfile, { mobile: mobileControls }),
+    [mobileControls, themeProfile],
+  )
   const semanticVariables = useMemo(
     () => createSemanticVariables(themeProfile),
     [themeProfile],

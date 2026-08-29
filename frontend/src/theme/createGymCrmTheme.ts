@@ -1,10 +1,17 @@
 import { createTheme } from '@mantine/core'
-import { gymCrmComponentRecipes } from './componentRecipes'
+import { createGymCrmComponentRecipes } from './componentRecipes'
 import { semanticBaseColors } from './semanticVariables'
 import { crmFontFamilies, typographyRoles } from './typography'
 import type { ThemeProfile } from './types'
 
-export function createGymCrmTheme(profile: ThemeProfile) {
+type CreateGymCrmThemeOptions = {
+  mobile?: boolean
+}
+
+export function createGymCrmTheme(
+  profile: ThemeProfile,
+  { mobile = false }: CreateGymCrmThemeOptions = {},
+) {
   const secondary = profile.brand.secondary ?? profile.brand.primary
   const neutral = profile.roles.neutral
 
@@ -45,7 +52,7 @@ export function createGymCrmTheme(profile: ThemeProfile) {
       accent: secondary,
       sand: neutral,
     },
-    components: gymCrmComponentRecipes,
+    components: createGymCrmComponentRecipes({ mobile }),
     black: semanticBaseColors.textStrong,
     white: semanticBaseColors.surface,
     other: {

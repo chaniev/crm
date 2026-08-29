@@ -5,6 +5,7 @@ import {
   Loader,
   MantineProvider,
   Modal,
+  PasswordInput,
   Pagination,
   Select,
   Skeleton,
@@ -26,6 +27,10 @@ const recipeNames = [
   'Alert',
   'Badge',
   'TextInput',
+  'PasswordInput',
+  'Textarea',
+  'NumberInput',
+  'MultiSelect',
   'Select',
   'Input',
   'InputWrapper',
@@ -144,6 +149,79 @@ describe('TASK-149 Mantine component recipes', () => {
 
     expect(modal.closest('.mantine-Modal-root')).toHaveAttribute('data-crm-recipe', 'modal')
     expect(drawer.closest('.mantine-Drawer-root')).toHaveAttribute('data-crm-recipe', 'drawer')
+  })
+})
+
+describe('TASK-161 responsive mobile control recipes', () => {
+  test('uses touch-safe inputs, top-center notifications and a bottom drawer on mobile', () => {
+    const mobileTheme = createGymCrmTheme(themeProfiles[0], { mobile: true })
+
+    render(
+      <MantineProvider theme={mobileTheme}>
+        <TextInput label="Имя клиента" />
+        <PasswordInput label="Пароль" />
+        <Notifications data-testid="mobile-notifications" />
+        <Drawer opened onClose={() => undefined} title="Фильтры">
+          Панель фильтров
+        </Drawer>
+      </MantineProvider>,
+    )
+
+    expect(window.getComputedStyle(screen.getByLabelText('Имя клиента')).minHeight).toBe(
+      '44px',
+    )
+    expect(window.getComputedStyle(screen.getByLabelText('Имя клиента')).fontSize).toBe(
+      '1rem',
+    )
+    expect(
+      window.getComputedStyle(screen.getByLabelText('Пароль').parentElement!).minHeight,
+    ).toBe('44px')
+    expect(
+      (
+        mobileTheme.components?.Notifications as {
+          defaultProps?: { position?: string }
+        }
+      ).defaultProps?.position,
+    ).toBe('top-center')
+
+    const drawerRoot = screen
+      .getByRole('dialog', { name: 'Фильтры' })
+      .closest('.mantine-Drawer-root')
+    expect(drawerRoot).toHaveStyle({
+      '--drawer-align': 'flex-end',
+      '--drawer-flex': '0 0 calc(100% - var(--drawer-offset, 0rem) * 2)',
+      '--drawer-height': 'var(--drawer-size)',
+    })
+  })
+
+  test('preserves the desktop input, notification and right-drawer geometry', () => {
+    const desktopTheme = createGymCrmTheme(themeProfiles[0], { mobile: false })
+
+    render(
+      <MantineProvider theme={desktopTheme}>
+        <TextInput label="Название группы" />
+        <Notifications data-testid="desktop-notifications" />
+        <Drawer opened onClose={() => undefined} title="Параметры">
+          Параметры расписания
+        </Drawer>
+      </MantineProvider>,
+    )
+
+    expect(window.getComputedStyle(screen.getByLabelText('Название группы')).minHeight).not.toBe(
+      '44px',
+    )
+    expect(
+      (
+        desktopTheme.components?.Notifications as {
+          defaultProps?: { position?: string }
+        }
+      ).defaultProps?.position,
+    ).toBe('top-right')
+
+    const drawerRoot = screen
+      .getByRole('dialog', { name: 'Параметры' })
+      .closest('.mantine-Drawer-root')
+    expect(drawerRoot).not.toHaveStyle({ '--drawer-align': 'flex-end' })
   })
 })
 

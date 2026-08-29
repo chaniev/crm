@@ -30,6 +30,13 @@ body {
   right: calc(var(--mantine-spacing-md) + env(safe-area-inset-right, 0px));
 }
 
+@media (max-width: 48rem) {
+  .app-notifications:where([data-position='top-center']) {
+    top: calc(4.5rem + env(safe-area-inset-top, 0px));
+    width: calc(100% - 2rem);
+  }
+}
+
 .app-notification__content {
   display: grid;
   gap: var(--mantine-spacing-xs);
