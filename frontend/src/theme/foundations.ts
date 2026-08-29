@@ -1,10 +1,19 @@
 export const foundationBreakpoints = {
+  narrowMax: '22.5rem',
   mobileMax: '48rem',
   tabletMax: '63.99rem',
   desktopStart: '48.01em',
 } as const
 
 export const foundationSpacing = {
+  space1: '4px',
+  space2: '8px',
+  space3: '12px',
+  space4: '16px',
+  space5: '20px',
+  space6: '24px',
+  space7: '32px',
+  space8: '48px',
   pageSectionGap: '1.5rem',
   pageSectionGapMobile: '1rem',
   pageCardPadding: '1.5rem',
@@ -40,6 +49,14 @@ export type FoundationVariableMap = Record<`--crm-${string}`, string>
 
 export function createFoundationVariables(): FoundationVariableMap {
   return {
+    '--crm-space-1': foundationSpacing.space1,
+    '--crm-space-2': foundationSpacing.space2,
+    '--crm-space-3': foundationSpacing.space3,
+    '--crm-space-4': foundationSpacing.space4,
+    '--crm-space-5': foundationSpacing.space5,
+    '--crm-space-6': foundationSpacing.space6,
+    '--crm-space-7': foundationSpacing.space7,
+    '--crm-space-8': foundationSpacing.space8,
     '--crm-space-page-section-gap': foundationSpacing.pageSectionGap,
     '--crm-space-page-section-gap-mobile': foundationSpacing.pageSectionGapMobile,
     '--crm-space-page-card-padding': foundationSpacing.pageCardPadding,

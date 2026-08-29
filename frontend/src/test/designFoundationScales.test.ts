@@ -82,3 +82,35 @@ describe('TASK-145 design foundation scales', () => {
     expect(appCss).not.toContain('z-index: 220;')
   })
 })
+
+describe('TASK-159 spacing scale and narrow breakpoint hygiene', () => {
+  test('publishes the canonical 4px spacing scale without drift', () => {
+    expect(foundationSpacing).toMatchObject({
+      space1: '4px',
+      space2: '8px',
+      space3: '12px',
+      space4: '16px',
+      space5: '20px',
+      space6: '24px',
+      space7: '32px',
+      space8: '48px',
+    })
+
+    expect(createFoundationVariables()).toMatchObject({
+      '--crm-space-1': '4px',
+      '--crm-space-2': '8px',
+      '--crm-space-3': '12px',
+      '--crm-space-4': '16px',
+      '--crm-space-5': '20px',
+      '--crm-space-6': '24px',
+      '--crm-space-7': '32px',
+      '--crm-space-8': '48px',
+    })
+  })
+
+  test('names the 360px guardrail without duplicating the canonical mobile boundary', () => {
+    expect(foundationBreakpoints.narrowMax).toBe('22.5rem')
+    expect(Number.parseFloat(foundationBreakpoints.narrowMax) * 16).toBe(360)
+    expect(Object.values(foundationBreakpoints).filter((value) => value === '48rem')).toHaveLength(1)
+  })
+})
