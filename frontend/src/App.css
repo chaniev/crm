@@ -1,4 +1,12 @@
 .app-shell {
+  --crm-space-1: 4px;
+  --crm-space-2: 8px;
+  --crm-space-3: 12px;
+  --crm-space-4: 16px;
+  --crm-space-5: 20px;
+  --crm-space-6: 24px;
+  --crm-space-7: 32px;
+  --crm-space-8: 48px;
   --color-page-bg: var(--crm-surface-page);
   --color-header-bg: var(--crm-surface-card-alpha-96);
   --color-surface: var(--crm-surface-card);

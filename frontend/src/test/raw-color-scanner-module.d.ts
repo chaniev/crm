@@ -15,4 +15,15 @@ declare module '*.mjs' {
     srcRoot: string
   }): Promise<{ unallowed: unknown[] }>
   export function validateAllowlist(entries: ReadonlyArray<unknown>): void
+  export function findSpacingViolationsByLine(
+    file: string,
+    content: string,
+  ): Array<{ property: string; value: string }>
+  export function formatSpacingFindings(findings: ReadonlyArray<unknown>): string
+  export function readSpacingAllowlist(pathname: string): Promise<ReadonlyArray<unknown>>
+  export function scanRawSpacing(options: {
+    allowlistPath: string
+    srcRoot: string
+  }): Promise<{ unallowed: unknown[] }>
+  export function validateSpacingAllowlist(entries: ReadonlyArray<unknown>): void
 }

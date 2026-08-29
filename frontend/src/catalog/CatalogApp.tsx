@@ -28,7 +28,7 @@ type CatalogAppProps = {
 
 const viewportWidths: Record<string, string> = {
   fluid: '100%',
-  '360': '360px',
+  '360': foundationBreakpoints.narrowMax,
   '390': '390px',
   '420': '420px',
   '440': '440px',
@@ -144,6 +144,12 @@ export function CatalogApp({ search = window.location.search }: CatalogAppProps)
             </p>
             <h3>Spacing</h3>
             <RegistryList registry={foundationSpacing} />
+            <h3>Mobile list rhythm</h3>
+            <p>
+              8px (<code>--crm-space-2</code>) внутри группы, 12px (
+              <code>--crm-space-3</code>) между строками и 16–24px (
+              <code>--crm-space-4</code>…<code>--crm-space-6</code>) между секциями.
+            </p>
             <h3>Radii</h3>
             <RegistryList registry={foundationRadii} />
             <h3>Elevation</h3>
