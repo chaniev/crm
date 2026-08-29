@@ -11,6 +11,10 @@
 
 ## 2026-08-29
 
+- 29.08.2026 — REQ-GRP-007 — принята mobile-density редакция с компактными
+  строками занятий, усиленной decision-data hierarchy и единым action emphasis;
+  реализация переведена в «частично» до TASK-157 (задача
+  [TASK-157](../../backlog/tasks-ready/TASK-157-schedule-mobile-density.md)).
 - 29.08.2026 — REQ-NFR-001 — semantic typography contract реализован в
   shared/representative frontend slices; Onest roles, iPhone form-control
   minimums, long-content wrapping and numeric tabular alignment стали

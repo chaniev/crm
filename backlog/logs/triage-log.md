@@ -3207,3 +3207,79 @@
 - created tasks: 0
 - updated existing tasks: 2
 - processed inbox files: 0
+
+# 2026-08-29 23:42 TASK-157 schedule mobile density
+
+## Baseline and scope
+
+- Status audit выполнен в coordination workspace до создания карточки;
+  отдельная ветка, worktree и Docker Compose project не создавались.
+- Локальные `main` и `origin/main` совпадают на
+  `3b3a4f494d59dbbe6d8c257521465548b70ac026` (`3b3a4f4`).
+- Источник — прямое решение пользователя реализовать созданный в текущем
+  conversation макет; inbox-файл не создавался и не обрабатывался.
+- Проверены активные каталоги, `## Status`, уникальность TASK-ID, requirements
+  metadata, TASK-131, завершённые schedule tasks TASK-055, TASK-112, TASK-119 и
+  TASK-133, текущий runtime screenshot на `420 x 912` и REQ-GRP-005/007.
+- Код приложения, API, runtime configuration и deployment state не изменялись.
+
+## Status audit result
+
+- Достаточного evidence для перевода существующих активных задач в `done` не
+  найдено; status changes: none.
+- Unchanged active tasks before creation: tasks-ready TASK-002, TASK-004,
+  TASK-005, TASK-006, TASK-008, TASK-018, TASK-019 and TASK-021; risky TASK-007,
+  TASK-011, TASK-012, TASK-013, TASK-016, TASK-020, TASK-121, TASK-132, TASK-150,
+  TASK-154 and TASK-155; needs-clarification TASK-009, TASK-014, TASK-058,
+  TASK-071, TASK-074 and TASK-156; implementation TASK-131.
+- TASK-131 remains in implementation with its linked unfinished plan; no main
+  integration evidence was found during this scoped audit.
+
+## Created tasks
+
+- `/backlog/tasks-ready/TASK-157-schedule-mobile-density.md` — user-approved
+  follow-up implementation of the compact iPhone Air schedule mockup.
+
+## Updated requirements and visual evidence
+
+- `REQ-GRP-007` records the accepted compact-row mobile density and action
+  hierarchy; implementation is now `частично` until TASK-157 is integrated.
+- `/backlog/mockups/TASK-157-schedule-mobile-density/README.md` preserves the
+  implementation-ready visual contract and links current rendered evidence plus
+  the external conversation visualization.
+
+## Duplicate and consistency checks
+
+- TASK-133 remains completed historical baseline: it introduced time grouping,
+  backend-driven attendance state, deferred dangerous actions and context
+  restoration. TASK-157 owns only the newly accepted density, field hierarchy
+  and mobile action-emphasis refinement; the completed card was not reopened.
+- TASK-131 owns regression coverage of the group-type filter contract and does
+  not own schedule row presentation; both tasks coordinate on the same screen
+  without duplicate goals.
+- TASK-055/TASK-112/TASK-119 are historical layout/calendar iterations and do
+  not own this follow-up visual contract.
+- TASK-157 is `ready` in `backlog/tasks-ready`; all referenced REQ IDs exist and
+  have decision `принято`; no blocking questions remain.
+- Inbox and processing still contain only `.gitkeep`; no source note was moved
+  or deleted.
+
+## Validation
+
+- Backlog path/status/reference/ID and duplicate checks completed.
+- `python3 scripts/validate_requirements.py` and the base-aware variant passed:
+  57 requirement cards, 27 active tasks and 1 active plan; `git diff --check`
+  also passed.
+- Project build, unit, Playwright and Docker validation are not run because
+  production code and runtime did not change.
+
+## Summary
+
+- tasks-ready: 9
+- risky: 11
+- needs-clarification: 6
+- implementation: 1
+- unfinished implementation plans: 1
+- created tasks: 1
+- updated existing tasks: 0
+- processed inbox files: 0
