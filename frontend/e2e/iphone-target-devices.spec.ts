@@ -4523,6 +4523,11 @@ async function mockApi(
       return
     }
 
+    if (pathname === '/api/groups/summary' && method === 'GET') {
+      await fulfillJson(route, { totalCount: 0, activeWithoutTrainerCount: 0 })
+      return
+    }
+
     throw new Error(`Unexpected target iPhone API request: ${method} ${pathname}`)
   })
 }

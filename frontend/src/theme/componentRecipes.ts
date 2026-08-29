@@ -193,7 +193,13 @@ export function createGymCrmComponentRecipes({
       radius: 'md',
       size: 'sm',
     },
-    styles: inputStyles,
+    styles: {
+      ...inputStyles,
+      innerInput: {
+        fontSize: '1rem',
+        minHeight: mobile ? 44 : undefined,
+      },
+    },
   }),
   Textarea: Textarea.extend({
     defaultProps: {

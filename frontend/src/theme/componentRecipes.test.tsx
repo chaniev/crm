@@ -176,6 +176,9 @@ describe('TASK-161 responsive mobile control recipes', () => {
     expect(
       window.getComputedStyle(screen.getByLabelText('Пароль').parentElement!).minHeight,
     ).toBe('44px')
+    expect(window.getComputedStyle(screen.getByLabelText('Пароль')).minHeight).toBe(
+      '44px',
+    )
     expect(
       (
         mobileTheme.components?.Notifications as {

@@ -304,7 +304,7 @@
   line-height: var(--crm-type-label-line-height);
 }
 
-.stage-card :where(.mantine-Input-input) {
+.stage-card :where(.mantine-Input-input, .mantine-PasswordInput-innerInput) {
   min-height: 3.5rem;
   border-color: var(--auth-border);
   border-radius: 0.9rem;
@@ -5523,7 +5523,7 @@
     font-size: 1.7rem;
   }
 
-  .stage-card :where(.mantine-Input-input),
+  .stage-card :where(.mantine-Input-input, .mantine-PasswordInput-innerInput),
   .stage-card .auth-submit-button,
   .stage-card button[type='submit'] {
     min-height: 3.25rem;

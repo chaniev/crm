@@ -316,10 +316,12 @@ function AttentionActionsMenu({
   return (
     <Menu
       onClose={() => window.requestAnimationFrame(() => {
-        const trigger = Array.from(
-          document.querySelectorAll<HTMLButtonElement>('[data-attention-menu-trigger]'),
-        ).find((element) => element.dataset.attentionMenuTrigger === triggerKey)
-        trigger?.focus()
+        window.requestAnimationFrame(() => {
+          const trigger = Array.from(
+            document.querySelectorAll<HTMLButtonElement>('[data-attention-menu-trigger]'),
+          ).find((element) => element.dataset.attentionMenuTrigger === triggerKey)
+          trigger?.focus({ preventScroll: true })
+        })
       })}
       position="bottom-end"
       shadow="md"
