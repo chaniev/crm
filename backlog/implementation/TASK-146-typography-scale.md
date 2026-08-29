@@ -1,7 +1,13 @@
 # TASK-146: Формализовать семантическую типографическую шкалу
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-146-typography-scale.plan.md
+- implementation_branch: feature/TASK-146-typography-scale
 
 ## Requirements
 - REQ-NFR-001 — constrains
@@ -68,4 +74,3 @@ or semantically important recovery copy visually secondary.
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-046/TASK-048 are completed historical baseline tasks; no active follow-up owns the current local-size drift.
-

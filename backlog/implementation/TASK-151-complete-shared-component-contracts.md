@@ -1,7 +1,13 @@
 # TASK-151: Завершить контракты прикладных shared components
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-151-complete-shared-component-contracts.plan.md
+- implementation_branch: feature/TASK-151-complete-shared-component-contracts
 
 ## Requirements
 - none — component API and presentation consistency without product behavior changes
@@ -68,4 +74,3 @@ state handling even when they solve the same user need.
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: existing active client/schedule tasks own feature behavior, not cross-screen component contracts; implementation must avoid their files while active.
-

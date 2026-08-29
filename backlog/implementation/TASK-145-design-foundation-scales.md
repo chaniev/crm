@@ -1,7 +1,13 @@
 # TASK-145: Централизовать foundation scales дизайн-системы
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-145-design-foundation-scales.plan.md
+- implementation_branch: refactor/TASK-145-design-foundation-scales
 
 ## Requirements
 - none — behavior-preserving design-foundation refactor
@@ -69,4 +75,3 @@ even when screens follow the same intended visual language.
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: completed TASK-048/TASK-090 established baseline behavior but do not own current scale consolidation.
-

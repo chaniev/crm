@@ -1732,3 +1732,9 @@
 - residual_manual_evidence: physical iPhone/Safari chrome, real safe area,
   software keyboard and one-handed reach were not executed; target-device
   WebKit profiles and compact landscape automation passed.
+
+# 2026-08-29 17:21
+- moved: TASK-142, TASK-143, TASK-144, TASK-145, TASK-146, TASK-147, TASK-149, TASK-151, TASK-152, TASK-153
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-142-theme-contrast-matrix.plan.md, /backlog/implementation-plans/TASK-143-semantic-functional-tones.plan.md, /backlog/implementation-plans/TASK-144-reduced-motion-contract.plan.md, /backlog/implementation-plans/TASK-145-design-foundation-scales.plan.md, /backlog/implementation-plans/TASK-146-typography-scale.plan.md, /backlog/implementation-plans/TASK-147-theme-profile-schema.plan.md, /backlog/implementation-plans/TASK-149-mantine-component-recipes.plan.md, /backlog/implementation-plans/TASK-151-complete-shared-component-contracts.plan.md, /backlog/implementation-plans/TASK-152-design-system-catalog.plan.md, /backlog/implementation-plans/TASK-153-visual-regression-gate.plan.md

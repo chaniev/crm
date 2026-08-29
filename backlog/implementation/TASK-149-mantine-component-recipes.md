@@ -1,7 +1,13 @@
 # TASK-149: Создать project-level Mantine component recipes
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-149-mantine-component-recipes.plan.md
+- implementation_branch: feature/TASK-149-mantine-component-recipes
 
 ## Requirements
 - none — reusable presentation defaults without CRM behavior changes
@@ -69,4 +75,3 @@ into one stable design-system contract, so equivalent actions can drift.
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-090 introduced shared recipes conceptually, but no active task owns systematic Mantine theme recipes for the current component inventory.
-

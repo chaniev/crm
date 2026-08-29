@@ -1,7 +1,13 @@
 # TASK-143: Ввести semantic tone variants для функциональных состояний
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-143-semantic-functional-tones.plan.md
+- implementation_branch: feature/TASK-143-semantic-functional-tones
 
 ## Requirements
 - none — presentation consistency change that preserves existing CRM status semantics

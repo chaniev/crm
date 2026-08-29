@@ -11,6 +11,9 @@
 
 ## 2026-08-29
 
+- 29.08.2026 — REQ-NFR-001 — текст дополнен принятым
+  reduced-motion contract; реализация переведена в «частично» (задача
+  [TASK-144](../../backlog/implementation/TASK-144-reduced-motion-contract.md)).
 - 29.08.2026 — REQ-NFR-005 — текст customer branding расширен:
   приняты runtime/deployment onboarding, post-deploy CRM settings,
   primary auth action, customer-specific neutrals, logo/favicon и bundled

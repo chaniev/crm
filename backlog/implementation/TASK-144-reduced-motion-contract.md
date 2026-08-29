@@ -1,7 +1,13 @@
 # TASK-144: Добавить reduced-motion contract
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-144-reduced-motion-contract.plan.md
+- implementation_branch: feature/TASK-144-reduced-motion-contract
 
 ## Requirements
 - REQ-NFR-001 — changes
@@ -66,4 +72,3 @@ durations/easing задаются локально и могут расходи�
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-084 covers compact-height/touch behavior, not reduced motion; no active duplicate found.
-

@@ -1,7 +1,13 @@
 # TASK-153: Ввести visual regression gate для дизайн-системы
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-153-visual-regression-gate.plan.md
+- implementation_branch: feature/TASK-153-visual-regression-gate
 
 ## Requirements
 - REQ-NFR-001 — verifies
@@ -69,4 +75,3 @@ surface or component-state appearance changes unintentionally.
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-111 provides UX audit coverage and TASK-140 runs task-aware E2E; neither owns deterministic visual baselines for design-system states.
-

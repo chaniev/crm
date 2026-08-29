@@ -1,7 +1,13 @@
 # TASK-152: Создать внутренний каталог дизайн-системы
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-152-design-system-catalog.plan.md
+- implementation_branch: feature/TASK-152-design-system-catalog
 
 ## Requirements
 - none — developer documentation and tooling; production behavior does not change
@@ -69,4 +75,3 @@ incorrect local composition more likely.
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: no active or completed task provides a reusable design-system catalog.
-

@@ -1,7 +1,13 @@
 # TASK-142: Расширить матрицу контраста дизайн-системы
 
 ## Status
-ready
+implementation
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 17:21
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-142-theme-contrast-matrix.plan.md
+- implementation_branch: feature/TASK-142-theme-contrast-matrix
 
 ## Requirements
 - REQ-NFR-001 — verifies
@@ -73,4 +79,3 @@ resolved foreground Mantine-компонента.
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-090 introduced baseline contrast tests but does not own this missing component-state matrix follow-up.
-
