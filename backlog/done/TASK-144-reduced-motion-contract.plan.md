@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-144 Добавить reduced-motion contract
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-144-reduced-motion-contract.md
+- source_task: /backlog/done/TASK-144-reduced-motion-contract.md
+- completion: implemented and locally integrated into main on 2026-08-29
 - requirements: REQ-NFR-001 (changes)
 - branch: feature/TASK-144-reduced-motion-contract
 - readiness: yes

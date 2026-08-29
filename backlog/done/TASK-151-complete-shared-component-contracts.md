@@ -1,13 +1,15 @@
 # TASK-151: Завершить контракты прикладных shared components
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 17:21
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-151-complete-shared-component-contracts.plan.md
+- implementation_plan: /backlog/done/TASK-151-complete-shared-component-contracts.plan.md
 - implementation_branch: feature/TASK-151-complete-shared-component-contracts
+- integrated_to_main_at: 2026-08-29
+- candidate_commit: 07144476102bb52bcb4e8241d9e529c7a29c5e6b
 
 ## Requirements
 - none — component API and presentation consistency without product behavior changes

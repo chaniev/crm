@@ -1738,3 +1738,34 @@
 - planned_in_place: none
 - skipped: none
 - plans: /backlog/implementation-plans/TASK-142-theme-contrast-matrix.plan.md, /backlog/implementation-plans/TASK-143-semantic-functional-tones.plan.md, /backlog/implementation-plans/TASK-144-reduced-motion-contract.plan.md, /backlog/implementation-plans/TASK-145-design-foundation-scales.plan.md, /backlog/implementation-plans/TASK-146-typography-scale.plan.md, /backlog/implementation-plans/TASK-147-theme-profile-schema.plan.md, /backlog/implementation-plans/TASK-149-mantine-component-recipes.plan.md, /backlog/implementation-plans/TASK-151-complete-shared-component-contracts.plan.md, /backlog/implementation-plans/TASK-152-design-system-catalog.plan.md, /backlog/implementation-plans/TASK-153-visual-regression-gate.plan.md
+
+# 2026-08-29 — TASK-142…153 design-system batch
+
+- completed_in_dependency_order: parallel TASK-142/TASK-143/TASK-144/TASK-145;
+  then TASK-147, TASK-149 and TASK-146; then TASK-151; TASK-152 shell was
+  prepared early and completed after its component dependencies; TASK-153 was
+  integrated last after the reference UI stabilized.
+- candidates: TASK-142 `5a25ca5`, TASK-143 `532ca88`, TASK-144 `6f64b7b`,
+  TASK-145 `4174a23`, TASK-146 `0f98df7`, TASK-147 `8a1a179`, TASK-149
+  `6383798`, TASK-151 `0714447`, TASK-152 `c261e5d`, TASK-153 `53c195b`.
+- frontend: lint, typecheck, raw-color scan, production build/exclusion and
+  634 unit tests passed on the integrated implementation tree; focused
+  contrast, schema, recipes, typography, reduced-motion, catalog and shared
+  component suites passed.
+- browser: affected Chromium, target-iPhone WebKit and the deterministic
+  six-case catalog visual matrix passed. The visual matrix ran clean twice;
+  a controlled 1px-to-3px border mutation produced a reviewable 33,945-pixel
+  diff and returned green after revert.
+- harness: TASK-153 task-aware verification passed on exact candidate
+  `53c195b`, including requirements validation, 63 harness tests, dependency
+  audit, frontend gates, production exclusion and visual baselines.
+- scope_note: TASK-151 extracted only contracts supported by repeated real
+  consumers: pagination, avatar, loading and notification behavior; an
+  unproven FieldFeedback abstraction was intentionally not introduced.
+- residual_manual_evidence: no physical iPhone/Safari chrome, real safe area
+  or software keyboard run; automated target-iPhone WebKit and compact/zoom
+  coverage passed. The broad historical responsive-main-screens suite still
+  contains unrelated manifest/mock mismatches, while all TASK-146-targeted
+  responsive and zoom scenarios passed.
+- integrated: all ten candidates are reachable from local `main`; task cards,
+  plans and task-specific verification contracts moved to `backlog/done`.

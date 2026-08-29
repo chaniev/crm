@@ -1,13 +1,15 @@
 # TASK-144: Добавить reduced-motion contract
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 17:21
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-144-reduced-motion-contract.plan.md
+- implementation_plan: /backlog/done/TASK-144-reduced-motion-contract.plan.md
 - implementation_branch: feature/TASK-144-reduced-motion-contract
+- integrated_to_main_at: 2026-08-29
+- candidate_commit: 6f64b7b27c71440640a287db1f137a36eb82b617
 
 ## Requirements
 - REQ-NFR-001 — changes

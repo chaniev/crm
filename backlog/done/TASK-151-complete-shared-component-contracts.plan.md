@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-151 Завершить контракты прикладных shared components
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-151-complete-shared-component-contracts.md
+- source_task: /backlog/done/TASK-151-complete-shared-component-contracts.md
+- completion: implemented and locally integrated into main on 2026-08-29
 - requirements: none — domain-neutral component APIs and presentation consistency preserve product behavior
 - branch: feature/TASK-151-complete-shared-component-contracts
 - readiness: yes

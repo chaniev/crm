@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-143 Ввести semantic tone variants для функциональных состояний
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-143-semantic-functional-tones.md
+- source_task: /backlog/done/TASK-143-semantic-functional-tones.md
+- completion: implemented and locally integrated into main on 2026-08-29
 - requirements: none — typed presentation contract preserves existing CRM status meanings and behavior
 - branch: feature/TASK-143-semantic-functional-tones
 - readiness: yes

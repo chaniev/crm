@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-147 Уточнить schema и validation ThemeProfile
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-147-theme-profile-schema.md
+- source_task: /backlog/done/TASK-147-theme-profile-schema.md
+- completion: implemented and locally integrated into main on 2026-08-29
 - requirements: none — compatibility-schema hardening preserves registered profile output, IDs and fallback behavior
 - branch: refactor/TASK-147-theme-profile-schema
 - readiness: yes

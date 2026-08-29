@@ -16,14 +16,14 @@
   minimums, long-content wrapping and numeric tabular alignment стали
   проверяемым theme/CSS контрактом, общая реализация требования остаётся
   «частично» (задача
-  [TASK-146](../../backlog/implementation/TASK-146-typography-scale.md)).
+  [TASK-146](../../backlog/done/TASK-146-typography-scale.md)).
 - 29.08.2026 — REQ-NFR-001 — reduced-motion contract реализован и
   подтверждён unit/Chromium/WebKit evidence; общая реализация
   требования остаётся «частично» (задача
-  [TASK-144](../../backlog/implementation/TASK-144-reduced-motion-contract.md)).
+  [TASK-144](../../backlog/done/TASK-144-reduced-motion-contract.md)).
 - 29.08.2026 — REQ-NFR-001 — текст дополнен принятым
   reduced-motion contract; реализация переведена в «частично» (задача
-  [TASK-144](../../backlog/implementation/TASK-144-reduced-motion-contract.md)).
+  [TASK-144](../../backlog/done/TASK-144-reduced-motion-contract.md)).
 - 29.08.2026 — REQ-NFR-005 — текст customer branding расширен:
   приняты runtime/deployment onboarding, post-deploy CRM settings,
   primary auth action, customer-specific neutrals, logo/favicon и bundled

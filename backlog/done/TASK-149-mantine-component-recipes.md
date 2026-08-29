@@ -1,13 +1,15 @@
 # TASK-149: Создать project-level Mantine component recipes
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 17:21
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-149-mantine-component-recipes.plan.md
+- implementation_plan: /backlog/done/TASK-149-mantine-component-recipes.plan.md
 - implementation_branch: feature/TASK-149-mantine-component-recipes
+- integrated_to_main_at: 2026-08-29
+- candidate_commit: 63837980d35cd509e0192a1bb91d46d67b6975c9
 
 ## Requirements
 - none — reusable presentation defaults without CRM behavior changes

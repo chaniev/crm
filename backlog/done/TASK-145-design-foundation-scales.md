@@ -1,13 +1,15 @@
 # TASK-145: Централизовать foundation scales дизайн-системы
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 17:21
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-145-design-foundation-scales.plan.md
+- implementation_plan: /backlog/done/TASK-145-design-foundation-scales.plan.md
 - implementation_branch: refactor/TASK-145-design-foundation-scales
+- integrated_to_main_at: 2026-08-29
+- candidate_commit: 4174a2371e17ffd8e2be0c479457134596a8a30a
 
 ## Requirements
 - none — behavior-preserving design-foundation refactor

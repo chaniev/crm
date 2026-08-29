@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-146 Формализовать семантическую типографическую шкалу
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-146-typography-scale.md
+- source_task: /backlog/done/TASK-146-typography-scale.md
+- completion: implemented and locally integrated into main on 2026-08-29
 - requirements: REQ-NFR-001 (constrains)
 - branch: feature/TASK-146-typography-scale
 - readiness: yes

@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-152 Создать внутренний каталог дизайн-системы
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-152-design-system-catalog.md
+- source_task: /backlog/done/TASK-152-design-system-catalog.md
+- completion: implemented and locally integrated into main on 2026-08-29
 - requirements: none — development-only documentation/tooling does not change production behavior
 - branch: feature/TASK-152-design-system-catalog
 - readiness: yes

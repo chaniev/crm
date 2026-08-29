@@ -1,13 +1,15 @@
 # TASK-142: Расширить матрицу контраста дизайн-системы
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 17:21
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-142-theme-contrast-matrix.plan.md
+- implementation_plan: /backlog/done/TASK-142-theme-contrast-matrix.plan.md
 - implementation_branch: feature/TASK-142-theme-contrast-matrix
+- integrated_to_main_at: 2026-08-29
+- candidate_commit: 5a25ca50f76a3d1a27518ce7b44674cc9db60b55
 
 ## Requirements
 - REQ-NFR-001 — verifies

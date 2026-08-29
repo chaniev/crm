@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-149 Создать project-level Mantine component recipes
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-149-mantine-component-recipes.md
+- source_task: /backlog/done/TASK-149-mantine-component-recipes.md
+- completion: implemented and locally integrated into main on 2026-08-29
 - requirements: none — reusable presentation defaults preserve CRM behavior and action hierarchy
 - branch: feature/TASK-149-mantine-component-recipes
 - readiness: yes

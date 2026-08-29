@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-145 Централизовать foundation scales дизайн-системы
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-145-design-foundation-scales.md
+- source_task: /backlog/done/TASK-145-design-foundation-scales.md
+- completion: implemented and locally integrated into main on 2026-08-29
 - requirements: none — behavior-preserving refactor retains computed geometry and responsive behavior
 - branch: refactor/TASK-145-design-foundation-scales
 - readiness: yes

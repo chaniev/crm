@@ -1,13 +1,15 @@
 # TASK-152: Создать внутренний каталог дизайн-системы
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 17:21
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-152-design-system-catalog.plan.md
+- implementation_plan: /backlog/done/TASK-152-design-system-catalog.plan.md
 - implementation_branch: feature/TASK-152-design-system-catalog
+- integrated_to_main_at: 2026-08-29
+- candidate_commit: c261e5dc169462e2074aa4a3bfee4460920235b5
 
 ## Requirements
 - none — developer documentation and tooling; production behavior does not change

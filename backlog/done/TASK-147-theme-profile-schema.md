@@ -1,13 +1,15 @@
 # TASK-147: Уточнить schema и validation ThemeProfile
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 17:21
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-147-theme-profile-schema.plan.md
+- implementation_plan: /backlog/done/TASK-147-theme-profile-schema.plan.md
 - implementation_branch: refactor/TASK-147-theme-profile-schema
+- integrated_to_main_at: 2026-08-29
+- candidate_commit: 8a1a179b49488aef292b05d01decc77e0609f8bd
 
 ## Requirements
 - none — behavior-preserving theme-schema hardening; existing deployment branding output remains unchanged

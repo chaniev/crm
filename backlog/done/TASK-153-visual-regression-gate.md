@@ -1,13 +1,15 @@
 # TASK-153: Ввести visual regression gate для дизайн-системы
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-29 17:21
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-153-visual-regression-gate.plan.md
+- implementation_plan: /backlog/done/TASK-153-visual-regression-gate.plan.md
 - implementation_branch: feature/TASK-153-visual-regression-gate
+- integrated_to_main_at: 2026-08-29
+- candidate_commit: 53c195b882332c1e3f9f5fb6b5da1fccd8ec4db3
 
 ## Requirements
 - REQ-NFR-001 — verifies
