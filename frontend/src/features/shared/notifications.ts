@@ -3,9 +3,13 @@ import {
   getSemanticToneDefinition,
   type SemanticTone,
 } from '../../theme/semanticTones'
+import {
+  GYM_CRM_NOTIFICATION_AUTO_CLOSE_MS,
+  GYM_CRM_NOTIFICATION_LIMIT,
+} from '../../theme/componentRecipeConstants'
 
-export const APP_NOTIFICATION_AUTO_CLOSE_MS = 10_000
-export const APP_NOTIFICATION_LIMIT = 5
+export const APP_NOTIFICATION_AUTO_CLOSE_MS = GYM_CRM_NOTIFICATION_AUTO_CLOSE_MS
+export const APP_NOTIFICATION_LIMIT = GYM_CRM_NOTIFICATION_LIMIT
 
 export type AppNotificationData = Omit<NotificationData, 'color'> & {
   color?: NotificationData['color']
@@ -17,8 +21,16 @@ export function showAppNotification(notification: AppNotificationData) {
   const toneColor = tone
     ? getSemanticToneDefinition(tone).mantineColor
     : undefined
+  const toneAccessibility: Partial<NotificationData> =
+    tone === 'danger'
+      ? {
+          'aria-live': 'assertive',
+          role: 'alert',
+        }
+      : {}
   const payload: NotificationData = {
     autoClose: APP_NOTIFICATION_AUTO_CLOSE_MS,
+    ...toneAccessibility,
     ...notificationPayload,
     color: notificationPayload.color ?? toneColor,
   }

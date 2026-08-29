@@ -19,6 +19,13 @@ export {
 } from './theme/semanticTones'
 export { createGymCrmTheme } from './theme/createGymCrmTheme'
 export {
+  gymCrmComponentRecipes,
+} from './theme/componentRecipes'
+export {
+  GYM_CRM_NOTIFICATION_AUTO_CLOSE_MS,
+  GYM_CRM_NOTIFICATION_LIMIT,
+} from './theme/componentRecipeConstants'
+export {
   assertThemeProfileContrast,
   buildThemeContrastMatrix,
   type ThemeContrastKind,

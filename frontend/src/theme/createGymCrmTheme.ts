@@ -1,4 +1,5 @@
 import { createTheme } from '@mantine/core'
+import { gymCrmComponentRecipes } from './componentRecipes'
 import { semanticBaseColors } from './semanticVariables'
 import { crmFontFamilies, typographyRoles } from './typography'
 import type { ThemeProfile } from './types'
@@ -44,6 +45,7 @@ export function createGymCrmTheme(profile: ThemeProfile) {
       accent: secondary,
       sand: neutral,
     },
+    components: gymCrmComponentRecipes,
     black: semanticBaseColors.textStrong,
     white: semanticBaseColors.surface,
     other: {
