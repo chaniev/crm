@@ -3012,3 +3012,101 @@
 - created tasks: 1
 - updated existing tasks: 0
 - processed inbox files: 0
+
+# 2026-08-29 16:45 design-system checklist follow-up
+
+## Baseline and scope
+
+- Status audit выполнен в coordination workspace до оформления карточек;
+  отдельная ветка, worktree и Docker Compose project не создавались.
+- Локальные `main` и `origin/main` совпадают на
+  `0916a45481a7bf13c7709ab8396a069f4c3573fe` (`0916a45`).
+- Источник: прямой запрос пользователя после аудита проекта по
+  designsystemchecklist.com; inbox-файл не создавался и не обрабатывался.
+- Проверены активные статусы, уникальность активных TASK-ID, незавершённые
+  plans, requirements metadata и пересечения с завершёнными TASK-046,
+  TASK-048, TASK-049, TASK-084, TASK-090, TASK-094, TASK-111, TASK-140 и
+  активной TASK-121.
+- Код приложения, API, тесты, runtime configuration и deployment state не
+  изменялись.
+
+## Status audit result
+
+- Достаточного evidence для перевода существующих активных задач в `done` не
+  найдено; status changes: none.
+- Unchanged active tasks before this run: tasks-ready TASK-002, TASK-004,
+  TASK-005, TASK-006, TASK-008, TASK-018, TASK-019, TASK-021 and TASK-131;
+  risky TASK-007, TASK-011, TASK-012, TASK-013, TASK-016, TASK-020, TASK-121
+  and TASK-132; needs-clarification TASK-009, TASK-014, TASK-058, TASK-071 and
+  TASK-074; implementation none.
+- Unfinished implementation plans: none.
+
+## Created tasks
+
+- `/backlog/tasks-ready/TASK-142-theme-contrast-matrix.md` — расширенная
+  contrast matrix для component states и всех theme profiles.
+- `/backlog/tasks-ready/TASK-143-semantic-functional-tones.md` — typed semantic
+  tones и запрет обхода status tokens.
+- `/backlog/tasks-ready/TASK-144-reduced-motion-contract.md` — motion scale и
+  `prefers-reduced-motion` contract.
+- `/backlog/tasks-ready/TASK-145-design-foundation-scales.md` — единые spacing,
+  breakpoint, radius, elevation и layer scales.
+- `/backlog/tasks-ready/TASK-146-typography-scale.md` — семантическая Onest
+  typography scale.
+- `/backlog/tasks-ready/TASK-147-theme-profile-schema.md` — однозначная и
+  валидируемая versioned ThemeProfile schema.
+- `/backlog/needs-clarification/TASK-148-customer-branding-boundary.md` —
+  продуктовая граница customer branding и white-label scope.
+- `/backlog/tasks-ready/TASK-149-mantine-component-recipes.md` — project-level
+  Mantine variants и component defaults.
+- `/backlog/risky/TASK-150-shared-component-migration.md` — поэтапная миграция
+  feature UI на shared primitives.
+- `/backlog/tasks-ready/TASK-151-complete-shared-component-contracts.md` —
+  недостающие pagination, avatar, form feedback, loading и notification
+  contracts.
+- `/backlog/tasks-ready/TASK-152-design-system-catalog.md` — development-only
+  каталог foundations, themes и shared components.
+- `/backlog/tasks-ready/TASK-153-visual-regression-gate.md` — deterministic
+  visual regression baseline для обеих тем и ключевых состояний.
+- `/backlog/risky/TASK-154-modularize-global-css.md` — декомпозиция глобального
+  App.css по ownership с cascade и visual gates.
+
+## Duplicate and consistency checks
+
+- TASK-090 остаётся завершённым foundation для mobile UI system и deployment
+  theme profiles; новые карточки описывают конкретные незакрытые follow-ups, а
+  не повторяют его scope.
+- TASK-046/TASK-048 — исторический visual/layout baseline, TASK-094 — только
+  filter surfaces, TASK-111 — UX regression matrix, TASK-140 — task-aware
+  verification harness; ни одна из них не владеет созданными deliverables.
+- TASK-121 не включает ownership глобального CSS или migration на
+  design-system primitives, поэтому TASK-150 и TASK-154 не являются его
+  дубликатами.
+- TASK-148 оставлена в `needs-clarification`: REQ-NFR-005 сейчас фиксирует
+  deployment club name, но не принимает решения о palette/auth/logo/runtime
+  branding boundary.
+- Исторический свободный номер TASK-139 не переиспользован; нумерация начата с
+  TASK-142 после максимального существующего TASK-141.
+- Inbox и processing содержат только `.gitkeep`; исходные заметки не удалялись
+  и не перемещались.
+
+## Validation
+
+- Проверены status/directory agreement, уникальность новых и активных TASK-ID,
+  наличие `## Requirements`, допустимость `none`/`pending`, существование всех
+  ссылочных TASK-ID и отсутствие proposed requirements в ready workflow.
+- Requirements registry validation и `git diff --check` выполнены отдельно в
+  рамках этого run.
+- Project code и runtime не менялись, поэтому build, unit, Playwright и Docker
+  validation не перезапускались.
+
+## Summary
+
+- tasks-ready: 19
+- risky: 10
+- needs-clarification: 6
+- implementation: 0
+- unfinished implementation plans: 0
+- created tasks: 13
+- updated existing tasks: 0
+- processed inbox files: 0
