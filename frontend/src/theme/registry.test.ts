@@ -1,4 +1,11 @@
 import { describe, expect, test, vi } from 'vitest'
+import {
+  assertThemeProfileContrast,
+  buildThemeContrastMatrix,
+  contrastRatio as calculateContrastRatio,
+  parseColor as parseContrastColor,
+} from './contrastMatrix'
+import type { ThemeProfile as RegisteredThemeProfile } from './types'
 
 type MantineColorTuple = readonly string[]
 
@@ -425,5 +432,76 @@ describe('theme profile and background registry contracts', () => {
       expect(contrastRatio(focus, white)).toBeGreaterThanOrEqual(3)
       expect(contrastRatio(focus, card)).toBeGreaterThanOrEqual(3)
     }
+  })
+
+  test('parses and composites the color formats used by semantic theme tokens', () => {
+    expect(parseContrastColor('#fff')).toEqual({ r: 255, g: 255, b: 255, a: 1 })
+    expect(parseContrastColor('#17312dcc')).toEqual({
+      r: 23,
+      g: 49,
+      b: 45,
+      a: 0.8,
+    })
+    expect(calculateContrastRatio('#00000080', '#ffffff')).toBeCloseTo(4, 2)
+    expect(
+      calculateContrastRatio(
+        'color-mix(in srgb, #17312d 80%, transparent)',
+        '#ffffff',
+      ),
+    ).toBeGreaterThan(7)
+  })
+
+  test('runs the complete component/state contrast matrix for every registered profile', async () => {
+    const moduleShape = await themeModule()
+    const profiles = moduleShape.themeProfiles ?? []
+
+    expect(profiles.length).toBeGreaterThanOrEqual(2)
+
+    for (const profile of profiles) {
+      const registeredProfile = profile as unknown as RegisteredThemeProfile
+      const matrix = buildThemeContrastMatrix(registeredProfile)
+      const identities = matrix.map(({ component, state }) => `${component}/${state}`)
+
+      expect(identities).toEqual(expect.arrayContaining([
+        'Button/filled/default',
+        'Button/filled/hover',
+        'Button/filled/active',
+        'Button/filled/disabled',
+        'Button/destructive/default',
+        'Badge/success/default',
+        'Badge/warning/default',
+        'Badge/danger/default',
+        'Alert/info/default',
+        'Navigation/selected/default',
+        'Navigation/selected/hover',
+        'Link/default/default',
+        'Link/hover/default',
+        'Focus/indicator/default',
+        'Accent/1/default',
+        'Accent/2/default',
+        'Accent/3/default',
+        'Accent/4/default',
+      ]))
+
+      expect(() => assertThemeProfileContrast(registeredProfile)).not.toThrow()
+      expect(matrix.every((entry) => entry.ratio >= entry.threshold)).toBe(true)
+    }
+  })
+
+  test('rejects an injected low-contrast profile with actionable diagnostics', async () => {
+    const moduleShape = await themeModule()
+    const profiles = moduleShape.themeProfiles ?? []
+    const invalidProfile = {
+      ...getProfileById(profiles, 'default-green-v1'),
+      id: 'invalid-low-contrast-v1',
+      main: {
+        primary: Array(10).fill('#777777') as unknown as MantineColorTuple,
+        secondary: Array(10).fill('#777777') as unknown as MantineColorTuple,
+      },
+    }
+
+    expect(() => assertThemeProfileContrast(invalidProfile as unknown as RegisteredThemeProfile)).toThrowError(
+      /invalid-low-contrast-v1.*Button\/filled\/default.*foreground=.*background=#777777.*threshold=4\.50.*ratio=/s,
+    )
   })
 })

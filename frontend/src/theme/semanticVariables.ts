@@ -11,15 +11,15 @@ export const semanticBaseColors = {
   surfaceDisabled: '#F3F4F6',
   text: '#17312D',
   textStrong: '#111827',
-  textDisabled: '#9CA3AF',
+  textDisabled: '#596862',
   muted: '#64736D',
   border: '#D7E0DA',
   borderMuted: '#E5E7EB',
   borderStrong: '#B8C8BF',
-  success: '#2F8F6B',
-  warning: '#C98A2E',
-  danger: '#C95345',
-  info: '#2563EB',
+  success: '#237154',
+  warning: '#855B1F',
+  danger: '#B23A2E',
+  info: '#2554C7',
   authAction: '#F26A21',
   authActionHover: '#D95C1F',
   authActionActive: '#BF4D17',
@@ -29,7 +29,7 @@ export const semanticBaseColors = {
   authBorder: '#D7DEE7',
   authSolidBackground: '#07100F',
   scheduleRose: '#C95370',
-  scheduleSlate: '#718096',
+  scheduleSlate: '#596579',
 } as const
 
 function alpha(color: string, percent: number) {
@@ -88,7 +88,7 @@ export function createSemanticVariables(
     '--crm-action-primary-active': primary[8],
     '--crm-nav-active': `linear-gradient(135deg, ${primary[5]} 0%, ${primary[6]} 100%)`,
     '--crm-selection-bg': primary[1],
-    '--crm-selection-border': primary[4],
+    '--crm-selection-border': primary[6],
     '--crm-focus-ring': primary[7],
 
     '--crm-surface-page': semanticBaseColors.background,

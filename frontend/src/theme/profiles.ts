@@ -83,7 +83,7 @@ export const testBlueCoralProfile = {
       '#7cb4ff',
       '#579eff',
       '#3f8cff',
-      '#2f7df1',
+      '#2b6fd5',
       '#2564c2',
       '#1d4d94',
       '#143567',

@@ -10,6 +10,12 @@ export {
   type SemanticVariableMap,
 } from './theme/semanticVariables'
 export { createGymCrmTheme } from './theme/createGymCrmTheme'
+export {
+  assertThemeProfileContrast,
+  buildThemeContrastMatrix,
+  type ThemeContrastKind,
+  type ThemeContrastResult,
+} from './theme/contrastMatrix'
 export { resolveAuthBackgroundProfile, resolveThemeProfile } from './theme/resolveProfiles'
 export { DEFAULT_THEME_PROFILE_ID, themeProfiles } from './theme/profiles'
 export type {

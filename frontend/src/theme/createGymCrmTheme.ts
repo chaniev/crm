@@ -9,6 +9,8 @@ export function createGymCrmTheme(profile: ThemeProfile) {
   return createTheme({
     primaryColor: 'brand',
     primaryShade: 6,
+    autoContrast: true,
+    luminanceThreshold: 0.2,
     fontFamily: 'Onest, ui-sans-serif, system-ui, sans-serif',
     headings: {
       fontFamily: 'Onest, ui-sans-serif, system-ui, sans-serif',
