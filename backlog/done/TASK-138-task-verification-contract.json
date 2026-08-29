@@ -2,9 +2,7 @@
   "version": 1,
   "task_id": "TASK-138",
   "expected_branch": "feature/TASK-138-task-verification-contract",
-  "areas": [
-    "harness"
-  ],
+  "areas": ["harness"],
   "runtime_smoke": [
     {
       "id": "harness.smoke.cli-help",
