@@ -11,6 +11,10 @@
 
 ## 2026-08-30
 
+- 30.08.2026 — REQ-GRP-007 — task-branch candidate TASK-157 реализует
+  mobile-density contract и покрыт component/Chromium/target-iPhone WebKit
+  evidence; реализация остаётся «частично» до интеграции в `main` (задача
+  [TASK-157](../../backlog/implementation/TASK-157-schedule-mobile-density.md)).
 - 30.08.2026 — REQ-NFR-001 — текст дополнен принятым list-row/focus-card
   контрактом; representative Users/Audit slices и mobile radius overrides
   реализованы, общая реализация требования остаётся «частично» (задача
