@@ -126,6 +126,13 @@ Schema version 1 supports:
 }
 ```
 
+An entry may set `"config": "playwright.catalog.config.ts"` for the isolated
+design-system catalog. The harness still installs the pinned browsers and runs
+the spec through the same evidence collection; arbitrary Playwright config
+paths are rejected. Visual failures retain Playwright's expected, actual and
+diff images under `frontend/test-results/`, which the task-verification CI job
+uploads as browser diagnostics.
+
 Playwright specs must exist below `frontend/e2e`. The runner installs the
 pinned Playwright browsers first, reserves a task-local E2E port, and invokes
 the declared desktop/mobile projects as

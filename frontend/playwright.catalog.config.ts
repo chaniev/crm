@@ -4,9 +4,15 @@ const catalogPort = Number(process.env.CATALOG_E2E_PORT ?? 3021)
 
 export default defineConfig({
   testDir: './e2e/catalog',
+  snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{projectName}/{arg}{ext}',
   timeout: 30_000,
   expect: {
     timeout: 5_000,
+    toHaveScreenshot: {
+      animations: 'disabled',
+      caret: 'hide',
+      scale: 'css',
+    },
   },
   use: {
     baseURL: `http://127.0.0.1:${catalogPort}`,

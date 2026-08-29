@@ -79,6 +79,18 @@ body {
   max-width: 44rem;
 }
 
+.catalog-auth-reference {
+  height: 38rem;
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--crm-border-muted);
+  border-radius: var(--crm-radius-inner);
+}
+
+.catalog-auth-reference .gym-crm-page {
+  min-height: 38rem;
+}
+
 .catalog-theme-links {
   display: flex;
   flex-wrap: wrap;

@@ -46,17 +46,33 @@ surface or component-state appearance changes unintentionally.
 - Baseline changes require an explanation and rendered review.
 
 ## Acceptance criteria
-- [ ] Reference matrix covers auth, shell, shared toolbar/list, form, temporary surface and key operational states.
-- [ ] Required mobile and desktop widths plus both themes are represented without redundant snapshots.
-- [ ] CI/harness publishes visual diff artifacts on failure.
-- [ ] Baseline update procedure names reviewer evidence and prohibited shortcuts.
-- [ ] Behavioral and accessibility tests remain mandatory.
+- [x] Reference matrix covers auth, shell, shared toolbar/list, form, temporary surface and key operational states.
+- [x] Required mobile and desktop widths plus both themes are represented without redundant snapshots.
+- [x] CI/harness publishes visual diff artifacts on failure.
+- [x] Baseline update procedure names reviewer evidence and prohibited shortcuts.
+- [x] Behavioral and accessibility tests remain mandatory.
 
 ## Test checklist
-- [ ] Prove one expected visual failure and reviewable diff before accepting baseline.
-- [ ] Run visual checks twice to demonstrate deterministic output.
-- [ ] Verify focus and reduced-motion setup in relevant snapshots.
-- [ ] Run the task-aware verification contract through the root harness.
+- [x] Prove one expected visual failure and reviewable diff before accepting baseline.
+- [x] Run visual checks twice to demonstrate deterministic output.
+- [x] Verify focus and reduced-motion setup in relevant snapshots.
+- [x] Run the task-aware verification contract through the root harness.
+
+## Verification evidence
+- Missing baseline proof: removing the committed 390px auth baseline made the
+  focused test fail with an explicit missing-snapshot diagnostic and actual image.
+- Controlled mutation proof: changing the auth reference border from 1px to
+  3px produced expected/actual/diff artifacts and 33,945 changed pixels. All
+  three images were inspected at original size; the diff showed the intended
+  auth-card reflow. Reverting the mutation restored green.
+- Determinism: two consecutive clean full matrix runs each passed 6/6 selected
+  pairwise cases (12 non-owning project combinations skipped by construction).
+- Rendered baseline review: all six committed PNGs were inspected at original
+  size for readable text, visible focus, intended wrapping and bounded surfaces.
+- Task-aware harness: requirements validation, 63 harness tests, npm audit,
+  lint, typecheck, raw-color scan, 634 frontend unit tests, production build,
+  browser installation and the 6/6 visual matrix passed. Evidence report:
+  `.artifacts/verification/TASK-153.json` (local, uncommitted runtime artifact).
 
 ## AI safety
 - Safe for autonomous implementation: yes

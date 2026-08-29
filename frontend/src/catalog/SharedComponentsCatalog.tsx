@@ -18,6 +18,7 @@ import {
   IconUser,
 } from '@tabler/icons-react'
 import { useState, type ReactNode } from 'react'
+import { LoginScreen, StageFrame } from '../app/AuthStages'
 import type { AppSection } from '../lib/api'
 import {
   ActiveFiltersBar,
@@ -105,7 +106,11 @@ function CatalogExample({
 
 function RecipeCatalog() {
   return (
-    <section aria-labelledby="recipes-heading" className="catalog-section">
+    <section
+      aria-labelledby="recipes-heading"
+      className="catalog-section"
+      data-testid="catalog-reference-form"
+    >
       <div className="catalog-section__heading">
         <div>
           <h2 id="recipes-heading">Mantine recipes</h2>
@@ -203,9 +208,44 @@ export function SharedComponentsCatalog({ longContent }: { longContent: boolean 
 
   return (
     <>
+      <section
+        aria-labelledby="auth-reference-heading"
+        className="catalog-section"
+        data-testid="catalog-reference-auth"
+      >
+        <div className="catalog-section__heading">
+          <div>
+            <h2 id="auth-reference-heading">Authentication reference</h2>
+            <p>Production login screen with deterministic, image-free background.</p>
+          </div>
+        </div>
+        <div className="catalog-auth-reference">
+          <StageFrame
+            authBackground={{
+              asset: null,
+              focalPoint: { xPercent: 50, yPercent: 50 },
+              profileId: null,
+            }}
+          >
+            <LoginScreen
+              clubName={longContent
+                ? 'Спортивный комплекс с очень длинным названием для проверки переноса'
+                : 'Gym CRM'}
+              onSubmit={async () => undefined}
+              pending={false}
+              showSetupHelp={false}
+            />
+          </StageFrame>
+        </div>
+      </section>
+
       <RecipeCatalog />
 
-      <section aria-labelledby="actions-heading" className="catalog-section">
+      <section
+        aria-labelledby="actions-heading"
+        className="catalog-section"
+        data-testid="catalog-reference-actions"
+      >
         <div className="catalog-section__heading">
           <div>
             <h2 id="actions-heading">Actions and feedback</h2>
@@ -267,7 +307,11 @@ export function SharedComponentsCatalog({ longContent }: { longContent: boolean 
         </div>
       </section>
 
-      <section aria-labelledby="locator-heading" className="catalog-section">
+      <section
+        aria-labelledby="locator-heading"
+        className="catalog-section"
+        data-testid="catalog-reference-locator"
+      >
         <div className="catalog-section__heading">
           <div>
             <h2 id="locator-heading">Search, filters and collection controls</h2>
@@ -327,7 +371,11 @@ export function SharedComponentsCatalog({ longContent }: { longContent: boolean 
         </div>
       </section>
 
-      <section aria-labelledby="content-heading" className="catalog-section">
+      <section
+        aria-labelledby="content-heading"
+        className="catalog-section"
+        data-testid="catalog-reference-operational"
+      >
         <div className="catalog-section__heading">
           <div>
             <h2 id="content-heading">Content and operational states</h2>
@@ -389,7 +437,11 @@ export function SharedComponentsCatalog({ longContent }: { longContent: boolean 
         </div>
       </section>
 
-      <section aria-labelledby="layout-heading" className="catalog-section">
+      <section
+        aria-labelledby="layout-heading"
+        className="catalog-section"
+        data-testid="catalog-reference-shell"
+      >
         <div className="catalog-section__heading">
           <div>
             <h2 id="layout-heading">Layout and navigation contracts</h2>

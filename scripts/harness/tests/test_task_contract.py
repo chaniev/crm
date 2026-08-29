@@ -30,6 +30,7 @@ VALID_CONTRACT = """{
       "id": "frontend.e2e.contract-test",
       "spec": "e2e/contract-test.spec.ts",
       "projects": ["chromium", "iphone-air-webkit"],
+      "config": "playwright.catalog.config.ts",
       "timeout_seconds": 900
     }
   ],
@@ -57,6 +58,9 @@ class TaskContractTests(unittest.TestCase):
         spec = root / "frontend" / "e2e" / "contract-test.spec.ts"
         spec.parent.mkdir(parents=True)
         spec.write_text("// fixture\n", encoding="utf-8")
+        (root / "frontend" / "playwright.catalog.config.ts").write_text(
+            "// fixture\n", encoding="utf-8"
+        )
         path = root / "TASK-999-verification.json"
         path.write_text(content, encoding="utf-8")
         return path
@@ -84,6 +88,8 @@ class TaskContractTests(unittest.TestCase):
                 "run",
                 "test:e2e",
                 "--",
+                "--config",
+                "playwright.catalog.config.ts",
                 "e2e/contract-test.spec.ts",
                 "--project=chromium",
                 "--project=iphone-air-webkit",

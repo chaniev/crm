@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "task_id": "TASK-153",
+  "expected_branch": "feature/TASK-153-visual-regression-gate",
+  "areas": ["frontend", "harness"],
+  "playwright": [
+    {
+      "id": "frontend.catalog.visual-regression",
+      "spec": "e2e/catalog/design-system-visual.spec.ts",
+      "projects": ["catalog-390", "catalog-440", "catalog-1440"],
+      "config": "playwright.catalog.config.ts",
+      "timeout_seconds": 1200
+    }
+  ]
+}

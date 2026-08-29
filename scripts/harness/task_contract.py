@@ -41,6 +41,7 @@ class PlaywrightSpec:
     identifier: str
     spec: str
     projects: tuple[str, ...]
+    config: str | None
     timeout_seconds: float
 
 
@@ -295,7 +296,7 @@ def load_task_contract(path: Path, *, root: Path) -> TaskContract:
         raw = _mapping(
             raw,
             location,
-            {"id", "spec", "projects", "timeout_seconds"},
+            {"id", "spec", "projects", "config", "timeout_seconds"},
         )
         spec = _relative_path(raw.get("spec"), f"{location}.spec")
         if not spec.startswith("e2e/") or not spec.endswith(".spec.ts"):
@@ -311,11 +312,22 @@ def load_task_contract(path: Path, *, root: Path) -> TaskContract:
         for project in projects:
             if not PROJECT_PATTERN.fullmatch(project):
                 raise _fail(f"{location}.projects", f"invalid project {project!r}")
+        config = raw.get("config")
+        if config is not None:
+            config = _relative_path(config, f"{location}.config")
+            if config != "playwright.catalog.config.ts":
+                raise _fail(
+                    f"{location}.config",
+                    "must reference playwright.catalog.config.ts",
+                )
+            if not (root / "frontend" / config).is_file():
+                raise _fail(f"{location}.config", f"does not exist: frontend/{config}")
         playwright_specs.append(
             PlaywrightSpec(
                 identifier=_identifier(raw.get("id"), f"{location}.id"),
                 spec=spec,
                 projects=projects,
+                config=config,
                 timeout_seconds=_timeout(
                     raw.get("timeout_seconds"), f"{location}.timeout_seconds", 1800
                 ),
@@ -565,6 +577,7 @@ def task_checks(contract: TaskContract) -> list[CheckSpec]:
                 "run",
                 "test:e2e",
                 "--",
+                *(("--config", item.config) if item.config else ()),
                 item.spec,
                 *(f"--project={project}" for project in item.projects),
             ),

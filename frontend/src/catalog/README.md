@@ -73,3 +73,32 @@ Run `npm run catalog:test:e2e` for smoke, semantics, focus/interaction,
 reduced-motion and overflow checks at 390, 440 and 1440 CSS px. Browser chrome,
 safe-area insets, software keyboard and physical-device behavior are not
 claimed by this developer-tool catalog.
+
+## Visual regression gate
+
+`npm run catalog:test:visual` is the merge gate for the bounded reference
+matrix in `e2e/catalog/design-system-visual.spec.ts`. Its six pairwise cases
+cover 390, 440 and 1440 CSS px, both registered theme profiles, standard and
+long content, and reduced motion. Together they retain auth, form/error,
+locator/list, operational, temporary-surface and shell/navigation evidence.
+The test waits for Onest and asserts behavioral, accessible-role, focus,
+overflow and motion preconditions before taking a screenshot.
+
+Approved snapshots are stored below
+`e2e/catalog/design-system-visual.spec.ts-snapshots/<project>/`; the path is
+fixed by `snapshotPathTemplate` in `playwright.catalog.config.ts`. No pixel
+threshold or mask is configured. Playwright writes expected, actual and diff
+images to `test-results/` on failure, and the task-verification CI job uploads
+that directory even when the command fails.
+
+To update a baseline:
+
+1. Run the visual command without update mode and diagnose every diff.
+2. Inspect expected, actual and diff at actual rendered size. Record the
+   intentional token/component change in the pull request.
+3. Run `npm run catalog:test:visual:update` only after that review.
+4. Review every changed PNG, then run the clean visual command twice.
+
+Never approve a baseline by raising a broad threshold, masking text/focus/color
+or replacing snapshots before diagnosing the failure. A baseline-only change
+still needs a named reviewer and rendered before/after evidence.
