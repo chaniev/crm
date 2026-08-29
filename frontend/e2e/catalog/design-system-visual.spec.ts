@@ -6,7 +6,7 @@ type VisualCase = {
   content: 'standard' | 'long'
   focus: (page: Page) => Locator
   name: string
-  project: 'catalog-390' | 'catalog-440' | 'catalog-1440'
+  project: 'catalog-390' | 'catalog-420' | 'catalog-440' | 'catalog-1440'
   target: (page: Page) => Locator
   theme: 'default-green-v1' | 'test-blue-coral-v1'
 }
@@ -35,6 +35,22 @@ const cases: readonly VisualCase[] = [
     project: 'catalog-440',
     target: (page) => page.getByTestId('catalog-reference-operational'),
     theme: 'default-green-v1',
+  },
+  {
+    content: 'long',
+    focus: (page) => page.getByRole('button', { name: 'Открыть клиента Александра Долгополова' }),
+    name: 'operational-green-long-420',
+    project: 'catalog-420',
+    target: (page) => page.getByTestId('catalog-reference-operational'),
+    theme: 'default-green-v1',
+  },
+  {
+    content: 'standard',
+    focus: (page) => page.getByRole('textbox', { name: 'Имя клиента' }),
+    name: 'form-coral-standard-420',
+    project: 'catalog-420',
+    target: (page) => page.getByTestId('catalog-reference-form'),
+    theme: 'test-blue-coral-v1',
   },
   {
     content: 'standard',

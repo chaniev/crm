@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "task_id": "TASK-158",
+  "expected_branch": "feature/TASK-158-mobile-typography",
+  "areas": ["frontend"],
+  "playwright": [
+    {
+      "id": "frontend.catalog.mobile-typography",
+      "spec": "e2e/catalog/mobile-typography.spec.ts",
+      "projects": ["catalog-390"],
+      "config": "playwright.catalog.config.ts",
+      "timeout_seconds": 600
+    },
+    {
+      "id": "frontend.catalog.visual-regression",
+      "spec": "e2e/catalog/design-system-visual.spec.ts",
+      "projects": ["catalog-390", "catalog-420", "catalog-440", "catalog-1440"],
+      "config": "playwright.catalog.config.ts",
+      "timeout_seconds": 1200
+    },
+    {
+      "id": "frontend.iphone-target-devices",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": ["iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 2400
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.rendered-mobile-typography",
+      "description": "Compare representative registry, Attention, and form-heading surfaces at 390x844 and 420x912 before/after; confirm lighter hierarchy, readable wrapping, and no layout overflow. Confirm the 769px and 1440px desktop typography geometry remains unchanged."
+    },
+    {
+      "id": "manual.device-level-ios",
+      "description": "On Simulator or physical iPhone, confirm Safari chrome, software-keyboard, safe-area, Dynamic Island, home-indicator, and one-handed reach conditions before claiming device-level acceptance."
+    }
+  ]
+}

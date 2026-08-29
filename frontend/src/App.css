@@ -95,6 +95,41 @@
   --nav-active: linear-gradient(135deg, var(--crm-status-success-fg) 0%, var(--crm-brand-primary) 100%);
 }
 
+/* TASK-158: mobile semantic typography overrides. */
+@media (max-width: 48rem) {
+  body,
+  .app-shell,
+  [data-crm-responsive-typography] {
+    --crm-type-heading1-size: 1.375rem;
+    --crm-type-heading1-weight: 700;
+    --crm-type-heading2-size: 1.125rem;
+    --crm-type-heading2-weight: 700;
+    --crm-type-heading3-size: 1rem;
+    --crm-type-heading3-weight: 700;
+    --crm-type-body-compact-line-height: 1.35;
+    --crm-type-label-weight: 700;
+    --crm-type-numeric-weight: 700;
+  }
+
+  h1.mantine-Title-root {
+    font-size: var(--crm-type-heading1-size);
+    font-weight: var(--crm-type-heading1-weight);
+    line-height: var(--crm-type-heading1-line-height);
+  }
+
+  h2.mantine-Title-root {
+    font-size: var(--crm-type-heading2-size);
+    font-weight: var(--crm-type-heading2-weight);
+    line-height: var(--crm-type-heading2-line-height);
+  }
+
+  h3.mantine-Title-root {
+    font-size: var(--crm-type-heading3-size);
+    font-weight: var(--crm-type-heading3-weight);
+    line-height: var(--crm-type-heading3-line-height);
+  }
+}
+
 .gym-crm-page {
   min-height: 100vh;
   min-height: 100dvh;

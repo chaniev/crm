@@ -57,6 +57,10 @@ and effects that compete with operational data do not fit the product.
 - `formControl` is the minimum role for inputs, selects, textareas and compact
   filter controls; it remains `1rem` so iPhone Safari does not zoom focused
   controls.
+- At viewport widths up to and including `48rem`, the responsive scale resolves
+  `heading1` to `1.375rem/700`, `heading2` to `1.125rem/700`, and `heading3` to
+  `1rem/700`; `bodyCompact` uses `1.35` line-height and `label`/`numeric` use
+  weight `700`. The `display` and `formControl` roles keep their base geometry.
 - `caption` is bounded to noncritical compact metadata. Validation,
   consequences and recovery copy use `body` or `bodyCompact`, never `caption`.
 - `numeric` enables tabular numerals only where alignment supports comparison,

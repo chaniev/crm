@@ -532,6 +532,16 @@ test('target portrait route restriction keeps recovery focused and touch-safe', 
   await expect(recovery).toBeInViewport()
   await expectNoHorizontalScroll(page)
 
+  const headingStyle = await heading.evaluate((element) => {
+    const style = getComputedStyle(element)
+    return {
+      fontSize: Number.parseFloat(style.fontSize),
+      fontWeight: Number.parseInt(style.fontWeight, 10),
+    }
+  })
+  expect(headingStyle.fontSize).toBeLessThanOrEqual(22)
+  expect(headingStyle.fontWeight).toBeLessThanOrEqual(700)
+
   const environment = await page.evaluate(() => ({
     devicePixelRatio: window.devicePixelRatio,
     innerWidth: window.innerWidth,

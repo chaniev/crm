@@ -57,3 +57,17 @@
 ## Risks and stop conditions
 - Если какой-либо экран полагается на размер заголовка в layout (перенос/overflow) — остановиться и зафиксировать экран; не компенсировать локальными правками размеров.
 - Конфликт с TASK-154: override держать одним блоком с комментарием-именем; если TASK-154 уже интегрирован — разместить блок в соответствующем модуле CSS.
+
+## Task-branch evidence
+- Boundary resolution: `max-width: 48rem` применяется включительно; `768px`
+  относится к mobile boundary, а unchanged desktop assertions выполняются на
+  `769px` и `1440px`.
+- RED: computed-style matrix на `360/390/420/440px` получила H1 `28px/800`;
+  desktop barriers `769/1440px` уже соответствовали исходной шкале.
+- GREEN: computed-style matrix проходит на `360/390/420/440/768/769/1440px`;
+  catalog rendered matrix включает registry/operational/form states на
+  `390/420/440px`, а target-iPhone WebKit regression проходит на обоих
+  профилях.
+- Device-level Safari chrome, software keyboard, real safe-area, Dynamic
+  Island, home indicator и one-handed reach остаются неподтверждёнными до
+  Simulator или physical-device проверки.
