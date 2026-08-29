@@ -63,6 +63,7 @@ import {
   LoadingState,
   PageLayout,
   PageSection,
+  StickyFormActions,
 } from '../shared/ux'
 import { ScheduleLessonChangeForm } from './ScheduleLessonChangeDrawer'
 import { ScheduleLessonCancellationDrawer } from './ScheduleLessonCancellationDrawer'
@@ -1351,8 +1352,9 @@ export function ScheduleSeriesEditScreen({
                 <SeriesPreviewPanel preview={preview} />
               ) : null}
 
-              <Group className="schedule-route-form__footer" grow>
-                {preview ? (
+              <StickyFormActions
+                className="schedule-route-form__footer"
+                primaryAction={preview ? (
                   <Button
                     loading={submitting === 'execute'}
                     onClick={() => void confirmSeriesChange()}
@@ -1365,10 +1367,10 @@ export function ScheduleSeriesEditScreen({
                     {formError ? 'Обновить предпросмотр' : 'Получить предпросмотр'}
                   </Button>
                 )}
-                <Button disabled={pending} onClick={cancel} type="button" variant="light">
+                secondaryAction={<Button disabled={pending} onClick={cancel} type="button" variant="light">
                   Отмена
-                </Button>
-              </Group>
+                </Button>}
+              />
             </Stack>
           </form>
         </PageSection>

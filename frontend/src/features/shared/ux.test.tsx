@@ -14,6 +14,7 @@ import {
   MobileBottomNavigation,
   RestrictedState,
   TaskItem,
+  StickyFormActions,
   TemporarySurfaceFooter,
   CompactFilterPanel,
   EmptyState,
@@ -791,6 +792,29 @@ describe('shared UX components', () => {
       'Отмена',
       'Сохранить',
     ])
+  })
+
+  test('StickyFormActions exposes one dominant primary and a reachable secondary action', () => {
+    renderWithProviders(
+      <StickyFormActions
+        data-testid="sticky-form-actions"
+        primaryAction={<button type="submit">Сохранить</button>}
+        secondaryAction={<button type="button">Отмена</button>}
+        surface="page"
+      />,
+    )
+
+    const footer = screen.getByTestId('sticky-form-actions')
+
+    expect(footer).toHaveClass(
+      'sticky-form-actions',
+      'sticky-form-actions--page',
+    )
+    expect(footer).toHaveAttribute('data-safe-area-aware', 'true')
+    expect(within(footer).getByRole('button', { name: 'Сохранить' }))
+      .toHaveAttribute('type', 'submit')
+    expect(within(footer).getByRole('button', { name: 'Отмена' }))
+      .toHaveAttribute('type', 'button')
   })
 
   test('PageSection renders card and plain variants with density classes', () => {

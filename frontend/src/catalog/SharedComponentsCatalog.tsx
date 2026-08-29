@@ -48,6 +48,7 @@ import {
   RestrictedState,
   SectionHeader,
   Skeleton,
+  StickyFormActions,
   TaskItem,
   TaskToolbarAction,
   TaskToolbarActions,
@@ -480,6 +481,14 @@ export function SharedComponentsCatalog({ longContent }: { longContent: boolean 
               primaryAction={<Button>Применить</Button>}
               secondaryAction={<Button variant="secondary">Отмена</Button>}
             />
+          </CatalogExample>
+          <CatalogExample name="StickyFormActions">
+            <div className="catalog-sticky-form-actions">
+              <StickyFormActions
+                primaryAction={<Button>Сохранить</Button>}
+                secondaryAction={<Button variant="secondary">Отмена</Button>}
+              />
+            </div>
           </CatalogExample>
           <CatalogExample name="Header">
             <div className="catalog-isolated-header">

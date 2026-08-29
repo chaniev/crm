@@ -29,7 +29,7 @@ import {
   formatWeekdays,
   WEEKDAY_OPTIONS,
 } from '../../lib/groupSchedule'
-import { Button, ResponsiveButtonGroup } from '../shared/ux'
+import { Button, StickyFormActions } from '../shared/ux'
 import {
   GROUPS_FORM_FALLBACK_VALUES,
   GROUPS_GRID_COLUMNS,
@@ -333,20 +333,20 @@ export function GroupForm({
               : 'На этом экране сохраняются только название, филиал, тип и активность группы.'}
           </Text>
 
-          <ResponsiveButtonGroup justify="flex-end">
-            {cancelAction ? (
+          <StickyFormActions
+            secondaryAction={cancelAction ? (
               <Button onClick={cancelAction.onClick} type="button" variant="subtle">
                 {cancelAction.label}
               </Button>
-            ) : null}
-            <Button
+            ) : undefined}
+            primaryAction={<Button
               leftSection={<IconDeviceFloppy size={18} />}
               loading={submitting}
               type="submit"
             >
               {submitLabel}
-            </Button>
-          </ResponsiveButtonGroup>
+            </Button>}
+          />
         </Group>
       </Stack>
     </form>

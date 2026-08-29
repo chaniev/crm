@@ -28,6 +28,7 @@ export const sharedComponentInventory = [
   { name: 'RestrictedState', source: `${sharedSourceRoot}RestrictedState.tsx` },
   { name: 'SectionHeader', source: `${sharedSourceRoot}ux.tsx` },
   { name: 'Skeleton', source: `${sharedSourceRoot}ux.tsx` },
+  { name: 'StickyFormActions', source: `${sharedSourceRoot}StickyFormActions.tsx` },
   { name: 'TaskItem', source: `${sharedSourceRoot}TaskItem.tsx` },
   { name: 'TaskToolbarAction', source: `${sharedSourceRoot}TaskToolbarActions.tsx` },
   { name: 'TaskToolbarActions', source: `${sharedSourceRoot}TaskToolbarActions.tsx` },

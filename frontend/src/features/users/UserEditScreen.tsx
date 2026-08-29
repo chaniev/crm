@@ -20,7 +20,7 @@ import {
   LoadingState,
   PageLayout,
   PageSection,
-  ResponsiveButtonGroup,
+  StickyFormActions,
 } from '../shared/ux'
 import {
   UserEditCredentialsFields,
@@ -204,15 +204,15 @@ export function UserEditScreen({
                   />
 
                   {userCanMutate ? (
-                    <ResponsiveButtonGroup justify="flex-end">
-                      <Button
+                    <StickyFormActions
+                      primaryAction={<Button
                         leftSection={<IconDeviceFloppy size={18} />}
                         loading={submitting}
                         type="submit"
                       >
                         {resources.users.edit.submit}
-                      </Button>
-                    </ResponsiveButtonGroup>
+                      </Button>}
+                    />
                   ) : null}
                 </Stack>
               </form>
