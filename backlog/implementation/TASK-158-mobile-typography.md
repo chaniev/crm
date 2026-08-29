@@ -8,6 +8,7 @@ implementation
 - moved_from: /backlog/tasks-ready
 - implementation_plan: /backlog/implementation-plans/TASK-158-mobile-typography.plan.md
 - implementation_branch: feature/TASK-158-mobile-typography
+- verification_contract: /backlog/implementation/TASK-158-mobile-typography-verification-contract.json
 
 ## Requirements
 - REQ-NFR-001 — constrains
@@ -97,3 +98,7 @@ Desktop-выведенная шкала заголовков и поголовн
   переопределений; активных задач на responsive-типографику нет.
 - Classification: `tasks-ready`; REQ-NFR-001 `принято`, отношение `constrains`
   (редакция требования не меняется), блокирующих вопросов нет.
+- Updated at: 2026-08-30 (implementation evidence): `48rem` трактуется
+  включительно, поэтому `768px` проверяется как mobile boundary; unchanged
+  desktop barrier начинается с `769px`. Это разрешает внутреннюю неточность
+  plan без изменения продуктового scope.

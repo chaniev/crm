@@ -56,6 +56,11 @@ function RegistryList({
   )
 }
 
+function typographyVariable(role: keyof typeof typographyRoles, suffix: string) {
+  const roleName = role.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)
+  return `var(--crm-type-${roleName}-${suffix})`
+}
+
 export function CatalogApp({ search = window.location.search }: CatalogAppProps) {
   const profileIds = themeProfiles.map((profile) => profile.id)
   const controls = readCatalogControls(search, profileIds, themeProfiles[0].id)
@@ -109,6 +114,7 @@ export function CatalogApp({ search = window.location.search }: CatalogAppProps)
         <div
           className="catalog-preview"
           data-content={controls.content}
+          data-crm-responsive-typography
           data-motion={controls.motion}
           data-testid="catalog-preview"
           data-theme={controls.theme}
@@ -155,14 +161,19 @@ export function CatalogApp({ search = window.location.search }: CatalogAppProps)
             )} />
             <h3>Typography</h3>
             <div className="catalog-type-scale">
-              {Object.entries(typographyRoles).map(([role, definition]) => (
-                <div className="catalog-type-role" key={role} style={{
-                  fontFamily: definition.fontFamily,
-                  fontSize: definition.fontSize,
-                  fontWeight: definition.fontWeight,
-                  letterSpacing: definition.letterSpacing,
-                  lineHeight: definition.lineHeight,
-                }}>
+              {(Object.keys(typographyRoles) as Array<keyof typeof typographyRoles>).map((role) => (
+                <div
+                  className="catalog-type-role"
+                  data-catalog-type-role={role}
+                  key={role}
+                  style={{
+                    fontFamily: typographyVariable(role, 'family'),
+                    fontSize: typographyVariable(role, 'size'),
+                    fontWeight: typographyVariable(role, 'weight'),
+                    letterSpacing: typographyVariable(role, 'letter-spacing'),
+                    lineHeight: typographyVariable(role, 'line-height'),
+                  }}
+                >
                   <span>{role}</span>
                   <span>Съешь ещё этих мягких французских булок · 0123456789</span>
                 </div>
