@@ -3,6 +3,10 @@ declare module '*.mjs' {
     file: string,
     content: string,
   ): Array<{ kind: string }>
+  export function findSemanticToneBypassesByLine(
+    file: string,
+    content: string,
+  ): Array<{ kind: string; match: string }>
   export function formatFindings(findings: ReadonlyArray<unknown>): string
   export function groupFindingsByKind(findings: ReadonlyArray<unknown>): string
   export function readAllowlist(pathname: string): Promise<ReadonlyArray<unknown>>

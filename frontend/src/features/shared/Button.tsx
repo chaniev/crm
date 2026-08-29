@@ -3,6 +3,10 @@ import {
   type ButtonProps as MantineButtonProps,
 } from '@mantine/core'
 import type { ComponentPropsWithoutRef } from 'react'
+import {
+  getSemanticToneAttributes,
+  getSemanticToneComponentProps,
+} from '../../theme/semanticTones'
 
 export type SharedButtonVariant =
   | 'primary'
@@ -13,6 +17,7 @@ export type SharedButtonVariant =
   | 'default'
   | 'subtle'
   | 'light'
+  | 'destructive'
 
 export type SharedButtonProps = Omit<MantineButtonProps, 'variant'> &
   ComponentPropsWithoutRef<'button'> & {
@@ -50,6 +55,10 @@ const sharedButtonVariantMap: Record<
   light: {
     variant: 'light',
   },
+  destructive: {
+    color: getSemanticToneComponentProps('danger').color,
+    variant: 'filled',
+  },
 }
 
 export function Button({
@@ -60,9 +69,12 @@ export function Button({
   ...props
 }: SharedButtonProps) {
   const resolvedVariant = sharedButtonVariantMap[variant]
+  const semanticToneAttributes =
+    variant === 'destructive' ? getSemanticToneAttributes('danger') : {}
 
   return (
     <MantineButton
+      {...semanticToneAttributes}
       className={['shared-button', className].filter(Boolean).join(' ')}
       color={color ?? resolvedVariant.color}
       radius={radius}

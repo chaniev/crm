@@ -39,6 +39,10 @@ import {
   type ReactNode,
 } from 'react'
 import { resources } from '../../lib/resources'
+import {
+  getSemanticToneAttributes,
+  getSemanticToneComponentProps,
+} from '../../theme/semanticTones'
 import { Button, type SharedButtonProps } from './Button'
 
 type ResponsiveButtonGroupProps = {
@@ -779,7 +783,13 @@ type LoadingStateProps = {
 
 export function LoadingState({ label = 'Загружаем данные...' }: LoadingStateProps) {
   return (
-    <Group className="state-panel state-panel--loading" justify="center">
+    <Group
+      aria-busy="true"
+      aria-live="polite"
+      className="state-panel state-panel--loading"
+      justify="center"
+      role="status"
+    >
       <Loader color="var(--crm-action-primary)" size="sm" />
       <Text c="dimmed" fw={600} size="sm">
         {label}
@@ -797,9 +807,11 @@ type ErrorStateProps = {
 export function ErrorState({ title, message, action }: ErrorStateProps) {
   return (
     <Alert
+      {...getSemanticToneAttributes('danger')}
       className="state-panel state-panel--error"
-      color="red"
+      color={getSemanticToneComponentProps('danger').color}
       icon={<IconAlertCircle size={18} />}
+      role="alert"
       title={title}
       variant="light"
     >

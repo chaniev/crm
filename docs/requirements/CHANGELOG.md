@@ -11,6 +11,10 @@
 
 ## 2026-08-29
 
+- 29.08.2026 — REQ-NFR-001 — reduced-motion contract реализован и
+  подтверждён unit/Chromium/WebKit evidence; общая реализация
+  требования остаётся «частично» (задача
+  [TASK-144](../../backlog/implementation/TASK-144-reduced-motion-contract.md)).
 - 29.08.2026 — REQ-NFR-001 — текст дополнен принятым
   reduced-motion contract; реализация переведена в «частично» (задача
   [TASK-144](../../backlog/implementation/TASK-144-reduced-motion-contract.md)).

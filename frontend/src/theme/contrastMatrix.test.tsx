@@ -25,21 +25,21 @@ describe('resolved Mantine component contrast', () => {
           </Button>
           <Button
             data-testid="destructive"
-            color={variables['--crm-status-danger']}
+            color={variables['--crm-status-danger-fg']}
             variant="filled"
           >
             Destructive
           </Button>
           <Badge
             data-testid="badge"
-            color={variables['--crm-status-success']}
+            color={variables['--crm-status-success-fg']}
             variant="light"
           >
             Success
           </Badge>
           <Alert
             data-testid="alert"
-            color={variables['--crm-status-info']}
+            color={variables['--crm-status-info-fg']}
             variant="light"
           >
             Information

@@ -18,7 +18,7 @@
   --radius-inner: 20px;
   --radius-pill: 999px;
   --shadow-card: 0 10px 30px var(--crm-shadow-card), 0 2px 8px var(--crm-shadow-soft);
-  --nav-active: linear-gradient(135deg, var(--crm-status-success) 0%, var(--crm-brand-primary) 100%);
+  --nav-active: linear-gradient(135deg, var(--crm-status-success-fg) 0%, var(--crm-brand-primary) 100%);
 }
 
 .gym-crm-page {
@@ -180,9 +180,9 @@
   background: var(--crm-surface-card);
   font-size: 1rem;
   transition:
-    border-color 140ms ease,
-    box-shadow 140ms ease,
-    background-color 140ms ease;
+    border-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    box-shadow var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    background-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional);
 }
 
 .stage-card :where(.mantine-Input-input:hover) {
@@ -392,9 +392,9 @@
   border: 1px solid var(--color-border);
   box-shadow: 0 1px 4px var(--crm-shadow-soft);
   transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    transform 120ms ease;
+    background-color var(--crm-motion-duration-fast) var(--crm-motion-easing-functional),
+    border-color var(--crm-motion-duration-fast) var(--crm-motion-easing-functional),
+    transform var(--crm-motion-duration-fast) var(--crm-motion-easing-functional);
 }
 
 .app-shell__profile-trigger:hover,
@@ -503,7 +503,7 @@
 .app-shell__mobile-menu-content {
   --color-border: var(--crm-border-default);
   --color-surface: var(--crm-surface-card);
-  --nav-active: linear-gradient(135deg, var(--crm-status-success) 0%, var(--crm-brand-primary) 100%);
+  --nav-active: linear-gradient(135deg, var(--crm-status-success-fg) 0%, var(--crm-brand-primary) 100%);
 
   background:
     linear-gradient(180deg, var(--crm-surface-card-alpha-99), var(--crm-surface-subtle-overlay));
@@ -522,7 +522,7 @@
   --color-surface: var(--crm-surface-card);
   --mobile-bottom-nav-height: 64px;
   --mobile-bottom-nav-reserved-space: 80px;
-  --nav-active: linear-gradient(135deg, var(--crm-status-success) 0%, var(--crm-brand-primary) 100%);
+  --nav-active: linear-gradient(135deg, var(--crm-status-success-fg) 0%, var(--crm-brand-primary) 100%);
 
   position: fixed;
   inset-inline: 0;
@@ -560,10 +560,10 @@
   color: var(--crm-action-primary-active);
   background: transparent;
   transition:
-    background-color 140ms ease,
-    border-color 140ms ease,
-    color 140ms ease,
-    transform 120ms ease;
+    background-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    border-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    transform var(--crm-motion-duration-fast) var(--crm-motion-easing-functional);
 }
 
 .mobile-bottom-nav__item:hover {
@@ -618,7 +618,7 @@
 .mobile-bottom-nav__sheet-content {
   --color-border: var(--crm-border-default);
   --color-surface: var(--crm-surface-card);
-  --nav-active: linear-gradient(135deg, var(--crm-status-success) 0%, var(--crm-brand-primary) 100%);
+  --nav-active: linear-gradient(135deg, var(--crm-status-success-fg) 0%, var(--crm-brand-primary) 100%);
 
   position: fixed;
   inset-inline: 0;
@@ -1447,8 +1447,8 @@
   font-weight: 600;
   line-height: 20px;
   transition:
-    border-color 120ms ease,
-    box-shadow 120ms ease;
+    border-color var(--crm-motion-duration-fast) var(--crm-motion-easing-functional),
+    box-shadow var(--crm-motion-duration-fast) var(--crm-motion-easing-functional);
 }
 
 .compact-filter-panel :where(input.mantine-Input-input[type='date']) {
@@ -1752,10 +1752,10 @@
   background: var(--crm-surface-page-alpha-55);
   border-color: var(--crm-brand-alpha-08);
   transition:
-    background-color 140ms ease,
-    border-color 140ms ease,
-    box-shadow 140ms ease,
-    transform 140ms ease;
+    background-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    border-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    box-shadow var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    transform var(--crm-motion-duration-standard) var(--crm-motion-easing-functional);
 }
 
 .list-row-card:hover {
@@ -2270,7 +2270,7 @@
   height: 0.9rem;
   border-radius: 0.35rem;
   background: var(--crm-brand-alpha-06);
-  animation: schedule-skeleton-pulse 1.4s ease-in-out infinite;
+  animation: schedule-skeleton-pulse var(--crm-motion-duration-continuous) var(--crm-motion-easing-continuous) infinite;
 }
 
 .schedule-skeleton__line--title {
@@ -2293,7 +2293,7 @@
   height: 44px;
   border-radius: 0.4rem;
   background: var(--crm-brand-alpha-06);
-  animation: schedule-skeleton-pulse 1.4s ease-in-out infinite;
+  animation: schedule-skeleton-pulse var(--crm-motion-duration-continuous) var(--crm-motion-easing-continuous) infinite;
 }
 
 @keyframes schedule-skeleton-pulse {
@@ -3722,9 +3722,25 @@
   border-color: var(--crm-brand-alpha-10);
   cursor: pointer;
   transition:
-    background-color 140ms ease,
-    border-color 140ms ease,
-    box-shadow 140ms ease;
+    background-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    border-color var(--crm-motion-duration-standard) var(--crm-motion-easing-functional),
+    box-shadow var(--crm-motion-duration-standard) var(--crm-motion-easing-functional);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schedule-skeleton__line,
+  .schedule-skeleton__action {
+    animation: none;
+    opacity: 0.72;
+  }
+
+  .mantine-Modal-root *,
+  .mantine-Drawer-root *,
+  .mantine-Notifications-root * {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }
 
 .clients-v7-row:hover {

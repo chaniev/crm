@@ -21,7 +21,7 @@ export function createGymCrmTheme(profile: ThemeProfile) {
       accent: secondary,
       sand: neutral,
     },
-    black: semanticBaseColors.text,
+    black: semanticBaseColors.textStrong,
     white: semanticBaseColors.surface,
     other: {
       background: semanticBaseColors.background,

@@ -395,7 +395,11 @@ export function GroupScheduleScreen({
       />
 
       {loading && lessons.length === 0 ? (
-        <PageSection aria-label="Загружаем занятия" className="schedule-board--occurrences">
+        <PageSection
+          aria-busy="true"
+          aria-label="Загружаем занятия"
+          className="schedule-board--occurrences"
+        >
           <div className="schedule-skeleton-list" data-testid="schedule-skeleton-list">
             {[0, 1, 2].map((index) => (
               <div

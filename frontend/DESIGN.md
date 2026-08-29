@@ -88,6 +88,30 @@ and effects that compete with operational data do not fit the product.
 - Motion is functional and restrained. Frequent navigation and keyboard-first
   actions remain instant.
 
+### Motion contract
+
+- Custom feedback uses `--crm-motion-duration-fast` (120 ms) or
+  `--crm-motion-duration-standard` (140 ms) with
+  `--crm-motion-easing-functional`; repeating loading feedback uses the
+  dedicated continuous duration/easing pair.
+- With `prefers-reduced-motion: reduce`, repeating skeleton motion stops and
+  temporary surfaces become effectively instant. Static skeleton geometry,
+  explicit loading copy, focus, completion copy and live-region announcements
+  remain available.
+- Motion is never the only evidence of loading, pending, completion or error.
+
+### Semantic tone contract
+
+- Functional presentation uses the typed tones `danger`, `warning`, `success`,
+  `info` and `neutral`; brand/accent colors do not stand for CRM status.
+- Tone components consume `--crm-status-*-fg`, `--crm-status-*-bg` and
+  `--crm-status-*-border` together with an icon/text cue. The original
+  `--crm-status-*` paint variables remain for compatibility until the
+  production migration task removes approved bypasses.
+- Direct Mantine functional names such as `red`, `yellow`, `teal`, `blue` and
+  `gray` are scanner fixtures for TASK-150 enforcement. Decorative brand use
+  stays separate from status tone APIs.
+
 ## Design acceptance
 
 A design is not approved because it compiles or satisfies a checklist. For a

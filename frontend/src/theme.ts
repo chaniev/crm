@@ -9,6 +9,14 @@ export {
   createSemanticVariables,
   type SemanticVariableMap,
 } from './theme/semanticVariables'
+export {
+  getSemanticToneAttributes,
+  getSemanticToneComponentProps,
+  getSemanticToneDefinition,
+  semanticToneDefinitions,
+  type SemanticTone,
+  type SemanticToneDefinition,
+} from './theme/semanticTones'
 export { createGymCrmTheme } from './theme/createGymCrmTheme'
 export {
   assertThemeProfileContrast,
