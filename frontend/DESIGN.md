@@ -46,12 +46,16 @@ and effects that compete with operational data do not fit the product.
 
 ## Color and surfaces
 
-- The default foundation is warm neutral page space, white or subtle surfaces,
-  dark green text, a green primary action, and restrained secondary accents.
+- The bundled default foundation is warm neutral page space, white or subtle
+  surfaces, dark green text, a green primary action, and restrained secondary
+  accents. A validated customer branding profile may replace brand/accent and
+  neutral families; the auth primary action follows the customer primary color.
 - Semantic variables under `--crm-*` are the implementation contract. Do not
   introduce raw colors where an appropriate semantic variable exists.
 - Use one dominant action accent within a task state. Status colors communicate
   backend state and are not decorative accents.
+- Customer branding never reassigns functional status meaning. Unknown,
+  invalid or broken branding falls back to bundled defaults.
 - Prefer tonal separation and borders for grouping. Shadows indicate actual
   elevation or temporary surfaces and remain restrained.
 - Gradients already owned by the theme may be reused for their established

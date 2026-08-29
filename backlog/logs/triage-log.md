@@ -2651,6 +2651,7 @@
 - created tasks: 2
 - updated existing tasks: 0
 - processed inbox files: 0
+
 - skipped duplicates: 1 partial overlap linked as dependency
 
 # 2026-08-22 23:42 TASK-120 completion
@@ -3109,4 +3110,100 @@
 - unfinished implementation plans: 0
 - created tasks: 13
 - updated existing tasks: 0
+- processed inbox files: 0
+
+# 2026-08-29 17:13 TASK-148 product decision
+
+## Baseline and scope
+
+- Scoped status reconciliation performed in the coordination workspace on
+  `main` / `origin/main` at `bcb58c345d86b27c07cf1efc0174297451313f94`.
+- Source: explicit product-owner answers for TASK-148; no inbox file was
+  created, moved or deleted.
+- Checked TASK-049, TASK-090, active TASK-142/TASK-147 and all active backlog
+  folders for branding/logo/favicon/runtime-settings duplicates.
+- Preserved concurrent user changes in TASK-143, TASK-150 and the earlier
+  triage-log entry; they were outside this decision scope.
+
+## Status audit result
+
+- TASK-148 moved from `needs-clarification` to `done`: all blocking product
+  questions are resolved, REQ-NFR-005 and its UI contracts are reconciled, and
+  follow-up implementation ownership is explicit.
+- TASK-147 remains `ready`; its compatibility-schema scope now explicitly
+  coordinates with TASK-155 and cannot pre-empt the accepted runtime schema.
+- No other active task status changed; implementation remains empty.
+
+## Created tasks
+
+- `/backlog/risky/TASK-155-runtime-customer-branding.md` — validated deploy-time
+  runtime branding plus post-deploy CRM settings, auth primary and
+  customer-specific neutrals.
+- `/backlog/needs-clarification/TASK-156-customer-logo-favicon.md` — separate
+  accepted logo/favicon follow-up awaiting placement, format and asset-source
+  decisions.
+
+## Updated existing tasks
+
+- `/backlog/done/TASK-148-customer-branding-boundary.md` — recorded explicit
+  decisions and completion evidence.
+- `/backlog/tasks-ready/TASK-147-theme-profile-schema.md` — added non-overlap
+  dependency on TASK-155.
+- `REQ-NFR-005`, requirements changelog, mobile UI contract and frontend design
+  contract updated to the accepted target boundary.
+
+## Duplicate and consistency checks
+
+- TASK-049 explicitly excluded white-label assets and TASK-090 owns the
+  completed registry-based compatibility foundation; neither duplicates
+  TASK-155 or TASK-156.
+- Active TASK-147 owns only compatibility-schema hardening; TASK-155 owns the
+  new runtime/persistence/settings boundary.
+- TASK-156 remains in `needs-clarification` because logo placement, variants,
+  accepted formats and source/storage policy are still blocking decisions.
+- All active task IDs are unique and task status matches its directory.
+
+## Validation
+
+- Requirements metadata, referenced IDs and accepted-decision gate checked.
+- `python3 scripts/validate_requirements.py`, base-aware requirements validation
+  and `git diff --check` passed; validators reported 57 requirement cards, 36
+  active tasks and 0 active plans.
+- Project code/runtime did not change; build, unit, Playwright and Docker checks
+  are not required until TASK-155 or TASK-156 enters implementation.
+
+## Summary
+
+- tasks-ready: 19
+- risky: 11
+- needs-clarification: 6
+- implementation: 0
+- created tasks: 2
+- updated existing tasks: 2
+- completed product-decision tasks: 1
+- processed inbox files: 0
+
+# 2026-08-29 17:15 task scope correction
+
+## Updated existing tasks
+
+- `/backlog/tasks-ready/TASK-143-semantic-functional-tones.md` — restricted to
+  the typed semantic tone contract, representative consumers and reusable
+  scanner rules; production call-site migration and final enforcement removed.
+- `/backlog/risky/TASK-150-shared-component-migration.md` — now exclusively
+  owns production functional-color call-site migration and final zero-bypass
+  enforcement.
+
+## Consistency checks
+
+- Status and directory remain aligned: TASK-143 `ready`, TASK-150 `risky`.
+- Requirements metadata remains `none` with a behavior-preserving reason.
+- TASK-143 and TASK-150 now have non-overlapping implementation ownership;
+  dependency and source traceability are explicit in both cards.
+- No project code, inbox files, task status or implementation plan changed.
+
+## Summary
+
+- created tasks: 0
+- updated existing tasks: 2
 - processed inbox files: 0

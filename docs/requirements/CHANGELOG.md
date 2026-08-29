@@ -11,6 +11,11 @@
 
 ## 2026-08-29
 
+- 29.08.2026 — REQ-NFR-005 — текст customer branding расширен:
+  приняты runtime/deployment onboarding, post-deploy CRM settings,
+  primary auth action, customer-specific neutrals, logo/favicon и bundled
+  fallback; реализация переведена в «частично» (задача
+  [TASK-148](../../backlog/done/TASK-148-customer-branding-boundary.md)).
 - 29.08.2026 — REQ-GRP-007 — реализация task-first представления расписания подтверждена в `main` (задача [TASK-133](../../backlog/done/TASK-133-schedule-task-first-cards.md)).
 
 ## 2026-08-28

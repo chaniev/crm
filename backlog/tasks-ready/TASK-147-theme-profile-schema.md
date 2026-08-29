@@ -63,9 +63,14 @@ whose optional tuple has no effect, making customer onboarding unreliable.
 - Source: direct conversation on 2026-08-29 after Design System Checklist audit.
 - Original finding: ThemeProfile positional supplementary schema is ambiguous and permits an unused tuple.
 - Related completed foundation: TASK-090.
+- Product-boundary follow-up: TASK-148 accepted runtime customer branding;
+  TASK-155 owns the new runtime schema, customer-specific neutrals and auth
+  primary behavior. This task may only harden the compatibility schema and must
+  not pre-empt or duplicate TASK-155.
 
 ## Processing notes
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-090 introduced schema version 1; no active task owns schema hardening.
-
+- Dependency update at 2026-08-29 17:13 MSK: coordinate compatibility-schema
+  work with TASK-155 before implementation.

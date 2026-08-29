@@ -24,6 +24,8 @@ feature components may continue bypassing them.
 
 ## Scope
 - Inventory direct use that should move to TASK-149 recipes/shared primitives.
+- Migrate production functional-color call sites to the semantic tone contract
+  defined by TASK-143.
 - Create and execute independent slices for:
   1. auth and shell;
   2. clients;
@@ -48,6 +50,7 @@ feature components may continue bypassing them.
 - [ ] A complete inventory classifies justified direct Mantine uses and migration targets.
 - [ ] Child/slice ownership and dependency order are explicit before production changes.
 - [ ] Each completed slice uses approved semantic variants and shared primitives.
+- [ ] Production feature code contains no unapproved direct functional Mantine colors.
 - [ ] Loading, empty, error, stale, disabled, restricted and success behavior is preserved.
 - [ ] No slice introduces mobile overflow, focus regression or action duplication.
 - [ ] Final static checks prevent regression to bypass patterns.
@@ -69,11 +72,14 @@ feature components may continue bypassing them.
 ## Source notes
 - Source: direct conversation on 2026-08-29 after Design System Checklist audit.
 - Original finding: component system exists but direct feature-level Mantine usage remains widespread.
-- Dependency: TASK-149; tone migration coordinates with TASK-143.
+- Dependencies: TASK-149 and the semantic tone/scanner contract from TASK-143;
+  TASK-150 exclusively owns production call-site migration and final
+  zero-bypass enforcement.
 
 ## Processing notes
 - Created at: 2026-08-29 16:45 MSK.
 - Created by skill: codex-backlog-skill.
 - Duplicate check: TASK-121 decomposes large cross-layer source files and does not own design-system component adoption; completed TASK-046/TASK-090 are historical foundations.
 - Classification: risky due global visual surface and required multi-slice coordination, not because CRM domain semantics may change.
-
+- Updated at: 2026-08-29 17:15 MSK; accepted production functional-color
+  call-site migration from TASK-143 and made ownership explicit.

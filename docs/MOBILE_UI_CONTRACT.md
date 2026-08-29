@@ -427,21 +427,28 @@ Icon-only action обязан иметь доступное имя. Иконка
 
 ### Цель
 
-Разные deployment могут использовать разные заранее утверждённые наборы
-цветов и фоновое изображение стартовой страницы, не меняя разметку, hierarchy,
+Разные deployment используют валидируемую customer branding
+конфигурацию: club name, brand/accent и neutral colors, auth
+background, logo и favicon. Branding не меняет разметку, hierarchy,
 component API и смысл состояний.
+
+Целевая boundary принята в TASK-148. Текущий registry-based
+`themeId`/`authBackgroundImageId` contract остаётся compatibility
+baseline до реализации TASK-155; logo/favicon вынесены в TASK-156.
 
 Один profile содержит:
 
 - один обязательный основной цвет;
 - один опциональный второй основной цвет;
 - от трёх до четырёх дополнительных цветовых семейств;
-- ссылку на общую neutral и functional semantic основу.
+- customer-specific neutral semantic foundation;
+- ссылку на общую functional status foundation.
 
 Количество основных и дополнительных цветов не включает neutral surfaces,
-текстовые цвета и функциональные `success/warning/danger/info`.
+текстовые цвета и функциональные `success/warning/danger/info`, но neutral
+roles также входят в валидируемую customer configuration.
 
-### Выбранная модель конфигурации
+### Текущая compatibility-модель
 
 Публичный `/api/config` расширяется полем:
 
@@ -492,6 +499,18 @@ deployment может использовать одну palette с разным�
 Произвольные hex, CSS variables, URL, binary image data и style rules через
 `/api/config` не передаются.
 
+### Целевая runtime-модель
+
+- Новая customer palette не требует frontend release: исходная
+  валидируемая branding configuration задаётся при деплое.
+- После деплоя та же schema редактируется в CRM через раздел
+  «Настройки»; validation, persistence, authorization и audit принадлежат
+  backend.
+- Frontend получает только resolved safe branding contract, а не
+  произвольные CSS/style rules.
+- Unknown, invalid, incomplete или broken configuration не блокирует
+  login и детерминированно откатывается на bundled defaults.
+
 Ответственность разделена однозначно:
 
 - backend заменяет missing/blank value на `default-green-v1`, trim-ит
@@ -516,9 +535,10 @@ deployment может использовать одну palette с разным�
 - `test-blue-coral-v1` — заведомо отличающаяся test palette для обнаружения
   hardcoded green/amber values.
 
-Новый production profile добавляется в registry только вместе с theme,
-contrast и affected-screen tests. Deployment может переключаться между уже
-зарегистрированными profiles без изменения feature code.
+До TASK-155 новый production profile добавляется в registry только
+вместе с theme, contrast и affected-screen tests. После TASK-155
+runtime profile проходит ту же семантическую и contrast validation без
+customer-specific frontend release.
 
 ### Фоновое изображение auth/start page
 
@@ -564,8 +584,9 @@ Configurable families:
 - `nav.active.*`;
 - `selection.*`;
 - `focus.ring`.
+- `auth.action.*` — derived from customer `brand.primary.*`.
 
-Invariant neutral roles:
+Customer-configurable neutral roles:
 
 - `surface.page`;
 - `surface.card`;
