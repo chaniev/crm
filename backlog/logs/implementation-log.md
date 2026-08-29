@@ -1716,3 +1716,19 @@
   missing-metadata test, three skill quick validations, YAML parse, diff check
 - integrated: local main fast-forward at candidate `bbc0507`; closure recorded
   after integration and TASK-134 moved to `backlog/done`
+
+# 2026-08-29 — TASK-133 task-first schedule cards
+
+- completed: TASK-133 on `feature/TASK-133-schedule-task-first-cards`.
+- verified_candidate: `3150c2a038bd09e702784a1d0104e2d6dd0b2381`.
+- frontend: requirements registry, clean dependency install, high-severity audit,
+  lint, typecheck, raw-color scan, 580/580 unit tests and production build passed.
+- browser: affected Chromium `group-schedule` passed 16/16; target-iPhone
+  WebKit passed 66/66; dense baseline and viewport/compact-height traces were
+  compared with the approved v2 task-first references.
+- integrated: local `main` fast-forwarded to candidate `3150c2a` before closure.
+- requirement: REQ-GRP-007 implementation set to `реализовано` after evidence
+  became reachable from local `main`.
+- residual_manual_evidence: physical iPhone/Safari chrome, real safe area,
+  software keyboard and one-handed reach were not executed; target-device
+  WebKit profiles and compact landscape automation passed.
