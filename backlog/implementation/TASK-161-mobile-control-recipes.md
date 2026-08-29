@@ -98,3 +98,20 @@ TASK-149 ввёл компонентные рецепты; эта задача �
 - Duplicate check: TASK-149 задал базовые рецепты без мобильных позиций;
   активных аналогов нет.
 - Classification: `tasks-ready`; REQ-NFR-001 `принято`, `constrains`.
+
+## Implementation evidence
+- 2026-08-30 — rendered-сравнение зафиксировало `top-center` как мобильную
+  позицию уведомлений: она не конкурирует с bottom navigation, sticky CTA и
+  software keyboard. Контейнер расположен на `72px` от верхнего края и имеет
+  боковые поля `16px` на `360/390/420/440px`; desktop сохраняет `top-right`.
+- Responsive theme recipe применяет реальные mobile-props, а не только
+  визуальную CSS-перестановку: input/composite controls имеют минимум `44px`
+  и `1rem`, Drawer получает `position="bottom"`, верхние радиусы и dynamic
+  viewport max-height; desktop defaults не меняются.
+- Root verification harness прошёл locked install, audit без уязвимостей,
+  lint, typecheck, raw-color scan, `636` unit-тестов и production build.
+- Chromium notifications flow прошёл `2/2`; TASK-161 WebKit target-iPhone
+  сценарий прошёл `2/2` на `420x912` и `440x956`, включая compact-height
+  `912x420`/`956x440`, close/Escape и focus return.
+- Не проверены physical Safari browser chrome, реальная software keyboard,
+  Dynamic Island, home indicator и one-handed reach.

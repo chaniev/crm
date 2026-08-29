@@ -2602,6 +2602,83 @@ test('iPhone clients route keeps core controls touch-safe and readable', async (
   await expect(createButton).toBeInViewport()
 })
 
+test('TASK-161 target iPhone keeps notifications below the header and drawers bottom-anchored', async ({
+  page,
+}, testInfo) => {
+  const target = targetScreenFor(testInfo.project.name)
+
+  await page.setViewportSize(target)
+  await mockApi(page, HEAD_COACH_SESSION)
+  await page.goto('/settings')
+  await expect(page.getByTestId('settings-screen')).toBeVisible()
+  await page.getByRole('tab', { name: 'Типы групп' }).click()
+  await page.getByRole('button', { name: 'Добавить тип' }).click()
+
+  const typeDialog = page.getByRole('dialog')
+  await typeDialog.getByLabel('Название').fill('Мобильный тип')
+  await typeDialog.getByLabel('Описание').fill('Проверка target iPhone')
+  await typeDialog.getByRole('button', { name: 'Сохранить' }).click()
+
+  const notification = page
+    .locator('[data-position="top-center"] [role="alert"]')
+    .filter({ hasText: /Тип группы создан/ })
+  await expect(notification).toBeVisible()
+  const notificationBox = await page
+    .locator('.app-notifications[data-position="top-center"]')
+    .boundingBox()
+  expect(notificationBox).not.toBeNull()
+  expect(notificationBox!.y).toBeGreaterThanOrEqual(72)
+  expect(notificationBox!.x).toBeGreaterThanOrEqual(16)
+  expect(target.width - notificationBox!.x - notificationBox!.width).toBeGreaterThanOrEqual(16)
+
+  await page.goto('/clients')
+  const filterTrigger = page.getByRole('button', { name: 'Открыть фильтры' })
+  await filterTrigger.focus()
+  await page.keyboard.press('Enter')
+  const drawer = page.getByRole('dialog', { name: /Фильтры/ })
+  await expect(drawer).toBeVisible()
+  await page.waitForTimeout(300)
+
+  const drawerGeometry = await drawer.evaluate((element) => {
+    const rect = element.getBoundingClientRect()
+    const style = getComputedStyle(element)
+
+    return {
+      bottom: rect.bottom,
+      borderBottomLeftRadius: style.borderBottomLeftRadius,
+      borderTopLeftRadius: style.borderTopLeftRadius,
+      viewportHeight: window.innerHeight,
+      width: rect.width,
+    }
+  })
+  expect(drawerGeometry.bottom).toBeLessThanOrEqual(drawerGeometry.viewportHeight + 1)
+  expect(drawerGeometry.width).toBeGreaterThanOrEqual(target.width - 1)
+  expect(drawerGeometry.borderTopLeftRadius).not.toBe('0px')
+  expect(drawerGeometry.borderBottomLeftRadius).toBe('0px')
+
+  await page.keyboard.press('Escape')
+  await expect(drawer).toBeHidden()
+  await expect(filterTrigger).toBeFocused()
+
+  await page.setViewportSize({ width: target.height, height: target.width })
+  await page.keyboard.press('Enter')
+  await expect(drawer).toBeVisible()
+  await page.waitForTimeout(300)
+  const compactGeometry = await drawer.evaluate((element) => {
+    const rect = element.getBoundingClientRect()
+    return {
+      bottom: rect.bottom,
+      height: rect.height,
+      viewportHeight: window.innerHeight,
+    }
+  })
+  expect(compactGeometry.bottom).toBeLessThanOrEqual(compactGeometry.viewportHeight + 1)
+  expect(compactGeometry.height).toBeLessThanOrEqual(compactGeometry.viewportHeight + 1)
+  await page.keyboard.press('Escape')
+  await expect(drawer).toBeHidden()
+  await expect(filterTrigger).toBeFocused()
+})
+
 test('search focus keeps create/refresh available in compact mobile list and cards are 96px high', async ({
   page,
 }, testInfo) => {
@@ -4131,6 +4208,20 @@ async function mockApi(
 
     if (pathname === '/api/group-types' && method === 'GET') {
       await fulfillJson(route, [])
+      return
+    }
+
+    if (pathname === '/api/group-types' && method === 'POST') {
+      const payload = route.request().postDataJSON() as {
+        description?: string | null
+        name?: string
+      }
+      await fulfillJson(route, {
+        id: 'group-type-created',
+        name: payload.name ?? 'Мобильный тип',
+        description: payload.description ?? null,
+        groupCount: 0,
+      })
       return
     }
 

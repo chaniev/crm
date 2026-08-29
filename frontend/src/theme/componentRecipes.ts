@@ -8,11 +8,15 @@ import {
   InputWrapper,
   Loader,
   Modal,
+  MultiSelect,
+  NumberInput,
   Notification,
   Pagination,
+  PasswordInput,
   Select,
   Skeleton,
   TextInput,
+  Textarea,
   type MantineThemeComponents,
 } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
@@ -38,24 +42,31 @@ const focusRingStyles = {
   outlineOffset: '2px',
 }
 
-const inputStyles = {
-  input: {
-    backgroundColor: 'var(--crm-surface-card)',
-    borderColor: 'var(--crm-border-default)',
-    color: 'var(--crm-text-primary)',
-    fontSize: '1rem',
-    transition: controlTransition,
-  },
-  label: {
-    color: 'var(--crm-text-heading)',
-    fontWeight: 700,
-  },
-  description: {
-    color: 'var(--crm-text-secondary)',
-  },
-  error: {
-    color: 'var(--crm-status-danger-fg)',
-  },
+type ComponentRecipeOptions = {
+  mobile?: boolean
+}
+
+function createInputStyles(mobile: boolean) {
+  return {
+    input: {
+      backgroundColor: 'var(--crm-surface-card)',
+      borderColor: 'var(--crm-border-default)',
+      color: 'var(--crm-text-primary)',
+      fontSize: '1rem',
+      minHeight: mobile ? 44 : undefined,
+      transition: controlTransition,
+    },
+    label: {
+      color: 'var(--crm-text-heading)',
+      fontWeight: 700,
+    },
+    description: {
+      color: 'var(--crm-text-secondary)',
+    },
+    error: {
+      color: 'var(--crm-status-danger-fg)',
+    },
+  }
 }
 
 const temporarySurfaceStyles = {
@@ -79,7 +90,23 @@ const temporarySurfaceStyles = {
   },
 }
 
-export const gymCrmComponentRecipes: MantineThemeComponents = {
+export function createGymCrmComponentRecipes({
+  mobile = false,
+}: ComponentRecipeOptions = {}): MantineThemeComponents {
+  const inputStyles = createInputStyles(mobile)
+  const drawerStyles = mobile
+    ? {
+        ...temporarySurfaceStyles,
+        content: {
+          ...temporarySurfaceStyles.content,
+          borderRadius:
+            'var(--crm-radius-inner) var(--crm-radius-inner) 0 0',
+          maxHeight: 'min(88dvh, calc(100dvh - env(safe-area-inset-top, 0px)))',
+        },
+      }
+    : temporarySurfaceStyles
+
+  return {
   Button: Button.extend({
     defaultProps: {
       autoContrast: true,
@@ -160,6 +187,38 @@ export const gymCrmComponentRecipes: MantineThemeComponents = {
     },
     styles: inputStyles,
   }),
+  PasswordInput: PasswordInput.extend({
+    defaultProps: {
+      'data-crm-recipe': 'input',
+      radius: 'md',
+      size: 'sm',
+    },
+    styles: inputStyles,
+  }),
+  Textarea: Textarea.extend({
+    defaultProps: {
+      'data-crm-recipe': 'input',
+      radius: 'md',
+      size: 'sm',
+    },
+    styles: inputStyles,
+  }),
+  NumberInput: NumberInput.extend({
+    defaultProps: {
+      'data-crm-recipe': 'input',
+      radius: 'md',
+      size: 'sm',
+    },
+    styles: inputStyles,
+  }),
+  MultiSelect: MultiSelect.extend({
+    defaultProps: {
+      'data-crm-recipe': 'input',
+      radius: 'md',
+      size: 'sm',
+    },
+    styles: inputStyles,
+  }),
   Select: Select.extend({
     defaultProps: {
       'data-crm-recipe': 'input',
@@ -212,8 +271,9 @@ export const gymCrmComponentRecipes: MantineThemeComponents = {
       },
       returnFocus: true,
       trapFocus: true,
+      position: mobile ? 'bottom' : undefined,
     },
-    styles: temporarySurfaceStyles,
+    styles: drawerStyles,
   }),
   Skeleton: Skeleton.extend({
     defaultProps: {
@@ -254,7 +314,7 @@ export const gymCrmComponentRecipes: MantineThemeComponents = {
       autoClose: GYM_CRM_NOTIFICATION_AUTO_CLOSE_MS,
       'data-crm-recipe': 'notifications',
       limit: GYM_CRM_NOTIFICATION_LIMIT,
-      position: 'top-right',
+      position: mobile ? 'top-center' : 'top-right',
     },
     styles: {
       notification: {
@@ -279,7 +339,10 @@ export const gymCrmComponentRecipes: MantineThemeComponents = {
       },
     },
   }),
+  }
 }
+
+export const gymCrmComponentRecipes = createGymCrmComponentRecipes()
 
 export const gymCrmFocusStyles = {
   control: focusRingStyles,
