@@ -3,7 +3,7 @@
   "task_id": "TASK-140",
   "expected_branch": "feature/TASK-140-autonomous-verification-gate",
   "areas": ["harness"],
-  "manual_evidence": "backlog/implementation/TASK-140-manual-evidence.json",
+  "manual_evidence": "backlog/done/TASK-140-manual-evidence.json",
   "playwright": [
     {
       "id": "frontend.e2e.auth-chromium",
