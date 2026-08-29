@@ -1,7 +1,7 @@
 # TASK-131: Закрепить регрессии фильтра расписания по типу группы
 
 ## Status
-ready
+implementation
 
 ## Requirements
 - REQ-GRP-005 — verifies
@@ -78,3 +78,9 @@ Status audit TASK-113 от 2026-08-24 подтвердил, что production be
 - Created by skill: codex-backlog-skill
 - Duplicate check: TASK-113 owns the historical product request and is closed as superseded; TASK-119 owns the implemented calendar contract; no active task owns direct group-type filter regression coverage.
 - Classification: `tasks-ready`, because the contract and test boundaries are explicit and no production behavior, permission, schema or scheduling rule change is authorized.
+
+## Implementation lifecycle
+- moved_to_implementation_at: 2026-08-29 21:32 MSK
+- moved_from: /backlog/tasks-ready
+- implementation_plan: /backlog/implementation-plans/TASK-131-schedule-group-type-filter-regression.plan.md
+- implementation_branch: feature/TASK-131-schedule-group-type-filter-regression

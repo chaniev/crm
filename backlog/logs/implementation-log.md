@@ -1769,3 +1769,8 @@
   responsive and zoom scenarios passed.
 - integrated: all ten candidates are reachable from local `main`; task cards,
   plans and task-specific verification contracts moved to `backlog/done`.
+# 2026-08-29 21:32
+- moved: TASK-131
+- planned_in_place: none
+- skipped: none
+- plans: /backlog/implementation-plans/TASK-131-schedule-group-type-filter-regression.plan.md
