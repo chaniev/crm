@@ -187,6 +187,15 @@ and effects that compete with operational data do not fit the product.
   does not define persistence, API payloads, arbitrary CSS/colors,
   customer-specific neutral/status/auth roles or onboarding behavior.
 
+## Development catalog
+
+The isolated design-system catalog uses the Vite-native entry documented in
+`src/catalog/README.md`. Run `npm run catalog:dev` for the local shell and
+`npm run catalog:build` for its independent artifact. The normal production
+build verifies that catalog code is excluded. Phase A covers the stable shell
+and production foundation registries only; it does not claim final shared
+component coverage.
+
 ## Design acceptance
 
 A design is not approved because it compiles or satisfies a checklist. For a

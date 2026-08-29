@@ -1,0 +1,118 @@
+:root {
+  font-family: Onest, ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.catalog-page {
+  min-height: 100dvh;
+  padding: 1rem;
+  background: var(--crm-surface-page);
+  color: var(--crm-text-primary);
+}
+
+.catalog-header,
+.catalog-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  justify-content: space-between;
+  margin: 0 auto 1rem;
+  max-width: 90rem;
+}
+
+.catalog-header h1,
+.catalog-section h2,
+.catalog-section h3 {
+  margin-block: 0 0.5rem;
+}
+
+.catalog-header p,
+.catalog-section p {
+  margin-block: 0;
+  color: var(--crm-text-secondary);
+}
+
+.catalog-controls {
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: var(--crm-surface-card);
+  border: 1px solid var(--crm-border-default);
+  border-radius: var(--crm-radius-inner, 1rem);
+}
+
+.catalog-controls label {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 10rem;
+}
+
+.catalog-controls select,
+.catalog-controls button {
+  min-height: 2.75rem;
+  font: inherit;
+}
+
+.catalog-preview {
+  box-sizing: border-box;
+  margin-inline: auto;
+  padding: var(--crm-space-page-card-padding, 1.5rem);
+  overflow-wrap: anywhere;
+  background: var(--crm-surface-card);
+  border: 1px solid var(--crm-border-default);
+  border-radius: var(--crm-radius-card);
+  box-shadow: var(--crm-elevation-card);
+}
+
+.catalog-preview[data-motion='reduced'] *,
+.catalog-preview[data-motion='reduced'] *::before,
+.catalog-preview[data-motion='reduced'] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+.catalog-preview__fixture {
+  max-width: 44rem;
+}
+
+.catalog-section {
+  margin-top: 1.5rem;
+}
+
+.catalog-registry {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.catalog-registry__row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 2fr);
+  gap: 1rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--crm-border-muted);
+}
+
+.catalog-registry dd {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+}
+
+@media (max-width: 48rem) {
+  .catalog-header,
+  .catalog-registry__row {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .catalog-preview {
+    padding: var(--crm-space-page-card-padding-compact-mobile, 0.875rem);
+  }
+}

@@ -6,7 +6,10 @@
   "scripts": {
     "audit": "npm audit --audit-level=high",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/assert-production-excludes-catalog.mjs",
+    "catalog:build": "tsc -b && vite build --config vite.catalog.config.ts",
+    "catalog:dev": "vite --config vite.catalog.config.ts --open /catalog.html",
+    "catalog:preview": "vite preview --config vite.catalog.config.ts --outDir dist-catalog",
     "check": "npm run lint && npm run typecheck && npm run check:raw-colors && npm run test:unit && npm run build",
     "check:raw-colors": "node scripts/check-raw-colors.mjs",
     "lint": "eslint .",
