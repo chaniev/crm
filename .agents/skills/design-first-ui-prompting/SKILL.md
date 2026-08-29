@@ -13,10 +13,11 @@ Use this skill for prompts that generate static visual directions, demos,
 landing pages, marketing surfaces, or external UI-generator output.
 
 For CRM product screens, `.agents/skills/crm-mobile-first-ui/SKILL.md`, the UX
-contract, backend contracts, Mantine and Onest, and measurable interaction
-acceptance are authoritative. Do not translate image-oriented format, imagery,
-style, or negative-prompt examples into product requirements unless the
-deliverable explicitly includes a generated visual artifact.
+contract, `frontend/DESIGN.md`, backend contracts, Mantine and Onest, and
+measurable interaction acceptance are authoritative. Do not translate
+image-oriented format, imagery, style, or negative-prompt examples into product
+requirements unless the deliverable explicitly includes a generated visual
+artifact.
 
 When the generated artifact depicts an operational product workflow, add an
 `OPERATIONAL CONTRACT` block to every screen prompt. State which controls are
@@ -27,6 +28,13 @@ open/close behavior, focus return, and the exact context restored on return
 (URL/query, entity or group anchor, and scroll position). Keep these behavioral
 requirements in the prompt even when a static image cannot prove them; identify
 them as implementation annotations rather than inventing visual decoration.
+
+Also add a `VISUAL CONTRACT` block derived from the accepted visual brief.
+Name the intended character, density, hierarchy, project tokens and components,
+reference properties, directions to avoid, target viewports, and the quality
+criteria used to choose between variants. For material CRM redesigns, generate
+meaningfully different directions rather than color-only variations and do not
+treat an image as approval until the product owner selects a direction.
 
 ## Core principle
 **Prompt like a design system, not a wish.**

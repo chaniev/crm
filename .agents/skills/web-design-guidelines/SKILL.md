@@ -21,6 +21,11 @@ Report conflicts instead of silently replacing project requirements.
 
 ## Inspect
 
+Resolve one coherent route, flow, or change scope before inspecting. For a
+change-scoped review, inspect the affected runtime surfaces and direct
+consumers; expand a second hop only for shared primitives, theme values, and
+tokens. State excluded surfaces instead of implying repository-wide coverage.
+
 - semantic page structure, landmarks, headings, and accessible names;
 - keyboard order, visible focus, focus trapping, focus return, and Escape/back
   behavior;
@@ -41,6 +46,20 @@ label and the accessible name remains stable.
 
 ## Classify findings
 
+Keep a candidate only when all three proofs exist:
+
+1. **Contract** — a binding project rule or a direct observable contradiction
+   within the same task;
+2. **Runtime** — evidence that the affected owner and behavior reach the
+   rendered surface;
+3. **Correction** — one deterministic smallest remediation supported by the
+   evidence.
+
+Attempt to falsify every candidate. Remove it when counterevidence shows a
+deliberate exception, the correction would invent product intent, or multiple
+incompatible corrections remain. In change reviews, distinguish introduced or
+regressed defects from pre-existing observations.
+
 For each finding provide:
 
 - location;
@@ -53,6 +72,9 @@ For each finding provide:
 
 Separate verified defects from assumptions and cosmetic preferences. Do not
 report generic advice without a concrete affected interaction.
+
+Report at most five supported findings for one flow. A clean review may return
+`No supported findings`; do not pad it with taste preferences.
 
 ## Validate
 

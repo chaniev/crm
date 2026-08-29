@@ -32,12 +32,21 @@ and narrow-screen usability.
 For a new screen or materially changed workflow:
 
 1. Read `.agents/skills/crm-mobile-first-ui/SKILL.md` completely.
-2. Define the UX contract before design; prefer `ux-researcher` when available.
-3. Convert it into an implementation-ready specification; prefer `ui-designer`.
-4. Resolve product uncertainties that change the workflow before implementation.
-5. Implement the approved interaction; prefer `react-specialist`.
-6. Add regression coverage for the primary mobile workflow; prefer `test-automator`.
-7. Verify the result against the approved contract and the skill's acceptance criteria.
+2. Read `frontend/DESIGN.md` and inspect the current rendered flow.
+3. Define the UX contract before layout decisions; prefer `ux-researcher` when
+   available.
+4. Create a visual brief and three meaningfully different rendered directions;
+   prefer `ui-designer`. An approved user-supplied design replaces this step.
+5. Record the product owner's selected or refined direction before production
+   implementation.
+6. Convert the selected direction into an implementation-ready visual and
+   interaction contract; prefer `ui-designer`.
+7. Resolve product uncertainties that change the workflow before implementation.
+8. Implement the approved interaction; prefer `react-specialist`.
+9. Add regression coverage for the primary mobile workflow; prefer
+   `test-automator`.
+10. Independently compare the runtime result with the selected direction, UX
+    contract, and the skill's behavioral and visual acceptance criteria.
 
 These outcomes and their order are mandatory; separate agents are not. When a
 specialist is unavailable or separate delegation is disproportionate, the
@@ -54,7 +63,9 @@ interaction, return the conflict to `ui-designer` instead of silently changing
 the workflow.
 
 A small local visual correction that does not change the workflow may start
-with `ui-designer` and still requires proportional regression coverage.
+with `ui-designer`, does not require three variants when the correction is
+deterministic, and still requires a rendered before/after check and proportional
+regression coverage.
 
 Optional visual-generation guidance:
 

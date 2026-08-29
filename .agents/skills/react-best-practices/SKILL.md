@@ -51,6 +51,21 @@ Next.js caching, Tailwind, or a second component library.
 - Keep context values stable and narrow when frequent provider updates cause
   broad rendering.
 
+## Measure user-visible performance
+
+- Do not claim that LCP, INP, or CLS is failing from source inspection alone.
+  Source can identify a risk; runtime evidence establishes a failure.
+- Record equivalent conditions before and after an optimization. Distinguish a
+  browser trace, a controlled lab measurement, and production field data.
+- Prioritize INP for frequent CRM operations and CLS during loading, filtering,
+  navigation, and operational-state changes.
+- Use React profiling to identify component work before adding memoization or
+  virtualization. State the interaction and data volume measured.
+- Inspect production build output when changing route loading, dependencies, or
+  import structure.
+- Do not claim immediate field improvement from a local run; field metrics need
+  new production visits.
+
 ## Protect bundle and runtime behavior
 
 - Reuse installed dependencies and shared components before adding packages.
