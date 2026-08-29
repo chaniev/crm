@@ -5,10 +5,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shlex
+import signal
 import subprocess
 import sys
+import tempfile
 import time
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -20,6 +24,31 @@ if str(ROOT) not in sys.path:
 
 from scripts.harness.change_impact import ALL_AREAS, ChangeImpact, analyze_paths
 from scripts.harness.commands import CheckSpec, checks_for
+from scripts.harness.git_changes import collect_changes, collect_git_context, flatten_paths
+
+
+SCHEMA_VERSION = 2
+RUNNER_VERSION = "2.0"
+GITHUB_ENVIRONMENT_KEYS = (
+    "GITHUB_ACTIONS",
+    "GITHUB_JOB",
+    "GITHUB_REF",
+    "GITHUB_REPOSITORY",
+    "GITHUB_RUN_ATTEMPT",
+    "GITHUB_RUN_ID",
+    "GITHUB_SERVER_URL",
+    "GITHUB_SHA",
+    "GITHUB_WORKFLOW",
+)
+VERSION_ARGUMENTS = {
+    "bash": ("--version",),
+    "docker": ("--version",),
+    "dotnet": ("--version",),
+    "git": ("--version",),
+    "npm": ("--version",),
+    "python3": ("--version",),
+    "uv": ("--version",),
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -53,40 +82,47 @@ def parse_args() -> argparse.Namespace:
         default=".artifacts/verification/report.json",
         help="JSON evidence path, relative to the repository root unless absolute",
     )
-    return parser.parse_args()
-
-
-def _git_lines(*args: str, root: Path = ROOT) -> list[str]:
-    result = subprocess.run(
-        ("git", *args),
-        cwd=root,
-        check=True,
-        capture_output=True,
-        text=True,
+    parser.add_argument(
+        "--timeout-scale",
+        type=float,
+        default=1.0,
+        help="multiply every check timeout by this positive value",
     )
-    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    return parser.parse_args()
 
 
 def changed_paths(base: str, *, root: Path = ROOT) -> list[str]:
     """Include committed, staged, unstaged, and untracked task changes."""
+    return flatten_paths(collect_changes(base, root=root))
 
-    try:
-        _git_lines("rev-parse", "--verify", base, root=root)
-        path_sets = (
-            _git_lines(
-                "diff", "--name-only", "--diff-filter=ACMR", f"{base}...HEAD", root=root
-            ),
-            _git_lines(
-                "diff", "--name-only", "--diff-filter=ACMR", "--cached", root=root
-            ),
-            _git_lines("diff", "--name-only", "--diff-filter=ACMR", root=root),
-            _git_lines("ls-files", "--others", "--exclude-standard", root=root),
-        )
-    except subprocess.CalledProcessError as error:
-        raise RuntimeError(
-            f"cannot resolve change set from base {base!r}; fetch the revision or pass --base"
-        ) from error
-    return sorted({path for paths in path_sets for path in paths})
+
+def collect_tool_versions(checks: list[CheckSpec]) -> dict[str, str]:
+    executables = {"git", "python3"}
+    executables.update(check.command[0] for check in checks)
+    versions: dict[str, str] = {}
+    for executable in sorted(executables):
+        arguments = VERSION_ARGUMENTS.get(executable, ("--version",))
+        try:
+            result = subprocess.run(
+                (executable, *arguments),
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            output = (result.stdout or result.stderr).strip().splitlines()
+            versions[executable] = output[0] if output else f"exit {result.returncode}"
+        except (OSError, subprocess.TimeoutExpired) as error:
+            versions[executable] = f"unavailable: {error}"
+    return versions
+
+
+def github_environment() -> dict[str, str]:
+    return {
+        key: os.environ[key]
+        for key in GITHUB_ENVIRONMENT_KEYS
+        if key in os.environ
+    }
 
 
 def _command_text(check: CheckSpec) -> str:
@@ -103,9 +139,24 @@ def _report_path(value: str) -> Path:
 
 def write_report(path: Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as temporary:
+            temporary_path = Path(temporary.name)
+            temporary.write(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+            temporary.flush()
+            os.fsync(temporary.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        if temporary_path is not None and temporary_path.exists():
+            temporary_path.unlink()
 
 
 def display_path(path: Path) -> str:
@@ -136,45 +187,148 @@ def print_plan(paths: list[str], impact: ChangeImpact, checks: list[CheckSpec]) 
         print(f"  [{check.identifier}] {_command_text(check)}")
 
 
-def execute(checks: list[CheckSpec], report: dict[str, Any], report_path: Path) -> int:
-    failed = False
+def write_github_summary(report: dict[str, Any]) -> None:
+    summary_path_value = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_path_value:
+        return
+
+    git_context = report.get("git", {})
+    lines = [
+        "## CRM verification",
+        "",
+        f"**Status:** `{report['status']}`  ",
+        f"**HEAD:** `{git_context.get('head_sha', 'unknown')}`",
+        "",
+        "| Check | Area | Status | Duration |",
+        "|---|---|---|---:|",
+    ]
+    for check in report["checks"]:
+        duration = check.get("duration_seconds")
+        duration_text = f"{duration:.3f}s" if duration is not None else "—"
+        lines.append(
+            f"| `{check['id']}` | {check['area']} | `{check['status']}` | {duration_text} |"
+        )
+    lines.append("")
+    try:
+        with Path(summary_path_value).open("a", encoding="utf-8") as summary:
+            summary.write("\n".join(lines))
+    except OSError as error:
+        print(f"unable to write GitHub job summary: {error}", file=sys.stderr)
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _terminate_process_group(process: subprocess.Popen[Any]) -> None:
+    if process.poll() is not None:
+        return
+
+    try:
+        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    except OSError:
+        try:
+            process.terminate()
+        except OSError:
+            return
+
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+        except ProcessLookupError:
+            return
+        except OSError:
+            try:
+                process.kill()
+            except OSError:
+                return
+        process.wait()
+
+
+def _finish_report(
+    report: dict[str, Any], report_path: Path, *, status: str
+) -> None:
+    report["status"] = status
+    report["completed_at"] = _utc_now()
+    write_report(report_path, report)
+    write_github_summary(report)
+
+
+def execute(
+    checks: list[CheckSpec],
+    report: dict[str, Any],
+    report_path: Path,
+    *,
+    timeout_scale: float = 1.0,
+) -> int:
     for index, check in enumerate(checks):
         entry = report["checks"][index]
         print(f"\n==> {check.identifier}: {_command_text(check)}", flush=True)
         started = time.monotonic()
+        entry["started_at"] = _utc_now()
+        entry["timeout_seconds"] = check.timeout_seconds * timeout_scale
         try:
-            completed = subprocess.run(
+            process = subprocess.Popen(
                 check.command,
                 cwd=ROOT / check.working_directory,
-                check=False,
+                start_new_session=True,
             )
-            return_code = completed.returncode
-        except FileNotFoundError:
-            return_code = 127
-            print(f"required executable not found: {check.command[0]}", file=sys.stderr)
+            try:
+                return_code = process.wait(timeout=entry["timeout_seconds"])
+                entry["exit_code"] = return_code
+                entry["status"] = "passed" if return_code == 0 else "failed"
+            except subprocess.TimeoutExpired:
+                _terminate_process_group(process)
+                entry["exit_code"] = process.returncode
+                entry["status"] = "timed_out"
+                entry["error"] = (
+                    f"check exceeded timeout of {entry['timeout_seconds']:.3f} seconds"
+                )
+                print(entry["error"], file=sys.stderr)
+            except KeyboardInterrupt:
+                _terminate_process_group(process)
+                entry["exit_code"] = process.returncode
+                entry["status"] = "interrupted"
+                entry["error"] = "verification interrupted by user"
+        except OSError as error:
+            entry["exit_code"] = 127 if isinstance(error, FileNotFoundError) else None
+            entry["status"] = "spawn_failed"
+            entry["error"] = f"unable to start {check.command[0]}: {error}"
+            print(entry["error"], file=sys.stderr)
 
         entry["duration_seconds"] = round(time.monotonic() - started, 3)
-        entry["exit_code"] = return_code
-        entry["status"] = "passed" if return_code == 0 else "failed"
+        entry["completed_at"] = _utc_now()
         write_report(report_path, report)
 
-        if return_code != 0:
-            failed = True
+        if entry["status"] != "passed":
             for remaining in report["checks"][index + 1 :]:
                 remaining["status"] = "not_run"
-            break
+            final_status = (
+                "interrupted" if entry["status"] == "interrupted" else "failed"
+            )
+            _finish_report(report, report_path, status=final_status)
+            return 130 if entry["status"] == "interrupted" else 1
 
-    return 1 if failed else 0
+    _finish_report(report, report_path, status="passed")
+    return 0
 
 
 def main() -> int:
     args = parse_args()
+    if args.timeout_scale <= 0:
+        print("--timeout-scale must be greater than zero", file=sys.stderr)
+        return 2
     if args.area and args.profile != "full":
         print("--area is supported only with --profile full", file=sys.stderr)
         return 2
 
     try:
-        paths = [] if args.profile == "full" else changed_paths(args.base)
+        changes = [] if args.profile == "full" else collect_changes(args.base, root=ROOT)
+        paths = flatten_paths(changes)
     except RuntimeError as error:
         print(error, file=sys.stderr)
         return 2
@@ -195,14 +349,20 @@ def main() -> int:
     print_plan(paths, impact, checks)
 
     report_path = _report_path(args.report)
+    git_context = collect_git_context(args.base, root=ROOT)
     report: dict[str, Any] = {
-        "schema_version": 1,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "repository": str(ROOT),
+        "schema_version": SCHEMA_VERSION,
+        "runner_version": RUNNER_VERSION,
+        "started_at": _utc_now(),
+        "repository": os.environ.get("GITHUB_REPOSITORY", ROOT.name),
         "profile": args.profile,
         "base": args.base,
         "dry_run": args.dry_run,
         "status": "dry_run" if args.dry_run else "running",
+        "git": asdict(git_context),
+        "github": github_environment(),
+        "tool_versions": collect_tool_versions(checks),
+        "changes": [asdict(change) for change in changes],
         "changed_paths": paths,
         "selected_areas": [area for area in ALL_AREAS if area in impact.areas],
         "reasons": impact.reasons,
@@ -212,6 +372,7 @@ def main() -> int:
                 "area": check.area,
                 "working_directory": check.working_directory,
                 "command": list(check.command),
+                "timeout_seconds": check.timeout_seconds * args.timeout_scale,
                 "status": "planned",
             }
             for check in checks
@@ -220,12 +381,15 @@ def main() -> int:
     write_report(report_path, report)
 
     if args.dry_run:
+        report["completed_at"] = _utc_now()
+        write_report(report_path, report)
+        write_github_summary(report)
         print(f"\nDry run complete. Evidence: {display_path(report_path)}")
         return 0
 
-    exit_code = execute(checks, report, report_path)
-    report["status"] = "passed" if exit_code == 0 else "failed"
-    write_report(report_path, report)
+    exit_code = execute(
+        checks, report, report_path, timeout_scale=args.timeout_scale
+    )
     print(f"\nEvidence: {display_path(report_path)}")
     return exit_code
 

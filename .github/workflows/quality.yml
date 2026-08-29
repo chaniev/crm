@@ -21,10 +21,12 @@ jobs:
           fetch-depth: 0
 
       - name: Validate requirements registry and active backlog
+        if: github.event_name != 'pull_request'
         run: >-
           python3 scripts/harness/verify_change.py
           --profile full
           --area requirements
+          --report .artifacts/verification/requirements.json
 
       - name: Require changelog for requirement changes
         if: github.event_name == 'pull_request'
@@ -33,22 +35,46 @@ jobs:
           --profile full
           --area requirements
           --base "${{ github.event.pull_request.base.sha }}"
+          --report .artifacts/verification/requirements.json
+
+      - name: Upload requirements verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-requirements-${{ github.run_attempt }}
+          path: .artifacts/verification/requirements.json
+          if-no-files-found: error
+          retention-days: 14
 
   harness:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Test verification harness
         run: >-
           python3 scripts/harness/verify_change.py
           --profile full
           --area harness
+          --report .artifacts/verification/harness.json
+
+      - name: Upload harness verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-harness-${{ github.run_attempt }}
+          path: .artifacts/verification/harness.json
+          if-no-files-found: error
+          retention-days: 14
 
   backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -59,11 +85,23 @@ jobs:
           python3 scripts/harness/verify_change.py
           --profile full
           --area backend
+          --report .artifacts/verification/backend.json
+
+      - name: Upload backend verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-backend-${{ github.run_attempt }}
+          path: .artifacts/verification/backend.json
+          if-no-files-found: error
+          retention-days: 14
 
   frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v7
         with:
@@ -76,11 +114,23 @@ jobs:
           python3 scripts/harness/verify_change.py
           --profile full
           --area frontend
+          --report .artifacts/verification/frontend.json
+
+      - name: Upload frontend verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-frontend-${{ github.run_attempt }}
+          path: .artifacts/verification/frontend.json
+          if-no-files-found: error
+          retention-days: 14
 
   bot:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v6
         with:
@@ -98,14 +148,36 @@ jobs:
           python3 scripts/harness/verify_change.py
           --profile full
           --area bot
+          --report .artifacts/verification/bot.json
+
+      - name: Upload bot verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-bot-${{ github.run_attempt }}
+          path: .artifacts/verification/bot.json
+          if-no-files-found: error
+          retention-days: 14
 
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Run deploy quality baseline
         run: >-
           python3 scripts/harness/verify_change.py
           --profile full
           --area deploy
+          --report .artifacts/verification/deploy.json
+
+      - name: Upload deploy verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification-deploy-${{ github.run_attempt }}
+          path: .artifacts/verification/deploy.json
+          if-no-files-found: error
+          retention-days: 14

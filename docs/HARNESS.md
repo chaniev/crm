@@ -20,12 +20,20 @@ python3 scripts/harness/verify_change.py --base origin/main
 ```
 
 The local profile includes committed changes since the base plus staged,
-unstaged, and untracked files. The default base is `origin/main`; pass the
-declared task dependency when an approved implementation plan uses another
-base.
+unstaged, and untracked files. Deleted paths are retained, and both the old and
+new path of a rename or copy participate in impact selection. The default base
+is `origin/main`; pass the declared task dependency when an approved
+implementation plan uses another base.
 
 `--dry-run` selects and prints checks without executing them. It still writes
 the evidence report so the selection can be inspected mechanically.
+
+Each canonical check has an explicit timeout. For unusually slow local or CI
+environments, multiply all configured limits by a positive value:
+
+```bash
+python3 scripts/harness/verify_change.py --timeout-scale 1.5
+```
 
 ## Full and scoped use
 
@@ -81,9 +89,19 @@ The default report is:
 ```
 
 Override it with `--report`. The report contains the profile, base, changed
-paths, selected areas and reasons, commands, statuses, exit codes, and
-durations. `.artifacts/` is untracked and must not contain secrets.
+paths and Git statuses, selected areas and reasons, commands, statuses, exit
+codes, and durations. It also records the runner version, HEAD, resolved base,
+merge base, branch, dirty state, relevant tool versions, timestamps, and a
+strict allowlist of non-secret `GITHUB_*` metadata. `.artifacts/` is untracked
+and must not contain secrets.
 
-Execution is fail-fast, matching the existing CI job behavior. A failed check
-returns a non-zero exit code, records remaining checks as `not_run`, and does
-not suppress dependency or security audit failures.
+Report writes are atomic. Execution is fail-fast, matching the existing CI job
+behavior. A failed check returns a non-zero exit code, records remaining checks
+as `not_run`, and does not suppress dependency or security audit failures.
+Controlled failures use distinct statuses: `timed_out`, `interrupted`, and
+`spawn_failed`. The runner terminates the complete process group on timeout or
+interruption and still finalizes the JSON evidence.
+
+Every Quality workflow job writes a unique report, appends its outcome to the
+GitHub job summary, and uploads the JSON as a 14-day artifact even when a check
+fails.
