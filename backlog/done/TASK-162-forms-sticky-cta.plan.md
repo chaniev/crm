@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-162 Sticky primary CTA форм на мобильных
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-162-forms-sticky-cta.md
+- source_task: /backlog/done/TASK-162-forms-sticky-cta.md
+- completion: implemented and locally integrated into main on 2026-08-30
 - requirements: REQ-NFR-001 (constrains)
 - branch: feature/TASK-162-forms-sticky-cta
 - readiness: yes

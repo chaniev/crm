@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-158 Мобильные переопределения типографской шкалы
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-158-mobile-typography.md
+- source_task: /backlog/done/TASK-158-mobile-typography.md
+- completion: implemented and locally integrated into main on 2026-08-30
 - requirements: REQ-NFR-001 (constrains)
 - branch: feature/TASK-158-mobile-typography
 - readiness: yes

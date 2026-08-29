@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-161 Мобильные рецепты контролов: инпуты 44px, уведомления, bottom-sheet
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-161-mobile-control-recipes.md
+- source_task: /backlog/done/TASK-161-mobile-control-recipes.md
+- completion: implemented and locally integrated into main on 2026-08-30
 - requirements: REQ-NFR-001 (constrains)
 - branch: feature/TASK-161-mobile-control-recipes
 - readiness: yes

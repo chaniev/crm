@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-163 «Внимание» — плотность списка и actions в карточке
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-163-attention-density.md
+- source_task: /backlog/done/TASK-163-attention-density.md
+- completion: implemented and locally integrated into main on 2026-08-30
 - requirements: REQ-ATTN-001 (constrains), REQ-NFR-001 (constrains)
 - branch: feature/TASK-163-attention-density
 - readiness: yes

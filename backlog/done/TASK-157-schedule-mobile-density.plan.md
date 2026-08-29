@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-157 Уплотнить мобильное расписание по утверждённому макету
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-157-schedule-mobile-density.md
+- source_task: /backlog/done/TASK-157-schedule-mobile-density.md
+- completion: implemented and locally integrated into main on 2026-08-30
 - requirements: REQ-GRP-007 (changes), REQ-GRP-005 (constrains), REQ-NFR-001 (constrains), REQ-ATT-006 (constrains)
 - branch: feature/TASK-157-schedule-mobile-density
 - readiness: yes

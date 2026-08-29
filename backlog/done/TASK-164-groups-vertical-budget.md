@@ -1,13 +1,15 @@
 # TASK-164: «Группы» — вертикальный бюджет реестра
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-30 00:30
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-164-groups-vertical-budget.plan.md
+- implementation_plan: /backlog/done/TASK-164-groups-vertical-budget.plan.md
 - implementation_branch: feature/TASK-164-groups-vertical-budget
+- integrated_to_main_at: 2026-08-30
+- candidate_commit: b5822cc9d9816e91398b4b3a166d561d9dd755f5
 
 ## Requirements
 - REQ-GRP-001 — constrains

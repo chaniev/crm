@@ -1,14 +1,16 @@
 # TASK-157: Уплотнить мобильное расписание по утверждённому макету
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-30 00:30
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-157-schedule-mobile-density.plan.md
+- implementation_plan: /backlog/done/TASK-157-schedule-mobile-density.plan.md
 - implementation_branch: feature/TASK-157-schedule-mobile-density
-- verification_contract: /backlog/implementation/TASK-157-schedule-mobile-density-verification-contract.json
+- verification_contract: /backlog/done/TASK-157-schedule-mobile-density-verification-contract.json
+- integrated_to_main_at: 2026-08-30
+- candidate_commit: 8b665350f8dc11d07f1d0508b9fb0750ecf78c3d
 
 ## Requirements
 - REQ-GRP-007 — changes

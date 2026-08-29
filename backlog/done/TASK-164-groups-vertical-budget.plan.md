@@ -1,7 +1,8 @@
 # Implementation Plan: TASK-164 «Группы» — вертикальный бюджет реестра
 
 ## Metadata
-- source_task: /backlog/implementation/TASK-164-groups-vertical-budget.md
+- source_task: /backlog/done/TASK-164-groups-vertical-budget.md
+- completion: implemented and locally integrated into main on 2026-08-30
 - requirements: REQ-GRP-001 (constrains), REQ-NFR-001 (constrains)
 - branch: feature/TASK-164-groups-vertical-budget
 - readiness: yes

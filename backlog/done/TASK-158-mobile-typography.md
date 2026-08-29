@@ -1,14 +1,16 @@
 # TASK-158: Мобильные переопределения типографской шкалы
 
 ## Status
-implementation
+done
 
 ## Implementation lifecycle
 - moved_to_implementation_at: 2026-08-30 00:30
 - moved_from: /backlog/tasks-ready
-- implementation_plan: /backlog/implementation-plans/TASK-158-mobile-typography.plan.md
+- implementation_plan: /backlog/done/TASK-158-mobile-typography.plan.md
 - implementation_branch: feature/TASK-158-mobile-typography
-- verification_contract: /backlog/implementation/TASK-158-mobile-typography-verification-contract.json
+- verification_contract: /backlog/done/TASK-158-mobile-typography-verification-contract.json
+- integrated_to_main_at: 2026-08-30
+- candidate_commit: 352494059c7e8d9fdcabd069170f889bf840d9a7
 
 ## Requirements
 - REQ-NFR-001 — constrains
