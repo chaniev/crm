@@ -112,7 +112,7 @@ export function ConfirmActionModal({
       centered
       onClose={onClose}
       opened={opened}
-      radius="24px"
+      radius="var(--crm-radius-inner)"
       title={title}
       withCloseButton={!pending}
     >
@@ -790,7 +790,7 @@ export function LoadingState({ label = 'Загружаем данные...' }: L
       justify="center"
       role="status"
     >
-      <Loader color="var(--crm-action-primary)" size="sm" />
+      <Loader />
       <Text c="dimmed" fw={600} size="sm">
         {label}
       </Text>
@@ -838,7 +838,7 @@ export function Skeleton({
   ...props
 }: SkeletonProps) {
   if (rows === undefined && Object.keys(props).length > 0) {
-    return <MantineSkeleton className={className} radius="md" {...props} />
+    return <MantineSkeleton className={className} {...props} />
   }
 
   return (
@@ -848,7 +848,6 @@ export function Skeleton({
           className="skeleton-row"
           height={rowHeight}
           key={index}
-          radius="md"
         />
       ))}
     </Stack>

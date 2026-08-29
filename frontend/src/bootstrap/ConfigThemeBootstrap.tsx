@@ -9,10 +9,6 @@ import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import App from '../App'
 import {
-  APP_NOTIFICATION_AUTO_CLOSE_MS,
-  APP_NOTIFICATION_LIMIT,
-} from '../features/shared/notifications'
-import {
   k4proLoginBackgroundProfile,
   solidAuthStageBackground,
   toAuthStageBackground,
@@ -113,10 +109,7 @@ function ResolvedConfigThemeBootstrap({
   return (
     <MantineProvider defaultColorScheme="light" theme={theme}>
       <Notifications
-        autoClose={APP_NOTIFICATION_AUTO_CLOSE_MS}
         className="app-notifications"
-        limit={APP_NOTIFICATION_LIMIT}
-        position="top-right"
       />
       <App appConfig={appConfig} authBackground={authBackground} />
     </MantineProvider>

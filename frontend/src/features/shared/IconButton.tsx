@@ -2,7 +2,7 @@ import {
   ActionIcon,
   type ActionIconProps,
 } from '@mantine/core'
-import type { ComponentPropsWithoutRef, ReactNode } from 'react'
+import type { ComponentPropsWithoutRef, CSSProperties, ReactNode } from 'react'
 
 export type SharedIconButtonVariant =
   | 'primary'
@@ -59,19 +59,33 @@ export function IconButton({
   color,
   icon,
   label,
+  loaderProps,
   radius = 'xl',
+  style,
   title,
   variant = 'secondary',
   ...props
 }: SharedIconButtonProps) {
   const resolvedVariant = sharedIconButtonVariantMap[variant]
+  const targetStyle = {
+    ...(style as CSSProperties | undefined),
+    minHeight: 44,
+    minWidth: 44,
+  }
 
   return (
     <ActionIcon
       aria-label={label}
       className={['shared-icon-button', className].filter(Boolean).join(' ')}
       color={color ?? resolvedVariant.color}
+      data-crm-recipe="icon-button"
+      data-crm-variant={variant}
+      loaderProps={{
+        size: 'sm',
+        ...loaderProps,
+      }}
       radius={radius}
+      style={targetStyle}
       title={title ?? label}
       variant={resolvedVariant.variant}
       {...props}

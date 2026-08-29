@@ -64,6 +64,7 @@ const sharedButtonVariantMap: Record<
 export function Button({
   className,
   color,
+  loaderProps,
   radius = 'xl',
   variant = 'primary',
   ...props
@@ -77,6 +78,12 @@ export function Button({
       {...semanticToneAttributes}
       className={['shared-button', className].filter(Boolean).join(' ')}
       color={color ?? resolvedVariant.color}
+      data-crm-recipe="button"
+      data-crm-variant={variant}
+      loaderProps={{
+        size: 'sm',
+        ...loaderProps,
+      }}
       radius={radius}
       variant={resolvedVariant.variant}
       {...props}

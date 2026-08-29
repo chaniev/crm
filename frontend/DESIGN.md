@@ -14,6 +14,7 @@ change; do not treat an isolated local style as a new convention.
 Governing sources:
 
 - `src/theme/createGymCrmTheme.ts`;
+- `src/theme/componentRecipes.ts`;
 - `src/theme/foundations.ts`;
 - `src/theme/semanticVariables.ts`;
 - `src/theme/profiles.ts`;
@@ -114,6 +115,33 @@ and effects that compete with operational data do not fit the product.
   designed states, not implementation leftovers.
 - Motion is functional and restrained. Frequent navigation and keyboard-first
   actions remain instant.
+
+### Mantine component recipes
+
+- `src/theme/componentRecipes.ts` owns safe project-level defaults for
+  Button/ActionIcon, Alert, Badge, TextInput/Select/Input/InputWrapper,
+  Modal/Drawer, Skeleton/Loader, Notification/Notifications and Pagination.
+  These recipes set neutral geometry, font weight, state transitions, default
+  radii, semantic colors, temporary-surface styling, notification limits and
+  pagination target size without changing CRM behavior.
+- `src/features/shared/Button.tsx` and
+  `src/features/shared/IconButton.tsx` own the typed project variants that
+  Mantine cannot express safely as global defaults: `primary`, `secondary`,
+  `ghost`, `pill` and `destructive` for buttons, plus equivalent icon-only
+  hierarchy. Destructive buttons must use the `danger` semantic tone attributes
+  and retain a non-color cue where the surrounding UI supplies icon or copy.
+- Direct Mantine component use remains acceptable for feature composition,
+  form fields, layout-owned Modal/Drawer instances, Pagination controls and
+  existing unmigrated screens. New repeated action primitives should prefer the
+  shared wrappers so accessible names, loading state and 44 x 44 px icon-only
+  targets remain consistent.
+- Alerts, badges and notifications that communicate status should consume the
+  TASK-143 semantic tone API. Raw Mantine color names are compatibility
+  exceptions until the dedicated migration task removes approved bypasses.
+- Global recipes are limited to universal state appearance. A screen-specific
+  workflow, domain status, permission rule, action order, compact-height
+  behavior or safe-area exception stays with the owning feature unless a later
+  approved design-system task promotes it.
 
 ### Motion contract
 
