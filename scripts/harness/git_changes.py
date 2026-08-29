@@ -17,6 +17,7 @@ class GitChange:
 @dataclass(frozen=True)
 class GitContext:
     head_sha: str
+    head_tree_sha: str
     base_sha: str | None
     merge_base_sha: str | None
     branch: str
@@ -124,6 +125,7 @@ def flatten_paths(changes: list[GitChange]) -> list[str]:
 
 def collect_git_context(base: str, *, root: Path) -> GitContext:
     head_sha = _git_text(root, "rev-parse", "HEAD").stdout.strip()
+    head_tree_sha = _git_text(root, "rev-parse", "HEAD^{tree}").stdout.strip()
     branch_result = _git_text(root, "symbolic-ref", "--short", "-q", "HEAD", check=False)
     branch = branch_result.stdout.strip() or "DETACHED"
     dirty = bool(_git_bytes(root, "status", "--porcelain", "-z").stdout)
@@ -139,6 +141,7 @@ def collect_git_context(base: str, *, root: Path) -> GitContext:
 
     return GitContext(
         head_sha=head_sha,
+        head_tree_sha=head_tree_sha,
         base_sha=base_sha,
         merge_base_sha=merge_base_sha,
         branch=branch,

@@ -147,6 +147,11 @@ local entry point for change-aware validation. Use `--dry-run` to inspect the
 selected areas and commands. `docs/HARNESS.md` defines the runner contract and
 safe full-baseline fallback.
 
+When an implementation task has a JSON verification contract, pass it through
+`--task-contract`; the contract may add task-specific Playwright, runtime smoke,
+and manual checks but must never reduce the diff-selected baseline. Confirm a
+manual check only after it was actually performed.
+
 - Backend changes -> backend format, Release build, dependency audit, and tests
 - Frontend changes -> the canonical frontend check, plus affected Playwright flows
 - Bot changes -> locked dependency sync, lint/format, typing, and tests

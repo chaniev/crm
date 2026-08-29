@@ -15,10 +15,13 @@ from scripts.harness.commands import CheckSpec
 from scripts.harness.git_changes import parse_name_status
 from scripts.harness.verify_change import (
     changed_paths,
+    collect_tool_versions,
     execute,
     github_environment,
+    print_plan,
     write_github_summary,
 )
+from scripts.harness.change_impact import analyze_paths
 
 
 class ChangedPathsTests(unittest.TestCase):
@@ -210,6 +213,49 @@ class GitStatusParsingTests(unittest.TestCase):
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_custom_task_command_is_not_executed_as_a_version_probe(self) -> None:
+        check = CheckSpec("task.custom", "harness", ("custom-smoke-command",))
+        completed = subprocess.CompletedProcess(
+            args=(), returncode=0, stdout="tool 1.0\n", stderr=""
+        )
+        with patch(
+            "scripts.harness.verify_change.subprocess.run", return_value=completed
+        ) as run:
+            collect_tool_versions([check])
+
+        probed = [call.args[0][0] for call in run.call_args_list]
+        self.assertNotIn("custom-smoke-command", probed)
+
+    def test_clean_local_plan_reports_no_changed_paths(self) -> None:
+        with redirect_stdout(StringIO()) as output:
+            print_plan([], analyze_paths([]), [], profile="local")
+
+        self.assertIn("(no changed paths)", output.getvalue())
+        self.assertNotIn("full profile", output.getvalue())
+
+    def test_full_plan_does_not_claim_that_diff_was_inspected(self) -> None:
+        with redirect_stdout(StringIO()) as output:
+            print_plan([], analyze_paths([], full=True), [], profile="full")
+
+        self.assertIn("(not inspected for full profile)", output.getvalue())
+
+    def test_unconfirmed_manual_check_keeps_report_incomplete(self) -> None:
+        report = {
+            "status": "running",
+            "checks": [],
+            "manual_checks": [
+                {"id": "manual.device", "status": "not_confirmed"}
+            ],
+        }
+
+        with tempfile.TemporaryDirectory() as directory:
+            report_path = Path(directory) / "report.json"
+            with redirect_stdout(StringIO()), redirect_stderr(StringIO()):
+                exit_code = execute([], report, report_path)
+
+        self.assertEqual(1, exit_code)
+        self.assertEqual("manual_required", report["status"])
+
     def test_github_metadata_uses_strict_allowlist(self) -> None:
         with patch.dict(
             os.environ,

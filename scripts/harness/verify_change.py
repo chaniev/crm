@@ -25,10 +25,21 @@ if str(ROOT) not in sys.path:
 from scripts.harness.change_impact import ALL_AREAS, ChangeImpact, analyze_paths
 from scripts.harness.commands import CheckSpec, checks_for
 from scripts.harness.git_changes import collect_changes, collect_git_context, flatten_paths
+from scripts.harness.task_contract import (
+    ContractError,
+    TaskContract,
+    combine_checks,
+    contract_evidence,
+    extend_impact,
+    load_task_contract,
+    manual_check_entries,
+    task_checks,
+    validate_contract_branch,
+)
 
 
-SCHEMA_VERSION = 2
-RUNNER_VERSION = "2.0"
+SCHEMA_VERSION = 3
+RUNNER_VERSION = "3.0"
 GITHUB_ENVIRONMENT_KEYS = (
     "GITHUB_ACTIONS",
     "GITHUB_JOB",
@@ -88,6 +99,17 @@ def parse_args() -> argparse.Namespace:
         default=1.0,
         help="multiply every check timeout by this positive value",
     )
+    parser.add_argument(
+        "--task-contract",
+        help="repository-relative JSON verification contract for the implementation task",
+    )
+    parser.add_argument(
+        "--confirm-manual",
+        action="append",
+        default=[],
+        metavar="CHECK_ID",
+        help="confirm one required manual check from --task-contract; repeat as needed",
+    )
     return parser.parse_args()
 
 
@@ -98,7 +120,11 @@ def changed_paths(base: str, *, root: Path = ROOT) -> list[str]:
 
 def collect_tool_versions(checks: list[CheckSpec]) -> dict[str, str]:
     executables = {"git", "python3"}
-    executables.update(check.command[0] for check in checks)
+    executables.update(
+        check.command[0]
+        for check in checks
+        if check.command[0] in VERSION_ARGUMENTS
+    )
     versions: dict[str, str] = {}
     for executable in sorted(executables):
         arguments = VERSION_ARGUMENTS.get(executable, ("--version",))
@@ -166,13 +192,26 @@ def display_path(path: Path) -> str:
         return str(path)
 
 
-def print_plan(paths: list[str], impact: ChangeImpact, checks: list[CheckSpec]) -> None:
+def print_plan(
+    paths: list[str],
+    impact: ChangeImpact,
+    checks: list[CheckSpec],
+    *,
+    profile: str,
+    contract: TaskContract | None = None,
+    manual_checks: list[dict[str, str]] | None = None,
+) -> None:
     print("Changed paths:")
     if paths:
         for path in paths:
             print(f"  {path}")
+    elif profile == "local":
+        print("  (no changed paths)")
     else:
         print("  (not inspected for full profile)")
+
+    if contract is not None:
+        print(f"Task contract: {contract.task_id} ({contract.relative_path})")
 
     print("Selected areas:")
     for area in ALL_AREAS:
@@ -185,6 +224,11 @@ def print_plan(paths: list[str], impact: ChangeImpact, checks: list[CheckSpec]) 
     print("Checks:")
     for check in checks:
         print(f"  [{check.identifier}] {_command_text(check)}")
+
+    if manual_checks:
+        print("Manual checks:")
+        for check in manual_checks:
+            print(f"  [{check['id']}] {check['status']}: {check['description']}")
 
 
 def write_github_summary(report: dict[str, Any]) -> None:
@@ -209,6 +253,16 @@ def write_github_summary(report: dict[str, Any]) -> None:
             f"| `{check['id']}` | {check['area']} | `{check['status']}` | {duration_text} |"
         )
     lines.append("")
+    if report.get("manual_checks"):
+        lines.extend(
+            (
+                "| Manual check | Status |",
+                "|---|---|",
+            )
+        )
+        for check in report["manual_checks"]:
+            lines.append(f"| `{check['id']}` | `{check['status']}` |")
+        lines.append("")
     try:
         with Path(summary_path_value).open("a", encoding="utf-8") as summary:
             summary.write("\n".join(lines))
@@ -313,6 +367,13 @@ def execute(
             _finish_report(report, report_path, status=final_status)
             return 130 if entry["status"] == "interrupted" else 1
 
+    if any(
+        check.get("status") == "not_confirmed"
+        for check in report.get("manual_checks", [])
+    ):
+        _finish_report(report, report_path, status="manual_required")
+        return 1
+
     _finish_report(report, report_path, status="passed")
     return 0
 
@@ -325,11 +386,27 @@ def main() -> int:
     if args.area and args.profile != "full":
         print("--area is supported only with --profile full", file=sys.stderr)
         return 2
+    if args.confirm_manual and not args.task_contract:
+        print("--confirm-manual requires --task-contract", file=sys.stderr)
+        return 2
+    if args.confirm_manual and args.dry_run:
+        print("--confirm-manual is not accepted with --dry-run", file=sys.stderr)
+        return 2
 
     try:
         changes = [] if args.profile == "full" else collect_changes(args.base, root=ROOT)
         paths = flatten_paths(changes)
     except RuntimeError as error:
+        print(error, file=sys.stderr)
+        return 2
+
+    git_context = collect_git_context(args.base, root=ROOT)
+    contract: TaskContract | None = None
+    try:
+        if args.task_contract:
+            contract = load_task_contract(Path(args.task_contract), root=ROOT)
+            validate_contract_branch(contract, git_context.branch)
+    except (ContractError, OSError, UnicodeError) as error:
         print(error, file=sys.stderr)
         return 2
 
@@ -344,12 +421,35 @@ def main() -> int:
     else:
         impact = analyze_paths(paths)
 
+    if contract is not None:
+        impact = extend_impact(impact, contract)
+
     requirements_base = args.base if "requirements" in impact.areas else None
-    checks = checks_for(impact.areas, base=requirements_base)
-    print_plan(paths, impact, checks)
+    try:
+        canonical_checks = checks_for(impact.areas, base=requirements_base)
+        extra_checks = task_checks(contract) if contract is not None else []
+        checks = combine_checks(canonical_checks, extra_checks)
+        manual_entries = (
+            manual_check_entries(
+                contract, set(args.confirm_manual), dry_run=args.dry_run
+            )
+            if contract is not None
+            else []
+        )
+    except ContractError as error:
+        print(error, file=sys.stderr)
+        return 2
+    print_plan(
+        paths,
+        impact,
+        checks,
+        profile=args.profile,
+        contract=contract,
+        manual_checks=manual_entries,
+    )
 
     report_path = _report_path(args.report)
-    git_context = collect_git_context(args.base, root=ROOT)
+    task_check_ids = {check.identifier for check in extra_checks}
     report: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "runner_version": RUNNER_VERSION,
@@ -360,12 +460,22 @@ def main() -> int:
         "dry_run": args.dry_run,
         "status": "dry_run" if args.dry_run else "running",
         "git": asdict(git_context),
+        "task_contract": (
+            contract_evidence(
+                contract,
+                head_sha=git_context.head_sha,
+                head_tree_sha=git_context.head_tree_sha,
+            )
+            if contract is not None
+            else None
+        ),
         "github": github_environment(),
         "tool_versions": collect_tool_versions(checks),
         "changes": [asdict(change) for change in changes],
         "changed_paths": paths,
         "selected_areas": [area for area in ALL_AREAS if area in impact.areas],
         "reasons": impact.reasons,
+        "manual_checks": manual_entries,
         "checks": [
             {
                 "id": check.identifier,
@@ -373,6 +483,14 @@ def main() -> int:
                 "working_directory": check.working_directory,
                 "command": list(check.command),
                 "timeout_seconds": check.timeout_seconds * args.timeout_scale,
+                "selection_reasons": [
+                    *impact.reasons.get(check.area, []),
+                    *(
+                        [f"task contract {contract.task_id} defines this check"]
+                        if contract is not None and check.identifier in task_check_ids
+                        else []
+                    ),
+                ],
                 "status": "planned",
             }
             for check in checks

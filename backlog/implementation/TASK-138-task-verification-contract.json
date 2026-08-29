@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "task_id": "TASK-138",
+  "expected_branch": "feature/TASK-138-task-verification-contract",
+  "areas": [
+    "harness"
+  ],
+  "runtime_smoke": [
+    {
+      "id": "harness.smoke.cli-help",
+      "area": "harness",
+      "working_directory": ".",
+      "command": [
+        "python3",
+        "scripts/harness/verify_change.py",
+        "--help"
+      ],
+      "timeout_seconds": 30
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.agent-neutral-review",
+      "description": "Confirm that the contract and documentation require no vendor-specific coding-agent runtime."
+    }
+  ]
+}
