@@ -1,12 +1,12 @@
-import type { ThemeProfile } from './types'
+import { createThemeProfileRegistry } from './validateProfile'
 
 export const DEFAULT_THEME_PROFILE_ID = 'default-green-v1'
 export const TEST_THEME_PROFILE_ID = 'test-blue-coral-v1'
 
-export const defaultGreenProfile = {
-  schemaVersion: 1,
+const registeredThemeProfiles = createThemeProfileRegistry([{
+  schemaVersion: 2,
   id: DEFAULT_THEME_PROFILE_ID,
-  main: {
+  brand: {
     primary: [
       '#edf5f2',
       '#d4e6df',
@@ -32,8 +32,8 @@ export const defaultGreenProfile = {
       '#4a2f0d',
     ],
   },
-  supplementary: [
-    [
+  roles: {
+    neutral: [
       '#f9f7f1',
       '#f2eee3',
       '#e7decd',
@@ -45,7 +45,7 @@ export const defaultGreenProfile = {
       '#675c3f',
       '#433a27',
     ],
-    [
+    accentThree: [
       '#eef7fb',
       '#d7edf5',
       '#a9d9eb',
@@ -57,7 +57,7 @@ export const defaultGreenProfile = {
       '#1b516d',
       '#13384c',
     ],
-    [
+    accentFour: [
       '#fff0f0',
       '#ffdddd',
       '#ffb8b8',
@@ -69,13 +69,11 @@ export const defaultGreenProfile = {
       '#a51111',
       '#7c0d0d',
     ],
-  ],
-} satisfies ThemeProfile
-
-export const testBlueCoralProfile = {
-  schemaVersion: 1,
+  },
+}, {
+  schemaVersion: 2,
   id: TEST_THEME_PROFILE_ID,
-  main: {
+  brand: {
     primary: [
       '#edf4ff',
       '#d8e8ff',
@@ -101,8 +99,8 @@ export const testBlueCoralProfile = {
       '#661b14',
     ],
   },
-  supplementary: [
-    [
+  roles: {
+    neutral: [
       '#f6f7fb',
       '#eceff7',
       '#d7ddeb',
@@ -114,7 +112,7 @@ export const testBlueCoralProfile = {
       '#4b536c',
       '#32384b',
     ],
-    [
+    accentThree: [
       '#effbf8',
       '#d8f5ec',
       '#adebd8',
@@ -126,7 +124,7 @@ export const testBlueCoralProfile = {
       '#1b6a55',
       '#12483a',
     ],
-    [
+    accentFour: [
       '#fff8e8',
       '#ffefc2',
       '#ffde86',
@@ -138,10 +136,9 @@ export const testBlueCoralProfile = {
       '#704609',
       '#4a2e05',
     ],
-  ],
-} satisfies ThemeProfile
+  },
+}] as const)
 
-export const themeProfiles = [
-  defaultGreenProfile,
-  testBlueCoralProfile,
-] as const satisfies readonly ThemeProfile[]
+export const defaultGreenProfile = registeredThemeProfiles[0]
+export const testBlueCoralProfile = registeredThemeProfiles[1]
+export const themeProfiles = registeredThemeProfiles

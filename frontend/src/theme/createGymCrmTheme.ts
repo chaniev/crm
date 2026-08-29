@@ -3,8 +3,8 @@ import { semanticBaseColors } from './semanticVariables'
 import type { ThemeProfile } from './types'
 
 export function createGymCrmTheme(profile: ThemeProfile) {
-  const secondary = profile.main.secondary ?? profile.main.primary
-  const neutral = profile.supplementary[0]
+  const secondary = profile.brand.secondary ?? profile.brand.primary
+  const neutral = profile.roles.neutral
 
   return createTheme({
     primaryColor: 'brand',
@@ -17,7 +17,7 @@ export function createGymCrmTheme(profile: ThemeProfile) {
     },
     defaultRadius: 'md',
     colors: {
-      brand: profile.main.primary,
+      brand: profile.brand.primary,
       accent: secondary,
       sand: neutral,
     },

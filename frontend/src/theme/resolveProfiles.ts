@@ -3,6 +3,7 @@ import {
   authBackgroundProfiles,
 } from './backgrounds'
 import { DEFAULT_THEME_PROFILE_ID, themeProfiles } from './profiles'
+import { createThemeProfileRegistry } from './validateProfile'
 import type {
   AuthBackgroundProfile,
   ThemeProfile,
@@ -24,9 +25,11 @@ const reportedSinkWarnings = new WeakMap<
 
 export function resolveThemeProfile(
   themeId: string | null | undefined,
-  options: ResolveOptions<ThemeProfile> = {},
+  options: ResolveOptions<unknown> = {},
 ): ThemeResolutionResult<ThemeProfile> {
-  const profiles = options.profiles ?? themeProfiles
+  const profiles = options.profiles
+    ? createThemeProfileRegistry(options.profiles)
+    : themeProfiles
   const fallback = getRequiredProfile(profiles, DEFAULT_THEME_PROFILE_ID)
   const normalizedId = normalizeProfileId(themeId)
 

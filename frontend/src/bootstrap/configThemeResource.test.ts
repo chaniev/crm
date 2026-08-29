@@ -116,6 +116,7 @@ describe('ConfigThemeBootstrap resource contract', () => {
     }
 
     expect(snapshot.themeProfile.id).toBe(DEFAULT_THEME_PROFILE_ID)
+    expect(snapshot.themeProfile.schemaVersion).toBe(2)
     expect(snapshot.authBackgroundProfile.id).toBe(DEFAULT_AUTH_BACKGROUND_PROFILE_ID)
     expect(snapshot.appConfig).toMatchObject({
       clubName: 'K-4PRO',

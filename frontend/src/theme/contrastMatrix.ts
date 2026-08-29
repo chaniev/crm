@@ -55,7 +55,7 @@ const indicator = (
 
 export function buildThemeContrastMatrix(profile: ThemeProfile): ThemeContrastResult[] {
   const variables = createSemanticVariables(profile)
-  const primary = profile.main.primary
+  const primary = profile.brand.primary
   const inverse = variables['--crm-text-inverse']
   const card = variables['--crm-surface-card']
   const page = variables['--crm-surface-page']

@@ -10,18 +10,17 @@ import type { ThemeProfile as RegisteredThemeProfile } from './types'
 type MantineColorTuple = readonly string[]
 
 type ThemeProfile = {
-  schemaVersion: 1
+  schemaVersion: 2
   id: string
-  main: {
+  brand: {
     primary: MantineColorTuple
     secondary?: MantineColorTuple
   }
-  supplementary: readonly [
-    MantineColorTuple,
-    MantineColorTuple,
-    MantineColorTuple,
-    MantineColorTuple?,
-  ]
+  roles: {
+    neutral: MantineColorTuple
+    accentThree: MantineColorTuple
+    accentFour: MantineColorTuple
+  }
 }
 
 type AuthBackgroundProfile = {
@@ -192,18 +191,15 @@ describe('theme profile and background registry contracts', () => {
     expect(themeProfiles.length).toBeGreaterThanOrEqual(2)
 
     for (const profile of themeProfiles) {
-      expect(profile.schemaVersion).toBe(1)
-      expect(profile.main.primary).toHaveLength(10)
+      expect(profile.schemaVersion).toBe(2)
+      expect(profile.brand.primary).toHaveLength(10)
 
-      if (profile.main.secondary) {
-        expect(profile.main.secondary).toHaveLength(10)
+      if (profile.brand.secondary) {
+        expect(profile.brand.secondary).toHaveLength(10)
       }
 
-      expect(profile.supplementary.length).toBeGreaterThanOrEqual(3)
-      expect(profile.supplementary.length).toBeLessThanOrEqual(4)
-
-      for (const supplementaryTuple of profile.supplementary) {
-        expect(supplementaryTuple).toHaveLength(10)
+      for (const role of ['neutral', 'accentThree', 'accentFour'] as const) {
+        expect(profile.roles[role]).toHaveLength(10)
       }
     }
   })
@@ -233,14 +229,14 @@ describe('theme profile and background registry contracts', () => {
     const resolvedDefault = resolveThemeProfile!('default-green-v1', { warningSink: sink })
     expect(resolvedDefault.profile).toMatchObject({
       id: 'default-green-v1',
-      schemaVersion: 1,
+      schemaVersion: 2,
     })
     expect(resolvedDefault.warning).toBeNull()
 
     const resolvedUnknown = resolveThemeProfile!('unknown-theme-v1', { warningSink: sink })
     expect(resolvedUnknown.profile).toMatchObject({
       id: 'default-green-v1',
-      schemaVersion: 1,
+      schemaVersion: 2,
     })
     expect(resolvedUnknown.warning).toMatchObject({
       kind: expect.any(String),
@@ -252,7 +248,7 @@ describe('theme profile and background registry contracts', () => {
     const resolvedUnknownSecond = resolveThemeProfile!('unknown-theme-v1', { warningSink: sink })
     expect(resolvedUnknownSecond.profile).toMatchObject({
       id: 'default-green-v1',
-      schemaVersion: 1,
+      schemaVersion: 2,
     })
     expect(resolvedUnknownSecond.warning).toMatchObject({
       resolvedId: 'default-green-v1',
@@ -380,8 +376,8 @@ describe('theme profile and background registry contracts', () => {
     })
     expect(blueTheme).not.toEqual(defaultTheme)
 
-    const brandPalette = blueProfile!.main.primary
-    const defaultBrandPalette = defaultProfile!.main.primary
+    const brandPalette = blueProfile!.brand.primary
+    const defaultBrandPalette = defaultProfile!.brand.primary
     expect(brandPalette).toHaveLength(10)
     expect(defaultBrandPalette).toHaveLength(10)
   })
@@ -494,7 +490,7 @@ describe('theme profile and background registry contracts', () => {
     const invalidProfile = {
       ...getProfileById(profiles, 'default-green-v1'),
       id: 'invalid-low-contrast-v1',
-      main: {
+      brand: {
         primary: Array(10).fill('#777777') as unknown as MantineColorTuple,
         secondary: Array(10).fill('#777777') as unknown as MantineColorTuple,
       },

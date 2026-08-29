@@ -1,6 +1,20 @@
 import type { MantineColorsTuple } from '@mantine/core'
 
 export type ThemeProfile = {
+  schemaVersion: 2
+  id: string
+  brand: {
+    primary: MantineColorsTuple
+    secondary?: MantineColorsTuple
+  }
+  roles: {
+    neutral: MantineColorsTuple
+    accentThree: MantineColorsTuple
+    accentFour: MantineColorsTuple
+  }
+}
+
+export type LegacyThemeProfileV1 = {
   schemaVersion: 1
   id: string
   main: {
@@ -11,9 +25,10 @@ export type ThemeProfile = {
     MantineColorsTuple,
     MantineColorsTuple,
     MantineColorsTuple,
-    MantineColorsTuple?,
   ]
 }
+
+export type ThemeProfileInput = ThemeProfile | LegacyThemeProfileV1
 
 export type AuthBackgroundProfile = {
   schemaVersion: 1

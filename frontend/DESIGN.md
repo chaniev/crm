@@ -112,6 +112,26 @@ and effects that compete with operational data do not fit the product.
   `gray` are scanner fixtures for TASK-150 enforcement. Decorative brand use
   stays separate from status tone APIs.
 
+### Bundled theme profile authoring
+
+- `ThemeProfile` schema v2 is the bundled compatibility contract. It names
+  `brand.primary`, optional `brand.secondary`, `roles.neutral`,
+  `roles.accentThree` and `roles.accentFour`; every palette has exactly ten
+  hex colors and every named palette is consumed by theme generation.
+- Register bundled profiles through `createThemeProfileRegistry`. Validation
+  rejects unknown fields, malformed or short palettes and duplicate IDs with
+  the profile ID and exact field path. A v1 profile with the three historically
+  consumed supplementary palettes is adapted to v2; the formerly ignored
+  fourth positional palette is rejected.
+- Preserve existing profile IDs. Blank or unknown configured IDs continue to
+  resolve to `default-green-v1` without blocking login.
+- Before registering or changing a bundled profile, run the all-profile
+  contrast matrix, focused registry/bootstrap tests, the frontend baseline,
+  and representative alternate-theme mobile and desktop screens.
+- This compatibility schema is not the runtime customer-settings schema. It
+  does not define persistence, API payloads, arbitrary CSS/colors,
+  customer-specific neutral/status/auth roles or onboarding behavior.
+
 ## Design acceptance
 
 A design is not approved because it compiles or satisfies a checklist. For a

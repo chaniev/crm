@@ -44,11 +44,11 @@ function alpha(color: string, percent: number) {
 export function createSemanticVariables(
   profile: ThemeProfile,
 ): SemanticVariableMap {
-  const primary = profile.main.primary
-  const secondary = profile.main.secondary ?? primary
-  const neutral = profile.supplementary[0]
-  const accentThree = profile.supplementary[1] ?? primary
-  const accentFour = profile.supplementary[2] ?? secondary
+  const primary = profile.brand.primary
+  const secondary = profile.brand.secondary ?? primary
+  const neutral = profile.roles.neutral
+  const accentThree = profile.roles.accentThree
+  const accentFour = profile.roles.accentFour
 
   return {
     '--crm-brand-primary': primary[6],

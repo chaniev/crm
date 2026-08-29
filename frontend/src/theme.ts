@@ -26,10 +26,17 @@ export {
 } from './theme/contrastMatrix'
 export { resolveAuthBackgroundProfile, resolveThemeProfile } from './theme/resolveProfiles'
 export { DEFAULT_THEME_PROFILE_ID, themeProfiles } from './theme/profiles'
+export {
+  createThemeProfileRegistry,
+  normalizeThemeProfile,
+  ThemeProfileValidationError,
+} from './theme/validateProfile'
 export type {
   AuthBackgroundProfile,
   AuthStageBackground,
   ThemeProfile,
+  ThemeProfileInput,
+  LegacyThemeProfileV1,
   ThemeResolutionResult,
   ThemeResolutionWarning,
   ThemeResolutionWarningSink,
