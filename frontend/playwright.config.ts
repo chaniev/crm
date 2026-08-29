@@ -36,12 +36,12 @@ export default defineConfig({
     },
     {
       name: 'iphone-air-webkit',
-      testMatch: /iphone-target-devices\.spec\.ts/,
+      testMatch: /(?:iphone-target-devices|reduced-motion)\.spec\.ts/,
       use: targetIphoneProfile(420, 912),
     },
     {
       name: 'iphone-17-pro-max-webkit',
-      testMatch: /iphone-target-devices\.spec\.ts/,
+      testMatch: /(?:iphone-target-devices|reduced-motion)\.spec\.ts/,
       use: targetIphoneProfile(440, 956),
     },
   ],
