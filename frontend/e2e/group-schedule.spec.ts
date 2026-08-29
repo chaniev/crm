@@ -1024,16 +1024,16 @@ test.describe('Occurrence schedule calendar', () => {
     }
     await expect(page.getByTestId('schedule-time-group-2026-08-20-10:00-11:00')).toBeVisible()
 
-    // Task-first card: at most attendance, edit and `Ещё` next to the body trigger.
+    // Task-first row: attendance remains visible while edit moves into mobile `Ещё`.
     const primaryCard = page.getByTestId('schedule-card-dense-parallel-a')
     await expect(primaryCard.getByRole('button', { name: /Открыть занятие/ })).toBeVisible()
     await expect(primaryCard.getByRole('button', { name: /Открыть посещаемость/ })).toBeVisible()
-    await expect(primaryCard.getByRole('button', { name: /Изменить занятие/ })).toBeVisible()
+    await expect(primaryCard.getByRole('button', { name: /Изменить занятие/ })).toHaveCount(0)
     await expect(primaryCard.getByRole('button', { name: /Ещё действий/ })).toBeVisible()
     const visiblePrimaryCardActions = await primaryCard
       .locator('.schedule-occurrence-card__actions button:visible')
       .count()
-    expect(visiblePrimaryCardActions).toBeLessThanOrEqual(3)
+    expect(visiblePrimaryCardActions).toBeLessThanOrEqual(2)
     await expect(primaryCard.getByRole('button', { name: /Перенести занятие/ })).toHaveCount(0)
     await expect(primaryCard.getByRole('button', { name: /Отменить занятие/ })).toHaveCount(0)
 
@@ -1060,8 +1060,9 @@ test.describe('Occurrence schedule calendar', () => {
     await expect(moreDrawer).toContainText('Плавание для дошкольников средней группы с инструктором')
     await expect(moreDrawer).toContainText('10:00-10:50')
     const deferredButtons = moreDrawer.locator('.schedule-more-drawer__action')
-    await expect(deferredButtons).toHaveCount(4)
-    await expect(deferredButtons.nth(3)).toContainText('Отменить')
+    await expect(deferredButtons).toHaveCount(5)
+    await expect(deferredButtons.nth(0)).toContainText('Изменить')
+    await expect(deferredButtons.nth(4)).toContainText('Отменить')
     await moreDrawer.getByRole('button', { name: 'Закрыть дополнительные действия' }).click()
     await expect(moreDrawer).toBeHidden()
     await expect(primaryCard.getByRole('button', { name: /Ещё действий/ })).toBeFocused()
@@ -1088,6 +1089,69 @@ test.describe('Occurrence schedule calendar', () => {
     for (const label of dimensions.labels) {
       expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth + 1)
     }
+  })
+
+  test('mobile density keeps the required complete rows and following interval heading above navigation', async ({ page }) => {
+    await mockApi(page, async ({ pathname, method, route }) => {
+      if (pathname === '/api/schedule/lessons' && method === 'GET') {
+        await fulfillJson(route, 200, scheduleResponse({ items: denseDayLessons() }))
+        return true
+      }
+
+      return false
+    })
+
+    for (const target of [
+      { width: 390, height: 844, minimumRows: 3 },
+      { width: 420, height: 912, minimumRows: 4 },
+      { width: 440, height: 956, minimumRows: 4 },
+    ]) {
+      await page.setViewportSize(target)
+      await page.goto('/schedule?date=2026-08-20&view=day')
+      await expect(page.getByTestId('schedule-card-dense-morning-marks')).toBeVisible()
+
+      const geometry = await page.evaluate(() => {
+        const navigationTop = document.querySelector('.mobile-bottom-nav')?.getBoundingClientRect().top
+          ?? window.innerHeight
+        const fullyVisibleRows = [...document.querySelectorAll<HTMLElement>('.schedule-occurrence-card')]
+          .filter((row) => {
+            const rect = row.getBoundingClientRect()
+            return rect.top >= 0 && rect.bottom <= navigationTop
+          })
+        const visibleHeadings = [...document.querySelectorAll<HTMLElement>('.schedule-time-group__heading')]
+          .filter((heading) => {
+            const rect = heading.getBoundingClientRect()
+            return rect.top >= 0 && rect.bottom <= navigationTop
+          })
+
+        return {
+          fullyVisibleRows: fullyVisibleRows.length,
+          visibleHeadings: visibleHeadings.length,
+          bodyWidth: document.body.scrollWidth,
+          viewportWidth: document.documentElement.clientWidth,
+        }
+      })
+
+      expect(geometry.fullyVisibleRows).toBeGreaterThanOrEqual(target.minimumRows)
+      expect(geometry.visibleHeadings).toBeGreaterThanOrEqual(2)
+      expect(geometry.bodyWidth).toBeLessThanOrEqual(geometry.viewportWidth + 1)
+    }
+
+    await page.setViewportSize({ width: 420, height: 912 })
+    await page.goto('/schedule?date=2026-08-20&view=day')
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = '200%'
+    })
+    await expect(page.getByTestId('schedule-card-dense-morning-marks')).toBeVisible()
+    const zoomed = await page.evaluate(() => ({
+      bodyWidth: document.body.scrollWidth,
+      viewportWidth: document.documentElement.clientWidth,
+      locationVisible: Boolean(document.querySelector('[data-testid="schedule-location"]')?.getClientRects().length),
+      trainersVisible: Boolean(document.querySelector('[data-testid="schedule-trainers"]')?.getClientRects().length),
+    }))
+    expect(zoomed.bodyWidth).toBeLessThanOrEqual(zoomed.viewportWidth + 1)
+    expect(zoomed.locationVisible).toBe(true)
+    expect(zoomed.trainersVisible).toBe(true)
   })
 })
 

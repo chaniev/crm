@@ -67,3 +67,23 @@ Authority: [backlog/mockups/TASK-157-schedule-mobile-density/README.md](../mocku
 - Stop, если плотность достигается откатом TASK-133 acceptance (wide-screen, deferred destructive actions, focus return, context restoration).
 - Stop, если required density требует изменения backend contract или удаления данных из collapsed row.
 - Не копировать HTML/CSS концепта напрямую: Mantine/Onest/semantic tokens/shared controls обязательны.
+
+## Task-branch evidence
+- RED: component contract падал на отсутствии `data-mobile-density`, раздельных
+  decision-data hooks и forward affordance; Chromium geometry на `420 x 912`
+  после первой перекомпоновки показывала только 3 полные строки вместо 4.
+- GREEN: точные time groups используют интегрированные
+  `crm-list-row-surface`/`--crm-surface-list-row-*` токены; mobile row оставляет
+  группу, филиал/зал, тренера, один neutral attendance status, secondary
+  `Посещаемость`, а разрешённое `Изменить` переносит первым пунктом в `Ещё`.
+- Rendered gate: на `390 x 844` видны не менее 3 полных строк, на `420 x 912`
+  и `440 x 956` — не менее 4 плюс следующий time-group heading; `360 x 780`,
+  compact-height `912 x 420`/`956 x 440` и 200% text scale не создают
+  horizontal overflow. `769/1440px` сохраняют desktop action surface.
+- Automated evidence: schedule unit 30/30; Chromium group-schedule 17/17;
+  scoped target-iPhone schedule 12/12 на двух WebKit-профилях. Полная iPhone
+  матрица: 68/70, два unrelated login-control падения (`42px < 44px`) уже
+  переданы координатору как интеграционный дефект TASK-161.
+- Physical Safari chrome, software keyboard, real safe-area, Dynamic Island,
+  home indicator и one-handed reach остаются неподтверждёнными до Simulator
+  или physical-device проверки.

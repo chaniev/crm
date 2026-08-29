@@ -20,11 +20,11 @@ import {
   Text,
   TextInput,
 } from '@mantine/core'
+import { useMediaQuery } from '@mantine/hooks'
 import {
   IconBan,
   IconCalendarEvent,
   IconAlertTriangle,
-  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconEdit,
@@ -317,27 +317,27 @@ export function GroupScheduleScreen({
       <Badge className="schedule-day-summary__count" variant="light">
         {formatLessonCount(visibleLessons.length)}
       </Badge>
-      <ActionIcon
+      <Button
         aria-label={
           activeFilterCount > 0
             ? `Параметры календаря, активных фильтров: ${activeFilterCount}`
             : 'Параметры календаря'
         }
-        className="schedule-toolbar__button"
+        className="schedule-day-summary__filter"
         data-active={activeFilterCount > 0 ? 'true' : undefined}
         data-target-size="44"
         data-testid="schedule-tools-trigger"
         onClick={() => setToolsOpen(true)}
         ref={toolsTriggerRef}
-        size={44}
         type="button"
         variant="light"
+        leftSection={<IconSettings size={18} />}
       >
-        <IconSettings size={20} />
+        Фильтры
         {activeFilterCount > 0 ? (
-          <span className="schedule-toolbar__badge">{activeFilterCount}</span>
+          <span className="schedule-day-summary__filter-count">{activeFilterCount}</span>
         ) : null}
-      </ActionIcon>
+      </Button>
     </div>
   )
 
@@ -2240,8 +2240,11 @@ function ScheduleDayList({
                 id={`${timeGroup.id}-heading`}
               >
                 {timeGroup.label}
+                <Text className="schedule-time-group__count" component="span" size="sm">
+                  {formatLessonCount(timeGroup.lessons.length)}
+                </Text>
               </Text>
-              <div className="schedule-time-group__cards">
+              <div className="crm-list-row-surface schedule-time-group__cards">
                 {timeGroup.lessons.map((lesson) => (
                   <ScheduleOccurrenceCard
                     key={`${lesson.lessonOccurrenceId}:${lesson.lessonDate}`}
@@ -2284,6 +2287,7 @@ function ScheduleOccurrenceCard({
   onTrainerSubstitution: (lesson: ScheduleLesson, action: 'Assign' | 'Cancel') => void
 }) {
   const bodyRef = useRef<HTMLButtonElement | null>(null)
+  const useDesktopRowActions = useMediaQuery('(min-width: 48.0625em) and (hover: hover) and (pointer: fine)')
   const attendanceAllowed = lesson.allowedActions.viewAttendance.allowed
   const attendanceReasonId = `schedule-attendance-reason-${lesson.lessonOccurrenceId}`
   const attendanceReason = attendanceAllowed
@@ -2299,10 +2303,21 @@ function ScheduleOccurrenceCard({
     onTrainerSubstitution,
     onCancelOrRestoreLesson,
   })
+  const rowActions = lesson.allowedActions.edit.allowed && !useDesktopRowActions
+    ? [{
+        id: 'edit' as const,
+        label: 'Изменить',
+        accessibleName: `Изменить занятие: ${accessibleContext}`,
+        icon: <IconEdit size={18} />,
+        danger: false,
+        run: () => onChangeLesson(lesson),
+      }, ...deferredActions]
+    : deferredActions
 
   return (
     <article
       className="schedule-occurrence-card"
+      data-mobile-density={useDesktopRowActions ? undefined : 'compact-row'}
       data-lesson-date={lesson.lessonDate}
       data-lesson-occurrence-id={lesson.lessonOccurrenceId}
       data-testid={`schedule-card-${lesson.lessonOccurrenceId}`}
@@ -2319,31 +2334,40 @@ function ScheduleOccurrenceCard({
         <Stack gap={6}>
           <Group align="flex-start" className="schedule-occurrence-card__heading" justify="space-between" wrap="nowrap">
             <Stack gap={2}>
-              <Text className="schedule-occurrence-card__title" fw={900}>
+              <Text className="schedule-occurrence-card__title" fw={useDesktopRowActions ? 900 : 700}>
                 {lesson.groupName}
               </Text>
-              <Text c="dimmed" size="sm">
+              <Text c="dimmed" data-testid="schedule-location" size="sm">
                 {lesson.hallName} · {lesson.branchName}
               </Text>
-              <Text c="dimmed" size="sm">
+              <Text c="dimmed" data-testid="schedule-trainers" size="sm">
                 {trainers}
               </Text>
             </Stack>
-            <span aria-hidden="true" className="schedule-occurrence-card__chevron">
-              <IconChevronDown size={18} />
+            <span
+              aria-hidden="true"
+              className="schedule-occurrence-card__chevron"
+              data-direction="forward"
+              data-testid="schedule-detail-affordance"
+            >
+              <IconChevronRight size={18} />
             </span>
           </Group>
-          <Group gap={6} wrap="wrap">
-            {isCancelled ? <Badge color="gray" variant="light">Отменено</Badge> : null}
-            <Badge color="teal" variant="light">
-              {lesson.hasAttendanceMarks ? 'Отметки есть' : 'Без отметок'}
-            </Badge>
-            <Badge variant="light">{lesson.groupTypeName}</Badge>
-            <Badge variant="outline">{lesson.sourceKind === 'OneOff' ? 'Разовое' : 'Регулярное'}</Badge>
-          </Group>
+          {isCancelled || useDesktopRowActions ? (
+            <Group gap={6} wrap="wrap">
+              {isCancelled ? <Badge color="gray" variant="light">Отменено</Badge> : null}
+              {useDesktopRowActions ? <Badge variant="light">{lesson.groupTypeName}</Badge> : null}
+              {useDesktopRowActions ? (
+                <Badge variant="outline">{lesson.sourceKind === 'OneOff' ? 'Разовое' : 'Регулярное'}</Badge>
+              ) : null}
+            </Group>
+          ) : null}
         </Stack>
       </button>
       <Group className="schedule-occurrence-card__actions" gap="xs">
+        <Badge className="schedule-occurrence-card__attendance-status" color="gray" variant="light">
+          {lesson.hasAttendanceMarks ? 'Отметки есть' : 'Без отметок'}
+        </Badge>
         <Button
           aria-label={`Открыть посещаемость: ${accessibleContext}`}
           aria-describedby={attendanceReason ? attendanceReasonId : undefined}
@@ -2352,10 +2376,11 @@ function ScheduleOccurrenceCard({
           leftSection={<IconUsers size={18} />}
           onClick={() => onOpenAttendance(lesson.lessonOccurrenceId, lesson.lessonDate)}
           type="button"
+          variant="light"
         >
           Посещаемость
         </Button>
-        {lesson.allowedActions.edit.allowed ? (
+        {lesson.allowedActions.edit.allowed && useDesktopRowActions ? (
           <Button
             aria-label={`Изменить занятие: ${accessibleContext}`}
             className="schedule-occurrence-card__secondary"
@@ -2369,7 +2394,7 @@ function ScheduleOccurrenceCard({
         ) : null}
         <ScheduleMoreActionsSurface
           accessibleContext={accessibleContext}
-          actions={deferredActions}
+          actions={rowActions}
           context={{
             groupName: lesson.groupName,
             interval: timeRange,

@@ -8,6 +8,7 @@ implementation
 - moved_from: /backlog/tasks-ready
 - implementation_plan: /backlog/implementation-plans/TASK-157-schedule-mobile-density.plan.md
 - implementation_branch: feature/TASK-157-schedule-mobile-density
+- verification_contract: /backlog/implementation/TASK-157-schedule-mobile-density-verification-contract.json
 
 ## Requirements
 - REQ-GRP-007 — changes
@@ -153,4 +154,10 @@ touch targets должны быть `44 x 44px`, даже если концеп�
 - Duplicate check: TASK-133 implemented the current task-first baseline; TASK-157 is a user-approved follow-up with new density, field hierarchy and mobile action-placement acceptance, so the completed task was not reopened and no active duplicate was created.
 - Classification: `tasks-ready`; accepted requirement and visual direction exist, behavior is bounded to frontend presentation, and no blocking product decision remains.
 - Updated at: 2026-08-30 (analysis addendum): visual contract дополнен аддендумом all-screens анализа (базлайн бюджета, типографика строк по стандарту реестров, list-row токены TASK-160, мобильные переопределения типографики TASK-158); утверждённое направление не менялось.
-
+- Updated at: 2026-08-30 (task-branch evidence): compact time-group surfaces и
+  строки реализованы с shared TASK-160 list-row tokens; Chromium подтверждает
+  ≥3 строки на `390 x 844`, ≥4 строки и следующий interval heading на
+  `420 x 912`/`440 x 956`, отсутствие overflow на `360`/compact-height и при
+  200% text scale. Schedule unit/Chromium/scoped WebKit зелёные; physical iOS
+  conditions остаются manual. Статус остаётся `implementation` до интеграции
+  ветки в `main`.

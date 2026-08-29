@@ -297,7 +297,8 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     renderSchedule({ onEditLesson, onMoveLesson })
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
-    fireEvent.click(within(card).getByRole('button', { name: /Изменить занятие/ }))
+    const editSurface = await openMoreActions(card)
+    fireEvent.click(within(editSurface).getByRole('button', { name: /Изменить занятие/ }))
 
     expect(onEditLesson).toHaveBeenCalledWith('occurrence-morning', '2026-08-20')
 
@@ -849,6 +850,17 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     expect(screen.getByTestId('schedule-card-parallel-a')).toHaveTextContent('Без отметок')
     expect(screen.getByTestId('schedule-card-parallel-b')).toHaveTextContent('Отметки есть')
     expect(screen.getByTestId('schedule-card-later')).toHaveTextContent('Без отметок')
+
+    const mobileRow = screen.getByTestId('schedule-card-parallel-a')
+    expect(mobileRow).toHaveAttribute('data-mobile-density', 'compact-row')
+    expect(within(mobileRow).getByTestId('schedule-location')).toHaveTextContent('Основной зал · Центр')
+    expect(within(mobileRow).getByTestId('schedule-trainers')).toHaveTextContent('Алиса')
+    expect(within(mobileRow).queryByText('Кардио')).not.toBeInTheDocument()
+    expect(within(mobileRow).queryByText('Регулярное')).not.toBeInTheDocument()
+    expect(within(mobileRow).getByTestId('schedule-detail-affordance')).toHaveAttribute(
+      'data-direction',
+      'forward',
+    )
   })
 
   test('more-actions surface shares one ordered capability-derived action model across drawer and menu', async () => {
@@ -867,9 +879,9 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     renderSchedule()
 
     const card = await screen.findByTestId('schedule-card-occurrence-morning')
-    // Max three visible card actions next to the body trigger: attendance, edit, more.
+    // Mobile keeps only attendance and `Ещё` next to the body trigger.
     expect(within(card).getByRole('button', { name: /Открыть посещаемость/ })).toBeVisible()
-    expect(within(card).getByRole('button', { name: /Изменить занятие/ })).toBeVisible()
+    expect(within(card).queryByRole('button', { name: /Изменить занятие/ })).not.toBeInTheDocument()
     expect(within(card).getByRole('button', { name: /Ещё действий/ })).toBeVisible()
     expect(within(card).queryByRole('button', { name: /Перенести занятие/ })).not.toBeInTheDocument()
     expect(within(card).queryByRole('button', { name: /Отменить занятие/ })).not.toBeInTheDocument()
@@ -880,6 +892,7 @@ describe('GroupScheduleScreen occurrence calendar', () => {
       .getAllByRole('button')
       .map((button) => button.textContent?.trim())
       .filter(Boolean)).toEqual([
+      'Изменить',
       'Перенести',
       'Серия',
       'Замена',
@@ -896,6 +909,7 @@ describe('GroupScheduleScreen occurrence calendar', () => {
       cleanup()
       renderSchedule()
       const desktopCard = await screen.findByTestId('schedule-card-occurrence-morning')
+      expect(within(desktopCard).getByRole('button', { name: /Изменить занятие/ })).toBeVisible()
       const desktopTrigger = within(desktopCard).getByRole('button', { name: /Ещё действий/ })
       fireEvent.click(desktopTrigger)
       await waitFor(() => expect(desktopTrigger).toHaveAttribute('aria-expanded', 'true'))
@@ -936,8 +950,8 @@ describe('GroupScheduleScreen occurrence calendar', () => {
     renderSchedule()
 
     const fullCard = await screen.findByTestId('schedule-card-occurrence-morning')
-    expect(within(fullCard).getByRole('button', { name: /Изменить занятие/ })).toBeVisible()
-    expect(within(fullCard).queryByRole('button', { name: /Ещё действий/ })).not.toBeInTheDocument()
+    expect(within(fullCard).queryByRole('button', { name: /Изменить занятие/ })).not.toBeInTheDocument()
+    expect(within(fullCard).getByRole('button', { name: /Ещё действий/ })).toBeVisible()
 
     const minimalCard = screen.getByTestId('schedule-card-occurrence-minimal')
     expect(within(minimalCard).queryByRole('button', { name: /Изменить занятие/ })).not.toBeInTheDocument()

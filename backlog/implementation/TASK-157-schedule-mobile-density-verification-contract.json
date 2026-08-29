@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "task_id": "TASK-157",
+  "expected_branch": "feature/TASK-157-schedule-mobile-density",
+  "areas": ["frontend", "requirements"],
+  "runtime_smoke": [
+    {
+      "id": "frontend.schedule.mobile-density-unit",
+      "area": "frontend",
+      "working_directory": "frontend",
+      "command": [
+        "npm",
+        "run",
+        "test:unit",
+        "--",
+        "src/features/schedule/GroupScheduleScreen.test.tsx"
+      ],
+      "timeout_seconds": 180
+    }
+  ],
+  "playwright": [
+    {
+      "id": "frontend.schedule.mobile-density-chromium",
+      "spec": "e2e/group-schedule.spec.ts",
+      "projects": ["chromium"],
+      "timeout_seconds": 1800
+    },
+    {
+      "id": "frontend.schedule.target-iphones",
+      "spec": "e2e/iphone-target-devices.spec.ts",
+      "projects": ["iphone-air-webkit", "iphone-17-pro-max-webkit"],
+      "timeout_seconds": 2400
+    }
+  ],
+  "manual_checks": [
+    {
+      "id": "manual.rendered-mobile-schedule-density",
+      "description": "Compare the 420x912 populated schedule before/after against the approved TASK-157 visual contract; confirm four complete rows plus a following interval heading, aligned decision data, secondary attendance emphasis, list-row surfaces, and no bottom-navigation overlap. Review 360x780, 390x844, 440x956, 912x420, 956x440, 768x1024 and 1440x1200 for overflow and preserved wide-screen behavior."
+    },
+    {
+      "id": "manual.device-level-ios",
+      "description": "On Simulator or physical iPhone, confirm Safari chrome, software keyboard, safe area, Dynamic Island, home indicator, and one-handed reach before claiming device-level acceptance."
+    }
+  ]
+}

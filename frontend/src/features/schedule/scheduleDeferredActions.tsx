@@ -9,6 +9,7 @@ import {
 import type { ScheduleLesson } from '../../lib/api'
 
 export type ScheduleDeferredActionId =
+  | 'edit'
   | 'move'
   | 'series'
   | 'assign-substitution'
