@@ -14,6 +14,7 @@ change; do not treat an isolated local style as a new convention.
 Governing sources:
 
 - `src/theme/createGymCrmTheme.ts`;
+- `src/theme/foundations.ts`;
 - `src/theme/semanticVariables.ts`;
 - `src/theme/profiles.ts`;
 - `src/features/shared/**`;
@@ -77,10 +78,18 @@ and effects that compete with operational data do not fit the product.
 
 ### Foundation scales
 
+- TASK-145 refactoring review covered the foundation boundary between
+  `src/theme/foundations.ts`, `src/theme/semanticVariables.ts` and
+  `src/App.css`. The concrete friction was duplicated raw breakpoints, spacing,
+  radii, elevation and layer values in CSS without a typed source or drift
+  regression test.
 - `src/theme/foundations.ts` owns the executable names for shared breakpoints,
-  spacing, radius, elevation, layer and motion aliases. CSS variables in
+  spacing, radius, elevation and layer aliases. CSS variables in
   `App.css` may preserve legacy names only as compatibility aliases that point
   back to the `--crm-*` foundation variables.
+- Foundation scales do not own motion duration/easing semantics; those remain
+  in the TASK-144 motion contract. They also do not define typography roles;
+  TASK-146 owns the type scale.
 - The mobile boundary remains the existing `48rem`/`48em` family. Do not add a
   near-equivalent breakpoint spelling for the same shell transition.
 - App layers use named variables for underlay, base, raised, sticky action bars
