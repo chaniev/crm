@@ -3,7 +3,6 @@ import {
   Badge,
   Group,
   Modal,
-  Pagination,
   Paper,
   Select,
   SimpleGrid,
@@ -11,7 +10,6 @@ import {
   Text,
   TextInput,
 } from '@mantine/core'
-import { useMediaQuery } from '@mantine/hooks'
 import { IconCalendarEvent, IconEye, IconSearch } from '@tabler/icons-react'
 import {
   getAuditLogEntries,
@@ -25,6 +23,7 @@ import {
 import { resources } from '../../lib/resources'
 import {
   Button,
+  AppPagination,
   CompactFilterPanel,
   EmptyState,
   ErrorState,
@@ -87,9 +86,6 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
   const [selectedEntry, setSelectedEntry] = useState<AuditLogEntry | null>(null)
   const [filters, setFilters] = useState<AuditFilterValues>(INITIAL_FILTER_VALUES)
   const responseSnapshotRef = useRef<AuditResponseSnapshot | null>(null)
-  const isNarrowPager = useMediaQuery('(max-width: 47.99em)', undefined, {
-    getInitialValueInEffect: false,
-  })
   const requestParams = useMemo(
     () => buildAuditRequestParams(filters, page),
     [filters, page],
@@ -450,33 +446,19 @@ export function AuditLogScreen({ user }: AuditLogScreenProps) {
             </div>
           ) : null}
 
-          {!loading && !error && totalPages > 1 ? (
-            <Group
-              className="audit-pagination-shell"
-              justify="space-between"
-              role="navigation"
-              wrap="wrap"
-              aria-label="Страницы журнала действий"
-            >
-              <Text c="dimmed" className="audit-pagination-summary" size="sm">
-                {formatPaginationSummary(response)}
-              </Text>
-              <Pagination
-                className="audit-pagination"
-                gap={8}
-                getControlProps={(control) => ({
-                  'aria-label': getAuditPaginationControlLabel(control),
-                })}
-                getItemProps={(pageNumber) => ({
-                  'aria-label': `Страница ${pageNumber} журнала`,
-                })}
-                onChange={handlePageChange}
-                siblings={1}
-                total={totalPages}
-                value={page}
-                withPages={!isNarrowPager}
-              />
-            </Group>
+          {!loading && !error ? (
+            <AppPagination
+              className="audit-pagination-shell audit-pagination"
+              gap={8}
+              label="Страницы журнала действий"
+              nextLabel={getAuditPaginationControlLabel('next')}
+              onChange={handlePageChange}
+              page={page}
+              pageLabel={(pageNumber) => `Страница ${pageNumber} журнала`}
+              previousLabel={getAuditPaginationControlLabel('previous')}
+              summary={formatPaginationSummary(response)}
+              total={totalPages}
+            />
           ) : null}
         </Stack>
       </PageSection>

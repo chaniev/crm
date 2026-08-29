@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Group, Loader, Stack } from '@mantine/core'
+import { Alert, Button, Stack } from '@mantine/core'
 import { IconAlertCircle, IconArrowLeft } from '@tabler/icons-react'
 import {
   ApiError,
@@ -11,7 +11,7 @@ import {
   type Branch,
   type TrainingGroupListItem,
 } from '../../lib/api'
-import { PageLayout, PageSection } from '../shared/ux'
+import { LoadingState, PageLayout, PageSection } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import {
   buildDraftClientName,
@@ -136,9 +136,10 @@ export function ClientCreateScreen({
       <PageSection>
         <Stack gap="lg">
           {loadingOptions ? (
-            <Group justify="center" py="xl">
-              <Loader color="var(--crm-action-primary)" />
-            </Group>
+            <LoadingState
+              description="Форма появится после загрузки филиалов и групп."
+              label="Готовим форму клиента..."
+            />
           ) : null}
 
           {!loadingOptions && loadError ? (

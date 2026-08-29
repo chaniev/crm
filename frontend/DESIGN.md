@@ -163,6 +163,29 @@ and effects that compete with operational data do not fit the product.
   behavior or safe-area exception stays with the owning feature unless a later
   approved design-system task promotes it.
 
+### Shared application component contracts
+
+- `AppPagination` wraps repeated product pagination when a real list has more
+  than one page. It owns the navigation landmark, previous/next labels, current
+  page label, compact mobile page hiding and optional range summary. Feature
+  screens still own page state, backend pagination semantics and domain copy.
+- `ClientAvatar` wraps client/person avatars that can load backend images. It
+  preserves an accessible name and falls back from failed image loads to
+  sanitized initials without interpreting client status or role.
+- `LoadingState` and `Skeleton` are the shared progress contracts for repeated
+  route, list and form preparation states. Loading copy remains visible and
+  announced as polite status; skeleton geometry is decorative and must not be
+  the only cue in reduced-motion contexts.
+- App notifications support domain-neutral `tone`, `urgency`, `persistent` and
+  contextual `action` options. Assertive notifications are reserved for failed
+  or blocking recovery paths; ordinary save/navigation feedback remains polite
+  and timed unless a user action must stay reachable.
+- TASK-151 intentionally did not introduce a `FieldFeedback` wrapper: current
+  production forms use Mantine's label/description/error ownership directly,
+  and no repeated independent field-feedback composition with two low-conflict
+  consumers was confirmed. A later extraction should start from a fresh
+  inventory and keep persistent labels plus associated helper/error text.
+
 ### Motion contract
 
 - Custom feedback uses `--crm-motion-duration-fast` (120 ms) or

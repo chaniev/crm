@@ -1,10 +1,12 @@
 import {
   Alert,
+  Avatar as MantineAvatar,
   Drawer,
   Group,
   Loader,
   Modal,
   Paper,
+  Pagination as MantinePagination,
   Popover,
   Skeleton as MantineSkeleton,
   Stack,
@@ -12,7 +14,9 @@ import {
   Text,
   ThemeIcon,
   Title,
+  type AvatarProps as MantineAvatarProps,
   type MantineSpacing,
+  type PaginationProps as MantinePaginationProps,
   type PaperProps,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
@@ -777,23 +781,179 @@ export function EmptyState({
   )
 }
 
+type AppPaginationProps = Omit<
+  MantinePaginationProps,
+  | 'getControlProps'
+  | 'getItemProps'
+  | 'onChange'
+  | 'total'
+  | 'value'
+  | 'withPages'
+> & {
+  label: string
+  page: number
+  total: number
+  onChange: (page: number) => void
+  disabled?: boolean
+  nextLabel?: string
+  previousLabel?: string
+  pageLabel?: (page: number, currentPage: number) => string
+  summary?: ReactNode
+}
+
+export function AppPagination({
+  className,
+  disabled,
+  label,
+  nextLabel = 'Дальше',
+  onChange,
+  page,
+  pageLabel = getDefaultPageLabel,
+  previousLabel = 'Назад',
+  summary,
+  total,
+  ...props
+}: AppPaginationProps) {
+  const isCompact = useMediaQuery('(max-width: 47.99em)', undefined, {
+    getInitialValueInEffect: false,
+  })
+
+  if (total <= 1) {
+    return null
+  }
+
+  return (
+    <Group
+      aria-label={label}
+      className={['app-pagination', className].filter(Boolean).join(' ')}
+      justify={summary ? 'space-between' : 'center'}
+      role="navigation"
+      wrap="wrap"
+    >
+      {summary ? (
+        <Text c="dimmed" className="app-pagination__summary" size="sm">
+          {summary}
+        </Text>
+      ) : null}
+      <MantinePagination
+        disabled={disabled}
+        getControlProps={(control) => ({
+          'aria-label':
+            control === 'previous'
+              ? previousLabel
+              : control === 'next'
+                ? nextLabel
+                : undefined,
+        })}
+        getItemProps={(pageNumber) => ({
+          'aria-label': pageLabel(pageNumber, page),
+        })}
+        onChange={onChange}
+        siblings={1}
+        total={total}
+        value={page}
+        withPages={!isCompact}
+        {...props}
+      />
+    </Group>
+  )
+}
+
+function getDefaultPageLabel(pageNumber: number, currentPage: number) {
+  return pageNumber === currentPage
+    ? `Страница ${pageNumber}, текущая`
+    : `Страница ${pageNumber}`
+}
+
+type ClientAvatarProps = Omit<
+  MantineAvatarProps,
+  'children' | 'name' | 'src'
+> & {
+  name: string
+  src?: string | null
+  ariaLabel?: string
+  onError?: ComponentPropsWithoutRef<'div'>['onError']
+}
+
+export function ClientAvatar({
+  ariaLabel,
+  name,
+  onError,
+  src,
+  ...props
+}: ClientAvatarProps) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
+  const resolvedSrc = src && failedSrc !== src ? src : undefined
+  const initials = getInitials(name)
+
+  return (
+    <MantineAvatar
+      aria-label={ariaLabel ?? name}
+      alt={ariaLabel ?? name}
+      name={name}
+      onError={(event) => {
+        if (src) {
+          setFailedSrc(src)
+        }
+
+        onError?.(event)
+      }}
+      src={resolvedSrc}
+      {...props}
+    >
+      {initials}
+    </MantineAvatar>
+  )
+}
+
+function getInitials(name: string) {
+  const parts = name
+    .trim()
+    .split(/\s+/u)
+    .map((part) => part.replace(/[^\p{L}\p{N}]/gu, ''))
+    .filter(Boolean)
+
+  if (parts.length === 0) {
+    return '?'
+  }
+
+  const initialsSource =
+    parts.length === 1
+      ? parts[0].slice(0, 2)
+      : `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`
+
+  return initialsSource.toLocaleUpperCase('ru-RU')
+}
+
 type LoadingStateProps = {
+  description?: string
   label?: string
 }
 
-export function LoadingState({ label = 'Загружаем данные...' }: LoadingStateProps) {
+export function LoadingState({
+  description,
+  label = 'Загружаем данные...',
+}: LoadingStateProps) {
   return (
     <Group
       aria-busy="true"
       aria-live="polite"
       className="state-panel state-panel--loading"
+      data-crm-progress-state="loading"
       justify="center"
       role="status"
     >
       <Loader />
-      <Text c="dimmed" fw={600} size="sm">
-        {label}
-      </Text>
+      <Stack gap={2}>
+        <Text c="dimmed" fw={600} size="sm">
+          {label}
+        </Text>
+        {description ? (
+          <Text c="dimmed" size="sm">
+            {description}
+          </Text>
+        ) : null}
+      </Stack>
     </Group>
   )
 }
@@ -838,11 +998,13 @@ export function Skeleton({
   ...props
 }: SkeletonProps) {
   if (rows === undefined && Object.keys(props).length > 0) {
-    return <MantineSkeleton className={className} {...props} />
+    return <MantineSkeleton aria-hidden="true" className={className} {...props} />
   }
 
+  const dataTestId = (props as { 'data-testid'?: string })['data-testid']
+
   return (
-    <Stack className={className} gap={gap}>
+    <Stack aria-hidden="true" className={className} data-testid={dataTestId} gap={gap}>
       {Array.from({ length: rows ?? 3 }, (_, index) => (
         <MantineSkeleton
           className="skeleton-row"

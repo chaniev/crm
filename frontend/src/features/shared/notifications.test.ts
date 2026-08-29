@@ -1,3 +1,4 @@
+import { isValidElement } from 'react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 const notificationsMock = vi.hoisted(() => ({
@@ -52,6 +53,37 @@ describe('showAppNotification', () => {
       title: 'Критичное уведомление',
       message: 'Требует ручного закрытия.',
     })
+  })
+
+  test('keeps contextual action notifications persistent and keyboard reachable', () => {
+    const retry = vi.fn()
+
+    showAppNotification({
+      action: {
+        label: 'Повторить',
+        onClick: retry,
+      },
+      message: 'Сервер не ответил.',
+      persistent: true,
+      title: 'Не удалось сохранить',
+      tone: 'danger',
+    })
+
+    const payload = notificationsMock.show.mock.calls[0]?.[0]
+
+    expect(payload).toMatchObject({
+      'aria-live': 'assertive',
+      autoClose: false,
+      color: 'var(--crm-status-danger-fg)',
+      role: 'alert',
+      title: 'Не удалось сохранить',
+    })
+    expect(isValidElement(payload.message)).toBe(true)
+    const actionContainer = payload.message.props.children[1]
+    expect(actionContainer.props.children).toBe('Повторить')
+    expect(actionContainer.props.type).toBe('button')
+    actionContainer.props.onClick()
+    expect(retry).toHaveBeenCalledTimes(1)
   })
 
   test('maps semantic tones to shared functional status variables', () => {

@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Group, Loader } from '@mantine/core'
+import { Alert, Button } from '@mantine/core'
 import { IconAlertCircle, IconArrowLeft } from '@tabler/icons-react'
 import {
   ApiError,
@@ -14,7 +14,7 @@ import {
   type ClientDetails,
   type TrainingGroupListItem,
 } from '../../lib/api'
-import { PageLayout, PageSection } from '../shared/ux'
+import { LoadingState, PageLayout, PageSection } from '../shared/ux'
 import { showAppNotification } from '../shared/notifications'
 import {
   clientFieldErrorAliases,
@@ -155,9 +155,10 @@ export function ClientEditScreen({
 
       {loading ? (
         <PageSection>
-          <Group justify="center" py="xl">
-            <Loader color="var(--crm-action-primary)" />
-          </Group>
+          <LoadingState
+            description="Поля станут доступны после загрузки карточки и справочников."
+            label="Загружаем карточку клиента..."
+          />
         </PageSection>
       ) : null}
 

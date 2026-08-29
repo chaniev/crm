@@ -30,6 +30,15 @@ body {
   right: calc(var(--mantine-spacing-md) + env(safe-area-inset-right, 0px));
 }
 
+.app-notification__content {
+  display: grid;
+  gap: var(--mantine-spacing-xs);
+}
+
+.app-notification__action {
+  justify-self: start;
+}
+
 button,
 input,
 textarea,

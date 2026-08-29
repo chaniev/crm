@@ -1,6 +1,7 @@
-import { Avatar, Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
+import { Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
 import { IconUserCircle } from '@tabler/icons-react'
 import { buildClientPhotoUrl, type AttendanceState } from '../../lib/api'
+import { ClientAvatar } from '../shared/ux'
 import { AttendanceSaveStatus } from './AttendanceSaveStatus'
 import { AttendanceStateControl } from './AttendanceStateControl'
 import type { AttendanceClientRowState } from './types'
@@ -45,7 +46,7 @@ export function AttendanceClientRow({
     >
       <div className="attendance-client-row">
         <Group align="flex-start" className="attendance-client-identity" gap="md" wrap="nowrap">
-          <Avatar
+          <ClientAvatar
             className="attendance-client-avatar"
             name={client.fullName}
             radius="xl"

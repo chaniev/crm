@@ -5,7 +5,9 @@ import type { AppSection } from '../../lib/api'
 import { renderWithProviders } from '../../test/render'
 import {
   AppLayout,
+  AppPagination,
   Button,
+  ClientAvatar,
   EntityLocatorBar,
   ActiveFiltersBar,
   ListRangeStatus,
@@ -193,6 +195,83 @@ describe('shared UX components', () => {
     )
 
     expect(screen.getAllByRole('heading', { hidden: true, level: 1, name: 'Нет доступа' })).toHaveLength(1)
+  })
+
+  test('AppPagination exposes navigation labels and current page state', () => {
+    const onChange = vi.fn()
+
+    renderWithProviders(
+      <AppPagination
+        label="Страницы журнала действий"
+        onChange={onChange}
+        page={2}
+        pageLabel={(pageNumber, currentPage) =>
+          pageNumber === currentPage
+            ? `Страница ${pageNumber} журнала, текущая`
+            : `Страница ${pageNumber} журнала`
+        }
+        summary="21-40 из 65"
+        total={4}
+      />,
+    )
+
+    expect(
+      screen.getByRole('navigation', { name: 'Страницы журнала действий' }),
+    ).toBeVisible()
+    expect(screen.getByText('21-40 из 65')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Назад' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Дальше' })).toBeEnabled()
+    expect(
+      screen.getByRole('button', { name: 'Страница 2 журнала, текущая' }),
+    ).toHaveAttribute('aria-current', 'page')
+  })
+
+  test('AppPagination does not render single-page navigation', () => {
+    renderWithProviders(
+      <AppPagination
+        label="Страницы списка групп"
+        onChange={() => undefined}
+        page={1}
+        total={1}
+      />,
+    )
+
+    expect(
+      screen.queryByRole('navigation', { name: 'Страницы списка групп' }),
+    ).not.toBeInTheDocument()
+  })
+
+  test('ClientAvatar falls back to sanitized initials after image failure', () => {
+    renderWithProviders(
+      <ClientAvatar
+        name="Анна Петрова"
+        radius="xl"
+        src="/broken-client-photo.jpg"
+      />,
+    )
+
+    const image = screen.getByRole('img', { name: 'Анна Петрова' })
+    fireEvent.error(image)
+
+    expect(screen.queryByRole('img', { name: 'Анна Петрова' })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Анна Петрова')).toHaveTextContent('АП')
+  })
+
+  test('LoadingState exposes static status copy and Skeleton stays decorative', () => {
+    renderWithProviders(
+      <>
+        <LoadingState
+          description="Форма появится после загрузки справочников."
+          label="Готовим форму..."
+        />
+        <Skeleton data-testid="shared-skeleton" rows={2} />
+      </>,
+    )
+
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByText('Готовим форму...')).toBeVisible()
+    expect(screen.getByText('Форма появится после загрузки справочников.')).toBeVisible()
+    expect(screen.getByTestId('shared-skeleton')).toHaveAttribute('aria-hidden', 'true')
   })
 
   test('MobileBottomNavigation surfaces overflow via drawer and keeps active route semantics', async () => {

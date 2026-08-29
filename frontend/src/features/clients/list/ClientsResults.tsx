@@ -1,6 +1,5 @@
 import { useEffect, useSyncExternalStore } from 'react'
 import {
-  Avatar,
   Badge,
   Group,
   Paper,
@@ -15,6 +14,7 @@ import {
 } from '@tabler/icons-react'
 import {
   Button,
+  ClientAvatar,
   EmptyState,
   ErrorState,
   ListRangeStatus,
@@ -227,7 +227,7 @@ export function ClientsResults({
           >
             {isCompactLayout ? (
               <>
-                <Avatar
+                <ClientAvatar
                   className="clients-v7-mobile-card__avatar"
                   name={compactCard.fullName}
                   radius="xl"
@@ -275,7 +275,7 @@ export function ClientsResults({
             ) : (
               <>
                 <Group className="clients-v7-row__client" gap="sm" wrap="nowrap">
-                  <Avatar name={client.fullName} radius="xl" src={row.photoUrl} />
+                  <ClientAvatar name={client.fullName} radius="xl" src={row.photoUrl} />
                   <div>
                     <Text className="clients-v7-row__primary" fw={700}>
                       {client.fullName}

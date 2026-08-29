@@ -4,7 +4,6 @@ import {
   Badge,
   Drawer,
   Group,
-  Pagination,
   Select,
   Stack,
   Switch,
@@ -21,6 +20,7 @@ import type { TrainingGroupListItem } from '../../lib/api'
 import { formatGroupSchedule } from '../../lib/groupSchedule'
 import {
   ActiveFiltersBar,
+  AppPagination,
   Button,
   EntityLocatorBar,
   EmptyState,
@@ -338,32 +338,14 @@ export function GroupsListScreen({
                   ))}
                 </div>
 
-                <div
-                  aria-label="Страницы списка групп"
+                <AppPagination
                   className="groups-list-pagination"
-                  role="navigation"
-                >
-                  <Pagination
-                    disabled={state.loading}
-                    getControlProps={(control) => ({
-                      'aria-label':
-                        control === 'previous'
-                          ? 'Назад'
-                          : control === 'next'
-                            ? 'Дальше'
-                            : undefined,
-                    })}
-                    getItemProps={(page) => ({
-                      'aria-label':
-                        page === state.page
-                          ? `Страница ${page}, текущая`
-                          : `Страница ${page}`,
-                    })}
-                    onChange={state.goToPage}
-                    total={state.pageCount}
-                    value={state.page}
-                  />
-                </div>
+                  disabled={state.loading}
+                  label="Страницы списка групп"
+                  onChange={state.goToPage}
+                  page={state.page}
+                  total={state.pageCount}
+                />
               </>
             ) : null}
           </Stack>
@@ -463,4 +445,3 @@ function buildActiveGroupFilters(state: GroupsListState): ActiveFilter[] {
 
   return filters
 }
-
