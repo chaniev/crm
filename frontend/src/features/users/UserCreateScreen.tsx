@@ -22,7 +22,7 @@ import {
   ErrorState,
   PageLayout,
   PageSection,
-  ResponsiveButtonGroup,
+  StickyFormActions,
   SectionHeader,
 } from '../shared/ux'
 import { UserFormFields, UserCreateCredentialsFields, type CreateUserFormValues } from './UserFormFields'
@@ -135,18 +135,18 @@ export function UserCreateScreen({
                 showRoleField={false}
               />
 
-              <ResponsiveButtonGroup justify="space-between">
-                <Button onClick={onCancel} variant="subtle">
+              <StickyFormActions
+                secondaryAction={<Button onClick={onCancel} type="button" variant="subtle">
                   {resources.common.actions.cancel}
-                </Button>
-                <Button
+                </Button>}
+                primaryAction={<Button
                   leftSection={<IconDeviceFloppy size={18} />}
                   loading={submitting}
                   type="submit"
                 >
                   {resources.users.create.submit}
-                </Button>
-              </ResponsiveButtonGroup>
+                </Button>}
+              />
             </Stack>
           </form>
         </Stack>

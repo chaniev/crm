@@ -88,3 +88,23 @@ Primary CTA формы требует дотягивания в верхний �
 - Duplicate check: активных задач по формам нет; TASK-016/018/019/021 касаются
   карточки клиента, не CTA-раскладки форм.
 - Classification: `tasks-ready`; REQ-NFR-001 `принято`, `constrains`.
+
+## Implementation evidence
+- Добавлен единый `StickyFormActions`: на мобильных route-формах он фиксирован
+  над нижней навигацией с safe-area и слоем sticky action bar, в drawer остаётся
+  sticky внутри временной поверхности; primary занимает доминантную колонку и
+  все действия имеют высоту не менее 44px.
+- Shared-паттерн применён к create/edit клиента, группы и тренера, к
+  create/edit/move занятия и series edit без изменения submit, preview/execute,
+  ProblemDetails, duplicate-submit или focus-контрактов.
+- RED→GREEN: component-тест сначала падал из-за отсутствующего export;
+  после реализации весь frontend check зелёный — 72 test files / 646 tests,
+  raw color/spacing scanners, lint, typecheck и production build.
+- Chromium 390px: group-create primary/secondary видимы без скролла, bar не
+  пересекает mobile navigation, preview/execute flow зелёный.
+- WebKit target iPhone 420x912 и 440x956: one-off drawer и trainer edit sticky
+  CTA видимы, touch-height ≥44px, submit/preview flows зелёные — 4/4.
+- `npm audit --audit-level=high`: 0 vulnerabilities; requirements и agent
+  instructions validators зелёные.
+- Реальная iOS soft-keyboard/Dynamic Island остаются ручной стендовой
+  проверкой; автоматизированы portrait и compact-landscape контракты.

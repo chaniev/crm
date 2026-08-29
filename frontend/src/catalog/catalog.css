@@ -192,9 +192,17 @@ body {
 .catalog-surface-example {
   min-width: 0;
   display: grid;
-  gap: 0.35rem;
+  gap: var(--crm-space-1, 4px);
   padding: 1rem;
   color: var(--crm-text-primary);
+}
+
+.catalog-sticky-form-actions .sticky-form-actions-slot--page {
+  min-height: 0;
+}
+
+.catalog-sticky-form-actions .sticky-form-actions--page {
+  position: static;
 }
 
 .catalog-surface-example--list-row {

@@ -27,6 +27,7 @@ import {
   formatScheduleActionUnavailableReason,
   formatScheduleProblemCode,
 } from './scheduleActionReasons'
+import { StickyFormActions } from '../shared/ux'
 
 type ScheduleLessonChangeDrawerProps = {
   hallOptions: Array<{ value: string; label: string }>
@@ -358,8 +359,10 @@ export function ScheduleLessonChangeForm({
             </Paper>
           ) : null}
 
-          <Group className={footerClassName} grow>
-            {preview ? (
+          <StickyFormActions
+            className={footerClassName}
+            surface={footerClassName?.includes('drawer') ? 'drawer' : 'page'}
+            primaryAction={preview ? (
               <Button
                 leftSection={<IconEdit size={18} />}
                 loading={submitting === 'execute'}
@@ -377,10 +380,10 @@ export function ScheduleLessonChangeForm({
                 {formError ? 'Обновить предпросмотр' : 'Получить предпросмотр'}
               </Button>
             )}
-            <Button disabled={pending} onClick={cancel} type="button" variant="light">
+            secondaryAction={<Button disabled={pending} onClick={cancel} type="button" variant="light">
               Отмена
-            </Button>
-          </Group>
+            </Button>}
+          />
         </Stack>
       </form>
   )

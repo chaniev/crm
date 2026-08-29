@@ -1032,4 +1032,5 @@ export {
   TaskToolbarRefreshAction,
 } from './TaskToolbarActions'
 export { TaskItem, type TaskItemInteraction } from './TaskItem'
+export { StickyFormActions } from './StickyFormActions'
 export { TemporarySurfaceFooter } from './TemporarySurfaceFooter'

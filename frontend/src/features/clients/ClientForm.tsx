@@ -4,7 +4,7 @@ import { ActionIcon, Alert, Button, Group, MultiSelect, Paper, Select, SimpleGri
 import { type UseFormReturnType } from '@mantine/form'
 import { IconAlertCircle, IconDeviceFloppy, IconPlus, IconTrash } from '@tabler/icons-react'
 import type { Branch, TrainingGroupListItem } from '../../lib/api'
-import { ResponsiveButtonGroup } from '../shared/ux'
+import { StickyFormActions } from '../shared/ux'
 import {
   createEmptyContact,
   maxContacts,
@@ -246,20 +246,20 @@ export function ClientForm({
           </Stack>
         </Paper>
 
-        <ResponsiveButtonGroup justify={cancelAction ? 'space-between' : 'flex-end'}>
-          {cancelAction ? (
+        <StickyFormActions
+          secondaryAction={cancelAction ? (
             <Button onClick={cancelAction.onClick} type="button" variant="subtle">
               {cancelAction.label}
             </Button>
-          ) : null}
-          <Button
+          ) : undefined}
+          primaryAction={<Button
             leftSection={<IconDeviceFloppy size={18} />}
             loading={submitting}
             type="submit"
           >
             {submitLabel}
-          </Button>
-        </ResponsiveButtonGroup>
+          </Button>}
+        />
       </Stack>
     </form>
   )

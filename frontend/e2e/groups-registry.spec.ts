@@ -450,12 +450,25 @@ test('Группы: создание выполняется через preview i
   await page.getByRole('button', { name: 'Новая группа' }).click()
 
   await expect(page.getByRole('heading', { name: 'Новая группа' })).toBeVisible()
+  const stickyActions = page.locator('.sticky-form-actions--page')
+  const primaryAction = stickyActions.getByRole('button', { name: 'Получить предпросмотр' })
+  const secondaryAction = stickyActions.getByRole('button', { name: 'Отменить' })
+  await expect(primaryAction).toBeInViewport()
+  await expect(secondaryAction).toBeInViewport()
+  const [stickyBox, navigationBox] = await Promise.all([
+    stickyActions.boundingBox(),
+    page.getByTestId('mobile-bottom-navigation').boundingBox(),
+  ])
+  expect(stickyBox).not.toBeNull()
+  expect(navigationBox).not.toBeNull()
+  expect(stickyBox!.height).toBeGreaterThanOrEqual(60)
+  expect(stickyBox!.y + stickyBox!.height).toBeLessThanOrEqual(navigationBox!.y + 1)
   await page.getByRole('textbox', { name: 'Название группы' }).fill('Новая серия')
   await page.getByLabel('Время начала').fill('10:00')
   await page.getByLabel('Длительность').fill('60')
   await page.getByRole('checkbox', { name: 'Пн' }).click()
   await page.getByLabel('Начало расписания').fill('2026-09-01')
-  await page.getByRole('button', { name: 'Получить предпросмотр' }).click()
+  await primaryAction.click()
 
   await expect.poll(() => counters.lastPreviewPayload).toEqual({
     name: 'Новая серия',

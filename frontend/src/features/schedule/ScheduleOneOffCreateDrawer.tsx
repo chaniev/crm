@@ -22,6 +22,7 @@ import {
   type ScheduleOneOffLessonRequest,
 } from '../../lib/api'
 import { formatScheduleProblemCode } from './scheduleActionReasons'
+import { StickyFormActions } from '../shared/ux'
 
 type ScheduleOneOffCreateDrawerProps = {
   defaultDate: string
@@ -342,8 +343,10 @@ export function ScheduleOneOffCreateForm({
             </Paper>
           ) : null}
 
-          <Group className={footerClassName} grow>
-            {preview ? (
+          <StickyFormActions
+            className={footerClassName}
+            surface={footerClassName?.includes('drawer') ? 'drawer' : 'page'}
+            primaryAction={preview ? (
               <Button
                 leftSection={<IconCalendarPlus size={18} />}
                 loading={submitting === 'execute'}
@@ -361,10 +364,10 @@ export function ScheduleOneOffCreateForm({
                 {formError ? 'Обновить предпросмотр' : 'Получить предпросмотр'}
               </Button>
             )}
-            <Button disabled={pending} onClick={cancel} type="button" variant="light">
+            secondaryAction={<Button disabled={pending} onClick={cancel} type="button" variant="light">
               Отмена
-            </Button>
-          </Group>
+            </Button>}
+          />
         </Stack>
       </form>
   )

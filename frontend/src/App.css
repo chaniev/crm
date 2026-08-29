@@ -1347,6 +1347,67 @@
   background: var(--crm-surface-card);
 }
 
+.sticky-form-actions-slot {
+  min-width: 0;
+}
+
+.sticky-form-actions {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: var(--crm-space-2, 8px);
+}
+
+.sticky-form-actions__primary,
+.sticky-form-actions__secondary {
+  min-width: 0;
+}
+
+.sticky-form-actions :where(button, a) {
+  min-height: 44px;
+}
+
+@media (max-width: 48rem), (max-height: 30rem) and (hover: none), (max-height: 30rem) and (pointer: coarse) {
+  .sticky-form-actions-slot--page {
+    min-height: 68px;
+  }
+
+  .sticky-form-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+    padding: var(--crm-space-2, 8px) var(--crm-space-4, 16px);
+    border-top: 1px solid var(--crm-border-default);
+    background: var(--crm-surface-card-alpha-96);
+    box-shadow: var(--crm-elevation-bottom-surface);
+    backdrop-filter: blur(14px);
+  }
+
+  .sticky-form-actions--page {
+    position: fixed;
+    z-index: var(--crm-layer-sticky-action-bar);
+    inset-inline: 0;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sticky-form-actions--drawer {
+    position: sticky;
+    z-index: var(--crm-layer-sticky-action-bar);
+    inset-inline: 0;
+    bottom: 0;
+    margin-inline: calc(-1 * var(--crm-space-4, 16px));
+    padding-bottom: calc(var(--crm-space-2, 8px) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sticky-form-actions:not(:has(.sticky-form-actions__secondary)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sticky-form-actions__primary :where(button, a),
+  .sticky-form-actions__secondary :where(button, a) {
+    width: 100%;
+  }
+}
+
 .temporary-surface-close {
   min-width: 44px;
   min-height: 44px;

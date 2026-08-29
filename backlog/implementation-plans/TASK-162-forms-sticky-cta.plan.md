@@ -61,3 +61,12 @@
 ## Risks and stop conditions
 - Если конкретная форма не может принять shared-бар без перекомпоновки полей — остановиться на этой форме и зафиксировать; не форсировать layout-изменения полей (out of scope).
 - Не менять duplicate-submit/validation логику ради видимости кнопки; конфликт — стоп и запись в задаче.
+
+## Implementation result
+- Slices 1–4 выполнены: RED component evidence зафиксирован, shared-компонент
+  добавлен в production inventory/catalog и применён ко всем формам scope.
+- Desktop сохраняет существующее расположение действия в конце формы; mobile
+  route использует fixed thumb-zone над nav, mobile drawer — sticky footer.
+- Проверки: frontend check 646/646, Chromium group create, WebKit target iPhone
+  4/4, audit 0, registry/instructions validators pass.
+- Остаточная ручная проверка: физический Safari с открытой soft-клавиатурой.

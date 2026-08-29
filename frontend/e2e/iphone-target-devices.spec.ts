@@ -1240,6 +1240,8 @@ test('target iPhone creates one-off lesson through preview and opens exact detai
 
   const createButton = createDialog.getByRole('button', { name: 'Создать занятие' })
   const cancelButton = createDialog.getByRole('button', { name: 'Отмена' })
+  await expect(createButton).toBeInViewport()
+  await expect(cancelButton).toBeInViewport()
   const createBox = await createButton.boundingBox()
   const cancelBox = await cancelButton.boundingBox()
   expect(createBox).not.toBeNull()
@@ -3827,7 +3829,17 @@ test('целевые iPhone-профили сохраняют единствен
   await expect(routeReturn).toHaveCount(1)
   await expect(page.getByRole('button', { exact: true, name: 'К списку' })).toHaveCount(0)
   await expect(submit).toBeVisible()
-  await submit.scrollIntoViewIfNeeded()
+  await expect(submit).toBeInViewport()
+  const stickyActions = page.locator('.sticky-form-actions--page')
+  const navigation = page.getByTestId('mobile-bottom-navigation')
+  const [stickyGeometry, navigationGeometry] = await Promise.all([
+    stickyActions.boundingBox(),
+    navigation.boundingBox(),
+  ])
+  expect(stickyGeometry).not.toBeNull()
+  expect(navigationGeometry).not.toBeNull()
+  expect(stickyGeometry!.y + stickyGeometry!.height)
+    .toBeLessThanOrEqual(navigationGeometry!.y + 1)
   const submitGeometry = await submit.boundingBox()
   expect(submitGeometry).not.toBeNull()
   expect(submitGeometry!.height).toBeGreaterThanOrEqual(44)
