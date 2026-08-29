@@ -134,7 +134,7 @@ test.describe('Attention dashboard', () => {
     continueInitialLoad?.()
 
     await expect(page.getByTestId('attention-list')).toBeVisible()
-    await expect(page.getByTestId('attention-client-card-client-1')).toBeVisible()
+    await expect(page.getByTestId('attention-client-card-client-1:membership-1:sale-1')).toBeVisible()
     await expect(page.getByText('Иван Иванов')).toBeVisible()
     await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
     await expect(page.getByText('Осталось 1 день')).toBeVisible()
@@ -154,7 +154,13 @@ test.describe('Attention dashboard', () => {
 
       await fulfillJson(route, 200, {
         ...card,
-        reasons: [{ type: 'expiringMembership', expirationDate: '2026-07-21', daysUntilExpiration: 1 }],
+        reasons: [{
+          type: 'expiringMembership',
+          membershipId: 'membership-1',
+          saleId: 'sale-1',
+          expirationDate: '2026-07-21',
+          daysUntilExpiration: 1,
+        }],
       })
     })
 
@@ -169,7 +175,13 @@ test.describe('Attention dashboard', () => {
       'attention-list-title',
     )
     await expect(page.getByText('Пропущено подряд: 4')).toBeVisible()
-    await expect(page.getByRole('link', { name: /Telegram/ })).toHaveAttribute('target', '_blank')
+    const actionMenu = page.getByRole('button', { name: 'Другие действия для Иван Иванов' })
+    await actionMenu.click()
+    await expect(page.getByRole('menuitem', { name: /Открыть Telegram/ })).toHaveAttribute(
+      'target',
+      '_blank',
+    )
+    await page.keyboard.press('Escape')
 
     const action = page.getByRole('button', { name: 'Связались с Иван Иванов' })
     await action.click()
@@ -180,6 +192,62 @@ test.describe('Attention dashboard', () => {
     await expect(page.getByText('Пропущено подряд: 4')).toBeHidden()
     await expect(page.getByText('Осталось 1 день')).toBeVisible()
     await expectNoHorizontalScroll(page)
+  })
+
+  test('keeps dense rows, two control lines and one-tap secondary actions at mobile widths', async ({ page }) => {
+    const attentionItems = Array.from({ length: 6 }, (_, index) => attentionCard(index + 1))
+    await mockAttentionApi(page, { attentionItems })
+
+    for (const viewport of [
+      { width: 360, height: 780, minimumVisible: 4 },
+      { width: 390, height: 844, minimumVisible: 4 },
+      { width: 420, height: 912, minimumVisible: 5 },
+      { width: 440, height: 956, minimumVisible: 5 },
+    ]) {
+      await page.setViewportSize(viewport)
+      await page.goto('/attention')
+
+      const cards = page.locator('[data-testid^="attention-client-card-"]')
+      await expect(cards).toHaveCount(6)
+      const firstCard = cards.first()
+      const mobileNavigation = page.getByRole('navigation', { name: 'Мобильная навигация' })
+      const controls = page.locator('.attention-controls-row, .attention-list-status')
+
+      await expect(controls).toHaveCount(2)
+      await expect(firstCard).toHaveClass(/crm-list-row-surface/)
+      await expect(page.getByLabel('Всего клиентов: 6')).toBeVisible()
+      await expect(page.getByLabel('Просроченных абонементов: 0')).toBeVisible()
+
+      const navigationBox = await mobileNavigation.boundingBox()
+      expect(navigationBox).not.toBeNull()
+      const fullyVisibleCards = await cards.evaluateAll((elements, viewportBottom) =>
+        elements.filter((element) => {
+          const bounds = element.getBoundingClientRect()
+          return bounds.top >= 0 && bounds.bottom <= viewportBottom
+        }).length,
+      navigationBox!.y)
+      expect(fullyVisibleCards).toBeGreaterThanOrEqual(viewport.minimumVisible)
+
+      const cardBox = await firstCard.boundingBox()
+      expect(cardBox).not.toBeNull()
+      expect(cardBox!.height).toBeLessThanOrEqual(110)
+
+      const primaryActions = firstCard.locator('[data-crm-variant="primary"]')
+      await expect(primaryActions).toHaveCount(1)
+      const menuTrigger = firstCard.getByRole('button', { name: /Другие действия/ })
+      const triggerBox = await menuTrigger.boundingBox()
+      expect(triggerBox).not.toBeNull()
+      expect(triggerBox!.width).toBeGreaterThanOrEqual(44)
+      expect(triggerBox!.height).toBeGreaterThanOrEqual(44)
+
+      await menuTrigger.click()
+      await expect(page.getByRole('menuitem', { name: /Позвонить/ })).toBeVisible()
+      await expect(page.getByRole('menuitem', { name: /Открыть Telegram/ })).toBeVisible()
+      await expect(page.getByRole('menuitem', { name: /Открыть карточку/ })).toBeVisible()
+      await page.keyboard.press('Escape')
+      await expect(menuTrigger).toBeFocused()
+      await expectNoHorizontalScroll(page)
+    }
   })
 })
 
@@ -242,14 +310,16 @@ async function mockAttentionApi(page: Page, options: MockAttentionApiOptions) {
   })
 }
 
-function attentionCard() {
+function attentionCard(index = 1) {
   return {
-    clientId: 'client-1',
-    fullName: 'Иван Иванов',
-    phone: '+79990000000',
-    notes: 'Позвонить вечером',
-    telegramLink: 'https://t.me/ivan',
+    clientId: `client-${index}`,
+    fullName: index === 1 ? 'Иван Иванов' : `Клиент внимания ${index}`,
+    phone: `+7999000000${index}`,
+    notes: index === 1 ? 'Позвонить вечером' : `Комментарий клиента ${index}`,
+    telegramLink: `https://t.me/client${index}`,
     membership: {
+      membershipId: `membership-${index}`,
+      saleId: `sale-${index}`,
       behaviorKind: 'Term',
       membershipName: 'Месяц',
       expirationDate: '2026-07-21',
@@ -257,7 +327,13 @@ function attentionCard() {
     },
     reasons: [
       { type: 'missedTraining', missedCount: 4 },
-      { type: 'expiringMembership', expirationDate: '2026-07-21', daysUntilExpiration: 1 },
+      {
+        type: 'expiringMembership',
+        membershipId: `membership-${index}`,
+        saleId: `sale-${index}`,
+        expirationDate: '2026-07-21',
+        daysUntilExpiration: 1,
+      },
     ],
   }
 }
