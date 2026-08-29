@@ -75,6 +75,24 @@ and effects that compete with operational data do not fit the product.
 - Use spacing consistently to express containment and relationship; avoid
   nested cards used only to manufacture hierarchy.
 
+### Foundation scales
+
+- `src/theme/foundations.ts` owns the executable names for shared breakpoints,
+  spacing, radius, elevation, layer and motion aliases. CSS variables in
+  `App.css` may preserve legacy names only as compatibility aliases that point
+  back to the `--crm-*` foundation variables.
+- The mobile boundary remains the existing `48rem`/`48em` family. Do not add a
+  near-equivalent breakpoint spelling for the same shell transition.
+- App layers use named variables for underlay, base, raised, sticky action bars
+  and mobile navigation. New raw application z-index literals require a local
+  stacking-context reason before they are added.
+- Named elevations describe repeated surface roles. One-off shadows are allowed
+  only when they are tied to a specific component state and do not create a new
+  global elevation level.
+- Foundation changes are behavior-preserving by default: computed dimensions,
+  overflow, safe-area spacing and temporary-surface stacking must match before
+  and after unless a separate approved UI task changes them.
+
 ## Components and interaction
 
 - Use Mantine and the shared components in `src/features/shared` before creating
